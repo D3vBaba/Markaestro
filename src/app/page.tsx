@@ -1,65 +1,135 @@
-import Image from "next/image";
+import AppShell from "@/components/layout/AppShell";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Mail, MousePointerClick, TrendingUp, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
+import { DashboardOverviewChart } from "@/components/dashboard/OverviewChart";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <AppShell>
+      <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0 mb-8">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h2>
+          <p className="text-muted-foreground mt-1">Welcome back to Maerkestro.</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex items-center space-x-3">
+          <Button variant="outline" className="bg-background">Export</Button>
+          <Button>New Campaign</Button>
         </div>
-      </main>
-    </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Contacts</CardTitle>
+            <Users className="h-4 w-4 text-foreground opacity-70" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold tracking-tight">12,345</div>
+            <p className="text-xs text-muted-foreground flex items-center mt-2 font-medium">
+              <span className="text-emerald-600 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-sm mr-2">
+                <ArrowUpRight className="h-3 w-3 mr-0.5" /> 18%
+              </span>
+              vs last month
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Emails Sent</CardTitle>
+            <Mail className="h-4 w-4 text-foreground opacity-70" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold tracking-tight">45,231</div>
+            <p className="text-xs text-muted-foreground flex items-center mt-2 font-medium">
+              <span className="text-emerald-600 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-sm mr-2">
+                <ArrowUpRight className="h-3 w-3 mr-0.5" /> 20.1%
+              </span>
+              vs last month
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Open Rate</CardTitle>
+            <MousePointerClick className="h-4 w-4 text-foreground opacity-70" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold tracking-tight">24.5%</div>
+            <p className="text-xs text-muted-foreground flex items-center mt-2 font-medium">
+              <span className="text-rose-600 flex items-center bg-rose-50 px-1.5 py-0.5 rounded-sm mr-2">
+                <ArrowDownRight className="h-3 w-3 mr-0.5" /> 2%
+              </span>
+              vs last month
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Active Now</CardTitle>
+            <TrendingUp className="h-4 w-4 text-foreground opacity-70" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold tracking-tight">573</div>
+            <p className="text-xs text-muted-foreground flex items-center mt-2 font-medium">
+              <span className="text-emerald-600 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-sm mr-2">
+                <Activity className="h-3 w-3 mr-1" /> Live
+              </span>
+              +201 since last hour
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mt-6">
+        <Card className="col-span-4 shadow-sm">
+          <CardHeader>
+            <CardTitle>Overview</CardTitle>
+            <CardDescription>Email engagement statistics for the last 7 days.</CardDescription>
+          </CardHeader>
+          <CardContent className="pl-0">
+            <DashboardOverviewChart />
+          </CardContent>
+        </Card>
+        <Card className="col-span-3 shadow-sm">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Latest campaign interactions.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {[
+                { user: "Sarah Smith", action: "Opened", campaign: "Welcome Series #1", time: "2m ago", initials: "SS" },
+                { user: "Mike Johnson", action: "Clicked", campaign: "Product Update v2", time: "15m ago", initials: "MJ" },
+                { user: "Emily Davis", action: "Subscribed", campaign: "Organic Search", time: "1h ago", initials: "ED" },
+                { user: "Alex Wilson", action: "Bounced", campaign: "Re-engagement Flow", time: "2h ago", initials: "AW" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start justify-between group">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-9 w-9 border border-border bg-muted">
+                      <AvatarFallback className="text-xs font-medium text-foreground">{item.initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="grid gap-1">
+                      <p className="text-sm font-medium leading-none text-foreground">
+                        {item.user}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{item.campaign}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge variant="secondary" className="text-[10px] font-medium h-5 bg-muted text-foreground hover:bg-muted-foreground/10 border-0">
+                      {item.action}
+                    </Badge>
+                    <span className="text-[10px] text-muted-foreground">{item.time}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </AppShell>
   );
 }
