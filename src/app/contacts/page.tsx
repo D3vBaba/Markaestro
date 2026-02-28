@@ -32,13 +32,6 @@ import {
     SheetFooter,
     SheetClose
 } from "@/components/ui/sheet";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -51,6 +44,8 @@ import {
     UserPlus
 } from "lucide-react";
 import { mockContacts, Contact, ContactStatus } from "@/lib/mock-contacts";
+import PageHeader from "@/components/app/PageHeader";
+import MetricCard from "@/components/app/MetricCard";
 
 export default function ContactsPage() {
     const [searchTerm, setSearchTerm] = React.useState("");
@@ -89,17 +84,16 @@ export default function ContactsPage() {
         <AppShell>
             <div className="flex flex-col space-y-4 h-full">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Contacts</h2>
-                        <p className="text-muted-foreground mt-1">Manage your audience and leads.</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" className="bg-background">
-                            <Download className="mr-2 h-4 w-4" /> Export
-                        </Button>
+                <PageHeader
+                    title="Contacts"
+                    subtitle="Manage your audience and leads."
+                    action={<><Button variant="outline" className="bg-background"><Download className="mr-2 h-4 w-4" /> Export</Button><Sheet>
+                            <SheetTrigger asChild>
+                                <Button>
+                                    <Plus className="mr-2 h-4 w-4" /> Add Contact
+                                </Button>
+                            </SheetTrigger>
 
-                        <Sheet>
                             <SheetTrigger asChild>
                                 <Button>
                                     <Plus className="mr-2 h-4 w-4" /> Add Contact
@@ -127,15 +121,10 @@ export default function ContactsPage() {
                                     </div>
                                     <div className="grid gap-2">
                                         <label htmlFor="status" className="text-sm font-medium">Status</label>
-                                        <Select defaultValue="active">
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select status" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="active">Active</SelectItem>
-                                                <SelectItem value="pending">Pending</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <select defaultValue="active" className="h-9 rounded-md border border-input bg-background px-3 text-sm">
+                                            <option value="active">Active</option>
+                                            <option value="pending">Pending</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <SheetFooter>
@@ -144,10 +133,16 @@ export default function ContactsPage() {
                                     </SheetClose>
                                 </SheetFooter>
                             </SheetContent>
-                        </Sheet>
-                    </div>
-                </div>
+                        </Sheet></>}
+                />
 
+
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <MetricCard label="Total Contacts" value={String(mockContacts.length)} delta={12} />
+                    <MetricCard label="Active" value={String(mockContacts.filter(c=>c.status==="active").length)} delta={8} />
+                    <MetricCard label="Pending" value={String(mockContacts.filter(c=>c.status==="pending").length)} delta={-2} />
+                    <MetricCard label="Bounced + Unsub" value={String(mockContacts.filter(c=>["bounced","unsubscribed"].includes(c.status)).length)} delta={-5} />
+                </div>
                 {/* Filters */}
                 <div className="flex items-center gap-2 py-4">
                     <div className="relative flex-1 max-w-sm">
@@ -159,21 +154,20 @@ export default function ContactsPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-[180px]">
-                            <div className="flex items-center gap-2">
-                                <Filter className="h-4 w-4 text-muted-foreground" />
-                                <SelectValue placeholder="Status" />
-                            </div>
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="bounced">Bounced</SelectItem>
-                            <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2 border rounded-md px-3 h-9 w-[200px]">
+                        <Filter className="h-4 w-4 text-muted-foreground" />
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="bg-transparent text-sm outline-none w-full"
+                        >
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="bounced">Bounced</option>
+                            <option value="unsubscribed">Unsubscribed</option>
+                        </select>
+                    </div>
 
                     {selectedContacts.size > 0 && (
                         <Button variant="destructive" size="sm" className="ml-auto">
@@ -183,7 +177,7 @@ export default function ContactsPage() {
                 </div>
 
                 {/* Table */}
-                <div className="rounded-md border bg-card">
+                <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -267,8 +261,8 @@ export default function ContactsPage() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center">
-                                        No results.
+                                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                                        No contacts matched this filter.
                                     </TableCell>
                                 </TableRow>
                             )}

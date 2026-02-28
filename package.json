@@ -1,5 +1,5 @@
 {
-  "name": "maerkestro",
+  "name": "markaestro",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "firebase": "^12.9.0",
+    "firebase-admin": "^13.7.0",
     "next": "16.1.6",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",

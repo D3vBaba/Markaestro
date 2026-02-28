@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { navigation, currentUser } from "@/lib/mock-data";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { LayoutDashboard, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -11,15 +13,16 @@ import { Separator } from "@/components/ui/separator";
 
 export function Sidebar({ className }: { className?: string }) {
     const pathname = usePathname();
+    const { logout } = useAuth();
 
     return (
         <div className={cn("hidden lg:flex flex-col w-64 border-r border-border bg-sidebar h-screen sticky top-0", className)}>
             <div className="p-8">
                 <div className="flex items-center gap-3 font-semibold text-xl tracking-tight text-foreground">
-                    <div className="w-8 h-8 rounded-sm bg-primary flex items-center justify-center text-primary-foreground shadow-sm">
-                        <LayoutDashboard className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-md border bg-white flex items-center justify-center shadow-sm overflow-hidden p-1">
+                        <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="object-contain" />
                     </div>
-                    Maerkestro
+                    Markaestro
                 </div>
             </div>
 
@@ -55,7 +58,7 @@ export function Sidebar({ className }: { className?: string }) {
                         <p className="text-sm font-medium leading-none truncate">{currentUser.name}</p>
                         <p className="text-xs text-muted-foreground truncate pt-1">{currentUser.email}</p>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={logout}>
                         <LogOut className="w-3 h-3" />
                     </Button>
                 </div>

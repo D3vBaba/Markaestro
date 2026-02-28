@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Maerkestro | Premium Application Marketing",
-  description: "Automate your marketing with Maerkestro, the ethical and premium marketing engine.",
+  title: "Markaestro | Premium Application Marketing",
+  description: "Automate your marketing with Markaestro, the ethical and premium marketing engine.",
+  manifest: '/site.webmanifest',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
@@ -29,7 +40,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground selection:bg-black/10 selection:text-black`}
       >
         <TooltipProvider>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </TooltipProvider>
       </body>
     </html>
