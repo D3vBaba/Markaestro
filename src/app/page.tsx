@@ -1,12 +1,61 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Mail, MousePointerClick, TrendingUp, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
+import { Users, Mail, Workflow, Timer, ArrowUpRight, Activity } from "lucide-react";
 import { DashboardOverviewChart } from "@/components/dashboard/OverviewChart";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { apiGet } from "@/lib/api-client";
+import Link from "next/link";
+
+type DashboardMetrics = {
+  totalContacts: number;
+  activeContacts: number;
+  totalCampaigns: number;
+  activeCampaigns: number;
+  draftCampaigns: number;
+  totalAutomations: number;
+  enabledAutomations: number;
+  totalJobs: number;
+  enabledJobs: number;
+};
+
+type ActivityItem = {
+  id: string;
+  jobId: string;
+  status: string;
+  message: string;
+  startedAt: string;
+};
 
 export default function Home() {
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await apiGet<{
+          metrics: DashboardMetrics;
+          recentActivity: ActivityItem[];
+        }>("/api/dashboard");
+        if (res.ok) {
+          setMetrics(res.data.metrics);
+          setActivity(res.data.recentActivity || []);
+        }
+      } catch {
+        // silently fail — dashboard will show zeros
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const m = metrics;
+
   return (
     <AppShell>
       <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0 mb-8">
@@ -16,7 +65,7 @@ export default function Home() {
         </div>
         <div className="flex items-center space-x-3">
           <Button variant="outline" className="bg-background">Export</Button>
-          <Button>New Campaign</Button>
+          <Link href="/campaigns"><Button>New Campaign</Button></Link>
         </div>
       </div>
 
@@ -27,57 +76,65 @@ export default function Home() {
             <Users className="h-4 w-4 text-foreground opacity-70" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold tracking-tight">12,345</div>
+            <div className="text-3xl font-bold tracking-tight">
+              {loading ? "..." : (m?.totalContacts ?? 0).toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center mt-2 font-medium">
               <span className="text-emerald-600 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-sm mr-2">
-                <ArrowUpRight className="h-3 w-3 mr-0.5" /> 18%
+                <ArrowUpRight className="h-3 w-3 mr-0.5" /> {m?.activeContacts ?? 0} active
               </span>
-              vs last month
             </p>
           </CardContent>
         </Card>
+
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Emails Sent</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Campaigns</CardTitle>
             <Mail className="h-4 w-4 text-foreground opacity-70" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold tracking-tight">45,231</div>
+            <div className="text-3xl font-bold tracking-tight">
+              {loading ? "..." : (m?.totalCampaigns ?? 0)}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center mt-2 font-medium">
               <span className="text-emerald-600 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-sm mr-2">
-                <ArrowUpRight className="h-3 w-3 mr-0.5" /> 20.1%
+                {m?.activeCampaigns ?? 0} active
               </span>
-              vs last month
+              <span className="text-muted-foreground">{m?.draftCampaigns ?? 0} draft</span>
             </p>
           </CardContent>
         </Card>
+
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Open Rate</CardTitle>
-            <MousePointerClick className="h-4 w-4 text-foreground opacity-70" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Automations</CardTitle>
+            <Workflow className="h-4 w-4 text-foreground opacity-70" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold tracking-tight">24.5%</div>
+            <div className="text-3xl font-bold tracking-tight">
+              {loading ? "..." : (m?.totalAutomations ?? 0)}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center mt-2 font-medium">
-              <span className="text-rose-600 flex items-center bg-rose-50 px-1.5 py-0.5 rounded-sm mr-2">
-                <ArrowDownRight className="h-3 w-3 mr-0.5" /> 2%
+              <span className="text-emerald-600 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-sm mr-2">
+                {m?.enabledAutomations ?? 0} enabled
               </span>
-              vs last month
             </p>
           </CardContent>
         </Card>
+
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Now</CardTitle>
-            <TrendingUp className="h-4 w-4 text-foreground opacity-70" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Scheduled Jobs</CardTitle>
+            <Timer className="h-4 w-4 text-foreground opacity-70" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold tracking-tight">573</div>
+            <div className="text-3xl font-bold tracking-tight">
+              {loading ? "..." : (m?.totalJobs ?? 0)}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center mt-2 font-medium">
               <span className="text-emerald-600 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-sm mr-2">
-                <Activity className="h-3 w-3 mr-1" /> Live
+                <Activity className="h-3 w-3 mr-1" /> {m?.enabledJobs ?? 0} active
               </span>
-              +201 since last hour
             </p>
           </CardContent>
         </Card>
@@ -96,36 +153,43 @@ export default function Home() {
         <Card className="col-span-3 shadow-sm">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest campaign interactions.</CardDescription>
+            <CardDescription>Latest job executions and campaign events.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {[
-                { user: "Sarah Smith", action: "Opened", campaign: "Welcome Series #1", time: "2m ago", initials: "SS" },
-                { user: "Mike Johnson", action: "Clicked", campaign: "Product Update v2", time: "15m ago", initials: "MJ" },
-                { user: "Emily Davis", action: "Subscribed", campaign: "Organic Search", time: "1h ago", initials: "ED" },
-                { user: "Alex Wilson", action: "Bounced", campaign: "Re-engagement Flow", time: "2h ago", initials: "AW" },
-              ].map((item, i) => (
-                <div key={i} className="flex items-start justify-between group">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9 border border-border bg-muted">
-                      <AvatarFallback className="text-xs font-medium text-foreground">{item.initials}</AvatarFallback>
-                    </Avatar>
+              {activity.length > 0 ? (
+                activity.slice(0, 5).map((item) => (
+                  <div key={item.id} className="flex items-start justify-between group">
                     <div className="grid gap-1">
                       <p className="text-sm font-medium leading-none text-foreground">
-                        {item.user}
+                        {item.message}
                       </p>
-                      <p className="text-xs text-muted-foreground">{item.campaign}</p>
+                      <p className="text-xs text-muted-foreground">Job: {item.jobId}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <Badge
+                        variant="secondary"
+                        className={`text-[10px] font-medium h-5 border-0 ${
+                          item.status === "success"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : item.status === "failed"
+                            ? "bg-rose-50 text-rose-700"
+                            : "bg-muted text-foreground"
+                        }`}
+                      >
+                        {item.status}
+                      </Badge>
+                      <span className="text-[10px] text-muted-foreground">
+                        {item.startedAt ? new Date(item.startedAt).toLocaleString() : ""}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <Badge variant="secondary" className="text-[10px] font-medium h-5 bg-muted text-foreground hover:bg-muted-foreground/10 border-0">
-                      {item.action}
-                    </Badge>
-                    <span className="text-[10px] text-muted-foreground">{item.time}</span>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {loading ? "Loading..." : "No recent activity. Run a job to see results here."}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

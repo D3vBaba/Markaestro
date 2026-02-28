@@ -4,16 +4,25 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { navigation, currentUser } from "@/lib/mock-data";
+import { navigation } from "@/lib/nav";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { LayoutDashboard, LogOut } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOut } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 export function Sidebar({ className }: { className?: string }) {
     const pathname = usePathname();
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
+
+    const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
+    const email = user?.email || "";
+    const initials = displayName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
 
     return (
         <div className={cn("hidden lg:flex flex-col w-64 border-r border-border bg-sidebar h-screen sticky top-0", className)}>
@@ -51,12 +60,11 @@ export function Sidebar({ className }: { className?: string }) {
                 <Separator className="mb-4 bg-border" />
                 <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
                     <Avatar className="h-8 w-8 border border-border">
-                        <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                        <AvatarFallback>AM</AvatarFallback>
+                        <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium leading-none truncate">{currentUser.name}</p>
-                        <p className="text-xs text-muted-foreground truncate pt-1">{currentUser.email}</p>
+                        <p className="text-sm font-medium leading-none truncate">{displayName}</p>
+                        <p className="text-xs text-muted-foreground truncate pt-1">{email}</p>
                     </div>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={logout}>
                         <LogOut className="w-3 h-3" />

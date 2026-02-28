@@ -2,13 +2,13 @@ import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
-import { updateAutomationSchema } from '@/lib/schemas';
+import { updateProductSchema } from '@/lib/schemas';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
     const { id } = await params;
-    const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'automations')}/${id}`);
+    const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'products')}/${id}`);
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');
     return apiOk({ id, ...snap.data() });
@@ -22,9 +22,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const ctx = await requireContext(req);
     const { id } = await params;
     const body = await req.json();
-    const data = updateAutomationSchema.parse(body);
+    const data = updateProductSchema.parse(body);
 
-    const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'automations')}/${id}`);
+    const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'products')}/${id}`);
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');
 
@@ -44,7 +44,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   try {
     const ctx = await requireContext(req);
     const { id } = await params;
-    const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'automations')}/${id}`);
+    const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'products')}/${id}`);
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');
     await ref.delete();

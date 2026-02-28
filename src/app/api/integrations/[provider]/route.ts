@@ -1,51 +1,64 @@
-import { NextResponse } from 'next/server';
 import { requireContext } from '@/lib/server-auth';
 import { adminDb } from '@/lib/firebase-admin';
+import { requireAdmin } from '@/lib/rbac';
+import { apiError, apiOk } from '@/lib/api-response';
+import { resendIntegrationSchema, metaIntegrationSchema, integrationProviders } from '@/lib/schemas';
+import { encrypt } from '@/lib/crypto';
 
-const ALLOWED = new Set(['resend','facebook','instagram','x']);
+const ALLOWED = new Set(integrationProviders);
 
-function sanitize(provider:string, body:any){
-  if(provider==='resend'){
+function buildPayload(provider: string, body: unknown) {
+  if (provider === 'resend') {
+    const data = resendIntegrationSchema.parse(body);
     return {
-      fromEmail: String(body.fromEmail||''),
-      apiKey: String(body.apiKey||''),
-      enabled: Boolean(body.enabled ?? true),
+      fromEmail: data.fromEmail,
+      apiKeyEncrypted: encrypt(data.apiKey),
+      enabled: data.enabled,
     };
   }
-  if(provider==='facebook' || provider==='instagram'){
+  if (provider === 'facebook' || provider === 'instagram') {
+    const data = metaIntegrationSchema.parse(body);
     return {
-      accessToken: String(body.accessToken||''),
-      adAccountId: String(body.adAccountId||''),
-      pageId: String(body.pageId||''),
-      igAccountId: String(body.igAccountId||''),
-      enabled: Boolean(body.enabled ?? true),
+      accessTokenEncrypted: encrypt(data.accessToken),
+      adAccountId: data.adAccountId,
+      pageId: data.pageId,
+      igAccountId: data.igAccountId,
+      enabled: data.enabled,
     };
   }
-  return { enabled:false, comingSoon:true };
-}
-
-function err(e:any){
-  const m=e?.message||'Internal error';
-  if(m==='UNAUTHENTICATED') return NextResponse.json({error:m},{status:401});
-  if(m==='FORBIDDEN_WORKSPACE') return NextResponse.json({error:m},{status:403});
-  if(m==='INVALID_PROVIDER') return NextResponse.json({error:m},{status:400});
-  return NextResponse.json({error:m},{status:500});
+  // X and others: coming soon
+  return { enabled: false, comingSoon: true };
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
-  try{
-    const ctx=await requireContext(req);
-    const {provider}=await params;
-    if(!ALLOWED.has(provider)) throw new Error('INVALID_PROVIDER');
-    const body=await req.json();
-    const payload={
+  try {
+    const ctx = await requireContext(req);
+    requireAdmin(ctx); // Only admins+ can configure integrations
+
+    const { provider } = await params;
+    if (!ALLOWED.has(provider as typeof integrationProviders[number])) {
+      throw new Error('INVALID_PROVIDER');
+    }
+
+    const body = await req.json();
+    const sanitized = buildPayload(provider, body);
+
+    const payload = {
       provider,
-      ...sanitize(provider, body),
-      updatedAt:new Date().toISOString(),
-      updatedBy:ctx.uid,
-      status: provider==='x' ? 'coming_soon' : 'connected',
+      ...sanitized,
+      updatedAt: new Date().toISOString(),
+      updatedBy: ctx.uid,
+      status: provider === 'x' ? 'coming_soon' : 'connected',
     };
-    await adminDb.doc(`workspaces/${ctx.workspaceId}/integrations/${provider}`).set(payload,{merge:true});
-    return NextResponse.json({ok:true,...payload});
-  }catch(e:any){return err(e)}
+
+    await adminDb
+      .doc(`workspaces/${ctx.workspaceId}/integrations/${provider}`)
+      .set(payload, { merge: true });
+
+    // Return without sensitive fields
+    const { apiKeyEncrypted, accessTokenEncrypted, ...safe } = payload as Record<string, unknown>;
+    return apiOk({ ok: true, ...safe });
+  } catch (error) {
+    return apiError(error);
+  }
 }

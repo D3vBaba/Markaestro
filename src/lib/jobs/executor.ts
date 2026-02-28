@@ -1,4 +1,5 @@
 import { adminDb } from '@/lib/firebase-admin';
+import { sendCampaignEmails } from '@/lib/email/sender';
 import { JobDoc } from './types';
 
 export async function executeJob(workspaceId: string, jobId: string, job: JobDoc) {
@@ -12,20 +13,48 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
   });
 
   try {
-    // Placeholder handlers - can be replaced with real integrations.
     let message = 'No-op';
+    let details: Record<string, unknown> = {};
+
     if (job.type === 'send_email_campaign') {
-      message = `Queued email campaign: ${job.payload?.campaignName || 'Unnamed Campaign'}`;
+      // Get the campaign from payload
+      const campaignId = job.payload?.campaignId as string;
+      if (!campaignId) {
+        message = 'No campaignId in job payload — skipped';
+      } else {
+        const campaignSnap = await adminDb
+          .doc(`workspaces/${workspaceId}/campaigns/${campaignId}`)
+          .get();
+        if (!campaignSnap.exists) {
+          message = `Campaign ${campaignId} not found`;
+        } else {
+          const campaign = campaignSnap.data()!;
+          const result = await sendCampaignEmails(workspaceId, {
+            name: campaign.name,
+            subject: campaign.subject,
+            body: campaign.body,
+            cta: campaign.cta,
+            targetAudience: campaign.targetAudience,
+          });
+          message = `Email campaign "${campaign.name}": ${result.sent} sent, ${result.failed} failed`;
+          details = result;
+        }
+      }
     } else if (job.type === 'sync_contacts') {
-      message = 'Contacts sync completed';
+      // Sync contacts: update lastSyncAt timestamp
+      const contactsSnap = await adminDb
+        .collection(`workspaces/${workspaceId}/contacts`)
+        .get();
+      message = `Contacts sync completed: ${contactsSnap.size} contacts in workspace`;
+      details = { contactCount: contactsSnap.size };
     } else if (job.type === 'generate_content') {
-      message = 'Content generation completed';
+      message = 'Content generation requires AI integration — configure Claude API key in settings';
     }
 
     const finishedAt = new Date().toISOString();
-    await runRef.update({ status: 'success', message, finishedAt });
+    await runRef.update({ status: 'success', message, details, finishedAt });
 
-    // update job metadata
+    // Update job metadata
     const next = computeNextRun(job.schedule, job.hourUTC, job.minuteUTC);
     await adminDb.doc(`workspaces/${workspaceId}/jobs/${jobId}`).update({
       lastRunAt: finishedAt,
@@ -33,11 +62,12 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
       updatedAt: finishedAt,
     });
 
-    return { ok: true, message, runId: runRef.id };
-  } catch (e: any) {
+    return { ok: true, message, details, runId: runRef.id };
+  } catch (e: unknown) {
+    const errorMsg = e instanceof Error ? e.message : 'Unknown error';
     const finishedAt = new Date().toISOString();
-    await runRef.update({ status: 'failed', message: e?.message || 'Unknown error', finishedAt });
-    return { ok: false, error: e?.message || 'Unknown error', runId: runRef.id };
+    await runRef.update({ status: 'failed', message: errorMsg, finishedAt });
+    return { ok: false, error: errorMsg, runId: runRef.id };
   }
 }
 

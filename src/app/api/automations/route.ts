@@ -1,23 +1,27 @@
-import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
-
-function errorResponse(error: any) {
-  const msg = error?.message || 'Internal error';
-  if (msg === 'UNAUTHENTICATED') return NextResponse.json({ error: msg }, { status: 401 });
-  if (msg === 'FORBIDDEN_WORKSPACE') return NextResponse.json({ error: msg }, { status: 403 });
-  return NextResponse.json({ error: msg }, { status: 500 });
-}
+import { apiError, apiOk, apiCreated } from '@/lib/api-response';
+import { createAutomationSchema, paginationSchema } from '@/lib/schemas';
 
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
-    const snapshot = await adminDb.collection(workspaceCollection(ctx.workspaceId, 'automations')).limit(50).get();
+    const url = new URL(req.url);
+    const { limit } = paginationSchema.parse({
+      limit: url.searchParams.get('limit') ?? 50,
+    });
+
+    const snapshot = await adminDb
+      .collection(workspaceCollection(ctx.workspaceId, 'automations'))
+      .orderBy('createdAt', 'desc')
+      .limit(limit)
+      .get();
+
     const automations = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    return NextResponse.json({ workspaceId: ctx.workspaceId, automations });
-  } catch (error: any) {
-    return errorResponse(error);
+    return apiOk({ workspaceId: ctx.workspaceId, automations, count: automations.length });
+  } catch (error) {
+    return apiError(error);
   }
 }
 
@@ -25,20 +29,23 @@ export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     const body = await req.json();
+    const data = createAutomationSchema.parse(body);
     const now = new Date().toISOString();
+
     const payload = {
+      ...data,
       workspaceId: ctx.workspaceId,
       createdBy: ctx.uid,
-      name: body.name ?? 'Untitled Automation',
-      enabled: Boolean(body.enabled),
-      triggerType: body.triggerType ?? 'manual',
-      config: body.config ?? {},
       createdAt: now,
       updatedAt: now,
     };
-    const ref = await adminDb.collection(workspaceCollection(ctx.workspaceId, 'automations')).add(payload);
-    return NextResponse.json({ id: ref.id, ...payload }, { status: 201 });
-  } catch (error: any) {
-    return errorResponse(error);
+
+    const ref = await adminDb
+      .collection(workspaceCollection(ctx.workspaceId, 'automations'))
+      .add(payload);
+
+    return apiCreated({ id: ref.id, ...payload });
+  } catch (error) {
+    return apiError(error);
   }
 }

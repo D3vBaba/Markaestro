@@ -11,6 +11,7 @@ import {
   signOut,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
+import { setTokenGetter } from '@/lib/api-client';
 
 type AuthCtx = {
   user: User | null;
@@ -29,6 +30,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Wire up the api-client token getter
+    setTokenGetter(async () => {
+      if (!auth.currentUser) return null;
+      return auth.currentUser.getIdToken();
+    });
+
     return onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
