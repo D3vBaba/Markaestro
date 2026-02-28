@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const data = generateSchema.parse(body);
 
     const result = await generateContent(data as ContentRequest);
-    return apiOk({ ...result, generatedBy: 'claude', requestedBy: ctx.uid });
+    return apiOk({ ...result, generatedBy: 'openai', requestedBy: ctx.uid });
   } catch (error) {
     return apiError(error);
   }
