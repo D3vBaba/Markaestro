@@ -178,13 +178,10 @@ async function uploadToFirebaseStorage(
     },
   });
 
-  // Generate a signed URL valid for 7 days
-  const [signedUrl] = await file.getSignedUrl({
-    action: 'read',
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-  });
-
-  return signedUrl;
+  // Make the file publicly readable and return a direct URL
+  await file.makePublic();
+  const bucketName = bucket.name;
+  return `https://storage.googleapis.com/${bucketName}/${filePath}`;
 }
 
 /**
