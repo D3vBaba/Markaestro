@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import OpenAI from 'openai';
 import type { BrandIdentity, BrandVoice, ImageStyle, ImageAspectRatio, ImageProvider } from '@/lib/schemas';
+import { fetchWithRetry } from '@/lib/fetch-retry';
 
 export type ImageGenRequest = {
   prompt: string;
@@ -19,27 +19,27 @@ export type ImageGenResult = {
 };
 
 /**
- * Build a prompt that incorporates brand identity elements.
+ * Build a prompt that incorporates brand identity and produces studio-quality images.
  */
 function buildBrandedPrompt(req: ImageGenRequest): string {
   const parts: string[] = [];
 
-  // Style instruction
+  // Style instruction with studio-quality photography direction
   const styleMap: Record<ImageStyle, string> = {
-    photorealistic: 'Create a photorealistic, high-quality photograph',
-    illustration: 'Create a modern digital illustration',
-    minimal: 'Create a clean, minimalist design',
-    abstract: 'Create an abstract, artistic composition',
-    branded: 'Create a professional branded marketing image',
+    photorealistic: 'Shot on iPhone 17 Pro Max, 48MP main camera, ProRAW. Ultra-realistic photograph with natural lighting, shallow depth of field, cinematic color grading. Studio-quality editorial image',
+    illustration: 'Premium digital illustration with rich detail, professional-grade vector art quality, vibrant colors, clean composition',
+    minimal: 'Clean minimalist design, elegant negative space, precise typography-friendly layout, premium aesthetic with subtle gradients',
+    abstract: 'High-end abstract composition with sophisticated color palette, artistic textures, dynamic visual flow, gallery-quality',
+    branded: 'Professional commercial photography, studio lighting setup, product-shot quality, advertising-grade image with premium feel',
   };
   parts.push(styleMap[req.style] || styleMap.branded);
 
   // Main prompt
-  parts.push(`for the following: ${req.prompt}`);
+  parts.push(`depicting: ${req.prompt}.`);
 
   // Product name
   if (req.productName) {
-    parts.push(`This is for the product "${req.productName}".`);
+    parts.push(`This is marketing content for "${req.productName}".`);
   }
 
   // Brand colors
@@ -49,40 +49,77 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
     if (req.brandIdentity.secondaryColor) colors.push(`secondary color ${req.brandIdentity.secondaryColor}`);
     if (req.brandIdentity.accentColor) colors.push(`accent color ${req.brandIdentity.accentColor}`);
     if (colors.length > 0) {
-      parts.push(`Use the brand color palette: ${colors.join(', ')}.`);
+      parts.push(`Incorporate the brand color palette: ${colors.join(', ')}.`);
     }
   }
 
   // Brand voice tone
   if (req.brandVoice?.tone) {
-    parts.push(`The visual tone should feel ${req.brandVoice.tone}.`);
+    parts.push(`The visual mood should convey a ${req.brandVoice.tone} feeling.`);
   }
 
-  // Aspect ratio
-  parts.push(`Aspect ratio: ${req.aspectRatio}.`);
-
-  // Quality
-  parts.push('High resolution, professional quality, suitable for social media marketing.');
+  // Quality boosters
+  parts.push('8K resolution, sharp focus, professional color correction, social media ready, high dynamic range, no artifacts, no watermarks.');
 
   return parts.join(' ');
 }
 
 /**
- * Generate image using Google Gemini Imagen 3.
- * Uses the text-to-image capability of the Gemini model.
+ * Generate image using Google Imagen 3 via the Generative Language API.
  */
 async function generateWithGemini(prompt: string, aspectRatio: ImageAspectRatio): Promise<{ base64: string; mimeType: string }> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
 
-  // Use Gemini generateContent with image generation via gemini-2.0-flash
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+  // Use Imagen 3 for dedicated high-quality image generation
+  const response = await fetchWithRetry(
+    `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        instances: [{ prompt }],
+        parameters: {
+          sampleCount: 1,
+          aspectRatio: aspectRatio.replace(':', ':'),
+          personGeneration: 'allow_all',
+          safetySetting: 'block_only_high',
+        },
+      }),
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const errorMsg = data.error?.message || JSON.stringify(data);
+    throw new Error(`Imagen 3 API error: ${errorMsg}`);
+  }
+
+  // Imagen 3 response format
+  const prediction = data.predictions?.[0];
+  if (!prediction?.bytesBase64Encoded) {
+    // Fallback: try Gemini multimodal image generation
+    return generateWithGeminiMultimodal(prompt, apiKey);
+  }
+
+  return {
+    base64: prediction.bytesBase64Encoded,
+    mimeType: prediction.mimeType || 'image/png',
+  };
+}
+
+/**
+ * Fallback: Generate image using Gemini multimodal model.
+ */
+async function generateWithGeminiMultimodal(prompt: string, apiKey: string): Promise<{ base64: string; mimeType: string }> {
+  const response = await fetchWithRetry(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: `Generate an image: ${prompt}` }] }],
         generationConfig: {
           responseModalities: ['TEXT', 'IMAGE'],
         },
@@ -96,7 +133,6 @@ async function generateWithGemini(prompt: string, aspectRatio: ImageAspectRatio)
     throw new Error(`Gemini API error: ${data.error?.message || JSON.stringify(data)}`);
   }
 
-  // Extract image from response parts
   const parts = data.candidates?.[0]?.content?.parts;
   if (!parts) {
     throw new Error('No content in Gemini response');
@@ -117,6 +153,7 @@ async function generateWithGemini(prompt: string, aspectRatio: ImageAspectRatio)
  * Generate image using OpenAI DALL-E 3.
  */
 async function generateWithOpenAI(prompt: string, aspectRatio: ImageAspectRatio): Promise<{ base64: string; mimeType: string; revisedPrompt?: string }> {
+  const OpenAI = (await import('openai')).default;
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error('OPENAI_API_KEY is not configured');
 
@@ -127,7 +164,7 @@ async function generateWithOpenAI(prompt: string, aspectRatio: ImageAspectRatio)
     '1:1': '1024x1024',
     '16:9': '1792x1024',
     '9:16': '1024x1792',
-    '4:5': '1024x1024', // DALL-E doesn't support 4:5, use square
+    '4:5': '1024x1024',
   };
 
   const response = await openai.images.generate({
@@ -136,7 +173,7 @@ async function generateWithOpenAI(prompt: string, aspectRatio: ImageAspectRatio)
     n: 1,
     size: sizeMap[aspectRatio],
     response_format: 'url',
-    quality: 'standard',
+    quality: 'hd',
   });
 
   const imageData = response.data?.[0];
@@ -144,8 +181,7 @@ async function generateWithOpenAI(prompt: string, aspectRatio: ImageAspectRatio)
     throw new Error('No image URL in OpenAI response');
   }
 
-  // Download the image and convert to base64 for Firebase Storage upload
-  const imgRes = await fetch(imageData.url);
+  const imgRes = await fetchWithRetry(imageData.url);
   if (!imgRes.ok) throw new Error('Failed to download image from OpenAI');
   const buffer = Buffer.from(await imgRes.arrayBuffer());
 
@@ -195,19 +231,17 @@ async function uploadToFirebaseStorage(
 
 /**
  * Generate an image using the specified provider, with fallback.
- * Tries Gemini first (if requested), falls back to OpenAI on error.
+ * Tries Gemini/Imagen 3 first (if requested), falls back to OpenAI on error.
  */
 export async function generateImage(req: ImageGenRequest): Promise<{ base64: string; mimeType: string; provider: ImageProvider; revisedPrompt?: string }> {
   const prompt = buildBrandedPrompt(req);
 
-  // Try primary provider
   if (req.provider === 'gemini') {
     try {
       const result = await generateWithGemini(prompt, req.aspectRatio);
       return { ...result, provider: 'gemini' };
     } catch (e) {
       console.error('Gemini image generation failed, falling back to OpenAI:', e);
-      // Fall through to OpenAI
     }
   }
 
