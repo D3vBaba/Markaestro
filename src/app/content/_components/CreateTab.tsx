@@ -168,7 +168,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="space-y-4">
         <ProductPicker value={productId} onChange={setProductId} />
-        <ChannelSelector value={channel} onChange={setChannel} />
+        <ChannelSelector value={channel} onChange={setChannel} productId={productId} />
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Content Type</label>

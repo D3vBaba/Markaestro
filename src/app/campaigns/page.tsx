@@ -10,7 +10,7 @@ import {
     Sheet, SheetContent, SheetDescription, SheetHeader,
     SheetTitle, SheetTrigger, SheetFooter, SheetClose,
 } from "@/components/ui/sheet";
-import { Plus, Trash2, Mail } from "lucide-react";
+import { Trash2, Mail } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
@@ -105,7 +105,7 @@ export default function CampaignsPage() {
         action={
           <Sheet>
             <SheetTrigger asChild>
-              <Button><Plus className="mr-2 h-4 w-4" /> New Campaign</Button>
+              <Button className="rounded-xl">New Campaign</Button>
             </SheetTrigger>
             <SheetContent>
               <SheetHeader>
@@ -147,20 +147,22 @@ export default function CampaignsPage() {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-28 rounded-xl border bg-muted/30 animate-pulse" />
+              <div key={i} className="h-28 rounded-2xl bg-muted/30 animate-pulse" />
             ))}
           </div>
         ) : campaigns.length === 0 ? (
-          <Card className="border">
+          <Card className="border-border/30">
             <CardContent className="py-16 text-center">
-              <Mail className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+              <div className="h-12 w-12 rounded-xl gradient-primary mx-auto mb-4 flex items-center justify-center shadow-md shadow-primary/15">
+                <Mail className="h-5 w-5 text-white" />
+              </div>
               <p className="text-base font-medium text-foreground">No campaigns yet</p>
               <p className="text-sm text-muted-foreground mt-1">Create your first campaign to get started.</p>
             </CardContent>
           </Card>
         ) : (
           campaigns.map((c) => (
-            <Card key={c.id} className="border transition-all duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.04)]">
+            <Card key={c.id} className="card-premium border-border/30">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>{c.name}</span>

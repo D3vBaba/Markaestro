@@ -98,7 +98,7 @@ export default function SettingsPage() {
 
       <div className="grid gap-5">
         {/* Google Ads */}
-        <Card className="border">
+        <Card className="border-border/30">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>

@@ -14,7 +14,7 @@ import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Workflow } from "lucide-react";
+import { Trash2, Workflow } from "lucide-react";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 
@@ -95,7 +95,7 @@ export default function AutomationsPage() {
         action={
           <Sheet>
             <SheetTrigger asChild>
-              <Button><Plus className="mr-2 h-4 w-4" /> New Automation</Button>
+              <Button className="rounded-xl">New Automation</Button>
             </SheetTrigger>
             <SheetContent>
               <SheetHeader>
@@ -125,7 +125,7 @@ export default function AutomationsPage() {
         }
       />
 
-      <Card className="border">
+      <Card className="border-border/30">
         <CardHeader>
           <CardTitle className="text-base font-semibold">Workflow Toggles</CardTitle>
         </CardHeader>
@@ -138,7 +138,9 @@ export default function AutomationsPage() {
             </div>
           ) : automations.length === 0 ? (
             <div className="py-8 text-center">
-              <Workflow className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+              <div className="h-12 w-12 rounded-xl gradient-primary mx-auto mb-4 flex items-center justify-center shadow-md shadow-primary/15">
+                <Workflow className="h-5 w-5 text-white" />
+              </div>
               <p className="text-sm text-muted-foreground">No automations yet. Create one to get started.</p>
             </div>
           ) : (

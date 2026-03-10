@@ -11,7 +11,7 @@ import {
     Sheet, SheetContent, SheetDescription, SheetHeader,
     SheetTitle, SheetTrigger, SheetFooter, SheetClose,
 } from "@/components/ui/sheet";
-import { Plus, Trash2, ExternalLink, Package, Pencil, Upload, X } from "lucide-react";
+import { Trash2, ExternalLink, Package, Pencil, Upload, X } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
@@ -484,7 +484,7 @@ export default function ProductsPage() {
         action={
           <Sheet>
             <SheetTrigger asChild>
-              <Button><Plus className="mr-2 h-4 w-4" /> Add Product</Button>
+              <Button className="rounded-xl">Add Product</Button>
             </SheetTrigger>
             <SheetContent>
               <SheetHeader>
@@ -532,20 +532,22 @@ export default function ProductsPage() {
         {loading ? (
           <div className="col-span-full grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-48 rounded-xl border bg-muted/30 animate-pulse" />
+              <div key={i} className="h-48 rounded-2xl bg-muted/30 animate-pulse" />
             ))}
           </div>
         ) : products.length === 0 ? (
-          <Card className="col-span-full border">
+          <Card className="col-span-full border-border/30">
             <CardContent className="py-16 text-center">
-              <Package className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+              <div className="h-12 w-12 rounded-xl gradient-primary mx-auto mb-4 flex items-center justify-center shadow-md shadow-primary/15">
+                <Package className="h-5 w-5 text-white" />
+              </div>
               <p className="text-base font-medium text-foreground">No products registered yet</p>
               <p className="text-sm text-muted-foreground mt-1">Add your first application to start tracking its marketing performance.</p>
             </CardContent>
           </Card>
         ) : (
           products.map((p) => (
-            <Card key={p.id} className="border transition-all duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.04)]">
+            <Card key={p.id} className="card-premium border-border/30">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3 min-w-0">

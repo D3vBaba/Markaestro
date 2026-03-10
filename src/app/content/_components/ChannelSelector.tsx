@@ -21,18 +21,39 @@ const channels = [
 export default function ChannelSelector({
   value,
   onChange,
+  productId,
 }: {
   value: string;
   onChange: (channel: string) => void;
+  productId?: string;
 }) {
   const [integrations, setIntegrations] = useState<IntegrationInfo[]>([]);
 
   useEffect(() => {
     (async () => {
+      // Fetch workspace-level integrations
       const res = await apiGet<{ integrations: IntegrationInfo[] }>("/api/integrations");
-      if (res.ok) setIntegrations(res.data.integrations || []);
+      let all = res.ok ? res.data.integrations || [] : [];
+
+      // Also fetch product-level integrations if a product is selected
+      if (productId) {
+        const prodRes = await apiGet<{ integrations: IntegrationInfo[] }>(
+          `/api/integrations?productId=${productId}`
+        );
+        if (prodRes.ok) {
+          const prodIntegrations = prodRes.data.integrations || [];
+          // Merge: product-level overrides workspace-level for the same provider
+          const merged = new Map(all.map((i) => [i.provider, i]));
+          for (const pi of prodIntegrations) {
+            merged.set(pi.provider, pi);
+          }
+          all = Array.from(merged.values());
+        }
+      }
+
+      setIntegrations(all);
     })();
-  }, []);
+  }, [productId]);
 
   const isConnected = (provider: string) => {
     // Check direct provider connection

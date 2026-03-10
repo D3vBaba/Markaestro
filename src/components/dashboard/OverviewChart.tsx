@@ -18,12 +18,12 @@ export function DashboardOverviewChart() {
             <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                     <linearGradient id="colorSent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--chart-1, #18181b)" stopOpacity={0.08} />
-                        <stop offset="95%" stopColor="var(--chart-1, #18181b)" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.15} />
+                        <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorOpened" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--chart-2, #71717a)" stopOpacity={0.08} />
-                        <stop offset="95%" stopColor="var(--chart-2, #71717a)" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#ec4899" stopOpacity={0.12} />
+                        <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
                     </linearGradient>
                 </defs>
                 <XAxis
@@ -47,8 +47,8 @@ export function DashboardOverviewChart() {
                     contentStyle={{
                         backgroundColor: "#ffffff",
                         borderColor: "#e4e4e7",
-                        borderRadius: "10px",
-                        boxShadow: "0 4px 12px rgb(0 0 0 / 0.06)",
+                        borderRadius: "12px",
+                        boxShadow: "0 8px 30px rgba(124, 58, 237, 0.08)",
                         color: "#18181b",
                         fontSize: "13px",
                     }}
@@ -57,19 +57,19 @@ export function DashboardOverviewChart() {
                 <Area
                     type="monotone"
                     dataKey="sent"
-                    stroke="#18181b"
+                    stroke="#7c3aed"
                     fillOpacity={1}
                     fill="url(#colorSent)"
-                    strokeWidth={1.5}
+                    strokeWidth={2}
                 />
                 <Area
                     type="monotone"
                     dataKey="opened"
-                    stroke="#71717a"
+                    stroke="#ec4899"
                     fillOpacity={1}
                     fill="url(#colorOpened)"
-                    strokeWidth={1.5}
-                    strokeDasharray="4 4"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
                 />
             </AreaChart>
         </ResponsiveContainer>

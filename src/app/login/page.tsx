@@ -7,8 +7,6 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Sparkles, ShieldCheck, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
@@ -45,7 +43,10 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(0,0,0,0.05),transparent_28%),radial-gradient(circle_at_80%_0%,rgba(0,0,0,0.03),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-0 gradient-mesh-strong" />
+      {/* Decorative gradient orbs */}
+      <div className="pointer-events-none absolute -top-32 left-1/4 w-96 h-96 rounded-full bg-primary/8 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-1/4 w-72 h-72 rounded-full bg-chart-2/6 blur-3xl" />
 
       <div className="relative mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 items-center gap-8 p-6 lg:grid-cols-2 lg:p-10">
         <motion.div
@@ -54,39 +55,45 @@ export default function LoginPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease }}
         >
-          <div className="mb-5 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg border bg-white p-1 shadow-sm">
-              <Image src="/markaestro-logo.jpg" alt="Markaestro logo" width={32} height={32} className="h-full w-full object-contain" />
+          <div className="mb-6 flex items-center gap-3">
+            <div className="h-11 w-11 rounded-xl gradient-primary p-1.5 shadow-lg shadow-primary/25">
+              <Image src="/markaestro-logo.jpg" alt="Markaestro logo" width={32} height={32} className="h-full w-full object-contain rounded-md" />
             </div>
-            <Badge variant="secondary">Markaestro Platform</Badge>
+            <span className="text-sm font-semibold text-primary tracking-wide">Markaestro Platform</span>
           </div>
-          <h1 className="text-4xl font-normal tracking-tight text-foreground font-[family-name:var(--font-display)]">Scale campaigns with precision.</h1>
-          <p className="mt-3 max-w-md text-muted-foreground">
+          <h1 className="text-4xl font-normal tracking-tight font-[family-name:var(--font-display)]">
+            Scale campaigns with <span className="gradient-text">precision.</span>
+          </h1>
+          <p className="mt-4 max-w-md text-muted-foreground leading-relaxed">
             Authenticate once, manage all growth workflows in one place, and launch campaigns faster with your team.
           </p>
 
-          <div className="mt-8 space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="rounded-lg border p-2"><TrendingUp className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold">Performance-first dashboard</p>
-                <p className="text-xs text-muted-foreground">Track campaign outcomes and channel efficiency in one view.</p>
+          <div className="mt-10 space-y-5">
+            {[
+              {
+                color: "bg-violet-500",
+                title: "Performance-first dashboard",
+                desc: "Track campaign outcomes and channel efficiency in one view.",
+              },
+              {
+                color: "bg-pink-500",
+                title: "Automation-ready workflows",
+                desc: "Move from drafts to scheduled campaigns with fewer manual steps.",
+              },
+              {
+                color: "bg-blue-500",
+                title: "Secure by default",
+                desc: "Workspace boundaries and authenticated access for your team.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="flex items-start gap-4">
+                <div className={`mt-1.5 w-2 h-2 rounded-full ${item.color} shrink-0`} />
+                <div>
+                  <p className="text-sm font-semibold">{item.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="rounded-lg border p-2"><Sparkles className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold">Automation-ready workflows</p>
-                <p className="text-xs text-muted-foreground">Move from drafts to scheduled campaigns with fewer manual steps.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="rounded-lg border p-2"><ShieldCheck className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold">Secure by default</p>
-                <p className="text-xs text-muted-foreground">Workspace boundaries and authenticated access for your team.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </motion.div>
 
@@ -95,21 +102,23 @@ export default function LoginPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5, ease }}
         >
-          <Card className="mx-auto w-full max-w-md border shadow-lg">
+          <Card className="mx-auto w-full max-w-md shadow-2xl shadow-primary/[0.06] border-border/40">
             <CardHeader className="space-y-2">
-              <CardTitle className="text-2xl font-[family-name:var(--font-display)] font-normal">{mode === "signin" ? "Welcome back" : "Create your account"}</CardTitle>
+              <CardTitle className="text-2xl font-[family-name:var(--font-display)] font-normal">
+                {mode === "signin" ? "Welcome back" : "Create your account"}
+              </CardTitle>
               <CardDescription>
                 {mode === "signin" ? "Sign in to continue to Markaestro." : "Start building your marketing engine."}
               </CardDescription>
-              <div className="mt-3 grid grid-cols-2 rounded-lg border bg-muted/50 p-1">
+              <div className="mt-4 grid grid-cols-2 rounded-xl border border-border/50 bg-muted/30 p-1">
                 <button
-                  className={`h-9 rounded-md text-sm font-medium transition ${mode === "signin" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+                  className={`h-9 rounded-lg text-sm font-medium transition-all ${mode === "signin" ? "gradient-primary text-white shadow-md shadow-primary/20" : "text-muted-foreground hover:text-foreground"}`}
                   onClick={() => setMode("signin")}
                 >
                   Sign In
                 </button>
                 <button
-                  className={`h-9 rounded-md text-sm font-medium transition ${mode === "signup" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+                  className={`h-9 rounded-lg text-sm font-medium transition-all ${mode === "signup" ? "gradient-primary text-white shadow-md shadow-primary/20" : "text-muted-foreground hover:text-foreground"}`}
                   onClick={() => setMode("signup")}
                 >
                   Sign Up
@@ -123,35 +132,35 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
                 type="email"
-                className="h-11"
+                className="h-11 rounded-xl"
               />
               <Input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 type="password"
-                className="h-11"
+                className="h-11 rounded-xl"
               />
 
-              {error ? <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">{error}</p> : null}
+              {error ? <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs text-rose-600">{error}</p> : null}
 
-              <Button className="h-11 w-full" disabled={busy} onClick={handlePrimary}>
+              <Button className="h-11 w-full rounded-xl" disabled={busy} onClick={handlePrimary}>
                 {busy ? "Please wait..." : mode === "signin" ? "Sign In" : "Create Account"}
               </Button>
 
-              <div className="relative py-1">
+              <div className="relative py-2">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="w-full border-t border-border/40" />
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="bg-card px-2 text-muted-foreground">or continue with</span>
+                  <span className="bg-card px-3 text-muted-foreground">or continue with</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   variant="outline"
-                  className="h-11 w-full"
+                  className="h-11 w-full rounded-xl border-border/50"
                   disabled={busy}
                   onClick={async () => {
                     try {
@@ -169,7 +178,7 @@ export default function LoginPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-11 w-full"
+                  className="h-11 w-full rounded-xl border-border/50"
                   disabled={busy}
                   onClick={async () => {
                     try {
@@ -191,7 +200,7 @@ export default function LoginPage() {
         </motion.div>
       </div>
 
-      <footer className="absolute bottom-0 left-0 right-0 border-t border-border bg-background/60 backdrop-blur-sm">
+      <footer className="absolute bottom-0 left-0 right-0 border-t border-border/30 bg-background/50 glass">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-6 py-4 sm:flex-row sm:justify-between">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Markaestro. All rights reserved.</p>
           <nav className="flex gap-6">

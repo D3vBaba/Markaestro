@@ -25,7 +25,7 @@ export default function PublishPage() {
       />
 
       <Tabs defaultValue="create" className="space-y-6">
-        <TabsList className="bg-muted/50 p-1">
+        <TabsList className="bg-muted/30 p-1 rounded-xl">
           <TabsTrigger value="create">Create</TabsTrigger>
           <TabsTrigger value="drafts">Drafts</TabsTrigger>
           <TabsTrigger value="scheduled">Scheduled</TabsTrigger>

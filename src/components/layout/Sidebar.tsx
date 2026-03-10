@@ -24,23 +24,25 @@ export function Sidebar({ className }: { className?: string }) {
         .slice(0, 2);
 
     return (
-        <div className={cn("hidden lg:flex flex-col w-64 border-r border-border bg-sidebar h-screen sticky top-0", className)}>
-            <div className="px-6 pt-8 pb-6">
-                <div className="flex items-center gap-3 font-semibold text-xl tracking-tight text-foreground">
-                    <div className="w-9 h-9 rounded-lg border bg-white flex items-center justify-center shadow-sm overflow-hidden p-1">
-                        <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="object-contain" />
+        <div className={cn("hidden lg:flex flex-col w-64 bg-sidebar h-screen sticky top-0", className)}>
+            {/* Brand */}
+            <div className="px-6 pt-8 pb-8">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/25 overflow-hidden p-1.5">
+                        <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="object-contain rounded-md" />
                     </div>
-                    Markaestro
+                    <span className="font-bold text-lg tracking-tight text-sidebar-accent-foreground">Markaestro</span>
                 </div>
             </div>
 
-            <div className="flex-1 px-4 py-2 space-y-6 overflow-y-auto">
+            {/* Navigation */}
+            <div className="flex-1 px-3 py-2 space-y-7 overflow-y-auto">
                 {navigationGroups.map((group) => (
                     <div key={group.group}>
-                        <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                        <p className="px-4 mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-sidebar-foreground/40">
                             {group.group}
                         </p>
-                        <div className="space-y-0.5">
+                        <div className="space-y-1">
                             {group.items.map((item) => {
                                 const isActive = pathname === item.href;
                                 return (
@@ -48,13 +50,20 @@ export function Sidebar({ className }: { className?: string }) {
                                         key={item.name}
                                         href={item.href}
                                         className={cn(
-                                            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]",
+                                            "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]",
                                             isActive
-                                                ? "text-foreground bg-accent-soft border-l-2 border-primary pl-[10px]"
-                                                : "text-muted-foreground hover:text-foreground hover:translate-x-0.5"
+                                                ? "gradient-primary text-white shadow-md shadow-primary/20 sidebar-glow"
+                                                : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                                         )}
                                     >
-                                        <item.icon className={cn("w-4 h-4 shrink-0", isActive ? "text-foreground" : "text-muted-foreground")} />
+                                        <div className={cn(
+                                            "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                                            isActive
+                                                ? "bg-white/20"
+                                                : "bg-sidebar-accent"
+                                        )}>
+                                            <item.icon className="w-3.5 h-3.5" />
+                                        </div>
                                         {item.name}
                                     </Link>
                                 );
@@ -64,29 +73,40 @@ export function Sidebar({ className }: { className?: string }) {
                 ))}
             </div>
 
-            <div className="p-4 mt-auto border-t border-border">
+            {/* Footer */}
+            <div className="p-3 mt-auto border-t border-sidebar-border">
                 <Link
                     href={settingsItem.href}
                     className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 mb-3",
+                        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 mb-3",
                         pathname === settingsItem.href
-                            ? "text-foreground bg-accent-soft border-l-2 border-primary pl-[10px]"
-                            : "text-muted-foreground hover:text-foreground hover:translate-x-0.5"
+                            ? "gradient-primary text-white shadow-md shadow-primary/20"
+                            : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                     )}
                 >
-                    <settingsItem.icon className="w-4 h-4 shrink-0" />
+                    <div className={cn(
+                        "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
+                        pathname === settingsItem.href ? "bg-white/20" : "bg-sidebar-accent"
+                    )}>
+                        <settingsItem.icon className="w-3.5 h-3.5" />
+                    </div>
                     {settingsItem.name}
                 </Link>
-                <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent-soft transition-colors">
-                    <Avatar className="h-8 w-8 border border-border">
-                        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <Avatar className="h-9 w-9 border border-sidebar-border gradient-primary">
+                        <AvatarFallback className="text-xs bg-transparent text-white font-semibold">{initials}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium leading-none truncate">{displayName}</p>
-                        <p className="text-xs text-muted-foreground truncate pt-1">{email}</p>
+                        <p className="text-sm font-medium leading-none truncate text-sidebar-accent-foreground">{displayName}</p>
+                        <p className="text-[11px] text-sidebar-foreground/50 truncate pt-1">{email}</p>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={logout}>
-                        <LogOut className="w-3 h-3" />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-sidebar-foreground/40 hover:text-rose-400 hover:bg-rose-500/10"
+                        onClick={logout}
+                    >
+                        <LogOut className="w-3.5 h-3.5" />
                     </Button>
                 </div>
             </div>

@@ -44,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased bg-background text-foreground selection:bg-black/10 selection:text-black`}
+        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased bg-background text-foreground selection:bg-primary/15 selection:text-foreground`}
       >
         <TooltipProvider>
           <AuthProvider>{children}</AuthProvider>

@@ -30,7 +30,7 @@ type AnalyticsData = {
   postStats?: PostStats;
 };
 
-const COLORS = ["#18181b", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7"];
+const COLORS = ["#7c3aed", "#ec4899", "#3b82f6", "#f97316", "#14b8a6"];
 
 const channelLabels: Record<string, string> = {
   x: "X",
@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
 
       {/* Social Publishing Stats */}
       {data.postStats && data.postStats.total > 0 && (
-        <Card className="border mt-6">
+        <Card className="border-border/30 mt-6">
           <CardHeader>
             <CardTitle>Social Publishing</CardTitle>
             <CardDescription>Post stats across all channels. {data.postStats.recentPublished} published in the last 7 days.</CardDescription>
@@ -144,7 +144,7 @@ export default function AnalyticsPage() {
 
       <div className="grid gap-5 md:grid-cols-2 mt-6">
         {/* Lifecycle Funnel */}
-        <Card className="border">
+        <Card className="border-border/30">
           <CardHeader>
             <CardTitle>Contact Lifecycle Funnel</CardTitle>
             <CardDescription>Distribution across lifecycle stages.</CardDescription>
@@ -156,8 +156,8 @@ export default function AnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" opacity={0.6} />
                   <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} className="capitalize" />
                   <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ borderRadius: "10px", borderColor: "#e4e4e7" }} />
-                  <Bar dataKey="value" fill="#18181b" radius={[4, 4, 0, 0]} />
+                  <Tooltip contentStyle={{ borderRadius: "12px", borderColor: "#e4e4e7", boxShadow: "0 8px 30px rgba(124, 58, 237, 0.08)" }} />
+                  <Bar dataKey="value" fill="#7c3aed" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -167,7 +167,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Source Breakdown */}
-        <Card className="border">
+        <Card className="border-border/30">
           <CardHeader>
             <CardTitle>Contact Sources</CardTitle>
             <CardDescription>Where your contacts come from.</CardDescription>
@@ -193,7 +193,7 @@ export default function AnalyticsPage() {
 
       <div className="grid gap-5 md:grid-cols-2 mt-6">
         {/* Daily Activity */}
-        <Card className="border">
+        <Card className="border-border/30">
           <CardHeader>
             <CardTitle>Daily Event Activity</CardTitle>
             <CardDescription>Events tracked over the last 7 days.</CardDescription>
@@ -205,14 +205,14 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { weekday: 'short' })} />
                 <YAxis fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip />
-                <Bar dataKey="events" fill="#71717a" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="events" fill="#ec4899" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Job Performance */}
-        <Card className="border">
+        <Card className="border-border/30">
           <CardHeader>
             <CardTitle>Job Performance</CardTitle>
             <CardDescription>Execution success rate for scheduled jobs.</CardDescription>
@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
 
       {/* Product Stats */}
       {data.productStats.length > 0 && (
-        <Card className="border mt-6">
+        <Card className="border-border/30 mt-6">
           <CardHeader>
             <CardTitle>Product Performance</CardTitle>
             <CardDescription>Contacts and campaigns per product.</CardDescription>

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MoreHorizontal, Plus, Search, Filter, Download, Trash2 } from "lucide-react";
+import { MoreHorizontal, Search, Filter, Download, Trash2 } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
@@ -159,13 +159,13 @@ export default function ContactsPage() {
                     subtitle="Manage your audience and leads."
                     action={
                         <>
-                            <Button variant="outline" className="bg-background">
-                                <Download className="mr-2 h-4 w-4" /> Export
+                            <Button variant="outline" className="bg-background rounded-xl">
+                                Export
                             </Button>
                             <Sheet>
                                 <SheetTrigger asChild>
-                                    <Button>
-                                        <Plus className="mr-2 h-4 w-4" /> Add Contact
+                                    <Button className="rounded-xl">
+                                        Add Contact
                                     </Button>
                                 </SheetTrigger>
                                 <SheetContent>
@@ -262,7 +262,7 @@ export default function ContactsPage() {
                     )}
                 </div>
 
-                <div className="rounded-xl border bg-card overflow-hidden">
+                <div className="rounded-2xl border border-border/40 bg-card overflow-hidden shadow-sm shadow-primary/[0.02]">
                     <Table>
                         <TableHeader>
                             <TableRow>
