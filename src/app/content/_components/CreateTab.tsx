@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Loader2, Save, Clock, Send, ImageIcon, X } from "lucide-react";
+import { Sparkles, Loader2, Save, Clock, Send, ImageIcon, X, FolderOpen } from "lucide-react";
 import Select from "@/components/app/Select";
 import { apiPost, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import ProductPicker from "./ProductPicker";
 import ChannelSelector from "./ChannelSelector";
 import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
+import ImagePicker from "./ImagePicker";
 
 const contentTypes = [
   { value: "social_post", label: "Short Post" },
@@ -50,6 +51,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageStyle, setImageStyle] = useState("branded");
   const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const handleGenerate = async () => {
     if (!productId) {
@@ -244,19 +246,28 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
                     </Select>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleGenerateImage}
-                  disabled={generatingImage}
-                  className="w-full"
-                >
-                  {generatingImage ? (
-                    <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Generating Image...</>
-                  ) : (
-                    <><ImageIcon className="mr-1.5 h-3 w-3" /> Generate Image</>
-                  )}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateImage}
+                    disabled={generatingImage}
+                    className="flex-1"
+                  >
+                    {generatingImage ? (
+                      <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Generating...</>
+                    ) : (
+                      <><ImageIcon className="mr-1.5 h-3 w-3" /> Generate</>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPickerOpen(true)}
+                  >
+                    <FolderOpen className="mr-1.5 h-3 w-3" /> Gallery
+                  </Button>
+                </div>
 
                 {imageUrl && (
                   <div className="relative group">
@@ -302,6 +313,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
       </Card>
 
       <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} />
+      <ImagePicker open={pickerOpen} onOpenChange={setPickerOpen} onSelect={(url) => setImageUrl(url)} />
     </div>
   );
 }

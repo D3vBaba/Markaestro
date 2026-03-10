@@ -8,6 +8,7 @@ import CreateTab from "./_components/CreateTab";
 import DraftsTab from "./_components/DraftsTab";
 import ScheduledTab from "./_components/ScheduledTab";
 import PublishedTab from "./_components/PublishedTab";
+import ImageGallery from "./_components/ImageGallery";
 
 export default function PublishPage() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -29,6 +30,7 @@ export default function PublishPage() {
           <TabsTrigger value="drafts">Drafts</TabsTrigger>
           <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
           <TabsTrigger value="published">Published</TabsTrigger>
+          <TabsTrigger value="gallery">Gallery</TabsTrigger>
         </TabsList>
 
         <TabsContent value="create">
@@ -45,6 +47,10 @@ export default function PublishPage() {
 
         <TabsContent value="published">
           <PublishedTab refreshKey={refreshKey} />
+        </TabsContent>
+
+        <TabsContent value="gallery">
+          <ImageGallery refreshKey={refreshKey} />
         </TabsContent>
       </Tabs>
     </AppShell>
