@@ -8,19 +8,21 @@ export async function GET(req: Request) {
     const ws = ctx.workspaceId;
 
     // Gather all data in parallel
-    const [contactsSnap, campaignsSnap, eventsSnap, productsSnap, jobRunsSnap] =
+    const [contactsSnap, campaignsSnap, eventsSnap, productsSnap, jobRunsSnap, postsSnap] =
       await Promise.all([
         adminDb.collection(`workspaces/${ws}/contacts`).get(),
         adminDb.collection(`workspaces/${ws}/campaigns`).get(),
         adminDb.collection(`workspaces/${ws}/events`).orderBy('timestamp', 'desc').limit(500).get(),
         adminDb.collection(`workspaces/${ws}/products`).get(),
         adminDb.collection(`workspaces/${ws}/job_runs`).orderBy('startedAt', 'desc').limit(100).get(),
+        adminDb.collection(`workspaces/${ws}/posts`).get(),
       ]);
 
     const contacts = contactsSnap.docs.map((d) => d.data());
     const campaigns = campaignsSnap.docs.map((d) => d.data());
     const events = eventsSnap.docs.map((d) => d.data());
     const products = productsSnap.docs.map((d) => ({ id: d.id, ...(d.data() as { name: string; [key: string]: unknown }) }));
+    const posts = postsSnap.docs.map((d) => d.data());
 
     // Lifecycle funnel
     const lifecycleFunnel = {
@@ -79,12 +81,30 @@ export async function GET(req: Request) {
       campaigns: campaigns.filter((c) => c.productId === p.id).length,
     }));
 
+    // Post analytics
+    const postsByStatus: Record<string, number> = {};
+    const postsByChannel: Record<string, number> = {};
+    for (const p of posts) {
+      const status = p.status || 'draft';
+      postsByStatus[status] = (postsByStatus[status] || 0) + 1;
+      const channel = p.channel || 'unknown';
+      postsByChannel[channel] = (postsByChannel[channel] || 0) + 1;
+    }
+
+    // Posts published in last 7 days
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const recentPublished = posts.filter(
+      (p) => p.status === 'published' && p.publishedAt && new Date(p.publishedAt) >= sevenDaysAgo,
+    ).length;
+
     return apiOk({
       overview: {
         totalContacts: contacts.length,
         totalCampaigns: campaigns.length,
         totalEvents: events.length,
         totalProducts: products.length,
+        totalPosts: posts.length,
       },
       lifecycleFunnel,
       sourceBreakdown,
@@ -98,6 +118,12 @@ export async function GET(req: Request) {
         successRate: jobRuns.length > 0 ? Math.round((successRuns / jobRuns.length) * 100) : 0,
       },
       productStats,
+      postStats: {
+        total: posts.length,
+        byStatus: postsByStatus,
+        byChannel: postsByChannel,
+        recentPublished,
+      },
     });
   } catch (error) {
     return apiError(error);

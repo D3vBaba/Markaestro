@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
 
 export default function PageHeader({
   title,
@@ -11,10 +10,10 @@ export default function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between pb-6 border-b border-border/60">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>
-        <p className="mt-1 text-muted-foreground">{subtitle}</p>
+        <h2 className="text-3xl font-normal tracking-tight text-foreground font-[family-name:var(--font-display)]">{title}</h2>
+        <p className="mt-1.5 text-sm text-muted-foreground">{subtitle}</p>
       </div>
       {action ? <div className="flex items-center gap-2">{action}</div> : null}
     </div>

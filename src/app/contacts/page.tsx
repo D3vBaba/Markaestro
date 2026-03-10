@@ -20,6 +20,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MoreHorizontal, Plus, Search, Filter, Download, Trash2 } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
+import FormField from "@/components/app/FormField";
+import Select from "@/components/app/Select";
 import MetricCard from "@/components/app/MetricCard";
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -171,51 +173,33 @@ export default function ContactsPage() {
                                         <SheetTitle>Add New Contact</SheetTitle>
                                         <SheetDescription>Add a single contact to your database.</SheetDescription>
                                     </SheetHeader>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid gap-2">
-                                            <label htmlFor="name" className="text-sm font-medium">Name</label>
+                                    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                                        <FormField label="Name">
                                             <Input id="name" placeholder="John Doe" value={newName} onChange={(e) => setNewName(e.target.value)} />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <label htmlFor="email" className="text-sm font-medium">Email</label>
+                                        </FormField>
+                                        <FormField label="Email">
                                             <Input id="email" placeholder="john@example.com" type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <label htmlFor="tags" className="text-sm font-medium">Tags (comma separated)</label>
+                                        </FormField>
+                                        <FormField label="Tags (comma separated)">
                                             <Input id="tags" placeholder="lead, newsletter" value={newTags} onChange={(e) => setNewTags(e.target.value)} />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <label htmlFor="status" className="text-sm font-medium">Status</label>
-                                            <select
-                                                value={newStatus}
-                                                onChange={(e) => setNewStatus(e.target.value)}
-                                                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-                                            >
+                                        </FormField>
+                                        <FormField label="Status">
+                                            <Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
                                                 <option value="active">Active</option>
                                                 <option value="pending">Pending</option>
-                                            </select>
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <label className="text-sm font-medium">Lifecycle Stage</label>
-                                            <select
-                                                value={newLifecycle}
-                                                onChange={(e) => setNewLifecycle(e.target.value)}
-                                                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-                                            >
+                                            </Select>
+                                        </FormField>
+                                        <FormField label="Lifecycle Stage">
+                                            <Select value={newLifecycle} onChange={(e) => setNewLifecycle(e.target.value)}>
                                                 <option value="lead">Lead</option>
                                                 <option value="trial">Trial</option>
                                                 <option value="customer">Customer</option>
                                                 <option value="churned">Churned</option>
                                                 <option value="advocate">Advocate</option>
-                                            </select>
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <label className="text-sm font-medium">Source</label>
-                                            <select
-                                                value={newSource}
-                                                onChange={(e) => setNewSource(e.target.value)}
-                                                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-                                            >
+                                            </Select>
+                                        </FormField>
+                                        <FormField label="Source">
+                                            <Select value={newSource} onChange={(e) => setNewSource(e.target.value)}>
                                                 <option value="organic">Organic</option>
                                                 <option value="paid">Paid</option>
                                                 <option value="referral">Referral</option>
@@ -223,8 +207,8 @@ export default function ContactsPage() {
                                                 <option value="email">Email</option>
                                                 <option value="direct">Direct</option>
                                                 <option value="other">Other</option>
-                                            </select>
-                                        </div>
+                                            </Select>
+                                        </FormField>
                                     </div>
                                     <SheetFooter>
                                         <SheetClose asChild>
@@ -239,36 +223,36 @@ export default function ContactsPage() {
                     }
                 />
 
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
                     <MetricCard label="Total Contacts" value={String(totalCount)} />
                     <MetricCard label="Active" value={String(activeCount)} />
                     <MetricCard label="Pending" value={String(pendingCount)} />
                     <MetricCard label="Bounced + Unsub" value={String(bouncedCount)} />
                 </div>
 
-                <div className="flex items-center gap-2 py-4">
+                <div className="flex items-center gap-3 py-4">
                     <div className="relative flex-1 max-w-sm">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                         <Input
                             placeholder="Filter contacts..."
-                            className="pl-8"
+                            className="pl-9 bg-muted/50 border-transparent focus-visible:bg-background focus-visible:border-border"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="flex items-center gap-2 border rounded-md px-3 h-9 w-[200px]">
-                        <Filter className="h-4 w-4 text-muted-foreground" />
-                        <select
+                    <div className="flex items-center gap-2 border rounded-lg px-3 h-9 w-[200px]">
+                        <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+                        <Select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="bg-transparent text-sm outline-none w-full"
+                            className="border-0 shadow-none ring-0 focus-visible:ring-0 px-0 h-auto"
                         >
                             <option value="all">All Statuses</option>
                             <option value="active">Active</option>
                             <option value="pending">Pending</option>
                             <option value="bounced">Bounced</option>
                             <option value="unsubscribed">Unsubscribed</option>
-                        </select>
+                        </Select>
                     </div>
 
                     {selectedContacts.size > 0 && (
@@ -278,7 +262,7 @@ export default function ContactsPage() {
                     )}
                 </div>
 
-                <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+                <div className="rounded-xl border bg-card overflow-hidden">
                     <Table>
                         <TableHeader>
                             <TableRow>

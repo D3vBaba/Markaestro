@@ -37,6 +37,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         body: campaign.body,
         cta: campaign.cta,
         targetAudience: campaign.targetAudience,
+        productId: campaign.productId,
       },
       { testMode, testEmail },
     );

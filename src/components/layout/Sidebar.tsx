@@ -4,12 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { navigation } from "@/lib/nav";
+import { navigationGroups, settingsItem } from "@/lib/nav";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 export function Sidebar({ className }: { className?: string }) {
     const pathname = usePathname();
@@ -26,41 +25,61 @@ export function Sidebar({ className }: { className?: string }) {
 
     return (
         <div className={cn("hidden lg:flex flex-col w-64 border-r border-border bg-sidebar h-screen sticky top-0", className)}>
-            <div className="p-8">
+            <div className="px-6 pt-8 pb-6">
                 <div className="flex items-center gap-3 font-semibold text-xl tracking-tight text-foreground">
-                    <div className="w-9 h-9 rounded-md border bg-white flex items-center justify-center shadow-sm overflow-hidden p-1">
+                    <div className="w-9 h-9 rounded-lg border bg-white flex items-center justify-center shadow-sm overflow-hidden p-1">
                         <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="object-contain" />
                     </div>
                     Markaestro
                 </div>
             </div>
 
-            <div className="flex-1 px-4 py-2 space-y-1">
-                {navigation.map((item) => {
-                    const isActive = pathname === item.href;
-                    return (
-                        <Link
-                            key={item.name}
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200",
-                                isActive
-                                    ? "text-primary-foreground bg-primary shadow-sm"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                            )}
-                        >
-                            <item.icon className={cn("w-4 h-4", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
-                            {item.name}
-                        </Link>
-                    );
-                })}
+            <div className="flex-1 px-4 py-2 space-y-6 overflow-y-auto">
+                {navigationGroups.map((group) => (
+                    <div key={group.group}>
+                        <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                            {group.group}
+                        </p>
+                        <div className="space-y-0.5">
+                            {group.items.map((item) => {
+                                const isActive = pathname === item.href;
+                                return (
+                                    <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        className={cn(
+                                            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]",
+                                            isActive
+                                                ? "text-foreground bg-accent-soft border-l-2 border-primary pl-[10px]"
+                                                : "text-muted-foreground hover:text-foreground hover:translate-x-0.5"
+                                        )}
+                                    >
+                                        <item.icon className={cn("w-4 h-4 shrink-0", isActive ? "text-foreground" : "text-muted-foreground")} />
+                                        {item.name}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </div>
+                ))}
             </div>
 
-            <div className="p-4 mt-auto">
-                <Separator className="mb-4 bg-border" />
-                <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+            <div className="p-4 mt-auto border-t border-border">
+                <Link
+                    href={settingsItem.href}
+                    className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 mb-3",
+                        pathname === settingsItem.href
+                            ? "text-foreground bg-accent-soft border-l-2 border-primary pl-[10px]"
+                            : "text-muted-foreground hover:text-foreground hover:translate-x-0.5"
+                    )}
+                >
+                    <settingsItem.icon className="w-4 h-4 shrink-0" />
+                    {settingsItem.name}
+                </Link>
+                <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent-soft transition-colors">
                     <Avatar className="h-8 w-8 border border-border">
-                        <AvatarFallback>{initials}</AvatarFallback>
+                        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium leading-none truncate">{displayName}</p>

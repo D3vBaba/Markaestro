@@ -5,23 +5,53 @@ import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import MetricCard from "@/components/app/MetricCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { apiGet } from "@/lib/api-client";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
 } from "recharts";
 
+type PostStats = {
+  total: number;
+  byStatus: Record<string, number>;
+  byChannel: Record<string, number>;
+  recentPublished: number;
+};
+
 type AnalyticsData = {
-  overview: { totalContacts: number; totalCampaigns: number; totalEvents: number; totalProducts: number };
+  overview: { totalContacts: number; totalCampaigns: number; totalEvents: number; totalProducts: number; totalPosts?: number };
   lifecycleFunnel: Record<string, number>;
   sourceBreakdown: Record<string, number>;
   dailyActivity: { date: string; events: number }[];
   jobPerformance: { totalRuns: number; successRuns: number; failedRuns: number; successRate: number };
   productStats: { id: string; name: string; contacts: number; campaigns: number }[];
   campaignStats: { name: string; channel: string; status: string; lastSentCount: number }[];
+  postStats?: PostStats;
 };
 
 const COLORS = ["#18181b", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7"];
+
+const channelLabels: Record<string, string> = {
+  x: "X",
+  facebook: "Facebook",
+  instagram: "Instagram",
+};
+
+const statusLabels: Record<string, string> = {
+  draft: "Drafts",
+  scheduled: "Scheduled",
+  publishing: "Publishing",
+  published: "Published",
+  failed: "Failed",
+};
+
+const statusColors: Record<string, string> = {
+  draft: "bg-gray-100 text-gray-600",
+  scheduled: "bg-amber-50 text-amber-700",
+  published: "bg-emerald-50 text-emerald-700",
+  failed: "bg-rose-50 text-rose-700",
+};
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -63,16 +93,58 @@ export default function AnalyticsPage() {
       <PageHeader title="Analytics" subtitle="Track growth outcomes and channel efficiency." />
 
       {/* Overview metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-5">
         <MetricCard label="Total Contacts" value={String(data.overview.totalContacts)} />
         <MetricCard label="Total Campaigns" value={String(data.overview.totalCampaigns)} />
         <MetricCard label="Total Events" value={String(data.overview.totalEvents)} />
         <MetricCard label="Products" value={String(data.overview.totalProducts)} />
+        <MetricCard label="Total Posts" value={String(data.overview.totalPosts || 0)} />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 mt-6">
+      {/* Social Publishing Stats */}
+      {data.postStats && data.postStats.total > 0 && (
+        <Card className="border mt-6">
+          <CardHeader>
+            <CardTitle>Social Publishing</CardTitle>
+            <CardDescription>Post stats across all channels. {data.postStats.recentPublished} published in the last 7 days.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-5 md:grid-cols-2">
+              {/* By Status */}
+              <div>
+                <p className="text-sm font-medium mb-3">By Status</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(data.postStats.byStatus).map(([status, count]) => (
+                    <div key={status} className="flex items-center justify-between rounded-md p-2 bg-muted/50">
+                      <Badge variant="outline" className={`border-0 text-[10px] ${statusColors[status] || "bg-gray-100"}`}>
+                        {statusLabels[status] || status}
+                      </Badge>
+                      <span className="text-sm font-semibold">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* By Channel */}
+              <div>
+                <p className="text-sm font-medium mb-3">By Channel</p>
+                <div className="grid gap-2">
+                  {Object.entries(data.postStats.byChannel).map(([channel, count]) => (
+                    <div key={channel} className="flex items-center justify-between rounded-md p-2 bg-muted/50">
+                      <span className="text-sm">{channelLabels[channel] || channel}</span>
+                      <span className="text-sm font-semibold">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-5 md:grid-cols-2 mt-6">
         {/* Lifecycle Funnel */}
-        <Card className="shadow-sm">
+        <Card className="border">
           <CardHeader>
             <CardTitle>Contact Lifecycle Funnel</CardTitle>
             <CardDescription>Distribution across lifecycle stages.</CardDescription>
@@ -84,7 +156,7 @@ export default function AnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" opacity={0.6} />
                   <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} className="capitalize" />
                   <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ borderRadius: "8px", borderColor: "#e4e4e7" }} />
+                  <Tooltip contentStyle={{ borderRadius: "10px", borderColor: "#e4e4e7" }} />
                   <Bar dataKey="value" fill="#18181b" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -95,7 +167,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Source Breakdown */}
-        <Card className="shadow-sm">
+        <Card className="border">
           <CardHeader>
             <CardTitle>Contact Sources</CardTitle>
             <CardDescription>Where your contacts come from.</CardDescription>
@@ -119,9 +191,9 @@ export default function AnalyticsPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 mt-6">
+      <div className="grid gap-5 md:grid-cols-2 mt-6">
         {/* Daily Activity */}
-        <Card className="shadow-sm">
+        <Card className="border">
           <CardHeader>
             <CardTitle>Daily Event Activity</CardTitle>
             <CardDescription>Events tracked over the last 7 days.</CardDescription>
@@ -140,26 +212,26 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Job Performance */}
-        <Card className="shadow-sm">
+        <Card className="border">
           <CardHeader>
             <CardTitle>Job Performance</CardTitle>
             <CardDescription>Execution success rate for scheduled jobs.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
+              <div className="text-center p-4 bg-muted/50 rounded-xl">
                 <p className="text-3xl font-bold">{data.jobPerformance.successRate}%</p>
                 <p className="text-xs text-muted-foreground mt-1">Success Rate</p>
               </div>
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
+              <div className="text-center p-4 bg-muted/50 rounded-xl">
                 <p className="text-3xl font-bold">{data.jobPerformance.totalRuns}</p>
                 <p className="text-xs text-muted-foreground mt-1">Total Runs</p>
               </div>
-              <div className="text-center p-4 bg-emerald-50 rounded-lg">
+              <div className="text-center p-4 bg-emerald-50 rounded-xl">
                 <p className="text-2xl font-bold text-emerald-700">{data.jobPerformance.successRuns}</p>
                 <p className="text-xs text-emerald-600 mt-1">Successful</p>
               </div>
-              <div className="text-center p-4 bg-rose-50 rounded-lg">
+              <div className="text-center p-4 bg-rose-50 rounded-xl">
                 <p className="text-2xl font-bold text-rose-700">{data.jobPerformance.failedRuns}</p>
                 <p className="text-xs text-rose-600 mt-1">Failed</p>
               </div>
@@ -170,7 +242,7 @@ export default function AnalyticsPage() {
 
       {/* Product Stats */}
       {data.productStats.length > 0 && (
-        <Card className="shadow-sm mt-6">
+        <Card className="border mt-6">
           <CardHeader>
             <CardTitle>Product Performance</CardTitle>
             <CardDescription>Contacts and campaigns per product.</CardDescription>

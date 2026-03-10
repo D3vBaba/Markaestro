@@ -10,9 +10,11 @@ import {
     SheetTitle, SheetTrigger, SheetFooter, SheetClose,
 } from "@/components/ui/sheet";
 import PageHeader from "@/components/app/PageHeader";
+import FormField from "@/components/app/FormField";
+import Select from "@/components/app/Select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Workflow } from "lucide-react";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 
@@ -100,20 +102,18 @@ export default function AutomationsPage() {
                 <SheetTitle>Create Automation</SheetTitle>
                 <SheetDescription>Set up a new workflow automation.</SheetDescription>
               </SheetHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">Name</label>
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                <FormField label="Name">
                   <Input placeholder="Lead Nurture Sequence" value={newName} onChange={(e) => setNewName(e.target.value)} />
-                </div>
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">Trigger Type</label>
-                  <select value={newTrigger} onChange={(e) => setNewTrigger(e.target.value)} className="h-9 rounded-md border border-input bg-background px-3 text-sm">
+                </FormField>
+                <FormField label="Trigger Type">
+                  <Select value={newTrigger} onChange={(e) => setNewTrigger(e.target.value)}>
                     <option value="manual">Manual</option>
                     <option value="event">Event-based</option>
                     <option value="schedule">Scheduled</option>
                     <option value="segment">Segment-based</option>
-                  </select>
-                </div>
+                  </Select>
+                </FormField>
               </div>
               <SheetFooter>
                 <SheetClose asChild>
@@ -125,20 +125,27 @@ export default function AutomationsPage() {
         }
       />
 
-      <Card className="shadow-sm">
+      <Card className="border">
         <CardHeader>
-          <CardTitle>Workflow Toggles</CardTitle>
+          <CardTitle className="text-base font-semibold">Workflow Toggles</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {loading ? (
-            <p className="text-sm text-muted-foreground">Loading automations...</p>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-14 rounded-lg bg-muted/30 animate-pulse" />
+              ))}
+            </div>
           ) : automations.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No automations yet. Create one to get started.</p>
+            <div className="py-8 text-center">
+              <Workflow className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+              <p className="text-sm text-muted-foreground">No automations yet. Create one to get started.</p>
+            </div>
           ) : (
             automations.map((item) => (
-              <div key={item.id} className="flex items-center justify-between border-b pb-3 last:border-0">
+              <div key={item.id} className="flex items-center justify-between border-b pb-3 last:border-0 group">
                 <div className="flex flex-col gap-1">
-                  <span className="font-medium">{item.name}</span>
+                  <span className="font-medium group-hover:text-foreground transition-colors">{item.name}</span>
                   <Badge variant="outline" className="w-fit text-xs capitalize">{item.triggerType}</Badge>
                 </div>
                 <div className="flex items-center gap-3">

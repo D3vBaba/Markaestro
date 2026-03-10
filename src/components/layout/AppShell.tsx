@@ -12,13 +12,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user && pathname !== '/login') {
+    if (!loading && !user && pathname !== '/login' && pathname !== '/') {
       router.replace('/login');
     }
   }, [loading, user, pathname, router]);
 
   if (loading) {
-    return <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">Loading session...</div>;
+    return (
+      <div className="min-h-screen grid place-items-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 rounded-lg border bg-muted animate-pulse" />
+          <div className="space-y-2">
+            <div className="h-3 w-32 rounded-md bg-muted animate-pulse" />
+            <div className="h-3 w-24 rounded-md bg-muted animate-pulse mx-auto" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!user) return null;
@@ -26,9 +36,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[260px_1fr]">
       <Sidebar className="hidden lg:flex w-[260px]" />
-      <div className="flex flex-col min-h-screen bg-background/50 relative">
+      <div className="flex flex-col min-h-screen bg-background relative">
         <Header />
-        <main className="flex-1 p-6 lg:p-10 z-10 overflow-y-auto">{children}</main>
+        <main className="flex-1 p-6 lg:p-10 z-10 overflow-y-auto">
+          <div className="mx-auto max-w-6xl">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import type { BrandVoice } from '@/lib/schemas';
 
 const getClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -14,6 +15,7 @@ export type ContentRequest = {
   channel?: string;
   tone?: string;
   additionalContext?: string;
+  brandVoice?: BrandVoice;
 };
 
 export type ContentResponse = {
@@ -30,6 +32,20 @@ Rules:
 - Include a clear call-to-action when appropriate
 - Match the tone requested (professional, casual, urgent, etc.)
 - Never use clickbait or misleading claims`;
+
+function buildBrandVoiceBlock(bv: BrandVoice): string {
+  const parts: string[] = [];
+  parts.push('\n\n--- BRAND VOICE GUIDELINES ---');
+  if (bv.tone) parts.push(`Tone: ${bv.tone}`);
+  if (bv.style) parts.push(`Style: ${bv.style}`);
+  if (bv.keywords.length > 0) parts.push(`Keywords to incorporate: ${bv.keywords.join(', ')}`);
+  if (bv.avoidWords.length > 0) parts.push(`Words/phrases to AVOID: ${bv.avoidWords.join(', ')}`);
+  if (bv.cta) parts.push(`Preferred CTA: ${bv.cta}`);
+  if (bv.targetAudience) parts.push(`Target Audience: ${bv.targetAudience}`);
+  if (bv.sampleVoice) parts.push(`Sample voice (match this style):\n"${bv.sampleVoice}"`);
+  parts.push('--- END BRAND VOICE ---');
+  return parts.join('\n');
+}
 
 export async function generateContent(request: ContentRequest): Promise<ContentResponse> {
   const client = getClient();
@@ -92,11 +108,16 @@ Format each section with a clear header.`,
 
   const userPrompt = prompts[request.type] || prompts.email_subject;
 
+  let systemPrompt = SYSTEM_PROMPT;
+  if (request.brandVoice) {
+    systemPrompt += buildBrandVoiceBlock(request.brandVoice);
+  }
+
   const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     max_tokens: 1024,
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
   });

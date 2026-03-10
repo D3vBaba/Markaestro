@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 import crypto from 'crypto';
 
 /**
@@ -36,12 +37,16 @@ export function apiError(error: unknown): NextResponse {
   if (msg === 'INVALID_PROVIDER') {
     return NextResponse.json({ error: msg, requestId }, { status: 400 });
   }
+  if (msg === 'INVALID_STATE' || msg === 'STATE_EXPIRED' || msg === 'STATE_MISMATCH') {
+    return NextResponse.json({ error: msg, requestId }, { status: 400 });
+  }
   if (msg.startsWith('VALIDATION_')) {
     return NextResponse.json({ error: msg, requestId }, { status: 400 });
   }
 
   // Unknown errors — don't leak internals
   console.error(`[${requestId}] Unhandled API error:`, error);
+  Sentry.captureException(error, { tags: { requestId } });
   return NextResponse.json(
     { error: 'INTERNAL_ERROR', requestId },
     { status: 500 },

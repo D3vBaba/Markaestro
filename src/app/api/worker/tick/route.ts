@@ -1,5 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { executeJob } from '@/lib/jobs/executor';
+import { processScheduledPosts } from '@/lib/social/publisher';
+import { processTokenRefresh, cleanupExpiredOAuthStates } from '@/lib/oauth/token-refresh';
 import { safeCompare } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 
@@ -14,13 +16,41 @@ export async function POST(req: Request) {
 
     const nowIso = new Date().toISOString();
 
+    // 1. Refresh expiring OAuth tokens
+    let tokenRefreshResult = { refreshed: 0, failed: 0, skipped: 0, errors: [] as Array<{ workspaceId: string; provider: string; error: string }> };
+    try {
+      tokenRefreshResult = await processTokenRefresh();
+    } catch (e) {
+      console.error('Token refresh failed:', e);
+    }
+
+    // 2. Clean up expired OAuth states
+    let statesCleanedUp = 0;
+    try {
+      statesCleanedUp = await cleanupExpiredOAuthStates();
+    } catch (e) {
+      console.error('OAuth state cleanup failed:', e);
+    }
+
+    // 3. Process workspaces
     const wsSnap = await adminDb.collection('workspaces').limit(200).get();
 
     let scanned = 0;
     const dueJobs: Array<{ workspaceId: string; jobId: string; data: Record<string, unknown> }> = [];
 
+    // Track scheduled post processing results
+    const postResults: Array<{ workspaceId: string; processed: number }> = [];
+
     for (const ws of wsSnap.docs) {
       const workspaceId = ws.id;
+
+      // Process scheduled posts for this workspace
+      const postResult = await processScheduledPosts(workspaceId);
+      if (postResult.processed > 0) {
+        postResults.push({ workspaceId, processed: postResult.processed });
+      }
+
+      // Process scheduled jobs
       const jobsSnap = await adminDb
         .collection(`workspaces/${workspaceId}/jobs`)
         .where('enabled', '==', true)
@@ -50,6 +80,14 @@ export async function POST(req: Request) {
       due: dueJobs.length,
       processed: results.length,
       results,
+      scheduledPosts: postResults,
+      tokenRefresh: {
+        refreshed: tokenRefreshResult.refreshed,
+        failed: tokenRefreshResult.failed,
+        skipped: tokenRefreshResult.skipped,
+        errors: tokenRefreshResult.errors,
+      },
+      oauthStatesCleanedUp: statesCleanedUp,
     });
   } catch (error) {
     return apiError(error);

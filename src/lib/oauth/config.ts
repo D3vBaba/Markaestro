@@ -1,0 +1,102 @@
+import type { OAuthProvider } from '@/lib/schemas';
+
+export type OAuthProviderConfig = {
+  authUrl: string;
+  tokenUrl: string;
+  revokeUrl?: string;
+  scopes: string[];
+  clientIdEnv: string;
+  clientSecretEnv: string;
+  /** Override the `client_id` param name (e.g. TikTok uses `client_key`). */
+  clientIdParam?: string;
+  extraAuthParams?: Record<string, string>;
+  usePKCE?: boolean;
+  useBasicAuth?: boolean;
+};
+
+const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
+  meta: {
+    authUrl: 'https://www.facebook.com/v21.0/dialog/oauth',
+    tokenUrl: 'https://graph.facebook.com/v21.0/oauth/access_token',
+    revokeUrl: 'https://graph.facebook.com/v21.0/me/permissions',
+    scopes: [
+      'pages_show_list',
+      'pages_read_engagement',
+      'pages_manage_posts',
+      'pages_manage_engagement',
+      'instagram_manage_insights',
+      'instagram_content_publish',
+      'ads_management',
+      'ads_read',
+      'business_management',
+    ],
+    clientIdEnv: 'META_APP_ID',
+    clientSecretEnv: 'META_APP_SECRET',
+    extraAuthParams: {},
+  },
+  google: {
+    authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+    tokenUrl: 'https://oauth2.googleapis.com/token',
+    revokeUrl: 'https://oauth2.googleapis.com/revoke',
+    scopes: [
+      'https://www.googleapis.com/auth/adwords',
+      'openid',
+      'email',
+      'profile',
+    ],
+    clientIdEnv: 'GOOGLE_CLIENT_ID',
+    clientSecretEnv: 'GOOGLE_CLIENT_SECRET',
+    extraAuthParams: {
+      access_type: 'offline',
+      prompt: 'consent',
+    },
+  },
+  tiktok: {
+    authUrl: 'https://www.tiktok.com/v2/auth/authorize/',
+    tokenUrl: 'https://open.tiktokapis.com/v2/oauth/token/',
+    revokeUrl: 'https://open.tiktokapis.com/v2/oauth/revoke/',
+    scopes: [
+      'user.info.basic',
+      'video.publish',
+      'video.upload',
+    ],
+    clientIdEnv: 'TIKTOK_CLIENT_KEY',
+    clientSecretEnv: 'TIKTOK_CLIENT_SECRET',
+    clientIdParam: 'client_key',
+    extraAuthParams: {},
+  },
+  x: {
+    authUrl: 'https://twitter.com/i/oauth2/authorize',
+    tokenUrl: 'https://api.twitter.com/2/oauth2/token',
+    revokeUrl: 'https://api.twitter.com/2/oauth2/revoke',
+    scopes: [
+      'tweet.read',
+      'tweet.write',
+      'users.read',
+      'offline.access',
+    ],
+    clientIdEnv: 'X_CLIENT_ID',
+    clientSecretEnv: 'X_CLIENT_SECRET',
+    usePKCE: true,
+    useBasicAuth: true,
+  },
+};
+
+export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig {
+  return providerConfigs[provider];
+}
+
+export function getRedirectUri(provider: OAuthProvider): string {
+  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  return `${base}/api/oauth/callback/${provider}`;
+}
+
+export function getClientCredentials(provider: OAuthProvider): { clientId: string; clientSecret: string } {
+  const config = getProviderConfig(provider);
+  const clientId = process.env[config.clientIdEnv] || '';
+  const clientSecret = process.env[config.clientSecretEnv] || '';
+  if (!clientId || !clientSecret) {
+    throw new Error(`Missing OAuth credentials for ${provider}: ${config.clientIdEnv} and/or ${config.clientSecretEnv}`);
+  }
+  return { clientId, clientSecret };
+}

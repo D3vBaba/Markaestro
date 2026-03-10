@@ -6,37 +6,35 @@ import { z } from 'zod';
 
 const testSchema = z.object({
   provider: z.enum(['facebook', 'instagram']).default('facebook'),
+  productId: z.string().min(1),
 });
 
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     const body = await req.json();
-    const { provider } = testSchema.parse(body);
+    const { provider, productId } = testSchema.parse(body);
 
-    const doc = await adminDb
-      .doc(`workspaces/${ctx.workspaceId}/integrations/${provider}`)
+    // Try product-level meta integration first, then per-channel
+    const metaDoc = await adminDb
+      .doc(`workspaces/${ctx.workspaceId}/products/${productId}/integrations/meta`)
       .get();
+
+    const doc = metaDoc.exists
+      ? metaDoc
+      : await adminDb
+          .doc(`workspaces/${ctx.workspaceId}/products/${productId}/integrations/${provider}`)
+          .get();
     const cfg = doc.data() || {};
 
-    // Support both encrypted (new) and plaintext (legacy) tokens
-    let token = '';
-    if (cfg.accessTokenEncrypted) {
-      token = decrypt(cfg.accessTokenEncrypted);
-    } else if (cfg.accessToken) {
-      token = String(cfg.accessToken);
-    }
-
-    if (!token) {
+    if (!cfg.accessTokenEncrypted) {
       throw new Error('VALIDATION_MISSING_META_TOKEN');
     }
+    const token = decrypt(cfg.accessTokenEncrypted);
 
-    // Use Authorization header instead of leaking token in URL
     const resp = await fetch(
-      'https://graph.facebook.com/v20.0/me?fields=id,name',
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
+      'https://graph.facebook.com/v21.0/me?fields=id,name',
+      { headers: { Authorization: `Bearer ${token}` } },
     );
 
     const data = await resp.json();

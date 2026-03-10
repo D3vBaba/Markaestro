@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,10 +11,29 @@ import {
     Sheet, SheetContent, SheetDescription, SheetHeader,
     SheetTitle, SheetTrigger, SheetFooter, SheetClose,
 } from "@/components/ui/sheet";
-import { Plus, Trash2, ExternalLink, Package } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Package, Pencil, Upload, X } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
-import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
+import FormField from "@/components/app/FormField";
+import Select from "@/components/app/Select";
+import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
+
+type BrandVoice = {
+  tone: string;
+  style: string;
+  keywords: string[];
+  avoidWords: string[];
+  cta: string;
+  sampleVoice: string;
+  targetAudience: string;
+};
+
+type BrandIdentity = {
+  logoUrl: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+};
 
 type Product = {
   id: string;
@@ -25,7 +44,31 @@ type Product = {
   status: string;
   pricingTier: string;
   tags: string[];
+  brandVoice?: BrandVoice;
+  brandIdentity?: BrandIdentity;
   createdAt?: string;
+};
+
+type IntegrationInfo = {
+  provider: string;
+  enabled: boolean;
+  status: string;
+  hasApiKey: boolean;
+  hasAccessToken: boolean;
+  fromEmail?: string;
+  oauthConnected?: boolean;
+  tokenExpiresAt?: string | null;
+  pageName?: string | null;
+  igAccountId?: string | null;
+  lastRefreshError?: string | null;
+  username?: string | null;
+};
+
+type MetaPage = {
+  id: string;
+  name: string;
+  hasInstagram: boolean;
+  igAccountId: string | null;
 };
 
 const statusColors: Record<string, string> = {
@@ -45,11 +88,77 @@ const categoryLabels: Record<string, string> = {
   other: "Other",
 };
 
+const SOCIAL_PROVIDERS = ["meta", "x", "tiktok"] as const;
+const providerLabels: Record<string, string> = {
+  meta: "Meta (Facebook + Instagram)",
+  x: "X (Twitter)",
+  tiktok: "TikTok",
+};
+
+// Curated color palette for brand colors
+const COLOR_PALETTE = [
+  "#EF4444", "#F97316", "#F59E0B", "#EAB308",
+  "#84CC16", "#22C55E", "#10B981", "#14B8A6",
+  "#06B6D4", "#0EA5E9", "#3B82F6", "#6366F1",
+  "#8B5CF6", "#A855F7", "#D946EF", "#EC4899",
+  "#F43F5E", "#000000", "#374151", "#6B7280",
+  "#9CA3AF", "#D1D5DB", "#F3F4F6", "#FFFFFF",
+];
+
+function ColorPicker({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const nativeRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <FormField label={label}>
+      <div className="space-y-2">
+        {/* Palette grid */}
+        <div className="grid grid-cols-8 gap-1.5">
+          {COLOR_PALETTE.map((color) => (
+            <button
+              key={color}
+              type="button"
+              className={`h-7 w-full rounded-md border transition-all ${value === color ? "ring-2 ring-primary ring-offset-1" : "hover:scale-110"} ${color === "#FFFFFF" ? "border-gray-300" : "border-transparent"}`}
+              style={{ backgroundColor: color }}
+              onClick={() => onChange(color)}
+            />
+          ))}
+        </div>
+        {/* Hex input + native picker */}
+        <div className="flex items-center gap-2">
+          <div
+            className="h-9 w-9 shrink-0 rounded-md border cursor-pointer"
+            style={{ backgroundColor: value && /^#[0-9A-Fa-f]{6}$/i.test(value) ? value : "#ffffff" }}
+            onClick={() => nativeRef.current?.click()}
+          />
+          <input
+            ref={nativeRef}
+            type="color"
+            value={value && /^#[0-9A-Fa-f]{6}$/i.test(value) ? value : "#000000"}
+            onChange={(e) => onChange(e.target.value.toUpperCase())}
+            className="sr-only"
+          />
+          <Input
+            placeholder="#4F46E5"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="flex-1 font-mono text-sm"
+          />
+          {value && (
+            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => onChange("")}>
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+      </div>
+    </FormField>
+  );
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Form state
+  // Create form state
   const [newName, setNewName] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newUrl, setNewUrl] = useState("");
@@ -57,6 +166,47 @@ export default function ProductsPage() {
   const [newPricing, setNewPricing] = useState("");
   const [newTags, setNewTags] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Edit sheet state — product details
+  const [editOpen, setEditOpen] = useState(false);
+  const [editProductId, setEditProductId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editUrl, setEditUrl] = useState("");
+  const [editCategory, setEditCategory] = useState("saas");
+  const [editStatus, setEditStatus] = useState("active");
+  const [editPricing, setEditPricing] = useState("");
+  const [editTags, setEditTags] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
+
+  // Brand voice state
+  const [bvTone, setBvTone] = useState("");
+  const [bvStyle, setBvStyle] = useState("");
+  const [bvKeywords, setBvKeywords] = useState("");
+  const [bvAvoidWords, setBvAvoidWords] = useState("");
+  const [bvCta, setBvCta] = useState("");
+  const [bvSampleVoice, setBvSampleVoice] = useState("");
+  const [bvTargetAudience, setBvTargetAudience] = useState("");
+  const [bvSaving, setBvSaving] = useState(false);
+
+  // Brand identity state
+  const [biLogoUrl, setBiLogoUrl] = useState("");
+  const [biPrimaryColor, setBiPrimaryColor] = useState("");
+  const [biSecondaryColor, setBiSecondaryColor] = useState("");
+  const [biAccentColor, setBiAccentColor] = useState("");
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // Per-product integrations state
+  const [productIntegrations, setProductIntegrations] = useState<IntegrationInfo[]>([]);
+  const [disconnecting, setDisconnecting] = useState<string | null>(null);
+  const [metaPages, setMetaPages] = useState<MetaPage[]>([]);
+  const [selectedPageId, setSelectedPageId] = useState("");
+  const [loadingPages, setLoadingPages] = useState(false);
+  const [selectingPage, setSelectingPage] = useState(false);
+
+  // Per-product connection status cache (productId -> provider[])
+  const [connectionCache, setConnectionCache] = useState<Record<string, string[]>>({});
 
   const fetchProducts = async () => {
     try {
@@ -69,9 +219,66 @@ export default function ProductsPage() {
     }
   };
 
+  const fetchProductIntegrations = useCallback(async (productId: string) => {
+    const res = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${productId}`);
+    if (res.ok) {
+      const productLevel = (res.data.integrations || []).filter(
+        (i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]),
+      );
+      setProductIntegrations(productLevel);
+    }
+  }, []);
+
+  const fetchConnectionStatuses = useCallback(async (productList: Product[]) => {
+    const cache: Record<string, string[]> = {};
+    for (const p of productList) {
+      const res = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${p.id}`);
+      if (res.ok) {
+        cache[p.id] = (res.data.integrations || [])
+          .filter((i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]) && i.status === "connected")
+          .map((i) => i.provider);
+      }
+    }
+    setConnectionCache(cache);
+  }, []);
+
   useEffect(() => {
     fetchProducts();
+
+    // Handle OAuth callback
+    const params = new URLSearchParams(window.location.search);
+    const oauthResult = params.get("oauth");
+    const provider = params.get("provider");
+    const productId = params.get("productId");
+
+    if (oauthResult === "success" && provider) {
+      toast.success(`${providerLabels[provider] || provider} connected successfully`);
+      window.history.replaceState({}, "", "/products");
+      fetchProducts();
+    } else if (oauthResult === "error" && provider) {
+      const message = params.get("message");
+      toast.error(`${provider} OAuth failed: ${message || "Unknown error"}`);
+      window.history.replaceState({}, "", "/products");
+    }
+
+    // If we just came back from OAuth for a specific product, open its edit sheet
+    if (oauthResult === "success" && productId) {
+      setTimeout(async () => {
+        const res = await apiGet<{ products: Product[] }>("/api/products");
+        if (res.ok) {
+          const product = (res.data.products || []).find((p) => p.id === productId);
+          if (product) openEditSheet(product);
+        }
+      }, 500);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      fetchConnectionStatuses(products);
+    }
+  }, [products, fetchConnectionStatuses]);
 
   const handleCreate = async () => {
     setSaving(true);
@@ -110,6 +317,165 @@ export default function ProductsPage() {
     }
   };
 
+  const openEditSheet = async (product: Product) => {
+    setEditProductId(product.id);
+    setEditName(product.name || "");
+    setEditDescription(product.description || "");
+    setEditUrl(product.url || "");
+    setEditCategory(product.category || "saas");
+    setEditStatus(product.status || "active");
+    setEditPricing(product.pricingTier || "");
+    setEditTags((product.tags || []).join(", "));
+
+    // Load brand voice & identity
+    const res = await apiGet<{ brandVoice: BrandVoice | null; brandIdentity: BrandIdentity | null }>(`/api/products/${product.id}/brand-voice`);
+    if (res.ok && res.data.brandVoice) {
+      const bv = res.data.brandVoice;
+      setBvTone(bv.tone || ""); setBvStyle(bv.style || "");
+      setBvKeywords((bv.keywords || []).join(", ")); setBvAvoidWords((bv.avoidWords || []).join(", "));
+      setBvCta(bv.cta || ""); setBvSampleVoice(bv.sampleVoice || ""); setBvTargetAudience(bv.targetAudience || "");
+    } else {
+      setBvTone(""); setBvStyle(""); setBvKeywords(""); setBvAvoidWords("");
+      setBvCta(""); setBvSampleVoice(""); setBvTargetAudience("");
+    }
+    if (res.ok && res.data.brandIdentity) {
+      const bi = res.data.brandIdentity;
+      setBiLogoUrl(bi.logoUrl || ""); setBiPrimaryColor(bi.primaryColor || "");
+      setBiSecondaryColor(bi.secondaryColor || ""); setBiAccentColor(bi.accentColor || "");
+    } else {
+      setBiLogoUrl(""); setBiPrimaryColor(""); setBiSecondaryColor(""); setBiAccentColor("");
+    }
+
+    // Load integrations
+    setMetaPages([]); setSelectedPageId("");
+    await fetchProductIntegrations(product.id);
+    setEditOpen(true);
+  };
+
+  const saveProduct = async () => {
+    if (!editProductId) return;
+    setEditSaving(true);
+    try {
+      const res = await apiPut(`/api/products/${editProductId}`, {
+        name: editName,
+        description: editDescription,
+        url: editUrl || "",
+        category: editCategory,
+        status: editStatus,
+        pricingTier: editPricing,
+        tags: editTags.split(",").map((t) => t.trim()).filter(Boolean),
+      });
+      if (res.ok) {
+        toast.success("Product updated");
+        fetchProducts();
+      } else {
+        const errData = res.data as { error?: string; issues?: { field: string; message: string }[] };
+        toast.error(errData.issues?.[0]?.message || errData.error || "Failed to update product");
+      }
+    } catch {
+      toast.error("Failed to update product");
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
+  const saveBrandVoice = async () => {
+    if (!editProductId) return;
+    setBvSaving(true);
+    try {
+      const res = await apiPut(`/api/products/${editProductId}/brand-voice`, {
+        tone: bvTone, style: bvStyle,
+        keywords: bvKeywords.split(",").map((k) => k.trim()).filter(Boolean),
+        avoidWords: bvAvoidWords.split(",").map((k) => k.trim()).filter(Boolean),
+        cta: bvCta, sampleVoice: bvSampleVoice, targetAudience: bvTargetAudience,
+        brandIdentity: { logoUrl: biLogoUrl, primaryColor: biPrimaryColor, secondaryColor: biSecondaryColor, accentColor: biAccentColor },
+      });
+      if (res.ok) toast.success("Brand voice saved");
+      else toast.error("Failed to save brand voice");
+    } catch { toast.error("Failed to save brand voice"); }
+    finally { setBvSaving(false); }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editProductId) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Logo must be under 2 MB");
+      return;
+    }
+
+    setLogoUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("logo", file);
+      const res = await apiUpload<{ ok: boolean; logoUrl: string }>(`/api/products/${editProductId}/upload-logo`, formData);
+      if (res.ok && res.data.logoUrl) {
+        setBiLogoUrl(res.data.logoUrl);
+        toast.success("Logo uploaded");
+        fetchProducts();
+      } else {
+        toast.error("Failed to upload logo");
+      }
+    } catch {
+      toast.error("Failed to upload logo");
+    } finally {
+      setLogoUploading(false);
+      // Reset file input
+      if (logoInputRef.current) logoInputRef.current.value = "";
+    }
+  };
+
+  // --- Integration helpers ---
+
+  const getProviderIntegration = (provider: string) =>
+    productIntegrations.find((i) => i.provider === provider);
+
+  async function startOAuth(provider: string, productId: string) {
+    try {
+      const res = await apiPost<{ authUrl: string }>(`/api/oauth/authorize/${provider}`, { productId });
+      if (res.ok && res.data.authUrl) window.location.href = res.data.authUrl;
+      else toast.error(`Failed to start ${provider} OAuth`);
+    } catch { toast.error(`Failed to start ${provider} OAuth`); }
+  }
+
+  async function disconnectProvider(provider: string, productId: string) {
+    setDisconnecting(provider);
+    try {
+      const res = await apiPost(`/api/oauth/disconnect/${provider}`, { productId });
+      if (res.ok) {
+        toast.success(`${providerLabels[provider] || provider} disconnected`);
+        await fetchProductIntegrations(productId);
+        fetchProducts();
+      } else toast.error(`Failed to disconnect ${provider}`);
+    } catch { toast.error(`Failed to disconnect ${provider}`); }
+    finally { setDisconnecting(null); }
+  }
+
+  async function loadMetaPages(productId: string) {
+    setLoadingPages(true);
+    try {
+      const res = await apiGet<{ pages: MetaPage[]; error?: string }>(`/api/oauth/pages/meta?productId=${productId}`);
+      if (res.ok) {
+        setMetaPages(res.data.pages || []);
+        if (res.data.pages?.length === 0) toast.error("No Facebook pages found.");
+      }
+    } catch { toast.error("Failed to load pages"); }
+    finally { setLoadingPages(false); }
+  }
+
+  async function selectMetaPage(productId: string) {
+    if (!selectedPageId) { toast.error("Select a page first"); return; }
+    setSelectingPage(true);
+    const page = metaPages.find((p) => p.id === selectedPageId);
+    try {
+      const res = await apiPost<{ ok: boolean; pageName: string }>("/api/oauth/pages/meta/select", { pageId: selectedPageId, pageName: page?.name, productId });
+      if (res.ok && res.data.ok) { toast.success(`Page "${res.data.pageName}" selected`); await fetchProductIntegrations(productId); }
+      else toast.error("Failed to select page");
+    } catch { toast.error("Failed to select page"); }
+    finally { setSelectingPage(false); }
+  }
+
   return (
     <AppShell>
       <PageHeader
@@ -125,38 +491,32 @@ export default function ProductsPage() {
                 <SheetTitle>Register Product</SheetTitle>
                 <SheetDescription>Add an application you want to market and track.</SheetDescription>
               </SheetHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">Product Name</label>
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                <FormField label="Product Name">
                   <Input placeholder="DripCheckr" value={newName} onChange={(e) => setNewName(e.target.value)} />
-                </div>
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">Description</label>
+                </FormField>
+                <FormField label="Description">
                   <Textarea placeholder="AI-powered drip campaign analytics..." value={newDescription} onChange={(e) => setNewDescription(e.target.value)} rows={3} />
-                </div>
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">URL</label>
+                </FormField>
+                <FormField label="URL">
                   <Input placeholder="https://dripcheckr.com" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} />
-                </div>
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">Category</label>
-                  <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="h-9 rounded-md border border-input bg-background px-3 text-sm">
+                </FormField>
+                <FormField label="Category">
+                  <Select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
                     <option value="saas">SaaS</option>
                     <option value="mobile">Mobile App</option>
                     <option value="web">Web App</option>
                     <option value="api">API</option>
                     <option value="marketplace">Marketplace</option>
                     <option value="other">Other</option>
-                  </select>
-                </div>
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">Pricing Tier</label>
+                  </Select>
+                </FormField>
+                <FormField label="Pricing Tier">
                   <Input placeholder="Free / Pro / Enterprise" value={newPricing} onChange={(e) => setNewPricing(e.target.value)} />
-                </div>
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">Tags (comma separated)</label>
+                </FormField>
+                <FormField label="Tags (comma separated)">
                   <Input placeholder="analytics, ai, marketing" value={newTags} onChange={(e) => setNewTags(e.target.value)} />
-                </div>
+                </FormField>
               </div>
               <SheetFooter>
                 <SheetClose asChild>
@@ -168,28 +528,45 @@ export default function ProductsPage() {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
-          <p className="text-sm text-muted-foreground col-span-full">Loading products...</p>
+          <div className="col-span-full grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-48 rounded-xl border bg-muted/30 animate-pulse" />
+            ))}
+          </div>
         ) : products.length === 0 ? (
-          <Card className="col-span-full shadow-sm">
+          <Card className="col-span-full border">
             <CardContent className="py-16 text-center">
-              <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-lg font-medium text-foreground">No products registered yet</p>
+              <Package className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+              <p className="text-base font-medium text-foreground">No products registered yet</p>
               <p className="text-sm text-muted-foreground mt-1">Add your first application to start tracking its marketing performance.</p>
             </CardContent>
           </Card>
         ) : (
           products.map((p) => (
-            <Card key={p.id} className="shadow-sm hover:shadow-md transition-shadow duration-200">
+            <Card key={p.id} className="border transition-all duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.04)]">
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg">{p.name}</CardTitle>
-                    <CardDescription className="mt-1">
-                      {categoryLabels[p.category] || p.category}
-                      {p.pricingTier && ` • ${p.pricingTier}`}
-                    </CardDescription>
+                  <div className="flex items-center gap-3 min-w-0">
+                    {p.brandIdentity?.logoUrl ? (
+                      <img
+                        src={p.brandIdentity.logoUrl}
+                        alt={`${p.name} logo`}
+                        className="h-10 w-10 rounded-lg object-contain border bg-white shrink-0"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-lg border bg-muted/50 flex items-center justify-center shrink-0">
+                        <Package className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <CardTitle className="text-lg">{p.name}</CardTitle>
+                      <CardDescription className="mt-0.5">
+                        {categoryLabels[p.category] || p.category}
+                        {p.pricingTier && ` \u2022 ${p.pricingTier}`}
+                      </CardDescription>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 ml-2">
                     <Badge variant="outline" className={`capitalize border-0 text-xs ${statusColors[p.status] || ""}`}>
@@ -219,14 +596,237 @@ export default function ProductsPage() {
                     ))}
                   </div>
                 )}
-                {p.createdAt && (
-                  <p className="text-xs text-muted-foreground mt-3">Added {new Date(p.createdAt).toLocaleDateString()}</p>
+                {connectionCache[p.id] && connectionCache[p.id].length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {connectionCache[p.id].map((prov) => (
+                      <span key={prov} className="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-medium">
+                        {prov === "meta" ? "Meta" : prov === "x" ? "X" : "TikTok"}
+                      </span>
+                    ))}
+                  </div>
                 )}
+                <div className="flex items-center justify-between mt-3">
+                  {p.createdAt && (
+                    <p className="text-xs text-muted-foreground">Added {new Date(p.createdAt).toLocaleDateString()}</p>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => openEditSheet(p)}>
+                    <Pencil className="mr-1.5 h-3 w-3" /> Edit
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))
         )}
       </div>
+
+      {/* Edit Product Sheet */}
+      <Sheet open={editOpen} onOpenChange={setEditOpen}>
+        <SheetContent className="overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Edit Product</SheetTitle>
+            <SheetDescription>Update product details, brand voice, and connected accounts.</SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            {/* Product Details */}
+            <FormField label="Product Name">
+              <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+            </FormField>
+            <FormField label="Description">
+              <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} />
+            </FormField>
+            <FormField label="URL">
+              <Input value={editUrl} onChange={(e) => setEditUrl(e.target.value)} />
+            </FormField>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Category">
+                <Select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
+                  <option value="saas">SaaS</option>
+                  <option value="mobile">Mobile App</option>
+                  <option value="web">Web App</option>
+                  <option value="api">API</option>
+                  <option value="marketplace">Marketplace</option>
+                  <option value="other">Other</option>
+                </Select>
+              </FormField>
+              <FormField label="Status">
+                <Select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>
+                  <option value="active">Active</option>
+                  <option value="beta">Beta</option>
+                  <option value="development">Development</option>
+                  <option value="sunset">Sunset</option>
+                  <option value="archived">Archived</option>
+                </Select>
+              </FormField>
+            </div>
+            <FormField label="Pricing Tier">
+              <Input value={editPricing} onChange={(e) => setEditPricing(e.target.value)} />
+            </FormField>
+            <FormField label="Tags (comma separated)">
+              <Input value={editTags} onChange={(e) => setEditTags(e.target.value)} />
+            </FormField>
+            <Button onClick={saveProduct} disabled={editSaving} className="w-full">
+              {editSaving ? "Saving..." : "Save Product Details"}
+            </Button>
+
+            {/* Brand Voice Section */}
+            <div className="border-t pt-4 mt-2">
+              <p className="text-sm font-semibold mb-3">Brand Voice</p>
+              <div className="space-y-4">
+                <FormField label="Tone">
+                  <Input placeholder="Professional, friendly, bold..." value={bvTone} onChange={(e) => setBvTone(e.target.value)} />
+                </FormField>
+                <FormField label="Style">
+                  <Input placeholder="Concise, technical, conversational..." value={bvStyle} onChange={(e) => setBvStyle(e.target.value)} />
+                </FormField>
+                <FormField label="Keywords (comma separated)">
+                  <Input placeholder="innovate, automate, scale..." value={bvKeywords} onChange={(e) => setBvKeywords(e.target.value)} />
+                </FormField>
+                <FormField label="Words to Avoid (comma separated)">
+                  <Input placeholder="synergy, leverage, disrupt..." value={bvAvoidWords} onChange={(e) => setBvAvoidWords(e.target.value)} />
+                </FormField>
+                <FormField label="Default CTA">
+                  <Input placeholder="Start your free trial" value={bvCta} onChange={(e) => setBvCta(e.target.value)} />
+                </FormField>
+                <FormField label="Target Audience">
+                  <Input placeholder="SaaS founders, indie hackers..." value={bvTargetAudience} onChange={(e) => setBvTargetAudience(e.target.value)} />
+                </FormField>
+                <FormField label="Sample Voice">
+                  <Textarea placeholder="Paste an example of your ideal brand writing here..." value={bvSampleVoice} onChange={(e) => setBvSampleVoice(e.target.value)} rows={4} />
+                </FormField>
+              </div>
+            </div>
+
+            {/* Brand Identity */}
+            <div className="border-t pt-4 mt-2">
+              <p className="text-sm font-semibold mb-3">Brand Identity</p>
+              <div className="space-y-4">
+                {/* Logo Upload */}
+                <FormField label="Logo">
+                  <div className="space-y-3">
+                    {biLogoUrl && (
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={biLogoUrl}
+                          alt="Product logo"
+                          className="h-16 w-16 rounded-lg object-contain border bg-white"
+                        />
+                        <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => setBiLogoUrl("")}>
+                          Remove
+                        </Button>
+                      </div>
+                    )}
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={logoUploading}
+                      className="w-full"
+                    >
+                      <Upload className="mr-2 h-3.5 w-3.5" />
+                      {logoUploading ? "Uploading..." : biLogoUrl ? "Replace Logo" : "Upload Logo"}
+                    </Button>
+                    <p className="text-[11px] text-muted-foreground">PNG, JPG, WebP, or SVG. Max 2 MB.</p>
+                  </div>
+                </FormField>
+
+                <ColorPicker label="Primary Color" value={biPrimaryColor} onChange={setBiPrimaryColor} />
+                <ColorPicker label="Secondary Color" value={biSecondaryColor} onChange={setBiSecondaryColor} />
+                <ColorPicker label="Accent Color" value={biAccentColor} onChange={setBiAccentColor} />
+              </div>
+              <Button onClick={saveBrandVoice} disabled={bvSaving} variant="outline" className="w-full mt-4">
+                {bvSaving ? "Saving..." : "Save Brand Voice & Identity"}
+              </Button>
+            </div>
+
+            {/* Connected Accounts */}
+            {editProductId && (
+              <div className="border-t pt-4 mt-2">
+                <p className="text-sm font-semibold mb-3">Connected Accounts</p>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Connect social accounts for this product.
+                </p>
+                <div className="space-y-3">
+                  {/* Social Providers */}
+                  {SOCIAL_PROVIDERS.map((provider) => {
+                    const integ = getProviderIntegration(provider);
+                    const connected = integ?.status === "connected";
+
+                    return (
+                      <div key={provider} className="rounded-xl border p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium">{providerLabels[provider]}</p>
+                            {connected && (
+                              <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
+                            )}
+                            {integ?.lastRefreshError && (
+                              <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
+                            )}
+                          </div>
+                          {connected ? (
+                            <Button variant="destructive" size="sm" onClick={() => disconnectProvider(provider, editProductId)} disabled={disconnecting === provider}>
+                              {disconnecting === provider ? "..." : "Disconnect"}
+                            </Button>
+                          ) : (
+                            <Button size="sm" onClick={() => startOAuth(provider, editProductId)}>Connect</Button>
+                          )}
+                        </div>
+
+                        {provider === "meta" && connected && (
+                          <div className="space-y-2 pl-1">
+                            {integ?.pageName && (
+                              <p className="text-xs text-muted-foreground">
+                                Page: {integ.pageName}{integ.igAccountId && " (Instagram linked)"}
+                              </p>
+                            )}
+                            {integ?.tokenExpiresAt && (
+                              <p className="text-xs text-muted-foreground">
+                                Token expires: {new Date(integ.tokenExpiresAt).toLocaleDateString()}
+                              </p>
+                            )}
+                            <Button variant="outline" size="sm" onClick={() => loadMetaPages(editProductId)} disabled={loadingPages}>
+                              {loadingPages ? "Loading..." : "Change Page"}
+                            </Button>
+                            {metaPages.length > 0 && (
+                              <div className="flex gap-2">
+                                <Select value={selectedPageId} onChange={(e) => setSelectedPageId(e.target.value)} className="flex-1">
+                                  <option value="">Select a page...</option>
+                                  {metaPages.map((pg) => (
+                                    <option key={pg.id} value={pg.id}>{pg.name} {pg.hasInstagram ? "(IG linked)" : ""}</option>
+                                  ))}
+                                </Select>
+                                <Button size="sm" onClick={() => selectMetaPage(editProductId)} disabled={selectingPage || !selectedPageId}>
+                                  {selectingPage ? "..." : "Select"}
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {provider !== "meta" && connected && integ?.tokenExpiresAt && (
+                          <p className="text-xs text-muted-foreground pl-1">
+                            Token expires: {new Date(integ.tokenExpiresAt).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          <SheetFooter>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>Close</Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </AppShell>
   );
 }

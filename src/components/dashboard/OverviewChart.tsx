@@ -18,12 +18,12 @@ export function DashboardOverviewChart() {
             <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                     <linearGradient id="colorSent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#000000" stopOpacity={0.1} />
-                        <stop offset="95%" stopColor="#000000" stopOpacity={0} />
+                        <stop offset="5%" stopColor="var(--chart-1, #18181b)" stopOpacity={0.08} />
+                        <stop offset="95%" stopColor="var(--chart-1, #18181b)" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorOpened" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#666666" stopOpacity={0.1} />
-                        <stop offset="95%" stopColor="#666666" stopOpacity={0} />
+                        <stop offset="5%" stopColor="var(--chart-2, #71717a)" stopOpacity={0.08} />
+                        <stop offset="95%" stopColor="var(--chart-2, #71717a)" stopOpacity={0} />
                     </linearGradient>
                 </defs>
                 <XAxis
@@ -42,14 +42,15 @@ export function DashboardOverviewChart() {
                     tickFormatter={(value) => `${value}`}
                     dx={-10}
                 />
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" opacity={0.6} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" opacity={0.4} />
                 <Tooltip
                     contentStyle={{
                         backgroundColor: "#ffffff",
                         borderColor: "#e4e4e7",
-                        borderRadius: "var(--radius)",
-                        boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                        color: "#18181b"
+                        borderRadius: "10px",
+                        boxShadow: "0 4px 12px rgb(0 0 0 / 0.06)",
+                        color: "#18181b",
+                        fontSize: "13px",
                     }}
                     itemStyle={{ color: "#18181b" }}
                 />
@@ -59,7 +60,7 @@ export function DashboardOverviewChart() {
                     stroke="#18181b"
                     fillOpacity={1}
                     fill="url(#colorSent)"
-                    strokeWidth={2}
+                    strokeWidth={1.5}
                 />
                 <Area
                     type="monotone"
@@ -67,7 +68,7 @@ export function DashboardOverviewChart() {
                     stroke="#71717a"
                     fillOpacity={1}
                     fill="url(#colorOpened)"
-                    strokeWidth={2}
+                    strokeWidth={1.5}
                     strokeDasharray="4 4"
                 />
             </AreaChart>

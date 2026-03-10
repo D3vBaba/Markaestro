@@ -88,6 +88,7 @@ async function executeStep(
         name: `Automation: ${subject}`,
         subject,
         body,
+        productId: (step.config.productId || contact.productId) as string | undefined,
       }, {
         testMode: true,
         testEmail: contact.email as string,

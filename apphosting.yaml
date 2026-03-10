@@ -1,0 +1,82 @@
+runConfig:
+  minInstances: 0
+  maxInstances: 4
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  # Client-side Firebase config (available at build + runtime)
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyBSyzoIBbqmk9iBBE2qu4fzcw4ib6-Le08
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: markaestro-0226220726.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: markaestro-0226220726
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: markaestro-0226220726.firebasestorage.app
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "227206788749"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:227206788749:web:3b4e8c1b6e9bfeb1cdd4c4
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # App URL for OAuth callbacks
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://markaestro--markaestro-0226220726.us-central1.hosted.app
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Sentry error tracking (client-side DSN is safe to expose)
+  - variable: NEXT_PUBLIC_SENTRY_DSN
+    secret: SENTRY_DSN
+
+  # Server-side secrets (from Google Secret Manager)
+  - variable: ENCRYPTION_KEY
+    secret: ENCRYPTION_KEY
+  - variable: WORKER_SECRET
+    secret: WORKER_SECRET
+  - variable: OPENAI_API_KEY
+    secret: OPENAI_API_KEY
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY
+  - variable: FIREBASE_SERVICE_ACCOUNT_JSON
+    secret: FIREBASE_SERVICE_ACCOUNT_JSON
+
+  # OAuth provider credentials
+  - variable: META_APP_ID
+    secret: META_APP_ID
+  - variable: META_APP_SECRET
+    secret: META_APP_SECRET
+  - variable: GOOGLE_CLIENT_ID
+    secret: GOOGLE_CLIENT_ID
+  - variable: GOOGLE_CLIENT_SECRET
+    secret: GOOGLE_CLIENT_SECRET
+  - variable: GOOGLE_ADS_DEVELOPER_TOKEN
+    secret: GOOGLE_ADS_DEVELOPER_TOKEN
+  - variable: TIKTOK_CLIENT_KEY
+    secret: TIKTOK_CLIENT_KEY
+  - variable: TIKTOK_CLIENT_SECRET
+    secret: TIKTOK_CLIENT_SECRET
+  - variable: X_CLIENT_ID
+    secret: X_CLIENT_ID
+  - variable: X_CLIENT_SECRET
+    secret: X_CLIENT_SECRET

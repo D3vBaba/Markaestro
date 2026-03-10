@@ -60,3 +60,20 @@ export function apiDelete<T = unknown>(path: string, wsId = 'default') {
     method: 'DELETE',
   });
 }
+
+/** Upload a file via FormData (does NOT set Content-Type — browser adds multipart boundary). */
+export async function apiUpload<T = unknown>(
+  path: string,
+  formData: FormData,
+  wsId = 'default',
+): Promise<{ ok: boolean; status: number; data: T }> {
+  const token = _getIdToken ? await _getIdToken() : null;
+  const sep = path.includes('?') ? '&' : '?';
+  const res = await fetch(`${path}${sep}workspaceId=${wsId}`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  const data = await res.json();
+  return { ok: res.ok, status: res.status, data };
+}

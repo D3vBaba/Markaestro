@@ -1,6 +1,8 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { decrypt } from '@/lib/crypto';
 import { renderTemplate, type TemplateVars } from './templates';
+import { buildUnsubscribeUrl } from './unsubscribe';
+import { fetchWithRetry } from '@/lib/fetch-retry';
 
 type SendResult = {
   success: boolean;
@@ -28,29 +30,29 @@ export async function sendCampaignEmails(
     body?: string;
     cta?: string;
     targetAudience?: string;
+    productId?: string;
   },
   options: { testMode?: boolean; testEmail?: string } = {},
 ): Promise<SendResult> {
-  // Get Resend config
-  const integDoc = await adminDb
-    .doc(`workspaces/${workspaceId}/integrations/resend`)
-    .get();
+  // Get Resend config — per-product if productId provided, else workspace-level fallback
+  const docPath = campaign.productId
+    ? `workspaces/${workspaceId}/products/${campaign.productId}/integrations/resend`
+    : `workspaces/${workspaceId}/integrations/resend`;
+  const integDoc = await adminDb.doc(docPath).get();
   const cfg = integDoc.data();
 
   if (!cfg) {
     return { success: false, sent: 0, failed: 0, errors: ['Resend integration not configured'] };
   }
 
-  let apiKey = '';
-  if (cfg.apiKeyEncrypted) {
-    apiKey = decrypt(cfg.apiKeyEncrypted);
-  } else if (cfg.apiKey) {
-    apiKey = String(cfg.apiKey);
+  if (!cfg.apiKeyEncrypted) {
+    return { success: false, sent: 0, failed: 0, errors: ['Resend API key not configured (encrypted key required)'] };
   }
+  const apiKey = decrypt(cfg.apiKeyEncrypted);
 
   const fromEmail = String(cfg.fromEmail || '');
-  if (!apiKey || !fromEmail) {
-    return { success: false, sent: 0, failed: 0, errors: ['Resend API key or from email not configured'] };
+  if (!fromEmail) {
+    return { success: false, sent: 0, failed: 0, errors: ['Resend from email not configured'] };
   }
 
   // Get target contacts
@@ -81,6 +83,8 @@ export async function sendCampaignEmails(
     const batch = contacts.slice(i, i + batchSize);
     const results = await Promise.allSettled(
       batch.map(async (contact) => {
+        const unsubscribeUrl = buildUnsubscribeUrl(workspaceId, contact.email);
+
         const vars: TemplateVars = {
           subject: campaign.subject || campaign.name,
           body: campaign.body || `Hi ${contact.name}, we have something exciting for you!`,
@@ -88,12 +92,12 @@ export async function sendCampaignEmails(
           ctaUrl: '#',
           recipientName: contact.name,
           recipientEmail: contact.email,
-          unsubscribeUrl: '#',
+          unsubscribeUrl,
         };
 
         const html = renderTemplate(vars);
 
-        const resp = await fetch('https://api.resend.com/emails', {
+        const resp = await fetchWithRetry('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${apiKey}`,
@@ -104,6 +108,10 @@ export async function sendCampaignEmails(
             to: [contact.email],
             subject: vars.subject,
             html,
+            headers: {
+              'List-Unsubscribe': `<${unsubscribeUrl}>`,
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+            },
           }),
         });
 

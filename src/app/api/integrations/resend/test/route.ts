@@ -6,29 +6,26 @@ import { z } from 'zod';
 
 const testSchema = z.object({
   to: z.string().trim().min(1).email('Invalid recipient email'),
+  productId: z.string().trim().min(1, 'productId is required'),
 });
 
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     const body = await req.json();
-    const { to } = testSchema.parse(body);
+    const { to, productId } = testSchema.parse(body);
 
     const doc = await adminDb
-      .doc(`workspaces/${ctx.workspaceId}/integrations/resend`)
+      .doc(`workspaces/${ctx.workspaceId}/products/${productId}/integrations/resend`)
       .get();
     const cfg = doc.data() || {};
 
-    // Support both encrypted (new) and plaintext (legacy) keys
-    let apiKey = '';
-    if (cfg.apiKeyEncrypted) {
-      apiKey = decrypt(cfg.apiKeyEncrypted);
-    } else if (cfg.apiKey) {
-      apiKey = String(cfg.apiKey);
+    if (!cfg.apiKeyEncrypted) {
+      throw new Error('VALIDATION_MISSING_RESEND_CONFIG');
     }
-
+    const apiKey = decrypt(cfg.apiKeyEncrypted);
     const from = String(cfg.fromEmail || '');
-    if (!apiKey || !from) {
+    if (!from) {
       throw new Error('VALIDATION_MISSING_RESEND_CONFIG');
     }
 

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
+  FacebookAuthProvider,
   GoogleAuthProvider,
   User,
   createUserWithEmailAndPassword,
@@ -19,6 +20,7 @@ type AuthCtx = {
   signInEmail: (email: string, password: string) => Promise<void>;
   signUpEmail: (email: string, password: string) => Promise<void>;
   signInGoogle: () => Promise<void>;
+  signInFacebook: () => Promise<void>;
   logout: () => Promise<void>;
   getIdToken: () => Promise<string | null>;
 };
@@ -54,6 +56,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       signInGoogle: async () => {
         await signInWithPopup(auth, new GoogleAuthProvider());
+      },
+      signInFacebook: async () => {
+        await signInWithPopup(auth, new FacebookAuthProvider());
       },
       logout: async () => {
         await signOut(auth);

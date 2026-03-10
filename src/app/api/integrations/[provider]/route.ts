@@ -6,6 +6,7 @@ import { resendIntegrationSchema, metaIntegrationSchema, integrationProviders } 
 import { encrypt } from '@/lib/crypto';
 
 const ALLOWED = new Set(integrationProviders);
+const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'x', 'tiktok', 'facebook', 'instagram', 'resend']);
 
 function buildPayload(provider: string, body: unknown) {
   if (provider === 'resend') {
@@ -16,7 +17,7 @@ function buildPayload(provider: string, body: unknown) {
       enabled: data.enabled,
     };
   }
-  if (provider === 'facebook' || provider === 'instagram') {
+  if (provider === 'facebook' || provider === 'instagram' || provider === 'meta') {
     const data = metaIntegrationSchema.parse(body);
     return {
       accessTokenEncrypted: encrypt(data.accessToken),
@@ -26,14 +27,21 @@ function buildPayload(provider: string, body: unknown) {
       enabled: data.enabled,
     };
   }
-  // X and others: coming soon
-  return { enabled: false, comingSoon: true };
+  if (provider === 'x' || provider === 'google' || provider === 'tiktok') {
+    // These are set up via OAuth; allow manual entry as fallback
+    const data = metaIntegrationSchema.parse(body);
+    return {
+      accessTokenEncrypted: encrypt(data.accessToken),
+      enabled: data.enabled,
+    };
+  }
+  return { enabled: false };
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx); // Only admins+ can configure integrations
+    requireAdmin(ctx);
 
     const { provider } = await params;
     if (!ALLOWED.has(provider as typeof integrationProviders[number])) {
@@ -41,6 +49,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     }
 
     const body = await req.json();
+    const productId = body.productId as string | undefined;
+
+    // Social providers require productId (per-product)
+    if (PRODUCT_LEVEL_PROVIDERS.has(provider) && !productId) {
+      throw new Error('VALIDATION_MISSING_PRODUCT_ID');
+    }
+
     const sanitized = buildPayload(provider, body);
 
     const payload = {
@@ -48,15 +63,21 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       ...sanitized,
       updatedAt: new Date().toISOString(),
       updatedBy: ctx.uid,
-      status: provider === 'x' ? 'coming_soon' : 'connected',
+      status: 'connected',
     };
 
-    await adminDb
-      .doc(`workspaces/${ctx.workspaceId}/integrations/${provider}`)
-      .set(payload, { merge: true });
+    const docPath = productId
+      ? `workspaces/${ctx.workspaceId}/products/${productId}/integrations/${provider}`
+      : `workspaces/${ctx.workspaceId}/integrations/${provider}`;
+
+    await adminDb.doc(docPath).set(payload, { merge: true });
 
     // Return without sensitive fields
-    const { apiKeyEncrypted, accessTokenEncrypted, ...safe } = payload as Record<string, unknown>;
+    const {
+      apiKeyEncrypted, apiKeySecretEncrypted,
+      accessTokenEncrypted, accessTokenSecretEncrypted,
+      ...safe
+    } = payload as Record<string, unknown>;
     return apiOk({ ok: true, ...safe });
   } catch (error) {
     return apiError(error);
