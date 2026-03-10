@@ -159,6 +159,7 @@ async function generateWithGemini(
         },
       }),
     },
+    { timeoutMs: 120_000, maxRetries: 1 },
   );
 
   const data = await response.json();
@@ -289,19 +290,15 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
   }
 
   if (req.provider === 'gemini') {
-    try {
-      const result = await generateWithGemini(
-        prompt,
-        req.aspectRatio,
-        referenceImages.length > 0 ? referenceImages : undefined,
-      );
-      return { ...result, provider: 'gemini' };
-    } catch (e) {
-      console.error('Gemini image generation failed, falling back to OpenAI:', e);
-    }
+    const result = await generateWithGemini(
+      prompt,
+      req.aspectRatio,
+      referenceImages.length > 0 ? referenceImages : undefined,
+    );
+    return { ...result, provider: 'gemini' };
   }
 
-  // OpenAI (primary or fallback) — DALL-E doesn't support reference images
+  // OpenAI — only used when explicitly selected as provider
   const result = await generateWithOpenAI(prompt, req.aspectRatio);
   return {
     base64: result.base64,
