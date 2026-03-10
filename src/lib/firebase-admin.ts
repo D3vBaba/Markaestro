@@ -16,13 +16,19 @@ function getApp(): App {
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (raw && raw.startsWith('{')) {
     const serviceAccount = JSON.parse(raw);
-    _app = initializeApp({ credential: cert(serviceAccount) });
+    _app = initializeApp({
+      credential: cert(serviceAccount),
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    });
   } else {
     // Uses Application Default Credentials (works on GCP)
     const projectId = process.env.GOOGLE_CLOUD_PROJECT
       || process.env.GCLOUD_PROJECT
       || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    _app = initializeApp(projectId ? { projectId } : undefined);
+    _app = initializeApp({
+      ...(projectId ? { projectId } : {}),
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    });
   }
   return _app;
 }
