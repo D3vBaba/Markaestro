@@ -45,8 +45,8 @@ export default function LoginPage() {
     <div className="relative min-h-screen overflow-hidden bg-background">
       <div className="pointer-events-none absolute inset-0 gradient-mesh-strong" />
       {/* Decorative gradient orbs */}
-      <div className="pointer-events-none absolute -top-32 left-1/4 w-96 h-96 rounded-full bg-primary/8 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 right-1/4 w-72 h-72 rounded-full bg-chart-2/6 blur-3xl" />
+      <div className="pointer-events-none absolute -top-32 left-1/4 w-96 h-96 rounded-full bg-blue-600/8 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-1/4 w-72 h-72 rounded-full bg-slate-900/5 blur-3xl" />
 
       <div className="relative mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 items-center gap-8 p-6 lg:grid-cols-2 lg:p-10">
         <motion.div
@@ -71,17 +71,17 @@ export default function LoginPage() {
           <div className="mt-10 space-y-5">
             {[
               {
-                color: "bg-violet-500",
+                color: "bg-blue-600",
                 title: "Performance-first dashboard",
                 desc: "Track campaign outcomes and channel efficiency in one view.",
               },
               {
-                color: "bg-pink-500",
+                color: "bg-slate-800",
                 title: "Automation-ready workflows",
                 desc: "Move from drafts to scheduled campaigns with fewer manual steps.",
               },
               {
-                color: "bg-blue-500",
+                color: "bg-blue-600",
                 title: "Secure by default",
                 desc: "Workspace boundaries and authenticated access for your team.",
               },

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Loader2, Save, Clock, Send, ImageIcon, X, FolderOpen } from "lucide-react";
+import { Sparkles, Loader2, Save, Clock, Send, ImageIcon, X, FolderOpen, Upload, Smartphone } from "lucide-react";
 import Select from "@/components/app/Select";
-import { apiPost, apiPut } from "@/lib/api-client";
+import { apiPost, apiPut, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 import ProductPicker from "./ProductPicker";
 import ChannelSelector from "./ChannelSelector";
@@ -53,6 +53,12 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   const [aspectRatio, setAspectRatio] = useState("1:1");
   const [pickerOpen, setPickerOpen] = useState(false);
 
+  // Screenshot upload state
+  const [screenUrls, setScreenUrls] = useState<string[]>([]);
+  const [uploadingScreen, setUploadingScreen] = useState(false);
+  const [includeLogo, setIncludeLogo] = useState(false);
+  const screenInputRef = useRef<HTMLInputElement>(null);
+
   const handleGenerate = async () => {
     if (!productId) {
       toast.error("Select a product first");
@@ -84,6 +90,40 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     }
   };
 
+  const handleUploadScreenshot = async (file: File) => {
+    if (screenUrls.length >= 4) {
+      toast.error("Maximum 4 screenshots allowed");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File must be under 5 MB");
+      return;
+    }
+    setUploadingScreen(true);
+    try {
+      const formData = new FormData();
+      formData.append("screenshot", file);
+      const res = await apiUpload<{ ok: boolean; url: string }>(
+        "/api/ai/upload-screenshot",
+        formData,
+      );
+      if (res.ok) {
+        setScreenUrls((prev) => [...prev, res.data.url]);
+        toast.success("Screenshot uploaded");
+      } else {
+        toast.error("Failed to upload screenshot");
+      }
+    } catch {
+      toast.error("Failed to upload screenshot");
+    } finally {
+      setUploadingScreen(false);
+    }
+  };
+
+  const handleRemoveScreen = (index: number) => {
+    setScreenUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleGenerateImage = async () => {
     if (!content) {
       toast.error("Generate content first");
@@ -99,6 +139,8 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
           style: imageStyle,
           aspectRatio,
           provider: "gemini",
+          screenUrls: screenUrls.length > 0 ? screenUrls : undefined,
+          includeLogo,
         },
       );
       if (res.ok) {
@@ -246,6 +288,69 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
                     </Select>
                   </div>
                 </div>
+
+                {/* App Screenshots Upload */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Smartphone className="h-3 w-3" /> App Screenshots (phone mockups)
+                    </label>
+                    <span className="text-xs text-muted-foreground">{screenUrls.length}/4</span>
+                  </div>
+
+                  {screenUrls.length > 0 && (
+                    <div className="flex gap-2 flex-wrap">
+                      {screenUrls.map((url, i) => (
+                        <div key={i} className="relative group w-16 h-28 rounded-md overflow-hidden border">
+                          <img src={url} alt={`Screenshot ${i + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => handleRemoveScreen(i)}
+                            className="absolute top-0.5 right-0.5 p-0.5 rounded-full bg-background/80 border opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-2.5 w-2.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <input
+                    ref={screenInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleUploadScreenshot(file);
+                      e.target.value = "";
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => screenInputRef.current?.click()}
+                    disabled={uploadingScreen || screenUrls.length >= 4}
+                    className="w-full"
+                  >
+                    {uploadingScreen ? (
+                      <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Uploading...</>
+                    ) : (
+                      <><Upload className="mr-1.5 h-3 w-3" /> Upload Screenshot</>
+                    )}
+                  </Button>
+                </div>
+
+                {/* Include Logo Toggle */}
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={includeLogo}
+                    onChange={(e) => setIncludeLogo(e.target.checked)}
+                    className="rounded border-border"
+                  />
+                  <span className="text-xs text-muted-foreground">Include product logo</span>
+                </label>
+
                 <div className="flex gap-2">
                   <Button
                     variant="outline"

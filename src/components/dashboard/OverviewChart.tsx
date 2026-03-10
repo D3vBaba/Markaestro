@@ -18,12 +18,12 @@ export function DashboardOverviewChart() {
             <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                     <linearGradient id="colorSent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.15} />
-                        <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15} />
+                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorOpened" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ec4899" stopOpacity={0.12} />
-                        <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#0f172a" stopOpacity={0.12} />
+                        <stop offset="95%" stopColor="#0f172a" stopOpacity={0} />
                     </linearGradient>
                 </defs>
                 <XAxis
@@ -48,7 +48,7 @@ export function DashboardOverviewChart() {
                         backgroundColor: "#ffffff",
                         borderColor: "#e4e4e7",
                         borderRadius: "12px",
-                        boxShadow: "0 8px 30px rgba(124, 58, 237, 0.08)",
+                        boxShadow: "0 8px 30px rgba(37, 99, 235, 0.08)",
                         color: "#18181b",
                         fontSize: "13px",
                     }}
@@ -57,7 +57,7 @@ export function DashboardOverviewChart() {
                 <Area
                     type="monotone"
                     dataKey="sent"
-                    stroke="#7c3aed"
+                    stroke="#2563eb"
                     fillOpacity={1}
                     fill="url(#colorSent)"
                     strokeWidth={2}
@@ -65,7 +65,7 @@ export function DashboardOverviewChart() {
                 <Area
                     type="monotone"
                     dataKey="opened"
-                    stroke="#ec4899"
+                    stroke="#0f172a"
                     fillOpacity={1}
                     fill="url(#colorOpened)"
                     strokeWidth={2}

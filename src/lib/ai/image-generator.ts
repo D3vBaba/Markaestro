@@ -10,6 +10,10 @@ export type ImageGenRequest = {
   style: ImageStyle;
   aspectRatio: ImageAspectRatio;
   provider: ImageProvider;
+  /** URLs of app screenshots to render inside phone mockups */
+  screenUrls?: string[];
+  /** URL of the product logo to include in the image */
+  logoUrl?: string;
 };
 
 export type ImageGenResult = {
@@ -18,11 +22,21 @@ export type ImageGenResult = {
   revisedPrompt?: string;
 };
 
+/** Pixel dimensions for each aspect ratio */
+const ASPECT_RATIO_DIMENSIONS: Record<ImageAspectRatio, { width: number; height: number }> = {
+  '1:1': { width: 1024, height: 1024 },
+  '16:9': { width: 1792, height: 1024 },
+  '9:16': { width: 1024, height: 1792 },
+  '4:5': { width: 1024, height: 1280 },
+};
+
 /**
  * Build a prompt that incorporates brand identity and produces studio-quality images.
  */
 function buildBrandedPrompt(req: ImageGenRequest): string {
   const parts: string[] = [];
+
+  const dims = ASPECT_RATIO_DIMENSIONS[req.aspectRatio];
 
   // Style instruction with studio-quality photography direction
   const styleMap: Record<ImageStyle, string> = {
@@ -33,6 +47,27 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
     branded: 'Professional commercial photography, studio lighting setup, product-shot quality, advertising-grade image with premium feel',
   };
   parts.push(styleMap[req.style] || styleMap.branded);
+
+  // Aspect ratio and size instruction
+  parts.push(`Output image must be exactly ${dims.width}x${dims.height} pixels (${req.aspectRatio} aspect ratio).`);
+
+  // Phone mockup instructions when screenshots are provided
+  if (req.screenUrls && req.screenUrls.length > 0) {
+    const count = req.screenUrls.length;
+    parts.push(
+      `Feature ${count === 1 ? 'a modern smartphone' : `${count} modern smartphones`} in the composition.` +
+      ` Each phone screen must display the provided app screenshot(s) exactly as given — do NOT alter, redraw, or reinterpret the screen content.` +
+      ` The phones should have thin bezels, realistic reflections, and be angled attractively.` +
+      ` Place the phone${count > 1 ? 's' : ''} as the focal point of the marketing image.`
+    );
+  }
+
+  // Logo instructions
+  if (req.logoUrl) {
+    parts.push(
+      'Include the provided logo in the image. Place it prominently but tastefully — corner placement, watermark-style, or integrated into the design. Reproduce the logo exactly as provided, do NOT alter or redraw it.'
+    );
+  }
 
   // Main prompt
   parts.push(`depicting: ${req.prompt}.`);
@@ -65,11 +100,44 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
 }
 
 /**
- * Generate image using Gemini 3.1 Flash (Nano Banana 2) — native image generation.
+ * Download an image URL and return its base64 data and mime type.
  */
-async function generateWithGemini(prompt: string, _aspectRatio: ImageAspectRatio): Promise<{ base64: string; mimeType: string }> {
+async function fetchImageAsBase64(url: string): Promise<{ base64: string; mimeType: string }> {
+  const res = await fetchWithRetry(url, undefined, { timeoutMs: 15_000 });
+  if (!res.ok) throw new Error(`Failed to fetch image: ${url}`);
+  const buffer = Buffer.from(await res.arrayBuffer());
+  const contentType = res.headers.get('content-type') || 'image/png';
+  return { base64: buffer.toString('base64'), mimeType: contentType };
+}
+
+/**
+ * Generate image using Gemini 3.1 Flash — supports multimodal input (logo + screenshots).
+ */
+async function generateWithGemini(
+  prompt: string,
+  _aspectRatio: ImageAspectRatio,
+  referenceImages?: { base64: string; mimeType: string }[],
+): Promise<{ base64: string; mimeType: string }> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
+
+  // Build multimodal content parts
+  const contentParts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
+
+  // Add reference images first (logo and screenshots)
+  if (referenceImages && referenceImages.length > 0) {
+    for (const img of referenceImages) {
+      contentParts.push({
+        inlineData: {
+          mimeType: img.mimeType,
+          data: img.base64,
+        },
+      });
+    }
+  }
+
+  // Add the text prompt
+  contentParts.push({ text: prompt });
 
   const response = await fetchWithRetry(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`,
@@ -77,7 +145,7 @@ async function generateWithGemini(prompt: string, _aspectRatio: ImageAspectRatio
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        contents: [{ parts: contentParts }],
         generationConfig: {
           responseModalities: ['TEXT', 'IMAGE'],
         },
@@ -186,21 +254,45 @@ async function uploadToFirebaseStorage(
 
 /**
  * Generate an image using the specified provider, with fallback.
- * Tries Gemini 3.1 Flash (Nano Banana 2) first, falls back to OpenAI DALL-E 3.
+ * Tries Gemini 3.1 Flash first, falls back to OpenAI DALL-E 3.
  */
 export async function generateImage(req: ImageGenRequest): Promise<{ base64: string; mimeType: string; provider: ImageProvider; revisedPrompt?: string }> {
   const prompt = buildBrandedPrompt(req);
 
+  // Fetch reference images (logo + screenshots) for Gemini multimodal input
+  const referenceImages: { base64: string; mimeType: string }[] = [];
+  const imageUrls: string[] = [];
+
+  if (req.logoUrl) imageUrls.push(req.logoUrl);
+  if (req.screenUrls) imageUrls.push(...req.screenUrls);
+
+  if (imageUrls.length > 0) {
+    const fetched = await Promise.allSettled(
+      imageUrls.map((url) => fetchImageAsBase64(url)),
+    );
+    for (const result of fetched) {
+      if (result.status === 'fulfilled') {
+        referenceImages.push(result.value);
+      } else {
+        console.warn('Failed to fetch reference image:', result.reason);
+      }
+    }
+  }
+
   if (req.provider === 'gemini') {
     try {
-      const result = await generateWithGemini(prompt, req.aspectRatio);
+      const result = await generateWithGemini(
+        prompt,
+        req.aspectRatio,
+        referenceImages.length > 0 ? referenceImages : undefined,
+      );
       return { ...result, provider: 'gemini' };
     } catch (e) {
       console.error('Gemini image generation failed, falling back to OpenAI:', e);
     }
   }
 
-  // OpenAI (primary or fallback)
+  // OpenAI (primary or fallback) — DALL-E doesn't support reference images
   const result = await generateWithOpenAI(prompt, req.aspectRatio);
   return {
     base64: result.base64,

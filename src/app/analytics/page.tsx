@@ -30,7 +30,7 @@ type AnalyticsData = {
   postStats?: PostStats;
 };
 
-const COLORS = ["#7c3aed", "#ec4899", "#3b82f6", "#f97316", "#14b8a6"];
+const COLORS = ["#2563eb", "#0f172a", "#3b82f6", "#64748b", "#94a3b8"];
 
 const channelLabels: Record<string, string> = {
   x: "X",
@@ -156,8 +156,8 @@ export default function AnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" opacity={0.6} />
                   <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} className="capitalize" />
                   <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ borderRadius: "12px", borderColor: "#e4e4e7", boxShadow: "0 8px 30px rgba(124, 58, 237, 0.08)" }} />
-                  <Bar dataKey="value" fill="#7c3aed" radius={[6, 6, 0, 0]} />
+                  <Tooltip contentStyle={{ borderRadius: "12px", borderColor: "#e4e4e7", boxShadow: "0 8px 30px rgba(37, 99, 235, 0.08)" }} />
+                  <Bar dataKey="value" fill="#2563eb" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -205,7 +205,7 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { weekday: 'short' })} />
                 <YAxis fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip />
-                <Bar dataKey="events" fill="#ec4899" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="events" fill="#0f172a" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

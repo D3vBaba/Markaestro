@@ -72,15 +72,15 @@ export default function Home() {
     {
       label: "Total Contacts",
       value: loading ? "..." : (m?.totalContacts ?? 0).toLocaleString(),
-      gradient: "from-violet-500/10 to-purple-500/5",
-      dot: "bg-violet-500",
+      gradient: "from-blue-500/10 to-blue-400/5",
+      dot: "bg-blue-600",
       detail: <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2"><ArrowUpRight className="h-3 w-3 mr-0.5" /> {m?.activeContacts ?? 0} active</span>,
     },
     {
       label: "Campaigns",
       value: loading ? "..." : String(m?.totalCampaigns ?? 0),
-      gradient: "from-pink-500/10 to-rose-500/5",
-      dot: "bg-pink-500",
+      gradient: "from-slate-900/10 to-black/5",
+      dot: "bg-slate-800",
       detail: (
         <>
           <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.activeCampaigns ?? 0} active</span>
@@ -91,15 +91,15 @@ export default function Home() {
     {
       label: "Automations",
       value: loading ? "..." : String(m?.totalAutomations ?? 0),
-      gradient: "from-blue-500/10 to-cyan-500/5",
-      dot: "bg-blue-500",
+      gradient: "from-blue-600/10 to-blue-500/5",
+      dot: "bg-blue-600",
       detail: <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.enabledAutomations ?? 0} enabled</span>,
     },
     {
       label: "Scheduled Jobs",
       value: loading ? "..." : String(m?.totalJobs ?? 0),
-      gradient: "from-orange-500/10 to-amber-500/5",
-      dot: "bg-orange-500",
+      gradient: "from-sky-500/10 to-sky-400/5",
+      dot: "bg-sky-500",
       detail: <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2"><Activity className="h-3 w-3 mr-1" /> {m?.enabledJobs ?? 0} active</span>,
     },
   ];

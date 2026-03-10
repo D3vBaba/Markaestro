@@ -32,7 +32,7 @@ const statusColors: Record<string, string> = {
   scheduled: "bg-blue-50 text-blue-700",
   active: "bg-emerald-50 text-emerald-700",
   paused: "bg-amber-50 text-amber-700",
-  completed: "bg-purple-50 text-purple-700",
+  completed: "bg-slate-100 text-slate-700",
   cancelled: "bg-rose-50 text-rose-700",
 };
 

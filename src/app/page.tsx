@@ -54,8 +54,8 @@ export default function LandingPage() {
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 gradient-mesh-strong" />
         {/* Decorative gradient orbs */}
-        <div className="pointer-events-none absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary/8 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-chart-2/8 blur-3xl" />
+        <div className="pointer-events-none absolute -top-40 -right-40 w-96 h-96 rounded-full bg-blue-500/8 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-slate-900/6 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-6 py-28 lg:py-40">
           <motion.div
@@ -125,56 +125,56 @@ export default function LandingPage() {
           <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
-                gradient: "from-violet-500/10 to-purple-500/5",
-                dot: "bg-violet-500",
+                gradient: "from-blue-500/10 to-blue-400/5",
+                dot: "bg-blue-600",
                 title: "Multi-Channel Publishing",
                 desc: "Publish to Facebook, Instagram, X, and TikTok from a single composer. Schedule posts or publish instantly.",
               },
               {
-                gradient: "from-pink-500/10 to-rose-500/5",
-                dot: "bg-pink-500",
+                gradient: "from-slate-900/10 to-black/5",
+                dot: "bg-slate-800",
                 title: "Email Campaigns",
                 desc: "Build, segment, and send email campaigns to your contact lists with built-in template support and delivery tracking.",
               },
               {
-                gradient: "from-orange-500/10 to-amber-500/5",
-                dot: "bg-orange-500",
+                gradient: "from-sky-500/10 to-sky-400/5",
+                dot: "bg-slate-600",
                 title: "Ad Campaign Management",
                 desc: "Create and launch ad campaigns on Meta and Google Ads with audience targeting, budgets, and creative management.",
               },
               {
-                gradient: "from-blue-500/10 to-cyan-500/5",
-                dot: "bg-blue-500",
+                gradient: "from-blue-600/10 to-blue-500/5",
+                dot: "bg-blue-600",
                 title: "AI Content Generation",
                 desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization.",
               },
               {
-                gradient: "from-teal-500/10 to-emerald-500/5",
-                dot: "bg-teal-500",
+                gradient: "from-slate-500/10 to-slate-400/5",
+                dot: "bg-slate-500",
                 title: "AI Image Generation",
                 desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity.",
               },
               {
-                gradient: "from-indigo-500/10 to-violet-500/5",
-                dot: "bg-indigo-500",
+                gradient: "from-blue-400/10 to-blue-300/5",
+                dot: "bg-blue-500",
                 title: "Automations & Scheduling",
                 desc: "Set up recurring jobs, drip sequences, and event-triggered workflows. Runs unattended on a configurable schedule.",
               },
               {
-                gradient: "from-fuchsia-500/10 to-pink-500/5",
-                dot: "bg-fuchsia-500",
+                gradient: "from-gray-800/10 to-gray-700/5",
+                dot: "bg-gray-700",
                 title: "Contact Management",
                 desc: "Import, tag, and segment your audience. Track engagement and build targeted lists for campaigns and automations.",
               },
               {
-                gradient: "from-sky-500/10 to-blue-500/5",
-                dot: "bg-sky-500",
+                gradient: "from-slate-600/10 to-slate-500/5",
+                dot: "bg-slate-600",
                 title: "Analytics Dashboard",
                 desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time.",
               },
               {
-                gradient: "from-emerald-500/10 to-green-500/5",
-                dot: "bg-emerald-500",
+                gradient: "from-blue-500/8 to-sky-400/5",
+                dot: "bg-blue-500",
                 title: "OAuth Integrations",
                 desc: "One-click connect to Meta, Google, and TikTok via secure OAuth. No manual token management required.",
               },
@@ -225,10 +225,10 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Social Channels", value: "4", sub: "Facebook, Instagram, X, TikTok", gradient: "from-violet-500/10 to-purple-500/5" },
-                { label: "Ad Platforms", value: "2", sub: "Meta Ads, Google Ads", gradient: "from-pink-500/10 to-rose-500/5" },
-                { label: "Email Providers", value: "1", sub: "Resend (more coming)", gradient: "from-blue-500/10 to-cyan-500/5" },
-                { label: "AI Providers", value: "2", sub: "Gemini Imagen, OpenAI DALL-E", gradient: "from-orange-500/10 to-amber-500/5" },
+                { label: "Social Channels", value: "4", sub: "Facebook, Instagram, X, TikTok", gradient: "from-blue-500/10 to-blue-400/5" },
+                { label: "Ad Platforms", value: "2", sub: "Meta Ads, Google Ads", gradient: "from-slate-900/10 to-black/5" },
+                { label: "Email Providers", value: "1", sub: "Resend (more coming)", gradient: "from-blue-600/10 to-blue-500/5" },
+                { label: "AI Providers", value: "2", sub: "Gemini Imagen, OpenAI DALL-E", gradient: "from-sky-500/10 to-sky-400/5" },
               ].map((item) => (
                 <div key={item.label} className={`rounded-2xl bg-gradient-to-br ${item.gradient} p-7 transition-all duration-300 hover:translate-y-[-2px] border border-border/30`}>
                   <p className="text-4xl font-bold tracking-tight gradient-text">{item.value}</p>
@@ -329,26 +329,26 @@ export default function LandingPage() {
           <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
-                gradient: "from-violet-500/10 to-purple-500/5",
-                dot: "bg-violet-500",
+                gradient: "from-blue-500/10 to-blue-400/5",
+                dot: "bg-blue-600",
                 title: "AES-256-GCM",
                 desc: "All OAuth tokens and API keys are encrypted at rest with AES-256-GCM before storage.",
               },
               {
-                gradient: "from-blue-500/10 to-cyan-500/5",
-                dot: "bg-blue-500",
+                gradient: "from-blue-600/10 to-blue-500/5",
+                dot: "bg-blue-600",
                 title: "Secret Manager",
                 desc: "Server credentials stored in Google Cloud Secret Manager. Never in code or config files.",
               },
               {
-                gradient: "from-pink-500/10 to-rose-500/5",
-                dot: "bg-pink-500",
+                gradient: "from-slate-900/10 to-black/5",
+                dot: "bg-slate-800",
                 title: "Firebase Auth",
                 desc: "Passwords handled by Firebase Authentication. We never see or store your password.",
               },
               {
-                gradient: "from-teal-500/10 to-emerald-500/5",
-                dot: "bg-teal-500",
+                gradient: "from-slate-500/10 to-slate-400/5",
+                dot: "bg-slate-500",
                 title: "Google Cloud",
                 desc: "Hosted on Cloud Run with automatic scaling, TLS, and Google's infrastructure security.",
               },

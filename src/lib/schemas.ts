@@ -215,6 +215,10 @@ export const generateImageSchema = z.object({
   style: z.enum(imageStyles).default('branded'),
   aspectRatio: z.enum(imageAspectRatios).default('1:1'),
   provider: z.enum(imageProviders).default('gemini'),
+  /** URLs of app screenshots to place inside phone mockups */
+  screenUrls: z.array(z.string().url()).max(4).default([]),
+  /** Whether to include the product logo in the image */
+  includeLogo: z.boolean().default(false),
 });
 
 // ── Ad Campaign Schemas ───────────────────────────────────────────

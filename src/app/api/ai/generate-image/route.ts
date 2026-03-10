@@ -14,6 +14,7 @@ export async function POST(req: Request) {
     let brandIdentity: ImageGenRequest['brandIdentity'];
     let brandVoice: ImageGenRequest['brandVoice'];
     let productName: string | undefined;
+    let logoUrl: string | undefined;
 
     if (input.productId) {
       const productRef = adminDb.doc(`workspaces/${ctx.workspaceId}/products/${input.productId}`);
@@ -23,6 +24,11 @@ export async function POST(req: Request) {
         productName = product.name;
         brandIdentity = product.brandIdentity;
         brandVoice = product.brandVoice;
+
+        // Use the product logo if user wants it included
+        if (input.includeLogo && product.brandIdentity?.logoUrl) {
+          logoUrl = product.brandIdentity.logoUrl;
+        }
       }
     }
 
@@ -35,6 +41,8 @@ export async function POST(req: Request) {
         style: input.style,
         aspectRatio: input.aspectRatio,
         provider: input.provider,
+        screenUrls: input.screenUrls,
+        logoUrl,
       },
       ctx.workspaceId,
     );
