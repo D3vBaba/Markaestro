@@ -65,61 +65,19 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
 }
 
 /**
- * Generate image using Google Imagen 3 via the Generative Language API.
+ * Generate image using Gemini 3.1 Flash (Nano Banana 2) — native image generation.
  */
-async function generateWithGemini(prompt: string, aspectRatio: ImageAspectRatio): Promise<{ base64: string; mimeType: string }> {
+async function generateWithGemini(prompt: string, _aspectRatio: ImageAspectRatio): Promise<{ base64: string; mimeType: string }> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
 
-  // Use Imagen 3 for dedicated high-quality image generation
   const response = await fetchWithRetry(
-    `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        instances: [{ prompt }],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: aspectRatio.replace(':', ':'),
-          personGeneration: 'allow_all',
-          safetySetting: 'block_only_high',
-        },
-      }),
-    },
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    const errorMsg = data.error?.message || JSON.stringify(data);
-    throw new Error(`Imagen 3 API error: ${errorMsg}`);
-  }
-
-  // Imagen 3 response format
-  const prediction = data.predictions?.[0];
-  if (!prediction?.bytesBase64Encoded) {
-    // Fallback: try Gemini multimodal image generation
-    return generateWithGeminiMultimodal(prompt, apiKey);
-  }
-
-  return {
-    base64: prediction.bytesBase64Encoded,
-    mimeType: prediction.mimeType || 'image/png',
-  };
-}
-
-/**
- * Fallback: Generate image using Gemini multimodal model.
- */
-async function generateWithGeminiMultimodal(prompt: string, apiKey: string): Promise<{ base64: string; mimeType: string }> {
-  const response = await fetchWithRetry(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: `Generate an image: ${prompt}` }] }],
+        contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           responseModalities: ['TEXT', 'IMAGE'],
         },
@@ -231,7 +189,7 @@ async function uploadToFirebaseStorage(
 
 /**
  * Generate an image using the specified provider, with fallback.
- * Tries Gemini/Imagen 3 first (if requested), falls back to OpenAI on error.
+ * Tries Gemini 3.1 Flash (Nano Banana 2) first, falls back to OpenAI DALL-E 3.
  */
 export async function generateImage(req: ImageGenRequest): Promise<{ base64: string; mimeType: string; provider: ImageProvider; revisedPrompt?: string }> {
   const prompt = buildBrandedPrompt(req);
