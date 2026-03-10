@@ -286,7 +286,7 @@ export const updatePostSchema = z.object({
   status: z.enum(postStatuses).optional(),
   scheduledAt: z.string().datetime().nullable().optional(),
   mediaUrls: z.array(z.string().url()).max(10).optional(),
-  productId: optionalString.optional(),
+  productId: z.string().trim().max(2000).optional(),
   externalId: z.string().trim().max(500).optional(),
   externalUrl: z.string().trim().max(2000).optional(),
   errorMessage: z.string().trim().max(2000).optional(),

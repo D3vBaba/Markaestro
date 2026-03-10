@@ -27,8 +27,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');
 
+    // Strip undefined keys so we only overwrite fields explicitly sent
+    const filtered = Object.fromEntries(
+      Object.entries(data).filter(([, v]) => v !== undefined),
+    );
     const patch = {
-      ...data,
+      ...filtered,
       updatedAt: new Date().toISOString(),
       updatedBy: ctx.uid,
     };
