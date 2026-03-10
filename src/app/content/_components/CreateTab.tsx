@@ -31,8 +31,9 @@ const imageStyles = [
 const aspectRatios = [
   { value: "1:1", label: "1:1 (Instagram)" },
   { value: "16:9", label: "16:9 (Facebook/X)" },
-  { value: "9:16", label: "9:16 (Stories)" },
+  { value: "9:16", label: "9:16 (TikTok/Stories)" },
   { value: "4:5", label: "4:5 (IG Feed)" },
+  { value: "3:4", label: "3:4 (TikTok/Pinterest)" },
 ] as const;
 
 export default function CreateTab({ onPostCreated }: { onPostCreated?: () => void }) {

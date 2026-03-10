@@ -206,7 +206,7 @@ export const metaIntegrationSchema = z.object({
 // ── Image Generation Schema ───────────────────────────────────────
 
 export const imageStyles = ['photorealistic', 'illustration', 'minimal', 'abstract', 'branded'] as const;
-export const imageAspectRatios = ['1:1', '16:9', '9:16', '4:5'] as const;
+export const imageAspectRatios = ['1:1', '16:9', '9:16', '4:5', '3:4'] as const;
 export const imageProviders = ['gemini', 'openai'] as const;
 
 export const generateImageSchema = z.object({

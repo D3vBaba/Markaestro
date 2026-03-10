@@ -28,6 +28,7 @@ const ASPECT_RATIO_DIMENSIONS: Record<ImageAspectRatio, { width: number; height:
   '16:9': { width: 1792, height: 1024 },
   '9:16': { width: 1024, height: 1792 },
   '4:5': { width: 1024, height: 1280 },
+  '3:4': { width: 1024, height: 1365 },
 };
 
 /**
@@ -115,7 +116,7 @@ async function fetchImageAsBase64(url: string): Promise<{ base64: string; mimeTy
  */
 async function generateWithGemini(
   prompt: string,
-  _aspectRatio: ImageAspectRatio,
+  aspectRatio: ImageAspectRatio,
   referenceImages?: { base64: string; mimeType: string }[],
 ): Promise<{ base64: string; mimeType: string }> {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -148,6 +149,9 @@ async function generateWithGemini(
         contents: [{ parts: contentParts }],
         generationConfig: {
           responseModalities: ['TEXT', 'IMAGE'],
+          imageGenerationConfig: {
+            aspectRatio,
+          },
         },
       }),
     },
@@ -185,12 +189,13 @@ async function generateWithOpenAI(prompt: string, aspectRatio: ImageAspectRatio)
 
   const openai = new OpenAI({ apiKey });
 
-  // Map aspect ratios to DALL-E sizes
+  // Map aspect ratios to closest DALL-E 3 sizes (only supports 1024x1024, 1792x1024, 1024x1792)
   const sizeMap: Record<ImageAspectRatio, '1024x1024' | '1792x1024' | '1024x1792'> = {
     '1:1': '1024x1024',
     '16:9': '1792x1024',
     '9:16': '1024x1792',
-    '4:5': '1024x1024',
+    '4:5': '1024x1792',
+    '3:4': '1024x1792',
   };
 
   const response = await openai.images.generate({
