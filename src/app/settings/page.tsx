@@ -17,7 +17,6 @@ type IntegrationInfo = {
   hasApiKey: boolean;
   hasAccessToken: boolean;
   fromEmail?: string;
-  oauthConnected?: boolean;
   tokenExpiresAt?: string | null;
   lastRefreshError?: string | null;
 };

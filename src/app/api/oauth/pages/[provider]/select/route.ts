@@ -1,8 +1,8 @@
 import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
-import { adminDb } from '@/lib/firebase-admin';
-import { decrypt, encrypt } from '@/lib/crypto';
+import { encrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
+import { getConnection, resolveAccessToken, getConnectionRef } from '@/lib/platform/connections';
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
@@ -19,22 +19,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       throw new Error('VALIDATION_MISSING_PAGE_ID');
     }
 
-    const docPath = productId
-      ? `workspaces/${ctx.workspaceId}/products/${productId}/integrations/meta`
-      : `workspaces/${ctx.workspaceId}/integrations/meta`;
-
-    const ref = adminDb.doc(docPath);
-    const snap = await ref.get();
-    if (!snap.exists) {
+    const conn = await getConnection(ctx.workspaceId, 'meta', productId);
+    if (!conn) {
       throw new Error('NOT_FOUND');
     }
 
-    const data = snap.data()!;
-    const userAccessToken = decrypt(data.accessTokenEncrypted as string);
+    const userAccessToken = resolveAccessToken(conn);
 
     // Fetch pages to get the selected page's access token
     const pagesRes = await fetch(
-      'https://graph.facebook.com/v21.0/me/accounts?fields=id,name,access_token,instagram_business_account',
+      'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token,instagram_business_account',
       { headers: { Authorization: `Bearer ${userAccessToken}` } },
     );
     const pagesData = await pagesRes.json();
@@ -49,25 +43,25 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     }
 
     const updatePayload: Record<string, unknown> = {
-      pageId,
-      pageName: pageName || selectedPage.name,
-      pageAccessTokenEncrypted: encrypt(selectedPage.access_token as string),
+      'metadata.pageId': pageId,
+      'metadata.pageName': pageName || selectedPage.name,
+      'metadata.pageAccessTokenEncrypted': encrypt(selectedPage.access_token as string),
       updatedAt: new Date().toISOString(),
       updatedBy: ctx.uid,
     };
 
-    // If the page has an Instagram business account, store its ID
     if (selectedPage.instagram_business_account?.id) {
-      updatePayload.igAccountId = selectedPage.instagram_business_account.id;
+      updatePayload['metadata.igAccountId'] = selectedPage.instagram_business_account.id;
     }
 
-    await ref.update(updatePayload);
+    const connRef = getConnectionRef(ctx.workspaceId, 'meta', productId);
+    await connRef.update(updatePayload);
 
     return apiOk({
       ok: true,
       pageId,
-      pageName: updatePayload.pageName,
-      igAccountId: updatePayload.igAccountId || null,
+      pageName: pageName || selectedPage.name,
+      igAccountId: selectedPage.instagram_business_account?.id || null,
     });
   } catch (error) {
     return apiError(error);

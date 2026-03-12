@@ -56,10 +56,10 @@ type IntegrationInfo = {
   hasApiKey: boolean;
   hasAccessToken: boolean;
   fromEmail?: string;
-  oauthConnected?: boolean;
   tokenExpiresAt?: string | null;
   pageName?: string | null;
   igAccountId?: string | null;
+  adAccountId?: string | null;
   lastRefreshError?: string | null;
   username?: string | null;
 };
@@ -204,6 +204,8 @@ export default function ProductsPage() {
   const [selectedPageId, setSelectedPageId] = useState("");
   const [loadingPages, setLoadingPages] = useState(false);
   const [selectingPage, setSelectingPage] = useState(false);
+  const [metaAdAccountId, setMetaAdAccountId] = useState("");
+  const [savingAdAccount, setSavingAdAccount] = useState(false);
 
   // Per-product connection status cache (productId -> provider[])
   const [connectionCache, setConnectionCache] = useState<Record<string, string[]>>({});
@@ -347,8 +349,16 @@ export default function ProductsPage() {
     }
 
     // Load integrations
-    setMetaPages([]); setSelectedPageId("");
-    await fetchProductIntegrations(product.id);
+    setMetaPages([]); setSelectedPageId(""); setMetaAdAccountId("");
+    const intRes = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${product.id}`);
+    if (intRes.ok) {
+      const productLevel = (intRes.data.integrations || []).filter(
+        (i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]),
+      );
+      setProductIntegrations(productLevel);
+      const metaConn = productLevel.find((i) => i.provider === "meta");
+      if (metaConn?.adAccountId) setMetaAdAccountId(metaConn.adAccountId);
+    }
     setEditOpen(true);
   };
 
@@ -476,6 +486,17 @@ export default function ProductsPage() {
     finally { setSelectingPage(false); }
   }
 
+  async function saveMetaAdAccount(productId: string) {
+    if (!metaAdAccountId.trim()) { toast.error("Enter an ad account ID"); return; }
+    setSavingAdAccount(true);
+    try {
+      const res = await apiPost("/api/integrations/meta/ad-account", { adAccountId: metaAdAccountId.trim(), productId });
+      if (res.ok) { toast.success("Ad account ID saved"); }
+      else toast.error("Failed to save ad account ID");
+    } catch { toast.error("Failed to save ad account ID"); }
+    finally { setSavingAdAccount(false); }
+  }
+
   return (
     <AppShell>
       <PageHeader
@@ -538,7 +559,7 @@ export default function ProductsPage() {
         ) : products.length === 0 ? (
           <Card className="col-span-full border-border/30">
             <CardContent className="py-16 text-center">
-              <div className="h-12 w-12 rounded-xl gradient-primary mx-auto mb-4 flex items-center justify-center shadow-md shadow-primary/15">
+              <div className="h-12 w-12 rounded-xl bg-primary mx-auto mb-4 flex items-center justify-center">
                 <Package className="h-5 w-5 text-white" />
               </div>
               <p className="text-base font-medium text-foreground">No products registered yet</p>
@@ -809,6 +830,27 @@ export default function ProductsPage() {
                                 </Button>
                               </div>
                             )}
+                            {/* Ad Account ID for running paid campaigns */}
+                            <div className="pt-1">
+                              <p className="text-xs font-medium text-foreground mb-1">Ad Account ID</p>
+                              <p className="text-[11px] text-muted-foreground mb-1.5">
+                                Required to run paid campaigns. Find it in Meta Business Manager (format: act_XXXXXXXXX).
+                              </p>
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="act_123456789"
+                                  value={metaAdAccountId}
+                                  onChange={(e) => setMetaAdAccountId(e.target.value)}
+                                  className="flex-1 h-8 text-xs font-mono"
+                                />
+                                <Button size="sm" className="h-8" onClick={() => saveMetaAdAccount(editProductId)} disabled={savingAdAccount || !metaAdAccountId.trim()}>
+                                  {savingAdAccount ? "..." : "Save"}
+                                </Button>
+                              </div>
+                              {integ?.adAccountId && (
+                                <p className="text-[11px] text-emerald-600 mt-1">Saved: {integ.adAccountId}</p>
+                              )}
+                            </div>
                           </div>
                         )}
 

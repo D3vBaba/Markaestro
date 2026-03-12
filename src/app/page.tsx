@@ -15,10 +15,10 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* ─── Navbar ─── */}
-      <header className="sticky top-0 z-50 border-b border-border/30 bg-background/60 glass">
+      <header className="sticky top-0 z-50 border-b bg-background">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl gradient-primary p-1.5 shadow-lg shadow-primary/20">
+            <div className="h-10 w-10 rounded-xl bg-primary p-1.5">
               <Image src="/markaestro-logo.jpg" alt="Markaestro" width={32} height={32} className="h-full w-full object-contain rounded-md" />
             </div>
             <span className="text-base font-bold tracking-tight">Markaestro</span>
@@ -52,11 +52,6 @@ export default function LandingPage() {
 
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 gradient-mesh-strong" />
-        {/* Decorative gradient orbs */}
-        <div className="pointer-events-none absolute -top-40 -right-40 w-96 h-96 rounded-full bg-blue-500/8 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-slate-900/6 blur-3xl" />
-
         <div className="relative mx-auto max-w-7xl px-6 py-28 lg:py-40">
           <motion.div
             className="mx-auto max-w-3xl text-center"
@@ -69,19 +64,19 @@ export default function LandingPage() {
             </div>
             <h1 className="text-5xl font-normal tracking-tight text-foreground lg:text-7xl lg:leading-[1.08] font-[family-name:var(--font-display)]">
               Your entire marketing engine{" "}
-              <span className="gradient-text">in one platform</span>
+              <span className="text-primary">in one platform</span>
             </h1>
             <p className="mt-7 text-lg text-muted-foreground leading-relaxed lg:text-xl max-w-2xl mx-auto">
               Publish to every channel, launch ad campaigns, generate branded content with AI, and track everything from a single dashboard.
             </p>
             <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
-                <Button size="lg" className="h-13 px-10 text-sm rounded-2xl shadow-xl shadow-primary/25">
+                <Button size="lg" className="h-13 px-10 text-sm rounded-2xl">
                   Start for Free <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <a href="#features">
-                <Button variant="outline" size="lg" className="h-13 px-10 text-sm rounded-2xl border-border/60">
+                <Button variant="outline" size="lg" className="h-13 px-10 text-sm rounded-2xl">
                   See Features
                 </Button>
               </a>
@@ -90,7 +85,7 @@ export default function LandingPage() {
 
           {/* Hero stats */}
           <motion.div
-            className="mx-auto mt-24 grid max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border/40 bg-border/40 shadow-xl shadow-primary/[0.03]"
+            className="mx-auto mt-24 grid max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-2xl border bg-border/40"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5, ease }}
@@ -101,7 +96,7 @@ export default function LandingPage() {
               { value: "100%", label: "Automated" },
             ].map((stat) => (
               <div key={stat.label} className="bg-background px-6 py-8 text-center">
-                <p className="text-3xl font-bold tracking-tight gradient-text">{stat.value}</p>
+                <p className="text-3xl font-bold tracking-tight text-primary">{stat.value}</p>
                 <p className="mt-2 text-xs text-muted-foreground font-medium tracking-wide uppercase">{stat.label}</p>
               </div>
             ))}
@@ -110,12 +105,12 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Features Grid ─── */}
-      <section id="features" className="border-t border-border/30 bg-muted/20">
+      <section id="features" className="border-t bg-muted/20">
         <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Platform</p>
             <h2 className="mt-4 text-3xl font-normal tracking-tight text-foreground lg:text-4xl font-[family-name:var(--font-display)]">
-              Everything you need to <span className="gradient-text">grow</span>
+              Everything you need to <span className="text-primary">grow</span>
             </h2>
             <p className="mt-5 text-muted-foreground leading-relaxed">
               From first draft to published campaign, Markaestro handles every step of your marketing workflow.
@@ -125,65 +120,46 @@ export default function LandingPage() {
           <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
-                gradient: "from-blue-500/10 to-blue-400/5",
-                dot: "bg-blue-600",
                 title: "Multi-Channel Publishing",
                 desc: "Publish to Facebook, Instagram, X, and TikTok from a single composer. Schedule posts or publish instantly.",
               },
               {
-                gradient: "from-slate-900/10 to-black/5",
-                dot: "bg-slate-800",
                 title: "Email Campaigns",
                 desc: "Build, segment, and send email campaigns to your contact lists with built-in template support and delivery tracking.",
               },
               {
-                gradient: "from-sky-500/10 to-sky-400/5",
-                dot: "bg-slate-600",
                 title: "Ad Campaign Management",
                 desc: "Create and launch ad campaigns on Meta and Google Ads with audience targeting, budgets, and creative management.",
               },
               {
-                gradient: "from-blue-600/10 to-blue-500/5",
-                dot: "bg-blue-600",
                 title: "AI Content Generation",
                 desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization.",
               },
               {
-                gradient: "from-slate-500/10 to-slate-400/5",
-                dot: "bg-slate-500",
                 title: "AI Image Generation",
                 desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity.",
               },
               {
-                gradient: "from-blue-400/10 to-blue-300/5",
-                dot: "bg-blue-500",
                 title: "Automations & Scheduling",
                 desc: "Set up recurring jobs, drip sequences, and event-triggered workflows. Runs unattended on a configurable schedule.",
               },
               {
-                gradient: "from-gray-800/10 to-gray-700/5",
-                dot: "bg-gray-700",
                 title: "Contact Management",
                 desc: "Import, tag, and segment your audience. Track engagement and build targeted lists for campaigns and automations.",
               },
               {
-                gradient: "from-slate-600/10 to-slate-500/5",
-                dot: "bg-slate-600",
                 title: "Analytics Dashboard",
                 desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time.",
               },
               {
-                gradient: "from-blue-500/8 to-sky-400/5",
-                dot: "bg-blue-500",
                 title: "OAuth Integrations",
                 desc: "One-click connect to Meta, Google, and TikTok via secure OAuth. No manual token management required.",
               },
-            ].map(({ gradient, dot, title, desc }) => (
+            ].map(({ title, desc }) => (
               <div
                 key={title}
-                className={`rounded-2xl bg-gradient-to-br ${gradient} p-8 transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] hover:translate-y-[-3px] hover:shadow-xl hover:shadow-primary/[0.05] border border-border/30`}
+                className="rounded-2xl bg-background p-8 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-lg border border-border/40"
               >
-                <div className={`w-2.5 h-2.5 rounded-full ${dot} mb-6`} />
                 <h3 className="text-sm font-semibold text-foreground">{title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{desc}</p>
               </div>
@@ -193,13 +169,13 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Channels ─── */}
-      <section id="channels" className="border-t border-border/30">
+      <section id="channels" className="border-t">
         <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
           <div className="grid gap-20 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Channels</p>
               <h2 className="mt-4 text-3xl font-normal tracking-tight text-foreground lg:text-4xl font-[family-name:var(--font-display)]">
-                Reach your audience <span className="gradient-text">everywhere</span>
+                Reach your audience <span className="text-primary">everywhere</span>
               </h2>
               <p className="mt-5 text-muted-foreground leading-relaxed">
                 Connect once and publish to every major platform. Markaestro handles the API differences, character limits, and media requirements for each channel.
@@ -213,7 +189,7 @@ export default function LandingPage() {
                   { name: "Google Ads", desc: "Search and display campaigns with audience targeting and budget management." },
                 ].map((ch) => (
                   <div key={ch.name} className="flex items-start gap-4">
-                    <div className="mt-1 w-1.5 h-1.5 rounded-full gradient-primary shrink-0" />
+                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-foreground">{ch.name}</p>
                       <p className="text-sm text-muted-foreground mt-0.5">{ch.desc}</p>
@@ -225,13 +201,13 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Social Channels", value: "4", sub: "Facebook, Instagram, X, TikTok", gradient: "from-blue-500/10 to-blue-400/5" },
-                { label: "Ad Platforms", value: "2", sub: "Meta Ads, Google Ads", gradient: "from-slate-900/10 to-black/5" },
-                { label: "Email Providers", value: "1", sub: "Resend (more coming)", gradient: "from-blue-600/10 to-blue-500/5" },
-                { label: "AI Providers", value: "2", sub: "Gemini Imagen, OpenAI DALL-E", gradient: "from-sky-500/10 to-sky-400/5" },
+                { label: "Social Channels", value: "4", sub: "Facebook, Instagram, X, TikTok" },
+                { label: "Ad Platforms", value: "2", sub: "Meta Ads, Google Ads" },
+                { label: "Email Providers", value: "1", sub: "Resend (more coming)" },
+                { label: "AI Providers", value: "2", sub: "Gemini Imagen, OpenAI DALL-E" },
               ].map((item) => (
-                <div key={item.label} className={`rounded-2xl bg-gradient-to-br ${item.gradient} p-7 transition-all duration-300 hover:translate-y-[-2px] border border-border/30`}>
-                  <p className="text-4xl font-bold tracking-tight gradient-text">{item.value}</p>
+                <div key={item.label} className="rounded-2xl bg-muted/30 p-7 transition-all duration-300 hover:translate-y-[-2px] border border-border/40">
+                  <p className="text-4xl font-bold tracking-tight text-primary">{item.value}</p>
                   <p className="mt-2 text-xs font-semibold text-foreground">{item.label}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
                 </div>
@@ -242,37 +218,37 @@ export default function LandingPage() {
       </section>
 
       {/* ─── AI Studio ─── */}
-      <section id="ai" className="border-t border-border/30 bg-muted/20">
+      <section id="ai" className="border-t bg-muted/20">
         <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
           <div className="grid gap-20 lg:grid-cols-2 lg:items-center">
             <div className="order-2 lg:order-1">
               <div className="space-y-4">
-                <div className="rounded-2xl border border-border/40 bg-background p-8 shadow-sm">
+                <div className="rounded-2xl border bg-background p-8">
                   <div className="flex items-center gap-2 text-xs font-semibold text-primary tracking-wide uppercase">
-                    <div className="w-1.5 h-1.5 rounded-full gradient-primary" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                     AI Content Generation
                   </div>
                   <div className="mt-5 space-y-3 font-mono text-xs text-muted-foreground">
-                    <div className="rounded-xl border border-border/40 bg-muted/30 p-4">
+                    <div className="rounded-xl border bg-muted/30 p-4">
                       <span className="text-foreground font-semibold">Brand Voice:</span> Professional, confident, results-driven
                     </div>
-                    <div className="rounded-xl border border-border/40 bg-muted/30 p-4">
+                    <div className="rounded-xl border bg-muted/30 p-4">
                       <span className="text-foreground font-semibold">Tone:</span> Authoritative yet approachable
                     </div>
-                    <div className="rounded-xl border border-border/40 bg-muted/30 p-4">
+                    <div className="rounded-xl border bg-muted/30 p-4">
                       <span className="text-foreground font-semibold">Output:</span> Channel-optimized copy for Facebook, Instagram, X, TikTok, Email
                     </div>
                   </div>
                 </div>
-                <div className="rounded-2xl border border-border/40 bg-background p-8 shadow-sm">
+                <div className="rounded-2xl border bg-background p-8">
                   <div className="flex items-center gap-2 text-xs font-semibold text-primary tracking-wide uppercase">
-                    <div className="w-1.5 h-1.5 rounded-full bg-chart-2" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
                     AI Image Generation
                   </div>
                   <div className="mt-5 grid grid-cols-4 gap-3">
                     {["1:1", "16:9", "9:16", "4:5"].map((ratio) => (
-                      <div key={ratio} className="rounded-xl bg-gradient-to-br from-primary/5 to-chart-2/5 p-3 text-center border border-border/30">
-                        <p className="text-sm font-bold gradient-text">{ratio}</p>
+                      <div key={ratio} className="rounded-xl bg-muted/30 p-3 text-center border">
+                        <p className="text-sm font-bold text-primary">{ratio}</p>
                         <p className="text-[10px] text-muted-foreground mt-1">
                           {ratio === "1:1" ? "Instagram" : ratio === "16:9" ? "Facebook" : ratio === "9:16" ? "Stories" : "IG Feed"}
                         </p>
@@ -289,7 +265,7 @@ export default function LandingPage() {
             <div className="order-1 lg:order-2">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">AI Studio</p>
               <h2 className="mt-4 text-3xl font-normal tracking-tight text-foreground lg:text-4xl font-[family-name:var(--font-display)]">
-                Content that sounds <span className="gradient-text-warm">like you</span>
+                Content that sounds <span className="text-primary">like you</span>
               </h2>
               <p className="mt-5 text-muted-foreground leading-relaxed">
                 Train Markaestro on your brand voice, product identity, and visual style. Every piece of content — text and images — is generated to match your brand, not a generic template.
@@ -303,7 +279,7 @@ export default function LandingPage() {
                   "Channel-aware formatting: hashtags, char limits, media specs",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-4">
-                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full gradient-primary shrink-0" />
+                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                     <p className="text-sm text-muted-foreground">{item}</p>
                   </div>
                 ))}
@@ -314,12 +290,12 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Security ─── */}
-      <section id="security" className="border-t border-border/30">
+      <section id="security" className="border-t">
         <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Security</p>
             <h2 className="mt-4 text-3xl font-normal tracking-tight text-foreground lg:text-4xl font-[family-name:var(--font-display)]">
-              Enterprise-grade security, <span className="gradient-text">zero complexity</span>
+              Enterprise-grade security, <span className="text-primary">zero complexity</span>
             </h2>
             <p className="mt-5 text-muted-foreground">
               Your credentials and data are protected with industry-standard encryption and infrastructure.
@@ -329,32 +305,23 @@ export default function LandingPage() {
           <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
-                gradient: "from-blue-500/10 to-blue-400/5",
-                dot: "bg-blue-600",
                 title: "AES-256-GCM",
                 desc: "All OAuth tokens and API keys are encrypted at rest with AES-256-GCM before storage.",
               },
               {
-                gradient: "from-blue-600/10 to-blue-500/5",
-                dot: "bg-blue-600",
                 title: "Secret Manager",
                 desc: "Server credentials stored in Google Cloud Secret Manager. Never in code or config files.",
               },
               {
-                gradient: "from-slate-900/10 to-black/5",
-                dot: "bg-slate-800",
                 title: "Firebase Auth",
                 desc: "Passwords handled by Firebase Authentication. We never see or store your password.",
               },
               {
-                gradient: "from-slate-500/10 to-slate-400/5",
-                dot: "bg-slate-500",
                 title: "Google Cloud",
                 desc: "Hosted on Cloud Run with automatic scaling, TLS, and Google's infrastructure security.",
               },
-            ].map(({ gradient, dot, title, desc }) => (
-              <div key={title} className={`rounded-2xl bg-gradient-to-br ${gradient} p-8 transition-all duration-300 hover:translate-y-[-2px] border border-border/30`}>
-                <div className={`w-2.5 h-2.5 rounded-full ${dot} mb-5`} />
+            ].map(({ title, desc }) => (
+              <div key={title} className="rounded-2xl bg-background p-8 transition-all duration-300 hover:translate-y-[-2px] border border-border/40">
                 <h3 className="text-sm font-semibold text-foreground">{title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{desc}</p>
               </div>
@@ -364,7 +331,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="border-t border-border/30 gradient-primary text-white">
+      <section className="border-t bg-primary text-white">
         <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-normal tracking-tight lg:text-4xl font-[family-name:var(--font-display)]">
@@ -375,7 +342,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
-                <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90 shadow-xl">
+                <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
                   Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
@@ -390,12 +357,12 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-border/30 bg-background">
+      <footer className="border-t bg-background">
         <div className="mx-auto max-w-7xl px-6 py-16">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl gradient-primary p-1 shadow-md shadow-primary/20">
+                <div className="h-9 w-9 rounded-xl bg-primary p-1">
                   <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="h-full w-full object-contain rounded-md" />
                 </div>
                 <span className="text-sm font-bold tracking-tight">Markaestro</span>
@@ -433,7 +400,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-16 flex flex-col items-center gap-4 border-t border-border/40 pt-8 sm:flex-row sm:justify-between">
+          <div className="mt-16 flex flex-col items-center gap-4 border-t pt-8 sm:flex-row sm:justify-between">
             <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Markaestro. All rights reserved.</p>
             <div className="flex gap-6">
               <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition">Terms</Link>

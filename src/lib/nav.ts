@@ -8,6 +8,7 @@ import {
     Settings,
     Package,
     Send,
+    Megaphone,
     type LucideIcon,
 } from "lucide-react";
 
@@ -34,7 +35,8 @@ export const navigationGroups: NavGroup[] = [
         items: [
             { name: "Products", href: "/products", icon: Package },
             { name: "Campaigns", href: "/campaigns", icon: Mail },
-            { name: "Publish", href: "/content", icon: Send },
+            { name: "Posts", href: "/content", icon: Send },
+            { name: "Ads", href: "/ads", icon: Megaphone },
             { name: "Automations", href: "/automations", icon: Workflow },
         ],
     },

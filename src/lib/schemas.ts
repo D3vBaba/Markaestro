@@ -32,7 +32,7 @@ export const contactStatuses = ['active', 'pending', 'bounced', 'unsubscribed'] 
 export const contactLifecycleStages = ['lead', 'trial', 'customer', 'churned', 'advocate'] as const;
 export const contactSources = ['organic', 'paid', 'referral', 'social', 'email', 'direct', 'other'] as const;
 export const triggerTypes = ['manual', 'event', 'schedule', 'segment'] as const;
-export const jobTypes = ['send_email_campaign', 'sync_contacts', 'generate_content', 'publish_post', 'create_ad_campaign', 'refresh_tokens'] as const;
+export const jobTypes = ['send_email_campaign', 'sync_contacts', 'generate_content', 'publish_post', 'create_ad_campaign', 'refresh_tokens', 'sync_ad_metrics'] as const;
 export const jobSchedules = ['manual', 'daily'] as const;
 export const integrationProviders = ['resend', 'facebook', 'instagram', 'x', 'meta', 'google', 'tiktok'] as const;
 export const oauthProviders = ['meta', 'google', 'tiktok', 'x'] as const;
@@ -212,6 +212,8 @@ export const imageProviders = ['gemini', 'openai'] as const;
 export const generateImageSchema = z.object({
   prompt: z.string().trim().min(1, 'Prompt is required').max(4000),
   productId: z.string().trim().optional(),
+  /** Target social channel — drives platform-specific visual strategy */
+  channel: z.enum(socialChannels).optional(),
   style: z.enum(imageStyles).default('branded'),
   aspectRatio: z.enum(imageAspectRatios).default('1:1'),
   provider: z.enum(imageProviders).default('gemini'),
@@ -233,6 +235,10 @@ export const adTargetingSchema = z.object({
   gender: z.enum(['all', 'male', 'female']).default('all'),
   locations: z.array(z.string().trim().min(1).max(200)).max(50).default([]),
   interests: z.array(z.string().trim().min(1).max(200)).max(50).default([]),
+  languages: z.array(z.string().trim().max(10)).max(20).default([]),
+  devices: z.enum(['all', 'mobile', 'desktop']).default('all'),
+  placements: z.enum(['automatic', 'manual']).default('automatic'),
+  keywords: z.array(z.string().trim().max(200)).max(100).default([]),
 });
 
 export const adCreativeSchema = z.object({
@@ -240,7 +246,11 @@ export const adCreativeSchema = z.object({
   primaryText: z.string().trim().min(1, 'Primary text is required').max(2000),
   description: z.string().trim().max(500).default(''),
   imageUrl: z.string().trim().url('Invalid image URL').or(z.literal('')).default(''),
+  videoUrl: z.string().trim().url('Invalid video URL').or(z.literal('')).default(''),
   linkUrl: z.string().trim().url('Invalid link URL').or(z.literal('')).default(''),
+  ctaType: z.string().trim().max(50).default(''),
+  additionalHeadlines: z.array(z.string().trim().max(30)).max(14).default([]),
+  additionalDescriptions: z.array(z.string().trim().max(90)).max(3).default([]),
 });
 
 export const createAdCampaignSchema = z.object({

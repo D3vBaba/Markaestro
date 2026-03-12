@@ -1,35 +1,27 @@
 import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
-import { adminDb } from '@/lib/firebase-admin';
-import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
+import { getConnection, resolveAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     requireAdmin(ctx);
 
-    const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/integrations/meta`);
-    const snap = await ref.get();
-    if (!snap.exists) {
+    const conn = await getConnection(ctx.workspaceId, 'meta');
+    if (!conn) {
       throw new Error('NOT_FOUND');
     }
 
-    const data = snap.data()!;
-    if (!data.accessTokenEncrypted) {
-      return apiOk({ ok: false, error: 'No access token configured' });
-    }
-
-    const accessToken = decrypt(data.accessTokenEncrypted as string);
-    const adAccountId = data.adAccountId as string;
+    const accessToken = resolveAccessToken(conn);
+    const adAccountId = conn.metadata.adAccountId as string;
 
     if (!adAccountId) {
       return apiOk({ ok: false, error: 'No ad account ID configured. Set it in Meta integration settings.' });
     }
 
-    // Create a PAUSED test campaign
     const campaignRes = await fetch(
-      `https://graph.facebook.com/v20.0/act_${adAccountId}/campaigns`,
+      `https://graph.facebook.com/v22.0/act_${adAccountId}/campaigns`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

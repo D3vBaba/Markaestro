@@ -1,10 +1,10 @@
 import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
-import { adminDb } from '@/lib/firebase-admin';
 import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { revokeAccessToken } from '@/lib/oauth/flow';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
+import { getConnection, deleteConnection } from '@/lib/platform/connections';
 
 const ALLOWED = new Set<string>(oauthProviders);
 
@@ -21,27 +21,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     const body = await req.json().catch(() => ({}));
     const productId = body.productId as string | undefined;
 
-    const docPath = productId
-      ? `workspaces/${ctx.workspaceId}/products/${productId}/integrations/${provider}`
-      : `workspaces/${ctx.workspaceId}/integrations/${provider}`;
+    const conn = await getConnection(ctx.workspaceId, provider, productId);
 
-    const ref = adminDb.doc(docPath);
-    const snap = await ref.get();
-
-    if (snap.exists) {
-      const data = snap.data()!;
-
-      // Revoke the token with the provider (best-effort, non-blocking)
-      if (data.accessTokenEncrypted) {
+    if (conn) {
+      // Revoke the token with the provider (best-effort)
+      if (conn.accessTokenEncrypted) {
         try {
-          const token = decrypt(data.accessTokenEncrypted as string);
+          const token = decrypt(conn.accessTokenEncrypted);
           await revokeAccessToken(provider as OAuthProvider, token);
         } catch {
-          // Revocation is best-effort — proceed with deletion
+          // Best-effort
         }
       }
 
-      await ref.delete();
+      await deleteConnection(ctx.workspaceId, provider, productId);
     }
 
     return apiOk({ ok: true, provider, disconnected: true });

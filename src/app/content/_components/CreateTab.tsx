@@ -29,12 +29,20 @@ const imageStyles = [
 ] as const;
 
 const aspectRatios = [
-  { value: "1:1", label: "1:1 (Instagram)" },
-  { value: "16:9", label: "16:9 (Facebook/X)" },
-  { value: "9:16", label: "9:16 (TikTok/Stories)" },
-  { value: "4:5", label: "4:5 (IG Feed)" },
-  { value: "3:4", label: "3:4 (TikTok/Pinterest)" },
+  { value: "1:1", label: "1:1 (Square)" },
+  { value: "16:9", label: "16:9 (Landscape)" },
+  { value: "9:16", label: "9:16 (Vertical)" },
+  { value: "4:5", label: "4:5 (Portrait)" },
+  { value: "3:4", label: "3:4 (Tall Portrait)" },
 ] as const;
+
+/** Optimal aspect ratio per platform based on engagement data */
+const channelDefaultRatio: Record<string, string> = {
+  x: "16:9",
+  facebook: "1:1",
+  instagram: "4:5",
+  tiktok: "9:16",
+};
 
 export default function CreateTab({ onPostCreated }: { onPostCreated?: () => void }) {
   const [productId, setProductId] = useState("");
@@ -51,8 +59,13 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageStyle, setImageStyle] = useState("branded");
-  const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [aspectRatio, setAspectRatio] = useState("16:9"); // default for X
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  const handleChannelChange = (ch: string) => {
+    setChannel(ch);
+    setAspectRatio(channelDefaultRatio[ch] || "1:1");
+  };
 
   // Screenshot upload state
   const [screenUrls, setScreenUrls] = useState<string[]>([]);
@@ -137,6 +150,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
         {
           prompt: content,
           productId: productId || undefined,
+          channel,
           style: imageStyle,
           aspectRatio,
           provider: "gemini",
@@ -211,7 +225,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="space-y-4">
         <ProductPicker value={productId} onChange={setProductId} />
-        <ChannelSelector value={channel} onChange={setChannel} productId={productId} />
+        <ChannelSelector value={channel} onChange={handleChannelChange} productId={productId} />
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Content Type</label>
@@ -376,15 +390,26 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
                 </div>
 
                 {imageUrl && (
-                  <div className="relative group">
-                    <img
-                      src={imageUrl}
-                      alt="Generated image"
-                      className="rounded-lg border w-full max-h-64 object-cover"
-                    />
+                  <div className="relative group overflow-hidden rounded-xl border shadow-sm bg-black/5 dark:bg-white/5">
+                    <div
+                      className="relative w-full mx-auto"
+                      style={{
+                        aspectRatio: aspectRatio.replace(":", " / "),
+                        maxHeight: "520px",
+                      }}
+                    >
+                      <img
+                        src={imageUrl}
+                        alt="Generated image"
+                        className="w-full h-full object-cover rounded-xl"
+                      />
+                    </div>
+                    <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/60 text-white text-[10px] font-medium tracking-wide uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                      {aspectRatio} {channel}
+                    </div>
                     <button
                       onClick={() => setImageUrl(null)}
-                      className="absolute top-2 right-2 p-1 rounded-full bg-background/80 border opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
                     >
                       <X className="h-3 w-3" />
                     </button>

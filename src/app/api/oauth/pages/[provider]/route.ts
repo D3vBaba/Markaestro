@@ -1,7 +1,6 @@
 import { requireContext } from '@/lib/server-auth';
-import { adminDb } from '@/lib/firebase-admin';
-import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
+import { getConnection, resolveAccessToken } from '@/lib/platform/connections';
 
 export async function GET(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
@@ -15,25 +14,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const url = new URL(req.url);
     const productId = url.searchParams.get('productId');
 
-    const docPath = productId
-      ? `workspaces/${ctx.workspaceId}/products/${productId}/integrations/meta`
-      : `workspaces/${ctx.workspaceId}/integrations/meta`;
-
-    const ref = adminDb.doc(docPath);
-    const snap = await ref.get();
-    if (!snap.exists) {
+    const conn = await getConnection(ctx.workspaceId, 'meta', productId || undefined);
+    if (!conn || !conn.accessTokenEncrypted) {
       return apiOk({ pages: [] });
     }
 
-    const data = snap.data()!;
-    if (!data.accessTokenEncrypted) {
-      return apiOk({ pages: [] });
-    }
-
-    const accessToken = decrypt(data.accessTokenEncrypted as string);
+    const accessToken = resolveAccessToken(conn);
 
     const res = await fetch(
-      'https://graph.facebook.com/v21.0/me/accounts?fields=id,name,access_token,instagram_business_account',
+      'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token,instagram_business_account',
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     const pagesData = await res.json();

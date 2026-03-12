@@ -1,8 +1,8 @@
-import type { AdCampaignDoc, AdPlatformResult } from './types';
+import type { AdCampaignDoc, AdPlatformResult, AdCampaignMetrics } from './types';
 import type { AdCampaignObjective } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 
-const META_GRAPH_API = 'https://graph.facebook.com/v21.0';
+const META_GRAPH_API = 'https://graph.facebook.com/v22.0';
 
 /**
  * Map generic objectives to Meta Marketing API OUTCOME_* values.
@@ -143,5 +143,69 @@ export async function createMetaCampaign(
       success: false,
       error: e instanceof Error ? e.message : 'Unknown error creating Meta campaign',
     };
+  }
+}
+
+/**
+ * Update a Meta campaign status (PAUSED or ACTIVE).
+ */
+export async function updateMetaCampaignStatus(
+  accessToken: string,
+  campaignId: string,
+  status: 'PAUSED' | 'ACTIVE',
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await fetchWithRetry(`${META_GRAPH_API}/${campaignId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, access_token: accessToken }),
+    });
+    const data = await res.json();
+    if (data.error) {
+      return { success: false, error: data.error.message || 'Failed to update campaign status' };
+    }
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
+
+/**
+ * Fetch campaign performance insights from Meta Marketing API.
+ */
+export async function getMetaCampaignMetrics(
+  accessToken: string,
+  campaignId: string,
+): Promise<{ success: boolean; metrics?: AdCampaignMetrics; error?: string }> {
+  try {
+    const fields = 'impressions,clicks,spend,actions,ctr,cpc';
+    const res = await fetchWithRetry(
+      `${META_GRAPH_API}/${campaignId}/insights?fields=${fields}&access_token=${accessToken}`,
+    );
+    const data = await res.json();
+    if (data.error) {
+      return { success: false, error: data.error.message || 'Failed to fetch insights' };
+    }
+
+    const row = data.data?.[0];
+    if (!row) return { success: true, metrics: undefined };
+
+    const conversions = (row.actions as Array<{ action_type: string; value: string }> | undefined)
+      ?.find((a) => a.action_type === 'offsite_conversion')?.value;
+
+    return {
+      success: true,
+      metrics: {
+        impressions: Number(row.impressions) || 0,
+        clicks: Number(row.clicks) || 0,
+        spend: Math.round(Number(row.spend) * 100),
+        conversions: Number(conversions) || 0,
+        ctr: Number(row.ctr) || 0,
+        cpc: Math.round(Number(row.cpc) * 100),
+        lastSyncedAt: new Date().toISOString(),
+      },
+    };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
   }
 }

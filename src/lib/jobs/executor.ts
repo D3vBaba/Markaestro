@@ -1,6 +1,10 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { sendCampaignEmails } from '@/lib/email/sender';
 import { publishPost } from '@/lib/social/publisher';
+import { decrypt } from '@/lib/crypto';
+import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
+import { getGoogleCampaignMetrics } from '@/lib/ads/google-ads';
+import { getConnection, resolveAccessToken } from '@/lib/platform/connections';
 import { JobDoc } from './types';
 
 export async function executeJob(workspaceId: string, jobId: string, job: JobDoc) {
@@ -18,7 +22,6 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
     let details: Record<string, unknown> = {};
 
     if (job.type === 'send_email_campaign') {
-      // Get the campaign from payload
       const campaignId = job.payload?.campaignId as string;
       if (!campaignId) {
         message = 'No campaignId in job payload — skipped';
@@ -43,7 +46,6 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
         }
       }
     } else if (job.type === 'sync_contacts') {
-      // Sync contacts: update lastSyncAt timestamp
       const contactsSnap = await adminDb
         .collection(`workspaces/${workspaceId}/contacts`)
         .get();
@@ -98,10 +100,61 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
       if (!adCampaignId) {
         message = 'No adCampaignId in job payload — skipped';
       } else {
-        // Trigger the launch endpoint logic inline
         message = `Ad campaign ${adCampaignId} — use the launch endpoint to create on platform`;
         details = { adCampaignId };
       }
+    } else if (job.type === 'sync_ad_metrics') {
+      const adSnap = await adminDb
+        .collection(`workspaces/${workspaceId}/ad_campaigns`)
+        .where('status', 'in', ['active', 'paused'])
+        .get();
+
+      let synced = 0;
+      let failed = 0;
+
+      for (const doc of adSnap.docs) {
+        const campaign = doc.data();
+        if (!campaign.externalCampaignId) continue;
+
+        try {
+          let metricsResult: { success: boolean; metrics?: Record<string, unknown>; error?: string } | undefined;
+
+          if (campaign.platform === 'meta' && campaign.productId) {
+            const conn = await getConnection(workspaceId, 'meta', campaign.productId);
+            if (conn) {
+              const token = resolveAccessToken(conn);
+              metricsResult = await getMetaCampaignMetrics(token, campaign.externalCampaignId);
+            }
+          } else if (campaign.platform === 'google') {
+            const conn = await getConnection(workspaceId, 'google');
+            if (conn) {
+              const token = decrypt(conn.accessTokenEncrypted);
+              metricsResult = await getGoogleCampaignMetrics(
+                token,
+                conn.metadata.customerId as string,
+                process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '',
+                campaign.externalCampaignId,
+                conn.metadata.loginCustomerId as string | undefined,
+              );
+            }
+          }
+
+          if (metricsResult?.success && metricsResult.metrics) {
+            await adminDb.doc(`workspaces/${workspaceId}/ad_campaigns/${doc.id}`).update({
+              metrics: metricsResult.metrics,
+              updatedAt: new Date().toISOString(),
+            });
+            synced++;
+          } else if (metricsResult && !metricsResult.success) {
+            failed++;
+          }
+        } catch {
+          failed++;
+        }
+      }
+
+      message = `Ad metrics sync: ${synced} synced, ${failed} failed out of ${adSnap.size} campaigns`;
+      details = { total: adSnap.size, synced, failed };
     } else if (job.type === 'refresh_tokens') {
       message = 'Token refresh handled by worker tick directly';
     }
@@ -109,7 +162,6 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
     const finishedAt = new Date().toISOString();
     await runRef.update({ status: 'success', message, details, finishedAt });
 
-    // Update job metadata
     const next = computeNextRun(job.schedule, job.hourUTC, job.minuteUTC);
     await adminDb.doc(`workspaces/${workspaceId}/jobs/${jobId}`).update({
       lastRunAt: finishedAt,

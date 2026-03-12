@@ -2,6 +2,8 @@ import { adminDb } from '@/lib/firebase-admin';
 import { decrypt, encrypt } from '@/lib/crypto';
 import { refreshAccessToken } from './flow';
 import type { OAuthProvider } from '@/lib/schemas';
+import { getConnectionRef } from '@/lib/platform/connections';
+import type { PlatformConnection } from '@/lib/platform/types';
 
 type RefreshResult = {
   refreshed: number;
@@ -10,10 +12,8 @@ type RefreshResult = {
   errors: Array<{ workspaceId: string; provider: string; error: string; productId?: string }>;
 };
 
-/** Max consecutive failures before we stop retrying an integration. */
 const MAX_REFRESH_FAILURES = 5;
 
-/** Errors that indicate a permanent failure — no point retrying. */
 const PERMANENT_ERROR_PATTERNS = [
   'invalid_grant',
   'invalid_client',
@@ -30,36 +30,29 @@ function isPermanentError(error: string): boolean {
   return PERMANENT_ERROR_PATTERNS.some((p) => lower.includes(p.toLowerCase()));
 }
 
-/**
- * Refresh a single integration document if its token is expiring soon.
- */
-async function refreshIntegrationDoc(
-  integRef: FirebaseFirestore.DocumentReference,
+async function refreshConnectionDoc(
+  connRef: FirebaseFirestore.DocumentReference,
   provider: OAuthProvider,
   result: RefreshResult,
   errorContext: { workspaceId: string; productId?: string },
 ): Promise<void> {
   const now = new Date();
   const threshold = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
-  const integSnap = await integRef.get();
+  const connSnap = await connRef.get();
 
-  if (!integSnap.exists) return;
+  if (!connSnap.exists) return;
 
-  const data = integSnap.data()!;
-  if (!data.oauthConnected) return;
+  const data = connSnap.data() as PlatformConnection;
+  if (data.status !== 'connected') return;
 
-  // Skip integrations that have permanently failed
-  const failureCount = (data.refreshFailureCount as number) || 0;
+  const failureCount = (data.metadata.refreshFailureCount as number) || 0;
   if (failureCount >= MAX_REFRESH_FAILURES) {
     result.skipped++;
     return;
   }
 
-  // Page tokens from Meta page selection are long-lived (permanent).
-  // Only refresh the user access token, not page tokens.
-  // If this integration only has pageAccessTokenEncrypted (and no user token
-  // that's expiring), skip it.
-  if (provider === 'meta' && data.pageAccessTokenEncrypted && !data.tokenExpiresAt) {
+  // Meta page tokens are long-lived; only refresh user tokens
+  if (provider === 'meta' && data.metadata.pageAccessTokenEncrypted && !data.tokenExpiresAt) {
     return;
   }
 
@@ -71,19 +64,19 @@ async function refreshIntegrationDoc(
     if (!data.accessTokenEncrypted) return;
 
     try {
-      const currentToken = decrypt(data.accessTokenEncrypted as string);
+      const currentToken = decrypt(data.accessTokenEncrypted);
       const newTokens = await refreshAccessToken('meta', currentToken);
 
       const newExpiresAt = newTokens.expiresIn
         ? new Date(now.getTime() + newTokens.expiresIn * 1000).toISOString()
-        : null;
+        : undefined;
 
-      await integRef.update({
+      await connRef.update({
         accessTokenEncrypted: encrypt(newTokens.accessToken),
         tokenExpiresAt: newExpiresAt,
-        lastRefreshAt: now.toISOString(),
-        lastRefreshError: null,
-        refreshFailureCount: 0,
+        'metadata.lastRefreshAt': now.toISOString(),
+        'metadata.lastRefreshError': null,
+        'metadata.refreshFailureCount': 0,
         status: 'connected',
         updatedAt: now.toISOString(),
       });
@@ -94,10 +87,10 @@ async function refreshIntegrationDoc(
       const newCount = failureCount + 1;
       const permanent = isPermanentError(error);
 
-      await integRef.update({
-        status: permanent ? 'disconnected' : 'refresh_failed',
-        lastRefreshError: error,
-        refreshFailureCount: newCount,
+      await connRef.update({
+        status: permanent ? 'revoked' : 'error',
+        'metadata.lastRefreshError': error,
+        'metadata.refreshFailureCount': newCount,
         updatedAt: now.toISOString(),
       });
       result.failed++;
@@ -110,39 +103,38 @@ async function refreshIntegrationDoc(
   if (!data.refreshTokenEncrypted) return;
 
   try {
-    const refreshToken = decrypt(data.refreshTokenEncrypted as string);
+    const refreshToken = decrypt(data.refreshTokenEncrypted);
     const newTokens = await refreshAccessToken(provider, refreshToken);
 
     const newExpiresAt = newTokens.expiresIn
       ? new Date(now.getTime() + newTokens.expiresIn * 1000).toISOString()
-      : null;
+      : undefined;
 
     const updatePayload: Record<string, unknown> = {
       accessTokenEncrypted: encrypt(newTokens.accessToken),
       tokenExpiresAt: newExpiresAt,
-      lastRefreshAt: now.toISOString(),
-      lastRefreshError: null,
-      refreshFailureCount: 0,
+      'metadata.lastRefreshAt': now.toISOString(),
+      'metadata.lastRefreshError': null,
+      'metadata.refreshFailureCount': 0,
       status: 'connected',
       updatedAt: now.toISOString(),
     };
 
-    // TikTok rotates refresh tokens — always store the new one
     if (newTokens.refreshToken && newTokens.refreshToken !== refreshToken) {
       updatePayload.refreshTokenEncrypted = encrypt(newTokens.refreshToken);
     }
 
-    await integRef.update(updatePayload);
+    await connRef.update(updatePayload);
     result.refreshed++;
   } catch (e) {
     const error = e instanceof Error ? e.message : 'Unknown error';
     const newCount = failureCount + 1;
     const permanent = isPermanentError(error);
 
-    await integRef.update({
-      status: permanent ? 'disconnected' : 'refresh_failed',
-      lastRefreshError: error,
-      refreshFailureCount: newCount,
+    await connRef.update({
+      status: permanent ? 'revoked' : 'error',
+      'metadata.lastRefreshError': error,
+      'metadata.refreshFailureCount': newCount,
       updatedAt: now.toISOString(),
     });
     result.failed++;
@@ -151,9 +143,7 @@ async function refreshIntegrationDoc(
 }
 
 /**
- * Scan all workspaces for OAuth integrations with tokens expiring within 24 hours.
- * - Workspace-level: Google (one account per workspace)
- * - Product-level: Meta, X, TikTok (per-product social integrations)
+ * Scan all workspaces for platform connections with tokens expiring within 24 hours.
  */
 export async function processTokenRefresh(): Promise<RefreshResult> {
   const result: RefreshResult = { refreshed: 0, failed: 0, skipped: 0, errors: [] };
@@ -163,11 +153,11 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
   for (const ws of wsSnap.docs) {
     const workspaceId = ws.id;
 
-    // 1. Workspace-level: Google
-    const googleRef = adminDb.doc(`workspaces/${workspaceId}/integrations/google`);
-    await refreshIntegrationDoc(googleRef, 'google', result, { workspaceId });
+    // Workspace-level: Google
+    const googleRef = getConnectionRef(workspaceId, 'google');
+    await refreshConnectionDoc(googleRef, 'google', result, { workspaceId });
 
-    // 2. Product-level: meta, x, tiktok
+    // Product-level: meta, x, tiktok
     const socialProviders: OAuthProvider[] = ['meta', 'tiktok', 'x'];
     const productsSnap = await adminDb
       .collection(`workspaces/${workspaceId}/products`)
@@ -178,10 +168,8 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
       const productId = productDoc.id;
 
       for (const provider of socialProviders) {
-        const integRef = adminDb.doc(
-          `workspaces/${workspaceId}/products/${productId}/integrations/${provider}`,
-        );
-        await refreshIntegrationDoc(integRef, provider, result, { workspaceId, productId });
+        const connRef = getConnectionRef(workspaceId, provider, productId);
+        await refreshConnectionDoc(connRef, provider, result, { workspaceId, productId });
       }
     }
   }

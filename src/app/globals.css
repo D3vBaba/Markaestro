@@ -149,77 +149,12 @@
   }
 }
 
-/* Premium Gradient Utilities — Blue to Black */
-.gradient-primary {
-  background: linear-gradient(135deg, oklch(0.55 0.20 250), oklch(0.18 0.02 240));
-}
-
-.gradient-primary-hover {
-  background: linear-gradient(135deg, oklch(0.50 0.20 250), oklch(0.14 0.02 240));
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, oklch(0.55 0.20 250), oklch(0.20 0.02 240));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-warm {
-  background: linear-gradient(135deg, oklch(0.55 0.20 250), oklch(0.60 0.14 230));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-mesh {
-  background:
-    radial-gradient(ellipse at 20% 0%, oklch(0.55 0.20 250 / 0.05), transparent 50%),
-    radial-gradient(ellipse at 80% 20%, oklch(0.15 0.005 240 / 0.04), transparent 45%),
-    radial-gradient(ellipse at 40% 80%, oklch(0.60 0.16 230 / 0.03), transparent 50%);
-}
-
-.gradient-mesh-strong {
-  background:
-    radial-gradient(ellipse at 20% 0%, oklch(0.55 0.20 250 / 0.08), transparent 50%),
-    radial-gradient(ellipse at 80% 20%, oklch(0.15 0.005 240 / 0.06), transparent 45%),
-    radial-gradient(ellipse at 40% 80%, oklch(0.60 0.16 230 / 0.05), transparent 50%);
-}
-
-.glass {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-}
-
 /* Premium card hover effect */
 .card-premium {
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .card-premium:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 8px 30px oklch(0.55 0.20 250 / 0.08),
-    0 2px 8px oklch(0 0 0 / 0.04);
-}
-
-/* Sidebar glow for active item */
-.sidebar-glow {
-  box-shadow: 0 0 20px oklch(0.55 0.20 250 / 0.15);
-}
-
-/* Gradient border effect */
-.gradient-border {
-  position: relative;
-}
-
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, oklch(0.55 0.20 250), oklch(0.18 0.02 240), oklch(0.60 0.16 230));
-  border-radius: var(--radius) var(--radius) 0 0;
+  box-shadow: 0 4px 20px oklch(0 0 0 / 0.06);
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Mail, Workflow, Timer, ArrowUpRight, Activity } from "lucide-react";
+import { ArrowUpRight, Activity } from "lucide-react";
 import { DashboardOverviewChart } from "@/components/dashboard/OverviewChart";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -72,15 +72,11 @@ export default function Home() {
     {
       label: "Total Contacts",
       value: loading ? "..." : (m?.totalContacts ?? 0).toLocaleString(),
-      gradient: "from-blue-500/10 to-blue-400/5",
-      dot: "bg-blue-600",
       detail: <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2"><ArrowUpRight className="h-3 w-3 mr-0.5" /> {m?.activeContacts ?? 0} active</span>,
     },
     {
       label: "Campaigns",
       value: loading ? "..." : String(m?.totalCampaigns ?? 0),
-      gradient: "from-slate-900/10 to-black/5",
-      dot: "bg-slate-800",
       detail: (
         <>
           <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.activeCampaigns ?? 0} active</span>
@@ -91,15 +87,11 @@ export default function Home() {
     {
       label: "Automations",
       value: loading ? "..." : String(m?.totalAutomations ?? 0),
-      gradient: "from-blue-600/10 to-blue-500/5",
-      dot: "bg-blue-600",
       detail: <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.enabledAutomations ?? 0} enabled</span>,
     },
     {
       label: "Scheduled Jobs",
       value: loading ? "..." : String(m?.totalJobs ?? 0),
-      gradient: "from-sky-500/10 to-sky-400/5",
-      dot: "bg-sky-500",
       detail: <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2"><Activity className="h-3 w-3 mr-1" /> {m?.enabledJobs ?? 0} active</span>,
     },
   ];
@@ -113,7 +105,7 @@ export default function Home() {
         className="flex flex-col md:flex-row md:items-end justify-between space-y-4 md:space-y-0 mb-10 pb-8 border-b border-border/40"
       >
         <div>
-          <h2 className="text-3xl font-normal tracking-tight font-[family-name:var(--font-display)] gradient-text">Dashboard</h2>
+          <h2 className="text-3xl font-normal tracking-tight font-[family-name:var(--font-display)] text-foreground">Dashboard</h2>
           <p className="text-sm text-muted-foreground mt-2">Welcome back to Markaestro.</p>
         </div>
         <div className="flex items-center space-x-3">
@@ -125,10 +117,9 @@ export default function Home() {
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {metricCards.map((card, i) => (
           <motion.div key={card.label} custom={i} initial="hidden" animate="visible" variants={fadeUp}>
-            <Card className={`card-premium overflow-hidden bg-gradient-to-br ${card.gradient} border-border/30`}>
+            <Card className="card-premium overflow-hidden border-border/40">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{card.label}</CardTitle>
-                <div className={`w-2 h-2 rounded-full ${card.dot}`} />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold tracking-tight">{card.value}</div>
@@ -146,7 +137,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.4, ease }}
         >
-          <Card className="border-border/30">
+          <Card className="border-border/40">
             <CardHeader>
               <CardTitle className="text-base font-semibold">Overview</CardTitle>
               <CardDescription>Email engagement statistics for the last 7 days.</CardDescription>
@@ -162,7 +153,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.4, ease }}
         >
-          <Card className="border-border/30">
+          <Card className="border-border/40">
             <CardHeader>
               <CardTitle className="text-base font-semibold">Recent Activity</CardTitle>
               <CardDescription>Latest job executions and campaign events.</CardDescription>
@@ -202,7 +193,7 @@ export default function Home() {
                   ))
                 ) : (
                   <div className="py-8 text-center">
-                    <div className="h-10 w-10 rounded-xl gradient-primary mx-auto mb-3 flex items-center justify-center shadow-md shadow-primary/15">
+                    <div className="h-10 w-10 rounded-xl bg-primary mx-auto mb-3 flex items-center justify-center">
                       <Activity className="h-4 w-4 text-white" />
                     </div>
                     <p className="text-sm text-muted-foreground">

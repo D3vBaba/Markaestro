@@ -138,7 +138,7 @@ export default function AutomationsPage() {
             </div>
           ) : automations.length === 0 ? (
             <div className="py-8 text-center">
-              <div className="h-12 w-12 rounded-xl gradient-primary mx-auto mb-4 flex items-center justify-center shadow-md shadow-primary/15">
+              <div className="h-12 w-12 rounded-xl bg-primary mx-auto mb-4 flex items-center justify-center">
                 <Workflow className="h-5 w-5 text-white" />
               </div>
               <p className="text-sm text-muted-foreground">No automations yet. Create one to get started.</p>

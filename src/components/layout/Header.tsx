@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, Search, Menu } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -23,10 +23,8 @@ export function Header() {
         .toUpperCase()
         .slice(0, 2);
 
-    const allItems = [...navigationGroups.flatMap((g) => g.items), settingsItem];
-
     return (
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border/40 bg-background/70 glass px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
             {/* Mobile menu */}
             <Sheet>
                 <SheetTrigger asChild>
@@ -38,7 +36,7 @@ export function Header() {
                 <SheetContent side="left" className="w-[300px] sm:w-[340px] p-0 border-r border-border/30 bg-sidebar">
                     <div className="flex flex-col h-full p-6">
                         <div className="font-bold text-lg mb-10 flex items-center gap-3 text-sidebar-accent-foreground">
-                            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/25 overflow-hidden p-1.5">
+                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden p-1.5">
                                 <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="object-contain rounded-md" />
                             </div>
                             Markaestro
@@ -55,9 +53,9 @@ export function Header() {
                                                 key={item.name}
                                                 href={item.href}
                                                 className={cn(
-                                                    "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300",
+                                                    "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200",
                                                     pathname === item.href
-                                                        ? "gradient-primary text-white shadow-md shadow-primary/20"
+                                                        ? "bg-primary text-white"
                                                         : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                                                 )}
                                             >
@@ -77,9 +75,9 @@ export function Header() {
                                 <Link
                                     href={settingsItem.href}
                                     className={cn(
-                                        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300",
+                                        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200",
                                         pathname === settingsItem.href
-                                            ? "gradient-primary text-white shadow-md shadow-primary/20"
+                                            ? "bg-primary text-white"
                                             : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                                     )}
                                 >
@@ -99,7 +97,7 @@ export function Header() {
 
             <div className="flex-1" />
 
-            {/* Search & Actions */}
+            {/* Search */}
             <div className="flex items-center gap-3">
                 <div className="relative hidden md:flex items-center">
                     <Search className="absolute left-3.5 h-3.5 w-3.5 text-muted-foreground/60" />
@@ -112,12 +110,7 @@ export function Header() {
                         <span className="text-xs">&#8984;</span>K
                     </kbd>
                 </div>
-                <Button variant="ghost" size="icon" className="rounded-xl relative h-10 w-10 hover:bg-primary/5">
-                    <Bell className="h-4 w-4 text-muted-foreground" />
-                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full gradient-primary animate-ping" />
-                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full gradient-primary" />
-                </Button>
-                <Avatar className="h-9 w-9 md:hidden gradient-primary">
+                <Avatar className="h-9 w-9 md:hidden bg-primary">
                     <AvatarFallback className="text-xs bg-transparent text-white font-semibold">{initials}</AvatarFallback>
                 </Avatar>
             </div>

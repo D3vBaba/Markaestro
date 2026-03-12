@@ -43,7 +43,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       // This is critical — without it the token expires in ~1-2 hours
       try {
         const llRes = await fetch(
-          `https://graph.facebook.com/v21.0/oauth/access_token?` +
+          `https://graph.facebook.com/v22.0/oauth/access_token?` +
           new URLSearchParams({
             grant_type: 'fb_exchange_token',
             client_id: process.env.META_APP_ID || '',
@@ -64,7 +64,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       // Fetch user's pages for later selection
       try {
         const pagesRes = await fetch(
-          `https://graph.facebook.com/v21.0/me/accounts?fields=id,name,access_token,instagram_business_account`,
+          `https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token,instagram_business_account`,
           { headers: { Authorization: `Bearer ${tokens.accessToken}` } },
         );
         const pagesData = await pagesRes.json();

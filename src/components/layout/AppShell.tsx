@@ -19,9 +19,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen grid place-items-center gradient-mesh">
+      <div className="min-h-screen grid place-items-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 rounded-xl gradient-primary animate-pulse shadow-lg shadow-primary/20" />
+          <div className="h-10 w-10 rounded-xl bg-primary animate-pulse" />
           <div className="space-y-2">
             <div className="h-3 w-32 rounded-full bg-muted animate-pulse" />
             <div className="h-3 w-24 rounded-full bg-muted animate-pulse mx-auto" />
@@ -36,10 +36,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[260px_1fr]">
       <Sidebar className="hidden lg:flex w-[260px]" />
-      <div className="flex flex-col min-h-screen bg-background relative">
-        <div className="pointer-events-none absolute inset-0 gradient-mesh" />
+      <div className="flex flex-col min-h-screen bg-background">
         <Header />
-        <main className="flex-1 p-6 lg:p-10 z-10 overflow-y-auto">
+        <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
           <div className="mx-auto max-w-6xl">
             {children}
           </div>

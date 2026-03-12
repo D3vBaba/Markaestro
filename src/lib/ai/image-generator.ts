@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import type { BrandIdentity, BrandVoice, ImageStyle, ImageAspectRatio, ImageProvider } from '@/lib/schemas';
+import type { BrandIdentity, BrandVoice, ImageStyle, ImageAspectRatio, ImageProvider, SocialChannel } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 
 export type ImageGenRequest = {
@@ -7,6 +7,8 @@ export type ImageGenRequest = {
   brandIdentity?: BrandIdentity;
   brandVoice?: BrandVoice;
   productName?: string;
+  /** Target social channel — drives platform-specific visual direction */
+  channel?: SocialChannel;
   style: ImageStyle;
   aspectRatio: ImageAspectRatio;
   provider: ImageProvider;
@@ -22,82 +24,151 @@ export type ImageGenResult = {
   revisedPrompt?: string;
 };
 
-/** Pixel dimensions for each aspect ratio */
-const ASPECT_RATIO_DIMENSIONS: Record<ImageAspectRatio, { width: number; height: number }> = {
-  '1:1': { width: 1024, height: 1024 },
-  '16:9': { width: 1792, height: 1024 },
-  '9:16': { width: 1024, height: 1792 },
-  '4:5': { width: 1024, height: 1280 },
-  '3:4': { width: 1024, height: 1365 },
-};
+/**
+ * Platform-specific visual direction based on engagement research.
+ * Each platform has different content that drives saves, shares, and scroll-stops.
+ */
+function getPlatformDirection(channel?: SocialChannel): string {
+  switch (channel) {
+    case 'x':
+      return [
+        'PLATFORM: X/Twitter — this image must stop the scroll in a fast-moving text-heavy feed.',
+        'COMPOSITION: Bold, high-contrast image that pops against a dark interface. Use warm tones (reds, oranges, golds) which get 25% more engagement on X. Single focal point, no clutter.',
+        'WHAT WORKS: Data visualizations, bold typography-style graphics, striking single-subject compositions, dramatic close-ups with rich texture. Think infographic-meets-art.',
+        'FRAMING: Landscape 16:9 composition. Key visual in the center — X crops edges in preview.',
+      ].join('\n');
+    case 'facebook':
+      return [
+        'PLATFORM: Facebook — this image needs to earn shares and comments in the feed.',
+        'COMPOSITION: Bright, warm, and energetic. Golden yellows, warm oranges, and violet tones increase engagement on Facebook. High contrast between elements.',
+        'WHAT WORKS: Emotionally resonant imagery, community-feel compositions, vibrant lifestyle moments, or bold single-insight visuals. Carousel-friendly if multiple concepts.',
+        'FRAMING: Square or slightly portrait composition. Mobile-first — 98% of Facebook users are on mobile.',
+      ].join('\n');
+    case 'instagram':
+      return [
+        'PLATFORM: Instagram — this image must be save-worthy and visually cohesive.',
+        'COMPOSITION: Clean, bright, and editorial. Blue-dominant images outperform warm tones on Instagram. Use a neutral base (whites, creams) with one strong accent color. Generous negative space.',
+        'WHAT WORKS: Minimalist aesthetic with texture, behind-the-scenes authenticity, educational single-insight visuals, or aspirational lifestyle. Static images outperform video for engagement.',
+        'FRAMING: Portrait 4:5 composition to maximize screen real estate. Design with the 3:4 grid crop in mind — keep key elements in the center.',
+      ].join('\n');
+    case 'tiktok':
+      return [
+        'PLATFORM: TikTok — this image needs to feel native, authentic, and bold.',
+        'COMPOSITION: High-energy, lo-fi authentic feel over polished perfection. Bold colors, strong contrast that reads at tiny thumbnail sizes. Center key visual in the middle 60% of the frame.',
+        'WHAT WORKS: Raw, authentic aesthetic — the "quiet flex" style. Aspirational but calm. Confident, intentional visuals over loud flashy content. Bright, well-lit, and clear.',
+        'FRAMING: Full vertical 9:16 composition. Keep text/key elements away from top 150px and bottom 250px (UI overlays).',
+      ].join('\n');
+    default:
+      return 'PLATFORM: General social media — bright, bold, scroll-stopping composition with strong focal point.';
+  }
+}
 
 /**
- * Build a prompt that incorporates brand identity and produces studio-quality images.
+ * Build a prompt using Gemini's recommended 5-component structure:
+ * Style → Subject → Setting → Action → Composition
+ *
+ * Uses post text as creative INSPIRATION, not literal description.
+ * Platform-specific visual strategies based on engagement data.
  */
 function buildBrandedPrompt(req: ImageGenRequest): string {
-  const parts: string[] = [];
+  const sections: string[] = [];
 
-  const dims = ASPECT_RATIO_DIMENSIONS[req.aspectRatio];
-
-  // Style instruction with studio-quality photography direction
+  // ── 1. STYLE ──────────────────────────────────────────────
   const styleMap: Record<ImageStyle, string> = {
-    photorealistic: 'Shot on iPhone 17 Pro Max, 48MP main camera, ProRAW. Ultra-realistic photograph with natural lighting, shallow depth of field, cinematic color grading. Studio-quality editorial image',
-    illustration: 'Premium digital illustration with rich detail, professional-grade vector art quality, vibrant colors, clean composition',
-    minimal: 'Clean minimalist design, elegant negative space, precise typography-friendly layout, premium aesthetic with subtle gradients',
-    abstract: 'High-end abstract composition with sophisticated color palette, artistic textures, dynamic visual flow, gallery-quality',
-    branded: 'Professional commercial photography, studio lighting setup, product-shot quality, advertising-grade image with premium feel',
+    photorealistic: [
+      'STYLE: Cinematic editorial photograph shot on Hasselblad X2D, 90mm f/3.2 lens.',
+      'Natural skin texture with pores and slight imperfections. Single directional light source creating defined shadows.',
+      'Subtle film grain, natural sensor noise. Warm color grading with lifted shadows.',
+      'Shallow depth of field with creamy bokeh. Looks like a Condé Nast editorial, NOT a stock photo.',
+    ].join(' '),
+    illustration: [
+      'STYLE: Bold editorial illustration with hand-crafted quality.',
+      'Limited palette — maximum 4-5 intentional colors. Strong graphic shapes and confident linework.',
+      'Visible texture and imperfection — risograph grain, screen-print quality, or watercolor bleeds.',
+      'Clever visual metaphor over literal depiction. Feels like a New Yorker cover or Pentagram poster.',
+    ].join(' '),
+    minimal: [
+      'STYLE: High-end minimalist composition.',
+      'One hero element surrounded by vast negative space. Maximum two colors plus neutrals.',
+      'Precise geometry, clean edges, intentional asymmetry. Japanese design sensibility.',
+      'Every element earns its place. The whitespace is as important as the subject.',
+    ].join(' '),
+    abstract: [
+      'STYLE: Contemporary abstract art — gallery quality.',
+      'Organic flowing shapes intersecting geometric elements. Rich layered textures with depth.',
+      'Bold saturated color fields with sophisticated complementary palette.',
+      'Dynamic tension and visual rhythm. Painterly quality with sharp details. Could hang in a gallery.',
+    ].join(' '),
+    branded: [
+      'STYLE: Premium brand campaign — lifestyle editorial quality.',
+      'Shot on Canon EOS R5, 35mm f/1.4 lens. Natural window lighting or golden hour.',
+      'Warm, inviting color palette. Authentic textures — linen, wood, ceramic, concrete.',
+      'Aspirational but approachable. Think Aesop, Glossier, or Notion brand aesthetic.',
+    ].join(' '),
   };
-  parts.push(styleMap[req.style] || styleMap.branded);
+  sections.push(styleMap[req.style] || styleMap.branded);
 
-  // Aspect ratio and size instruction
-  parts.push(`Output image must be exactly ${dims.width}x${dims.height} pixels (${req.aspectRatio} aspect ratio).`);
+  // ── 2. PLATFORM DIRECTION ──────────────────────────────────
+  sections.push(getPlatformDirection(req.channel));
 
-  // Phone mockup instructions when screenshots are provided
+  // ── 3. SUBJECT — must be relevant to the product and post ──
+  sections.push([
+    'SUBJECT: Create a marketing image that is DIRECTLY RELEVANT to the product and what the post is about.',
+    'The image should visually communicate the core message or value proposition of the post.',
+    'If the post is about a software product or app, show the LIFESTYLE or OUTCOME the product enables — people being productive, creative, successful, or at ease.',
+    'If the post is about a physical product, show the product in an aspirational setting with beautiful lighting.',
+    'The viewer should immediately understand what the post is about from the image alone.',
+    `Post content: "${req.prompt}"`,
+  ].join('\n'));
+
+  // ── 4. SETTING & CONTEXT ──────────────────────────────────
+  if (req.productName) {
+    sections.push(`BRAND: This is marketing for "${req.productName}". The image must feel connected to this product — not generic. Show the world this product exists in.`);
+  }
+
+  // Screenshots override — only when user explicitly uploads them
   if (req.screenUrls && req.screenUrls.length > 0) {
     const count = req.screenUrls.length;
-    parts.push(
-      `Feature ${count === 1 ? 'a modern smartphone' : `${count} modern smartphones`} in the composition.` +
-      ` Each phone screen must display the provided app screenshot(s) exactly as given — do NOT alter, redraw, or reinterpret the screen content.` +
-      ` The phones should have thin bezels, realistic reflections, and be angled attractively.` +
-      ` Place the phone${count > 1 ? 's' : ''} as the focal point of the marketing image.`
-    );
+    sections.push([
+      `OVERRIDE — APP SHOWCASE: Feature ${count === 1 ? 'one smartphone' : `${count} smartphones`} floating in space with the provided screenshot(s) displayed on screen.`,
+      'The phone(s) should be the hero element — modern design, thin bezels, subtle drop shadow.',
+      'Background: soft gradient or atmospheric blur — NOT a desk, hand, or office setting.',
+      'Display the screenshots EXACTLY as provided — do not redraw or alter them.',
+    ].join('\n'));
   }
 
-  // Logo instructions
+  // Logo — subtle integration only
   if (req.logoUrl) {
-    parts.push(
-      'Include the provided logo in the image. Place it prominently but tastefully — corner placement, watermark-style, or integrated into the design. Reproduce the logo exactly as provided, do NOT alter or redraw it.'
-    );
+    sections.push('LOGO: Place the provided logo subtly — small, in a corner, semi-transparent. It should NOT dominate the composition.');
   }
 
-  // Main prompt
-  parts.push(`depicting: ${req.prompt}.`);
-
-  // Product name
-  if (req.productName) {
-    parts.push(`This is marketing content for "${req.productName}".`);
-  }
-
-  // Brand colors
+  // ── 5. BRAND COLORS ───────────────────────────────────────
   if (req.brandIdentity) {
     const colors: string[] = [];
-    if (req.brandIdentity.primaryColor) colors.push(`primary color ${req.brandIdentity.primaryColor}`);
-    if (req.brandIdentity.secondaryColor) colors.push(`secondary color ${req.brandIdentity.secondaryColor}`);
-    if (req.brandIdentity.accentColor) colors.push(`accent color ${req.brandIdentity.accentColor}`);
+    if (req.brandIdentity.primaryColor) colors.push(req.brandIdentity.primaryColor);
+    if (req.brandIdentity.secondaryColor) colors.push(req.brandIdentity.secondaryColor);
+    if (req.brandIdentity.accentColor) colors.push(req.brandIdentity.accentColor);
     if (colors.length > 0) {
-      parts.push(`Incorporate the brand color palette: ${colors.join(', ')}.`);
+      sections.push(`COLOR PALETTE: Weave these brand colors as accent tones: ${colors.join(', ')}. Use them for highlights, reflections, or atmospheric color — NOT as flat fills.`);
     }
   }
 
-  // Brand voice tone
+  // Brand voice mood
   if (req.brandVoice?.tone) {
-    parts.push(`The visual mood should convey a ${req.brandVoice.tone} feeling.`);
+    sections.push(`MOOD: The image should evoke a ${req.brandVoice.tone} feeling.`);
   }
 
-  // Quality boosters
-  parts.push('8K resolution, sharp focus, professional color correction, social media ready, high dynamic range, no artifacts, no watermarks.');
+  // ── 6. TECHNICAL QUALITY ───────────────────────────────────
+  sections.push([
+    'QUALITY: Sharp focus, natural depth of field, professional color correction, slight film grain.',
+    'RULES:',
+    '- NO text, words, letters, or typography in the image',
+    '- NO watermarks or UI elements',
+    '- Natural skin texture if people are shown — no plastic/waxy AI look',
+    '- The image must be RELEVANT to the product — not a random unrelated scene',
+  ].join('\n'));
 
-  return parts.join(' ');
+  return sections.join('\n\n');
 }
 
 /**

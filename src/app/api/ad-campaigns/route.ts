@@ -8,8 +8,8 @@ export async function GET(req: Request) {
     const ctx = await requireContext(req);
     const url = new URL(req.url);
     const { limit, status } = paginationSchema.parse({
-      limit: url.searchParams.get('limit'),
-      status: url.searchParams.get('status'),
+      limit: url.searchParams.get('limit') ?? undefined,
+      status: url.searchParams.get('status') ?? undefined,
     });
 
     let query = adminDb

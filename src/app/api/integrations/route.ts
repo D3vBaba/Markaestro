@@ -1,26 +1,24 @@
 import { requireContext } from '@/lib/server-auth';
-import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
+import { listConnections } from '@/lib/platform/connections';
+import type { PlatformConnection } from '@/lib/platform/types';
 
-function maskIntegration(d: FirebaseFirestore.QueryDocumentSnapshot) {
-  const data = d.data();
+function maskConnection(conn: PlatformConnection) {
   return {
-    provider: d.id,
-    enabled: data.enabled ?? false,
-    status: data.status ?? 'disconnected',
-    updatedAt: data.updatedAt,
-    hasApiKey: Boolean(data.apiKeyEncrypted || data.apiKey),
-    hasAccessToken: Boolean(data.accessTokenEncrypted || data.accessToken),
-    fromEmail: data.fromEmail,
-    adAccountId: data.adAccountId,
-    pageId: data.pageId,
-    igAccountId: data.igAccountId,
-    oauthConnected: data.oauthConnected ?? false,
-    tokenExpiresAt: data.tokenExpiresAt ?? null,
-    pageName: data.pageName ?? null,
-    openId: data.openId ?? null,
-    username: data.username ?? null,
-    lastRefreshError: data.lastRefreshError ?? null,
+    provider: conn.provider,
+    enabled: conn.status === 'connected',
+    status: conn.status,
+    hasAccessToken: Boolean(conn.accessTokenEncrypted),
+    hasApiKey: Boolean(conn.metadata.apiKeyEncrypted),
+    fromEmail: conn.metadata.fromEmail,
+    adAccountId: conn.metadata.adAccountId,
+    pageId: conn.metadata.pageId,
+    igAccountId: conn.metadata.igAccountId,
+    tokenExpiresAt: conn.tokenExpiresAt ?? null,
+    pageName: conn.metadata.pageName ?? null,
+    openId: conn.metadata.openId ?? null,
+    username: conn.metadata.username ?? null,
+    lastRefreshError: conn.metadata.lastRefreshError ?? null,
   };
 }
 
@@ -30,19 +28,12 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const productId = url.searchParams.get('productId');
 
-    // Always return workspace-level integrations (google)
-    const wsSnap = await adminDb
-      .collection(`workspaces/${ctx.workspaceId}/integrations`)
-      .get();
-    const items = wsSnap.docs.map(maskIntegration);
+    const wsConns = await listConnections(ctx.workspaceId);
+    const items = wsConns.map(maskConnection);
 
-    // If productId is provided, also return product-level integrations (resend, meta, x, tiktok)
     if (productId) {
-      const prodSnap = await adminDb
-        .collection(`workspaces/${ctx.workspaceId}/products/${productId}/integrations`)
-        .get();
-      const productItems = prodSnap.docs.map(maskIntegration);
-      items.push(...productItems);
+      const prodConns = await listConnections(ctx.workspaceId, productId);
+      items.push(...prodConns.map(maskConnection));
     }
 
     return apiOk({ workspaceId: ctx.workspaceId, integrations: items });

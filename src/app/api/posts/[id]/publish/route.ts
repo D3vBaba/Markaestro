@@ -19,19 +19,23 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return apiOk({ ok: false, error: 'Post has no associated product' }, 400);
     }
 
-    // Only draft or scheduled posts can be published
-    if (post.status !== 'draft' && post.status !== 'scheduled') {
+    // Only draft, scheduled, or failed posts can be published
+    if (post.status !== 'draft' && post.status !== 'scheduled' && post.status !== 'failed') {
       return apiOk({ ok: false, error: `Cannot publish a post with status "${post.status}"` }, 400);
     }
 
     // Mark as publishing
     await ref.update({ status: 'publishing', updatedAt: new Date().toISOString() });
 
+    console.log(`[publish] Post ${id}: channel=${post.channel}, productId=${productId}, status=${post.status}, mediaUrls=${JSON.stringify(post.mediaUrls)}`);
+
     const result = await publishPost(ctx.workspaceId, productId, {
       content: post.content,
       channel: post.channel,
       mediaUrls: post.mediaUrls,
     });
+
+    console.log(`[publish] Result for ${id}:`, JSON.stringify(result));
 
     if (result.success) {
       await ref.update({

@@ -11,12 +11,12 @@ export default function MetricCard({
   delta?: number;
 }) {
   return (
-    <Card className="card-premium gradient-border overflow-hidden">
+    <Card className="card-premium overflow-hidden border-border/40">
       <CardHeader className="pb-2">
         <CardTitle className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{label}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold tracking-tight gradient-text">{value}</div>
+        <div className="text-3xl font-bold tracking-tight text-foreground">{value}</div>
         {typeof delta === "number" ? (
           <p className="mt-2 flex items-center text-xs text-muted-foreground font-medium">
             <span

@@ -6,6 +6,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { createMetaCampaign } from '@/lib/ads/meta-ads';
 import { createGoogleCampaign } from '@/lib/ads/google-ads';
 import type { AdCampaignDoc } from '@/lib/ads/types';
+import { getConnection, resolveAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -23,30 +24,24 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return apiOk({ ok: false, error: `Campaign cannot be launched from status: ${campaign.status}` });
     }
 
-    // Update status to pending
     await ref.update({ status: 'pending', updatedAt: new Date().toISOString() });
 
     if (campaign.platform === 'meta') {
-      // Meta Ads: use product-level integration
       const productId = campaign.productId as string | undefined;
       if (!productId) {
         await ref.update({ status: 'failed', errorMessage: 'Campaign has no associated product for Meta integration' });
         return apiOk({ ok: false, error: 'Campaign has no associated product for Meta integration' });
       }
 
-      const integRef = adminDb.doc(`workspaces/${ctx.workspaceId}/products/${productId}/integrations/meta`);
-      const integSnap = await integRef.get();
-      if (!integSnap.exists) {
+      const conn = await getConnection(ctx.workspaceId, 'meta', productId);
+      if (!conn) {
         await ref.update({ status: 'failed', errorMessage: 'Meta integration not configured for this product' });
         return apiOk({ ok: false, error: 'Meta integration not configured for this product' });
       }
 
-      const integData = integSnap.data()!;
-      const accessToken = integData.pageAccessTokenEncrypted
-        ? decrypt(integData.pageAccessTokenEncrypted as string)
-        : decrypt(integData.accessTokenEncrypted as string);
-      const adAccountId = integData.adAccountId as string;
-      const pageId = integData.pageId as string;
+      const accessToken = resolveAccessToken(conn);
+      const adAccountId = conn.metadata.adAccountId as string;
+      const pageId = conn.metadata.pageId as string;
 
       if (!adAccountId) {
         await ref.update({ status: 'failed', errorMessage: 'No ad account ID configured' });
@@ -70,28 +65,21 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         });
         return apiOk({ ok: true, ...result });
       } else {
-        await ref.update({
-          status: 'failed',
-          errorMessage: result.error,
-          updatedAt: new Date().toISOString(),
-        });
+        await ref.update({ status: 'failed', errorMessage: result.error, updatedAt: new Date().toISOString() });
         return apiOk({ ok: false, error: result.error });
       }
     }
 
     if (campaign.platform === 'google') {
-      // Load Google integration
-      const integRef = adminDb.doc(`workspaces/${ctx.workspaceId}/integrations/google`);
-      const integSnap = await integRef.get();
-      if (!integSnap.exists) {
+      const conn = await getConnection(ctx.workspaceId, 'google');
+      if (!conn) {
         await ref.update({ status: 'failed', errorMessage: 'Google integration not configured' });
         return apiOk({ ok: false, error: 'Google integration not configured' });
       }
 
-      const integData = integSnap.data()!;
-      const accessToken = decrypt(integData.accessTokenEncrypted as string);
-      const customerId = integData.customerId as string;
-      const loginCustomerId = integData.loginCustomerId as string | undefined;
+      const accessToken = decrypt(conn.accessTokenEncrypted);
+      const customerId = conn.metadata.customerId as string;
+      const loginCustomerId = conn.metadata.loginCustomerId as string | undefined;
       const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '';
 
       if (!customerId || !developerToken) {
@@ -112,11 +100,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         });
         return apiOk({ ok: true, ...result });
       } else {
-        await ref.update({
-          status: 'failed',
-          errorMessage: result.error,
-          updatedAt: new Date().toISOString(),
-        });
+        await ref.update({ status: 'failed', errorMessage: result.error, updatedAt: new Date().toISOString() });
         return apiOk({ ok: false, error: result.error });
       }
     }

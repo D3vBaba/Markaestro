@@ -3,6 +3,7 @@ import { decrypt } from '@/lib/crypto';
 import { renderTemplate, type TemplateVars } from './templates';
 import { buildUnsubscribeUrl } from './unsubscribe';
 import { fetchWithRetry } from '@/lib/fetch-retry';
+import { getConnection } from '@/lib/platform/connections';
 
 type SendResult = {
   success: boolean;
@@ -34,23 +35,20 @@ export async function sendCampaignEmails(
   },
   options: { testMode?: boolean; testEmail?: string } = {},
 ): Promise<SendResult> {
-  // Get Resend config — per-product if productId provided, else workspace-level fallback
-  const docPath = campaign.productId
-    ? `workspaces/${workspaceId}/products/${campaign.productId}/integrations/resend`
-    : `workspaces/${workspaceId}/integrations/resend`;
-  const integDoc = await adminDb.doc(docPath).get();
-  const cfg = integDoc.data();
+  // Get Resend config from platformConnections
+  const conn = await getConnection(workspaceId, 'resend', campaign.productId);
 
-  if (!cfg) {
+  if (!conn) {
     return { success: false, sent: 0, failed: 0, errors: ['Resend integration not configured'] };
   }
 
-  if (!cfg.apiKeyEncrypted) {
-    return { success: false, sent: 0, failed: 0, errors: ['Resend API key not configured (encrypted key required)'] };
+  const apiKeyEncrypted = conn.metadata.apiKeyEncrypted as string | undefined;
+  if (!apiKeyEncrypted) {
+    return { success: false, sent: 0, failed: 0, errors: ['Resend API key not configured'] };
   }
-  const apiKey = decrypt(cfg.apiKeyEncrypted);
+  const apiKey = decrypt(apiKeyEncrypted);
 
-  const fromEmail = String(cfg.fromEmail || '');
+  const fromEmail = String(conn.metadata.fromEmail || '');
   if (!fromEmail) {
     return { success: false, sent: 0, failed: 0, errors: ['Resend from email not configured'] };
   }

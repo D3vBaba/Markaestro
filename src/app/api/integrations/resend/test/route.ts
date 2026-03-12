@@ -1,8 +1,8 @@
 import { requireContext } from '@/lib/server-auth';
-import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { decrypt } from '@/lib/crypto';
 import { z } from 'zod';
+import { getConnection } from '@/lib/platform/connections';
 
 const testSchema = z.object({
   to: z.string().trim().min(1).email('Invalid recipient email'),
@@ -15,16 +15,13 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { to, productId } = testSchema.parse(body);
 
-    const doc = await adminDb
-      .doc(`workspaces/${ctx.workspaceId}/products/${productId}/integrations/resend`)
-      .get();
-    const cfg = doc.data() || {};
-
-    if (!cfg.apiKeyEncrypted) {
+    const conn = await getConnection(ctx.workspaceId, 'resend', productId);
+    if (!conn?.metadata.apiKeyEncrypted) {
       throw new Error('VALIDATION_MISSING_RESEND_CONFIG');
     }
-    const apiKey = decrypt(cfg.apiKeyEncrypted);
-    const from = String(cfg.fromEmail || '');
+
+    const apiKey = decrypt(conn.metadata.apiKeyEncrypted as string);
+    const from = String(conn.metadata.fromEmail || '');
     if (!from) {
       throw new Error('VALIDATION_MISSING_RESEND_CONFIG');
     }

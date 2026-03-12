@@ -21,12 +21,14 @@ const channelLabels: Record<string, string> = {
   x: "X",
   facebook: "Facebook",
   instagram: "Instagram",
+  tiktok: "TikTok",
 };
 
 const channelColors: Record<string, string> = {
   x: "bg-zinc-100 text-zinc-800",
   facebook: "bg-blue-50 text-blue-700",
   instagram: "bg-sky-50 text-sky-700",
+  tiktok: "bg-pink-50 text-pink-700",
 };
 
 const statusColors: Record<string, string> = {

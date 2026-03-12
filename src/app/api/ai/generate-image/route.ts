@@ -38,6 +38,7 @@ export async function POST(req: Request) {
         brandIdentity,
         brandVoice,
         productName,
+        channel: input.channel,
         style: input.style,
         aspectRatio: input.aspectRatio,
         provider: input.provider,

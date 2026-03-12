@@ -1,7 +1,8 @@
-import type { AdCampaignDoc, AdPlatformResult } from './types';
+import type { AdCampaignDoc, AdPlatformResult, AdCampaignMetrics } from './types';
 import type { AdCampaignObjective } from '@/lib/schemas';
+import { fetchWithRetry } from '@/lib/fetch-retry';
 
-const GOOGLE_ADS_API_VERSION = 'v17';
+const GOOGLE_ADS_API_VERSION = 'v23';
 
 /**
  * Map generic objectives to Google Ads campaign types.
@@ -20,22 +21,27 @@ function mapObjectiveToGoogle(objective: AdCampaignObjective): string {
 
 /**
  * Build RSA headlines (minimum 3 required, max 30 chars each).
- * Pads with generated variations if the user only provides 1.
+ * Uses additionalHeadlines from creative if available.
  */
 function buildHeadlines(creative: AdCampaignDoc['creative']): Array<{ text: string; pinnedField?: string }> {
   const headlines: Array<{ text: string; pinnedField?: string }> = [
     { text: creative.headline.substring(0, 30), pinnedField: 'HEADLINE_1' },
   ];
-  // Generate variations to meet the minimum of 3
-  if (creative.description) {
+
+  // Use additional headlines from creative if provided
+  if (creative.additionalHeadlines?.length) {
+    for (const h of creative.additionalHeadlines) {
+      headlines.push({ text: h.substring(0, 30) });
+    }
+  }
+
+  // Fall back to description if we still need more
+  if (headlines.length < 3 && creative.description) {
     headlines.push({ text: creative.description.substring(0, 30) });
   }
+
   // Ensure we have at least 3
-  const fallbacks = [
-    `Learn More Today`,
-    `Get Started Now`,
-    `See How It Works`,
-  ];
+  const fallbacks = ['Learn More Today', 'Get Started Now', 'See How It Works'];
   for (const fb of fallbacks) {
     if (headlines.length >= 3) break;
     headlines.push({ text: fb });
@@ -45,14 +51,24 @@ function buildHeadlines(creative: AdCampaignDoc['creative']): Array<{ text: stri
 
 /**
  * Build RSA descriptions (minimum 2 required, max 90 chars each).
+ * Uses additionalDescriptions from creative if available.
  */
 function buildDescriptions(creative: AdCampaignDoc['creative']): Array<{ text: string }> {
   const descriptions: Array<{ text: string }> = [
     { text: creative.primaryText.substring(0, 90) },
   ];
-  if (creative.description) {
+
+  // Use additional descriptions from creative if provided
+  if (creative.additionalDescriptions?.length) {
+    for (const d of creative.additionalDescriptions) {
+      descriptions.push({ text: d.substring(0, 90) });
+    }
+  }
+
+  if (creative.description && descriptions.length < 2) {
     descriptions.push({ text: creative.description.substring(0, 90) });
   }
+
   // Ensure we have at least 2
   if (descriptions.length < 2) {
     descriptions.push({ text: creative.headline.substring(0, 90) });
@@ -72,6 +88,23 @@ function parseGoogleError(data: Record<string, unknown>): string | undefined {
   return (err.message as string) || 'Unknown Google Ads error';
 }
 
+/** Build standard Google Ads API headers. */
+function buildHeaders(
+  accessToken: string,
+  developerToken: string,
+  loginCustomerId?: string,
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Authorization': `Bearer ${accessToken}`,
+    'developer-token': developerToken,
+    'Content-Type': 'application/json',
+  };
+  if (loginCustomerId) {
+    headers['login-customer-id'] = loginCustomerId.replace(/-/g, '');
+  }
+  return headers;
+}
+
 /**
  * Create a campaign on Google Ads REST API.
  * Steps: Budget → Campaign → Ad Group → Responsive Search Ad
@@ -84,22 +117,13 @@ export async function createGoogleCampaign(
   campaign: AdCampaignDoc,
   loginCustomerId?: string,
 ): Promise<AdPlatformResult> {
-  // Strip hyphens from customer IDs (Google Ads API requires plain numbers)
   const cleanCustomerId = customerId.replace(/-/g, '');
   const baseUrl = `https://googleads.googleapis.com/${GOOGLE_ADS_API_VERSION}/customers/${cleanCustomerId}`;
-  const headers: Record<string, string> = {
-    'Authorization': `Bearer ${accessToken}`,
-    'developer-token': developerToken,
-    'Content-Type': 'application/json',
-  };
-  // MCC accounts require login-customer-id header
-  if (loginCustomerId) {
-    headers['login-customer-id'] = loginCustomerId.replace(/-/g, '');
-  }
+  const headers = buildHeaders(accessToken, developerToken, loginCustomerId);
 
   try {
     // Step 1: Create Campaign Budget
-    const budgetRes = await fetch(`${baseUrl}/campaignBudgets:mutate`, {
+    const budgetRes = await fetchWithRetry(`${baseUrl}/campaignBudgets:mutate`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -124,7 +148,7 @@ export async function createGoogleCampaign(
 
     // Step 2: Create Campaign
     const campaignType = mapObjectiveToGoogle(campaign.objective);
-    const campaignRes = await fetch(`${baseUrl}/campaigns:mutate`, {
+    const campaignRes = await fetchWithRetry(`${baseUrl}/campaigns:mutate`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -150,7 +174,7 @@ export async function createGoogleCampaign(
     const campaignId = campaignResourceName?.split('/').pop();
 
     // Step 3: Create Ad Group
-    const adGroupRes = await fetch(`${baseUrl}/adGroups:mutate`, {
+    const adGroupRes = await fetchWithRetry(`${baseUrl}/adGroups:mutate`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -174,7 +198,7 @@ export async function createGoogleCampaign(
     const adSetId = adGroupResourceName?.split('/').pop();
 
     // Step 4: Create Responsive Search Ad (minimum 3 headlines, 2 descriptions)
-    const adRes = await fetch(`${baseUrl}/adGroupAds:mutate`, {
+    const adRes = await fetchWithRetry(`${baseUrl}/adGroupAds:mutate`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -200,16 +224,103 @@ export async function createGoogleCampaign(
     }
     const adId = adData.results?.[0]?.resourceName?.split('/').pop();
 
-    return {
-      success: true,
-      campaignId,
-      adSetId,
-      adId,
-    };
+    return { success: true, campaignId, adSetId, adId };
   } catch (e) {
     return {
       success: false,
       error: e instanceof Error ? e.message : 'Unknown error creating Google campaign',
     };
+  }
+}
+
+/**
+ * Update a Google Ads campaign status (PAUSED or ENABLED).
+ */
+export async function updateGoogleCampaignStatus(
+  accessToken: string,
+  customerId: string,
+  developerToken: string,
+  campaignId: string,
+  status: 'PAUSED' | 'ENABLED',
+  loginCustomerId?: string,
+): Promise<{ success: boolean; error?: string }> {
+  const cleanCustomerId = customerId.replace(/-/g, '');
+  const baseUrl = `https://googleads.googleapis.com/${GOOGLE_ADS_API_VERSION}/customers/${cleanCustomerId}`;
+  const headers = buildHeaders(accessToken, developerToken, loginCustomerId);
+  const resourceName = `customers/${cleanCustomerId}/campaigns/${campaignId}`;
+
+  try {
+    const res = await fetchWithRetry(`${baseUrl}/campaigns:mutate`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        operations: [{
+          update: { resourceName, status },
+          updateMask: 'status',
+        }],
+      }),
+    });
+    const data = await res.json();
+    const error = parseGoogleError(data);
+    if (error) return { success: false, error };
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
+
+/**
+ * Fetch campaign performance metrics via Google Ads Query Language (GAQL).
+ */
+export async function getGoogleCampaignMetrics(
+  accessToken: string,
+  customerId: string,
+  developerToken: string,
+  campaignId: string,
+  loginCustomerId?: string,
+): Promise<{ success: boolean; metrics?: AdCampaignMetrics; error?: string }> {
+  const cleanCustomerId = customerId.replace(/-/g, '');
+  const baseUrl = `https://googleads.googleapis.com/${GOOGLE_ADS_API_VERSION}/customers/${cleanCustomerId}`;
+  const headers = buildHeaders(accessToken, developerToken, loginCustomerId);
+
+  const query = `
+    SELECT
+      metrics.impressions,
+      metrics.clicks,
+      metrics.cost_micros,
+      metrics.conversions,
+      metrics.ctr,
+      metrics.average_cpc
+    FROM campaign
+    WHERE campaign.id = ${campaignId}
+  `.trim();
+
+  try {
+    const res = await fetchWithRetry(`${baseUrl}/googleAds:searchStream`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query }),
+    });
+    const data = await res.json();
+    const error = parseGoogleError(data);
+    if (error) return { success: false, error };
+
+    const row = data?.[0]?.results?.[0]?.metrics;
+    if (!row) return { success: true, metrics: undefined };
+
+    return {
+      success: true,
+      metrics: {
+        impressions: Number(row.impressions) || 0,
+        clicks: Number(row.clicks) || 0,
+        spend: Math.round(Number(row.costMicros) / 10000),
+        conversions: Math.round(Number(row.conversions) || 0),
+        ctr: Number(row.ctr) || 0,
+        cpc: Math.round(Number(row.averageCpc) / 10000),
+        lastSyncedAt: new Date().toISOString(),
+      },
+    };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
   }
 }

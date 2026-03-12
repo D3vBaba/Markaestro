@@ -28,7 +28,7 @@ export function Sidebar({ className }: { className?: string }) {
             {/* Brand */}
             <div className="px-6 pt-8 pb-8">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/25 overflow-hidden p-1.5">
+                    <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden p-1.5">
                         <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="object-contain rounded-md" />
                     </div>
                     <span className="font-bold text-lg tracking-tight text-sidebar-accent-foreground">Markaestro</span>
@@ -50,9 +50,9 @@ export function Sidebar({ className }: { className?: string }) {
                                         key={item.name}
                                         href={item.href}
                                         className={cn(
-                                            "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]",
+                                            "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200",
                                             isActive
-                                                ? "gradient-primary text-white shadow-md shadow-primary/20 sidebar-glow"
+                                                ? "bg-primary text-white"
                                                 : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                                         )}
                                     >
@@ -78,9 +78,9 @@ export function Sidebar({ className }: { className?: string }) {
                 <Link
                     href={settingsItem.href}
                     className={cn(
-                        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 mb-3",
+                        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 mb-3",
                         pathname === settingsItem.href
-                            ? "gradient-primary text-white shadow-md shadow-primary/20"
+                            ? "bg-primary text-white"
                             : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                     )}
                 >
@@ -93,7 +93,7 @@ export function Sidebar({ className }: { className?: string }) {
                     {settingsItem.name}
                 </Link>
                 <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <Avatar className="h-9 w-9 border border-sidebar-border gradient-primary">
+                    <Avatar className="h-9 w-9 border border-sidebar-border bg-primary">
                         <AvatarFallback className="text-xs bg-transparent text-white font-semibold">{initials}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">

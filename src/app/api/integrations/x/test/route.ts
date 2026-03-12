@@ -1,8 +1,7 @@
 import { requireContext } from '@/lib/server-auth';
-import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
-import { decrypt } from '@/lib/crypto';
-import { testXConnection } from '@/lib/social/x';
+import { getConnection, getConnectionRef } from '@/lib/platform/connections';
+import { getAdapter } from '@/lib/platform/registry';
 
 export async function POST(req: Request) {
   try {
@@ -14,26 +13,28 @@ export async function POST(req: Request) {
       return apiOk({ ok: false, error: 'productId is required' });
     }
 
-    const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/products/${productId}/integrations/x`);
-    const snap = await ref.get();
-    if (!snap.exists) {
+    const conn = await getConnection(ctx.workspaceId, 'x', productId);
+    if (!conn) {
       return apiOk({ ok: false, error: 'X integration not configured' });
     }
 
-    const raw = snap.data()!;
-    const config = {
-      accessToken: decrypt(raw.accessTokenEncrypted),
-      username: raw.username || '',
-    };
-
-    const result = await testXConnection(config);
-
-    // If test returned a username and we didn't have one stored, save it
-    if (result.ok && result.username && !raw.username) {
-      await ref.update({ username: result.username, updatedAt: new Date().toISOString() });
+    const adapter = getAdapter('x-publishing');
+    if (!adapter) {
+      return apiOk({ ok: false, error: 'X adapter not found' });
     }
 
-    return apiOk({ ok: result.ok, username: result.username, error: result.error });
+    const result = await adapter.testConnection(conn);
+
+    // If test returned a username and we didn't have one stored, save it
+    if (result.ok && result.label && !conn.metadata.username) {
+      const connRef = getConnectionRef(ctx.workspaceId, 'x', productId);
+      await connRef.update({
+        'metadata.username': result.label,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+
+    return apiOk({ ok: result.ok, username: result.label, error: result.error });
   } catch (error) {
     return apiError(error);
   }

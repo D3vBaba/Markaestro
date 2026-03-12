@@ -153,7 +153,7 @@ export default function CampaignsPage() {
         ) : campaigns.length === 0 ? (
           <Card className="border-border/30">
             <CardContent className="py-16 text-center">
-              <div className="h-12 w-12 rounded-xl gradient-primary mx-auto mb-4 flex items-center justify-center shadow-md shadow-primary/15">
+              <div className="h-12 w-12 rounded-xl bg-primary mx-auto mb-4 flex items-center justify-center">
                 <Mail className="h-5 w-5 text-white" />
               </div>
               <p className="text-base font-medium text-foreground">No campaigns yet</p>

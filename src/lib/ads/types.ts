@@ -16,8 +16,12 @@ export type AdCampaignDoc = {
   // External platform IDs (populated after launch)
   externalCampaignId?: string;
   externalAdSetId?: string;
+  externalAdGroupId?: string;
   externalAdId?: string;
   errorMessage?: string;
+
+  // Performance metrics (updated by sync job)
+  metrics?: AdCampaignMetrics;
 
   // Metadata
   createdAt: string;
@@ -26,10 +30,21 @@ export type AdCampaignDoc = {
   launchedAt?: string;
 };
 
+export type AdCampaignMetrics = {
+  impressions: number;
+  clicks: number;
+  spend: number;
+  conversions: number;
+  ctr: number;
+  cpc: number;
+  lastSyncedAt: string;
+};
+
 export type AdPlatformResult = {
   success: boolean;
   campaignId?: string;
   adSetId?: string;
+  adGroupId?: string;
   adId?: string;
   error?: string;
 };

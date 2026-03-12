@@ -2,7 +2,9 @@ import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
 import { encrypt } from '@/lib/crypto';
 import { getProviderConfig, getRedirectUri, getClientCredentials } from './config';
-import type { OAuthProvider } from '@/lib/schemas';
+import type { OAuthProvider, SocialChannel } from '@/lib/schemas';
+import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
+import type { PlatformConnection } from '@/lib/platform/types';
 
 export type OAuthTokens = {
   accessToken: string;
@@ -19,8 +21,8 @@ type OAuthState = {
   userId: string;
   createdAt: string;
   expiresAt: string;
-  codeVerifier?: string; // PKCE support (X/Twitter)
-  productId?: string; // Per-product social integrations
+  codeVerifier?: string;
+  productId?: string;
 };
 
 /**
@@ -38,7 +40,7 @@ export async function generateAuthUrl(
 
   const stateId = crypto.randomUUID();
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes
+  const expiresAt = new Date(now.getTime() + 10 * 60 * 1000);
 
   const stateDoc: OAuthState = {
     provider,
@@ -59,7 +61,6 @@ export async function generateAuthUrl(
     ...config.extraAuthParams,
   };
 
-  // PKCE support (required by X/Twitter OAuth 2.0)
   if (config.usePKCE) {
     const codeVerifier = crypto.randomBytes(32).toString('base64url');
     const codeChallenge = crypto
@@ -74,7 +75,6 @@ export async function generateAuthUrl(
   await adminDb.doc(`oauth_states/${stateId}`).set(stateDoc);
 
   const params = new URLSearchParams(authParams);
-
   return `${config.authUrl}?${params.toString()}`;
 }
 
@@ -86,7 +86,6 @@ export async function exchangeCode(
   code: string,
   stateId: string,
 ): Promise<{ tokens: OAuthTokens; workspaceId: string; userId: string; productId?: string }> {
-  // Verify state
   const stateRef = adminDb.doc(`oauth_states/${stateId}`);
   const stateSnap = await stateRef.get();
 
@@ -106,13 +105,9 @@ export async function exchangeCode(
     throw new Error('STATE_MISMATCH');
   }
 
-  // Capture PKCE code_verifier before deleting state
   const codeVerifier = state.codeVerifier;
-
-  // Delete used state
   await stateRef.delete();
 
-  // Exchange code for tokens
   const config = getProviderConfig(provider);
   const { clientId, clientSecret } = getClientCredentials(provider);
   const redirectUri = getRedirectUri(provider);
@@ -123,7 +118,6 @@ export async function exchangeCode(
     grant_type: 'authorization_code',
   };
 
-  // PKCE: include code_verifier
   if (codeVerifier) {
     body.code_verifier = codeVerifier;
   }
@@ -132,7 +126,6 @@ export async function exchangeCode(
     'Content-Type': 'application/x-www-form-urlencoded',
   };
 
-  // X/Twitter uses Basic Auth for client credentials
   if (config.useBasicAuth) {
     headers['Authorization'] = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
   } else {
@@ -153,14 +146,13 @@ export async function exchangeCode(
     throw new Error(`OAuth token exchange failed: ${data.error_description || data.error || data.message || 'Unknown error'}`);
   }
 
-  // Normalize token response (different providers use different field names)
   const tokens: OAuthTokens = {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
     expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
     tokenType: data.token_type,
     scope: data.scope,
-    openId: data.open_id, // TikTok-specific
+    openId: data.open_id,
   };
 
   return { tokens, workspaceId: state.workspaceId, userId: state.userId, productId: state.productId };
@@ -179,7 +171,6 @@ export async function refreshAccessToken(
   const body: Record<string, string> = {};
 
   if (provider === 'meta') {
-    // Meta uses fb_exchange_token to extend user tokens
     body.grant_type = 'fb_exchange_token';
     body.fb_exchange_token = refreshToken;
   } else {
@@ -191,7 +182,6 @@ export async function refreshAccessToken(
     'Content-Type': 'application/x-www-form-urlencoded',
   };
 
-  // X/Twitter uses Basic Auth for client credentials
   if (config.useBasicAuth) {
     headers['Authorization'] = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
   } else {
@@ -214,7 +204,7 @@ export async function refreshAccessToken(
 
   return {
     accessToken: data.access_token,
-    refreshToken: data.refresh_token || refreshToken, // TikTok rotates, others keep same
+    refreshToken: data.refresh_token || refreshToken,
     expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
     tokenType: data.token_type,
     scope: data.scope,
@@ -223,7 +213,6 @@ export async function refreshAccessToken(
 
 /**
  * Revoke an access token with the provider.
- * Best-effort — failures are logged but don't block disconnect.
  */
 export async function revokeAccessToken(
   provider: OAuthProvider,
@@ -234,18 +223,13 @@ export async function revokeAccessToken(
 
   try {
     if (provider === 'meta') {
-      // Meta: DELETE /{user-id}/permissions
-      await fetch(`${config.revokeUrl}?access_token=${accessToken}`, {
-        method: 'DELETE',
-      });
+      await fetch(`${config.revokeUrl}?access_token=${accessToken}`, { method: 'DELETE' });
     } else if (provider === 'google') {
-      // Google: POST with token param
       await fetch(`${config.revokeUrl}?token=${accessToken}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
     } else if (provider === 'x') {
-      // X: POST with Basic Auth + token in body
       const { clientId, clientSecret } = getClientCredentials(provider);
       await fetch(config.revokeUrl, {
         method: 'POST',
@@ -253,31 +237,23 @@ export async function revokeAccessToken(
           'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({
-          token: accessToken,
-          token_type_hint: 'access_token',
-        }).toString(),
+        body: new URLSearchParams({ token: accessToken, token_type_hint: 'access_token' }).toString(),
       });
     } else if (provider === 'tiktok') {
-      // TikTok: POST with client_key + token
       const { clientId, clientSecret } = getClientCredentials(provider);
       await fetch(config.revokeUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          client_key: clientId,
-          client_secret: clientSecret,
-          token: accessToken,
-        }).toString(),
+        body: new URLSearchParams({ client_key: clientId, client_secret: clientSecret, token: accessToken }).toString(),
       });
     }
   } catch {
-    // Revocation is best-effort — don't block the disconnect flow
+    // Revocation is best-effort
   }
 }
 
 /**
- * Encrypt and store OAuth tokens in Firestore.
+ * Store OAuth tokens as a PlatformConnection in Firestore.
  */
 export async function storeTokens(
   workspaceId: string,
@@ -290,27 +266,57 @@ export async function storeTokens(
   const now = new Date();
   const tokenExpiresAt = tokens.expiresIn
     ? new Date(now.getTime() + tokens.expiresIn * 1000).toISOString()
-    : null;
+    : undefined;
 
-  const payload: Record<string, unknown> = {
+  const { channels, capabilities } = providerChannelsAndCapabilities(provider);
+
+  const connection: PlatformConnection = {
     provider,
+    channels,
+    capabilities,
+    status: ConnectionStatus.CONNECTED,
     accessTokenEncrypted: encrypt(tokens.accessToken),
-    enabled: true,
-    oauthConnected: true,
-    status: 'connected',
+    refreshTokenEncrypted: tokens.refreshToken ? encrypt(tokens.refreshToken) : undefined,
     tokenExpiresAt,
-    updatedAt: now.toISOString(),
+    metadata: extraData || {},
+    workspaceId,
+    productId,
     updatedBy: userId,
-    ...extraData,
+    updatedAt: now.toISOString(),
+    createdAt: now.toISOString(),
   };
 
-  if (tokens.refreshToken) {
-    payload.refreshTokenEncrypted = encrypt(tokens.refreshToken);
+  const connPath = productId
+    ? `workspaces/${workspaceId}/products/${productId}/platformConnections/${provider}`
+    : `workspaces/${workspaceId}/platformConnections/${provider}`;
+
+  await adminDb.doc(connPath).set(connection, { merge: true });
+}
+
+function providerChannelsAndCapabilities(provider: OAuthProvider): {
+  channels: SocialChannel[];
+  capabilities: PlatformCapability[];
+} {
+  switch (provider) {
+    case 'meta':
+      return {
+        channels: ['facebook', 'instagram'],
+        capabilities: [PlatformCapability.PUBLISH_TEXT, PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_CAROUSEL],
+      };
+    case 'x':
+      return {
+        channels: ['x'],
+        capabilities: [PlatformCapability.PUBLISH_TEXT, PlatformCapability.PUBLISH_IMAGE],
+      };
+    case 'tiktok':
+      return {
+        channels: ['tiktok'],
+        capabilities: [PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_VIDEO],
+      };
+    case 'google':
+      return {
+        channels: [],
+        capabilities: [PlatformCapability.ADS],
+      };
   }
-
-  const docPath = productId
-    ? `workspaces/${workspaceId}/products/${productId}/integrations/${provider}`
-    : `workspaces/${workspaceId}/integrations/${provider}`;
-
-  await adminDb.doc(docPath).set(payload, { merge: true });
 }

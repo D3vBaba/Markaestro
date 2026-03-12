@@ -16,14 +16,16 @@ export type OAuthProviderConfig = {
 
 const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
   meta: {
-    authUrl: 'https://www.facebook.com/v21.0/dialog/oauth',
-    tokenUrl: 'https://graph.facebook.com/v21.0/oauth/access_token',
-    revokeUrl: 'https://graph.facebook.com/v21.0/me/permissions',
+    authUrl: 'https://www.facebook.com/v22.0/dialog/oauth',
+    tokenUrl: 'https://graph.facebook.com/v22.0/oauth/access_token',
+    revokeUrl: 'https://graph.facebook.com/v22.0/me/permissions',
     scopes: [
       'pages_show_list',
       'pages_read_engagement',
       'pages_manage_posts',
       'business_management',
+      'ads_management',
+      'ads_read',
     ],
     clientIdEnv: 'META_APP_ID',
     clientSecretEnv: 'META_APP_SECRET',
@@ -51,9 +53,9 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     tokenUrl: 'https://open.tiktokapis.com/v2/oauth/token/',
     revokeUrl: 'https://open.tiktokapis.com/v2/oauth/revoke/',
     scopes: [
-      'user.info.basic',
-      'video.publish',
-      'video.upload',
+      'user.info.profile',
+      'user.info.stats',
+      'video.list',
     ],
     clientIdEnv: 'TIKTOK_CLIENT_KEY',
     clientSecretEnv: 'TIKTOK_CLIENT_SECRET',

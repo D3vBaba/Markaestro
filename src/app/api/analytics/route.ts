@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     const ws = ctx.workspaceId;
 
     // Gather all data in parallel
-    const [contactsSnap, campaignsSnap, eventsSnap, productsSnap, jobRunsSnap, postsSnap] =
+    const [contactsSnap, campaignsSnap, eventsSnap, productsSnap, jobRunsSnap, postsSnap, adCampaignsSnap] =
       await Promise.all([
         adminDb.collection(`workspaces/${ws}/contacts`).get(),
         adminDb.collection(`workspaces/${ws}/campaigns`).get(),
@@ -16,6 +16,7 @@ export async function GET(req: Request) {
         adminDb.collection(`workspaces/${ws}/products`).get(),
         adminDb.collection(`workspaces/${ws}/job_runs`).orderBy('startedAt', 'desc').limit(100).get(),
         adminDb.collection(`workspaces/${ws}/posts`).get(),
+        adminDb.collection(`workspaces/${ws}/ad_campaigns`).get(),
       ]);
 
     const contacts = contactsSnap.docs.map((d) => d.data());
@@ -98,6 +99,42 @@ export async function GET(req: Request) {
       (p) => p.status === 'published' && p.publishedAt && new Date(p.publishedAt) >= sevenDaysAgo,
     ).length;
 
+    // Ad campaign analytics
+    const adCampaigns = adCampaignsSnap.docs.map((d) => d.data());
+    const adsByPlatform: Record<string, number> = {};
+    const adsByStatus: Record<string, number> = {};
+    let totalAdSpend = 0;
+    let totalAdImpressions = 0;
+    let totalAdClicks = 0;
+    let totalAdConversions = 0;
+
+    for (const ad of adCampaigns) {
+      const platform = ad.platform || 'unknown';
+      adsByPlatform[platform] = (adsByPlatform[platform] || 0) + 1;
+      const status = ad.status || 'draft';
+      adsByStatus[status] = (adsByStatus[status] || 0) + 1;
+
+      if (ad.metrics) {
+        totalAdSpend += ad.metrics.spend || 0;
+        totalAdImpressions += ad.metrics.impressions || 0;
+        totalAdClicks += ad.metrics.clicks || 0;
+        totalAdConversions += ad.metrics.conversions || 0;
+      }
+    }
+
+    const topAdCampaigns = adCampaigns
+      .filter((a) => a.metrics?.impressions > 0)
+      .sort((a, b) => (b.metrics?.clicks || 0) - (a.metrics?.clicks || 0))
+      .slice(0, 5)
+      .map((a) => ({
+        name: a.name,
+        platform: a.platform,
+        impressions: a.metrics?.impressions || 0,
+        clicks: a.metrics?.clicks || 0,
+        spend: a.metrics?.spend || 0,
+        ctr: a.metrics?.ctr || 0,
+      }));
+
     return apiOk({
       overview: {
         totalContacts: contacts.length,
@@ -105,6 +142,7 @@ export async function GET(req: Request) {
         totalEvents: events.length,
         totalProducts: products.length,
         totalPosts: posts.length,
+        totalAdCampaigns: adCampaigns.length,
       },
       lifecycleFunnel,
       sourceBreakdown,
@@ -123,6 +161,17 @@ export async function GET(req: Request) {
         byStatus: postsByStatus,
         byChannel: postsByChannel,
         recentPublished,
+      },
+      adStats: {
+        total: adCampaigns.length,
+        byPlatform: adsByPlatform,
+        byStatus: adsByStatus,
+        totalSpend: totalAdSpend,
+        totalImpressions: totalAdImpressions,
+        totalClicks: totalAdClicks,
+        totalConversions: totalAdConversions,
+        avgCtr: totalAdImpressions > 0 ? totalAdClicks / totalAdImpressions : 0,
+        topCampaigns: topAdCampaigns,
       },
     });
   } catch (error) {
