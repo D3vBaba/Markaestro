@@ -207,8 +207,8 @@ export default function ProductsPage() {
   const [metaAdAccountId, setMetaAdAccountId] = useState("");
   const [savingAdAccount, setSavingAdAccount] = useState(false);
 
-  // Per-product connection status cache (productId -> provider[])
-  const [connectionCache, setConnectionCache] = useState<Record<string, string[]>>({});
+  // Per-product connection status cache (productId -> IntegrationInfo[])
+  const [connectionCache, setConnectionCache] = useState<Record<string, IntegrationInfo[]>>({});
 
   const fetchProducts = async () => {
     try {
@@ -224,21 +224,22 @@ export default function ProductsPage() {
   const fetchProductIntegrations = useCallback(async (productId: string) => {
     const res = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${productId}`);
     if (res.ok) {
-      const productLevel = (res.data.integrations || []).filter(
+      const all = (res.data.integrations || []).filter(
         (i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]),
       );
-      setProductIntegrations(productLevel);
+      const seen = new Set<string>();
+      setProductIntegrations(all.filter((i) => { if (seen.has(i.provider)) return false; seen.add(i.provider); return true; }));
     }
   }, []);
 
   const fetchConnectionStatuses = useCallback(async (productList: Product[]) => {
-    const cache: Record<string, string[]> = {};
+    const cache: Record<string, IntegrationInfo[]> = {};
     for (const p of productList) {
       const res = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${p.id}`);
       if (res.ok) {
-        cache[p.id] = (res.data.integrations || [])
-          .filter((i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]) && i.status === "connected")
-          .map((i) => i.provider);
+        cache[p.id] = (res.data.integrations || []).filter(
+          (i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]),
+        );
       }
     }
     setConnectionCache(cache);
@@ -351,16 +352,26 @@ export default function ProductsPage() {
       setBiLogoUrl(""); setBiPrimaryColor(""); setBiSecondaryColor(""); setBiAccentColor("");
     }
 
-    // Load integrations
+    // Load integrations — reset first so stale data from a previous product never shows
+    setProductIntegrations([]);
     setMetaPages([]); setSelectedPageId(""); setMetaAdAccountId("");
     const intRes = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${product.id}`);
     if (intRes.ok) {
       const productLevel = (intRes.data.integrations || []).filter(
         (i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]),
       );
-      setProductIntegrations(productLevel);
-      const metaConn = productLevel.find((i) => i.provider === "meta");
-      if (metaConn?.adAccountId) setMetaAdAccountId(metaConn.adAccountId);
+      // Deduplicate: prefer product-level entry over workspace-level when both exist
+      const seen = new Set<string>();
+      const deduped = productLevel.filter((i) => {
+        if (seen.has(i.provider)) return false;
+        seen.add(i.provider);
+        return true;
+      });
+      setProductIntegrations(deduped);
+      const metaConn = deduped.find((i) => i.provider === "meta");
+      if (metaConn?.adAccountId) setMetaAdAccountId(metaConn.adAccountId as string);
+    } else {
+      toast.error("Failed to load integrations");
     }
     setEditOpen(true);
   };
@@ -623,12 +634,32 @@ export default function ProductsPage() {
                   </div>
                 )}
                 {connectionCache[p.id] && connectionCache[p.id].length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {connectionCache[p.id].map((prov) => (
-                      <span key={prov} className="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-medium">
-                        {prov === "meta" ? "Meta" : prov === "x" ? "X" : "TikTok"}
-                      </span>
-                    ))}
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {connectionCache[p.id].map((integ) => {
+                      const isConnected = integ.status === "connected";
+                      const hasError = !!integ.lastRefreshError;
+                      const label = integ.provider === "meta" ? "Meta" : integ.provider === "x" ? "X" : "TikTok";
+                      const detail = integ.provider === "meta" && integ.pageName
+                        ? integ.pageName
+                        : null;
+                      return (
+                        <span
+                          key={integ.provider}
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                            isConnected && !hasError
+                              ? "bg-emerald-50 text-emerald-700"
+                              : hasError
+                              ? "bg-amber-50 text-amber-700"
+                              : "bg-rose-50 text-rose-700"
+                          }`}
+                          title={hasError ? `Reconnect needed: ${integ.lastRefreshError}` : detail || label}
+                        >
+                          <span className={`h-1.5 w-1.5 rounded-full ${isConnected && !hasError ? "bg-emerald-500" : "bg-amber-500"}`} />
+                          {label}{detail ? `: ${detail}` : ""}
+                          {hasError && " ⚠"}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
                 <div className="flex items-center justify-between mt-3">
