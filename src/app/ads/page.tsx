@@ -27,7 +27,7 @@ import {
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
-import { apiGet, apiPost, apiDelete, apiUpload } from "@/lib/api-client";
+import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { AdCampaignMetrics } from "@/lib/ads/types";
 
@@ -338,6 +338,22 @@ export default function AdsPage() {
   const [insightLoadingId, setInsightLoadingId] = useState<string | null>(null);
   const [detailCampaign, setDetailCampaign] = useState<AdCampaign | null>(null);
 
+  // Edit state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editFormStep, setEditFormStep] = useState(0);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editUploadingImage, setEditUploadingImage] = useState(false);
+  const [editUploadingVideo, setEditUploadingVideo] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: "", platform: "meta" as "meta" | "google",
+    objective: "traffic", dailyBudgetCents: 1000,
+    startDate: "", endDate: "", productId: "",
+    ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "",
+    headline: "", primaryText: "", description: "",
+    imageUrl: "", videoUrl: "", linkUrl: "", ctaType: "",
+  });
+
   // Form state
   const [formOpen, setFormOpen] = useState(false);
   const [formStep, setFormStep] = useState(0);
@@ -499,6 +515,86 @@ export default function AdsPage() {
       }
     } catch { toast.error("Failed to create campaign"); }
     finally { setSaving(false); }
+  };
+
+  const openEdit = (c: AdCampaign) => {
+    setEditingId(c.id);
+    setEditFormStep(0);
+    setEditForm({
+      name: c.name,
+      platform: c.platform,
+      objective: c.objective,
+      dailyBudgetCents: c.dailyBudgetCents,
+      startDate: c.startDate ? c.startDate.split("T")[0] : "",
+      endDate: c.endDate ? c.endDate.split("T")[0] : "",
+      productId: c.productId || "",
+      ageMin: c.targeting?.ageMin ?? 18,
+      ageMax: c.targeting?.ageMax ?? 65,
+      gender: c.targeting?.gender ?? "all",
+      locations: (c.targeting?.locations || []).join(", "),
+      interests: (c.targeting?.interests || []).join(", "),
+      headline: c.creative?.headline ?? "",
+      primaryText: c.creative?.primaryText ?? "",
+      description: c.creative?.description ?? "",
+      imageUrl: c.creative?.imageUrl ?? "",
+      videoUrl: c.creative?.videoUrl ?? "",
+      linkUrl: c.creative?.linkUrl ?? "",
+      ctaType: c.creative?.ctaType ?? "",
+    });
+    setEditOpen(true);
+  };
+
+  const handleUpdate = async () => {
+    if (!editingId) return;
+    setEditSaving(true);
+    try {
+      const res = await apiPut(`/api/ad-campaigns/${editingId}`, {
+        name: editForm.name,
+        objective: editForm.objective,
+        dailyBudgetCents: editForm.dailyBudgetCents,
+        startDate: new Date(editForm.startDate).toISOString(),
+        endDate: editForm.endDate ? new Date(editForm.endDate).toISOString() : null,
+        productId: editForm.productId,
+        targeting: {
+          ageMin: editForm.ageMin, ageMax: editForm.ageMax, gender: editForm.gender,
+          locations: editForm.locations ? editForm.locations.split(",").map((s) => s.trim()).filter(Boolean) : [],
+          interests: editForm.interests ? editForm.interests.split(",").map((s) => s.trim()).filter(Boolean) : [],
+        },
+        creative: {
+          headline: editForm.headline, primaryText: editForm.primaryText, description: editForm.description,
+          imageUrl: editForm.imageUrl, videoUrl: editForm.videoUrl, linkUrl: editForm.linkUrl, ctaType: editForm.ctaType,
+        },
+      });
+      if (res.ok) {
+        toast.success("Campaign updated");
+        setEditOpen(false);
+        fetchCampaigns();
+      } else {
+        const d = res.data as { error?: string; issues?: { field: string; message: string }[] };
+        toast.error(d.issues?.[0]?.message || d.error || "Failed to update campaign");
+      }
+    } catch { toast.error("Failed to update campaign"); }
+    finally { setEditSaving(false); }
+  };
+
+  const handleEditMediaUpload = async (file: File, mediaType: "image" | "video") => {
+    const setter = mediaType === "video" ? setEditUploadingVideo : setEditUploadingImage;
+    setter(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await apiUpload<{ ok: boolean; url: string; fileSize: number }>(
+        "/api/ad-campaigns/upload-media", formData,
+      );
+      if (res.ok && res.data.url) {
+        if (mediaType === "video") setEditForm((f) => ({ ...f, videoUrl: res.data.url }));
+        else setEditForm((f) => ({ ...f, imageUrl: res.data.url }));
+        toast.success(`${file.name} uploaded (${formatBytes(res.data.fileSize)})`);
+      } else {
+        toast.error("Upload failed");
+      }
+    } catch { toast.error("Failed to upload file"); }
+    finally { setter(false); }
   };
 
   const handleAction = async (id: string, action: "launch" | "pause" | "resume" | "sync" | "delete") => {
@@ -1033,6 +1129,9 @@ export default function AdsPage() {
                       <Button size="sm" variant="ghost" className="h-7 text-xs rounded-lg" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>
                         <Lightbulb className="h-3 w-3 mr-1" />Insights
                       </Button>
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" onClick={() => openEdit(c)} title="Edit campaign">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
                       <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive" onClick={() => handleAction(c.id, "delete")} disabled={actionLoading === c.id}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
@@ -1210,6 +1309,211 @@ export default function AdsPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* ── Edit Campaign Sheet ── */}
+      <Sheet open={editOpen} onOpenChange={(open) => { setEditOpen(open); if (!open) setEditingId(null); }}>
+        <SheetContent className="sm:max-w-xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Edit Campaign</SheetTitle>
+            <SheetDescription>
+              {editFormStep === 0 ? "Update campaign basics" : editFormStep === 1 ? "Adjust targeting" :
+               editFormStep === 2 ? "Replace creative assets" : "Review your changes"}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            {/* Active campaign warning */}
+            {campaigns.find((c) => c.id === editingId)?.status === "active" && (
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 text-amber-700 text-xs">
+                <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <span>This campaign is live. Changes saved here won&apos;t update the live ad until you pause and relaunch it.</span>
+              </div>
+            )}
+
+            {/* Step indicators */}
+            <div className="flex gap-1.5 mb-4">
+              {["Basics", "Targeting", "Creative", "Preview"].map((label, i) => (
+                <button key={label} onClick={() => setEditFormStep(i)}
+                  className={`flex-1 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                    editFormStep === i ? "bg-primary text-primary-foreground" :
+                    i < editFormStep ? "bg-primary/15 text-primary" :
+                    "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >{label}</button>
+              ))}
+            </div>
+
+            {/* Step 0: Basics */}
+            {editFormStep === 0 && (
+              <>
+                <FormField label="Platform">
+                  <Select value={editForm.platform} onChange={(e) => setEditForm({ ...editForm, platform: e.target.value as "meta" | "google" })}>
+                    <option value="meta">Meta (Facebook / Instagram)</option>
+                    <option value="google">Google Ads</option>
+                  </Select>
+                </FormField>
+                <FormField label="Product">
+                  <Select value={editForm.productId} onChange={(e) => setEditForm({ ...editForm, productId: e.target.value })}>
+                    <option value="">None</option>
+                    {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </Select>
+                </FormField>
+                <FormField label="Campaign Name">
+                  <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+                </FormField>
+                <FormField label="Objective">
+                  <Select value={editForm.objective} onChange={(e) => setEditForm({ ...editForm, objective: e.target.value })}>
+                    <option value="awareness">Awareness</option>
+                    <option value="traffic">Traffic</option>
+                    <option value="engagement">Engagement</option>
+                    <option value="leads">Lead Generation</option>
+                    <option value="conversions">Conversions</option>
+                    <option value="app_installs">App Installs</option>
+                  </Select>
+                </FormField>
+                <FormField label="Daily Budget">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">$</span>
+                    <Input type="number" min="1" step="0.01" value={(editForm.dailyBudgetCents / 100).toFixed(2)}
+                      onChange={(e) => setEditForm({ ...editForm, dailyBudgetCents: Math.round(parseFloat(e.target.value || "0") * 100) })}
+                    />
+                    <span className="text-sm text-muted-foreground">/ day</span>
+                  </div>
+                </FormField>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField label="Start Date">
+                    <Input type="date" value={editForm.startDate} onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })} />
+                  </FormField>
+                  <FormField label="End Date" description="Optional">
+                    <Input type="date" value={editForm.endDate} onChange={(e) => setEditForm({ ...editForm, endDate: e.target.value })} />
+                  </FormField>
+                </div>
+              </>
+            )}
+
+            {/* Step 1: Targeting */}
+            {editFormStep === 1 && (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField label="Min Age">
+                    <Input type="number" min="13" max="65" value={editForm.ageMin} onChange={(e) => setEditForm({ ...editForm, ageMin: parseInt(e.target.value) || 18 })} />
+                  </FormField>
+                  <FormField label="Max Age">
+                    <Input type="number" min="13" max="65" value={editForm.ageMax} onChange={(e) => setEditForm({ ...editForm, ageMax: parseInt(e.target.value) || 65 })} />
+                  </FormField>
+                </div>
+                <FormField label="Gender">
+                  <Select value={editForm.gender} onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}>
+                    <option value="all">All</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </Select>
+                </FormField>
+                <FormField label="Locations" description="Comma-separated country codes (e.g. US, GB, CA)">
+                  <Input value={editForm.locations} onChange={(e) => setEditForm({ ...editForm, locations: e.target.value })} />
+                </FormField>
+                <FormField label="Interests" description="Comma-separated interests for targeting">
+                  <Input value={editForm.interests} onChange={(e) => setEditForm({ ...editForm, interests: e.target.value })} />
+                </FormField>
+              </>
+            )}
+
+            {/* Step 2: Creative */}
+            {editFormStep === 2 && (
+              <>
+                <FormField label="Headline" description={editForm.platform === "google" ? "Max 30 characters for Google RSA" : undefined}>
+                  <Input value={editForm.headline} onChange={(e) => setEditForm({ ...editForm, headline: e.target.value })} />
+                  {editForm.platform === "google" && (
+                    <p className={`text-[10px] mt-0.5 ${editForm.headline.length > 30 ? "text-destructive" : "text-muted-foreground"}`}>
+                      {editForm.headline.length}/30 characters
+                    </p>
+                  )}
+                </FormField>
+                <FormField label="Primary Text">
+                  <Textarea rows={3} value={editForm.primaryText} onChange={(e) => setEditForm({ ...editForm, primaryText: e.target.value })} />
+                </FormField>
+                <FormField label="Description" description="Optional">
+                  <Input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
+                </FormField>
+                <FormField label="Ad Image">
+                  <MediaUploadZone
+                    type="image" url={editForm.imageUrl} uploading={editUploadingImage}
+                    onUpload={(f) => handleEditMediaUpload(f, "image")}
+                    onRemove={() => setEditForm({ ...editForm, imageUrl: "" })}
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    platform={editForm.platform}
+                  />
+                </FormField>
+                {editForm.platform === "meta" && (
+                  <FormField label="Ad Video">
+                    <MediaUploadZone
+                      type="video" url={editForm.videoUrl} uploading={editUploadingVideo}
+                      onUpload={(f) => handleEditMediaUpload(f, "video")}
+                      onRemove={() => setEditForm({ ...editForm, videoUrl: "" })}
+                      accept="video/mp4,video/quicktime,video/webm"
+                      platform={editForm.platform}
+                    />
+                  </FormField>
+                )}
+                <FormField label="Landing Page URL">
+                  <Input value={editForm.linkUrl} onChange={(e) => setEditForm({ ...editForm, linkUrl: e.target.value })} />
+                </FormField>
+                <FormField label="Call to Action">
+                  <Select value={editForm.ctaType} onChange={(e) => setEditForm({ ...editForm, ctaType: e.target.value })}>
+                    <option value="">Default</option>
+                    <option value="LEARN_MORE">Learn More</option>
+                    <option value="SHOP_NOW">Shop Now</option>
+                    <option value="SIGN_UP">Sign Up</option>
+                    <option value="DOWNLOAD">Download</option>
+                    <option value="GET_QUOTE">Get Quote</option>
+                    <option value="CONTACT_US">Contact Us</option>
+                  </Select>
+                </FormField>
+              </>
+            )}
+
+            {/* Step 3: Preview */}
+            {editFormStep === 3 && (
+              <>
+                <p className="text-sm text-muted-foreground mb-2">Review how your updated ad will appear:</p>
+                <AdPreview form={editForm} />
+                <div className="mt-4 space-y-2">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Campaign Summary</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="bg-muted/30 rounded-lg px-3 py-2">
+                      <p className="text-[10px] text-muted-foreground">Platform</p>
+                      <p className="font-medium">{platformLabels[editForm.platform]}</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg px-3 py-2">
+                      <p className="text-[10px] text-muted-foreground">Objective</p>
+                      <p className="font-medium">{objectiveLabels[editForm.objective]}</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg px-3 py-2">
+                      <p className="text-[10px] text-muted-foreground">Daily Budget</p>
+                      <p className="font-medium">{formatCurrency(editForm.dailyBudgetCents)}</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg px-3 py-2">
+                      <p className="text-[10px] text-muted-foreground">Start Date</p>
+                      <p className="font-medium">{editForm.startDate}</p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <SheetFooter className="gap-2">
+            {editFormStep > 0 && <Button variant="outline" onClick={() => setEditFormStep(editFormStep - 1)}>Back</Button>}
+            {editFormStep < 3 ? (
+              <Button onClick={() => setEditFormStep(editFormStep + 1)}>Next</Button>
+            ) : (
+              <Button onClick={handleUpdate} disabled={editSaving || !editForm.name || !editForm.headline}>
+                {editSaving ? "Saving..." : "Save Changes"}
+              </Button>
+            )}
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       {/* ── Campaign Detail / Insights Dialog ── */}
       <Dialog open={!!detailCampaign} onOpenChange={(open) => { if (!open) setDetailCampaign(null); }}>

@@ -297,6 +297,9 @@ export default function ProductsPage() {
       if (res.ok) {
         toast.success("Product added");
         setNewName(""); setNewDescription(""); setNewUrl(""); setNewCategory("saas"); setNewPricing(""); setNewTags("");
+        // Add immediately from response to avoid Firestore consistency lag,
+        // then refresh in the background to confirm.
+        setProducts((prev) => [res.data as Product, ...prev]);
         fetchProducts();
       } else {
         const errData = res.data as { error?: string; issues?: { field: string; message: string }[] };
