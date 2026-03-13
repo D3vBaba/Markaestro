@@ -1,6 +1,7 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
-import { getConnection, resolveAccessToken } from '@/lib/platform/connections';
+import { getConnection } from '@/lib/platform/connections';
+import { decrypt } from '@/lib/crypto';
 
 export type MetaAdAccount = {
   id: string;          // act_XXXXXXXXX
@@ -15,12 +16,17 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const productId = url.searchParams.get('productId') || undefined;
 
-    const conn = await getConnection(ctx.workspaceId, 'meta', productId);
+    // Try product-level connection first, fall back to workspace-level
+    const conn =
+      (productId ? await getConnection(ctx.workspaceId, 'meta', productId) : null) ??
+      (await getConnection(ctx.workspaceId, 'meta'));
+
     if (!conn || !conn.accessTokenEncrypted) {
       return apiOk({ adAccounts: [] });
     }
 
-    const accessToken = resolveAccessToken(conn);
+    // Must use the user access token — page tokens cannot list ad accounts
+    const accessToken = decrypt(conn.accessTokenEncrypted);
 
     const res = await fetch(
       'https://graph.facebook.com/v22.0/me/adaccounts?fields=id,name,currency,account_status&limit=50',

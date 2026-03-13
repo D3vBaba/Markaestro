@@ -555,11 +555,17 @@ export default function AdsPage() {
     try {
       if (c.platform === "meta") {
         const qs = c.productId ? `?productId=${c.productId}` : "";
-        const res = await apiGet<{ adAccounts: { id: string; name: string }[] }>(`/api/integrations/meta/ad-accounts${qs}`);
-        if (res.ok) setEditAdAccounts(res.data.adAccounts || []);
+        const res = await apiGet<{ adAccounts: { id: string; name: string }[]; error?: string }>(`/api/integrations/meta/ad-accounts${qs}`);
+        if (res.ok) {
+          setEditAdAccounts(res.data.adAccounts || []);
+          if (res.data.error) toast.error(`Meta: ${res.data.error}`);
+        }
       } else {
-        const res = await apiGet<{ customers: { id: string; name: string }[] }>("/api/integrations/google/customers");
-        if (res.ok) setEditAdAccounts(res.data.customers || []);
+        const res = await apiGet<{ customers: { id: string; name: string }[]; error?: string }>("/api/integrations/google/customers");
+        if (res.ok) {
+          setEditAdAccounts(res.data.customers || []);
+          if (res.data.error) toast.error(`Google Ads: ${res.data.error}`);
+        }
       }
     } catch { /* ignore */ }
     finally { setEditLoadingAccounts(false); }
