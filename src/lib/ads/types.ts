@@ -12,6 +12,8 @@ export type AdCampaignDoc = {
   targeting?: AdTargeting;
   creative: AdCreative;
   productId?: string;
+  adAccountId?: string;  // Meta: overrides product connection's adAccountId
+  customerId?: string;   // Google Ads: overrides connection's customerId
 
   // External platform IDs (populated after launch)
   externalCampaignId?: string;

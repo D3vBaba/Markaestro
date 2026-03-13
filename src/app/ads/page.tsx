@@ -59,6 +59,8 @@ type AdCampaign = {
     ctaType?: string;
   };
   productId?: string;
+  adAccountId?: string;
+  customerId?: string;
   metrics?: AdCampaignMetrics;
   externalCampaignId?: string;
   errorMessage?: string;
@@ -345,10 +347,13 @@ export default function AdsPage() {
   const [editSaving, setEditSaving] = useState(false);
   const [editUploadingImage, setEditUploadingImage] = useState(false);
   const [editUploadingVideo, setEditUploadingVideo] = useState(false);
+  const [editAdAccounts, setEditAdAccounts] = useState<{ id: string; name: string }[]>([]);
+  const [editLoadingAccounts, setEditLoadingAccounts] = useState(false);
   const [editForm, setEditForm] = useState({
     name: "", platform: "meta" as "meta" | "google",
     objective: "traffic", dailyBudgetCents: 1000,
     startDate: "", endDate: "", productId: "",
+    adAccountId: "", customerId: "",
     ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "",
     headline: "", primaryText: "", description: "",
     imageUrl: "", videoUrl: "", linkUrl: "", ctaType: "",
@@ -517,9 +522,10 @@ export default function AdsPage() {
     finally { setSaving(false); }
   };
 
-  const openEdit = (c: AdCampaign) => {
+  const openEdit = async (c: AdCampaign) => {
     setEditingId(c.id);
     setEditFormStep(0);
+    setEditAdAccounts([]);
     setEditForm({
       name: c.name,
       platform: c.platform,
@@ -528,6 +534,8 @@ export default function AdsPage() {
       startDate: c.startDate ? c.startDate.split("T")[0] : "",
       endDate: c.endDate ? c.endDate.split("T")[0] : "",
       productId: c.productId || "",
+      adAccountId: c.adAccountId || "",
+      customerId: c.customerId || "",
       ageMin: c.targeting?.ageMin ?? 18,
       ageMax: c.targeting?.ageMax ?? 65,
       gender: c.targeting?.gender ?? "all",
@@ -542,6 +550,19 @@ export default function AdsPage() {
       ctaType: c.creative?.ctaType ?? "",
     });
     setEditOpen(true);
+    // Fetch ad accounts for this platform
+    setEditLoadingAccounts(true);
+    try {
+      if (c.platform === "meta") {
+        const qs = c.productId ? `?productId=${c.productId}` : "";
+        const res = await apiGet<{ adAccounts: { id: string; name: string }[] }>(`/api/integrations/meta/ad-accounts${qs}`);
+        if (res.ok) setEditAdAccounts(res.data.adAccounts || []);
+      } else {
+        const res = await apiGet<{ customers: { id: string; name: string }[] }>("/api/integrations/google/customers");
+        if (res.ok) setEditAdAccounts(res.data.customers || []);
+      }
+    } catch { /* ignore */ }
+    finally { setEditLoadingAccounts(false); }
   };
 
   const handleUpdate = async () => {
@@ -555,6 +576,8 @@ export default function AdsPage() {
         startDate: new Date(editForm.startDate).toISOString(),
         endDate: editForm.endDate ? new Date(editForm.endDate).toISOString() : null,
         productId: editForm.productId,
+        adAccountId: editForm.adAccountId || undefined,
+        customerId: editForm.customerId || undefined,
         targeting: {
           ageMin: editForm.ageMin, ageMax: editForm.ageMax, gender: editForm.gender,
           locations: editForm.locations ? editForm.locations.split(",").map((s) => s.trim()).filter(Boolean) : [],
@@ -1356,6 +1379,22 @@ export default function AdsPage() {
                   <Select value={editForm.productId} onChange={(e) => setEditForm({ ...editForm, productId: e.target.value })}>
                     <option value="">None</option>
                     {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </Select>
+                </FormField>
+                <FormField
+                  label={editForm.platform === "meta" ? "Ad Account" : "Google Ads Customer"}
+                  description={editLoadingAccounts ? "Loading accounts…" : editAdAccounts.length === 0 ? "No accounts found — connect integration first" : undefined}
+                >
+                  <Select
+                    value={editForm.platform === "meta" ? editForm.adAccountId : editForm.customerId}
+                    onChange={(e) => {
+                      if (editForm.platform === "meta") setEditForm({ ...editForm, adAccountId: e.target.value });
+                      else setEditForm({ ...editForm, customerId: e.target.value });
+                    }}
+                    disabled={editLoadingAccounts || editAdAccounts.length === 0}
+                  >
+                    <option value="">Use product default</option>
+                    {editAdAccounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({a.id})</option>)}
                   </Select>
                 </FormField>
                 <FormField label="Campaign Name">

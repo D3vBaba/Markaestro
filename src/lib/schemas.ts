@@ -276,6 +276,8 @@ export const updateAdCampaignSchema = z.object({
   creative: adCreativeSchema.optional(),
   productId: optionalString.optional(),
   status: z.enum(adCampaignStatuses).optional(),
+  adAccountId: z.string().trim().max(100).optional(), // Meta: act_XXXXXXXXX
+  customerId: z.string().trim().max(50).optional(),   // Google Ads customer ID
 });
 
 // ── Post Schemas ──────────────────────────────────────────────────

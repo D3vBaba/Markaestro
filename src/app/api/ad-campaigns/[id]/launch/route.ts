@@ -40,7 +40,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       }
 
       const accessToken = resolveAccessToken(conn);
-      const adAccountId = conn.metadata.adAccountId as string;
+      // Campaign-level adAccountId takes precedence over the product connection default
+      const adAccountId = campaign.adAccountId || (conn.metadata.adAccountId as string);
       const pageId = conn.metadata.pageId as string;
 
       if (!adAccountId) {
@@ -78,7 +79,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       }
 
       const accessToken = decrypt(conn.accessTokenEncrypted);
-      const customerId = conn.metadata.customerId as string;
+      // Campaign-level customerId takes precedence over the workspace connection default
+      const customerId = campaign.customerId || (conn.metadata.customerId as string);
       const loginCustomerId = conn.metadata.loginCustomerId as string | undefined;
       const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '';
 
