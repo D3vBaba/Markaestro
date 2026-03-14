@@ -1,19 +1,26 @@
 import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
-import { getConnection, resolveAccessToken } from '@/lib/platform/connections';
+import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     requireAdmin(ctx);
 
-    const conn = await getConnection(ctx.workspaceId, 'meta');
+    const body = await req.json().catch(() => ({}));
+    const productId = body.productId as string | undefined;
+
+    if (!productId) {
+      return apiOk({ ok: false, error: 'productId is required' });
+    }
+
+    const conn = await getConnection(ctx.workspaceId, 'meta', productId);
     if (!conn) {
       throw new Error('NOT_FOUND');
     }
 
-    const accessToken = resolveAccessToken(conn);
+    const accessToken = resolveUserAccessToken(conn);
     const adAccountId = conn.metadata.adAccountId as string;
 
     if (!adAccountId) {

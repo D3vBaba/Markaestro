@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Loader2, Save, Clock, Send, ImageIcon, X, FolderOpen, Upload, Smartphone } from "lucide-react";
 import Select from "@/components/app/Select";
 import { apiPost, apiPut, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -36,7 +34,6 @@ const aspectRatios = [
   { value: "3:4", label: "3:4 (Tall Portrait)" },
 ] as const;
 
-/** Optimal aspect ratio per platform based on engagement data */
 const channelDefaultRatio: Record<string, string> = {
   x: "16:9",
   facebook: "1:1",
@@ -55,11 +52,10 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
-  // Image generation state
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageStyle, setImageStyle] = useState("branded");
-  const [aspectRatio, setAspectRatio] = useState("16:9"); // default for X
+  const [aspectRatio, setAspectRatio] = useState("16:9");
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const handleChannelChange = (ch: string) => {
@@ -67,7 +63,6 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     setAspectRatio(channelDefaultRatio[ch] || "1:1");
   };
 
-  // Screenshot upload state
   const [screenUrls, setScreenUrls] = useState<string[]>([]);
   const [uploadingScreen, setUploadingScreen] = useState(false);
   const [includeLogo, setIncludeLogo] = useState(false);
@@ -202,7 +197,6 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   const handlePostNow = async () => {
     if (!postId) return;
     setPublishing(true);
-    // First update content if edited
     const mediaUrls = imageUrl ? [imageUrl] : undefined;
     await apiPut(`/api/posts/${postId}`, { content, channel, mediaUrls });
     const res = await apiPost<{ ok: boolean; error?: string; externalUrl?: string }>(`/api/posts/${postId}/publish`, {});
@@ -222,22 +216,23 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <div className="space-y-4">
+    <div className="grid gap-8 lg:grid-cols-2">
+      {/* Left column — inputs */}
+      <div className="space-y-6">
         <ProductPicker value={productId} onChange={setProductId} />
         <ChannelSelector value={channel} onChange={handleChannelChange} productId={productId} />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Content Type</label>
+        <div className="space-y-3">
+          <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Content Type</label>
           <div className="grid grid-cols-3 gap-2">
             {contentTypes.map((ct) => (
               <button
                 key={ct.value}
                 onClick={() => setContentType(ct.value)}
-                className={`text-left p-3 rounded-lg border transition-colors text-sm ${
+                className={`text-center py-3 rounded-lg border text-sm transition-all ${
                   contentType === ct.value
-                    ? "border-primary bg-primary/5 font-medium"
-                    : "border-border hover:border-muted-foreground/30"
+                    ? "border-foreground bg-foreground text-background font-medium"
+                    : "border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground"
                 }`}
               >
                 {ct.label}
@@ -246,202 +241,189 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Additional Context</label>
+        <div className="space-y-3">
+          <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Additional Context</label>
           <Textarea
             placeholder="Any specific requirements, offers, or constraints..."
             value={additionalContext}
             onChange={(e) => setAdditionalContext(e.target.value)}
             rows={3}
+            className="resize-none"
           />
         </div>
 
-        <Button onClick={handleGenerate} disabled={generating} className="w-full">
-          {generating ? (
-            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
-          ) : (
-            <><Sparkles className="mr-2 h-4 w-4" /> Generate</>
-          )}
+        <Button
+          onClick={handleGenerate}
+          disabled={generating}
+          className="w-full h-12 text-sm font-medium tracking-wide"
+        >
+          {generating ? "Generating..." : "Generate Content"}
         </Button>
       </div>
 
-      <Card className="shadow-sm h-fit sticky top-20">
-        <CardHeader>
-          <CardTitle className="text-base">Content</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {content ? (
-            <>
-              <ContentEditor content={content} onChange={setContent} channel={channel} />
+      {/* Right column — content preview */}
+      <div className="border border-border/40 rounded-lg p-6 space-y-6 h-fit lg:sticky lg:top-20 bg-card">
+        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Content Preview</h3>
 
-              {/* Image Generation */}
-              <div className="border-t pt-4 space-y-3">
-                <p className="text-sm font-medium">Generate Image</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Aspect Ratio</label>
-                    <Select
-                      value={aspectRatio}
-                      onChange={(e) => setAspectRatio(e.target.value)}
-                      size="sm"
-                    >
-                      {aspectRatios.map((ar) => (
-                        <option key={ar.value} value={ar.value}>{ar.label}</option>
-                      ))}
-                    </Select>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Style</label>
-                    <Select
-                      value={imageStyle}
-                      onChange={(e) => setImageStyle(e.target.value)}
-                      size="sm"
-                    >
-                      {imageStyles.map((s) => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
-                      ))}
-                    </Select>
-                  </div>
+        {content ? (
+          <>
+            <ContentEditor content={content} onChange={setContent} channel={channel} />
+
+            {/* Image generation */}
+            <div className="border-t border-border/30 pt-6 space-y-4">
+              <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Image</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] text-muted-foreground">Aspect Ratio</label>
+                  <Select
+                    value={aspectRatio}
+                    onChange={(e) => setAspectRatio(e.target.value)}
+                    size="sm"
+                  >
+                    {aspectRatios.map((ar) => (
+                      <option key={ar.value} value={ar.value}>{ar.label}</option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] text-muted-foreground">Style</label>
+                  <Select
+                    value={imageStyle}
+                    onChange={(e) => setImageStyle(e.target.value)}
+                    size="sm"
+                  >
+                    {imageStyles.map((s) => (
+                      <option key={s.value} value={s.value}>{s.label}</option>
+                    ))}
+                  </Select>
+                </div>
+              </div>
+
+              {/* App screenshots */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] text-muted-foreground">App Screenshots</label>
+                  <span className="text-[11px] text-muted-foreground">{screenUrls.length}/4</span>
                 </div>
 
-                {/* App Screenshots Upload */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Smartphone className="h-3 w-3" /> App Screenshots (phone mockups)
-                    </label>
-                    <span className="text-xs text-muted-foreground">{screenUrls.length}/4</span>
-                  </div>
-
-                  {screenUrls.length > 0 && (
-                    <div className="flex gap-2 flex-wrap">
-                      {screenUrls.map((url, i) => (
-                        <div key={i} className="relative group w-16 h-28 rounded-md overflow-hidden border">
-                          <img src={url} alt={`Screenshot ${i + 1}`} className="w-full h-full object-cover" />
-                          <button
-                            onClick={() => handleRemoveScreen(i)}
-                            className="absolute top-0.5 right-0.5 p-0.5 rounded-full bg-background/80 border opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="h-2.5 w-2.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <input
-                    ref={screenInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleUploadScreenshot(file);
-                      e.target.value = "";
-                    }}
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => screenInputRef.current?.click()}
-                    disabled={uploadingScreen || screenUrls.length >= 4}
-                    className="w-full"
-                  >
-                    {uploadingScreen ? (
-                      <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Uploading...</>
-                    ) : (
-                      <><Upload className="mr-1.5 h-3 w-3" /> Upload Screenshot</>
-                    )}
-                  </Button>
-                </div>
-
-                {/* Include Logo Toggle */}
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={includeLogo}
-                    onChange={(e) => setIncludeLogo(e.target.checked)}
-                    className="rounded border-border"
-                  />
-                  <span className="text-xs text-muted-foreground">Include product logo</span>
-                </label>
-
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleGenerateImage}
-                    disabled={generatingImage}
-                    className="flex-1"
-                  >
-                    {generatingImage ? (
-                      <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Generating...</>
-                    ) : (
-                      <><ImageIcon className="mr-1.5 h-3 w-3" /> Generate</>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPickerOpen(true)}
-                  >
-                    <FolderOpen className="mr-1.5 h-3 w-3" /> Gallery
-                  </Button>
-                </div>
-
-                {imageUrl && (
-                  <div className="relative group overflow-hidden rounded-xl border shadow-sm bg-black/5 dark:bg-white/5">
-                    <div
-                      className="relative w-full mx-auto"
-                      style={{
-                        aspectRatio: aspectRatio.replace(":", " / "),
-                        maxHeight: "520px",
-                      }}
-                    >
-                      <img
-                        src={imageUrl}
-                        alt="Generated image"
-                        className="w-full h-full object-cover rounded-xl"
-                      />
-                    </div>
-                    <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/60 text-white text-[10px] font-medium tracking-wide uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-                      {aspectRatio} {channel}
-                    </div>
-                    <button
-                      onClick={() => setImageUrl(null)}
-                      className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
+                {screenUrls.length > 0 && (
+                  <div className="flex gap-2 flex-wrap">
+                    {screenUrls.map((url, i) => (
+                      <div key={i} className="relative group w-14 h-24 rounded overflow-hidden border border-border/50">
+                        <img src={url} alt={`Screenshot ${i + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => handleRemoveScreen(i)}
+                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
+
+                <input
+                  ref={screenInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleUploadScreenshot(file);
+                    e.target.value = "";
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => screenInputRef.current?.click()}
+                  disabled={uploadingScreen || screenUrls.length >= 4}
+                  className="w-full text-xs"
+                >
+                  {uploadingScreen ? "Uploading..." : "Upload Screenshot"}
+                </Button>
               </div>
 
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={includeLogo}
+                  onChange={(e) => setIncludeLogo(e.target.checked)}
+                  className="rounded border-border"
+                />
+                <span className="text-xs text-muted-foreground">Include product logo</span>
+              </label>
+
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleSaveDraft}>
-                  <Save className="mr-1.5 h-3 w-3" /> Save Draft
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateImage}
+                  disabled={generatingImage}
+                  className="flex-1 text-xs"
+                >
+                  {generatingImage ? "Generating..." : "Generate Image"}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setScheduleOpen(true)}>
-                  <Clock className="mr-1.5 h-3 w-3" /> Schedule
-                </Button>
-                <Button size="sm" onClick={handlePostNow} disabled={publishing}>
-                  {publishing ? (
-                    <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Posting...</>
-                  ) : (
-                    <><Send className="mr-1.5 h-3 w-3" /> Post Now</>
-                  )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPickerOpen(true)}
+                  className="text-xs"
+                >
+                  Gallery
                 </Button>
               </div>
-            </>
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              <Sparkles className="h-8 w-8 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Generated content will appear here.</p>
-              <p className="text-xs mt-1">Select a product and channel, then click Generate.</p>
+
+              {imageUrl && (
+                <div className="relative group overflow-hidden rounded-lg border border-border/40">
+                  <div
+                    className="relative w-full mx-auto"
+                    style={{
+                      aspectRatio: aspectRatio.replace(":", " / "),
+                      maxHeight: "520px",
+                    }}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt="Generated image"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between">
+                    <span className="text-white text-[10px] font-medium tracking-wide uppercase">
+                      {aspectRatio} / {channel}
+                    </span>
+                    <button
+                      onClick={() => setImageUrl(null)}
+                      className="text-white text-[11px] font-medium hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
+
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={handleSaveDraft} className="flex-1 text-xs">
+                Save Draft
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setScheduleOpen(true)} className="flex-1 text-xs">
+                Schedule
+              </Button>
+              <Button size="sm" onClick={handlePostNow} disabled={publishing} className="flex-1 text-xs">
+                {publishing ? "Posting..." : "Post Now"}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-sm text-muted-foreground">Generated content will appear here.</p>
+            <p className="text-xs text-muted-foreground/60 mt-2">Select a product and channel, then click Generate.</p>
+          </div>
+        )}
+      </div>
 
       <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} />
       <ImagePicker open={pickerOpen} onOpenChange={setPickerOpen} onSelect={(url) => setImageUrl(url)} />

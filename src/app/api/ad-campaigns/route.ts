@@ -2,6 +2,7 @@ import { requireContext } from '@/lib/server-auth';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { createAdCampaignSchema, paginationSchema } from '@/lib/schemas';
+import { isMetaObjectiveSupported } from '@/lib/ads/meta-ads';
 
 export async function GET(req: Request) {
   try {
@@ -35,6 +36,13 @@ export async function POST(req: Request) {
     const ctx = await requireContext(req);
     const body = await req.json();
     const input = createAdCampaignSchema.parse(body);
+
+    if (input.platform === 'meta' && !input.productId) {
+      throw new Error('VALIDATION_META_PRODUCT_REQUIRED');
+    }
+    if (input.platform === 'meta' && !isMetaObjectiveSupported(input.objective)) {
+      throw new Error('VALIDATION_META_OBJECTIVE_UNSUPPORTED');
+    }
 
     const now = new Date().toISOString();
     const doc = {

@@ -16,14 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  Megaphone, Trash2, Play, Pause, RefreshCw, Plus,
-  TrendingUp, Eye, MousePointerClick, DollarSign,
-  Upload, Image as ImageIcon, Video, X, Loader2,
-  Lightbulb, Target, Palette, Sparkles, ArrowUpRight,
-  AlertTriangle, CheckCircle2, ChevronRight, Wand2,
-  Search, BarChart2, Pencil,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
@@ -69,6 +62,7 @@ type AdCampaign = {
 };
 
 type Product = { id: string; name: string };
+type IntegrationStatus = { provider: string; status: string; pageId?: string | null };
 
 type CampaignInsights = {
   overallScore: number;
@@ -98,21 +92,42 @@ type AggregateInsights = {
 // ── Constants ────────────────────────────────────────────────────────
 
 const statusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-700",
-  pending: "bg-yellow-50 text-yellow-700",
-  active: "bg-emerald-50 text-emerald-700",
-  paused: "bg-amber-50 text-amber-700",
-  completed: "bg-slate-100 text-slate-700",
-  failed: "bg-rose-50 text-rose-700",
+  draft: "text-muted-foreground",
+  pending: "text-amber-600",
+  active: "text-emerald-600",
+  paused: "text-amber-600",
+  completed: "text-muted-foreground",
+  failed: "text-destructive",
 };
 const platformLabels: Record<string, string> = { meta: "Meta", google: "Google" };
-const platformColors: Record<string, string> = {
-  meta: "bg-blue-50 text-blue-700", google: "bg-red-50 text-red-700",
-};
 const objectiveLabels: Record<string, string> = {
   awareness: "Awareness", traffic: "Traffic", engagement: "Engagement",
   leads: "Leads", conversions: "Conversions", app_installs: "App Installs",
 };
+const metaObjectiveOptions = [
+  { value: "awareness", label: "Awareness" },
+  { value: "traffic", label: "Traffic" },
+  { value: "engagement", label: "Engagement" },
+] as const;
+const googleObjectiveOptions = [
+  { value: "awareness", label: "Awareness" },
+  { value: "traffic", label: "Traffic" },
+  { value: "engagement", label: "Engagement" },
+  { value: "leads", label: "Lead Generation" },
+  { value: "conversions", label: "Conversions" },
+  { value: "app_installs", label: "App Installs" },
+] as const;
+
+function getObjectiveOptions(platform: "meta" | "google") {
+  return platform === "meta" ? metaObjectiveOptions : googleObjectiveOptions;
+}
+
+function normalizeObjectiveForPlatform(platform: "meta" | "google", objective: string) {
+  if (platform === "meta" && !metaObjectiveOptions.some((option) => option.value === objective)) {
+    return "traffic";
+  }
+  return objective;
+}
 
 function formatCurrency(cents: number): string { return `$${(cents / 100).toFixed(2)}`; }
 function formatBytes(bytes: number): string {
@@ -123,16 +138,11 @@ function formatBytes(bytes: number): string {
 
 // ── Subcomponents ────────────────────────────────────────────────────
 
-function MetricCard({ icon: Icon, label, value }: { icon: typeof Eye; label: string; value: string }) {
+function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
-      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-        <Icon className="h-4 w-4 text-primary" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-sm font-semibold truncate">{value}</p>
-      </div>
+    <div className="p-3 sm:p-4 rounded-lg border border-border/40 bg-card">
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
+      <p className="text-lg sm:text-xl font-light tabular-nums">{value}</p>
     </div>
   );
 }
@@ -144,12 +154,12 @@ function ScoreRing({ score, size = 56 }: { score: number; size?: number }) {
   const color = score >= 80 ? "#22c55e" : score >= 60 ? "#eab308" : score >= 40 ? "#f97316" : "#ef4444";
   return (
     <svg width={size} height={size} className="shrink-0">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth={3} className="text-muted/30" />
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={3}
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth={2} className="text-muted/30" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={2}
         strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`} className="transition-all duration-700"
       />
-      <text x="50%" y="50%" textAnchor="middle" dy="0.35em" fill={color} fontSize={size * 0.28} fontWeight={700}>
+      <text x="50%" y="50%" textAnchor="middle" dy="0.35em" fill={color} fontSize={size * 0.28} fontWeight={600}>
         {score}
       </text>
     </svg>
@@ -194,7 +204,7 @@ function MediaUploadZone({
 
   if (url) {
     return (
-      <div className="relative group rounded-xl overflow-hidden border border-border/50 bg-black/5 dark:bg-white/5">
+      <div className="relative group rounded-lg overflow-hidden border border-border/40">
         {type === "image" ? (
           <img src={url} alt="Ad creative" className="w-full aspect-video object-cover" />
         ) : (
@@ -202,21 +212,18 @@ function MediaUploadZone({
         )}
         <button
           onClick={onRemove}
-          className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium"
         >
-          <X className="h-3.5 w-3.5" />
+          Remove
         </button>
-        <div className="absolute bottom-2 left-2 px-2 py-1 rounded-md bg-black/60 text-white text-[10px] font-medium uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-          {type}
-        </div>
       </div>
     );
   }
 
   return (
     <div
-      className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer ${
-        dragOver ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/50 hover:bg-muted/20"
+      className={`relative border border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+        dragOver ? "border-foreground bg-foreground/5" : "border-border/60 hover:border-foreground/40"
       }`}
       onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
       onDragLeave={() => setDragOver(false)}
@@ -232,23 +239,18 @@ function MediaUploadZone({
       />
       {uploading ? (
         <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="h-5 w-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
           <p className="text-sm text-muted-foreground">Uploading...</p>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-2">
-          <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
-            {type === "video" ? <Video className="h-5 w-5 text-muted-foreground" /> : <ImageIcon className="h-5 w-5 text-muted-foreground" />}
-          </div>
-          <div>
-            <p className="text-sm font-medium">
-              {dragOver ? "Drop file here" : `Upload ${type === "video" ? "Video" : "Image"}`}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Drag & drop or click to browse
-            </p>
-          </div>
-          <p className="text-[10px] text-muted-foreground/70 mt-1">
+        <div className="space-y-2">
+          <p className="text-sm font-medium">
+            {dragOver ? "Drop file here" : `Upload ${type === "video" ? "Video" : "Image"}`}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Drag & drop or click to browse
+          </p>
+          <p className="text-[10px] text-muted-foreground/60 mt-1">
             {specs[platform]?.[type] || `Max ${type === "video" ? "500MB" : "10MB"}`}
           </p>
         </div>
@@ -267,42 +269,41 @@ function AdPreview({ form }: { form: { platform: string; headline: string; prima
   };
 
   return (
-    <div className="rounded-xl border border-border/50 overflow-hidden bg-card">
-      <div className="px-3 py-2 border-b border-border/30 flex items-center gap-2">
-        <div className="h-5 w-5 rounded-full bg-muted" />
-        <span className="text-[11px] font-medium text-muted-foreground">Ad Preview - {platformLabels[form.platform]}</span>
-        <Badge variant="outline" className="ml-auto text-[9px] h-4 border-border/50">Sponsored</Badge>
+    <div className="rounded-lg border border-border/40 overflow-hidden bg-card">
+      <div className="px-4 py-2.5 border-b border-border/30 flex items-center justify-between">
+        <span className="text-[11px] font-medium text-muted-foreground">Ad Preview -- {platformLabels[form.platform]}</span>
+        <span className="text-[10px] text-muted-foreground border border-border/50 px-1.5 py-0.5 rounded">Sponsored</span>
       </div>
 
       {form.primaryText && form.platform !== "google" && (
-        <div className="px-3 py-2">
+        <div className="px-4 py-3">
           <p className="text-xs leading-relaxed line-clamp-3">{form.primaryText}</p>
         </div>
       )}
 
       {form.videoUrl ? (
-        <video src={form.videoUrl} className="w-full aspect-video object-cover bg-black/5" controls />
+        <video src={form.videoUrl} className="w-full aspect-video object-cover bg-muted/20" controls />
       ) : form.imageUrl ? (
-        <img src={form.imageUrl} alt="Ad" className="w-full aspect-video object-cover bg-black/5" />
+        <img src={form.imageUrl} alt="Ad" className="w-full aspect-video object-cover bg-muted/20" />
       ) : (
-        <div className="w-full aspect-video bg-muted/30 flex items-center justify-center">
-          <ImageIcon className="h-8 w-8 text-muted-foreground/30" />
+        <div className="w-full aspect-video bg-muted/10 flex items-center justify-center">
+          <span className="text-xs text-muted-foreground/40">No media</span>
         </div>
       )}
 
-      <div className="px-3 py-2 space-y-1">
+      <div className="px-4 py-3 space-y-1.5">
         {form.linkUrl && (
           <p className="text-[10px] text-muted-foreground uppercase truncate">{form.linkUrl.replace(/^https?:\/\//, "")}</p>
         )}
         {form.headline && (
-          <p className="text-sm font-semibold leading-snug line-clamp-2">{form.headline}</p>
+          <p className="text-sm font-medium leading-snug line-clamp-2">{form.headline}</p>
         )}
         {form.description && (
           <p className="text-xs text-muted-foreground line-clamp-1">{form.description}</p>
         )}
         {form.ctaType && (
-          <div className="pt-1">
-            <span className="inline-block px-3 py-1 text-[11px] font-medium rounded-md bg-primary/10 text-primary">
+          <div className="pt-1.5">
+            <span className="inline-block px-3 py-1.5 text-[11px] font-medium rounded border border-foreground/20 text-foreground">
               {ctaLabels[form.ctaType] || form.ctaType}
             </span>
           </div>
@@ -322,25 +323,21 @@ export default function AdsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("campaigns");
 
-  // Media upload state
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
 
-  // Smart Suggest state
   const [suggesting, setSuggesting] = useState(false);
   const [suggestStep, setSuggestStep] = useState(0);
   const [suggestRationale, setSuggestRationale] = useState<{
     summary: string; painPoints: string[]; competitorInsights: string[]; whyThisAd: string;
   } | null>(null);
 
-  // Insights state
   const [aggregateInsights, setAggregateInsights] = useState<AggregateInsights | null>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [campaignInsights, setCampaignInsights] = useState<Record<string, CampaignInsights>>({});
   const [insightLoadingId, setInsightLoadingId] = useState<string | null>(null);
   const [detailCampaign, setDetailCampaign] = useState<AdCampaign | null>(null);
 
-  // Edit state
   const [editOpen, setEditOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editFormStep, setEditFormStep] = useState(0);
@@ -359,7 +356,6 @@ export default function AdsPage() {
     imageUrl: "", videoUrl: "", linkUrl: "", ctaType: "",
   });
 
-  // Form state
   const [formOpen, setFormOpen] = useState(false);
   const [formStep, setFormStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -400,8 +396,6 @@ export default function AdsPage() {
     setFormStep(0);
   };
 
-  // ── Media upload handlers ──
-
   const handleMediaUpload = async (file: File, mediaType: "image" | "video") => {
     const setter = mediaType === "video" ? setUploadingVideo : setUploadingImage;
     setter(true);
@@ -428,8 +422,6 @@ export default function AdsPage() {
     }
   };
 
-  // ── Smart Suggest ──
-
   const handleSmartSuggest = async () => {
     if (!form.productId) {
       toast.error("Select a product first so AI can research your app");
@@ -439,7 +431,6 @@ export default function AdsPage() {
     setSuggestRationale(null);
     setSuggestStep(0);
 
-    // Animate steps while waiting
     const stepTimer1 = setTimeout(() => setSuggestStep(1), 1800);
     const stepTimer2 = setTimeout(() => setSuggestStep(2), 4000);
 
@@ -460,7 +451,7 @@ export default function AdsPage() {
       clearTimeout(stepTimer2);
 
       if (!res.ok || !res.data.ok || !res.data.suggestion) {
-        toast.error(res.data.error || "AI research failed — try again");
+        toast.error(res.data.error || "AI research failed -- try again");
         return;
       }
 
@@ -469,7 +460,7 @@ export default function AdsPage() {
       setForm((f) => ({
         ...f,
         name: s.name || f.name,
-        objective: s.objective || f.objective,
+        objective: normalizeObjectiveForPlatform(f.platform, s.objective || f.objective),
         dailyBudgetCents: s.dailyBudgetCents || f.dailyBudgetCents,
         headline: s.headline || f.headline,
         primaryText: s.primaryText || f.primaryText,
@@ -482,21 +473,40 @@ export default function AdsPage() {
         locations: s.targeting?.locations?.join(", ") || f.locations,
         interests: s.targeting?.interests?.join(", ") || f.interests,
       }));
-      setFormStep(3); // Jump to preview
-      toast.success("AI researched your market and crafted an ad — review it below");
+      setFormStep(3);
+      toast.success("AI researched your market and crafted an ad -- review it below");
     } catch {
-      toast.error("AI research failed — try again");
+      toast.error("AI research failed -- try again");
     } finally {
       setSuggesting(false);
       setSuggestStep(0);
     }
   };
 
-  // ── Campaign CRUD ──
-
   const handleCreate = async () => {
+    if (form.platform === "meta" && !form.productId) {
+      toast.error("Meta ad campaigns must be tied to a product");
+      return;
+    }
+    if (form.platform === "meta" && !metaObjectiveOptions.some((option) => option.value === form.objective)) {
+      toast.error("Meta currently supports awareness, traffic, and engagement only");
+      return;
+    }
+
     setSaving(true);
     try {
+      if (form.platform === "meta") {
+        const integrationRes = await apiGet<{ integrations: IntegrationStatus[] }>(`/api/integrations?productId=${form.productId}`);
+        const metaConnection = integrationRes.ok
+          ? (integrationRes.data.integrations || []).find((integration) => integration.provider === "meta" && integration.status === "connected")
+          : null;
+
+        if (!metaConnection?.pageId) {
+          toast.error("Select a Facebook page on the product's Meta integration before creating a Meta ad campaign");
+          return;
+        }
+      }
+
       const res = await apiPost("/api/ad-campaigns", {
         name: form.name, platform: form.platform, objective: form.objective,
         dailyBudgetCents: form.dailyBudgetCents,
@@ -529,7 +539,7 @@ export default function AdsPage() {
     setEditForm({
       name: c.name,
       platform: c.platform,
-      objective: c.objective,
+      objective: normalizeObjectiveForPlatform(c.platform, c.objective),
       dailyBudgetCents: c.dailyBudgetCents,
       startDate: c.startDate ? c.startDate.split("T")[0] : "",
       endDate: c.endDate ? c.endDate.split("T")[0] : "",
@@ -550,10 +560,14 @@ export default function AdsPage() {
       ctaType: c.creative?.ctaType ?? "",
     });
     setEditOpen(true);
-    // Fetch ad accounts for this platform
     setEditLoadingAccounts(true);
     try {
       if (c.platform === "meta") {
+        if (!c.productId) {
+          setEditAdAccounts([]);
+          toast.error("Meta campaigns must be tied to a product before selecting an ad account");
+          return;
+        }
         const qs = c.productId ? `?productId=${c.productId}` : "";
         const res = await apiGet<{ adAccounts: { id: string; name: string }[]; error?: string }>(`/api/integrations/meta/ad-accounts${qs}`);
         if (res.ok) {
@@ -573,6 +587,14 @@ export default function AdsPage() {
 
   const handleUpdate = async () => {
     if (!editingId) return;
+    if (editForm.platform === "meta" && !editForm.productId) {
+      toast.error("Meta ad campaigns must be tied to a product");
+      return;
+    }
+    if (editForm.platform === "meta" && !metaObjectiveOptions.some((option) => option.value === editForm.objective)) {
+      toast.error("Meta currently supports awareness, traffic, and engagement only");
+      return;
+    }
     setEditSaving(true);
     try {
       const res = await apiPut(`/api/ad-campaigns/${editingId}`, {
@@ -645,8 +667,6 @@ export default function AdsPage() {
     finally { setActionLoading(null); }
   };
 
-  // ── Insights ──
-
   const fetchAggregateInsights = async () => {
     setInsightsLoading(true);
     try {
@@ -680,8 +700,6 @@ export default function AdsPage() {
   const totalClicks = campaigns.reduce((s, c) => s + (c.metrics?.clicks || 0), 0);
   const activeCampaigns = campaigns.filter((c) => c.status === "active").length;
 
-  // ── Render ──
-
   return (
     <AppShell>
       <PageHeader
@@ -690,7 +708,7 @@ export default function AdsPage() {
         action={
           <Sheet open={formOpen} onOpenChange={(open) => { setFormOpen(open); if (!open) resetForm(); }}>
             <SheetTrigger asChild>
-              <Button className="rounded-xl"><Plus className="h-4 w-4 mr-2" />New Ad Campaign</Button>
+              <Button className="rounded-lg h-10 text-sm">New Campaign</Button>
             </SheetTrigger>
             <SheetContent className="sm:max-w-xl overflow-y-auto">
               <SheetHeader>
@@ -702,33 +720,28 @@ export default function AdsPage() {
               </SheetHeader>
 
               <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                {/* Smart Suggest loading overlay */}
+                {/* Smart Suggest loading */}
                 {suggesting && (
-                  <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Wand2 className="h-4.5 w-4.5 text-primary animate-pulse" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold">AI Research in Progress</p>
-                        <p className="text-xs text-muted-foreground">Analyzing your market to craft the perfect ad...</p>
-                      </div>
+                  <div className="rounded-lg border border-border/40 p-5 space-y-4">
+                    <div>
+                      <p className="text-sm font-medium">AI Research in Progress</p>
+                      <p className="text-xs text-muted-foreground mt-1">Analyzing your market to craft the perfect ad...</p>
                     </div>
                     <div className="space-y-2">
                       {[
-                        { icon: Search, label: "Researching your product & competitors" },
-                        { icon: BarChart2, label: "Identifying user pain points" },
-                        { icon: Wand2, label: "Crafting your optimized ad copy" },
-                      ].map(({ icon: Icon, label }, i) => (
+                        "Researching your product & competitors",
+                        "Identifying user pain points",
+                        "Crafting your optimized ad copy",
+                      ].map((label, i) => (
                         <div key={i} className={`flex items-center gap-2.5 text-xs transition-opacity duration-500 ${
                           suggestStep >= i ? "opacity-100" : "opacity-30"
                         }`}>
                           {suggestStep > i ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                            <span className="h-3.5 w-3.5 rounded-full bg-emerald-500 shrink-0" />
                           ) : suggestStep === i ? (
-                            <Loader2 className="h-3.5 w-3.5 text-primary animate-spin shrink-0" />
+                            <div className="h-3.5 w-3.5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin shrink-0" />
                           ) : (
-                            <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span className="h-3.5 w-3.5 rounded-full bg-muted shrink-0" />
                           )}
                           <span className={suggestStep >= i ? "text-foreground" : "text-muted-foreground"}>{label}</span>
                         </div>
@@ -738,12 +751,12 @@ export default function AdsPage() {
                 )}
 
                 {/* Step indicators */}
-                <div className="flex gap-1.5 mb-4">
+                <div className="flex gap-1 mb-4">
                   {["Basics", "Targeting", "Creative", "Preview"].map((label, i) => (
                     <button key={label} onClick={() => setFormStep(i)}
-                      className={`flex-1 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                        formStep === i ? "bg-primary text-primary-foreground" :
-                        i < formStep ? "bg-primary/15 text-primary" :
+                      className={`flex-1 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        formStep === i ? "bg-foreground text-background" :
+                        i < formStep ? "bg-foreground/10 text-foreground" :
                         "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     >{label}</button>
@@ -754,7 +767,10 @@ export default function AdsPage() {
                 {formStep === 0 && (
                   <>
                     <FormField label="Platform">
-                      <Select value={form.platform} onChange={(e) => setForm({ ...form, platform: e.target.value as "meta" | "google" })}>
+                      <Select value={form.platform} onChange={(e) => {
+                        const platform = e.target.value as "meta" | "google";
+                        setForm({ ...form, platform, objective: normalizeObjectiveForPlatform(platform, form.objective) });
+                      }}>
                         <option value="meta">Meta (Facebook / Instagram)</option>
                         <option value="google">Google Ads</option>
                       </Select>
@@ -766,38 +782,28 @@ export default function AdsPage() {
                       </Select>
                     </FormField>
 
-                    {/* Smart Suggest CTA */}
+                    {/* Smart Suggest */}
                     <button
                       type="button"
                       onClick={handleSmartSuggest}
                       disabled={suggesting || !form.productId}
-                      className={`w-full rounded-xl border-2 border-dashed p-4 text-left transition-all group ${
+                      className={`w-full rounded-lg border border-dashed p-4 text-left transition-all ${
                         form.productId
-                          ? "border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary cursor-pointer"
-                          : "border-border/40 bg-muted/20 opacity-50 cursor-not-allowed"
+                          ? "border-foreground/30 hover:border-foreground hover:bg-foreground/5 cursor-pointer"
+                          : "border-border/40 opacity-40 cursor-not-allowed"
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center shrink-0 transition-colors">
-                          <Wand2 className={`h-5 w-5 text-primary ${suggesting ? "animate-pulse" : ""}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold">
-                            {suggesting ? "Researching your market..." : "Smart Suggest — Let AI build this ad"}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {form.productId
-                              ? "AI will research competitors & pain points, then fill every field"
-                              : "Select a product above to unlock AI ad generation"}
-                          </p>
-                        </div>
-                        {form.productId && !suggesting && (
-                          <Sparkles className="h-4 w-4 text-primary shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" />
-                        )}
-                      </div>
+                      <p className="text-sm font-medium">
+                        {suggesting ? "Researching your market..." : "Smart Suggest -- Let AI build this ad"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {form.productId
+                          ? "AI will research competitors & pain points, then fill every field"
+                          : "Select a product above to unlock AI ad generation"}
+                      </p>
                     </button>
 
-                    <div className="flex items-center gap-2 py-1">
+                    <div className="flex items-center gap-3 py-1">
                       <div className="flex-1 h-px bg-border/40" />
                       <span className="text-[10px] text-muted-foreground uppercase tracking-widest">or fill manually</span>
                       <div className="flex-1 h-px bg-border/40" />
@@ -806,14 +812,14 @@ export default function AdsPage() {
                     <FormField label="Campaign Name">
                       <Input placeholder="Summer Sale Campaign" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                     </FormField>
-                    <FormField label="Objective">
+                    <FormField
+                      label="Objective"
+                      description={form.platform === "meta" ? "Meta currently supports awareness, traffic, and engagement in this integration." : undefined}
+                    >
                       <Select value={form.objective} onChange={(e) => setForm({ ...form, objective: e.target.value })}>
-                        <option value="awareness">Awareness</option>
-                        <option value="traffic">Traffic</option>
-                        <option value="engagement">Engagement</option>
-                        <option value="leads">Lead Generation</option>
-                        <option value="conversions">Conversions</option>
-                        <option value="app_installs">App Installs</option>
+                        {getObjectiveOptions(form.platform).map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
                       </Select>
                     </FormField>
                     <FormField label="Daily Budget">
@@ -863,7 +869,7 @@ export default function AdsPage() {
                   </>
                 )}
 
-                {/* Step 2: Creative (with uploads) */}
+                {/* Step 2: Creative */}
                 {formStep === 2 && (
                   <>
                     <FormField label="Headline" description={form.platform === "google" ? "Max 30 characters for Google RSA" : undefined}>
@@ -887,7 +893,6 @@ export default function AdsPage() {
                       />
                     </FormField>
 
-                    {/* Image Upload */}
                     <FormField label="Ad Image" description="Required for display ads">
                       <MediaUploadZone
                         type="image" url={form.imageUrl} uploading={uploadingImage}
@@ -898,7 +903,6 @@ export default function AdsPage() {
                       />
                     </FormField>
 
-                    {/* Video Upload (Meta) */}
                     {form.platform === "meta" && (
                       <FormField label="Ad Video"
                         description="Video ads typically outperform static ads on Meta"
@@ -933,86 +937,72 @@ export default function AdsPage() {
                 {/* Step 3: Preview */}
                 {formStep === 3 && (
                   <>
-                    <p className="text-sm text-muted-foreground mb-2">Review how your ad will appear:</p>
+                    <p className="text-xs text-muted-foreground mb-3">Review how your ad will appear:</p>
                     <AdPreview form={form} />
 
-                    <div className="mt-4 space-y-2">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Campaign Summary</h4>
+                    <div className="mt-6 space-y-3">
+                      <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Campaign Summary</h4>
                       <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="bg-muted/30 rounded-lg px-3 py-2">
-                          <p className="text-[10px] text-muted-foreground">Platform</p>
-                          <p className="font-medium">{platformLabels[form.platform]}</p>
-                        </div>
-                        <div className="bg-muted/30 rounded-lg px-3 py-2">
-                          <p className="text-[10px] text-muted-foreground">Objective</p>
-                          <p className="font-medium">{objectiveLabels[form.objective]}</p>
-                        </div>
-                        <div className="bg-muted/30 rounded-lg px-3 py-2">
-                          <p className="text-[10px] text-muted-foreground">Daily Budget</p>
-                          <p className="font-medium">{formatCurrency(form.dailyBudgetCents)}</p>
-                        </div>
-                        <div className="bg-muted/30 rounded-lg px-3 py-2">
-                          <p className="text-[10px] text-muted-foreground">Start Date</p>
-                          <p className="font-medium">{form.startDate}</p>
-                        </div>
+                        {[
+                          { label: "Platform", value: platformLabels[form.platform] },
+                          { label: "Objective", value: objectiveLabels[form.objective] },
+                          { label: "Daily Budget", value: formatCurrency(form.dailyBudgetCents) },
+                          { label: "Start Date", value: form.startDate },
+                        ].map((item) => (
+                          <div key={item.label} className="rounded-lg border border-border/30 px-3 py-2.5">
+                            <p className="text-[10px] text-muted-foreground">{item.label}</p>
+                            <p className="font-medium mt-0.5">{item.value}</p>
+                          </div>
+                        ))}
                       </div>
                       {!form.imageUrl && !form.videoUrl && form.platform !== "google" && (
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-50 text-amber-700 text-xs">
-                          <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                          <span>No media uploaded. Ads with images or video perform significantly better.</span>
-                        </div>
+                        <p className="text-xs text-amber-600 p-3 rounded-lg border border-amber-200/50">
+                          No media uploaded. Ads with images or video perform significantly better.
+                        </p>
                       )}
                     </div>
 
                     {/* AI Rationale */}
                     {suggestRationale && (
-                      <div className="mt-4 space-y-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
-                        <div className="flex items-center gap-2">
-                          <Wand2 className="h-4 w-4 text-primary shrink-0" />
-                          <p className="text-xs font-semibold text-primary">AI Research Rationale</p>
+                      <div className="mt-6 space-y-4 rounded-lg border border-border/40 p-5">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">AI Research Rationale</p>
                           <button
                             type="button"
                             onClick={() => setSuggestRationale(null)}
-                            className="ml-auto text-muted-foreground hover:text-foreground"
+                            className="text-xs text-muted-foreground hover:text-foreground"
                           >
-                            <X className="h-3.5 w-3.5" />
+                            Dismiss
                           </button>
                         </div>
-                        <p className="text-xs text-muted-foreground">{suggestRationale.summary}</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{suggestRationale.summary}</p>
                         {suggestRationale.painPoints?.length > 0 && (
                           <div>
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Pain Points Targeted</p>
-                            <ul className="space-y-1">
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">Pain Points Targeted</p>
+                            <ul className="space-y-1.5">
                               {suggestRationale.painPoints.map((p, i) => (
-                                <li key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                                  <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0 mt-0.5" />{p}
-                                </li>
+                                <li key={i} className="text-xs text-muted-foreground pl-3 border-l-2 border-amber-400/50">{p}</li>
                               ))}
                             </ul>
                           </div>
                         )}
                         {suggestRationale.competitorInsights?.length > 0 && (
                           <div>
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Competitor Insights</p>
-                            <ul className="space-y-1">
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">Competitor Insights</p>
+                            <ul className="space-y-1.5">
                               {suggestRationale.competitorInsights.map((c, i) => (
-                                <li key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                                  <BarChart2 className="h-3 w-3 text-blue-500 shrink-0 mt-0.5" />{c}
-                                </li>
+                                <li key={i} className="text-xs text-muted-foreground pl-3 border-l-2 border-blue-400/50">{c}</li>
                               ))}
                             </ul>
                           </div>
                         )}
-                        <div className="flex items-start gap-1.5 p-2.5 rounded-lg bg-primary/10">
-                          <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                          <p className="text-xs text-primary font-medium">{suggestRationale.whyThisAd}</p>
-                        </div>
+                        <p className="text-xs font-medium p-3 rounded-lg bg-foreground/5">{suggestRationale.whyThisAd}</p>
                         <button
                           type="button"
                           onClick={() => setFormStep(2)}
-                          className="flex items-center gap-1.5 text-xs text-primary font-medium hover:underline"
+                          className="text-xs font-medium text-foreground hover:underline"
                         >
-                          <Pencil className="h-3 w-3" />Edit creative assets
+                          Edit creative assets
                         </button>
                       </div>
                     )}
@@ -1039,144 +1029,136 @@ export default function AdsPage() {
 
       {/* Summary metrics */}
       {campaigns.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-          <MetricCard icon={Megaphone} label="Active Campaigns" value={String(activeCampaigns)} />
-          <MetricCard icon={Eye} label="Total Impressions" value={totalImpressions.toLocaleString()} />
-          <MetricCard icon={MousePointerClick} label="Total Clicks" value={totalClicks.toLocaleString()} />
-          <MetricCard icon={DollarSign} label="Total Spend" value={formatCurrency(totalSpend)} />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
+          <MetricCard label="Active Campaigns" value={String(activeCampaigns)} />
+          <MetricCard label="Total Impressions" value={totalImpressions.toLocaleString()} />
+          <MetricCard label="Total Clicks" value={totalClicks.toLocaleString()} />
+          <MetricCard label="Total Spend" value={formatCurrency(totalSpend)} />
         </div>
       )}
 
-      {/* Main tabs: Campaigns | Insights */}
+      {/* Main tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="insights">
-            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-            Performance Insights
-          </TabsTrigger>
+        <TabsList className="bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 mb-8">
+          {[
+            { value: "campaigns", label: "Campaigns" },
+            { value: "insights", label: "Performance Insights" },
+          ].map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-sm font-medium tracking-wide uppercase text-muted-foreground data-[state=active]:text-foreground transition-colors"
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {/* ── Campaigns Tab ── */}
         <TabsContent value="campaigns">
-          {/* Platform sub-filter */}
-          <div className="flex gap-1.5 mb-4">
+          {/* Platform filter */}
+          <div className="flex gap-1 mb-6">
             {["all", "meta", "google"].map((v) => (
               <button key={v} onClick={() => setPlatformFilter(v)}
-                className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
-                  platformFilter === v ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"
+                className={`px-4 py-2 text-xs font-medium rounded-lg transition-colors ${
+                  platformFilter === v ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"
                 }`}
               >{v === "all" ? "All" : platformLabels[v]}</button>
             ))}
           </div>
 
-          <div className="grid gap-4">
+          <div className="space-y-4">
             {loading ? (
-              [1, 2, 3].map((i) => <div key={i} className="h-36 rounded-2xl bg-muted/30 animate-pulse" />)
+              [1, 2, 3].map((i) => <div key={i} className="h-32 rounded-lg bg-muted/20 animate-pulse" />)
             ) : filtered.length === 0 ? (
-              <Card className="border-border/30">
-                <CardContent className="py-16 text-center">
-                  <div className="h-12 w-12 rounded-xl bg-primary mx-auto mb-4 flex items-center justify-center">
-                    <Megaphone className="h-5 w-5 text-white" />
-                  </div>
-                  <p className="text-base font-medium">No ad campaigns yet</p>
-                  <p className="text-sm text-muted-foreground mt-1">Create your first campaign to start advertising.</p>
-                </CardContent>
-              </Card>
+              <div className="text-center py-20 border border-border/40 rounded-lg">
+                <p className="text-sm font-medium">No ad campaigns yet</p>
+                <p className="text-xs text-muted-foreground mt-2">Create your first campaign to start advertising.</p>
+              </div>
             ) : filtered.map((c) => (
-              <Card key={c.id} className="card-premium border-border/30">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {/* Creative thumbnail */}
-                      {c.creative?.imageUrl ? (
-                        <div className="h-10 w-10 rounded-lg overflow-hidden border border-border/50 shrink-0">
-                          <img src={c.creative.imageUrl} alt="" className="h-full w-full object-cover" />
-                        </div>
-                      ) : c.creative?.videoUrl ? (
-                        <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                          <Video className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                      ) : null}
-                      <div className="min-w-0">
-                        <span className="text-base font-semibold block truncate">{c.name}</span>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <Badge variant="outline" className={`capitalize border-0 text-[10px] ${platformColors[c.platform] || ""}`}>
-                            {platformLabels[c.platform]}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">{objectiveLabels[c.objective]}</span>
-                          <span className="text-xs text-muted-foreground">{formatCurrency(c.dailyBudgetCents)}/day</span>
-                        </div>
+              <div key={c.id} className="border border-border/40 rounded-lg p-5 sm:p-6 hover:border-border transition-colors">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                    {/* Creative thumbnail */}
+                    {c.creative?.imageUrl && (
+                      <div className="h-12 w-12 rounded-lg overflow-hidden border border-border/40 shrink-0 hidden sm:block">
+                        <img src={c.creative.imageUrl} alt="" className="h-full w-full object-cover" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-base font-medium truncate">{c.name}</p>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <span>{platformLabels[c.platform]}</span>
+                        <span className="w-px h-3 bg-border hidden sm:block" />
+                        <span>{objectiveLabels[c.objective]}</span>
+                        <span className="w-px h-3 bg-border hidden sm:block" />
+                        <span>{formatCurrency(c.dailyBudgetCents)}/day</span>
                       </div>
                     </div>
-                    <Badge variant="outline" className={`capitalize border-0 text-[11px] ${statusColors[c.status] || ""}`}>
-                      {c.status}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {c.errorMessage && c.status === "failed" && (
-                    <div className="flex items-start gap-2 p-2 rounded-lg bg-rose-50 text-rose-700 text-xs mb-3">
-                      <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                      <span>{c.errorMessage}</span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      {c.creative?.headline && (
-                        <span className="text-foreground font-medium truncate max-w-[250px]">&ldquo;{c.creative.headline}&rdquo;</span>
-                      )}
-                      {c.createdAt && <span className="text-xs">Created {new Date(c.createdAt).toLocaleDateString()}</span>}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      {c.status === "draft" && (
-                        <Button size="sm" variant="outline" className="h-7 text-xs rounded-lg" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>
-                          <Play className="h-3 w-3 mr-1" />Launch
-                        </Button>
-                      )}
-                      {c.status === "failed" && (
-                        <Button size="sm" variant="outline" className="h-7 text-xs rounded-lg" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>
-                          <Play className="h-3 w-3 mr-1" />Retry
-                        </Button>
-                      )}
-                      {c.status === "active" && (
-                        <Button size="sm" variant="outline" className="h-7 text-xs rounded-lg" onClick={() => handleAction(c.id, "pause")} disabled={actionLoading === c.id}>
-                          <Pause className="h-3 w-3 mr-1" />Pause
-                        </Button>
-                      )}
-                      {c.status === "paused" && (
-                        <Button size="sm" variant="outline" className="h-7 text-xs rounded-lg" onClick={() => handleAction(c.id, "resume")} disabled={actionLoading === c.id}>
-                          <Play className="h-3 w-3 mr-1" />Resume
-                        </Button>
-                      )}
-                      {c.externalCampaignId && (
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleAction(c.id, "sync")} disabled={actionLoading === c.id}>
-                          <RefreshCw className={`h-3.5 w-3.5 ${actionLoading === c.id ? "animate-spin" : ""}`} />
-                        </Button>
-                      )}
-                      <Button size="sm" variant="ghost" className="h-7 text-xs rounded-lg" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>
-                        <Lightbulb className="h-3 w-3 mr-1" />Insights
-                      </Button>
-                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" onClick={() => openEdit(c)} title="Edit campaign">
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive" onClick={() => handleAction(c.id, "delete")} disabled={actionLoading === c.id}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
                   </div>
+                  <span className={`text-[11px] uppercase tracking-wider font-medium shrink-0 ${statusColors[c.status] || "text-muted-foreground"}`}>
+                    {c.status}
+                  </span>
+                </div>
 
-                  {c.metrics && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-border/30">
-                      <MetricCard icon={Eye} label="Impressions" value={c.metrics.impressions.toLocaleString()} />
-                      <MetricCard icon={MousePointerClick} label="Clicks" value={c.metrics.clicks.toLocaleString()} />
-                      <MetricCard icon={TrendingUp} label="CTR" value={`${(c.metrics.ctr * 100).toFixed(2)}%`} />
-                      <MetricCard icon={DollarSign} label="Spend" value={formatCurrency(c.metrics.spend)} />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                {c.errorMessage && c.status === "failed" && (
+                  <p className="text-xs text-destructive mb-3 p-3 rounded-lg bg-destructive/5">{c.errorMessage}</p>
+                )}
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    {c.creative?.headline && (
+                      <span className="text-foreground/80 truncate max-w-[250px]">&ldquo;{c.creative.headline}&rdquo;</span>
+                    )}
+                    {c.createdAt && <span className="text-[11px] hidden sm:inline">Created {new Date(c.createdAt).toLocaleDateString()}</span>}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {c.status === "draft" && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>
+                        Launch
+                      </Button>
+                    )}
+                    {c.status === "failed" && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>
+                        Retry
+                      </Button>
+                    )}
+                    {c.status === "active" && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "pause")} disabled={actionLoading === c.id}>
+                        Pause
+                      </Button>
+                    )}
+                    {c.status === "paused" && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "resume")} disabled={actionLoading === c.id}>
+                        Resume
+                      </Button>
+                    )}
+                    {c.externalCampaignId && (
+                      <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "sync")} disabled={actionLoading === c.id}>
+                        {actionLoading === c.id ? "Syncing..." : "Sync"}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>
+                      Insights
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => openEdit(c)}>
+                      Edit
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={() => handleAction(c.id, "delete")} disabled={actionLoading === c.id}>
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+
+                {c.metrics && (
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-5 pt-5 border-t border-border/30">
+                    <MetricCard label="Impressions" value={c.metrics.impressions.toLocaleString()} />
+                    <MetricCard label="Clicks" value={c.metrics.clicks.toLocaleString()} />
+                    <MetricCard label="CTR" value={`${(c.metrics.ctr * 100).toFixed(2)}%`} />
+                    <MetricCard label="Spend" value={formatCurrency(c.metrics.spend)} />
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </TabsContent>
@@ -1185,154 +1167,119 @@ export default function AdsPage() {
         <TabsContent value="insights">
           {insightsLoading ? (
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => <div key={i} className="h-32 rounded-2xl bg-muted/30 animate-pulse" />)}
+              {[1, 2, 3].map((i) => <div key={i} className="h-28 rounded-lg bg-muted/20 animate-pulse" />)}
             </div>
           ) : !aggregateInsights ? (
-            <Card className="border-border/30">
-              <CardContent className="py-16 text-center">
-                <Sparkles className="h-10 w-10 text-muted-foreground/30 mx-auto mb-4" />
-                <p className="text-base font-medium">No insights available</p>
-                <p className="text-sm text-muted-foreground mt-1">Create campaigns and posts to get AI-powered performance analysis.</p>
-                <Button className="mt-4" onClick={fetchAggregateInsights}><RefreshCw className="h-4 w-4 mr-2" />Generate Insights</Button>
-              </CardContent>
-            </Card>
+            <div className="text-center py-20 border border-border/40 rounded-lg">
+              <p className="text-sm font-medium">No insights available</p>
+              <p className="text-xs text-muted-foreground mt-2">Create campaigns and posts to get AI-powered performance analysis.</p>
+              <Button className="mt-4" variant="outline" onClick={fetchAggregateInsights}>Generate Insights</Button>
+            </div>
           ) : (
-            <div className="space-y-6">
-              {/* Health score + summary */}
-              <Card className="border-border/30">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-4">
-                    <ScoreRing score={aggregateInsights.healthScore} size={64} />
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg">Marketing Health Score</CardTitle>
-                      <CardDescription className="mt-1 line-clamp-3">{aggregateInsights.summary}</CardDescription>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={fetchAggregateInsights} className="shrink-0">
-                      <RefreshCw className="h-3.5 w-3.5 mr-1.5" />Refresh
-                    </Button>
-                  </div>
-                </CardHeader>
-              </Card>
+            <div className="space-y-8">
+              {/* Health score */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-5 p-6 rounded-lg border border-border/40">
+                <ScoreRing score={aggregateInsights.healthScore} size={72} />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-medium">Marketing Health Score</h3>
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{aggregateInsights.summary}</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={fetchAggregateInsights} className="shrink-0 text-xs">
+                  Refresh
+                </Button>
+              </div>
 
               {/* Top performer / Underperformer */}
               <div className="grid md:grid-cols-2 gap-4">
                 {aggregateInsights.topPerformer && (
-                  <Card className="border-emerald-200/50 bg-emerald-50/30 dark:bg-emerald-950/10">
-                    <CardContent className="pt-5">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-400">Top Performer</p>
-                          <p className="text-sm font-medium mt-0.5">{aggregateInsights.topPerformer.name}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{aggregateInsights.topPerformer.reason}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="p-5 rounded-lg border border-emerald-200/50 bg-emerald-50/20 dark:bg-emerald-950/10 space-y-2">
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Top Performer</p>
+                    <p className="text-sm font-medium">{aggregateInsights.topPerformer.name}</p>
+                    <p className="text-xs text-muted-foreground">{aggregateInsights.topPerformer.reason}</p>
+                  </div>
                 )}
                 {aggregateInsights.underperformer && (
-                  <Card className="border-amber-200/50 bg-amber-50/30 dark:bg-amber-950/10">
-                    <CardContent className="pt-5">
-                      <div className="flex items-start gap-3">
-                        <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">Needs Attention</p>
-                          <p className="text-sm font-medium mt-0.5">{aggregateInsights.underperformer.name}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{aggregateInsights.underperformer.reason}</p>
-                          <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 font-medium">{aggregateInsights.underperformer.fix}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="p-5 rounded-lg border border-amber-200/50 bg-amber-50/20 dark:bg-amber-950/10 space-y-2">
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-amber-700 dark:text-amber-400">Needs Attention</p>
+                    <p className="text-sm font-medium">{aggregateInsights.underperformer.name}</p>
+                    <p className="text-xs text-muted-foreground">{aggregateInsights.underperformer.reason}</p>
+                    <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{aggregateInsights.underperformer.fix}</p>
+                  </div>
                 )}
               </div>
 
               {/* Recommendations */}
               {aggregateInsights.recommendations?.length > 0 && (
-                <Card className="border-border/30">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2"><Target className="h-4 w-4" />Recommendations</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {aggregateInsights.recommendations.map((rec, i) => (
-                      <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-muted/20">
-                        <Badge variant="outline" className={`text-[10px] capitalize border-0 shrink-0 mt-0.5 ${
-                          rec.priority === "high" ? "bg-rose-50 text-rose-700" : rec.priority === "medium" ? "bg-amber-50 text-amber-700" : "bg-blue-50 text-blue-700"
-                        }`}>{rec.priority}</Badge>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium">{rec.title}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{rec.description}</p>
-                        </div>
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Recommendations</h4>
+                  {aggregateInsights.recommendations.map((rec, i) => (
+                    <div key={i} className="flex items-start gap-4 p-4 rounded-lg border border-border/40">
+                      <span className={`text-[10px] uppercase tracking-wider font-medium shrink-0 mt-0.5 ${
+                        rec.priority === "high" ? "text-destructive" : rec.priority === "medium" ? "text-amber-600" : "text-blue-600"
+                      }`}>{rec.priority}</span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">{rec.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{rec.description}</p>
                       </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                    </div>
+                  ))}
+                </div>
               )}
 
               {/* Platform insights */}
               {aggregateInsights.platformInsights && aggregateInsights.platformInsights.length > 0 && (
-                <Card className="border-border/30">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2"><Palette className="h-4 w-4" />Platform Breakdown</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-3 gap-3">
-                      {aggregateInsights.platformInsights.map((pi, i) => {
-                        const verdictColors: Record<string, string> = { strong: "text-emerald-700 bg-emerald-50", average: "text-amber-700 bg-amber-50", weak: "text-rose-700 bg-rose-50", unused: "text-gray-500 bg-gray-100" };
-                        return (
-                          <div key={i} className="p-3 rounded-xl bg-muted/20 space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium capitalize">{pi.platform}</p>
-                              <Badge variant="outline" className={`text-[10px] capitalize border-0 ${verdictColors[pi.verdict] || ""}`}>{pi.verdict}</Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground">{pi.tip}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Platform Breakdown</h4>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    {aggregateInsights.platformInsights.map((pi, i) => (
+                      <div key={i} className="p-4 rounded-lg border border-border/40 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium capitalize">{pi.platform}</p>
+                          <span className={`text-[10px] uppercase tracking-wider font-medium ${
+                            pi.verdict === "strong" ? "text-emerald-600" : pi.verdict === "average" ? "text-amber-600" : pi.verdict === "weak" ? "text-destructive" : "text-muted-foreground"
+                          }`}>{pi.verdict}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{pi.tip}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
 
-              {/* Budget advice + Content tips + Next steps */}
+              {/* Budget advice + Next steps */}
               <div className="grid md:grid-cols-2 gap-4">
                 {aggregateInsights.budgetAdvice && (
-                  <Card className="border-border/30">
-                    <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><DollarSign className="h-4 w-4" />Budget Advice</CardTitle></CardHeader>
-                    <CardContent><p className="text-sm text-muted-foreground">{aggregateInsights.budgetAdvice}</p></CardContent>
-                  </Card>
+                  <div className="p-5 rounded-lg border border-border/40 space-y-2">
+                    <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Budget Advice</h4>
+                    <p className="text-sm text-muted-foreground">{aggregateInsights.budgetAdvice}</p>
+                  </div>
                 )}
                 {aggregateInsights.nextSteps && aggregateInsights.nextSteps.length > 0 && (
-                  <Card className="border-border/30">
-                    <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><ArrowUpRight className="h-4 w-4" />Next Steps</CardTitle></CardHeader>
-                    <CardContent>
-                      <ol className="space-y-2">
-                        {aggregateInsights.nextSteps.map((step, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm">
-                            <span className="h-5 w-5 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center shrink-0 mt-0.5 font-semibold">{i + 1}</span>
-                            <span className="text-muted-foreground">{step}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </CardContent>
-                  </Card>
+                  <div className="p-5 rounded-lg border border-border/40 space-y-3">
+                    <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Next Steps</h4>
+                    <ol className="space-y-2">
+                      {aggregateInsights.nextSteps.map((step, i) => (
+                        <li key={i} className="flex items-start gap-3 text-sm">
+                          <span className="text-xs font-medium text-muted-foreground tabular-nums mt-0.5">{i + 1}.</span>
+                          <span className="text-muted-foreground">{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 )}
               </div>
 
               {aggregateInsights.contentTips && aggregateInsights.contentTips.length > 0 && (
-                <Card className="border-border/30">
-                  <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><Lightbulb className="h-4 w-4" />Content Tips</CardTitle></CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-3 gap-3">
-                      {aggregateInsights.contentTips.map((tip, i) => (
-                        <div key={i} className="flex items-start gap-2 p-3 rounded-xl bg-muted/20">
-                          <ChevronRight className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                          <p className="text-xs text-muted-foreground">{tip}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Content Tips</h4>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    {aggregateInsights.contentTips.map((tip, i) => (
+                      <div key={i} className="p-4 rounded-lg border border-border/40">
+                        <p className="text-xs text-muted-foreground">{tip}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           )}
@@ -1351,21 +1298,19 @@ export default function AdsPage() {
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-            {/* Active campaign warning */}
             {campaigns.find((c) => c.id === editingId)?.status === "active" && (
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 text-amber-700 text-xs">
-                <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                <span>This campaign is live. Changes saved here won&apos;t update the live ad until you pause and relaunch it.</span>
-              </div>
+              <p className="text-xs text-amber-600 p-3 rounded-lg border border-amber-200/50">
+                This campaign is live. Changes saved here won&apos;t update the live ad until you pause and relaunch it.
+              </p>
             )}
 
             {/* Step indicators */}
-            <div className="flex gap-1.5 mb-4">
+            <div className="flex gap-1 mb-4">
               {["Basics", "Targeting", "Creative", "Preview"].map((label, i) => (
                 <button key={label} onClick={() => setEditFormStep(i)}
-                  className={`flex-1 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                    editFormStep === i ? "bg-primary text-primary-foreground" :
-                    i < editFormStep ? "bg-primary/15 text-primary" :
+                  className={`flex-1 py-2 text-xs font-medium rounded-lg transition-colors ${
+                    editFormStep === i ? "bg-foreground text-background" :
+                    i < editFormStep ? "bg-foreground/10 text-foreground" :
                     "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >{label}</button>
@@ -1376,7 +1321,10 @@ export default function AdsPage() {
             {editFormStep === 0 && (
               <>
                 <FormField label="Platform">
-                  <Select value={editForm.platform} onChange={(e) => setEditForm({ ...editForm, platform: e.target.value as "meta" | "google" })}>
+                  <Select value={editForm.platform} onChange={(e) => {
+                    const platform = e.target.value as "meta" | "google";
+                    setEditForm({ ...editForm, platform, objective: normalizeObjectiveForPlatform(platform, editForm.objective) });
+                  }}>
                     <option value="meta">Meta (Facebook / Instagram)</option>
                     <option value="google">Google Ads</option>
                   </Select>
@@ -1389,7 +1337,7 @@ export default function AdsPage() {
                 </FormField>
                 <FormField
                   label={editForm.platform === "meta" ? "Ad Account" : "Google Ads Customer"}
-                  description={editLoadingAccounts ? "Loading accounts…" : editAdAccounts.length === 0 ? "No accounts found — connect integration first" : undefined}
+                  description={editLoadingAccounts ? "Loading accounts..." : editAdAccounts.length === 0 ? "No accounts found -- connect integration first" : undefined}
                 >
                   <Select
                     value={editForm.platform === "meta" ? editForm.adAccountId : editForm.customerId}
@@ -1406,14 +1354,14 @@ export default function AdsPage() {
                 <FormField label="Campaign Name">
                   <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
                 </FormField>
-                <FormField label="Objective">
+                <FormField
+                  label="Objective"
+                  description={editForm.platform === "meta" ? "Meta currently supports awareness, traffic, and engagement in this integration." : undefined}
+                >
                   <Select value={editForm.objective} onChange={(e) => setEditForm({ ...editForm, objective: e.target.value })}>
-                    <option value="awareness">Awareness</option>
-                    <option value="traffic">Traffic</option>
-                    <option value="engagement">Engagement</option>
-                    <option value="leads">Lead Generation</option>
-                    <option value="conversions">Conversions</option>
-                    <option value="app_installs">App Installs</option>
+                    {getObjectiveOptions(editForm.platform).map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
                   </Select>
                 </FormField>
                 <FormField label="Daily Budget">
@@ -1520,27 +1468,22 @@ export default function AdsPage() {
             {/* Step 3: Preview */}
             {editFormStep === 3 && (
               <>
-                <p className="text-sm text-muted-foreground mb-2">Review how your updated ad will appear:</p>
+                <p className="text-xs text-muted-foreground mb-3">Review how your updated ad will appear:</p>
                 <AdPreview form={editForm} />
-                <div className="mt-4 space-y-2">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Campaign Summary</h4>
+                <div className="mt-6 space-y-3">
+                  <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Campaign Summary</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="bg-muted/30 rounded-lg px-3 py-2">
-                      <p className="text-[10px] text-muted-foreground">Platform</p>
-                      <p className="font-medium">{platformLabels[editForm.platform]}</p>
-                    </div>
-                    <div className="bg-muted/30 rounded-lg px-3 py-2">
-                      <p className="text-[10px] text-muted-foreground">Objective</p>
-                      <p className="font-medium">{objectiveLabels[editForm.objective]}</p>
-                    </div>
-                    <div className="bg-muted/30 rounded-lg px-3 py-2">
-                      <p className="text-[10px] text-muted-foreground">Daily Budget</p>
-                      <p className="font-medium">{formatCurrency(editForm.dailyBudgetCents)}</p>
-                    </div>
-                    <div className="bg-muted/30 rounded-lg px-3 py-2">
-                      <p className="text-[10px] text-muted-foreground">Start Date</p>
-                      <p className="font-medium">{editForm.startDate}</p>
-                    </div>
+                    {[
+                      { label: "Platform", value: platformLabels[editForm.platform] },
+                      { label: "Objective", value: objectiveLabels[editForm.objective] },
+                      { label: "Daily Budget", value: formatCurrency(editForm.dailyBudgetCents) },
+                      { label: "Start Date", value: editForm.startDate },
+                    ].map((item) => (
+                      <div key={item.label} className="rounded-lg border border-border/30 px-3 py-2.5">
+                        <p className="text-[10px] text-muted-foreground">{item.label}</p>
+                        <p className="font-medium mt-0.5">{item.value}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </>
@@ -1568,16 +1511,14 @@ export default function AdsPage() {
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3">
                   {detailCampaign.name}
-                  <Badge variant="outline" className={`capitalize border-0 text-[11px] ${platformColors[detailCampaign.platform] || ""}`}>
-                    {platformLabels[detailCampaign.platform]}
-                  </Badge>
+                  <span className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground">{platformLabels[detailCampaign.platform]}</span>
                 </DialogTitle>
                 <DialogDescription>Campaign performance analysis and improvement suggestions</DialogDescription>
               </DialogHeader>
 
-              {/* Creative preview inside detail */}
+              {/* Creative preview */}
               {(detailCampaign.creative.imageUrl || detailCampaign.creative.videoUrl) && (
-                <div className="rounded-xl overflow-hidden border border-border/50 bg-black/5">
+                <div className="rounded-lg overflow-hidden border border-border/40">
                   {detailCampaign.creative.videoUrl ? (
                     <video src={detailCampaign.creative.videoUrl} controls className="w-full aspect-video object-cover" />
                   ) : (
@@ -1586,45 +1527,45 @@ export default function AdsPage() {
                 </div>
               )}
 
-              {/* Metrics grid */}
+              {/* Metrics */}
               {detailCampaign.metrics && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <MetricCard icon={Eye} label="Impressions" value={detailCampaign.metrics.impressions.toLocaleString()} />
-                  <MetricCard icon={MousePointerClick} label="Clicks" value={detailCampaign.metrics.clicks.toLocaleString()} />
-                  <MetricCard icon={TrendingUp} label="CTR" value={`${(detailCampaign.metrics.ctr * 100).toFixed(2)}%`} />
-                  <MetricCard icon={DollarSign} label="Spend" value={formatCurrency(detailCampaign.metrics.spend)} />
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <MetricCard label="Impressions" value={detailCampaign.metrics.impressions.toLocaleString()} />
+                  <MetricCard label="Clicks" value={detailCampaign.metrics.clicks.toLocaleString()} />
+                  <MetricCard label="CTR" value={`${(detailCampaign.metrics.ctr * 100).toFixed(2)}%`} />
+                  <MetricCard label="Spend" value={formatCurrency(detailCampaign.metrics.spend)} />
                 </div>
               )}
 
               {/* AI Insights */}
               {insightLoadingId === detailCampaign.id ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="ml-2 text-sm text-muted-foreground">Analyzing campaign...</span>
+                <div className="flex items-center justify-center py-12 gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Analyzing campaign...</span>
                 </div>
               ) : campaignInsights[detailCampaign.id] ? (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {/* Score */}
-                  <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/20">
+                  <div className="flex items-center gap-4 p-5 rounded-lg border border-border/40">
                     <ScoreRing score={campaignInsights[detailCampaign.id].overallScore} />
                     <div className="flex-1">
-                      <p className="text-sm font-semibold">{campaignInsights[detailCampaign.id].scoreLabel}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{campaignInsights[detailCampaign.id].summary}</p>
+                      <p className="text-sm font-medium">{campaignInsights[detailCampaign.id].scoreLabel}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{campaignInsights[detailCampaign.id].summary}</p>
                     </div>
                   </div>
 
                   {/* Sub-scores */}
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: "Creative", score: campaignInsights[detailCampaign.id].creativeScore, icon: Palette },
-                      { label: "Targeting", score: campaignInsights[detailCampaign.id].targetingScore, icon: Target },
-                      { label: "Budget", score: campaignInsights[detailCampaign.id].budgetScore, icon: DollarSign },
-                    ].map(({ label, score, icon: I }) => (
-                      <div key={label} className="flex items-center gap-2 p-3 rounded-xl bg-muted/20">
+                      { label: "Creative", score: campaignInsights[detailCampaign.id].creativeScore },
+                      { label: "Targeting", score: campaignInsights[detailCampaign.id].targetingScore },
+                      { label: "Budget", score: campaignInsights[detailCampaign.id].budgetScore },
+                    ].map(({ label, score }) => (
+                      <div key={label} className="flex items-center gap-3 p-3 rounded-lg border border-border/40">
                         <ScoreRing score={score} size={40} />
                         <div>
-                          <p className="text-[10px] text-muted-foreground">{label}</p>
-                          <p className="text-xs font-semibold">{score}/100</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+                          <p className="text-xs font-medium">{score}/100</p>
                         </div>
                       </div>
                     ))}
@@ -1633,12 +1574,10 @@ export default function AdsPage() {
                   {/* Strengths */}
                   {campaignInsights[detailCampaign.id].strengths?.length > 0 && (
                     <div>
-                      <p className="text-xs font-semibold text-emerald-700 mb-2 flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" />Strengths</p>
-                      <ul className="space-y-1">
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-emerald-700 mb-2">Strengths</p>
+                      <ul className="space-y-1.5">
                         {campaignInsights[detailCampaign.id].strengths.map((s, i) => (
-                          <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-                            <span className="text-emerald-500 mt-1">+</span> {s}
-                          </li>
+                          <li key={i} className="text-xs text-muted-foreground pl-3 border-l-2 border-emerald-400/50">{s}</li>
                         ))}
                       </ul>
                     </div>
@@ -1647,17 +1586,17 @@ export default function AdsPage() {
                   {/* Improvements */}
                   {campaignInsights[detailCampaign.id].improvements?.length > 0 && (
                     <div>
-                      <p className="text-xs font-semibold text-amber-700 mb-2 flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5" />Areas for Improvement</p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-amber-700 mb-2">Areas for Improvement</p>
                       <div className="space-y-2">
                         {campaignInsights[detailCampaign.id].improvements.map((imp, i) => (
-                          <div key={i} className="p-3 rounded-xl bg-muted/20">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className={`text-[10px] capitalize border-0 ${
-                                imp.impact === "high" ? "bg-rose-50 text-rose-700" : imp.impact === "medium" ? "bg-amber-50 text-amber-700" : "bg-blue-50 text-blue-700"
-                              }`}>{imp.impact}</Badge>
+                          <div key={i} className="p-3 rounded-lg border border-border/40">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`text-[10px] uppercase tracking-wider font-medium ${
+                                imp.impact === "high" ? "text-destructive" : imp.impact === "medium" ? "text-amber-600" : "text-blue-600"
+                              }`}>{imp.impact}</span>
                               <p className="text-xs font-medium">{imp.area}: {imp.issue}</p>
                             </div>
-                            <p className="text-xs text-primary mt-1.5 font-medium">{imp.suggestion}</p>
+                            <p className="text-xs text-muted-foreground">{imp.suggestion}</p>
                           </div>
                         ))}
                       </div>
@@ -1666,12 +1605,12 @@ export default function AdsPage() {
 
                   {/* Quick Wins */}
                   {campaignInsights[detailCampaign.id].quickWins?.length > 0 && (
-                    <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-                      <p className="text-xs font-semibold mb-2 flex items-center gap-1"><Sparkles className="h-3.5 w-3.5 text-primary" />Quick Wins</p>
-                      <ol className="space-y-1.5">
+                    <div className="p-4 rounded-lg border border-border/40 bg-foreground/[0.02]">
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-3">Quick Wins</p>
+                      <ol className="space-y-2">
                         {campaignInsights[detailCampaign.id].quickWins.map((qw, i) => (
-                          <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-                            <span className="h-4 w-4 rounded-full bg-primary/10 text-primary text-[10px] flex items-center justify-center shrink-0 mt-0.5 font-semibold">{i + 1}</span>
+                          <li key={i} className="text-xs text-muted-foreground flex items-start gap-3">
+                            <span className="text-[10px] font-medium text-muted-foreground tabular-nums mt-0.5">{i + 1}.</span>
                             {qw}
                           </li>
                         ))}
@@ -1681,21 +1620,21 @@ export default function AdsPage() {
 
                   {/* Benchmarks */}
                   {campaignInsights[detailCampaign.id].benchmarks && (
-                    <div className="p-3 rounded-xl bg-muted/20 text-xs">
-                      <p className="font-semibold mb-1">Industry Benchmarks</p>
+                    <div className="p-4 rounded-lg border border-border/40 text-xs space-y-1">
+                      <p className="font-medium">Industry Benchmarks</p>
                       <p className="text-muted-foreground">CTR: {campaignInsights[detailCampaign.id].benchmarks!.ctrBenchmark} | CPC: {campaignInsights[detailCampaign.id].benchmarks!.cpcBenchmark} | Verdict: <span className="font-medium text-foreground capitalize">{campaignInsights[detailCampaign.id].benchmarks!.verdict}</span></p>
                     </div>
                   )}
 
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => fetchCampaignInsights(detailCampaign.id)}>
-                    <RefreshCw className="h-3.5 w-3.5 mr-1.5" />Re-analyze
+                  <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => fetchCampaignInsights(detailCampaign.id)}>
+                    Re-analyze
                   </Button>
                 </div>
               ) : (
                 <div className="text-center py-8">
                   <p className="text-sm text-muted-foreground">Failed to load insights</p>
-                  <Button variant="outline" size="sm" className="mt-2" onClick={() => fetchCampaignInsights(detailCampaign.id)}>
-                    <RefreshCw className="h-3.5 w-3.5 mr-1.5" />Try Again
+                  <Button variant="outline" size="sm" className="mt-3 text-xs" onClick={() => fetchCampaignInsights(detailCampaign.id)}>
+                    Try Again
                   </Button>
                 </div>
               )}

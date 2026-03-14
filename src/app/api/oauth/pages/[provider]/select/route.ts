@@ -2,7 +2,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
 import { encrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
-import { getConnection, resolveAccessToken, getConnectionRef } from '@/lib/platform/connections';
+import { getConnection, resolveUserAccessToken, getConnectionRef } from '@/lib/platform/connections';
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
@@ -24,7 +24,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       throw new Error('NOT_FOUND');
     }
 
-    const userAccessToken = resolveAccessToken(conn);
+    const userAccessToken = resolveUserAccessToken(conn);
 
     // Fetch pages to get the selected page's access token
     const pagesRes = await fetch(
@@ -46,13 +46,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       'metadata.pageId': pageId,
       'metadata.pageName': pageName || selectedPage.name,
       'metadata.pageAccessTokenEncrypted': encrypt(selectedPage.access_token as string),
+      'metadata.pageSelectionRequired': false,
       updatedAt: new Date().toISOString(),
       updatedBy: ctx.uid,
     };
 
-    if (selectedPage.instagram_business_account?.id) {
-      updatePayload['metadata.igAccountId'] = selectedPage.instagram_business_account.id;
-    }
+    updatePayload['metadata.igAccountId'] = selectedPage.instagram_business_account?.id || null;
 
     const connRef = getConnectionRef(ctx.workspaceId, 'meta', productId);
     await connRef.update(updatePayload);

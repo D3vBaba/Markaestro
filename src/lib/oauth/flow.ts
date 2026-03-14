@@ -276,15 +276,22 @@ export async function storeTokens(
     capabilities,
     status: ConnectionStatus.CONNECTED,
     accessTokenEncrypted: encrypt(tokens.accessToken),
-    refreshTokenEncrypted: tokens.refreshToken ? encrypt(tokens.refreshToken) : undefined,
-    tokenExpiresAt,
     metadata: extraData || {},
     workspaceId,
-    productId,
     updatedBy: userId,
     updatedAt: now.toISOString(),
     createdAt: now.toISOString(),
   };
+
+  if (tokens.refreshToken) {
+    connection.refreshTokenEncrypted = encrypt(tokens.refreshToken);
+  }
+  if (tokenExpiresAt) {
+    connection.tokenExpiresAt = tokenExpiresAt;
+  }
+  if (productId) {
+    connection.productId = productId;
+  }
 
   const connPath = productId
     ? `workspaces/${workspaceId}/products/${productId}/platformConnections/${provider}`

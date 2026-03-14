@@ -33,12 +33,12 @@ export default function ProductPicker({
   const selected = products.find((p) => p.id === value);
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium">Product</label>
+    <div className="space-y-3">
+      <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Product</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+        className="w-full h-11 rounded-lg border border-border/60 bg-background px-3 text-sm focus:border-foreground focus:outline-none transition-colors"
       >
         <option value="">Select a product...</option>
         {products.map((p) => (
@@ -48,10 +48,10 @@ export default function ProductPicker({
         ))}
       </select>
       {selected?.brandVoice && (
-        <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-1">
-          {selected.brandVoice.tone && <p><span className="font-medium">Tone:</span> {selected.brandVoice.tone}</p>}
-          {selected.brandVoice.style && <p><span className="font-medium">Style:</span> {selected.brandVoice.style}</p>}
-          {selected.brandVoice.targetAudience && <p><span className="font-medium">Audience:</span> {selected.brandVoice.targetAudience}</p>}
+        <div className="rounded-lg border border-border/30 p-4 text-xs text-muted-foreground space-y-1.5">
+          {selected.brandVoice.tone && <p><span className="font-medium text-foreground/70">Tone:</span> {selected.brandVoice.tone}</p>}
+          {selected.brandVoice.style && <p><span className="font-medium text-foreground/70">Style:</span> {selected.brandVoice.style}</p>}
+          {selected.brandVoice.targetAudience && <p><span className="font-medium text-foreground/70">Audience:</span> {selected.brandVoice.targetAudience}</p>}
         </div>
       )}
     </div>

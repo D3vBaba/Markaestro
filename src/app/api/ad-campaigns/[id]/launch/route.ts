@@ -6,7 +6,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { createMetaCampaign } from '@/lib/ads/meta-ads';
 import { createGoogleCampaign } from '@/lib/ads/google-ads';
 import type { AdCampaignDoc } from '@/lib/ads/types';
-import { getConnection, resolveAccessToken } from '@/lib/platform/connections';
+import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -39,7 +39,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         return apiOk({ ok: false, error: 'Meta integration not configured for this product' });
       }
 
-      const accessToken = resolveAccessToken(conn);
+      const accessToken = resolveUserAccessToken(conn);
       // Campaign-level adAccountId takes precedence over the product connection default
       const adAccountId = campaign.adAccountId || (conn.metadata.adAccountId as string);
       const pageId = conn.metadata.pageId as string;

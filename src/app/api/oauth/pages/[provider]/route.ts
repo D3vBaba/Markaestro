@@ -1,6 +1,6 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
-import { getConnection, resolveAccessToken } from '@/lib/platform/connections';
+import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function GET(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
@@ -19,7 +19,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       return apiOk({ pages: [] });
     }
 
-    const accessToken = resolveAccessToken(conn);
+    const accessToken = resolveUserAccessToken(conn);
 
     const res = await fetch(
       'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token,instagram_business_account',

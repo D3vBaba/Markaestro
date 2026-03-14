@@ -10,7 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet } from "@/lib/api-client";
-import { ImageIcon, Check } from "lucide-react";
 
 type GalleryImage = {
   name: string;
@@ -64,10 +63,9 @@ export default function ImagePicker({
               ))}
             </div>
           ) : images.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <ImageIcon className="h-10 w-10 mx-auto mb-3 opacity-30" />
-              <p className="text-sm">No images in gallery</p>
-              <p className="text-xs mt-1">Generate an image first.</p>
+            <div className="text-center py-12">
+              <p className="text-sm text-muted-foreground">No images in gallery</p>
+              <p className="text-xs text-muted-foreground/60 mt-2">Generate an image first.</p>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-3 p-1">
@@ -77,7 +75,7 @@ export default function ImagePicker({
                   onClick={() => setSelected(img.url)}
                   className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                     selected === img.url
-                      ? "border-primary ring-2 ring-primary/20"
+                      ? "border-foreground ring-2 ring-foreground/10"
                       : "border-transparent hover:border-muted-foreground/30"
                   }`}
                 >
@@ -88,8 +86,8 @@ export default function ImagePicker({
                     loading="lazy"
                   />
                   {selected === img.url && (
-                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                      <Check className="h-3 w-3" />
+                    <div className="absolute inset-0 bg-foreground/10 flex items-center justify-center">
+                      <span className="text-xs font-medium bg-foreground text-background px-2 py-1 rounded">Selected</span>
                     </div>
                   )}
                 </button>

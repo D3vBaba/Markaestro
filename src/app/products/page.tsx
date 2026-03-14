@@ -185,6 +185,8 @@ export default function ProductsPage() {
   const [scanned, setScanned] = useState(false);
   const [scanPrimaryColor, setScanPrimaryColor] = useState("#6366f1");
   const [scanSecondaryColor, setScanSecondaryColor] = useState("");
+  const [scanAccentColor, setScanAccentColor] = useState("");
+  const [scanLogoUrl, setScanLogoUrl] = useState("");
   const [scanTargetAudience, setScanTargetAudience] = useState("");
   const [scanTone, setScanTone] = useState("");
 
@@ -312,8 +314,8 @@ export default function ProductsPage() {
     try {
       const res = await apiPost<{
         name: string; description: string; category: string; pricingTier: string;
-        tags: string[]; primaryColor: string; secondaryColor: string;
-        targetAudience: string; tone: string;
+        tags: string[]; primaryColor: string; secondaryColor: string; accentColor: string;
+        logoUrl: string; targetAudience: string; tone: string;
       }>("/api/products/scan", { url: fullUrl });
       if (res.ok) {
         const d = res.data;
@@ -325,6 +327,8 @@ export default function ProductsPage() {
         setNewTags((d.tags || []).join(", "));
         setScanPrimaryColor(d.primaryColor || "#6366f1");
         setScanSecondaryColor(d.secondaryColor || "");
+        setScanAccentColor(d.accentColor || "");
+        setScanLogoUrl(d.logoUrl || "");
         setScanTargetAudience(d.targetAudience || "");
         setScanTone(d.tone || "");
         setScanned(true);
@@ -344,7 +348,8 @@ export default function ProductsPage() {
   const resetCreateForm = () => {
     setScanUrl(""); setScanned(false); setScanning(false);
     setNewName(""); setNewDescription(""); setNewUrl(""); setNewCategory("saas"); setNewPricing(""); setNewTags("");
-    setScanPrimaryColor("#6366f1"); setScanSecondaryColor(""); setScanTargetAudience(""); setScanTone("");
+    setScanPrimaryColor("#6366f1"); setScanSecondaryColor(""); setScanAccentColor(""); setScanLogoUrl("");
+    setScanTargetAudience(""); setScanTone("");
   };
 
   const handleCreate = async () => {
@@ -372,10 +377,10 @@ export default function ProductsPage() {
             sampleVoice: "",
             targetAudience: scanTargetAudience,
             brandIdentity: {
-              logoUrl: "",
+              logoUrl: scanLogoUrl,
               primaryColor: scanPrimaryColor,
               secondaryColor: scanSecondaryColor,
-              accentColor: "",
+              accentColor: scanAccentColor,
             },
           }).catch(() => {}); // best-effort
         }
@@ -696,6 +701,22 @@ export default function ProductsPage() {
                             <Input
                               value={scanSecondaryColor}
                               onChange={(e) => setScanSecondaryColor(e.target.value)}
+                              className="flex-1 font-mono text-xs"
+                              placeholder="#ffffff"
+                            />
+                          </div>
+                        </FormField>
+                        <FormField label="Accent Color">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={scanAccentColor || "#ffffff"}
+                              onChange={(e) => setScanAccentColor(e.target.value)}
+                              className="h-8 w-10 rounded cursor-pointer border border-border"
+                            />
+                            <Input
+                              value={scanAccentColor}
+                              onChange={(e) => setScanAccentColor(e.target.value)}
                               className="flex-1 font-mono text-xs"
                               placeholder="#ffffff"
                             />

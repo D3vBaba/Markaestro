@@ -3,9 +3,14 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { listConnections } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
 
-function maskConnection(conn: PlatformConnection) {
+function maskConnection(
+  conn: PlatformConnection,
+  scope: 'workspace' | 'product',
+) {
   return {
     provider: conn.provider,
+    scope,
+    productId: conn.productId ?? null,
     enabled: conn.status === 'connected',
     status: conn.status,
     hasAccessToken: Boolean(conn.accessTokenEncrypted),
@@ -16,6 +21,7 @@ function maskConnection(conn: PlatformConnection) {
     igAccountId: conn.metadata.igAccountId,
     tokenExpiresAt: conn.tokenExpiresAt ?? null,
     pageName: conn.metadata.pageName ?? null,
+    pageSelectionRequired: conn.metadata.pageSelectionRequired ?? false,
     openId: conn.metadata.openId ?? null,
     username: conn.metadata.username ?? null,
     lastRefreshError: conn.metadata.lastRefreshError ?? null,
@@ -29,12 +35,21 @@ export async function GET(req: Request) {
     const productId = url.searchParams.get('productId');
 
     const wsConns = await listConnections(ctx.workspaceId);
-    const items = wsConns.map(maskConnection);
-
-    if (productId) {
-      const prodConns = await listConnections(ctx.workspaceId, productId);
-      items.push(...prodConns.map(maskConnection));
+    if (!productId) {
+      return apiOk({
+        workspaceId: ctx.workspaceId,
+        integrations: wsConns.map((conn) => maskConnection(conn, 'workspace')),
+      });
     }
+
+    const prodConns = await listConnections(ctx.workspaceId, productId);
+    const productProviders = new Set(prodConns.map((conn) => conn.provider));
+    const items = [
+      ...prodConns.map((conn) => maskConnection(conn, 'product')),
+      ...wsConns
+        .filter((conn) => !productProviders.has(conn.provider))
+        .map((conn) => maskConnection(conn, 'workspace')),
+    ];
 
     return apiOk({ workspaceId: ctx.workspaceId, integrations: items });
   } catch (error) {

@@ -35,6 +35,8 @@ export type AdSuggestion = {
   };
 };
 
+const META_OBJECTIVE_OPTIONS = ['awareness', 'traffic', 'engagement'] as const;
+
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
@@ -143,7 +145,7 @@ Platform constraints: ${platformConstraints}
 Return a single JSON object with exactly these fields:
 {
   "name": "campaign name (descriptive, includes product + objective)",
-  "objective": "one of: awareness|traffic|engagement|leads|conversions",
+  "objective": "one of: ${platform === 'meta' ? META_OBJECTIVE_OPTIONS.join('|') : 'awareness|traffic|engagement|leads|conversions'}",
   "dailyBudgetCents": number (in cents, recommended starting budget for the objective),
   "headline": "attention-grabbing headline (within character limits)",
   "primaryText": "main ad body copy that speaks to the pain point (within limits)",
@@ -185,6 +187,9 @@ Make the ad speak directly to the biggest pain point. Be specific and compelling
 
     // Normalize platform
     suggestion.platform = platform;
+    if (platform === 'meta' && !META_OBJECTIVE_OPTIONS.includes(suggestion.objective as typeof META_OBJECTIVE_OPTIONS[number])) {
+      suggestion.objective = 'traffic';
+    }
 
     // Ensure linkUrl uses product website if available
     if (!suggestion.linkUrl && websiteUrl) {

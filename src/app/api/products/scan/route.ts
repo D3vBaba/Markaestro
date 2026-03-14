@@ -14,16 +14,19 @@ type ScanResult = {
   tags: string[];
   primaryColor: string;
   secondaryColor: string;
+  accentColor: string;
+  logoUrl: string;
   targetAudience: string;
   tone: string;
 };
 
 /** Extract key metadata from raw HTML without a DOM parser. */
-function extractMeta(html: string): {
+function extractMeta(html: string, baseUrl: string): {
   title: string;
   description: string;
   themeColor: string;
   ogImage: string;
+  logoUrl: string;
 } {
   const get = (pattern: RegExp) => {
     const m = html.match(pattern);
@@ -49,13 +52,36 @@ function extractMeta(html: string): {
     get(/<meta\s+property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
     get(/<meta\s+content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
 
-  return { title, description, themeColor, ogImage };
+  // Prefer apple-touch-icon (180×180) → icon with sizes → icon → shortcut icon
+  const appleTouchIcon =
+    get(/<link[^>]*rel=["']apple-touch-icon["'][^>]*href=["']([^"']+)["']/i) ||
+    get(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["']apple-touch-icon["']/i);
+
+  // Collect all <link rel="icon"> entries and pick the largest raster one
+  const iconMatches = [...html.matchAll(/<link[^>]*rel=["'][^"']*icon[^"']*["'][^>]*href=["']([^"']+)["'][^>]*>/gi)];
+  const hrefMatches = [...html.matchAll(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["'][^"']*icon[^"']*["'][^>]*>/gi)];
+  const allIconHrefs = [
+    ...iconMatches.map((m) => m[1]),
+    ...hrefMatches.map((m) => m[1]),
+  ].filter(Boolean);
+
+  // Skip SVG icons (vibrant can't read them); prefer PNG/ICO
+  const rasterIcons = allIconHrefs.filter((h) => !/\.svg(\?|$)/i.test(h));
+
+  const rawLogoUrl = appleTouchIcon || rasterIcons[0] || '/favicon.ico';
+
+  // Resolve relative URLs
+  let logoUrl = rawLogoUrl;
+  try {
+    logoUrl = new URL(rawLogoUrl, baseUrl).toString();
+  } catch { /* keep rawLogoUrl */ }
+
+  return { title, description, themeColor, ogImage, logoUrl };
 }
 
 /** Truncate HTML to ~8 KB of visible text for the AI prompt. */
 function extractVisibleText(html: string, maxChars = 8000): string {
-  // Remove script/style blocks
-  let text = html
+  return html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<[^>]+>/g, ' ')
@@ -64,8 +90,62 @@ function extractVisibleText(html: string, maxChars = 8000): string {
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/\s{2,}/g, ' ')
-    .trim();
-  return text.slice(0, maxChars);
+    .trim()
+    .slice(0, maxChars);
+}
+
+/** Convert an RGB array to a hex string. */
+function rgbToHex(r: number, g: number, b: number): string {
+  return '#' + [r, g, b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Fetch a logo image and extract dominant brand colors using node-vibrant.
+ * Returns up to three hex colors: primary, secondary, accent.
+ */
+async function extractColorsFromLogo(
+  logoUrl: string,
+  themeColor: string,
+): Promise<{ primary: string; secondary: string; accent: string }> {
+  const fallback = { primary: themeColor || '#6366f1', secondary: '', accent: '' };
+
+  try {
+    const imgRes = await fetch(logoUrl, {
+      signal: AbortSignal.timeout(8_000),
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Markaestro/1.0)' },
+    });
+    if (!imgRes.ok) return fallback;
+
+    const contentType = imgRes.headers.get('content-type') || '';
+    // Skip SVG — vibrant needs raster pixels
+    if (contentType.includes('svg')) return fallback;
+
+    const buffer = Buffer.from(await imgRes.arrayBuffer());
+    if (buffer.length < 100) return fallback;
+
+    // Dynamic import to avoid bundling issues in Next.js edge/server
+    const Vibrant = (await import('node-vibrant')).default;
+    const palette = await Vibrant.from(buffer).getPalette();
+
+    const primary =
+      palette.Vibrant?.rgb ? rgbToHex(...(palette.Vibrant.rgb as [number, number, number])) :
+      palette.DarkVibrant?.rgb ? rgbToHex(...(palette.DarkVibrant.rgb as [number, number, number])) :
+      themeColor || '#6366f1';
+
+    const secondary =
+      palette.DarkVibrant?.rgb ? rgbToHex(...(palette.DarkVibrant.rgb as [number, number, number])) :
+      palette.LightVibrant?.rgb ? rgbToHex(...(palette.LightVibrant.rgb as [number, number, number])) :
+      '';
+
+    const accent =
+      palette.Muted?.rgb ? rgbToHex(...(palette.Muted.rgb as [number, number, number])) :
+      palette.LightMuted?.rgb ? rgbToHex(...(palette.LightMuted.rgb as [number, number, number])) :
+      '';
+
+    return { primary, secondary, accent };
+  } catch {
+    return fallback;
+  }
 }
 
 export async function POST(req: Request) {
@@ -84,38 +164,24 @@ export async function POST(req: Request) {
         },
         signal: AbortSignal.timeout(10_000),
       });
-      if (pageRes.ok) {
-        html = await pageRes.text();
-      }
-    } catch {
-      // Non-fatal — continue with empty HTML and just use the URL
-    }
+      if (pageRes.ok) html = await pageRes.text();
+    } catch { /* Non-fatal */ }
 
-    const { title, description, themeColor } = extractMeta(html);
+    const { title, description, themeColor, logoUrl } = extractMeta(html, url);
     const visibleText = extractVisibleText(html);
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      // Fallback: return basic info from meta tags without AI
-      return apiOk({
-        name: title || new URL(url).hostname.replace('www.', ''),
-        description: description || '',
-        category: 'saas' as const,
-        pricingTier: '',
-        tags: [],
-        primaryColor: themeColor || '#6366f1',
-        secondaryColor: '',
-        targetAudience: '',
-        tone: '',
-      });
-    }
+    // Run color extraction and Gemini in parallel
+    const [colors, geminiResult] = await Promise.all([
+      extractColorsFromLogo(logoUrl, themeColor),
+      (async () => {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return null;
 
-    const prompt = `You are analysing a product website to prefill a product registration form.
+        const prompt = `You are analysing a product website to prefill a product registration form.
 
 URL: ${url}
 Page title: ${title || '(none)'}
 Meta description: ${description || '(none)'}
-Theme color: ${themeColor || '(none)'}
 
 Page text (first 8000 chars):
 ${visibleText}
@@ -127,70 +193,44 @@ Return ONLY a valid JSON object (no markdown, no backticks) with these exact key
   "category": one of: "saas" | "mobile" | "web" | "api" | "marketplace" | "other",
   "pricingTier": "pricing summary e.g. 'Free, Pro $29/mo, Enterprise' or 'Free' or 'Paid' — keep it short",
   "tags": ["up to 5 lowercase tags relevant to this product"],
-  "primaryColor": "the brand's primary hex color (from theme-color, logo, buttons, or dominant UI color) — best guess",
-  "secondaryColor": "a complementary hex color — best guess or empty string",
   "targetAudience": "brief target audience description e.g. 'SaaS founders, indie hackers'",
   "tone": "one or two words describing the brand tone e.g. 'professional, friendly'"
 }`;
 
-    const geminiRes = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 512,
+        const res = await fetch(
+          'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.2, maxOutputTokens: 512 },
+            }),
+            signal: AbortSignal.timeout(20_000),
           },
-        }),
-        signal: AbortSignal.timeout(20_000),
-      },
-    );
+        );
+        const data = await res.json();
+        const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const jsonText = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+        try { return JSON.parse(jsonText); } catch { return null; }
+      })(),
+    ]);
 
-    const geminiData = await geminiRes.json();
-    const raw = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const ai = geminiResult ?? {};
+    const categories = ['saas', 'mobile', 'web', 'api', 'marketplace', 'other'] as const;
 
-    // Strip any accidental markdown fences
-    const jsonText = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
-
-    let result: ScanResult;
-    try {
-      result = JSON.parse(jsonText) as ScanResult;
-    } catch {
-      // Fallback to meta tags if Gemini returns unparseable output
-      result = {
-        name: title || new URL(url).hostname.replace('www.', ''),
-        description: description || '',
-        category: 'saas',
-        pricingTier: '',
-        tags: [],
-        primaryColor: themeColor || '#6366f1',
-        secondaryColor: '',
-        targetAudience: '',
-        tone: '',
-      };
-    }
-
-    // Sanitize
     const safe: ScanResult = {
-      name: String(result.name || title || '').slice(0, 100),
-      description: String(result.description || description || '').slice(0, 500),
-      category: (['saas', 'mobile', 'web', 'api', 'marketplace', 'other'] as const).includes(result.category)
-        ? result.category
-        : 'saas',
-      pricingTier: String(result.pricingTier || '').slice(0, 100),
-      tags: (Array.isArray(result.tags) ? result.tags : []).slice(0, 5).map((t) => String(t).slice(0, 30)),
-      primaryColor: /^#[0-9a-f]{3,6}$/i.test(result.primaryColor || '')
-        ? result.primaryColor
-        : (themeColor || '#6366f1'),
-      secondaryColor: /^#[0-9a-f]{3,6}$/i.test(result.secondaryColor || '') ? result.secondaryColor : '',
-      targetAudience: String(result.targetAudience || '').slice(0, 200),
-      tone: String(result.tone || '').slice(0, 60),
+      name: String(ai.name || title || new URL(url).hostname.replace('www.', '')).slice(0, 100),
+      description: String(ai.description || description || '').slice(0, 500),
+      category: categories.includes(ai.category) ? ai.category : 'saas',
+      pricingTier: String(ai.pricingTier || '').slice(0, 100),
+      tags: (Array.isArray(ai.tags) ? ai.tags : []).slice(0, 5).map((t: unknown) => String(t).slice(0, 30)),
+      primaryColor: colors.primary,
+      secondaryColor: colors.secondary,
+      accentColor: colors.accent,
+      logoUrl,
+      targetAudience: String(ai.targetAudience || '').slice(0, 200),
+      tone: String(ai.tone || '').slice(0, 60),
     };
 
     return apiOk(safe);

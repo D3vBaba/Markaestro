@@ -5,7 +5,6 @@ import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 import PostCard from "./PostCard";
 import ContentEditor from "./ContentEditor";
-import { Loader2, CalendarClock } from "lucide-react";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
 } from "@/components/ui/sheet";
@@ -93,25 +92,24 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="flex items-center justify-center py-20">
+        <div className="h-5 w-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
       </div>
     );
   }
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        <CalendarClock className="h-10 w-10 mx-auto mb-3 opacity-50" />
-        <p className="text-sm">No scheduled posts.</p>
-        <p className="text-xs mt-1">Schedule posts from the Create or Drafts tab.</p>
+      <div className="text-center py-20">
+        <p className="text-sm text-muted-foreground">No scheduled posts.</p>
+        <p className="text-xs text-muted-foreground/60 mt-2">Schedule posts from the Create or Drafts tab.</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
           <PostCard
             key={post.id}

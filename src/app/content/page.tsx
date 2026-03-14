@@ -4,7 +4,6 @@ import { useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3 } from "lucide-react";
 import CreateTab from "./_components/CreateTab";
 import DraftsTab from "./_components/DraftsTab";
 import ScheduledTab from "./_components/ScheduledTab";
@@ -26,16 +25,17 @@ export default function PostsPage() {
         subtitle="Create, schedule, and publish organic content across your social channels."
       />
 
-      <Tabs defaultValue="create" className="space-y-6">
-        <TabsList className="bg-muted/30 p-1 rounded-xl">
-          <TabsTrigger value="create">Create</TabsTrigger>
-          <TabsTrigger value="drafts">Drafts</TabsTrigger>
-          <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
-          <TabsTrigger value="published">Published</TabsTrigger>
-          <TabsTrigger value="gallery">Gallery</TabsTrigger>
-          <TabsTrigger value="performance">
-            <BarChart3 className="h-3.5 w-3.5 mr-1.5" />Performance
-          </TabsTrigger>
+      <Tabs defaultValue="create" className="space-y-8">
+        <TabsList className="bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 w-full overflow-x-auto flex-nowrap">
+          {["create", "drafts", "scheduled", "published", "gallery", "performance"].map((tab) => (
+            <TabsTrigger
+              key={tab}
+              value={tab}
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 sm:px-6 py-3 text-xs sm:text-sm font-medium tracking-wide uppercase text-muted-foreground data-[state=active]:text-foreground transition-colors whitespace-nowrap"
+            >
+              {tab}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value="create">

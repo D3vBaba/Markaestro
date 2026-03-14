@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { apiGet } from "@/lib/api-client";
 
 type IntegrationInfo = {
   provider: string;
   status: string;
+  scope?: "workspace" | "product";
 };
 
 const channels = [
@@ -31,35 +29,21 @@ export default function ChannelSelector({
 
   useEffect(() => {
     (async () => {
-      // Fetch workspace-level integrations
-      const res = await apiGet<{ integrations: IntegrationInfo[] }>("/api/integrations");
-      let all = res.ok ? res.data.integrations || [] : [];
-
-      // Also fetch product-level integrations if a product is selected
-      if (productId) {
-        const prodRes = await apiGet<{ integrations: IntegrationInfo[] }>(
-          `/api/integrations?productId=${productId}`
-        );
-        if (prodRes.ok) {
-          const prodIntegrations = prodRes.data.integrations || [];
-          // Merge: product-level overrides workspace-level for the same provider
-          const merged = new Map(all.map((i) => [i.provider, i]));
-          for (const pi of prodIntegrations) {
-            merged.set(pi.provider, pi);
-          }
-          all = Array.from(merged.values());
-        }
+      const path = productId ? `/api/integrations?productId=${productId}` : "/api/integrations";
+      const res = await apiGet<{ integrations: IntegrationInfo[] }>(path);
+      if (!res.ok) {
+        setIntegrations([]);
+        return;
       }
 
-      setIntegrations(all);
+      const all = res.data.integrations || [];
+      setIntegrations(productId ? all.filter((i) => i.scope === "product") : all);
     })();
   }, [productId]);
 
   const isConnected = (provider: string) => {
-    // Check direct provider connection
     const direct = integrations.find((i) => i.provider === provider)?.status === "connected";
     if (direct) return true;
-    // For facebook/instagram, also check unified meta OAuth
     if (provider === "facebook" || provider === "instagram") {
       return integrations.find((i) => i.provider === "meta")?.status === "connected";
     }
@@ -67,28 +51,32 @@ export default function ChannelSelector({
   };
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium">Channel</label>
-      <RadioGroup value={value} onValueChange={onChange} className="grid gap-2">
-        {channels.map((ch) => (
-          <div key={ch.value} className="flex items-center space-x-3 rounded-md border p-3">
-            <RadioGroupItem value={ch.value} id={`channel-${ch.value}`} />
-            <Label htmlFor={`channel-${ch.value}`} className="flex-1 cursor-pointer text-sm">
-              {ch.label}
-            </Label>
-            <Badge
-              variant="outline"
-              className={
-                isConnected(ch.value)
-                  ? "bg-emerald-50 text-emerald-700 border-0 text-[10px]"
-                  : "bg-gray-50 text-gray-500 border-0 text-[10px]"
-              }
+    <div className="space-y-3">
+      <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Channel</label>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {channels.map((ch) => {
+          const connected = isConnected(ch.value);
+          const selected = value === ch.value;
+          return (
+            <button
+              key={ch.value}
+              onClick={() => onChange(ch.value)}
+              className={`relative py-3 px-4 rounded-lg border text-sm transition-all text-center ${
+                selected
+                  ? "border-foreground bg-foreground text-background font-medium"
+                  : "border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+              }`}
             >
-              {isConnected(ch.value) ? "Connected" : "Not connected"}
-            </Badge>
-          </div>
-        ))}
-      </RadioGroup>
+              {ch.label}
+              <span
+                className={`absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full ${
+                  connected ? "bg-emerald-500" : "bg-muted-foreground/30"
+                }`}
+              />
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

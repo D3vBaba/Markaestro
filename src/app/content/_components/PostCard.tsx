@@ -1,9 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2, Send, Pencil, ExternalLink, Clock } from "lucide-react";
 
 type Post = {
   id: string;
@@ -24,21 +21,6 @@ const channelLabels: Record<string, string> = {
   tiktok: "TikTok",
 };
 
-const channelColors: Record<string, string> = {
-  x: "bg-zinc-100 text-zinc-800",
-  facebook: "bg-blue-50 text-blue-700",
-  instagram: "bg-sky-50 text-sky-700",
-  tiktok: "bg-pink-50 text-pink-700",
-};
-
-const statusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-600",
-  scheduled: "bg-amber-50 text-amber-700",
-  publishing: "bg-blue-50 text-blue-700",
-  published: "bg-emerald-50 text-emerald-700",
-  failed: "bg-rose-50 text-rose-700",
-};
-
 export default function PostCard({
   post,
   onEdit,
@@ -51,63 +33,58 @@ export default function PostCard({
   onPublish?: () => void;
 }) {
   return (
-    <Card className="shadow-sm">
-      <CardContent className="pt-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className={`border-0 text-[10px] ${channelColors[post.channel] || ""}`}>
-            {channelLabels[post.channel] || post.channel}
-          </Badge>
-          <Badge variant="outline" className={`border-0 text-[10px] ${statusColors[post.status] || ""}`}>
-            {post.status}
-          </Badge>
-          {post.scheduledAt && post.status === "scheduled" && (
-            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {new Date(post.scheduledAt).toLocaleString()}
-            </span>
+    <div className="group border border-border/40 rounded-lg p-5 space-y-4 bg-card hover:border-border transition-colors">
+      <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
+        <span>{channelLabels[post.channel] || post.channel}</span>
+        <span className="w-px h-3 bg-border" />
+        <span className={post.status === "failed" ? "text-destructive" : ""}>{post.status}</span>
+        {post.scheduledAt && post.status === "scheduled" && (
+          <>
+            <span className="w-px h-3 bg-border" />
+            <span>{new Date(post.scheduledAt).toLocaleString()}</span>
+          </>
+        )}
+      </div>
+
+      <p className="text-sm leading-relaxed whitespace-pre-wrap line-clamp-4">{post.content}</p>
+
+      {post.errorMessage && (
+        <p className="text-xs text-destructive">{post.errorMessage}</p>
+      )}
+
+      <div className="flex items-center justify-between pt-2 border-t border-border/30">
+        <span className="text-[11px] text-muted-foreground">
+          {post.publishedAt
+            ? new Date(post.publishedAt).toLocaleDateString()
+            : post.createdAt
+            ? new Date(post.createdAt).toLocaleDateString()
+            : ""}
+        </span>
+        <div className="flex items-center gap-1">
+          {post.externalUrl && (
+            <a href={post.externalUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground hover:text-foreground">
+                View
+              </Button>
+            </a>
+          )}
+          {onEdit && (
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground hover:text-foreground" onClick={onEdit}>
+              Edit
+            </Button>
+          )}
+          {onPublish && (
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground hover:text-foreground" onClick={onPublish}>
+              Publish
+            </Button>
+          )}
+          {onDelete && (
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={onDelete}>
+              Delete
+            </Button>
           )}
         </div>
-
-        <p className="text-sm whitespace-pre-wrap line-clamp-4">{post.content}</p>
-
-        {post.errorMessage && (
-          <p className="text-xs text-destructive">Error: {post.errorMessage}</p>
-        )}
-
-        <div className="flex items-center justify-between pt-1">
-          <span className="text-[10px] text-muted-foreground">
-            {post.publishedAt
-              ? `Published ${new Date(post.publishedAt).toLocaleString()}`
-              : post.createdAt
-              ? `Created ${new Date(post.createdAt).toLocaleString()}`
-              : ""}
-          </span>
-          <div className="flex items-center gap-1">
-            {post.externalUrl && (
-              <a href={post.externalUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Button>
-              </a>
-            )}
-            {onEdit && (
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-            )}
-            {onPublish && (
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-emerald-600" onClick={onPublish}>
-                <Send className="h-3.5 w-3.5" />
-              </Button>
-            )}
-            {onDelete && (
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={onDelete}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

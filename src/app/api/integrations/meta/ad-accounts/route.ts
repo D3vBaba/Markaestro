@@ -16,13 +16,20 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const productId = url.searchParams.get('productId') || undefined;
 
-    // Try product-level connection first, fall back to workspace-level
-    const conn =
-      (productId ? await getConnection(ctx.workspaceId, 'meta', productId) : null) ??
-      (await getConnection(ctx.workspaceId, 'meta'));
+    if (!productId) {
+      return apiOk({
+        adAccounts: [],
+        error: 'Meta ad accounts require a product-scoped Meta connection',
+      });
+    }
+
+    const conn = await getConnection(ctx.workspaceId, 'meta', productId);
 
     if (!conn || !conn.accessTokenEncrypted) {
-      return apiOk({ adAccounts: [] });
+      return apiOk({
+        adAccounts: [],
+        error: 'Meta integration not configured for this product',
+      });
     }
 
     // Must use the user access token — page tokens cannot list ad accounts

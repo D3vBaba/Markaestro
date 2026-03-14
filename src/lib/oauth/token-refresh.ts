@@ -71,15 +71,19 @@ async function refreshConnectionDoc(
         ? new Date(now.getTime() + newTokens.expiresIn * 1000).toISOString()
         : undefined;
 
-      await connRef.update({
+      const updatePayload: Record<string, unknown> = {
         accessTokenEncrypted: encrypt(newTokens.accessToken),
-        tokenExpiresAt: newExpiresAt,
         'metadata.lastRefreshAt': now.toISOString(),
         'metadata.lastRefreshError': null,
         'metadata.refreshFailureCount': 0,
         status: 'connected',
         updatedAt: now.toISOString(),
-      });
+      };
+      if (newExpiresAt) {
+        updatePayload.tokenExpiresAt = newExpiresAt;
+      }
+
+      await connRef.update(updatePayload);
 
       result.refreshed++;
     } catch (e) {
@@ -112,7 +116,6 @@ async function refreshConnectionDoc(
 
     const updatePayload: Record<string, unknown> = {
       accessTokenEncrypted: encrypt(newTokens.accessToken),
-      tokenExpiresAt: newExpiresAt,
       'metadata.lastRefreshAt': now.toISOString(),
       'metadata.lastRefreshError': null,
       'metadata.refreshFailureCount': 0,
@@ -120,6 +123,9 @@ async function refreshConnectionDoc(
       updatedAt: now.toISOString(),
     };
 
+    if (newExpiresAt) {
+      updatePayload.tokenExpiresAt = newExpiresAt;
+    }
     if (newTokens.refreshToken && newTokens.refreshToken !== refreshToken) {
       updatePayload.refreshTokenEncrypted = encrypt(newTokens.refreshToken);
     }

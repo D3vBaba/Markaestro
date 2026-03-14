@@ -50,6 +50,7 @@ export async function getConnectionForChannel(
     if (productId) {
       const conn = await getConnection(workspaceId, provider, productId);
       if (conn && conn.status === 'connected') return conn;
+      continue;
     }
     const conn = await getConnection(workspaceId, provider);
     if (conn && conn.status === 'connected') return conn;
@@ -68,6 +69,14 @@ export function resolveAccessToken(connection: PlatformConnection): string {
   if (pageToken) {
     return decrypt(pageToken);
   }
+  return decrypt(connection.accessTokenEncrypted);
+}
+
+/**
+ * Resolve the primary user access token.
+ * Meta account and ads APIs require the user token, not the page token.
+ */
+export function resolveUserAccessToken(connection: PlatformConnection): string {
   return decrypt(connection.accessTokenEncrypted);
 }
 

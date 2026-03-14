@@ -6,7 +6,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { updateMetaCampaignStatus } from '@/lib/ads/meta-ads';
 import { updateGoogleCampaignStatus } from '@/lib/ads/google-ads';
 import type { AdCampaignDoc } from '@/lib/ads/types';
-import { getConnection, resolveAccessToken } from '@/lib/platform/connections';
+import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -32,7 +32,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const productId = campaign.productId as string;
       const conn = await getConnection(ctx.workspaceId, 'meta', productId);
       if (!conn) return apiOk({ ok: false, error: 'Meta integration not found' });
-      const accessToken = resolveAccessToken(conn);
+      const accessToken = resolveUserAccessToken(conn);
       result = await updateMetaCampaignStatus(accessToken, campaign.externalCampaignId, 'ACTIVE');
     } else if (campaign.platform === 'google') {
       const conn = await getConnection(ctx.workspaceId, 'google');

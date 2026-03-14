@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { apiError } from '@/lib/api-response';
 import { exchangeCode, storeTokens } from '@/lib/oauth/flow';
+import { encrypt } from '@/lib/crypto';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 
 const ALLOWED = new Set<string>(oauthProviders);
@@ -36,9 +36,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     );
 
     const extraData: Record<string, unknown> = {};
+    let metaNeedsPageSelection = false;
 
     // Provider-specific post-processing
     if (provider === 'meta') {
+      extraData.pageSelectionRequired = false;
       // Exchange short-lived token for long-lived token (60 days)
       // This is critical — without it the token expires in ~1-2 hours
       try {
@@ -75,6 +77,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
             name: p.name,
             hasIg: Boolean(p.instagram_business_account),
           }));
+          if (pagesData.data.length === 1) {
+            const page = pagesData.data[0] as Record<string, unknown>;
+            extraData.pageId = page.id;
+            extraData.pageName = page.name;
+            extraData.pageAccessTokenEncrypted = encrypt(page.access_token as string);
+            extraData.pageSelectionRequired = false;
+            if ((page.instagram_business_account as Record<string, unknown> | undefined)?.id) {
+              extraData.igAccountId = (page.instagram_business_account as Record<string, unknown>).id;
+            }
+          } else {
+            metaNeedsPageSelection = true;
+            extraData.pageSelectionRequired = true;
+          }
         }
       } catch {
         // Non-fatal — user can still select pages later
@@ -107,7 +122,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     if (productId) {
-      return NextResponse.redirect(`${appUrl}/products?oauth=success&provider=${provider}&productId=${productId}`);
+      const params = new URLSearchParams({
+        oauth: 'success',
+        provider,
+        productId,
+      });
+      if (provider === 'meta' && metaNeedsPageSelection) {
+        params.set('needsPageSelect', '1');
+      }
+      return NextResponse.redirect(`${appUrl}/products?${params.toString()}`);
     }
     return NextResponse.redirect(`${appUrl}/settings?oauth=success&provider=${provider}`);
   } catch (error) {
