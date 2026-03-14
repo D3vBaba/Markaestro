@@ -11,7 +11,7 @@ import {
     Sheet, SheetContent, SheetDescription, SheetHeader,
     SheetTitle, SheetTrigger, SheetFooter, SheetClose,
 } from "@/components/ui/sheet";
-import { Trash2, ExternalLink, Package, Pencil, Upload, X } from "lucide-react";
+import { Trash2, ExternalLink, Package, Pencil, Upload, X, Loader2, Wand2, CheckCircle2 } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
@@ -51,13 +51,17 @@ type Product = {
 
 type IntegrationInfo = {
   provider: string;
+  scope?: "workspace" | "product";
+  productId?: string | null;
   enabled: boolean;
   status: string;
   hasApiKey: boolean;
   hasAccessToken: boolean;
   fromEmail?: string;
   tokenExpiresAt?: string | null;
+  pageId?: string | null;
   pageName?: string | null;
+  pageSelectionRequired?: boolean | null;
   igAccountId?: string | null;
   adAccountId?: string | null;
   lastRefreshError?: string | null;
@@ -94,6 +98,14 @@ const providerLabels: Record<string, string> = {
   x: "X (Twitter)",
   tiktok: "TikTok",
 };
+
+function getScopedSocialIntegrations(integrations: IntegrationInfo[]) {
+  return integrations.filter(
+    (integration) =>
+      SOCIAL_PROVIDERS.includes(integration.provider as typeof SOCIAL_PROVIDERS[number]) &&
+      integration.scope === "product",
+  );
+}
 
 // Curated color palette for brand colors
 const COLOR_PALETTE = [
@@ -167,6 +179,15 @@ export default function ProductsPage() {
   const [newTags, setNewTags] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // URL scan state
+  const [scanUrl, setScanUrl] = useState("");
+  const [scanning, setScanning] = useState(false);
+  const [scanned, setScanned] = useState(false);
+  const [scanPrimaryColor, setScanPrimaryColor] = useState("#6366f1");
+  const [scanSecondaryColor, setScanSecondaryColor] = useState("");
+  const [scanTargetAudience, setScanTargetAudience] = useState("");
+  const [scanTone, setScanTone] = useState("");
+
   // Edit sheet state — product details
   const [editOpen, setEditOpen] = useState(false);
   const [editProductId, setEditProductId] = useState<string | null>(null);
@@ -224,11 +245,7 @@ export default function ProductsPage() {
   const fetchProductIntegrations = useCallback(async (productId: string) => {
     const res = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${productId}`);
     if (res.ok) {
-      const all = (res.data.integrations || []).filter(
-        (i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]),
-      );
-      const seen = new Set<string>();
-      setProductIntegrations(all.filter((i) => { if (seen.has(i.provider)) return false; seen.add(i.provider); return true; }));
+      setProductIntegrations(getScopedSocialIntegrations(res.data.integrations || []));
     }
   }, []);
 
@@ -237,9 +254,7 @@ export default function ProductsPage() {
     for (const p of productList) {
       const res = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${p.id}`);
       if (res.ok) {
-        cache[p.id] = (res.data.integrations || []).filter(
-          (i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]),
-        );
+        cache[p.id] = getScopedSocialIntegrations(res.data.integrations || []);
       }
     }
     setConnectionCache(cache);
@@ -253,6 +268,7 @@ export default function ProductsPage() {
     const oauthResult = params.get("oauth");
     const provider = params.get("provider");
     const productId = params.get("productId");
+    const needsPageSelect = params.get("needsPageSelect");
 
     if (oauthResult === "success" && provider) {
       toast.success(`${providerLabels[provider] || provider} connected successfully`);
@@ -270,11 +286,15 @@ export default function ProductsPage() {
         const res = await apiGet<{ products: Product[] }>("/api/products");
         if (res.ok) {
           const product = (res.data.products || []).find((p) => p.id === productId);
-          if (product) openEditSheet(product);
+          if (product) {
+            await openEditSheet(product);
+            if (provider === "meta" && needsPageSelect === "1") {
+              toast.error("Select a Facebook page to finish Meta setup");
+            }
+          }
         }
       }, 500);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -282,6 +302,50 @@ export default function ProductsPage() {
       fetchConnectionStatuses(products);
     }
   }, [products, fetchConnectionStatuses]);
+
+  const handleScan = async () => {
+    const url = scanUrl.trim();
+    if (!url) { toast.error("Enter a URL first"); return; }
+    let fullUrl = url;
+    if (!/^https?:\/\//i.test(url)) fullUrl = `https://${url}`;
+    setScanning(true);
+    try {
+      const res = await apiPost<{
+        name: string; description: string; category: string; pricingTier: string;
+        tags: string[]; primaryColor: string; secondaryColor: string;
+        targetAudience: string; tone: string;
+      }>("/api/products/scan", { url: fullUrl });
+      if (res.ok) {
+        const d = res.data;
+        setNewName(d.name || "");
+        setNewDescription(d.description || "");
+        setNewUrl(fullUrl);
+        setNewCategory(d.category || "saas");
+        setNewPricing(d.pricingTier || "");
+        setNewTags((d.tags || []).join(", "));
+        setScanPrimaryColor(d.primaryColor || "#6366f1");
+        setScanSecondaryColor(d.secondaryColor || "");
+        setScanTargetAudience(d.targetAudience || "");
+        setScanTone(d.tone || "");
+        setScanned(true);
+        toast.success("Website scanned — review and confirm");
+      } else {
+        toast.error("Scan failed — fill in manually");
+        setScanned(true); // still show form
+      }
+    } catch {
+      toast.error("Scan failed — fill in manually");
+      setScanned(true);
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const resetCreateForm = () => {
+    setScanUrl(""); setScanned(false); setScanning(false);
+    setNewName(""); setNewDescription(""); setNewUrl(""); setNewCategory("saas"); setNewPricing(""); setNewTags("");
+    setScanPrimaryColor("#6366f1"); setScanSecondaryColor(""); setScanTargetAudience(""); setScanTone("");
+  };
 
   const handleCreate = async () => {
     setSaving(true);
@@ -296,11 +360,28 @@ export default function ProductsPage() {
         tags,
       });
       if (res.ok) {
+        const newProduct = res.data as Product;
+        // If scanned, save brand voice + identity in the background
+        if (scanned && newProduct.id) {
+          apiPut(`/api/products/${newProduct.id}/brand-voice`, {
+            tone: scanTone,
+            style: "",
+            keywords: [],
+            avoidWords: [],
+            cta: "",
+            sampleVoice: "",
+            targetAudience: scanTargetAudience,
+            brandIdentity: {
+              logoUrl: "",
+              primaryColor: scanPrimaryColor,
+              secondaryColor: scanSecondaryColor,
+              accentColor: "",
+            },
+          }).catch(() => {}); // best-effort
+        }
         toast.success("Product added");
-        setNewName(""); setNewDescription(""); setNewUrl(""); setNewCategory("saas"); setNewPricing(""); setNewTags("");
-        // Add immediately from response to avoid Firestore consistency lag,
-        // then refresh in the background to confirm.
-        setProducts((prev) => [res.data as Product, ...prev]);
+        resetCreateForm();
+        setProducts((prev) => [newProduct, ...prev]);
         fetchProducts();
       } else {
         const errData = res.data as { error?: string; issues?: { field: string; message: string }[] };
@@ -357,19 +438,15 @@ export default function ProductsPage() {
     setMetaPages([]); setSelectedPageId(""); setMetaAdAccountId("");
     const intRes = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${product.id}`);
     if (intRes.ok) {
-      const productLevel = (intRes.data.integrations || []).filter(
-        (i) => SOCIAL_PROVIDERS.includes(i.provider as typeof SOCIAL_PROVIDERS[number]),
-      );
-      // Deduplicate: prefer product-level entry over workspace-level when both exist
-      const seen = new Set<string>();
-      const deduped = productLevel.filter((i) => {
-        if (seen.has(i.provider)) return false;
-        seen.add(i.provider);
-        return true;
-      });
-      setProductIntegrations(deduped);
-      const metaConn = deduped.find((i) => i.provider === "meta");
+      const scopedIntegrations = getScopedSocialIntegrations(intRes.data.integrations || []);
+      setProductIntegrations(scopedIntegrations);
+      const metaConn = scopedIntegrations.find((i) => i.provider === "meta");
       if (metaConn?.adAccountId) setMetaAdAccountId(metaConn.adAccountId as string);
+      setEditOpen(true);
+      if (metaConn && !metaConn.pageId) {
+        void loadMetaPages(product.id);
+      }
+      return;
     } else {
       toast.error("Failed to load integrations");
     }
@@ -517,45 +594,137 @@ export default function ProductsPage() {
         title="Products"
         subtitle="Register and track the applications you market."
         action={
-          <Sheet>
+          <Sheet onOpenChange={(open) => { if (!open) resetCreateForm(); }}>
             <SheetTrigger asChild>
               <Button className="rounded-xl">Add Product</Button>
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent className="overflow-y-auto">
               <SheetHeader>
-                <SheetTitle>Register Product</SheetTitle>
-                <SheetDescription>Add an application you want to market and track.</SheetDescription>
+                <SheetTitle>Add Product</SheetTitle>
+                <SheetDescription>
+                  {scanned ? "Review and confirm the details below." : "Enter your website URL and we'll fill in the details automatically."}
+                </SheetDescription>
               </SheetHeader>
-              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                <FormField label="Product Name">
-                  <Input placeholder="DripCheckr" value={newName} onChange={(e) => setNewName(e.target.value)} />
-                </FormField>
-                <FormField label="Description">
-                  <Textarea placeholder="AI-powered drip campaign analytics..." value={newDescription} onChange={(e) => setNewDescription(e.target.value)} rows={3} />
-                </FormField>
-                <FormField label="URL">
-                  <Input placeholder="https://dripcheckr.com" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} />
-                </FormField>
-                <FormField label="Category">
-                  <Select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
-                    <option value="saas">SaaS</option>
-                    <option value="mobile">Mobile App</option>
-                    <option value="web">Web App</option>
-                    <option value="api">API</option>
-                    <option value="marketplace">Marketplace</option>
-                    <option value="other">Other</option>
-                  </Select>
-                </FormField>
-                <FormField label="Pricing Tier">
-                  <Input placeholder="Free / Pro / Enterprise" value={newPricing} onChange={(e) => setNewPricing(e.target.value)} />
-                </FormField>
-                <FormField label="Tags (comma separated)">
-                  <Input placeholder="analytics, ai, marketing" value={newTags} onChange={(e) => setNewTags(e.target.value)} />
-                </FormField>
+              <div className="px-6 py-4 space-y-4">
+
+                {/* Step 1: URL + Scan */}
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Website URL</p>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="https://yourproduct.com"
+                      value={scanUrl}
+                      onChange={(e) => { setScanUrl(e.target.value); if (scanned) setScanned(false); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleScan(); }}
+                      disabled={scanning}
+                      className="flex-1"
+                    />
+                    <Button onClick={handleScan} disabled={scanning || !scanUrl.trim()} className="shrink-0">
+                      {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                      <span className="ml-1.5">{scanning ? "Scanning…" : "Scan"}</span>
+                    </Button>
+                  </div>
+                  {scanning && (
+                    <p className="text-xs text-muted-foreground animate-pulse">Analysing your website…</p>
+                  )}
+                  {scanned && !scanning && (
+                    <p className="text-xs text-emerald-600 flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3" /> Prefilled from your website — edit anything below
+                    </p>
+                  )}
+                </div>
+
+                {/* Step 2: Prefilled form — always visible but highlighted after scan */}
+                <div className={`space-y-4 transition-opacity ${scanning ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
+                  <FormField label="Product Name">
+                    <Input placeholder="DripCheckr" value={newName} onChange={(e) => setNewName(e.target.value)} />
+                  </FormField>
+                  <FormField label="Description">
+                    <Textarea placeholder="What does your product do?" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} rows={3} />
+                  </FormField>
+                  <FormField label="URL">
+                    <Input placeholder="https://yourproduct.com" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} />
+                  </FormField>
+                  <div className="grid grid-cols-2 gap-3">
+                    <FormField label="Category">
+                      <Select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
+                        <option value="saas">SaaS</option>
+                        <option value="mobile">Mobile App</option>
+                        <option value="web">Web App</option>
+                        <option value="api">API</option>
+                        <option value="marketplace">Marketplace</option>
+                        <option value="other">Other</option>
+                      </Select>
+                    </FormField>
+                    <FormField label="Pricing Tier">
+                      <Input placeholder="Free, Pro $29/mo…" value={newPricing} onChange={(e) => setNewPricing(e.target.value)} />
+                    </FormField>
+                  </div>
+                  <FormField label="Tags (comma separated)">
+                    <Input placeholder="analytics, ai, marketing" value={newTags} onChange={(e) => setNewTags(e.target.value)} />
+                  </FormField>
+
+                  {/* Brand colors — shown when scanned */}
+                  {scanned && (
+                    <div className="rounded-xl border border-border/50 bg-muted/20 p-3 space-y-3">
+                      <p className="text-xs font-semibold">Brand Colors (detected)</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField label="Primary Color">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={scanPrimaryColor}
+                              onChange={(e) => setScanPrimaryColor(e.target.value)}
+                              className="h-8 w-10 rounded cursor-pointer border border-border"
+                            />
+                            <Input
+                              value={scanPrimaryColor}
+                              onChange={(e) => setScanPrimaryColor(e.target.value)}
+                              className="flex-1 font-mono text-xs"
+                              placeholder="#6366f1"
+                            />
+                          </div>
+                        </FormField>
+                        <FormField label="Secondary Color">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={scanSecondaryColor || "#ffffff"}
+                              onChange={(e) => setScanSecondaryColor(e.target.value)}
+                              className="h-8 w-10 rounded cursor-pointer border border-border"
+                            />
+                            <Input
+                              value={scanSecondaryColor}
+                              onChange={(e) => setScanSecondaryColor(e.target.value)}
+                              className="flex-1 font-mono text-xs"
+                              placeholder="#ffffff"
+                            />
+                          </div>
+                        </FormField>
+                      </div>
+                      {scanTargetAudience && (
+                        <FormField label="Target Audience">
+                          <Input value={scanTargetAudience} onChange={(e) => setScanTargetAudience(e.target.value)} />
+                        </FormField>
+                      )}
+                      {scanTone && (
+                        <FormField label="Brand Tone">
+                          <Input value={scanTone} onChange={(e) => setScanTone(e.target.value)} />
+                        </FormField>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-              <SheetFooter>
+              <SheetFooter className="px-6 pb-6">
                 <SheetClose asChild>
-                  <Button onClick={handleCreate} disabled={saving}>{saving ? "Saving..." : "Add Product"}</Button>
+                  <Button
+                    onClick={handleCreate}
+                    disabled={saving || !newName.trim()}
+                    className="w-full"
+                  >
+                    {saving ? "Saving…" : scanned ? "Confirm & Save Product" : "Save Product"}
+                  </Button>
                 </SheetClose>
               </SheetFooter>
             </SheetContent>
@@ -841,6 +1010,11 @@ export default function ProductsPage() {
                             {integ?.pageName && (
                               <p className="text-xs text-muted-foreground">
                                 Page: {integ.pageName}{integ.igAccountId && " (Instagram linked)"}
+                              </p>
+                            )}
+                            {!integ?.pageId && (
+                              <p className="text-xs text-amber-700">
+                                Select a Facebook page to finish Meta setup and unlock ad launches.
                               </p>
                             )}
                             {integ?.tokenExpiresAt && (
