@@ -20,13 +20,14 @@ type ScanResult = {
   tone: string;
 };
 
-/** Extract key metadata from raw HTML without a DOM parser. */
+/** Extract key metadata and CSS color hints from raw HTML. */
 function extractMeta(html: string, baseUrl: string): {
   title: string;
   description: string;
   themeColor: string;
   ogImage: string;
   logoUrl: string;
+  cssColors: string[];
 } {
   const get = (pattern: RegExp) => {
     const m = html.match(pattern);
@@ -48,16 +49,20 @@ function extractMeta(html: string, baseUrl: string): {
     get(/<meta\s+name=["']theme-color["'][^>]*content=["']([^"']+)["']/i) ||
     get(/<meta\s+content=["']([^"']+)["'][^>]*name=["']theme-color["']/i);
 
-  const ogImage =
+  const rawOgImage =
     get(/<meta\s+property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
     get(/<meta\s+content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
 
-  // Prefer apple-touch-icon (180×180) → icon with sizes → icon → shortcut icon
+  let ogImage = rawOgImage;
+  if (rawOgImage) {
+    try { ogImage = new URL(rawOgImage, baseUrl).toString(); } catch { /* keep raw */ }
+  }
+
+  // Prefer apple-touch-icon (180×180) → raster icon → favicon.ico
   const appleTouchIcon =
     get(/<link[^>]*rel=["']apple-touch-icon["'][^>]*href=["']([^"']+)["']/i) ||
     get(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["']apple-touch-icon["']/i);
 
-  // Collect all <link rel="icon"> entries and pick the largest raster one
   const iconMatches = [...html.matchAll(/<link[^>]*rel=["'][^"']*icon[^"']*["'][^>]*href=["']([^"']+)["'][^>]*>/gi)];
   const hrefMatches = [...html.matchAll(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["'][^"']*icon[^"']*["'][^>]*>/gi)];
   const allIconHrefs = [
@@ -65,23 +70,47 @@ function extractMeta(html: string, baseUrl: string): {
     ...hrefMatches.map((m) => m[1]),
   ].filter(Boolean);
 
-  // Skip SVG icons (vibrant can't read them); prefer PNG/ICO
+  // Pick largest raster icon by looking for size hints (e.g. 192x192 > 32x32)
   const rasterIcons = allIconHrefs.filter((h) => !/\.svg(\?|$)/i.test(h));
+  const sizedIcons = rasterIcons.filter((h) => /\d{2,}x\d{2,}/i.test(h));
+  const bestIcon = sizedIcons.sort((a, b) => {
+    const sizeOf = (s: string) => {
+      const m = s.match(/(\d+)x\d+/i);
+      return m ? parseInt(m[1], 10) : 0;
+    };
+    return sizeOf(b) - sizeOf(a);
+  })[0] || rasterIcons[0] || '/favicon.ico';
 
-  const rawLogoUrl = appleTouchIcon || rasterIcons[0] || '/favicon.ico';
+  let logoUrl = bestIcon;
+  try { logoUrl = new URL(bestIcon, baseUrl).toString(); } catch { /* keep */ }
 
-  // Resolve relative URLs
-  let logoUrl = rawLogoUrl;
-  try {
-    logoUrl = new URL(rawLogoUrl, baseUrl).toString();
-  } catch { /* keep rawLogoUrl */ }
+  // Extract hex colors from CSS custom properties in <style> blocks
+  // Looks for --primary, --brand, --color-primary etc.
+  const cssColors: string[] = [];
+  const styleBlocks = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]);
+  for (const css of styleBlocks) {
+    const colorVarMatches = css.matchAll(/--(primary|brand|accent|secondary|color)[^:]*:\s*(#[0-9a-f]{3,8})/gi);
+    for (const m of colorVarMatches) {
+      const hex = m[2];
+      if (/^#[0-9a-f]{6}$/i.test(hex) && !cssColors.includes(hex.toLowerCase())) {
+        cssColors.push(hex.toLowerCase());
+      }
+    }
+  }
 
-  return { title, description, themeColor, ogImage, logoUrl };
+  return { title, description, themeColor, ogImage, logoUrl, cssColors };
 }
 
-/** Truncate HTML to ~8 KB of visible text for the AI prompt. */
-function extractVisibleText(html: string, maxChars = 8000): string {
-  return html
+/** Extract visible text from HTML, prioritising headings and nav for signal density. */
+function extractVisibleText(html: string, maxChars = 12000): string {
+  // Extract headings first for high-signal content
+  const headingMatches = [...html.matchAll(/<h[1-3][^>]*>([\s\S]*?)<\/h[1-3]>/gi)];
+  const headings = headingMatches
+    .map((m) => m[1].replace(/<[^>]+>/g, ' ').trim())
+    .filter(Boolean)
+    .join(' | ');
+
+  const body = html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<[^>]+>/g, ' ')
@@ -90,8 +119,10 @@ function extractVisibleText(html: string, maxChars = 8000): string {
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/\s{2,}/g, ' ')
-    .trim()
-    .slice(0, maxChars);
+    .trim();
+
+  const combined = headings ? `HEADINGS: ${headings}\n\nPAGE TEXT: ${body}` : body;
+  return combined.slice(0, maxChars);
 }
 
 /** Convert an RGB array to a hex string. */
@@ -100,37 +131,36 @@ function rgbToHex(r: number, g: number, b: number): string {
 }
 
 /**
- * Fetch a logo image and extract dominant brand colors using node-vibrant.
- * Returns up to three hex colors: primary, secondary, accent.
+ * Extract dominant brand colors from an image URL using node-vibrant.
+ * Prefers og:image (large) over logo (often tiny favicon).
  */
-async function extractColorsFromLogo(
-  logoUrl: string,
-  themeColor: string,
-): Promise<{ primary: string; secondary: string; accent: string }> {
-  const fallback = { primary: themeColor || '#6366f1', secondary: '', accent: '' };
-
+async function extractColorsFromImage(
+  imageUrl: string,
+  fallbackColor: string,
+): Promise<{ primary: string; secondary: string; accent: string } | null> {
   try {
-    const imgRes = await fetch(logoUrl, {
-      signal: AbortSignal.timeout(8_000),
+    const imgRes = await fetch(imageUrl, {
+      signal: AbortSignal.timeout(10_000),
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Markaestro/1.0)' },
     });
-    if (!imgRes.ok) return fallback;
+    if (!imgRes.ok) return null;
 
     const contentType = imgRes.headers.get('content-type') || '';
-    // Skip SVG — vibrant needs raster pixels
-    if (contentType.includes('svg')) return fallback;
+    if (contentType.includes('svg') || contentType.includes('xml')) return null;
 
     const buffer = Buffer.from(await imgRes.arrayBuffer());
-    if (buffer.length < 100) return fallback;
+    // Minimum viable image size — 200 bytes rules out empty/error responses
+    if (buffer.length < 200) return null;
 
-    // Dynamic import to avoid bundling issues in Next.js edge/server
     const Vibrant = (await import('node-vibrant')).default;
     const palette = await Vibrant.from(buffer).getPalette();
 
+    // Choose primary: most vibrant non-white/black swatch
     const primary =
       palette.Vibrant?.rgb ? rgbToHex(...(palette.Vibrant.rgb as [number, number, number])) :
       palette.DarkVibrant?.rgb ? rgbToHex(...(palette.DarkVibrant.rgb as [number, number, number])) :
-      themeColor || '#6366f1';
+      palette.LightVibrant?.rgb ? rgbToHex(...(palette.LightVibrant.rgb as [number, number, number])) :
+      fallbackColor;
 
     const secondary =
       palette.DarkVibrant?.rgb ? rgbToHex(...(palette.DarkVibrant.rgb as [number, number, number])) :
@@ -138,14 +168,66 @@ async function extractColorsFromLogo(
       '';
 
     const accent =
-      palette.Muted?.rgb ? rgbToHex(...(palette.Muted.rgb as [number, number, number])) :
       palette.LightMuted?.rgb ? rgbToHex(...(palette.LightMuted.rgb as [number, number, number])) :
+      palette.Muted?.rgb ? rgbToHex(...(palette.Muted.rgb as [number, number, number])) :
+      palette.DarkMuted?.rgb ? rgbToHex(...(palette.DarkMuted.rgb as [number, number, number])) :
       '';
 
     return { primary, secondary, accent };
   } catch {
-    return fallback;
+    return null;
   }
+}
+
+/**
+ * Best-effort brand color extraction.
+ * Strategy (in priority order):
+ *   1. CSS custom properties parsed from <style> blocks (exact brand colors)
+ *   2. og:image with vibrant (large image = better palette)
+ *   3. Logo/favicon with vibrant
+ *   4. theme-color meta tag
+ *   5. Default indigo
+ */
+async function extractBrandColors(
+  ogImage: string,
+  logoUrl: string,
+  themeColor: string,
+  cssColors: string[],
+): Promise<{ primary: string; secondary: string; accent: string }> {
+  const fallback = { primary: themeColor || '#6366f1', secondary: '', accent: '' };
+
+  // 1. CSS variables — highest accuracy
+  if (cssColors.length >= 2) {
+    return {
+      primary: cssColors[0],
+      secondary: cssColors[1] || '',
+      accent: cssColors[2] || '',
+    };
+  }
+
+  // 2. og:image — large image, best vibrant results
+  if (ogImage) {
+    const result = await extractColorsFromImage(ogImage, themeColor || '#6366f1');
+    if (result && result.primary !== (themeColor || '#6366f1')) {
+      // Blend with CSS hint if we have one
+      if (cssColors.length === 1) result.primary = cssColors[0];
+      return result;
+    }
+  }
+
+  // 3. Logo / favicon
+  const logoResult = await extractColorsFromImage(logoUrl, themeColor || '#6366f1');
+  if (logoResult) {
+    if (cssColors.length === 1) logoResult.primary = cssColors[0];
+    return logoResult;
+  }
+
+  // 4. CSS single color + themeColor
+  if (cssColors.length === 1) {
+    return { primary: cssColors[0], secondary: themeColor || '', accent: '' };
+  }
+
+  return fallback;
 }
 
 export async function POST(req: Request) {
@@ -154,47 +236,49 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { url } = schema.parse(body);
 
-    // Fetch the page
+    // Fetch the homepage
     let html = '';
     try {
       const pageRes = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; Markaestro/1.0; +https://markaestro.app)',
-          'Accept': 'text/html',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml',
+          'Accept-Language': 'en-US,en;q=0.9',
         },
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(12_000),
       });
       if (pageRes.ok) html = await pageRes.text();
     } catch { /* Non-fatal */ }
 
-    const { title, description, themeColor, logoUrl } = extractMeta(html, url);
+    const { title, description, themeColor, ogImage, logoUrl, cssColors } = extractMeta(html, url);
     const visibleText = extractVisibleText(html);
 
     // Run color extraction and Gemini in parallel
     const [colors, geminiResult] = await Promise.all([
-      extractColorsFromLogo(logoUrl, themeColor),
+      extractBrandColors(ogImage, logoUrl, themeColor, cssColors),
       (async () => {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return null;
 
-        const prompt = `You are analysing a product website to prefill a product registration form.
+        const prompt = `You are a product analyst extracting structured data from a SaaS/app website to prefill a marketing tool registration form. Be specific and accurate — do NOT hallucinate details not found on the page.
 
 URL: ${url}
 Page title: ${title || '(none)'}
 Meta description: ${description || '(none)'}
+Theme color: ${themeColor || '(none)'}
 
-Page text (first 8000 chars):
+Page content (headings first, then body text):
 ${visibleText}
 
-Return ONLY a valid JSON object (no markdown, no backticks) with these exact keys:
+Return ONLY a valid JSON object with NO markdown fences or extra text:
 {
-  "name": "product name (short, title-case)",
-  "description": "1-2 sentence product description suitable for a marketing tool",
-  "category": one of: "saas" | "mobile" | "web" | "api" | "marketplace" | "other",
-  "pricingTier": "pricing summary e.g. 'Free, Pro $29/mo, Enterprise' or 'Free' or 'Paid' — keep it short",
-  "tags": ["up to 5 lowercase tags relevant to this product"],
-  "targetAudience": "brief target audience description e.g. 'SaaS founders, indie hackers'",
-  "tone": "one or two words describing the brand tone e.g. 'professional, friendly'"
+  "name": "The product's proper name (short, title-case, e.g. 'Notion', 'Linear', 'Cal.com')",
+  "description": "2 sentences max. First sentence: what the product does. Second sentence: the main benefit or who it's for. Be concrete and specific.",
+  "category": "One of exactly: saas | mobile | web | api | marketplace | other. 'saas' = subscription software with accounts/dashboards. 'mobile' = primarily a native app. 'api' = developer API/SDK product. 'marketplace' = two-sided marketplace. 'web' = web tool without accounts.",
+  "pricingTier": "Pricing summary from the page. Examples: 'Free', 'Free trial, Pro $19/mo', 'Starts at $49/mo', 'Free open source, Cloud $20/mo', 'Contact for pricing'. If pricing page not loaded, write 'Check pricing page'.",
+  "tags": ["5 specific lowercase tags. Mix: 1 category tag (e.g. 'project-management', 'email-marketing', 'analytics'), 1 tech/approach tag (e.g. 'ai-powered', 'no-code', 'open-source'), 1 audience tag (e.g. 'startups', 'developers', 'enterprise'), 2 feature/use-case tags (e.g. 'automation', 'collaboration', 'real-time'). Use hyphens for multi-word tags."],
+  "targetAudience": "Specific audience description. Examples: 'B2B SaaS founders and product teams', 'Freelance developers and agencies', 'E-commerce store owners on Shopify'. Be specific — not just 'businesses'.",
+  "tone": "2-3 words describing the brand voice from the writing style on the page. Examples: 'bold, direct', 'friendly, approachable', 'professional, technical', 'playful, energetic'"
 }`;
 
         const res = await fetch(
@@ -204,14 +288,15 @@ Return ONLY a valid JSON object (no markdown, no backticks) with these exact key
             headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
             body: JSON.stringify({
               contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.2, maxOutputTokens: 512 },
+              generationConfig: { temperature: 0.1, maxOutputTokens: 1024 },
             }),
-            signal: AbortSignal.timeout(20_000),
+            signal: AbortSignal.timeout(25_000),
           },
         );
         const data = await res.json();
         const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        const jsonText = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+        // Strip any accidental markdown fences
+        const jsonText = raw.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/i, '').trim();
         try { return JSON.parse(jsonText); } catch { return null; }
       })(),
     ]);
@@ -224,7 +309,7 @@ Return ONLY a valid JSON object (no markdown, no backticks) with these exact key
       description: String(ai.description || description || '').slice(0, 500),
       category: categories.includes(ai.category) ? ai.category : 'saas',
       pricingTier: String(ai.pricingTier || '').slice(0, 100),
-      tags: (Array.isArray(ai.tags) ? ai.tags : []).slice(0, 5).map((t: unknown) => String(t).slice(0, 30)),
+      tags: (Array.isArray(ai.tags) ? ai.tags : []).slice(0, 5).map((t: unknown) => String(t).slice(0, 40)),
       primaryColor: colors.primary,
       secondaryColor: colors.secondary,
       accentColor: colors.accent,
