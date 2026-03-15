@@ -152,7 +152,7 @@ async function extractColorsFromImage(
     // Minimum viable image size — 200 bytes rules out empty/error responses
     if (buffer.length < 200) return null;
 
-    const Vibrant = (await import('node-vibrant')).default;
+    const { Vibrant } = await import('node-vibrant/node');
     const palette = await Vibrant.from(buffer).getPalette();
 
     // Choose primary: most vibrant non-white/black swatch
