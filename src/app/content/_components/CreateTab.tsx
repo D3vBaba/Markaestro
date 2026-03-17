@@ -199,12 +199,33 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     setPublishing(true);
     const mediaUrls = imageUrl ? [imageUrl] : undefined;
     await apiPut(`/api/posts/${postId}`, { content, channel, mediaUrls });
-    const res = await apiPost<{ ok: boolean; error?: string; externalUrl?: string }>(`/api/posts/${postId}/publish`, {});
+    const res = await apiPost<{
+      ok: boolean;
+      error?: string;
+      externalUrl?: string;
+      channels?: Array<{ channel: string; success: boolean; externalUrl?: string; error?: string }>;
+    }>(`/api/posts/${postId}/publish`, {});
     if (res.ok && res.data.ok) {
-      toast.success("Posted successfully!");
-      if (res.data.externalUrl) {
-        toast.info(`View post: ${res.data.externalUrl}`);
+      const channels = res.data.channels || [];
+      const successful = channels.filter((c) => c.success);
+      const failed = channels.filter((c) => !c.success && !c.error?.startsWith("Skipped"));
+
+      if (successful.length > 1) {
+        toast.success(`Posted to ${successful.map((c) => c.channel).join(" & ")}!`);
+      } else {
+        toast.success("Posted successfully!");
       }
+
+      for (const ch of successful) {
+        if (ch.externalUrl) {
+          toast.info(`${ch.channel}: ${ch.externalUrl}`);
+        }
+      }
+
+      for (const ch of failed) {
+        toast.error(`${ch.channel}: ${ch.error}`);
+      }
+
       setContent("");
       setPostId(null);
       setImageUrl(null);

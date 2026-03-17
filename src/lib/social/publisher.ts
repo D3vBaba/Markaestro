@@ -2,9 +2,34 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getAdapterForChannel } from '@/lib/platform/registry';
 import { getConnectionForChannel } from '@/lib/platform/connections';
 import type { PublishRequest, PublishResult } from '@/lib/platform/types';
+import type { SocialChannel } from '@/lib/schemas';
 
 export type { PublishRequest, PublishResult };
 
+export type ChannelPublishResult = {
+  channel: SocialChannel;
+  success: boolean;
+  externalId?: string;
+  externalUrl?: string;
+  error?: string;
+};
+
+export type MultiChannelPublishResult = {
+  /** True if the primary channel succeeded */
+  success: boolean;
+  /** Results for each channel that was attempted */
+  channels: ChannelPublishResult[];
+  /** Primary channel external ID (for backwards compat) */
+  externalId?: string;
+  /** Primary channel external URL (for backwards compat) */
+  externalUrl?: string;
+  /** Error message if the primary channel failed */
+  error?: string;
+};
+
+/**
+ * Publish a single post to one channel.
+ */
 export async function publishPost(
   workspaceId: string,
   productId: string | undefined,
@@ -26,6 +51,84 @@ export async function publishPost(
   }
 
   return adapter.publish(connection, request);
+}
+
+/**
+ * Determine all Meta channels that should be published to.
+ * When the user selects facebook or instagram, we auto-include
+ * the other channel if the Meta connection supports it.
+ */
+async function resolveMetaChannels(
+  workspaceId: string,
+  productId: string | undefined,
+  primaryChannel: SocialChannel,
+): Promise<SocialChannel[]> {
+  if (primaryChannel !== 'facebook' && primaryChannel !== 'instagram') {
+    return [primaryChannel];
+  }
+
+  const connection = await getConnectionForChannel(workspaceId, primaryChannel, productId);
+  if (!connection) return [primaryChannel];
+
+  const hasPage = !!connection.metadata.pageId;
+  const hasIg = !!connection.metadata.igAccountId;
+
+  if (hasPage && hasIg) {
+    return ['facebook', 'instagram'];
+  }
+
+  return [primaryChannel];
+}
+
+/**
+ * Publish a post to all applicable channels.
+ * For Meta (Facebook/Instagram), if both channels are linked, publishes to both.
+ * For other channels, publishes to just the selected channel.
+ */
+export async function publishPostMultiChannel(
+  workspaceId: string,
+  productId: string | undefined,
+  request: PublishRequest,
+): Promise<MultiChannelPublishResult> {
+  const channels = await resolveMetaChannels(workspaceId, productId, request.channel);
+
+  const results: ChannelPublishResult[] = [];
+
+  for (const channel of channels) {
+    // For Instagram, skip if no image (text-only not supported) — don't block the whole publish
+    if (channel === 'instagram' && (!request.mediaUrls || request.mediaUrls.length === 0)) {
+      results.push({
+        channel,
+        success: false,
+        error: 'Skipped — Instagram requires an image',
+      });
+      continue;
+    }
+
+    const result = await publishPost(workspaceId, productId, {
+      ...request,
+      channel,
+    });
+
+    results.push({
+      channel,
+      success: result.success,
+      externalId: result.externalId,
+      externalUrl: result.externalUrl,
+      error: result.error,
+    });
+  }
+
+  // Primary channel result (the channel the user selected)
+  const primaryResult = results.find((r) => r.channel === request.channel) || results[0];
+
+  return {
+    success: primaryResult.success,
+    channels: results,
+    externalId: primaryResult.externalId,
+    externalUrl: primaryResult.externalUrl,
+    error: primaryResult.success ? undefined : primaryResult.error,
+  };
 }
 
 /**
@@ -55,7 +158,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<{ proc
 
     await doc.ref.update({ status: 'publishing', updatedAt: new Date().toISOString() });
 
-    const result = await publishPost(workspaceId, productId, {
+    const result = await publishPostMultiChannel(workspaceId, productId, {
       content: post.content,
       channel: post.channel,
       mediaUrls: post.mediaUrls,
@@ -66,6 +169,8 @@ export async function processScheduledPosts(workspaceId: string): Promise<{ proc
         status: 'published',
         externalId: result.externalId || '',
         externalUrl: result.externalUrl || '',
+        publishResults: result.channels,
+        publishedChannels: result.channels.filter((c) => c.success).map((c) => c.channel),
         publishedAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
@@ -73,6 +178,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<{ proc
       await doc.ref.update({
         status: 'failed',
         errorMessage: result.error || 'Unknown error',
+        publishResults: result.channels,
         updatedAt: new Date().toISOString(),
       });
     }

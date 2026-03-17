@@ -10,10 +10,13 @@ export async function POST(req: Request) {
     const body = await req.json();
     const input = generateImageSchema.parse(body);
 
-    // Load product data if productId provided
+    // Load full product data if productId provided
     let brandIdentity: ImageGenRequest['brandIdentity'];
     let brandVoice: ImageGenRequest['brandVoice'];
     let productName: string | undefined;
+    let productDescription: string | undefined;
+    let productCategories: string[] | undefined;
+    let productUrl: string | undefined;
     let logoUrl: string | undefined;
 
     if (input.productId) {
@@ -22,6 +25,9 @@ export async function POST(req: Request) {
       if (productSnap.exists) {
         const product = productSnap.data()!;
         productName = product.name;
+        productDescription = product.description || product.tagline || '';
+        productCategories = product.categories || (product.category ? [product.category] : undefined);
+        productUrl = product.url || product.website || '';
         brandIdentity = product.brandIdentity;
         brandVoice = product.brandVoice;
 
@@ -38,6 +44,9 @@ export async function POST(req: Request) {
         brandIdentity,
         brandVoice,
         productName,
+        productDescription,
+        productCategories,
+        productUrl,
         channel: input.channel,
         style: input.style,
         aspectRatio: input.aspectRatio,

@@ -1,6 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { sendCampaignEmails } from '@/lib/email/sender';
-import { publishPost } from '@/lib/social/publisher';
+import { publishPostMultiChannel } from '@/lib/social/publisher';
 import { decrypt } from '@/lib/crypto';
 import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
 import { getGoogleCampaignMetrics } from '@/lib/ads/google-ads';
@@ -69,24 +69,28 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
           if (!productId) {
             message = `Post ${postId} has no associated product — skipped`;
           } else {
-            const result = await publishPost(workspaceId, productId, {
+            const result = await publishPostMultiChannel(workspaceId, productId, {
               content: post.content,
               channel: post.channel,
               mediaUrls: post.mediaUrls,
             });
+            const successfulChannels = result.channels.filter((c) => c.success);
             if (result.success) {
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
                 status: 'published',
                 externalId: result.externalId || '',
                 externalUrl: result.externalUrl || '',
+                publishResults: result.channels,
+                publishedChannels: successfulChannels.map((c) => c.channel),
                 publishedAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
               });
-              message = `Post published to ${post.channel}`;
+              message = `Post published to ${successfulChannels.map((c) => c.channel).join(' & ')}`;
             } else {
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
                 status: 'failed',
                 errorMessage: result.error || 'Unknown error',
+                publishResults: result.channels,
                 updatedAt: new Date().toISOString(),
               });
               message = `Post publish failed: ${result.error}`;

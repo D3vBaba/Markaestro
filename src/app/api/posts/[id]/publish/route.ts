@@ -1,7 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
-import { publishPost } from '@/lib/social/publisher';
+import { publishPostMultiChannel } from '@/lib/social/publisher';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -31,7 +31,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     let result;
     try {
-      result = await publishPost(ctx.workspaceId, productId, {
+      result = await publishPostMultiChannel(ctx.workspaceId, productId, {
         content: post.content,
         channel: post.channel,
         mediaUrls: post.mediaUrls,
@@ -46,22 +46,40 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     console.log(`[publish] Result for ${id}:`, JSON.stringify(result));
 
+    const successfulChannels = result.channels.filter((c) => c.success);
+
     if (result.success) {
       await ref.update({
         status: 'published',
         externalId: result.externalId || '',
         externalUrl: result.externalUrl || '',
+        publishResults: result.channels,
+        publishedChannels: successfulChannels.map((c) => c.channel),
         publishedAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
-      return apiOk({ ok: true, id, status: 'published', externalId: result.externalId, externalUrl: result.externalUrl });
+      return apiOk({
+        ok: true,
+        id,
+        status: 'published',
+        externalId: result.externalId,
+        externalUrl: result.externalUrl,
+        channels: result.channels,
+      });
     } else {
       await ref.update({
         status: 'failed',
         errorMessage: result.error || 'Unknown error',
+        publishResults: result.channels,
         updatedAt: new Date().toISOString(),
       });
-      return apiOk({ ok: false, id, status: 'failed', error: result.error });
+      return apiOk({
+        ok: false,
+        id,
+        status: 'failed',
+        error: result.error,
+        channels: result.channels,
+      });
     }
   } catch (error) {
     return apiError(error);

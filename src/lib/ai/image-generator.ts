@@ -7,6 +7,12 @@ export type ImageGenRequest = {
   brandIdentity?: BrandIdentity;
   brandVoice?: BrandVoice;
   productName?: string;
+  /** What the product actually is / does */
+  productDescription?: string;
+  /** Product categories like saas, mobile, web, etc. */
+  productCategories?: string[];
+  /** Product website URL */
+  productUrl?: string;
   /** Target social channel — drives platform-specific visual direction */
   channel?: SocialChannel;
   style: ImageStyle;
@@ -111,29 +117,99 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
   // ── 2. PLATFORM DIRECTION ──────────────────────────────────
   sections.push(getPlatformDirection(req.channel));
 
-  // ── 3. SUBJECT — must be relevant to the product and post ──
-  sections.push([
-    'SUBJECT: Create a marketing image that is DIRECTLY RELEVANT to the product and what the post is about.',
-    'The image should visually communicate the core message or value proposition of the post.',
-    'If the post is about a software product or app, show the LIFESTYLE or OUTCOME the product enables — people being productive, creative, successful, or at ease.',
-    'If the post is about a physical product, show the product in an aspirational setting with beautiful lighting.',
-    'The viewer should immediately understand what the post is about from the image alone.',
-    `Post content: "${req.prompt}"`,
-  ].join('\n'));
+  // ── 3. PRODUCT CONTEXT — ground the image in what the product actually is ──
+  {
+    const productLines: string[] = [];
 
-  // ── 4. SETTING & CONTEXT ──────────────────────────────────
+    if (req.productName) {
+      productLines.push(`PRODUCT NAME: "${req.productName}"`);
+    }
+
+    if (req.productDescription) {
+      productLines.push(`WHAT IT DOES: ${req.productDescription}`);
+    }
+
+    if (req.productCategories && req.productCategories.length > 0) {
+      productLines.push(`PRODUCT TYPE: ${req.productCategories.join(', ')}`);
+    }
+
+    if (req.productUrl) {
+      productLines.push(`WEBSITE: ${req.productUrl}`);
+    }
+
+    if (req.brandVoice?.targetAudience) {
+      productLines.push(`TARGET AUDIENCE: ${req.brandVoice.targetAudience}`);
+    }
+
+    if (productLines.length > 0) {
+      sections.push([
+        'PRODUCT RESEARCH — Read this carefully before designing:',
+        ...productLines,
+        '',
+        'You MUST design the image specifically for THIS product. The image should make someone who knows the product say "yes, that image is clearly about [product name]".',
+        'Do NOT create a generic stock-photo-style image. The image must be unmistakably tied to what this product does and who it serves.',
+      ].join('\n'));
+    }
+  }
+
+  // ── 4. SUBJECT — derive the visual concept from the product + post ──
+  {
+    const isSoftware = req.productCategories?.some((c) =>
+      ['saas', 'mobile', 'web', 'api'].includes(c),
+    );
+
+    const subjectLines: string[] = [
+      'SUBJECT: Design a marketing visual that communicates the CORE VALUE of this product.',
+    ];
+
+    if (isSoftware) {
+      subjectLines.push(
+        'This is a SOFTWARE product. Do NOT show generic office scenes, random people at laptops, or abstract tech patterns.',
+        'Instead, show the TRANSFORMATION or OUTCOME the software delivers:',
+        '- If it helps teams collaborate → show the feeling of seamless teamwork, connected workflows',
+        '- If it automates tasks → show the relief/freedom of time saved, the before/after contrast',
+        '- If it provides analytics → show clarity, insight, the "aha moment" of understanding data',
+        '- If it is a mobile app → show the lifestyle context where someone would pull out their phone to use it',
+        'The visual should answer: "What does the user\'s life look like BECAUSE they use this product?"',
+      );
+    } else {
+      subjectLines.push(
+        'Show the product or its impact in an aspirational, real-world context.',
+        'The viewer should feel desire or curiosity — "I want that" or "I need to know more".',
+      );
+    }
+
+    subjectLines.push(
+      '',
+      `POST CONTENT (use this to understand the specific angle/message — do NOT just illustrate these words literally):`,
+      `"${req.prompt}"`,
+      '',
+      'Extract the CORE CLAIM or VALUE PROPOSITION from the post, then design a visual metaphor or scene that communicates it.',
+    );
+
+    sections.push(subjectLines.join('\n'));
+  }
+
+  // ── 5. SETTING & CONTEXT ──────────────────────────────────
   if (req.productName) {
-    sections.push(`BRAND: This is marketing for "${req.productName}". The image must feel connected to this product — not generic. Show the world this product exists in.`);
+    sections.push(`BRAND WORLD: This image lives in the universe of "${req.productName}". It should feel like it belongs on their website, app store listing, or social feed — not like a random stock photo with their name on it.`);
   }
 
   // Screenshots override — only when user explicitly uploads them
   if (req.screenUrls && req.screenUrls.length > 0) {
     const count = req.screenUrls.length;
+    const productContext = req.productName
+      ? ` These are real screenshots from "${req.productName}".`
+      : '';
     sections.push([
-      `OVERRIDE — APP SHOWCASE: Feature ${count === 1 ? 'one smartphone' : `${count} smartphones`} floating in space with the provided screenshot(s) displayed on screen.`,
-      'The phone(s) should be the hero element — modern design, thin bezels, subtle drop shadow.',
-      'Background: soft gradient or atmospheric blur — NOT a desk, hand, or office setting.',
-      'Display the screenshots EXACTLY as provided — do not redraw or alter them.',
+      `APP SHOWCASE MODE: The user has provided ${count} actual screenshot(s) from their app.${productContext}`,
+      `Feature ${count === 1 ? 'one smartphone' : `${count} smartphones`} displaying the provided screenshot(s) EXACTLY as-is on screen.`,
+      'CRITICAL: The screenshots are the PROVIDED IMAGES — display them pixel-perfect on the phone screens. Do NOT redraw, alter, or replace the UI shown in the screenshots.',
+      'The phone(s) should be the hero element — modern frameless design, thin bezels, subtle shadow.',
+      req.productDescription
+        ? `Design the background to complement what "${req.productName}" does: ${req.productDescription}. Use colors, patterns, or abstract elements that relate to the product category.`
+        : 'Background: soft gradient or atmospheric blur that complements the app\'s color scheme.',
+      'Do NOT show generic/random app interfaces — the provided screenshots are the ONLY content that should appear on the phone screens.',
     ].join('\n'));
   }
 
@@ -158,14 +234,17 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
     sections.push(`MOOD: The image should evoke a ${req.brandVoice.tone} feeling.`);
   }
 
-  // ── 6. TECHNICAL QUALITY ───────────────────────────────────
+  // ── TECHNICAL QUALITY ───────────────────────────────────
   sections.push([
     'QUALITY: Sharp focus, natural depth of field, professional color correction, slight film grain.',
     'RULES:',
     '- NO text, words, letters, or typography in the image',
     '- NO watermarks or UI elements',
     '- Natural skin texture if people are shown — no plastic/waxy AI look',
-    '- The image must be RELEVANT to the product — not a random unrelated scene',
+    '- The image MUST be specifically about THIS product — if someone who uses the product saw this image, they should immediately recognize it relates to their product',
+    '- Do NOT show random phone screens with fake/generic UIs unless the user provided actual screenshots',
+    '- Do NOT show generic "person at laptop" or "team in office" scenes unless they specifically relate to the product\'s use case',
+    '- Avoid cliché tech imagery: glowing circuit boards, abstract network nodes, floating holographic UIs',
   ].join('\n'));
 
   return sections.join('\n\n');
