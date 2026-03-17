@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { apiGet } from "@/lib/api-client";
 
 type IntegrationInfo = {
@@ -21,11 +22,11 @@ const channels = [
   { value: "tiktok", label: "TikTok" },
 ] as const;
 
-const setupHint: Record<string, string> = {
-  facebook: "Connect Meta and select a Facebook page in Products → Edit",
-  instagram: "Connect Meta with a linked Instagram business account in Products → Edit",
-  x: "Connect X (Twitter) in Products → Edit",
-  tiktok: "Connect TikTok in Products → Edit",
+const setupHintPrefix: Record<string, string> = {
+  facebook: "Connect Meta and select a Facebook page in",
+  instagram: "Connect Meta with a linked Instagram business account in",
+  x: "Connect X (Twitter) in",
+  tiktok: "Connect TikTok in",
 };
 
 export default function ChannelSelector({
@@ -78,7 +79,7 @@ export default function ChannelSelector({
             <button
               key={ch.value}
               onClick={() => onChange(ch.value)}
-              title={state !== "ready" ? setupHint[ch.value] : undefined}
+              title={state !== "ready" ? `${setupHintPrefix[ch.value]} Products → Edit` : undefined}
               className={`relative py-3 px-4 rounded-lg border text-sm transition-all text-center ${
                 selected
                   ? "border-foreground bg-foreground text-background font-medium"
@@ -100,10 +101,20 @@ export default function ChannelSelector({
         })}
       </div>
       {productId && selectedState === "needs-setup" && (
-        <p className="text-[11px] text-amber-600">⚠ {setupHint[value]}</p>
+        <p className="text-[11px] text-amber-600">
+          ⚠ {setupHintPrefix[value]}{" "}
+          <Link href="/products" className="underline underline-offset-2 hover:opacity-80">
+            Products → Edit
+          </Link>
+        </p>
       )}
       {productId && selectedState === "disconnected" && (
-        <p className="text-[11px] text-muted-foreground">Not connected — {setupHint[value]}</p>
+        <p className="text-[11px] text-muted-foreground">
+          Not connected — {setupHintPrefix[value]}{" "}
+          <Link href="/products" className="underline underline-offset-2 hover:opacity-80">
+            Products → Edit
+          </Link>
+        </p>
       )}
     </div>
   );
