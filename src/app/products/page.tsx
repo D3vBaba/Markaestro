@@ -40,7 +40,8 @@ type Product = {
   name: string;
   description: string;
   url: string;
-  category: string;
+  categories?: string[];
+  category?: string; // legacy field — coalesced in UI
   status: string;
   pricingTier: string;
   tags: string[];
@@ -174,7 +175,7 @@ export default function ProductsPage() {
   const [newName, setNewName] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newUrl, setNewUrl] = useState("");
-  const [newCategory, setNewCategory] = useState("saas");
+  const [newCategories, setNewCategories] = useState<string[]>(["saas"]);
   const [newPricing, setNewPricing] = useState("");
   const [newTags, setNewTags] = useState("");
   const [saving, setSaving] = useState(false);
@@ -196,7 +197,7 @@ export default function ProductsPage() {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editUrl, setEditUrl] = useState("");
-  const [editCategory, setEditCategory] = useState("saas");
+  const [editCategories, setEditCategories] = useState<string[]>(["saas"]);
   const [editStatus, setEditStatus] = useState("active");
   const [editPricing, setEditPricing] = useState("");
   const [editTags, setEditTags] = useState("");
@@ -322,7 +323,7 @@ export default function ProductsPage() {
         setNewName(d.name || "");
         setNewDescription(d.description || "");
         setNewUrl(fullUrl);
-        setNewCategory(d.category || "saas");
+        setNewCategories(d.category ? [d.category] : ["saas"]);
         setNewPricing(d.pricingTier || "");
         setNewTags((d.tags || []).join(", "));
         setScanPrimaryColor(d.primaryColor || "#6366f1");
@@ -347,7 +348,7 @@ export default function ProductsPage() {
 
   const resetCreateForm = () => {
     setScanUrl(""); setScanned(false); setScanning(false);
-    setNewName(""); setNewDescription(""); setNewUrl(""); setNewCategory("saas"); setNewPricing(""); setNewTags("");
+    setNewName(""); setNewDescription(""); setNewUrl(""); setNewCategories(["saas"]); setNewPricing(""); setNewTags("");
     setScanPrimaryColor("#6366f1"); setScanSecondaryColor(""); setScanAccentColor(""); setScanLogoUrl("");
     setScanTargetAudience(""); setScanTone("");
   };
@@ -360,7 +361,7 @@ export default function ProductsPage() {
         name: newName,
         description: newDescription,
         url: newUrl || "",
-        category: newCategory,
+        categories: newCategories,
         pricingTier: newPricing,
         tags,
       });
@@ -414,7 +415,7 @@ export default function ProductsPage() {
     setEditName(product.name || "");
     setEditDescription(product.description || "");
     setEditUrl(product.url || "");
-    setEditCategory(product.category || "saas");
+    setEditCategories(product.categories?.length ? product.categories : product.category ? [product.category] : ["saas"]);
     setEditStatus(product.status || "active");
     setEditPricing(product.pricingTier || "");
     setEditTags((product.tags || []).join(", "));
@@ -466,7 +467,7 @@ export default function ProductsPage() {
         name: editName,
         description: editDescription,
         url: editUrl || "",
-        category: editCategory,
+        categories: editCategories,
         status: editStatus,
         pricingTier: editPricing,
         tags: editTags.split(",").map((t) => t.trim()).filter(Boolean),
@@ -652,14 +653,24 @@ export default function ProductsPage() {
                   </FormField>
                   <div className="grid grid-cols-2 gap-3">
                     <FormField label="Category">
-                      <Select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
-                        <option value="saas">SaaS</option>
-                        <option value="mobile">Mobile App</option>
-                        <option value="web">Web App</option>
-                        <option value="api">API</option>
-                        <option value="marketplace">Marketplace</option>
-                        <option value="other">Other</option>
-                      </Select>
+                      <div className="flex flex-wrap gap-1.5">
+                        {Object.entries(categoryLabels).map(([val, label]) => (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setNewCategories((prev) =>
+                              prev.includes(val) ? (prev.length > 1 ? prev.filter((c) => c !== val) : prev) : [...prev, val]
+                            )}
+                            className={`px-2.5 py-1 rounded-md border text-xs transition-all ${
+                              newCategories.includes(val)
+                                ? "border-foreground bg-foreground text-background font-medium"
+                                : "border-border/60 text-muted-foreground hover:border-foreground/30"
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
                     </FormField>
                     <FormField label="Pricing Tier">
                       <Input placeholder="Free, Pro $29/mo…" value={newPricing} onChange={(e) => setNewPricing(e.target.value)} />
@@ -790,7 +801,7 @@ export default function ProductsPage() {
                     <div className="min-w-0">
                       <CardTitle className="text-lg">{p.name}</CardTitle>
                       <CardDescription className="mt-0.5">
-                        {categoryLabels[p.category] || p.category}
+                        {(p.categories?.length ? p.categories : p.category ? [p.category] : ["saas"]).map((c) => categoryLabels[c] || c).join(" · ")}
                         {p.pricingTier && ` \u2022 ${p.pricingTier}`}
                       </CardDescription>
                     </div>
@@ -886,14 +897,24 @@ export default function ProductsPage() {
             </FormField>
             <div className="grid grid-cols-2 gap-3">
               <FormField label="Category">
-                <Select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
-                  <option value="saas">SaaS</option>
-                  <option value="mobile">Mobile App</option>
-                  <option value="web">Web App</option>
-                  <option value="api">API</option>
-                  <option value="marketplace">Marketplace</option>
-                  <option value="other">Other</option>
-                </Select>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(categoryLabels).map(([val, label]) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setEditCategories((prev) =>
+                        prev.includes(val) ? (prev.length > 1 ? prev.filter((c) => c !== val) : prev) : [...prev, val]
+                      )}
+                      className={`px-2.5 py-1 rounded-md border text-xs transition-all ${
+                        editCategories.includes(val)
+                          ? "border-foreground bg-foreground text-background font-medium"
+                          : "border-border/60 text-muted-foreground hover:border-foreground/30"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </FormField>
               <FormField label="Status">
                 <Select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>

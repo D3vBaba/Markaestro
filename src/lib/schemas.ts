@@ -161,11 +161,17 @@ export const brandIdentitySchema = z.object({
 export const productStatuses = ['active', 'beta', 'development', 'sunset', 'archived'] as const;
 export const productCategories = ['saas', 'mobile', 'web', 'api', 'marketplace', 'other'] as const;
 
+const categoryEnum = z.enum(productCategories);
+const categoriesSchema = z
+  .array(categoryEnum)
+  .min(1, 'Select at least one category')
+  .default(['saas']);
+
 export const createProductSchema = z.object({
   name: nameSchema,
   description: optionalString,
   url: z.string().trim().url('Invalid URL').or(z.literal('')).default(''),
-  category: z.enum(productCategories).default('saas'),
+  categories: categoriesSchema,
   status: z.enum(productStatuses).default('active'),
   pricingTier: optionalString,
   tags: tagsSchema,
@@ -177,7 +183,7 @@ export const updateProductSchema = z.object({
   name: nameSchema.optional(),
   description: optionalString.optional(),
   url: z.string().trim().url('Invalid URL').or(z.literal('')).optional(),
-  category: z.enum(productCategories).optional(),
+  categories: categoriesSchema.optional(),
   status: z.enum(productStatuses).optional(),
   pricingTier: optionalString.optional(),
   tags: tagsSchema.optional(),
