@@ -15,6 +15,7 @@ import { Trash2, ExternalLink, Package, Pencil, Upload, X, Loader2, Wand2, Check
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
+import TagInput from "@/components/app/TagInput";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 
@@ -176,8 +177,8 @@ export default function ProductsPage() {
   const [newDescription, setNewDescription] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newCategories, setNewCategories] = useState<string[]>(["saas"]);
-  const [newPricing, setNewPricing] = useState("");
-  const [newTags, setNewTags] = useState("");
+  const [newPricing, setNewPricing] = useState<string[]>([]);
+  const [newTags, setNewTags] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   // URL scan state
@@ -199,8 +200,8 @@ export default function ProductsPage() {
   const [editUrl, setEditUrl] = useState("");
   const [editCategories, setEditCategories] = useState<string[]>(["saas"]);
   const [editStatus, setEditStatus] = useState("active");
-  const [editPricing, setEditPricing] = useState("");
-  const [editTags, setEditTags] = useState("");
+  const [editPricing, setEditPricing] = useState<string[]>([]);
+  const [editTags, setEditTags] = useState<string[]>([]);
   const [editSaving, setEditSaving] = useState(false);
 
   // Brand voice state
@@ -324,8 +325,8 @@ export default function ProductsPage() {
         setNewDescription(d.description || "");
         setNewUrl(fullUrl);
         setNewCategories(d.category ? [d.category] : ["saas"]);
-        setNewPricing(d.pricingTier || "");
-        setNewTags((d.tags || []).join(", "));
+        setNewPricing(d.pricingTier ? d.pricingTier.split(",").map((s: string) => s.trim()).filter(Boolean) : []);
+        setNewTags(d.tags || []);
         setScanPrimaryColor(d.primaryColor || "#6366f1");
         setScanSecondaryColor(d.secondaryColor || "");
         setScanAccentColor(d.accentColor || "");
@@ -348,7 +349,7 @@ export default function ProductsPage() {
 
   const resetCreateForm = () => {
     setScanUrl(""); setScanned(false); setScanning(false);
-    setNewName(""); setNewDescription(""); setNewUrl(""); setNewCategories(["saas"]); setNewPricing(""); setNewTags("");
+    setNewName(""); setNewDescription(""); setNewUrl(""); setNewCategories(["saas"]); setNewPricing([]); setNewTags([]);
     setScanPrimaryColor("#6366f1"); setScanSecondaryColor(""); setScanAccentColor(""); setScanLogoUrl("");
     setScanTargetAudience(""); setScanTone("");
   };
@@ -356,14 +357,13 @@ export default function ProductsPage() {
   const handleCreate = async () => {
     setSaving(true);
     try {
-      const tags = newTags.split(",").map((t) => t.trim()).filter(Boolean);
       const res = await apiPost("/api/products", {
         name: newName,
         description: newDescription,
         url: newUrl || "",
         categories: newCategories,
-        pricingTier: newPricing,
-        tags,
+        pricingTier: newPricing.join(", "),
+        tags: newTags,
       });
       if (res.ok) {
         const newProduct = res.data as Product;
@@ -417,8 +417,8 @@ export default function ProductsPage() {
     setEditUrl(product.url || "");
     setEditCategories(product.categories?.length ? product.categories : product.category ? [product.category] : ["saas"]);
     setEditStatus(product.status || "active");
-    setEditPricing(product.pricingTier || "");
-    setEditTags((product.tags || []).join(", "));
+    setEditPricing((product.pricingTier || "").split(",").map((s) => s.trim()).filter(Boolean));
+    setEditTags(product.tags || []);
 
     // Load brand voice & identity
     const res = await apiGet<{ brandVoice: BrandVoice | null; brandIdentity: BrandIdentity | null }>(`/api/products/${product.id}/brand-voice`);
@@ -469,8 +469,8 @@ export default function ProductsPage() {
         url: editUrl || "",
         categories: editCategories,
         status: editStatus,
-        pricingTier: editPricing,
-        tags: editTags.split(",").map((t) => t.trim()).filter(Boolean),
+        pricingTier: editPricing.join(", "),
+        tags: editTags,
       });
       if (res.ok) {
         toast.success("Product updated");
@@ -673,11 +673,11 @@ export default function ProductsPage() {
                       </div>
                     </FormField>
                     <FormField label="Pricing Tier">
-                      <Input placeholder="Free, Pro $29/mo…" value={newPricing} onChange={(e) => setNewPricing(e.target.value)} />
+                      <TagInput tags={newPricing} onChange={setNewPricing} placeholder="Free, Pro $29/mo…" />
                     </FormField>
                   </div>
-                  <FormField label="Tags (comma separated)">
-                    <Input placeholder="analytics, ai, marketing" value={newTags} onChange={(e) => setNewTags(e.target.value)} />
+                  <FormField label="Tags">
+                    <TagInput tags={newTags} onChange={setNewTags} placeholder="analytics, ai, b2b…" />
                   </FormField>
 
                   {/* Brand colors — shown when scanned */}
@@ -927,10 +927,10 @@ export default function ProductsPage() {
               </FormField>
             </div>
             <FormField label="Pricing Tier">
-              <Input value={editPricing} onChange={(e) => setEditPricing(e.target.value)} />
+              <TagInput tags={editPricing} onChange={setEditPricing} placeholder="Free, Pro $29/mo…" />
             </FormField>
-            <FormField label="Tags (comma separated)">
-              <Input value={editTags} onChange={(e) => setEditTags(e.target.value)} />
+            <FormField label="Tags">
+              <TagInput tags={editTags} onChange={setEditTags} placeholder="analytics, ai, b2b…" />
             </FormField>
             <Button onClick={saveProduct} disabled={editSaving} className="w-full">
               {editSaving ? "Saving..." : "Save Product Details"}
