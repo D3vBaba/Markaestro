@@ -57,38 +57,57 @@ function buildBrandVoiceBlock(bv: BrandVoice): string {
   return parts.join('\n');
 }
 
-function getChannelConstraints(channel?: string): string {
+/**
+ * Channel-specific constraints based on engagement research:
+ * - X: 71-100 chars gets 17% more engagement; retweets peak at 71-100 chars
+ * - Facebook: 40-80 chars gets 66% higher engagement
+ * - Instagram: under 150 chars for short posts; first 125 chars show before "more"
+ * - TikTok: captions are secondary to video — keep under 100 chars
+ */
+function getChannelConstraints(channel?: string, contentType?: string): string {
+  const isShort = contentType === 'social_post';
+
   switch (channel) {
     case 'x':
       return [
-        'FORMAT: X/Twitter post. MUST be under 280 characters total.',
-        'Style: punchy, conversational, opinion-driven. X rewards hot takes and relatable moments.',
-        'Structure: Hook line → insight or pain point → product tie-in or CTA.',
-        'Use line breaks for readability. Hashtags optional (1-2 max, only if natural).',
+        isShort
+          ? 'FORMAT: X/Twitter post. AIM for 71-100 characters (this range gets 17% more engagement). MUST be under 280.'
+          : 'FORMAT: X/Twitter post. MUST be under 280 characters.',
+        'Style: punchy, conversational, opinion-driven. One strong thought — not a paragraph.',
+        'Structure: Hook → insight or product tie-in. That\'s it.',
+        'No hashtags unless they add real value. No filler words.',
       ].join('\n');
     case 'facebook':
       return [
-        'FORMAT: Facebook post. 1-3 short paragraphs.',
-        'Style: conversational and relatable. Facebook rewards storytelling and emotion.',
-        'Structure: Strong opening line that hooks → story/pain point → how the product helps → CTA.',
-        'Use line breaks between paragraphs. Emojis sparingly if they fit the brand voice.',
+        isShort
+          ? 'FORMAT: Facebook post. AIM for 40-80 characters (posts this length get 66% higher engagement). Max 2 sentences.'
+          : 'FORMAT: Facebook post. Keep it under 3 short sentences.',
+        'Style: direct and conversational. Get to the point fast — Facebook users scroll fast.',
+        'Structure: One punchy line about the pain point or benefit → CTA or question.',
+        'No paragraph-length posts for short content. Emojis only if they fit the brand.',
       ].join('\n');
     case 'instagram':
       return [
-        'FORMAT: Instagram caption. Medium length — 3-6 sentences.',
-        'Style: visual, aspirational but authentic. Instagram rewards vulnerability and value.',
-        'Structure: Scroll-stopping first line → expand on the idea → product connection → CTA.',
-        'Put the hook in the first line (only ~125 chars show before "more"). Hashtags: 3-5 relevant ones at the end.',
+        isShort
+          ? 'FORMAT: Instagram caption. AIM for 125-150 characters (the sweet spot for engagement). 1-2 sentences max.'
+          : 'FORMAT: Instagram caption. Keep the first line under 125 characters (that\'s what shows before "more").',
+        'Style: visual, aspirational but authentic. Every word must earn its place.',
+        'Structure: Strong hook line → product connection or CTA.',
+        'Hashtags: 3-5 relevant ones AFTER the caption, separated by a line break.',
       ].join('\n');
     case 'tiktok':
       return [
-        'FORMAT: TikTok caption. Short and punchy — 1-2 sentences max.',
-        'Style: casual, authentic, trend-aware. TikTok rewards raw honesty and humor.',
-        'Structure: One bold statement or question → product mention. Keep it under 150 chars ideally.',
-        'Hashtags: 2-3 trending or niche-relevant ones.',
+        isShort
+          ? 'FORMAT: TikTok caption. AIM for under 100 characters. One sentence.'
+          : 'FORMAT: TikTok caption. Keep it under 150 characters.',
+        'Style: casual, raw, authentic. TikTok rewards honesty and humor over polish.',
+        'Structure: One bold statement or question. That\'s it.',
+        'Hashtags: 2-3 niche-relevant ones.',
       ].join('\n');
     default:
-      return 'FORMAT: Social media post. Keep it concise and engaging.';
+      return isShort
+        ? 'FORMAT: Social media post. Keep it under 150 characters — 1-2 sentences max.'
+        : 'FORMAT: Social media post. Keep it concise and engaging.';
   }
 }
 
@@ -116,7 +135,7 @@ export async function generateContent(request: ContentRequest): Promise<ContentR
   const client = getClient();
 
   const productBlock = buildContentPrompt(request);
-  const channelConstraints = getChannelConstraints(request.channel);
+  const channelConstraints = getChannelConstraints(request.channel, request.type);
 
   const prompts: Record<string, string> = {
     email_subject: `${productBlock}
@@ -147,11 +166,18 @@ Write in HTML format. Under 200 words. Tone: ${request.tone || 'Professional'}.`
 
 ${channelConstraints}
 
-Write ONE post. Pick a SPECIFIC pain point or desire the target audience has and build the post around it.
+Write ONE short post. Pick a SPECIFIC pain point or desire the target audience has and build the post around it.
+
+CRITICAL LENGTH RULES:
+- This is a SHORT POST. Brevity is everything.
+- 1-2 sentences MAXIMUM. If you can say it in one sentence, do it in one sentence.
+- Every word must earn its place. Cut ruthlessly.
+- Do NOT write paragraphs, lists, or multi-line posts.
+- Think tweet-length, not blog-post-length.
 
 Do NOT write a generic product announcement. Write something that makes the reader think "this is exactly what I'm dealing with."
 
-Return ONLY the post text. No labels, no "here's the post", no quotation marks wrapping the output.`,
+Return ONLY the post text. No labels, no "here's the post", no quotation marks wrapping the output. No hashtags inline — if needed, put them on a separate line after the caption.`,
 
     ad_copy: `${productBlock}
 
