@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiUpload } from "@/lib/api-client";
+import { toast } from "sonner";
+import { Upload } from "lucide-react";
 
 type GalleryImage = {
   name: string;
@@ -30,16 +32,42 @@ export default function ImagePicker({
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!open) return;
+  const fetchImages = () => {
     setLoading(true);
     setSelected(null);
     apiGet<{ images: GalleryImage[] }>("/api/ai/images").then((res) => {
       if (res.ok) setImages(res.data.images);
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    if (open) fetchImages();
   }, [open]);
+
+  const handleUpload = async (file: File) => {
+    if (file.size > 10 * 1024 * 1024) { toast.error("File must be under 10 MB"); return; }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const res = await apiUpload<{ ok: boolean; url: string }>("/api/ai/images", fd);
+      if (res.ok) {
+        toast.success("Image uploaded");
+        fetchImages();
+        setSelected(res.data.url);
+      } else {
+        toast.error("Upload failed");
+      }
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleConfirm = () => {
     if (selected) {
@@ -52,7 +80,28 @@ export default function ImagePicker({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Pick from Gallery</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>Image Gallery</DialogTitle>
+            <div className="flex items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ""; }}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs flex items-center gap-1.5"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                <Upload className="w-3.5 h-3.5" />
+                {uploading ? "Uploading…" : "Upload Image"}
+              </Button>
+            </div>
+          </div>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto min-h-0">
@@ -64,8 +113,8 @@ export default function ImagePicker({
             </div>
           ) : images.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-sm text-muted-foreground">No images in gallery</p>
-              <p className="text-xs text-muted-foreground/60 mt-2">Generate an image first.</p>
+              <p className="text-sm text-muted-foreground">No images yet</p>
+              <p className="text-xs text-muted-foreground/60 mt-2">Upload an image or generate one in the Create tab.</p>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-3 p-1">

@@ -4,11 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 import PostCard from "./PostCard";
-import ContentEditor from "./ContentEditor";
-import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+import PostEditSheet from "./PostEditSheet";
 
 type Post = {
   id: string;
@@ -27,7 +23,6 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [editPost, setEditPost] = useState<Post | null>(null);
-  const [editContent, setEditContent] = useState("");
 
   const fetchScheduled = useCallback(async () => {
     try {
@@ -74,14 +69,9 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
     }
   };
 
-  const openEdit = (post: Post) => {
-    setEditPost(post);
-    setEditContent(post.content);
-  };
-
-  const saveEdit = async () => {
+  const handleSaveEdit = async (content: string, mediaUrls?: string[]) => {
     if (!editPost) return;
-    const res = await apiPut(`/api/posts/${editPost.id}`, { content: editContent });
+    const res = await apiPut(`/api/posts/${editPost.id}`, { content, mediaUrls: mediaUrls ?? null });
     if (res.ok) {
       toast.success("Post updated");
       setEditPost(null);
@@ -115,28 +105,20 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
           <PostCard
             key={post.id}
             post={post}
-            onEdit={() => openEdit(post)}
+            onEdit={() => setEditPost(post)}
             onDelete={() => handleCancel(post.id)}
             onPublish={() => handlePublishNow(post.id)}
           />
         ))}
       </div>
 
-      <Sheet open={!!editPost} onOpenChange={(open) => !open && setEditPost(null)}>
-        <SheetContent className="overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Edit Scheduled Post</SheetTitle>
-          </SheetHeader>
-          <div className="py-4 space-y-4">
-            {editPost && (
-              <ContentEditor content={editContent} onChange={setEditContent} channel={editPost.channel} />
-            )}
-          </div>
-          <SheetFooter>
-            <Button onClick={saveEdit}>Save Changes</Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <PostEditSheet
+        post={editPost}
+        open={!!editPost}
+        onOpenChange={(open) => !open && setEditPost(null)}
+        onSave={handleSaveEdit}
+        title="Edit Scheduled Post"
+      />
     </>
   );
 }

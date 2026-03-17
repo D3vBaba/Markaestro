@@ -12,6 +12,7 @@ import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
 import ImagePicker from "./ImagePicker";
 import PlatformPreview from "@/components/app/PlatformPreview";
+import { Wand2, PenLine } from "lucide-react";
 
 const contentTypes = [
   { value: "social_post", label: "Short Post" },
@@ -43,6 +44,7 @@ const channelDefaultRatio: Record<string, string> = {
 };
 
 export default function CreateTab({ onPostCreated }: { onPostCreated?: () => void }) {
+  const [mode, setMode] = useState<"ai" | "manual">("ai");
   const [productId, setProductId] = useState("");
   const [channel, setChannel] = useState("x");
   const [contentType, setContentType] = useState("social_post");
@@ -68,6 +70,30 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   const [uploadingScreen, setUploadingScreen] = useState(false);
   const [includeLogo, setIncludeLogo] = useState(false);
   const screenInputRef = useRef<HTMLInputElement>(null);
+
+  // Manual mode
+  const [manualUploading, setManualUploading] = useState(false);
+  const manualFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleManualUpload = async (file: File) => {
+    if (file.size > 10 * 1024 * 1024) { toast.error("File must be under 10 MB"); return; }
+    setManualUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const res = await apiUpload<{ ok: boolean; url: string }>("/api/ai/images", fd);
+      if (res.ok) {
+        setImageUrl(res.data.url);
+        toast.success("Image uploaded");
+      } else {
+        toast.error("Upload failed");
+      }
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setManualUploading(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!productId) {
@@ -168,22 +194,38 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     }
   };
 
-  const handleSaveDraft = async () => {
-    if (!postId) return;
+  // Returns the post ID to use — creates a new draft if none exists yet (manual mode)
+  const ensurePostId = async (): Promise<string | null> => {
+    if (postId) return postId;
     const mediaUrls = imageUrl ? [imageUrl] : undefined;
-    const res = await apiPut(`/api/posts/${postId}`, { content, channel, mediaUrls });
+    const res = await apiPost<{ id: string }>("/api/posts", { content, channel, status: "draft", mediaUrls });
     if (res.ok) {
-      toast.success("Draft saved");
-      onPostCreated?.();
+      setPostId(res.data.id);
+      return res.data.id;
+    }
+    toast.error("Failed to create post");
+    return null;
+  };
+
+  const handleSaveDraft = async () => {
+    if (!content) return;
+    const mediaUrls = imageUrl ? [imageUrl] : undefined;
+    if (postId) {
+      const res = await apiPut(`/api/posts/${postId}`, { content, channel, mediaUrls });
+      if (res.ok) { toast.success("Draft saved"); onPostCreated?.(); }
+      else toast.error("Failed to save draft");
     } else {
-      toast.error("Failed to save draft");
+      const id = await ensurePostId();
+      if (id) { toast.success("Draft saved"); onPostCreated?.(); }
     }
   };
 
   const handleSchedule = async (scheduledAt: string) => {
-    if (!postId) return;
+    if (!content) return;
     const mediaUrls = imageUrl ? [imageUrl] : undefined;
-    const res = await apiPut(`/api/posts/${postId}`, { content, channel, status: "scheduled", scheduledAt, mediaUrls });
+    const id = postId ?? await ensurePostId();
+    if (!id) return;
+    const res = await apiPut(`/api/posts/${id}`, { content, channel, status: "scheduled", scheduledAt, mediaUrls });
     if (res.ok) {
       toast.success("Post scheduled");
       setContent("");
@@ -196,16 +238,18 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   };
 
   const handlePostNow = async () => {
-    if (!postId) return;
+    if (!content) return;
     setPublishing(true);
     const mediaUrls = imageUrl ? [imageUrl] : undefined;
-    await apiPut(`/api/posts/${postId}`, { content, channel, mediaUrls });
+    const id = postId ?? await ensurePostId();
+    if (!id) { setPublishing(false); return; }
+    await apiPut(`/api/posts/${id}`, { content, channel, mediaUrls });
     const res = await apiPost<{
       ok: boolean;
       error?: string;
       externalUrl?: string;
       channels?: Array<{ channel: string; success: boolean; externalUrl?: string; error?: string }>;
-    }>(`/api/posts/${postId}/publish`, {});
+    }>(`/api/posts/${id}/publish`, {});
     if (res.ok && res.data.ok) {
       const channels = res.data.channels || [];
       const successful = channels.filter((c) => c.success);
@@ -241,8 +285,95 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     <div className="grid gap-8 lg:grid-cols-2">
       {/* Left column — inputs */}
       <div className="space-y-6">
-        <ProductPicker value={productId} onChange={setProductId} />
+        {/* Mode toggle */}
+        <div className="flex rounded-lg border border-border/60 p-1 gap-1">
+          <button
+            onClick={() => setMode("ai")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all ${
+              mode === "ai"
+                ? "bg-foreground text-background shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Wand2 className="w-3.5 h-3.5" />
+            AI Generate
+          </button>
+          <button
+            onClick={() => setMode("manual")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all ${
+              mode === "manual"
+                ? "bg-foreground text-background shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <PenLine className="w-3.5 h-3.5" />
+            Manual Post
+          </button>
+        </div>
+
         <ChannelSelector value={channel} onChange={handleChannelChange} productId={productId} />
+
+        {mode === "manual" ? (
+          /* ── Manual path ── */
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Caption</label>
+              <ContentEditor content={content} onChange={setContent} channel={channel} />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Image</label>
+              {imageUrl ? (
+                <div className="relative group rounded-xl overflow-hidden border border-border/40">
+                  <img src={imageUrl} alt="Post image" className="w-full object-cover max-h-48" />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button onClick={() => manualFileInputRef.current?.click()} className="text-white text-xs font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">Replace</button>
+                    <button onClick={() => setPickerOpen(true)} className="text-white text-xs font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">Gallery</button>
+                    <button onClick={() => setImageUrl(null)} className="text-white text-xs font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">Remove</button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="border-2 border-dashed border-border/50 hover:border-foreground/30 rounded-xl p-8 text-center cursor-pointer transition-colors"
+                  onClick={() => manualFileInputRef.current?.click()}
+                >
+                  <p className="text-sm text-muted-foreground">Drop an image or click to upload</p>
+                  <p className="text-[11px] text-muted-foreground/50 mt-1">JPG, PNG, WebP · up to 10 MB</p>
+                </div>
+              )}
+              <input
+                ref={manualFileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleManualUpload(f); e.target.value = ""; }}
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" size="sm" className="text-xs" onClick={() => manualFileInputRef.current?.click()} disabled={manualUploading}>
+                  {manualUploading ? "Uploading…" : "Upload Image"}
+                </Button>
+                <Button variant="outline" size="sm" className="text-xs" onClick={() => setPickerOpen(true)}>
+                  From Gallery
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button variant="outline" size="sm" onClick={handleSaveDraft} disabled={!content} className="flex-1 text-xs">
+                Save Draft
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setScheduleOpen(true)} disabled={!content} className="flex-1 text-xs">
+                Schedule
+              </Button>
+              <Button size="sm" onClick={handlePostNow} disabled={publishing || !content} className="flex-1 text-xs">
+                {publishing ? "Posting…" : "Post Now"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          /* ── AI Generate path ── */
+          <>
+        <ProductPicker value={productId} onChange={setProductId} />
 
         <div className="space-y-3">
           <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Content Type</label>
@@ -281,6 +412,8 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
         >
           {generating ? "Generating..." : "Generate Content"}
         </Button>
+          </>
+        )}
       </div>
 
       {/* Right column — content preview */}

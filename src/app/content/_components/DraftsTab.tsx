@@ -4,12 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { apiGet, apiPost, apiDelete, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
 import PostCard from "./PostCard";
-import ContentEditor from "./ContentEditor";
+import PostEditSheet from "./PostEditSheet";
 import ScheduleSheet from "./ScheduleSheet";
-import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 
 type Post = {
   id: string;
@@ -28,9 +24,8 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [editPost, setEditPost] = useState<Post | null>(null);
-  const [editContent, setEditContent] = useState("");
   const [scheduleOpen, setScheduleOpen] = useState(false);
-  const [schedulePostId, setSchedulePostId] = useState<string | null>(null);
+  const [schedulePending, setSchedulePending] = useState<{ content: string; mediaUrls?: string[] } | null>(null);
 
   const fetchDrafts = useCallback(async () => {
     try {
@@ -67,14 +62,9 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
     }
   };
 
-  const openEdit = (post: Post) => {
-    setEditPost(post);
-    setEditContent(post.content);
-  };
-
-  const saveEdit = async () => {
+  const handleSaveEdit = async (content: string, mediaUrls?: string[]) => {
     if (!editPost) return;
-    const res = await apiPut(`/api/posts/${editPost.id}`, { content: editContent });
+    const res = await apiPut(`/api/posts/${editPost.id}`, { content, mediaUrls: mediaUrls ?? null });
     if (res.ok) {
       toast.success("Draft updated");
       setEditPost(null);
@@ -84,16 +74,23 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
     }
   };
 
-  const openSchedule = (postId: string) => {
-    setSchedulePostId(postId);
+  const handleScheduleFromEdit = (content: string, mediaUrls?: string[]) => {
+    setSchedulePending({ content, mediaUrls });
     setScheduleOpen(true);
   };
 
   const handleSchedule = async (scheduledAt: string) => {
-    if (!schedulePostId) return;
-    const res = await apiPut(`/api/posts/${schedulePostId}`, { status: "scheduled", scheduledAt });
+    if (!editPost || !schedulePending) return;
+    const res = await apiPut(`/api/posts/${editPost.id}`, {
+      content: schedulePending.content,
+      mediaUrls: schedulePending.mediaUrls ?? null,
+      status: "scheduled",
+      scheduledAt,
+    });
     if (res.ok) {
       toast.success("Post scheduled");
+      setEditPost(null);
+      setSchedulePending(null);
       fetchDrafts();
     } else {
       toast.error("Failed to schedule");
@@ -124,29 +121,21 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
           <PostCard
             key={post.id}
             post={post}
-            onEdit={() => openEdit(post)}
+            onEdit={() => setEditPost(post)}
             onDelete={() => handleDelete(post.id)}
             onPublish={() => handlePublish(post.id)}
           />
         ))}
       </div>
 
-      <Sheet open={!!editPost} onOpenChange={(open) => !open && setEditPost(null)}>
-        <SheetContent className="overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Edit Draft</SheetTitle>
-          </SheetHeader>
-          <div className="py-4 space-y-4">
-            {editPost && (
-              <ContentEditor content={editContent} onChange={setEditContent} channel={editPost.channel} />
-            )}
-          </div>
-          <SheetFooter className="gap-2">
-            <Button variant="outline" onClick={() => editPost && openSchedule(editPost.id)}>Schedule</Button>
-            <Button onClick={saveEdit}>Save</Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <PostEditSheet
+        post={editPost}
+        open={!!editPost}
+        onOpenChange={(open) => !open && setEditPost(null)}
+        onSave={handleSaveEdit}
+        onSchedule={handleScheduleFromEdit}
+        title="Edit Draft"
+      />
 
       <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} />
     </>

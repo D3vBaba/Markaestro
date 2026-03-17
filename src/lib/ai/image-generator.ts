@@ -117,99 +117,53 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
   // ── 2. PLATFORM DIRECTION ──────────────────────────────────
   sections.push(getPlatformDirection(req.channel));
 
-  // ── 3. PRODUCT CONTEXT — ground the image in what the product actually is ──
+  // ── 3. PRODUCT + SUBJECT — ground the image in what the product actually is ──
   {
-    const productLines: string[] = [];
+    const productInfo: string[] = [];
+    if (req.productName) productInfo.push(`Product: "${req.productName}"`);
+    if (req.productDescription) productInfo.push(`Description: ${req.productDescription.slice(0, 300)}`);
+    if (req.productCategories?.length) productInfo.push(`Type: ${req.productCategories.join(', ')}`);
+    if (req.brandVoice?.targetAudience) productInfo.push(`Audience: ${req.brandVoice.targetAudience.slice(0, 200)}`);
 
-    if (req.productName) {
-      productLines.push(`PRODUCT NAME: "${req.productName}"`);
+    const isSoftware = req.productCategories?.some((c) => ['saas', 'mobile', 'web', 'api'].includes(c));
+
+    // Truncate post content to avoid blowing up the prompt
+    const postExcerpt = req.prompt.length > 400 ? req.prompt.slice(0, 400) + '...' : req.prompt;
+
+    const lines: string[] = [];
+
+    if (productInfo.length > 0) {
+      lines.push('PRODUCT CONTEXT:', ...productInfo, '');
     }
 
-    if (req.productDescription) {
-      productLines.push(`WHAT IT DOES: ${req.productDescription}`);
-    }
-
-    if (req.productCategories && req.productCategories.length > 0) {
-      productLines.push(`PRODUCT TYPE: ${req.productCategories.join(', ')}`);
-    }
-
-    if (req.productUrl) {
-      productLines.push(`WEBSITE: ${req.productUrl}`);
-    }
-
-    if (req.brandVoice?.targetAudience) {
-      productLines.push(`TARGET AUDIENCE: ${req.brandVoice.targetAudience}`);
-    }
-
-    if (productLines.length > 0) {
-      sections.push([
-        'PRODUCT RESEARCH — Read this carefully before designing:',
-        ...productLines,
-        '',
-        'You MUST design the image specifically for THIS product. The image should make someone who knows the product say "yes, that image is clearly about [product name]".',
-        'Do NOT create a generic stock-photo-style image. The image must be unmistakably tied to what this product does and who it serves.',
-      ].join('\n'));
-    }
-  }
-
-  // ── 4. SUBJECT — derive the visual concept from the product + post ──
-  {
-    const isSoftware = req.productCategories?.some((c) =>
-      ['saas', 'mobile', 'web', 'api'].includes(c),
-    );
-
-    const subjectLines: string[] = [
-      'SUBJECT: Design a marketing visual that communicates the CORE VALUE of this product.',
-    ];
+    lines.push('SUBJECT: Create a marketing image specifically for this product.');
 
     if (isSoftware) {
-      subjectLines.push(
-        'This is a SOFTWARE product. Do NOT show generic office scenes, random people at laptops, or abstract tech patterns.',
-        'Instead, show the TRANSFORMATION or OUTCOME the software delivers:',
-        '- If it helps teams collaborate → show the feeling of seamless teamwork, connected workflows',
-        '- If it automates tasks → show the relief/freedom of time saved, the before/after contrast',
-        '- If it provides analytics → show clarity, insight, the "aha moment" of understanding data',
-        '- If it is a mobile app → show the lifestyle context where someone would pull out their phone to use it',
-        'The visual should answer: "What does the user\'s life look like BECAUSE they use this product?"',
+      lines.push(
+        'This is a software product. Show the OUTCOME or TRANSFORMATION it delivers — the world users live in because of this product.',
+        'Do NOT show generic office scenes, random laptops, abstract tech patterns, or fake phone UIs.',
       );
     } else {
-      subjectLines.push(
-        'Show the product or its impact in an aspirational, real-world context.',
-        'The viewer should feel desire or curiosity — "I want that" or "I need to know more".',
-      );
+      lines.push('Show the product or its impact in an aspirational, real-world context.');
     }
 
-    subjectLines.push(
+    lines.push(
       '',
-      `POST CONTENT (use this to understand the specific angle/message — do NOT just illustrate these words literally):`,
-      `"${req.prompt}"`,
+      `Post angle: "${postExcerpt}"`,
       '',
-      'Extract the CORE CLAIM or VALUE PROPOSITION from the post, then design a visual metaphor or scene that communicates it.',
+      'Design a visual that communicates the core value proposition. Someone familiar with this product should immediately recognize the connection.',
     );
 
-    sections.push(subjectLines.join('\n'));
-  }
-
-  // ── 5. SETTING & CONTEXT ──────────────────────────────────
-  if (req.productName) {
-    sections.push(`BRAND WORLD: This image lives in the universe of "${req.productName}". It should feel like it belongs on their website, app store listing, or social feed — not like a random stock photo with their name on it.`);
+    sections.push(lines.join('\n'));
   }
 
   // Screenshots override — only when user explicitly uploads them
   if (req.screenUrls && req.screenUrls.length > 0) {
     const count = req.screenUrls.length;
-    const productContext = req.productName
-      ? ` These are real screenshots from "${req.productName}".`
-      : '';
     sections.push([
-      `APP SHOWCASE MODE: The user has provided ${count} actual screenshot(s) from their app.${productContext}`,
-      `Feature ${count === 1 ? 'one smartphone' : `${count} smartphones`} displaying the provided screenshot(s) EXACTLY as-is on screen.`,
-      'CRITICAL: The screenshots are the PROVIDED IMAGES — display them pixel-perfect on the phone screens. Do NOT redraw, alter, or replace the UI shown in the screenshots.',
-      'The phone(s) should be the hero element — modern frameless design, thin bezels, subtle shadow.',
-      req.productDescription
-        ? `Design the background to complement what "${req.productName}" does: ${req.productDescription}. Use colors, patterns, or abstract elements that relate to the product category.`
-        : 'Background: soft gradient or atmospheric blur that complements the app\'s color scheme.',
-      'Do NOT show generic/random app interfaces — the provided screenshots are the ONLY content that should appear on the phone screens.',
+      `APP SHOWCASE: Display the ${count} provided screenshot(s) on ${count === 1 ? 'a modern smartphone' : `${count} modern smartphones`}.`,
+      'Show the provided screenshots EXACTLY as-is on the phone screens. Do NOT redraw or alter them.',
+      'Modern frameless phone design, thin bezels, subtle shadow. Background: complementary gradient.',
     ].join('\n'));
   }
 
@@ -236,15 +190,9 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
 
   // ── TECHNICAL QUALITY ───────────────────────────────────
   sections.push([
-    'QUALITY: Sharp focus, natural depth of field, professional color correction, slight film grain.',
-    'RULES:',
-    '- NO text, words, letters, or typography in the image',
-    '- NO watermarks or UI elements',
-    '- Natural skin texture if people are shown — no plastic/waxy AI look',
-    '- The image MUST be specifically about THIS product — if someone who uses the product saw this image, they should immediately recognize it relates to their product',
-    '- Do NOT show random phone screens with fake/generic UIs unless the user provided actual screenshots',
-    '- Do NOT show generic "person at laptop" or "team in office" scenes unless they specifically relate to the product\'s use case',
-    '- Avoid cliché tech imagery: glowing circuit boards, abstract network nodes, floating holographic UIs',
+    'QUALITY: Sharp focus, professional color correction, slight film grain.',
+    'NO text, words, or typography. NO watermarks. NO fake phone UIs unless real screenshots were provided.',
+    'Avoid generic tech cliches: circuit boards, holographic UIs, abstract network nodes.',
   ].join('\n'));
 
   return sections.join('\n\n');
@@ -315,12 +263,17 @@ async function generateWithGemini(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(`Gemini API error: ${data.error?.message || JSON.stringify(data)}`);
+    const errMsg = data.error?.message || JSON.stringify(data).slice(0, 500);
+    console.error('[Gemini] API error:', response.status, errMsg);
+    throw new Error(`Gemini API error: ${errMsg}`);
   }
 
   const parts = data.candidates?.[0]?.content?.parts;
   if (!parts) {
-    throw new Error('No content in Gemini response');
+    const finishReason = data.candidates?.[0]?.finishReason;
+    const safetyRatings = data.candidates?.[0]?.safetyRatings;
+    console.error('[Gemini] No content parts. finishReason:', finishReason, 'safety:', JSON.stringify(safetyRatings));
+    throw new Error(`No image generated by Gemini (reason: ${finishReason || 'unknown'})`);
   }
 
   const imagePart = parts.find((p: { inlineData?: { mimeType: string; data: string } }) => p.inlineData);

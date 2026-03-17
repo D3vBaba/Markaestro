@@ -63,6 +63,7 @@ export async function POST(req: Request) {
       revisedPrompt: result.revisedPrompt,
     });
   } catch (error) {
+    console.error('[generate-image] Error:', error instanceof Error ? error.message : error);
     return apiError(error);
   }
 }
