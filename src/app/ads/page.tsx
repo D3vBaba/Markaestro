@@ -23,6 +23,7 @@ import Select from "@/components/app/Select";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { AdCampaignMetrics } from "@/lib/ads/types";
+import { FacebookAdPreview, GoogleAdPreview } from "@/components/app/PlatformPreview";
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -263,53 +264,30 @@ function AdPreview({ form }: { form: { platform: string; headline: string; prima
   const hasMedia = form.imageUrl || form.videoUrl;
   if (!form.headline && !form.primaryText && !hasMedia) return null;
 
-  const ctaLabels: Record<string, string> = {
-    LEARN_MORE: "Learn More", SHOP_NOW: "Shop Now", SIGN_UP: "Sign Up",
-    DOWNLOAD: "Download", GET_QUOTE: "Get Quote", CONTACT_US: "Contact Us",
-  };
+  if (form.platform === "google") {
+    return (
+      <GoogleAdPreview
+        platform="google"
+        headline={form.headline}
+        primaryText={form.primaryText}
+        description={form.description}
+        linkUrl={form.linkUrl}
+        ctaType={form.ctaType}
+      />
+    );
+  }
 
   return (
-    <div className="rounded-lg border border-border/40 overflow-hidden bg-card">
-      <div className="px-4 py-2.5 border-b border-border/30 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-muted-foreground">Ad Preview -- {platformLabels[form.platform]}</span>
-        <span className="text-[10px] text-muted-foreground border border-border/50 px-1.5 py-0.5 rounded">Sponsored</span>
-      </div>
-
-      {form.primaryText && form.platform !== "google" && (
-        <div className="px-4 py-3">
-          <p className="text-xs leading-relaxed line-clamp-3">{form.primaryText}</p>
-        </div>
-      )}
-
-      {form.videoUrl ? (
-        <video src={form.videoUrl} className="w-full aspect-video object-cover bg-muted/20" controls />
-      ) : form.imageUrl ? (
-        <img src={form.imageUrl} alt="Ad" className="w-full aspect-video object-cover bg-muted/20" />
-      ) : (
-        <div className="w-full aspect-video bg-muted/10 flex items-center justify-center">
-          <span className="text-xs text-muted-foreground/40">No media</span>
-        </div>
-      )}
-
-      <div className="px-4 py-3 space-y-1.5">
-        {form.linkUrl && (
-          <p className="text-[10px] text-muted-foreground uppercase truncate">{form.linkUrl.replace(/^https?:\/\//, "")}</p>
-        )}
-        {form.headline && (
-          <p className="text-sm font-medium leading-snug line-clamp-2">{form.headline}</p>
-        )}
-        {form.description && (
-          <p className="text-xs text-muted-foreground line-clamp-1">{form.description}</p>
-        )}
-        {form.ctaType && (
-          <div className="pt-1.5">
-            <span className="inline-block px-3 py-1.5 text-[11px] font-medium rounded border border-foreground/20 text-foreground">
-              {ctaLabels[form.ctaType] || form.ctaType}
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
+    <FacebookAdPreview
+      platform="meta"
+      headline={form.headline}
+      primaryText={form.primaryText}
+      description={form.description}
+      imageUrl={form.imageUrl}
+      videoUrl={form.videoUrl}
+      linkUrl={form.linkUrl}
+      ctaType={form.ctaType}
+    />
   );
 }
 

@@ -11,6 +11,7 @@ import ChannelSelector from "./ChannelSelector";
 import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
 import ImagePicker from "./ImagePicker";
+import PlatformPreview from "@/components/app/PlatformPreview";
 
 const contentTypes = [
   { value: "social_post", label: "Short Post" },
@@ -289,6 +290,11 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
         {content ? (
           <>
             <ContentEditor content={content} onChange={setContent} channel={channel} />
+
+            {/* Platform preview */}
+            <div className="border-t border-border/30 pt-6">
+              <PlatformPreview content={content} channel={channel} mediaUrls={imageUrl ? [imageUrl] : undefined} />
+            </div>
 
             {/* Image generation */}
             <div className="border-t border-border/30 pt-6 space-y-4">

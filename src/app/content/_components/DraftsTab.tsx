@@ -21,6 +21,7 @@ type Post = {
   externalUrl?: string;
   createdAt?: string;
   errorMessage?: string;
+  mediaUrls?: string[];
 };
 
 export default function DraftsTab({ refreshKey }: { refreshKey: number }) {

@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import PlatformPreview from "@/components/app/PlatformPreview";
 
 type Post = {
   id: string;
@@ -12,6 +14,7 @@ type Post = {
   externalUrl?: string;
   createdAt?: string;
   errorMessage?: string;
+  mediaUrls?: string[];
 };
 
 const channelLabels: Record<string, string> = {
@@ -32,6 +35,8 @@ export default function PostCard({
   onDelete?: () => void;
   onPublish?: () => void;
 }) {
+  const [showPreview, setShowPreview] = useState(false);
+
   return (
     <div className="group border border-border/40 rounded-lg p-5 space-y-4 bg-card hover:border-border transition-colors">
       <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -46,7 +51,11 @@ export default function PostCard({
         )}
       </div>
 
-      <p className="text-sm leading-relaxed whitespace-pre-wrap line-clamp-4">{post.content}</p>
+      {showPreview ? (
+        <PlatformPreview content={post.content} channel={post.channel} mediaUrls={post.mediaUrls} externalUrl={post.externalUrl} />
+      ) : (
+        <p className="text-sm leading-relaxed whitespace-pre-wrap line-clamp-4">{post.content}</p>
+      )}
 
       {post.errorMessage && (
         <p className="text-xs text-destructive">{post.errorMessage}</p>
@@ -61,6 +70,14 @@ export default function PostCard({
             : ""}
         </span>
         <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-[11px] text-muted-foreground hover:text-foreground"
+            onClick={() => setShowPreview((v) => !v)}
+          >
+            {showPreview ? "Text" : "Preview"}
+          </Button>
           {post.externalUrl && (
             <a href={post.externalUrl} target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground hover:text-foreground">
