@@ -2,15 +2,12 @@
 
 import { useEffect, useState, useCallback } from "react";
 import AppShell from "@/components/layout/AppShell";
-import PageHeader from "@/components/app/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, ExternalLink, Heart, MessageCircle, Repeat2, Bookmark, Share2 } from "lucide-react";
 import { apiGet } from "@/lib/api-client";
 import { toast } from "sonner";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Post = {
   id: string;
@@ -22,6 +19,7 @@ type Post = {
   externalUrl?: string;
   createdAt?: string;
   errorMessage?: string;
+  mediaUrls?: string[];
 };
 
 type AdCampaign = {
@@ -32,178 +30,393 @@ type AdCampaign = {
   startDate: string;
   endDate?: string | null;
   dailyBudgetCents?: number;
+  creative?: { headline?: string; primaryText?: string; imageUrl?: string };
 };
 
 type CalendarItem =
   | { kind: "post"; date: string; post: Post }
   | { kind: "ad"; date: string; ad: AdCampaign };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const CHANNEL_LABELS: Record<string, string> = {
-  x: "X",
-  facebook: "FB",
-  instagram: "IG",
-  tiktok: "TT",
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAY_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+const CHANNEL_ACCENT: Record<string, string> = {
+  instagram: "#E1306C",
+  x:         "#14171A",
+  facebook:  "#1877F2",
+  tiktok:    "#EE1D52",
 };
 
-const POST_STATUS_COLORS: Record<string, string> = {
-  published: "bg-emerald-500/10 text-emerald-700 border-emerald-200",
-  scheduled: "bg-blue-500/10 text-blue-700 border-blue-200",
-  draft: "bg-muted text-muted-foreground border-border",
-  failed: "bg-red-500/10 text-red-700 border-red-200",
+const CHANNEL_BG: Record<string, string> = {
+  instagram: "rgba(225,48,108,0.08)",
+  x:         "rgba(20,23,26,0.06)",
+  facebook:  "rgba(24,119,242,0.08)",
+  tiktok:    "rgba(238,29,82,0.08)",
 };
 
-const AD_STATUS_COLORS: Record<string, string> = {
-  active: "bg-emerald-500/10 text-emerald-700 border-emerald-200",
-  pending: "bg-amber-500/10 text-amber-700 border-amber-200",
-  paused: "bg-amber-500/10 text-amber-700 border-amber-200",
-  draft: "bg-muted text-muted-foreground border-border",
-  completed: "bg-muted text-muted-foreground border-border",
-  failed: "bg-red-500/10 text-red-700 border-red-200",
+const CHANNEL_LABEL: Record<string, string> = {
+  instagram: "Instagram",
+  x:         "X",
+  facebook:  "Facebook",
+  tiktok:    "TikTok",
 };
 
-function isoDateStr(d: Date) {
-  return d.toISOString().slice(0, 10);
-}
+const STATUS_DOT: Record<string, string> = {
+  published:  "#10b981",
+  scheduled:  "#6366f1",
+  draft:      "#9ca3af",
+  failed:     "#ef4444",
+  publishing: "#f59e0b",
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 
 function getDateForPost(p: Post): string | null {
-  if (p.publishedAt) return isoDateStr(new Date(p.publishedAt));
-  if (p.scheduledAt) return isoDateStr(new Date(p.scheduledAt));
+  if (p.publishedAt) return isoDate(new Date(p.publishedAt));
+  if (p.scheduledAt) return isoDate(new Date(p.scheduledAt));
   return null;
 }
 
-function getDaysInMonth(year: number, month: number) {
-  // Returns array of Date objects for all days in the calendar grid (including padding)
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const startPad = firstDay.getDay(); // 0 = Sunday
-
-  const days: (Date | null)[] = [];
-  for (let i = 0; i < startPad; i++) days.push(null);
-  for (let d = 1; d <= lastDay.getDate(); d++) days.push(new Date(year, month, d));
-  // Fill to complete last row
-  while (days.length % 7 !== 0) days.push(null);
-  return days;
+function calendarDays(year: number, month: number): (Date | null)[] {
+  const first = new Date(year, month, 1);
+  const last = new Date(year, month + 1, 0);
+  const cells: (Date | null)[] = [];
+  for (let i = 0; i < first.getDay(); i++) cells.push(null);
+  for (let d = 1; d <= last.getDate(); d++) cells.push(new Date(year, month, d));
+  while (cells.length % 7 !== 0) cells.push(null);
+  return cells;
 }
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+}
 
-// ── Preview Sheet ─────────────────────────────────────────────────────────────
+// ─── Platform Mockups ─────────────────────────────────────────────────────────
 
-function PostPreviewSheet({ post, onClose }: { post: Post; onClose: () => void }) {
-  const date = post.publishedAt
-    ? new Date(post.publishedAt).toLocaleString()
-    : post.scheduledAt
-    ? new Date(post.scheduledAt).toLocaleString()
-    : "";
+function InstagramMockup({ post }: { post: Post }) {
+  const img = post.mediaUrls?.[0];
+  return (
+    <div className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-md max-w-[320px] mx-auto">
+      <div className="flex items-center justify-between px-3 py-2.5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full p-[2px]" style={{ background: "linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7)" }}>
+            <div className="w-full h-full rounded-full bg-white dark:bg-zinc-900 flex items-center justify-center">
+              <div className="w-5 h-5 rounded-full" style={{ background: "linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7)" }} />
+            </div>
+          </div>
+          <div>
+            <p className="text-[12px] font-semibold leading-none text-zinc-900 dark:text-white">yourproduct</p>
+            <p className="text-[10px] text-zinc-400 mt-0.5">Sponsored</p>
+          </div>
+        </div>
+        <span className="text-zinc-400 text-lg leading-none">···</span>
+      </div>
+
+      {img ? (
+        <img src={img} alt="" className="w-full aspect-square object-cover" />
+      ) : (
+        <div className="w-full aspect-square flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7)" }}>
+          <svg className="w-10 h-10 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+          </svg>
+        </div>
+      )}
+
+      <div className="px-3 pt-2.5 pb-3 space-y-1.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3.5">
+            <Heart className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
+            <MessageCircle className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
+            <Share2 className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
+          </div>
+          <Bookmark className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
+        </div>
+        <p className="text-[12px] font-semibold text-zinc-900 dark:text-white">0 likes</p>
+        <p className="text-[12px] text-zinc-900 dark:text-white leading-snug">
+          <span className="font-semibold">yourproduct </span>
+          {post.content.length > 120 ? post.content.slice(0, 120) + "… more" : post.content}
+        </p>
+        <p className="text-[10px] uppercase tracking-wide text-zinc-400">just now</p>
+      </div>
+    </div>
+  );
+}
+
+function TwitterMockup({ post }: { post: Post }) {
+  const img = post.mediaUrls?.[0];
+  return (
+    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#15202b] shadow-md max-w-[320px] mx-auto p-4 space-y-3">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center flex-shrink-0">
+            <span className="text-white dark:text-zinc-900 font-black text-sm">𝕏</span>
+          </div>
+          <div>
+            <p className="text-[13px] font-bold leading-none text-zinc-900 dark:text-white">Your Product</p>
+            <p className="text-[11px] text-zinc-500 mt-0.5">@yourproduct</p>
+          </div>
+        </div>
+        <svg className="w-5 h-5 text-zinc-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.73-8.835L1.254 2.25H8.08l4.261 5.635 5.903-5.635Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </div>
+      <p className="text-[14px] leading-snug text-zinc-900 dark:text-white whitespace-pre-wrap">
+        {post.content.slice(0, 280)}
+      </p>
+      {img && <img src={img} alt="" className="w-full rounded-xl object-cover max-h-44 border border-zinc-100 dark:border-zinc-800" />}
+      <p className="text-[11px] text-zinc-500 border-t border-zinc-100 dark:border-zinc-800 pt-2">
+        {post.publishedAt ? formatTime(post.publishedAt) + " · " + formatDate(post.publishedAt) : "Scheduled"}
+        {" · "}
+        <span className="font-semibold text-zinc-900 dark:text-white">0</span> Views
+      </p>
+      <div className="flex items-center justify-between">
+        {[MessageCircle, Repeat2, Heart, Bookmark].map((Icon, i) => (
+          <button key={i} className="flex items-center gap-1 text-zinc-400 hover:text-blue-500 transition-colors">
+            <Icon className="w-4 h-4" />
+            <span className="text-[11px]">0</span>
+          </button>
+        ))}
+        <Share2 className="w-4 h-4 text-zinc-400" />
+      </div>
+    </div>
+  );
+}
+
+function FacebookMockup({ post }: { post: Post }) {
+  const img = post.mediaUrls?.[0];
+  return (
+    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#242526] shadow-md max-w-[320px] mx-auto overflow-hidden">
+      <div className="flex items-start justify-between p-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full bg-[#1877F2] flex items-center justify-center flex-shrink-0">
+            <span className="text-white font-black text-xl leading-none">f</span>
+          </div>
+          <div>
+            <p className="text-[13px] font-semibold leading-none text-zinc-900 dark:text-[#e4e6ea]">Your Product</p>
+            <p className="text-[10px] text-zinc-500 mt-0.5">Just now · 🌐</p>
+          </div>
+        </div>
+        <span className="text-zinc-400 text-lg">···</span>
+      </div>
+      <p className="px-3 pb-2 text-[13px] leading-snug text-zinc-900 dark:text-[#e4e6ea] whitespace-pre-wrap">
+        {post.content.length > 200 ? post.content.slice(0, 200) + "…" : post.content}
+      </p>
+      {img && <img src={img} alt="" className="w-full object-cover max-h-48" />}
+      <div className="px-3 py-2 border-t border-zinc-100 dark:border-zinc-700/50">
+        <div className="flex items-center justify-between text-[11px] text-zinc-500 pb-1.5">
+          <span>👍 0</span><span>0 comments</span>
+        </div>
+        <div className="flex items-center justify-around border-t border-zinc-100 dark:border-zinc-700/50 pt-1.5">
+          {["👍 Like","💬 Comment","↗ Share"].map((l) => (
+            <button key={l} className="flex-1 text-center text-[12px] font-medium text-zinc-500 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 rounded-lg transition-colors">{l}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TikTokMockup({ post }: { post: Post }) {
+  const img = post.mediaUrls?.[0];
+  return (
+    <div className="mx-auto" style={{ width: 180, aspectRatio: "9/16", position: "relative" }}>
+      <div className="absolute inset-0 rounded-[28px] overflow-hidden bg-zinc-950 border border-zinc-800 shadow-2xl">
+        {img
+          ? <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-75" />
+          : <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-950" />
+        }
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0.3) 100%)" }} />
+
+        <div className="absolute top-3 left-0 right-0 flex justify-center gap-5 text-[9px] text-white/70">
+          <span>Following</span>
+          <span className="font-bold text-white border-b border-white pb-0.5">For You</span>
+        </div>
+
+        <div className="absolute right-2 bottom-14 flex flex-col items-center gap-3">
+          <div className="w-6 h-6 rounded-full border-2 border-white overflow-hidden">
+            <div className="w-full h-full" style={{ background: "linear-gradient(135deg, #EE1D52, #69C9D0)" }} />
+          </div>
+          {[Heart, MessageCircle, Bookmark, Share2].map((Icon, i) => (
+            <div key={i} className="flex flex-col items-center gap-0.5">
+              <Icon className="w-4 h-4 text-white" />
+              <span className="text-[7px] text-white/80">0</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-7 p-2.5">
+          <p className="text-[9px] font-bold text-white mb-0.5">@yourproduct</p>
+          <p className="text-[8px] text-white/80 leading-tight line-clamp-3">{post.content}</p>
+          <div className="flex items-center gap-1 mt-1.5">
+            <div className="w-2.5 h-2.5 rounded-full animate-spin" style={{ background: "linear-gradient(135deg, #EE1D52, #69C9D0)", animationDuration: "3s" }} />
+            <p className="text-[7px] text-white/50">Original sound</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Detail Panels ────────────────────────────────────────────────────────────
+
+function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void }) {
+  const accent = CHANNEL_ACCENT[post.channel] || "#6366f1";
+  const statusDate = post.publishedAt || post.scheduledAt;
 
   return (
-    <SheetContent className="overflow-y-auto">
-      <SheetHeader>
-        <SheetTitle className="flex items-center gap-2">
-          <span>{CHANNEL_LABELS[post.channel] || post.channel}</span>
-          <Badge variant="outline" className={`text-[10px] capitalize ${POST_STATUS_COLORS[post.status] || ""}`}>
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border/40 flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ background: accent }} />
+          <span className="text-sm font-semibold">{CHANNEL_LABEL[post.channel] || post.channel}</span>
+          <span
+            className="text-[10px] font-medium px-1.5 py-0.5 rounded-full border capitalize"
+            style={{ color: STATUS_DOT[post.status], borderColor: STATUS_DOT[post.status] + "50", background: STATUS_DOT[post.status] + "12" }}
+          >
             {post.status}
-          </Badge>
-        </SheetTitle>
-      </SheetHeader>
-      <div className="mt-4 space-y-4">
-        {date && (
-          <p className="text-xs text-muted-foreground">
-            {post.status === "published" ? "Published" : "Scheduled"}: {date}
+          </span>
+        </div>
+        <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+        {statusDate && (
+          <p className="text-[11px] text-muted-foreground">
+            {post.status === "published" ? "Published" : "Scheduled"} · {formatDate(statusDate)} at {formatTime(statusDate)}
           </p>
         )}
-        <div className="rounded-lg border border-border/40 bg-muted/20 p-4">
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
+
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 font-medium">Preview</p>
+          {post.channel === "instagram" && <InstagramMockup post={post} />}
+          {post.channel === "x"         && <TwitterMockup post={post} />}
+          {post.channel === "facebook"  && <FacebookMockup post={post} />}
+          {post.channel === "tiktok"    && <TikTokMockup post={post} />}
+          {!["instagram","x","facebook","tiktok"].includes(post.channel) && (
+            <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
+            </div>
+          )}
         </div>
+
         {post.errorMessage && (
-          <p className="text-xs text-destructive">{post.errorMessage}</p>
+          <div className="rounded-lg border border-destructive/20 bg-destructive/8 px-3 py-2 text-[12px] text-destructive">
+            {post.errorMessage}
+          </div>
         )}
         {post.externalUrl && (
-          <a
-            href={post.externalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs underline text-muted-foreground hover:text-foreground"
-          >
-            View live post →
+          <a href={post.externalUrl} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors w-fit">
+            <ExternalLink className="w-3.5 h-3.5" /> View live post
           </a>
         )}
       </div>
-    </SheetContent>
+    </div>
   );
 }
 
-function AdPreviewSheet({ ad, onClose }: { ad: AdCampaign; onClose: () => void }) {
+function AdDetailPanel({ ad, onClose }: { ad: AdCampaign; onClose: () => void }) {
+  const accent = ad.platform === "meta" || ad.platform === "facebook" ? "#1877F2" : "#4285F4";
   return (
-    <SheetContent className="overflow-y-auto">
-      <SheetHeader>
-        <SheetTitle className="flex items-center gap-2">
-          <span>{ad.name}</span>
-          <Badge variant="outline" className={`text-[10px] capitalize ${AD_STATUS_COLORS[ad.status] || ""}`}>
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border/40 flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ background: accent }} />
+          <span className="text-sm font-semibold capitalize">{ad.platform} Ad</span>
+          <span
+            className="text-[10px] font-medium px-1.5 py-0.5 rounded-full border capitalize"
+            style={{ color: STATUS_DOT[ad.status] || "#9ca3af", borderColor: (STATUS_DOT[ad.status] || "#9ca3af") + "50", background: (STATUS_DOT[ad.status] || "#9ca3af") + "12" }}
+          >
             {ad.status}
-          </Badge>
-        </SheetTitle>
-      </SheetHeader>
-      <div className="mt-4 space-y-3 text-sm">
-        <div className="flex items-center gap-2 text-muted-foreground text-xs">
-          <span className="capitalize">{ad.platform}</span>
-          {ad.dailyBudgetCents && (
-            <>
-              <span>·</span>
-              <span>${(ad.dailyBudgetCents / 100).toFixed(0)}/day</span>
-            </>
-          )}
+          </span>
         </div>
-        <div className="rounded-lg border border-border/40 bg-muted/20 p-4 space-y-1 text-xs text-muted-foreground">
-          <p>Start: {new Date(ad.startDate).toLocaleDateString()}</p>
-          {ad.endDate && <p>End: {new Date(ad.endDate).toLocaleDateString()}</p>}
-        </div>
+        <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+          <X className="w-4 h-4" />
+        </button>
       </div>
-    </SheetContent>
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 font-medium">Campaign</p>
+          <p className="text-base font-semibold">{ad.name}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2.5">
+          {[
+            { label: "Start", value: ad.startDate ? formatDate(ad.startDate) : "—" },
+            { label: "End",   value: ad.endDate   ? formatDate(ad.endDate)   : "Ongoing" },
+            { label: "Budget", value: ad.dailyBudgetCents ? `$${(ad.dailyBudgetCents / 100).toFixed(0)}/day` : "—" },
+            { label: "Platform", value: ad.platform ? ad.platform.charAt(0).toUpperCase() + ad.platform.slice(1) : "—" },
+          ].map(({ label, value }) => (
+            <div key={label} className="rounded-lg bg-muted/40 px-3 py-2.5">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
+              <p className="text-[13px] font-medium mt-0.5">{value}</p>
+            </div>
+          ))}
+        </div>
+        {ad.creative?.imageUrl && (
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 font-medium">Creative</p>
+            <img src={ad.creative.imageUrl} alt="" className="w-full rounded-xl object-cover max-h-40 border border-border/40" />
+            {ad.creative.headline && <p className="mt-2 text-[13px] font-semibold">{ad.creative.headline}</p>}
+            {ad.creative.primaryText && <p className="mt-1 text-[12px] text-muted-foreground">{ad.creative.primaryText}</p>}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
-// ── Calendar Cell Item ────────────────────────────────────────────────────────
+// ─── Calendar Event Chip ──────────────────────────────────────────────────────
 
-function CalendarChip({
-  item,
-  onClick,
-}: {
-  item: CalendarItem;
-  onClick: () => void;
-}) {
+function EventChip({ item, onClick, isSelected }: { item: CalendarItem; onClick: () => void; isSelected: boolean }) {
   if (item.kind === "post") {
     const p = item.post;
-    const colorClass = POST_STATUS_COLORS[p.status] || POST_STATUS_COLORS.draft;
+    const accent = CHANNEL_ACCENT[p.channel] || "#6366f1";
+    const bg = CHANNEL_BG[p.channel] || "rgba(99,102,241,0.08)";
+    const statusDot = STATUS_DOT[p.status] || "#9ca3af";
     return (
       <button
         onClick={onClick}
-        className={`w-full text-left px-1.5 py-0.5 rounded text-[10px] leading-tight border truncate transition-opacity hover:opacity-80 ${colorClass}`}
+        className="w-full text-left rounded overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98]"
+        style={{ background: isSelected ? accent + "20" : bg, borderLeft: `2.5px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
       >
-        <span className="font-medium">{CHANNEL_LABELS[p.channel] || p.channel}</span>{" "}
-        <span className="opacity-80">{p.content.slice(0, 28)}</span>
+        <div className="px-1.5 py-[3px] flex items-center gap-1 min-w-0">
+          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: statusDot }} />
+          <span className="text-[10px] font-semibold leading-tight truncate" style={{ color: accent }}>
+            {CHANNEL_LABEL[p.channel] || p.channel}
+          </span>
+          <span className="text-[10px] text-foreground/55 truncate leading-tight flex-1 min-w-0">
+            {p.content.slice(0, 20)}
+          </span>
+        </div>
       </button>
     );
   }
 
-  const colorClass = AD_STATUS_COLORS[item.ad.status] || AD_STATUS_COLORS.draft;
+  const adAccent = item.ad.platform === "meta" || item.ad.platform === "facebook" ? "#1877F2" : "#4285F4";
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left px-1.5 py-0.5 rounded text-[10px] leading-tight border truncate transition-opacity hover:opacity-80 ${colorClass}`}
+      className="w-full text-left rounded overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98]"
+      style={{ background: isSelected ? adAccent + "20" : adAccent + "10", borderLeft: `2.5px solid ${adAccent}`, outline: isSelected ? `1.5px solid ${adAccent}` : "none" }}
     >
-      <span className="font-medium">Ad</span>{" "}
-      <span className="opacity-80">{item.ad.name}</span>
+      <div className="px-1.5 py-[3px] flex items-center gap-1 min-w-0">
+        <span className="text-[10px] font-semibold leading-tight" style={{ color: adAccent }}>Ad</span>
+        <span className="text-[10px] text-foreground/55 truncate leading-tight flex-1 min-w-0">{item.ad.name}</span>
+      </div>
     </button>
   );
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CalendarPage() {
   const today = new Date();
@@ -232,148 +445,187 @@ export default function CalendarPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Build a map of dateStr → CalendarItem[]
+  // Build date → items map
   const itemsByDate = new Map<string, CalendarItem[]>();
-
   for (const post of posts) {
     const date = getDateForPost(post);
     if (!date) continue;
-    if (!itemsByDate.has(date)) itemsByDate.set(date, []);
-    itemsByDate.get(date)!.push({ kind: "post", date, post });
+    const list = itemsByDate.get(date) || [];
+    list.push({ kind: "post", date, post });
+    itemsByDate.set(date, list);
   }
-
   for (const ad of ads) {
-    // Show ad on its startDate
     if (!ad.startDate) continue;
-    const date = isoDateStr(new Date(ad.startDate));
-    if (!itemsByDate.has(date)) itemsByDate.set(date, []);
-    itemsByDate.get(date)!.push({ kind: "ad", date, ad });
+    const date = isoDate(new Date(ad.startDate));
+    const list = itemsByDate.get(date) || [];
+    list.push({ kind: "ad", date, ad });
+    itemsByDate.set(date, list);
   }
 
-  const days = getDaysInMonth(year, month);
-  const todayStr = isoDateStr(today);
+  const days = calendarDays(year, month);
+  const todayStr = isoDate(today);
 
-  const prevMonth = () => {
-    if (month === 0) { setMonth(11); setYear((y) => y - 1); }
-    else setMonth((m) => m - 1);
-  };
-  const nextMonth = () => {
-    if (month === 11) { setMonth(0); setYear((y) => y + 1); }
-    else setMonth((m) => m + 1);
-  };
+  const prevMonth = () => month === 0 ? (setMonth(11), setYear(y => y - 1)) : setMonth(m => m - 1);
+  const nextMonth = () => month === 11 ? (setMonth(0), setYear(y => y + 1)) : setMonth(m => m + 1);
 
   return (
     <AppShell>
-      <PageHeader
-        title="Calendar"
-        subtitle="Scheduled posts and ad campaigns at a glance."
-      />
+      <style>{`
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(12px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        .detail-panel { animation: slideInRight 0.18s ease-out; }
+      `}</style>
 
-      {/* Month navigation */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-semibold">
-          {MONTH_NAMES[month]} {year}
-        </h2>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMonth}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs h-8"
-            onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); }}
-          >
-            Today
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={nextMonth}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      <div className="flex gap-6" style={{ minHeight: "calc(100vh - 140px)" }}>
 
-      {/* Legend */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
-        {[
-          { label: "Published", cls: "bg-emerald-500/10 border-emerald-200" },
-          { label: "Scheduled", cls: "bg-blue-500/10 border-blue-200" },
-          { label: "Ad campaign", cls: "bg-amber-500/10 border-amber-200" },
-          { label: "Failed", cls: "bg-red-500/10 border-red-200" },
-        ].map(({ label, cls }) => (
-          <span key={label} className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border text-[10px] text-muted-foreground ${cls}`}>
-            {label}
-          </span>
-        ))}
-      </div>
+        {/* ── Calendar column ── */}
+        <div
+          className="flex flex-col min-w-0 transition-all duration-300 ease-in-out"
+          style={{ flex: selected ? "0 0 calc(100% - 388px)" : "1 1 0" }}
+        >
+          {/* Header row */}
+          <div className="flex items-center justify-between mb-5">
+            <h1 className="text-xl font-semibold tracking-tight">
+              {MONTH_NAMES[month]}{" "}
+              <span className="text-muted-foreground font-normal">{year}</span>
+            </h1>
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="ghost" size="sm"
+                className="text-xs h-7 px-3 text-muted-foreground hover:text-foreground rounded-lg"
+                onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); setSelected(null); }}
+              >
+                Today
+              </Button>
+              <div className="flex border border-border/50 rounded-lg overflow-hidden">
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-none border-r border-border/50 hover:bg-muted" onClick={prevMonth}>
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-none hover:bg-muted" onClick={nextMonth}>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="h-5 w-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
-        </div>
-      ) : (
-        <div className="rounded-xl border border-border/40 overflow-hidden">
-          {/* Day-of-week headers */}
-          <div className="grid grid-cols-7 border-b border-border/40 bg-muted/30">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-              <div key={d} className="py-2 text-center text-[11px] font-medium text-muted-foreground">
-                {d}
+          {/* Legend */}
+          <div className="flex items-center gap-5 mb-4 flex-wrap">
+            {[
+              { label: "Published", color: STATUS_DOT.published },
+              { label: "Scheduled", color: STATUS_DOT.scheduled },
+              { label: "Failed",    color: STATUS_DOT.failed },
+            ].map(({ label, color }) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full" style={{ background: color }} />
+                <span className="text-[11px] text-muted-foreground">{label}</span>
+              </div>
+            ))}
+            <div className="w-px h-3 bg-border/50" />
+            {Object.entries(CHANNEL_LABEL).map(([key, label]) => (
+              <div key={key} className="flex items-center gap-1.5">
+                <span className="w-0.5 h-3 rounded-full" style={{ background: CHANNEL_ACCENT[key] }} />
+                <span className="text-[11px] text-muted-foreground">{label}</span>
               </div>
             ))}
           </div>
 
-          {/* Calendar grid */}
-          <div className="grid grid-cols-7 divide-x divide-y divide-border/30">
-            {days.map((day, idx) => {
-              if (!day) {
-                return <div key={`pad-${idx}`} className="min-h-[100px] bg-muted/10 p-1" />;
-              }
-              const dateStr = isoDateStr(day);
-              const isToday = dateStr === todayStr;
-              const items = itemsByDate.get(dateStr) || [];
-              const MAX_VISIBLE = 3;
-              const overflow = items.length - MAX_VISIBLE;
-
-              return (
-                <div
-                  key={dateStr}
-                  className={`min-h-[100px] p-1.5 space-y-1 ${isToday ? "bg-primary/5" : "bg-background"}`}
-                >
-                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${
-                    isToday ? "bg-foreground text-background" : "text-muted-foreground"
-                  }`}>
-                    {day.getDate()}
+          {/* Grid */}
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="h-5 w-5 border-2 border-foreground/15 border-t-foreground rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="flex-1 rounded-xl border border-border/40 overflow-hidden bg-card">
+              {/* Day-of-week row */}
+              <div className="grid grid-cols-7 border-b border-border/40 bg-muted/20">
+                {DAY_NAMES.map((d) => (
+                  <div key={d} className="py-2.5 text-center text-[11px] font-medium text-muted-foreground/70 tracking-wider">
+                    {d}
                   </div>
-                  {items.slice(0, MAX_VISIBLE).map((item, i) => (
-                    <CalendarChip
-                      key={i}
-                      item={item}
-                      onClick={() => setSelected(item)}
-                    />
-                  ))}
-                  {overflow > 0 && (
-                    <button
-                      className="text-[10px] text-muted-foreground hover:text-foreground pl-1"
-                      onClick={() => setSelected(items[MAX_VISIBLE])}
-                    >
-                      +{overflow} more
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+                ))}
+              </div>
 
-      {/* Preview sheet */}
-      <Sheet open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        {selected?.kind === "post" && (
-          <PostPreviewSheet post={selected.post} onClose={() => setSelected(null)} />
+              {/* Day cells */}
+              <div className="grid grid-cols-7" style={{ gridAutoRows: "minmax(108px, 1fr)" }}>
+                {days.map((day, idx) => {
+                  if (!day) {
+                    return <div key={`pad-${idx}`} className="border-b border-r border-border/25 bg-muted/10" />;
+                  }
+
+                  const dateStr = isoDate(day);
+                  const isToday = dateStr === todayStr;
+                  const items = itemsByDate.get(dateStr) || [];
+                  const MAX = 3;
+                  const overflow = Math.max(0, items.length - MAX);
+
+                  return (
+                    <div
+                      key={dateStr}
+                      className={`border-b border-r border-border/25 p-1.5 flex flex-col gap-0.5 transition-colors ${
+                        isToday ? "bg-primary/[0.025]" : "bg-background hover:bg-muted/10"
+                      }`}
+                    >
+                      {/* Date number */}
+                      <div className="flex justify-end px-0.5 mb-0.5">
+                        <span
+                          className={`text-[11px] w-5 h-5 flex items-center justify-center rounded-full font-medium leading-none ${
+                            isToday ? "bg-foreground text-background" : "text-muted-foreground/60"
+                          }`}
+                        >
+                          {day.getDate()}
+                        </span>
+                      </div>
+
+                      {/* Event chips */}
+                      {items.slice(0, MAX).map((item, i) => {
+                        const isItemSelected =
+                          selected !== null &&
+                          selected.kind === item.kind &&
+                          (item.kind === "post"
+                            ? selected.kind === "post" && selected.post.id === item.post.id
+                            : selected.kind === "ad" && selected.ad.id === item.ad.id);
+                        return (
+                          <EventChip
+                            key={i}
+                            item={item}
+                            isSelected={isItemSelected}
+                            onClick={() => setSelected(isItemSelected ? null : item)}
+                          />
+                        );
+                      })}
+                      {overflow > 0 && (
+                        <button
+                          className="text-[9px] font-medium text-muted-foreground/60 hover:text-foreground transition-colors pl-1.5 text-left"
+                          onClick={() => setSelected(items[MAX])}
+                        >
+                          +{overflow} more
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Detail panel ── */}
+        {selected && (
+          <div
+            className="detail-panel flex-shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden"
+            style={{ width: 364 }}
+          >
+            {selected.kind === "post" && (
+              <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
+            )}
+            {selected.kind === "ad" && (
+              <AdDetailPanel ad={selected.ad} onClose={() => setSelected(null)} />
+            )}
+          </div>
         )}
-        {selected?.kind === "ad" && (
-          <AdPreviewSheet ad={selected.ad} onClose={() => setSelected(null)} />
-        )}
-      </Sheet>
+      </div>
     </AppShell>
   );
 }
