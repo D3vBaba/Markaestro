@@ -25,11 +25,12 @@ export async function POST(req: Request) {
 
     const product = productSnap.data()!;
 
-    // Generate content with brand voice
+    // Generate content with brand voice and product context
     const result = await generateContent({
       type: data.contentType,
       productName: product.name,
-      productDescription: product.description,
+      productDescription: product.description || product.tagline || '',
+      productCategories: product.categories || (product.category ? [product.category] : undefined),
       targetAudience: product.brandVoice?.targetAudience || '',
       channel: data.channel,
       tone: product.brandVoice?.tone || 'Professional',
