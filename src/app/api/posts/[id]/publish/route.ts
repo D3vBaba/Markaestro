@@ -27,13 +27,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // Mark as publishing
     await ref.update({ status: 'publishing', updatedAt: new Date().toISOString() });
 
-    console.log(`[publish] Post ${id}: channel=${post.channel}, productId=${productId}, status=${post.status}, mediaUrls=${JSON.stringify(post.mediaUrls)}`);
+    console.log(`[publish] Post ${id}: channel=${post.channel}, productId=${productId}, mediaUrls=${JSON.stringify(post.mediaUrls)}`);
 
-    const result = await publishPost(ctx.workspaceId, productId, {
-      content: post.content,
-      channel: post.channel,
-      mediaUrls: post.mediaUrls,
-    });
+    let result;
+    try {
+      result = await publishPost(ctx.workspaceId, productId, {
+        content: post.content,
+        channel: post.channel,
+        mediaUrls: post.mediaUrls,
+      });
+    } catch (publishError) {
+      // Unexpected exception — revert so post doesn't stay stuck in 'publishing'
+      const msg = publishError instanceof Error ? publishError.message : 'Internal publishing error';
+      await ref.update({ status: 'failed', errorMessage: msg, updatedAt: new Date().toISOString() });
+      console.error(`[publish] Exception for ${id}:`, publishError);
+      return apiOk({ ok: false, id, status: 'failed', error: msg });
+    }
 
     console.log(`[publish] Result for ${id}:`, JSON.stringify(result));
 

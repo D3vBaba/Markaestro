@@ -47,11 +47,12 @@ export async function getConnectionForChannel(
   const providers = channelToProviders(channel);
 
   for (const provider of providers) {
+    // Product-level takes priority
     if (productId) {
       const conn = await getConnection(workspaceId, provider, productId);
       if (conn && conn.status === 'connected') return conn;
-      continue;
     }
+    // Fall back to workspace-level
     const conn = await getConnection(workspaceId, provider);
     if (conn && conn.status === 'connected') return conn;
   }

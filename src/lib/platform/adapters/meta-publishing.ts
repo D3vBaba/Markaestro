@@ -57,6 +57,21 @@ function resolveAccessToken(connection: PlatformConnection): string {
   return getAccessToken(connection);
 }
 
+// ── Helpers ─────────────────────────────────────────────────────────
+
+/**
+ * Build a Facebook permalink from the Graph API post ID.
+ * The API returns IDs in "{pageId}_{postId}" format.
+ * Maps to: https://www.facebook.com/{pageId}/posts/{postId}
+ */
+function buildFacebookUrl(pageId: string, rawId: string): string {
+  const parts = rawId.split('_');
+  if (parts.length === 2) {
+    return `https://www.facebook.com/${parts[0]}/posts/${parts[1]}`;
+  }
+  return `https://www.facebook.com/${rawId}`;
+}
+
 // ── Facebook publish ────────────────────────────────────────────────
 
 async function publishToFacebook(
@@ -89,7 +104,7 @@ async function publishToFacebook(
       return {
         success: true,
         externalId: postId,
-        externalUrl: postId ? `https://www.facebook.com/${postId}` : undefined,
+        externalUrl: postId ? buildFacebookUrl(pageId, postId) : undefined,
       };
     }
 
@@ -110,7 +125,7 @@ async function publishToFacebook(
     return {
       success: true,
       externalId: postId,
-      externalUrl: postId ? `https://www.facebook.com/${postId}` : undefined,
+      externalUrl: postId ? buildFacebookUrl(pageId, postId) : undefined,
     };
   } catch (e) {
     return { success: false, error: e instanceof Error ? e.message : 'Unknown Facebook publishing error' };
