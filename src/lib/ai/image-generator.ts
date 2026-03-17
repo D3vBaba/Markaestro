@@ -70,6 +70,101 @@ function getPlatformDirection(channel?: SocialChannel): string {
 }
 
 /**
+ * Return product-type-aware subject direction for image generation.
+ * Understands the product category and gives the AI relevant visual guidance.
+ */
+function getProductSubjectDirection(categories: string[], context: string): string {
+  const is = (keywords: string[]) => keywords.some((k) => context.includes(k));
+
+  // Fashion / Clothing / Apparel
+  if (is(['fashion', 'clothing', 'apparel', 'wear', 'dress', 'outfit', 'shoe', 'sneaker', 'accessories', 'jewelry', 'bag', 'handbag'])) {
+    return [
+      'This is a FASHION/APPAREL product. Show the product being worn or styled in an aspirational setting.',
+      'Editorial fashion photography: real fabrics, real textures, real movement. Show the garment/accessory as the hero.',
+      'Lifestyle context: street style, studio lookbook, or curated flat-lay. Evoke the feeling of wearing this product.',
+      'Do NOT show mannequins, generic product-on-white backgrounds, or tech imagery.',
+    ].join('\n');
+  }
+
+  // Beauty / Skincare / Cosmetics
+  if (is(['beauty', 'skincare', 'cosmetic', 'makeup', 'haircare', 'fragrance', 'perfume', 'serum', 'moisturizer'])) {
+    return [
+      'This is a BEAUTY/SKINCARE product. Show the product in a luxurious, tactile setting.',
+      'Focus on texture: dewy skin, creamy product swatches, liquid pours, botanical ingredients.',
+      'Clean beauty aesthetic with natural materials (marble, glass, botanicals). Soft, diffused lighting.',
+      'Do NOT show tech imagery, screens, or generic stock photos.',
+    ].join('\n');
+  }
+
+  // Food / Beverage / Restaurant
+  if (is(['food', 'beverage', 'drink', 'restaurant', 'recipe', 'snack', 'coffee', 'tea', 'meal', 'kitchen', 'cooking', 'bakery', 'grocery'])) {
+    return [
+      'This is a FOOD/BEVERAGE product. Make it look absolutely irresistible.',
+      'Food photography rules: overhead or 45-degree angle, natural window light, shallow depth of field.',
+      'Show fresh ingredients, steam, condensation, drizzles — anything that makes it feel alive and delicious.',
+      'Styled setting with complementary props (linens, utensils, herbs). Do NOT show tech imagery.',
+    ].join('\n');
+  }
+
+  // Fitness / Health / Wellness
+  if (is(['fitness', 'gym', 'workout', 'health', 'wellness', 'supplement', 'protein', 'yoga', 'sport', 'athletic'])) {
+    return [
+      'This is a FITNESS/WELLNESS product. Show energy, movement, and transformation.',
+      'Dynamic composition: mid-action shots, sweat, determination, natural light in gym or outdoor setting.',
+      'Focus on the feeling of strength and progress. Real bodies, authentic moments.',
+      'Do NOT show static product shots on white background or tech imagery.',
+    ].join('\n');
+  }
+
+  // Home / Interior / Furniture
+  if (is(['home', 'interior', 'furniture', 'decor', 'candle', 'plant', 'living', 'bedroom', 'kitchen', 'garden', 'outdoor'])) {
+    return [
+      'This is a HOME/INTERIOR product. Show it in a beautifully styled living space.',
+      'Interior photography: warm natural light, thoughtful styling, lived-in but aspirational.',
+      'Show the product as part of a curated room vignette. Emphasize texture, warmth, and comfort.',
+      'Do NOT show tech imagery or product-on-white isolated shots.',
+    ].join('\n');
+  }
+
+  // Travel / Hospitality
+  if (is(['travel', 'hotel', 'hospitality', 'tourism', 'vacation', 'resort', 'adventure', 'destination'])) {
+    return [
+      'This is a TRAVEL/HOSPITALITY product. Evoke wanderlust and the joy of discovery.',
+      'Stunning landscapes, golden hour lighting, immersive perspectives. Show the experience, not just the place.',
+      'Authentic travel moments: local culture, scenic vistas, cozy accommodations.',
+      'Do NOT show tech imagery, screens, or generic stock travel photos.',
+    ].join('\n');
+  }
+
+  // Education / Course / Learning
+  if (is(['education', 'course', 'learning', 'teaching', 'tutorial', 'school', 'training', 'academy'])) {
+    return [
+      'This is an EDUCATION product. Show the transformation and empowerment that comes from learning.',
+      'Aspirational imagery: confident people, creative workspaces, books, notebooks, collaborative moments.',
+      'Warm, inviting aesthetic that makes learning feel exciting and accessible.',
+      'Do NOT show generic classroom stock photos, phone screens, or tech cliches.',
+    ].join('\n');
+  }
+
+  // Software / SaaS / Tech (only when explicitly categorized)
+  if (is(['saas', 'software', 'mobile', 'web', 'api', 'platform', 'dashboard', 'analytics'])) {
+    return [
+      'This is a SOFTWARE product. Show the OUTCOME or TRANSFORMATION it delivers — the world users live in because of this product.',
+      'Focus on the human benefit: productivity, creativity, connection, or insight.',
+      'Do NOT show generic office scenes, random laptops, abstract tech patterns, or fake phone UIs.',
+    ].join('\n');
+  }
+
+  // Default — generic but helpful direction
+  return [
+    'Show this product or its impact in an aspirational, real-world context.',
+    'Focus on the feeling and lifestyle the product enables. Make the viewer want what they see.',
+    'Use real textures, natural lighting, and authentic settings appropriate for this type of product.',
+    'Do NOT default to tech imagery, phone screens, or laptop mockups unless this is explicitly a tech product.',
+  ].join('\n');
+}
+
+/**
  * Build a prompt using Gemini's recommended 5-component structure:
  * Style → Subject → Setting → Action → Composition
  *
@@ -125,7 +220,10 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
     if (req.productCategories?.length) productInfo.push(`Type: ${req.productCategories.join(', ')}`);
     if (req.brandVoice?.targetAudience) productInfo.push(`Audience: ${req.brandVoice.targetAudience.slice(0, 200)}`);
 
-    const isSoftware = req.productCategories?.some((c) => ['saas', 'mobile', 'web', 'api'].includes(c));
+    const categories = req.productCategories || [];
+    const descLower = (req.productDescription || '').toLowerCase();
+    const nameLower = (req.productName || '').toLowerCase();
+    const context = `${categories.join(' ')} ${descLower} ${nameLower}`;
 
     // Truncate post content to avoid blowing up the prompt
     const postExcerpt = req.prompt.length > 400 ? req.prompt.slice(0, 400) + '...' : req.prompt;
@@ -138,14 +236,9 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
 
     lines.push('SUBJECT: Create a marketing image specifically for this product.');
 
-    if (isSoftware) {
-      lines.push(
-        'This is a software product. Show the OUTCOME or TRANSFORMATION it delivers — the world users live in because of this product.',
-        'Do NOT show generic office scenes, random laptops, abstract tech patterns, or fake phone UIs.',
-      );
-    } else {
-      lines.push('Show the product or its impact in an aspirational, real-world context.');
-    }
+    // Product-type-aware visual direction
+    const subjectDirection = getProductSubjectDirection(categories, context);
+    lines.push(subjectDirection);
 
     lines.push(
       '',
@@ -157,9 +250,10 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
     sections.push(lines.join('\n'));
   }
 
-  // Screenshots override — only when user explicitly uploads them
-  if (req.screenUrls && req.screenUrls.length > 0) {
-    const count = req.screenUrls.length;
+  // Screenshots — phone mockups ONLY when user explicitly provides screenshots
+  const hasScreenshots = req.screenUrls && req.screenUrls.length > 0;
+  if (hasScreenshots) {
+    const count = req.screenUrls!.length;
     sections.push([
       `APP SHOWCASE: Display the ${count} provided screenshot(s) on ${count === 1 ? 'a modern smartphone' : `${count} modern smartphones`}.`,
       'Show the provided screenshots EXACTLY as-is on the phone screens. Do NOT redraw or alter them.',
@@ -188,12 +282,20 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
     sections.push(`MOOD: The image should evoke a ${req.brandVoice.tone} feeling.`);
   }
 
-  // ── TECHNICAL QUALITY ───────────────────────────────────
-  sections.push([
+  // ── TECHNICAL QUALITY + HARD CONSTRAINTS ──────────────────
+  const hardConstraints = [
     'QUALITY: Sharp focus, professional color correction, slight film grain.',
-    'NO text, words, or typography. NO watermarks. NO fake phone UIs unless real screenshots were provided.',
-    'Avoid generic tech cliches: circuit boards, holographic UIs, abstract network nodes.',
-  ].join('\n'));
+    'NO text, words, or typography. NO watermarks.',
+  ];
+
+  if (!hasScreenshots) {
+    hardConstraints.push(
+      'CRITICAL: Do NOT show phone screens, laptop screens, device mockups, or any UI/UX screenshots. No screens of any kind.',
+      'Do NOT show generic tech imagery: circuit boards, holographic UIs, abstract network nodes, code editors.',
+    );
+  }
+
+  sections.push(hardConstraints.join('\n'));
 
   return sections.join('\n\n');
 }
