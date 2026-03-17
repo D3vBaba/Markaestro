@@ -9,6 +9,7 @@ import {
     Package,
     Send,
     Megaphone,
+    CalendarDays,
     type LucideIcon,
 } from "lucide-react";
 
@@ -37,6 +38,7 @@ export const navigationGroups: NavGroup[] = [
             { name: "Campaigns", href: "/campaigns", icon: Mail },
             { name: "Posts", href: "/content", icon: Send },
             { name: "Ads", href: "/ads", icon: Megaphone },
+            { name: "Calendar", href: "/calendar", icon: CalendarDays },
             { name: "Automations", href: "/automations", icon: Workflow },
         ],
     },

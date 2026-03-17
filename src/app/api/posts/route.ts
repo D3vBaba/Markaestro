@@ -13,19 +13,21 @@ export async function GET(req: Request) {
     });
     const channel = url.searchParams.get('channel') ?? undefined;
 
-    let query = adminDb
-      .collection(`workspaces/${ctx.workspaceId}/posts`)
-      .orderBy('createdAt', 'desc');
+    // Build query — equality filters (.where) + .orderBy on a different field require a
+    // composite Firestore index. To avoid that deployment dependency, we apply equality
+    // filters without orderBy and sort the results in JS afterwards.
+    let ref = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`) as FirebaseFirestore.Query;
 
-    if (status) {
-      query = query.where('status', '==', status);
-    }
-    if (channel) {
-      query = query.where('channel', '==', channel);
-    }
+    if (status) ref = ref.where('status', '==', status);
+    if (channel) ref = ref.where('channel', '==', channel);
 
-    const snapshot = await query.limit(limit).get();
-    const posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    // Only use orderBy when there are no equality filters (single-field index is enough)
+    if (!status && !channel) ref = ref.orderBy('createdAt', 'desc');
+
+    const snapshot = await ref.limit(limit).get();
+    const posts = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() } as Record<string, unknown> & { createdAt?: string }))
+      .sort((a, b) => ((b.createdAt ?? '') > (a.createdAt ?? '') ? 1 : -1));
     return apiOk({ workspaceId: ctx.workspaceId, posts, count: posts.length });
   } catch (error) {
     return apiError(error);

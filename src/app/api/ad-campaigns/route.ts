@@ -13,17 +13,18 @@ export async function GET(req: Request) {
       status: url.searchParams.get('status') ?? undefined,
     });
 
-    let query = adminDb
-      .collection(`workspaces/${ctx.workspaceId}/ad_campaigns`)
-      .orderBy('createdAt', 'desc')
-      .limit(limit);
+    let ref = adminDb.collection(`workspaces/${ctx.workspaceId}/ad_campaigns`) as FirebaseFirestore.Query;
 
     if (status) {
-      query = query.where('status', '==', status);
+      ref = ref.where('status', '==', status);
+    } else {
+      ref = ref.orderBy('createdAt', 'desc');
     }
 
-    const snap = await query.get();
-    const campaigns = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const snap = await ref.limit(limit).get();
+    const campaigns = snap.docs
+      .map((d) => ({ id: d.id, ...d.data() } as Record<string, unknown> & { createdAt?: string }))
+      .sort((a, b) => ((b.createdAt ?? '') > (a.createdAt ?? '') ? 1 : -1));
 
     return apiOk({ campaigns });
   } catch (error) {
