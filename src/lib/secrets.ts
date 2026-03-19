@@ -85,6 +85,7 @@ export async function loadSecretsToEnv(): Promise<void> {
     'GEMINI_API_KEY',
     'GOOGLE_ADS_DEVELOPER_TOKEN',
     'FIREBASE_SERVICE_ACCOUNT_JSON',
+    'FAL_API_KEY',
   ];
 
   await Promise.all(

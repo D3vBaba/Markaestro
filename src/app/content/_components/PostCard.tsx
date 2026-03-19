@@ -61,7 +61,7 @@ export default function PostCard({
         <p className="text-xs text-destructive">{post.errorMessage}</p>
       )}
 
-      <div className="flex items-center justify-between pt-2 border-t border-border/30">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-border/30">
         <span className="text-[11px] text-muted-foreground">
           {post.publishedAt
             ? new Date(post.publishedAt).toLocaleDateString()
@@ -69,7 +69,7 @@ export default function PostCard({
             ? new Date(post.createdAt).toLocaleDateString()
             : ""}
         </span>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           <Button
             variant="ghost"
             size="sm"

@@ -25,7 +25,7 @@ export type ContentResponse = {
   suggestions?: string[];
 };
 
-const SYSTEM_PROMPT = `You are a direct-response copywriter who writes social media content that makes people stop scrolling. Your content follows one core principle: lead with a SPECIFIC pain point the audience feels, then position the product as the solution.
+export const SYSTEM_PROMPT = `You are a direct-response copywriter who writes social media content that makes people stop scrolling. Your content follows one core principle: lead with a SPECIFIC pain point the audience feels, then position the product as the solution.
 
 Your process for every piece of content:
 1. IDENTIFY a real, specific frustration or desire the target audience has (not generic "grow your business" — think "You just lost another customer because your checkout page loaded in 4 seconds")
@@ -43,7 +43,7 @@ Writing rules:
 - Sound like a person, not a press release.
 - Every sentence should earn its place. Cut anything that doesn't add value.`;
 
-function buildBrandVoiceBlock(bv: BrandVoice): string {
+export function buildBrandVoiceBlock(bv: BrandVoice): string {
   const parts: string[] = [];
   parts.push('\n\n--- BRAND VOICE GUIDELINES ---');
   if (bv.tone) parts.push(`Tone: ${bv.tone}`);
@@ -64,7 +64,7 @@ function buildBrandVoiceBlock(bv: BrandVoice): string {
  * - Instagram: under 150 chars for short posts; first 125 chars show before "more"
  * - TikTok: captions are secondary to video — keep under 100 chars
  */
-function getChannelConstraints(channel?: string, contentType?: string): string {
+export function getChannelConstraints(channel?: string, contentType?: string): string {
   const isShort = contentType === 'social_post';
 
   switch (channel) {

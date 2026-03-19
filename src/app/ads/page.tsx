@@ -1017,7 +1017,7 @@ export default function AdsPage() {
 
       {/* Main tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 mb-8">
+        <TabsList className="bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 mb-8 w-full overflow-x-auto flex-nowrap">
           {[
             { value: "campaigns", label: "Campaigns" },
             { value: "insights", label: "Performance Insights" },
@@ -1025,7 +1025,7 @@ export default function AdsPage() {
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-sm font-medium tracking-wide uppercase text-muted-foreground data-[state=active]:text-foreground transition-colors"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 sm:px-6 py-3 text-xs sm:text-sm font-medium tracking-wide uppercase text-muted-foreground data-[state=active]:text-foreground transition-colors whitespace-nowrap"
             >
               {tab.label}
             </TabsTrigger>
@@ -1083,12 +1083,12 @@ export default function AdsPage() {
                   <p className="text-xs text-destructive mb-3 p-3 rounded-lg bg-destructive/5">{c.errorMessage}</p>
                 )}
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-col gap-3">
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     {c.creative?.headline && (
-                      <span className="text-foreground/80 truncate max-w-[250px]">&ldquo;{c.creative.headline}&rdquo;</span>
+                      <span className="text-foreground/80 truncate max-w-[200px] sm:max-w-[250px]">&ldquo;{c.creative.headline}&rdquo;</span>
                     )}
-                    {c.createdAt && <span className="text-[11px] hidden sm:inline">Created {new Date(c.createdAt).toLocaleDateString()}</span>}
+                    {c.createdAt && <span className="text-[11px]">Created {new Date(c.createdAt).toLocaleDateString()}</span>}
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5">
                     {c.status === "draft" && (
@@ -1208,7 +1208,7 @@ export default function AdsPage() {
               {aggregateInsights.platformInsights && aggregateInsights.platformInsights.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Platform Breakdown</h4>
-                  <div className="grid md:grid-cols-3 gap-3">
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {aggregateInsights.platformInsights.map((pi, i) => (
                       <div key={i} className="p-4 rounded-lg border border-border/40 space-y-2">
                         <div className="flex items-center justify-between">
@@ -1250,7 +1250,7 @@ export default function AdsPage() {
               {aggregateInsights.contentTips && aggregateInsights.contentTips.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Content Tips</h4>
-                  <div className="grid md:grid-cols-3 gap-3">
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {aggregateInsights.contentTips.map((tip, i) => (
                       <div key={i} className="p-4 rounded-lg border border-border/40">
                         <p className="text-xs text-muted-foreground">{tip}</p>
@@ -1483,7 +1483,7 @@ export default function AdsPage() {
 
       {/* ── Campaign Detail / Insights Dialog ── */}
       <Dialog open={!!detailCampaign} onOpenChange={(open) => { if (!open) setDetailCampaign(null); }}>
-        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto w-[calc(100%-2rem)] rounded-lg">
           {detailCampaign && (
             <>
               <DialogHeader>
@@ -1507,7 +1507,7 @@ export default function AdsPage() {
 
               {/* Metrics */}
               {detailCampaign.metrics && (
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <MetricCard label="Impressions" value={detailCampaign.metrics.impressions.toLocaleString()} />
                   <MetricCard label="Clicks" value={detailCampaign.metrics.clicks.toLocaleString()} />
                   <MetricCard label="CTR" value={`${(detailCampaign.metrics.ctr * 100).toFixed(2)}%`} />
@@ -1533,7 +1533,7 @@ export default function AdsPage() {
                   </div>
 
                   {/* Sub-scores */}
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
                       { label: "Creative", score: campaignInsights[detailCampaign.id].creativeScore },
                       { label: "Targeting", score: campaignInsights[detailCampaign.id].targetingScore },

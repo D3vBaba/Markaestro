@@ -132,7 +132,7 @@ export default function Home() {
 
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7 mt-6">
         <motion.div
-          className="col-span-4"
+          className="md:col-span-2 lg:col-span-4"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.4, ease }}
@@ -148,7 +148,7 @@ export default function Home() {
           </Card>
         </motion.div>
         <motion.div
-          className="col-span-3"
+          className="md:col-span-2 lg:col-span-3"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.4, ease }}

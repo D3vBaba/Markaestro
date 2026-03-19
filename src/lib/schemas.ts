@@ -38,6 +38,45 @@ export const integrationProviders = ['resend', 'facebook', 'instagram', 'x', 'me
 export const oauthProviders = ['meta', 'google', 'tiktok', 'x'] as const;
 export const workspaceRoles = ['owner', 'admin', 'member'] as const;
 
+// ── Pipeline Enums ────────────────────────────────────────────────
+
+export const campaignTypes = ['standard', 'pipeline'] as const;
+export const pipelineStages = ['awareness', 'interest', 'consideration', 'trial', 'activation', 'retention'] as const;
+export const pipelineCadences = ['daily', '3x_week', '2x_week', 'weekly'] as const;
+export const pipelineStatuses = ['pending_research', 'researching', 'research_complete', 'generating', 'generating_images', 'generated', 'scheduling', 'scheduled', 'failed'] as const;
+
+// ── Pipeline Sub-Schemas ──────────────────────────────────────────
+
+export const pipelineConfigSchema = z.object({
+  channels: z.array(z.enum(socialChannels)).min(1, 'Select at least one channel'),
+  cadence: z.enum(pipelineCadences).default('3x_week'),
+  postCount: z.number().int().min(15).max(30).default(20),
+  startDate: z.string().datetime(),
+  stages: z.array(z.enum(pipelineStages)).default([...pipelineStages]),
+  postTimeHourUTC: z.number().int().min(0).max(23).default(10),
+});
+
+export const researchBriefSchema = z.object({
+  competitors: z.array(z.object({
+    name: z.string(),
+    positioning: z.string(),
+    strengths: z.string(),
+    weaknesses: z.string(),
+  })),
+  trends: z.array(z.object({
+    trend: z.string(),
+    relevance: z.string(),
+    contentAngle: z.string(),
+  })),
+  productInsights: z.object({
+    keyMessages: z.array(z.string()),
+    uniqueValueProp: z.string(),
+    audiencePainPoints: z.array(z.string()),
+    toneRecommendations: z.string(),
+  }),
+  generatedAt: z.string().datetime(),
+});
+
 // ── Campaign Schemas ───────────────────────────────────────────────
 
 export const createCampaignSchema = z.object({
@@ -50,6 +89,8 @@ export const createCampaignSchema = z.object({
   subject: optionalString,
   body: optionalString,
   productId: optionalString,
+  type: z.enum(campaignTypes).default('standard'),
+  pipeline: pipelineConfigSchema.optional(),
 });
 
 export const updateCampaignSchema = z.object({
@@ -62,6 +103,10 @@ export const updateCampaignSchema = z.object({
   subject: optionalString.optional(),
   body: optionalString.optional(),
   productId: optionalString.optional(),
+  type: z.enum(campaignTypes).optional(),
+  pipeline: pipelineConfigSchema.optional(),
+  pipelineStatus: z.enum(pipelineStatuses).optional(),
+  researchBrief: researchBriefSchema.optional(),
 });
 
 // ── Contact Schemas ────────────────────────────────────────────────
@@ -209,6 +254,53 @@ export const metaIntegrationSchema = z.object({
 
 // X integration is now handled via OAuth 2.0 (same token shape as other OAuth providers)
 
+// ── Video Generation Schema ───────────────────────────────────────
+
+export const videoProviders = ['kling', 'veo', 'sora'] as const;
+export const videoStatuses = ['pending', 'generating', 'completed', 'failed'] as const;
+
+export const tiktokTrendStatuses = ['suggested', 'approved', 'used', 'dismissed'] as const;
+
+export const tiktokTrendSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  description: z.string().trim().max(2000),
+  format: z.string().trim().max(200),
+  hooks: z.array(z.string().trim().max(500)).max(10).default([]),
+  hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
+  viralityScore: z.number().min(0).max(100).default(0),
+  relevanceScore: z.number().min(0).max(100).default(0),
+  status: z.enum(tiktokTrendStatuses).default('suggested'),
+});
+
+export const generateVideoSchema = z.object({
+  prompt: z.string().trim().min(1, 'Prompt is required').max(4000),
+  productId: z.string().trim().optional(),
+  trendId: z.string().trim().optional(),
+  provider: z.enum(videoProviders).default('kling'),
+  durationSeconds: z.number().int().min(5).max(10).default(5),
+  /** Caption text for the TikTok post */
+  caption: z.string().trim().max(2200).default(''),
+  hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
+});
+
+export const videoGenerationSchema = z.object({
+  trendId: z.string().trim().optional(),
+  postId: z.string().trim().optional(),
+  prompt: z.string().trim().max(4000),
+  provider: z.enum(videoProviders),
+  status: z.enum(videoStatuses).default('pending'),
+  videoUrl: z.string().trim().max(2000).default(''),
+  thumbnailUrl: z.string().trim().max(2000).default(''),
+  durationSeconds: z.number().int().min(0).default(0),
+  /** Provider-specific job/request ID for polling */
+  externalJobId: z.string().trim().max(500).default(''),
+  caption: z.string().trim().max(2200).default(''),
+  hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
+  errorMessage: z.string().trim().max(2000).default(''),
+  createdAt: z.string().datetime(),
+  completedAt: z.string().datetime().nullable().optional(),
+});
+
 // ── Image Generation Schema ───────────────────────────────────────
 
 export const imageStyles = ['photorealistic', 'illustration', 'minimal', 'abstract', 'branded'] as const;
@@ -296,6 +388,11 @@ export const createPostSchema = z.object({
   mediaUrls: z.array(z.string().url()).max(10).default([]),
   productId: optionalString,
   generatedBy: z.string().trim().max(50).default(''),
+  campaignId: z.string().trim().max(500).optional(),
+  pipelineStage: z.enum(pipelineStages).optional(),
+  pipelineSequence: z.number().int().min(0).optional(),
+  pipelineTheme: z.string().trim().max(200).optional(),
+  targetChannels: z.array(z.enum(socialChannels)).optional(),
 });
 
 export const updatePostSchema = z.object({
@@ -308,6 +405,11 @@ export const updatePostSchema = z.object({
   externalId: z.string().trim().max(500).optional(),
   externalUrl: z.string().trim().max(2000).optional(),
   errorMessage: z.string().trim().max(2000).optional(),
+  campaignId: z.string().trim().max(500).optional(),
+  pipelineStage: z.enum(pipelineStages).optional(),
+  pipelineSequence: z.number().int().min(0).optional(),
+  pipelineTheme: z.string().trim().max(200).optional(),
+  targetChannels: z.array(z.enum(socialChannels)).optional(),
 });
 
 // ── Pagination ─────────────────────────────────────────────────────
@@ -356,3 +458,15 @@ export type UpdateAdCampaign = z.infer<typeof updateAdCampaignSchema>;
 export type AdTargeting = z.infer<typeof adTargetingSchema>;
 export type AdCreative = z.infer<typeof adCreativeSchema>;
 export type JobType = (typeof jobTypes)[number];
+export type CampaignType = (typeof campaignTypes)[number];
+export type PipelineStage = (typeof pipelineStages)[number];
+export type PipelineCadence = (typeof pipelineCadences)[number];
+export type PipelineStatus = (typeof pipelineStatuses)[number];
+export type PipelineConfig = z.infer<typeof pipelineConfigSchema>;
+export type ResearchBrief = z.infer<typeof researchBriefSchema>;
+export type VideoProvider = (typeof videoProviders)[number];
+export type VideoStatus = (typeof videoStatuses)[number];
+export type TikTokTrendStatus = (typeof tiktokTrendStatuses)[number];
+export type TikTokTrend = z.infer<typeof tiktokTrendSchema>;
+export type GenerateVideo = z.infer<typeof generateVideoSchema>;
+export type VideoGeneration = z.infer<typeof videoGenerationSchema>;

@@ -2,6 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { executeJob } from '@/lib/jobs/executor';
 import { processScheduledPosts } from '@/lib/social/publisher';
 import { processTokenRefresh, cleanupExpiredOAuthStates } from '@/lib/oauth/token-refresh';
+import { pollPendingVideoGenerations } from '@/lib/ai/video-poll-worker';
 import { safeCompare } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 
@@ -32,7 +33,15 @@ export async function POST(req: Request) {
       console.error('OAuth state cleanup failed:', e);
     }
 
-    // 3. Process workspaces
+    // 3. Poll pending video generations
+    let videoPollResult = { polled: 0, completed: 0, failed: 0, errors: [] as Array<{ workspaceId: string; generationId: string; error: string }> };
+    try {
+      videoPollResult = await pollPendingVideoGenerations();
+    } catch (e) {
+      console.error('Video generation polling failed:', e);
+    }
+
+    // 4. Process workspaces
     const wsSnap = await adminDb.collection('workspaces').limit(200).get();
 
     let scanned = 0;
@@ -88,6 +97,12 @@ export async function POST(req: Request) {
         errors: tokenRefreshResult.errors,
       },
       oauthStatesCleanedUp: statesCleanedUp,
+      videoGenerations: {
+        polled: videoPollResult.polled,
+        completed: videoPollResult.completed,
+        failed: videoPollResult.failed,
+        errors: videoPollResult.errors,
+      },
     });
   } catch (error) {
     return apiError(error);

@@ -113,9 +113,9 @@ export async function publishPostMultiChannel(
     results.push({
       channel,
       success: result.success,
-      externalId: result.externalId,
-      externalUrl: result.externalUrl,
-      error: result.error,
+      ...(result.externalId != null && { externalId: result.externalId }),
+      ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
+      ...(result.error != null && { error: result.error }),
     });
   }
 
@@ -158,11 +158,41 @@ export async function processScheduledPosts(workspaceId: string): Promise<{ proc
 
     await doc.ref.update({ status: 'publishing', updatedAt: new Date().toISOString() });
 
-    const result = await publishPostMultiChannel(workspaceId, productId, {
-      content: post.content,
-      channel: post.channel,
-      mediaUrls: post.mediaUrls,
-    });
+    // Pipeline posts with targetChannels: publish to each channel independently
+    const targetChannels = post.targetChannels as SocialChannel[] | undefined;
+    let result: MultiChannelPublishResult;
+
+    if (targetChannels && targetChannels.length > 0) {
+      const channelResults: ChannelPublishResult[] = [];
+      for (const channel of targetChannels) {
+        const r = await publishPost(workspaceId, productId, {
+          content: post.content,
+          channel,
+          mediaUrls: post.mediaUrls,
+        });
+        channelResults.push({
+          channel,
+          success: r.success,
+          externalId: r.externalId,
+          externalUrl: r.externalUrl,
+          error: r.error,
+        });
+      }
+      const primaryResult = channelResults.find((r) => r.channel === post.channel) || channelResults[0];
+      result = {
+        success: channelResults.some((r) => r.success),
+        channels: channelResults,
+        externalId: primaryResult.externalId,
+        externalUrl: primaryResult.externalUrl,
+        error: channelResults.every((r) => !r.success) ? primaryResult.error : undefined,
+      };
+    } else {
+      result = await publishPostMultiChannel(workspaceId, productId, {
+        content: post.content,
+        channel: post.channel,
+        mediaUrls: post.mediaUrls,
+      });
+    }
 
     if (result.success) {
       await doc.ref.update({

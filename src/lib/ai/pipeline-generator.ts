@@ -1,0 +1,199 @@
+import OpenAI from 'openai';
+import { SYSTEM_PROMPT, buildBrandVoiceBlock, getChannelConstraints } from './content-generator';
+import type { BrandVoice, PipelineConfig, PipelineStage, ResearchBrief, SocialChannel } from '@/lib/schemas';
+
+const getClient = () => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error('OPENAI_API_KEY not configured');
+  return new OpenAI({ apiKey });
+};
+
+export type PipelinePost = {
+  content: string;
+  pipelineStage: PipelineStage;
+  pipelineSequence: number;
+  pipelineTheme: string;
+};
+
+export type GeneratePipelineInput = {
+  productName: string;
+  productDescription: string;
+  productCategories: string[];
+  brandVoice?: BrandVoice;
+  researchBrief: ResearchBrief;
+  pipelineConfig: PipelineConfig;
+};
+
+const STAGE_WEIGHTS: Record<PipelineStage, number> = {
+  awareness: 0.25,
+  interest: 0.20,
+  consideration: 0.15,
+  trial: 0.15,
+  activation: 0.15,
+  retention: 0.10,
+};
+
+const STAGE_GOALS: Record<PipelineStage, string> = {
+  awareness: `GOAL: Make the audience realize they have a problem worth solving. Do NOT mention the product by name. Focus entirely on pain points, frustrations, and "aha" moments the audience experiences daily. Make them feel seen and understood. Content should be relatable and shareable.`,
+  interest: `GOAL: Introduce the product CATEGORY as a solution — not the product itself yet. Educational content about how this type of solution can help. Light mentions of the product are okay but keep the focus on educating. Position the audience to start looking for a solution.`,
+  consideration: `GOAL: Direct product positioning. Highlight specific features, benefits, and what makes this product different from alternatives. Use the competitive insights from research to create contrast. Include specific, concrete details — not vague claims.`,
+  trial: `GOAL: Drive sign-ups, trials, or first purchases. Create urgency without being pushy. Use social proof, risk reversal (free trial, money-back guarantee), and clear CTAs. Address the "why now" question — give a reason to act today, not next week.`,
+  activation: `GOAL: Help new users succeed quickly. Share onboarding tips, quick wins, and "did you know" features. The goal is to get users to their first success moment as fast as possible. Think "power user tips for beginners."`,
+  retention: `GOAL: Reinforce the value for existing users. Share advanced use cases, success stories, community highlights, and features they might not know about. Make users feel smart for choosing this product. Build loyalty and word-of-mouth.`,
+};
+
+function distributePostsAcrossStages(
+  totalPosts: number,
+  stages: PipelineStage[],
+): Map<PipelineStage, number> {
+  const distribution = new Map<PipelineStage, number>();
+
+  // Calculate raw distribution based on weights
+  const totalWeight = stages.reduce((sum, s) => sum + STAGE_WEIGHTS[s], 0);
+  let assigned = 0;
+
+  for (const stage of stages) {
+    const count = Math.round((STAGE_WEIGHTS[stage] / totalWeight) * totalPosts);
+    distribution.set(stage, Math.max(1, count));
+    assigned += distribution.get(stage)!;
+  }
+
+  // Adjust to match totalPosts exactly
+  const diff = totalPosts - assigned;
+  if (diff !== 0) {
+    // Add/remove from the largest stage
+    const largest = stages.reduce((a, b) =>
+      (distribution.get(a)! >= distribution.get(b)!) ? a : b
+    );
+    distribution.set(largest, distribution.get(largest)! + diff);
+  }
+
+  return distribution;
+}
+
+function formatResearchContext(brief: ResearchBrief): string {
+  const parts: string[] = ['--- MARKET RESEARCH ---'];
+
+  if (brief.competitors.length > 0) {
+    parts.push('\nCOMPETITORS:');
+    for (const c of brief.competitors) {
+      parts.push(`- ${c.name}: ${c.positioning} | Strengths: ${c.strengths} | Weaknesses: ${c.weaknesses}`);
+    }
+  }
+
+  if (brief.trends.length > 0) {
+    parts.push('\nTRENDS TO LEVERAGE:');
+    for (const t of brief.trends) {
+      parts.push(`- ${t.trend}: ${t.contentAngle}`);
+    }
+  }
+
+  const pi = brief.productInsights;
+  parts.push('\nPRODUCT INSIGHTS:');
+  parts.push(`Unique value: ${pi.uniqueValueProp}`);
+  if (pi.keyMessages.length > 0) parts.push(`Key messages: ${pi.keyMessages.join(' | ')}`);
+  if (pi.audiencePainPoints.length > 0) parts.push(`Pain points: ${pi.audiencePainPoints.join(' | ')}`);
+  if (pi.toneRecommendations) parts.push(`Tone guidance: ${pi.toneRecommendations}`);
+
+  parts.push('--- END RESEARCH ---');
+  return parts.join('\n');
+}
+
+function getMostRestrictiveChannel(channels: SocialChannel[]): SocialChannel {
+  const priority: SocialChannel[] = ['x', 'tiktok', 'instagram', 'facebook'];
+  for (const ch of priority) {
+    if (channels.includes(ch)) return ch;
+  }
+  return channels[0];
+}
+
+async function generateStageContent(
+  client: OpenAI,
+  input: GeneratePipelineInput,
+  stage: PipelineStage,
+  count: number,
+  sequenceOffset: number,
+): Promise<PipelinePost[]> {
+  const primaryChannel = getMostRestrictiveChannel(input.pipelineConfig.channels);
+  const channelConstraints = getChannelConstraints(primaryChannel, 'social_post');
+  const researchContext = formatResearchContext(input.researchBrief);
+
+  let systemPrompt = SYSTEM_PROMPT;
+  if (input.brandVoice) {
+    systemPrompt += buildBrandVoiceBlock(input.brandVoice);
+  }
+
+  systemPrompt += `\n\nYou are generating content for a multi-post adoption pipeline. Each post is part of a strategic sequence designed to move the audience from awareness to retention over weeks. Make each post UNIQUE — different angle, different hook, different pain point. Never repeat the same idea twice.`;
+
+  const userPrompt = `${researchContext}
+
+--- PRODUCT ---
+Name: ${input.productName}
+What it does: ${input.productDescription}
+Category: ${input.productCategories.join(', ')}
+--- END PRODUCT ---
+
+${channelConstraints}
+
+PIPELINE STAGE: ${stage.toUpperCase()} (posts ${sequenceOffset + 1}-${sequenceOffset + count} of ${input.pipelineConfig.postCount} total)
+${STAGE_GOALS[stage]}
+
+Cross-posting to: ${input.pipelineConfig.channels.join(', ')} — content must work across all these channels. Size content for the most restrictive channel (${primaryChannel}).
+
+Generate exactly ${count} unique posts for this stage. Each post must have a different angle, hook, or pain point. Variety is critical — do not repeat themes.
+
+CRITICAL LENGTH RULES:
+- Each post: 1-2 sentences MAX. Brevity is everything.
+- Every word must earn its place. Cut ruthlessly.
+- Do NOT write paragraphs, lists, or multi-line posts.
+
+Return ONLY valid JSON array, no other text:
+[
+  { "content": "The post text", "theme": "2-4 word theme label" }
+]`;
+
+  const response = await client.chat.completions.create({
+    model: 'gpt-4o-mini',
+    max_tokens: 4096,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `Return a JSON object with a "posts" array. ${userPrompt}` },
+    ],
+  });
+
+  const text = response.choices[0]?.message?.content || '{}';
+  const parsed = JSON.parse(text);
+  const posts: Array<{ content: string; theme: string }> = parsed.posts || [];
+
+  return posts.map((p, i) => ({
+    content: p.content,
+    pipelineStage: stage,
+    pipelineSequence: sequenceOffset + i,
+    pipelineTheme: p.theme,
+  }));
+}
+
+export async function generatePipelinePosts(input: GeneratePipelineInput): Promise<PipelinePost[]> {
+  const client = getClient();
+  const stages = input.pipelineConfig.stages as PipelineStage[];
+  const distribution = distributePostsAcrossStages(input.pipelineConfig.postCount, stages);
+
+  // Generate all stages in parallel
+  let sequenceOffset = 0;
+  const stageEntries: Array<{ stage: PipelineStage; count: number; offset: number }> = [];
+
+  for (const stage of stages) {
+    const count = distribution.get(stage) || 1;
+    stageEntries.push({ stage, count, offset: sequenceOffset });
+    sequenceOffset += count;
+  }
+
+  const results = await Promise.all(
+    stageEntries.map(({ stage, count, offset }) =>
+      generateStageContent(client, input, stage, count, offset)
+    )
+  );
+
+  return results.flat();
+}

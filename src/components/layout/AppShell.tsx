@@ -38,7 +38,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar className="hidden lg:flex w-[260px]" />
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
-        <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto">
           <div className="mx-auto max-w-6xl">
             {children}
           </div>

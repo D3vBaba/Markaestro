@@ -1,0 +1,60 @@
+import { adminDb } from '@/lib/firebase-admin';
+import { workspaceCollection } from '@/lib/firestore-paths';
+import { requireContext } from '@/lib/server-auth';
+import { apiError, apiOk } from '@/lib/api-response';
+import type { PipelineStage } from '@/lib/schemas';
+
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const ctx = await requireContext(req);
+    const { id } = await params;
+
+    // Load campaign
+    const campaignRef = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'campaigns')}/${id}`);
+    const campaignSnap = await campaignRef.get();
+    if (!campaignSnap.exists) throw new Error('NOT_FOUND');
+
+    const campaign = campaignSnap.data()!;
+    if (campaign.type !== 'pipeline') {
+      throw new Error('VALIDATION_CAMPAIGN_IS_NOT_PIPELINE_TYPE');
+    }
+
+    // Load all pipeline posts for this campaign
+    const postsSnap = await adminDb
+      .collection(`workspaces/${ctx.workspaceId}/posts`)
+      .where('campaignId', '==', id)
+      .get();
+
+    const posts = postsSnap.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .sort((a: any, b: any) => (a.pipelineSequence ?? 0) - (b.pipelineSequence ?? 0));
+
+    // Group posts by stage
+    const stages: Record<string, Array<Record<string, unknown>>> = {};
+    for (const post of posts) {
+      const stage = (post as any).pipelineStage as PipelineStage || 'awareness';
+      if (!stages[stage]) stages[stage] = [];
+      stages[stage].push(post);
+    }
+
+    // Compute stats
+    const statusCounts: Record<string, number> = {};
+    for (const post of posts) {
+      const status = (post as any).status || 'draft';
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+    }
+
+    return apiOk({
+      campaignId: id,
+      campaignName: campaign.name,
+      pipelineStatus: campaign.pipelineStatus || null,
+      pipelineConfig: campaign.pipeline || null,
+      researchBrief: campaign.researchBrief || null,
+      stages,
+      totalPosts: posts.length,
+      statusCounts,
+    });
+  } catch (error) {
+    return apiError(error);
+  }
+}

@@ -41,6 +41,7 @@ type CalendarItem =
 
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DAY_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DAY_NAMES_SHORT = ["S","M","T","W","T","F","S"];
 
 const CHANNEL_ACCENT: Record<string, string> = {
   instagram: "#E1306C",
@@ -478,12 +479,12 @@ export default function CalendarPage() {
         .detail-panel { animation: slideInRight 0.18s ease-out; }
       `}</style>
 
-      <div className="flex gap-6" style={{ minHeight: "calc(100vh - 140px)" }}>
+      <div className="flex flex-col lg:flex-row gap-6" style={{ minHeight: "calc(100vh - 140px)" }}>
 
         {/* ── Calendar column ── */}
         <div
           className="flex flex-col min-w-0 transition-all duration-300 ease-in-out"
-          style={{ flex: selected ? "0 0 calc(100% - 388px)" : "1 1 0" }}
+          style={{ flex: selected ? "1 1 0" : "1 1 0" }}
         >
           {/* Header row */}
           <div className="flex items-center justify-between mb-5">
@@ -540,15 +541,16 @@ export default function CalendarPage() {
             <div className="flex-1 rounded-xl border border-border/40 overflow-hidden bg-card">
               {/* Day-of-week row */}
               <div className="grid grid-cols-7 border-b border-border/40 bg-muted/20">
-                {DAY_NAMES.map((d) => (
+                {DAY_NAMES.map((d, i) => (
                   <div key={d} className="py-2.5 text-center text-[11px] font-medium text-muted-foreground/70 tracking-wider">
-                    {d}
+                    <span className="hidden sm:inline">{d}</span>
+                    <span className="sm:hidden">{DAY_NAMES_SHORT[i]}</span>
                   </div>
                 ))}
               </div>
 
               {/* Day cells */}
-              <div className="grid grid-cols-7" style={{ gridAutoRows: "minmax(108px, 1fr)" }}>
+              <div className="grid grid-cols-7" style={{ gridAutoRows: "minmax(80px, 1fr)" }}>
                 {days.map((day, idx) => {
                   if (!day) {
                     return <div key={`pad-${idx}`} className="border-b border-r border-border/25 bg-muted/10" />;
@@ -614,8 +616,7 @@ export default function CalendarPage() {
         {/* ── Detail panel ── */}
         {selected && (
           <div
-            className="detail-panel flex-shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden"
-            style={{ width: 364 }}
+            className="detail-panel flex-shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden w-full lg:w-[364px]"
           >
             {selected.kind === "post" && (
               <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
