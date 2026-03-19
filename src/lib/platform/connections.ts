@@ -36,6 +36,39 @@ export async function getConnection(
 }
 
 /**
+ * Get a merged Meta connection: workspace-level user token + product-level page metadata.
+ * Falls back to a legacy product-level connection if no workspace connection exists.
+ */
+export async function getMetaConnectionMerged(
+  workspaceId: string,
+  productId?: string,
+): Promise<PlatformConnection | null> {
+  const wsConn = await getConnection(workspaceId, 'meta');
+
+  if (wsConn) {
+    if (!productId) return wsConn;
+
+    const prodConn = await getConnection(workspaceId, 'meta', productId);
+    if (!prodConn) return wsConn;
+
+    // Merge: workspace user token + product page metadata
+    return {
+      ...wsConn,
+      productId,
+      metadata: { ...wsConn.metadata, ...prodConn.metadata },
+    };
+  }
+
+  // Backward compat: legacy product-level connection with its own user token
+  if (productId) {
+    const prodConn = await getConnection(workspaceId, 'meta', productId);
+    if (prodConn?.accessTokenEncrypted) return prodConn;
+  }
+
+  return null;
+}
+
+/**
  * Find the connection that serves a given channel.
  * Checks product-level first, then falls back to workspace-level.
  */
@@ -47,6 +80,12 @@ export async function getConnectionForChannel(
   const providers = channelToProviders(channel);
 
   for (const provider of providers) {
+    // Meta uses merged workspace + product connection
+    if (provider === 'meta') {
+      const conn = await getMetaConnectionMerged(workspaceId, productId);
+      if (conn && conn.status === 'connected') return conn;
+      continue;
+    }
     // Product-level takes priority
     if (productId) {
       const conn = await getConnection(workspaceId, provider, productId);

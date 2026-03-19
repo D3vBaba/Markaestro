@@ -4,7 +4,7 @@ import { publishPostMultiChannel } from '@/lib/social/publisher';
 import { decrypt } from '@/lib/crypto';
 import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
 import { getGoogleCampaignMetrics } from '@/lib/ads/google-ads';
-import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
+import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 import { JobDoc } from './types';
 
 export async function executeJob(workspaceId: string, jobId: string, job: JobDoc) {
@@ -124,7 +124,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
           let metricsResult: { success: boolean; metrics?: Record<string, unknown>; error?: string } | undefined;
 
           if (campaign.platform === 'meta' && campaign.productId) {
-            const conn = await getConnection(workspaceId, 'meta', campaign.productId);
+            const conn = await getMetaConnectionMerged(workspaceId, campaign.productId);
             if (conn) {
               const token = resolveUserAccessToken(conn);
               metricsResult = await getMetaCampaignMetrics(token, campaign.externalCampaignId);

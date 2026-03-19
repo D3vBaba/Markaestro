@@ -1,7 +1,7 @@
 import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
-import { getConnection, getConnectionRef } from '@/lib/platform/connections';
+import { getMetaConnectionMerged, getConnectionRef } from '@/lib/platform/connections';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { adAccountId, productId } = schema.parse(body);
 
-    const conn = await getConnection(ctx.workspaceId, 'meta', productId);
+    const conn = await getMetaConnectionMerged(ctx.workspaceId, productId);
     if (!conn) {
       throw new Error('NOT_FOUND');
     }

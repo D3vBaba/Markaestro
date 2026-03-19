@@ -1,7 +1,7 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 import { z } from 'zod';
-import { getConnection } from '@/lib/platform/connections';
+import { getMetaConnectionMerged } from '@/lib/platform/connections';
 import { getAdapter } from '@/lib/platform/registry';
 
 const testSchema = z.object({
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { productId } = testSchema.parse(body);
 
-    const conn = await getConnection(ctx.workspaceId, 'meta', productId);
+    const conn = await getMetaConnectionMerged(ctx.workspaceId, productId);
     if (!conn) {
       throw new Error('VALIDATION_MISSING_META_TOKEN');
     }

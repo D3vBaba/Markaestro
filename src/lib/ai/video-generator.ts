@@ -100,7 +100,8 @@ function buildVideoPrompt(req: VideoGenRequest): string {
 
 // ── fal.ai model endpoints ───────────────────────────────────────────
 
-const FAL_MODEL_IDS: Record<VideoProvider, string> = {
+/** fal.ai model IDs — Creatify is handled separately via its own API */
+const FAL_MODEL_IDS: Partial<Record<VideoProvider, string>> = {
   kling: 'fal-ai/kling-video/v2.6/pro/text-to-video',
   veo: 'fal-ai/veo2',
   sora: 'fal-ai/sora',

@@ -1,6 +1,6 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
-import { getConnection } from '@/lib/platform/connections';
+import { getMetaConnectionMerged } from '@/lib/platform/connections';
 import { decrypt } from '@/lib/crypto';
 
 export type MetaAdAccount = {
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
       });
     }
 
-    const conn = await getConnection(ctx.workspaceId, 'meta', productId);
+    const conn = await getMetaConnectionMerged(ctx.workspaceId, productId);
 
     if (!conn || !conn.accessTokenEncrypted) {
       return apiOk({

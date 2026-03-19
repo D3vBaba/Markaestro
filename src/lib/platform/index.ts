@@ -10,6 +10,7 @@ export {
   getConnection,
   getConnectionRef,
   getConnectionForChannel,
+  getMetaConnectionMerged,
   resolveAccessToken,
   saveConnection,
   deleteConnection,

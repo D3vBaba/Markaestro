@@ -86,6 +86,8 @@ export async function loadSecretsToEnv(): Promise<void> {
     'GOOGLE_ADS_DEVELOPER_TOKEN',
     'FIREBASE_SERVICE_ACCOUNT_JSON',
     'FAL_API_KEY',
+    'CREATIFY_API_ID',
+    'CREATIFY_API_KEY',
   ];
 
   await Promise.all(

@@ -1,7 +1,7 @@
 import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
-import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
+import { getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       return apiOk({ ok: false, error: 'productId is required' });
     }
 
-    const conn = await getConnection(ctx.workspaceId, 'meta', productId);
+    const conn = await getMetaConnectionMerged(ctx.workspaceId, productId);
     if (!conn) {
       throw new Error('NOT_FOUND');
     }

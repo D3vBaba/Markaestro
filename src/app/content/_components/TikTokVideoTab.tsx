@@ -12,8 +12,10 @@ import {
   Loader2,
   CheckCircle2,
   XCircle,
-  Play,
   ChevronRight,
+  FileText,
+  User,
+  RotateCcw,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -28,7 +30,24 @@ type Trend = {
   viralityScore: number;
   relevanceScore: number;
   videoPromptSuggestion?: string;
-  status: string;
+};
+
+type UGCScript = {
+  script: string;
+  hookLine: string;
+  style: string;
+  estimatedDurationSeconds: number;
+};
+
+type Avatar = {
+  id: string;
+  name: string;
+  gender: string;
+  ageRange: string;
+  style: string;
+  scene: string;
+  previewImage: string;
+  previewVideo?: string;
 };
 
 type VideoGeneration = {
@@ -36,23 +55,29 @@ type VideoGeneration = {
   status: "pending" | "generating" | "completed" | "failed";
   videoUrl: string;
   thumbnailUrl: string;
-  caption: string;
-  hashtags: string[];
   errorMessage: string;
   postId?: string;
   provider: string;
 };
 
+const SCRIPT_STYLES = [
+  { value: "problem-solution", label: "Problem → Solution", desc: "Relatable pain point, then the fix" },
+  { value: "testimonial", label: "Testimonial", desc: "Personal experience story" },
+  { value: "review", label: "Honest Review", desc: "Candid first impression" },
+  { value: "routine", label: "Routine", desc: "Product in daily life" },
+  { value: "comparison", label: "Comparison", desc: "Before vs. after switching" },
+];
+
 // ── Step indicator ─────────────────────────────────────────────────
 
 function StepIndicator({ step }: { step: number }) {
-  const steps = ["Select Product", "Research Trends", "Generate Video"];
+  const steps = ["Product", "Trends", "Script", "Avatar", "Generate"];
   return (
-    <div className="flex items-center gap-2 mb-8">
+    <div className="flex items-center gap-1.5 mb-8 overflow-x-auto">
       {steps.map((label, i) => (
-        <div key={label} className="flex items-center gap-2">
+        <div key={label} className="flex items-center gap-1.5 shrink-0">
           <div
-            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
+            className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold transition-all ${
               i < step
                 ? "bg-foreground text-background"
                 : i === step
@@ -60,18 +85,12 @@ function StepIndicator({ step }: { step: number }) {
                 : "bg-muted text-muted-foreground"
             }`}
           >
-            {i < step ? <CheckCircle2 className="w-3.5 h-3.5" /> : i + 1}
+            {i < step ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
           </div>
-          <span
-            className={`text-xs font-medium ${
-              i <= step ? "text-foreground" : "text-muted-foreground"
-            }`}
-          >
+          <span className={`text-[11px] font-medium ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>
             {label}
           </span>
-          {i < steps.length - 1 && (
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40" />
-          )}
+          {i < steps.length - 1 && <ChevronRight className="w-3 h-3 text-muted-foreground/30" />}
         </div>
       ))}
     </div>
@@ -80,64 +99,23 @@ function StepIndicator({ step }: { step: number }) {
 
 // ── Trend card ─────────────────────────────────────────────────────
 
-function TrendCard({
-  trend,
-  selected,
-  onSelect,
-}: {
-  trend: Trend;
-  selected: boolean;
-  onSelect: () => void;
-}) {
+function TrendCard({ trend, selected, onSelect }: { trend: Trend; selected: boolean; onSelect: () => void }) {
   return (
     <button
       onClick={onSelect}
       className={`w-full text-left p-4 rounded-xl border transition-all ${
-        selected
-          ? "border-foreground bg-foreground/5 shadow-sm"
-          : "border-border/50 hover:border-foreground/30"
+        selected ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 space-y-1.5">
           <h4 className="text-sm font-medium">{trend.name}</h4>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {trend.description}
-          </p>
-          <p className="text-[11px] text-muted-foreground/70">
-            <span className="font-medium">Format:</span> {trend.format}
-          </p>
-          {trend.hooks.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {trend.hooks.map((hook, i) => (
-                <span
-                  key={i}
-                  className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
-                >
-                  {hook}
-                </span>
-              ))}
-            </div>
-          )}
-          {trend.hashtags.length > 0 && (
-            <p className="text-[11px] text-muted-foreground/60 pt-1">
-              {trend.hashtags.slice(0, 5).join(" ")}
-            </p>
-          )}
+          <p className="text-xs text-muted-foreground leading-relaxed">{trend.description}</p>
+          <p className="text-[11px] text-muted-foreground/70"><span className="font-medium">Format:</span> {trend.format}</p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-muted-foreground">Viral</span>
-            <span className="text-xs font-semibold tabular-nums">
-              {trend.viralityScore}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-muted-foreground">Fit</span>
-            <span className="text-xs font-semibold tabular-nums">
-              {trend.relevanceScore}
-            </span>
-          </div>
+          <span className="text-[10px] text-muted-foreground">Viral <span className="font-semibold text-foreground">{trend.viralityScore}</span></span>
+          <span className="text-[10px] text-muted-foreground">Fit <span className="font-semibold text-foreground">{trend.relevanceScore}</span></span>
         </div>
       </div>
     </button>
@@ -146,11 +124,7 @@ function TrendCard({
 
 // ── Main component ─────────────────────────────────────────────────
 
-export default function TikTokVideoTab({
-  onPostCreated,
-}: {
-  onPostCreated?: () => void;
-}) {
+export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () => void }) {
   // Step 1: Product
   const [productId, setProductId] = useState("");
 
@@ -160,139 +134,136 @@ export default function TikTokVideoTab({
   const [selectedTrend, setSelectedTrend] = useState<Trend | null>(null);
   const [focusArea, setFocusArea] = useState("");
 
-  // Step 3: Video generation
-  const [videoPrompt, setVideoPrompt] = useState("");
+  // Step 3: Script
+  const [scriptStyle, setScriptStyle] = useState("problem-solution");
+  const [scriptDuration, setScriptDuration] = useState(30);
+  const [writingScript, setWritingScript] = useState(false);
+  const [script, setScript] = useState<UGCScript | null>(null);
+  const [editedScript, setEditedScript] = useState("");
+
+  // Step 4: Avatar
+  const [avatars, setAvatars] = useState<Avatar[]>([]);
+  const [loadingAvatars, setLoadingAvatars] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
+
+  // Step 5: Generate
   const [caption, setCaption] = useState("");
   const [generating, setGenerating] = useState(false);
   const [generation, setGeneration] = useState<VideoGeneration | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const currentStep = !productId ? 0 : trends.length === 0 && !researching ? 1 : 2;
+  const currentStep = !productId ? 0 : !selectedTrend ? 1 : !script ? 2 : !selectedAvatar ? 3 : 4;
 
-  // Cleanup polling on unmount
   useEffect(() => {
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
 
-  // ── Research trends ────────────────────────────────────────────
+  // ── Step 2: Research trends ────────────────────────────────────
 
   const handleResearch = async () => {
-    if (!productId) {
-      toast.error("Select a product first");
-      return;
-    }
+    if (!productId) { toast.error("Select a product first"); return; }
     setResearching(true);
     setTrends([]);
     setSelectedTrend(null);
+    setScript(null);
+    setSelectedAvatar(null);
     setGeneration(null);
     try {
-      const res = await apiPost<{ trends: Trend[] }>("/api/ai/tiktok-trends", {
-        productId,
-        focusArea: focusArea || undefined,
-      });
+      const res = await apiPost<{ trends: Trend[] }>("/api/ai/tiktok-trends", { productId, focusArea: focusArea || undefined });
       if (res.ok && res.data.trends?.length) {
         setTrends(res.data.trends);
         toast.success(`Found ${res.data.trends.length} trends`);
       } else {
         toast.error("No trends found — try a different focus area");
       }
-    } catch {
-      toast.error("Failed to research trends");
-    } finally {
-      setResearching(false);
-    }
+    } catch { toast.error("Failed to research trends"); }
+    finally { setResearching(false); }
   };
 
-  // ── Select trend ───────────────────────────────────────────────
+  // ── Step 3: Write script ───────────────────────────────────────
 
-  const handleSelectTrend = (trend: Trend) => {
-    setSelectedTrend(trend);
-    setVideoPrompt(trend.videoPromptSuggestion || "");
-    const tags = trend.hashtags.length > 0 ? trend.hashtags.join(" ") : "";
-    setCaption(tags);
+  const handleWriteScript = async () => {
+    setWritingScript(true);
+    setScript(null);
+    try {
+      const res = await apiPost<UGCScript>("/api/ai/ugc-script", {
+        productId,
+        trendId: selectedTrend?.id,
+        scriptStyle,
+        durationSeconds: scriptDuration,
+      });
+      if (res.ok) {
+        setScript(res.data);
+        setEditedScript(res.data.script);
+        setCaption(selectedTrend?.hashtags?.join(" ") || "");
+        toast.success("Script written!");
+      } else {
+        toast.error("Failed to write script");
+      }
+    } catch { toast.error("Failed to write script"); }
+    finally { setWritingScript(false); }
   };
 
-  // ── Poll for video completion ──────────────────────────────────
+  // ── Step 4: Load avatars ───────────────────────────────────────
 
-  const startPolling = useCallback(
-    (genId: string) => {
-      if (pollRef.current) clearInterval(pollRef.current);
+  useEffect(() => {
+    if (!script) return;
+    if (avatars.length > 0) return;
+    setLoadingAvatars(true);
+    apiGet<{ avatars: Avatar[] }>("/api/ai/ugc-avatars").then((res) => {
+      if (res.ok) setAvatars(res.data.avatars);
+      setLoadingAvatars(false);
+    });
+  }, [script, avatars.length]);
 
-      pollRef.current = setInterval(async () => {
-        try {
-          const res = await apiGet<VideoGeneration>(
-            `/api/ai/video-status/${genId}`
-          );
-          if (res.ok) {
-            setGeneration(res.data);
-            if (
-              res.data.status === "completed" ||
-              res.data.status === "failed"
-            ) {
-              if (pollRef.current) clearInterval(pollRef.current);
-              pollRef.current = null;
-              if (res.data.status === "completed") {
-                toast.success("Video generated! Draft post created.");
-                onPostCreated?.();
-              } else {
-                toast.error(
-                  res.data.errorMessage || "Video generation failed"
-                );
-              }
-            }
+  // ── Step 5: Generate & poll ────────────────────────────────────
+
+  const startPolling = useCallback((genId: string) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await apiGet<VideoGeneration>(`/api/ai/ugc-video/${genId}`);
+        if (res.ok) {
+          setGeneration(res.data);
+          if (res.data.status === "completed" || res.data.status === "failed") {
+            if (pollRef.current) clearInterval(pollRef.current);
+            pollRef.current = null;
+            if (res.data.status === "completed") { toast.success("UGC video ready! Draft post created."); onPostCreated?.(); }
+            else toast.error(res.data.errorMessage || "Video generation failed");
           }
-        } catch {
-          // Keep polling on transient errors
         }
-      }, 8000);
-    },
-    [onPostCreated]
-  );
-
-  // ── Generate video ─────────────────────────────────────────────
+      } catch { /* keep polling */ }
+    }, 8000);
+  }, [onPostCreated]);
 
   const handleGenerate = async () => {
-    if (!videoPrompt) {
-      toast.error("Enter a video prompt");
-      return;
-    }
+    if (!editedScript || !selectedAvatar) return;
     setGenerating(true);
     setGeneration(null);
     try {
-      const res = await apiPost<VideoGeneration>("/api/ai/generate-video", {
-        prompt: videoPrompt,
+      const res = await apiPost<VideoGeneration>("/api/ai/ugc-video", {
+        script: editedScript,
+        avatarId: selectedAvatar.id,
         productId: productId || undefined,
         trendId: selectedTrend?.id || undefined,
-        provider: "kling",
-        durationSeconds: 10,
         caption,
         hashtags: selectedTrend?.hashtags || [],
       });
       if (res.ok) {
         setGeneration(res.data);
-        toast.success("Video generation started — this takes 1-3 minutes");
+        toast.success("UGC video generation started — takes 2-5 minutes");
         startPolling(res.data.id);
       } else {
         const errData = res.data as unknown as { error?: string };
         toast.error(errData.error || "Failed to start video generation");
       }
-    } catch {
-      toast.error("Failed to start video generation");
-    } finally {
-      setGenerating(false);
-    }
+    } catch { toast.error("Failed to start video generation"); }
+    finally { setGenerating(false); }
   };
 
-  // ── Reset ──────────────────────────────────────────────────────
-
   const handleReset = () => {
-    setTrends([]);
-    setSelectedTrend(null);
-    setVideoPrompt("");
-    setCaption("");
-    setGeneration(null);
+    setTrends([]); setSelectedTrend(null); setScript(null); setEditedScript("");
+    setSelectedAvatar(null); setCaption(""); setGeneration(null);
     if (pollRef.current) clearInterval(pollRef.current);
   };
 
@@ -305,165 +276,172 @@ export default function TikTokVideoTab({
 
       {productId && (
         <>
-          {/* Research section */}
+          {/* Research */}
           <div className="space-y-3">
-            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Focus Area (optional)
-            </label>
-            <Textarea
-              placeholder='e.g. "tutorials", "humor", "before/after transformations", "day in the life"...'
-              value={focusArea}
-              onChange={(e) => setFocusArea(e.target.value)}
-              rows={2}
-              className="resize-none"
-            />
-            <Button
-              onClick={handleResearch}
-              disabled={researching}
-              className="w-full h-11 text-sm font-medium"
-            >
-              {researching ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Researching TikTok Trends...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Research Viral Trends
-                </>
-              )}
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Focus Area (optional)</label>
+            <Textarea placeholder='"testimonials", "humor", "day in the life"...' value={focusArea} onChange={(e) => setFocusArea(e.target.value)} rows={2} className="resize-none" />
+            <Button onClick={handleResearch} disabled={researching} className="w-full h-11 text-sm font-medium">
+              {researching ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Researching...</> : <><Sparkles className="w-4 h-4 mr-2" />Research Viral Trends</>}
             </Button>
           </div>
 
-          {/* Step 2: Trend results */}
+          {/* Trends */}
           {trends.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Select a Trend
-                </label>
-                <button
-                  onClick={handleReset}
-                  className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Research Again
-                </button>
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Select a Trend</label>
+                <button onClick={handleReset} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="w-3 h-3" />Reset</button>
               </div>
               <div className="space-y-2">
-                {trends.map((trend) => (
-                  <TrendCard
-                    key={trend.id}
-                    trend={trend}
-                    selected={selectedTrend?.id === trend.id}
-                    onSelect={() => handleSelectTrend(trend)}
-                  />
+                {trends.map((t) => (
+                  <TrendCard key={t.id} trend={t} selected={selectedTrend?.id === t.id} onSelect={() => { setSelectedTrend(t); setScript(null); setSelectedAvatar(null); setGeneration(null); }} />
                 ))}
               </div>
             </div>
           )}
 
-          {/* Step 3: Video generation */}
+          {/* Script */}
           {selectedTrend && (
             <div className="space-y-4 border-t border-border/30 pt-6">
-              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Video Prompt
-              </label>
-              <Textarea
-                value={videoPrompt}
-                onChange={(e) => setVideoPrompt(e.target.value)}
-                rows={5}
-                placeholder="Describe the video scene-by-scene..."
-                className="resize-none text-sm"
-              />
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-muted-foreground" />
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">UGC Script</label>
+              </div>
 
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {SCRIPT_STYLES.map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => setScriptStyle(s.value)}
+                    className={`text-left p-3 rounded-lg border text-xs transition-all ${
+                      scriptStyle === s.value ? "border-foreground bg-foreground/5 font-medium" : "border-border/50 text-muted-foreground hover:border-foreground/30"
+                    }`}
+                  >
+                    <p className="font-medium text-foreground">{s.label}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <label className="text-xs text-muted-foreground">Duration:</label>
+                {[15, 30, 45, 60].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setScriptDuration(d)}
+                    className={`px-3 py-1.5 rounded-md text-xs transition-all ${
+                      scriptDuration === d ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {d}s
+                  </button>
+                ))}
+              </div>
+
+              <Button onClick={handleWriteScript} disabled={writingScript} className="w-full h-11 text-sm font-medium">
+                {writingScript ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Writing Script...</> : <><FileText className="w-4 h-4 mr-2" />Write UGC Script</>}
+              </Button>
+
+              {script && (
+                <div className="space-y-3">
+                  <div className="rounded-lg border border-border/40 p-3 bg-muted/30">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Hook Line</p>
+                    <p className="text-sm font-medium">{script.hookLine}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-muted-foreground">Full Script (editable)</label>
+                      <button onClick={handleWriteScript} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1">
+                        <RotateCcw className="w-3 h-3" />Rewrite
+                      </button>
+                    </div>
+                    <Textarea value={editedScript} onChange={(e) => setEditedScript(e.target.value)} rows={6} className="resize-none text-sm font-mono" />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Avatars */}
+          {script && (
+            <div className="space-y-4 border-t border-border/30 pt-6">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-muted-foreground" />
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Select Creator Avatar</label>
+              </div>
+
+              {loadingAvatars ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" />Loading avatars...</div>
+              ) : (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                  {avatars.map((a) => (
+                    <button
+                      key={a.id}
+                      onClick={() => setSelectedAvatar(a)}
+                      className={`relative rounded-xl overflow-hidden border-2 transition-all ${
+                        selectedAvatar?.id === a.id ? "border-foreground shadow-md" : "border-transparent hover:border-foreground/30"
+                      }`}
+                    >
+                      <img src={a.previewImage} alt={a.name} className="w-full aspect-[3/4] object-cover" loading="lazy" />
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                        <p className="text-white text-[10px] font-medium truncate">{a.name}</p>
+                        <p className="text-white/60 text-[9px]">{a.scene}</p>
+                      </div>
+                      {selectedAvatar?.id === a.id && (
+                        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-foreground flex items-center justify-center">
+                          <CheckCircle2 className="w-3 h-3 text-background" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Generate */}
+          {selectedAvatar && (
+            <div className="space-y-4 border-t border-border/30 pt-6">
               <div className="space-y-2">
-                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Caption
-                </label>
-                <Textarea
-                  value={caption}
-                  onChange={(e) => setCaption(e.target.value)}
-                  rows={2}
-                  placeholder="TikTok caption with hashtags..."
-                  className="resize-none text-sm"
-                />
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">TikTok Caption</label>
+                <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={2} placeholder="Caption with hashtags..." className="resize-none text-sm" />
               </div>
 
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="px-2 py-1 rounded bg-muted">Kling 2.6 Pro</span>
-                <span>10 seconds</span>
+                <span className="px-2 py-1 rounded bg-muted">Creatify UGC</span>
+                <span>{selectedAvatar.name}</span>
+                <span>{scriptDuration}s</span>
                 <span>9:16 vertical</span>
-                <span>~$1.10</span>
               </div>
 
-              <Button
-                onClick={handleGenerate}
-                disabled={generating || generation?.status === "generating"}
-                className="w-full h-12 text-sm font-medium"
-              >
-                {generating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <Video className="w-4 h-4 mr-2" />
-                    Generate TikTok Video
-                  </>
-                )}
+              <Button onClick={handleGenerate} disabled={generating || generation?.status === "generating"} className="w-full h-12 text-sm font-medium">
+                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />Generate UGC Video</>}
               </Button>
 
-              {/* Generation status */}
               {generation && (
                 <div className="rounded-xl border border-border/50 p-5 space-y-4">
                   {generation.status === "generating" && (
                     <div className="flex items-center gap-3">
-                      <Loader2 className="w-5 h-5 animate-spin text-foreground" />
+                      <Loader2 className="w-5 h-5 animate-spin" />
                       <div>
-                        <p className="text-sm font-medium">Generating video...</p>
-                        <p className="text-xs text-muted-foreground">
-                          This usually takes 1-3 minutes. You can leave this page — the video will complete in the background.
-                        </p>
+                        <p className="text-sm font-medium">Generating UGC video...</p>
+                        <p className="text-xs text-muted-foreground">This takes 2-5 minutes. You can leave — it completes in the background.</p>
                       </div>
                     </div>
                   )}
-
                   {generation.status === "completed" && generation.videoUrl && (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <p className="text-sm font-medium">Video ready!</p>
+                      <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /><p className="text-sm font-medium">UGC video ready!</p></div>
+                      <div className="rounded-lg overflow-hidden bg-black" style={{ aspectRatio: "9/16", maxHeight: "480px" }}>
+                        <video src={generation.videoUrl} controls className="w-full h-full object-contain" />
                       </div>
-                      <div className="relative rounded-lg overflow-hidden bg-black" style={{ aspectRatio: "9/16", maxHeight: "480px" }}>
-                        <video
-                          src={generation.videoUrl}
-                          controls
-                          className="w-full h-full object-contain"
-                          poster={generation.thumbnailUrl || undefined}
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 hover:opacity-100 transition-opacity">
-                          <Play className="w-12 h-12 text-white/80" />
-                        </div>
-                      </div>
-                      {generation.postId && (
-                        <p className="text-xs text-muted-foreground">
-                          Draft post created — find it in the Drafts tab to review and publish.
-                        </p>
-                      )}
+                      {generation.postId && <p className="text-xs text-muted-foreground">Draft post created — find it in the Drafts tab.</p>}
                     </div>
                   )}
-
                   {generation.status === "failed" && (
                     <div className="flex items-center gap-3">
                       <XCircle className="w-5 h-5 text-red-500" />
-                      <div>
-                        <p className="text-sm font-medium">Generation failed</p>
-                        <p className="text-xs text-muted-foreground">
-                          {generation.errorMessage || "Unknown error"}
-                        </p>
-                      </div>
+                      <div><p className="text-sm font-medium">Generation failed</p><p className="text-xs text-muted-foreground">{generation.errorMessage}</p></div>
                     </div>
                   )}
                 </div>

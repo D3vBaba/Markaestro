@@ -19,12 +19,41 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       throw new Error('VALIDATION_MISSING_PAGE_ID');
     }
 
-    const conn = await getConnection(ctx.workspaceId, 'meta', productId);
-    if (!conn) {
-      throw new Error('NOT_FOUND');
+    // Read user token from workspace-level connection
+    const wsConn = await getConnection(ctx.workspaceId, 'meta');
+    if (!wsConn) {
+      // Backward compat: try product-level connection
+      const prodConn = await getConnection(ctx.workspaceId, 'meta', productId);
+      if (!prodConn) throw new Error('NOT_FOUND');
+      // Legacy path — use product-level token
+      const legacyToken = resolveUserAccessToken(prodConn);
+      const legacyPagesRes = await fetch(
+        'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token,instagram_business_account',
+        { headers: { Authorization: `Bearer ${legacyToken}` } },
+      );
+      const legacyPagesData = await legacyPagesRes.json();
+      if (!legacyPagesRes.ok || !legacyPagesData.data) throw new Error('Failed to fetch pages from Meta');
+      const legacyPage = legacyPagesData.data.find((p: Record<string, unknown>) => p.id === pageId);
+      if (!legacyPage) throw new Error('NOT_FOUND');
+      const legacyRef = getConnectionRef(ctx.workspaceId, 'meta', productId);
+      await legacyRef.update({
+        'metadata.pageId': pageId,
+        'metadata.pageName': pageName || legacyPage.name,
+        'metadata.pageAccessTokenEncrypted': encrypt(legacyPage.access_token as string),
+        'metadata.pageSelectionRequired': false,
+        'metadata.igAccountId': legacyPage.instagram_business_account?.id || null,
+        updatedAt: new Date().toISOString(),
+        updatedBy: ctx.uid,
+      });
+      return apiOk({
+        ok: true,
+        pageId,
+        pageName: pageName || legacyPage.name,
+        igAccountId: legacyPage.instagram_business_account?.id || null,
+      });
     }
 
-    const userAccessToken = resolveUserAccessToken(conn);
+    const userAccessToken = resolveUserAccessToken(wsConn);
 
     // Fetch pages to get the selected page's access token
     const pagesRes = await fetch(
@@ -42,19 +71,24 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       throw new Error('NOT_FOUND');
     }
 
-    const updatePayload: Record<string, unknown> = {
-      'metadata.pageId': pageId,
-      'metadata.pageName': pageName || selectedPage.name,
-      'metadata.pageAccessTokenEncrypted': encrypt(selectedPage.access_token as string),
-      'metadata.pageSelectionRequired': false,
-      updatedAt: new Date().toISOString(),
+    // Write page selection to product-level doc (no user token)
+    const prodRef = getConnectionRef(ctx.workspaceId, 'meta', productId);
+    await prodRef.set({
+      provider: 'meta',
+      status: 'connected',
+      metadata: {
+        pageId,
+        pageName: pageName || selectedPage.name,
+        pageAccessTokenEncrypted: encrypt(selectedPage.access_token as string),
+        igAccountId: selectedPage.instagram_business_account?.id || null,
+        pageSelectionRequired: false,
+      },
+      workspaceId: ctx.workspaceId,
+      productId,
       updatedBy: ctx.uid,
-    };
-
-    updatePayload['metadata.igAccountId'] = selectedPage.instagram_business_account?.id || null;
-
-    const connRef = getConnectionRef(ctx.workspaceId, 'meta', productId);
-    await connRef.update(updatePayload);
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    }, { merge: true });
 
     return apiOk({
       ok: true,

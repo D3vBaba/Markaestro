@@ -48,7 +48,14 @@ export async function GET(req: Request) {
       ...prodConns.map((conn) => maskConnection(conn, 'product')),
       ...wsConns
         .filter((conn) => !productProviders.has(conn.provider))
-        .map((conn) => maskConnection(conn, 'workspace')),
+        .map((conn) => {
+          const masked = maskConnection(conn, 'workspace');
+          // If workspace has Meta but product doesn't, flag that page selection is needed
+          if (conn.provider === 'meta') {
+            return { ...masked, needsPageSelection: true };
+          }
+          return masked;
+        }),
     ];
 
     return apiOk({ workspaceId: ctx.workspaceId, integrations: items });

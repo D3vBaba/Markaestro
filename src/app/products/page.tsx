@@ -68,6 +68,7 @@ type IntegrationInfo = {
   adAccountId?: string | null;
   lastRefreshError?: string | null;
   username?: string | null;
+  needsPageSelection?: boolean;
 };
 
 type MetaPage = {
@@ -105,7 +106,9 @@ function getScopedSocialIntegrations(integrations: IntegrationInfo[]) {
   return integrations.filter(
     (integration) =>
       SOCIAL_PROVIDERS.includes(integration.provider as typeof SOCIAL_PROVIDERS[number]) &&
-      integration.scope === "product",
+      (integration.scope === "product" ||
+        // Include workspace-level Meta that needs page selection for this product
+        (integration.provider === "meta" && integration.scope === "workspace")),
   );
 }
 
@@ -449,6 +452,7 @@ export default function ProductsPage() {
       const metaConn = scopedIntegrations.find((i) => i.provider === "meta");
       if (metaConn?.adAccountId) setMetaAdAccountId(metaConn.adAccountId as string);
       setEditOpen(true);
+      // Auto-load pages if Meta is connected (workspace or product) but no page selected
       if (metaConn && !metaConn.pageId) {
         void loadMetaPages(product.id);
       }
@@ -540,7 +544,9 @@ export default function ProductsPage() {
 
   async function startOAuth(provider: string, productId: string) {
     try {
-      const res = await apiPost<{ authUrl: string }>(`/api/oauth/authorize/${provider}`, { productId });
+      // Meta: workspace-level OAuth (productId passed only for redirect-back)
+      const body = provider === "meta" ? { productId } : { productId };
+      const res = await apiPost<{ authUrl: string }>(`/api/oauth/authorize/${provider}`, body);
       if (res.ok && res.data.authUrl) window.location.href = res.data.authUrl;
       else toast.error(`Failed to start ${provider} OAuth`);
     } catch { toast.error(`Failed to start ${provider} OAuth`); }
@@ -559,10 +565,11 @@ export default function ProductsPage() {
     finally { setDisconnecting(null); }
   }
 
-  async function loadMetaPages(productId: string) {
+  async function loadMetaPages(_productId?: string) {
     setLoadingPages(true);
     try {
-      const res = await apiGet<{ pages: MetaPage[]; error?: string }>(`/api/oauth/pages/meta?productId=${productId}`);
+      // User token is workspace-level — no productId needed
+      const res = await apiGet<{ pages: MetaPage[]; error?: string }>(`/api/oauth/pages/meta`);
       if (res.ok) {
         setMetaPages(res.data.pages || []);
         if (res.data.pages?.length === 0) toast.error("No Facebook pages found.");
@@ -1025,29 +1032,35 @@ export default function ProductsPage() {
                   {SOCIAL_PROVIDERS.map((provider) => {
                     const integ = getProviderIntegration(provider);
                     const connected = integ?.status === "connected";
+                    // Meta: workspace-level connection exists but no page selected for this product
+                    const metaWsConnected = provider === "meta" && integ?.scope === "workspace" && integ?.needsPageSelection;
+                    const metaConnected = provider === "meta" && (connected || metaWsConnected);
 
                     return (
                       <div key={provider} className="rounded-xl border p-3 space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-medium">{providerLabels[provider]}</p>
-                            {connected && (
+                            {(connected || metaWsConnected) && (
                               <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
+                            )}
+                            {metaWsConnected && !integ?.pageId && (
+                              <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Select Page</Badge>
                             )}
                             {integ?.lastRefreshError && (
                               <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
                             )}
                           </div>
-                          {connected ? (
+                          {connected || metaWsConnected ? (
                             <Button variant="destructive" size="sm" onClick={() => disconnectProvider(provider, editProductId)} disabled={disconnecting === provider}>
-                              {disconnecting === provider ? "..." : "Disconnect"}
+                              {disconnecting === provider ? "..." : provider === "meta" && integ?.scope === "product" ? "Remove Page" : "Disconnect"}
                             </Button>
                           ) : (
                             <Button size="sm" onClick={() => startOAuth(provider, editProductId)}>Connect</Button>
                           )}
                         </div>
 
-                        {provider === "meta" && connected && (
+                        {provider === "meta" && metaConnected && (
                           <div className="space-y-2 pl-1">
                             {integ?.pageName && (
                               <p className="text-xs text-muted-foreground">

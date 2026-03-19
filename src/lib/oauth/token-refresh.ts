@@ -159,12 +159,15 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
   for (const ws of wsSnap.docs) {
     const workspaceId = ws.id;
 
-    // Workspace-level: Google
+    // Workspace-level: Google, Meta
     const googleRef = getConnectionRef(workspaceId, 'google');
     await refreshConnectionDoc(googleRef, 'google', result, { workspaceId });
 
-    // Product-level: meta, x, tiktok
-    const socialProviders: OAuthProvider[] = ['meta', 'tiktok', 'x'];
+    const metaRef = getConnectionRef(workspaceId, 'meta');
+    await refreshConnectionDoc(metaRef, 'meta', result, { workspaceId });
+
+    // Product-level: x, tiktok (Meta is now workspace-level)
+    const socialProviders: OAuthProvider[] = ['tiktok', 'x'];
     const productsSnap = await adminDb
       .collection(`workspaces/${workspaceId}/products`)
       .limit(100)
@@ -176,6 +179,16 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
       for (const provider of socialProviders) {
         const connRef = getConnectionRef(workspaceId, provider, productId);
         await refreshConnectionDoc(connRef, provider, result, { workspaceId, productId });
+      }
+
+      // Also try to refresh legacy product-level Meta connections (backward compat)
+      const legacyMetaRef = getConnectionRef(workspaceId, 'meta', productId);
+      const legacySnap = await legacyMetaRef.get();
+      if (legacySnap.exists) {
+        const legacyData = legacySnap.data() as PlatformConnection;
+        if (legacyData.accessTokenEncrypted) {
+          await refreshConnectionDoc(legacyMetaRef, 'meta', result, { workspaceId, productId });
+        }
       }
     }
   }

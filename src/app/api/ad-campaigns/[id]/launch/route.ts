@@ -6,7 +6,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { createMetaCampaign } from '@/lib/ads/meta-ads';
 import { createGoogleCampaign } from '@/lib/ads/google-ads';
 import type { AdCampaignDoc } from '@/lib/ads/types';
-import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
+import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -33,7 +33,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         return apiOk({ ok: false, error: 'Campaign has no associated product for Meta integration' });
       }
 
-      const conn = await getConnection(ctx.workspaceId, 'meta', productId);
+      const conn = await getMetaConnectionMerged(ctx.workspaceId, productId);
       if (!conn) {
         await ref.update({ status: 'failed', errorMessage: 'Meta integration not configured for this product' });
         return apiOk({ ok: false, error: 'Meta integration not configured for this product' });

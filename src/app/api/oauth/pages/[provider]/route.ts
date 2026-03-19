@@ -11,10 +11,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       throw new Error('INVALID_PROVIDER');
     }
 
-    const url = new URL(req.url);
-    const productId = url.searchParams.get('productId');
-
-    const conn = await getConnection(ctx.workspaceId, 'meta', productId || undefined);
+    // Read user token from workspace-level connection (not per-product)
+    const conn = await getConnection(ctx.workspaceId, 'meta');
     if (!conn || !conn.accessTokenEncrypted) {
       return apiOk({ pages: [] });
     }

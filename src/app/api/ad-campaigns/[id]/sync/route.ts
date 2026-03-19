@@ -5,7 +5,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
 import { getGoogleCampaignMetrics } from '@/lib/ads/google-ads';
 import type { AdCampaignDoc, AdCampaignMetrics } from '@/lib/ads/types';
-import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
+import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -25,7 +25,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     if (campaign.platform === 'meta') {
       const productId = campaign.productId as string;
-      const conn = await getConnection(ctx.workspaceId, 'meta', productId);
+      const conn = await getMetaConnectionMerged(ctx.workspaceId, productId);
       if (!conn) return apiOk({ ok: false, error: 'Meta integration not found' });
       const accessToken = resolveUserAccessToken(conn);
       result = await getMetaCampaignMetrics(accessToken, campaign.externalCampaignId);
