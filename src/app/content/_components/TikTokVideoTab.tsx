@@ -266,7 +266,7 @@ export default function TikTokVideoTab({
         productId: productId || undefined,
         trendId: selectedTrend?.id || undefined,
         provider: "kling",
-        durationSeconds: 5,
+        durationSeconds: 10,
         caption,
         hashtags: selectedTrend?.hashtags || [],
       });
@@ -392,9 +392,9 @@ export default function TikTokVideoTab({
 
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span className="px-2 py-1 rounded bg-muted">Kling 2.6 Pro</span>
-                <span>5 seconds</span>
+                <span>10 seconds</span>
                 <span>9:16 vertical</span>
-                <span>~$0.55</span>
+                <span>~$1.10</span>
               </div>
 
               <Button

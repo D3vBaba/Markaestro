@@ -57,44 +57,45 @@ async function falHeaders(): Promise<Record<string, string>> {
 
 // ── Video prompt builder ─────────────────────────────────────────────
 
+/**
+ * Build a cinematic, highly descriptive prompt optimized for Kling 2.6 Pro.
+ *
+ * Kling performs best with prompts that are:
+ * - Visually specific (describe lighting, camera movement, colors, textures)
+ * - Scene-oriented (what is physically happening frame by frame)
+ * - Cinematically directed (camera angles, depth of field, pacing)
+ * - NOT abstract or conceptual — Kling needs concrete visual descriptions
+ */
 function buildVideoPrompt(req: VideoGenRequest): string {
-  const sections: string[] = [];
+  const lines: string[] = [];
 
-  sections.push(
-    'PLATFORM: TikTok — vertical 9:16 video optimized for mobile viewing.',
-    'The video must feel native to TikTok: authentic, bold, and attention-grabbing in the first 1-2 seconds.',
-  );
+  // Core cinematic direction — this is what Kling needs most
+  lines.push(req.prompt);
 
+  // Add trend-specific visual language
   if (req.trendContext) {
-    sections.push(
-      `TREND FORMAT: "${req.trendContext.name}" — ${req.trendContext.format}`,
-      req.trendContext.hooks.length > 0
-        ? `HOOK STYLES: ${req.trendContext.hooks.join('; ')}`
-        : '',
+    lines.push(
+      '',
+      `Visual style inspired by "${req.trendContext.name}" trend: ${req.trendContext.format}.`,
     );
+    if (req.trendContext.hooks.length > 0) {
+      lines.push(`Opening hook style: ${req.trendContext.hooks[0]}.`);
+    }
   }
 
-  if (req.productName) {
-    const productLines = [`Product: "${req.productName}"`];
-    if (req.productDescription) productLines.push(`What it does: ${req.productDescription.slice(0, 300)}`);
-    if (req.productCategories?.length) productLines.push(`Category: ${req.productCategories.join(', ')}`);
-    sections.push('PRODUCT CONTEXT:', ...productLines);
-  }
-
+  // Add mood/tone as visual direction
   if (req.brandVoice?.tone) {
-    sections.push(`MOOD/TONE: ${req.brandVoice.tone}`);
+    lines.push(`The overall mood is ${req.brandVoice.tone}.`);
   }
 
-  sections.push(
-    `VIDEO DIRECTION: ${req.prompt}`,
+  // Technical constraints — keep minimal, Kling handles these via params
+  lines.push(
     '',
-    'TECHNICAL: Vertical 9:16 aspect ratio. Keep key visual elements in center 60% of frame.',
-    `Duration: ${req.durationSeconds} seconds.`,
-    'High energy opening — the first frame must hook viewers.',
-    'No text overlays or watermarks (those will be added in post-production).',
+    'Vertical 9:16 framing. Cinematic color grading. Smooth, intentional camera movement.',
+    'No text, no watermarks, no UI overlays.',
   );
 
-  return sections.filter(Boolean).join('\n');
+  return lines.filter(Boolean).join('\n');
 }
 
 // ── fal.ai model endpoints ───────────────────────────────────────────

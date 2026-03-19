@@ -277,7 +277,7 @@ export const generateVideoSchema = z.object({
   productId: z.string().trim().optional(),
   trendId: z.string().trim().optional(),
   provider: z.enum(videoProviders).default('kling'),
-  durationSeconds: z.number().int().min(5).max(10).default(5),
+  durationSeconds: z.number().int().min(5).max(10).default(10),
   /** Caption text for the TikTok post */
   caption: z.string().trim().max(2200).default(''),
   hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
