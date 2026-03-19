@@ -10,6 +10,7 @@ import ScheduledTab from "./_components/ScheduledTab";
 import PublishedTab from "./_components/PublishedTab";
 import ImageGallery from "./_components/ImageGallery";
 import PerformanceTab from "./_components/PerformanceTab";
+import TikTokVideoTab from "./_components/TikTokVideoTab";
 
 export default function PostsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -27,7 +28,7 @@ export default function PostsPage() {
 
       <Tabs defaultValue="create" className="space-y-8">
         <TabsList className="bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 w-full overflow-x-auto flex-nowrap">
-          {["create", "drafts", "scheduled", "published", "gallery", "performance"].map((tab) => (
+          {["create", "tiktok video", "drafts", "scheduled", "published", "gallery", "performance"].map((tab) => (
             <TabsTrigger
               key={tab}
               value={tab}
@@ -40,6 +41,10 @@ export default function PostsPage() {
 
         <TabsContent value="create">
           <CreateTab onPostCreated={handlePostCreated} />
+        </TabsContent>
+
+        <TabsContent value="tiktok video">
+          <TikTokVideoTab onPostCreated={handlePostCreated} />
         </TabsContent>
 
         <TabsContent value="drafts">
