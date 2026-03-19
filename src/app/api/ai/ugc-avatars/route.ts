@@ -1,32 +1,50 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
-import { listAvatars } from '@/lib/ai/creatify-client';
+import { adminDb } from '@/lib/firebase-admin';
 
+/**
+ * GET /api/ai/ugc-avatars — List saved avatar face images for the workspace.
+ */
 export async function GET(req: Request) {
   try {
-    await requireContext(req);
-    const url = new URL(req.url);
-    const gender = url.searchParams.get('gender') || undefined;
-    const style = url.searchParams.get('style') || undefined;
+    const ctx = await requireContext(req);
 
-    const avatars = await listAvatars({ gender, style });
+    const snap = await adminDb
+      .collection(`workspaces/${ctx.workspaceId}/ugcAvatars`)
+      .orderBy('createdAt', 'desc')
+      .limit(20)
+      .get();
 
-    // Return only active avatars with preview images, limit to 20
-    const filtered = avatars
-      .filter((a) => a.is_active && a.preview_image_9x16)
-      .slice(0, 20)
-      .map((a) => ({
-        id: a.id,
-        name: a.creator_name,
-        gender: a.gender,
-        ageRange: a.age_range,
-        style: a.style,
-        scene: a.video_scene,
-        previewImage: a.preview_image_9x16,
-        previewVideo: a.preview_video_9x16,
-      }));
+    const avatars = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return apiOk({ avatars });
+  } catch (error) {
+    return apiError(error);
+  }
+}
 
-    return apiOk({ avatars: filtered });
+/**
+ * POST /api/ai/ugc-avatars — Save a new avatar face image.
+ * Body: { name, imageUrl }
+ */
+export async function POST(req: Request) {
+  try {
+    const ctx = await requireContext(req);
+    const body = await req.json();
+    const { name, imageUrl } = body;
+
+    if (!name || !imageUrl) throw new Error('VALIDATION_MISSING_FIELDS');
+
+    const col = adminDb.collection(`workspaces/${ctx.workspaceId}/ugcAvatars`);
+    const docRef = col.doc();
+    const data = {
+      name: String(name).slice(0, 100),
+      imageUrl: String(imageUrl).slice(0, 2000),
+      createdAt: new Date().toISOString(),
+      createdBy: ctx.uid,
+    };
+    await docRef.set(data);
+
+    return apiOk({ id: docRef.id, ...data });
   } catch (error) {
     return apiError(error);
   }

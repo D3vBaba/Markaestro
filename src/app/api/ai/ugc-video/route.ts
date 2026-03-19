@@ -1,17 +1,18 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
-import { submitLipsync } from '@/lib/ai/creatify-client';
+import { submitUGCVideo, UGC_VOICES } from '@/lib/ai/ugc-video-generator';
 import { z } from 'zod';
 
 const ugcVideoSchema = z.object({
   script: z.string().trim().min(1).max(8000),
-  avatarId: z.string().trim().min(1),
+  imageUrl: z.string().trim().url(),
+  voice: z.enum(UGC_VOICES).default('Aria'),
+  scenePrompt: z.string().trim().max(500).default('A person talking directly to the camera in a casual, authentic selfie-style TikTok video.'),
   productId: z.string().trim().optional(),
   trendId: z.string().trim().optional(),
   caption: z.string().trim().max(2200).default(''),
   hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
-  captionStyle: z.string().trim().default('neo'),
 });
 
 export async function POST(req: Request) {
@@ -20,17 +21,14 @@ export async function POST(req: Request) {
     const body = await req.json();
     const data = ugcVideoSchema.parse(body);
 
-    // Submit to Creatify
-    const result = await submitLipsync({
-      text: data.script,
-      creator: data.avatarId,
-      aspect_ratio: '9x16',
-      no_caption: false,
-      no_music: true,
-      caption_style: data.captionStyle,
+    const result = await submitUGCVideo({
+      imageUrl: data.imageUrl,
+      script: data.script,
+      voice: data.voice,
+      scenePrompt: data.scenePrompt,
+      resolution: '720p',
     });
 
-    // Save generation record
     const genCol = adminDb.collection(`workspaces/${ctx.workspaceId}/videoGenerations`);
     const docRef = genCol.doc();
 
@@ -38,19 +36,19 @@ export async function POST(req: Request) {
       trendId: data.trendId || '',
       productId: data.productId || '',
       prompt: data.script,
-      provider: 'creatify',
+      provider: 'multitalk',
       status: 'generating',
       videoUrl: '',
       thumbnailUrl: '',
       durationSeconds: 0,
-      externalJobId: result.id,
-      // Store Creatify poll URL pattern
-      statusUrl: `https://api.creatify.ai/api/lipsyncs/${result.id}/`,
-      responseUrl: `https://api.creatify.ai/api/lipsyncs/${result.id}/`,
+      externalJobId: result.externalJobId,
+      statusUrl: result.statusUrl,
+      responseUrl: result.responseUrl,
       caption: data.caption,
       hashtags: data.hashtags,
       errorMessage: '',
-      avatarId: data.avatarId,
+      avatarImageUrl: data.imageUrl,
+      voice: data.voice,
       scriptStyle: 'ugc',
       createdAt: new Date().toISOString(),
       completedAt: null,

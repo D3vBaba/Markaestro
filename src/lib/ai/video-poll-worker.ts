@@ -1,6 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { pollVideoGeneration, uploadVideoToStorage } from '@/lib/ai/video-generator';
-import { pollLipsync } from '@/lib/ai/creatify-client';
+import { pollUGCVideo } from '@/lib/ai/ugc-video-generator';
 
 export type VideoPollResult = {
   polled: number;
@@ -10,7 +10,8 @@ export type VideoPollResult = {
 };
 
 /**
- * Poll a single generation job. Handles both fal.ai (Kling/Veo/Sora) and Creatify providers.
+ * Poll a single generation job. Handles fal.ai B-roll (Kling/Veo/Sora)
+ * and fal.ai UGC (MultiTalk) providers.
  */
 async function pollSingleGeneration(
   gen: FirebaseFirestore.DocumentData,
@@ -19,29 +20,23 @@ async function pollSingleGeneration(
   docId: string,
 ): Promise<'completed' | 'failed' | 'generating'> {
   let videoUrl: string | undefined;
-  let thumbnailUrl = '';
-  let durationSeconds = 0;
   let errorMessage = '';
   let status: 'completed' | 'failed' | 'generating' = 'generating';
 
-  if (gen.provider === 'creatify') {
-    // Creatify UGC pipeline
-    const result = await pollLipsync(gen.externalJobId);
-    if (result.status === 'done' && result.output) {
-      videoUrl = result.output;
-      thumbnailUrl = result.video_thumbnail || '';
-      durationSeconds = result.duration || 0;
+  if (gen.provider === 'multitalk') {
+    const result = await pollUGCVideo(gen.statusUrl, gen.responseUrl);
+    if (result.status === 'completed' && result.videoUrl) {
+      videoUrl = result.videoUrl;
       status = 'completed';
     } else if (result.status === 'failed') {
-      errorMessage = result.failed_reason || 'UGC video generation failed';
+      errorMessage = result.errorMessage || 'UGC video generation failed';
       status = 'failed';
     }
   } else {
-    // fal.ai pipeline (kling, veo, sora)
+    // fal.ai B-roll pipeline (kling, veo, sora)
     const result = await pollVideoGeneration(gen.statusUrl, gen.responseUrl);
     if (result.status === 'completed' && result.videoUrl) {
       videoUrl = result.videoUrl;
-      thumbnailUrl = result.thumbnailUrl || '';
       status = 'completed';
     } else if (result.status === 'failed') {
       errorMessage = result.errorMessage || 'Video generation failed';
@@ -55,12 +50,9 @@ async function pollSingleGeneration(
     await docRef.update({
       status: 'completed',
       videoUrl: storageUrl,
-      thumbnailUrl,
-      durationSeconds,
       completedAt: new Date().toISOString(),
     });
 
-    // Create draft post
     const postRef = adminDb.collection(`workspaces/${workspaceId}/posts`).doc();
     const caption = gen.caption || '';
     const hashtags: string[] = gen.hashtags || [];
@@ -75,7 +67,7 @@ async function pollSingleGeneration(
       scheduledAt: null,
       mediaUrls: [storageUrl],
       productId: gen.productId || '',
-      generatedBy: gen.provider === 'creatify' ? 'ugc-pipeline' : 'video-pipeline',
+      generatedBy: gen.provider === 'multitalk' ? 'ugc-pipeline' : 'video-pipeline',
       campaignId: '',
       videoGenerationId: docId,
       createdAt: new Date().toISOString(),
@@ -92,7 +84,6 @@ async function pollSingleGeneration(
 
 /**
  * Poll all in-progress video generations across all workspaces.
- * Handles both fal.ai and Creatify providers.
  */
 export async function pollPendingVideoGenerations(): Promise<VideoPollResult> {
   const result: VideoPollResult = { polled: 0, completed: 0, failed: 0, errors: [] };
@@ -111,9 +102,9 @@ export async function pollPendingVideoGenerations(): Promise<VideoPollResult> {
     for (const doc of genSnap.docs) {
       result.polled++;
       try {
-        const status = await pollSingleGeneration(doc.data(), doc.ref, workspaceId, doc.id);
-        if (status === 'completed') result.completed++;
-        else if (status === 'failed') result.failed++;
+        const s = await pollSingleGeneration(doc.data(), doc.ref, workspaceId, doc.id);
+        if (s === 'completed') result.completed++;
+        else if (s === 'failed') result.failed++;
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         result.errors.push({ workspaceId, generationId: doc.id, error: msg });
