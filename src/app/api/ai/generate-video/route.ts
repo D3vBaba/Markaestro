@@ -73,6 +73,8 @@ export async function POST(req: Request) {
       thumbnailUrl: '',
       durationSeconds: data.durationSeconds,
       externalJobId: result.externalJobId,
+      statusUrl: result.statusUrl,
+      responseUrl: result.responseUrl,
       caption: data.caption,
       hashtags: data.hashtags,
       errorMessage: '',

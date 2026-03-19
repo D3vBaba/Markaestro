@@ -2,7 +2,6 @@ import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { pollVideoGeneration, uploadVideoToStorage } from '@/lib/ai/video-generator';
-import type { VideoProvider } from '@/lib/schemas';
 
 /**
  * GET /api/ai/video-status/[id] — Poll the status of a video generation job.
@@ -27,11 +26,8 @@ export async function GET(
       return apiOk({ id, ...gen });
     }
 
-    // Poll the provider
-    const result = await pollVideoGeneration(
-      gen.provider as VideoProvider,
-      gen.externalJobId,
-    );
+    // Poll the provider using stored fal.ai URLs
+    const result = await pollVideoGeneration(gen.statusUrl, gen.responseUrl);
 
     if (result.status === 'completed' && result.videoUrl) {
       // Download video to Firebase Storage for permanent URL

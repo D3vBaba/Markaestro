@@ -1,6 +1,5 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { pollVideoGeneration, uploadVideoToStorage } from '@/lib/ai/video-generator';
-import type { VideoProvider } from '@/lib/schemas';
 
 export type VideoPollResult = {
   polled: number;
@@ -33,10 +32,7 @@ export async function pollPendingVideoGenerations(): Promise<VideoPollResult> {
       const gen = doc.data();
 
       try {
-        const pollResult = await pollVideoGeneration(
-          gen.provider as VideoProvider,
-          gen.externalJobId,
-        );
+        const pollResult = await pollVideoGeneration(gen.statusUrl, gen.responseUrl);
 
         if (pollResult.status === 'completed' && pollResult.videoUrl) {
           const storageUrl = await uploadVideoToStorage(pollResult.videoUrl, workspaceId);

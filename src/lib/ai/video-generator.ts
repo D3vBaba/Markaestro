@@ -25,6 +25,10 @@ export type VideoGenSubmitResult = {
   /** Provider-specific job/request ID for polling */
   externalJobId: string;
   provider: VideoProvider;
+  /** fal.ai status URL — use this for polling instead of constructing URLs */
+  statusUrl: string;
+  /** fal.ai response URL — use this to fetch the result once COMPLETED */
+  responseUrl: string;
 };
 
 export type VideoGenPollResult = {
@@ -93,42 +97,91 @@ function buildVideoPrompt(req: VideoGenRequest): string {
   return sections.filter(Boolean).join('\n');
 }
 
-// ── Provider: Kling (via fal.ai) ─────────────────────────────────────
+// ── fal.ai model endpoints ───────────────────────────────────────────
 
-async function submitKling(prompt: string, durationSeconds: number): Promise<string> {
+const FAL_MODEL_IDS: Record<VideoProvider, string> = {
+  kling: 'fal-ai/kling-video/v2.6/pro/text-to-video',
+  veo: 'fal-ai/veo2',
+  sora: 'fal-ai/sora',
+};
+
+// ── Unified fal.ai submit ────────────────────────────────────────────
+
+type FalSubmitResponse = {
+  request_id: string;
+  status_url: string;
+  response_url: string;
+};
+
+async function submitToFal(
+  provider: VideoProvider,
+  prompt: string,
+  durationSeconds: number,
+): Promise<FalSubmitResponse> {
+  const modelId = FAL_MODEL_IDS[provider];
+  if (!modelId) throw new Error(`Unsupported video provider: ${provider}`);
+
+  // Build provider-specific input
+  let input: Record<string, unknown>;
+  switch (provider) {
+    case 'kling':
+      input = { prompt, duration: durationSeconds <= 5 ? '5' : '10', aspect_ratio: '9:16' };
+      break;
+    case 'veo':
+      input = { prompt, duration: durationSeconds <= 5 ? '5s' : '10s', aspect_ratio: '9:16' };
+      break;
+    case 'sora':
+      input = { prompt, duration: durationSeconds, aspect_ratio: '9:16', resolution: '1080p' };
+      break;
+    default:
+      throw new Error(`Unsupported video provider: ${provider}`);
+  }
+
   const res = await fetchWithRetry(
-    `${FAL_API}/fal-ai/kling-video/v2.6/pro/text-to-video`,
+    `${FAL_API}/${modelId}`,
     {
       method: 'POST',
       headers: await falHeaders(),
-      body: JSON.stringify({
-        prompt,
-        duration: durationSeconds <= 5 ? '5' : '10',
-        aspect_ratio: '9:16',
-      }),
+      body: JSON.stringify(input),
     },
     { timeoutMs: 30_000 },
   );
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(`Kling submit failed: ${data.detail || JSON.stringify(data).slice(0, 500)}`);
+    throw new Error(`${provider} submit failed: ${data.detail || JSON.stringify(data).slice(0, 500)}`);
   }
 
-  return data.request_id;
+  return {
+    request_id: data.request_id,
+    status_url: data.status_url,
+    response_url: data.response_url,
+  };
 }
 
-async function pollKling(requestId: string): Promise<VideoGenPollResult> {
-  const res = await fetchWithRetry(
-    `${FAL_API}/fal-ai/kling-video/v2.6/pro/text-to-video/requests/${requestId}/status`,
-    { headers: await falHeaders() },
+// ── Unified fal.ai poll ──────────────────────────────────────────────
+
+async function pollFal(statusUrl: string, responseUrl: string): Promise<VideoGenPollResult> {
+  const headers = await falHeaders();
+
+  // 1. Check status
+  const statusRes = await fetchWithRetry(
+    statusUrl,
+    { headers },
     { timeoutMs: 15_000, maxRetries: 1 },
   );
+  const statusData = await statusRes.json();
 
-  const data = await res.json();
+  if (statusData.status === 'COMPLETED') {
+    // 2. Fetch the actual result from the response URL
+    const resultRes = await fetchWithRetry(
+      responseUrl,
+      { headers },
+      { timeoutMs: 30_000, maxRetries: 2 },
+    );
+    const resultData = await resultRes.json();
 
-  if (data.status === 'COMPLETED') {
-    const video = data.response?.video;
+    const video = resultData.video;
     return {
       status: 'completed',
       videoUrl: video?.url || '',
@@ -136,121 +189,14 @@ async function pollKling(requestId: string): Promise<VideoGenPollResult> {
     };
   }
 
-  if (data.status === 'FAILED') {
+  if (statusData.status === 'FAILED') {
     return {
       status: 'failed',
-      errorMessage: data.error || 'Video generation failed',
+      errorMessage: statusData.error || 'Video generation failed',
     };
   }
 
   // IN_QUEUE or IN_PROGRESS
-  return { status: 'generating' };
-}
-
-// ── Provider: Veo (via fal.ai) ──────────────────────────────────────
-
-async function submitVeo(prompt: string, durationSeconds: number): Promise<string> {
-  const res = await fetchWithRetry(
-    `${FAL_API}/fal-ai/veo2`,
-    {
-      method: 'POST',
-      headers: await falHeaders(),
-      body: JSON.stringify({
-        prompt,
-        duration: durationSeconds <= 5 ? '5s' : '10s',
-        aspect_ratio: '9:16',
-      }),
-    },
-    { timeoutMs: 30_000 },
-  );
-
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(`Veo submit failed: ${data.detail || JSON.stringify(data).slice(0, 500)}`);
-  }
-
-  return data.request_id;
-}
-
-async function pollVeo(requestId: string): Promise<VideoGenPollResult> {
-  const res = await fetchWithRetry(
-    `${FAL_API}/fal-ai/veo2/requests/${requestId}/status`,
-    { headers: await falHeaders() },
-    { timeoutMs: 15_000, maxRetries: 1 },
-  );
-
-  const data = await res.json();
-
-  if (data.status === 'COMPLETED') {
-    const video = data.response?.video;
-    return {
-      status: 'completed',
-      videoUrl: video?.url || '',
-      thumbnailUrl: video?.thumbnail_url || '',
-    };
-  }
-
-  if (data.status === 'FAILED') {
-    return {
-      status: 'failed',
-      errorMessage: data.error || 'Video generation failed',
-    };
-  }
-
-  return { status: 'generating' };
-}
-
-// ── Provider: Sora (via fal.ai) ─────────────────────────────────────
-
-async function submitSora(prompt: string, durationSeconds: number): Promise<string> {
-  const res = await fetchWithRetry(
-    `${FAL_API}/fal-ai/sora`,
-    {
-      method: 'POST',
-      headers: await falHeaders(),
-      body: JSON.stringify({
-        prompt,
-        duration: durationSeconds,
-        aspect_ratio: '9:16',
-        resolution: '1080p',
-      }),
-    },
-    { timeoutMs: 30_000 },
-  );
-
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(`Sora submit failed: ${data.detail || JSON.stringify(data).slice(0, 500)}`);
-  }
-
-  return data.request_id;
-}
-
-async function pollSora(requestId: string): Promise<VideoGenPollResult> {
-  const res = await fetchWithRetry(
-    `${FAL_API}/fal-ai/sora/requests/${requestId}/status`,
-    { headers: await falHeaders() },
-    { timeoutMs: 15_000, maxRetries: 1 },
-  );
-
-  const data = await res.json();
-
-  if (data.status === 'COMPLETED') {
-    const video = data.response?.video;
-    return {
-      status: 'completed',
-      videoUrl: video?.url || '',
-      thumbnailUrl: video?.thumbnail_url || '',
-    };
-  }
-
-  if (data.status === 'FAILED') {
-    return {
-      status: 'failed',
-      errorMessage: data.error || 'Video generation failed',
-    };
-  }
-
   return { status: 'generating' };
 }
 
@@ -262,44 +208,27 @@ async function pollSora(requestId: string): Promise<VideoGenPollResult> {
  */
 export async function submitVideoGeneration(req: VideoGenRequest): Promise<VideoGenSubmitResult> {
   const prompt = buildVideoPrompt(req);
+  const result = await submitToFal(req.provider, prompt, req.durationSeconds);
 
-  let externalJobId: string;
-
-  switch (req.provider) {
-    case 'kling':
-      externalJobId = await submitKling(prompt, req.durationSeconds);
-      break;
-    case 'veo':
-      externalJobId = await submitVeo(prompt, req.durationSeconds);
-      break;
-    case 'sora':
-      externalJobId = await submitSora(prompt, req.durationSeconds);
-      break;
-    default:
-      throw new Error(`Unsupported video provider: ${req.provider}`);
-  }
-
-  return { externalJobId, provider: req.provider };
+  return {
+    externalJobId: result.request_id,
+    provider: req.provider,
+    statusUrl: result.status_url,
+    responseUrl: result.response_url,
+  };
 }
 
 /**
  * Poll the status of a video generation job.
+ * Uses the stored status/response URLs from the submit response.
  */
-export async function pollVideoGeneration(provider: VideoProvider, externalJobId: string): Promise<VideoGenPollResult> {
-  switch (provider) {
-    case 'kling':
-      return pollKling(externalJobId);
-    case 'veo':
-      return pollVeo(externalJobId);
-    case 'sora':
-      return pollSora(externalJobId);
-    default:
-      throw new Error(`Unsupported video provider: ${provider}`);
-  }
+export async function pollVideoGeneration(statusUrl: string, responseUrl: string): Promise<VideoGenPollResult> {
+  return pollFal(statusUrl, responseUrl);
 }
 
 /**
  * Upload a video from URL to Firebase Storage and return a permanent URL.
+ * Stores in the `generated/` prefix so it appears in the gallery alongside images.
  */
 export async function uploadVideoToStorage(
   videoUrl: string,
@@ -314,7 +243,8 @@ export async function uploadVideoToStorage(
   const buffer = Buffer.from(await res.arrayBuffer());
 
   const fileId = crypto.randomUUID();
-  const filePath = `workspaces/${workspaceId}/videos/${fileId}.mp4`;
+  // Store in `generated/` so gallery picks it up
+  const filePath = `workspaces/${workspaceId}/generated/${fileId}.mp4`;
   const file = bucket.file(filePath);
 
   await file.save(buffer, {

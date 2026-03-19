@@ -42,8 +42,8 @@ export async function GET(req: Request) {
     const prefix = `workspaces/${ctx.workspaceId}/generated/`;
     const [files] = await bucket.getFiles({ prefix });
 
-    const images = files
-      .filter((f) => /\.(png|jpg|jpeg|webp)$/i.test(f.name))
+    const media = files
+      .filter((f) => /\.(png|jpg|jpeg|webp|mp4)$/i.test(f.name))
       .map((f) => ({
         name: f.name.replace(prefix, ''),
         url: `https://storage.googleapis.com/${bucket.name}/${f.name}`,
@@ -53,7 +53,8 @@ export async function GET(req: Request) {
       }))
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    return apiOk({ images });
+    // Keep backward-compatible `images` key and add all media
+    return apiOk({ images: media });
   } catch (error) {
     return apiError(error);
   }
