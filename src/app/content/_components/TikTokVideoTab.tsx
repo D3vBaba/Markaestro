@@ -17,7 +17,6 @@ import {
   User,
   RotateCcw,
   Upload,
-  Mic,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -62,9 +61,13 @@ const SCRIPT_STYLES = [
   { value: "comparison", label: "Comparison", desc: "Before vs. after switching" },
 ];
 
-const VOICES = [
-  "Aria", "Sarah", "Laura", "Charlotte", "Alice", "Jessica", "Lily",
-  "Roger", "Charlie", "George", "Callum", "Liam", "Will", "Eric", "Brian", "Daniel",
+const VOICE_PRESETS = [
+  { label: "Young Female", value: "Young female, American accent, casual and friendly" },
+  { label: "Young Male", value: "Young male, American accent, energetic and confident" },
+  { label: "Female British", value: "Female, British accent, warm and articulate" },
+  { label: "Male British", value: "Male, British accent, calm and professional" },
+  { label: "Female Upbeat", value: "Young female, upbeat and enthusiastic, fast-paced" },
+  { label: "Male Deep", value: "Male, deep voice, slow and authoritative" },
 ];
 
 // ── Step indicator ─────────────────────────────────────────────────
@@ -129,7 +132,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   // Avatar & Voice
   const [savedAvatars, setSavedAvatars] = useState<SavedAvatar[]>([]);
   const [selectedAvatarUrl, setSelectedAvatarUrl] = useState("");
-  const [voice, setVoice] = useState("Aria");
+  const [voiceDescription, setVoiceDescription] = useState("Young female, American accent, casual and friendly");
   const [uploading, setUploading] = useState(false);
   const [avatarName, setAvatarName] = useState("");
   const [generatingFace, setGeneratingFace] = useState(false);
@@ -248,8 +251,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
       const res = await apiPost<VideoGeneration>("/api/ai/ugc-video", {
         script: editedScript,
         imageUrl: selectedAvatarUrl,
-        voice,
-        scenePrompt: "A person talking directly to the camera in a casual, authentic TikTok-style video.",
+        voiceDescription,
         productId: productId || undefined,
         trendId: selectedTrend?.id || undefined,
         caption,
@@ -397,17 +399,21 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 <p className="text-[10px] text-muted-foreground/60">Generate a realistic AI face or upload your own. Clear, front-facing, good lighting.</p>
               </div>
 
-              {/* Voice picker */}
+              {/* Voice description */}
               <div className="space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <Mic className="w-3.5 h-3.5 text-muted-foreground" />
-                  <label className="text-[11px] text-muted-foreground">Voice</label>
-                </div>
+                <label className="text-[11px] text-muted-foreground font-medium">Voice Style</label>
                 <div className="flex flex-wrap gap-1.5">
-                  {VOICES.map((v) => (
-                    <button key={v} onClick={() => setVoice(v)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voice === v ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v}</button>
+                  {VOICE_PRESETS.map((v) => (
+                    <button key={v.label} onClick={() => setVoiceDescription(v.value)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voiceDescription === v.value ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v.label}</button>
                   ))}
                 </div>
+                <input
+                  type="text"
+                  value={voiceDescription}
+                  onChange={(e) => setVoiceDescription(e.target.value)}
+                  placeholder="Or describe: young female, energetic, slight accent..."
+                  className="w-full h-9 rounded-lg border border-border/60 bg-background px-3 text-xs"
+                />
               </div>
             </div>
           )}
@@ -421,8 +427,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               </div>
 
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="px-2 py-1 rounded bg-muted">MultiTalk (fal.ai)</span>
-                <span>Voice: {voice}</span>
+                <span className="px-2 py-1 rounded bg-muted">VEED Fabric (fal.ai)</span>
                 <span>720p</span>
                 <span>9:16</span>
               </div>

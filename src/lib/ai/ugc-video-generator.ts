@@ -2,8 +2,8 @@ import { fetchWithRetry } from '@/lib/fetch-retry';
 import { getSecret } from '@/lib/secrets';
 
 /**
- * UGC video generation via fal.ai MultiTalk (ai-avatar/single-text).
- * Takes a script + face image → talking-head video with lip-sync.
+ * UGC video generation via fal.ai VEED Fabric 1.0 (text-to-video).
+ * Takes a script + face image → talking-head video with lip-sync and TTS.
  * Uses the same fal.ai queue pattern as the Kling video generator.
  */
 
@@ -20,23 +20,13 @@ async function falHeaders(): Promise<Record<string, string>> {
 
 // ── Types ────────────────────────────────────────────────────────────
 
-export const UGC_VOICES = [
-  'Aria', 'Roger', 'Sarah', 'Laura', 'Charlie', 'George',
-  'Callum', 'River', 'Liam', 'Charlotte', 'Alice', 'Matilda',
-  'Will', 'Jessica', 'Eric', 'Chris', 'Brian', 'Daniel', 'Lily', 'Bill',
-] as const;
-
-export type UGCVoice = typeof UGC_VOICES[number];
-
 export type UGCVideoRequest = {
   /** URL of the face image for the avatar */
   imageUrl: string;
   /** The script text the avatar will speak */
   script: string;
-  /** Voice for TTS */
-  voice: UGCVoice;
-  /** Scene/style description for the video */
-  scenePrompt: string;
+  /** Optional voice description (e.g. "young female American accent", "British male") */
+  voiceDescription?: string;
   /** Resolution: 480p or 720p */
   resolution?: '480p' | '720p';
 };
@@ -56,20 +46,22 @@ export type UGCVideoPollResult = {
 // ── Submit ───────────────────────────────────────────────────────────
 
 export async function submitUGCVideo(req: UGCVideoRequest): Promise<UGCVideoSubmitResult> {
+  const body: Record<string, unknown> = {
+    image_url: req.imageUrl,
+    text: req.script,
+    resolution: req.resolution || '720p',
+  };
+
+  if (req.voiceDescription) {
+    body.voice_description = req.voiceDescription;
+  }
+
   const res = await fetchWithRetry(
-    `${FAL_API}/fal-ai/ai-avatar/single-text`,
+    `${FAL_API}/veed/fabric-1.0/text`,
     {
       method: 'POST',
       headers: await falHeaders(),
-      body: JSON.stringify({
-        image_url: req.imageUrl,
-        text_input: req.script,
-        voice: req.voice,
-        prompt: req.scenePrompt,
-        resolution: req.resolution || '720p',
-        num_frames: 129, // max for longer videos
-        acceleration: 'regular',
-      }),
+      body: JSON.stringify(body),
     },
     { timeoutMs: 30_000 },
   );
@@ -99,7 +91,6 @@ export async function pollUGCVideo(statusUrl: string, responseUrl: string): Prom
   const statusData = await statusRes.json();
 
   if (statusData.status === 'COMPLETED') {
-    // Fetch the actual result
     const resultRes = await fetchWithRetry(
       responseUrl,
       { headers },

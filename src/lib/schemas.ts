@@ -256,7 +256,7 @@ export const metaIntegrationSchema = z.object({
 
 // ── Video Generation Schema ───────────────────────────────────────
 
-export const videoProviders = ['kling', 'veo', 'sora', 'multitalk'] as const;
+export const videoProviders = ['kling', 'veo', 'sora', 'veed-fabric'] as const;
 export const videoStatuses = ['pending', 'generating', 'completed', 'failed'] as const;
 
 export const tiktokTrendStatuses = ['suggested', 'approved', 'used', 'dismissed'] as const;

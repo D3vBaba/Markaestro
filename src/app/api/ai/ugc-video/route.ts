@@ -1,14 +1,13 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
-import { submitUGCVideo, UGC_VOICES } from '@/lib/ai/ugc-video-generator';
+import { submitUGCVideo } from '@/lib/ai/ugc-video-generator';
 import { z } from 'zod';
 
 const ugcVideoSchema = z.object({
   script: z.string().trim().min(1).max(8000),
   imageUrl: z.string().trim().url(),
-  voice: z.enum(UGC_VOICES).default('Aria'),
-  scenePrompt: z.string().trim().max(500).default('A person talking directly to the camera in a casual, authentic selfie-style TikTok video.'),
+  voiceDescription: z.string().trim().max(200).optional(),
   productId: z.string().trim().optional(),
   trendId: z.string().trim().optional(),
   caption: z.string().trim().max(2200).default(''),
@@ -24,8 +23,7 @@ export async function POST(req: Request) {
     const result = await submitUGCVideo({
       imageUrl: data.imageUrl,
       script: data.script,
-      voice: data.voice,
-      scenePrompt: data.scenePrompt,
+      voiceDescription: data.voiceDescription,
       resolution: '720p',
     });
 
@@ -36,7 +34,7 @@ export async function POST(req: Request) {
       trendId: data.trendId || '',
       productId: data.productId || '',
       prompt: data.script,
-      provider: 'multitalk',
+      provider: 'veed-fabric',
       status: 'generating',
       videoUrl: '',
       thumbnailUrl: '',
@@ -48,7 +46,7 @@ export async function POST(req: Request) {
       hashtags: data.hashtags,
       errorMessage: '',
       avatarImageUrl: data.imageUrl,
-      voice: data.voice,
+      voiceDescription: data.voiceDescription || '',
       scriptStyle: 'ugc',
       createdAt: new Date().toISOString(),
       completedAt: null,
