@@ -13,6 +13,7 @@ export type PipelinePost = {
   pipelineStage: PipelineStage;
   pipelineSequence: number;
   pipelineTheme: string;
+  imagePrompt: string;
 };
 
 export type GeneratePipelineInput = {
@@ -34,12 +35,18 @@ const STAGE_WEIGHTS: Record<PipelineStage, number> = {
 };
 
 const STAGE_GOALS: Record<PipelineStage, string> = {
-  awareness: `GOAL: Make the audience realize they have a problem worth solving. Do NOT mention the product by name. Focus entirely on pain points, frustrations, and "aha" moments the audience experiences daily. Make them feel seen and understood. Content should be relatable and shareable.`,
-  interest: `GOAL: Introduce the product CATEGORY as a solution — not the product itself yet. Educational content about how this type of solution can help. Light mentions of the product are okay but keep the focus on educating. Position the audience to start looking for a solution.`,
-  consideration: `GOAL: Direct product positioning. Highlight specific features, benefits, and what makes this product different from alternatives. Use the competitive insights from research to create contrast. Include specific, concrete details — not vague claims.`,
-  trial: `GOAL: Drive sign-ups, trials, or first purchases. Create urgency without being pushy. Use social proof, risk reversal (free trial, money-back guarantee), and clear CTAs. Address the "why now" question — give a reason to act today, not next week.`,
-  activation: `GOAL: Help new users succeed quickly. Share onboarding tips, quick wins, and "did you know" features. The goal is to get users to their first success moment as fast as possible. Think "power user tips for beginners."`,
-  retention: `GOAL: Reinforce the value for existing users. Share advanced use cases, success stories, community highlights, and features they might not know about. Make users feel smart for choosing this product. Build loyalty and word-of-mouth.`,
+  awareness: `GOAL: Make the audience realize they have a problem worth solving. Do NOT mention the product by name. Focus entirely on pain points, frustrations, and "aha" moments the audience experiences daily. Make them feel seen and understood. Content should be relatable and shareable.
+IMAGE DIRECTION: Show the PROBLEM — frustration, chaos, wasted time, missed opportunities. Emotionally resonant scenes of the pain point. Dark/moody lighting, tension, discomfort. Each image must depict a DIFFERENT specific frustration scenario.`,
+  interest: `GOAL: Introduce the product CATEGORY as a solution — not the product itself yet. Educational content about how this type of solution can help. Light mentions of the product are okay but keep the focus on educating. Position the audience to start looking for a solution.
+IMAGE DIRECTION: Show the CATEGORY solution in action — educational diagrams, infographic-style visuals, before/after contrasts, lightbulb moments. Brighter than awareness. Each image should visualize a different educational concept or insight.`,
+  consideration: `GOAL: Direct product positioning. Highlight specific features, benefits, and what makes this product different from alternatives. Use the competitive insights from research to create contrast. Include specific, concrete details — not vague claims.
+IMAGE DIRECTION: Show the PRODUCT's unique strengths — feature visualizations, comparison metaphors, quality details, craftsmanship. Professional, confident, polished. Each image should highlight a different product advantage or feature.`,
+  trial: `GOAL: Drive sign-ups, trials, or first purchases. Create urgency without being pushy. Use social proof, risk reversal (free trial, money-back guarantee), and clear CTAs. Address the "why now" question — give a reason to act today, not next week.
+IMAGE DIRECTION: Show TRANSFORMATION and social proof — happy users, celebration moments, achievement, community. Warm, inviting, aspirational. Each image should depict a different success scenario or social proof angle.`,
+  activation: `GOAL: Help new users succeed quickly. Share onboarding tips, quick wins, and "did you know" features. The goal is to get users to their first success moment as fast as possible. Think "power user tips for beginners."
+IMAGE DIRECTION: Show QUICK WINS — productivity, efficiency, "aha" moments of discovery, clean organized workflows. Bright, energetic, empowering. Each image should illustrate a different tip or quick-win scenario.`,
+  retention: `GOAL: Reinforce the value for existing users. Share advanced use cases, success stories, community highlights, and features they might not know about. Make users feel smart for choosing this product. Build loyalty and word-of-mouth.
+IMAGE DIRECTION: Show MASTERY and community — expert-level use, team collaboration, growth metrics, community events. Premium, sophisticated, aspirational. Each image should depict a different advanced use case or community moment.`,
 };
 
 function distributePostsAcrossStages(
@@ -147,9 +154,22 @@ CRITICAL LENGTH RULES:
 - Every word must earn its place. Cut ruthlessly.
 - Do NOT write paragraphs, lists, or multi-line posts.
 
+IMAGE PROMPT RULES:
+For each post, write a unique, detailed image prompt that creates a VISUALLY DISTINCT scene. Each image must look completely different from every other image in the pipeline.
+
+Vary these elements across posts:
+- SUBJECT: different people (age, gender, ethnicity, solo vs group), objects, environments, abstract concepts
+- SETTING: indoor/outdoor, office/home/cafe/nature/urban/studio, different rooms, different cities
+- LIGHTING: golden hour, overcast, neon, studio, candlelight, dawn, harsh midday
+- COMPOSITION: close-up, wide shot, overhead, profile, action shot, flat lay, macro detail
+- MOOD: tense, joyful, contemplative, energetic, serene, dramatic, playful
+- COLOR PALETTE: warm earth tones, cool blues, vibrant pops, muted pastels, high contrast B&W with color accent
+
+The image prompt should be 2-3 sentences describing a specific, vivid scene. Do NOT use generic descriptions. Be cinematic and specific.
+
 Return ONLY valid JSON array, no other text:
 [
-  { "content": "The post text", "theme": "2-4 word theme label" }
+  { "content": "The post text", "theme": "2-4 word theme label", "imagePrompt": "Detailed unique image scene description" }
 ]`;
 
   const response = await client.chat.completions.create({
@@ -164,13 +184,14 @@ Return ONLY valid JSON array, no other text:
 
   const text = response.choices[0]?.message?.content || '{}';
   const parsed = JSON.parse(text);
-  const posts: Array<{ content: string; theme: string }> = parsed.posts || [];
+  const posts: Array<{ content: string; theme: string; imagePrompt?: string }> = parsed.posts || [];
 
   return posts.map((p, i) => ({
     content: p.content,
     pipelineStage: stage,
     pipelineSequence: sequenceOffset + i,
     pipelineTheme: p.theme,
+    imagePrompt: p.imagePrompt || p.content,
   }));
 }
 

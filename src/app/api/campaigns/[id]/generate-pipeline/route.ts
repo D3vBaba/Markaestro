@@ -19,7 +19,7 @@ const requestSchema = z.object({
 const IMAGE_CONCURRENCY = 3;
 
 async function generateImagesWithConcurrency(
-  tasks: Array<{ postContent: string; sequence: number }>,
+  tasks: Array<{ imagePrompt: string; sequence: number }>,
   imageReq: Omit<ImageGenRequest, 'prompt'>,
   workspaceId: string,
 ): Promise<Map<number, string>> {
@@ -31,7 +31,7 @@ async function generateImagesWithConcurrency(
       const task = queue.shift()!;
       try {
         const result = await generateAndUploadImage(
-          { ...imageReq, prompt: task.postContent },
+          { ...imageReq, prompt: task.imagePrompt },
           workspaceId,
         );
         results.set(task.sequence, result.imageUrl);
@@ -133,7 +133,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       };
 
       const imageTasks = posts.map((p) => ({
-        postContent: p.content,
+        imagePrompt: p.imagePrompt,
         sequence: p.pipelineSequence,
       }));
 
