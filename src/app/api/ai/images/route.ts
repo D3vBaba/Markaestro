@@ -33,6 +33,40 @@ export async function POST(req: Request) {
   }
 }
 
+/**
+ * DELETE /api/ai/images — Delete one or more files from the gallery.
+ * Body: { names: string[] } — file names relative to the generated/ prefix.
+ */
+export async function DELETE(req: Request) {
+  try {
+    const ctx = await requireContext(req);
+    const body = await req.json();
+    const names: string[] = body.names;
+    if (!Array.isArray(names) || names.length === 0) throw new Error('VALIDATION_NO_FILES_SPECIFIED');
+    if (names.length > 100) throw new Error('VALIDATION_TOO_MANY_FILES');
+
+    const admin = await import('firebase-admin');
+    const bucket = admin.storage().bucket();
+    const prefix = `workspaces/${ctx.workspaceId}/generated/`;
+
+    let deleted = 0;
+    for (const name of names) {
+      // Prevent path traversal
+      if (name.includes('..') || name.includes('/')) continue;
+      try {
+        await bucket.file(`${prefix}${name}`).delete();
+        deleted++;
+      } catch {
+        // File may already be deleted — skip
+      }
+    }
+
+    return apiOk({ ok: true, deleted });
+  } catch (error) {
+    return apiError(error);
+  }
+}
+
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);

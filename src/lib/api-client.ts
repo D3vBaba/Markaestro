@@ -53,11 +53,12 @@ export function apiPut<T = unknown>(path: string, body: unknown, wsId = 'default
   });
 }
 
-/** DELETE shortcut with workspace ID. */
-export function apiDelete<T = unknown>(path: string, wsId = 'default') {
+/** DELETE shortcut with workspace ID. Optionally accepts a JSON body. */
+export function apiDelete<T = unknown>(path: string, body?: unknown, wsId = 'default') {
   const sep = path.includes('?') ? '&' : '?';
   return apiFetch<T>(`${path}${sep}workspaceId=${wsId}`, {
     method: 'DELETE',
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
 }
 
