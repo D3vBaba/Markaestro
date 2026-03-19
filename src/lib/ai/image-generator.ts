@@ -514,6 +514,39 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
 }
 
 /**
+ * Generate a realistic AI face image for UGC avatar use.
+ * Returns a public URL to the uploaded image.
+ */
+export async function generateFaceAvatar(
+  workspaceId: string,
+  options?: {
+    gender?: 'male' | 'female';
+    ageRange?: 'young adult' | 'adult' | 'middle aged';
+    ethnicity?: string;
+    style?: string;
+  },
+): Promise<{ imageUrl: string }> {
+  const gender = options?.gender || (Math.random() > 0.5 ? 'female' : 'male');
+  const age = options?.ageRange || 'young adult';
+  const ethnicity = options?.ethnicity || '';
+  const style = options?.style || '';
+
+  const prompt = [
+    `Portrait photograph of a ${age} ${ethnicity ? ethnicity + ' ' : ''}${gender}, looking directly at the camera with a friendly, approachable expression.`,
+    'Shot on iPhone 15 Pro, natural daylight, shallow depth of field with softly blurred background.',
+    'Casual setting — could be a bedroom, living room, or coffee shop. Authentic social media selfie aesthetic.',
+    `${style ? `Style: ${style}. ` : ''}Natural skin texture, no heavy retouching. Slight smile, warm and genuine.`,
+    'Head and shoulders framing, vertical portrait orientation.',
+    'This should look like a real TikTok creator, NOT a stock photo or AI-generated face.',
+    'No text, no watermarks, no logos.',
+  ].join('\n');
+
+  const result = await generateWithGemini(prompt, '3:4');
+  const imageUrl = await uploadToFirebaseStorage(result.base64, result.mimeType, workspaceId);
+  return { imageUrl };
+}
+
+/**
  * Full pipeline: generate image + upload to Firebase Storage.
  */
 export async function generateAndUploadImage(

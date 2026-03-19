@@ -132,6 +132,8 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   const [voice, setVoice] = useState("Aria");
   const [uploading, setUploading] = useState(false);
   const [avatarName, setAvatarName] = useState("");
+  const [generatingFace, setGeneratingFace] = useState(false);
+  const [faceGender, setFaceGender] = useState<"male" | "female">("female");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Generate
@@ -196,6 +198,28 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
       } else toast.error("Upload failed");
     } catch { toast.error("Upload failed"); }
     finally { setUploading(false); }
+  };
+
+  // ── Generate face ───────────────────────────────────────────────
+
+  const handleGenerateFace = async () => {
+    setGeneratingFace(true);
+    try {
+      const res = await apiPost<SavedAvatar & { imageUrl: string }>("/api/ai/generate-face", {
+        name: avatarName || `AI Creator ${savedAvatars.length + 1}`,
+        gender: faceGender,
+        ageRange: "young adult",
+      });
+      if (res.ok) {
+        setSavedAvatars((prev) => [res.data, ...prev]);
+        setSelectedAvatarUrl(res.data.imageUrl);
+        setAvatarName("");
+        toast.success("Face generated!");
+      } else {
+        toast.error("Face generation failed");
+      }
+    } catch { toast.error("Face generation failed"); }
+    finally { setGeneratingFace(false); }
   };
 
   // ── Generate & poll ────────────────────────────────────────────
@@ -347,17 +371,30 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 </div>
               )}
 
-              {/* Upload new */}
-              <div className="space-y-2">
-                <label className="text-[11px] text-muted-foreground">Upload New Face</label>
+              {/* Generate AI face or upload */}
+              <div className="space-y-3">
+                <label className="text-[11px] text-muted-foreground font-medium">Add New Creator</label>
                 <div className="flex gap-2">
-                  <input type="text" placeholder="Avatar name..." value={avatarName} onChange={(e) => setAvatarName(e.target.value)} className="flex-1 h-9 rounded-lg border border-border/60 bg-background px-3 text-xs" />
+                  <input type="text" placeholder="Creator name..." value={avatarName} onChange={(e) => setAvatarName(e.target.value)} className="flex-1 h-9 rounded-lg border border-border/60 bg-background px-3 text-xs" />
+                </div>
+                <div className="flex gap-2">
+                  {/* Gender toggle for face gen */}
+                  <div className="flex rounded-md border border-border/60 overflow-hidden">
+                    {(["female", "male"] as const).map((g) => (
+                      <button key={g} onClick={() => setFaceGender(g)} className={`px-3 py-1.5 text-[11px] transition-all ${faceGender === g ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:text-foreground"}`}>
+                        {g === "female" ? "Female" : "Male"}
+                      </button>
+                    ))}
+                  </div>
+                  <Button variant="default" size="sm" className="h-9 text-xs flex-1" onClick={handleGenerateFace} disabled={generatingFace}>
+                    {generatingFace ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating...</> : <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Generate AI Face</>}
+                  </Button>
                   <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
                     {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Upload className="w-3.5 h-3.5 mr-1.5" />Upload</>}
                   </Button>
                 </div>
                 <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUploadAvatar(f); e.target.value = ""; }} />
-                <p className="text-[10px] text-muted-foreground/60">Use a clear front-facing photo. No sunglasses. Good lighting.</p>
+                <p className="text-[10px] text-muted-foreground/60">Generate a realistic AI face or upload your own. Clear, front-facing, good lighting.</p>
               </div>
 
               {/* Voice picker */}
