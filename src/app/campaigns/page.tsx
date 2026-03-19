@@ -318,11 +318,11 @@ export default function CampaignsPage() {
                       </Select>
                     </FormField>
 
-                    <FormField label={`Number of Posts: ${pipelinePostCount}`} description="Distributed across 6 adoption stages (awareness → retention)">
+                    <FormField label={`Number of Posts: ${pipelinePostCount}`} description="Distributed across adoption stages (awareness → retention)">
                       <Slider
                         value={[pipelinePostCount]}
                         onValueChange={([v]) => setPipelinePostCount(v)}
-                        min={15}
+                        min={3}
                         max={30}
                         step={1}
                         className="mt-2"

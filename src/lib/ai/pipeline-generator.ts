@@ -49,11 +49,25 @@ IMAGE DIRECTION: Show QUICK WINS — productivity, efficiency, "aha" moments of 
 IMAGE DIRECTION: Show MASTERY and community — expert-level use, team collaboration, growth metrics, community events. Premium, sophisticated, aspirational. Each image should depict a different advanced use case or community moment.`,
 };
 
+// Priority order for stages when we have fewer posts than stages
+const STAGE_PRIORITY: PipelineStage[] = [
+  'awareness', 'consideration', 'trial', 'interest', 'activation', 'retention',
+];
+
 function distributePostsAcrossStages(
   totalPosts: number,
   stages: PipelineStage[],
 ): Map<PipelineStage, number> {
   const distribution = new Map<PipelineStage, number>();
+
+  // If fewer posts than stages, pick the most impactful stages
+  if (totalPosts < stages.length) {
+    const prioritized = STAGE_PRIORITY.filter((s) => stages.includes(s)).slice(0, totalPosts);
+    for (const stage of prioritized) {
+      distribution.set(stage, 1);
+    }
+    return distribution;
+  }
 
   // Calculate raw distribution based on weights
   const totalWeight = stages.reduce((sum, s) => sum + STAGE_WEIGHTS[s], 0);
@@ -200,12 +214,13 @@ export async function generatePipelinePosts(input: GeneratePipelineInput): Promi
   const stages = input.pipelineConfig.stages as PipelineStage[];
   const distribution = distributePostsAcrossStages(input.pipelineConfig.postCount, stages);
 
-  // Generate all stages in parallel
+  // Generate only stages that have posts assigned
   let sequenceOffset = 0;
   const stageEntries: Array<{ stage: PipelineStage; count: number; offset: number }> = [];
 
   for (const stage of stages) {
-    const count = distribution.get(stage) || 1;
+    const count = distribution.get(stage);
+    if (!count) continue;
     stageEntries.push({ stage, count, offset: sequenceOffset });
     sequenceOffset += count;
   }

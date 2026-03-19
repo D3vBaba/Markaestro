@@ -50,7 +50,7 @@ export const pipelineStatuses = ['pending_research', 'researching', 'research_co
 export const pipelineConfigSchema = z.object({
   channels: z.array(z.enum(socialChannels)).min(1, 'Select at least one channel'),
   cadence: z.enum(pipelineCadences).default('3x_week'),
-  postCount: z.number().int().min(15).max(30).default(20),
+  postCount: z.number().int().min(3).max(30).default(20),
   startDate: z.string().datetime(),
   stages: z.array(z.enum(pipelineStages)).default([...pipelineStages]),
   postTimeHourUTC: z.number().int().min(0).max(23).default(10),
