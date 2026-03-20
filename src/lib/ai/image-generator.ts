@@ -523,21 +523,58 @@ export async function generateFaceAvatar(
     gender?: 'male' | 'female';
     ageRange?: 'young adult' | 'adult' | 'middle aged';
     ethnicity?: string;
-    style?: string;
+    /** Product context to match the avatar's look to the brand */
+    productName?: string;
+    productDescription?: string;
+    productCategories?: string[];
+    targetAudience?: string;
+    brandTone?: string;
   },
 ): Promise<{ imageUrl: string }> {
   const gender = options?.gender || (Math.random() > 0.5 ? 'female' : 'male');
   const age = options?.ageRange || 'young adult';
   const ethnicity = options?.ethnicity || '';
-  const style = options?.style || '';
+
+  // Build product-aware styling
+  const productContext: string[] = [];
+  if (options?.productName) productContext.push(`This person is a content creator for "${options.productName}".`);
+  if (options?.productDescription) productContext.push(`The product: ${options.productDescription.slice(0, 200)}`);
+  if (options?.targetAudience) productContext.push(`Target audience: ${options.targetAudience}`);
+
+  // Derive aesthetic from product category
+  let aestheticDirection = 'Clean, modern casual style.';
+  const cats = (options?.productCategories || []).join(' ').toLowerCase();
+  const desc = (options?.productDescription || '').toLowerCase();
+  const context = `${cats} ${desc}`;
+
+  if (/fashion|clothing|apparel|wear|style|outfit/.test(context)) {
+    aestheticDirection = 'Fashion-forward styling: trendy outfit, styled hair, curated accessories. This person looks like a fashion influencer — aspirational but relatable. Think curated Instagram aesthetic.';
+  } else if (/beauty|skincare|cosmetic|makeup/.test(context)) {
+    aestheticDirection = 'Glowing, dewy skin with subtle, polished makeup. Clean beauty aesthetic — natural but intentional. Fresh, well-groomed hair. This person looks like a skincare/beauty creator.';
+  } else if (/fitness|gym|workout|health|wellness|sport/.test(context)) {
+    aestheticDirection = 'Athletic, healthy appearance. Clean workout attire or athleisure. Energetic expression, natural glow. This person looks like a fitness creator — toned, confident, active lifestyle.';
+  } else if (/food|beverage|recipe|restaurant|cooking/.test(context)) {
+    aestheticDirection = 'Warm, inviting appearance. Casual apron or kitchen-ready look. Friendly, approachable energy. This person looks like a food creator — the kind of person you\'d trust with a recipe.';
+  } else if (/tech|saas|software|mobile|web|app|api/.test(context)) {
+    aestheticDirection = 'Clean, minimalist tech-professional look. Smart casual — maybe a quality plain tee or button-down. Modern workspace or clean background. This person looks like a tech reviewer or product creator.';
+  } else if (/education|course|learning|tutorial/.test(context)) {
+    aestheticDirection = 'Smart, approachable, slightly bookish. Glasses optional. Warm lighting, study or library-type background. This person looks like a knowledgeable creator who teaches things clearly.';
+  } else if (/travel|hotel|adventure|tourism/.test(context)) {
+    aestheticDirection = 'Sun-kissed, adventurous look. Casual travel wear, natural windswept hair. Outdoor golden-hour lighting. This person looks like a travel creator sharing discoveries.';
+  }
+
+  if (options?.brandTone) {
+    productContext.push(`Brand tone is "${options.brandTone}" — the person's vibe should match.`);
+  }
 
   const prompt = [
-    `Portrait photograph of a ${age} ${ethnicity ? ethnicity + ' ' : ''}${gender}, looking directly at the camera with a friendly, approachable expression.`,
+    `Portrait photograph of a ${age} ${ethnicity ? ethnicity + ' ' : ''}${gender}, looking directly at the camera with a confident, approachable expression.`,
     'Shot on iPhone 15 Pro, natural daylight, shallow depth of field with softly blurred background.',
-    'Casual setting — could be a bedroom, living room, or coffee shop. Authentic social media selfie aesthetic.',
-    `${style ? `Style: ${style}. ` : ''}Natural skin texture, no heavy retouching. Slight smile, warm and genuine.`,
+    aestheticDirection,
+    ...productContext,
+    'Natural skin texture, no heavy retouching. Genuine expression — slight smile or confident look.',
     'Head and shoulders framing, vertical portrait orientation.',
-    'This should look like a real TikTok creator, NOT a stock photo or AI-generated face.',
+    'This should look like a real TikTok creator who genuinely uses and loves this product — NOT a stock photo or generic AI face.',
     'No text, no watermarks, no logos.',
   ].join('\n');
 

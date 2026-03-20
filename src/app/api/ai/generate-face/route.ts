@@ -9,7 +9,8 @@ const faceSchema = z.object({
   gender: z.enum(['male', 'female']).optional(),
   ageRange: z.enum(['young adult', 'adult', 'middle aged']).optional(),
   ethnicity: z.string().trim().max(50).optional(),
-  style: z.string().trim().max(200).optional(),
+  /** Product ID — used to match the avatar's aesthetic to the brand */
+  productId: z.string().trim().optional(),
 });
 
 export async function POST(req: Request) {
@@ -18,11 +19,34 @@ export async function POST(req: Request) {
     const body = await req.json();
     const data = faceSchema.parse(body);
 
+    // Fetch product details for aesthetic matching
+    let productName: string | undefined;
+    let productDescription: string | undefined;
+    let productCategories: string[] | undefined;
+    let targetAudience: string | undefined;
+    let brandTone: string | undefined;
+
+    if (data.productId) {
+      const productSnap = await adminDb.doc(`workspaces/${ctx.workspaceId}/products/${data.productId}`).get();
+      if (productSnap.exists) {
+        const product = productSnap.data()!;
+        productName = product.name;
+        productDescription = product.description;
+        productCategories = product.categories;
+        targetAudience = product.brandVoice?.targetAudience;
+        brandTone = product.brandVoice?.tone;
+      }
+    }
+
     const { imageUrl } = await generateFaceAvatar(ctx.workspaceId, {
       gender: data.gender,
       ageRange: data.ageRange,
       ethnicity: data.ethnicity,
-      style: data.style,
+      productName,
+      productDescription,
+      productCategories,
+      targetAudience,
+      brandTone,
     });
 
     // Save as a reusable avatar
@@ -32,6 +56,7 @@ export async function POST(req: Request) {
       name: data.name,
       imageUrl,
       generated: true,
+      productId: data.productId || '',
       createdAt: new Date().toISOString(),
       createdBy: ctx.uid,
     };

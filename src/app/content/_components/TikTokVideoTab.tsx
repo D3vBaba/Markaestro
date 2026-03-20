@@ -224,6 +224,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
         name: avatarName || `AI Creator ${savedAvatars.length + 1}`,
         gender: faceGender,
         ageRange: "young adult",
+        productId: productId || undefined,
       });
       if (res.ok) {
         setSavedAvatars((prev) => [res.data, ...prev]);
