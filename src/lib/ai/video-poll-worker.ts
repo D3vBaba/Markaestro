@@ -23,7 +23,7 @@ async function pollSingleGeneration(
   let errorMessage = '';
   let status: 'completed' | 'failed' | 'generating' = 'generating';
 
-  if (gen.provider === 'veed-fabric' || gen.provider === 'multitalk') {
+  if (gen.provider === 'kling-avatar' || gen.provider === 'veed-fabric' || gen.provider === 'multitalk') {
     const result = await pollUGCVideo(gen.statusUrl, gen.responseUrl);
     if (result.status === 'completed' && result.videoUrl) {
       videoUrl = result.videoUrl;

@@ -1,13 +1,16 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
-import { submitUGCVideo } from '@/lib/ai/ugc-video-generator';
+import { submitUGCVideo, KOKORO_VOICES } from '@/lib/ai/ugc-video-generator';
 import { z } from 'zod';
+
+const allVoices = [...KOKORO_VOICES.female, ...KOKORO_VOICES.male] as const;
 
 const ugcVideoSchema = z.object({
   script: z.string().trim().min(1).max(8000),
   imageUrl: z.string().trim().url(),
-  voiceDescription: z.string().trim().max(200).optional(),
+  voice: z.enum(allVoices).default('af_heart'),
+  speed: z.number().min(0.5).max(2.0).default(1.0),
   productId: z.string().trim().optional(),
   trendId: z.string().trim().optional(),
   caption: z.string().trim().max(2200).default(''),
@@ -23,8 +26,8 @@ export async function POST(req: Request) {
     const result = await submitUGCVideo({
       imageUrl: data.imageUrl,
       script: data.script,
-      voiceDescription: data.voiceDescription,
-      resolution: '720p',
+      voice: data.voice,
+      speed: data.speed,
     });
 
     const genCol = adminDb.collection(`workspaces/${ctx.workspaceId}/videoGenerations`);
@@ -34,7 +37,7 @@ export async function POST(req: Request) {
       trendId: data.trendId || '',
       productId: data.productId || '',
       prompt: data.script,
-      provider: 'veed-fabric',
+      provider: 'kling-avatar',
       status: 'generating',
       videoUrl: '',
       thumbnailUrl: '',
@@ -42,11 +45,12 @@ export async function POST(req: Request) {
       externalJobId: result.externalJobId,
       statusUrl: result.statusUrl,
       responseUrl: result.responseUrl,
+      audioUrl: result.audioUrl,
       caption: data.caption,
       hashtags: data.hashtags,
       errorMessage: '',
       avatarImageUrl: data.imageUrl,
-      voiceDescription: data.voiceDescription || '',
+      voice: data.voice,
       scriptStyle: 'ugc',
       createdAt: new Date().toISOString(),
       completedAt: null,
