@@ -1034,72 +1034,39 @@ export default function ProductsPage() {
                   Connect social accounts for this product.
                 </p>
                 <div className="space-y-3">
-                  {/* Social Providers */}
-                  {SOCIAL_PROVIDERS.map((provider) => {
-                    const integ = getProviderIntegration(provider);
-                    const connected = integ?.status === "connected";
-                    // Meta: workspace-level connection exists but no page selected for this product
-                    const metaWsConnected = provider === "meta" && integ?.scope === "workspace" && integ?.needsPageSelection;
-                    const metaHasPage = provider === "meta" && integ?.scope === "product" && !!integ?.pageId;
-                    const metaConnected = provider === "meta" && (connected || metaWsConnected);
+                  {/* Meta — page picker only (auth is in Settings) */}
+                  {(() => {
+                    const metaInteg = getProviderIntegration("meta");
+                    const metaConnected = metaInteg?.status === "connected" || (metaInteg?.scope === "workspace" && metaInteg?.needsPageSelection);
 
                     return (
-                      <div key={provider} className="rounded-xl border p-3 space-y-2">
+                      <div className="rounded-xl border p-3 space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium">{providerLabels[provider]}</p>
-                            {(connected || metaWsConnected) && (
+                            <p className="text-sm font-medium">{providerLabels.meta}</p>
+                            {metaConnected && (
                               <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
                             )}
-                            {provider === "meta" && metaConnected && !integ?.pageId && (
+                            {metaConnected && !metaInteg?.pageId && (
                               <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Select Page</Badge>
                             )}
-                            {integ?.lastRefreshError && (
-                              <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
-                            )}
                           </div>
-                          {provider === "meta" ? (
-                            metaConnected ? (
-                              <div className="flex items-center gap-1.5">
-                                {metaHasPage && (
-                                  <Button variant="outline" size="sm" onClick={() => { disconnectProvider("meta", editProductId); setMetaPages([]); setSelectedPageId(""); }} disabled={disconnecting === "meta"}>
-                                    {disconnecting === "meta" ? "..." : "Remove Page"}
-                                  </Button>
-                                )}
-                              </div>
-                            ) : (
-                              <Button size="sm" onClick={() => startOAuth("meta", editProductId)}>Connect</Button>
-                            )
-                          ) : (
-                            connected ? (
-                              <Button variant="destructive" size="sm" onClick={() => disconnectProvider(provider, editProductId)} disabled={disconnecting === provider}>
-                                {disconnecting === provider ? "..." : "Disconnect"}
-                              </Button>
-                            ) : (
-                              <Button size="sm" onClick={() => startOAuth(provider, editProductId)}>Connect</Button>
-                            )
-                          )}
                         </div>
 
-                        {provider === "meta" && metaConnected && (
+                        {metaConnected ? (
                           <div className="space-y-2 pl-1">
-                            {integ?.pageName && (
+                            {metaInteg?.pageName && (
                               <p className="text-xs text-muted-foreground">
-                                Page: <span className="font-medium text-foreground">{integ.pageName}</span>{integ.igAccountId && " (Instagram linked)"}
+                                Page: <span className="font-medium text-foreground">{metaInteg.pageName}</span>{metaInteg.igAccountId && " (Instagram linked)"}
                               </p>
                             )}
-                            {!integ?.pageId && (
+                            {!metaInteg?.pageId && (
                               <p className="text-xs text-amber-700">
                                 Select a Facebook page for this product to enable publishing.
                               </p>
                             )}
-                            {integ?.tokenExpiresAt && (
-                              <p className="text-xs text-muted-foreground">
-                                Token expires: {new Date(integ.tokenExpiresAt).toLocaleDateString()}
-                              </p>
-                            )}
                             <Button variant="outline" size="sm" onClick={() => { loadMetaPages(editProductId); setSelectedPageId(""); }} disabled={loadingPages}>
-                              {loadingPages ? "Loading..." : integ?.pageId ? "Change Page" : "Select Page"}
+                              {loadingPages ? "Loading..." : metaInteg?.pageId ? "Change Page" : "Select Page"}
                             </Button>
                             {metaPages.length > 0 && (
                               <div className="flex gap-2">
@@ -1131,14 +1098,47 @@ export default function ProductsPage() {
                                   {savingAdAccount ? "..." : "Save"}
                                 </Button>
                               </div>
-                              {integ?.adAccountId && (
-                                <p className="text-[11px] text-emerald-600 mt-1">Saved: {integ.adAccountId}</p>
+                              {metaInteg?.adAccountId && (
+                                <p className="text-[11px] text-emerald-600 mt-1">Saved: {metaInteg.adAccountId}</p>
                               )}
                             </div>
                           </div>
+                        ) : (
+                          <p className="text-xs text-muted-foreground pl-1">
+                            Connect Meta in <a href="/settings" className="text-primary hover:underline">Settings</a> first, then select a page here.
+                          </p>
                         )}
+                      </div>
+                    );
+                  })()}
 
-                        {provider !== "meta" && connected && integ?.tokenExpiresAt && (
+                  {/* X and TikTok — per-product connect/disconnect */}
+                  {(["x", "tiktok"] as const).map((provider) => {
+                    const integ = getProviderIntegration(provider);
+                    const connected = integ?.status === "connected";
+
+                    return (
+                      <div key={provider} className="rounded-xl border p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium">{providerLabels[provider]}</p>
+                            {connected && (
+                              <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
+                            )}
+                            {integ?.lastRefreshError && (
+                              <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
+                            )}
+                          </div>
+                          {connected ? (
+                            <Button variant="destructive" size="sm" onClick={() => disconnectProvider(provider, editProductId)} disabled={disconnecting === provider}>
+                              {disconnecting === provider ? "..." : "Disconnect"}
+                            </Button>
+                          ) : (
+                            <Button size="sm" onClick={() => startOAuth(provider, editProductId)}>Connect</Button>
+                          )}
+                        </div>
+
+                        {connected && integ?.tokenExpiresAt && (
                           <p className="text-xs text-muted-foreground pl-1">
                             Token expires: {new Date(integ.tokenExpiresAt).toLocaleDateString()}
                           </p>
