@@ -584,7 +584,13 @@ export default function ProductsPage() {
     const page = metaPages.find((p) => p.id === selectedPageId);
     try {
       const res = await apiPost<{ ok: boolean; pageName: string }>("/api/oauth/pages/meta/select", { pageId: selectedPageId, pageName: page?.name, productId });
-      if (res.ok && res.data.ok) { toast.success(`Page "${res.data.pageName}" selected`); await fetchProductIntegrations(productId); }
+      if (res.ok && res.data.ok) {
+        toast.success(`Page "${res.data.pageName}" selected`);
+        setMetaPages([]);
+        setSelectedPageId("");
+        await fetchProductIntegrations(productId);
+        fetchProducts();
+      }
       else toast.error("Failed to select page");
     } catch { toast.error("Failed to select page"); }
     finally { setSelectingPage(false); }
@@ -1034,6 +1040,7 @@ export default function ProductsPage() {
                     const connected = integ?.status === "connected";
                     // Meta: workspace-level connection exists but no page selected for this product
                     const metaWsConnected = provider === "meta" && integ?.scope === "workspace" && integ?.needsPageSelection;
+                    const metaHasPage = provider === "meta" && integ?.scope === "product" && !!integ?.pageId;
                     const metaConnected = provider === "meta" && (connected || metaWsConnected);
 
                     return (
@@ -1044,19 +1051,33 @@ export default function ProductsPage() {
                             {(connected || metaWsConnected) && (
                               <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
                             )}
-                            {metaWsConnected && !integ?.pageId && (
+                            {provider === "meta" && metaConnected && !integ?.pageId && (
                               <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Select Page</Badge>
                             )}
                             {integ?.lastRefreshError && (
                               <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
                             )}
                           </div>
-                          {connected || metaWsConnected ? (
-                            <Button variant="destructive" size="sm" onClick={() => disconnectProvider(provider, editProductId)} disabled={disconnecting === provider}>
-                              {disconnecting === provider ? "..." : provider === "meta" && integ?.scope === "product" ? "Remove Page" : "Disconnect"}
-                            </Button>
+                          {provider === "meta" ? (
+                            metaConnected ? (
+                              <div className="flex items-center gap-1.5">
+                                {metaHasPage && (
+                                  <Button variant="outline" size="sm" onClick={() => { disconnectProvider("meta", editProductId); setMetaPages([]); setSelectedPageId(""); }} disabled={disconnecting === "meta"}>
+                                    {disconnecting === "meta" ? "..." : "Remove Page"}
+                                  </Button>
+                                )}
+                              </div>
+                            ) : (
+                              <Button size="sm" onClick={() => startOAuth("meta", editProductId)}>Connect</Button>
+                            )
                           ) : (
-                            <Button size="sm" onClick={() => startOAuth(provider, editProductId)}>Connect</Button>
+                            connected ? (
+                              <Button variant="destructive" size="sm" onClick={() => disconnectProvider(provider, editProductId)} disabled={disconnecting === provider}>
+                                {disconnecting === provider ? "..." : "Disconnect"}
+                              </Button>
+                            ) : (
+                              <Button size="sm" onClick={() => startOAuth(provider, editProductId)}>Connect</Button>
+                            )
                           )}
                         </div>
 
@@ -1064,12 +1085,12 @@ export default function ProductsPage() {
                           <div className="space-y-2 pl-1">
                             {integ?.pageName && (
                               <p className="text-xs text-muted-foreground">
-                                Page: {integ.pageName}{integ.igAccountId && " (Instagram linked)"}
+                                Page: <span className="font-medium text-foreground">{integ.pageName}</span>{integ.igAccountId && " (Instagram linked)"}
                               </p>
                             )}
                             {!integ?.pageId && (
                               <p className="text-xs text-amber-700">
-                                Select a Facebook page to finish Meta setup and unlock ad launches.
+                                Select a Facebook page for this product to enable publishing.
                               </p>
                             )}
                             {integ?.tokenExpiresAt && (
@@ -1077,8 +1098,8 @@ export default function ProductsPage() {
                                 Token expires: {new Date(integ.tokenExpiresAt).toLocaleDateString()}
                               </p>
                             )}
-                            <Button variant="outline" size="sm" onClick={() => loadMetaPages(editProductId)} disabled={loadingPages}>
-                              {loadingPages ? "Loading..." : "Change Page"}
+                            <Button variant="outline" size="sm" onClick={() => { loadMetaPages(editProductId); setSelectedPageId(""); }} disabled={loadingPages}>
+                              {loadingPages ? "Loading..." : integ?.pageId ? "Change Page" : "Select Page"}
                             </Button>
                             {metaPages.length > 0 && (
                               <div className="flex gap-2">
