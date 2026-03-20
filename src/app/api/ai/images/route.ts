@@ -2,20 +2,34 @@ import crypto from 'crypto';
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif']);
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
+const IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif']);
+const VIDEO_TYPES = new Set(['video/mp4', 'video/quicktime', 'video/webm']);
+const ALL_TYPES = new Set([...IMAGE_TYPES, ...VIDEO_TYPES]);
 
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     const formData = await req.formData();
-    const file = formData.get('image') as File | null;
+    // Accept either 'image' or 'video' field name
+    const file = (formData.get('image') || formData.get('video')) as File | null;
     if (!file) throw new Error('VALIDATION_NO_FILE_PROVIDED');
-    if (!ALLOWED_TYPES.has(file.type)) throw new Error('VALIDATION_INVALID_FILE_TYPE');
-    if (file.size > MAX_FILE_SIZE) throw new Error('VALIDATION_FILE_TOO_LARGE');
+    if (!ALL_TYPES.has(file.type)) throw new Error('VALIDATION_INVALID_FILE_TYPE');
+
+    const isVideo = VIDEO_TYPES.has(file.type);
+    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    if (file.size > maxSize) throw new Error('VALIDATION_FILE_TOO_LARGE');
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : file.type === 'image/gif' ? 'gif' : 'jpg';
+
+    let ext: string;
+    if (isVideo) {
+      ext = file.type === 'video/quicktime' ? 'mov' : file.type === 'video/webm' ? 'webm' : 'mp4';
+    } else {
+      ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : file.type === 'image/gif' ? 'gif' : 'jpg';
+    }
+
     const fileId = crypto.randomUUID();
     const filePath = `workspaces/${ctx.workspaceId}/generated/${fileId}.${ext}`;
 
@@ -27,7 +41,7 @@ export async function POST(req: Request) {
     });
     await gcsFile.makePublic();
 
-    return apiOk({ ok: true, url: `https://storage.googleapis.com/${bucket.name}/${filePath}` });
+    return apiOk({ ok: true, url: `https://storage.googleapis.com/${bucket.name}/${filePath}`, contentType: file.type });
   } catch (error) {
     return apiError(error);
   }

@@ -51,6 +51,20 @@ export default function PostCard({
         )}
       </div>
 
+      {/* Video/image thumbnail */}
+      {post.mediaUrls?.[0] && (
+        <div className="rounded-lg overflow-hidden border border-border/30">
+          {post.mediaUrls[0].match(/\.(mp4|mov|webm)(\?|$)/i) ? (
+            <video src={post.mediaUrls[0]} className="w-full max-h-40 object-cover" muted playsInline
+              onMouseEnter={(e) => e.currentTarget.play()}
+              onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+            />
+          ) : (
+            <img src={post.mediaUrls[0]} alt="" className="w-full max-h-40 object-cover" loading="lazy" />
+          )}
+        </div>
+      )}
+
       {showPreview ? (
         <PlatformPreview content={post.content} channel={post.channel} mediaUrls={post.mediaUrls} externalUrl={post.externalUrl} />
       ) : (

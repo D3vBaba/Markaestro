@@ -151,7 +151,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<{ proc
     const postId = doc.id;
     const productId = post.productId as string | undefined;
 
-    if (!productId) {
+    if (!productId && post.channel !== 'tiktok') {
       results.push({ postId, success: false, error: 'Post has no associated product' });
       continue;
     }

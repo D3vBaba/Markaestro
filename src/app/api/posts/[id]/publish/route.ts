@@ -15,7 +15,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const post = snap.data()!;
     const productId = post.productId as string | undefined;
 
-    if (!productId) {
+    // productId is optional for TikTok posts (UGC pipeline creates posts without a product link)
+    // For other channels, we still need it to look up platform connections
+    if (!productId && post.channel !== 'tiktok') {
       return apiOk({ ok: false, error: 'Post has no associated product' }, 400);
     }
 

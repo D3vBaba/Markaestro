@@ -12,6 +12,11 @@ function parseTikTokError(data: Record<string, unknown>): string | undefined {
   return (err.message as string) || (err.code as string) || 'Unknown TikTok error';
 }
 
+function isVideoUrl(url: string): boolean {
+  const lower = url.toLowerCase();
+  return /\.(mp4|mov|avi|webm)(\?|$)/.test(lower) || lower.includes('/videos/');
+}
+
 export const tiktokPublishingAdapter: PlatformAdapter = {
   id: 'tiktok-publishing',
   name: 'TikTok',
@@ -31,29 +36,43 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
       };
     }
 
+    const mediaUrl = request.mediaUrls[0];
+    const isVideo = isVideoUrl(mediaUrl);
+
     try {
+      // Build request body based on media type
+      const body: Record<string, unknown> = {
+        post_info: {
+          title: request.content.substring(0, 90),
+          description: request.content.substring(0, 4000),
+          disable_comment: false,
+          privacy_level: 'SELF_ONLY',
+          auto_add_music: !isVideo, // don't auto-add music to videos
+        },
+        post_mode: 'DIRECT_POST',
+        media_type: isVideo ? 'VIDEO' : 'PHOTO',
+      };
+
+      if (isVideo) {
+        body.source_info = {
+          source: 'PULL_FROM_URL',
+          video_url: mediaUrl,
+        };
+      } else {
+        body.source_info = {
+          source: 'PULL_FROM_URL',
+          photo_cover_index: 0,
+          photo_images: [mediaUrl],
+        };
+      }
+
       const res = await fetchWithRetry(`${TIKTOK_API}/post/publish/content/init/`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: JSON.stringify({
-          post_info: {
-            title: request.content.substring(0, 90),
-            description: request.content.substring(0, 4000),
-            disable_comment: false,
-            privacy_level: 'SELF_ONLY', // unaudited apps can only post as SELF_ONLY
-            auto_add_music: true,
-          },
-          source_info: {
-            source: 'PULL_FROM_URL',
-            photo_cover_index: 0,
-            photo_images: [request.mediaUrls[0]],
-          },
-          post_mode: 'DIRECT_POST',
-          media_type: 'PHOTO',
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -93,6 +112,6 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
   },
 
   validateConnection(_connection: PlatformConnection, _channel) {
-    return null; // TikTok has no special metadata requirements beyond the token
+    return null;
   },
 };

@@ -76,15 +76,17 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   const manualFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleManualUpload = async (file: File) => {
-    if (file.size > 10 * 1024 * 1024) { toast.error("File must be under 10 MB"); return; }
+    const isVideo = file.type.startsWith("video/");
+    const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) { toast.error(`File must be under ${isVideo ? "100" : "10"} MB`); return; }
     setManualUploading(true);
     try {
       const fd = new FormData();
-      fd.append("image", file);
+      fd.append(isVideo ? "video" : "image", file);
       const res = await apiUpload<{ ok: boolean; url: string }>("/api/ai/images", fd);
       if (res.ok) {
         setImageUrl(res.data.url);
-        toast.success("Image uploaded");
+        toast.success(`${isVideo ? "Video" : "Image"} uploaded`);
       } else {
         toast.error("Upload failed");
       }
@@ -325,7 +327,11 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
               <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Image</label>
               {imageUrl ? (
                 <div className="relative group rounded-xl overflow-hidden border border-border/40">
-                  <img src={imageUrl} alt="Post image" className="w-full object-cover max-h-48" />
+                  {imageUrl.match(/\.(mp4|mov|webm)(\?|$)/i) ? (
+                    <video src={imageUrl} controls className="w-full object-cover max-h-48" />
+                  ) : (
+                    <img src={imageUrl} alt="Post image" className="w-full object-cover max-h-48" />
+                  )}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button onClick={() => manualFileInputRef.current?.click()} className="text-white text-xs font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">Replace</button>
                     <button onClick={() => setPickerOpen(true)} className="text-white text-xs font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">Gallery</button>
@@ -337,14 +343,14 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
                   className="border-2 border-dashed border-border/50 hover:border-foreground/30 rounded-xl p-8 text-center cursor-pointer transition-colors"
                   onClick={() => manualFileInputRef.current?.click()}
                 >
-                  <p className="text-sm text-muted-foreground">Drop an image or click to upload</p>
-                  <p className="text-[11px] text-muted-foreground/50 mt-1">JPG, PNG, WebP · up to 10 MB</p>
+                  <p className="text-sm text-muted-foreground">{channel === "tiktok" ? "Drop a video or image" : "Drop an image or click to upload"}</p>
+                  <p className="text-[11px] text-muted-foreground/50 mt-1">{channel === "tiktok" ? "MP4, MOV · up to 100 MB / JPG, PNG · up to 10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
                 </div>
               )}
               <input
                 ref={manualFileInputRef}
                 type="file"
-                accept="image/png,image/jpeg,image/webp"
+                accept={channel === "tiktok" ? "image/png,image/jpeg,image/webp,video/mp4,video/quicktime" : "image/png,image/jpeg,image/webp"}
                 className="hidden"
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) handleManualUpload(f); e.target.value = ""; }}
               />
