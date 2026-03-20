@@ -35,8 +35,6 @@ export default function SettingsPage() {
   };
 
   useEffect(() => {
-    fetchIntegrations();
-
     const params = new URLSearchParams(window.location.search);
     const oauthResult = params.get("oauth");
     const provider = params.get("provider");
@@ -45,10 +43,14 @@ export default function SettingsPage() {
     if (oauthResult === "success" && provider) {
       toast.success(`${provider === "meta" ? "Meta" : provider} connected successfully`);
       window.history.replaceState({}, "", "/settings");
-      fetchIntegrations();
+      // Small delay to ensure the OAuth callback's Firestore write has completed
+      setTimeout(() => fetchIntegrations(), 500);
     } else if (oauthResult === "error" && provider) {
       toast.error(`${provider} OAuth failed: ${message || "Unknown error"}`);
       window.history.replaceState({}, "", "/settings");
+      fetchIntegrations();
+    } else {
+      fetchIntegrations();
     }
   }, []);
 
