@@ -38,7 +38,7 @@ export default function PostCard({
   const [showPreview, setShowPreview] = useState(false);
 
   return (
-    <div className="group border border-border/40 rounded-lg p-5 space-y-4 bg-card hover:border-border transition-colors">
+    <div className="group border border-border/40 rounded-lg p-4 sm:p-5 space-y-4 bg-card hover:border-border transition-colors overflow-hidden">
       <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
         <span>{channelLabels[post.channel] || post.channel}</span>
         <span className="w-px h-3 bg-border" />
@@ -68,7 +68,7 @@ export default function PostCard({
       {showPreview ? (
         <PlatformPreview content={post.content} channel={post.channel} mediaUrls={post.mediaUrls} externalUrl={post.externalUrl} />
       ) : (
-        <p className="text-sm leading-relaxed whitespace-pre-wrap line-clamp-4">{post.content}</p>
+        <p className="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word line-clamp-4">{post.content}</p>
       )}
 
       {post.errorMessage && (

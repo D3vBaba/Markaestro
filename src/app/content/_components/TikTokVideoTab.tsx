@@ -87,7 +87,7 @@ const VOICES = {
 function StepIndicator({ step }: { step: number }) {
   const steps = ["Product", "Trends", "Script", "Avatar & Voice", "Generate"];
   return (
-    <div className="flex items-center gap-1.5 mb-8 overflow-x-auto">
+    <div className="flex flex-wrap items-center gap-1.5 mb-8">
       {steps.map((label, i) => (
         <div key={label} className="flex items-center gap-1.5 shrink-0">
           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold transition-all ${
@@ -95,7 +95,7 @@ function StepIndicator({ step }: { step: number }) {
           }`}>
             {i < step ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
           </div>
-          <span className={`text-[11px] font-medium ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
+          <span className={`text-[11px] font-medium hidden sm:inline ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
           {i < steps.length - 1 && <ChevronRight className="w-3 h-3 text-muted-foreground/30" />}
         </div>
       ))}
@@ -329,7 +329,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 ))}
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2">
                 <label className="text-xs text-muted-foreground">Duration:</label>
                 {[15, 30, 45, 60].map((d) => (
                   <button key={d} onClick={() => setScriptDuration(d)} className={`px-3 py-1.5 rounded-md text-xs transition-all ${scriptDuration === d ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{d}s</button>
@@ -370,7 +370,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               {savedAvatars.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-[11px] text-muted-foreground">Your Avatars</label>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                     {savedAvatars.map((a) => (
                       <button key={a.id} onClick={() => setSelectedAvatarUrl(a.imageUrl)} className={`relative rounded-lg overflow-hidden border-2 transition-all ${selectedAvatarUrl === a.imageUrl ? "border-foreground shadow-md" : "border-transparent hover:border-foreground/30"}`}>
                         <img src={a.imageUrl} alt={a.name} className="w-full aspect-square object-cover" loading="lazy" />
@@ -392,7 +392,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 <div className="flex gap-2">
                   <input type="text" placeholder="Creator name..." value={avatarName} onChange={(e) => setAvatarName(e.target.value)} className="flex-1 h-9 rounded-lg border border-border/60 bg-background px-3 text-xs" />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {/* Gender toggle for face gen */}
                   <div className="flex rounded-md border border-border/60 overflow-hidden">
                     {(["female", "male"] as const).map((g) => (
@@ -401,7 +401,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                       </button>
                     ))}
                   </div>
-                  <Button variant="default" size="sm" className="h-9 text-xs flex-1" onClick={handleGenerateFace} disabled={generatingFace}>
+                  <Button variant="default" size="sm" className="h-9 text-xs flex-1 min-w-35" onClick={handleGenerateFace} disabled={generatingFace}>
                     {generatingFace ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating...</> : <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Generate AI Face</>}
                   </Button>
                   <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
@@ -441,7 +441,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={2} placeholder="Caption with hashtags..." className="resize-none text-sm" />
               </div>
 
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <span className="px-2 py-1 rounded bg-muted">Kokoro TTS + Kling Avatar</span>
                 <span>720p</span>
                 <span>9:16</span>

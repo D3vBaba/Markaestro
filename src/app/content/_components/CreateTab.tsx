@@ -383,12 +383,12 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
 
         <div className="space-y-3">
           <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Content Type</label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {contentTypes.map((ct) => (
               <button
                 key={ct.value}
                 onClick={() => setContentType(ct.value)}
-                className={`text-center py-3 rounded-lg border text-sm transition-all ${
+                className={`text-center py-3 rounded-lg border text-xs sm:text-sm transition-all ${
                   contentType === ct.value
                     ? "border-foreground bg-foreground text-background font-medium"
                     : "border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground"

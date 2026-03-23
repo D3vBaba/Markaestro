@@ -28,7 +28,6 @@ export default function LandingPage() {
             <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition">Features</a>
             <a href="#channels" className="text-sm text-muted-foreground hover:text-foreground transition">Channels</a>
             <a href="#ai" className="text-sm text-muted-foreground hover:text-foreground transition">AI Studio</a>
-            <a href="#security" className="text-sm text-muted-foreground hover:text-foreground transition">Security</a>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -289,47 +288,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Security ─── */}
-      <section id="security" className="border-t">
-        <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Security</p>
-            <h2 className="mt-4 text-3xl font-normal tracking-tight text-foreground lg:text-4xl font-[family-name:var(--font-display)]">
-              Enterprise-grade security, <span className="text-primary">zero complexity</span>
-            </h2>
-            <p className="mt-5 text-muted-foreground">
-              Your credentials and data are protected with industry-standard encryption and infrastructure.
-            </p>
-          </div>
-
-          <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                title: "AES-256-GCM",
-                desc: "All OAuth tokens and API keys are encrypted at rest with AES-256-GCM before storage.",
-              },
-              {
-                title: "Secret Manager",
-                desc: "Server credentials stored in Google Cloud Secret Manager. Never in code or config files.",
-              },
-              {
-                title: "Firebase Auth",
-                desc: "Passwords handled by Firebase Authentication. We never see or store your password.",
-              },
-              {
-                title: "Google Cloud",
-                desc: "Hosted on Cloud Run with automatic scaling, TLS, and Google's infrastructure security.",
-              },
-            ].map(({ title, desc }) => (
-              <div key={title} className="rounded-2xl bg-background p-8 transition-all duration-300 hover:translate-y-[-2px] border border-border/40">
-                <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── CTA ─── */}
       <section className="border-t bg-primary text-white">
         <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
@@ -378,7 +336,6 @@ export default function LandingPage() {
                 <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition">Features</a>
                 <a href="#channels" className="text-sm text-muted-foreground hover:text-foreground transition">Channels</a>
                 <a href="#ai" className="text-sm text-muted-foreground hover:text-foreground transition">AI Studio</a>
-                <a href="#security" className="text-sm text-muted-foreground hover:text-foreground transition">Security</a>
               </div>
             </div>
 

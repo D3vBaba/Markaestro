@@ -40,7 +40,7 @@ env:
 
   # App URL for OAuth callbacks
   - variable: NEXT_PUBLIC_APP_URL
-    value: https://markaestro--markaestro-0226220726.us-central1.hosted.app
+    value: https://markaestro.com
     availability:
       - BUILD
       - RUNTIME

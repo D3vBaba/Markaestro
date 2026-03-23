@@ -43,10 +43,9 @@ export default function SettingsPage() {
     if (oauthResult === "success" && provider) {
       toast.success(`${provider === "meta" ? "Meta" : provider} connected successfully`);
       window.history.replaceState({}, "", "/settings");
-      // Small delay to ensure the OAuth callback's Firestore write has completed
       setTimeout(() => fetchIntegrations(), 500);
     } else if (oauthResult === "error" && provider) {
-      toast.error(`${provider} OAuth failed: ${message || "Unknown error"}`);
+      toast.error(`Failed to connect ${provider === "meta" ? "Meta" : provider}${message ? `: ${message}` : ""}`);
       window.history.replaceState({}, "", "/settings");
       fetchIntegrations();
     } else {
@@ -57,11 +56,8 @@ export default function SettingsPage() {
   const isConnected = (provider: string) =>
     integrations.find((i) => i.provider === provider)?.status === "connected";
 
-  const getIntegration = (provider: string) =>
-    integrations.find((i) => i.provider === provider);
-
   const needsReconnect = (provider: string) =>
-    getIntegration(provider)?.lastRefreshError != null;
+    integrations.find((i) => i.provider === provider)?.lastRefreshError != null;
 
   async function startOAuth(provider: string) {
     try {
@@ -70,10 +66,10 @@ export default function SettingsPage() {
         window.location.href = res.data.authUrl;
       } else {
         const errData = res.data as unknown as { error?: string };
-        toast.error(errData.error || `Failed to start ${provider} OAuth`);
+        toast.error(errData.error || `Failed to connect`);
       }
     } catch {
-      toast.error(`Failed to start ${provider} OAuth`);
+      toast.error(`Something went wrong. Please try again.`);
     }
   }
 
@@ -82,13 +78,13 @@ export default function SettingsPage() {
     try {
       const res = await apiPost(`/api/oauth/disconnect/${provider}`, {});
       if (res.ok) {
-        toast.success(`${provider === "meta" ? "Meta" : provider} disconnected`);
+        toast.success(`${provider === "meta" ? "Meta" : provider === "google" ? "Google Ads" : provider} disconnected`);
         fetchIntegrations();
       } else {
-        toast.error(`Failed to disconnect ${provider}`);
+        toast.error(`Failed to disconnect. Please try again.`);
       }
     } catch {
-      toast.error(`Failed to disconnect ${provider}`);
+      toast.error(`Something went wrong. Please try again.`);
     } finally {
       setDisconnecting(null);
     }
@@ -96,60 +92,78 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      <PageHeader title="Settings" subtitle="Integrations and workspace configuration." />
+      <PageHeader title="Settings" subtitle="Manage your connected accounts and workspace preferences." />
 
       <div className="grid gap-5">
         {/* Meta (Facebook + Instagram) */}
         <Card className="border-border/30">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle>Meta (Facebook + Instagram)</CardTitle>
                 <CardDescription>
-                  Connect your Meta account to publish to Facebook and Instagram. Each product can use a different page.
+                  Publish posts and run ad campaigns on Facebook and Instagram.
                 </CardDescription>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 {needsReconnect("meta") && (
                   <Badge className="bg-amber-50 text-amber-700 border-0">
-                    <AlertTriangle className="h-3 w-3 mr-1" /> Reconnect
+                    <AlertTriangle className="h-3 w-3 mr-1" /> Action needed
                   </Badge>
                 )}
-                {isConnected("meta") && <Badge className="bg-emerald-50 text-emerald-700 border-0">Connected</Badge>}
+                {isConnected("meta") && !needsReconnect("meta") && (
+                  <Badge className="bg-emerald-50 text-emerald-700 border-0">Connected</Badge>
+                )}
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {isConnected("meta") ? (
-              <div className="rounded-xl border p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">Connected via OAuth</p>
-                    {getIntegration("meta")?.tokenExpiresAt && (
-                      <p className="text-xs text-muted-foreground">
-                        Token expires: {new Date(getIntegration("meta")!.tokenExpiresAt!).toLocaleDateString()}
-                      </p>
-                    )}
+              <div className="rounded-xl border p-4 space-y-3">
+                {needsReconnect("meta") ? (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-amber-700">Your Meta connection needs to be refreshed</p>
+                    <p className="text-xs text-muted-foreground">
+                      This usually happens when permissions change or after an extended period. Reconnect to restore publishing.
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <Button size="sm" onClick={() => startOAuth("meta")}>
+                        Reconnect
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => disconnectProvider("meta")}
+                        disabled={disconnecting === "meta"}
+                      >
+                        {disconnecting === "meta" ? "Removing..." : "Remove"}
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => disconnectProvider("meta")}
-                    disabled={disconnecting === "meta"}
-                  >
-                    {disconnecting === "meta" ? "Disconnecting..." : "Disconnect"}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Select which Facebook page each product uses in{" "}
+                ) : (
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <p className="text-sm">Your Meta account is connected and ready to use.</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={() => disconnectProvider("meta")}
+                      disabled={disconnecting === "meta"}
+                    >
+                      {disconnecting === "meta" ? "Removing..." : "Disconnect"}
+                    </Button>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Choose which Facebook page each product posts to in{" "}
                   <a href="/products" className="text-primary hover:underline">Products → Edit</a>.
                 </p>
               </div>
             ) : (
-              <div>
-                <Button onClick={() => startOAuth("meta")}>Connect with Meta</Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  One connection covers all products. You&apos;ll choose a Facebook page per product afterwards.
+              <div className="space-y-2">
+                <Button onClick={() => startOAuth("meta")}>Connect Meta account</Button>
+                <p className="text-xs text-muted-foreground">
+                  One connection covers all your products. You can assign a different Facebook page to each product afterwards.
                 </p>
               </div>
             )}
@@ -159,53 +173,72 @@ export default function SettingsPage() {
         {/* Google Ads */}
         <Card className="border-border/30">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle>Google Ads</CardTitle>
-                <CardDescription>Connect Google Ads for ad campaign management across all products.</CardDescription>
+                <CardDescription>Create and manage ad campaigns on Google Search, Display, and YouTube.</CardDescription>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 {needsReconnect("google") && (
                   <Badge className="bg-amber-50 text-amber-700 border-0">
-                    <AlertTriangle className="h-3 w-3 mr-1" /> Reconnect
+                    <AlertTriangle className="h-3 w-3 mr-1" /> Action needed
                   </Badge>
                 )}
-                {isConnected("google") && <Badge className="bg-emerald-50 text-emerald-700 border-0">Connected</Badge>}
+                {isConnected("google") && !needsReconnect("google") && (
+                  <Badge className="bg-emerald-50 text-emerald-700 border-0">Connected</Badge>
+                )}
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {isConnected("google") ? (
               <div className="rounded-xl border p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">Connected via OAuth</p>
-                    {getIntegration("google")?.tokenExpiresAt && (
-                      <p className="text-xs text-muted-foreground">
-                        Token expires: {new Date(getIntegration("google")!.tokenExpiresAt!).toLocaleDateString()}
-                      </p>
-                    )}
+                {needsReconnect("google") ? (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-amber-700">Your Google Ads connection needs to be refreshed</p>
+                    <p className="text-xs text-muted-foreground">
+                      Reconnect to continue managing your ad campaigns.
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <Button size="sm" onClick={() => startOAuth("google")}>
+                        Reconnect
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => disconnectProvider("google")}
+                        disabled={disconnecting === "google"}
+                      >
+                        {disconnecting === "google" ? "Removing..." : "Remove"}
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => disconnectProvider("google")}
-                    disabled={disconnecting === "google"}
-                  >
-                    {disconnecting === "google" ? "Disconnecting..." : "Disconnect"}
-                  </Button>
-                </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <p className="text-sm">Your Google Ads account is connected and ready to use.</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={() => disconnectProvider("google")}
+                      disabled={disconnecting === "google"}
+                    >
+                      {disconnecting === "google" ? "Removing..." : "Disconnect"}
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : (
               <Button onClick={() => startOAuth("google")}>
-                Connect with Google
+                Connect Google Ads
               </Button>
             )}
           </CardContent>
         </Card>
 
+        {/* Other integrations note */}
         <p className="text-xs text-muted-foreground">
-          X, TikTok, and Resend (email) are configured per product on the{" "}
+          X (Twitter), TikTok, and email integrations are set up per product on the{" "}
           <a href="/products" className="text-primary hover:underline">Products page</a>.
         </p>
       </div>

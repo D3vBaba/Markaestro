@@ -155,8 +155,8 @@ export default function PerformanceTab({ refreshKey }: { refreshKey: number }) {
                 .map(([channel, cs]) => {
                   const pct = cs.total > 0 ? Math.round((cs.published / cs.total) * 100) : 0;
                   return (
-                    <div key={channel} className="flex items-center gap-4">
-                      <span className="text-xs font-medium w-24 shrink-0">
+                    <div key={channel} className="space-y-1.5 sm:space-y-0 sm:flex sm:items-center sm:gap-4">
+                      <span className="text-xs font-medium sm:w-24 sm:shrink-0 block">
                         {channelLabels[channel] || channel}
                       </span>
                       <div className="flex-1 min-w-0">
@@ -167,7 +167,7 @@ export default function PerformanceTab({ refreshKey }: { refreshKey: number }) {
                           />
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 text-[11px] text-muted-foreground shrink-0 tabular-nums">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground sm:shrink-0 tabular-nums">
                         <span><span className="font-medium text-foreground">{cs.published}</span> published</span>
                         {cs.scheduled > 0 && <span>{cs.scheduled} sched.</span>}
                         {cs.draft > 0 && <span>{cs.draft} draft</span>}

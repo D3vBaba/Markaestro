@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { navigationGroups, settingsItem } from "@/lib/nav";
 import { useAuth } from "@/components/providers/AuthProvider";
 import Link from "next/link";
@@ -34,6 +34,8 @@ export function Header() {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[300px] sm:w-[340px] p-0 border-r border-border/30 bg-sidebar">
+                    <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+                    <SheetDescription className="sr-only">Main navigation links</SheetDescription>
                     <div className="flex flex-col h-full p-6">
                         <div className="font-bold text-lg mb-10 flex items-center gap-3 text-sidebar-accent-foreground">
                             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden p-1.5">

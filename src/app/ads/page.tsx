@@ -1017,7 +1017,16 @@ export default function AdsPage() {
 
       {/* Main tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 mb-8 w-full overflow-x-auto flex-nowrap">
+        {/* Mobile: dropdown */}
+        <div className="sm:hidden mb-8">
+          <Select value={activeTab} onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}>
+            <option value="campaigns">Campaigns</option>
+            <option value="insights">Performance Insights</option>
+          </Select>
+        </div>
+
+        {/* Desktop: tab bar */}
+        <TabsList className="hidden sm:flex bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 mb-8 w-full">
           {[
             { value: "campaigns", label: "Campaigns" },
             { value: "insights", label: "Performance Insights" },
@@ -1025,7 +1034,7 @@ export default function AdsPage() {
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 sm:px-6 py-3 text-xs sm:text-sm font-medium tracking-wide uppercase text-muted-foreground data-[state=active]:text-foreground transition-colors whitespace-nowrap"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-sm font-medium tracking-wide uppercase text-muted-foreground data-[state=active]:text-foreground transition-colors whitespace-nowrap"
             >
               {tab.label}
             </TabsTrigger>
@@ -1084,11 +1093,11 @@ export default function AdsPage() {
                 )}
 
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground min-w-0">
                     {c.creative?.headline && (
-                      <span className="text-foreground/80 truncate max-w-[200px] sm:max-w-[250px]">&ldquo;{c.creative.headline}&rdquo;</span>
+                      <span className="text-foreground/80 truncate max-w-full sm:max-w-[250px]">&ldquo;{c.creative.headline}&rdquo;</span>
                     )}
-                    {c.createdAt && <span className="text-[11px]">Created {new Date(c.createdAt).toLocaleDateString()}</span>}
+                    {c.createdAt && <span className="text-[11px] shrink-0">Created {new Date(c.createdAt).toLocaleDateString()}</span>}
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5">
                     {c.status === "draft" && (
@@ -1568,11 +1577,11 @@ export default function AdsPage() {
                       <div className="space-y-2">
                         {campaignInsights[detailCampaign.id].improvements.map((imp, i) => (
                           <div key={i} className="p-3 rounded-lg border border-border/40">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className={`text-[10px] uppercase tracking-wider font-medium ${
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1">
+                              <span className={`text-[10px] uppercase tracking-wider font-medium shrink-0 ${
                                 imp.impact === "high" ? "text-destructive" : imp.impact === "medium" ? "text-amber-600" : "text-blue-600"
                               }`}>{imp.impact}</span>
-                              <p className="text-xs font-medium">{imp.area}: {imp.issue}</p>
+                              <p className="text-xs font-medium min-w-0">{imp.area}: {imp.issue}</p>
                             </div>
                             <p className="text-xs text-muted-foreground">{imp.suggestion}</p>
                           </div>
@@ -1600,7 +1609,11 @@ export default function AdsPage() {
                   {campaignInsights[detailCampaign.id].benchmarks && (
                     <div className="p-4 rounded-lg border border-border/40 text-xs space-y-1">
                       <p className="font-medium">Industry Benchmarks</p>
-                      <p className="text-muted-foreground">CTR: {campaignInsights[detailCampaign.id].benchmarks!.ctrBenchmark} | CPC: {campaignInsights[detailCampaign.id].benchmarks!.cpcBenchmark} | Verdict: <span className="font-medium text-foreground capitalize">{campaignInsights[detailCampaign.id].benchmarks!.verdict}</span></p>
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground">
+                        <span>CTR: {campaignInsights[detailCampaign.id].benchmarks!.ctrBenchmark}</span>
+                        <span>CPC: {campaignInsights[detailCampaign.id].benchmarks!.cpcBenchmark}</span>
+                        <span>Verdict: <span className="font-medium text-foreground capitalize">{campaignInsights[detailCampaign.id].benchmarks!.verdict}</span></span>
+                      </div>
                     </div>
                   )}
 
