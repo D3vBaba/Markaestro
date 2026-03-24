@@ -2,32 +2,36 @@
 
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-const data = [
-    { name: "Mon", sent: 4000, opened: 2400 },
-    { name: "Tue", sent: 3000, opened: 1398 },
-    { name: "Wed", sent: 2000, opened: 9800 },
-    { name: "Thu", sent: 2780, opened: 3908 },
-    { name: "Fri", sent: 1890, opened: 4800 },
-    { name: "Sat", sent: 2390, opened: 3800 },
-    { name: "Sun", sent: 3490, opened: 4300 },
-];
+type DailyPost = {
+  label: string;
+  published: number;
+  scheduled: number;
+};
 
-export function DashboardOverviewChart() {
+export function DashboardOverviewChart({ data }: { data: DailyPost[] }) {
+    if (!data || data.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-[350px] text-sm text-muted-foreground">
+                No post activity yet.
+            </div>
+        );
+    }
+
     return (
         <ResponsiveContainer width="100%" height={350}>
             <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
-                    <linearGradient id="colorSent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15} />
-                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                    <linearGradient id="colorPublished" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
-                    <linearGradient id="colorOpened" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#0f172a" stopOpacity={0.12} />
-                        <stop offset="95%" stopColor="#0f172a" stopOpacity={0} />
+                    <linearGradient id="colorScheduled" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.12} />
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                     </linearGradient>
                 </defs>
                 <XAxis
-                    dataKey="name"
+                    dataKey="label"
                     stroke="#a1a1aa"
                     fontSize={12}
                     tickLine={false}
@@ -39,7 +43,7 @@ export function DashboardOverviewChart() {
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `${value}`}
+                    allowDecimals={false}
                     dx={-10}
                 />
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" opacity={0.4} />
@@ -48,7 +52,7 @@ export function DashboardOverviewChart() {
                         backgroundColor: "#ffffff",
                         borderColor: "#e4e4e7",
                         borderRadius: "12px",
-                        boxShadow: "0 8px 30px rgba(37, 99, 235, 0.08)",
+                        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.06)",
                         color: "#18181b",
                         fontSize: "13px",
                     }}
@@ -56,18 +60,20 @@ export function DashboardOverviewChart() {
                 />
                 <Area
                     type="monotone"
-                    dataKey="sent"
-                    stroke="#2563eb"
+                    dataKey="published"
+                    name="Published"
+                    stroke="#10b981"
                     fillOpacity={1}
-                    fill="url(#colorSent)"
+                    fill="url(#colorPublished)"
                     strokeWidth={2}
                 />
                 <Area
                     type="monotone"
-                    dataKey="opened"
-                    stroke="#0f172a"
+                    dataKey="scheduled"
+                    name="Scheduled"
+                    stroke="#6366f1"
                     fillOpacity={1}
-                    fill="url(#colorOpened)"
+                    fill="url(#colorScheduled)"
                     strokeWidth={2}
                     strokeDasharray="6 4"
                 />

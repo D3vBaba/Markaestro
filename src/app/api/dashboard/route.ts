@@ -7,72 +7,106 @@ export async function GET(req: Request) {
     const ctx = await requireContext(req);
     const ws = ctx.workspaceId;
 
-    // Run aggregation queries in parallel
-    const [contactsSnap, campaignsSnap, automationsSnap, jobsSnap, productsSnap, recentRunsSnap] =
+    const [campaignsSnap, productsSnap, postsSnap, adCampaignsSnap, automationsSnap] =
       await Promise.all([
-        adminDb.collection(`workspaces/${ws}/contacts`).get(),
         adminDb.collection(`workspaces/${ws}/campaigns`).get(),
-        adminDb.collection(`workspaces/${ws}/automations`).get(),
-        adminDb.collection(`workspaces/${ws}/jobs`).get(),
         adminDb.collection(`workspaces/${ws}/products`).get(),
-        adminDb
-          .collection(`workspaces/${ws}/job_runs`)
-          .orderBy('startedAt', 'desc')
-          .limit(10)
-          .get(),
+        adminDb.collection(`workspaces/${ws}/posts`).get(),
+        adminDb.collection(`workspaces/${ws}/ad_campaigns`).get(),
+        adminDb.collection(`workspaces/${ws}/automations`).get(),
       ]);
 
-    // Compute contact stats
-    const contacts = contactsSnap.docs.map((d) => d.data());
-    const totalContacts = contacts.length;
-    const activeContacts = contacts.filter((c) => c.status === 'active').length;
-    const pendingContacts = contacts.filter((c) => c.status === 'pending').length;
-    const bouncedContacts = contacts.filter(
-      (c) => c.status === 'bounced' || c.status === 'unsubscribed',
-    ).length;
-
-    // Compute campaign stats
     const campaigns = campaignsSnap.docs.map((d) => d.data());
-    const totalCampaigns = campaigns.length;
+    const products = productsSnap.docs.map((d) => d.data());
+    const posts = postsSnap.docs.map((d) => d.data());
+    const adCampaigns = adCampaignsSnap.docs.map((d) => d.data());
+    const automations = automationsSnap.docs.map((d) => d.data());
+
+    // Campaign stats
     const activeCampaigns = campaigns.filter((c) => c.status === 'active').length;
     const draftCampaigns = campaigns.filter((c) => c.status === 'draft').length;
 
-    // Automations
-    const automations = automationsSnap.docs.map((d) => d.data());
-    const enabledAutomations = automations.filter((a) => a.enabled).length;
+    // Post stats
+    const publishedPosts = posts.filter((p) => p.status === 'published').length;
+    const scheduledPosts = posts.filter((p) => p.status === 'scheduled').length;
 
-    // Products
-    const products = productsSnap.docs.map((d) => d.data());
-    const activeProducts = products.filter((p) => p.status === 'active').length;
+    // Posts by channel
+    const postsByChannel: Record<string, number> = {};
+    for (const p of posts) {
+      const channel = p.channel || 'unknown';
+      postsByChannel[channel] = (postsByChannel[channel] || 0) + 1;
+    }
 
-    // Jobs
-    const jobs = jobsSnap.docs.map((d) => d.data());
-    const enabledJobs = jobs.filter((j) => j.enabled).length;
+    // Posts published per day (last 7 days)
+    const now = new Date();
+    const dailyPosts: { date: string; label: string; published: number; scheduled: number }[] = [];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const published = posts.filter(
+        (p) => p.status === 'published' && p.publishedAt && p.publishedAt.startsWith(dateStr),
+      ).length;
+      const scheduled = posts.filter(
+        (p) => p.status === 'scheduled' && p.scheduledAt && p.scheduledAt.startsWith(dateStr),
+      ).length;
+      dailyPosts.push({ date: dateStr, label: dayNames[d.getDay()], published, scheduled });
+    }
 
-    // Recent activity (from job runs)
-    const recentActivity = recentRunsSnap.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-    }));
+    // Ad campaign stats
+    const activeAds = adCampaigns.filter((a) => a.status === 'active').length;
+    let totalAdSpend = 0;
+    let totalAdImpressions = 0;
+    let totalAdClicks = 0;
+    for (const ad of adCampaigns) {
+      if (ad.metrics) {
+        totalAdSpend += ad.metrics.spend || 0;
+        totalAdImpressions += ad.metrics.impressions || 0;
+        totalAdClicks += ad.metrics.clicks || 0;
+      }
+    }
+
+    // Recent posts (latest 5 published or scheduled)
+    const recentPosts = postsSnap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((p: any) => p.status === 'published' || p.status === 'scheduled')
+      .sort((a: any, b: any) => {
+        const aDate = a.publishedAt || a.scheduledAt || a.createdAt || '';
+        const bDate = b.publishedAt || b.scheduledAt || b.createdAt || '';
+        return bDate.localeCompare(aDate);
+      })
+      .slice(0, 5)
+      .map((p: any) => ({
+        id: p.id,
+        channel: p.channel,
+        status: p.status,
+        content: (p.content || '').slice(0, 80),
+        date: p.publishedAt || p.scheduledAt || p.createdAt,
+      }));
 
     return apiOk({
       workspaceId: ws,
       metrics: {
-        totalContacts,
-        activeContacts,
-        pendingContacts,
-        bouncedContacts,
-        totalCampaigns,
+        totalProducts: products.length,
+        activeProducts: products.filter((p) => p.status === 'active').length,
+        totalCampaigns: campaigns.length,
         activeCampaigns,
         draftCampaigns,
+        totalPosts: posts.length,
+        publishedPosts,
+        scheduledPosts,
+        totalAdCampaigns: adCampaigns.length,
+        activeAds,
+        totalAdSpend,
+        totalAdImpressions,
+        totalAdClicks,
         totalAutomations: automations.length,
-        enabledAutomations,
-        totalProducts: products.length,
-        activeProducts,
-        totalJobs: jobs.length,
-        enabledJobs,
+        enabledAutomations: automations.filter((a) => a.enabled).length,
+        postsByChannel,
       },
-      recentActivity,
+      dailyPosts,
+      recentPosts,
     });
   } catch (error) {
     return apiError(error);

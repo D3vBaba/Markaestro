@@ -7,46 +7,25 @@ export async function GET(req: Request) {
     const ctx = await requireContext(req);
     const ws = ctx.workspaceId;
 
-    // Gather all data in parallel
-    const [contactsSnap, campaignsSnap, eventsSnap, productsSnap, jobRunsSnap, postsSnap, adCampaignsSnap] =
+    const [campaignsSnap, eventsSnap, productsSnap, postsSnap, adCampaignsSnap] =
       await Promise.all([
-        adminDb.collection(`workspaces/${ws}/contacts`).get(),
         adminDb.collection(`workspaces/${ws}/campaigns`).get(),
         adminDb.collection(`workspaces/${ws}/events`).orderBy('timestamp', 'desc').limit(500).get(),
         adminDb.collection(`workspaces/${ws}/products`).get(),
-        adminDb.collection(`workspaces/${ws}/job_runs`).orderBy('startedAt', 'desc').limit(100).get(),
         adminDb.collection(`workspaces/${ws}/posts`).get(),
         adminDb.collection(`workspaces/${ws}/ad_campaigns`).get(),
       ]);
 
-    const contacts = contactsSnap.docs.map((d) => d.data());
     const campaigns = campaignsSnap.docs.map((d) => d.data());
     const events = eventsSnap.docs.map((d) => d.data());
     const products = productsSnap.docs.map((d) => ({ id: d.id, ...(d.data() as { name: string; [key: string]: unknown }) }));
     const posts = postsSnap.docs.map((d) => d.data());
-
-    // Lifecycle funnel
-    const lifecycleFunnel = {
-      lead: contacts.filter((c) => c.lifecycleStage === 'lead' || !c.lifecycleStage).length,
-      trial: contacts.filter((c) => c.lifecycleStage === 'trial').length,
-      customer: contacts.filter((c) => c.lifecycleStage === 'customer').length,
-      churned: contacts.filter((c) => c.lifecycleStage === 'churned').length,
-      advocate: contacts.filter((c) => c.lifecycleStage === 'advocate').length,
-    };
-
-    // Source breakdown
-    const sourceBreakdown: Record<string, number> = {};
-    for (const c of contacts) {
-      const src = c.source || 'direct';
-      sourceBreakdown[src] = (sourceBreakdown[src] || 0) + 1;
-    }
 
     // Campaign performance
     const campaignStats = campaigns.map((c) => ({
       name: c.name,
       channel: c.channel,
       status: c.status,
-      lastSentCount: c.lastSentCount || 0,
     }));
 
     // Event counts by type
@@ -69,17 +48,12 @@ export async function GET(req: Request) {
       dailyActivity.push({ date: dateStr, events: count });
     }
 
-    // Job success rate
-    const jobRuns = jobRunsSnap.docs.map((d) => d.data());
-    const successRuns = jobRuns.filter((r) => r.status === 'success').length;
-    const failedRuns = jobRuns.filter((r) => r.status === 'failed').length;
-
-    // Per-product contact counts
+    // Per-product stats
     const productStats = products.map((p) => ({
       id: p.id,
       name: p.name,
-      contacts: contacts.filter((c) => c.productId === p.id).length,
       campaigns: campaigns.filter((c) => c.productId === p.id).length,
+      posts: posts.filter((post) => post.productId === p.id).length,
     }));
 
     // Post analytics
@@ -137,24 +111,15 @@ export async function GET(req: Request) {
 
     return apiOk({
       overview: {
-        totalContacts: contacts.length,
         totalCampaigns: campaigns.length,
         totalEvents: events.length,
         totalProducts: products.length,
         totalPosts: posts.length,
         totalAdCampaigns: adCampaigns.length,
       },
-      lifecycleFunnel,
-      sourceBreakdown,
       campaignStats,
       eventCounts,
       dailyActivity,
-      jobPerformance: {
-        totalRuns: jobRuns.length,
-        successRuns,
-        failedRuns,
-        successRate: jobRuns.length > 0 ? Math.round((successRuns / jobRuns.length) * 100) : 0,
-      },
       productStats,
       postStats: {
         total: posts.length,

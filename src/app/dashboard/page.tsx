@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpRight, Activity } from "lucide-react";
+import { ArrowUpRight, Send, Megaphone, Package } from "lucide-react";
 import { DashboardOverviewChart } from "@/components/dashboard/OverviewChart";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,23 +12,37 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 type DashboardMetrics = {
-  totalContacts: number;
-  activeContacts: number;
+  totalProducts: number;
+  activeProducts: number;
   totalCampaigns: number;
   activeCampaigns: number;
   draftCampaigns: number;
+  totalPosts: number;
+  publishedPosts: number;
+  scheduledPosts: number;
+  totalAdCampaigns: number;
+  activeAds: number;
+  totalAdSpend: number;
+  totalAdImpressions: number;
+  totalAdClicks: number;
   totalAutomations: number;
   enabledAutomations: number;
-  totalJobs: number;
-  enabledJobs: number;
+  postsByChannel: Record<string, number>;
 };
 
-type ActivityItem = {
+type DailyPost = {
+  date: string;
+  label: string;
+  published: number;
+  scheduled: number;
+};
+
+type RecentPost = {
   id: string;
-  jobId: string;
+  channel: string;
   status: string;
-  message: string;
-  startedAt: string;
+  content: string;
+  date: string;
 };
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
@@ -42,9 +56,16 @@ const fadeUp = {
   }),
 };
 
+const channelLabels: Record<string, string> = {
+  facebook: "Facebook",
+  instagram: "Instagram",
+  tiktok: "TikTok",
+};
+
 export default function Home() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [dailyPosts, setDailyPosts] = useState<DailyPost[]>([]);
+  const [recentPosts, setRecentPosts] = useState<RecentPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,11 +73,13 @@ export default function Home() {
       try {
         const res = await apiGet<{
           metrics: DashboardMetrics;
-          recentActivity: ActivityItem[];
+          dailyPosts: DailyPost[];
+          recentPosts: RecentPost[];
         }>("/api/dashboard");
         if (res.ok) {
           setMetrics(res.data.metrics);
-          setActivity(res.data.recentActivity || []);
+          setDailyPosts(res.data.dailyPosts || []);
+          setRecentPosts(res.data.recentPosts || []);
         }
       } catch {
         // silently fail — dashboard will show zeros
@@ -70,9 +93,14 @@ export default function Home() {
 
   const metricCards = [
     {
-      label: "Total Contacts",
-      value: loading ? "..." : (m?.totalContacts ?? 0).toLocaleString(),
-      detail: <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2"><ArrowUpRight className="h-3 w-3 mr-0.5" /> {m?.activeContacts ?? 0} active</span>,
+      label: "Products",
+      value: loading ? "..." : String(m?.totalProducts ?? 0),
+      detail: (
+        <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg">
+          <ArrowUpRight className="h-3 w-3 mr-0.5" /> {m?.activeProducts ?? 0} active
+        </span>
+      ),
+      icon: Package,
     },
     {
       label: "Campaigns",
@@ -83,16 +111,31 @@ export default function Home() {
           <span className="text-muted-foreground">{m?.draftCampaigns ?? 0} draft</span>
         </>
       ),
+      icon: Megaphone,
     },
     {
-      label: "Automations",
-      value: loading ? "..." : String(m?.totalAutomations ?? 0),
-      detail: <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.enabledAutomations ?? 0} enabled</span>,
+      label: "Posts",
+      value: loading ? "..." : String(m?.totalPosts ?? 0),
+      detail: (
+        <>
+          <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.publishedPosts ?? 0} published</span>
+          <span className="text-muted-foreground">{m?.scheduledPosts ?? 0} scheduled</span>
+        </>
+      ),
+      icon: Send,
     },
     {
-      label: "Scheduled Jobs",
-      value: loading ? "..." : String(m?.totalJobs ?? 0),
-      detail: <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2"><Activity className="h-3 w-3 mr-1" /> {m?.enabledJobs ?? 0} active</span>,
+      label: "Ad Campaigns",
+      value: loading ? "..." : String(m?.totalAdCampaigns ?? 0),
+      detail: (
+        <>
+          <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.activeAds ?? 0} active</span>
+          {(m?.totalAdSpend ?? 0) > 0 && (
+            <span className="text-muted-foreground">${((m?.totalAdSpend ?? 0) / 100).toLocaleString()} spent</span>
+          )}
+        </>
+      ),
+      icon: Megaphone,
     },
   ];
 
@@ -109,7 +152,7 @@ export default function Home() {
           <p className="text-sm text-muted-foreground mt-2">Welcome back to Markaestro.</p>
         </div>
         <div className="flex items-center space-x-3">
-          <Button variant="outline" className="bg-background rounded-xl">Export</Button>
+          <Link href="/content"><Button variant="outline" className="bg-background rounded-xl">New Post</Button></Link>
           <Link href="/campaigns"><Button className="rounded-xl">New Campaign</Button></Link>
         </div>
       </motion.div>
@@ -120,6 +163,7 @@ export default function Home() {
             <Card className="card-premium overflow-hidden border-border/40">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{card.label}</CardTitle>
+                <card.icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold tracking-tight">{card.value}</div>
@@ -139,14 +183,15 @@ export default function Home() {
         >
           <Card className="border-border/40">
             <CardHeader>
-              <CardTitle className="text-base font-semibold">Overview</CardTitle>
-              <CardDescription>Email engagement statistics for the last 7 days.</CardDescription>
+              <CardTitle className="text-base font-semibold">Publishing Activity</CardTitle>
+              <CardDescription>Posts published and scheduled over the last 7 days.</CardDescription>
             </CardHeader>
             <CardContent className="pl-0">
-              <DashboardOverviewChart />
+              <DashboardOverviewChart data={dailyPosts} />
             </CardContent>
           </Card>
         </motion.div>
+
         <motion.div
           className="md:col-span-2 lg:col-span-3"
           initial={{ opacity: 0, y: 12 }}
@@ -155,38 +200,38 @@ export default function Home() {
         >
           <Card className="border-border/40">
             <CardHeader>
-              <CardTitle className="text-base font-semibold">Recent Activity</CardTitle>
-              <CardDescription>Latest job executions and campaign events.</CardDescription>
+              <CardTitle className="text-base font-semibold">Recent Posts</CardTitle>
+              <CardDescription>Latest published and scheduled content.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-5">
-                {activity.length > 0 ? (
-                  activity.slice(0, 5).map((item) => (
-                    <div key={item.id} className="flex items-start justify-between group">
+                {recentPosts.length > 0 ? (
+                  recentPosts.map((post) => (
+                    <div key={post.id} className="flex items-start justify-between group">
                       <div className="flex gap-3">
                         <div className="mt-1.5 h-2 w-2 rounded-full bg-border group-hover:bg-primary transition-colors shrink-0" />
                         <div className="grid gap-1">
-                          <p className="text-sm font-medium leading-none text-foreground">
-                            {item.message}
+                          <p className="text-sm font-medium leading-none text-foreground line-clamp-1">
+                            {post.content || "Untitled post"}
                           </p>
-                          <p className="text-xs text-muted-foreground">Job: {item.jobId}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {channelLabels[post.channel] || post.channel}
+                          </p>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
+                      <div className="flex flex-col items-end gap-1 shrink-0 ml-3">
                         <Badge
                           variant="secondary"
                           className={`text-[10px] font-medium h-5 border-0 ${
-                            item.status === "success"
+                            post.status === "published"
                               ? "bg-emerald-50 text-emerald-700"
-                              : item.status === "failed"
-                              ? "bg-rose-50 text-rose-700"
-                              : "bg-muted text-foreground"
+                              : "bg-blue-50 text-blue-700"
                           }`}
                         >
-                          {item.status}
+                          {post.status}
                         </Badge>
                         <span className="text-[10px] text-muted-foreground">
-                          {item.startedAt ? new Date(item.startedAt).toLocaleString() : ""}
+                          {post.date ? new Date(post.date).toLocaleDateString() : ""}
                         </span>
                       </div>
                     </div>
@@ -194,10 +239,10 @@ export default function Home() {
                 ) : (
                   <div className="py-8 text-center">
                     <div className="h-10 w-10 rounded-xl bg-primary mx-auto mb-3 flex items-center justify-center">
-                      <Activity className="h-4 w-4 text-white" />
+                      <Send className="h-4 w-4 text-white" />
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {loading ? "Loading..." : "No recent activity. Run a job to see results here."}
+                      {loading ? "Loading..." : "No posts yet. Create your first post to see activity here."}
                     </p>
                   </div>
                 )}
