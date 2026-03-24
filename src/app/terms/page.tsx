@@ -26,7 +26,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-foreground">2. Description of Service</h2>
           <p className="mt-3">
-            Markaestro is a marketing automation platform for managing products, brand voice settings, content generation, social publishing, ad campaigns, automations, contact management, and analytics. The Services may integrate with third-party platforms including TikTok, Meta, Google, Firebase, and other services made available by Markaestro from time to time.
+            Markaestro is a marketing automation platform for managing products, brand voice settings, content generation, social publishing, ad campaigns, and analytics. The Services may integrate with third-party platforms including TikTok, Meta, Google, Firebase, and other services made available by Markaestro from time to time.
           </p>
         </section>
 

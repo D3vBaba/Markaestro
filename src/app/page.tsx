@@ -135,10 +135,6 @@ export default function LandingPage() {
                 desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity.",
               },
               {
-                title: "Automations & Scheduling",
-                desc: "Set up recurring jobs, drip sequences, and event-triggered workflows. Runs unattended on a configurable schedule.",
-              },
-              {
                 title: "Analytics Dashboard",
                 desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time.",
               },

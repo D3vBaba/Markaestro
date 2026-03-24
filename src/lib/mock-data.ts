@@ -1,7 +1,6 @@
 import {
     LayoutDashboard,
     Mail,
-    Workflow,
     BarChart3,
     Settings,
     LogOut
@@ -17,7 +16,6 @@ export const currentUser = {
 export const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Campaigns", href: "/campaigns", icon: Mail },
-    { name: "Automations", href: "/automations", icon: Workflow },
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
     { name: "Settings", href: "/settings", icon: Settings },
 ];

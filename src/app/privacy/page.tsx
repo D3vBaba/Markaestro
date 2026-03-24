@@ -65,7 +65,7 @@ export default function PrivacyPage() {
             <ul className="list-disc space-y-1 pl-6">
               <li>provide, secure, maintain, troubleshoot, and improve the Services;</li>
               <li>authenticate users and enforce workspace access controls;</li>
-              <li>store and manage campaigns, contacts, products, brand settings, automations, posts, and ad configurations;</li>
+              <li>store and manage campaigns, products, brand settings, posts, and ad configurations;</li>
               <li>publish or schedule content and create or synchronize campaigns with connected third-party services when directed by you;</li>
               <li>generate text, images, insights, and recommendations using AI providers based on your prompts, brand inputs, and workspace content;</li>
               <li>calculate and display dashboards, analytics, attribution, and performance summaries;</li>

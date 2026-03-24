@@ -7,21 +7,18 @@ export async function GET(req: Request) {
     const ctx = await requireContext(req);
     const ws = ctx.workspaceId;
 
-    const [campaignsSnap, productsSnap, postsSnap, adCampaignsSnap, automationsSnap] =
+    const [campaignsSnap, productsSnap, postsSnap, adCampaignsSnap] =
       await Promise.all([
         adminDb.collection(`workspaces/${ws}/campaigns`).get(),
         adminDb.collection(`workspaces/${ws}/products`).get(),
         adminDb.collection(`workspaces/${ws}/posts`).get(),
         adminDb.collection(`workspaces/${ws}/ad_campaigns`).get(),
-        adminDb.collection(`workspaces/${ws}/automations`).get(),
       ]);
 
     const campaigns = campaignsSnap.docs.map((d) => d.data());
     const products = productsSnap.docs.map((d) => d.data());
     const posts = postsSnap.docs.map((d) => d.data());
     const adCampaigns = adCampaignsSnap.docs.map((d) => d.data());
-    const automations = automationsSnap.docs.map((d) => d.data());
-
     // Campaign stats
     const activeCampaigns = campaigns.filter((c) => c.status === 'active').length;
     const draftCampaigns = campaigns.filter((c) => c.status === 'draft').length;
@@ -101,8 +98,6 @@ export async function GET(req: Request) {
         totalAdSpend,
         totalAdImpressions,
         totalAdClicks,
-        totalAutomations: automations.length,
-        enabledAutomations: automations.filter((a) => a.enabled).length,
         postsByChannel,
       },
       dailyPosts,

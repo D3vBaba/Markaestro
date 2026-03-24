@@ -25,8 +25,6 @@ type DashboardMetrics = {
   totalAdSpend: number;
   totalAdImpressions: number;
   totalAdClicks: number;
-  totalAutomations: number;
-  enabledAutomations: number;
   postsByChannel: Record<string, number>;
 };
 
