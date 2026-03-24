@@ -76,6 +76,8 @@ env:
     secret: TIKTOK_CLIENT_KEY
   - variable: TIKTOK_CLIENT_SECRET
     secret: TIKTOK_CLIENT_SECRET
+  - variable: TIKTOK_ADS_APP_ID
+    secret: TIKTOK_ADS_APP_ID
   - variable: TIKTOK_ADS_CLIENT_KEY
     secret: TIKTOK_ADS_CLIENT_KEY
   - variable: TIKTOK_ADS_CLIENT_SECRET

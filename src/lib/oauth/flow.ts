@@ -52,10 +52,13 @@ export async function generateAuthUrl(
   };
 
   // TikTok Marketing API uses a different auth format
+  // app_id is the numeric App ID, not the client key
   if (provider === 'tiktok_ads') {
+    const tiktokAdsAppId = process.env.TIKTOK_ADS_APP_ID || '';
+    if (!tiktokAdsAppId) throw new Error('TIKTOK_ADS_APP_ID not configured');
     await adminDb.doc(`oauth_states/${stateId}`).set(stateDoc);
     const params = new URLSearchParams({
-      app_id: clientId,
+      app_id: tiktokAdsAppId,
       redirect_uri: redirectUri,
       state: stateId,
     });
@@ -125,11 +128,12 @@ export async function exchangeCode(
 
   // TikTok Marketing API uses a JSON body with different field names
   if (provider === 'tiktok_ads') {
+    const tiktokAdsAppId = process.env.TIKTOK_ADS_APP_ID || '';
     const res = await fetch(config.tokenUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        app_id: clientId,
+        app_id: tiktokAdsAppId,
         secret: clientSecret,
         auth_code: code,
       }),
