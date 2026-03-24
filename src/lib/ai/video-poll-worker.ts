@@ -66,7 +66,7 @@ async function pollSingleGeneration(
       status: 'draft',
       scheduledAt: null,
       mediaUrls: [storageUrl],
-      productId: gen.productId || '',
+      ...(gen.productId ? { productId: gen.productId } : {}),
       generatedBy: gen.provider === 'multitalk' ? 'ugc-pipeline' : 'video-pipeline',
       campaignId: '',
       videoGenerationId: docId,

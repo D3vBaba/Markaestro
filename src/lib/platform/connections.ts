@@ -94,9 +94,41 @@ export async function getConnectionForChannel(
     // Fall back to workspace-level
     const conn = await getConnection(workspaceId, provider);
     if (conn && conn.status === 'connected') return conn;
+
+    // TikTok/TikTok Ads are product-scoped. If no productId was provided and
+    // there is exactly one connected product-level integration in the workspace,
+    // use it as a safe fallback.
+    if (!productId) {
+      const soleConn = await getSoleProductScopedConnection(workspaceId, provider);
+      if (soleConn) return soleConn;
+    }
   }
 
   return null;
+}
+
+async function getSoleProductScopedConnection(
+  workspaceId: string,
+  provider: string,
+): Promise<PlatformConnection | null> {
+  const productsSnap = await adminDb
+    .collection(`workspaces/${workspaceId}/products`)
+    .limit(100)
+    .get();
+
+  let found: PlatformConnection | null = null;
+
+  for (const product of productsSnap.docs) {
+    const conn = await getConnection(workspaceId, provider, product.id);
+    if (!conn || conn.status !== 'connected') continue;
+
+    if (found) {
+      return null;
+    }
+    found = conn;
+  }
+
+  return found;
 }
 
 /**

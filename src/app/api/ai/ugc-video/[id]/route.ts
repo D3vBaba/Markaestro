@@ -48,7 +48,7 @@ export async function GET(
         status: 'draft',
         scheduledAt: null,
         mediaUrls: [storageUrl],
-        productId: gen.productId || '',
+        ...(gen.productId ? { productId: gen.productId } : {}),
         generatedBy: 'ugc-pipeline',
         campaignId: '',
         videoGenerationId: id,
