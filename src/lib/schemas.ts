@@ -248,7 +248,7 @@ export const metaIntegrationSchema = z.object({
 
 // ── Video Generation Schema ───────────────────────────────────────
 
-export const videoProviders = ['kling', 'veo', 'sora', 'kling-avatar'] as const;
+export const videoProviders = ['kling', 'veo', 'sora', 'kling-avatar', 'product-scene'] as const;
 export const videoStatuses = ['pending', 'generating', 'completed', 'failed'] as const;
 
 export const tiktokTrendStatuses = ['suggested', 'approved', 'used', 'dismissed'] as const;
@@ -291,6 +291,30 @@ export const videoGenerationSchema = z.object({
   errorMessage: z.string().trim().max(2000).default(''),
   createdAt: z.string().datetime(),
   completedAt: z.string().datetime().nullable().optional(),
+});
+
+// ── Product Scene Schema ─────────────────────────────────────────
+
+export const productSceneTypes = ['product-in-hand', 'unboxing', 'routine', 'before-after', 'lifestyle'] as const;
+export type ProductSceneType = typeof productSceneTypes[number];
+
+export const productSceneSchema = z.object({
+  productId: z.string().trim().min(1),
+  sceneType: z.enum(productSceneTypes),
+  avatarImageUrl: z.string().trim().url().optional(),
+  productImageUrl: z.string().trim().url().optional(),
+  sceneDescription: z.string().trim().max(2000).optional(),
+  /** Which model animates the scene image */
+  provider: z.enum(['kling', 'veo']).default('kling'),
+  durationSeconds: z.number().int().min(5).max(10).default(5),
+  voiceover: z.object({
+    script: z.string().trim().max(4000),
+    voice: z.string().trim(),
+    speed: z.number().min(0.5).max(2.0).default(1.0),
+  }).optional(),
+  caption: z.string().trim().max(2200).default(''),
+  hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
+  trendId: z.string().trim().optional(),
 });
 
 // ── Image Generation Schema ───────────────────────────────────────

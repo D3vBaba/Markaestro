@@ -17,9 +17,13 @@ import {
   User,
   RotateCcw,
   Upload,
+  Package,
+  Mic,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────
+
+type VideoFormat = "ugc" | "product-scene";
 
 type Trend = {
   id: string;
@@ -51,14 +55,25 @@ type VideoGeneration = {
   videoUrl: string;
   errorMessage: string;
   postId?: string;
+  sceneImageUrl?: string;
 };
 
+type ProductSceneType = "product-in-hand" | "unboxing" | "routine" | "before-after" | "lifestyle";
+
 const SCRIPT_STYLES = [
-  { value: "problem-solution", label: "Problem → Solution", desc: "Relatable pain point, then the fix" },
+  { value: "problem-solution", label: "Problem \u2192 Solution", desc: "Relatable pain point, then the fix" },
   { value: "testimonial", label: "Testimonial", desc: "Personal experience story" },
   { value: "review", label: "Honest Review", desc: "Candid first impression" },
   { value: "routine", label: "Routine", desc: "Product in daily life" },
   { value: "comparison", label: "Comparison", desc: "Before vs. after switching" },
+];
+
+const SCENE_TYPES: { value: ProductSceneType; label: string; desc: string }[] = [
+  { value: "product-in-hand", label: "Product in Hand", desc: "Character holding or examining the product" },
+  { value: "unboxing", label: "Unboxing", desc: "Opening and revealing the product" },
+  { value: "routine", label: "Routine / GRWM", desc: "Using product in daily routine" },
+  { value: "before-after", label: "Before / After", desc: "Transformation moment with product" },
+  { value: "lifestyle", label: "Lifestyle", desc: "Candid moment with product visible" },
 ];
 
 const VOICES = {
@@ -84,11 +99,10 @@ const VOICES = {
 
 // ── Step indicator ─────────────────────────────────────────────────
 
-function StepIndicator({ step }: { step: number }) {
-  const steps = ["Product", "Trends", "Script", "Avatar & Voice", "Generate"];
+function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5 mb-8">
-      {steps.map((label, i) => (
+      {labels.map((label, i) => (
         <div key={label} className="flex items-center gap-1.5 shrink-0">
           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold transition-all ${
             i < step ? "bg-foreground text-background" : i === step ? "bg-foreground text-background ring-2 ring-foreground/20 ring-offset-2 ring-offset-background" : "bg-muted text-muted-foreground"
@@ -96,7 +110,7 @@ function StepIndicator({ step }: { step: number }) {
             {i < step ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
           </div>
           <span className={`text-[11px] font-medium hidden sm:inline ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-          {i < steps.length - 1 && <ChevronRight className="w-3 h-3 text-muted-foreground/30" />}
+          {i < labels.length - 1 && <ChevronRight className="w-3 h-3 text-muted-foreground/30" />}
         </div>
       ))}
     </div>
@@ -127,6 +141,7 @@ function TrendCard({ trend, selected, onSelect }: { trend: Trend; selected: bool
 
 export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () => void }) {
   const [productId, setProductId] = useState("");
+  const [videoFormat, setVideoFormat] = useState<VideoFormat>("ugc");
 
   // Trends
   const [trends, setTrends] = useState<Trend[]>([]);
@@ -134,14 +149,14 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   const [selectedTrend, setSelectedTrend] = useState<Trend | null>(null);
   const [focusArea, setFocusArea] = useState("");
 
-  // Script
+  // Script (shared between UGC and product-scene voiceover)
   const [scriptStyle, setScriptStyle] = useState("problem-solution");
   const [scriptDuration, setScriptDuration] = useState(30);
   const [writingScript, setWritingScript] = useState(false);
   const [script, setScript] = useState<UGCScript | null>(null);
   const [editedScript, setEditedScript] = useState("");
 
-  // Avatar & Voice
+  // Avatar & Voice (shared)
   const [savedAvatars, setSavedAvatars] = useState<SavedAvatar[]>([]);
   const [selectedAvatarUrl, setSelectedAvatarUrl] = useState("");
   const [voice, setVoice] = useState("af_heart");
@@ -151,13 +166,39 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   const [faceGender, setFaceGender] = useState<"male" | "female">("female");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Product Scene specific
+  const [sceneType, setSceneType] = useState<ProductSceneType>("product-in-hand");
+  const [sceneDescription, setSceneDescription] = useState("");
+  const [productImageUrl, setProductImageUrl] = useState("");
+  const [uploadingProductImage, setUploadingProductImage] = useState(false);
+  const [wantsVoiceover, setWantsVoiceover] = useState(false);
+  const productImageInputRef = useRef<HTMLInputElement>(null);
+
   // Generate
   const [caption, setCaption] = useState("");
   const [generating, setGenerating] = useState(false);
   const [generation, setGeneration] = useState<VideoGeneration | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const currentStep = !productId ? 0 : !selectedTrend ? 1 : !script ? 2 : !selectedAvatarUrl ? 3 : 4;
+  // Step labels per format
+  const stepLabels = videoFormat === "ugc"
+    ? ["Product", "Trends", "Script", "Avatar & Voice", "Generate"]
+    : ["Product", "Trends", "Scene Setup", "Voiceover", "Generate"];
+
+  // Current step calculation
+  const currentStep = (() => {
+    if (!productId) return 0;
+    if (!selectedTrend) return 1;
+    if (videoFormat === "ugc") {
+      if (!script) return 2;
+      if (!selectedAvatarUrl) return 3;
+      return 4;
+    }
+    // product-scene
+    if (!sceneType) return 2;
+    if (wantsVoiceover && !script) return 3;
+    return 4;
+  })();
 
   useEffect(() => { return () => { if (pollRef.current) clearInterval(pollRef.current); }; }, []);
 
@@ -204,7 +245,6 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
       if (uploadRes.ok) {
         const url = uploadRes.data.url;
         setSelectedAvatarUrl(url);
-        // Save to workspace avatars
         const name = avatarName || file.name.replace(/\.[^.]+$/, '');
         const saveRes = await apiPost<SavedAvatar>("/api/ai/ugc-avatars", { name, imageUrl: url });
         if (saveRes.ok) { setSavedAvatars((prev) => [saveRes.data, ...prev]); }
@@ -213,6 +253,20 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
       } else toast.error("Upload failed");
     } catch { toast.error("Upload failed"); }
     finally { setUploading(false); }
+  };
+
+  // ── Product image upload ───────────────────────────────────────
+
+  const handleUploadProductImage = async (file: File) => {
+    if (file.size > 10 * 1024 * 1024) { toast.error("File must be under 10 MB"); return; }
+    setUploadingProductImage(true);
+    try {
+      const fd = new FormData(); fd.append("image", file);
+      const uploadRes = await apiUpload<{ ok: boolean; url: string }>("/api/ai/images", fd);
+      if (uploadRes.ok) { setProductImageUrl(uploadRes.data.url); toast.success("Product image uploaded"); }
+      else toast.error("Upload failed");
+    } catch { toast.error("Upload failed"); }
+    finally { setUploadingProductImage(false); }
   };
 
   // ── Generate face ───────────────────────────────────────────────
@@ -249,7 +303,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
           setGeneration(res.data);
           if (res.data.status === "completed" || res.data.status === "failed") {
             if (pollRef.current) clearInterval(pollRef.current); pollRef.current = null;
-            if (res.data.status === "completed") { toast.success("UGC video ready! Draft post created."); onPostCreated?.(); }
+            if (res.data.status === "completed") { toast.success("Video ready! Draft post created."); onPostCreated?.(); }
             else toast.error(res.data.errorMessage || "Video generation failed");
           }
         }
@@ -257,7 +311,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
     }, 8000);
   }, [onPostCreated]);
 
-  const handleGenerate = async () => {
+  const handleGenerateUGC = async () => {
     if (!editedScript || !selectedAvatarUrl) return;
     setGenerating(true); setGeneration(null);
     try {
@@ -276,20 +330,77 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
     finally { setGenerating(false); }
   };
 
+  const handleGenerateScene = async () => {
+    setGenerating(true); setGeneration(null);
+    try {
+      const res = await apiPost<VideoGeneration>("/api/ai/product-scene", {
+        productId,
+        sceneType,
+        avatarImageUrl: selectedAvatarUrl || undefined,
+        productImageUrl: productImageUrl || undefined,
+        sceneDescription: sceneDescription || undefined,
+        provider: "kling",
+        durationSeconds: 5,
+        voiceover: wantsVoiceover && editedScript ? { script: editedScript, voice, speed: 1.0 } : undefined,
+        caption,
+        hashtags: selectedTrend?.hashtags || [],
+        trendId: selectedTrend?.id || undefined,
+      });
+      if (res.ok) { setGeneration(res.data); toast.success("Product scene generation started"); startPolling(res.data.id); }
+      else { const e = res.data as unknown as { error?: string }; toast.error(e.error || "Failed to start"); }
+    } catch { toast.error("Failed to start scene generation"); }
+    finally { setGenerating(false); }
+  };
+
+  const handleGenerate = videoFormat === "ugc" ? handleGenerateUGC : handleGenerateScene;
+
   const handleReset = () => {
     setTrends([]); setSelectedTrend(null); setScript(null); setEditedScript("");
     setSelectedAvatarUrl(""); setCaption(""); setGeneration(null);
+    setSceneDescription(""); setProductImageUrl(""); setWantsVoiceover(false);
     if (pollRef.current) clearInterval(pollRef.current);
   };
 
+  // Can we proceed to generate?
+  const canGenerate = videoFormat === "ugc"
+    ? !!(selectedAvatarUrl && script)
+    : !!(selectedTrend && sceneType && (!wantsVoiceover || editedScript));
+
   return (
     <div className="space-y-6 max-w-3xl">
-      <StepIndicator step={currentStep} />
+      <StepIndicator step={currentStep} labels={stepLabels} />
 
       <ProductPicker value={productId} onChange={setProductId} />
 
       {productId && (
         <>
+          {/* Format selector */}
+          <div className="space-y-3">
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Video Format</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => { setVideoFormat("ugc"); handleReset(); }}
+                className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "ugc" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <User className="w-4 h-4" />
+                  <span className="text-sm font-medium">UGC Talking Head</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">AI avatar speaks your script with lip sync</p>
+              </button>
+              <button
+                onClick={() => { setVideoFormat("product-scene"); handleReset(); }}
+                className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "product-scene" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Package className="w-4 h-4" />
+                  <span className="text-sm font-medium">Product Scene</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">Character interacting with your product, animated into video</p>
+              </button>
+            </div>
+          </div>
+
           {/* Research */}
           <div className="space-y-3">
             <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Focus Area (optional)</label>
@@ -312,8 +423,8 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </div>
           )}
 
-          {/* Script */}
-          {selectedTrend && (
+          {/* ── UGC: Script step ─────────────────────────────────── */}
+          {videoFormat === "ugc" && selectedTrend && (
             <div className="space-y-4 border-t border-border/30 pt-6">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-muted-foreground" />
@@ -358,15 +469,14 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </div>
           )}
 
-          {/* Avatar & Voice */}
-          {script && (
+          {/* ── UGC: Avatar & Voice step ─────────────────────────── */}
+          {videoFormat === "ugc" && script && (
             <div className="space-y-4 border-t border-border/30 pt-6">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-muted-foreground" />
                 <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Avatar Face & Voice</label>
               </div>
 
-              {/* Saved avatars */}
               {savedAvatars.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-[11px] text-muted-foreground">Your Avatars</label>
@@ -386,14 +496,12 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 </div>
               )}
 
-              {/* Generate AI face or upload */}
               <div className="space-y-3">
                 <label className="text-[11px] text-muted-foreground font-medium">Add New Creator</label>
                 <div className="flex gap-2">
                   <input type="text" placeholder="Creator name..." value={avatarName} onChange={(e) => setAvatarName(e.target.value)} className="flex-1 h-9 rounded-lg border border-border/60 bg-background px-3 text-xs" />
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {/* Gender toggle for face gen */}
                   <div className="flex rounded-md border border-border/60 overflow-hidden">
                     {(["female", "male"] as const).map((g) => (
                       <button key={g} onClick={() => setFaceGender(g)} className={`px-3 py-1.5 text-[11px] transition-all ${faceGender === g ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:text-foreground"}`}>
@@ -412,7 +520,6 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 <p className="text-[10px] text-muted-foreground/60">Generate a realistic AI face or upload your own. Clear, front-facing, good lighting.</p>
               </div>
 
-              {/* Voice picker */}
               <div className="space-y-2">
                 <label className="text-[11px] text-muted-foreground font-medium">Voice</label>
                 <div className="space-y-1.5">
@@ -433,8 +540,164 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </div>
           )}
 
-          {/* Generate */}
-          {selectedAvatarUrl && script && (
+          {/* ── Product Scene: Scene Setup step ─────────────────── */}
+          {videoFormat === "product-scene" && selectedTrend && (
+            <div className="space-y-4 border-t border-border/30 pt-6">
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-muted-foreground" />
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Scene Setup</label>
+              </div>
+
+              {/* Scene type picker */}
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Scene Type</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {SCENE_TYPES.map((s) => (
+                    <button key={s.value} onClick={() => setSceneType(s.value)} className={`text-left p-3 rounded-lg border text-xs transition-all ${sceneType === s.value ? "border-foreground bg-foreground/5" : "border-border/50 text-muted-foreground hover:border-foreground/30"}`}>
+                      <p className="font-medium text-foreground">{s.label}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Product image upload */}
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Product Photo (optional)</label>
+                <div className="flex items-center gap-3">
+                  {productImageUrl && (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-border/60">
+                      <img src={productImageUrl} alt="Product" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => productImageInputRef.current?.click()} disabled={uploadingProductImage}>
+                    {uploadingProductImage ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Upload className="w-3.5 h-3.5 mr-1.5" />{productImageUrl ? "Replace" : "Upload Product Photo"}</>}
+                  </Button>
+                  <input ref={productImageInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUploadProductImage(f); e.target.value = ""; }} />
+                </div>
+                <p className="text-[10px] text-muted-foreground/60">Upload a clear photo of your product for better visual accuracy.</p>
+              </div>
+
+              {/* Character / Avatar selection (optional) */}
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Character (optional)</label>
+                {savedAvatars.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    {savedAvatars.map((a) => (
+                      <button key={a.id} onClick={() => setSelectedAvatarUrl(selectedAvatarUrl === a.imageUrl ? "" : a.imageUrl)} className={`relative rounded-lg overflow-hidden border-2 transition-all ${selectedAvatarUrl === a.imageUrl ? "border-foreground shadow-md" : "border-transparent hover:border-foreground/30"}`}>
+                        <img src={a.imageUrl} alt={a.name} className="w-full aspect-square object-cover" loading="lazy" />
+                        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-1">
+                          <p className="text-white text-[9px] font-medium truncate">{a.name}</p>
+                        </div>
+                        {selectedAvatarUrl === a.imageUrl && (
+                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground flex items-center justify-center"><CheckCircle2 className="w-2.5 h-2.5 text-background" /></div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex rounded-md border border-border/60 overflow-hidden">
+                    {(["female", "male"] as const).map((g) => (
+                      <button key={g} onClick={() => setFaceGender(g)} className={`px-3 py-1.5 text-[11px] transition-all ${faceGender === g ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:text-foreground"}`}>
+                        {g === "female" ? "Female" : "Male"}
+                      </button>
+                    ))}
+                  </div>
+                  <Button variant="default" size="sm" className="h-9 text-xs" onClick={handleGenerateFace} disabled={generatingFace}>
+                    {generatingFace ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating...</> : <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Generate AI Face</>}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Custom scene description */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] text-muted-foreground font-medium">Custom Scene Description (optional)</label>
+                <Textarea value={sceneDescription} onChange={(e) => setSceneDescription(e.target.value)} rows={3} placeholder='e.g. "Woman lifting the serum bottle from a marble countertop, soft morning light..."' className="resize-none text-sm" />
+              </div>
+            </div>
+          )}
+
+          {/* ── Product Scene: Voiceover step ───────────────────── */}
+          {videoFormat === "product-scene" && selectedTrend && sceneType && (
+            <div className="space-y-4 border-t border-border/30 pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Mic className="w-4 h-4 text-muted-foreground" />
+                  <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Voiceover</label>
+                </div>
+                <button
+                  onClick={() => setWantsVoiceover(!wantsVoiceover)}
+                  className={`relative w-10 h-5 rounded-full transition-colors ${wantsVoiceover ? "bg-foreground" : "bg-muted"}`}
+                >
+                  <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-background shadow-sm transition-transform ${wantsVoiceover ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+
+              {wantsVoiceover && (
+                <div className="space-y-4">
+                  {/* Script writer */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {SCRIPT_STYLES.map((s) => (
+                      <button key={s.value} onClick={() => setScriptStyle(s.value)} className={`text-left p-3 rounded-lg border text-xs transition-all ${scriptStyle === s.value ? "border-foreground bg-foreground/5" : "border-border/50 text-muted-foreground hover:border-foreground/30"}`}>
+                        <p className="font-medium text-foreground">{s.label}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="text-xs text-muted-foreground">Duration:</label>
+                    {[15, 30, 45, 60].map((d) => (
+                      <button key={d} onClick={() => setScriptDuration(d)} className={`px-3 py-1.5 rounded-md text-xs transition-all ${scriptDuration === d ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{d}s</button>
+                    ))}
+                  </div>
+
+                  <Button onClick={handleWriteScript} disabled={writingScript} className="w-full h-11 text-sm font-medium">
+                    {writingScript ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Writing Script...</> : <><FileText className="w-4 h-4 mr-2" />Write Voiceover Script</>}
+                  </Button>
+
+                  {script && (
+                    <div className="space-y-3">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-muted-foreground">Script (editable)</label>
+                          <button onClick={handleWriteScript} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="w-3 h-3" />Rewrite</button>
+                        </div>
+                        <Textarea value={editedScript} onChange={(e) => setEditedScript(e.target.value)} rows={4} className="resize-none text-sm font-mono" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Voice picker */}
+                  <div className="space-y-2">
+                    <label className="text-[11px] text-muted-foreground font-medium">Voice</label>
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] text-muted-foreground/60">Female</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {VOICES.female.map((v) => (
+                          <button key={v.id} onClick={() => setVoice(v.id)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voice === v.id ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v.label}</button>
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground/60 pt-1">Male</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {VOICES.male.map((v) => (
+                          <button key={v.id} onClick={() => setVoice(v.id)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voice === v.id ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v.label}</button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!wantsVoiceover && (
+                <p className="text-[11px] text-muted-foreground/60">Video will be generated without voiceover. You can add audio later in your editor.</p>
+              )}
+            </div>
+          )}
+
+          {/* ── Generate (shared) ────────────────────────────────── */}
+          {canGenerate && (
             <div className="space-y-4 border-t border-border/30 pt-6">
               <div className="space-y-2">
                 <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">TikTok Caption</label>
@@ -442,13 +705,17 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               </div>
 
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span className="px-2 py-1 rounded bg-muted">Kokoro TTS + Kling Avatar</span>
+                {videoFormat === "ugc" ? (
+                  <span className="px-2 py-1 rounded bg-muted">Kokoro TTS + Kling Avatar</span>
+                ) : (
+                  <span className="px-2 py-1 rounded bg-muted">Gemini Scene + Kling Image-to-Video{wantsVoiceover ? " + Kokoro TTS" : ""}</span>
+                )}
                 <span>720p</span>
                 <span>9:16</span>
               </div>
 
               <Button onClick={handleGenerate} disabled={generating || generation?.status === "generating"} className="w-full h-12 text-sm font-medium">
-                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />Generate UGC Video</>}
+                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />{videoFormat === "ugc" ? "Generate UGC Video" : "Generate Product Scene"}</>}
               </Button>
 
               {generation && (
@@ -456,12 +723,12 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                   {generation.status === "generating" && (
                     <div className="flex items-center gap-3">
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <div><p className="text-sm font-medium">Generating UGC video...</p><p className="text-xs text-muted-foreground">Takes 2-5 minutes. You can leave — it completes in the background.</p></div>
+                      <div><p className="text-sm font-medium">Generating video...</p><p className="text-xs text-muted-foreground">Takes 2-5 minutes. You can leave — it completes in the background.</p></div>
                     </div>
                   )}
                   {generation.status === "completed" && generation.videoUrl && (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /><p className="text-sm font-medium">UGC video ready!</p></div>
+                      <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /><p className="text-sm font-medium">Video ready!</p></div>
                       <div className="rounded-lg overflow-hidden bg-black" style={{ aspectRatio: "9/16", maxHeight: "480px" }}>
                         <video src={generation.videoUrl} controls className="w-full h-full object-contain" />
                       </div>

@@ -107,6 +107,12 @@ const FAL_MODEL_IDS: Partial<Record<VideoProvider, string>> = {
   sora: 'fal-ai/sora',
 };
 
+/** fal.ai image-to-video model IDs — used for animating still images */
+const FAL_IMAGE_TO_VIDEO_IDS: Partial<Record<VideoProvider, string>> = {
+  kling: 'fal-ai/kling-video/v2.6/pro/image-to-video',
+  veo: 'fal-ai/veo2/image-to-video',
+};
+
 // ── Unified fal.ai submit ────────────────────────────────────────────
 
 type FalSubmitResponse = {
@@ -115,25 +121,32 @@ type FalSubmitResponse = {
   response_url: string;
 };
 
-async function submitToFal(
+export async function submitToFal(
   provider: VideoProvider,
   prompt: string,
   durationSeconds: number,
+  imageUrl?: string,
 ): Promise<FalSubmitResponse> {
-  const modelId = FAL_MODEL_IDS[provider];
-  if (!modelId) throw new Error(`Unsupported video provider: ${provider}`);
+  // Pick text-to-video or image-to-video model based on whether an image is provided
+  const modelId = imageUrl
+    ? FAL_IMAGE_TO_VIDEO_IDS[provider]
+    : FAL_MODEL_IDS[provider];
+  if (!modelId) throw new Error(`Unsupported video provider for ${imageUrl ? 'image-to-video' : 'text-to-video'}: ${provider}`);
 
   // Build provider-specific input
   let input: Record<string, unknown>;
   switch (provider) {
     case 'kling':
       input = { prompt, duration: durationSeconds <= 5 ? '5' : '10', aspect_ratio: '9:16' };
+      if (imageUrl) input.image_url = imageUrl;
       break;
     case 'veo':
       input = { prompt, duration: durationSeconds <= 5 ? '5s' : '10s', aspect_ratio: '9:16' };
+      if (imageUrl) input.image_url = imageUrl;
       break;
     case 'sora':
       input = { prompt, duration: durationSeconds, aspect_ratio: '9:16', resolution: '1080p' };
+      if (imageUrl) input.image_url = imageUrl;
       break;
     default:
       throw new Error(`Unsupported video provider: ${provider}`);
@@ -163,7 +176,7 @@ async function submitToFal(
 
 // ── Unified fal.ai poll ──────────────────────────────────────────────
 
-async function pollFal(statusUrl: string, responseUrl: string): Promise<VideoGenPollResult> {
+export async function pollFal(statusUrl: string, responseUrl: string): Promise<VideoGenPollResult> {
   const headers = await falHeaders();
 
   // 1. Check status

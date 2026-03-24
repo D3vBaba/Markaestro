@@ -296,7 +296,7 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
 /**
  * Download an image URL and return its base64 data and mime type.
  */
-async function fetchImageAsBase64(url: string): Promise<{ base64: string; mimeType: string }> {
+export async function fetchImageAsBase64(url: string): Promise<{ base64: string; mimeType: string }> {
   const res = await fetchWithRetry(url, undefined, { timeoutMs: 15_000 });
   if (!res.ok) throw new Error(`Failed to fetch image: ${url}`);
   const buffer = Buffer.from(await res.arrayBuffer());
@@ -307,7 +307,7 @@ async function fetchImageAsBase64(url: string): Promise<{ base64: string; mimeTy
 /**
  * Generate image using Gemini 3.1 Flash — supports multimodal input (logo + screenshots).
  */
-async function generateWithGemini(
+export async function generateWithGemini(
   prompt: string,
   aspectRatio: ImageAspectRatio,
   referenceImages?: { base64: string; mimeType: string }[],
@@ -429,7 +429,7 @@ async function generateWithOpenAI(prompt: string, aspectRatio: ImageAspectRatio)
 /**
  * Upload base64 image to Firebase Storage and return a signed URL.
  */
-async function uploadToFirebaseStorage(
+export async function uploadToFirebaseStorage(
   base64: string,
   mimeType: string,
   workspaceId: string,

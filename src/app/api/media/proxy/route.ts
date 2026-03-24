@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   // TikTok rejects PNG — convert to JPEG
   if (contentType.includes('png')) {
     const jpegBuffer = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
-    return new NextResponse(jpegBuffer, {
+    return new NextResponse(new Uint8Array(jpegBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'image/jpeg',
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  return new NextResponse(buffer, {
+  return new NextResponse(new Uint8Array(buffer), {
     status: 200,
     headers: {
       'Content-Type': contentType,

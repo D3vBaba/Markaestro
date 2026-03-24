@@ -58,7 +58,7 @@ export type UGCVideoPollResult = {
 
 // ── Step 1: TTS via Kokoro (synchronous — fast, <5 seconds) ─────────
 
-async function generateTTS(script: string, voice: KokoroVoice, speed: number): Promise<string> {
+export async function generateTTS(script: string, voice: KokoroVoice, speed: number): Promise<string> {
   const res = await fetchWithRetry(
     `${FAL_SYNC}/fal-ai/kokoro/american-english`,
     {

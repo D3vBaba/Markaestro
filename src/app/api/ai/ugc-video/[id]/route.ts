@@ -2,7 +2,7 @@ import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { pollUGCVideo } from '@/lib/ai/ugc-video-generator';
-import { uploadVideoToStorage } from '@/lib/ai/video-generator';
+import { uploadVideoToStorage, pollVideoGeneration } from '@/lib/ai/video-generator';
 
 export async function GET(
   req: Request,
@@ -22,7 +22,10 @@ export async function GET(
       return apiOk({ id, ...gen });
     }
 
-    const result = await pollUGCVideo(gen.statusUrl, gen.responseUrl);
+    // Product Scene uses standard Kling/VEO polling, not Avatar polling
+    const result = gen.provider === 'product-scene'
+      ? await pollVideoGeneration(gen.statusUrl, gen.responseUrl)
+      : await pollUGCVideo(gen.statusUrl, gen.responseUrl);
 
     if (result.status === 'completed' && result.videoUrl) {
       const storageUrl = await uploadVideoToStorage(result.videoUrl, ctx.workspaceId);
@@ -49,7 +52,7 @@ export async function GET(
         scheduledAt: null,
         mediaUrls: [storageUrl],
         ...(gen.productId ? { productId: gen.productId } : {}),
-        generatedBy: 'ugc-pipeline',
+        generatedBy: gen.provider === 'product-scene' ? 'product-scene-pipeline' : 'ugc-pipeline',
         campaignId: '',
         videoGenerationId: id,
         createdAt: new Date().toISOString(),
