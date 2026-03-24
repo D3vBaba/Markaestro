@@ -4,6 +4,9 @@ import { PlatformCapability } from '../types';
 import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
 
 const TIKTOK_API = 'https://open.tiktokapis.com/v2';
+const TIKTOK_MAX_SINGLE_UPLOAD_BYTES = 64 * 1024 * 1024;
+const TIKTOK_MIN_CHUNK_BYTES = 5 * 1024 * 1024;
+const TIKTOK_DEFAULT_CHUNK_BYTES = 10 * 1024 * 1024;
 
 function parseTikTokError(data: Record<string, unknown>): string | undefined {
   const err = data.error as Record<string, unknown> | undefined;
@@ -15,6 +18,98 @@ function parseTikTokError(data: Record<string, unknown>): string | undefined {
 function isVideoUrl(url: string): boolean {
   const lower = url.toLowerCase();
   return /\.(mp4|mov|avi|webm)(\?|$)/.test(lower) || lower.includes('/videos/');
+}
+
+function chooseChunkPlan(size: number): { chunkSize: number; totalChunkCount: number } {
+  if (size <= TIKTOK_MAX_SINGLE_UPLOAD_BYTES) {
+    return { chunkSize: size, totalChunkCount: 1 };
+  }
+
+  let totalChunkCount = Math.ceil(size / TIKTOK_DEFAULT_CHUNK_BYTES);
+  let chunkSize = TIKTOK_DEFAULT_CHUNK_BYTES;
+  const remainder = size % TIKTOK_DEFAULT_CHUNK_BYTES;
+
+  // Keep the final chunk above TikTok's minimum chunk size when possible.
+  if (remainder > 0 && remainder < TIKTOK_MIN_CHUNK_BYTES && totalChunkCount > 1) {
+    totalChunkCount -= 1;
+    chunkSize = Math.ceil(size / totalChunkCount);
+  }
+
+  return { chunkSize, totalChunkCount };
+}
+
+async function uploadVideoFileToTikTok(
+  accessToken: string,
+  mediaUrl: string,
+  title: string,
+): Promise<{ publishId?: string; error?: string }> {
+  const mediaRes = await fetchWithRetry(mediaUrl);
+  if (!mediaRes.ok) {
+    return { error: `Could not download media file (${mediaRes.status})` };
+  }
+
+  const mediaType = mediaRes.headers.get('content-type') || 'video/mp4';
+  const mediaBuffer = Buffer.from(await mediaRes.arrayBuffer());
+  const { chunkSize, totalChunkCount } = chooseChunkPlan(mediaBuffer.length);
+
+  const initRes = await fetchWithRetry(`${TIKTOK_API}/post/publish/video/init/`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify({
+      post_info: {
+        title,
+        privacy_level: 'SELF_ONLY',
+        disable_duet: false,
+        disable_comment: false,
+        disable_stitch: false,
+      },
+      source_info: {
+        source: 'FILE_UPLOAD',
+        video_size: mediaBuffer.length,
+        chunk_size: chunkSize,
+        total_chunk_count: totalChunkCount,
+      },
+    }),
+  });
+
+  const initData = await initRes.json();
+  const initError = parseTikTokError(initData);
+  if (initError) {
+    return { error: initError };
+  }
+
+  const uploadUrl = initData.data?.upload_url as string | undefined;
+  const publishId = initData.data?.publish_id as string | undefined;
+  if (!uploadUrl || !publishId) {
+    return { error: 'TikTok did not return an upload URL' };
+  }
+
+  let start = 0;
+  for (let i = 0; i < totalChunkCount; i++) {
+    const endExclusive =
+      i === totalChunkCount - 1 ? mediaBuffer.length : Math.min(mediaBuffer.length, start + chunkSize);
+    const chunk = mediaBuffer.subarray(start, endExclusive);
+
+    const uploadRes = await fetchWithRetry(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': mediaType,
+        'Content-Length': String(chunk.length),
+        'Content-Range': `bytes ${start}-${endExclusive - 1}/${mediaBuffer.length}`,
+      },
+      body: chunk,
+    });
+
+    if (uploadRes.status !== 201 && uploadRes.status !== 206) {
+      return { error: `TikTok upload failed (${uploadRes.status})` };
+    }
+    start = endExclusive;
+  }
+
+  return { publishId };
 }
 
 export const tiktokPublishingAdapter: PlatformAdapter = {
@@ -40,31 +135,37 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
     const isVideo = isVideoUrl(mediaUrl);
 
     try {
-      // Build request body based on media type
+      if (isVideo) {
+        const result = await uploadVideoFileToTikTok(
+          accessToken,
+          mediaUrl,
+          request.content.substring(0, 90),
+        );
+        if (result.error) {
+          return { success: false, error: `TikTok publish failed: ${result.error}` };
+        }
+        return {
+          success: true,
+          externalId: result.publishId || '',
+        };
+      }
+
       const body: Record<string, unknown> = {
         post_info: {
           title: request.content.substring(0, 90),
           description: request.content.substring(0, 4000),
           disable_comment: false,
           privacy_level: 'SELF_ONLY',
-          auto_add_music: !isVideo, // don't auto-add music to videos
+          auto_add_music: true,
         },
-        post_mode: 'DIRECT_POST',
-        media_type: isVideo ? 'VIDEO' : 'PHOTO',
-      };
-
-      if (isVideo) {
-        body.source_info = {
-          source: 'PULL_FROM_URL',
-          video_url: mediaUrl,
-        };
-      } else {
-        body.source_info = {
+        source_info: {
           source: 'PULL_FROM_URL',
           photo_cover_index: 0,
           photo_images: [mediaUrl],
-        };
-      }
+        },
+        post_mode: 'DIRECT_POST',
+        media_type: 'PHOTO',
+      };
 
       const res = await fetchWithRetry(`${TIKTOK_API}/post/publish/content/init/`, {
         method: 'POST',
