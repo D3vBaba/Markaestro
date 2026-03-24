@@ -166,8 +166,8 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
     const metaRef = getConnectionRef(workspaceId, 'meta');
     await refreshConnectionDoc(metaRef, 'meta', result, { workspaceId });
 
-    // Product-level: tiktok (Meta is now workspace-level)
-    const socialProviders: OAuthProvider[] = ['tiktok'];
+    // Product-level: tiktok + tiktok_ads (Meta is now workspace-level)
+    const socialProviders: OAuthProvider[] = ['tiktok', 'tiktok_ads'];
     const productsSnap = await adminDb
       .collection(`workspaces/${workspaceId}/products`)
       .limit(100)

@@ -7,7 +7,7 @@ import { saveConnection } from '@/lib/platform/connections';
 import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
 
 const ALLOWED = new Set(integrationProviders);
-const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'tiktok', 'facebook', 'instagram']);
+const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'tiktok', 'tiktok_ads', 'facebook', 'instagram']);
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {

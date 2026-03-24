@@ -50,8 +50,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     } else if (campaign.platform === 'tiktok') {
       const productId = campaign.productId as string | undefined;
       const conn = productId
-        ? await getConnection(ctx.workspaceId, 'tiktok', productId) || await getConnection(ctx.workspaceId, 'tiktok')
-        : await getConnection(ctx.workspaceId, 'tiktok');
+        ? await getConnection(ctx.workspaceId, 'tiktok_ads', productId) || await getConnection(ctx.workspaceId, 'tiktok_ads')
+        : await getConnection(ctx.workspaceId, 'tiktok_ads');
       if (!conn) return apiOk({ ok: false, error: 'TikTok integration not found' });
       const accessToken = decrypt(conn.accessTokenEncrypted);
       const advertiserId = (campaign as AdCampaignDoc & { adAccountId?: string }).adAccountId || (conn.metadata.advertiserId as string);

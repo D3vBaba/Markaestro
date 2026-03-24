@@ -238,7 +238,7 @@ export default function SettingsPage() {
 
         {/* Other integrations note */}
         <p className="text-xs text-muted-foreground">
-          TikTok integrations are set up per product on the{" "}
+          TikTok and TikTok Ads integrations are set up per product on the{" "}
           <a href="/products" className="text-primary hover:underline">Products page</a>.
         </p>
       </div>

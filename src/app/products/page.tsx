@@ -95,10 +95,11 @@ const categoryLabels: Record<string, string> = {
   other: "Other",
 };
 
-const SOCIAL_PROVIDERS = ["meta", "tiktok"] as const;
+const SOCIAL_PROVIDERS = ["meta", "tiktok", "tiktok_ads"] as const;
 const providerLabels: Record<string, string> = {
   meta: "Meta (Facebook + Instagram)",
   tiktok: "TikTok",
+  tiktok_ads: "TikTok Ads",
 };
 
 function getScopedSocialIntegrations(integrations: IntegrationInfo[]) {
@@ -851,7 +852,7 @@ export default function ProductsPage() {
                     {connectionCache[p.id].map((integ) => {
                       const isConnected = integ.status === "connected";
                       const hasError = !!integ.lastRefreshError;
-                      const label = integ.provider === "meta" ? "Meta" : "TikTok";
+                      const label = integ.provider === "meta" ? "Meta" : integ.provider === "tiktok_ads" ? "TikTok Ads" : "TikTok";
                       const detail = integ.provider === "meta" && integ.pageName
                         ? integ.pageName
                         : null;
@@ -1111,8 +1112,8 @@ export default function ProductsPage() {
                     );
                   })()}
 
-                  {/* TikTok — per-product connect/disconnect */}
-                  {(["tiktok"] as const).map((provider) => {
+                  {/* TikTok & TikTok Ads — per-product connect/disconnect */}
+                  {(["tiktok", "tiktok_ads"] as const).map((provider) => {
                     const integ = getProviderIntegration(provider);
                     const connected = integ?.status === "connected";
 

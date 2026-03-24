@@ -79,6 +79,8 @@ export async function loadSecretsToEnv(): Promise<void> {
     'GOOGLE_CLIENT_SECRET',
     'TIKTOK_CLIENT_KEY',
     'TIKTOK_CLIENT_SECRET',
+    'TIKTOK_ADS_CLIENT_KEY',
+    'TIKTOK_ADS_CLIENT_SECRET',
     'OPENAI_API_KEY',
     'GEMINI_API_KEY',
     'GOOGLE_ADS_DEVELOPER_TOKEN',

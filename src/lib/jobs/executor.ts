@@ -120,8 +120,8 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
           } else if (campaign.platform === 'tiktok') {
             const productId = campaign.productId as string | undefined;
             const conn = productId
-              ? await getConnection(workspaceId, 'tiktok', productId) || await getConnection(workspaceId, 'tiktok')
-              : await getConnection(workspaceId, 'tiktok');
+              ? await getConnection(workspaceId, 'tiktok_ads', productId) || await getConnection(workspaceId, 'tiktok_ads')
+              : await getConnection(workspaceId, 'tiktok_ads');
             if (conn) {
               const token = decrypt(conn.accessTokenEncrypted);
               const advertiserId = campaign.adAccountId || (conn.metadata.advertiserId as string);

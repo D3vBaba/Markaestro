@@ -111,8 +111,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (campaign.platform === 'tiktok') {
       const productId = campaign.productId as string | undefined;
       const conn = productId
-        ? await getConnection(ctx.workspaceId, 'tiktok', productId) || await getConnection(ctx.workspaceId, 'tiktok')
-        : await getConnection(ctx.workspaceId, 'tiktok');
+        ? await getConnection(ctx.workspaceId, 'tiktok_ads', productId) || await getConnection(ctx.workspaceId, 'tiktok_ads')
+        : await getConnection(ctx.workspaceId, 'tiktok_ads');
       if (!conn) {
         await ref.update({ status: 'failed', errorMessage: 'TikTok integration not configured' });
         return apiOk({ ok: false, error: 'TikTok integration not configured' });
