@@ -231,14 +231,11 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         };
       }
 
-      // Download the image first so we can upload it directly via FILE_UPLOAD.
-      // PULL_FROM_URL requires domain ownership verification on TikTok's side,
-      // which fails for most media storage URLs (e.g. Firebase Storage, S3).
-      const imgRes = await fetchWithRetry(mediaUrl);
-      if (!imgRes.ok) {
-        return { success: false, error: `Could not download image (${imgRes.status})` };
-      }
-      const imgBuffer = Buffer.from(await imgRes.arrayBuffer());
+      // TikTok photo posts only support PULL_FROM_URL (not FILE_UPLOAD).
+      // The URL must be on a verified domain, so we proxy Firebase Storage
+      // URLs through our own domain via /api/media/proxy.
+      const appUrl = process.env.OAUTH_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || '';
+      const proxyUrl = `${appUrl}/api/media/proxy?url=${encodeURIComponent(mediaUrl)}`;
 
       const body: Record<string, unknown> = {
         post_info: {
@@ -249,9 +246,9 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
           auto_add_music: true,
         },
         source_info: {
-          source: 'FILE_UPLOAD',
+          source: 'PULL_FROM_URL',
           photo_cover_index: 0,
-          photo_images: [imgBuffer.length.toString()],
+          photo_images: [proxyUrl],
         },
         post_mode: 'DIRECT_POST',
         media_type: 'PHOTO',
@@ -273,26 +270,8 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
       }
 
       const publishId = data.data?.publish_id as string | undefined;
-      const uploadUrl = data.data?.upload_url as string | undefined;
       if (!publishId) {
         return { success: false, error: 'TikTok did not return a publish ID' };
-      }
-
-      // Upload the image file directly to TikTok
-      if (uploadUrl) {
-        const imgContentType = imgRes.headers.get('content-type') || 'image/jpeg';
-        const uploadRes = await fetchWithRetry(uploadUrl, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': imgContentType,
-            'Content-Length': String(imgBuffer.length),
-          },
-          body: imgBuffer,
-        });
-
-        if (!uploadRes.ok) {
-          return { success: false, error: `TikTok image upload failed (${uploadRes.status})` };
-        }
       }
 
       const publishResult = await waitForTikTokPublishResult(accessToken, publishId);
