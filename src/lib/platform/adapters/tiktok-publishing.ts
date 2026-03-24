@@ -231,6 +231,15 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         };
       }
 
+      // Download the image first so we can upload it directly via FILE_UPLOAD.
+      // PULL_FROM_URL requires domain ownership verification on TikTok's side,
+      // which fails for most media storage URLs (e.g. Firebase Storage, S3).
+      const imgRes = await fetchWithRetry(mediaUrl);
+      if (!imgRes.ok) {
+        return { success: false, error: `Could not download image (${imgRes.status})` };
+      }
+      const imgBuffer = Buffer.from(await imgRes.arrayBuffer());
+
       const body: Record<string, unknown> = {
         post_info: {
           title: request.content.substring(0, 90),
@@ -240,9 +249,9 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
           auto_add_music: true,
         },
         source_info: {
-          source: 'PULL_FROM_URL',
+          source: 'FILE_UPLOAD',
           photo_cover_index: 0,
-          photo_images: [mediaUrl],
+          photo_images: [imgBuffer.length.toString()],
         },
         post_mode: 'DIRECT_POST',
         media_type: 'PHOTO',
@@ -264,8 +273,26 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
       }
 
       const publishId = data.data?.publish_id as string | undefined;
+      const uploadUrl = data.data?.upload_url as string | undefined;
       if (!publishId) {
         return { success: false, error: 'TikTok did not return a publish ID' };
+      }
+
+      // Upload the image file directly to TikTok
+      if (uploadUrl) {
+        const imgContentType = imgRes.headers.get('content-type') || 'image/jpeg';
+        const uploadRes = await fetchWithRetry(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': imgContentType,
+            'Content-Length': String(imgBuffer.length),
+          },
+          body: imgBuffer,
+        });
+
+        if (!uploadRes.ok) {
+          return { success: false, error: `TikTok image upload failed (${uploadRes.status})` };
+        }
       }
 
       const publishResult = await waitForTikTokPublishResult(accessToken, publishId);
