@@ -58,6 +58,8 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       'video.list',
       'video.publish',
       'video.upload',
+      'tt_ads.manage',
+      'tt_ads.read',
     ],
     clientIdEnv: 'TIKTOK_CLIENT_KEY',
     clientSecretEnv: 'TIKTOK_CLIENT_SECRET',

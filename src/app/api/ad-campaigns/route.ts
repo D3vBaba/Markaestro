@@ -44,6 +44,9 @@ export async function POST(req: Request) {
     if (input.platform === 'meta' && !isMetaObjectiveSupported(input.objective)) {
       throw new Error('VALIDATION_META_OBJECTIVE_UNSUPPORTED');
     }
+    if (input.platform === 'tiktok' && !input.productId) {
+      throw new Error('VALIDATION_TIKTOK_PRODUCT_REQUIRED');
+    }
 
     const now = new Date().toISOString();
     const doc = {

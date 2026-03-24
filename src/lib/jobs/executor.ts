@@ -3,6 +3,7 @@ import { publishPostMultiChannel } from '@/lib/social/publisher';
 import { decrypt } from '@/lib/crypto';
 import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
 import { getGoogleCampaignMetrics } from '@/lib/ads/google-ads';
+import { getTikTokCampaignMetrics } from '@/lib/ads/tiktok-ads';
 import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 import { JobDoc } from './types';
 
@@ -115,6 +116,18 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
                 campaign.externalCampaignId,
                 conn.metadata.loginCustomerId as string | undefined,
               );
+            }
+          } else if (campaign.platform === 'tiktok') {
+            const productId = campaign.productId as string | undefined;
+            const conn = productId
+              ? await getConnection(workspaceId, 'tiktok', productId) || await getConnection(workspaceId, 'tiktok')
+              : await getConnection(workspaceId, 'tiktok');
+            if (conn) {
+              const token = decrypt(conn.accessTokenEncrypted);
+              const advertiserId = campaign.adAccountId || (conn.metadata.advertiserId as string);
+              if (advertiserId) {
+                metricsResult = await getTikTokCampaignMetrics(token, advertiserId, campaign.externalCampaignId);
+              }
             }
           }
 

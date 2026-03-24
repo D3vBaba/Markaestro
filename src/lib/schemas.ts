@@ -315,7 +315,7 @@ export const generateImageSchema = z.object({
 
 // ── Ad Campaign Schemas ───────────────────────────────────────────
 
-export const adPlatforms = ['meta', 'google'] as const;
+export const adPlatforms = ['meta', 'google', 'tiktok'] as const;
 export const adCampaignStatuses = ['draft', 'pending', 'active', 'paused', 'completed', 'failed'] as const;
 export const adCampaignObjectives = ['awareness', 'traffic', 'engagement', 'leads', 'conversions', 'app_installs'] as const;
 

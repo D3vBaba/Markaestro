@@ -30,7 +30,7 @@ import { FacebookAdPreview, GoogleAdPreview } from "@/components/app/PlatformPre
 type AdCampaign = {
   id: string;
   name: string;
-  platform: "meta" | "google";
+  platform: "meta" | "google" | "tiktok";
   objective: string;
   status: string;
   dailyBudgetCents: number;
@@ -100,7 +100,7 @@ const statusColors: Record<string, string> = {
   completed: "text-muted-foreground",
   failed: "text-destructive",
 };
-const platformLabels: Record<string, string> = { meta: "Meta", google: "Google" };
+const platformLabels: Record<string, string> = { meta: "Meta", google: "Google", tiktok: "TikTok" };
 const objectiveLabels: Record<string, string> = {
   awareness: "Awareness", traffic: "Traffic", engagement: "Engagement",
   leads: "Leads", conversions: "Conversions", app_installs: "App Installs",
@@ -118,12 +118,22 @@ const googleObjectiveOptions = [
   { value: "conversions", label: "Conversions" },
   { value: "app_installs", label: "App Installs" },
 ] as const;
+const tiktokObjectiveOptions = [
+  { value: "awareness", label: "Reach" },
+  { value: "traffic", label: "Traffic" },
+  { value: "engagement", label: "Engagement" },
+  { value: "leads", label: "Lead Generation" },
+  { value: "conversions", label: "Conversions" },
+  { value: "app_installs", label: "App Promotion" },
+] as const;
 
-function getObjectiveOptions(platform: "meta" | "google") {
-  return platform === "meta" ? metaObjectiveOptions : googleObjectiveOptions;
+function getObjectiveOptions(platform: "meta" | "google" | "tiktok") {
+  if (platform === "meta") return metaObjectiveOptions;
+  if (platform === "tiktok") return tiktokObjectiveOptions;
+  return googleObjectiveOptions;
 }
 
-function normalizeObjectiveForPlatform(platform: "meta" | "google", objective: string) {
+function normalizeObjectiveForPlatform(platform: "meta" | "google" | "tiktok", objective: string) {
   if (platform === "meta" && !metaObjectiveOptions.some((option) => option.value === objective)) {
     return "traffic";
   }
@@ -190,6 +200,7 @@ function MediaUploadZone({
   const specs: Record<string, Record<string, string>> = {
     meta: { image: "1200x628px recommended, JPG/PNG, max 10MB", video: "MP4, 1:1 or 4:5, max 500MB, 1-241s" },
     google: { image: "1200x628px, JPG/PNG/GIF, max 10MB", video: "MP4/MOV, 16:9, max 500MB" },
+    tiktok: { image: "1080x1080px recommended, JPG/PNG, max 10MB", video: "MP4, 9:16 vertical, max 500MB, 5-60s" },
   };
 
   const handleFiles = (files: FileList | null) => {
@@ -325,7 +336,7 @@ export default function AdsPage() {
   const [editAdAccounts, setEditAdAccounts] = useState<{ id: string; name: string }[]>([]);
   const [editLoadingAccounts, setEditLoadingAccounts] = useState(false);
   const [editForm, setEditForm] = useState({
-    name: "", platform: "meta" as "meta" | "google",
+    name: "", platform: "meta" as "meta" | "google" | "tiktok",
     objective: "traffic", dailyBudgetCents: 1000,
     startDate: "", endDate: "", productId: "",
     adAccountId: "", customerId: "",
@@ -338,7 +349,7 @@ export default function AdsPage() {
   const [formStep, setFormStep] = useState(0);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    name: "", platform: "meta" as "meta" | "google",
+    name: "", platform: "meta" as "meta" | "google" | "tiktok",
     objective: "traffic", dailyBudgetCents: 1000,
     startDate: new Date().toISOString().split("T")[0], endDate: "", productId: "",
     ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "",
@@ -746,11 +757,12 @@ export default function AdsPage() {
                   <>
                     <FormField label="Platform">
                       <Select value={form.platform} onChange={(e) => {
-                        const platform = e.target.value as "meta" | "google";
+                        const platform = e.target.value as "meta" | "google" | "tiktok";
                         setForm({ ...form, platform, objective: normalizeObjectiveForPlatform(platform, form.objective) });
                       }}>
                         <option value="meta">Meta (Facebook / Instagram)</option>
                         <option value="google">Google Ads</option>
+                        <option value="tiktok">TikTok Ads</option>
                       </Select>
                     </FormField>
                     <FormField label="Product" description="Select a product so AI can research your market.">
@@ -792,7 +804,7 @@ export default function AdsPage() {
                     </FormField>
                     <FormField
                       label="Objective"
-                      description={form.platform === "meta" ? "Meta currently supports awareness, traffic, and engagement in this integration." : undefined}
+                      description={form.platform === "meta" ? "Meta currently supports awareness, traffic, and engagement in this integration." : form.platform === "tiktok" ? "TikTok supports all objective types." : undefined}
                     >
                       <Select value={form.objective} onChange={(e) => setForm({ ...form, objective: e.target.value })}>
                         {getObjectiveOptions(form.platform).map((option) => (
@@ -1045,7 +1057,7 @@ export default function AdsPage() {
         <TabsContent value="campaigns">
           {/* Platform filter */}
           <div className="flex gap-1 mb-6">
-            {["all", "meta", "google"].map((v) => (
+            {["all", "meta", "google", "tiktok"].map((v) => (
               <button key={v} onClick={() => setPlatformFilter(v)}
                 className={`px-4 py-2 text-xs font-medium rounded-lg transition-colors ${
                   platformFilter === v ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"
@@ -1309,7 +1321,7 @@ export default function AdsPage() {
               <>
                 <FormField label="Platform">
                   <Select value={editForm.platform} onChange={(e) => {
-                    const platform = e.target.value as "meta" | "google";
+                    const platform = e.target.value as "meta" | "google" | "tiktok";
                     setEditForm({ ...editForm, platform, objective: normalizeObjectiveForPlatform(platform, editForm.objective) });
                   }}>
                     <option value="meta">Meta (Facebook / Instagram)</option>
@@ -1323,7 +1335,7 @@ export default function AdsPage() {
                   </Select>
                 </FormField>
                 <FormField
-                  label={editForm.platform === "meta" ? "Ad Account" : "Google Ads Customer"}
+                  label={editForm.platform === "meta" ? "Ad Account" : editForm.platform === "tiktok" ? "TikTok Advertiser ID" : "Google Ads Customer"}
                   description={editLoadingAccounts ? "Loading accounts..." : editAdAccounts.length === 0 ? "No accounts found -- connect integration first" : undefined}
                 >
                   <Select

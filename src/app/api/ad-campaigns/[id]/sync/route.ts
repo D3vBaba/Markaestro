@@ -4,6 +4,7 @@ import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
 import { getGoogleCampaignMetrics } from '@/lib/ads/google-ads';
+import { getTikTokCampaignMetrics } from '@/lib/ads/tiktok-ads';
 import type { AdCampaignDoc, AdCampaignMetrics } from '@/lib/ads/types';
 import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 
@@ -40,6 +41,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         campaign.externalCampaignId,
         conn.metadata.loginCustomerId as string | undefined,
       );
+    } else if (campaign.platform === 'tiktok') {
+      const productId = campaign.productId as string | undefined;
+      const conn = productId
+        ? await getConnection(ctx.workspaceId, 'tiktok', productId) || await getConnection(ctx.workspaceId, 'tiktok')
+        : await getConnection(ctx.workspaceId, 'tiktok');
+      if (!conn) return apiOk({ ok: false, error: 'TikTok integration not found' });
+      const accessToken = decrypt(conn.accessTokenEncrypted);
+      const advertiserId = (campaign as AdCampaignDoc & { adAccountId?: string }).adAccountId || (conn.metadata.advertiserId as string);
+      result = await getTikTokCampaignMetrics(accessToken, advertiserId, campaign.externalCampaignId);
     } else {
       return apiOk({ ok: false, error: `Unsupported platform: ${campaign.platform}` });
     }

@@ -5,6 +5,7 @@ import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { createMetaCampaign } from '@/lib/ads/meta-ads';
 import { createGoogleCampaign } from '@/lib/ads/google-ads';
+import { createTikTokCampaign } from '@/lib/ads/tiktok-ads';
 import type { AdCampaignDoc } from '@/lib/ads/types';
 import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 
@@ -96,6 +97,41 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           status: 'active',
           externalCampaignId: result.campaignId,
           externalAdSetId: result.adSetId,
+          externalAdId: result.adId,
+          launchedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+        return apiOk({ ok: true, ...result });
+      } else {
+        await ref.update({ status: 'failed', errorMessage: result.error, updatedAt: new Date().toISOString() });
+        return apiOk({ ok: false, error: result.error });
+      }
+    }
+
+    if (campaign.platform === 'tiktok') {
+      const productId = campaign.productId as string | undefined;
+      const conn = productId
+        ? await getConnection(ctx.workspaceId, 'tiktok', productId) || await getConnection(ctx.workspaceId, 'tiktok')
+        : await getConnection(ctx.workspaceId, 'tiktok');
+      if (!conn) {
+        await ref.update({ status: 'failed', errorMessage: 'TikTok integration not configured' });
+        return apiOk({ ok: false, error: 'TikTok integration not configured' });
+      }
+
+      const accessToken = decrypt(conn.accessTokenEncrypted);
+      const advertiserId = campaign.adAccountId || (conn.metadata.advertiserId as string);
+      if (!advertiserId) {
+        await ref.update({ status: 'failed', errorMessage: 'No TikTok Advertiser ID configured' });
+        return apiOk({ ok: false, error: 'No TikTok Advertiser ID configured' });
+      }
+
+      const result = await createTikTokCampaign(accessToken, advertiserId, campaign);
+
+      if (result.success) {
+        await ref.update({
+          status: 'active',
+          externalCampaignId: result.campaignId,
+          externalAdGroupId: result.adGroupId,
           externalAdId: result.adId,
           launchedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
