@@ -25,6 +25,42 @@ type OAuthState = {
   productId?: string;
 };
 
+async function fetchTikTokAdsAdvertiserIds(
+  accessToken: string,
+  appId: string,
+  secret: string,
+): Promise<string[]> {
+  const qs = new URLSearchParams({
+    app_id: appId,
+    secret,
+    access_token: accessToken,
+  });
+
+  const res = await fetch(
+    `https://business-api.tiktok.com/open_api/v1.3/oauth2/advertiser/get/?${qs.toString()}`,
+    {
+      headers: {
+        'Access-Token': accessToken,
+      },
+    },
+  );
+
+  const data = await res.json();
+  if (data.code !== 0) {
+    return [];
+  }
+
+  const list = Array.isArray(data.data?.list) ? data.data.list : [];
+  return list
+    .map((item: unknown) => {
+      if (typeof item === 'string') return item;
+      if (!item || typeof item !== 'object') return '';
+      const advertiserId = (item as Record<string, unknown>).advertiser_id;
+      return typeof advertiserId === 'string' ? advertiserId : '';
+    })
+    .filter(Boolean);
+}
+
 /**
  * Generate an OAuth authorization URL and store state in Firestore.
  */
@@ -149,14 +185,23 @@ export async function exchangeCode(
       expiresIn: data.data.expires_in ? Number(data.data.expires_in) : undefined,
     };
 
+    const advertiserIdsFromExchange = Array.isArray(data.data.advertiser_ids)
+      ? data.data.advertiser_ids.map((id: unknown) => String(id)).filter(Boolean)
+      : [];
+    const advertiserIds =
+      advertiserIdsFromExchange.length > 0
+        ? advertiserIdsFromExchange
+        : await fetchTikTokAdsAdvertiserIds(tokens.accessToken, tiktokAdsAppId, clientSecret);
+
     return {
       tokens,
       workspaceId: state.workspaceId,
       userId: state.userId,
       productId: state.productId,
       extraData: {
-        advertiserId: data.data.advertiser_ids?.[0] || '',
-        advertiserIds: data.data.advertiser_ids || [],
+        advertiserId: advertiserIds[0] || '',
+        advertiserIds,
+        advertiserAccessRequired: advertiserIds.length === 0,
       },
     };
   }
@@ -309,17 +354,28 @@ export async function storeTokens(
 
   const { channels, capabilities } = providerChannelsAndCapabilities(provider);
 
+  const connPath = productId
+    ? `workspaces/${workspaceId}/products/${productId}/platformConnections/${provider}`
+    : `workspaces/${workspaceId}/platformConnections/${provider}`;
+  const connRef = adminDb.doc(connPath);
+  const existingSnap = await connRef.get();
+  const existing = existingSnap.exists ? (existingSnap.data() as Partial<PlatformConnection>) : null;
+
   const connection: PlatformConnection = {
     provider,
     channels,
     capabilities,
     status: ConnectionStatus.CONNECTED,
     accessTokenEncrypted: encrypt(tokens.accessToken),
-    metadata: extraData || {},
+    metadata: {
+      lastRefreshError: null,
+      refreshFailureCount: 0,
+      ...(extraData || {}),
+    },
     workspaceId,
     updatedBy: userId,
     updatedAt: now.toISOString(),
-    createdAt: now.toISOString(),
+    createdAt: existing?.createdAt || now.toISOString(),
   };
 
   if (tokens.refreshToken) {
@@ -331,12 +387,7 @@ export async function storeTokens(
   if (productId) {
     connection.productId = productId;
   }
-
-  const connPath = productId
-    ? `workspaces/${workspaceId}/products/${productId}/platformConnections/${provider}`
-    : `workspaces/${workspaceId}/platformConnections/${provider}`;
-
-  await adminDb.doc(connPath).set(connection, { merge: true });
+  await connRef.set(connection);
 }
 
 function providerChannelsAndCapabilities(provider: OAuthProvider): {

@@ -66,6 +66,8 @@ type IntegrationInfo = {
   pageSelectionRequired?: boolean | null;
   igAccountId?: string | null;
   adAccountId?: string | null;
+  advertiserId?: string | null;
+  advertiserAccessRequired?: boolean | null;
   lastRefreshError?: string | null;
   username?: string | null;
   needsPageSelection?: boolean;
@@ -1116,6 +1118,10 @@ export default function ProductsPage() {
                   {(["tiktok", "tiktok_ads"] as const).map((provider) => {
                     const integ = getProviderIntegration(provider);
                     const connected = integ?.status === "connected";
+                    const missingAdvertiserAccess =
+                      provider === "tiktok_ads" &&
+                      connected &&
+                      (!integ?.advertiserId || integ?.advertiserAccessRequired);
 
                     return (
                       <div key={provider} className="rounded-xl border p-3 space-y-2">
@@ -1127,6 +1133,9 @@ export default function ProductsPage() {
                             )}
                             {integ?.lastRefreshError && (
                               <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
+                            )}
+                            {missingAdvertiserAccess && (
+                              <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">No advertiser access</Badge>
                             )}
                           </div>
                           {connected ? (
@@ -1141,6 +1150,12 @@ export default function ProductsPage() {
                         {connected && integ?.tokenExpiresAt && (
                           <p className="text-xs text-muted-foreground pl-1">
                             Token expires: {new Date(integ.tokenExpiresAt).toLocaleDateString()}
+                          </p>
+                        )}
+
+                        {missingAdvertiserAccess && (
+                          <p className="text-xs text-amber-700 pl-1">
+                            TikTok Ads linked successfully, but TikTok did not return any advertiser account access for this login. Add or authorize your sandbox advertiser in TikTok for Business, then reconnect.
                           </p>
                         )}
                       </div>
