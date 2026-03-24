@@ -51,6 +51,17 @@ export async function generateAuthUrl(
     ...(productId ? { productId } : {}),
   };
 
+  // TikTok Marketing API uses a different auth format
+  if (provider === 'tiktok_ads') {
+    await adminDb.doc(`oauth_states/${stateId}`).set(stateDoc);
+    const params = new URLSearchParams({
+      app_id: clientId,
+      redirect_uri: redirectUri,
+      state: stateId,
+    });
+    return `${config.authUrl}?${params.toString()}`;
+  }
+
   const clientIdParam = config.clientIdParam || 'client_id';
   const authParams: Record<string, string> = {
     [clientIdParam]: clientId,
@@ -85,7 +96,7 @@ export async function exchangeCode(
   provider: OAuthProvider,
   code: string,
   stateId: string,
-): Promise<{ tokens: OAuthTokens; workspaceId: string; userId: string; productId?: string }> {
+): Promise<{ tokens: OAuthTokens; workspaceId: string; userId: string; productId?: string; extraData?: Record<string, unknown> }> {
   const stateRef = adminDb.doc(`oauth_states/${stateId}`);
   const stateSnap = await stateRef.get();
 
@@ -111,6 +122,40 @@ export async function exchangeCode(
   const config = getProviderConfig(provider);
   const { clientId, clientSecret } = getClientCredentials(provider);
   const redirectUri = getRedirectUri(provider);
+
+  // TikTok Marketing API uses a JSON body with different field names
+  if (provider === 'tiktok_ads') {
+    const res = await fetch(config.tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        app_id: clientId,
+        secret: clientSecret,
+        auth_code: code,
+      }),
+    });
+    const data = await res.json();
+
+    if (data.code !== 0 || !data.data?.access_token) {
+      throw new Error(`TikTok Ads token exchange failed: ${data.message || 'Unknown error'}`);
+    }
+
+    const tokens: OAuthTokens = {
+      accessToken: data.data.access_token,
+      expiresIn: data.data.expires_in ? Number(data.data.expires_in) : undefined,
+    };
+
+    return {
+      tokens,
+      workspaceId: state.workspaceId,
+      userId: state.userId,
+      productId: state.productId,
+      extraData: {
+        advertiserId: data.data.advertiser_ids?.[0] || '',
+        advertiserIds: data.data.advertiser_ids || [],
+      },
+    };
+  }
 
   const body: Record<string, string> = {
     code,

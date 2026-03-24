@@ -65,16 +65,12 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     extraAuthParams: {},
   },
   tiktok_ads: {
-    authUrl: 'https://www.tiktok.com/v2/auth/authorize/',
-    tokenUrl: 'https://open.tiktokapis.com/v2/oauth/token/',
-    revokeUrl: 'https://open.tiktokapis.com/v2/oauth/revoke/',
-    scopes: [
-      'tt_ads.manage',
-      'tt_ads.read',
-    ],
+    authUrl: 'https://business-api.tiktok.com/portal/auth',
+    tokenUrl: 'https://business-api.tiktok.com/open_api/v1.3/oauth2/access_token/',
+    scopes: [],
     clientIdEnv: 'TIKTOK_ADS_CLIENT_KEY',
     clientSecretEnv: 'TIKTOK_ADS_CLIENT_SECRET',
-    clientIdParam: 'client_key',
+    clientIdParam: 'app_id',
     extraAuthParams: {},
   },
 };
