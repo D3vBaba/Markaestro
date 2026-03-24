@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import sharp from 'sharp';
 
 /**
- * Proxies media from Firebase Storage (or any URL) through the app's domain.
- * TikTok's PULL_FROM_URL requires the image URL to be on a verified domain.
- * This route lets us serve images as https://markaestro.com/api/media/proxy?url=...
+ * Proxies media from Firebase Storage through the app's domain.
+ * TikTok's PULL_FROM_URL requires the image URL to be on a verified domain,
+ * and only accepts JPEG/WEBP (not PNG). This route proxies the image and
+ * converts PNG to JPEG automatically.
  *
  * GET /api/media/proxy?url=<encoded-url>
  */
@@ -36,16 +38,27 @@ export async function GET(req: NextRequest) {
   }
 
   const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
-  const contentLength = upstream.headers.get('content-length');
-  const body = upstream.body;
+  const buffer = Buffer.from(await upstream.arrayBuffer());
 
-  const headers = new Headers({
-    'Content-Type': contentType,
-    'Cache-Control': 'public, max-age=3600',
-  });
-  if (contentLength) {
-    headers.set('Content-Length', contentLength);
+  // TikTok rejects PNG — convert to JPEG
+  if (contentType.includes('png')) {
+    const jpegBuffer = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+    return new NextResponse(jpegBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'image/jpeg',
+        'Content-Length': String(jpegBuffer.length),
+        'Cache-Control': 'public, max-age=3600',
+      },
+    });
   }
 
-  return new NextResponse(body, { status: 200, headers });
+  return new NextResponse(buffer, {
+    status: 200,
+    headers: {
+      'Content-Type': contentType,
+      'Content-Length': String(buffer.length),
+      'Cache-Control': 'public, max-age=3600',
+    },
+  });
 }
