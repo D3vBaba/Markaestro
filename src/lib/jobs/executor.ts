@@ -1,5 +1,4 @@
 import { adminDb } from '@/lib/firebase-admin';
-import { sendCampaignEmails } from '@/lib/email/sender';
 import { publishPostMultiChannel } from '@/lib/social/publisher';
 import { decrypt } from '@/lib/crypto';
 import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
@@ -21,31 +20,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
     let message = 'No-op';
     let details: Record<string, unknown> = {};
 
-    if (job.type === 'send_email_campaign') {
-      const campaignId = job.payload?.campaignId as string;
-      if (!campaignId) {
-        message = 'No campaignId in job payload — skipped';
-      } else {
-        const campaignSnap = await adminDb
-          .doc(`workspaces/${workspaceId}/campaigns/${campaignId}`)
-          .get();
-        if (!campaignSnap.exists) {
-          message = `Campaign ${campaignId} not found`;
-        } else {
-          const campaign = campaignSnap.data()!;
-          const result = await sendCampaignEmails(workspaceId, {
-            name: campaign.name,
-            subject: campaign.subject,
-            body: campaign.body,
-            cta: campaign.cta,
-            targetAudience: campaign.targetAudience,
-            productId: campaign.productId,
-          });
-          message = `Email campaign "${campaign.name}": ${result.sent} sent, ${result.failed} failed`;
-          details = result;
-        }
-      }
-    } else if (job.type === 'sync_contacts') {
+    if (job.type === 'sync_contacts') {
       const contactsSnap = await adminDb
         .collection(`workspaces/${workspaceId}/contacts`)
         .get();

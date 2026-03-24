@@ -112,7 +112,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
       // Pick the best aspect ratio for the primary channel
       const aspectRatioForChannel: Record<SocialChannel, ImageGenRequest['aspectRatio']> = {
-        x: '16:9',
         facebook: '1:1',
         instagram: '4:5',
         tiktok: '9:16',

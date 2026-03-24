@@ -16,7 +16,6 @@ type IntegrationInfo = {
 type ChannelState = "ready" | "needs-setup" | "disconnected";
 
 const channels = [
-  { value: "x", label: "X (Twitter)" },
   { value: "facebook", label: "Facebook" },
   { value: "instagram", label: "Instagram" },
   { value: "tiktok", label: "TikTok" },
@@ -25,7 +24,6 @@ const channels = [
 const setupHintPrefix: Record<string, string> = {
   facebook: "Connect Meta and select a Facebook page in",
   instagram: "Connect Meta with a linked Instagram business account in",
-  x: "Connect X (Twitter) in",
   tiktok: "Connect TikTok in",
 };
 

@@ -79,14 +79,12 @@ const cadenceLabels: Record<string, string> = {
 };
 
 const socialChannelLabels: Record<string, string> = {
-  x: "X",
   facebook: "Facebook",
   instagram: "Instagram",
   tiktok: "TikTok",
 };
 
 const socialChannels = [
-  { value: "x", label: "X (Twitter)" },
   { value: "facebook", label: "Facebook" },
   { value: "instagram", label: "Instagram" },
   { value: "tiktok", label: "TikTok" },
@@ -102,14 +100,14 @@ export default function CampaignsPage() {
 
   // Standard campaign form
   const [newName, setNewName] = useState("");
-  const [newChannel, setNewChannel] = useState("email");
+  const [newChannel, setNewChannel] = useState("facebook");
   const [newAudience, setNewAudience] = useState("");
   const [newCta, setNewCta] = useState("");
 
   // Pipeline form
   const [pipelineName, setPipelineName] = useState("");
   const [pipelineProductId, setPipelineProductId] = useState("");
-  const [pipelineChannels, setPipelineChannels] = useState<string[]>(["x"]);
+  const [pipelineChannels, setPipelineChannels] = useState<string[]>(["facebook"]);
   const [pipelineCadence, setPipelineCadence] = useState("3x_week");
   const [pipelinePostCount, setPipelinePostCount] = useState(20);
 
@@ -141,7 +139,7 @@ export default function CampaignsPage() {
       });
       if (res.ok) {
         toast.success("Campaign created");
-        setNewName(""); setNewChannel("email"); setNewAudience(""); setNewCta("");
+        setNewName(""); setNewChannel("facebook"); setNewAudience(""); setNewCta("");
         fetchCampaigns();
       } else {
         const errData = res.data as { error?: string; issues?: { field: string; message: string }[] };
@@ -176,7 +174,7 @@ export default function CampaignsPage() {
       });
       if (res.ok) {
         toast.success("Pipeline campaign created");
-        setPipelineName(""); setPipelineProductId(""); setPipelineChannels(["x"]);
+        setPipelineName(""); setPipelineProductId(""); setPipelineChannels(["facebook"]);
         setPipelineCadence("3x_week"); setPipelinePostCount(20);
         router.push(`/campaigns/${res.data.id}`);
       } else {
@@ -258,8 +256,6 @@ export default function CampaignsPage() {
                     </FormField>
                     <FormField label="Channel">
                       <Select value={newChannel} onChange={(e) => setNewChannel(e.target.value)}>
-                        <option value="email">Email</option>
-                        <option value="x">X (Twitter)</option>
                         <option value="facebook">Facebook</option>
                         <option value="instagram">Instagram</option>
                         <option value="tiktok">TikTok</option>

@@ -64,21 +64,6 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     clientIdParam: 'client_key',
     extraAuthParams: {},
   },
-  x: {
-    authUrl: 'https://twitter.com/i/oauth2/authorize',
-    tokenUrl: 'https://api.twitter.com/2/oauth2/token',
-    revokeUrl: 'https://api.twitter.com/2/oauth2/revoke',
-    scopes: [
-      'tweet.read',
-      'tweet.write',
-      'users.read',
-      'offline.access',
-    ],
-    clientIdEnv: 'X_CLIENT_ID',
-    clientSecretEnv: 'X_CLIENT_SECRET',
-    usePKCE: true,
-    useBasicAuth: true,
-  },
 };
 
 export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig {

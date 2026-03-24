@@ -80,7 +80,7 @@ export default function PostEditSheet({
     }
   }, [post]);
 
-  const channel = post?.channel ?? "x";
+  const channel = post?.channel ?? "facebook";
   const currentImage = mediaUrls[0];
 
   const handleUpload = async (file: File) => {

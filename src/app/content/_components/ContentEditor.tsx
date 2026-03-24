@@ -36,7 +36,7 @@ export default function ContentEditor({
       />
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground">
-          {channel === "x" ? "X (280 chars)" : channel === "instagram" ? "Instagram (2,200 chars)" : channel === "tiktok" ? "TikTok (2,200 chars)" : "Facebook (63,206 chars)"}
+          {channel === "instagram" ? "Instagram (2,200 chars)" : channel === "tiktok" ? "TikTok (2,200 chars)" : "Facebook (63,206 chars)"}
         </span>
         <span className={isOver ? "text-destructive font-medium" : "text-muted-foreground"}>
           {count.toLocaleString()} / {limit.toLocaleString()}

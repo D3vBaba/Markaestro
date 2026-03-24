@@ -4,7 +4,7 @@ import { generateContent, type ContentRequest } from '@/lib/ai/content-generator
 import { z } from 'zod';
 
 const generateSchema = z.object({
-  type: z.enum(['email_subject', 'email_body', 'social_post', 'ad_copy', 'full_campaign']),
+  type: z.enum(['social_post', 'ad_copy', 'full_campaign']),
   productName: z.string().trim().max(200).optional(),
   productDescription: z.string().trim().max(2000).optional(),
   targetAudience: z.string().trim().max(500).optional(),

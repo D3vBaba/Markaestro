@@ -95,10 +95,9 @@ const categoryLabels: Record<string, string> = {
   other: "Other",
 };
 
-const SOCIAL_PROVIDERS = ["meta", "x", "tiktok"] as const;
+const SOCIAL_PROVIDERS = ["meta", "tiktok"] as const;
 const providerLabels: Record<string, string> = {
   meta: "Meta (Facebook + Instagram)",
-  x: "X (Twitter)",
   tiktok: "TikTok",
 };
 
@@ -852,7 +851,7 @@ export default function ProductsPage() {
                     {connectionCache[p.id].map((integ) => {
                       const isConnected = integ.status === "connected";
                       const hasError = !!integ.lastRefreshError;
-                      const label = integ.provider === "meta" ? "Meta" : integ.provider === "x" ? "X" : "TikTok";
+                      const label = integ.provider === "meta" ? "Meta" : "TikTok";
                       const detail = integ.provider === "meta" && integ.pageName
                         ? integ.pageName
                         : null;
@@ -1112,8 +1111,8 @@ export default function ProductsPage() {
                     );
                   })()}
 
-                  {/* X and TikTok — per-product connect/disconnect */}
-                  {(["x", "tiktok"] as const).map((provider) => {
+                  {/* TikTok — per-product connect/disconnect */}
+                  {(["tiktok"] as const).map((provider) => {
                     const integ = getProviderIntegration(provider);
                     const connected = integ?.status === "connected";
 

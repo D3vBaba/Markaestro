@@ -5,7 +5,7 @@ import { generateAuthUrl } from '@/lib/oauth/flow';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 
 const ALLOWED = new Set<string>(oauthProviders);
-const SOCIAL_PROVIDERS = new Set(['x', 'tiktok']);
+const SOCIAL_PROVIDERS = new Set(['tiktok']);
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {

@@ -29,7 +29,6 @@ type PostStats = {
 };
 
 const channelLabels: Record<string, string> = {
-  x: "X (Twitter)",
   facebook: "Facebook",
   instagram: "Instagram",
   tiktok: "TikTok",

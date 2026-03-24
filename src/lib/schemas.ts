@@ -24,18 +24,18 @@ export const tagsSchema = z
 
 // ── Enums ──────────────────────────────────────────────────────────
 
-export const campaignChannels = ['email', 'x', 'tiktok', 'facebook', 'instagram', 'sms'] as const;
+export const campaignChannels = ['tiktok', 'facebook', 'instagram', 'sms'] as const;
 export const campaignStatuses = ['draft', 'scheduled', 'active', 'paused', 'completed', 'cancelled'] as const;
-export const socialChannels = ['x', 'facebook', 'instagram', 'tiktok'] as const;
+export const socialChannels = ['facebook', 'instagram', 'tiktok'] as const;
 export const postStatuses = ['draft', 'scheduled', 'publishing', 'published', 'failed'] as const;
 export const contactStatuses = ['active', 'pending', 'bounced', 'unsubscribed'] as const;
 export const contactLifecycleStages = ['lead', 'trial', 'customer', 'churned', 'advocate'] as const;
 export const contactSources = ['organic', 'paid', 'referral', 'social', 'email', 'direct', 'other'] as const;
 export const triggerTypes = ['manual', 'event', 'schedule', 'segment'] as const;
-export const jobTypes = ['send_email_campaign', 'sync_contacts', 'generate_content', 'publish_post', 'create_ad_campaign', 'refresh_tokens', 'sync_ad_metrics'] as const;
+export const jobTypes = ['sync_contacts', 'generate_content', 'publish_post', 'create_ad_campaign', 'refresh_tokens', 'sync_ad_metrics'] as const;
 export const jobSchedules = ['manual', 'daily'] as const;
-export const integrationProviders = ['resend', 'facebook', 'instagram', 'x', 'meta', 'google', 'tiktok'] as const;
-export const oauthProviders = ['meta', 'google', 'tiktok', 'x'] as const;
+export const integrationProviders = ['facebook', 'instagram', 'meta', 'google', 'tiktok'] as const;
+export const oauthProviders = ['meta', 'google', 'tiktok'] as const;
 export const workspaceRoles = ['owner', 'admin', 'member'] as const;
 
 // ── Pipeline Enums ────────────────────────────────────────────────
@@ -81,7 +81,7 @@ export const researchBriefSchema = z.object({
 
 export const createCampaignSchema = z.object({
   name: nameSchema,
-  channel: z.enum(campaignChannels).default('email'),
+  channel: z.enum(campaignChannels).default('facebook'),
   status: z.enum(campaignStatuses).default('draft'),
   targetAudience: optionalString,
   cta: optionalString,
@@ -136,7 +136,7 @@ export const updateContactSchema = z.object({
 // ── Automation Schemas ─────────────────────────────────────────────
 
 export const automationActionTypes = [
-  'send_email', 'wait', 'update_tag', 'update_lifecycle',
+  'wait', 'update_tag', 'update_lifecycle',
   'send_notification', 'webhook',
 ] as const;
 
@@ -172,7 +172,7 @@ export type AutomationActionType = (typeof automationActionTypes)[number];
 
 export const createJobSchema = z.object({
   name: nameSchema,
-  type: z.enum(jobTypes).default('send_email_campaign'),
+  type: z.enum(jobTypes).default('sync_contacts'),
   enabled: z.boolean().default(true),
   schedule: z.enum(jobSchedules).default('manual'),
   hourUTC: z.number().int().min(0).max(23).default(15),
@@ -238,12 +238,6 @@ export const updateProductSchema = z.object({
 
 // ── Integration Schemas ────────────────────────────────────────────
 
-export const resendIntegrationSchema = z.object({
-  apiKey: z.string().trim().min(1, 'API key is required'),
-  fromEmail: emailSchema,
-  enabled: z.boolean().default(true),
-});
-
 export const metaIntegrationSchema = z.object({
   accessToken: z.string().trim().min(1, 'Access token is required'),
   adAccountId: optionalString,
@@ -251,8 +245,6 @@ export const metaIntegrationSchema = z.object({
   igAccountId: optionalString,
   enabled: z.boolean().default(true),
 });
-
-// X integration is now handled via OAuth 2.0 (same token shape as other OAuth providers)
 
 // ── Video Generation Schema ───────────────────────────────────────
 

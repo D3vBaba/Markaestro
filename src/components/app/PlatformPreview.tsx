@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, MessageCircle, Repeat2, Bookmark, Share2, ExternalLink } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, Share2, ExternalLink } from "lucide-react";
 
 export type PlatformPreviewProps = {
   content: string;
@@ -60,52 +60,6 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
           {content.length > 120 ? content.slice(0, 120) + "… more" : content}
         </p>
         <p className="text-[10px] uppercase tracking-wide text-zinc-400">just now</p>
-      </div>
-    </div>
-  );
-}
-
-// ─── X / Twitter ──────────────────────────────────────────────────────────────
-
-function XPreview({ content, mediaUrls }: PlatformPreviewProps) {
-  const img = mediaUrls?.[0];
-  return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#15202b] shadow-md p-4 space-y-3">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center flex-shrink-0">
-            <span className="text-white dark:text-zinc-900 font-black text-sm">𝕏</span>
-          </div>
-          <div>
-            <p className="text-[13px] font-bold text-zinc-900 dark:text-white leading-none">Your Product</p>
-            <p className="text-[11px] text-zinc-500 mt-0.5">@yourproduct</p>
-          </div>
-        </div>
-        <svg className="w-5 h-5 text-zinc-900 dark:text-white flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.73-8.835L1.254 2.25H8.08l4.261 5.635 5.903-5.635Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-        </svg>
-      </div>
-
-      <p className="text-[14px] leading-snug text-zinc-900 dark:text-white whitespace-pre-wrap break-words">
-        {content.slice(0, 280)}
-      </p>
-
-      {img && (
-        <img src={img} alt="" className="w-full rounded-xl object-cover max-h-44 border border-zinc-100 dark:border-zinc-800" />
-      )}
-
-      <p className="text-[11px] text-zinc-500 border-t border-zinc-100 dark:border-zinc-800 pt-2">
-        Just now · <span className="font-semibold text-zinc-900 dark:text-white">0</span> Views
-      </p>
-
-      <div className="flex items-center justify-between">
-        {([MessageCircle, Repeat2, Heart, Bookmark] as const).map((Icon, i) => (
-          <div key={i} className="flex items-center gap-1 text-zinc-400">
-            <Icon className="w-4 h-4" />
-            <span className="text-[11px]">0</span>
-          </div>
-        ))}
-        <Share2 className="w-4 h-4 text-zinc-400" />
       </div>
     </div>
   );
@@ -307,7 +261,7 @@ export default function PlatformPreview({ content, channel, mediaUrls, externalU
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
-          {channel === "x" ? "X (Twitter)" : channel.charAt(0).toUpperCase() + channel.slice(1)} Preview
+          {channel.charAt(0).toUpperCase() + channel.slice(1)} Preview
         </p>
         {externalUrl && (
           <a href={externalUrl} target="_blank" rel="noopener noreferrer"
@@ -318,10 +272,9 @@ export default function PlatformPreview({ content, channel, mediaUrls, externalU
       </div>
 
       {channel === "instagram" && <InstagramPreview content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {channel === "x"         && <XPreview         content={content} channel={channel} mediaUrls={mediaUrls} />}
       {channel === "facebook"  && <FacebookPreview  content={content} channel={channel} mediaUrls={mediaUrls} />}
       {channel === "tiktok"    && <TikTokPreview    content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {!["instagram","x","facebook","tiktok"].includes(channel) && (
+      {!["instagram","facebook","tiktok"].includes(channel) && (
         <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
         </div>

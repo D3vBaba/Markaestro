@@ -9,7 +9,6 @@ export const PlatformCapability = {
   PUBLISH_CAROUSEL: 'publish_carousel',
   ANALYTICS: 'analytics',
   ADS: 'ads',
-  EMAIL: 'email',
 } as const;
 
 export type PlatformCapability = (typeof PlatformCapability)[keyof typeof PlatformCapability];
@@ -26,7 +25,7 @@ export type ConnectionStatus = (typeof ConnectionStatus)[keyof typeof Connection
 // ── Platform Connection (Firestore model) ───────────────────────────
 
 export type PlatformConnection = {
-  /** OAuth provider key (meta, x, tiktok, google) */
+  /** OAuth provider key (meta, tiktok, google) */
   provider: string;
   /** Which channels this connection serves */
   channels: SocialChannel[];
@@ -70,7 +69,7 @@ export type PublishResult = {
 // ── Platform Adapter Interface ──────────────────────────────────────
 
 export interface PlatformAdapter {
-  /** Unique adapter ID, e.g. 'x-publishing', 'meta-publishing' */
+  /** Unique adapter ID, e.g. 'meta-publishing', 'tiktok-publishing' */
   readonly id: string;
   /** Human-readable name */
   readonly name: string;

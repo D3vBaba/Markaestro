@@ -1,5 +1,4 @@
 import { adminDb } from '@/lib/firebase-admin';
-import { sendCampaignEmails } from '@/lib/email/sender';
 
 export type AutomationStep = {
   id: string;
@@ -81,26 +80,6 @@ async function executeStep(
   contactId: string,
 ): Promise<StepResult> {
   switch (step.action) {
-    case 'send_email': {
-      const subject = String(step.config.subject || 'Hello from Markaestro');
-      const body = String(step.config.body || '');
-      const result = await sendCampaignEmails(workspaceId, {
-        name: `Automation: ${subject}`,
-        subject,
-        body,
-        productId: (step.config.productId || contact.productId) as string | undefined,
-      }, {
-        testMode: true,
-        testEmail: contact.email as string,
-      });
-      return {
-        stepId: step.id,
-        action: step.action,
-        status: result.sent > 0 ? 'success' : 'failed',
-        message: `Email ${result.sent > 0 ? 'sent' : 'failed'} to ${contact.email}`,
-      };
-    }
-
     case 'update_tag': {
       const tag = String(step.config.tag || '');
       const operation = String(step.config.operation || 'add');

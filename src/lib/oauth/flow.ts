@@ -229,16 +229,6 @@ export async function revokeAccessToken(
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
-    } else if (provider === 'x') {
-      const { clientId, clientSecret } = getClientCredentials(provider);
-      await fetch(config.revokeUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({ token: accessToken, token_type_hint: 'access_token' }).toString(),
-      });
     } else if (provider === 'tiktok') {
       const { clientId, clientSecret } = getClientCredentials(provider);
       await fetch(config.revokeUrl, {
@@ -309,11 +299,6 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
       return {
         channels: ['facebook', 'instagram'],
         capabilities: [PlatformCapability.PUBLISH_TEXT, PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_CAROUSEL],
-      };
-    case 'x':
-      return {
-        channels: ['x'],
-        capabilities: [PlatformCapability.PUBLISH_TEXT, PlatformCapability.PUBLISH_IMAGE],
       };
     case 'tiktok':
       return {

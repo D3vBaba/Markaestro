@@ -43,10 +43,12 @@ const channelDefaultRatio: Record<string, string> = {
   tiktok: "9:16",
 };
 
+const CONTEXT_MAX_LENGTH = 500;
+
 export default function CreateTab({ onPostCreated }: { onPostCreated?: () => void }) {
   const [mode, setMode] = useState<"ai" | "manual">("ai");
   const [productId, setProductId] = useState("");
-  const [channel, setChannel] = useState("x");
+  const [channel, setChannel] = useState("facebook");
   const [contentType, setContentType] = useState("social_post");
   const [additionalContext, setAdditionalContext] = useState("");
   const [generating, setGenerating] = useState(false);
@@ -59,6 +61,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageStyle, setImageStyle] = useState("branded");
   const [aspectRatio, setAspectRatio] = useState("16:9");
+  const [imageContext, setImageContext] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const handleChannelChange = (ch: string) => {
@@ -169,10 +172,13 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     }
     setGeneratingImage(true);
     try {
+      const prompt = imageContext
+        ? `${imageContext}\n\nPost caption for context: ${content}`
+        : content;
       const res = await apiPost<{ imageUrl: string; provider: string; revisedPrompt?: string }>(
         "/api/ai/generate-image",
         {
-          prompt: content,
+          prompt,
           productId: productId || undefined,
           channel,
           style: imageStyle,
@@ -283,6 +289,20 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     setPublishing(false);
   };
 
+  const actionButtons = (
+    <div className="grid grid-cols-3 gap-2 pt-2">
+      <Button variant="outline" onClick={handleSaveDraft} disabled={!content} className="h-11 sm:h-9 text-xs sm:text-sm">
+        Save Draft
+      </Button>
+      <Button variant="outline" onClick={() => setScheduleOpen(true)} disabled={!content} className="h-11 sm:h-9 text-xs sm:text-sm">
+        Schedule
+      </Button>
+      <Button onClick={handlePostNow} disabled={publishing || !content} className="h-11 sm:h-9 text-xs sm:text-sm">
+        {publishing ? "Posting…" : "Post Now"}
+      </Button>
+    </div>
+  );
+
   return (
     <div className="grid gap-8 lg:grid-cols-2">
       {/* Left column — inputs */}
@@ -312,6 +332,8 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
             Manual Post
           </button>
         </div>
+
+        <ProductPicker value={productId} onChange={setProductId} />
 
         <ChannelSelector value={channel} onChange={handleChannelChange} productId={productId} />
 
@@ -364,23 +386,11 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button variant="outline" size="sm" onClick={handleSaveDraft} disabled={!content} className="flex-1 text-xs">
-                Save Draft
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setScheduleOpen(true)} disabled={!content} className="flex-1 text-xs">
-                Schedule
-              </Button>
-              <Button size="sm" onClick={handlePostNow} disabled={publishing || !content} className="flex-1 text-xs">
-                {publishing ? "Posting…" : "Post Now"}
-              </Button>
-            </div>
+            {actionButtons}
           </div>
         ) : (
           /* ── AI Generate path ── */
           <>
-        <ProductPicker value={productId} onChange={setProductId} />
-
         <div className="space-y-3">
           <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Content Type</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -400,20 +410,32 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
           </div>
         </div>
 
-        <div className="space-y-3">
-          <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Additional Context</label>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Direction & Context</label>
+            <span className={`text-[11px] tabular-nums ${additionalContext.length > CONTEXT_MAX_LENGTH ? "text-destructive" : "text-muted-foreground"}`}>
+              {additionalContext.length}/{CONTEXT_MAX_LENGTH}
+            </span>
+          </div>
           <Textarea
-            placeholder="Any specific requirements, offers, or constraints..."
+            placeholder="Guide the direction of your post: tone, angle, key message, promo details, audience focus..."
             value={additionalContext}
-            onChange={(e) => setAdditionalContext(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= CONTEXT_MAX_LENGTH) {
+                setAdditionalContext(e.target.value);
+              }
+            }}
             rows={3}
             className="resize-none"
           />
+          <p className="text-[11px] text-muted-foreground/60">
+            The AI will follow your direction closely when generating the caption.
+          </p>
         </div>
 
         <Button
           onClick={handleGenerate}
-          disabled={generating}
+          disabled={generating || additionalContext.length > CONTEXT_MAX_LENGTH}
           className="w-full h-12 text-sm font-medium tracking-wide"
         >
           {generating ? "Generating..." : "Generate Content"}
@@ -423,7 +445,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
       </div>
 
       {/* Right column — content preview */}
-      <div className="border border-border/40 rounded-lg p-6 space-y-6 h-fit lg:sticky lg:top-20 bg-card">
+      <div className="border border-border/40 rounded-lg p-4 sm:p-6 space-y-6 h-fit lg:sticky lg:top-20 bg-card">
         <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Content Preview</h3>
 
         {content ? (
@@ -463,6 +485,18 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
                     ))}
                   </Select>
                 </div>
+              </div>
+
+              {/* Image context */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] text-muted-foreground">Image Direction (optional)</label>
+                <Textarea
+                  placeholder="Describe what you want the image to show: mood, colors, scene, elements..."
+                  value={imageContext}
+                  onChange={(e) => setImageContext(e.target.value)}
+                  rows={2}
+                  className="resize-none text-xs"
+                />
               </div>
 
               {/* App screenshots */}
@@ -571,17 +605,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={handleSaveDraft} className="flex-1 text-xs">
-                Save Draft
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setScheduleOpen(true)} className="flex-1 text-xs">
-                Schedule
-              </Button>
-              <Button size="sm" onClick={handlePostNow} disabled={publishing} className="flex-1 text-xs">
-                {publishing ? "Posting..." : "Post Now"}
-              </Button>
-            </div>
+            {actionButtons}
           </>
         ) : (
           <div className="text-center py-16">

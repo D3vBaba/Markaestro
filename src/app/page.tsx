@@ -90,7 +90,7 @@ export default function LandingPage() {
             transition={{ delay: 0.3, duration: 0.5, ease }}
           >
             {[
-              { value: "6+", label: "Channels" },
+              { value: "5+", label: "Channels" },
               { value: "AI", label: "Content & Images" },
               { value: "100%", label: "Automated" },
             ].map((stat) => (
@@ -120,11 +120,7 @@ export default function LandingPage() {
             {[
               {
                 title: "Multi-Channel Publishing",
-                desc: "Publish to Facebook, Instagram, X, and TikTok from a single composer. Schedule posts or publish instantly.",
-              },
-              {
-                title: "Email Campaigns",
-                desc: "Build, segment, and send email campaigns to your contact lists with built-in template support and delivery tracking.",
+                desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly.",
               },
               {
                 title: "Ad Campaign Management",
@@ -141,10 +137,6 @@ export default function LandingPage() {
               {
                 title: "Automations & Scheduling",
                 desc: "Set up recurring jobs, drip sequences, and event-triggered workflows. Runs unattended on a configurable schedule.",
-              },
-              {
-                title: "Contact Management",
-                desc: "Import, tag, and segment your audience. Track engagement and build targeted lists for campaigns and automations.",
               },
               {
                 title: "Analytics Dashboard",
@@ -182,9 +174,7 @@ export default function LandingPage() {
               <div className="mt-10 space-y-5">
                 {[
                   { name: "Facebook & Instagram", desc: "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing." },
-                  { name: "X (Twitter)", desc: "Text and media posts with hashtag optimization and thread support." },
                   { name: "TikTok", desc: "Photo and video content publishing via TikTok's Content Posting API." },
-                  { name: "Email (Resend)", desc: "Transactional and marketing email campaigns with template support." },
                   { name: "Google Ads", desc: "Search and display campaigns with audience targeting and budget management." },
                 ].map((ch) => (
                   <div key={ch.name} className="flex items-start gap-4">
@@ -200,9 +190,8 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Social Channels", value: "4", sub: "Facebook, Instagram, X, TikTok" },
+                { label: "Social Channels", value: "3", sub: "Facebook, Instagram, TikTok" },
                 { label: "Ad Platforms", value: "2", sub: "Meta Ads, Google Ads" },
-                { label: "Email Providers", value: "1", sub: "Resend (more coming)" },
                 { label: "AI Providers", value: "2", sub: "Gemini Imagen, OpenAI DALL-E" },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-muted/30 p-7 transition-all duration-300 hover:translate-y-[-2px] border border-border/40">
@@ -235,7 +224,7 @@ export default function LandingPage() {
                       <span className="text-foreground font-semibold">Tone:</span> Authoritative yet approachable
                     </div>
                     <div className="rounded-xl border bg-muted/30 p-4">
-                      <span className="text-foreground font-semibold">Output:</span> Channel-optimized copy for Facebook, Instagram, X, TikTok, Email
+                      <span className="text-foreground font-semibold">Output:</span> Channel-optimized copy for Facebook, Instagram, TikTok
                     </div>
                   </div>
                 </div>

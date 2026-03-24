@@ -1,13 +1,13 @@
 import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
-import { resendIntegrationSchema, metaIntegrationSchema, integrationProviders } from '@/lib/schemas';
+import { metaIntegrationSchema, integrationProviders } from '@/lib/schemas';
 import { encrypt } from '@/lib/crypto';
 import { saveConnection } from '@/lib/platform/connections';
 import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
 
 const ALLOWED = new Set(integrationProviders);
-const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'x', 'tiktok', 'facebook', 'instagram', 'resend']);
+const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'tiktok', 'facebook', 'instagram']);
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
@@ -29,12 +29,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     const metadata: Record<string, unknown> = {};
     let accessTokenEncrypted = '';
 
-    if (provider === 'resend') {
-      const data = resendIntegrationSchema.parse(body);
-      accessTokenEncrypted = encrypt(data.apiKey);
-      metadata.apiKeyEncrypted = accessTokenEncrypted;
-      metadata.fromEmail = data.fromEmail;
-    } else if (provider === 'facebook' || provider === 'instagram' || provider === 'meta') {
+    if (provider === 'facebook' || provider === 'instagram' || provider === 'meta') {
       const data = metaIntegrationSchema.parse(body);
       accessTokenEncrypted = encrypt(data.accessToken);
       if (data.adAccountId) metadata.adAccountId = data.adAccountId;
@@ -48,7 +43,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     await saveConnection(ctx.workspaceId, provider, {
       provider,
       channels: [],
-      capabilities: provider === 'resend' ? [PlatformCapability.EMAIL] : [],
+      capabilities: [],
       status: ConnectionStatus.CONNECTED,
       accessTokenEncrypted,
       metadata,

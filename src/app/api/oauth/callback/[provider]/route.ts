@@ -104,21 +104,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       }
     }
 
-    if (provider === 'x') {
-      // Fetch X username for display and tweet URLs
-      try {
-        const meRes = await fetch('https://api.x.com/2/users/me', {
-          headers: { Authorization: `Bearer ${tokens.accessToken}` },
-        });
-        const meData = await meRes.json();
-        if (meData.data?.username) {
-          extraData.username = meData.data.username;
-        }
-      } catch (e) {
-        console.error('Failed to fetch X username:', e);
-      }
-    }
-
     // Meta: store user token at workspace level (not per-product)
     if (provider === 'meta') {
       // Store workspace-level user token (without productId)

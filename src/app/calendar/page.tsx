@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X, ExternalLink, Heart, MessageCircle, Repeat2, Bookmark, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, ExternalLink, Heart, MessageCircle, Bookmark, Share2 } from "lucide-react";
 import { apiGet } from "@/lib/api-client";
 import { toast } from "sonner";
 
@@ -59,7 +59,6 @@ const CHANNEL_BG: Record<string, string> = {
 
 const CHANNEL_LABEL: Record<string, string> = {
   instagram: "Instagram",
-  x:         "X",
   facebook:  "Facebook",
   tiktok:    "TikTok",
 };
@@ -145,46 +144,6 @@ function InstagramMockup({ post }: { post: Post }) {
           {post.content.length > 120 ? post.content.slice(0, 120) + "… more" : post.content}
         </p>
         <p className="text-[10px] uppercase tracking-wide text-zinc-400">just now</p>
-      </div>
-    </div>
-  );
-}
-
-function TwitterMockup({ post }: { post: Post }) {
-  const img = post.mediaUrls?.[0];
-  return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#15202b] shadow-md max-w-[320px] mx-auto p-4 space-y-3">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center flex-shrink-0">
-            <span className="text-white dark:text-zinc-900 font-black text-sm">𝕏</span>
-          </div>
-          <div>
-            <p className="text-[13px] font-bold leading-none text-zinc-900 dark:text-white">Your Product</p>
-            <p className="text-[11px] text-zinc-500 mt-0.5">@yourproduct</p>
-          </div>
-        </div>
-        <svg className="w-5 h-5 text-zinc-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.73-8.835L1.254 2.25H8.08l4.261 5.635 5.903-5.635Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-        </svg>
-      </div>
-      <p className="text-[14px] leading-snug text-zinc-900 dark:text-white whitespace-pre-wrap">
-        {post.content.slice(0, 280)}
-      </p>
-      {img && <img src={img} alt="" className="w-full rounded-xl object-cover max-h-44 border border-zinc-100 dark:border-zinc-800" />}
-      <p className="text-[11px] text-zinc-500 border-t border-zinc-100 dark:border-zinc-800 pt-2">
-        {post.publishedAt ? formatTime(post.publishedAt) + " · " + formatDate(post.publishedAt) : "Scheduled"}
-        {" · "}
-        <span className="font-semibold text-zinc-900 dark:text-white">0</span> Views
-      </p>
-      <div className="flex items-center justify-between">
-        {[MessageCircle, Repeat2, Heart, Bookmark].map((Icon, i) => (
-          <button key={i} className="flex items-center gap-1 text-zinc-400 hover:text-blue-500 transition-colors">
-            <Icon className="w-4 h-4" />
-            <span className="text-[11px]">0</span>
-          </button>
-        ))}
-        <Share2 className="w-4 h-4 text-zinc-400" />
       </div>
     </div>
   );
@@ -299,10 +258,9 @@ function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void })
         <div>
           <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 font-medium">Preview</p>
           {post.channel === "instagram" && <InstagramMockup post={post} />}
-          {post.channel === "x"         && <TwitterMockup post={post} />}
           {post.channel === "facebook"  && <FacebookMockup post={post} />}
           {post.channel === "tiktok"    && <TikTokMockup post={post} />}
-          {!["instagram","x","facebook","tiktok"].includes(post.channel) && (
+          {!["instagram","facebook","tiktok"].includes(post.channel) && (
             <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
               <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
             </div>

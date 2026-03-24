@@ -36,13 +36,6 @@ export type ImageGenResult = {
  */
 function getPlatformDirection(channel?: SocialChannel): string {
   switch (channel) {
-    case 'x':
-      return [
-        'PLATFORM: X/Twitter — this image must stop the scroll in a fast-moving text-heavy feed.',
-        'COMPOSITION: Bold, high-contrast image that pops against a dark interface. Use warm tones (reds, oranges, golds) which get 25% more engagement on X. Single focal point, no clutter.',
-        'WHAT WORKS: Data visualizations, bold typography-style graphics, striking single-subject compositions, dramatic close-ups with rich texture. Think infographic-meets-art.',
-        'FRAMING: Landscape 16:9 composition. Key visual in the center — X crops edges in preview.',
-      ].join('\n');
     case 'facebook':
       return [
         'PLATFORM: Facebook — this image needs to earn shares and comments in the feed.',

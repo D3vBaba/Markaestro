@@ -8,7 +8,7 @@ const getClient = () => {
 };
 
 export type ContentRequest = {
-  type: 'email_subject' | 'email_body' | 'social_post' | 'ad_copy' | 'full_campaign';
+  type: 'social_post' | 'ad_copy' | 'full_campaign';
   productName?: string;
   productDescription?: string;
   /** Product categories like saas, mobile, fashion, etc. */
@@ -68,15 +68,6 @@ export function getChannelConstraints(channel?: string, contentType?: string): s
   const isShort = contentType === 'social_post';
 
   switch (channel) {
-    case 'x':
-      return [
-        isShort
-          ? 'FORMAT: X/Twitter post. AIM for 71-100 characters (this range gets 17% more engagement). MUST be under 280.'
-          : 'FORMAT: X/Twitter post. MUST be under 280 characters.',
-        'Style: punchy, conversational, opinion-driven. One strong thought — not a paragraph.',
-        'Structure: Hook → insight or product tie-in. That\'s it.',
-        'No hashtags unless they add real value. No filler words.',
-      ].join('\n');
     case 'facebook':
       return [
         isShort
@@ -136,37 +127,17 @@ export async function generateContent(request: ContentRequest): Promise<ContentR
 
   const productBlock = buildContentPrompt(request);
   const channelConstraints = getChannelConstraints(request.channel, request.type);
+  const context = request.additionalContext || '';
 
   const prompts: Record<string, string> = {
-    email_subject: `${productBlock}
-
-Generate 5 email subject lines that would make the target audience OPEN the email.
-
-Each subject line should:
-- Lead with a specific pain point, curiosity gap, or desired outcome
-- Feel personal, not promotional
-- Be under 50 characters when possible
-
-Return exactly 5 subject lines, one per line, numbered 1-5. No other text.`,
-
-    email_body: `${productBlock}
-
-Write an email body that converts.
-
-Structure:
-1. Opening: Acknowledge a specific frustration or aspiration the reader has
-2. Agitate: Make them feel the cost of NOT solving this problem
-3. Solution: Introduce how ${request.productName || 'the product'} addresses this — be specific
-4. Proof/specificity: Include a concrete detail (number, timeframe, outcome)
-5. CTA: One clear next step
-
-Write in HTML format. Under 200 words. Tone: ${request.tone || 'Professional'}.`,
-
     social_post: `${productBlock}
 
 ${channelConstraints}
 
-Write ONE short post. Pick a SPECIFIC pain point or desire the target audience has and build the post around it.
+${context ? `IMPORTANT — USER DIRECTION:
+The user has provided specific direction for this post. You MUST follow their guidance closely. Their direction takes priority over default pain-point or angle selection. Build the post around what they asked for:
+"${context}"
+` : 'Write ONE short post. Pick a SPECIFIC pain point or desire the target audience has and build the post around it.'}
 
 CRITICAL LENGTH RULES:
 - This is a SHORT POST. Brevity is everything.
@@ -183,7 +154,10 @@ Return ONLY the post text. No labels, no "here's the post", no quotation marks w
 
 ${channelConstraints}
 
-Write ad copy that stops the scroll and drives clicks.
+${context ? `IMPORTANT — USER DIRECTION:
+The user has provided specific direction. Follow their guidance closely — it takes priority over default angle selection:
+"${context}"
+` : ''}Write ad copy that stops the scroll and drives clicks.
 
 The headline should call out the audience or their problem — NOT the product name.
 The primary text should agitate the pain point, then present the product as the fix.
@@ -199,7 +173,10 @@ Provide as JSON:
 
 Create a multi-channel campaign. Pick ONE specific pain point or angle and make it the thread across all channels.
 
-The pain point: identify the single most urgent frustration or desire the target audience has that this product solves. Every piece of content below should riff on this same angle.
+${context ? `IMPORTANT — USER DIRECTION:
+The user has provided specific direction for this campaign. Use their guidance as the foundation for the angle and messaging across all channels:
+"${context}"
+` : 'The pain point: identify the single most urgent frustration or desire the target audience has that this product solves.'} Every piece of content below should riff on this same angle.
 
 1. Campaign name (2-4 words, punchy)
 2. The angle (1 sentence: what pain point are we hitting?)

@@ -40,8 +40,7 @@ export default function PrivacyPage() {
           <h3 className="mt-4 font-medium text-foreground">2.2 Information from connected services and integrations</h3>
           <ul className="mt-2 list-disc space-y-1 pl-6">
             <li><strong>OAuth and integration data:</strong> access tokens, refresh tokens, token expiry data, provider account identifiers, usernames, open IDs, page or account selections, and provider-specific metadata needed to maintain a connection.</li>
-            <li><strong>Social, advertising, and analytics data:</strong> page lists, account profile information, post status, follower or profile metrics, ad campaign metrics, impressions, clicks, spend, conversions, and related reporting data retrieved from providers such as TikTok, Meta, Google, X, and similar services you connect.</li>
-            <li><strong>Email delivery data:</strong> sender configuration, from-addresses, delivery status, open or click events, bounce information, and unsubscribe activity when you use connected email infrastructure such as Resend.</li>
+            <li><strong>Social, advertising, and analytics data:</strong> page lists, account profile information, post status, follower or profile metrics, ad campaign metrics, impressions, clicks, spend, conversions, and related reporting data retrieved from providers such as TikTok, Meta, Google, and similar services you connect.</li>
           </ul>
 
           <h3 className="mt-4 font-medium text-foreground">2.3 Information collected automatically</h3>
@@ -68,7 +67,6 @@ export default function PrivacyPage() {
               <li>authenticate users and enforce workspace access controls;</li>
               <li>store and manage campaigns, contacts, products, brand settings, automations, posts, and ad configurations;</li>
               <li>publish or schedule content and create or synchronize campaigns with connected third-party services when directed by you;</li>
-              <li>send campaign emails, manage unsubscribe flows, and maintain suppression-related status information;</li>
               <li>generate text, images, insights, and recommendations using AI providers based on your prompts, brand inputs, and workspace content;</li>
               <li>calculate and display dashboards, analytics, attribution, and performance summaries;</li>
               <li>detect fraud, abuse, security incidents, and unauthorized access;</li>
@@ -100,7 +98,7 @@ export default function PrivacyPage() {
               <li><strong>Infrastructure providers:</strong> Google Cloud and Firebase for hosting, authentication, database, and storage services.</li>
               <li><strong>Error monitoring and diagnostics providers:</strong> providers such as Sentry to capture operational and security-related errors.</li>
               <li><strong>AI providers:</strong> providers such as OpenAI and Google when you use AI-assisted text, image, insight, or strategy features.</li>
-              <li><strong>Connected integration providers:</strong> TikTok, Meta, Google, X, Resend, and other services you authorize us to connect to or use on your behalf.</li>
+              <li><strong>Connected integration providers:</strong> TikTok, Meta, Google, and other services you authorize us to connect to or use on your behalf.</li>
               <li><strong>Other workspace users:</strong> your data may be visible to authorized members of your workspace based on role and permissions.</li>
               <li><strong>Professional advisers and authorities:</strong> when reasonably necessary to enforce our terms, investigate misuse, respond to legal process, or protect rights, safety, and security.</li>
               <li><strong>Corporate transaction counterparties:</strong> in connection with a merger, acquisition, financing, restructuring, sale of assets, or similar event, subject to appropriate confidentiality protections.</li>

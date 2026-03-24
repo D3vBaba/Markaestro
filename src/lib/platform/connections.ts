@@ -185,8 +185,6 @@ function channelToProviders(channel: SocialChannel): string[] {
     case 'facebook':
     case 'instagram':
       return ['meta'];
-    case 'x':
-      return ['x'];
     case 'tiktok':
       return ['tiktok'];
   }

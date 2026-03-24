@@ -1,11 +1,9 @@
 import type { SocialChannel } from '@/lib/schemas';
 import type { PlatformAdapter } from './types';
-import { xPublishingAdapter } from './adapters/x-publishing';
 import { metaPublishingAdapter } from './adapters/meta-publishing';
 import { tiktokPublishingAdapter } from './adapters/tiktok-publishing';
 
 const adapters: PlatformAdapter[] = [
-  xPublishingAdapter,
   metaPublishingAdapter,
   tiktokPublishingAdapter,
 ];

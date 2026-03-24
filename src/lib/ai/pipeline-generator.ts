@@ -121,7 +121,7 @@ function formatResearchContext(brief: ResearchBrief): string {
 }
 
 function getMostRestrictiveChannel(channels: SocialChannel[]): SocialChannel {
-  const priority: SocialChannel[] = ['x', 'tiktok', 'instagram', 'facebook'];
+  const priority: SocialChannel[] = ['tiktok', 'instagram', 'facebook'];
   for (const ch of priority) {
     if (channels.includes(ch)) return ch;
   }

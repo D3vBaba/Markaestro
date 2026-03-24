@@ -1,10 +1,8 @@
 import {
     LayoutDashboard,
-    Users,
     Mail,
     Workflow,
     BarChart3,
-    Timer,
     Settings,
     Package,
     Send,
@@ -45,9 +43,7 @@ export const navigationGroups: NavGroup[] = [
     {
         group: "Insights",
         items: [
-            { name: "Contacts", href: "/contacts", icon: Users },
             { name: "Analytics", href: "/analytics", icon: BarChart3 },
-            { name: "Jobs", href: "/jobs", icon: Timer },
         ],
     },
 ];
