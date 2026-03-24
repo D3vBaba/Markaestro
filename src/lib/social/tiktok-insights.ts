@@ -52,7 +52,7 @@ async function fetchUserInfo(token: string): Promise<{
   totalLikes: number;
   videoCount: number;
 } | null> {
-  const fields = 'display_name,avatar_url,follower_count,following_count,likes_count,video_count';
+  const fields = 'follower_count,following_count,likes_count,video_count';
   const res = await fetchWithRetry(
     `${TIKTOK_API}/user/info/?fields=${fields}`,
     { headers: { Authorization: `Bearer ${token}` } },
@@ -67,7 +67,7 @@ async function fetchUserInfo(token: string): Promise<{
   if (!user) return null;
 
   return {
-    displayName: user.display_name || '',
+    displayName: user.display_name || 'TikTok User',
     avatarUrl: user.avatar_url || '',
     followers: user.follower_count || 0,
     following: user.following_count || 0,

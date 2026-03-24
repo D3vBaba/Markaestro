@@ -97,7 +97,7 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
     const accessToken = getAccessToken(connection);
     try {
       const res = await fetchWithRetry(
-        `${TIKTOK_API}/user/info/?fields=display_name,avatar_url,profile_deep_link,is_verified`,
+        `${TIKTOK_API}/user/info/?fields=follower_count,video_count`,
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
 
@@ -105,7 +105,7 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
       const error = parseTikTokError(data);
       if (error) return { ok: false, error };
 
-      return { ok: true, label: data.data?.user?.display_name || 'Connected' };
+      return { ok: true, label: 'Connected' };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : 'TikTok connection test failed' };
     }

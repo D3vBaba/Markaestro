@@ -53,7 +53,6 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     tokenUrl: 'https://open.tiktokapis.com/v2/oauth/token/',
     revokeUrl: 'https://open.tiktokapis.com/v2/oauth/revoke/',
     scopes: [
-      'user.info.profile',
       'user.info.stats',
       'video.list',
       'video.publish',
