@@ -3,6 +3,7 @@ import { exchangeCode, storeTokens } from '@/lib/oauth/flow';
 import { encrypt } from '@/lib/crypto';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { getConnectionRef } from '@/lib/platform/connections';
+import { getAppUrl } from '@/lib/oauth/config';
 
 const ALLOWED = new Set<string>(oauthProviders);
 
@@ -21,7 +22,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
 
     if (errorParam) {
       const desc = url.searchParams.get('error_description') || errorParam;
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      const appUrl = getAppUrl();
       return NextResponse.redirect(
         `${appUrl}/settings?oauth=error&provider=${provider}&message=${encodeURIComponent(desc)}`,
       );
@@ -140,7 +141,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       await storeTokens(workspaceId, provider as OAuthProvider, tokens, userId, extraData, productId);
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = getAppUrl();
     if (productId) {
       const params = new URLSearchParams({
         oauth: 'success',
@@ -155,7 +156,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     return NextResponse.redirect(`${appUrl}/settings?oauth=success&provider=${provider}`);
   } catch (error) {
     console.error('OAuth callback error:', error);
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = getAppUrl();
     const msg = error instanceof Error ? error.message : 'Unknown error';
     const providerParam = (await params).provider;
     // For social providers the error state doesn't carry productId (it was in the state doc),

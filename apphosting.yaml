@@ -44,6 +44,18 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  - variable: OAUTH_BASE_URL
+    value: https://markaestro.com
+    availability:
+      - RUNTIME
+  - variable: TIKTOK_OAUTH_REDIRECT_URI
+    value: https://markaestro.com/api/oauth/callback/tiktok
+    availability:
+      - RUNTIME
+  - variable: TIKTOK_ADS_OAUTH_REDIRECT_URI
+    value: https://markaestro.com/api/oauth/callback/tiktok_ads
+    availability:
+      - RUNTIME
 
   # Sentry error tracking (client-side DSN is safe to expose)
   - variable: NEXT_PUBLIC_SENTRY_DSN

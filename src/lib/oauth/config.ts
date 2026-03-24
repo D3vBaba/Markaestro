@@ -78,9 +78,27 @@ export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig 
   return providerConfigs[provider];
 }
 
+const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
+  meta: 'META_OAUTH_REDIRECT_URI',
+  google: 'GOOGLE_OAUTH_REDIRECT_URI',
+  tiktok: 'TIKTOK_OAUTH_REDIRECT_URI',
+  tiktok_ads: 'TIKTOK_ADS_OAUTH_REDIRECT_URI',
+};
+
+export function getAppUrl(): string {
+  const base =
+    process.env.OAUTH_BASE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    'http://localhost:3000';
+  return base.replace(/\/+$/, '');
+}
+
 export function getRedirectUri(provider: OAuthProvider): string {
-  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  return `${base}/api/oauth/callback/${provider}`;
+  const exactRedirectUri = process.env[redirectUriEnvByProvider[provider]]?.trim();
+  if (exactRedirectUri) {
+    return exactRedirectUri;
+  }
+  return `${getAppUrl()}/api/oauth/callback/${provider}`;
 }
 
 export function getClientCredentials(provider: OAuthProvider): { clientId: string; clientSecret: string } {
