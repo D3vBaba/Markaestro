@@ -50,6 +50,25 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const successfulChannels = result.channels.filter((c) => c.success);
 
+    if (result.pending) {
+      await ref.update({
+        status: 'publishing',
+        externalId: result.externalId || '',
+        externalUrl: result.externalUrl || '',
+        publishResults: result.channels,
+        updatedAt: new Date().toISOString(),
+      });
+      return apiOk({
+        ok: true,
+        id,
+        status: 'publishing',
+        pending: true,
+        externalId: result.externalId,
+        externalUrl: result.externalUrl,
+        channels: result.channels,
+      });
+    }
+
     if (result.success) {
       await ref.update({
         status: 'published',

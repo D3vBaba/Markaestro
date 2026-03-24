@@ -61,6 +61,7 @@ export type PublishRequest = {
 
 export type PublishResult = {
   success: boolean;
+  pending?: boolean;
   externalId?: string;
   externalUrl?: string;
   error?: string;

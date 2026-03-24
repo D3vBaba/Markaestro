@@ -9,6 +9,7 @@ export type { PublishRequest, PublishResult };
 export type ChannelPublishResult = {
   channel: SocialChannel;
   success: boolean;
+  pending?: boolean;
   externalId?: string;
   externalUrl?: string;
   error?: string;
@@ -17,6 +18,8 @@ export type ChannelPublishResult = {
 export type MultiChannelPublishResult = {
   /** True if the primary channel succeeded */
   success: boolean;
+  /** True if the primary channel is still processing on the platform */
+  pending?: boolean;
   /** Results for each channel that was attempted */
   channels: ChannelPublishResult[];
   /** Primary channel external ID (for backwards compat) */
@@ -113,6 +116,7 @@ export async function publishPostMultiChannel(
     results.push({
       channel,
       success: result.success,
+      ...(result.pending != null && { pending: result.pending }),
       ...(result.externalId != null && { externalId: result.externalId }),
       ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
       ...(result.error != null && { error: result.error }),
@@ -124,6 +128,7 @@ export async function publishPostMultiChannel(
 
   return {
     success: primaryResult.success,
+    pending: primaryResult.pending,
     channels: results,
     externalId: primaryResult.externalId,
     externalUrl: primaryResult.externalUrl,
@@ -194,7 +199,15 @@ export async function processScheduledPosts(workspaceId: string): Promise<{ proc
       });
     }
 
-    if (result.success) {
+    if (result.pending) {
+      await doc.ref.update({
+        status: 'publishing',
+        externalId: result.externalId || '',
+        externalUrl: result.externalUrl || '',
+        publishResults: result.channels,
+        updatedAt: new Date().toISOString(),
+      });
+    } else if (result.success) {
       await doc.ref.update({
         status: 'published',
         externalId: result.externalId || '',

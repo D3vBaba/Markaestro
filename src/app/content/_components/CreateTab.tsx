@@ -254,6 +254,8 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
     await apiPut(`/api/posts/${id}`, { content, channel, mediaUrls });
     const res = await apiPost<{
       ok: boolean;
+      status?: string;
+      pending?: boolean;
       error?: string;
       externalUrl?: string;
       channels?: Array<{ channel: string; success: boolean; externalUrl?: string; error?: string }>;
@@ -262,9 +264,23 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
       const channels = res.data.channels || [];
       const successful = channels.filter((c) => c.success);
       const failed = channels.filter((c) => !c.success && !c.error?.startsWith("Skipped"));
+      const hasTikTok = channels.some((c) => c.channel === "tiktok");
+
+      if (res.data.status === "publishing" || res.data.pending) {
+        if (hasTikTok) {
+          toast.success("TikTok accepted the upload. It can take a minute to appear, and Direct Post will not create an inbox draft.");
+        } else {
+          toast.success("Post submitted and still processing.");
+        }
+        onPostCreated?.();
+        setPublishing(false);
+        return;
+      }
 
       if (successful.length > 1) {
         toast.success(`Posted to ${successful.map((c) => c.channel).join(" & ")}!`);
+      } else if (hasTikTok) {
+        toast.success("TikTok posted. Check the connected account's private posts, not drafts or inbox notifications.");
       } else {
         toast.success("Posted successfully!");
       }

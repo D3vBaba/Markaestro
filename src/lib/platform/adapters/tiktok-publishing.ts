@@ -7,6 +7,15 @@ const TIKTOK_API = 'https://open.tiktokapis.com/v2';
 const TIKTOK_MAX_SINGLE_UPLOAD_BYTES = 64 * 1024 * 1024;
 const TIKTOK_MIN_CHUNK_BYTES = 5 * 1024 * 1024;
 const TIKTOK_DEFAULT_CHUNK_BYTES = 10 * 1024 * 1024;
+const TIKTOK_PUBLISH_POLL_ATTEMPTS = 8;
+const TIKTOK_PUBLISH_POLL_DELAY_MS = 1500;
+
+type TikTokPublishStatus =
+  | 'PROCESSING_UPLOAD'
+  | 'PROCESSING_DOWNLOAD'
+  | 'SEND_TO_USER_INBOX'
+  | 'PUBLISH_COMPLETE'
+  | 'FAILED';
 
 function parseTikTokError(data: Record<string, unknown>): string | undefined {
   const err = data.error as Record<string, unknown> | undefined;
@@ -38,11 +47,73 @@ function chooseChunkPlan(size: number): { chunkSize: number; totalChunkCount: nu
   return { chunkSize, totalChunkCount };
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+type TikTokPublishStatusResult = {
+  status?: TikTokPublishStatus | string;
+  failReason?: string;
+  error?: string;
+};
+
+export async function fetchTikTokPublishStatus(
+  accessToken: string,
+  publishId: string,
+): Promise<TikTokPublishStatusResult> {
+  const res = await fetchWithRetry(`${TIKTOK_API}/post/publish/status/fetch/`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify({ publish_id: publishId }),
+  });
+
+  const data = await res.json();
+  const error = parseTikTokError(data);
+  if (error) return { error };
+
+  return {
+    status: data.data?.status as string | undefined,
+    failReason: data.data?.fail_reason as string | undefined,
+  };
+}
+
+async function waitForTikTokPublishResult(
+  accessToken: string,
+  publishId: string,
+): Promise<{ success: boolean; pending?: boolean; error?: string }> {
+  for (let attempt = 0; attempt < TIKTOK_PUBLISH_POLL_ATTEMPTS; attempt++) {
+    const statusResult = await fetchTikTokPublishStatus(accessToken, publishId);
+    if (statusResult.error) {
+      return { success: false, error: statusResult.error };
+    }
+
+    if (statusResult.status === 'PUBLISH_COMPLETE') {
+      return { success: true };
+    }
+
+    if (statusResult.status === 'FAILED') {
+      return {
+        success: false,
+        error: statusResult.failReason || 'TikTok did not complete the publish',
+      };
+    }
+
+    if (attempt < TIKTOK_PUBLISH_POLL_ATTEMPTS - 1) {
+      await sleep(TIKTOK_PUBLISH_POLL_DELAY_MS);
+    }
+  }
+
+  return { success: false, pending: true };
+}
+
 async function uploadVideoFileToTikTok(
   accessToken: string,
   mediaUrl: string,
   title: string,
-): Promise<{ publishId?: string; error?: string }> {
+): Promise<{ publishId?: string; pending?: boolean; error?: string }> {
   const mediaRes = await fetchWithRetry(mediaUrl);
   if (!mediaRes.ok) {
     return { error: `Could not download media file (${mediaRes.status})` };
@@ -109,6 +180,15 @@ async function uploadVideoFileToTikTok(
     start = endExclusive;
   }
 
+  const publishResult = await waitForTikTokPublishResult(accessToken, publishId);
+  if (publishResult.error) {
+    return { error: publishResult.error };
+  }
+
+  if (publishResult.pending) {
+    return { publishId, pending: true };
+  }
+
   return { publishId };
 }
 
@@ -145,7 +225,8 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
           return { success: false, error: `TikTok publish failed: ${result.error}` };
         }
         return {
-          success: true,
+          success: !result.pending,
+          pending: result.pending,
           externalId: result.publishId || '',
         };
       }
@@ -182,9 +263,20 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         return { success: false, error: `TikTok publish failed: ${error}` };
       }
 
+      const publishId = data.data?.publish_id as string | undefined;
+      if (!publishId) {
+        return { success: false, error: 'TikTok did not return a publish ID' };
+      }
+
+      const publishResult = await waitForTikTokPublishResult(accessToken, publishId);
+      if (publishResult.error) {
+        return { success: false, error: `TikTok publish failed: ${publishResult.error}` };
+      }
+
       return {
-        success: true,
-        externalId: data.data?.publish_id || '',
+        success: !publishResult.pending,
+        pending: publishResult.pending,
+        externalId: publishId,
       };
     } catch (e) {
       return {
@@ -212,7 +304,7 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
     }
   },
 
-  validateConnection(_connection: PlatformConnection, _channel) {
+  validateConnection() {
     return null;
   },
 };

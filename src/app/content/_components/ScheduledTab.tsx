@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
+import { apiGet, apiPost, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
 import PostCard from "./PostCard";
 import PostEditSheet from "./PostEditSheet";
@@ -49,20 +49,27 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    const res = await apiDelete(`/api/posts/${id}`);
-    if (res.ok) {
-      toast.success("Post deleted");
-      fetchScheduled();
-    } else {
-      toast.error("Failed to delete");
-    }
-  };
-
   const handlePublishNow = async (id: string) => {
-    const res = await apiPost<{ ok: boolean; error?: string }>(`/api/posts/${id}/publish`, {});
+    const res = await apiPost<{
+      ok: boolean;
+      status?: string;
+      pending?: boolean;
+      error?: string;
+      channels?: Array<{ channel: string; success: boolean }>;
+    }>(`/api/posts/${id}/publish`, {});
     if (res.ok && res.data.ok) {
-      toast.success("Posted!");
+      const hasTikTok = (res.data.channels || []).some((c) => c.channel === "tiktok");
+      if (res.data.status === "publishing" || res.data.pending) {
+        toast.success(
+          hasTikTok
+            ? "TikTok accepted the upload. It can take a minute to appear, and Direct Post will not create an inbox draft."
+            : "Post submitted and still processing.",
+        );
+      } else if (hasTikTok) {
+        toast.success("TikTok posted. Check the connected account's private posts, not drafts or inbox notifications.");
+      } else {
+        toast.success("Posted!");
+      }
       fetchScheduled();
     } else {
       toast.error(res.data.error || "Publishing failed");

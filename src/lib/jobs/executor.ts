@@ -51,7 +51,16 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
               mediaUrls: post.mediaUrls,
             });
             const successfulChannels = result.channels.filter((c) => c.success);
-            if (result.success) {
+            if (result.pending) {
+              await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
+                status: 'publishing',
+                externalId: result.externalId || '',
+                externalUrl: result.externalUrl || '',
+                publishResults: result.channels,
+                updatedAt: new Date().toISOString(),
+              });
+              message = `Post is still processing on ${post.channel}`;
+            } else if (result.success) {
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
                 status: 'published',
                 externalId: result.externalId || '',

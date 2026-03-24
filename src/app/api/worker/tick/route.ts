@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { executeJob } from '@/lib/jobs/executor';
 import { processScheduledPosts } from '@/lib/social/publisher';
+import { pollPendingTikTokPublishes } from '@/lib/social/tiktok-publish-poll-worker';
 import { processTokenRefresh, cleanupExpiredOAuthStates } from '@/lib/oauth/token-refresh';
 import { pollPendingVideoGenerations } from '@/lib/ai/video-poll-worker';
 import { safeCompare } from '@/lib/crypto';
@@ -41,7 +42,15 @@ export async function POST(req: Request) {
       console.error('Video generation polling failed:', e);
     }
 
-    // 4. Process workspaces
+    // 4. Poll pending TikTok publishes
+    let tiktokPublishPollResult = { polled: 0, completed: 0, failed: 0, pending: 0, errors: [] as Array<{ workspaceId: string; postId: string; error: string }> };
+    try {
+      tiktokPublishPollResult = await pollPendingTikTokPublishes();
+    } catch (e) {
+      console.error('TikTok publish polling failed:', e);
+    }
+
+    // 5. Process workspaces
     const wsSnap = await adminDb.collection('workspaces').limit(200).get();
 
     let scanned = 0;
@@ -78,7 +87,7 @@ export async function POST(req: Request) {
 
     const results: Record<string, unknown>[] = [];
     for (const j of dueJobs) {
-      const r = await executeJob(j.workspaceId, j.jobId, j.data as any);
+      const r = await executeJob(j.workspaceId, j.jobId, j.data as Parameters<typeof executeJob>[2]);
       results.push({ workspaceId: j.workspaceId, jobId: j.jobId, ...r });
     }
 
@@ -102,6 +111,13 @@ export async function POST(req: Request) {
         completed: videoPollResult.completed,
         failed: videoPollResult.failed,
         errors: videoPollResult.errors,
+      },
+      tiktokPublishes: {
+        polled: tiktokPublishPollResult.polled,
+        completed: tiktokPublishPollResult.completed,
+        failed: tiktokPublishPollResult.failed,
+        pending: tiktokPublishPollResult.pending,
+        errors: tiktokPublishPollResult.errors,
       },
     });
   } catch (error) {
