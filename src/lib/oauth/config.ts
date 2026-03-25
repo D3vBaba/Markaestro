@@ -26,6 +26,8 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       'business_management',
       'ads_management',
       'ads_read',
+      'instagram_basic',
+      'instagram_content_publish',
     ],
     clientIdEnv: 'META_APP_ID',
     clientSecretEnv: 'META_APP_SECRET',
