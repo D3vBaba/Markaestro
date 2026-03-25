@@ -36,39 +36,38 @@ export type ProductSceneSubmitResult = {
 
 const SCENE_TEMPLATES: Record<ProductSceneType, (product: string, desc: string) => string> = {
   'product-in-hand': (product, desc) => [
-    `Close-up of a person's hand naturally holding "${product}" — ${desc}.`,
-    'Fingers wrapped comfortably around the product, as if examining it for the first time.',
-    'Soft directional light from a window, warm tones. Shallow depth of field with a softly blurred lifestyle background.',
-    'The product is the hero — sharp detail on the product surface, label, and packaging.',
-    'Natural, candid moment — not posed or staged.',
+    `Professional product photoshoot: close-up of a model's hand elegantly holding the physical product "${product}" — ${desc}.`,
+    'Studio-quality lighting with a key light and soft fill. The physical product is the hero — every label, texture, and material is crisp and detailed.',
+    'Shallow depth of field, creamy bokeh background. The hand holds the product at a slight angle to show dimension.',
+    'Commercial photography aesthetic — this should look like it belongs in a Vogue or GQ product feature.',
   ].join('\n'),
 
   'unboxing': (product, desc) => [
-    `Person's hands carefully opening a minimalist package to reveal "${product}" — ${desc}.`,
-    'The moment of first reveal — anticipation and discovery. Package partially open, product becoming visible.',
-    'Clean, well-lit tabletop or desk setting. Soft overhead lighting with gentle shadows.',
-    'Focus on the tactile interaction — fingers on packaging, product emerging.',
+    `Product photoshoot: hands carefully opening premium packaging to reveal the physical product "${product}" — ${desc}.`,
+    'The unboxing moment captured like a commercial shoot — overhead angle, clean marble or wood surface.',
+    'Studio lighting: soft overhead diffused light with subtle rim light catching the packaging edges.',
+    'Tissue paper, branded box details, and the physical product emerging — tactile, premium feel.',
   ].join('\n'),
 
   'routine': (product, desc) => [
-    `Person naturally incorporating "${product}" into their daily routine — ${desc}.`,
-    'Casual, authentic moment — morning bathroom, kitchen counter, or desk setup depending on the product type.',
-    'The product is part of the scene, not the focal point of a pitch. Natural integration into a real moment.',
-    'Warm, inviting lighting. Lived-in environment with personal touches visible.',
+    `Lifestyle product photoshoot: model naturally using the physical product "${product}" in a styled routine setting — ${desc}.`,
+    'Shot like an editorial spread — real environment but art-directed. The physical product is being actively used, not just placed.',
+    'Warm, diffused natural light mixed with practical lighting. The setting matches the product category (bathroom for skincare, kitchen for food, vanity for beauty).',
+    'Commercial authenticity — looks real but every element is intentional. Magazine-quality composition.',
   ].join('\n'),
 
   'before-after': (product, desc) => [
-    `A transformation moment featuring "${product}" — ${desc}.`,
-    'Show the "after" state — the positive result of using the product. Confident expression, visible improvement.',
-    'Clean composition with the product visible in frame. Bright, flattering lighting.',
-    'The feeling of satisfaction and confidence after using the product.',
+    `Product photoshoot: transformation moment featuring the physical product "${product}" — ${desc}.`,
+    'The "after" moment — model looking confident with the physical product visible in frame.',
+    'Split-tone lighting: dramatic but flattering. Clean background that keeps focus on the model and product.',
+    'Commercial beauty/lifestyle photography aesthetic — polished, aspirational, editorial.',
   ].join('\n'),
 
   'lifestyle': (product, desc) => [
-    `Candid lifestyle moment with "${product}" naturally visible — ${desc}.`,
-    'Person in a natural, aspirational setting that matches the product category.',
-    "The product is present but not being pitched — it belongs in this person's life.",
-    'Golden-hour or soft natural lighting. Authentic, editorial feel — like a magazine behind-the-scenes shot.',
+    `Editorial product photoshoot: model in an aspirational lifestyle setting with the physical product "${product}" naturally present — ${desc}.`,
+    'Shot like a brand campaign — the physical product belongs in this world. Not a pitch, but a lifestyle association.',
+    'Golden-hour or studio-simulated warm light. Styled environment with curated props and textures.',
+    "Commercial photography quality — this is an ad that doesn't feel like an ad. Think Glossier, Aesop, or Apple product lifestyle shots.",
   ].join('\n'),
 };
 

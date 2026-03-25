@@ -234,8 +234,12 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
       // TikTok photo posts only support PULL_FROM_URL (not FILE_UPLOAD).
       // The URL must be on a verified domain, so we proxy Firebase Storage
       // URLs through our own domain via /api/media/proxy.
+      // Pass ALL image URLs for carousel/slideshow posts (TikTok supports up to 35).
       const appUrl = process.env.OAUTH_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || '';
-      const proxyUrl = `${appUrl}/api/media/proxy?url=${encodeURIComponent(mediaUrl)}`;
+      const imageUrls = (request.mediaUrls || []).filter((u) => !isVideoUrl(u));
+      const proxyUrls = imageUrls.map(
+        (url) => `${appUrl}/api/media/proxy?url=${encodeURIComponent(url)}`,
+      );
 
       const body: Record<string, unknown> = {
         post_info: {
@@ -248,7 +252,7 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         source_info: {
           source: 'PULL_FROM_URL',
           photo_cover_index: 0,
-          photo_images: [proxyUrl],
+          photo_images: proxyUrls,
         },
         post_mode: 'DIRECT_POST',
         media_type: 'PHOTO',
