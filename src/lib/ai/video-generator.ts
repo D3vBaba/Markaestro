@@ -215,6 +215,69 @@ export async function pollFal(statusUrl: string, responseUrl: string): Promise<V
   return { status: 'generating' };
 }
 
+// ── fal.ai FFmpeg helpers ────────────────────────────────────────────
+
+const FAL_SYNC = 'https://fal.run';
+
+/**
+ * Merge a video and audio track using fal.ai FFmpeg API.
+ * Returns the URL of the combined video.
+ */
+export async function mergeAudioVideo(
+  videoUrl: string,
+  audioUrl: string,
+): Promise<string> {
+  const res = await fetchWithRetry(
+    `${FAL_SYNC}/fal-ai/ffmpeg-api/merge-audio-video`,
+    {
+      method: 'POST',
+      headers: await falHeaders(),
+      body: JSON.stringify({ video_url: videoUrl, audio_url: audioUrl }),
+    },
+    { timeoutMs: 120_000, maxRetries: 2 },
+  );
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(`FFmpeg merge failed: ${data.detail || JSON.stringify(data).slice(0, 500)}`);
+  }
+  return data.video?.url || '';
+}
+
+/**
+ * Submit a Kling multi-prompt (multi-shot) video generation job.
+ * Generates multiple scenes in a single video with transitions.
+ */
+export async function submitMultiPromptToFal(
+  scenes: { prompt: string; duration: string }[],
+): Promise<FalSubmitResponse> {
+  const res = await fetchWithRetry(
+    `${FAL_API}/fal-ai/kling-video/v2.6/pro/text-to-video`,
+    {
+      method: 'POST',
+      headers: await falHeaders(),
+      body: JSON.stringify({
+        multi_prompt: scenes,
+        multi_prompt_type: 'customize',
+        aspect_ratio: '9:16',
+        generate_audio: false,
+      }),
+    },
+    { timeoutMs: 30_000 },
+  );
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(`Kling multi-prompt submit failed: ${data.detail || JSON.stringify(data).slice(0, 500)}`);
+  }
+
+  return {
+    request_id: data.request_id,
+    status_url: data.status_url,
+    response_url: data.response_url,
+  };
+}
+
 // ── Public API ───────────────────────────────────────────────────────
 
 /**

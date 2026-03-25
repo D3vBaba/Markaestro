@@ -19,11 +19,12 @@ import {
   Upload,
   Package,
   Mic,
+  Film,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────
 
-type VideoFormat = "ugc" | "product-scene";
+type VideoFormat = "ugc" | "product-scene" | "faceless-narrated";
 
 type Trend = {
   id: string;
@@ -180,10 +181,16 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   const [generation, setGeneration] = useState<VideoGeneration | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Faceless narrated state
+  const [facelessSceneCount, setFacelessSceneCount] = useState(4);
+  const [facelessDuration, setFacelessDuration] = useState(30);
+
   // Step labels per format
   const stepLabels = videoFormat === "ugc"
     ? ["Product", "Trends", "Script", "Avatar & Voice", "Generate"]
-    : ["Product", "Trends", "Scene Setup", "Voiceover", "Generate"];
+    : videoFormat === "product-scene"
+    ? ["Product", "Trends", "Scene Setup", "Voiceover", "Generate"]
+    : ["Product", "Trends", "Script & Voice", "Generate"];
 
   // Current step calculation
   const currentStep = (() => {
@@ -193,6 +200,10 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
       if (!script) return 2;
       if (!selectedAvatarUrl) return 3;
       return 4;
+    }
+    if (videoFormat === "faceless-narrated") {
+      if (!voice) return 2;
+      return 3;
     }
     // product-scene
     if (!sceneType) return 2;
@@ -352,7 +363,28 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
     finally { setGenerating(false); }
   };
 
-  const handleGenerate = videoFormat === "ugc" ? handleGenerateUGC : handleGenerateScene;
+  const handleGenerateFaceless = async () => {
+    setGenerating(true); setGeneration(null);
+    try {
+      const res = await apiPost<VideoGeneration>("/api/ai/faceless-video", {
+        productId,
+        sceneCount: facelessSceneCount,
+        durationSeconds: facelessDuration,
+        voice,
+        speed: 1.0,
+        script: editedScript || undefined,
+        scriptStyle,
+        caption,
+        hashtags: selectedTrend?.hashtags || [],
+        trendId: selectedTrend?.id || undefined,
+      });
+      if (res.ok) { setGeneration(res.data); toast.success("Faceless video generation started"); startPolling(res.data.id); }
+      else { const e = res.data as unknown as { error?: string }; toast.error(e.error || "Failed to start"); }
+    } catch { toast.error("Failed to start faceless video generation"); }
+    finally { setGenerating(false); }
+  };
+
+  const handleGenerate = videoFormat === "ugc" ? handleGenerateUGC : videoFormat === "product-scene" ? handleGenerateScene : handleGenerateFaceless;
 
   const handleReset = () => {
     setTrends([]); setSelectedTrend(null); setScript(null); setEditedScript("");
@@ -364,7 +396,9 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   // Can we proceed to generate?
   const canGenerate = videoFormat === "ugc"
     ? !!(selectedAvatarUrl && script)
-    : !!(selectedTrend && sceneType && (!wantsVoiceover || editedScript));
+    : videoFormat === "product-scene"
+    ? !!(selectedTrend && sceneType && (!wantsVoiceover || editedScript))
+    : !!(selectedTrend && voice);
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -377,7 +411,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
           {/* Format selector */}
           <div className="space-y-3">
             <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Video Format</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <button
                 onClick={() => { setVideoFormat("ugc"); handleReset(); }}
                 className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "ugc" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
@@ -397,6 +431,16 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                   <span className="text-sm font-medium">Product Scene</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">Character interacting with your product, animated into video</p>
+              </button>
+              <button
+                onClick={() => { setVideoFormat("faceless-narrated"); handleReset(); }}
+                className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "faceless-narrated" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Film className="w-4 h-4" />
+                  <span className="text-sm font-medium">Faceless Narrated</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">Cinematic B-roll visuals with voiceover narration</p>
               </button>
             </div>
           </div>
@@ -696,6 +740,75 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </div>
           )}
 
+          {/* ── Faceless Narrated: Script & Voice step ──────────── */}
+          {videoFormat === "faceless-narrated" && selectedTrend && (
+            <div className="space-y-4 border-t border-border/30 pt-6">
+              <div className="flex items-center gap-2">
+                <Film className="w-4 h-4 text-muted-foreground" />
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Script & Voice</label>
+              </div>
+
+              {/* Scene count & duration */}
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] text-muted-foreground">Scenes:</label>
+                  <div className="flex gap-1.5">
+                    {[3, 4, 5, 6].map((n) => (
+                      <button key={n} onClick={() => setFacelessSceneCount(n)} className={`px-3 py-1.5 rounded-md text-xs transition-all ${facelessSceneCount === n ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{n}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] text-muted-foreground">Duration:</label>
+                  <div className="flex gap-1.5">
+                    {[15, 30, 45, 60].map((d) => (
+                      <button key={d} onClick={() => setFacelessDuration(d)} className={`px-3 py-1.5 rounded-md text-xs transition-all ${facelessDuration === d ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{d}s</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Script style */}
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Narration Style</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {SCRIPT_STYLES.map((s) => (
+                    <button key={s.value} onClick={() => setScriptStyle(s.value)} className={`text-left p-3 rounded-lg border text-xs transition-all ${scriptStyle === s.value ? "border-foreground bg-foreground/5" : "border-border/50 text-muted-foreground hover:border-foreground/30"}`}>
+                      <p className="font-medium text-foreground">{s.label}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Optional custom script */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] text-muted-foreground font-medium">Custom Script (optional)</label>
+                <Textarea value={editedScript} onChange={(e) => setEditedScript(e.target.value)} rows={4} placeholder="Leave empty for AI-generated narration, or write your own..." className="resize-none text-sm" />
+                <p className="text-[10px] text-muted-foreground/60">If left empty, AI will write the narration and generate matching visuals automatically.</p>
+              </div>
+
+              {/* Voice picker */}
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Narrator Voice</label>
+                <div className="space-y-1.5">
+                  <p className="text-[10px] text-muted-foreground/60">Female</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {VOICES.female.map((v) => (
+                      <button key={v.id} onClick={() => setVoice(v.id)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voice === v.id ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v.label}</button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground/60 pt-1">Male</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {VOICES.male.map((v) => (
+                      <button key={v.id} onClick={() => setVoice(v.id)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voice === v.id ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v.label}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ── Generate (shared) ────────────────────────────────── */}
           {canGenerate && (
             <div className="space-y-4 border-t border-border/30 pt-6">
@@ -707,15 +820,17 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 {videoFormat === "ugc" ? (
                   <span className="px-2 py-1 rounded bg-muted">Kokoro TTS + Kling Avatar</span>
-                ) : (
+                ) : videoFormat === "product-scene" ? (
                   <span className="px-2 py-1 rounded bg-muted">Gemini Scene + Kling Image-to-Video{wantsVoiceover ? " + Kokoro TTS" : ""}</span>
+                ) : (
+                  <span className="px-2 py-1 rounded bg-muted">Kling Multi-Shot + Kokoro TTS + FFmpeg Merge</span>
                 )}
                 <span>720p</span>
                 <span>9:16</span>
               </div>
 
               <Button onClick={handleGenerate} disabled={generating || generation?.status === "generating"} className="w-full h-12 text-sm font-medium">
-                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />{videoFormat === "ugc" ? "Generate UGC Video" : "Generate Product Scene"}</>}
+                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />{videoFormat === "ugc" ? "Generate UGC Video" : videoFormat === "product-scene" ? "Generate Product Scene" : "Generate Faceless Video"}</>}
               </Button>
 
               {generation && (

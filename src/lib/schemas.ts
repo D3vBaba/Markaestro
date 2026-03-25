@@ -248,7 +248,7 @@ export const metaIntegrationSchema = z.object({
 
 // ── Video Generation Schema ───────────────────────────────────────
 
-export const videoProviders = ['kling', 'veo', 'sora', 'kling-avatar', 'product-scene'] as const;
+export const videoProviders = ['kling', 'veo', 'sora', 'kling-avatar', 'product-scene', 'faceless-narrated'] as const;
 export const videoStatuses = ['pending', 'generating', 'completed', 'failed'] as const;
 
 export const tiktokTrendStatuses = ['suggested', 'approved', 'used', 'dismissed'] as const;
@@ -312,6 +312,24 @@ export const productSceneSchema = z.object({
     voice: z.string().trim(),
     speed: z.number().min(0.5).max(2.0).default(1.0),
   }).optional(),
+  caption: z.string().trim().max(2200).default(''),
+  hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
+  trendId: z.string().trim().optional(),
+});
+
+// ── Faceless Narrated Video Schema ────────────────────────────────
+
+export const facelessNarratedSchema = z.object({
+  productId: z.string().trim().min(1),
+  /** Number of visual scenes (3-6) */
+  sceneCount: z.number().int().min(3).max(6).default(4),
+  /** Total target duration in seconds */
+  durationSeconds: z.number().int().min(15).max(60).default(30),
+  voice: z.string().trim(),
+  speed: z.number().min(0.5).max(2.0).default(1.0),
+  /** Optional custom narration script — if not provided, AI generates one */
+  script: z.string().trim().max(8000).optional(),
+  scriptStyle: z.string().trim().default('problem-solution'),
   caption: z.string().trim().max(2200).default(''),
   hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
   trendId: z.string().trim().optional(),

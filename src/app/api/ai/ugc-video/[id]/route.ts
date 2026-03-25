@@ -3,6 +3,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { pollUGCVideo } from '@/lib/ai/ugc-video-generator';
 import { uploadVideoToStorage, pollVideoGeneration } from '@/lib/ai/video-generator';
+import { pollFacelessNarrated } from '@/lib/ai/faceless-narrated-generator';
 
 export async function GET(
   req: Request,
@@ -20,6 +21,38 @@ export async function GET(
 
     if (gen.status === 'completed' || gen.status === 'failed') {
       return apiOk({ id, ...gen });
+    }
+
+    // Faceless narrated has its own poll+merge+upload flow
+    if (gen.provider === 'faceless-narrated') {
+      const facelessResult = await pollFacelessNarrated(
+        gen.statusUrl, gen.responseUrl, gen.audioUrl, ctx.workspaceId,
+      );
+
+      if (facelessResult.status === 'completed' && facelessResult.videoUrl) {
+        const updates = { status: 'completed', videoUrl: facelessResult.videoUrl, completedAt: new Date().toISOString() };
+        await docRef.update(updates);
+
+        const postRef = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`).doc();
+        const caption = gen.caption || '';
+        const hashtags: string[] = gen.hashtags || [];
+        const fullCaption = hashtags.length > 0 ? `${caption}\n\n${hashtags.join(' ')}` : caption;
+        await postRef.set({
+          content: fullCaption, channel: 'tiktok', status: 'draft', scheduledAt: null,
+          mediaUrls: [facelessResult.videoUrl],
+          ...(gen.productId ? { productId: gen.productId } : {}),
+          generatedBy: 'faceless-narrated-pipeline', campaignId: '', videoGenerationId: id,
+          createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+        });
+        await docRef.update({ postId: postRef.id });
+        return apiOk({ id, ...gen, ...updates, postId: postRef.id });
+      }
+      if (facelessResult.status === 'failed') {
+        const updates = { status: 'failed', errorMessage: facelessResult.errorMessage || 'Faceless video generation failed' };
+        await docRef.update(updates);
+        return apiOk({ id, ...gen, ...updates });
+      }
+      return apiOk({ id, ...gen, status: 'generating' });
     }
 
     // Product Scene uses standard Kling/VEO polling, not Avatar polling
