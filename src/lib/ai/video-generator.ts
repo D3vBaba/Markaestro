@@ -196,11 +196,22 @@ export async function pollFal(statusUrl: string, responseUrl: string): Promise<V
     );
     const resultData = await resultRes.json();
 
+    // fal.ai may return a "detail" error even with COMPLETED status
+    if (resultData.detail) {
+      const errMsg = Array.isArray(resultData.detail)
+        ? resultData.detail.map((d: { msg?: string }) => d.msg).join('; ')
+        : String(resultData.detail);
+      return { status: 'failed', errorMessage: `Video generation error: ${errMsg}` };
+    }
+
     const video = resultData.video;
+    if (!video?.url) {
+      return { status: 'failed', errorMessage: 'Video generation completed but no video URL returned' };
+    }
     return {
       status: 'completed',
-      videoUrl: video?.url || '',
-      thumbnailUrl: video?.thumbnail_url || '',
+      videoUrl: video.url,
+      thumbnailUrl: video.thumbnail_url || '',
     };
   }
 
@@ -257,6 +268,7 @@ export async function submitMultiPromptToFal(
       method: 'POST',
       headers: await falHeaders(),
       body: JSON.stringify({
+        prompt: scenes[0].prompt,
         multi_prompt: scenes,
         multi_prompt_type: 'customize',
         aspect_ratio: '9:16',
