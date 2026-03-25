@@ -185,6 +185,9 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   const [facelessSceneCount, setFacelessSceneCount] = useState(4);
   const [facelessDuration, setFacelessDuration] = useState(30);
 
+  // Wizard navigation
+  const [wizardStep, setWizardStep] = useState(0);
+
   // Step labels per format
   const stepLabels = videoFormat === "ugc"
     ? ["Product", "Trends", "Script", "Avatar & Voice", "Generate"]
@@ -390,6 +393,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
     setTrends([]); setSelectedTrend(null); setScript(null); setEditedScript("");
     setSelectedAvatarUrl(""); setCaption(""); setGeneration(null);
     setSceneDescription(""); setProductImageUrl(""); setWantsVoiceover(false);
+    setWizardStep(1);
     if (pollRef.current) clearInterval(pollRef.current);
   };
 
@@ -400,52 +404,84 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
     ? !!(selectedTrend && sceneType && (!wantsVoiceover || editedScript))
     : !!(selectedTrend && voice);
 
+  // Determine if the user can proceed from each wizard step
+  const canProceedFromStep = (step: number): boolean => {
+    if (step === 0) return !!productId;
+    if (step === 1) return !!selectedTrend;
+    if (videoFormat === "ugc") {
+      if (step === 2) return !!script;
+      if (step === 3) return !!selectedAvatarUrl;
+    } else if (videoFormat === "product-scene") {
+      if (step === 2) return !!sceneType;
+      if (step === 3) return !wantsVoiceover || !!editedScript;
+    } else {
+      // faceless-narrated
+      if (step === 2) return !!voice;
+    }
+    return true;
+  };
+
   return (
     <div className="space-y-6 max-w-3xl">
       <StepIndicator step={currentStep} labels={stepLabels} />
 
-      <ProductPicker value={productId} onChange={setProductId} />
-
-      {productId && (
+      {/* ── Step 0: Product & Format ──────────────────────────── */}
+      {wizardStep === 0 && (
         <>
-          {/* Format selector */}
-          <div className="space-y-3">
-            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Video Format</label>
-            <div className="grid grid-cols-3 gap-3">
-              <button
-                onClick={() => { setVideoFormat("ugc"); handleReset(); }}
-                className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "ugc" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <User className="w-4 h-4" />
-                  <span className="text-sm font-medium">UGC Talking Head</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">AI avatar speaks your script with lip sync</p>
-              </button>
-              <button
-                onClick={() => { setVideoFormat("product-scene"); handleReset(); }}
-                className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "product-scene" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Package className="w-4 h-4" />
-                  <span className="text-sm font-medium">Product Scene</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">Character interacting with your product, animated into video</p>
-              </button>
-              <button
-                onClick={() => { setVideoFormat("faceless-narrated"); handleReset(); }}
-                className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "faceless-narrated" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Film className="w-4 h-4" />
-                  <span className="text-sm font-medium">Faceless Narrated</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">Cinematic B-roll visuals with voiceover narration</p>
-              </button>
-            </div>
-          </div>
+          <ProductPicker value={productId} onChange={setProductId} />
 
-          {/* Research */}
+          {productId && (
+            <>
+              {/* Format selector */}
+              <div className="space-y-3">
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Video Format</label>
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => { setVideoFormat("ugc"); handleReset(); }}
+                    className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "ugc" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <User className="w-4 h-4" />
+                      <span className="text-sm font-medium">UGC Talking Head</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">AI avatar speaks your script with lip sync</p>
+                  </button>
+                  <button
+                    onClick={() => { setVideoFormat("product-scene"); handleReset(); }}
+                    className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "product-scene" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Package className="w-4 h-4" />
+                      <span className="text-sm font-medium">Product Scene</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">Character interacting with your product, animated into video</p>
+                  </button>
+                  <button
+                    onClick={() => { setVideoFormat("faceless-narrated"); handleReset(); }}
+                    className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "faceless-narrated" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Film className="w-4 h-4" />
+                      <span className="text-sm font-medium">Faceless Narrated</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">Cinematic B-roll visuals with voiceover narration</p>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button onClick={() => setWizardStep(1)} className="h-11 text-sm font-medium px-6">
+                  Next: {stepLabels[1]} <ChevronRight className="w-4 h-4 ml-1.5" />
+                </Button>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {/* ── Step 1: Research & Select Trend ───────────────────── */}
+      {wizardStep === 1 && (
+        <>
           <div className="space-y-3">
             <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Focus Area (optional)</label>
             <Textarea placeholder='"testimonials", "humor", "day in the life"...' value={focusArea} onChange={(e) => setFocusArea(e.target.value)} rows={2} className="resize-none" />
@@ -454,7 +490,6 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </Button>
           </div>
 
-          {/* Trends */}
           {trends.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -467,9 +502,23 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </div>
           )}
 
-          {/* ── UGC: Script step ─────────────────────────────────── */}
-          {videoFormat === "ugc" && selectedTrend && (
-            <div className="space-y-4 border-t border-border/30 pt-6">
+          <div className="flex justify-between pt-4">
+            <Button variant="outline" onClick={() => setWizardStep(0)} className="h-11 text-sm font-medium px-6">
+              Back
+            </Button>
+            <Button onClick={() => setWizardStep(2)} disabled={!canProceedFromStep(1)} className="h-11 text-sm font-medium px-6">
+              Next: {stepLabels[2]} <ChevronRight className="w-4 h-4 ml-1.5" />
+            </Button>
+          </div>
+        </>
+      )}
+
+      {/* ── Step 2: Script / Scene Setup / Script & Voice ─────── */}
+      {wizardStep === 2 && (
+        <>
+          {/* UGC: Script step */}
+          {videoFormat === "ugc" && (
+            <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-muted-foreground" />
                 <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">UGC Script</label>
@@ -513,9 +562,162 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </div>
           )}
 
-          {/* ── UGC: Avatar & Voice step ─────────────────────────── */}
-          {videoFormat === "ugc" && script && (
-            <div className="space-y-4 border-t border-border/30 pt-6">
+          {/* Product Scene: Scene Setup step */}
+          {videoFormat === "product-scene" && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-muted-foreground" />
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Scene Setup</label>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Scene Type</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {SCENE_TYPES.map((s) => (
+                    <button key={s.value} onClick={() => setSceneType(s.value)} className={`text-left p-3 rounded-lg border text-xs transition-all ${sceneType === s.value ? "border-foreground bg-foreground/5" : "border-border/50 text-muted-foreground hover:border-foreground/30"}`}>
+                      <p className="font-medium text-foreground">{s.label}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Product Photo (optional)</label>
+                <div className="flex items-center gap-3">
+                  {productImageUrl && (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-border/60">
+                      <img src={productImageUrl} alt="Product" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => productImageInputRef.current?.click()} disabled={uploadingProductImage}>
+                    {uploadingProductImage ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Upload className="w-3.5 h-3.5 mr-1.5" />{productImageUrl ? "Replace" : "Upload Product Photo"}</>}
+                  </Button>
+                  <input ref={productImageInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUploadProductImage(f); e.target.value = ""; }} />
+                </div>
+                <p className="text-[10px] text-muted-foreground/60">Upload a clear photo of your product for better visual accuracy.</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Character (optional)</label>
+                {savedAvatars.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    {savedAvatars.map((a) => (
+                      <button key={a.id} onClick={() => setSelectedAvatarUrl(selectedAvatarUrl === a.imageUrl ? "" : a.imageUrl)} className={`relative rounded-lg overflow-hidden border-2 transition-all ${selectedAvatarUrl === a.imageUrl ? "border-foreground shadow-md" : "border-transparent hover:border-foreground/30"}`}>
+                        <img src={a.imageUrl} alt={a.name} className="w-full aspect-square object-cover" loading="lazy" />
+                        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-1">
+                          <p className="text-white text-[9px] font-medium truncate">{a.name}</p>
+                        </div>
+                        {selectedAvatarUrl === a.imageUrl && (
+                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground flex items-center justify-center"><CheckCircle2 className="w-2.5 h-2.5 text-background" /></div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex rounded-md border border-border/60 overflow-hidden">
+                    {(["female", "male"] as const).map((g) => (
+                      <button key={g} onClick={() => setFaceGender(g)} className={`px-3 py-1.5 text-[11px] transition-all ${faceGender === g ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:text-foreground"}`}>
+                        {g === "female" ? "Female" : "Male"}
+                      </button>
+                    ))}
+                  </div>
+                  <Button variant="default" size="sm" className="h-9 text-xs" onClick={handleGenerateFace} disabled={generatingFace}>
+                    {generatingFace ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating...</> : <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Generate AI Face</>}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] text-muted-foreground font-medium">Custom Scene Description (optional)</label>
+                <Textarea value={sceneDescription} onChange={(e) => setSceneDescription(e.target.value)} rows={3} placeholder='e.g. "Woman lifting the serum bottle from a marble countertop, soft morning light..."' className="resize-none text-sm" />
+              </div>
+            </div>
+          )}
+
+          {/* Faceless Narrated: Script & Voice step */}
+          {videoFormat === "faceless-narrated" && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Film className="w-4 h-4 text-muted-foreground" />
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Script & Voice</label>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] text-muted-foreground">Scenes:</label>
+                  <div className="flex gap-1.5">
+                    {[3, 4, 5, 6].map((n) => (
+                      <button key={n} onClick={() => setFacelessSceneCount(n)} className={`px-3 py-1.5 rounded-md text-xs transition-all ${facelessSceneCount === n ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{n}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] text-muted-foreground">Duration:</label>
+                  <div className="flex gap-1.5">
+                    {[15, 30, 45, 60].map((d) => (
+                      <button key={d} onClick={() => setFacelessDuration(d)} className={`px-3 py-1.5 rounded-md text-xs transition-all ${facelessDuration === d ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{d}s</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Narration Style</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {SCRIPT_STYLES.map((s) => (
+                    <button key={s.value} onClick={() => setScriptStyle(s.value)} className={`text-left p-3 rounded-lg border text-xs transition-all ${scriptStyle === s.value ? "border-foreground bg-foreground/5" : "border-border/50 text-muted-foreground hover:border-foreground/30"}`}>
+                      <p className="font-medium text-foreground">{s.label}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] text-muted-foreground font-medium">Custom Script (optional)</label>
+                <Textarea value={editedScript} onChange={(e) => setEditedScript(e.target.value)} rows={4} placeholder="Leave empty for AI-generated narration, or write your own..." className="resize-none text-sm" />
+                <p className="text-[10px] text-muted-foreground/60">If left empty, AI will write the narration and generate matching visuals automatically.</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] text-muted-foreground font-medium">Narrator Voice</label>
+                <div className="space-y-1.5">
+                  <p className="text-[10px] text-muted-foreground/60">Female</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {VOICES.female.map((v) => (
+                      <button key={v.id} onClick={() => setVoice(v.id)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voice === v.id ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v.label}</button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground/60 pt-1">Male</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {VOICES.male.map((v) => (
+                      <button key={v.id} onClick={() => setVoice(v.id)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voice === v.id ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v.label}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-between pt-4">
+            <Button variant="outline" onClick={() => setWizardStep(1)} className="h-11 text-sm font-medium px-6">
+              Back
+            </Button>
+            <Button onClick={() => setWizardStep(3)} disabled={!canProceedFromStep(2)} className="h-11 text-sm font-medium px-6">
+              Next: {stepLabels[3]} <ChevronRight className="w-4 h-4 ml-1.5" />
+            </Button>
+          </div>
+        </>
+      )}
+
+      {/* ── Step 3: Avatar & Voice / Voiceover / Generate ─────── */}
+      {wizardStep === 3 && (
+        <>
+          {/* UGC: Avatar & Voice step */}
+          {videoFormat === "ugc" && (
+            <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-muted-foreground" />
                 <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Avatar Face & Voice</label>
@@ -584,87 +786,9 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </div>
           )}
 
-          {/* ── Product Scene: Scene Setup step ─────────────────── */}
-          {videoFormat === "product-scene" && selectedTrend && (
-            <div className="space-y-4 border-t border-border/30 pt-6">
-              <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-muted-foreground" />
-                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Scene Setup</label>
-              </div>
-
-              {/* Scene type picker */}
-              <div className="space-y-2">
-                <label className="text-[11px] text-muted-foreground font-medium">Scene Type</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {SCENE_TYPES.map((s) => (
-                    <button key={s.value} onClick={() => setSceneType(s.value)} className={`text-left p-3 rounded-lg border text-xs transition-all ${sceneType === s.value ? "border-foreground bg-foreground/5" : "border-border/50 text-muted-foreground hover:border-foreground/30"}`}>
-                      <p className="font-medium text-foreground">{s.label}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Product image upload */}
-              <div className="space-y-2">
-                <label className="text-[11px] text-muted-foreground font-medium">Product Photo (optional)</label>
-                <div className="flex items-center gap-3">
-                  {productImageUrl && (
-                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-border/60">
-                      <img src={productImageUrl} alt="Product" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => productImageInputRef.current?.click()} disabled={uploadingProductImage}>
-                    {uploadingProductImage ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Upload className="w-3.5 h-3.5 mr-1.5" />{productImageUrl ? "Replace" : "Upload Product Photo"}</>}
-                  </Button>
-                  <input ref={productImageInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUploadProductImage(f); e.target.value = ""; }} />
-                </div>
-                <p className="text-[10px] text-muted-foreground/60">Upload a clear photo of your product for better visual accuracy.</p>
-              </div>
-
-              {/* Character / Avatar selection (optional) */}
-              <div className="space-y-2">
-                <label className="text-[11px] text-muted-foreground font-medium">Character (optional)</label>
-                {savedAvatars.length > 0 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {savedAvatars.map((a) => (
-                      <button key={a.id} onClick={() => setSelectedAvatarUrl(selectedAvatarUrl === a.imageUrl ? "" : a.imageUrl)} className={`relative rounded-lg overflow-hidden border-2 transition-all ${selectedAvatarUrl === a.imageUrl ? "border-foreground shadow-md" : "border-transparent hover:border-foreground/30"}`}>
-                        <img src={a.imageUrl} alt={a.name} className="w-full aspect-square object-cover" loading="lazy" />
-                        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-1">
-                          <p className="text-white text-[9px] font-medium truncate">{a.name}</p>
-                        </div>
-                        {selectedAvatarUrl === a.imageUrl && (
-                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground flex items-center justify-center"><CheckCircle2 className="w-2.5 h-2.5 text-background" /></div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <div className="flex flex-wrap gap-2">
-                  <div className="flex rounded-md border border-border/60 overflow-hidden">
-                    {(["female", "male"] as const).map((g) => (
-                      <button key={g} onClick={() => setFaceGender(g)} className={`px-3 py-1.5 text-[11px] transition-all ${faceGender === g ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-                        {g === "female" ? "Female" : "Male"}
-                      </button>
-                    ))}
-                  </div>
-                  <Button variant="default" size="sm" className="h-9 text-xs" onClick={handleGenerateFace} disabled={generatingFace}>
-                    {generatingFace ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating...</> : <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Generate AI Face</>}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Custom scene description */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] text-muted-foreground font-medium">Custom Scene Description (optional)</label>
-                <Textarea value={sceneDescription} onChange={(e) => setSceneDescription(e.target.value)} rows={3} placeholder='e.g. "Woman lifting the serum bottle from a marble countertop, soft morning light..."' className="resize-none text-sm" />
-              </div>
-            </div>
-          )}
-
-          {/* ── Product Scene: Voiceover step ───────────────────── */}
-          {videoFormat === "product-scene" && selectedTrend && sceneType && (
-            <div className="space-y-4 border-t border-border/30 pt-6">
+          {/* Product Scene: Voiceover step */}
+          {videoFormat === "product-scene" && (
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Mic className="w-4 h-4 text-muted-foreground" />
@@ -680,7 +804,6 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
 
               {wantsVoiceover && (
                 <div className="space-y-4">
-                  {/* Script writer */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {SCRIPT_STYLES.map((s) => (
                       <button key={s.value} onClick={() => setScriptStyle(s.value)} className={`text-left p-3 rounded-lg border text-xs transition-all ${scriptStyle === s.value ? "border-foreground bg-foreground/5" : "border-border/50 text-muted-foreground hover:border-foreground/30"}`}>
@@ -713,7 +836,6 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                     </div>
                   )}
 
-                  {/* Voice picker */}
                   <div className="space-y-2">
                     <label className="text-[11px] text-muted-foreground font-medium">Voice</label>
                     <div className="space-y-1.5">
@@ -740,97 +862,22 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </div>
           )}
 
-          {/* ── Faceless Narrated: Script & Voice step ──────────── */}
-          {videoFormat === "faceless-narrated" && selectedTrend && (
-            <div className="space-y-4 border-t border-border/30 pt-6">
-              <div className="flex items-center gap-2">
-                <Film className="w-4 h-4 text-muted-foreground" />
-                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Script & Voice</label>
-              </div>
-
-              {/* Scene count & duration */}
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11px] text-muted-foreground">Scenes:</label>
-                  <div className="flex gap-1.5">
-                    {[3, 4, 5, 6].map((n) => (
-                      <button key={n} onClick={() => setFacelessSceneCount(n)} className={`px-3 py-1.5 rounded-md text-xs transition-all ${facelessSceneCount === n ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{n}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11px] text-muted-foreground">Duration:</label>
-                  <div className="flex gap-1.5">
-                    {[15, 30, 45, 60].map((d) => (
-                      <button key={d} onClick={() => setFacelessDuration(d)} className={`px-3 py-1.5 rounded-md text-xs transition-all ${facelessDuration === d ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{d}s</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Script style */}
-              <div className="space-y-2">
-                <label className="text-[11px] text-muted-foreground font-medium">Narration Style</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {SCRIPT_STYLES.map((s) => (
-                    <button key={s.value} onClick={() => setScriptStyle(s.value)} className={`text-left p-3 rounded-lg border text-xs transition-all ${scriptStyle === s.value ? "border-foreground bg-foreground/5" : "border-border/50 text-muted-foreground hover:border-foreground/30"}`}>
-                      <p className="font-medium text-foreground">{s.label}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Optional custom script */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] text-muted-foreground font-medium">Custom Script (optional)</label>
-                <Textarea value={editedScript} onChange={(e) => setEditedScript(e.target.value)} rows={4} placeholder="Leave empty for AI-generated narration, or write your own..." className="resize-none text-sm" />
-                <p className="text-[10px] text-muted-foreground/60">If left empty, AI will write the narration and generate matching visuals automatically.</p>
-              </div>
-
-              {/* Voice picker */}
-              <div className="space-y-2">
-                <label className="text-[11px] text-muted-foreground font-medium">Narrator Voice</label>
-                <div className="space-y-1.5">
-                  <p className="text-[10px] text-muted-foreground/60">Female</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {VOICES.female.map((v) => (
-                      <button key={v.id} onClick={() => setVoice(v.id)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voice === v.id ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v.label}</button>
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground/60 pt-1">Male</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {VOICES.male.map((v) => (
-                      <button key={v.id} onClick={() => setVoice(v.id)} className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${voice === v.id ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}>{v.label}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── Generate (shared) ────────────────────────────────── */}
-          {canGenerate && (
-            <div className="space-y-4 border-t border-border/30 pt-6">
+          {/* Faceless Narrated: this is the Generate step (step 3 = last step) */}
+          {videoFormat === "faceless-narrated" && (
+            <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">TikTok Caption</label>
                 <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={2} placeholder="Caption with hashtags..." className="resize-none text-sm" />
               </div>
 
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                {videoFormat === "ugc" ? (
-                  <span className="px-2 py-1 rounded bg-muted">Kokoro TTS + Kling Avatar</span>
-                ) : videoFormat === "product-scene" ? (
-                  <span className="px-2 py-1 rounded bg-muted">Gemini Scene + Kling Image-to-Video{wantsVoiceover ? " + Kokoro TTS" : ""}</span>
-                ) : (
-                  <span className="px-2 py-1 rounded bg-muted">Kling Multi-Shot + Kokoro TTS + FFmpeg Merge</span>
-                )}
+                <span className="px-2 py-1 rounded bg-muted">Kling Multi-Shot + Kokoro TTS + FFmpeg Merge</span>
                 <span>720p</span>
                 <span>9:16</span>
               </div>
 
               <Button onClick={handleGenerate} disabled={generating || generation?.status === "generating"} className="w-full h-12 text-sm font-medium">
-                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />{videoFormat === "ugc" ? "Generate UGC Video" : videoFormat === "product-scene" ? "Generate Product Scene" : "Generate Faceless Video"}</>}
+                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />Generate Faceless Video</>}
               </Button>
 
               {generation && (
@@ -860,6 +907,76 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               )}
             </div>
           )}
+
+          <div className="flex justify-between pt-4">
+            <Button variant="outline" onClick={() => setWizardStep(2)} className="h-11 text-sm font-medium px-6">
+              Back
+            </Button>
+            {/* UGC and product-scene have a next step; faceless generate is already shown above */}
+            {(videoFormat === "ugc" || videoFormat === "product-scene") && (
+              <Button onClick={() => setWizardStep(4)} disabled={!canProceedFromStep(3)} className="h-11 text-sm font-medium px-6">
+                Next: {stepLabels[4]} <ChevronRight className="w-4 h-4 ml-1.5" />
+              </Button>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* ── Step 4: Generate (UGC & Product Scene only) ──────── */}
+      {wizardStep === 4 && (videoFormat === "ugc" || videoFormat === "product-scene") && (
+        <>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">TikTok Caption</label>
+              <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={2} placeholder="Caption with hashtags..." className="resize-none text-sm" />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              {videoFormat === "ugc" ? (
+                <span className="px-2 py-1 rounded bg-muted">Kokoro TTS + Kling Avatar</span>
+              ) : (
+                <span className="px-2 py-1 rounded bg-muted">Gemini Scene + Kling Image-to-Video{wantsVoiceover ? " + Kokoro TTS" : ""}</span>
+              )}
+              <span>720p</span>
+              <span>9:16</span>
+            </div>
+
+            <Button onClick={handleGenerate} disabled={generating || generation?.status === "generating"} className="w-full h-12 text-sm font-medium">
+              {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />{videoFormat === "ugc" ? "Generate UGC Video" : "Generate Product Scene"}</>}
+            </Button>
+
+            {generation && (
+              <div className="rounded-xl border border-border/50 p-5 space-y-4">
+                {generation.status === "generating" && (
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <div><p className="text-sm font-medium">Generating video...</p><p className="text-xs text-muted-foreground">Takes 2-5 minutes. You can leave — it completes in the background.</p></div>
+                  </div>
+                )}
+                {generation.status === "completed" && generation.videoUrl && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /><p className="text-sm font-medium">Video ready!</p></div>
+                    <div className="rounded-lg overflow-hidden bg-black" style={{ aspectRatio: "9/16", maxHeight: "480px" }}>
+                      <video src={generation.videoUrl} controls className="w-full h-full object-contain" />
+                    </div>
+                    {generation.postId && <p className="text-xs text-muted-foreground">Draft post created — find it in the Drafts tab.</p>}
+                  </div>
+                )}
+                {generation.status === "failed" && (
+                  <div className="flex items-center gap-3">
+                    <XCircle className="w-5 h-5 text-red-500" />
+                    <div><p className="text-sm font-medium">Generation failed</p><p className="text-xs text-muted-foreground">{generation.errorMessage}</p></div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-start pt-4">
+            <Button variant="outline" onClick={() => setWizardStep(3)} className="h-11 text-sm font-medium px-6">
+              Back
+            </Button>
+          </div>
         </>
       )}
     </div>
