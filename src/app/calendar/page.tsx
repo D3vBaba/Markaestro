@@ -405,6 +405,7 @@ export default function CalendarPage() {
   const [dragItem, setDragItem] = useState<Post | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [channelFilter, setChannelFilter] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -469,13 +470,15 @@ export default function CalendarPage() {
     setDragItem(null);
   };
 
-  // Build date → items map (with status filter applied)
-  const filteredPosts = statusFilter
-    ? posts.filter((p) => p.status === statusFilter)
-    : posts;
-  const filteredAds = statusFilter
-    ? ads.filter((a) => a.status === statusFilter)
-    : ads;
+  // Build date → items map (with filters applied)
+  const filteredPosts = posts.filter((p) =>
+    (!statusFilter || p.status === statusFilter) &&
+    (!channelFilter || p.channel === channelFilter)
+  );
+  const filteredAds = ads.filter((a) =>
+    (!statusFilter || a.status === statusFilter) &&
+    (!channelFilter || a.platform === channelFilter || (channelFilter === "facebook" && a.platform === "meta"))
+  );
 
   const itemsByDate = new Map<string, CalendarItem[]>();
   for (const post of filteredPosts) {
@@ -590,12 +593,25 @@ export default function CalendarPage() {
               );
             })}
             <div className="w-px h-3 bg-border/50 hidden sm:block" />
-            {Object.entries(CHANNEL_LABEL).map(([key, label]) => (
-              <div key={key} className="flex items-center gap-1.5">
-                <span className="w-0.5 h-3 rounded-full" style={{ background: CHANNEL_ACCENT[key] }} />
-                <span className="text-[11px] text-muted-foreground">{label}</span>
-              </div>
-            ))}
+            {Object.entries(CHANNEL_LABEL).map(([key, label]) => {
+              const active = channelFilter === key;
+              const color = CHANNEL_ACCENT[key];
+              return (
+                <button
+                  key={key}
+                  onClick={() => setChannelFilter(active ? null : key)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all ${
+                    active
+                      ? "border-current bg-current/10"
+                      : "border-transparent hover:bg-muted"
+                  }`}
+                  style={active ? { color, borderColor: color + "60" } : undefined}
+                >
+                  <span className="w-0.5 h-3 rounded-full" style={{ background: color }} />
+                  <span className={active ? "" : "text-muted-foreground"}>{label}</span>
+                </button>
+              );
+            })}
             <div className="w-px h-3 bg-border/50 hidden sm:block" />
             <div className="flex items-center gap-1.5">
               <GripVertical className="w-3 h-3 text-muted-foreground/50" />
