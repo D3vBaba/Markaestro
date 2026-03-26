@@ -404,6 +404,7 @@ export default function CalendarPage() {
   const [selected, setSelected] = useState<CalendarItem | null>(null);
   const [dragItem, setDragItem] = useState<Post | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -468,16 +469,23 @@ export default function CalendarPage() {
     setDragItem(null);
   };
 
-  // Build date → items map
+  // Build date → items map (with status filter applied)
+  const filteredPosts = statusFilter
+    ? posts.filter((p) => p.status === statusFilter)
+    : posts;
+  const filteredAds = statusFilter
+    ? ads.filter((a) => a.status === statusFilter)
+    : ads;
+
   const itemsByDate = new Map<string, CalendarItem[]>();
-  for (const post of posts) {
+  for (const post of filteredPosts) {
     const date = getDateForPost(post);
     if (!date) continue;
     const list = itemsByDate.get(date) || [];
     list.push({ kind: "post", date, post });
     itemsByDate.set(date, list);
   }
-  for (const ad of ads) {
+  for (const ad of filteredAds) {
     if (!ad.startDate) continue;
     const date = isoDate(new Date(ad.startDate));
     const list = itemsByDate.get(date) || [];
@@ -500,10 +508,11 @@ export default function CalendarPage() {
     if (items && items.length > 0) agendaDays.push({ date: day, items });
   }
 
-  // Count totals for month
-  const totalPosts = posts.filter(p => {
+  // Count totals for month (respects active filter)
+  const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
+  const totalPosts = filteredPosts.filter(p => {
     const d = getDateForPost(p);
-    return d && d.startsWith(`${year}-${String(month + 1).padStart(2, "0")}`);
+    return d && d.startsWith(monthPrefix);
   }).length;
 
   return (
@@ -556,18 +565,30 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          {/* Legend */}
-          <div className="flex items-center gap-4 sm:gap-5 mb-4 flex-wrap">
+          {/* Filters + Legend */}
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 flex-wrap">
             {[
-              { label: "Published", color: STATUS_DOT.published },
-              { label: "Scheduled", color: STATUS_DOT.scheduled },
-              { label: "Failed", color: STATUS_DOT.failed },
-            ].map(({ label, color }) => (
-              <div key={label} className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full" style={{ background: color }} />
-                <span className="text-[11px] text-muted-foreground">{label}</span>
-              </div>
-            ))}
+              { key: "published", label: "Published", color: STATUS_DOT.published },
+              { key: "scheduled", label: "Scheduled", color: STATUS_DOT.scheduled },
+              { key: "failed", label: "Failed", color: STATUS_DOT.failed },
+            ].map(({ key, label, color }) => {
+              const active = statusFilter === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setStatusFilter(active ? null : key)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all ${
+                    active
+                      ? "border-current bg-current/10"
+                      : "border-transparent hover:bg-muted"
+                  }`}
+                  style={active ? { color, borderColor: color + "60" } : undefined}
+                >
+                  <span className="w-2 h-2 rounded-full" style={{ background: color }} />
+                  <span className={active ? "" : "text-muted-foreground"}>{label}</span>
+                </button>
+              );
+            })}
             <div className="w-px h-3 bg-border/50 hidden sm:block" />
             {Object.entries(CHANNEL_LABEL).map(([key, label]) => (
               <div key={key} className="flex items-center gap-1.5">
