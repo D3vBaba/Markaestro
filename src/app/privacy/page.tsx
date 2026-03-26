@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
-import LegalLayout from "@/components/layout/LegalLayout";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | Markaestro",
-  description: "How Markaestro collects, uses, stores, and protects your personal information.",
-};
+import MarketingLayout from "@/components/layout/MarketingLayout";
 
 export default function PrivacyPage() {
   return (
-    <LegalLayout>
+    <MarketingLayout>
+      <div className="mx-auto max-w-4xl px-6 py-16 lg:py-24">
       <h1 className="text-3xl font-bold tracking-tight text-foreground">Privacy Policy</h1>
       <p className="mt-2 text-sm text-muted-foreground">Last updated: March 10, 2026</p>
 
@@ -194,6 +191,7 @@ export default function PrivacyPage() {
           </p>
         </section>
       </div>
-    </LegalLayout>
+      </div>
+    </MarketingLayout>
   );
 }

@@ -8,7 +8,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-md border bg-white p-0.5 shadow-sm">
-              <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="h-full w-full object-contain" />
+              <Image src="/markaestro-logo.png" alt="Markaestro" width={28} height={28} className="h-full w-full object-contain" />
             </div>
             <span className="text-sm font-semibold tracking-tight">Markaestro</span>
           </Link>

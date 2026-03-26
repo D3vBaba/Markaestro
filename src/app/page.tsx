@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { useAuth } from "@/components/providers/AuthProvider";
+import MarketingLayout from "@/components/layout/MarketingLayout";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -10,45 +9,8 @@ import { motion } from "framer-motion";
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 export default function LandingPage() {
-  const { user } = useAuth();
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* ─── Navbar ─── */}
-      <header className="sticky top-0 z-50 border-b bg-background">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary p-1.5">
-              <Image src="/markaestro-logo.jpg" alt="Markaestro" width={32} height={32} className="h-full w-full object-contain rounded-md" />
-            </div>
-            <span className="text-base font-bold tracking-tight">Markaestro</span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition">Features</a>
-            <a href="#channels" className="text-sm text-muted-foreground hover:text-foreground transition">Channels</a>
-            <a href="#ai" className="text-sm text-muted-foreground hover:text-foreground transition">AI Studio</a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            {user ? (
-              <Link href="/dashboard">
-                <Button>Go to Dashboard <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
-              </Link>
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" className="text-sm">Sign In</Button>
-                </Link>
-                <Link href="/login">
-                  <Button className="text-sm">Get Started <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Button>
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
+    <MarketingLayout>
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden">
         <div className="relative mx-auto max-w-7xl px-6 py-28 lg:py-40">
@@ -74,11 +36,11 @@ export default function LandingPage() {
                   Start for Free <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <a href="#features">
+              <Link href="/features">
                 <Button variant="outline" size="lg" className="h-13 px-10 text-sm rounded-2xl">
                   See Features
                 </Button>
-              </a>
+              </Link>
             </div>
           </motion.div>
 
@@ -103,8 +65,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Features Grid ─── */}
-      <section id="features" className="border-t bg-muted/20">
+      {/* ─── Features Preview ─── */}
+      <section className="border-t bg-muted/20">
         <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Platform</p>
@@ -118,30 +80,12 @@ export default function LandingPage() {
 
           <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              {
-                title: "Multi-Channel Publishing",
-                desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly.",
-              },
-              {
-                title: "Ad Campaign Management",
-                desc: "Create and launch ad campaigns on Meta and Google Ads with audience targeting, budgets, and creative management.",
-              },
-              {
-                title: "AI Content Generation",
-                desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization.",
-              },
-              {
-                title: "AI Image Generation",
-                desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity.",
-              },
-              {
-                title: "Analytics Dashboard",
-                desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time.",
-              },
-              {
-                title: "OAuth Integrations",
-                desc: "One-click connect to Meta, Google, and TikTok via secure OAuth. No manual token management required.",
-              },
+              { title: "Multi-Channel Publishing", desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly." },
+              { title: "Ad Campaign Management", desc: "Create and launch ad campaigns on Meta and Google Ads with audience targeting, budgets, and creative management." },
+              { title: "AI Content Generation", desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization." },
+              { title: "AI Image Generation", desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity." },
+              { title: "Analytics Dashboard", desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time." },
+              { title: "OAuth Integrations", desc: "One-click connect to Meta, Google, and TikTok via secure OAuth. No manual token management required." },
             ].map(({ title, desc }) => (
               <div
                 key={title}
@@ -152,11 +96,19 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+
+          <div className="mt-12 text-center">
+            <Link href="/features">
+              <Button variant="outline" className="rounded-2xl">
+                Explore All Features <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ─── Channels ─── */}
-      <section id="channels" className="border-t">
+      {/* ─── Channels Preview ─── */}
+      <section className="border-t">
         <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
           <div className="grid gap-20 lg:grid-cols-2 lg:items-center">
             <div>
@@ -182,6 +134,13 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
+              <div className="mt-10">
+                <Link href="/channels">
+                  <Button variant="outline" className="rounded-2xl">
+                    See All Channels <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -201,8 +160,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── AI Studio ─── */}
-      <section id="ai" className="border-t bg-muted/20">
+      {/* ─── AI Studio Preview ─── */}
+      <section className="border-t bg-muted/20">
         <div className="mx-auto max-w-7xl px-6 py-28 lg:py-36">
           <div className="grid gap-20 lg:grid-cols-2 lg:items-center">
             <div className="order-2 lg:order-1">
@@ -224,25 +183,6 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-                <div className="rounded-2xl border bg-background p-8">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-primary tracking-wide uppercase">
-                    <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
-                    AI Image Generation
-                  </div>
-                  <div className="mt-5 grid grid-cols-4 gap-3">
-                    {["1:1", "16:9", "9:16", "4:5"].map((ratio) => (
-                      <div key={ratio} className="rounded-xl bg-muted/30 p-3 text-center border">
-                        <p className="text-sm font-bold text-primary">{ratio}</p>
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          {ratio === "1:1" ? "Instagram" : ratio === "16:9" ? "Facebook" : ratio === "9:16" ? "Stories" : "IG Feed"}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="mt-5 text-xs text-muted-foreground">
-                    5 styles: Branded, Photorealistic, Illustration, Minimal, Abstract
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -257,9 +197,7 @@ export default function LandingPage() {
               <div className="mt-10 space-y-5">
                 {[
                   "Brand voice profiles per product with tone, style, and vocabulary",
-                  "Brand identity with logo, colors, and visual direction",
                   "Gemini Imagen 3 for photorealistic branded images",
-                  "OpenAI DALL-E 3 fallback for maximum reliability",
                   "Channel-aware formatting: hashtags, char limits, media specs",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-4">
@@ -267,6 +205,13 @@ export default function LandingPage() {
                     <p className="text-sm text-muted-foreground">{item}</p>
                   </div>
                 ))}
+              </div>
+              <div className="mt-10">
+                <Link href="/ai-studio">
+                  <Button variant="outline" className="rounded-2xl">
+                    Explore AI Studio <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -298,60 +243,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* ─── Footer ─── */}
-      <footer className="border-t bg-background">
-        <div className="mx-auto max-w-7xl px-6 py-16">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-primary p-1">
-                  <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="h-full w-full object-contain rounded-md" />
-                </div>
-                <span className="text-sm font-bold tracking-tight">Markaestro</span>
-              </div>
-              <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
-                The premium marketing automation platform for modern teams.
-              </p>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">Product</p>
-              <div className="mt-5 flex flex-col gap-3">
-                <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition">Features</a>
-                <a href="#channels" className="text-sm text-muted-foreground hover:text-foreground transition">Channels</a>
-                <a href="#ai" className="text-sm text-muted-foreground hover:text-foreground transition">AI Studio</a>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">Company</p>
-              <div className="mt-5 flex flex-col gap-3">
-                <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition">Contact</Link>
-                <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition">Terms of Service</Link>
-                <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition">Privacy Policy</Link>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">Get Started</p>
-              <div className="mt-5 flex flex-col gap-3">
-                <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition">Sign In</Link>
-                <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition">Create Account</Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-16 flex flex-col items-center gap-4 border-t pt-8 sm:flex-row sm:justify-between">
-            <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Markaestro. All rights reserved.</p>
-            <div className="flex gap-6">
-              <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition">Terms</Link>
-              <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition">Privacy</Link>
-              <Link href="/contact" className="text-xs text-muted-foreground hover:text-foreground transition">Contact</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </MarketingLayout>
   );
 }

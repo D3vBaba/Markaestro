@@ -1,10 +1,18 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, Menu } from "lucide-react";
+import { Search, Menu, LogOut, Settings, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { navigationGroups, settingsItem } from "@/lib/nav";
 import { useAuth } from "@/components/providers/AuthProvider";
 import Link from "next/link";
@@ -14,8 +22,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function Header() {
     const pathname = usePathname();
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
 
+    const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
+    const email = user?.email || "";
     const initials = (user?.displayName || user?.email?.split("@")[0] || "U")
         .split(" ")
         .map((n) => n[0])
@@ -24,7 +34,7 @@ export function Header() {
         .slice(0, 2);
 
     return (
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
+        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background px-6">
             {/* Mobile menu */}
             <Sheet>
                 <SheetTrigger asChild>
@@ -39,7 +49,7 @@ export function Header() {
                     <div className="flex flex-col h-full p-6">
                         <div className="font-bold text-lg mb-10 flex items-center gap-3 text-sidebar-accent-foreground">
                             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden p-1.5">
-                                <Image src="/markaestro-logo.jpg" alt="Markaestro" width={28} height={28} className="object-contain rounded-md" />
+                                <Image src="/markaestro-logo-transparent.png" alt="Markaestro" width={28} height={28} className="object-contain rounded-md invert" />
                             </div>
                             Markaestro
                         </div>
@@ -97,9 +107,15 @@ export function Header() {
                 </SheetContent>
             </Sheet>
 
+            {/* Logo — visible on desktop header */}
+            <Link href="/dashboard" className="hidden lg:flex items-center gap-3">
+                <Image src="/markaestro-logo-transparent.png" alt="Markaestro" width={40} height={36} className="object-contain" />
+                <span className="text-base font-bold tracking-tight">Markaestro</span>
+            </Link>
+
             <div className="flex-1" />
 
-            {/* Search */}
+            {/* Search + User menu */}
             <div className="flex items-center gap-3">
                 <div className="relative hidden md:flex items-center">
                     <Search className="absolute left-3.5 h-3.5 w-3.5 text-muted-foreground/60" />
@@ -112,9 +128,38 @@ export function Header() {
                         <span className="text-xs">&#8984;</span>K
                     </kbd>
                 </div>
-                <Avatar className="h-9 w-9 md:hidden bg-primary">
-                    <AvatarFallback className="text-xs bg-transparent text-white font-semibold">{initials}</AvatarFallback>
-                </Avatar>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
+                            <Avatar className="h-10 w-10 bg-primary">
+                                <AvatarFallback className="text-sm bg-transparent text-white font-semibold">{initials}</AvatarFallback>
+                            </Avatar>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 rounded-xl" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none">{displayName}</p>
+                                {email && <p className="text-xs leading-none text-muted-foreground">{email}</p>}
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings" className="cursor-pointer">
+                                <Settings className="mr-2 h-4 w-4" />
+                                Settings
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer"
+                            onClick={logout}
+                        >
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Sign out
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </header>
     );
