@@ -169,17 +169,16 @@ CRITICAL LENGTH RULES:
 - Do NOT write paragraphs, lists, or multi-line posts.
 
 IMAGE PROMPT RULES:
-For each post, write a unique, detailed image prompt that creates a VISUALLY DISTINCT scene. Each image must look completely different from every other image in the pipeline.
+For each post, write a unique, detailed image prompt that creates a VISUALLY DISTINCT scene. Each image must look NOTHING like any other image in this pipeline. If two images could be confused for each other, you have failed.
 
-Vary these elements across posts:
-- SUBJECT: different people (age, gender, ethnicity, solo vs group), objects, environments, abstract concepts
-- SETTING: indoor/outdoor, office/home/cafe/nature/urban/studio, different rooms, different cities
-- LIGHTING: golden hour, overcast, neon, studio, candlelight, dawn, harsh midday
-- COMPOSITION: close-up, wide shot, overhead, profile, action shot, flat lay, macro detail
-- MOOD: tense, joyful, contemplative, energetic, serene, dramatic, playful
-- COLOR PALETTE: warm earth tones, cool blues, vibrant pops, muted pastels, high contrast B&W with color accent
+MANDATORY: Each image prompt must specify ALL of these elements, and NO TWO posts can share the same choice for ANY element:
+- SUBJECT TYPE (pick a DIFFERENT one per post): solo hands close-up | single object still life | environmental landscape | abstract texture | two people interacting | overhead arrangement | silhouette | macro detail | point-of-view shot | motion blur action | architectural space | nature close-up | cultural scene | empty space with traces
+- LIGHTING (pick a DIFFERENT one per post): Rembrandt dramatic | soft window diffused | neon colored | golden hour backlit | harsh midday shadows | candlelit warm | blue hour twilight | dappled through leaves | studio rim light | overexposed dreamy
+- COLOR MOOD (pick a DIFFERENT one per post): warm earth tones | cool oceanic blues | single vibrant accent on muted | dusty pastels | high contrast monochrome | jewel tones | sun-bleached naturals | film noir shadows | botanical greens | warm metallics
 
-The image prompt should be 2-3 sentences describing a specific, vivid scene. Do NOT use generic descriptions. Be cinematic and specific.
+NOT ALL IMAGES SHOULD HAVE PEOPLE. At least 40% of images should feature objects, textures, environments, or abstract compositions WITHOUT any human subjects. Show the product world through still life, macro photography, landscapes, architecture, or symbolic arrangements.
+
+The image prompt should be 3-4 sentences describing a SPECIFIC, CINEMATIC scene — as if describing a single frame from a film. Include the exact setting, exact lighting direction, exact colors, and exact emotional tone. Generic descriptions like "person smiling with product" are FORBIDDEN.
 
 Return ONLY valid JSON array, no other text:
 [

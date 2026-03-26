@@ -62,98 +62,246 @@ function getPlatformDirection(channel?: SocialChannel): string {
   }
 }
 
+/** Pick a random element from an array. */
+function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
+
+/**
+ * Creative visual concepts that can be applied to ANY product type.
+ * Each concept is a storytelling / compositional idea — not a subject.
+ */
+const CREATIVE_CONCEPTS = [
+  'CONCEPT: Capture the exact MOMENT this product changes someone\'s day — the split-second of delight, relief, or discovery. Freeze that emotional turning point.',
+  'CONCEPT: Show the product\'s world through an UNEXPECTED SCALE — macro close-up revealing hidden textures and details invisible to the naked eye, making the familiar feel extraordinary.',
+  'CONCEPT: Create a VISUAL METAPHOR — represent what this product does through a symbolic scene. Example: a productivity tool → a perfectly orchestrated domino chain in motion.',
+  'CONCEPT: Tell a BEFORE/DURING story in a single frame — use split lighting, contrasting halves, or a transitional moment that shows transformation mid-happening.',
+  'CONCEPT: Show the ABSENCE — what life looks like WITHOUT this product. The empty space, the missing piece, the unsolved tension. Make the viewer feel the gap.',
+  'CONCEPT: Capture the product in an UNEXPECTED ENVIRONMENT that still makes perfect sense — a surprising context that reveals something new about its value.',
+  'CONCEPT: Focus on HANDS IN ACTION — the intimate, tactile moment of someone interacting with or benefiting from this product. Hands tell stories of craft, care, and intention.',
+  'CONCEPT: Create a STILL LIFE composition inspired by Dutch Golden Age painting — arrange the product and related objects with dramatic chiaroscuro lighting and rich, moody atmosphere.',
+  'CONCEPT: Show the RIPPLE EFFECT — one person using this product, and the cascading positive impact on the people and world around them. Concentric circles of benefit.',
+  'CONCEPT: Capture MOTION BLUR and ENERGY — the product or its effect in dynamic movement. Streak lights, flowing fabrics, splashing liquids, wind-swept scenes.',
+  'CONCEPT: Create a TOP-DOWN KNOLLING arrangement — the product and everything it connects to, arranged in a satisfying, organized grid pattern on a textured surface.',
+  'CONCEPT: Show a QUIET INTIMATE MOMENT — a single person in a private, unguarded moment benefiting from this product. Voyeuristic, authentic, and emotionally honest.',
+  'CONCEPT: Create DRAMATIC CONTRAST — pair the product with its opposite. Chaos vs. order, old vs. new, complex vs. simple. Let the juxtaposition tell the story.',
+  'CONCEPT: Show the product through a WINDOW, DOORWAY, or FRAME-WITHIN-A-FRAME — create depth and mystery, as if the viewer is discovering something private and beautiful.',
+  'CONCEPT: Capture the AFTERMATH — the satisfying result after the product has done its work. The clean surface, the finished project, the peaceful moment after the storm.',
+  'CONCEPT: Create an AERIAL or BIRD\'S-EYE perspective — see the product\'s impact from above, showing patterns, scale, and context invisible from ground level.',
+  'CONCEPT: Show NATURE RECLAIMING or INTERACTING with the product — vines growing around it, water flowing over it, light filtering through it. Organic meets designed.',
+  'CONCEPT: Capture GOLDEN HOUR MAGIC — the product bathed in that perfect 15-minute window of warm, directional sunlight that makes everything look cinematic and alive.',
+  'CONCEPT: Create a DOUBLE EXPOSURE effect — blend the product with the world it belongs to. The product\'s silhouette filled with the landscape, texture, or scene it enables.',
+  'CONCEPT: Show the product as part of a RITUAL or ROUTINE — the morning coffee ceremony, the evening unwind, the weekly treat. Repetition that feels sacred, not mundane.',
+];
+
+/**
+ * Category-specific visual subjects — multiple options per category for variety.
+ * Each array has diverse scene ideas so no two images default to the same composition.
+ */
+type CategoryScenes = { keywords: string[]; category: string; scenes: string[] };
+
+const CATEGORY_SCENE_POOLS: CategoryScenes[] = [
+  {
+    keywords: ['fashion', 'clothing', 'apparel', 'wear', 'dress', 'outfit', 'shoe', 'sneaker', 'accessories', 'jewelry', 'bag', 'handbag'],
+    category: 'FASHION/APPAREL',
+    scenes: [
+      'Street-level candid: someone mid-stride on rain-slicked cobblestones, the garment catching wind and light. Urban texture, reflected neon, cinematic motion.',
+      'Intimate dressing room moment: hands adjusting fabric in a mirror, warm tungsten light, visible thread texture, the private ritual of getting dressed.',
+      'Product arranged in a deconstructed flat-lay with unexpected objects — dried flowers, vintage postcards, artisan tools — that tell a story about who wears this.',
+      'Close-up of fabric texture against skin — the weave, the drape, the way light plays across the material. Macro lens, shallow depth of field, tactile and sensory.',
+      'Silhouette at golden hour on a rooftop or bridge — the garment\'s shape is the hero, backlit and dramatic, city or nature stretching behind.',
+      'Hands of a tailor or craftsperson working with the material — pins, thread, scissors — emphasizing the craft and intention behind the product.',
+      'The product tossed casually on an unmade bed or draped over a vintage chair — lived-in luxury, morning-after energy, effortlessly cool.',
+    ],
+  },
+  {
+    keywords: ['beauty', 'skincare', 'cosmetic', 'makeup', 'haircare', 'fragrance', 'perfume', 'serum', 'moisturizer'],
+    category: 'BEAUTY/SKINCARE',
+    scenes: [
+      'Macro shot of product texture — the swirl of a cream, the golden viscosity of an oil, the crystalline surface of a pressed powder. Abstract, almost geological.',
+      'Product floating in or emerging from water — submerged botanicals, rippling reflections, liquid transparency revealing the formula inside.',
+      'Morning bathroom counter still life — steam from a shower visible, product among personal objects, toothbrush, towel, plant — intimate and real.',
+      'Ingredient origin story: the raw botanicals, minerals, or fruits that become this product — arranged on slate, marble, or wood with dramatic side lighting.',
+      'Close-up of skin with water droplets, product residue catching light — dewy, luminous, alive. No face needed — just texture, light, and moisture.',
+      'Product arranged with its seasonal inspiration — autumn leaves, spring blossoms, summer citrus, winter frost — connecting formula to nature.',
+      'Hands applying product in a slow, ritualistic gesture — cream between fingertips, oil dropping onto a palm — focus on the sensory moment.',
+    ],
+  },
+  {
+    keywords: ['food', 'beverage', 'drink', 'restaurant', 'recipe', 'snack', 'coffee', 'tea', 'meal', 'kitchen', 'cooking', 'bakery', 'grocery'],
+    category: 'FOOD/BEVERAGE',
+    scenes: [
+      'Mid-pour or mid-drizzle freeze-frame — honey, chocolate, sauce, or liquid caught in motion, glistening and viscous. Dark moody background, single spotlight.',
+      'Hands tearing, breaking, or slicing the food — bread pulled apart revealing steamy interior, fruit being cut, cheese being sliced. Tactile and craving-inducing.',
+      'Cross-section or cut-away revealing layers, textures, and colors inside — the internal architecture of food as art. Clean background, surgical precision.',
+      'The product in a surprising outdoor setting — a picnic on a cliff edge, breakfast on a boat, coffee on a foggy morning porch. Context creates story.',
+      'Overhead arrangement of raw ingredients arranged by color gradient — the palette of flavors that become this product. Painterly, organized, appetizing.',
+      'Steam, smoke, or condensation as the hero — the warmth rising from a fresh dish, fog on a cold glass, breath of heat from an oven door opening.',
+      'A single bite taken — the first spoonful, the bitten corner, the half-empty glass. The evidence of enjoyment, the promise of more.',
+    ],
+  },
+  {
+    keywords: ['fitness', 'gym', 'workout', 'health', 'wellness', 'supplement', 'protein', 'yoga', 'sport', 'athletic'],
+    category: 'FITNESS/WELLNESS',
+    scenes: [
+      'Extreme close-up of effort — chalk-dusted hands gripping a bar, sweat droplets on skin, muscle fiber tension. Raw, visceral, powerful.',
+      'Silhouette in motion against a dramatic sky — running, stretching, leaping. The human form as sculpture, nature as the gym.',
+      'The calm AFTER the storm — someone in peaceful rest after a workout, mat rolled up, water bottle empty, expression of earned serenity.',
+      'Product arranged with the tools of the discipline — yoga blocks, resistance bands, running shoes, fresh fruit — a still life of commitment.',
+      'Underwater or through-glass perspective of movement — distorted, dreamlike, showing the fluid grace of the body in motion.',
+      'Early morning ritual: 5 AM alarm clock, dark sky through window, product ready on the counter — the discipline and dedication before anyone else is awake.',
+      'Texture of materials: grip patterns, mesh ventilation, sole treads, zipper pulls — the engineered details that separate serious gear from the rest.',
+    ],
+  },
+  {
+    keywords: ['home', 'interior', 'furniture', 'decor', 'candle', 'plant', 'living', 'bedroom', 'kitchen', 'garden', 'outdoor'],
+    category: 'HOME/INTERIOR',
+    scenes: [
+      'The product catching a shaft of morning light through linen curtains — dust motes floating, long shadows, the quiet beauty of domestic dawn.',
+      'An overhead floor plan perspective — the product in situ, showing how it anchors or transforms the space around it. Architectural, intentional.',
+      'Close-up of material and craft — wood grain, textile weave, ceramic glaze, metal patina. The honest beauty of materials, touched by human hands.',
+      'The product framed by an open window or doorway looking out to nature — inside meets outside, domestic comfort meets wild beauty.',
+      'A lived-in vignette: the product alongside a dog-eared book, a half-drunk cup of tea, reading glasses — evidence of a life being lived well.',
+      'Night scene: the product lit by candlelight or a single warm lamp — intimate, cozy, the shelter of home against a dark window.',
+      'Seasonal transformation: the same corner styled for a specific season — autumn warmth, summer breeze, winter hygge, spring renewal.',
+    ],
+  },
+  {
+    keywords: ['travel', 'hotel', 'hospitality', 'tourism', 'vacation', 'resort', 'adventure', 'destination'],
+    category: 'TRAVEL/HOSPITALITY',
+    scenes: [
+      'Point-of-view perspective: feet at the edge of something extraordinary — a cliff, a pool, a new city. The viewer IS the traveler.',
+      'A window seat moment: the product or experience framed through a train, plane, or hotel window — the world scrolling past, anticipation building.',
+      'Local detail close-up: artisan tiles, hand-painted ceramics, street food texture, woven textiles — the small details that define a place.',
+      'Blue hour or twilight scene: the destination in that magical 20 minutes between day and night — deep blues, warm amber lights, atmospheric and dreamy.',
+      'An open suitcase or travel bag with carefully arranged essentials — the curation of a journey, each object a promise of adventure.',
+      'Reflection in water, glass, or a mirror — the destination doubled, creating symmetry and depth. Serene, contemplative, visually striking.',
+      'A solitary figure dwarfed by landscape — vast desert, dense jungle, endless ocean — scale that makes you feel the enormity of exploration.',
+    ],
+  },
+  {
+    keywords: ['education', 'course', 'learning', 'teaching', 'tutorial', 'school', 'training', 'academy'],
+    category: 'EDUCATION',
+    scenes: [
+      'Hands actively creating — writing, sketching, building, coding — the evidence of knowledge becoming action. Close-up, warm light, focused energy.',
+      'A before/after desk: one side cluttered and chaotic, the other organized and productive — the visual transformation learning brings.',
+      'An "aha moment" captured: someone looking up from their work with realization, surrounded by notes, books, materials — the breakthrough instant.',
+      'A curated workspace aerial view: notebook open to handwritten notes, colored pens, laptop showing progress, coffee, plant — the learner\'s ecosystem.',
+      'Stacked or arranged books, notebooks, and tools creating an abstract tower or pattern — knowledge as architecture, learning as building.',
+      'A mentor\'s hands guiding a student\'s — close-up of shared focus on a task, passing knowledge through gesture and proximity.',
+      'Light breaking through: someone stepping from a dark library corridor into sunlit courtyard — metaphor for enlightenment, literally illuminated.',
+    ],
+  },
+  {
+    keywords: ['saas', 'software', 'mobile', 'web', 'api', 'platform', 'dashboard', 'analytics'],
+    category: 'SOFTWARE/TECH',
+    scenes: [
+      'The human outcome: someone leaning back in their chair with a satisfied smile, the hard work DONE — a clear desk, a closed laptop, the result of efficiency.',
+      'A creative workspace exploding with ideas — sticky notes, sketches, whiteboard drawings, prototypes — the messy, beautiful process this tool enables.',
+      'Hands building something physical — a model, a prototype, a craft — representing the tangible things made possible by digital tools.',
+      'Two people in genuine collaboration — pointing at something together, laughing, problem-solving — the connection and teamwork the platform enables.',
+      'A cityscape or landscape transformed — before: gray and dormant, after: vibrant and alive — showing the macro impact of the tool at scale.',
+      'Objects in perfect geometric arrangement — representing data, order, and clarity. Satisfying patterns that evoke the feeling of organized information.',
+      'A single key, door, or bridge — a powerful metaphor for access, connection, or unlocking potential. Minimal, symbolic, thought-provoking.',
+    ],
+  },
+];
+
+/**
+ * Randomized creative elements to inject unique variety into every image.
+ */
+const LIGHTING_OPTIONS = [
+  'Dramatic Rembrandt lighting with deep shadows and a single warm key light',
+  'Soft overcast diffused daylight — even, gentle, no harsh shadows',
+  'Neon-tinged urban night with colored reflections on wet surfaces',
+  'Golden hour backlight with lens flare and warm atmospheric haze',
+  'Harsh midday sun creating graphic black shadows and bleached highlights',
+  'Candlelit warmth — flickering amber, intimate, chiaroscuro',
+  'Blue hour twilight — deep cerulean sky, warm artificial lights emerging',
+  'Dappled forest light filtering through leaves, creating pattern and movement',
+  'Studio rim light on dark background — the subject glows from the edges',
+  'Overexposed dreamy glow — airy, ethereal, almost heavenly brightness',
+];
+
+const COMPOSITION_OPTIONS = [
+  'Extreme close-up macro — fill the frame with texture and detail invisible to the naked eye',
+  'Wide establishing shot — the product or subject small within a grand environment, emphasizing context',
+  'Dutch angle tilt — 15-degree rotation creating dynamic tension and visual energy',
+  'Symmetrical center-frame — perfectly balanced, hypnotic, Wes Anderson-inspired precision',
+  'Rule of thirds with strong negative space — the subject offset, breathing room that creates elegance',
+  'Overhead bird\'s-eye flat lay — looking straight down, organized or artfully scattered',
+  'Low angle looking up — the subject appears powerful, monumental, larger than life',
+  'Through-frame composition — shot through a doorway, window, foliage, or arch creating depth layers',
+  'Diagonal leading lines drawing the eye — paths, shadows, architecture guiding toward the focal point',
+  'Extreme shallow depth of field — razor-thin focus plane, everything else melts into creamy bokeh',
+];
+
+const COLOR_PALETTE_OPTIONS = [
+  'Warm earth tones: terracotta, sage, ochre, cream — grounded and organic',
+  'Cool oceanic: deep navy, seafoam, pearl white, silver — serene and expansive',
+  'Vibrant complementary pop: one electric accent color against muted neutrals — attention-grabbing',
+  'Muted pastels: dusty rose, lavender, mint, butter — soft, approachable, modern',
+  'High contrast monochrome with a single color accent — dramatic and editorial',
+  'Jewel tones: emerald, sapphire, ruby, amethyst — rich, luxurious, deep',
+  'Sun-bleached naturals: sand, driftwood, stone, pale sky — effortless coastal calm',
+  'Film-inspired: slightly desaturated with lifted blacks and teal shadows — nostalgic and cinematic',
+  'Botanical greens: moss, fern, olive, forest — alive, fresh, connected to nature',
+  'Warm metallics: copper, gold, brass against dark backgrounds — premium and sophisticated',
+];
+
+const TEXTURE_OPTIONS = [
+  'Raw concrete, weathered wood, and linen — industrial meets organic',
+  'Glossy reflective surfaces, glass, and water — clean, modern, transparent',
+  'Rough stone, dried earth, and clay — primal, geological, ancient',
+  'Soft fabrics, knits, and velvet — touchable, cozy, sensory',
+  'Wet surfaces with water droplets and condensation — fresh, alive, dynamic',
+  'Paper, cardboard, and craft materials — handmade, honest, artisanal',
+  'Marble, terrazzo, and polished mineral — refined luxury, geological art',
+  'Rust, patina, and aged metal — character, history, authentic wear',
+];
+
 /**
  * Return product-type-aware subject direction for image generation.
- * Understands the product category and gives the AI relevant visual guidance.
+ * Randomly selects from diverse scene pools so no two images look alike.
  */
 function getProductSubjectDirection(categories: string[], context: string): string {
   const is = (keywords: string[]) => keywords.some((k) => context.includes(k));
 
-  // Fashion / Clothing / Apparel
-  if (is(['fashion', 'clothing', 'apparel', 'wear', 'dress', 'outfit', 'shoe', 'sneaker', 'accessories', 'jewelry', 'bag', 'handbag'])) {
-    return [
-      'This is a FASHION/APPAREL product. Show the product being worn or styled in an aspirational setting.',
-      'Editorial fashion photography: real fabrics, real textures, real movement. Show the garment/accessory as the hero.',
-      'Lifestyle context: street style, studio lookbook, or curated flat-lay. Evoke the feeling of wearing this product.',
-      'Do NOT show mannequins, generic product-on-white backgrounds, or tech imagery.',
-    ].join('\n');
-  }
+  // Find matching category
+  const matched = CATEGORY_SCENE_POOLS.find((pool) => is(pool.keywords));
 
-  // Beauty / Skincare / Cosmetics
-  if (is(['beauty', 'skincare', 'cosmetic', 'makeup', 'haircare', 'fragrance', 'perfume', 'serum', 'moisturizer'])) {
-    return [
-      'This is a BEAUTY/SKINCARE product. Show the product in a luxurious, tactile setting.',
-      'Focus on texture: dewy skin, creamy product swatches, liquid pours, botanical ingredients.',
-      'Clean beauty aesthetic with natural materials (marble, glass, botanicals). Soft, diffused lighting.',
-      'Do NOT show tech imagery, screens, or generic stock photos.',
-    ].join('\n');
-  }
+  // Pick a random scene from the matched category (or use creative concept for unknown categories)
+  const sceneLine = matched
+    ? `This is a ${matched.category} product.\nSCENE: ${pick(matched.scenes)}`
+    : `SCENE: ${pick([
+        'Show this product in an unexpected real-world context that reveals its true value — the setting should surprise but make perfect sense.',
+        'Focus on the human moment this product creates — hands, expressions, body language that tell the story without words.',
+        'Create a striking still life that positions this product as the hero — dramatic lighting, curated objects, gallery-worthy composition.',
+        'Show the world AFTER this product has done its work — the satisfying result, the calm after the storm, the problem beautifully solved.',
+        'Capture an intimate, authentic moment of someone discovering or enjoying this product — candid, unposed, emotionally honest.',
+        'Use a visual metaphor: represent what this product does through an unexpected symbolic scene that makes the viewer think.',
+        'Show the product in its natural habitat but from a perspective nobody expects — aerial, macro, underwater, through glass, reflected.',
+      ])}`;
 
-  // Food / Beverage / Restaurant
-  if (is(['food', 'beverage', 'drink', 'restaurant', 'recipe', 'snack', 'coffee', 'tea', 'meal', 'kitchen', 'cooking', 'bakery', 'grocery'])) {
-    return [
-      'This is a FOOD/BEVERAGE product. Make it look absolutely irresistible.',
-      'Food photography rules: overhead or 45-degree angle, natural window light, shallow depth of field.',
-      'Show fresh ingredients, steam, condensation, drizzles — anything that makes it feel alive and delicious.',
-      'Styled setting with complementary props (linens, utensils, herbs). Do NOT show tech imagery.',
-    ].join('\n');
-  }
+  // Layer on a randomized creative concept for additional uniqueness
+  const concept = pick(CREATIVE_CONCEPTS);
 
-  // Fitness / Health / Wellness
-  if (is(['fitness', 'gym', 'workout', 'health', 'wellness', 'supplement', 'protein', 'yoga', 'sport', 'athletic'])) {
-    return [
-      'This is a FITNESS/WELLNESS product. Show energy, movement, and transformation.',
-      'Dynamic composition: mid-action shots, sweat, determination, natural light in gym or outdoor setting.',
-      'Focus on the feeling of strength and progress. Real bodies, authentic moments.',
-      'Do NOT show static product shots on white background or tech imagery.',
-    ].join('\n');
-  }
+  // Randomized technical direction
+  const lighting = pick(LIGHTING_OPTIONS);
+  const composition = pick(COMPOSITION_OPTIONS);
+  const palette = pick(COLOR_PALETTE_OPTIONS);
+  const texture = pick(TEXTURE_OPTIONS);
 
-  // Home / Interior / Furniture
-  if (is(['home', 'interior', 'furniture', 'decor', 'candle', 'plant', 'living', 'bedroom', 'kitchen', 'garden', 'outdoor'])) {
-    return [
-      'This is a HOME/INTERIOR product. Show it in a beautifully styled living space.',
-      'Interior photography: warm natural light, thoughtful styling, lived-in but aspirational.',
-      'Show the product as part of a curated room vignette. Emphasize texture, warmth, and comfort.',
-      'Do NOT show tech imagery or product-on-white isolated shots.',
-    ].join('\n');
-  }
-
-  // Travel / Hospitality
-  if (is(['travel', 'hotel', 'hospitality', 'tourism', 'vacation', 'resort', 'adventure', 'destination'])) {
-    return [
-      'This is a TRAVEL/HOSPITALITY product. Evoke wanderlust and the joy of discovery.',
-      'Stunning landscapes, golden hour lighting, immersive perspectives. Show the experience, not just the place.',
-      'Authentic travel moments: local culture, scenic vistas, cozy accommodations.',
-      'Do NOT show tech imagery, screens, or generic stock travel photos.',
-    ].join('\n');
-  }
-
-  // Education / Course / Learning
-  if (is(['education', 'course', 'learning', 'teaching', 'tutorial', 'school', 'training', 'academy'])) {
-    return [
-      'This is an EDUCATION product. Show the transformation and empowerment that comes from learning.',
-      'Aspirational imagery: confident people, creative workspaces, books, notebooks, collaborative moments.',
-      'Warm, inviting aesthetic that makes learning feel exciting and accessible.',
-      'Do NOT show generic classroom stock photos, phone screens, or tech cliches.',
-    ].join('\n');
-  }
-
-  // Software / SaaS / Tech (only when explicitly categorized)
-  if (is(['saas', 'software', 'mobile', 'web', 'api', 'platform', 'dashboard', 'analytics'])) {
-    return [
-      'This is a SOFTWARE product. Show the OUTCOME or TRANSFORMATION it delivers — the world users live in because of this product.',
-      'Focus on the human benefit: productivity, creativity, connection, or insight.',
-      'Do NOT show generic office scenes, random laptops, abstract tech patterns, or fake phone UIs.',
-    ].join('\n');
-  }
-
-  // Default — generic but helpful direction
   return [
-    'Show this product or its impact in an aspirational, real-world context.',
-    'Focus on the feeling and lifestyle the product enables. Make the viewer want what they see.',
-    'Use real textures, natural lighting, and authentic settings appropriate for this type of product.',
-    'Do NOT default to tech imagery, phone screens, or laptop mockups unless this is explicitly a tech product.',
+    sceneLine,
+    '',
+    concept,
+    '',
+    `LIGHTING: ${lighting}`,
+    `COMPOSITION: ${composition}`,
+    `COLOR: ${palette}`,
+    `TEXTURE/MATERIALS: ${texture}`,
+    '',
+    'CRITICAL: This image must look NOTHING like a stock photo. It should feel like a frame from a film, a page from a high-end magazine, or a moment captured by a documentary photographer. Specific, surprising, and emotionally resonant.',
+    'Do NOT show: generic smiling people looking at camera, product-on-white backgrounds, abstract tech patterns, circuit boards, or holographic UIs.',
   ].join('\n');
 }
 
@@ -235,9 +383,9 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
 
     lines.push(
       '',
-      `Post angle: "${postExcerpt}"`,
+      `Post angle for inspiration (do NOT illustrate literally): "${postExcerpt}"`,
       '',
-      'Design a visual that communicates the core value proposition. Someone familiar with this product should immediately recognize the connection.',
+      'UNIQUENESS MANDATE: This image must be ONE-OF-A-KIND. Do not create a generic marketing image. Create a specific, vivid, cinematic scene that could only belong to THIS product and THIS message. If you\'ve seen it before, start over.',
     );
 
     sections.push(lines.join('\n'));
