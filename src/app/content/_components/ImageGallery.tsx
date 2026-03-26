@@ -217,23 +217,25 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
                 <video
                   src={img.url}
                   className="w-full aspect-square object-cover"
-                  muted
+                  controls
                   playsInline
-                  onMouseEnter={(e) => {
-                    if (!selectMode) e.currentTarget.play();
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.pause();
-                    e.currentTarget.currentTime = 0;
-                  }}
+                  preload="metadata"
                 />
               ) : (
-                <img
-                  src={img.url}
-                  alt={img.name}
-                  className="w-full aspect-square object-cover"
-                  loading="lazy"
-                />
+                <a
+                  href={selectMode ? undefined : img.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={selectMode ? "" : "cursor-zoom-in"}
+                  onClick={selectMode ? (e) => e.preventDefault() : undefined}
+                >
+                  <img
+                    src={img.url}
+                    alt={img.name}
+                    className="w-full aspect-square object-cover hover:opacity-90 transition-opacity"
+                    loading="lazy"
+                  />
+                </a>
               )}
 
               {/* Badges */}
