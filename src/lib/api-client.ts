@@ -3,10 +3,30 @@
  */
 
 let _getIdToken: (() => Promise<string | null>) | null = null;
+let _authReady: Promise<void> | null = null;
+let _resolveAuthReady: (() => void) | null = null;
+
+// Create a promise that resolves when auth is ready
+function _initAuthGate() {
+  if (!_authReady) {
+    _authReady = new Promise<void>((resolve) => {
+      _resolveAuthReady = resolve;
+    });
+  }
+}
+_initAuthGate();
 
 /** Called once by AuthProvider to wire the token getter. */
 export function setTokenGetter(fn: () => Promise<string | null>) {
   _getIdToken = fn;
+}
+
+/** Called by AuthProvider once onAuthStateChanged has fired at least once. */
+export function markAuthReady() {
+  if (_resolveAuthReady) {
+    _resolveAuthReady();
+    _resolveAuthReady = null;
+  }
 }
 
 /** Make an authenticated JSON request to our API. */
@@ -14,6 +34,9 @@ export async function apiFetch<T = unknown>(
   path: string,
   init: RequestInit = {},
 ): Promise<{ ok: boolean; status: number; data: T }> {
+  // Wait for auth to initialize before making any request
+  if (_authReady) await _authReady;
+
   const token = _getIdToken ? await _getIdToken() : null;
 
   const res = await fetch(path, {
@@ -68,6 +91,7 @@ export async function apiUpload<T = unknown>(
   formData: FormData,
   wsId = 'default',
 ): Promise<{ ok: boolean; status: number; data: T }> {
+  if (_authReady) await _authReady;
   const token = _getIdToken ? await _getIdToken() : null;
   const sep = path.includes('?') ? '&' : '?';
   const res = await fetch(`${path}${sep}workspaceId=${wsId}`, {

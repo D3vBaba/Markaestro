@@ -15,7 +15,7 @@ import {
   sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
-import { setTokenGetter } from '@/lib/api-client';
+import { setTokenGetter, markAuthReady } from '@/lib/api-client';
 import { useRouter } from 'next/navigation';
 
 type AuthCtx = {
@@ -86,8 +86,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Wire up the api-client token getter
+    // Wire up the api-client token getter — waits for auth to be ready
     setTokenGetter(async () => {
+      // Wait for Firebase to finish restoring the session
+      await auth.authStateReady();
       if (!auth.currentUser) return null;
       return auth.currentUser.getIdToken();
     });
@@ -101,6 +103,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(u);
       setSessionCookie(!!u);
       setLoading(false);
+      // Signal to api-client that auth state is resolved
+      markAuthReady();
     });
   }, []);
 
