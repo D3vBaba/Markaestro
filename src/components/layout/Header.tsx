@@ -105,12 +105,6 @@ export function Header() {
                 </SheetContent>
             </Sheet>
 
-            {/* Logo — visible on desktop header */}
-            <Link href="/dashboard" className="hidden lg:flex items-center gap-3">
-                <Image src="/markaestro-logo-transparent.png" alt="Markaestro" width={40} height={36} className="object-contain" />
-                <span className="text-base font-bold tracking-tight">Markaestro</span>
-            </Link>
-
             <div className="flex-1" />
 
             {/* Search + User menu */}
