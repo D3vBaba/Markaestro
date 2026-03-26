@@ -48,9 +48,7 @@ export function Header() {
                     <SheetDescription className="sr-only">Main navigation links</SheetDescription>
                     <div className="flex flex-col h-full p-6">
                         <div className="font-bold text-lg mb-10 flex items-center gap-3 text-sidebar-accent-foreground">
-                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden p-1.5">
-                                <Image src="/markaestro-logo-transparent.png" alt="Markaestro" width={28} height={28} className="object-contain rounded-md invert" />
-                            </div>
+                            <Image src="/markaestro-logo-transparent.png" alt="Markaestro" width={36} height={32} className="object-contain invert" />
                             Markaestro
                         </div>
                         <div className="space-y-7">

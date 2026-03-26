@@ -28,9 +28,7 @@ export function Sidebar({ className }: { className?: string }) {
             {/* Brand */}
             <div className="px-6 pt-8 pb-8">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden p-1.5">
-                        <Image src="/markaestro-logo-transparent.png" alt="Markaestro" width={28} height={28} className="object-contain rounded-md invert" />
-                    </div>
+                    <Image src="/markaestro-logo-transparent.png" alt="Markaestro" width={36} height={32} className="object-contain invert" />
                     <span className="font-bold text-lg tracking-tight text-sidebar-accent-foreground">Markaestro</span>
                 </div>
             </div>
