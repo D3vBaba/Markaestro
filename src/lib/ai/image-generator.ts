@@ -328,20 +328,31 @@ function getProductSubjectDirection(categories: string[], context: string, subty
 function buildBrandedPrompt(req: ImageGenRequest): string {
   const sections: string[] = [];
 
-  // ── Gather product context (used later, kept brief) ──
+  // ── Gather product context ──
   const categories = req.productCategories || [];
   const descLower = (req.productDescription || '').toLowerCase();
   const nameLower = (req.productName || '').toLowerCase();
   const context = `${categories.join(' ')} ${descLower} ${nameLower}`;
 
-  // ── 1. CREATIVE DIRECTION — THIS MUST COME FIRST AND LOUDEST ──
-  // The randomized scene/concept is the PRIMARY instruction.
+  // Build a concise product identity line that gets embedded in the creative direction
+  const productIdentity = req.productName
+    ? `THE PRODUCT: "${req.productName}"${req.productDescription ? ` — ${req.productDescription.slice(0, 150)}` : ''}${req.productCategories?.length ? ` (${req.productCategories.join(', ')})` : ''}`
+    : '';
+
+  // Truncate post content
+  const postExcerpt = req.prompt.length > 300 ? req.prompt.slice(0, 300) + '...' : req.prompt;
+
+  // ── 1. CREATIVE DIRECTION — product identity + creative approach together ──
   const subjectDirection = getProductSubjectDirection(categories, context, req.subtype);
-  sections.push(
-    '=== CREATIVE DIRECTION (FOLLOW THIS EXACTLY) ===',
+  sections.push([
+    productIdentity,
+    `POST ANGLE: "${postExcerpt}"`,
+    '',
+    'CREATIVE APPROACH (use this to make the image unique, but the product above MUST be the clear subject):',
     subjectDirection,
-    '=== END CREATIVE DIRECTION ===',
-  );
+    '',
+    'IMPORTANT: The product must be recognizable and central to the image. The creative approach above is HOW to depict it — not a license to ignore it. A viewer should immediately understand what product or category this image is about.',
+  ].filter(Boolean).join('\n'));
 
   // ── 2. STYLE — randomized per call to prevent repetition ──
   const styleVariants: Record<ImageStyle, string[]> = {
@@ -381,25 +392,6 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
   };
   const variants = styleVariants[req.style] || styleVariants.branded;
   sections.push(pick(variants));
-
-  // ── 3. PRODUCT CONTEXT — brief, for grounding only ──
-  {
-    const productInfo: string[] = [];
-    if (req.productName) productInfo.push(`Product: "${req.productName}"`);
-    if (req.productDescription) productInfo.push(`About: ${req.productDescription.slice(0, 200)}`);
-    if (req.productCategories?.length) productInfo.push(`Type: ${req.productCategories.join(', ')}`);
-
-    const postExcerpt = req.prompt.length > 300 ? req.prompt.slice(0, 300) + '...' : req.prompt;
-
-    const lines: string[] = [];
-    if (productInfo.length > 0) {
-      lines.push(...productInfo);
-    }
-    lines.push(`Post context: "${postExcerpt}"`);
-    lines.push('The image should feel connected to this product — but follow the CREATIVE DIRECTION above, not this text literally.');
-
-    sections.push(lines.join('\n'));
-  }
 
   // Screenshots — phone mockups ONLY when user explicitly provides screenshots
   const hasScreenshots = req.screenUrls && req.screenUrls.length > 0;
