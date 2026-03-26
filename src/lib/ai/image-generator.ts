@@ -32,37 +32,6 @@ export type ImageGenResult = {
   revisedPrompt?: string;
 };
 
-/**
- * Platform-specific visual direction based on engagement research.
- * Each platform has different content that drives saves, shares, and scroll-stops.
- */
-function getPlatformDirection(channel?: SocialChannel): string {
-  switch (channel) {
-    case 'facebook':
-      return [
-        'PLATFORM: Facebook — this image needs to earn shares and comments in the feed.',
-        'COMPOSITION: Bright, warm, and energetic. Golden yellows, warm oranges, and violet tones increase engagement on Facebook. High contrast between elements.',
-        'WHAT WORKS: Emotionally resonant imagery, community-feel compositions, vibrant lifestyle moments, or bold single-insight visuals. Carousel-friendly if multiple concepts.',
-        'FRAMING: Square or slightly portrait composition. Mobile-first — 98% of Facebook users are on mobile.',
-      ].join('\n');
-    case 'instagram':
-      return [
-        'PLATFORM: Instagram — this image must be save-worthy and visually cohesive.',
-        'COMPOSITION: Clean, bright, and editorial. Blue-dominant images outperform warm tones on Instagram. Use a neutral base (whites, creams) with one strong accent color. Generous negative space.',
-        'WHAT WORKS: Minimalist aesthetic with texture, behind-the-scenes authenticity, educational single-insight visuals, or aspirational lifestyle. Static images outperform video for engagement.',
-        'FRAMING: Portrait 4:5 composition to maximize screen real estate. Design with the 3:4 grid crop in mind — keep key elements in the center.',
-      ].join('\n');
-    case 'tiktok':
-      return [
-        'PLATFORM: TikTok — this image needs to feel native, authentic, and bold.',
-        'COMPOSITION: High-energy, lo-fi authentic feel over polished perfection. Bold colors, strong contrast that reads at tiny thumbnail sizes. Center key visual in the middle 60% of the frame.',
-        'WHAT WORKS: Raw, authentic aesthetic — the "quiet flex" style. Aspirational but calm. Confident, intentional visuals over loud flashy content. Bright, well-lit, and clear.',
-        'FRAMING: Full vertical 9:16 composition. Keep text/key elements away from top 150px and bottom 250px (UI overlays).',
-      ].join('\n');
-    default:
-      return 'PLATFORM: General social media — bright, bold, scroll-stopping composition with strong focal point.';
-  }
-}
 
 /** Pick a random element from an array. */
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -351,87 +320,83 @@ function getProductSubjectDirection(categories: string[], context: string, subty
 }
 
 /**
- * Build a prompt using Gemini's recommended 5-component structure:
- * Style → Subject → Setting → Action → Composition
+ * Build the image prompt with CREATIVE DIRECTION FIRST.
  *
- * Uses post text as creative INSPIRATION, not literal description.
- * Platform-specific visual strategies based on engagement data.
+ * The randomized creative elements lead the prompt so the model
+ * prioritizes them over static product/platform context.
  */
 function buildBrandedPrompt(req: ImageGenRequest): string {
   const sections: string[] = [];
 
-  // ── 1. STYLE ──────────────────────────────────────────────
-  const styleMap: Record<ImageStyle, string> = {
+  // ── Gather product context (used later, kept brief) ──
+  const categories = req.productCategories || [];
+  const descLower = (req.productDescription || '').toLowerCase();
+  const nameLower = (req.productName || '').toLowerCase();
+  const context = `${categories.join(' ')} ${descLower} ${nameLower}`;
+
+  // ── 1. CREATIVE DIRECTION — THIS MUST COME FIRST AND LOUDEST ──
+  // The randomized scene/concept is the PRIMARY instruction.
+  const subjectDirection = getProductSubjectDirection(categories, context, req.subtype);
+  sections.push(
+    '=== CREATIVE DIRECTION (FOLLOW THIS EXACTLY) ===',
+    subjectDirection,
+    '=== END CREATIVE DIRECTION ===',
+  );
+
+  // ── 2. STYLE — randomized per call to prevent repetition ──
+  const styleVariants: Record<ImageStyle, string[]> = {
     photorealistic: [
-      'STYLE: Cinematic editorial photograph shot on Hasselblad X2D, 90mm f/3.2 lens.',
-      'Natural skin texture with pores and slight imperfections. Single directional light source creating defined shadows.',
-      'Subtle film grain, natural sensor noise. Warm color grading with lifted shadows.',
-      'Shallow depth of field with creamy bokeh. Looks like a Condé Nast editorial, NOT a stock photo.',
-    ].join(' '),
+      'STYLE: Cinematic editorial photograph. Hasselblad X2D, 90mm lens. Single directional light, shallow depth of field, subtle film grain.',
+      'STYLE: Documentary photography. Leica M11, 35mm lens. Available light, candid energy, slightly desaturated, decisive moment.',
+      'STYLE: Fashion editorial. Medium format film look. Intentional color grading, strong shadows, magazine-cover quality.',
+      'STYLE: Fine art photography. Large format feel. Hyper-detailed, contemplative, gallery-print quality. Every pixel intentional.',
+      'STYLE: Street photography. Ricoh GR III, 28mm. Gritty, authentic, high contrast, captured mid-life.',
+    ],
     illustration: [
-      'STYLE: Bold editorial illustration with hand-crafted quality.',
-      'Limited palette — maximum 4-5 intentional colors. Strong graphic shapes and confident linework.',
-      'Visible texture and imperfection — risograph grain, screen-print quality, or watercolor bleeds.',
-      'Clever visual metaphor over literal depiction. Feels like a New Yorker cover or Pentagram poster.',
-    ].join(' '),
+      'STYLE: Bold editorial illustration. Limited 4-color palette, strong graphic shapes, risograph grain. New Yorker cover energy.',
+      'STYLE: Collage-style mixed media. Paper textures, torn edges, layered elements. Vintage meets contemporary.',
+      'STYLE: Watercolor editorial. Soft bleeds, confident linework, breathing negative space. Hand-crafted warmth.',
+      'STYLE: Flat vector with depth. Clean shapes, bold palette, subtle shadows for dimension. Airbnb/Slack design quality.',
+      'STYLE: Ink and brush. Loose, expressive strokes with intentional imperfection. Japanese calligraphy meets modern design.',
+    ],
     minimal: [
-      'STYLE: High-end minimalist composition.',
-      'One hero element surrounded by vast negative space. Maximum two colors plus neutrals.',
-      'Precise geometry, clean edges, intentional asymmetry. Japanese design sensibility.',
-      'Every element earns its place. The whitespace is as important as the subject.',
-    ].join(' '),
+      'STYLE: High-end minimalism. One hero element, vast negative space, maximum two colors. Japanese design sensibility.',
+      'STYLE: Swiss design minimalism. Grid-based, precise geometry, clean edges. Helvetica-era discipline.',
+      'STYLE: Scandinavian minimalism. Warm neutrals, organic shapes, natural materials. Cozy restraint.',
+      'STYLE: Brutalist minimalism. Raw concrete textures, stark contrast, monumental simplicity.',
+    ],
     abstract: [
-      'STYLE: Contemporary abstract art — gallery quality.',
-      'Organic flowing shapes intersecting geometric elements. Rich layered textures with depth.',
-      'Bold saturated color fields with sophisticated complementary palette.',
-      'Dynamic tension and visual rhythm. Painterly quality with sharp details. Could hang in a gallery.',
-    ].join(' '),
+      'STYLE: Contemporary abstract art. Organic shapes meet geometry, rich layered textures, bold color fields. Gallery quality.',
+      'STYLE: Fluid abstract. Ink in water, marbling effects, organic color mixing. Controlled chaos.',
+      'STYLE: Geometric abstraction. Hard edges, overlapping planes, architectural color blocking. Mondrian meets today.',
+      'STYLE: Textural abstract. Impasto paint, sand, mixed media surfaces. You can almost feel it through the screen.',
+    ],
     branded: [
-      'STYLE: Premium brand campaign — lifestyle editorial quality.',
-      'Shot on Canon EOS R5, 35mm f/1.4 lens. Natural window lighting or golden hour.',
-      'Warm, inviting color palette. Authentic textures — linen, wood, ceramic, concrete.',
-      'Aspirational but approachable. Think Aesop, Glossier, or Notion brand aesthetic.',
-    ].join(' '),
+      'STYLE: Premium lifestyle editorial. Natural light, authentic textures, aspirational but real.',
+      'STYLE: Modern brand campaign. Bold, confident, clean. Studio-quality with personality.',
+      'STYLE: Indie brand aesthetic. Warm film tones, honest lighting, handmade textures. Authentic over polished.',
+      'STYLE: Luxury campaign. Deep shadows, selective lighting, rich materials. Understated power.',
+      'STYLE: Gen-Z brand energy. Saturated, slightly chaotic, unapologetic. Screenshot-worthy.',
+    ],
   };
-  sections.push(styleMap[req.style] || styleMap.branded);
+  const variants = styleVariants[req.style] || styleVariants.branded;
+  sections.push(pick(variants));
 
-  // ── 2. PLATFORM DIRECTION ──────────────────────────────────
-  sections.push(getPlatformDirection(req.channel));
-
-  // ── 3. PRODUCT + SUBJECT — ground the image in what the product actually is ──
+  // ── 3. PRODUCT CONTEXT — brief, for grounding only ──
   {
     const productInfo: string[] = [];
     if (req.productName) productInfo.push(`Product: "${req.productName}"`);
-    if (req.productDescription) productInfo.push(`Description: ${req.productDescription.slice(0, 300)}`);
+    if (req.productDescription) productInfo.push(`About: ${req.productDescription.slice(0, 200)}`);
     if (req.productCategories?.length) productInfo.push(`Type: ${req.productCategories.join(', ')}`);
-    if (req.brandVoice?.targetAudience) productInfo.push(`Audience: ${req.brandVoice.targetAudience.slice(0, 200)}`);
 
-    const categories = req.productCategories || [];
-    const descLower = (req.productDescription || '').toLowerCase();
-    const nameLower = (req.productName || '').toLowerCase();
-    const context = `${categories.join(' ')} ${descLower} ${nameLower}`;
-
-    // Truncate post content to avoid blowing up the prompt
-    const postExcerpt = req.prompt.length > 400 ? req.prompt.slice(0, 400) + '...' : req.prompt;
+    const postExcerpt = req.prompt.length > 300 ? req.prompt.slice(0, 300) + '...' : req.prompt;
 
     const lines: string[] = [];
-
     if (productInfo.length > 0) {
-      lines.push('PRODUCT CONTEXT:', ...productInfo, '');
+      lines.push(...productInfo);
     }
-
-    lines.push('SUBJECT: Create a marketing image specifically for this product.');
-
-    // Product-type-aware visual direction (subtype overrides random selection when provided)
-    const subjectDirection = getProductSubjectDirection(categories, context, req.subtype);
-    lines.push(subjectDirection);
-
-    lines.push(
-      '',
-      `Post angle for inspiration (do NOT illustrate literally): "${postExcerpt}"`,
-      '',
-      'UNIQUENESS MANDATE: This image must be ONE-OF-A-KIND. Do not create a generic marketing image. Create a specific, vivid, cinematic scene that could only belong to THIS product and THIS message. If you\'ve seen it before, start over.',
-    );
+    lines.push(`Post context: "${postExcerpt}"`);
+    lines.push('The image should feel connected to this product — but follow the CREATIVE DIRECTION above, not this text literally.');
 
     sections.push(lines.join('\n'));
   }
