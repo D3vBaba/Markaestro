@@ -335,26 +335,39 @@ function AdDetailPanel({ ad, onClose }: { ad: AdCampaign; onClose: () => void })
 
 // ─── Calendar Event Chip ──────────────────────────────────────────────────────
 
-function EventChip({ item, onClick, isSelected }: { item: CalendarItem; onClick: () => void; isSelected: boolean }) {
+function EventChip({ item, onClick, isSelected, compact }: { item: CalendarItem; onClick: () => void; isSelected: boolean; compact?: boolean }) {
   if (item.kind === "post") {
     const p = item.post;
     const accent = CHANNEL_ACCENT[p.channel] || "#6366f1";
     const bg = CHANNEL_BG[p.channel] || "rgba(99,102,241,0.08)";
     const statusDot = STATUS_DOT[p.status] || "#9ca3af";
+    const time = p.publishedAt || p.scheduledAt;
     return (
       <button
         onClick={onClick}
-        className="w-full text-left rounded overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98]"
-        style={{ background: isSelected ? accent + "20" : bg, borderLeft: `2.5px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
+        className="w-full text-left rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98]"
+        style={{ background: isSelected ? accent + "20" : bg, borderLeft: `3px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
       >
-        <div className="px-1.5 py-[3px] flex items-center gap-1 min-w-0">
-          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: statusDot }} />
-          <span className="text-[10px] font-semibold leading-tight truncate" style={{ color: accent }}>
-            {CHANNEL_LABEL[p.channel] || p.channel}
-          </span>
-          <span className="text-[10px] text-foreground/55 truncate leading-tight flex-1 min-w-0">
-            {p.content.slice(0, 20)}
-          </span>
+        <div className={compact ? "px-1.5 py-1" : "px-2 py-1.5"}>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: statusDot }} />
+            <span className={`${compact ? "text-[10px]" : "text-[11px]"} font-semibold leading-tight truncate`} style={{ color: accent }}>
+              {CHANNEL_LABEL[p.channel] || p.channel}
+            </span>
+            {time && !compact && (
+              <span className="text-[10px] text-muted-foreground/50 flex-shrink-0 ml-auto">{formatTime(time)}</span>
+            )}
+          </div>
+          {!compact && (
+            <p className="text-[11px] text-foreground/70 leading-snug mt-0.5 line-clamp-2">
+              {p.content.slice(0, 60)}{p.content.length > 60 ? "..." : ""}
+            </p>
+          )}
+          {compact && (
+            <p className="text-[10px] text-foreground/55 truncate leading-tight mt-0.5">
+              {p.content.slice(0, 30)}{p.content.length > 30 ? "..." : ""}
+            </p>
+          )}
         </div>
       </button>
     );
@@ -364,14 +377,42 @@ function EventChip({ item, onClick, isSelected }: { item: CalendarItem; onClick:
   return (
     <button
       onClick={onClick}
-      className="w-full text-left rounded overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98]"
-      style={{ background: isSelected ? adAccent + "20" : adAccent + "10", borderLeft: `2.5px solid ${adAccent}`, outline: isSelected ? `1.5px solid ${adAccent}` : "none" }}
+      className="w-full text-left rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98]"
+      style={{ background: isSelected ? adAccent + "20" : adAccent + "10", borderLeft: `3px solid ${adAccent}`, outline: isSelected ? `1.5px solid ${adAccent}` : "none" }}
     >
-      <div className="px-1.5 py-[3px] flex items-center gap-1 min-w-0">
-        <span className="text-[10px] font-semibold leading-tight" style={{ color: adAccent }}>Ad</span>
-        <span className="text-[10px] text-foreground/55 truncate leading-tight flex-1 min-w-0">{item.ad.name}</span>
+      <div className={compact ? "px-1.5 py-1" : "px-2 py-1.5"}>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className={`${compact ? "text-[10px]" : "text-[11px]"} font-semibold leading-tight`} style={{ color: adAccent }}>Ad</span>
+          <span className={`${compact ? "text-[10px]" : "text-[11px]"} text-foreground/55 truncate leading-tight flex-1 min-w-0`}>{item.ad.name}</span>
+        </div>
       </div>
     </button>
+  );
+}
+
+// ─── Mobile Agenda View ──────────────────────────────────────────────────────
+
+function MobileAgendaDay({ date, items, selected, onSelect }: { date: Date; items: CalendarItem[]; selected: CalendarItem | null; onSelect: (item: CalendarItem | null) => void }) {
+  const todayStr = isoDate(new Date());
+  const dateStr = isoDate(date);
+  const isToday = dateStr === todayStr;
+
+  return (
+    <div className={`rounded-xl border border-border/30 p-3 ${isToday ? "bg-primary/[0.03] border-primary/20" : "bg-card"}`}>
+      <div className="flex items-center gap-2 mb-2">
+        <span className={`text-sm font-semibold ${isToday ? "text-primary" : "text-foreground"}`}>
+          {date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })}
+        </span>
+        {isToday && <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Today</span>}
+      </div>
+      <div className="space-y-1.5">
+        {items.map((item, i) => {
+          const isItemSelected = selected !== null && selected.kind === item.kind &&
+            (item.kind === "post" ? selected.kind === "post" && selected.post.id === item.post.id : selected.kind === "ad" && selected.ad.id === item.ad.id);
+          return <EventChip key={i} item={item} isSelected={isItemSelected} onClick={() => onSelect(isItemSelected ? null : item)} />;
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -437,154 +478,185 @@ export default function CalendarPage() {
         .detail-panel { animation: slideInRight 0.18s ease-out; }
       `}</style>
 
-      <div className="flex flex-col lg:flex-row gap-6" style={{ minHeight: "calc(100vh - 140px)" }}>
+      {/* Build mobile agenda data */}
+      {(() => {
+        const agendaDays: { date: Date; items: CalendarItem[] }[] = [];
+        for (const day of days) {
+          if (!day) continue;
+          const dateStr = isoDate(day);
+          const items = itemsByDate.get(dateStr);
+          if (items && items.length > 0) agendaDays.push({ date: day, items });
+        }
 
-        {/* ── Calendar column ── */}
-        <div
-          className="flex flex-col min-w-0 transition-all duration-300 ease-in-out"
-          style={{ flex: selected ? "1 1 0" : "1 1 0" }}
-        >
-          {/* Header row */}
-          <div className="flex items-center justify-between mb-5">
-            <h1 className="text-xl font-semibold tracking-tight">
-              {MONTH_NAMES[month]}{" "}
-              <span className="text-muted-foreground font-normal">{year}</span>
-            </h1>
-            <div className="flex items-center gap-1.5">
-              <Button
-                variant="ghost" size="sm"
-                className="text-xs h-7 px-3 text-muted-foreground hover:text-foreground rounded-lg"
-                onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); setSelected(null); }}
-              >
-                Today
-              </Button>
-              <div className="flex border border-border/50 rounded-lg overflow-hidden">
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-none border-r border-border/50 hover:bg-muted" onClick={prevMonth}>
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-none hover:bg-muted" onClick={nextMonth}>
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          </div>
+        return (
+          <div className="flex flex-col lg:flex-row gap-6 h-full">
 
-          {/* Legend */}
-          <div className="flex items-center gap-5 mb-4 flex-wrap">
-            {[
-              { label: "Published", color: STATUS_DOT.published },
-              { label: "Scheduled", color: STATUS_DOT.scheduled },
-              { label: "Failed",    color: STATUS_DOT.failed },
-            ].map(({ label, color }) => (
-              <div key={label} className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full" style={{ background: color }} />
-                <span className="text-[11px] text-muted-foreground">{label}</span>
+            {/* ── Calendar column ── */}
+            <div className="flex flex-col min-w-0 flex-1">
+              {/* Header row */}
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+                  {MONTH_NAMES[month]}{" "}
+                  <span className="text-muted-foreground font-normal">{year}</span>
+                </h1>
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    variant="ghost" size="sm"
+                    className="text-xs h-8 px-3 text-muted-foreground hover:text-foreground rounded-lg"
+                    onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); setSelected(null); }}
+                  >
+                    Today
+                  </Button>
+                  <div className="flex border border-border/50 rounded-lg overflow-hidden">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none border-r border-border/50 hover:bg-muted" onClick={prevMonth}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none hover:bg-muted" onClick={nextMonth}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
-            ))}
-            <div className="w-px h-3 bg-border/50" />
-            {Object.entries(CHANNEL_LABEL).map(([key, label]) => (
-              <div key={key} className="flex items-center gap-1.5">
-                <span className="w-0.5 h-3 rounded-full" style={{ background: CHANNEL_ACCENT[key] }} />
-                <span className="text-[11px] text-muted-foreground">{label}</span>
-              </div>
-            ))}
-          </div>
 
-          {/* Grid */}
-          {loading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="h-5 w-5 border-2 border-foreground/15 border-t-foreground rounded-full animate-spin" />
-            </div>
-          ) : (
-            <div className="flex-1 rounded-xl border border-border/40 overflow-hidden bg-card">
-              {/* Day-of-week row */}
-              <div className="grid grid-cols-7 border-b border-border/40 bg-muted/20">
-                {DAY_NAMES.map((d, i) => (
-                  <div key={d} className="py-2.5 text-center text-[11px] font-medium text-muted-foreground/70 tracking-wider">
-                    <span className="hidden sm:inline">{d}</span>
-                    <span className="sm:hidden">{DAY_NAMES_SHORT[i]}</span>
+              {/* Legend */}
+              <div className="flex items-center gap-4 sm:gap-5 mb-4 flex-wrap">
+                {[
+                  { label: "Published", color: STATUS_DOT.published },
+                  { label: "Scheduled", color: STATUS_DOT.scheduled },
+                  { label: "Failed",    color: STATUS_DOT.failed },
+                ].map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full" style={{ background: color }} />
+                    <span className="text-[11px] text-muted-foreground">{label}</span>
+                  </div>
+                ))}
+                <div className="w-px h-3 bg-border/50 hidden sm:block" />
+                {Object.entries(CHANNEL_LABEL).map(([key, label]) => (
+                  <div key={key} className="flex items-center gap-1.5">
+                    <span className="w-0.5 h-3 rounded-full" style={{ background: CHANNEL_ACCENT[key] }} />
+                    <span className="text-[11px] text-muted-foreground">{label}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Day cells */}
-              <div className="grid grid-cols-7" style={{ gridAutoRows: "minmax(80px, 1fr)" }}>
-                {days.map((day, idx) => {
-                  if (!day) {
-                    return <div key={`pad-${idx}`} className="border-b border-r border-border/25 bg-muted/10" />;
-                  }
+              {/* Grid — desktop */}
+              {loading ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="h-5 w-5 border-2 border-foreground/15 border-t-foreground rounded-full animate-spin" />
+                </div>
+              ) : (
+                <>
+                  {/* Desktop calendar grid */}
+                  <div className="hidden md:flex flex-1 flex-col rounded-xl border border-border/40 overflow-hidden bg-card">
+                    {/* Day-of-week row */}
+                    <div className="grid grid-cols-7 border-b border-border/40 bg-muted/20">
+                      {DAY_NAMES.map((d) => (
+                        <div key={d} className="py-2.5 text-center text-xs font-medium text-muted-foreground/70 tracking-wider">
+                          {d}
+                        </div>
+                      ))}
+                    </div>
 
-                  const dateStr = isoDate(day);
-                  const isToday = dateStr === todayStr;
-                  const items = itemsByDate.get(dateStr) || [];
-                  const MAX = 3;
-                  const overflow = Math.max(0, items.length - MAX);
+                    {/* Day cells — fill remaining height */}
+                    <div className="grid grid-cols-7 flex-1" style={{ gridAutoRows: "1fr" }}>
+                      {days.map((day, idx) => {
+                        if (!day) {
+                          return <div key={`pad-${idx}`} className="border-b border-r border-border/25 bg-muted/10" />;
+                        }
 
-                  return (
-                    <div
-                      key={dateStr}
-                      className={`border-b border-r border-border/25 p-1.5 flex flex-col gap-0.5 transition-colors ${
-                        isToday ? "bg-primary/[0.025]" : "bg-background hover:bg-muted/10"
-                      }`}
-                    >
-                      {/* Date number */}
-                      <div className="flex justify-end px-0.5 mb-0.5">
-                        <span
-                          className={`text-[11px] w-5 h-5 flex items-center justify-center rounded-full font-medium leading-none ${
-                            isToday ? "bg-foreground text-background" : "text-muted-foreground/60"
-                          }`}
-                        >
-                          {day.getDate()}
-                        </span>
-                      </div>
+                        const dateStr = isoDate(day);
+                        const isToday = dateStr === todayStr;
+                        const items = itemsByDate.get(dateStr) || [];
+                        const MAX = 2;
+                        const overflow = Math.max(0, items.length - MAX);
 
-                      {/* Event chips */}
-                      {items.slice(0, MAX).map((item, i) => {
-                        const isItemSelected =
-                          selected !== null &&
-                          selected.kind === item.kind &&
-                          (item.kind === "post"
-                            ? selected.kind === "post" && selected.post.id === item.post.id
-                            : selected.kind === "ad" && selected.ad.id === item.ad.id);
                         return (
-                          <EventChip
-                            key={i}
-                            item={item}
-                            isSelected={isItemSelected}
-                            onClick={() => setSelected(isItemSelected ? null : item)}
-                          />
+                          <div
+                            key={dateStr}
+                            className={`border-b border-r border-border/25 p-1.5 flex flex-col gap-1 transition-colors overflow-hidden ${
+                              isToday ? "bg-primary/[0.03]" : "bg-background hover:bg-muted/10"
+                            }`}
+                          >
+                            {/* Date number */}
+                            <div className="flex justify-end px-0.5">
+                              <span
+                                className={`text-xs w-6 h-6 flex items-center justify-center rounded-full font-medium leading-none ${
+                                  isToday ? "bg-foreground text-background" : "text-muted-foreground/60"
+                                }`}
+                              >
+                                {day.getDate()}
+                              </span>
+                            </div>
+
+                            {/* Event chips */}
+                            <div className="flex-1 flex flex-col gap-1 min-h-0 overflow-hidden">
+                              {items.slice(0, MAX).map((item, i) => {
+                                const isItemSelected =
+                                  selected !== null &&
+                                  selected.kind === item.kind &&
+                                  (item.kind === "post"
+                                    ? selected.kind === "post" && selected.post.id === item.post.id
+                                    : selected.kind === "ad" && selected.ad.id === item.ad.id);
+                                return (
+                                  <EventChip
+                                    key={i}
+                                    item={item}
+                                    isSelected={isItemSelected}
+                                    onClick={() => setSelected(isItemSelected ? null : item)}
+                                  />
+                                );
+                              })}
+                              {overflow > 0 && (
+                                <button
+                                  className="text-[10px] font-medium text-muted-foreground/60 hover:text-foreground transition-colors pl-2 text-left"
+                                  onClick={() => setSelected(items[MAX])}
+                                >
+                                  +{overflow} more
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         );
                       })}
-                      {overflow > 0 && (
-                        <button
-                          className="text-[9px] font-medium text-muted-foreground/60 hover:text-foreground transition-colors pl-1.5 text-left"
-                          onClick={() => setSelected(items[MAX])}
-                        >
-                          +{overflow} more
-                        </button>
-                      )}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
+                  </div>
 
-        {/* ── Detail panel ── */}
-        {selected && (
-          <div
-            className="detail-panel flex-shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden w-full lg:w-[364px]"
-          >
-            {selected.kind === "post" && (
-              <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
-            )}
-            {selected.kind === "ad" && (
-              <AdDetailPanel ad={selected.ad} onClose={() => setSelected(null)} />
+                  {/* Mobile agenda view */}
+                  <div className="md:hidden space-y-3">
+                    {agendaDays.length === 0 ? (
+                      <div className="text-center py-12">
+                        <p className="text-sm text-muted-foreground">No posts this month.</p>
+                      </div>
+                    ) : (
+                      agendaDays.map(({ date, items }) => (
+                        <MobileAgendaDay
+                          key={isoDate(date)}
+                          date={date}
+                          items={items}
+                          selected={selected}
+                          onSelect={setSelected}
+                        />
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* ── Detail panel ── */}
+            {selected && (
+              <div className="detail-panel shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden w-full lg:w-[380px]">
+                {selected.kind === "post" && (
+                  <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
+                )}
+                {selected.kind === "ad" && (
+                  <AdDetailPanel ad={selected.ad} onClose={() => setSelected(null)} />
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
+        );
+      })()}
     </AppShell>
   );
 }
