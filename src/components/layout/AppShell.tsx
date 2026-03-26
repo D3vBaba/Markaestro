@@ -34,9 +34,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   return (
-    <div className="grid min-h-screen w-full max-w-full overflow-x-hidden lg:grid-cols-[260px_1fr]">
+    <div className="grid h-screen w-full max-w-full overflow-hidden lg:grid-cols-[260px_1fr]">
       <Sidebar className="hidden lg:flex w-[260px]" />
-      <div className="flex flex-col min-h-screen min-w-0 bg-background">
+      <div className="flex flex-col h-screen min-w-0 bg-background overflow-hidden">
         <Header />
         <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto overflow-x-hidden min-w-0">
           <div className="mx-auto max-w-6xl min-w-0 w-full">

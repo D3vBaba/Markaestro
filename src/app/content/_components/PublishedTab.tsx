@@ -4,6 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import { apiGet } from "@/lib/api-client";
 import { toast } from "sonner";
 import PostCard from "./PostCard";
+import Pagination from "@/components/app/Pagination";
+
+const POSTS_PER_PAGE = 6;
 
 type Post = {
   id: string;
@@ -21,6 +24,7 @@ type Post = {
 export default function PublishedTab({ refreshKey }: { refreshKey: number }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   const fetchPublished = useCallback(async () => {
     try {
@@ -54,11 +58,17 @@ export default function PublishedTab({ refreshKey }: { refreshKey: number }) {
     );
   }
 
+  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+  const paginatedPosts = posts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {paginatedPosts.map((post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </div>
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+    </>
   );
 }
