@@ -341,6 +341,26 @@ export const imageStyles = ['photorealistic', 'illustration', 'minimal', 'abstra
 export const imageAspectRatios = ['1:1', '16:9', '9:16', '4:5', '3:4'] as const;
 export const imageProviders = ['gemini', 'openai'] as const;
 
+/**
+ * Image subtypes — visual categories that control WHAT the image depicts.
+ * Users pick a subtype to get a specific kind of image. For campaigns,
+ * multiple subtypes can be selected to guarantee visual variety.
+ */
+export const imageSubtypes = [
+  'product-hero',
+  'lifestyle',
+  'flat-lay',
+  'texture-detail',
+  'before-after',
+  'hands-in-action',
+  'environment',
+  'still-life',
+  'silhouette',
+  'behind-the-scenes',
+  'ingredients-raw',
+  'mood-abstract',
+] as const;
+
 export const generateImageSchema = z.object({
   prompt: z.string().trim().min(1, 'Prompt is required').max(4000),
   productId: z.string().trim().optional(),
@@ -349,6 +369,8 @@ export const generateImageSchema = z.object({
   style: z.enum(imageStyles).default('branded'),
   aspectRatio: z.enum(imageAspectRatios).default('1:1'),
   provider: z.enum(imageProviders).default('gemini'),
+  /** Visual category — controls what kind of scene is generated */
+  subtype: z.enum(imageSubtypes).optional(),
   /** URLs of app screenshots to place inside phone mockups */
   screenUrls: z.array(z.string().url()).max(4).default([]),
   /** Whether to include the product logo in the image */
@@ -481,6 +503,7 @@ export type UpdatePost = z.infer<typeof updatePostSchema>;
 export type SocialChannel = (typeof socialChannels)[number];
 export type PostStatus = (typeof postStatuses)[number];
 export type ImageStyle = (typeof imageStyles)[number];
+export type ImageSubtype = (typeof imageSubtypes)[number];
 export type ImageAspectRatio = (typeof imageAspectRatios)[number];
 export type ImageProvider = (typeof imageProviders)[number];
 export type GenerateImage = z.infer<typeof generateImageSchema>;

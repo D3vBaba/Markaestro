@@ -48,6 +48,7 @@ export async function POST(req: Request) {
         productCategories,
         productUrl,
         channel: input.channel,
+        subtype: input.subtype,
         style: input.style,
         aspectRatio: input.aspectRatio,
         provider: input.provider,

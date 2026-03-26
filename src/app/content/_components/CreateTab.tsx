@@ -28,6 +28,22 @@ const imageStyles = [
   { value: "abstract", label: "Abstract" },
 ] as const;
 
+const imageSubtypeOptions = [
+  { value: "", label: "Auto (Random)" },
+  { value: "product-hero", label: "Product Hero" },
+  { value: "lifestyle", label: "Lifestyle" },
+  { value: "flat-lay", label: "Flat Lay" },
+  { value: "texture-detail", label: "Texture / Detail" },
+  { value: "before-after", label: "Before & After" },
+  { value: "hands-in-action", label: "Hands in Action" },
+  { value: "environment", label: "Environment" },
+  { value: "still-life", label: "Still Life" },
+  { value: "silhouette", label: "Silhouette" },
+  { value: "behind-the-scenes", label: "Behind the Scenes" },
+  { value: "ingredients-raw", label: "Ingredients / Raw" },
+  { value: "mood-abstract", label: "Mood / Abstract" },
+] as const;
+
 const aspectRatios = [
   { value: "1:1", label: "1:1 (Square)" },
   { value: "16:9", label: "16:9 (Landscape)" },
@@ -60,6 +76,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageStyle, setImageStyle] = useState("branded");
+  const [imageSubtype, setImageSubtype] = useState("");
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [imageContext, setImageContext] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -182,6 +199,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
           productId: productId || undefined,
           channel,
           style: imageStyle,
+          subtype: imageSubtype || undefined,
           aspectRatio,
           provider: "gemini",
           screenUrls: screenUrls.length > 0 ? screenUrls : undefined,
@@ -501,6 +519,20 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
                     ))}
                   </Select>
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] text-muted-foreground">Visual Type</label>
+                <Select
+                  value={imageSubtype}
+                  onChange={(e) => setImageSubtype(e.target.value)}
+                  size="sm"
+                >
+                  {imageSubtypeOptions.map((st) => (
+                    <option key={st.value} value={st.value}>{st.label}</option>
+                  ))}
+                </Select>
+                <p className="text-[10px] text-muted-foreground/50">Controls what kind of scene is generated. &quot;Auto&quot; picks randomly for variety.</p>
               </div>
 
               {/* Image context */}

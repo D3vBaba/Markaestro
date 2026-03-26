@@ -144,7 +144,21 @@ async function generateStageContent(
     systemPrompt += buildBrandVoiceBlock(input.brandVoice);
   }
 
-  systemPrompt += `\n\nYou are generating content for a multi-post adoption pipeline. Each post is part of a strategic sequence designed to move the audience from awareness to retention over weeks. Make each post UNIQUE — different angle, different hook, different pain point. Never repeat the same idea twice.`;
+  systemPrompt += `\n\nYou are generating content for a multi-post adoption pipeline. Each post is part of a strategic sequence designed to move the audience from awareness to retention over weeks.
+
+UNIQUENESS MANDATE: Make each post RADICALLY different — different hook type, different emotional angle, different storytelling device. Never repeat the same idea, structure, or opening pattern twice.
+
+HOOK VARIETY — use a DIFFERENT hook type for each post:
+• Cold open: Drop into a scene mid-action ("You're staring at your inbox at 11pm—")
+• Pattern interrupt: Counterintuitive statement ("Stop trying to grow your audience.")
+• Identity call-out: Name who they are ("If you're the person everyone calls when—")
+• Emotional mirror: Name the unnamed feeling ("That pit in your stomach when—")
+• Bold claim with proof: Specific surprising number ("347 teams switched last month.")
+• Haunting question: Can't-scroll-past question ("When did you stop enjoying this?")
+• Social proof drop: Lead with someone's result ("She changed one thing. Revenue doubled.")
+
+CTA MANDATE: Every single post MUST end with a clear, specific call to action. Not "check us out" — something compelling: "Start your free trial", "DM us SCALE", "Save this for later 📌", "Tag someone who needs this", "Link in bio", "Comment YES if this is you".`;
+
 
   const userPrompt = `${researchContext}
 

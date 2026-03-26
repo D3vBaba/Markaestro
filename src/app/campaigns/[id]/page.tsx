@@ -103,6 +103,7 @@ export default function PipelineDetailPage() {
   const [scheduling, setScheduling] = useState(false);
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
   const [showResearch, setShowResearch] = useState(false);
+  const [selectedSubtypes, setSelectedSubtypes] = useState<string[]>([]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -132,7 +133,10 @@ export default function PipelineDetailPage() {
     try {
       const res = await apiPost<{ postCount: number; imagesGenerated: number }>(
         `/api/campaigns/${id}/generate-pipeline`,
-        { productId: campaign.productId },
+        {
+          productId: campaign.productId,
+          imageSubtypes: selectedSubtypes.length > 0 ? selectedSubtypes : undefined,
+        },
       );
       if (res.ok) {
         toast.success(`Pipeline generated: ${res.data.postCount} posts, ${res.data.imagesGenerated} images`);
@@ -223,15 +227,59 @@ export default function PipelineDetailPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             {!isGenerated && (
-              <Button onClick={handleGenerate} disabled={generating} className="rounded-xl">
-                {generating ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...</>
-                ) : (
-                  <><Play className="h-4 w-4 mr-2" /> Generate Pipeline</>
-                )}
-              </Button>
+              <>
+                <div className="w-full sm:w-auto">
+                  <details className="relative group">
+                    <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground select-none list-none flex items-center gap-1">
+                      <ImageIcon className="h-3 w-3" />
+                      Visual Types {selectedSubtypes.length > 0 && <Badge variant="secondary" className="text-[10px] h-4 px-1">{selectedSubtypes.length}</Badge>}
+                      <ChevronDown className="h-3 w-3" />
+                    </summary>
+                    <div className="absolute right-0 top-full mt-1 z-50 bg-popover border rounded-xl shadow-lg p-3 w-56 space-y-1.5">
+                      <p className="text-[10px] text-muted-foreground mb-2">Select types to cycle through for variety. Leave empty for auto.</p>
+                      {[
+                        { value: "product-hero", label: "Product Hero" },
+                        { value: "lifestyle", label: "Lifestyle" },
+                        { value: "flat-lay", label: "Flat Lay" },
+                        { value: "texture-detail", label: "Texture / Detail" },
+                        { value: "before-after", label: "Before & After" },
+                        { value: "hands-in-action", label: "Hands in Action" },
+                        { value: "environment", label: "Environment" },
+                        { value: "still-life", label: "Still Life" },
+                        { value: "silhouette", label: "Silhouette" },
+                        { value: "behind-the-scenes", label: "Behind the Scenes" },
+                        { value: "ingredients-raw", label: "Ingredients / Raw" },
+                        { value: "mood-abstract", label: "Mood / Abstract" },
+                      ].map((st) => (
+                        <label key={st.value} className="flex items-center gap-2 cursor-pointer text-xs hover:bg-muted/50 rounded px-1.5 py-1">
+                          <input
+                            type="checkbox"
+                            checked={selectedSubtypes.includes(st.value)}
+                            onChange={(e) => {
+                              setSelectedSubtypes((prev) =>
+                                e.target.checked
+                                  ? [...prev, st.value]
+                                  : prev.filter((s) => s !== st.value)
+                              );
+                            }}
+                            className="rounded border-border h-3.5 w-3.5"
+                          />
+                          {st.label}
+                        </label>
+                      ))}
+                    </div>
+                  </details>
+                </div>
+                <Button onClick={handleGenerate} disabled={generating} className="rounded-xl">
+                  {generating ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...</>
+                  ) : (
+                    <><Play className="h-4 w-4 mr-2" /> Generate Pipeline</>
+                  )}
+                </Button>
+              </>
             )}
             {isGenerated && !isScheduled && (
               <Button onClick={handleSchedule} disabled={scheduling} className="rounded-xl">

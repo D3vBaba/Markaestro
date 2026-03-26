@@ -6,21 +6,23 @@ import { researchForPipeline } from '@/lib/ai/pipeline-researcher';
 import { generatePipelinePosts } from '@/lib/ai/pipeline-generator';
 import { generateAndUploadImage, type ImageGenRequest } from '@/lib/ai/image-generator';
 import { z } from 'zod';
-import { imageStyles, imageProviders } from '@/lib/schemas';
-import type { PipelineConfig, ResearchBrief, SocialChannel, ImageStyle, ImageProvider } from '@/lib/schemas';
+import { imageStyles, imageProviders, imageSubtypes } from '@/lib/schemas';
+import type { PipelineConfig, ResearchBrief, SocialChannel, ImageStyle, ImageSubtype, ImageProvider } from '@/lib/schemas';
 
 const requestSchema = z.object({
   productId: z.string().trim().min(1, 'Product ID is required'),
   imageStyle: z.enum(imageStyles).default('branded'),
   imageProvider: z.enum(imageProviders).default('gemini'),
+  /** Multiple subtypes for visual variety — each post cycles through the list */
+  imageSubtypes: z.array(z.enum(imageSubtypes)).default([]),
   skipImages: z.boolean().default(false),
 });
 
 const IMAGE_CONCURRENCY = 3;
 
 async function generateImagesWithConcurrency(
-  tasks: Array<{ imagePrompt: string; sequence: number }>,
-  imageReq: Omit<ImageGenRequest, 'prompt'>,
+  tasks: Array<{ imagePrompt: string; sequence: number; subtype?: ImageSubtype }>,
+  imageReq: Omit<ImageGenRequest, 'prompt' | 'subtype'>,
   workspaceId: string,
 ): Promise<Map<number, string>> {
   const results = new Map<number, string>();
@@ -31,7 +33,7 @@ async function generateImagesWithConcurrency(
       const task = queue.shift()!;
       try {
         const result = await generateAndUploadImage(
-          { ...imageReq, prompt: task.imagePrompt },
+          { ...imageReq, prompt: task.imagePrompt, subtype: task.subtype },
           workspaceId,
         );
         results.set(task.sequence, result.imageUrl);
@@ -52,7 +54,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const ctx = await requireContext(req);
     const { id } = await params;
     const body = await req.json();
-    const { productId, imageStyle, imageProvider, skipImages } = requestSchema.parse(body);
+    const { productId, imageStyle, imageProvider, imageSubtypes: selectedSubtypes, skipImages } = requestSchema.parse(body);
 
     // Load campaign
     const campaignRef = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'campaigns')}/${id}`);
@@ -118,7 +120,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       };
       const primaryChannel = pipelineConfig.channels[0];
 
-      const imageReq: Omit<ImageGenRequest, 'prompt'> = {
+      const imageReq: Omit<ImageGenRequest, 'prompt' | 'subtype'> = {
         style: imageStyle,
         aspectRatio: aspectRatioForChannel[primaryChannel] || '1:1',
         provider: imageProvider,
@@ -131,9 +133,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         channel: primaryChannel,
       };
 
-      const imageTasks = posts.map((p) => ({
+      // Cycle through selected subtypes for visual variety
+      const imageTasks = posts.map((p, i) => ({
         imagePrompt: p.imagePrompt,
         sequence: p.pipelineSequence,
+        subtype: selectedSubtypes.length > 0
+          ? selectedSubtypes[i % selectedSubtypes.length]
+          : undefined,
       }));
 
       imageMap = await generateImagesWithConcurrency(imageTasks, imageReq, ctx.workspaceId);

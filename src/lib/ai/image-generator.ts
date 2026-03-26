@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import type { BrandIdentity, BrandVoice, ImageStyle, ImageAspectRatio, ImageProvider, SocialChannel } from '@/lib/schemas';
+import type { BrandIdentity, BrandVoice, ImageStyle, ImageSubtype, ImageAspectRatio, ImageProvider, SocialChannel } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 
 export type ImageGenRequest = {
@@ -15,6 +15,8 @@ export type ImageGenRequest = {
   productUrl?: string;
   /** Target social channel — drives platform-specific visual direction */
   channel?: SocialChannel;
+  /** Visual category — overrides random scene selection with a specific visual type */
+  subtype?: ImageSubtype;
   style: ImageStyle;
   aspectRatio: ImageAspectRatio;
   provider: ImageProvider;
@@ -64,6 +66,25 @@ function getPlatformDirection(channel?: SocialChannel): string {
 
 /** Pick a random element from an array. */
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
+
+/**
+ * Subtype scene directions — when a user picks a subtype, these override
+ * the random category scene selection with a specific visual direction.
+ */
+const SUBTYPE_SCENES: Record<ImageSubtype, string> = {
+  'product-hero': 'The product is the SOLE HERO of the image — center frame, dramatic lighting, every detail razor-sharp. Think Apple product shot or luxury watch ad. The background complements but the product commands 100% of attention. Shallow depth of field, premium materials visible.',
+  'lifestyle': 'Show the product naturally integrated into a real, aspirational moment of someone\'s life — NOT posed, NOT looking at camera. A candid scene where the product belongs: morning routines, evening unwinds, creative sessions, social gatherings. The FEELING of the moment matters more than the product visibility.',
+  'flat-lay': 'Overhead bird\'s-eye flat lay arrangement. The product surrounded by curated complementary objects — tools, ingredients, accessories, textures — that tell a story about WHO uses this product and WHY. Every object intentional, spacing deliberate, surface texture rich (marble, linen, wood, concrete).',
+  'texture-detail': 'EXTREME MACRO close-up — fill the entire frame with the product\'s surface texture, material quality, or a single fascinating detail. Fabric weave, liquid viscosity, grain pattern, metallic finish, ingredient crystals. Make the viewer want to reach out and touch it. Almost abstract in its closeness.',
+  'before-after': 'A single frame that shows TRANSFORMATION — split composition, contrasting halves, or a transitional moment. One side shows the problem (messy, stressful, dull), the other shows the result (clean, calm, vibrant). The product is the bridge between the two states. Use contrasting lighting and color to emphasize the shift.',
+  'hands-in-action': 'Close-up of HANDS interacting with the product or its outcome — applying, opening, creating, building, pouring, styling. Hands tell stories of craft, care, and intention. Show the intimate, tactile moment of use. Natural skin texture, warm directional light, shallow depth of field on the hands.',
+  'environment': 'The product\'s WORLD — a wide establishing shot showing the environment, space, or landscape where this product lives and matters. The product can be small in frame or implied. Emphasize atmosphere, scale, and context. Architectural spaces, natural landscapes, curated interiors, urban scenes.',
+  'still-life': 'Classical still life composition inspired by fine art — dramatic chiaroscuro lighting, rich dark background, the product arranged with meaningful objects like a Dutch Golden Age painting. Moody, luxurious, gallery-worthy. Deep shadows, selective highlighting, visible texture in every surface.',
+  'silhouette': 'The product or a person using it shown in SILHOUETTE — backlit dramatically against a vivid sky, neon glow, window light, or color gradient. Shape and form tell the story. Minimal detail, maximum mood and drama. The outline IS the message.',
+  'behind-the-scenes': 'The MAKING of the product — raw materials, workshop, kitchen, studio, farm, factory. Show the craft, process, and human effort behind what the customer sees. Messy, authentic, real. Sawdust, flour clouds, paint splatters, measuring tools. The honest beauty of creation.',
+  'ingredients-raw': 'The RAW COMPONENTS that make this product — ingredients, materials, elements — arranged beautifully in their natural state. Fresh herbs, raw minerals, fabric bolts, circuit components, coffee beans. Each ingredient is a character in the product\'s origin story. Rich colors, natural textures, editorial arrangement.',
+  'mood-abstract': 'An ABSTRACT or CONCEPTUAL image that captures the FEELING of the product without showing it directly. Color fields, flowing shapes, light patterns, water ripples, smoke, paint, or natural phenomena that evoke the emotion the product creates. Gallery-quality art that makes the viewer feel the brand.',
+};
 
 /**
  * Creative visual concepts that can be applied to ANY product type.
@@ -260,10 +281,34 @@ const TEXTURE_OPTIONS = [
 
 /**
  * Return product-type-aware subject direction for image generation.
- * Randomly selects from diverse scene pools so no two images look alike.
+ * If a subtype is provided, uses the subtype's specific scene direction.
+ * Otherwise, randomly selects from diverse scene pools so no two images look alike.
  */
-function getProductSubjectDirection(categories: string[], context: string): string {
+function getProductSubjectDirection(categories: string[], context: string, subtype?: ImageSubtype): string {
   const is = (keywords: string[]) => keywords.some((k) => context.includes(k));
+
+  // If subtype is provided, use it as the primary scene direction
+  if (subtype && SUBTYPE_SCENES[subtype]) {
+    const matched = CATEGORY_SCENE_POOLS.find((pool) => is(pool.keywords));
+    const categoryLabel = matched ? `This is a ${matched.category} product.` : '';
+
+    const lighting = pick(LIGHTING_OPTIONS);
+    const palette = pick(COLOR_PALETTE_OPTIONS);
+    const texture = pick(TEXTURE_OPTIONS);
+
+    return [
+      categoryLabel,
+      `VISUAL TYPE: ${subtype.toUpperCase()}`,
+      SUBTYPE_SCENES[subtype],
+      '',
+      `LIGHTING: ${lighting}`,
+      `COLOR: ${palette}`,
+      `TEXTURE/MATERIALS: ${texture}`,
+      '',
+      'CRITICAL: This image must look NOTHING like a stock photo. Specific, surprising, and emotionally resonant.',
+      'Do NOT show: generic smiling people looking at camera, product-on-white backgrounds, abstract tech patterns, circuit boards, or holographic UIs.',
+    ].join('\n');
+  }
 
   // Find matching category
   const matched = CATEGORY_SCENE_POOLS.find((pool) => is(pool.keywords));
@@ -377,8 +422,8 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
 
     lines.push('SUBJECT: Create a marketing image specifically for this product.');
 
-    // Product-type-aware visual direction
-    const subjectDirection = getProductSubjectDirection(categories, context);
+    // Product-type-aware visual direction (subtype overrides random selection when provided)
+    const subjectDirection = getProductSubjectDirection(categories, context, req.subtype);
     lines.push(subjectDirection);
 
     lines.push(
