@@ -732,15 +732,30 @@ export default function CalendarPage() {
           )}
         </div>
 
-        {/* ── Detail panel ── */}
+        {/* ── Detail panel: sidebar on desktop ── */}
         {selected && (
-          <div className="detail-panel shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden w-full lg:w-[380px]">
+          <div className="detail-panel shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden hidden lg:block lg:w-[380px]">
             {selected.kind === "post" && (
               <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
             )}
             {selected.kind === "ad" && (
               <AdDetailPanel ad={selected.ad} onClose={() => setSelected(null)} />
             )}
+          </div>
+        )}
+
+        {/* ── Detail panel: modal on mobile ── */}
+        {selected && (
+          <div className="lg:hidden fixed inset-0 z-50">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setSelected(null)} />
+            <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl bg-card overflow-hidden animate-in slide-in-from-bottom duration-200">
+              {selected.kind === "post" && (
+                <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
+              )}
+              {selected.kind === "ad" && (
+                <AdDetailPanel ad={selected.ad} onClose={() => setSelected(null)} />
+              )}
+            </div>
           </div>
         )}
       </div>
