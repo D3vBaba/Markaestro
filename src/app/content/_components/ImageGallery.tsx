@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Trash2, CheckSquare, Square, X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 
 type GalleryItem = {
   name: string;
@@ -154,17 +154,7 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
                 className="h-8 text-xs"
                 onClick={selected.size === items.length ? clearSelection : selectAll}
               >
-                {selected.size === items.length ? (
-                  <>
-                    <X className="w-3.5 h-3.5 mr-1.5" />
-                    Deselect All
-                  </>
-                ) : (
-                  <>
-                    <CheckSquare className="w-3.5 h-3.5 mr-1.5" />
-                    Select All
-                  </>
-                )}
+                {selected.size === items.length ? "Deselect All" : "Select All"}
               </Button>
               <Button
                 variant="destructive"
@@ -192,7 +182,6 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
               className="h-8 text-xs"
               onClick={() => setSelectMode(true)}
             >
-              <Square className="w-3.5 h-3.5 mr-1.5" />
               Select
             </Button>
           )}

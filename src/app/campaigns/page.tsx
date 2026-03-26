@@ -13,7 +13,6 @@ import {
     Sheet, SheetContent, SheetDescription, SheetHeader,
     SheetTitle, SheetTrigger, SheetFooter, SheetClose,
 } from "@/components/ui/sheet";
-import { Trash2, Mail, Rocket, ArrowRight } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
@@ -231,7 +230,6 @@ export default function CampaignsPage() {
                         : "border-border/60 hover:border-foreground/30"
                     }`}
                   >
-                    <Mail className="h-4 w-4 mb-1.5 text-muted-foreground" />
                     <p className="text-sm font-medium">Standard</p>
                     <p className="text-[11px] text-muted-foreground">Single campaign</p>
                   </button>
@@ -243,7 +241,6 @@ export default function CampaignsPage() {
                         : "border-border/60 hover:border-foreground/30"
                     }`}
                   >
-                    <Rocket className="h-4 w-4 mb-1.5 text-muted-foreground" />
                     <p className="text-sm font-medium">Pipeline</p>
                     <p className="text-[11px] text-muted-foreground">Adoption roadmap</p>
                   </button>
@@ -356,9 +353,6 @@ export default function CampaignsPage() {
         ) : campaigns.length === 0 ? (
           <Card className="border-border/30">
             <CardContent className="py-16 text-center">
-              <div className="h-12 w-12 rounded-xl bg-primary mx-auto mb-4 flex items-center justify-center">
-                <Mail className="h-5 w-5 text-white" />
-              </div>
               <p className="text-base font-medium text-foreground">No campaigns yet</p>
               <p className="text-sm text-muted-foreground mt-1">Create your first campaign to get started.</p>
             </CardContent>
@@ -372,10 +366,7 @@ export default function CampaignsPage() {
             >
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {c.type === "pipeline" && <Rocket className="h-4 w-4 text-muted-foreground" />}
-                    <span>{c.name}</span>
-                  </div>
+                  <span>{c.name}</span>
                   <div className="flex items-center gap-2">
                     {c.type === "pipeline" && c.pipelineStatus ? (
                       <Badge variant="outline" className={`border-0 text-[11px] ${pipelineStatusColors[c.pipelineStatus] || ""}`}>
@@ -386,17 +377,14 @@ export default function CampaignsPage() {
                         {c.status}
                       </Badge>
                     )}
-                    {c.type === "pipeline" && (
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                    )}
                     {c.type !== "pipeline" && (
                       <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                        size="sm"
+                        className="h-7 text-xs text-muted-foreground hover:text-destructive"
                         onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
                       </Button>
                     )}
                   </div>

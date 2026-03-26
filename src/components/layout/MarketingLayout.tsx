@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -52,7 +52,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-3">
             {user ? (
               <Link href="/dashboard">
-                <Button>Go to Dashboard <ArrowRight className="ml-1.5 h-4 w-4" /></Button>
+                <Button>Go to Dashboard</Button>
               </Link>
             ) : (
               <>
@@ -60,7 +60,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                   <Button variant="ghost" className="text-sm">Sign In</Button>
                 </Link>
                 <Link href="/login">
-                  <Button className="text-sm">Get Started <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Button>
+                  <Button className="text-sm">Get Started</Button>
                 </Link>
               </>
             )}

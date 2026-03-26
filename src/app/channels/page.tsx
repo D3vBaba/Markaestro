@@ -2,7 +2,6 @@
 
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -163,7 +162,6 @@ export default function ChannelsPage() {
                       {channel.description}
                     </p>
                     <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-muted/50 px-4 py-2 text-xs text-muted-foreground">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
                       {channel.connection}
                     </div>
                   </div>
@@ -225,7 +223,7 @@ export default function ChannelsPage() {
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
                 <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+                  Get Started Free
                 </Button>
               </Link>
               <Link href="/features">

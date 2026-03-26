@@ -8,7 +8,6 @@ import PageHeader from "@/components/app/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { toast } from "sonner";
-import { AlertTriangle } from "lucide-react";
 
 type IntegrationInfo = {
   provider: string;
@@ -108,7 +107,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-2 shrink-0">
                 {needsReconnect("meta") && (
                   <Badge className="bg-amber-50 text-amber-700 border-0">
-                    <AlertTriangle className="h-3 w-3 mr-1" /> Action needed
+                    Action needed
                   </Badge>
                 )}
                 {isConnected("meta") && !needsReconnect("meta") && (
@@ -181,7 +180,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-2 shrink-0">
                 {needsReconnect("google") && (
                   <Badge className="bg-amber-50 text-amber-700 border-0">
-                    <AlertTriangle className="h-3 w-3 mr-1" /> Action needed
+                    Action needed
                   </Badge>
                 )}
                 {isConnected("google") && !needsReconnect("google") && (

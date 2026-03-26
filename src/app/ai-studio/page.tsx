@@ -2,7 +2,6 @@
 
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Brain, ImageIcon, Mic, Palette, Sparkles, Type, Wand2 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -37,7 +36,6 @@ export default function AIStudioPage() {
           <div className="grid gap-16 lg:gap-24 lg:grid-cols-2 lg:items-center">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary tracking-wide">
-                <Mic className="h-3.5 w-3.5" />
                 Brand Voice Engine
               </div>
               <h2 className="mt-6 text-2xl font-normal tracking-tight lg:text-3xl font-[family-name:var(--font-display)]">
@@ -93,7 +91,6 @@ export default function AIStudioPage() {
               </div>
               <div className="rounded-2xl border bg-background p-8">
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary tracking-wide uppercase">
-                  <Sparkles className="h-3.5 w-3.5" />
                   Generated Output
                 </div>
                 <div className="mt-5 rounded-xl border bg-muted/30 p-5 text-sm text-muted-foreground leading-relaxed italic">
@@ -122,7 +119,6 @@ export default function AIStudioPage() {
             >
               <div className="rounded-2xl border bg-background p-8">
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary tracking-wide uppercase">
-                  <Palette className="h-3.5 w-3.5" />
                   Brand Identity
                 </div>
                 <div className="mt-5 grid grid-cols-5 gap-3">
@@ -136,7 +132,6 @@ export default function AIStudioPage() {
               </div>
               <div className="rounded-2xl border bg-background p-8">
                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground tracking-wide uppercase">
-                  <ImageIcon className="h-3.5 w-3.5" />
                   Aspect Ratios
                 </div>
                 <div className="mt-5 grid grid-cols-4 gap-3">
@@ -157,7 +152,6 @@ export default function AIStudioPage() {
               </div>
               <div className="rounded-2xl border bg-background p-8">
                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground tracking-wide uppercase">
-                  <Wand2 className="h-3.5 w-3.5" />
                   Visual Styles
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
@@ -172,7 +166,6 @@ export default function AIStudioPage() {
 
             <div className="order-1 lg:order-2">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary tracking-wide">
-                <ImageIcon className="h-3.5 w-3.5" />
                 AI Image Generation
               </div>
               <h2 className="mt-6 text-2xl font-normal tracking-tight lg:text-3xl font-[family-name:var(--font-display)]">
@@ -213,16 +206,13 @@ export default function AIStudioPage() {
           </div>
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { icon: Brain, step: "01", title: "Learn Your Brand", desc: "You define your product's voice, tone, visual identity, and target audience. The AI uses this as its creative brief." },
-              { icon: Type, step: "02", title: "Generate Content", desc: "Select a channel and format. The AI writes copy that matches your voice profile, optimized for the platform's constraints." },
-              { icon: ImageIcon, step: "03", title: "Create Visuals", desc: "Choose an aspect ratio and style. The AI generates images using your brand colors and visual direction." },
-              { icon: Sparkles, step: "04", title: "Refine & Publish", desc: "Review, regenerate, or tweak. When it's right, publish directly or add to your content calendar." },
+              { step: "01", title: "Learn Your Brand", desc: "You define your product's voice, tone, visual identity, and target audience. The AI uses this as its creative brief." },
+              { step: "02", title: "Generate Content", desc: "Select a channel and format. The AI writes copy that matches your voice profile, optimized for the platform's constraints." },
+              { step: "03", title: "Create Visuals", desc: "Choose an aspect ratio and style. The AI generates images using your brand colors and visual direction." },
+              { step: "04", title: "Refine & Publish", desc: "Review, regenerate, or tweak. When it's right, publish directly or add to your content calendar." },
             ].map((item) => (
               <div key={item.step} className="rounded-2xl border border-border/40 bg-background p-8">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-primary/5 p-2.5">
-                    <item.icon className="h-4 w-4 text-primary" />
-                  </div>
                   <span className="text-xs font-bold text-primary">{item.step}</span>
                 </div>
                 <h3 className="mt-5 text-sm font-semibold text-foreground">{item.title}</h3>
@@ -246,7 +236,7 @@ export default function AIStudioPage() {
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
                 <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Try AI Studio Free <ArrowRight className="ml-2 h-4 w-4" />
+                  Try AI Studio Free
                 </Button>
               </Link>
               <Link href="/features">

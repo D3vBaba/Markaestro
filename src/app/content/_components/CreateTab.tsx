@@ -12,7 +12,6 @@ import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
 import ImagePicker from "./ImagePicker";
 import PlatformPreview from "@/components/app/PlatformPreview";
-import { Wand2, PenLine } from "lucide-react";
 
 const contentTypes = [
   { value: "social_post", label: "Short Post" },
@@ -351,7 +350,6 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Wand2 className="w-3.5 h-3.5" />
             AI Generate
           </button>
           <button
@@ -362,7 +360,6 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <PenLine className="w-3.5 h-3.5" />
             Manual Post
           </button>
         </div>

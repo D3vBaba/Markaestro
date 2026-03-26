@@ -2,7 +2,6 @@
 
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, Globe, ImageIcon, LayoutDashboard, Lock, Megaphone, Pencil, Zap } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -10,7 +9,6 @@ const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 const coreFeatures = [
   {
-    icon: Megaphone,
     title: "Multi-Channel Publishing",
     description: "Compose once, publish everywhere. Write a single post and adapt it for Facebook, Instagram, and TikTok in one click. Schedule for optimal timing or publish instantly.",
     details: [
@@ -21,7 +19,6 @@ const coreFeatures = [
     ],
   },
   {
-    icon: BarChart3,
     title: "Ad Campaign Management",
     description: "Launch paid campaigns on Meta and Google Ads directly from Markaestro. Set audiences, budgets, and creative variants without switching between ad managers.",
     details: [
@@ -32,7 +29,6 @@ const coreFeatures = [
     ],
   },
   {
-    icon: Pencil,
     title: "AI Content Generation",
     description: "Generate on-brand copy powered by your product's unique voice profile. Choose tone, format, and channel, and Markaestro writes content that sounds like your team wrote it.",
     details: [
@@ -43,7 +39,6 @@ const coreFeatures = [
     ],
   },
   {
-    icon: ImageIcon,
     title: "AI Image Generation",
     description: "Create scroll-stopping visuals without a designer. Markaestro integrates Gemini Imagen 3 and DALL-E 3 to generate branded images in every aspect ratio your channels need.",
     details: [
@@ -54,7 +49,6 @@ const coreFeatures = [
     ],
   },
   {
-    icon: LayoutDashboard,
     title: "Analytics Dashboard",
     description: "See how every campaign, post, and ad performs in one unified view. Track engagement, reach, clicks, and conversions across all connected channels without exporting spreadsheets.",
     details: [
@@ -65,7 +59,6 @@ const coreFeatures = [
     ],
   },
   {
-    icon: Lock,
     title: "OAuth Integrations",
     description: "Connect your accounts in one click with industry-standard OAuth. No manual API keys, no token juggling. Markaestro securely stores and refreshes credentials for you.",
     details: [
@@ -79,17 +72,14 @@ const coreFeatures = [
 
 const platformFeatures = [
   {
-    icon: Globe,
     title: "Workspace Management",
     description: "Organize brands, clients, or business units into isolated workspaces. Each workspace has its own products, campaigns, integrations, and team members.",
   },
   {
-    icon: Zap,
     title: "Automation Workflows",
     description: "Set up recurring campaigns with scheduled triggers, auto-publish rules, and webhook-driven workflows that keep your marketing engine running while you sleep.",
   },
   {
-    icon: Lock,
     title: "Role-Based Access",
     description: "Control who can publish, edit, or view with three-tier roles: Owner, Admin, and Member. Keep sensitive settings locked down while your team moves fast.",
   },
@@ -133,7 +123,6 @@ export default function FeaturesPage() {
               >
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary tracking-wide">
-                    <feature.icon className="h-3.5 w-3.5" />
                     {feature.title}
                   </div>
                   <h2 className="mt-6 text-2xl font-normal tracking-tight lg:text-3xl font-[family-name:var(--font-display)]">
@@ -155,7 +144,7 @@ export default function FeaturesPage() {
                 <div className="rounded-2xl border border-border/40 bg-background p-10 lg:p-14">
                   <div className="flex items-center justify-center">
                     <div className="rounded-2xl bg-primary/5 p-8">
-                      <feature.icon className="h-16 w-16 text-primary" strokeWidth={1.2} />
+                      <p className="text-lg font-semibold text-primary">{feature.title}</p>
                     </div>
                   </div>
                 </div>
@@ -183,10 +172,7 @@ export default function FeaturesPage() {
                 key={feature.title}
                 className="rounded-2xl border border-border/40 bg-background p-8 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-lg"
               >
-                <div className="rounded-xl bg-primary/5 p-3 w-fit">
-                  <feature.icon className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="mt-5 text-sm font-semibold text-foreground">{feature.title}</h3>
+                <h3 className="text-sm font-semibold text-foreground">{feature.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
               </div>
             ))}
@@ -207,7 +193,7 @@ export default function FeaturesPage() {
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
                 <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+                  Get Started Free
                 </Button>
               </Link>
               <Link href="/contact">

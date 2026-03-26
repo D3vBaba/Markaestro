@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpRight, Send, Megaphone, Package } from "lucide-react";
 import { DashboardOverviewChart } from "@/components/dashboard/OverviewChart";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -95,10 +94,9 @@ export default function Home() {
       value: loading ? "..." : String(m?.totalProducts ?? 0),
       detail: (
         <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg">
-          <ArrowUpRight className="h-3 w-3 mr-0.5" /> {m?.activeProducts ?? 0} active
+          {m?.activeProducts ?? 0} active
         </span>
       ),
-      icon: Package,
     },
     {
       label: "Campaigns",
@@ -109,7 +107,6 @@ export default function Home() {
           <span className="text-muted-foreground">{m?.draftCampaigns ?? 0} draft</span>
         </>
       ),
-      icon: Megaphone,
     },
     {
       label: "Posts",
@@ -120,7 +117,6 @@ export default function Home() {
           <span className="text-muted-foreground">{m?.scheduledPosts ?? 0} scheduled</span>
         </>
       ),
-      icon: Send,
     },
     {
       label: "Ad Campaigns",
@@ -133,7 +129,6 @@ export default function Home() {
           )}
         </>
       ),
-      icon: Megaphone,
     },
   ];
 
@@ -161,7 +156,6 @@ export default function Home() {
             <Card className="card-premium overflow-hidden border-border/40">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{card.label}</CardTitle>
-                <card.icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold tracking-tight">{card.value}</div>
@@ -236,9 +230,6 @@ export default function Home() {
                   ))
                 ) : (
                   <div className="py-8 text-center">
-                    <div className="h-10 w-10 rounded-xl bg-primary mx-auto mb-3 flex items-center justify-center">
-                      <Send className="h-4 w-4 text-white" />
-                    </div>
                     <p className="text-sm text-muted-foreground">
                       {loading ? "Loading..." : "No posts yet. Create your first post to see activity here."}
                     </p>

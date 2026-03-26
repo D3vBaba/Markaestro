@@ -11,7 +11,6 @@ import FormField from "@/components/app/FormField";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { apiGet } from "@/lib/api-client";
-import { Clock, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SmartSlot = {
@@ -103,7 +102,6 @@ export default function ScheduleSheet({
                 onClick={() => setShowSmart(!showSmart)}
                 className="flex items-center gap-2 w-full text-left mb-3"
               >
-                <Sparkles className="h-4 w-4 text-primary" />
                 <span className="text-sm font-semibold text-foreground">Smart Schedule</span>
                 <span className="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium">
                   AI Suggested
@@ -127,13 +125,6 @@ export default function ScheduleSheet({
                           onClick={() => handleSmartPick(slot)}
                           className="w-full flex items-center gap-3 rounded-xl border border-border/40 bg-background p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-all text-left group"
                         >
-                          <div className="rounded-lg bg-primary/5 p-2 group-hover:bg-primary/10 transition-colors">
-                            {slot.score >= 90 ? (
-                              <Zap className="h-4 w-4 text-primary" />
-                            ) : (
-                              <Clock className="h-4 w-4 text-primary" />
-                            )}
-                          </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-medium text-foreground">{slot.label}</p>

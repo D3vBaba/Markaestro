@@ -7,19 +7,8 @@ import { apiPost, apiGet, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 import ProductPicker from "./ProductPicker";
 import {
-  Sparkles,
-  Video,
   Loader2,
-  CheckCircle2,
-  XCircle,
-  ChevronRight,
-  FileText,
-  User,
-  RotateCcw,
   Upload,
-  Package,
-  Mic,
-  Film,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -108,10 +97,10 @@ function StepIndicator({ step, labels }: { step: number; labels: string[] }) {
           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold transition-all ${
             i < step ? "bg-foreground text-background" : i === step ? "bg-foreground text-background ring-2 ring-foreground/20 ring-offset-2 ring-offset-background" : "bg-muted text-muted-foreground"
           }`}>
-            {i < step ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
+            {i < step ? "\u2713" : i + 1}
           </div>
           <span className={`text-[11px] font-medium hidden sm:inline ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-          {i < labels.length - 1 && <ChevronRight className="w-3 h-3 text-muted-foreground/30" />}
+          {i < labels.length - 1 && <span className="text-muted-foreground/30">&rsaquo;</span>}
         </div>
       ))}
     </div>
@@ -441,8 +430,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                     className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "ugc" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
                   >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <User className="w-4 h-4" />
-                      <span className="text-sm font-medium">UGC Talking Head</span>
+                                            <span className="text-sm font-medium">UGC Talking Head</span>
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">AI avatar speaks your script with lip sync</p>
                   </button>
@@ -451,8 +439,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                     className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "product-scene" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
                   >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <Package className="w-4 h-4" />
-                      <span className="text-sm font-medium">Product Scene</span>
+                                            <span className="text-sm font-medium">Product Scene</span>
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">Character interacting with your product, animated into video</p>
                   </button>
@@ -461,8 +448,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                     className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "faceless-narrated" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
                   >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <Film className="w-4 h-4" />
-                      <span className="text-sm font-medium">Faceless Narrated</span>
+                                            <span className="text-sm font-medium">Faceless Narrated</span>
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">Cinematic B-roll visuals with voiceover narration</p>
                   </button>
@@ -471,8 +457,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
 
               <div className="flex justify-end pt-4">
                 <Button onClick={() => setWizardStep(1)} className="h-11 text-sm font-medium px-6">
-                  Next: {stepLabels[1]} <ChevronRight className="w-4 h-4 ml-1.5" />
-                </Button>
+                  Next: {stepLabels[1]}                 </Button>
               </div>
             </>
           )}
@@ -486,7 +471,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Focus Area (optional)</label>
             <Textarea placeholder='"testimonials", "humor", "day in the life"...' value={focusArea} onChange={(e) => setFocusArea(e.target.value)} rows={2} className="resize-none" />
             <Button onClick={handleResearch} disabled={researching} className="w-full h-11 text-sm font-medium">
-              {researching ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Researching...</> : <><Sparkles className="w-4 h-4 mr-2" />Research Viral Trends</>}
+              {researching ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Researching...</> : "Research Viral Trends"}
             </Button>
           </div>
 
@@ -494,7 +479,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Select a Trend</label>
-                <button onClick={handleReset} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="w-3 h-3" />Reset</button>
+                <button onClick={handleReset} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1">Reset</button>
               </div>
               <div className="space-y-2">
                 {trends.map((t) => <TrendCard key={t.id} trend={t} selected={selectedTrend?.id === t.id} onSelect={() => { setSelectedTrend(t); setScript(null); setSelectedAvatarUrl(""); setGeneration(null); }} />)}
@@ -507,8 +492,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               Back
             </Button>
             <Button onClick={() => setWizardStep(2)} disabled={!canProceedFromStep(1)} className="h-11 text-sm font-medium px-6">
-              Next: {stepLabels[2]} <ChevronRight className="w-4 h-4 ml-1.5" />
-            </Button>
+              Next: {stepLabels[2]}             </Button>
           </div>
         </>
       )}
@@ -520,8 +504,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
           {videoFormat === "ugc" && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-muted-foreground" />
-                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">UGC Script</label>
+                                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">UGC Script</label>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -541,7 +524,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               </div>
 
               <Button onClick={handleWriteScript} disabled={writingScript} className="w-full h-11 text-sm font-medium">
-                {writingScript ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Writing Script...</> : <><FileText className="w-4 h-4 mr-2" />Write UGC Script</>}
+                {writingScript ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Writing Script...</> : "Write UGC Script"}
               </Button>
 
               {script && (
@@ -553,7 +536,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <label className="text-xs text-muted-foreground">Full Script (editable)</label>
-                      <button onClick={handleWriteScript} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="w-3 h-3" />Rewrite</button>
+                      <button onClick={handleWriteScript} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1">Rewrite</button>
                     </div>
                     <Textarea value={editedScript} onChange={(e) => setEditedScript(e.target.value)} rows={6} className="resize-none text-sm font-mono" />
                   </div>
@@ -566,8 +549,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
           {videoFormat === "product-scene" && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-muted-foreground" />
-                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Scene Setup</label>
+                                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Scene Setup</label>
               </div>
 
               <div className="space-y-2">
@@ -609,7 +591,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                           <p className="text-white text-[9px] font-medium truncate">{a.name}</p>
                         </div>
                         {selectedAvatarUrl === a.imageUrl && (
-                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground flex items-center justify-center"><CheckCircle2 className="w-2.5 h-2.5 text-background" /></div>
+                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground flex items-center justify-center text-background text-[8px] font-bold">&check;</div>
                         )}
                       </button>
                     ))}
@@ -624,7 +606,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                     ))}
                   </div>
                   <Button variant="default" size="sm" className="h-9 text-xs" onClick={handleGenerateFace} disabled={generatingFace}>
-                    {generatingFace ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating...</> : <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Generate AI Face</>}
+                    {generatingFace ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating...</> : "Generate AI Face"}
                   </Button>
                 </div>
               </div>
@@ -640,8 +622,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
           {videoFormat === "faceless-narrated" && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Film className="w-4 h-4 text-muted-foreground" />
-                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Script & Voice</label>
+                                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Script & Voice</label>
               </div>
 
               <div className="flex flex-wrap items-center gap-4">
@@ -706,8 +687,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               Back
             </Button>
             <Button onClick={() => setWizardStep(3)} disabled={!canProceedFromStep(2)} className="h-11 text-sm font-medium px-6">
-              Next: {stepLabels[3]} <ChevronRight className="w-4 h-4 ml-1.5" />
-            </Button>
+              Next: {stepLabels[3]}             </Button>
           </div>
         </>
       )}
@@ -719,8 +699,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
           {videoFormat === "ugc" && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-muted-foreground" />
-                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Avatar Face & Voice</label>
+                                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Avatar Face & Voice</label>
               </div>
 
               {savedAvatars.length > 0 && (
@@ -734,7 +713,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                           <p className="text-white text-[9px] font-medium truncate">{a.name}</p>
                         </div>
                         {selectedAvatarUrl === a.imageUrl && (
-                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground flex items-center justify-center"><CheckCircle2 className="w-2.5 h-2.5 text-background" /></div>
+                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground flex items-center justify-center text-background text-[8px] font-bold">&check;</div>
                         )}
                       </button>
                     ))}
@@ -756,7 +735,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                     ))}
                   </div>
                   <Button variant="default" size="sm" className="h-9 text-xs flex-1 min-w-35" onClick={handleGenerateFace} disabled={generatingFace}>
-                    {generatingFace ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating...</> : <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Generate AI Face</>}
+                    {generatingFace ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating...</> : "Generate AI Face"}
                   </Button>
                   <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
                     {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Upload className="w-3.5 h-3.5 mr-1.5" />Upload</>}
@@ -791,8 +770,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Mic className="w-4 h-4 text-muted-foreground" />
-                  <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Voiceover</label>
+                                    <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Voiceover</label>
                 </div>
                 <button
                   onClick={() => setWantsVoiceover(!wantsVoiceover)}
@@ -821,7 +799,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                   </div>
 
                   <Button onClick={handleWriteScript} disabled={writingScript} className="w-full h-11 text-sm font-medium">
-                    {writingScript ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Writing Script...</> : <><FileText className="w-4 h-4 mr-2" />Write Voiceover Script</>}
+                    {writingScript ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Writing Script...</> : "Write Voiceover Script"}
                   </Button>
 
                   {script && (
@@ -829,7 +807,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <label className="text-xs text-muted-foreground">Script (editable)</label>
-                          <button onClick={handleWriteScript} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="w-3 h-3" />Rewrite</button>
+                          <button onClick={handleWriteScript} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1">Rewrite</button>
                         </div>
                         <Textarea value={editedScript} onChange={(e) => setEditedScript(e.target.value)} rows={4} className="resize-none text-sm font-mono" />
                       </div>
@@ -877,7 +855,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               </div>
 
               <Button onClick={handleGenerate} disabled={generating || generation?.status === "generating"} className="w-full h-12 text-sm font-medium">
-                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />Generate Faceless Video</>}
+                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : "Generate Faceless Video"}
               </Button>
 
               {generation && (
@@ -890,7 +868,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                   )}
                   {generation.status === "completed" && generation.videoUrl && (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /><p className="text-sm font-medium">Video ready!</p></div>
+                      <p className="text-sm font-medium text-green-600">Video ready!</p>
                       <div className="rounded-lg overflow-hidden bg-black" style={{ aspectRatio: "9/16", maxHeight: "480px" }}>
                         <video src={generation.videoUrl} controls className="w-full h-full object-contain" />
                       </div>
@@ -899,7 +877,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                   )}
                   {generation.status === "failed" && (
                     <div className="flex items-center gap-3">
-                      <XCircle className="w-5 h-5 text-red-500" />
+                      <span className="text-red-500 text-sm font-medium">Failed</span>
                       <div><p className="text-sm font-medium">Generation failed</p><p className="text-xs text-muted-foreground">{generation.errorMessage}</p></div>
                     </div>
                   )}
@@ -915,8 +893,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             {/* UGC and product-scene have a next step; faceless generate is already shown above */}
             {(videoFormat === "ugc" || videoFormat === "product-scene") && (
               <Button onClick={() => setWizardStep(4)} disabled={!canProceedFromStep(3)} className="h-11 text-sm font-medium px-6">
-                Next: {stepLabels[4]} <ChevronRight className="w-4 h-4 ml-1.5" />
-              </Button>
+                Next: {stepLabels[4]}               </Button>
             )}
           </div>
         </>
@@ -942,7 +919,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             </div>
 
             <Button onClick={handleGenerate} disabled={generating || generation?.status === "generating"} className="w-full h-12 text-sm font-medium">
-              {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : <><Video className="w-4 h-4 mr-2" />{videoFormat === "ugc" ? "Generate UGC Video" : "Generate Product Scene"}</>}
+              {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : videoFormat === "ugc" ? "Generate UGC Video" : "Generate Product Scene"}
             </Button>
 
             {generation && (
@@ -955,7 +932,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 )}
                 {generation.status === "completed" && generation.videoUrl && (
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /><p className="text-sm font-medium">Video ready!</p></div>
+                    <p className="text-sm font-medium text-green-600">Video ready!</p>
                     <div className="rounded-lg overflow-hidden bg-black" style={{ aspectRatio: "9/16", maxHeight: "480px" }}>
                       <video src={generation.videoUrl} controls className="w-full h-full object-contain" />
                     </div>
@@ -964,7 +941,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 )}
                 {generation.status === "failed" && (
                   <div className="flex items-center gap-3">
-                    <XCircle className="w-5 h-5 text-red-500" />
+                    <span className="text-red-500 text-sm font-medium">Failed</span>
                     <div><p className="text-sm font-medium">Generation failed</p><p className="text-xs text-muted-foreground">{generation.errorMessage}</p></div>
                   </div>
                 )}

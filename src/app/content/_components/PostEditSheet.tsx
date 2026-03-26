@@ -12,7 +12,7 @@ import Select from "@/components/app/Select";
 import PlatformPreview from "@/components/app/PlatformPreview";
 import { apiPost, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
-import { ImagePlus, Wand2, ChevronDown, ChevronUp } from "lucide-react";
+import { ImagePlus, ChevronDown, ChevronUp } from "lucide-react";
 
 type Post = {
   id: string;
@@ -229,7 +229,6 @@ export default function PostEditSheet({
                   className="text-xs flex items-center gap-1"
                   onClick={() => setShowAiPanel((v) => !v)}
                 >
-                  <Wand2 className="w-3 h-3" />
                   AI Image
                   {showAiPanel ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 </Button>

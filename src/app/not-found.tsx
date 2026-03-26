@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home } from "lucide-react";
 
 export default function NotFound() {
   return (
@@ -25,12 +24,12 @@ export default function NotFound() {
         </p>
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link href="/">
-            <Button className="rounded-xl gap-2">
-              <Home className="h-4 w-4" /> Go Home
+            <Button className="rounded-xl">
+              Go Home
             </Button>
           </Link>
-          <Button variant="outline" className="rounded-xl gap-2" onClick={() => history.back()}>
-            <ArrowLeft className="h-4 w-4" /> Go Back
+          <Button variant="outline" className="rounded-xl" onClick={() => history.back()}>
+            Go Back
           </Button>
         </div>
         <div className="mt-12 flex justify-center gap-6 text-xs text-muted-foreground">

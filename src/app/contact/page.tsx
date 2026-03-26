@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Clock, Mail, MessageSquare, Shield, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -14,21 +14,18 @@ const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 const contactChannels = [
   {
-    icon: Mail,
     title: "General Inquiries",
     description: "Questions about Markaestro, pricing, or partnerships.",
     email: "hello@markaestro.com",
     response: "1-2 business days",
   },
   {
-    icon: MessageSquare,
     title: "Technical Support",
     description: "Help with integrations, publishing issues, or account access.",
     email: "support@markaestro.com",
     response: "Under 24 hours",
   },
   {
-    icon: Shield,
     title: "Privacy & Legal",
     description: "Data requests, compliance questions, or legal inquiries.",
     email: "legal@markaestro.com",
@@ -113,10 +110,7 @@ export default function ContactPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, ease }}
               >
-                <div className="rounded-xl bg-primary/5 p-3 w-fit">
-                  <channel.icon className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="mt-5 text-sm font-semibold text-foreground">{channel.title}</h3>
+                <h3 className="text-sm font-semibold text-foreground">{channel.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{channel.description}</p>
                 <a
                   href={`mailto:${channel.email}`}
@@ -124,8 +118,7 @@ export default function ContactPage() {
                 >
                   {channel.email}
                 </a>
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3" />
+                <div className="mt-3 text-xs text-muted-foreground">
                   {channel.response}
                 </div>
               </motion.div>
@@ -171,10 +164,7 @@ export default function ContactPage() {
               <CardContent className="p-8">
                 {sent ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="rounded-2xl bg-primary/5 p-4">
-                      <Mail className="h-8 w-8 text-primary" />
-                    </div>
-                    <h3 className="mt-6 text-lg font-semibold">Message Ready</h3>
+                    <h3 className="text-lg font-semibold">Message Ready</h3>
                     <p className="mt-3 max-w-sm text-sm text-muted-foreground leading-relaxed">
                       Your email client should have opened with the message pre-filled. If it didn&apos;t, email us directly at{" "}
                       <a href="mailto:support@markaestro.com" className="text-primary hover:underline">support@markaestro.com</a>.
@@ -237,7 +227,7 @@ export default function ContactPage() {
                     </div>
 
                     <Button type="submit" className="h-11 w-full rounded-xl">
-                      Send Message <ArrowRight className="ml-2 h-4 w-4" />
+                      Send Message
                     </Button>
 
                     <p className="text-center text-xs text-muted-foreground">
@@ -300,7 +290,7 @@ export default function ContactPage() {
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
                 <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+                  Get Started Free
                 </Button>
               </Link>
             </div>

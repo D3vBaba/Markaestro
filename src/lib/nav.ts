@@ -1,19 +1,6 @@
-import {
-    LayoutDashboard,
-    Mail,
-    BarChart3,
-    Settings,
-    Package,
-    Send,
-    Megaphone,
-    CalendarDays,
-    type LucideIcon,
-} from "lucide-react";
-
 export type NavItem = {
     name: string;
     href: string;
-    icon: LucideIcon;
 };
 
 export type NavGroup = {
@@ -25,23 +12,23 @@ export const navigationGroups: NavGroup[] = [
     {
         group: "Overview",
         items: [
-            { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+            { name: "Dashboard", href: "/dashboard" },
         ],
     },
     {
         group: "Marketing",
         items: [
-            { name: "Products", href: "/products", icon: Package },
-            { name: "Campaigns", href: "/campaigns", icon: Mail },
-            { name: "Posts", href: "/content", icon: Send },
-            { name: "Ads", href: "/ads", icon: Megaphone },
-            { name: "Calendar", href: "/calendar", icon: CalendarDays },
+            { name: "Products", href: "/products" },
+            { name: "Campaigns", href: "/campaigns" },
+            { name: "Posts", href: "/content" },
+            { name: "Ads", href: "/ads" },
+            { name: "Calendar", href: "/calendar" },
         ],
     },
     {
         group: "Insights",
         items: [
-            { name: "Social Manager", href: "/analytics", icon: BarChart3 },
+            { name: "Social Manager", href: "/analytics" },
         ],
     },
 ];
@@ -49,7 +36,6 @@ export const navigationGroups: NavGroup[] = [
 export const settingsItem: NavItem = {
     name: "Settings",
     href: "/settings",
-    icon: Settings,
 };
 
 // Flat list for backward compatibility (Header mobile menu, etc.)

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, Menu, LogOut, Settings, User as UserIcon } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -69,12 +69,6 @@ export function Header() {
                                                         : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                                                 )}
                                             >
-                                                <div className={cn(
-                                                    "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
-                                                    pathname === item.href ? "bg-white/20" : "bg-sidebar-accent"
-                                                )}>
-                                                    <item.icon className="w-3.5 h-3.5" />
-                                                </div>
                                                 {item.name}
                                             </Link>
                                         ))}
@@ -85,18 +79,12 @@ export function Header() {
                                 <Link
                                     href={settingsItem.href}
                                     className={cn(
-                                        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200",
+                                        "flex items-center px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200",
                                         pathname === settingsItem.href
                                             ? "bg-primary text-white"
                                             : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                                     )}
                                 >
-                                    <div className={cn(
-                                        "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
-                                        pathname === settingsItem.href ? "bg-white/20" : "bg-sidebar-accent"
-                                    )}>
-                                        <settingsItem.icon className="w-3.5 h-3.5" />
-                                    </div>
                                     {settingsItem.name}
                                 </Link>
                             </div>
@@ -138,7 +126,6 @@ export function Header() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                             <Link href="/settings" className="cursor-pointer">
-                                <Settings className="mr-2 h-4 w-4" />
                                 Settings
                             </Link>
                         </DropdownMenuItem>
@@ -147,7 +134,6 @@ export function Header() {
                             className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer"
                             onClick={logout}
                         >
-                            <LogOut className="mr-2 h-4 w-4" />
                             Sign out
                         </DropdownMenuItem>
                     </DropdownMenuContent>

@@ -7,8 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Rocket, ArrowLeft, Play, Calendar, Loader2,
-  ChevronDown, ChevronRight, Image as ImageIcon, Check,
+  Loader2, ChevronDown, ChevronRight,
 } from "lucide-react";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -208,13 +207,12 @@ export default function PipelineDetailPage() {
           onClick={() => router.push("/campaigns")}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to Campaigns
+          &larr; Back to Campaigns
         </button>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Rocket className="h-5 w-5 text-muted-foreground" />
               <h1 className="text-2xl font-normal tracking-tight font-[family-name:var(--font-display)]">
                 {campaign.name}
               </h1>
@@ -233,7 +231,6 @@ export default function PipelineDetailPage() {
                 <div className="w-full sm:w-auto">
                   <details className="relative group">
                     <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground select-none list-none flex items-center gap-1">
-                      <ImageIcon className="h-3 w-3" />
                       Visual Types {selectedSubtypes.length > 0 && <Badge variant="secondary" className="text-[10px] h-4 px-1">{selectedSubtypes.length}</Badge>}
                       <ChevronDown className="h-3 w-3" />
                     </summary>
@@ -276,7 +273,7 @@ export default function PipelineDetailPage() {
                   {generating ? (
                     <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...</>
                   ) : (
-                    <><Play className="h-4 w-4 mr-2" /> Generate Pipeline</>
+                    "Generate Pipeline"
                   )}
                 </Button>
               </>
@@ -286,13 +283,13 @@ export default function PipelineDetailPage() {
                 {scheduling ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Scheduling...</>
                 ) : (
-                  <><Calendar className="h-4 w-4 mr-2" /> Schedule All Posts</>
+                  "Schedule All Posts"
                 )}
               </Button>
             )}
             {isScheduled && (
               <Badge variant="outline" className="border-0 bg-emerald-50 text-emerald-700 px-3 py-1.5">
-                <Check className="h-3.5 w-3.5 mr-1.5" /> Pipeline Scheduled
+                Pipeline Scheduled
               </Badge>
             )}
           </div>
@@ -384,9 +381,6 @@ export default function PipelineDetailPage() {
       {!pipeline && !generating && (
         <Card className="border-border/30">
           <CardContent className="py-16 text-center">
-            <div className="h-12 w-12 rounded-xl bg-foreground/5 mx-auto mb-4 flex items-center justify-center">
-              <Rocket className="h-5 w-5 text-muted-foreground" />
-            </div>
             <p className="text-base font-medium text-foreground">Pipeline ready to generate</p>
             <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
               Click &quot;Generate Pipeline&quot; to research your market, generate {campaign.pipeline?.postCount || 20} posts
@@ -455,7 +449,7 @@ export default function PipelineDetailPage() {
                               />
                             ) : (
                               <div className="h-16 w-16 rounded-lg bg-muted/30 flex-shrink-0 flex items-center justify-center">
-                                <ImageIcon className="h-4 w-4 text-muted-foreground/50" />
+                                <span className="text-[10px] text-muted-foreground/50">No img</span>
                               </div>
                             )}
 

@@ -1,4 +1,3 @@
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function MetricCard({
@@ -24,8 +23,7 @@ export default function MetricCard({
                 delta >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
               }`}
             >
-              {delta >= 0 ? <ArrowUpRight className="mr-0.5 h-3 w-3" /> : <ArrowDownRight className="mr-0.5 h-3 w-3" />}
-              {Math.abs(delta)}%
+              {delta >= 0 ? "+" : ""}{Math.abs(delta)}%
             </span>
             vs last period
           </p>

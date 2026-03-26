@@ -2,7 +2,7 @@
 
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, HelpCircle } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -266,7 +266,6 @@ export default function PricingPage() {
                     )}
                   >
                     {tier.cta}
-                    {tier.name !== "Business" && <ArrowRight className="ml-2 h-4 w-4" />}
                   </Button>
                 </Link>
                 <div className="mt-8 flex-1">
@@ -274,7 +273,7 @@ export default function PricingPage() {
                   <ul className="space-y-3">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2.5">
-                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <span className="text-primary shrink-0 mt-0.5 text-sm font-medium">&ndash;</span>
                         <span className="text-sm text-muted-foreground">{feature}</span>
                       </li>
                     ))}
@@ -326,7 +325,7 @@ export default function PricingPage() {
                           <td key={plan} className="py-3 text-center">
                             {typeof feature[plan] === "boolean" ? (
                               feature[plan] ? (
-                                <Check className="h-4 w-4 text-primary mx-auto" />
+                                <span className="text-primary font-medium text-sm">Yes</span>
                               ) : (
                                 <span className="text-muted-foreground/30">—</span>
                               )
@@ -366,10 +365,10 @@ export default function PricingPage() {
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 >
                   <span className="text-sm font-medium text-foreground pr-4">{faq.q}</span>
-                  <HelpCircle
+                  <ChevronDown
                     className={cn(
-                      "h-4 w-4 shrink-0 text-muted-foreground transition-colors",
-                      openFaq === i && "text-primary"
+                      "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                      openFaq === i && "rotate-180"
                     )}
                   />
                 </button>
@@ -397,7 +396,7 @@ export default function PricingPage() {
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
                 <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+                  Get Started Free
                 </Button>
               </Link>
               <Link href="/contact">

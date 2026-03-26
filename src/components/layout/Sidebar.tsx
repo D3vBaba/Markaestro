@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { navigationGroups, settingsItem } from "@/lib/nav";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
@@ -48,20 +47,12 @@ export function Sidebar({ className }: { className?: string }) {
                                         key={item.name}
                                         href={item.href}
                                         className={cn(
-                                            "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200",
+                                            "flex items-center px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200",
                                             isActive
                                                 ? "bg-primary text-white"
                                                 : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                                         )}
                                     >
-                                        <div className={cn(
-                                            "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                                            isActive
-                                                ? "bg-white/20"
-                                                : "bg-sidebar-accent"
-                                        )}>
-                                            <item.icon className="w-3.5 h-3.5" />
-                                        </div>
                                         {item.name}
                                     </Link>
                                 );
@@ -76,18 +67,12 @@ export function Sidebar({ className }: { className?: string }) {
                 <Link
                     href={settingsItem.href}
                     className={cn(
-                        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 mb-3",
+                        "flex items-center px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 mb-3",
                         pathname === settingsItem.href
                             ? "bg-primary text-white"
                             : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
                     )}
                 >
-                    <div className={cn(
-                        "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
-                        pathname === settingsItem.href ? "bg-white/20" : "bg-sidebar-accent"
-                    )}>
-                        <settingsItem.icon className="w-3.5 h-3.5" />
-                    </div>
                     {settingsItem.name}
                 </Link>
                 <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-sidebar-accent transition-colors">
@@ -100,11 +85,11 @@ export function Sidebar({ className }: { className?: string }) {
                     </div>
                     <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-sidebar-foreground/40 hover:text-rose-400 hover:bg-rose-500/10"
+                        size="sm"
+                        className="h-7 text-[11px] text-sidebar-foreground/40 hover:text-rose-400 hover:bg-rose-500/10"
                         onClick={logout}
                     >
-                        <LogOut className="w-3.5 h-3.5" />
+                        Log out
                     </Button>
                 </div>
             </div>

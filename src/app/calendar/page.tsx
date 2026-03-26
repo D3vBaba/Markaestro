@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X, ExternalLink, Heart, MessageCircle, Bookmark, Share2, Plus, GripVertical } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 import { apiGet, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -132,13 +132,13 @@ function InstagramMockup({ post }: { post: Post }) {
         </div>
       )}
       <div className="px-3 pt-2.5 pb-3 space-y-1.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3.5">
-            <Heart className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
-            <MessageCircle className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
-            <Share2 className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
+        <div className="flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
+          <div className="flex items-center gap-3">
+            <span>Like</span>
+            <span>Comment</span>
+            <span>Share</span>
           </div>
-          <Bookmark className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
+          <span>Save</span>
         </div>
         <p className="text-[12px] text-zinc-900 dark:text-white leading-snug">
           <span className="font-semibold">yourproduct </span>
@@ -248,7 +248,7 @@ function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void })
         {post.externalUrl && (
           <a href={post.externalUrl} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors w-fit">
-            <ExternalLink className="w-3.5 h-3.5" /> View live post
+            View live post
           </a>
         )}
       </div>
@@ -614,7 +614,6 @@ export default function CalendarPage() {
             })}
             <div className="w-px h-3 bg-border/50 hidden sm:block" />
             <div className="flex items-center gap-1.5">
-              <GripVertical className="w-3 h-3 text-muted-foreground/50" />
               <span className="text-[11px] text-muted-foreground">Drag to reschedule</span>
             </div>
           </div>

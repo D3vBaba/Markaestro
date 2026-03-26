@@ -11,7 +11,6 @@ import { apiGet, apiPost } from "@/lib/api-client";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { Sparkles, RefreshCw, Heart, MessageCircle, Share2, Play, ExternalLink, ImageIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
 // ── Types ────────────────────────────────────────────────────────
@@ -138,8 +137,7 @@ export default function AnalyticsPage() {
         action={
           insights && (
             <Button variant="outline" className="rounded-xl" onClick={() => fetchInsights(productId)} disabled={insightsLoading}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${insightsLoading ? "animate-spin" : ""}`} />
-              Refresh
+              {insightsLoading ? "Refreshing..." : "Refresh"}
             </Button>
           )
         }
@@ -220,20 +218,13 @@ export default function AnalyticsPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-primary" />
+                    <CardTitle>
                       AI Social Media Manager
                     </CardTitle>
                     <CardDescription>Personalized recommendations based on your live platform data.</CardDescription>
                   </div>
                   <Button onClick={fetchTips} disabled={tipsLoading} className="rounded-xl">
-                    {tipsLoading ? (
-                      <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Analyzing...</>
-                    ) : tips ? (
-                      <><RefreshCw className="h-4 w-4 mr-2" /> Refresh Tips</>
-                    ) : (
-                      <><Sparkles className="h-4 w-4 mr-2" /> Get AI Tips</>
-                    )}
+                    {tipsLoading ? "Analyzing..." : tips ? "Refresh Tips" : "Get AI Tips"}
                   </Button>
                 </div>
               </CardHeader>
@@ -432,7 +423,7 @@ function TopPostsCard({ title, posts }: {
                 <img src={post.imageUrl} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0 border border-border/40" />
               ) : (
                 <div className="w-14 h-14 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
-                  <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground">No img</span>
                 </div>
               )}
               <div className="flex-1 min-w-0">
@@ -440,20 +431,20 @@ function TopPostsCard({ title, posts }: {
                 <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground flex-wrap">
                   <span>{timeAgo(post.date)}</span>
                   {post.views != null && (
-                    <span className="flex items-center gap-0.5"><Play className="h-3 w-3" />{post.views.toLocaleString()}</span>
+                    <span>{post.views.toLocaleString()} views</span>
                   )}
                   {post.likes != null && (
-                    <span className="flex items-center gap-0.5"><Heart className="h-3 w-3" />{post.likes.toLocaleString()}</span>
+                    <span>{post.likes.toLocaleString()} likes</span>
                   )}
                   {post.comments != null && (
-                    <span className="flex items-center gap-0.5"><MessageCircle className="h-3 w-3" />{post.comments.toLocaleString()}</span>
+                    <span>{post.comments.toLocaleString()} comments</span>
                   )}
                   {post.shares != null && (
-                    <span className="flex items-center gap-0.5"><Share2 className="h-3 w-3" />{post.shares.toLocaleString()}</span>
+                    <span>{post.shares.toLocaleString()} shares</span>
                   )}
                   {post.permalink && (
-                    <a href={post.permalink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-0.5 text-primary hover:underline">
-                      <ExternalLink className="h-3 w-3" /> View
+                    <a href={post.permalink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                      View
                     </a>
                   )}
                 </div>

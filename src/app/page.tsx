@@ -3,7 +3,6 @@
 import Link from "next/link";
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, Globe, ImageIcon, Lock, Megaphone, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
@@ -33,7 +32,7 @@ export default function LandingPage() {
             <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
                 <Button size="lg" className="h-13 px-10 text-sm rounded-2xl">
-                  Start for Free <ArrowRight className="ml-2 h-4 w-4" />
+                  Start for Free
                 </Button>
               </Link>
               <Link href="/features">
@@ -99,20 +98,17 @@ export default function LandingPage() {
 
           <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: Globe, title: "Multi-Channel Publishing", desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly." },
-              { icon: Megaphone, title: "Ad Campaign Management", desc: "Create and launch ad campaigns on Meta and Google Ads with audience targeting, budgets, and creative management." },
-              { icon: Pencil, title: "AI Content Generation", desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization." },
-              { icon: ImageIcon, title: "AI Image Generation", desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity." },
-              { icon: BarChart3, title: "Analytics Dashboard", desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time." },
-              { icon: Lock, title: "OAuth Integrations", desc: "One-click connect to Meta, Google, and TikTok via secure OAuth. No manual token management required." },
-            ].map(({ icon: Icon, title, desc }) => (
+              { title: "Multi-Channel Publishing", desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly." },
+              { title: "Ad Campaign Management", desc: "Create and launch ad campaigns on Meta and Google Ads with audience targeting, budgets, and creative management." },
+              { title: "AI Content Generation", desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization." },
+              { title: "AI Image Generation", desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity." },
+              { title: "Analytics Dashboard", desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time." },
+              { title: "OAuth Integrations", desc: "One-click connect to Meta, Google, and TikTok via secure OAuth. No manual token management required." },
+            ].map(({ title, desc }) => (
               <div
                 key={title}
                 className="rounded-2xl bg-background p-8 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-lg border border-border/40"
               >
-                <div className="rounded-xl bg-primary/5 p-3 w-fit mb-5">
-                  <Icon className="h-5 w-5 text-primary" />
-                </div>
                 <h3 className="text-sm font-semibold text-foreground">{title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{desc}</p>
               </div>
@@ -122,7 +118,7 @@ export default function LandingPage() {
           <div className="mt-12 text-center">
             <Link href="/features">
               <Button variant="outline" className="rounded-2xl">
-                Explore All Features <ArrowRight className="ml-2 h-4 w-4" />
+                Explore All Features
               </Button>
             </Link>
           </div>
@@ -159,7 +155,7 @@ export default function LandingPage() {
               <div className="mt-10">
                 <Link href="/channels">
                   <Button variant="outline" className="rounded-2xl">
-                    See All Channels <ArrowRight className="ml-2 h-4 w-4" />
+                    See All Channels
                   </Button>
                 </Link>
               </div>
@@ -231,7 +227,7 @@ export default function LandingPage() {
               <div className="mt-10">
                 <Link href="/ai-studio">
                   <Button variant="outline" className="rounded-2xl">
-                    Explore AI Studio <ArrowRight className="ml-2 h-4 w-4" />
+                    Explore AI Studio
                   </Button>
                 </Link>
               </div>
@@ -253,7 +249,7 @@ export default function LandingPage() {
             <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
                 <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+                  Get Started Free
                 </Button>
               </Link>
               <Link href="/contact">

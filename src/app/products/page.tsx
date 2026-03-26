@@ -11,7 +11,7 @@ import {
     Sheet, SheetContent, SheetDescription, SheetHeader,
     SheetTitle, SheetTrigger, SheetFooter, SheetClose,
 } from "@/components/ui/sheet";
-import { Trash2, ExternalLink, Package, Pencil, Upload, X, Loader2, Wand2, CheckCircle2 } from "lucide-react";
+import { Trash2, Upload, X, Loader2 } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
@@ -641,16 +641,16 @@ export default function ProductsPage() {
                       className="flex-1"
                     />
                     <Button onClick={handleScan} disabled={scanning || !scanUrl.trim()} className="shrink-0">
-                      {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                      <span className="ml-1.5">{scanning ? "Scanning…" : "Scan"}</span>
+                      {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                      <span className={scanning ? "ml-1.5" : ""}>{scanning ? "Scanning…" : "Scan"}</span>
                     </Button>
                   </div>
                   {scanning && (
                     <p className="text-xs text-muted-foreground animate-pulse">Analysing your website…</p>
                   )}
                   {scanned && !scanning && (
-                    <p className="text-xs text-emerald-600 flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3" /> Prefilled from your website — edit anything below
+                    <p className="text-xs text-emerald-600">
+                      Prefilled from your website — edit anything below
                     </p>
                   )}
                 </div>
@@ -789,9 +789,6 @@ export default function ProductsPage() {
         ) : products.length === 0 ? (
           <Card className="col-span-full border-border/30">
             <CardContent className="py-16 text-center">
-              <div className="h-12 w-12 rounded-xl bg-primary mx-auto mb-4 flex items-center justify-center">
-                <Package className="h-5 w-5 text-white" />
-              </div>
               <p className="text-base font-medium text-foreground">No products registered yet</p>
               <p className="text-sm text-muted-foreground mt-1">Add your first application to start tracking its marketing performance.</p>
             </CardContent>
@@ -810,7 +807,7 @@ export default function ProductsPage() {
                       />
                     ) : (
                       <div className="h-10 w-10 rounded-lg border bg-muted/50 flex items-center justify-center shrink-0">
-                        <Package className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-[10px] font-medium text-muted-foreground">{p.name.charAt(0).toUpperCase()}</span>
                       </div>
                     )}
                     <div className="min-w-0">
@@ -836,8 +833,8 @@ export default function ProductsPage() {
                   <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{p.description}</p>
                 )}
                 {p.url && (
-                  <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1 mb-3">
-                    <ExternalLink className="h-3 w-3" /> {p.url}
+                  <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline mb-3 block">
+                    {p.url}
                   </a>
                 )}
                 {p.tags && p.tags.length > 0 && (
@@ -883,7 +880,7 @@ export default function ProductsPage() {
                     <p className="text-xs text-muted-foreground">Added {new Date(p.createdAt).toLocaleDateString()}</p>
                   )}
                   <Button variant="outline" size="sm" onClick={() => openEditSheet(p)}>
-                    <Pencil className="mr-1.5 h-3 w-3" /> Edit
+                    Edit
                   </Button>
                 </div>
               </CardContent>
