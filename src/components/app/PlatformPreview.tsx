@@ -9,6 +9,23 @@ export type PlatformPreviewProps = {
   externalUrl?: string;
 };
 
+/** Check if a URL points to a video file */
+function isVideoUrl(url: string): boolean {
+  return /\.(mp4|mov|webm)(\?|$)/i.test(url);
+}
+
+/** Render media (image or video) with proper controls and click behavior */
+function MediaDisplay({ url, className, aspectClass }: { url: string; className?: string; aspectClass?: string }) {
+  if (isVideoUrl(url)) {
+    return <video src={url} className={`${className || ""} ${aspectClass || ""}`} controls playsInline preload="metadata" />;
+  }
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer" className="block cursor-zoom-in">
+      <img src={url} alt="" className={`${className || ""} ${aspectClass || ""} hover:opacity-90 transition-opacity`} loading="lazy" />
+    </a>
+  );
+}
+
 // ─── Instagram ────────────────────────────────────────────────────────────────
 
 function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
@@ -31,7 +48,7 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
       </div>
 
       {img ? (
-        <img src={img} alt="" className="w-full aspect-square object-cover" />
+        <MediaDisplay url={img} className="w-full object-cover" aspectClass="aspect-square" />
       ) : (
         <div
           className="w-full aspect-square flex items-center justify-center"
@@ -88,7 +105,7 @@ function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
         {content.length > 200 ? content.slice(0, 200) + "…" : content}
       </p>
 
-      {img && <img src={img} alt="" className="w-full object-cover max-h-52" />}
+      {img && <MediaDisplay url={img} className="w-full object-cover max-h-52" />}
 
       <div className="px-3 py-2 border-t border-zinc-100 dark:border-zinc-700/50">
         <div className="flex items-center justify-between text-[11px] text-zinc-500 pb-1.5">
@@ -114,10 +131,13 @@ function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
   return (
     <div className="flex justify-center">
       <div className="relative rounded-[28px] overflow-hidden bg-zinc-950 border border-zinc-800 shadow-2xl" style={{ width: 200, aspectRatio: "9/16" }}>
-        {img
-          ? <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-75" />
-          : <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-950" />
-        }
+        {img ? (
+          isVideoUrl(img)
+            ? <video src={img} className="absolute inset-0 w-full h-full object-cover opacity-75" controls playsInline preload="metadata" />
+            : <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-75" />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-950" />
+        )}
         <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.3) 100%)" }} />
 
         <div className="absolute top-3 left-0 right-0 flex justify-center gap-5 text-[9px] text-white/70">
