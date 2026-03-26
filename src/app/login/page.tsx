@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,14 @@ import MarketingLayout from "@/components/layout/MarketingLayout";
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const { user, loading, signInEmail, signUpEmail, signInGoogle, signInFacebook } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
