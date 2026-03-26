@@ -21,7 +21,7 @@ export default function LoginPage() {
 }
 
 function LoginContent() {
-  const { user, loading, signInEmail, signUpEmail, signInGoogle, signInFacebook } = useAuth();
+  const { user, loading, signInEmail, signUpEmail, signInGoogle, signInFacebook, resetPassword } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -29,7 +29,9 @@ function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showReset, setShowReset] = useState(false);
 
   const redirectTo = searchParams.get("next") || "/dashboard";
 
@@ -140,11 +142,55 @@ function LoginContent() {
                 className="h-11 rounded-xl"
               />
 
-              {error ? <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs text-rose-600">{error}</p> : null}
+              {mode === "signin" && !showReset && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    className="text-xs text-primary hover:underline"
+                    onClick={() => { setShowReset(true); setError(""); setSuccess(""); }}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
 
-              <Button className="h-11 w-full rounded-xl" disabled={busy} onClick={handlePrimary}>
-                {busy ? "Please wait..." : mode === "signin" ? "Sign In" : "Create Account"}
-              </Button>
+              {error && <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs text-rose-600">{error}</p>}
+              {success && <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs text-emerald-700">{success}</p>}
+
+              {showReset ? (
+                <div className="space-y-3">
+                  <Button
+                    className="h-11 w-full rounded-xl"
+                    disabled={busy}
+                    onClick={async () => {
+                      if (!email) { setError("Please enter your email address above."); return; }
+                      try {
+                        setError(""); setSuccess(""); setBusy(true);
+                        await resetPassword(email);
+                        setSuccess("Password reset email sent. Check your inbox.");
+                        setShowReset(false);
+                      } catch (e: unknown) {
+                        setError(friendlyAuthError(e));
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                  >
+                    {busy ? "Sending..." : "Send Reset Link"}
+                  </Button>
+                  <button
+                    type="button"
+                    className="w-full text-xs text-muted-foreground hover:text-foreground transition text-center"
+                    onClick={() => { setShowReset(false); setError(""); }}
+                  >
+                    Back to sign in
+                  </button>
+                </div>
+              ) : (
+                <Button className="h-11 w-full rounded-xl" disabled={busy} onClick={handlePrimary}>
+                  {busy ? "Please wait..." : mode === "signin" ? "Sign In" : "Create Account"}
+                </Button>
+              )}
 
               <div className="relative py-2">
                 <div className="absolute inset-0 flex items-center">

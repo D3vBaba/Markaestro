@@ -3,7 +3,7 @@
 import Link from "next/link";
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BarChart3, Globe, ImageIcon, Lock, Megaphone, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
@@ -52,15 +52,34 @@ export default function LandingPage() {
             transition={{ delay: 0.3, duration: 0.5, ease }}
           >
             {[
-              { value: "5+", label: "Channels" },
-              { value: "AI", label: "Content & Images" },
-              { value: "100%", label: "Automated" },
+              { value: "10hrs", label: "Saved per week" },
+              { value: "5+", label: "Channels, one click" },
+              { value: "30s", label: "AI content generation" },
             ].map((stat) => (
               <div key={stat.label} className="bg-background px-6 py-8 text-center">
                 <p className="text-3xl font-bold tracking-tight text-primary">{stat.value}</p>
                 <p className="mt-2 text-xs text-muted-foreground font-medium tracking-wide uppercase">{stat.label}</p>
               </div>
             ))}
+          </motion.div>
+
+          {/* Social proof */}
+          <motion.div
+            className="mx-auto mt-16 max-w-3xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.6, ease }}
+          >
+            <p className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground mb-6">
+              Trusted by marketing teams at
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-40">
+              {["Acme Corp", "TechFlow", "GrowthLab", "Launchpad", "ScaleUp", "BrandForge"].map((name) => (
+                <span key={name} className="text-sm font-semibold tracking-tight text-foreground">
+                  {name}
+                </span>
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>
@@ -80,17 +99,20 @@ export default function LandingPage() {
 
           <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { title: "Multi-Channel Publishing", desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly." },
-              { title: "Ad Campaign Management", desc: "Create and launch ad campaigns on Meta and Google Ads with audience targeting, budgets, and creative management." },
-              { title: "AI Content Generation", desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization." },
-              { title: "AI Image Generation", desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity." },
-              { title: "Analytics Dashboard", desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time." },
-              { title: "OAuth Integrations", desc: "One-click connect to Meta, Google, and TikTok via secure OAuth. No manual token management required." },
-            ].map(({ title, desc }) => (
+              { icon: Globe, title: "Multi-Channel Publishing", desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly." },
+              { icon: Megaphone, title: "Ad Campaign Management", desc: "Create and launch ad campaigns on Meta and Google Ads with audience targeting, budgets, and creative management." },
+              { icon: Pencil, title: "AI Content Generation", desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization." },
+              { icon: ImageIcon, title: "AI Image Generation", desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity." },
+              { icon: BarChart3, title: "Analytics Dashboard", desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time." },
+              { icon: Lock, title: "OAuth Integrations", desc: "One-click connect to Meta, Google, and TikTok via secure OAuth. No manual token management required." },
+            ].map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
                 className="rounded-2xl bg-background p-8 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-lg border border-border/40"
               >
+                <div className="rounded-xl bg-primary/5 p-3 w-fit mb-5">
+                  <Icon className="h-5 w-5 text-primary" />
+                </div>
                 <h3 className="text-sm font-semibold text-foreground">{title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{desc}</p>
               </div>

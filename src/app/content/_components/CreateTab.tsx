@@ -663,7 +663,7 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
         )}
       </div>
 
-      <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} />
+      <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} channel={channel} />
       <ImagePicker open={pickerOpen} onOpenChange={setPickerOpen} onSelect={(url) => setImageUrl(url)} />
     </div>
   );

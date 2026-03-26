@@ -28,8 +28,9 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
   const [loading, setLoading] = useState(true);
   const [editPost, setEditPost] = useState<Post | null>(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleChannel, setScheduleChannel] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
-  const [schedulePending, setSchedulePending] = useState<{ content: string; mediaUrls?: string[] } | null>(null);
+  const [schedulePending, setSchedulePending] = useState<{ content: string; mediaUrls?: string[]; channel?: string } | null>(null);
 
   const fetchDrafts = useCallback(async () => {
     try {
@@ -96,7 +97,8 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
   };
 
   const handleScheduleFromEdit = (content: string, mediaUrls?: string[]) => {
-    setSchedulePending({ content, mediaUrls });
+    setSchedulePending({ content, mediaUrls, channel: editPost?.channel });
+    setScheduleChannel(editPost?.channel);
     setScheduleOpen(true);
   };
 
@@ -163,7 +165,7 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
         title="Edit Draft"
       />
 
-      <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} />
+      <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} channel={scheduleChannel} />
     </>
   );
 }

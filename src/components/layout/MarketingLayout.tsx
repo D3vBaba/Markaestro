@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/features", label: "Features" },
   { href: "/channels", label: "Channels" },
   { href: "/ai-studio", label: "AI Studio" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -119,6 +120,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                 <Link href="/features" className="text-sm text-muted-foreground hover:text-foreground transition">Features</Link>
                 <Link href="/channels" className="text-sm text-muted-foreground hover:text-foreground transition">Channels</Link>
                 <Link href="/ai-studio" className="text-sm text-muted-foreground hover:text-foreground transition">AI Studio</Link>
+                <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition">Pricing</Link>
               </div>
             </div>
 

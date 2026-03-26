@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { checkRateLimit, RATE_LIMITS, type RateLimitConfig } from '@/lib/rate-limit';
 
 /** Routes that don't require authentication. */
-const PUBLIC_PATHS = ['/login', '/terms', '/privacy', '/contact', '/features', '/channels', '/ai-studio', '/api/health'];
+const PUBLIC_PATHS = ['/login', '/terms', '/privacy', '/contact', '/features', '/channels', '/ai-studio', '/pricing', '/api/health'];
 
 /** Prefixes that are always public (static assets, auth callbacks). */
 const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/api/oauth/callback'];

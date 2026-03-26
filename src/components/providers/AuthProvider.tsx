@@ -12,6 +12,7 @@ import {
   signInWithRedirect,
   getRedirectResult,
   signOut,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
 import { setTokenGetter } from '@/lib/api-client';
@@ -25,6 +26,7 @@ type AuthCtx = {
   signInGoogle: () => Promise<void>;
   signInFacebook: () => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   getIdToken: () => Promise<string | null>;
 };
 
@@ -133,6 +135,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSessionCookie(false);
         await signOut(auth);
         router.replace('/login');
+      },
+      resetPassword: async (email: string) => {
+        await sendPasswordResetEmail(auth, email);
       },
       getIdToken: async () => {
         if (!auth.currentUser) return null;
