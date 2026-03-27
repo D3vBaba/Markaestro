@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, Download, Link, ChevronLeft, ChevronRight } from "lucide-react";
 
 type GalleryItem = {
   name: string;
@@ -22,6 +22,7 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -114,6 +115,30 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
     }
   };
 
+  // ── Lightbox ────────────────────────────────────────────────
+
+  const openLightbox = (index: number) => setLightboxIndex(index);
+  const closeLightbox = () => setLightboxIndex(null);
+
+  const goNext = useCallback(() => {
+    setLightboxIndex((prev) => (prev !== null ? (prev + 1) % items.length : null));
+  }, [items.length]);
+
+  const goPrev = useCallback(() => {
+    setLightboxIndex((prev) => (prev !== null ? (prev - 1 + items.length) % items.length : null));
+  }, [items.length]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") goNext();
+      if (e.key === "ArrowLeft") goPrev();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [lightboxIndex, goNext, goPrev]);
+
   // ── Loading ──────────────────────────────────────────────────
 
   if (loading) {
@@ -202,35 +227,30 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
               }`}
               onClick={selectMode ? () => toggleSelect(img.name) : undefined}
             >
+              {/* Thumbnail */}
               {isVideo(img) ? (
                 <video
                   src={img.url}
-                  className="w-full aspect-square object-cover"
-                  controls
+                  className="w-full aspect-square object-cover cursor-pointer"
                   playsInline
+                  muted
                   preload="metadata"
+                  onClick={selectMode ? undefined : () => openLightbox(items.indexOf(img))}
                 />
               ) : (
-                <a
-                  href={selectMode ? undefined : img.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={selectMode ? "" : "cursor-zoom-in"}
-                  onClick={selectMode ? (e) => e.preventDefault() : undefined}
-                >
-                  <img
-                    src={img.url}
-                    alt={img.name}
-                    className="w-full aspect-square object-cover hover:opacity-90 transition-opacity"
-                    loading="lazy"
-                  />
-                </a>
+                <img
+                  src={img.url}
+                  alt={img.name}
+                  className="w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                  loading="lazy"
+                  onClick={selectMode ? undefined : () => openLightbox(items.indexOf(img))}
+                />
               )}
 
               {/* Badges */}
-              <div className="absolute top-2 left-2 flex items-center gap-1.5">
+              <div className="absolute top-2 left-2 flex items-center gap-1.5 pointer-events-none">
                 {isVideo(img) && (
-                  <span className="px-1.5 py-0.5 rounded bg-black/60 text-white text-[10px] font-medium pointer-events-none">
+                  <span className="px-1.5 py-0.5 rounded bg-black/60 text-white text-[10px] font-medium">
                     VIDEO
                   </span>
                 )}
@@ -254,53 +274,120 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
                   </div>
                 </div>
               )}
-
-              {/* Hover overlay — hidden in select mode */}
-              {!selectMode && (
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-start justify-end p-4">
-                  <p className="text-white text-[11px] truncate w-full mb-1">
-                    {img.name}
-                  </p>
-                  <p className="text-white/50 text-[10px] mb-3">
-                    {new Date(img.createdAt).toLocaleDateString()}
-                    {" / "}
-                    {img.size >= 1024 * 1024
-                      ? `${(img.size / (1024 * 1024)).toFixed(1)} MB`
-                      : `${(img.size / 1024).toFixed(0)} KB`}
-                  </p>
-                  <div className="flex gap-2 w-full">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="h-7 text-[11px] flex-1"
-                      onClick={() => handleCopyUrl(img.url)}
-                    >
-                      {copiedUrl === img.url ? "Copied" : "Copy URL"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="h-7 text-[11px]"
-                      onClick={() => handleDownload(img.url, img.name)}
-                    >
-                      Download
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="h-7 text-[11px] px-2"
-                      onClick={() => handleDeleteSingle(img.name)}
-                      disabled={deleting}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
           );
         })}
       </div>
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && items[lightboxIndex] && (() => {
+        const item = items[lightboxIndex];
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            onClick={closeLightbox}
+          >
+            {/* Close */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-4 right-4 text-white hover:bg-white/10 z-10"
+              onClick={closeLightbox}
+            >
+              <X className="w-5 h-5" />
+            </Button>
+
+            {/* Prev / Next arrows */}
+            {items.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 z-10"
+                  onClick={(e) => { e.stopPropagation(); goPrev(); }}
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 z-10"
+                  onClick={(e) => { e.stopPropagation(); goNext(); }}
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </Button>
+              </>
+            )}
+
+            {/* Media */}
+            <div
+              className="flex flex-col items-center gap-4 max-w-[90vw] max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {isVideo(item) ? (
+                <video
+                  key={item.url}
+                  src={item.url}
+                  className="max-w-full max-h-[75vh] rounded-lg"
+                  controls
+                  autoPlay
+                  playsInline
+                />
+              ) : (
+                <img
+                  src={item.url}
+                  alt={item.name}
+                  className="max-w-full max-h-[75vh] rounded-lg object-contain"
+                />
+              )}
+
+              {/* Info + actions */}
+              <div className="flex items-center gap-3 bg-black/60 rounded-lg px-4 py-2">
+                <p className="text-white text-xs truncate max-w-50">{item.name}</p>
+                <span className="text-white/40 text-[10px]">
+                  {new Date(item.createdAt).toLocaleDateString()}
+                  {" · "}
+                  {item.size >= 1024 * 1024
+                    ? `${(item.size / (1024 * 1024)).toFixed(1)} MB`
+                    : `${(item.size / 1024).toFixed(0)} KB`}
+                </span>
+                <div className="flex gap-1.5 ml-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-7 text-[11px] gap-1.5"
+                    onClick={() => handleCopyUrl(item.url)}
+                  >
+                    <Link className="w-3 h-3" />
+                    {copiedUrl === item.url ? "Copied" : "Copy URL"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-7 text-[11px] gap-1.5"
+                    onClick={() => handleDownload(item.url, item.name)}
+                  >
+                    <Download className="w-3 h-3" />
+                    Download
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="h-7 text-[11px] px-2"
+                    onClick={() => {
+                      handleDeleteSingle(item.name);
+                      closeLightbox();
+                    }}
+                    disabled={deleting}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { checkRateLimit, RATE_LIMITS, type RateLimitConfig } from '@/lib/rate-li
 const PUBLIC_PATHS = ['/login', '/terms', '/privacy', '/contact', '/features', '/channels', '/ai-studio', '/pricing', '/api/health'];
 
 /** Prefixes that are always public (static assets, auth callbacks). */
-const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/api/oauth/callback'];
+const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/api/oauth/callback', '/__/auth'];
 
 function isPublicPath(pathname: string): boolean {
   if (pathname === '/') return true;
