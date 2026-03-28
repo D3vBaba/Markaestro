@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { SubscriptionProvider } from "@/components/providers/SubscriptionProvider";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
@@ -47,7 +48,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased bg-background text-foreground selection:bg-primary/15 selection:text-foreground`}
       >
         <TooltipProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <SubscriptionProvider>{children}</SubscriptionProvider>
+          </AuthProvider>
           <Toaster position="bottom-right" richColors />
         </TooltipProvider>
       </body>
