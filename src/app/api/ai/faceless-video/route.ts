@@ -3,10 +3,15 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { facelessNarratedSchema } from '@/lib/schemas';
 import { submitFacelessNarrated } from '@/lib/ai/faceless-narrated-generator';
+import { checkAndIncrementUsage } from '@/lib/usage';
 
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+
+    const quota = await checkAndIncrementUsage(ctx.uid, 'videoGenerations');
+    if (!quota.allowed) throw new Error('VIDEO_QUOTA_EXCEEDED');
+
     const body = await req.json();
     const data = facelessNarratedSchema.parse(body);
 

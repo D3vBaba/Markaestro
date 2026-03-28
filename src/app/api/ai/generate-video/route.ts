@@ -3,6 +3,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { generateVideoSchema } from '@/lib/schemas';
 import { submitVideoGeneration, type VideoGenRequest } from '@/lib/ai/video-generator';
+import { checkAndIncrementUsage } from '@/lib/usage';
 
 /**
  * POST /api/ai/generate-video — Start a video generation job.
@@ -11,6 +12,10 @@ import { submitVideoGeneration, type VideoGenRequest } from '@/lib/ai/video-gene
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+
+    const quota = await checkAndIncrementUsage(ctx.uid, 'videoGenerations');
+    if (!quota.allowed) throw new Error('VIDEO_QUOTA_EXCEEDED');
+
     const body = await req.json();
     const data = generateVideoSchema.parse(body);
 

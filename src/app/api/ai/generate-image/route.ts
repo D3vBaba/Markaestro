@@ -3,10 +3,15 @@ import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { generateImageSchema } from '@/lib/schemas';
 import { generateAndUploadImage, type ImageGenRequest } from '@/lib/ai/image-generator';
+import { checkAndIncrementUsage } from '@/lib/usage';
 
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+
+    const quota = await checkAndIncrementUsage(ctx.uid, 'aiGenerations');
+    if (!quota.allowed) throw new Error('QUOTA_EXCEEDED');
+
     const body = await req.json();
     const input = generateImageSchema.parse(body);
 

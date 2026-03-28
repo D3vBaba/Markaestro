@@ -2,6 +2,7 @@ import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { submitUGCVideo, KOKORO_VOICES } from '@/lib/ai/ugc-video-generator';
+import { checkAndIncrementUsage } from '@/lib/usage';
 import { z } from 'zod';
 
 const allVoices = [...KOKORO_VOICES.female, ...KOKORO_VOICES.male] as const;
@@ -20,6 +21,10 @@ const ugcVideoSchema = z.object({
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+
+    const quota = await checkAndIncrementUsage(ctx.uid, 'videoGenerations');
+    if (!quota.allowed) throw new Error('VIDEO_QUOTA_EXCEEDED');
+
     const body = await req.json();
     const data = ugcVideoSchema.parse(body);
 

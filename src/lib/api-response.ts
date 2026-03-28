@@ -28,6 +28,12 @@ export function apiError(error: unknown): NextResponse {
   if (msg === 'UNAUTHENTICATED') {
     return NextResponse.json({ error: msg, requestId }, { status: 401 });
   }
+  if (msg === 'QUOTA_EXCEEDED') {
+    return NextResponse.json({ error: msg, requestId }, { status: 402 });
+  }
+  if (msg === 'VIDEO_QUOTA_EXCEEDED') {
+    return NextResponse.json({ error: msg, requestId }, { status: 402 });
+  }
   if (msg === 'FORBIDDEN_WORKSPACE' || msg === 'FORBIDDEN') {
     return NextResponse.json({ error: msg, requestId }, { status: 403 });
   }

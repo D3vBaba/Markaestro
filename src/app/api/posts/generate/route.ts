@@ -2,6 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiCreated } from '@/lib/api-response';
 import { generateContent } from '@/lib/ai/content-generator';
+import { checkAndIncrementUsage } from '@/lib/usage';
 import { z } from 'zod';
 import { socialChannels } from '@/lib/schemas';
 
@@ -15,6 +16,10 @@ const generatePostSchema = z.object({
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+
+    const quota = await checkAndIncrementUsage(ctx.uid, 'aiGenerations');
+    if (!quota.allowed) throw new Error('QUOTA_EXCEEDED');
+
     const body = await req.json();
     const data = generatePostSchema.parse(body);
 
