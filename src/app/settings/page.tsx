@@ -1,13 +1,18 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/app/PageHeader";
 import { Badge } from "@/components/ui/badge";
-import { apiGet, apiPost } from "@/lib/api-client";
+import { apiGet, apiPost, apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useSubscription } from "@/components/providers/SubscriptionProvider";
+import { PLANS } from "@/lib/stripe/plans";
+import type { PlanTier } from "@/lib/stripe/plans";
 
 type IntegrationInfo = {
   provider: string;
@@ -91,9 +96,12 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      <PageHeader title="Settings" subtitle="Manage your connected accounts and workspace preferences." />
+      <PageHeader title="Settings" subtitle="Manage your billing, connected accounts, and workspace preferences." />
 
       <div className="grid gap-5">
+        {/* Billing */}
+        <BillingCard />
+
         {/* Meta (Facebook + Instagram) */}
         <Card className="border-border/30">
           <CardHeader>
@@ -242,5 +250,89 @@ export default function SettingsPage() {
         </p>
       </div>
     </AppShell>
+  );
+}
+
+function BillingCard() {
+  const { status, trialDaysLeft } = useSubscription();
+  const [busy, setBusy] = useState(false);
+
+  if (!status) return null;
+
+  const plan = status.tier ? PLANS[status.tier as PlanTier] : null;
+
+  async function openPortal() {
+    setBusy(true);
+    try {
+      const res = await apiFetch<{ url: string }>("/api/stripe/portal", { method: "POST" });
+      if (res.ok && res.data.url) {
+        window.location.href = res.data.url;
+      } else {
+        toast.error("Failed to open billing portal");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card className="border-border/30">
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <CardTitle>Billing & Subscription</CardTitle>
+            <CardDescription>Manage your plan, payment method, and invoices.</CardDescription>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {status.trialing && (
+              <Badge className="bg-primary/10 text-primary border-0">
+                Trial · {trialDaysLeft} day{trialDaysLeft === 1 ? "" : "s"} left
+              </Badge>
+            )}
+            {status.active && !status.trialing && (
+              <Badge className="bg-emerald-50 text-emerald-700 border-0">Active</Badge>
+            )}
+            {status.cancelAtPeriodEnd && (
+              <Badge className="bg-amber-50 text-amber-700 border-0">Cancels at period end</Badge>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="rounded-xl border p-4 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium">
+                {plan ? `${plan.name} Plan` : "No active plan"}
+                {status.interval && (
+                  <span className="text-muted-foreground font-normal">
+                    {" "}· {status.interval === "annual" ? "Annual" : "Monthly"} billing
+                  </span>
+                )}
+              </p>
+              {plan && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  ${status.interval === "annual" ? plan.price.annual : plan.price.monthly}/mo
+                  {status.currentPeriodEnd && (
+                    <> · Renews {new Date(status.currentPeriodEnd).toLocaleDateString()}</>
+                  )}
+                </p>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={openPortal}
+              disabled={busy}
+            >
+              {busy ? "Opening..." : "Manage Billing"}
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
