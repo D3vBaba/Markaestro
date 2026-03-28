@@ -13,7 +13,7 @@ env:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: markaestro-0226220726.firebaseapp.com
+    value: markaestro.com
     availability:
       - BUILD
       - RUNTIME
@@ -55,6 +55,48 @@ env:
   - variable: TIKTOK_ADS_OAUTH_REDIRECT_URI
     value: https://markaestro.com/api/oauth/callback/tiktok_ads
     availability:
+      - RUNTIME
+
+  # Stripe — price IDs are public identifiers (same as .env.local)
+  - variable: STRIPE_PRICE_STARTER_MONTHLY
+    value: price_1TG1vdJUPkOCaFhqr4b27fQi
+    availability:
+      - RUNTIME
+  - variable: STRIPE_PRICE_STARTER_ANNUAL
+    value: price_1TG1veJUPkOCaFhqbxBRDHbM
+    availability:
+      - RUNTIME
+  - variable: STRIPE_PRICE_PRO_MONTHLY
+    value: price_1TG1veJUPkOCaFhqJ9daSoBl
+    availability:
+      - RUNTIME
+  - variable: STRIPE_PRICE_PRO_ANNUAL
+    value: price_1TG1veJUPkOCaFhqOj9zP9g8
+    availability:
+      - RUNTIME
+  - variable: STRIPE_PRICE_BUSINESS_MONTHLY
+    value: price_1TG1vfJUPkOCaFhqoFXzBe2C
+    availability:
+      - RUNTIME
+  - variable: STRIPE_PRICE_BUSINESS_ANNUAL
+    value: price_1TG1vfJUPkOCaFhqdLdh15m8
+    availability:
+      - RUNTIME
+
+  # Stripe — create these secrets in Google Cloud Secret Manager (same names)
+  - variable: STRIPE_SECRET_KEY
+    secret: STRIPE_SECRET_KEY
+    availability:
+      - RUNTIME
+  - variable: STRIPE_WEBHOOK_SECRET
+    secret: STRIPE_WEBHOOK_SECRET
+    availability:
+      - RUNTIME
+  # Live publishable key (pk_live_…) — safe to expose in the browser
+  - variable: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+    secret: STRIPE_PUBLISHABLE_KEY
+    availability:
+      - BUILD
       - RUNTIME
 
   # Sentry error tracking (client-side DSN is safe to expose)
