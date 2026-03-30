@@ -7,12 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 type Post = {
   id: string;
   content: string;
   channel: string;
   status: string;
+  createdBy?: string;
   submittedBy?: string;
   submittedForApprovalAt?: string;
   rejectionFeedback?: string;
@@ -29,6 +31,7 @@ const CHANNEL_COLORS: Record<string, string> = {
 
 export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
   const { current } = useWorkspace();
+  const { user } = useAuth();
   const wsId = current?.id ?? "default";
   const isReviewer = current?.role === "owner" || current?.role === "admin";
 
@@ -47,7 +50,11 @@ export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
         apiGet<{ posts: Post[] }>("/api/posts?status=draft,rejected", wsId),
       ]);
       if (pendingRes.ok) setPending(pendingRes.data.posts ?? []);
-      if (draftRes.ok) setMyDrafts(draftRes.data.posts ?? []);
+      if (draftRes.ok) {
+        // Only show posts created by the current user
+        const allDrafts = draftRes.data.posts ?? [];
+        setMyDrafts(user?.uid ? allDrafts.filter((p) => p.createdBy === user.uid) : allDrafts);
+      }
     } finally {
       setLoading(false);
     }

@@ -73,20 +73,15 @@ export async function POST(req: Request) {
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
       + '-' + Date.now().toString(36);
 
+    const now = new Date().toISOString();
     const wsRef = adminDb.doc(`workspaces/${slug}`);
-    await wsRef.set({
-      name,
-      slug,
-      createdAt: new Date().toISOString(),
-      createdBy: ctx.uid,
-    });
+    const memberRef = adminDb.doc(`workspaces/${slug}/members/${ctx.uid}`);
 
-    await adminDb.doc(`workspaces/${slug}/members/${ctx.uid}`).set({
-      uid: ctx.uid,
-      email: ctx.email ?? '',
-      role: 'owner',
-      joinedAt: new Date().toISOString(),
-    });
+    // Atomic: workspace doc and owner membership are written together
+    const batch = adminDb.batch();
+    batch.set(wsRef, { name, slug, createdAt: now, createdBy: ctx.uid });
+    batch.set(memberRef, { uid: ctx.uid, email: ctx.email ?? '', role: 'owner', joinedAt: now });
+    await batch.commit();
 
     return apiOk({ id: slug, name, role: 'owner' }, 201);
   } catch (error) {

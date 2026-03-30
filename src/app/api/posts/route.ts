@@ -18,7 +18,12 @@ export async function GET(req: Request) {
     // filters without orderBy and sort the results in JS afterwards.
     let ref = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`) as FirebaseFirestore.Query;
 
-    if (status) ref = ref.where('status', '==', status);
+    if (status) {
+      const statuses = status.split(',').map((s) => s.trim()).filter(Boolean);
+      ref = statuses.length === 1
+        ? ref.where('status', '==', statuses[0])
+        : ref.where('status', 'in', statuses);
+    }
     if (channel) ref = ref.where('channel', '==', channel);
 
     // Only use orderBy when there are no equality filters (single-field index is enough)
