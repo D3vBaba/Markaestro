@@ -34,6 +34,12 @@ export function apiError(error: unknown): NextResponse {
   if (msg === 'VIDEO_QUOTA_EXCEEDED') {
     return NextResponse.json({ error: msg, requestId }, { status: 402 });
   }
+  if (msg === 'TEAM_LIMIT_REACHED') {
+    return NextResponse.json({ error: msg, requestId }, { status: 402 });
+  }
+  if (msg === 'WORKSPACE_LIMIT_REACHED') {
+    return NextResponse.json({ error: msg, requestId }, { status: 402 });
+  }
   if (msg === 'FORBIDDEN_WORKSPACE' || msg === 'FORBIDDEN') {
     return NextResponse.json({ error: msg, requestId }, { status: 403 });
   }

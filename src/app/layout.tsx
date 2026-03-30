@@ -4,6 +4,7 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { SubscriptionProvider } from "@/components/providers/SubscriptionProvider";
+import { WorkspaceProvider } from "@/components/providers/WorkspaceProvider";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
@@ -49,7 +50,9 @@ export default function RootLayout({
       >
         <TooltipProvider>
           <AuthProvider>
-            <SubscriptionProvider>{children}</SubscriptionProvider>
+            <SubscriptionProvider>
+              <WorkspaceProvider>{children}</WorkspaceProvider>
+            </SubscriptionProvider>
           </AuthProvider>
           <Toaster position="bottom-right" richColors />
         </TooltipProvider>

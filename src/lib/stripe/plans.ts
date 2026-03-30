@@ -22,9 +22,6 @@ export type PlanConfig = {
     approvalWorkflows: boolean;
     smartScheduling: boolean;
     brandIdentity: boolean;
-    apiAccess: boolean;
-    sso: boolean;
-    whiteLabel: boolean;
     prioritySupport: boolean;
   };
 };
@@ -59,9 +56,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       approvalWorkflows: false,
       smartScheduling: false,
       brandIdentity: false,
-      apiAccess: false,
-      sso: false,
-      whiteLabel: false,
       prioritySupport: false,
     },
   },
@@ -78,8 +72,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       '150 AI generations / month (text & images)',
       '15 video generations / month',
       '5 team members',
-      'Ad campaign management',
-      'Meta Ads + Google Ads + TikTok',
+      'Ad campaign management (Meta, Google, TikTok)',
       'Advanced analytics & AI insights',
       '5 workspaces',
       'Brand voice + brand identity',
@@ -100,16 +93,13 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       approvalWorkflows: true,
       smartScheduling: true,
       brandIdentity: true,
-      apiAccess: false,
-      sso: false,
-      whiteLabel: false,
       prioritySupport: true,
     },
   },
   business: {
     tier: 'business',
     name: 'Business',
-    description: 'For agencies and enterprises at scale.',
+    description: 'For agencies managing multiple brands at scale.',
     price: { monthly: 299, annual: 249 },
     highlighted: false,
     features: [
@@ -120,11 +110,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       'Unlimited team members',
       'Everything in Pro',
       'Unlimited workspaces',
-      'API access',
-      'Custom integrations',
-      'Priority onboarding call',
-      'SSO & advanced security',
-      'White-label reporting',
+      'Priority support',
     ],
     limits: {
       channels: 50,
@@ -139,9 +125,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       approvalWorkflows: true,
       smartScheduling: true,
       brandIdentity: true,
-      apiAccess: true,
-      sso: true,
-      whiteLabel: true,
       prioritySupport: true,
     },
   },
@@ -159,15 +142,16 @@ export const COMPARISON_CATEGORIES = [
       { name: 'Posts per month', starter: 'Unlimited', pro: 'Unlimited', business: 'Unlimited' },
       { name: 'Content calendar', starter: true, pro: true, business: true },
       { name: 'Bulk scheduling', starter: false, pro: true, business: true },
+      { name: 'Smart scheduling', starter: false, pro: true, business: true },
     ],
   },
   {
-    name: 'AI',
+    name: 'AI Generation',
     features: [
-      { name: 'AI text & image generations', starter: '30/mo', pro: '150/mo', business: '500/mo' },
-      { name: 'AI video generations', starter: '—', pro: '15/mo', business: '50/mo' },
+      { name: 'Text & image generations', starter: '30/mo', pro: '150/mo', business: '500/mo' },
+      { name: 'Video generations', starter: '—', pro: '15/mo', business: '50/mo' },
       { name: 'Brand voice profiles', starter: '1', pro: '5', business: 'Unlimited' },
-      { name: 'Brand identity', starter: false, pro: true, business: true },
+      { name: 'Brand identity (logo & colors)', starter: false, pro: true, business: true },
     ],
   },
   {
@@ -176,8 +160,7 @@ export const COMPARISON_CATEGORIES = [
       { name: 'Meta Ads', starter: false, pro: true, business: true },
       { name: 'Google Ads', starter: false, pro: true, business: true },
       { name: 'TikTok Ads', starter: false, pro: true, business: true },
-      { name: 'Audience targeting', starter: false, pro: true, business: true },
-      { name: 'A/B creative testing', starter: false, pro: true, business: true },
+      { name: 'Advanced analytics & AI insights', starter: false, pro: true, business: true },
     ],
   },
   {
@@ -186,17 +169,14 @@ export const COMPARISON_CATEGORIES = [
       { name: 'Team members', starter: '1', pro: '5', business: 'Unlimited' },
       { name: 'Workspaces', starter: '1', pro: '5', business: 'Unlimited' },
       { name: 'Approval workflows', starter: false, pro: true, business: true },
-      { name: 'Role-based access', starter: true, pro: true, business: true },
+      { name: 'Role-based access control', starter: true, pro: true, business: true },
     ],
   },
   {
-    name: 'Support & Security',
+    name: 'Support',
     features: [
       { name: 'Email support', starter: true, pro: true, business: true },
       { name: 'Priority support', starter: false, pro: true, business: true },
-      { name: 'API access', starter: false, pro: false, business: true },
-      { name: 'SSO', starter: false, pro: false, business: true },
-      { name: 'White-label reporting', starter: false, pro: false, business: true },
     ],
   },
 ];

@@ -35,7 +35,7 @@ const faqs = [
   },
   {
     q: "Which plans include the free trial?",
-    a: `All plans (Starter, Pro, Business) on both monthly and annual billing include the ${TRIAL_DAYS}-day free trial. Annual billing also saves you 17% compared to monthly.`,
+    a: `All plans (Starter, Pro, Business) on both monthly and annual billing include the ${TRIAL_DAYS}-day free trial. Annual billing also saves you 18% compared to monthly.`,
   },
   {
     q: "Do you offer discounts for nonprofits or startups?",
@@ -92,7 +92,7 @@ export default function PricingPage() {
               >
                 Annual{" "}
                 <span className="ml-1 rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-[10px] font-bold">
-                  SAVE 17%
+                  SAVE 18%
                 </span>
               </button>
             </div>
@@ -104,7 +104,7 @@ export default function PricingPage() {
               transition={{ duration: 0.3 }}
             >
               {TRIAL_DAYS}-day free trial on all plans — no charge until day {TRIAL_DAYS + 1}
-              {annual && " · Annual billing saves 17%"}
+              {annual && " · Annual billing saves 18%"}
             </motion.p>
           </motion.div>
         </div>
