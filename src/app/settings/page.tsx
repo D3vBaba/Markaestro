@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +48,14 @@ const TABS = ['Integrations', 'Team', 'Workspaces', 'Billing'] as const;
 type Tab = typeof TABS[number];
 
 export default function SettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <SettingsPageContent />
+    </Suspense>
+  );
+}
+
+function SettingsPageContent() {
   const searchParams = useSearchParams();
   const initialTab = (searchParams?.get('tab') === 'workspaces' ? 'Workspaces'
     : searchParams?.get('tab') === 'team' ? 'Team'
