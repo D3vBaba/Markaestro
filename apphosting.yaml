@@ -104,6 +104,8 @@ env:
     secret: SENTRY_DSN
 
   # Server-side secrets (from Google Secret Manager)
+  - variable: SERPER_API_KEY
+    secret: SERPER_API_KEY
   - variable: ENCRYPTION_KEY
     secret: ENCRYPTION_KEY
   - variable: WORKER_SECRET

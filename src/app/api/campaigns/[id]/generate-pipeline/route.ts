@@ -82,6 +82,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await campaignRef.update({ pipelineStatus: 'researching', updatedAt: new Date().toISOString() });
 
     const researchBrief: ResearchBrief = await researchForPipeline({
+      productId: body.productId,
       productName: product.name,
       productDescription: product.description || '',
       productUrl: product.url || undefined,

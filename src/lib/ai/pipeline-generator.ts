@@ -109,6 +109,13 @@ function formatResearchContext(brief: ResearchBrief): string {
     }
   }
 
+  if (brief.newsHookHeadlines && brief.newsHookHeadlines.length > 0) {
+    parts.push('\nTIMELY NEWS HOOKS (use these for newsjacking angles where relevant):');
+    for (const headline of brief.newsHookHeadlines) {
+      parts.push(`- ${headline}`);
+    }
+  }
+
   const pi = brief.productInsights;
   parts.push('\nPRODUCT INSIGHTS:');
   parts.push(`Unique value: ${pi.uniqueValueProp}`);

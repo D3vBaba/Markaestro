@@ -74,6 +74,8 @@ export const researchBriefSchema = z.object({
     audiencePainPoints: z.array(z.string()),
     toneRecommendations: z.string(),
   }),
+  newsHookHeadlines: z.array(z.string()).optional(),
+  sources: z.array(z.string()).optional(),
   generatedAt: z.string().datetime(),
 });
 

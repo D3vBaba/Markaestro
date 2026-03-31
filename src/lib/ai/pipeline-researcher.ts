@@ -1,5 +1,7 @@
 import OpenAI from 'openai';
 import type { BrandVoice, ResearchBrief } from '@/lib/schemas';
+import { serper, formatResultsForLLM } from './serper-client';
+import { getResearchCache, setResearchCache } from './research-cache';
 
 const getClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -8,6 +10,7 @@ const getClient = () => {
 };
 
 export type ResearchInput = {
+  productId?: string;
   productName: string;
   productDescription: string;
   productUrl?: string;
@@ -15,33 +18,85 @@ export type ResearchInput = {
   brandVoice?: BrandVoice;
 };
 
-async function researchCompetitors(client: OpenAI, input: ResearchInput) {
+// ── Serper search queries ─────────────────────────────────────────────────────
+
+async function fetchCompetitorSearchData(input: ResearchInput) {
+  const category = input.productCategories.join(', ');
+  const audience = input.brandVoice?.targetAudience || '';
+
+  const [brandResults, directResults] = await Promise.all([
+    serper.search(
+      `${category} brand social media marketing strategy 2025${audience ? ` for ${audience}` : ''}`,
+      'search',
+      5,
+    ),
+    serper.search(
+      `${input.productName} competitors alternatives`,
+      'search',
+      5,
+    ),
+  ]);
+
+  return { brandResults, directResults };
+}
+
+async function fetchTrendSearchData(input: ResearchInput) {
+  const category = input.productCategories.join(', ');
+  const audience = input.brandVoice?.targetAudience || 'professionals';
+
+  const [trendResults, viralResults] = await Promise.all([
+    serper.search(
+      `${category} ${audience} trending topics social media 2025`,
+      'news',
+      5,
+    ),
+    serper.search(
+      `best ${category} Instagram TikTok content ideas viral 2025`,
+      'search',
+      5,
+    ),
+  ]);
+
+  return { trendResults, viralResults };
+}
+
+// ── GPT-4o-mini synthesis ─────────────────────────────────────────────────────
+
+async function synthesizeCompetitors(
+  client: OpenAI,
+  input: ResearchInput,
+  brandData: string,
+  directData: string,
+) {
   const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
-    max_tokens: 2048,
+    max_tokens: 1500,
     response_format: { type: 'json_object' },
     messages: [
       {
         role: 'system',
-        content: `You are a competitive intelligence analyst specializing in digital marketing. Return valid JSON only.`,
+        content: `You are a competitive intelligence analyst. Extract competitor insights from real search results. Return valid JSON only.`,
       },
       {
         role: 'user',
-        content: `Analyze the competitive landscape for "${input.productName}" in the ${input.productCategories.join(', ')} space.
-${input.productDescription ? `Product description: ${input.productDescription}` : ''}
-${input.productUrl ? `Product website: ${input.productUrl}` : ''}
-${input.brandVoice?.targetAudience ? `Target audience: ${input.brandVoice.targetAudience}` : ''}
+        content: `Analyze the competitive landscape for "${input.productName}" (${input.productCategories.join(', ')}) using these real search results.
 
-Identify 3-5 direct or close competitors. For each competitor, analyze how they market on social media — what messaging works, what angles they use, and where they fall short.
+SEARCH RESULTS — industry marketing patterns:
+${brandData}
 
-Return JSON in this exact format:
+SEARCH RESULTS — direct competitors:
+${directData}
+
+Based on these results, identify 3-5 competitors and their social media marketing approaches.
+
+Return JSON:
 {
   "competitors": [
     {
       "name": "Competitor name",
       "positioning": "How they position themselves in 1-2 sentences",
-      "strengths": "What they do well in marketing/social media presence",
-      "weaknesses": "Where their marketing falls short or gaps we can exploit"
+      "strengths": "What they do well in marketing/social media",
+      "weaknesses": "Where their marketing falls short or gaps to exploit"
     }
   ]
 }`,
@@ -54,33 +109,47 @@ Return JSON in this exact format:
   return parsed.competitors || [];
 }
 
-async function researchTrends(client: OpenAI, input: ResearchInput) {
+async function synthesizeTrends(
+  client: OpenAI,
+  input: ResearchInput,
+  trendData: string,
+  viralData: string,
+  newsSources: string[],
+) {
   const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
-    max_tokens: 2048,
+    max_tokens: 1500,
     response_format: { type: 'json_object' },
     messages: [
       {
         role: 'system',
-        content: `You are a social media strategist who tracks what content formats and messaging strategies drive engagement. Return valid JSON only.`,
+        content: `You are a social media strategist. Extract actionable trends from real search and news results. Return valid JSON only.`,
       },
       {
         role: 'user',
-        content: `For products in the ${input.productCategories.join(', ')} space targeting ${input.brandVoice?.targetAudience || 'general audiences'}, identify 5-7 current social media marketing trends and content strategies that are driving engagement.
+        content: `Identify trending content strategies for "${input.productName}" (${input.productCategories.join(', ')}) using these real search results.
 
-Product context: "${input.productName}" — ${input.productDescription || 'a product in this space'}
+RECENT NEWS & TRENDING TOPICS:
+${trendData}
 
-For each trend, explain how it could specifically be applied to promote this product on social media (X, Facebook, Instagram, TikTok).
+VIRAL CONTENT PATTERNS:
+${viralData}
 
-Return JSON in this exact format:
+Target audience: ${input.brandVoice?.targetAudience || 'general audiences'}
+
+Extract 5-7 specific trends and content angles directly supported by these results. For each, explain how to apply it to promote ${input.productName}.
+
+Return JSON:
 {
   "trends": [
     {
-      "trend": "Name or description of the trend",
-      "relevance": "Why this trend matters for this product category",
-      "contentAngle": "Specific way to apply this trend to promote ${input.productName}"
+      "trend": "Specific trend name or pattern",
+      "relevance": "Why this trend matters for this product category right now",
+      "contentAngle": "Concrete way to apply this trend to promote ${input.productName}"
     }
-  ]
+  ],
+  "newsHookHeadlines": ["headline 1", "headline 2", "headline 3"],
+  "sources": ${JSON.stringify(newsSources.slice(0, 5))}
 }`,
       },
     ],
@@ -88,18 +157,22 @@ Return JSON in this exact format:
 
   const text = response.choices[0]?.message?.content || '{}';
   const parsed = JSON.parse(text);
-  return parsed.trends || [];
+  return {
+    trends: parsed.trends || [],
+    newsHookHeadlines: parsed.newsHookHeadlines || [],
+    sources: parsed.sources || [],
+  };
 }
 
-async function analyzeProduct(client: OpenAI, input: ResearchInput) {
+async function synthesizeProductInsights(client: OpenAI, input: ResearchInput) {
   const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
-    max_tokens: 2048,
+    max_tokens: 1500,
     response_format: { type: 'json_object' },
     messages: [
       {
         role: 'system',
-        content: `You are a brand strategist who extracts actionable messaging insights from product information. Return valid JSON only.`,
+        content: `You are a brand strategist who extracts actionable messaging insights. Return valid JSON only.`,
       },
       {
         role: 'user',
@@ -119,13 +192,13 @@ Extract:
 3. 3-5 specific pain points the target audience has that this product solves
 4. Tone and voice recommendations for social media content
 
-Return JSON in this exact format:
+Return JSON:
 {
   "productInsights": {
-    "keyMessages": ["message 1", "message 2", "..."],
+    "keyMessages": ["message 1", "message 2"],
     "uniqueValueProp": "One sentence UVP",
-    "audiencePainPoints": ["pain point 1", "pain point 2", "..."],
-    "toneRecommendations": "Detailed tone/voice guidance for content creation"
+    "audiencePainPoints": ["pain point 1", "pain point 2"],
+    "toneRecommendations": "Detailed tone/voice guidance"
   }
 }`,
       },
@@ -142,19 +215,69 @@ Return JSON in this exact format:
   };
 }
 
+// ── Main export ───────────────────────────────────────────────────────────────
+
 export async function researchForPipeline(input: ResearchInput): Promise<ResearchBrief> {
+  // Check cache first (keyed by productId + today's date)
+  if (input.productId) {
+    const cached = await getResearchCache(input.productId);
+    if (cached) return cached;
+  }
+
   const client = getClient();
 
-  const [competitors, trends, productInsights] = await Promise.all([
-    researchCompetitors(client, input),
-    researchTrends(client, input),
-    analyzeProduct(client, input),
+  // Run all 4 Serper searches + product analysis in parallel
+  const [competitorSearchData, trendSearchData, productInsights] = await Promise.all([
+    fetchCompetitorSearchData(input),
+    fetchTrendSearchData(input),
+    synthesizeProductInsights(client, input),
   ]);
 
-  return {
+  // Collect source URLs from news results for attribution
+  const newsSources = trendSearchData.trendResults.results.map((r) => r.link);
+
+  // Synthesize competitors and trends from real search data (parallel)
+  const [competitors, trendOutput] = await Promise.all([
+    synthesizeCompetitors(
+      client,
+      input,
+      formatResultsForLLM(
+        competitorSearchData.brandResults.results,
+        competitorSearchData.brandResults.answerBox,
+      ),
+      formatResultsForLLM(
+        competitorSearchData.directResults.results,
+        competitorSearchData.directResults.answerBox,
+      ),
+    ),
+    synthesizeTrends(
+      client,
+      input,
+      formatResultsForLLM(
+        trendSearchData.trendResults.results,
+        trendSearchData.trendResults.answerBox,
+      ),
+      formatResultsForLLM(
+        trendSearchData.viralResults.results,
+        trendSearchData.viralResults.answerBox,
+      ),
+      newsSources,
+    ),
+  ]);
+
+  const result: ResearchBrief = {
     competitors,
-    trends,
+    trends: trendOutput.trends,
     productInsights,
+    newsHookHeadlines: trendOutput.newsHookHeadlines,
+    sources: trendOutput.sources,
     generatedAt: new Date().toISOString(),
   };
+
+  // Write to cache async — don't block the response
+  if (input.productId) {
+    setResearchCache(input.productId, result).catch(() => {});
+  }
+
+  return result;
 }
