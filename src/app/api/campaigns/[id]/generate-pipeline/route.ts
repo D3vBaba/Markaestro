@@ -2,7 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
-import { researchForPipeline } from '@/lib/ai/pipeline-researcher';
+import { researchForPipeline, buildImageResearchContext } from '@/lib/ai/pipeline-researcher';
 import { generatePipelinePosts } from '@/lib/ai/pipeline-generator';
 import { generateAndUploadImage, type ImageGenRequest } from '@/lib/ai/image-generator';
 import { z } from 'zod';
@@ -132,6 +132,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         productCategories: product.categories || [],
         productUrl: product.url || undefined,
         channel: primaryChannel,
+        researchContext: buildImageResearchContext(researchBrief),
       };
 
       // Cycle through selected subtypes for visual variety

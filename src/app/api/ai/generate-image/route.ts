@@ -3,6 +3,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { generateImageSchema } from '@/lib/schemas';
 import { generateAndUploadImage, type ImageGenRequest } from '@/lib/ai/image-generator';
+import { researchForPipeline, buildImageResearchContext } from '@/lib/ai/pipeline-researcher';
 import { checkAndIncrementUsage } from '@/lib/usage';
 
 export async function POST(req: Request) {
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
     let productCategories: string[] | undefined;
     let productUrl: string | undefined;
     let logoUrl: string | undefined;
+    let researchContext: ImageGenRequest['researchContext'];
 
     if (input.productId) {
       const productRef = adminDb.doc(`workspaces/${ctx.workspaceId}/products/${input.productId}`);
@@ -36,9 +38,23 @@ export async function POST(req: Request) {
         brandIdentity = product.brandIdentity;
         brandVoice = product.brandVoice;
 
-        // Use the product logo if user wants it included
         if (input.includeLogo && product.brandIdentity?.logoUrl) {
           logoUrl = product.brandIdentity.logoUrl;
+        }
+
+        // Fetch research context for visual grounding (cache hit = instant)
+        try {
+          const brief = await researchForPipeline({
+            productId: input.productId,
+            productName: product.name,
+            productDescription: product.description || product.tagline || '',
+            productUrl: product.url || product.website || undefined,
+            productCategories: product.categories || (product.category ? [product.category] : []),
+            brandVoice: product.brandVoice || undefined,
+          });
+          researchContext = buildImageResearchContext(brief);
+        } catch {
+          // Non-fatal — generate without research context
         }
       }
     }
@@ -59,6 +75,7 @@ export async function POST(req: Request) {
         provider: input.provider,
         screenUrls: input.screenUrls,
         logoUrl,
+        researchContext,
       },
       ctx.workspaceId,
     );

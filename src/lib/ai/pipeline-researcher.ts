@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import type { BrandVoice, ResearchBrief } from '@/lib/schemas';
 import { serper, formatResultsForLLM } from './serper-client';
 import { getResearchCache, setResearchCache } from './research-cache';
+import type { ImageResearchContext } from './image-generator';
 
 const getClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -280,4 +281,34 @@ export async function researchForPipeline(input: ResearchInput): Promise<Researc
   }
 
   return result;
+}
+
+/**
+ * Derive image-specific research context from a ResearchBrief.
+ * Extracts trending visual angles, audience mood, and competitor gaps
+ * for injection into image generation prompts.
+ */
+export function buildImageResearchContext(brief: ResearchBrief): ImageResearchContext {
+  // Extract trending visual angles from content angles in the research
+  const trendingVisualAngles = brief.trends
+    .slice(0, 4)
+    .map((t) => t.contentAngle)
+    .filter(Boolean);
+
+  // Derive audience mood from tone recommendations
+  const audienceMood = brief.productInsights.toneRecommendations
+    ? brief.productInsights.toneRecommendations.split('.')[0]
+    : undefined;
+
+  // Competitor visual gaps — what competitors are doing poorly (turn into visual opportunities)
+  const competitorVisualGaps = brief.competitors
+    .slice(0, 3)
+    .map((c) => c.weaknesses)
+    .filter(Boolean);
+
+  return {
+    trendingVisualAngles,
+    audienceMood,
+    competitorVisualGaps,
+  };
 }

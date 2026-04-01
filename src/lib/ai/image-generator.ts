@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import type { BrandIdentity, BrandVoice, ImageStyle, ImageSubtype, ImageAspectRatio, ImageProvider, SocialChannel } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
+import { assertSafeOutboundUrl, readResponseBufferWithLimit } from '@/lib/network-security';
 
 export type ImageGenRequest = {
   prompt: string;
@@ -24,6 +25,17 @@ export type ImageGenRequest = {
   screenUrls?: string[];
   /** URL of the product logo to include in the image */
   logoUrl?: string;
+  /** Grounded market research context — informs visual scene and aesthetic direction */
+  researchContext?: ImageResearchContext;
+};
+
+export type ImageResearchContext = {
+  /** Visual styles and content formats currently performing well in this niche */
+  trendingVisualAngles: string[];
+  /** The emotional tone the audience is responding to right now */
+  audienceMood?: string;
+  /** Competitor visual gaps — what angles to avoid (oversaturated) */
+  competitorVisualGaps?: string[];
 };
 
 export type ImageGenResult = {
@@ -344,9 +356,28 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
 
   // ── 1. CREATIVE DIRECTION — product identity + creative approach together ──
   const subjectDirection = getProductSubjectDirection(categories, context, req.subtype);
+
+  const researchLines: string[] = [];
+  if (req.researchContext) {
+    const rc = req.researchContext;
+    if (rc.trendingVisualAngles.length > 0) {
+      researchLines.push('TRENDING VISUAL ANGLES (what is resonating in this niche right now — lean into one of these):');
+      rc.trendingVisualAngles.slice(0, 3).forEach((a) => researchLines.push(`  • ${a}`));
+    }
+    if (rc.audienceMood) {
+      researchLines.push(`AUDIENCE MOOD: The target audience is currently responding to imagery that feels ${rc.audienceMood}. Match this energy.`);
+    }
+    if (rc.competitorVisualGaps && rc.competitorVisualGaps.length > 0) {
+      researchLines.push('VISUAL GAPS TO EXPLOIT (competitors are NOT doing this — stand out by doing it):');
+      rc.competitorVisualGaps.slice(0, 2).forEach((g) => researchLines.push(`  • ${g}`));
+    }
+  }
+
   sections.push([
     productIdentity,
     `POST ANGLE: "${postExcerpt}"`,
+    '',
+    researchLines.length > 0 ? researchLines.join('\n') : '',
     '',
     'CREATIVE APPROACH (use this to make the image unique, but the product above MUST be the clear subject):',
     subjectDirection,
@@ -447,10 +478,18 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
  * Download an image URL and return its base64 data and mime type.
  */
 export async function fetchImageAsBase64(url: string): Promise<{ base64: string; mimeType: string }> {
-  const res = await fetchWithRetry(url, undefined, { timeoutMs: 15_000 });
+  const safeUrl = await assertSafeOutboundUrl(url);
+  const res = await fetchWithRetry(
+    safeUrl.toString(),
+    { redirect: 'error' },
+    { timeoutMs: 15_000 },
+  );
   if (!res.ok) throw new Error(`Failed to fetch image: ${url}`);
-  const buffer = Buffer.from(await res.arrayBuffer());
   const contentType = res.headers.get('content-type') || 'image/png';
+  if (!contentType.startsWith('image/') || contentType.includes('svg') || contentType.includes('xml')) {
+    throw new Error('VALIDATION_INVALID_FILE_TYPE');
+  }
+  const buffer = await readResponseBufferWithLimit(res, 10 * 1024 * 1024);
   return { base64: buffer.toString('base64'), mimeType: contentType };
 }
 
