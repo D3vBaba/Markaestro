@@ -18,6 +18,8 @@ export type ContentRequest = {
   tone?: string;
   additionalContext?: string;
   brandVoice?: BrandVoice;
+  /** Grounded market research context from Serper — injected into the prompt */
+  researchContext?: string;
 };
 
 export type ContentResponse = {
@@ -153,15 +155,17 @@ export async function generateContent(request: ContentRequest): Promise<ContentR
   const channelConstraints = getChannelConstraints(request.channel, request.type);
   const context = request.additionalContext || '';
 
+  const research = request.researchContext || '';
+
   const prompts: Record<string, string> = {
     social_post: `${productBlock}
 
-${channelConstraints}
+${research ? `${research}\n` : ''}${channelConstraints}
 
 ${context ? `IMPORTANT — USER DIRECTION:
 The user has provided specific direction for this post. You MUST follow their guidance closely. Their direction takes priority over default pain-point or angle selection. Build the post around what they asked for:
 "${context}"
-` : 'Write ONE short post. Pick a SPECIFIC pain point, desire, or surprising truth about the target audience and build the post around it. Choose a creative hook from your arsenal — do NOT default to the same pattern every time.'}
+` : 'Write ONE short post. Pick a SPECIFIC pain point, desire, or surprising truth about the target audience and build the post around it. Choose a creative hook from your arsenal — do NOT default to the same pattern every time. Use any relevant trend or news hook from the market research above if it fits naturally.'}
 
 CRITICAL RULES:
 - SHORT POST: 1-2 sentences + CTA. Brevity is everything.
@@ -177,7 +181,7 @@ Return ONLY the post text. No labels, no "here's the post", no quotation marks w
 
     ad_copy: `${productBlock}
 
-${channelConstraints}
+${research ? `${research}\n` : ''}${channelConstraints}
 
 ${context ? `IMPORTANT — USER DIRECTION:
 The user has provided specific direction. Follow their guidance closely — it takes priority over default angle selection:
