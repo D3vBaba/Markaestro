@@ -81,12 +81,6 @@ const platformBadgeColors: Record<string, string> = {
   ads: "bg-emerald-50 text-emerald-700",
 };
 
-// Left-border accent per platform
-const platformAccents: Record<string, string> = {
-  Facebook: "border-l-[#1877F2]",
-  Instagram: "border-l-[#E1306C]",
-  TikTok: "border-l-[#EE1D52]",
-};
 
 // Bar fill colors for the chart
 const platformBarColors: Record<string, string> = {
@@ -481,11 +475,10 @@ function PlatformHealthCard({
   error?: string;
   stats?: { label: string; value: string }[];
 }) {
-  const accent = platformAccents[platform] || "border-l-border";
   const isOk = connected && !error;
 
   return (
-    <div className={`rounded-xl border border-border/50 border-l-4 ${accent} bg-card p-5 space-y-4 hover:border-border/80 transition-colors`}>
+    <div className="rounded-xl border border-border/50 bg-card p-5 space-y-4 hover:border-border/80 transition-colors">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -584,10 +577,8 @@ function TopPostsCard({
     permalink?: string;
   }[];
 }) {
-  const accent = platformAccents[platform] || "border-l-border";
-
   return (
-    <Card className={`border-border/40 border-l-4 ${accent}`}>
+    <Card className="border-border/40">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
           <PlatformIcon platform={platform} size={14} />

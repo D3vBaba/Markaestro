@@ -28,7 +28,7 @@ export const navigationGroups: NavGroup[] = [
     {
         group: "Insights",
         items: [
-            { name: "Social Manager", href: "/analytics" },
+            { name: "Analytics", href: "/analytics" },
         ],
     },
 ];

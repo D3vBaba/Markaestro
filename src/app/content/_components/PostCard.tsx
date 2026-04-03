@@ -24,13 +24,6 @@ const channelLabels: Record<string, string> = {
   tiktok: "TikTok",
 };
 
-// Left-border accent per platform (Tailwind arbitrary value classes)
-const channelAccents: Record<string, string> = {
-  facebook: "border-l-[#1877F2]",
-  instagram: "border-l-[#E1306C]",
-  tiktok: "border-l-[#EE1D52]",
-  x: "border-l-zinc-900",
-};
 
 const statusDotColors: Record<string, string> = {
   draft: "bg-zinc-300",
@@ -60,12 +53,9 @@ export default function PostCard({
   onPublish?: () => void;
 }) {
   const [showPreview, setShowPreview] = useState(false);
-  const accent = channelAccents[post.channel] || "border-l-border";
 
   return (
-    <div
-      className={`group border border-border/50 border-l-4 ${accent} rounded-xl p-4 sm:p-5 space-y-3.5 bg-card hover:border-border/80 hover:shadow-sm transition-all overflow-hidden`}
-    >
+    <div className="group border border-border/50 rounded-xl p-4 sm:p-5 space-y-3.5 bg-card hover:border-border/80 hover:shadow-sm transition-all overflow-hidden">
       {/* Header row */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">

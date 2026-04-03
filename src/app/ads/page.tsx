@@ -110,11 +110,6 @@ const statusDotColors: Record<string, string> = {
   completed: "bg-zinc-300",
   failed: "bg-red-500",
 };
-const platformAccents: Record<string, string> = {
-  meta: "border-l-[#1877F2]",
-  google: "border-l-[#4285F4]",
-  tiktok: "border-l-[#EE1D52]",
-};
 const objectiveLabels: Record<string, string> = {
   awareness: "Awareness", traffic: "Traffic", engagement: "Engagement",
   leads: "Leads", conversions: "Conversions", app_installs: "App Installs",
@@ -1112,7 +1107,7 @@ export default function AdsPage() {
             ) : filtered.map((c) => (
               <div
                 key={c.id}
-                className={`border border-border/50 border-l-4 rounded-xl p-5 sm:p-6 hover:border-border/80 hover:shadow-sm transition-all ${platformAccents[c.platform] || "border-l-border"}`}
+                className="border border-border/50 rounded-xl p-5 sm:p-6 hover:border-border/80 hover:shadow-sm transition-all"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
