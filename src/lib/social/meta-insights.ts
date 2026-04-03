@@ -164,15 +164,54 @@ async function fetchIgMedia(token: string, igAccountId: string): Promise<Instagr
   if (!res.ok) return [];
   const data = await res.json();
 
-  return (data.data || []).map((m: Record<string, unknown>) => ({
-    id: m.id as string,
-    caption: (m.caption as string) || undefined,
-    mediaType: (m.media_type as string) || 'IMAGE',
-    mediaUrl: (m.media_url as string) || undefined,
-    thumbnailUrl: (m.thumbnail_url as string) || undefined,
-    timestamp: m.timestamp as string,
-    likes: (m.like_count as number) || 0,
-    comments: (m.comments_count as number) || 0,
-    permalink: (m.permalink as string) || undefined,
-  }));
+  const items: InstagramMedia[] = (data.data || []).map((m: Record<string, unknown>) => {
+    const mediaType = (m.media_type as string) || 'IMAGE';
+    // For VIDEO posts the media_url is a .mp4 — use thumbnail_url for display instead.
+    // For IMAGE/CAROUSEL_ALBUM the media_url is the correct image URL (carousel parent
+    // may not have one — handled below).
+    const mediaUrl =
+      mediaType === 'VIDEO'
+        ? (m.thumbnail_url as string) || undefined
+        : (m.media_url as string) || undefined;
+
+    return {
+      id: m.id as string,
+      caption: (m.caption as string) || undefined,
+      mediaType,
+      mediaUrl,
+      thumbnailUrl: (m.thumbnail_url as string) || undefined,
+      timestamp: m.timestamp as string,
+      likes: (m.like_count as number) || 0,
+      comments: (m.comments_count as number) || 0,
+      permalink: (m.permalink as string) || undefined,
+    };
+  });
+
+  // CAROUSEL_ALBUM posts: the parent has no media_url — fetch the first child to get
+  // a displayable image URL.
+  await Promise.all(
+    items
+      .filter((item) => item.mediaType === 'CAROUSEL_ALBUM' && !item.mediaUrl)
+      .map(async (item) => {
+        try {
+          const childRes = await fetchWithRetry(
+            `${GRAPH_API}/${item.id}/children?fields=media_url,thumbnail_url,media_type&access_token=${token}`,
+            {},
+            { maxRetries: 1 },
+          );
+          if (!childRes.ok) return;
+          const childData = await childRes.json();
+          const first = (childData.data as Record<string, unknown>[] | undefined)?.[0];
+          if (!first) return;
+          item.mediaUrl =
+            first.media_type === 'VIDEO'
+              ? (first.thumbnail_url as string) || undefined
+              : (first.media_url as string) || undefined;
+        } catch {
+          // ignore — leave mediaUrl undefined, UI shows placeholder
+        }
+      }),
+  );
+
+  return items;
 }
