@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2 } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
@@ -110,6 +110,11 @@ const statusDotColors: Record<string, string> = {
   completed: "bg-zinc-300",
   failed: "bg-red-500",
 };
+const CTA_LABELS: Record<string, string> = {
+  LEARN_MORE: "Learn More", SHOP_NOW: "Shop Now", SIGN_UP: "Sign Up",
+  DOWNLOAD: "Download", GET_QUOTE: "Get Quote", CONTACT_US: "Contact Us",
+};
+
 const objectiveLabels: Record<string, string> = {
   awareness: "Awareness", traffic: "Traffic", engagement: "Engagement",
   leads: "Leads", conversions: "Conversions", app_installs: "App Installs",
@@ -183,6 +188,166 @@ function ScoreRing({ score, size = 56 }: { score: number; size?: number }) {
         {score}
       </text>
     </svg>
+  );
+}
+
+function CampaignCardPreview({ campaign }: { campaign: AdCampaign }) {
+  const { platform, creative } = campaign;
+  const { imageUrl, videoUrl, headline, primaryText, description, linkUrl, ctaType } = creative;
+  const domain = linkUrl ? linkUrl.replace(/^https?:\/\//, "").split("/")[0] : null;
+  const ctaLabel = ctaType ? (CTA_LABELS[ctaType] || ctaType) : null;
+
+  if (platform === "google") {
+    return (
+      <div className="rounded-t-xl overflow-hidden border-b border-border/30 bg-white dark:bg-zinc-900">
+        <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 px-3 py-2">
+          <div className="flex gap-1 shrink-0">
+            <div className="w-2 h-2 rounded-full bg-red-400" />
+            <div className="w-2 h-2 rounded-full bg-amber-400" />
+            <div className="w-2 h-2 rounded-full bg-green-400" />
+          </div>
+          <div className="flex-1 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-full px-2 py-0.5 flex items-center gap-1">
+            <svg className="w-2.5 h-2.5 text-zinc-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <span className="text-[10px] text-zinc-400 truncate">{headline || "your search query"}</span>
+          </div>
+        </div>
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <div className="w-3.5 h-3.5 rounded-sm bg-blue-500 shrink-0" />
+            <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{domain || "yoursite.com"}</span>
+            <span className="ml-auto shrink-0 text-[9px] border border-zinc-300 dark:border-zinc-600 text-zinc-400 px-1 py-px rounded font-medium uppercase tracking-wide">Ad</span>
+          </div>
+          {headline ? (
+            <p className="text-[14px] font-normal text-[#1a0dab] dark:text-[#8ab4f8] leading-snug mb-1">
+              {headline.length > 55 ? headline.slice(0, 55) + "…" : headline}
+            </p>
+          ) : (
+            <p className="text-[14px] text-zinc-300 dark:text-zinc-600 italic mb-1">Your headline here</p>
+          )}
+          {(primaryText || description) ? (
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug line-clamp-2">
+              {(primaryText || description || "").slice(0, 100)}
+            </p>
+          ) : (
+            <p className="text-[11px] text-zinc-300 dark:text-zinc-600 italic line-clamp-2">Ad description will appear here.</p>
+          )}
+          {ctaLabel && (
+            <button className="mt-2 px-3 py-0.5 text-[10px] font-medium rounded-full bg-[#1a73e8] text-white">{ctaLabel}</button>
+          )}
+          <div className="mt-2.5 grid grid-cols-2 gap-1 opacity-25 pointer-events-none">
+            {["Features", "Pricing", "About", "Contact"].map((l) => (
+              <div key={l} className="border border-zinc-200 dark:border-zinc-700 rounded p-1.5">
+                <p className="text-[9px] text-[#1a0dab] dark:text-[#8ab4f8]">{l}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (platform === "tiktok") {
+    return (
+      <div className="flex justify-center items-center py-5 bg-zinc-950 rounded-t-xl">
+        <div
+          className="relative rounded-[18px] overflow-hidden bg-zinc-950 border-2 border-zinc-800 shadow-xl"
+          style={{ width: 120, aspectRatio: "9/16" }}
+        >
+          {videoUrl ? (
+            <video src={videoUrl} className="absolute inset-0 w-full h-full object-cover" playsInline preload="metadata" />
+          ) : imageUrl ? (
+            <img src={imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0" style={{ background: "linear-gradient(135deg,#EE1D52 0%,#1a1a2e 60%,#69C9D0 100%)" }} />
+          )}
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.9) 30%, transparent 60%, rgba(0,0,0,0.3) 100%)" }} />
+          <div className="absolute top-2 left-0 right-0 flex justify-center gap-3 z-10">
+            <span className="text-[6px] text-white/50">Following</span>
+            <div className="flex flex-col items-center gap-px">
+              <span className="text-[6px] text-white font-bold">For You</span>
+              <div className="w-3 h-px bg-white" />
+            </div>
+          </div>
+          <div className="absolute right-1.5 bottom-14 flex flex-col items-center gap-2.5 z-10">
+            <div className="w-5 h-5 rounded-full border border-white overflow-hidden">
+              <div className="w-full h-full" style={{ background: "linear-gradient(135deg,#EE1D52,#69C9D0)" }} />
+            </div>
+            {[Heart, MessageCircle, Share2].map((Icon, i) => (
+              <div key={i} className="flex flex-col items-center gap-0.5">
+                <Icon className="w-3.5 h-3.5 text-white" />
+                <span className="text-[5px] text-white/70">0</span>
+              </div>
+            ))}
+          </div>
+          <div className="absolute bottom-0 left-0 right-8 p-2 z-10">
+            <p className="text-[7px] font-bold text-white mb-0.5">@yourproduct</p>
+            {headline && <p className="text-[6px] text-white/80 leading-tight line-clamp-2">{headline}</p>}
+            {ctaLabel && (
+              <div className="mt-1.5 px-2 py-0.5 rounded text-[5px] font-bold text-white text-center" style={{ background: "#EE1D52" }}>
+                {ctaLabel}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Meta / Facebook
+  return (
+    <div className="rounded-t-xl overflow-hidden border-b border-border/30 bg-white dark:bg-[#242526]">
+      <div className="flex items-center justify-between px-3 py-2">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-[#1877F2] flex items-center justify-center shrink-0">
+            <span className="text-white font-black text-xs leading-none">Y</span>
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold text-zinc-900 dark:text-zinc-100 leading-none">Your Product</p>
+            <p className="text-[9px] text-zinc-400">Sponsored · 🌐</p>
+          </div>
+        </div>
+        <span className="text-zinc-300 text-sm leading-none">···</span>
+      </div>
+      {primaryText && (
+        <p className="px-3 pb-2 text-[11px] text-zinc-800 dark:text-zinc-200 line-clamp-2 leading-snug">{primaryText}</p>
+      )}
+      {videoUrl ? (
+        <video src={videoUrl} className="w-full aspect-video object-cover" playsInline preload="metadata" />
+      ) : imageUrl ? (
+        <img src={imageUrl} alt="" className="w-full aspect-video object-cover" />
+      ) : (
+        <div className="w-full aspect-video bg-linear-to-br from-blue-400 via-blue-500 to-blue-700 flex items-center justify-center">
+          <svg className="w-10 h-10 text-white/25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="m21 15-5-5L5 21" />
+          </svg>
+        </div>
+      )}
+      <div className="flex items-center justify-between gap-2 px-3 py-2 bg-zinc-100/80 dark:bg-zinc-800/60">
+        <div className="min-w-0 flex-1">
+          {domain && <p className="text-[9px] text-zinc-400 uppercase tracking-wide truncate">{domain}</p>}
+          {headline ? (
+            <p className="text-[11px] font-semibold text-zinc-900 dark:text-zinc-100 leading-tight truncate">{headline}</p>
+          ) : (
+            <p className="text-[11px] text-zinc-300 dark:text-zinc-600 italic">Your headline</p>
+          )}
+          {description && <p className="text-[9px] text-zinc-500 truncate">{description}</p>}
+        </div>
+        {ctaLabel && (
+          <button className="shrink-0 px-2.5 py-1 text-[10px] font-semibold rounded bg-zinc-200 dark:bg-zinc-700 text-zinc-800 dark:text-zinc-200 whitespace-nowrap">
+            {ctaLabel}
+          </button>
+        )}
+      </div>
+      <div className="flex items-center justify-around border-t border-zinc-100 dark:border-zinc-700 px-2 py-1.5">
+        {["👍 Like", "💬 Comment", "↗ Share"].map((l) => (
+          <span key={l} className="text-[10px] font-medium text-zinc-400">{l}</span>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -1107,80 +1272,73 @@ export default function AdsPage() {
             ) : filtered.map((c) => (
               <div
                 key={c.id}
-                className="flex flex-col border border-border/50 rounded-xl p-5 hover:border-border/80 hover:shadow-sm transition-all bg-card"
+                className="flex flex-col border border-border/50 rounded-xl overflow-hidden hover:border-border/80 hover:shadow-md transition-all bg-card"
               >
-                {/* Card header */}
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="flex items-start gap-2.5 min-w-0 flex-1">
-                    {c.creative?.imageUrl && (
-                      <div className="h-10 w-10 rounded-lg overflow-hidden border border-border/40 shrink-0">
-                        <img src={c.creative.imageUrl} alt="" className="h-full w-full object-cover" />
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium leading-snug line-clamp-2">{c.name}</p>
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-[10px] text-muted-foreground">
-                        <span className="uppercase tracking-wider font-semibold">{platformLabels[c.platform]}</span>
-                        <span className="w-px h-2.5 bg-border/60" />
-                        <span>{objectiveLabels[c.objective]}</span>
-                        <span className="w-px h-2.5 bg-border/60" />
-                        <span className="tabular-nums">{formatCurrency(c.dailyBudgetCents)}/day</span>
-                      </div>
+                {/* Platform ad preview — full bleed at top */}
+                <CampaignCardPreview campaign={c} />
+
+                {/* Card body */}
+                <div className="flex flex-col flex-1 px-4 py-3 gap-3">
+                  {/* Name + status */}
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-medium leading-snug line-clamp-2 flex-1 min-w-0">{c.name}</p>
+                    <div className="flex items-center gap-1 shrink-0 mt-0.5">
+                      <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[c.status] || "bg-zinc-300"}`} />
+                      <span className={`text-[10px] uppercase tracking-wider font-medium ${statusColors[c.status] || "text-muted-foreground"}`}>
+                        {c.status}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[c.status] || "bg-zinc-300"}`} />
-                    <span className={`text-[10px] uppercase tracking-wider font-medium ${statusColors[c.status] || "text-muted-foreground"}`}>
-                      {c.status}
-                    </span>
+
+                  {/* Meta row */}
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground">
+                    <span className="uppercase tracking-wider font-semibold">{platformLabels[c.platform]}</span>
+                    <span className="w-px h-2.5 bg-border/60" />
+                    <span>{objectiveLabels[c.objective]}</span>
+                    <span className="w-px h-2.5 bg-border/60" />
+                    <span className="tabular-nums">{formatCurrency(c.dailyBudgetCents)}/day</span>
                   </div>
-                </div>
 
-                {c.errorMessage && c.status === "failed" && (
-                  <p className="text-xs text-destructive mb-2 p-2.5 rounded-lg bg-destructive/5">{c.errorMessage}</p>
-                )}
+                  {c.errorMessage && c.status === "failed" && (
+                    <p className="text-xs text-destructive p-2.5 rounded-lg bg-destructive/5">{c.errorMessage}</p>
+                  )}
 
-                {c.creative?.headline && (
-                  <p className="text-xs text-muted-foreground italic line-clamp-1 mb-3">
-                    &ldquo;{c.creative.headline}&rdquo;
-                  </p>
-                )}
+                  {/* Metrics */}
+                  {c.metrics && (
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/30">
+                      <MetricCard label="Impressions" value={c.metrics.impressions.toLocaleString()} />
+                      <MetricCard label="Clicks" value={c.metrics.clicks.toLocaleString()} />
+                      <MetricCard label="CTR" value={`${(c.metrics.ctr * 100).toFixed(2)}%`} />
+                      <MetricCard label="Spend" value={formatCurrency(c.metrics.spend)} />
+                    </div>
+                  )}
 
-                {/* Metrics */}
-                {c.metrics && (
-                  <div className="grid grid-cols-2 gap-2 mb-3 pt-3 border-t border-border/30">
-                    <MetricCard label="Impressions" value={c.metrics.impressions.toLocaleString()} />
-                    <MetricCard label="Clicks" value={c.metrics.clicks.toLocaleString()} />
-                    <MetricCard label="CTR" value={`${(c.metrics.ctr * 100).toFixed(2)}%`} />
-                    <MetricCard label="Spend" value={formatCurrency(c.metrics.spend)} />
+                  {/* Actions */}
+                  <div className="flex flex-wrap items-center gap-1 mt-auto pt-2 border-t border-border/30">
+                    {c.status === "draft" && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>Launch</Button>
+                    )}
+                    {c.status === "failed" && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>Retry</Button>
+                    )}
+                    {c.status === "active" && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "pause")} disabled={actionLoading === c.id}>Pause</Button>
+                    )}
+                    {c.status === "paused" && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "resume")} disabled={actionLoading === c.id}>Resume</Button>
+                    )}
+                    {c.externalCampaignId && (
+                      <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "sync")} disabled={actionLoading === c.id}>
+                        {actionLoading === c.id ? "Syncing..." : "Sync"}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>Insights</Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => openEdit(c)}>Edit</Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={() => handleAction(c.id, "delete")} disabled={actionLoading === c.id}>Delete</Button>
+                    {c.createdAt && (
+                      <span className="text-[10px] text-muted-foreground/60 ml-auto">{new Date(c.createdAt).toLocaleDateString()}</span>
+                    )}
                   </div>
-                )}
-
-                {/* Actions — pushed to bottom */}
-                <div className="flex flex-wrap items-center gap-1 mt-auto pt-3 border-t border-border/30">
-                  {c.status === "draft" && (
-                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>Launch</Button>
-                  )}
-                  {c.status === "failed" && (
-                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>Retry</Button>
-                  )}
-                  {c.status === "active" && (
-                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "pause")} disabled={actionLoading === c.id}>Pause</Button>
-                  )}
-                  {c.status === "paused" && (
-                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "resume")} disabled={actionLoading === c.id}>Resume</Button>
-                  )}
-                  {c.externalCampaignId && (
-                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "sync")} disabled={actionLoading === c.id}>
-                      {actionLoading === c.id ? "Syncing..." : "Sync"}
-                    </Button>
-                  )}
-                  <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>Insights</Button>
-                  <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => openEdit(c)}>Edit</Button>
-                  <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={() => handleAction(c.id, "delete")} disabled={actionLoading === c.id}>Delete</Button>
-                  {c.createdAt && (
-                    <span className="text-[10px] text-muted-foreground/60 ml-auto">{new Date(c.createdAt).toLocaleDateString()}</span>
-                  )}
                 </div>
               </div>
             ))}
