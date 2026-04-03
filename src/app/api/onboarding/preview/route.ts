@@ -3,9 +3,10 @@
  * and generates a sample post — all in one request so the client has a single
  * round-trip before hitting the paywall.
  */
-import { adminAuth, adminDb } from '@/lib/firebase-admin';
+import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { generateContent } from '@/lib/ai/content-generator';
+import { requireContext } from '@/lib/server-auth';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -26,33 +27,12 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
-    if (!token) return Response.json({ error: 'UNAUTHENTICATED' }, { status: 401 });
-
-    const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid;
-    const wsId = 'default';
+    const ctx = await requireContext(req);
+    const uid = ctx.uid;
+    const wsId = ctx.workspaceId;
 
     const body = await req.json();
     const data = schema.parse(body);
-
-    // Ensure workspace exists
-    const wsRef = adminDb.doc(`workspaces/${wsId}`);
-    const wsSnap = await wsRef.get();
-    if (!wsSnap.exists) {
-      await wsRef.set({
-        name: 'Default Workspace',
-        slug: wsId,
-        createdAt: new Date().toISOString(),
-        createdBy: uid,
-      });
-      await adminDb.doc(`workspaces/${wsId}/members/${uid}`).set({
-        uid,
-        email: decoded.email || '',
-        role: 'owner',
-        joinedAt: new Date().toISOString(),
-      });
-    }
 
     // Create product in Firestore with all scanned fields
     const now = new Date().toISOString();

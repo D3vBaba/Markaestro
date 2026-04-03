@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiGet, apiPost } from "@/lib/api-client";
+import { FeatureGate } from "@/components/app/FeatureGate";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -131,6 +132,7 @@ export default function AnalyticsPage() {
 
   return (
     <AppShell>
+      <FeatureGate feature="advancedAnalytics">
       <PageHeader
         title="Social Manager"
         subtitle="AI-powered insights and recommendations for your social media presence."
@@ -319,6 +321,7 @@ export default function AnalyticsPage() {
           )}
         </motion.div>
       )}
+      </FeatureGate>
     </AppShell>
   );
 }

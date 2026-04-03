@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import Select from "@/components/app/Select";
 import { apiPost, apiPut, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
-import ProductPicker from "./ProductPicker";
 import ChannelSelector from "./ChannelSelector";
 import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
@@ -60,9 +59,16 @@ const channelDefaultRatio: Record<string, string> = {
 
 const CONTEXT_MAX_LENGTH = 500;
 
-export default function CreateTab({ onPostCreated }: { onPostCreated?: () => void }) {
+export default function CreateTab({
+  productId,
+  onProductChange: _onProductChange,
+  onPostCreated,
+}: {
+  productId: string;
+  onProductChange?: (id: string) => void;
+  onPostCreated?: () => void;
+}) {
   const [mode, setMode] = useState<"ai" | "manual">("ai");
-  const [productId, setProductId] = useState("");
   const [channel, setChannel] = useState("facebook");
   const [contentType, setContentType] = useState("social_post");
   const [additionalContext, setAdditionalContext] = useState("");
@@ -363,8 +369,6 @@ export default function CreateTab({ onPostCreated }: { onPostCreated?: () => voi
             Manual Post
           </button>
         </div>
-
-        <ProductPicker value={productId} onChange={setProductId} />
 
         <ChannelSelector value={channel} onChange={handleChannelChange} productId={productId} />
 

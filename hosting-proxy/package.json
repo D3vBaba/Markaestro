@@ -1,0 +1,10 @@
+{
+  "name": "markaestro-hosting-proxy",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Reverse proxy for Firebase Hosting to App Hosting",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

@@ -4,8 +4,21 @@ import { encrypt } from '@/lib/crypto';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { getConnectionRef } from '@/lib/platform/connections';
 import { getAppUrl } from '@/lib/oauth/config';
+import { sanitizeAppReturnTo } from '@/lib/network-security';
 
 const ALLOWED = new Set<string>(oauthProviders);
+
+function redirectWithParams(
+  appUrl: string,
+  pathOrRelativeUrl: string,
+  params: Record<string, string>,
+) {
+  const redirectUrl = new URL(pathOrRelativeUrl, appUrl);
+  for (const [key, value] of Object.entries(params)) {
+    redirectUrl.searchParams.set(key, value);
+  }
+  return NextResponse.redirect(redirectUrl.toString());
+}
 
 export async function GET(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
@@ -23,9 +36,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     if (errorParam) {
       const desc = url.searchParams.get('error_description') || errorParam;
       const appUrl = getAppUrl();
-      return NextResponse.redirect(
-        `${appUrl}/settings?oauth=error&provider=${provider}&message=${encodeURIComponent(desc)}`,
-      );
+      return redirectWithParams(appUrl, '/settings', {
+        oauth: 'error',
+        provider,
+        message: desc,
+      });
     }
 
     if (!code || !state) {
@@ -37,7 +52,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       code,
       state,
     );
-    const { tokens, workspaceId, userId, productId } = exchangeResult;
+    const { tokens, workspaceId, userId, productId, returnTo } = exchangeResult;
 
     const extraData: Record<string, unknown> = {};
     let metaNeedsPageSelection = false;
@@ -143,17 +158,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
 
     const appUrl = getAppUrl();
     if (productId) {
-      const params = new URLSearchParams({
+      return redirectWithParams(appUrl, '/products', {
         oauth: 'success',
         provider,
         productId,
+        ...(provider === 'meta' && metaNeedsPageSelection ? { needsPageSelect: '1' } : {}),
       });
-      if (provider === 'meta' && metaNeedsPageSelection) {
-        params.set('needsPageSelect', '1');
-      }
-      return NextResponse.redirect(`${appUrl}/products?${params.toString()}`);
     }
-    return NextResponse.redirect(`${appUrl}/settings?oauth=success&provider=${provider}`);
+    const successBase = returnTo
+      ? sanitizeAppReturnTo(returnTo, appUrl) ?? '/settings'
+      : '/settings';
+    return redirectWithParams(appUrl, successBase, {
+      oauth: 'success',
+      provider,
+    });
   } catch (error) {
     console.error('OAuth callback error:', error);
     const appUrl = getAppUrl();
@@ -161,8 +179,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const providerParam = (await params).provider;
     // For social providers the error state doesn't carry productId (it was in the state doc),
     // so redirect to settings as a safe fallback
-    return NextResponse.redirect(
-      `${appUrl}/settings?oauth=error&provider=${providerParam}&message=${encodeURIComponent(msg)}`,
-    );
+    return redirectWithParams(appUrl, '/settings', {
+      oauth: 'error',
+      provider: providerParam,
+      message: msg,
+    });
   }
 }

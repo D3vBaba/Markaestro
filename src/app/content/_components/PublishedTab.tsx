@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 import PostCard from "./PostCard";
 import Pagination from "@/components/app/Pagination";
@@ -25,6 +25,16 @@ export default function PublishedTab({ refreshKey }: { refreshKey: number }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+
+  const handleDelete = async (id: string) => {
+    const res = await apiDelete(`/api/posts/${id}`);
+    if (res.ok) {
+      toast.success("Post deleted");
+      fetchPublished();
+    } else {
+      toast.error("Failed to delete post");
+    }
+  };
 
   const fetchPublished = useCallback(async () => {
     try {
@@ -65,7 +75,7 @@ export default function PublishedTab({ refreshKey }: { refreshKey: number }) {
     <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {paginatedPosts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.id} post={post} onDelete={() => handleDelete(post.id)} />
         ))}
       </div>
       <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

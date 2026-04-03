@@ -102,16 +102,29 @@ type CategoryScenes = { keywords: string[]; category: string; scenes: string[] }
 
 const CATEGORY_SCENE_POOLS: CategoryScenes[] = [
   {
+    keywords: ['fashion', 'style', 'outfit', 'clothing', 'apparel', 'wear', 'app', 'mobile', 'software', 'platform'],
+    category: 'FASHION-TECH / STYLE DISCOVERY',
+    scenes: [
+      'Editorial street-style moment outside a fashion week venue or nightlife entrance — confidence, motion, flash reflections, and strong personal style. The image is about taste, identity, and social energy.',
+      'Mirror-check ritual before stepping out — a private, cinematic second of self-expression and anticipation rather than wardrobe administration. Moody light, reflective surfaces, tension in the pose.',
+      'Accessory-driven close-up — rings, nails, fabric texture, sneaker edge, bag hardware, layered styling details that communicate taste without explaining it.',
+      'A trend moodboard made physical — torn editorial pages, swatches, jewelry, receipts, nightlife ephemera, and styling notes arranged like a cultural artifact instead of a product dump.',
+      'Candid urban transition shot — someone moving from subway stairs to streetlight glow, outfit in motion, the city acting like a runway.',
+      'Backstage or atelier energy — steam, garment bags, pins, makeup traces, shoes on concrete, the charged atmosphere before a look goes public.',
+      'Cultural nightlife scene — velvet ropes, taxi reflections, bathroom mirror glow, chrome fixtures, and the emotional charge of being seen.',
+    ],
+  },
+  {
     keywords: ['fashion', 'clothing', 'apparel', 'wear', 'dress', 'outfit', 'shoe', 'sneaker', 'accessories', 'jewelry', 'bag', 'handbag'],
     category: 'FASHION/APPAREL',
     scenes: [
       'Street-level candid: someone mid-stride on rain-slicked cobblestones, the garment catching wind and light. Urban texture, reflected neon, cinematic motion.',
       'Intimate dressing room moment: hands adjusting fabric in a mirror, warm tungsten light, visible thread texture, the private ritual of getting dressed.',
-      'Product arranged in a deconstructed flat-lay with unexpected objects — dried flowers, vintage postcards, artisan tools — that tell a story about who wears this.',
+      'Backstage fashion-craft moment: garment steam rising, tailoring marks, pins, threads, and half-finished styling decisions. The energy of a look coming together.',
       'Close-up of fabric texture against skin — the weave, the drape, the way light plays across the material. Macro lens, shallow depth of field, tactile and sensory.',
       'Silhouette at golden hour on a rooftop or bridge — the garment\'s shape is the hero, backlit and dramatic, city or nature stretching behind.',
       'Hands of a tailor or craftsperson working with the material — pins, thread, scissors — emphasizing the craft and intention behind the product.',
-      'The product tossed casually on an unmade bed or draped over a vintage chair — lived-in luxury, morning-after energy, effortlessly cool.',
+      'Street-cast portrait in a liminal urban space — parking structure, stairwell, alley mural, or train platform — where styling and attitude carry the frame.',
     ],
   },
   {
@@ -207,6 +220,107 @@ const CATEGORY_SCENE_POOLS: CategoryScenes[] = [
   },
 ];
 
+type CategoryLens = {
+  keywords: string[];
+  category: string;
+  support: string[];
+  avoid?: string[];
+};
+
+const CATEGORY_LENSES: CategoryLens[] = [
+  {
+    keywords: ['fashion', 'style', 'outfit', 'clothing', 'apparel', 'wear', 'app', 'mobile', 'software', 'platform'],
+    category: 'FASHION-TECH / STYLE DISCOVERY',
+    support: [
+      'Prioritize taste, self-expression, confidence, cultural relevance, and social energy over literal organization or wardrobe admin.',
+      'Think editorial street style, nightlife anticipation, styling rituals, detail obsession, and the emotional charge of getting a look right.',
+      'Make the frame feel like a fashion campaign, street-style photograph, or trend moodboard fragment rather than a utility app explainer.',
+    ],
+    avoid: [
+      'closet clean-up scenes',
+      'wardrobe organization visuals',
+      'folded or scattered clothes on a bed',
+      'hangers, storage bins, or laundry imagery as the main subject',
+      'generic apparel flat-lays unless the brief explicitly calls for one',
+    ],
+  },
+  {
+    keywords: ['fashion', 'clothing', 'apparel', 'wear', 'dress', 'outfit', 'shoe', 'sneaker', 'accessories', 'jewelry', 'bag', 'handbag'],
+    category: 'FASHION / APPAREL',
+    support: [
+      'Prioritize attitude, silhouette, texture, movement, and styling details over domestic storage scenes.',
+      'Fashion images should feel editorial, tactile, and culturally aware rather than catalog-like or overly tidy.',
+    ],
+    avoid: [
+      'generic clothing piles',
+      'bedroom organization tropes',
+      'plain ecommerce packshots unless requested',
+    ],
+  },
+  {
+    keywords: ['beauty', 'skincare', 'cosmetic', 'makeup', 'haircare', 'fragrance', 'perfume', 'serum', 'moisturizer'],
+    category: 'BEAUTY / SKINCARE',
+    support: [
+      'Lean into ritual, sensorial texture, glow, moisture, reflection, and ingredient intimacy.',
+      'Beauty imagery should feel tactile and aspirational, not like a generic vanity flat-lay.',
+    ],
+  },
+  {
+    keywords: ['food', 'beverage', 'drink', 'restaurant', 'recipe', 'snack', 'coffee', 'tea', 'meal', 'kitchen', 'cooking', 'bakery', 'grocery'],
+    category: 'FOOD / BEVERAGE',
+    support: [
+      'Prioritize appetite, texture, heat, atmosphere, and the instant before or after pleasure.',
+      'Food imagery should trigger craving or memory, not read like a menu placeholder.',
+    ],
+  },
+  {
+    keywords: ['fitness', 'gym', 'workout', 'health', 'wellness', 'supplement', 'protein', 'yoga', 'sport', 'athletic'],
+    category: 'FITNESS / WELLNESS',
+    support: [
+      'Focus on effort, release, discipline, body intelligence, and earned calm instead of generic gym promo energy.',
+      'Wellness imagery should feel embodied and real, not like a stock ad with forced smiles.',
+    ],
+  },
+  {
+    keywords: ['home', 'interior', 'furniture', 'decor', 'candle', 'plant', 'living', 'bedroom', 'kitchen', 'garden', 'outdoor'],
+    category: 'HOME / INTERIOR',
+    support: [
+      'Prioritize atmosphere, materiality, and the emotional shelter of the space.',
+      'Interior imagery should feel lived-in and art-directed, not like a sterile catalog shot.',
+    ],
+  },
+  {
+    keywords: ['travel', 'hotel', 'hospitality', 'tourism', 'vacation', 'resort', 'adventure', 'destination'],
+    category: 'TRAVEL / HOSPITALITY',
+    support: [
+      'Prioritize anticipation, scale, local texture, and the feeling of crossing into another world.',
+      'Travel imagery should feel transportive, not like brochure filler.',
+    ],
+  },
+  {
+    keywords: ['education', 'course', 'learning', 'teaching', 'tutorial', 'school', 'training', 'academy'],
+    category: 'EDUCATION',
+    support: [
+      'Focus on curiosity, breakthrough, craft, and the physical traces of learning in motion.',
+      'Avoid generic classroom or laptop stock imagery unless the brief explicitly demands it.',
+    ],
+  },
+  {
+    keywords: ['saas', 'software', 'mobile', 'web', 'api', 'platform', 'dashboard', 'analytics'],
+    category: 'SOFTWARE / TECH',
+    support: [
+      'Anchor the image in human outcome, metaphor, atmosphere, or collaboration rather than generic screens or holographic interfaces.',
+      'Software imagery should make the benefit feel tangible in the real world.',
+    ],
+    avoid: [
+      'floating UI cards',
+      'circuit boards',
+      'blue holograms',
+      'generic dashboards unless screenshots were explicitly provided',
+    ],
+  },
+];
+
 /**
  * Randomized creative elements to inject unique variety into every image.
  */
@@ -260,52 +374,107 @@ const TEXTURE_OPTIONS = [
   'Rust, patina, and aged metal — character, history, authentic wear',
 ];
 
+function hasDetailedScenePrompt(prompt: string): boolean {
+  const normalized = prompt.trim();
+  if (normalized.length >= 180) return true;
+  const sentenceCount = normalized
+    .split(/[.!?]+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .length;
+  return sentenceCount >= 2;
+}
+
+function isFashionTechContext(context: string): boolean {
+  const hasFashionSignal = /fashion|style|outfit|clothing|apparel|wear|sneaker|accessor|jewelry|bag/.test(context);
+  const hasTechSignal = /app|mobile|software|platform|digital|ai|tool|startup|web/.test(context);
+  return hasFashionSignal && hasTechSignal;
+}
+
+function getCategoryLens(context: string): CategoryLens | undefined {
+  if (isFashionTechContext(context)) return CATEGORY_LENSES[0];
+  return CATEGORY_LENSES.slice(1).find((lens) => lens.keywords.some((k) => context.includes(k)));
+}
+
 /**
  * Return product-type-aware subject direction for image generation.
  * If a subtype is provided, uses the subtype's specific scene direction.
  * Otherwise, randomly selects from diverse scene pools so no two images look alike.
  */
-function getProductSubjectDirection(categories: string[], context: string, subtype?: ImageSubtype): string {
+function getProductSubjectDirection(
+  categories: string[],
+  context: string,
+  prompt: string,
+  subtype?: ImageSubtype,
+): string {
   const is = (keywords: string[]) => keywords.some((k) => context.includes(k));
+  const detailedScenePrompt = hasDetailedScenePrompt(prompt);
+  const matchedLens = getCategoryLens(context);
+  const matchedScenePool = isFashionTechContext(context)
+    ? CATEGORY_SCENE_POOLS[0]
+    : CATEGORY_SCENE_POOLS.slice(1).find((pool) => is(pool.keywords));
+
+  const lensLines = matchedLens
+    ? [
+        `CATEGORY LENS: ${matchedLens.category}`,
+        ...matchedLens.support.map((line) => `- ${line}`),
+      ]
+    : [];
+
+  const avoidLines = matchedLens?.avoid && matchedLens.avoid.length > 0
+    ? [
+        'AVOID THESE CLICHES UNLESS THE PRIMARY SCENE BRIEF EXPLICITLY REQUESTS THEM:',
+        ...matchedLens.avoid.map((line) => `- ${line}`),
+      ]
+    : [];
 
   // If subtype is provided, use it as the primary scene direction
   if (subtype && SUBTYPE_SCENES[subtype]) {
-    const matched = CATEGORY_SCENE_POOLS.find((pool) => is(pool.keywords));
-    const categoryLabel = matched ? `This is a ${matched.category} product.` : '';
+    const categoryLabel = matchedScenePool ? `This is a ${matchedScenePool.category} product.` : '';
 
     const lighting = pick(LIGHTING_OPTIONS);
+    const composition = pick(COMPOSITION_OPTIONS);
     const palette = pick(COLOR_PALETTE_OPTIONS);
     const texture = pick(TEXTURE_OPTIONS);
 
     return [
       categoryLabel,
+      lensLines.length > 0 ? lensLines.join('\n') : '',
       `VISUAL TYPE: ${subtype.toUpperCase()}`,
       SUBTYPE_SCENES[subtype],
+      detailedScenePrompt
+        ? 'PRIMARY SCENE RULE: The primary scene brief below is the source of truth. Use this subtype only as the visual treatment. Do NOT replace the scene, metaphor, or emotional moment described in the brief.'
+        : '',
       '',
       `LIGHTING: ${lighting}`,
+      `COMPOSITION: ${composition}`,
       `COLOR: ${palette}`,
       `TEXTURE/MATERIALS: ${texture}`,
       '',
+      avoidLines.length > 0 ? avoidLines.join('\n') : '',
+      avoidLines.length > 0 ? '' : '',
       'CRITICAL: This image must look NOTHING like a stock photo. Specific, surprising, and emotionally resonant.',
       'Do NOT show: generic smiling people looking at camera, product-on-white backgrounds, abstract tech patterns, circuit boards, or holographic UIs.',
     ].join('\n');
   }
 
-  // Find matching category
-  const matched = CATEGORY_SCENE_POOLS.find((pool) => is(pool.keywords));
-
-  // Pick a random scene from the matched category (or use creative concept for unknown categories)
-  const sceneLine = matched
-    ? `This is a ${matched.category} product.\nSCENE: ${pick(matched.scenes)}`
-    : `SCENE: ${pick([
-        'Show this product in an unexpected real-world context that reveals its true value — the setting should surprise but make perfect sense.',
-        'Focus on the human moment this product creates — hands, expressions, body language that tell the story without words.',
-        'Create a striking still life that positions this product as the hero — dramatic lighting, curated objects, gallery-worthy composition.',
-        'Show the world AFTER this product has done its work — the satisfying result, the calm after the storm, the problem beautifully solved.',
-        'Capture an intimate, authentic moment of someone discovering or enjoying this product — candid, unposed, emotionally honest.',
-        'Use a visual metaphor: represent what this product does through an unexpected symbolic scene that makes the viewer think.',
-        'Show the product in its natural habitat but from a perspective nobody expects — aerial, macro, underwater, through glass, reflected.',
-      ])}`;
+  // For detailed prompts, keep category guidance supportive only so we don't overwrite the scene brief.
+  const sceneLine = detailedScenePrompt
+    ? [
+        matchedScenePool ? `This is a ${matchedScenePool.category} product.` : '',
+        'PRIMARY SCENE RULE: The primary scene brief below is the source of truth. Do NOT substitute a more generic category scene, prop story, or setting.',
+      ].filter(Boolean).join('\n')
+    : matchedScenePool
+      ? `This is a ${matchedScenePool.category} product.\nSCENE SUPPORT: ${pick(matchedScenePool.scenes)}`
+      : `SCENE SUPPORT: ${pick([
+          'Show this product in an unexpected real-world context that reveals its true value — the setting should surprise but make perfect sense.',
+          'Focus on the human moment this product creates — hands, expressions, body language that tell the story without words.',
+          'Create a striking still life that positions this product as the hero — dramatic lighting, curated objects, gallery-worthy composition.',
+          'Show the world AFTER this product has done its work — the satisfying result, the calm after the storm, the problem beautifully solved.',
+          'Capture an intimate, authentic moment of someone discovering or enjoying this product — candid, unposed, emotionally honest.',
+          'Use a visual metaphor: represent what this product does through an unexpected symbolic scene that makes the viewer think.',
+          'Show the product in its natural habitat but from a perspective nobody expects — aerial, macro, underwater, through glass, reflected.',
+        ])}`;
 
   // Layer on a randomized creative concept for additional uniqueness
   const concept = pick(CREATIVE_CONCEPTS);
@@ -319,6 +488,8 @@ function getProductSubjectDirection(categories: string[], context: string, subty
   return [
     sceneLine,
     '',
+    lensLines.length > 0 ? lensLines.join('\n') : '',
+    lensLines.length > 0 ? '' : '',
     concept,
     '',
     `LIGHTING: ${lighting}`,
@@ -326,6 +497,8 @@ function getProductSubjectDirection(categories: string[], context: string, subty
     `COLOR: ${palette}`,
     `TEXTURE/MATERIALS: ${texture}`,
     '',
+    avoidLines.length > 0 ? avoidLines.join('\n') : '',
+    avoidLines.length > 0 ? '' : '',
     'CRITICAL: This image must look NOTHING like a stock photo. It should feel like a frame from a film, a page from a high-end magazine, or a moment captured by a documentary photographer. Specific, surprising, and emotionally resonant.',
     'Do NOT show: generic smiling people looking at camera, product-on-white backgrounds, abstract tech patterns, circuit boards, or holographic UIs.',
   ].join('\n');
@@ -351,11 +524,11 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
     ? `THE PRODUCT: "${req.productName}"${req.productDescription ? ` — ${req.productDescription.slice(0, 150)}` : ''}${req.productCategories?.length ? ` (${req.productCategories.join(', ')})` : ''}`
     : '';
 
-  // Truncate post content
-  const postExcerpt = req.prompt.length > 300 ? req.prompt.slice(0, 300) + '...' : req.prompt;
+  // Keep enough of the scene brief for detailed prompts while still bounding token growth.
+  const postExcerpt = req.prompt.length > 900 ? req.prompt.slice(0, 900) + '...' : req.prompt;
 
   // ── 1. CREATIVE DIRECTION — product identity + creative approach together ──
-  const subjectDirection = getProductSubjectDirection(categories, context, req.subtype);
+  const subjectDirection = getProductSubjectDirection(categories, context, req.prompt, req.subtype);
 
   const researchLines: string[] = [];
   if (req.researchContext) {
@@ -375,14 +548,17 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
 
   sections.push([
     productIdentity,
-    `POST ANGLE: "${postExcerpt}"`,
+    'PRIMARY SCENE BRIEF (SOURCE OF TRUTH — EXECUTE THIS SCENE, NOT A GENERIC CATEGORY DEFAULT):',
+    postExcerpt,
     '',
     researchLines.length > 0 ? researchLines.join('\n') : '',
     '',
     'CREATIVE APPROACH (use this to make the image unique, but the product above MUST be the clear subject):',
     subjectDirection,
     '',
-    'IMPORTANT: The product must be recognizable and central to the image. The creative approach above is HOW to depict it — not a license to ignore it. A viewer should immediately understand what product or category this image is about.',
+    'IMPORTANT: The product must be recognizable and central to the image. The creative approach above is HOW to depict it — not a license to ignore it.',
+    'Do NOT replace the primary scene brief with a safer or more generic idea. If the brief implies fashion culture, aspiration, identity, nightlife, craftsmanship, or symbolic emotion, preserve that instead of collapsing to wardrobe organization or product catalog imagery.',
+    'A viewer should immediately understand what product world or category this image is about, even when the image is metaphorical or editorial.',
   ].filter(Boolean).join('\n'));
 
   // ── 2. STYLE — randomized per call to prevent repetition ──

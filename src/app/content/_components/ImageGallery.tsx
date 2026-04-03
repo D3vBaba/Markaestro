@@ -231,7 +231,7 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
               {isVideo(img) ? (
                 <video
                   src={img.url}
-                  className="w-full aspect-square object-cover cursor-pointer"
+                  className="w-full aspect-video object-contain bg-black cursor-pointer"
                   playsInline
                   muted
                   preload="metadata"

@@ -6,10 +6,19 @@ import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import {
   Loader2, ChevronDown, ChevronRight,
 } from "lucide-react";
-import { apiGet, apiPost } from "@/lib/api-client";
+import {
+  Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle,
+} from "@/components/ui/sheet";
+import { Checkbox } from "@/components/ui/checkbox";
+import FormField from "@/components/app/FormField";
+import Select from "@/components/app/Select";
+import ProductPicker from "@/app/content/_components/ProductPicker";
+import { apiGet, apiPost, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
 
 type PipelinePost = {
@@ -28,11 +37,18 @@ type PipelineData = {
   campaignId: string;
   campaignName: string;
   pipelineStatus: string | null;
+  configDirty: boolean;
+  configDirtyReason: string | null;
+  activeRunId: string | null;
+  latestRunId: string | null;
+  scheduledRunId: string | null;
   pipelineConfig: {
     channels: string[];
     cadence: string;
     postCount: number;
     startDate: string;
+    stages?: string[];
+    postTimeHourUTC?: number;
   } | null;
   researchBrief: {
     competitors: Array<{ name: string; positioning: string; strengths: string; weaknesses: string }>;
@@ -56,12 +72,34 @@ type Campaign = {
   status: string;
   productId?: string;
   pipelineStatus?: string;
+  configDirty?: boolean;
+  configDirtyReason?: string | null;
+  configVersion?: number;
+  activeRunId?: string | null;
+  latestRunId?: string | null;
+  scheduledRunId?: string | null;
   pipeline?: {
     channels: string[];
     cadence: string;
     postCount: number;
     startDate: string;
+    stages?: string[];
+    postTimeHourUTC?: number;
   };
+};
+
+type GenerationRunSummary = {
+  id: string;
+  status: string;
+  operationType: string;
+  configVersion: number;
+  createdAt: string;
+  itemCounts?: {
+    total: number;
+    imagesGenerated: number;
+  };
+  isActive: boolean;
+  isScheduled: boolean;
 };
 
 const stageConfig: Record<string, { label: string; color: string; description: string }> = {
@@ -84,6 +122,21 @@ const channelLabels: Record<string, string> = {
   x: "X", facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok",
 };
 
+const socialChannels = [
+  { value: "facebook", label: "Facebook" },
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok", label: "TikTok" },
+];
+
+const stageOptions = [
+  { value: "awareness", label: "Awareness" },
+  { value: "interest", label: "Interest" },
+  { value: "consideration", label: "Consideration" },
+  { value: "trial", label: "Trial" },
+  { value: "activation", label: "Activation" },
+  { value: "retention", label: "Retention" },
+];
+
 const postStatusColors: Record<string, string> = {
   draft: "bg-gray-100 text-gray-600",
   scheduled: "bg-blue-50 text-blue-700",
@@ -103,31 +156,119 @@ export default function PipelineDetailPage() {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
   const [showResearch, setShowResearch] = useState(false);
   const [selectedSubtypes, setSelectedSubtypes] = useState<string[]>([]);
+  const [runs, setRuns] = useState<GenerationRunSummary[]>([]);
+  const [selectingRun, setSelectingRun] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [savingEdits, setSavingEdits] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editProductId, setEditProductId] = useState("");
+  const [editChannels, setEditChannels] = useState<string[]>(["facebook"]);
+  const [editCadence, setEditCadence] = useState("3x_week");
+  const [editPostCount, setEditPostCount] = useState(20);
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editStages, setEditStages] = useState<string[]>(Object.keys(stageConfig));
+  const [editPostTimeHourUTC, setEditPostTimeHourUTC] = useState(10);
+
+  const syncEditState = useCallback((campaignData: Campaign) => {
+    setEditName(campaignData.name || "");
+    setEditProductId(campaignData.productId || "");
+    setEditChannels(campaignData.pipeline?.channels || ["facebook"]);
+    setEditCadence(campaignData.pipeline?.cadence || "3x_week");
+    setEditPostCount(campaignData.pipeline?.postCount || 20);
+    setEditStartDate(campaignData.pipeline?.startDate ? campaignData.pipeline.startDate.slice(0, 10) : "");
+    setEditStages(campaignData.pipeline?.stages || Object.keys(stageConfig));
+    setEditPostTimeHourUTC(campaignData.pipeline?.postTimeHourUTC ?? 10);
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
       const campaignRes = await apiGet<Campaign>(`/api/campaigns/${id}`);
       if (!campaignRes.ok) { toast.error("Campaign not found"); router.push("/campaigns"); return; }
-      setCampaign({ ...campaignRes.data, id: id! });
+      const nextCampaign = { ...campaignRes.data, id: id! };
+      setCampaign(nextCampaign);
+      syncEditState(nextCampaign);
+
+      const runsRes = await apiGet<{ runs: GenerationRunSummary[] }>(`/api/campaigns/${id}/runs`);
+      if (runsRes.ok) setRuns(runsRes.data.runs);
+      else setRuns([]);
 
       // Only fetch pipeline data if posts have been generated
       if (campaignRes.data.pipelineStatus && campaignRes.data.pipelineStatus !== "pending_research") {
         const pipelineRes = await apiGet<PipelineData>(`/api/campaigns/${id}/pipeline`);
         if (pipelineRes.ok) setPipeline(pipelineRes.data);
+        else setPipeline(null);
+      } else {
+        setPipeline(null);
       }
     } catch {
       toast.error("Failed to load campaign");
     } finally {
       setLoading(false);
     }
-  }, [id, router]);
+  }, [id, router, syncEditState]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  const toggleEditChannel = (channel: string) => {
+    setEditChannels((prev) =>
+      prev.includes(channel) ? prev.filter((item) => item !== channel) : [...prev, channel]
+    );
+  };
+
+  const toggleEditStage = (stage: string) => {
+    setEditStages((prev) =>
+      prev.includes(stage) ? prev.filter((item) => item !== stage) : [...prev, stage]
+    );
+  };
+
+  const handleSaveCampaign = async () => {
+    if (!editName.trim()) { toast.error("Campaign name is required"); return; }
+    if (!editProductId) { toast.error("Select a product"); return; }
+    if (editChannels.length === 0) { toast.error("Select at least one channel"); return; }
+    if (editStages.length === 0) { toast.error("Select at least one pipeline stage"); return; }
+
+    setSavingEdits(true);
+    try {
+      const startDateIso = editStartDate
+        ? new Date(`${editStartDate}T00:00:00.000Z`).toISOString()
+        : (campaign?.pipeline?.startDate || new Date().toISOString());
+      const res = await apiPut<Campaign>(`/api/campaigns/${id}`, {
+        name: editName.trim(),
+        productId: editProductId,
+        pipeline: {
+          channels: editChannels,
+          cadence: editCadence,
+          postCount: editPostCount,
+          startDate: startDateIso,
+          stages: editStages,
+          postTimeHourUTC: editPostTimeHourUTC,
+        },
+      });
+
+      if (!res.ok) {
+        const errData = res.data as unknown as { error?: string; issues?: { message: string }[] };
+        toast.error(errData.issues?.[0]?.message || errData.error || "Failed to save campaign");
+        return;
+      }
+
+      setEditOpen(false);
+      toast.success("Campaign updated");
+      await fetchData();
+    } catch {
+      toast.error("Failed to save campaign");
+    } finally {
+      setSavingEdits(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!campaign?.productId) { toast.error("No product associated with this campaign"); return; }
     setGenerating(true);
-    toast.info("Starting pipeline generation — researching competitors, generating posts & images. This may take a minute...");
+    toast.info(
+      pipeline?.totalPosts
+        ? "Starting a new generation from the latest campaign settings. This may take a minute..."
+        : "Starting pipeline generation — researching competitors, generating posts & images. This may take a minute..."
+    );
 
     try {
       const res = await apiPost<{ postCount: number; imagesGenerated: number }>(
@@ -150,6 +291,27 @@ export default function PipelineDetailPage() {
       toast.error("Generation failed");
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleSelectRun = async (runId: string) => {
+    const currentRunId = pipeline?.activeRunId || campaign?.activeRunId;
+    if (!runId || runId === currentRunId) return;
+
+    setSelectingRun(true);
+    try {
+      const res = await apiPost<{ runId: string }>(`/api/campaigns/${id}/runs/${runId}/select`, {});
+      if (res.ok) {
+        toast.success("Generation preview updated");
+        await fetchData();
+      } else {
+        const errData = res.data as unknown as { error?: string };
+        toast.error(errData.error || "Failed to switch generation");
+      }
+    } catch {
+      toast.error("Failed to switch generation");
+    } finally {
+      setSelectingRun(false);
     }
   };
 
@@ -195,8 +357,25 @@ export default function PipelineDetailPage() {
   if (!campaign) return null;
 
   const pipelineStatus = campaign.pipelineStatus || "pending_research";
-  const isGenerated = ["generated", "scheduling", "scheduled"].includes(pipelineStatus);
-  const isScheduled = pipelineStatus === "scheduled";
+  const hasPreview = Boolean(pipeline && pipeline.totalPosts > 0);
+  const currentDirtyReason = campaign.configDirtyReason || pipeline?.configDirtyReason || null;
+  const isScheduleOnlyDirty = currentDirtyReason === "reschedule_only";
+  const isScheduled = pipelineStatus === "scheduled" && pipeline?.scheduledRunId === pipeline?.activeRunId && !isScheduleOnlyDirty;
+  const canSchedule = hasPreview && (!isScheduled || isScheduleOnlyDirty);
+  const hasScheduledElsewhere = Boolean(pipeline?.scheduledRunId && pipeline?.activeRunId && pipeline.scheduledRunId !== pipeline.activeRunId);
+  const isDirty = Boolean(campaign.configDirty || pipeline?.configDirty);
+  const generateLabel = isDirty
+    ? "Apply Changes & Regenerate"
+    : hasPreview
+      ? "Regenerate Pipeline"
+      : "Generate Pipeline";
+  const scheduleLabel = isScheduleOnlyDirty ? "Apply Schedule Changes" : "Schedule All Posts";
+  const dirtyReasonLabel: Record<string, string> = {
+    reschedule_only: "Schedule settings changed. You can reschedule without regenerating, or regenerate to refresh the preview.",
+    regenerate_images: "Visual settings changed. Regenerate to create a new image set for this campaign.",
+    regenerate_copy: "Pipeline strategy changed. Regenerate to refresh the generated posts.",
+    full_regenerate: "Campaign inputs changed. Regenerate to create a new generation from the latest settings.",
+  };
   const stages = Object.keys(stageConfig);
 
   return (
@@ -226,64 +405,80 @@ export default function PipelineDetailPage() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap justify-end">
-            {!isGenerated && (
-              <>
-                <div className="w-full sm:w-auto">
-                  <details className="relative group">
-                    <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground select-none list-none flex items-center gap-1">
-                      Visual Types {selectedSubtypes.length > 0 && <Badge variant="secondary" className="text-[10px] h-4 px-1">{selectedSubtypes.length}</Badge>}
-                      <ChevronDown className="h-3 w-3" />
-                    </summary>
-                    <div className="absolute right-0 top-full mt-1 z-50 bg-popover border rounded-xl shadow-lg p-3 w-56 space-y-1.5">
-                      <p className="text-[10px] text-muted-foreground mb-2">Select types to cycle through for variety. Leave empty for auto.</p>
-                      {[
-                        { value: "product-hero", label: "Product Hero" },
-                        { value: "lifestyle", label: "Lifestyle" },
-                        { value: "flat-lay", label: "Flat Lay" },
-                        { value: "texture-detail", label: "Texture / Detail" },
-                        { value: "before-after", label: "Before & After" },
-                        { value: "hands-in-action", label: "Hands in Action" },
-                        { value: "environment", label: "Environment" },
-                        { value: "still-life", label: "Still Life" },
-                        { value: "silhouette", label: "Silhouette" },
-                        { value: "behind-the-scenes", label: "Behind the Scenes" },
-                        { value: "ingredients-raw", label: "Ingredients / Raw" },
-                        { value: "mood-abstract", label: "Mood / Abstract" },
-                      ].map((st) => (
-                        <label key={st.value} className="flex items-center gap-2 cursor-pointer text-xs hover:bg-muted/50 rounded px-1.5 py-1">
-                          <input
-                            type="checkbox"
-                            checked={selectedSubtypes.includes(st.value)}
-                            onChange={(e) => {
-                              setSelectedSubtypes((prev) =>
-                                e.target.checked
-                                  ? [...prev, st.value]
-                                  : prev.filter((s) => s !== st.value)
-                              );
-                            }}
-                            className="rounded border-border h-3.5 w-3.5"
-                          />
-                          {st.label}
-                        </label>
-                      ))}
-                    </div>
-                  </details>
-                </div>
-                <Button onClick={handleGenerate} disabled={generating} className="rounded-xl">
-                  {generating ? (
-                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...</>
-                  ) : (
-                    "Generate Pipeline"
-                  )}
-                </Button>
-              </>
+            <Button variant="outline" onClick={() => setEditOpen(true)} className="rounded-xl">
+              Edit Campaign
+            </Button>
+            {runs.length > 0 && (
+              <div className="w-full sm:w-60">
+                <Select
+                  size="sm"
+                  value={pipeline?.activeRunId || campaign.activeRunId || ""}
+                  onChange={(e) => handleSelectRun(e.target.value)}
+                  disabled={selectingRun}
+                >
+                  <option value="" disabled>Select generation</option>
+                  {runs.map((run, index) => (
+                    <option key={run.id} value={run.id}>
+                      {`Gen ${runs.length - index} · ${run.status}${run.isScheduled ? " · live" : run.isActive ? " · preview" : ""}`}
+                    </option>
+                  ))}
+                </Select>
+              </div>
             )}
-            {isGenerated && !isScheduled && (
+            <div className="w-full sm:w-auto">
+              <details className="relative group">
+                <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground select-none list-none flex items-center gap-1">
+                  Visual Types {selectedSubtypes.length > 0 && <Badge variant="secondary" className="text-[10px] h-4 px-1">{selectedSubtypes.length}</Badge>}
+                  <ChevronDown className="h-3 w-3" />
+                </summary>
+                <div className="absolute right-0 top-full mt-1 z-50 bg-popover border rounded-xl shadow-lg p-3 w-56 space-y-1.5">
+                  <p className="text-[10px] text-muted-foreground mb-2">Select types to cycle through for variety. Leave empty for auto.</p>
+                  {[
+                    { value: "product-hero", label: "Product Hero" },
+                    { value: "lifestyle", label: "Lifestyle" },
+                    { value: "flat-lay", label: "Flat Lay" },
+                    { value: "texture-detail", label: "Texture / Detail" },
+                    { value: "before-after", label: "Before & After" },
+                    { value: "hands-in-action", label: "Hands in Action" },
+                    { value: "environment", label: "Environment" },
+                    { value: "still-life", label: "Still Life" },
+                    { value: "silhouette", label: "Silhouette" },
+                    { value: "behind-the-scenes", label: "Behind the Scenes" },
+                    { value: "ingredients-raw", label: "Ingredients / Raw" },
+                    { value: "mood-abstract", label: "Mood / Abstract" },
+                  ].map((st) => (
+                    <label key={st.value} className="flex items-center gap-2 cursor-pointer text-xs hover:bg-muted/50 rounded px-1.5 py-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedSubtypes.includes(st.value)}
+                        onChange={(e) => {
+                          setSelectedSubtypes((prev) =>
+                            e.target.checked
+                              ? [...prev, st.value]
+                              : prev.filter((s) => s !== st.value)
+                          );
+                        }}
+                        className="rounded border-border h-3.5 w-3.5"
+                      />
+                      {st.label}
+                    </label>
+                  ))}
+                </div>
+              </details>
+            </div>
+            <Button onClick={handleGenerate} disabled={generating} className="rounded-xl">
+              {generating ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...</>
+              ) : (
+                generateLabel
+              )}
+            </Button>
+            {canSchedule && (
               <Button onClick={handleSchedule} disabled={scheduling} className="rounded-xl">
                 {scheduling ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Scheduling...</>
                 ) : (
-                  "Schedule All Posts"
+                  scheduleLabel
                 )}
               </Button>
             )}
@@ -292,9 +487,150 @@ export default function PipelineDetailPage() {
                 Pipeline Scheduled
               </Badge>
             )}
+            {hasScheduledElsewhere && (
+              <Badge variant="outline" className="border-0 bg-amber-50 text-amber-700 px-3 py-1.5">
+                Live schedule on previous generation
+              </Badge>
+            )}
           </div>
         </div>
       </div>
+
+      <Sheet open={editOpen} onOpenChange={setEditOpen}>
+        <SheetContent className="sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Edit Campaign</SheetTitle>
+            <SheetDescription>
+              Update the campaign source of truth. Generated content stays immutable until you regenerate.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="px-6 py-4 space-y-5">
+            <FormField label="Campaign Name">
+              <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Campaign name" />
+            </FormField>
+
+            <FormField label="Product">
+              <ProductPicker value={editProductId} onChange={setEditProductId} />
+            </FormField>
+
+            <FormField label="Channels">
+              <div className="grid grid-cols-1 gap-2">
+                {socialChannels.map((channel) => (
+                  <label key={channel.value} className="flex items-center gap-2 rounded-lg border border-border/50 px-3 py-2 text-sm">
+                    <Checkbox
+                      checked={editChannels.includes(channel.value)}
+                      onCheckedChange={() => toggleEditChannel(channel.value)}
+                    />
+                    {channel.label}
+                  </label>
+                ))}
+              </div>
+            </FormField>
+
+            <FormField label="Cadence">
+              <Select value={editCadence} onChange={(e) => setEditCadence(e.target.value)}>
+                <option value="daily">Daily</option>
+                <option value="3x_week">3x / week</option>
+                <option value="2x_week">2x / week</option>
+                <option value="weekly">Weekly</option>
+              </Select>
+            </FormField>
+
+            <FormField label={`Post Count (${editPostCount})`}>
+              <Slider
+                min={3}
+                max={30}
+                step={1}
+                value={[editPostCount]}
+                onValueChange={([value]) => setEditPostCount(value)}
+              />
+            </FormField>
+
+            <FormField label="Start Date">
+              <Input type="date" value={editStartDate} onChange={(e) => setEditStartDate(e.target.value)} />
+            </FormField>
+
+            <FormField label={`Post Time UTC (${String(editPostTimeHourUTC).padStart(2, "0")}:00)`}>
+              <Slider
+                min={0}
+                max={23}
+                step={1}
+                value={[editPostTimeHourUTC]}
+                onValueChange={([value]) => setEditPostTimeHourUTC(value)}
+              />
+            </FormField>
+
+            <FormField label="Pipeline Stages">
+              <div className="grid grid-cols-1 gap-2">
+                {stageOptions.map((stage) => (
+                  <label key={stage.value} className="flex items-center gap-2 rounded-lg border border-border/50 px-3 py-2 text-sm">
+                    <Checkbox
+                      checked={editStages.includes(stage.value)}
+                      onCheckedChange={() => toggleEditStage(stage.value)}
+                    />
+                    {stage.label}
+                  </label>
+                ))}
+              </div>
+            </FormField>
+          </div>
+          <SheetFooter className="px-6 pb-6">
+            <Button variant="outline" onClick={() => setEditOpen(false)} className="rounded-xl">Cancel</Button>
+            <Button onClick={handleSaveCampaign} disabled={savingEdits} className="rounded-xl">
+              {savingEdits ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</> : "Save Changes"}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      {isDirty && (
+        <Card className="mb-6 border-amber-200 bg-amber-50/60">
+          <CardContent className="py-4">
+            <p className="text-sm font-medium text-amber-900">Campaign settings changed</p>
+            <p className="text-sm text-amber-800 mt-1">
+              {dirtyReasonLabel[(campaign.configDirtyReason || pipeline?.configDirtyReason || "full_regenerate")] || dirtyReasonLabel.full_regenerate}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {runs.length > 0 && (
+        <Card className="mb-6 border-border/30">
+          <CardHeader>
+            <CardTitle className="text-base">Generation History</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {runs.map((run, index) => (
+              <div key={run.id} className="flex items-center justify-between gap-3 rounded-xl border border-border/30 px-3 py-2 text-sm">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium">{`Generation ${runs.length - index}`}</span>
+                    <Badge variant="outline" className="border-border/40">{run.status}</Badge>
+                    {run.isActive && <Badge className="border-0 bg-blue-50 text-blue-700">Preview</Badge>}
+                    {run.isScheduled && <Badge className="border-0 bg-emerald-50 text-emerald-700">Scheduled</Badge>}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {new Date(run.createdAt).toLocaleString()} · v{run.configVersion}
+                    {run.itemCounts?.total ? ` · ${run.itemCounts.total} posts` : ""}
+                    {run.itemCounts?.imagesGenerated ? ` · ${run.itemCounts.imagesGenerated} images` : ""}
+                  </p>
+                </div>
+                {!run.isActive && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSelectRun(run.id)}
+                    disabled={selectingRun}
+                    className="rounded-xl"
+                  >
+                    {selectingRun ? "Switching..." : "View"}
+                  </Button>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Research Brief (collapsible) */}
       {pipeline?.researchBrief && (

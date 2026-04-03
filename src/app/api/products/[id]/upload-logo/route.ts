@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import sharp from 'sharp';
 import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
@@ -28,21 +29,33 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       throw new Error('VALIDATION_FILE_TOO_LARGE');
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const ext = file.type === 'image/png' ? 'png'
-      : file.type === 'image/webp' ? 'webp'
-      : file.type === 'image/svg+xml' ? 'svg'
-      : 'jpg';
+    const originalBuffer = Buffer.from(await file.arrayBuffer());
+    const normalized =
+      file.type === 'image/svg+xml'
+        ? {
+            buffer: await sharp(originalBuffer).png().toBuffer(),
+            contentType: 'image/png',
+            ext: 'png',
+          }
+        : {
+            buffer: originalBuffer,
+            contentType: file.type,
+            ext: file.type === 'image/png'
+              ? 'png'
+              : file.type === 'image/webp'
+                ? 'webp'
+                : 'jpg',
+          };
     const fileId = crypto.randomUUID();
-    const filePath = `workspaces/${ctx.workspaceId}/logos/${id}/${fileId}.${ext}`;
+    const filePath = `workspaces/${ctx.workspaceId}/logos/${id}/${fileId}.${normalized.ext}`;
 
     const admin = await import('firebase-admin');
     const bucket = admin.storage().bucket();
     const gcsFile = bucket.file(filePath);
 
-    await gcsFile.save(buffer, {
+    await gcsFile.save(normalized.buffer, {
       metadata: {
-        contentType: file.type,
+        contentType: normalized.contentType,
         metadata: {
           workspaceId: ctx.workspaceId,
           productId: id,

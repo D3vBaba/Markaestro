@@ -19,11 +19,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       throw new Error('VALIDATION_CAMPAIGN_IS_NOT_PIPELINE_TYPE');
     }
 
-    // Load all pipeline posts for this campaign
-    const postsSnap = await adminDb
-      .collection(`workspaces/${ctx.workspaceId}/posts`)
-      .where('campaignId', '==', id)
-      .get();
+    const activeRunId = (campaign.activeRunId || campaign.latestRunId) as string | undefined;
+    const postsQuery = activeRunId
+      ? adminDb
+          .collection(`workspaces/${ctx.workspaceId}/posts`)
+          .where('campaignId', '==', id)
+          .where('generationRunId', '==', activeRunId)
+      : adminDb
+          .collection(`workspaces/${ctx.workspaceId}/posts`)
+          .where('campaignId', '==', id);
+    const postsSnap = await postsQuery.get();
 
     const posts = postsSnap.docs
       .map((doc) => ({ id: doc.id, ...doc.data() }))
@@ -50,6 +55,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       pipelineStatus: campaign.pipelineStatus || null,
       pipelineConfig: campaign.pipeline || null,
       researchBrief: campaign.researchBrief || null,
+      configDirty: Boolean(campaign.configDirty),
+      configDirtyReason: campaign.configDirtyReason || null,
+      activeRunId: activeRunId || null,
+      latestRunId: campaign.latestRunId || null,
+      scheduledRunId: campaign.scheduledRunId || null,
       stages,
       totalPosts: posts.length,
       statusCounts,

@@ -2,7 +2,9 @@ import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { generateAuthUrl } from '@/lib/oauth/flow';
+import { getAppUrl } from '@/lib/oauth/config';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
+import { sanitizeAppReturnTo } from '@/lib/network-security';
 
 const ALLOWED = new Set<string>(oauthProviders);
 const SOCIAL_PROVIDERS = new Set(['tiktok', 'tiktok_ads']);
@@ -19,6 +21,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
 
     const body = await req.json().catch(() => ({}));
     const productId = body.productId as string | undefined;
+    const rawReturnTo = body.returnTo as string | undefined;
+    const returnTo = rawReturnTo
+      ? sanitizeAppReturnTo(rawReturnTo, getAppUrl()) ?? undefined
+      : undefined;
+
+    if (rawReturnTo && !returnTo) {
+      throw new Error('VALIDATION_INVALID_RETURN_TO');
+    }
 
     // Social providers require a productId (per-product integrations)
     if (SOCIAL_PROVIDERS.has(provider) && !productId) {
@@ -30,6 +40,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       ctx.workspaceId,
       ctx.uid,
       productId,
+      returnTo,
     );
 
     return apiOk({ authUrl });

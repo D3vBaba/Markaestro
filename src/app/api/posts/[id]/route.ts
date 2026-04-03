@@ -50,7 +50,20 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${id}`);
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');
-    await ref.delete();
+
+    // Cascade-delete any videos linked to this post
+    const videosSnap = await adminDb
+      .collection(`workspaces/${ctx.workspaceId}/videos`)
+      .where('postId', '==', id)
+      .get();
+
+    const batch = adminDb.batch();
+    batch.delete(ref);
+    for (const videoDoc of videosSnap.docs) {
+      batch.delete(videoDoc.ref);
+    }
+    await batch.commit();
+
     return apiOk({ ok: true, id });
   } catch (error) {
     return apiError(error);

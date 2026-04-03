@@ -23,7 +23,8 @@ import Select from "@/components/app/Select";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { AdCampaignMetrics } from "@/lib/ads/types";
-import { FacebookAdPreview, GoogleAdPreview } from "@/components/app/PlatformPreview";
+import { FacebookAdPreview, GoogleAdPreview, TikTokAdPreview } from "@/components/app/PlatformPreview";
+import { FeatureGate } from "@/components/app/FeatureGate";
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -101,6 +102,19 @@ const statusColors: Record<string, string> = {
   failed: "text-destructive",
 };
 const platformLabels: Record<string, string> = { meta: "Meta", google: "Google", tiktok: "TikTok" };
+const statusDotColors: Record<string, string> = {
+  draft: "bg-zinc-300",
+  pending: "bg-amber-400",
+  active: "bg-emerald-500",
+  paused: "bg-amber-400",
+  completed: "bg-zinc-300",
+  failed: "bg-red-500",
+};
+const platformAccents: Record<string, string> = {
+  meta: "border-l-[#1877F2]",
+  google: "border-l-[#4285F4]",
+  tiktok: "border-l-[#EE1D52]",
+};
 const objectiveLabels: Record<string, string> = {
   awareness: "Awareness", traffic: "Traffic", engagement: "Engagement",
   leads: "Leads", conversions: "Conversions", app_installs: "App Installs",
@@ -151,9 +165,9 @@ function formatBytes(bytes: number): string {
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="p-3 sm:p-4 rounded-lg border border-border/40 bg-card">
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
-      <p className="text-lg sm:text-xl font-light tabular-nums">{value}</p>
+    <div className="p-3 sm:p-4 rounded-xl border border-border/50 bg-card hover:border-border transition-colors">
+      <p className="text-[10px] uppercase tracking-widest text-muted-foreground/70 mb-1.5 font-medium">{label}</p>
+      <p className="text-xl sm:text-2xl font-light tabular-nums tracking-tight">{value}</p>
     </div>
   );
 }
@@ -283,6 +297,19 @@ function AdPreview({ form }: { form: { platform: string; headline: string; prima
         primaryText={form.primaryText}
         description={form.description}
         linkUrl={form.linkUrl}
+        ctaType={form.ctaType}
+      />
+    );
+  }
+
+  if (form.platform === "tiktok") {
+    return (
+      <TikTokAdPreview
+        platform="tiktok"
+        headline={form.headline}
+        primaryText={form.primaryText}
+        imageUrl={form.imageUrl}
+        videoUrl={form.videoUrl}
         ctaType={form.ctaType}
       />
     );
@@ -691,6 +718,7 @@ export default function AdsPage() {
 
   return (
     <AppShell>
+      <FeatureGate feature="ads">
       <PageHeader
         title="Ads"
         subtitle="Create, launch, and manage paid ad campaigns across Google and Meta."
@@ -1056,62 +1084,75 @@ export default function AdsPage() {
         {/* ── Campaigns Tab ── */}
         <TabsContent value="campaigns">
           {/* Platform filter */}
-          <div className="flex gap-1 mb-6">
-            {["all", "meta", "google", "tiktok"].map((v) => (
+          <div className="flex gap-1.5 mb-6 flex-wrap">
+            {[
+              { v: "all", label: "All Platforms" },
+              { v: "meta", label: "Meta" },
+              { v: "google", label: "Google" },
+              { v: "tiktok", label: "TikTok" },
+            ].map(({ v, label }) => (
               <button key={v} onClick={() => setPlatformFilter(v)}
-                className={`px-4 py-2 text-xs font-medium rounded-lg transition-colors ${
-                  platformFilter === v ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"
+                className={`px-3.5 py-1.5 text-xs font-medium rounded-full border transition-all ${
+                  platformFilter === v
+                    ? "bg-foreground text-background border-foreground"
+                    : "bg-transparent text-muted-foreground border-border/50 hover:border-border hover:text-foreground"
                 }`}
-              >{v === "all" ? "All" : platformLabels[v]}</button>
+              >{label}</button>
             ))}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {loading ? (
-              [1, 2, 3].map((i) => <div key={i} className="h-32 rounded-lg bg-muted/20 animate-pulse" />)
+              [1, 2, 3].map((i) => <div key={i} className="h-28 rounded-xl bg-muted/20 animate-pulse" />)
             ) : filtered.length === 0 ? (
-              <div className="text-center py-20 border border-border/40 rounded-lg">
+              <div className="text-center py-20 border border-dashed border-border/50 rounded-xl">
                 <p className="text-sm font-medium">No ad campaigns yet</p>
                 <p className="text-xs text-muted-foreground mt-2">Create your first campaign to start advertising.</p>
               </div>
             ) : filtered.map((c) => (
-              <div key={c.id} className="border border-border/40 rounded-lg p-5 sm:p-6 hover:border-border transition-colors">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+              <div
+                key={c.id}
+                className={`border border-border/50 border-l-4 rounded-xl p-5 sm:p-6 hover:border-border/80 hover:shadow-sm transition-all ${platformAccents[c.platform] || "border-l-border"}`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
                     {/* Creative thumbnail */}
                     {c.creative?.imageUrl && (
-                      <div className="h-12 w-12 rounded-lg overflow-hidden border border-border/40 shrink-0 hidden sm:block">
+                      <div className="h-11 w-11 rounded-lg overflow-hidden border border-border/40 shrink-0 hidden sm:block">
                         <img src={c.creative.imageUrl} alt="" className="h-full w-full object-cover" />
                       </div>
                     )}
                     <div className="min-w-0">
                       <p className="text-base font-medium truncate">{c.name}</p>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                        <span>{platformLabels[c.platform]}</span>
-                        <span className="w-px h-3 bg-border hidden sm:block" />
+                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1 text-[11px] text-muted-foreground">
+                        <span className="uppercase tracking-wider font-medium">{platformLabels[c.platform]}</span>
+                        <span className="w-px h-3 bg-border/60" />
                         <span>{objectiveLabels[c.objective]}</span>
-                        <span className="w-px h-3 bg-border hidden sm:block" />
-                        <span>{formatCurrency(c.dailyBudgetCents)}/day</span>
+                        <span className="w-px h-3 bg-border/60" />
+                        <span className="tabular-nums">{formatCurrency(c.dailyBudgetCents)}/day</span>
                       </div>
                     </div>
                   </div>
-                  <span className={`text-[11px] uppercase tracking-wider font-medium shrink-0 ${statusColors[c.status] || "text-muted-foreground"}`}>
-                    {c.status}
-                  </span>
+                  {/* Status badge with dot */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[c.status] || "bg-zinc-300"}`} />
+                    <span className={`text-[11px] uppercase tracking-wider font-medium ${statusColors[c.status] || "text-muted-foreground"}`}>
+                      {c.status}
+                    </span>
+                  </div>
                 </div>
 
                 {c.errorMessage && c.status === "failed" && (
                   <p className="text-xs text-destructive mb-3 p-3 rounded-lg bg-destructive/5">{c.errorMessage}</p>
                 )}
 
-                <div className="flex flex-col gap-3">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground min-w-0">
-                    {c.creative?.headline && (
-                      <span className="text-foreground/80 truncate max-w-full sm:max-w-[250px]">&ldquo;{c.creative.headline}&rdquo;</span>
-                    )}
-                    {c.createdAt && <span className="text-[11px] shrink-0">Created {new Date(c.createdAt).toLocaleDateString()}</span>}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1.5">
+                <div className="flex flex-col gap-2.5">
+                  {c.creative?.headline && (
+                    <p className="text-xs text-muted-foreground truncate max-w-full sm:max-w-[300px] italic">
+                      &ldquo;{c.creative.headline}&rdquo;
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-1">
                     {c.status === "draft" && (
                       <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>
                         Launch
@@ -1146,11 +1187,16 @@ export default function AdsPage() {
                     <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={() => handleAction(c.id, "delete")} disabled={actionLoading === c.id}>
                       Delete
                     </Button>
+                    {c.createdAt && (
+                      <span className="text-[10px] text-muted-foreground/60 ml-auto hidden sm:block">
+                        {new Date(c.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 {c.metrics && (
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-5 pt-5 border-t border-border/30">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mt-4 pt-4 border-t border-border/30">
                     <MetricCard label="Impressions" value={c.metrics.impressions.toLocaleString()} />
                     <MetricCard label="Clicks" value={c.metrics.clicks.toLocaleString()} />
                     <MetricCard label="CTR" value={`${(c.metrics.ctr * 100).toFixed(2)}%`} />
@@ -1516,14 +1562,17 @@ export default function AdsPage() {
               </DialogHeader>
 
               {/* Creative preview */}
-              {(detailCampaign.creative.imageUrl || detailCampaign.creative.videoUrl) && (
-                <div className="rounded-lg overflow-hidden border border-border/40">
-                  {detailCampaign.creative.videoUrl ? (
-                    <video src={detailCampaign.creative.videoUrl} controls className="w-full aspect-video object-cover" />
-                  ) : (
-                    <img src={detailCampaign.creative.imageUrl} alt="Ad creative" className="w-full aspect-video object-cover" />
-                  )}
-                </div>
+              {(detailCampaign.creative.headline || detailCampaign.creative.primaryText || detailCampaign.creative.imageUrl || detailCampaign.creative.videoUrl) && (
+                <AdPreview form={{
+                  platform: detailCampaign.platform,
+                  headline: detailCampaign.creative.headline || "",
+                  primaryText: detailCampaign.creative.primaryText || "",
+                  description: detailCampaign.creative.description || "",
+                  imageUrl: detailCampaign.creative.imageUrl || "",
+                  videoUrl: detailCampaign.creative.videoUrl || "",
+                  linkUrl: detailCampaign.creative.linkUrl || "",
+                  ctaType: detailCampaign.creative.ctaType || "",
+                }} />
               )}
 
               {/* Metrics */}
@@ -1645,6 +1694,7 @@ export default function AdsPage() {
           )}
         </DialogContent>
       </Dialog>
+      </FeatureGate>
     </AppShell>
   );
 }

@@ -10,6 +10,7 @@ const scheduleSchema = z.object({
   startDate: z.string().datetime().optional(),
   cadence: z.enum(pipelineCadences).optional(),
   postTimeHourUTC: z.number().int().min(0).max(23).optional(),
+  runId: z.string().trim().min(1).optional(),
 });
 
 const CADENCE_DAYS: Record<PipelineCadence, number[]> = {
@@ -68,31 +69,107 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const startDate = new Date(overrides.startDate || pipelineConfig.startDate);
     const postTimeHour = overrides.postTimeHourUTC ?? pipelineConfig.postTimeHourUTC ?? 10;
 
-    // Load all draft pipeline posts for this campaign
-    const postsSnap = await adminDb
+    const targetRunId = overrides.runId || campaign.activeRunId || campaign.latestRunId;
+    if (!targetRunId) {
+      // Legacy fallback for campaigns created before generation runs existed
+      const postsSnap = await adminDb
+        .collection(`workspaces/${ctx.workspaceId}/posts`)
+        .where('campaignId', '==', id)
+        .where('status', '==', 'draft')
+        .get();
+
+      if (postsSnap.empty) {
+        throw new Error('VALIDATION_NO_DRAFT_POSTS_TO_SCHEDULE');
+      }
+
+      const posts = postsSnap.docs
+        .map((doc) => ({ ref: doc.ref, data: doc.data() }))
+        .sort((a, b) => (a.data.pipelineSequence ?? 0) - (b.data.pipelineSequence ?? 0));
+
+      const dates = calculateScheduleDates(startDate, posts.length, cadence, postTimeHour);
+      const now = new Date().toISOString();
+      const batch = adminDb.batch();
+
+      for (let i = 0; i < posts.length; i++) {
+        batch.update(posts[i].ref, {
+          status: 'scheduled',
+          scheduledAt: dates[i].toISOString(),
+          updatedAt: now,
+        });
+      }
+
+      await batch.commit();
+      await campaignRef.update({
+        status: 'scheduled',
+        pipelineStatus: 'scheduled',
+        updatedAt: now,
+      });
+
+      return apiOk({
+        campaignId: id,
+        scheduledCount: posts.length,
+        cadence,
+        firstPostAt: dates[0].toISOString(),
+        lastPostAt: dates[dates.length - 1].toISOString(),
+      });
+    }
+
+    const runRef = campaignRef.collection('runs').doc(targetRunId);
+    const runSnap = await runRef.get();
+    if (!runSnap.exists) throw new Error('NOT_FOUND');
+    const run = runSnap.data()!;
+    if (!['ready', 'scheduled'].includes(run.status)) {
+      throw new Error('VALIDATION_RUN_MUST_BE_READY_TO_SCHEDULE');
+    }
+
+    const runPostsSnap = await adminDb
       .collection(`workspaces/${ctx.workspaceId}/posts`)
       .where('campaignId', '==', id)
-      .where('status', '==', 'draft')
+      .where('generationRunId', '==', targetRunId)
       .get();
 
-    if (postsSnap.empty) {
+    if (runPostsSnap.empty) {
       throw new Error('VALIDATION_NO_DRAFT_POSTS_TO_SCHEDULE');
     }
 
-    // Sort by pipelineSequence
-    const posts = postsSnap.docs
+    const runPosts = runPostsSnap.docs
       .map((doc) => ({ ref: doc.ref, data: doc.data() }))
       .sort((a, b) => (a.data.pipelineSequence ?? 0) - (b.data.pipelineSequence ?? 0));
 
-    // Calculate schedule dates
-    const dates = calculateScheduleDates(startDate, posts.length, cadence, postTimeHour);
+    if (runPosts.some((post) => ['publishing', 'published'].includes((post.data.status as string) || 'draft'))) {
+      throw new Error('VALIDATION_CANNOT_RESCHEDULE_ACTIVE_RUN');
+    }
 
-    // Batch update all posts
+    const campaignPostsSnap = await adminDb
+      .collection(`workspaces/${ctx.workspaceId}/posts`)
+      .where('campaignId', '==', id)
+      .get();
+
+    const conflictingPosts = campaignPostsSnap.docs
+      .map((doc) => ({ ref: doc.ref, data: doc.data() }))
+      .filter((post) =>
+        post.data.generationRunId !== targetRunId
+        && ['scheduled', 'publishing', 'published'].includes((post.data.status as string) || 'draft')
+      );
+
+    if (conflictingPosts.some((post) => ['publishing', 'published'].includes((post.data.status as string) || 'draft'))) {
+      throw new Error('VALIDATION_CANNOT_REPLACE_PUBLISHED_RUN');
+    }
+
+    const dates = calculateScheduleDates(startDate, runPosts.length, cadence, postTimeHour);
     const now = new Date().toISOString();
     const batch = adminDb.batch();
 
-    for (let i = 0; i < posts.length; i++) {
-      batch.update(posts[i].ref, {
+    for (const post of conflictingPosts) {
+      batch.update(post.ref, {
+        status: 'draft',
+        scheduledAt: null,
+        updatedAt: now,
+      });
+    }
+
+    for (let i = 0; i < runPosts.length; i++) {
+      batch.update(runPosts[i].ref, {
         status: 'scheduled',
         scheduledAt: dates[i].toISOString(),
         updatedAt: now,
@@ -101,16 +178,32 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     await batch.commit();
 
-    // Update campaign status
+    const previousScheduledRunId = campaign.scheduledRunId as string | undefined;
+    if (previousScheduledRunId && previousScheduledRunId !== targetRunId) {
+      await campaignRef.collection('runs').doc(previousScheduledRunId).set({
+        status: 'ready',
+        updatedAt: now,
+      }, { merge: true });
+    }
+
+    await runRef.set({
+      status: 'scheduled',
+      scheduledAt: now,
+      updatedAt: now,
+    }, { merge: true });
+
     await campaignRef.update({
       status: 'scheduled',
       pipelineStatus: 'scheduled',
+      scheduledRunId: targetRunId,
+      activeRunId: targetRunId,
       updatedAt: now,
     });
 
     return apiOk({
       campaignId: id,
-      scheduledCount: posts.length,
+      runId: targetRunId,
+      scheduledCount: runPosts.length,
       cadence,
       firstPostAt: dates[0].toISOString(),
       lastPostAt: dates[dates.length - 1].toISOString(),

@@ -33,7 +33,7 @@ function LoginContent() {
   const [busy, setBusy] = useState(false);
   const [showReset, setShowReset] = useState(false);
 
-  const redirectTo = searchParams.get("next") || "/dashboard";
+  const redirectTo = searchParams.get("next") || "/onboarding";
 
   useEffect(() => {
     if (!loading && user) router.replace(redirectTo);

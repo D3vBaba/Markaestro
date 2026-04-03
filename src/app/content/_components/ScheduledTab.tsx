@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { apiGet, apiPost, apiPut } from "@/lib/api-client";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 import PostCard from "./PostCard";
 import PostEditSheet from "./PostEditSheet";
@@ -50,6 +50,16 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
       fetchScheduled();
     } else {
       toast.error("Failed to cancel schedule");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const res = await apiDelete(`/api/posts/${id}`);
+    if (res.ok) {
+      toast.success("Post deleted");
+      fetchScheduled();
+    } else {
+      toast.error("Failed to delete post");
     }
   };
 
@@ -120,7 +130,8 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
             key={post.id}
             post={post}
             onEdit={() => setEditPost(post)}
-            onDelete={() => handleCancel(post.id)}
+            onCancel={() => handleCancel(post.id)}
+            onDelete={() => handleDelete(post.id)}
             onPublish={() => handlePublishNow(post.id)}
           />
         ))}

@@ -3,10 +3,10 @@ import type { NextRequest } from 'next/server';
 import { checkRateLimit, RATE_LIMITS, type RateLimitConfig } from '@/lib/rate-limit';
 
 /** Routes that don't require authentication. */
-const PUBLIC_PATHS = ['/login', '/terms', '/privacy', '/contact', '/features', '/channels', '/ai-studio', '/pricing', '/api/health'];
+const PUBLIC_PATHS = ['/login', '/terms', '/privacy', '/contact', '/features', '/channels', '/ai-studio', '/pricing', '/api/health', '/onboarding', '/onboarding/success'];
 
 /** Prefixes that are always public (static assets, auth callbacks). */
-const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/api/oauth/callback', '/__/auth'];
+const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding'];
 
 function isPublicPath(pathname: string): boolean {
   if (pathname === '/') return true;
@@ -55,10 +55,10 @@ export function middleware(req: NextRequest) {
   if (pathname === '/login') {
     const session = req.cookies.get('__session')?.value;
     if (session) {
-      const dashboardUrl = req.nextUrl.clone();
-      dashboardUrl.pathname = '/dashboard';
-      dashboardUrl.search = '';
-      return NextResponse.redirect(dashboardUrl);
+      const onboardingUrl = req.nextUrl.clone();
+      onboardingUrl.pathname = '/onboarding';
+      onboardingUrl.search = '';
+      return NextResponse.redirect(onboardingUrl);
     }
   }
 

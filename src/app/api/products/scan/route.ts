@@ -1,10 +1,19 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
+import {
+  assertSafeOutboundUrl,
+  readResponseBufferWithLimit,
+  readResponseTextWithLimit,
+} from '@/lib/network-security';
+import sharp from 'sharp';
 import { z } from 'zod';
 
 const schema = z.object({
   url: z.string().url(),
 });
+
+const MAX_HTML_BYTES = 1_000_000;
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
 type ScanResult = {
   name: string;
@@ -59,10 +68,6 @@ function extractMeta(html: string, baseUrl: string): {
   }
 
   // Prefer apple-touch-icon (180×180) → raster icon → favicon.ico
-  const appleTouchIcon =
-    get(/<link[^>]*rel=["']apple-touch-icon["'][^>]*href=["']([^"']+)["']/i) ||
-    get(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["']apple-touch-icon["']/i);
-
   const iconMatches = [...html.matchAll(/<link[^>]*rel=["'][^"']*icon[^"']*["'][^>]*href=["']([^"']+)["'][^>]*>/gi)];
   const hrefMatches = [...html.matchAll(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["'][^"']*icon[^"']*["'][^>]*>/gi)];
   const allIconHrefs = [
@@ -131,7 +136,7 @@ function rgbToHex(r: number, g: number, b: number): string {
 }
 
 /**
- * Extract dominant brand colors from an image URL using node-vibrant.
+ * Extract dominant brand colors from an image URL using sharp statistics.
  * Prefers og:image (large) over logo (often tiny favicon).
  */
 async function extractColorsFromImage(
@@ -139,39 +144,37 @@ async function extractColorsFromImage(
   fallbackColor: string,
 ): Promise<{ primary: string; secondary: string; accent: string } | null> {
   try {
-    const imgRes = await fetch(imageUrl, {
+    const safeUrl = await assertSafeOutboundUrl(imageUrl);
+    const imgRes = await fetch(safeUrl.toString(), {
+      redirect: 'error',
       signal: AbortSignal.timeout(10_000),
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Markaestro/1.0)' },
     });
     if (!imgRes.ok) return null;
 
     const contentType = imgRes.headers.get('content-type') || '';
-    if (contentType.includes('svg') || contentType.includes('xml')) return null;
+    if (!contentType.startsWith('image/') || contentType.includes('svg') || contentType.includes('xml')) {
+      return null;
+    }
 
-    const buffer = Buffer.from(await imgRes.arrayBuffer());
+    const buffer = await readResponseBufferWithLimit(imgRes, MAX_IMAGE_BYTES);
     // Minimum viable image size — 200 bytes rules out empty/error responses
     if (buffer.length < 200) return null;
 
-    const { Vibrant } = await import('node-vibrant/node');
-    const palette = await Vibrant.from(buffer).getPalette();
-
-    // Choose primary: most vibrant non-white/black swatch
-    const primary =
-      palette.Vibrant?.rgb ? rgbToHex(...(palette.Vibrant.rgb as [number, number, number])) :
-      palette.DarkVibrant?.rgb ? rgbToHex(...(palette.DarkVibrant.rgb as [number, number, number])) :
-      palette.LightVibrant?.rgb ? rgbToHex(...(palette.LightVibrant.rgb as [number, number, number])) :
-      fallbackColor;
-
-    const secondary =
-      palette.DarkVibrant?.rgb ? rgbToHex(...(palette.DarkVibrant.rgb as [number, number, number])) :
-      palette.LightVibrant?.rgb ? rgbToHex(...(palette.LightVibrant.rgb as [number, number, number])) :
-      '';
-
-    const accent =
-      palette.LightMuted?.rgb ? rgbToHex(...(palette.LightMuted.rgb as [number, number, number])) :
-      palette.Muted?.rgb ? rgbToHex(...(palette.Muted.rgb as [number, number, number])) :
-      palette.DarkMuted?.rgb ? rgbToHex(...(palette.DarkMuted.rgb as [number, number, number])) :
-      '';
+    const stats = await sharp(buffer).removeAlpha().stats();
+    const primary = stats.dominant
+      ? rgbToHex(stats.dominant.r, stats.dominant.g, stats.dominant.b)
+      : fallbackColor;
+    const secondary = rgbToHex(
+      stats.channels[0]?.mean ?? 0,
+      stats.channels[1]?.mean ?? 0,
+      stats.channels[2]?.mean ?? 0,
+    );
+    const accent = rgbToHex(
+      (stats.dominant?.r ?? 0) * 0.6 + 255 * 0.4,
+      (stats.dominant?.g ?? 0) * 0.6 + 255 * 0.4,
+      (stats.dominant?.b ?? 0) * 0.6 + 255 * 0.4,
+    );
 
     return { primary, secondary, accent };
   } catch {
@@ -235,11 +238,13 @@ export async function POST(req: Request) {
     await requireContext(req);
     const body = await req.json();
     const { url } = schema.parse(body);
+    const safeUrl = await assertSafeOutboundUrl(url);
 
     // Fetch the homepage
     let html = '';
     try {
-      const pageRes = await fetch(url, {
+      const pageRes = await fetch(safeUrl.toString(), {
+        redirect: 'error',
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml',
@@ -247,10 +252,15 @@ export async function POST(req: Request) {
         },
         signal: AbortSignal.timeout(12_000),
       });
-      if (pageRes.ok) html = await pageRes.text();
+      if (pageRes.ok) {
+        html = await readResponseTextWithLimit(pageRes, MAX_HTML_BYTES);
+      }
     } catch { /* Non-fatal */ }
 
-    const { title, description, themeColor, ogImage, logoUrl, cssColors } = extractMeta(html, url);
+    const { title, description, themeColor, ogImage, logoUrl, cssColors } = extractMeta(
+      html,
+      safeUrl.toString(),
+    );
     const visibleText = extractVisibleText(html);
 
     // Run color extraction and Gemini in parallel

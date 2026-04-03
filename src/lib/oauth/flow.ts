@@ -23,6 +23,7 @@ type OAuthState = {
   expiresAt: string;
   codeVerifier?: string;
   productId?: string;
+  returnTo?: string;
 };
 
 async function fetchTikTokAdsAdvertiserIds(
@@ -69,6 +70,7 @@ export async function generateAuthUrl(
   workspaceId: string,
   userId: string,
   productId?: string,
+  returnTo?: string,
 ): Promise<string> {
   const config = getProviderConfig(provider);
   const { clientId } = getClientCredentials(provider);
@@ -85,6 +87,7 @@ export async function generateAuthUrl(
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     ...(productId ? { productId } : {}),
+    ...(returnTo ? { returnTo } : {}),
   };
 
   // TikTok Marketing API uses a different auth format
@@ -135,7 +138,7 @@ export async function exchangeCode(
   provider: OAuthProvider,
   code: string,
   stateId: string,
-): Promise<{ tokens: OAuthTokens; workspaceId: string; userId: string; productId?: string; extraData?: Record<string, unknown> }> {
+): Promise<{ tokens: OAuthTokens; workspaceId: string; userId: string; productId?: string; returnTo?: string; extraData?: Record<string, unknown> }> {
   const stateRef = adminDb.doc(`oauth_states/${stateId}`);
   const stateSnap = await stateRef.get();
 
@@ -198,6 +201,7 @@ export async function exchangeCode(
       workspaceId: state.workspaceId,
       userId: state.userId,
       productId: state.productId,
+      returnTo: state.returnTo,
       extraData: {
         advertiserId: advertiserIds[0] || '',
         advertiserIds,
@@ -249,7 +253,7 @@ export async function exchangeCode(
     openId: data.open_id,
   };
 
-  return { tokens, workspaceId: state.workspaceId, userId: state.userId, productId: state.productId };
+  return { tokens, workspaceId: state.workspaceId, userId: state.userId, productId: state.productId, returnTo: state.returnTo };
 }
 
 /**

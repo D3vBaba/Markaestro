@@ -5,9 +5,10 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { researchForPipeline, buildImageResearchContext } from '@/lib/ai/pipeline-researcher';
 import { generatePipelinePosts } from '@/lib/ai/pipeline-generator';
 import { generateAndUploadImage, type ImageGenRequest } from '@/lib/ai/image-generator';
+import { buildGenerationConfigSnapshot, hashObject } from '@/lib/campaign-runs';
 import { z } from 'zod';
 import { imageStyles, imageProviders, imageSubtypes } from '@/lib/schemas';
-import type { PipelineConfig, ResearchBrief, SocialChannel, ImageStyle, ImageSubtype, ImageProvider } from '@/lib/schemas';
+import type { PipelineConfig, ResearchBrief, SocialChannel, ImageSubtype } from '@/lib/schemas';
 
 const requestSchema = z.object({
   productId: z.string().trim().min(1, 'Product ID is required'),
@@ -19,6 +20,22 @@ const requestSchema = z.object({
 });
 
 const IMAGE_CONCURRENCY = 3;
+
+function buildFallbackResearchBrief(): ResearchBrief {
+  return {
+    competitors: [],
+    trends: [],
+    productInsights: {
+      keyMessages: [],
+      uniqueValueProp: '',
+      audiencePainPoints: [],
+      toneRecommendations: '',
+    },
+    newsHookHeadlines: [],
+    sources: [],
+    generatedAt: new Date().toISOString(),
+  };
+}
 
 async function generateImagesWithConcurrency(
   tasks: Array<{ imagePrompt: string; sequence: number; subtype?: ImageSubtype }>,
@@ -50,13 +67,18 @@ async function generateImagesWithConcurrency(
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  let workspaceIdForFailure: string | null = null;
+  let campaignIdForFailure: string | null = null;
+  let latestRunIdForFailure: string | null = null;
+
   try {
     const ctx = await requireContext(req);
     const { id } = await params;
+    workspaceIdForFailure = ctx.workspaceId;
+    campaignIdForFailure = id;
     const body = await req.json();
     const { productId, imageStyle, imageProvider, imageSubtypes: selectedSubtypes, skipImages } = requestSchema.parse(body);
 
-    // Load campaign
     const campaignRef = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'campaigns')}/${id}`);
     const campaignSnap = await campaignRef.get();
     if (!campaignSnap.exists) throw new Error('NOT_FOUND');
@@ -65,38 +87,86 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (campaign.type !== 'pipeline') {
       throw new Error('VALIDATION_CAMPAIGN_IS_NOT_PIPELINE_TYPE');
     }
+    if (['researching', 'generating', 'generating_images'].includes(campaign.pipelineStatus || '')) {
+      throw new Error('VALIDATION_PIPELINE_GENERATION_ALREADY_RUNNING');
+    }
 
     const pipelineConfig = campaign.pipeline as PipelineConfig;
     if (!pipelineConfig) {
       throw new Error('VALIDATION_PIPELINE_CONFIG_MISSING');
     }
 
-    // Load product
     const productRef = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'products')}/${productId}`);
     const productSnap = await productRef.get();
     if (!productSnap.exists) throw new Error('NOT_FOUND');
-
     const product = productSnap.data()!;
 
-    // Step 1: Research
-    await campaignRef.update({ pipelineStatus: 'researching', updatedAt: new Date().toISOString() });
+    const previousActiveRunId = campaign.activeRunId as string | undefined;
+    const previousScheduledRunId = campaign.scheduledRunId as string | undefined;
+    const configVersion = Number(campaign.configVersion || 1);
+    const runRef = campaignRef.collection('runs').doc();
+    latestRunIdForFailure = runRef.id;
+    const runNow = new Date().toISOString();
+    const configSnapshot = buildGenerationConfigSnapshot({
+      productId,
+      pipeline: pipelineConfig,
+      imageStyle,
+      imageProvider,
+      imageSubtypes: selectedSubtypes,
+      skipImages,
+    });
 
-    const researchBrief: ResearchBrief = await researchForPipeline({
-      productId: body.productId,
-      productName: product.name,
-      productDescription: product.description || '',
-      productUrl: product.url || undefined,
-      productCategories: product.categories || [],
-      brandVoice: product.brandVoice || undefined,
+    await runRef.set({
+      campaignId: id,
+      operationType: 'full_regenerate',
+      status: 'researching',
+      configVersion,
+      configSnapshot,
+      configHash: hashObject(configSnapshot),
+      parentRunId: previousActiveRunId || null,
+      createdBy: ctx.uid,
+      createdAt: runNow,
+      updatedAt: runNow,
     });
 
     await campaignRef.update({
-      pipelineStatus: 'research_complete',
-      researchBrief,
-      updatedAt: new Date().toISOString(),
+      pipelineStatus: 'researching',
+      latestRunId: runRef.id,
+      updatedAt: runNow,
     });
 
-    // Step 2: Generate posts
+    let researchBrief: ResearchBrief;
+    try {
+      researchBrief = await researchForPipeline({
+        productId,
+        productName: product.name,
+        productDescription: product.description || '',
+        productUrl: product.url || undefined,
+        productCategories: product.categories || [],
+        brandVoice: product.brandVoice || undefined,
+      });
+    } catch (error) {
+      console.error(
+        `[pipeline] Research failed for campaign ${id}, continuing without market research:`,
+        error instanceof Error ? error.message : error,
+      );
+      researchBrief = buildFallbackResearchBrief();
+    }
+
+    const afterResearchAt = new Date().toISOString();
+    await campaignRef.update({
+      pipelineStatus: 'research_complete',
+      researchBrief,
+      latestRunId: runRef.id,
+      updatedAt: afterResearchAt,
+    });
+    await runRef.update({
+      status: 'generating_copy',
+      researchSnapshot: researchBrief,
+      researchHash: hashObject(researchBrief),
+      updatedAt: afterResearchAt,
+    });
+
     await campaignRef.update({ pipelineStatus: 'generating', updatedAt: new Date().toISOString() });
 
     const posts = await generatePipelinePosts({
@@ -108,12 +178,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       pipelineConfig,
     });
 
-    // Step 3: Generate images for each post
     let imageMap = new Map<number, string>();
     if (!skipImages) {
-      await campaignRef.update({ pipelineStatus: 'generating_images', updatedAt: new Date().toISOString() });
+      const imageStageAt = new Date().toISOString();
+      await campaignRef.update({ pipelineStatus: 'generating_images', updatedAt: imageStageAt });
+      await runRef.update({ status: 'generating_images', updatedAt: imageStageAt });
 
-      // Pick the best aspect ratio for the primary channel
       const aspectRatioForChannel: Record<SocialChannel, ImageGenRequest['aspectRatio']> = {
         facebook: '1:1',
         instagram: '4:5',
@@ -135,7 +205,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         researchContext: buildImageResearchContext(researchBrief),
       };
 
-      // Cycle through selected subtypes for visual variety
       const imageTasks = posts.map((p, i) => ({
         imagePrompt: p.imagePrompt,
         sequence: p.pipelineSequence,
@@ -147,14 +216,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       imageMap = await generateImagesWithConcurrency(imageTasks, imageReq, ctx.workspaceId);
     }
 
-    // Step 4: Batch-write posts to Firestore
     const postsCol = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`);
-    const now = new Date().toISOString();
+    const writeNow = new Date().toISOString();
     const primaryChannel = pipelineConfig.channels[0];
     const postIds: string[] = [];
     let imagesGenerated = 0;
 
-    // Firestore batch max is 500 — pipeline posts are 15-30, so single batch is fine
     const batch = adminDb.batch();
     for (const post of posts) {
       const ref = postsCol.doc();
@@ -173,47 +240,76 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         productId,
         generatedBy: 'pipeline',
         campaignId: id,
+        generationRunId: runRef.id,
+        generationConfigVersion: configVersion,
         pipelineStage: post.pipelineStage,
         pipelineSequence: post.pipelineSequence,
         pipelineTheme: post.pipelineTheme,
         targetChannels: pipelineConfig.channels,
         workspaceId: ctx.workspaceId,
         createdBy: ctx.uid,
-        createdAt: now,
-        updatedAt: now,
+        createdAt: writeNow,
+        updatedAt: writeNow,
       });
     }
     await batch.commit();
 
-    // Update campaign status
-    await campaignRef.update({
-      pipelineStatus: 'generated',
-      productId,
-      updatedAt: new Date().toISOString(),
-    });
-
-    // Build stage breakdown
     const stageBreakdown: Record<string, number> = {};
     for (const post of posts) {
       stageBreakdown[post.pipelineStage] = (stageBreakdown[post.pipelineStage] || 0) + 1;
     }
 
+    const readyAt = new Date().toISOString();
+    await runRef.update({
+      status: 'ready',
+      itemCounts: {
+        total: posts.length,
+        byStage: stageBreakdown,
+        imagesGenerated,
+      },
+      updatedAt: readyAt,
+    });
+
+    await campaignRef.update({
+      pipelineStatus: 'generated',
+      productId,
+      activeRunId: runRef.id,
+      latestRunId: runRef.id,
+      configDirty: false,
+      configDirtyReason: null,
+      updatedAt: readyAt,
+    });
+
+    if (previousActiveRunId && previousActiveRunId !== runRef.id && previousActiveRunId !== previousScheduledRunId) {
+      await campaignRef.collection('runs').doc(previousActiveRunId).set({
+        status: 'superseded',
+        updatedAt: readyAt,
+      }, { merge: true });
+    }
+
     return apiOk({
       campaignId: id,
+      runId: runRef.id,
       postCount: posts.length,
       postIds,
       stages: stageBreakdown,
       imagesGenerated,
     });
   } catch (error) {
-    // On failure, update campaign status
-    try {
-      const ctx = await requireContext(req);
-      const { id } = await params;
-      const campaignRef = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'campaigns')}/${id}`);
-      await campaignRef.update({ pipelineStatus: 'failed', updatedAt: new Date().toISOString() });
-    } catch {
-      // Ignore cleanup errors
+    if (workspaceIdForFailure && campaignIdForFailure) {
+      try {
+        const campaignRef = adminDb.doc(`${workspaceCollection(workspaceIdForFailure, 'campaigns')}/${campaignIdForFailure}`);
+        await campaignRef.update({ pipelineStatus: 'failed', updatedAt: new Date().toISOString() });
+        if (latestRunIdForFailure) {
+          await campaignRef.collection('runs').doc(latestRunIdForFailure).set({
+            status: 'failed',
+            errorMessage: error instanceof Error ? error.message : String(error),
+            updatedAt: new Date().toISOString(),
+          }, { merge: true });
+        }
+      } catch {
+        // Ignore cleanup errors
+      }
     }
     return apiError(error);
   }

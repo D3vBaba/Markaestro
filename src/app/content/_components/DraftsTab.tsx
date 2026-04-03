@@ -34,8 +34,13 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
 
   const fetchDrafts = useCallback(async () => {
     try {
-      const res = await apiGet<{ posts: Post[] }>("/api/posts?status=draft");
-      if (res.ok) setPosts(res.data.posts || []);
+      const [draftsRes, failedRes] = await Promise.all([
+        apiGet<{ posts: Post[] }>("/api/posts?status=draft"),
+        apiGet<{ posts: Post[] }>("/api/posts?status=failed"),
+      ]);
+      const drafts = draftsRes.ok ? (draftsRes.data.posts || []) : [];
+      const failed = failedRes.ok ? (failedRes.data.posts || []) : [];
+      setPosts([...failed, ...drafts]);
     } catch {
       toast.error("Failed to load drafts");
     } finally {

@@ -24,71 +24,135 @@ const channelLabels: Record<string, string> = {
   tiktok: "TikTok",
 };
 
+// Left-border accent per platform (Tailwind arbitrary value classes)
+const channelAccents: Record<string, string> = {
+  facebook: "border-l-[#1877F2]",
+  instagram: "border-l-[#E1306C]",
+  tiktok: "border-l-[#EE1D52]",
+  x: "border-l-zinc-900",
+};
+
+const statusDotColors: Record<string, string> = {
+  draft: "bg-zinc-300",
+  scheduled: "bg-amber-400",
+  published: "bg-emerald-500",
+  failed: "bg-red-500",
+  publishing: "bg-blue-400",
+};
+
+const statusTextColors: Record<string, string> = {
+  failed: "text-destructive",
+  published: "text-emerald-600",
+  scheduled: "text-amber-600",
+};
+
 export default function PostCard({
   post,
   onEdit,
   onDelete,
+  onCancel,
   onPublish,
 }: {
   post: Post;
   onEdit?: () => void;
   onDelete?: () => void;
+  onCancel?: () => void;
   onPublish?: () => void;
 }) {
   const [showPreview, setShowPreview] = useState(false);
+  const accent = channelAccents[post.channel] || "border-l-border";
 
   return (
-    <div className="group border border-border/40 rounded-lg p-4 sm:p-5 space-y-4 bg-card hover:border-border transition-colors overflow-hidden">
-      <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
-        <span>{channelLabels[post.channel] || post.channel}</span>
-        <span className="w-px h-3 bg-border" />
-        <span className={post.status === "failed" ? "text-destructive" : ""}>{post.status}</span>
-        {post.scheduledAt && post.status === "scheduled" && (
-          <>
-            <span className="w-px h-3 bg-border" />
-            <span>{new Date(post.scheduledAt).toLocaleString()}</span>
-          </>
-        )}
+    <div
+      className={`group border border-border/50 border-l-4 ${accent} rounded-xl p-4 sm:p-5 space-y-3.5 bg-card hover:border-border/80 hover:shadow-sm transition-all overflow-hidden`}
+    >
+      {/* Header row */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/70">
+            {channelLabels[post.channel] || post.channel}
+          </span>
+          {post.scheduledAt && post.status === "scheduled" && (
+            <>
+              <span className="w-px h-3 bg-border/60" />
+              <span className="text-[11px] text-muted-foreground truncate">
+                {new Date(post.scheduledAt).toLocaleString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </span>
+            </>
+          )}
+        </div>
+        {/* Status badge with dot */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span
+            className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[post.status] || "bg-zinc-300"}`}
+          />
+          <span
+            className={`text-[10px] uppercase tracking-wider font-medium ${statusTextColors[post.status] || "text-muted-foreground"}`}
+          >
+            {post.status}
+          </span>
+        </div>
       </div>
 
-      {/* Video/image thumbnail */}
+      {/* Media thumbnail */}
       {post.mediaUrls?.[0] && (
         <div className="rounded-lg overflow-hidden border border-border/30">
           {post.mediaUrls[0].match(/\.(mp4|mov|webm)(\?|$)/i) ? (
             <video
               src={post.mediaUrls[0]}
-              className="w-full max-h-40 object-cover"
+              className="w-full object-contain bg-black max-h-36"
               controls
               playsInline
               preload="metadata"
             />
           ) : (
             <a href={post.mediaUrls[0]} target="_blank" rel="noopener noreferrer" className="block cursor-zoom-in">
-              <img src={post.mediaUrls[0]} alt="" className="w-full max-h-40 object-cover hover:opacity-90 transition-opacity" loading="lazy" />
+              <img
+                src={post.mediaUrls[0]}
+                alt=""
+                className="w-full max-h-36 object-cover hover:opacity-90 transition-opacity"
+                loading="lazy"
+              />
             </a>
           )}
         </div>
       )}
 
+      {/* Content / preview */}
       {showPreview ? (
-        <PlatformPreview content={post.content} channel={post.channel} mediaUrls={post.mediaUrls} externalUrl={post.externalUrl} />
+        <PlatformPreview
+          content={post.content}
+          channel={post.channel}
+          mediaUrls={post.mediaUrls}
+          externalUrl={post.externalUrl}
+        />
       ) : (
-        <p className="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word line-clamp-4">{post.content}</p>
+        <p className="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word line-clamp-4 text-foreground/80">
+          {post.content}
+        </p>
       )}
 
       {post.errorMessage && (
-        <p className="text-xs text-destructive">{post.errorMessage}</p>
+        <p className="text-xs text-destructive bg-destructive/5 rounded-lg px-3 py-2">
+          {post.errorMessage}
+        </p>
       )}
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-border/30">
-        <span className="text-[11px] text-muted-foreground">
+      {/* Footer */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-border/30">
+        <span className="text-[10px] text-muted-foreground/60">
           {post.publishedAt
             ? new Date(post.publishedAt).toLocaleDateString()
             : post.createdAt
             ? new Date(post.createdAt).toLocaleDateString()
             : ""}
         </span>
-        <div className="flex flex-wrap items-center gap-1">
+        <div className="flex flex-wrap items-center gap-0.5">
           <Button
             variant="ghost"
             size="sm"
@@ -105,17 +169,42 @@ export default function PostCard({
             </a>
           )}
           {onEdit && (
-            <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground hover:text-foreground" onClick={onEdit}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-[11px] text-muted-foreground hover:text-foreground"
+              onClick={onEdit}
+            >
               Edit
             </Button>
           )}
           {onPublish && (
-            <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground hover:text-foreground" onClick={onPublish}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-[11px] text-muted-foreground hover:text-foreground"
+              onClick={onPublish}
+            >
               Publish
             </Button>
           )}
+          {onCancel && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-[11px] text-muted-foreground hover:text-foreground"
+              onClick={onCancel}
+            >
+              Unschedule
+            </Button>
+          )}
           {onDelete && (
-            <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={onDelete}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-[11px] text-muted-foreground hover:text-destructive"
+              onClick={onDelete}
+            >
               Delete
             </Button>
           )}

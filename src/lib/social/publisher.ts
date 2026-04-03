@@ -145,13 +145,24 @@ export async function processScheduledPosts(workspaceId: string): Promise<{ proc
 
   const snap = await postsRef
     .where('status', '==', 'scheduled')
-    .where('scheduledAt', '<=', nowIso)
-    .limit(50)
+    .limit(200)
     .get();
+
+  const dueDocs = snap.docs
+    .filter((doc) => {
+      const scheduledAt = doc.data().scheduledAt as string | undefined;
+      return Boolean(scheduledAt && scheduledAt <= nowIso);
+    })
+    .sort((a, b) => {
+      const aScheduledAt = (a.data().scheduledAt as string | undefined) || '';
+      const bScheduledAt = (b.data().scheduledAt as string | undefined) || '';
+      return aScheduledAt.localeCompare(bScheduledAt);
+    })
+    .slice(0, 50);
 
   const results: Array<{ postId: string; success: boolean; error?: string }> = [];
 
-  for (const doc of snap.docs) {
+  for (const doc of dueDocs) {
     const post = doc.data();
     const postId = doc.id;
     const productId = post.productId as string | undefined;
