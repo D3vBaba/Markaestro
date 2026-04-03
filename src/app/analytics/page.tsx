@@ -3,18 +3,19 @@
 import { useEffect, useState, useCallback } from "react";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
-import ProductPicker from "@/app/content/_components/ProductPicker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { FeatureGate } from "@/components/app/FeatureGate";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { motion } from "framer-motion";
 
 // ── Types ────────────────────────────────────────────────────────
+
+type Product = { id: string; name: string };
 
 type FacebookPost = {
   id: string; message?: string; imageUrl?: string; createdTime: string;
@@ -61,23 +62,40 @@ type Tip = {
   platform: string;
 };
 
-// ── Helpers ──────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────
 
+const STORAGE_KEY = "markaestro_default_product";
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 const priorityColors: Record<string, string> = {
-  high: "bg-rose-50 text-rose-700",
-  medium: "bg-amber-50 text-amber-700",
-  low: "bg-blue-50 text-blue-700",
+  high: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400",
+  medium: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+  low: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400",
 };
 
-const platformColors: Record<string, string> = {
+const platformBadgeColors: Record<string, string> = {
   facebook: "bg-blue-50 text-blue-700",
   instagram: "bg-pink-50 text-pink-700",
   tiktok: "bg-zinc-100 text-zinc-800",
   "cross-platform": "bg-violet-50 text-violet-700",
   ads: "bg-emerald-50 text-emerald-700",
 };
+
+// Left-border accent per platform
+const platformAccents: Record<string, string> = {
+  Facebook: "border-l-[#1877F2]",
+  Instagram: "border-l-[#E1306C]",
+  TikTok: "border-l-[#EE1D52]",
+};
+
+// Bar fill colors for the chart
+const platformBarColors: Record<string, string> = {
+  Facebook: "#1877F2",
+  Instagram: "#E1306C",
+  TikTok: "#EE1D52",
+};
+
+// ── Helpers ──────────────────────────────────────────────────────
 
 function engagementRate(engagements: number, reach: number): string {
   if (reach === 0) return "0%";
@@ -93,14 +111,115 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(days / 7)}w ago`;
 }
 
-// ── Component ────────────────────────────────────────────────────
+function avgStat(values: number[]): string {
+  if (values.length === 0) return "—";
+  const avg = values.reduce((a, b) => a + b, 0) / values.length;
+  return avg >= 1000 ? `${(avg / 1000).toFixed(1)}k` : Math.round(avg).toLocaleString();
+}
+
+// ── Platform icon SVGs ────────────────────────────────────────────
+
+function PlatformIcon({ platform, size = 16 }: { platform: string; size?: number }) {
+  if (platform === "Facebook") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="#1877F2">
+        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+      </svg>
+    );
+  }
+  if (platform === "Instagram") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="#E1306C">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+      </svg>
+    );
+  }
+  if (platform === "TikTok") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="#EE1D52">
+        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z" />
+      </svg>
+    );
+  }
+  return null;
+}
+
+// ── Persistent product context bar ───────────────────────────────
+
+function ProductContextBar({
+  products,
+  productId,
+  onChange,
+}: {
+  products: Product[];
+  productId: string;
+  onChange: (id: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const selected = products.find((p) => p.id === productId);
+
+  if (products.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl border border-border/50 bg-card mb-8">
+      <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+      <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground shrink-0">
+        Product
+      </span>
+
+      {editing ? (
+        <select
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
+          value={productId}
+          onChange={(e) => { onChange(e.target.value); setEditing(false); }}
+          onBlur={() => setEditing(false)}
+          className="flex-1 min-w-0 text-sm font-medium bg-transparent border-none outline-none focus:ring-0 cursor-pointer"
+        >
+          {products.map((p) => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
+      ) : (
+        <>
+          <span className="flex-1 text-sm font-medium truncate min-w-0">
+            {selected?.name ?? "No product selected"}
+          </span>
+          <button
+            onClick={() => setEditing(true)}
+            className="text-[11px] text-muted-foreground hover:text-foreground transition-colors shrink-0 px-2.5 py-1 rounded-lg hover:bg-muted"
+          >
+            Change
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Main page ────────────────────────────────────────────────────
 
 export default function AnalyticsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [productId, setProductId] = useState("");
   const [insights, setInsights] = useState<UnifiedInsights | null>(null);
   const [tips, setTips] = useState<Tip[] | null>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [tipsLoading, setTipsLoading] = useState(false);
+
+  // Load products + restore default from localStorage
+  const fetchProducts = useCallback(async () => {
+    const res = await apiGet<{ products: Product[] }>("/api/products");
+    if (!res.ok) return;
+    const list: Product[] = res.data.products || [];
+    setProducts(list);
+    if (list.length === 0) return;
+    const saved = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+    const validSaved = saved && list.some((p) => p.id === saved);
+    setProductId(validSaved ? saved! : list[0].id);
+  }, []);
+
+  useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
   const fetchInsights = useCallback(async (pid: string) => {
     if (!pid) return;
@@ -118,6 +237,11 @@ export default function AnalyticsPage() {
     if (productId) fetchInsights(productId);
   }, [productId, fetchInsights]);
 
+  const handleProductChange = (id: string) => {
+    setProductId(id);
+    if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, id);
+  };
+
   const fetchTips = async () => {
     if (!productId || !insights) return;
     setTipsLoading(true);
@@ -128,199 +252,217 @@ export default function AnalyticsPage() {
     finally { setTipsLoading(false); }
   };
 
-  const anyConnected = insights && (insights.facebook.connected || insights.instagram.connected || insights.tiktok.connected);
+  const anyConnected = insights && (
+    insights.facebook.connected || insights.instagram.connected || insights.tiktok.connected
+  );
 
   return (
     <AppShell>
       <FeatureGate feature="advancedAnalytics">
-      <PageHeader
-        title="Social Manager"
-        subtitle="AI-powered insights and recommendations for your social media presence."
-        action={
-          insights && (
-            <Button variant="outline" className="rounded-xl" onClick={() => fetchInsights(productId)} disabled={insightsLoading}>
-              {insightsLoading ? "Refreshing..." : "Refresh"}
-            </Button>
-          )
-        }
-      />
+        <PageHeader
+          title="Analytics"
+          subtitle="AI-powered insights and recommendations for your social media presence."
+          action={
+            insights && (
+              <Button variant="outline" className="rounded-xl" onClick={() => fetchInsights(productId)} disabled={insightsLoading}>
+                {insightsLoading ? "Refreshing…" : "Refresh"}
+              </Button>
+            )
+          }
+        />
 
-      {/* Product Picker */}
-      <div className="mb-8">
-        <ProductPicker value={productId} onChange={setProductId} />
-      </div>
+        {/* Persistent product selector */}
+        <ProductContextBar
+          products={products}
+          productId={productId}
+          onChange={handleProductChange}
+        />
 
-      {!productId && (
-        <Card className="border-border/30">
-          <CardContent className="py-16 text-center">
-            <p className="text-base font-medium">Select a product to view social media insights</p>
-            <p className="text-sm text-muted-foreground mt-1">Choose a product above to pull data from your connected platforms.</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {insightsLoading && (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 rounded-2xl bg-muted/30 animate-pulse" />
-          ))}
-        </div>
-      )}
-
-      {insights && !insightsLoading && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease }}
-          className="space-y-6"
-        >
-          {/* Platform Health Cards */}
-          <div className="grid gap-5 md:grid-cols-3">
-            <PlatformHealthCard
-              platform="Facebook"
-              connected={insights.facebook.connected}
-              error={insights.facebook.error}
-              stats={insights.facebook.connected && !insights.facebook.error ? [
-                { label: "Followers", value: insights.facebook.followers?.toLocaleString() || "—" },
-                { label: "Reach (7d)", value: insights.facebook.reach7d?.toLocaleString() || "—" },
-                { label: "Engagements (7d)", value: insights.facebook.engagements7d?.toLocaleString() || "—" },
-                { label: "Engagement Rate", value: engagementRate(insights.facebook.engagements7d || 0, insights.facebook.reach7d || 0) },
-              ] : undefined}
-            />
-            <PlatformHealthCard
-              platform="Instagram"
-              connected={insights.instagram.connected}
-              error={insights.instagram.error}
-              stats={insights.instagram.connected && !insights.instagram.error ? [
-                { label: "Followers", value: insights.instagram.followersCount?.toLocaleString() || "—" },
-                { label: "Total Posts", value: insights.instagram.mediaCount?.toLocaleString() || "—" },
-                { label: "Avg. Likes", value: avgStat(insights.instagram.recentMedia?.map((m) => m.likes) || []) },
-                { label: "Avg. Comments", value: avgStat(insights.instagram.recentMedia?.map((m) => m.comments) || []) },
-              ] : undefined}
-            />
-            <PlatformHealthCard
-              platform="TikTok"
-              connected={insights.tiktok.connected}
-              error={insights.tiktok.error}
-              stats={insights.tiktok.connected && !insights.tiktok.error ? [
-                { label: "Followers", value: insights.tiktok.followers?.toLocaleString() || "—" },
-                { label: "Total Likes", value: insights.tiktok.totalLikes?.toLocaleString() || "—" },
-                { label: "Videos", value: insights.tiktok.videoCount?.toLocaleString() || "—" },
-                { label: "Avg. Views", value: avgStat(insights.tiktok.recentVideos?.map((v) => v.views) || []) },
-              ] : undefined}
-            />
+        {/* Loading skeletons */}
+        {insightsLoading && (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-32 rounded-2xl bg-muted/30 animate-pulse" />
+            ))}
           </div>
+        )}
 
-          {/* Cross-Platform Comparison Chart */}
-          {anyConnected && <FollowerComparisonChart insights={insights} />}
+        {/* Empty state — no product */}
+        {!productId && !insightsLoading && (
+          <Card className="border-border/30">
+            <CardContent className="py-16 text-center">
+              <p className="text-base font-medium">Select a product to view analytics</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Choose a product above to pull data from your connected platforms.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-          {/* AI Tips */}
-          {anyConnected && (
-            <Card className="border-border/30">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>
-                      AI Social Media Manager
-                    </CardTitle>
-                    <CardDescription>Personalized recommendations based on your live platform data.</CardDescription>
+        {insights && !insightsLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease }}
+            className="space-y-6"
+          >
+            {/* Platform health cards */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <PlatformHealthCard
+                platform="Facebook"
+                connected={insights.facebook.connected}
+                error={insights.facebook.error}
+                stats={insights.facebook.connected && !insights.facebook.error ? [
+                  { label: "Followers", value: insights.facebook.followers?.toLocaleString() || "—" },
+                  { label: "Reach (7d)", value: insights.facebook.reach7d?.toLocaleString() || "—" },
+                  { label: "Engagements", value: insights.facebook.engagements7d?.toLocaleString() || "—" },
+                  { label: "Eng. Rate", value: engagementRate(insights.facebook.engagements7d || 0, insights.facebook.reach7d || 0) },
+                ] : undefined}
+              />
+              <PlatformHealthCard
+                platform="Instagram"
+                connected={insights.instagram.connected}
+                error={insights.instagram.error}
+                stats={insights.instagram.connected && !insights.instagram.error ? [
+                  { label: "Followers", value: insights.instagram.followersCount?.toLocaleString() || "—" },
+                  { label: "Total Posts", value: insights.instagram.mediaCount?.toLocaleString() || "—" },
+                  { label: "Avg. Likes", value: avgStat(insights.instagram.recentMedia?.map((m) => m.likes) || []) },
+                  { label: "Avg. Comments", value: avgStat(insights.instagram.recentMedia?.map((m) => m.comments) || []) },
+                ] : undefined}
+              />
+              <PlatformHealthCard
+                platform="TikTok"
+                connected={insights.tiktok.connected}
+                error={insights.tiktok.error}
+                stats={insights.tiktok.connected && !insights.tiktok.error ? [
+                  { label: "Followers", value: insights.tiktok.followers?.toLocaleString() || "—" },
+                  { label: "Total Likes", value: insights.tiktok.totalLikes?.toLocaleString() || "—" },
+                  { label: "Videos", value: insights.tiktok.videoCount?.toLocaleString() || "—" },
+                  { label: "Avg. Views", value: avgStat(insights.tiktok.recentVideos?.map((v) => v.views) || []) },
+                ] : undefined}
+              />
+            </div>
+
+            {/* Follower comparison chart */}
+            {anyConnected && <FollowerComparisonChart insights={insights} />}
+
+            {/* AI tips */}
+            {anyConnected && (
+              <Card className="border-border/30">
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-base">AI Recommendations</CardTitle>
+                      <CardDescription>Personalized tips based on your live platform data.</CardDescription>
+                    </div>
+                    <Button onClick={fetchTips} disabled={tipsLoading} className="rounded-xl shrink-0">
+                      {tipsLoading ? "Analyzing…" : tips ? "Refresh" : "Get AI Tips"}
+                    </Button>
                   </div>
-                  <Button onClick={fetchTips} disabled={tipsLoading} className="rounded-xl">
-                    {tipsLoading ? "Analyzing..." : tips ? "Refresh Tips" : "Get AI Tips"}
-                  </Button>
-                </div>
-              </CardHeader>
-              {tips && (
-                <CardContent>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {tips.map((tip, i) => (
-                      <div key={i} className="rounded-xl border border-border/40 p-4 space-y-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm font-semibold">{tip.title}</p>
-                          <Badge variant="outline" className={`border-0 text-[10px] ${priorityColors[tip.priority] || ""}`}>
-                            {tip.priority}
-                          </Badge>
-                          <Badge variant="outline" className={`border-0 text-[10px] ${platformColors[tip.platform] || "bg-muted"}`}>
-                            {tip.platform}
-                          </Badge>
+                </CardHeader>
+                {tips && (
+                  <CardContent>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {tips.map((tip, i) => (
+                        <div key={i} className="rounded-xl border border-border/40 p-4 space-y-2">
+                          <div className="flex items-start gap-2 flex-wrap">
+                            <p className="text-sm font-semibold flex-1 min-w-0">{tip.title}</p>
+                            <Badge variant="outline" className={`border-0 text-[10px] shrink-0 ${priorityColors[tip.priority] || ""}`}>
+                              {tip.priority}
+                            </Badge>
+                            <Badge variant="outline" className={`border-0 text-[10px] shrink-0 ${platformBadgeColors[tip.platform] || "bg-muted"}`}>
+                              {tip.platform}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{tip.tip}</p>
                         </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{tip.tip}</p>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            )}
+
+            {/* Top performing content */}
+            {insights.facebook.connected && (insights.facebook.recentPosts?.length ?? 0) > 0 && (
+              <TopPostsCard
+                platform="Facebook"
+                title="Top Facebook Posts"
+                posts={
+                  [...(insights.facebook.recentPosts ?? [])]
+                    .sort((a, b) => (b.likes + b.comments + b.shares) - (a.likes + a.comments + a.shares))
+                    .slice(0, 5)
+                    .map((p) => ({
+                      id: p.id,
+                      text: p.message || "(no text)",
+                      imageUrl: p.imageUrl,
+                      date: p.createdTime,
+                      likes: p.likes,
+                      comments: p.comments,
+                      shares: p.shares,
+                    }))
+                }
+              />
+            )}
+
+            {insights.instagram.connected && (insights.instagram.recentMedia?.length ?? 0) > 0 && (
+              <TopPostsCard
+                platform="Instagram"
+                title="Top Instagram Posts"
+                posts={
+                  [...(insights.instagram.recentMedia ?? [])]
+                    .sort((a, b) => (b.likes + b.comments) - (a.likes + a.comments))
+                    .slice(0, 5)
+                    .map((m) => ({
+                      id: m.id,
+                      text: m.caption || "(no caption)",
+                      imageUrl: m.mediaUrl || m.thumbnailUrl,
+                      date: m.timestamp,
+                      likes: m.likes,
+                      comments: m.comments,
+                      permalink: m.permalink,
+                    }))
+                }
+              />
+            )}
+
+            {insights.tiktok.connected && (insights.tiktok.recentVideos?.length ?? 0) > 0 && (
+              <TopPostsCard
+                platform="TikTok"
+                title="Top TikTok Videos"
+                posts={
+                  [...(insights.tiktok.recentVideos ?? [])]
+                    .sort((a, b) => b.views - a.views)
+                    .slice(0, 5)
+                    .map((v) => ({
+                      id: v.id,
+                      text: v.title || "(untitled)",
+                      imageUrl: v.coverUrl,
+                      date: new Date(v.createTime * 1000).toISOString(),
+                      views: v.views,
+                      likes: v.likes,
+                      comments: v.comments,
+                      shares: v.shares,
+                      permalink: v.shareUrl,
+                    }))
+                }
+              />
+            )}
+
+            {!anyConnected && (
+              <Card className="border-border/30">
+                <CardContent className="py-16 text-center">
+                  <p className="text-base font-medium">No platforms connected</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Connect Meta or TikTok in{" "}
+                    <a href="/products" className="text-primary hover:underline">Products → Edit</a>{" "}
+                    to see insights and get AI recommendations.
+                  </p>
                 </CardContent>
-              )}
-            </Card>
-          )}
-
-          {/* Top Performing Content */}
-          {insights.facebook.connected && insights.facebook.recentPosts && insights.facebook.recentPosts.length > 0 && (
-            <TopPostsCard title="Top Facebook Posts" posts={
-              [...insights.facebook.recentPosts]
-                .sort((a, b) => (b.likes + b.comments + b.shares) - (a.likes + a.comments + a.shares))
-                .slice(0, 5)
-                .map((p) => ({
-                  id: p.id,
-                  text: p.message || "(no text)",
-                  imageUrl: p.imageUrl,
-                  date: p.createdTime,
-                  likes: p.likes,
-                  comments: p.comments,
-                  shares: p.shares,
-                }))
-            } />
-          )}
-
-          {insights.instagram.connected && insights.instagram.recentMedia && insights.instagram.recentMedia.length > 0 && (
-            <TopPostsCard title="Top Instagram Posts" posts={
-              [...insights.instagram.recentMedia]
-                .sort((a, b) => (b.likes + b.comments) - (a.likes + a.comments))
-                .slice(0, 5)
-                .map((m) => ({
-                  id: m.id,
-                  text: m.caption || "(no caption)",
-                  imageUrl: m.mediaUrl || m.thumbnailUrl,
-                  date: m.timestamp,
-                  likes: m.likes,
-                  comments: m.comments,
-                  permalink: m.permalink,
-                }))
-            } />
-          )}
-
-          {insights.tiktok.connected && insights.tiktok.recentVideos && insights.tiktok.recentVideos.length > 0 && (
-            <TopPostsCard title="Top TikTok Videos" posts={
-              [...insights.tiktok.recentVideos]
-                .sort((a, b) => b.views - a.views)
-                .slice(0, 5)
-                .map((v) => ({
-                  id: v.id,
-                  text: v.title || "(untitled)",
-                  imageUrl: v.coverUrl,
-                  date: new Date(v.createTime * 1000).toISOString(),
-                  views: v.views,
-                  likes: v.likes,
-                  comments: v.comments,
-                  shares: v.shares,
-                  permalink: v.shareUrl,
-                }))
-            } />
-          )}
-
-          {!anyConnected && (
-            <Card className="border-border/30">
-              <CardContent className="py-16 text-center">
-                <p className="text-base font-medium">No platforms connected</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Connect Meta or TikTok in{" "}
-                  <a href="/products" className="text-primary hover:underline">Products → Edit</a>{" "}
-                  to see insights and get AI recommendations.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </motion.div>
-      )}
+              </Card>
+            )}
+          </motion.div>
+        )}
       </FeatureGate>
     </AppShell>
   );
@@ -328,47 +470,60 @@ export default function AnalyticsPage() {
 
 // ── Subcomponents ────────────────────────────────────────────────
 
-function PlatformHealthCard({ platform, connected, error, stats }: {
+function PlatformHealthCard({
+  platform,
+  connected,
+  error,
+  stats,
+}: {
   platform: string;
   connected: boolean;
   error?: string;
   stats?: { label: string; value: string }[];
 }) {
+  const accent = platformAccents[platform] || "border-l-border";
+  const isOk = connected && !error;
+
   return (
-    <Card className="border-border/40">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold">{platform}</CardTitle>
-          <Badge variant="outline" className={`border-0 text-[10px] ${
-            connected && !error
-              ? "bg-emerald-50 text-emerald-700"
-              : connected && error
-              ? "bg-amber-50 text-amber-700"
-              : "bg-muted text-muted-foreground"
-          }`}>
-            {connected && !error ? "Connected" : connected && error ? "Limited" : "Not connected"}
-          </Badge>
+    <div className={`rounded-xl border border-border/50 border-l-4 ${accent} bg-card p-5 space-y-4 hover:border-border/80 transition-colors`}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <PlatformIcon platform={platform} size={15} />
+          <span className="text-sm font-semibold">{platform}</span>
         </div>
-      </CardHeader>
-      <CardContent>
-        {stats ? (
-          <div className="grid grid-cols-2 gap-3">
-            {stats.map((s) => (
-              <div key={s.label}>
-                <p className="text-lg font-bold tracking-tight">{s.value}</p>
-                <p className="text-[11px] text-muted-foreground">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          <p className="text-xs text-amber-600">{error}</p>
-        ) : (
-          <p className="text-xs text-muted-foreground">
-            Connect in <a href="/products" className="text-primary hover:underline">Products</a> to see insights.
-          </p>
-        )}
-      </CardContent>
-    </Card>
+        <div className="flex items-center gap-1.5">
+          <span className={`inline-block w-1.5 h-1.5 rounded-full ${
+            isOk ? "bg-emerald-500" : connected ? "bg-amber-400" : "bg-zinc-300"
+          }`} />
+          <span className={`text-[10px] font-medium uppercase tracking-wider ${
+            isOk ? "text-emerald-600" : connected ? "text-amber-600" : "text-muted-foreground"
+          }`}>
+            {isOk ? "Connected" : connected ? "Limited" : "Not connected"}
+          </span>
+        </div>
+      </div>
+
+      {/* Stats */}
+      {stats ? (
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+          {stats.map((s) => (
+            <div key={s.label}>
+              <p className="text-xl font-light tabular-nums tracking-tight">{s.value}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <p className="text-xs text-amber-600 leading-relaxed">{error}</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Connect in{" "}
+          <a href="/products" className="text-primary hover:underline">Products</a>{" "}
+          to see insights.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -385,18 +540,30 @@ function FollowerComparisonChart({ insights }: { insights: UnifiedInsights }) {
 
   return (
     <Card className="border-border/30">
-      <CardHeader>
-        <CardTitle className="text-base">Follower Comparison</CardTitle>
-        <CardDescription>Audience size across connected platforms.</CardDescription>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">Audience Size</CardTitle>
+        <CardDescription>Follower count across connected platforms.</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={200}>
+        <ResponsiveContainer width="100%" height={180}>
           <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" opacity={0.6} />
-            <XAxis dataKey="platform" fontSize={12} tickLine={false} axisLine={false} />
-            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v} />
-            <Tooltip contentStyle={{ borderRadius: "12px", borderColor: "#e4e4e7" }} />
-            <Bar dataKey="followers" fill="#2563eb" radius={[8, 8, 0, 0]} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" strokeOpacity={0.08} />
+            <XAxis dataKey="platform" fontSize={11} tickLine={false} axisLine={false} />
+            <YAxis
+              fontSize={11}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v)}
+            />
+            <Tooltip
+              contentStyle={{ borderRadius: "10px", border: "1px solid rgba(0,0,0,0.08)", fontSize: 12 }}
+              cursor={{ fill: "rgba(0,0,0,0.04)" }}
+            />
+            <Bar dataKey="followers" radius={[6, 6, 0, 0]}>
+              {data.map((entry) => (
+                <Cell key={entry.platform} fill={platformBarColors[entry.platform] || "#2563eb"} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
@@ -404,7 +571,12 @@ function FollowerComparisonChart({ insights }: { insights: UnifiedInsights }) {
   );
 }
 
-function TopPostsCard({ title, posts }: {
+function TopPostsCard({
+  platform,
+  title,
+  posts,
+}: {
+  platform: string;
   title: string;
   posts: {
     id: string; text: string; imageUrl?: string; date: string;
@@ -412,42 +584,51 @@ function TopPostsCard({ title, posts }: {
     permalink?: string;
   }[];
 }) {
+  const accent = platformAccents[platform] || "border-l-border";
+
   return (
-    <Card className="border-border/30">
-      <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+    <Card className={`border-border/40 border-l-4 ${accent}`}>
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
+          <PlatformIcon platform={platform} size={14} />
+          <CardTitle className="text-base">{title}</CardTitle>
+        </div>
         <CardDescription>Sorted by engagement.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="divide-y divide-border/30">
           {posts.map((post) => (
-            <div key={post.id} className="flex gap-3 group">
+            <div key={post.id} className="flex gap-3 py-3 first:pt-0 last:pb-0 group">
+              {/* Thumbnail */}
               {post.imageUrl ? (
-                <img src={post.imageUrl} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0 border border-border/40" />
+                <img
+                  src={post.imageUrl}
+                  alt=""
+                  className="w-16 h-16 rounded-lg object-cover shrink-0 border border-border/30"
+                />
               ) : (
-                <div className="w-14 h-14 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
-                  <span className="text-[10px] text-muted-foreground">No img</span>
+                <div className="w-16 h-16 rounded-lg bg-muted/40 flex items-center justify-center shrink-0 border border-border/20">
+                  <PlatformIcon platform={platform} size={18} />
                 </div>
               )}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium leading-snug line-clamp-2">{post.text}</p>
-                <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground flex-wrap">
+
+              {/* Content */}
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <p className="text-sm leading-snug line-clamp-2 text-foreground/85">{post.text}</p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
                   <span>{timeAgo(post.date)}</span>
-                  {post.views != null && (
-                    <span>{post.views.toLocaleString()} views</span>
-                  )}
-                  {post.likes != null && (
-                    <span>{post.likes.toLocaleString()} likes</span>
-                  )}
-                  {post.comments != null && (
-                    <span>{post.comments.toLocaleString()} comments</span>
-                  )}
-                  {post.shares != null && (
-                    <span>{post.shares.toLocaleString()} shares</span>
-                  )}
+                  {post.views != null && <span>{post.views.toLocaleString()} views</span>}
+                  {post.likes != null && <span>{post.likes.toLocaleString()} likes</span>}
+                  {post.comments != null && <span>{post.comments.toLocaleString()} comments</span>}
+                  {post.shares != null && <span>{post.shares.toLocaleString()} shares</span>}
                   {post.permalink && (
-                    <a href={post.permalink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                      View
+                    <a
+                      href={post.permalink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline font-medium"
+                    >
+                      View →
                     </a>
                   )}
                 </div>
@@ -458,10 +639,4 @@ function TopPostsCard({ title, posts }: {
       </CardContent>
     </Card>
   );
-}
-
-function avgStat(values: number[]): string {
-  if (values.length === 0) return "—";
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  return avg >= 1000 ? `${(avg / 1000).toFixed(1)}k` : Math.round(avg).toLocaleString();
 }

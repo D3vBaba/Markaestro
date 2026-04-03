@@ -129,7 +129,7 @@ export default function PostsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Social Manager"
+        title="Posts Management"
         subtitle="Create, schedule, and publish organic content across your social channels."
       />
 
