@@ -136,8 +136,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       .map((doc) => ({ ref: doc.ref, data: doc.data() }))
       .sort((a, b) => (a.data.pipelineSequence ?? 0) - (b.data.pipelineSequence ?? 0));
 
-    if (runPosts.some((post) => ['publishing', 'published'].includes((post.data.status as string) || 'draft'))) {
+    const runPublishingPosts = runPosts.filter(
+      (post) => ((post.data.status as string) || 'draft') === 'publishing',
+    );
+    if (runPublishingPosts.length > 0) {
       throw new Error('VALIDATION_CANNOT_RESCHEDULE_ACTIVE_RUN');
+    }
+
+    const schedulableRunPosts = runPosts.filter(
+      (post) => !['published', 'publishing'].includes((post.data.status as string) || 'draft'),
+    );
+    if (schedulableRunPosts.length === 0) {
+      throw new Error('VALIDATION_NO_DRAFT_POSTS_TO_SCHEDULE');
     }
 
     const campaignPostsSnap = await adminDb
@@ -152,15 +162,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         && ['scheduled', 'publishing', 'published'].includes((post.data.status as string) || 'draft')
       );
 
-    if (conflictingPosts.some((post) => ['publishing', 'published'].includes((post.data.status as string) || 'draft'))) {
-      throw new Error('VALIDATION_CANNOT_REPLACE_PUBLISHED_RUN');
+    const publishingConflicts = conflictingPosts.filter(
+      (post) => ((post.data.status as string) || 'draft') === 'publishing',
+    );
+    if (publishingConflicts.length > 0) {
+      throw new Error('VALIDATION_CANNOT_RESCHEDULE_ACTIVE_RUN');
     }
 
-    const dates = calculateScheduleDates(startDate, runPosts.length, cadence, postTimeHour);
+    const scheduledConflicts = conflictingPosts.filter(
+      (post) => ((post.data.status as string) || 'draft') === 'scheduled',
+    );
+
+    const dates = calculateScheduleDates(startDate, schedulableRunPosts.length, cadence, postTimeHour);
     const now = new Date().toISOString();
     const batch = adminDb.batch();
 
-    for (const post of conflictingPosts) {
+    for (const post of scheduledConflicts) {
       batch.update(post.ref, {
         status: 'draft',
         scheduledAt: null,
@@ -168,8 +185,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       });
     }
 
-    for (let i = 0; i < runPosts.length; i++) {
-      batch.update(runPosts[i].ref, {
+    for (let i = 0; i < schedulableRunPosts.length; i++) {
+      batch.update(schedulableRunPosts[i].ref, {
         status: 'scheduled',
         scheduledAt: dates[i].toISOString(),
         updatedAt: now,
@@ -203,7 +220,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return apiOk({
       campaignId: id,
       runId: targetRunId,
-      scheduledCount: runPosts.length,
+      scheduledCount: schedulableRunPosts.length,
       cadence,
       firstPostAt: dates[0].toISOString(),
       lastPostAt: dates[dates.length - 1].toISOString(),

@@ -1096,108 +1096,92 @@ export default function AdsPage() {
             ))}
           </div>
 
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {loading ? (
-              [1, 2, 3].map((i) => <div key={i} className="h-28 rounded-xl bg-muted/20 animate-pulse" />)
+              [1, 2, 3].map((i) => <div key={i} className="h-44 rounded-xl bg-muted/20 animate-pulse" />)
             ) : filtered.length === 0 ? (
-              <div className="text-center py-20 border border-dashed border-border/50 rounded-xl">
+              <div className="col-span-full text-center py-20 border border-dashed border-border/50 rounded-xl">
                 <p className="text-sm font-medium">No ad campaigns yet</p>
                 <p className="text-xs text-muted-foreground mt-2">Create your first campaign to start advertising.</p>
               </div>
             ) : filtered.map((c) => (
               <div
                 key={c.id}
-                className="border border-border/50 rounded-xl p-5 sm:p-6 hover:border-border/80 hover:shadow-sm transition-all"
+                className="flex flex-col border border-border/50 rounded-xl p-5 hover:border-border/80 hover:shadow-sm transition-all bg-card"
               >
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-                  <div className="flex items-start gap-3 min-w-0 flex-1">
-                    {/* Creative thumbnail */}
+                {/* Card header */}
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="flex items-start gap-2.5 min-w-0 flex-1">
                     {c.creative?.imageUrl && (
-                      <div className="h-11 w-11 rounded-lg overflow-hidden border border-border/40 shrink-0 hidden sm:block">
+                      <div className="h-10 w-10 rounded-lg overflow-hidden border border-border/40 shrink-0">
                         <img src={c.creative.imageUrl} alt="" className="h-full w-full object-cover" />
                       </div>
                     )}
                     <div className="min-w-0">
-                      <p className="text-base font-medium truncate">{c.name}</p>
-                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1 text-[11px] text-muted-foreground">
-                        <span className="uppercase tracking-wider font-medium">{platformLabels[c.platform]}</span>
-                        <span className="w-px h-3 bg-border/60" />
+                      <p className="text-sm font-medium leading-snug line-clamp-2">{c.name}</p>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-[10px] text-muted-foreground">
+                        <span className="uppercase tracking-wider font-semibold">{platformLabels[c.platform]}</span>
+                        <span className="w-px h-2.5 bg-border/60" />
                         <span>{objectiveLabels[c.objective]}</span>
-                        <span className="w-px h-3 bg-border/60" />
+                        <span className="w-px h-2.5 bg-border/60" />
                         <span className="tabular-nums">{formatCurrency(c.dailyBudgetCents)}/day</span>
                       </div>
                     </div>
                   </div>
-                  {/* Status badge with dot */}
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0">
                     <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[c.status] || "bg-zinc-300"}`} />
-                    <span className={`text-[11px] uppercase tracking-wider font-medium ${statusColors[c.status] || "text-muted-foreground"}`}>
+                    <span className={`text-[10px] uppercase tracking-wider font-medium ${statusColors[c.status] || "text-muted-foreground"}`}>
                       {c.status}
                     </span>
                   </div>
                 </div>
 
                 {c.errorMessage && c.status === "failed" && (
-                  <p className="text-xs text-destructive mb-3 p-3 rounded-lg bg-destructive/5">{c.errorMessage}</p>
+                  <p className="text-xs text-destructive mb-2 p-2.5 rounded-lg bg-destructive/5">{c.errorMessage}</p>
                 )}
 
-                <div className="flex flex-col gap-2.5">
-                  {c.creative?.headline && (
-                    <p className="text-xs text-muted-foreground truncate max-w-full sm:max-w-[300px] italic">
-                      &ldquo;{c.creative.headline}&rdquo;
-                    </p>
-                  )}
-                  <div className="flex flex-wrap items-center gap-1">
-                    {c.status === "draft" && (
-                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>
-                        Launch
-                      </Button>
-                    )}
-                    {c.status === "failed" && (
-                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>
-                        Retry
-                      </Button>
-                    )}
-                    {c.status === "active" && (
-                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "pause")} disabled={actionLoading === c.id}>
-                        Pause
-                      </Button>
-                    )}
-                    {c.status === "paused" && (
-                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "resume")} disabled={actionLoading === c.id}>
-                        Resume
-                      </Button>
-                    )}
-                    {c.externalCampaignId && (
-                      <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "sync")} disabled={actionLoading === c.id}>
-                        {actionLoading === c.id ? "Syncing..." : "Sync"}
-                      </Button>
-                    )}
-                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>
-                      Insights
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => openEdit(c)}>
-                      Edit
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={() => handleAction(c.id, "delete")} disabled={actionLoading === c.id}>
-                      Delete
-                    </Button>
-                    {c.createdAt && (
-                      <span className="text-[10px] text-muted-foreground/60 ml-auto hidden sm:block">
-                        {new Date(c.createdAt).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-                </div>
+                {c.creative?.headline && (
+                  <p className="text-xs text-muted-foreground italic line-clamp-1 mb-3">
+                    &ldquo;{c.creative.headline}&rdquo;
+                  </p>
+                )}
 
+                {/* Metrics */}
                 {c.metrics && (
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mt-4 pt-4 border-t border-border/30">
+                  <div className="grid grid-cols-2 gap-2 mb-3 pt-3 border-t border-border/30">
                     <MetricCard label="Impressions" value={c.metrics.impressions.toLocaleString()} />
                     <MetricCard label="Clicks" value={c.metrics.clicks.toLocaleString()} />
                     <MetricCard label="CTR" value={`${(c.metrics.ctr * 100).toFixed(2)}%`} />
                     <MetricCard label="Spend" value={formatCurrency(c.metrics.spend)} />
                   </div>
                 )}
+
+                {/* Actions — pushed to bottom */}
+                <div className="flex flex-wrap items-center gap-1 mt-auto pt-3 border-t border-border/30">
+                  {c.status === "draft" && (
+                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>Launch</Button>
+                  )}
+                  {c.status === "failed" && (
+                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>Retry</Button>
+                  )}
+                  {c.status === "active" && (
+                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "pause")} disabled={actionLoading === c.id}>Pause</Button>
+                  )}
+                  {c.status === "paused" && (
+                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "resume")} disabled={actionLoading === c.id}>Resume</Button>
+                  )}
+                  {c.externalCampaignId && (
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "sync")} disabled={actionLoading === c.id}>
+                      {actionLoading === c.id ? "Syncing..." : "Sync"}
+                    </Button>
+                  )}
+                  <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>Insights</Button>
+                  <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => openEdit(c)}>Edit</Button>
+                  <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={() => handleAction(c.id, "delete")} disabled={actionLoading === c.id}>Delete</Button>
+                  {c.createdAt && (
+                    <span className="text-[10px] text-muted-foreground/60 ml-auto">{new Date(c.createdAt).toLocaleDateString()}</span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
