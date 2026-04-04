@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { z } from 'zod';
 import { pipelineCadences } from '@/lib/schemas';
@@ -44,6 +45,7 @@ function calculateScheduleDates(
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'campaigns.write');
     const { id } = await params;
     const body = await req.json();
     const overrides = scheduleSchema.parse(body);

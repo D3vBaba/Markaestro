@@ -1,5 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import OpenAI from 'openai';
 import type { UnifiedInsights } from '@/lib/social/types';
@@ -34,6 +35,7 @@ Be specific with numbers when possible. No generic advice like "post consistentl
 export async function POST(req: Request, { params }: { params: Promise<{ productId: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'analytics.read');
     const { productId } = await params;
 
     const body = await req.json();

@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { researchTikTokTrends, type TrendResearchInput } from '@/lib/ai/tiktok-trend-researcher';
@@ -16,6 +17,7 @@ const researchSchema = z.object({
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ai.use');
     const body = await req.json();
     const { productId, focusArea } = researchSchema.parse(body);
 

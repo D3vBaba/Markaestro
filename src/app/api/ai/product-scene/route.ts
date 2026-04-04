@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { productSceneSchema } from '@/lib/schemas';
@@ -8,8 +9,9 @@ import { checkAndIncrementUsage } from '@/lib/usage';
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ai.use');
 
-    const quota = await checkAndIncrementUsage(ctx.uid, 'videoGenerations');
+    const quota = await checkAndIncrementUsage(ctx.uid, 'videoGenerations', ctx.workspaceId);
     if (!quota.allowed) throw new Error('VIDEO_QUOTA_EXCEEDED');
 
     const body = await req.json();
@@ -31,6 +33,8 @@ export async function POST(req: Request) {
         productDescription: product.description || '',
         productCategories: product.categories || [],
         sceneType: data.sceneType,
+        promptMode: data.promptMode,
+        customPrompt: data.customPrompt,
         avatarImageUrl: data.avatarImageUrl,
         productImageUrl: data.productImageUrl,
         sceneDescription: data.sceneDescription,
@@ -47,7 +51,7 @@ export async function POST(req: Request) {
     const generationData = {
       trendId: data.trendId || '',
       productId: data.productId,
-      prompt: data.sceneDescription || data.sceneType,
+      prompt: data.customPrompt || data.sceneDescription || data.sceneType,
       provider: 'product-scene' as const,
       videoProvider: data.provider,
       status: 'generating',

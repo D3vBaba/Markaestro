@@ -1,13 +1,19 @@
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { createHash } from 'node:crypto';
 import { DEFAULT_WORKSPACE_ID, getWorkspaceId, isValidWorkspaceId } from '@/lib/workspace';
+import type { WorkspaceRole } from '@/lib/schemas';
 
 export type RequestContext = {
   uid: string;
   email?: string;
   workspaceId: string;
-  role: 'owner' | 'admin' | 'member';
+  role: WorkspaceRole;
 };
+
+function normalizeEmail(email?: string | null): string | null {
+  const value = email?.trim().toLowerCase();
+  return value || null;
+}
 
 function getBearerToken(req: Request): string | null {
   const auth = req.headers.get('authorization') || '';
@@ -70,13 +76,59 @@ async function findUserMembership(uid: string): Promise<{ workspaceId: string; r
   return { workspaceId, role };
 }
 
+async function acceptPendingInvites(uid: string, email?: string): Promise<void> {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return;
+
+  const candidates = Array.from(new Set([email, normalizedEmail].filter(Boolean) as string[]));
+  const inviteSnaps = await Promise.all(
+    candidates.map((candidate) => adminDb.collectionGroup('pendingInvites').where('email', '==', candidate).get()),
+  );
+
+  const inviteDocs = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
+  for (const snap of inviteSnaps) {
+    for (const doc of snap.docs) {
+      inviteDocs.set(doc.ref.path, doc);
+    }
+  }
+
+  if (inviteDocs.size === 0) return;
+
+  const now = new Date().toISOString();
+  const batch = adminDb.batch();
+
+  for (const inviteDoc of inviteDocs.values()) {
+    const parts = inviteDoc.ref.path.split('/');
+    const workspaceId = parts[1];
+    if (!workspaceId) continue;
+
+    const memberRef = adminDb.doc(`workspaces/${workspaceId}/members/${uid}`);
+    const memberSnap = await memberRef.get();
+
+    if (!memberSnap.exists) {
+      batch.set(memberRef, {
+        uid,
+        email: normalizedEmail,
+        role: inviteDoc.data().role || 'member',
+        joinedAt: now,
+      }, { merge: true });
+    }
+
+    batch.delete(inviteDoc.ref);
+  }
+
+  await batch.commit();
+}
+
 export async function requireContext(req: Request): Promise<RequestContext> {
   const token = getBearerToken(req);
   if (!token) throw new Error('UNAUTHENTICATED');
 
   const decoded = await adminAuth.verifyIdToken(token);
   const uid = decoded.uid;
-  const email = decoded.email;
+  const email = normalizeEmail(decoded.email) || undefined;
+
+  await acceptPendingInvites(uid, email);
 
   const url = new URL(req.url);
   const requestedWs = getWorkspaceId(

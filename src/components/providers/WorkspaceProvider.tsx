@@ -7,7 +7,7 @@ import { apiFetch } from '@/lib/api-client';
 export type WorkspaceInfo = {
   id: string;
   name: string;
-  role: 'owner' | 'admin' | 'member';
+  role: 'owner' | 'admin' | 'member' | 'analyst';
 };
 
 type WorkspaceCtx = {

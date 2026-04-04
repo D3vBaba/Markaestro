@@ -7,6 +7,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { generateContent } from '@/lib/ai/content-generator';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -28,6 +29,8 @@ const schema = z.object({
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'products.write');
+    requirePermission(ctx, 'ai.use');
     const uid = ctx.uid;
     const wsId = ctx.workspaceId;
 

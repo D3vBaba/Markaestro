@@ -1,5 +1,5 @@
 import { adminDb } from '@/lib/firebase-admin';
-import { getSubscription } from '@/lib/stripe/subscription';
+import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
 import type { PlanTier } from '@/lib/stripe/plans';
 
@@ -15,6 +15,10 @@ function currentMonth(): string {
   return new Date().toISOString().slice(0, 7); // e.g. "2026-03"
 }
 
+function usageScopeId(uid: string, workspaceId?: string): string {
+  return workspaceId ? `workspace:${workspaceId}` : `user:${uid}`;
+}
+
 /**
  * Atomically checks whether a user is within their quota for the given generation
  * type, and if so, increments the counter. Returns whether the request is allowed.
@@ -26,8 +30,9 @@ function currentMonth(): string {
 export async function checkAndIncrementUsage(
   uid: string,
   type: UsageType,
+  workspaceId?: string,
 ): Promise<UsageCheckResult> {
-  const sub = await getSubscription(uid);
+  const sub = await getEffectiveSubscription(uid, workspaceId);
 
   if (!sub || !['active', 'trialing'].includes(sub.status)) {
     return { allowed: false, current: 0, limit: 0 };
@@ -51,7 +56,7 @@ export async function checkAndIncrementUsage(
 
   const month = currentMonth();
   const field = `${month}_${type}`;
-  const docRef = adminDb.collection('usage').doc(uid);
+  const docRef = adminDb.collection('usage').doc(usageScopeId(uid, workspaceId));
 
   return adminDb.runTransaction(async (tx) => {
     const snap = await tx.get(docRef);
@@ -70,9 +75,12 @@ export async function checkAndIncrementUsage(
  * Returns the current month's usage counts for a user without modifying them.
  * Useful for displaying remaining quota in the UI.
  */
-export async function getUsage(uid: string): Promise<{ aiGenerations: number; videoGenerations: number }> {
+export async function getUsage(
+  uid: string,
+  workspaceId?: string,
+): Promise<{ aiGenerations: number; videoGenerations: number }> {
   const month = currentMonth();
-  const snap = await adminDb.collection('usage').doc(uid).get();
+  const snap = await adminDb.collection('usage').doc(usageScopeId(uid, workspaceId)).get();
   const data = snap.data() ?? {};
   return {
     aiGenerations: (data[`${month}_aiGenerations`] as number) ?? 0,

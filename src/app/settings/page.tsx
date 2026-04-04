@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/app/PageHeader";
-import { apiGet, apiPost, apiFetch, apiDelete } from "@/lib/api-client";
+import { apiGet, apiPost, apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
@@ -34,14 +34,8 @@ type IntegrationInfo = {
 type Member = {
   uid: string;
   email: string;
-  role: 'owner' | 'admin' | 'member';
+  role: 'owner' | 'admin' | 'member' | 'analyst';
   joinedAt?: string;
-};
-
-type WorkspaceInfo = {
-  id: string;
-  name: string;
-  role: 'owner' | 'admin' | 'member';
 };
 
 const TABS = ['Integrations', 'Team', 'Workspaces', 'Billing'] as const;
@@ -267,7 +261,7 @@ function TeamTab() {
   const { current: workspace } = useWorkspace();
   const [members, setMembers] = useState<Member[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'admin' | 'member'>('member');
+  const [inviteRole, setInviteRole] = useState<'admin' | 'member' | 'analyst'>('member');
   const [inviting, setInviting] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
 
@@ -375,10 +369,11 @@ function TeamTab() {
               />
               <select
                 value={inviteRole}
-                onChange={(e) => setInviteRole(e.target.value as 'admin' | 'member')}
+                onChange={(e) => setInviteRole(e.target.value as 'admin' | 'member' | 'analyst')}
                 className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
               >
                 <option value="member">Member</option>
+                <option value="analyst">Analyst</option>
                 <option value="admin">Admin</option>
               </select>
               <Button onClick={invite} disabled={inviting || !inviteEmail.trim()}>
@@ -507,11 +502,13 @@ function WorkspacesTab() {
 
 function BillingCard() {
   const { status, trialDaysLeft } = useSubscription();
+  const { current: workspace } = useWorkspace();
   const [busy, setBusy] = useState(false);
 
   if (!status) return null;
 
   const plan = status.tier ? PLANS[status.tier as PlanTier] : null;
+  const canManageBilling = workspace?.role === 'owner';
 
   async function openPortal() {
     setBusy(true);
@@ -574,9 +571,15 @@ function BillingCard() {
                   </p>
                 )}
               </div>
-              <Button variant="outline" size="sm" className="shrink-0" onClick={openPortal} disabled={busy}>
-                {busy ? "Opening..." : "Manage Billing"}
-              </Button>
+              {canManageBilling ? (
+                <Button variant="outline" size="sm" className="shrink-0" onClick={openPortal} disabled={busy}>
+                  {busy ? "Opening..." : "Manage Billing"}
+                </Button>
+              ) : (
+                <p className="text-xs text-muted-foreground sm:text-right">
+                  Billing is managed by the workspace owner.
+                </p>
+              )}
             </div>
           </div>
         </CardContent>

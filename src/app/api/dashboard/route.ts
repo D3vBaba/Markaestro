@@ -1,10 +1,22 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
+
+type RecentPost = {
+  id: string;
+  channel?: string;
+  status?: string;
+  content?: string;
+  publishedAt?: string;
+  scheduledAt?: string;
+  createdAt?: string;
+};
 
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'analytics.read');
     const ws = ctx.workspaceId;
 
     const [campaignsSnap, productsSnap, postsSnap, adCampaignsSnap] =
@@ -66,15 +78,15 @@ export async function GET(req: Request) {
 
     // Recent posts (latest 5 published or scheduled)
     const recentPosts = postsSnap.docs
-      .map((d) => ({ id: d.id, ...d.data() }))
-      .filter((p: any) => p.status === 'published' || p.status === 'scheduled')
-      .sort((a: any, b: any) => {
+      .map((d) => ({ id: d.id, ...d.data() } as RecentPost))
+      .filter((p) => p.status === 'published' || p.status === 'scheduled')
+      .sort((a, b) => {
         const aDate = a.publishedAt || a.scheduledAt || a.createdAt || '';
         const bDate = b.publishedAt || b.scheduledAt || b.createdAt || '';
         return bDate.localeCompare(aDate);
       })
       .slice(0, 5)
-      .map((p: any) => ({
+      .map((p) => ({
         id: p.id,
         channel: p.channel,
         status: p.status,

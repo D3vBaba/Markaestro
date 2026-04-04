@@ -1,11 +1,11 @@
 import { requireContext } from '@/lib/server-auth';
-import { requireAdmin, requireOwner } from '@/lib/rbac';
+import { requirePermission, requireOwner } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
 import { z } from 'zod';
 
 const updateSchema = z.object({
-  role: z.enum(['admin', 'member']),
+  role: z.enum(['admin', 'member', 'analyst']),
 });
 
 /** PATCH /api/team/[uid] — change a member's role (owner only) */
@@ -15,7 +15,7 @@ export async function PATCH(
 ) {
   try {
     const ctx = await requireContext(req);
-    requireOwner(ctx);
+    requirePermission(ctx, 'team.roles.manage');
     const { uid } = await params;
 
     if (uid === ctx.uid) return apiError(new Error('FORBIDDEN'));
@@ -42,7 +42,7 @@ export async function DELETE(
 ) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx);
+    requirePermission(ctx, 'team.manage');
     const { uid } = await params;
 
     if (uid === ctx.uid) return apiError(new Error('FORBIDDEN'));

@@ -8,6 +8,7 @@
  * Review (approve/reject) is handled by POST /api/posts/approval/review.
  */
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
 import { z } from 'zod';
@@ -20,6 +21,7 @@ const submitSchema = z.object({
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'posts.write');
     const body = await req.json();
     const { postId } = submitSchema.parse(body);
 

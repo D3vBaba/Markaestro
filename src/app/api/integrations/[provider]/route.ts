@@ -1,10 +1,10 @@
 import { requireContext } from '@/lib/server-auth';
-import { requireAdmin } from '@/lib/rbac';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { metaIntegrationSchema, integrationProviders } from '@/lib/schemas';
 import { encrypt } from '@/lib/crypto';
 import { saveConnection } from '@/lib/platform/connections';
-import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
+import { ConnectionStatus } from '@/lib/platform/types';
 
 const ALLOWED = new Set(integrationProviders);
 const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'tiktok', 'tiktok_ads', 'facebook', 'instagram']);
@@ -12,7 +12,7 @@ const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'tiktok', 'tiktok_ads', 'facebo
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx);
+    requirePermission(ctx, 'integrations.manage');
 
     const { provider } = await params;
     if (!ALLOWED.has(provider as typeof integrationProviders[number])) {

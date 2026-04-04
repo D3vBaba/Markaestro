@@ -1,5 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
-import { requireAdmin } from '@/lib/rbac';
+import { requirePermission } from '@/lib/rbac';
 import { encrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection, resolveUserAccessToken, getConnectionRef } from '@/lib/platform/connections';
@@ -7,7 +7,7 @@ import { getConnection, resolveUserAccessToken, getConnectionRef } from '@/lib/p
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx);
+    requirePermission(ctx, 'integrations.manage');
 
     const { provider } = await params;
     if (provider !== 'meta') {

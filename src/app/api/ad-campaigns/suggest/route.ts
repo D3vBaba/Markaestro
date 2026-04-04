@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { workspaceCollection } from '@/lib/firestore-paths';
@@ -40,6 +41,7 @@ const META_OBJECTIVE_OPTIONS = ['awareness', 'traffic', 'engagement'] as const;
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ads.write');
     const body = await req.json();
     const { productId, platform = 'meta' } = body as { productId?: string; platform?: string };
 

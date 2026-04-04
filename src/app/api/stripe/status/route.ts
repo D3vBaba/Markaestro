@@ -1,14 +1,11 @@
 import { NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
-import { getSubscription, resolveStatus } from '@/lib/stripe/subscription';
+import { requireContext } from '@/lib/server-auth';
+import { getEffectiveSubscription, resolveStatus } from '@/lib/stripe/subscription';
 
 export async function GET(req: Request) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
-    if (!token) return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 });
-
-    const decoded = await adminAuth.verifyIdToken(token);
-    const sub = await getSubscription(decoded.uid);
+    const ctx = await requireContext(req);
+    const sub = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
     const status = resolveStatus(sub);
 
     return NextResponse.json(status);

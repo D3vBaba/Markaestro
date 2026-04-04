@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
@@ -11,6 +12,7 @@ const ALL_TYPES = new Set([...IMAGE_TYPES, ...VIDEO_TYPES]);
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ai.use');
     const formData = await req.formData();
     // Accept either 'image' or 'video' field name
     const file = (formData.get('image') || formData.get('video')) as File | null;
@@ -54,6 +56,7 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ai.use');
     const body = await req.json();
     const names: string[] = body.names;
     if (!Array.isArray(names) || names.length === 0) throw new Error('VALIDATION_NO_FILES_SPECIFIED');

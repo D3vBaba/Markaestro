@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { createAdCampaignSchema, paginationSchema } from '@/lib/schemas';
@@ -35,6 +36,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ads.write');
     const body = await req.json();
     const input = createAdCampaignSchema.parse(body);
 

@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { generateVideoSchema } from '@/lib/schemas';
@@ -12,8 +13,9 @@ import { checkAndIncrementUsage } from '@/lib/usage';
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ai.use');
 
-    const quota = await checkAndIncrementUsage(ctx.uid, 'videoGenerations');
+    const quota = await checkAndIncrementUsage(ctx.uid, 'videoGenerations', ctx.workspaceId);
     if (!quota.allowed) throw new Error('VIDEO_QUOTA_EXCEEDED');
 
     const body = await req.json();
@@ -55,6 +57,8 @@ export async function POST(req: Request) {
     // Submit to video generation provider
     const result = await submitVideoGeneration({
       prompt: data.prompt,
+      promptMode: data.promptMode,
+      customPrompt: data.customPrompt,
       productName,
       productDescription,
       productCategories,
@@ -71,7 +75,7 @@ export async function POST(req: Request) {
     const generationData = {
       trendId: data.trendId || '',
       productId: data.productId || '',
-      prompt: data.prompt,
+      prompt: data.customPrompt || data.prompt,
       provider: result.provider,
       status: 'generating',
       videoUrl: '',

@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getMetaConnectionMerged } from '@/lib/platform/connections';
 import { decrypt } from '@/lib/crypto';
@@ -13,6 +14,7 @@ export type MetaAdAccount = {
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'integrations.manage');
     const url = new URL(req.url);
     const productId = url.searchParams.get('productId') || undefined;
 

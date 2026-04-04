@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { z } from 'zod';
 import { getMetaConnectionMerged } from '@/lib/platform/connections';
@@ -12,6 +13,7 @@ const testSchema = z.object({
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'integrations.manage');
     const body = await req.json();
     const { productId } = testSchema.parse(body);
 

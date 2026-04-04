@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { brandVoiceSchema, brandIdentitySchema } from '@/lib/schemas';
 
@@ -26,6 +27,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'products.write');
     const { id } = await params;
     const body = await req.json();
 

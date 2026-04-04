@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import type { AdCampaignDoc } from '@/lib/ads/types';
@@ -16,6 +17,7 @@ function getClient() {
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'analytics.read');
     const { id } = await params;
 
     const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/ad_campaigns/${id}`);

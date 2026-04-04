@@ -1,5 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getMetaConnectionMerged, getConnection, resolveAccessToken } from '@/lib/platform/connections';
 import { getAccessToken } from '@/lib/platform/base-adapter';
@@ -10,6 +11,7 @@ import type { FacebookInsights, InstagramInsights, TikTokInsights, UnifiedInsigh
 export async function GET(req: Request, { params }: { params: Promise<{ productId: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'analytics.read');
     const { productId } = await params;
 
     // Load product name

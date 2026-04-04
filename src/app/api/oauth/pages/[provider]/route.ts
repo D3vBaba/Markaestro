@@ -1,10 +1,12 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function GET(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'integrations.manage');
     const { provider } = await params;
 
     if (provider !== 'meta') {

@@ -1,5 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { updatePostSchema } from '@/lib/schemas';
 
@@ -19,6 +20,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'posts.write');
     const { id } = await params;
     const body = await req.json();
     const data = updatePostSchema.parse(body);
@@ -46,6 +48,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'posts.write');
     const { id } = await params;
     const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${id}`);
     const snap = await ref.get();

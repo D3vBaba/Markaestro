@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 
 export async function POST(
@@ -9,6 +10,7 @@ export async function POST(
 ) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'campaigns.write');
     const { id, runId } = await params;
 
     const campaignRef = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'campaigns')}/${id}`);

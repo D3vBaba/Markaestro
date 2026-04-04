@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { generateContent, type ContentRequest } from '@/lib/ai/content-generator';
 import { checkAndIncrementUsage } from '@/lib/usage';
@@ -17,8 +18,9 @@ const generateSchema = z.object({
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ai.use');
 
-    const quota = await checkAndIncrementUsage(ctx.uid, 'aiGenerations');
+    const quota = await checkAndIncrementUsage(ctx.uid, 'aiGenerations', ctx.workspaceId);
     if (!quota.allowed) throw new Error('QUOTA_EXCEEDED');
 
     const body = await req.json();

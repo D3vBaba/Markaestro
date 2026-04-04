@@ -3,6 +3,7 @@ import sharp from 'sharp';
 import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
@@ -11,6 +12,7 @@ const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/s
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'products.write');
     const { id } = await params;
 
     const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'products')}/${id}`);

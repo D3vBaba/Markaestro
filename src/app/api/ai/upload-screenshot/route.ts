@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -8,6 +9,7 @@ const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ai.use');
 
     const formData = await req.formData();
     const file = formData.get('screenshot') as File | null;

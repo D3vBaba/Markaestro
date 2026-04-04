@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import {
   assertSafeOutboundUrl,
@@ -235,7 +236,8 @@ async function extractBrandColors(
 
 export async function POST(req: Request) {
   try {
-    await requireContext(req);
+    const ctx = await requireContext(req);
+    requirePermission(ctx, 'products.write');
     const body = await req.json();
     const { url } = schema.parse(body);
     const safeUrl = await assertSafeOutboundUrl(url);

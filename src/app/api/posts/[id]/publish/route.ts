@@ -1,11 +1,13 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { publishPostMultiChannel } from '@/lib/social/publisher';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'posts.publish');
     const { id } = await params;
 
     const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${id}`);

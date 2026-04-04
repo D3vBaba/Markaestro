@@ -1,5 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
-import { requireAdmin } from '@/lib/rbac';
+import { requirePermission } from '@/lib/rbac';
 import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { revokeAccessToken } from '@/lib/oauth/flow';
@@ -12,7 +12,7 @@ const ALLOWED = new Set<string>(oauthProviders);
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx);
+    requirePermission(ctx, 'integrations.manage');
 
     const { provider } = await params;
     if (!ALLOWED.has(provider)) {

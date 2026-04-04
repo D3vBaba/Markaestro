@@ -1,5 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
-import { requireAdmin } from '@/lib/rbac';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { generateAuthUrl } from '@/lib/oauth/flow';
 import { getAppUrl } from '@/lib/oauth/config';
@@ -12,7 +12,7 @@ const SOCIAL_PROVIDERS = new Set(['tiktok', 'tiktok_ads']);
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx);
+    requirePermission(ctx, 'integrations.manage');
 
     const { provider } = await params;
     if (!ALLOWED.has(provider)) {

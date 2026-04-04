@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection } from '@/lib/platform/connections';
 import { getAdapter } from '@/lib/platform/registry';
@@ -6,6 +7,7 @@ import { getAdapter } from '@/lib/platform/registry';
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'integrations.manage');
     const body = await req.json().catch(() => ({}));
     const productId = body.productId as string | undefined;
 

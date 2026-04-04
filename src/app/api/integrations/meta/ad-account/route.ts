@@ -1,5 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
-import { requireAdmin } from '@/lib/rbac';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getMetaConnectionMerged, getConnectionRef } from '@/lib/platform/connections';
 import { z } from 'zod';
@@ -12,7 +12,7 @@ const schema = z.object({
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx);
+    requirePermission(ctx, 'integrations.manage');
 
     const body = await req.json();
     const { adAccountId, productId } = schema.parse(body);

@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { updateCampaignSchema } from '@/lib/schemas';
 import {
@@ -25,6 +26,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'campaigns.write');
     const { id } = await params;
     const body = await req.json();
     const data = updateCampaignSchema.parse(body);
@@ -70,6 +72,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'campaigns.write');
     const { id } = await params;
     const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'campaigns')}/${id}`);
     const snap = await ref.get();

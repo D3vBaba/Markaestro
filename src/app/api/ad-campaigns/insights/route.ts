@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import OpenAI from 'openai';
@@ -15,6 +16,7 @@ function getClient() {
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'analytics.read');
     const ws = ctx.workspaceId;
 
     const [adSnap, postsSnap] = await Promise.all([

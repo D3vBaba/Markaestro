@@ -1,12 +1,12 @@
 import { requireContext } from '@/lib/server-auth';
-import { requireAdmin } from '@/lib/rbac';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx);
+    requirePermission(ctx, 'integrations.manage');
 
     const body = await req.json().catch(() => ({}));
     const productId = body.productId as string | undefined;

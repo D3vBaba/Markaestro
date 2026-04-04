@@ -1,9 +1,9 @@
 /**
  * POST /api/posts/approval/review — approve or reject a post that is pending_approval.
- * Requires admin or owner role.
+ * Requires the workspace post-review permission.
  */
 import { requireContext } from '@/lib/server-auth';
-import { requireAdmin } from '@/lib/rbac';
+import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
 import { z } from 'zod';
@@ -17,7 +17,7 @@ const reviewSchema = z.object({
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx);
+    requirePermission(ctx, 'posts.review');
 
     const body = await req.json();
     const { postId, decision, feedback } = reviewSchema.parse(body);

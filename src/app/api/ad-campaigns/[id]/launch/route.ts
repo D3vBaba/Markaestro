@@ -1,5 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
-import { requireAdmin } from '@/lib/rbac';
+import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
@@ -12,7 +12,7 @@ import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
-    requireAdmin(ctx);
+    requirePermission(ctx, 'ads.write');
     const { id } = await params;
 
     const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/ad_campaigns/${id}`);

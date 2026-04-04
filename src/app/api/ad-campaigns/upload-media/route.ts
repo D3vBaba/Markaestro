@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB (Meta allows up to 30MB, Google up to 5MB, TikTok up to 10MB)
@@ -14,6 +15,7 @@ const ALLOWED_VIDEO_TYPES = new Set([
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'ads.write');
 
     const formData = await req.formData();
     const file = formData.get('file') as File | null;

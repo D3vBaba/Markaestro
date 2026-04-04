@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection } from '@/lib/platform/connections';
 import { decrypt } from '@/lib/crypto';
@@ -11,6 +12,7 @@ export type GoogleCustomer = {
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'integrations.manage');
 
     const conn = await getConnection(ctx.workspaceId, 'google');
     if (!conn || !conn.accessTokenEncrypted) {
