@@ -26,6 +26,7 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [editPost, setEditPost] = useState<Post | null>(null);
+  const [publishingIds, setPublishingIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
 
   const fetchScheduled = useCallback(async () => {
@@ -64,6 +65,7 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
   };
 
   const handlePublishNow = async (id: string) => {
+    setPublishingIds((prev) => new Set(prev).add(id));
     const res = await apiPost<{
       ok: boolean;
       status?: string;
@@ -88,6 +90,7 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
     } else {
       toast.error(res.data.error || "Publishing failed");
     }
+    setPublishingIds((prev) => { const next = new Set(prev); next.delete(id); return next; });
   };
 
   const handleSaveEdit = async (content: string, mediaUrls?: string[]) => {
@@ -129,6 +132,7 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
           <PostCard
             key={post.id}
             post={post}
+            publishing={publishingIds.has(post.id)}
             onEdit={() => setEditPost(post)}
             onCancel={() => handleCancel(post.id)}
             onDelete={() => handleDelete(post.id)}
