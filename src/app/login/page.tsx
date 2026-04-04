@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import MarketingLayout from "@/components/layout/MarketingLayout";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
@@ -33,7 +32,7 @@ function LoginContent() {
   const [busy, setBusy] = useState(false);
   const [showReset, setShowReset] = useState(false);
 
-  const redirectTo = searchParams.get("next") || "/onboarding";
+  const redirectTo = searchParams.get("next") || "/dashboard";
 
   useEffect(() => {
     if (!loading && user) router.replace(redirectTo);

@@ -55,10 +55,10 @@ export function middleware(req: NextRequest) {
   if (pathname === '/login') {
     const session = req.cookies.get('__session')?.value;
     if (session) {
-      const onboardingUrl = req.nextUrl.clone();
-      onboardingUrl.pathname = '/onboarding';
-      onboardingUrl.search = '';
-      return NextResponse.redirect(onboardingUrl);
+      const dashboardUrl = req.nextUrl.clone();
+      dashboardUrl.pathname = '/dashboard';
+      dashboardUrl.search = '';
+      return NextResponse.redirect(dashboardUrl);
     }
   }
 

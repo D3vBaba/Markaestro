@@ -8,6 +8,7 @@ import { PLANS } from '@/lib/stripe/plans';
 
 type SubscriptionStatus = {
   active: boolean;
+  hasSubscriptionHistory: boolean;
   tier: PlanTier | null;
   interval: string | null;
   trialing: boolean;
@@ -27,6 +28,7 @@ type SubscriptionCtx = {
 
 const defaultStatus: SubscriptionStatus = {
   active: false,
+  hasSubscriptionHistory: false,
   tier: null,
   interval: null,
   trialing: false,

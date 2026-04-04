@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
+import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api-client";
@@ -320,7 +321,8 @@ function OnboardingFooter() {
 
 export default function OnboardingPage() {
   const { user, loading: authLoading, logout } = useAuth();
-  const { status, loading: subLoading } = useSubscription();
+  const { loading: subLoading } = useSubscription();
+  const { completed, error: onboardingError, loading: onboardingLoading } = useOnboardingStatus();
   const router = useRouter();
 
   const saved = loadState();
@@ -382,8 +384,10 @@ export default function OnboardingPage() {
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (!authLoading && !subLoading && status?.active) router.replace("/dashboard");
-  }, [authLoading, subLoading, status, router]);
+    if (!authLoading && !onboardingLoading && (completed || onboardingError)) {
+      router.replace("/dashboard");
+    }
+  }, [authLoading, onboardingLoading, completed, onboardingError, router]);
 
   // ─── OAuth return ───────────────────────────────────────────────────────────
 
@@ -411,7 +415,7 @@ export default function OnboardingPage() {
     }
   }, [role, teamSize, goal]);
 
-  if (authLoading || subLoading || !user) {
+  if (authLoading || subLoading || onboardingLoading || !user) {
     return (
       <div className="min-h-screen grid place-items-center bg-background">
         <div className="h-8 w-8 rounded-lg bg-primary animate-pulse" />
@@ -419,7 +423,7 @@ export default function OnboardingPage() {
     );
   }
 
-  if (status?.active) return null;
+  if (completed || onboardingError) return null;
 
   const displayName =
     user.displayName?.split(" ")[0] || user.email?.split("@")[0] || "there";
@@ -593,7 +597,7 @@ export default function OnboardingPage() {
                     What best describes your role?
                   </h1>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    We'll personalise Markaestro to how you work.
+                    We&apos;ll personalise Markaestro to how you work.
                   </p>
                 </div>
                 <div className="grid gap-3">
@@ -663,10 +667,10 @@ export default function OnboardingPage() {
                     Almost there
                   </p>
                   <h2 className="text-3xl sm:text-4xl font-normal tracking-tight font-display leading-tight">
-                    What's your primary goal?
+                    What&apos;s your primary goal?
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    We'll recommend the right plan for your needs.
+                    We&apos;ll recommend the right plan for your needs.
                   </p>
                 </div>
                 <div className="grid gap-3">
@@ -755,10 +759,10 @@ export default function OnboardingPage() {
                     Your product
                   </p>
                   <h2 className="text-3xl sm:text-4xl font-normal tracking-tight font-display leading-tight">
-                    Tell us what you're marketing
+                    Tell us what you&apos;re marketing
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    Enter your website URL and we'll scan it with AI to fill in your product details automatically.
+                    Enter your website URL and we&apos;ll scan it with AI to fill in your product details automatically.
                   </p>
                 </div>
 
@@ -865,7 +869,7 @@ export default function OnboardingPage() {
                       className="text-sm text-primary hover:underline block mx-auto"
                       onClick={() => setManualEntry(true)}
                     >
-                      Don't have a website? Enter manually →
+                      Don&apos;t have a website? Enter manually →
                     </button>
                   </div>
                 ) : (

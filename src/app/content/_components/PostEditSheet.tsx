@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import ContentEditor from "./ContentEditor";
 import ImagePicker from "./ImagePicker";
 import Select from "@/components/app/Select";
@@ -44,6 +45,8 @@ const channelLabels: Record<string, string> = {
   x: "X", facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok",
 };
 
+const IMAGE_CUSTOM_PROMPT_MAX_LENGTH = 1200;
+
 export default function PostEditSheet({
   post,
   open,
@@ -66,6 +69,8 @@ export default function PostEditSheet({
   const [uploading, setUploading] = useState(false);
   const [imageStyle, setImageStyle] = useState("branded");
   const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [imagePromptMode, setImagePromptMode] = useState<"guided" | "custom_override">("guided");
+  const [customImagePrompt, setCustomImagePrompt] = useState("");
   const [showAiPanel, setShowAiPanel] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +82,8 @@ export default function PostEditSheet({
       setMediaUrls(post.mediaUrls ?? []);
       setAspectRatio(channelDefaultRatio[post.channel] ?? "1:1");
       setShowAiPanel(false);
+      setImagePromptMode("guided");
+      setCustomImagePrompt("");
     }
   }, [post]);
 
@@ -104,12 +111,22 @@ export default function PostEditSheet({
   };
 
   const handleGenerateImage = async () => {
-    if (!content) { toast.error("Add a caption first"); return; }
+    if (imagePromptMode === "guided" && !content) { toast.error("Add a caption first"); return; }
+    if (imagePromptMode === "custom_override" && !customImagePrompt.trim()) { toast.error("Add a custom image prompt"); return; }
     setGeneratingImage(true);
     try {
+      const prompt = imagePromptMode === "custom_override" ? customImagePrompt.trim() : content;
       const res = await apiPost<{ imageUrl: string; provider: string }>(
         "/api/ai/generate-image",
-        { prompt: content, channel, style: imageStyle, aspectRatio, provider: "gemini" }
+        {
+          prompt,
+          promptMode: imagePromptMode,
+          customPrompt: imagePromptMode === "custom_override" ? customImagePrompt.trim() : undefined,
+          channel,
+          style: imageStyle,
+          aspectRatio,
+          provider: "gemini",
+        }
       );
       if (res.ok) {
         setMediaUrls([res.data.imageUrl]);
@@ -236,6 +253,54 @@ export default function PostEditSheet({
 
               {showAiPanel && (
                 <div className="rounded-xl border border-border/40 bg-muted/20 p-4 space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="text-[10px] text-muted-foreground">Prompt Mode</label>
+                      <div className="flex rounded-md border border-border/60 p-0.5 gap-0.5">
+                        <button
+                          onClick={() => setImagePromptMode("guided")}
+                          className={`px-2 py-1 text-[10px] rounded transition-all ${
+                            imagePromptMode === "guided"
+                              ? "bg-foreground text-background"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          Guided
+                        </button>
+                        <button
+                          onClick={() => setImagePromptMode("custom_override")}
+                          className={`px-2 py-1 text-[10px] rounded transition-all ${
+                            imagePromptMode === "custom_override"
+                              ? "bg-foreground text-background"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          Override
+                        </button>
+                      </div>
+                    </div>
+                    {imagePromptMode === "custom_override" && (
+                      <>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-[10px] text-muted-foreground">Custom Image Prompt</label>
+                          <span className={`text-[10px] tabular-nums ${customImagePrompt.length > IMAGE_CUSTOM_PROMPT_MAX_LENGTH ? "text-destructive" : "text-muted-foreground/70"}`}>
+                            {customImagePrompt.length}/{IMAGE_CUSTOM_PROMPT_MAX_LENGTH}
+                          </span>
+                        </div>
+                        <Textarea
+                          value={customImagePrompt}
+                          onChange={(e) => {
+                            if (e.target.value.length <= IMAGE_CUSTOM_PROMPT_MAX_LENGTH) {
+                              setCustomImagePrompt(e.target.value);
+                            }
+                          }}
+                          rows={3}
+                          placeholder="Describe exactly what image you want. This brief overrides the normal caption-driven prompt builder."
+                          className="resize-none text-xs"
+                        />
+                      </>
+                    )}
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="text-[10px] text-muted-foreground">Style</label>
@@ -254,9 +319,9 @@ export default function PostEditSheet({
                     size="sm"
                     className="w-full text-xs"
                     onClick={handleGenerateImage}
-                    disabled={generatingImage}
+                    disabled={generatingImage || (imagePromptMode === "custom_override" && customImagePrompt.length > IMAGE_CUSTOM_PROMPT_MAX_LENGTH)}
                   >
-                    {generatingImage ? "Generating…" : "Generate Image from Caption"}
+                    {generatingImage ? "Generating…" : imagePromptMode === "custom_override" ? "Generate Image from Custom Prompt" : "Generate Image from Caption"}
                   </Button>
                 </div>
               )}

@@ -6,11 +6,11 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { TrialBanner } from "./TrialBanner";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { useSubscription } from "@/components/providers/SubscriptionProvider";
+import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  const { status, loading: subLoading } = useSubscription();
+  const { completed, error: onboardingError, loading: onboardingLoading } = useOnboardingStatus();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -21,13 +21,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [loading, user, pathname, router]);
 
   useEffect(() => {
-    if (loading || subLoading || !user) return;
-    if (!status?.active) {
+    if (loading || onboardingLoading || !user) return;
+    if (completed === false && !onboardingError) {
       router.replace('/onboarding');
     }
-  }, [loading, subLoading, user, status, router]);
+  }, [loading, onboardingLoading, user, completed, onboardingError, router]);
 
-  if (loading || subLoading) {
+  if (loading || onboardingLoading) {
     return (
       <div className="min-h-screen grid place-items-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -42,7 +42,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) return null;
-  if (!status?.active) return null;
+  if (completed === false && !onboardingError) return null;
 
   return (
     <div className="grid h-screen w-full max-w-full overflow-hidden lg:grid-cols-[260px_1fr]">

@@ -5,7 +5,10 @@ import {
   readResponseBufferWithLimit,
 } from '@/lib/network-security';
 
-const MAX_PROXY_BYTES = 12 * 1024 * 1024;
+const MAX_PROXY_BYTES = 20 * 1024 * 1024;
+const TIKTOK_MAX_IMAGE_WIDTH = 1080;
+const TIKTOK_MAX_IMAGE_HEIGHT = 1920;
+const TIKTOK_JPEG_QUALITY = 90;
 
 function isAllowedStorageUrl(url: URL): boolean {
   const bucket = (process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '').trim();
@@ -33,8 +36,8 @@ function isAllowedStorageUrl(url: URL): boolean {
 /**
  * Proxies media from Firebase Storage through the app's domain.
  * TikTok's PULL_FROM_URL requires the image URL to be on a verified domain,
- * and only accepts JPEG/WEBP (not PNG). This route proxies the image and
- * converts PNG to JPEG automatically.
+ * and photo uploads are capped at 1080p. This route normalizes every image to
+ * a safe JPEG payload so TikTok's size checks pass consistently.
  *
  * GET /api/media/proxy?url=<encoded-url>
  */
@@ -70,24 +73,26 @@ export async function GET(req: NextRequest) {
 
   const buffer = await readResponseBufferWithLimit(upstream, MAX_PROXY_BYTES);
 
-  // TikTok rejects PNG — convert to JPEG
-  if (contentType.includes('png')) {
-    const jpegBuffer = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
-    return new NextResponse(new Uint8Array(jpegBuffer), {
-      status: 200,
-      headers: {
-        'Content-Type': 'image/jpeg',
-        'Content-Length': String(jpegBuffer.length),
-        'Cache-Control': 'public, max-age=3600',
-      },
-    });
-  }
+  const jpegBuffer = await sharp(buffer)
+    .rotate()
+    .resize({
+      width: TIKTOK_MAX_IMAGE_WIDTH,
+      height: TIKTOK_MAX_IMAGE_HEIGHT,
+      fit: 'inside',
+      withoutEnlargement: true,
+    })
+    .flatten({ background: '#ffffff' })
+    .jpeg({
+      quality: TIKTOK_JPEG_QUALITY,
+      mozjpeg: true,
+    })
+    .toBuffer();
 
-  return new NextResponse(new Uint8Array(buffer), {
+  return new NextResponse(new Uint8Array(jpegBuffer), {
     status: 200,
     headers: {
-      'Content-Type': contentType,
-      'Content-Length': String(buffer.length),
+      'Content-Type': 'image/jpeg',
+      'Content-Length': String(jpegBuffer.length),
       'Cache-Control': 'public, max-age=3600',
     },
   });

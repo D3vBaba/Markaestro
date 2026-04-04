@@ -58,6 +58,7 @@ const channelDefaultRatio: Record<string, string> = {
 };
 
 const CONTEXT_MAX_LENGTH = 500;
+const IMAGE_CUSTOM_PROMPT_MAX_LENGTH = 1200;
 
 export default function CreateTab({
   productId,
@@ -84,6 +85,8 @@ export default function CreateTab({
   const [imageSubtype, setImageSubtype] = useState("");
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [imageContext, setImageContext] = useState("");
+  const [imagePromptMode, setImagePromptMode] = useState<"guided" | "custom_override">("guided");
+  const [customImagePrompt, setCustomImagePrompt] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const handleChannelChange = (ch: string) => {
@@ -188,19 +191,27 @@ export default function CreateTab({
   };
 
   const handleGenerateImage = async () => {
-    if (!content) {
+    if (!content && imagePromptMode === "guided") {
       toast.error("Generate content first");
+      return;
+    }
+    if (imagePromptMode === "custom_override" && !customImagePrompt.trim()) {
+      toast.error("Add a custom image prompt");
       return;
     }
     setGeneratingImage(true);
     try {
-      const prompt = imageContext
-        ? `${imageContext}\n\nPost caption for context: ${content}`
-        : content;
+      const prompt = imagePromptMode === "custom_override"
+        ? customImagePrompt.trim()
+        : imageContext
+          ? `${imageContext}\n\nPost caption for context: ${content}`
+          : content;
       const res = await apiPost<{ imageUrl: string; provider: string; revisedPrompt?: string }>(
         "/api/ai/generate-image",
         {
           prompt,
+          promptMode: imagePromptMode,
+          customPrompt: imagePromptMode === "custom_override" ? customImagePrompt.trim() : undefined,
           productId: productId || undefined,
           channel,
           style: imageStyle,
@@ -356,7 +367,7 @@ export default function CreateTab({
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            AI Generate
+            Generate
           </button>
           <button
             onClick={() => setMode("manual")}
@@ -492,8 +503,8 @@ export default function CreateTab({
               <PlatformPreview content={content} channel={channel} mediaUrls={imageUrl ? [imageUrl] : undefined} />
             </div>
 
-            {/* Image generation */}
-            <div className="border-t border-border/30 pt-6 space-y-4">
+            {/* Image generation — AI mode only */}
+            {mode === "ai" && (<div className="border-t border-border/30 pt-6 space-y-4">
               <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Image</h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
@@ -537,15 +548,68 @@ export default function CreateTab({
               </div>
 
               {/* Image context */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] text-muted-foreground">Image Direction (optional)</label>
-                <Textarea
-                  placeholder="Describe what you want the image to show: mood, colors, scene, elements..."
-                  value={imageContext}
-                  onChange={(e) => setImageContext(e.target.value)}
-                  rows={2}
-                  className="resize-none text-xs"
-                />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-[11px] text-muted-foreground">Prompt Mode</label>
+                  <div className="flex rounded-md border border-border/60 p-0.5 gap-0.5">
+                    <button
+                      onClick={() => setImagePromptMode("guided")}
+                      className={`px-2.5 py-1 text-[11px] rounded transition-all ${
+                        imagePromptMode === "guided"
+                          ? "bg-foreground text-background"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Guided
+                    </button>
+                    <button
+                      onClick={() => setImagePromptMode("custom_override")}
+                      className={`px-2.5 py-1 text-[11px] rounded transition-all ${
+                        imagePromptMode === "custom_override"
+                          ? "bg-foreground text-background"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Custom Override
+                    </button>
+                  </div>
+                </div>
+
+                {imagePromptMode === "custom_override" ? (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="text-[11px] text-muted-foreground">Custom Image Prompt</label>
+                      <span className={`text-[10px] tabular-nums ${customImagePrompt.length > IMAGE_CUSTOM_PROMPT_MAX_LENGTH ? "text-destructive" : "text-muted-foreground/70"}`}>
+                        {customImagePrompt.length}/{IMAGE_CUSTOM_PROMPT_MAX_LENGTH}
+                      </span>
+                    </div>
+                    <Textarea
+                      placeholder="Describe exactly what the model should create. In this mode, your brief is the source of truth."
+                      value={customImagePrompt}
+                      onChange={(e) => {
+                        if (e.target.value.length <= IMAGE_CUSTOM_PROMPT_MAX_LENGTH) {
+                          setCustomImagePrompt(e.target.value);
+                        }
+                      }}
+                      rows={4}
+                      className="resize-none text-xs"
+                    />
+                    <p className="text-[10px] text-muted-foreground/60">
+                      Your prompt overrides Markaestro&apos;s normal creative scene builder. Screenshots and logos stay attached as supporting references.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] text-muted-foreground">Image Direction (optional)</label>
+                    <Textarea
+                      placeholder="Describe what you want the image to show: mood, colors, scene, elements..."
+                      value={imageContext}
+                      onChange={(e) => setImageContext(e.target.value)}
+                      rows={2}
+                      className="resize-none text-xs"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* App screenshots */}
@@ -608,7 +672,7 @@ export default function CreateTab({
                   variant="outline"
                   size="sm"
                   onClick={handleGenerateImage}
-                  disabled={generatingImage}
+                  disabled={generatingImage || (imagePromptMode === "custom_override" && customImagePrompt.length > IMAGE_CUSTOM_PROMPT_MAX_LENGTH)}
                   className="flex-1 text-xs"
                 >
                   {generatingImage ? "Generating..." : "Generate Image"}
@@ -651,7 +715,7 @@ export default function CreateTab({
                   </div>
                 </div>
               )}
-            </div>
+            </div>)}
 
             {/* Actions */}
             {actionButtons}

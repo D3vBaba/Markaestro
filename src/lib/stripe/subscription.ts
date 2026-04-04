@@ -86,6 +86,7 @@ export async function findUidByCustomerId(customerId: string): Promise<string | 
 
 export type SubscriptionStatus = {
   active: boolean;
+  hasSubscriptionHistory: boolean;
   tier: PlanTier | null;
   interval: string | null;
   trialing: boolean;
@@ -98,6 +99,7 @@ export function resolveStatus(sub: SubscriptionRecord | null): SubscriptionStatu
   if (!sub) {
     return {
       active: false,
+      hasSubscriptionHistory: false,
       tier: null,
       interval: null,
       trialing: false,
@@ -111,6 +113,7 @@ export function resolveStatus(sub: SubscriptionRecord | null): SubscriptionStatu
 
   return {
     active,
+    hasSubscriptionHistory: true,
     tier: (sub.tier as PlanTier) || null,
     interval: sub.interval || null,
     trialing: sub.status === 'trialing',
