@@ -1,4 +1,4 @@
-import type { ProductSceneType, VideoProvider } from '@/lib/schemas';
+import type { ProductSceneType, PromptMode, VideoProvider } from '@/lib/schemas';
 import { generateWithGemini, fetchImageAsBase64, uploadToFirebaseStorage } from './image-generator';
 import { submitToFal } from './video-generator';
 import { generateTTS } from './ugc-video-generator';
@@ -12,6 +12,8 @@ export type ProductSceneRequest = {
   productDescription: string;
   productCategories?: string[];
   sceneType: ProductSceneType;
+  promptMode?: PromptMode;
+  customPrompt?: string;
   avatarImageUrl?: string;
   productImageUrl?: string;
   sceneDescription?: string;
@@ -76,10 +78,21 @@ function buildScenePrompt(
   productName: string,
   productDescription: string,
   sceneDescription?: string,
+  promptMode?: PromptMode,
+  customPrompt?: string,
 ): string {
-  const base = sceneDescription
-    ? sceneDescription
-    : SCENE_TEMPLATES[sceneType](productName, productDescription.slice(0, 200));
+  const base = promptMode === 'custom_override'
+    ? [
+        'PRIMARY VIDEO BRIEF (SOURCE OF TRUTH):',
+        customPrompt?.trim() || sceneDescription?.trim() || SCENE_TEMPLATES[sceneType](productName, productDescription.slice(0, 200)),
+        '',
+        'OVERRIDE RULE: Follow the user brief exactly. Product context below is supporting material only and must never replace the requested scene.',
+        `Product: ${productName}`,
+        productDescription ? `Description: ${productDescription.slice(0, 200)}` : '',
+      ].filter(Boolean).join('\n')
+    : sceneDescription
+      ? sceneDescription
+      : SCENE_TEMPLATES[sceneType](productName, productDescription.slice(0, 200));
 
   return [
     base,
@@ -116,6 +129,8 @@ export async function submitProductScene(
     req.productName,
     req.productDescription,
     req.sceneDescription,
+    req.promptMode,
+    req.customPrompt,
   );
 
   // 2. Collect reference images for Gemini (avatar face + product photo)

@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import type { BrandVoice } from '@/lib/schemas';
+import type { BrandVoice, PromptMode } from '@/lib/schemas';
 import { generateTTS } from './ugc-video-generator';
 import type { KokoroVoice } from './ugc-video-generator';
 import { submitMultiPromptToFal, mergeAudioVideo, pollFal, uploadVideoToStorage } from './video-generator';
@@ -11,6 +11,8 @@ export type FacelessNarratedRequest = {
   productDescription: string;
   productCategories?: string[];
   brandVoice?: BrandVoice;
+  promptMode?: PromptMode;
+  customPrompt?: string;
   sceneCount: number;
   durationSeconds: number;
   voice: string;
@@ -52,6 +54,7 @@ async function generateNarrationWithScenes(
 ): Promise<NarrationScript> {
   // If user provided a script, generate scene visuals for it
   const hasCustomScript = !!req.script?.trim();
+  const hasCustomOverride = req.promptMode === 'custom_override' && !!req.customPrompt?.trim();
 
   const client = getClient();
   const secondsPerScene = Math.round(req.durationSeconds / req.sceneCount);
@@ -81,6 +84,8 @@ Rules for each visual scene:
 - Each scene must be visually distinct from the others
 - Vertical 9:16 framing. No text overlays, no watermarks.
 
+${hasCustomOverride ? '- The user-provided creative brief is the source of truth. Preserve its subject, mood, setting, and visual intent instead of replacing it with generic product marketing scenes.' : ''}
+
 Return valid JSON only.`,
       },
       {
@@ -93,6 +98,7 @@ Categories: ${req.productCategories?.join(', ') || 'General'}
 Brand tone: ${req.brandVoice?.tone || 'Confident and authentic'}
 ${req.trendContext ? `Trend: "${req.trendContext.name}" — ${req.trendContext.format}` : ''}
 ${req.trendContext?.hooks?.length ? `Hook inspiration: ${req.trendContext.hooks[0]}` : ''}
+${hasCustomOverride ? `User creative brief (source of truth): ${req.customPrompt}` : ''}
 
 ${hasCustomScript ? `Use this narration script (generate matching visuals for it):\n"${req.script}"` : `Script style: ${req.scriptStyle}`}
 

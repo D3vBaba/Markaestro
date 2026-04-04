@@ -1,10 +1,12 @@
 import crypto from 'crypto';
-import type { BrandIdentity, BrandVoice, ImageStyle, ImageSubtype, ImageAspectRatio, ImageProvider, SocialChannel } from '@/lib/schemas';
+import type { BrandIdentity, BrandVoice, ImageStyle, ImageSubtype, ImageAspectRatio, ImageProvider, PromptMode, SocialChannel } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 import { assertSafeOutboundUrl, readResponseBufferWithLimit } from '@/lib/network-security';
 
 export type ImageGenRequest = {
   prompt: string;
+  promptMode?: PromptMode;
+  customPrompt?: string;
   brandIdentity?: BrandIdentity;
   brandVoice?: BrandVoice;
   productName?: string;
@@ -510,7 +512,7 @@ function getProductSubjectDirection(
  * The randomized creative elements lead the prompt so the model
  * prioritizes them over static product/platform context.
  */
-function buildBrandedPrompt(req: ImageGenRequest): string {
+function buildGuidedImagePrompt(req: ImageGenRequest): string {
   const sections: string[] = [];
 
   // ── Gather product context ──
@@ -648,6 +650,76 @@ function buildBrandedPrompt(req: ImageGenRequest): string {
   sections.push(hardConstraints.join('\n'));
 
   return sections.join('\n\n');
+}
+
+function buildCustomOverrideImagePrompt(req: ImageGenRequest): string {
+  const sections: string[] = [];
+  const primaryBrief = req.customPrompt?.trim() || req.prompt.trim();
+
+  sections.push([
+    'PRIMARY CREATIVE BRIEF (SOURCE OF TRUTH):',
+    primaryBrief,
+    '',
+    'OVERRIDE RULE: Follow the user brief exactly. Supporting context below may clarify constraints, but it must never replace, soften, or reinterpret the requested scene.',
+  ].join('\n'));
+
+  if (req.productName || req.productDescription || req.productCategories?.length) {
+    sections.push([
+      'SUPPORTING PRODUCT CONTEXT:',
+      req.productName ? `Product: ${req.productName}` : '',
+      req.productDescription ? `Description: ${req.productDescription.slice(0, 200)}` : '',
+      req.productCategories?.length ? `Categories: ${req.productCategories.join(', ')}` : '',
+    ].filter(Boolean).join('\n'));
+  }
+
+  if (req.screenUrls?.length) {
+    sections.push([
+      `REFERENCE SCREENSHOTS: ${req.screenUrls.length} image(s) attached.`,
+      'If screens or devices appear, use the attached screenshots faithfully. Do not redraw, remix, or invent alternate UI.',
+    ].join('\n'));
+  }
+
+  if (req.logoUrl) {
+    sections.push('REFERENCE LOGO: A logo is attached. Only use it when it naturally fits the requested composition, and keep it subtle.');
+  }
+
+  if (req.brandIdentity) {
+    const colors = [
+      req.brandIdentity.primaryColor,
+      req.brandIdentity.secondaryColor,
+      req.brandIdentity.accentColor,
+    ].filter(Boolean);
+    if (colors.length > 0) {
+      sections.push(`OPTIONAL BRAND COLOR SUPPORT: ${colors.join(', ')}. Use only if the user brief does not specify a conflicting palette.`);
+    }
+  }
+
+  if (req.brandVoice?.tone) {
+    sections.push(`OPTIONAL BRAND TONE SUPPORT: ${req.brandVoice.tone}. Only apply it if it fits the user brief.`);
+  }
+
+  const hardConstraints = [
+    'QUALITY: Sharp focus, professional color correction, slight film grain.',
+    'NO text, words, or typography. NO watermarks.',
+  ];
+
+  if (!req.screenUrls?.length) {
+    hardConstraints.push(
+      'Do NOT show device screens or UI unless the user brief explicitly requests them.',
+      'Do NOT default to generic dashboards, holographic interfaces, or abstract tech graphics.',
+    );
+  }
+
+  sections.push(hardConstraints.join('\n'));
+
+  return sections.join('\n\n');
+}
+
+function buildImagePrompt(req: ImageGenRequest): string {
+  if (req.promptMode === 'custom_override') {
+    return buildCustomOverrideImagePrompt(req);
+  }
+  return buildGuidedImagePrompt(req);
 }
 
 /**
@@ -830,7 +902,7 @@ export async function uploadToFirebaseStorage(
  * Tries Gemini 3.1 Flash first, falls back to OpenAI DALL-E 3.
  */
 export async function generateImage(req: ImageGenRequest): Promise<{ base64: string; mimeType: string; provider: ImageProvider; revisedPrompt?: string }> {
-  const prompt = buildBrandedPrompt(req);
+  const prompt = buildImagePrompt(req);
 
   // Fetch reference images (logo + screenshots) for Gemini multimodal input
   const referenceImages: { base64: string; mimeType: string }[] = [];
