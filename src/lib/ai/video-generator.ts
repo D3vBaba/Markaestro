@@ -1,12 +1,14 @@
 import crypto from 'crypto';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 import { getSecret } from '@/lib/secrets';
-import type { BrandVoice, VideoProvider } from '@/lib/schemas';
+import type { BrandVoice, PromptMode, VideoProvider } from '@/lib/schemas';
 
 // ── Types ────────────────────────────────────────────────────────────
 
 export type VideoGenRequest = {
   prompt: string;
+  promptMode?: PromptMode;
+  customPrompt?: string;
   productName?: string;
   productDescription?: string;
   productCategories?: string[];
@@ -66,7 +68,7 @@ async function falHeaders(): Promise<Record<string, string>> {
  * - Cinematically directed (camera angles, depth of field, pacing)
  * - NOT abstract or conceptual — Kling needs concrete visual descriptions
  */
-function buildVideoPrompt(req: VideoGenRequest): string {
+function buildGuidedVideoPrompt(req: VideoGenRequest): string {
   const lines: string[] = [];
 
   // Core cinematic direction — this is what Kling needs most
@@ -96,6 +98,50 @@ function buildVideoPrompt(req: VideoGenRequest): string {
   );
 
   return lines.filter(Boolean).join('\n');
+}
+
+function buildCustomOverrideVideoPrompt(req: VideoGenRequest): string {
+  const lines: string[] = [];
+  const primaryBrief = req.customPrompt?.trim() || req.prompt.trim();
+
+  lines.push(primaryBrief);
+  lines.push('');
+  lines.push('OVERRIDE RULE: The user brief above is the source of truth. Supporting context below must not replace, soften, or reinterpret it.');
+
+  if (req.productName || req.productDescription || req.productCategories?.length) {
+    lines.push('');
+    lines.push('SUPPORTING PRODUCT CONTEXT:');
+    if (req.productName) lines.push(`Product: ${req.productName}`);
+    if (req.productDescription) lines.push(`Description: ${req.productDescription.slice(0, 200)}`);
+    if (req.productCategories?.length) lines.push(`Categories: ${req.productCategories.join(', ')}`);
+  }
+
+  if (req.trendContext) {
+    lines.push('');
+    lines.push(`OPTIONAL TREND CONTEXT: ${req.trendContext.name} — ${req.trendContext.format}. Use only if it fits the user brief.`);
+    if (req.trendContext.hooks.length > 0) {
+      lines.push(`Optional opening hook inspiration: ${req.trendContext.hooks[0]}.`);
+    }
+  }
+
+  if (req.brandVoice?.tone) {
+    lines.push(`Optional brand tone support: ${req.brandVoice.tone}.`);
+  }
+
+  lines.push(
+    '',
+    'Vertical 9:16 framing. Cinematic color grading. Smooth, intentional camera movement.',
+    'No text, no watermarks, no UI overlays.',
+  );
+
+  return lines.filter(Boolean).join('\n');
+}
+
+function buildVideoPrompt(req: VideoGenRequest): string {
+  if (req.promptMode === 'custom_override') {
+    return buildCustomOverrideVideoPrompt(req);
+  }
+  return buildGuidedVideoPrompt(req);
 }
 
 // ── fal.ai model endpoints ───────────────────────────────────────────

@@ -55,6 +55,8 @@ export async function POST(req: Request) {
     // Submit to video generation provider
     const result = await submitVideoGeneration({
       prompt: data.prompt,
+      promptMode: data.promptMode,
+      customPrompt: data.customPrompt,
       productName,
       productDescription,
       productCategories,
@@ -71,7 +73,7 @@ export async function POST(req: Request) {
     const generationData = {
       trendId: data.trendId || '',
       productId: data.productId || '',
-      prompt: data.prompt,
+      prompt: data.customPrompt || data.prompt,
       provider: result.provider,
       status: 'generating',
       videoUrl: '',

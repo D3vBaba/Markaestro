@@ -48,14 +48,26 @@ export default function ScheduleSheet({
 }) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState("12:00");
+  const [selectedSuggestionIso, setSelectedSuggestionIso] = useState<string | null>(null);
   const [smartSlots, setSmartSlots] = useState<SmartSlot[]>([]);
-  const [loadingSmart, setLoadingSmart] = useState(false);
+  const [smartLoaded, setSmartLoaded] = useState(false);
   const [showSmart, setShowSmart] = useState(true);
+
+  const handleSheetOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setSelectedDate(undefined);
+      setTime("12:00");
+      setSelectedSuggestionIso(null);
+      setSmartSlots([]);
+      setSmartLoaded(false);
+      setShowSmart(true);
+    }
+    onOpenChange(nextOpen);
+  };
 
   // Fetch smart schedule suggestions when sheet opens
   useEffect(() => {
     if (!open) return;
-    setLoadingSmart(true);
     const query = channel ? `?channel=${channel}` : "";
     apiGet<{ suggestions: Record<string, SmartSlot[]> }>(`/api/posts/smart-schedule${query}`)
       .then((res) => {
@@ -66,11 +78,16 @@ export default function ScheduleSheet({
         }
       })
       .catch(() => {})
-      .finally(() => setLoadingSmart(false));
+      .finally(() => setSmartLoaded(true));
   }, [open, channel]);
 
   const handleSchedule = () => {
     if (!selectedDate) return;
+    if (selectedSuggestionIso) {
+      onSchedule(selectedSuggestionIso);
+      onOpenChange(false);
+      return;
+    }
     const [hours, minutes] = time.split(":").map(Number);
     const scheduled = new Date(selectedDate);
     scheduled.setHours(hours, minutes, 0, 0);
@@ -81,13 +98,15 @@ export default function ScheduleSheet({
   const handleSmartPick = (slot: SmartSlot) => {
     const d = new Date(slot.suggestedDate);
     setSelectedDate(d);
-    const h = d.getUTCHours().toString().padStart(2, "0");
-    setTime(`${h}:00`);
+    const h = d.getHours().toString().padStart(2, "0");
+    const m = d.getMinutes().toString().padStart(2, "0");
+    setTime(`${h}:${m}`);
+    setSelectedSuggestionIso(slot.suggestedDate);
     setShowSmart(false);
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleSheetOpenChange}>
       <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Schedule Post</SheetTitle>
@@ -113,7 +132,7 @@ export default function ScheduleSheet({
 
               {showSmart && (
                 <div className="space-y-2">
-                  {loadingSmart ? (
+                  {!smartLoaded ? (
                     <div className="flex items-center justify-center py-6">
                       <div className="h-4 w-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                     </div>
@@ -127,7 +146,13 @@ export default function ScheduleSheet({
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-foreground">{slot.label}</p>
+                              <p className="text-sm font-medium text-foreground">
+                                {new Date(slot.suggestedDate).toLocaleString([], {
+                                  weekday: "long",
+                                  hour: "numeric",
+                                  minute: "2-digit",
+                                })}
+                              </p>
                               <ScoreBadge score={slot.score} />
                             </div>
                             <p className="text-xs text-muted-foreground mt-0.5 truncate">{slot.reason}</p>
@@ -155,11 +180,21 @@ export default function ScheduleSheet({
           <DayPicker
             mode="single"
             selected={selectedDate}
-            onSelect={setSelectedDate}
+            onSelect={(date) => {
+              setSelectedDate(date);
+              setSelectedSuggestionIso(null);
+            }}
             disabled={{ before: new Date() }}
           />
           <FormField label="Time">
-            <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+            <Input
+              type="time"
+              value={time}
+              onChange={(e) => {
+                setTime(e.target.value);
+                setSelectedSuggestionIso(null);
+              }}
+            />
           </FormField>
         </div>
 

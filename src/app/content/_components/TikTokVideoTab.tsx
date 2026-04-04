@@ -50,6 +50,8 @@ type VideoGeneration = {
 
 type ProductSceneType = "product-in-hand" | "unboxing" | "routine" | "before-after" | "lifestyle";
 
+const VIDEO_CUSTOM_PROMPT_MAX_LENGTH = 1500;
+
 const SCRIPT_STYLES = [
   { value: "problem-solution", label: "Problem \u2192 Solution", desc: "Relatable pain point, then the fix" },
   { value: "testimonial", label: "Testimonial", desc: "Personal experience story" },
@@ -159,6 +161,8 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   // Product Scene specific
   const [sceneType, setSceneType] = useState<ProductSceneType>("product-in-hand");
   const [sceneDescription, setSceneDescription] = useState("");
+  const [videoPromptMode, setVideoPromptMode] = useState<"guided" | "custom_override">("guided");
+  const [customVideoPrompt, setCustomVideoPrompt] = useState("");
   const [productImageUrl, setProductImageUrl] = useState("");
   const [uploadingProductImage, setUploadingProductImage] = useState(false);
   const [wantsVoiceover, setWantsVoiceover] = useState(false);
@@ -334,11 +338,17 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   };
 
   const handleGenerateScene = async () => {
+    if (videoPromptMode === "custom_override" && !customVideoPrompt.trim()) {
+      toast.error("Add a custom video prompt");
+      return;
+    }
     setGenerating(true); setGeneration(null);
     try {
       const res = await apiPost<VideoGeneration>("/api/ai/product-scene", {
         productId,
         sceneType,
+        promptMode: videoPromptMode,
+        customPrompt: videoPromptMode === "custom_override" ? customVideoPrompt.trim() : undefined,
         avatarImageUrl: selectedAvatarUrl || undefined,
         productImageUrl: productImageUrl || undefined,
         sceneDescription: sceneDescription || undefined,
@@ -356,10 +366,16 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   };
 
   const handleGenerateFaceless = async () => {
+    if (videoPromptMode === "custom_override" && !customVideoPrompt.trim()) {
+      toast.error("Add a custom video prompt");
+      return;
+    }
     setGenerating(true); setGeneration(null);
     try {
       const res = await apiPost<VideoGeneration>("/api/ai/faceless-video", {
         productId,
+        promptMode: videoPromptMode,
+        customPrompt: videoPromptMode === "custom_override" ? customVideoPrompt.trim() : undefined,
         sceneCount: facelessSceneCount,
         durationSeconds: facelessDuration,
         voice,
@@ -382,16 +398,10 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
     setTrends([]); setSelectedTrend(null); setScript(null); setEditedScript("");
     setSelectedAvatarUrl(""); setCaption(""); setGeneration(null);
     setSceneDescription(""); setProductImageUrl(""); setWantsVoiceover(false);
+    setVideoPromptMode("guided"); setCustomVideoPrompt("");
     setWizardStep(1);
     if (pollRef.current) clearInterval(pollRef.current);
   };
-
-  // Can we proceed to generate?
-  const canGenerate = videoFormat === "ugc"
-    ? !!(selectedAvatarUrl && script)
-    : videoFormat === "product-scene"
-    ? !!(selectedTrend && sceneType && (!wantsVoiceover || editedScript))
-    : !!(selectedTrend && voice);
 
   // Determine if the user can proceed from each wizard step
   const canProceedFromStep = (step: number): boolean => {
@@ -553,6 +563,37 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               </div>
 
               <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-[11px] text-muted-foreground font-medium">Prompt Mode</label>
+                  <div className="flex rounded-md border border-border/60 p-0.5 gap-0.5">
+                    <button
+                      onClick={() => setVideoPromptMode("guided")}
+                      className={`px-2.5 py-1 text-[11px] rounded transition-all ${
+                        videoPromptMode === "guided"
+                          ? "bg-foreground text-background"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Guided
+                    </button>
+                    <button
+                      onClick={() => setVideoPromptMode("custom_override")}
+                      className={`px-2.5 py-1 text-[11px] rounded transition-all ${
+                        videoPromptMode === "custom_override"
+                          ? "bg-foreground text-background"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Custom Override
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground/60">
+                  Override mode makes your scene brief the source of truth instead of the default scene template.
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <label className="text-[11px] text-muted-foreground font-medium">Scene Type</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {SCENE_TYPES.map((s) => (
@@ -611,10 +652,32 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[11px] text-muted-foreground font-medium">Custom Scene Description (optional)</label>
-                <Textarea value={sceneDescription} onChange={(e) => setSceneDescription(e.target.value)} rows={3} placeholder='e.g. "Woman lifting the serum bottle from a marble countertop, soft morning light..."' className="resize-none text-sm" />
-              </div>
+              {videoPromptMode === "custom_override" ? (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-[11px] text-muted-foreground font-medium">Custom Video Prompt</label>
+                    <span className={`text-[10px] tabular-nums ${customVideoPrompt.length > VIDEO_CUSTOM_PROMPT_MAX_LENGTH ? "text-destructive" : "text-muted-foreground/70"}`}>
+                      {customVideoPrompt.length}/{VIDEO_CUSTOM_PROMPT_MAX_LENGTH}
+                    </span>
+                  </div>
+                  <Textarea
+                    value={customVideoPrompt}
+                    onChange={(e) => {
+                      if (e.target.value.length <= VIDEO_CUSTOM_PROMPT_MAX_LENGTH) {
+                        setCustomVideoPrompt(e.target.value);
+                      }
+                    }}
+                    rows={4}
+                    placeholder='e.g. "Close-up macro of the app screenshots on a phone floating over chrome water with dramatic blue sidelighting..."'
+                    className="resize-none text-sm"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] text-muted-foreground font-medium">Custom Scene Description (optional)</label>
+                  <Textarea value={sceneDescription} onChange={(e) => setSceneDescription(e.target.value)} rows={3} placeholder='e.g. "Woman lifting the serum bottle from a marble countertop, soft morning light..."' className="resize-none text-sm" />
+                </div>
+              )}
             </div>
           )}
 
@@ -623,6 +686,55 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                                 <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Script & Voice</label>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-[11px] text-muted-foreground font-medium">Prompt Mode</label>
+                  <div className="flex rounded-md border border-border/60 p-0.5 gap-0.5">
+                    <button
+                      onClick={() => setVideoPromptMode("guided")}
+                      className={`px-2.5 py-1 text-[11px] rounded transition-all ${
+                        videoPromptMode === "guided"
+                          ? "bg-foreground text-background"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Guided
+                    </button>
+                    <button
+                      onClick={() => setVideoPromptMode("custom_override")}
+                      className={`px-2.5 py-1 text-[11px] rounded transition-all ${
+                        videoPromptMode === "custom_override"
+                          ? "bg-foreground text-background"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Custom Override
+                    </button>
+                  </div>
+                </div>
+                {videoPromptMode === "custom_override" && (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="text-[11px] text-muted-foreground font-medium">Custom Video Prompt</label>
+                      <span className={`text-[10px] tabular-nums ${customVideoPrompt.length > VIDEO_CUSTOM_PROMPT_MAX_LENGTH ? "text-destructive" : "text-muted-foreground/70"}`}>
+                        {customVideoPrompt.length}/{VIDEO_CUSTOM_PROMPT_MAX_LENGTH}
+                      </span>
+                    </div>
+                    <Textarea
+                      value={customVideoPrompt}
+                      onChange={(e) => {
+                        if (e.target.value.length <= VIDEO_CUSTOM_PROMPT_MAX_LENGTH) {
+                          setCustomVideoPrompt(e.target.value);
+                        }
+                      }}
+                      rows={4}
+                      placeholder="Describe the exact visual direction and pacing you want. This becomes the source of truth for the narration and shot plan."
+                      className="resize-none text-sm"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-4">
@@ -854,7 +966,11 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                 <span>9:16</span>
               </div>
 
-              <Button onClick={handleGenerate} disabled={generating || generation?.status === "generating"} className="w-full h-12 text-sm font-medium">
+              <Button
+                onClick={handleGenerate}
+                disabled={generating || generation?.status === "generating" || (videoPromptMode === "custom_override" && customVideoPrompt.length > VIDEO_CUSTOM_PROMPT_MAX_LENGTH)}
+                className="w-full h-12 text-sm font-medium"
+              >
                 {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : "Generate Faceless Video"}
               </Button>
 
@@ -918,7 +1034,11 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               <span>9:16</span>
             </div>
 
-            <Button onClick={handleGenerate} disabled={generating || generation?.status === "generating"} className="w-full h-12 text-sm font-medium">
+            <Button
+              onClick={handleGenerate}
+              disabled={generating || generation?.status === "generating" || (videoPromptMode === "custom_override" && customVideoPrompt.length > VIDEO_CUSTOM_PROMPT_MAX_LENGTH)}
+              className="w-full h-12 text-sm font-medium"
+            >
               {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</> : videoFormat === "ugc" ? "Generate UGC Video" : "Generate Product Scene"}
             </Button>
 

@@ -62,6 +62,8 @@ export async function POST(req: Request) {
     const result = await generateAndUploadImage(
       {
         prompt: input.prompt,
+        promptMode: input.promptMode,
+        customPrompt: input.customPrompt,
         brandIdentity,
         brandVoice,
         productName,

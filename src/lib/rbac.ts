@@ -8,6 +8,7 @@ const ROLE_LEVEL: Record<WorkspaceRole, number> = {
   owner: 3,
   admin: 2,
   member: 1,
+  analyst: 0,
 };
 
 /**

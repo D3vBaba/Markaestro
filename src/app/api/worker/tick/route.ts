@@ -1,6 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { executeJob } from '@/lib/jobs/executor';
-import { processScheduledPosts } from '@/lib/social/publisher';
+import { processScheduledPosts, recoverStalePublishingPosts } from '@/lib/social/publisher';
 import { pollPendingTikTokPublishes } from '@/lib/social/tiktok-publish-poll-worker';
 import { processTokenRefresh, cleanupExpiredOAuthStates } from '@/lib/oauth/token-refresh';
 import { pollPendingVideoGenerations } from '@/lib/ai/video-poll-worker';
@@ -57,15 +57,48 @@ export async function POST(req: Request) {
     const dueJobs: Array<{ workspaceId: string; jobId: string; data: Record<string, unknown> }> = [];
 
     // Track scheduled post processing results
-    const postResults: Array<{ workspaceId: string; processed: number }> = [];
+    const postResults: Array<{
+      workspaceId: string;
+      claimed: number;
+      processed: number;
+      published: number;
+      pending: number;
+      retried: number;
+      failed: number;
+      recovered: number;
+    }> = [];
+    const postErrors: Array<{ workspaceId: string; postId?: string; error: string }> = [];
 
     for (const ws of wsSnap.docs) {
       const workspaceId = ws.id;
 
-      // Process scheduled posts for this workspace
-      const postResult = await processScheduledPosts(workspaceId);
-      if (postResult.processed > 0) {
-        postResults.push({ workspaceId, processed: postResult.processed });
+      // Recover stale publishes and process scheduled posts for this workspace.
+      try {
+        const staleRecovery = await recoverStalePublishingPosts(workspaceId);
+        staleRecovery.errors.forEach((error) => {
+          postErrors.push({ workspaceId, postId: error.postId, error: error.error });
+        });
+
+        const postResult = await processScheduledPosts(workspaceId);
+        postResult.errors.forEach((error) => {
+          postErrors.push({ workspaceId, postId: error.postId, error: error.error });
+        });
+
+        if (postResult.processed > 0 || staleRecovery.recovered > 0 || staleRecovery.failed > 0) {
+          postResults.push({
+            workspaceId,
+            claimed: postResult.claimed,
+            processed: postResult.processed,
+            published: postResult.published,
+            pending: postResult.pending,
+            retried: postResult.retried,
+            failed: postResult.failed + staleRecovery.failed,
+            recovered: staleRecovery.recovered,
+          });
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown scheduled post processing error';
+        postErrors.push({ workspaceId, error: message });
       }
 
       // Process scheduled jobs
@@ -99,6 +132,7 @@ export async function POST(req: Request) {
       processed: results.length,
       results,
       scheduledPosts: postResults,
+      scheduledPostErrors: postErrors,
       tokenRefresh: {
         refreshed: tokenRefreshResult.refreshed,
         failed: tokenRefreshResult.failed,

@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
 import { getAdapterForChannel } from '@/lib/platform/registry';
 import { getConnectionForChannel } from '@/lib/platform/connections';
@@ -5,6 +6,12 @@ import type { PublishRequest, PublishResult } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 
 export type { PublishRequest, PublishResult };
+
+const MAX_DUE_POSTS_PER_RUN = 50;
+const MAX_RECOVERIES_PER_RUN = 50;
+const PUBLISH_LEASE_MS = 10 * 60 * 1000;
+const MAX_RETRY_ATTEMPTS = 4;
+const RETRY_DELAYS_MS = [2 * 60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000, 30 * 60 * 1000];
 
 export type ChannelPublishResult = {
   channel: SocialChannel;
@@ -16,9 +23,9 @@ export type ChannelPublishResult = {
 };
 
 export type MultiChannelPublishResult = {
-  /** True if the primary channel succeeded */
+  /** True only when all required channels have completed successfully */
   success: boolean;
-  /** True if the primary channel is still processing on the platform */
+  /** True when one or more channels are still processing asynchronously */
   pending?: boolean;
   /** Results for each channel that was attempted */
   channels: ChannelPublishResult[];
@@ -26,8 +33,34 @@ export type MultiChannelPublishResult = {
   externalId?: string;
   /** Primary channel external URL (for backwards compat) */
   externalUrl?: string;
-  /** Error message if the primary channel failed */
+  /** Error message if the publish did not complete successfully */
   error?: string;
+};
+
+type PublishErrorClassification = {
+  code: string;
+  category: 'transient' | 'permanent';
+  retryable: boolean;
+};
+
+type ClaimedScheduledPost = {
+  postId: string;
+  productId?: string;
+  post: Record<string, unknown>;
+  attemptId: string;
+  attemptCount: number;
+};
+
+export type ScheduledPostsProcessResult = {
+  claimed: number;
+  processed: number;
+  published: number;
+  pending: number;
+  retried: number;
+  failed: number;
+  recovered: number;
+  results: Array<{ postId: string; outcome: 'published' | 'pending' | 'retried' | 'failed' | 'recovered'; error?: string }>;
+  errors: Array<{ postId: string; error: string }>;
 };
 
 /**
@@ -83,6 +116,266 @@ async function resolveMetaChannels(
   return [primaryChannel];
 }
 
+function classifyPublishError(error: string): PublishErrorClassification {
+  const normalized = error.toLowerCase();
+
+  const transientPatterns: Array<{ pattern: RegExp; code: string }> = [
+    { pattern: /\b429\b|rate limit|too many requests/, code: 'RATE_LIMITED' },
+    { pattern: /\b500\b|\b502\b|\b503\b|\b504\b|server error|internal error/, code: 'REMOTE_SERVER_ERROR' },
+    { pattern: /timeout|timed out|etimedout|econnreset|socket hang up|network error/, code: 'NETWORK_FAILURE' },
+    { pattern: /temporar|unavailable|try again|in progress|processing/, code: 'TEMPORARY_PLATFORM_STATE' },
+  ];
+  for (const { pattern, code } of transientPatterns) {
+    if (pattern.test(normalized)) {
+      return { code, category: 'transient', retryable: true };
+    }
+  }
+
+  const permanentPatterns: Array<{ pattern: RegExp; code: string }> = [
+    { pattern: /requires media|text-only posts are not supported/, code: 'MEDIA_REQUIRED' },
+    { pattern: /integration is not configured|connection not found|not configured or disabled/, code: 'INTEGRATION_MISSING' },
+    { pattern: /product not found|no associated product/, code: 'PRODUCT_MISSING' },
+    { pattern: /unsupported channel|invalid|forbidden|unauthenticated/, code: 'INVALID_REQUEST' },
+  ];
+  for (const { pattern, code } of permanentPatterns) {
+    if (pattern.test(normalized)) {
+      return { code, category: 'permanent', retryable: false };
+    }
+  }
+
+  return { code: 'UNKNOWN_PUBLISH_ERROR', category: 'transient', retryable: true };
+}
+
+function getRetryDelayMs(attemptCount: number): number {
+  const idx = Math.min(Math.max(attemptCount - 1, 0), RETRY_DELAYS_MS.length - 1);
+  return RETRY_DELAYS_MS[idx] || RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1];
+}
+
+function computeRetryAt(attemptCount: number): string {
+  return new Date(Date.now() + getRetryDelayMs(attemptCount)).toISOString();
+}
+
+function asStringArray(value: unknown): string[] | undefined {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : undefined;
+}
+
+function aggregateChannelResults(
+  channelResults: ChannelPublishResult[],
+  primaryChannel: SocialChannel,
+): MultiChannelPublishResult {
+  const primaryResult = channelResults.find((result) => result.channel === primaryChannel) || channelResults[0];
+  const anyPending = channelResults.some((result) => result.pending);
+  const allSucceeded = channelResults.length > 0 && channelResults.every((result) => result.success);
+  const firstFailure = channelResults.find((result) => !result.success && !result.pending);
+
+  return {
+    success: allSucceeded,
+    pending: anyPending || undefined,
+    channels: channelResults,
+    externalId: primaryResult?.externalId,
+    externalUrl: primaryResult?.externalUrl,
+    error: !allSucceeded && !anyPending ? firstFailure?.error || 'One or more channels failed to publish' : undefined,
+  };
+}
+
+function buildLeaseExpiry(): string {
+  return new Date(Date.now() + PUBLISH_LEASE_MS).toISOString();
+}
+
+async function claimDueScheduledPosts(
+  workspaceId: string,
+  workerId: string,
+): Promise<ClaimedScheduledPost[]> {
+  const nowIso = new Date().toISOString();
+  const postsRef = adminDb.collection(`workspaces/${workspaceId}/posts`);
+  const snap = await postsRef
+    .where('status', '==', 'scheduled')
+    .where('scheduledAt', '<=', nowIso)
+    .orderBy('scheduledAt', 'asc')
+    .limit(MAX_DUE_POSTS_PER_RUN)
+    .get();
+
+  const claimed: ClaimedScheduledPost[] = [];
+
+  for (const doc of snap.docs) {
+    try {
+      const transactionResult = await adminDb.runTransaction(async (tx) => {
+        const fresh = await tx.get(doc.ref);
+        if (!fresh.exists) return null;
+
+        const post = fresh.data() as Record<string, unknown>;
+        const scheduledAt = typeof post.scheduledAt === 'string' ? post.scheduledAt : null;
+        if (post.status !== 'scheduled' || !scheduledAt || scheduledAt > nowIso) {
+          return null;
+        }
+
+        const attemptCount = typeof post.publishAttemptCount === 'number' ? post.publishAttemptCount : 0;
+        const attemptId = crypto.randomUUID();
+        tx.update(doc.ref, {
+          status: 'publishing',
+          publishAttemptId: attemptId,
+          publishAttemptCount: attemptCount + 1,
+          publishStartedAt: nowIso,
+          lastPublishAttemptAt: nowIso,
+          publishLeaseExpiresAt: buildLeaseExpiry(),
+          claimedAt: nowIso,
+          claimedByWorker: workerId,
+          updatedAt: nowIso,
+        });
+
+        return {
+          postId: doc.id,
+          productId: typeof post.productId === 'string' ? post.productId : undefined,
+          post,
+          attemptId,
+          attemptCount: attemptCount + 1,
+        } satisfies ClaimedScheduledPost;
+      });
+
+      if (transactionResult) {
+        claimed.push(transactionResult);
+      }
+    } catch (error) {
+      console.error(`[scheduled] Failed to claim post ${doc.id}:`, error);
+    }
+  }
+
+  return claimed;
+}
+
+async function finalizeSuccessfulPublish(
+  workspaceId: string,
+  claimed: ClaimedScheduledPost,
+  result: MultiChannelPublishResult,
+): Promise<'published' | 'pending'> {
+  const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
+  const nowIso = new Date().toISOString();
+
+  if (result.pending) {
+    await ref.update({
+      status: 'publishing',
+      externalId: result.externalId || '',
+      externalUrl: result.externalUrl || '',
+      publishResults: result.channels,
+      publishFinishedAt: null,
+      publishLeaseExpiresAt: null,
+      updatedAt: nowIso,
+    });
+    return 'pending';
+  }
+
+  await ref.update({
+    status: 'published',
+    externalId: result.externalId || '',
+    externalUrl: result.externalUrl || '',
+    publishResults: result.channels,
+    publishedChannels: result.channels.filter((channel) => channel.success).map((channel) => channel.channel),
+    publishedAt: nowIso,
+    publishFinishedAt: nowIso,
+    publishLeaseExpiresAt: null,
+    errorMessage: '',
+    lastErrorCode: '',
+    lastErrorCategory: '',
+    nextRetryAt: null,
+    updatedAt: nowIso,
+  });
+  return 'published';
+}
+
+async function finalizeFailedPublish(
+  workspaceId: string,
+  claimed: ClaimedScheduledPost,
+  result: MultiChannelPublishResult,
+): Promise<'retried' | 'failed'> {
+  const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
+  const nowIso = new Date().toISOString();
+  const message = result.error || 'Unknown publishing error';
+  const classification = classifyPublishError(message);
+  const originalScheduledAt = typeof claimed.post.originalScheduledAt === 'string'
+    ? claimed.post.originalScheduledAt
+    : typeof claimed.post.scheduledAt === 'string'
+      ? claimed.post.scheduledAt
+      : null;
+
+  if (classification.retryable && claimed.attemptCount < MAX_RETRY_ATTEMPTS) {
+    const retryAt = computeRetryAt(claimed.attemptCount);
+    await ref.update({
+      status: 'scheduled',
+      scheduledAt: retryAt,
+      originalScheduledAt,
+      nextRetryAt: retryAt,
+      errorMessage: message,
+      lastErrorCode: classification.code,
+      lastErrorCategory: classification.category,
+      publishResults: result.channels,
+      publishFinishedAt: nowIso,
+      publishLeaseExpiresAt: null,
+      updatedAt: nowIso,
+    });
+    return 'retried';
+  }
+
+  await ref.update({
+    status: 'failed',
+    errorMessage: message,
+    lastErrorCode: classification.code,
+    lastErrorCategory: classification.category,
+    publishResults: result.channels,
+    publishFinishedAt: nowIso,
+    publishLeaseExpiresAt: null,
+    updatedAt: nowIso,
+  });
+  return 'failed';
+}
+
+async function recoverSingleStalePublish(
+  workspaceId: string,
+  postId: string,
+  post: Record<string, unknown>,
+): Promise<'recovered' | 'failed' | 'skipped'> {
+  if (post.channel === 'tiktok' && typeof post.externalId === 'string' && post.externalId) {
+    return 'skipped';
+  }
+
+  const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`);
+  const nowIso = new Date().toISOString();
+  const attemptCount = typeof post.publishAttemptCount === 'number' ? post.publishAttemptCount : 1;
+  const classification = classifyPublishError('Publish lease expired before completion');
+  const originalScheduledAt = typeof post.originalScheduledAt === 'string'
+    ? post.originalScheduledAt
+    : typeof post.scheduledAt === 'string'
+      ? post.scheduledAt
+      : null;
+
+  if (attemptCount < MAX_RETRY_ATTEMPTS) {
+    const retryAt = computeRetryAt(attemptCount);
+    await ref.update({
+      status: 'scheduled',
+      scheduledAt: retryAt,
+      originalScheduledAt,
+      nextRetryAt: retryAt,
+      errorMessage: 'Recovered stale publish attempt and rescheduled automatically',
+      lastErrorCode: classification.code,
+      lastErrorCategory: classification.category,
+      publishFinishedAt: nowIso,
+      publishLeaseExpiresAt: null,
+      updatedAt: nowIso,
+    });
+    return 'recovered';
+  }
+
+  await ref.update({
+    status: 'failed',
+    errorMessage: 'Publish lease expired before completion',
+    lastErrorCode: classification.code,
+    lastErrorCategory: classification.category,
+    publishFinishedAt: nowIso,
+    publishLeaseExpiresAt: null,
+    updatedAt: nowIso,
+  });
+  return 'failed';
+}
+
 /**
  * Publish a post to all applicable channels.
  * For Meta (Facebook/Instagram), if both channels are linked, publishes to both.
@@ -123,122 +416,172 @@ export async function publishPostMultiChannel(
     });
   }
 
-  // Primary channel result (the channel the user selected)
-  const primaryResult = results.find((r) => r.channel === request.channel) || results[0];
+  // Preserve existing direct-publish semantics for the selected primary channel.
+  const primaryResult = results.find((result) => result.channel === request.channel) || results[0];
 
   return {
-    success: primaryResult.success,
-    pending: primaryResult.pending,
+    success: Boolean(primaryResult?.success),
+    pending: primaryResult?.pending,
     channels: results,
-    externalId: primaryResult.externalId,
-    externalUrl: primaryResult.externalUrl,
-    error: primaryResult.success ? undefined : primaryResult.error,
+    externalId: primaryResult?.externalId,
+    externalUrl: primaryResult?.externalUrl,
+    error: primaryResult?.success ? undefined : primaryResult?.error,
   };
+}
+
+export async function recoverStalePublishingPosts(workspaceId: string): Promise<{ recovered: number; failed: number; errors: Array<{ postId: string; error: string }> }> {
+  const postsRef = adminDb.collection(`workspaces/${workspaceId}/posts`);
+  const staleBefore = new Date(Date.now() - PUBLISH_LEASE_MS).toISOString();
+  const snap = await postsRef
+    .where('status', '==', 'publishing')
+    .orderBy('updatedAt', 'asc')
+    .limit(MAX_RECOVERIES_PER_RUN)
+    .get();
+
+  let recovered = 0;
+  let failed = 0;
+  const errors: Array<{ postId: string; error: string }> = [];
+
+  for (const doc of snap.docs) {
+    const post = doc.data() as Record<string, unknown>;
+    const leaseExpiresAt = typeof post.publishLeaseExpiresAt === 'string' ? post.publishLeaseExpiresAt : null;
+    const updatedAt = typeof post.updatedAt === 'string' ? post.updatedAt : null;
+    const isStale = leaseExpiresAt ? leaseExpiresAt <= new Date().toISOString() : Boolean(updatedAt && updatedAt <= staleBefore);
+    if (!isStale) {
+      continue;
+    }
+
+    try {
+      const outcome = await recoverSingleStalePublish(workspaceId, doc.id, post);
+      if (outcome === 'recovered') recovered++;
+      if (outcome === 'failed') failed++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown stale publish recovery error';
+      errors.push({ postId: doc.id, error: message });
+    }
+  }
+
+  return { recovered, failed, errors };
 }
 
 /**
  * Process all scheduled posts that are due for publishing.
  */
-export async function processScheduledPosts(workspaceId: string): Promise<{ processed: number; results: Array<{ postId: string; success: boolean; error?: string }> }> {
-  const nowIso = new Date().toISOString();
-  const postsRef = adminDb.collection(`workspaces/${workspaceId}/posts`);
+export async function processScheduledPosts(workspaceId: string): Promise<ScheduledPostsProcessResult> {
+  const workerId = crypto.randomUUID();
+  const claimedPosts = await claimDueScheduledPosts(workspaceId, workerId);
 
-  const snap = await postsRef
-    .where('status', '==', 'scheduled')
-    .limit(200)
-    .get();
+  const summary: ScheduledPostsProcessResult = {
+    claimed: claimedPosts.length,
+    processed: 0,
+    published: 0,
+    pending: 0,
+    retried: 0,
+    failed: 0,
+    recovered: 0,
+    results: [],
+    errors: [],
+  };
 
-  const dueDocs = snap.docs
-    .filter((doc) => {
-      const scheduledAt = doc.data().scheduledAt as string | undefined;
-      return Boolean(scheduledAt && scheduledAt <= nowIso);
-    })
-    .sort((a, b) => {
-      const aScheduledAt = (a.data().scheduledAt as string | undefined) || '';
-      const bScheduledAt = (b.data().scheduledAt as string | undefined) || '';
-      return aScheduledAt.localeCompare(bScheduledAt);
-    })
-    .slice(0, 50);
+  for (const claimed of claimedPosts) {
+    try {
+      const targetChannels = asStringArray(claimed.post.targetChannels) as SocialChannel[] | undefined;
+      let result: MultiChannelPublishResult;
 
-  const results: Array<{ postId: string; success: boolean; error?: string }> = [];
+      if (!claimed.productId && claimed.post.channel !== 'tiktok') {
+        result = {
+          success: false,
+          channels: [],
+          error: 'Post has no associated product',
+        };
+      } else if (targetChannels && targetChannels.length > 0) {
+        const channelResults: ChannelPublishResult[] = [];
+        for (const channel of targetChannels) {
+          const channelResult = await publishPost(workspaceId, claimed.productId, {
+            content: String(claimed.post.content || ''),
+            channel,
+            mediaUrls: asStringArray(claimed.post.mediaUrls),
+          });
+          channelResults.push({
+            channel,
+            success: channelResult.success,
+            ...(channelResult.pending != null && { pending: channelResult.pending }),
+            ...(channelResult.externalId != null && { externalId: channelResult.externalId }),
+            ...(channelResult.externalUrl != null && { externalUrl: channelResult.externalUrl }),
+            ...(channelResult.error != null && { error: channelResult.error }),
+          });
+        }
 
-  for (const doc of dueDocs) {
-    const post = doc.data();
-    const postId = doc.id;
-    const productId = post.productId as string | undefined;
-
-    if (!productId && post.channel !== 'tiktok') {
-      results.push({ postId, success: false, error: 'Post has no associated product' });
-      continue;
-    }
-
-    await doc.ref.update({ status: 'publishing', updatedAt: new Date().toISOString() });
-
-    // Pipeline posts with targetChannels: publish to each channel independently
-    const targetChannels = post.targetChannels as SocialChannel[] | undefined;
-    let result: MultiChannelPublishResult;
-
-    if (targetChannels && targetChannels.length > 0) {
-      const channelResults: ChannelPublishResult[] = [];
-      for (const channel of targetChannels) {
-        const r = await publishPost(workspaceId, productId, {
-          content: post.content,
-          channel,
-          mediaUrls: post.mediaUrls,
-        });
-        channelResults.push({
-          channel,
-          success: r.success,
-          externalId: r.externalId,
-          externalUrl: r.externalUrl,
-          error: r.error,
+        result = aggregateChannelResults(
+          channelResults,
+          String(claimed.post.channel || targetChannels[0]) as SocialChannel,
+        );
+      } else {
+        result = await publishPostMultiChannel(workspaceId, claimed.productId, {
+          content: String(claimed.post.content || ''),
+          channel: String(claimed.post.channel) as SocialChannel,
+          mediaUrls: asStringArray(claimed.post.mediaUrls),
         });
       }
-      const primaryResult = channelResults.find((r) => r.channel === post.channel) || channelResults[0];
-      result = {
-        success: channelResults.some((r) => r.success),
-        channels: channelResults,
-        externalId: primaryResult.externalId,
-        externalUrl: primaryResult.externalUrl,
-        error: channelResults.every((r) => !r.success) ? primaryResult.error : undefined,
-      };
-    } else {
-      result = await publishPostMultiChannel(workspaceId, productId, {
-        content: post.content,
-        channel: post.channel,
-        mediaUrls: post.mediaUrls,
-      });
-    }
 
-    if (result.pending) {
-      await doc.ref.update({
-        status: 'publishing',
-        externalId: result.externalId || '',
-        externalUrl: result.externalUrl || '',
-        publishResults: result.channels,
-        updatedAt: new Date().toISOString(),
-      });
-    } else if (result.success) {
-      await doc.ref.update({
-        status: 'published',
-        externalId: result.externalId || '',
-        externalUrl: result.externalUrl || '',
-        publishResults: result.channels,
-        publishedChannels: result.channels.filter((c) => c.success).map((c) => c.channel),
-        publishedAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-    } else {
-      await doc.ref.update({
-        status: 'failed',
-        errorMessage: result.error || 'Unknown error',
-        publishResults: result.channels,
-        updatedAt: new Date().toISOString(),
-      });
-    }
+      const outcome = result.success || result.pending
+        ? await finalizeSuccessfulPublish(workspaceId, claimed, result)
+        : await finalizeFailedPublish(workspaceId, claimed, result);
 
-    results.push({ postId, success: result.success, error: result.error });
+      summary.processed++;
+      summary.results.push({ postId: claimed.postId, outcome, error: result.error });
+      if (outcome === 'published') summary.published++;
+      if (outcome === 'pending') summary.pending++;
+      if (outcome === 'retried') summary.retried++;
+      if (outcome === 'failed') summary.failed++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown publishing error';
+      const classification = classifyPublishError(message);
+      const nowIso = new Date().toISOString();
+      const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
+      const originalScheduledAt = typeof claimed.post.originalScheduledAt === 'string'
+        ? claimed.post.originalScheduledAt
+        : typeof claimed.post.scheduledAt === 'string'
+          ? claimed.post.scheduledAt
+          : null;
+
+      try {
+        if (classification.retryable && claimed.attemptCount < MAX_RETRY_ATTEMPTS) {
+          const retryAt = computeRetryAt(claimed.attemptCount);
+          await ref.update({
+            status: 'scheduled',
+            scheduledAt: retryAt,
+            originalScheduledAt,
+            nextRetryAt: retryAt,
+            errorMessage: message,
+            lastErrorCode: classification.code,
+            lastErrorCategory: classification.category,
+            publishFinishedAt: nowIso,
+            publishLeaseExpiresAt: null,
+            updatedAt: nowIso,
+          });
+          summary.retried++;
+          summary.results.push({ postId: claimed.postId, outcome: 'retried', error: message });
+        } else {
+          await ref.update({
+            status: 'failed',
+            errorMessage: message,
+            lastErrorCode: classification.code,
+            lastErrorCategory: classification.category,
+            publishFinishedAt: nowIso,
+            publishLeaseExpiresAt: null,
+            updatedAt: nowIso,
+          });
+          summary.failed++;
+          summary.results.push({ postId: claimed.postId, outcome: 'failed', error: message });
+        }
+      } catch (updateError) {
+        const updateMessage = updateError instanceof Error ? updateError.message : 'Unknown post recovery error';
+        summary.errors.push({ postId: claimed.postId, error: updateMessage });
+      }
+      summary.processed++;
+    }
   }
 
-  return { processed: results.length, results };
+  return summary;
 }

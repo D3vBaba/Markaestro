@@ -2,6 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getConnectionForChannel } from '@/lib/platform/connections';
 import { getAccessToken } from '@/lib/platform/base-adapter';
 import { fetchTikTokPublishStatus } from '@/lib/platform/adapters/tiktok-publishing';
+import type { SocialChannel } from '@/lib/schemas';
 
 type TikTokPublishPollResult = {
   polled: number;
@@ -43,6 +44,53 @@ function withUpdatedTikTokResult(
   ];
 }
 
+function getSuccessfulChannels(publishResults: unknown): SocialChannel[] {
+  if (!Array.isArray(publishResults)) return [];
+  return publishResults
+    .filter((result): result is { channel: SocialChannel; success?: boolean } => !!result && typeof result === 'object' && typeof (result as { channel?: string }).channel === 'string')
+    .filter((result) => Boolean(result.success))
+    .map((result) => result.channel);
+}
+
+function summarizePublishResults(publishResults: unknown): {
+  allSucceeded: boolean;
+  anyPending: boolean;
+  firstError?: string;
+  publishedChannels: SocialChannel[];
+} {
+  if (!Array.isArray(publishResults) || publishResults.length === 0) {
+    return { allSucceeded: false, anyPending: false, firstError: 'Missing publish results', publishedChannels: [] };
+  }
+
+  let anyPending = false;
+  let allSucceeded = true;
+  let firstError: string | undefined;
+
+  for (const result of publishResults) {
+    if (!result || typeof result !== 'object') {
+      allSucceeded = false;
+      firstError ||= 'Malformed publish result';
+      continue;
+    }
+
+    const current = result as { success?: boolean; pending?: boolean; error?: string };
+    if (current.pending) anyPending = true;
+    if (!current.success) {
+      allSucceeded = false;
+      if (!current.pending) {
+        firstError ||= current.error || 'One or more channels failed';
+      }
+    }
+  }
+
+  return {
+    allSucceeded,
+    anyPending,
+    firstError,
+    publishedChannels: getSuccessfulChannels(publishResults),
+  };
+}
+
 export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollResult> {
   const result: TikTokPublishPollResult = { polled: 0, completed: 0, failed: 0, pending: 0, errors: [] };
   const wsSnap = await adminDb.collection('workspaces').limit(200).get();
@@ -52,12 +100,14 @@ export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollRes
     const postsSnap = await adminDb
       .collection(`workspaces/${workspaceId}/posts`)
       .where('status', '==', 'publishing')
-      .limit(50)
+      .where('channel', '==', 'tiktok')
+      .orderBy('updatedAt', 'asc')
+      .limit(100)
       .get();
 
     for (const doc of postsSnap.docs) {
       const post = doc.data();
-      if (post.channel !== 'tiktok' || !post.externalId) continue;
+      if (!post.externalId) continue;
 
       result.polled++;
 
@@ -73,26 +123,39 @@ export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollRes
         }
 
         if (status.status === 'PUBLISH_COMPLETE') {
+          const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
+          const summary = summarizePublishResults(nextPublishResults);
+          const nextStatus = summary.allSucceeded ? 'published' : summary.anyPending ? 'publishing' : 'failed';
           await doc.ref.update({
-            status: 'published',
-            publishResults: withUpdatedTikTokResult(post.publishResults, 'success'),
-            publishedChannels: ['tiktok'],
-            publishedAt: new Date().toISOString(),
+            status: nextStatus,
+            publishResults: nextPublishResults,
+            publishedChannels: summary.publishedChannels,
+            ...(summary.allSucceeded ? { publishedAt: new Date().toISOString() } : {}),
+            ...(!summary.allSucceeded && !summary.anyPending ? { errorMessage: summary.firstError || 'One or more channels failed' } : {}),
             updatedAt: new Date().toISOString(),
           });
-          result.completed++;
+          if (nextStatus === 'published') result.completed++;
+          else if (nextStatus === 'failed') result.failed++;
+          else result.pending++;
           continue;
         }
 
         if (status.status === 'FAILED') {
           const error = `TikTok publish failed: ${status.failReason || 'Unknown TikTok failure'}`;
+          const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'failed', error);
+          const summary = summarizePublishResults(nextPublishResults);
+          const nextStatus = summary.anyPending ? 'publishing' : summary.allSucceeded ? 'published' : 'failed';
           await doc.ref.update({
-            status: 'failed',
-            errorMessage: error,
-            publishResults: withUpdatedTikTokResult(post.publishResults, 'failed', error),
+            status: nextStatus,
+            errorMessage: summary.firstError || error,
+            publishResults: nextPublishResults,
+            publishedChannels: summary.publishedChannels,
+            ...(nextStatus === 'published' ? { publishedAt: new Date().toISOString() } : {}),
             updatedAt: new Date().toISOString(),
           });
-          result.failed++;
+          if (nextStatus === 'published') result.completed++;
+          else if (nextStatus === 'failed') result.failed++;
+          else result.pending++;
           continue;
         }
 

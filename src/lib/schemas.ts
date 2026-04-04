@@ -36,7 +36,7 @@ export const jobTypes = ['sync_contacts', 'generate_content', 'publish_post', 'c
 export const jobSchedules = ['manual', 'daily'] as const;
 export const integrationProviders = ['facebook', 'instagram', 'meta', 'google', 'tiktok', 'tiktok_ads'] as const;
 export const oauthProviders = ['meta', 'google', 'tiktok', 'tiktok_ads'] as const;
-export const workspaceRoles = ['owner', 'admin', 'member'] as const;
+export const workspaceRoles = ['owner', 'admin', 'member', 'analyst'] as const;
 
 // ── Pipeline Enums ────────────────────────────────────────────────
 
@@ -252,6 +252,7 @@ export const metaIntegrationSchema = z.object({
 
 export const videoProviders = ['kling', 'veo', 'sora', 'kling-avatar', 'product-scene', 'faceless-narrated'] as const;
 export const videoStatuses = ['pending', 'generating', 'completed', 'failed'] as const;
+export const promptModes = ['guided', 'custom_override'] as const;
 
 export const tiktokTrendStatuses = ['suggested', 'approved', 'used', 'dismissed'] as const;
 
@@ -268,6 +269,8 @@ export const tiktokTrendSchema = z.object({
 
 export const generateVideoSchema = z.object({
   prompt: z.string().trim().min(1, 'Prompt is required').max(4000),
+  promptMode: z.enum(promptModes).default('guided'),
+  customPrompt: z.string().trim().max(1500).optional(),
   productId: z.string().trim().optional(),
   trendId: z.string().trim().optional(),
   provider: z.enum(videoProviders).default('kling'),
@@ -303,6 +306,8 @@ export type ProductSceneType = typeof productSceneTypes[number];
 export const productSceneSchema = z.object({
   productId: z.string().trim().min(1),
   sceneType: z.enum(productSceneTypes),
+  promptMode: z.enum(promptModes).default('guided'),
+  customPrompt: z.string().trim().max(1500).optional(),
   avatarImageUrl: z.string().trim().url().optional(),
   productImageUrl: z.string().trim().url().optional(),
   sceneDescription: z.string().trim().max(2000).optional(),
@@ -323,6 +328,8 @@ export const productSceneSchema = z.object({
 
 export const facelessNarratedSchema = z.object({
   productId: z.string().trim().min(1),
+  promptMode: z.enum(promptModes).default('guided'),
+  customPrompt: z.string().trim().max(1500).optional(),
   /** Number of visual scenes (3-6) */
   sceneCount: z.number().int().min(3).max(6).default(4),
   /** Total target duration in seconds */
@@ -365,6 +372,8 @@ export const imageSubtypes = [
 
 export const generateImageSchema = z.object({
   prompt: z.string().trim().min(1, 'Prompt is required').max(4000),
+  promptMode: z.enum(promptModes).default('guided'),
+  customPrompt: z.string().trim().max(1200).optional(),
   productId: z.string().trim().optional(),
   /** Target social channel — drives platform-specific visual strategy */
   channel: z.enum(socialChannels).optional(),
@@ -525,6 +534,7 @@ export type PipelineConfig = z.infer<typeof pipelineConfigSchema>;
 export type ResearchBrief = z.infer<typeof researchBriefSchema>;
 export type VideoProvider = (typeof videoProviders)[number];
 export type VideoStatus = (typeof videoStatuses)[number];
+export type PromptMode = (typeof promptModes)[number];
 export type TikTokTrendStatus = (typeof tiktokTrendStatuses)[number];
 export type TikTokTrend = z.infer<typeof tiktokTrendSchema>;
 export type GenerateVideo = z.infer<typeof generateVideoSchema>;

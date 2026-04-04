@@ -31,6 +31,8 @@ export async function POST(req: Request) {
         productDescription: product.description || '',
         productCategories: product.categories || [],
         sceneType: data.sceneType,
+        promptMode: data.promptMode,
+        customPrompt: data.customPrompt,
         avatarImageUrl: data.avatarImageUrl,
         productImageUrl: data.productImageUrl,
         sceneDescription: data.sceneDescription,
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
     const generationData = {
       trendId: data.trendId || '',
       productId: data.productId,
-      prompt: data.sceneDescription || data.sceneType,
+      prompt: data.customPrompt || data.sceneDescription || data.sceneType,
       provider: 'product-scene' as const,
       videoProvider: data.provider,
       status: 'generating',

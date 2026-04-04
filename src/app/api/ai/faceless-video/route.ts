@@ -41,6 +41,8 @@ export async function POST(req: Request) {
       productDescription: product.description || '',
       productCategories: product.categories || [],
       brandVoice: product.brandVoice,
+      promptMode: data.promptMode,
+      customPrompt: data.customPrompt,
       sceneCount: data.sceneCount,
       durationSeconds: data.durationSeconds,
       voice: data.voice,
@@ -56,7 +58,7 @@ export async function POST(req: Request) {
     const generationData = {
       trendId: data.trendId || '',
       productId: data.productId,
-      prompt: result.narrationScript,
+      prompt: data.customPrompt || result.narrationScript,
       provider: 'faceless-narrated' as const,
       status: 'generating',
       videoUrl: '',
