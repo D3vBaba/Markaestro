@@ -73,20 +73,18 @@ export async function GET(req: Request) {
     const status = url.searchParams.get('status');
     const productId = url.searchParams.get('productId');
 
+    const hasFilter = !!(status || productId);
     let query = adminDb
-      .collection(`workspaces/${ctx.workspaceId}/tiktokTrends`)
-      .orderBy('createdAt', 'desc')
-      .limit(50);
+      .collection(`workspaces/${ctx.workspaceId}/tiktokTrends`) as FirebaseFirestore.Query;
 
-    if (status) {
-      query = query.where('status', '==', status);
-    }
-    if (productId) {
-      query = query.where('productId', '==', productId);
-    }
+    if (status) query = query.where('status', '==', status);
+    if (productId) query = query.where('productId', '==', productId);
+    if (!hasFilter) query = query.orderBy('createdAt', 'desc');
 
-    const snap = await query.get();
-    const trends = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const snap = await query.limit(50).get();
+    const trends = snap.docs
+      .map((d) => ({ id: d.id, ...d.data() } as Record<string, unknown> & { createdAt?: string }))
+      .sort((a, b) => ((b.createdAt ?? '') > (a.createdAt ?? '') ? 1 : -1));
 
     return apiOk({ trends });
   } catch (error) {

@@ -38,16 +38,19 @@ export async function GET(req: Request) {
       limit: url.searchParams.get('limit') ?? 50,
     });
 
+    const hasFilter = !!(params.type || params.campaignId || params.contactId);
     let query = adminDb
-      .collection(`workspaces/${ctx.workspaceId}/events`)
-      .orderBy('timestamp', 'desc');
+      .collection(`workspaces/${ctx.workspaceId}/events`) as FirebaseFirestore.Query;
 
     if (params.type) query = query.where('type', '==', params.type);
     if (params.campaignId) query = query.where('campaignId', '==', params.campaignId);
     if (params.contactId) query = query.where('contactId', '==', params.contactId);
+    if (!hasFilter) query = query.orderBy('timestamp', 'desc');
 
     const snap = await query.limit(params.limit).get();
-    const events = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const events = snap.docs
+      .map((d) => ({ id: d.id, ...d.data() } as Record<string, unknown> & { timestamp?: string }))
+      .sort((a, b) => ((b.timestamp ?? '') > (a.timestamp ?? '') ? 1 : -1));
     return apiOk({ events, count: events.length });
   } catch (error) {
     return apiError(error);

@@ -15,15 +15,18 @@ export async function GET(req: Request) {
     });
 
     let query = adminDb
-      .collection(workspaceCollection(ctx.workspaceId, 'products'))
-      .orderBy('createdAt', 'desc');
+      .collection(workspaceCollection(ctx.workspaceId, 'products')) as FirebaseFirestore.Query;
 
     if (status) {
       query = query.where('status', '==', status);
+    } else {
+      query = query.orderBy('createdAt', 'desc');
     }
 
     const snapshot = await query.limit(limit).get();
-    const products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const products = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() } as Record<string, unknown> & { createdAt?: string }))
+      .sort((a, b) => ((b.createdAt ?? '') > (a.createdAt ?? '') ? 1 : -1));
     return apiOk({ workspaceId: ctx.workspaceId, products, count: products.length });
   } catch (error) {
     return apiError(error);
