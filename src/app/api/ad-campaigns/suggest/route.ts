@@ -159,7 +159,7 @@ Return a single JSON object with exactly these fields:
     "ageMax": number,
     "gender": "all|male|female",
     "locations": ["US"],
-    "interests": ["3-5 specific interest keywords"]
+    "interests": ["3-5 specific interest keywords"]${platform === 'google' ? ',\n    "keywords": ["10-20 high-intent search keywords users would type when looking for this product"]' : ''}
   },
   "rationale": {
     "summary": "1-2 sentence explanation of the strategy",

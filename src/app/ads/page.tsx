@@ -44,6 +44,7 @@ type AdCampaign = {
     gender?: string;
     locations?: string[];
     interests?: string[];
+    keywords?: string[];
   };
   creative: {
     headline: string;
@@ -529,7 +530,7 @@ export default function AdsPage() {
     objective: "traffic", dailyBudgetCents: 1000,
     startDate: "", endDate: "", productId: "",
     adAccountId: "", customerId: "",
-    ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "",
+    ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "", keywords: "",
     headline: "", primaryText: "", description: "",
     imageUrl: "", videoUrl: "", linkUrl: "", ctaType: "",
   });
@@ -537,11 +538,14 @@ export default function AdsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [formStep, setFormStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [createAdAccounts, setCreateAdAccounts] = useState<{ id: string; name: string }[]>([]);
+  const [createLoadingAccounts, setCreateLoadingAccounts] = useState(false);
   const [form, setForm] = useState({
     name: "", platform: "meta" as "meta" | "google" | "tiktok",
     objective: "traffic", dailyBudgetCents: 1000,
     startDate: new Date().toISOString().split("T")[0], endDate: "", productId: "",
-    ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "",
+    adAccountId: "", customerId: "",
+    ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "", keywords: "",
     headline: "", primaryText: "", description: "",
     imageUrl: "", videoUrl: "", linkUrl: "", ctaType: "",
   });
@@ -567,10 +571,12 @@ export default function AdsPage() {
     setForm({
       name: "", platform: "meta", objective: "traffic", dailyBudgetCents: 1000,
       startDate: new Date().toISOString().split("T")[0], endDate: "", productId: "",
-      ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "",
+      adAccountId: "", customerId: "",
+      ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "", keywords: "",
       headline: "", primaryText: "", description: "",
       imageUrl: "", videoUrl: "", linkUrl: "", ctaType: "",
     });
+    setCreateAdAccounts([]);
     setFormStep(0);
   };
 
@@ -619,7 +625,7 @@ export default function AdsPage() {
           name: string; objective: string; dailyBudgetCents: number;
           headline: string; primaryText: string; description: string;
           ctaType: string; linkUrl: string;
-          targeting: { ageMin: number; ageMax: number; gender: string; locations: string[]; interests: string[] };
+          targeting: { ageMin: number; ageMax: number; gender: string; locations: string[]; interests: string[]; keywords?: string[] };
           rationale: { summary: string; painPoints: string[]; competitorInsights: string[]; whyThisAd: string };
         };
         error?: string;
@@ -650,6 +656,7 @@ export default function AdsPage() {
         gender: s.targeting?.gender || f.gender,
         locations: s.targeting?.locations?.join(", ") || f.locations,
         interests: s.targeting?.interests?.join(", ") || f.interests,
+        keywords: s.targeting?.keywords?.join(", ") || f.keywords,
       }));
       setFormStep(3);
       toast.success("AI researched your market and crafted an ad -- review it below");
@@ -691,10 +698,12 @@ export default function AdsPage() {
         startDate: new Date(form.startDate).toISOString(),
         endDate: form.endDate ? new Date(form.endDate).toISOString() : null,
         productId: form.productId,
+        customerId: form.customerId || undefined,
         targeting: {
           ageMin: form.ageMin, ageMax: form.ageMax, gender: form.gender,
           locations: form.locations ? form.locations.split(",").map((s) => s.trim()).filter(Boolean) : [],
           interests: form.interests ? form.interests.split(",").map((s) => s.trim()).filter(Boolean) : [],
+          keywords: form.keywords ? form.keywords.split(",").map((s) => s.trim()).filter(Boolean) : [],
         },
         creative: {
           headline: form.headline, primaryText: form.primaryText, description: form.description,
@@ -729,6 +738,7 @@ export default function AdsPage() {
       gender: c.targeting?.gender ?? "all",
       locations: (c.targeting?.locations || []).join(", "),
       interests: (c.targeting?.interests || []).join(", "),
+      keywords: (c.targeting?.keywords || []).join(", "),
       headline: c.creative?.headline ?? "",
       primaryText: c.creative?.primaryText ?? "",
       description: c.creative?.description ?? "",
@@ -788,6 +798,7 @@ export default function AdsPage() {
           ageMin: editForm.ageMin, ageMax: editForm.ageMax, gender: editForm.gender,
           locations: editForm.locations ? editForm.locations.split(",").map((s) => s.trim()).filter(Boolean) : [],
           interests: editForm.interests ? editForm.interests.split(",").map((s) => s.trim()).filter(Boolean) : [],
+          keywords: editForm.keywords ? editForm.keywords.split(",").map((s) => s.trim()).filter(Boolean) : [],
         },
         creative: {
           headline: editForm.headline, primaryText: editForm.primaryText, description: editForm.description,
@@ -949,6 +960,16 @@ export default function AdsPage() {
                       <Select value={form.platform} onChange={(e) => {
                         const platform = e.target.value as "meta" | "google" | "tiktok";
                         setForm({ ...form, platform, objective: normalizeObjectiveForPlatform(platform, form.objective) });
+                        if (platform === "google" || platform === "tiktok") {
+                          setCreateLoadingAccounts(true);
+                          setCreateAdAccounts([]);
+                          apiGet<{ customers: { id: string; name: string }[]; error?: string }>("/api/integrations/google/customers")
+                            .then((res) => {
+                              if (res.ok) setCreateAdAccounts(res.data.customers || []);
+                            })
+                            .catch(() => {})
+                            .finally(() => setCreateLoadingAccounts(false));
+                        }
                       }}>
                         <option value="meta">Meta (Facebook / Instagram)</option>
                         <option value="google">Google Ads</option>
@@ -961,6 +982,21 @@ export default function AdsPage() {
                         {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                       </Select>
                     </FormField>
+                    {form.platform === "google" && (
+                      <FormField
+                        label="Google Ads Customer"
+                        description={createLoadingAccounts ? "Loading accounts..." : createAdAccounts.length === 0 ? "No accounts found -- connect Google integration first" : undefined}
+                      >
+                        <Select
+                          value={form.customerId}
+                          onChange={(e) => setForm({ ...form, customerId: e.target.value })}
+                          disabled={createLoadingAccounts || createAdAccounts.length === 0}
+                        >
+                          <option value="">Use workspace default</option>
+                          {createAdAccounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({a.id})</option>)}
+                        </Select>
+                      </FormField>
+                    )}
 
                     {/* Smart Suggest */}
                     <button
@@ -1046,6 +1082,16 @@ export default function AdsPage() {
                     <FormField label="Interests" description="Comma-separated interests for targeting">
                       <Input placeholder="Technology, Marketing, SaaS" value={form.interests} onChange={(e) => setForm({ ...form, interests: e.target.value })} />
                     </FormField>
+                    {form.platform === "google" && ["traffic", "leads", "conversions"].includes(form.objective) && (
+                      <FormField label="Search Keywords" description="Comma-separated keywords that trigger your ads (Google Search campaigns)">
+                        <Textarea placeholder="marketing automation, email marketing tool, best CRM software" rows={3} value={form.keywords}
+                          onChange={(e) => setForm({ ...form, keywords: e.target.value })}
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {form.keywords ? form.keywords.split(",").filter((s) => s.trim()).length : 0} keywords added. Use broad match keywords — Google will match variations automatically.
+                        </p>
+                      </FormField>
+                    )}
                   </>
                 )}
 
@@ -1484,7 +1530,7 @@ export default function AdsPage() {
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
             {campaigns.find((c) => c.id === editingId)?.status === "active" && (
               <p className="text-xs text-amber-600 p-3 rounded-lg border border-amber-200/50">
-                This campaign is live. Changes saved here won&apos;t update the live ad until you pause and relaunch it.
+                This campaign is live. Budget changes will be pushed to the ad platform automatically. Other changes (targeting, creative) will only apply if you pause and relaunch.
               </p>
             )}
 
@@ -1592,6 +1638,16 @@ export default function AdsPage() {
                 <FormField label="Interests" description="Comma-separated interests for targeting">
                   <Input value={editForm.interests} onChange={(e) => setEditForm({ ...editForm, interests: e.target.value })} />
                 </FormField>
+                {editForm.platform === "google" && ["traffic", "leads", "conversions"].includes(editForm.objective) && (
+                  <FormField label="Search Keywords" description="Comma-separated keywords that trigger your ads (Google Search campaigns)">
+                    <Textarea placeholder="marketing automation, email marketing tool" rows={3} value={editForm.keywords}
+                      onChange={(e) => setEditForm({ ...editForm, keywords: e.target.value })}
+                    />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {editForm.keywords ? editForm.keywords.split(",").filter((s) => s.trim()).length : 0} keywords added.
+                    </p>
+                  </FormField>
+                )}
               </>
             )}
 
@@ -1840,7 +1896,7 @@ export default function AdsPage() {
         onOpenChange={(open) => { if (!open) setAdDeleteTarget(null); }}
         entity="ad campaign"
         name={adDeleteTarget?.name}
-        warning="This will delete the campaign record. Active ads on Meta will not be affected."
+        warning="This will pause the campaign on the ad platform and delete the local record."
         onConfirm={async () => { if (adDeleteTarget) await handleAction(adDeleteTarget.id, "delete"); }}
       />
     </AppShell>

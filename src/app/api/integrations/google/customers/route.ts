@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 
     // List all accessible customer IDs
     const listRes = await fetch(
-      'https://googleads.googleapis.com/v18/customers:listAccessibleCustomers',
+      'https://googleads.googleapis.com/v23/customers:listAccessibleCustomers',
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -49,7 +49,7 @@ export async function GET(req: Request) {
         const customerId = rn.replace('customers/', '');
         try {
           const infoRes = await fetch(
-            `https://googleads.googleapis.com/v18/customers/${customerId}`,
+            `https://googleads.googleapis.com/v23/customers/${customerId}`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,

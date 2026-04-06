@@ -39,9 +39,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const conn = await getConnection(ctx.workspaceId, 'google');
       if (!conn) return apiOk({ ok: false, error: 'Google integration not found' });
       const accessToken = decrypt(conn.accessTokenEncrypted);
+      const customerId = campaign.customerId || (conn.metadata.customerId as string);
       result = await updateGoogleCampaignStatus(
         accessToken,
-        conn.metadata.customerId as string,
+        customerId,
         process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '',
         campaign.externalCampaignId,
         'PAUSED',

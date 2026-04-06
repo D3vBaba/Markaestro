@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Markaestro – Google Ads API Design Documentation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; color: #1a1a1a; background: #fff; line-height: 1.6; }
+    .page { max-width: 800px; margin: 0 auto; padding: 48px 48px; }
+
+    /* Header */
+    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 32px; }
+    .header-left h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .header-left p { font-size: 12px; color: #555; margin-top: 4px; }
+    .header-right { text-align: right; font-size: 11px; color: #555; line-height: 1.8; }
+
+    /* Sections */
+    h2 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #1a1a1a; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin: 28px 0 14px; }
+    h3 { font-size: 13px; font-weight: 600; margin: 16px 0 6px; color: #1a1a1a; }
+    p { margin-bottom: 10px; color: #333; }
+    ul, ol { padding-left: 20px; margin-bottom: 10px; }
+    li { margin-bottom: 4px; color: #333; }
+
+    /* Info boxes */
+    .info-box { background: #f7f7f7; border-left: 3px solid #1a1a1a; padding: 12px 16px; margin: 12px 0; border-radius: 0 4px 4px 0; }
+    .info-box p { margin: 0; }
+
+    /* Flow diagram */
+    .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin: 16px 0; }
+    .flow-step { background: #1a1a1a; color: #fff; padding: 8px 14px; font-size: 11px; font-weight: 600; border-radius: 4px; text-align: center; min-width: 110px; }
+    .flow-arrow { color: #999; font-size: 16px; margin: 0 6px; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+    th { background: #1a1a1a; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 8px 12px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* Screen mockup */
+    .mockup { border: 1px solid #d0d0d0; border-radius: 8px; overflow: hidden; margin: 16px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .mockup-bar { background: #f0f0f0; padding: 8px 12px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #d0d0d0; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green { background: #28c840; }
+    .mockup-url { background: #fff; border: 1px solid #d0d0d0; border-radius: 4px; padding: 3px 10px; font-size: 11px; color: #555; flex: 1; }
+    .mockup-content { padding: 20px; background: #fff; }
+
+    /* UI element mocks */
+    .ui-card { border: 1px solid #e0e0e0; border-radius: 6px; padding: 14px; margin-bottom: 10px; }
+    .ui-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }
+    .ui-input { border: 1px solid #d0d0d0; border-radius: 4px; padding: 7px 10px; font-size: 12px; width: 100%; color: #333; background: #fafafa; }
+    .ui-select { border: 1px solid #d0d0d0; border-radius: 4px; padding: 7px 10px; font-size: 12px; width: 100%; color: #333; background: #fafafa; }
+    .ui-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+    .ui-button { background: #1a1a1a; color: #fff; border: none; padding: 8px 18px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .ui-button-outline { background: #fff; color: #1a1a1a; border: 1px solid #d0d0d0; padding: 8px 18px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .ui-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; }
+    .badge-active { background: #d1fae5; color: #065f46; }
+    .badge-paused { background: #fef3c7; color: #92400e; }
+    .badge-draft { background: #f3f4f6; color: #374151; }
+
+    /* Campaign table mock */
+    .campaign-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; gap: 12px; }
+    .campaign-name { font-weight: 600; font-size: 12px; flex: 2; }
+    .campaign-meta { font-size: 11px; color: #666; flex: 1; }
+    .campaign-actions { display: flex; gap: 6px; }
+    .action-btn { font-size: 10px; padding: 3px 8px; border: 1px solid #d0d0d0; border-radius: 3px; background: #fff; color: #333; }
+
+    /* Step tabs */
+    .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+    .tab { padding: 6px 14px; font-size: 11px; font-weight: 600; border-radius: 5px; }
+    .tab-active { background: #1a1a1a; color: #fff; }
+    .tab-done { background: #e8e8e8; color: #555; }
+    .tab-pending { background: #f5f5f5; color: #aaa; }
+
+    /* Metric cards */
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+    .metric-card { border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; }
+    .metric-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .metric-value { font-size: 18px; font-weight: 300; color: #1a1a1a; }
+
+    /* OAuth flow */
+    .oauth-box { border: 1px solid #e0e0e0; border-radius: 6px; padding: 14px; margin: 8px 0; display: flex; align-items: center; gap: 12px; }
+    .oauth-icon { width: 32px; height: 32px; border-radius: 50%; background: #4285f4; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+    .connected-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 4px; }
+
+    /* Data security section */
+    .security-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+    .security-item { border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; }
+    .security-item h4 { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+    .security-item p { font-size: 11px; color: #555; margin: 0; }
+
+    /* Footer */
+    .footer { border-top: 1px solid #e0e0e0; padding-top: 16px; margin-top: 40px; font-size: 11px; color: #888; display: flex; justify-content: space-between; }
+
+    @media print {
+      body { font-size: 12px; }
+      .page { padding: 32px; }
+      .mockup { break-inside: avoid; }
+      h2 { break-before: auto; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Markaestro</h1>
+      <p>Google Ads API Integration – Design Documentation</p>
+    </div>
+    <div class="header-right">
+      <strong>Aethos Solutions LLC</strong><br/>
+      https://aethossolutions.com<br/>
+      d3vbaba@gmail.com<br/>
+      Version 1.0 – 2025
+    </div>
+  </div>
+
+  <!-- 1. Overview -->
+  <h2>1. Product Overview</h2>
+  <p>
+    Markaestro is a SaaS marketing platform that enables businesses and entrepreneurs to create, launch,
+    and manage paid advertising campaigns across Google Ads, Meta, and TikTok from a single unified dashboard.
+    The platform is subscription-based and targets small to mid-sized businesses who want to run effective
+    paid advertising without switching between multiple ad platforms.
+  </p>
+  <div class="info-box">
+    <p><strong>API Usage Summary:</strong> Markaestro uses the Google Ads API exclusively on behalf of authenticated end users. All API calls are made using the user's own OAuth access token, scoped to their own Google Ads accounts. Markaestro never accesses, reads, or modifies any Google Ads account without explicit user authorization.</p>
+  </div>
+
+  <!-- 2. User Flow -->
+  <h2>2. End-to-End User Flow</h2>
+  <p>The following describes how a Markaestro user interacts with the Google Ads integration:</p>
+
+  <div class="flow">
+    <div class="flow-step">1. Connect Account</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">2. Select Customer</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">3. Create Campaign</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">4. Launch</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">5. Monitor & Manage</div>
+  </div>
+
+  <ol style="margin-top: 12px;">
+    <li><strong>Connect Account</strong> — User authorizes Markaestro via Google OAuth 2.0 using the <code>https://www.googleapis.com/auth/adwords</code> scope. The access token and refresh token are encrypted and stored.</li>
+    <li><strong>Select Customer</strong> — The app calls <code>customers:listAccessibleCustomers</code> to show the user which Google Ads accounts they have access to, and the user selects one.</li>
+    <li><strong>Create Campaign</strong> — User fills in campaign details (name, objective, budget, targeting, keywords, ad creative) using a guided multi-step form.</li>
+    <li><strong>Launch</strong> — Markaestro calls the Google Ads API to create the budget, campaign, ad group, keyword criteria, and responsive search ad in sequence.</li>
+    <li><strong>Monitor &amp; Manage</strong> — User can view performance metrics, pause, resume, update the budget, or delete the campaign from the Markaestro dashboard.</li>
+  </ol>
+
+  <!-- 3. OAuth Connection Screen -->
+  <h2>3. Screen: Google Ads Account Connection</h2>
+  <p>Users connect their Google Ads account from the Integrations settings page. The OAuth flow uses <code>access_type=offline</code> and <code>prompt=consent</code> to obtain a refresh token for persistent access.</p>
+
+  <div class="mockup">
+    <div class="mockup-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="mockup-url">markaestro.com/settings</div>
+    </div>
+    <div class="mockup-content">
+      <div style="font-size:13px; font-weight:600; margin-bottom:14px;">Integrations</div>
+
+      <div class="oauth-box">
+        <div class="oauth-icon">G</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:12px;">Google Ads</div>
+          <div style="font-size:11px; color:#555; margin-top:2px;">Connect your Google Ads account to create and manage campaigns</div>
+        </div>
+        <button class="ui-button">Connect</button>
+      </div>
+
+      <div class="oauth-box" style="margin-top:8px;">
+        <div class="oauth-icon" style="background:#1877f2;">f</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:12px;">Meta Ads</div>
+          <div style="font-size:11px; color:#555; margin-top:2px;"><span class="connected-dot"></span>Connected as Acme Business Page</div>
+        </div>
+        <button class="ui-button-outline">Disconnect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Customer Selection -->
+  <h2>4. Screen: Google Ads Customer Selection</h2>
+  <p>After OAuth, Markaestro calls <code>customers:listAccessibleCustomers</code> to retrieve the list of customer accounts the user has access to. The user selects which account to use when creating or editing a campaign.</p>
+
+  <div class="mockup">
+    <div class="mockup-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="mockup-url">markaestro.com/ads</div>
+    </div>
+    <div class="mockup-content">
+      <div style="font-size:13px; font-weight:600; margin-bottom:14px;">New Campaign — Basics</div>
+      <div class="tabs">
+        <div class="tab tab-active">Basics</div>
+        <div class="tab tab-pending">Targeting</div>
+        <div class="tab tab-pending">Creative</div>
+        <div class="tab tab-pending">Preview</div>
+      </div>
+      <div class="ui-card">
+        <div class="ui-label">Platform</div>
+        <div class="ui-select">Google Ads ▾</div>
+      </div>
+      <div class="ui-card">
+        <div class="ui-label">Google Ads Customer Account</div>
+        <div class="ui-select">Acme Corp (320-953-2282) ▾</div>
+        <div style="font-size:10px; color:#888; margin-top:4px;">Select which Google Ads account this campaign will be created under</div>
+      </div>
+      <div class="ui-card">
+        <div class="ui-label">Campaign Name</div>
+        <div class="ui-input">Summer Sale – Search Campaign</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Campaign Creation -->
+  <h2>5. Screen: Campaign Creation Form</h2>
+  <p>The campaign creation form is split into four steps: Basics, Targeting, Creative, and Preview. Each step collects the necessary information to build the corresponding Google Ads API objects.</p>
+
+  <div class="mockup">
+    <div class="mockup-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="mockup-url">markaestro.com/ads</div>
+    </div>
+    <div class="mockup-content">
+      <div style="font-size:13px; font-weight:600; margin-bottom:14px;">New Campaign — Targeting</div>
+      <div class="tabs">
+        <div class="tab tab-done">Basics</div>
+        <div class="tab tab-active">Targeting</div>
+        <div class="tab tab-pending">Creative</div>
+        <div class="tab tab-pending">Preview</div>
+      </div>
+      <div class="ui-row">
+        <div class="ui-card">
+          <div class="ui-label">Min Age</div>
+          <div class="ui-input">25</div>
+        </div>
+        <div class="ui-card">
+          <div class="ui-label">Max Age</div>
+          <div class="ui-input">54</div>
+        </div>
+      </div>
+      <div class="ui-card">
+        <div class="ui-label">Locations (Country Codes)</div>
+        <div class="ui-input">US, GB, CA</div>
+        <div style="font-size:10px; color:#888; margin-top:4px;">Resolved to Google Geo Target Constant IDs on submission</div>
+      </div>
+      <div class="ui-card">
+        <div class="ui-label">Search Keywords <span style="color:#4285f4; font-size:10px;">(Google Search campaigns only)</span></div>
+        <div class="ui-input" style="height:52px; padding-top:8px;">marketing automation, email marketing software, best CRM tool</div>
+        <div style="font-size:10px; color:#888; margin-top:4px;">3 keywords added. Added as BROAD match via adGroupCriteria:mutate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Creative Step -->
+  <div class="mockup" style="margin-top:16px;">
+    <div class="mockup-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="mockup-url">markaestro.com/ads</div>
+    </div>
+    <div class="mockup-content">
+      <div style="font-size:13px; font-weight:600; margin-bottom:14px;">New Campaign — Creative</div>
+      <div class="tabs">
+        <div class="tab tab-done">Basics</div>
+        <div class="tab tab-done">Targeting</div>
+        <div class="tab tab-active">Creative</div>
+        <div class="tab tab-pending">Preview</div>
+      </div>
+      <div class="ui-card">
+        <div class="ui-label">Headline <span style="color:#888;">(max 30 chars for Google RSA)</span></div>
+        <div class="ui-input">Grow Your Business Faster</div>
+        <div style="font-size:10px; color:#888; margin-top:4px;">26/30 characters</div>
+      </div>
+      <div class="ui-card">
+        <div class="ui-label">Primary Text (Description)</div>
+        <div class="ui-input" style="height:52px; padding-top:8px;">Automate your marketing and reach more customers. Start your free trial today.</div>
+      </div>
+      <div class="ui-card">
+        <div class="ui-label">Landing Page URL</div>
+        <div class="ui-input">https://example.com/get-started</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. API Call Sequence -->
+  <h2>6. Google Ads API Call Sequence (Campaign Launch)</h2>
+  <p>When a user clicks Launch, Markaestro executes the following API calls in sequence against the Google Ads REST API (v23):</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>API Endpoint</th>
+        <th>Purpose</th>
+        <th>Status if Failed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><code>campaignBudgets:mutate</code></td>
+        <td>Create daily budget object (amountMicros = dailyBudgetCents × 10,000)</td>
+        <td>Abort – return error to user</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><code>campaigns:mutate</code></td>
+        <td>Create campaign with PAUSED status, linked to budget</td>
+        <td>Abort – return error to user</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><code>campaignCriteria:mutate</code></td>
+        <td>Add geo targeting criteria (location IDs resolved from country codes)</td>
+        <td>Log warning – continue</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><code>adGroups:mutate</code></td>
+        <td>Create ad group (SEARCH_STANDARD or DISPLAY_STANDARD)</td>
+        <td>Abort – return error to user</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><code>adGroupCriteria:mutate</code></td>
+        <td>Add keywords as BROAD match criteria (Search campaigns only)</td>
+        <td>Log warning – continue</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><code>adGroupAds:mutate</code></td>
+        <td>Create Responsive Search Ad (RSA) with headlines and descriptions</td>
+        <td>Abort – return error to user</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><code>campaigns:mutate</code></td>
+        <td>Update campaign status to ENABLED</td>
+        <td>Return partial success with warning</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 8. Campaign Dashboard -->
+  <h2>7. Screen: Campaign Dashboard</h2>
+  <p>The main Ads dashboard lists all campaigns across platforms. Users can launch, pause, resume, sync metrics, and delete campaigns from here.</p>
+
+  <div class="mockup">
+    <div class="mockup-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="mockup-url">markaestro.com/ads</div>
+    </div>
+    <div class="mockup-content">
+      <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Ad Campaigns</div>
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-label">Total Spend</div>
+          <div class="metric-value">$2,140</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Impressions</div>
+          <div class="metric-value">148K</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Clicks</div>
+          <div class="metric-value">3,820</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg CTR</div>
+          <div class="metric-value">2.58%</div>
+        </div>
+      </div>
+
+      <div class="campaign-row" style="border-top: 1px solid #f0f0f0; padding-top:10px;">
+        <div class="campaign-name">Summer Sale – Search</div>
+        <div class="campaign-meta">Google · Search · $50/day</div>
+        <div class="campaign-meta"><span class="ui-badge badge-active">Active</span></div>
+        <div class="campaign-actions">
+          <button class="action-btn">Pause</button>
+          <button class="action-btn">Sync</button>
+          <button class="action-btn">Edit</button>
+        </div>
+      </div>
+      <div class="campaign-row">
+        <div class="campaign-name">Brand Awareness – Display</div>
+        <div class="campaign-meta">Google · Display · $30/day</div>
+        <div class="campaign-meta"><span class="ui-badge badge-paused">Paused</span></div>
+        <div class="campaign-actions">
+          <button class="action-btn">Resume</button>
+          <button class="action-btn">Sync</button>
+          <button class="action-btn">Edit</button>
+        </div>
+      </div>
+      <div class="campaign-row">
+        <div class="campaign-name">Q4 Lead Gen Campaign</div>
+        <div class="campaign-meta">Google · Search · $75/day</div>
+        <div class="campaign-meta"><span class="ui-badge badge-draft">Draft</span></div>
+        <div class="campaign-actions">
+          <button class="action-btn">Launch</button>
+          <button class="action-btn">Edit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Metrics Sync -->
+  <h2>8. Screen: Performance Metrics Sync</h2>
+  <p>
+    Users can sync campaign metrics on demand by clicking the Sync button. Markaestro calls
+    <code>googleAds:searchStream</code> with a GAQL query to retrieve impressions, clicks,
+    cost, conversions, CTR, and average CPC for the campaign lifetime.
+    Metrics are stored in Firestore and displayed in the campaign detail view.
+  </p>
+
+  <div class="mockup">
+    <div class="mockup-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="mockup-url">markaestro.com/ads</div>
+    </div>
+    <div class="mockup-content">
+      <div style="font-size:13px; font-weight:600; margin-bottom:12px;">Summer Sale – Search · Performance</div>
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-label">Impressions</div>
+          <div class="metric-value">52,400</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Clicks</div>
+          <div class="metric-value">1,360</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Spend</div>
+          <div class="metric-value">$840</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">CTR</div>
+          <div class="metric-value">2.60%</div>
+        </div>
+      </div>
+      <div style="font-size:11px; color:#888; margin-top:8px;">Last synced: Today at 2:14 PM · <span style="color:#4285f4; cursor:pointer;">Sync now</span></div>
+    </div>
+  </div>
+
+  <!-- 10. API Operations Summary -->
+  <h2>9. Complete API Operations Reference</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operation</th>
+        <th>API Method</th>
+        <th>Trigger</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>List accessible customer accounts</td><td><code>customers:listAccessibleCustomers</code></td><td>User connects Google account</td></tr>
+      <tr><td>Create campaign budget</td><td><code>campaignBudgets:mutate</code> (create)</td><td>User launches campaign</td></tr>
+      <tr><td>Create campaign</td><td><code>campaigns:mutate</code> (create)</td><td>User launches campaign</td></tr>
+      <tr><td>Add geo targeting</td><td><code>campaignCriteria:mutate</code> (create)</td><td>User launches campaign</td></tr>
+      <tr><td>Create ad group</td><td><code>adGroups:mutate</code> (create)</td><td>User launches campaign</td></tr>
+      <tr><td>Add keywords</td><td><code>adGroupCriteria:mutate</code> (create)</td><td>User launches campaign</td></tr>
+      <tr><td>Create responsive search ad</td><td><code>adGroupAds:mutate</code> (create)</td><td>User launches campaign</td></tr>
+      <tr><td>Enable campaign</td><td><code>campaigns:mutate</code> (update status)</td><td>User launches campaign</td></tr>
+      <tr><td>Pause campaign</td><td><code>campaigns:mutate</code> (update status=PAUSED)</td><td>User clicks Pause</td></tr>
+      <tr><td>Resume campaign</td><td><code>campaigns:mutate</code> (update status=ENABLED)</td><td>User clicks Resume</td></tr>
+      <tr><td>Update campaign budget</td><td><code>campaignBudgets:mutate</code> (update)</td><td>User edits budget on live campaign</td></tr>
+      <tr><td>Sync performance metrics</td><td><code>googleAds:searchStream</code> (GAQL query)</td><td>User clicks Sync</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 11. Data Security -->
+  <h2>10. Data Handling &amp; Security</h2>
+
+  <div class="security-grid">
+    <div class="security-item">
+      <h4>Token Storage</h4>
+      <p>OAuth access and refresh tokens are AES-256 encrypted before being stored in Firebase Firestore. Keys are managed via Google Cloud Secret Manager.</p>
+    </div>
+    <div class="security-item">
+      <h4>Token Refresh</h4>
+      <p>Refresh tokens are used to obtain new access tokens automatically. Failed refreshes are tracked and users are notified to re-authorize.</p>
+    </div>
+    <div class="security-item">
+      <h4>Workspace Isolation</h4>
+      <p>All data (campaigns, connections, metrics) is scoped by workspace ID. Users can only access their own workspace data.</p>
+    </div>
+    <div class="security-item">
+      <h4>No Data Resale</h4>
+      <p>Campaign data and performance metrics retrieved from Google Ads are used solely to display information to the authenticated account owner. Data is never sold or shared with third parties.</p>
+    </div>
+    <div class="security-item">
+      <h4>Secrets Management</h4>
+      <p>The Google Ads developer token and all other credentials are stored in Google Cloud Secret Manager and loaded at runtime. They are never exposed to the client.</p>
+    </div>
+    <div class="security-item">
+      <h4>OAuth Scope</h4>
+      <p>Only the <code>https://www.googleapis.com/auth/adwords</code> scope is requested, along with <code>openid</code>, <code>email</code>, and <code>profile</code> for user identification.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>Markaestro – Google Ads API Design Documentation – Aethos Solutions LLC</span>
+    <span>https://aethossolutions.com · d3vbaba@gmail.com</span>
+  </div>
+
+</div>
+</body>
+</html>
