@@ -140,8 +140,8 @@ export default function PostsPage() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8 min-w-0 w-full">
-        {/* Mobile: dropdown select */}
-        <div className="sm:hidden">
+        {/* Mobile + Tablet: dropdown select */}
+        <div className="lg:hidden">
           <Select value={activeTab} onChange={(e) => setActiveTab(e.target.value)}>
             {tabs.map((tab) => (
               <option key={tab.value} value={tab.value}>
@@ -152,7 +152,7 @@ export default function PostsPage() {
         </div>
 
         {/* Desktop: tab bar */}
-        <TabsList className="hidden sm:flex bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 w-full overflow-x-auto">
+        <TabsList className="hidden lg:flex bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 w-full overflow-x-auto">
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}

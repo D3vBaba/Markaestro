@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "validate:queries": "node scripts/validate-firestore-queries.mjs"
   },
   "dependencies": {
@@ -47,6 +49,7 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.4.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.2"
   }
 }
