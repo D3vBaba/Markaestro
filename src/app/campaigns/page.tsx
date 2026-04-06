@@ -17,6 +17,7 @@ import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
 import ProductPicker from "@/app/content/_components/ProductPicker";
+import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 
@@ -111,6 +112,7 @@ export default function CampaignsPage() {
   const [pipelinePostCount, setPipelinePostCount] = useState(20);
 
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const fetchCampaigns = async () => {
     try {
@@ -187,8 +189,9 @@ export default function CampaignsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    const res = await apiDelete(`/api/campaigns/${id}`);
+  const confirmDeleteCampaign = async () => {
+    if (!deleteTarget) return;
+    const res = await apiDelete(`/api/campaigns/${deleteTarget.id}`);
     if (res.ok) {
       toast.success("Campaign deleted");
       fetchCampaigns();
@@ -382,7 +385,7 @@ export default function CampaignsPage() {
                         variant="ghost"
                         size="sm"
                         className="h-7 text-xs text-muted-foreground hover:text-destructive"
-                        onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: c.id, name: c.name }); }}
                       >
                         Delete
                       </Button>
@@ -416,6 +419,15 @@ export default function CampaignsPage() {
           ))
         )}
       </div>
+
+      <ConfirmDeleteDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        entity="campaign"
+        name={deleteTarget?.name}
+        warning="Any generated posts from this campaign will remain but will no longer be linked to it."
+        onConfirm={confirmDeleteCampaign}
+      />
     </AppShell>
   );
 }

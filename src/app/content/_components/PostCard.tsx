@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PlatformPreview from "@/components/app/PlatformPreview";
+import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 
 type Post = {
   id: string;
@@ -62,6 +63,7 @@ export default function PostCard({
   onPublish?: () => void;
 }) {
   const [showPreview, setShowPreview] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const displayStatus = publishing ? "publishing" : post.status;
 
@@ -208,11 +210,21 @@ export default function PostCard({
         )}
 
         {onDelete && (
-          <button className={pillBtnDestructive} onClick={onDelete}>
+          <button className={pillBtnDestructive} onClick={() => setConfirmDelete(true)}>
             Delete
           </button>
         )}
       </div>
+
+      {onDelete && (
+        <ConfirmDeleteDialog
+          open={confirmDelete}
+          onOpenChange={setConfirmDelete}
+          entity="post"
+          name={channelLabels[post.channel] || post.channel}
+          onConfirm={onDelete}
+        />
+      )}
     </div>
   );
 }

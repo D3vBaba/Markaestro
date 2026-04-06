@@ -17,6 +17,7 @@ import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
 import TagInput from "@/components/app/TagInput";
 import ScanProgressStepper from "@/components/app/ScanProgressStepper";
+import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { useProductScan } from "@/hooks/useProductScan";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -241,6 +242,10 @@ export default function ProductsPage() {
   // Per-product connection status cache (productId -> IntegrationInfo[])
   const [connectionCache, setConnectionCache] = useState<Record<string, IntegrationInfo[]>>({});
 
+  // Delete confirmation
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [disconnectTarget, setDisconnectTarget] = useState<{ provider: string; productId: string; label: string } | null>(null);
+
   const fetchProducts = async () => {
     try {
       const res = await apiGet<{ products: Product[] }>("/api/products");
@@ -389,8 +394,9 @@ export default function ProductsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    const res = await apiDelete(`/api/products/${id}`);
+  const confirmDeleteProduct = async () => {
+    if (!deleteTarget) return;
+    const res = await apiDelete(`/api/products/${deleteTarget.id}`);
     if (res.ok) {
       toast.success("Product deleted");
       fetchProducts();
@@ -538,7 +544,9 @@ export default function ProductsPage() {
     } catch { toast.error(`Failed to start ${provider} OAuth`); }
   }
 
-  async function disconnectProvider(provider: string, productId: string) {
+  async function confirmDisconnectProvider() {
+    if (!disconnectTarget) return;
+    const { provider, productId } = disconnectTarget;
     setDisconnecting(provider);
     try {
       const res = await apiPost(`/api/oauth/disconnect/${provider}`, { productId });
@@ -799,7 +807,7 @@ export default function ProductsPage() {
                     <Badge variant="outline" className={`capitalize border-0 text-xs ${statusColors[p.status] || ""}`}>
                       {p.status}
                     </Badge>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(p.id)}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => setDeleteTarget({ id: p.id, name: p.name })}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -1113,7 +1121,7 @@ export default function ProductsPage() {
                             )}
                           </div>
                           {connected ? (
-                            <Button variant="destructive" size="sm" onClick={() => disconnectProvider(provider, editProductId)} disabled={disconnecting === provider}>
+                            <Button variant="destructive" size="sm" onClick={() => setDisconnectTarget({ provider, productId: editProductId!, label: providerLabels[provider] || provider })} disabled={disconnecting === provider}>
                               {disconnecting === provider ? "..." : "Disconnect"}
                             </Button>
                           ) : (
@@ -1144,6 +1152,24 @@ export default function ProductsPage() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
+      <ConfirmDeleteDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        entity="product"
+        name={deleteTarget?.name}
+        warning="All brand voice settings for this product will also be removed."
+        onConfirm={confirmDeleteProduct}
+      />
+
+      <ConfirmDeleteDialog
+        open={!!disconnectTarget}
+        onOpenChange={(open) => { if (!open) setDisconnectTarget(null); }}
+        entity="integration"
+        name={disconnectTarget?.label}
+        confirmLabel="Disconnect"
+        warning="This will remove the connection for this product. You can reconnect later."
+        onConfirm={confirmDisconnectProvider}
+      />
     </AppShell>
   );
 }

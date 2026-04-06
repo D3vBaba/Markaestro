@@ -20,6 +20,7 @@ import { Loader2, Heart, MessageCircle, Share2 } from "lucide-react";
 import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
+import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { AdCampaignMetrics } from "@/lib/ads/types";
@@ -497,6 +498,7 @@ export default function AdsPage() {
   const [loading, setLoading] = useState(true);
   const [platformFilter, setPlatformFilter] = useState("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [adDeleteTarget, setAdDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [activeTab, setActiveTab] = useState("campaigns");
 
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -1334,7 +1336,7 @@ export default function AdsPage() {
                     )}
                     <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>Insights</Button>
                     <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => openEdit(c)}>Edit</Button>
-                    <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={() => handleAction(c.id, "delete")} disabled={actionLoading === c.id}>Delete</Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={() => setAdDeleteTarget({ id: c.id, name: c.name })} disabled={actionLoading === c.id}>Delete</Button>
                     {c.createdAt && (
                       <span className="text-[10px] text-muted-foreground/60 ml-auto">{new Date(c.createdAt).toLocaleDateString()}</span>
                     )}
@@ -1832,6 +1834,15 @@ export default function AdsPage() {
         </DialogContent>
       </Dialog>
       </FeatureGate>
+
+      <ConfirmDeleteDialog
+        open={!!adDeleteTarget}
+        onOpenChange={(open) => { if (!open) setAdDeleteTarget(null); }}
+        entity="ad campaign"
+        name={adDeleteTarget?.name}
+        warning="This will delete the campaign record. Active ads on Meta will not be affected."
+        onConfirm={async () => { if (adDeleteTarget) await handleAction(adDeleteTarget.id, "delete"); }}
+      />
     </AppShell>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
+import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { toast } from "sonner";
 import { Trash2, X, Download, Link, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -22,6 +23,7 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: "single" | "batch"; name?: string } | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -73,7 +75,6 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
   // ── Delete ───────────────────────────────────────────────────
 
   const handleDeleteSingle = async (name: string) => {
-    if (!confirm("Delete this file?")) return;
     setDeleting(true);
     try {
       const res = await apiDelete<{ ok: boolean; deleted: number }>("/api/ai/images", {
@@ -94,7 +95,6 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
 
   const handleDeleteSelected = async () => {
     if (selected.size === 0) return;
-    if (!confirm(`Delete ${selected.size} file${selected.size > 1 ? "s" : ""}?`)) return;
     setDeleting(true);
     try {
       const names = Array.from(selected);
@@ -112,6 +112,15 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
       toast.error("Delete failed");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const confirmImageDelete = async () => {
+    if (!deleteConfirm) return;
+    if (deleteConfirm.type === "single" && deleteConfirm.name) {
+      await handleDeleteSingle(deleteConfirm.name);
+    } else {
+      await handleDeleteSelected();
     }
   };
 
@@ -185,7 +194,7 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
                 variant="destructive"
                 size="sm"
                 className="h-8 text-xs"
-                onClick={handleDeleteSelected}
+                onClick={() => setDeleteConfirm({ type: "batch" })}
                 disabled={selected.size === 0 || deleting}
               >
                 <Trash2 className="w-3.5 h-3.5 mr-1.5" />
@@ -375,7 +384,7 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
                     variant="destructive"
                     className="h-7 text-[11px] px-2"
                     onClick={() => {
-                      handleDeleteSingle(item.name);
+                      setDeleteConfirm({ type: "single", name: item.name });
                       closeLightbox();
                     }}
                     disabled={deleting}
@@ -388,6 +397,13 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
           </div>
         );
       })()}
+
+      <ConfirmDeleteDialog
+        open={!!deleteConfirm}
+        onOpenChange={(open) => { if (!open) setDeleteConfirm(null); }}
+        entity={deleteConfirm?.type === "batch" ? `${selected.size} image${selected.size !== 1 ? "s" : ""}` : "image"}
+        onConfirm={confirmImageDelete}
+      />
     </div>
   );
 }

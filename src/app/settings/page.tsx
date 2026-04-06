@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/app/PageHeader";
+import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiGet, apiPost, apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
@@ -91,6 +92,7 @@ function SettingsPageContent() {
 function IntegrationsTab() {
   const [integrations, setIntegrations] = useState<IntegrationInfo[]>([]);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
+  const [disconnectTarget, setDisconnectTarget] = useState<{ provider: string; label: string } | null>(null);
 
   const fetchIntegrations = useCallback(async () => {
     const res = await apiGet<{ integrations: IntegrationInfo[] }>("/api/integrations");
@@ -135,12 +137,14 @@ function IntegrationsTab() {
     }
   }
 
-  async function disconnectProvider(provider: string) {
+  async function confirmDisconnect() {
+    if (!disconnectTarget) return;
+    const { provider } = disconnectTarget;
     setDisconnecting(provider);
     try {
       const res = await apiPost(`/api/oauth/disconnect/${provider}`, {});
       if (res.ok) {
-        toast.success(`${provider === "meta" ? "Meta" : provider === "google" ? "Google Ads" : provider} disconnected`);
+        toast.success(`${disconnectTarget.label} disconnected`);
         fetchIntegrations();
       } else {
         toast.error(`Failed to disconnect. Please try again.`);
@@ -162,7 +166,7 @@ function IntegrationsTab() {
         needsReconnect={needsReconnect("meta")}
         reconnectNote="Your Meta connection needs to be refreshed"
         onConnect={() => startOAuth("meta")}
-        onDisconnect={() => disconnectProvider("meta")}
+        onDisconnect={() => setDisconnectTarget({ provider: "meta", label: "Meta (Facebook + Instagram)" })}
         disconnecting={disconnecting === "meta"}
         connectLabel="Connect Meta account"
         extraNote={isConnected("meta") ? (
@@ -185,7 +189,7 @@ function IntegrationsTab() {
         needsReconnect={needsReconnect("google")}
         reconnectNote="Your Google Ads connection needs to be refreshed"
         onConnect={() => startOAuth("google")}
-        onDisconnect={() => disconnectProvider("google")}
+        onDisconnect={() => setDisconnectTarget({ provider: "google", label: "Google Ads" })}
         disconnecting={disconnecting === "google"}
         connectLabel="Connect Google Ads"
       />
@@ -194,6 +198,16 @@ function IntegrationsTab() {
         TikTok and TikTok Ads integrations are set up per product on the{" "}
         <a href="/products" className="text-primary hover:underline">Products page</a>.
       </p>
+
+      <ConfirmDeleteDialog
+        open={!!disconnectTarget}
+        onOpenChange={(open) => { if (!open) setDisconnectTarget(null); }}
+        entity="integration"
+        name={disconnectTarget?.label}
+        confirmLabel="Disconnect"
+        warning="This will revoke access and disconnect all products using this integration. You can reconnect at any time."
+        onConfirm={confirmDisconnect}
+      />
     </div>
   );
 }
@@ -264,6 +278,7 @@ function TeamTab() {
   const [inviteRole, setInviteRole] = useState<'admin' | 'member' | 'analyst'>('member');
   const [inviting, setInviting] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<{ uid: string; email: string } | null>(null);
 
   const wsId = workspace?.id ?? 'default';
   const tier = (status?.tier ?? 'starter') as PlanTier;
@@ -302,10 +317,11 @@ function TeamTab() {
     }
   }
 
-  async function removeMember(uid: string) {
-    setRemoving(uid);
+  async function confirmRemoveMember() {
+    if (!removeTarget) return;
+    setRemoving(removeTarget.uid);
     try {
-      const res = await apiFetch(`/api/team/${uid}?workspaceId=${wsId}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/team/${removeTarget.uid}?workspaceId=${wsId}`, { method: 'DELETE' });
       if (res.ok) {
         toast.success('Member removed');
         fetchMembers();
@@ -347,7 +363,7 @@ function TeamTab() {
                     variant="ghost"
                     size="sm"
                     className="text-xs text-muted-foreground hover:text-rose-500 shrink-0"
-                    onClick={() => removeMember(m.uid)}
+                    onClick={() => setRemoveTarget({ uid: m.uid, email: m.email })}
                     disabled={removing === m.uid}
                   >
                     {removing === m.uid ? 'Removing…' : 'Remove'}
@@ -390,6 +406,16 @@ function TeamTab() {
           )}
         </CardContent>
       </Card>
+
+      <ConfirmDeleteDialog
+        open={!!removeTarget}
+        onOpenChange={(open) => { if (!open) setRemoveTarget(null); }}
+        entity="team member"
+        name={removeTarget?.email}
+        confirmLabel="Remove"
+        warning="This person will immediately lose access to this workspace."
+        onConfirm={confirmRemoveMember}
+      />
     </div>
   );
 }
