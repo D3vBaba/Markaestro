@@ -349,7 +349,7 @@ export async function getMetaCampaignMetrics(
   campaignId: string,
 ): Promise<{ success: boolean; metrics?: AdCampaignMetrics; error?: string }> {
   try {
-    const fields = 'impressions,clicks,spend,actions,ctr,cpc';
+    const fields = 'impressions,clicks,spend,actions,action_values,ctr,cpc,reach,frequency,video_play_actions';
     const res = await fetchWithRetry(
       `${META_GRAPH_API}/${campaignId}/insights?fields=${fields}&access_token=${accessToken}`,
     );
@@ -361,22 +361,80 @@ export async function getMetaCampaignMetrics(
     const row = data.data?.[0];
     if (!row) return { success: true, metrics: undefined };
 
-    const conversions = (row.actions as Array<{ action_type: string; value: string }> | undefined)
-      ?.find((a) => a.action_type === 'offsite_conversion')?.value;
+    type MetaAction = { action_type: string; value: string };
+    const actions = row.actions as MetaAction[] | undefined;
+    const actionValues = row.action_values as MetaAction[] | undefined;
+
+    // Conversions: offsite_conversion or purchase events
+    const conversions =
+      actions?.find((a) => a.action_type === 'purchase')?.value ||
+      actions?.find((a) => a.action_type === 'offsite_conversion.fb_pixel_purchase')?.value ||
+      actions?.find((a) => a.action_type === 'offsite_conversion')?.value;
+
+    // Conversion value: purchase revenue attributed
+    const purchaseValue =
+      actionValues?.find((a) => a.action_type === 'purchase')?.value ||
+      actionValues?.find((a) => a.action_type === 'offsite_conversion.fb_pixel_purchase')?.value;
+
+    // Video 3-second plays
+    const videoPlayActions = row.video_play_actions as MetaAction[] | undefined;
+    const videoViews = Number(videoPlayActions?.[0]?.value) || 0;
+
+    const spend = Math.round(Number(row.spend) * 100);
+    const conversionValue = Math.round(Number(purchaseValue || 0) * 100);
 
     return {
       success: true,
       metrics: {
         impressions: Number(row.impressions) || 0,
         clicks: Number(row.clicks) || 0,
-        spend: Math.round(Number(row.spend) * 100),
+        spend,
         conversions: Number(conversions) || 0,
         ctr: Number(row.ctr) || 0,
         cpc: Math.round(Number(row.cpc) * 100),
+        roas: spend > 0 ? conversionValue / spend : 0,
+        conversionValue,
+        reach: Number(row.reach) || 0,
+        frequency: Number(row.frequency) || 0,
+        videoViews,
+        videoWatchTime: 0,
         lastSyncedAt: new Date().toISOString(),
       },
     };
   } catch (e) {
     return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
+
+/**
+ * Fetch engagement stats for a published organic Facebook/Instagram post.
+ * Returns likes, comments, shares, reach, and impressions.
+ */
+export async function getMetaPostEngagement(
+  accessToken: string,
+  postId: string,
+): Promise<{ likes: number; comments: number; shares: number; reach: number; impressions: number } | null> {
+  try {
+    const fields = 'likes.limit(1).summary(true),comments.limit(1).summary(true),shares,insights.metric(post_impressions,post_reach)';
+    const res = await fetchWithRetry(
+      `${META_GRAPH_API}/${postId}?fields=${fields}&access_token=${accessToken}`,
+    );
+    const data = await res.json();
+    if (data.error) return null;
+
+    const insightValues: Record<string, number> = {};
+    for (const item of (data.insights?.data as Array<{ name: string; values: Array<{ value: number }> }>) || []) {
+      insightValues[item.name] = item.values?.[0]?.value || 0;
+    }
+
+    return {
+      likes: data.likes?.summary?.total_count || 0,
+      comments: data.comments?.summary?.total_count || 0,
+      shares: data.shares?.count || 0,
+      reach: insightValues['post_reach'] || 0,
+      impressions: insightValues['post_impressions'] || 0,
+    };
+  } catch {
+    return null;
   }
 }

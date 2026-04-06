@@ -6,7 +6,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
 import { getGoogleCampaignMetrics } from '@/lib/ads/google-ads';
 import { getTikTokCampaignMetrics } from '@/lib/ads/tiktok-ads';
-import type { AdCampaignDoc, AdCampaignMetrics } from '@/lib/ads/types';
+import type { AdCampaignDoc, AdCampaignMetrics, MetricsSnapshot } from '@/lib/ads/types';
 import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -58,7 +58,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     if (result.success && result.metrics) {
-      await ref.update({ metrics: result.metrics, updatedAt: new Date().toISOString() });
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const snapshot: MetricsSnapshot = { ...result.metrics, date: today };
+      // Write current metrics to campaign doc AND append to daily history (non-blocking)
+      await Promise.all([
+        ref.update({ metrics: result.metrics, updatedAt: new Date().toISOString() }),
+        ref.collection('metrics_history').doc(today).set(snapshot),
+      ]);
       return apiOk({ ok: true, metrics: result.metrics });
     } else if (result.success) {
       return apiOk({ ok: true, metrics: null });

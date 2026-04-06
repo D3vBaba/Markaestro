@@ -35,11 +35,22 @@ export type AdCampaignDoc = {
 export type AdCampaignMetrics = {
   impressions: number;
   clicks: number;
-  spend: number;
+  spend: number;          // cents
   conversions: number;
-  ctr: number;
-  cpc: number;
+  ctr: number;            // 0–1 decimal (e.g. 0.023 = 2.3%)
+  cpc: number;            // cents per click
+  roas: number;           // conversionValue / spend (e.g. 3.5 = 350% return)
+  conversionValue: number; // cents of revenue attributed to conversions
+  reach: number;          // unique users reached (Meta, TikTok)
+  frequency: number;      // avg impressions per reached user (Meta)
+  videoViews: number;     // 2-second video plays (TikTok) / 3-second plays (Meta)
+  videoWatchTime: number; // avg seconds watched per view (TikTok)
   lastSyncedAt: string;
+};
+
+/** A single daily snapshot stored in the metrics_history subcollection. */
+export type MetricsSnapshot = AdCampaignMetrics & {
+  date: string; // YYYY-MM-DD
 };
 
 export type AdPlatformResult = {

@@ -414,6 +414,7 @@ export async function getGoogleCampaignMetrics(
       metrics.clicks,
       metrics.cost_micros,
       metrics.conversions,
+      metrics.conversions_value,
       metrics.ctr,
       metrics.average_cpc
     FROM campaign
@@ -433,15 +434,23 @@ export async function getGoogleCampaignMetrics(
     const row = data?.[0]?.results?.[0]?.metrics;
     if (!row) return { success: true, metrics: undefined };
 
+    const spend = Math.round(Number(row.costMicros) / 10000);
+    const conversionValue = Math.round(Number(row.conversionsValue || 0) * 100);
     return {
       success: true,
       metrics: {
         impressions: Number(row.impressions) || 0,
         clicks: Number(row.clicks) || 0,
-        spend: Math.round(Number(row.costMicros) / 10000),
+        spend,
         conversions: Math.round(Number(row.conversions) || 0),
         ctr: Number(row.ctr) || 0,
         cpc: Math.round(Number(row.averageCpc) / 10000),
+        roas: spend > 0 ? conversionValue / spend : 0,
+        conversionValue,
+        reach: 0,        // Google campaign-level GAQL does not expose reach
+        frequency: 0,
+        videoViews: 0,
+        videoWatchTime: 0,
         lastSyncedAt: new Date().toISOString(),
       },
     };

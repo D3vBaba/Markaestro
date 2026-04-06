@@ -907,6 +907,9 @@ export default function AdsPage() {
   const totalSpend = campaigns.reduce((s, c) => s + (c.metrics?.spend || 0), 0);
   const totalImpressions = campaigns.reduce((s, c) => s + (c.metrics?.impressions || 0), 0);
   const totalClicks = campaigns.reduce((s, c) => s + (c.metrics?.clicks || 0), 0);
+  const totalConversions = campaigns.reduce((s, c) => s + (c.metrics?.conversions || 0), 0);
+  const totalConversionValue = campaigns.reduce((s, c) => s + (c.metrics?.conversionValue || 0), 0);
+  const overallRoas = totalSpend > 0 && totalConversionValue > 0 ? (totalConversionValue / totalSpend) : null;
   const activeCampaigns = campaigns.filter((c) => c.status === "active").length;
 
   return (
@@ -1369,11 +1372,13 @@ export default function AdsPage() {
 
       {/* Summary metrics */}
       {campaigns.length > 0 && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-10">
           <MetricCard label="Active Campaigns" value={String(activeCampaigns)} />
           <MetricCard label="Total Impressions" value={totalImpressions.toLocaleString()} />
           <MetricCard label="Total Clicks" value={totalClicks.toLocaleString()} />
           <MetricCard label="Total Spend" value={formatCurrency(totalSpend)} />
+          <MetricCard label="Conversions" value={totalConversions.toLocaleString()} />
+          <MetricCard label="Overall ROAS" value={overallRoas !== null ? `${overallRoas.toFixed(2)}x` : "—"} />
         </div>
       )}
 
@@ -1472,6 +1477,14 @@ export default function AdsPage() {
                       <MetricCard label="Clicks" value={c.metrics.clicks.toLocaleString()} />
                       <MetricCard label="CTR" value={`${(c.metrics.ctr * 100).toFixed(2)}%`} />
                       <MetricCard label="Spend" value={formatCurrency(c.metrics.spend)} />
+                      <MetricCard label="CPC" value={c.metrics.cpc > 0 ? formatCurrency(c.metrics.cpc) : "—"} />
+                      <MetricCard label="ROAS" value={c.metrics.roas > 0 ? `${c.metrics.roas.toFixed(2)}x` : "—"} />
+                      {c.metrics.conversions > 0 && (
+                        <MetricCard label="Conversions" value={c.metrics.conversions.toLocaleString()} />
+                      )}
+                      {c.metrics.frequency > 0 && (
+                        <MetricCard label="Frequency" value={c.metrics.frequency.toFixed(2) + "x"} />
+                      )}
                     </div>
                   )}
 
@@ -2022,12 +2035,58 @@ export default function AdsPage() {
 
               {/* Metrics */}
               {detailCampaign.metrics && (
-                <div className="grid grid-cols-2 gap-3">
-                  <MetricCard label="Impressions" value={detailCampaign.metrics.impressions.toLocaleString()} />
-                  <MetricCard label="Clicks" value={detailCampaign.metrics.clicks.toLocaleString()} />
-                  <MetricCard label="CTR" value={`${(detailCampaign.metrics.ctr * 100).toFixed(2)}%`} />
-                  <MetricCard label="Spend" value={formatCurrency(detailCampaign.metrics.spend)} />
-                </div>
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <MetricCard label="Impressions" value={detailCampaign.metrics.impressions.toLocaleString()} />
+                    <MetricCard label="Clicks" value={detailCampaign.metrics.clicks.toLocaleString()} />
+                    <MetricCard label="CTR" value={`${(detailCampaign.metrics.ctr * 100).toFixed(2)}%`} />
+                    <MetricCard label="Spend" value={formatCurrency(detailCampaign.metrics.spend)} />
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <MetricCard label="CPC" value={detailCampaign.metrics.cpc > 0 ? formatCurrency(detailCampaign.metrics.cpc) : "—"} />
+                    <MetricCard label="Conversions" value={detailCampaign.metrics.conversions.toLocaleString()} />
+                    <MetricCard
+                      label="Conv. Rate"
+                      value={detailCampaign.metrics.clicks > 0
+                        ? `${((detailCampaign.metrics.conversions / detailCampaign.metrics.clicks) * 100).toFixed(2)}%`
+                        : "—"}
+                    />
+                    <MetricCard
+                      label="ROAS"
+                      value={detailCampaign.metrics.roas > 0 ? `${detailCampaign.metrics.roas.toFixed(2)}x` : "—"}
+                    />
+                  </div>
+                  {(detailCampaign.metrics.reach > 0 || detailCampaign.metrics.videoViews > 0) && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {detailCampaign.metrics.reach > 0 && (
+                        <MetricCard label="Reach" value={detailCampaign.metrics.reach.toLocaleString()} />
+                      )}
+                      {detailCampaign.metrics.frequency > 0 && (
+                        <MetricCard
+                          label="Frequency"
+                          value={`${detailCampaign.metrics.frequency.toFixed(2)}x`}
+                        />
+                      )}
+                      {detailCampaign.metrics.videoViews > 0 && (
+                        <MetricCard label="Video Views" value={detailCampaign.metrics.videoViews.toLocaleString()} />
+                      )}
+                      {detailCampaign.metrics.videoWatchTime > 0 && (
+                        <MetricCard label="Avg Watch" value={`${detailCampaign.metrics.videoWatchTime.toFixed(1)}s`} />
+                      )}
+                    </div>
+                  )}
+                  {detailCampaign.metrics.conversionValue > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
+                      <MetricCard label="Revenue Attributed" value={formatCurrency(detailCampaign.metrics.conversionValue)} />
+                      <MetricCard
+                        label="Cost per Conversion"
+                        value={detailCampaign.metrics.conversions > 0
+                          ? formatCurrency(Math.round(detailCampaign.metrics.spend / detailCampaign.metrics.conversions))
+                          : "—"}
+                      />
+                    </div>
+                  )}
+                </>
               )}
 
               {/* AI Insights */}

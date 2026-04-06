@@ -239,7 +239,10 @@ export async function getTikTokCampaignMetrics(
       advertiser_id: advertiserId,
       report_type: 'BASIC',
       dimensions: JSON.stringify(['campaign_id']),
-      metrics: JSON.stringify(['impressions', 'clicks', 'spend', 'conversion', 'ctr', 'cpc']),
+      metrics: JSON.stringify([
+        'impressions', 'clicks', 'spend', 'conversion', 'ctr', 'cpc',
+        'reach', 'video_play_actions', 'average_video_play_per_user', 'total_purchase_value',
+      ]),
       data_level: 'AUCTION_CAMPAIGN',
       lifetime: 'true',
       filters: JSON.stringify([{ field_name: 'campaign_ids', filter_type: 'IN', filter_value: JSON.stringify([campaignId]) }]),
@@ -251,15 +254,26 @@ export async function getTikTokCampaignMetrics(
     const row = rows?.[0]?.metrics;
     if (!row) return { success: true, metrics: undefined };
 
+    const spend = Math.round(Number(row.spend) * 100);
+    const conversionValue = Math.round(Number(row.total_purchase_value || 0) * 100);
+    const impressions = Number(row.impressions) || 0;
+    const reach = Number(row.reach) || 0;
+
     return {
       success: true,
       metrics: {
-        impressions: Number(row.impressions) || 0,
+        impressions,
         clicks: Number(row.clicks) || 0,
-        spend: Math.round(Number(row.spend) * 100), // Convert dollars to cents
+        spend,
         conversions: Number(row.conversion) || 0,
         ctr: Number(row.ctr) || 0,
         cpc: Math.round(Number(row.cpc) * 100),
+        roas: spend > 0 ? conversionValue / spend : 0,
+        conversionValue,
+        reach,
+        frequency: reach > 0 ? impressions / reach : 0,
+        videoViews: Number(row.video_play_actions) || 0,
+        videoWatchTime: Number(row.average_video_play_per_user) || 0,
         lastSyncedAt: new Date().toISOString(),
       },
     };
