@@ -5,6 +5,7 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
+import { uploadToStorage } from '@/lib/storage';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']);
@@ -51,25 +52,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const fileId = crypto.randomUUID();
     const filePath = `workspaces/${ctx.workspaceId}/logos/${id}/${fileId}.${normalized.ext}`;
 
-    const admin = await import('firebase-admin');
-    const bucket = admin.storage().bucket();
-    const gcsFile = bucket.file(filePath);
-
-    await gcsFile.save(normalized.buffer, {
-      metadata: {
-        contentType: normalized.contentType,
-        metadata: {
-          workspaceId: ctx.workspaceId,
-          productId: id,
-          uploadedBy: ctx.uid,
-          uploadedAt: new Date().toISOString(),
-        },
-      },
+    const publicUrl = await uploadToStorage(filePath, normalized.buffer, normalized.contentType, {
+      workspaceId: ctx.workspaceId,
+      productId: id,
+      uploadedBy: ctx.uid,
+      uploadedAt: new Date().toISOString(),
     });
-
-    // Make the file publicly readable so the URL works without signing
-    await gcsFile.makePublic();
-    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
 
     // Update brandIdentity.logoUrl on the product
     const existing = snap.data()?.brandIdentity || {};

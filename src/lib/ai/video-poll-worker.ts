@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { pollVideoGeneration, uploadVideoToStorage } from '@/lib/ai/video-generator';
 import { pollUGCVideo } from '@/lib/ai/ugc-video-generator';
+import { getAllDocs, getAllMatchingDocs } from '@/lib/firestore-pagination';
 
 export type VideoPollResult = {
   polled: number;
@@ -88,18 +89,18 @@ async function pollSingleGeneration(
 export async function pollPendingVideoGenerations(): Promise<VideoPollResult> {
   const result: VideoPollResult = { polled: 0, completed: 0, failed: 0, errors: [] };
 
-  const wsSnap = await adminDb.collection('workspaces').limit(200).get();
+  const wsDocs = await getAllDocs('workspaces');
 
-  for (const ws of wsSnap.docs) {
+  for (const ws of wsDocs) {
     const workspaceId = ws.id;
 
-    const genSnap = await adminDb
-      .collection(`workspaces/${workspaceId}/videoGenerations`)
-      .where('status', '==', 'generating')
-      .limit(20)
-      .get();
+    const genDocs = await getAllMatchingDocs(
+      adminDb
+        .collection(`workspaces/${workspaceId}/videoGenerations`)
+        .where('status', '==', 'generating'),
+    );
 
-    for (const doc of genSnap.docs) {
+    for (const doc of genDocs) {
       result.polled++;
       try {
         const s = await pollSingleGeneration(doc.data(), doc.ref, workspaceId, doc.id);

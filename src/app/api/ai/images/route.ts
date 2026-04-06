@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
+import { uploadToStorage } from '@/lib/storage';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
@@ -35,15 +36,13 @@ export async function POST(req: Request) {
     const fileId = crypto.randomUUID();
     const filePath = `workspaces/${ctx.workspaceId}/generated/${fileId}.${ext}`;
 
-    const admin = await import('firebase-admin');
-    const bucket = admin.storage().bucket();
-    const gcsFile = bucket.file(filePath);
-    await gcsFile.save(buffer, {
-      metadata: { contentType: file.type, metadata: { workspaceId: ctx.workspaceId, uploadedBy: ctx.uid, uploadedAt: new Date().toISOString() } },
+    const url = await uploadToStorage(filePath, buffer, file.type, {
+      workspaceId: ctx.workspaceId,
+      uploadedBy: ctx.uid,
+      uploadedAt: new Date().toISOString(),
     });
-    await gcsFile.makePublic();
 
-    return apiOk({ ok: true, url: `https://storage.googleapis.com/${bucket.name}/${filePath}`, contentType: file.type });
+    return apiOk({ ok: true, url, contentType: file.type });
   } catch (error) {
     return apiError(error);
   }

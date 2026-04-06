@@ -1,29 +1,12 @@
 /**
- * In-memory sliding-window rate limiter.
- * Suitable for single-instance deployments (Cloud Run with maxInstances=1-4).
- * For multi-instance scaling, swap to Redis-backed (e.g. @upstash/ratelimit).
+ * Firestore-backed sliding-window rate limiter.
+ * Safe for multi-instance deployments (Cloud Run with maxInstances > 1).
+ *
+ * Each window is a single Firestore doc in `_rateLimits/{docId}`.
+ * Set a Firestore TTL policy on the `expiresAt` field to auto-cleanup.
  */
 
-type RateLimitEntry = {
-  count: number;
-  resetAt: number;
-};
-
-const store = new Map<string, RateLimitEntry>();
-
-// Clean up expired entries every 60 seconds to prevent memory leaks
-const CLEANUP_INTERVAL_MS = 60_000;
-let lastCleanup = Date.now();
-
-function cleanup() {
-  const now = Date.now();
-  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
-  lastCleanup = now;
-  for (const [key, entry] of store) {
-    if (now > entry.resetAt) store.delete(key);
-  }
-}
-
+import { adminDb } from '@/lib/firebase-admin';
 export type RateLimitConfig = {
   /** Maximum number of requests in the window */
   limit: number;
@@ -39,30 +22,39 @@ export type RateLimitResult = {
 };
 
 /**
- * Check if a request is within rate limits.
+ * Check if a request is within rate limits using Firestore atomic increment.
  * Returns { allowed, limit, remaining, resetAt }.
  */
-export function checkRateLimit(key: string, config: RateLimitConfig): RateLimitResult {
-  cleanup();
+export async function checkRateLimit(key: string, config: RateLimitConfig): Promise<RateLimitResult> {
+  const windowId = Math.floor(Date.now() / config.windowMs);
+  const resetAt = (windowId + 1) * config.windowMs;
 
-  const now = Date.now();
-  const entry = store.get(key);
+  // Encode key to be a valid Firestore doc ID (no slashes, reasonable length)
+  const docId = Buffer.from(`${key}:${windowId}`).toString('base64url');
+  const docRef = adminDb.collection('_rateLimits').doc(docId);
 
-  // No existing entry or window expired — start fresh
-  if (!entry || now > entry.resetAt) {
-    const resetAt = now + config.windowMs;
-    store.set(key, { count: 1, resetAt });
-    return { allowed: true, limit: config.limit, remaining: config.limit - 1, resetAt };
-  }
+  const result = await adminDb.runTransaction(async (tx) => {
+    const snap = await tx.get(docRef);
 
-  // Within window — increment
-  entry.count++;
+    if (!snap.exists) {
+      tx.set(docRef, {
+        count: 1,
+        expiresAt: new Date(resetAt + config.windowMs), // TTL: one extra window for safety
+      });
+      return { allowed: true, limit: config.limit, remaining: config.limit - 1, resetAt };
+    }
 
-  if (entry.count > config.limit) {
-    return { allowed: false, limit: config.limit, remaining: 0, resetAt: entry.resetAt };
-  }
+    const count = ((snap.data()?.count as number) || 0) + 1;
 
-  return { allowed: true, limit: config.limit, remaining: config.limit - entry.count, resetAt: entry.resetAt };
+    if (count > config.limit) {
+      return { allowed: false, limit: config.limit, remaining: 0, resetAt };
+    }
+
+    tx.update(docRef, { count });
+    return { allowed: true, limit: config.limit, remaining: config.limit - count, resetAt };
+  });
+
+  return result;
 }
 
 /** Pre-built rate limit tiers */
@@ -76,3 +68,44 @@ export const RATE_LIMITS = {
   /** Worker tick: 5 requests per minute */
   worker: { limit: 5, windowMs: 60_000 } as RateLimitConfig,
 } as const;
+
+/**
+ * Helper to apply rate limiting inside an API route handler.
+ * Extracts client IP from headers and throws a Response if rate limited.
+ *
+ * Usage:
+ *   const rl = await applyRateLimit(req, RATE_LIMITS.ai);
+ *   // If we get here, the request is allowed. rl has headers you can merge.
+ */
+export async function applyRateLimit(
+  req: Request,
+  config: RateLimitConfig,
+): Promise<{ headers: Record<string, string> }> {
+  const ip =
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    req.headers.get('x-real-ip') ||
+    'unknown';
+  const pathname = new URL(req.url).pathname;
+  const key = `${ip}:${pathname}`;
+
+  const result = await checkRateLimit(key, config);
+
+  const headers: Record<string, string> = {
+    'X-RateLimit-Limit': String(result.limit),
+    'X-RateLimit-Remaining': String(result.remaining),
+    'X-RateLimit-Reset': String(Math.ceil(result.resetAt / 1000)),
+  };
+
+  if (!result.allowed) {
+    const retryAfter = Math.ceil((result.resetAt - Date.now()) / 1000);
+    throw new Response(
+      JSON.stringify({ error: 'RATE_LIMITED', retryAfter }),
+      {
+        status: 429,
+        headers: { 'Content-Type': 'application/json', 'Retry-After': String(retryAfter), ...headers },
+      },
+    );
+  }
+
+  return { headers };
+}

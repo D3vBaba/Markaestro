@@ -8,7 +8,7 @@ export type JobDoc = {
   schedule: 'manual' | 'daily';
   hourUTC?: number;
   minuteUTC?: number;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
   lastRunAt?: string;
   nextRunAt?: string;
   createdAt: string;

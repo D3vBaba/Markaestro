@@ -72,13 +72,19 @@ export default function ChannelSelector({
   const [integrations, setIntegrations] = useState<IntegrationInfo[]>([]);
 
   useEffect(() => {
-    if (!productId) { setIntegrations([]); return; }
+    let cancelled = false;
     (async () => {
+      if (!productId) {
+        if (!cancelled) setIntegrations([]);
+        return;
+      }
       const res = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${productId}`);
+      if (cancelled) return;
       if (res.ok) {
         setIntegrations(res.data.integrations?.filter((i) => i.scope === "product") || []);
       }
     })();
+    return () => { cancelled = true; };
   }, [productId]);
 
   function channelState(ch: string): ChannelState {

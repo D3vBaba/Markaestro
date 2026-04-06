@@ -370,8 +370,7 @@ export async function uploadVideoToStorage(
   videoUrl: string,
   workspaceId: string,
 ): Promise<string> {
-  const admin = await import('firebase-admin');
-  const bucket = admin.storage().bucket();
+  const { uploadToStorage } = await import('@/lib/storage');
 
   // Download the video from the provider
   const res = await fetchWithRetry(videoUrl, undefined, { timeoutMs: 120_000 });
@@ -381,18 +380,9 @@ export async function uploadVideoToStorage(
   const fileId = crypto.randomUUID();
   // Store in `generated/` so gallery picks it up
   const filePath = `workspaces/${workspaceId}/generated/${fileId}.mp4`;
-  const file = bucket.file(filePath);
 
-  await file.save(buffer, {
-    metadata: {
-      contentType: 'video/mp4',
-      metadata: {
-        workspaceId,
-        generatedAt: new Date().toISOString(),
-      },
-    },
+  return uploadToStorage(filePath, buffer, 'video/mp4', {
+    workspaceId,
+    generatedAt: new Date().toISOString(),
   });
-
-  await file.makePublic();
-  return `https://storage.googleapis.com/${bucket.name}/${filePath}`;
 }

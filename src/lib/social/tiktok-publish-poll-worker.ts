@@ -3,6 +3,7 @@ import { getConnectionForChannel } from '@/lib/platform/connections';
 import { getAccessToken } from '@/lib/platform/base-adapter';
 import { fetchTikTokPublishStatus } from '@/lib/platform/adapters/tiktok-publishing';
 import type { SocialChannel } from '@/lib/schemas';
+import { getAllDocs, getAllMatchingDocs } from '@/lib/firestore-pagination';
 
 type TikTokPublishPollResult = {
   polled: number;
@@ -93,19 +94,19 @@ function summarizePublishResults(publishResults: unknown): {
 
 export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollResult> {
   const result: TikTokPublishPollResult = { polled: 0, completed: 0, failed: 0, pending: 0, errors: [] };
-  const wsSnap = await adminDb.collection('workspaces').limit(200).get();
+  const wsDocs = await getAllDocs('workspaces');
 
-  for (const ws of wsSnap.docs) {
+  for (const ws of wsDocs) {
     const workspaceId = ws.id;
-    const postsSnap = await adminDb
-      .collection(`workspaces/${workspaceId}/posts`)
-      .where('status', '==', 'publishing')
-      .where('channel', '==', 'tiktok')
-      .orderBy('updatedAt', 'asc')
-      .limit(100)
-      .get();
+    const postsDocs = await getAllMatchingDocs(
+      adminDb
+        .collection(`workspaces/${workspaceId}/posts`)
+        .where('status', '==', 'publishing')
+        .where('channel', '==', 'tiktok')
+        .orderBy('updatedAt', 'asc'),
+    );
 
-    for (const doc of postsSnap.docs) {
+    for (const doc of postsDocs) {
       const post = doc.data();
       if (!post.externalId) continue;
 

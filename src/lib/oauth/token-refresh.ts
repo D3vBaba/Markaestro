@@ -4,6 +4,7 @@ import { refreshAccessToken } from './flow';
 import type { OAuthProvider } from '@/lib/schemas';
 import { getConnectionRef } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
+import { getAllDocs } from '@/lib/firestore-pagination';
 
 type RefreshResult = {
   refreshed: number;
@@ -154,9 +155,9 @@ async function refreshConnectionDoc(
 export async function processTokenRefresh(): Promise<RefreshResult> {
   const result: RefreshResult = { refreshed: 0, failed: 0, skipped: 0, errors: [] };
 
-  const wsSnap = await adminDb.collection('workspaces').limit(200).get();
+  const wsDocs = await getAllDocs('workspaces');
 
-  for (const ws of wsSnap.docs) {
+  for (const ws of wsDocs) {
     const workspaceId = ws.id;
 
     // Workspace-level: Google, Meta
@@ -168,12 +169,9 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
 
     // Product-level: tiktok + tiktok_ads (Meta is now workspace-level)
     const socialProviders: OAuthProvider[] = ['tiktok', 'tiktok_ads'];
-    const productsSnap = await adminDb
-      .collection(`workspaces/${workspaceId}/products`)
-      .limit(100)
-      .get();
+    const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
 
-    for (const productDoc of productsSnap.docs) {
+    for (const productDoc of productDocs) {
       const productId = productDoc.id;
 
       for (const provider of socialProviders) {

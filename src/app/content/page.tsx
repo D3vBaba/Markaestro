@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -58,7 +58,6 @@ function ProductContextBar({
 
       {editing ? (
         <select
-          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           value={productId}
           onChange={(e) => {
@@ -100,21 +99,21 @@ export default function PostsPage() {
   const [productId, setProductId] = useState("");
 
   // Load products and restore default product from localStorage
-  const fetchProducts = useCallback(async () => {
-    const res = await apiGet<{ products: Product[] }>("/api/products");
-    if (!res.ok) return;
-    const list: Product[] = res.data.products || [];
-    setProducts(list);
-    if (list.length === 0) return;
-
-    const saved = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
-    const savedExists = saved && list.some((p) => p.id === saved);
-    setProductId(savedExists ? saved! : list[0].id);
-  }, []);
-
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    let cancelled = false;
+    (async () => {
+      const res = await apiGet<{ products: Product[] }>("/api/products");
+      if (cancelled || !res.ok) return;
+      const list: Product[] = res.data.products || [];
+      setProducts(list);
+      if (list.length === 0) return;
+
+      const saved = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+      const savedExists = saved && list.some((p) => p.id === saved);
+      setProductId(savedExists ? saved! : list[0].id);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // Persist product selection
   const handleProductChange = (id: string) => {

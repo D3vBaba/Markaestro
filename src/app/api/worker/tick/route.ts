@@ -6,6 +6,7 @@ import { processTokenRefresh, cleanupExpiredOAuthStates } from '@/lib/oauth/toke
 import { pollPendingVideoGenerations } from '@/lib/ai/video-poll-worker';
 import { safeCompare } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
+import { getAllDocs, getAllMatchingDocs } from '@/lib/firestore-pagination';
 
 export async function POST(req: Request) {
   try {
@@ -50,8 +51,8 @@ export async function POST(req: Request) {
       console.error('TikTok publish polling failed:', e);
     }
 
-    // 5. Process workspaces
-    const wsSnap = await adminDb.collection('workspaces').limit(200).get();
+    // 5. Process workspaces (paginated — no cap)
+    const wsDocs = await getAllDocs('workspaces');
 
     let scanned = 0;
     const dueJobs: Array<{ workspaceId: string; jobId: string; data: Record<string, unknown> }> = [];
@@ -69,7 +70,7 @@ export async function POST(req: Request) {
     }> = [];
     const postErrors: Array<{ workspaceId: string; postId?: string; error: string }> = [];
 
-    for (const ws of wsSnap.docs) {
+    for (const ws of wsDocs) {
       const workspaceId = ws.id;
 
       // Recover stale publishes and process scheduled posts for this workspace.
@@ -101,13 +102,14 @@ export async function POST(req: Request) {
         postErrors.push({ workspaceId, error: message });
       }
 
-      // Process scheduled jobs
-      const jobsSnap = await adminDb
-        .collection(`workspaces/${workspaceId}/jobs`)
-        .where('enabled', '==', true)
-        .where('schedule', '==', 'daily')
-        .limit(200)
-        .get();
+      // Process scheduled jobs (paginated)
+      const jobsDocs = await getAllMatchingDocs(
+        adminDb
+          .collection(`workspaces/${workspaceId}/jobs`)
+          .where('enabled', '==', true)
+          .where('schedule', '==', 'daily'),
+      );
+      const jobsSnap = { size: jobsDocs.length, docs: jobsDocs };
 
       scanned += jobsSnap.size;
 
@@ -126,7 +128,7 @@ export async function POST(req: Request) {
 
     return apiOk({
       ok: true,
-      workspaces: wsSnap.size,
+      workspaces: wsDocs.length,
       scanned,
       due: dueJobs.length,
       processed: results.length,

@@ -10,6 +10,8 @@ import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api-client";
+import { useProductScan } from "@/hooks/useProductScan";
+import ScanProgressStepper from "@/components/app/ScanProgressStepper";
 import { PLANS, TRIAL_DAYS } from "@/lib/stripe/plans";
 import type { PlanTier, BillingInterval } from "@/lib/stripe/plans";
 import { motion, AnimatePresence } from "framer-motion";
@@ -347,8 +349,7 @@ export default function OnboardingPage() {
   const [logoUrl, setLogoUrl] = useState(saved.logoUrl ?? "");
   const [tone, setTone] = useState(saved.tone ?? "");
   const [targetAudience, setTargetAudience] = useState(saved.targetAudience ?? "");
-  const [scanning, setScanning] = useState(false);
-  const [scanDone, setScanDone] = useState(false);
+  const { phase: scanPhase, scanning, scanned: scanDone, scan: runScan, reset: resetScan } = useProductScan();
   const [manualEntry, setManualEntry] = useState(false);
 
   const [connected, setConnected] = useState<Record<string, boolean>>(saved.connected ?? {});
@@ -435,41 +436,22 @@ export default function OnboardingPage() {
     if (!url) return;
     if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
     setProductUrl(url);
-    setScanning(true);
-    setScanDone(false);
-    try {
-      const res = await apiFetch<{
-        name: string; description: string; category: string;
-        pricingTier: string; tags: string[]; primaryColor: string;
-        secondaryColor: string; accentColor: string; logoUrl: string;
-        targetAudience: string; tone: string;
-      }>("/api/products/scan", {
-        method: "POST",
-        body: JSON.stringify({ url }),
-      });
-      if (res.ok) {
-        const d = res.data;
-        if (d.name) setProductName(d.name);
-        if (d.description) setProductDesc(d.description);
-        if (d.category) setProductCategory(d.category);
-        if (d.pricingTier) setProductPricingTier(d.pricingTier);
-        if (d.tags?.length) setProductTags(d.tags);
-        if (d.primaryColor) setPrimaryColor(d.primaryColor);
-        if (d.secondaryColor) setSecondaryColor(d.secondaryColor);
-        if (d.accentColor) setAccentColor(d.accentColor);
-        if (d.logoUrl) setLogoUrl(d.logoUrl);
-        if (d.targetAudience) setTargetAudience(d.targetAudience);
-        if (d.tone) setTone(d.tone);
-        setScanDone(true);
-      } else {
-        toast.error("Scan failed — please fill in your details manually");
-        setManualEntry(true);
-      }
-    } catch {
-      toast.error("Scan failed — please fill in your details manually");
+
+    const d = await runScan(url);
+    if (d) {
+      if (d.name) setProductName(d.name);
+      if (d.description) setProductDesc(d.description);
+      if (d.category) setProductCategory(d.category);
+      if (d.pricingTier) setProductPricingTier(d.pricingTier);
+      if (d.tags?.length) setProductTags(d.tags);
+      if (d.primaryColor) setPrimaryColor(d.primaryColor);
+      if (d.secondaryColor) setSecondaryColor(d.secondaryColor);
+      if (d.accentColor) setAccentColor(d.accentColor);
+      if (d.logoUrl) setLogoUrl(d.logoUrl);
+      if (d.targetAudience) setTargetAudience(d.targetAudience);
+      if (d.tone) setTone(d.tone);
+    } else {
       setManualEntry(true);
-    } finally {
-      setScanning(false);
     }
   }
 
@@ -779,7 +761,7 @@ export default function OnboardingPage() {
                             className="h-12 rounded-lg text-base flex-1"
                             style={{ fontSize: "16px" }}
                             value={productUrl}
-                            onChange={(e) => { setProductUrl(e.target.value); setScanDone(false); }}
+                            onChange={(e) => { setProductUrl(e.target.value); if (scanDone) resetScan(); }}
                             onKeyDown={(e) => e.key === "Enter" && !scanning && scanUrl()}
                           />
                           <Button
@@ -796,15 +778,14 @@ export default function OnboardingPage() {
                         </p>
                       </div>
 
+                      <ScanProgressStepper phase={scanPhase} url={productUrl} />
+
                       {scanDone && (
                         <motion.div
                           initial={{ opacity: 0, y: 6 }}
                           animate={{ opacity: 1, y: 0 }}
                           className="space-y-4 pt-5 border-t"
                         >
-                          <p className="text-sm font-medium text-emerald-600">
-                            Scan complete — review and confirm below
-                          </p>
 
                           <div>
                             <label className="text-sm font-medium block mb-2">Product name</label>

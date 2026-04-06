@@ -1,4 +1,4 @@
-const http = require('http');
+import http from 'node:http';
 
 const PORT = Number(process.env.PORT || 8080);
 const UPSTREAM = 'https://markaestro--markaestro-0226220726.us-central1.hosted.app';
@@ -25,7 +25,27 @@ const RESPONSE_HEADER_ALLOWLIST = new Set([
   'location',
   'set-cookie',
   'vary',
+  // Security headers — forward from upstream
+  'strict-transport-security',
+  'content-security-policy',
+  'x-frame-options',
+  'x-content-type-options',
+  'referrer-policy',
+  'permissions-policy',
+  'x-xss-protection',
+  'cross-origin-opener-policy',
+  'cross-origin-embedder-policy',
+  'cross-origin-resource-policy',
 ]);
+
+/** Baseline security headers injected if the upstream doesn't send them. */
+const DEFAULT_SECURITY_HEADERS = {
+  'strict-transport-security': 'max-age=63072000; includeSubDomains; preload',
+  'x-frame-options': 'DENY',
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+};
 
 function cloneHeaders(headers) {
   const result = new Headers();
@@ -84,6 +104,13 @@ http
 
         res.setHeader(key, value);
       });
+
+      // Inject baseline security headers if upstream didn't send them
+      for (const [header, value] of Object.entries(DEFAULT_SECURITY_HEADERS)) {
+        if (!res.hasHeader(header)) {
+          res.setHeader(header, value);
+        }
+      }
 
       if (!upstreamRes.body) {
         res.end();

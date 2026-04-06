@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
+import { uploadToStorage } from '@/lib/storage';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB (Meta allows up to 30MB, Google up to 5MB, TikTok up to 10MB)
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500 MB (TikTok up to 500MB, Meta up to 4GB)
@@ -54,29 +55,17 @@ export async function POST(req: Request) {
     const mediaType = isVideo ? 'videos' : 'images';
     const filePath = `workspaces/${ctx.workspaceId}/ad-media/${mediaType}/${fileId}.${ext}`;
 
-    const admin = await import('firebase-admin');
-    const bucket = admin.storage().bucket();
-    const gcsFile = bucket.file(filePath);
-
-    await gcsFile.save(buffer, {
-      metadata: {
-        contentType: file.type,
-        metadata: {
-          workspaceId: ctx.workspaceId,
-          uploadedBy: ctx.uid,
-          uploadedAt: new Date().toISOString(),
-          originalName: file.name,
-          fileSize: String(file.size),
-        },
-      },
+    const url = await uploadToStorage(filePath, buffer, file.type, {
+      workspaceId: ctx.workspaceId,
+      uploadedBy: ctx.uid,
+      uploadedAt: new Date().toISOString(),
+      originalName: file.name,
+      fileSize: String(file.size),
     });
-
-    await gcsFile.makePublic();
-    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
 
     return apiOk({
       ok: true,
-      url: publicUrl,
+      url,
       type: isVideo ? 'video' : 'image',
       fileName: file.name,
       fileSize: file.size,

@@ -871,30 +871,17 @@ export async function uploadToFirebaseStorage(
   mimeType: string,
   workspaceId: string,
 ): Promise<string> {
-  const admin = await import('firebase-admin');
-  const bucket = admin.storage().bucket();
+  const { uploadToStorage } = await import('@/lib/storage');
 
   const fileId = crypto.randomUUID();
   const ext = mimeType.includes('png') ? 'png' : 'jpg';
   const filePath = `workspaces/${workspaceId}/generated/${fileId}.${ext}`;
-  const file = bucket.file(filePath);
-
   const buffer = Buffer.from(base64, 'base64');
 
-  await file.save(buffer, {
-    metadata: {
-      contentType: mimeType,
-      metadata: {
-        workspaceId,
-        generatedAt: new Date().toISOString(),
-      },
-    },
+  return uploadToStorage(filePath, buffer, mimeType, {
+    workspaceId,
+    generatedAt: new Date().toISOString(),
   });
-
-  // Make the file publicly readable and return a direct URL
-  await file.makePublic();
-  const bucketName = bucket.name;
-  return `https://storage.googleapis.com/${bucketName}/${filePath}`;
 }
 
 /**

@@ -32,12 +32,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     const posts = postsSnap.docs
       .map((doc) => ({ id: doc.id, ...doc.data() }))
-      .sort((a: any, b: any) => (a.pipelineSequence ?? 0) - (b.pipelineSequence ?? 0));
+      .sort((a, b) => ((a as Record<string, unknown>).pipelineSequence as number ?? 0) - ((b as Record<string, unknown>).pipelineSequence as number ?? 0));
 
     // Group posts by stage
     const stages: Record<string, Array<Record<string, unknown>>> = {};
     for (const post of posts) {
-      const stage = (post as any).pipelineStage as PipelineStage || 'awareness';
+      const stage = (post as Record<string, unknown>).pipelineStage as PipelineStage || 'awareness';
       if (!stages[stage]) stages[stage] = [];
       stages[stage].push(post);
     }
@@ -45,7 +45,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     // Compute stats
     const statusCounts: Record<string, number> = {};
     for (const post of posts) {
-      const status = (post as any).status || 'draft';
+      const status = (post as Record<string, unknown>).status as string || 'draft';
       statusCounts[status] = (statusCounts[status] || 0) + 1;
     }
 

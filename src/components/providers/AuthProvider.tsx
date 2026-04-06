@@ -32,12 +32,25 @@ type AuthCtx = {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
-/** Set a lightweight session marker cookie (read by middleware). */
-function setSessionCookie(loggedIn: boolean) {
-  if (loggedIn) {
-    document.cookie = '__session=1; path=/; max-age=2592000; SameSite=Lax';
-  } else {
-    document.cookie = '__session=; path=/; max-age=0; SameSite=Lax';
+/**
+ * Sync session cookie via server endpoint (signed HttpOnly cookie).
+ * On login: POST the ID token so the server can verify + set a signed cookie.
+ * On logout: DELETE to clear the cookie.
+ */
+async function syncSessionCookie(user: User | null) {
+  try {
+    if (user) {
+      const idToken = await user.getIdToken();
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+    } else {
+      await fetch('/api/auth/session', { method: 'DELETE' });
+    }
+  } catch {
+    // Non-critical — APIs use ID token auth independently
   }
 }
 
@@ -101,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return onAuthStateChanged(auth, (u) => {
       setUser(u);
-      setSessionCookie(!!u);
+      syncSessionCookie(u);
       setLoading(false);
       // Signal to api-client that auth state is resolved
       markAuthReady();
@@ -136,7 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       },
       logout: async () => {
-        setSessionCookie(false);
+        await fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {});
         await signOut(auth);
         router.replace('/login');
       },

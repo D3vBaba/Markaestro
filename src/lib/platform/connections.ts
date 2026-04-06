@@ -2,6 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { decrypt } from '@/lib/crypto';
 import type { SocialChannel } from '@/lib/schemas';
 import type { PlatformConnection, ConnectionStatus } from './types';
+import { getAllDocs } from '@/lib/firestore-pagination';
 
 /**
  * Firestore path for platform connections.
@@ -111,14 +112,11 @@ async function getSoleProductScopedConnection(
   workspaceId: string,
   provider: string,
 ): Promise<PlatformConnection | null> {
-  const productsSnap = await adminDb
-    .collection(`workspaces/${workspaceId}/products`)
-    .limit(100)
-    .get();
+  const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
 
   let found: PlatformConnection | null = null;
 
-  for (const product of productsSnap.docs) {
+  for (const product of productDocs) {
     const conn = await getConnection(workspaceId, provider, product.id);
     if (!conn || conn.status !== 'connected') continue;
 

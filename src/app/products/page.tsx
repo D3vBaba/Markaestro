@@ -16,6 +16,8 @@ import PageHeader from "@/components/app/PageHeader";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
 import TagInput from "@/components/app/TagInput";
+import ScanProgressStepper from "@/components/app/ScanProgressStepper";
+import { useProductScan } from "@/hooks/useProductScan";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 
@@ -186,10 +188,9 @@ export default function ProductsPage() {
   const [newTags, setNewTags] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
-  // URL scan state
+  // URL scan
   const [scanUrl, setScanUrl] = useState("");
-  const [scanning, setScanning] = useState(false);
-  const [scanned, setScanned] = useState(false);
+  const { phase: scanPhase, scanning, scanned, scan: runScan, reset: resetScan } = useProductScan();
   const [scanPrimaryColor, setScanPrimaryColor] = useState("#6366f1");
   const [scanSecondaryColor, setScanSecondaryColor] = useState("");
   const [scanAccentColor, setScanAccentColor] = useState("");
@@ -317,43 +318,26 @@ export default function ProductsPage() {
     if (!url) { toast.error("Enter a URL first"); return; }
     let fullUrl = url;
     if (!/^https?:\/\//i.test(url)) fullUrl = `https://${url}`;
-    setScanning(true);
-    try {
-      const res = await apiPost<{
-        name: string; description: string; category: string; pricingTier: string;
-        tags: string[]; primaryColor: string; secondaryColor: string; accentColor: string;
-        logoUrl: string; targetAudience: string; tone: string;
-      }>("/api/products/scan", { url: fullUrl });
-      if (res.ok) {
-        const d = res.data;
-        setNewName(d.name || "");
-        setNewDescription(d.description || "");
-        setNewUrl(fullUrl);
-        setNewCategories(d.category ? [d.category] : ["saas"]);
-        setNewPricing(d.pricingTier ? d.pricingTier.split(",").map((s: string) => s.trim()).filter(Boolean) : []);
-        setNewTags(d.tags || []);
-        setScanPrimaryColor(d.primaryColor || "#6366f1");
-        setScanSecondaryColor(d.secondaryColor || "");
-        setScanAccentColor(d.accentColor || "");
-        setScanLogoUrl(d.logoUrl || "");
-        setScanTargetAudience(d.targetAudience || "");
-        setScanTone(d.tone || "");
-        setScanned(true);
-        toast.success("Website scanned — review and confirm");
-      } else {
-        toast.error("Scan failed — fill in manually");
-        setScanned(true); // still show form
-      }
-    } catch {
-      toast.error("Scan failed — fill in manually");
-      setScanned(true);
-    } finally {
-      setScanning(false);
+
+    const d = await runScan(fullUrl);
+    if (d) {
+      setNewName(d.name || "");
+      setNewDescription(d.description || "");
+      setNewUrl(fullUrl);
+      setNewCategories(d.category ? [d.category] : ["saas"]);
+      setNewPricing(d.pricingTier ? d.pricingTier.split(",").map((s: string) => s.trim()).filter(Boolean) : []);
+      setNewTags(d.tags || []);
+      setScanPrimaryColor(d.primaryColor || "#6366f1");
+      setScanSecondaryColor(d.secondaryColor || "");
+      setScanAccentColor(d.accentColor || "");
+      setScanLogoUrl(d.logoUrl || "");
+      setScanTargetAudience(d.targetAudience || "");
+      setScanTone(d.tone || "");
     }
   };
 
   const resetCreateForm = () => {
-    setScanUrl(""); setScanned(false); setScanning(false);
+    setScanUrl(""); resetScan();
     setNewName(""); setNewDescription(""); setNewUrl(""); setNewCategories(["saas"]); setNewPricing([]); setNewTags([]);
     setScanPrimaryColor("#6366f1"); setScanSecondaryColor(""); setScanAccentColor(""); setScanLogoUrl("");
     setScanTargetAudience(""); setScanTone("");
@@ -635,24 +619,17 @@ export default function ProductsPage() {
                     <Input
                       placeholder="https://yourproduct.com"
                       value={scanUrl}
-                      onChange={(e) => { setScanUrl(e.target.value); if (scanned) setScanned(false); }}
+                      onChange={(e) => { setScanUrl(e.target.value); if (scanned) resetScan(); }}
                       onKeyDown={(e) => { if (e.key === "Enter") handleScan(); }}
                       disabled={scanning}
                       className="flex-1"
                     />
                     <Button onClick={handleScan} disabled={scanning || !scanUrl.trim()} className="shrink-0">
                       {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                      <span className={scanning ? "ml-1.5" : ""}>{scanning ? "Scanning…" : "Scan"}</span>
+                      <span className={scanning ? "ml-1.5" : ""}>{scanning ? "Scanning…" : scanned ? "Re-scan" : "Scan"}</span>
                     </Button>
                   </div>
-                  {scanning && (
-                    <p className="text-xs text-muted-foreground animate-pulse">Analysing your website…</p>
-                  )}
-                  {scanned && !scanning && (
-                    <p className="text-xs text-emerald-600">
-                      Prefilled from your website — edit anything below
-                    </p>
-                  )}
+                  <ScanProgressStepper phase={scanPhase} url={scanUrl} compact />
                 </div>
 
                 {/* Step 2: Prefilled form — always visible but highlighted after scan */}
