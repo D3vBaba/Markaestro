@@ -1107,25 +1107,16 @@ export default function ProductsPage() {
 
                     return (
                       <div key={provider} className="rounded-xl border p-3 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium">{providerLabels[provider]}</p>
-                            {connected && (
-                              <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
-                            )}
-                            {integ?.lastRefreshError && (
-                              <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
-                            )}
-                            {missingAdvertiserAccess && (
-                              <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">No advertiser access</Badge>
-                            )}
-                          </div>
-                          {connected ? (
-                            <Button variant="destructive" size="sm" onClick={() => setDisconnectTarget({ provider, productId: editProductId!, label: providerLabels[provider] || provider })} disabled={disconnecting === provider}>
-                              {disconnecting === provider ? "..." : "Disconnect"}
-                            </Button>
-                          ) : (
-                            <Button size="sm" onClick={() => startOAuth(provider, editProductId)}>Connect</Button>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-medium">{providerLabels[provider]}</p>
+                          {connected && (
+                            <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
+                          )}
+                          {integ?.lastRefreshError && (
+                            <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
+                          )}
+                          {missingAdvertiserAccess && (
+                            <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">No advertiser access</Badge>
                           )}
                         </div>
 
@@ -1139,6 +1130,14 @@ export default function ProductsPage() {
                           <p className="text-xs text-amber-700 pl-1">
                             TikTok Ads linked successfully, but TikTok did not return any advertiser account access for this login. Add or authorize your sandbox advertiser in TikTok for Business, then reconnect.
                           </p>
+                        )}
+
+                        {connected ? (
+                          <Button variant="destructive" size="sm" className="w-full sm:w-auto" onClick={() => setDisconnectTarget({ provider, productId: editProductId!, label: providerLabels[provider] || provider })} disabled={disconnecting === provider}>
+                            {disconnecting === provider ? "..." : "Disconnect"}
+                          </Button>
+                        ) : (
+                          <Button size="sm" className="w-full sm:w-auto" onClick={() => startOAuth(provider, editProductId)}>Connect</Button>
                         )}
                       </div>
                     );

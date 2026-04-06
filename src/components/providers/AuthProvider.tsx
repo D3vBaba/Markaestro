@@ -112,9 +112,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Redirect result errors are non-critical — user just stays on login
     });
 
-    return onAuthStateChanged(auth, (u) => {
+    return onAuthStateChanged(auth, async (u) => {
+      // Cookie must be set BEFORE updating state, otherwise the login page
+      // navigates to /dashboard before the proxy cookie exists and the
+      // proxy redirects back to /login.
+      await syncSessionCookie(u);
       setUser(u);
-      syncSessionCookie(u);
       setLoading(false);
       // Signal to api-client that auth state is resolved
       markAuthReady();
