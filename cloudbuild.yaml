@@ -1,4 +1,13 @@
 steps:
+  # Validate all Firestore query shapes against live indexes before building.
+  # Any FAILED_PRECONDITION error means a composite index is missing — fix it
+  # in firestore.indexes.json and deploy indexes before merging.
+  - name: 'node:22'
+    entrypoint: 'node'
+    args: ['scripts/validate-firestore-queries.mjs']
+    env:
+      - 'NEXT_PUBLIC_FIREBASE_PROJECT_ID=markaestro-0226220726'
+
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'

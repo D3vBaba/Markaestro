@@ -2,6 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
+import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 import { z } from 'zod';
 
 const eventTypes = [
@@ -38,19 +39,16 @@ export async function GET(req: Request) {
       limit: url.searchParams.get('limit') ?? 50,
     });
 
-    const hasFilter = !!(params.type || params.campaignId || params.contactId);
-    let query = adminDb
-      .collection(`workspaces/${ctx.workspaceId}/events`) as FirebaseFirestore.Query;
+    const filters: FieldFilter[] = [
+      params.type       && { field: 'type',       op: '==', value: params.type },
+      params.campaignId && { field: 'campaignId', op: '==', value: params.campaignId },
+      params.contactId  && { field: 'contactId',  op: '==', value: params.contactId },
+    ].filter(Boolean) as FieldFilter[];
 
-    if (params.type) query = query.where('type', '==', params.type);
-    if (params.campaignId) query = query.where('campaignId', '==', params.campaignId);
-    if (params.contactId) query = query.where('contactId', '==', params.contactId);
-    if (!hasFilter) query = query.orderBy('timestamp', 'desc');
-
-    const snap = await query.limit(params.limit).get();
-    const events = snap.docs
-      .map((d) => ({ id: d.id, ...d.data() } as Record<string, unknown> & { timestamp?: string }))
-      .sort((a, b) => ((b.timestamp ?? '') > (a.timestamp ?? '') ? 1 : -1));
+    const events = await executeListQuery(
+      adminDb.collection(`workspaces/${ctx.workspaceId}/events`),
+      { filters, orderByField: 'timestamp', limit: params.limit },
+    );
     return apiOk({ events, count: events.length });
   } catch (error) {
     return apiError(error);

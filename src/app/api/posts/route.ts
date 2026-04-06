@@ -3,6 +3,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { createPostSchema, paginationSchema } from '@/lib/schemas';
+import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 
 export async function GET(req: Request) {
   try {
@@ -14,26 +15,19 @@ export async function GET(req: Request) {
     });
     const channel = url.searchParams.get('channel') ?? undefined;
 
-    // Build query — equality filters (.where) + .orderBy on a different field require a
-    // composite Firestore index. To avoid that deployment dependency, we apply equality
-    // filters without orderBy and sort the results in JS afterwards.
-    let ref = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`) as FirebaseFirestore.Query;
-
+    const filters: FieldFilter[] = [];
     if (status) {
       const statuses = status.split(',').map((s) => s.trim()).filter(Boolean);
-      ref = statuses.length === 1
-        ? ref.where('status', '==', statuses[0])
-        : ref.where('status', 'in', statuses);
+      filters.push(statuses.length === 1
+        ? { field: 'status', op: '==', value: statuses[0] }
+        : { field: 'status', op: 'in', value: statuses });
     }
-    if (channel) ref = ref.where('channel', '==', channel);
+    if (channel) filters.push({ field: 'channel', op: '==', value: channel });
 
-    // Only use orderBy when there are no equality filters (single-field index is enough)
-    if (!status && !channel) ref = ref.orderBy('createdAt', 'desc');
-
-    const snapshot = await ref.limit(limit).get();
-    const posts = snapshot.docs
-      .map((doc) => ({ id: doc.id, ...doc.data() } as Record<string, unknown> & { createdAt?: string }))
-      .sort((a, b) => ((b.createdAt ?? '') > (a.createdAt ?? '') ? 1 : -1));
+    const posts = await executeListQuery(
+      adminDb.collection(`workspaces/${ctx.workspaceId}/posts`),
+      { filters, orderByField: 'createdAt', limit },
+    );
     return apiOk({ workspaceId: ctx.workspaceId, posts, count: posts.length });
   } catch (error) {
     return apiError(error);

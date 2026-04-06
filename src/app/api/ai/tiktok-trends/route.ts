@@ -3,6 +3,7 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { researchTikTokTrends, type TrendResearchInput } from '@/lib/ai/tiktok-trend-researcher';
+import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 import { z } from 'zod';
 
 const researchSchema = z.object({
@@ -73,19 +74,15 @@ export async function GET(req: Request) {
     const status = url.searchParams.get('status');
     const productId = url.searchParams.get('productId');
 
-    const hasFilter = !!(status || productId);
-    let query = adminDb
-      .collection(`workspaces/${ctx.workspaceId}/tiktokTrends`) as FirebaseFirestore.Query;
+    const filters: FieldFilter[] = [
+      status    && { field: 'status',    op: '==', value: status },
+      productId && { field: 'productId', op: '==', value: productId },
+    ].filter(Boolean) as FieldFilter[];
 
-    if (status) query = query.where('status', '==', status);
-    if (productId) query = query.where('productId', '==', productId);
-    if (!hasFilter) query = query.orderBy('createdAt', 'desc');
-
-    const snap = await query.limit(50).get();
-    const trends = snap.docs
-      .map((d) => ({ id: d.id, ...d.data() } as Record<string, unknown> & { createdAt?: string }))
-      .sort((a, b) => ((b.createdAt ?? '') > (a.createdAt ?? '') ? 1 : -1));
-
+    const trends = await executeListQuery(
+      adminDb.collection(`workspaces/${ctx.workspaceId}/tiktokTrends`),
+      { filters, orderByField: 'createdAt', limit: 50 },
+    );
     return apiOk({ trends });
   } catch (error) {
     return apiError(error);
