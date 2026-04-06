@@ -1,4 +1,5 @@
 import type { AdCampaignDoc, AdPlatformResult, AdCampaignMetrics } from './types';
+import type { PlatformCampaignSummary } from './google-ads';
 import type { AdCampaignObjective } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 
@@ -277,6 +278,69 @@ export async function getTikTokCampaignMetrics(
         lastSyncedAt: new Date().toISOString(),
       },
     };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
+
+/**
+ * List all active/paused campaigns for a TikTok advertiser account.
+ */
+export async function listTikTokCampaigns(
+  accessToken: string,
+  advertiserId: string,
+): Promise<{ success: boolean; campaigns?: PlatformCampaignSummary[]; error?: string }> {
+  try {
+    const result = await tiktokAdsGet('/campaign/get/', accessToken, {
+      advertiser_id: advertiserId,
+      fields: JSON.stringify(['campaign_id', 'campaign_name', 'status', 'objective_type', 'budget', 'budget_mode', 'create_time', 'modify_time']),
+      page_size: '500',
+    });
+
+    if (result.error) return { success: false, error: result.error };
+
+    type TikTokCampaign = {
+      campaign_id: string;
+      campaign_name: string;
+      status: string;
+      objective_type: string;
+      budget: number;
+      budget_mode: string;
+    };
+
+    const list = (result.data.list as TikTokCampaign[]) || [];
+
+    const objectiveMap: Record<string, string> = {
+      REACH: 'awareness',
+      VIDEO_VIEWS: 'engagement',
+      TRAFFIC: 'traffic',
+      ENGAGEMENT: 'engagement',
+      LEAD_GENERATION: 'leads',
+      WEB_CONVERSIONS: 'conversions',
+      APP_PROMOTION: 'app_installs',
+      PRODUCT_SALES: 'conversions',
+      SHOP_PURCHASES: 'conversions',
+    };
+
+    const statusMap: Record<string, 'active' | 'paused' | 'completed'> = {
+      CAMPAIGN_STATUS_ENABLE: 'active',
+      CAMPAIGN_STATUS_DISABLE: 'paused',
+      CAMPAIGN_STATUS_ADVERTISER_AUDIT_DENY: 'paused',
+      CAMPAIGN_STATUS_ALL: 'active',
+    };
+
+    const campaigns: PlatformCampaignSummary[] = list
+      .filter((c) => c.status !== 'CAMPAIGN_STATUS_DELETE')
+      .map((c) => ({
+        externalCampaignId: c.campaign_id,
+        name: c.campaign_name,
+        status: statusMap[c.status] || 'paused',
+        objective: objectiveMap[c.objective_type] || 'traffic',
+        // TikTok budget is in account currency (usually dollars); convert to cents
+        dailyBudgetCents: c.budget_mode === 'BUDGET_MODE_DAY' ? Math.round(c.budget * 100) : 0,
+      }));
+
+    return { success: true, campaigns };
   } catch (e) {
     return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
   }

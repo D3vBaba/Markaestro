@@ -538,6 +538,11 @@ export default function AdsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [formStep, setFormStep] = useState(0);
   const [saving, setSaving] = useState(false);
+
+  const [importOpen, setImportOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importPlatform, setImportPlatform] = useState<"meta" | "google" | "tiktok">("google");
+  const [importResult, setImportResult] = useState<{ imported: number; skipped: number; failed: number } | null>(null);
   const [createAdAccounts, setCreateAdAccounts] = useState<{ id: string; name: string }[]>([]);
   const [createLoadingAccounts, setCreateLoadingAccounts] = useState(false);
   const [form, setForm] = useState({
@@ -731,6 +736,32 @@ export default function AdsPage() {
     finally { setSaving(false); }
   };
 
+  const handleImport = async () => {
+    setImporting(true);
+    setImportResult(null);
+    try {
+      const res = await apiPost<{ ok: boolean; imported: number; skipped: number; failed: number; error?: string }>(
+        "/api/ad-campaigns/import",
+        { platform: importPlatform },
+      );
+      if (res.ok && res.data.ok) {
+        const { imported, skipped, failed } = res.data;
+        setImportResult({ imported, skipped, failed });
+        if (imported > 0) {
+          toast.success(`Imported ${imported} campaign${imported !== 1 ? "s" : ""} from ${platformLabels[importPlatform]}`);
+          fetchCampaigns();
+        } else if (skipped > 0 && imported === 0) {
+          toast.info(`All ${skipped} campaigns are already in your account`);
+        } else {
+          toast.info("No campaigns found on this platform");
+        }
+      } else {
+        toast.error(res.data.error || "Import failed");
+      }
+    } catch { toast.error("Import failed — check your integration connection"); }
+    finally { setImporting(false); }
+  };
+
   const openEdit = async (c: AdCampaign) => {
     setEditingId(c.id);
     setEditFormStep(0);
@@ -917,8 +948,12 @@ export default function AdsPage() {
       <FeatureGate feature="ads">
       <PageHeader
         title="Ads"
-        subtitle="Create, launch, and manage paid ad campaigns across Google and Meta."
+        subtitle="Create, launch, and manage paid ad campaigns across Google, Meta, and TikTok."
         action={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="rounded-lg h-10 text-sm" onClick={() => { setImportOpen(true); setImportResult(null); }}>
+              Import Existing
+            </Button>
           <Sheet open={formOpen} onOpenChange={(open) => { setFormOpen(open); if (!open) resetForm(); }}>
             <SheetTrigger asChild>
               <Button className="rounded-lg h-10 text-sm">New Campaign</Button>
@@ -1367,6 +1402,7 @@ export default function AdsPage() {
               </SheetFooter>
             </SheetContent>
           </Sheet>
+          </div>
         }
       />
 
@@ -1642,6 +1678,62 @@ export default function AdsPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* ── Import Existing Campaigns Dialog ── */}
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent className="sm:max-w-md w-[calc(100%-2rem)] rounded-lg">
+          <DialogHeader>
+            <DialogTitle>Import Existing Campaigns</DialogTitle>
+            <DialogDescription>
+              Pull in campaigns you&apos;ve already created directly on the ad platform. We&apos;ll import them with their live status and sync their lifetime metrics.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 py-2">
+            <FormField label="Platform">
+              <Select value={importPlatform} onChange={(e) => { setImportPlatform(e.target.value as "meta" | "google" | "tiktok"); setImportResult(null); }}>
+                <option value="google">Google Ads</option>
+                <option value="meta">Meta (Facebook / Instagram)</option>
+                <option value="tiktok">TikTok Ads</option>
+              </Select>
+            </FormField>
+
+            {importResult && (
+              <div className="rounded-lg border border-border/50 divide-y divide-border/50 text-sm">
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">Imported</span>
+                  <span className="font-semibold text-emerald-600">{importResult.imported}</span>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">Already existed</span>
+                  <span className="font-medium">{importResult.skipped}</span>
+                </div>
+                {importResult.failed > 0 && (
+                  <div className="flex items-center justify-between px-4 py-2.5">
+                    <span className="text-muted-foreground">Failed</span>
+                    <span className="font-medium text-destructive">{importResult.failed}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground">
+              Campaigns already in your account are skipped automatically. You can run this any time to pick up new campaigns from the platform.
+            </p>
+          </div>
+
+          <div className="flex gap-2 justify-end pt-2">
+            <Button variant="outline" onClick={() => setImportOpen(false)}>Cancel</Button>
+            <Button onClick={handleImport} disabled={importing}>
+              {importing ? (
+                <><Loader2 className="h-4 w-4 animate-spin mr-2" />Importing…</>
+              ) : (
+                `Import from ${platformLabels[importPlatform]}`
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Edit Campaign Sheet ── */}
       <Sheet open={editOpen} onOpenChange={(open) => { setEditOpen(open); if (!open) setEditingId(null); }}>

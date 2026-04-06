@@ -1,4 +1,5 @@
 import type { AdCampaignDoc, AdPlatformResult, AdCampaignMetrics } from './types';
+import type { PlatformCampaignSummary } from './google-ads';
 import type { AdCampaignObjective } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 
@@ -436,5 +437,78 @@ export async function getMetaPostEngagement(
     };
   } catch {
     return null;
+  }
+}
+
+/**
+ * List all active/paused campaigns for a Meta ad account.
+ */
+export async function listMetaCampaigns(
+  accessToken: string,
+  adAccountId: string,
+): Promise<{ success: boolean; campaigns?: PlatformCampaignSummary[]; error?: string }> {
+  try {
+    const fields = 'id,name,status,objective,daily_budget,start_time,stop_time';
+    // Meta ad account IDs may or may not have the act_ prefix
+    const accountId = adAccountId.startsWith('act_') ? adAccountId : `act_${adAccountId}`;
+    const url = `${META_GRAPH_API}/${accountId}/campaigns?fields=${fields}&limit=500&access_token=${accessToken}`;
+
+    const res = await fetchWithRetry(url);
+    const data = await res.json() as {
+      data?: Array<{
+        id: string;
+        name: string;
+        status: string;
+        objective: string;
+        daily_budget?: string;
+        start_time?: string;
+        stop_time?: string;
+      }>;
+      error?: { message: string };
+      paging?: { next?: string };
+    };
+
+    if (data.error) return { success: false, error: data.error.message };
+
+    const objectiveMap: Record<string, string> = {
+      OUTCOME_AWARENESS: 'awareness',
+      OUTCOME_TRAFFIC: 'traffic',
+      OUTCOME_ENGAGEMENT: 'engagement',
+      OUTCOME_LEADS: 'leads',
+      OUTCOME_SALES: 'conversions',
+      OUTCOME_APP_PROMOTION: 'app_installs',
+      // Legacy objectives
+      BRAND_AWARENESS: 'awareness',
+      REACH: 'awareness',
+      LINK_CLICKS: 'traffic',
+      PAGE_LIKES: 'engagement',
+      POST_ENGAGEMENT: 'engagement',
+      VIDEO_VIEWS: 'engagement',
+      LEAD_GENERATION: 'leads',
+      CONVERSIONS: 'conversions',
+      APP_INSTALLS: 'app_installs',
+    };
+
+    const statusMap: Record<string, 'active' | 'paused' | 'completed'> = {
+      ACTIVE: 'active',
+      PAUSED: 'paused',
+      ARCHIVED: 'completed',
+    };
+
+    const campaigns: PlatformCampaignSummary[] = (data.data || [])
+      .filter((c) => c.status !== 'DELETED')
+      .map((c) => ({
+        externalCampaignId: c.id,
+        name: c.name,
+        status: statusMap[c.status] || 'paused',
+        objective: objectiveMap[c.objective] || 'traffic',
+        dailyBudgetCents: c.daily_budget ? Math.round(Number(c.daily_budget)) : 0,
+        startDate: c.start_time ? c.start_time.split('T')[0] : undefined,
+        endDate: c.stop_time ? c.stop_time.split('T')[0] : undefined,
+      }));
+
+    return { success: true, campaigns };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
   }
 }

@@ -512,3 +512,82 @@ export async function updateGoogleCampaignBudget(
     return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
   }
 }
+
+export type PlatformCampaignSummary = {
+  externalCampaignId: string;
+  name: string;
+  status: 'active' | 'paused' | 'completed';
+  objective: string;
+  dailyBudgetCents: number;
+  startDate?: string;
+  endDate?: string;
+};
+
+/**
+ * List all non-removed campaigns in a Google Ads customer account.
+ */
+export async function listGoogleCampaigns(
+  accessToken: string,
+  customerId: string,
+  developerToken: string,
+  loginCustomerId?: string,
+): Promise<{ success: boolean; campaigns?: PlatformCampaignSummary[]; error?: string }> {
+  const cleanCustomerId = customerId.replace(/-/g, '');
+  const baseUrl = `https://googleads.googleapis.com/${GOOGLE_ADS_API_VERSION}/customers/${cleanCustomerId}`;
+  const headers = buildHeaders(accessToken, developerToken, loginCustomerId);
+
+  const query = `
+    SELECT
+      campaign.id,
+      campaign.name,
+      campaign.status,
+      campaign.advertising_channel_type,
+      campaign_budget.amount_micros,
+      campaign.start_date,
+      campaign.end_date
+    FROM campaign
+    WHERE campaign.status != 'REMOVED'
+    ORDER BY campaign.name
+    LIMIT 500
+  `.trim();
+
+  try {
+    const res = await fetchWithRetry(`${baseUrl}/googleAds:searchStream`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query }),
+    });
+    const googleData = await res.json();
+    const listError = parseGoogleError(googleData);
+    if (listError) return { success: false, error: listError };
+
+    const results: Array<{ campaign: Record<string, unknown>; campaignBudget?: Record<string, unknown> }> =
+      (googleData as Array<{ results?: unknown[] }>)?.flatMap((chunk) => chunk.results || []) as typeof results;
+
+    const channelToObjective: Record<string, string> = {
+      SEARCH: 'traffic', DISPLAY: 'awareness', VIDEO: 'engagement',
+      MULTI_CHANNEL: 'app_installs', SHOPPING: 'conversions',
+    };
+    const statusMap: Record<string, 'active' | 'paused' | 'completed'> = {
+      ENABLED: 'active', PAUSED: 'paused',
+    };
+
+    const campaigns: PlatformCampaignSummary[] = results.map((r) => {
+      const c = r.campaign;
+      const budgetMicros = Number((r.campaignBudget as Record<string, unknown>)?.amountMicros || 0);
+      return {
+        externalCampaignId: String(c.id),
+        name: (c.name as string) || 'Untitled Campaign',
+        status: statusMap[(c.status as string) || ''] || 'paused',
+        objective: channelToObjective[(c.advertisingChannelType as string) || ''] || 'traffic',
+        dailyBudgetCents: Math.round(budgetMicros / 10000),
+        startDate: (c.startDate as string) || undefined,
+        endDate: (c.endDate as string) || undefined,
+      };
+    });
+
+    return { success: true, campaigns };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
