@@ -14,22 +14,28 @@ const createSchema = z.object({
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    let workspaceIds: Array<{ workspaceId: string; role: string | undefined }> = [];
 
-    // Find all workspaces where this user is a member
-    const snap = await adminDb
-      .collectionGroup('members')
-      .where('uid', '==', ctx.uid)
-      .get();
+    try {
+      const snap = await adminDb
+        .collectionGroup('members')
+        .where('uid', '==', ctx.uid)
+        .get();
 
-    const workspaceIds = snap.docs.map((d) => {
-      // Path: workspaces/{workspaceId}/members/{uid}
-      const parts = d.ref.path.split('/');
-      return { workspaceId: parts[1], role: d.data().role };
-    });
+      workspaceIds = snap.docs.map((d) => {
+        const parts = d.ref.path.split('/');
+        return { workspaceId: parts[1], role: d.data().role };
+      });
+    } catch {
+      workspaceIds = [{ workspaceId: ctx.workspaceId, role: ctx.role }];
+    }
 
-    // Fetch workspace names
+    const uniqueWorkspaceIds = Array.from(
+      new Map(workspaceIds.map((entry) => [entry.workspaceId, entry])).values(),
+    );
+
     const workspaces = await Promise.all(
-      workspaceIds.map(async ({ workspaceId, role }) => {
+      uniqueWorkspaceIds.map(async ({ workspaceId, role }) => {
         const wsSnap = await adminDb.doc(`workspaces/${workspaceId}`).get();
         return {
           id: workspaceId,
@@ -55,13 +61,20 @@ export async function POST(req: Request) {
     const limit = PLANS[tier]?.limits.workspaces ?? 1;
 
     if (limit !== -1) {
-      // Count existing workspaces this user owns
-      const snap = await adminDb
-        .collectionGroup('members')
-        .where('uid', '==', ctx.uid)
-        .where('role', '==', 'owner')
-        .get();
-      if (snap.size >= limit) {
+      let ownedWorkspaceCount = ctx.role === 'owner' ? 1 : 0;
+
+      try {
+        const snap = await adminDb
+          .collectionGroup('members')
+          .where('uid', '==', ctx.uid)
+          .where('role', '==', 'owner')
+          .get();
+        ownedWorkspaceCount = snap.size;
+      } catch {
+        // Fall back to the current workspace when collection group queries are unavailable.
+      }
+
+      if (ownedWorkspaceCount >= limit) {
         return apiError(new Error('WORKSPACE_LIMIT_REACHED'));
       }
     }

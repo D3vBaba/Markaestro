@@ -14,16 +14,21 @@ export async function GET(req: Request) {
       status: url.searchParams.get('status') ?? undefined,
     });
 
+    // Equality filters + orderBy on a different field require a composite index.
+    // Apply equality filters only and sort in JS — consistent with /api/posts.
     let query = adminDb
-      .collection(workspaceCollection(ctx.workspaceId, 'campaigns'))
-      .orderBy('createdAt', 'desc');
+      .collection(workspaceCollection(ctx.workspaceId, 'campaigns')) as FirebaseFirestore.Query;
 
     if (status) {
       query = query.where('status', '==', status);
+    } else {
+      query = query.orderBy('createdAt', 'desc');
     }
 
     const snapshot = await query.limit(limit).get();
-    const campaigns = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const campaigns = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() } as Record<string, unknown> & { createdAt?: string }))
+      .sort((a, b) => ((b.createdAt ?? '') > (a.createdAt ?? '') ? 1 : -1));
     return apiOk({ workspaceId: ctx.workspaceId, campaigns, count: campaigns.length });
   } catch (error) {
     return apiError(error);

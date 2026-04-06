@@ -27,6 +27,21 @@ function personalWorkspaceId(uid: string): string {
   return `ws-${hash}`;
 }
 
+async function getWorkspaceMembership(
+  uid: string,
+  workspaceId: string,
+): Promise<{ workspaceId: string; role: RequestContext['role'] } | null> {
+  const memberRef = adminDb.doc(`workspaces/${workspaceId}/members/${uid}`);
+  const memberSnap = await memberRef.get();
+
+  if (!memberSnap.exists) {
+    return null;
+  }
+
+  const role = (memberSnap.data()?.role || 'member') as RequestContext['role'];
+  return { workspaceId, role };
+}
+
 async function bootstrapPersonalWorkspace(uid: string, email?: string): Promise<RequestContext> {
   const workspaceId = personalWorkspaceId(uid);
   const now = new Date().toISOString();
@@ -128,7 +143,13 @@ export async function requireContext(req: Request): Promise<RequestContext> {
   const uid = decoded.uid;
   const email = normalizeEmail(decoded.email) || undefined;
 
-  await acceptPendingInvites(uid, email);
+  try {
+    await acceptPendingInvites(uid, email);
+  } catch (err) {
+    // Non-fatal — pending invite resolution should not block auth. Typically
+    // caused by a missing Firestore collection-group index on pendingInvites.email.
+    console.warn('[requireContext] acceptPendingInvites failed (non-fatal):', err);
+  }
 
   const url = new URL(req.url);
   const requestedWs = getWorkspaceId(
@@ -139,16 +160,15 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     throw new Error('VALIDATION_INVALID_WORKSPACE_ID');
   }
 
-  if (requestedWs !== DEFAULT_WORKSPACE_ID) {
-    const memberRef = adminDb.doc(`workspaces/${requestedWs}/members/${uid}`);
-    const memberSnap = await memberRef.get();
+  const requestedMembership = await getWorkspaceMembership(uid, requestedWs);
+  if (requestedMembership) {
+    return { uid, email, workspaceId: requestedMembership.workspaceId, role: requestedMembership.role };
+  }
 
-    if (!memberSnap.exists) {
+  if (requestedWs !== DEFAULT_WORKSPACE_ID) {
+    if (!requestedMembership) {
       throw new Error('FORBIDDEN_WORKSPACE');
     }
-
-    const role = (memberSnap.data()?.role || 'member') as RequestContext['role'];
-    return { uid, email, workspaceId: requestedWs, role };
   }
 
   const membership = await findUserMembership(uid);
