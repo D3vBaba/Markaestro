@@ -101,6 +101,7 @@ const statusColors: Record<string, string> = {
   active: "text-emerald-600",
   paused: "text-amber-600",
   completed: "text-muted-foreground",
+  ended: "text-muted-foreground",
   failed: "text-destructive",
 };
 const platformLabels: Record<string, string> = { meta: "Meta", google: "Google", tiktok: "TikTok" };
@@ -110,8 +111,17 @@ const statusDotColors: Record<string, string> = {
   active: "bg-emerald-500",
   paused: "bg-amber-400",
   completed: "bg-zinc-300",
+  ended: "bg-zinc-300",
   failed: "bg-red-500",
 };
+
+/** Returns a display status, treating past-endDate campaigns as "Ended" regardless of stored status. */
+function effectiveStatus(c: AdCampaign): string {
+  if (c.endDate && new Date(c.endDate) < new Date() && c.status !== "draft" && c.status !== "failed") {
+    return "ended";
+  }
+  return c.status;
+}
 const CTA_LABELS: Record<string, string> = {
   LEARN_MORE: "Learn More", SHOP_NOW: "Shop Now", SIGN_UP: "Sign Up",
   DOWNLOAD: "Download", GET_QUOTE: "Get Quote", CONTACT_US: "Contact Us",
@@ -1526,9 +1536,9 @@ export default function AdsPage() {
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-medium leading-snug line-clamp-2 flex-1 min-w-0">{c.name}</p>
                     <div className="flex items-center gap-1 shrink-0 mt-0.5">
-                      <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[c.status] || "bg-zinc-300"}`} />
-                      <span className={`text-[10px] uppercase tracking-wider font-medium ${statusColors[c.status] || "text-muted-foreground"}`}>
-                        {c.status}
+                      <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[effectiveStatus(c)] || "bg-zinc-300"}`} />
+                      <span className={`text-[10px] uppercase tracking-wider font-medium ${statusColors[effectiveStatus(c)] || "text-muted-foreground"}`}>
+                        {effectiveStatus(c)}
                       </span>
                     </div>
                   </div>
@@ -1540,26 +1550,31 @@ export default function AdsPage() {
                     <span>{objectiveLabels[c.objective]}</span>
                     <span className="w-px h-2.5 bg-border/60" />
                     <span className="tabular-nums">{formatCurrency(c.dailyBudgetCents)}/day</span>
+                    {c.endDate && new Date(c.endDate) < new Date() && (
+                      <>
+                        <span className="w-px h-2.5 bg-border/60" />
+                        <span>Ended {new Date(c.endDate).toLocaleDateString()}</span>
+                      </>
+                    )}
                   </div>
 
                   {c.errorMessage && c.status === "failed" && (
                     <p className="text-xs text-destructive p-2.5 rounded-lg bg-destructive/5">{c.errorMessage}</p>
                   )}
 
-                  {/* Metrics */}
-                  {c.metrics && (
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/30">
-                      <MetricCard label="Impressions" value={c.metrics.impressions.toLocaleString()} />
-                      <MetricCard label="Clicks" value={c.metrics.clicks.toLocaleString()} />
-                      <MetricCard label="CTR" value={`${(c.metrics.ctr * 100).toFixed(2)}%`} />
-                      <MetricCard label="Spend" value={formatCurrency(c.metrics.spend)} />
-                      <MetricCard label="CPC" value={c.metrics.cpc > 0 ? formatCurrency(c.metrics.cpc) : "—"} />
-                      <MetricCard label="ROAS" value={c.metrics.roas > 0 ? `${c.metrics.roas.toFixed(2)}x` : "—"} />
-                      {c.metrics.conversions > 0 && (
-                        <MetricCard label="Conversions" value={c.metrics.conversions.toLocaleString()} />
-                      )}
-                      {c.metrics.frequency > 0 && (
-                        <MetricCard label="Frequency" value={c.metrics.frequency.toFixed(2) + "x"} />
+                  {/* Compact metrics summary — tap Insights for full breakdown */}
+                  {c.metrics && c.metrics.impressions > 0 && (
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground pt-2 border-t border-border/30">
+                      <span className="tabular-nums"><span className="font-medium text-foreground">{c.metrics.impressions.toLocaleString()}</span> impressions</span>
+                      <span className="w-px h-3 bg-border/60" />
+                      <span className="tabular-nums"><span className="font-medium text-foreground">{(c.metrics.ctr * 100).toFixed(2)}%</span> CTR</span>
+                      <span className="w-px h-3 bg-border/60" />
+                      <span className="tabular-nums"><span className="font-medium text-foreground">{formatCurrency(c.metrics.spend)}</span> spent</span>
+                      {c.metrics.roas > 0 && (
+                        <>
+                          <span className="w-px h-3 bg-border/60" />
+                          <span className="tabular-nums"><span className="font-medium text-emerald-600">{c.metrics.roas.toFixed(2)}x</span> ROAS</span>
+                        </>
                       )}
                     </div>
                   )}
@@ -1572,18 +1587,20 @@ export default function AdsPage() {
                     {c.status === "failed" && (
                       <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "launch")} disabled={actionLoading === c.id}>Retry</Button>
                     )}
-                    {c.status === "active" && (
+                    {c.status === "active" && effectiveStatus(c) !== "ended" && (
                       <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "pause")} disabled={actionLoading === c.id}>Pause</Button>
                     )}
-                    {c.status === "paused" && (
+                    {c.status === "paused" && effectiveStatus(c) !== "ended" && (
                       <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "resume")} disabled={actionLoading === c.id}>Resume</Button>
                     )}
-                    {c.externalCampaignId && (
+                    {c.externalCampaignId && effectiveStatus(c) !== "ended" && (
                       <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => handleAction(c.id, "sync")} disabled={actionLoading === c.id}>
                         {actionLoading === c.id ? "Syncing..." : "Sync"}
                       </Button>
                     )}
-                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>Insights</Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => { setDetailCampaign(c); if (!campaignInsights[c.id]) fetchCampaignInsights(c.id); }}>
+                      {c.metrics ? "Analytics" : "Insights"}
+                    </Button>
                     <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => openEdit(c)}>Edit</Button>
                     <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground hover:text-destructive" onClick={() => setAdDeleteTarget({ id: c.id, name: c.name })} disabled={actionLoading === c.id}>Delete</Button>
                     {c.createdAt && (
@@ -2149,32 +2166,93 @@ export default function AdsPage() {
         </SheetContent>
       </Sheet>
 
-      {/* ── Campaign Detail / Insights Dialog ── */}
+      {/* ── Campaign Analytics / Insights Dialog ── */}
       <Dialog open={!!detailCampaign} onOpenChange={(open) => { if (!open) setDetailCampaign(null); }}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto w-[calc(100%-2rem)] rounded-lg">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto w-[calc(100%-2rem)] rounded-lg p-0">
           {detailCampaign && (
             <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-3">
-                  {detailCampaign.name}
-                  <span className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground">{platformLabels[detailCampaign.platform]}</span>
-                </DialogTitle>
-                <DialogDescription>Campaign performance analysis and improvement suggestions</DialogDescription>
-              </DialogHeader>
+              {/* ── Ad image / video hero ─────────────────────────── */}
+              {detailCampaign.creative.imageUrl || detailCampaign.creative.videoUrl ? (
+                <div className="relative w-full overflow-hidden rounded-t-lg bg-zinc-900" style={{ maxHeight: 260 }}>
+                  {detailCampaign.creative.videoUrl ? (
+                    <video
+                      src={detailCampaign.creative.videoUrl}
+                      className="w-full object-cover"
+                      style={{ maxHeight: 260 }}
+                      controls
+                      preload="metadata"
+                    />
+                  ) : (
+                    <img
+                      src={detailCampaign.creative.imageUrl}
+                      alt="Ad creative"
+                      className="w-full object-cover"
+                      style={{ maxHeight: 260 }}
+                    />
+                  )}
+                  {/* Status badge over image */}
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm rounded-full px-2.5 py-1">
+                    <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[effectiveStatus(detailCampaign)] || "bg-zinc-300"}`} />
+                    <span className="text-[10px] uppercase tracking-wider font-medium text-white">{effectiveStatus(detailCampaign)}</span>
+                  </div>
+                </div>
+              ) : null}
 
-              {/* Creative preview */}
-              {(detailCampaign.creative.headline || detailCampaign.creative.primaryText || detailCampaign.creative.imageUrl || detailCampaign.creative.videoUrl) && (
-                <AdPreview form={{
-                  platform: detailCampaign.platform,
-                  headline: detailCampaign.creative.headline || "",
-                  primaryText: detailCampaign.creative.primaryText || "",
-                  description: detailCampaign.creative.description || "",
-                  imageUrl: detailCampaign.creative.imageUrl || "",
-                  videoUrl: detailCampaign.creative.videoUrl || "",
-                  linkUrl: detailCampaign.creative.linkUrl || "",
-                  ctaType: detailCampaign.creative.ctaType || "",
-                }} />
-              )}
+              <div className="p-6 space-y-5">
+                <DialogHeader className="p-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <DialogTitle className="text-base font-semibold leading-snug">{detailCampaign.name}</DialogTitle>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-[11px] text-muted-foreground">
+                        <span className="font-semibold uppercase tracking-wider">{platformLabels[detailCampaign.platform]}</span>
+                        <span className="w-px h-3 bg-border/60" />
+                        <span>{objectiveLabels[detailCampaign.objective]}</span>
+                        <span className="w-px h-3 bg-border/60" />
+                        <span>{formatCurrency(detailCampaign.dailyBudgetCents)}/day</span>
+                        {detailCampaign.startDate && (
+                          <>
+                            <span className="w-px h-3 bg-border/60" />
+                            <span>Started {new Date(detailCampaign.startDate).toLocaleDateString()}</span>
+                          </>
+                        )}
+                        {detailCampaign.endDate && (
+                          <>
+                            <span className="w-px h-3 bg-border/60" />
+                            <span className={new Date(detailCampaign.endDate) < new Date() ? "text-muted-foreground" : ""}>
+                              {new Date(detailCampaign.endDate) < new Date() ? "Ended" : "Ends"} {new Date(detailCampaign.endDate).toLocaleDateString()}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {/* Status badge (when no image hero) */}
+                    {!detailCampaign.creative.imageUrl && !detailCampaign.creative.videoUrl && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[effectiveStatus(detailCampaign)] || "bg-zinc-300"}`} />
+                        <span className={`text-[10px] uppercase tracking-wider font-medium ${statusColors[effectiveStatus(detailCampaign)] || "text-muted-foreground"}`}>
+                          {effectiveStatus(detailCampaign)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Ad copy preview when no image */}
+                  {!detailCampaign.creative.imageUrl && !detailCampaign.creative.videoUrl &&
+                    (detailCampaign.creative.headline || detailCampaign.creative.primaryText) && (
+                    <div className="mt-3 p-3 rounded-lg bg-muted/40 border border-border/40">
+                      {detailCampaign.creative.headline && <p className="text-sm font-semibold">{detailCampaign.creative.headline}</p>}
+                      {detailCampaign.creative.primaryText && <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{detailCampaign.creative.primaryText}</p>}
+                    </div>
+                  )}
+                  {/* Ad copy below image */}
+                  {(detailCampaign.creative.imageUrl || detailCampaign.creative.videoUrl) &&
+                    (detailCampaign.creative.headline || detailCampaign.creative.primaryText) && (
+                    <div className="mt-2 p-3 rounded-lg bg-muted/40 border border-border/40">
+                      {detailCampaign.creative.headline && <p className="text-sm font-semibold">{detailCampaign.creative.headline}</p>}
+                      {detailCampaign.creative.primaryText && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{detailCampaign.creative.primaryText}</p>}
+                    </div>
+                  )}
+                  <DialogDescription className="sr-only">Campaign performance analysis and improvement suggestions</DialogDescription>
+                </DialogHeader>
 
               {/* Metrics */}
               {detailCampaign.metrics && (
@@ -2337,6 +2415,7 @@ export default function AdsPage() {
                   </Button>
                 </div>
               )}
+              </div>{/* end p-6 wrapper */}
             </>
           )}
         </DialogContent>

@@ -125,9 +125,14 @@ export async function POST(req: Request) {
     }
 
     // ── 3. Import new campaigns and sync their metrics ────────────────
-    const toImport = platformCampaigns.filter(
-      (c) => !existingExternalIds.has(c.externalCampaignId),
-    );
+    const now = new Date();
+    const toImport = platformCampaigns
+      .filter((c) => !existingExternalIds.has(c.externalCampaignId))
+      .map((c) => ({
+        ...c,
+        // If the end date is in the past, mark as completed regardless of platform status
+        status: (c.endDate && new Date(c.endDate) < now) ? 'completed' as const : c.status,
+      }));
     const skipped = platformCampaigns.length - toImport.length;
 
     const results: { imported: number; failed: number; campaigns: Array<{ id: string; name: string; platform: string; status: string }> } = {
