@@ -72,13 +72,37 @@ export async function POST(req: Request) {
       const conn = await getMetaConnectionMerged(ws, productId);
       if (!conn) return apiOk({ ok: false, error: 'Meta integration not connected' });
 
+      // User access token is required — page tokens cannot list ad accounts
       const accessToken = resolveUserAccessToken(conn);
-      const adAccountId = (conn.metadata.adAccountId as string) || '';
-      if (!adAccountId) return apiOk({ ok: false, error: 'No Meta ad account ID configured on this connection' });
 
-      const result = await listMetaCampaigns(accessToken, adAccountId);
-      if (!result.success) return apiOk({ ok: false, error: result.error });
-      platformCampaigns = result.campaigns;
+      // Fetch all ad accounts the user has access to
+      const accountsRes = await fetch(
+        'https://graph.facebook.com/v22.0/me/adaccounts?fields=id,name,account_status&limit=50',
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      const accountsData = await accountsRes.json() as {
+        data?: Array<{ id: string; name: string; account_status: number }>;
+        error?: { message: string };
+      };
+
+      if (accountsData.error) {
+        return apiOk({ ok: false, error: `Meta API error: ${accountsData.error.message}` });
+      }
+
+      const activeAccounts = (accountsData.data || []).filter((a) => a.account_status === 1);
+      if (activeAccounts.length === 0) {
+        return apiOk({ ok: false, error: 'No active Meta ad accounts found for this user' });
+      }
+
+      // List campaigns from all ad accounts and merge
+      const allCampaigns: typeof platformCampaigns = [];
+      for (const account of activeAccounts) {
+        const result = await listMetaCampaigns(accessToken, account.id);
+        if (result.success && result.campaigns) {
+          allCampaigns.push(...result.campaigns);
+        }
+      }
+      platformCampaigns = allCampaigns;
 
     } else {
       // TikTok
