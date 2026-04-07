@@ -498,6 +498,7 @@ export default function AdsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [platformFilter, setPlatformFilter] = useState("all");
+  const [productFilter, setProductFilter] = useState("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [adDeleteTarget, setAdDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [activeTab, setActiveTab] = useState("campaigns");
@@ -542,6 +543,7 @@ export default function AdsPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importPlatform, setImportPlatform] = useState<"meta" | "google" | "tiktok">("google");
+  const [importProductId, setImportProductId] = useState("");
   const [importResult, setImportResult] = useState<{ imported: number; skipped: number; failed: number } | null>(null);
   const [createAdAccounts, setCreateAdAccounts] = useState<{ id: string; name: string }[]>([]);
   const [createLoadingAccounts, setCreateLoadingAccounts] = useState(false);
@@ -742,7 +744,7 @@ export default function AdsPage() {
     try {
       const res = await apiPost<{ ok: boolean; imported: number; skipped: number; failed: number; error?: string }>(
         "/api/ad-campaigns/import",
-        { platform: importPlatform },
+        { platform: importPlatform, productId: importProductId || undefined },
       );
       if (res.ok && res.data.ok) {
         const { imported, skipped, failed } = res.data;
@@ -934,7 +936,11 @@ export default function AdsPage() {
     }
   }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const filtered = platformFilter === "all" ? campaigns : campaigns.filter((c) => c.platform === platformFilter);
+  const filtered = campaigns.filter((c) => {
+    if (platformFilter !== "all" && c.platform !== platformFilter) return false;
+    if (productFilter !== "all" && (c.productId || "") !== productFilter) return false;
+    return true;
+  });
   const totalSpend = campaigns.reduce((s, c) => s + (c.metrics?.spend || 0), 0);
   const totalImpressions = campaigns.reduce((s, c) => s + (c.metrics?.impressions || 0), 0);
   const totalClicks = campaigns.reduce((s, c) => s + (c.metrics?.clicks || 0), 0);
@@ -1446,22 +1452,42 @@ export default function AdsPage() {
 
         {/* ── Campaigns Tab ── */}
         <TabsContent value="campaigns">
-          {/* Platform filter */}
-          <div className="flex gap-1.5 mb-6 flex-wrap">
-            {[
-              { v: "all", label: "All Platforms" },
-              { v: "meta", label: "Meta" },
-              { v: "google", label: "Google" },
-              { v: "tiktok", label: "TikTok" },
-            ].map(({ v, label }) => (
-              <button key={v} onClick={() => setPlatformFilter(v)}
-                className={`px-3.5 py-1.5 text-xs font-medium rounded-full border transition-all ${
-                  platformFilter === v
-                    ? "bg-foreground text-background border-foreground"
-                    : "bg-transparent text-muted-foreground border-border/50 hover:border-border hover:text-foreground"
-                }`}
-              >{label}</button>
-            ))}
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            {/* Platform pills */}
+            <div className="flex gap-1.5 flex-wrap">
+              {[
+                { v: "all", label: "All Platforms" },
+                { v: "meta", label: "Meta" },
+                { v: "google", label: "Google" },
+                { v: "tiktok", label: "TikTok" },
+              ].map(({ v, label }) => (
+                <button key={v} onClick={() => setPlatformFilter(v)}
+                  className={`px-3.5 py-1.5 text-xs font-medium rounded-full border transition-all ${
+                    platformFilter === v
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-transparent text-muted-foreground border-border/50 hover:border-border hover:text-foreground"
+                  }`}
+                >{label}</button>
+              ))}
+            </div>
+
+            {/* Product selector — only shown when products exist */}
+            {products.length > 0 && (
+              <div className="ml-auto flex items-center gap-2 shrink-0">
+                <span className="text-xs text-muted-foreground">Product</span>
+                <Select
+                  value={productFilter}
+                  onChange={(e) => setProductFilter(e.target.value)}
+                  className="h-8 text-xs pr-8 min-w-[160px]"
+                >
+                  <option value="all">All Products</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </Select>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1469,8 +1495,22 @@ export default function AdsPage() {
               [1, 2, 3].map((i) => <div key={i} className="h-44 rounded-xl bg-muted/20 animate-pulse" />)
             ) : filtered.length === 0 ? (
               <div className="col-span-full text-center py-20 border border-dashed border-border/50 rounded-xl">
-                <p className="text-sm font-medium">No ad campaigns yet</p>
-                <p className="text-xs text-muted-foreground mt-2">Create your first campaign to start advertising.</p>
+                <p className="text-sm font-medium">
+                  {campaigns.length > 0 ? "No campaigns match the selected filters" : "No ad campaigns yet"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {campaigns.length > 0
+                    ? "Try changing the platform or product filter above."
+                    : "Create your first campaign or import existing ones to get started."}
+                </p>
+                {campaigns.length > 0 && (platformFilter !== "all" || productFilter !== "all") && (
+                  <button
+                    className="mt-4 text-xs text-muted-foreground underline underline-offset-2"
+                    onClick={() => { setPlatformFilter("all"); setProductFilter("all"); }}
+                  >
+                    Clear filters
+                  </button>
+                )}
               </div>
             ) : filtered.map((c) => (
               <div
@@ -1697,6 +1737,17 @@ export default function AdsPage() {
                 <option value="tiktok">TikTok Ads</option>
               </Select>
             </FormField>
+
+            {products.length > 0 && (
+              <FormField label="Associate with Product" description="Optional — links imported campaigns to a product for filtering">
+                <Select value={importProductId} onChange={(e) => setImportProductId(e.target.value)}>
+                  <option value="">No product</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </Select>
+              </FormField>
+            )}
 
             {importResult && (
               <div className="rounded-lg border border-border/50 divide-y divide-border/50 text-sm">
