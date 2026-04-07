@@ -13,7 +13,36 @@ import {
 
 // ── Types ──────────────────────────────────────────────────────────
 
-type VideoFormat = "ugc" | "product-scene" | "faceless-narrated";
+type VideoFormat = "ugc" | "product-scene" | "faceless-narrated" | "slideshow";
+
+type SlideshowStoryStyle = "problem-solution" | "listicle" | "transformation" | "storytime" | "mythbusting";
+
+type SlidePlan = {
+  index: number;
+  visualPrompt: string;
+  overlayText: string;
+  beat: string;
+};
+
+type SlideshowResult = {
+  hookLine: string;
+  caption: string;
+  hashtags: string[];
+  slides: SlidePlan[];
+  slideImageUrls: string[];
+  failedSlideIndices: number[];
+  generated: number;
+  requested: number;
+  partial: boolean;
+};
+
+const SLIDESHOW_STORY_STYLES: { value: SlideshowStoryStyle; label: string; desc: string }[] = [
+  { value: "problem-solution", label: "Problem → Solution", desc: "Pain point → product reveal → CTA" },
+  { value: "listicle", label: "Listicle", desc: '"5 things I wish I knew about X"' },
+  { value: "transformation", label: "Transformation", desc: "Before → journey → after" },
+  { value: "storytime", label: "POV Storytime", desc: '"POV: you just discovered..."' },
+  { value: "mythbusting", label: "Mythbusting", desc: '"Stop doing X. Do Y instead."' },
+];
 
 type Trend = {
   id: string;
@@ -178,6 +207,13 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
   const [facelessSceneCount, setFacelessSceneCount] = useState(4);
   const [facelessDuration, setFacelessDuration] = useState(30);
 
+  // Slideshow state — TikTok Photo Mode story carousel
+  const [slideshowStoryStyle, setSlideshowStoryStyle] = useState<SlideshowStoryStyle>("problem-solution");
+  const [slideshowSlideCount, setSlideshowSlideCount] = useState(7);
+  const [slideshowHint, setSlideshowHint] = useState("");
+  const [slideshowGenerating, setSlideshowGenerating] = useState(false);
+  const [slideshowResult, setSlideshowResult] = useState<SlideshowResult | null>(null);
+
   // Wizard navigation
   const [wizardStep, setWizardStep] = useState(0);
 
@@ -186,11 +222,19 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
     ? ["Product", "Trends", "Script", "Avatar & Voice", "Generate"]
     : videoFormat === "product-scene"
     ? ["Product", "Trends", "Scene Setup", "Voiceover", "Generate"]
+    : videoFormat === "slideshow"
+    ? ["Product", "Story", "Generate"]
     : ["Product", "Trends", "Script & Voice", "Generate"];
 
   // Current step calculation
   const currentStep = (() => {
     if (!productId) return 0;
+    if (videoFormat === "slideshow") {
+      // Slideshow has its own short flow: Product → Story → Generate.
+      // No trend-research step, no avatar, no voice.
+      if (!slideshowResult) return 1;
+      return 2;
+    }
     if (!selectedTrend) return 1;
     if (videoFormat === "ugc") {
       if (!script) return 2;
@@ -392,13 +436,48 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
     finally { setGenerating(false); }
   };
 
-  const handleGenerate = videoFormat === "ugc" ? handleGenerateUGC : videoFormat === "product-scene" ? handleGenerateScene : handleGenerateFaceless;
+  const handleGenerateSlideshow = async () => {
+    if (!productId) { toast.error("Select a product first"); return; }
+    setSlideshowGenerating(true);
+    setSlideshowResult(null);
+    try {
+      const res = await apiPost<SlideshowResult>("/api/ai/tiktok-slideshow", {
+        productId,
+        slideCount: slideshowSlideCount,
+        storyStyle: slideshowStoryStyle,
+        hint: slideshowHint || undefined,
+      });
+      if (res.ok) {
+        setSlideshowResult(res.data);
+        if (res.data.partial) {
+          toast.warning(`${res.data.generated}/${res.data.requested} slides generated. Some failed — you can retry the failed ones.`);
+        } else {
+          toast.success("Slideshow ready! Download the slides and upload them to TikTok Photo Mode.");
+        }
+        onPostCreated?.();
+      } else {
+        const e = res.data as unknown as { error?: string };
+        toast.error(e.error || "Failed to generate slideshow");
+      }
+    } catch {
+      toast.error("Failed to generate slideshow");
+    } finally {
+      setSlideshowGenerating(false);
+    }
+  };
+
+  const handleGenerate =
+    videoFormat === "ugc" ? handleGenerateUGC :
+    videoFormat === "product-scene" ? handleGenerateScene :
+    videoFormat === "slideshow" ? handleGenerateSlideshow :
+    handleGenerateFaceless;
 
   const handleReset = () => {
     setTrends([]); setSelectedTrend(null); setScript(null); setEditedScript("");
     setSelectedAvatarUrl(""); setCaption(""); setGeneration(null);
     setSceneDescription(""); setProductImageUrl(""); setWantsVoiceover(false);
     setVideoPromptMode("guided"); setCustomVideoPrompt("");
+    setSlideshowResult(null); setSlideshowHint("");
     setWizardStep(1);
     if (pollRef.current) clearInterval(pollRef.current);
   };
@@ -413,6 +492,9 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
     } else if (videoFormat === "product-scene") {
       if (step === 2) return !!sceneType;
       if (step === 3) return !wantsVoiceover || !!editedScript;
+    } else if (videoFormat === "slideshow") {
+      // Slideshow doesn't gate on a trend — story style is always preset.
+      if (step === 1) return !!slideshowResult;
     } else {
       // faceless-narrated
       if (step === 2) return !!voice;
@@ -434,7 +516,7 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
               {/* Format selector */}
               <div className="space-y-3">
                 <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Video Format</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   <button
                     onClick={() => { setVideoFormat("ugc"); handleReset(); }}
                     className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "ugc" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
@@ -462,6 +544,16 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">Cinematic B-roll visuals with voiceover narration</p>
                   </button>
+                  <button
+                    onClick={() => { setVideoFormat("slideshow"); handleReset(); }}
+                    className={`text-left p-4 rounded-xl border transition-all ${videoFormat === "slideshow" ? "border-foreground bg-foreground/5 shadow-sm" : "border-border/50 hover:border-foreground/30"}`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-sm font-medium">Story Slideshow</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-foreground/10 text-foreground font-semibold">+12% ER</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">Swipeable Photo Mode story — hook, beats, payoff. No video gen needed.</p>
+                  </button>
                 </div>
               </div>
 
@@ -474,8 +566,133 @@ export default function TikTokVideoTab({ onPostCreated }: { onPostCreated?: () =
         </>
       )}
 
+      {/* ── Step 1 (slideshow): Story setup + Generate ───────── */}
+      {wizardStep === 1 && videoFormat === "slideshow" && (
+        <>
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Story Style</label>
+              <p className="text-[11px] text-muted-foreground/70 mt-1 mb-2">
+                Each style maps to a proven viral carousel framework. PAS+CTA (Problem → Solution) is the highest-converting default.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {SLIDESHOW_STORY_STYLES.map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => setSlideshowStoryStyle(s.value)}
+                    className={`text-left p-3 rounded-lg border text-xs transition-all ${slideshowStoryStyle === s.value ? "border-foreground bg-foreground/5" : "border-border/50 text-muted-foreground hover:border-foreground/30"}`}
+                  >
+                    <p className="font-medium text-foreground">{s.label}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Slide Count</label>
+              <p className="text-[11px] text-muted-foreground/70 mt-1 mb-2">
+                Research shows 5–10 slides works best; completion drops sharply after slide 7.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                {[5, 6, 7, 8, 9, 10].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setSlideshowSlideCount(n)}
+                    className={`px-3 py-1.5 rounded-md text-xs transition-all ${slideshowSlideCount === n ? "bg-foreground text-background font-medium" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {n} slides
+                    {n === 7 && <span className="ml-1 text-[9px] opacity-70">(default)</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Creative Angle (optional)</label>
+              <Textarea
+                placeholder='"focus on the unboxing moment" or "lean into morning routine"...'
+                value={slideshowHint}
+                onChange={(e) => setSlideshowHint(e.target.value)}
+                rows={2}
+                className="resize-none mt-2"
+              />
+            </div>
+
+            <Button onClick={handleGenerateSlideshow} disabled={slideshowGenerating} className="w-full h-11 text-sm font-medium">
+              {slideshowGenerating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Planning story & generating {slideshowSlideCount} slides...</> : `Generate ${slideshowSlideCount}-Slide Story`}
+            </Button>
+          </div>
+
+          {slideshowResult && (
+            <div className="space-y-4 pt-2">
+              <div className="rounded-xl border border-border/50 p-4 bg-foreground/[0.02]">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Hook (Slide 1)</p>
+                <p className="text-sm font-medium">{slideshowResult.hookLine}</p>
+              </div>
+
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+                  Slides ({slideshowResult.generated}/{slideshowResult.requested})
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {slideshowResult.slides.map((slide, i) => {
+                    const url = slideshowResult.slideImageUrls[i];
+                    const failed = slideshowResult.failedSlideIndices.includes(slide.index);
+                    return (
+                      <div key={slide.index} className="space-y-1.5">
+                        <div className="relative aspect-[9/16] rounded-lg overflow-hidden border border-border/50 bg-muted">
+                          {url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={url} alt={`Slide ${slide.index}`} className="absolute inset-0 w-full h-full object-cover" />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-[10px] text-muted-foreground">
+                              {failed ? "Failed" : "—"}
+                            </div>
+                          )}
+                          <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur text-[9px] font-semibold">
+                            {slide.index}
+                          </div>
+                          {url && (
+                            <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
+                              <p className="text-[10px] text-white font-medium leading-tight line-clamp-3">{slide.overlayText}</p>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{slide.beat}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border/50 p-4 space-y-2">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Caption</p>
+                <p className="text-xs leading-relaxed whitespace-pre-wrap">{slideshowResult.caption}</p>
+                {slideshowResult.hashtags.length > 0 && (
+                  <p className="text-xs text-muted-foreground">{slideshowResult.hashtags.map((h) => `#${h}`).join(" ")}</p>
+                )}
+              </div>
+
+              <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
+                Download each slide image, upload them to TikTok&apos;s Photo Mode in order, then add the overlay text shown above each slide using TikTok&apos;s native text editor.
+              </p>
+            </div>
+          )}
+
+          <div className="flex justify-between pt-4">
+            <Button variant="outline" onClick={() => setWizardStep(0)} className="h-11 text-sm font-medium px-6">
+              Back
+            </Button>
+            <Button onClick={handleReset} variant="outline" className="h-11 text-sm font-medium px-6">
+              Reset
+            </Button>
+          </div>
+        </>
+      )}
+
       {/* ── Step 1: Research & Select Trend ───────────────────── */}
-      {wizardStep === 1 && (
+      {wizardStep === 1 && videoFormat !== "slideshow" && (
         <>
           <div className="space-y-3">
             <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Focus Area (optional)</label>

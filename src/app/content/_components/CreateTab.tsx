@@ -11,6 +11,7 @@ import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
 import ImagePicker from "./ImagePicker";
 import PlatformPreview from "@/components/app/PlatformPreview";
+import { recommendedStylesByPlatform } from "@/lib/schemas";
 
 const contentTypes = [
   { value: "social_post", label: "Short Post" },
@@ -80,7 +81,8 @@ export default function CreateTab({
   const [publishing, setPublishing] = useState(false);
 
   const [generatingImage, setGeneratingImage] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [imageCount, setImageCount] = useState<number>(1);
   const [imageStyle, setImageStyle] = useState("branded");
   const [imageSubtype, setImageSubtype] = useState("");
   const [aspectRatio, setAspectRatio] = useState("16:9");
@@ -92,7 +94,29 @@ export default function CreateTab({
   const handleChannelChange = (ch: string) => {
     setChannel(ch);
     setAspectRatio(channelDefaultRatio[ch] || "1:1");
+    // If the user's current style isn't recommended for the new channel,
+    // switch them to the top recommended style for that channel.
+    const recs = recommendedStylesByPlatform[ch as keyof typeof recommendedStylesByPlatform];
+    if (recs && !recs.includes(imageStyle as typeof recs[number])) {
+      setImageStyle(recs[0]);
+    }
   };
+
+  // Order styles for the current channel: recommended first (top pick flagged),
+  // then the rest. Falls back to the static list for unknown channels.
+  const orderedImageStyles = (() => {
+    const recs = recommendedStylesByPlatform[channel as keyof typeof recommendedStylesByPlatform];
+    if (!recs) return imageStyles.map((s) => ({ ...s, recommended: false, top: false }));
+    const recSet = new Set<string>(recs);
+    const top = recs[0];
+    const recommended = recs.map((v) => imageStyles.find((s) => s.value === v)!).filter(Boolean);
+    const rest = imageStyles.filter((s) => !recSet.has(s.value));
+    return [...recommended, ...rest].map((s) => ({
+      ...s,
+      recommended: recSet.has(s.value),
+      top: s.value === top,
+    }));
+  })();
 
   const [screenUrls, setScreenUrls] = useState<string[]>([]);
   const [uploadingScreen, setUploadingScreen] = useState(false);
@@ -103,20 +127,48 @@ export default function CreateTab({
   const [manualUploading, setManualUploading] = useState(false);
   const manualFileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleManualUpload = async (file: File) => {
-    const isVideo = file.type.startsWith("video/");
-    const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
-    if (file.size > maxSize) { toast.error(`File must be under ${isVideo ? "100" : "10"} MB`); return; }
+  const MAX_MEDIA = 6;
+
+  const handleManualUpload = async (files: File[]) => {
+    if (files.length === 0) return;
+    // TikTok: if any video, only allow a single file
+    const containsVideo = files.some((f) => f.type.startsWith("video/"));
+    if (containsVideo && files.length > 1) {
+      toast.error("Videos must be uploaded on their own");
+      return;
+    }
+
+    const available = MAX_MEDIA - imageUrls.length;
+    if (available <= 0) {
+      toast.error(`Maximum ${MAX_MEDIA} media items`);
+      return;
+    }
+    const filesToUpload = files.slice(0, available);
+
     setManualUploading(true);
     try {
-      const fd = new FormData();
-      fd.append(isVideo ? "video" : "image", file);
-      const res = await apiUpload<{ ok: boolean; url: string }>("/api/ai/images", fd);
-      if (res.ok) {
-        setImageUrl(res.data.url);
-        toast.success(`${isVideo ? "Video" : "Image"} uploaded`);
-      } else {
-        toast.error("Upload failed");
+      const results = await Promise.all(
+        filesToUpload.map(async (file) => {
+          const isVideo = file.type.startsWith("video/");
+          const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+          if (file.size > maxSize) {
+            toast.error(`${file.name}: must be under ${isVideo ? "100" : "10"} MB`);
+            return null;
+          }
+          const fd = new FormData();
+          fd.append(isVideo ? "video" : "image", file);
+          const res = await apiUpload<{ ok: boolean; url: string }>("/api/ai/images", fd);
+          if (!res.ok) {
+            toast.error(`${file.name}: upload failed`);
+            return null;
+          }
+          return res.data.url;
+        }),
+      );
+      const uploaded = results.filter((u): u is string => !!u);
+      if (uploaded.length > 0) {
+        setImageUrls((prev) => [...prev, ...uploaded].slice(0, MAX_MEDIA));
+        toast.success(`${uploaded.length} file${uploaded.length > 1 ? "s" : ""} uploaded`);
       }
     } catch {
       toast.error("Upload failed");
@@ -133,7 +185,7 @@ export default function CreateTab({
     setGenerating(true);
     setContent("");
     setPostId(null);
-    setImageUrl(null);
+    setImageUrls([]);
     try {
       const res = await apiPost<{ id: string; content: string }>("/api/posts/generate", {
         productId,
@@ -206,7 +258,7 @@ export default function CreateTab({
         : imageContext
           ? `${imageContext}\n\nPost caption for context: ${content}`
           : content;
-      const res = await apiPost<{ imageUrl: string; provider: string; revisedPrompt?: string }>(
+      const res = await apiPost<{ imageUrl: string; imageUrls?: string[]; provider: string; revisedPrompt?: string; generated?: number; requested?: number; partial?: boolean }>(
         "/api/ai/generate-image",
         {
           prompt,
@@ -220,11 +272,18 @@ export default function CreateTab({
           provider: "gemini",
           screenUrls: screenUrls.length > 0 ? screenUrls : undefined,
           includeLogo,
+          count: imageCount,
         },
       );
       if (res.ok) {
-        setImageUrl(res.data.imageUrl);
-        toast.success(`Image generated via ${res.data.provider}`);
+        const urls = res.data.imageUrls?.length ? res.data.imageUrls : [res.data.imageUrl];
+        // Append to any existing selections, capped at MAX_MEDIA
+        setImageUrls((prev) => [...prev, ...urls].slice(0, MAX_MEDIA));
+        if (res.data.partial) {
+          toast.warning(`Generated ${res.data.generated}/${res.data.requested} images (some failed)`);
+        } else {
+          toast.success(`${urls.length} image${urls.length > 1 ? "s" : ""} generated via ${res.data.provider}`);
+        }
       } else {
         const errData = res.data as unknown as { error?: string };
         toast.error(errData.error || "Image generation failed");
@@ -239,7 +298,7 @@ export default function CreateTab({
   // Returns the post ID to use — creates a new draft if none exists yet (manual mode)
   const ensurePostId = async (): Promise<string | null> => {
     if (postId) return postId;
-    const mediaUrls = imageUrl ? [imageUrl] : undefined;
+    const mediaUrls = imageUrls.length > 0 ? imageUrls : undefined;
     const res = await apiPost<{ id: string }>("/api/posts", { content, channel, status: "draft", mediaUrls });
     if (res.ok) {
       setPostId(res.data.id);
@@ -251,7 +310,7 @@ export default function CreateTab({
 
   const handleSaveDraft = async () => {
     if (!content) return;
-    const mediaUrls = imageUrl ? [imageUrl] : undefined;
+    const mediaUrls = imageUrls.length > 0 ? imageUrls : undefined;
     if (postId) {
       const res = await apiPut(`/api/posts/${postId}`, { content, channel, mediaUrls });
       if (res.ok) { toast.success("Draft saved"); onPostCreated?.(); }
@@ -264,7 +323,7 @@ export default function CreateTab({
 
   const handleSchedule = async (scheduledAt: string) => {
     if (!content) return;
-    const mediaUrls = imageUrl ? [imageUrl] : undefined;
+    const mediaUrls = imageUrls.length > 0 ? imageUrls : undefined;
     const id = postId ?? await ensurePostId();
     if (!id) return;
     const res = await apiPut(`/api/posts/${id}`, { content, channel, status: "scheduled", scheduledAt, mediaUrls });
@@ -272,7 +331,7 @@ export default function CreateTab({
       toast.success("Post scheduled");
       setContent("");
       setPostId(null);
-      setImageUrl(null);
+      setImageUrls([]);
       onPostCreated?.();
     } else {
       toast.error("Failed to schedule post");
@@ -282,7 +341,7 @@ export default function CreateTab({
   const handlePostNow = async () => {
     if (!content) return;
     setPublishing(true);
-    const mediaUrls = imageUrl ? [imageUrl] : undefined;
+    const mediaUrls = imageUrls.length > 0 ? imageUrls : undefined;
     const id = postId ?? await ensurePostId();
     if (!id) { setPublishing(false); return; }
     await apiPut(`/api/posts/${id}`, { content, channel, mediaUrls });
@@ -331,7 +390,7 @@ export default function CreateTab({
 
       setContent("");
       setPostId(null);
-      setImageUrl(null);
+      setImageUrls([]);
       onPostCreated?.();
     } else {
       toast.error(res.data.error || "Publishing failed");
@@ -392,41 +451,63 @@ export default function CreateTab({
             </div>
 
             <div className="space-y-3">
-              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Image</label>
-              {imageUrl ? (
-                <div className="relative group rounded-xl overflow-hidden border border-border/40">
-                  {imageUrl.match(/\.(mp4|mov|webm)(\?|$)/i) ? (
-                    <video src={imageUrl} controls className="w-full object-cover max-h-48" />
-                  ) : (
-                    <img src={imageUrl} alt="Post image" className="w-full object-cover max-h-48" />
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Media</label>
+                <span className="text-[11px] text-muted-foreground">{imageUrls.length}/{MAX_MEDIA}</span>
+              </div>
+              {imageUrls.length > 0 ? (
+                <div className="grid grid-cols-3 gap-2">
+                  {imageUrls.map((url, i) => (
+                    <div key={`${url}-${i}`} className="relative group aspect-square rounded-lg overflow-hidden border border-border/40">
+                      {url.match(/\.(mp4|mov|webm)(\?|$)/i) ? (
+                        <video src={url} className="w-full h-full object-cover" />
+                      ) : (
+                        <img src={url} alt={`Media ${i + 1}`} className="w-full h-full object-cover" />
+                      )}
+                      <button
+                        onClick={() => setImageUrls((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center"
+                        aria-label="Remove"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  {imageUrls.length < MAX_MEDIA && (
+                    <button
+                      onClick={() => manualFileInputRef.current?.click()}
+                      className="aspect-square rounded-lg border-2 border-dashed border-border/50 hover:border-foreground/30 text-xs text-muted-foreground"
+                    >
+                      + Add
+                    </button>
                   )}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <button onClick={() => manualFileInputRef.current?.click()} className="text-white text-xs font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">Replace</button>
-                    <button onClick={() => setPickerOpen(true)} className="text-white text-xs font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">Gallery</button>
-                    <button onClick={() => setImageUrl(null)} className="text-white text-xs font-medium bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">Remove</button>
-                  </div>
                 </div>
               ) : (
                 <div
                   className="border-2 border-dashed border-border/50 hover:border-foreground/30 rounded-xl p-8 text-center cursor-pointer transition-colors"
                   onClick={() => manualFileInputRef.current?.click()}
                 >
-                  <p className="text-sm text-muted-foreground">{channel === "tiktok" ? "Drop a video or image" : "Drop an image or click to upload"}</p>
-                  <p className="text-[11px] text-muted-foreground/50 mt-1">{channel === "tiktok" ? "MP4, MOV · up to 100 MB / JPG, PNG · up to 10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
+                  <p className="text-sm text-muted-foreground">{channel === "tiktok" ? "Drop videos or images" : "Drop images or click to upload"}</p>
+                  <p className="text-[11px] text-muted-foreground/50 mt-1">Up to {MAX_MEDIA} items · {channel === "tiktok" ? "MP4/MOV ≤100 MB · JPG/PNG ≤10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
                 </div>
               )}
               <input
                 ref={manualFileInputRef}
                 type="file"
+                multiple
                 accept={channel === "tiktok" ? "image/png,image/jpeg,image/webp,video/mp4,video/quicktime" : "image/png,image/jpeg,image/webp"}
                 className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleManualUpload(f); e.target.value = ""; }}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  if (files.length > 0) handleManualUpload(files);
+                  e.target.value = "";
+                }}
               />
               <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" size="sm" className="text-xs" onClick={() => manualFileInputRef.current?.click()} disabled={manualUploading}>
-                  {manualUploading ? "Uploading…" : "Upload Image"}
+                <Button variant="outline" size="sm" className="text-xs" onClick={() => manualFileInputRef.current?.click()} disabled={manualUploading || imageUrls.length >= MAX_MEDIA}>
+                  {manualUploading ? "Uploading…" : "Upload"}
                 </Button>
-                <Button variant="outline" size="sm" className="text-xs" onClick={() => setPickerOpen(true)}>
+                <Button variant="outline" size="sm" className="text-xs" onClick={() => setPickerOpen(true)} disabled={imageUrls.length >= MAX_MEDIA}>
                   From Gallery
                 </Button>
               </div>
@@ -500,7 +581,7 @@ export default function CreateTab({
 
             {/* Platform preview */}
             <div className="border-t border-border/30 pt-6">
-              <PlatformPreview content={content} channel={channel} mediaUrls={imageUrl ? [imageUrl] : undefined} />
+              <PlatformPreview content={content} channel={channel} mediaUrls={imageUrls.length > 0 ? imageUrls : undefined} />
             </div>
 
             {/* Image generation — AI mode only */}
@@ -526,10 +607,21 @@ export default function CreateTab({
                     onChange={(e) => setImageStyle(e.target.value)}
                     size="sm"
                   >
-                    {imageStyles.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
+                    {orderedImageStyles.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.top ? `★ ${s.label} (recommended)` : s.recommended ? `${s.label} ✓` : s.label}
+                      </option>
                     ))}
                   </Select>
+                  <p className="text-[10px] text-muted-foreground/50">
+                    {channel === "tiktok"
+                      ? "★ Raw UGC photos win on TikTok — unbranded UGC outperforms polished ads by +55% ROI."
+                      : channel === "instagram"
+                      ? "★ Lifestyle photos with people lead on Instagram — faces lift engagement by +38%."
+                      : channel === "facebook"
+                      ? "★ Lifestyle product-in-use photos drive ~70–80% of Meta ad performance."
+                      : "★ = best fit for this channel. ✓ = also performs well."}
+                  </p>
                 </div>
               </div>
 
@@ -667,51 +759,85 @@ export default function CreateTab({
                 <span className="text-xs text-muted-foreground">Include product logo</span>
               </label>
 
+              {/* Count picker (1–6). Generated images are appended to the current set. */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] text-muted-foreground">Images to Generate</label>
+                  <span className="text-[11px] text-muted-foreground tabular-nums">{imageCount}</span>
+                </div>
+                <div className="grid grid-cols-6 gap-1">
+                  {[1, 2, 3, 4, 5, 6].map((n) => {
+                    const remaining = MAX_MEDIA - imageUrls.length;
+                    const disabled = n > remaining;
+                    return (
+                      <button
+                        key={n}
+                        onClick={() => setImageCount(n)}
+                        disabled={disabled}
+                        className={`py-1.5 rounded-md text-xs border transition-all ${
+                          imageCount === n
+                            ? "border-foreground bg-foreground text-background"
+                            : "border-border/60 text-muted-foreground hover:border-foreground/30"
+                        } ${disabled ? "opacity-30 cursor-not-allowed" : ""}`}
+                      >
+                        {n}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] text-muted-foreground/60">Each image counts against your AI quota. Generated images are added to the post ({imageUrls.length}/{MAX_MEDIA}).</p>
+              </div>
+
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleGenerateImage}
-                  disabled={generatingImage || (imagePromptMode === "custom_override" && customImagePrompt.length > IMAGE_CUSTOM_PROMPT_MAX_LENGTH)}
+                  disabled={generatingImage || imageUrls.length >= MAX_MEDIA || (imagePromptMode === "custom_override" && customImagePrompt.length > IMAGE_CUSTOM_PROMPT_MAX_LENGTH)}
                   className="flex-1 text-xs"
                 >
-                  {generatingImage ? "Generating..." : "Generate Image"}
+                  {generatingImage ? "Generating..." : `Generate ${imageCount > 1 ? imageCount + " Images" : "Image"}`}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setPickerOpen(true)}
+                  disabled={imageUrls.length >= MAX_MEDIA}
                   className="text-xs"
                 >
                   Gallery
                 </Button>
               </div>
 
-              {imageUrl && (
-                <div className="relative group overflow-hidden rounded-lg border border-border/40">
-                  <div
-                    className="relative w-full mx-auto"
-                    style={{
-                      aspectRatio: aspectRatio.replace(":", " / "),
-                      maxHeight: "520px",
-                    }}
-                  >
-                    <img
-                      src={imageUrl}
-                      alt="Generated image"
-                      className="w-full h-full object-cover"
-                    />
+              {imageUrls.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">Selected ({imageUrls.length}/{MAX_MEDIA})</span>
+                    {imageUrls.length > 1 && (
+                      <button
+                        onClick={() => setImageUrls([])}
+                        className="text-[11px] text-muted-foreground hover:text-foreground"
+                      >
+                        Clear all
+                      </button>
+                    )}
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between">
-                    <span className="text-white text-[10px] font-medium tracking-wide uppercase">
-                      {aspectRatio} / {channel}
-                    </span>
-                    <button
-                      onClick={() => setImageUrl(null)}
-                      className="text-white text-[11px] font-medium hover:underline"
-                    >
-                      Remove
-                    </button>
+                  <div className="grid grid-cols-3 gap-2">
+                    {imageUrls.map((url, i) => (
+                      <div key={`${url}-${i}`} className="relative group aspect-square rounded-lg overflow-hidden border border-border/40">
+                        <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                        <div className="absolute top-1 left-1 bg-black/60 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">
+                          {i + 1}
+                        </div>
+                        <button
+                          onClick={() => setImageUrls((prev) => prev.filter((_, idx) => idx !== i))}
+                          className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center"
+                          aria-label="Remove"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -729,7 +855,11 @@ export default function CreateTab({
       </div>
 
       <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} channel={channel} />
-      <ImagePicker open={pickerOpen} onOpenChange={setPickerOpen} onSelect={(url) => setImageUrl(url)} />
+      <ImagePicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        onSelect={(url) => setImageUrls((prev) => (prev.includes(url) || prev.length >= MAX_MEDIA ? prev : [...prev, url]))}
+      />
     </div>
   );
 }

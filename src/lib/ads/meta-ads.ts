@@ -170,12 +170,22 @@ async function buildMetaCreativeSpec(
   pageId: string,
   campaign: AdCampaignDoc,
 ): Promise<{ spec?: Record<string, unknown>; error?: string }> {
-  const imageUrl = campaign.creative.imageUrl?.trim();
+  const primaryImageUrl = campaign.creative.imageUrl?.trim();
+  const extraImageUrls = (campaign.creative.imageUrls ?? [])
+    .map((u) => u.trim())
+    .filter((u) => !!u);
+
+  // Deduplicate while preserving order, primary first.
+  const seen = new Set<string>();
+  const allImageUrls = [primaryImageUrl, ...extraImageUrls]
+    .filter((u): u is string => !!u)
+    .filter((u) => (seen.has(u) ? false : (seen.add(u), true)));
+
   const videoUrl = campaign.creative.videoUrl?.trim();
 
-  if (imageUrl && videoUrl) {
+  if (allImageUrls.length > 0 && videoUrl) {
     return {
-      error: 'Meta ads currently support a single creative asset per ad. Remove either the image or the video and try again.',
+      error: 'Meta ads currently support either images or a video per ad, not both. Remove one and try again.',
     };
   }
 
@@ -185,10 +195,6 @@ async function buildMetaCreativeSpec(
     };
   }
 
-  const imageAsset = imageUrl
-    ? await resolveMetaImageAsset(accessToken, actId, imageUrl)
-    : {};
-
   const callToAction = campaign.creative.ctaType
     ? {
       type: campaign.creative.ctaType,
@@ -197,6 +203,44 @@ async function buildMetaCreativeSpec(
       },
     }
     : undefined;
+
+  // Carousel: 2–10 images → child_attachments
+  // Meta requires 2 minimum for a carousel ad.
+  if (allImageUrls.length >= 2) {
+    const MAX_CAROUSEL = 10;
+    const urls = allImageUrls.slice(0, MAX_CAROUSEL);
+    const assets = await Promise.all(urls.map((url) => resolveMetaImageAsset(accessToken, actId, url)));
+
+    const child_attachments = assets.map((asset) =>
+      compactMetaFields({
+        link: campaign.creative.linkUrl,
+        name: campaign.creative.headline,
+        description: campaign.creative.description,
+        call_to_action: callToAction,
+        ...asset,
+      }),
+    );
+
+    return {
+      spec: {
+        page_id: pageId,
+        link_data: compactMetaFields({
+          message: campaign.creative.primaryText,
+          link: campaign.creative.linkUrl,
+          caption: campaign.creative.description,
+          child_attachments,
+          multi_share_optimized: true,
+          multi_share_end_card: true,
+          call_to_action: callToAction,
+        }),
+      },
+    };
+  }
+
+  // Single image (or text-only — though link_data still needs a link)
+  const imageAsset = allImageUrls[0]
+    ? await resolveMetaImageAsset(accessToken, actId, allImageUrls[0])
+    : {};
 
   return {
     spec: {

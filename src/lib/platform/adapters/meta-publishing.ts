@@ -74,10 +74,29 @@ function buildFacebookUrl(pageId: string, rawId: string): string {
 
 // ── Facebook publish ────────────────────────────────────────────────
 
+/** Upload a photo to the page as unpublished, returning its media_fbid for attachment. */
+async function uploadUnpublishedFacebookPhoto(
+  pageId: string,
+  accessToken: string,
+  imageUrl: string,
+): Promise<{ id?: string; error?: string }> {
+  const res = await fetchWithRetry(`${GRAPH_API}/${pageId}/photos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: imageUrl, published: false, access_token: accessToken }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    return { error: err.error?.message || res.statusText };
+  }
+  const data = await res.json();
+  return { id: data.id };
+}
+
 async function publishToFacebook(
   connection: PlatformConnection,
   content: string,
-  mediaUrl?: string,
+  mediaUrls: string[] = [],
 ): Promise<PublishResult> {
   const pageId = getMeta(connection, 'pageId', '');
   if (!pageId) {
@@ -87,6 +106,43 @@ async function publishToFacebook(
   const accessToken = resolveAccessToken(connection);
 
   try {
+    // Multi-photo post: upload each unpublished, then attach to a single feed post.
+    if (mediaUrls.length > 1) {
+      const uploads = await Promise.all(
+        mediaUrls.map((url) => uploadUnpublishedFacebookPhoto(pageId, accessToken, url)),
+      );
+      const failed = uploads.find((u) => u.error);
+      if (failed) {
+        return { success: false, error: `Facebook photo upload error: ${failed.error}` };
+      }
+      const attachedMedia = uploads
+        .map((u) => u.id)
+        .filter((id): id is string => !!id)
+        .map((media_fbid) => ({ media_fbid }));
+
+      const feedRes = await fetchWithRetry(`${GRAPH_API}/${pageId}/feed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: content,
+          attached_media: attachedMedia,
+          access_token: accessToken,
+        }),
+      });
+      if (!feedRes.ok) {
+        const err = await feedRes.json().catch(() => ({}));
+        return { success: false, error: `Facebook multi-photo post error: ${err.error?.message || feedRes.statusText}` };
+      }
+      const feedData = await feedRes.json();
+      const postId = feedData.id;
+      return {
+        success: true,
+        externalId: postId,
+        externalUrl: postId ? buildFacebookUrl(pageId, postId) : undefined,
+      };
+    }
+
+    const mediaUrl = mediaUrls[0];
     if (mediaUrl) {
       const res = await fetchWithRetry(`${GRAPH_API}/${pageId}/photos`, {
         method: 'POST',
@@ -134,10 +190,36 @@ async function publishToFacebook(
 
 // ── Instagram publish ───────────────────────────────────────────────
 
+/** Create an Instagram media container. For carousel children, pass isCarouselItem=true and omit caption. */
+async function createIgMediaContainer(
+  igAccountId: string,
+  accessToken: string,
+  params: { imageUrl: string; caption?: string; isCarouselItem?: boolean },
+): Promise<{ id?: string; error?: string }> {
+  const body: Record<string, unknown> = {
+    image_url: params.imageUrl,
+    access_token: accessToken,
+  };
+  if (params.caption != null) body.caption = params.caption;
+  if (params.isCarouselItem) body.is_carousel_item = true;
+
+  const res = await fetchWithRetry(`${GRAPH_API}/${igAccountId}/media`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    return { error: err.error?.message || res.statusText };
+  }
+  const data = await res.json();
+  return { id: data.id };
+}
+
 async function publishToInstagram(
   connection: PlatformConnection,
   content: string,
-  imageUrl?: string,
+  imageUrls: string[] = [],
 ): Promise<PublishResult> {
   const igAccountId = getMeta(connection, 'igAccountId', '');
   if (!igAccountId) {
@@ -147,27 +229,69 @@ async function publishToInstagram(
     };
   }
 
-  if (!imageUrl) {
+  if (imageUrls.length === 0) {
     return { success: false, error: 'Instagram requires an image URL. Text-only posts are not supported.' };
+  }
+
+  // Instagram carousel limit: 10
+  if (imageUrls.length > 10) {
+    imageUrls = imageUrls.slice(0, 10);
   }
 
   const accessToken = resolveAccessToken(connection);
 
   try {
-    // Step 1: Create container
-    const containerRes = await fetchWithRetry(`${GRAPH_API}/${igAccountId}/media`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image_url: imageUrl, caption: content, access_token: accessToken }),
-    });
+    let containerId: string | undefined;
 
-    if (!containerRes.ok) {
-      const err = await containerRes.json().catch(() => ({}));
-      return { success: false, error: `Instagram container error: ${err.error?.message || containerRes.statusText}` };
+    if (imageUrls.length === 1) {
+      // Single image post
+      const single = await createIgMediaContainer(igAccountId, accessToken, {
+        imageUrl: imageUrls[0],
+        caption: content,
+      });
+      if (single.error) {
+        return { success: false, error: `Instagram container error: ${single.error}` };
+      }
+      containerId = single.id;
+    } else {
+      // Carousel: create one child container per image, then a parent carousel container
+      const children = await Promise.all(
+        imageUrls.map((imageUrl) =>
+          createIgMediaContainer(igAccountId, accessToken, { imageUrl, isCarouselItem: true }),
+        ),
+      );
+      const childFail = children.find((c) => c.error);
+      if (childFail) {
+        return { success: false, error: `Instagram carousel child error: ${childFail.error}` };
+      }
+      const childIds = children.map((c) => c.id).filter((id): id is string => !!id);
+
+      // Wait for each child to finish processing before attaching to the carousel
+      for (const childId of childIds) {
+        const { ready, error: pollError } = await waitForContainer(childId, accessToken);
+        if (!ready) {
+          return { success: false, error: `Instagram carousel child processing failed: ${pollError}` };
+        }
+      }
+
+      const parentRes = await fetchWithRetry(`${GRAPH_API}/${igAccountId}/media`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          media_type: 'CAROUSEL',
+          children: childIds.join(','),
+          caption: content,
+          access_token: accessToken,
+        }),
+      });
+      if (!parentRes.ok) {
+        const err = await parentRes.json().catch(() => ({}));
+        return { success: false, error: `Instagram carousel container error: ${err.error?.message || parentRes.statusText}` };
+      }
+      const parentData = await parentRes.json();
+      containerId = parentData.id;
     }
 
-    const containerData = await containerRes.json();
-    const containerId = containerData.id;
     if (!containerId) {
       return { success: false, error: 'Failed to create Instagram media container' };
     }
@@ -213,10 +337,11 @@ export const metaPublishingAdapter: PlatformAdapter = {
   ],
 
   async publish(connection: PlatformConnection, request: PublishRequest): Promise<PublishResult> {
+    const mediaUrls = request.mediaUrls ?? [];
     if (request.channel === 'instagram') {
-      return publishToInstagram(connection, request.content, request.mediaUrls?.[0]);
+      return publishToInstagram(connection, request.content, mediaUrls);
     }
-    return publishToFacebook(connection, request.content, request.mediaUrls?.[0]);
+    return publishToFacebook(connection, request.content, mediaUrls);
   },
 
   async testConnection(connection: PlatformConnection) {

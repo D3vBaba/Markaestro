@@ -347,6 +347,78 @@ export const facelessNarratedSchema = z.object({
 // ── Image Generation Schema ───────────────────────────────────────
 
 export const imageStyles = ['photorealistic', 'illustration', 'minimal', 'abstract', 'branded'] as const;
+
+/**
+ * Per-platform style recommendations, ordered best → worst by what the
+ * research consensus says actually performs in 2025/2026. The first entry is
+ * the recommended default and is auto-selected when the user picks a channel.
+ *
+ * Sources (see also the matching variants in image-generator.ts):
+ *
+ * - TikTok: UGC outperforms non-UGC by +55% ROI; UNBRANDED UGC beats branded
+ *   by +19%; creative without logos / heavy overlays earns +81% ROI. The
+ *   algorithm rewards content that feels native to the FYP, not polished
+ *   commercials. → Photorealistic (UGC variants) is the only true fit.
+ *   Branded only works in its lo-fi "indie / Gen-Z" form. Minimal and
+ *   abstract are deliberately omitted — they read as ads and get skipped.
+ *   Refs: precis.com TikTok 2025 playbook, awisee.com TikTok UGC 2025,
+ *   tlinky.com TikTok ad creative best practices 2025, ads.tiktok.com.
+ *
+ * - Instagram: Posts with people / faces outperform everything else
+ *   (Georgia Tech: faces +38% likes; Agorapulse: photos beat graphics by
+ *   +156% likes / +302% comments). Authentic-but-quality lifestyle imagery
+ *   wins; pure illustration and abstract underperform. Static engagement is
+ *   declining 17% YoY but photorealistic-with-people is the surviving format.
+ *   Refs: socialinsider.io 2026 IG benchmarks, blog.hootsuite.com faces
+ *   experiment, agorapulse.com photos-vs-graphics.
+ *
+ * - Facebook: UGC-style and lifestyle product-in-use imagery dominate;
+ *   bold-typography + product hero is a staple of high-performing creative;
+ *   4:5 vertical photos beat 1:1 by ~15% in feed. Creative drives 70–80% of
+ *   Meta ad performance — stylistic fit matters more than budget.
+ *   Refs: superside.com FB ad examples 2025, billo.app Meta ads best
+ *   practices 2025, wordstream.com FB ad trends 2025.
+ */
+export const recommendedStylesByPlatform: Record<
+  'facebook' | 'instagram' | 'tiktok',
+  readonly (typeof imageStyles)[number][]
+> = {
+  // Facebook: UGC + lifestyle photo first, branded (with typography) second,
+  // minimal as a clean third. Illustration and abstract are de-emphasized.
+  facebook: ['photorealistic', 'branded', 'minimal', 'illustration'],
+  // Instagram: photo-with-people leads decisively. Branded lifestyle editorial
+  // and minimalism are valid secondary picks. Illustration trails. Abstract
+  // is omitted — research shows graphics underperform photos by 156%+.
+  instagram: ['photorealistic', 'branded', 'minimal', 'illustration'],
+  // TikTok: only raw, native-feeling photoreal (UGC) is a true fit. Branded
+  // is allowed only because we bias it to its indie/Gen-Z lo-fi variants in
+  // the generator. Minimal, abstract, and illustration are intentionally
+  // excluded — they read as commercials and the FYP algorithm punishes that.
+  tiktok: ['photorealistic', 'branded'],
+} as const;
+/**
+ * TikTok story-slideshow request. Slide count is bounded by research:
+ * 5 is the minimum that supports a real story arc; 10 is the upper bound
+ * before completion-rate drop-off becomes severe (Affinco 2025).
+ */
+export const tiktokSlideshowStoryStyles = [
+  'problem-solution',
+  'listicle',
+  'transformation',
+  'storytime',
+  'mythbusting',
+] as const;
+
+export const generateTikTokSlideshowSchema = z.object({
+  productId: z.string().trim().min(1, 'productId is required'),
+  slideCount: z.number().int().min(5).max(10).default(7),
+  storyStyle: z.enum(tiktokSlideshowStoryStyles).default('problem-solution'),
+  hint: z.string().trim().max(500).optional(),
+});
+
+export type TikTokSlideshowStoryStyle = (typeof tiktokSlideshowStoryStyles)[number];
+export type GenerateTikTokSlideshow = z.infer<typeof generateTikTokSlideshowSchema>;
+
 export const imageAspectRatios = ['1:1', '16:9', '9:16', '4:5', '3:4'] as const;
 export const imageProviders = ['gemini', 'openai'] as const;
 
@@ -386,6 +458,8 @@ export const generateImageSchema = z.object({
   screenUrls: z.array(z.string().url()).max(4).default([]),
   /** Whether to include the product logo in the image */
   includeLogo: z.boolean().default(false),
+  /** Number of images to generate in a single request (1-6) */
+  count: z.number().int().min(1).max(6).default(1),
 });
 
 // ── Ad Campaign Schemas ───────────────────────────────────────────
@@ -411,6 +485,8 @@ export const adCreativeSchema = z.object({
   primaryText: z.string().trim().min(1, 'Primary text is required').max(2000),
   description: z.string().trim().max(500).default(''),
   imageUrl: z.string().trim().url('Invalid image URL').or(z.literal('')).default(''),
+  /** Additional images for carousel/multi-image ad creatives (max 10). When present with 2+ entries, builds a carousel ad. */
+  imageUrls: z.array(z.string().url()).max(10).default([]),
   videoUrl: z.string().trim().url('Invalid video URL').or(z.literal('')).default(''),
   linkUrl: z.string().trim().url('Invalid link URL').or(z.literal('')).default(''),
   ctaType: z.string().trim().max(50).default(''),

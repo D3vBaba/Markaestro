@@ -566,11 +566,18 @@ function buildGuidedImagePrompt(req: ImageGenRequest): string {
   // ── 2. STYLE — randomized per call to prevent repetition ──
   const styleVariants: Record<ImageStyle, string[]> = {
     photorealistic: [
-      'STYLE: Cinematic editorial photograph. Hasselblad X2D, 90mm lens. Single directional light, shallow depth of field, subtle film grain.',
-      'STYLE: Documentary photography. Leica M11, 35mm lens. Available light, candid energy, slightly desaturated, decisive moment.',
+      // Indices 0–4: editorial / cinematic — Instagram & Facebook lead pool.
+      'STYLE: Cinematic editorial photograph. Hasselblad X2D, 90mm lens. Single directional light, shallow depth of field, subtle film grain. Include a real person whose face is clearly visible — research shows IG faces lift engagement +38%.',
+      'STYLE: Documentary photography. Leica M11, 35mm lens. Available light, candid energy, slightly desaturated, decisive moment. Human subject preferred.',
       'STYLE: Fashion editorial. Medium format film look. Intentional color grading, strong shadows, magazine-cover quality.',
-      'STYLE: Fine art photography. Large format feel. Hyper-detailed, contemplative, gallery-print quality. Every pixel intentional.',
+      'STYLE: Lifestyle product-in-use. Real environment, natural light, the product mid-action with a person interacting. Optimized for Facebook feed where product-in-use UGC-style ads convert best.',
       'STYLE: Street photography. Ricoh GR III, 28mm. Gritty, authentic, high contrast, captured mid-life.',
+      // Indices 5–7: raw UGC / lo-fi — TikTok lead pool.
+      // Per Precis 2025 TikTok playbook: unbranded UGC outperforms branded by +19% ROI,
+      // creative without logos earns +81% ROI. These variants must read as native FYP content.
+      'STYLE: Raw UGC selfie. Front-facing iPhone camera, slight lens distortion, mixed indoor lighting, imperfect framing. NO visible logos, NO graphic overlays, NO branded packaging hero shots. Looks like a real person filming themselves, not a campaign.',
+      'STYLE: Lo-fi phone photo. Handheld, slight motion blur, on-camera flash or harsh overhead light, JPEG compression artifacts. Authentically amateur — the kind of shot that goes viral *because* it feels real. Avoid any commercial polish.',
+      'STYLE: POV phone capture. Arm\'s-length angle, natural skin texture, no retouching, ambient room light, casual outfit. Reads as a genuine moment shared to a friend, not a brand asset. No logos, no overlays.',
     ],
     illustration: [
       'STYLE: Bold editorial illustration. Limited 4-color palette, strong graphic shapes, risograph grain. New Yorker cover energy.',
@@ -599,7 +606,39 @@ function buildGuidedImagePrompt(req: ImageGenRequest): string {
       'STYLE: Gen-Z brand energy. Saturated, slightly chaotic, unapologetic. Screenshot-worthy.',
     ],
   };
-  const variants = styleVariants[req.style] || styleVariants.branded;
+  const allVariants = styleVariants[req.style] || styleVariants.branded;
+  // Bias variant selection by channel based on platform research:
+  //
+  //   TikTok  → raw UGC / lo-fi only. Precis 2025 playbook: UGC +55% ROI vs
+  //             non-UGC, unbranded UGC +19% over branded, no-logo creative
+  //             +81% ROI. Polished commercial style is actively harmful here.
+  //   IG / FB → editorial / lifestyle / cinematic with people in frame.
+  //             Hootsuite + Georgia Tech: faces +38% likes; Agorapulse: photos
+  //             beat graphics by +156% likes / +302% comments.
+  //
+  // Falls back to the full pool for unknown channels.
+  let variants = allVariants;
+  if (req.style === 'photorealistic') {
+    if (req.channel === 'tiktok') {
+      // Indices 5–7 are the UGC / lo-fi / POV variants.
+      variants = allVariants.slice(5);
+    } else if (req.channel === 'facebook' || req.channel === 'instagram') {
+      // Indices 0–4 are the editorial / lifestyle / cinematic variants.
+      variants = allVariants.slice(0, 5);
+    }
+  } else if (req.style === 'branded') {
+    if (req.channel === 'tiktok') {
+      // For TikTok the only acceptable "branded" looks are the indie / Gen-Z
+      // lo-fi entries (indices 2 and 4). Luxury and "modern brand campaign"
+      // read as commercials and lose to native content on the FYP.
+      variants = [allVariants[2], allVariants[4]].filter(Boolean);
+    } else if (req.channel === 'facebook') {
+      // Facebook rewards bold-typography product hero + lifestyle editorial.
+      // Indices 0 (premium lifestyle) and 1 (modern brand campaign) are the
+      // strongest fit for Meta feed creative.
+      variants = allVariants.slice(0, 2);
+    }
+  }
   sections.push(pick(variants));
 
   // Screenshots — phone mockups ONLY when user explicitly provides screenshots

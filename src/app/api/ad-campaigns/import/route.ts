@@ -158,7 +158,7 @@ export async function POST(req: Request) {
             startDate: c.startDate ? new Date(c.startDate).toISOString() : now,
             endDate: c.endDate ? new Date(c.endDate).toISOString() : null,
             targeting: { ageMin: 18, ageMax: 65, gender: 'all', locations: [], interests: [], languages: [], devices: 'all', placements: 'automatic', keywords: [] },
-            creative: { headline: '', primaryText: '', description: '', imageUrl: '', videoUrl: '', linkUrl: '', ctaType: '', additionalHeadlines: [], additionalDescriptions: [] },
+            creative: { headline: '', primaryText: '', description: '', imageUrl: '', imageUrls: [], videoUrl: '', linkUrl: '', ctaType: '', additionalHeadlines: [], additionalDescriptions: [] },
             externalCampaignId: c.externalCampaignId,
             ...(platform === 'meta' && { productId }),
             ...(platform === 'tiktok' && { productId }),
