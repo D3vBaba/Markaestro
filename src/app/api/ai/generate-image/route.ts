@@ -4,6 +4,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { generateImageSchema } from '@/lib/schemas';
 import { generateAndUploadImage, type ImageGenRequest } from '@/lib/ai/image-generator';
+import { interpretSceneIntent } from '@/lib/ai/image-scene-interpreter';
 import { researchForPipeline, buildImageResearchContext } from '@/lib/ai/pipeline-researcher';
 import { checkAndIncrementUsage } from '@/lib/usage';
 
@@ -65,6 +66,20 @@ export async function POST(req: Request) {
       }
     }
 
+    // Interpret the scene intent ONCE for the whole batch — every image in
+    // a single request is for the same product and post text, so they should
+    // share an intent. Saves N-1 LLM calls and prevents the parallel calls
+    // below from racing the in-memory cache.
+    const sceneIntent = input.promptMode === 'custom_override'
+      ? undefined
+      : (await interpretSceneIntent({
+          productName,
+          productDescription,
+          productCategories,
+          postText: input.prompt,
+          channel: input.channel,
+        })) || undefined;
+
     const genRequest = {
       prompt: input.prompt,
       promptMode: input.promptMode,
@@ -83,6 +98,7 @@ export async function POST(req: Request) {
       screenUrls: input.screenUrls,
       logoUrl,
       researchContext,
+      sceneIntent,
     } as const;
 
     // Run N generations in parallel. If some fail, return the successful ones

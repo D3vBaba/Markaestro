@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import type { BrandIdentity, BrandVoice, ImageStyle, ImageSubtype, ImageAspectRatio, ImageProvider, PromptMode, SocialChannel } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 import { assertSafeOutboundUrl, readResponseBufferWithLimit } from '@/lib/network-security';
+import { interpretSceneIntent, renderSceneIntent, type SceneIntent } from './image-scene-interpreter';
 
 export type ImageGenRequest = {
   prompt: string;
@@ -29,6 +30,15 @@ export type ImageGenRequest = {
   logoUrl?: string;
   /** Grounded market research context — informs visual scene and aesthetic direction */
   researchContext?: ImageResearchContext;
+  /**
+   * Pre-interpreted scene intent. When present, it becomes the spine of the
+   * prompt and the legacy keyword-routed category logic is bypassed entirely.
+   * Populated automatically inside `generateImage` for guided-mode requests
+   * via `interpretSceneIntent`. Callers can also pass it in explicitly to
+   * skip the LLM call (e.g. when reusing an intent across N images for the
+   * same post).
+   */
+  sceneIntent?: SceneIntent;
 };
 
 export type ImageResearchContext = {
@@ -529,9 +539,23 @@ function buildGuidedImagePrompt(req: ImageGenRequest): string {
   // Keep enough of the scene brief for detailed prompts while still bounding token growth.
   const postExcerpt = req.prompt.length > 900 ? req.prompt.slice(0, 900) + '...' : req.prompt;
 
-  // ── 1. CREATIVE DIRECTION — product identity + creative approach together ──
-  const subjectDirection = getProductSubjectDirection(categories, context, req.prompt, req.subtype);
-
+  // ── 1. CREATIVE DIRECTION ──
+  //
+  // Two paths:
+  //
+  // PRIMARY: We have a SceneIntent from the LLM interpreter. The intent has
+  // already done the hard work of figuring out what the product actually is,
+  // what should be in frame, and what would be wrong for THIS specific
+  // product. We render it as the spine of the prompt and only layer on
+  // technical/aesthetic direction (lighting, composition, palette, texture)
+  // — we do NOT pull from the keyword-routed CATEGORY pools because those
+  // over-fit (everything-becomes-fashion was the failure mode that killed
+  // the previous version).
+  //
+  // FALLBACK: The interpreter call failed or there's no usable context. We
+  // fall back to the legacy keyword-routed `getProductSubjectDirection`.
+  // It's degraded — but better than nothing — and we log fallback firings
+  // upstream so we can spot regressions.
   const researchLines: string[] = [];
   if (req.researchContext) {
     const rc = req.researchContext;
@@ -548,20 +572,63 @@ function buildGuidedImagePrompt(req: ImageGenRequest): string {
     }
   }
 
-  sections.push([
-    productIdentity,
-    'PRIMARY SCENE BRIEF (SOURCE OF TRUTH — EXECUTE THIS SCENE, NOT A GENERIC CATEGORY DEFAULT):',
-    postExcerpt,
-    '',
-    researchLines.length > 0 ? researchLines.join('\n') : '',
-    '',
-    'CREATIVE APPROACH (use this to make the image unique, but the product above MUST be the clear subject):',
-    subjectDirection,
-    '',
-    'IMPORTANT: The product must be recognizable and central to the image. The creative approach above is HOW to depict it — not a license to ignore it.',
-    'Do NOT replace the primary scene brief with a safer or more generic idea. If the brief implies fashion culture, aspiration, identity, nightlife, craftsmanship, or symbolic emotion, preserve that instead of collapsing to wardrobe organization or product catalog imagery.',
-    'A viewer should immediately understand what product world or category this image is about, even when the image is metaphorical or editorial.',
-  ].filter(Boolean).join('\n'));
+  if (req.sceneIntent) {
+    // PRIMARY PATH: interpreter-driven.
+    const lighting = pick(LIGHTING_OPTIONS);
+    const composition = pick(COMPOSITION_OPTIONS);
+    const palette = pick(COLOR_PALETTE_OPTIONS);
+    const texture = pick(TEXTURE_OPTIONS);
+
+    // If the user explicitly picked a subtype, honor it as a visual treatment
+    // — but the scene intent's primary subject still wins. The subtype
+    // controls HOW we depict the subject, not WHAT the subject is.
+    const subtypeLine = req.subtype && SUBTYPE_SCENES[req.subtype]
+      ? `VISUAL TREATMENT (${req.subtype.toUpperCase()}): ${SUBTYPE_SCENES[req.subtype]}`
+      : '';
+
+    sections.push([
+      productIdentity,
+      '',
+      renderSceneIntent(req.sceneIntent),
+      '',
+      subtypeLine,
+      subtypeLine ? '' : '',
+      'POST TEXT FROM THE MARKETER (additional context — supports the scene intent above, never overrides it):',
+      postExcerpt,
+      '',
+      researchLines.length > 0 ? researchLines.join('\n') : '',
+      researchLines.length > 0 ? '' : '',
+      `LIGHTING: ${lighting}`,
+      `COMPOSITION: ${composition}`,
+      `COLOR: ${palette}`,
+      `TEXTURE/MATERIALS: ${texture}`,
+      '',
+      'HARD RULES:',
+      '- The PRIMARY SUBJECT and REQUIRED ELEMENTS above are non-negotiable. If you cannot fit them, change the framing — do not drop them.',
+      '- Honor the AVOID list literally. Those items are wrong for this specific product.',
+      '- Do NOT default to fashion/nightlife/street style imagery unless the scene intent explicitly calls for it.',
+      '- This image must look NOTHING like a stock photo. Specific, surprising, emotionally resonant.',
+    ].filter(Boolean).join('\n'));
+  } else {
+    // FALLBACK PATH: keyword-routed. Used only when the interpreter is
+    // unavailable. Kept intentionally for resilience but should be rare.
+    const subjectDirection = getProductSubjectDirection(categories, context, req.prompt, req.subtype);
+
+    sections.push([
+      productIdentity,
+      'PRIMARY SCENE BRIEF (SOURCE OF TRUTH — EXECUTE THIS SCENE, NOT A GENERIC CATEGORY DEFAULT):',
+      postExcerpt,
+      '',
+      researchLines.length > 0 ? researchLines.join('\n') : '',
+      '',
+      'CREATIVE APPROACH (use this to make the image unique, but the product above MUST be the clear subject):',
+      subjectDirection,
+      '',
+      'IMPORTANT: The product must be recognizable and central to the image. The creative approach above is HOW to depict it — not a license to ignore it.',
+      'Do NOT replace the primary scene brief with a safer or more generic idea.',
+      'A viewer should immediately understand what product world or category this image is about, even when the image is metaphorical or editorial.',
+    ].filter(Boolean).join('\n'));
+  }
 
   // ── 2. STYLE — randomized per call to prevent repetition ──
   const styleVariants: Record<ImageStyle, string[]> = {
@@ -928,7 +995,28 @@ export async function uploadToFirebaseStorage(
  * Tries Gemini 3.1 Flash first, falls back to OpenAI DALL-E 3.
  */
 export async function generateImage(req: ImageGenRequest): Promise<{ base64: string; mimeType: string; provider: ImageProvider; revisedPrompt?: string }> {
-  const prompt = buildImagePrompt(req);
+  // Interpret the product + post context into a structured scene intent before
+  // building the prompt. The intent is what makes the generator actually
+  // understand what to depict — it's what stops "clothing app" from collapsing
+  // into generic nightlife imagery and what forces a person to actually be
+  // wearing the garment in a clothing image. Skipped for custom_override
+  // (the user is providing their own brief verbatim) and skipped if the
+  // caller already supplied an intent.
+  let reqWithIntent = req;
+  if (req.promptMode !== 'custom_override' && !req.sceneIntent) {
+    const intent = await interpretSceneIntent({
+      productName: req.productName,
+      productDescription: req.productDescription,
+      productCategories: req.productCategories,
+      postText: req.prompt || '',
+      channel: req.channel,
+    });
+    if (intent) {
+      reqWithIntent = { ...req, sceneIntent: intent };
+    }
+  }
+
+  const prompt = buildImagePrompt(reqWithIntent);
 
   // Fetch reference images (logo + screenshots) for Gemini multimodal input
   const referenceImages: { base64: string; mimeType: string }[] = [];

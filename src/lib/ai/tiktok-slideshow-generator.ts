@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import type { BrandIdentity, BrandVoice, ImageStyle } from '@/lib/schemas';
 import { generateAndUploadImage } from './image-generator';
+import { interpretSceneIntent } from './image-scene-interpreter';
 
 /**
  * TikTok story-slideshow generator ("Photo Mode" carousels).
@@ -184,6 +185,20 @@ export async function generateTikTokSlideshow(
 ): Promise<TikTokSlideshowResult> {
   const plan = await planSlideshow(req);
 
+  // Interpret the scene intent ONCE for the whole slideshow rather than
+  // letting each parallel slide generation race the in-memory cache. Every
+  // slide is for the same product so they should share an intent — and
+  // we save N-1 LLM calls.
+  const sharedIntent = await interpretSceneIntent({
+    productName: req.productName,
+    productDescription: req.productDescription,
+    productCategories: req.productCategories,
+    // Pull the hook line + first slide visual brief into the interpreter so
+    // it knows the carousel's overall narrative angle, not just the product.
+    postText: [plan.hookLine, plan.slides[0]?.visualPrompt || ''].filter(Boolean).join('\n'),
+    channel: 'tiktok',
+  });
+
   // Generate images for every slide in parallel. We force photorealistic + the
   // tiktok channel so the existing per-channel variant biasing in
   // image-generator.ts pulls from the raw UGC variant pool (indices 5–7).
@@ -203,6 +218,11 @@ export async function generateTikTokSlideshow(
           style: photorealistic,
           aspectRatio: '9:16',
           provider: 'gemini',
+          // Share the interpreted intent across all slides so they tell a
+          // coherent visual story and we only pay for one interpreter call.
+          // If the interpreter failed (null) we just don't pass it — each
+          // slide will fall back to the legacy keyword path independently.
+          ...(sharedIntent ? { sceneIntent: sharedIntent } : {}),
         },
         workspaceId,
       ),
