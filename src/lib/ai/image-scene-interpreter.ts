@@ -85,6 +85,13 @@ export type SceneIntentRequest = {
   /** The post text / caption / scene brief the user provided. */
   postText: string;
   channel?: SocialChannel;
+  /**
+   * True when the caller has real product screenshots that will be composited
+   * into the image. When false, the interpreter must NOT request phone/app UI
+   * in frame — image models hallucinate fake UI text and we'd rather show the
+   * human outcome the product enables instead.
+   */
+  hasScreenshots?: boolean;
 };
 
 // ── Cache ────────────────────────────────────────────────────────────
@@ -103,6 +110,7 @@ function cacheKey(req: SceneIntentRequest): string {
     c: (req.productCategories || []).join(','),
     p: req.postText.slice(0, 600),
     ch: req.channel || '',
+    s: req.hasScreenshots ? 1 : 0,
   });
   return crypto.createHash('sha1').update(material).digest('hex');
 }
@@ -125,7 +133,9 @@ Hard rules — these are non-negotiable:
 3. If a person belongs in the frame, say exactly who they are (age range, what they're doing, what they're wearing if relevant) and what they're interacting with. Don't say "a person" — say "a woman in her 30s sketching in a notebook at a coffee shop window".
 4. The setting must be a specific, plausible real place — not "modern lifestyle setting" or "aspirational environment".
 5. The "avoid" list must be tailored to THIS product. Generic "no stock photos" is useless. Say what would be specifically wrong: "no nightclub neon for this meditation app", "no business suits for this streetwear brand".
-6. requiredElements are HARD requirements — only list what truly cannot be missing. For clothing: a person actually wearing the garment. For an app: the app UI visible somewhere in the frame OR a clear depiction of the activity it enables.
+6. requiredElements are HARD requirements — only list what truly cannot be missing, and cap at 2 items. For clothing: a person actually wearing the garment. For an app: a clear depiction of the human activity / outcome the app enables. NEVER request "phone with app UI", "app interface visible", "screen showing the app", brand names, logos, on-screen text, or any readable typography in the frame — image models hallucinate that as garbled fake glyphs. Real screenshots, when available, are composited separately by the renderer and you must not ask for them.
+7. NEVER include readable text, words, brand names, app names, UI labels, captions, or typography in the requiredElements or primarySubject. Image models cannot spell.
+8. NEVER ask for "smartphone in hand showing X" or anything that requires depicting a screen.
 
 Return JSON only.`;
 
@@ -142,6 +152,10 @@ async function callInterpreter(req: SceneIntentRequest): Promise<SceneIntent> {
       {
         role: 'user',
         content: `Plan an image for this product on ${req.channel || 'social media'}.
+
+Screen rendering policy: ${req.hasScreenshots
+  ? 'The marketer attached real product screenshots. You MAY require a phone in frame so the renderer can composite the real screenshot onto it. Still do not invent UI text or app names — the renderer pastes the real screenshot.'
+  : 'NO screenshots are available. You MUST NOT request any phone screen, app interface, UI, or on-screen content in the frame. Depict the human activity / outcome the product enables instead. Any device, if present, must have its screen off or out of view.'}
 
 Product name: ${req.productName || '(not provided)'}
 Product description: ${req.productDescription || '(not provided)'}

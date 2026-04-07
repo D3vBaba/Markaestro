@@ -713,9 +713,11 @@ function buildGuidedImagePrompt(req: ImageGenRequest): string {
   if (hasScreenshots) {
     const count = req.screenUrls!.length;
     sections.push([
-      `APP SHOWCASE: Display the ${count} provided screenshot(s) on ${count === 1 ? 'a modern smartphone' : `${count} modern smartphones`}.`,
-      'Show the provided screenshots EXACTLY as-is on the phone screens. Do NOT redraw or alter them.',
-      'Modern frameless phone design, thin bezels, subtle shadow. Background: complementary gradient.',
+      `APP SHOWCASE — REFERENCE IMAGES ATTACHED: ${count} real product screenshot(s) are attached to this request as input images.`,
+      `MANDATORY: Composite the attached screenshot(s) verbatim onto ${count === 1 ? 'a smartphone screen' : `${count} smartphone screens`} in the scene. Pixel-faithful. Do NOT redraw, recreate, restyle, translate, or "improve" them. Do NOT invent app UI of your own.`,
+      'If you cannot place the exact attached screenshot, do not show a phone screen at all — leave the device off, turned away, or out of frame. A blank/off screen is acceptable. A hallucinated UI is NOT.',
+      'Absolutely NO invented app names, logos, buttons, labels, navigation bars, headers, or any text on the screen other than what is in the attached image.',
+      'Modern frameless phone, thin bezels, subtle shadow. Background: complementary gradient.',
     ].join('\n'));
   }
 
@@ -748,8 +750,14 @@ function buildGuidedImagePrompt(req: ImageGenRequest): string {
 
   if (!hasScreenshots) {
     hardConstraints.push(
-      'CRITICAL: Do NOT show phone screens, laptop screens, device mockups, or any UI/UX screenshots. No screens of any kind.',
+      'CRITICAL: No phone screens, laptop screens, tablet screens, device mockups, or any visible UI of any kind. No app interfaces, no buttons, no nav bars, no app names, no on-screen text. If a phone or device must appear, its screen MUST be off, turned away, or obscured. Inventing UI is forbidden — no screenshot was provided to copy from.',
       'Do NOT show generic tech imagery: circuit boards, holographic UIs, abstract network nodes, code editors.',
+      'No readable text, no logos, no brand names, no typography anywhere in the frame. No fused fingers or malformed hands.',
+    );
+  } else {
+    hardConstraints.push(
+      'The ONLY on-screen content allowed is the attached reference screenshot(s), composited unchanged.',
+      'No fused fingers or malformed hands.',
     );
   }
 
@@ -1010,6 +1018,7 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
       productCategories: req.productCategories,
       postText: req.prompt || '',
       channel: req.channel,
+      hasScreenshots: !!req.screenUrls?.length,
     });
     if (intent) {
       reqWithIntent = { ...req, sceneIntent: intent };

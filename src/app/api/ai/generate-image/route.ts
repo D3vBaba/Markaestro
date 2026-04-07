@@ -78,6 +78,7 @@ export async function POST(req: Request) {
           productCategories,
           postText: input.prompt,
           channel: input.channel,
+          hasScreenshots: !!input.screenUrls?.length,
         })) || undefined;
 
     const genRequest = {
