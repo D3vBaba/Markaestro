@@ -74,6 +74,29 @@ function redirectWithParams(
   return NextResponse.redirect(redirectUrl.toString());
 }
 
+function buildRelativeUrl(
+  appUrl: string,
+  pathOrRelativeUrl: string,
+  params: Record<string, string>,
+) {
+  const redirectUrl = new URL(pathOrRelativeUrl, appUrl);
+  for (const [key, value] of Object.entries(params)) {
+    redirectUrl.searchParams.set(key, value);
+  }
+
+  return `${redirectUrl.pathname}${redirectUrl.search}${redirectUrl.hash}`;
+}
+
+function redirectThroughBridge(
+  appUrl: string,
+  pathOrRelativeUrl: string,
+  params: Record<string, string>,
+) {
+  return redirectWithParams(appUrl, '/oauth/complete', {
+    next: buildRelativeUrl(appUrl, pathOrRelativeUrl, params),
+  });
+}
+
 export async function GET(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const { provider } = await params;
@@ -90,7 +113,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     if (errorParam) {
       const desc = url.searchParams.get('error_description') || errorParam;
       const appUrl = getAppUrl();
-      return redirectWithParams(appUrl, '/settings', {
+      return redirectThroughBridge(appUrl, '/settings', {
         oauth: 'error',
         provider,
         message: desc,
@@ -228,7 +251,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
 
     const appUrl = getAppUrl();
     if (productId) {
-      return redirectWithParams(appUrl, '/products', {
+      return redirectThroughBridge(appUrl, '/products', {
         oauth: 'success',
         provider,
         productId,
@@ -238,7 +261,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const successBase = returnTo
       ? sanitizeAppReturnTo(returnTo, appUrl) ?? '/settings'
       : '/settings';
-    return redirectWithParams(appUrl, successBase, {
+    return redirectThroughBridge(appUrl, successBase, {
       oauth: 'success',
       provider,
     });
@@ -249,7 +272,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const providerParam = (await params).provider;
     // For social providers the error state doesn't carry productId (it was in the state doc),
     // so redirect to settings as a safe fallback
-    return redirectWithParams(appUrl, '/settings', {
+    return redirectThroughBridge(appUrl, '/settings', {
       oauth: 'error',
       provider: providerParam,
       message: msg,

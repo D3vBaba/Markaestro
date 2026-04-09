@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { verifySessionCookieAsync } from '@/lib/session-cookie';
 
 /** Routes that don't require authentication. */
-const PUBLIC_PATHS = ['/login', '/terms', '/privacy', '/contact', '/features', '/channels', '/ai-studio', '/pricing', '/developers/api', '/api/health', '/onboarding', '/onboarding/success'];
+const PUBLIC_PATHS = ['/login', '/terms', '/privacy', '/contact', '/features', '/channels', '/ai-studio', '/pricing', '/developers/api', '/api/health', '/onboarding', '/onboarding/success', '/oauth/complete'];
 
 /** Prefixes that are always public (static assets, auth callbacks). */
 const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding'];
@@ -23,7 +23,7 @@ export default async function proxy(req: NextRequest) {
     if (!cookie || !(await verifySessionCookieAsync(cookie))) {
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = '/login';
-      loginUrl.searchParams.set('next', pathname);
+      loginUrl.searchParams.set('next', `${pathname}${req.nextUrl.search}`);
       return NextResponse.redirect(loginUrl);
     }
   }
