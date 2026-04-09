@@ -20,7 +20,7 @@ import ScanProgressStepper from "@/components/app/ScanProgressStepper";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { useProductScan } from "@/hooks/useProductScan";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
-import { getCurrentInAppBrowserName } from "@/lib/in-app-browser";
+import { getCurrentInAppBrowserName, isCurrentBrowserMobile } from "@/lib/in-app-browser";
 import { toast } from "sonner";
 
 type BrandVoice = {
@@ -543,6 +543,11 @@ export default function ProductsPage() {
         toast.error(
           `Instagram linking does not complete inside the ${inAppBrowser} in-app browser. Open Markaestro in Safari or Chrome and try again.`,
         );
+        return;
+      }
+
+      if (isCurrentBrowserMobile()) {
+        toast.error("Instagram direct login only works on desktop. Open Markaestro on a computer to connect.");
         return;
       }
     }

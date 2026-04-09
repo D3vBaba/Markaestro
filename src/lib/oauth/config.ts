@@ -33,9 +33,7 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     extraAuthParams: {},
   },
   instagram: {
-    // Use the API host for OAuth so mobile browsers don't hand the URL off
-    // to the Instagram app, which treats /oauth/authorize like a missing profile.
-    authUrl: 'https://api.instagram.com/oauth/authorize',
+    authUrl: 'https://www.instagram.com/oauth/authorize',
     tokenUrl: 'https://api.instagram.com/oauth/access_token',
     scopes: [
       'instagram_business_basic',

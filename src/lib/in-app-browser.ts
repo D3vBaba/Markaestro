@@ -26,3 +26,15 @@ export function getCurrentInAppBrowserName(): string | null {
 
   return getInAppBrowserName(window.navigator.userAgent || '');
 }
+
+export function isMobileUserAgent(userAgent: string): boolean {
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(userAgent);
+}
+
+export function isCurrentBrowserMobile(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return isMobileUserAgent(window.navigator.userAgent || '');
+}
