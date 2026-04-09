@@ -19,6 +19,10 @@ type RequirePublicApiContextOptions = {
   rateLimit?: RateLimitConfig;
 };
 
+const impliedScopeGrants: Partial<Record<PublicApiScope, PublicApiScope[]>> = {
+  'products.read': ['posts.write', 'posts.publish'],
+};
+
 function getBearerToken(req: Request): string | null {
   const auth = req.headers.get('authorization') || '';
   const [scheme, token] = auth.split(' ');
@@ -32,6 +36,15 @@ function headersFromResult(result: Awaited<ReturnType<typeof checkRateLimit>>) {
     'X-RateLimit-Remaining': String(result.remaining),
     'X-RateLimit-Reset': String(Math.ceil(result.resetAt / 1000)),
   };
+}
+
+export function hasPublicApiScope(
+  grantedScopes: readonly PublicApiScope[],
+  requiredScope: PublicApiScope,
+): boolean {
+  if (grantedScopes.includes(requiredScope)) return true;
+  const impliedBy = impliedScopeGrants[requiredScope] || [];
+  return impliedBy.some((scope) => grantedScopes.includes(scope));
 }
 
 export async function requirePublicApiContext(
@@ -60,7 +73,7 @@ export async function requirePublicApiContext(
   }
 
   const scopes = (data.scopes || []) as PublicApiScope[];
-  if (options.scope && !scopes.includes(options.scope)) {
+  if (options.scope && !hasPublicApiScope(scopes, options.scope)) {
     throw new Error('FORBIDDEN');
   }
 
