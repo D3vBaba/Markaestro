@@ -56,6 +56,10 @@ env:
     value: https://markaestro.com/api/oauth/callback/tiktok_ads
     availability:
       - RUNTIME
+  - variable: INSTAGRAM_OAUTH_REDIRECT_URI
+    value: https://markaestro.com/api/oauth/callback/instagram
+    availability:
+      - RUNTIME
 
   # Stripe — price IDs are public identifiers (same as .env.local)
   - variable: STRIPE_PRICE_STARTER_MONTHLY
