@@ -20,6 +20,7 @@ import ScanProgressStepper from "@/components/app/ScanProgressStepper";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { useProductScan } from "@/hooks/useProductScan";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
+import { getCurrentInAppBrowserName } from "@/lib/in-app-browser";
 import { toast } from "sonner";
 
 type BrandVoice = {
@@ -536,6 +537,16 @@ export default function ProductsPage() {
     productIntegrations.find((i) => i.provider === provider);
 
   function startOAuth(provider: string, productId: string) {
+    if (provider === "instagram") {
+      const inAppBrowser = getCurrentInAppBrowserName();
+      if (inAppBrowser) {
+        toast.error(
+          `Instagram linking does not complete inside the ${inAppBrowser} in-app browser. Open Markaestro in Safari or Chrome and try again.`,
+        );
+        return;
+      }
+    }
+
     const qs = new URLSearchParams({ workspaceId: "default" });
     if (productId) qs.set("productId", productId);
     window.location.href = `/api/oauth/authorize/${provider}?${qs.toString()}`;
