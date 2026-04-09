@@ -122,6 +122,10 @@ env:
     secret: META_APP_ID
   - variable: META_APP_SECRET
     secret: META_APP_SECRET
+  - variable: INSTAGRAM_APP_ID
+    secret: INSTAGRAM_APP_ID
+  - variable: INSTAGRAM_APP_SECRET
+    secret: INSTAGRAM_APP_SECRET
   - variable: GOOGLE_CLIENT_ID
     secret: GOOGLE_CLIENT_ID
   - variable: GOOGLE_CLIENT_SECRET
