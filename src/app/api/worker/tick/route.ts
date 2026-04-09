@@ -7,6 +7,8 @@ import { pollPendingVideoGenerations } from '@/lib/ai/video-poll-worker';
 import { safeCompare } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getAllDocs, getAllMatchingDocs } from '@/lib/firestore-pagination';
+import { processQueuedPublicPublishRuns } from '@/lib/public-api/publish-runs';
+import { processPendingWebhookDeliveries } from '@/lib/public-api/webhook-delivery';
 
 export async function POST(req: Request) {
   try {
@@ -69,6 +71,8 @@ export async function POST(req: Request) {
       recovered: number;
     }> = [];
     const postErrors: Array<{ workspaceId: string; postId?: string; error: string }> = [];
+    const publicPublishResults: Array<{ workspaceId: string; runId: string; status: string }> = [];
+    const webhookResults: Array<{ workspaceId: string; deliveryId: string; status: string }> = [];
 
     for (const ws of wsDocs) {
       const workspaceId = ws.id;
@@ -99,6 +103,34 @@ export async function POST(req: Request) {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown scheduled post processing error';
+        postErrors.push({ workspaceId, error: message });
+      }
+
+      try {
+        const publishRunResults = await processQueuedPublicPublishRuns(workspaceId);
+        publishRunResults.forEach((result) => {
+          publicPublishResults.push({
+            workspaceId,
+            runId: result.runId,
+            status: result.status,
+          });
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown public publish processing error';
+        postErrors.push({ workspaceId, error: message });
+      }
+
+      try {
+        const deliveries = await processPendingWebhookDeliveries(workspaceId);
+        deliveries.forEach((delivery) => {
+          webhookResults.push({
+            workspaceId,
+            deliveryId: delivery.deliveryId,
+            status: delivery.status,
+          });
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown webhook delivery error';
         postErrors.push({ workspaceId, error: message });
       }
 
@@ -155,6 +187,8 @@ export async function POST(req: Request) {
         pending: tiktokPublishPollResult.pending,
         errors: tiktokPublishPollResult.errors,
       },
+      publicPublishRuns: publicPublishResults,
+      webhookDeliveries: webhookResults,
     });
   } catch (error) {
     return apiError(error);

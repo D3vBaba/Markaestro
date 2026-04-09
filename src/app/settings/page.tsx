@@ -9,9 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import PageHeader from "@/components/app/PageHeader";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
-import { apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
+import { apiDelete, apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
@@ -22,6 +26,7 @@ import { cn } from "@/lib/utils";
 import {
   User, Shield, Zap, Link2, Users, Building2, CreditCard,
   Pencil, Check, X, Loader2, KeyRound, Mail, BarChart3,
+  Copy, Webhook, BookOpen, ExternalLink, Trash2,
 } from "lucide-react";
 
 type IntegrationInfo = {
@@ -46,12 +51,100 @@ type Member = {
 
 type UsageMetric = { current: number; limit: number };
 
+type ApiClientInfo = {
+  id: string;
+  name: string;
+  scopes: string[];
+  status: 'active' | 'revoked';
+  keyPrefix: string;
+  createdAt: string;
+  lastUsedAt?: string | null;
+};
+
+type ApiClientTrendPoint = {
+  date: string;
+  label: string;
+  requests: number;
+  queued: number;
+  succeeded: number;
+  exportedForReview: number;
+  failed: number;
+};
+
+type ApiClientAnalytics = ApiClientInfo & {
+  usage: {
+    totalRequests: number;
+    currentMonth: string;
+    currentMonthCounts: Record<string, number>;
+  };
+  trend: ApiClientTrendPoint[];
+};
+
+type ApiAnalyticsTotals = {
+  totalRequests: number;
+  currentMonthRequests: number;
+  publishQueued: number;
+  publishSucceeded: number;
+  publishExportedForReview: number;
+  publishFailed: number;
+};
+
+function formatMonthKey(monthKey: string) {
+  const [year, month] = monthKey.split('-').map(Number);
+  if (!year || !month) return monthKey;
+  return new Date(year, month - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+function ApiTrendBars({ points }: { points: ApiClientTrendPoint[] }) {
+  const max = Math.max(...points.map((point) => point.requests), 1);
+
+  return (
+    <div className="flex h-10 items-end gap-1">
+      {points.map((point) => (
+        <div key={point.date} className="flex-1">
+          <div
+            className="w-full rounded-t-sm bg-primary/60 transition-all"
+            style={{ height: `${Math.max((point.requests / max) * 100, point.requests > 0 ? 10 : 2)}%` }}
+            title={`${point.label}: ${point.requests} requests`}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+type WebhookEndpointInfo = {
+  id: string;
+  url: string;
+  events: string[];
+  status: 'active' | 'disabled';
+  createdAt: string;
+  updatedAt?: string;
+};
+
+const API_SCOPE_OPTIONS = [
+  { id: 'media.write', label: 'Upload media' },
+  { id: 'posts.read', label: 'Read posts' },
+  { id: 'posts.write', label: 'Create posts' },
+  { id: 'posts.publish', label: 'Publish posts' },
+  { id: 'job_runs.read', label: 'Read publish runs' },
+  { id: 'webhooks.manage', label: 'Manage webhooks' },
+] as const;
+
+const WEBHOOK_EVENT_OPTIONS = [
+  { id: 'post.publish.queued', label: 'Post queued' },
+  { id: 'post.published', label: 'Meta publish completed' },
+  { id: 'post.exported_for_review', label: 'TikTok draft exported' },
+  { id: 'post.failed', label: 'Post failed' },
+] as const;
+
 const TABS = [
   { id: 'account', label: 'Account', icon: User },
   { id: 'usage', label: 'Usage', icon: BarChart3 },
   { id: 'integrations', label: 'Integrations', icon: Link2 },
   { id: 'team', label: 'Team', icon: Users },
   { id: 'workspaces', label: 'Workspaces', icon: Building2 },
+  { id: 'api', label: 'API Access', icon: KeyRound },
   { id: 'billing', label: 'Billing', icon: CreditCard },
 ] as const;
 type Tab = typeof TABS[number]['id'];
@@ -82,6 +175,7 @@ function SettingsPageContent() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
+              data-tab={tab.id}
               className={cn(
                 "flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap",
                 activeTab === tab.id
@@ -101,6 +195,7 @@ function SettingsPageContent() {
       {activeTab === 'integrations' && <IntegrationsTab />}
       {activeTab === 'team' && <TeamTab />}
       {activeTab === 'workspaces' && <WorkspacesTab />}
+      {activeTab === 'api' && <ApiAccessTab />}
       {activeTab === 'billing' && <BillingTab />}
     </AppShell>
   );
@@ -996,6 +1091,603 @@ function WorkspacesTab() {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+/* ─── API Access Tab ───────────────────────────────────────────────────── */
+
+function ApiAccessTab() {
+  const { current: workspace } = useWorkspace();
+  const wsId = workspace?.id ?? 'default';
+  const canManage = workspace?.role === 'owner' || workspace?.role === 'admin';
+
+  const [apiClients, setApiClients] = useState<ApiClientInfo[]>([]);
+  const [apiClientAnalytics, setApiClientAnalytics] = useState<ApiClientAnalytics[]>([]);
+  const [analyticsTotals, setAnalyticsTotals] = useState<ApiAnalyticsTotals>({
+    totalRequests: 0,
+    currentMonthRequests: 0,
+    publishQueued: 0,
+    publishSucceeded: 0,
+    publishExportedForReview: 0,
+    publishFailed: 0,
+  });
+  const [webhookEndpoints, setWebhookEndpoints] = useState<WebhookEndpointInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [createKeyOpen, setCreateKeyOpen] = useState(false);
+  const [createWebhookOpen, setCreateWebhookOpen] = useState(false);
+
+  const [clientName, setClientName] = useState('');
+  const [selectedScopes, setSelectedScopes] = useState<string[]>(['media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
+  const [creatingClient, setCreatingClient] = useState(false);
+  const [createdApiKey, setCreatedApiKey] = useState<string | null>(null);
+
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [selectedEvents, setSelectedEvents] = useState<string[]>(['post.published', 'post.exported_for_review', 'post.failed']);
+  const [creatingWebhook, setCreatingWebhook] = useState(false);
+  const [createdWebhookSecret, setCreatedWebhookSecret] = useState<string | null>(null);
+
+  const [revokingClient, setRevokingClient] = useState<string | null>(null);
+  const [disablingWebhook, setDisablingWebhook] = useState<string | null>(null);
+
+  const fetchApiAccess = useCallback(async () => {
+    if (!canManage) {
+      setApiClients([]);
+      setWebhookEndpoints([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const [clientsRes, webhooksRes, analyticsRes] = await Promise.all([
+        apiGet<{ apiClients: ApiClientInfo[] }>('/api/settings/api-clients', wsId),
+        apiGet<{ webhookEndpoints: WebhookEndpointInfo[] }>('/api/settings/webhook-endpoints', wsId),
+        apiGet<{ clients: ApiClientAnalytics[]; totals: ApiAnalyticsTotals }>('/api/settings/api-clients/analytics', wsId),
+      ]);
+
+      if (clientsRes.ok) setApiClients(clientsRes.data.apiClients || []);
+      if (webhooksRes.ok) setWebhookEndpoints(webhooksRes.data.webhookEndpoints || []);
+      if (analyticsRes.ok) {
+        setApiClientAnalytics(analyticsRes.data.clients || []);
+        setAnalyticsTotals(analyticsRes.data.totals || {
+          totalRequests: 0,
+          currentMonthRequests: 0,
+          publishQueued: 0,
+          publishSucceeded: 0,
+          publishExportedForReview: 0,
+          publishFailed: 0,
+        });
+      }
+    } catch {
+      toast.error('Failed to load API access settings');
+    } finally {
+      setLoading(false);
+    }
+  }, [canManage, wsId]);
+
+  useEffect(() => {
+    fetchApiAccess();
+  }, [fetchApiAccess]);
+
+  async function copyText(value: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(`${label} copied`);
+    } catch {
+      toast.error(`Failed to copy ${label.toLowerCase()}`);
+    }
+  }
+
+  function toggleSelection(list: string[], value: string, checked: boolean) {
+    return checked
+      ? Array.from(new Set([...list, value]))
+      : list.filter((item) => item !== value);
+  }
+
+  async function createClient() {
+    if (!clientName.trim() || selectedScopes.length === 0) return;
+    setCreatingClient(true);
+    try {
+      const res = await apiPost<{ apiClient: ApiClientInfo; apiKey: string }>(
+        '/api/settings/api-clients',
+        { name: clientName.trim(), scopes: selectedScopes },
+        wsId,
+      );
+      if (!res.ok) {
+        toast.error('Failed to create API key');
+        return;
+      }
+
+      setCreatedApiKey(res.data.apiKey);
+      setClientName('');
+      setSelectedScopes(['media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
+      setCreateKeyOpen(false);
+      await fetchApiAccess();
+    } catch {
+      toast.error('Failed to create API key');
+    } finally {
+      setCreatingClient(false);
+    }
+  }
+
+  async function revokeClient(id: string) {
+    setRevokingClient(id);
+    try {
+      const res = await apiDelete(`/api/settings/api-clients/${id}`, undefined, wsId);
+      if (res.ok) {
+        toast.success('API key revoked');
+        await fetchApiAccess();
+      } else {
+        toast.error('Failed to revoke API key');
+      }
+    } catch {
+      toast.error('Failed to revoke API key');
+    } finally {
+      setRevokingClient(null);
+    }
+  }
+
+  async function createWebhook() {
+    if (!webhookUrl.trim() || selectedEvents.length === 0) return;
+    setCreatingWebhook(true);
+    try {
+      const res = await apiPost<{ webhookEndpoint: WebhookEndpointInfo & { secret: string } }>(
+        '/api/settings/webhook-endpoints',
+        { url: webhookUrl.trim(), events: selectedEvents },
+        wsId,
+      );
+      if (!res.ok) {
+        toast.error('Failed to create webhook endpoint');
+        return;
+      }
+
+      setCreatedWebhookSecret(res.data.webhookEndpoint.secret);
+      setWebhookUrl('');
+      setSelectedEvents(['post.published', 'post.exported_for_review', 'post.failed']);
+      setCreateWebhookOpen(false);
+      await fetchApiAccess();
+    } catch {
+      toast.error('Failed to create webhook endpoint');
+    } finally {
+      setCreatingWebhook(false);
+    }
+  }
+
+  async function disableWebhook(id: string) {
+    setDisablingWebhook(id);
+    try {
+      const res = await apiDelete(`/api/settings/webhook-endpoints/${id}`, undefined, wsId);
+      if (res.ok) {
+        toast.success('Webhook endpoint disabled');
+        await fetchApiAccess();
+      } else {
+        toast.error('Failed to disable webhook endpoint');
+      }
+    } catch {
+      toast.error('Failed to disable webhook endpoint');
+    } finally {
+      setDisablingWebhook(null);
+    }
+  }
+
+  if (!canManage) {
+    return (
+      <div className="grid gap-5">
+        <Card className="border-border/30">
+          <CardHeader>
+            <CardTitle>API Access</CardTitle>
+            <CardDescription>Only workspace owners and admins can manage API keys and webhook endpoints.</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-5">
+      <Card className="border-border/30">
+        <CardHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <KeyRound className="h-4 w-4" />
+                Public API
+              </CardTitle>
+              <CardDescription>
+                Manage workspace API keys, webhook destinations, and publishing behavior for Meta and TikTok.
+              </CardDescription>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <a href="/developers/api" target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm">
+                  <BookOpen className="mr-1.5 h-3.5 w-3.5" />
+                  View docs
+                </Button>
+              </a>
+              <Button size="sm" onClick={() => setCreateKeyOpen(true)}>
+                Create API key
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 lg:grid-cols-3">
+            <div className="rounded-xl border p-4">
+              <p className="text-sm font-medium">Image posts only</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Public API v1 supports Facebook, Instagram, and TikTok image posts. TikTok videos stay excluded for now.
+              </p>
+            </div>
+            <div className="rounded-xl border p-4">
+              <p className="text-sm font-medium">10 image cap</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Every channel is capped at 10 images per post to keep validation and platform behavior predictable.
+              </p>
+            </div>
+            <div className="rounded-xl border p-4">
+              <p className="text-sm font-medium">TikTok review flow</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                TikTok exports to the user’s draft/edit flow. Meta publishes directly.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-xl border p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Requests this month</p>
+              <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.currentMonthRequests.toLocaleString()}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{formatMonthKey(apiClientAnalytics[0]?.usage.currentMonth || new Date().toISOString().slice(0, 7))}</p>
+            </div>
+            <div className="rounded-xl border p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Queued publishes</p>
+              <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.publishQueued.toLocaleString()}</p>
+              <p className="mt-1 text-xs text-muted-foreground">All keys in this workspace</p>
+            </div>
+            <div className="rounded-xl border p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Completed outcomes</p>
+              <p className="mt-2 text-2xl font-semibold tabular-nums">
+                {(analyticsTotals.publishSucceeded + analyticsTotals.publishExportedForReview).toLocaleString()}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {analyticsTotals.publishSucceeded.toLocaleString()} direct publish · {analyticsTotals.publishExportedForReview.toLocaleString()} TikTok review exports
+              </p>
+            </div>
+            <div className="rounded-xl border p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Failures</p>
+              <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.publishFailed.toLocaleString()}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Tracked at publish-run completion</p>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="py-10 flex items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <>
+              <div className="rounded-xl border">
+                <div className="flex items-center justify-between border-b px-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium">API keys</p>
+                    <p className="text-xs text-muted-foreground">Create a key per integration, scope it down to the minimum needed access, and watch live request and publish behavior per key.</p>
+                  </div>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Usage</TableHead>
+                      <TableHead>Publish outcomes</TableHead>
+                      <TableHead>Scopes</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Last used</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {apiClientAnalytics.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="py-6 text-center text-muted-foreground">
+                          No API keys yet.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      apiClientAnalytics.map((client) => (
+                        <TableRow key={client.id}>
+                          <TableCell className="min-w-[220px]">
+                            <div className="space-y-2">
+                              <p className="font-medium">{client.name}</p>
+                              <p className="text-xs text-muted-foreground">{client.keyPrefix}…</p>
+                              <ApiTrendBars points={client.trend} />
+                              <p className="text-[11px] text-muted-foreground">Last 14 days request trend</p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="min-w-[180px]">
+                            <div className="space-y-1 text-xs text-muted-foreground">
+                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.request || 0).toLocaleString()}</span> requests this month</p>
+                              <p><span className="font-medium text-foreground tabular-nums">{client.usage.totalRequests.toLocaleString()}</span> total requests</p>
+                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.media_upload || 0).toLocaleString()}</span> uploads · <span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.post_create || 0).toLocaleString()}</span> posts created</p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="min-w-[200px]">
+                            <div className="space-y-1 text-xs text-muted-foreground">
+                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString()}</span> queued</p>
+                              <p><span className="font-medium text-emerald-700 tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString()}</span> direct publish</p>
+                              <p><span className="font-medium text-primary tabular-nums">{(client.usage.currentMonthCounts.publish_exported_for_review || 0).toLocaleString()}</span> TikTok review exports</p>
+                              <p><span className="font-medium text-rose-600 tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString()}</span> failed</p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-[320px] whitespace-normal">
+                            <div className="flex flex-wrap gap-1.5">
+                              {client.scopes.map((scope) => (
+                                <Badge key={scope} variant="outline" className="font-normal">{scope}</Badge>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={client.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-0' : 'bg-muted text-muted-foreground border-0'}>
+                              {client.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {client.lastUsedAt ? new Date(client.lastUsedAt).toLocaleString() : 'Never'}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-rose-600 hover:text-rose-700"
+                              onClick={() => revokeClient(client.id)}
+                              disabled={client.status !== 'active' || revokingClient === client.id}
+                            >
+                              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                              {revokingClient === client.id ? 'Revoking…' : 'Revoke'}
+                            </Button>
+                          </TableCell>
+                      </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div className="rounded-xl border">
+                <div className="flex items-center justify-between border-b px-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium">Webhook endpoints</p>
+                    <p className="text-xs text-muted-foreground">Receive delivery events when publishes queue, complete, export for TikTok review, or fail. These are signed and retried from the worker.</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setCreateWebhookOpen(true)}>
+                    <Webhook className="mr-1.5 h-3.5 w-3.5" />
+                    Add webhook
+                  </Button>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Endpoint</TableHead>
+                      <TableHead>Events</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {webhookEndpoints.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="py-6 text-center text-muted-foreground">
+                          No webhook endpoints yet.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      webhookEndpoints.map((endpoint) => (
+                        <TableRow key={endpoint.id}>
+                          <TableCell className="max-w-[320px] whitespace-normal">
+                            <div className="flex items-start gap-2">
+                              <div className="min-w-0">
+                                <p className="font-medium break-all">{endpoint.url}</p>
+                                <p className="text-xs text-muted-foreground">Created {new Date(endpoint.createdAt).toLocaleString()}</p>
+                              </div>
+                              <button
+                                className="text-muted-foreground hover:text-foreground transition-colors"
+                                onClick={() => copyText(endpoint.url, 'Webhook URL')}
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-[320px] whitespace-normal">
+                            <div className="flex flex-wrap gap-1.5">
+                              {endpoint.events.map((eventName) => (
+                                <Badge key={eventName} variant="outline" className="font-normal">{eventName}</Badge>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={endpoint.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-0' : 'bg-muted text-muted-foreground border-0'}>
+                              {endpoint.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-rose-600 hover:text-rose-700"
+                              onClick={() => disableWebhook(endpoint.id)}
+                              disabled={endpoint.status !== 'active' || disablingWebhook === endpoint.id}
+                            >
+                              {disablingWebhook === endpoint.id ? 'Disabling…' : 'Disable'}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="border-border/30">
+        <CardHeader>
+          <CardTitle>Operational notes</CardTitle>
+          <CardDescription>Behavior that external integrators should expect from the v1 publishing API.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border p-4">
+            <p className="text-sm font-medium">Rate limiting</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Markaestro enforces API-key rate limits plus destination-level throttling so one integration cannot overload a workspace or platform account.
+            </p>
+          </div>
+          <div className="rounded-xl border p-4">
+            <p className="text-sm font-medium">Webhook secrets are one-time visible</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Store the returned webhook secret immediately. It is hashed at rest and not shown again.
+            </p>
+          </div>
+          <div className="rounded-xl border p-4">
+            <p className="text-sm font-medium">Async publish runs</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Every publish returns a queued run. Poll the run endpoint or subscribe to webhooks instead of assuming immediate delivery.
+            </p>
+          </div>
+          <div className="rounded-xl border p-4">
+            <p className="text-sm font-medium">TikTok drafts need user completion</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              TikTok image posts export into the creator review flow, so final publish still happens inside TikTok.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={createKeyOpen} onOpenChange={setCreateKeyOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create API key</DialogTitle>
+            <DialogDescription>
+              Create a scoped key for a single integration. Keep scopes narrow and rotate per workflow.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="api-client-name">Key name</Label>
+              <Input id="api-client-name" placeholder="Zapier production" value={clientName} onChange={(e) => setClientName(e.target.value)} />
+            </div>
+            <div className="space-y-3">
+              <Label>Scopes</Label>
+              <div className="grid gap-2 rounded-xl border p-3">
+                {API_SCOPE_OPTIONS.map((scope) => (
+                  <Label key={scope.id} className="justify-start">
+                    <Checkbox
+                      checked={selectedScopes.includes(scope.id)}
+                      onCheckedChange={(checked) => setSelectedScopes((current) => toggleSelection(current, scope.id, checked === true))}
+                    />
+                    <span>{scope.label}</span>
+                    <span className="text-xs text-muted-foreground">{scope.id}</span>
+                  </Label>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateKeyOpen(false)}>Cancel</Button>
+            <Button onClick={createClient} disabled={creatingClient || !clientName.trim() || selectedScopes.length === 0}>
+              {creatingClient ? 'Creating…' : 'Create key'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={createWebhookOpen} onOpenChange={setCreateWebhookOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add webhook endpoint</DialogTitle>
+            <DialogDescription>
+              Markaestro signs every delivery. Use a dedicated endpoint and verify the signature before processing events.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="webhook-url">Destination URL</Label>
+              <Input id="webhook-url" placeholder="https://example.com/markaestro/webhook" value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} />
+            </div>
+            <div className="space-y-3">
+              <Label>Events</Label>
+              <div className="grid gap-2 rounded-xl border p-3">
+                {WEBHOOK_EVENT_OPTIONS.map((eventName) => (
+                  <Label key={eventName.id} className="justify-start">
+                    <Checkbox
+                      checked={selectedEvents.includes(eventName.id)}
+                      onCheckedChange={(checked) => setSelectedEvents((current) => toggleSelection(current, eventName.id, checked === true))}
+                    />
+                    <span>{eventName.label}</span>
+                    <span className="text-xs text-muted-foreground">{eventName.id}</span>
+                  </Label>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateWebhookOpen(false)}>Cancel</Button>
+            <Button onClick={createWebhook} disabled={creatingWebhook || !webhookUrl.trim() || selectedEvents.length === 0}>
+              {creatingWebhook ? 'Creating…' : 'Add webhook'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!createdApiKey} onOpenChange={(open) => { if (!open) setCreatedApiKey(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>API key created</DialogTitle>
+            <DialogDescription>
+              This secret is shown once. Copy it now and store it securely.
+            </DialogDescription>
+          </DialogHeader>
+              <div className="rounded-xl border bg-muted/30 p-3">
+            <code className="break-all text-xs">{createdApiKey}</code>
+          </div>
+          <a href="/developers/api" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
+            Review the integration guide before distributing this key
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreatedApiKey(null)}>Close</Button>
+            <Button onClick={() => createdApiKey && copyText(createdApiKey, 'API key')}>
+              <Copy className="mr-1.5 h-3.5 w-3.5" />
+              Copy key
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!createdWebhookSecret} onOpenChange={(open) => { if (!open) setCreatedWebhookSecret(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Webhook secret created</DialogTitle>
+            <DialogDescription>
+              This webhook signing secret is only shown once. Save it before you close this dialog.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-xl border bg-muted/30 p-3">
+            <code className="break-all text-xs">{createdWebhookSecret}</code>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Markaestro sends `X-Markaestro-Event`, `X-Markaestro-Timestamp`, and `X-Markaestro-Signature` headers on every delivery.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreatedWebhookSecret(null)}>Close</Button>
+            <Button onClick={() => createdWebhookSecret && copyText(createdWebhookSecret, 'Webhook secret')}>
+              <Copy className="mr-1.5 h-3.5 w-3.5" />
+              Copy secret
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

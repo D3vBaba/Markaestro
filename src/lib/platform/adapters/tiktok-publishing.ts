@@ -83,7 +83,7 @@ export async function fetchTikTokPublishStatus(
 async function waitForTikTokPublishResult(
   accessToken: string,
   publishId: string,
-): Promise<{ success: boolean; pending?: boolean; error?: string }> {
+): Promise<{ success: boolean; pending?: boolean; reviewRequired?: boolean; error?: string }> {
   for (let attempt = 0; attempt < TIKTOK_PUBLISH_POLL_ATTEMPTS; attempt++) {
     const statusResult = await fetchTikTokPublishStatus(accessToken, publishId);
     if (statusResult.error) {
@@ -92,6 +92,10 @@ async function waitForTikTokPublishResult(
 
     if (statusResult.status === 'PUBLISH_COMPLETE') {
       return { success: true };
+    }
+
+    if (statusResult.status === 'SEND_TO_USER_INBOX') {
+      return { success: true, reviewRequired: true };
     }
 
     if (statusResult.status === 'FAILED') {
@@ -254,7 +258,7 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
           photo_cover_index: 0,
           photo_images: proxyUrls,
         },
-        post_mode: 'DIRECT_POST',
+        post_mode: request.deliveryMode === 'user_review' ? 'MEDIA_UPLOAD' : 'DIRECT_POST',
         media_type: 'PHOTO',
       };
 
@@ -286,7 +290,9 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
       return {
         success: !publishResult.pending,
         pending: publishResult.pending,
+        reviewRequired: publishResult.reviewRequired,
         externalId: publishId,
+        nextAction: publishResult.reviewRequired ? 'open_tiktok_inbox_and_complete_editing' : undefined,
       };
     } catch (e) {
       return {

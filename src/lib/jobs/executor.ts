@@ -49,6 +49,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
               content: post.content,
               channel: post.channel,
               mediaUrls: post.mediaUrls,
+              deliveryMode: post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
             });
             const successfulChannels = result.channels.filter((c) => c.success);
             if (result.pending) {
@@ -60,6 +61,16 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
                 updatedAt: new Date().toISOString(),
               });
               message = `Post is still processing on ${post.channel}`;
+            } else if (result.reviewRequired) {
+              await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
+                status: 'exported_for_review',
+                externalId: result.externalId || '',
+                externalUrl: result.externalUrl || '',
+                publishResults: result.channels,
+                nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing',
+                updatedAt: new Date().toISOString(),
+              });
+              message = `Post exported to ${post.channel} for manual review`;
             } else if (result.success) {
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
                 status: 'published',

@@ -39,6 +39,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         content: post.content,
         channel: post.channel,
         mediaUrls: post.mediaUrls,
+        deliveryMode: post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
       });
     } catch (publishError) {
       // Unexpected exception — revert so post doesn't stay stuck in 'publishing'
@@ -72,21 +73,25 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     if (result.success) {
+      const nextStatus = result.reviewRequired ? 'exported_for_review' : 'published';
       await ref.update({
-        status: 'published',
+        status: nextStatus,
         externalId: result.externalId || '',
         externalUrl: result.externalUrl || '',
         publishResults: result.channels,
         publishedChannels: successfulChannels.map((c) => c.channel),
-        publishedAt: new Date().toISOString(),
+        ...(result.reviewRequired
+          ? { nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing', exportedForReviewAt: new Date().toISOString() }
+          : { publishedAt: new Date().toISOString() }),
         updatedAt: new Date().toISOString(),
       });
       return apiOk({
         ok: true,
         id,
-        status: 'published',
+        status: nextStatus,
         externalId: result.externalId,
         externalUrl: result.externalUrl,
+        nextAction: result.nextAction,
         channels: result.channels,
       });
     } else {

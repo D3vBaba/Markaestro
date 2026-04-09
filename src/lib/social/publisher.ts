@@ -4,6 +4,7 @@ import { getAdapterForChannel } from '@/lib/platform/registry';
 import { getConnectionForChannel } from '@/lib/platform/connections';
 import type { PublishRequest, PublishResult } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
+import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 
 export type { PublishRequest, PublishResult };
 
@@ -17,8 +18,10 @@ export type ChannelPublishResult = {
   channel: SocialChannel;
   success: boolean;
   pending?: boolean;
+  reviewRequired?: boolean;
   externalId?: string;
   externalUrl?: string;
+  nextAction?: string;
   error?: string;
 };
 
@@ -27,12 +30,14 @@ export type MultiChannelPublishResult = {
   success: boolean;
   /** True when one or more channels are still processing asynchronously */
   pending?: boolean;
+  reviewRequired?: boolean;
   /** Results for each channel that was attempted */
   channels: ChannelPublishResult[];
   /** Primary channel external ID (for backwards compat) */
   externalId?: string;
   /** Primary channel external URL (for backwards compat) */
   externalUrl?: string;
+  nextAction?: string;
   /** Error message if the publish did not complete successfully */
   error?: string;
 };
@@ -55,11 +60,12 @@ export type ScheduledPostsProcessResult = {
   claimed: number;
   processed: number;
   published: number;
+  exportedForReview: number;
   pending: number;
   retried: number;
   failed: number;
   recovered: number;
-  results: Array<{ postId: string; outcome: 'published' | 'pending' | 'retried' | 'failed' | 'recovered'; error?: string }>;
+  results: Array<{ postId: string; outcome: 'published' | 'exported_for_review' | 'pending' | 'retried' | 'failed' | 'recovered'; error?: string }>;
   errors: Array<{ postId: string; error: string }>;
 };
 
@@ -171,9 +177,11 @@ function aggregateChannelResults(
   return {
     success: allSucceeded,
     pending: anyPending || undefined,
+    reviewRequired: primaryResult?.reviewRequired || undefined,
     channels: channelResults,
     externalId: primaryResult?.externalId,
     externalUrl: primaryResult?.externalUrl,
+    nextAction: primaryResult?.nextAction,
     error: !allSucceeded && !anyPending ? firstFailure?.error || 'One or more channels failed to publish' : undefined,
   };
 }
@@ -247,7 +255,7 @@ async function finalizeSuccessfulPublish(
   workspaceId: string,
   claimed: ClaimedScheduledPost,
   result: MultiChannelPublishResult,
-): Promise<'published' | 'pending'> {
+): Promise<'published' | 'pending' | 'exported_for_review'> {
   const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
   const nowIso = new Date().toISOString();
 
@@ -262,6 +270,35 @@ async function finalizeSuccessfulPublish(
       updatedAt: nowIso,
     });
     return 'pending';
+  }
+
+  if (result.reviewRequired) {
+    await ref.update({
+      status: 'exported_for_review',
+      externalId: result.externalId || '',
+      externalUrl: result.externalUrl || '',
+      publishResults: result.channels,
+      nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing',
+      exportedForReviewAt: nowIso,
+      publishFinishedAt: nowIso,
+      publishLeaseExpiresAt: null,
+      errorMessage: '',
+      lastErrorCode: '',
+      lastErrorCategory: '',
+      nextRetryAt: null,
+      updatedAt: nowIso,
+    });
+    if (claimed.post.createdByType === 'api_client') {
+      await enqueueWebhookEvent(workspaceId, 'post.exported_for_review', {
+        postId: claimed.postId,
+        channel: claimed.post.channel,
+        status: 'exported_for_review',
+        externalId: result.externalId || '',
+        externalUrl: result.externalUrl || '',
+        nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing',
+      });
+    }
+    return 'exported_for_review';
   }
 
   await ref.update({
@@ -279,6 +316,15 @@ async function finalizeSuccessfulPublish(
     nextRetryAt: null,
     updatedAt: nowIso,
   });
+  if (claimed.post.createdByType === 'api_client') {
+    await enqueueWebhookEvent(workspaceId, 'post.published', {
+      postId: claimed.postId,
+      channel: claimed.post.channel,
+      status: 'published',
+      externalId: result.externalId || '',
+      externalUrl: result.externalUrl || '',
+    });
+  }
   return 'published';
 }
 
@@ -325,6 +371,14 @@ async function finalizeFailedPublish(
     publishLeaseExpiresAt: null,
     updatedAt: nowIso,
   });
+  if (claimed.post.createdByType === 'api_client') {
+    await enqueueWebhookEvent(workspaceId, 'post.failed', {
+      postId: claimed.postId,
+      channel: claimed.post.channel,
+      status: 'failed',
+      error: message,
+    });
+  }
   return 'failed';
 }
 
@@ -410,8 +464,10 @@ export async function publishPostMultiChannel(
       channel,
       success: result.success,
       ...(result.pending != null && { pending: result.pending }),
+      ...(result.reviewRequired != null && { reviewRequired: result.reviewRequired }),
       ...(result.externalId != null && { externalId: result.externalId }),
       ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
+      ...(result.nextAction != null && { nextAction: result.nextAction }),
       ...(result.error != null && { error: result.error }),
     });
   }
@@ -475,6 +531,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
     claimed: claimedPosts.length,
     processed: 0,
     published: 0,
+    exportedForReview: 0,
     pending: 0,
     retried: 0,
     failed: 0,
@@ -506,8 +563,10 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
             channel,
             success: channelResult.success,
             ...(channelResult.pending != null && { pending: channelResult.pending }),
+            ...(channelResult.reviewRequired != null && { reviewRequired: channelResult.reviewRequired }),
             ...(channelResult.externalId != null && { externalId: channelResult.externalId }),
             ...(channelResult.externalUrl != null && { externalUrl: channelResult.externalUrl }),
+            ...(channelResult.nextAction != null && { nextAction: channelResult.nextAction }),
             ...(channelResult.error != null && { error: channelResult.error }),
           });
         }
@@ -521,6 +580,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
           content: String(claimed.post.content || ''),
           channel: String(claimed.post.channel) as SocialChannel,
           mediaUrls: asStringArray(claimed.post.mediaUrls),
+          deliveryMode: claimed.post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
         });
       }
 
@@ -531,6 +591,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
       summary.processed++;
       summary.results.push({ postId: claimed.postId, outcome, error: result.error });
       if (outcome === 'published') summary.published++;
+      if (outcome === 'exported_for_review') summary.exportedForReview++;
       if (outcome === 'pending') summary.pending++;
       if (outcome === 'retried') summary.retried++;
       if (outcome === 'failed') summary.failed++;

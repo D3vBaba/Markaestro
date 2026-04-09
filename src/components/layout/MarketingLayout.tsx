@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/features", label: "Features" },
   { href: "/channels", label: "Channels" },
   { href: "/ai-studio", label: "AI Studio" },
+  { href: "/developers/api", label: "API" },
   { href: "/pricing", label: "Pricing" },
   { href: "/contact", label: "Contact" },
 ];

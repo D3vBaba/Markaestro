@@ -1,4 +1,5 @@
 import type { SocialChannel } from '@/lib/schemas';
+import type { PublicDeliveryMode } from '@/lib/public-api/scopes';
 
 // ── Capabilities ────────────────────────────────────────────────────
 
@@ -57,13 +58,16 @@ export type PublishRequest = {
   content: string;
   channel: SocialChannel;
   mediaUrls?: string[];
+  deliveryMode?: PublicDeliveryMode;
 };
 
 export type PublishResult = {
   success: boolean;
   pending?: boolean;
+  reviewRequired?: boolean;
   externalId?: string;
   externalUrl?: string;
+  nextAction?: string;
   error?: string;
 };
 
