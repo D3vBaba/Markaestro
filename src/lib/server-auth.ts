@@ -1,6 +1,7 @@
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { createHash } from 'node:crypto';
 import { DEFAULT_WORKSPACE_ID, getWorkspaceId, isValidWorkspaceId } from '@/lib/workspace';
+import { verifySessionCookieAsync } from '@/lib/session-cookie';
 import type { WorkspaceRole } from '@/lib/schemas';
 
 export type RequestContext = {
@@ -20,6 +21,26 @@ function getBearerToken(req: Request): string | null {
   const [scheme, token] = auth.split(' ');
   if (scheme?.toLowerCase() !== 'bearer' || !token) return null;
   return token;
+}
+
+function getSessionCookie(req: Request): string | null {
+  const cookieHeader = req.headers.get('cookie') || '';
+  if (!cookieHeader) return null;
+
+  for (const part of cookieHeader.split(';')) {
+    const [name, ...valueParts] = part.trim().split('=');
+    if (name === '__session') {
+      const value = valueParts.join('=').trim();
+      return value || null;
+    }
+  }
+
+  return null;
+}
+
+function getUidFromSessionCookie(cookie: string): string | null {
+  const [uid] = cookie.split('.');
+  return uid || null;
 }
 
 function personalWorkspaceId(uid: string): string {
@@ -137,25 +158,46 @@ async function acceptPendingInvites(uid: string, email?: string): Promise<void> 
 
 export async function requireContext(req: Request): Promise<RequestContext> {
   const token = getBearerToken(req);
-  if (!token) throw new Error('UNAUTHENTICATED');
+  const sessionCookie = getSessionCookie(req);
 
-  let decoded: Awaited<ReturnType<typeof adminAuth.verifyIdToken>>;
-  try {
-    decoded = await adminAuth.verifyIdToken(token);
-  } catch (error) {
-    const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
-    if (
-      message.includes('id token') ||
-      message.includes('jwt') ||
-      message.includes('token') ||
-      message.includes('credential')
-    ) {
+  let uid: string;
+  let email: string | undefined;
+
+  if (token) {
+    let decoded: Awaited<ReturnType<typeof adminAuth.verifyIdToken>>;
+    try {
+      decoded = await adminAuth.verifyIdToken(token);
+    } catch (error) {
+      const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+      if (
+        message.includes('id token') ||
+        message.includes('jwt') ||
+        message.includes('token') ||
+        message.includes('credential')
+      ) {
+        throw new Error('UNAUTHENTICATED');
+      }
+      throw error;
+    }
+
+    uid = decoded.uid;
+    email = normalizeEmail(decoded.email) || undefined;
+  } else if (sessionCookie && await verifySessionCookieAsync(sessionCookie)) {
+    const sessionUid = getUidFromSessionCookie(sessionCookie);
+    if (!sessionUid) {
       throw new Error('UNAUTHENTICATED');
     }
-    throw error;
+
+    uid = sessionUid;
+    try {
+      const userRecord = await adminAuth.getUser(uid);
+      email = normalizeEmail(userRecord.email) || undefined;
+    } catch {
+      throw new Error('UNAUTHENTICATED');
+    }
+  } else {
+    throw new Error('UNAUTHENTICATED');
   }
-  const uid = decoded.uid;
-  const email = normalizeEmail(decoded.email) || undefined;
 
   try {
     await acceptPendingInvites(uid, email);
