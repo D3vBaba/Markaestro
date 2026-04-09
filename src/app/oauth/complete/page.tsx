@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 
@@ -12,7 +12,7 @@ function getSafeNextPath(nextParam: string | null): string {
   return nextParam.startsWith("/oauth/complete") ? "/settings" : nextParam;
 }
 
-export default function OAuthCompletePage() {
+function OAuthCompleteContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -30,6 +30,12 @@ export default function OAuthCompletePage() {
   }, [loading, nextPath, router, user]);
 
   return (
+    <OAuthCompleteFallback />
+  );
+}
+
+function OAuthCompleteFallback() {
+  return (
     <div className="min-h-screen grid place-items-center bg-background px-6">
       <div className="flex flex-col items-center gap-4 text-center">
         <div className="h-8 w-8 rounded-lg bg-primary animate-pulse" />
@@ -41,5 +47,13 @@ export default function OAuthCompletePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OAuthCompletePage() {
+  return (
+    <Suspense fallback={<OAuthCompleteFallback />}>
+      <OAuthCompleteContent />
+    </Suspense>
   );
 }
