@@ -3,6 +3,7 @@ import type { SocialChannel } from '@/lib/schemas';
 import type { PublicApiContext } from './auth';
 import { resolveMediaAssetUrls } from './media';
 import type { PublicDeliveryMode } from './scopes';
+import { resolvePublicPostProductId } from './products';
 
 type CreatePublicPostInput = {
   channel: SocialChannel;
@@ -46,6 +47,7 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
   validatePublicPostInput(input);
 
   const mediaAssets = await resolveMediaAssetUrls(ctx.workspaceId, input.mediaAssetIds);
+  const resolvedProductId = await resolvePublicPostProductId(ctx.workspaceId, input.channel, input.productId);
   const now = new Date().toISOString();
   const ref = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`).doc();
   const status = input.scheduledAt ? 'scheduled' : 'draft';
@@ -56,7 +58,7 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
     scheduledAt: input.scheduledAt || null,
     mediaUrls: mediaAssets.map((asset) => asset.url),
     mediaAssetIds: input.mediaAssetIds,
-    productId: input.productId || '',
+    productId: resolvedProductId || '',
     deliveryMode: getDeliveryModeForChannel(input.channel),
     createdByType: ctx.principalType,
     createdById: ctx.clientId,
@@ -84,6 +86,7 @@ export function serializePublicPost(post: Record<string, unknown>) {
     channel: post.channel,
     status: post.status,
     caption: post.content || '',
+    productId: post.productId || '',
     mediaAssetIds: Array.isArray(post.mediaAssetIds) ? post.mediaAssetIds : [],
     mediaUrls: Array.isArray(post.mediaUrls) ? post.mediaUrls : [],
     scheduledAt: post.scheduledAt ?? null,

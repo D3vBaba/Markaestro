@@ -123,6 +123,7 @@ type WebhookEndpointInfo = {
 };
 
 const API_SCOPE_OPTIONS = [
+  { id: 'products.read', label: 'Read products' },
   { id: 'media.write', label: 'Upload media' },
   { id: 'posts.read', label: 'Read posts' },
   { id: 'posts.write', label: 'Create posts' },
@@ -1119,7 +1120,7 @@ function ApiAccessTab() {
   const [createWebhookOpen, setCreateWebhookOpen] = useState(false);
 
   const [clientName, setClientName] = useState('');
-  const [selectedScopes, setSelectedScopes] = useState<string[]>(['media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
+  const [selectedScopes, setSelectedScopes] = useState<string[]>(['products.read', 'media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
   const [creatingClient, setCreatingClient] = useState(false);
   const [createdApiKey, setCreatedApiKey] = useState<string | null>(null);
 
@@ -1202,7 +1203,7 @@ function ApiAccessTab() {
 
       setCreatedApiKey(res.data.apiKey);
       setClientName('');
-      setSelectedScopes(['media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
+      setSelectedScopes(['products.read', 'media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
       setCreateKeyOpen(false);
       await fetchApiAccess();
     } catch {

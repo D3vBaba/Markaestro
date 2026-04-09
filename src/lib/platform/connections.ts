@@ -69,6 +69,35 @@ export async function getMetaConnectionMerged(
   return null;
 }
 
+function hasReadyMetaDestination(connection: PlatformConnection | null, channel: SocialChannel): connection is PlatformConnection {
+  if (!connection || connection.status !== 'connected') return false;
+  if (channel === 'facebook') return Boolean(connection.metadata.pageId);
+  if (channel === 'instagram') return Boolean(connection.metadata.igAccountId);
+  return false;
+}
+
+async function getSoleProductScopedMetaConnectionMerged(
+  workspaceId: string,
+  channel: SocialChannel,
+): Promise<PlatformConnection | null> {
+  const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
+
+  let found: PlatformConnection | null = null;
+
+  for (const product of productDocs) {
+    const conn = await getMetaConnectionMerged(workspaceId, product.id);
+    if (!hasReadyMetaDestination(conn, channel)) continue;
+
+    if (found) {
+      return null;
+    }
+
+    found = conn;
+  }
+
+  return found;
+}
+
 /**
  * Find the connection that serves a given channel.
  * Checks product-level first, then falls back to workspace-level.
@@ -84,7 +113,12 @@ export async function getConnectionForChannel(
     // Meta uses merged workspace + product connection
     if (provider === 'meta') {
       const conn = await getMetaConnectionMerged(workspaceId, productId);
-      if (conn && conn.status === 'connected') return conn;
+      if (hasReadyMetaDestination(conn, channel)) return conn;
+
+      if (!productId) {
+        const soleConn = await getSoleProductScopedMetaConnectionMerged(workspaceId, channel);
+        if (soleConn) return soleConn;
+      }
       continue;
     }
     // Product-level takes priority

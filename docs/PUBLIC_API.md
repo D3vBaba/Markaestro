@@ -34,6 +34,8 @@ Manage API keys from:
 
 ## Main endpoints
 
+- `GET /api/public/v1/products`
+- `GET /api/public/v1/products/:id/destinations`
 - `POST /api/public/v1/media`
 - `POST /api/public/v1/posts`
 - `GET /api/public/v1/posts/:id`
@@ -47,7 +49,16 @@ Manage API keys from:
 
 Meta:
 - direct publish
+- if a selected Facebook Page has a linked Instagram business account, Markaestro fans the publish out to both Facebook and Instagram
 - post status becomes `published`
+
+Meta account selection:
+- Use `GET /api/public/v1/products` to discover product ids
+- Use `GET /api/public/v1/products/:id/destinations` to inspect linked Facebook, Instagram, and TikTok destinations for that product
+- Include `productId` when creating a post if your workspace has more than one eligible destination for the chosen channel
+- Facebook-only products work
+- Products with a Facebook Page linked to Instagram will publish to both channels
+- Standalone Instagram destinations are only usable if the workspace already has a Meta connection with an `igAccountId`; the current in-app Meta setup flow is page-first and derives Instagram from the linked Facebook Page
 
 TikTok:
 - exported to review flow using TikTok's media-upload mode
@@ -56,7 +67,21 @@ TikTok:
 
 ## Example flow
 
-1. Upload media
+1. List products
+
+```bash
+curl "$MARKAESTRO_URL/api/public/v1/products" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+```
+
+2. Inspect destinations
+
+```bash
+curl "$MARKAESTRO_URL/api/public/v1/products/prod_123/destinations" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+```
+
+3. Upload media
 
 ```bash
 curl -X POST "$MARKAESTRO_URL/api/public/v1/media" \
@@ -65,7 +90,7 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/media" \
   -F "file=@launch-1.jpg"
 ```
 
-2. Create post
+4. Create post
 
 ```bash
 curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \
@@ -75,11 +100,12 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \
   -d '{
     "channel": "instagram",
     "caption": "Launch day.",
-    "mediaAssetIds": ["ast_123", "ast_124"]
+    "mediaAssetIds": ["ast_123", "ast_124"],
+    "productId": "prod_123"
   }'
 ```
 
-3. Queue publish
+5. Queue publish
 
 ```bash
 curl -X POST "$MARKAESTRO_URL/api/public/v1/posts/pst_123/publish" \

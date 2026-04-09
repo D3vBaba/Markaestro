@@ -1,4 +1,5 @@
 export const publicApiScopes = [
+  'products.read',
   'media.write',
   'posts.read',
   'posts.write',

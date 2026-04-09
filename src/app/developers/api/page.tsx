@@ -7,6 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 const endpointGroups = [
   {
+    title: "Products and destinations",
+    description: "Discover the products and linked publish destinations available to the API key.",
+    endpoints: [
+      { method: "GET", path: "/api/public/v1/products", note: "Lists products plus the channels currently available for each one." },
+      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the linked pages/accounts for that product and whether Meta fan-out will also publish to the sibling linked channel." },
+    ],
+  },
+  {
     title: "Media",
     description: "Upload images to Markaestro-managed storage before creating posts.",
     endpoints: [
@@ -35,6 +43,10 @@ const endpointGroups = [
 ];
 
 const examples = {
+  listProducts: `curl "$MARKAESTRO_URL/api/public/v1/products" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"`,
+  listDestinations: `curl "$MARKAESTRO_URL/api/public/v1/products/prod_123/destinations" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"`,
   upload: `curl -X POST "$MARKAESTRO_URL/api/public/v1/media" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
   -H "Idempotency-Key: upload-001" \\
@@ -46,7 +58,8 @@ const examples = {
   -d '{
     "channel": "tiktok",
     "caption": "Launch day carousel",
-    "mediaAssetIds": ["ast_123", "ast_124", "ast_125"]
+    "mediaAssetIds": ["ast_123", "ast_124", "ast_125"],
+    "productId": "prod_123"
   }'`,
   publish: `curl -X POST "$MARKAESTRO_URL/api/public/v1/posts/pst_123/publish" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
@@ -145,7 +158,25 @@ export default function DevelopersApiPage() {
           <div className="mt-12 grid gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>1. Upload media</CardTitle>
+                <CardTitle>1. List products</CardTitle>
+                <CardDescription>Discover which products this API key can target.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.listProducts}</code></pre>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>2. Inspect destinations</CardTitle>
+                <CardDescription>See the linked pages and accounts for a product before creating the post.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.listDestinations}</code></pre>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>3. Upload media</CardTitle>
                 <CardDescription>Each post references previously uploaded image assets.</CardDescription>
               </CardHeader>
               <CardContent>
@@ -154,7 +185,7 @@ export default function DevelopersApiPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>2. Create a post</CardTitle>
+                <CardTitle>4. Create a post</CardTitle>
                 <CardDescription>Create a draft or scheduled post using those asset ids.</CardDescription>
               </CardHeader>
               <CardContent>
@@ -163,7 +194,7 @@ export default function DevelopersApiPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>3. Queue publish</CardTitle>
+                <CardTitle>5. Queue publish</CardTitle>
                 <CardDescription>Publishing always creates an async run, even if Meta completes quickly.</CardDescription>
               </CardHeader>
               <CardContent>

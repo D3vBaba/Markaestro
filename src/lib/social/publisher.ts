@@ -472,17 +472,7 @@ export async function publishPostMultiChannel(
     });
   }
 
-  // Preserve existing direct-publish semantics for the selected primary channel.
-  const primaryResult = results.find((result) => result.channel === request.channel) || results[0];
-
-  return {
-    success: Boolean(primaryResult?.success),
-    pending: primaryResult?.pending,
-    channels: results,
-    externalId: primaryResult?.externalId,
-    externalUrl: primaryResult?.externalUrl,
-    error: primaryResult?.success ? undefined : primaryResult?.error,
-  };
+  return aggregateChannelResults(results, request.channel);
 }
 
 export async function recoverStalePublishingPosts(workspaceId: string): Promise<{ recovered: number; failed: number; errors: Array<{ postId: string; error: string }> }> {
