@@ -39,7 +39,6 @@ export async function GET(req: Request) {
     return apiOk({
       usage: {
         aiGenerations: { current: usage.aiGenerations, limit: plan.limits.aiGenerations },
-        videoGenerations: { current: usage.videoGenerations, limit: plan.limits.videoGenerations },
         channels: { current: channelCount, limit: plan.limits.channels },
         teamMembers: {
           current: 0, // filled below

@@ -26,15 +26,6 @@ Meta (Facebook/Instagram):
   eCommerce ROAS → 2.0–4.0x (strong: >4x, poor: <1.5x)
   Creative fatigue threshold → frequency >3.0 in 7 days
 
-Google Ads (Search):
-  Traffic/Leads → CTR 3.0–7.0%,  CPC $1.00–5.00 (varies heavily by industry)
-  Conversions   → CTR 4.0–8.0%,  CPC $2.00–10.00,  Conversion rate 2–5%
-  Search ROAS   → 3.0–6.0x (strong: >6x, poor: <2x)
-  Quality Score target → 7+ (linked to CTR and ad relevance)
-
-Google Ads (Display):
-  Awareness/Engagement → CTR 0.1–0.5%,  CPM $1–5,  CPC $0.30–1.50
-
 TikTok Ads:
   Awareness     → CTR 1.0–3.0%,  CPM $5–15,    CPC $0.20–1.50
   Traffic       → CTR 1.0–3.0%,  CPC $0.20–1.50
@@ -199,7 +190,7 @@ Be specific. Reference actual numbers. Never invent benchmarks outside the refer
       messages: [
         {
           role: 'system',
-          content: 'You are an expert performance marketing analyst for Meta, Google Ads, and TikTok. You produce specific, data-grounded analysis — never vague advice. Always return valid JSON.',
+          content: 'You are an expert performance marketing analyst for Meta and TikTok. You produce specific, data-grounded analysis and never vague advice. Always return valid JSON.',
         },
         { role: 'user', content: prompt },
       ],

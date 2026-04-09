@@ -77,8 +77,6 @@ export async function loadSecretsToEnv(): Promise<void> {
     'META_APP_SECRET',
     'INSTAGRAM_APP_ID',
     'INSTAGRAM_APP_SECRET',
-    'GOOGLE_CLIENT_ID',
-    'GOOGLE_CLIENT_SECRET',
     'TIKTOK_CLIENT_KEY',
     'TIKTOK_CLIENT_SECRET',
     'TIKTOK_ADS_APP_ID',
@@ -87,9 +85,18 @@ export async function loadSecretsToEnv(): Promise<void> {
     'OPENAI_API_KEY',
     'SERPER_API_KEY',
     'GEMINI_API_KEY',
-    'GOOGLE_ADS_DEVELOPER_TOKEN',
     'FIREBASE_SERVICE_ACCOUNT_JSON',
-    'FAL_API_KEY',
+    // Stripe — API key + webhook signing secret are true secrets; price IDs
+    // are non-secret config but live here too so the whole Stripe env set is
+    // managed in one place and stays in sync with scripts/sync-stripe-prices.mjs.
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+    'STRIPE_PRICE_STARTER_MONTHLY',
+    'STRIPE_PRICE_STARTER_ANNUAL',
+    'STRIPE_PRICE_PRO_MONTHLY',
+    'STRIPE_PRICE_PRO_ANNUAL',
+    'STRIPE_PRICE_BUSINESS_MONTHLY',
+    'STRIPE_PRICE_BUSINESS_ANNUAL',
   ];
 
   await Promise.all(

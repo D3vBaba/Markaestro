@@ -13,8 +13,6 @@ function getClient() {
 const BENCHMARK_REFERENCE = `
 INDUSTRY BENCHMARKS (reference only — do not invent numbers outside these ranges):
 Meta:       avg CTR 0.9–3%, avg CPC $0.10–2.00, ROAS 2–4x. Frequency >3 = creative fatigue.
-Google Search: avg CTR 3–7%, avg CPC $1–5, ROAS 3–6x, Conversion rate 2–5%.
-Google Display: avg CTR 0.1–0.5%, avg CPC $0.30–1.50.
 TikTok:     avg CTR 1–3%, avg CPC $0.20–1.50, ROAS 1.5–3x. Video completion >50% = strong.
 `.trim();
 
@@ -190,7 +188,7 @@ Return this exact JSON:
   "underperformer": { "name": "<name>", "reason": "<specific metric evidence>", "fix": "<one concrete action>" } | null,
   "budgetAdvice": "<should they increase/decrease/reallocate — cite specific campaign data and ROAS if available>",
   "platformInsights": [
-    { "platform": "<meta|google|tiktok>", "verdict": "<strong|average|weak|unused>", "tip": "<one specific, actionable platform tip>" }
+    { "platform": "<meta|tiktok>", "verdict": "<strong|average|weak|unused>", "tip": "<one specific, actionable platform tip>" }
   ],
   "contentTips": ["<specific organic content recommendation based on engagement data>", ...],
   "nextSteps": ["<most impactful action 1>", "<most impactful action 2>", "<most impactful action 3>"]
@@ -207,7 +205,7 @@ Be specific. If data is thin, say so and focus on setup recommendations. Never f
       messages: [
         {
           role: 'system',
-          content: 'You are an expert marketing strategist who provides data-driven, specific recommendations for Meta, Google Ads, and TikTok. Always return valid JSON only.',
+          content: 'You are an expert marketing strategist who provides data-driven, specific recommendations for Meta and TikTok. Always return valid JSON only.',
         },
         { role: 'user', content: prompt },
       ],

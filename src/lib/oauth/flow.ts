@@ -345,11 +345,6 @@ export async function revokeAccessToken(
   try {
     if (provider === 'meta') {
       await fetch(`${config.revokeUrl}?access_token=${accessToken}`, { method: 'DELETE' });
-    } else if (provider === 'google') {
-      await fetch(`${config.revokeUrl}?token=${accessToken}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      });
     } else if (provider === 'tiktok' || provider === 'tiktok_ads') {
       const { clientId, clientSecret } = getClientCredentials(provider);
       await fetch(config.revokeUrl, {
@@ -438,11 +433,6 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
         capabilities: [PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_VIDEO],
       };
     case 'tiktok_ads':
-      return {
-        channels: [],
-        capabilities: [PlatformCapability.ADS],
-      };
-    case 'google':
       return {
         channels: [],
         capabilities: [PlatformCapability.ADS],

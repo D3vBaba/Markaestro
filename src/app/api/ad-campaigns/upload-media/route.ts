@@ -4,7 +4,7 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { uploadToStorage } from '@/lib/storage';
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB (Meta allows up to 30MB, Google up to 5MB, TikTok up to 10MB)
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB cap shared across supported ad platforms
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500 MB (TikTok up to 500MB, Meta up to 4GB)
 const ALLOWED_IMAGE_TYPES = new Set([
   'image/png', 'image/jpeg', 'image/webp', 'image/gif',

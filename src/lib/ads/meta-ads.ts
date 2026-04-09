@@ -1,5 +1,4 @@
-import type { AdCampaignDoc, AdPlatformResult, AdCampaignMetrics } from './types';
-import type { PlatformCampaignSummary } from './google-ads';
+import type { AdCampaignDoc, AdPlatformResult, AdCampaignMetrics, PlatformCampaignSummary } from './types';
 import type { AdCampaignObjective } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 

@@ -2,8 +2,6 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import AppShell from "@/components/layout/AppShell";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,7 +22,7 @@ import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { AdCampaignMetrics } from "@/lib/ads/types";
-import { FacebookAdPreview, GoogleAdPreview, TikTokAdPreview } from "@/components/app/PlatformPreview";
+import { FacebookAdPreview, TikTokAdPreview } from "@/components/app/PlatformPreview";
 import { FeatureGate } from "@/components/app/FeatureGate";
 
 // ── Types ────────────────────────────────────────────────────────────
@@ -32,7 +30,7 @@ import { FeatureGate } from "@/components/app/FeatureGate";
 type AdCampaign = {
   id: string;
   name: string;
-  platform: "meta" | "google" | "tiktok";
+  platform: "meta" | "tiktok";
   objective: string;
   status: string;
   dailyBudgetCents: number;
@@ -57,7 +55,6 @@ type AdCampaign = {
   };
   productId?: string;
   adAccountId?: string;
-  customerId?: string;
   metrics?: AdCampaignMetrics;
   externalCampaignId?: string;
   errorMessage?: string;
@@ -104,7 +101,7 @@ const statusColors: Record<string, string> = {
   ended: "text-muted-foreground",
   failed: "text-destructive",
 };
-const platformLabels: Record<string, string> = { meta: "Meta", google: "Google", tiktok: "TikTok" };
+const platformLabels: Record<string, string> = { meta: "Meta", tiktok: "TikTok" };
 const statusDotColors: Record<string, string> = {
   draft: "bg-zinc-300",
   pending: "bg-amber-400",
@@ -122,11 +119,6 @@ function effectiveStatus(c: AdCampaign): string {
   }
   return c.status;
 }
-const CTA_LABELS: Record<string, string> = {
-  LEARN_MORE: "Learn More", SHOP_NOW: "Shop Now", SIGN_UP: "Sign Up",
-  DOWNLOAD: "Download", GET_QUOTE: "Get Quote", CONTACT_US: "Contact Us",
-};
-
 const objectiveLabels: Record<string, string> = {
   awareness: "Awareness", traffic: "Traffic", engagement: "Engagement",
   leads: "Leads", conversions: "Conversions", app_installs: "App Installs",
@@ -135,14 +127,6 @@ const metaObjectiveOptions = [
   { value: "awareness", label: "Awareness" },
   { value: "traffic", label: "Traffic" },
   { value: "engagement", label: "Engagement" },
-] as const;
-const googleObjectiveOptions = [
-  { value: "awareness", label: "Awareness" },
-  { value: "traffic", label: "Traffic" },
-  { value: "engagement", label: "Engagement" },
-  { value: "leads", label: "Lead Generation" },
-  { value: "conversions", label: "Conversions" },
-  { value: "app_installs", label: "App Installs" },
 ] as const;
 const tiktokObjectiveOptions = [
   { value: "awareness", label: "Reach" },
@@ -153,13 +137,12 @@ const tiktokObjectiveOptions = [
   { value: "app_installs", label: "App Promotion" },
 ] as const;
 
-function getObjectiveOptions(platform: "meta" | "google" | "tiktok") {
+function getObjectiveOptions(platform: "meta" | "tiktok") {
   if (platform === "meta") return metaObjectiveOptions;
-  if (platform === "tiktok") return tiktokObjectiveOptions;
-  return googleObjectiveOptions;
+  return tiktokObjectiveOptions;
 }
 
-function normalizeObjectiveForPlatform(platform: "meta" | "google" | "tiktok", objective: string) {
+function normalizeObjectiveForPlatform(platform: "meta" | "tiktok", objective: string) {
   if (platform === "meta" && !metaObjectiveOptions.some((option) => option.value === objective)) {
     return "traffic";
   }
@@ -205,60 +188,7 @@ function ScoreRing({ score, size = 56 }: { score: number; size?: number }) {
 
 function CampaignCardPreview({ campaign }: { campaign: AdCampaign }) {
   const { platform, creative } = campaign;
-  const { imageUrl, videoUrl, headline, primaryText, description, linkUrl, ctaType } = creative;
-  const domain = linkUrl ? linkUrl.replace(/^https?:\/\//, "").split("/")[0] : null;
-  const ctaLabel = ctaType ? (CTA_LABELS[ctaType] || ctaType) : null;
-
-  if (platform === "google") {
-    return (
-      <div className="rounded-t-xl overflow-hidden border-b border-border/30 bg-white dark:bg-zinc-900">
-        <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 px-3 py-2">
-          <div className="flex gap-1 shrink-0">
-            <div className="w-2 h-2 rounded-full bg-red-400" />
-            <div className="w-2 h-2 rounded-full bg-amber-400" />
-            <div className="w-2 h-2 rounded-full bg-green-400" />
-          </div>
-          <div className="flex-1 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-full px-2 py-0.5 flex items-center gap-1">
-            <svg className="w-2.5 h-2.5 text-zinc-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-            </svg>
-            <span className="text-[10px] text-zinc-400 truncate">{headline || "your search query"}</span>
-          </div>
-        </div>
-        <div className="px-4 py-3">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <div className="w-3.5 h-3.5 rounded-sm bg-blue-500 shrink-0" />
-            <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{domain || "yoursite.com"}</span>
-            <span className="ml-auto shrink-0 text-[9px] border border-zinc-300 dark:border-zinc-600 text-zinc-400 px-1 py-px rounded font-medium uppercase tracking-wide">Ad</span>
-          </div>
-          {headline ? (
-            <p className="text-[14px] font-normal text-[#1a0dab] dark:text-[#8ab4f8] leading-snug mb-1">
-              {headline.length > 55 ? headline.slice(0, 55) + "…" : headline}
-            </p>
-          ) : (
-            <p className="text-[14px] text-zinc-300 dark:text-zinc-600 italic mb-1">Your headline here</p>
-          )}
-          {(primaryText || description) ? (
-            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug line-clamp-2">
-              {(primaryText || description || "").slice(0, 100)}
-            </p>
-          ) : (
-            <p className="text-[11px] text-zinc-300 dark:text-zinc-600 italic line-clamp-2">Ad description will appear here.</p>
-          )}
-          {ctaLabel && (
-            <button className="mt-2 px-3 py-0.5 text-[10px] font-medium rounded-full bg-[#1a73e8] text-white">{ctaLabel}</button>
-          )}
-          <div className="mt-2.5 grid grid-cols-2 gap-1 opacity-25 pointer-events-none">
-            {["Features", "Pricing", "About", "Contact"].map((l) => (
-              <div key={l} className="border border-zinc-200 dark:border-zinc-700 rounded p-1.5">
-                <p className="text-[9px] text-[#1a0dab] dark:text-[#8ab4f8]">{l}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const { imageUrl, videoUrl, headline, primaryText, description } = creative;
 
   if (platform === "tiktok") {
     return (
@@ -385,7 +315,6 @@ function MediaUploadZone({
 
   const specs: Record<string, Record<string, string>> = {
     meta: { image: "1200x628px recommended, JPG/PNG, max 10MB", video: "MP4, 1:1 or 4:5, max 500MB, 1-241s" },
-    google: { image: "1200x628px, JPG/PNG/GIF, max 10MB", video: "MP4/MOV, 16:9, max 500MB" },
     tiktok: { image: "1080x1080px recommended, JPG/PNG, max 10MB", video: "MP4, 9:16 vertical, max 500MB, 5-60s" },
   };
 
@@ -461,19 +390,6 @@ function AdPreview({ form }: { form: { platform: string; headline: string; prima
   const hasMedia = form.imageUrl || form.videoUrl;
   if (!form.headline && !form.primaryText && !hasMedia) return null;
 
-  if (form.platform === "google") {
-    return (
-      <GoogleAdPreview
-        platform="google"
-        headline={form.headline}
-        primaryText={form.primaryText}
-        description={form.description}
-        linkUrl={form.linkUrl}
-        ctaType={form.ctaType}
-      />
-    );
-  }
-
   if (form.platform === "tiktok") {
     return (
       <TikTokAdPreview
@@ -537,10 +453,10 @@ export default function AdsPage() {
   const [editAdAccounts, setEditAdAccounts] = useState<{ id: string; name: string }[]>([]);
   const [editLoadingAccounts, setEditLoadingAccounts] = useState(false);
   const [editForm, setEditForm] = useState({
-    name: "", platform: "meta" as "meta" | "google" | "tiktok",
+    name: "", platform: "meta" as "meta" | "tiktok",
     objective: "traffic", dailyBudgetCents: 1000,
     startDate: "", endDate: "", productId: "",
-    adAccountId: "", customerId: "", advertiserId: "",
+    adAccountId: "", advertiserId: "",
     ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "", keywords: "",
     headline: "", primaryText: "", description: "",
     imageUrl: "", videoUrl: "", linkUrl: "", ctaType: "",
@@ -552,16 +468,14 @@ export default function AdsPage() {
 
   const [importOpen, setImportOpen] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [importPlatform, setImportPlatform] = useState<"meta" | "google" | "tiktok">("google");
+  const [importPlatform, setImportPlatform] = useState<"meta" | "tiktok">("meta");
   const [importProductId, setImportProductId] = useState("");
   const [importResult, setImportResult] = useState<{ imported: number; skipped: number; failed: number } | null>(null);
-  const [createAdAccounts, setCreateAdAccounts] = useState<{ id: string; name: string }[]>([]);
-  const [createLoadingAccounts, setCreateLoadingAccounts] = useState(false);
   const [form, setForm] = useState({
-    name: "", platform: "meta" as "meta" | "google" | "tiktok",
+    name: "", platform: "meta" as "meta" | "tiktok",
     objective: "traffic", dailyBudgetCents: 1000,
     startDate: new Date().toISOString().split("T")[0], endDate: "", productId: "",
-    adAccountId: "", customerId: "", advertiserId: "",
+    adAccountId: "", advertiserId: "",
     ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "", keywords: "",
     headline: "", primaryText: "", description: "",
     imageUrl: "", videoUrl: "", linkUrl: "", ctaType: "",
@@ -588,12 +502,11 @@ export default function AdsPage() {
     setForm({
       name: "", platform: "meta", objective: "traffic", dailyBudgetCents: 1000,
       startDate: new Date().toISOString().split("T")[0], endDate: "", productId: "",
-      adAccountId: "", customerId: "", advertiserId: "",
+      adAccountId: "", advertiserId: "",
       ageMin: 18, ageMax: 65, gender: "all", locations: "", interests: "", keywords: "",
       headline: "", primaryText: "", description: "",
       imageUrl: "", videoUrl: "", linkUrl: "", ctaType: "",
     });
-    setCreateAdAccounts([]);
     setFormStep(0);
   };
 
@@ -690,6 +603,10 @@ export default function AdsPage() {
       toast.error("Meta ad campaigns must be tied to a product");
       return;
     }
+    if (form.platform === "tiktok" && !form.productId) {
+      toast.error("TikTok ad campaigns must be tied to a product");
+      return;
+    }
     if (form.platform === "meta" && !metaObjectiveOptions.some((option) => option.value === form.objective)) {
       toast.error("Meta currently supports awareness, traffic, and engagement only");
       return;
@@ -716,26 +633,18 @@ export default function AdsPage() {
         endDate: form.endDate ? new Date(form.endDate).toISOString() : null,
         productId: form.productId || undefined,
         // Platform-specific account IDs
-        ...(form.platform === "google" && form.customerId ? { customerId: form.customerId } : {}),
         ...(form.platform === "meta" && form.adAccountId ? { adAccountId: form.adAccountId } : {}),
         ...(form.platform === "tiktok" && form.advertiserId ? { adAccountId: form.advertiserId } : {}),
         targeting: {
           ageMin: form.ageMin, ageMax: form.ageMax, gender: form.gender,
           locations: form.locations ? form.locations.split(",").map((s) => s.trim()).filter(Boolean) : [],
-          // Interests: Meta and TikTok only
-          ...(form.platform !== "google" ? {
-            interests: form.interests ? form.interests.split(",").map((s) => s.trim()).filter(Boolean) : [],
-          } : {}),
-          // Keywords: Google Search only
-          ...(form.platform === "google" ? {
-            keywords: form.keywords ? form.keywords.split(",").map((s) => s.trim()).filter(Boolean) : [],
-          } : {}),
+          interests: form.interests ? form.interests.split(",").map((s) => s.trim()).filter(Boolean) : [],
+          keywords: form.keywords ? form.keywords.split(",").map((s) => s.trim()).filter(Boolean) : [],
         },
         creative: {
           headline: form.headline, primaryText: form.primaryText, description: form.description,
           imageUrl: form.imageUrl,
-          // Video: Meta and TikTok only
-          ...(form.platform !== "google" ? { videoUrl: form.videoUrl } : {}),
+          videoUrl: form.videoUrl,
           linkUrl: form.linkUrl, ctaType: form.ctaType,
         },
       });
@@ -787,7 +696,6 @@ export default function AdsPage() {
       endDate: c.endDate ? c.endDate.split("T")[0] : "",
       productId: c.productId || "",
       adAccountId: c.platform === "meta" ? (c.adAccountId || "") : "",
-      customerId: c.platform === "google" ? (c.customerId || "") : "",
       advertiserId: c.platform === "tiktok" ? (c.adAccountId || "") : "",
       ageMin: c.targeting?.ageMin ?? 18,
       ageMax: c.targeting?.ageMax ?? 65,
@@ -814,12 +722,6 @@ export default function AdsPage() {
           setEditAdAccounts(res.data.adAccounts || []);
           if (res.data.error) toast.error(`Meta: ${res.data.error}`);
         }
-      } else if (c.platform === "google") {
-        const res = await apiGet<{ customers: { id: string; name: string }[]; error?: string }>("/api/integrations/google/customers");
-        if (res.ok) {
-          setEditAdAccounts(res.data.customers || []);
-          if (res.data.error) toast.error(`Google Ads: ${res.data.error}`);
-        }
       } else {
         // TikTok — no account list API yet, user enters advertiser ID manually
         setEditAdAccounts([]);
@@ -832,6 +734,10 @@ export default function AdsPage() {
     if (!editingId) return;
     if (editForm.platform === "meta" && !editForm.productId) {
       toast.error("Meta ad campaigns must be tied to a product");
+      return;
+    }
+    if (editForm.platform === "tiktok" && !editForm.productId) {
+      toast.error("TikTok ad campaigns must be tied to a product");
       return;
     }
     if (editForm.platform === "meta" && !metaObjectiveOptions.some((option) => option.value === editForm.objective)) {
@@ -848,23 +754,18 @@ export default function AdsPage() {
         endDate: editForm.endDate ? new Date(editForm.endDate).toISOString() : null,
         productId: editForm.productId || undefined,
         // Platform-specific account IDs
-        ...(editForm.platform === "google" && editForm.customerId ? { customerId: editForm.customerId } : {}),
         ...(editForm.platform === "meta" && editForm.adAccountId ? { adAccountId: editForm.adAccountId } : {}),
         ...(editForm.platform === "tiktok" && editForm.advertiserId ? { adAccountId: editForm.advertiserId } : {}),
         targeting: {
           ageMin: editForm.ageMin, ageMax: editForm.ageMax, gender: editForm.gender,
           locations: editForm.locations ? editForm.locations.split(",").map((s) => s.trim()).filter(Boolean) : [],
-          ...(editForm.platform !== "google" ? {
-            interests: editForm.interests ? editForm.interests.split(",").map((s) => s.trim()).filter(Boolean) : [],
-          } : {}),
-          ...(editForm.platform === "google" ? {
-            keywords: editForm.keywords ? editForm.keywords.split(",").map((s) => s.trim()).filter(Boolean) : [],
-          } : {}),
+          interests: editForm.interests ? editForm.interests.split(",").map((s) => s.trim()).filter(Boolean) : [],
+          keywords: editForm.keywords ? editForm.keywords.split(",").map((s) => s.trim()).filter(Boolean) : [],
         },
         creative: {
           headline: editForm.headline, primaryText: editForm.primaryText, description: editForm.description,
           imageUrl: editForm.imageUrl,
-          ...(editForm.platform !== "google" ? { videoUrl: editForm.videoUrl } : {}),
+          videoUrl: editForm.videoUrl,
           linkUrl: editForm.linkUrl, ctaType: editForm.ctaType,
         },
       });
@@ -964,7 +865,7 @@ export default function AdsPage() {
       <FeatureGate feature="ads">
       <PageHeader
         title="Ads"
-        subtitle="Create, launch, and manage paid ad campaigns across Google, Meta, and TikTok."
+        subtitle="Create, launch, and manage paid ad campaigns across Meta and TikTok."
         action={
           <div className="flex items-center gap-2">
             <Button variant="outline" className="rounded-lg h-10 text-sm" onClick={() => { setImportOpen(true); setImportResult(null); }}>
@@ -1032,21 +933,10 @@ export default function AdsPage() {
                   <>
                     <FormField label="Platform">
                       <Select value={form.platform} onChange={(e) => {
-                        const platform = e.target.value as "meta" | "google" | "tiktok";
-                        setForm({ ...form, platform, objective: normalizeObjectiveForPlatform(platform, form.objective), customerId: "", adAccountId: "", advertiserId: "" });
-                        if (platform === "google") {
-                          setCreateLoadingAccounts(true);
-                          setCreateAdAccounts([]);
-                          apiGet<{ customers: { id: string; name: string }[]; error?: string }>("/api/integrations/google/customers")
-                            .then((res) => { if (res.ok) setCreateAdAccounts(res.data.customers || []); })
-                            .catch(() => {})
-                            .finally(() => setCreateLoadingAccounts(false));
-                        } else {
-                          setCreateAdAccounts([]);
-                        }
+                        const platform = e.target.value as "meta" | "tiktok";
+                        setForm({ ...form, platform, objective: normalizeObjectiveForPlatform(platform, form.objective), adAccountId: "", advertiserId: "" });
                       }}>
                         <option value="meta">Meta (Facebook / Instagram)</option>
-                        <option value="google">Google Ads</option>
                         <option value="tiktok">TikTok Ads</option>
                       </Select>
                     </FormField>
@@ -1061,37 +951,12 @@ export default function AdsPage() {
                       </FormField>
                     )}
 
-                    {/* Google: customer account selector */}
-                    {form.platform === "google" && (
-                      <>
-                        <FormField label="Product" description="Optional — helps AI research your market for Smart Suggest.">
-                          <Select value={form.productId} onChange={(e) => setForm({ ...form, productId: e.target.value })}>
-                            <option value="">None</option>
-                            {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                          </Select>
-                        </FormField>
-                        <FormField
-                          label="Google Ads Account"
-                          description={createLoadingAccounts ? "Loading accounts..." : createAdAccounts.length === 0 ? "Connect your Google Ads account in Integrations first" : "Select which Google Ads account to create this campaign under"}
-                        >
-                          <Select
-                            value={form.customerId}
-                            onChange={(e) => setForm({ ...form, customerId: e.target.value })}
-                            disabled={createLoadingAccounts || createAdAccounts.length === 0}
-                          >
-                            <option value="">Use workspace default</option>
-                            {createAdAccounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({a.id})</option>)}
-                          </Select>
-                        </FormField>
-                      </>
-                    )}
-
                     {/* TikTok: advertiser ID */}
                     {form.platform === "tiktok" && (
                       <>
-                        <FormField label="Product" description="Optional — helps AI research your market for Smart Suggest.">
+                        <FormField label="Product" description="Required — TikTok Ads are configured per product.">
                           <Select value={form.productId} onChange={(e) => setForm({ ...form, productId: e.target.value })}>
-                            <option value="">None</option>
+                            <option value="">Select a product</option>
                             {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                           </Select>
                         </FormField>
@@ -1163,7 +1028,7 @@ export default function AdsPage() {
                   <>
                     {/* Platform badge */}
                     <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                      {form.platform === "google" ? "Google Ads Targeting" : form.platform === "meta" ? "Meta Audience Targeting" : "TikTok Audience Targeting"}
+                      {form.platform === "meta" ? "Meta Audience Targeting" : "TikTok Audience Targeting"}
                     </p>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -1183,39 +1048,17 @@ export default function AdsPage() {
                     </FormField>
                     <FormField
                       label="Locations"
-                      description={form.platform === "google" ? "Comma-separated country codes (e.g. US, GB, CA) — resolved to Google geo target IDs" : "Comma-separated country codes (e.g. US, GB, CA)"}
+                      description="Comma-separated country codes (e.g. US, GB, CA)"
                     >
                       <Input placeholder="US, GB, CA" value={form.locations} onChange={(e) => setForm({ ...form, locations: e.target.value })} />
                     </FormField>
 
-                    {/* Interests: Meta and TikTok only */}
-                    {form.platform !== "google" && (
-                      <FormField
-                        label="Interests"
-                        description={form.platform === "meta" ? "Comma-separated Meta interest taxonomy IDs or names" : "Comma-separated interest topics for TikTok targeting"}
-                      >
-                        <Input placeholder="Technology, Marketing, SaaS" value={form.interests} onChange={(e) => setForm({ ...form, interests: e.target.value })} />
-                      </FormField>
-                    )}
-
-                    {/* Keywords: Google Search only */}
-                    {form.platform === "google" && ["traffic", "leads", "conversions"].includes(form.objective) && (
-                      <FormField label="Search Keywords" description="Keywords that trigger your ads. Use commas to separate. Google matches broad variations automatically.">
-                        <Textarea placeholder="marketing automation, email marketing tool, best CRM software" rows={4} value={form.keywords}
-                          onChange={(e) => setForm({ ...form, keywords: e.target.value })}
-                        />
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          {form.keywords ? form.keywords.split(",").filter((s) => s.trim()).length : 0} keywords · BROAD match
-                        </p>
-                      </FormField>
-                    )}
-
-                    {/* Google Display/Awareness — no keyword targeting note */}
-                    {form.platform === "google" && ["awareness", "engagement", "app_installs"].includes(form.objective) && (
-                      <p className="text-xs text-muted-foreground p-3 rounded-lg border border-border/30">
-                        Display campaigns use audience signals and placements rather than keywords. No keyword targeting required.
-                      </p>
-                    )}
+                    <FormField
+                      label="Interests"
+                      description={form.platform === "meta" ? "Comma-separated Meta interest taxonomy IDs or names" : "Comma-separated interest topics for TikTok targeting"}
+                    >
+                      <Input placeholder="Technology, Marketing, SaaS" value={form.interests} onChange={(e) => setForm({ ...form, interests: e.target.value })} />
+                    </FormField>
                   </>
                 )}
 
@@ -1224,21 +1067,16 @@ export default function AdsPage() {
                   <>
                     {/* Platform badge */}
                     <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                      {form.platform === "google" ? "Google Responsive Search Ad" : form.platform === "meta" ? "Meta Ad Creative" : "TikTok Ad Creative"}
+                      {form.platform === "meta" ? "Meta Ad Creative" : "TikTok Ad Creative"}
                     </p>
 
                     <FormField
                       label="Headline"
-                      description={form.platform === "google" ? "Pinned as Headline 1 in your RSA — max 30 characters" : form.platform === "tiktok" ? "Short, punchy headline — max 100 characters" : undefined}
+                      description={form.platform === "tiktok" ? "Short, punchy headline — max 100 characters" : undefined}
                     >
-                      <Input placeholder={form.platform === "google" ? "Grow Your Business Fast" : form.platform === "tiktok" ? "Wait till you see this..." : "Your attention-grabbing headline"}
+                      <Input placeholder={form.platform === "tiktok" ? "Wait till you see this..." : "Your attention-grabbing headline"}
                         value={form.headline} onChange={(e) => setForm({ ...form, headline: e.target.value })}
                       />
-                      {form.platform === "google" && (
-                        <p className={`text-[10px] mt-0.5 ${form.headline.length > 30 ? "text-destructive" : "text-muted-foreground"}`}>
-                          {form.headline.length}/30 characters
-                        </p>
-                      )}
                       {form.platform === "tiktok" && (
                         <p className={`text-[10px] mt-0.5 ${form.headline.length > 100 ? "text-destructive" : "text-muted-foreground"}`}>
                           {form.headline.length}/100 characters
@@ -1247,18 +1085,13 @@ export default function AdsPage() {
                     </FormField>
 
                     <FormField
-                      label={form.platform === "google" ? "Ad Description (RSA)" : "Primary Text"}
-                      description={form.platform === "google" ? "Used as RSA description — max 90 characters" : form.platform === "tiktok" ? "Main ad caption — max 100 characters" : "Main body copy of your ad"}
+                      label="Primary Text"
+                      description={form.platform === "tiktok" ? "Main ad caption — max 100 characters" : "Main body copy of your ad"}
                     >
                       <Textarea
-                        placeholder={form.platform === "google" ? "Clear, compelling benefit for searchers..." : form.platform === "tiktok" ? "Grab attention in the first 3 words..." : "The main body of your ad..."}
+                        placeholder={form.platform === "tiktok" ? "Grab attention in the first 3 words..." : "The main body of your ad..."}
                         rows={3} value={form.primaryText} onChange={(e) => setForm({ ...form, primaryText: e.target.value })}
                       />
-                      {form.platform === "google" && (
-                        <p className={`text-[10px] mt-0.5 ${form.primaryText.length > 90 ? "text-destructive" : "text-muted-foreground"}`}>
-                          {form.primaryText.length}/90 characters
-                        </p>
-                      )}
                       {form.platform === "tiktok" && (
                         <p className={`text-[10px] mt-0.5 ${form.primaryText.length > 100 ? "text-destructive" : "text-muted-foreground"}`}>
                           {form.primaryText.length}/100 characters
@@ -1266,65 +1099,55 @@ export default function AdsPage() {
                       )}
                     </FormField>
 
-                    {/* Description: Google and Meta */}
                     {form.platform !== "tiktok" && (
-                      <FormField label="Description" description={form.platform === "google" ? "Optional extra context shown below the ad" : "Supporting text (optional)"}>
+                      <FormField label="Description" description="Supporting text (optional)">
                         <Input placeholder="Additional details about your offer" value={form.description}
                           onChange={(e) => setForm({ ...form, description: e.target.value })}
                         />
                       </FormField>
                     )}
 
-                    {/* Image: Google Display + Meta + TikTok */}
-                    {(form.platform !== "google" || ["awareness", "engagement", "app_installs"].includes(form.objective)) && (
-                      <FormField
-                        label="Ad Image"
-                        description={form.platform === "google" ? "Required for Display campaigns — 1200×628px recommended" : form.platform === "meta" ? "1200×628px, JPG/PNG/GIF, max 10MB" : "1:1 or 9:16, JPG/PNG, used for image ads"}
-                      >
-                        <MediaUploadZone
-                          type="image" url={form.imageUrl} uploading={uploadingImage}
-                          onUpload={(f) => handleMediaUpload(f, "image")}
-                          onRemove={() => setForm({ ...form, imageUrl: "" })}
-                          accept="image/png,image/jpeg,image/webp,image/gif"
-                          platform={form.platform}
-                        />
-                      </FormField>
-                    )}
+                    <FormField
+                      label="Ad Image"
+                      description={form.platform === "meta" ? "1200×628px, JPG/PNG/GIF, max 10MB" : "1:1 or 9:16, JPG/PNG, used for image ads"}
+                    >
+                      <MediaUploadZone
+                        type="image" url={form.imageUrl} uploading={uploadingImage}
+                        onUpload={(f) => handleMediaUpload(f, "image")}
+                        onRemove={() => setForm({ ...form, imageUrl: "" })}
+                        accept="image/png,image/jpeg,image/webp,image/gif"
+                        platform={form.platform}
+                      />
+                    </FormField>
 
-                    {/* Video: Meta and TikTok only */}
-                    {form.platform !== "google" && (
-                      <FormField
-                        label="Ad Video"
-                        description={form.platform === "meta" ? "MP4/MOV, 16:9, max 500MB — video ads outperform images on Meta" : "MP4/MOV, 9:16 vertical recommended — TikTok is video-first"}
-                      >
-                        <MediaUploadZone
-                          type="video" url={form.videoUrl} uploading={uploadingVideo}
-                          onUpload={(f) => handleMediaUpload(f, "video")}
-                          onRemove={() => setForm({ ...form, videoUrl: "" })}
-                          accept="video/mp4,video/quicktime,video/webm"
-                          platform={form.platform}
-                        />
-                      </FormField>
-                    )}
+                    <FormField
+                      label="Ad Video"
+                      description={form.platform === "meta" ? "MP4/MOV, 16:9, max 500MB — video ads outperform images on Meta" : "MP4/MOV, 9:16 vertical recommended — TikTok is video-first"}
+                    >
+                      <MediaUploadZone
+                        type="video" url={form.videoUrl} uploading={uploadingVideo}
+                        onUpload={(f) => handleMediaUpload(f, "video")}
+                        onRemove={() => setForm({ ...form, videoUrl: "" })}
+                        accept="video/mp4,video/quicktime,video/webm"
+                        platform={form.platform}
+                      />
+                    </FormField>
 
-                    <FormField label="Landing Page URL" description={form.platform === "google" ? "Final URL — users land here after clicking your ad" : undefined}>
+                    <FormField label="Landing Page URL">
                       <Input placeholder="https://yoursite.com/offer" value={form.linkUrl} onChange={(e) => setForm({ ...form, linkUrl: e.target.value })} />
                     </FormField>
 
-                    {/* CTA: Meta and TikTok (Google uses its own CTA system) */}
-                    {form.platform !== "google" && (
-                      <FormField label="Call to Action">
-                        <Select value={form.ctaType} onChange={(e) => setForm({ ...form, ctaType: e.target.value })}>
-                          <option value="">Default</option>
-                          <option value="LEARN_MORE">Learn More</option>
-                          <option value="SHOP_NOW">Shop Now</option>
-                          <option value="SIGN_UP">Sign Up</option>
-                          <option value="DOWNLOAD">Download</option>
-                          <option value="GET_QUOTE">Get Quote</option>
-                          <option value="CONTACT_US">Contact Us</option>
-                        </Select>
-                      </FormField>
-                    )}
+                    <FormField label="Call to Action">
+                      <Select value={form.ctaType} onChange={(e) => setForm({ ...form, ctaType: e.target.value })}>
+                        <option value="">Default</option>
+                        <option value="LEARN_MORE">Learn More</option>
+                        <option value="SHOP_NOW">Shop Now</option>
+                        <option value="SIGN_UP">Sign Up</option>
+                        <option value="DOWNLOAD">Download</option>
+                        <option value="GET_QUOTE">Get Quote</option>
+                        <option value="CONTACT_US">Contact Us</option>
+                      </Select>
+                    </FormField>
                   </>
                 )}
 
@@ -1349,7 +1172,7 @@ export default function AdsPage() {
                           </div>
                         ))}
                       </div>
-                      {!form.imageUrl && !form.videoUrl && form.platform !== "google" && (
+                      {!form.imageUrl && !form.videoUrl && (
                         <p className="text-xs text-amber-600 p-3 rounded-lg border border-amber-200/50">
                           No media uploaded. Ads with images or video perform significantly better.
                         </p>
@@ -1469,7 +1292,6 @@ export default function AdsPage() {
               {[
                 { v: "all", label: "All Platforms" },
                 { v: "meta", label: "Meta" },
-                { v: "google", label: "Google" },
                 { v: "tiktok", label: "TikTok" },
               ].map(({ v, label }) => (
                 <button key={v} onClick={() => setPlatformFilter(v)}
@@ -1748,8 +1570,7 @@ export default function AdsPage() {
 
           <div className="space-y-5 py-2">
             <FormField label="Platform">
-              <Select value={importPlatform} onChange={(e) => { setImportPlatform(e.target.value as "meta" | "google" | "tiktok"); setImportResult(null); }}>
-                <option value="google">Google Ads</option>
+              <Select value={importPlatform} onChange={(e) => { setImportPlatform(e.target.value as "meta" | "tiktok"); setImportResult(null); }}>
                 <option value="meta">Meta (Facebook / Instagram)</option>
                 <option value="tiktok">TikTok Ads</option>
               </Select>
@@ -1841,7 +1662,7 @@ export default function AdsPage() {
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/40 border border-border/40">
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Platform</span>
                   <span className="ml-auto text-xs font-semibold capitalize">
-                    {editForm.platform === "meta" ? "Meta (Facebook / Instagram)" : editForm.platform === "google" ? "Google Ads" : "TikTok Ads"}
+                    {editForm.platform === "meta" ? "Meta (Facebook / Instagram)" : "TikTok Ads"}
                   </span>
                   <span className="text-[10px] text-muted-foreground/60">(locked)</span>
                 </div>
@@ -1873,37 +1694,12 @@ export default function AdsPage() {
                   </FormField>
                 )}
 
-                {/* Google: optional product + account selector */}
-                {editForm.platform === "google" && (
-                  <>
-                    <FormField label="Product" description="Optional — used for ad copy context">
-                      <Select value={editForm.productId} onChange={(e) => setEditForm({ ...editForm, productId: e.target.value })}>
-                        <option value="">None</option>
-                        {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                      </Select>
-                    </FormField>
-                    <FormField
-                      label="Google Ads Customer ID"
-                      description={editLoadingAccounts ? "Loading accounts…" : editAdAccounts.length === 0 ? "No Google Ads accounts found — connect Google integration first" : undefined}
-                    >
-                      <Select
-                        value={editForm.customerId}
-                        onChange={(e) => setEditForm({ ...editForm, customerId: e.target.value })}
-                        disabled={editLoadingAccounts || editAdAccounts.length === 0}
-                      >
-                        <option value="">Select account…</option>
-                        {editAdAccounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({a.id})</option>)}
-                      </Select>
-                    </FormField>
-                  </>
-                )}
-
                 {/* TikTok: optional product + manual advertiser ID */}
                 {editForm.platform === "tiktok" && (
                   <>
-                    <FormField label="Product" description="Optional">
+                    <FormField label="Product" description="Required for TikTok Ads">
                       <Select value={editForm.productId} onChange={(e) => setEditForm({ ...editForm, productId: e.target.value })}>
-                        <option value="">None</option>
+                        <option value="">Select a product…</option>
                         {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                       </Select>
                     </FormField>
@@ -1954,7 +1750,7 @@ export default function AdsPage() {
             {editFormStep === 1 && (
               <>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                  {editForm.platform === "meta" ? "Meta Audience Targeting" : editForm.platform === "google" ? "Google Ads Targeting" : "TikTok Audience Targeting"}
+                  {editForm.platform === "meta" ? "Meta Audience Targeting" : "TikTok Audience Targeting"}
                 </p>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -1972,37 +1768,13 @@ export default function AdsPage() {
                     <option value="female">Female</option>
                   </Select>
                 </FormField>
-                <FormField label="Locations" description={editForm.platform === "google" ? "Comma-separated ISO country codes (e.g. US, GB, CA) — resolved to geo IDs automatically" : "Comma-separated country codes (e.g. US, GB, CA)"}>
+                <FormField label="Locations" description="Comma-separated country codes (e.g. US, GB, CA)">
                   <Input value={editForm.locations} onChange={(e) => setEditForm({ ...editForm, locations: e.target.value })} />
                 </FormField>
 
-                {/* Interests: Meta and TikTok only */}
-                {editForm.platform !== "google" && (
-                  <FormField label="Interests" description="Comma-separated interests for audience targeting">
-                    <Input value={editForm.interests} onChange={(e) => setEditForm({ ...editForm, interests: e.target.value })} />
-                  </FormField>
-                )}
-
-                {/* Keywords: Google Search only (traffic / leads / conversions) */}
-                {editForm.platform === "google" && ["traffic", "leads", "conversions"].includes(editForm.objective) && (
-                  <FormField label="Search Keywords" description="Comma-separated keywords users search to trigger your ad">
-                    <Textarea placeholder="marketing automation, email marketing tool, crm software" rows={3} value={editForm.keywords}
-                      onChange={(e) => setEditForm({ ...editForm, keywords: e.target.value })}
-                    />
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      {editForm.keywords ? editForm.keywords.split(",").filter((s) => s.trim()).length : 0} keywords added.
-                    </p>
-                  </FormField>
-                )}
-
-                {/* Display campaigns don't use keywords */}
-                {editForm.platform === "google" && ["awareness", "engagement", "app_installs"].includes(editForm.objective) && (
-                  <div className="p-3 rounded-lg bg-blue-50/40 dark:bg-blue-950/20 border border-blue-200/40">
-                    <p className="text-xs text-blue-700 dark:text-blue-400">
-                      Display campaigns use audience signals instead of keywords. Google will target users based on your demographics and interests you set at the ad group level.
-                    </p>
-                  </div>
-                )}
+                <FormField label="Interests" description="Comma-separated interests for audience targeting">
+                  <Input value={editForm.interests} onChange={(e) => setEditForm({ ...editForm, interests: e.target.value })} />
+                </FormField>
               </>
             )}
 
@@ -2011,16 +1783,14 @@ export default function AdsPage() {
               <>
                 {/* Headline */}
                 <FormField
-                  label={editForm.platform === "google" ? "Headline" : "Headline"}
+                  label="Headline"
                   description={
-                    editForm.platform === "google" ? "Max 30 characters (Google RSA)" :
                     editForm.platform === "meta" ? "Max 40 characters (Facebook / Instagram)" :
                     "Max 100 characters (TikTok)"
                   }
                 >
                   <Input
                     placeholder={
-                      editForm.platform === "google" ? "Stop Losing Leads Today" :
                       editForm.platform === "meta" ? "Transform Your Marketing in 5 Minutes" :
                       "Watch How We Solve Your #1 Problem"
                     }
@@ -2028,18 +1798,16 @@ export default function AdsPage() {
                     onChange={(e) => setEditForm({ ...editForm, headline: e.target.value })}
                   />
                   <p className={`text-[10px] mt-0.5 ${
-                    (editForm.platform === "google" && editForm.headline.length > 30) ||
                     (editForm.platform === "meta" && editForm.headline.length > 40) ? "text-destructive" : "text-muted-foreground"
                   }`}>
-                    {editForm.headline.length}/{editForm.platform === "google" ? 30 : editForm.platform === "meta" ? 40 : 100} characters
+                    {editForm.headline.length}/{editForm.platform === "meta" ? 40 : 100} characters
                   </p>
                 </FormField>
 
                 {/* Primary Text */}
                 <FormField
-                  label={editForm.platform === "google" ? "Ad Copy" : editForm.platform === "tiktok" ? "Ad Text" : "Primary Text"}
+                  label={editForm.platform === "tiktok" ? "Ad Text" : "Primary Text"}
                   description={
-                    editForm.platform === "google" ? "Max 90 characters (shown under headline)" :
                     editForm.platform === "meta" ? "Max 125 characters (shown above the image)" :
                     "Max 100 characters"
                   }
@@ -2047,7 +1815,6 @@ export default function AdsPage() {
                   <Textarea
                     rows={3}
                     placeholder={
-                      editForm.platform === "google" ? "Automate your campaigns. Save hours weekly." :
                       editForm.platform === "meta" ? "Tired of wasting ad budget? Our platform cuts CPL by 40% on average." :
                       "See why 10,000+ brands trust us for their marketing."
                     }
@@ -2055,21 +1822,20 @@ export default function AdsPage() {
                     onChange={(e) => setEditForm({ ...editForm, primaryText: e.target.value })}
                   />
                   <p className={`text-[10px] mt-0.5 ${
-                    (editForm.platform === "google" && editForm.primaryText.length > 90) ||
                     (editForm.platform === "meta" && editForm.primaryText.length > 125) ? "text-destructive" : "text-muted-foreground"
                   }`}>
-                    {editForm.primaryText.length}/{editForm.platform === "google" ? 90 : editForm.platform === "meta" ? 125 : 100} characters
+                    {editForm.primaryText.length}/{editForm.platform === "meta" ? 125 : 100} characters
                   </p>
                 </FormField>
 
-                {/* Description: Meta and Google only (not TikTok) */}
+                {/* Description: Meta only */}
                 {editForm.platform !== "tiktok" && (
                   <FormField
                     label="Description"
-                    description={editForm.platform === "google" ? "Max 90 characters" : "Max 30 characters (shown below headline on some placements)"}
+                    description="Max 30 characters (shown below headline on some placements)"
                   >
                     <Input
-                      placeholder={editForm.platform === "google" ? "Free 14-day trial. No credit card required." : "Start free today"}
+                      placeholder="Start free today"
                       value={editForm.description}
                       onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                     />
@@ -2081,50 +1847,41 @@ export default function AdsPage() {
                   </FormField>
                 )}
 
-                {/* Image: always shown for Meta and TikTok; only for Google Display */}
-                {(editForm.platform !== "google" || ["awareness", "engagement", "app_installs"].includes(editForm.objective)) && (
-                  <FormField label={editForm.platform === "google" ? "Display Ad Image" : "Ad Image"} description={editForm.platform === "google" ? "Required for Display campaigns (1200×628 recommended)" : "Recommended: 1080×1080 or 1080×1920"}>
-                    <MediaUploadZone
-                      type="image" url={editForm.imageUrl} uploading={editUploadingImage}
-                      onUpload={(f) => handleEditMediaUpload(f, "image")}
-                      onRemove={() => setEditForm({ ...editForm, imageUrl: "" })}
-                      accept="image/png,image/jpeg,image/webp,image/gif"
-                      platform={editForm.platform}
-                    />
-                  </FormField>
-                )}
+                <FormField label="Ad Image" description="Recommended: 1080×1080 or 1080×1920">
+                  <MediaUploadZone
+                    type="image" url={editForm.imageUrl} uploading={editUploadingImage}
+                    onUpload={(f) => handleEditMediaUpload(f, "image")}
+                    onRemove={() => setEditForm({ ...editForm, imageUrl: "" })}
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    platform={editForm.platform}
+                  />
+                </FormField>
 
-                {/* Video: Meta and TikTok only */}
-                {editForm.platform !== "google" && (
-                  <FormField label="Ad Video" description={editForm.platform === "tiktok" ? "Required for TikTok — vertical 9:16, up to 60s" : "Optional — outperforms static images in most placements"}>
-                    <MediaUploadZone
-                      type="video" url={editForm.videoUrl} uploading={editUploadingVideo}
-                      onUpload={(f) => handleEditMediaUpload(f, "video")}
-                      onRemove={() => setEditForm({ ...editForm, videoUrl: "" })}
-                      accept="video/mp4,video/quicktime,video/webm"
-                      platform={editForm.platform}
-                    />
-                  </FormField>
-                )}
+                <FormField label="Ad Video" description={editForm.platform === "tiktok" ? "Required for TikTok — vertical 9:16, up to 60s" : "Optional — outperforms static images in most placements"}>
+                  <MediaUploadZone
+                    type="video" url={editForm.videoUrl} uploading={editUploadingVideo}
+                    onUpload={(f) => handleEditMediaUpload(f, "video")}
+                    onRemove={() => setEditForm({ ...editForm, videoUrl: "" })}
+                    accept="video/mp4,video/quicktime,video/webm"
+                    platform={editForm.platform}
+                  />
+                </FormField>
 
                 <FormField label="Landing Page URL">
                   <Input placeholder="https://yoursite.com/landing" value={editForm.linkUrl} onChange={(e) => setEditForm({ ...editForm, linkUrl: e.target.value })} />
                 </FormField>
 
-                {/* CTA: Meta and TikTok only (Google uses its own system) */}
-                {editForm.platform !== "google" && (
-                  <FormField label="Call to Action">
-                    <Select value={editForm.ctaType} onChange={(e) => setEditForm({ ...editForm, ctaType: e.target.value })}>
-                      <option value="">Default</option>
-                      <option value="LEARN_MORE">Learn More</option>
-                      <option value="SHOP_NOW">Shop Now</option>
-                      <option value="SIGN_UP">Sign Up</option>
-                      <option value="DOWNLOAD">Download</option>
-                      <option value="GET_QUOTE">Get Quote</option>
-                      <option value="CONTACT_US">Contact Us</option>
-                    </Select>
-                  </FormField>
-                )}
+                <FormField label="Call to Action">
+                  <Select value={editForm.ctaType} onChange={(e) => setEditForm({ ...editForm, ctaType: e.target.value })}>
+                    <option value="">Default</option>
+                    <option value="LEARN_MORE">Learn More</option>
+                    <option value="SHOP_NOW">Shop Now</option>
+                    <option value="SIGN_UP">Sign Up</option>
+                    <option value="DOWNLOAD">Download</option>
+                    <option value="GET_QUOTE">Get Quote</option>
+                    <option value="CONTACT_US">Contact Us</option>
+                  </Select>
+                </FormField>
               </>
             )}
 

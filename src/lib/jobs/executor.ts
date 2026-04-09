@@ -2,7 +2,6 @@ import { adminDb } from '@/lib/firebase-admin';
 import { publishPostMultiChannel } from '@/lib/social/publisher';
 import { decrypt } from '@/lib/crypto';
 import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
-import { getGoogleCampaignMetrics } from '@/lib/ads/google-ads';
 import { getTikTokCampaignMetrics } from '@/lib/ads/tiktok-ads';
 import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 import { JobDoc } from './types';
@@ -127,18 +126,6 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
             if (conn) {
               const token = resolveUserAccessToken(conn);
               metricsResult = await getMetaCampaignMetrics(token, campaign.externalCampaignId);
-            }
-          } else if (campaign.platform === 'google') {
-            const conn = await getConnection(workspaceId, 'google');
-            if (conn) {
-              const token = decrypt(conn.accessTokenEncrypted);
-              metricsResult = await getGoogleCampaignMetrics(
-                token,
-                conn.metadata.customerId as string,
-                process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '',
-                campaign.externalCampaignId,
-                conn.metadata.loginCustomerId as string | undefined,
-              );
             }
           } else if (campaign.platform === 'tiktok') {
             const productId = campaign.productId as string | undefined;

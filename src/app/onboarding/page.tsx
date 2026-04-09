@@ -49,7 +49,6 @@ const CHANNELS = [
   { id: "instagram", label: "Instagram" },
   { id: "facebook", label: "Facebook" },
   { id: "tiktok", label: "TikTok" },
-  { id: "google", label: "Google Ads" },
   { id: "linkedin", label: "LinkedIn" },
   { id: "twitter", label: "X / Twitter" },
 ];
@@ -60,12 +59,6 @@ const SOCIAL_PROVIDERS = [
     label: "Meta",
     description: "Connect Facebook and Instagram",
     note: "Pages, Reels, Feed posts, Stories",
-  },
-  {
-    id: "google",
-    label: "Google Ads",
-    description: "Connect your Google Ads account",
-    note: "Search, Display, Performance Max",
   },
 ];
 
@@ -399,7 +392,7 @@ export default function OnboardingPage() {
     if (oauthResult && oauthProvider) {
       if (oauthResult === "success") {
         setConnected((prev) => ({ ...prev, [oauthProvider]: true }));
-        const label = oauthProvider === "meta" ? "Meta (Facebook + Instagram)" : "Google Ads";
+        const label = oauthProvider === "meta" ? "Meta (Facebook + Instagram)" : oauthProvider;
         toast.success(`${label} connected`);
       } else {
         toast.error(`Failed to connect ${oauthProvider}`);

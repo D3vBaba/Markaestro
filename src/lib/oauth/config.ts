@@ -44,23 +44,6 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     clientSecretEnv: 'INSTAGRAM_APP_SECRET',
     extraAuthParams: {},
   },
-  google: {
-    authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-    tokenUrl: 'https://oauth2.googleapis.com/token',
-    revokeUrl: 'https://oauth2.googleapis.com/revoke',
-    scopes: [
-      'https://www.googleapis.com/auth/adwords',
-      'openid',
-      'email',
-      'profile',
-    ],
-    clientIdEnv: 'GOOGLE_CLIENT_ID',
-    clientSecretEnv: 'GOOGLE_CLIENT_SECRET',
-    extraAuthParams: {
-      access_type: 'offline',
-      prompt: 'consent',
-    },
-  },
   tiktok: {
     authUrl: 'https://www.tiktok.com/v2/auth/authorize/',
     tokenUrl: 'https://open.tiktokapis.com/v2/oauth/token/',
@@ -94,7 +77,6 @@ export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig 
 const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   meta: 'META_OAUTH_REDIRECT_URI',
   instagram: 'INSTAGRAM_OAUTH_REDIRECT_URI',
-  google: 'GOOGLE_OAUTH_REDIRECT_URI',
   tiktok: 'TIKTOK_OAUTH_REDIRECT_URI',
   tiktok_ads: 'TIKTOK_ADS_OAUTH_REDIRECT_URI',
 };

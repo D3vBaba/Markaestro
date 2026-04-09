@@ -13,7 +13,6 @@ export type AdCampaignDoc = {
   creative: AdCreative;
   productId?: string;
   adAccountId?: string;  // Meta: overrides product connection's adAccountId
-  customerId?: string;   // Google Ads: overrides connection's customerId
 
   // External platform IDs (populated after launch)
   externalCampaignId?: string;
@@ -60,4 +59,14 @@ export type AdPlatformResult = {
   adGroupId?: string;
   adId?: string;
   error?: string;
+};
+
+export type PlatformCampaignSummary = {
+  externalCampaignId: string;
+  name: string;
+  status: 'active' | 'paused' | 'completed';
+  objective: string;
+  dailyBudgetCents: number;
+  startDate?: string;
+  endDate?: string;
 };

@@ -54,18 +54,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');
 
-    // Cascade-delete any videos linked to this post
-    const videosSnap = await adminDb
-      .collection(`workspaces/${ctx.workspaceId}/videos`)
-      .where('postId', '==', id)
-      .get();
-
-    const batch = adminDb.batch();
-    batch.delete(ref);
-    for (const videoDoc of videosSnap.docs) {
-      batch.delete(videoDoc.ref);
-    }
-    await batch.commit();
+    await ref.delete();
 
     return apiOk({ ok: true, id });
   } catch (error) {

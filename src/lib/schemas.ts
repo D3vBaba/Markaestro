@@ -34,8 +34,8 @@ export const contactSources = ['organic', 'paid', 'referral', 'social', 'email',
 export const triggerTypes = ['manual', 'event', 'schedule', 'segment'] as const;
 export const jobTypes = ['sync_contacts', 'generate_content', 'publish_post', 'create_ad_campaign', 'refresh_tokens', 'sync_ad_metrics'] as const;
 export const jobSchedules = ['manual', 'daily'] as const;
-export const integrationProviders = ['facebook', 'instagram', 'meta', 'google', 'tiktok', 'tiktok_ads'] as const;
-export const oauthProviders = ['meta', 'instagram', 'google', 'tiktok', 'tiktok_ads'] as const;
+export const integrationProviders = ['facebook', 'instagram', 'meta', 'tiktok', 'tiktok_ads'] as const;
+export const oauthProviders = ['meta', 'instagram', 'tiktok', 'tiktok_ads'] as const;
 export const workspaceRoles = ['owner', 'admin', 'member', 'analyst'] as const;
 
 // ── Pipeline Enums ────────────────────────────────────────────────
@@ -248,11 +248,11 @@ export const metaIntegrationSchema = z.object({
   enabled: z.boolean().default(true),
 });
 
-// ── Video Generation Schema ───────────────────────────────────────
+// ── Prompt Mode (shared by image generation) ──────────────────────
 
-export const videoProviders = ['kling', 'veo', 'sora', 'kling-avatar', 'product-scene', 'faceless-narrated'] as const;
-export const videoStatuses = ['pending', 'generating', 'completed', 'failed'] as const;
 export const promptModes = ['guided', 'custom_override'] as const;
+
+// ── TikTok Trend Schema ───────────────────────────────────────────
 
 export const tiktokTrendStatuses = ['suggested', 'approved', 'used', 'dismissed'] as const;
 
@@ -265,83 +265,6 @@ export const tiktokTrendSchema = z.object({
   viralityScore: z.number().min(0).max(100).default(0),
   relevanceScore: z.number().min(0).max(100).default(0),
   status: z.enum(tiktokTrendStatuses).default('suggested'),
-});
-
-export const generateVideoSchema = z.object({
-  prompt: z.string().trim().min(1, 'Prompt is required').max(4000),
-  promptMode: z.enum(promptModes).default('guided'),
-  customPrompt: z.string().trim().max(1500).optional(),
-  productId: z.string().trim().optional(),
-  trendId: z.string().trim().optional(),
-  provider: z.enum(videoProviders).default('kling'),
-  durationSeconds: z.number().int().min(5).max(10).default(10),
-  /** Caption text for the TikTok post */
-  caption: z.string().trim().max(2200).default(''),
-  hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
-});
-
-export const videoGenerationSchema = z.object({
-  trendId: z.string().trim().optional(),
-  postId: z.string().trim().optional(),
-  prompt: z.string().trim().max(4000),
-  provider: z.enum(videoProviders),
-  status: z.enum(videoStatuses).default('pending'),
-  videoUrl: z.string().trim().max(2000).default(''),
-  thumbnailUrl: z.string().trim().max(2000).default(''),
-  durationSeconds: z.number().int().min(0).default(0),
-  /** Provider-specific job/request ID for polling */
-  externalJobId: z.string().trim().max(500).default(''),
-  caption: z.string().trim().max(2200).default(''),
-  hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
-  errorMessage: z.string().trim().max(2000).default(''),
-  createdAt: z.string().datetime(),
-  completedAt: z.string().datetime().nullable().optional(),
-});
-
-// ── Product Scene Schema ─────────────────────────────────────────
-
-export const productSceneTypes = ['product-in-hand', 'unboxing', 'routine', 'before-after', 'lifestyle'] as const;
-export type ProductSceneType = typeof productSceneTypes[number];
-
-export const productSceneSchema = z.object({
-  productId: z.string().trim().min(1),
-  sceneType: z.enum(productSceneTypes),
-  promptMode: z.enum(promptModes).default('guided'),
-  customPrompt: z.string().trim().max(1500).optional(),
-  avatarImageUrl: z.string().trim().url().optional(),
-  productImageUrl: z.string().trim().url().optional(),
-  sceneDescription: z.string().trim().max(2000).optional(),
-  /** Which model animates the scene image */
-  provider: z.enum(['kling', 'veo']).default('kling'),
-  durationSeconds: z.number().int().min(5).max(10).default(5),
-  voiceover: z.object({
-    script: z.string().trim().max(4000),
-    voice: z.string().trim(),
-    speed: z.number().min(0.5).max(2.0).default(1.0),
-  }).optional(),
-  caption: z.string().trim().max(2200).default(''),
-  hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
-  trendId: z.string().trim().optional(),
-});
-
-// ── Faceless Narrated Video Schema ────────────────────────────────
-
-export const facelessNarratedSchema = z.object({
-  productId: z.string().trim().min(1),
-  promptMode: z.enum(promptModes).default('guided'),
-  customPrompt: z.string().trim().max(1500).optional(),
-  /** Number of visual scenes (3-6) */
-  sceneCount: z.number().int().min(3).max(6).default(4),
-  /** Total target duration in seconds */
-  durationSeconds: z.number().int().min(15).max(60).default(30),
-  voice: z.string().trim(),
-  speed: z.number().min(0.5).max(2.0).default(1.0),
-  /** Optional custom narration script — if not provided, AI generates one */
-  script: z.string().trim().max(8000).optional(),
-  scriptStyle: z.string().trim().default('problem-solution'),
-  caption: z.string().trim().max(2200).default(''),
-  hashtags: z.array(z.string().trim().max(100)).max(20).default([]),
-  trendId: z.string().trim().optional(),
 });
 
 // ── Image Generation Schema ───────────────────────────────────────
@@ -396,29 +319,6 @@ export const recommendedStylesByPlatform: Record<
   // excluded — they read as commercials and the FYP algorithm punishes that.
   tiktok: ['photorealistic', 'branded'],
 } as const;
-/**
- * TikTok story-slideshow request. Slide count is bounded by research:
- * 5 is the minimum that supports a real story arc; 10 is the upper bound
- * before completion-rate drop-off becomes severe (Affinco 2025).
- */
-export const tiktokSlideshowStoryStyles = [
-  'problem-solution',
-  'listicle',
-  'transformation',
-  'storytime',
-  'mythbusting',
-] as const;
-
-export const generateTikTokSlideshowSchema = z.object({
-  productId: z.string().trim().min(1, 'productId is required'),
-  slideCount: z.number().int().min(5).max(10).default(7),
-  storyStyle: z.enum(tiktokSlideshowStoryStyles).default('problem-solution'),
-  hint: z.string().trim().max(500).optional(),
-});
-
-export type TikTokSlideshowStoryStyle = (typeof tiktokSlideshowStoryStyles)[number];
-export type GenerateTikTokSlideshow = z.infer<typeof generateTikTokSlideshowSchema>;
-
 export const imageAspectRatios = ['1:1', '16:9', '9:16', '4:5', '3:4'] as const;
 export const imageProviders = ['gemini', 'openai'] as const;
 
@@ -464,7 +364,7 @@ export const generateImageSchema = z.object({
 
 // ── Ad Campaign Schemas ───────────────────────────────────────────
 
-export const adPlatforms = ['meta', 'google', 'tiktok'] as const;
+export const adPlatforms = ['meta', 'tiktok'] as const;
 export const adCampaignStatuses = ['draft', 'pending', 'active', 'paused', 'completed', 'failed'] as const;
 export const adCampaignObjectives = ['awareness', 'traffic', 'engagement', 'leads', 'conversions', 'app_installs'] as const;
 
@@ -518,7 +418,6 @@ export const updateAdCampaignSchema = z.object({
   productId: optionalString.optional(),
   status: z.enum(adCampaignStatuses).optional(),
   adAccountId: z.string().trim().max(100).optional(), // Meta: act_XXXXXXXXX
-  customerId: z.string().trim().max(50).optional(),   // Google Ads customer ID
 });
 
 // ── Post Schemas ──────────────────────────────────────────────────
@@ -608,10 +507,6 @@ export type PipelineCadence = (typeof pipelineCadences)[number];
 export type PipelineStatus = (typeof pipelineStatuses)[number];
 export type PipelineConfig = z.infer<typeof pipelineConfigSchema>;
 export type ResearchBrief = z.infer<typeof researchBriefSchema>;
-export type VideoProvider = (typeof videoProviders)[number];
-export type VideoStatus = (typeof videoStatuses)[number];
 export type PromptMode = (typeof promptModes)[number];
 export type TikTokTrendStatus = (typeof tiktokTrendStatuses)[number];
 export type TikTokTrend = z.infer<typeof tiktokTrendSchema>;
-export type GenerateVideo = z.infer<typeof generateVideoSchema>;
-export type VideoGeneration = z.infer<typeof videoGenerationSchema>;

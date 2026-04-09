@@ -430,7 +430,6 @@ function UsageTab() {
   const { status } = useSubscription();
   const [usage, setUsage] = useState<{
     aiGenerations: UsageMetric;
-    videoGenerations: UsageMetric;
     channels: UsageMetric;
     products: { current: number };
   } | null>(null);
@@ -442,7 +441,6 @@ function UsageTab() {
         const res = await apiGet<{
           usage: {
             aiGenerations: UsageMetric;
-            videoGenerations: UsageMetric;
             channels: UsageMetric;
             products: { current: number };
           };
@@ -495,13 +493,6 @@ function UsageTab() {
             label="AI generations"
             current={usage?.aiGenerations.current ?? 0}
             limit={usage?.aiGenerations.limit ?? plan.limits.aiGenerations}
-          />
-
-          {/* Video Generations */}
-          <UsageMeter
-            label="Video generations"
-            current={usage?.videoGenerations.current ?? 0}
-            limit={usage?.videoGenerations.limit ?? plan.limits.videoGenerations}
           />
 
           {/* Channels */}
@@ -645,18 +636,6 @@ function IntegrationsTab() {
             One connection covers all your products. You can assign a different Facebook page per product afterwards.
           </p>
         )}
-      />
-
-      <IntegrationCard
-        title="Google Ads"
-        description="Create and manage ad campaigns on Google Search, Display, and YouTube."
-        connected={isConnected("google")}
-        needsReconnect={needsReconnect("google")}
-        reconnectNote="Your Google Ads connection needs to be refreshed"
-        onConnect={() => startOAuth("google")}
-        onDisconnect={() => setDisconnectTarget({ provider: "google", label: "Google Ads" })}
-        disconnecting={disconnecting === "google"}
-        connectLabel="Connect Google Ads"
       />
 
       <p className="text-xs text-muted-foreground">

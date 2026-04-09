@@ -4,10 +4,8 @@ import { adminDb } from '@/lib/firebase-admin';
 import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
-import { listGoogleCampaigns } from '@/lib/ads/google-ads';
 import { listMetaCampaigns } from '@/lib/ads/meta-ads';
 import { listTikTokCampaigns } from '@/lib/ads/tiktok-ads';
-import { getGoogleCampaignMetrics } from '@/lib/ads/google-ads';
 import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
 import { getTikTokCampaignMetrics } from '@/lib/ads/tiktok-ads';
 import type { AdCampaignDoc } from '@/lib/ads/types';
@@ -18,7 +16,7 @@ import type { AdCampaignDoc } from '@/lib/ads/types';
  * don't already exist in Firestore (matched by externalCampaignId), and
  * immediately syncs their lifetime metrics.
  *
- * Body: { platform: 'google' | 'meta' | 'tiktok', productId?: string }
+ * Body: { platform: 'meta' | 'tiktok', productId?: string }
  *
  * Returns: { imported, skipped, failed, campaigns[] }
  */
@@ -30,8 +28,8 @@ export async function POST(req: Request) {
     const body = await req.json() as { platform: string; productId?: string };
     const { platform, productId } = body;
 
-    if (!['google', 'meta', 'tiktok'].includes(platform)) {
-      return apiOk({ ok: false, error: 'platform must be google, meta, or tiktok' });
+    if (!['meta', 'tiktok'].includes(platform)) {
+      return apiOk({ ok: false, error: 'platform must be meta or tiktok' });
     }
 
     const ws = ctx.workspaceId;
@@ -49,26 +47,9 @@ export async function POST(req: Request) {
     );
 
     // ── 2. Fetch all campaigns from the platform ──────────────────────
-    let platformCampaigns: Awaited<ReturnType<typeof listGoogleCampaigns>>['campaigns'];
+    let platformCampaigns: Awaited<ReturnType<typeof listMetaCampaigns>>['campaigns'];
 
-    if (platform === 'google') {
-      const conn = await getConnection(ws, 'google');
-      if (!conn) return apiOk({ ok: false, error: 'Google Ads integration not connected' });
-
-      const accessToken = decrypt(conn.accessTokenEncrypted);
-      const customerId = (conn.metadata.customerId as string) || '';
-      const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '';
-
-      if (!customerId) return apiOk({ ok: false, error: 'No Google Ads customer ID configured' });
-
-      const result = await listGoogleCampaigns(
-        accessToken, customerId, developerToken,
-        conn.metadata.loginCustomerId as string | undefined,
-      );
-      if (!result.success) return apiOk({ ok: false, error: result.error });
-      platformCampaigns = result.campaigns;
-
-    } else if (platform === 'meta') {
+    if (platform === 'meta') {
       const conn = await getMetaConnectionMerged(ws, productId);
       if (!conn) return apiOk({ ok: false, error: 'Meta integration not connected' });
 
@@ -151,7 +132,7 @@ export async function POST(req: Request) {
           const doc: AdCampaignDoc = {
             workspaceId: ws,
             name: c.name,
-            platform: platform as 'google' | 'meta' | 'tiktok',
+            platform: platform as 'meta' | 'tiktok',
             objective: c.objective as AdCampaignDoc['objective'],
             status: c.status as AdCampaignDoc['status'],
             dailyBudgetCents: c.dailyBudgetCents || 0,
@@ -171,21 +152,9 @@ export async function POST(req: Request) {
           const ref = await adminDb.collection(`workspaces/${ws}/ad_campaigns`).add(doc);
 
           // Immediately fetch lifetime metrics
-          let metricsResult: Awaited<ReturnType<typeof getGoogleCampaignMetrics>> | null = null;
+          let metricsResult: Awaited<ReturnType<typeof getMetaCampaignMetrics>> | Awaited<ReturnType<typeof getTikTokCampaignMetrics>> | null = null;
 
-          if (platform === 'google') {
-            const conn = await getConnection(ws, 'google');
-            if (conn) {
-              const accessToken = decrypt(conn.accessTokenEncrypted);
-              const customerId = (conn.metadata.customerId as string) || '';
-              metricsResult = await getGoogleCampaignMetrics(
-                accessToken, customerId,
-                process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '',
-                c.externalCampaignId,
-                conn.metadata.loginCustomerId as string | undefined,
-              );
-            }
-          } else if (platform === 'meta') {
+          if (platform === 'meta') {
             const conn = await getMetaConnectionMerged(ws, productId);
             if (conn) {
               const accessToken = resolveUserAccessToken(conn);

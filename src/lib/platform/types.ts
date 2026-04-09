@@ -26,7 +26,7 @@ export type ConnectionStatus = (typeof ConnectionStatus)[keyof typeof Connection
 // ── Platform Connection (Firestore model) ───────────────────────────
 
 export type PlatformConnection = {
-  /** OAuth provider key (meta, tiktok, google) */
+  /** OAuth provider key (meta, tiktok, tiktok_ads, etc.) */
   provider: string;
   /** Which channels this connection serves */
   channels: SocialChannel[];

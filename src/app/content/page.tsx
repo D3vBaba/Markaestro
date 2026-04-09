@@ -12,7 +12,6 @@ import ScheduledTab from "./_components/ScheduledTab";
 import PublishedTab from "./_components/PublishedTab";
 import ImageGallery from "./_components/ImageGallery";
 import PerformanceTab from "./_components/PerformanceTab";
-import TikTokVideoTab from "./_components/TikTokVideoTab";
 import ApprovalsTab from "./_components/ApprovalsTab";
 import { FeatureGate } from "@/components/app/FeatureGate";
 
@@ -22,7 +21,6 @@ type Product = { id: string; name: string };
 
 const tabs = [
   { value: "create", label: "Create" },
-  { value: "tiktok video", label: "TikTok Video" },
   { value: "drafts", label: "Drafts" },
   { value: "approvals", label: "Approvals" },
   { value: "scheduled", label: "Scheduled" },
@@ -170,10 +168,6 @@ export default function PostsPage() {
             onProductChange={handleProductChange}
             onPostCreated={handlePostCreated}
           />
-        </TabsContent>
-
-        <TabsContent value="tiktok video">
-          <TikTokVideoTab onPostCreated={handlePostCreated} />
         </TabsContent>
 
         <TabsContent value="drafts">

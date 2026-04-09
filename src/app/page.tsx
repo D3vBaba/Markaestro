@@ -99,11 +99,11 @@ export default function LandingPage() {
           <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
               { title: "Multi-Channel Publishing", desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly." },
-              { title: "Ad Campaign Management", desc: "Create and launch ad campaigns on Meta and Google Ads with audience targeting, budgets, and creative management." },
+              { title: "Ad Campaign Management", desc: "Create and launch ad campaigns on Meta and TikTok with audience targeting, budgets, and creative management." },
               { title: "AI Content Generation", desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization." },
               { title: "AI Image Generation", desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity." },
               { title: "Analytics Dashboard", desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time." },
-              { title: "OAuth Integrations", desc: "One-click connect to Meta, Google, and TikTok via secure OAuth. No manual token management required." },
+              { title: "OAuth Integrations", desc: "One-click connect to Meta and TikTok via secure OAuth. No manual token management required." },
             ].map(({ title, desc }) => (
               <div
                 key={title}
@@ -141,7 +141,7 @@ export default function LandingPage() {
                 {[
                   { name: "Facebook & Instagram", desc: "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing." },
                   { name: "TikTok", desc: "Photo and video content publishing via TikTok's Content Posting API." },
-                  { name: "Google Ads", desc: "Search and display campaigns with audience targeting and budget management." },
+                  { name: "TikTok Ads", desc: "Video-first campaign management with audience targeting, budgets, and creative control." },
                 ].map((ch) => (
                   <div key={ch.name} className="flex items-start gap-4">
                     <div className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
@@ -164,7 +164,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 gap-4">
               {[
                 { label: "Social Channels", value: "3", sub: "Facebook, Instagram, TikTok" },
-                { label: "Ad Platforms", value: "2", sub: "Meta Ads, Google Ads" },
+                { label: "Ad Platforms", value: "2", sub: "Meta Ads, TikTok Ads" },
                 { label: "AI Providers", value: "2", sub: "Gemini Imagen, OpenAI DALL-E" },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-muted/30 p-7 transition-all duration-300 hover:translate-y-[-2px] border border-border/40">

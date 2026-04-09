@@ -3,7 +3,7 @@ import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
 import type { PlanTier } from '@/lib/stripe/plans';
 
-export type UsageType = 'aiGenerations' | 'videoGenerations';
+export type UsageType = 'aiGenerations';
 
 export type UsageCheckResult = {
   allowed: boolean;
@@ -24,8 +24,8 @@ function usageScopeId(uid: string, workspaceId?: string): string {
  * type, and if so, increments the counter. Returns whether the request is allowed.
  *
  * Usage counters are stored in Firestore under `usage/{uid}` with field names
- * like `2026-03_aiGenerations` and `2026-03_videoGenerations`. This resets
- * naturally each month as the field key changes.
+ * like `2026-03_aiGenerations`. This resets naturally each month as the field
+ * key changes.
  */
 export async function checkAndIncrementUsage(
   uid: string,
@@ -78,12 +78,11 @@ export async function checkAndIncrementUsage(
 export async function getUsage(
   uid: string,
   workspaceId?: string,
-): Promise<{ aiGenerations: number; videoGenerations: number }> {
+): Promise<{ aiGenerations: number }> {
   const month = currentMonth();
   const snap = await adminDb.collection('usage').doc(usageScopeId(uid, workspaceId)).get();
   const data = snap.data() ?? {};
   return {
     aiGenerations: (data[`${month}_aiGenerations`] as number) ?? 0,
-    videoGenerations: (data[`${month}_videoGenerations`] as number) ?? 0,
   };
 }

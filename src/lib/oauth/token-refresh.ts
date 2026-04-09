@@ -160,10 +160,7 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
   for (const ws of wsDocs) {
     const workspaceId = ws.id;
 
-    // Workspace-level: Google, Meta
-    const googleRef = getConnectionRef(workspaceId, 'google');
-    await refreshConnectionDoc(googleRef, 'google', result, { workspaceId });
-
+    // Workspace-level: Meta
     const metaRef = getConnectionRef(workspaceId, 'meta');
     await refreshConnectionDoc(metaRef, 'meta', result, { workspaceId });
 

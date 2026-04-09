@@ -1,11 +1,9 @@
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
-import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { updateAdCampaignSchema } from '@/lib/schemas';
 import { isMetaObjectiveSupported } from '@/lib/ads/meta-ads';
-import { updateGoogleCampaignStatus } from '@/lib/ads/google-ads';
 import { updateMetaCampaignStatus } from '@/lib/ads/meta-ads';
 import { updateTikTokCampaignStatus } from '@/lib/ads/tiktok-ads';
 import type { AdCampaignDoc } from '@/lib/ads/types';
@@ -59,37 +57,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     await ref.update(update);
 
-    // Push budget changes to Google Ads if the campaign is live
-    const platformWarnings: string[] = [];
-    if (
-      existing.externalCampaignId &&
-      existing.platform === 'google' &&
-      input.dailyBudgetCents &&
-      input.dailyBudgetCents !== existing.dailyBudgetCents
-    ) {
-      const { updateGoogleCampaignBudget } = await import('@/lib/ads/google-ads');
-      const conn = await getConnection(ctx.workspaceId, 'google');
-      if (conn) {
-        const accessToken = decrypt(conn.accessTokenEncrypted);
-        const customerId = existing.customerId || (conn.metadata.customerId as string);
-        const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '';
-        if (customerId && developerToken) {
-          const result = await updateGoogleCampaignBudget(
-            accessToken, customerId, developerToken,
-            existing.externalCampaignId, input.dailyBudgetCents,
-            conn.metadata.loginCustomerId as string | undefined,
-          );
-          if (!result.success) {
-            platformWarnings.push(`Budget update on Google Ads failed: ${result.error}`);
-          }
-        }
-      }
-    }
-
     return apiOk({
       id,
       ...update,
-      ...(platformWarnings.length > 0 ? { platformWarnings } : {}),
     });
   } catch (error) {
     return apiError(error);
@@ -111,21 +81,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     // If the campaign was launched to a platform, remove/pause it there first
     if (campaign.externalCampaignId) {
       try {
-        if (campaign.platform === 'google') {
-          const conn = await getConnection(ctx.workspaceId, 'google');
-          if (conn) {
-            const accessToken = decrypt(conn.accessTokenEncrypted);
-            const customerId = campaign.customerId || (conn.metadata.customerId as string);
-            const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '';
-            if (customerId && developerToken) {
-              await updateGoogleCampaignStatus(
-                accessToken, customerId, developerToken,
-                campaign.externalCampaignId, 'PAUSED',
-                conn.metadata.loginCustomerId as string | undefined,
-              );
-            }
-          }
-        } else if (campaign.platform === 'meta') {
+        if (campaign.platform === 'meta') {
           const productId = campaign.productId as string;
           const conn = productId ? await getMetaConnectionMerged(ctx.workspaceId, productId) : null;
           if (conn) {

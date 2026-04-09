@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "validate:queries": "node scripts/validate-firestore-queries.mjs"
+    "validate:queries": "node scripts/validate-firestore-queries.mjs",
+    "stripe:sync-prices": "node scripts/sync-stripe-prices.mjs",
+    "stripe:sync-prices:dry": "node scripts/sync-stripe-prices.mjs --dry-run"
   },
   "dependencies": {
     "@google-cloud/secret-manager": "^6.1.1",

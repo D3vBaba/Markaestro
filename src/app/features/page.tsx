@@ -20,7 +20,7 @@ const coreFeatures = [
   },
   {
     title: "Ad Campaign Management",
-    description: "Launch paid campaigns on Meta and Google Ads directly from Markaestro. Set audiences, budgets, and creative variants without switching between ad managers.",
+    description: "Launch paid campaigns on Meta and TikTok directly from Markaestro. Set audiences, budgets, and creative variants without switching between ad managers.",
     details: [
       "Audience targeting with saved segments",
       "Budget allocation and pacing controls",
@@ -62,7 +62,7 @@ const coreFeatures = [
     title: "OAuth Integrations",
     description: "Connect your accounts in one click with industry-standard OAuth. No manual API keys, no token juggling. Markaestro securely stores and refreshes credentials for you.",
     details: [
-      "One-click connect for Meta, Google, TikTok",
+      "One-click connect for Meta and TikTok",
       "Encrypted token storage at rest",
       "Automatic token refresh",
       "Granular disconnect per platform",

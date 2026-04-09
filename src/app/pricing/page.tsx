@@ -23,11 +23,11 @@ const faqs = [
   },
   {
     q: "What counts as an AI generation?",
-    a: "Text and image generations (social posts, ad copy, campaigns, AI images) each use one AI generation credit. Video generations are tracked separately with their own monthly quota — see the comparison table for limits per plan. Starter does not include video generation.",
+    a: "Text and image generations (social posts, ad copy, campaigns, AI images) each use one AI generation credit. See the comparison table for monthly limits per plan.",
   },
   {
     q: "What happens when I hit my AI generation limit?",
-    a: "You can continue using all other features. Both AI generation and video generation quotas reset at the start of each billing cycle. You can upgrade your plan at any time for a higher quota.",
+    a: "You can continue using all other features — publishing, scheduling, analytics, and ad management stay available. Your AI generation quota resets at the start of each billing cycle, and you can upgrade your plan at any time for a higher quota.",
   },
   {
     q: "How does the free trial work?",

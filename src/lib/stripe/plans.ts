@@ -12,7 +12,6 @@ export type PlanConfig = {
   limits: {
     channels: number;
     aiGenerations: number; // -1 = unlimited
-    videoGenerations: number; // -1 = unlimited; 0 = not available
     teamMembers: number;   // -1 = unlimited
     workspaces: number;    // -1 = unlimited
   };
@@ -30,13 +29,13 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
   starter: {
     tier: 'starter',
     name: 'Starter',
-    description: 'For solo marketers publishing across channels.',
-    price: { monthly: 39, annual: 32 },
+    description: 'For solo marketers publishing across Meta and TikTok.',
+    price: { monthly: 29, annual: 24 },
     highlighted: false,
     features: [
       '5 social channels',
       'Unlimited posts',
-      '30 AI generations / month (text & images)',
+      '50 AI generations / month (text & images)',
       '1 team member',
       'Content calendar',
       'Basic analytics',
@@ -45,8 +44,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     ],
     limits: {
       channels: 5,
-      aiGenerations: 30,
-      videoGenerations: 0,
+      aiGenerations: 50,
       teamMembers: 1,
       workspaces: 1,
     },
@@ -62,17 +60,16 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
   pro: {
     tier: 'pro',
     name: 'Pro',
-    description: 'For growing teams that need ads, AI, and collaboration.',
-    price: { monthly: 99, annual: 82 },
+    description: 'For growing teams that need ad management, AI, and collaboration.',
+    price: { monthly: 69, annual: 57 },
     highlighted: true,
     badge: 'Most Popular',
     features: [
       '15 social channels',
       'Unlimited posts',
-      '150 AI generations / month (text & images)',
-      '15 video generations / month',
+      '250 AI generations / month (text & images)',
       '5 team members',
-      'Ad campaign management (Meta, Google, TikTok)',
+      'Ad campaign management (Meta, TikTok)',
       'Advanced analytics & AI insights',
       '5 workspaces',
       'Brand voice + brand identity',
@@ -82,8 +79,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     ],
     limits: {
       channels: 15,
-      aiGenerations: 150,
-      videoGenerations: 15,
+      aiGenerations: 250,
       teamMembers: 5,
       workspaces: 5,
     },
@@ -100,13 +96,12 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     tier: 'business',
     name: 'Business',
     description: 'For agencies managing multiple brands at scale.',
-    price: { monthly: 299, annual: 249 },
+    price: { monthly: 199, annual: 165 },
     highlighted: false,
     features: [
       '50 social channels',
       'Unlimited posts',
-      '500 AI generations / month (text & images)',
-      '50 video generations / month',
+      '750 AI generations / month (text & images)',
       'Unlimited team members',
       'Everything in Pro',
       'Unlimited workspaces',
@@ -114,8 +109,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     ],
     limits: {
       channels: 50,
-      aiGenerations: 500,
-      videoGenerations: 50,
+      aiGenerations: 750,
       teamMembers: -1,
       workspaces: -1,
     },
@@ -148,8 +142,7 @@ export const COMPARISON_CATEGORIES = [
   {
     name: 'AI Generation',
     features: [
-      { name: 'Text & image generations', starter: '30/mo', pro: '150/mo', business: '500/mo' },
-      { name: 'Video generations', starter: '—', pro: '15/mo', business: '50/mo' },
+      { name: 'Text & image generations', starter: '50/mo', pro: '250/mo', business: '750/mo' },
       { name: 'Brand voice profiles', starter: '1', pro: '5', business: 'Unlimited' },
       { name: 'Brand identity (logo & colors)', starter: false, pro: true, business: true },
     ],
@@ -158,7 +151,6 @@ export const COMPARISON_CATEGORIES = [
     name: 'Advertising',
     features: [
       { name: 'Meta Ads', starter: false, pro: true, business: true },
-      { name: 'Google Ads', starter: false, pro: true, business: true },
       { name: 'TikTok Ads', starter: false, pro: true, business: true },
       { name: 'Advanced analytics & AI insights', starter: false, pro: true, business: true },
     ],

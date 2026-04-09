@@ -84,7 +84,7 @@ ${researchQuery}
 I need you to:
 1. Identify the top 2-3 direct competitors and their main marketing angles
 2. List the top 5 real user pain points this product category solves (based on reviews, forums, Reddit, etc.)
-3. Identify what makes high-converting ${platform === 'google' ? 'Google search' : 'Facebook/Instagram'} ads in this space
+3. Identify what makes high-converting ${platform === 'tiktok' ? 'TikTok' : 'Facebook/Instagram'} ads in this space
 4. Suggest the best target audience demographics (age, interests, locations)
 
 Be specific and actionable. Use real data where possible.`;
@@ -118,8 +118,8 @@ Be specific and actionable. Use real data where possible.`;
     }
 
     // ── 3. Generate complete ad suggestion ───────────────────────────
-    const platformConstraints = platform === 'google'
-      ? `Google Ads (RSA): headline max 30 chars, description max 90 chars, primaryText is the ad copy (max 90 chars)`
+    const platformConstraints = platform === 'tiktok'
+      ? `TikTok Ads: headline max 100 chars, primaryText max 100 chars, video-first creative`
       : `Meta (Facebook/Instagram): headline max 40 chars, primaryText max 125 chars, description max 30 chars`;
 
     const brandVoiceBlock = brandVoice ? `
@@ -137,7 +137,7 @@ ${researchText}
 
 ---
 
-Create a complete, high-converting ${platform === 'google' ? 'Google Ads' : 'Meta Facebook/Instagram'} ad for:
+Create a complete, high-converting ${platform === 'tiktok' ? 'TikTok' : 'Meta Facebook/Instagram'} ad for:
 Product: ${productName}
 ${productDescription ? `Description: ${productDescription}` : ''}
 ${brandVoiceBlock}
@@ -147,7 +147,7 @@ Platform constraints: ${platformConstraints}
 Return a single JSON object with exactly these fields:
 {
   "name": "campaign name (descriptive, includes product + objective)",
-  "objective": "one of: ${platform === 'meta' ? META_OBJECTIVE_OPTIONS.join('|') : 'awareness|traffic|engagement|leads|conversions'}",
+  "objective": "one of: ${platform === 'meta' ? META_OBJECTIVE_OPTIONS.join('|') : 'awareness|traffic|engagement|leads|conversions|app_installs'}",
   "dailyBudgetCents": number (in cents, recommended starting budget for the objective),
   "headline": "attention-grabbing headline (within character limits)",
   "primaryText": "main ad body copy that speaks to the pain point (within limits)",
@@ -159,7 +159,7 @@ Return a single JSON object with exactly these fields:
     "ageMax": number,
     "gender": "all|male|female",
     "locations": ["US"],
-    "interests": ["3-5 specific interest keywords"]${platform === 'google' ? ',\n    "keywords": ["10-20 high-intent search keywords users would type when looking for this product"]' : ''}
+    "interests": ["3-5 specific interest keywords"]
   },
   "rationale": {
     "summary": "1-2 sentence explanation of the strategy",

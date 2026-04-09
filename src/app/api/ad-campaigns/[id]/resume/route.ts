@@ -4,7 +4,6 @@ import { adminDb } from '@/lib/firebase-admin';
 import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { updateMetaCampaignStatus } from '@/lib/ads/meta-ads';
-import { updateGoogleCampaignStatus } from '@/lib/ads/google-ads';
 import { updateTikTokCampaignStatus } from '@/lib/ads/tiktok-ads';
 import type { AdCampaignDoc } from '@/lib/ads/types';
 import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
@@ -35,19 +34,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       if (!conn) return apiOk({ ok: false, error: 'Meta integration not found' });
       const accessToken = resolveUserAccessToken(conn);
       result = await updateMetaCampaignStatus(accessToken, campaign.externalCampaignId, 'ACTIVE');
-    } else if (campaign.platform === 'google') {
-      const conn = await getConnection(ctx.workspaceId, 'google');
-      if (!conn) return apiOk({ ok: false, error: 'Google integration not found' });
-      const accessToken = decrypt(conn.accessTokenEncrypted);
-      const customerId = campaign.customerId || (conn.metadata.customerId as string);
-      result = await updateGoogleCampaignStatus(
-        accessToken,
-        customerId,
-        process.env.GOOGLE_ADS_DEVELOPER_TOKEN || '',
-        campaign.externalCampaignId,
-        'ENABLED',
-        conn.metadata.loginCustomerId as string | undefined,
-      );
     } else if (campaign.platform === 'tiktok') {
       const productId = campaign.productId as string | undefined;
       const conn = productId

@@ -54,21 +54,6 @@ const channels = [
     connection: "OAuth via TikTok for Developers",
   },
   {
-    name: "Google Ads",
-    category: "Advertising",
-    color: "#4285F4",
-    description: "Launch search and display campaigns on the world's largest ad network. Manage keywords, audiences, budgets, and bidding strategies without leaving Markaestro.",
-    capabilities: [
-      "Search campaigns with keyword targeting",
-      "Display campaigns with image creatives",
-      "Budget allocation and pacing",
-      "Geographic and demographic targeting",
-      "Conversion tracking integration",
-      "Performance reporting and optimization",
-    ],
-    connection: "OAuth via Google Ads API",
-  },
-  {
     name: "Meta Ads",
     category: "Advertising",
     color: "#1877F2",
@@ -87,7 +72,7 @@ const channels = [
 
 const stats = [
   { value: "3", label: "Social Channels", sub: "Facebook, Instagram, TikTok" },
-  { value: "2", label: "Ad Platforms", sub: "Meta Ads, Google Ads" },
+  { value: "2", label: "Ad Platforms", sub: "Meta Ads, TikTok Ads" },
   { value: "1", label: "Dashboard", sub: "Unified publishing & analytics" },
   { value: "0", label: "Manual Tokens", sub: "Fully OAuth, fully automated" },
 ];
@@ -135,7 +120,7 @@ export default function ChannelsPage() {
       <section className="border-t bg-muted/20">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="space-y-16">
-            {channels.map((channel, i) => (
+            {channels.map((channel) => (
               <motion.div
                 key={channel.name}
                 className="rounded-2xl border border-border/40 bg-background overflow-hidden"

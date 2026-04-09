@@ -3,7 +3,6 @@ import { executeJob } from '@/lib/jobs/executor';
 import { processScheduledPosts, recoverStalePublishingPosts } from '@/lib/social/publisher';
 import { pollPendingTikTokPublishes } from '@/lib/social/tiktok-publish-poll-worker';
 import { processTokenRefresh, cleanupExpiredOAuthStates } from '@/lib/oauth/token-refresh';
-import { pollPendingVideoGenerations } from '@/lib/ai/video-poll-worker';
 import { safeCompare } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getAllDocs, getAllMatchingDocs } from '@/lib/firestore-pagination';
@@ -37,15 +36,7 @@ export async function POST(req: Request) {
       console.error('OAuth state cleanup failed:', e);
     }
 
-    // 3. Poll pending video generations
-    let videoPollResult = { polled: 0, completed: 0, failed: 0, errors: [] as Array<{ workspaceId: string; generationId: string; error: string }> };
-    try {
-      videoPollResult = await pollPendingVideoGenerations();
-    } catch (e) {
-      console.error('Video generation polling failed:', e);
-    }
-
-    // 4. Poll pending TikTok publishes
+    // 3. Poll pending TikTok publishes
     let tiktokPublishPollResult = { polled: 0, completed: 0, failed: 0, pending: 0, errors: [] as Array<{ workspaceId: string; postId: string; error: string }> };
     try {
       tiktokPublishPollResult = await pollPendingTikTokPublishes();
@@ -53,7 +44,7 @@ export async function POST(req: Request) {
       console.error('TikTok publish polling failed:', e);
     }
 
-    // 5. Process workspaces (paginated — no cap)
+    // 4. Process workspaces (paginated — no cap)
     const wsDocs = await getAllDocs('workspaces');
 
     let scanned = 0;
@@ -174,12 +165,6 @@ export async function POST(req: Request) {
         errors: tokenRefreshResult.errors,
       },
       oauthStatesCleanedUp: statesCleanedUp,
-      videoGenerations: {
-        polled: videoPollResult.polled,
-        completed: videoPollResult.completed,
-        failed: videoPollResult.failed,
-        errors: videoPollResult.errors,
-      },
       tiktokPublishes: {
         polled: tiktokPublishPollResult.polled,
         completed: tiktokPublishPollResult.completed,
