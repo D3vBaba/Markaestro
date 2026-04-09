@@ -24,10 +24,9 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       'pages_read_engagement',
       'pages_manage_posts',
       'business_management',
-      'ads_management',
-      'ads_read',
       'instagram_basic',
       'instagram_content_publish',
+      'instagram_manage_insights',
     ],
     clientIdEnv: 'META_APP_ID',
     clientSecretEnv: 'META_APP_SECRET',
@@ -39,27 +38,11 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     scopes: [
       'instagram_business_basic',
       'instagram_business_content_publish',
+      'instagram_business_manage_insights',
     ],
     clientIdEnv: 'INSTAGRAM_APP_ID',
     clientSecretEnv: 'INSTAGRAM_APP_SECRET',
     extraAuthParams: {},
-  },
-  google: {
-    authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-    tokenUrl: 'https://oauth2.googleapis.com/token',
-    revokeUrl: 'https://oauth2.googleapis.com/revoke',
-    scopes: [
-      'https://www.googleapis.com/auth/adwords',
-      'openid',
-      'email',
-      'profile',
-    ],
-    clientIdEnv: 'GOOGLE_CLIENT_ID',
-    clientSecretEnv: 'GOOGLE_CLIENT_SECRET',
-    extraAuthParams: {
-      access_type: 'offline',
-      prompt: 'consent',
-    },
   },
   tiktok: {
     authUrl: 'https://www.tiktok.com/v2/auth/authorize/',
@@ -94,7 +77,6 @@ export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig 
 const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   meta: 'META_OAUTH_REDIRECT_URI',
   instagram: 'INSTAGRAM_OAUTH_REDIRECT_URI',
-  google: 'GOOGLE_OAUTH_REDIRECT_URI',
   tiktok: 'TIKTOK_OAUTH_REDIRECT_URI',
   tiktok_ads: 'TIKTOK_ADS_OAUTH_REDIRECT_URI',
 };
