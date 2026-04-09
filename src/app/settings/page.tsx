@@ -582,17 +582,9 @@ function IntegrationsTab() {
   const needsReconnect = (provider: string) =>
     integrations.find((i) => i.provider === provider)?.lastRefreshError != null;
 
-  async function startOAuth(provider: string) {
-    try {
-      const res = await apiPost<{ authUrl: string }>(`/api/oauth/authorize/${provider}`, {});
-      if (res.ok && res.data.authUrl) {
-        window.location.href = res.data.authUrl;
-      } else {
-        toast.error((res.data as { error?: string }).error || `Failed to connect`);
-      }
-    } catch {
-      toast.error(`Something went wrong. Please try again.`);
-    }
+  function startOAuth(provider: string) {
+    const qs = new URLSearchParams({ workspaceId: "default" });
+    window.location.href = `/api/oauth/authorize/${provider}?${qs.toString()}`;
   }
 
   async function confirmDisconnect() {

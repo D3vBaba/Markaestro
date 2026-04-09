@@ -535,14 +535,10 @@ export default function ProductsPage() {
   const getProviderIntegration = (provider: string) =>
     productIntegrations.find((i) => i.provider === provider);
 
-  async function startOAuth(provider: string, productId: string) {
-    try {
-      // Meta: workspace-level OAuth (productId passed only for redirect-back)
-      const body = provider === "meta" ? { productId } : { productId };
-      const res = await apiPost<{ authUrl: string }>(`/api/oauth/authorize/${provider}`, body);
-      if (res.ok && res.data.authUrl) window.location.href = res.data.authUrl;
-      else toast.error(`Failed to start ${provider} OAuth`);
-    } catch { toast.error(`Failed to start ${provider} OAuth`); }
+  function startOAuth(provider: string, productId: string) {
+    const qs = new URLSearchParams({ workspaceId: "default" });
+    if (productId) qs.set("productId", productId);
+    window.location.href = `/api/oauth/authorize/${provider}?${qs.toString()}`;
   }
 
   async function confirmDisconnectProvider() {

@@ -452,15 +452,11 @@ export default function OnboardingPage() {
     setConnectingProvider(providerId);
     try {
       const returnTo = `${window.location.origin}/onboarding`;
-      const res = await apiFetch<{ authUrl: string }>(
-        `/api/oauth/authorize/${providerId}`,
-        { method: "POST", body: JSON.stringify({ returnTo }) }
-      );
-      if (res.ok && res.data.authUrl) {
-        window.location.href = res.data.authUrl;
-      } else {
-        toast.error("Could not initiate connection. Please try again.");
-      }
+      const qs = new URLSearchParams({
+        workspaceId: "default",
+        returnTo,
+      });
+      window.location.href = `/api/oauth/authorize/${providerId}?${qs.toString()}`;
     } catch {
       toast.error("Could not initiate connection. Please try again.");
     } finally {
