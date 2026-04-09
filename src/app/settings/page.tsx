@@ -1097,10 +1097,14 @@ function ApiAccessTab() {
 
   const [createKeyOpen, setCreateKeyOpen] = useState(false);
   const [createWebhookOpen, setCreateWebhookOpen] = useState(false);
+  const [editKeyOpen, setEditKeyOpen] = useState(false);
 
   const [clientName, setClientName] = useState('');
   const [selectedScopes, setSelectedScopes] = useState<string[]>(['products.read', 'media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
+  const [editingClient, setEditingClient] = useState<ApiClientInfo | null>(null);
+  const [editingScopes, setEditingScopes] = useState<string[]>([]);
   const [creatingClient, setCreatingClient] = useState(false);
+  const [savingClientScopes, setSavingClientScopes] = useState(false);
   const [createdApiKey, setCreatedApiKey] = useState<string | null>(null);
 
   const [webhookUrl, setWebhookUrl] = useState('');
@@ -1206,6 +1210,37 @@ function ApiAccessTab() {
       toast.error('Failed to revoke API key');
     } finally {
       setRevokingClient(null);
+    }
+  }
+
+  function openEditClient(client: ApiClientInfo) {
+    setEditingClient(client);
+    setEditingScopes(client.scopes);
+    setEditKeyOpen(true);
+  }
+
+  async function saveClientScopes() {
+    if (!editingClient || editingScopes.length === 0) return;
+    setSavingClientScopes(true);
+    try {
+      const res = await apiPut<{ apiClient: ApiClientInfo }>(
+        `/api/settings/api-clients/${editingClient.id}`,
+        { scopes: editingScopes },
+        wsId,
+      );
+      if (res.ok) {
+        toast.success('API key permissions updated');
+        setEditKeyOpen(false);
+        setEditingClient(null);
+        setEditingScopes([]);
+        await fetchApiAccess();
+      } else {
+        toast.error('Failed to update API key permissions');
+      }
+    } catch {
+      toast.error('Failed to update API key permissions');
+    } finally {
+      setSavingClientScopes(false);
     }
   }
 
@@ -1415,16 +1450,27 @@ function ApiAccessTab() {
                             {client.lastUsedAt ? new Date(client.lastUsedAt).toLocaleString() : 'Never'}
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-rose-600 hover:text-rose-700"
-                              onClick={() => revokeClient(client.id)}
-                              disabled={client.status !== 'active' || revokingClient === client.id}
-                            >
-                              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                              {revokingClient === client.id ? 'Revoking…' : 'Revoke'}
-                            </Button>
+                            <div className="flex justify-end gap-1.5">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openEditClient(client)}
+                                disabled={client.status !== 'active'}
+                              >
+                                <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                                Edit permissions
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-rose-600 hover:text-rose-700"
+                                onClick={() => revokeClient(client.id)}
+                                disabled={client.status !== 'active' || revokingClient === client.id}
+                              >
+                                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                                {revokingClient === client.id ? 'Revoking…' : 'Revoke'}
+                              </Button>
+                            </div>
                           </TableCell>
                       </TableRow>
                       ))
@@ -1615,6 +1661,53 @@ function ApiAccessTab() {
             <Button variant="outline" onClick={() => setCreateWebhookOpen(false)}>Cancel</Button>
             <Button onClick={createWebhook} disabled={creatingWebhook || !webhookUrl.trim() || selectedEvents.length === 0}>
               {creatingWebhook ? 'Creating…' : 'Add webhook'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={editKeyOpen}
+        onOpenChange={(open) => {
+          setEditKeyOpen(open);
+          if (!open) {
+            setEditingClient(null);
+            setEditingScopes([]);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit API key permissions</DialogTitle>
+            <DialogDescription>
+              Update the scopes for this key. Changes take effect immediately for future requests.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-xl border p-3">
+              <p className="text-sm font-medium">{editingClient?.name || 'API key'}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{editingClient?.keyPrefix}…</p>
+            </div>
+            <div className="space-y-3">
+              <Label>Scopes</Label>
+              <div className="grid gap-2 rounded-xl border p-3">
+                {API_SCOPE_OPTIONS.map((scope) => (
+                  <Label key={scope.id} className="justify-start">
+                    <Checkbox
+                      checked={editingScopes.includes(scope.id)}
+                      onCheckedChange={(checked) => setEditingScopes((current) => toggleSelection(current, scope.id, checked === true))}
+                    />
+                    <span>{scope.label}</span>
+                    <span className="text-xs text-muted-foreground">{scope.id}</span>
+                  </Label>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditKeyOpen(false)}>Cancel</Button>
+            <Button onClick={saveClientScopes} disabled={savingClientScopes || editingScopes.length === 0}>
+              {savingClientScopes ? 'Saving…' : 'Save permissions'}
             </Button>
           </DialogFooter>
         </DialogContent>
