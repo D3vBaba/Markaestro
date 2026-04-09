@@ -2,6 +2,7 @@ import { fetchWithRetry } from '@/lib/fetch-retry';
 import type { FacebookPost, FacebookInsights, InstagramInsights, InstagramMedia } from './types';
 
 const GRAPH_API = 'https://graph.facebook.com/v22.0';
+const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
 
 // ── Facebook Page Insights ──────────────────────────────────────
 
@@ -108,13 +109,16 @@ async function fetchPagePosts(token: string, pageId: string): Promise<FacebookPo
 // ── Instagram Insights ──────────────────────────────────────────
 
 export async function fetchInstagramInsights(
-  pageAccessToken: string,
+  accessToken: string,
   igAccountId: string,
+  options?: { graphApi?: 'facebook' | 'instagram' },
 ): Promise<InstagramInsights> {
+  const graphApi = options?.graphApi === 'instagram' ? INSTAGRAM_GRAPH_API : GRAPH_API;
+
   try {
     const [profileResult, mediaResult] = await Promise.allSettled([
-      fetchIgProfile(pageAccessToken, igAccountId),
-      fetchIgMedia(pageAccessToken, igAccountId),
+      fetchIgProfile(accessToken, igAccountId, graphApi),
+      fetchIgMedia(accessToken, igAccountId, graphApi),
     ]);
 
     const profile = profileResult.status === 'fulfilled' ? profileResult.value : null;
@@ -139,9 +143,10 @@ export async function fetchInstagramInsights(
 async function fetchIgProfile(
   token: string,
   igAccountId: string,
+  graphApi: string,
 ): Promise<{ followersCount: number; mediaCount: number } | null> {
   const res = await fetchWithRetry(
-    `${GRAPH_API}/${igAccountId}?fields=followers_count,media_count&access_token=${token}`,
+    `${graphApi}/${igAccountId}?fields=followers_count,media_count&access_token=${token}`,
     {},
     { maxRetries: 1 },
   );
@@ -153,10 +158,10 @@ async function fetchIgProfile(
   };
 }
 
-async function fetchIgMedia(token: string, igAccountId: string): Promise<InstagramMedia[]> {
+async function fetchIgMedia(token: string, igAccountId: string, graphApi: string): Promise<InstagramMedia[]> {
   const fields = 'id,caption,media_type,media_url,thumbnail_url,timestamp,like_count,comments_count,permalink';
   const res = await fetchWithRetry(
-    `${GRAPH_API}/${igAccountId}/media?fields=${fields}&limit=10&access_token=${token}`,
+    `${graphApi}/${igAccountId}/media?fields=${fields}&limit=10&access_token=${token}`,
     {},
     { maxRetries: 1 },
   );
@@ -195,7 +200,7 @@ async function fetchIgMedia(token: string, igAccountId: string): Promise<Instagr
       .map(async (item) => {
         try {
           const childRes = await fetchWithRetry(
-            `${GRAPH_API}/${item.id}/children?fields=media_url,thumbnail_url,media_type&access_token=${token}`,
+            `${graphApi}/${item.id}/children?fields=media_url,thumbnail_url,media_type&access_token=${token}`,
             {},
             { maxRetries: 1 },
           );

@@ -60,13 +60,13 @@ async function refreshConnectionDoc(
   if (!data.tokenExpiresAt) return;
   if (data.tokenExpiresAt > threshold) return;
 
-  // Meta without refreshToken: extend user token via fb_exchange_token
-  if (!data.refreshTokenEncrypted && provider === 'meta') {
+  // Meta/Instagram without refreshToken: extend the existing user token directly
+  if (!data.refreshTokenEncrypted && (provider === 'meta' || provider === 'instagram')) {
     if (!data.accessTokenEncrypted) return;
 
     try {
       const currentToken = decrypt(data.accessTokenEncrypted);
-      const newTokens = await refreshAccessToken('meta', currentToken);
+      const newTokens = await refreshAccessToken(provider, currentToken);
 
       const newExpiresAt = newTokens.expiresIn
         ? new Date(now.getTime() + newTokens.expiresIn * 1000).toISOString()
@@ -167,8 +167,8 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
     const metaRef = getConnectionRef(workspaceId, 'meta');
     await refreshConnectionDoc(metaRef, 'meta', result, { workspaceId });
 
-    // Product-level: tiktok + tiktok_ads (Meta is now workspace-level)
-    const socialProviders: OAuthProvider[] = ['tiktok', 'tiktok_ads'];
+    // Product-level: instagram + tiktok + tiktok_ads (Meta is workspace-level)
+    const socialProviders: OAuthProvider[] = ['instagram', 'tiktok', 'tiktok_ads'];
     const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
 
     for (const productDoc of productDocs) {

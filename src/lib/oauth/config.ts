@@ -33,6 +33,17 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     clientSecretEnv: 'META_APP_SECRET',
     extraAuthParams: {},
   },
+  instagram: {
+    authUrl: 'https://www.instagram.com/oauth/authorize',
+    tokenUrl: 'https://api.instagram.com/oauth/access_token',
+    scopes: [
+      'instagram_business_basic',
+      'instagram_business_content_publish',
+    ],
+    clientIdEnv: 'INSTAGRAM_APP_ID',
+    clientSecretEnv: 'INSTAGRAM_APP_SECRET',
+    extraAuthParams: {},
+  },
   google: {
     authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
     tokenUrl: 'https://oauth2.googleapis.com/token',
@@ -82,6 +93,7 @@ export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig 
 
 const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   meta: 'META_OAUTH_REDIRECT_URI',
+  instagram: 'INSTAGRAM_OAUTH_REDIRECT_URI',
   google: 'GOOGLE_OAUTH_REDIRECT_URI',
   tiktok: 'TIKTOK_OAUTH_REDIRECT_URI',
   tiktok_ads: 'TIKTOK_ADS_OAUTH_REDIRECT_URI',

@@ -7,7 +7,7 @@ import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 
 const ALLOWED = new Set<string>(oauthProviders);
-const SOCIAL_PROVIDERS = new Set(['tiktok', 'tiktok_ads']);
+const SOCIAL_PROVIDERS = new Set(['instagram', 'tiktok', 'tiktok_ads']);
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {

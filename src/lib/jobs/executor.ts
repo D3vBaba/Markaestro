@@ -50,6 +50,9 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
               channel: post.channel,
               mediaUrls: post.mediaUrls,
               deliveryMode: post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
+              destinationProvider: typeof post.destinationProvider === 'string' && post.destinationProvider
+                ? post.destinationProvider
+                : undefined,
             });
             const successfulChannels = result.channels.filter((c) => c.success);
             if (result.pending) {

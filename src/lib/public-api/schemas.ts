@@ -13,6 +13,7 @@ export const createPublicPostSchema = z.object({
   mediaAssetIds: z.array(z.string().trim().min(1)).max(10).default([]),
   scheduledAt: z.string().datetime().nullable().optional(),
   productId: z.string().trim().max(2000).optional(),
+  destinationId: z.string().trim().max(2000).optional(),
 });
 
 export const listPublicPostsSchema = z.object({

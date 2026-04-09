@@ -59,6 +59,7 @@ export type PublishRequest = {
   channel: SocialChannel;
   mediaUrls?: string[];
   deliveryMode?: PublicDeliveryMode;
+  destinationProvider?: string;
 };
 
 export type PublishResult = {

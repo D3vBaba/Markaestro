@@ -40,6 +40,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         channel: post.channel,
         mediaUrls: post.mediaUrls,
         deliveryMode: post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
+        destinationProvider: typeof post.destinationProvider === 'string' && post.destinationProvider
+          ? post.destinationProvider
+          : undefined,
       });
     } catch (publishError) {
       // Unexpected exception — revert so post doesn't stay stuck in 'publishing'

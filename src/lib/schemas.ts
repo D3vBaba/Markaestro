@@ -35,7 +35,7 @@ export const triggerTypes = ['manual', 'event', 'schedule', 'segment'] as const;
 export const jobTypes = ['sync_contacts', 'generate_content', 'publish_post', 'create_ad_campaign', 'refresh_tokens', 'sync_ad_metrics'] as const;
 export const jobSchedules = ['manual', 'daily'] as const;
 export const integrationProviders = ['facebook', 'instagram', 'meta', 'google', 'tiktok', 'tiktok_ads'] as const;
-export const oauthProviders = ['meta', 'google', 'tiktok', 'tiktok_ads'] as const;
+export const oauthProviders = ['meta', 'instagram', 'google', 'tiktok', 'tiktok_ads'] as const;
 export const workspaceRoles = ['owner', 'admin', 'member', 'analyst'] as const;
 
 // ── Pipeline Enums ────────────────────────────────────────────────

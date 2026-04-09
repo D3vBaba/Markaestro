@@ -82,7 +82,12 @@ export async function publishPost(
     return { success: false, error: `Unsupported channel: ${request.channel}` };
   }
 
-  const connection = await getConnectionForChannel(workspaceId, request.channel, productId);
+  const connection = await getConnectionForChannel(
+    workspaceId,
+    request.channel,
+    productId,
+    request.destinationProvider,
+  );
   if (!connection) {
     return { success: false, error: `${request.channel} integration is not configured or disabled` };
   }
@@ -104,12 +109,18 @@ async function resolveMetaChannels(
   workspaceId: string,
   productId: string | undefined,
   primaryChannel: SocialChannel,
+  destinationProvider?: string,
 ): Promise<SocialChannel[]> {
   if (primaryChannel !== 'facebook' && primaryChannel !== 'instagram') {
     return [primaryChannel];
   }
 
-  const connection = await getConnectionForChannel(workspaceId, primaryChannel, productId);
+  const connection = await getConnectionForChannel(
+    workspaceId,
+    primaryChannel,
+    productId,
+    destinationProvider,
+  );
   if (!connection) return [primaryChannel];
 
   const hasPage = !!connection.metadata.pageId;
@@ -440,7 +451,12 @@ export async function publishPostMultiChannel(
   productId: string | undefined,
   request: PublishRequest,
 ): Promise<MultiChannelPublishResult> {
-  const channels = await resolveMetaChannels(workspaceId, productId, request.channel);
+  const channels = await resolveMetaChannels(
+    workspaceId,
+    productId,
+    request.channel,
+    request.destinationProvider,
+  );
 
   const results: ChannelPublishResult[] = [];
 
@@ -548,6 +564,9 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
             content: String(claimed.post.content || ''),
             channel,
             mediaUrls: asStringArray(claimed.post.mediaUrls),
+            destinationProvider: typeof claimed.post.destinationProvider === 'string' && claimed.post.destinationProvider
+              ? claimed.post.destinationProvider
+              : undefined,
           });
           channelResults.push({
             channel,
@@ -571,6 +590,9 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
           channel: String(claimed.post.channel) as SocialChannel,
           mediaUrls: asStringArray(claimed.post.mediaUrls),
           deliveryMode: claimed.post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
+          destinationProvider: typeof claimed.post.destinationProvider === 'string' && claimed.post.destinationProvider
+            ? claimed.post.destinationProvider
+            : undefined,
         });
       }
 

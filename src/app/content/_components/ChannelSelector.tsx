@@ -11,6 +11,7 @@ type IntegrationInfo = {
   pageId?: string | null;
   pageName?: string | null;
   igAccountId?: string | null;
+  username?: string | null;
 };
 
 type ChannelState = "ready" | "needs-setup" | "disconnected";
@@ -30,7 +31,7 @@ const channelColors: Record<string, { active: string; dot: string }> = {
 
 const setupHintPrefix: Record<string, string> = {
   facebook: "Connect Meta and select a Facebook page in",
-  instagram: "Connect Meta with a linked Instagram business account in",
+  instagram: "Connect Meta with a linked Instagram business account or connect Instagram directly in",
   tiktok: "Connect TikTok in",
 };
 
@@ -89,15 +90,18 @@ export default function ChannelSelector({
 
   function channelState(ch: string): ChannelState {
     const meta = integrations.find((i) => i.provider === "meta");
+    const instagram = integrations.find((i) => i.provider === "instagram");
     const metaOk = meta?.status === "connected";
+    const instagramOk = instagram?.status === "connected" && !!instagram?.igAccountId;
 
     if (ch === "facebook") {
       if (!metaOk) return "disconnected";
       return meta?.pageId ? "ready" : "needs-setup";
     }
     if (ch === "instagram") {
-      if (!metaOk) return "disconnected";
-      return meta?.igAccountId ? "ready" : "needs-setup";
+      if (meta?.igAccountId || instagramOk) return "ready";
+      if (metaOk) return "needs-setup";
+      return "disconnected";
     }
     const conn = integrations.find((i) => i.provider === ch);
     return conn?.status === "connected" ? "ready" : "disconnected";

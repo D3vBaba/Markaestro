@@ -3,7 +3,7 @@ import type { SocialChannel } from '@/lib/schemas';
 import type { PublicApiContext } from './auth';
 import { resolveMediaAssetUrls } from './media';
 import type { PublicDeliveryMode } from './scopes';
-import { resolvePublicPostProductId } from './products';
+import { resolvePublicPostDestination } from './products';
 
 type CreatePublicPostInput = {
   channel: SocialChannel;
@@ -11,6 +11,7 @@ type CreatePublicPostInput = {
   mediaAssetIds: string[];
   scheduledAt?: string | null;
   productId?: string;
+  destinationId?: string;
 };
 
 export function getDeliveryModeForChannel(channel: SocialChannel): PublicDeliveryMode {
@@ -47,7 +48,12 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
   validatePublicPostInput(input);
 
   const mediaAssets = await resolveMediaAssetUrls(ctx.workspaceId, input.mediaAssetIds);
-  const resolvedProductId = await resolvePublicPostProductId(ctx.workspaceId, input.channel, input.productId);
+  const resolvedDestination = await resolvePublicPostDestination(
+    ctx.workspaceId,
+    input.channel,
+    input.productId,
+    input.destinationId,
+  );
   const now = new Date().toISOString();
   const ref = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`).doc();
   const status = input.scheduledAt ? 'scheduled' : 'draft';
@@ -58,8 +64,11 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
     scheduledAt: input.scheduledAt || null,
     mediaUrls: mediaAssets.map((asset) => asset.url),
     mediaAssetIds: input.mediaAssetIds,
-    productId: resolvedProductId || '',
-    deliveryMode: getDeliveryModeForChannel(input.channel),
+    productId: resolvedDestination.productId || '',
+    destinationId: resolvedDestination.destinationId,
+    destinationProvider: resolvedDestination.destinationProvider,
+    deliveryMode: resolvedDestination.deliveryMode || getDeliveryModeForChannel(input.channel),
+    willAlsoPublishTo: resolvedDestination.willAlsoPublishTo,
     createdByType: ctx.principalType,
     createdById: ctx.clientId,
     createdAt: now,
@@ -87,6 +96,8 @@ export function serializePublicPost(post: Record<string, unknown>) {
     status: post.status,
     caption: post.content || '',
     productId: post.productId || '',
+    destinationId: post.destinationId || '',
+    destinationProvider: post.destinationProvider || '',
     mediaAssetIds: Array.isArray(post.mediaAssetIds) ? post.mediaAssetIds : [],
     mediaUrls: Array.isArray(post.mediaUrls) ? post.mediaUrls : [],
     scheduledAt: post.scheduledAt ?? null,

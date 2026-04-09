@@ -73,6 +73,7 @@ async function resolveConnectionForPost(
     workspaceId,
     String(post.channel) as SocialChannel,
     typeof post.productId === 'string' && post.productId ? post.productId : undefined,
+    typeof post.destinationProvider === 'string' && post.destinationProvider ? post.destinationProvider : undefined,
   );
 }
 
@@ -147,6 +148,9 @@ async function processSingleRun(workspaceId: string, runId: string) {
           ? post.mediaUrls.filter((value): value is string => typeof value === 'string')
           : [],
         deliveryMode: post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
+        destinationProvider: typeof post.destinationProvider === 'string' && post.destinationProvider
+          ? post.destinationProvider
+          : undefined,
       },
     );
 

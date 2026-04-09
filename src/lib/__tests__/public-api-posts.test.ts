@@ -52,6 +52,8 @@ describe('public post validation', () => {
       channel: 'tiktok',
       status: 'exported_for_review',
       content: 'Draft me',
+      destinationId: 'tiktok:tiktok:tt_open_123',
+      destinationProvider: 'tiktok',
       mediaAssetIds: ['ast_1'],
       mediaUrls: ['https://example.com/1.jpg'],
       nextAction: 'open_tiktok_inbox_and_complete_editing',
@@ -60,6 +62,8 @@ describe('public post validation', () => {
     });
 
     expect(serialized.caption).toBe('Draft me');
+    expect(serialized.destinationId).toBe('tiktok:tiktok:tt_open_123');
+    expect(serialized.destinationProvider).toBe('tiktok');
     expect(serialized.nextAction).toBe('open_tiktok_inbox_and_complete_editing');
   });
 });

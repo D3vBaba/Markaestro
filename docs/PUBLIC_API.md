@@ -52,13 +52,19 @@ Meta:
 - if a selected Facebook Page has a linked Instagram business account, Markaestro fans the publish out to both Facebook and Instagram
 - post status becomes `published`
 
+Instagram Login:
+- direct publish for standalone Instagram professional accounts that are not linked to a Facebook Page
+- exposed as a separate destination in `GET /api/public/v1/products/:id/destinations`
+- if a product has both a Meta-linked Instagram destination and a standalone Instagram Login destination, include `destinationId` when creating the post
+
 Meta account selection:
 - Use `GET /api/public/v1/products` to discover product ids
 - Use `GET /api/public/v1/products/:id/destinations` to inspect linked Facebook, Instagram, and TikTok destinations for that product
-- Include `productId` when creating a post if your workspace has more than one eligible destination for the chosen channel
+- Include `productId` when your workspace has more than one eligible product for the chosen channel
+- Include `destinationId` when the chosen product has more than one eligible destination for the chosen channel
 - Facebook-only products work
 - Products with a Facebook Page linked to Instagram will publish to both channels
-- Standalone Instagram destinations are only usable if the workspace already has a Meta connection with an `igAccountId`; the current in-app Meta setup flow is page-first and derives Instagram from the linked Facebook Page
+- Standalone Instagram professional accounts are supported through Instagram Login and do not require a Facebook Page
 
 TikTok:
 - exported to review flow using TikTok's media-upload mode
@@ -101,7 +107,8 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \
     "channel": "instagram",
     "caption": "Launch day.",
     "mediaAssetIds": ["ast_123", "ast_124"],
-    "productId": "prod_123"
+    "productId": "prod_123",
+    "destinationId": "instagram:instagram:ig_123"
   }'
 ```
 

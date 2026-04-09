@@ -100,9 +100,10 @@ const categoryLabels: Record<string, string> = {
   other: "Other",
 };
 
-const SOCIAL_PROVIDERS = ["meta", "tiktok", "tiktok_ads"] as const;
+const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok", "tiktok_ads"] as const;
 const providerLabels: Record<string, string> = {
   meta: "Meta (Facebook + Instagram)",
+  instagram: "Instagram (direct login)",
   tiktok: "TikTok",
   tiktok_ads: "TikTok Ads",
 };
@@ -1091,6 +1092,52 @@ export default function ProductsPage() {
                           <p className="text-xs text-muted-foreground pl-1">
                             Connect Meta in <a href="/settings" className="text-primary hover:underline">Settings</a> first, then select a page here.
                           </p>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {(() => {
+                    const integ = getProviderIntegration("instagram");
+                    const connected = integ?.status === "connected";
+
+                    return (
+                      <div className="rounded-xl border p-3 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-medium">{providerLabels.instagram}</p>
+                          {connected && (
+                            <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
+                          )}
+                          {integ?.lastRefreshError && (
+                            <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
+                          )}
+                        </div>
+
+                        <p className="text-xs text-muted-foreground pl-1">
+                          Use Instagram Login for professional accounts that are not linked to a Facebook Page.
+                        </p>
+
+                        {connected && (
+                          <div className="space-y-1 pl-1">
+                            {integ?.username && (
+                              <p className="text-xs text-muted-foreground">
+                                Account: <span className="font-medium text-foreground">@{integ.username}</span>
+                              </p>
+                            )}
+                            {integ?.tokenExpiresAt && (
+                              <p className="text-xs text-muted-foreground">
+                                Token expires: {new Date(integ.tokenExpiresAt).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {connected ? (
+                          <Button variant="destructive" size="sm" className="w-full sm:w-auto" onClick={() => setDisconnectTarget({ provider: "instagram", productId: editProductId!, label: providerLabels.instagram })} disabled={disconnecting === "instagram"}>
+                            {disconnecting === "instagram" ? "..." : "Disconnect"}
+                          </Button>
+                        ) : (
+                          <Button size="sm" className="w-full sm:w-auto" onClick={() => startOAuth("instagram", editProductId!)}>Connect</Button>
                         )}
                       </div>
                     );

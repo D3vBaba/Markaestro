@@ -11,7 +11,7 @@ const endpointGroups = [
     description: "Discover the products and linked publish destinations available to the API key.",
     endpoints: [
       { method: "GET", path: "/api/public/v1/products", note: "Lists products plus the channels currently available for each one." },
-      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the linked pages/accounts for that product and whether Meta fan-out will also publish to the sibling linked channel." },
+      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the linked pages/accounts for that product, including standalone Instagram Login destinations and Meta fan-out behavior." },
     ],
   },
   {
@@ -56,10 +56,11 @@ const examples = {
   -H "Content-Type: application/json" \\
   -H "Idempotency-Key: post-001" \\
   -d '{
-    "channel": "tiktok",
+    "channel": "instagram",
     "caption": "Launch day carousel",
-    "mediaAssetIds": ["ast_123", "ast_124", "ast_125"],
-    "productId": "prod_123"
+    "mediaAssetIds": ["ast_123", "ast_124"],
+    "productId": "prod_123",
+    "destinationId": "instagram:instagram:ig_123"
   }'`,
   publish: `curl -X POST "$MARKAESTRO_URL/api/public/v1/posts/pst_123/publish" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
@@ -90,7 +91,8 @@ export default function DevelopersApiPage() {
             Public publishing API
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
-            Upload images, create posts, publish directly to Meta, and export TikTok carousels into the creator review flow.
+            Upload images, create posts, publish directly to Meta, publish to standalone Instagram professional accounts with Instagram Login,
+            and export TikTok carousels into the creator review flow.
             Public API v1 is workspace-scoped, image-only, capped at 10 images per post, and designed for async automation.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
@@ -119,11 +121,17 @@ export default function DevelopersApiPage() {
             </Card>
             <Card>
               <CardHeader>
+                <CardTitle>Instagram Login supported</CardTitle>
+                <CardDescription>Products can expose standalone Instagram professional accounts even when no Facebook Page is linked.</CardDescription>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader>
                 <CardTitle>TikTok exports for review</CardTitle>
                 <CardDescription>TikTok image posts are sent to the creator flow for manual editing and final posting inside TikTok.</CardDescription>
               </CardHeader>
             </Card>
-            <Card>
+            <Card className="lg:col-span-3">
               <CardHeader>
                 <CardTitle>Async by design</CardTitle>
                 <CardDescription>Every publish returns a run id. Poll runs or subscribe to signed webhooks instead of assuming synchronous completion.</CardDescription>
@@ -168,7 +176,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>2. Inspect destinations</CardTitle>
-                <CardDescription>See the linked pages and accounts for a product before creating the post.</CardDescription>
+                <CardDescription>See the linked pages and accounts for a product before creating the post. Use the returned <code>destinationId</code> when a product has more than one Instagram destination.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.listDestinations}</code></pre>

@@ -106,8 +106,9 @@ export async function getConnectionForChannel(
   workspaceId: string,
   channel: SocialChannel,
   productId?: string,
+  preferredProvider?: string,
 ): Promise<PlatformConnection | null> {
-  const providers = channelToProviders(channel);
+  const providers = channelToProviders(channel, preferredProvider);
 
   for (const provider of providers) {
     // Meta uses merged workspace + product connection
@@ -244,12 +245,18 @@ export async function listConnections(
 /**
  * Map a social channel to the providers that can serve it.
  */
-function channelToProviders(channel: SocialChannel): string[] {
+function channelToProviders(channel: SocialChannel, preferredProvider?: string): string[] {
+  const prioritize = (providers: string[]) =>
+    preferredProvider && providers.includes(preferredProvider)
+      ? [preferredProvider, ...providers.filter((provider) => provider !== preferredProvider)]
+      : providers;
+
   switch (channel) {
     case 'facebook':
+      return prioritize(['meta']);
     case 'instagram':
-      return ['meta'];
+      return prioritize(['meta', 'instagram']);
     case 'tiktok':
-      return ['tiktok'];
+      return prioritize(['tiktok']);
   }
 }

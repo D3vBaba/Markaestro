@@ -14,7 +14,8 @@ export type PublicProductSummary = {
 };
 
 export type PublicProductDestination = {
-  provider: 'meta' | 'tiktok';
+  id: string;
+  provider: 'meta' | 'instagram' | 'tiktok';
   channel: SocialChannel;
   status: 'ready';
   displayName: string;
@@ -26,6 +27,14 @@ export type PublicProductDestination = {
   willAlsoPublishTo: SocialChannel[];
 };
 
+export type ResolvedPublicDestination = {
+  productId?: string;
+  destinationId: string;
+  destinationProvider: PublicProductDestination['provider'];
+  deliveryMode: PublicProductDestination['deliveryMode'];
+  willAlsoPublishTo: SocialChannel[];
+};
+
 type ProductRecord = {
   id: string;
   name?: string;
@@ -33,8 +42,21 @@ type ProductRecord = {
   categories?: string[];
 };
 
+type WorkspaceDestination = {
+  productId?: string;
+  destination: PublicProductDestination;
+};
+
 function asString(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function buildDestinationId(
+  provider: PublicProductDestination['provider'],
+  channel: SocialChannel,
+  accountId: string,
+) {
+  return `${provider}:${channel}:${accountId}`;
 }
 
 async function listWorkspaceProducts(workspaceId: string): Promise<ProductRecord[]> {
@@ -59,6 +81,7 @@ function buildMetaDestinations(connection: PlatformConnection | null, fallbackNa
 
   if (pageId) {
     destinations.push({
+      id: buildDestinationId('meta', 'facebook', pageId),
       provider: 'meta',
       channel: 'facebook',
       status: 'ready',
@@ -73,6 +96,7 @@ function buildMetaDestinations(connection: PlatformConnection | null, fallbackNa
 
   if (igAccountId) {
     destinations.push({
+      id: buildDestinationId('meta', 'instagram', igAccountId),
       provider: 'meta',
       channel: 'instagram',
       status: 'ready',
@@ -88,6 +112,32 @@ function buildMetaDestinations(connection: PlatformConnection | null, fallbackNa
   return destinations;
 }
 
+function buildInstagramDestinations(connection: PlatformConnection | null, fallbackName: string): PublicProductDestination[] {
+  if (!connection || connection.status !== 'connected') return [];
+
+  const igAccountId = asString(connection.metadata.igAccountId);
+  if (!igAccountId) return [];
+
+  const username = asString(connection.metadata.username);
+  const displayName =
+    asString(connection.metadata.displayName) ||
+    username ||
+    fallbackName;
+
+  return [{
+    id: buildDestinationId('instagram', 'instagram', igAccountId),
+    provider: 'instagram',
+    channel: 'instagram',
+    status: 'ready',
+    displayName,
+    accountId: igAccountId,
+    igAccountId,
+    username,
+    deliveryMode: 'direct_publish',
+    willAlsoPublishTo: [],
+  }];
+}
+
 function buildTikTokDestinations(connection: PlatformConnection | null, fallbackName: string): PublicProductDestination[] {
   if (!connection || connection.status !== 'connected') return [];
 
@@ -97,6 +147,7 @@ function buildTikTokDestinations(connection: PlatformConnection | null, fallback
   const accountId = openId || username || connection.productId || connection.workspaceId;
 
   return [{
+    id: buildDestinationId('tiktok', 'tiktok', accountId),
     provider: 'tiktok',
     channel: 'tiktok',
     status: 'ready',
@@ -108,6 +159,50 @@ function buildTikTokDestinations(connection: PlatformConnection | null, fallback
   }];
 }
 
+async function listWorkspaceLevelDestinations(
+  workspaceId: string,
+): Promise<WorkspaceDestination[]> {
+  const metaConn = await getMetaConnectionMerged(workspaceId);
+  return buildMetaDestinations(metaConn, 'Workspace').map((destination) => ({ destination }));
+}
+
+async function listAllProductDestinations(
+  workspaceId: string,
+): Promise<WorkspaceDestination[]> {
+  const products = await listWorkspaceProducts(workspaceId);
+  const items: WorkspaceDestination[] = [];
+
+  for (const product of products) {
+    const destinations = await listPublicProductDestinations(workspaceId, product.id);
+    items.push(...destinations.map((destination) => ({
+      productId: product.id,
+      destination,
+    })));
+  }
+
+  return items;
+}
+
+async function listWorkspaceDestinationsForChannel(
+  workspaceId: string,
+  channel: SocialChannel,
+): Promise<WorkspaceDestination[]> {
+  const [workspaceLevel, productLevel] = await Promise.all([
+    listWorkspaceLevelDestinations(workspaceId),
+    listAllProductDestinations(workspaceId),
+  ]);
+
+  return [...workspaceLevel, ...productLevel].filter((item) => item.destination.channel === channel);
+}
+
+function findDestinationById(
+  items: WorkspaceDestination[],
+  destinationId: string,
+  channel: SocialChannel,
+): WorkspaceDestination | null {
+  return items.find((item) => item.destination.id === destinationId && item.destination.channel === channel) || null;
+}
+
 export async function listPublicProductDestinations(
   workspaceId: string,
   productId: string,
@@ -117,13 +212,15 @@ export async function listPublicProductDestinations(
 
   const product = productSnap.data() as ProductRecord;
   const fallbackName = product.name || productId;
-  const [metaConn, tikTokConn] = await Promise.all([
+  const [metaConn, instagramConn, tikTokConn] = await Promise.all([
     getMetaConnectionMerged(workspaceId, productId),
+    getConnection(workspaceId, 'instagram', productId),
     getConnection(workspaceId, 'tiktok', productId),
   ]);
 
   return [
     ...buildMetaDestinations(metaConn, fallbackName),
+    ...buildInstagramDestinations(instagramConn, fallbackName),
     ...buildTikTokDestinations(tikTokConn, fallbackName),
   ];
 }
@@ -152,61 +249,84 @@ export async function listPublicProducts(workspaceId: string): Promise<PublicPro
   return summaries;
 }
 
-async function hasWorkspaceLevelDestinationForChannel(
-  workspaceId: string,
-  channel: SocialChannel,
-): Promise<boolean> {
-  if (channel === 'facebook' || channel === 'instagram') {
-    const metaConn = await getMetaConnectionMerged(workspaceId);
-    if (!metaConn || metaConn.status !== 'connected') return false;
-    if (channel === 'facebook') return Boolean(asString(metaConn.metadata.pageId));
-    return Boolean(asString(metaConn.metadata.igAccountId));
-  }
-
-  const connection = await getConnection(workspaceId, 'tiktok');
-  return Boolean(connection && connection.status === 'connected');
-}
-
-async function listProductIdsWithChannel(
-  workspaceId: string,
-  channel: SocialChannel,
-): Promise<string[]> {
-  const products = await listWorkspaceProducts(workspaceId);
-  const matchingProductIds: string[] = [];
-
-  for (const product of products) {
-    const destinations = await listPublicProductDestinations(workspaceId, product.id);
-    if (destinations.some((destination) => destination.channel === channel)) {
-      matchingProductIds.push(product.id);
-    }
-  }
-
-  return matchingProductIds;
-}
-
-export async function resolvePublicPostProductId(
+export async function resolvePublicPostDestination(
   workspaceId: string,
   channel: SocialChannel,
   productId?: string,
-): Promise<string | undefined> {
+  destinationId?: string,
+): Promise<ResolvedPublicDestination> {
   if (productId) {
-    const destinations = await listPublicProductDestinations(workspaceId, productId);
-    if (!destinations.some((destination) => destination.channel === channel)) {
-      throw new Error('VALIDATION_DESTINATION_NOT_CONFIGURED_FOR_PRODUCT');
+    const productDestinations = await listPublicProductDestinations(workspaceId, productId);
+    const matching = productDestinations.filter((destination) => destination.channel === channel);
+
+    if (destinationId) {
+      const destination = matching.find((item) => item.id === destinationId);
+      if (!destination) {
+        throw new Error('VALIDATION_DESTINATION_NOT_CONFIGURED_FOR_PRODUCT');
+      }
+      return {
+        productId,
+        destinationId: destination.id,
+        destinationProvider: destination.provider,
+        deliveryMode: destination.deliveryMode,
+        willAlsoPublishTo: destination.willAlsoPublishTo,
+      };
     }
-    return productId;
+
+    if (matching.length === 1) {
+      const destination = matching[0];
+      return {
+        productId,
+        destinationId: destination.id,
+        destinationProvider: destination.provider,
+        deliveryMode: destination.deliveryMode,
+        willAlsoPublishTo: destination.willAlsoPublishTo,
+      };
+    }
+
+    if (matching.length > 1) {
+      throw new Error('VALIDATION_DESTINATION_ID_REQUIRED_FOR_CHANNEL');
+    }
+
+    throw new Error('VALIDATION_DESTINATION_NOT_CONFIGURED_FOR_PRODUCT');
   }
 
-  if (await hasWorkspaceLevelDestinationForChannel(workspaceId, channel)) {
-    return undefined;
+  const workspaceDestinations = await listWorkspaceDestinationsForChannel(workspaceId, channel);
+
+  if (destinationId) {
+    const destination = findDestinationById(workspaceDestinations, destinationId, channel);
+    if (!destination) {
+      throw new Error('VALIDATION_DESTINATION_NOT_CONFIGURED_FOR_CHANNEL');
+    }
+
+    return {
+      productId: destination.productId,
+      destinationId: destination.destination.id,
+      destinationProvider: destination.destination.provider,
+      deliveryMode: destination.destination.deliveryMode,
+      willAlsoPublishTo: destination.destination.willAlsoPublishTo,
+    };
   }
 
-  const matchingProductIds = await listProductIdsWithChannel(workspaceId, channel);
-  if (matchingProductIds.length === 1) {
-    return matchingProductIds[0];
+  if (workspaceDestinations.length === 1) {
+    const only = workspaceDestinations[0];
+    return {
+      productId: only.productId,
+      destinationId: only.destination.id,
+      destinationProvider: only.destination.provider,
+      deliveryMode: only.destination.deliveryMode,
+      willAlsoPublishTo: only.destination.willAlsoPublishTo,
+    };
   }
-  if (matchingProductIds.length > 1) {
-    throw new Error('VALIDATION_PRODUCT_ID_REQUIRED_FOR_CHANNEL');
+
+  if (workspaceDestinations.length > 1) {
+    const distinctProductIds = new Set(
+      workspaceDestinations.map((item) => item.productId || '__workspace__'),
+    );
+    if (distinctProductIds.size > 1) {
+      throw new Error('VALIDATION_PRODUCT_ID_REQUIRED_FOR_CHANNEL');
+    }
+    throw new Error('VALIDATION_DESTINATION_ID_REQUIRED_FOR_CHANNEL');
   }
 
   const connection = await getConnectionForChannel(workspaceId, channel);
@@ -214,5 +334,14 @@ export async function resolvePublicPostProductId(
     throw new Error('VALIDATION_DESTINATION_NOT_CONFIGURED_FOR_CHANNEL');
   }
 
-  return connection.productId;
+  throw new Error('VALIDATION_DESTINATION_ID_REQUIRED_FOR_CHANNEL');
+}
+
+export async function resolvePublicPostProductId(
+  workspaceId: string,
+  channel: SocialChannel,
+  productId?: string,
+): Promise<string | undefined> {
+  const resolved = await resolvePublicPostDestination(workspaceId, channel, productId);
+  return resolved.productId;
 }

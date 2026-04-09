@@ -20,8 +20,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ productI
     const productName = (productSnap.data()?.name as string) || 'Unknown Product';
 
     // Get connections
-    const [metaConn, tiktokConn] = await Promise.all([
+    const [metaConn, instagramConn, tiktokConn] = await Promise.all([
       getMetaConnectionMerged(ctx.workspaceId, productId),
+      getConnection(ctx.workspaceId, 'instagram', productId)
+        .then((c) => c || getConnection(ctx.workspaceId, 'instagram')),
       getConnection(ctx.workspaceId, 'tiktok', productId)
         .then((c) => c || getConnection(ctx.workspaceId, 'tiktok')),
     ]);
@@ -44,15 +46,25 @@ export async function GET(req: Request, { params }: { params: Promise<{ productI
 
       // Instagram
       (async (): Promise<InstagramInsights> => {
-        if (!metaConn || metaConn.status !== 'connected') {
+        if (metaConn?.status === 'connected') {
+          const igAccountId = metaConn.metadata.igAccountId as string | undefined;
+          if (igAccountId) {
+            const token = resolveAccessToken(metaConn);
+            return fetchInstagramInsights(token, igAccountId);
+          }
+        }
+
+        if (!instagramConn || instagramConn.status !== 'connected') {
           return { platform: 'instagram', connected: false };
         }
-        const igAccountId = metaConn.metadata.igAccountId as string | undefined;
+
+        const igAccountId = instagramConn.metadata.igAccountId as string | undefined;
         if (!igAccountId) {
           return { platform: 'instagram', connected: false };
         }
-        const token = resolveAccessToken(metaConn);
-        return fetchInstagramInsights(token, igAccountId);
+
+        const token = getAccessToken(instagramConn);
+        return fetchInstagramInsights(token, igAccountId, { graphApi: 'instagram' });
       })(),
 
       // TikTok

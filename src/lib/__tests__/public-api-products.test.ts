@@ -46,14 +46,20 @@ describe('public product discovery', () => {
         igAccountId: 'ig_123',
       },
     });
-    getConnectionMock.mockResolvedValue({
-      status: 'connected',
-      productId: 'prod_123',
-      workspaceId: 'ws_123',
-      metadata: {
-        username: 'acmebrand',
-        openId: 'tt_open_123',
-      },
+    getConnectionMock.mockImplementation(async (_workspaceId: string, provider: string) => {
+      if (provider === 'instagram') return null;
+      if (provider === 'tiktok') {
+        return {
+          status: 'connected',
+          productId: 'prod_123',
+          workspaceId: 'ws_123',
+          metadata: {
+            username: 'acmebrand',
+            openId: 'tt_open_123',
+          },
+        };
+      }
+      return null;
     });
 
     const destinations = await listPublicProductDestinations('ws_123', 'prod_123');
@@ -62,22 +68,71 @@ describe('public product discovery', () => {
       expect.objectContaining({
         provider: 'meta',
         channel: 'facebook',
+        id: 'meta:facebook:pg_123',
         accountId: 'pg_123',
         willAlsoPublishTo: ['instagram'],
       }),
       expect.objectContaining({
         provider: 'meta',
         channel: 'instagram',
+        id: 'meta:instagram:ig_123',
         accountId: 'ig_123',
         willAlsoPublishTo: ['facebook'],
       }),
       expect.objectContaining({
         provider: 'tiktok',
         channel: 'tiktok',
+        id: 'tiktok:tiktok:tt_open_123',
         accountId: 'tt_open_123',
         deliveryMode: 'user_review',
       }),
     ]);
+  });
+
+  it('lists standalone instagram login destinations separately from meta-linked instagram', async () => {
+    const { listPublicProductDestinations } = await import('../public-api/products');
+
+    docMock.mockReturnValue({
+      get: vi.fn().mockResolvedValue({
+        exists: true,
+        data: () => ({ name: 'Acme', status: 'active', categories: ['saas'] }),
+      }),
+    });
+
+    getMetaConnectionMergedMock.mockResolvedValue({
+      status: 'connected',
+      metadata: {
+        pageId: 'pg_123',
+        pageName: 'Acme Page',
+        igAccountId: 'ig_meta_123',
+      },
+    });
+    getConnectionMock.mockImplementation(async (_workspaceId: string, provider: string) => {
+      if (provider === 'instagram') {
+        return {
+          status: 'connected',
+          productId: 'prod_123',
+          workspaceId: 'ws_123',
+          metadata: {
+            igAccountId: 'ig_direct_123',
+            username: 'acme_direct',
+            displayName: 'Acme Direct',
+          },
+        };
+      }
+      return null;
+    });
+
+    const destinations = await listPublicProductDestinations('ws_123', 'prod_123');
+
+    expect(destinations).toContainEqual(expect.objectContaining({
+      id: 'instagram:instagram:ig_direct_123',
+      provider: 'instagram',
+      channel: 'instagram',
+      accountId: 'ig_direct_123',
+      username: 'acme_direct',
+      willAlsoPublishTo: [],
+    }));
   });
 
   it('requires productId when multiple products can publish to the same channel', async () => {
@@ -117,5 +172,43 @@ describe('public product discovery', () => {
     await expect(resolvePublicPostProductId('ws_123', 'facebook')).rejects.toThrow(
       'VALIDATION_PRODUCT_ID_REQUIRED_FOR_CHANNEL',
     );
+  });
+
+  it('requires destinationId when one product has multiple instagram destinations', async () => {
+    const { resolvePublicPostDestination } = await import('../public-api/products');
+
+    docMock.mockReturnValue({
+      get: vi.fn().mockResolvedValue({
+        exists: true,
+        data: () => ({ name: 'Acme', status: 'active', categories: ['saas'] }),
+      }),
+    });
+
+    getMetaConnectionMergedMock.mockResolvedValue({
+      status: 'connected',
+      metadata: {
+        pageId: 'pg_123',
+        pageName: 'Acme Page',
+        igAccountId: 'ig_meta_123',
+      },
+    });
+    getConnectionMock.mockImplementation(async (_workspaceId: string, provider: string) => {
+      if (provider === 'instagram') {
+        return {
+          status: 'connected',
+          productId: 'prod_123',
+          workspaceId: 'ws_123',
+          metadata: {
+            igAccountId: 'ig_direct_123',
+            username: 'acme_direct',
+          },
+        };
+      }
+      return null;
+    });
+
+    await expect(
+      resolvePublicPostDestination('ws_123', 'instagram', 'prod_123'),
+    ).rejects.toThrow('VALIDATION_DESTINATION_ID_REQUIRED_FOR_CHANNEL');
   });
 });

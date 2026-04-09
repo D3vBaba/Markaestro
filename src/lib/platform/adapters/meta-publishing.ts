@@ -6,19 +6,29 @@ import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult
 import type { SocialChannel } from '@/lib/schemas';
 
 const GRAPH_API = 'https://graph.facebook.com/v22.0';
+const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
 const CONTAINER_POLL_INTERVAL_MS = 2000;
 const CONTAINER_POLL_MAX_ATTEMPTS = 15;
 
 // ── Instagram helpers ───────────────────────────────────────────────
 
 async function waitForContainer(
+  graphApi: string,
   containerId: string,
   accessToken: string,
 ): Promise<{ ready: boolean; error?: string }> {
   for (let i = 0; i < CONTAINER_POLL_MAX_ATTEMPTS; i++) {
+    const url = graphApi === INSTAGRAM_GRAPH_API
+      ? `${graphApi}/${containerId}?${new URLSearchParams({
+        fields: 'status_code,status',
+        access_token: accessToken,
+      }).toString()}`
+      : `${graphApi}/${containerId}?fields=status_code,status`;
     const res = await fetchWithRetry(
-      `${GRAPH_API}/${containerId}?fields=status_code,status`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
+      url,
+      graphApi === INSTAGRAM_GRAPH_API
+        ? {}
+        : { headers: { Authorization: `Bearer ${accessToken}` } },
       { maxRetries: 1 },
     );
     const data = await res.json();
@@ -32,11 +42,19 @@ async function waitForContainer(
   return { ready: false, error: 'Container processing timed out' };
 }
 
-async function getPermalink(mediaId: string, accessToken: string): Promise<string | undefined> {
+async function getPermalink(graphApi: string, mediaId: string, accessToken: string): Promise<string | undefined> {
   try {
+    const url = graphApi === INSTAGRAM_GRAPH_API
+      ? `${graphApi}/${mediaId}?${new URLSearchParams({
+        fields: 'permalink',
+        access_token: accessToken,
+      }).toString()}`
+      : `${graphApi}/${mediaId}?fields=permalink`;
     const res = await fetchWithRetry(
-      `${GRAPH_API}/${mediaId}?fields=permalink`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
+      url,
+      graphApi === INSTAGRAM_GRAPH_API
+        ? {}
+        : { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     const data = await res.json();
     return data.permalink || undefined;
@@ -48,6 +66,9 @@ async function getPermalink(mediaId: string, accessToken: string): Promise<strin
 // ── Resolve access token ────────────────────────────────────────────
 
 function resolveAccessToken(connection: PlatformConnection): string {
+  if (connection.provider === 'instagram') {
+    return getAccessToken(connection);
+  }
   // Prefer page access token (set when user selects a page)
   const pageTokenEncrypted = connection.metadata.pageAccessTokenEncrypted as string | undefined;
   if (pageTokenEncrypted) {
@@ -55,6 +76,14 @@ function resolveAccessToken(connection: PlatformConnection): string {
   }
   // Fall back to user access token
   return getAccessToken(connection);
+}
+
+function getInstagramGraphApi(connection: PlatformConnection): string {
+  return connection.provider === 'instagram' ? INSTAGRAM_GRAPH_API : GRAPH_API;
+}
+
+function getInstagramAccountId(connection: PlatformConnection): string {
+  return getMeta(connection, 'igAccountId', '');
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────
@@ -192,6 +221,7 @@ async function publishToFacebook(
 
 /** Create an Instagram media container. For carousel children, pass isCarouselItem=true and omit caption. */
 async function createIgMediaContainer(
+  graphApi: string,
   igAccountId: string,
   accessToken: string,
   params: { imageUrl: string; caption?: string; isCarouselItem?: boolean },
@@ -203,7 +233,7 @@ async function createIgMediaContainer(
   if (params.caption != null) body.caption = params.caption;
   if (params.isCarouselItem) body.is_carousel_item = true;
 
-  const res = await fetchWithRetry(`${GRAPH_API}/${igAccountId}/media`, {
+  const res = await fetchWithRetry(`${graphApi}/${igAccountId}/media`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -221,11 +251,13 @@ async function publishToInstagram(
   content: string,
   imageUrls: string[] = [],
 ): Promise<PublishResult> {
-  const igAccountId = getMeta(connection, 'igAccountId', '');
+  const igAccountId = getInstagramAccountId(connection);
   if (!igAccountId) {
     return {
       success: false,
-      error: 'No Instagram account linked. Select a Facebook page with a linked Instagram business account.',
+      error: connection.provider === 'instagram'
+        ? 'No Instagram professional account connected.'
+        : 'No Instagram account linked. Select a Facebook page with a linked Instagram business account.',
     };
   }
 
@@ -239,13 +271,14 @@ async function publishToInstagram(
   }
 
   const accessToken = resolveAccessToken(connection);
+  const graphApi = getInstagramGraphApi(connection);
 
   try {
     let containerId: string | undefined;
 
     if (imageUrls.length === 1) {
       // Single image post
-      const single = await createIgMediaContainer(igAccountId, accessToken, {
+      const single = await createIgMediaContainer(graphApi, igAccountId, accessToken, {
         imageUrl: imageUrls[0],
         caption: content,
       });
@@ -257,7 +290,7 @@ async function publishToInstagram(
       // Carousel: create one child container per image, then a parent carousel container
       const children = await Promise.all(
         imageUrls.map((imageUrl) =>
-          createIgMediaContainer(igAccountId, accessToken, { imageUrl, isCarouselItem: true }),
+          createIgMediaContainer(graphApi, igAccountId, accessToken, { imageUrl, isCarouselItem: true }),
         ),
       );
       const childFail = children.find((c) => c.error);
@@ -268,13 +301,13 @@ async function publishToInstagram(
 
       // Wait for each child to finish processing before attaching to the carousel
       for (const childId of childIds) {
-        const { ready, error: pollError } = await waitForContainer(childId, accessToken);
+        const { ready, error: pollError } = await waitForContainer(graphApi, childId, accessToken);
         if (!ready) {
           return { success: false, error: `Instagram carousel child processing failed: ${pollError}` };
         }
       }
 
-      const parentRes = await fetchWithRetry(`${GRAPH_API}/${igAccountId}/media`, {
+      const parentRes = await fetchWithRetry(`${graphApi}/${igAccountId}/media`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -297,13 +330,13 @@ async function publishToInstagram(
     }
 
     // Step 2: Wait for processing
-    const { ready, error: pollError } = await waitForContainer(containerId, accessToken);
+    const { ready, error: pollError } = await waitForContainer(graphApi, containerId, accessToken);
     if (!ready) {
       return { success: false, error: `Instagram media processing failed: ${pollError}` };
     }
 
     // Step 3: Publish
-    const publishRes = await fetchWithRetry(`${GRAPH_API}/${igAccountId}/media_publish`, {
+    const publishRes = await fetchWithRetry(`${graphApi}/${igAccountId}/media_publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ creation_id: containerId, access_token: accessToken }),
@@ -316,7 +349,7 @@ async function publishToInstagram(
 
     const publishData = await publishRes.json();
     const mediaId = publishData.id;
-    const permalink = mediaId ? await getPermalink(mediaId, accessToken) : undefined;
+    const permalink = mediaId ? await getPermalink(graphApi, mediaId, accessToken) : undefined;
 
     return { success: true, externalId: mediaId, externalUrl: permalink };
   } catch (e) {
@@ -347,6 +380,21 @@ export const metaPublishingAdapter: PlatformAdapter = {
   async testConnection(connection: PlatformConnection) {
     const accessToken = resolveAccessToken(connection);
     try {
+      if (connection.provider === 'instagram') {
+        const res = await fetchWithRetry(
+          `${INSTAGRAM_GRAPH_API}/me?${new URLSearchParams({
+            fields: 'user_id,username',
+            access_token: accessToken,
+          }).toString()}`,
+        );
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          return { ok: false, error: err.error?.message || err.error_message || `HTTP ${res.status}` };
+        }
+        const data = await res.json();
+        return { ok: true, label: data.username || 'Instagram connected' };
+      }
+
       const res = await fetchWithRetry(
         `${GRAPH_API}/me?fields=name,id`,
         { headers: { Authorization: `Bearer ${accessToken}` } },
@@ -368,8 +416,12 @@ export const metaPublishingAdapter: PlatformAdapter = {
       if (!pageId) return 'No Facebook page selected';
     }
     if (channel === 'instagram') {
-      const igAccountId = getMeta(connection, 'igAccountId', '');
-      if (!igAccountId) return 'No Instagram business account linked';
+      const igAccountId = getInstagramAccountId(connection);
+      if (!igAccountId) {
+        return connection.provider === 'instagram'
+          ? 'No Instagram professional account linked'
+          : 'No Instagram business account linked';
+      }
     }
     return null;
   },

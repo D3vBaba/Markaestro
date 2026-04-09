@@ -7,6 +7,60 @@ import { getAppUrl } from '@/lib/oauth/config';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 
 const ALLOWED = new Set<string>(oauthProviders);
+const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
+
+async function exchangeInstagramToken(tokens: {
+  accessToken: string;
+  expiresIn?: number;
+}) {
+  const appSecret = process.env.INSTAGRAM_APP_SECRET || '';
+  if (!appSecret) {
+    throw new Error('Missing OAuth credentials for instagram: INSTAGRAM_APP_SECRET');
+  }
+
+  const res = await fetch(
+    `https://graph.instagram.com/access_token?${new URLSearchParams({
+      grant_type: 'ig_exchange_token',
+      client_secret: appSecret,
+      access_token: tokens.accessToken,
+    }).toString()}`,
+    { method: 'GET' },
+  );
+  const data = await res.json();
+
+  if (!res.ok || !data.access_token) {
+    throw new Error(`Instagram token exchange failed: ${data.error_message || data.error?.message || data.error || 'Unknown error'}`);
+  }
+
+  return {
+    accessToken: String(data.access_token),
+    expiresIn: data.expires_in ? Number(data.expires_in) : tokens.expiresIn,
+  };
+}
+
+async function fetchInstagramProfile(accessToken: string) {
+  const res = await fetch(
+    `${INSTAGRAM_GRAPH_API}/me?${new URLSearchParams({
+      fields: 'user_id,username',
+      access_token: accessToken,
+    }).toString()}`,
+  );
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(`Instagram profile fetch failed: ${data.error?.message || data.error_message || 'Unknown error'}`);
+  }
+
+  const userId = typeof data.user_id === 'string' ? data.user_id : typeof data.id === 'string' ? data.id : '';
+  if (!userId) {
+    throw new Error('Instagram profile fetch failed: missing user id');
+  }
+
+  return {
+    userId,
+    username: typeof data.username === 'string' ? data.username : '',
+  };
+}
 
 function redirectWithParams(
   appUrl: string,
@@ -118,6 +172,22 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       } catch {
         // Non-fatal — user can still select pages later
       }
+    }
+
+    if (provider === 'instagram') {
+      if (!productId) {
+        throw new Error('VALIDATION_MISSING_PRODUCT_ID');
+      }
+
+      const longLivedTokens = await exchangeInstagramToken(tokens);
+      tokens.accessToken = longLivedTokens.accessToken;
+      tokens.expiresIn = longLivedTokens.expiresIn;
+
+      const profile = await fetchInstagramProfile(tokens.accessToken);
+      extraData.igAccountId = profile.userId;
+      extraData.username = profile.username;
+      extraData.displayName = profile.username || 'Instagram';
+      extraData.loginType = 'instagram_login';
     }
 
     if (provider === 'tiktok') {

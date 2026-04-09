@@ -263,6 +263,29 @@ export async function refreshAccessToken(
   provider: OAuthProvider,
   refreshToken: string,
 ): Promise<OAuthTokens> {
+  if (provider === 'instagram') {
+    const res = await fetch(
+      `https://graph.instagram.com/refresh_access_token?${new URLSearchParams({
+        grant_type: 'ig_refresh_token',
+        access_token: refreshToken,
+      }).toString()}`,
+      { method: 'GET' },
+    );
+    const data = await res.json();
+
+    if (!res.ok && !data.access_token) {
+      throw new Error(`Token refresh failed for ${provider}: ${data.error_message || data.error || data.message || 'Unknown error'}`);
+    }
+
+    return {
+      accessToken: data.access_token || refreshToken,
+      refreshToken,
+      expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
+      tokenType: data.token_type,
+      scope: data.scope,
+    };
+  }
+
   const config = getProviderConfig(provider);
   const { clientId, clientSecret } = getClientCredentials(provider);
 
@@ -403,6 +426,11 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
       return {
         channels: ['facebook', 'instagram'],
         capabilities: [PlatformCapability.PUBLISH_TEXT, PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_CAROUSEL],
+      };
+    case 'instagram':
+      return {
+        channels: ['instagram'],
+        capabilities: [PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_CAROUSEL],
       };
     case 'tiktok':
       return {
