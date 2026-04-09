@@ -186,9 +186,42 @@ function ScoreRing({ score, size = 56 }: { score: number; size?: number }) {
   );
 }
 
+// Maps Meta/TikTok CTA codes (SHOP_NOW, LEARN_MORE, …) to human-readable
+// button labels used in the ad preview card.
+const CTA_LABELS: Record<string, string> = {
+  SHOP_NOW: "Shop Now",
+  LEARN_MORE: "Learn More",
+  SIGN_UP: "Sign Up",
+  DOWNLOAD: "Download",
+  GET_OFFER: "Get Offer",
+  CONTACT_US: "Contact Us",
+  BOOK_NOW: "Book Now",
+  SUBSCRIBE: "Subscribe",
+  APPLY_NOW: "Apply Now",
+  GET_QUOTE: "Get Quote",
+  WATCH_MORE: "Watch More",
+  INSTALL_NOW: "Install Now",
+};
+
+function ctaTypeToLabel(ctaType: string | undefined): string {
+  if (!ctaType) return "";
+  return CTA_LABELS[ctaType] ?? ctaType.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function urlToDomain(url: string | undefined): string {
+  if (!url) return "";
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
 function CampaignCardPreview({ campaign }: { campaign: AdCampaign }) {
   const { platform, creative } = campaign;
-  const { imageUrl, videoUrl, headline, primaryText, description } = creative;
+  const { imageUrl, videoUrl, headline, primaryText, description, ctaType, linkUrl } = creative;
+  const ctaLabel = ctaTypeToLabel(ctaType);
+  const domain = urlToDomain(linkUrl);
 
   if (platform === "tiktok") {
     return (

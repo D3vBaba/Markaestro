@@ -8,6 +8,7 @@ import { updateMetaCampaignStatus } from '@/lib/ads/meta-ads';
 import { updateTikTokCampaignStatus } from '@/lib/ads/tiktok-ads';
 import type { AdCampaignDoc } from '@/lib/ads/types';
 import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
+import { decrypt } from '@/lib/crypto';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
