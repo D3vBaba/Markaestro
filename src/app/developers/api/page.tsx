@@ -80,6 +80,10 @@ export default function DevelopersApiPage() {
             Upload images, create posts, publish directly to Meta, and export TikTok carousels into the creator review flow.
             Public API v1 is workspace-scoped, image-only, capped at 10 images per post, and designed for async automation.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            Use only the versioned public routes under <code>/api/public/v1</code>. Internal app routes such as <code>/api/workspaces</code>,
+            <code>/api/posts</code>, <code>/api/integrations</code>, and <code>/api/analytics</code> require Firebase user auth and are not part of the public API contract.
+          </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/login">
               <Button>Open Markaestro</Button>

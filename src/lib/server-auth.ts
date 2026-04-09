@@ -139,7 +139,21 @@ export async function requireContext(req: Request): Promise<RequestContext> {
   const token = getBearerToken(req);
   if (!token) throw new Error('UNAUTHENTICATED');
 
-  const decoded = await adminAuth.verifyIdToken(token);
+  let decoded: Awaited<ReturnType<typeof adminAuth.verifyIdToken>>;
+  try {
+    decoded = await adminAuth.verifyIdToken(token);
+  } catch (error) {
+    const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+    if (
+      message.includes('id token') ||
+      message.includes('jwt') ||
+      message.includes('token') ||
+      message.includes('credential')
+    ) {
+      throw new Error('UNAUTHENTICATED');
+    }
+    throw error;
+  }
   const uid = decoded.uid;
   const email = normalizeEmail(decoded.email) || undefined;
 
