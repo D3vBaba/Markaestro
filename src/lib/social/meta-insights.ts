@@ -1,4 +1,4 @@
-import { fetchWithRetry } from '@/lib/fetch-retry';
+import { graphApiFetch } from '@/lib/platform/meta-graph-api';
 import type { FacebookPost, FacebookInsights, InstagramInsights, InstagramMedia } from './types';
 
 const GRAPH_API = 'https://graph.facebook.com/v22.0';
@@ -43,7 +43,7 @@ export async function fetchFacebookInsights(
 }
 
 async function fetchPageFollowers(token: string, pageId: string): Promise<number | undefined> {
-  const res = await fetchWithRetry(
+  const res = await graphApiFetch(
     `${GRAPH_API}/${pageId}?fields=followers_count&access_token=${token}`,
     {},
     { maxRetries: 1 },
@@ -58,7 +58,7 @@ async function fetchPageMetrics(
   pageId: string,
 ): Promise<{ impressions: number; engagements: number; reach: number } | null> {
   const metrics = 'page_impressions,page_post_engagements,page_impressions_unique';
-  const res = await fetchWithRetry(
+  const res = await graphApiFetch(
     `${GRAPH_API}/${pageId}/insights?metric=${metrics}&period=day&date_preset=last_7d&access_token=${token}`,
     {},
     { maxRetries: 1 },
@@ -86,7 +86,7 @@ async function fetchPageMetrics(
 
 async function fetchPagePosts(token: string, pageId: string): Promise<FacebookPost[]> {
   const fields = 'id,message,created_time,full_picture,shares,likes.summary(true),comments.summary(true)';
-  const res = await fetchWithRetry(
+  const res = await graphApiFetch(
     `${GRAPH_API}/${pageId}/posts?fields=${fields}&limit=10&access_token=${token}`,
     {},
     { maxRetries: 1 },
@@ -145,7 +145,7 @@ async function fetchIgProfile(
   igAccountId: string,
   graphApi: string,
 ): Promise<{ followersCount: number; mediaCount: number } | null> {
-  const res = await fetchWithRetry(
+  const res = await graphApiFetch(
     `${graphApi}/${igAccountId}?fields=followers_count,media_count&access_token=${token}`,
     {},
     { maxRetries: 1 },
@@ -160,7 +160,7 @@ async function fetchIgProfile(
 
 async function fetchIgMedia(token: string, igAccountId: string, graphApi: string): Promise<InstagramMedia[]> {
   const fields = 'id,caption,media_type,media_url,thumbnail_url,timestamp,like_count,comments_count,permalink';
-  const res = await fetchWithRetry(
+  const res = await graphApiFetch(
     `${graphApi}/${igAccountId}/media?fields=${fields}&limit=10&access_token=${token}`,
     {},
     { maxRetries: 1 },
@@ -199,7 +199,7 @@ async function fetchIgMedia(token: string, igAccountId: string, graphApi: string
       .filter((item) => item.mediaType === 'CAROUSEL_ALBUM' && !item.mediaUrl)
       .map(async (item) => {
         try {
-          const childRes = await fetchWithRetry(
+          const childRes = await graphApiFetch(
             `${graphApi}/${item.id}/children?fields=media_url,thumbnail_url,media_type&access_token=${token}`,
             {},
             { maxRetries: 1 },

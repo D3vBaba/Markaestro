@@ -1,6 +1,6 @@
 import type { AdCampaignDoc, AdPlatformResult, AdCampaignMetrics, PlatformCampaignSummary } from './types';
 import type { AdCampaignObjective } from '@/lib/schemas';
-import { fetchWithRetry } from '@/lib/fetch-retry';
+import { graphApiFetch } from '@/lib/platform/meta-graph-api';
 
 const META_GRAPH_API = 'https://graph.facebook.com/v22.0';
 const META_SUPPORTED_OBJECTIVES: AdCampaignObjective[] = ['awareness', 'traffic', 'engagement'];
@@ -30,7 +30,7 @@ async function metaApiCall(
   accessToken: string,
   body: Record<string, unknown>,
 ): Promise<{ data: Record<string, unknown>; error?: string }> {
-  const res = await fetchWithRetry(url, {
+  const res = await graphApiFetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...body, access_token: accessToken }),
@@ -370,7 +370,7 @@ export async function updateMetaCampaignStatus(
   status: 'PAUSED' | 'ACTIVE',
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const res = await fetchWithRetry(`${META_GRAPH_API}/${campaignId}`, {
+    const res = await graphApiFetch(`${META_GRAPH_API}/${campaignId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, access_token: accessToken }),
@@ -394,7 +394,7 @@ export async function getMetaCampaignMetrics(
 ): Promise<{ success: boolean; metrics?: AdCampaignMetrics; error?: string }> {
   try {
     const fields = 'impressions,clicks,spend,actions,action_values,ctr,cpc,reach,frequency,video_play_actions';
-    const res = await fetchWithRetry(
+    const res = await graphApiFetch(
       `${META_GRAPH_API}/${campaignId}/insights?fields=${fields}&access_token=${accessToken}`,
     );
     const data = await res.json();
@@ -460,7 +460,7 @@ export async function getMetaPostEngagement(
 ): Promise<{ likes: number; comments: number; shares: number; reach: number; impressions: number } | null> {
   try {
     const fields = 'likes.limit(1).summary(true),comments.limit(1).summary(true),shares,insights.metric(post_impressions,post_reach)';
-    const res = await fetchWithRetry(
+    const res = await graphApiFetch(
       `${META_GRAPH_API}/${postId}?fields=${fields}&access_token=${accessToken}`,
     );
     const data = await res.json();
@@ -496,7 +496,7 @@ export async function listMetaCampaigns(
     const accountId = adAccountId.startsWith('act_') ? adAccountId : `act_${adAccountId}`;
     const url = `${META_GRAPH_API}/${accountId}/campaigns?fields=${fields}&limit=500&access_token=${accessToken}`;
 
-    const res = await fetchWithRetry(url);
+    const res = await graphApiFetch(url);
     const data = await res.json() as {
       data?: Array<{
         id: string;

@@ -1,6 +1,7 @@
 import { fetchWithRetry } from '@/lib/fetch-retry';
 import { decrypt } from '@/lib/crypto';
 import { getAccessToken, getMeta } from '../base-adapter';
+import { graphApiFetch, checkIgPublishingQuota, checkPagePublishingAccess } from '../meta-graph-api';
 import { PlatformCapability } from '../types';
 import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
 import type { SocialChannel } from '@/lib/schemas';
@@ -9,6 +10,9 @@ const GRAPH_API = 'https://graph.facebook.com/v22.0';
 const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
 const CONTAINER_POLL_INTERVAL_MS = 2000;
 const CONTAINER_POLL_MAX_ATTEMPTS = 15;
+
+/** Minimum remaining IG publishing quota to allow a new publish. */
+const IG_QUOTA_MIN_REMAINING = 3;
 
 // ── Instagram helpers ───────────────────────────────────────────────
 
@@ -24,7 +28,7 @@ async function waitForContainer(
         access_token: accessToken,
       }).toString()}`
       : `${graphApi}/${containerId}?fields=status_code,status`;
-    const res = await fetchWithRetry(
+    const res = await graphApiFetch(
       url,
       graphApi === INSTAGRAM_GRAPH_API
         ? {}
@@ -50,7 +54,7 @@ async function getPermalink(graphApi: string, mediaId: string, accessToken: stri
         access_token: accessToken,
       }).toString()}`
       : `${graphApi}/${mediaId}?fields=permalink`;
-    const res = await fetchWithRetry(
+    const res = await graphApiFetch(
       url,
       graphApi === INSTAGRAM_GRAPH_API
         ? {}
@@ -109,7 +113,7 @@ async function uploadUnpublishedFacebookPhoto(
   accessToken: string,
   imageUrl: string,
 ): Promise<{ id?: string; error?: string }> {
-  const res = await fetchWithRetry(`${GRAPH_API}/${pageId}/photos`, {
+  const res = await graphApiFetch(`${GRAPH_API}/${pageId}/photos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url: imageUrl, published: false, access_token: accessToken }),
@@ -134,6 +138,16 @@ async function publishToFacebook(
 
   const accessToken = resolveAccessToken(connection);
 
+  // Check Page Publishing Authorization before attempting to publish
+  try {
+    const ppa = await checkPagePublishingAccess(accessToken, pageId);
+    if (!ppa.canPublish) {
+      return { success: false, error: ppa.error || 'Page Publishing Authorization required' };
+    }
+  } catch {
+    // PPA check is best-effort — don't block publish on check failure
+  }
+
   try {
     // Multi-photo post: upload each unpublished, then attach to a single feed post.
     if (mediaUrls.length > 1) {
@@ -149,7 +163,7 @@ async function publishToFacebook(
         .filter((id): id is string => !!id)
         .map((media_fbid) => ({ media_fbid }));
 
-      const feedRes = await fetchWithRetry(`${GRAPH_API}/${pageId}/feed`, {
+      const feedRes = await graphApiFetch(`${GRAPH_API}/${pageId}/feed`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -173,7 +187,7 @@ async function publishToFacebook(
 
     const mediaUrl = mediaUrls[0];
     if (mediaUrl) {
-      const res = await fetchWithRetry(`${GRAPH_API}/${pageId}/photos`, {
+      const res = await graphApiFetch(`${GRAPH_API}/${pageId}/photos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: mediaUrl, message: content, access_token: accessToken }),
@@ -194,7 +208,7 @@ async function publishToFacebook(
     }
 
     // Text-only
-    const res = await fetchWithRetry(`${GRAPH_API}/${pageId}/feed`, {
+    const res = await graphApiFetch(`${GRAPH_API}/${pageId}/feed`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: content, access_token: accessToken }),
@@ -233,7 +247,7 @@ async function createIgMediaContainer(
   if (params.caption != null) body.caption = params.caption;
   if (params.isCarouselItem) body.is_carousel_item = true;
 
-  const res = await fetchWithRetry(`${graphApi}/${igAccountId}/media`, {
+  const res = await graphApiFetch(`${graphApi}/${igAccountId}/media`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -273,6 +287,20 @@ async function publishToInstagram(
   const accessToken = resolveAccessToken(connection);
   const graphApi = getInstagramGraphApi(connection);
 
+  // Check Instagram publishing quota before creating containers
+  try {
+    const graphApiType = connection.provider === 'instagram' ? 'instagram' : 'facebook';
+    const quota = await checkIgPublishingQuota(accessToken, igAccountId, graphApiType);
+    if (quota.remaining < IG_QUOTA_MIN_REMAINING) {
+      return {
+        success: false,
+        error: `Instagram publishing limit reached (${quota.quotaUsage}/${quota.quotaTotal} used in the last 24 hours). Try again later.`,
+      };
+    }
+  } catch {
+    // Quota check is best-effort — don't block on check failure
+  }
+
   try {
     let containerId: string | undefined;
 
@@ -307,7 +335,7 @@ async function publishToInstagram(
         }
       }
 
-      const parentRes = await fetchWithRetry(`${graphApi}/${igAccountId}/media`, {
+      const parentRes = await graphApiFetch(`${graphApi}/${igAccountId}/media`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -336,7 +364,7 @@ async function publishToInstagram(
     }
 
     // Step 3: Publish
-    const publishRes = await fetchWithRetry(`${graphApi}/${igAccountId}/media_publish`, {
+    const publishRes = await graphApiFetch(`${graphApi}/${igAccountId}/media_publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ creation_id: containerId, access_token: accessToken }),
@@ -381,7 +409,7 @@ export const metaPublishingAdapter: PlatformAdapter = {
     const accessToken = resolveAccessToken(connection);
     try {
       if (connection.provider === 'instagram') {
-        const res = await fetchWithRetry(
+        const res = await graphApiFetch(
           `${INSTAGRAM_GRAPH_API}/me?${new URLSearchParams({
             fields: 'user_id,username',
             access_token: accessToken,
@@ -395,7 +423,7 @@ export const metaPublishingAdapter: PlatformAdapter = {
         return { ok: true, label: data.username || 'Instagram connected' };
       }
 
-      const res = await fetchWithRetry(
+      const res = await graphApiFetch(
         `${GRAPH_API}/me?fields=name,id`,
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );

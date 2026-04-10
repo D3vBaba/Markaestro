@@ -14,6 +14,10 @@ const PUBLISH_LEASE_MS = 10 * 60 * 1000;
 const MAX_RETRY_ATTEMPTS = 4;
 const RETRY_DELAYS_MS = [2 * 60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000, 30 * 60 * 1000];
 
+// Instagram/Meta rate-limit and quota errors need longer backoff to avoid triggering account restrictions.
+const META_MAX_RETRY_ATTEMPTS = 2;
+const META_RETRY_DELAYS_MS = [30 * 60 * 1000, 2 * 60 * 60 * 1000]; // 30min, 2hr
+
 export type ChannelPublishResult = {
   channel: SocialChannel;
   success: boolean;
@@ -46,6 +50,8 @@ type PublishErrorClassification = {
   code: string;
   category: 'transient' | 'permanent';
   retryable: boolean;
+  /** True when the error is a Meta/Instagram rate-limit or quota issue that requires longer backoff. */
+  metaRateLimited?: boolean;
 };
 
 type ClaimedScheduledPost = {
@@ -136,6 +142,18 @@ async function resolveMetaChannels(
 function classifyPublishError(error: string): PublishErrorClassification {
   const normalized = error.toLowerCase();
 
+  // Meta/Instagram-specific rate-limit and quota errors get longer backoff
+  const metaRateLimitPatterns: Array<{ pattern: RegExp; code: string }> = [
+    { pattern: /publishing limit reached|quota_usage/, code: 'IG_PUBLISH_QUOTA_EXCEEDED' },
+    { pattern: /meta api rate limit approaching|backing off to avoid/, code: 'META_APP_USAGE_THROTTLED' },
+    { pattern: /page publishing authorization|ppa/, code: 'PPA_REQUIRED' },
+  ];
+  for (const { pattern, code } of metaRateLimitPatterns) {
+    if (pattern.test(normalized)) {
+      return { code, category: 'transient', retryable: true, metaRateLimited: true };
+    }
+  }
+
   const transientPatterns: Array<{ pattern: RegExp; code: string }> = [
     { pattern: /\b429\b|rate limit|too many requests/, code: 'RATE_LIMITED' },
     { pattern: /\b500\b|\b502\b|\b503\b|\b504\b|server error|internal error/, code: 'REMOTE_SERVER_ERROR' },
@@ -163,13 +181,18 @@ function classifyPublishError(error: string): PublishErrorClassification {
   return { code: 'UNKNOWN_PUBLISH_ERROR', category: 'transient', retryable: true };
 }
 
-function getRetryDelayMs(attemptCount: number): number {
-  const idx = Math.min(Math.max(attemptCount - 1, 0), RETRY_DELAYS_MS.length - 1);
-  return RETRY_DELAYS_MS[idx] || RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1];
+function getRetryDelayMs(attemptCount: number, metaRateLimited?: boolean): number {
+  const delays = metaRateLimited ? META_RETRY_DELAYS_MS : RETRY_DELAYS_MS;
+  const idx = Math.min(Math.max(attemptCount - 1, 0), delays.length - 1);
+  return delays[idx] || delays[delays.length - 1];
 }
 
-function computeRetryAt(attemptCount: number): string {
-  return new Date(Date.now() + getRetryDelayMs(attemptCount)).toISOString();
+function computeRetryAt(attemptCount: number, metaRateLimited?: boolean): string {
+  return new Date(Date.now() + getRetryDelayMs(attemptCount, metaRateLimited)).toISOString();
+}
+
+function getMaxRetryAttempts(metaRateLimited?: boolean): number {
+  return metaRateLimited ? META_MAX_RETRY_ATTEMPTS : MAX_RETRY_ATTEMPTS;
 }
 
 function asStringArray(value: unknown): string[] | undefined {
@@ -354,8 +377,10 @@ async function finalizeFailedPublish(
       ? claimed.post.scheduledAt
       : null;
 
-  if (classification.retryable && claimed.attemptCount < MAX_RETRY_ATTEMPTS) {
-    const retryAt = computeRetryAt(claimed.attemptCount);
+  const maxRetries = getMaxRetryAttempts(classification.metaRateLimited);
+
+  if (classification.retryable && claimed.attemptCount < maxRetries) {
+    const retryAt = computeRetryAt(claimed.attemptCount, classification.metaRateLimited);
     await ref.update({
       status: 'scheduled',
       scheduledAt: retryAt,
@@ -619,8 +644,9 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
           : null;
 
       try {
-        if (classification.retryable && claimed.attemptCount < MAX_RETRY_ATTEMPTS) {
-          const retryAt = computeRetryAt(claimed.attemptCount);
+        const maxRetries = getMaxRetryAttempts(classification.metaRateLimited);
+        if (classification.retryable && claimed.attemptCount < maxRetries) {
+          const retryAt = computeRetryAt(claimed.attemptCount, classification.metaRateLimited);
           await ref.update({
             status: 'scheduled',
             scheduledAt: retryAt,
