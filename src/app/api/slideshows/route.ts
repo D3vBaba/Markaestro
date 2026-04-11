@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       workspaceId: ctx.workspaceId,
       productId: input.productId,
       title: input.title || '',
-      prompt: input.prompt,
+      prompt: input.prompt ?? '',
       channel: input.channel,
       slideCount: input.slideCount,
       caption: input.caption || '',

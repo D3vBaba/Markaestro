@@ -126,7 +126,7 @@ export const slideshowSlideSchema = z.object({
 
 export const createSlideshowSchema = z.object({
   productId: z.string().trim().min(1).max(2000),
-  prompt: z.string().trim().min(1).max(4000),
+  prompt: z.string().trim().max(4000).optional(),
   title: z.string().trim().max(200).optional(),
   channel: z.enum(slideshowChannels).default('tiktok'),
   slideCount: z.number().int().min(3).max(10).default(6),

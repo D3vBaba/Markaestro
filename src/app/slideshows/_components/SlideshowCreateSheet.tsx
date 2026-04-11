@@ -110,13 +110,12 @@ export default function SlideshowCreateSheet({
 
   const handleCreate = async () => {
     if (!productId) { toast.error("Select a product"); return; }
-    if (!prompt.trim()) { toast.error("Add a prompt describing your slideshow"); return; }
 
     setCreating(true);
     try {
       const res = await apiPost<{ id: string }>("/api/slideshows", {
         productId,
-        prompt: prompt.trim(),
+        prompt: prompt.trim() || undefined,
         slideCount,
         channel: "tiktok",
         aspectRatio: "9:16",
@@ -268,17 +267,17 @@ export default function SlideshowCreateSheet({
               {/* Prompt */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Prompt
+                  Prompt <span className="normal-case font-normal">(optional)</span>
                 </label>
                 <Textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   rows={4}
-                  placeholder="Describe the slideshow — product benefit, audience, tone, key message…"
+                  placeholder="Leave blank to auto-generate from product knowledge, or describe the tone, audience, key message…"
                   className="resize-none text-sm"
                 />
                 <p className="text-[10px] text-muted-foreground/60">
-                  Be specific: who it's for, what you want viewers to feel, the key benefit.
+                  If left blank, the slideshow brief is built automatically from your product's knowledge store.
                 </p>
               </div>
 
@@ -355,7 +354,7 @@ export default function SlideshowCreateSheet({
                 size="sm"
                 className="flex-1"
                 onClick={handleCreate}
-                disabled={creating || !productId || !prompt.trim()}
+                disabled={creating || !productId}
               >
                 {creating ? "Creating…" : "Create Slideshow"}
               </Button>

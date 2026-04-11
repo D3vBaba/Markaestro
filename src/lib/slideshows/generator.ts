@@ -43,7 +43,7 @@ export type GenerateSlideshowInput = {
   productDescription: string;
   productCategories: string[];
   productUrl?: string;
-  prompt: string;
+  prompt?: string;
   visualStyle?: string;
   brandVoice?: BrandVoice;
   researchContext?: string;
@@ -241,6 +241,40 @@ function buildKnowledgeBlock(knowledge: ProductKnowledge): string {
   return lines.join('\n');
 }
 
+// ── Auto-prompt builder ───────────────────────────────────────────────
+//
+// When the user provides no prompt, synthesise a concise brief from the
+// product knowledge store so the generator still has a clear directive.
+
+function buildAutoPrompt(input: GenerateSlideshowInput): string {
+  const k = input.productKnowledge;
+  const parts: string[] = [];
+
+  if (k?.contentAngles?.length) {
+    parts.push(`Focus angle: ${k.contentAngles[0]}.`);
+  }
+
+  if (k?.targetAudiencePainStatement) {
+    parts.push(`Audience pain: ${k.targetAudiencePainStatement}.`);
+  } else if (k?.targetAudienceDesiredOutcome) {
+    parts.push(`Audience goal: ${k.targetAudienceDesiredOutcome}.`);
+  }
+
+  if (k?.usps?.length) {
+    parts.push(`Lead with: ${k.usps[0]}.`);
+  }
+
+  if (k?.positioning) {
+    parts.push(`Positioning: ${k.positioning}.`);
+  }
+
+  if (parts.length === 0) {
+    parts.push(`Create a compelling slideshow that showcases ${input.productName}'s key benefits and drives action.`);
+  }
+
+  return parts.join(' ');
+}
+
 // ── User prompt builder ───────────────────────────────────────────────
 
 function buildUserPrompt(input: GenerateSlideshowInput, slideCount: number): string {
@@ -260,8 +294,8 @@ Categories: ${input.productCategories.join(', ')}${input.productUrl ? `\nURL: ${
     parts.push(buildKnowledgeBlock(input.productKnowledge));
   }
 
-  parts.push(`\nSLIDESHOW BRIEF:
-${input.prompt}`);
+  const effectivePrompt = input.prompt?.trim() || buildAutoPrompt(input);
+  parts.push(`\nSLIDESHOW BRIEF:\n${effectivePrompt}`);
 
   if (input.visualStyle && input.visualStyle !== 'reelfarm') {
     parts.push(`\nVISUAL STYLE: ${input.visualStyle}`);
