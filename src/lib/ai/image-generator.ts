@@ -916,49 +916,52 @@ function buildSlideshowImagePrompt(req: ImageGenRequest): string {
   };
   sections.push(roleLines[ctx.kind]);
 
-  // 2. Primary scene brief — describes WHAT subject/action to show.
-  //    The camera angle, environment, and UGC style rules that follow take
-  //    precedence over any professional or studio framing in this brief.
-  //    If the brief mentions a studio, plain backdrop, or direct-camera pose,
-  //    convert it to the nearest candid real-world equivalent.
+  // 2. Scene brief — describes WHAT subject/action to show.
+  //    Camera angle and environment rules immediately follow and override
+  //    any professional or studio framing that may appear here.
   sections.push([
-    'PRIMARY SCENE BRIEF (describes WHAT subject/action to show — camera angle, environment, and style rules below override any professional or studio framing):',
+    'SCENE CONTEXT (what subject/action to show — the camera angle and environment rules that immediately follow override any professional or studio framing in this description):',
     req.prompt,
   ].join('\n'));
 
-  // 3. Visual intent — hard requirements from the content generator
+  // 3. Camera angle direction — placed directly after the scene brief so it
+  //    immediately overrides any conflicting framing in section 2. This is the
+  //    core of the TikTok UGC look. Straight-on headshots and studio portraits
+  //    are explicitly banned.
   sections.push([
-    'VISUAL INTENT (every field is a constraint, not a preference):',
-    `Composition: ${visualIntent.composition}`,
-    `Subject Focus: ${visualIntent.subjectFocus}`,
-    `Lighting: ${visualIntent.lighting}`,
-    `Color Mood: ${visualIntent.colorMood}`,
-    `Motion Style: ${visualIntent.motionStyle}`,
-  ].join('\n'));
-
-  // 4. Camera angle direction — the core of the TikTok UGC look.
-  //    Straight-on headshots and studio portraits are explicitly banned;
-  //    the angles below are what make these images feel native to TikTok.
-  sections.push([
-    'CAMERA ANGLE (CRITICAL — this defines the TikTok feel):',
-    'Use ONE of these angles — they are the angles that go viral on TikTok:',
+    'CAMERA ANGLE (NON-NEGOTIABLE — pick one, it overrides all other framing instructions):',
     '  • BEHIND-THE-BACK: Camera is positioned behind or slightly to the side of the subject. We see their back, shoulder, or the back of their head. They are looking out at the world ahead of them. Feels like you are following them.',
     '  • OVER-SHOULDER: Camera is slightly behind and to one side. We see part of their shoulder/ear and the scene they are looking at. POV energy — viewer feels present.',
     '  • SIDE PROFILE: 90-degree side angle, like street photography. Subject caught mid-walk or mid-action. Face in natural profile, not turned to camera.',
     '  • LOW ANGLE LOOKING UP: Camera is at waist or knee height, looking up slightly. Subject appears confident and larger than life. Urban or outdoor backdrop stretches above.',
     '  • CANDID SEATED: Subject is seated — bench, cafe chair, steps, curb. Camera is at eye level or slightly above. They are looking at their phone, a drink, or into the distance. NOT looking at camera.',
-    'NEVER use: straight-on frontal headshot, studio portrait framing, subject making direct prolonged eye contact with lens, or any pose that looks planned or commercial.',
+    'ABSOLUTE BAN: straight-on frontal headshot, studio portrait framing, subject making direct prolonged eye contact with lens, any pose that looks planned or commercial. These are banned regardless of anything else in this prompt.',
   ].join('\n'));
 
-  // 5. Environment and scene direction — real-world, not studio
+  // 4. Environment and scene direction — real-world, not studio.
+  //    Placed here (before visual intent) so environment rules take precedence
+  //    over any studio-flavoured setting that may appear in the visual intent.
   sections.push([
-    'ENVIRONMENT (must feel like a real place, not a set):',
-    'Choose an authentic real-world location appropriate to the scene brief:',
+    'ENVIRONMENT (NON-NEGOTIABLE — must feel like a real place, not a set):',
+    'Choose an authentic real-world location appropriate to the scene context:',
     '  • Outdoor: park path, city sidewalk, neighbourhood street, cafe patio, rooftop, steps, plaza, market',
     '  • Indoor: cafe interior, apartment window seat, home living room, bedroom corner with natural light',
-    '  • Natural light ONLY — no ring lights, no soft boxes, no studio backdrop. Window light, daylight, golden hour, or overcast sky.',
-    'The environment should have depth and texture — blurred buildings, leaves, people in background, street details. Not a flat wall.',
+    '  • Natural light ONLY — no ring lights, no soft boxes, no studio backdrop, no neutral background. Window light, daylight, golden hour, or overcast sky.',
+    'The environment should have depth and texture — blurred buildings, leaves, people in background, street details. Not a flat wall or gradient.',
     'COLOR GRADING: Warm, slightly desaturated "iPhone photo" look — lifted shadows, slightly faded blacks, natural skin tones. Not oversaturated. Not HDR. Not studio-clean.',
+  ].join('\n'));
+
+  // 5. Visual atmosphere — lighting, color mood, and motion cues from the
+  //    content generator. Composition and framing are NOT included here because
+  //    those are fully controlled by the camera angle and environment rules above.
+  //    Including GPT-generated composition/subjectFocus fields here caused the
+  //    prior failure mode (e.g. "frontal shot" marked as a constraint, overriding
+  //    the camera angle rules).
+  sections.push([
+    'SCENE ATMOSPHERE (lighting and mood cues — composition and framing are dictated by the camera angle rule above):',
+    `Lighting: ${visualIntent.lighting}`,
+    `Color Mood: ${visualIntent.colorMood}`,
+    `Motion Style: ${visualIntent.motionStyle}`,
   ].join('\n'));
 
   // 6. Safe text zones — both top AND bottom must have overlay space.

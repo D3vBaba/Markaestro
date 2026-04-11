@@ -214,8 +214,8 @@ IMAGE PROMPT EXAMPLES (right vs. wrong):
 
 VISUAL INTENT RULES:
 - safeTextRegion: where the primary text block goes ("top", "middle", or "bottom"). Alternate across slides.
-- composition: specific camera angle and framing instruction
-- subjectFocus: what or who is the main subject and what they are doing
+- composition: MUST be one of these five camera angles ONLY — write exactly which one: "Behind-the-back shot — camera behind and to the side of the subject, we see their back and the world ahead", "Over-shoulder angle — camera slightly behind and to one side, subject's shoulder/ear visible, POV energy", "Side-profile street photography — 90-degree side angle, subject mid-action, face in profile", "Low angle looking up — camera at waist/knee height, subject looms larger than life", or "Candid seated — subject on bench/cafe chair/steps, camera at eye level, subject looking at phone or into distance". NEVER write a frontal shot, headshot, close-up of face, or any framing where the subject faces the camera.
+- subjectFocus: what the subject IS DOING in the scene (walking, seated and scrolling phone, standing at a street corner, etc.). NEVER write "looking at camera", "facing camera", "making eye contact", "direct gaze", "confident stance toward camera", or any variation of frontal posing.
 - lighting: natural light source (golden hour, overcast, indoor window light, etc.)
 - colorMood: warm/cool, saturated/muted, the overall color feel
 - motionStyle: "Still" for a frozen moment, or "Slight motion" for walking/moving shots
@@ -356,8 +356,8 @@ Return exactly this JSON structure:
       "cta": "",
       "imagePrompt": "3–5 sentence CANDID LIFESTYLE scene. MUST use behind-back/over-shoulder/side-profile/low-angle/candid-seated framing — NEVER frontal or studio. Real outdoor/indoor location, natural light only. State the camera angle explicitly. State which zone (top/bottom 20%) is clear for text.",
       "visualIntent": {
-        "composition": "specific compositional instruction",
-        "subjectFocus": "what is in the frame",
+        "composition": "MUST be one of the 5 angles: behind-the-back / over-shoulder / side-profile / low-angle-looking-up / candid-seated. Write the full description. NEVER frontal or headshot.",
+        "subjectFocus": "what the subject IS DOING — action verb required. NEVER 'looking at camera', 'facing camera', or any frontal posing.",
         "safeTextRegion": "top",
         "lighting": "light quality and source",
         "colorMood": "color palette",
