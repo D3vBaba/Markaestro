@@ -21,10 +21,10 @@ export function characterModelDoc(modelId: string) {
 export async function listActiveCharacterModels(): Promise<CharacterModel[]> {
   const snap = await characterModelsCollection()
     .where('isActive', '==', true)
-    .orderBy('name')
     .get();
 
-  return snap.docs.map((doc) => doc.data() as CharacterModel);
+  const models = snap.docs.map((doc) => doc.data() as CharacterModel);
+  return models.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export async function getCharacterModel(modelId: string): Promise<CharacterModel | null> {

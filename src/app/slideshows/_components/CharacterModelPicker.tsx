@@ -41,14 +41,20 @@ export default function CharacterModelPicker({
 }) {
   const [models, setModels] = useState<CharacterModelSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [genderFilter, setGenderFilter] = useState<string>("all");
   const [styleFilter, setStyleFilter] = useState<string>("all");
 
   useEffect(() => {
     (async () => {
       setLoading(true);
+      setFetchError(false);
       const res = await apiGet<{ models: CharacterModelSummary[] }>("/api/character-models");
-      if (res.ok) setModels(res.data.models ?? []);
+      if (res.ok) {
+        setModels(res.data.models ?? []);
+      } else {
+        setFetchError(true);
+      }
       setLoading(false);
     })();
   }, []);
@@ -126,6 +132,10 @@ export default function CharacterModelPicker({
             <Skeleton key={i} className="aspect-[3/4] rounded-lg" />
           ))}
         </div>
+      ) : fetchError ? (
+        <p className="text-xs text-destructive text-center py-4">
+          Failed to load models. Please refresh.
+        </p>
       ) : filtered.length === 0 ? (
         <p className="text-xs text-muted-foreground text-center py-4">
           No models match these filters.
