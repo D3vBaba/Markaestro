@@ -592,6 +592,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
             destinationProvider: typeof claimed.post.destinationProvider === 'string' && claimed.post.destinationProvider
               ? claimed.post.destinationProvider
               : undefined,
+            photoCoverIndex: typeof claimed.post.slideshowCoverIndex === 'number' ? claimed.post.slideshowCoverIndex : undefined,
           });
           channelResults.push({
             channel,
@@ -618,6 +619,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
           destinationProvider: typeof claimed.post.destinationProvider === 'string' && claimed.post.destinationProvider
             ? claimed.post.destinationProvider
             : undefined,
+          photoCoverIndex: typeof claimed.post.slideshowCoverIndex === 'number' ? claimed.post.slideshowCoverIndex : undefined,
         });
       }
 

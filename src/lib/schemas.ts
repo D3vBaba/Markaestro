@@ -44,6 +44,12 @@ export const campaignTypes = ['standard', 'pipeline'] as const;
 export const pipelineStages = ['awareness', 'interest', 'consideration', 'trial', 'activation', 'retention'] as const;
 export const pipelineCadences = ['daily', '3x_week', '2x_week', 'weekly'] as const;
 export const pipelineStatuses = ['pending_research', 'researching', 'research_complete', 'generating', 'generating_images', 'generated', 'scheduling', 'scheduled', 'failed'] as const;
+export const slideshowChannels = ['tiktok'] as const;
+export const slideshowStatuses = ['draft', 'researching', 'generating_slides', 'generating_images', 'ready', 'failed', 'exported'] as const;
+export const slideshowRenderModes = ['carousel_images'] as const;
+export const slideKinds = ['hook', 'body', 'cta'] as const;
+export const slideImageStatuses = ['pending', 'generated', 'failed'] as const;
+export const safeTextRegions = ['top', 'middle', 'bottom'] as const;
 
 // ── Pipeline Sub-Schemas ──────────────────────────────────────────
 
@@ -77,6 +83,60 @@ export const researchBriefSchema = z.object({
   newsHookHeadlines: z.array(z.string()).optional(),
   sources: z.array(z.string()).optional(),
   generatedAt: z.string().datetime(),
+});
+
+export const slideVisualIntentSchema = z.object({
+  composition: z.string().trim().min(1).max(200),
+  subjectFocus: z.string().trim().min(1).max(200),
+  safeTextRegion: z.enum(safeTextRegions),
+  lighting: z.string().trim().min(1).max(200),
+  colorMood: z.string().trim().min(1).max(200),
+  motionStyle: z.string().trim().min(1).max(200),
+});
+
+export const slideQualitySchema = z.object({
+  hookStrength: z.number().min(0).max(1),
+  readability: z.number().min(0).max(1),
+  distinctiveness: z.number().min(0).max(1),
+  visualClarity: z.number().min(0).max(1),
+  notes: z.array(z.string().trim().min(1).max(200)).max(10).default([]),
+});
+
+export const slideshowSlideSchema = z.object({
+  id: z.string().trim().min(1).max(200).optional(),
+  index: z.number().int().min(0),
+  kind: z.enum(slideKinds),
+  headline: z.string().trim().min(1).max(200),
+  body: z.string().trim().max(500).default(''),
+  cta: z.string().trim().max(200).default(''),
+  imagePrompt: z.string().trim().min(1).max(4000),
+  imageUrl: z.string().trim().url().or(z.literal('')).default(''),
+  imageStatus: z.enum(slideImageStatuses).default('pending'),
+  visualIntent: slideVisualIntentSchema,
+  quality: slideQualitySchema.optional(),
+});
+
+export const createSlideshowSchema = z.object({
+  productId: z.string().trim().min(1).max(2000),
+  prompt: z.string().trim().min(1).max(4000),
+  title: z.string().trim().max(200).optional(),
+  channel: z.enum(slideshowChannels).default('tiktok'),
+  slideCount: z.number().int().min(3).max(10).default(6),
+  caption: z.string().trim().max(4000).optional(),
+  aspectRatio: z.literal('9:16').default('9:16'),
+  renderMode: z.enum(slideshowRenderModes).default('carousel_images'),
+  visualStyle: z.string().trim().max(200).default('reelfarm'),
+  imageStyle: z.lazy(() => z.enum(imageStyles)).default('branded'),
+  imageProvider: z.lazy(() => z.enum(imageProviders)).default('gemini'),
+});
+
+export const updateSlideshowSchema = z.object({
+  title: z.string().trim().min(1).max(200).optional(),
+  caption: z.string().trim().max(4000).optional(),
+  coverSlideIndex: z.number().int().min(0).max(9).optional(),
+  status: z.enum(slideshowStatuses).optional(),
+  errorMessage: z.string().trim().max(2000).nullable().optional(),
+  slides: z.array(slideshowSlideSchema).min(1).max(10).optional(),
 });
 
 // ── Campaign Schemas ───────────────────────────────────────────────
@@ -435,6 +495,11 @@ export const createPostSchema = z.object({
   pipelineSequence: z.number().int().min(0).optional(),
   pipelineTheme: z.string().trim().max(200).optional(),
   targetChannels: z.array(z.enum(socialChannels)).optional(),
+  sourceType: z.enum(['manual', 'pipeline', 'slideshow']).optional(),
+  slideshowId: z.string().trim().max(200).optional(),
+  slideshowTitle: z.string().trim().max(200).optional(),
+  slideshowSlideCount: z.number().int().min(1).max(10).optional(),
+  slideshowCoverIndex: z.number().int().min(0).max(9).optional(),
 });
 
 export const updatePostSchema = z.object({
@@ -452,6 +517,11 @@ export const updatePostSchema = z.object({
   pipelineSequence: z.number().int().min(0).optional(),
   pipelineTheme: z.string().trim().max(200).optional(),
   targetChannels: z.array(z.enum(socialChannels)).optional(),
+  sourceType: z.enum(['manual', 'pipeline', 'slideshow']).optional(),
+  slideshowId: z.string().trim().max(200).optional(),
+  slideshowTitle: z.string().trim().max(200).optional(),
+  slideshowSlideCount: z.number().int().min(1).max(10).optional(),
+  slideshowCoverIndex: z.number().int().min(0).max(9).optional(),
 });
 
 // ── Pagination ─────────────────────────────────────────────────────
@@ -507,6 +577,17 @@ export type PipelineCadence = (typeof pipelineCadences)[number];
 export type PipelineStatus = (typeof pipelineStatuses)[number];
 export type PipelineConfig = z.infer<typeof pipelineConfigSchema>;
 export type ResearchBrief = z.infer<typeof researchBriefSchema>;
+export type SlideshowChannel = (typeof slideshowChannels)[number];
+export type SlideshowStatus = (typeof slideshowStatuses)[number];
+export type SlideshowRenderMode = (typeof slideshowRenderModes)[number];
+export type SlideKind = (typeof slideKinds)[number];
+export type SlideImageStatus = (typeof slideImageStatuses)[number];
+export type SafeTextRegion = (typeof safeTextRegions)[number];
+export type SlideVisualIntent = z.infer<typeof slideVisualIntentSchema>;
+export type SlideQuality = z.infer<typeof slideQualitySchema>;
+export type SlideshowSlide = z.infer<typeof slideshowSlideSchema>;
+export type CreateSlideshow = z.infer<typeof createSlideshowSchema>;
+export type UpdateSlideshow = z.infer<typeof updateSlideshowSchema>;
 export type PromptMode = (typeof promptModes)[number];
 export type TikTokTrendStatus = (typeof tiktokTrendStatuses)[number];
 export type TikTokTrend = z.infer<typeof tiktokTrendSchema>;

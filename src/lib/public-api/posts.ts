@@ -105,6 +105,11 @@ export function serializePublicPost(post: Record<string, unknown>) {
     externalUrl: post.externalUrl || '',
     publishResults: Array.isArray(post.publishResults) ? post.publishResults : [],
     nextAction: post.nextAction || '',
+    sourceType: post.sourceType || '',
+    slideshowId: post.slideshowId || '',
+    slideshowTitle: post.slideshowTitle || '',
+    slideshowSlideCount: typeof post.slideshowSlideCount === 'number' ? post.slideshowSlideCount : null,
+    slideshowCoverIndex: typeof post.slideshowCoverIndex === 'number' ? post.slideshowCoverIndex : null,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
   };

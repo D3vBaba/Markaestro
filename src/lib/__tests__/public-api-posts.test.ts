@@ -57,6 +57,11 @@ describe('public post validation', () => {
       mediaAssetIds: ['ast_1'],
       mediaUrls: ['https://example.com/1.jpg'],
       nextAction: 'open_tiktok_inbox_and_complete_editing',
+      sourceType: 'slideshow',
+      slideshowId: 'ss_123',
+      slideshowTitle: 'Launch sequence',
+      slideshowSlideCount: 6,
+      slideshowCoverIndex: 0,
       createdAt: '2026-04-08T00:00:00.000Z',
       updatedAt: '2026-04-08T00:00:00.000Z',
     });
@@ -65,5 +70,10 @@ describe('public post validation', () => {
     expect(serialized.destinationId).toBe('tiktok:tiktok:tt_open_123');
     expect(serialized.destinationProvider).toBe('tiktok');
     expect(serialized.nextAction).toBe('open_tiktok_inbox_and_complete_editing');
+    expect(serialized.sourceType).toBe('slideshow');
+    expect(serialized.slideshowId).toBe('ss_123');
+    expect(serialized.slideshowTitle).toBe('Launch sequence');
+    expect(serialized.slideshowSlideCount).toBe(6);
+    expect(serialized.slideshowCoverIndex).toBe(0);
   });
 });

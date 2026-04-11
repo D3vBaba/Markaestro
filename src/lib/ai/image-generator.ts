@@ -1,8 +1,35 @@
 import crypto from 'crypto';
-import type { BrandIdentity, BrandVoice, ImageStyle, ImageSubtype, ImageAspectRatio, ImageProvider, PromptMode, SocialChannel } from '@/lib/schemas';
+import type { BrandIdentity, BrandVoice, ImageStyle, ImageSubtype, ImageAspectRatio, ImageProvider, PromptMode, SocialChannel, SlideVisualIntent } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 import { assertSafeOutboundUrl, readResponseBufferWithLimit } from '@/lib/network-security';
 import { interpretSceneIntent, renderSceneIntent, type SceneIntent } from './image-scene-interpreter';
+
+/**
+ * Per-slide context for slideshow image generation.
+ *
+ * When `generationMode` is `'slideshow_slide'` this is required. It replaces
+ * the scene interpreter — the slideshow generator has already produced a
+ * structured visual intent, so we use it directly instead of running the LLM
+ * interpreter a second time.
+ */
+export type SlideContext = {
+  /** 0-based slide index */
+  index: number;
+  /** Total slides in the sequence — used in role labelling */
+  totalSlides: number;
+  /** Narrative role drives tone and energy of the composition */
+  kind: 'hook' | 'body' | 'cta';
+  /** Which third of the frame must be left clear for text overlay */
+  safeTextRegion: 'top' | 'middle' | 'bottom';
+  /** Structured visual intent produced by the slideshow generator */
+  visualIntent: SlideVisualIntent;
+  /**
+   * Visual signatures of slides already generated in this sequence.
+   * Used to enforce diversity — each new slide must look distinct.
+   * Built with `buildVisualSignature` from slideshows/quality.ts.
+   */
+  previousVisualSignatures: string[];
+};
 
 export type ImageGenRequest = {
   prompt: string;
@@ -39,6 +66,16 @@ export type ImageGenRequest = {
    * same post).
    */
   sceneIntent?: SceneIntent;
+  /**
+   * Set to `'slideshow_slide'` when generating an image for a single slide in
+   * a TikTok slideshow sequence. Activates the slideshow-specific prompt path
+   * (safe text zones, sequence diversity, 9:16 mobile composition) and bypasses
+   * the scene interpreter since `slideContext.visualIntent` already provides
+   * structured intent.
+   */
+  generationMode?: 'single_post' | 'slideshow_slide';
+  /** Required when `generationMode === 'slideshow_slide'` */
+  slideContext?: SlideContext;
 };
 
 export type ImageResearchContext = {
@@ -829,7 +866,100 @@ function buildCustomOverrideImagePrompt(req: ImageGenRequest): string {
   return sections.join('\n\n');
 }
 
+/**
+ * Build an image prompt for a single slide within a TikTok slideshow sequence.
+ *
+ * This path is intentionally different from `buildGuidedImagePrompt`:
+ *
+ * 1. The scene interpreter is NOT called — the slideshow generator already
+ *    produced a rich `visualIntent`; running the interpreter again would be
+ *    redundant and could contradict the generator's intent.
+ * 2. The `safeTextRegion` constraint is the top priority — the image MUST
+ *    have a clear empty zone where bold headline text overlays at full opacity.
+ * 3. Sequence diversity is enforced via `previousVisualSignatures` — each
+ *    slide must look compositionally distinct from the ones before it.
+ * 4. The 9:16 portrait format and TikTok-native lo-fi aesthetic are baked in.
+ */
+function buildSlideshowImagePrompt(req: ImageGenRequest): string {
+  const ctx = req.slideContext!;
+  const { visualIntent } = ctx;
+  const sections: string[] = [];
+
+  // 1. Slide role — sets the energy and tonal target for the composition
+  const roleLines: Record<'hook' | 'body' | 'cta', string> = {
+    hook: `SLIDE ROLE: HOOK (slide 1 of ${ctx.totalSlides}) — This is the first image the viewer sees. It must create instant visual tension, curiosity, or desire that makes them swipe immediately. Leave something unresolved. Do NOT show resolution or comfort.`,
+    body: `SLIDE ROLE: BODY (slide ${ctx.index + 1} of ${ctx.totalSlides}) — A supporting slide that deepens the narrative. Maintain tonal continuity with the sequence but show something visually distinct. One clear visual idea, nothing competing for attention.`,
+    cta: `SLIDE ROLE: CALL TO ACTION (final slide, ${ctx.index + 1} of ${ctx.totalSlides}) — The viewer has made it to the end. The image should feel conclusive and action-oriented — slightly warmer, brighter, or more resolved than the body slides. Signal that it is time to act.`,
+  };
+  sections.push(roleLines[ctx.kind]);
+
+  // 2. Primary scene brief from the slideshow generator
+  sections.push([
+    'PRIMARY SCENE BRIEF (source of truth — execute this scene, not a generic alternative):',
+    req.prompt,
+  ].join('\n'));
+
+  // 3. Visual intent — all fields are hard requirements, not suggestions
+  sections.push([
+    'VISUAL INTENT (honour every field — these are constraints, not preferences):',
+    `Composition: ${visualIntent.composition}`,
+    `Subject Focus: ${visualIntent.subjectFocus}`,
+    `Lighting: ${visualIntent.lighting}`,
+    `Color Mood: ${visualIntent.colorMood}`,
+    `Motion Style: ${visualIntent.motionStyle}`,
+  ].join('\n'));
+
+  // 4. Safe text zone — the single most critical constraint for slideshow images.
+  //    Bold headline text overlays here at full opacity; the zone must be
+  //    completely uncluttered so any viewer can read white or black text over it.
+  const safeZoneInstructions: Record<'top' | 'middle' | 'bottom', string> = {
+    top: 'SAFE TEXT ZONE — TOP THIRD (CRITICAL): The top 33% of the frame MUST be completely uncluttered. No objects, faces, hands, textures, or complex detail in this zone. Keep all visual weight in the lower two-thirds. A viewer must be able to read white or black 60pt text against this area without any background conflict. When in doubt, make the upper third a plain wall, sky, or out-of-focus neutral.',
+    middle: 'SAFE TEXT ZONE — CENTER BAND (CRITICAL): A horizontal band across the middle third of the frame must be kept clean and simple — a plain background, blurred area, or open negative space. Push subjects toward the top and bottom edges. No complex detail in the vertical center.',
+    bottom: 'SAFE TEXT ZONE — BOTTOM THIRD (CRITICAL): The bottom 33% of the frame MUST be completely uncluttered. No objects, faces, or complex detail in this zone. Keep all visual weight in the upper two-thirds. A viewer must be able to read white or black 60pt text against the bottom area without any visual conflict.',
+  };
+  sections.push(safeZoneInstructions[ctx.safeTextRegion]);
+
+  // 5. Sequence diversity — forces each slide to look compositionally distinct
+  if (ctx.previousVisualSignatures.length > 0) {
+    const recentSignatures = ctx.previousVisualSignatures.slice(-3);
+    const signatureLines = recentSignatures.map((sig, i) => {
+      // Convert token signature back to readable terms for the prompt
+      const terms = sig.split('|').filter(Boolean).slice(0, 8).join(', ');
+      return `  Slide ${i + 1}: ${terms}`;
+    });
+    sections.push([
+      `SEQUENCE DIVERSITY REQUIREMENT: This image is slide ${ctx.index + 1} in a sequence. It MUST look visually distinct from every previous slide. Visual territory already used:`,
+      ...signatureLines,
+      'Avoid: same lighting setup, same subject position in frame, same background type, same color palette, same compositional angle. Each slide must feel like a different moment captured by a different photographer.',
+    ].join('\n'));
+  }
+
+  // 6. Style — TikTok native. The slideshow format rewards authenticity over polish.
+  const slideshowStyleVariants: Partial<Record<ImageStyle, string>> = {
+    photorealistic: 'STYLE: Raw authentic phone photo. Slight lens distortion, natural ambient or mixed indoor light. No commercial polish, no branded overlays. Feels like a real moment, not a campaign shoot.',
+    branded: 'STYLE: Lo-fi branded aesthetic. Warm film tones, honest lighting, handmade textures. The brand is present through atmosphere, not logos or text. Authentic over polished.',
+    illustration: 'STYLE: Bold flat editorial illustration. Limited color palette, strong graphic shapes, risograph grain texture. Each slide is a self-contained graphic piece.',
+    minimal: 'STYLE: High-contrast minimalism. One hero element, vast negative space, two colors maximum. Japanese design sensibility — restraint as communication.',
+    abstract: 'STYLE: Contemporary abstract. Organic shapes, rich layered textures, bold color fields. Gallery quality but legible at phone scale.',
+  };
+  sections.push(slideshowStyleVariants[req.style] ?? slideshowStyleVariants.photorealistic!);
+
+  // 7. Technical constraints — 9:16 mobile, no text, overlay-optimised
+  sections.push([
+    'FORMAT: Portrait 9:16. Full-screen TikTok slideshow viewing on mobile. Everything must read clearly on a phone held vertically.',
+    'QUALITY: High contrast, sharp focus at phone viewing distance. The safe text zone must look clean at 100% brightness.',
+    'NO text, words, signs, labels, or readable typography anywhere in the frame — image models hallucinate garbled fake words.',
+    'NO watermarks, UI overlays, graphic design elements, branded packaging as hero, or logos.',
+    'CRITICAL: This image exists to display BEHIND text overlay. The safe text zone constraint and compositional clarity outrank every other creative consideration.',
+  ].join('\n'));
+
+  return sections.join('\n\n');
+}
+
 function buildImagePrompt(req: ImageGenRequest): string {
+  if (req.generationMode === 'slideshow_slide' && req.slideContext) {
+    return buildSlideshowImagePrompt(req);
+  }
   if (req.promptMode === 'custom_override') {
     return buildCustomOverrideImagePrompt(req);
   }
@@ -1011,7 +1141,11 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
   // (the user is providing their own brief verbatim) and skipped if the
   // caller already supplied an intent.
   let reqWithIntent = req;
-  if (req.promptMode !== 'custom_override' && !req.sceneIntent) {
+  // Skip the scene interpreter for slideshow slides — the slideshow generator
+  // already produced a structured visualIntent, so running the interpreter
+  // again would be redundant and could contradict the generator's decisions.
+  // Also skipped for custom_override (user supplies their own brief verbatim).
+  if (req.promptMode !== 'custom_override' && !req.sceneIntent && req.generationMode !== 'slideshow_slide') {
     const intent = await interpretSceneIntent({
       productName: req.productName,
       productDescription: req.productDescription,

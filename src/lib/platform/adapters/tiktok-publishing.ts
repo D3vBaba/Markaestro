@@ -255,7 +255,9 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         },
         source_info: {
           source: 'PULL_FROM_URL',
-          photo_cover_index: 0,
+          // Use the caller-supplied cover index (from slideshowCoverIndex on
+          // slideshow-backed posts). Falls back to 0 for single-image posts.
+          photo_cover_index: request.photoCoverIndex ?? 0,
           photo_images: proxyUrls,
         },
         post_mode: request.deliveryMode === 'user_review' ? 'MEDIA_UPLOAD' : 'DIRECT_POST',

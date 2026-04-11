@@ -2,6 +2,28 @@ import { z } from 'zod';
 import { socialChannels } from '@/lib/schemas';
 import { publicApiScopes, publicWebhookEvents } from './scopes';
 
+// Serialized post shape returned by the public API (matches serializePublicPost).
+// Slideshow-sourced posts include the optional slideshow metadata fields.
+export type PublicPostResponse = {
+  id: string;
+  channel: string;
+  caption: string;
+  status: string;
+  mediaUrls: string[];
+  scheduledAt: string | null;
+  publishedAt: string | null;
+  externalUrl: string | null;
+  productId: string;
+  destinationId: string;
+  sourceType: string;
+  slideshowId: string;
+  slideshowTitle: string;
+  slideshowSlideCount: number | null;
+  slideshowCoverIndex: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export const createApiClientSchema = z.object({
   name: z.string().trim().min(1).max(120),
   scopes: z.array(z.enum(publicApiScopes)).min(1).max(publicApiScopes.length),
