@@ -52,6 +52,8 @@ export async function POST(req: Request) {
       visualStyle: input.visualStyle,
       imageStyle: input.imageStyle,
       imageProvider: input.imageProvider,
+      storyFormat: input.storyFormat,
+      characterModelId: input.characterModelId ?? null,
       createdBy: ctx.uid,
     });
 

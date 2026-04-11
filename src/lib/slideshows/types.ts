@@ -6,6 +6,7 @@ import type {
   SlideshowRenderMode,
   SlideshowSlide,
   SlideshowStatus,
+  StoryFormat,
 } from '@/lib/schemas';
 
 export type SlideshowDoc = {
@@ -25,6 +26,8 @@ export type SlideshowDoc = {
   visualStyle: string;
   imageStyle: CreateSlideshow['imageStyle'];
   imageProvider: CreateSlideshow['imageProvider'];
+  storyFormat: StoryFormat;
+  characterModelId: string | null;
   generationVersion: number;
   exportPostId: string | null;
   errorMessage: string | null;

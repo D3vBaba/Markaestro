@@ -3,9 +3,10 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { generateSlideshowContent, type GenerateSlideshowInput } from '@/lib/slideshows/generator';
-import { generateAndUploadImage, type SlideContext } from '@/lib/ai/image-generator';
+import { generateAndUploadImage, fetchImageAsBase64, type SlideContext } from '@/lib/ai/image-generator';
 import { buildVisualSignature } from '@/lib/slideshows/quality';
 import { slideshowDoc, slideshowSlidesCollection, serializeSlideDoc } from '@/lib/slideshows/firestore';
+import { getCharacterModel } from '@/lib/character-models/firestore';
 import type { SlideshowSlide } from '@/lib/schemas';
 
 // Max simultaneous image generation calls per slideshow — keeps provider costs
@@ -131,6 +132,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const phase1At = new Date().toISOString();
     await ssRef.update({ status: 'researching', errorMessage: null, updatedAt: phase1At });
 
+    // Load character model if one was selected
+    const characterModel = slideshow.characterModelId
+      ? await getCharacterModel(slideshow.characterModelId)
+      : null;
+
     const generatorInput: GenerateSlideshowInput = {
       productName: product.name,
       productDescription: product.description || '',
@@ -139,6 +145,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       prompt: slideshow.prompt,
       visualStyle: slideshow.visualStyle,
       brandVoice: product.brandVoice || undefined,
+      storyFormat: slideshow.storyFormat || 'hook_value_cta',
+      productKnowledge: product.knowledge || undefined,
+      characterModelDescription: characterModel
+        ? `${characterModel.name} — ${characterModel.description}`
+        : undefined,
     };
 
     // ── Phase 2: generating_slides ──────────────────────────────────
@@ -192,6 +203,21 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const phase3At = new Date().toISOString();
     await ssRef.update({ status: 'generating_images', updatedAt: phase3At });
 
+    // Pre-fetch character model reference images once so they can be reused
+    // across all slides without N×M HTTP round-trips.
+    let prefetchedCharacterImages: { base64: string; mimeType: string }[] | undefined;
+    if (characterModel && characterModel.referenceImageUrls.length > 0) {
+      const fetched = await Promise.allSettled(
+        characterModel.referenceImageUrls.slice(0, 4).map((url) => fetchImageAsBase64(url)),
+      );
+      prefetchedCharacterImages = fetched
+        .filter((r): r is PromiseFulfilledResult<{ base64: string; mimeType: string }> => r.status === 'fulfilled')
+        .map((r) => r.value);
+      if (prefetchedCharacterImages.length < characterModel.referenceImageUrls.length) {
+        console.warn('[slideshow:generate] Some character reference images failed to prefetch');
+      }
+    }
+
     const sharedImageReq = {
       style: slideshow.imageStyle || 'branded',
       aspectRatio: '9:16' as const,
@@ -202,6 +228,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       productUrl: product.url || undefined,
       brandIdentity: product.brandIdentity || undefined,
       brandVoice: product.brandVoice || undefined,
+      characterModel: characterModel
+        ? {
+            modelId: characterModel.id,
+            name: characterModel.name,
+            description: characterModel.description,
+            referenceImageUrls: characterModel.referenceImageUrls,
+            prefetchedImages: prefetchedCharacterImages,
+          }
+        : undefined,
     };
 
     const imageTasks: ImageTask[] = content.slides.map((slide, i) => ({

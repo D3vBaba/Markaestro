@@ -45,6 +45,8 @@ export function serializeSlideshowDoc(
     visualStyle: data.visualStyle || 'reelfarm',
     imageStyle: data.imageStyle || 'branded',
     imageProvider: data.imageProvider || 'gemini',
+    storyFormat: data.storyFormat || 'hook_value_cta',
+    characterModelId: data.characterModelId ?? null,
     generationVersion: data.generationVersion || 1,
     exportPostId: data.exportPostId || null,
     errorMessage: data.errorMessage || null,

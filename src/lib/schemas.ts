@@ -50,6 +50,14 @@ export const slideshowRenderModes = ['carousel_images'] as const;
 export const slideKinds = ['hook', 'body', 'cta'] as const;
 export const slideImageStatuses = ['pending', 'generated', 'failed'] as const;
 export const safeTextRegions = ['top', 'middle', 'bottom'] as const;
+export const storyFormats = [
+  'hook_value_cta',
+  'problem_solution',
+  'transformation',
+  'feature_listicle',
+  'ugc_testimonial',
+  'product_lookbook',
+] as const;
 
 // ── Pipeline Sub-Schemas ──────────────────────────────────────────
 
@@ -128,6 +136,8 @@ export const createSlideshowSchema = z.object({
   visualStyle: z.string().trim().max(200).default('reelfarm'),
   imageStyle: z.lazy(() => z.enum(imageStyles)).default('branded'),
   imageProvider: z.lazy(() => z.enum(imageProviders)).default('gemini'),
+  storyFormat: z.enum(storyFormats).default('hook_value_cta'),
+  characterModelId: z.string().trim().max(200).optional(),
 });
 
 export const updateSlideshowSchema = z.object({
@@ -242,6 +252,62 @@ export const createJobSchema = z.object({
   payload: z.record(z.string(), z.unknown()).default({}),
 });
 
+// ── Product Knowledge Schema ──────────────────────────────────────
+
+export const productFeatureSchema = z.object({
+  title: z.string().trim().min(1).max(200),
+  description: z.string().trim().max(500).default(''),
+  benefit: z.string().trim().max(500).default(''),
+});
+
+export const proofPointSchema = z.object({
+  type: z.enum(['stat', 'testimonial', 'award', 'press']),
+  content: z.string().trim().min(1).max(1000),
+  source: z.string().trim().max(200).default(''),
+});
+
+export const productKnowledgeSchema = z.object({
+  features: z.array(productFeatureSchema).max(20).default([]),
+  usps: z.array(z.string().trim().min(1).max(300)).max(10).default([]),
+  painPoints: z.array(z.string().trim().min(1).max(300)).max(10).default([]),
+  proofPoints: z.array(proofPointSchema).max(20).default([]),
+  targetAudienceDemographics: z.string().trim().max(500).default(''),
+  targetAudiencePsychographics: z.string().trim().max(500).default(''),
+  targetAudiencePainStatement: z.string().trim().max(500).default(''),
+  targetAudienceDesiredOutcome: z.string().trim().max(500).default(''),
+  competitors: z.array(z.string().trim().min(1).max(200)).max(10).default([]),
+  differentiators: z.array(z.string().trim().min(1).max(300)).max(10).default([]),
+  positioning: z.string().trim().max(1000).default(''),
+  productImages: z.array(z.string().url()).max(10).default([]),
+  contentAngles: z.array(z.string().trim().min(1).max(300)).max(10).default([]),
+  lastEnrichedAt: z.string().datetime().optional(),
+  enrichmentSource: z.enum(['manual', 'url_import', 'ai_assisted']).optional(),
+});
+
+// ── Character Model Schema ────────────────────────────────────────
+
+export const characterModelGenders = ['female', 'male', 'nonbinary'] as const;
+export const characterModelAgeRanges = ['18-25', '26-35', '36-50', '51+'] as const;
+export const characterModelStyles = ['casual', 'professional', 'fitness', 'lifestyle', 'streetwear'] as const;
+export const characterModelBodySizes = ['slim', 'average', 'plus'] as const;
+
+export const characterModelSchema = z.object({
+  id: z.string().trim().min(1),
+  name: z.string().trim().min(1).max(100),
+  description: z.string().trim().max(500),
+  gender: z.enum(characterModelGenders),
+  ageRange: z.enum(characterModelAgeRanges),
+  ethnicity: z.string().trim().max(100),
+  bodySize: z.enum(characterModelBodySizes),
+  style: z.enum(characterModelStyles),
+  referenceImageUrls: z.array(z.string().url()).min(1).max(5),
+  primaryReferenceImageUrl: z.string().url(),
+  thumbnailUrl: z.string().url(),
+  generationPrompt: z.string().trim().max(2000).default(''),
+  isActive: z.boolean().default(true),
+  createdAt: z.string().datetime(),
+});
+
 // ── Brand Voice Schema ────────────────────────────────────────────
 
 export const brandVoiceSchema = z.object({
@@ -284,6 +350,7 @@ export const createProductSchema = z.object({
   tags: tagsSchema,
   brandVoice: brandVoiceSchema.optional(),
   brandIdentity: brandIdentitySchema.optional(),
+  knowledge: productKnowledgeSchema.optional(),
 });
 
 export const updateProductSchema = z.object({
@@ -296,6 +363,7 @@ export const updateProductSchema = z.object({
   tags: tagsSchema.optional(),
   brandVoice: brandVoiceSchema.optional(),
   brandIdentity: brandIdentitySchema.optional(),
+  knowledge: productKnowledgeSchema.optional(),
 });
 
 // ── Integration Schemas ────────────────────────────────────────────
@@ -591,3 +659,12 @@ export type UpdateSlideshow = z.infer<typeof updateSlideshowSchema>;
 export type PromptMode = (typeof promptModes)[number];
 export type TikTokTrendStatus = (typeof tiktokTrendStatuses)[number];
 export type TikTokTrend = z.infer<typeof tiktokTrendSchema>;
+export type StoryFormat = (typeof storyFormats)[number];
+export type ProductFeature = z.infer<typeof productFeatureSchema>;
+export type ProofPoint = z.infer<typeof proofPointSchema>;
+export type ProductKnowledge = z.infer<typeof productKnowledgeSchema>;
+export type CharacterModelGender = (typeof characterModelGenders)[number];
+export type CharacterModelAgeRange = (typeof characterModelAgeRanges)[number];
+export type CharacterModelStyle = (typeof characterModelStyles)[number];
+export type CharacterModelBodySize = (typeof characterModelBodySizes)[number];
+export type CharacterModel = z.infer<typeof characterModelSchema>;

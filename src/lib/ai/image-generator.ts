@@ -76,6 +76,27 @@ export type ImageGenRequest = {
   generationMode?: 'single_post' | 'slideshow_slide';
   /** Required when `generationMode === 'slideshow_slide'` */
   slideContext?: SlideContext;
+  /**
+   * Character model for consistent human representation across all slides.
+   * When present, reference images are passed to Gemini for character
+   * consistency (up to 4 character reference slots). The name/description
+   * is injected into the prompt to help the model identify which subject
+   * to keep consistent.
+   */
+  characterModel?: {
+    modelId: string;
+    name: string;
+    description: string;
+    referenceImageUrls: string[];
+    /**
+     * Pre-fetched base64 representations of the reference images.
+     * When present, the generator uses these directly and skips the URL
+     * fetch step — set this on the shared request object before a
+     * multi-slide generation job so images are downloaded once rather
+     * than once per slide.
+     */
+    prefetchedImages?: { base64: string; mimeType: string }[];
+  };
 };
 
 export type ImageResearchContext = {
@@ -991,7 +1012,7 @@ export async function fetchImageAsBase64(url: string): Promise<{ base64: string;
 export async function generateWithGemini(
   prompt: string,
   aspectRatio: ImageAspectRatio,
-  referenceImages?: { base64: string; mimeType: string }[],
+  referenceImages?: { base64: string; mimeType: string; role?: string }[],
 ): Promise<{ base64: string; mimeType: string }> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
@@ -1028,7 +1049,7 @@ export async function generateWithGemini(
           responseModalities: ['TEXT', 'IMAGE'],
           imageConfig: {
             aspectRatio,
-            imageSize: '2K',
+            imageSize: '4K',
           },
         },
       }),
@@ -1161,20 +1182,51 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
 
   const prompt = buildImagePrompt(reqWithIntent);
 
-  // Fetch reference images (logo + screenshots) for Gemini multimodal input
-  const referenceImages: { base64: string; mimeType: string }[] = [];
-  const imageUrls: string[] = [];
+  // Fetch reference images for Gemini multimodal input.
+  //
+  // Slot budget (Gemini 3.1 Flash supports up to 14 total):
+  //   - Character model refs: up to 4 (character consistency slots)
+  //   - Logo + screenshots:   remaining slots (object fidelity)
+  //
+  // Character model images are prepended so they occupy the character
+  // consistency slots before the object fidelity slots are filled.
+  const referenceImages: { base64: string; mimeType: string; role?: 'character' | 'object' }[] = [];
 
-  if (req.logoUrl) imageUrls.push(req.logoUrl);
-  if (req.screenUrls) imageUrls.push(...req.screenUrls);
+  // 1. Character model reference images (up to 4)
+  if (req.characterModel && req.characterModel.referenceImageUrls.length > 0) {
+    // Use pre-fetched images when available (multi-slide jobs fetch once and
+    // share the base64 data across all slides via prefetchedImages).
+    if (req.characterModel.prefetchedImages && req.characterModel.prefetchedImages.length > 0) {
+      for (const img of req.characterModel.prefetchedImages) {
+        referenceImages.push({ ...img, role: 'character' });
+      }
+    } else {
+      const characterUrls = req.characterModel.referenceImageUrls.slice(0, 4);
+      const fetched = await Promise.allSettled(
+        characterUrls.map((url) => fetchImageAsBase64(url)),
+      );
+      for (const result of fetched) {
+        if (result.status === 'fulfilled') {
+          referenceImages.push({ ...result.value, role: 'character' });
+        } else {
+          console.warn('[character-model] Failed to fetch reference image:', result.reason);
+        }
+      }
+    }
+  }
 
-  if (imageUrls.length > 0) {
+  // 2. Logo + screenshots (object fidelity)
+  const objectUrls: string[] = [];
+  if (req.logoUrl) objectUrls.push(req.logoUrl);
+  if (req.screenUrls) objectUrls.push(...req.screenUrls);
+
+  if (objectUrls.length > 0) {
     const fetched = await Promise.allSettled(
-      imageUrls.map((url) => fetchImageAsBase64(url)),
+      objectUrls.map((url) => fetchImageAsBase64(url)),
     );
     for (const result of fetched) {
       if (result.status === 'fulfilled') {
-        referenceImages.push(result.value);
+        referenceImages.push({ ...result.value, role: 'object' });
       } else {
         console.warn('Failed to fetch reference image:', result.reason);
       }
@@ -1182,8 +1234,15 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
   }
 
   if (req.provider === 'gemini') {
+    // Build the final prompt with character consistency instructions prepended
+    // when a character model is present.
+    let finalPrompt = prompt;
+    if (req.characterModel && referenceImages.some((r) => r.role === 'character')) {
+      finalPrompt = `CHARACTER CONSISTENCY: The ${referenceImages.filter((r) => r.role === 'character').length} reference image(s) provided show the character model named "${req.characterModel.name}" (${req.characterModel.description}). MAINTAIN this person's exact facial features, skin tone, hair, and overall appearance throughout the generated image. Do not alter their face or identity.\n\n${prompt}`;
+    }
+
     const result = await generateWithGemini(
-      prompt,
+      finalPrompt,
       req.aspectRatio,
       referenceImages.length > 0 ? referenceImages : undefined,
     );
