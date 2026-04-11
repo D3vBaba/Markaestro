@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
-import { uploadToStorage } from '@/lib/storage';
+import { uploadToStorage, buildDownloadUrl } from '@/lib/storage';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
@@ -93,14 +93,21 @@ export async function GET(req: Request) {
     const [files] = await bucket.getFiles({ prefix });
 
     const media = files
-      .filter((f) => /\.(png|jpg|jpeg|webp|mp4)$/i.test(f.name))
-      .map((f) => ({
-        name: f.name.replace(prefix, ''),
-        url: `https://storage.googleapis.com/${bucket.name}/${f.name}`,
-        createdAt: String(f.metadata.timeCreated || f.metadata.updated || ''),
-        size: Number(f.metadata.size || 0),
-        contentType: f.metadata.contentType,
-      }))
+      .filter((f) => /\.(png|jpg|jpeg|webp|gif|mp4)$/i.test(f.name))
+      .map((f) => {
+        const token = (f.metadata.metadata as Record<string, string> | undefined)
+          ?.firebaseStorageDownloadTokens;
+        const url = token
+          ? buildDownloadUrl(bucket.name, f.name, token)
+          : `https://storage.googleapis.com/${bucket.name}/${f.name}`;
+        return {
+          name: f.name.replace(prefix, ''),
+          url,
+          createdAt: String(f.metadata.timeCreated || f.metadata.updated || ''),
+          size: Number(f.metadata.size || 0),
+          contentType: f.metadata.contentType,
+        };
+      })
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     // Keep backward-compatible `images` key and add all media
