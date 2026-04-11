@@ -67,7 +67,7 @@ async function generateImageWithGemini(prompt: string): Promise<{ base64: string
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           responseModalities: ['TEXT', 'IMAGE'],
-          imageConfig: { aspectRatio: '3:4', imageSize: '2K' },
+          imageConfig: { aspectRatio: '9:16', imageSize: '1K' },
         },
       }),
       signal: AbortSignal.timeout(120_000),
@@ -98,11 +98,13 @@ async function uploadToStorage(base64: string, mimeType: string, modelId: string
   return `https://storage.googleapis.com/${bucket.name}/${filePath}`;
 }
 
-// Angle variations to append to the base prompt for 3 diverse reference shots
+// Angle / scene variations to append to the base prompt for 3 diverse reference shots.
+// These replace the old studio headshot angles with candid lifestyle compositions
+// that match the viral TikTok UGC aesthetic.
 const ANGLE_VARIANTS = [
-  'Slight 3/4 angle, looking directly at camera with a natural expression.',
-  'Frontal symmetrical framing, relaxed neutral expression.',
-  'Slight 3/4 angle to the other side, gentle smile.',
+  'Shot from behind over the shoulder — we see their back and the side of their face in a 3/4 back angle. They are looking out at the environment ahead of them. Natural and candid, as if they do not know the camera is there. No eye contact with camera.',
+  'Side profile while walking — caught mid-stride at a 90-degree side angle, face in natural profile. Motion in the step, relaxed and unposed. Urban sidewalk or park path stretching ahead.',
+  'Candid seated moment, not looking at camera — slightly angled away, looking down at a phone or a coffee cup in their hands. Quiet, unstaged. Cafe table, park bench, or outdoor steps. Authentic real-world feel.',
 ];
 
 // ── Main ──────────────────────────────────────────────────────────────

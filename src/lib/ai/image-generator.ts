@@ -896,33 +896,35 @@ function buildCustomOverrideImagePrompt(req: ImageGenRequest): string {
  *    produced a rich `visualIntent`; running the interpreter again would be
  *    redundant and could contradict the generator's intent.
  * 2. The `safeTextRegion` constraint is the top priority — the image MUST
- *    have a clear empty zone where bold headline text overlays at full opacity.
+ *    have clear empty zones in BOTH the top 20% AND bottom 20% for bold text
+ *    overlays at full opacity.
  * 3. Sequence diversity is enforced via `previousVisualSignatures` — each
  *    slide must look compositionally distinct from the ones before it.
- * 4. The 9:16 portrait format and TikTok-native lo-fi aesthetic are baked in.
+ * 4. The 9:16 portrait format, candid UGC lifestyle aesthetic, and bold text
+ *    overlay composition are all baked in — these are TikTok photo-mode slides.
  */
 function buildSlideshowImagePrompt(req: ImageGenRequest): string {
   const ctx = req.slideContext!;
   const { visualIntent } = ctx;
   const sections: string[] = [];
 
-  // 1. Slide role — sets the energy and tonal target for the composition
+  // 1. Slide role — sets energy and composition target
   const roleLines: Record<'hook' | 'body' | 'cta', string> = {
-    hook: `SLIDE ROLE: HOOK (slide 1 of ${ctx.totalSlides}) — This is the first image the viewer sees. It must create instant visual tension, curiosity, or desire that makes them swipe immediately. Leave something unresolved. Do NOT show resolution or comfort.`,
-    body: `SLIDE ROLE: BODY (slide ${ctx.index + 1} of ${ctx.totalSlides}) — A supporting slide that deepens the narrative. Maintain tonal continuity with the sequence but show something visually distinct. One clear visual idea, nothing competing for attention.`,
-    cta: `SLIDE ROLE: CALL TO ACTION (final slide, ${ctx.index + 1} of ${ctx.totalSlides}) — The viewer has made it to the end. The image should feel conclusive and action-oriented — slightly warmer, brighter, or more resolved than the body slides. Signal that it is time to act.`,
+    hook: `SLIDE ROLE: HOOK (slide 1 of ${ctx.totalSlides}) — The very first image the viewer sees. It must create instant curiosity, desire, or emotional pull that compels an immediate swipe. The scene should feel unresolved — like a story is about to start. Energy: slightly tense or intriguing, not comfortable or conclusive.`,
+    body: `SLIDE ROLE: BODY (slide ${ctx.index + 1} of ${ctx.totalSlides}) — A narrative-deepening slide. Maintain the candid, real-world tone of the sequence but show a visually distinct scene. One clear subject, no competing focal points. Advances the emotional arc.`,
+    cta: `SLIDE ROLE: CALL TO ACTION (final slide, ${ctx.index + 1} of ${ctx.totalSlides}) — The viewer has reached the end. The image should feel warm, resolved, and inviting — slightly brighter or more open than the body slides. The composition should feel like an invitation to act, not a cliffhanger.`,
   };
   sections.push(roleLines[ctx.kind]);
 
-  // 2. Primary scene brief from the slideshow generator
+  // 2. Primary scene brief — the content generator's direction
   sections.push([
-    'PRIMARY SCENE BRIEF (source of truth — execute this scene, not a generic alternative):',
+    'PRIMARY SCENE BRIEF (source of truth — execute this scene):',
     req.prompt,
   ].join('\n'));
 
-  // 3. Visual intent — all fields are hard requirements, not suggestions
+  // 3. Visual intent — hard requirements from the content generator
   sections.push([
-    'VISUAL INTENT (honour every field — these are constraints, not preferences):',
+    'VISUAL INTENT (every field is a constraint, not a preference):',
     `Composition: ${visualIntent.composition}`,
     `Subject Focus: ${visualIntent.subjectFocus}`,
     `Lighting: ${visualIntent.lighting}`,
@@ -930,48 +932,89 @@ function buildSlideshowImagePrompt(req: ImageGenRequest): string {
     `Motion Style: ${visualIntent.motionStyle}`,
   ].join('\n'));
 
-  // 4. Safe text zone — the single most critical constraint for slideshow images.
-  //    Bold headline text overlays here at full opacity; the zone must be
-  //    completely uncluttered so any viewer can read white or black text over it.
+  // 4. Camera angle direction — the core of the TikTok UGC look.
+  //    Straight-on headshots and studio portraits are explicitly banned;
+  //    the angles below are what make these images feel native to TikTok.
+  sections.push([
+    'CAMERA ANGLE (CRITICAL — this defines the TikTok feel):',
+    'Use ONE of these angles — they are the angles that go viral on TikTok:',
+    '  • BEHIND-THE-BACK: Camera is positioned behind or slightly to the side of the subject. We see their back, shoulder, or the back of their head. They are looking out at the world ahead of them. Feels like you are following them.',
+    '  • OVER-SHOULDER: Camera is slightly behind and to one side. We see part of their shoulder/ear and the scene they are looking at. POV energy — viewer feels present.',
+    '  • SIDE PROFILE: 90-degree side angle, like street photography. Subject caught mid-walk or mid-action. Face in natural profile, not turned to camera.',
+    '  • LOW ANGLE LOOKING UP: Camera is at waist or knee height, looking up slightly. Subject appears confident and larger than life. Urban or outdoor backdrop stretches above.',
+    '  • CANDID SEATED: Subject is seated — bench, cafe chair, steps, curb. Camera is at eye level or slightly above. They are looking at their phone, a drink, or into the distance. NOT looking at camera.',
+    'NEVER use: straight-on frontal headshot, studio portrait framing, subject making direct prolonged eye contact with lens, or any pose that looks planned or commercial.',
+  ].join('\n'));
+
+  // 5. Environment and scene direction — real-world, not studio
+  sections.push([
+    'ENVIRONMENT (must feel like a real place, not a set):',
+    'Choose an authentic real-world location appropriate to the scene brief:',
+    '  • Outdoor: park path, city sidewalk, neighbourhood street, cafe patio, rooftop, steps, plaza, market',
+    '  • Indoor: cafe interior, apartment window seat, home living room, bedroom corner with natural light',
+    '  • Natural light ONLY — no ring lights, no soft boxes, no studio backdrop. Window light, daylight, golden hour, or overcast sky.',
+    'The environment should have depth and texture — blurred buildings, leaves, people in background, street details. Not a flat wall.',
+    'COLOR GRADING: Warm, slightly desaturated "iPhone photo" look — lifted shadows, slightly faded blacks, natural skin tones. Not oversaturated. Not HDR. Not studio-clean.',
+  ].join('\n'));
+
+  // 6. Safe text zones — both top AND bottom must have overlay space.
+  //    This is the #1 structural requirement for TikTok photo-mode slides.
   const safeZoneInstructions: Record<'top' | 'middle' | 'bottom', string> = {
-    top: 'SAFE TEXT ZONE — TOP THIRD (CRITICAL): The top 33% of the frame MUST be completely uncluttered. No objects, faces, hands, textures, or complex detail in this zone. Keep all visual weight in the lower two-thirds. A viewer must be able to read white or black 60pt text against this area without any background conflict. When in doubt, make the upper third a plain wall, sky, or out-of-focus neutral.',
-    middle: 'SAFE TEXT ZONE — CENTER BAND (CRITICAL): A horizontal band across the middle third of the frame must be kept clean and simple — a plain background, blurred area, or open negative space. Push subjects toward the top and bottom edges. No complex detail in the vertical center.',
-    bottom: 'SAFE TEXT ZONE — BOTTOM THIRD (CRITICAL): The bottom 33% of the frame MUST be completely uncluttered. No objects, faces, or complex detail in this zone. Keep all visual weight in the upper two-thirds. A viewer must be able to read white or black 60pt text against the bottom area without any visual conflict.',
+    top: [
+      'TEXT OVERLAY ZONES (CRITICAL — this image will have bold white text rendered on top):',
+      'TOP ZONE (primary text): The top 20% of the frame MUST be clear — plain sky, plain wall, blurred background, or open negative space. No faces, hands, objects, or busy detail here. Bold white 60pt headline text will sit here.',
+      'BOTTOM ZONE (secondary text): The bottom 15% of the frame should also be relatively clear for a caption line. Keep detail light in this area.',
+      'All major visual weight and subject matter must sit in the MIDDLE 60% of the frame.',
+    ].join('\n'),
+    middle: [
+      'TEXT OVERLAY ZONES (CRITICAL — this image will have bold white text rendered on top):',
+      'TOP ZONE (primary text): The top 20% of the frame MUST be clear — sky, wall, or open background. No faces, objects, or busy detail here.',
+      'BOTTOM ZONE (secondary text): The bottom 15% of the frame should also be clear for a caption line.',
+      'CENTER BAND: Keep the exact horizontal center of the frame relatively uncluttered so a secondary text line can float there if needed.',
+      'Subject should be positioned to one side to leave clear zones at top and bottom.',
+    ].join('\n'),
+    bottom: [
+      'TEXT OVERLAY ZONES (CRITICAL — this image will have bold white text rendered on top):',
+      'BOTTOM ZONE (primary text): The bottom 20% of the frame MUST be clear — ground, pavement, open shadow area, or plain surface. No faces, hands, or complex detail here. Bold white text will sit here.',
+      'TOP ZONE (secondary text): The top 15% of the frame should also be relatively clear — sky or plain background.',
+      'All major visual weight and subject matter must sit in the MIDDLE 60% of the frame.',
+    ].join('\n'),
   };
   sections.push(safeZoneInstructions[ctx.safeTextRegion]);
 
-  // 5. Sequence diversity — forces each slide to look compositionally distinct
+  // 7. Sequence diversity — each slide must look different
   if (ctx.previousVisualSignatures.length > 0) {
     const recentSignatures = ctx.previousVisualSignatures.slice(-3);
     const signatureLines = recentSignatures.map((sig, i) => {
-      // Convert token signature back to readable terms for the prompt
       const terms = sig.split('|').filter(Boolean).slice(0, 8).join(', ');
       return `  Slide ${i + 1}: ${terms}`;
     });
     sections.push([
-      `SEQUENCE DIVERSITY REQUIREMENT: This image is slide ${ctx.index + 1} in a sequence. It MUST look visually distinct from every previous slide. Visual territory already used:`,
+      `SEQUENCE DIVERSITY (this is slide ${ctx.index + 1} — must be visually distinct from all previous):`,
+      'Visual territory already used in this sequence:',
       ...signatureLines,
-      'Avoid: same lighting setup, same subject position in frame, same background type, same color palette, same compositional angle. Each slide must feel like a different moment captured by a different photographer.',
+      'You MUST use a different camera angle, different lighting direction, different background type, and different subject position. Each slide should feel like it was captured at a different moment by a different person.',
     ].join('\n'));
   }
 
-  // 6. Style — TikTok native. The slideshow format rewards authenticity over polish.
+  // 8. Style — TikTok UGC. Authenticity beats polish every time.
   const slideshowStyleVariants: Partial<Record<ImageStyle, string>> = {
-    photorealistic: 'STYLE: Raw authentic phone photo. Slight lens distortion, natural ambient or mixed indoor light. No commercial polish, no branded overlays. Feels like a real moment, not a campaign shoot.',
-    branded: 'STYLE: Lo-fi branded aesthetic. Warm film tones, honest lighting, handmade textures. The brand is present through atmosphere, not logos or text. Authentic over polished.',
-    illustration: 'STYLE: Bold flat editorial illustration. Limited color palette, strong graphic shapes, risograph grain texture. Each slide is a self-contained graphic piece.',
-    minimal: 'STYLE: High-contrast minimalism. One hero element, vast negative space, two colors maximum. Japanese design sensibility — restraint as communication.',
-    abstract: 'STYLE: Contemporary abstract. Organic shapes, rich layered textures, bold color fields. Gallery quality but legible at phone scale.',
+    photorealistic: 'STYLE: Candid phone photo. Handheld iPhone or Android quality — slight natural lens distortion, real ambient light, no commercial polish, no studio sheen. Looks like a real person captured a genuine moment. Think TikTok FYP, not brand campaign.',
+    branded: 'STYLE: Organic UGC-branded. Warm film tones, honest real-world lighting, natural textures. The brand is communicated through mood and setting, never through logos or graphic overlays. Authentic over polished.',
+    illustration: 'STYLE: Bold editorial illustration. Limited color palette, strong graphic shapes, risograph grain. Each slide is a self-contained graphic moment with clear text zones.',
+    minimal: 'STYLE: Clean minimalism. One subject, strong negative space, two dominant colors. The simplicity creates the room for text to breathe.',
+    abstract: 'STYLE: Warm abstract. Organic shapes and color fields that evoke emotion. Gallery-quality but readable at phone scale with text overlaid.',
   };
   sections.push(slideshowStyleVariants[req.style] ?? slideshowStyleVariants.photorealistic!);
 
-  // 7. Technical constraints — 9:16 mobile, no text, overlay-optimised
+  // 9. Hard technical constraints
   sections.push([
-    'FORMAT: Portrait 9:16. Full-screen TikTok slideshow viewing on mobile. Everything must read clearly on a phone held vertically.',
-    'QUALITY: High contrast, sharp focus at phone viewing distance. The safe text zone must look clean at 100% brightness.',
-    'NO text, words, signs, labels, or readable typography anywhere in the frame — image models hallucinate garbled fake words.',
-    'NO watermarks, UI overlays, graphic design elements, branded packaging as hero, or logos.',
-    'CRITICAL: This image exists to display BEHIND text overlay. The safe text zone constraint and compositional clarity outrank every other creative consideration.',
+    'FORMAT: Portrait 9:16 — full-screen TikTok slideshow. Everything must read on a phone held vertically.',
+    'QUALITY: Natural sharpness at phone viewing distance. Slight film grain or natural sensor noise is fine — it adds authenticity.',
+    'NO readable text, words, signs, or labels anywhere in the frame.',
+    'NO watermarks, logos, graphic overlays, or UI elements.',
+    'NO studio lighting, ring lights, or any obviously artificial lighting setup.',
+    'CRITICAL: The text overlay zones defined above are non-negotiable. A real TikTok creator will add bold white text with drop shadow over this image. That text MUST be readable.',
   ].join('\n'));
 
   return sections.join('\n\n');
@@ -1049,7 +1092,7 @@ export async function generateWithGemini(
           responseModalities: ['TEXT', 'IMAGE'],
           imageConfig: {
             aspectRatio,
-            imageSize: '4K',
+            imageSize: '1K',
           },
         },
       }),

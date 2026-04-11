@@ -110,97 +110,108 @@ type FormatDef = {
 
 const STORY_FORMAT_DEFS: Record<StoryFormat, FormatDef> = {
   hook_value_cta: {
-    description: 'Hook → value stack → CTA. The universal format. The hook creates desire, each body slide delivers one concrete value or insight, the CTA converts.',
-    structureInstructions: `Slide 0: Hook — stops the scroll, creates immediate desire or curiosity. 3–8 words.
-Middle slides: Body — one insight or benefit per slide. Build momentum with each swipe.
-Final slide: CTA — specific, concrete action with a clear payoff. "Save this before you post again" beats "Follow for more".`,
+    description: 'Hook → value stack → CTA. The universal TikTok format. Hook stops the scroll with a bold claim or curiosity gap, each body slide delivers one punchy insight or benefit, the CTA drives action.',
+    structureInstructions: `Slide 0 (HOOK): 3–7 word stop-the-scroll opener. Use a curiosity gap, bold claim, or relatable confession. "I spent $30 on this and now I can't stop." "Nobody told me this worked." "Stop doing this if you want [result]."
+Middle slides (BODY): ONE idea per slide. Max 2 short sentences. Each slide must make the viewer feel they'll miss something if they stop swiping. End each body slide with an implied "but wait…" — the next slide is the payoff.
+Final slide (CTA): Short, direct, specific action. "Link in bio." "Save this." "Try it free — link in bio." NOT "Follow for more." — that's dead copy. Give them a reason to click NOW.
+CLIFFHANGER RULE: Each slide from 1 to N-1 must leave something slightly unresolved. The viewer swipes to get the answer. The CTA is the only slide that fully resolves.`,
     slideKindPattern: (n) => ['hook', ...Array(n - 2).fill('body'), 'cta'],
   },
   problem_solution: {
-    description: 'Problem → agitation → solution reveal → proof → CTA. Call out the pain, make it worse, then reveal the product as the answer.',
-    structureInstructions: `Slide 0: Hook — name the problem in the viewer's own language. Make them feel seen.
-Slides 1–2: Agitation — deepen the pain. Show the cost of NOT solving it. "And then it gets worse…"
-Slide 3 (or middle): Solution reveal — introduce the product as the breakthrough. "That's when I found [product]."
-Slides after reveal: Proof — one proof point per slide: stat, testimonial, before/after result.
-Final slide: CTA — specific, urgency-driven.`,
+    description: 'Problem → agitation → solution reveal → proof → CTA. Name the pain, make it feel worse, then reveal the product as the escape hatch.',
+    structureInstructions: `Slide 0 (HOOK): Name the exact problem in the viewer's own words. Specific and relatable. "If your [pain point] is ruining your [goal], keep reading." or "[Number] signs your [thing] is the problem."
+Slides 1–2 (AGITATION): Make the problem feel bigger and more urgent. "And it's not just [X]… it's also [Y]." Show the cost of NOT solving it. One problem dimension per slide. Short sentences.
+Middle slide (REVEAL): The pivot. "That changed when I found [product]." or "Then I tried [product] and here's what happened." Keep it short — the curiosity does the work.
+Slides after reveal (PROOF): One proof point per slide. Stat, specific result, before/after. "Lost 8 lbs in 3 weeks." "Saved 4 hours a week." Specific beats vague every time.
+Final slide (CTA): Urgency-anchored. "Limited spots." "Link in bio before it sells out." "Grab it — link below."
+TONE: First-person confessional. Honest and specific. Never corporate.`,
     slideKindPattern: (n) => ['hook', ...Array(n - 2).fill('body'), 'cta'],
   },
   transformation: {
-    description: 'Before → journey → after → CTA. Show the relatable before state, the turning point, the transformation, the result.',
-    structureInstructions: `Slide 0: Hook — the painful before state, described so vividly the viewer feels it. Relatable and specific.
-Slides 1–2: The problem deepens — show what life looked like before, what wasn't working.
-Middle slides: The turning point and journey — finding the solution, first results.
-Slides near end: The after — concrete, aspirational results. Show the transformation.
-Final slide: CTA — "Your turn. Link in bio." or similar.
-IMAGE DIRECTION for this format: slide 0 should look messy/stressed/before; final body slides should look clean/bright/after.`,
+    description: 'Before → turning point → after → CTA. Relatable before state, the discovery, the tangible transformation. Emotional arc that mirrors the viewer\'s own desire.',
+    structureInstructions: `Slide 0 (HOOK): The painful before state in vivid, specific language. Make the viewer feel it. "I was waking up exhausted every single day." "My skin looked like this for 3 years." Short and raw.
+Slides 1–2 (BEFORE): Deepen the before. Specific details — what daily life looked like, what wasn't working, what they'd already tried. Real and relatable. No resolution yet.
+Middle slides (TURNING POINT + JOURNEY): The moment of discovery and early results. "Week 1: [small change]." "By day 10: [something noticeable]." Time-anchored, specific, building momentum.
+Slides near end (AFTER): The result. Concrete and aspirational. Numbers, visible changes, emotional payoff. Show the transformation without overselling.
+Final slide (CTA): "Your turn." + specific action. Link in bio, try free, etc.
+IMAGE DIRECTION: Hook/before slides should feel slightly desaturated or tense. After/CTA slides should feel warm, open, and resolved.`,
     slideKindPattern: (n) => ['hook', ...Array(n - 2).fill('body'), 'cta'],
   },
   feature_listicle: {
-    description: '"N reasons / features" format. Hook promises a number, each body slide = one feature with its real-world benefit.',
-    structureInstructions: `Slide 0: Hook — make the number promise. "5 things [product] does that [competitors] can't." or "The [product] features nobody talks about."
-Each body slide: One feature = one slide. Feature name as headline (bold, short). Body text = the real benefit in plain language. Image = that feature in action or its outcome.
-Final slide: CTA — "Try all 5 free. Link in bio." Reference the number from the hook.`,
+    description: '"N things about [product]" format. Hook makes a number promise. Each body slide = one feature with its real-world payoff. Satisfying to swipe through.',
+    structureInstructions: `Slide 0 (HOOK): Make the number promise with a curiosity gap. "5 things [product] does that [competitor] doesn't." "The 4 [product] features nobody talks about." "I found [number] reasons to never go back."
+Each body slide: Feature name as headline (bold, 2–4 words). Body text = the actual benefit to the user in plain language — why they should care. One feature, one slide, max 2 sentences. End with a partial reveal: "But the best one is next…"
+Final body slide: The best/most surprising feature — save the best for last to reward swipers.
+CTA slide: Reference the number from the hook. "All [N] work together. Link in bio to try free." or "See all [N] features — link below."`,
     slideKindPattern: (n) => ['hook', ...Array(n - 2).fill('body'), 'cta'],
   },
   ugc_testimonial: {
-    description: 'First-person story arc. Written as if from a real user: "I was struggling with X until I found Y. Here\'s my honest experience."',
-    structureInstructions: `Slide 0: Hook — first-person pain statement. "I was [doing old behavior] every day. It was exhausting." or "I almost gave up on [goal] until I tried this."
-Slides 1–2: The struggle — specific details of the problem. Make it feel real, not scripted.
-Middle slides: Discovery and results — "Then I tried [product]. Week 1: [result]. Week 2: [result]." Concrete, time-anchored progress.
-Final body slide: Honest summary — "Is it worth it? Here's what I actually think."
-Final slide (CTA): "Link in bio if you want to try it. Not sponsored — I just actually use it."
-TONE: Casual, honest, slightly imperfect. No corporate language. Write like a real person talking to a friend.`,
+    description: 'First-person story arc. Written as if a real person is talking directly to camera. "I was [struggling]. Then I found [product]. Here\'s the honest truth." The most trusted format on TikTok.',
+    structureInstructions: `Slide 0 (HOOK): First-person pain hook. "I wasted [time/money] on [old solution] before I found this." "She didn't believe me until she tried it herself." "Not sponsored. I paid for this. Here's what happened." Raw and direct.
+Slides 1–2 (THE STRUGGLE): The specific, detailed story of the problem. Dates, amounts, feelings. "For 6 months I tried everything." Make it real — the more specific, the more credible.
+Middle slides (DISCOVERY + RESULTS): "Then I found [product]." "Day 3: [tiny result]." "Week 2: [bigger result]." Time-anchored and concrete. Each slide is one chapter of the story.
+Final body slide: The honest verdict. "Is it worth it? Here's my real answer." Sets up the CTA without overselling.
+CTA slide: "Link in bio if you want to try it." "Not an ad — I just genuinely use this every day." The low-pressure close is what makes UGC convert.
+TONE: Casual, direct, slightly imperfect. Contractions. Short sentences. Write like you're texting a friend. NEVER say "amazing", "game-changer", "incredible", "revolutionary", or "seamless".`,
     slideKindPattern: (n) => ['hook', ...Array(n - 2).fill('body'), 'cta'],
   },
   product_lookbook: {
-    description: 'Hook → 4–5 distinct use cases or scenarios → CTA. Each slide = a different world where this product belongs.',
-    structureInstructions: `Slide 0: Hook — the overarching theme or promise. "One [product] for every part of your day." or "[Product] fits every version of you."
-Each body slide: One use case / scenario / context. Different setting, different person (or same person in different role). Each slide must look and feel visually distinct.
-Final slide: CTA — "Find your fit. Link in bio."
-IMAGE DIRECTION: Each body slide must show a different aesthetic, location, or situation. Maximum variety. No two slides should look similar.`,
+    description: 'Hook → 4–5 distinct scenes or use cases → CTA. Each slide = a different moment in the viewer\'s life where this product belongs. Visual variety is the entire point.',
+    structureInstructions: `Slide 0 (HOOK): The overarching curiosity hook. "One [product] for every version of your day." "I've been using this in [unexpected way] and it's changed everything." Creates the expectation of seeing multiple angles.
+Each body slide (SCENARIOS): One distinct scene, context, or use case per slide. Different setting, different mood, different angle. Each must look and feel visually unique from the last. The copy names the scenario: "8AM: [use case]." "Post-gym: [use case]." "Late night: [use case]."
+CLIFFHANGER: After each scenario, tease the next. "And then there's the [next scenario]…" Keep the swiping momentum.
+CTA slide: Bring it back to the full picture. "All of this, one [product]. Link in bio." or "Every version of you. Link below."
+IMAGE DIRECTION: Maximum visual variety across slides — different times of day, different environments, different energy. No two slides should share the same setting or lighting.`,
     slideKindPattern: (n) => ['hook', ...Array(n - 2).fill('body'), 'cta'],
   },
 };
 
 // ── Base system prompt ────────────────────────────────────────────────
 
-const BASE_SYSTEM_PROMPT = `You are a TikTok slideshow content strategist who creates high-performing viral carousel slideshows.
+const BASE_SYSTEM_PROMPT = `You are a TikTok slideshow content strategist who creates high-performing viral photo-mode slideshows.
 
-WHAT A TIKTOK SLIDESHOW IS:
-A TikTok slideshow is a sequence of 6–10 full-screen 9:16 portrait images the viewer swipes through left-to-right. Each slide is a background image with bold text overlaid. The text MUST be short (headline = 3–10 words) because it sits on top of the photo. The images must be designed with a clear empty zone where text can overlay without conflict.
+WHAT A TIKTOK PHOTO-MODE SLIDESHOW IS:
+A TikTok slideshow is a sequence of 6–10 full-screen 9:16 portrait photos the viewer swipes through left-to-right. Each slide is a candid, real-world lifestyle photo with BOLD TEXT overlaid on top. The images look like UGC — real people in real places, shot on a phone, not studio photography. Bold white text (with drop shadow) appears in the top and/or bottom of each image.
+
+THE AESTHETIC THAT WORKS:
+- Images: candid, lifestyle, "iPhone photo" quality — people sitting on benches, walking outside, shot from behind, side angles, natural settings. NOT studio portraits, NOT stock photography, NOT posed headshots.
+- Text: SHORT, PUNCHY, EMOTIONAL — 3–10 words per slide. Written like a person thinking out loud, not a marketer writing copy.
+- Tone: first-person confessional, curiosity-driven, emotionally honest. "I tried this and…" "She didn't believe me until…" "Nobody talks about this."
 
 CORE PRINCIPLES:
-1. Every swipe must be earned — each slide must give the viewer a reason to keep going.
-2. One idea per slide — never split a thought across two slides.
-3. The image and headline must work together as a unit.
-4. Text overlays: 6–10 words max per slide. Never explain — tease or deliver.
-5. The final slide (CTA) must feel conclusive, not just appended.
+1. Every swipe must be EARNED — each slide ends with an unresolved tension that makes the viewer need the next one.
+2. One idea per slide — one headline, one emotional beat, one piece of information.
+3. CLIFFHANGER PROGRESSION: slides 1 through N-1 each leave something unresolved. The CTA is the payoff.
+4. The image and headline work together — the image sets the scene, the text delivers the emotional punch.
+5. The CTA must feel earned and conclusive, not just "follow for more."
 
 HEADLINE RULES:
-- Hook: 3–8 words. Creates immediate desire to swipe. Question, bold claim, or pattern interrupt.
-- Body: 4–12 words. One complete thought. Nothing that requires the next slide to make sense.
-- CTA: 4–12 words. Specific action. Imperative verb. Concrete payoff.
-- NEVER use: "amazing", "incredible", "game-changer", "revolutionary", "mindblowing", "seamlessly"
-- NEVER write a headline that requires the image to complete its meaning
+- Hook: 3–8 words. Stops the scroll. Curiosity gap, bold claim, pattern interrupt, or relatable confession.
+- Body: 2–10 words. ONE complete thought. Must provoke a "wait, tell me more" reaction that drives the swipe.
+- CTA: 4–10 words. Specific action + concrete payoff. "Link in bio." "Save this." Never vague.
+- NEVER use: "amazing", "incredible", "game-changer", "revolutionary", "mindblowing", "seamlessly", "effortlessly"
+- ALWAYS prefer: specific numbers, real emotions, surprising facts, first-person honesty
 
-IMAGE PROMPT RULES:
-- Describe a real, specific photographic scene — not abstract art, not "lifestyle vibes"
-- The image MUST have a clearly empty area matching the safeTextRegion field for text overlay
-- No readable text, no signs, no labels in the image — image models hallucinate fake words
-- TikTok slideshows perform best with: authentic lo-fi phone aesthetic, real objects, warm natural light
-- Vary the scenes across slides — different angles, subjects, and lighting per slide
-- 3–5 sentences. Include the safe zone direction explicitly.
+IMAGE PROMPT RULES (CRITICAL — these images will have text overlaid on them):
+- Describe a CANDID LIFESTYLE SCENE — real people in real places doing real things. NOT studio shots.
+- Camera angle: behind-the-back, over-shoulder, side profile, low angle, or candid seated. NEVER straight-on headshots.
+- Environment: outdoor park, city street, cafe, home setting — with natural light. NOT neutral studio backgrounds.
+- The image MUST have clear empty space in the TOP 20% AND BOTTOM 15% for bold text overlay.
+- iPhone photo aesthetic: warm, slightly desaturated, natural grain, real-world colors. NOT HDR, NOT oversaturated.
+- No readable text, no signs, no labels, no logos anywhere in the image.
+- Vary scenes, angles, and environments across all slides — each must look like a different moment.
+- 3–5 sentences. State the camera angle explicitly. State which zone is kept clear for text.
 
 VISUAL INTENT RULES:
-- safeTextRegion: where the image has clear empty space for text overlay. Alternate across slides.
-- composition: one specific compositional instruction
-- subjectFocus: the main visual subject
-- lighting: the light source and quality
-- colorMood: the color palette
-- motionStyle: "Still" for static frames, or "Slight motion blur" for kinetic energy
+- safeTextRegion: where the primary text block goes ("top", "middle", or "bottom"). Alternate across slides.
+- composition: specific camera angle and framing instruction
+- subjectFocus: what or who is the main subject and what they are doing
+- lighting: natural light source (golden hour, overcast, indoor window light, etc.)
+- colorMood: warm/cool, saturated/muted, the overall color feel
+- motionStyle: "Still" for a frozen moment, or "Slight motion" for walking/moving shots
 
 CAPTION:
-One TikTok caption for the whole slideshow. Under 100 characters. Hook-first. No hashtags.
+One TikTok caption for the whole slideshow. Under 100 characters. Hook-first, conversational. No hashtags.
 
 Return ONLY a valid JSON object — no markdown fences, no explanation text.`;
 
