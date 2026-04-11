@@ -1,3 +1,5 @@
+export const maxDuration = 300;
+
 import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
