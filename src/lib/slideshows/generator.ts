@@ -202,6 +202,16 @@ IMAGE PROMPT RULES (CRITICAL — these images will have text overlaid on them):
 - Vary scenes, angles, and environments across all slides — each must look like a different moment.
 - 3–5 sentences. State the camera angle explicitly. State which zone is kept clear for text.
 
+IMAGE PROMPT EXAMPLES (right vs. wrong):
+❌ WRONG: "A professional woman in a well-lit studio faces the camera holding the product. Clean white background. Direct confident eye contact."
+✅ RIGHT: "Behind-the-back shot of a woman walking through a sunlit city street, product visible in her hand at her side. Soft golden hour light, slight motion blur on passing pedestrians. The top 20% of frame is open sky, clear for text overlay."
+
+❌ WRONG: "A model poses in front of a plain background wearing the product, studio lighting highlights the details."
+✅ RIGHT: "Over-shoulder angle capturing a woman sitting on a park bench, glancing down at the product resting on her lap. Dappled natural light through tree canopy, blurred green background. Bottom 20% shows bench wood grain — clear for text overlay."
+
+❌ WRONG: "Clean product shot with professional lighting showing all features."
+✅ RIGHT: "Side-profile street photography angle — a person mid-stride on a busy sidewalk, product in hand, not looking at camera. Warm overcast light, shallow depth of field blurring city storefronts behind. Top 20% is open sky, clear for text."
+
 VISUAL INTENT RULES:
 - safeTextRegion: where the primary text block goes ("top", "middle", or "bottom"). Alternate across slides.
 - composition: specific camera angle and framing instruction
@@ -344,7 +354,7 @@ Return exactly this JSON structure:
       "headline": "3–8 word hook",
       "body": "",
       "cta": "",
-      "imagePrompt": "Detailed 3–5 sentence photo scene. State which third is kept empty for text.",
+      "imagePrompt": "3–5 sentence CANDID LIFESTYLE scene. MUST use behind-back/over-shoulder/side-profile/low-angle/candid-seated framing — NEVER frontal or studio. Real outdoor/indoor location, natural light only. State the camera angle explicitly. State which zone (top/bottom 20%) is clear for text.",
       "visualIntent": {
         "composition": "specific compositional instruction",
         "subjectFocus": "what is in the frame",

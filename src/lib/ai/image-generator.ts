@@ -916,9 +916,13 @@ function buildSlideshowImagePrompt(req: ImageGenRequest): string {
   };
   sections.push(roleLines[ctx.kind]);
 
-  // 2. Primary scene brief — the content generator's direction
+  // 2. Primary scene brief — describes WHAT subject/action to show.
+  //    The camera angle, environment, and UGC style rules that follow take
+  //    precedence over any professional or studio framing in this brief.
+  //    If the brief mentions a studio, plain backdrop, or direct-camera pose,
+  //    convert it to the nearest candid real-world equivalent.
   sections.push([
-    'PRIMARY SCENE BRIEF (source of truth — execute this scene):',
+    'PRIMARY SCENE BRIEF (describes WHAT subject/action to show — camera angle, environment, and style rules below override any professional or studio framing):',
     req.prompt,
   ].join('\n'));
 
