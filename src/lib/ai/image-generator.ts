@@ -908,6 +908,35 @@ function buildSlideshowImagePrompt(req: ImageGenRequest): string {
   const { visualIntent } = ctx;
   const sections: string[] = [];
 
+  // 0. MANDATORY UGC MODE — declared first so it overrides everything that follows.
+  //    Gemini reads this before any scene description. Without this block, the
+  //    scene context (GPT-generated imagePrompt) can prime the model toward studio
+  //    aesthetics even when the camera angle rules say otherwise.
+  sections.push([
+    '╔══════════════════════════════════════════════════════════════╗',
+    '║  MANDATORY PHOTOGRAPHIC MODE: CANDID UGC SMARTPHONE PHOTO   ║',
+    '╚══════════════════════════════════════════════════════════════╝',
+    '',
+    'This image MUST look like a real person took it on their personal smartphone in everyday life.',
+    'It is for a TikTok photo-mode slideshow — the aesthetic is raw, candid, and authentic.',
+    '',
+    'ABSOLUTELY PROHIBITED — generating ANY of the following will make this image unusable:',
+    '  ✗ Studio photography (neutral backdrop, seamless paper, studio lights)',
+    '  ✗ Subject facing the camera / making eye contact / looking at the lens',
+    '  ✗ Professional lighting (ring lights, softboxes, key lights, beauty dish)',
+    '  ✗ Commercial/editorial/fashion photography style',
+    '  ✗ Stock photo or ad campaign aesthetics',
+    '  ✗ Plain, gradient, or artificially blurred backgrounds',
+    '  ✗ Any pose that looks like it was directed by a photographer',
+    '',
+    'REQUIRED — the image must have ALL of the following:',
+    '  ✓ Camera position: BEHIND or BESIDE the subject (back, shoulder, or side profile)',
+    '  ✓ Setting: a real, recognisable outdoor or indoor location (street, park, cafe, home)',
+    '  ✓ Light source: natural daylight, golden hour, window light, or overcast sky ONLY',
+    '  ✓ Feel: candid, unstaged, slightly imperfect — like the subject did not know they were being photographed',
+    '  ✓ Clear empty zones at TOP 20% and BOTTOM 15% of frame for text overlay',
+  ].join('\n'));
+
   // 1. Slide role — sets energy and composition target
   const roleLines: Record<'hook' | 'body' | 'cta', string> = {
     hook: `SLIDE ROLE: HOOK (slide 1 of ${ctx.totalSlides}) — The very first image the viewer sees. It must create instant curiosity, desire, or emotional pull that compels an immediate swipe. The scene should feel unresolved — like a story is about to start. Energy: slightly tense or intriguing, not comfortable or conclusive.`,
@@ -1022,6 +1051,26 @@ function buildSlideshowImagePrompt(req: ImageGenRequest): string {
     'NO watermarks, logos, graphic overlays, or UI elements.',
     'NO studio lighting, ring lights, or any obviously artificial lighting setup.',
     'CRITICAL: The text overlay zones defined above are non-negotiable. A real TikTok creator will add bold white text with drop shadow over this image. That text MUST be readable.',
+  ].join('\n'));
+
+  // 10. FINAL OVERRIDE — repeated at the end because models weight recent tokens.
+  //     This closes the loop opened by section 0 and prevents the scene context
+  //     in section 2 from bleeding through to the final output.
+  sections.push([
+    '╔══════════════════════════════════════════════════════════════╗',
+    '║  FINAL CHECK — OVERRIDE ANY CONFLICTING INSTRUCTION ABOVE   ║',
+    '╚══════════════════════════════════════════════════════════════╝',
+    '',
+    'Before rendering, verify your image satisfies EVERY point:',
+    '  ✓ Camera is BEHIND or BESIDE the subject — subject is NOT facing the lens',
+    '  ✓ Location is a REAL place — NOT a studio, NOT a plain background',
+    '  ✓ Light is NATURAL — NOT artificial studio lighting of any kind',
+    '  ✓ The top 20% of the frame is CLEAR (sky / wall / open space)',
+    '  ✓ The bottom 15% of the frame is CLEAR (ground / surface)',
+    '  ✓ The overall aesthetic looks like a PERSONAL SMARTPHONE PHOTO, not a campaign shoot',
+    '',
+    'If any point above is violated, regenerate until all points pass.',
+    'A studio headshot, frontal portrait, or commercially polished image is a failure.',
   ].join('\n'));
 
   return sections.join('\n\n');

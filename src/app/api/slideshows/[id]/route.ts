@@ -5,6 +5,19 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { updateSlideshowSchema } from '@/lib/schemas';
 import { slideshowDoc, slideshowSlidesCollection } from '@/lib/slideshows/firestore';
 
+/**
+ * Extract the Firebase Storage file path from a download URL.
+ * URL format: https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{encodedPath}?...
+ */
+function extractStoragePath(url: string): string | null {
+  try {
+    const match = url.match(/\/o\/([^?]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
@@ -69,6 +82,49 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     await Promise.all(writes);
 
     return apiOk({ id, ...snap.data(), ...patch });
+  } catch (error) {
+    return apiError(error);
+  }
+}
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const ctx = await requireContext(req);
+    requirePermission(ctx, 'campaigns.write');
+    const { id } = await params;
+
+    const ssRef = slideshowDoc(ctx.workspaceId, id);
+    const ssSnap = await ssRef.get();
+    if (!ssSnap.exists) throw new Error('NOT_FOUND');
+
+    // Collect slide image URLs before deleting documents
+    const slidesSnap = await slideshowSlidesCollection(ctx.workspaceId, id).get();
+    const imageUrls = slidesSnap.docs
+      .map((doc) => doc.data().imageUrl as string | undefined)
+      .filter(Boolean) as string[];
+
+    // Delete Firebase Storage images (best-effort — don't fail the delete if some files are missing)
+    if (imageUrls.length > 0) {
+      const admin = await import('firebase-admin');
+      const bucket = admin.storage().bucket();
+      await Promise.allSettled(
+        imageUrls.map((url) => {
+          const path = extractStoragePath(url);
+          if (!path) return Promise.resolve();
+          return bucket.file(path).delete().catch(() => undefined);
+        }),
+      );
+    }
+
+    // Delete Firestore: all slides + the slideshow document
+    const batch = adminDb.batch();
+    for (const doc of slidesSnap.docs) {
+      batch.delete(doc.ref);
+    }
+    batch.delete(ssRef);
+    await batch.commit();
+
+    return apiOk({ deleted: true });
   } catch (error) {
     return apiError(error);
   }

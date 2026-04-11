@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, use } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { apiGet, apiPost, apiFetch } from "@/lib/api-client";
+import { apiGet, apiPost, apiFetch, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Trash2 } from "lucide-react";
 import SlideshowStatusBadge from "../_components/SlideshowStatusBadge";
 import SlideListEditor from "../_components/SlideListEditor";
 
@@ -46,10 +47,12 @@ const RUNNING_STATUSES = new Set(["researching", "generating_slides", "generatin
 
 export default function SlideshowDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
 
   const [slideshow, setSlideshow] = useState<Slideshow | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [caption, setCaption] = useState("");
   const [savingCaption, setSavingCaption] = useState(false);
@@ -79,17 +82,39 @@ export default function SlideshowDetailPage({ params }: { params: Promise<{ id: 
 
   const handleGenerate = async () => {
     setGenerating(true);
+    // Optimistically mark as running so the polling loop starts immediately
+    setSlideshow((prev) => (prev ? { ...prev, status: "researching" } : prev));
     try {
       const res = await apiPost(`/api/slideshows/${id}/generate`, {});
       if (!res.ok) {
         const err = res.data as unknown as { error?: string };
         toast.error(err.error ?? "Generation failed");
+        // Reload to get the actual status (may be 'failed')
+        await load();
         return;
       }
-      toast.success("Generation started");
-      load();
+      toast.success("Slideshow generated successfully");
+      await load();
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Delete this slideshow? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      const res = await apiDelete(`/api/slideshows/${id}`);
+      if (!res.ok) {
+        toast.error("Failed to delete slideshow");
+        return;
+      }
+      toast.success("Slideshow deleted");
+      router.push("/slideshows");
+    } catch {
+      toast.error("Failed to delete slideshow");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -177,20 +202,19 @@ export default function SlideshowDetailPage({ params }: { params: Promise<{ id: 
         action={
           <div className="flex items-center gap-2">
             <SlideshowStatusBadge status={slideshow.status} />
-            {canGenerate && (
+            {canGenerate && !generating && (
               <Button
                 size="sm"
                 variant={slideshow.slides.length > 0 ? "outline" : "default"}
                 onClick={handleGenerate}
-                disabled={generating}
               >
-                {generating ? "Starting…" : slideshow.slides.length > 0 ? "Regenerate" : "Generate"}
+                {slideshow.slides.length > 0 ? "Regenerate" : "Generate"}
               </Button>
             )}
-            {isRunning && (
+            {(isRunning || generating) && (
               <Button size="sm" variant="outline" disabled>
                 <span className="w-3.5 h-3.5 mr-1.5 rounded-full border-2 border-current border-t-transparent animate-spin inline-block" />
-                Running…
+                Generating…
               </Button>
             )}
             {canExport && (
@@ -203,6 +227,16 @@ export default function SlideshowDetailPage({ params }: { params: Promise<{ id: 
                 <Button size="sm" variant="outline">View Post</Button>
               </Link>
             )}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleDelete}
+              disabled={deleting || isRunning || generating}
+              className="text-muted-foreground hover:text-red-600 hover:bg-red-50"
+              title="Delete slideshow"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
           </div>
         }
       />

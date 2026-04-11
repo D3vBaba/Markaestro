@@ -6,7 +6,9 @@ import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Button } from "@/components/ui/button";
 import Select from "@/components/app/Select";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiDelete } from "@/lib/api-client";
+import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 import SlideshowStatusBadge from "./_components/SlideshowStatusBadge";
 import SlideshowCreateSheet from "./_components/SlideshowCreateSheet";
 
@@ -40,7 +42,29 @@ function formatDate(iso: string) {
   }
 }
 
-function SlideshowCard({ slideshow }: { slideshow: Slideshow }) {
+function SlideshowCard({ slideshow, onDelete }: { slideshow: Slideshow; onDelete: (id: string) => void }) {
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!confirm(`Delete "${slideshow.title || "this slideshow"}"? This cannot be undone.`)) return;
+    setDeleting(true);
+    try {
+      const res = await apiDelete(`/api/slideshows/${slideshow.id}`);
+      if (!res.ok) {
+        toast.error("Failed to delete slideshow");
+        return;
+      }
+      toast.success("Slideshow deleted");
+      onDelete(slideshow.id);
+    } catch {
+      toast.error("Failed to delete slideshow");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <Link href={`/slideshows/${slideshow.id}`} className="block group">
       <div className="border border-border/50 rounded-xl overflow-hidden bg-card hover:border-border/80 hover:shadow-sm transition-all">
@@ -61,7 +85,17 @@ function SlideshowCard({ slideshow }: { slideshow: Slideshow }) {
             </span>
           </div>
 
-          <p className="text-[10px] text-muted-foreground/50">{formatDate(slideshow.createdAt)}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] text-muted-foreground/50">{formatDate(slideshow.createdAt)}</p>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-50 hover:text-red-600 text-muted-foreground/40"
+              title="Delete slideshow"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
     </Link>
@@ -84,6 +118,10 @@ export default function SlideshowsPage() {
     if (res.ok) setSlideshows(res.data.slideshows ?? []);
     setLoading(false);
   }, [statusFilter]);
+
+  const handleDeleted = useCallback((id: string) => {
+    setSlideshows((prev) => prev.filter((ss) => ss.id !== id));
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -125,7 +163,7 @@ export default function SlideshowsPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {slideshows.map((ss) => (
-          <SlideshowCard key={ss.id} slideshow={ss} />
+          <SlideshowCard key={ss.id} slideshow={ss} onDelete={handleDeleted} />
         ))}
       </div>
 
