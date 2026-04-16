@@ -1,9 +1,5 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { publishPostMultiChannel } from '@/lib/social/publisher';
-import { decrypt } from '@/lib/crypto';
-import { getMetaCampaignMetrics } from '@/lib/ads/meta-ads';
-import { getTikTokCampaignMetrics } from '@/lib/ads/tiktok-ads';
-import { getConnection, getMetaConnectionMerged, resolveUserAccessToken } from '@/lib/platform/connections';
 import { JobDoc } from './types';
 
 export async function executeJob(workspaceId: string, jobId: string, job: JobDoc) {
@@ -97,66 +93,6 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
           }
         }
       }
-    } else if (job.type === 'create_ad_campaign') {
-      const adCampaignId = job.payload?.adCampaignId as string;
-      if (!adCampaignId) {
-        message = 'No adCampaignId in job payload — skipped';
-      } else {
-        message = `Ad campaign ${adCampaignId} — use the launch endpoint to create on platform`;
-        details = { adCampaignId };
-      }
-    } else if (job.type === 'sync_ad_metrics') {
-      const adSnap = await adminDb
-        .collection(`workspaces/${workspaceId}/ad_campaigns`)
-        .where('status', 'in', ['active', 'paused'])
-        .get();
-
-      let synced = 0;
-      let failed = 0;
-
-      for (const doc of adSnap.docs) {
-        const campaign = doc.data();
-        if (!campaign.externalCampaignId) continue;
-
-        try {
-          let metricsResult: { success: boolean; metrics?: Record<string, unknown>; error?: string } | undefined;
-
-          if (campaign.platform === 'meta' && campaign.productId) {
-            const conn = await getMetaConnectionMerged(workspaceId, campaign.productId);
-            if (conn) {
-              const token = resolveUserAccessToken(conn);
-              metricsResult = await getMetaCampaignMetrics(token, campaign.externalCampaignId);
-            }
-          } else if (campaign.platform === 'tiktok') {
-            const productId = campaign.productId as string | undefined;
-            const conn = productId
-              ? await getConnection(workspaceId, 'tiktok_ads', productId) || await getConnection(workspaceId, 'tiktok_ads')
-              : await getConnection(workspaceId, 'tiktok_ads');
-            if (conn) {
-              const token = decrypt(conn.accessTokenEncrypted);
-              const advertiserId = campaign.adAccountId || (conn.metadata.advertiserId as string);
-              if (advertiserId) {
-                metricsResult = await getTikTokCampaignMetrics(token, advertiserId, campaign.externalCampaignId);
-              }
-            }
-          }
-
-          if (metricsResult?.success && metricsResult.metrics) {
-            await adminDb.doc(`workspaces/${workspaceId}/ad_campaigns/${doc.id}`).update({
-              metrics: metricsResult.metrics,
-              updatedAt: new Date().toISOString(),
-            });
-            synced++;
-          } else if (metricsResult && !metricsResult.success) {
-            failed++;
-          }
-        } catch {
-          failed++;
-        }
-      }
-
-      message = `Ad metrics sync: ${synced} synced, ${failed} failed out of ${adSnap.size} campaigns`;
-      details = { total: adSnap.size, synced, failed };
     } else if (job.type === 'refresh_tokens') {
       message = 'Token refresh handled by worker tick directly';
     }

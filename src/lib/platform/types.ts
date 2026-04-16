@@ -9,7 +9,6 @@ export const PlatformCapability = {
   PUBLISH_VIDEO: 'publish_video',
   PUBLISH_CAROUSEL: 'publish_carousel',
   ANALYTICS: 'analytics',
-  ADS: 'ads',
 } as const;
 
 export type PlatformCapability = (typeof PlatformCapability)[keyof typeof PlatformCapability];
@@ -26,7 +25,7 @@ export type ConnectionStatus = (typeof ConnectionStatus)[keyof typeof Connection
 // ── Platform Connection (Firestore model) ───────────────────────────
 
 export type PlatformConnection = {
-  /** OAuth provider key (meta, tiktok, tiktok_ads, etc.) */
+  /** OAuth provider key (meta, tiktok, etc.) */
   provider: string;
   /** Which channels this connection serves */
   channels: SocialChannel[];

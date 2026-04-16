@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
@@ -23,20 +23,7 @@ type Post = {
   mediaUrls?: string[];
 };
 
-type AdCampaign = {
-  id: string;
-  name: string;
-  platform: string;
-  status: string;
-  startDate: string;
-  endDate?: string | null;
-  dailyBudgetCents?: number;
-  creative?: { headline?: string; primaryText?: string; imageUrl?: string };
-};
-
-type CalendarItem =
-  | { kind: "post"; date: string; post: Post }
-  | { kind: "ad"; date: string; ad: AdCampaign };
+type CalendarItem = { kind: "post"; date: string; post: Post };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -256,42 +243,6 @@ function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void })
   );
 }
 
-function AdDetailPanel({ ad, onClose }: { ad: AdCampaign; onClose: () => void }) {
-  const accent = ad.platform === "meta" || ad.platform === "facebook" ? "#1877F2" : "#4285F4";
-  return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border/40 flex-shrink-0">
-        <div className="flex items-center gap-2.5">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ background: accent }} />
-          <span className="text-sm font-semibold capitalize">{ad.platform} Ad</span>
-        </div>
-        <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-        <p className="text-base font-semibold">{ad.name}</p>
-        <div className="grid grid-cols-2 gap-2.5">
-          {[
-            { label: "Start", value: ad.startDate ? formatDate(ad.startDate) : "—" },
-            { label: "End", value: ad.endDate ? formatDate(ad.endDate) : "Ongoing" },
-            { label: "Budget", value: ad.dailyBudgetCents ? `$${(ad.dailyBudgetCents / 100).toFixed(0)}/day` : "—" },
-            { label: "Platform", value: ad.platform },
-          ].map(({ label, value }) => (
-            <div key={label} className="rounded-lg bg-muted/40 px-3 py-2.5">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
-              <p className="text-[13px] font-medium mt-0.5 capitalize">{value}</p>
-            </div>
-          ))}
-        </div>
-        {ad.creative?.imageUrl && (
-          <img src={ad.creative.imageUrl} alt="" className="w-full rounded-xl object-cover max-h-40 border border-border/40" />
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ─── Visual Event Chip with Media Thumbnail ──────────────────────────────────
 
 const CHANNEL_ICON: Record<string, React.ReactNode> = {
@@ -312,49 +263,33 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart }: {
   isSelected: boolean;
   onDragStart?: (e: React.DragEvent) => void;
 }) {
-  if (item.kind === "post") {
-    const p = item.post;
-    const accent = CHANNEL_ACCENT[p.channel] || "#6366f1";
-    const bg = CHANNEL_BG[p.channel] || "rgba(99,102,241,0.08)";
-    const thumb = p.mediaUrls?.[0];
-    const draggable = p.status === "scheduled" || p.status === "draft";
+  const p = item.post;
+  const accent = CHANNEL_ACCENT[p.channel] || "#6366f1";
+  const bg = CHANNEL_BG[p.channel] || "rgba(99,102,241,0.08)";
+  const thumb = p.mediaUrls?.[0];
+  const draggable = p.status === "scheduled" || p.status === "draft";
 
-    return (
-      <button
-        onClick={onClick}
-        draggable={draggable}
-        onDragStart={onDragStart}
-        className="w-full rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98] cursor-grab active:cursor-grabbing"
-        style={{ background: isSelected ? accent + "20" : bg, borderLeft: `3px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
-      >
-        <div className="px-1.5 py-1 flex items-center gap-1.5">
-          {/* Media thumbnail */}
-          {thumb && !isVideoUrl(thumb) ? (
-            <img src={thumb} alt="" className="w-6 h-6 rounded object-cover shrink-0" draggable={false} />
-          ) : (
-            <div className="w-6 h-6 rounded shrink-0 flex items-center justify-center" style={{ background: accent + "18" }}>
-              <div style={{ color: accent }}>{CHANNEL_ICON[p.channel] || null}</div>
-            </div>
-          )}
-          {/* Platform icon */}
-          <div style={{ color: accent }} className="shrink-0">
-            {CHANNEL_ICON[p.channel] || null}
-          </div>
-        </div>
-      </button>
-    );
-  }
-
-  // Ad chip — just a colored dot and "Ad" label
-  const adAccent = item.ad.platform === "meta" || item.ad.platform === "facebook" ? "#1877F2" : "#4285F4";
   return (
     <button
       onClick={onClick}
-      className="w-full rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98]"
-      style={{ background: isSelected ? adAccent + "20" : adAccent + "10", borderLeft: `3px solid ${adAccent}`, outline: isSelected ? `1.5px solid ${adAccent}` : "none" }}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      className="w-full rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98] cursor-grab active:cursor-grabbing"
+      style={{ background: isSelected ? accent + "20" : bg, borderLeft: `3px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
     >
       <div className="px-1.5 py-1 flex items-center gap-1.5">
-        <span className="text-[10px] font-bold" style={{ color: adAccent }}>Ad</span>
+        {/* Media thumbnail */}
+        {thumb && !isVideoUrl(thumb) ? (
+          <img src={thumb} alt="" className="w-6 h-6 rounded object-cover shrink-0" draggable={false} />
+        ) : (
+          <div className="w-6 h-6 rounded shrink-0 flex items-center justify-center" style={{ background: accent + "18" }}>
+            <div style={{ color: accent }}>{CHANNEL_ICON[p.channel] || null}</div>
+          </div>
+        )}
+        {/* Platform icon */}
+        <div style={{ color: accent }} className="shrink-0">
+          {CHANNEL_ICON[p.channel] || null}
+        </div>
       </div>
     </button>
   );
@@ -383,8 +318,7 @@ function MobileAgendaDay({ date, items, selected, onSelect }: {
       </div>
       <div className="space-y-1.5">
         {items.map((item, i) => {
-          const isItemSelected = selected !== null && selected.kind === item.kind &&
-            (item.kind === "post" ? selected.kind === "post" && selected.post.id === item.post.id : selected.kind === "ad" && selected.ad.id === item.ad.id);
+          const isItemSelected = selected !== null && selected.post.id === item.post.id;
           return <VisualEventChip key={i} item={item} isSelected={isItemSelected} onClick={() => onSelect(isItemSelected ? null : item)} />;
         })}
       </div>
@@ -399,7 +333,6 @@ export default function CalendarPage() {
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [posts, setPosts] = useState<Post[]>([]);
-  const [ads, setAds] = useState<AdCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<CalendarItem | null>(null);
   const [dragItem, setDragItem] = useState<Post | null>(null);
@@ -410,12 +343,8 @@ export default function CalendarPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [postRes, adRes] = await Promise.all([
-        apiGet<{ posts: Post[] }>("/api/posts?limit=200"),
-        apiGet<{ campaigns: AdCampaign[] }>("/api/ad-campaigns?limit=200"),
-      ]);
+      const postRes = await apiGet<{ posts: Post[] }>("/api/posts?limit=200");
       if (postRes.ok) setPosts(postRes.data.posts || []);
-      if (adRes.ok) setAds(adRes.data.campaigns || []);
     } catch {
       toast.error("Failed to load calendar data");
     } finally {
@@ -475,24 +404,12 @@ export default function CalendarPage() {
     (!statusFilter || p.status === statusFilter) &&
     (!channelFilter || p.channel === channelFilter)
   );
-  const filteredAds = ads.filter((a) =>
-    (!statusFilter || a.status === statusFilter) &&
-    (!channelFilter || a.platform === channelFilter || (channelFilter === "facebook" && a.platform === "meta"))
-  );
-
   const itemsByDate = new Map<string, CalendarItem[]>();
   for (const post of filteredPosts) {
     const date = getDateForPost(post);
     if (!date) continue;
     const list = itemsByDate.get(date) || [];
     list.push({ kind: "post", date, post });
-    itemsByDate.set(date, list);
-  }
-  for (const ad of filteredAds) {
-    if (!ad.startDate) continue;
-    const date = isoDate(new Date(ad.startDate));
-    const list = itemsByDate.get(date) || [];
-    list.push({ kind: "ad", date, ad });
     itemsByDate.set(date, list);
   }
 
@@ -673,19 +590,14 @@ export default function CalendarPage() {
 
                         <div className="flex-1 flex flex-col gap-1 min-h-0 overflow-hidden">
                           {items.slice(0, MAX).map((item, i) => {
-                            const isItemSelected =
-                              selected !== null &&
-                              selected.kind === item.kind &&
-                              (item.kind === "post"
-                                ? selected.kind === "post" && selected.post.id === item.post.id
-                                : selected.kind === "ad" && selected.ad.id === item.ad.id);
+                            const isItemSelected = selected !== null && selected.post.id === item.post.id;
                             return (
                               <VisualEventChip
                                 key={i}
                                 item={item}
                                 isSelected={isItemSelected}
                                 onClick={() => setSelected(isItemSelected ? null : item)}
-                                onDragStart={item.kind === "post" ? handleDragStart(item.post) : undefined}
+                                onDragStart={handleDragStart(item.post)}
                               />
                             );
                           })}
@@ -734,12 +646,7 @@ export default function CalendarPage() {
         {/* ── Detail panel: sidebar on desktop ── */}
         {selected && (
           <div className="detail-panel shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden hidden lg:block lg:w-[380px]">
-            {selected.kind === "post" && (
-              <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
-            )}
-            {selected.kind === "ad" && (
-              <AdDetailPanel ad={selected.ad} onClose={() => setSelected(null)} />
-            )}
+            <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
           </div>
         )}
 
@@ -748,12 +655,7 @@ export default function CalendarPage() {
           <div className="lg:hidden fixed inset-0 z-50">
             <div className="absolute inset-0 bg-black/50" onClick={() => setSelected(null)} />
             <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl bg-card overflow-hidden animate-in slide-in-from-bottom duration-200">
-              {selected.kind === "post" && (
-                <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
-              )}
-              {selected.kind === "ad" && (
-                <AdDetailPanel ad={selected.ad} onClose={() => setSelected(null)} />
-              )}
+              <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
             </div>
           </div>
         )}

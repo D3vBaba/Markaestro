@@ -12,14 +12,14 @@ const channels = [
     name: "Facebook",
     category: "Social",
     color: "#1877F2",
-    description: "Reach billions on the world's largest social network. Publish to Pages, manage feed posts, and run targeted ad campaigns with full creative control.",
+    description: "Reach billions on the world's largest social network. Publish to Pages and manage feed posts with full creative control.",
     capabilities: [
       "Page feed posts with rich media",
       "Link posts with preview cards",
       "Photo and video publishing",
       "Carousel and multi-image posts",
-      "Campaign creation via Meta Ads API",
-      "Audience targeting and lookalike audiences",
+      "Scheduling for optimal engagement",
+      "Per-page targeting per product",
     ],
     connection: "OAuth via Meta Business Suite",
   },
@@ -34,7 +34,7 @@ const channels = [
       "Auto-crop to 1:1 and 4:5 ratios",
       "Caption with hashtag optimization",
       "Scheduling for best engagement times",
-      "Ad campaigns via Meta Ads integration",
+      "Instagram Login for standalone professional accounts",
     ],
     connection: "OAuth via Meta (linked to Facebook Page)",
   },
@@ -42,37 +42,21 @@ const channels = [
     name: "TikTok",
     category: "Social",
     color: "#000000",
-    description: "Reach Gen Z and beyond on the fastest-growing short-form platform. Upload videos and photos through TikTok's Content Posting API with full privacy controls.",
+    description: "Reach Gen Z and beyond on the fastest-growing short-form platform. Markaestro delivers photos and videos as drafts to the creator's TikTok inbox for final review.",
     capabilities: [
-      "Video content publishing",
-      "Photo mode posts",
-      "Privacy and interaction controls",
-      "Disclosure and branded content labels",
+      "Video content delivered to TikTok inbox",
+      "Photo mode drafts",
+      "Creator completes caption and privacy in TikTok",
+      "Scheduled draft delivery",
       "Auto-retry for processing delays",
-      "Content scheduling",
+      "Status tracking inside Markaestro",
     ],
     connection: "OAuth via TikTok for Developers",
-  },
-  {
-    name: "Meta Ads",
-    category: "Advertising",
-    color: "#1877F2",
-    description: "Run paid campaigns across Facebook and Instagram's combined ad inventory. Create campaigns, set budgets, define audiences, and monitor performance in real time.",
-    capabilities: [
-      "Campaign, ad set, and ad creation",
-      "Custom and lookalike audiences",
-      "Placement optimization (Feed, Stories, Reels)",
-      "Budget and bid strategy controls",
-      "Creative A/B testing",
-      "Cross-platform performance analytics",
-    ],
-    connection: "OAuth via Meta Business Suite",
   },
 ];
 
 const stats = [
   { value: "3", label: "Social Channels", sub: "Facebook, Instagram, TikTok" },
-  { value: "2", label: "Ad Platforms", sub: "Meta Ads, TikTok Ads" },
   { value: "1", label: "Dashboard", sub: "Unified publishing & analytics" },
   { value: "0", label: "Manual Tokens", sub: "Fully OAuth, fully automated" },
 ];
@@ -100,7 +84,7 @@ export default function ChannelsPage() {
 
           {/* Stats */}
           <motion.div
-            className="mx-auto mt-20 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border bg-border/40 sm:grid-cols-4"
+            className="mx-auto mt-20 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-2xl border bg-border/40"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5, ease }}

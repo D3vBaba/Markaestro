@@ -19,18 +19,16 @@ export async function GET(req: Request) {
     requirePermission(ctx, 'analytics.read');
     const ws = ctx.workspaceId;
 
-    const [campaignsSnap, productsSnap, postsSnap, adCampaignsSnap] =
+    const [campaignsSnap, productsSnap, postsSnap] =
       await Promise.all([
         adminDb.collection(`workspaces/${ws}/campaigns`).get(),
         adminDb.collection(`workspaces/${ws}/products`).get(),
         adminDb.collection(`workspaces/${ws}/posts`).get(),
-        adminDb.collection(`workspaces/${ws}/ad_campaigns`).get(),
       ]);
 
     const campaigns = campaignsSnap.docs.map((d) => d.data());
     const products = productsSnap.docs.map((d) => d.data());
     const posts = postsSnap.docs.map((d) => d.data());
-    const adCampaigns = adCampaignsSnap.docs.map((d) => d.data());
     // Campaign stats
     const activeCampaigns = campaigns.filter((c) => c.status === 'active').length;
     const draftCampaigns = campaigns.filter((c) => c.status === 'draft').length;
@@ -63,19 +61,6 @@ export async function GET(req: Request) {
       dailyPosts.push({ date: dateStr, label: dayNames[d.getDay()], published, scheduled });
     }
 
-    // Ad campaign stats
-    const activeAds = adCampaigns.filter((a) => a.status === 'active').length;
-    let totalAdSpend = 0;
-    let totalAdImpressions = 0;
-    let totalAdClicks = 0;
-    for (const ad of adCampaigns) {
-      if (ad.metrics) {
-        totalAdSpend += ad.metrics.spend || 0;
-        totalAdImpressions += ad.metrics.impressions || 0;
-        totalAdClicks += ad.metrics.clicks || 0;
-      }
-    }
-
     // Recent posts (latest 5 published or scheduled)
     const recentPosts = postsSnap.docs
       .map((d) => ({ id: d.id, ...d.data() } as RecentPost))
@@ -105,11 +90,6 @@ export async function GET(req: Request) {
         totalPosts: posts.length,
         publishedPosts,
         scheduledPosts,
-        totalAdCampaigns: adCampaigns.length,
-        activeAds,
-        totalAdSpend,
-        totalAdImpressions,
-        totalAdClicks,
         postsByChannel,
       },
       dailyPosts,

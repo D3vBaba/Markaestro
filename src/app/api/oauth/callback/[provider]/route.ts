@@ -105,8 +105,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     }
 
     const url = new URL(req.url);
-    // TikTok Marketing API uses 'auth_code' instead of 'code'
-    const code = url.searchParams.get('auth_code') || url.searchParams.get('code');
+    const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
     const errorParam = url.searchParams.get('error');
 
@@ -134,7 +133,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const extraData: Record<string, unknown> = {};
     let metaNeedsPageSelection = false;
 
-    // TikTok Ads: merge extraData from token exchange (advertiserId, etc.)
     if (exchangeResult.extraData) {
       Object.assign(extraData, exchangeResult.extraData);
     }

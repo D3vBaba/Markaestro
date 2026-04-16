@@ -19,11 +19,6 @@ type DashboardMetrics = {
   totalPosts: number;
   publishedPosts: number;
   scheduledPosts: number;
-  totalAdCampaigns: number;
-  activeAds: number;
-  totalAdSpend: number;
-  totalAdImpressions: number;
-  totalAdClicks: number;
   postsByChannel: Record<string, number>;
 };
 
@@ -115,18 +110,6 @@ export default function Home() {
         <>
           <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.publishedPosts ?? 0} published</span>
           <span className="text-muted-foreground">{m?.scheduledPosts ?? 0} scheduled</span>
-        </>
-      ),
-    },
-    {
-      label: "Ad Campaigns",
-      value: loading ? "..." : String(m?.totalAdCampaigns ?? 0),
-      detail: (
-        <>
-          <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.activeAds ?? 0} active</span>
-          {(m?.totalAdSpend ?? 0) > 0 && (
-            <span className="text-muted-foreground">${((m?.totalAdSpend ?? 0) / 100).toLocaleString()} spent</span>
-          )}
         </>
       ),
     },

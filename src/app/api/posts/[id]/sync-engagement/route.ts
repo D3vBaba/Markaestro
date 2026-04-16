@@ -3,8 +3,39 @@ import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getMetaConnectionMerged, getConnection, resolveAccessToken } from '@/lib/platform/connections';
-import { getMetaPostEngagement } from '@/lib/ads/meta-ads';
+import { graphApiFetch } from '@/lib/platform/meta-graph-api';
 import { decrypt } from '@/lib/crypto';
+
+const META_GRAPH_API = 'https://graph.facebook.com/v22.0';
+
+async function getMetaPostEngagement(
+  accessToken: string,
+  postId: string,
+): Promise<{ likes: number; comments: number; shares: number; reach: number; impressions: number } | null> {
+  try {
+    const fields = 'likes.limit(1).summary(true),comments.limit(1).summary(true),shares,insights.metric(post_impressions,post_reach)';
+    const res = await graphApiFetch(
+      `${META_GRAPH_API}/${postId}?fields=${fields}&access_token=${accessToken}`,
+    );
+    const data = await res.json();
+    if (data.error) return null;
+
+    const insightValues: Record<string, number> = {};
+    for (const item of (data.insights?.data as Array<{ name: string; values: Array<{ value: number }> }>) || []) {
+      insightValues[item.name] = item.values?.[0]?.value || 0;
+    }
+
+    return {
+      likes: data.likes?.summary?.total_count || 0,
+      comments: data.comments?.summary?.total_count || 0,
+      shares: data.shares?.count || 0,
+      reach: insightValues['post_reach'] || 0,
+      impressions: insightValues['post_impressions'] || 0,
+    };
+  } catch {
+    return null;
+  }
+}
 
 export type PostEngagement = {
   likes: number;

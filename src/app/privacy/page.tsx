@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           <h3 className="mt-4 font-medium text-foreground">2.2 Information from connected services and integrations</h3>
           <ul className="mt-2 list-disc space-y-1 pl-6">
             <li><strong>OAuth and integration data:</strong> access tokens, refresh tokens, token expiry data, provider account identifiers, usernames, open IDs, page or account selections, and provider-specific metadata needed to maintain a connection.</li>
-            <li><strong>Social, advertising, and analytics data:</strong> page lists, account profile information, post status, follower or profile metrics, ad campaign metrics, impressions, clicks, spend, conversions, and related reporting data retrieved from providers such as TikTok, Meta, Google, and similar services you connect.</li>
+            <li><strong>Social and analytics data:</strong> page lists, account profile information, post status, follower or profile metrics, engagement metrics, and related reporting data retrieved from providers such as TikTok, Meta, and similar services you connect.</li>
           </ul>
 
           <h3 className="mt-4 font-medium text-foreground">2.3 Information collected automatically</h3>
@@ -50,8 +50,8 @@ export default function PrivacyPage() {
 
           <h3 className="mt-4 font-medium text-foreground">2.4 Files and uploads</h3>
           <ul className="mt-2 list-disc space-y-1 pl-6">
-            <li><strong>Media uploads:</strong> logos, screenshots, ad images, ad videos, and other files you upload for publishing, brand identity, or AI-assisted generation.</li>
-            <li><strong>Publicly accessible asset URLs:</strong> certain uploaded or generated assets may be stored using direct public cloud URLs so they can be rendered in ads, social posts, landing assets, or generated creative workflows. You should only upload files you are authorized to publish or share in this manner.</li>
+            <li><strong>Media uploads:</strong> logos, screenshots, images, videos, and other files you upload for publishing, brand identity, or AI-assisted generation.</li>
+            <li><strong>Publicly accessible asset URLs:</strong> certain uploaded or generated assets may be stored using direct public cloud URLs so they can be rendered in social posts, landing assets, or generated creative workflows. You should only upload files you are authorized to publish or share in this manner.</li>
           </ul>
         </section>
 

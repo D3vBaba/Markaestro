@@ -69,9 +69,6 @@ type IntegrationInfo = {
   pageName?: string | null;
   pageSelectionRequired?: boolean | null;
   igAccountId?: string | null;
-  adAccountId?: string | null;
-  advertiserId?: string | null;
-  advertiserAccessRequired?: boolean | null;
   lastRefreshError?: string | null;
   username?: string | null;
   needsPageSelection?: boolean;
@@ -101,12 +98,11 @@ const categoryLabels: Record<string, string> = {
   other: "Other",
 };
 
-const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok", "tiktok_ads"] as const;
+const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok"] as const;
 const providerLabels: Record<string, string> = {
   meta: "Meta (Facebook + Instagram)",
   instagram: "Instagram (direct login)",
   tiktok: "TikTok",
-  tiktok_ads: "TikTok Ads",
 };
 
 function getScopedSocialIntegrations(integrations: IntegrationInfo[]) {
@@ -238,9 +234,6 @@ export default function ProductsPage() {
   const [selectedPageId, setSelectedPageId] = useState("");
   const [loadingPages, setLoadingPages] = useState(false);
   const [selectingPage, setSelectingPage] = useState(false);
-  const [metaAdAccountId, setMetaAdAccountId] = useState("");
-  const [savingAdAccount, setSavingAdAccount] = useState(false);
-
   // Per-product connection status cache (productId -> IntegrationInfo[])
   const [connectionCache, setConnectionCache] = useState<Record<string, IntegrationInfo[]>>({});
 
@@ -438,13 +431,12 @@ export default function ProductsPage() {
 
     // Load integrations — reset first so stale data from a previous product never shows
     setProductIntegrations([]);
-    setMetaPages([]); setSelectedPageId(""); setMetaAdAccountId("");
+    setMetaPages([]); setSelectedPageId("");
     const intRes = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${product.id}`);
     if (intRes.ok) {
       const scopedIntegrations = getScopedSocialIntegrations(intRes.data.integrations || []);
       setProductIntegrations(scopedIntegrations);
       const metaConn = scopedIntegrations.find((i) => i.provider === "meta");
-      if (metaConn?.adAccountId) setMetaAdAccountId(metaConn.adAccountId as string);
       setEditOpen(true);
       // Auto-load pages if Meta is connected (workspace or product) but no page selected
       if (metaConn && !metaConn.pageId) {
@@ -601,17 +593,6 @@ export default function ProductsPage() {
       else toast.error("Failed to select page");
     } catch { toast.error("Failed to select page"); }
     finally { setSelectingPage(false); }
-  }
-
-  async function saveMetaAdAccount(productId: string) {
-    if (!metaAdAccountId.trim()) { toast.error("Enter an ad account ID"); return; }
-    setSavingAdAccount(true);
-    try {
-      const res = await apiPost("/api/integrations/meta/ad-account", { adAccountId: metaAdAccountId.trim(), productId });
-      if (res.ok) { toast.success("Ad account ID saved"); }
-      else toast.error("Failed to save ad account ID");
-    } catch { toast.error("Failed to save ad account ID"); }
-    finally { setSavingAdAccount(false); }
   }
 
   return (
@@ -849,7 +830,7 @@ export default function ProductsPage() {
                     {connectionCache[p.id].map((integ) => {
                       const isConnected = integ.status === "connected";
                       const hasError = !!integ.lastRefreshError;
-                      const label = integ.provider === "meta" ? "Meta" : integ.provider === "tiktok_ads" ? "TikTok Ads" : "TikTok";
+                      const label = integ.provider === "meta" ? "Meta" : "TikTok";
                       const detail = integ.provider === "meta" && integ.pageName
                         ? integ.pageName
                         : null;
@@ -1078,27 +1059,6 @@ export default function ProductsPage() {
                                 </Button>
                               </div>
                             )}
-                            {/* Ad Account ID for running paid campaigns */}
-                            <div className="pt-1">
-                              <p className="text-xs font-medium text-foreground mb-1">Ad Account ID</p>
-                              <p className="text-[11px] text-muted-foreground mb-1.5">
-                                Required to run paid campaigns. Find it in Meta Business Manager (format: act_XXXXXXXXX).
-                              </p>
-                              <div className="flex gap-2">
-                                <Input
-                                  placeholder="act_123456789"
-                                  value={metaAdAccountId}
-                                  onChange={(e) => setMetaAdAccountId(e.target.value)}
-                                  className="flex-1 h-8 text-xs font-mono"
-                                />
-                                <Button size="sm" className="h-8" onClick={() => saveMetaAdAccount(editProductId)} disabled={savingAdAccount || !metaAdAccountId.trim()}>
-                                  {savingAdAccount ? "..." : "Save"}
-                                </Button>
-                              </div>
-                              {metaInteg?.adAccountId && (
-                                <p className="text-[11px] text-emerald-600 mt-1">Saved: {metaInteg.adAccountId}</p>
-                              )}
-                            </div>
                           </div>
                         ) : (
                           <p className="text-xs text-muted-foreground pl-1">
@@ -1155,27 +1115,19 @@ export default function ProductsPage() {
                     );
                   })()}
 
-                  {/* TikTok & TikTok Ads — per-product connect/disconnect */}
-                  {(["tiktok", "tiktok_ads"] as const).map((provider) => {
-                    const integ = getProviderIntegration(provider);
+                  {(() => {
+                    const integ = getProviderIntegration("tiktok");
                     const connected = integ?.status === "connected";
-                    const missingAdvertiserAccess =
-                      provider === "tiktok_ads" &&
-                      connected &&
-                      (!integ?.advertiserId || integ?.advertiserAccessRequired);
 
                     return (
-                      <div key={provider} className="rounded-xl border p-3 space-y-2">
+                      <div className="rounded-xl border p-3 space-y-2">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-medium">{providerLabels[provider]}</p>
+                          <p className="text-sm font-medium">{providerLabels.tiktok}</p>
                           {connected && (
                             <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
                           )}
                           {integ?.lastRefreshError && (
                             <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
-                          )}
-                          {missingAdvertiserAccess && (
-                            <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">No advertiser access</Badge>
                           )}
                         </div>
 
@@ -1185,22 +1137,16 @@ export default function ProductsPage() {
                           </p>
                         )}
 
-                        {missingAdvertiserAccess && (
-                          <p className="text-xs text-amber-700 pl-1">
-                            TikTok Ads linked successfully, but TikTok did not return any advertiser account access for this login. Add or authorize your sandbox advertiser in TikTok for Business, then reconnect.
-                          </p>
-                        )}
-
                         {connected ? (
-                          <Button variant="destructive" size="sm" className="w-full sm:w-auto" onClick={() => setDisconnectTarget({ provider, productId: editProductId!, label: providerLabels[provider] || provider })} disabled={disconnecting === provider}>
-                            {disconnecting === provider ? "..." : "Disconnect"}
+                          <Button variant="destructive" size="sm" className="w-full sm:w-auto" onClick={() => setDisconnectTarget({ provider: "tiktok", productId: editProductId!, label: providerLabels.tiktok })} disabled={disconnecting === "tiktok"}>
+                            {disconnecting === "tiktok" ? "..." : "Disconnect"}
                           </Button>
                         ) : (
-                          <Button size="sm" className="w-full sm:w-auto" onClick={() => startOAuth(provider, editProductId)}>Connect</Button>
+                          <Button size="sm" className="w-full sm:w-auto" onClick={() => startOAuth("tiktok", editProductId)}>Connect</Button>
                         )}
                       </div>
                     );
-                  })}
+                  })()}
                 </div>
               </div>
             )}

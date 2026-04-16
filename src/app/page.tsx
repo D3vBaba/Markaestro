@@ -27,7 +27,7 @@ export default function LandingPage() {
               <span className="text-primary">in one platform</span>
             </h1>
             <p className="mt-7 text-lg text-muted-foreground leading-relaxed lg:text-xl max-w-2xl mx-auto">
-              Publish to every channel, launch ad campaigns, generate branded content with AI, and track everything from a single dashboard.
+              Publish to every social channel, generate branded content with AI, and track everything from a single dashboard.
             </p>
             <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
@@ -99,10 +99,10 @@ export default function LandingPage() {
           <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
               { title: "Multi-Channel Publishing", desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly." },
-              { title: "Ad Campaign Management", desc: "Create and launch ad campaigns on Meta and TikTok with audience targeting, budgets, and creative management." },
               { title: "AI Content Generation", desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization." },
               { title: "AI Image Generation", desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity." },
-              { title: "Analytics Dashboard", desc: "Track opens, clicks, engagement rates, and campaign performance across all channels in real time." },
+              { title: "Smart Scheduling", desc: "Queue posts for optimal engagement windows with AI-suggested timing per channel." },
+              { title: "Analytics Dashboard", desc: "Track engagement rates and post performance across all channels in real time." },
               { title: "OAuth Integrations", desc: "One-click connect to Meta and TikTok via secure OAuth. No manual token management required." },
             ].map(({ title, desc }) => (
               <div
@@ -140,8 +140,7 @@ export default function LandingPage() {
               <div className="mt-10 space-y-5">
                 {[
                   { name: "Facebook & Instagram", desc: "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing." },
-                  { name: "TikTok", desc: "Photo and video content publishing via TikTok's Content Posting API." },
-                  { name: "TikTok Ads", desc: "Video-first campaign management with audience targeting, budgets, and creative control." },
+                  { name: "TikTok", desc: "Photo and video content delivered as drafts to the creator's TikTok inbox for final review." },
                 ].map((ch) => (
                   <div key={ch.name} className="flex items-start gap-4">
                     <div className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
@@ -164,8 +163,8 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 gap-4">
               {[
                 { label: "Social Channels", value: "3", sub: "Facebook, Instagram, TikTok" },
-                { label: "Ad Platforms", value: "2", sub: "Meta Ads, TikTok Ads" },
                 { label: "AI Providers", value: "2", sub: "Gemini Imagen, OpenAI DALL-E" },
+                { label: "Dashboards", value: "1", sub: "Unified publishing & analytics" },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-muted/30 p-7 transition-all duration-300 hover:translate-y-[-2px] border border-border/40">
                   <p className="text-4xl font-bold tracking-tight text-primary">{item.value}</p>

@@ -19,16 +19,6 @@ const coreFeatures = [
     ],
   },
   {
-    title: "Ad Campaign Management",
-    description: "Launch paid campaigns on Meta and TikTok directly from Markaestro. Set audiences, budgets, and creative variants without switching between ad managers.",
-    details: [
-      "Audience targeting with saved segments",
-      "Budget allocation and pacing controls",
-      "A/B creative testing",
-      "Real-time spend and performance tracking",
-    ],
-  },
-  {
     title: "AI Content Generation",
     description: "Generate on-brand copy powered by your product's unique voice profile. Choose tone, format, and channel, and Markaestro writes content that sounds like your team wrote it.",
     details: [
@@ -50,11 +40,11 @@ const coreFeatures = [
   },
   {
     title: "Analytics Dashboard",
-    description: "See how every campaign, post, and ad performs in one unified view. Track engagement, reach, clicks, and conversions across all connected channels without exporting spreadsheets.",
+    description: "See how every post performs in one unified view. Track engagement, reach, and interactions across all connected channels without exporting spreadsheets.",
     details: [
       "Real-time publishing activity charts",
       "Per-channel engagement breakdown",
-      "Ad spend vs. return tracking",
+      "Post-level performance trends",
       "Export-ready reporting",
     ],
   },
@@ -102,7 +92,7 @@ export default function FeaturesPage() {
               Everything you need to <span className="text-primary">grow</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              From first draft to published campaign, Markaestro handles every step of your marketing workflow. Six core capabilities, one platform, zero context-switching.
+              From first draft to published post, Markaestro handles every step of your social workflow. One platform, zero context-switching.
             </p>
           </motion.div>
         </div>

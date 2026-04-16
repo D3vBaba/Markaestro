@@ -58,15 +58,6 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     clientIdParam: 'client_key',
     extraAuthParams: {},
   },
-  tiktok_ads: {
-    authUrl: 'https://business-api.tiktok.com/portal/auth',
-    tokenUrl: 'https://business-api.tiktok.com/open_api/v1.3/oauth2/access_token/',
-    scopes: [],
-    clientIdEnv: 'TIKTOK_ADS_CLIENT_KEY',
-    clientSecretEnv: 'TIKTOK_ADS_CLIENT_SECRET',
-    clientIdParam: 'app_id',
-    extraAuthParams: {},
-  },
 };
 
 export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig {
@@ -77,7 +68,6 @@ const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   meta: 'META_OAUTH_REDIRECT_URI',
   instagram: 'INSTAGRAM_OAUTH_REDIRECT_URI',
   tiktok: 'TIKTOK_OAUTH_REDIRECT_URI',
-  tiktok_ads: 'TIKTOK_ADS_OAUTH_REDIRECT_URI',
 };
 
 export function getAppUrl(): string {

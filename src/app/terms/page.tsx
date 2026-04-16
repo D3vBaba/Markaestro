@@ -23,7 +23,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-foreground">2. Description of Service</h2>
           <p className="mt-3">
-            Markaestro is a marketing automation platform for managing products, brand voice settings, content generation, social publishing, ad campaigns, and analytics. The Services may integrate with third-party platforms including TikTok, Meta, Google, Firebase, and other services made available by Markaestro from time to time.
+            Markaestro is a marketing automation platform for managing products, brand voice settings, content generation, social publishing, and analytics. The Services may integrate with third-party platforms including TikTok, Meta, Firebase, and other services made available by Markaestro from time to time.
           </p>
         </section>
 
@@ -50,10 +50,10 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-foreground">5. Customer Data and Compliance Responsibilities</h2>
           <div className="mt-3 space-y-2">
-            <p>You retain responsibility for the legality, accuracy, and use of any data or content you submit to Markaestro, including contact lists, campaign materials, brand assets, prompts, uploaded media, ad targeting information, and messages sent through the Services.</p>
+            <p>You retain responsibility for the legality, accuracy, and use of any data or content you submit to Markaestro, including contact lists, campaign materials, brand assets, prompts, uploaded media, and messages sent through the Services.</p>
             <ul className="list-disc space-y-1 pl-6">
               <li>You must have all rights, permissions, licenses, and legal bases necessary to upload, process, publish, or send that data or content.</li>
-              <li>You are responsible for complying with applicable privacy, anti-spam, consumer protection, advertising, and platform-specific rules, including consent, notice, unsubscribe, and suppression obligations.</li>
+              <li>You are responsible for complying with applicable privacy, anti-spam, consumer protection, and platform-specific rules, including consent, notice, unsubscribe, and suppression obligations.</li>
               <li>You must not use Markaestro to process special category or other highly regulated data unless we expressly agree in writing to support that use.</li>
             </ul>
           </div>
@@ -79,10 +79,10 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-foreground">7. Third-Party Services and Integrations</h2>
           <p className="mt-3">
-            Markaestro may connect to third-party platforms, ad networks, AI providers, and messaging or analytics tools. By connecting a third-party service, you authorize Markaestro to access, store, refresh, and use credentials and related data as needed to provide the requested functionality within the permissions you grant.
+            Markaestro may connect to third-party platforms, AI providers, and messaging or analytics tools. By connecting a third-party service, you authorize Markaestro to access, store, refresh, and use credentials and related data as needed to provide the requested functionality within the permissions you grant.
           </p>
           <p className="mt-2">
-            You remain responsible for complying with the third party&apos;s terms, policies, technical requirements, publishing rules, and account restrictions. Markaestro is not responsible for API changes, service outages, account suspensions, content moderation decisions, rejected ads, revoked tokens, or third-party platform actions.
+            You remain responsible for complying with the third party&apos;s terms, policies, technical requirements, publishing rules, and account restrictions. Markaestro is not responsible for API changes, service outages, account suspensions, content moderation decisions, rejected posts, revoked tokens, or third-party platform actions.
           </p>
         </section>
 
@@ -99,7 +99,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-foreground">9. Uploads and Public Content</h2>
           <p className="mt-3">
-            Some files or generated assets uploaded through Markaestro may be stored using publicly reachable cloud URLs so they can be used in ads, social posts, or creative workflows. You must not upload any file or content unless you are authorized to make it available in that way. You acknowledge that content published through third-party platforms may become public and subject to those platforms&apos; terms and visibility settings.
+            Some files or generated assets uploaded through Markaestro may be stored using publicly reachable cloud URLs so they can be used in social posts or creative workflows. You must not upload any file or content unless you are authorized to make it available in that way. You acknowledge that content published through third-party platforms may become public and subject to those platforms&apos; terms and visibility settings.
           </p>
         </section>
 

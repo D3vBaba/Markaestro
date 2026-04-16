@@ -26,42 +26,6 @@ type OAuthState = {
   returnTo?: string;
 };
 
-async function fetchTikTokAdsAdvertiserIds(
-  accessToken: string,
-  appId: string,
-  secret: string,
-): Promise<string[]> {
-  const qs = new URLSearchParams({
-    app_id: appId,
-    secret,
-    access_token: accessToken,
-  });
-
-  const res = await fetch(
-    `https://business-api.tiktok.com/open_api/v1.3/oauth2/advertiser/get/?${qs.toString()}`,
-    {
-      headers: {
-        'Access-Token': accessToken,
-      },
-    },
-  );
-
-  const data = await res.json();
-  if (data.code !== 0) {
-    return [];
-  }
-
-  const list = Array.isArray(data.data?.list) ? data.data.list : [];
-  return list
-    .map((item: unknown) => {
-      if (typeof item === 'string') return item;
-      if (!item || typeof item !== 'object') return '';
-      const advertiserId = (item as Record<string, unknown>).advertiser_id;
-      return typeof advertiserId === 'string' ? advertiserId : '';
-    })
-    .filter(Boolean);
-}
-
 /**
  * Generate an OAuth authorization URL and store state in Firestore.
  */
@@ -89,20 +53,6 @@ export async function generateAuthUrl(
     ...(productId ? { productId } : {}),
     ...(returnTo ? { returnTo } : {}),
   };
-
-  // TikTok Marketing API uses a different auth format
-  // app_id is the numeric App ID, not the client key
-  if (provider === 'tiktok_ads') {
-    const tiktokAdsAppId = process.env.TIKTOK_ADS_APP_ID || '';
-    if (!tiktokAdsAppId) throw new Error('TIKTOK_ADS_APP_ID not configured');
-    await adminDb.doc(`oauth_states/${stateId}`).set(stateDoc);
-    const params = new URLSearchParams({
-      app_id: tiktokAdsAppId,
-      redirect_uri: redirectUri,
-      state: stateId,
-    });
-    return `${config.authUrl}?${params.toString()}`;
-  }
 
   const clientIdParam = config.clientIdParam || 'client_id';
   const authParams: Record<string, string> = {
@@ -164,51 +114,6 @@ export async function exchangeCode(
   const config = getProviderConfig(provider);
   const { clientId, clientSecret } = getClientCredentials(provider);
   const redirectUri = getRedirectUri(provider);
-
-  // TikTok Marketing API uses a JSON body with different field names
-  if (provider === 'tiktok_ads') {
-    const tiktokAdsAppId = process.env.TIKTOK_ADS_APP_ID || '';
-    const res = await fetch(config.tokenUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        app_id: tiktokAdsAppId,
-        secret: clientSecret,
-        auth_code: code,
-      }),
-    });
-    const data = await res.json();
-
-    if (data.code !== 0 || !data.data?.access_token) {
-      throw new Error(`TikTok Ads token exchange failed: ${data.message || 'Unknown error'}`);
-    }
-
-    const tokens: OAuthTokens = {
-      accessToken: data.data.access_token,
-      expiresIn: data.data.expires_in ? Number(data.data.expires_in) : undefined,
-    };
-
-    const advertiserIdsFromExchange = Array.isArray(data.data.advertiser_ids)
-      ? data.data.advertiser_ids.map((id: unknown) => String(id)).filter(Boolean)
-      : [];
-    const advertiserIds =
-      advertiserIdsFromExchange.length > 0
-        ? advertiserIdsFromExchange
-        : await fetchTikTokAdsAdvertiserIds(tokens.accessToken, tiktokAdsAppId, clientSecret);
-
-    return {
-      tokens,
-      workspaceId: state.workspaceId,
-      userId: state.userId,
-      productId: state.productId,
-      returnTo: state.returnTo,
-      extraData: {
-        advertiserId: advertiserIds[0] || '',
-        advertiserIds,
-        advertiserAccessRequired: advertiserIds.length === 0,
-      },
-    };
-  }
 
   const body: Record<string, string> = {
     code,
@@ -345,7 +250,7 @@ export async function revokeAccessToken(
   try {
     if (provider === 'meta') {
       await fetch(`${config.revokeUrl}?access_token=${accessToken}`, { method: 'DELETE' });
-    } else if (provider === 'tiktok' || provider === 'tiktok_ads') {
+    } else if (provider === 'tiktok') {
       const { clientId, clientSecret } = getClientCredentials(provider);
       await fetch(config.revokeUrl, {
         method: 'POST',
@@ -431,11 +336,6 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
       return {
         channels: ['tiktok'],
         capabilities: [PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_VIDEO],
-      };
-    case 'tiktok_ads':
-      return {
-        channels: [],
-        capabilities: [PlatformCapability.ADS],
       };
   }
 }

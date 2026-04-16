@@ -32,10 +32,10 @@ export const contactStatuses = ['active', 'pending', 'bounced', 'unsubscribed'] 
 export const contactLifecycleStages = ['lead', 'trial', 'customer', 'churned', 'advocate'] as const;
 export const contactSources = ['organic', 'paid', 'referral', 'social', 'email', 'direct', 'other'] as const;
 export const triggerTypes = ['manual', 'event', 'schedule', 'segment'] as const;
-export const jobTypes = ['sync_contacts', 'generate_content', 'publish_post', 'create_ad_campaign', 'refresh_tokens', 'sync_ad_metrics'] as const;
+export const jobTypes = ['sync_contacts', 'generate_content', 'publish_post', 'refresh_tokens'] as const;
 export const jobSchedules = ['manual', 'daily'] as const;
-export const integrationProviders = ['facebook', 'instagram', 'meta', 'tiktok', 'tiktok_ads'] as const;
-export const oauthProviders = ['meta', 'instagram', 'tiktok', 'tiktok_ads'] as const;
+export const integrationProviders = ['facebook', 'instagram', 'meta', 'tiktok'] as const;
+export const oauthProviders = ['meta', 'instagram', 'tiktok'] as const;
 export const workspaceRoles = ['owner', 'admin', 'member', 'analyst'] as const;
 
 // ── Pipeline Enums ────────────────────────────────────────────────
@@ -370,7 +370,6 @@ export const updateProductSchema = z.object({
 
 export const metaIntegrationSchema = z.object({
   accessToken: z.string().trim().min(1, 'Access token is required'),
-  adAccountId: optionalString,
   pageId: optionalString,
   igAccountId: optionalString,
   enabled: z.boolean().default(true),
@@ -490,64 +489,6 @@ export const generateImageSchema = z.object({
   count: z.number().int().min(1).max(6).default(1),
 });
 
-// ── Ad Campaign Schemas ───────────────────────────────────────────
-
-export const adPlatforms = ['meta', 'tiktok'] as const;
-export const adCampaignStatuses = ['draft', 'pending', 'active', 'paused', 'completed', 'failed'] as const;
-export const adCampaignObjectives = ['awareness', 'traffic', 'engagement', 'leads', 'conversions', 'app_installs'] as const;
-
-export const adTargetingSchema = z.object({
-  ageMin: z.number().int().min(13).max(65).default(18),
-  ageMax: z.number().int().min(13).max(65).default(65),
-  gender: z.enum(['all', 'male', 'female']).default('all'),
-  locations: z.array(z.string().trim().min(1).max(200)).max(50).default([]),
-  interests: z.array(z.string().trim().min(1).max(200)).max(50).default([]),
-  languages: z.array(z.string().trim().max(10)).max(20).default([]),
-  devices: z.enum(['all', 'mobile', 'desktop']).default('all'),
-  placements: z.enum(['automatic', 'manual']).default('automatic'),
-  keywords: z.array(z.string().trim().max(200)).max(100).default([]),
-});
-
-export const adCreativeSchema = z.object({
-  headline: z.string().trim().min(1, 'Headline is required').max(255),
-  primaryText: z.string().trim().min(1, 'Primary text is required').max(2000),
-  description: z.string().trim().max(500).default(''),
-  imageUrl: z.string().trim().url('Invalid image URL').or(z.literal('')).default(''),
-  /** Additional images for carousel/multi-image ad creatives (max 10). When present with 2+ entries, builds a carousel ad. */
-  imageUrls: z.array(z.string().url()).max(10).default([]),
-  videoUrl: z.string().trim().url('Invalid video URL').or(z.literal('')).default(''),
-  linkUrl: z.string().trim().url('Invalid link URL').or(z.literal('')).default(''),
-  ctaType: z.string().trim().max(50).default(''),
-  additionalHeadlines: z.array(z.string().trim().max(30)).max(14).default([]),
-  additionalDescriptions: z.array(z.string().trim().max(90)).max(3).default([]),
-});
-
-export const createAdCampaignSchema = z.object({
-  name: nameSchema,
-  platform: z.enum(adPlatforms),
-  objective: z.enum(adCampaignObjectives).default('traffic'),
-  dailyBudgetCents: z.number().int().min(100, 'Minimum budget is $1.00'),
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime().nullable().optional(),
-  targeting: adTargetingSchema.optional(),
-  creative: adCreativeSchema,
-  productId: optionalString,
-});
-
-export const updateAdCampaignSchema = z.object({
-  name: nameSchema.optional(),
-  platform: z.enum(adPlatforms).optional(),
-  objective: z.enum(adCampaignObjectives).optional(),
-  dailyBudgetCents: z.number().int().min(100).optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().nullable().optional(),
-  targeting: adTargetingSchema.optional(),
-  creative: adCreativeSchema.optional(),
-  productId: optionalString.optional(),
-  status: z.enum(adCampaignStatuses).optional(),
-  adAccountId: z.string().trim().max(100).optional(), // Meta: act_XXXXXXXXX
-});
-
 // ── Post Schemas ──────────────────────────────────────────────────
 
 export const createPostSchema = z.object({
@@ -631,13 +572,6 @@ export type ImageSubtype = (typeof imageSubtypes)[number];
 export type ImageAspectRatio = (typeof imageAspectRatios)[number];
 export type ImageProvider = (typeof imageProviders)[number];
 export type GenerateImage = z.infer<typeof generateImageSchema>;
-export type AdPlatform = (typeof adPlatforms)[number];
-export type AdCampaignStatus = (typeof adCampaignStatuses)[number];
-export type AdCampaignObjective = (typeof adCampaignObjectives)[number];
-export type CreateAdCampaign = z.infer<typeof createAdCampaignSchema>;
-export type UpdateAdCampaign = z.infer<typeof updateAdCampaignSchema>;
-export type AdTargeting = z.infer<typeof adTargetingSchema>;
-export type AdCreative = z.infer<typeof adCreativeSchema>;
 export type JobType = (typeof jobTypes)[number];
 export type CampaignType = (typeof campaignTypes)[number];
 export type PipelineStage = (typeof pipelineStages)[number];

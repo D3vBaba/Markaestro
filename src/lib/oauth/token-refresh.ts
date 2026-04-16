@@ -164,8 +164,8 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
     const metaRef = getConnectionRef(workspaceId, 'meta');
     await refreshConnectionDoc(metaRef, 'meta', result, { workspaceId });
 
-    // Product-level: instagram + tiktok + tiktok_ads (Meta is workspace-level)
-    const socialProviders: OAuthProvider[] = ['instagram', 'tiktok', 'tiktok_ads'];
+    // Product-level: instagram + tiktok (Meta is workspace-level)
+    const socialProviders: OAuthProvider[] = ['instagram', 'tiktok'];
     const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
 
     for (const productDoc of productDocs) {

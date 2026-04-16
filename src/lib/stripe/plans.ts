@@ -16,7 +16,6 @@ export type PlanConfig = {
     workspaces: number;    // -1 = unlimited
   };
   gated: {
-    ads: boolean;
     advancedAnalytics: boolean;
     approvalWorkflows: boolean;
     smartScheduling: boolean;
@@ -49,7 +48,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: 1,
     },
     gated: {
-      ads: false,
       advancedAnalytics: false,
       approvalWorkflows: false,
       smartScheduling: false,
@@ -60,7 +58,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
   pro: {
     tier: 'pro',
     name: 'Pro',
-    description: 'For growing teams that need ad management, AI, and collaboration.',
+    description: 'For growing teams that need AI, analytics, and collaboration.',
     price: { monthly: 69, annual: 57 },
     highlighted: true,
     badge: 'Most Popular',
@@ -69,7 +67,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       'Unlimited posts',
       '250 AI generations / month (text & images)',
       '5 team members',
-      'Ad campaign management (Meta, TikTok)',
       'Advanced analytics & AI insights',
       '5 workspaces',
       'Brand voice + brand identity',
@@ -84,7 +81,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: 5,
     },
     gated: {
-      ads: true,
       advancedAnalytics: true,
       approvalWorkflows: true,
       smartScheduling: true,
@@ -114,7 +110,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: -1,
     },
     gated: {
-      ads: true,
       advancedAnalytics: true,
       approvalWorkflows: true,
       smartScheduling: true,
@@ -148,10 +143,8 @@ export const COMPARISON_CATEGORIES = [
     ],
   },
   {
-    name: 'Advertising',
+    name: 'Analytics',
     features: [
-      { name: 'Meta Ads', starter: false, pro: true, business: true },
-      { name: 'TikTok Ads', starter: false, pro: true, business: true },
       { name: 'Advanced analytics & AI insights', starter: false, pro: true, business: true },
     ],
   },

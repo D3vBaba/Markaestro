@@ -78,7 +78,6 @@ const platformBadgeColors: Record<string, string> = {
   instagram: "bg-pink-50 text-pink-700",
   tiktok: "bg-zinc-100 text-zinc-800",
   "cross-platform": "bg-violet-50 text-violet-700",
-  ads: "bg-emerald-50 text-emerald-700",
 };
 
 

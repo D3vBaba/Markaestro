@@ -8,7 +8,7 @@ import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 
 const ALLOWED = new Set<string>(oauthProviders);
-const SOCIAL_PROVIDERS = new Set(['instagram', 'tiktok', 'tiktok_ads']);
+const SOCIAL_PROVIDERS = new Set(['instagram', 'tiktok']);
 
 function getFallbackPath(productId?: string, returnTo?: string) {
   if (productId) return '/products';

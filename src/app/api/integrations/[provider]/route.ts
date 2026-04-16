@@ -7,7 +7,7 @@ import { saveConnection } from '@/lib/platform/connections';
 import { ConnectionStatus } from '@/lib/platform/types';
 
 const ALLOWED = new Set(integrationProviders);
-const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'tiktok', 'tiktok_ads', 'facebook', 'instagram']);
+const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'tiktok', 'facebook', 'instagram']);
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
@@ -32,7 +32,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     if (provider === 'facebook' || provider === 'instagram' || provider === 'meta') {
       const data = metaIntegrationSchema.parse(body);
       accessTokenEncrypted = encrypt(data.accessToken);
-      if (data.adAccountId) metadata.adAccountId = data.adAccountId;
       if (data.pageId) metadata.pageId = data.pageId;
       if (data.igAccountId) metadata.igAccountId = data.igAccountId;
     } else {

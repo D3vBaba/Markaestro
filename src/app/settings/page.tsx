@@ -610,7 +610,7 @@ function IntegrationsTab() {
     <div className="grid gap-5">
       <IntegrationCard
         title="Meta (Facebook + Instagram)"
-        description="Publish posts and run ad campaigns on Facebook and Instagram."
+        description="Publish posts to Facebook and Instagram."
         connected={isConnected("meta")}
         needsReconnect={needsReconnect("meta")}
         reconnectNote="Your Meta connection needs to be refreshed"
@@ -631,7 +631,7 @@ function IntegrationsTab() {
       />
 
       <p className="text-xs text-muted-foreground">
-        TikTok and TikTok Ads integrations are set up per product on the{" "}
+        TikTok integrations are set up per product on the{" "}
         <a href="/products" className="text-primary hover:underline">Products page</a>.
       </p>
 

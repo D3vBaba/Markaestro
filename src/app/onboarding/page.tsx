@@ -41,7 +41,6 @@ const TEAM_SIZES = [
 const GOALS = [
   { id: "social", label: "Grow social following", desc: "Build audience and engagement" },
   { id: "sales", label: "Drive more sales", desc: "Convert leads into customers" },
-  { id: "ads", label: "Manage ad campaigns", desc: "Optimise paid acquisition" },
   { id: "time", label: "Save time on content", desc: "Automate repetitive tasks" },
 ];
 
@@ -64,9 +63,9 @@ const SOCIAL_PROVIDERS = [
 
 // ─── Plan recommender ─────────────────────────────────────────────────────────
 
-function recommendPlan(role: string, teamSize: string, goal: string): PlanTier {
+function recommendPlan(role: string, teamSize: string): PlanTier {
   if (role === "agency" || teamSize === "large" || teamSize === "medium") return "business";
-  if (goal === "ads" || teamSize === "small" || role === "marketer") return "pro";
+  if (teamSize === "small" || role === "marketer") return "pro";
   return "starter";
 }
 
@@ -404,10 +403,10 @@ export default function OnboardingPage() {
   // ─── Auto-recommend plan ─────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (role && teamSize && goal) {
-      setSelectedTier(recommendPlan(role, teamSize, goal));
+    if (role && teamSize) {
+      setSelectedTier(recommendPlan(role, teamSize));
     }
-  }, [role, teamSize, goal]);
+  }, [role, teamSize]);
 
   if (authLoading || subLoading || onboardingLoading || !user) {
     return (
