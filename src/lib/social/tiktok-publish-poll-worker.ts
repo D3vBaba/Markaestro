@@ -141,6 +141,24 @@ export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollRes
           continue;
         }
 
+        // MEDIA_UPLOAD mode always terminates at SEND_TO_USER_INBOX — the
+        // creator finalizes caption/privacy and posts from the TikTok app.
+        if (status.status === 'SEND_TO_USER_INBOX') {
+          const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
+          const summary = summarizePublishResults(nextPublishResults);
+          const now = new Date().toISOString();
+          await doc.ref.update({
+            status: 'exported_for_review',
+            nextAction: 'open_tiktok_inbox_and_complete_editing',
+            exportedForReviewAt: now,
+            publishResults: nextPublishResults,
+            publishedChannels: summary.publishedChannels,
+            updatedAt: now,
+          });
+          result.completed++;
+          continue;
+        }
+
         if (status.status === 'FAILED') {
           const error = `TikTok publish failed: ${status.failReason || 'Unknown TikTok failure'}`;
           const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'failed', error);

@@ -124,8 +124,7 @@ async function waitForTikTokPublishResult(
 async function uploadVideoFileToTikTok(
   accessToken: string,
   mediaUrl: string,
-  title: string,
-): Promise<{ publishId?: string; pending?: boolean; error?: string }> {
+): Promise<{ publishId?: string; pending?: boolean; reviewRequired?: boolean; error?: string }> {
   const mediaRes = await fetchWithRetry(mediaUrl);
   if (!mediaRes.ok) {
     return { error: `Could not download media file (${mediaRes.status})` };
@@ -135,20 +134,17 @@ async function uploadVideoFileToTikTok(
   const mediaBuffer = Buffer.from(await mediaRes.arrayBuffer());
   const { chunkSize, totalChunkCount } = chooseChunkPlan(mediaBuffer.length);
 
-  const initRes = await fetchWithRetry(`${TIKTOK_API}/post/publish/video/init/`, {
+  // Use the inbox endpoint (video.upload scope) so the video lands as a draft
+  // in the user's TikTok inbox. Direct video post requires video.publish +
+  // audit approval, which this app doesn't have. post_info is not accepted
+  // by the inbox endpoint — the user sets title/privacy in the TikTok app.
+  const initRes = await fetchWithRetry(`${TIKTOK_API}/post/publish/inbox/video/init/`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: JSON.stringify({
-      post_info: {
-        title,
-        privacy_level: 'SELF_ONLY',
-        disable_duet: false,
-        disable_comment: false,
-        disable_stitch: false,
-      },
       source_info: {
         source: 'FILE_UPLOAD',
         video_size: mediaBuffer.length,
@@ -201,7 +197,7 @@ async function uploadVideoFileToTikTok(
     return { publishId, pending: true };
   }
 
-  return { publishId };
+  return { publishId, reviewRequired: publishResult.reviewRequired };
 }
 
 export const tiktokPublishingAdapter: PlatformAdapter = {
@@ -228,25 +224,24 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
 
     try {
       if (isVideo) {
-        const result = await uploadVideoFileToTikTok(
-          accessToken,
-          mediaUrl,
-          request.content.substring(0, 90),
-        );
+        const result = await uploadVideoFileToTikTok(accessToken, mediaUrl);
         if (result.error) {
           return { success: false, error: `TikTok publish failed: ${result.error}` };
         }
         return {
           success: !result.pending,
           pending: result.pending,
+          reviewRequired: result.reviewRequired,
           externalId: result.publishId || '',
+          nextAction: result.reviewRequired ? 'open_tiktok_inbox_and_complete_editing' : undefined,
         };
       }
 
-      // TikTok photo posts only support PULL_FROM_URL (not FILE_UPLOAD).
-      // The URL must be on a verified domain, so we proxy Firebase Storage
-      // URLs through our own domain via /api/media/proxy.
-      // Pass ALL image URLs for carousel/slideshow posts (TikTok supports up to 35).
+      // Photo carousel path uses MEDIA_UPLOAD (video.upload scope). Content
+      // lands in the user's TikTok inbox; they finalize caption/privacy and
+      // post from the app. Direct Post requires a separate audit approval.
+      // PULL_FROM_URL still requires a verified domain, so Firebase URLs are
+      // proxied through our own domain via /api/media/proxy.
       const appUrl = process.env.OAUTH_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || '';
       const imageUrls = (request.mediaUrls || []).filter((u) => !isVideoUrl(u));
       const proxyUrls = imageUrls.map(
@@ -257,18 +252,13 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         post_info: {
           title: request.content.substring(0, 90),
           description: request.content.substring(0, 4000),
-          disable_comment: false,
-          privacy_level: 'SELF_ONLY',
-          auto_add_music: true,
         },
         source_info: {
           source: 'PULL_FROM_URL',
-          // Use the caller-supplied cover index (from slideshowCoverIndex on
-          // slideshow-backed posts). Falls back to 0 for single-image posts.
           photo_cover_index: request.photoCoverIndex ?? 0,
           photo_images: proxyUrls,
         },
-        post_mode: request.deliveryMode === 'user_review' ? 'MEDIA_UPLOAD' : 'DIRECT_POST',
+        post_mode: 'MEDIA_UPLOAD',
         media_type: 'PHOTO',
       };
 
