@@ -21,7 +21,15 @@ function parseTikTokError(data: Record<string, unknown>): string | undefined {
   const err = data.error as Record<string, unknown> | undefined;
   if (!err) return undefined;
   if (err.code === 'ok') return undefined;
-  return (err.message as string) || (err.code as string) || 'Unknown TikTok error';
+  const code = err.code as string | undefined;
+  const message = err.message as string | undefined;
+  const logId = err.log_id as string | undefined;
+  // TikTok's policy errors are intentionally vague; surface the error code and
+  // log_id in the returned message so we can diagnose specific failures.
+  const parts = [message || 'Unknown TikTok error'];
+  if (code && code !== 'ok') parts.push(`code=${code}`);
+  if (logId) parts.push(`log_id=${logId}`);
+  return parts.join(' | ');
 }
 
 function isVideoUrl(url: string): boolean {
