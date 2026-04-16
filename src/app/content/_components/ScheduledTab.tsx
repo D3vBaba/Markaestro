@@ -78,11 +78,11 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
       if (res.data.status === "publishing" || res.data.pending) {
         toast.success(
           hasTikTok
-            ? "TikTok accepted the upload. It can take a minute to appear, and Direct Post will not create an inbox draft."
+            ? "Sending to TikTok. When it's ready, open the TikTok app's inbox to finish the caption and post."
             : "Post submitted and still processing.",
         );
       } else if (hasTikTok) {
-        toast.success("TikTok posted. Check the connected account's private posts, not drafts or inbox notifications.");
+        toast.success("Sent to TikTok as a draft. Open the TikTok app's inbox, finish the caption, and tap Post.");
       } else {
         toast.success("Posted!");
       }

@@ -30,6 +30,7 @@ const statusDotColors: Record<string, string> = {
   published: "bg-emerald-500",
   failed: "bg-red-500",
   publishing: "bg-blue-400",
+  exported_for_review: "bg-violet-500",
 };
 
 const statusTextColors: Record<string, string> = {
@@ -37,6 +38,11 @@ const statusTextColors: Record<string, string> = {
   published: "text-emerald-600",
   scheduled: "text-amber-600",
   publishing: "text-blue-500",
+  exported_for_review: "text-violet-600",
+};
+
+const statusLabels: Record<string, string> = {
+  exported_for_review: "In TikTok inbox",
 };
 
 // Shared pill button style
@@ -113,7 +119,7 @@ export default function PostCard({
           <span
             className={`text-[10px] uppercase tracking-wider font-medium ${statusTextColors[displayStatus] || "text-muted-foreground"}`}
           >
-            {displayStatus}
+            {statusLabels[displayStatus] || displayStatus}
           </span>
         </div>
       </div>

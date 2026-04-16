@@ -113,6 +113,13 @@ export default function ScheduleSheet({
           <SheetDescription>Pick a date and time, or use AI-suggested optimal slots.</SheetDescription>
         </SheetHeader>
 
+        {channel === "tiktok" && (
+          <div className="mx-6 mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <span className="font-medium">TikTok drafts only.</span>{" "}
+            At the scheduled time, this is delivered to your TikTok inbox as a draft. Open the TikTok app to finish the caption and tap Post — auto-posting to the feed requires a TikTok Direct Post audit that we don&apos;t have yet.
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
           {/* Smart Scheduling Suggestions */}
           {smartSlots.length > 0 && (

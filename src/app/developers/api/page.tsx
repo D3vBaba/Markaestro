@@ -92,7 +92,7 @@ export default function DevelopersApiPage() {
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
             Upload images, create posts, publish directly to Meta, publish to standalone Instagram professional accounts with Instagram Login,
-            and export TikTok carousels into the creator review flow.
+            and deliver TikTok content as drafts to the creator&apos;s TikTok inbox for final completion.
             Public API v1 is workspace-scoped, image-only, capped at 10 images per post, and designed for async automation.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">

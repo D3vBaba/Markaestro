@@ -1334,9 +1334,9 @@ function ApiAccessTab() {
               </p>
             </div>
             <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">TikTok review flow</p>
+              <p className="text-sm font-medium">TikTok inbox drafts</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                TikTok exports to the user’s draft/edit flow. Meta publishes directly.
+                TikTok content is delivered to the creator&apos;s TikTok inbox as a draft. The creator opens the TikTok app to finalize and post. Meta publishes directly.
               </p>
             </div>
           </div>
@@ -1358,7 +1358,7 @@ function ApiAccessTab() {
                 {(analyticsTotals.publishSucceeded + analyticsTotals.publishExportedForReview).toLocaleString()}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {analyticsTotals.publishSucceeded.toLocaleString()} direct publish · {analyticsTotals.publishExportedForReview.toLocaleString()} TikTok review exports
+                {analyticsTotals.publishSucceeded.toLocaleString()} direct publish · {analyticsTotals.publishExportedForReview.toLocaleString()} TikTok inbox drafts
               </p>
             </div>
             <div className="rounded-xl border p-4">
@@ -1422,7 +1422,7 @@ function ApiAccessTab() {
                             <div className="space-y-1 text-xs text-muted-foreground">
                               <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString()}</span> queued</p>
                               <p><span className="font-medium text-emerald-700 tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString()}</span> direct publish</p>
-                              <p><span className="font-medium text-primary tabular-nums">{(client.usage.currentMonthCounts.publish_exported_for_review || 0).toLocaleString()}</span> TikTok review exports</p>
+                              <p><span className="font-medium text-primary tabular-nums">{(client.usage.currentMonthCounts.publish_exported_for_review || 0).toLocaleString()}</span> TikTok inbox drafts</p>
                               <p><span className="font-medium text-rose-600 tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString()}</span> failed</p>
                             </div>
                           </TableCell>
@@ -1576,7 +1576,7 @@ function ApiAccessTab() {
           <div className="rounded-xl border p-4">
             <p className="text-sm font-medium">TikTok drafts need user completion</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              TikTok image posts export into the creator review flow, so final publish still happens inside TikTok.
+              TikTok posts are delivered as drafts to the creator&apos;s TikTok inbox. The creator opens the TikTok app to finalize caption and privacy, then taps Post. Scheduling delivers the draft at the chosen time; it does not auto-post to the feed.
             </p>
           </div>
         </CardContent>
