@@ -308,7 +308,7 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
     const accessToken = getAccessToken(connection);
     try {
       const res = await fetchWithRetry(
-        `${TIKTOK_API}/user/info/?fields=follower_count,video_count`,
+        `${TIKTOK_API}/user/info/?fields=open_id,display_name,avatar_url`,
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
 
