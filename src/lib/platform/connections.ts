@@ -258,5 +258,7 @@ function channelToProviders(channel: SocialChannel, preferredProvider?: string):
       return prioritize(['meta', 'instagram']);
     case 'tiktok':
       return prioritize(['tiktok']);
+    case 'linkedin':
+      return prioritize(['linkedin']);
   }
 }

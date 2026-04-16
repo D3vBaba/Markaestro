@@ -58,6 +58,25 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     clientIdParam: 'client_key',
     extraAuthParams: {},
   },
+  linkedin: {
+    authUrl: 'https://www.linkedin.com/oauth/v2/authorization',
+    tokenUrl: 'https://www.linkedin.com/oauth/v2/accessToken',
+    // openid/profile/email come from the Sign In with LinkedIn using OpenID Connect product,
+    // and are used here solely to obtain the member's Person URN via /v2/userinfo.
+    // w_member_social comes from the Share on LinkedIn product and authorizes posting.
+    // Organization posting (w_organization_social, r_organization_social) requires the
+    // Community Management API product, which is review-gated — add those scopes here
+    // once the app is approved.
+    scopes: [
+      'openid',
+      'profile',
+      'email',
+      'w_member_social',
+    ],
+    clientIdEnv: 'LINKEDIN_CLIENT_ID',
+    clientSecretEnv: 'LINKEDIN_CLIENT_SECRET',
+    extraAuthParams: {},
+  },
 };
 
 export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig {
@@ -68,6 +87,7 @@ const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   meta: 'META_OAUTH_REDIRECT_URI',
   instagram: 'INSTAGRAM_OAUTH_REDIRECT_URI',
   tiktok: 'TIKTOK_OAUTH_REDIRECT_URI',
+  linkedin: 'LINKEDIN_OAUTH_REDIRECT_URI',
 };
 
 export function getAppUrl(): string {

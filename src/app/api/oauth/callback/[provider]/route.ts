@@ -38,6 +38,28 @@ async function exchangeInstagramToken(tokens: {
   };
 }
 
+async function fetchLinkedInProfile(accessToken: string) {
+  // OIDC userinfo endpoint — returns `sub` (LinkedIn member ID), name, email.
+  // The `sub` value is the Person URN suffix: urn:li:person:{sub}.
+  const res = await fetch('https://api.linkedin.com/v2/userinfo', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const data = await res.json();
+
+  if (!res.ok || !data.sub) {
+    throw new Error(
+      `LinkedIn profile fetch failed: ${data.error_description || data.error || data.message || 'Unknown error'}`,
+    );
+  }
+
+  return {
+    personId: String(data.sub),
+    displayName: typeof data.name === 'string' ? data.name : '',
+    email: typeof data.email === 'string' ? data.email : '',
+    pictureUrl: typeof data.picture === 'string' ? data.picture : '',
+  };
+}
+
 async function fetchInstagramProfile(accessToken: string) {
   const res = await fetch(
     `${INSTAGRAM_GRAPH_API}/me?${new URLSearchParams({
@@ -216,6 +238,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       if (tokens.openId) {
         extraData.openId = tokens.openId;
       }
+    }
+
+    if (provider === 'linkedin') {
+      // LinkedIn doesn't return the person URN in the token response — fetch it via
+      // OIDC userinfo. The `sub` field becomes urn:li:person:{sub}, which we use as
+      // the `author` when publishing via /rest/posts.
+      const profile = await fetchLinkedInProfile(tokens.accessToken);
+      extraData.authorType = 'person';
+      extraData.authorUrn = `urn:li:person:${profile.personId}`;
+      extraData.personId = profile.personId;
+      extraData.displayName = profile.displayName || 'LinkedIn';
+      if (profile.email) extraData.email = profile.email;
+      if (profile.pictureUrl) extraData.pictureUrl = profile.pictureUrl;
     }
 
     // Meta: store user token at workspace level (not per-product)

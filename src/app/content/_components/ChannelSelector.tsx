@@ -20,6 +20,7 @@ const channels = [
   { value: "facebook", label: "Facebook" },
   { value: "instagram", label: "Instagram" },
   { value: "tiktok", label: "TikTok" },
+  { value: "linkedin", label: "LinkedIn" },
 ] as const;
 
 // Brand colors per channel for the active state border
@@ -27,12 +28,14 @@ const channelColors: Record<string, { active: string; dot: string }> = {
   facebook: { active: "border-[#1877F2] bg-[#1877F2] text-white", dot: "" },
   instagram: { active: "border-[#E1306C] bg-[#E1306C] text-white", dot: "" },
   tiktok:    { active: "border-[#EE1D52] bg-[#EE1D52] text-white", dot: "" },
+  linkedin:  { active: "border-[#0A66C2] bg-[#0A66C2] text-white", dot: "" },
 };
 
 const setupHintPrefix: Record<string, string> = {
   facebook: "Connect Meta and select a Facebook page in",
   instagram: "Connect Meta with a linked Instagram business account or connect Instagram directly in",
   tiktok: "Connect TikTok in",
+  linkedin: "Connect LinkedIn in",
 };
 
 // Simple SVG icons for each platform
@@ -55,6 +58,13 @@ function ChannelIcon({ channel, size = 14 }: { channel: string; size?: number })
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
         <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z" />
+      </svg>
+    );
+  }
+  if (channel === "linkedin") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.852 3.37-1.852 3.602 0 4.267 2.37 4.267 5.455v6.288zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
       </svg>
     );
   }
@@ -112,7 +122,7 @@ export default function ChannelSelector({
   return (
     <div className="space-y-3">
       <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Channel</label>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {channels.map((ch) => {
           const state = channelState(ch.value);
           const selected = value === ch.value;

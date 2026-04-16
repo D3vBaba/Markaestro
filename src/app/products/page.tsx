@@ -98,11 +98,12 @@ const categoryLabels: Record<string, string> = {
   other: "Other",
 };
 
-const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok"] as const;
+const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok", "linkedin"] as const;
 const providerLabels: Record<string, string> = {
   meta: "Meta (Facebook + Instagram)",
   instagram: "Instagram (direct login)",
   tiktok: "TikTok",
+  linkedin: "LinkedIn",
 };
 
 function getScopedSocialIntegrations(integrations: IntegrationInfo[]) {
@@ -1143,6 +1144,42 @@ export default function ProductsPage() {
                           </Button>
                         ) : (
                           <Button size="sm" className="w-full sm:w-auto" onClick={() => startOAuth("tiktok", editProductId)}>Connect</Button>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {(() => {
+                    const integ = getProviderIntegration("linkedin");
+                    const connected = integ?.status === "connected";
+                    const needsReconnect = integ?.status === "expired" || !!integ?.lastRefreshError;
+
+                    return (
+                      <div className="rounded-xl border p-3 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-medium">{providerLabels.linkedin}</p>
+                          {connected && !needsReconnect && (
+                            <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px]">Connected</Badge>
+                          )}
+                          {needsReconnect && (
+                            <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px]">Reconnect</Badge>
+                          )}
+                        </div>
+
+                        {connected && integ?.tokenExpiresAt && (
+                          <p className="text-xs text-muted-foreground pl-1">
+                            Token expires: {new Date(integ.tokenExpiresAt).toLocaleDateString()} — LinkedIn requires re-auth every 60 days
+                          </p>
+                        )}
+
+                        {connected && !needsReconnect ? (
+                          <Button variant="destructive" size="sm" className="w-full sm:w-auto" onClick={() => setDisconnectTarget({ provider: "linkedin", productId: editProductId!, label: providerLabels.linkedin })} disabled={disconnecting === "linkedin"}>
+                            {disconnecting === "linkedin" ? "..." : "Disconnect"}
+                          </Button>
+                        ) : (
+                          <Button size="sm" className="w-full sm:w-auto" onClick={() => startOAuth("linkedin", editProductId)}>
+                            {needsReconnect ? "Reconnect" : "Connect"}
+                          </Button>
                         )}
                       </div>
                     );

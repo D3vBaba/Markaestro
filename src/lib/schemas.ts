@@ -26,7 +26,7 @@ export const tagsSchema = z
 
 export const campaignChannels = ['tiktok', 'facebook', 'instagram', 'sms'] as const;
 export const campaignStatuses = ['draft', 'scheduled', 'active', 'paused', 'completed', 'cancelled'] as const;
-export const socialChannels = ['facebook', 'instagram', 'tiktok'] as const;
+export const socialChannels = ['facebook', 'instagram', 'tiktok', 'linkedin'] as const;
 export const postStatuses = ['draft', 'scheduled', 'publishing', 'published', 'exported_for_review', 'failed'] as const;
 export const contactStatuses = ['active', 'pending', 'bounced', 'unsubscribed'] as const;
 export const contactLifecycleStages = ['lead', 'trial', 'customer', 'churned', 'advocate'] as const;
@@ -34,8 +34,8 @@ export const contactSources = ['organic', 'paid', 'referral', 'social', 'email',
 export const triggerTypes = ['manual', 'event', 'schedule', 'segment'] as const;
 export const jobTypes = ['sync_contacts', 'generate_content', 'publish_post', 'refresh_tokens'] as const;
 export const jobSchedules = ['manual', 'daily'] as const;
-export const integrationProviders = ['facebook', 'instagram', 'meta', 'tiktok'] as const;
-export const oauthProviders = ['meta', 'instagram', 'tiktok'] as const;
+export const integrationProviders = ['facebook', 'instagram', 'meta', 'tiktok', 'linkedin'] as const;
+export const oauthProviders = ['meta', 'instagram', 'tiktok', 'linkedin'] as const;
 export const workspaceRoles = ['owner', 'admin', 'member', 'analyst'] as const;
 
 // ── Pipeline Enums ────────────────────────────────────────────────

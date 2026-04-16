@@ -60,6 +60,10 @@ env:
     value: https://markaestro.com/api/oauth/callback/instagram
     availability:
       - RUNTIME
+  - variable: LINKEDIN_OAUTH_REDIRECT_URI
+    value: https://markaestro.com/api/oauth/callback/linkedin
+    availability:
+      - RUNTIME
 
   # Stripe — price IDs are public identifiers (same as .env.local)
   - variable: STRIPE_PRICE_STARTER_MONTHLY
@@ -140,3 +144,7 @@ env:
     secret: TIKTOK_ADS_CLIENT_KEY
   - variable: TIKTOK_ADS_CLIENT_SECRET
     secret: TIKTOK_ADS_CLIENT_SECRET
+  - variable: LINKEDIN_CLIENT_ID
+    secret: LINKEDIN_CLIENT_ID
+  - variable: LINKEDIN_CLIENT_SECRET
+    secret: LINKEDIN_CLIENT_SECRET

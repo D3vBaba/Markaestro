@@ -337,5 +337,15 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
         channels: ['tiktok'],
         capabilities: [PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_VIDEO],
       };
+    case 'linkedin':
+      return {
+        channels: ['linkedin'],
+        capabilities: [
+          PlatformCapability.PUBLISH_TEXT,
+          PlatformCapability.PUBLISH_IMAGE,
+          PlatformCapability.PUBLISH_VIDEO,
+          PlatformCapability.PUBLISH_CAROUSEL,
+        ],
+      };
   }
 }

@@ -79,6 +79,8 @@ export async function loadSecretsToEnv(): Promise<void> {
     'INSTAGRAM_APP_SECRET',
     'TIKTOK_CLIENT_KEY',
     'TIKTOK_CLIENT_SECRET',
+    'LINKEDIN_CLIENT_ID',
+    'LINKEDIN_CLIENT_SECRET',
     'OPENAI_API_KEY',
     'SERPER_API_KEY',
     'GEMINI_API_KEY',

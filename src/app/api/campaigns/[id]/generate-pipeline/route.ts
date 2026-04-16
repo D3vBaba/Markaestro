@@ -190,6 +190,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         facebook: '1:1',
         instagram: '4:5',
         tiktok: '9:16',
+        linkedin: '1:1',
       };
       const primaryChannel = pipelineConfig.channels[0];
 

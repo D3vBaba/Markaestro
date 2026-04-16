@@ -60,6 +60,20 @@ async function refreshConnectionDoc(
   if (!data.tokenExpiresAt) return;
   if (data.tokenExpiresAt > threshold) return;
 
+  // LinkedIn's default tier does NOT issue refresh tokens — we can only force a re-auth.
+  // Flag the connection as `expired` once inside the 24h threshold so the UI can surface
+  // a "Reconnect LinkedIn" prompt. If/when the app is granted Programmatic Refresh Tokens,
+  // the standard refresh_token flow below will pick up automatically.
+  if (provider === 'linkedin' && !data.refreshTokenEncrypted) {
+    await connRef.update({
+      status: 'expired',
+      'metadata.lastRefreshError': 'LinkedIn token expired — user must reconnect',
+      updatedAt: now.toISOString(),
+    });
+    result.skipped++;
+    return;
+  }
+
   // Meta/Instagram without refreshToken: extend the existing user token directly
   if (!data.refreshTokenEncrypted && (provider === 'meta' || provider === 'instagram')) {
     if (!data.accessTokenEncrypted) return;
@@ -164,8 +178,8 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
     const metaRef = getConnectionRef(workspaceId, 'meta');
     await refreshConnectionDoc(metaRef, 'meta', result, { workspaceId });
 
-    // Product-level: instagram + tiktok (Meta is workspace-level)
-    const socialProviders: OAuthProvider[] = ['instagram', 'tiktok'];
+    // Product-level: instagram + tiktok + linkedin (Meta is workspace-level)
+    const socialProviders: OAuthProvider[] = ['instagram', 'tiktok', 'linkedin'];
     const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
 
     for (const productDoc of productDocs) {
