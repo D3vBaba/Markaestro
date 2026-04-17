@@ -11,11 +11,20 @@ export const PUBLIC_ALLOWED_IMAGE_TYPES = new Set([
   'image/gif',
 ]);
 
+export const PUBLIC_ALLOWED_VIDEO_TYPES = new Set([
+  'video/mp4',
+  'video/quicktime',
+  'video/webm',
+  'video/x-msvideo',
+  'video/x-matroska',
+]);
+
 export const PUBLIC_MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+export const PUBLIC_MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500 MB
 
 export type PublicMediaAsset = {
   id: string;
-  type: 'image';
+  type: 'image' | 'video';
   storagePath: string;
   downloadUrl: string;
   mimeType: string;
@@ -28,28 +37,53 @@ export type PublicMediaAsset = {
   createdAt: string;
 };
 
+const VIDEO_EXT_MAP: Record<string, string> = {
+  'video/mp4': 'mp4',
+  'video/quicktime': 'mov',
+  'video/webm': 'webm',
+  'video/x-msvideo': 'avi',
+  'video/x-matroska': 'mkv',
+};
+
 export async function createMediaAsset(
   ctx: PublicApiContext,
   file: File,
   buffer: Buffer,
 ): Promise<PublicMediaAsset> {
-  if (!PUBLIC_ALLOWED_IMAGE_TYPES.has(file.type)) {
+  const isImage = PUBLIC_ALLOWED_IMAGE_TYPES.has(file.type);
+  const isVideo = PUBLIC_ALLOWED_VIDEO_TYPES.has(file.type);
+
+  if (!isImage && !isVideo) {
     throw new Error('VALIDATION_INVALID_FILE_TYPE');
   }
-  if (file.size > PUBLIC_MAX_IMAGE_SIZE) {
+  if (isImage && file.size > PUBLIC_MAX_IMAGE_SIZE) {
     throw new Error('VALIDATION_FILE_TOO_LARGE_10MB');
   }
+  if (isVideo && file.size > PUBLIC_MAX_VIDEO_SIZE) {
+    throw new Error('VALIDATION_FILE_TOO_LARGE_500MB');
+  }
 
-  const metadata = await sharp(buffer, { animated: true }).metadata();
+  let width: number | null = null;
+  let height: number | null = null;
+
+  if (isImage) {
+    const metadata = await sharp(buffer, { animated: true }).metadata();
+    width = metadata.width ?? null;
+    height = metadata.height ?? null;
+  }
+
   const assetId = `ast_${crypto.randomUUID()}`;
-  const ext = file.type === 'image/png'
-    ? 'png'
-    : file.type === 'image/webp'
-      ? 'webp'
-      : file.type === 'image/gif'
-        ? 'gif'
-        : 'jpg';
-  const storagePath = `workspaces/${ctx.workspaceId}/public-media/${assetId}.${ext}`;
+  const ext = isVideo
+    ? (VIDEO_EXT_MAP[file.type] || 'mp4')
+    : file.type === 'image/png'
+      ? 'png'
+      : file.type === 'image/webp'
+        ? 'webp'
+        : file.type === 'image/gif'
+          ? 'gif'
+          : 'jpg';
+  const subdir = isVideo ? 'videos' : 'public-media';
+  const storagePath = `workspaces/${ctx.workspaceId}/${subdir}/${assetId}.${ext}`;
   const createdAt = new Date().toISOString();
   const downloadUrl = await uploadToStorage(storagePath, buffer, file.type, {
     workspaceId: ctx.workspaceId,
@@ -61,13 +95,13 @@ export async function createMediaAsset(
 
   const asset: PublicMediaAsset = {
     id: assetId,
-    type: 'image',
+    type: isVideo ? 'video' : 'image',
     storagePath,
     downloadUrl,
     mimeType: file.type,
     sizeBytes: file.size,
-    width: metadata.width ?? null,
-    height: metadata.height ?? null,
+    width,
+    height,
     originalFileName: file.name,
     createdByType: ctx.principalType,
     createdById: ctx.clientId,

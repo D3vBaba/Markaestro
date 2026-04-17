@@ -1,27 +1,30 @@
 # Markaestro Public API v1
 
-Public API v1 supports image-first publishing automation for:
+Public API v1 supports publishing automation (images and video) for:
 - Facebook
 - Instagram
-- TikTok image posts and carousels
+- TikTok
+- LinkedIn
 
 ## Scope
 
-- Image upload to Markaestro storage
+- Image and video upload to Markaestro storage
 - Post creation in the workspace's canonical `posts` collection
 - Async publish runs
 - Signed webhook delivery
 
-Excluded from v1:
-- TikTok video
-- ads
-- mixed image/video payloads
-
 ## Channel rules
 
-- Facebook: text-only or image posts, max 10 images
-- Instagram: requires at least 1 image, max 10 images
-- TikTok: requires at least 1 image, max 10 images, exports for creator review instead of direct publish
+- Facebook: text-only, image, or video posts; max 10 images; 1 video per post
+- Instagram: requires at least 1 media item (image or video); max 10 items; single video publishes as a Reel; carousels support mixed image/video
+- TikTok: requires at least 1 media item; max 10 images; video uploads go to inbox for creator review
+- LinkedIn: text-only, image, or video posts; max 20 images; 1 video per post
+
+## Media upload
+
+Accepted image types: `image/png`, `image/jpeg`, `image/webp`, `image/gif` (max 10 MB)
+
+Accepted video types: `video/mp4`, `video/quicktime`, `video/webm`, `video/x-msvideo`, `video/x-matroska` (max 500 MB)
 
 ## Auth
 
@@ -71,6 +74,12 @@ TikTok:
 - post status becomes `exported_for_review`
 - response includes `nextAction=open_tiktok_inbox_and_complete_editing`
 
+LinkedIn:
+- direct publish via the LinkedIn Posts API
+- supports text-only, single image, multi-image (up to 20), and single video
+- video uploads use binary chunked upload to LinkedIn's `/rest/videos` endpoint
+- post status becomes `published`
+
 ## Example flow
 
 1. List products
@@ -87,13 +96,20 @@ curl "$MARKAESTRO_URL/api/public/v1/products/prod_123/destinations" \
   -H "Authorization: Bearer $MARKAESTRO_API_KEY"
 ```
 
-3. Upload media
+3. Upload media (image or video)
 
 ```bash
+# Image upload
 curl -X POST "$MARKAESTRO_URL/api/public/v1/media" \
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \
   -H "Idempotency-Key: upload-001" \
   -F "file=@launch-1.jpg"
+
+# Video upload
+curl -X POST "$MARKAESTRO_URL/api/public/v1/media" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY" \
+  -H "Idempotency-Key: upload-002" \
+  -F "file=@product-demo.mp4"
 ```
 
 4. Create post
