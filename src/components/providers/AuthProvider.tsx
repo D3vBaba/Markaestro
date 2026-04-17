@@ -12,7 +12,6 @@ import {
   signInWithRedirect,
   getRedirectResult,
   signOut,
-  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
 import { setTokenGetter, markAuthReady } from '@/lib/api-client';
@@ -27,6 +26,8 @@ type AuthCtx = {
   signInFacebook: () => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  sendVerificationEmail: () => Promise<void>;
+  requestEmailChange: (newEmail: string) => Promise<void>;
   getIdToken: () => Promise<string | null>;
 };
 
@@ -132,7 +133,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await signInWithEmailAndPassword(auth, email, password);
       },
       signUpEmail: async (email, password) => {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        // Fire-and-forget: email verification is delivered via Resend (server-generated action link)
+        try {
+          const idToken = await cred.user.getIdToken();
+          await fetch('/api/auth/emails/verify-email', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${idToken}` },
+          });
+        } catch {
+          // Non-critical; user can resend from Settings
+        }
       },
       signInGoogle: async () => {
         const provider = new GoogleAuthProvider();
@@ -152,12 +163,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       },
       logout: async () => {
-        await fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {});
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (token) {
+            await fetch('/api/auth/logout-all', { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+          } else {
+            await fetch('/api/auth/session', { method: 'DELETE' });
+          }
+        } catch {
+          await fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {});
+        }
         await signOut(auth);
         router.replace('/login');
       },
       resetPassword: async (email: string) => {
-        await sendPasswordResetEmail(auth, email);
+        await fetch('/api/auth/emails/password-reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+      },
+      sendVerificationEmail: async () => {
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) throw new Error('UNAUTHENTICATED');
+        await fetch('/api/auth/emails/verify-email', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      },
+      requestEmailChange: async (newEmail: string) => {
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) throw new Error('UNAUTHENTICATED');
+        await fetch('/api/auth/emails/email-change', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newEmail }),
+        });
       },
       getIdToken: async () => {
         if (!auth.currentUser) return null;

@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { verifySessionCookieAsync } from '@/lib/session-cookie';
 
 /** Routes that don't require authentication. */
-const PUBLIC_PATHS = ['/login', '/terms', '/privacy', '/contact', '/features', '/channels', '/ai-studio', '/pricing', '/developers/api', '/api/health', '/onboarding', '/onboarding/success', '/oauth/complete'];
+const PUBLIC_PATHS = ['/login', '/terms', '/privacy', '/contact', '/features', '/channels', '/ai-studio', '/pricing', '/developers/api', '/api/health', '/onboarding', '/onboarding/success', '/oauth/complete', '/auth/action'];
 
 /** Prefixes that are always public (static assets, auth callbacks). */
 const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding'];

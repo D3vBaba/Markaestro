@@ -118,6 +118,10 @@ env:
     secret: ENCRYPTION_KEY
   - variable: WORKER_SECRET
     secret: WORKER_SECRET
+  - variable: RESEND_API_KEY
+    secret: RESEND_API_KEY
+  - variable: RESEND_FROM
+    value: Markaestro <no-reply@markaestro.com>
   - variable: OPENAI_API_KEY
     secret: OPENAI_API_KEY
   - variable: GEMINI_API_KEY

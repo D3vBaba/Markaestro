@@ -205,9 +205,12 @@ function SettingsPageContent() {
 /* ─── Account Tab ──────────────────────────────────────────────────────────── */
 
 function AccountTab() {
-  const { user, resetPassword, logout } = useAuth();
+  const { user, resetPassword, sendVerificationEmail, requestEmailChange, logout } = useAuth();
   const { current: workspace } = useWorkspace();
   const [resettingPassword, setResettingPassword] = useState(false);
+  const [sendingVerification, setSendingVerification] = useState(false);
+  const [changingEmail, setChangingEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
 
   if (!user) return null;
@@ -235,6 +238,33 @@ function AccountTab() {
       toast.error("Failed to send password reset email");
     } finally {
       setResettingPassword(false);
+    }
+  }
+
+  async function handleSendVerification() {
+    setSendingVerification(true);
+    try {
+      await sendVerificationEmail();
+      toast.success('Verification email sent — check your inbox');
+    } catch {
+      toast.error('Failed to send verification email');
+    } finally {
+      setSendingVerification(false);
+    }
+  }
+
+  async function handleEmailChange() {
+    const candidate = newEmail.trim();
+    if (!candidate) return;
+    setChangingEmail(true);
+    try {
+      await requestEmailChange(candidate);
+      toast.success('Confirm the email change from your inbox');
+      setNewEmail('');
+    } catch {
+      toast.error('Failed to start email change');
+    } finally {
+      setChangingEmail(false);
     }
   }
 
@@ -295,6 +325,26 @@ function AccountTab() {
           <CardDescription>Manage your password and sign-in methods.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {!user.emailVerified && (
+            <div className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium">Email verification</p>
+                <p className="text-xs text-muted-foreground">
+                  Verify your email address to secure your account.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0"
+                onClick={handleSendVerification}
+                disabled={sendingVerification}
+              >
+                {sendingVerification ? 'Sending…' : 'Send verification email'}
+              </Button>
+            </div>
+          )}
+
           {hasPassword && (
             <div className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
@@ -312,6 +362,35 @@ function AccountTab() {
               >
                 {resettingPassword ? "Sending…" : "Reset password"}
               </Button>
+            </div>
+          )}
+
+          {hasPassword && (
+            <div className="rounded-xl border p-4 space-y-3">
+              <div>
+                <p className="text-sm font-medium">Change email</p>
+                <p className="text-xs text-muted-foreground">
+                  We’ll email a confirmation link to your new address.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Input
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="new-email@company.com"
+                  type="email"
+                  className="h-10 rounded-xl"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0"
+                  onClick={handleEmailChange}
+                  disabled={changingEmail || !newEmail.trim()}
+                >
+                  {changingEmail ? 'Sending…' : 'Send confirmation'}
+                </Button>
+              </div>
             </div>
           )}
 
