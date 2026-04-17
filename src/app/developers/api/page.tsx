@@ -16,14 +16,14 @@ const endpointGroups = [
   },
   {
     title: "Media",
-    description: "Upload images to Markaestro-managed storage before creating posts.",
+    description: "Upload images or videos to Markaestro-managed storage before creating posts.",
     endpoints: [
       { method: "POST", path: "/api/public/v1/media", note: "Multipart upload. Returns an asset id and hosted URL." },
     ],
   },
   {
     title: "Posts",
-    description: "Create, inspect, and publish posts for Facebook, Instagram, and TikTok.",
+    description: "Create, inspect, and publish posts for Facebook, Instagram, TikTok, and LinkedIn.",
     endpoints: [
       { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft or scheduled post in the workspace." },
       { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status, platform ids, and publish results." },
@@ -91,9 +91,9 @@ export default function DevelopersApiPage() {
             Public publishing API
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
-            Upload images, create posts, publish directly to Meta, publish to standalone Instagram professional accounts with Instagram Login,
+            Upload images and videos, create posts, publish directly to Meta, Instagram, LinkedIn,
             and deliver TikTok content as drafts to the creator&apos;s TikTok inbox for final completion.
-            Public API v1 is workspace-scoped, image-only, capped at 10 images per post, and designed for async automation.
+            Public API v1 is workspace-scoped, supports images and video, and is designed for async automation.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             Use only the versioned public routes under <code>/api/public/v1</code>. Internal app routes such as <code>/api/workspaces</code>,
@@ -225,18 +225,22 @@ export default function DevelopersApiPage() {
               <CardTitle>Channel behavior</CardTitle>
               <CardDescription>Validation and delivery rules enforced by the public API.</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-3">
+            <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">Facebook</p>
-                <p className="mt-2 text-sm text-muted-foreground">Text-only or image posts, up to 10 images, direct publish.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Text-only, image, or video posts. Up to 10 images or 1 video per post. Direct publish.</p>
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">Instagram</p>
-                <p className="mt-2 text-sm text-muted-foreground">At least one image, up to 10 images, direct publish.</p>
+                <p className="mt-2 text-sm text-muted-foreground">At least one image or video, up to 10 items. Single video publishes as a Reel. Carousels support mixed image/video.</p>
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">TikTok</p>
-                <p className="mt-2 text-sm text-muted-foreground">At least one image, up to 10 images, exported into TikTok review flow. No video in v1.</p>
+                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. Exported into TikTok review flow.</p>
+              </div>
+              <div className="rounded-xl border p-4">
+                <p className="text-sm font-medium">LinkedIn</p>
+                <p className="mt-2 text-sm text-muted-foreground">Text-only, image, or video posts. Up to 20 images or 1 video per post. Direct publish.</p>
               </div>
             </CardContent>
           </Card>
