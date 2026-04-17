@@ -14,14 +14,26 @@ const CONTAINER_POLL_MAX_ATTEMPTS = 15;
 /** Minimum remaining IG publishing quota to allow a new publish. */
 const IG_QUOTA_MIN_REMAINING = 3;
 
+/** Video containers take longer to process than images. */
+const VIDEO_POLL_INTERVAL_MS = 5000;
+const VIDEO_POLL_MAX_ATTEMPTS = 60; // ~5 minutes
+
+function isVideoUrl(url: string): boolean {
+  const lower = url.toLowerCase();
+  return /\.(mp4|mov|avi|webm|mkv)(\?|$)/.test(lower) || lower.includes('/videos/');
+}
+
 // ── Instagram helpers ───────────────────────────────────────────────
 
 async function waitForContainer(
   graphApi: string,
   containerId: string,
   accessToken: string,
+  options?: { intervalMs?: number; maxAttempts?: number },
 ): Promise<{ ready: boolean; error?: string }> {
-  for (let i = 0; i < CONTAINER_POLL_MAX_ATTEMPTS; i++) {
+  const pollInterval = options?.intervalMs ?? CONTAINER_POLL_INTERVAL_MS;
+  const pollMax = options?.maxAttempts ?? CONTAINER_POLL_MAX_ATTEMPTS;
+  for (let i = 0; i < pollMax; i++) {
     const url = graphApi === INSTAGRAM_GRAPH_API
       ? `${graphApi}/${containerId}?${new URLSearchParams({
         fields: 'status_code,status',
@@ -41,7 +53,7 @@ async function waitForContainer(
     if (data.status_code === 'ERROR') {
       return { ready: false, error: data.status || 'Container processing failed' };
     }
-    await new Promise((r) => setTimeout(r, CONTAINER_POLL_INTERVAL_MS));
+    await new Promise((r) => setTimeout(r, pollInterval));
   }
   return { ready: false, error: 'Container processing timed out' };
 }
@@ -149,6 +161,31 @@ async function publishToFacebook(
   }
 
   try {
+    // Video post: use /{pageId}/videos with file_url
+    const firstMedia = mediaUrls[0];
+    if (firstMedia && isVideoUrl(firstMedia)) {
+      const res = await graphApiFetch(`${GRAPH_API}/${pageId}/videos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          file_url: firstMedia,
+          description: content,
+          access_token: accessToken,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        return { success: false, error: `Facebook video error: ${err.error?.message || res.statusText}` };
+      }
+      const data = await res.json();
+      const videoId = data.id;
+      return {
+        success: true,
+        externalId: videoId,
+        externalUrl: videoId ? `https://www.facebook.com/${pageId}/videos/${videoId}/` : undefined,
+      };
+    }
+
     // Multi-photo post: upload each unpublished, then attach to a single feed post.
     if (mediaUrls.length > 1) {
       const uploads = await Promise.all(
@@ -233,17 +270,23 @@ async function publishToFacebook(
 
 // ── Instagram publish ───────────────────────────────────────────────
 
-/** Create an Instagram media container. For carousel children, pass isCarouselItem=true and omit caption. */
+/** Create an Instagram media container for image or video. For carousel children, pass isCarouselItem=true and omit caption. */
 async function createIgMediaContainer(
   graphApi: string,
   igAccountId: string,
   accessToken: string,
-  params: { imageUrl: string; caption?: string; isCarouselItem?: boolean },
+  params: { imageUrl?: string; videoUrl?: string; caption?: string; isCarouselItem?: boolean },
 ): Promise<{ id?: string; error?: string }> {
   const body: Record<string, unknown> = {
-    image_url: params.imageUrl,
     access_token: accessToken,
   };
+  if (params.videoUrl) {
+    // Standalone video → REELS; carousel child → VIDEO
+    body.media_type = params.isCarouselItem ? 'VIDEO' : 'REELS';
+    body.video_url = params.videoUrl;
+  } else if (params.imageUrl) {
+    body.image_url = params.imageUrl;
+  }
   if (params.caption != null) body.caption = params.caption;
   if (params.isCarouselItem) body.is_carousel_item = true;
 
@@ -263,7 +306,7 @@ async function createIgMediaContainer(
 async function publishToInstagram(
   connection: PlatformConnection,
   content: string,
-  imageUrls: string[] = [],
+  mediaUrls: string[] = [],
 ): Promise<PublishResult> {
   const igAccountId = getInstagramAccountId(connection);
   if (!igAccountId) {
@@ -275,13 +318,13 @@ async function publishToInstagram(
     };
   }
 
-  if (imageUrls.length === 0) {
-    return { success: false, error: 'Instagram requires an image URL. Text-only posts are not supported.' };
+  if (mediaUrls.length === 0) {
+    return { success: false, error: 'Instagram requires media (image or video). Text-only posts are not supported.' };
   }
 
   // Instagram carousel limit: 10
-  if (imageUrls.length > 10) {
-    imageUrls = imageUrls.slice(0, 10);
+  if (mediaUrls.length > 10) {
+    mediaUrls = mediaUrls.slice(0, 10);
   }
 
   const accessToken = resolveAccessToken(connection);
@@ -303,23 +346,29 @@ async function publishToInstagram(
 
   try {
     let containerId: string | undefined;
+    const hasVideo = mediaUrls.some(isVideoUrl);
+    const videoPollOptions = { intervalMs: VIDEO_POLL_INTERVAL_MS, maxAttempts: VIDEO_POLL_MAX_ATTEMPTS };
 
-    if (imageUrls.length === 1) {
-      // Single image post
-      const single = await createIgMediaContainer(graphApi, igAccountId, accessToken, {
-        imageUrl: imageUrls[0],
-        caption: content,
-      });
+    if (mediaUrls.length === 1) {
+      // Single media post (image or Reels video)
+      const url = mediaUrls[0];
+      const containerParams = isVideoUrl(url)
+        ? { videoUrl: url, caption: content }
+        : { imageUrl: url, caption: content };
+      const single = await createIgMediaContainer(graphApi, igAccountId, accessToken, containerParams);
       if (single.error) {
         return { success: false, error: `Instagram container error: ${single.error}` };
       }
       containerId = single.id;
     } else {
-      // Carousel: create one child container per image, then a parent carousel container
+      // Carousel: create one child container per media item (image or video)
       const children = await Promise.all(
-        imageUrls.map((imageUrl) =>
-          createIgMediaContainer(graphApi, igAccountId, accessToken, { imageUrl, isCarouselItem: true }),
-        ),
+        mediaUrls.map((url) => {
+          const childParams = isVideoUrl(url)
+            ? { videoUrl: url, isCarouselItem: true as const }
+            : { imageUrl: url, isCarouselItem: true as const };
+          return createIgMediaContainer(graphApi, igAccountId, accessToken, childParams);
+        }),
       );
       const childFail = children.find((c) => c.error);
       if (childFail) {
@@ -327,9 +376,10 @@ async function publishToInstagram(
       }
       const childIds = children.map((c) => c.id).filter((id): id is string => !!id);
 
-      // Wait for each child to finish processing before attaching to the carousel
-      for (const childId of childIds) {
-        const { ready, error: pollError } = await waitForContainer(graphApi, childId, accessToken);
+      // Wait for each child — use longer timeout for video children
+      for (let i = 0; i < childIds.length; i++) {
+        const pollOptions = isVideoUrl(mediaUrls[i]) ? videoPollOptions : undefined;
+        const { ready, error: pollError } = await waitForContainer(graphApi, childIds[i], accessToken, pollOptions);
         if (!ready) {
           return { success: false, error: `Instagram carousel child processing failed: ${pollError}` };
         }
@@ -357,8 +407,10 @@ async function publishToInstagram(
       return { success: false, error: 'Failed to create Instagram media container' };
     }
 
-    // Step 2: Wait for processing
-    const { ready, error: pollError } = await waitForContainer(graphApi, containerId, accessToken);
+    // Step 2: Wait for processing — use longer timeout for video
+    const { ready, error: pollError } = await waitForContainer(
+      graphApi, containerId, accessToken, hasVideo ? videoPollOptions : undefined,
+    );
     if (!ready) {
       return { success: false, error: `Instagram media processing failed: ${pollError}` };
     }
@@ -394,6 +446,7 @@ export const metaPublishingAdapter: PlatformAdapter = {
   capabilities: [
     PlatformCapability.PUBLISH_TEXT,
     PlatformCapability.PUBLISH_IMAGE,
+    PlatformCapability.PUBLISH_VIDEO,
     PlatformCapability.PUBLISH_CAROUSEL,
   ],
 

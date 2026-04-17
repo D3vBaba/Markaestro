@@ -11,6 +11,13 @@ const LINKEDIN_REST = 'https://api.linkedin.com/rest';
 const LINKEDIN_API_V2 = 'https://api.linkedin.com/v2';
 const IMAGE_UPLOAD_POLL_INTERVAL_MS = 1500;
 const IMAGE_UPLOAD_POLL_MAX_ATTEMPTS = 20;
+const VIDEO_UPLOAD_POLL_INTERVAL_MS = 3000;
+const VIDEO_UPLOAD_POLL_MAX_ATTEMPTS = 60; // ~3 minutes
+
+function isVideoUrl(url: string): boolean {
+  const lower = url.toLowerCase();
+  return /\.(mp4|mov|avi|webm|mkv)(\?|$)/.test(lower) || lower.includes('/videos/');
+}
 
 function authHeaders(accessToken: string): Record<string, string> {
   return {
@@ -116,6 +123,130 @@ async function uploadImageForPost(
   return imageUrn;
 }
 
+// ── Video upload ──────────────────────────────────────────────────────
+
+async function initializeVideoUpload(
+  accessToken: string,
+  authorUrn: string,
+  fileSizeBytes: number,
+): Promise<{ uploadInstructions: Array<{ uploadUrl: string; firstByte: number; lastByte: number }>; videoUrn: string; uploadToken: string }> {
+  const res = await fetchWithRetry(`${LINKEDIN_REST}/videos?action=initializeUpload`, {
+    method: 'POST',
+    headers: {
+      ...authHeaders(accessToken),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      initializeUploadRequest: {
+        owner: authorUrn,
+        fileSizeBytes,
+        uploadCaptions: false,
+        stabilize: false,
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      `LinkedIn video init failed (${res.status}): ${err.message || err.error || res.statusText}`,
+    );
+  }
+
+  const data = await res.json();
+  const uploadInstructions = data?.value?.uploadInstructions as
+    | Array<{ uploadUrl: string; firstByte: number; lastByte: number }>
+    | undefined;
+  const videoUrn = data?.value?.video as string | undefined;
+  const uploadToken = data?.value?.uploadToken as string | undefined;
+  if (!uploadInstructions?.length || !videoUrn) {
+    throw new Error('LinkedIn video init response missing uploadInstructions or video URN');
+  }
+  return { uploadInstructions, videoUrn, uploadToken: uploadToken || '' };
+}
+
+async function uploadVideoChunks(
+  uploadInstructions: Array<{ uploadUrl: string; firstByte: number; lastByte: number }>,
+  bytes: Buffer,
+  contentType: string,
+): Promise<void> {
+  for (const instruction of uploadInstructions) {
+    const chunk = bytes.subarray(instruction.firstByte, instruction.lastByte + 1);
+    const res = await fetchWithRetry(instruction.uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': contentType },
+      body: chunk as unknown as BodyInit,
+    });
+    if (!res.ok && res.status !== 201) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`LinkedIn video chunk upload failed (${res.status}): ${errText || res.statusText}`);
+    }
+  }
+}
+
+async function finalizeVideoUpload(
+  accessToken: string,
+  videoUrn: string,
+  uploadToken: string,
+): Promise<void> {
+  const res = await fetchWithRetry(`${LINKEDIN_REST}/videos?action=finalizeUpload`, {
+    method: 'POST',
+    headers: {
+      ...authHeaders(accessToken),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      finalizeUploadRequest: {
+        video: videoUrn,
+        uploadToken,
+      },
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      `LinkedIn video finalize failed (${res.status}): ${err.message || err.error || res.statusText}`,
+    );
+  }
+}
+
+async function waitForVideoAvailable(accessToken: string, videoUrn: string): Promise<void> {
+  const encoded = encodeURIComponent(videoUrn);
+  for (let i = 0; i < VIDEO_UPLOAD_POLL_MAX_ATTEMPTS; i++) {
+    const res = await fetchWithRetry(`${LINKEDIN_REST}/videos/${encoded}`, {
+      headers: authHeaders(accessToken),
+    }, { maxRetries: 1 });
+
+    if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      const status = typeof data.status === 'string' ? data.status : '';
+      if (status === 'AVAILABLE') return;
+      if (status === 'FAILED' || status === 'DELETED') {
+        throw new Error(`LinkedIn video processing ${status.toLowerCase()}`);
+      }
+    }
+    await new Promise((r) => setTimeout(r, VIDEO_UPLOAD_POLL_INTERVAL_MS));
+  }
+  throw new Error('LinkedIn video processing timed out');
+}
+
+async function uploadVideoForPost(
+  accessToken: string,
+  authorUrn: string,
+  mediaUrl: string,
+): Promise<string> {
+  const { bytes, contentType } = await downloadBinary(mediaUrl);
+  const { uploadInstructions, videoUrn, uploadToken } = await initializeVideoUpload(
+    accessToken, authorUrn, bytes.length,
+  );
+  await uploadVideoChunks(uploadInstructions, bytes, contentType);
+  if (uploadToken) {
+    await finalizeVideoUpload(accessToken, videoUrn, uploadToken);
+  }
+  await waitForVideoAvailable(accessToken, videoUrn);
+  return videoUrn;
+}
+
 type LinkedInPostBody = {
   author: string;
   commentary: string;
@@ -186,7 +317,13 @@ async function publishToLinkedIn(
       isReshareDisabledByAuthor: false,
     };
 
-    if (mediaUrls.length === 1) {
+    // Check if first media is a video
+    const firstMedia = mediaUrls[0];
+    if (firstMedia && isVideoUrl(firstMedia)) {
+      // Single video post (LinkedIn does not support multi-video)
+      const videoUrn = await uploadVideoForPost(accessToken, authorUrn, firstMedia);
+      body.content = { media: { id: videoUrn } };
+    } else if (mediaUrls.length === 1) {
       const imageUrn = await uploadImageForPost(accessToken, authorUrn, mediaUrls[0]);
       body.content = { media: { id: imageUrn } };
     } else if (mediaUrls.length > 1) {
@@ -219,6 +356,7 @@ export const linkedinPublishingAdapter: PlatformAdapter = {
   capabilities: [
     PlatformCapability.PUBLISH_TEXT,
     PlatformCapability.PUBLISH_IMAGE,
+    PlatformCapability.PUBLISH_VIDEO,
     PlatformCapability.PUBLISH_CAROUSEL,
   ],
 
