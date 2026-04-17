@@ -3,6 +3,32 @@ import { createHash } from 'node:crypto';
 import { DEFAULT_WORKSPACE_ID, getWorkspaceId, isValidWorkspaceId } from '@/lib/workspace';
 import { verifySessionCookieAsync } from '@/lib/session-cookie';
 import type { WorkspaceRole } from '@/lib/schemas';
+import { getSubscription } from '@/lib/stripe/subscription';
+
+const SUBSCRIPTION_REQUIRES_VERIFICATION = new Set(['active', 'trialing']);
+
+function isEmailVerificationExemptPath(pathname: string): boolean {
+  const exact = new Set([
+    '/api/stripe/status',
+    '/api/auth/session',
+    '/api/auth/emails/password-reset',
+    '/api/auth/emails/verify-email',
+    '/api/auth/emails/email-change',
+    '/api/auth/logout-all',
+  ]);
+  if (exact.has(pathname)) return true;
+  return false;
+}
+
+async function assertEmailVerifiedIfRequired(req: Request, uid: string, emailVerified: boolean): Promise<void> {
+  if (emailVerified) return;
+  const pathname = new URL(req.url).pathname;
+  if (isEmailVerificationExemptPath(pathname)) return;
+  const sub = await getSubscription(uid);
+  if (sub && SUBSCRIPTION_REQUIRES_VERIFICATION.has(sub.status)) {
+    throw new Error('EMAIL_VERIFICATION_REQUIRED');
+  }
+}
 
 export type RequestContext = {
   uid: string;
@@ -162,6 +188,7 @@ export async function requireContext(req: Request): Promise<RequestContext> {
 
   let uid: string;
   let email: string | undefined;
+  let emailVerified = false;
 
   if (token) {
     let decoded: Awaited<ReturnType<typeof adminAuth.verifyIdToken>>;
@@ -182,6 +209,7 @@ export async function requireContext(req: Request): Promise<RequestContext> {
 
     uid = decoded.uid;
     email = normalizeEmail(decoded.email) || undefined;
+    emailVerified = decoded.email_verified === true;
   } else if (sessionCookie && await verifySessionCookieAsync(sessionCookie)) {
     const sessionUid = getUidFromSessionCookie(sessionCookie);
     if (!sessionUid) {
@@ -192,6 +220,7 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     try {
       const userRecord = await adminAuth.getUser(uid);
       email = normalizeEmail(userRecord.email) || undefined;
+      emailVerified = userRecord.emailVerified === true;
     } catch {
       throw new Error('UNAUTHENTICATED');
     }
@@ -206,6 +235,8 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     // caused by a missing Firestore collection-group index on pendingInvites.email.
     console.warn('[requireContext] acceptPendingInvites failed (non-fatal):', err);
   }
+
+  await assertEmailVerifiedIfRequired(req, uid, emailVerified);
 
   const url = new URL(req.url);
   const requestedWs = getWorkspaceId(

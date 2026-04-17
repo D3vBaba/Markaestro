@@ -69,3 +69,7 @@ This app uses Firebase Auth on the client, `firebase-admin` on the server, and a
 - The password-reset endpoint is intentionally non-enumerating (it returns success even if the account doesn’t exist).
 - All auth email endpoints are rate-limited via Firestore-backed limiter (`RATE_LIMITS.auth`).
 
+## Post-trial email verification gate
+
+After onboarding is complete (user has at least one product) **and** Stripe reports an **active or trialing** subscription, users with **unverified** email/password accounts see a full-screen **Verify your email** screen instead of the app. API routes that use `requireContext` return `403` with `EMAIL_VERIFICATION_REQUIRED` in the same situation. Exempt routes include `/api/stripe/status` and `/api/auth/*` so the client can load subscription state and resend verification.
+

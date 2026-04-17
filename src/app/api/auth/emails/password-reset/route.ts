@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       const user = await adminAuth.getUserByEmail(email);
       const link = await createPasswordResetLink(email);
       const tpl = passwordResetEmail({ actionUrl: link, email: user.email });
-      await sendResendEmail({ to: email, subject: tpl.subject, html: tpl.html });
+      await sendResendEmail({ to: email, subject: tpl.subject, html: tpl.html, text: tpl.text });
     } catch (err) {
       // Swallow user-not-found and send failures to avoid enumeration.
       console.warn('[auth/emails/password-reset] suppressed error:', err);

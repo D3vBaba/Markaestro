@@ -43,6 +43,9 @@ export function apiError(error: unknown): NextResponse {
   if (msg === 'FORBIDDEN_WORKSPACE' || msg === 'FORBIDDEN') {
     return NextResponse.json({ error: msg, requestId }, { status: 403 });
   }
+  if (msg === 'EMAIL_VERIFICATION_REQUIRED') {
+    return NextResponse.json({ error: msg, requestId }, { status: 403 });
+  }
   if (msg === 'NOT_FOUND') {
     return NextResponse.json({ error: msg, requestId }, { status: 404 });
   }

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     const { email, link } = await createEmailVerificationLink(uid);
     const tpl = verifyEmail({ actionUrl: link, email });
-    await sendResendEmail({ to: email, subject: tpl.subject, html: tpl.html });
+    await sendResendEmail({ to: email, subject: tpl.subject, html: tpl.html, text: tpl.text });
 
     const resp = apiOk({ ok: true });
     for (const [k, v] of Object.entries(rl.headers)) resp.headers.set(k, v);

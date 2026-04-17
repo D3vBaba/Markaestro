@@ -7,10 +7,13 @@ import { Header } from "./Header";
 import { TrialBanner } from "./TrialBanner";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus";
+import { useSubscription } from "@/components/providers/SubscriptionProvider";
+import { VerifyEmailGate } from "./VerifyEmailGate";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const { completed, error: onboardingError, loading: onboardingLoading } = useOnboardingStatus();
+  const { status: subscriptionStatus, loading: subscriptionLoading } = useSubscription();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -27,7 +30,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [loading, onboardingLoading, user, completed, onboardingError, router]);
 
-  if (loading || onboardingLoading) {
+  const unverifiedAfterOnboarding = Boolean(user && completed === true && user.emailVerified === false);
+  const waitingForSubscriptionToEvaluateGate = unverifiedAfterOnboarding && subscriptionLoading;
+  const needsEmailVerification = Boolean(
+    unverifiedAfterOnboarding && subscriptionStatus?.active,
+  );
+
+  if (loading || onboardingLoading || waitingForSubscriptionToEvaluateGate) {
     return (
       <div className="min-h-screen grid place-items-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -43,6 +52,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (!user) return null;
   if (completed === false && !onboardingError) return null;
+
+  if (needsEmailVerification) {
+    return <VerifyEmailGate />;
+  }
 
   return (
     <div className="grid h-screen w-full max-w-full overflow-hidden lg:grid-cols-[260px_1fr]">

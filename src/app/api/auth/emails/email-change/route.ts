@@ -35,11 +35,11 @@ export async function POST(req: Request) {
 
     const link = await createVerifyAndChangeEmailLink({ uid, newEmail });
     const tpl = verifyAndChangeEmail({ actionUrl: link, newEmail });
-    await sendResendEmail({ to: newEmail, subject: tpl.subject, html: tpl.html });
+    await sendResendEmail({ to: newEmail, subject: tpl.subject, html: tpl.html, text: tpl.text });
 
     if (oldEmail && oldEmail !== newEmail) {
       const notice = emailChangeNotice({ oldEmail, newEmail });
-      await sendResendEmail({ to: oldEmail, subject: notice.subject, html: notice.html }).catch((err) => {
+      await sendResendEmail({ to: oldEmail, subject: notice.subject, html: notice.html, text: notice.text }).catch((err) => {
         console.warn('[auth/emails/email-change] failed sending notice to old email:', err);
       });
     }
