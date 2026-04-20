@@ -3,6 +3,9 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection, resolveUserAccessToken } from '@/lib/platform/connections';
 
+export const runtime = 'nodejs';
+
+
 export async function GET(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const ctx = await requireContext(req);

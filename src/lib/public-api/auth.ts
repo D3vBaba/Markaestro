@@ -79,11 +79,27 @@ export async function requirePublicApiContext(
 
   const rateLimitConfig = options.rateLimit || RATE_LIMITS.api;
   const pathname = new URL(req.url).pathname;
-  const rateResult = await checkRateLimit(`public-api:${parsed.clientId}:${pathname}`, rateLimitConfig);
-  const rateLimitHeaders = headersFromResult(rateResult);
 
-  if (!rateResult.allowed) {
-    const retryAfter = Math.max(1, Math.ceil((rateResult.resetAt - Date.now()) / 1000));
+  // Two-layer rate limit:
+  //   1. Global per-client budget: a generous ceiling so a single client
+  //      can't saturate shared Cloud Run instances by hammering across
+  //      many endpoints in parallel (path-scoped limits don't stack).
+  //   2. Per-path budget: the sensitive/expensive routes (AI, publish)
+  //      pick their own via `options.rateLimit`.
+  const globalConfig: RateLimitConfig = {
+    limit: Math.max(rateLimitConfig.limit * 4, 240),
+    windowMs: rateLimitConfig.windowMs,
+  };
+  const [globalResult, pathResult] = await Promise.all([
+    checkRateLimit(`public-api:${parsed.clientId}`, globalConfig),
+    checkRateLimit(`public-api:${parsed.clientId}:${pathname}`, rateLimitConfig),
+  ]);
+
+  const effective = !globalResult.allowed ? globalResult : pathResult;
+  const rateLimitHeaders = headersFromResult(effective);
+
+  if (!effective.allowed) {
+    const retryAfter = Math.max(1, Math.ceil((effective.resetAt - Date.now()) / 1000));
     throw new Response(JSON.stringify({ error: 'RATE_LIMITED', retryAfter }), {
       status: 429,
       headers: {

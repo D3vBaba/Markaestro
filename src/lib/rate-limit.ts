@@ -69,24 +69,34 @@ export const RATE_LIMITS = {
   worker: { limit: 5, windowMs: 60_000 } as RateLimitConfig,
 } as const;
 
+export type ApplyRateLimitOptions = {
+  /**
+   * Explicit rate-limit key. When omitted, the key is `${ip}:${pathname}`.
+   * Pass a uid-scoped key for post-auth routes so limits follow the user
+   * across devices/IPs.
+   */
+  key?: string;
+};
+
 /**
  * Helper to apply rate limiting inside an API route handler.
- * Extracts client IP from headers and throws a Response if rate limited.
+ * By default extracts client IP from headers and uses `${ip}:${pathname}`.
+ * Throws a Response (429) if rate limited.
  *
  * Usage:
- *   const rl = await applyRateLimit(req, RATE_LIMITS.ai);
- *   // If we get here, the request is allowed. rl has headers you can merge.
+ *   const rl = await applyRateLimit(req, RATE_LIMITS.ai, { key: `ai:${ctx.uid}` });
  */
 export async function applyRateLimit(
   req: Request,
   config: RateLimitConfig,
+  opts: ApplyRateLimitOptions = {},
 ): Promise<{ headers: Record<string, string> }> {
   const ip =
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     req.headers.get('x-real-ip') ||
     'unknown';
   const pathname = new URL(req.url).pathname;
-  const key = `${ip}:${pathname}`;
+  const key = opts.key ? `${opts.key}:${pathname}` : `${ip}:${pathname}`;
 
   const result = await checkRateLimit(key, config);
 

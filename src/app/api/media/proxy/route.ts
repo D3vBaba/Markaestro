@@ -5,6 +5,8 @@ import {
   readResponseBufferWithLimit,
 } from '@/lib/network-security';
 
+export const runtime = 'nodejs';
+
 const MAX_PROXY_BYTES = 20 * 1024 * 1024;
 const TIKTOK_MAX_IMAGE_WIDTH = 1080;
 const TIKTOK_MAX_IMAGE_HEIGHT = 1920;

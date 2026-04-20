@@ -2,6 +2,9 @@ import { adminDb } from '@/lib/firebase-admin';
 import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
 
+export const runtime = 'nodejs';
+
+
 const JOB_RUNS_RATE_LIMIT = { limit: 60, windowMs: 60_000 };
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {

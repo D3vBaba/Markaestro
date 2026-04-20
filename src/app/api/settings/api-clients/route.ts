@@ -6,6 +6,9 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { buildApiKey } from '@/lib/public-api/keys';
 import { createApiClientSchema } from '@/lib/public-api/schemas';
 
+export const runtime = 'nodejs';
+
+
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);

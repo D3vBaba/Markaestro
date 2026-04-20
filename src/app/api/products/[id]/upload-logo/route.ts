@@ -7,6 +7,9 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { uploadToStorage } from '@/lib/storage';
 
+export const runtime = 'nodejs';
+
+
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']);
 

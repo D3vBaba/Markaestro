@@ -4,6 +4,9 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection } from '@/lib/platform/connections';
 import { getAdapter } from '@/lib/platform/registry';
 
+export const runtime = 'nodejs';
+
+
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);

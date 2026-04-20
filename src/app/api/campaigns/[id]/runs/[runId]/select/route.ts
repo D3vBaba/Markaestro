@@ -4,6 +4,9 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 
+export const runtime = 'nodejs';
+
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string; runId: string }> },

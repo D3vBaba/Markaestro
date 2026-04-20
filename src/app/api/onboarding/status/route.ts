@@ -1,18 +1,20 @@
 import { adminDb } from "@/lib/firebase-admin";
 import { apiError, apiOk } from "@/lib/api-response";
 import { requireContext } from "@/lib/server-auth";
-import { getEffectiveSubscription, getSubscription } from "@/lib/stripe/subscription";
+import { getEffectiveSubscription } from "@/lib/stripe/subscription";
+
+export const runtime = 'nodejs';
+
 
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
-    const [ownSubscription, effectiveSubscription, productSnapshot] = await Promise.all([
-      getSubscription(ctx.uid),
-      getEffectiveSubscription(ctx.uid, ctx.workspaceId),
+    const [effectiveSubscription, productSnapshot] = await Promise.all([
+      getEffectiveSubscription({ uid: ctx.uid, workspaceId: ctx.workspaceId }),
       adminDb.collection(`workspaces/${ctx.workspaceId}/products`).limit(1).get(),
     ]);
 
-    const hasSubscriptionHistory = Boolean(ownSubscription || effectiveSubscription);
+    const hasSubscriptionHistory = Boolean(effectiveSubscription);
     const hasProducts = !productSnapshot.empty;
 
     return apiOk({

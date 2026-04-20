@@ -121,6 +121,16 @@ export function getChannelConstraints(channel?: string, contentType?: string): s
         'CTA examples: "Follow for more" / "Comment LINK" / "Stitch this with your take" / "Part 2?"',
         'Hashtags: 2-3 niche-relevant ones.',
       ].join('\n');
+    case 'linkedin':
+      return [
+        isShort
+          ? 'FORMAT: LinkedIn post. AIM for 150-300 characters for the core hook + CTA (short posts can still perform if insight-dense). 1-2 tight paragraphs max.'
+          : 'FORMAT: LinkedIn post. Lead with a sharp professional insight; keep scannable lines.',
+        'Style: credible, specific, and conversational-professional. Avoid buzzword soup; use concrete outcomes and lessons.',
+        'Structure: Hook (contrarian insight or lived lesson) → supporting line → clear CTA (comment, DM, link).',
+        'ENGAGEMENT TACTICS: Ask one focused question. Share a number or a before/after. Invite disagreement respectfully.',
+        'CTA examples: "Agree or disagree in the comments" / "DM me [topic]" / "Link in comments" / "What would you add?"',
+      ].join('\n');
     default:
       return isShort
         ? 'FORMAT: Social media post. Keep it under 150 characters — 1-2 sentences max. End with a clear CTA.'

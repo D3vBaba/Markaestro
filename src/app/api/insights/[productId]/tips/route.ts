@@ -5,6 +5,9 @@ import { apiError, apiOk } from '@/lib/api-response';
 import OpenAI from 'openai';
 import type { UnifiedInsights } from '@/lib/social/types';
 
+export const runtime = 'nodejs';
+
+
 const getClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error('OPENAI_API_KEY not configured');

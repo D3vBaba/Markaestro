@@ -30,6 +30,16 @@ export type CampaignGenerationConfigSnapshot = {
   imageProvider?: string;
   imageSubtypes?: string[];
   skipImages?: boolean;
+  /** User-supplied direction injected into post generation */
+  creativeBrief?: string;
+  /** guided | custom_override | hybrid — same values as pipeline API */
+  imagePromptMode?: string;
+  /** Template or suffix for custom / hybrid image modes */
+  imageCustomTemplate?: string;
+  postCopyMode?: string;
+  postOutline?: string;
+  imageChannelMode?: string;
+  optimizeImagesForChannel?: string;
 };
 
 export type CampaignGenerationRun = {
@@ -47,6 +57,8 @@ export type CampaignGenerationRun = {
     total: number;
     byStage: Record<string, number>;
     imagesGenerated: number;
+    imagesFailed?: number;
+    imageErrorSamples?: string[];
   };
   errorMessage?: string | null;
   createdBy: string;
@@ -86,6 +98,13 @@ export function buildGenerationConfigSnapshot(input: CampaignGenerationConfigSna
     imageProvider: input.imageProvider || undefined,
     imageSubtypes: input.imageSubtypes && input.imageSubtypes.length > 0 ? input.imageSubtypes : undefined,
     skipImages: input.skipImages || undefined,
+    creativeBrief: input.creativeBrief?.trim() || undefined,
+    imagePromptMode: input.imagePromptMode || undefined,
+    imageCustomTemplate: input.imageCustomTemplate?.trim() || undefined,
+    postCopyMode: input.postCopyMode || undefined,
+    postOutline: input.postOutline?.trim() || undefined,
+    imageChannelMode: input.imageChannelMode || undefined,
+    optimizeImagesForChannel: input.optimizeImagesForChannel || undefined,
   };
 }
 
@@ -109,12 +128,26 @@ export function classifyPipelineChange(
     imageProvider: previous.imageProvider,
     imageSubtypes: previous.imageSubtypes || [],
     skipImages: previous.skipImages || false,
+    creativeBrief: previous.creativeBrief || '',
+    imagePromptMode: previous.imagePromptMode || 'guided',
+    imageCustomTemplate: previous.imageCustomTemplate || '',
+    postCopyMode: previous.postCopyMode || 'ai_generated',
+    postOutline: previous.postOutline || '',
+    imageChannelMode: previous.imageChannelMode || 'auto',
+    optimizeImagesForChannel: previous.optimizeImagesForChannel || '',
   };
   const nextImage = {
     imageStyle: next.imageStyle,
     imageProvider: next.imageProvider,
     imageSubtypes: next.imageSubtypes || [],
     skipImages: next.skipImages || false,
+    creativeBrief: next.creativeBrief || '',
+    imagePromptMode: next.imagePromptMode || 'guided',
+    imageCustomTemplate: next.imageCustomTemplate || '',
+    postCopyMode: next.postCopyMode || 'ai_generated',
+    postOutline: next.postOutline || '',
+    imageChannelMode: next.imageChannelMode || 'auto',
+    optimizeImagesForChannel: next.optimizeImagesForChannel || '',
   };
 
   const prevPipelineContent = {

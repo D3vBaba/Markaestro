@@ -4,6 +4,9 @@ import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 import type { PipelineStage } from '@/lib/schemas';
 
+export const runtime = 'nodejs';
+
+
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);

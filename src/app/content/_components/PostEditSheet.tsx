@@ -45,7 +45,7 @@ const channelLabels: Record<string, string> = {
   x: "X", facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok",
 };
 
-const IMAGE_CUSTOM_PROMPT_MAX_LENGTH = 1200;
+const IMAGE_CUSTOM_PROMPT_MAX_LENGTH = 4000;
 
 export default function PostEditSheet({
   post,

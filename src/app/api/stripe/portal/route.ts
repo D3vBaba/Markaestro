@@ -1,17 +1,15 @@
 import { NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
 import { getStripe } from '@/lib/stripe/server';
-import { getSubscription } from '@/lib/stripe/subscription';
+import { getEffectiveSubscription } from '@/lib/stripe/subscription';
+import { requireContext } from '@/lib/server-auth';
+
+export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '');
-    if (!token) return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 });
+    const ctx = await requireContext(req);
 
-    const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid;
-
-    const sub = await getSubscription(uid);
+    const sub = await getEffectiveSubscription({ uid: ctx.uid, workspaceId: ctx.workspaceId });
     if (!sub?.stripeCustomerId) {
       return NextResponse.json({ error: 'No subscription found' }, { status: 404 });
     }
@@ -26,6 +24,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
+    if (err instanceof Error && err.message === 'UNAUTHENTICATED') {
+      return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 });
+    }
     console.error('[stripe/portal]', err);
     return NextResponse.json({ error: 'Failed to create portal session' }, { status: 500 });
   }

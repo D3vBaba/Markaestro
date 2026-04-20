@@ -5,6 +5,9 @@ import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { createPostSchema, paginationSchema } from '@/lib/schemas';
 import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 
+export const runtime = 'nodejs';
+
+
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);

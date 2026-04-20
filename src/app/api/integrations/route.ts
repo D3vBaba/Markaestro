@@ -3,6 +3,9 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { listConnections } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
 
+export const runtime = 'nodejs';
+
+
 function maskConnection(
   conn: PlatformConnection,
   scope: 'workspace' | 'product',

@@ -1,0 +1,21 @@
+rules_version = '2';
+
+// Markaestro Cloud Storage Security Rules
+//
+// All uploads go through the Next.js API (src/lib/storage.ts) using the
+// Admin SDK, which bypasses these rules. Downloads are served either
+// through signed URLs or via the tokenized `downloadTokens` query param
+// generated at upload time. The Web SDK is not used for Storage on the
+// client.
+//
+// We therefore default-deny all direct client reads and writes. If a
+// feature ever requires authenticated client-side uploads, add an
+// explicit allowlist here and re-audit.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

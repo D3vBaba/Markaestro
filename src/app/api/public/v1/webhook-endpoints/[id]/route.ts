@@ -2,6 +2,9 @@ import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
 import { disableWebhookEndpoint } from '@/lib/public-api/webhooks';
 
+export const runtime = 'nodejs';
+
+
 const WEBHOOK_RATE_LIMIT = { limit: 20, windowMs: 60_000 };
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {

@@ -3,6 +3,9 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 
+export const runtime = 'nodejs';
+
+
 type RecentPost = {
   id: string;
   channel?: string;

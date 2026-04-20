@@ -3,7 +3,7 @@ import { socialChannels } from '@/lib/schemas';
 import { publicApiScopes, publicWebhookEvents } from './scopes';
 
 // Serialized post shape returned by the public API (matches serializePublicPost).
-// Slideshow-sourced posts include the optional slideshow metadata fields.
+// Legacy slideshow-exported posts may include optional slideshow metadata fields.
 export type PublicPostResponse = {
   id: string;
   channel: string;

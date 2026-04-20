@@ -1,35 +1,8 @@
 import crypto from 'crypto';
-import type { BrandIdentity, BrandVoice, ImageStyle, ImageSubtype, ImageAspectRatio, ImageProvider, PromptMode, SocialChannel, SlideVisualIntent } from '@/lib/schemas';
+import type { BrandIdentity, BrandVoice, ImageStyle, ImageSubtype, ImageAspectRatio, ImageProvider, PromptMode, SocialChannel } from '@/lib/schemas';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 import { assertSafeOutboundUrl, readResponseBufferWithLimit } from '@/lib/network-security';
 import { interpretSceneIntent, renderSceneIntent, type SceneIntent } from './image-scene-interpreter';
-
-/**
- * Per-slide context for slideshow image generation.
- *
- * When `generationMode` is `'slideshow_slide'` this is required. It replaces
- * the scene interpreter — the slideshow generator has already produced a
- * structured visual intent, so we use it directly instead of running the LLM
- * interpreter a second time.
- */
-export type SlideContext = {
-  /** 0-based slide index */
-  index: number;
-  /** Total slides in the sequence — used in role labelling */
-  totalSlides: number;
-  /** Narrative role drives tone and energy of the composition */
-  kind: 'hook' | 'body' | 'cta';
-  /** Which third of the frame must be left clear for text overlay */
-  safeTextRegion: 'top' | 'middle' | 'bottom';
-  /** Structured visual intent produced by the slideshow generator */
-  visualIntent: SlideVisualIntent;
-  /**
-   * Visual signatures of slides already generated in this sequence.
-   * Used to enforce diversity — each new slide must look distinct.
-   * Built with `buildVisualSignature` from slideshows/quality.ts.
-   */
-  previousVisualSignatures: string[];
-};
 
 export type ImageGenRequest = {
   prompt: string;
@@ -66,37 +39,6 @@ export type ImageGenRequest = {
    * same post).
    */
   sceneIntent?: SceneIntent;
-  /**
-   * Set to `'slideshow_slide'` when generating an image for a single slide in
-   * a TikTok slideshow sequence. Activates the slideshow-specific prompt path
-   * (safe text zones, sequence diversity, 9:16 mobile composition) and bypasses
-   * the scene interpreter since `slideContext.visualIntent` already provides
-   * structured intent.
-   */
-  generationMode?: 'single_post' | 'slideshow_slide';
-  /** Required when `generationMode === 'slideshow_slide'` */
-  slideContext?: SlideContext;
-  /**
-   * Character model for consistent human representation across all slides.
-   * When present, reference images are passed to Gemini for character
-   * consistency (up to 4 character reference slots). The name/description
-   * is injected into the prompt to help the model identify which subject
-   * to keep consistent.
-   */
-  characterModel?: {
-    modelId: string;
-    name: string;
-    description: string;
-    referenceImageUrls: string[];
-    /**
-     * Pre-fetched base64 representations of the reference images.
-     * When present, the generator uses these directly and skips the URL
-     * fetch step — set this on the shared request object before a
-     * multi-slide generation job so images are downloaded once rather
-     * than once per slide.
-     */
-    prefetchedImages?: { base64: string; mimeType: string }[];
-  };
 };
 
 export type ImageResearchContext = {
@@ -887,201 +829,22 @@ function buildCustomOverrideImagePrompt(req: ImageGenRequest): string {
   return sections.join('\n\n');
 }
 
-/**
- * Build an image prompt for a single slide within a TikTok slideshow sequence.
- *
- * This path is intentionally different from `buildGuidedImagePrompt`:
- *
- * 1. The scene interpreter is NOT called — the slideshow generator already
- *    produced a rich `visualIntent`; running the interpreter again would be
- *    redundant and could contradict the generator's intent.
- * 2. The `safeTextRegion` constraint is the top priority — the image MUST
- *    have clear empty zones in BOTH the top 20% AND bottom 20% for bold text
- *    overlays at full opacity.
- * 3. Sequence diversity is enforced via `previousVisualSignatures` — each
- *    slide must look compositionally distinct from the ones before it.
- * 4. The 9:16 portrait format, candid UGC lifestyle aesthetic, and bold text
- *    overlay composition are all baked in — these are TikTok photo-mode slides.
- */
-function buildSlideshowImagePrompt(req: ImageGenRequest): string {
-  const ctx = req.slideContext!;
-  const { visualIntent } = ctx;
-  const sections: string[] = [];
-
-  // 0. MANDATORY UGC MODE — declared first so it overrides everything that follows.
-  //    Gemini reads this before any scene description. Without this block, the
-  //    scene context (GPT-generated imagePrompt) can prime the model toward studio
-  //    aesthetics even when the camera angle rules say otherwise.
-  sections.push([
-    '╔══════════════════════════════════════════════════════════════╗',
-    '║  MANDATORY PHOTOGRAPHIC MODE: CANDID UGC SMARTPHONE PHOTO   ║',
-    '╚══════════════════════════════════════════════════════════════╝',
-    '',
-    'This image MUST look like a real person took it on their personal smartphone in everyday life.',
-    'It is for a TikTok photo-mode slideshow — the aesthetic is raw, candid, and authentic.',
-    '',
-    'ABSOLUTELY PROHIBITED — generating ANY of the following will make this image unusable:',
-    '  ✗ Studio photography (neutral backdrop, seamless paper, studio lights)',
-    '  ✗ Subject facing the camera / making eye contact / looking at the lens',
-    '  ✗ Professional lighting (ring lights, softboxes, key lights, beauty dish)',
-    '  ✗ Commercial/editorial/fashion photography style',
-    '  ✗ Stock photo or ad campaign aesthetics',
-    '  ✗ Plain, gradient, or artificially blurred backgrounds',
-    '  ✗ Any pose that looks like it was directed by a photographer',
-    '',
-    'REQUIRED — the image must have ALL of the following:',
-    '  ✓ Camera position: BEHIND or BESIDE the subject (back, shoulder, or side profile)',
-    '  ✓ Setting: a real, recognisable outdoor or indoor location (street, park, cafe, home)',
-    '  ✓ Light source: natural daylight, golden hour, window light, or overcast sky ONLY',
-    '  ✓ Feel: candid, unstaged, slightly imperfect — like the subject did not know they were being photographed',
-    '  ✓ Clear empty zones at TOP 20% and BOTTOM 15% of frame for text overlay',
-  ].join('\n'));
-
-  // 1. Slide role — sets energy and composition target
-  const roleLines: Record<'hook' | 'body' | 'cta', string> = {
-    hook: `SLIDE ROLE: HOOK (slide 1 of ${ctx.totalSlides}) — The very first image the viewer sees. It must create instant curiosity, desire, or emotional pull that compels an immediate swipe. The scene should feel unresolved — like a story is about to start. Energy: slightly tense or intriguing, not comfortable or conclusive.`,
-    body: `SLIDE ROLE: BODY (slide ${ctx.index + 1} of ${ctx.totalSlides}) — A narrative-deepening slide. Maintain the candid, real-world tone of the sequence but show a visually distinct scene. One clear subject, no competing focal points. Advances the emotional arc.`,
-    cta: `SLIDE ROLE: CALL TO ACTION (final slide, ${ctx.index + 1} of ${ctx.totalSlides}) — The viewer has reached the end. The image should feel warm, resolved, and inviting — slightly brighter or more open than the body slides. The composition should feel like an invitation to act, not a cliffhanger.`,
-  };
-  sections.push(roleLines[ctx.kind]);
-
-  // 2. Scene brief — describes WHAT subject/action to show.
-  //    Camera angle and environment rules immediately follow and override
-  //    any professional or studio framing that may appear here.
-  sections.push([
-    'SCENE CONTEXT (what subject/action to show — the camera angle and environment rules that immediately follow override any professional or studio framing in this description):',
-    req.prompt,
-  ].join('\n'));
-
-  // 3. Camera angle direction — placed directly after the scene brief so it
-  //    immediately overrides any conflicting framing in section 2. This is the
-  //    core of the TikTok UGC look. Straight-on headshots and studio portraits
-  //    are explicitly banned.
-  sections.push([
-    'CAMERA ANGLE (NON-NEGOTIABLE — pick one, it overrides all other framing instructions):',
-    '  • BEHIND-THE-BACK: Camera is positioned behind or slightly to the side of the subject. We see their back, shoulder, or the back of their head. They are looking out at the world ahead of them. Feels like you are following them.',
-    '  • OVER-SHOULDER: Camera is slightly behind and to one side. We see part of their shoulder/ear and the scene they are looking at. POV energy — viewer feels present.',
-    '  • SIDE PROFILE: 90-degree side angle, like street photography. Subject caught mid-walk or mid-action. Face in natural profile, not turned to camera.',
-    '  • LOW ANGLE LOOKING UP: Camera is at waist or knee height, looking up slightly. Subject appears confident and larger than life. Urban or outdoor backdrop stretches above.',
-    '  • CANDID SEATED: Subject is seated — bench, cafe chair, steps, curb. Camera is at eye level or slightly above. They are looking at their phone, a drink, or into the distance. NOT looking at camera.',
-    'ABSOLUTE BAN: straight-on frontal headshot, studio portrait framing, subject making direct prolonged eye contact with lens, any pose that looks planned or commercial. These are banned regardless of anything else in this prompt.',
-  ].join('\n'));
-
-  // 4. Environment and scene direction — real-world, not studio.
-  //    Placed here (before visual intent) so environment rules take precedence
-  //    over any studio-flavoured setting that may appear in the visual intent.
-  sections.push([
-    'ENVIRONMENT (NON-NEGOTIABLE — must feel like a real place, not a set):',
-    'Choose an authentic real-world location appropriate to the scene context:',
-    '  • Outdoor: park path, city sidewalk, neighbourhood street, cafe patio, rooftop, steps, plaza, market',
-    '  • Indoor: cafe interior, apartment window seat, home living room, bedroom corner with natural light',
-    '  • Natural light ONLY — no ring lights, no soft boxes, no studio backdrop, no neutral background. Window light, daylight, golden hour, or overcast sky.',
-    'The environment should have depth and texture — blurred buildings, leaves, people in background, street details. Not a flat wall or gradient.',
-    'COLOR GRADING: Warm, slightly desaturated "iPhone photo" look — lifted shadows, slightly faded blacks, natural skin tones. Not oversaturated. Not HDR. Not studio-clean.',
-  ].join('\n'));
-
-  // 5. Visual atmosphere — lighting, color mood, and motion cues from the
-  //    content generator. Composition and framing are NOT included here because
-  //    those are fully controlled by the camera angle and environment rules above.
-  //    Including GPT-generated composition/subjectFocus fields here caused the
-  //    prior failure mode (e.g. "frontal shot" marked as a constraint, overriding
-  //    the camera angle rules).
-  sections.push([
-    'SCENE ATMOSPHERE (lighting and mood cues — composition and framing are dictated by the camera angle rule above):',
-    `Lighting: ${visualIntent.lighting}`,
-    `Color Mood: ${visualIntent.colorMood}`,
-    `Motion Style: ${visualIntent.motionStyle}`,
-  ].join('\n'));
-
-  // 6. Safe text zones — both top AND bottom must have overlay space.
-  //    This is the #1 structural requirement for TikTok photo-mode slides.
-  const safeZoneInstructions: Record<'top' | 'middle' | 'bottom', string> = {
-    top: [
-      'TEXT OVERLAY ZONES (CRITICAL — this image will have bold white text rendered on top):',
-      'TOP ZONE (primary text): The top 20% of the frame MUST be clear — plain sky, plain wall, blurred background, or open negative space. No faces, hands, objects, or busy detail here. Bold white 60pt headline text will sit here.',
-      'BOTTOM ZONE (secondary text): The bottom 15% of the frame should also be relatively clear for a caption line. Keep detail light in this area.',
-      'All major visual weight and subject matter must sit in the MIDDLE 60% of the frame.',
-    ].join('\n'),
-    middle: [
-      'TEXT OVERLAY ZONES (CRITICAL — this image will have bold white text rendered on top):',
-      'TOP ZONE (primary text): The top 20% of the frame MUST be clear — sky, wall, or open background. No faces, objects, or busy detail here.',
-      'BOTTOM ZONE (secondary text): The bottom 15% of the frame should also be clear for a caption line.',
-      'CENTER BAND: Keep the exact horizontal center of the frame relatively uncluttered so a secondary text line can float there if needed.',
-      'Subject should be positioned to one side to leave clear zones at top and bottom.',
-    ].join('\n'),
-    bottom: [
-      'TEXT OVERLAY ZONES (CRITICAL — this image will have bold white text rendered on top):',
-      'BOTTOM ZONE (primary text): The bottom 20% of the frame MUST be clear — ground, pavement, open shadow area, or plain surface. No faces, hands, or complex detail here. Bold white text will sit here.',
-      'TOP ZONE (secondary text): The top 15% of the frame should also be relatively clear — sky or plain background.',
-      'All major visual weight and subject matter must sit in the MIDDLE 60% of the frame.',
-    ].join('\n'),
-  };
-  sections.push(safeZoneInstructions[ctx.safeTextRegion]);
-
-  // 7. Sequence diversity — each slide must look different
-  if (ctx.previousVisualSignatures.length > 0) {
-    const recentSignatures = ctx.previousVisualSignatures.slice(-3);
-    const signatureLines = recentSignatures.map((sig, i) => {
-      const terms = sig.split('|').filter(Boolean).slice(0, 8).join(', ');
-      return `  Slide ${i + 1}: ${terms}`;
-    });
-    sections.push([
-      `SEQUENCE DIVERSITY (this is slide ${ctx.index + 1} — must be visually distinct from all previous):`,
-      'Visual territory already used in this sequence:',
-      ...signatureLines,
-      'You MUST use a different camera angle, different lighting direction, different background type, and different subject position. Each slide should feel like it was captured at a different moment by a different person.',
-    ].join('\n'));
-  }
-
-  // 8. Style — TikTok UGC. Authenticity beats polish every time.
-  const slideshowStyleVariants: Partial<Record<ImageStyle, string>> = {
-    photorealistic: 'STYLE: Candid phone photo. Handheld iPhone or Android quality — slight natural lens distortion, real ambient light, no commercial polish, no studio sheen. Looks like a real person captured a genuine moment. Think TikTok FYP, not brand campaign.',
-    branded: 'STYLE: Organic UGC-branded. Warm film tones, honest real-world lighting, natural textures. The brand is communicated through mood and setting, never through logos or graphic overlays. Authentic over polished.',
-    illustration: 'STYLE: Bold editorial illustration. Limited color palette, strong graphic shapes, risograph grain. Each slide is a self-contained graphic moment with clear text zones.',
-    minimal: 'STYLE: Clean minimalism. One subject, strong negative space, two dominant colors. The simplicity creates the room for text to breathe.',
-    abstract: 'STYLE: Warm abstract. Organic shapes and color fields that evoke emotion. Gallery-quality but readable at phone scale with text overlaid.',
-  };
-  sections.push(slideshowStyleVariants[req.style] ?? slideshowStyleVariants.photorealistic!);
-
-  // 9. Hard technical constraints
-  sections.push([
-    'FORMAT: Portrait 9:16 — full-screen TikTok slideshow. Everything must read on a phone held vertically.',
-    'QUALITY: Natural sharpness at phone viewing distance. Slight film grain or natural sensor noise is fine — it adds authenticity.',
-    'NO readable text, words, signs, or labels anywhere in the frame.',
-    'NO watermarks, logos, graphic overlays, or UI elements.',
-    'NO studio lighting, ring lights, or any obviously artificial lighting setup.',
-    'CRITICAL: The text overlay zones defined above are non-negotiable. A real TikTok creator will add bold white text with drop shadow over this image. That text MUST be readable.',
-  ].join('\n'));
-
-  // 10. FINAL OVERRIDE — repeated at the end because models weight recent tokens.
-  //     This closes the loop opened by section 0 and prevents the scene context
-  //     in section 2 from bleeding through to the final output.
-  sections.push([
-    '╔══════════════════════════════════════════════════════════════╗',
-    '║  FINAL CHECK — OVERRIDE ANY CONFLICTING INSTRUCTION ABOVE   ║',
-    '╚══════════════════════════════════════════════════════════════╝',
-    '',
-    'Before rendering, verify your image satisfies EVERY point:',
-    '  ✓ Camera is BEHIND or BESIDE the subject — subject is NOT facing the lens',
-    '  ✓ Location is a REAL place — NOT a studio, NOT a plain background',
-    '  ✓ Light is NATURAL — NOT artificial studio lighting of any kind',
-    '  ✓ The top 20% of the frame is CLEAR (sky / wall / open space)',
-    '  ✓ The bottom 15% of the frame is CLEAR (ground / surface)',
-    '  ✓ The overall aesthetic looks like a PERSONAL SMARTPHONE PHOTO, not a campaign shoot',
-    '',
-    'If any point above is violated, regenerate until all points pass.',
-    'A studio headshot, frontal portrait, or commercially polished image is a failure.',
-  ].join('\n'));
-
-  return sections.join('\n\n');
-}
-
 function buildImagePrompt(req: ImageGenRequest): string {
-  if (req.generationMode === 'slideshow_slide' && req.slideContext) {
-    return buildSlideshowImagePrompt(req);
-  }
   if (req.promptMode === 'custom_override') {
     return buildCustomOverrideImagePrompt(req);
+  }
+  if (req.promptMode === 'hybrid' && req.customPrompt?.trim()) {
+    const base = buildGuidedImagePrompt({
+      ...req,
+      promptMode: 'guided',
+      customPrompt: undefined,
+    });
+    return [
+      base,
+      '',
+      'USER CREATIVE SUFFIX (apply faithfully on top of the guided brief above — refine lighting, palette, or emphasis; do not replace the core scene with something unrelated):',
+      req.customPrompt.trim(),
+    ].join('\n');
   }
   return buildGuidedImagePrompt(req);
 }
@@ -1261,11 +1024,7 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
   // (the user is providing their own brief verbatim) and skipped if the
   // caller already supplied an intent.
   let reqWithIntent = req;
-  // Skip the scene interpreter for slideshow slides — the slideshow generator
-  // already produced a structured visualIntent, so running the interpreter
-  // again would be redundant and could contradict the generator's decisions.
-  // Also skipped for custom_override (user supplies their own brief verbatim).
-  if (req.promptMode !== 'custom_override' && !req.sceneIntent && req.generationMode !== 'slideshow_slide') {
+  if (req.promptMode !== 'custom_override' && !req.sceneIntent) {
     const intent = await interpretSceneIntent({
       productName: req.productName,
       productDescription: req.productDescription,
@@ -1281,40 +1040,7 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
 
   const prompt = buildImagePrompt(reqWithIntent);
 
-  // Fetch reference images for Gemini multimodal input.
-  //
-  // Slot budget (Gemini 3.1 Flash supports up to 14 total):
-  //   - Character model refs: up to 4 (character consistency slots)
-  //   - Logo + screenshots:   remaining slots (object fidelity)
-  //
-  // Character model images are prepended so they occupy the character
-  // consistency slots before the object fidelity slots are filled.
-  const referenceImages: { base64: string; mimeType: string; role?: 'character' | 'object' }[] = [];
-
-  // 1. Character model reference images (up to 4)
-  if (req.characterModel && req.characterModel.referenceImageUrls.length > 0) {
-    // Use pre-fetched images when available (multi-slide jobs fetch once and
-    // share the base64 data across all slides via prefetchedImages).
-    if (req.characterModel.prefetchedImages && req.characterModel.prefetchedImages.length > 0) {
-      for (const img of req.characterModel.prefetchedImages) {
-        referenceImages.push({ ...img, role: 'character' });
-      }
-    } else {
-      const characterUrls = req.characterModel.referenceImageUrls.slice(0, 4);
-      const fetched = await Promise.allSettled(
-        characterUrls.map((url) => fetchImageAsBase64(url)),
-      );
-      for (const result of fetched) {
-        if (result.status === 'fulfilled') {
-          referenceImages.push({ ...result.value, role: 'character' });
-        } else {
-          console.warn('[character-model] Failed to fetch reference image:', result.reason);
-        }
-      }
-    }
-  }
-
-  // 2. Logo + screenshots (object fidelity)
+  const referenceImages: { base64: string; mimeType: string }[] = [];
   const objectUrls: string[] = [];
   if (req.logoUrl) objectUrls.push(req.logoUrl);
   if (req.screenUrls) objectUrls.push(...req.screenUrls);
@@ -1325,7 +1051,7 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
     );
     for (const result of fetched) {
       if (result.status === 'fulfilled') {
-        referenceImages.push({ ...result.value, role: 'object' });
+        referenceImages.push(result.value);
       } else {
         console.warn('Failed to fetch reference image:', result.reason);
       }
@@ -1333,15 +1059,8 @@ export async function generateImage(req: ImageGenRequest): Promise<{ base64: str
   }
 
   if (req.provider === 'gemini') {
-    // Build the final prompt with character consistency instructions prepended
-    // when a character model is present.
-    let finalPrompt = prompt;
-    if (req.characterModel && referenceImages.some((r) => r.role === 'character')) {
-      finalPrompt = `CHARACTER CONSISTENCY: The ${referenceImages.filter((r) => r.role === 'character').length} reference image(s) provided show the character model named "${req.characterModel.name}" (${req.characterModel.description}). MAINTAIN this person's exact facial features, skin tone, hair, and overall appearance throughout the generated image. Do not alter their face or identity.\n\n${prompt}`;
-    }
-
     const result = await generateWithGemini(
-      finalPrompt,
+      prompt,
       req.aspectRatio,
       referenceImages.length > 0 ? referenceImages : undefined,
     );

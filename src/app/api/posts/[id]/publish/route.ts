@@ -4,6 +4,9 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { publishPostMultiChannel } from '@/lib/social/publisher';
 
+export const runtime = 'nodejs';
+
+
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);

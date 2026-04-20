@@ -9,6 +9,9 @@ import { z } from 'zod';
 import { socialChannels } from '@/lib/schemas';
 import type { ResearchBrief } from '@/lib/schemas';
 
+export const runtime = 'nodejs';
+
+
 const generatePostSchema = z.object({
   productId: z.string().trim().min(1, 'Product ID is required'),
   channel: z.enum(socialChannels),

@@ -13,6 +13,15 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Dashboard and content tools use many dynamic / user-supplied image URLs.
+  // Migrating everything to next/image requires remotePatterns for each host;
+  // keep lint focused on correctness and turn this off until a dedicated pass.
+  {
+    files: ["src/app/**/*.{tsx,jsx}", "src/components/**/*.{tsx,jsx}"],
+    rules: {
+      "@next/next/no-img-element": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

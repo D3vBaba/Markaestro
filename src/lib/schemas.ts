@@ -44,20 +44,6 @@ export const campaignTypes = ['standard', 'pipeline'] as const;
 export const pipelineStages = ['awareness', 'interest', 'consideration', 'trial', 'activation', 'retention'] as const;
 export const pipelineCadences = ['daily', '3x_week', '2x_week', 'weekly'] as const;
 export const pipelineStatuses = ['pending_research', 'researching', 'research_complete', 'generating', 'generating_images', 'generated', 'scheduling', 'scheduled', 'failed'] as const;
-export const slideshowChannels = ['tiktok'] as const;
-export const slideshowStatuses = ['draft', 'researching', 'generating_slides', 'generating_images', 'ready', 'failed', 'exported'] as const;
-export const slideshowRenderModes = ['carousel_images'] as const;
-export const slideKinds = ['hook', 'body', 'cta'] as const;
-export const slideImageStatuses = ['pending', 'generated', 'failed'] as const;
-export const safeTextRegions = ['top', 'middle', 'bottom'] as const;
-export const storyFormats = [
-  'hook_value_cta',
-  'problem_solution',
-  'transformation',
-  'feature_listicle',
-  'ugc_testimonial',
-  'product_lookbook',
-] as const;
 
 // ── Pipeline Sub-Schemas ──────────────────────────────────────────
 
@@ -91,62 +77,6 @@ export const researchBriefSchema = z.object({
   newsHookHeadlines: z.array(z.string()).optional(),
   sources: z.array(z.string()).optional(),
   generatedAt: z.string().datetime(),
-});
-
-export const slideVisualIntentSchema = z.object({
-  composition: z.string().trim().min(1).max(200),
-  subjectFocus: z.string().trim().min(1).max(200),
-  safeTextRegion: z.enum(safeTextRegions),
-  lighting: z.string().trim().min(1).max(200),
-  colorMood: z.string().trim().min(1).max(200),
-  motionStyle: z.string().trim().min(1).max(200),
-});
-
-export const slideQualitySchema = z.object({
-  hookStrength: z.number().min(0).max(1),
-  readability: z.number().min(0).max(1),
-  distinctiveness: z.number().min(0).max(1),
-  visualClarity: z.number().min(0).max(1),
-  notes: z.array(z.string().trim().min(1).max(200)).max(10).default([]),
-});
-
-export const slideshowSlideSchema = z.object({
-  id: z.string().trim().min(1).max(200).optional(),
-  index: z.number().int().min(0),
-  kind: z.enum(slideKinds),
-  headline: z.string().trim().min(1).max(200),
-  body: z.string().trim().max(500).default(''),
-  cta: z.string().trim().max(200).default(''),
-  imagePrompt: z.string().trim().min(1).max(4000),
-  imageUrl: z.string().trim().url().or(z.literal('')).default(''),
-  imageStatus: z.enum(slideImageStatuses).default('pending'),
-  visualIntent: slideVisualIntentSchema,
-  quality: slideQualitySchema.optional(),
-});
-
-export const createSlideshowSchema = z.object({
-  productId: z.string().trim().min(1).max(2000),
-  prompt: z.string().trim().max(4000).optional(),
-  title: z.string().trim().max(200).optional(),
-  channel: z.enum(slideshowChannels).default('tiktok'),
-  slideCount: z.number().int().min(3).max(10).default(6),
-  caption: z.string().trim().max(4000).optional(),
-  aspectRatio: z.literal('9:16').default('9:16'),
-  renderMode: z.enum(slideshowRenderModes).default('carousel_images'),
-  visualStyle: z.string().trim().max(200).default('reelfarm'),
-  imageStyle: z.lazy(() => z.enum(imageStyles)).default('branded'),
-  imageProvider: z.lazy(() => z.enum(imageProviders)).default('gemini'),
-  storyFormat: z.enum(storyFormats).default('hook_value_cta'),
-  characterModelId: z.string().trim().max(200).optional(),
-});
-
-export const updateSlideshowSchema = z.object({
-  title: z.string().trim().min(1).max(200).optional(),
-  caption: z.string().trim().max(4000).optional(),
-  coverSlideIndex: z.number().int().min(0).max(9).optional(),
-  status: z.enum(slideshowStatuses).optional(),
-  errorMessage: z.string().trim().max(2000).nullable().optional(),
-  slides: z.array(slideshowSlideSchema).min(1).max(10).optional(),
 });
 
 // ── Campaign Schemas ───────────────────────────────────────────────
@@ -284,30 +214,6 @@ export const productKnowledgeSchema = z.object({
   enrichmentSource: z.enum(['manual', 'url_import', 'ai_assisted']).optional(),
 });
 
-// ── Character Model Schema ────────────────────────────────────────
-
-export const characterModelGenders = ['female', 'male', 'nonbinary'] as const;
-export const characterModelAgeRanges = ['18-25', '26-35', '36-50', '51+'] as const;
-export const characterModelStyles = ['casual', 'professional', 'fitness', 'lifestyle', 'streetwear'] as const;
-export const characterModelBodySizes = ['slim', 'average', 'plus'] as const;
-
-export const characterModelSchema = z.object({
-  id: z.string().trim().min(1),
-  name: z.string().trim().min(1).max(100),
-  description: z.string().trim().max(500),
-  gender: z.enum(characterModelGenders),
-  ageRange: z.enum(characterModelAgeRanges),
-  ethnicity: z.string().trim().max(100),
-  bodySize: z.enum(characterModelBodySizes),
-  style: z.enum(characterModelStyles),
-  referenceImageUrls: z.array(z.string().url()).min(1).max(5),
-  primaryReferenceImageUrl: z.string().url(),
-  thumbnailUrl: z.string().url(),
-  generationPrompt: z.string().trim().max(2000).default(''),
-  isActive: z.boolean().default(true),
-  createdAt: z.string().datetime(),
-});
-
 // ── Brand Voice Schema ────────────────────────────────────────────
 
 export const brandVoiceSchema = z.object({
@@ -377,7 +283,18 @@ export const metaIntegrationSchema = z.object({
 
 // ── Prompt Mode (shared by image generation) ──────────────────────
 
-export const promptModes = ['guided', 'custom_override'] as const;
+export const promptModes = ['guided', 'custom_override', 'hybrid'] as const;
+
+/** How pipeline runs combine LLM image briefs with user templates */
+export const pipelineImagePromptModes = ['guided', 'custom_override', 'hybrid'] as const;
+export type PipelineImagePromptMode = (typeof pipelineImagePromptModes)[number];
+
+/** How pipeline post captions are produced */
+export const pipelinePostCopyModes = ['ai_generated', 'from_outline'] as const;
+export type PipelinePostCopyMode = (typeof pipelinePostCopyModes)[number];
+
+export const pipelineImageChannelModes = ['auto', 'manual'] as const;
+export type PipelineImageChannelMode = (typeof pipelineImageChannelModes)[number];
 
 // ── TikTok Trend Schema ───────────────────────────────────────────
 
@@ -469,10 +386,54 @@ export const imageSubtypes = [
   'mood-abstract',
 ] as const;
 
-export const generateImageSchema = z.object({
+/** Body for POST /api/campaigns/:id/generate-pipeline */
+export const generatePipelineRequestSchema = z
+  .object({
+    productId: z.string().trim().min(1, 'Product ID is required'),
+    imageStyle: z.enum(imageStyles).default('branded'),
+    imageProvider: z.enum(imageProviders).default('gemini'),
+    imageSubtypes: z.array(z.enum(imageSubtypes)).default([]),
+    skipImages: z.boolean().default(false),
+    creativeBrief: z.string().trim().max(4000).optional(),
+    imagePromptMode: z.enum(pipelineImagePromptModes).default('guided'),
+    imageCustomTemplate: z.string().trim().max(4000).optional(),
+    postCopyMode: z.enum(pipelinePostCopyModes).default('ai_generated'),
+    /** Bullets / notes; expanded into captions when postCopyMode is from_outline */
+    postOutline: z.string().trim().max(8000).optional(),
+    /** auto = use most restrictive channel among campaign targets; manual = optimizeImagesForChannel */
+    imageChannelMode: z.enum(pipelineImageChannelModes).default('auto'),
+    optimizeImagesForChannel: z.enum(socialChannels).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.imagePromptMode !== 'guided' && !data.imageCustomTemplate?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Add an image template or suffix when using custom or hybrid image mode.',
+        path: ['imageCustomTemplate'],
+      });
+    }
+    if (data.postCopyMode === 'from_outline' && !data.postOutline?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Add a post outline when using outline expansion mode.',
+        path: ['postOutline'],
+      });
+    }
+    if (data.imageChannelMode === 'manual' && !data.optimizeImagesForChannel) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Pick a channel to optimize images for, or use automatic framing.',
+        path: ['optimizeImagesForChannel'],
+      });
+    }
+  });
+
+export const generateImageSchema = z
+  .object({
   prompt: z.string().trim().min(1, 'Prompt is required').max(4000),
   promptMode: z.enum(promptModes).default('guided'),
-  customPrompt: z.string().trim().max(1200).optional(),
+  /** Full override brief, or hybrid suffix appended after the guided prompt */
+  customPrompt: z.string().trim().max(4000).optional(),
   productId: z.string().trim().optional(),
   /** Target social channel — drives platform-specific visual strategy */
   channel: z.enum(socialChannels).optional(),
@@ -487,7 +448,19 @@ export const generateImageSchema = z.object({
   includeLogo: z.boolean().default(false),
   /** Number of images to generate in a single request (1-6) */
   count: z.number().int().min(1).max(6).default(1),
-});
+})
+  .superRefine((data, ctx) => {
+    if (
+      (data.promptMode === 'custom_override' || data.promptMode === 'hybrid') &&
+      !data.customPrompt?.trim()
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'customPrompt is required for custom_override and hybrid modes',
+        path: ['customPrompt'],
+      });
+    }
+  });
 
 // ── Post Schemas ──────────────────────────────────────────────────
 
@@ -504,7 +477,9 @@ export const createPostSchema = z.object({
   pipelineSequence: z.number().int().min(0).optional(),
   pipelineTheme: z.string().trim().max(200).optional(),
   targetChannels: z.array(z.enum(socialChannels)).optional(),
+  /** Legacy value `slideshow` may still exist on older Firestore documents. */
   sourceType: z.enum(['manual', 'pipeline', 'slideshow']).optional(),
+  /** Optional metadata preserved for legacy slideshow-exported posts and API stability. */
   slideshowId: z.string().trim().max(200).optional(),
   slideshowTitle: z.string().trim().max(200).optional(),
   slideshowSlideCount: z.number().int().min(1).max(10).optional(),
@@ -526,7 +501,9 @@ export const updatePostSchema = z.object({
   pipelineSequence: z.number().int().min(0).optional(),
   pipelineTheme: z.string().trim().max(200).optional(),
   targetChannels: z.array(z.enum(socialChannels)).optional(),
+  /** Legacy value `slideshow` may still exist on older Firestore documents. */
   sourceType: z.enum(['manual', 'pipeline', 'slideshow']).optional(),
+  /** Optional metadata preserved for legacy slideshow-exported posts and API stability. */
   slideshowId: z.string().trim().max(200).optional(),
   slideshowTitle: z.string().trim().max(200).optional(),
   slideshowSlideCount: z.number().int().min(1).max(10).optional(),
@@ -579,26 +556,9 @@ export type PipelineCadence = (typeof pipelineCadences)[number];
 export type PipelineStatus = (typeof pipelineStatuses)[number];
 export type PipelineConfig = z.infer<typeof pipelineConfigSchema>;
 export type ResearchBrief = z.infer<typeof researchBriefSchema>;
-export type SlideshowChannel = (typeof slideshowChannels)[number];
-export type SlideshowStatus = (typeof slideshowStatuses)[number];
-export type SlideshowRenderMode = (typeof slideshowRenderModes)[number];
-export type SlideKind = (typeof slideKinds)[number];
-export type SlideImageStatus = (typeof slideImageStatuses)[number];
-export type SafeTextRegion = (typeof safeTextRegions)[number];
-export type SlideVisualIntent = z.infer<typeof slideVisualIntentSchema>;
-export type SlideQuality = z.infer<typeof slideQualitySchema>;
-export type SlideshowSlide = z.infer<typeof slideshowSlideSchema>;
-export type CreateSlideshow = z.infer<typeof createSlideshowSchema>;
-export type UpdateSlideshow = z.infer<typeof updateSlideshowSchema>;
 export type PromptMode = (typeof promptModes)[number];
 export type TikTokTrendStatus = (typeof tiktokTrendStatuses)[number];
 export type TikTokTrend = z.infer<typeof tiktokTrendSchema>;
-export type StoryFormat = (typeof storyFormats)[number];
 export type ProductFeature = z.infer<typeof productFeatureSchema>;
 export type ProofPoint = z.infer<typeof proofPointSchema>;
 export type ProductKnowledge = z.infer<typeof productKnowledgeSchema>;
-export type CharacterModelGender = (typeof characterModelGenders)[number];
-export type CharacterModelAgeRange = (typeof characterModelAgeRanges)[number];
-export type CharacterModelStyle = (typeof characterModelStyles)[number];
-export type CharacterModelBodySize = (typeof characterModelBodySizes)[number];
-export type CharacterModel = z.infer<typeof characterModelSchema>;

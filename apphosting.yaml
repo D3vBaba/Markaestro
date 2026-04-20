@@ -1,9 +1,18 @@
 runConfig:
-  minInstances: 0
-  maxInstances: 4
+  # At least one warm instance avoids 4–8s cold-start latency on /login and
+  # /dashboard hits — the first request of the day otherwise compiles the
+  # Next.js standalone runtime + initialises firebase-admin + Secret Manager.
+  minInstances: 1
+  maxInstances: 10
+  # Sharp, OpenAI SDK, firebase-admin, and parallel Gemini calls comfortably
+  # push memory above the default 512 MiB under load. 1 GiB + 1 vCPU gives
+  # us headroom without doubling cost.
   concurrency: 80
   cpu: 1
-  memoryMiB: 512
+  memoryMiB: 1024
+  # Image-generation and enrichment routes can run >30s. Raise the request
+  # timeout close to Cloud Run's hard ceiling.
+  timeoutSeconds: 300
 
 env:
   # Client-side Firebase config (available at build + runtime)
@@ -33,7 +42,7 @@ env:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    value: 1:227206788749:web:3b4e8c1b6e9bfeb1cdd4c4
+    value: "1:227206788749:web:3b4e8c1b6e9bfeb1cdd4c4"
     availability:
       - BUILD
       - RUNTIME
@@ -110,10 +119,16 @@ env:
   # Sentry error tracking (client-side DSN is safe to expose)
   - variable: NEXT_PUBLIC_SENTRY_DSN
     secret: SENTRY_DSN
+    availability:
+      - BUILD
+      - RUNTIME
 
   # Server-side secrets (from Google Secret Manager)
   - variable: SERPER_API_KEY
     secret: SERPER_API_KEY
+  # Legacy single key — used for AES-GCM and (via fallback in code) session
+  # signing until DATA_ENCRYPTION_KEY / SESSION_SIGNING_KEY exist in Secret
+  # Manager and are granted to App Hosting (`firebase apphosting:secrets:grantaccess`).
   - variable: ENCRYPTION_KEY
     secret: ENCRYPTION_KEY
   - variable: WORKER_SECRET
@@ -121,7 +136,12 @@ env:
   - variable: RESEND_API_KEY
     secret: RESEND_API_KEY
   - variable: RESEND_FROM
-    value: Markaestro <no-reply@markaestro.com>
+    value: "Markaestro <no-reply@markaestro.com>"
+    availability:
+      - RUNTIME
+  # Comma-separated origins for /api/public/v1/* (browser CORS). Omit this
+  # variable entirely to disable CORS (server-to-server callers unaffected).
+  # Set in Firebase console if you need explicit origins in production.
   - variable: OPENAI_API_KEY
     secret: OPENAI_API_KEY
   - variable: GEMINI_API_KEY

@@ -306,6 +306,9 @@ export default function ProductsPage() {
         }
       }, 500);
     }
+    // Mount-only: parse OAuth query params once. `openEditSheet` is defined below and
+    // intentionally omitted to avoid re-running when its identity changes each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- OAuth deep-link handling
   }, []);
 
   useEffect(() => {
@@ -441,7 +444,7 @@ export default function ProductsPage() {
       setEditOpen(true);
       // Auto-load pages if Meta is connected (workspace or product) but no page selected
       if (metaConn && !metaConn.pageId) {
-        void loadMetaPages(product.id);
+        void loadMetaPages();
       }
       return;
     } else {
@@ -565,7 +568,7 @@ export default function ProductsPage() {
     finally { setDisconnecting(null); }
   }
 
-  async function loadMetaPages(_productId?: string) {
+  async function loadMetaPages() {
     setLoadingPages(true);
     try {
       // User token is workspace-level — no productId needed
@@ -1044,7 +1047,7 @@ export default function ProductsPage() {
                                 Select a Facebook page for this product to enable publishing.
                               </p>
                             )}
-                            <Button variant="outline" size="sm" onClick={() => { loadMetaPages(editProductId); setSelectedPageId(""); }} disabled={loadingPages}>
+                            <Button variant="outline" size="sm" onClick={() => { void loadMetaPages(); setSelectedPageId(""); }} disabled={loadingPages}>
                               {loadingPages ? "Loading..." : metaInteg?.pageId ? "Change Page" : "Select Page"}
                             </Button>
                             {metaPages.length > 0 && (

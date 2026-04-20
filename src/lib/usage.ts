@@ -72,6 +72,51 @@ export async function checkAndIncrementUsage(
 }
 
 /**
+ * Refund `n` units of usage that were optimistically incremented but
+ * ultimately not consumed (e.g., downstream provider error after
+ * checkAndIncrementUsage returned allowed=true).
+ *
+ * Uses FieldValue.increment(-n) to avoid lost updates under contention,
+ * and clamps at 0 in a follow-up transaction only if the counter would
+ * go negative — most refunds complete on the atomic path.
+ */
+export async function refundUsage(
+  uid: string,
+  type: UsageType,
+  count: number,
+  workspaceId?: string,
+): Promise<void> {
+  if (!count || count <= 0) return;
+  const month = currentMonth();
+  const field = `${month}_${type}`;
+  const docRef = adminDb.collection('usage').doc(usageScopeId(uid, workspaceId));
+  const { FieldValue } = await import('firebase-admin/firestore');
+  try {
+    await docRef.set({ [field]: FieldValue.increment(-count) }, { merge: true });
+  } catch (err) {
+    console.warn('[usage.refund] atomic decrement failed, falling back', err);
+    await adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(docRef);
+      const current = (snap.data()?.[field] as number) ?? 0;
+      const next = Math.max(0, current - count);
+      tx.set(docRef, { [field]: next }, { merge: true });
+    });
+    return;
+  }
+  // Best-effort clamp if the atomic decrement went negative (race with a
+  // concurrent reset or manual admin edit).
+  try {
+    await adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(docRef);
+      const current = (snap.data()?.[field] as number) ?? 0;
+      if (current < 0) tx.set(docRef, { [field]: 0 }, { merge: true });
+    });
+  } catch {
+    // non-fatal
+  }
+}
+
+/**
  * Returns the current month's usage counts for a user without modifying them.
  * Useful for displaying remaining quota in the UI.
  */

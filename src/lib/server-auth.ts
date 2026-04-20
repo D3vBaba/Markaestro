@@ -1,9 +1,10 @@
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { createHash } from 'node:crypto';
 import { DEFAULT_WORKSPACE_ID, getWorkspaceId, isValidWorkspaceId } from '@/lib/workspace';
-import { verifySessionCookieAsync } from '@/lib/session-cookie';
+import { decodeSessionCookie } from '@/lib/session-cookie';
+import { parseBearerToken } from '@/lib/bearer';
 import type { WorkspaceRole } from '@/lib/schemas';
-import { getSubscription } from '@/lib/stripe/subscription';
+import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 
 const SUBSCRIPTION_REQUIRES_VERIFICATION = new Set(['active', 'trialing']);
 
@@ -20,11 +21,16 @@ function isEmailVerificationExemptPath(pathname: string): boolean {
   return false;
 }
 
-async function assertEmailVerifiedIfRequired(req: Request, uid: string, emailVerified: boolean): Promise<void> {
+async function assertEmailVerifiedIfRequired(
+  req: Request,
+  uid: string,
+  workspaceId: string,
+  emailVerified: boolean,
+): Promise<void> {
   if (emailVerified) return;
   const pathname = new URL(req.url).pathname;
   if (isEmailVerificationExemptPath(pathname)) return;
-  const sub = await getSubscription(uid);
+  const sub = await getEffectiveSubscription({ uid, workspaceId });
   if (sub && SUBSCRIPTION_REQUIRES_VERIFICATION.has(sub.status)) {
     throw new Error('EMAIL_VERIFICATION_REQUIRED');
   }
@@ -43,10 +49,7 @@ function normalizeEmail(email?: string | null): string | null {
 }
 
 function getBearerToken(req: Request): string | null {
-  const auth = req.headers.get('authorization') || '';
-  const [scheme, token] = auth.split(' ');
-  if (scheme?.toLowerCase() !== 'bearer' || !token) return null;
-  return token;
+  return parseBearerToken(req.headers.get('authorization'));
 }
 
 function getSessionCookie(req: Request): string | null {
@@ -62,11 +65,6 @@ function getSessionCookie(req: Request): string | null {
   }
 
   return null;
-}
-
-function getUidFromSessionCookie(cookie: string): string | null {
-  const [uid] = cookie.split('.');
-  return uid || null;
 }
 
 function personalWorkspaceId(uid: string): string {
@@ -164,6 +162,14 @@ async function acceptPendingInvites(uid: string, email?: string): Promise<void> 
     const workspaceId = parts[1];
     if (!workspaceId) continue;
 
+    const data = inviteDoc.data();
+    // Skip expired invites (TTL cleanup is eventually consistent; enforce at read time).
+    const expiresAt = data.expiresAt?.toDate?.() || (typeof data.expiresAt === 'string' ? new Date(data.expiresAt) : null);
+    if (expiresAt && expiresAt.getTime() < Date.now()) {
+      batch.delete(inviteDoc.ref);
+      continue;
+    }
+
     const memberRef = adminDb.doc(`workspaces/${workspaceId}/members/${uid}`);
     const memberSnap = await memberRef.get();
 
@@ -171,7 +177,7 @@ async function acceptPendingInvites(uid: string, email?: string): Promise<void> 
       batch.set(memberRef, {
         uid,
         email: normalizedEmail,
-        role: inviteDoc.data().role || 'member',
+        role: data.role || 'member',
         joinedAt: now,
       }, { merge: true });
     }
@@ -193,14 +199,17 @@ export async function requireContext(req: Request): Promise<RequestContext> {
   if (token) {
     let decoded: Awaited<ReturnType<typeof adminAuth.verifyIdToken>>;
     try {
-      decoded = await adminAuth.verifyIdToken(token);
+      // checkRevoked=true consults Firebase's tokensValidAfterTime, so
+      // password resets / logoutAll / account compromise revoke immediately.
+      decoded = await adminAuth.verifyIdToken(token, true);
     } catch (error) {
       const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
       if (
         message.includes('id token') ||
         message.includes('jwt') ||
         message.includes('token') ||
-        message.includes('credential')
+        message.includes('credential') ||
+        message.includes('revoked')
       ) {
         throw new Error('UNAUTHENTICATED');
       }
@@ -210,20 +219,34 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     uid = decoded.uid;
     email = normalizeEmail(decoded.email) || undefined;
     emailVerified = decoded.email_verified === true;
-  } else if (sessionCookie && await verifySessionCookieAsync(sessionCookie)) {
-    const sessionUid = getUidFromSessionCookie(sessionCookie);
-    if (!sessionUid) {
+  } else if (sessionCookie) {
+    const decoded = await decodeSessionCookie(sessionCookie);
+    if (!decoded) {
       throw new Error('UNAUTHENTICATED');
     }
 
-    uid = sessionUid;
+    uid = decoded.uid;
+    let userRecord: Awaited<ReturnType<typeof adminAuth.getUser>>;
     try {
-      const userRecord = await adminAuth.getUser(uid);
-      email = normalizeEmail(userRecord.email) || undefined;
-      emailVerified = userRecord.emailVerified === true;
+      userRecord = await adminAuth.getUser(uid);
     } catch {
       throw new Error('UNAUTHENTICATED');
     }
+
+    // Enforce revocation: if the user's refresh tokens were revoked after
+    // the cookie was issued, treat the cookie as invalid.
+    const validAfter = userRecord.tokensValidAfterTime
+      ? Date.parse(userRecord.tokensValidAfterTime)
+      : 0;
+    if (validAfter && decoded.issuedAtMs < validAfter) {
+      throw new Error('UNAUTHENTICATED');
+    }
+    if (userRecord.disabled) {
+      throw new Error('UNAUTHENTICATED');
+    }
+
+    email = normalizeEmail(userRecord.email) || undefined;
+    emailVerified = userRecord.emailVerified === true;
   } else {
     throw new Error('UNAUTHENTICATED');
   }
@@ -236,8 +259,6 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     console.warn('[requireContext] acceptPendingInvites failed (non-fatal):', err);
   }
 
-  await assertEmailVerifiedIfRequired(req, uid, emailVerified);
-
   const url = new URL(req.url);
   const requestedWs = getWorkspaceId(
     url.searchParams.get('workspaceId') || req.headers.get('x-workspace-id'),
@@ -247,15 +268,27 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     throw new Error('VALIDATION_INVALID_WORKSPACE_ID');
   }
 
+  const resolved = await resolveContextForUser(uid, email, requestedWs);
+
+  // Verification is gated by the *effective* subscription for the workspace
+  // in use, so we can only enforce it after workspace resolution.
+  await assertEmailVerifiedIfRequired(req, uid, resolved.workspaceId, emailVerified);
+
+  return resolved;
+}
+
+async function resolveContextForUser(
+  uid: string,
+  email: string | undefined,
+  requestedWs: string,
+): Promise<RequestContext> {
   const requestedMembership = await getWorkspaceMembership(uid, requestedWs);
   if (requestedMembership) {
     return { uid, email, workspaceId: requestedMembership.workspaceId, role: requestedMembership.role };
   }
 
   if (requestedWs !== DEFAULT_WORKSPACE_ID) {
-    if (!requestedMembership) {
-      throw new Error('FORBIDDEN_WORKSPACE');
-    }
+    throw new Error('FORBIDDEN_WORKSPACE');
   }
 
   const membership = await findUserMembership(uid);

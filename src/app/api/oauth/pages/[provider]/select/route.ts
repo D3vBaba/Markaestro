@@ -4,6 +4,9 @@ import { encrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection, resolveUserAccessToken, getConnectionRef } from '@/lib/platform/connections';
 
+export const runtime = 'nodejs';
+
+
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const ctx = await requireContext(req);

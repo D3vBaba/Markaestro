@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "validate:queries": "node scripts/validate-firestore-queries.mjs",
+    "ci": "npm run lint && npm run typecheck && npm run validate:queries && npm run test",
     "stripe:sync-prices": "node scripts/sync-stripe-prices.mjs",
     "stripe:sync-prices:dry": "node scripts/sync-stripe-prices.mjs --dry-run"
   },

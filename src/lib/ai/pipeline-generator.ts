@@ -1,6 +1,14 @@
 import OpenAI from 'openai';
+import { z } from 'zod';
 import { SYSTEM_PROMPT, buildBrandVoiceBlock, getChannelConstraints } from './content-generator';
-import type { BrandVoice, PipelineConfig, PipelineStage, ResearchBrief, SocialChannel } from '@/lib/schemas';
+import { getMostRestrictiveChannel } from './pipeline-channels';
+import type {
+  BrandVoice,
+  PipelineConfig,
+  PipelinePostCopyMode,
+  PipelineStage,
+  ResearchBrief,
+} from '@/lib/schemas';
 
 const getClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -16,6 +24,16 @@ export type PipelinePost = {
   imagePrompt: string;
 };
 
+/** Replace `{{sequence}}`, `{{stage}}`, `{{theme}}`, `{{content}}`, `{{imagePrompt}}` (case-insensitive). */
+export function expandPipelineImageTemplate(template: string, post: PipelinePost): string {
+  return template
+    .replace(/\{\{sequence\}\}/gi, String(post.pipelineSequence))
+    .replace(/\{\{stage\}\}/gi, post.pipelineStage)
+    .replace(/\{\{theme\}\}/gi, post.pipelineTheme)
+    .replace(/\{\{content\}\}/gi, post.content)
+    .replace(/\{\{imagePrompt\}\}/gi, post.imagePrompt);
+}
+
 export type GeneratePipelineInput = {
   productName: string;
   productDescription: string;
@@ -23,7 +41,47 @@ export type GeneratePipelineInput = {
   brandVoice?: BrandVoice;
   researchBrief: ResearchBrief;
   pipelineConfig: PipelineConfig;
+  /** Optional marketer direction — angles, tone, must-include, locale */
+  creativeBrief?: string;
+  postCopyMode?: PipelinePostCopyMode;
+  /** Bullets / notes expanded when postCopyMode is from_outline */
+  postOutline?: string;
 };
+
+const pipelinePostRowSchema = z.object({
+  content: z.string().trim().min(1).max(4000),
+  theme: z.string().trim().min(1).max(200),
+  imagePrompt: z.string().trim().min(1).max(4000).optional(),
+});
+
+export function parsePipelinePostsModelOutput(text: string): z.infer<typeof pipelinePostRowSchema>[] | null {
+  let json: unknown;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (!json || typeof json !== 'object') return null;
+  const posts = (json as { posts?: unknown }).posts;
+  if (!Array.isArray(posts)) return null;
+  const parsed = z.array(pipelinePostRowSchema).safeParse(posts);
+  if (!parsed.success) return null;
+  return parsed.data;
+}
+
+function buildPipelinePostsRepairPrompt(badOutput: string): string {
+  return `The JSON you returned failed validation. Fix and return ONLY a JSON object with a "posts" array.
+
+Each post must have:
+- "content": non-empty string (the post caption)
+- "theme": short label (2-4 words)
+- "imagePrompt": optional string; if missing, use a detailed cinematic scene description (never empty if you omit it — always provide imagePrompt)
+
+No markdown fences. No commentary.
+
+Your previous output (first 2500 chars):
+${badOutput.slice(0, 2500)}`;
+}
 
 const STAGE_WEIGHTS: Record<PipelineStage, number> = {
   awareness: 0.25,
@@ -127,14 +185,6 @@ function formatResearchContext(brief: ResearchBrief): string {
   return parts.join('\n');
 }
 
-function getMostRestrictiveChannel(channels: SocialChannel[]): SocialChannel {
-  const priority: SocialChannel[] = ['tiktok', 'instagram', 'facebook'];
-  for (const ch of priority) {
-    if (channels.includes(ch)) return ch;
-  }
-  return channels[0];
-}
-
 async function generateStageContent(
   client: OpenAI,
   input: GeneratePipelineInput,
@@ -166,10 +216,44 @@ HOOK VARIETY — use a DIFFERENT hook type for each post:
 
 CTA MANDATE: Every single post MUST end with a clear, specific call to action. Not "check us out" — something compelling: "Start your free trial", "DM us SCALE", "Save this for later 📌", "Tag someone who needs this", "Link in bio", "Comment YES if this is you".`;
 
+  const outlineActive = input.postCopyMode === 'from_outline' && Boolean(input.postOutline?.trim());
+  if (outlineActive) {
+    systemPrompt += `
+
+OUTLINE EXPANSION MODE: A marketer outline will appear in the user message. Expand it into on-brand posts without inventing factual claims (no new stats, testimonials, guarantees, or features beyond PRODUCT, RESEARCH, and the outline). Faithfulness beats maximal novelty; still vary hooks and image scenes where the outline allows.`;
+  }
+
+  const marketerBlock = input.creativeBrief?.trim()
+    ? `--- MARKETER DIRECTION (honor closely; must stay truthful to the product) ---
+${input.creativeBrief.trim()}
+--- END MARKETER DIRECTION ---
+
+`
+    : '';
+
+  const outlineDoc = outlineActive
+    ? `--- MARKETER OUTLINE (full document — expand only the slice that belongs in this stage) ---
+${input.postOutline!.trim()}
+--- END MARKETER OUTLINE ---
+
+`
+    : '';
+
+  const expansionRules = outlineActive
+    ? `OUTLINE EXPANSION (this batch only — stage ${stage.toUpperCase()}):
+- Produce exactly ${count} posts for this stage (${stage}), which are posts ${sequenceOffset + 1}-${sequenceOffset + count} of ${input.pipelineConfig.postCount} total in the full pipeline.
+- Map outline bullets/notes to this stage using stage headings if present (e.g. lines like "--- AWARENESS ---" or "### Consideration"). If headings are missing, assign the outline ideas that best fit this stage's job described below.
+- Do NOT invent product facts. Only state what is supported by the OUTLINE, PRODUCT, or RESEARCH blocks.
+- If the outline has little or nothing for this stage, write ${count} conservative posts using only PRODUCT + RESEARCH with generic, non-specific claims (no fabricated proof points).
+
+`
+    : `Generate exactly ${count} unique posts for this stage. Each post must have a different angle, hook, or pain point. Variety is critical — do not repeat themes.
+
+`;
 
   const userPrompt = `${researchContext}
 
---- PRODUCT ---
+${outlineDoc}${marketerBlock}--- PRODUCT ---
 Name: ${input.productName}
 What it does: ${input.productDescription}
 Category: ${input.productCategories.join(', ')}
@@ -182,8 +266,7 @@ ${STAGE_GOALS[stage]}
 
 Cross-posting to: ${input.pipelineConfig.channels.join(', ')} — content must work across all these channels. Size content for the most restrictive channel (${primaryChannel}).
 
-Generate exactly ${count} unique posts for this stage. Each post must have a different angle, hook, or pain point. Variety is critical — do not repeat themes.
-
+${expansionRules}
 CRITICAL LENGTH RULES:
 - Each post: 1-2 sentences MAX. Brevity is everything.
 - Every word must earn its place. Cut ruthlessly.
@@ -206,26 +289,47 @@ Return ONLY valid JSON array, no other text:
   { "content": "The post text", "theme": "2-4 word theme label", "imagePrompt": "Detailed unique image scene description" }
 ]`;
 
+  const userMessage = `Return a JSON object with a "posts" array. ${userPrompt}`;
+
   const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     max_tokens: 4096,
     response_format: { type: 'json_object' },
     messages: [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: `Return a JSON object with a "posts" array. ${userPrompt}` },
+      { role: 'user', content: userMessage },
     ],
   });
 
-  const text = response.choices[0]?.message?.content || '{}';
-  const parsed = JSON.parse(text);
-  const posts: Array<{ content: string; theme: string; imagePrompt?: string }> = parsed.posts || [];
+  const firstRaw = response.choices[0]?.message?.content || '{}';
+  let rows = parsePipelinePostsModelOutput(firstRaw);
 
-  return posts.map((p, i) => ({
+  if (!rows) {
+    const repair = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 4096,
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
+        { role: 'assistant', content: firstRaw },
+        { role: 'user', content: buildPipelinePostsRepairPrompt(firstRaw) },
+      ],
+    });
+    const repairRaw = repair.choices[0]?.message?.content || '{}';
+    rows = parsePipelinePostsModelOutput(repairRaw);
+  }
+
+  if (!rows) {
+    throw new Error('PIPELINE_POSTS_PARSE_FAILED');
+  }
+
+  return rows.map((p, i) => ({
     content: p.content,
     pipelineStage: stage,
     pipelineSequence: sequenceOffset + i,
     pipelineTheme: p.theme,
-    imagePrompt: p.imagePrompt || p.content,
+    imagePrompt: (p.imagePrompt && p.imagePrompt.trim()) || p.content,
   }));
 }
 

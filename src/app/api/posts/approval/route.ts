@@ -13,6 +13,9 @@ import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+
+
 const submitSchema = z.object({
   postId: z.string().trim().min(1),
 });

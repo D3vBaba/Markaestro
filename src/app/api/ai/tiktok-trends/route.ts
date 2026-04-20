@@ -4,7 +4,10 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
 import { researchTikTokTrends, type TrendResearchInput } from '@/lib/ai/tiktok-trend-researcher';
 import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
+import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { z } from 'zod';
+
+export const runtime = 'nodejs';
 
 const researchSchema = z.object({
   productId: z.string().trim().min(1, 'productId is required'),
@@ -19,6 +22,7 @@ export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'ai.use');
+    await applyRateLimit(req, RATE_LIMITS.ai, { key: `tiktok-trends:${ctx.uid}:${ctx.workspaceId}` });
     const body = await req.json();
     const { productId, focusArea } = researchSchema.parse(body);
 

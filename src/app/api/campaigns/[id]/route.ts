@@ -10,6 +10,8 @@ import {
   hashObject,
 } from '@/lib/campaign-runs';
 
+export const runtime = 'nodejs';
+
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);

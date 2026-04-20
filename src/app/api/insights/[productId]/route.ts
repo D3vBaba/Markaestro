@@ -8,6 +8,9 @@ import { fetchFacebookInsights, fetchInstagramInsights } from '@/lib/social/meta
 import { fetchTikTokInsights } from '@/lib/social/tiktok-insights';
 import type { FacebookInsights, InstagramInsights, TikTokInsights, UnifiedInsights } from '@/lib/social/types';
 
+export const runtime = 'nodejs';
+
+
 export async function GET(req: Request, { params }: { params: Promise<{ productId: string }> }) {
   try {
     const ctx = await requireContext(req);

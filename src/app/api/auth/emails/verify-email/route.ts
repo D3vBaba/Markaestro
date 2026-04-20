@@ -4,19 +4,15 @@ import { adminAuth } from '@/lib/firebase-admin';
 import { createEmailVerificationLink } from '@/lib/firebase-action-links';
 import { verifyEmail } from '@/lib/auth-emails';
 import { sendResendEmail } from '@/lib/resend';
+import { getBearerFromRequest } from '@/lib/bearer';
 
-function getBearerToken(req: Request): string | null {
-  const auth = req.headers.get('authorization') || '';
-  const [scheme, token] = auth.split(' ');
-  if (scheme?.toLowerCase() !== 'bearer' || !token) return null;
-  return token.trim() || null;
-}
+export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
     const rl = await applyRateLimit(req, RATE_LIMITS.auth);
 
-    const token = getBearerToken(req);
+    const token = getBearerFromRequest(req);
     if (!token) throw new Error('UNAUTHENTICATED');
 
     const decoded = await adminAuth.verifyIdToken(token);

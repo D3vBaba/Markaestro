@@ -6,8 +6,12 @@ import {
   readResponseBufferWithLimit,
   readResponseTextWithLimit,
 } from '@/lib/network-security';
+import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import sharp from 'sharp';
 import { z } from 'zod';
+
+export const runtime = 'nodejs';
+
 
 const schema = z.object({
   url: z.string().url(),
@@ -414,6 +418,9 @@ export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'products.write');
+    await applyRateLimit(req, RATE_LIMITS.ai, {
+      key: `product-scan:${ctx.uid}:${ctx.workspaceId}`,
+    });
     const body = await req.json();
     const { url } = schema.parse(body);
 

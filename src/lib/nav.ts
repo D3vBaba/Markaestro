@@ -21,7 +21,6 @@ export const navigationGroups: NavGroup[] = [
             { name: "Products", href: "/products" },
             { name: "Campaigns", href: "/campaigns" },
             { name: "Posts", href: "/content" },
-            { name: "Slideshows", href: "/slideshows" },
             { name: "Calendar", href: "/calendar" },
         ],
     },

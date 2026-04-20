@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import Select from "@/components/app/Select";
@@ -60,11 +59,10 @@ const channelDefaultRatio: Record<string, string> = {
 };
 
 const CONTEXT_MAX_LENGTH = 500;
-const IMAGE_CUSTOM_PROMPT_MAX_LENGTH = 1200;
+const IMAGE_CUSTOM_PROMPT_MAX_LENGTH = 4000;
 
 export default function CreateTab({
   productId,
-  onProductChange: _onProductChange,
   onPostCreated,
 }: {
   productId: string;
@@ -442,20 +440,6 @@ export default function CreateTab({
         </div>
 
         <ChannelSelector value={channel} onChange={handleChannelChange} productId={productId} />
-
-        {channel === "tiktok" && (
-          <div className="flex items-center justify-between gap-3 border border-blue-200/60 bg-blue-50/40 rounded-xl px-4 py-3">
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-blue-900">TikTok Carousel Slideshow</p>
-              <p className="text-[10px] text-blue-700/70 mt-0.5">Create multi-slide AI slideshows optimised for TikTok.</p>
-            </div>
-            <Link href="/slideshows" className="shrink-0">
-              <Button size="sm" variant="outline" className="text-[11px] border-blue-200 text-blue-700 hover:bg-blue-100">
-                Try it
-              </Button>
-            </Link>
-          </div>
-        )}
 
         {mode === "manual" ? (
           /* ── Manual path ── */

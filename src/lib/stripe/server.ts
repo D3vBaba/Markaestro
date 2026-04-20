@@ -12,6 +12,8 @@ export function getStripe(): Stripe {
 }
 
 export type SubscriptionRecord = {
+  /** Workspace the subscription belongs to. Populated for new records; absent on legacy uid-keyed docs. */
+  workspaceId?: string;
   stripeCustomerId: string;
   stripeSubscriptionId: string;
   stripePriceId: string;
@@ -19,7 +21,7 @@ export type SubscriptionRecord = {
   interval: string;
   status: string;
   trialEnd: string | null;
-  currentPeriodEnd: string;
+  currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
   updatedAt: string;
 };

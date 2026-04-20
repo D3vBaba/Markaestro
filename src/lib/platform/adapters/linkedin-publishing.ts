@@ -388,6 +388,7 @@ export const linkedinPublishingAdapter: PlatformAdapter = {
   },
 
   validateConnection(connection: PlatformConnection, _channel: SocialChannel): string | null {
+    void _channel;
     if (!getAuthorUrn(connection)) {
       return 'LinkedIn author not selected. Reconnect LinkedIn from settings.';
     }

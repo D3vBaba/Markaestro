@@ -3,6 +3,9 @@ import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getApiClientAnalytics } from '@/lib/public-api/analytics';
 
+export const runtime = 'nodejs';
+
+
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);

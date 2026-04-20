@@ -4,6 +4,9 @@ import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+
+
 const updateSchema = z.object({
   name: z.string().trim().min(1).max(80),
 });

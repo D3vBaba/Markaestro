@@ -1153,7 +1153,6 @@ function ApiAccessTab() {
   const wsId = workspace?.id ?? 'default';
   const canManage = workspace?.role === 'owner' || workspace?.role === 'admin';
 
-  const [apiClients, setApiClients] = useState<ApiClientInfo[]>([]);
   const [apiClientAnalytics, setApiClientAnalytics] = useState<ApiClientAnalytics[]>([]);
   const [analyticsTotals, setAnalyticsTotals] = useState<ApiAnalyticsTotals>({
     totalRequests: 0,
@@ -1188,7 +1187,6 @@ function ApiAccessTab() {
 
   const fetchApiAccess = useCallback(async () => {
     if (!canManage) {
-      setApiClients([]);
       setWebhookEndpoints([]);
       setLoading(false);
       return;
@@ -1196,13 +1194,11 @@ function ApiAccessTab() {
 
     setLoading(true);
     try {
-      const [clientsRes, webhooksRes, analyticsRes] = await Promise.all([
-        apiGet<{ apiClients: ApiClientInfo[] }>('/api/settings/api-clients', wsId),
+      const [webhooksRes, analyticsRes] = await Promise.all([
         apiGet<{ webhookEndpoints: WebhookEndpointInfo[] }>('/api/settings/webhook-endpoints', wsId),
         apiGet<{ clients: ApiClientAnalytics[]; totals: ApiAnalyticsTotals }>('/api/settings/api-clients/analytics', wsId),
       ]);
 
-      if (clientsRes.ok) setApiClients(clientsRes.data.apiClients || []);
       if (webhooksRes.ok) setWebhookEndpoints(webhooksRes.data.webhookEndpoints || []);
       if (analyticsRes.ok) {
         setApiClientAnalytics(analyticsRes.data.clients || []);

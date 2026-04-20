@@ -3,14 +3,7 @@
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-
-function getSafeNextPath(nextParam: string | null): string {
-  if (!nextParam || !nextParam.startsWith("/")) {
-    return "/settings";
-  }
-
-  return nextParam.startsWith("/oauth/complete") ? "/settings" : nextParam;
-}
+import { getSafeNextPath } from "./safe-next";
 
 function OAuthCompleteContent() {
   const { user, loading } = useAuth();

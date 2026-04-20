@@ -7,6 +7,9 @@ import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { getConnection, deleteConnection } from '@/lib/platform/connections';
 import { adminDb } from '@/lib/firebase-admin';
 
+export const runtime = 'nodejs';
+
+
 const ALLOWED = new Set<string>(oauthProviders);
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {

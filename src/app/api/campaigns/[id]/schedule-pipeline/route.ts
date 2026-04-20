@@ -7,6 +7,9 @@ import { z } from 'zod';
 import { pipelineCadences } from '@/lib/schemas';
 import type { PipelineCadence } from '@/lib/schemas';
 
+export const runtime = 'nodejs';
+
+
 const scheduleSchema = z.object({
   startDate: z.string().datetime().optional(),
   cadence: z.enum(pipelineCadences).optional(),

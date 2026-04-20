@@ -4,23 +4,21 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { researchForPipeline, buildImageResearchContext } from '@/lib/ai/pipeline-researcher';
-import { generatePipelinePosts } from '@/lib/ai/pipeline-generator';
+import {
+  generatePipelinePosts,
+  expandPipelineImageTemplate,
+} from '@/lib/ai/pipeline-generator';
+import { getMostRestrictiveChannel } from '@/lib/ai/pipeline-channels';
 import { generateAndUploadImage, type ImageGenRequest } from '@/lib/ai/image-generator';
 import { buildGenerationConfigSnapshot, hashObject } from '@/lib/campaign-runs';
-import { z } from 'zod';
-import { imageStyles, imageProviders, imageSubtypes } from '@/lib/schemas';
-import type { PipelineConfig, ResearchBrief, SocialChannel, ImageSubtype } from '@/lib/schemas';
+import { generatePipelineRequestSchema } from '@/lib/schemas';
+import type { PipelineConfig, ResearchBrief, SocialChannel, ImageSubtype, PromptMode } from '@/lib/schemas';
 
-const requestSchema = z.object({
-  productId: z.string().trim().min(1, 'Product ID is required'),
-  imageStyle: z.enum(imageStyles).default('branded'),
-  imageProvider: z.enum(imageProviders).default('gemini'),
-  /** Multiple subtypes for visual variety — each post cycles through the list */
-  imageSubtypes: z.array(z.enum(imageSubtypes)).default([]),
-  skipImages: z.boolean().default(false),
-});
+export const runtime = 'nodejs';
+
 
 const IMAGE_CONCURRENCY = 3;
+const MAX_IMAGE_ERROR_SAMPLES = 8;
 
 function buildFallbackResearchBrief(): ResearchBrief {
   return {
@@ -38,33 +36,59 @@ function buildFallbackResearchBrief(): ResearchBrief {
   };
 }
 
+type ImageGenTask = {
+  sequence: number;
+  prompt: string;
+  promptMode: PromptMode;
+  customPrompt?: string;
+  subtype?: ImageSubtype;
+};
+
 async function generateImagesWithConcurrency(
-  tasks: Array<{ imagePrompt: string; sequence: number; subtype?: ImageSubtype }>,
-  imageReq: Omit<ImageGenRequest, 'prompt' | 'subtype'>,
+  tasks: ImageGenTask[],
+  imageReq: Omit<ImageGenRequest, 'prompt' | 'subtype' | 'promptMode' | 'customPrompt'>,
   workspaceId: string,
-): Promise<Map<number, string>> {
-  const results = new Map<number, string>();
+): Promise<{ urlBySequence: Map<number, string>; failures: Array<{ sequence: number; message: string }> }> {
+  const urlBySequence = new Map<number, string>();
+  const failures: Array<{ sequence: number; message: string }> = [];
   const queue = [...tasks];
 
   async function processNext(): Promise<void> {
     while (queue.length > 0) {
       const task = queue.shift()!;
-      try {
-        const result = await generateAndUploadImage(
-          { ...imageReq, prompt: task.imagePrompt, subtype: task.subtype },
-          workspaceId,
-        );
-        results.set(task.sequence, result.imageUrl);
-      } catch (err) {
-        console.error(`[pipeline] Image generation failed for post #${task.sequence}:`, err instanceof Error ? err.message : err);
-        // Continue — post will just have no image
+      let lastErr = '';
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const result = await generateAndUploadImage(
+            {
+              ...imageReq,
+              prompt: task.prompt,
+              promptMode: task.promptMode,
+              customPrompt: task.customPrompt,
+              subtype: task.subtype,
+            },
+            workspaceId,
+          );
+          urlBySequence.set(task.sequence, result.imageUrl);
+          lastErr = '';
+          break;
+        } catch (err) {
+          lastErr = err instanceof Error ? err.message : String(err);
+          console.error(
+            `[pipeline] Image generation attempt ${attempt + 1} failed for post #${task.sequence}:`,
+            lastErr,
+          );
+        }
+      }
+      if (!urlBySequence.has(task.sequence)) {
+        failures.push({ sequence: task.sequence, message: lastErr || 'unknown error' });
       }
     }
   }
 
   const workers = Array.from({ length: Math.min(IMAGE_CONCURRENCY, tasks.length) }, () => processNext());
   await Promise.all(workers);
-  return results;
+  return { urlBySequence, failures };
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -79,7 +103,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     workspaceIdForFailure = ctx.workspaceId;
     campaignIdForFailure = id;
     const body = await req.json();
-    const { productId, imageStyle, imageProvider, imageSubtypes: selectedSubtypes, skipImages } = requestSchema.parse(body);
+    const {
+      productId,
+      imageStyle,
+      imageProvider,
+      imageSubtypes: selectedSubtypes,
+      skipImages,
+      creativeBrief,
+      imagePromptMode,
+      imageCustomTemplate,
+      postCopyMode,
+      postOutline,
+      imageChannelMode,
+      optimizeImagesForChannel,
+    } = generatePipelineRequestSchema.parse(body);
 
     const campaignRef = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'campaigns')}/${id}`);
     const campaignSnap = await campaignRef.get();
@@ -96,6 +133,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const pipelineConfig = campaign.pipeline as PipelineConfig;
     if (!pipelineConfig) {
       throw new Error('VALIDATION_PIPELINE_CONFIG_MISSING');
+    }
+
+    if (
+      imageChannelMode === 'manual' &&
+      optimizeImagesForChannel &&
+      !pipelineConfig.channels.includes(optimizeImagesForChannel)
+    ) {
+      throw new Error('VALIDATION_IMAGE_CHANNEL_NOT_IN_CAMPAIGN');
     }
 
     const productRef = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'products')}/${productId}`);
@@ -116,6 +161,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       imageProvider,
       imageSubtypes: selectedSubtypes,
       skipImages,
+      creativeBrief,
+      imagePromptMode,
+      imageCustomTemplate,
+      postCopyMode,
+      postOutline,
+      imageChannelMode,
+      optimizeImagesForChannel,
     });
 
     await runRef.set({
@@ -178,9 +230,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       brandVoice: product.brandVoice || undefined,
       researchBrief,
       pipelineConfig,
+      creativeBrief,
+      postCopyMode,
+      postOutline,
     });
 
     let imageMap = new Map<number, string>();
+    let imageFailures: Array<{ sequence: number; message: string }> = [];
     if (!skipImages) {
       const imageStageAt = new Date().toISOString();
       await campaignRef.update({ pipelineStatus: 'generating_images', updatedAt: imageStageAt });
@@ -192,11 +248,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         tiktok: '9:16',
         linkedin: '1:1',
       };
-      const primaryChannel = pipelineConfig.channels[0];
+      const imageFramingChannel: SocialChannel =
+        imageChannelMode === 'manual' && optimizeImagesForChannel
+          ? optimizeImagesForChannel
+          : getMostRestrictiveChannel(pipelineConfig.channels);
 
-      const imageReq: Omit<ImageGenRequest, 'prompt' | 'subtype'> = {
+      const imageReq: Omit<ImageGenRequest, 'prompt' | 'subtype' | 'promptMode' | 'customPrompt'> = {
         style: imageStyle,
-        aspectRatio: aspectRatioForChannel[primaryChannel] || '1:1',
+        aspectRatio: aspectRatioForChannel[imageFramingChannel] || '1:1',
         provider: imageProvider,
         brandIdentity: product.brandIdentity || undefined,
         brandVoice: product.brandVoice || undefined,
@@ -204,24 +263,47 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         productDescription: product.description || '',
         productCategories: product.categories || [],
         productUrl: product.url || undefined,
-        channel: primaryChannel,
+        channel: imageFramingChannel,
         researchContext: buildImageResearchContext(researchBrief),
       };
 
-      const imageTasks = posts.map((p, i) => ({
-        imagePrompt: p.imagePrompt,
-        sequence: p.pipelineSequence,
-        subtype: selectedSubtypes.length > 0
-          ? selectedSubtypes[i % selectedSubtypes.length]
-          : undefined,
-      }));
+      const template = imageCustomTemplate?.trim() || '';
+      const imageTasks: ImageGenTask[] = posts.map((p, i) => {
+        const expanded = template ? expandPipelineImageTemplate(template, p) : '';
+        let promptMode: PromptMode = 'guided';
+        const prompt = p.imagePrompt;
+        let customPrompt: string | undefined;
 
-      imageMap = await generateImagesWithConcurrency(imageTasks, imageReq, ctx.workspaceId);
+        if (imagePromptMode === 'custom_override' && expanded) {
+          promptMode = 'custom_override';
+          customPrompt = expanded;
+        } else if (imagePromptMode === 'hybrid' && expanded) {
+          promptMode = 'hybrid';
+          customPrompt = expanded;
+        }
+
+        return {
+          sequence: p.pipelineSequence,
+          prompt,
+          promptMode,
+          customPrompt,
+          subtype:
+            selectedSubtypes.length > 0 ? selectedSubtypes[i % selectedSubtypes.length] : undefined,
+        };
+      });
+
+      const { urlBySequence, failures } = await generateImagesWithConcurrency(
+        imageTasks,
+        imageReq,
+        ctx.workspaceId,
+      );
+      imageMap = urlBySequence;
+      imageFailures = failures;
     }
 
     const postsCol = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`);
     const writeNow = new Date().toISOString();
-    const primaryChannel = pipelineConfig.channels[0];
+    const primaryChannel = getMostRestrictiveChannel(pipelineConfig.channels);
     const postIds: string[] = [];
     let imagesGenerated = 0;
 
@@ -262,6 +344,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       stageBreakdown[post.pipelineStage] = (stageBreakdown[post.pipelineStage] || 0) + 1;
     }
 
+    const imagesFailed = imageFailures.length;
+    const imageErrorSamples = imageFailures.slice(0, MAX_IMAGE_ERROR_SAMPLES).map(
+      (f) => `#${f.sequence}: ${f.message}`,
+    );
+
     const readyAt = new Date().toISOString();
     await runRef.update({
       status: 'ready',
@@ -269,6 +356,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         total: posts.length,
         byStage: stageBreakdown,
         imagesGenerated,
+        imagesFailed,
+        ...(imageErrorSamples.length > 0 ? { imageErrorSamples } : {}),
       },
       updatedAt: readyAt,
     });
@@ -297,6 +386,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       postIds,
       stages: stageBreakdown,
       imagesGenerated,
+      imagesFailed,
+      imageErrorSamples,
     });
   } catch (error) {
     if (workspaceIdForFailure && campaignIdForFailure) {

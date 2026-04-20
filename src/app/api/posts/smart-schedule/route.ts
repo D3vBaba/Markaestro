@@ -3,6 +3,9 @@ import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+
+
 const querySchema = z.object({
   channel: z.enum(['facebook', 'instagram', 'tiktok']).optional(),
 });

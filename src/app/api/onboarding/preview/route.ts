@@ -10,6 +10,9 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+
+
 const schema = z.object({
   productName: z.string().min(1).max(100),
   productDescription: z.string().min(1).max(500),

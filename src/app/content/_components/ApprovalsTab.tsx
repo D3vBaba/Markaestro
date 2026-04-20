@@ -58,7 +58,7 @@ export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
     } finally {
       setLoading(false);
     }
-  }, [wsId]);
+  }, [wsId, user?.uid]);
 
   useEffect(() => { fetchPosts(); }, [fetchPosts, refreshKey]);
 

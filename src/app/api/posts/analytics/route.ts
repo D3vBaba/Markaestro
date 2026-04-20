@@ -3,6 +3,9 @@ import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 
+export const runtime = 'nodejs';
+
+
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);

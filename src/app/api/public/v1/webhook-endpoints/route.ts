@@ -3,6 +3,9 @@ import { publicApiError } from '@/lib/public-api/response';
 import { createWebhookEndpoint, listWebhookEndpoints } from '@/lib/public-api/webhooks';
 import { registerWebhookEndpointSchema } from '@/lib/public-api/schemas';
 
+export const runtime = 'nodejs';
+
+
 const WEBHOOK_RATE_LIMIT = { limit: 20, windowMs: 60_000 };
 
 export async function GET(req: Request) {

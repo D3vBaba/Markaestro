@@ -2,6 +2,9 @@ import { adminAuth } from '@/lib/firebase-admin';
 import { createSessionCookie, SESSION_COOKIE_MAX_AGE } from '@/lib/session-cookie';
 import { apiError, apiOk } from '@/lib/api-response';
 
+export const runtime = 'nodejs';
+
+
 /**
  * POST /api/auth/session — Set a signed HttpOnly session cookie.
  * Body: { idToken: string }

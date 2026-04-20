@@ -5,6 +5,9 @@ import { z } from 'zod';
 import { getMetaConnectionMerged } from '@/lib/platform/connections';
 import { getAdapter } from '@/lib/platform/registry';
 
+export const runtime = 'nodejs';
+
+
 const testSchema = z.object({
   provider: z.enum(['facebook', 'instagram']).default('facebook'),
   productId: z.string().min(1),

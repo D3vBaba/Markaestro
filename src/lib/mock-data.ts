@@ -3,7 +3,6 @@ import {
     Mail,
     BarChart3,
     Settings,
-    LogOut
 } from "lucide-react";
 
 export const currentUser = {

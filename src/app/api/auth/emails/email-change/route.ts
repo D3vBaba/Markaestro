@@ -5,23 +5,19 @@ import { adminAuth } from '@/lib/firebase-admin';
 import { createVerifyAndChangeEmailLink } from '@/lib/firebase-action-links';
 import { emailChangeNotice, verifyAndChangeEmail } from '@/lib/auth-emails';
 import { sendResendEmail } from '@/lib/resend';
+import { getBearerFromRequest } from '@/lib/bearer';
+
+export const runtime = 'nodejs';
 
 const BodySchema = z.object({
   newEmail: z.string().email(),
 });
 
-function getBearerToken(req: Request): string | null {
-  const auth = req.headers.get('authorization') || '';
-  const [scheme, token] = auth.split(' ');
-  if (scheme?.toLowerCase() !== 'bearer' || !token) return null;
-  return token.trim() || null;
-}
-
 export async function POST(req: Request) {
   try {
     const rl = await applyRateLimit(req, RATE_LIMITS.auth);
 
-    const token = getBearerToken(req);
+    const token = getBearerFromRequest(req);
     if (!token) throw new Error('UNAUTHENTICATED');
 
     const decoded = await adminAuth.verifyIdToken(token);

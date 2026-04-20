@@ -13,7 +13,10 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { enrichProductKnowledgeFromUrl } from '@/lib/products/enrich';
+import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { z } from 'zod';
+
+export const runtime = 'nodejs';
 
 const schema = z.object({
   url: z.string().url(),
@@ -24,6 +27,9 @@ export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'products.write');
+    await applyRateLimit(req, RATE_LIMITS.ai, {
+      key: `product-enrich:${ctx.uid}:${ctx.workspaceId}`,
+    });
 
     const body = await req.json();
     const { url, productId } = schema.parse(body);

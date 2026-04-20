@@ -5,12 +5,21 @@ const IV_LENGTH = 12;
 const TAG_LENGTH = 16;
 
 /**
- * Derive a 256-bit encryption key from the ENCRYPTION_KEY env var.
- * Falls back to WORKER_SECRET if ENCRYPTION_KEY is not set (for backwards compat).
+ * Derive a 256-bit AES key for data-at-rest encryption.
+ *
+ * Preferred env var: DATA_ENCRYPTION_KEY.
+ * Falls back to ENCRYPTION_KEY, then WORKER_SECRET for backwards
+ * compatibility with older deployments. Splitting DATA_ENCRYPTION_KEY
+ * from SESSION_SIGNING_KEY lets either key be rotated independently —
+ * see docs in src/lib/session-cookie.ts.
  */
 function getKey(): Buffer {
-  const raw = process.env.ENCRYPTION_KEY || process.env.WORKER_SECRET || '';
-  if (!raw) throw new Error('ENCRYPTION_KEY environment variable is not set');
+  const raw =
+    process.env.DATA_ENCRYPTION_KEY ||
+    process.env.ENCRYPTION_KEY ||
+    process.env.WORKER_SECRET ||
+    '';
+  if (!raw) throw new Error('DATA_ENCRYPTION_KEY environment variable is not set');
   return crypto.createHash('sha256').update(raw).digest();
 }
 

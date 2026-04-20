@@ -3,6 +3,9 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
 
+export const runtime = 'nodejs';
+
+
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);

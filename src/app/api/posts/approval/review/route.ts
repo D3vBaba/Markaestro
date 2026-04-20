@@ -8,6 +8,9 @@ import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+
+
 const reviewSchema = z.object({
   postId: z.string().trim().min(1),
   decision: z.enum(['approved', 'rejected']),

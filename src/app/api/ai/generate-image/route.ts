@@ -6,21 +6,52 @@ import { generateImageSchema } from '@/lib/schemas';
 import { generateAndUploadImage, type ImageGenRequest } from '@/lib/ai/image-generator';
 import { interpretSceneIntent } from '@/lib/ai/image-scene-interpreter';
 import { researchForPipeline, buildImageResearchContext } from '@/lib/ai/pipeline-researcher';
-import { checkAndIncrementUsage } from '@/lib/usage';
+import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
+import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+
+export const runtime = 'nodejs';
+
+// Cap parallel provider calls per request to avoid one user exhausting the
+// Cloud Run per-instance egress slots or hitting provider rate limits in a
+// thundering-herd.
+const MAX_PARALLEL_IMAGES = 4;
+
+async function mapInBatches<T, U>(
+  items: T[],
+  batchSize: number,
+  fn: (item: T, index: number) => Promise<U>,
+): Promise<PromiseSettledResult<U>[]> {
+  const results: PromiseSettledResult<U>[] = [];
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    const settled = await Promise.allSettled(batch.map((item, j) => fn(item, i + j)));
+    results.push(...settled);
+  }
+  return results;
+}
 
 export async function POST(req: Request) {
+  let charged = 0;
+  let ctxForRefund: { uid: string; workspaceId: string } | null = null;
   try {
     const ctx = await requireContext(req);
+    ctxForRefund = { uid: ctx.uid, workspaceId: ctx.workspaceId };
     requirePermission(ctx, 'ai.use');
+
+    // Per-user AI rate limit — images are expensive, so tighter than text.
+    const rl = await applyRateLimit(req, RATE_LIMITS.ai, {
+      key: `ai-image:${ctx.uid}:${ctx.workspaceId}`,
+    });
 
     const body = await req.json();
     const input = generateImageSchema.parse(body);
 
-    // Charge one quota unit per requested image up-front. If any increment fails,
-    // we still honor quotas for the ones already counted (no refund logic yet).
+    // Charge one quota unit per requested image up-front, and refund any
+    // images that ultimately fail to generate in the `finally` below.
     for (let i = 0; i < input.count; i++) {
       const quota = await checkAndIncrementUsage(ctx.uid, 'aiGenerations', ctx.workspaceId);
       if (!quota.allowed) throw new Error('QUOTA_EXCEEDED');
+      charged += 1;
     }
 
     // Load full product data if productId provided
@@ -102,10 +133,13 @@ export async function POST(req: Request) {
       sceneIntent,
     } as const;
 
-    // Run N generations in parallel. If some fail, return the successful ones
-    // (at least one must succeed or the whole request fails).
-    const settled = await Promise.allSettled(
-      Array.from({ length: input.count }, () => generateAndUploadImage(genRequest, ctx.workspaceId)),
+    // Run N generations in bounded parallelism. If some fail, return the
+    // successful ones (at least one must succeed or the whole request
+    // fails — and we refund the failures below).
+    const settled = await mapInBatches(
+      Array.from({ length: input.count }, (_, idx) => idx),
+      MAX_PARALLEL_IMAGES,
+      () => generateAndUploadImage(genRequest, ctx.workspaceId),
     );
 
     const successes = settled.flatMap((s) => (s.status === 'fulfilled' ? [s.value] : []));
@@ -116,8 +150,17 @@ export async function POST(req: Request) {
       throw firstError instanceof Error ? firstError : new Error('Image generation failed');
     }
 
+    // Refund quota for failed images only — we already paid for successes.
+    const toRefund = charged - successes.length;
+    if (toRefund > 0) {
+      await refundUsage(ctx.uid, 'aiGenerations', toRefund, ctx.workspaceId).catch(() => {});
+      charged = successes.length; // prevent double refund in the catch block
+    } else {
+      charged = 0;
+    }
+
     const imageUrls = successes.map((r) => r.imageUrl);
-    return apiOk({
+    const resp = apiOk({
       imageUrl: imageUrls[0], // backwards-compat: primary image
       imageUrls,
       provider: successes[0].provider,
@@ -126,7 +169,13 @@ export async function POST(req: Request) {
       generated: imageUrls.length,
       partial: imageUrls.length < input.count,
     });
+    for (const [k, v] of Object.entries(rl.headers)) resp.headers.set(k, v);
+    return resp;
   } catch (error) {
+    // Refund any units that were charged but never consumed.
+    if (charged > 0 && ctxForRefund) {
+      await refundUsage(ctxForRefund.uid, 'aiGenerations', charged, ctxForRefund.workspaceId).catch(() => {});
+    }
     console.error('[generate-image] Error:', error instanceof Error ? error.message : error);
     return apiError(error);
   }

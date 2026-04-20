@@ -6,6 +6,9 @@ import { getMetaConnectionMerged, getConnection, resolveAccessToken } from '@/li
 import { graphApiFetch } from '@/lib/platform/meta-graph-api';
 import { decrypt } from '@/lib/crypto';
 
+export const runtime = 'nodejs';
+
+
 const META_GRAPH_API = 'https://graph.facebook.com/v22.0';
 
 async function getMetaPostEngagement(

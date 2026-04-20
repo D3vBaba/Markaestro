@@ -1,18 +1,14 @@
 import { apiError, apiOk } from '@/lib/api-response';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { adminAuth } from '@/lib/firebase-admin';
+import { getBearerFromRequest } from '@/lib/bearer';
 
-function getBearerToken(req: Request): string | null {
-  const auth = req.headers.get('authorization') || '';
-  const [scheme, token] = auth.split(' ');
-  if (scheme?.toLowerCase() !== 'bearer' || !token) return null;
-  return token.trim() || null;
-}
+export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
     const rl = await applyRateLimit(req, RATE_LIMITS.auth);
-    const token = getBearerToken(req);
+    const token = getBearerFromRequest(req);
     if (!token) throw new Error('UNAUTHENTICATED');
 
     const decoded = await adminAuth.verifyIdToken(token);

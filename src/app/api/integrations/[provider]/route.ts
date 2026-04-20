@@ -6,6 +6,9 @@ import { encrypt } from '@/lib/crypto';
 import { saveConnection } from '@/lib/platform/connections';
 import { ConnectionStatus } from '@/lib/platform/types';
 
+export const runtime = 'nodejs';
+
+
 const ALLOWED = new Set(integrationProviders);
 const PRODUCT_LEVEL_PROVIDERS = new Set(['meta', 'tiktok', 'facebook', 'instagram']);
 

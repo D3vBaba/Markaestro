@@ -4,6 +4,9 @@ import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { updateApiClientScopesSchema } from '@/lib/public-api/schemas';
 
+export const runtime = 'nodejs';
+
+
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);

@@ -1,4 +1,3 @@
-import { fetchWithRetry } from '@/lib/fetch-retry';
 import { decrypt } from '@/lib/crypto';
 import { getAccessToken, getMeta } from '../base-adapter';
 import { graphApiFetch, checkIgPublishingQuota, checkPagePublishingAccess } from '../meta-graph-api';

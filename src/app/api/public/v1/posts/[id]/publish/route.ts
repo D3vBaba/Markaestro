@@ -6,6 +6,9 @@ import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistId
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import { incrementApiClientStat } from '@/lib/public-api/analytics';
 
+export const runtime = 'nodejs';
+
+
 const PUBLISH_RATE_LIMIT = { limit: 20, windowMs: 60_000 };
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {

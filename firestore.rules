@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// Markaestro Firestore Security Rules
+//
+// Security model:
+//   - All application reads/writes flow through Next.js API routes that use
+//     the Firebase Admin SDK. The Admin SDK BYPASSES these rules entirely.
+//   - The Firebase Web SDK is only used on the client for Authentication.
+//     Firestore is initialized on the client but no collections are read
+//     from, or written to, directly by browser code.
+//   - Therefore these rules default-deny every path. If we ever need direct
+//     client access to a collection, we must explicitly allowlist it below
+//     and re-audit.
+//
+// DO NOT loosen these rules without a security review. A misconfigured
+// read rule here can leak cross-tenant data that the API-route authz
+// layer would otherwise block.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

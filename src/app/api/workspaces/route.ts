@@ -1,10 +1,13 @@
 import { requireContext } from '@/lib/server-auth';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
-import { getSubscription } from '@/lib/stripe/subscription';
+import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
 import type { PlanTier } from '@/lib/stripe/plans';
 import { z } from 'zod';
+
+export const runtime = 'nodejs';
+
 
 const createSchema = z.object({
   name: z.string().trim().min(1).max(80),
@@ -56,7 +59,7 @@ export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
 
-    const sub = await getSubscription(ctx.uid);
+    const sub = await getEffectiveSubscription({ uid: ctx.uid, workspaceId: ctx.workspaceId });
     const tier = (sub?.tier ?? 'starter') as PlanTier;
     const limit = PLANS[tier]?.limits.workspaces ?? 1;
 

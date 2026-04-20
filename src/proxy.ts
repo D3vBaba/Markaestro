@@ -14,8 +14,40 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
+function corsAllowList(): string[] {
+  return (process.env.PUBLIC_API_CORS_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function attachCors(req: NextRequest, res: NextResponse): NextResponse {
+  const origin = req.headers.get('origin');
+  if (!origin) return res;
+  const allowed = corsAllowList();
+  if (!allowed.length || !allowed.includes(origin)) return res;
+  res.headers.set('Access-Control-Allow-Origin', origin);
+  res.headers.append('Vary', 'Origin');
+  res.headers.set('Access-Control-Allow-Credentials', 'false');
+  res.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.headers.set('Access-Control-Allow-Headers', 'Authorization,Content-Type,Idempotency-Key');
+  res.headers.set('Access-Control-Max-Age', '86400');
+  return res;
+}
+
 export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // --- CORS for the public API surface only ---
+  // We intentionally do NOT attach CORS to the private /api/* routes to
+  // prevent browser-based clients on a foreign origin from riding a
+  // session cookie via misconfiguration.
+  if (pathname.startsWith('/api/public/v1/')) {
+    if (req.method === 'OPTIONS') {
+      return attachCors(req, new NextResponse(null, { status: 204 }));
+    }
+    return attachCors(req, NextResponse.next());
+  }
 
   // --- Auth guard for protected pages ---
   if (!isPublicPath(pathname) && !pathname.startsWith('/api/')) {
@@ -26,6 +58,13 @@ export default async function proxy(req: NextRequest) {
       loginUrl.searchParams.set('next', `${pathname}${req.nextUrl.search}`);
       return NextResponse.redirect(loginUrl);
     }
+
+    // Defense-in-depth: every authenticated page gets X-Robots-Tag: noindex.
+    // robots.txt tells well-behaved crawlers to skip these paths; this header
+    // catches the rest (internal crawls, cache scraping, etc.).
+    const res = NextResponse.next();
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    return res;
   }
 
   // Redirect authenticated users away from /login

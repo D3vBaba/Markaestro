@@ -7,6 +7,9 @@ import { getAppUrl } from '@/lib/oauth/config';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 
+export const runtime = 'nodejs';
+
+
 const ALLOWED = new Set<string>(oauthProviders);
 const SOCIAL_PROVIDERS = new Set(['instagram', 'tiktok', 'linkedin']);
 

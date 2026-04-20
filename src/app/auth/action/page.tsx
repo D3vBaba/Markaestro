@@ -49,43 +49,81 @@ function AuthActionContent() {
   const canProceed = useMemo(() => Boolean(oobCode && mode), [oobCode, mode]);
 
   useEffect(() => {
-    if (!canProceed) {
-      setStatus('error');
-      setMessage('Missing or invalid action parameters.');
-      return;
-    }
+    if (!canProceed) return;
 
-    if (mode === 'resetPassword') {
-      setStatus('working');
-      verifyPasswordResetCode(auth, oobCode)
-        .then((email) => {
-          setEmailForReset(email);
-          setStatus('idle');
-        })
-        .catch((err) => {
-          setStatus('error');
-          setMessage(friendlyActionError(err));
-        });
-      return;
-    }
+    let cancelled = false;
 
-    if (mode === 'verifyEmail' || mode === 'verifyAndChangeEmail') {
-      setStatus('working');
-      applyActionCode(auth, oobCode)
-        .then(() => {
-          setStatus('success');
-          setMessage(mode === 'verifyEmail' ? 'Email verified successfully.' : 'Email updated successfully.');
-        })
-        .catch((err) => {
-          setStatus('error');
-          setMessage(friendlyActionError(err));
-        });
-      return;
-    }
+    const run = async () => {
+      if (mode === 'resetPassword') {
+        try {
+          const email = await verifyPasswordResetCode(auth, oobCode);
+          if (!cancelled) {
+            setEmailForReset(email);
+            setStatus('idle');
+          }
+        } catch (err) {
+          if (!cancelled) {
+            setStatus('error');
+            setMessage(friendlyActionError(err));
+          }
+        }
+        return;
+      }
 
-    setStatus('error');
-    setMessage('Unsupported action.');
+      if (mode === 'verifyEmail' || mode === 'verifyAndChangeEmail') {
+        try {
+          await applyActionCode(auth, oobCode);
+          if (!cancelled) {
+            setStatus('success');
+            setMessage(
+              mode === 'verifyEmail' ? 'Email verified successfully.' : 'Email updated successfully.',
+            );
+          }
+        } catch (err) {
+          if (!cancelled) {
+            setStatus('error');
+            setMessage(friendlyActionError(err));
+          }
+        }
+        return;
+      }
+
+      if (!cancelled) {
+        setStatus('error');
+        setMessage('Unsupported action.');
+      }
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
   }, [canProceed, mode, oobCode]);
+
+  if (!canProceed) {
+    return (
+      <MarketingLayout>
+        <div className="mx-auto w-full max-w-lg p-6 min-h-[calc(100vh-4rem)] flex items-center">
+          <Card className="w-full border-border/40 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl font-[family-name:var(--font-display)] font-normal">
+                Account action
+              </CardTitle>
+              <CardDescription>We could not complete this link.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs text-rose-600">
+                Missing or invalid action parameters.
+              </p>
+              <a className="mt-4 block text-center text-xs text-primary hover:underline" href="/login">
+                Back to sign in
+              </a>
+            </CardContent>
+          </Card>
+        </div>
+      </MarketingLayout>
+    );
+  }
 
   return (
     <MarketingLayout>

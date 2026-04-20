@@ -7,6 +7,9 @@ import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistId
 import { executeListQuery } from '@/lib/firestore-list-query';
 import { incrementApiClientStat } from '@/lib/public-api/analytics';
 
+export const runtime = 'nodejs';
+
+
 const POSTS_RATE_LIMIT = { limit: 30, windowMs: 60_000 };
 
 export async function GET(req: Request) {

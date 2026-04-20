@@ -5,6 +5,9 @@ import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+
+
 const eventTypes = [
   'email_sent', 'email_opened', 'email_clicked', 'email_bounced',
   'campaign_started', 'campaign_completed',

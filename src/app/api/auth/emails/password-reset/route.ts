@@ -6,6 +6,9 @@ import { createPasswordResetLink } from '@/lib/firebase-action-links';
 import { passwordResetEmail } from '@/lib/auth-emails';
 import { sendResendEmail } from '@/lib/resend';
 
+export const runtime = 'nodejs';
+
+
 const BodySchema = z.object({
   email: z.string().email(),
 });

@@ -6,6 +6,9 @@ import { PLANS } from '@/lib/stripe/plans';
 import type { PlanTier } from '@/lib/stripe/plans';
 import { adminDb } from '@/lib/firebase-admin';
 
+export const runtime = 'nodejs';
+
+
 /** GET /api/usage — return current month's usage counts + plan limits */
 export async function GET(req: Request) {
   try {

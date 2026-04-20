@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import {
   Loader2, ChevronDown, ChevronRight,
@@ -97,6 +98,8 @@ type GenerationRunSummary = {
   itemCounts?: {
     total: number;
     imagesGenerated: number;
+    imagesFailed?: number;
+    imageErrorSamples?: string[];
   };
   isActive: boolean;
   isScheduled: boolean;
@@ -119,13 +122,18 @@ const cadenceLabels: Record<string, string> = {
 };
 
 const channelLabels: Record<string, string> = {
-  x: "X", facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok",
+  x: "X",
+  facebook: "Facebook",
+  instagram: "Instagram",
+  tiktok: "TikTok",
+  linkedin: "LinkedIn",
 };
 
 const socialChannels = [
   { value: "facebook", label: "Facebook" },
   { value: "instagram", label: "Instagram" },
   { value: "tiktok", label: "TikTok" },
+  { value: "linkedin", label: "LinkedIn" },
 ];
 
 const stageOptions = [
@@ -156,6 +164,15 @@ export default function PipelineDetailPage() {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
   const [showResearch, setShowResearch] = useState(false);
   const [selectedSubtypes, setSelectedSubtypes] = useState<string[]>([]);
+  const [creativeBrief, setCreativeBrief] = useState("");
+  const [pipelineImagePromptMode, setPipelineImagePromptMode] = useState<
+    "guided" | "custom_override" | "hybrid"
+  >("guided");
+  const [imageCustomTemplate, setImageCustomTemplate] = useState("");
+  const [postCopyMode, setPostCopyMode] = useState<"ai_generated" | "from_outline">("ai_generated");
+  const [postOutline, setPostOutline] = useState("");
+  const [imageChannelMode, setImageChannelMode] = useState<"auto" | "manual">("auto");
+  const [optimizeImagesForChannel, setOptimizeImagesForChannel] = useState<string>("");
   const [runs, setRuns] = useState<GenerationRunSummary[]>([]);
   const [selectingRun, setSelectingRun] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -263,6 +280,31 @@ export default function PipelineDetailPage() {
 
   const handleGenerate = async () => {
     if (!campaign?.productId) { toast.error("No product associated with this campaign"); return; }
+
+    if (
+      pipelineImagePromptMode !== "guided" &&
+      !imageCustomTemplate.trim()
+    ) {
+      toast.error("Add an image template or suffix for custom / hybrid image mode.");
+      return;
+    }
+
+    if (postCopyMode === "from_outline" && !postOutline.trim()) {
+      toast.error("Add a post outline, or switch copy mode to AI-generated.");
+      return;
+    }
+
+    const campaignChannels = campaign.pipeline?.channels || [];
+    const framingChannel =
+      optimizeImagesForChannel.trim() || campaignChannels[0] || "facebook";
+
+    if (imageChannelMode === "manual") {
+      if (!campaignChannels.includes(framingChannel)) {
+        toast.error("Pick a channel for image framing that is included in this campaign.");
+        return;
+      }
+    }
+
     setGenerating(true);
     toast.info(
       pipeline?.totalPosts
@@ -271,15 +313,33 @@ export default function PipelineDetailPage() {
     );
 
     try {
-      const res = await apiPost<{ postCount: number; imagesGenerated: number }>(
+      const res = await apiPost<{
+        postCount: number;
+        imagesGenerated: number;
+        imagesFailed?: number;
+        imageErrorSamples?: string[];
+      }>(
         `/api/campaigns/${id}/generate-pipeline`,
         {
           productId: campaign.productId,
           imageSubtypes: selectedSubtypes.length > 0 ? selectedSubtypes : undefined,
+          creativeBrief: creativeBrief.trim() || undefined,
+          imagePromptMode: pipelineImagePromptMode,
+          imageCustomTemplate: imageCustomTemplate.trim() || undefined,
+          postCopyMode,
+          postOutline: postOutline.trim() || undefined,
+          imageChannelMode,
+          optimizeImagesForChannel:
+            imageChannelMode === "manual" ? framingChannel : undefined,
         },
       );
       if (res.ok) {
-        toast.success(`Pipeline generated: ${res.data.postCount} posts, ${res.data.imagesGenerated} images`);
+        const failed = res.data.imagesFailed ?? 0;
+        const msg =
+          failed > 0
+            ? `Pipeline generated: ${res.data.postCount} posts, ${res.data.imagesGenerated} images (${failed} image failures — see run details).`
+            : `Pipeline generated: ${res.data.postCount} posts, ${res.data.imagesGenerated} images`;
+        toast.success(msg);
         await fetchData();
         // Auto-expand all stages
         setExpandedStages(new Set(Object.keys(stageConfig)));
@@ -425,6 +485,141 @@ export default function PipelineDetailPage() {
                 </Select>
               </div>
             )}
+            <div className="w-full sm:w-auto">
+              <details className="relative group">
+                <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground select-none list-none flex items-center gap-1">
+                  Prompts &amp; brief
+                  <ChevronDown className="h-3 w-3" />
+                </summary>
+                <div className="absolute right-0 top-full mt-1 z-50 bg-popover border rounded-xl shadow-lg p-3 w-[min(100vw-2rem,22rem)] space-y-3 max-h-[70vh] overflow-y-auto">
+                  <div>
+                    <p className="text-[10px] font-medium text-foreground mb-1">Creative brief (optional)</p>
+                    <p className="text-[10px] text-muted-foreground mb-1.5">
+                      Steers post copy and hooks. Stay factual; the model still uses your product and research.
+                    </p>
+                    <Textarea
+                      value={creativeBrief}
+                      onChange={(e) => setCreativeBrief(e.target.value)}
+                      placeholder="e.g. Lead with founder story, UK English, avoid discount messaging…"
+                      className="min-h-[72px] text-xs rounded-lg resize-y"
+                      maxLength={4000}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-medium text-foreground mb-1">Post copy</p>
+                    <Select
+                      size="sm"
+                      value={postCopyMode}
+                      onChange={(e) =>
+                        setPostCopyMode(e.target.value as "ai_generated" | "from_outline")
+                      }
+                    >
+                      <option value="ai_generated">AI-generated from strategy + research</option>
+                      <option value="from_outline">Expand from my outline</option>
+                    </Select>
+                  </div>
+                  {postCopyMode === "from_outline" && (
+                    <div>
+                      <p className="text-[10px] font-medium text-foreground mb-1">Post outline</p>
+                      <p className="text-[10px] text-muted-foreground mb-1.5">
+                        Bullets or notes per stage (optional headings like{" "}
+                        <code className="text-[9px]">--- AWARENESS ---</code>
+                        ). No invented facts — only what you and the product support.
+                      </p>
+                      <Textarea
+                        value={postOutline}
+                        onChange={(e) => setPostOutline(e.target.value)}
+                        placeholder={"--- AWARENESS ---\n- Pain: …\n\n--- TRIAL ---\n- CTA: …"}
+                        className="min-h-[100px] text-xs rounded-lg resize-y"
+                        maxLength={8000}
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[10px] font-medium text-foreground mb-1">Image framing</p>
+                    <p className="text-[10px] text-muted-foreground mb-1.5">
+                      Aspect ratio &amp; platform style for generated images. Caption length still follows the strictest channel in the campaign.
+                    </p>
+                    <Select
+                      size="sm"
+                      value={imageChannelMode}
+                      onChange={(e) => {
+                        const v = e.target.value as "auto" | "manual";
+                        setImageChannelMode(v);
+                        if (v === "manual" && campaign?.pipeline?.channels?.length) {
+                          const chs = campaign.pipeline.channels;
+                          if (!optimizeImagesForChannel || !chs.includes(optimizeImagesForChannel)) {
+                            setOptimizeImagesForChannel(chs[0]);
+                          }
+                        }
+                      }}
+                    >
+                      <option value="auto">Automatic (strictest selected channel)</option>
+                      <option value="manual">Choose channel…</option>
+                    </Select>
+                  </div>
+                  {imageChannelMode === "manual" && (
+                    <div>
+                      <Select
+                        size="sm"
+                        value={
+                          optimizeImagesForChannel ||
+                          campaign?.pipeline?.channels?.[0] ||
+                          ""
+                        }
+                        onChange={(e) => setOptimizeImagesForChannel(e.target.value)}
+                      >
+                        {(campaign?.pipeline?.channels || ["facebook"]).map((ch) => (
+                          <option key={ch} value={ch}>
+                            {channelLabels[ch] || ch}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[10px] font-medium text-foreground mb-1">Image mode</p>
+                    <Select
+                      size="sm"
+                      value={pipelineImagePromptMode}
+                      onChange={(e) =>
+                        setPipelineImagePromptMode(
+                          e.target.value as "guided" | "custom_override" | "hybrid",
+                        )
+                      }
+                    >
+                      <option value="guided">Guided (AI scene from each post)</option>
+                      <option value="hybrid">Hybrid (AI scene + your suffix / template)</option>
+                      <option value="custom_override">Custom (your template is the main brief)</option>
+                    </Select>
+                  </div>
+                  {pipelineImagePromptMode !== "guided" && (
+                    <div>
+                      <p className="text-[10px] font-medium text-foreground mb-1">Image template / suffix</p>
+                      <p className="text-[10px] text-muted-foreground mb-1.5">
+                        Placeholders:{" "}
+                        <code className="text-[9px]">{"{{content}}"}</code>,{" "}
+                        <code className="text-[9px]">{"{{imagePrompt}}"}</code>,{" "}
+                        <code className="text-[9px]">{"{{stage}}"}</code>,{" "}
+                        <code className="text-[9px]">{"{{sequence}}"}</code>,{" "}
+                        <code className="text-[9px]">{"{{theme}}"}</code>
+                      </p>
+                      <Textarea
+                        value={imageCustomTemplate}
+                        onChange={(e) => setImageCustomTemplate(e.target.value)}
+                        placeholder={
+                          pipelineImagePromptMode === "custom_override"
+                            ? "{{imagePrompt}} — plus your fixed art direction…"
+                            : "e.g. Shot on phone, muted palette, no faces. Or append after AI scene: …"
+                        }
+                        className="min-h-[80px] text-xs rounded-lg resize-y"
+                        maxLength={4000}
+                      />
+                    </div>
+                  )}
+                </div>
+              </details>
+            </div>
             <div className="w-full sm:w-auto">
               <details className="relative group">
                 <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground select-none list-none flex items-center gap-1">

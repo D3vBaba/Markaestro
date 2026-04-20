@@ -4,6 +4,9 @@ import { createMediaAsset } from '@/lib/public-api/media';
 import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
 import { incrementApiClientStat } from '@/lib/public-api/analytics';
 
+export const runtime = 'nodejs';
+
+
 const MEDIA_RATE_LIMIT = { limit: 20, windowMs: 60_000 };
 
 export async function POST(req: Request) {

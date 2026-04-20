@@ -119,7 +119,7 @@ export async function enrichProductKnowledgeFromUrl(url: string): Promise<Produc
     } catch { /* non-fatal */ }
   }
 
-  const prompt = `You are a product marketing analyst extracting structured knowledge from a product website. This knowledge will be used to generate TikTok slideshows, social media posts, and ad campaigns. Be specific and concrete — extract real information found on the page. Do NOT invent or hallucinate details.
+  const prompt = `You are a product marketing analyst extracting structured knowledge from a product website. This knowledge will be used to generate social media posts and ad campaigns. Be specific and concrete — extract real information found on the page. Do NOT invent or hallucinate details.
 
 URL: ${url}
 
@@ -145,7 +145,7 @@ Return ONLY a valid JSON object (no markdown fences, no extra text) with exactly
   "competitors": ["Named competitors or alternatives explicitly or implicitly referenced"],
   "differentiators": ["What makes this different from alternatives"],
   "positioning": "1-2 sentence positioning statement capturing who it is for, what it does, and why it wins",
-  "contentAngles": ["5 distinct story angles for TikTok slideshows about this product"]
+  "contentAngles": ["5 distinct story angles for short-form social content about this product"]
 }
 
 Rules:

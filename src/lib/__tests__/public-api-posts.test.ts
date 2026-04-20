@@ -46,7 +46,7 @@ describe('public post validation', () => {
     expect(getDeliveryModeForChannel('tiktok')).toBe('user_review');
   });
 
-  it('serializes content as caption', () => {
+  it('serializes content as caption and preserves legacy slideshow metadata on posts', () => {
     const serialized = serializePublicPost({
       id: 'pst_123',
       channel: 'tiktok',

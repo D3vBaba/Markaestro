@@ -217,7 +217,7 @@ async function upsertPrice(stripe, product, tier, interval) {
   // List all active prices attached to this product, filter to this tier × interval.
   // We use metadata-based filtering because we tag each price at create time.
   const all = [];
-  // eslint-disable-next-line no-await-in-loop
+   
   for await (const p of stripe.prices.list({
     product: product.id,
     active: true,
@@ -256,7 +256,7 @@ async function upsertPrice(stripe, product, tier, interval) {
   // Archive stale prices after creating the replacement, so there's no
   // window where new checkouts have no price to pick.
   for (const old of toArchive) {
-    // eslint-disable-next-line no-await-in-loop
+     
     await stripe.prices.update(old.id, { active: false });
   }
 
@@ -284,7 +284,7 @@ async function migrateSubscriptions(stripe, priceMap) {
       const targetPrice = priceMap[tier.tier][interval];
       if (!targetPrice?.id) continue;
 
-      // eslint-disable-next-line no-await-in-loop
+       
       for await (const sub of stripe.subscriptions.list({
         status: 'all',
         limit: 100,
@@ -312,7 +312,7 @@ async function migrateSubscriptions(stripe, priceMap) {
           continue;
         }
 
-        // eslint-disable-next-line no-await-in-loop
+         
         await stripe.subscriptions.update(sub.id, {
           items: staleItems.map((item) => ({
             id: item.id,

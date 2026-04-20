@@ -4,6 +4,9 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { createWebhookEndpoint, listWebhookEndpoints } from '@/lib/public-api/webhooks';
 import { registerWebhookEndpointSchema } from '@/lib/public-api/schemas';
 
+export const runtime = 'nodejs';
+
+
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);

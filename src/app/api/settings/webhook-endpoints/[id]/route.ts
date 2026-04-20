@@ -3,6 +3,9 @@ import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { disableWebhookEndpoint } from '@/lib/public-api/webhooks';
 
+export const runtime = 'nodejs';
+
+
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
