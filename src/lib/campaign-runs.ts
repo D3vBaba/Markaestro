@@ -40,6 +40,8 @@ export type CampaignGenerationConfigSnapshot = {
   postOutline?: string;
   imageChannelMode?: string;
   optimizeImagesForChannel?: string;
+  /** Pool of user-uploaded media URLs used in place of AI generation */
+  userMediaUrls?: string[];
 };
 
 export type CampaignGenerationRun = {
@@ -105,6 +107,8 @@ export function buildGenerationConfigSnapshot(input: CampaignGenerationConfigSna
     postOutline: input.postOutline?.trim() || undefined,
     imageChannelMode: input.imageChannelMode || undefined,
     optimizeImagesForChannel: input.optimizeImagesForChannel || undefined,
+    userMediaUrls:
+      input.userMediaUrls && input.userMediaUrls.length > 0 ? input.userMediaUrls : undefined,
   };
 }
 
