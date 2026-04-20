@@ -29,6 +29,10 @@ export async function fetchTikTokInsights(accessToken: string): Promise<TikTokIn
       connected: true,
       displayName: user.displayName,
       avatarUrl: user.avatarUrl,
+      username: user.username,
+      bioDescription: user.bioDescription,
+      isVerified: user.isVerified,
+      profileDeepLink: user.profileDeepLink,
       followers: user.followers,
       following: user.following,
       totalLikes: user.totalLikes,
@@ -47,12 +51,30 @@ export async function fetchTikTokInsights(accessToken: string): Promise<TikTokIn
 async function fetchUserInfo(token: string): Promise<{
   displayName: string;
   avatarUrl: string;
+  username?: string;
+  bioDescription?: string;
+  isVerified?: boolean;
+  profileDeepLink?: string;
   followers: number;
   following: number;
   totalLikes: number;
   videoCount: number;
 } | null> {
-  const fields = 'follower_count,following_count,likes_count,video_count';
+  const fields = [
+    'open_id',
+    'union_id',
+    'avatar_url',
+    'avatar_large_url',
+    'display_name',
+    'username',
+    'bio_description',
+    'profile_deep_link',
+    'is_verified',
+    'follower_count',
+    'following_count',
+    'likes_count',
+    'video_count',
+  ].join(',');
   const res = await fetchWithRetry(
     `${TIKTOK_API}/user/info/?fields=${fields}`,
     { headers: { Authorization: `Bearer ${token}` } },
@@ -68,7 +90,11 @@ async function fetchUserInfo(token: string): Promise<{
 
   return {
     displayName: user.display_name || 'TikTok User',
-    avatarUrl: user.avatar_url || '',
+    avatarUrl: user.avatar_large_url || user.avatar_url || '',
+    username: user.username || undefined,
+    bioDescription: user.bio_description || undefined,
+    isVerified: typeof user.is_verified === 'boolean' ? user.is_verified : undefined,
+    profileDeepLink: user.profile_deep_link || undefined,
     followers: user.follower_count || 0,
     following: user.following_count || 0,
     totalLikes: user.likes_count || 0,

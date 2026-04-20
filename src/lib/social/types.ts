@@ -61,6 +61,10 @@ export type TikTokInsights = {
   error?: string;
   displayName?: string;
   avatarUrl?: string;
+  username?: string;
+  bioDescription?: string;
+  isVerified?: boolean;
+  profileDeepLink?: string;
   followers?: number;
   following?: number;
   totalLikes?: number;

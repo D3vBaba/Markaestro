@@ -6,6 +6,9 @@ import { getConnectionRef } from '@/lib/platform/connections';
 import { getAppUrl } from '@/lib/oauth/config';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 
+export const runtime = 'nodejs';
+
+
 const ALLOWED = new Set<string>(oauthProviders);
 const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
 
@@ -57,6 +60,57 @@ async function fetchLinkedInProfile(accessToken: string) {
     displayName: typeof data.name === 'string' ? data.name : '',
     email: typeof data.email === 'string' ? data.email : '',
     pictureUrl: typeof data.picture === 'string' ? data.picture : '',
+  };
+}
+
+async function fetchTikTokProfile(accessToken: string) {
+  const fields = [
+    'open_id',
+    'union_id',
+    'avatar_url',
+    'avatar_large_url',
+    'display_name',
+    'username',
+    'bio_description',
+    'profile_deep_link',
+    'is_verified',
+    'follower_count',
+    'following_count',
+    'likes_count',
+    'video_count',
+  ].join(',');
+
+  const res = await fetch(`https://open.tiktokapis.com/v2/user/info/?fields=${fields}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const data = await res.json();
+
+  if (!res.ok || data.error?.code && data.error.code !== 'ok') {
+    throw new Error(
+      `TikTok profile fetch failed: ${data.error?.message || data.error?.code || 'Unknown error'}`,
+    );
+  }
+
+  const user = data.data?.user as Record<string, unknown> | undefined;
+  if (!user) {
+    throw new Error('TikTok profile fetch failed: missing user');
+  }
+
+  return {
+    openId: typeof user.open_id === 'string' ? user.open_id : '',
+    unionId: typeof user.union_id === 'string' ? user.union_id : '',
+    displayName: typeof user.display_name === 'string' ? user.display_name : '',
+    username: typeof user.username === 'string' ? user.username : '',
+    avatarUrl:
+      (typeof user.avatar_large_url === 'string' && user.avatar_large_url) ||
+      (typeof user.avatar_url === 'string' ? user.avatar_url : ''),
+    bioDescription: typeof user.bio_description === 'string' ? user.bio_description : '',
+    profileDeepLink: typeof user.profile_deep_link === 'string' ? user.profile_deep_link : '',
+    isVerified: typeof user.is_verified === 'boolean' ? user.is_verified : false,
+    followerCount: typeof user.follower_count === 'number' ? user.follower_count : 0,
+    followingCount: typeof user.following_count === 'number' ? user.following_count : 0,
+    likesCount: typeof user.likes_count === 'number' ? user.likes_count : 0,
+    videoCount: typeof user.video_count === 'number' ? user.video_count : 0,
   };
 }
 
@@ -237,6 +291,27 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       // TikTok returns open_id in the token response
       if (tokens.openId) {
         extraData.openId = tokens.openId;
+      }
+
+      // Fetch profile using the newly-approved user.info.profile + user.info.stats scopes
+      // so the connection metadata reflects the creator's identity and current stats.
+      try {
+        const profile = await fetchTikTokProfile(tokens.accessToken);
+        if (profile.openId) extraData.openId = profile.openId;
+        if (profile.unionId) extraData.unionId = profile.unionId;
+        if (profile.displayName) extraData.displayName = profile.displayName;
+        if (profile.username) extraData.username = profile.username;
+        if (profile.avatarUrl) extraData.avatarUrl = profile.avatarUrl;
+        if (profile.bioDescription) extraData.bioDescription = profile.bioDescription;
+        if (profile.profileDeepLink) extraData.profileDeepLink = profile.profileDeepLink;
+        extraData.isVerified = profile.isVerified;
+        extraData.followerCount = profile.followerCount;
+        extraData.followingCount = profile.followingCount;
+        extraData.likesCount = profile.likesCount;
+        extraData.videoCount = profile.videoCount;
+      } catch (e) {
+        // Non-fatal — insights endpoint will re-fetch on demand
+        console.warn('TikTok profile fetch failed:', e instanceof Error ? e.message : e);
       }
     }
 

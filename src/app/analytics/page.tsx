@@ -46,9 +46,10 @@ type InstagramInsights = {
 
 type TikTokInsights = {
   platform: "tiktok"; connected: boolean; error?: string;
-  displayName?: string; avatarUrl?: string; followers?: number;
-  following?: number; totalLikes?: number; videoCount?: number;
-  recentVideos?: TikTokVideo[];
+  displayName?: string; avatarUrl?: string; username?: string;
+  bioDescription?: string; isVerified?: boolean; profileDeepLink?: string;
+  followers?: number; following?: number; totalLikes?: number;
+  videoCount?: number; recentVideos?: TikTokVideo[];
 };
 
 type UnifiedInsights = {
@@ -162,7 +163,7 @@ function ProductContextBar({
 
       {editing ? (
         <select
-          // eslint-disable-next-line jsx-a11y/no-autofocus
+           
           autoFocus
           value={productId}
           onChange={(e) => { onChange(e.target.value); setEditing(false); }}
@@ -327,11 +328,21 @@ export default function AnalyticsPage() {
                 platform="TikTok"
                 connected={insights.tiktok.connected}
                 error={insights.tiktok.error}
+                profile={insights.tiktok.connected && !insights.tiktok.error ? {
+                  avatarUrl: insights.tiktok.avatarUrl,
+                  displayName: insights.tiktok.displayName,
+                  username: insights.tiktok.username,
+                  isVerified: insights.tiktok.isVerified,
+                  bio: insights.tiktok.bioDescription,
+                  profileUrl: insights.tiktok.profileDeepLink,
+                } : undefined}
                 stats={insights.tiktok.connected && !insights.tiktok.error ? [
                   { label: "Followers", value: insights.tiktok.followers?.toLocaleString() || "—" },
+                  { label: "Following", value: insights.tiktok.following?.toLocaleString() || "—" },
                   { label: "Total Likes", value: insights.tiktok.totalLikes?.toLocaleString() || "—" },
                   { label: "Videos", value: insights.tiktok.videoCount?.toLocaleString() || "—" },
                   { label: "Avg. Views", value: avgStat(insights.tiktok.recentVideos?.map((v) => v.views) || []) },
+                  { label: "Avg. Likes", value: avgStat(insights.tiktok.recentVideos?.map((v) => v.likes) || []) },
                 ] : undefined}
               />
             </div>
@@ -468,11 +479,20 @@ function PlatformHealthCard({
   connected,
   error,
   stats,
+  profile,
 }: {
   platform: string;
   connected: boolean;
   error?: string;
   stats?: { label: string; value: string }[];
+  profile?: {
+    avatarUrl?: string;
+    displayName?: string;
+    username?: string;
+    isVerified?: boolean;
+    bio?: string;
+    profileUrl?: string;
+  };
 }) {
   const isOk = connected && !error;
 
@@ -495,6 +515,56 @@ function PlatformHealthCard({
           </span>
         </div>
       </div>
+
+      {/* Profile */}
+      {profile && (profile.displayName || profile.username || profile.bio) && (
+        <div className="flex items-start gap-3">
+          {profile.avatarUrl ? (
+            <img
+              src={profile.avatarUrl}
+              alt=""
+              className="w-10 h-10 rounded-full object-cover shrink-0 border border-border/30"
+            />
+          ) : null}
+          <div className="min-w-0 flex-1 space-y-0.5">
+            {(profile.displayName || profile.username) && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <p className="text-sm font-medium truncate">
+                  {profile.displayName || profile.username}
+                </p>
+                {profile.isVerified && (
+                  <span
+                    title="Verified"
+                    className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-sky-500 text-white text-[9px] leading-none shrink-0"
+                  >
+                    ✓
+                  </span>
+                )}
+                {profile.username && profile.displayName && (
+                  <span className="text-[11px] text-muted-foreground truncate">
+                    @{profile.username}
+                  </span>
+                )}
+              </div>
+            )}
+            {profile.bio && (
+              <p className="text-[11px] text-muted-foreground line-clamp-2 leading-snug">
+                {profile.bio}
+              </p>
+            )}
+            {profile.profileUrl && (
+              <a
+                href={profile.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-primary hover:underline"
+              >
+                View profile →
+              </a>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       {stats ? (
