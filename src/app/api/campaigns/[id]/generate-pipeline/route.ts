@@ -108,7 +108,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       imageStyle,
       imageProvider,
       imageSubtypes: selectedSubtypes,
-      skipImages,
+      skipImages: requestedSkipImages,
       creativeBrief,
       imagePromptMode,
       imageCustomTemplate,
@@ -116,7 +116,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       postOutline,
       imageChannelMode,
       optimizeImagesForChannel,
+      userMediaUrls,
     } = generatePipelineRequestSchema.parse(body);
+
+    // If the caller supplied a pool of uploaded media, use it in place of AI generation.
+    const useUserMedia = Array.isArray(userMediaUrls) && userMediaUrls.length > 0;
+    const skipImages = requestedSkipImages || useUserMedia;
 
     const campaignRef = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'campaigns')}/${id}`);
     const campaignSnap = await campaignRef.get();
@@ -168,6 +173,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       postOutline,
       imageChannelMode,
       optimizeImagesForChannel,
+      userMediaUrls,
     });
 
     await runRef.set({
@@ -312,9 +318,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const ref = postsCol.doc();
       postIds.push(ref.id);
 
-      const imageUrl = imageMap.get(post.pipelineSequence);
-      const mediaUrls = imageUrl ? [imageUrl] : [];
-      if (imageUrl) imagesGenerated++;
+      let mediaUrls: string[] = [];
+      if (useUserMedia) {
+        const pool = userMediaUrls!;
+        mediaUrls = [pool[post.pipelineSequence % pool.length]];
+        imagesGenerated++;
+      } else {
+        const imageUrl = imageMap.get(post.pipelineSequence);
+        mediaUrls = imageUrl ? [imageUrl] : [];
+        if (imageUrl) imagesGenerated++;
+      }
 
       batch.set(ref, {
         content: post.content,

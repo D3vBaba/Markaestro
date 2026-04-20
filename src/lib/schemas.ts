@@ -81,6 +81,10 @@ export const researchBriefSchema = z.object({
 
 // ── Campaign Schemas ───────────────────────────────────────────────
 
+export const campaignMediaUrlsSchema = z
+  .array(z.string().url().max(2048))
+  .max(50, 'Too many media files');
+
 export const createCampaignSchema = z.object({
   name: nameSchema,
   channel: z.enum(campaignChannels).default('facebook'),
@@ -93,6 +97,7 @@ export const createCampaignSchema = z.object({
   productId: optionalString,
   type: z.enum(campaignTypes).default('standard'),
   pipeline: pipelineConfigSchema.optional(),
+  mediaUrls: campaignMediaUrlsSchema.default([]),
 });
 
 export const updateCampaignSchema = z.object({
@@ -109,6 +114,7 @@ export const updateCampaignSchema = z.object({
   pipeline: pipelineConfigSchema.optional(),
   pipelineStatus: z.enum(pipelineStatuses).optional(),
   researchBrief: researchBriefSchema.optional(),
+  mediaUrls: campaignMediaUrlsSchema.optional(),
 });
 
 // ── Contact Schemas ────────────────────────────────────────────────
@@ -403,6 +409,11 @@ export const generatePipelineRequestSchema = z
     /** auto = use most restrictive channel among campaign targets; manual = optimizeImagesForChannel */
     imageChannelMode: z.enum(pipelineImageChannelModes).default('auto'),
     optimizeImagesForChannel: z.enum(socialChannels).optional(),
+    /**
+     * Pool of user-uploaded media URLs to use instead of AI-generated images.
+     * When provided, posts get URLs cycled from this pool and AI image generation is skipped for those slots.
+     */
+    userMediaUrls: z.array(z.string().url().max(2048)).max(50).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.imagePromptMode !== 'guided' && !data.imageCustomTemplate?.trim()) {

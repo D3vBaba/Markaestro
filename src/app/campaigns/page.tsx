@@ -2,24 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Layers3, Target, Plus, ArrowUpRight } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-    Sheet, SheetContent, SheetDescription, SheetHeader,
-    SheetTitle, SheetTrigger, SheetFooter, SheetClose,
-} from "@/components/ui/sheet";
 import PageHeader from "@/components/app/PageHeader";
-import FormField from "@/components/app/FormField";
-import Select from "@/components/app/Select";
-import ProductPicker from "@/app/content/_components/ProductPicker";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
-import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
+import CampaignWizard from "./_components/CampaignWizard";
+import { apiGet, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 type Campaign = {
   id: string;
@@ -35,6 +28,7 @@ type Campaign = {
     cadence: string;
     postCount: number;
   };
+  scheduledAt?: string | null;
   createdAt?: string;
 };
 
@@ -61,57 +55,39 @@ const pipelineStatusColors: Record<string, string> = {
 
 const pipelineStatusLabels: Record<string, string> = {
   pending_research: "Ready",
-  researching: "Researching...",
+  researching: "Researching…",
   research_complete: "Research done",
-  generating: "Generating posts...",
-  generating_images: "Generating images...",
+  generating: "Generating posts…",
+  generating_images: "Generating images…",
   generated: "Ready to schedule",
-  scheduling: "Scheduling...",
+  scheduling: "Scheduling…",
   scheduled: "Scheduled",
   failed: "Failed",
 };
 
 const cadenceLabels: Record<string, string> = {
   daily: "Daily",
-  "3x_week": "3x / week",
-  "2x_week": "2x / week",
+  "3x_week": "3×/wk",
+  "2x_week": "2×/wk",
   weekly: "Weekly",
 };
 
-const socialChannelLabels: Record<string, string> = {
+const channelLabels: Record<string, string> = {
   facebook: "Facebook",
   instagram: "Instagram",
   tiktok: "TikTok",
+  linkedin: "LinkedIn",
+  sms: "SMS",
 };
 
-const socialChannels = [
-  { value: "facebook", label: "Facebook" },
-  { value: "instagram", label: "Instagram" },
-  { value: "tiktok", label: "TikTok" },
-];
+type FilterTab = "all" | "standard" | "pipeline";
 
 export default function CampaignsPage() {
   const router = useRouter();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Creation mode
-  const [campaignType, setCampaignType] = useState<"standard" | "pipeline">("standard");
-
-  // Standard campaign form
-  const [newName, setNewName] = useState("");
-  const [newChannel, setNewChannel] = useState("facebook");
-  const [newAudience, setNewAudience] = useState("");
-  const [newCta, setNewCta] = useState("");
-
-  // Pipeline form
-  const [pipelineName, setPipelineName] = useState("");
-  const [pipelineProductId, setPipelineProductId] = useState("");
-  const [pipelineChannels, setPipelineChannels] = useState<string[]>(["facebook"]);
-  const [pipelineCadence, setPipelineCadence] = useState("3x_week");
-  const [pipelinePostCount, setPipelinePostCount] = useState(20);
-
-  const [saving, setSaving] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [filter, setFilter] = useState<FilterTab>("all");
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const fetchCampaigns = async () => {
@@ -129,67 +105,13 @@ export default function CampaignsPage() {
     fetchCampaigns();
   }, []);
 
-  const handleCreateStandard = async () => {
-    setSaving(true);
-    try {
-      const res = await apiPost("/api/campaigns", {
-        name: newName,
-        channel: newChannel,
-        targetAudience: newAudience,
-        cta: newCta,
-      });
-      if (res.ok) {
-        toast.success("Campaign created");
-        setNewName(""); setNewChannel("facebook"); setNewAudience(""); setNewCta("");
-        fetchCampaigns();
-      } else {
-        const errData = res.data as { error?: string; issues?: { field: string; message: string }[] };
-        toast.error(errData.issues?.[0]?.message || errData.error || "Failed to create campaign");
-      }
-    } catch {
-      toast.error("Failed to create campaign");
-    } finally {
-      setSaving(false);
-    }
+  const handleCreated = (id: string, type: "standard" | "pipeline") => {
+    fetchCampaigns();
+    if (type === "pipeline") router.push(`/campaigns/${id}`);
+    else router.push(`/campaigns/${id}`);
   };
 
-  const handleCreatePipeline = async () => {
-    if (!pipelineName.trim()) { toast.error("Name is required"); return; }
-    if (!pipelineProductId) { toast.error("Select a product"); return; }
-    if (pipelineChannels.length === 0) { toast.error("Select at least one channel"); return; }
-
-    setSaving(true);
-    try {
-      const res = await apiPost<{ id: string }>("/api/campaigns", {
-        name: pipelineName,
-        type: "pipeline",
-        channel: pipelineChannels[0],
-        productId: pipelineProductId,
-        pipeline: {
-          channels: pipelineChannels,
-          cadence: pipelineCadence,
-          postCount: pipelinePostCount,
-          startDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          stages: ["awareness", "interest", "consideration", "trial", "activation", "retention"],
-        },
-      });
-      if (res.ok) {
-        toast.success("Pipeline campaign created");
-        setPipelineName(""); setPipelineProductId(""); setPipelineChannels(["facebook"]);
-        setPipelineCadence("3x_week"); setPipelinePostCount(20);
-        router.push(`/campaigns/${res.data.id}`);
-      } else {
-        const errData = res.data as { error?: string; issues?: { field: string; message: string }[] };
-        toast.error(errData.issues?.[0]?.message || errData.error || "Failed to create pipeline");
-      }
-    } catch {
-      toast.error("Failed to create pipeline");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const confirmDeleteCampaign = async () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
     const res = await apiDelete(`/api/campaigns/${deleteTarget.id}`);
     if (res.ok) {
@@ -201,11 +123,17 @@ export default function CampaignsPage() {
     }
   };
 
-  const toggleChannel = (ch: string) => {
-    setPipelineChannels((prev) =>
-      prev.includes(ch) ? prev.filter((c) => c !== ch) : [...prev, ch]
-    );
+  const counts = {
+    all: campaigns.length,
+    standard: campaigns.filter((c) => c.type !== "pipeline").length,
+    pipeline: campaigns.filter((c) => c.type === "pipeline").length,
   };
+
+  const visible = campaigns.filter((c) => {
+    if (filter === "standard") return c.type !== "pipeline";
+    if (filter === "pipeline") return c.type === "pipeline";
+    return true;
+  });
 
   return (
     <AppShell>
@@ -213,212 +141,69 @@ export default function CampaignsPage() {
         title="Campaigns"
         subtitle="Plan and ship high-converting multi-channel campaigns."
         action={
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button className="rounded-xl">New Campaign</Button>
-            </SheetTrigger>
-            <SheetContent className="sm:max-w-md">
-              <SheetHeader>
-                <SheetTitle>Create Campaign</SheetTitle>
-                <SheetDescription>Choose between a single campaign or an automated adoption pipeline.</SheetDescription>
-              </SheetHeader>
-              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
-                {/* Type selector */}
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setCampaignType("standard")}
-                    className={`rounded-lg border p-3 text-left transition-all ${
-                      campaignType === "standard"
-                        ? "border-foreground bg-foreground/5"
-                        : "border-border/60 hover:border-foreground/30"
-                    }`}
-                  >
-                    <p className="text-sm font-medium">Standard</p>
-                    <p className="text-[11px] text-muted-foreground">Single campaign</p>
-                  </button>
-                  <button
-                    onClick={() => setCampaignType("pipeline")}
-                    className={`rounded-lg border p-3 text-left transition-all ${
-                      campaignType === "pipeline"
-                        ? "border-foreground bg-foreground/5"
-                        : "border-border/60 hover:border-foreground/30"
-                    }`}
-                  >
-                    <p className="text-sm font-medium">Pipeline</p>
-                    <p className="text-[11px] text-muted-foreground">Adoption roadmap</p>
-                  </button>
-                </div>
-
-                {campaignType === "standard" ? (
-                  <>
-                    <FormField label="Name">
-                      <Input placeholder="Spring Reactivation" value={newName} onChange={(e) => setNewName(e.target.value)} />
-                    </FormField>
-                    <FormField label="Channel">
-                      <Select value={newChannel} onChange={(e) => setNewChannel(e.target.value)}>
-                        <option value="facebook">Facebook</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="tiktok">TikTok</option>
-                        <option value="sms">SMS</option>
-                      </Select>
-                    </FormField>
-                    <FormField label="Target Audience">
-                      <Input placeholder="Dormant Users" value={newAudience} onChange={(e) => setNewAudience(e.target.value)} />
-                    </FormField>
-                    <FormField label="Call to Action">
-                      <Input placeholder="Start trial" value={newCta} onChange={(e) => setNewCta(e.target.value)} />
-                    </FormField>
-                  </>
-                ) : (
-                  <>
-                    <FormField label="Pipeline Name">
-                      <Input
-                        placeholder="Q2 User Adoption"
-                        value={pipelineName}
-                        onChange={(e) => setPipelineName(e.target.value)}
-                      />
-                    </FormField>
-
-                    <ProductPicker value={pipelineProductId} onChange={setPipelineProductId} />
-
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Channels
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {socialChannels.map((ch) => (
-                          <label
-                            key={ch.value}
-                            className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm cursor-pointer transition-all ${
-                              pipelineChannels.includes(ch.value)
-                                ? "border-foreground bg-foreground/5"
-                                : "border-border/60 hover:border-foreground/30"
-                            }`}
-                          >
-                            <Checkbox
-                              checked={pipelineChannels.includes(ch.value)}
-                              onCheckedChange={() => toggleChannel(ch.value)}
-                            />
-                            {ch.label}
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-
-                    <FormField label="Posting Cadence">
-                      <Select value={pipelineCadence} onChange={(e) => setPipelineCadence(e.target.value)}>
-                        <option value="daily">Daily</option>
-                        <option value="3x_week">3x per week (Mon/Wed/Fri)</option>
-                        <option value="2x_week">2x per week (Tue/Thu)</option>
-                        <option value="weekly">Weekly (Monday)</option>
-                      </Select>
-                    </FormField>
-
-                    <FormField label={`Number of Posts: ${pipelinePostCount}`} description="Distributed across adoption stages (awareness → retention)">
-                      <Slider
-                        value={[pipelinePostCount]}
-                        onValueChange={([v]) => setPipelinePostCount(v)}
-                        min={3}
-                        max={30}
-                        step={1}
-                        className="mt-2"
-                      />
-                    </FormField>
-                  </>
-                )}
-              </div>
-              <SheetFooter>
-                <SheetClose asChild>
-                  <Button
-                    onClick={campaignType === "standard" ? handleCreateStandard : handleCreatePipeline}
-                    disabled={saving}
-                  >
-                    {saving
-                      ? "Creating..."
-                      : campaignType === "pipeline"
-                      ? "Create Pipeline"
-                      : "Create Campaign"}
-                  </Button>
-                </SheetClose>
-              </SheetFooter>
-            </SheetContent>
-          </Sheet>
+          <Button onClick={() => setWizardOpen(true)} className="rounded-xl gap-1.5">
+            <Plus className="h-4 w-4" /> New campaign
+          </Button>
         }
       />
 
-      <div className="grid gap-4">
-        {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-28 rounded-2xl bg-muted/30 animate-pulse" />
-            ))}
-          </div>
-        ) : campaigns.length === 0 ? (
-          <Card className="border-border/30">
-            <CardContent className="py-16 text-center">
-              <p className="text-base font-medium text-foreground">No campaigns yet</p>
-              <p className="text-sm text-muted-foreground mt-1">Create your first campaign to get started.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          campaigns.map((c) => (
-            <Card
-              key={c.id}
-              className={`card-premium border-border/30 ${c.type === "pipeline" ? "cursor-pointer hover:border-foreground/20 transition-colors" : ""}`}
-              onClick={c.type === "pipeline" ? () => router.push(`/campaigns/${c.id}`) : undefined}
-            >
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{c.name}</span>
-                  <div className="flex items-center gap-2">
-                    {c.type === "pipeline" && c.pipelineStatus ? (
-                      <Badge variant="outline" className={`border-0 text-[11px] ${pipelineStatusColors[c.pipelineStatus] || ""}`}>
-                        {pipelineStatusLabels[c.pipelineStatus] || c.pipelineStatus}
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className={`capitalize border-0 ${statusColors[c.status] || ""}`}>
-                        {c.status}
-                      </Badge>
-                    )}
-                    {c.type !== "pipeline" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs text-muted-foreground hover:text-destructive"
-                        onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: c.id, name: c.name }); }}
-                      >
-                        Delete
-                      </Button>
-                    )}
-                  </div>
-                </CardTitle>
-                <CardDescription>
-                  {c.type === "pipeline" ? (
-                    <>
-                      Pipeline · {c.pipeline?.postCount || 20} posts · {cadenceLabels[c.pipeline?.cadence || "3x_week"]}
-                      {c.pipeline?.channels && (
-                        <span className="ml-1">
-                          · {c.pipeline.channels.map((ch) => socialChannelLabels[ch] || ch).join(", ")}
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <span className="capitalize">{c.channel} {c.targetAudience ? `· ${c.targetAudience}` : ""}</span>
-                  )}
-                </CardDescription>
-              </CardHeader>
-              {c.type !== "pipeline" && (
-                <CardContent className="text-sm text-muted-foreground">
-                  Primary CTA: <span className="text-foreground font-medium">{c.cta || "Learn more"}</span>
-                  {c.createdAt && (
-                    <span className="ml-4 text-xs text-muted-foreground">Created {new Date(c.createdAt).toLocaleDateString()}</span>
-                  )}
-                </CardContent>
+      {/* Filter tabs */}
+      <div className="flex items-center gap-1 mb-6 border-b border-border/40">
+        {(["all", "standard", "pipeline"] as FilterTab[]).map((tab) => {
+          const active = filter === tab;
+          const label = tab === "all" ? "All" : tab === "standard" ? "Single posts" : "Pipelines";
+          return (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab)}
+              className={cn(
+                "relative px-3 py-2 text-sm transition-colors",
+                active ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground",
               )}
-            </Card>
-          ))
-        )}
+            >
+              <span className="flex items-center gap-1.5">
+                {label}
+                <span className="text-[10px] tabular-nums text-muted-foreground/70">
+                  {counts[tab]}
+                </span>
+              </span>
+              {active && (
+                <motion.span
+                  layoutId="campaigns-filter-underline"
+                  className="absolute left-0 right-0 -bottom-px h-0.5 bg-foreground"
+                />
+              )}
+            </button>
+          );
+        })}
       </div>
+
+      {/* List */}
+      {loading ? (
+        <div className="grid gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 rounded-2xl bg-muted/30 animate-pulse" />
+          ))}
+        </div>
+      ) : visible.length === 0 ? (
+        <EmptyState onCreate={() => setWizardOpen(true)} filter={filter} />
+      ) : (
+        <div className="grid gap-3">
+          <AnimatePresence initial={false}>
+            {visible.map((c, i) => (
+              <CampaignRow
+                key={c.id}
+                campaign={c}
+                index={i}
+                onOpen={() => router.push(`/campaigns/${c.id}`)}
+                onDelete={() => setDeleteTarget({ id: c.id, name: c.name })}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
+      <CampaignWizard open={wizardOpen} onOpenChange={setWizardOpen} onCreated={handleCreated} />
 
       <ConfirmDeleteDialog
         open={!!deleteTarget}
@@ -426,8 +211,146 @@ export default function CampaignsPage() {
         entity="campaign"
         name={deleteTarget?.name}
         warning="Any generated posts from this campaign will remain but will no longer be linked to it."
-        onConfirm={confirmDeleteCampaign}
+        onConfirm={confirmDelete}
       />
     </AppShell>
+  );
+}
+
+function CampaignRow({
+  campaign: c,
+  index,
+  onOpen,
+  onDelete,
+}: {
+  campaign: Campaign;
+  index: number;
+  onOpen: () => void;
+  onDelete: () => void;
+}) {
+  const isPipeline = c.type === "pipeline";
+  const statusBadge = isPipeline && c.pipelineStatus ? (
+    <Badge variant="outline" className={cn("border-0 text-[10px]", pipelineStatusColors[c.pipelineStatus] || "")}>
+      {pipelineStatusLabels[c.pipelineStatus] || c.pipelineStatus}
+    </Badge>
+  ) : (
+    <Badge variant="outline" className={cn("capitalize border-0 text-[10px]", statusColors[c.status] || "")}>
+      {c.status}
+    </Badge>
+  );
+
+  const channels = isPipeline
+    ? (c.pipeline?.channels || []).map((ch) => channelLabels[ch] || ch).join(" · ")
+    : channelLabels[c.channel] || c.channel;
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.22, delay: index * 0.03, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
+      <button
+        onClick={onOpen}
+        className="w-full text-left rounded-2xl border border-border/40 bg-card hover:border-foreground/25 hover:shadow-sm transition-all p-5 group"
+      >
+        <div className="flex items-start gap-4">
+          {/* Icon */}
+          <div className={cn(
+            "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+            isPipeline
+              ? "bg-foreground/5 text-foreground group-hover:bg-foreground group-hover:text-background"
+              : "bg-muted text-muted-foreground group-hover:bg-foreground group-hover:text-background",
+          )}>
+            {isPipeline ? <Layers3 className="h-5 w-5" /> : <Target className="h-5 w-5" />}
+          </div>
+
+          {/* Body */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-base font-medium text-foreground truncate">{c.name}</p>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-muted-foreground">
+                  <span>{isPipeline ? "Pipeline" : "Single post"}</span>
+                  <span className="text-muted-foreground/40">·</span>
+                  <span className="truncate">{channels}</span>
+                  {isPipeline && c.pipeline && (
+                    <>
+                      <span className="text-muted-foreground/40">·</span>
+                      <span>{c.pipeline.postCount} posts</span>
+                      <span className="text-muted-foreground/40">·</span>
+                      <span>{cadenceLabels[c.pipeline.cadence] || c.pipeline.cadence}</span>
+                    </>
+                  )}
+                  {!isPipeline && c.cta && (
+                    <>
+                      <span className="text-muted-foreground/40">·</span>
+                      <span className="truncate">CTA: {c.cta}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {statusBadge}
+                <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-foreground transition-colors" />
+              </div>
+            </div>
+
+            <div className="mt-2.5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 text-[11px] text-muted-foreground/70">
+                {c.scheduledAt && (
+                  <span className="inline-flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(c.scheduledAt).toLocaleDateString()}
+                  </span>
+                )}
+                {c.createdAt && (
+                  <span>Created {new Date(c.createdAt).toLocaleDateString()}</span>
+                )}
+              </div>
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onDelete();
+                  }
+                }}
+                className="text-[11px] text-muted-foreground/60 hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+              >
+                Delete
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+    </motion.div>
+  );
+}
+
+function EmptyState({ onCreate, filter }: { onCreate: () => void; filter: FilterTab }) {
+  const labels = {
+    all: "No campaigns yet",
+    standard: "No single-post campaigns",
+    pipeline: "No pipelines yet",
+  };
+  return (
+    <div className="rounded-3xl border border-dashed border-border/50 bg-muted/10 py-16 text-center">
+      <div className="mx-auto h-12 w-12 rounded-2xl bg-foreground/5 flex items-center justify-center mb-4">
+        <Plus className="h-5 w-5 text-muted-foreground" />
+      </div>
+      <p className="text-base font-medium text-foreground">{labels[filter]}</p>
+      <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+        Start with a single post for a quick announcement, or launch a pipeline for a full multi-stage funnel.
+      </p>
+      <Button onClick={onCreate} className="rounded-xl mt-5 gap-1.5">
+        <Plus className="h-4 w-4" /> New campaign
+      </Button>
+    </div>
   );
 }

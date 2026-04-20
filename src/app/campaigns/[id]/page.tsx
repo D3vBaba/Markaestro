@@ -19,6 +19,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
 import ProductPicker from "@/app/content/_components/ProductPicker";
+import MediaUploader from "../_components/MediaUploader";
+import StandardCampaignView from "../_components/StandardCampaignView";
 import { apiGet, apiPost, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
 
@@ -72,6 +74,15 @@ type Campaign = {
   type: string;
   status: string;
   productId?: string;
+  channel?: string;
+  targetAudience?: string;
+  cta?: string;
+  body?: string;
+  subject?: string;
+  scheduledAt?: string | null;
+  mediaUrls?: string[];
+  createdAt?: string;
+  updatedAt?: string;
   pipelineStatus?: string;
   configDirty?: boolean;
   configDirtyReason?: string | null;
@@ -185,6 +196,8 @@ export default function PipelineDetailPage() {
   const [editStartDate, setEditStartDate] = useState("");
   const [editStages, setEditStages] = useState<string[]>(Object.keys(stageConfig));
   const [editPostTimeHourUTC, setEditPostTimeHourUTC] = useState(10);
+  const [editMediaUrls, setEditMediaUrls] = useState<string[]>([]);
+  const [useUploadedMedia, setUseUploadedMedia] = useState(false);
 
   const syncEditState = useCallback((campaignData: Campaign) => {
     setEditName(campaignData.name || "");
@@ -195,6 +208,8 @@ export default function PipelineDetailPage() {
     setEditStartDate(campaignData.pipeline?.startDate ? campaignData.pipeline.startDate.slice(0, 10) : "");
     setEditStages(campaignData.pipeline?.stages || Object.keys(stageConfig));
     setEditPostTimeHourUTC(campaignData.pipeline?.postTimeHourUTC ?? 10);
+    setEditMediaUrls(campaignData.mediaUrls || []);
+    setUseUploadedMedia((campaignData.mediaUrls || []).length > 0);
   }, []);
 
   const fetchData = useCallback(async () => {
@@ -252,6 +267,7 @@ export default function PipelineDetailPage() {
       const res = await apiPut<Campaign>(`/api/campaigns/${id}`, {
         name: editName.trim(),
         productId: editProductId,
+        mediaUrls: useUploadedMedia ? editMediaUrls : [],
         pipeline: {
           channels: editChannels,
           cadence: editCadence,
@@ -331,6 +347,8 @@ export default function PipelineDetailPage() {
           imageChannelMode,
           optimizeImagesForChannel:
             imageChannelMode === "manual" ? framingChannel : undefined,
+          userMediaUrls:
+            campaign.mediaUrls && campaign.mediaUrls.length > 0 ? campaign.mediaUrls : undefined,
         },
       );
       if (res.ok) {
@@ -415,6 +433,14 @@ export default function PipelineDetailPage() {
   }
 
   if (!campaign) return null;
+
+  if (campaign.type !== "pipeline") {
+    return (
+      <AppShell>
+        <StandardCampaignView campaign={campaign} />
+      </AppShell>
+    );
+  }
 
   const pipelineStatus = campaign.pipelineStatus || "pending_research";
   const hasPreview = Boolean(pipeline && pipeline.totalPosts > 0);
@@ -767,6 +793,46 @@ export default function PipelineDetailPage() {
                   </label>
                 ))}
               </div>
+            </FormField>
+
+            <FormField
+              label="Visuals"
+              description="Use uploaded media instead of AI-generated images. Posts cycle through your pool."
+            >
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setUseUploadedMedia(false)}
+                  className={`rounded-lg border p-2.5 text-xs text-left transition-all ${
+                    !useUploadedMedia
+                      ? "border-foreground bg-foreground/5"
+                      : "border-border/60 hover:border-foreground/40"
+                  }`}
+                >
+                  <p className="text-xs font-medium">AI generated</p>
+                  <p className="text-[10px] text-muted-foreground">One image per post</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUseUploadedMedia(true)}
+                  className={`rounded-lg border p-2.5 text-xs text-left transition-all ${
+                    useUploadedMedia
+                      ? "border-foreground bg-foreground/5"
+                      : "border-border/60 hover:border-foreground/40"
+                  }`}
+                >
+                  <p className="text-xs font-medium">Your media</p>
+                  <p className="text-[10px] text-muted-foreground">Cycle uploaded images</p>
+                </button>
+              </div>
+              {useUploadedMedia && (
+                <MediaUploader
+                  value={editMediaUrls}
+                  onChange={setEditMediaUrls}
+                  max={30}
+                  description="Each post will cycle through one of these images."
+                />
+              )}
             </FormField>
           </div>
           <SheetFooter className="px-6 pb-6">
