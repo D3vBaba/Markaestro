@@ -253,6 +253,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         instagram: '4:5',
         tiktok: '9:16',
         linkedin: '1:1',
+        threads: '1:1',
+        pinterest: '3:4',
+        youtube: '16:9',
       };
       const imageFramingChannel: SocialChannel =
         imageChannelMode === 'manual' && optimizeImagesForChannel

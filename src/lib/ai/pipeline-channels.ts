@@ -6,7 +6,15 @@ import type { SocialChannel } from '@/lib/schemas';
  * vertical, then square feeds.
  */
 export function getMostRestrictiveChannel(channels: SocialChannel[]): SocialChannel {
-  const priority: SocialChannel[] = ['tiktok', 'instagram', 'facebook', 'linkedin'];
+  const priority: SocialChannel[] = [
+    'youtube',
+    'tiktok',
+    'pinterest',
+    'instagram',
+    'threads',
+    'facebook',
+    'linkedin',
+  ];
   for (const ch of priority) {
     if (channels.includes(ch)) return ch;
   }

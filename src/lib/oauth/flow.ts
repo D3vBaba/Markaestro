@@ -347,5 +347,28 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
           PlatformCapability.PUBLISH_CAROUSEL,
         ],
       };
+    case 'threads':
+      return {
+        channels: ['threads'],
+        capabilities: [
+          PlatformCapability.PUBLISH_TEXT,
+          PlatformCapability.PUBLISH_IMAGE,
+          PlatformCapability.PUBLISH_VIDEO,
+          PlatformCapability.PUBLISH_CAROUSEL,
+        ],
+      };
+    case 'pinterest':
+      return {
+        channels: ['pinterest'],
+        capabilities: [
+          PlatformCapability.PUBLISH_IMAGE,
+          PlatformCapability.PUBLISH_VIDEO,
+        ],
+      };
+    case 'youtube':
+      return {
+        channels: ['youtube'],
+        capabilities: [PlatformCapability.PUBLISH_VIDEO],
+      };
   }
 }
