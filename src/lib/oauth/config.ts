@@ -181,8 +181,11 @@ export function getRedirectUri(provider: OAuthProvider): string {
 
 export function getClientCredentials(provider: OAuthProvider): { clientId: string; clientSecret: string } {
   const config = getProviderConfig(provider);
-  const clientId = process.env[config.clientIdEnv] || '';
-  const clientSecret = process.env[config.clientSecretEnv] || '';
+  // Trim whitespace/newlines — secrets uploaded via `echo "x" | gcloud secrets
+  // create` carry a trailing \n, which corrupts Basic Auth headers and authorize
+  // URLs (X rejects with "Missing valid authorization header").
+  const clientId = (process.env[config.clientIdEnv] || '').trim();
+  const clientSecret = (process.env[config.clientSecretEnv] || '').trim();
   if (!clientId || !clientSecret) {
     throw new Error(`Missing OAuth credentials for ${provider}: ${config.clientIdEnv} and/or ${config.clientSecretEnv}`);
   }
