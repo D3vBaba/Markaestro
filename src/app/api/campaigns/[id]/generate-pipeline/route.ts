@@ -256,6 +256,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         threads: '1:1',
         pinterest: '3:4',
         youtube: '16:9',
+        x: '16:9',
       };
       const imageFramingChannel: SocialChannel =
         imageChannelMode === 'manual' && optimizeImagesForChannel

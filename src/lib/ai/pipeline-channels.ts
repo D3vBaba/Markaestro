@@ -12,6 +12,7 @@ export function getMostRestrictiveChannel(channels: SocialChannel[]): SocialChan
     'pinterest',
     'instagram',
     'threads',
+    'x',
     'facebook',
     'linkedin',
   ];

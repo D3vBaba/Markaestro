@@ -11,7 +11,7 @@ export const runtime = 'nodejs';
 
 
 const ALLOWED = new Set<string>(oauthProviders);
-const SOCIAL_PROVIDERS = new Set(['instagram', 'tiktok', 'linkedin']);
+const SOCIAL_PROVIDERS = new Set(['instagram', 'tiktok', 'linkedin', 'threads', 'pinterest', 'youtube', 'x']);
 
 function getFallbackPath(productId?: string, returnTo?: string) {
   if (productId) return '/products';

@@ -126,6 +126,26 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       include_granted_scopes: 'true',
     },
   },
+  x: {
+    // X (Twitter) API v2 — OAuth 2.0 with PKCE. tweet.write requires the Pay Per Use
+    // metered plan (or Basic tier). offline.access issues a refresh_token, which we
+    // rotate on every refresh (X refresh tokens are single-use).
+    authUrl: 'https://twitter.com/i/oauth2/authorize',
+    tokenUrl: 'https://api.twitter.com/2/oauth2/token',
+    revokeUrl: 'https://api.twitter.com/2/oauth2/revoke',
+    scopes: [
+      'tweet.read',
+      'tweet.write',
+      'users.read',
+      'offline.access',
+      'media.write',
+    ],
+    clientIdEnv: 'X_CLIENT_ID',
+    clientSecretEnv: 'X_CLIENT_SECRET',
+    usePKCE: true,
+    useBasicAuth: true,
+    extraAuthParams: {},
+  },
 };
 
 export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig {
@@ -140,6 +160,7 @@ const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   threads: 'THREADS_OAUTH_REDIRECT_URI',
   pinterest: 'PINTEREST_OAUTH_REDIRECT_URI',
   youtube: 'YOUTUBE_OAUTH_REDIRECT_URI',
+  x: 'X_OAUTH_REDIRECT_URI',
 };
 
 export function getAppUrl(): string {

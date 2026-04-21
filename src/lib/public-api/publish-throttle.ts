@@ -13,6 +13,7 @@ export const PUBLISH_RATE_LIMITS: Record<SocialChannel, RateLimitConfig> = {
   threads: { limit: 5, windowMs: 60_000 },
   pinterest: { limit: 5, windowMs: 60_000 },
   youtube: { limit: 2, windowMs: 60_000 },
+  x: { limit: 5, windowMs: 60_000 },
 };
 
 function encodeKey(raw: string) {
@@ -37,6 +38,9 @@ export function getPublishDestinationKey(channel: SocialChannel, connection: Pla
   }
   if (channel === 'youtube') {
     return `youtube:${String(connection.metadata.channelId || connection.productId || connection.workspaceId)}`;
+  }
+  if (channel === 'x') {
+    return `x:${String(connection.metadata.userId || connection.metadata.username || connection.productId || connection.workspaceId)}`;
   }
   return `tiktok:${String(connection.metadata.openId || connection.metadata.username || connection.productId || connection.workspaceId)}`;
 }

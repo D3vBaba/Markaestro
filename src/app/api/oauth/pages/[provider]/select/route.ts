@@ -13,13 +13,41 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     requirePermission(ctx, 'integrations.manage');
 
     const { provider } = await params;
-    if (provider !== 'meta') {
+    if (provider !== 'meta' && provider !== 'pinterest' && provider !== 'youtube') {
       throw new Error('INVALID_PROVIDER');
     }
 
     const { pageId, pageName, productId } = await req.json();
     if (!pageId) {
       throw new Error('VALIDATION_MISSING_PAGE_ID');
+    }
+
+    if (provider === 'pinterest' || provider === 'youtube') {
+      if (!productId) throw new Error('VALIDATION_MISSING_PRODUCT_ID');
+      const connRef = getConnectionRef(ctx.workspaceId, provider, productId);
+      const snap = await connRef.get();
+      if (!snap.exists) throw new Error('NOT_FOUND');
+
+      const metadataUpdate: Record<string, unknown> =
+        provider === 'pinterest'
+          ? {
+              'metadata.boardId': pageId,
+              'metadata.boardName': pageName || '',
+              'metadata.boardSelectionRequired': false,
+            }
+          : {
+              'metadata.channelId': pageId,
+              'metadata.channelTitle': pageName || '',
+              'metadata.channelSelectionRequired': false,
+            };
+
+      await connRef.update({
+        ...metadataUpdate,
+        updatedAt: new Date().toISOString(),
+        updatedBy: ctx.uid,
+      });
+
+      return apiOk({ ok: true, id: pageId, name: pageName || '' });
     }
 
     // Read user token from workspace-level connection
