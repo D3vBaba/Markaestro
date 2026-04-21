@@ -300,7 +300,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     }
 
     if (!code || !state) {
-      throw new Error('INVALID_STATE');
+      // Browser preload/crawler hits /callback/{provider} without any params.
+      // Respond with a plain 400 so we don't log a spurious OAuth error and
+      // don't consume a valid state document.
+      return new NextResponse('Missing code or state', { status: 400 });
     }
 
     const exchangeResult = await exchangeCode(

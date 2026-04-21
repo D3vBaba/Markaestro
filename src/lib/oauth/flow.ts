@@ -127,10 +127,20 @@ export async function exchangeCode(
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
+    Accept: 'application/json',
   };
 
   if (config.useBasicAuth) {
-    headers['Authorization'] = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+    // RFC 6749 §2.3.1: client_id and client_secret in Basic Auth must be
+    // percent-encoded before base64. Pinterest enforces this strictly — raw
+    // creds with special characters return "Authentication failed".
+    const encoded = `${encodeURIComponent(clientId)}:${encodeURIComponent(clientSecret)}`;
+    headers['Authorization'] = `Basic ${Buffer.from(encoded).toString('base64')}`;
+    // X confidential clients require client_id in the body *in addition* to
+    // the Basic Auth header. Sending it everywhere is safe — other providers
+    // ignore it when the header auth is valid.
+    const clientIdParam = config.clientIdParam || 'client_id';
+    body[clientIdParam] = clientId;
   } else {
     const clientIdParam = config.clientIdParam || 'client_id';
     body[clientIdParam] = clientId;
@@ -206,10 +216,14 @@ export async function refreshAccessToken(
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
+    Accept: 'application/json',
   };
 
   if (config.useBasicAuth) {
-    headers['Authorization'] = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+    const encoded = `${encodeURIComponent(clientId)}:${encodeURIComponent(clientSecret)}`;
+    headers['Authorization'] = `Basic ${Buffer.from(encoded).toString('base64')}`;
+    const clientIdParam = config.clientIdParam || 'client_id';
+    body[clientIdParam] = clientId;
   } else {
     const clientIdParam = config.clientIdParam || 'client_id';
     body[clientIdParam] = clientId;
