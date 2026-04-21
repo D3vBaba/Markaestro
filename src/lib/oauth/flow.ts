@@ -55,11 +55,14 @@ export async function generateAuthUrl(
   };
 
   const clientIdParam = config.clientIdParam || 'client_id';
+  // Scope separator varies by provider: OAuth 2 spec says space, but TikTok
+  // and Meta's Threads dialog require comma-separated scopes.
+  const commaSeparated = provider === 'tiktok' || provider === 'threads';
   const authParams: Record<string, string> = {
     [clientIdParam]: clientId,
     redirect_uri: redirectUri,
     response_type: 'code',
-    scope: config.scopes.join(provider === 'tiktok' ? ',' : ' '),
+    scope: config.scopes.join(commaSeparated ? ',' : ' '),
     state: stateId,
     ...config.extraAuthParams,
   };
