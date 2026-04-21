@@ -7,8 +7,6 @@ const TIKTOK_API = 'https://open.tiktokapis.com/v2';
 const TIKTOK_MAX_SINGLE_UPLOAD_BYTES = 64 * 1024 * 1024;
 const TIKTOK_MIN_CHUNK_BYTES = 5 * 1024 * 1024;
 const TIKTOK_DEFAULT_CHUNK_BYTES = 10 * 1024 * 1024;
-const TIKTOK_PUBLISH_POLL_ATTEMPTS = 8;
-const TIKTOK_PUBLISH_POLL_DELAY_MS = 1500;
 
 type TikTokPublishStatus =
   | 'PROCESSING_UPLOAD'
@@ -55,10 +53,6 @@ function chooseChunkPlan(size: number): { chunkSize: number; totalChunkCount: nu
   return { chunkSize, totalChunkCount };
 }
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 type TikTokPublishStatusResult = {
   status?: TikTokPublishStatus | string;
   failReason?: string;
@@ -88,43 +82,10 @@ export async function fetchTikTokPublishStatus(
   };
 }
 
-async function waitForTikTokPublishResult(
-  accessToken: string,
-  publishId: string,
-): Promise<{ success: boolean; pending?: boolean; reviewRequired?: boolean; error?: string }> {
-  for (let attempt = 0; attempt < TIKTOK_PUBLISH_POLL_ATTEMPTS; attempt++) {
-    const statusResult = await fetchTikTokPublishStatus(accessToken, publishId);
-    if (statusResult.error) {
-      return { success: false, error: statusResult.error };
-    }
-
-    if (statusResult.status === 'PUBLISH_COMPLETE') {
-      return { success: true };
-    }
-
-    if (statusResult.status === 'SEND_TO_USER_INBOX') {
-      return { success: true, reviewRequired: true };
-    }
-
-    if (statusResult.status === 'FAILED') {
-      return {
-        success: false,
-        error: statusResult.failReason || 'TikTok did not complete the publish',
-      };
-    }
-
-    if (attempt < TIKTOK_PUBLISH_POLL_ATTEMPTS - 1) {
-      await sleep(TIKTOK_PUBLISH_POLL_DELAY_MS);
-    }
-  }
-
-  return { success: false, pending: true };
-}
-
 async function uploadVideoFileToTikTok(
   accessToken: string,
   mediaUrl: string,
-): Promise<{ publishId?: string; pending?: boolean; reviewRequired?: boolean; error?: string }> {
+): Promise<{ publishId?: string; error?: string }> {
   const mediaRes = await fetchWithRetry(mediaUrl);
   if (!mediaRes.ok) {
     return { error: `Could not download media file (${mediaRes.status})` };
@@ -188,16 +149,11 @@ async function uploadVideoFileToTikTok(
     start = endExclusive;
   }
 
-  const publishResult = await waitForTikTokPublishResult(accessToken, publishId);
-  if (publishResult.error) {
-    return { error: publishResult.error };
-  }
-
-  if (publishResult.pending) {
-    return { publishId, pending: true };
-  }
-
-  return { publishId, reviewRequired: publishResult.reviewRequired };
+  // Inbox uploads rarely terminate within a synchronous poll window — TikTok's
+  // transcoding can take minutes to hours. Return immediately; the background
+  // fast-poll (`/api/worker/tiktok-poll`) transitions the post to
+  // `exported_for_review` or `failed` within ~60s of TikTok reporting terminal.
+  return { publishId };
 }
 
 export const tiktokPublishingAdapter: PlatformAdapter = {
@@ -229,11 +185,9 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
           return { success: false, error: `TikTok publish failed: ${result.error}` };
         }
         return {
-          success: !result.pending,
-          pending: result.pending,
-          reviewRequired: result.reviewRequired,
+          success: false,
+          pending: true,
           externalId: result.publishId || '',
-          nextAction: result.reviewRequired ? 'open_tiktok_inbox_and_complete_editing' : undefined,
         };
       }
 
@@ -282,17 +236,10 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         return { success: false, error: 'TikTok did not return a publish ID' };
       }
 
-      const publishResult = await waitForTikTokPublishResult(accessToken, publishId);
-      if (publishResult.error) {
-        return { success: false, error: `TikTok publish failed: ${publishResult.error}` };
-      }
-
       return {
-        success: !publishResult.pending,
-        pending: publishResult.pending,
-        reviewRequired: publishResult.reviewRequired,
+        success: false,
+        pending: true,
         externalId: publishId,
-        nextAction: publishResult.reviewRequired ? 'open_tiktok_inbox_and_complete_editing' : undefined,
       };
     } catch (e) {
       return {
