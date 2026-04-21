@@ -12,22 +12,26 @@ export async function fetchFacebookInsights(
   pageName?: string,
 ): Promise<FacebookInsights> {
   try {
-    // Fetch page-level metrics and posts in parallel
-    const [metricsResult, postsResult, pageResult] = await Promise.allSettled([
+    const [metricsResult, postsResult, profileResult] = await Promise.allSettled([
       fetchPageMetrics(pageAccessToken, pageId),
       fetchPagePosts(pageAccessToken, pageId),
-      fetchPageFollowers(pageAccessToken, pageId),
+      fetchPageProfile(pageAccessToken, pageId),
     ]);
 
     const metrics = metricsResult.status === 'fulfilled' ? metricsResult.value : null;
     const posts = postsResult.status === 'fulfilled' ? postsResult.value : [];
-    const followers = pageResult.status === 'fulfilled' ? pageResult.value : undefined;
+    const profile = profileResult.status === 'fulfilled' ? profileResult.value : null;
 
     return {
       platform: 'facebook',
       connected: true,
-      pageName,
-      followers,
+      pageName: profile?.name || pageName,
+      username: profile?.username,
+      avatarUrl: profile?.avatarUrl,
+      bio: profile?.about,
+      profileUrl: profile?.link,
+      isVerified: profile?.isVerified,
+      followers: profile?.followers,
       impressions7d: metrics?.impressions,
       engagements7d: metrics?.engagements,
       reach7d: metrics?.reach,
@@ -42,15 +46,41 @@ export async function fetchFacebookInsights(
   }
 }
 
-async function fetchPageFollowers(token: string, pageId: string): Promise<number | undefined> {
+type FacebookPageProfile = {
+  name?: string;
+  username?: string;
+  avatarUrl?: string;
+  about?: string;
+  link?: string;
+  isVerified?: boolean;
+  followers?: number;
+};
+
+async function fetchPageProfile(token: string, pageId: string): Promise<FacebookPageProfile | null> {
+  const fields =
+    'name,username,about,link,verification_status,fan_count,followers_count,picture.type(large){url}';
   const res = await graphApiFetch(
-    `${GRAPH_API}/${pageId}?fields=followers_count&access_token=${token}`,
+    `${GRAPH_API}/${pageId}?fields=${fields}&access_token=${token}`,
     {},
     { maxRetries: 1 },
   );
-  if (!res.ok) return undefined;
-  const data = await res.json();
-  return data.followers_count;
+  if (!res.ok) return null;
+  const data = (await res.json()) as Record<string, unknown>;
+
+  const picture = data.picture as { data?: { url?: string } } | undefined;
+  const verification = (data.verification_status as string) || undefined;
+
+  return {
+    name: (data.name as string) || undefined,
+    username: (data.username as string) || undefined,
+    avatarUrl: picture?.data?.url,
+    about: (data.about as string) || undefined,
+    link: (data.link as string) || undefined,
+    isVerified:
+      verification === undefined ? undefined : verification !== 'not_verified' && verification !== '',
+    followers:
+      (data.followers_count as number) ?? (data.fan_count as number) ?? undefined,
+  };
 }
 
 async function fetchPageMetrics(
@@ -85,7 +115,8 @@ async function fetchPageMetrics(
 }
 
 async function fetchPagePosts(token: string, pageId: string): Promise<FacebookPost[]> {
-  const fields = 'id,message,created_time,full_picture,shares,likes.summary(true),comments.summary(true)';
+  const fields =
+    'id,message,created_time,full_picture,permalink_url,shares,likes.summary(true),comments.summary(true)';
   const res = await graphApiFetch(
     `${GRAPH_API}/${pageId}/posts?fields=${fields}&limit=10&access_token=${token}`,
     {},
@@ -95,15 +126,54 @@ async function fetchPagePosts(token: string, pageId: string): Promise<FacebookPo
   if (!res.ok) return [];
   const data = await res.json();
 
-  return (data.data || []).map((p: Record<string, unknown>) => ({
+  const posts: FacebookPost[] = (data.data || []).map((p: Record<string, unknown>) => ({
     id: p.id as string,
     message: (p.message as string) || undefined,
     imageUrl: (p.full_picture as string) || undefined,
     createdTime: p.created_time as string,
+    permalink: (p.permalink_url as string) || undefined,
     likes: (p.likes as { summary?: { total_count?: number } })?.summary?.total_count || 0,
     comments: (p.comments as { summary?: { total_count?: number } })?.summary?.total_count || 0,
     shares: (p.shares as { count?: number })?.count || 0,
   }));
+
+  await Promise.all(
+    posts.map(async (post) => {
+      const extra = await fetchFacebookPostInsights(token, post.id);
+      if (extra) {
+        post.views = extra.views;
+        post.reach = extra.reach;
+      }
+    }),
+  );
+
+  return posts;
+}
+
+async function fetchFacebookPostInsights(
+  token: string,
+  postId: string,
+): Promise<{ views?: number; reach?: number } | null> {
+  try {
+    const metrics = 'post_impressions,post_impressions_unique';
+    const res = await graphApiFetch(
+      `${GRAPH_API}/${postId}/insights?metric=${metrics}&access_token=${token}`,
+      {},
+      { maxRetries: 1 },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    let views: number | undefined;
+    let reach: number | undefined;
+    for (const entry of data.data || []) {
+      const value = (entry.values?.[0]?.value as number) || 0;
+      if (entry.name === 'post_impressions') views = value;
+      else if (entry.name === 'post_impressions_unique') reach = value;
+    }
+    return { views, reach };
+  } catch {
+    return null;
+  }
 }
 
 // ── Instagram Insights ──────────────────────────────────────────
@@ -127,7 +197,14 @@ export async function fetchInstagramInsights(
     return {
       platform: 'instagram',
       connected: true,
+      displayName: profile?.name,
+      username: profile?.username,
+      avatarUrl: profile?.profilePictureUrl,
+      bio: profile?.biography,
+      website: profile?.website,
+      profileUrl: profile?.username ? `https://instagram.com/${profile.username}` : undefined,
       followersCount: profile?.followersCount,
+      follows: profile?.followsCount,
       mediaCount: profile?.mediaCount,
       recentMedia: media,
     };
@@ -140,21 +217,40 @@ export async function fetchInstagramInsights(
   }
 }
 
+type IgProfile = {
+  name?: string;
+  username?: string;
+  biography?: string;
+  profilePictureUrl?: string;
+  website?: string;
+  followersCount: number;
+  followsCount?: number;
+  mediaCount: number;
+};
+
 async function fetchIgProfile(
   token: string,
   igAccountId: string,
   graphApi: string,
-): Promise<{ followersCount: number; mediaCount: number } | null> {
+): Promise<IgProfile | null> {
+  const fields =
+    'name,username,biography,profile_picture_url,website,followers_count,follows_count,media_count';
   const res = await graphApiFetch(
-    `${graphApi}/${igAccountId}?fields=followers_count,media_count&access_token=${token}`,
+    `${graphApi}/${igAccountId}?fields=${fields}&access_token=${token}`,
     {},
     { maxRetries: 1 },
   );
   if (!res.ok) return null;
-  const data = await res.json();
+  const data = (await res.json()) as Record<string, unknown>;
   return {
-    followersCount: data.followers_count || 0,
-    mediaCount: data.media_count || 0,
+    name: (data.name as string) || undefined,
+    username: (data.username as string) || undefined,
+    biography: (data.biography as string) || undefined,
+    profilePictureUrl: (data.profile_picture_url as string) || undefined,
+    website: (data.website as string) || undefined,
+    followersCount: (data.followers_count as number) || 0,
+    followsCount: (data.follows_count as number) || undefined,
+    mediaCount: (data.media_count as number) || 0,
   };
 }
 
@@ -218,5 +314,54 @@ async function fetchIgMedia(token: string, igAccountId: string, graphApi: string
       }),
   );
 
+  // Fetch per-media insights (views/reach/saved/shares). Best-effort per item —
+  // metric availability varies by media type and token scope; we swallow failures.
+  await Promise.all(
+    items.map(async (item) => {
+      const insights = await fetchIgMediaInsights(token, item.id, item.mediaType, graphApi);
+      if (insights) {
+        item.views = insights.views;
+        item.reach = insights.reach;
+        item.saved = insights.saved;
+        item.shares = insights.shares;
+      }
+    }),
+  );
+
   return items;
+}
+
+async function fetchIgMediaInsights(
+  token: string,
+  mediaId: string,
+  mediaType: string,
+  graphApi: string,
+): Promise<{ views?: number; reach?: number; saved?: number; shares?: number } | null> {
+  // Metric set depends on media type. `views` is only supported for video-like content.
+  const isVideoLike = mediaType === 'VIDEO' || mediaType === 'REELS';
+  const metrics = isVideoLike
+    ? 'views,reach,saved,shares'
+    : 'reach,saved,shares';
+
+  try {
+    const res = await graphApiFetch(
+      `${graphApi}/${mediaId}/insights?metric=${metrics}&access_token=${token}`,
+      {},
+      { maxRetries: 1 },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+
+    const result: { views?: number; reach?: number; saved?: number; shares?: number } = {};
+    for (const entry of data.data || []) {
+      const value = (entry.values?.[0]?.value as number) || 0;
+      if (entry.name === 'views') result.views = value;
+      else if (entry.name === 'reach') result.reach = value;
+      else if (entry.name === 'saved') result.saved = value;
+      else if (entry.name === 'shares') result.shares = value;
+    }
+    return result;
+  } catch {
+    return null;
+  }
 }

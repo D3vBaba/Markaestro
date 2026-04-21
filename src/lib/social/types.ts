@@ -5,9 +5,12 @@ export type FacebookPost = {
   message?: string;
   imageUrl?: string;
   createdTime: string;
+  permalink?: string;
   likes: number;
   comments: number;
   shares: number;
+  views?: number;
+  reach?: number;
 };
 
 export type InstagramMedia = {
@@ -20,6 +23,10 @@ export type InstagramMedia = {
   likes: number;
   comments: number;
   permalink?: string;
+  views?: number;
+  reach?: number;
+  saved?: number;
+  shares?: number;
 };
 
 export type TikTokVideo = {
@@ -39,6 +46,11 @@ export type FacebookInsights = {
   connected: boolean;
   error?: string;
   pageName?: string;
+  username?: string;
+  avatarUrl?: string;
+  bio?: string;
+  profileUrl?: string;
+  isVerified?: boolean;
   followers?: number;
   impressions7d?: number;
   engagements7d?: number;
@@ -50,7 +62,14 @@ export type InstagramInsights = {
   platform: 'instagram';
   connected: boolean;
   error?: string;
+  displayName?: string;
+  username?: string;
+  avatarUrl?: string;
+  bio?: string;
+  profileUrl?: string;
+  website?: string;
   followersCount?: number;
+  follows?: number;
   mediaCount?: number;
   recentMedia?: InstagramMedia[];
 };

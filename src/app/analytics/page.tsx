@@ -19,13 +19,16 @@ type Product = { id: string; name: string };
 
 type FacebookPost = {
   id: string; message?: string; imageUrl?: string; createdTime: string;
+  permalink?: string;
   likes: number; comments: number; shares: number;
+  views?: number; reach?: number;
 };
 
 type InstagramMedia = {
   id: string; caption?: string; mediaType: string; mediaUrl?: string;
   thumbnailUrl?: string; timestamp: string; likes: number; comments: number;
   permalink?: string;
+  views?: number; reach?: number; saved?: number; shares?: number;
 };
 
 type TikTokVideo = {
@@ -35,13 +38,18 @@ type TikTokVideo = {
 
 type FacebookInsights = {
   platform: "facebook"; connected: boolean; error?: string;
-  pageName?: string; followers?: number; impressions7d?: number;
+  pageName?: string; username?: string; avatarUrl?: string; bio?: string;
+  profileUrl?: string; isVerified?: boolean;
+  followers?: number; impressions7d?: number;
   engagements7d?: number; reach7d?: number; recentPosts?: FacebookPost[];
 };
 
 type InstagramInsights = {
   platform: "instagram"; connected: boolean; error?: string;
-  followersCount?: number; mediaCount?: number; recentMedia?: InstagramMedia[];
+  displayName?: string; username?: string; avatarUrl?: string; bio?: string;
+  profileUrl?: string; website?: string;
+  followersCount?: number; follows?: number; mediaCount?: number;
+  recentMedia?: InstagramMedia[];
 };
 
 type TikTokInsights = {
@@ -306,22 +314,41 @@ export default function AnalyticsPage() {
                 platform="Facebook"
                 connected={insights.facebook.connected}
                 error={insights.facebook.error}
+                profile={insights.facebook.connected && !insights.facebook.error ? {
+                  avatarUrl: insights.facebook.avatarUrl,
+                  displayName: insights.facebook.pageName,
+                  username: insights.facebook.username,
+                  isVerified: insights.facebook.isVerified,
+                  bio: insights.facebook.bio,
+                  profileUrl: insights.facebook.profileUrl,
+                } : undefined}
                 stats={insights.facebook.connected && !insights.facebook.error ? [
                   { label: "Followers", value: insights.facebook.followers?.toLocaleString() || "—" },
                   { label: "Reach (7d)", value: insights.facebook.reach7d?.toLocaleString() || "—" },
                   { label: "Engagements", value: insights.facebook.engagements7d?.toLocaleString() || "—" },
                   { label: "Eng. Rate", value: engagementRate(insights.facebook.engagements7d || 0, insights.facebook.reach7d || 0) },
+                  { label: "Avg. Views", value: avgStat(insights.facebook.recentPosts?.map((p) => p.views ?? 0).filter((v) => v > 0) || []) },
+                  { label: "Posts", value: insights.facebook.recentPosts?.length.toString() || "—" },
                 ] : undefined}
               />
               <PlatformHealthCard
                 platform="Instagram"
                 connected={insights.instagram.connected}
                 error={insights.instagram.error}
+                profile={insights.instagram.connected && !insights.instagram.error ? {
+                  avatarUrl: insights.instagram.avatarUrl,
+                  displayName: insights.instagram.displayName,
+                  username: insights.instagram.username,
+                  bio: insights.instagram.bio,
+                  profileUrl: insights.instagram.profileUrl,
+                } : undefined}
                 stats={insights.instagram.connected && !insights.instagram.error ? [
                   { label: "Followers", value: insights.instagram.followersCount?.toLocaleString() || "—" },
+                  { label: "Following", value: insights.instagram.follows?.toLocaleString() || "—" },
                   { label: "Total Posts", value: insights.instagram.mediaCount?.toLocaleString() || "—" },
+                  { label: "Avg. Views", value: avgStat(insights.instagram.recentMedia?.map((m) => m.views ?? 0).filter((v) => v > 0) || []) },
                   { label: "Avg. Likes", value: avgStat(insights.instagram.recentMedia?.map((m) => m.likes) || []) },
-                  { label: "Avg. Comments", value: avgStat(insights.instagram.recentMedia?.map((m) => m.comments) || []) },
+                  { label: "Avg. Reach", value: avgStat(insights.instagram.recentMedia?.map((m) => m.reach ?? 0).filter((v) => v > 0) || []) },
                 ] : undefined}
               />
               <PlatformHealthCard
@@ -401,9 +428,11 @@ export default function AnalyticsPage() {
                       text: p.message || "(no text)",
                       imageUrl: p.imageUrl,
                       date: p.createdTime,
+                      views: p.views,
                       likes: p.likes,
                       comments: p.comments,
                       shares: p.shares,
+                      permalink: p.permalink,
                     }))
                 }
               />
@@ -415,15 +444,17 @@ export default function AnalyticsPage() {
                 title="Top Instagram Posts"
                 posts={
                   [...(insights.instagram.recentMedia ?? [])]
-                    .sort((a, b) => (b.likes + b.comments) - (a.likes + a.comments))
+                    .sort((a, b) => ((b.views ?? 0) + b.likes + b.comments) - ((a.views ?? 0) + a.likes + a.comments))
                     .slice(0, 5)
                     .map((m) => ({
                       id: m.id,
                       text: m.caption || "(no caption)",
                       imageUrl: m.mediaUrl || m.thumbnailUrl,
                       date: m.timestamp,
+                      views: m.views,
                       likes: m.likes,
                       comments: m.comments,
+                      shares: m.shares,
                       permalink: m.permalink,
                     }))
                 }

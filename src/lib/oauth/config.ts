@@ -79,6 +79,53 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     clientSecretEnv: 'LINKEDIN_CLIENT_SECRET',
     extraAuthParams: {},
   },
+  threads: {
+    authUrl: 'https://threads.net/oauth/authorize',
+    tokenUrl: 'https://graph.threads.net/oauth/access_token',
+    scopes: [
+      'threads_basic',
+      'threads_content_publish',
+      'threads_manage_insights',
+    ],
+    clientIdEnv: 'THREADS_APP_ID',
+    clientSecretEnv: 'THREADS_APP_SECRET',
+    extraAuthParams: {},
+  },
+  pinterest: {
+    authUrl: 'https://www.pinterest.com/oauth/',
+    tokenUrl: 'https://api.pinterest.com/v5/oauth/token',
+    scopes: [
+      'boards:read',
+      'boards:write',
+      'pins:read',
+      'pins:write',
+      'user_accounts:read',
+    ],
+    clientIdEnv: 'PINTEREST_CLIENT_ID',
+    clientSecretEnv: 'PINTEREST_CLIENT_SECRET',
+    useBasicAuth: true,
+    extraAuthParams: {},
+  },
+  youtube: {
+    // YouTube Data API v3 uses Google OAuth. Scope youtube.upload lets us upload videos;
+    // youtube.readonly lets us list the user's channels for the post-auth channel picker.
+    // access_type=offline + prompt=consent ensures we receive a refresh token on every
+    // authorization (Google only issues one when prompt=consent).
+    authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+    tokenUrl: 'https://oauth2.googleapis.com/token',
+    revokeUrl: 'https://oauth2.googleapis.com/revoke',
+    scopes: [
+      'https://www.googleapis.com/auth/youtube.upload',
+      'https://www.googleapis.com/auth/youtube.readonly',
+    ],
+    clientIdEnv: 'YOUTUBE_CLIENT_ID',
+    clientSecretEnv: 'YOUTUBE_CLIENT_SECRET',
+    extraAuthParams: {
+      access_type: 'offline',
+      prompt: 'consent',
+      include_granted_scopes: 'true',
+    },
+  },
 };
 
 export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig {
@@ -90,6 +137,9 @@ const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   instagram: 'INSTAGRAM_OAUTH_REDIRECT_URI',
   tiktok: 'TIKTOK_OAUTH_REDIRECT_URI',
   linkedin: 'LINKEDIN_OAUTH_REDIRECT_URI',
+  threads: 'THREADS_OAUTH_REDIRECT_URI',
+  pinterest: 'PINTEREST_OAUTH_REDIRECT_URI',
+  youtube: 'YOUTUBE_OAUTH_REDIRECT_URI',
 };
 
 export function getAppUrl(): string {
