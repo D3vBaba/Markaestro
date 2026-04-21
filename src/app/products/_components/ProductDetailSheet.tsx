@@ -73,6 +73,12 @@ export type IntegrationInfo = {
   lastRefreshError?: string | null;
   username?: string | null;
   needsPageSelection?: boolean;
+  boardId?: string | null;
+  boardName?: string | null;
+  boardSelectionRequired?: boolean | null;
+  channelId?: string | null;
+  channelTitle?: string | null;
+  channelSelectionRequired?: boolean | null;
 };
 
 type MetaPage = {
@@ -93,12 +99,25 @@ const categoryLabels: Record<string, string> = {
   other: "Other",
 };
 
-const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok", "linkedin"] as const;
+const SOCIAL_PROVIDERS = [
+  "meta",
+  "instagram",
+  "tiktok",
+  "linkedin",
+  "threads",
+  "pinterest",
+  "youtube",
+  "x",
+] as const;
 const providerLabels: Record<string, string> = {
   meta: "Meta (Facebook + Instagram)",
   instagram: "Instagram (direct login)",
   tiktok: "TikTok",
   linkedin: "LinkedIn",
+  threads: "Threads",
+  pinterest: "Pinterest",
+  youtube: "YouTube",
+  x: "X (Twitter)",
 };
 
 const COLOR_PALETTE = [
@@ -713,6 +732,8 @@ export default function ProductDetailSheet({
                         setDisconnectTarget({ provider, label })
                       }
                       getIntegration={getIntegration}
+                      onRefreshIntegrations={refreshIntegrations}
+                      productId={productId}
                     />
                   )}
                 </motion.div>
@@ -1115,6 +1136,8 @@ function ChannelsSection({
   onStartOAuth,
   onDisconnect,
   getIntegration,
+  onRefreshIntegrations,
+  productId,
 }: {
   integrations: IntegrationInfo[];
   disconnecting: string | null;
@@ -1128,6 +1151,8 @@ function ChannelsSection({
   onStartOAuth: (provider: string) => void;
   onDisconnect: (provider: string, label: string) => void;
   getIntegration: (provider: string) => IntegrationInfo | undefined;
+  onRefreshIntegrations: () => void | Promise<void>;
+  productId: string | null;
 }) {
   void integrations; // used via getIntegration
   const meta = getIntegration("meta");
@@ -1289,8 +1314,237 @@ function ChannelsSection({
             </Button>
           )}
         </ChannelCard>
+
+        {/* Threads */}
+        <SimpleConnectCard
+          label={providerLabels.threads}
+          integration={getIntegration("threads")}
+          disconnecting={disconnecting}
+          onStartOAuth={onStartOAuth}
+          onDisconnect={onDisconnect}
+        />
+
+        {/* Pinterest */}
+        <SimpleConnectCard
+          label={providerLabels.pinterest}
+          integration={getIntegration("pinterest")}
+          disconnecting={disconnecting}
+          onStartOAuth={onStartOAuth}
+          onDisconnect={onDisconnect}
+          detail={(integ) =>
+            integ?.boardName
+              ? `Pinning to: ${integ.boardName}`
+              : integ?.status === "connected"
+              ? "Select a board to enable publishing"
+              : undefined
+          }
+          warnWhen={(integ) => !!integ && integ.status === "connected" && !integ.boardId}
+          warnLabel="Select board"
+          pickerWhen={(integ) => !!integ && integ.status === "connected"}
+          pickerLabel={(integ) => (integ?.boardId ? "Change board" : "Select board")}
+          pickerProvider="pinterest"
+          pickerDestinationLabel="board"
+          onPickerSelected={onRefreshIntegrations}
+          productId={productId}
+        />
+
+        {/* YouTube */}
+        <SimpleConnectCard
+          label={providerLabels.youtube}
+          integration={getIntegration("youtube")}
+          disconnecting={disconnecting}
+          onStartOAuth={onStartOAuth}
+          onDisconnect={onDisconnect}
+          detail={(integ) =>
+            integ?.channelTitle
+              ? `Uploading to: ${integ.channelTitle}`
+              : integ?.status === "connected"
+              ? "Select a channel to enable publishing"
+              : undefined
+          }
+          warnWhen={(integ) => !!integ && integ.status === "connected" && !integ.channelId}
+          warnLabel="Select channel"
+          pickerWhen={(integ) => !!integ && integ.status === "connected"}
+          pickerLabel={(integ) => (integ?.channelId ? "Change channel" : "Select channel")}
+          pickerProvider="youtube"
+          pickerDestinationLabel="channel"
+          onPickerSelected={onRefreshIntegrations}
+          productId={productId}
+        />
+
+        {/* X */}
+        <SimpleConnectCard
+          label={providerLabels.x}
+          integration={getIntegration("x")}
+          disconnecting={disconnecting}
+          onStartOAuth={onStartOAuth}
+          onDisconnect={onDisconnect}
+          detail={(integ) =>
+            integ?.username ? `@${integ.username}` : undefined
+          }
+        />
       </SectionCard>
     </>
+  );
+}
+
+type PickerDestination = { id: string; name: string };
+
+function SimpleConnectCard({
+  label,
+  integration,
+  disconnecting,
+  onStartOAuth,
+  onDisconnect,
+  detail,
+  warnWhen,
+  warnLabel,
+  pickerWhen,
+  pickerLabel,
+  pickerProvider,
+  pickerDestinationLabel,
+  onPickerSelected,
+  productId,
+}: {
+  label: string;
+  integration: IntegrationInfo | undefined;
+  disconnecting: string | null;
+  onStartOAuth: (provider: string) => void;
+  onDisconnect: (provider: string, label: string) => void;
+  detail?: (integ: IntegrationInfo | undefined) => string | undefined;
+  warnWhen?: (integ: IntegrationInfo | undefined) => boolean;
+  warnLabel?: string;
+  pickerWhen?: (integ: IntegrationInfo | undefined) => boolean;
+  pickerLabel?: (integ: IntegrationInfo | undefined) => string;
+  pickerProvider?: string;
+  pickerDestinationLabel?: string;
+  onPickerSelected?: () => void | Promise<void>;
+  productId?: string | null;
+}) {
+  const provider = (() => {
+    const entry = Object.entries(providerLabels).find(([, l]) => l === label);
+    return entry ? entry[0] : "";
+  })();
+  const connected =
+    integration?.status === "connected" && !integration?.lastRefreshError;
+  const needsReconnect =
+    integration?.status === "expired" || !!integration?.lastRefreshError;
+
+  const pickerActive = !!(pickerWhen && pickerProvider && pickerWhen(integration));
+  const [destinations, setDestinations] = useState<PickerDestination[]>([]);
+  const [loadingDestinations, setLoadingDestinations] = useState(false);
+  const [selectedDestinationId, setSelectedDestinationId] = useState("");
+  const [selecting, setSelecting] = useState(false);
+  const destinationLabel = pickerDestinationLabel || "destination";
+
+  async function loadDestinations() {
+    if (!pickerProvider || !productId) return;
+    setLoadingDestinations(true);
+    try {
+      const res = await apiGet<{ pages: PickerDestination[] }>(
+        `/api/oauth/pages/${pickerProvider}?productId=${productId}`,
+      );
+      if (res.ok) {
+        setDestinations(res.data.pages || []);
+        if ((res.data.pages || []).length === 0) {
+          toast.error(`No ${destinationLabel}s found.`);
+        }
+      } else {
+        toast.error(`Failed to load ${destinationLabel}s`);
+      }
+    } catch {
+      toast.error(`Failed to load ${destinationLabel}s`);
+    } finally {
+      setLoadingDestinations(false);
+    }
+  }
+
+  async function selectDestination() {
+    if (!selectedDestinationId || !pickerProvider || !productId) return;
+    const picked = destinations.find((d) => d.id === selectedDestinationId);
+    setSelecting(true);
+    try {
+      const res = await apiPost<{ ok: boolean; name?: string }>(
+        `/api/oauth/pages/${pickerProvider}/select`,
+        {
+          pageId: selectedDestinationId,
+          pageName: picked?.name,
+          productId,
+        },
+      );
+      if (res.ok && res.data.ok) {
+        toast.success(`${destinationLabel} "${picked?.name || ""}" selected`);
+        setDestinations([]);
+        setSelectedDestinationId("");
+        if (onPickerSelected) await onPickerSelected();
+      } else {
+        toast.error(`Failed to select ${destinationLabel}`);
+      }
+    } catch {
+      toast.error(`Failed to select ${destinationLabel}`);
+    } finally {
+      setSelecting(false);
+    }
+  }
+
+  return (
+    <ChannelCard
+      label={label}
+      connected={!!connected}
+      warn={needsReconnect || (warnWhen ? warnWhen(integration) : false)}
+      warnLabel={needsReconnect ? "Reconnect" : warnLabel || "Warning"}
+      detail={detail ? detail(integration) : undefined}
+    >
+      {connected ? (
+        <>
+          {pickerActive && pickerLabel && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadDestinations}
+              disabled={loadingDestinations}
+            >
+              {loadingDestinations ? "Loading…" : pickerLabel(integration)}
+            </Button>
+          )}
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => onDisconnect(provider, label)}
+            disabled={disconnecting === provider}
+          >
+            {disconnecting === provider ? "…" : "Disconnect"}
+          </Button>
+          {pickerActive && destinations.length > 0 && (
+            <div className="flex gap-2 pt-2 w-full">
+              <Select
+                value={selectedDestinationId}
+                onChange={(e) => setSelectedDestinationId(e.target.value)}
+                className="flex-1"
+              >
+                <option value="">Select a {destinationLabel}…</option>
+                {destinations.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </Select>
+              <Button
+                size="sm"
+                onClick={selectDestination}
+                disabled={selecting || !selectedDestinationId}
+              >
+                {selecting ? "…" : "Select"}
+              </Button>
+            </div>
+          )}
+        </>
+      ) : (
+        <Button size="sm" onClick={() => onStartOAuth(provider)}>
+          {needsReconnect ? "Reconnect" : "Connect"}
+        </Button>
+      )}
+    </ChannelCard>
   );
 }
 

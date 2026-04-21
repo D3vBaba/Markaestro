@@ -27,6 +27,12 @@ function maskConnection(
     openId: conn.metadata.openId ?? null,
     username: conn.metadata.username ?? null,
     lastRefreshError: conn.metadata.lastRefreshError ?? null,
+    boardId: conn.metadata.boardId ?? null,
+    boardName: conn.metadata.boardName ?? null,
+    boardSelectionRequired: conn.metadata.boardSelectionRequired ?? false,
+    channelId: conn.metadata.channelId ?? null,
+    channelTitle: conn.metadata.channelTitle ?? null,
+    channelSelectionRequired: conn.metadata.channelSelectionRequired ?? false,
   };
 }
 
