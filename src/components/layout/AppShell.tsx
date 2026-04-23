@@ -66,8 +66,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       >
         <TrialBanner />
         <Header />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-6 sm:px-6 sm:py-7 lg:px-10 lg:py-8">
-          <div className="mx-auto max-w-6xl min-w-0 w-full">{children}</div>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-6 sm:px-6 sm:py-7 lg:px-10 lg:py-7">
+          {children}
         </main>
       </div>
     </div>
