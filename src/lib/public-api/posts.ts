@@ -15,7 +15,8 @@ type CreatePublicPostInput = {
 };
 
 export function getDeliveryModeForChannel(channel: SocialChannel): PublicDeliveryMode {
-  return channel === 'tiktok' ? 'user_review' : 'direct_publish';
+  void channel;
+  return 'direct_publish';
 }
 
 export function validatePublicPostInput(input: CreatePublicPostInput) {

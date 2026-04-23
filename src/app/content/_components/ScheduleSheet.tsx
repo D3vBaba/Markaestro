@@ -115,8 +115,8 @@ export default function ScheduleSheet({
 
         {channel === "tiktok" && (
           <div className="mx-6 mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-            <span className="font-medium">TikTok stays in Markaestro.</span>{" "}
-            At the scheduled time, this moves into your Markaestro drafts for manual review and posting. Nothing is pushed to TikTok automatically.
+            <span className="font-medium">TikTok finishes in the TikTok app.</span>{" "}
+            At the scheduled time, Markaestro pushes the media to your TikTok inbox, then marks it ready once you can open TikTok to finish caption, privacy, and posting.
           </div>
         )}
 

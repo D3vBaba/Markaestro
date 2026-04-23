@@ -140,7 +140,7 @@ export default function LandingPage() {
               <div className="mt-10 space-y-5">
                 {[
                   { name: "Facebook & Instagram", desc: "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing." },
-                  { name: "TikTok", desc: "Photo and video content staged inside Markaestro for final review and manual posting." },
+                  { name: "TikTok", desc: "Photo and video content handed off to the creator's TikTok inbox for final review and posting." },
                 ].map((ch) => (
                   <div key={ch.name} className="flex items-start gap-4">
                     <div className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />

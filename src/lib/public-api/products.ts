@@ -3,7 +3,6 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 import { getConnection, getConnectionForChannel, getMetaConnectionMerged } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
-import { buildTikTokDraftDestinationAccountId } from '@/lib/tiktok-draft-flow';
 
 export type PublicProductSummary = {
   id: string;
@@ -144,11 +143,15 @@ function buildTikTokDestinations(
   connection: PlatformConnection | null,
   fallbackName: string,
 ): PublicProductDestination[] {
-  const username = connection ? asString(connection.metadata.username) : null;
-  const displayName = username
-    ? `${username} (Markaestro drafts)`
-    : `${fallbackName} TikTok drafts`;
-  const accountId = buildTikTokDraftDestinationAccountId(scopeId);
+  if (!connection || connection.status !== 'connected') return [];
+
+  const openId = asString(connection.metadata.openId);
+  const username = asString(connection.metadata.username);
+  const displayName =
+    asString(connection.metadata.displayName) ||
+    username ||
+    fallbackName;
+  const accountId = openId || username || scopeId;
 
   return [{
     id: buildDestinationId('tiktok', 'tiktok', accountId),
@@ -158,7 +161,7 @@ function buildTikTokDestinations(
     displayName,
     accountId,
     username,
-    deliveryMode: 'user_review',
+    deliveryMode: 'direct_publish',
     willAlsoPublishTo: [],
   }];
 }

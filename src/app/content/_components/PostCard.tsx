@@ -42,7 +42,7 @@ const statusTextColors: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  exported_for_review: "Ready in Markaestro",
+  exported_for_review: "Ready for review",
 };
 
 // Shared pill button style

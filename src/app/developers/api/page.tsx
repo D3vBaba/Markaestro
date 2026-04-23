@@ -11,7 +11,7 @@ const endpointGroups = [
     description: "Discover the products and publish destinations available to the API key.",
     endpoints: [
       { method: "GET", path: "/api/public/v1/products", note: "Lists products plus the channels currently available for each one." },
-      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the publish destinations for that product, including standalone Instagram Login destinations, Meta fan-out behavior, and Markaestro-managed TikTok draft destinations." },
+      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the publish destinations for that product, including standalone Instagram Login destinations, Meta fan-out behavior, and connected TikTok destinations." },
     ],
   },
   {
@@ -26,8 +26,8 @@ const endpointGroups = [
     description: "Create, inspect, and publish posts for Facebook, Instagram, TikTok, and LinkedIn.",
     endpoints: [
       { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft or scheduled post in the workspace." },
-      { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status, publish results, and any follow-up action such as Markaestro manual review." },
-      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. For TikTok, this stages the post inside Markaestro instead of sending it to TikTok." },
+      { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status, publish results, and any follow-up action such as completing a TikTok inbox handoff." },
+      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. TikTok uses the same direct inbox handoff as the app, then finishes asynchronously once TikTok reports the draft is ready." },
     ],
   },
   {
@@ -74,7 +74,7 @@ const examples = {
     "caption": "Spring drop teaser",
     "mediaAssetIds": ["ast_vid_123"],
     "productId": "prod_123",
-    "destinationId": "tiktok:tiktok:markaestro_drafts_prod_123"
+    "destinationId": "tiktok:tiktok:tt_open_123"
   }'`,
 };
 
@@ -87,8 +87,8 @@ const webhookExample = `{
     "postId": "pst_123",
     "channel": "tiktok",
     "status": "exported_for_review",
-    "externalId": "",
-    "nextAction": "open_markaestro_drafts_and_post_manually"
+    "externalId": "p_inbox_url~v2.7631796255831721997",
+    "nextAction": "open_tiktok_inbox_and_complete_editing"
   }
 }`;
 
@@ -103,11 +103,11 @@ export default function DevelopersApiPage() {
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
             Upload images and videos, create posts, publish directly to Meta, Instagram, LinkedIn,
-            and stage TikTok content inside Markaestro for creator review and manual posting.
+            and hand TikTok content off to the creator&apos;s TikTok inbox using the same direct flow as the app.
             Public API v1 is workspace-scoped, supports images and video, and is designed for async automation.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            For TikTok, the API no longer pushes content to TikTok on publish. It moves the post into Markaestro&apos;s review state and returns the action the user should take next.
+            For TikTok, publish is still asynchronous: the run starts the inbox push immediately, then the worker updates the post once TikTok finishes processing and the creator can complete it in TikTok.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             Use only the versioned public routes under <code>/api/public/v1</code>. Internal app routes such as <code>/api/workspaces</code>,
@@ -141,8 +141,8 @@ export default function DevelopersApiPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>TikTok stages in Markaestro</CardTitle>
-                <CardDescription>TikTok photo and video posts stay in Markaestro. The API marks them ready for manual editing and posting by the user instead of handing them off to TikTok.</CardDescription>
+                <CardTitle>TikTok mirrors the app flow</CardTitle>
+                <CardDescription>TikTok photo and video posts use the same direct inbox handoff as the Markaestro UI. Once TikTok is ready, the post moves to review so the creator can finish it inside TikTok.</CardDescription>
               </CardHeader>
             </Card>
             <Card className="lg:col-span-3">
@@ -216,8 +216,8 @@ export default function DevelopersApiPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>TikTok draft example</CardTitle>
-                <CardDescription>Use the Markaestro draft destination returned for the product. Publishing this post will move it into Markaestro review, not TikTok delivery.</CardDescription>
+                <CardTitle>TikTok example</CardTitle>
+                <CardDescription>Use the connected TikTok destination returned for the product. Publishing this post follows the same inbox handoff flow as the app.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.tiktokCreatePost}</code></pre>
@@ -226,7 +226,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>5. Queue publish</CardTitle>
-                <CardDescription>Publishing always creates an async run. TikTok runs finish when Markaestro stages the post for manual review.</CardDescription>
+                <CardDescription>Publishing always creates an async run. TikTok runs finish after the media is handed off and TikTok reports the inbox draft is ready for creator review.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.publish}</code></pre>
@@ -259,7 +259,7 @@ export default function DevelopersApiPage() {
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">TikTok</p>
-                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. Publishing moves the post into Markaestro review for manual posting and leaves platform ids empty.</p>
+                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. Publishing pushes to the creator&apos;s TikTok inbox first, then marks the post ready for review once TikTok finishes processing.</p>
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">LinkedIn</p>

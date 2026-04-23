@@ -28,7 +28,7 @@ describe('public product discovery', () => {
     vi.clearAllMocks();
   });
 
-  it('lists linked Meta and Markaestro TikTok draft destinations for a product', async () => {
+  it('lists linked Meta and connected TikTok destinations for a product', async () => {
     const { listPublicProductDestinations } = await import('../public-api/products');
 
     docMock.mockReturnValue({
@@ -56,6 +56,7 @@ describe('public product discovery', () => {
           metadata: {
             username: 'acmebrand',
             openId: 'tt_open_123',
+            displayName: 'Acme on TikTok',
           },
         };
       }
@@ -82,15 +83,16 @@ describe('public product discovery', () => {
       expect.objectContaining({
         provider: 'tiktok',
         channel: 'tiktok',
-        id: 'tiktok:tiktok:markaestro_drafts_prod_123',
-        accountId: 'markaestro_drafts_prod_123',
-        deliveryMode: 'user_review',
-        displayName: 'acmebrand (Markaestro drafts)',
+        id: 'tiktok:tiktok:tt_open_123',
+        accountId: 'tt_open_123',
+        deliveryMode: 'direct_publish',
+        displayName: 'Acme on TikTok',
+        username: 'acmebrand',
       }),
     ]);
   });
 
-  it('exposes a TikTok draft destination even when no TikTok account is connected', async () => {
+  it('does not expose a TikTok destination when no TikTok account is connected', async () => {
     const { listPublicProductDestinations } = await import('../public-api/products');
 
     docMock.mockReturnValue({
@@ -105,16 +107,7 @@ describe('public product discovery', () => {
 
     const destinations = await listPublicProductDestinations('ws_123', 'prod_123');
 
-    expect(destinations).toEqual([
-      expect.objectContaining({
-        provider: 'tiktok',
-        channel: 'tiktok',
-        id: 'tiktok:tiktok:markaestro_drafts_prod_123',
-        accountId: 'markaestro_drafts_prod_123',
-        displayName: 'Acme TikTok drafts',
-        deliveryMode: 'user_review',
-      }),
-    ]);
+    expect(destinations).toEqual([]);
   });
 
   it('lists standalone instagram login destinations separately from meta-linked instagram', async () => {

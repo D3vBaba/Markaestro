@@ -53,9 +53,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         channel: post.channel,
         mediaUrls: post.mediaUrls,
         // The UI Publish button is an explicit "push it now" action: even if the
-        // post was originally created via the public API with user_review (and
-        // therefore staged in Markaestro), clicking Publish must override and
-        // push to the platform.
+        // post was originally created via a legacy user_review flow, clicking
+        // Publish must override and push to the platform.
         deliveryMode: 'direct_publish',
         destinationProvider: typeof post.destinationProvider === 'string' && post.destinationProvider
           ? post.destinationProvider

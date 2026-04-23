@@ -10,6 +10,18 @@ import { isTikTokDraftOnlyChannel, TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tik
 
 const MAX_PUBLIC_RUNS_PER_WORKSPACE = 20;
 
+export function resolveQueuedPublishDeliveryMode(post: Record<string, unknown>) {
+  return isTikTokDraftOnlyChannel(String(post.channel))
+    ? 'direct_publish'
+    : post.deliveryMode === 'user_review'
+      ? 'user_review'
+      : 'direct_publish';
+}
+
+export function requiresConnectedPublishDestination(post: Record<string, unknown>) {
+  return resolveQueuedPublishDeliveryMode(post) === 'direct_publish';
+}
+
 function nextRetryIso(seconds: number) {
   return new Date(Date.now() + (seconds * 1000)).toISOString();
 }
@@ -99,10 +111,10 @@ async function processSingleRun(workspaceId: string, runId: string) {
   const clientId = typeof post.createdById === 'string' && post.createdByType === 'api_client'
     ? post.createdById
     : null;
-  const isTikTokDraftOnly = isTikTokDraftOnlyChannel(String(post.channel));
+  const deliveryMode = resolveQueuedPublishDeliveryMode(post);
   let destinationKey: string | null = null;
 
-  if (!isTikTokDraftOnly) {
+  if (requiresConnectedPublishDestination(post)) {
     const connection = await resolveConnectionForPost(workspaceId, post);
     if (!connection) {
       await postRef.set({
@@ -153,7 +165,7 @@ async function processSingleRun(workspaceId: string, runId: string) {
         mediaUrls: Array.isArray(post.mediaUrls)
           ? post.mediaUrls.filter((value): value is string => typeof value === 'string')
           : [],
-        deliveryMode: post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
+        deliveryMode,
         destinationProvider: typeof post.destinationProvider === 'string' && post.destinationProvider
           ? post.destinationProvider
           : undefined,

@@ -2,6 +2,8 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getConnectionForChannel } from '@/lib/platform/connections';
 import { getAccessToken } from '@/lib/platform/base-adapter';
 import { fetchTikTokPublishStatus } from '@/lib/platform/adapters/tiktok-publishing';
+import { incrementApiClientStat } from '@/lib/public-api/analytics';
+import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import type { SocialChannel } from '@/lib/schemas';
 import { getAllDocs, getAllMatchingDocs } from '@/lib/firestore-pagination';
 
@@ -12,6 +14,12 @@ type TikTokPublishPollResult = {
   pending: number;
   errors: Array<{ workspaceId: string; postId: string; error: string }>;
 };
+
+function getApiClientId(post: Record<string, unknown>) {
+  return post.createdByType === 'api_client' && typeof post.createdById === 'string'
+    ? post.createdById
+    : null;
+}
 
 function withUpdatedTikTokResult(
   publishResults: unknown,
@@ -127,14 +135,34 @@ export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollRes
           const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
           const summary = summarizePublishResults(nextPublishResults);
           const nextStatus = summary.allSucceeded ? 'published' : summary.anyPending ? 'publishing' : 'failed';
+          const now = new Date().toISOString();
           await doc.ref.update({
             status: nextStatus,
             publishResults: nextPublishResults,
             publishedChannels: summary.publishedChannels,
-            ...(summary.allSucceeded ? { publishedAt: new Date().toISOString() } : {}),
+            ...(summary.allSucceeded ? { publishedAt: now } : {}),
             ...(!summary.allSucceeded && !summary.anyPending ? { errorMessage: summary.firstError || 'One or more channels failed' } : {}),
-            updatedAt: new Date().toISOString(),
+            updatedAt: now,
           });
+          const clientId = getApiClientId(post);
+          if (clientId && nextStatus === 'published') {
+            await incrementApiClientStat(workspaceId, clientId, 'publish_succeeded');
+            await enqueueWebhookEvent(workspaceId, 'post.published', {
+              postId: doc.id,
+              channel: post.channel,
+              status: nextStatus,
+              externalId: typeof post.externalId === 'string' ? post.externalId : '',
+              externalUrl: typeof post.externalUrl === 'string' ? post.externalUrl : '',
+            });
+          } else if (clientId && nextStatus === 'failed') {
+            await incrementApiClientStat(workspaceId, clientId, 'publish_failed');
+            await enqueueWebhookEvent(workspaceId, 'post.failed', {
+              postId: doc.id,
+              channel: post.channel,
+              status: nextStatus,
+              error: summary.firstError || 'One or more channels failed',
+            });
+          }
           if (nextStatus === 'published') result.completed++;
           else if (nextStatus === 'failed') result.failed++;
           else result.pending++;
@@ -155,6 +183,18 @@ export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollRes
             publishedChannels: summary.publishedChannels,
             updatedAt: now,
           });
+          const clientId = getApiClientId(post);
+          if (clientId) {
+            await incrementApiClientStat(workspaceId, clientId, 'publish_exported_for_review');
+            await enqueueWebhookEvent(workspaceId, 'post.exported_for_review', {
+              postId: doc.id,
+              channel: post.channel,
+              status: 'exported_for_review',
+              externalId: typeof post.externalId === 'string' ? post.externalId : '',
+              externalUrl: typeof post.externalUrl === 'string' ? post.externalUrl : '',
+              nextAction: 'open_tiktok_inbox_and_complete_editing',
+            });
+          }
           result.completed++;
           continue;
         }
@@ -164,14 +204,25 @@ export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollRes
           const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'failed', error);
           const summary = summarizePublishResults(nextPublishResults);
           const nextStatus = summary.anyPending ? 'publishing' : summary.allSucceeded ? 'published' : 'failed';
+          const now = new Date().toISOString();
           await doc.ref.update({
             status: nextStatus,
             errorMessage: summary.firstError || error,
             publishResults: nextPublishResults,
             publishedChannels: summary.publishedChannels,
-            ...(nextStatus === 'published' ? { publishedAt: new Date().toISOString() } : {}),
-            updatedAt: new Date().toISOString(),
+            ...(nextStatus === 'published' ? { publishedAt: now } : {}),
+            updatedAt: now,
           });
+          const clientId = getApiClientId(post);
+          if (clientId && nextStatus === 'failed') {
+            await incrementApiClientStat(workspaceId, clientId, 'publish_failed');
+            await enqueueWebhookEvent(workspaceId, 'post.failed', {
+              postId: doc.id,
+              channel: post.channel,
+              status: nextStatus,
+              error: summary.firstError || error,
+            });
+          }
           if (nextStatus === 'published') result.completed++;
           else if (nextStatus === 'failed') result.failed++;
           else result.pending++;

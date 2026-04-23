@@ -40,10 +40,10 @@ describe('public post validation', () => {
     })).toThrow('VALIDATION_TOO_MANY_MEDIA_ASSETS');
   });
 
-  it('uses user review mode for TikTok only', () => {
+  it('uses direct publish mode for all public API channels', () => {
     expect(getDeliveryModeForChannel('facebook')).toBe('direct_publish');
     expect(getDeliveryModeForChannel('instagram')).toBe('direct_publish');
-    expect(getDeliveryModeForChannel('tiktok')).toBe('user_review');
+    expect(getDeliveryModeForChannel('tiktok')).toBe('direct_publish');
   });
 
   it('rejects TikTok posts with multiple videos', () => {
@@ -74,11 +74,11 @@ describe('public post validation', () => {
       channel: 'tiktok',
       status: 'exported_for_review',
       content: 'Draft me',
-      destinationId: 'tiktok:tiktok:markaestro_drafts_prod_123',
+      destinationId: 'tiktok:tiktok:tt_open_123',
       destinationProvider: 'tiktok',
       mediaAssetIds: ['ast_1'],
       mediaUrls: ['https://example.com/1.jpg'],
-      nextAction: 'open_markaestro_drafts_and_post_manually',
+      nextAction: 'open_tiktok_inbox_and_complete_editing',
       sourceType: 'slideshow',
       slideshowId: 'ss_123',
       slideshowTitle: 'Launch sequence',
@@ -89,9 +89,9 @@ describe('public post validation', () => {
     });
 
     expect(serialized.caption).toBe('Draft me');
-    expect(serialized.destinationId).toBe('tiktok:tiktok:markaestro_drafts_prod_123');
+    expect(serialized.destinationId).toBe('tiktok:tiktok:tt_open_123');
     expect(serialized.destinationProvider).toBe('tiktok');
-    expect(serialized.nextAction).toBe('open_markaestro_drafts_and_post_manually');
+    expect(serialized.nextAction).toBe('open_tiktok_inbox_and_complete_editing');
     expect(serialized.sourceType).toBe('slideshow');
     expect(serialized.slideshowId).toBe('ss_123');
     expect(serialized.slideshowTitle).toBe('Launch sequence');

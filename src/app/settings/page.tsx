@@ -135,7 +135,7 @@ const API_SCOPE_OPTIONS = [
 const WEBHOOK_EVENT_OPTIONS = [
   { id: 'post.publish.queued', label: 'Post queued' },
   { id: 'post.published', label: 'Meta publish completed' },
-  { id: 'post.exported_for_review', label: 'TikTok draft ready in Markaestro' },
+  { id: 'post.exported_for_review', label: 'TikTok inbox draft ready for review' },
   { id: 'post.failed', label: 'Post failed' },
 ] as const;
 
@@ -1399,7 +1399,7 @@ function ApiAccessTab() {
             <div className="rounded-xl border p-4">
               <p className="text-sm font-medium">Video support</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Public API v1 supports Facebook, Instagram, and TikTok media uploads. TikTok videos now stay in Markaestro for creator review and manual posting.
+                Public API v1 supports Facebook, Instagram, and TikTok media uploads. TikTok videos follow the same direct inbox handoff as the app before the creator finishes them in TikTok.
               </p>
             </div>
             <div className="rounded-xl border p-4">
@@ -1409,7 +1409,7 @@ function ApiAccessTab() {
               </p>
             </div>
             <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">TikTok Markaestro drafts</p>
+              <p className="text-sm font-medium">TikTok review handoffs</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 TikTok content stays in Markaestro as a draft-ready item. The creator reviews it here and posts manually instead of waiting on TikTok inbox delivery. Meta publishes directly.
               </p>
@@ -1433,7 +1433,7 @@ function ApiAccessTab() {
                 {(analyticsTotals.publishSucceeded + analyticsTotals.publishExportedForReview).toLocaleString()}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {analyticsTotals.publishSucceeded.toLocaleString()} direct publish · {analyticsTotals.publishExportedForReview.toLocaleString()} TikTok Markaestro drafts
+                {analyticsTotals.publishSucceeded.toLocaleString()} direct publish · {analyticsTotals.publishExportedForReview.toLocaleString()} TikTok review handoffs
               </p>
             </div>
             <div className="rounded-xl border p-4">
@@ -1497,7 +1497,7 @@ function ApiAccessTab() {
                             <div className="space-y-1 text-xs text-muted-foreground">
                               <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString()}</span> queued</p>
                               <p><span className="font-medium text-emerald-700 tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString()}</span> direct publish</p>
-                              <p><span className="font-medium text-primary tabular-nums">{(client.usage.currentMonthCounts.publish_exported_for_review || 0).toLocaleString()}</span> TikTok Markaestro drafts</p>
+                              <p><span className="font-medium text-primary tabular-nums">{(client.usage.currentMonthCounts.publish_exported_for_review || 0).toLocaleString()}</span> TikTok review handoffs</p>
                               <p><span className="font-medium text-rose-600 tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString()}</span> failed</p>
                             </div>
                           </TableCell>
@@ -1550,7 +1550,7 @@ function ApiAccessTab() {
                 <div className="flex items-center justify-between border-b px-4 py-3">
                   <div>
                     <p className="text-sm font-medium">Webhook endpoints</p>
-                    <p className="text-xs text-muted-foreground">Receive delivery events when publishes queue, complete, move TikTok posts into Markaestro review, or fail. These are signed and retried from the worker.</p>
+                    <p className="text-xs text-muted-foreground">Receive delivery events when publishes queue, complete, hand TikTok posts off to the inbox for review, or fail. These are signed and retried from the worker.</p>
                   </div>
                   <Button variant="outline" size="sm" onClick={() => setCreateWebhookOpen(true)}>
                     <Webhook className="mr-1.5 h-3.5 w-3.5" />
@@ -1649,9 +1649,9 @@ function ApiAccessTab() {
             </p>
           </div>
           <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">TikTok drafts need user completion</p>
+            <p className="text-sm font-medium">TikTok inbox drafts need user completion</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              TikTok posts are staged in Markaestro for manual completion. The creator reviews the post in drafts and then posts it manually. Scheduling only moves the post into that ready state; it does not push to TikTok.
+              TikTok posts are pushed into the creator&apos;s TikTok inbox first. Once TikTok finishes processing, the creator opens TikTok to finish caption, privacy, and posting. Scheduling triggers that inbox handoff; it does not publish publicly on the creator&apos;s behalf.
             </p>
           </div>
         </CardContent>

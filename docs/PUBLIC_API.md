@@ -17,7 +17,7 @@ Public API v1 supports publishing automation (images and video) for:
 
 - Facebook: text-only, image, or video posts; max 10 images; 1 video per post
 - Instagram: requires at least 1 media item (image or video); max 10 items; single video publishes as a Reel; carousels support mixed image/video
-- TikTok: requires at least 1 media item; either 1 video or up to 10 images; publish requests move the post into Markaestro review for manual posting
+- TikTok: requires at least 1 media item; either 1 video or up to 10 images; publish requests use the same direct inbox handoff as the app and become `exported_for_review` once TikTok finishes processing
 - LinkedIn: text-only, image, or video posts; max 20 images; 1 video per post
 
 ## Media upload
@@ -70,12 +70,13 @@ Meta account selection:
 - Standalone Instagram professional accounts are supported through Instagram Login and do not require a Facebook Page
 
 TikTok:
-- every product exposes a Markaestro-managed TikTok draft destination, even when no TikTok publishing connection is configured
-- the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents Markaestro's internal review queue, not a provider-side inbox or publish target
-- `POST /api/public/v1/posts/:id/publish` does not push content to TikTok; it stages the post for manual review inside Markaestro
-- post status becomes `exported_for_review`
-- `externalId` and `externalUrl` remain empty in this flow
-- response includes `nextAction=open_markaestro_drafts_and_post_manually`
+- products expose TikTok destinations only when a TikTok publishing connection is configured
+- the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents the connected TikTok account, not a Markaestro-only review queue
+- `POST /api/public/v1/posts/:id/publish` follows the same direct inbox handoff as the Markaestro app: it pushes the media to TikTok first, then the worker polls until TikTok reports `SEND_TO_USER_INBOX`
+- the initial publish run usually completes with the post in `publishing`
+- once TikTok finishes processing, post status becomes `exported_for_review`
+- `externalId` contains the TikTok `publish_id`
+- the follow-up action is `nextAction=open_tiktok_inbox_and_complete_editing`
 
 LinkedIn:
 - direct publish via the LinkedIn Posts API
@@ -155,9 +156,9 @@ Supported events:
 - `post.failed`
 
 TikTok webhook semantics:
-- `post.exported_for_review` means the post is ready in Markaestro for manual editing/posting
-- it does not mean the post was delivered to TikTok
-- payloads include `nextAction=open_markaestro_drafts_and_post_manually`
+- `post.exported_for_review` means the post has been handed off to the creator's TikTok inbox and is ready for them to finish inside TikTok
+- it does not mean the post has been publicly published yet
+- payloads include `nextAction=open_tiktok_inbox_and_complete_editing`
 
 Headers:
 - `X-Markaestro-Event`
