@@ -61,8 +61,8 @@ export default function PricingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease }}
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Pricing</p>
-            <h1 className="mt-4 text-4xl font-normal tracking-tight lg:text-6xl font-display">
+            <p className="mk-eyebrow">Pricing</p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-[-0.035em] leading-[1.05] lg:text-6xl">
               Your entire marketing engine,{" "}
               <span className="text-primary">one simple price</span>
             </h1>
@@ -76,7 +76,7 @@ export default function PricingPage() {
               <button
                 className={cn(
                   "rounded-full px-5 py-2 text-sm font-medium transition-all",
-                  !annual ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"
+                  !annual ? "bg-mk-ink text-mk-paper" : "text-muted-foreground hover:text-foreground"
                 )}
                 onClick={() => setAnnual(false)}
               >
@@ -85,19 +85,19 @@ export default function PricingPage() {
               <button
                 className={cn(
                   "rounded-full px-5 py-2 text-sm font-medium transition-all",
-                  annual ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"
+                  annual ? "bg-mk-ink text-mk-paper" : "text-muted-foreground hover:text-foreground"
                 )}
                 onClick={() => setAnnual(true)}
               >
                 Annual{" "}
-                <span className="ml-1 rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-[10px] font-bold">
+                <span className="ml-1 rounded-full bg-mk-accent-soft text-mk-accent px-2 py-0.5 text-[10px] font-bold">
                   SAVE 18%
                 </span>
               </button>
             </div>
 
             <motion.p
-              className="mt-4 text-sm text-emerald-600 font-medium"
+              className="mt-4 text-sm text-mk-pos font-medium"
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
@@ -110,7 +110,7 @@ export default function PricingPage() {
       </section>
 
       {/* Pricing Cards */}
-      <section className="border-t bg-muted/20">
+      <section className="border-t" style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}>
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="grid gap-6 lg:grid-cols-3">
             {PLAN_TIERS.map((tierKey, i) => {
@@ -123,7 +123,7 @@ export default function PricingPage() {
                 <motion.div
                   key={tier.name}
                   className={cn(
-                    "rounded-2xl border bg-background p-8 flex flex-col",
+                    "rounded-xl border bg-card p-7 flex flex-col",
                     tier.highlighted
                       ? "border-primary shadow-lg ring-1 ring-primary/20 relative"
                       : "border-border/40"
@@ -158,7 +158,7 @@ export default function PricingPage() {
                           {" "}· Billed annually (${price * 12}/yr)
                         </p>
                         {dailyCost && (
-                          <p className="text-xs text-emerald-600 font-medium">
+                          <p className="text-xs text-mk-pos font-medium">
                             That&apos;s just ${dailyCost}/day
                           </p>
                         )}
@@ -174,7 +174,7 @@ export default function PricingPage() {
                     <Button
                       variant={tier.highlighted ? "default" : "outline"}
                       className={cn(
-                        "w-full rounded-xl h-11",
+                        "w-full rounded-lg h-11 text-[13.5px]",
                         tier.highlighted && "bg-primary hover:bg-primary/90"
                       )}
                     >
@@ -206,7 +206,7 @@ export default function PricingPage() {
       <section className="border-t">
         <div className="mx-auto max-w-5xl px-6 py-24 lg:py-32">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-normal tracking-tight lg:text-3xl font-display">
+            <h2 className="text-2xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-3xl">
               Compare <span className="text-primary">every feature</span>
             </h2>
             <p className="mt-4 text-muted-foreground">
@@ -263,10 +263,10 @@ export default function PricingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="border-t bg-muted/20">
+      <section className="border-t" style={{ background: "var(--mk-surface)", borderColor: "var(--mk-rule)" }}>
         <div className="mx-auto max-w-3xl px-6 py-24 lg:py-32">
           <div className="text-center">
-            <h2 className="text-2xl font-normal tracking-tight lg:text-3xl font-display">
+            <h2 className="text-2xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-3xl">
               Pricing <span className="text-primary">FAQ</span>
             </h2>
           </div>
@@ -274,7 +274,7 @@ export default function PricingPage() {
             {faqs.map((faq, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-border/40 bg-background overflow-hidden"
+                className="rounded-xl border bg-card overflow-hidden"
               >
                 <button
                   className="flex w-full items-center justify-between p-6 text-left"
@@ -300,23 +300,23 @@ export default function PricingPage() {
       </section>
 
       {/* CTA */}
-      <section className="border-t bg-primary text-white">
+      <section className="border-t bg-mk-ink text-mk-paper">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-normal tracking-tight lg:text-4xl font-display">
+            <h2 className="text-3xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-4xl">
               Try Markaestro free for {TRIAL_DAYS} days
             </h2>
-            <p className="mt-5 text-white/70">
+            <p className="mt-5 text-mk-paper/70">
               Full access on any annual plan. No charge until day {TRIAL_DAYS + 1}. Cancel anytime.
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/login">
-                <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
+                <Button size="lg" variant="secondary" className="h-11 px-7 rounded-lg text-[13.5px] bg-mk-paper text-mk-ink hover:bg-mk-paper/90">
                   Start Free Trial
                 </Button>
               </Link>
               <Link href="/contact">
-                <Button size="lg" variant="ghost" className="h-13 px-10 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-2xl">
+                <Button size="lg" variant="ghost" className="h-11 px-7 rounded-lg text-[13.5px] text-mk-paper/80 hover:text-mk-paper hover:bg-mk-paper/10">
                   Talk to Sales
                 </Button>
               </Link>

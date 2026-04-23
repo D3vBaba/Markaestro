@@ -19,8 +19,8 @@ export default function AIStudioPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease }}
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">AI Studio</p>
-            <h1 className="mt-4 text-4xl font-normal tracking-tight lg:text-6xl font-[family-name:var(--font-display)]">
+            <p className="mk-eyebrow">AI Studio</p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-[-0.035em] leading-[1.05] lg:text-6xl">
               Content that sounds <span className="text-primary">like you</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
@@ -31,14 +31,14 @@ export default function AIStudioPage() {
       </section>
 
       {/* Brand Voice */}
-      <section className="border-t bg-muted/20">
+      <section className="border-t bg-mk-paper border-mk-rule">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="grid gap-16 lg:gap-24 lg:grid-cols-2 lg:items-center">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary tracking-wide">
                 Brand Voice Engine
               </div>
-              <h2 className="mt-6 text-2xl font-normal tracking-tight lg:text-3xl font-[family-name:var(--font-display)]">
+              <h2 className="mt-6 text-2xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-3xl">
                 Your voice, amplified by AI
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -69,7 +69,7 @@ export default function AIStudioPage() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.5, ease }}
             >
-              <div className="rounded-2xl border bg-background p-8">
+              <div className="rounded-xl border bg-card p-6">
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary tracking-wide uppercase">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   Brand Voice Profile
@@ -89,7 +89,7 @@ export default function AIStudioPage() {
                   </div>
                 </div>
               </div>
-              <div className="rounded-2xl border bg-background p-8">
+              <div className="rounded-xl border bg-card p-6">
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary tracking-wide uppercase">
                   Generated Output
                 </div>
@@ -117,7 +117,7 @@ export default function AIStudioPage() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.5, ease }}
             >
-              <div className="rounded-2xl border bg-background p-8">
+              <div className="rounded-xl border bg-card p-6">
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary tracking-wide uppercase">
                   Brand Identity
                 </div>
@@ -130,7 +130,7 @@ export default function AIStudioPage() {
                   ))}
                 </div>
               </div>
-              <div className="rounded-2xl border bg-background p-8">
+              <div className="rounded-xl border bg-card p-6">
                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground tracking-wide uppercase">
                   Aspect Ratios
                 </div>
@@ -150,7 +150,7 @@ export default function AIStudioPage() {
                   ))}
                 </div>
               </div>
-              <div className="rounded-2xl border bg-background p-8">
+              <div className="rounded-xl border bg-card p-6">
                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground tracking-wide uppercase">
                   Visual Styles
                 </div>
@@ -168,7 +168,7 @@ export default function AIStudioPage() {
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary tracking-wide">
                 AI Image Generation
               </div>
-              <h2 className="mt-6 text-2xl font-normal tracking-tight lg:text-3xl font-[family-name:var(--font-display)]">
+              <h2 className="mt-6 text-2xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-3xl">
                 Branded visuals, generated in seconds
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -196,11 +196,11 @@ export default function AIStudioPage() {
       </section>
 
       {/* How AI Works */}
-      <section className="border-t bg-muted/20">
+      <section className="border-t bg-mk-paper border-mk-rule">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Under the Hood</p>
-            <h2 className="mt-4 text-3xl font-normal tracking-tight lg:text-4xl font-[family-name:var(--font-display)]">
+            <p className="mk-eyebrow">Under the Hood</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-4xl">
               How the AI <span className="text-primary">thinks</span>
             </h2>
           </div>
@@ -211,7 +211,7 @@ export default function AIStudioPage() {
               { step: "03", title: "Create Visuals", desc: "Choose an aspect ratio and style. The AI generates images using your brand colors and visual direction." },
               { step: "04", title: "Refine & Publish", desc: "Review, regenerate, or tweak. When it's right, publish directly or add to your content calendar." },
             ].map((item) => (
-              <div key={item.step} className="rounded-2xl border border-border/40 bg-background p-8">
+              <div key={item.step} className="rounded-xl border bg-card p-6">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-bold text-primary">{item.step}</span>
                 </div>
@@ -224,24 +224,46 @@ export default function AIStudioPage() {
       </section>
 
       {/* CTA */}
-      <section className="border-t bg-primary text-white">
-        <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+      <section
+        className="border-t"
+        style={{ background: "var(--mk-ink)", borderColor: "var(--mk-rule)" }}
+      >
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-normal tracking-tight lg:text-4xl font-[family-name:var(--font-display)]">
+            <h2
+              className="text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
+              style={{ color: "var(--mk-paper)", letterSpacing: "-0.03em" }}
+            >
               Let AI do the heavy lifting
             </h2>
-            <p className="mt-5 text-white/70">
+            <p
+              className="mt-4 text-[14px] sm:text-[15px]"
+              style={{
+                color: "color-mix(in oklch, var(--mk-paper) 70%, transparent)",
+              }}
+            >
               Define your brand once. Generate unlimited on-brand content — copy and images — in seconds.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/login">
-                <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Try AI Studio Free
+                <Button
+                  size="lg"
+                  className="h-11 px-7 rounded-lg text-[13.5px]"
+                  style={{ background: "var(--mk-paper)", color: "var(--mk-ink)" }}
+                >
+                  Try AI Studio free
                 </Button>
               </Link>
               <Link href="/features">
-                <Button size="lg" variant="ghost" className="h-13 px-10 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-2xl">
-                  See All Features
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="h-11 px-7 rounded-lg text-[13.5px]"
+                  style={{
+                    color: "color-mix(in oklch, var(--mk-paper) 80%, transparent)",
+                  }}
+                >
+                  See all features
                 </Button>
               </Link>
             </div>

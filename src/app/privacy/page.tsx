@@ -5,13 +5,27 @@ import MarketingLayout from "@/components/layout/MarketingLayout";
 export default function PrivacyPage() {
   return (
     <MarketingLayout>
-      <div className="mx-auto max-w-4xl px-6 py-16 lg:py-24">
-      <h1 className="text-3xl font-bold tracking-tight text-foreground">Privacy Policy</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Last updated: March 10, 2026</p>
+      <div className="mx-auto max-w-3xl px-5 sm:px-6 py-14 lg:py-20">
+      <p className="mk-eyebrow">Legal</p>
+      <h1
+        className="mt-2 text-[32px] sm:text-[36px] font-semibold leading-[1.1]"
+        style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
+      >
+        Privacy Policy
+      </h1>
+      <p
+        className="mt-2 font-mono text-[11.5px] uppercase"
+        style={{ color: "var(--mk-ink-40)", letterSpacing: "0.08em" }}
+      >
+        Last updated · March 10, 2026
+      </p>
 
-      <div className="mt-10 space-y-10 text-sm leading-relaxed text-foreground/90">
+      <div
+        className="mt-10 flex flex-col gap-8 text-[14px] leading-relaxed"
+        style={{ color: "var(--mk-ink-80)" }}
+      >
         <section>
-          <h2 className="text-lg font-semibold text-foreground">1. Scope and Roles</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">1. Scope and Roles</h2>
           <p className="mt-3">
             This Privacy Policy explains how Markaestro (&quot;Markaestro&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, discloses, and protects personal information when you access our marketing automation platform, website, applications, APIs, and related services (collectively, the &quot;Services&quot;).
           </p>
@@ -21,7 +35,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">2. Information We Collect</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">2. Information We Collect</h2>
 
           <h3 className="mt-4 font-medium text-foreground">2.1 Information you provide directly</h3>
           <ul className="mt-2 list-disc space-y-1 pl-6">
@@ -56,7 +70,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">3. How We Use Information</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">3. How We Use Information</h2>
           <div className="mt-3 space-y-2">
             <p>We use personal information and customer data to:</p>
             <ul className="list-disc space-y-1 pl-6">
@@ -74,21 +88,21 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">4. Legal Bases for Processing</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">4. Legal Bases for Processing</h2>
           <p className="mt-3">
             Where required by law, we rely on one or more of the following legal bases: performance of a contract, legitimate interests, consent, and compliance with legal obligations. For example, we process account data to provide the Services under contract, use logs and security telemetry for legitimate interests in operating a secure platform, and may rely on consent where required for certain communications or integration permissions.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">5. Cookies and Similar Technologies</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">5. Cookies and Similar Technologies</h2>
           <p className="mt-3">
             We use essential cookies, tokens, and similar storage technologies to keep you signed in, preserve session integrity, remember preferences, and secure the Services. We may also use technical telemetry and diagnostic tools to monitor application errors and performance. We do not sell personal information or use cross-context behavioral advertising cookies through the authenticated application experience.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">6. How We Share Information</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">6. How We Share Information</h2>
           <div className="mt-3 space-y-2">
             <p>We do not sell personal information. We share information only as needed for the purposes described above, including with:</p>
             <ul className="list-disc space-y-1 pl-6">
@@ -104,14 +118,14 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">7. AI and Automated Processing</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">7. AI and Automated Processing</h2>
           <p className="mt-3">
             Markaestro offers AI-assisted features that may use prompts, product descriptions, brand voice instructions, campaign content, analytics summaries, uploaded screenshots, logos, and related workspace data to generate marketing copy, images, recommendations, and performance insights. These outputs are generated automatically and may be inaccurate, incomplete, or unsuitable for your use case. You are responsible for reviewing AI-generated outputs before publication, launch, or sending.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">8. Storage, Security, and Integrity</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">8. Storage, Security, and Integrity</h2>
 
           <h3 className="mt-4 font-medium text-foreground">8.1 Infrastructure</h3>
           <p className="mt-2">
@@ -130,14 +144,14 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">9. International Transfers</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">9. International Transfers</h2>
           <p className="mt-3">
             We and our service providers may process information in the United States and other countries that may have different data protection laws from your jurisdiction. Where required, we use appropriate transfer mechanisms and safeguards for international transfers.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">10. Data Retention</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">10. Data Retention</h2>
           <div className="mt-3 space-y-2">
             <p>We retain information for as long as reasonably necessary to provide the Services, comply with legal obligations, resolve disputes, and enforce agreements. Retention periods vary by data type, for example:</p>
             <ul className="list-disc space-y-1 pl-6">
@@ -151,7 +165,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">11. Your Privacy Rights</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">11. Your Privacy Rights</h2>
           <div className="mt-3 space-y-2">
             <p>Depending on your jurisdiction, you may have rights to access, correct, delete, restrict, object to, or export your personal information, and to withdraw consent where consent is the basis for processing. You may also have the right not to receive discriminatory treatment for exercising your rights.</p>
             <ul className="list-disc space-y-1 pl-6">
@@ -164,28 +178,28 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">12. Your Responsibilities When You Use Markaestro</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">12. Your Responsibilities When You Use Markaestro</h2>
           <p className="mt-3">
             If you upload contact information, campaign content, or third-party platform data into Markaestro, you are responsible for ensuring you have an appropriate legal basis to do so and for honoring applicable privacy, anti-spam, advertising, and consumer protection laws. This includes obtaining any required consents and honoring unsubscribe or suppression requests.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">13. Children&apos;s Privacy</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">13. Children&apos;s Privacy</h2>
           <p className="mt-3">
             The Services are not directed to children, and you may not use them if you are under 18. We do not knowingly collect personal information from children. If you believe a child has provided us personal information, contact us and we will investigate and take appropriate action.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">14. Changes to This Policy</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">14. Changes to This Policy</h2>
           <p className="mt-3">
             We may update this Privacy Policy from time to time. If we make material changes, we will post the updated version here and may provide additional notice through the Services or by email where appropriate. Your continued use of the Services after the effective date of the updated policy means the updated policy will apply to your future use.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">15. Contact Us</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">15. Contact Us</h2>
           <p className="mt-3">
             If you have questions about this Privacy Policy or Markaestro&apos;s privacy practices, contact us at <a href="mailto:legal@markaestro.com" className="underline hover:text-foreground">legal@markaestro.com</a> or through our <a href="/contact" className="underline hover:text-foreground">contact page</a>.
           </p>

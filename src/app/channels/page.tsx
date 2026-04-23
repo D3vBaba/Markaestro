@@ -72,8 +72,8 @@ export default function ChannelsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease }}
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Channels</p>
-            <h1 className="mt-4 text-4xl font-normal tracking-tight lg:text-6xl font-[family-name:var(--font-display)]">
+            <p className="mk-eyebrow">Channels</p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-[-0.035em] leading-[1.05] lg:text-6xl">
               Reach your audience <span className="text-primary">everywhere</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
@@ -83,16 +83,39 @@ export default function ChannelsPage() {
 
           {/* Stats */}
           <motion.div
-            className="mx-auto mt-20 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-2xl border bg-border/40"
+            className="mx-auto mt-20 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-xl"
+            style={{
+              background: "var(--mk-rule)",
+              border: "1px solid var(--mk-rule)",
+            }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5, ease }}
           >
             {stats.map((stat) => (
-              <div key={stat.label} className="bg-background px-6 py-8 text-center">
-                <p className="text-3xl font-bold tracking-tight text-primary">{stat.value}</p>
-                <p className="mt-2 text-xs font-semibold text-foreground">{stat.label}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">{stat.sub}</p>
+              <div
+                key={stat.label}
+                className="px-5 py-7 text-center"
+                style={{ background: "var(--mk-paper)" }}
+              >
+                <p
+                  className="text-[28px] sm:text-[32px] font-semibold mk-figure"
+                  style={{ color: "var(--mk-accent)", letterSpacing: "-0.03em" }}
+                >
+                  {stat.value}
+                </p>
+                <p
+                  className="mt-2 text-[12.5px] font-semibold"
+                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+                >
+                  {stat.label}
+                </p>
+                <p
+                  className="mt-0.5 text-[11px]"
+                  style={{ color: "var(--mk-ink-60)" }}
+                >
+                  {stat.sub}
+                </p>
               </div>
             ))}
           </motion.div>
@@ -100,13 +123,16 @@ export default function ChannelsPage() {
       </section>
 
       {/* Channel Cards */}
-      <section className="border-t bg-muted/20">
+      <section
+        className="border-t"
+        style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
+      >
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="space-y-16">
             {channels.map((channel) => (
               <motion.div
                 key={channel.name}
-                className="rounded-2xl border border-border/40 bg-background overflow-hidden"
+                className="rounded-xl border bg-card overflow-hidden"
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
@@ -119,22 +145,34 @@ export default function ChannelsPage() {
                         className="h-3 w-3 rounded-full"
                         style={{ backgroundColor: channel.color }}
                       />
-                      <span className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                        {channel.category}
-                      </span>
+                      <span className="mk-eyebrow">{channel.category}</span>
                     </div>
-                    <h3 className="mt-4 text-2xl font-normal tracking-tight font-[family-name:var(--font-display)]">
+                    <h3 className="mt-4 text-2xl font-semibold tracking-[-0.03em] leading-[1.1]">
                       {channel.name}
                     </h3>
                     <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
                       {channel.description}
                     </p>
-                    <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-muted/50 px-4 py-2 text-xs text-muted-foreground">
+                    <div
+                      className="mt-6 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-[10.5px] uppercase"
+                      style={{
+                        background: "var(--mk-panel)",
+                        border: "1px solid var(--mk-rule)",
+                        color: "var(--mk-ink-60)",
+                        letterSpacing: "0.12em",
+                      }}
+                    >
                       {channel.connection}
                     </div>
                   </div>
-                  <div className="border-t lg:border-t-0 lg:border-l border-border/40 p-8 lg:p-12 bg-muted/10">
-                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-foreground mb-5">Capabilities</p>
+                  <div
+                    className="border-t lg:border-t-0 lg:border-l p-8 lg:p-12"
+                    style={{
+                      background: "var(--mk-surface)",
+                      borderColor: "var(--mk-rule)",
+                    }}
+                  >
+                    <p className="mk-eyebrow mb-5">Capabilities</p>
                     <div className="grid gap-3 sm:grid-cols-2">
                       {channel.capabilities.map((cap) => (
                         <div key={cap} className="flex items-start gap-2.5">
@@ -155,8 +193,8 @@ export default function ChannelsPage() {
       <section className="border-t">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">How It Works</p>
-            <h2 className="mt-4 text-3xl font-normal tracking-tight lg:text-4xl font-[family-name:var(--font-display)]">
+            <p className="mk-eyebrow">How It Works</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-4xl">
               Connected in <span className="text-primary">three steps</span>
             </h2>
           </div>
@@ -167,11 +205,27 @@ export default function ChannelsPage() {
               { step: "03", title: "Publish", desc: "Hit publish or schedule for later. Markaestro handles formatting, media specs, and API calls for every channel." },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/5 text-xl font-bold text-primary">
+                <div
+                  className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl font-mono text-[15px] font-semibold"
+                  style={{
+                    background: "var(--mk-accent-soft)",
+                    color: "var(--mk-accent)",
+                  }}
+                >
                   {item.step}
                 </div>
-                <h3 className="mt-5 text-sm font-semibold text-foreground">{item.title}</h3>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                <h3
+                  className="mt-5 text-[14px] font-semibold"
+                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+                >
+                  {item.title}
+                </h3>
+                <p
+                  className="mt-2 text-[13px] leading-relaxed"
+                  style={{ color: "var(--mk-ink-60)" }}
+                >
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -179,24 +233,46 @@ export default function ChannelsPage() {
       </section>
 
       {/* CTA */}
-      <section className="border-t bg-primary text-white">
-        <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+      <section
+        className="border-t"
+        style={{ background: "var(--mk-ink)", borderColor: "var(--mk-rule)" }}
+      >
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-normal tracking-tight lg:text-4xl font-[family-name:var(--font-display)]">
+            <h2
+              className="text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
+              style={{ color: "var(--mk-paper)", letterSpacing: "-0.03em" }}
+            >
               Connect your first channel in under two minutes
             </h2>
-            <p className="mt-5 text-white/70">
+            <p
+              className="mt-4 text-[14px] sm:text-[15px]"
+              style={{
+                color: "color-mix(in oklch, var(--mk-paper) 70%, transparent)",
+              }}
+            >
               No API keys. No developer setup. Just click, authorize, and start publishing.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/login">
-                <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Get Started Free
+                <Button
+                  size="lg"
+                  className="h-11 px-7 rounded-lg text-[13.5px]"
+                  style={{ background: "var(--mk-paper)", color: "var(--mk-ink)" }}
+                >
+                  Get started free
                 </Button>
               </Link>
               <Link href="/features">
-                <Button size="lg" variant="ghost" className="h-13 px-10 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-2xl">
-                  See All Features
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="h-11 px-7 rounded-lg text-[13.5px]"
+                  style={{
+                    color: "color-mix(in oklch, var(--mk-paper) 80%, transparent)",
+                  }}
+                >
+                  See all features
                 </Button>
               </Link>
             </div>

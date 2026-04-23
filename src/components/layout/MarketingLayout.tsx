@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 const navLinks = [
@@ -24,51 +23,80 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ background: "var(--mk-surface)" }}
+    >
       {/* ─── Navbar ─── */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/markaestro-logo-transparent.png" alt="Markaestro" width={40} height={36} className="object-contain" />
-            <span className="text-base font-bold tracking-tight">Markaestro</span>
+      <header
+        className="sticky top-0 z-50 border-b backdrop-blur-md"
+        style={{
+          background: "color-mix(in oklch, var(--mk-paper) 92%, transparent)",
+          borderColor: "var(--mk-rule)",
+        }}
+      >
+        <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
+          <Link href="/" className="flex items-center gap-2.5">
+            <Image
+              src="/markaestro-logo-transparent.png"
+              alt="Markaestro"
+              width={28}
+              height={28}
+              className="object-contain"
+            />
+            <span
+              className="text-[15px] font-semibold"
+              style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
+            >
+              Markaestro
+            </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "text-sm transition",
-                  pathname === link.href
-                    ? "text-foreground font-medium"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav className="hidden md:flex items-center gap-7">
+            {navLinks.map((link) => {
+              const active = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-[13px] transition-colors"
+                  style={{
+                    color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
+                    fontWeight: active ? 500 : 400,
+                    letterSpacing: "-0.005em",
+                  }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {user ? (
               <Link href="/dashboard">
-                <Button>Go to Dashboard</Button>
+                <Button className="rounded-lg h-9 text-[13px]">
+                  Dashboard
+                </Button>
               </Link>
             ) : (
               <>
                 <Link href="/login" className="hidden sm:block">
-                  <Button variant="ghost" className="text-sm">Sign In</Button>
+                  <Button variant="ghost" className="h-9 rounded-lg text-[13px]">
+                    Sign in
+                  </Button>
                 </Link>
                 <Link href="/login">
-                  <Button className="text-sm">Get Started</Button>
+                  <Button className="rounded-lg h-9 text-[13px]">
+                    Get started
+                  </Button>
                 </Link>
               </>
             )}
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="md:hidden h-9 w-9 rounded-lg"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -78,22 +106,32 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
 
         {/* Mobile nav */}
         {mobileOpen && (
-          <div className="md:hidden border-t bg-background px-6 pb-4 pt-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "block py-3 text-sm transition border-b border-border/40 last:border-0",
-                  pathname === link.href
-                    ? "text-foreground font-medium"
-                    : "text-muted-foreground"
-                )}
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div
+            className="md:hidden border-t px-5 pb-4 pt-2"
+            style={{
+              background: "var(--mk-paper)",
+              borderColor: "var(--mk-rule)",
+            }}
+          >
+            {navLinks.map((link) => {
+              const active = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="block py-3 text-[14px] transition-colors border-b last:border-0"
+                  style={{
+                    color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
+                    fontWeight: active ? 500 : 400,
+                    borderColor: "var(--mk-rule-soft)",
+                    letterSpacing: "-0.005em",
+                  }}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
         )}
       </header>
@@ -102,53 +140,126 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <main className="flex-1">{children}</main>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t bg-background">
-        <div className="mx-auto max-w-7xl px-6 py-16">
+      <footer
+        className="border-t"
+        style={{
+          background: "var(--mk-paper)",
+          borderColor: "var(--mk-rule)",
+        }}
+      >
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-14">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <div className="flex items-center gap-3">
-                <Image src="/markaestro-logo-transparent.png" alt="Markaestro" width={32} height={28} className="object-contain" />
-                <span className="text-sm font-bold tracking-tight">Markaestro</span>
+              <div className="flex items-center gap-2.5">
+                <Image
+                  src="/markaestro-logo-transparent.png"
+                  alt="Markaestro"
+                  width={24}
+                  height={24}
+                  className="object-contain"
+                />
+                <span
+                  className="text-[14px] font-semibold"
+                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
+                >
+                  Markaestro
+                </span>
               </div>
-              <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
-                The premium marketing automation platform for modern teams.
+              <p
+                className="mt-4 text-[12.5px] leading-relaxed"
+                style={{ color: "var(--mk-ink-60)" }}
+              >
+                The marketing automation platform for modern teams.
               </p>
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">Product</p>
-              <div className="mt-5 flex flex-col gap-3">
-                <Link href="/features" className="text-sm text-muted-foreground hover:text-foreground transition">Features</Link>
-                <Link href="/channels" className="text-sm text-muted-foreground hover:text-foreground transition">Channels</Link>
-                <Link href="/ai-studio" className="text-sm text-muted-foreground hover:text-foreground transition">AI Studio</Link>
-                <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition">Pricing</Link>
+              <p className="mk-eyebrow">Product</p>
+              <div className="mt-4 flex flex-col gap-3">
+                {[
+                  { href: "/features", label: "Features" },
+                  { href: "/channels", label: "Channels" },
+                  { href: "/ai-studio", label: "AI Studio" },
+                  { href: "/pricing", label: "Pricing" },
+                ].map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className="text-[13px] transition-colors"
+                    style={{ color: "var(--mk-ink-60)" }}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">Company</p>
-              <div className="mt-5 flex flex-col gap-3">
-                <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition">Contact</Link>
-                <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition">Terms of Service</Link>
-                <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition">Privacy Policy</Link>
+              <p className="mk-eyebrow">Company</p>
+              <div className="mt-4 flex flex-col gap-3">
+                {[
+                  { href: "/contact", label: "Contact" },
+                  { href: "/terms", label: "Terms of Service" },
+                  { href: "/privacy", label: "Privacy Policy" },
+                ].map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className="text-[13px] transition-colors"
+                    style={{ color: "var(--mk-ink-60)" }}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">Get Started</p>
-              <div className="mt-5 flex flex-col gap-3">
-                <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition">Sign In</Link>
-                <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition">Create Account</Link>
+              <p className="mk-eyebrow">Get started</p>
+              <div className="mt-4 flex flex-col gap-3">
+                <Link
+                  href="/login"
+                  className="text-[13px]"
+                  style={{ color: "var(--mk-ink-60)" }}
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/login"
+                  className="text-[13px]"
+                  style={{ color: "var(--mk-ink-60)" }}
+                >
+                  Create account
+                </Link>
               </div>
             </div>
           </div>
 
-          <div className="mt-16 flex flex-col items-center gap-4 border-t pt-8 sm:flex-row sm:justify-between">
-            <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Markaestro. All rights reserved.</p>
+          <div
+            className="mt-14 flex flex-col items-center gap-4 border-t pt-7 sm:flex-row sm:justify-between"
+            style={{ borderColor: "var(--mk-rule)" }}
+          >
+            <p
+              className="text-[11.5px]"
+              style={{ color: "var(--mk-ink-40)" }}
+            >
+              &copy; {new Date().getFullYear()} Markaestro. All rights reserved.
+            </p>
             <div className="flex gap-6">
-              <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition">Terms</Link>
-              <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition">Privacy</Link>
-              <Link href="/contact" className="text-xs text-muted-foreground hover:text-foreground transition">Contact</Link>
+              {[
+                { href: "/terms", label: "Terms" },
+                { href: "/privacy", label: "Privacy" },
+                { href: "/contact", label: "Contact" },
+              ].map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="text-[11.5px]"
+                  style={{ color: "var(--mk-ink-40)" }}
+                >
+                  {l.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

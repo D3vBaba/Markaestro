@@ -86,8 +86,8 @@ export default function ContactPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease }}
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Contact</p>
-            <h1 className="mt-4 text-4xl font-normal tracking-tight lg:text-6xl font-[family-name:var(--font-display)]">
+            <p className="mk-eyebrow">Contact</p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-[-0.035em] leading-[1.05] lg:text-6xl">
               We&apos;d love to <span className="text-primary">hear from you</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
@@ -98,13 +98,16 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Channels */}
-      <section className="border-t bg-muted/20">
+      <section
+        className="border-t"
+        style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
+      >
         <div className="mx-auto max-w-7xl px-6 py-20">
           <div className="grid gap-6 sm:grid-cols-3">
             {contactChannels.map((channel) => (
               <motion.div
                 key={channel.title}
-                className="rounded-2xl border border-border/40 bg-background p-8 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-lg"
+                className="rounded-xl border bg-card p-6 transition-colors"
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -132,8 +135,8 @@ export default function ContactPage() {
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="grid gap-16 lg:grid-cols-[1fr_1.3fr] lg:items-start">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Send a Message</p>
-              <h2 className="mt-4 text-2xl font-normal tracking-tight lg:text-3xl font-[family-name:var(--font-display)]">
+              <p className="mk-eyebrow">Send a Message</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-3xl">
                 Get in touch directly
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -141,14 +144,26 @@ export default function ContactPage() {
               </p>
 
               <div className="mt-10 space-y-6">
-                <div className="rounded-2xl border border-border/40 bg-muted/20 p-6">
+                <div
+                  className="rounded-xl p-5"
+                  style={{
+                    background: "var(--mk-surface)",
+                    border: "1px solid var(--mk-rule)",
+                  }}
+                >
                   <h3 className="text-sm font-semibold text-foreground">Office Hours</h3>
                   <div className="mt-3 space-y-2 text-sm text-muted-foreground">
                     <p>Monday - Friday: 9:00 AM - 6:00 PM EST</p>
                     <p>Saturday - Sunday: Closed</p>
                   </div>
                 </div>
-                <div className="rounded-2xl border border-border/40 bg-muted/20 p-6">
+                <div
+                  className="rounded-xl p-5"
+                  style={{
+                    background: "var(--mk-surface)",
+                    border: "1px solid var(--mk-rule)",
+                  }}
+                >
                   <h3 className="text-sm font-semibold text-foreground">Enterprise & Partnerships</h3>
                   <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                     For enterprise pricing, custom integrations, or partnership opportunities, reach us at{" "}
@@ -160,7 +175,7 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <Card className="border border-border/40 shadow-sm rounded-2xl">
+            <Card className="border rounded-xl">
               <CardContent className="p-8">
                 {sent ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -184,7 +199,7 @@ export default function ContactPage() {
                           onChange={(e) => setName(e.target.value)}
                           placeholder="Your name"
                           required
-                          className="h-11 rounded-xl"
+                          className="h-11 rounded-lg text-[13.5px]"
                         />
                       </div>
                       <div className="space-y-2">
@@ -196,7 +211,7 @@ export default function ContactPage() {
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="you@company.com"
                           required
-                          className="h-11 rounded-xl"
+                          className="h-11 rounded-lg text-[13.5px]"
                         />
                       </div>
                     </div>
@@ -209,7 +224,7 @@ export default function ContactPage() {
                         onChange={(e) => setSubject(e.target.value)}
                         placeholder="How can we help?"
                         required
-                        className="h-11 rounded-xl"
+                        className="h-11 rounded-lg text-[13.5px]"
                       />
                     </div>
 
@@ -243,11 +258,14 @@ export default function ContactPage() {
       </section>
 
       {/* FAQ */}
-      <section className="border-t bg-muted/20">
+      <section
+        className="border-t"
+        style={{ background: "var(--mk-surface)", borderColor: "var(--mk-rule)" }}
+      >
         <div className="mx-auto max-w-3xl px-6 py-24 lg:py-32">
           <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">FAQ</p>
-            <h2 className="mt-4 text-2xl font-normal tracking-tight lg:text-3xl font-[family-name:var(--font-display)]">
+            <p className="mk-eyebrow">FAQ</p>
+            <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-3xl">
               Frequently asked questions
             </h2>
           </div>
@@ -255,7 +273,7 @@ export default function ContactPage() {
             {faqs.map((faq, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-border/40 bg-background overflow-hidden transition-all duration-200"
+                className="rounded-xl border bg-card overflow-hidden"
               >
                 <button
                   className="flex w-full items-center justify-between p-6 text-left"
@@ -278,19 +296,34 @@ export default function ContactPage() {
       </section>
 
       {/* CTA */}
-      <section className="border-t bg-primary text-white">
-        <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+      <section
+        className="border-t"
+        style={{ background: "var(--mk-ink)", borderColor: "var(--mk-rule)" }}
+      >
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-normal tracking-tight lg:text-4xl font-[family-name:var(--font-display)]">
+            <h2
+              className="text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
+              style={{ color: "var(--mk-paper)", letterSpacing: "-0.03em" }}
+            >
               Ready to get started?
             </h2>
-            <p className="mt-5 text-white/70">
+            <p
+              className="mt-4 text-[14px] sm:text-[15px]"
+              style={{
+                color: "color-mix(in oklch, var(--mk-paper) 70%, transparent)",
+              }}
+            >
               Create your free account and start publishing in minutes. No credit card required.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/login">
-                <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Get Started Free
+                <Button
+                  size="lg"
+                  className="h-11 px-7 rounded-lg text-[13.5px]"
+                  style={{ background: "var(--mk-paper)", color: "var(--mk-ink)" }}
+                >
+                  Get started free
                 </Button>
               </Link>
             </div>

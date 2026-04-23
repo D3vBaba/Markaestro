@@ -87,8 +87,8 @@ export default function FeaturesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease }}
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Platform</p>
-            <h1 className="mt-4 text-4xl font-normal tracking-tight lg:text-6xl font-[family-name:var(--font-display)]">
+            <p className="mk-eyebrow">Platform</p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-[-0.035em] leading-[1.05] lg:text-6xl">
               Everything you need to <span className="text-primary">grow</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
@@ -99,7 +99,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Core Features */}
-      <section className="border-t bg-muted/20">
+      <section className="border-t" style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}>
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="space-y-24">
             {coreFeatures.map((feature, i) => (
@@ -112,10 +112,18 @@ export default function FeaturesPage() {
                 transition={{ duration: 0.5, ease }}
               >
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary tracking-wide">
+                  <div
+                    className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-[10.5px] uppercase"
+                    style={{
+                      border: "1px solid color-mix(in oklch, var(--mk-accent) 24%, var(--mk-rule))",
+                      background: "var(--mk-accent-soft)",
+                      color: "var(--mk-accent)",
+                      letterSpacing: "0.14em",
+                    }}
+                  >
                     {feature.title}
                   </div>
-                  <h2 className="mt-6 text-2xl font-normal tracking-tight lg:text-3xl font-[family-name:var(--font-display)]">
+                  <h2 className="mt-6 text-2xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-3xl">
                     {feature.title}
                   </h2>
                   <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -131,10 +139,24 @@ export default function FeaturesPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-2xl border border-border/40 bg-background p-10 lg:p-14">
+                <div
+                  className="rounded-xl p-10 lg:p-14"
+                  style={{
+                    background: "var(--mk-surface)",
+                    border: "1px solid var(--mk-rule)",
+                  }}
+                >
                   <div className="flex items-center justify-center">
-                    <div className="rounded-2xl bg-primary/5 p-8">
-                      <p className="text-lg font-semibold text-primary">{feature.title}</p>
+                    <div
+                      className="rounded-xl p-7"
+                      style={{ background: "var(--mk-accent-soft)" }}
+                    >
+                      <p
+                        className="text-[16px] font-semibold"
+                        style={{ color: "var(--mk-accent)", letterSpacing: "-0.01em" }}
+                      >
+                        {feature.title}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -148,8 +170,8 @@ export default function FeaturesPage() {
       <section className="border-t">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Platform</p>
-            <h2 className="mt-4 text-3xl font-normal tracking-tight lg:text-4xl font-[family-name:var(--font-display)]">
+            <p className="mk-eyebrow">Platform</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-4xl">
               Built for teams that <span className="text-primary">move fast</span>
             </h2>
             <p className="mt-5 text-muted-foreground leading-relaxed">
@@ -160,7 +182,7 @@ export default function FeaturesPage() {
             {platformFeatures.map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-2xl border border-border/40 bg-background p-8 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-lg"
+                className="rounded-xl border bg-card p-6 transition-colors"
               >
                 <h3 className="text-sm font-semibold text-foreground">{feature.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
@@ -171,24 +193,45 @@ export default function FeaturesPage() {
       </section>
 
       {/* CTA */}
-      <section className="border-t bg-primary text-white">
-        <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+      <section
+        className="border-t"
+        style={{ background: "var(--mk-ink)", borderColor: "var(--mk-rule)" }}
+      >
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-normal tracking-tight lg:text-4xl font-[family-name:var(--font-display)]">
+            <h2
+              className="text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
+              style={{ color: "var(--mk-paper)", letterSpacing: "-0.03em" }}
+            >
               Ready to see it in action?
             </h2>
-            <p className="mt-5 text-white/70">
+            <p
+              className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
+              style={{
+                color: "color-mix(in oklch, var(--mk-paper) 70%, transparent)",
+                letterSpacing: "-0.005em",
+              }}
+            >
               Start for free. No credit card required. Connect your first channel in under two minutes.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/login">
-                <Button size="lg" variant="secondary" className="h-13 px-10 text-sm rounded-2xl bg-white text-foreground hover:bg-white/90">
-                  Get Started Free
+                <Button
+                  size="lg"
+                  className="h-11 px-7 rounded-lg text-[13.5px]"
+                  style={{ background: "var(--mk-paper)", color: "var(--mk-ink)" }}
+                >
+                  Get started free
                 </Button>
               </Link>
               <Link href="/contact">
-                <Button size="lg" variant="ghost" className="h-13 px-10 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-2xl">
-                  Contact Sales
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="h-11 px-7 rounded-lg text-[13.5px]"
+                  style={{ color: "color-mix(in oklch, var(--mk-paper) 80%, transparent)" }}
+                >
+                  Contact sales
                 </Button>
               </Link>
             </div>

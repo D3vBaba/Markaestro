@@ -97,8 +97,8 @@ export default function DevelopersApiPage() {
     <MarketingLayout>
       <section className="border-b bg-muted/20">
         <div className="mx-auto max-w-6xl px-6 py-20 lg:py-24">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Developers</p>
-          <h1 className="mt-4 text-4xl font-normal tracking-tight lg:text-5xl font-[family-name:var(--font-display)]">
+          <p className="mk-eyebrow">Developers</p>
+          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.03em] leading-[1.08] lg:text-5xl">
             Public publishing API
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
@@ -115,10 +115,10 @@ export default function DevelopersApiPage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/login">
-              <Button>Open Markaestro</Button>
+              <Button className="rounded-lg h-9 text-[13px]">Open Markaestro</Button>
             </Link>
             <a href="/settings?tab=api">
-              <Button variant="outline">Manage API keys</Button>
+              <Button variant="outline" className="rounded-lg h-9 text-[13px]">Manage API keys</Button>
             </a>
           </div>
         </div>
@@ -164,7 +164,14 @@ export default function DevelopersApiPage() {
                   {group.endpoints.map((endpoint) => (
                     <div key={endpoint.path} className="rounded-xl border p-4">
                       <div className="flex flex-wrap items-center gap-3">
-                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                        <span
+                          className="rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold"
+                          style={{
+                            background: "var(--mk-accent-soft)",
+                            color: "var(--mk-accent)",
+                            letterSpacing: "0.06em",
+                          }}
+                        >
                           {endpoint.method}
                         </span>
                         <code className="text-sm">{endpoint.path}</code>
@@ -184,7 +191,7 @@ export default function DevelopersApiPage() {
                 <CardDescription>Discover which products this API key can target.</CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.listProducts}</code></pre>
+                <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.listProducts}</code></pre>
               </CardContent>
             </Card>
             <Card>
@@ -193,7 +200,7 @@ export default function DevelopersApiPage() {
                 <CardDescription>See the linked pages and accounts for a product before creating the post. Use the returned <code>destinationId</code> when a product has more than one Instagram destination.</CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.listDestinations}</code></pre>
+                <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.listDestinations}</code></pre>
               </CardContent>
             </Card>
             <Card>
@@ -202,7 +209,7 @@ export default function DevelopersApiPage() {
                 <CardDescription>Each post references previously uploaded media assets.</CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.upload}</code></pre>
+                <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.upload}</code></pre>
               </CardContent>
             </Card>
             <Card>
@@ -211,7 +218,7 @@ export default function DevelopersApiPage() {
                 <CardDescription>Create a draft or scheduled post using those asset ids.</CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.createPost}</code></pre>
+                <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.createPost}</code></pre>
               </CardContent>
             </Card>
             <Card>
@@ -220,7 +227,7 @@ export default function DevelopersApiPage() {
                 <CardDescription>Use the connected TikTok destination returned for the product. Publishing this post follows the same inbox handoff flow as the app.</CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.tiktokCreatePost}</code></pre>
+                <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.tiktokCreatePost}</code></pre>
               </CardContent>
             </Card>
             <Card>
@@ -229,7 +236,7 @@ export default function DevelopersApiPage() {
                 <CardDescription>Publishing always creates an async run. TikTok runs finish after the media is handed off and TikTok reports the inbox draft is ready for creator review.</CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{examples.publish}</code></pre>
+                <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.publish}</code></pre>
               </CardContent>
             </Card>
             <Card>
@@ -238,7 +245,7 @@ export default function DevelopersApiPage() {
                 <CardDescription>Deliveries are signed with HMAC using your webhook secret.</CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className="overflow-x-auto rounded-xl border bg-muted/30 p-4 text-xs leading-6"><code>{webhookExample}</code></pre>
+                <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{webhookExample}</code></pre>
               </CardContent>
             </Card>
           </div>

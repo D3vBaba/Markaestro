@@ -5,13 +5,27 @@ import MarketingLayout from "@/components/layout/MarketingLayout";
 export default function TermsPage() {
   return (
     <MarketingLayout>
-      <div className="mx-auto max-w-4xl px-6 py-16 lg:py-24">
-      <h1 className="text-3xl font-bold tracking-tight text-foreground">Terms of Service</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Last updated: March 10, 2026</p>
+      <div className="mx-auto max-w-3xl px-5 sm:px-6 py-14 lg:py-20">
+      <p className="mk-eyebrow">Legal</p>
+      <h1
+        className="mt-2 text-[32px] sm:text-[36px] font-semibold leading-[1.1]"
+        style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
+      >
+        Terms of Service
+      </h1>
+      <p
+        className="mt-2 font-mono text-[11.5px] uppercase"
+        style={{ color: "var(--mk-ink-40)", letterSpacing: "0.08em" }}
+      >
+        Last updated · March 10, 2026
+      </p>
 
-      <div className="mt-10 space-y-10 text-sm leading-relaxed text-foreground/90">
+      <div
+        className="mt-10 flex flex-col gap-8 text-[14px] leading-relaxed"
+        style={{ color: "var(--mk-ink-80)" }}
+      >
         <section>
-          <h2 className="text-lg font-semibold text-foreground">1. Agreement to Terms</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">1. Agreement to Terms</h2>
           <p className="mt-3">
             These Terms of Service (&quot;Terms&quot;) govern your access to and use of Markaestro&apos;s website, application, APIs, and related services (collectively, the &quot;Services&quot;). By accessing or using the Services, you agree to be bound by these Terms. If you do not agree, do not use the Services.
           </p>
@@ -21,14 +35,14 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">2. Description of Service</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">2. Description of Service</h2>
           <p className="mt-3">
             Markaestro is a marketing automation platform for managing products, brand voice settings, content generation, social publishing, and analytics. The Services may integrate with third-party platforms including TikTok, Meta, Firebase, and other services made available by Markaestro from time to time.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">3. Eligibility and Accounts</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">3. Eligibility and Accounts</h2>
           <div className="mt-3 space-y-2">
             <p>You must be at least 18 years old and capable of forming a binding contract to use the Services. You agree to provide accurate, current, and complete information and to keep it updated.</p>
             <ul className="list-disc space-y-1 pl-6">
@@ -41,14 +55,14 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">4. Workspaces and Team Access</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">4. Workspaces and Team Access</h2>
           <p className="mt-3">
             Markaestro is organized around workspaces. Workspace owners and administrators may add or remove members and assign roles. The workspace owner is responsible for authorizing access, maintaining lawful instructions, and ensuring that all workspace users comply with these Terms. Deleting or removing a user does not automatically remove content, logs, or records previously created in the workspace.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">5. Customer Data and Compliance Responsibilities</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">5. Customer Data and Compliance Responsibilities</h2>
           <div className="mt-3 space-y-2">
             <p>You retain responsibility for the legality, accuracy, and use of any data or content you submit to Markaestro, including contact lists, campaign materials, brand assets, prompts, uploaded media, and messages sent through the Services.</p>
             <ul className="list-disc space-y-1 pl-6">
@@ -60,7 +74,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">6. Acceptable Use</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">6. Acceptable Use</h2>
           <div className="mt-3 space-y-2">
             <p>You may not use the Services to:</p>
             <ul className="list-disc space-y-1 pl-6">
@@ -77,7 +91,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">7. Third-Party Services and Integrations</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">7. Third-Party Services and Integrations</h2>
           <p className="mt-3">
             Markaestro may connect to third-party platforms, AI providers, and messaging or analytics tools. By connecting a third-party service, you authorize Markaestro to access, store, refresh, and use credentials and related data as needed to provide the requested functionality within the permissions you grant.
           </p>
@@ -87,7 +101,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">8. AI Features and Outputs</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">8. AI Features and Outputs</h2>
           <p className="mt-3">
             Markaestro may provide AI-generated copy, images, recommendations, summaries, and performance insights. AI output is generated statistically and may be inaccurate, incomplete, biased, infringing, or unsuitable for your intended use. You are solely responsible for reviewing, editing, validating, and approving all AI-assisted outputs before sending, publishing, launching, or otherwise relying on them.
           </p>
@@ -97,14 +111,14 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">9. Uploads and Public Content</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">9. Uploads and Public Content</h2>
           <p className="mt-3">
             Some files or generated assets uploaded through Markaestro may be stored using publicly reachable cloud URLs so they can be used in social posts or creative workflows. You must not upload any file or content unless you are authorized to make it available in that way. You acknowledge that content published through third-party platforms may become public and subject to those platforms&apos; terms and visibility settings.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">10. Intellectual Property and Licenses</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">10. Intellectual Property and Licenses</h2>
           <p className="mt-3">
             As between the parties, you retain ownership of your content, customer data, uploaded assets, and workspace materials. You grant Markaestro a non-exclusive, worldwide, limited license to host, store, copy, transform, display, transmit, and otherwise process that content only as necessary to operate, secure, improve, and provide the Services to you.
           </p>
@@ -114,28 +128,28 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">11. Feedback</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">11. Feedback</h2>
           <p className="mt-3">
             If you provide ideas, suggestions, feedback, or improvement requests, you grant Markaestro a perpetual, irrevocable, worldwide, sublicensable, royalty-free right to use them without restriction or compensation to you.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">12. Privacy</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">12. Privacy</h2>
           <p className="mt-3">
             Your use of the Services is also subject to our <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>, which explains how we collect, use, and disclose information. Where we process customer data on your behalf, you instruct us to do so in accordance with these Terms, the applicable product settings, and your lawful use of the Services.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">13. Service Changes, Beta Features, and Availability</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">13. Service Changes, Beta Features, and Availability</h2>
           <p className="mt-3">
             We may add, change, suspend, or remove features at any time. Some features may be labeled beta, preview, experimental, or similar. Those features are provided on an as-available basis and may contain bugs, incomplete functionality, or changing requirements. We do not guarantee that any feature, integration, or provider connection will remain available or operate without interruption.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">14. Suspension and Termination</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">14. Suspension and Termination</h2>
           <p className="mt-3">
             You may stop using the Services at any time. We may suspend or terminate your access, remove content, disable integrations, or take other protective action if we reasonably believe you have violated these Terms, created legal or security risk, failed to comply with platform obligations, or used the Services in a way that could harm Markaestro, its users, or third parties.
           </p>
@@ -145,14 +159,14 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">15. Disclaimers</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">15. Disclaimers</h2>
           <p className="mt-3">
             To the maximum extent permitted by law, the Services are provided &quot;as is&quot; and &quot;as available.&quot; Markaestro disclaims all warranties, whether express, implied, statutory, or otherwise, including warranties of merchantability, fitness for a particular purpose, non-infringement, accuracy, reliability, availability, or that the Services will be uninterrupted, secure, error-free, or meet your expectations.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">16. Limitation of Liability</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">16. Limitation of Liability</h2>
           <p className="mt-3">
             To the maximum extent permitted by law, Markaestro and its affiliates, officers, employees, contractors, and licensors will not be liable for any indirect, incidental, special, consequential, exemplary, or punitive damages, or for any loss of profits, revenues, goodwill, use, or data, even if advised of the possibility of such damages.
           </p>
@@ -162,28 +176,28 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">17. Indemnification</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">17. Indemnification</h2>
           <p className="mt-3">
             You will defend, indemnify, and hold harmless Markaestro and its affiliates, officers, employees, contractors, and licensors from and against any claims, liabilities, damages, judgments, losses, costs, and expenses, including reasonable legal fees, arising out of or related to your content, your data, your use of the Services, your use of third-party integrations, or your violation of these Terms or applicable law.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">18. Governing Law</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">18. Governing Law</h2>
           <p className="mt-3">
             These Terms are governed by the laws of the State of Delaware, United States, without regard to conflict of laws principles, except to the extent non-waivable law in your jurisdiction requires otherwise.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">19. Changes to These Terms</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">19. Changes to These Terms</h2>
           <p className="mt-3">
             We may update these Terms from time to time. If we make material changes, we will post the updated version and may provide additional notice. Your continued use of the Services after the effective date of revised Terms constitutes acceptance of the revised Terms.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">20. Contact</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">20. Contact</h2>
           <p className="mt-3">
             If you have questions about these Terms, contact us through <a href="/contact" className="underline hover:text-foreground">our contact page</a> or email <a href="mailto:legal@markaestro.com" className="underline hover:text-foreground">legal@markaestro.com</a>.
           </p>
