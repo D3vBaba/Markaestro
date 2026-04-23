@@ -86,17 +86,18 @@ export default function ProductCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.24, delay: index * 0.03, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="group relative"
+      className="group relative h-full"
     >
       <button
         onClick={onOpen}
-        className="relative w-full text-left overflow-hidden transition-colors rounded-xl"
+        className="relative w-full text-left overflow-hidden transition-colors rounded-xl flex flex-col"
         style={{
           background: "var(--mk-paper)",
           border: "1px solid var(--mk-rule)",
+          height: 260,
         }}
       >
-        <div className="relative p-4">
+        <div className="relative p-4 flex-1 flex flex-col min-h-0">
           {/* Top row: logo + name + status */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -241,10 +242,10 @@ export default function ProductCard({
             </div>
           )}
 
-          {/* Divider + connection dots */}
+          {/* Divider + connection dots — pinned to bottom for uniform cards */}
           <div
-            className="mt-3.5 pt-3 flex items-center justify-between gap-3 border-t"
-            style={{ borderColor: "var(--mk-rule-soft)" }}
+            className="mt-auto pt-3 flex items-center justify-between gap-3 border-t"
+            style={{ borderColor: "var(--mk-rule-soft)", marginTop: "auto" }}
           >
             <div className="flex items-center gap-2 min-w-0">
               {connections.length > 0 ? (

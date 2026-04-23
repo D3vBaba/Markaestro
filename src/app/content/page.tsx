@@ -152,7 +152,7 @@ export default function PostsPage() {
         onChange={handleProductChange}
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8 min-w-0 w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5 sm:space-y-6 min-w-0 w-full">
         {/* Mobile + Tablet: dropdown select */}
         <div className="lg:hidden">
           <Select value={activeTab} onChange={(e) => setActiveTab(e.target.value)}>

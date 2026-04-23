@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Layers3, Target, Plus, ChevronRight } from "lucide-react";
+import { Calendar, Layers3, Target, Plus } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/app/PageHeader";
@@ -143,7 +143,7 @@ export default function CampaignsPage() {
 
       {/* Filter tabs */}
       <div
-        className="flex items-center gap-6 mb-5 border-b"
+        className="flex items-center gap-6 mb-5 border-b overflow-x-auto scrollbar-hide"
         style={{ borderColor: "var(--mk-rule-soft)" }}
       >
         {(["all", "standard", "pipeline"] as FilterTab[]).map((tab) => {
@@ -258,14 +258,13 @@ function CampaignRow({
     >
       <button
         onClick={onOpen}
-        className="w-full text-left rounded-[10px] transition-colors group"
+        className="w-full text-left rounded-[10px] transition-colors group p-3.5 sm:p-4"
         style={{
           background: "var(--mk-paper)",
           border: "1px solid var(--mk-rule)",
-          padding: "14px 16px",
         }}
       >
-        <div className="grid items-center gap-3.5" style={{ gridTemplateColumns: "36px minmax(0, 1fr) auto auto" }}>
+        <div className="flex items-start gap-3 sm:gap-3.5">
           {/* Icon */}
           <div
             className="h-9 w-9 rounded-lg grid place-items-center shrink-0"
@@ -275,20 +274,37 @@ function CampaignRow({
           </div>
 
           {/* Body */}
-          <div className="min-w-0">
-            <p
-              className="text-[14px] font-medium truncate m-0"
-              style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
-            >
-              {c.name}
-            </p>
+          <div className="min-w-0 flex-1">
+            {/* Row 1: title + status pill */}
+            <div className="flex items-start justify-between gap-3">
+              <p
+                className="text-[14px] font-medium truncate m-0"
+                style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+              >
+                {c.name}
+              </p>
+              <span
+                className="text-[11px] font-medium whitespace-nowrap shrink-0"
+                style={{
+                  padding: "3px 9px",
+                  borderRadius: 999,
+                  background: pillStyle.bg,
+                  color: pillStyle.fg,
+                  letterSpacing: "-0.005em",
+                }}
+              >
+                {pillLabel}
+              </span>
+            </div>
+
+            {/* Row 2: meta */}
             <div
               className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-[12px]"
               style={{ color: "var(--mk-ink-60)" }}
             >
               <span className="whitespace-nowrap">{isPipeline ? "Pipeline" : "Single"}</span>
               <span style={{ color: "var(--mk-ink-20)" }}>·</span>
-              <span className="truncate whitespace-nowrap">{channels}</span>
+              <span className="truncate">{channels}</span>
               {isPipeline && c.pipeline && (
                 <>
                   <span style={{ color: "var(--mk-ink-20)" }}>·</span>
@@ -308,8 +324,10 @@ function CampaignRow({
                 </>
               )}
             </div>
+
+            {/* Row 3: dates + delete action */}
             <div
-              className="mt-1.5 flex items-center gap-3 font-mono text-[10.5px]"
+              className="mt-1.5 flex items-center flex-wrap gap-x-3 gap-y-1 font-mono text-[10.5px]"
               style={{ color: "var(--mk-ink-40)", letterSpacing: "0.02em" }}
             >
               {c.scheduledAt && (
@@ -343,25 +361,6 @@ function CampaignRow({
               </span>
             </div>
           </div>
-
-          {/* Status pill */}
-          <span
-            className="text-[11px] font-medium whitespace-nowrap"
-            style={{
-              padding: "4px 10px",
-              borderRadius: 999,
-              background: pillStyle.bg,
-              color: pillStyle.fg,
-              letterSpacing: "-0.005em",
-            }}
-          >
-            {pillLabel}
-          </span>
-
-          <ChevronRight
-            className="h-3.5 w-3.5 shrink-0"
-            style={{ color: "var(--mk-ink-40)" }}
-          />
         </div>
       </button>
     </motion.div>

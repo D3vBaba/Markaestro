@@ -154,7 +154,7 @@ export default function ProductsPage() {
       />
 
       <div
-        className="flex items-center gap-6 mb-5 border-b"
+        className="flex items-center gap-6 mb-5 border-b overflow-x-auto scrollbar-hide"
         style={{ borderColor: "var(--mk-rule-soft)" }}
       >
         {(["all", "active", "development"] as FilterTab[]).map((tab) => {

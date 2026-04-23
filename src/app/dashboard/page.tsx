@@ -126,15 +126,15 @@ export default function Home() {
         }
       />
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* Left column */}
-        <div className="flex flex-col gap-5 min-w-0">
+        <div className="flex flex-col gap-4 sm:gap-5 min-w-0">
           {/* KPI row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
             {kpis.map((k) => (
               <div
                 key={k.key}
-                className="rounded-xl p-4"
+                className="rounded-xl p-3 sm:p-4"
                 style={{
                   background: "var(--mk-paper)",
                   border: "1px solid var(--mk-rule)",
@@ -142,14 +142,14 @@ export default function Home() {
               >
                 <div className="mk-eyebrow">{k.label}</div>
                 <div
-                  className="mt-2 text-[26px] font-semibold mk-figure"
+                  className="mt-1.5 sm:mt-2 text-[22px] sm:text-[26px] font-semibold mk-figure"
                   style={{ color: "var(--mk-ink)" }}
                 >
                   {k.value}
                 </div>
                 {k.sub && (
                   <div
-                    className="mt-1 text-[11px] font-mono"
+                    className="mt-1 text-[10.5px] sm:text-[11px] font-mono truncate"
                     style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
                   >
                     {k.sub}
@@ -161,7 +161,7 @@ export default function Home() {
 
           {/* Chart card */}
           <div
-            className="rounded-xl p-5"
+            className="rounded-xl p-4 sm:p-5"
             style={{
               background: "var(--mk-paper)",
               border: "1px solid var(--mk-rule)",
@@ -213,12 +213,12 @@ export default function Home() {
               }}
             >
               <div
-                className="px-5 py-3.5 border-b"
+                className="px-4 sm:px-5 py-3 sm:py-3.5 border-b"
                 style={{ borderColor: "var(--mk-rule)" }}
               >
                 <div className="mk-eyebrow">Distribution</div>
                 <div
-                  className="mt-1 text-[16px] font-semibold"
+                  className="mt-1 text-[15px] sm:text-[16px] font-semibold"
                   style={{ color: "var(--mk-ink)", letterSpacing: "-0.02em" }}
                 >
                   Posts by channel
@@ -231,7 +231,7 @@ export default function Home() {
                     const total = arr.reduce((a, [, v]) => a + v, 0) || 1;
                     const pct = Math.round((count / total) * 100);
                     return (
-                      <div key={ch} className="flex items-center gap-3 px-5 py-3">
+                      <div key={ch} className="flex items-center gap-3 px-4 sm:px-5 py-3">
                         <Channel channel={ch} size={22} />
                         <span
                           className="flex-1 text-[13px]"
