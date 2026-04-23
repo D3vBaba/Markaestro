@@ -135,7 +135,7 @@ const API_SCOPE_OPTIONS = [
 const WEBHOOK_EVENT_OPTIONS = [
   { id: 'post.publish.queued', label: 'Post queued' },
   { id: 'post.published', label: 'Meta publish completed' },
-  { id: 'post.exported_for_review', label: 'TikTok draft exported' },
+  { id: 'post.exported_for_review', label: 'TikTok draft ready in Markaestro' },
   { id: 'post.failed', label: 'Post failed' },
 ] as const;
 
@@ -1397,21 +1397,21 @@ function ApiAccessTab() {
         <CardContent className="space-y-4">
           <div className="grid gap-3 lg:grid-cols-3">
             <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">Image posts only</p>
+              <p className="text-sm font-medium">Video support</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Public API v1 supports Facebook, Instagram, and TikTok image posts. TikTok videos stay excluded for now.
+                Public API v1 supports Facebook, Instagram, and TikTok media uploads. TikTok videos now stay in Markaestro for creator review and manual posting.
               </p>
             </div>
             <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">10 image cap</p>
+              <p className="text-sm font-medium">Channel media caps</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Every channel is capped at 10 images per post to keep validation and platform behavior predictable.
+                TikTok supports either 1 video or up to 10 images per post. Other channels keep their own platform-specific media limits.
               </p>
             </div>
             <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">TikTok inbox drafts</p>
+              <p className="text-sm font-medium">TikTok Markaestro drafts</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                TikTok content is delivered to the creator&apos;s TikTok inbox as a draft. The creator opens the TikTok app to finalize and post. Meta publishes directly.
+                TikTok content stays in Markaestro as a draft-ready item. The creator reviews it here and posts manually instead of waiting on TikTok inbox delivery. Meta publishes directly.
               </p>
             </div>
           </div>
@@ -1433,7 +1433,7 @@ function ApiAccessTab() {
                 {(analyticsTotals.publishSucceeded + analyticsTotals.publishExportedForReview).toLocaleString()}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {analyticsTotals.publishSucceeded.toLocaleString()} direct publish · {analyticsTotals.publishExportedForReview.toLocaleString()} TikTok inbox drafts
+                {analyticsTotals.publishSucceeded.toLocaleString()} direct publish · {analyticsTotals.publishExportedForReview.toLocaleString()} TikTok Markaestro drafts
               </p>
             </div>
             <div className="rounded-xl border p-4">
@@ -1497,7 +1497,7 @@ function ApiAccessTab() {
                             <div className="space-y-1 text-xs text-muted-foreground">
                               <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString()}</span> queued</p>
                               <p><span className="font-medium text-emerald-700 tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString()}</span> direct publish</p>
-                              <p><span className="font-medium text-primary tabular-nums">{(client.usage.currentMonthCounts.publish_exported_for_review || 0).toLocaleString()}</span> TikTok inbox drafts</p>
+                              <p><span className="font-medium text-primary tabular-nums">{(client.usage.currentMonthCounts.publish_exported_for_review || 0).toLocaleString()}</span> TikTok Markaestro drafts</p>
                               <p><span className="font-medium text-rose-600 tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString()}</span> failed</p>
                             </div>
                           </TableCell>
@@ -1550,7 +1550,7 @@ function ApiAccessTab() {
                 <div className="flex items-center justify-between border-b px-4 py-3">
                   <div>
                     <p className="text-sm font-medium">Webhook endpoints</p>
-                    <p className="text-xs text-muted-foreground">Receive delivery events when publishes queue, complete, export for TikTok review, or fail. These are signed and retried from the worker.</p>
+                    <p className="text-xs text-muted-foreground">Receive delivery events when publishes queue, complete, move TikTok posts into Markaestro review, or fail. These are signed and retried from the worker.</p>
                   </div>
                   <Button variant="outline" size="sm" onClick={() => setCreateWebhookOpen(true)}>
                     <Webhook className="mr-1.5 h-3.5 w-3.5" />
@@ -1651,7 +1651,7 @@ function ApiAccessTab() {
           <div className="rounded-xl border p-4">
             <p className="text-sm font-medium">TikTok drafts need user completion</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              TikTok posts are delivered as drafts to the creator&apos;s TikTok inbox. The creator opens the TikTok app to finalize caption and privacy, then taps Post. Scheduling delivers the draft at the chosen time; it does not auto-post to the feed.
+              TikTok posts are staged in Markaestro for manual completion. The creator reviews the post in drafts and then posts it manually. Scheduling only moves the post into that ready state; it does not push to TikTok.
             </p>
           </div>
         </CardContent>

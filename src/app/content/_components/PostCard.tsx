@@ -42,7 +42,7 @@ const statusTextColors: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  exported_for_review: "In TikTok inbox",
+  exported_for_review: "Ready in Markaestro",
 };
 
 // Shared pill button style

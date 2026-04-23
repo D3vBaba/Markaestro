@@ -1,7 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import type { SocialChannel } from '@/lib/schemas';
 import type { PublicApiContext } from './auth';
-import { resolveMediaAssetUrls } from './media';
+import { resolveMediaAssetUrls, type ResolvedPublicMediaAsset } from './media';
 import type { PublicDeliveryMode } from './scopes';
 import { resolvePublicPostDestination } from './products';
 
@@ -38,9 +38,27 @@ export function validatePublicPostInput(input: CreatePublicPostInput) {
       break;
     case 'tiktok':
       if (count < 1) {
-        throw new Error('VALIDATION_TIKTOK_REQUIRES_IMAGE');
+        throw new Error('VALIDATION_TIKTOK_REQUIRES_MEDIA');
       }
       break;
+  }
+}
+
+export function validateResolvedPublicPostInput(
+  input: CreatePublicPostInput,
+  mediaAssets: ResolvedPublicMediaAsset[],
+) {
+  if (input.channel !== 'tiktok') {
+    return;
+  }
+
+  const videoCount = mediaAssets.filter((asset) => asset.type === 'video').length;
+  if (videoCount > 1) {
+    throw new Error('VALIDATION_TIKTOK_MAX_ONE_VIDEO');
+  }
+
+  if (videoCount === 1 && mediaAssets.length > 1) {
+    throw new Error('VALIDATION_TIKTOK_VIDEO_CANNOT_BE_COMBINED');
   }
 }
 
@@ -48,6 +66,7 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
   validatePublicPostInput(input);
 
   const mediaAssets = await resolveMediaAssetUrls(ctx.workspaceId, input.mediaAssetIds);
+  validateResolvedPublicPostInput(input, mediaAssets);
   const resolvedDestination = await resolvePublicPostDestination(
     ctx.workspaceId,
     input.channel,

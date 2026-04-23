@@ -5,6 +5,11 @@ import { getConnectionForChannel } from '@/lib/platform/connections';
 import type { PublishRequest, PublishResult } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
+import {
+  isTikTokDraftOnlyChannel,
+  TIKTOK_MANUAL_REVIEW_ACTION,
+  validateTikTokMediaUrls,
+} from '@/lib/tiktok-draft-flow';
 
 export type { PublishRequest, PublishResult };
 
@@ -83,6 +88,26 @@ export async function publishPost(
   productId: string | undefined,
   request: PublishRequest,
 ): Promise<PublishResult> {
+  if (isTikTokDraftOnlyChannel(request.channel)) {
+    const validationError = validateTikTokMediaUrls(request.mediaUrls);
+    if (validationError) {
+      return { success: false, error: validationError };
+    }
+
+    // Public API requests (and anything else asking for user_review delivery)
+    // must stage TikTok content inside Markaestro instead of pushing to TikTok.
+    // The user reviews the staged draft in Markaestro, then explicitly clicks
+    // Publish — at which point the UI route forces direct_publish and we fall
+    // through to the adapter below to push to the TikTok inbox.
+    if (request.deliveryMode === 'user_review') {
+      return {
+        success: true,
+        reviewRequired: true,
+        nextAction: TIKTOK_MANUAL_REVIEW_ACTION,
+      };
+    }
+  }
+
   const adapter = getAdapterForChannel(request.channel);
   if (!adapter) {
     return { success: false, error: `Unsupported channel: ${request.channel}` };
@@ -312,7 +337,7 @@ async function finalizeSuccessfulPublish(
       externalId: result.externalId || '',
       externalUrl: result.externalUrl || '',
       publishResults: result.channels,
-      nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing',
+      nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
       exportedForReviewAt: nowIso,
       publishFinishedAt: nowIso,
       publishLeaseExpiresAt: null,
@@ -329,7 +354,7 @@ async function finalizeSuccessfulPublish(
         status: 'exported_for_review',
         externalId: result.externalId || '',
         externalUrl: result.externalUrl || '',
-        nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing',
+        nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
       });
     }
     return 'exported_for_review';

@@ -64,33 +64,53 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
     }
   };
 
-  const handlePublishNow = async (id: string) => {
+  const handlePublishNow = async (id: string, channel: string) => {
+    if (publishingIds.has(id)) return;
+
     setPublishingIds((prev) => new Set(prev).add(id));
-    const res = await apiPost<{
-      ok: boolean;
-      status?: string;
-      pending?: boolean;
-      error?: string;
-      channels?: Array<{ channel: string; success: boolean }>;
-    }>(`/api/posts/${id}/publish`, {});
-    if (res.ok && res.data.ok) {
-      const hasTikTok = (res.data.channels || []).some((c) => c.channel === "tiktok");
-      if (res.data.status === "publishing" || res.data.pending) {
-        toast.success(
-          hasTikTok
-            ? "Sending to TikTok. When it's ready, open the TikTok app's inbox to finish the caption and post."
-            : "Post submitted and still processing.",
-        );
-      } else if (hasTikTok) {
-        toast.success("Sent to TikTok as a draft. Open the TikTok app's inbox, finish the caption, and tap Post.");
+
+    const isTikTok = channel === "tiktok";
+    const toastId = toast.loading(
+      isTikTok ? "Pushing to TikTok inbox…" : "Publishing post…",
+    );
+
+    try {
+      const res = await apiPost<{
+        ok: boolean;
+        status?: string;
+        pending?: boolean;
+        error?: string;
+        channels?: Array<{ channel: string; success: boolean }>;
+      }>(`/api/posts/${id}/publish`, {});
+
+      if (res.ok && res.data.ok) {
+        const hasTikTok = (res.data.channels || []).some((c) => c.channel === "tiktok");
+        if (hasTikTok) {
+          toast.success(
+            "Sent to TikTok inbox. Open the TikTok app to finalize and post — we'll mark it as ready once TikTok confirms delivery.",
+            { id: toastId },
+          );
+        } else if (res.data.status === "publishing" || res.data.pending) {
+          toast.success("Post submitted and still processing.", { id: toastId });
+        } else {
+          toast.success("Posted!", { id: toastId });
+        }
+        fetchScheduled();
       } else {
-        toast.success("Posted!");
+        toast.error(res.data.error || "Publishing failed", { id: toastId });
       }
-      fetchScheduled();
-    } else {
-      toast.error(res.data.error || "Publishing failed");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Publishing failed",
+        { id: toastId },
+      );
+    } finally {
+      setPublishingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
-    setPublishingIds((prev) => { const next = new Set(prev); next.delete(id); return next; });
   };
 
   const handleSaveEdit = async (content: string, mediaUrls?: string[]) => {
@@ -136,7 +156,7 @@ export default function ScheduledTab({ refreshKey }: { refreshKey: number }) {
             onEdit={() => setEditPost(post)}
             onCancel={() => handleCancel(post.id)}
             onDelete={() => handleDelete(post.id)}
-            onPublish={() => handlePublishNow(post.id)}
+            onPublish={() => handlePublishNow(post.id, post.channel)}
           />
         ))}
       </div>

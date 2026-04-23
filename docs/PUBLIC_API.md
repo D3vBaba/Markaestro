@@ -17,7 +17,7 @@ Public API v1 supports publishing automation (images and video) for:
 
 - Facebook: text-only, image, or video posts; max 10 images; 1 video per post
 - Instagram: requires at least 1 media item (image or video); max 10 items; single video publishes as a Reel; carousels support mixed image/video
-- TikTok: requires at least 1 media item; max 10 images; video uploads go to inbox for creator review
+- TikTok: requires at least 1 media item; either 1 video or up to 10 images; publish requests move the post into Markaestro review for manual posting
 - LinkedIn: text-only, image, or video posts; max 20 images; 1 video per post
 
 ## Media upload
@@ -70,9 +70,12 @@ Meta account selection:
 - Standalone Instagram professional accounts are supported through Instagram Login and do not require a Facebook Page
 
 TikTok:
-- exported to review flow using TikTok's media-upload mode
+- every product exposes a Markaestro-managed TikTok draft destination, even when no TikTok publishing connection is configured
+- the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents Markaestro's internal review queue, not a provider-side inbox or publish target
+- `POST /api/public/v1/posts/:id/publish` does not push content to TikTok; it stages the post for manual review inside Markaestro
 - post status becomes `exported_for_review`
-- response includes `nextAction=open_tiktok_inbox_and_complete_editing`
+- `externalId` and `externalUrl` remain empty in this flow
+- response includes `nextAction=open_markaestro_drafts_and_post_manually`
 
 LinkedIn:
 - direct publish via the LinkedIn Posts API
@@ -136,7 +139,7 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/posts/pst_123/publish" \
   -H "Idempotency-Key: publish-001"
 ```
 
-4. Poll the run or consume webhooks
+6. Poll the run or consume webhooks
 
 ```bash
 curl "$MARKAESTRO_URL/api/public/v1/job-runs/run_123" \
@@ -150,6 +153,11 @@ Supported events:
 - `post.published`
 - `post.exported_for_review`
 - `post.failed`
+
+TikTok webhook semantics:
+- `post.exported_for_review` means the post is ready in Markaestro for manual editing/posting
+- it does not mean the post was delivered to TikTok
+- payloads include `nextAction=open_markaestro_drafts_and_post_manually`
 
 Headers:
 - `X-Markaestro-Event`

@@ -37,6 +37,13 @@ export type PublicMediaAsset = {
   createdAt: string;
 };
 
+export type ResolvedPublicMediaAsset = {
+  id: string;
+  url: string;
+  mimeType: string;
+  type: PublicMediaAsset['type'];
+};
+
 const VIDEO_EXT_MAP: Record<string, string> = {
   'video/mp4': 'mp4',
   'video/quicktime': 'mov',
@@ -112,7 +119,7 @@ export async function createMediaAsset(
   return asset;
 }
 
-export async function resolveMediaAssetUrls(workspaceId: string, assetIds: string[]) {
+export async function resolveMediaAssetUrls(workspaceId: string, assetIds: string[]): Promise<ResolvedPublicMediaAsset[]> {
   if (assetIds.length === 0) return [];
 
   const refs = assetIds.map((assetId) => adminDb.doc(`workspaces/${workspaceId}/media_assets/${assetId}`));
@@ -125,6 +132,7 @@ export async function resolveMediaAssetUrls(workspaceId: string, assetIds: strin
       id: snap.id,
       url: data.downloadUrl,
       mimeType: data.mimeType,
+      type: data.type,
     };
   });
 }

@@ -28,7 +28,7 @@ describe('public product discovery', () => {
     vi.clearAllMocks();
   });
 
-  it('lists linked Meta and TikTok destinations for a product', async () => {
+  it('lists linked Meta and Markaestro TikTok draft destinations for a product', async () => {
     const { listPublicProductDestinations } = await import('../public-api/products');
 
     docMock.mockReturnValue({
@@ -82,8 +82,36 @@ describe('public product discovery', () => {
       expect.objectContaining({
         provider: 'tiktok',
         channel: 'tiktok',
-        id: 'tiktok:tiktok:tt_open_123',
-        accountId: 'tt_open_123',
+        id: 'tiktok:tiktok:markaestro_drafts_prod_123',
+        accountId: 'markaestro_drafts_prod_123',
+        deliveryMode: 'user_review',
+        displayName: 'acmebrand (Markaestro drafts)',
+      }),
+    ]);
+  });
+
+  it('exposes a TikTok draft destination even when no TikTok account is connected', async () => {
+    const { listPublicProductDestinations } = await import('../public-api/products');
+
+    docMock.mockReturnValue({
+      get: vi.fn().mockResolvedValue({
+        exists: true,
+        data: () => ({ name: 'Acme', status: 'active', categories: ['saas'] }),
+      }),
+    });
+
+    getMetaConnectionMergedMock.mockResolvedValue(null);
+    getConnectionMock.mockResolvedValue(null);
+
+    const destinations = await listPublicProductDestinations('ws_123', 'prod_123');
+
+    expect(destinations).toEqual([
+      expect.objectContaining({
+        provider: 'tiktok',
+        channel: 'tiktok',
+        id: 'tiktok:tiktok:markaestro_drafts_prod_123',
+        accountId: 'markaestro_drafts_prod_123',
+        displayName: 'Acme TikTok drafts',
         deliveryMode: 'user_review',
       }),
     ]);

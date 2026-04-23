@@ -31,16 +31,19 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
   const [scheduleChannel, setScheduleChannel] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
   const [schedulePending, setSchedulePending] = useState<{ content: string; mediaUrls?: string[]; channel?: string } | null>(null);
+  const [publishingIds, setPublishingIds] = useState<Set<string>>(new Set());
 
   const fetchDrafts = useCallback(async () => {
     try {
-      const [draftsRes, failedRes] = await Promise.all([
+      const [draftsRes, reviewRes, failedRes] = await Promise.all([
         apiGet<{ posts: Post[] }>("/api/posts?status=draft"),
+        apiGet<{ posts: Post[] }>("/api/posts?status=exported_for_review"),
         apiGet<{ posts: Post[] }>("/api/posts?status=failed"),
       ]);
       const drafts = draftsRes.ok ? (draftsRes.data.posts || []) : [];
+      const reviewReady = reviewRes.ok ? (reviewRes.data.posts || []) : [];
       const failed = failedRes.ok ? (failedRes.data.posts || []) : [];
-      setPosts([...failed, ...drafts]);
+      setPosts([...reviewReady, ...failed, ...drafts]);
     } catch {
       toast.error("Failed to load drafts");
     } finally {
@@ -62,30 +65,57 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
     }
   };
 
-  const handlePublish = async (id: string) => {
-    const res = await apiPost<{
-      ok: boolean;
-      status?: string;
-      pending?: boolean;
-      error?: string;
-      channels?: Array<{ channel: string; success: boolean }>;
-    }>(`/api/posts/${id}/publish`, {});
-    if (res.ok && res.data.ok) {
-      const hasTikTok = (res.data.channels || []).some((c) => c.channel === "tiktok");
-      if (res.data.status === "publishing" || res.data.pending) {
-        toast.success(
-          hasTikTok
-            ? "Sending to TikTok. When it's ready, open the TikTok app's inbox to finish the caption and post."
-            : "Post submitted and still processing.",
-        );
-      } else if (hasTikTok) {
-        toast.success("Sent to TikTok as a draft. Open the TikTok app's inbox, finish the caption, and tap Post.");
+  const handlePublish = async (id: string, channel: string) => {
+    if (publishingIds.has(id)) return;
+
+    setPublishingIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+
+    const isTikTok = channel === "tiktok";
+    const loadingMessage = isTikTok
+      ? "Pushing to TikTok inbox…"
+      : "Publishing post…";
+    const toastId = toast.loading(loadingMessage);
+
+    try {
+      const res = await apiPost<{
+        ok: boolean;
+        status?: string;
+        pending?: boolean;
+        error?: string;
+        channels?: Array<{ channel: string; success: boolean; pending?: boolean }>;
+      }>(`/api/posts/${id}/publish`, {});
+
+      if (res.ok && res.data.ok) {
+        const hasTikTok = (res.data.channels || []).some((c) => c.channel === "tiktok");
+        if (hasTikTok) {
+          toast.success(
+            "Sent to TikTok inbox. Open the TikTok app to finalize and post — we'll mark it as ready once TikTok confirms delivery.",
+            { id: toastId },
+          );
+        } else if (res.data.status === "publishing" || res.data.pending) {
+          toast.success("Post submitted and still processing.", { id: toastId });
+        } else {
+          toast.success("Posted!", { id: toastId });
+        }
+        fetchDrafts();
       } else {
-        toast.success("Posted!");
+        toast.error(res.data.error || "Publishing failed", { id: toastId });
       }
-      fetchDrafts();
-    } else {
-      toast.error(res.data.error || "Publishing failed");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Publishing failed",
+        { id: toastId },
+      );
+    } finally {
+      setPublishingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -152,9 +182,10 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
           <PostCard
             key={post.id}
             post={post}
+            publishing={publishingIds.has(post.id)}
             onEdit={() => setEditPost(post)}
             onDelete={() => handleDelete(post.id)}
-            onPublish={() => handlePublish(post.id)}
+            onPublish={() => handlePublish(post.id, post.channel)}
           />
         ))}
       </div>

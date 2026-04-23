@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { publishPostMultiChannel } from '@/lib/social/publisher';
 import { JobDoc } from './types';
+import { TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
 
 export async function executeJob(workspaceId: string, jobId: string, job: JobDoc) {
   const startedAt = new Date().toISOString();
@@ -37,7 +38,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
         } else {
           const post = postSnap.data()!;
           const productId = post.productId as string | undefined;
-          if (!productId) {
+          if (!productId && post.channel !== 'tiktok') {
             message = `Post ${postId} has no associated product — skipped`;
           } else {
             const result = await publishPostMultiChannel(workspaceId, productId, {
@@ -65,7 +66,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
                 externalId: result.externalId || '',
                 externalUrl: result.externalUrl || '',
                 publishResults: result.channels,
-                nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing',
+                nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
                 updatedAt: new Date().toISOString(),
               });
               message = `Post exported to ${post.channel} for manual review`;

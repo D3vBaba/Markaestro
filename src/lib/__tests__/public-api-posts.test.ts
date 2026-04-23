@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getDeliveryModeForChannel, serializePublicPost, validatePublicPostInput } from '../public-api/posts';
+import { getDeliveryModeForChannel, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
 
 describe('public post validation', () => {
   it('allows facebook text-only posts', () => {
@@ -29,7 +29,7 @@ describe('public post validation', () => {
       channel: 'tiktok',
       caption: 'Hello world',
       mediaAssetIds: [],
-    })).toThrow('VALIDATION_TIKTOK_REQUIRES_IMAGE');
+    })).toThrow('VALIDATION_TIKTOK_REQUIRES_MEDIA');
   });
 
   it('caps media assets at 10 across channels', () => {
@@ -46,17 +46,39 @@ describe('public post validation', () => {
     expect(getDeliveryModeForChannel('tiktok')).toBe('user_review');
   });
 
+  it('rejects TikTok posts with multiple videos', () => {
+    expect(() => validateResolvedPublicPostInput({
+      channel: 'tiktok',
+      caption: 'Demo',
+      mediaAssetIds: ['ast_1', 'ast_2'],
+    }, [
+      { id: 'ast_1', url: 'https://example.com/1.mp4', mimeType: 'video/mp4', type: 'video' },
+      { id: 'ast_2', url: 'https://example.com/2.mp4', mimeType: 'video/mp4', type: 'video' },
+    ])).toThrow('VALIDATION_TIKTOK_MAX_ONE_VIDEO');
+  });
+
+  it('rejects TikTok posts that mix one video with images', () => {
+    expect(() => validateResolvedPublicPostInput({
+      channel: 'tiktok',
+      caption: 'Demo',
+      mediaAssetIds: ['ast_1', 'ast_2'],
+    }, [
+      { id: 'ast_1', url: 'https://example.com/1.mp4', mimeType: 'video/mp4', type: 'video' },
+      { id: 'ast_2', url: 'https://example.com/2.jpg', mimeType: 'image/jpeg', type: 'image' },
+    ])).toThrow('VALIDATION_TIKTOK_VIDEO_CANNOT_BE_COMBINED');
+  });
+
   it('serializes content as caption and preserves legacy slideshow metadata on posts', () => {
     const serialized = serializePublicPost({
       id: 'pst_123',
       channel: 'tiktok',
       status: 'exported_for_review',
       content: 'Draft me',
-      destinationId: 'tiktok:tiktok:tt_open_123',
+      destinationId: 'tiktok:tiktok:markaestro_drafts_prod_123',
       destinationProvider: 'tiktok',
       mediaAssetIds: ['ast_1'],
       mediaUrls: ['https://example.com/1.jpg'],
-      nextAction: 'open_tiktok_inbox_and_complete_editing',
+      nextAction: 'open_markaestro_drafts_and_post_manually',
       sourceType: 'slideshow',
       slideshowId: 'ss_123',
       slideshowTitle: 'Launch sequence',
@@ -67,9 +89,9 @@ describe('public post validation', () => {
     });
 
     expect(serialized.caption).toBe('Draft me');
-    expect(serialized.destinationId).toBe('tiktok:tiktok:tt_open_123');
+    expect(serialized.destinationId).toBe('tiktok:tiktok:markaestro_drafts_prod_123');
     expect(serialized.destinationProvider).toBe('tiktok');
-    expect(serialized.nextAction).toBe('open_tiktok_inbox_and_complete_editing');
+    expect(serialized.nextAction).toBe('open_markaestro_drafts_and_post_manually');
     expect(serialized.sourceType).toBe('slideshow');
     expect(serialized.slideshowId).toBe('ss_123');
     expect(serialized.slideshowTitle).toBe('Launch sequence');

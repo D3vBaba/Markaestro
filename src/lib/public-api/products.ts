@@ -3,6 +3,7 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 import { getConnection, getConnectionForChannel, getMetaConnectionMerged } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
+import { buildTikTokDraftDestinationAccountId } from '@/lib/tiktok-draft-flow';
 
 export type PublicProductSummary = {
   id: string;
@@ -138,13 +139,16 @@ function buildInstagramDestinations(connection: PlatformConnection | null, fallb
   }];
 }
 
-function buildTikTokDestinations(connection: PlatformConnection | null, fallbackName: string): PublicProductDestination[] {
-  if (!connection || connection.status !== 'connected') return [];
-
-  const username = asString(connection.metadata.username);
-  const openId = asString(connection.metadata.openId);
-  const displayName = username || fallbackName;
-  const accountId = openId || username || connection.productId || connection.workspaceId;
+function buildTikTokDestinations(
+  scopeId: string,
+  connection: PlatformConnection | null,
+  fallbackName: string,
+): PublicProductDestination[] {
+  const username = connection ? asString(connection.metadata.username) : null;
+  const displayName = username
+    ? `${username} (Markaestro drafts)`
+    : `${fallbackName} TikTok drafts`;
+  const accountId = buildTikTokDraftDestinationAccountId(scopeId);
 
   return [{
     id: buildDestinationId('tiktok', 'tiktok', accountId),
@@ -221,7 +225,7 @@ export async function listPublicProductDestinations(
   return [
     ...buildMetaDestinations(metaConn, fallbackName),
     ...buildInstagramDestinations(instagramConn, fallbackName),
-    ...buildTikTokDestinations(tikTokConn, fallbackName),
+    ...buildTikTokDestinations(productId, tikTokConn, fallbackName),
   ];
 }
 

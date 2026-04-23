@@ -3,6 +3,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { publishPostMultiChannel } from '@/lib/social/publisher';
+import { TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
 
 export const runtime = 'nodejs';
 
@@ -26,13 +27,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return apiOk({ ok: false, error: 'Post has no associated product' }, 400);
     }
 
-    // Only draft, scheduled, or failed posts can be published
-    if (post.status !== 'draft' && post.status !== 'scheduled' && post.status !== 'failed') {
+    // Allow draft, scheduled, failed, or already-staged review posts to be (re-)published.
+    // exported_for_review re-pushes the asset to the TikTok inbox so the creator can
+    // finalize and post from the TikTok app instead of staying parked in Markaestro.
+    const publishableStatuses = ['draft', 'scheduled', 'failed', 'exported_for_review'];
+    if (!publishableStatuses.includes(post.status)) {
       return apiOk({ ok: false, error: `Cannot publish a post with status "${post.status}"` }, 400);
     }
 
-    // Mark as publishing
-    await ref.update({ status: 'publishing', updatedAt: new Date().toISOString() });
+    // Mark as publishing. Clear any stale externalId from a prior inbox push so
+    // the TikTok poll worker can't race against the in-flight re-publish using
+    // the old publish_id from an earlier exported_for_review state.
+    await ref.update({
+      status: 'publishing',
+      externalId: '',
+      updatedAt: new Date().toISOString(),
+    });
 
     console.log(`[publish] Post ${id}: channel=${post.channel}, productId=${productId}, mediaUrls=${JSON.stringify(post.mediaUrls)}`);
 
@@ -42,7 +52,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         content: post.content,
         channel: post.channel,
         mediaUrls: post.mediaUrls,
-        deliveryMode: post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
+        // The UI Publish button is an explicit "push it now" action: even if the
+        // post was originally created via the public API with user_review (and
+        // therefore staged in Markaestro), clicking Publish must override and
+        // push to the platform.
+        deliveryMode: 'direct_publish',
         destinationProvider: typeof post.destinationProvider === 'string' && post.destinationProvider
           ? post.destinationProvider
           : undefined,
@@ -87,7 +101,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         publishResults: result.channels,
         publishedChannels: successfulChannels.map((c) => c.channel),
         ...(result.reviewRequired
-          ? { nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing', exportedForReviewAt: new Date().toISOString() }
+          ? { nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION, exportedForReviewAt: new Date().toISOString() }
           : { publishedAt: new Date().toISOString() }),
         updatedAt: new Date().toISOString(),
       });

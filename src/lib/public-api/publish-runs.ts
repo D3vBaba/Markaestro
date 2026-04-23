@@ -6,6 +6,7 @@ import type { SocialChannel } from '@/lib/schemas';
 import { acquirePublishLock, assertPublishRateLimit, getPublishDestinationKey, releasePublishLock } from './publish-throttle';
 import { enqueueWebhookEvent } from './webhooks';
 import { incrementApiClientStat } from './analytics';
+import { isTikTokDraftOnlyChannel, TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
 
 const MAX_PUBLIC_RUNS_PER_WORKSPACE = 20;
 
@@ -98,37 +99,42 @@ async function processSingleRun(workspaceId: string, runId: string) {
   const clientId = typeof post.createdById === 'string' && post.createdByType === 'api_client'
     ? post.createdById
     : null;
-  const connection = await resolveConnectionForPost(workspaceId, post);
-  if (!connection) {
-    await postRef.set({
-      status: 'failed',
-      errorMessage: `${String(post.channel)} integration is not configured or disabled`,
-      updatedAt: new Date().toISOString(),
-    }, { merge: true });
-    await markRunFinished(workspaceId, runId, 'failed', 'No connected platform account');
-    if (clientId) {
-      await incrementApiClientStat(workspaceId, clientId, 'publish_failed');
+  const isTikTokDraftOnly = isTikTokDraftOnlyChannel(String(post.channel));
+  let destinationKey: string | null = null;
+
+  if (!isTikTokDraftOnly) {
+    const connection = await resolveConnectionForPost(workspaceId, post);
+    if (!connection) {
+      await postRef.set({
+        status: 'failed',
+        errorMessage: `${String(post.channel)} integration is not configured or disabled`,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+      await markRunFinished(workspaceId, runId, 'failed', 'No connected platform account');
+      if (clientId) {
+        await incrementApiClientStat(workspaceId, clientId, 'publish_failed');
+      }
+      await enqueueWebhookEvent(workspaceId, 'post.failed', {
+        postId: run.resourceId,
+        channel: post.channel,
+        status: 'failed',
+        error: `${String(post.channel)} integration is not configured or disabled`,
+      });
+      return { runId, status: 'failed' };
     }
-    await enqueueWebhookEvent(workspaceId, 'post.failed', {
-      postId: run.resourceId,
-      channel: post.channel,
-      status: 'failed',
-      error: `${String(post.channel)} integration is not configured or disabled`,
-    });
-    return { runId, status: 'failed' };
-  }
 
-  const destinationKey = getPublishDestinationKey(String(post.channel) as SocialChannel, connection);
-  const rateLimitResult = await assertPublishRateLimit(destinationKey, String(post.channel) as SocialChannel);
-  if (!rateLimitResult.allowed) {
-    await deferRun(workspaceId, runId, 'Publish deferred due to platform rate limit', rateLimitResult.retryAfterSeconds);
-    return { runId, status: 'deferred' };
-  }
+    destinationKey = getPublishDestinationKey(String(post.channel) as SocialChannel, connection);
+    const rateLimitResult = await assertPublishRateLimit(destinationKey, String(post.channel) as SocialChannel);
+    if (!rateLimitResult.allowed) {
+      await deferRun(workspaceId, runId, 'Publish deferred due to platform rate limit', rateLimitResult.retryAfterSeconds);
+      return { runId, status: 'deferred' };
+    }
 
-  const lockAcquired = await acquirePublishLock(destinationKey, runId);
-  if (!lockAcquired) {
-    await deferRun(workspaceId, runId, 'Publish deferred because destination is busy', 15);
-    return { runId, status: 'deferred' };
+    const lockAcquired = await acquirePublishLock(destinationKey, runId);
+    if (!lockAcquired) {
+      await deferRun(workspaceId, runId, 'Publish deferred because destination is busy', 15);
+      return { runId, status: 'deferred' };
+    }
   }
 
   try {
@@ -175,14 +181,14 @@ async function processSingleRun(workspaceId: string, runId: string) {
         externalId: result.externalId || '',
         externalUrl: result.externalUrl || '',
         publishResults: result.channels,
-        nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing',
+        nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
         exportedForReviewAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }, { merge: true });
       await markRunFinished(workspaceId, runId, 'succeeded', 'Post exported for manual review', {
         reviewRequired: true,
         externalId: result.externalId || '',
-        nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing',
+        nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
       });
       if (clientId) {
         await incrementApiClientStat(workspaceId, clientId, 'publish_exported_for_review');
@@ -193,7 +199,7 @@ async function processSingleRun(workspaceId: string, runId: string) {
         status: 'exported_for_review',
         externalId: result.externalId || '',
         externalUrl: result.externalUrl || '',
-        nextAction: result.nextAction || 'open_tiktok_inbox_and_complete_editing',
+        nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
       });
       return { runId, status: 'succeeded' };
     }
@@ -242,7 +248,9 @@ async function processSingleRun(workspaceId: string, runId: string) {
     });
     return { runId, status: 'failed' };
   } finally {
-    await releasePublishLock(destinationKey, runId);
+    if (destinationKey) {
+      await releasePublishLock(destinationKey, runId);
+    }
   }
 }
 
