@@ -124,9 +124,23 @@ export default function ScheduleSheet({
   return (
     <Sheet open={open} onOpenChange={handleSheetOpenChange}>
       <SheetContent className="overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Schedule Post</SheetTitle>
-          <SheetDescription>Pick a date and time, or use AI-suggested optimal slots.</SheetDescription>
+        <SheetHeader
+          className="px-6 pt-6 pb-4 border-b"
+          style={{ borderColor: "var(--mk-rule)" }}
+        >
+          <p className="mk-eyebrow">Schedule</p>
+          <SheetTitle
+            className="text-[22px] font-semibold m-0"
+            style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+          >
+            Schedule post
+          </SheetTitle>
+          <SheetDescription
+            className="text-[13px]"
+            style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+          >
+            Pick a date and time, or use AI-suggested optimal slots.
+          </SheetDescription>
         </SheetHeader>
 
         {channel === "tiktok" && (

@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { getConnectionForChannel } from '@/lib/platform/connections';
 import { publishPostMultiChannel } from '@/lib/social/publisher';
+import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import { acquirePublishLock, assertPublishRateLimit, getPublishDestinationKey, releasePublishLock } from './publish-throttle';
@@ -180,6 +181,15 @@ async function processSingleRun(workspaceId: string, runId: string) {
         publishResults: result.channels,
         updatedAt: new Date().toISOString(),
       }, { merge: true });
+
+      // Short-poll TikTok inline so local/dev (without the 1-min cron) still
+      // transitions quickly, and so the `post.exported_for_review` webhook
+      // fires before we acknowledge the run. In prod the tick is short so
+      // this only adds a few seconds before the run is marked done.
+      if (post.channel === 'tiktok') {
+        await pollTikTokPublishWithRetries(workspaceId, run.resourceId);
+      }
+
       await markRunFinished(workspaceId, runId, 'succeeded', 'Publish handed off to platform', {
         pending: true,
         externalId: result.externalId || '',

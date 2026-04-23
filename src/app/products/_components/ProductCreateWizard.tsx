@@ -183,9 +183,21 @@ export default function ProductCreateWizard({
           />
         )}
 
-        <SheetHeader className="px-6 pt-5 pb-4 border-b border-border/40">
-          <SheetTitle>Add product</SheetTitle>
-          <SheetDescription>
+        <SheetHeader
+          className="px-6 pt-6 pb-4 border-b"
+          style={{ borderColor: "var(--mk-rule)" }}
+        >
+          <p className="mk-eyebrow">New product</p>
+          <SheetTitle
+            className="text-[22px] font-semibold m-0"
+            style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+          >
+            Add product
+          </SheetTitle>
+          <SheetDescription
+            className="text-[13px]"
+            style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+          >
             {mode === "start" && "Start by scanning your website, or enter details manually."}
             {mode === "scan" && "Researching your product…"}
             {mode === "manual" && "Fill out the essentials — you can add more later."}
@@ -204,14 +216,34 @@ export default function ProductCreateWizard({
                 transition={{ duration: 0.2 }}
                 className="space-y-4"
               >
-                <div className="rounded-2xl border border-border/50 bg-linear-to-br from-muted/30 to-transparent p-5 space-y-4">
+                <div
+                  className="rounded-xl p-5 space-y-4"
+                  style={{
+                    background: "var(--mk-surface)",
+                    border: "1px solid var(--mk-rule)",
+                  }}
+                >
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-foreground/5 flex items-center justify-center shrink-0">
-                      <Wand2 className="h-5 w-5 text-foreground" />
+                    <div
+                      className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: "var(--mk-panel)" }}
+                    >
+                      <Wand2
+                        className="h-4.5 w-4.5"
+                        style={{ color: "var(--mk-ink-80)" }}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold">Scan your website</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
+                      <p
+                        className="text-[14px] font-semibold"
+                        style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+                      >
+                        Scan your website
+                      </p>
+                      <p
+                        className="text-[12.5px] mt-0.5"
+                        style={{ color: "var(--mk-ink-60)" }}
+                      >
                         We&apos;ll extract your name, description, brand colours, logo and tone so you can start with 90% done.
                       </p>
                     </div>
@@ -241,31 +273,56 @@ export default function ProductCreateWizard({
                   </div>
                 </div>
 
-                <div className="relative py-1">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-border/40" />
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="bg-background px-3 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                      or
-                    </span>
-                  </div>
+                <div className="relative py-1 flex items-center gap-3">
+                  <span
+                    className="flex-1 h-px"
+                    style={{ background: "var(--mk-rule)" }}
+                  />
+                  <span className="mk-eyebrow">Or</span>
+                  <span
+                    className="flex-1 h-px"
+                    style={{ background: "var(--mk-rule)" }}
+                  />
                 </div>
 
                 <button
                   onClick={startManual}
-                  className="w-full group rounded-2xl border border-border/50 bg-card hover:border-foreground/30 hover:bg-muted/20 transition-all p-5 text-left"
+                  className="w-full group rounded-xl transition-colors p-5 text-left"
+                  style={{
+                    background: "var(--mk-paper)",
+                    border: "1px solid var(--mk-rule)",
+                  }}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-xl border border-border/50 bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/30 transition-colors">
-                      <Pencil className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <div
+                      className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
+                      style={{
+                        background: "var(--mk-panel)",
+                        border: "1px solid var(--mk-rule-soft)",
+                      }}
+                    >
+                      <Pencil
+                        className="h-4 w-4"
+                        style={{ color: "var(--mk-ink-60)" }}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold">Enter manually</p>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
+                        <p
+                          className="text-[14px] font-semibold"
+                          style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+                        >
+                          Enter manually
+                        </p>
+                        <ArrowRight
+                          className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                          style={{ color: "var(--mk-ink-40)" }}
+                        />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
+                      <p
+                        className="text-[12.5px] mt-0.5"
+                        style={{ color: "var(--mk-ink-60)" }}
+                      >
                         Skip the scan and fill the form yourself.
                       </p>
                     </div>
@@ -400,10 +457,14 @@ export default function ProductCreateWizard({
                 </FormField>
 
                 {(primaryColor || secondaryColor || accentColor || logoUrl || targetAudience || tone) && (
-                  <div className="rounded-xl border border-border/40 bg-muted/20 p-4 space-y-3">
-                    <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-muted-foreground">
-                      Brand intelligence
-                    </p>
+                  <div
+                    className="rounded-xl p-4 space-y-3"
+                    style={{
+                      background: "var(--mk-surface)",
+                      border: "1px solid var(--mk-rule)",
+                    }}
+                  >
+                    <p className="mk-eyebrow">Brand intelligence</p>
                     {logoUrl && (
                       <div className="flex items-center gap-3">
                         <img
@@ -453,17 +514,28 @@ export default function ProductCreateWizard({
         </div>
 
         {(mode === "review" || mode === "manual") && (
-          <div className="px-6 py-3 border-t border-border/40 bg-muted/10 flex items-center justify-between gap-2">
+          <div
+            className="px-6 py-3 border-t flex items-center justify-between gap-2"
+            style={{
+              borderColor: "var(--mk-rule)",
+              background: "var(--mk-surface)",
+            }}
+          >
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setMode("start")}
-              className="text-muted-foreground"
+              className="h-9 text-[13px]"
+              style={{ color: "var(--mk-ink-60)" }}
             >
               Start over
             </Button>
-            <Button onClick={create} disabled={saving || !name.trim()}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
+            <Button
+              onClick={create}
+              disabled={saving || !name.trim()}
+              className="rounded-lg h-9 text-[13px]"
+            >
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
               {saving ? "Creating…" : "Create product"}
             </Button>
           </div>

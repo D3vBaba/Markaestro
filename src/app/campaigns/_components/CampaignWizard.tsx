@@ -169,18 +169,34 @@ export default function CampaignWizard({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-xl flex flex-col p-0 gap-0">
-        <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40">
-          <SheetTitle className="font-[family-name:var(--font-display)] text-2xl font-normal tracking-tight">
-            New Campaign
+        <SheetHeader
+          className="px-6 pt-6 pb-4 border-b"
+          style={{ borderColor: "var(--mk-rule)" }}
+        >
+          <p className="mk-eyebrow">New campaign</p>
+          <SheetTitle
+            className="text-[22px] font-semibold m-0"
+            style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+          >
+            {type === "pipeline" ? "Build a pipeline" : "Ship a single post"}
           </SheetTitle>
-          <SheetDescription className="text-xs text-muted-foreground">
+          <SheetDescription
+            className="text-[13px]"
+            style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+          >
             {type === "pipeline"
               ? "A multi-stage adoption pipeline, researched and generated."
               : "A single, focused post or message on one channel."}
           </SheetDescription>
         </SheetHeader>
 
-        <div className="px-6 pt-4 pb-2 border-b border-border/40 bg-muted/10">
+        <div
+          className="px-6 pt-4 pb-2 border-b"
+          style={{
+            borderColor: "var(--mk-rule)",
+            background: "var(--mk-surface)",
+          }}
+        >
           <WizardStepper steps={steps} current={step} onStepClick={(i) => i < step && setStep(i)} />
         </div>
 
@@ -245,17 +261,24 @@ export default function CampaignWizard({
           </AnimatePresence>
         </div>
 
-        <div className="px-6 py-4 border-t border-border/40 bg-background/80 backdrop-blur-sm flex items-center justify-between gap-3">
+        <div
+          className="px-6 py-4 border-t flex items-center justify-between gap-3"
+          style={{
+            borderColor: "var(--mk-rule)",
+            background: "color-mix(in oklch, var(--mk-paper) 88%, transparent)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
           <Button
             variant="ghost"
             onClick={step === 0 ? () => onOpenChange(false) : handleBack}
-            className="rounded-xl"
+            className="rounded-lg h-9 text-[13px]"
           >
             {step === 0 ? (
               "Cancel"
             ) : (
               <>
-                <ArrowLeft className="h-4 w-4 mr-1.5" /> Back
+                <ArrowLeft className="h-3.5 w-3.5 mr-1.5" /> Back
               </>
             )}
           </Button>
@@ -264,24 +287,38 @@ export default function CampaignWizard({
             {steps.map((_, i) => (
               <span
                 key={i}
-                className={cn(
-                  "h-1 rounded-full transition-all",
-                  i === step ? "w-6 bg-foreground" : i < step ? "w-1.5 bg-foreground/60" : "w-1.5 bg-border",
-                )}
+                className="h-[3px] rounded-full transition-all"
+                style={{
+                  width: i === step ? 22 : 6,
+                  background:
+                    i === step
+                      ? "var(--mk-ink)"
+                      : i < step
+                      ? "var(--mk-ink-40)"
+                      : "var(--mk-rule)",
+                }}
               />
             ))}
           </div>
 
           {step < steps.length - 1 ? (
-            <Button onClick={handleNext} disabled={!canContinue} className="rounded-xl">
-              Next <ArrowRight className="h-4 w-4 ml-1.5" />
+            <Button
+              onClick={handleNext}
+              disabled={!canContinue}
+              className="rounded-lg h-9 text-[13px]"
+            >
+              Next <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
             </Button>
           ) : (
-            <Button onClick={handleCreate} disabled={submitting || !canContinue} className="rounded-xl">
+            <Button
+              onClick={handleCreate}
+              disabled={submitting || !canContinue}
+              className="rounded-lg h-9 text-[13px]"
+            >
               {submitting ? (
-                <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Creating…</>
+                <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> Creating…</>
               ) : (
-                <>Create {type === "pipeline" ? "Pipeline" : "Campaign"}</>
+                <>Create {type === "pipeline" ? "pipeline" : "campaign"}</>
               )}
             </Button>
           )}
@@ -306,7 +343,7 @@ function StepBasics({
   return (
     <>
       <div className="space-y-3">
-        <label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        <label className="mk-eyebrow">
           Campaign type
         </label>
         <div className="grid grid-cols-2 gap-3">
@@ -359,32 +396,47 @@ function TypeCard({
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        "relative rounded-xl border p-4 text-left transition-all overflow-hidden group",
-        active
-          ? "border-foreground bg-foreground text-background shadow-sm"
-          : "border-border/60 hover:border-foreground/40 hover:bg-muted/30",
-      )}
+      className="relative rounded-xl p-4 text-left transition-colors overflow-hidden group"
+      style={{
+        background: active ? "var(--mk-ink)" : "var(--mk-paper)",
+        border: `1px solid ${active ? "var(--mk-ink)" : "var(--mk-rule)"}`,
+        color: active ? "var(--mk-paper)" : "var(--mk-ink)",
+      }}
     >
-      <div className="flex items-center justify-between mb-2">
-        <div className={cn(
-          "h-8 w-8 rounded-lg flex items-center justify-center",
-          active ? "bg-background/15 text-background" : "bg-muted text-muted-foreground",
-        )}>
+      <div className="flex items-center justify-between mb-2.5">
+        <div
+          className="h-8 w-8 rounded-lg flex items-center justify-center"
+          style={{
+            background: active
+              ? "color-mix(in oklch, var(--mk-paper) 15%, transparent)"
+              : "var(--mk-panel)",
+            color: active ? "var(--mk-paper)" : "var(--mk-ink-80)",
+          }}
+        >
           {icon}
         </div>
         {active && (
           <motion.span
             layoutId="type-indicator"
-            className="h-1.5 w-1.5 rounded-full bg-background"
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: "var(--mk-paper)" }}
           />
         )}
       </div>
-      <p className="text-sm font-medium">{title}</p>
-      <p className={cn(
-        "text-[11px] mt-0.5 leading-relaxed",
-        active ? "text-background/70" : "text-muted-foreground",
-      )}>
+      <p
+        className="text-[14px] font-medium"
+        style={{ letterSpacing: "-0.01em" }}
+      >
+        {title}
+      </p>
+      <p
+        className="text-[11.5px] mt-0.5 leading-relaxed"
+        style={{
+          color: active
+            ? "color-mix(in oklch, var(--mk-paper) 70%, transparent)"
+            : "var(--mk-ink-60)",
+        }}
+      >
         {hint}
       </p>
     </button>
@@ -428,7 +480,7 @@ function StepContent({
         </FormField>
       ) : (
         <div className="space-y-3">
-          <label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          <label className="mk-eyebrow">
             Channels
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -454,7 +506,7 @@ function StepContent({
       )}
 
       <div className="space-y-3">
-        <label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        <label className="mk-eyebrow">
           Visuals
         </label>
         <div className="grid grid-cols-2 gap-2">
@@ -604,7 +656,7 @@ function StepSchedule({
       ) : (
         <>
           <div className="space-y-3">
-            <label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            <label className="mk-eyebrow">
               Cadence
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -665,10 +717,14 @@ function StepSchedule({
         </>
       )}
 
-      <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-2.5">
-        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          Summary
-        </p>
+      <div
+        className="rounded-xl p-4 space-y-2.5"
+        style={{
+          background: "var(--mk-surface)",
+          border: "1px solid var(--mk-rule)",
+        }}
+      >
+        <p className="mk-eyebrow">Summary</p>
         <ReviewRow label="Type" value={review.type === "pipeline" ? "Pipeline" : "Single post"} />
         <ReviewRow label="Name" value={review.name || "—"} />
         <ReviewRow

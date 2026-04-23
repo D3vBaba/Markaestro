@@ -3,6 +3,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { publishPostMultiChannel } from '@/lib/social/publisher';
+import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
 import { TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
 
 export const runtime = 'nodejs';
@@ -37,10 +38,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     // Mark as publishing. Clear any stale externalId from a prior inbox push so
     // the TikTok poll worker can't race against the in-flight re-publish using
-    // the old publish_id from an earlier exported_for_review state.
+    // the old publish_id from an earlier exported_for_review state. Also clear
+    // scheduledAt so the UI doesn't render a stale "Scheduled" badge on a post
+    // we're actively publishing now.
     await ref.update({
       status: 'publishing',
       externalId: '',
+      scheduledAt: null,
       updatedAt: new Date().toISOString(),
     });
 
@@ -80,13 +84,32 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         publishResults: result.channels,
         updatedAt: new Date().toISOString(),
       });
+
+      // TikTok's init call hands us a publish_id but the transcode into the
+      // creator's inbox usually finishes in 15–45s. In prod this is picked
+      // up by the 1-min Cloud Scheduler poll worker; locally / in dev that
+      // isn't running, so short-poll inline before returning.
+      let finalStatus: 'publishing' | 'exported_for_review' | 'published' | 'failed' = 'publishing';
+      let inlineError: string | undefined;
+      if (post.channel === 'tiktok') {
+        const outcome = await pollTikTokPublishWithRetries(ctx.workspaceId, id);
+        if (outcome.status === 'exported_for_review') finalStatus = 'exported_for_review';
+        else if (outcome.status === 'published') finalStatus = 'published';
+        else if (outcome.status === 'failed') {
+          finalStatus = 'failed';
+          inlineError = outcome.error;
+        }
+      }
+
       return apiOk({
-        ok: true,
+        ok: finalStatus !== 'failed',
         id,
-        status: 'publishing',
-        pending: true,
+        status: finalStatus,
+        pending: finalStatus === 'publishing',
         externalId: result.externalId,
         externalUrl: result.externalUrl,
+        nextAction: finalStatus === 'exported_for_review' ? TIKTOK_MANUAL_REVIEW_ACTION : undefined,
+        error: inlineError,
         channels: result.channels,
       });
     }

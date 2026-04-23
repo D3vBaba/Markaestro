@@ -39,6 +39,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     const now = new Date().toISOString();
+
+    // Publishing now. Drop any prior scheduledAt so the UI stops showing a
+    // stale "Scheduled" badge on a post we're actively handing off to the
+    // platform.
+    if (post.scheduledAt) {
+      await adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${id}`).set({
+        scheduledAt: null,
+        updatedAt: now,
+      }, { merge: true });
+    }
+
     const runRef = adminDb.collection(`workspaces/${ctx.workspaceId}/job_runs`).doc();
     const run = {
       id: runRef.id,

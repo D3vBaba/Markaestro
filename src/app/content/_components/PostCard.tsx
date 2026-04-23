@@ -15,6 +15,7 @@ type Post = {
   createdAt?: string;
   errorMessage?: string;
   mediaUrls?: string[];
+  nextAction?: string;
 };
 
 const channelLabels: Record<string, string> = {
@@ -42,7 +43,7 @@ const statusTextColors: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  exported_for_review: "Ready for review",
+  exported_for_review: "Draft on TikTok",
 };
 
 // Shared pill button style
@@ -169,6 +170,44 @@ export default function PostCard({
           </p>
         )}
       </div>
+
+      {/* TikTok draft banner: post was pushed to the creator's inbox and
+          needs to be finalized from the TikTok app. */}
+      {!publishing && post.status === "exported_for_review" && post.channel === "tiktok" && (
+        <div
+          className="mx-4 mb-3 flex items-start gap-2 rounded-lg border px-3 py-2"
+          style={{
+            background: "var(--mk-accent-soft)",
+            borderColor: "color-mix(in oklch, var(--mk-accent) 30%, var(--mk-paper))",
+          }}
+        >
+          <div
+            className="mt-0.5 w-2 h-2 rounded-full shrink-0"
+            style={{ background: "var(--mk-accent)" }}
+          />
+          <div className="min-w-0 flex-1">
+            <p
+              className="text-[12px] font-medium"
+              style={{ color: "var(--mk-accent)" }}
+            >
+              Ready in your TikTok inbox
+            </p>
+            <p className="text-[11px] text-mk-ink-60 mt-0.5">
+              Open the TikTok app → Inbox → tap the upload notification to finish the caption and post.
+              Drafts expire after ~7 days.
+            </p>
+            <a
+              href="https://www.tiktok.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex mt-1.5 text-[11px] font-medium underline"
+              style={{ color: "var(--mk-accent)" }}
+            >
+              Open TikTok
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Publishing overlay banner */}
       {publishing && (

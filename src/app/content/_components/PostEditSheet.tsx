@@ -5,7 +5,6 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import ContentEditor from "./ContentEditor";
 import ImagePicker from "./ImagePicker";
@@ -155,26 +154,30 @@ export default function PostEditSheet({
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="overflow-y-auto sm:max-w-[560px] flex flex-col gap-0 p-0">
-          <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/30">
-            <div className="flex items-center gap-2">
-              <SheetTitle className="text-base">{title}</SheetTitle>
-              <Badge variant="secondary" className="text-[10px] font-normal capitalize">
-                {channelLabels[channel] ?? channel}
-              </Badge>
-            </div>
+          <SheetHeader
+            className="px-6 pt-6 pb-4 border-b"
+            style={{ borderColor: "var(--mk-rule)" }}
+          >
+            <p className="mk-eyebrow">{channelLabels[channel] ?? channel}</p>
+            <SheetTitle
+              className="text-[22px] font-semibold m-0"
+              style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+            >
+              {title}
+            </SheetTitle>
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
             {/* Caption */}
             <div className="space-y-2">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Caption</p>
+              <p className="mk-eyebrow">Caption</p>
               <ContentEditor content={content} onChange={setContent} channel={channel} />
             </div>
 
             {/* Image */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Image</p>
+                <p className="mk-eyebrow">Image</p>
                 {currentImage && (
                   <button
                     onClick={() => setMediaUrls([])}
@@ -252,7 +255,13 @@ export default function PostEditSheet({
               </div>
 
               {showAiPanel && (
-                <div className="rounded-xl border border-border/40 bg-muted/20 p-4 space-y-3">
+                <div
+                  className="rounded-xl p-4 space-y-3"
+                  style={{
+                    background: "var(--mk-surface)",
+                    border: "1px solid var(--mk-rule)",
+                  }}
+                >
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
                       <label className="text-[10px] text-muted-foreground">Prompt Mode</label>
@@ -329,7 +338,7 @@ export default function PostEditSheet({
 
             {/* Live preview */}
             <div className="space-y-2">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Preview</p>
+              <p className="mk-eyebrow">Preview</p>
               <PlatformPreview
                 content={content}
                 channel={channel}
@@ -338,16 +347,34 @@ export default function PostEditSheet({
             </div>
           </div>
 
-          <SheetFooter className="px-6 py-4 border-t border-border/30 flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1" onClick={() => onOpenChange(false)}>
+          <SheetFooter
+            className="px-6 py-4 border-t flex gap-2"
+            style={{ borderColor: "var(--mk-rule)" }}
+          >
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 h-9 rounded-lg text-[13px]"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             {onSchedule && (
-              <Button variant="outline" size="sm" className="flex-1" onClick={() => onSchedule(content, mediaUrls.length > 0 ? mediaUrls : undefined)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 h-9 rounded-lg text-[13px]"
+                onClick={() => onSchedule(content, mediaUrls.length > 0 ? mediaUrls : undefined)}
+              >
                 Schedule
               </Button>
             )}
-            <Button size="sm" className="flex-1" onClick={handleSave} disabled={saving}>
+            <Button
+              size="sm"
+              className="flex-1 h-9 rounded-lg text-[13px]"
+              onClick={handleSave}
+              disabled={saving}
+            >
               {saving ? "Saving…" : "Save"}
             </Button>
           </SheetFooter>

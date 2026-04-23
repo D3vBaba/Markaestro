@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import Select from "@/components/app/Select";
-import { apiPost, apiPut, apiUpload } from "@/lib/api-client";
+import { apiGet, apiPost, apiPut, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
 import ChannelSelector from "./ChannelSelector";
 import ContentEditor from "./ContentEditor";
@@ -78,6 +78,48 @@ export default function CreateTab({
   const [postId, setPostId] = useState<string | null>(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
+
+  // Poll a just-published post until it reaches a terminal state so the
+  // card elsewhere in the app transitions out of `publishing` without
+  // needing a manual refresh. We fire onPostCreated after each poll so
+  // the sibling tabs re-fetch.
+  const activePollRef = useRef<{ postId: string; cancelled: boolean } | null>(null);
+  useEffect(() => () => { if (activePollRef.current) activePollRef.current.cancelled = true; }, []);
+
+  const startStatusPolling = (targetPostId: string) => {
+    if (activePollRef.current) activePollRef.current.cancelled = true;
+    const handle = { postId: targetPostId, cancelled: false };
+    activePollRef.current = handle;
+
+    const INTERVAL_MS = 10_000;
+    const MAX_ATTEMPTS = 12; // ~2 minutes
+    const TERMINAL = new Set(["exported_for_review", "published", "failed"]);
+
+    let attempt = 0;
+    const tick = async () => {
+      if (handle.cancelled) return;
+      attempt += 1;
+      try {
+        // GET /api/posts/:id returns { ok, data: { id, status, ... } }.
+        const res = await apiGet<{ status?: string }>(`/api/posts/${targetPostId}`);
+        if (handle.cancelled) return;
+        const status = res.ok ? res.data.status : undefined;
+        onPostCreated?.();
+        if (status && TERMINAL.has(status)) {
+          if (activePollRef.current === handle) activePollRef.current = null;
+          return;
+        }
+      } catch {
+        // Transient error — keep polling until the attempt budget is out.
+      }
+      if (attempt >= MAX_ATTEMPTS) {
+        if (activePollRef.current === handle) activePollRef.current = null;
+        return;
+      }
+      setTimeout(tick, INTERVAL_MS);
+    };
+    setTimeout(tick, INTERVAL_MS);
+  };
 
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -364,6 +406,22 @@ export default function CreateTab({
         } else {
           toast.success("Post submitted and still processing.");
         }
+        // Clear the form so the composer isn't stuck showing a post that's
+        // already been handed off. Status tracking lives on the post card.
+        setContent("");
+        setPostId(null);
+        setImageUrls([]);
+        onPostCreated?.();
+        startStatusPolling(id);
+        setPublishing(false);
+        return;
+      }
+
+      if (res.data.status === "exported_for_review") {
+        toast.success("Sent to TikTok as a draft. Open the TikTok app's inbox, finish the caption, and tap Post.");
+        setContent("");
+        setPostId(null);
+        setImageUrls([]);
         onPostCreated?.();
         setPublishing(false);
         return;
