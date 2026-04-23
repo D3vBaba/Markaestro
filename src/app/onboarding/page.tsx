@@ -113,9 +113,13 @@ function ProgressBar({ step }: { step: number }) {
   if (step >= 6) return null;
   const pct = Math.round(((step + 1) / TOTAL_STEPS) * 100);
   return (
-    <div className="h-0.5 bg-border w-full">
+    <div
+      className="h-px w-full"
+      style={{ background: "var(--mk-rule)" }}
+    >
       <motion.div
-        className="h-full bg-primary"
+        className="h-full"
+        style={{ background: "var(--mk-accent)" }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 0.4, ease }}
       />
@@ -146,40 +150,53 @@ function SelectionTile({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.28, ease }}
-      className={cn(
-        "w-full rounded-xl border p-5 text-left transition-all duration-150 min-h-[72px] active:scale-[0.99]",
-        selected
-          ? "border-primary bg-primary/3 shadow-sm"
-          : "border-border hover:border-foreground/30 hover:shadow-sm"
-      )}
+      className="w-full rounded-xl p-4 sm:p-5 text-left transition-colors duration-150 min-h-[72px] active:scale-[0.99]"
+      style={{
+        background: selected ? "var(--mk-panel)" : "var(--mk-paper)",
+        border: `1px solid ${selected ? "var(--mk-ink)" : "var(--mk-rule)"}`,
+      }}
       onClick={onClick}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-base font-medium text-foreground leading-snug">{label}</p>
+          <p
+            className="text-[15px] font-medium leading-snug"
+            style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+          >
+            {label}
+          </p>
           {desc && (
-            <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>
+            <p
+              className="text-[13px] mt-0.5 leading-relaxed"
+              style={{ color: "var(--mk-ink-60)" }}
+            >
+              {desc}
+            </p>
           )}
         </div>
         <div
           className={cn(
-            "shrink-0 transition-all",
-            multi
-              ? cn(
-                  "h-5 w-5 rounded border-2 flex items-center justify-center",
-                  selected ? "border-primary bg-primary" : "border-muted-foreground/40"
-                )
-              : cn(
-                  "h-5 w-5 rounded-full border-2 flex items-center justify-center",
-                  selected ? "border-primary" : "border-muted-foreground/40"
-                )
+            "shrink-0 transition-all h-5 w-5 flex items-center justify-center",
+            multi ? "rounded" : "rounded-full",
           )}
+          style={{
+            border: `1.5px solid ${selected ? "var(--mk-ink)" : "var(--mk-ink-20)"}`,
+            background: multi && selected ? "var(--mk-ink)" : "transparent",
+          }}
         >
           {multi && selected && (
-            <span className="text-[10px] font-bold text-white leading-none">✓</span>
+            <span
+              className="text-[10px] font-bold leading-none"
+              style={{ color: "var(--mk-paper)" }}
+            >
+              ✓
+            </span>
           )}
           {!multi && selected && (
-            <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+            <div
+              className="h-2.5 w-2.5 rounded-full"
+              style={{ background: "var(--mk-ink)" }}
+            />
           )}
         </div>
       </div>
@@ -514,28 +531,43 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
 
-      {/* ── Header — matches MarketingLayout exactly ──────────────────────── */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-3">
+      {/* ── Header — minimal onboarding chrome ──────────────────────────── */}
+      <header
+        className="sticky top-0 z-50 border-b backdrop-blur-md"
+        style={{
+          background: "color-mix(in oklch, var(--mk-paper) 92%, transparent)",
+          borderColor: "var(--mk-rule)",
+        }}
+      >
+        <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
+          <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/markaestro-logo-transparent.png"
               alt="Markaestro"
-              width={40}
-              height={36}
+              width={28}
+              height={28}
               className="object-contain"
             />
-            <span className="text-base font-bold tracking-tight">Markaestro</span>
+            <span
+              className="text-[15px] font-semibold tracking-tight"
+              style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
+            >
+              Markaestro
+            </span>
           </Link>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             {step < 6 && (
-              <span className="hidden sm:inline text-sm text-muted-foreground tabular-nums">
-                Step {step + 1} of {TOTAL_STEPS}
+              <span
+                className="hidden sm:inline font-mono text-[10.5px] uppercase tabular-nums"
+                style={{ color: "var(--mk-ink-40)", letterSpacing: "0.14em" }}
+              >
+                Step {step + 1} / {TOTAL_STEPS}
               </span>
             )}
             <button
-              className="text-sm text-muted-foreground hover:text-foreground transition"
+              className="text-[12.5px] transition-colors"
+              style={{ color: "var(--mk-ink-60)" }}
               onClick={logout}
             >
               Sign out
@@ -560,10 +592,10 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-10 sm:mb-12">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-4">
+                  <p className="mk-eyebrow mb-4">
                     Welcome, {displayName}
                   </p>
-                  <h1 className="text-3xl sm:text-4xl font-normal tracking-tight font-display leading-tight">
+                  <h1 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
                     What best describes your role?
                   </h1>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
@@ -595,10 +627,10 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-10 sm:mb-12">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-4">
+                  <p className="mk-eyebrow mb-4">
                     Tell us a bit more
                   </p>
-                  <h2 className="text-3xl sm:text-4xl font-normal tracking-tight font-display leading-tight">
+                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
                     How big is your team?
                   </h2>
                 </div>
@@ -633,10 +665,10 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-10 sm:mb-12">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-4">
+                  <p className="mk-eyebrow mb-4">
                     Almost there
                   </p>
-                  <h2 className="text-3xl sm:text-4xl font-normal tracking-tight font-display leading-tight">
+                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
                     What&apos;s your primary goal?
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
@@ -674,10 +706,10 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-10 sm:mb-12">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-4">
+                  <p className="mk-eyebrow mb-4">
                     Last question
                   </p>
-                  <h2 className="text-3xl sm:text-4xl font-normal tracking-tight font-display leading-tight">
+                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
                     Which channels do you use?
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
@@ -725,10 +757,10 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-10 sm:mb-12">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-4">
+                  <p className="mk-eyebrow mb-4">
                     Your product
                   </p>
-                  <h2 className="text-3xl sm:text-4xl font-normal tracking-tight font-display leading-tight">
+                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
                     Tell us what you&apos;re marketing
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
@@ -923,10 +955,10 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-10 sm:mb-12">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-4">
+                  <p className="mk-eyebrow mb-4">
                     Connect your accounts
                   </p>
-                  <h2 className="text-3xl sm:text-4xl font-normal tracking-tight font-display leading-tight">
+                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
                     Add your social accounts
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
@@ -1029,7 +1061,7 @@ export default function OnboardingPage() {
                       />
                     ))}
                   </motion.div>
-                  <h2 className="text-2xl sm:text-3xl font-normal font-display mb-4">
+                  <h2 className="text-[24px] sm:text-[28px] font-semibold tracking-[-0.025em] mb-4">
                     Creating your first post
                   </h2>
                   <p className="text-base text-muted-foreground max-w-sm leading-relaxed">
@@ -1056,11 +1088,20 @@ export default function OnboardingPage() {
                     initial={{ scale: 0.7, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: "spring", stiffness: 280, delay: 0.1 }}
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 mb-6"
+                    className="inline-flex h-12 w-12 items-center justify-center rounded-full mb-6"
+                    style={{
+                      background: "color-mix(in oklch, var(--mk-pos) 12%, var(--mk-paper))",
+                      border: "1px solid color-mix(in oklch, var(--mk-pos) 26%, var(--mk-rule))",
+                    }}
                   >
-                    <span className="text-emerald-600 font-bold text-base">✓</span>
+                    <span
+                      className="font-bold text-base"
+                      style={{ color: "var(--mk-pos)" }}
+                    >
+                      ✓
+                    </span>
                   </motion.div>
-                  <h2 className="text-3xl sm:text-4xl font-normal tracking-tight font-display leading-tight">
+                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
                     Your first post is ready
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
