@@ -46,11 +46,21 @@ function ProductContextBar({
   if (products.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl border border-border/50 bg-card mb-6 group">
-      {/* Indicator dot */}
-      <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
-
-      <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground shrink-0">
+    <div
+      className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg mb-5"
+      style={{
+        background: "var(--mk-paper)",
+        border: "1px solid var(--mk-rule)",
+      }}
+    >
+      <span
+        className="inline-block rounded-full shrink-0"
+        style={{ width: 6, height: 6, background: "var(--mk-accent)" }}
+      />
+      <span
+        className="font-mono text-[9.5px] uppercase shrink-0"
+        style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
+      >
         Product
       </span>
 
@@ -63,7 +73,8 @@ function ProductContextBar({
             setEditing(false);
           }}
           onBlur={() => setEditing(false)}
-          className="flex-1 min-w-0 text-sm font-medium bg-transparent border-none outline-none focus:ring-0 cursor-pointer"
+          className="flex-1 min-w-0 bg-transparent border-none outline-none cursor-pointer text-[13px] font-medium"
+          style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
         >
           {products.map((p) => (
             <option key={p.id} value={p.id}>
@@ -73,12 +84,16 @@ function ProductContextBar({
         </select>
       ) : (
         <>
-          <span className="flex-1 text-sm font-medium truncate min-w-0">
+          <span
+            className="flex-1 text-[13px] font-medium truncate min-w-0"
+            style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+          >
             {selected?.name ?? "No product selected"}
           </span>
           <button
             onClick={() => setEditing(true)}
-            className="text-[11px] text-muted-foreground hover:text-foreground transition-colors shrink-0 px-2.5 py-1 rounded-lg hover:bg-muted"
+            className="shrink-0 text-[11px] px-2 py-1 rounded transition-colors"
+            style={{ color: "var(--mk-ink-60)" }}
           >
             Change
           </button>
@@ -126,7 +141,7 @@ export default function PostsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Posts Management"
+        title="Posts"
         subtitle="Create, schedule, and publish organic content across your social channels."
       />
 
@@ -150,12 +165,19 @@ export default function PostsPage() {
         </div>
 
         {/* Desktop: tab bar */}
-        <TabsList className="hidden lg:flex bg-transparent border-b border-border/40 rounded-none p-0 h-auto gap-0 w-full overflow-x-auto">
+        <TabsList
+          className="hidden lg:flex bg-transparent rounded-none p-0 h-auto gap-6 w-full overflow-x-auto border-b"
+          style={{ borderColor: "var(--mk-rule-soft)" }}
+        >
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-5 py-3 text-xs font-medium tracking-widest uppercase text-muted-foreground data-[state=active]:text-foreground transition-colors whitespace-nowrap"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2.5 text-[13px] font-normal data-[state=active]:font-semibold data-[state=active]:text-foreground transition-colors whitespace-nowrap"
+              style={{
+                color: "var(--mk-ink-60)",
+                letterSpacing: "-0.005em",
+              }}
             >
               {tab.label}
             </TabsTrigger>

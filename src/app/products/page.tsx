@@ -12,7 +12,6 @@ import ProductDetailSheet, { type IntegrationInfo } from "./_components/ProductD
 import ProductCreateWizard from "./_components/ProductCreateWizard";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 type Product = ProductCardData;
 
@@ -148,36 +147,45 @@ export default function ProductsPage() {
         title="Products"
         subtitle="Register and track the applications you market."
         action={
-          <Button onClick={() => setCreateOpen(true)} className="rounded-xl gap-1.5">
-            <Plus className="h-4 w-4" /> Add product
+          <Button onClick={() => setCreateOpen(true)} className="rounded-lg h-9 text-[13px] gap-1.5">
+            <Plus className="h-3.5 w-3.5" /> Add product
           </Button>
         }
       />
 
-      <div className="flex items-center gap-1 mb-6 border-b border-border/40">
+      <div
+        className="flex items-center gap-6 mb-5 border-b"
+        style={{ borderColor: "var(--mk-rule-soft)" }}
+      >
         {(["all", "active", "development"] as FilterTab[]).map((tab) => {
           const active = filter === tab;
           return (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={cn(
-                "relative px-3 py-2 text-sm transition-colors",
-                active
-                  ? "text-foreground font-medium"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
+              className="relative py-2.5 text-[13px] transition-colors whitespace-nowrap"
+              style={{
+                marginBottom: -1,
+                color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
+                fontWeight: active ? 600 : 400,
+                letterSpacing: "-0.005em",
+                borderBottom: `2px solid ${active ? "var(--mk-ink)" : "transparent"}`,
+              }}
             >
               <span className="flex items-center gap-1.5">
                 {filterLabels[tab]}
-                <span className="text-[10px] tabular-nums text-muted-foreground/70">
+                <span
+                  className="font-mono text-[11px]"
+                  style={{ color: "var(--mk-ink-40)" }}
+                >
                   {counts[tab]}
                 </span>
               </span>
               {active && (
                 <motion.span
                   layoutId="products-filter-underline"
-                  className="absolute left-0 right-0 -bottom-px h-0.5 bg-foreground"
+                  className="absolute left-0 right-0 -bottom-px h-px"
+                  style={{ background: "var(--mk-ink)" }}
                 />
               )}
             </button>
@@ -186,15 +194,19 @@ export default function ProductsPage() {
       </div>
 
       {loading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-52 rounded-2xl bg-muted/30 animate-pulse" />
+            <div
+              key={i}
+              className="h-44 rounded-xl animate-pulse"
+              style={{ background: "var(--mk-panel)" }}
+            />
           ))}
         </div>
       ) : visible.length === 0 ? (
         <EmptyState onCreate={() => setCreateOpen(true)} filter={filter} />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence initial={false}>
             {visible.map((p, i) => (
               <ProductCard
@@ -256,16 +268,33 @@ function EmptyState({
     development: "Nothing in development",
   } as const;
   return (
-    <div className="rounded-3xl border border-dashed border-border/50 bg-muted/10 py-16 text-center">
-      <div className="mx-auto h-12 w-12 rounded-2xl bg-foreground/5 flex items-center justify-center mb-4">
-        <Plus className="h-5 w-5 text-muted-foreground" />
+    <div
+      className="rounded-xl py-14 text-center"
+      style={{
+        background: "var(--mk-paper)",
+        border: "1px dashed var(--mk-rule)",
+      }}
+    >
+      <div
+        className="mx-auto h-11 w-11 rounded-xl grid place-items-center mb-3.5"
+        style={{ background: "var(--mk-panel)" }}
+      >
+        <Plus className="h-4 w-4" style={{ color: "var(--mk-ink-60)" }} />
       </div>
-      <p className="text-base font-medium text-foreground">{labels[filter]}</p>
-      <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+      <p
+        className="text-[14px] font-medium"
+        style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+      >
+        {labels[filter]}
+      </p>
+      <p
+        className="mt-1 text-[13px] max-w-sm mx-auto"
+        style={{ color: "var(--mk-ink-60)" }}
+      >
         Register your first application to start crafting brand-accurate marketing.
       </p>
-      <Button onClick={onCreate} className="rounded-xl mt-5 gap-1.5">
-        <Plus className="h-4 w-4" /> Add product
+      <Button onClick={onCreate} className="rounded-lg mt-4 h-9 text-[13px] gap-1.5">
+        <Plus className="h-3.5 w-3.5" /> Add product
       </Button>
     </div>
   );

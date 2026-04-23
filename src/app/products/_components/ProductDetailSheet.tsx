@@ -21,6 +21,7 @@ import { apiGet, apiPut, apiPost, apiDelete, apiUpload } from "@/lib/api-client"
 import { getCurrentInAppBrowserName, isCurrentBrowserMobile } from "@/lib/in-app-browser";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { pillStyle } from "@/components/mk/pills";
 
 // ---------- types ----------
 
@@ -808,7 +809,10 @@ function SaveIndicator({
   }
   if (dirty) {
     return (
-      <span className="inline-flex items-center gap-1 text-amber-600">
+      <span
+        className="inline-flex items-center gap-1"
+        style={{ color: "var(--mk-warn)" }}
+      >
         <Dot className="h-3.5 w-3.5 -mx-1" strokeWidth={6} />
         Unsaved changes
       </span>
@@ -820,7 +824,10 @@ function SaveIndicator({
       minute: "2-digit",
     });
     return (
-      <span className="inline-flex items-center gap-1 text-emerald-600">
+      <span
+        className="inline-flex items-center gap-1"
+        style={{ color: "var(--mk-pos)" }}
+      >
         <Check className="h-3 w-3" />
         Saved · {time}
       </span>
@@ -1569,12 +1576,12 @@ function ChannelCard({
         <div className="flex items-center gap-2 min-w-0">
           <p className="text-sm font-medium text-foreground truncate">{label}</p>
           {connected && (
-            <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px] shrink-0">
+            <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("pos")}>
               Connected
             </Badge>
           )}
           {warn && (
-            <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px] shrink-0">
+            <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
               {warnLabel || "Warning"}
             </Badge>
           )}

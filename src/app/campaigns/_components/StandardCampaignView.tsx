@@ -16,6 +16,7 @@ import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiPut, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { pillStyle, type PillTone } from "@/components/mk/pills";
 
 type StandardCampaign = {
   id: string;
@@ -34,13 +35,13 @@ type StandardCampaign = {
   updatedAt?: string;
 };
 
-const statusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-700",
-  scheduled: "bg-blue-50 text-blue-700",
-  active: "bg-emerald-50 text-emerald-700",
-  paused: "bg-amber-50 text-amber-700",
-  completed: "bg-slate-100 text-slate-700",
-  cancelled: "bg-rose-50 text-rose-700",
+const statusTone: Record<string, PillTone> = {
+  draft: "neutral",
+  scheduled: "accent",
+  active: "pos",
+  paused: "warn",
+  completed: "neutral",
+  cancelled: "neg",
 };
 
 function toLocalDateTime(iso?: string | null) {
@@ -156,26 +157,40 @@ export default function StandardCampaignView({ campaign }: { campaign: StandardC
       <div className="mb-8">
         <button
           onClick={() => router.push("/campaigns")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-5"
+          className="flex items-center gap-1 text-[12px] mb-3 font-mono transition-colors"
+          style={{ color: "var(--mk-ink-60)", letterSpacing: "0.04em" }}
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to campaigns
+          <ArrowLeft className="h-3 w-3" /> Back to campaigns
         </button>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-12 w-12 rounded-2xl bg-foreground text-background flex items-center justify-center shrink-0">
-              <Target className="h-5 w-5" />
+            <div
+              className="h-10 w-10 rounded-lg grid place-items-center shrink-0"
+              style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}
+            >
+              <Target className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              <div className="flex items-center gap-2 mb-1">
+                <p
+                  className="font-mono text-[9.5px] uppercase"
+                  style={{ color: "var(--mk-ink-40)", letterSpacing: "0.2em" }}
+                >
                   Single-post campaign
                 </p>
-                <Badge variant="outline" className={cn("border-0 text-[10px] capitalize", statusColors[form.status] || "")}>
+                <Badge
+                  variant="outline"
+                  className="border-0 text-[10px] capitalize"
+                  style={pillStyle(statusTone[form.status] ?? "neutral")}
+                >
                   {form.status}
                 </Badge>
               </div>
-              <h1 className="text-2xl font-normal tracking-tight font-[family-name:var(--font-display)] truncate">
+              <h1
+                className="text-[26px] font-semibold truncate m-0"
+                style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+              >
                 {form.name || "Untitled campaign"}
               </h1>
             </div>

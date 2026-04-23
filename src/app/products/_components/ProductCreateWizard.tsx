@@ -305,11 +305,23 @@ export default function ProductCreateWizard({
                 className="space-y-4"
               >
                 {mode === "review" && scanned && (
-                  <div className="flex items-center gap-2 rounded-lg border border-emerald-200/50 bg-emerald-50/50 px-3 py-2">
-                    <div className="h-5 w-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                  <div
+                    className="flex items-center gap-2 rounded-lg px-3 py-2"
+                    style={{
+                      background: "color-mix(in oklch, var(--mk-pos) 12%, var(--mk-paper))",
+                      border: "1px solid color-mix(in oklch, var(--mk-pos) 22%, var(--mk-rule))",
+                    }}
+                  >
+                    <div
+                      className="h-5 w-5 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: "var(--mk-pos)" }}
+                    >
                       <Check className="h-3 w-3 text-white" />
                     </div>
-                    <p className="text-xs text-emerald-900">
+                    <p
+                      className="text-[12px]"
+                      style={{ color: "color-mix(in oklch, var(--mk-pos) 70%, var(--mk-ink))" }}
+                    >
                       Scan complete — review and edit anything below.
                     </p>
                   </div>

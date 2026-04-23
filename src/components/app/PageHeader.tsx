@@ -6,16 +6,30 @@ export default function PageHeader({
   action,
 }: {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-6 sm:mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between pb-6 sm:pb-8 border-b border-border/40">
-      <div>
-        <h2 className="text-2xl sm:text-3xl font-normal tracking-tight font-[family-name:var(--font-display)] text-foreground">{title}</h2>
-        <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-muted-foreground">{subtitle}</p>
+    <div className="mb-7 flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4">
+      <div className="min-w-0 flex-1">
+        <h1
+          className="text-[26px] font-semibold m-0"
+          style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+        >
+          {title}
+        </h1>
+        {subtitle && (
+          <p
+            className="mt-1 text-[13.5px]"
+            style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+          >
+            {subtitle}
+          </p>
+        )}
       </div>
-      {action ? <div className="flex items-center gap-3">{action}</div> : null}
+      {action ? (
+        <div className="flex shrink-0 items-center gap-2">{action}</div>
+      ) : null}
     </div>
   );
 }

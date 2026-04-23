@@ -23,6 +23,7 @@ import MediaUploader from "../_components/MediaUploader";
 import StandardCampaignView from "../_components/StandardCampaignView";
 import { apiGet, apiPost, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
+import { pillStyle, type PillTone } from "@/components/mk/pills";
 
 type PipelinePost = {
   id: string;
@@ -116,13 +117,20 @@ type GenerationRunSummary = {
   isScheduled: boolean;
 };
 
-const stageConfig: Record<string, { label: string; color: string; description: string }> = {
-  awareness: { label: "Awareness", color: "bg-rose-50 text-rose-700", description: "Problem-aware content — make audience feel seen" },
-  interest: { label: "Interest", color: "bg-orange-50 text-orange-700", description: "Educational content — introduce the solution category" },
-  consideration: { label: "Consideration", color: "bg-amber-50 text-amber-700", description: "Product positioning — features & comparisons" },
-  trial: { label: "Trial", color: "bg-emerald-50 text-emerald-700", description: "Drive sign-ups — urgency & social proof" },
-  activation: { label: "Activation", color: "bg-blue-50 text-blue-700", description: "Onboarding tips — help users succeed quickly" },
-  retention: { label: "Retention", color: "bg-violet-50 text-violet-700", description: "Advanced value — success stories & community" },
+// Stages use distinct hues at identical lightness/chroma so they harmonize
+// with the Markaestro token system instead of jumping between tailwind pastels.
+const stageTint = (hue: number) => ({
+  background: `oklch(0.96 0.04 ${hue})`,
+  color: `oklch(0.38 0.1 ${hue})`,
+});
+
+const stageConfig: Record<string, { label: string; style: React.CSSProperties; description: string }> = {
+  awareness:     { label: "Awareness",     style: stageTint(20),  description: "Problem-aware content — make audience feel seen" },
+  interest:      { label: "Interest",      style: stageTint(55),  description: "Educational content — introduce the solution category" },
+  consideration: { label: "Consideration", style: stageTint(85),  description: "Product positioning — features & comparisons" },
+  trial:         { label: "Trial",         style: stageTint(145), description: "Drive sign-ups — urgency & social proof" },
+  activation:    { label: "Activation",    style: stageTint(240), description: "Onboarding tips — help users succeed quickly" },
+  retention:     { label: "Retention",     style: stageTint(295), description: "Advanced value — success stories & community" },
 };
 
 const cadenceLabels: Record<string, string> = {
@@ -156,12 +164,12 @@ const stageOptions = [
   { value: "retention", label: "Retention" },
 ];
 
-const postStatusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-600",
-  scheduled: "bg-blue-50 text-blue-700",
-  publishing: "bg-amber-50 text-amber-700",
-  published: "bg-emerald-50 text-emerald-700",
-  failed: "bg-rose-50 text-rose-700",
+const postStatusTone: Record<string, PillTone> = {
+  draft: "neutral",
+  scheduled: "accent",
+  publishing: "warn",
+  published: "pos",
+  failed: "neg",
 };
 
 export default function PipelineDetailPage() {
@@ -467,22 +475,27 @@ export default function PipelineDetailPage() {
   return (
     <AppShell>
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-7">
         <button
           onClick={() => router.push("/campaigns")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+          className="flex items-center gap-1 text-[12px] mb-3 transition-colors font-mono"
+          style={{ color: "var(--mk-ink-60)", letterSpacing: "0.04em" }}
         >
-          &larr; Back to Campaigns
+          ← Back to campaigns
         </button>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-2xl font-normal tracking-tight font-[family-name:var(--font-display)]">
-                {campaign.name}
-              </h1>
-            </div>
-            <p className="text-sm text-muted-foreground">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <h1
+              className="text-[26px] font-semibold m-0"
+              style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+            >
+              {campaign.name}
+            </h1>
+            <p
+              className="mt-1 text-[13.5px]"
+              style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+            >
               {campaign.pipeline?.postCount || 20} posts · {cadenceLabels[campaign.pipeline?.cadence || "3x_week"]}
               {campaign.pipeline?.channels && (
                 <span> · {campaign.pipeline.channels.map((ch) => channelLabels[ch] || ch).join(", ")}</span>
@@ -490,9 +503,13 @@ export default function PipelineDetailPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap justify-end">
-            <Button variant="outline" onClick={() => setEditOpen(true)} className="rounded-xl">
-              Edit Campaign
+          <div className="flex items-center gap-2 flex-wrap justify-end shrink-0">
+            <Button
+              variant="outline"
+              onClick={() => setEditOpen(true)}
+              className="rounded-lg h-9 text-[13px]"
+            >
+              Edit campaign
             </Button>
             {runs.length > 0 && (
               <div className="w-full sm:w-60">
@@ -704,12 +721,12 @@ export default function PipelineDetailPage() {
               </Button>
             )}
             {isScheduled && (
-              <Badge variant="outline" className="border-0 bg-emerald-50 text-emerald-700 px-3 py-1.5">
-                Pipeline Scheduled
+              <Badge variant="outline" className="border-0 px-3 py-1.5" style={pillStyle("pos")}>
+                Pipeline scheduled
               </Badge>
             )}
             {hasScheduledElsewhere && (
-              <Badge variant="outline" className="border-0 bg-amber-50 text-amber-700 px-3 py-1.5">
+              <Badge variant="outline" className="border-0 px-3 py-1.5" style={pillStyle("warn")}>
                 Live schedule on previous generation
               </Badge>
             )}
@@ -845,10 +862,24 @@ export default function PipelineDetailPage() {
       </Sheet>
 
       {isDirty && (
-        <Card className="mb-6 border-amber-200 bg-amber-50/60">
+        <Card
+          className="mb-6"
+          style={{
+            background: "color-mix(in oklch, var(--mk-warn) 10%, var(--mk-paper))",
+            borderColor: "color-mix(in oklch, var(--mk-warn) 28%, var(--mk-rule))",
+          }}
+        >
           <CardContent className="py-4">
-            <p className="text-sm font-medium text-amber-900">Campaign settings changed</p>
-            <p className="text-sm text-amber-800 mt-1">
+            <p
+              className="text-[13px] font-medium"
+              style={{ color: "color-mix(in oklch, var(--mk-warn) 70%, var(--mk-ink))" }}
+            >
+              Campaign settings changed
+            </p>
+            <p
+              className="text-[13px] mt-1"
+              style={{ color: "color-mix(in oklch, var(--mk-warn) 55%, var(--mk-ink))" }}
+            >
               {dirtyReasonLabel[(campaign.configDirtyReason || pipeline?.configDirtyReason || "full_regenerate")] || dirtyReasonLabel.full_regenerate}
             </p>
           </CardContent>
@@ -867,8 +898,8 @@ export default function PipelineDetailPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium">{`Generation ${runs.length - index}`}</span>
                     <Badge variant="outline" className="border-border/40">{run.status}</Badge>
-                    {run.isActive && <Badge className="border-0 bg-blue-50 text-blue-700">Preview</Badge>}
-                    {run.isScheduled && <Badge className="border-0 bg-emerald-50 text-emerald-700">Scheduled</Badge>}
+                    {run.isActive && <Badge className="border-0" style={pillStyle("accent")}>Preview</Badge>}
+                    {run.isScheduled && <Badge className="border-0" style={pillStyle("pos")}>Scheduled</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {new Date(run.createdAt).toLocaleString()} · v{run.configVersion}
@@ -1018,7 +1049,7 @@ export default function PipelineDetailPage() {
                 >
                   <CardTitle className="flex items-center justify-between text-base">
                     <div className="flex items-center gap-3">
-                      <Badge variant="outline" className={`border-0 ${config.color}`}>
+                      <Badge variant="outline" className="border-0" style={config.style}>
                         {config.label}
                       </Badge>
                       <span className="text-sm font-normal text-muted-foreground">
@@ -1055,7 +1086,11 @@ export default function PipelineDetailPage() {
                                 <span className="text-[11px] text-muted-foreground">#{post.pipelineSequence + 1}</span>
                                 <span className="text-[11px] text-muted-foreground/60">·</span>
                                 <span className="text-[11px] text-muted-foreground">{post.pipelineTheme}</span>
-                                <Badge variant="outline" className={`border-0 text-[10px] ml-auto ${postStatusColors[post.status] || ""}`}>
+                                <Badge
+                                  variant="outline"
+                                  className="border-0 text-[10px] ml-auto"
+                                  style={pillStyle(postStatusTone[post.status] ?? "neutral")}
+                                >
                                   {post.status}
                                 </Badge>
                               </div>

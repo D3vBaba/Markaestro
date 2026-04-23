@@ -72,7 +72,7 @@ export default function ScanProgressStepper({
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-4">
         {isDone ? (
-          <div className="h-6 w-6 rounded-full bg-emerald-500 flex items-center justify-center">
+          <div className="h-6 w-6 rounded-full bg-mk-pos flex items-center justify-center">
             <Check className="h-3.5 w-3.5 text-white" />
           </div>
         ) : isError ? (
@@ -91,7 +91,7 @@ export default function ScanProgressStepper({
         <div className="flex-1 min-w-0">
           <p className={cn(
             "text-sm font-medium truncate",
-            isDone && "text-emerald-600",
+            isDone && "text-mk-pos",
             isError && "text-destructive",
           )}>
             {isDone
@@ -130,7 +130,7 @@ export default function ScanProgressStepper({
                 <div className={cn(
                   "h-5 w-5 flex items-center justify-center shrink-0",
                   state === "active" && "text-primary",
-                  state === "done" && "text-emerald-500",
+                  state === "done" && "text-mk-pos",
                   state === "pending" && "text-muted-foreground",
                 )}>
                   {state === "done" ? (

@@ -58,15 +58,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="grid h-screen w-full max-w-full overflow-hidden lg:grid-cols-[260px_1fr]">
-      <Sidebar className="hidden lg:flex w-[260px]" />
-      <div className="flex flex-col h-screen min-w-0 bg-background overflow-hidden">
+    <div className="grid h-screen w-full max-w-full overflow-hidden lg:grid-cols-[232px_1fr]">
+      <Sidebar />
+      <div
+        className="flex flex-col h-screen min-w-0 overflow-hidden"
+        style={{ background: "var(--mk-surface)" }}
+      >
         <TrialBanner />
         <Header />
-        <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto overflow-x-hidden min-w-0">
-          <div className="mx-auto max-w-6xl min-w-0 w-full">
-            {children}
-          </div>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-6 sm:px-6 sm:py-7 lg:px-10 lg:py-8">
+          <div className="mx-auto max-w-6xl min-w-0 w-full">{children}</div>
         </main>
       </div>
     </div>

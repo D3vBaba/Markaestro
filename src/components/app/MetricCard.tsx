@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { pillStyle } from "@/components/mk/pills";
 
 export default function MetricCard({
   label,
@@ -10,18 +11,25 @@ export default function MetricCard({
   delta?: number;
 }) {
   return (
-    <Card className="card-premium overflow-hidden border-border/40">
+    <Card className="overflow-hidden">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{label}</CardTitle>
+        <CardTitle className="mk-eyebrow">{label}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold tracking-tight text-foreground">{value}</div>
+        <div
+          className="text-[28px] font-semibold mk-figure"
+          style={{ color: "var(--mk-ink)" }}
+        >
+          {value}
+        </div>
         {typeof delta === "number" ? (
-          <p className="mt-2 flex items-center text-xs text-muted-foreground font-medium">
+          <p
+            className="mt-2 flex items-center gap-2 text-[11px]"
+            style={{ color: "var(--mk-ink-60)" }}
+          >
             <span
-              className={`mr-2 inline-flex items-center rounded-lg px-2 py-0.5 ${
-                delta >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
-              }`}
+              className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-medium"
+              style={pillStyle(delta >= 0 ? "pos" : "neg")}
             >
               {delta >= 0 ? "+" : ""}{Math.abs(delta)}%
             </span>

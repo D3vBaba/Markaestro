@@ -25,20 +25,20 @@ const channelLabels: Record<string, string> = {
 };
 
 const statusDotColors: Record<string, string> = {
-  draft: "bg-zinc-300",
-  scheduled: "bg-amber-400",
-  published: "bg-emerald-500",
-  failed: "bg-red-500",
-  publishing: "bg-blue-400",
-  exported_for_review: "bg-violet-500",
+  draft: "bg-mk-ink-20",
+  scheduled: "bg-mk-accent",
+  published: "bg-mk-pos",
+  failed: "bg-mk-neg",
+  publishing: "bg-mk-warn",
+  exported_for_review: "bg-mk-accent",
 };
 
 const statusTextColors: Record<string, string> = {
-  failed: "text-destructive",
-  published: "text-emerald-600",
-  scheduled: "text-amber-600",
-  publishing: "text-blue-500",
-  exported_for_review: "text-violet-600",
+  failed: "text-mk-neg",
+  published: "text-mk-pos",
+  scheduled: "text-mk-ink-60",
+  publishing: "text-mk-warn",
+  exported_for_review: "text-mk-accent",
 };
 
 const statusLabels: Record<string, string> = {
@@ -47,11 +47,11 @@ const statusLabels: Record<string, string> = {
 
 // Shared pill button style
 const pillBtn =
-  "inline-flex items-center gap-1 px-3 py-1 rounded-full border border-blue-200 bg-white text-blue-600 text-[11px] font-medium hover:bg-blue-50 hover:border-blue-300 transition-colors whitespace-nowrap";
+  "inline-flex items-center gap-1 px-3 py-1 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-accent bg-mk-paper";
 const pillBtnDestructive =
-  "inline-flex items-center gap-1 px-3 py-1 rounded-full border border-red-200 bg-white text-red-500 text-[11px] font-medium hover:bg-red-50 hover:border-red-300 transition-colors whitespace-nowrap";
+  "inline-flex items-center gap-1 px-3 py-1 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-neg bg-mk-paper";
 const pillBtnDisabled =
-  "inline-flex items-center gap-1 px-3 py-1 rounded-full border border-blue-100 bg-white text-blue-300 text-[11px] font-medium cursor-not-allowed whitespace-nowrap";
+  "inline-flex items-center gap-1 px-3 py-1 rounded-full border text-[11px] font-medium cursor-not-allowed whitespace-nowrap border-mk-rule-soft text-mk-ink-40 bg-mk-paper";
 
 export default function PostCard({
   post,
@@ -172,9 +172,26 @@ export default function PostCard({
 
       {/* Publishing overlay banner */}
       {publishing && (
-        <div className="mx-4 mb-3 flex items-center gap-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 px-3 py-2">
-          <div className="w-3.5 h-3.5 rounded-full border-2 border-blue-300 border-t-blue-500 animate-spin shrink-0" />
-          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Publishing to {channelLabels[post.channel] || post.channel}…</p>
+        <div
+          className="mx-4 mb-3 flex items-center gap-2 rounded-lg border px-3 py-2"
+          style={{
+            background: "var(--mk-accent-soft)",
+            borderColor: "color-mix(in oklch, var(--mk-accent) 30%, var(--mk-paper))",
+          }}
+        >
+          <div
+            className="w-3.5 h-3.5 rounded-full border-2 animate-spin shrink-0"
+            style={{
+              borderColor: "color-mix(in oklch, var(--mk-accent) 25%, var(--mk-paper))",
+              borderTopColor: "var(--mk-accent)",
+            }}
+          />
+          <p
+            className="text-[12px] font-medium"
+            style={{ color: "var(--mk-accent)" }}
+          >
+            Publishing to {channelLabels[post.channel] || post.channel}…
+          </p>
         </div>
       )}
 

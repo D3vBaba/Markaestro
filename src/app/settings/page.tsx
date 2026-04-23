@@ -23,6 +23,7 @@ import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { PLANS } from "@/lib/stripe/plans";
 import type { PlanTier } from "@/lib/stripe/plans";
 import { cn } from "@/lib/utils";
+import { pillStyle } from "@/components/mk/pills";
 import {
   User, Shield, Zap, Link2, Users, Building2, CreditCard,
   Pencil, Check, X, Loader2, KeyRound, Mail, BarChart3,
@@ -169,22 +170,30 @@ function SettingsPageContent() {
       <PageHeader title="Settings" subtitle="Manage your account, team, integrations, and billing." />
 
       {/* Tab bar */}
-      <div className="flex gap-0.5 border-b mb-6 overflow-x-auto no-scrollbar">
+      <div
+        className="flex gap-6 border-b mb-6 overflow-x-auto no-scrollbar"
+        style={{ borderColor: "var(--mk-rule-soft)" }}
+      >
         {TABS.map((tab) => {
           const Icon = tab.icon;
+          const active = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               data-tab={tab.id}
-              className={cn(
-                "flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap",
-                activeTab === tab.id
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              )}
+              className="flex items-center gap-1.5 py-2.5 text-[13px] transition-colors -mb-px whitespace-nowrap"
+              style={{
+                color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
+                fontWeight: active ? 600 : 400,
+                letterSpacing: "-0.005em",
+                borderBottom: `2px solid ${active ? "var(--mk-ink)" : "transparent"}`,
+              }}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon
+                className="h-3.5 w-3.5"
+                style={{ color: active ? "var(--mk-ink)" : "var(--mk-ink-60)" }}
+              />
               {tab.label}
             </button>
           );
@@ -472,10 +481,17 @@ function UsageMeter({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">{label}</p>
-        <p className={cn(
-          "text-sm tabular-nums",
-          isFull ? "text-destructive font-medium" : isHigh ? "text-amber-600" : "text-muted-foreground",
-        )}>
+        <p
+          className="text-sm tabular-nums"
+          style={{
+            color: isFull
+              ? "var(--mk-neg)"
+              : isHigh
+              ? "var(--mk-warn)"
+              : "var(--mk-ink-60)",
+            fontWeight: isFull ? 500 : 400,
+          }}
+        >
           {unavailable ? (
             <span className="text-muted-foreground">Not available</span>
           ) : unlimited ? (
@@ -488,17 +504,24 @@ function UsageMeter({
       {!unavailable && !unlimited && (
         <div className="h-2 rounded-full bg-muted overflow-hidden">
           <div
-            className={cn(
-              "h-full rounded-full transition-all duration-500",
-              isFull ? "bg-destructive" : isHigh ? "bg-amber-500" : "bg-primary",
-            )}
-            style={{ width: `${pct}%` }}
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${pct}%`,
+              background: isFull
+                ? "var(--mk-neg)"
+                : isHigh
+                ? "var(--mk-warn)"
+                : "var(--mk-accent)",
+            }}
           />
         </div>
       )}
       {unlimited && (
         <div className="h-2 rounded-full bg-muted overflow-hidden">
-          <div className="h-full rounded-full bg-emerald-500 w-[15%]" />
+          <div
+            className="h-full rounded-full w-[15%]"
+            style={{ background: "var(--mk-pos)" }}
+          />
         </div>
       )}
     </div>
@@ -601,7 +624,7 @@ function UsageTab() {
           <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
             {plan.features.map((f) => (
               <div key={f} className="flex items-center gap-2 text-sm">
-                <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                <Check className="h-3.5 w-3.5 text-mk-pos shrink-0" />
                 <span className="text-muted-foreground">{f}</span>
               </div>
             ))}
@@ -744,8 +767,8 @@ function IntegrationCard({
             <CardDescription>{description}</CardDescription>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {needsReconnect && <Badge className="bg-amber-50 text-amber-700 border-0">Action needed</Badge>}
-            {connected && !needsReconnect && <Badge className="bg-emerald-50 text-emerald-700 border-0">Connected</Badge>}
+            {needsReconnect && <Badge className="border-0" style={pillStyle("warn")}>Action needed</Badge>}
+            {connected && !needsReconnect && <Badge className="border-0" style={pillStyle("pos")}>Connected</Badge>}
           </div>
         </div>
       </CardHeader>
@@ -754,7 +777,7 @@ function IntegrationCard({
           <div className="rounded-xl border p-4 space-y-3">
             {needsReconnect ? (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-amber-700">{reconnectNote}</p>
+                <p className="text-sm font-medium text-mk-warn">{reconnectNote}</p>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button size="sm" onClick={onConnect}>Reconnect</Button>
                   <Button variant="outline" size="sm" onClick={onDisconnect} disabled={disconnecting}>
@@ -894,7 +917,7 @@ function TeamTab() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-xs text-muted-foreground hover:text-rose-500 shrink-0"
+                    className="text-xs text-muted-foreground hover:text-mk-neg shrink-0"
                     onClick={() => setRemoveTarget({ uid: m.uid, email: m.email })}
                     disabled={removing === m.uid}
                   >
@@ -1496,9 +1519,9 @@ function ApiAccessTab() {
                           <TableCell className="min-w-[200px]">
                             <div className="space-y-1 text-xs text-muted-foreground">
                               <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString()}</span> queued</p>
-                              <p><span className="font-medium text-emerald-700 tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString()}</span> direct publish</p>
+                              <p><span className="font-medium text-mk-pos tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString()}</span> direct publish</p>
                               <p><span className="font-medium text-primary tabular-nums">{(client.usage.currentMonthCounts.publish_exported_for_review || 0).toLocaleString()}</span> TikTok review handoffs</p>
-                              <p><span className="font-medium text-rose-600 tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString()}</span> failed</p>
+                              <p><span className="font-medium text-mk-neg tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString()}</span> failed</p>
                             </div>
                           </TableCell>
                           <TableCell className="max-w-[320px] whitespace-normal">
@@ -1509,7 +1532,10 @@ function ApiAccessTab() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={client.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-0' : 'bg-muted text-muted-foreground border-0'}>
+                            <Badge
+                              className="border-0"
+                              style={pillStyle(client.status === 'active' ? "pos" : "neutral")}
+                            >
                               {client.status}
                             </Badge>
                           </TableCell>
@@ -1530,7 +1556,7 @@ function ApiAccessTab() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-rose-600 hover:text-rose-700"
+                                className="text-mk-neg hover:text-mk-neg"
                                 onClick={() => revokeClient(client.id)}
                                 disabled={client.status !== 'active' || revokingClient === client.id}
                               >
@@ -1598,7 +1624,10 @@ function ApiAccessTab() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={endpoint.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-0' : 'bg-muted text-muted-foreground border-0'}>
+                            <Badge
+                              className="border-0"
+                              style={pillStyle(endpoint.status === 'active' ? "pos" : "neutral")}
+                            >
                               {endpoint.status}
                             </Badge>
                           </TableCell>
@@ -1606,7 +1635,7 @@ function ApiAccessTab() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-rose-600 hover:text-rose-700"
+                              className="text-mk-neg hover:text-mk-neg"
                               onClick={() => disableWebhook(endpoint.id)}
                               disabled={endpoint.status !== 'active' || disablingWebhook === endpoint.id}
                             >
@@ -1878,10 +1907,10 @@ function BillingTab() {
                 </Badge>
               )}
               {status.active && !status.trialing && (
-                <Badge className="bg-emerald-50 text-emerald-700 border-0">Active</Badge>
+                <Badge className="border-0" style={pillStyle("pos")}>Active</Badge>
               )}
               {status.cancelAtPeriodEnd && (
-                <Badge className="bg-amber-50 text-amber-700 border-0">Cancels at period end</Badge>
+                <Badge className="border-0" style={pillStyle("warn")}>Cancels at period end</Badge>
               )}
             </div>
           </div>
@@ -1954,7 +1983,7 @@ function BillingTab() {
                   <div className="space-y-1.5 pt-2 border-t">
                     {p.features.slice(0, 6).map((f) => (
                       <div key={f} className="flex items-start gap-1.5">
-                        <Check className="h-3 w-3 text-emerald-500 shrink-0 mt-0.5" />
+                        <Check className="h-3 w-3 text-mk-pos shrink-0 mt-0.5" />
                         <span className="text-xs text-muted-foreground">{f}</span>
                       </div>
                     ))}

@@ -12,6 +12,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { motion } from "framer-motion";
+import { pillStyle, type PillTone } from "@/components/mk/pills";
+import { channelColor } from "@/components/mk/channels";
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -76,25 +78,29 @@ type Tip = {
 const STORAGE_KEY = "markaestro_default_product";
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
-const priorityColors: Record<string, string> = {
-  high: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400",
-  medium: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
-  low: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400",
+const priorityTone: Record<string, PillTone> = {
+  high: "neg",
+  medium: "warn",
+  low: "accent",
 };
 
-const platformBadgeColors: Record<string, string> = {
-  facebook: "bg-blue-50 text-blue-700",
-  instagram: "bg-pink-50 text-pink-700",
-  tiktok: "bg-zinc-100 text-zinc-800",
-  "cross-platform": "bg-violet-50 text-violet-700",
-};
+function platformBadgeStyle(platform: string): React.CSSProperties {
+  if (platform === "cross-platform") {
+    return pillStyle("ink");
+  }
+  const c = channelColor(platform);
+  return {
+    background: `color-mix(in oklch, ${c} 12%, var(--mk-paper))`,
+    color: `color-mix(in oklch, ${c} 60%, var(--mk-ink))`,
+  };
+}
 
 
-// Bar fill colors for the chart
+// Bar fill colors for the chart — driven by Markaestro channel tokens
 const platformBarColors: Record<string, string> = {
-  Facebook: "#1877F2",
-  Instagram: "#E1306C",
-  TikTok: "#EE1D52",
+  Facebook: "var(--mk-ch-facebook)",
+  Instagram: "var(--mk-ch-instagram)",
+  TikTok: "var(--mk-ch-tiktok)",
 };
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -163,20 +169,32 @@ function ProductContextBar({
   if (products.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl border border-border/50 bg-card mb-8">
-      <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
-      <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground shrink-0">
+    <div
+      className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg mb-6"
+      style={{
+        background: "var(--mk-paper)",
+        border: "1px solid var(--mk-rule)",
+      }}
+    >
+      <span
+        className="inline-block rounded-full shrink-0"
+        style={{ width: 6, height: 6, background: "var(--mk-accent)" }}
+      />
+      <span
+        className="font-mono text-[9.5px] uppercase shrink-0"
+        style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
+      >
         Product
       </span>
 
       {editing ? (
         <select
-           
           autoFocus
           value={productId}
           onChange={(e) => { onChange(e.target.value); setEditing(false); }}
           onBlur={() => setEditing(false)}
-          className="flex-1 min-w-0 text-sm font-medium bg-transparent border-none outline-none focus:ring-0 cursor-pointer"
+          className="flex-1 min-w-0 bg-transparent border-none outline-none cursor-pointer text-[13px] font-medium"
+          style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
         >
           {products.map((p) => (
             <option key={p.id} value={p.id}>{p.name}</option>
@@ -184,12 +202,16 @@ function ProductContextBar({
         </select>
       ) : (
         <>
-          <span className="flex-1 text-sm font-medium truncate min-w-0">
+          <span
+            className="flex-1 text-[13px] font-medium truncate min-w-0"
+            style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+          >
             {selected?.name ?? "No product selected"}
           </span>
           <button
             onClick={() => setEditing(true)}
-            className="text-[11px] text-muted-foreground hover:text-foreground transition-colors shrink-0 px-2.5 py-1 rounded-lg hover:bg-muted"
+            className="shrink-0 text-[11px] px-2 py-1 rounded transition-colors"
+            style={{ color: "var(--mk-ink-60)" }}
           >
             Change
           </button>
@@ -266,7 +288,12 @@ export default function AnalyticsPage() {
           subtitle="AI-powered insights and recommendations for your social media presence."
           action={
             insights && (
-              <Button variant="outline" className="rounded-xl" onClick={() => fetchInsights(productId)} disabled={insightsLoading}>
+              <Button
+                variant="outline"
+                className="rounded-lg h-9 text-[13px]"
+                onClick={() => fetchInsights(productId)}
+                disabled={insightsLoading}
+              >
                 {insightsLoading ? "Refreshing…" : "Refresh"}
               </Button>
             )
@@ -398,10 +425,18 @@ export default function AnalyticsPage() {
                         <div key={i} className="rounded-xl border border-border/40 p-4 space-y-2">
                           <div className="flex items-start gap-2 flex-wrap">
                             <p className="text-sm font-semibold flex-1 min-w-0">{tip.title}</p>
-                            <Badge variant="outline" className={`border-0 text-[10px] shrink-0 ${priorityColors[tip.priority] || ""}`}>
+                            <Badge
+                              variant="outline"
+                              className="border-0 text-[10px] shrink-0 capitalize"
+                              style={pillStyle(priorityTone[tip.priority] ?? "neutral")}
+                            >
                               {tip.priority}
                             </Badge>
-                            <Badge variant="outline" className={`border-0 text-[10px] shrink-0 ${platformBadgeColors[tip.platform] || "bg-muted"}`}>
+                            <Badge
+                              variant="outline"
+                              className="border-0 text-[10px] shrink-0 capitalize"
+                              style={platformBadgeStyle(tip.platform)}
+                            >
                               {tip.platform}
                             </Badge>
                           </div>
@@ -536,12 +571,26 @@ function PlatformHealthCard({
           <span className="text-sm font-semibold">{platform}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className={`inline-block w-1.5 h-1.5 rounded-full ${
-            isOk ? "bg-emerald-500" : connected ? "bg-amber-400" : "bg-zinc-300"
-          }`} />
-          <span className={`text-[10px] font-medium uppercase tracking-wider ${
-            isOk ? "text-emerald-600" : connected ? "text-amber-600" : "text-muted-foreground"
-          }`}>
+          <span
+            className="inline-block w-1.5 h-1.5 rounded-full"
+            style={{
+              background: isOk
+                ? "var(--mk-pos)"
+                : connected
+                ? "var(--mk-warn)"
+                : "var(--mk-ink-20)",
+            }}
+          />
+          <span
+            className="text-[10px] font-medium uppercase tracking-wider"
+            style={{
+              color: isOk
+                ? "var(--mk-pos)"
+                : connected
+                ? "var(--mk-warn)"
+                : "var(--mk-ink-60)",
+            }}
+          >
             {isOk ? "Connected" : connected ? "Limited" : "Not connected"}
           </span>
         </div>
@@ -566,7 +615,8 @@ function PlatformHealthCard({
                 {profile.isVerified && (
                   <span
                     title="Verified"
-                    className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-sky-500 text-white text-[9px] leading-none shrink-0"
+                    className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-[9px] leading-none shrink-0"
+                    style={{ background: "var(--mk-accent)", color: "var(--mk-accent-ink)" }}
                   >
                     ✓
                   </span>
@@ -608,7 +658,12 @@ function PlatformHealthCard({
           ))}
         </div>
       ) : error ? (
-        <p className="text-xs text-amber-600 leading-relaxed">{error}</p>
+        <p
+          className="text-[12px] leading-relaxed"
+          style={{ color: "var(--mk-warn)" }}
+        >
+          {error}
+        </p>
       ) : (
         <p className="text-xs text-muted-foreground">
           Connect in{" "}
@@ -640,21 +695,34 @@ function FollowerComparisonChart({ insights }: { insights: UnifiedInsights }) {
       <CardContent>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" strokeOpacity={0.08} />
-            <XAxis dataKey="platform" fontSize={11} tickLine={false} axisLine={false} />
+            <CartesianGrid strokeDasharray="2 4" vertical={false} stroke="var(--mk-rule-soft)" />
+            <XAxis
+              dataKey="platform"
+              fontSize={11}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: "var(--mk-ink-60)" }}
+            />
             <YAxis
               fontSize={11}
               tickLine={false}
               axisLine={false}
+              tick={{ fill: "var(--mk-ink-40)" }}
               tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v)}
             />
             <Tooltip
-              contentStyle={{ borderRadius: "10px", border: "1px solid rgba(0,0,0,0.08)", fontSize: 12 }}
-              cursor={{ fill: "rgba(0,0,0,0.04)" }}
+              contentStyle={{
+                borderRadius: 8,
+                border: "1px solid var(--mk-rule)",
+                background: "var(--mk-paper)",
+                color: "var(--mk-ink)",
+                fontSize: 12,
+              }}
+              cursor={{ fill: "var(--mk-panel)" }}
             />
-            <Bar dataKey="followers" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="followers" radius={[4, 4, 0, 0]}>
               {data.map((entry) => (
-                <Cell key={entry.platform} fill={platformBarColors[entry.platform] || "#2563eb"} />
+                <Cell key={entry.platform} fill={platformBarColors[entry.platform] || "var(--mk-accent)"} />
               ))}
             </Bar>
           </BarChart>

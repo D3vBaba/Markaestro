@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PageHeader from "@/components/app/PageHeader";
 import { DashboardOverviewChart } from "@/components/dashboard/OverviewChart";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { apiGet } from "@/lib/api-client";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { Status } from "@/components/mk/Status";
+import { Channel } from "@/components/mk/Channel";
+import { channelLabel } from "@/components/mk/channels";
+import { fmtCount } from "@/components/mk/format";
+import { Plus } from "lucide-react";
 
 type DashboardMetrics = {
   totalProducts: number;
@@ -37,21 +40,11 @@ type RecentPost = {
   date: string;
 };
 
-const ease = [0.25, 0.46, 0.45, 0.94] as const;
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.06, duration: 0.4, ease },
-  }),
-};
-
-const channelLabels: Record<string, string> = {
-  facebook: "Facebook",
-  instagram: "Instagram",
-  tiktok: "TikTok",
+type Kpi = {
+  key: string;
+  label: string;
+  value: string;
+  sub?: string;
 };
 
 export default function Home() {
@@ -82,146 +75,277 @@ export default function Home() {
   }, []);
 
   const m = metrics;
+  const publishedTotal = dailyPosts.reduce((a, d) => a + (d.published || 0), 0);
 
-  const metricCards = [
+  const kpis: Kpi[] = [
     {
+      key: "products",
       label: "Products",
-      value: loading ? "..." : String(m?.totalProducts ?? 0),
-      detail: (
-        <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg">
-          {m?.activeProducts ?? 0} active
-        </span>
-      ),
+      value: loading ? "—" : fmtCount(m?.totalProducts ?? 0),
+      sub: `${m?.activeProducts ?? 0} active`,
     },
     {
+      key: "campaigns",
       label: "Campaigns",
-      value: loading ? "..." : String(m?.totalCampaigns ?? 0),
-      detail: (
-        <>
-          <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.activeCampaigns ?? 0} active</span>
-          <span className="text-muted-foreground">{m?.draftCampaigns ?? 0} draft</span>
-        </>
-      ),
+      value: loading ? "—" : fmtCount(m?.totalCampaigns ?? 0),
+      sub: `${m?.activeCampaigns ?? 0} active · ${m?.draftCampaigns ?? 0} draft`,
     },
     {
+      key: "posts",
       label: "Posts",
-      value: loading ? "..." : String(m?.totalPosts ?? 0),
-      detail: (
-        <>
-          <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-0.5 rounded-lg mr-2">{m?.publishedPosts ?? 0} published</span>
-          <span className="text-muted-foreground">{m?.scheduledPosts ?? 0} scheduled</span>
-        </>
-      ),
+      value: loading ? "—" : fmtCount(m?.totalPosts ?? 0),
+      sub: `${m?.publishedPosts ?? 0} published · ${m?.scheduledPosts ?? 0} scheduled`,
+    },
+    {
+      key: "week",
+      label: "Published · 7d",
+      value: loading ? "—" : fmtCount(publishedTotal),
+      sub: `across ${dailyPosts.length} days`,
     },
   ];
 
   return (
     <AppShell>
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease }}
-        className="flex flex-col md:flex-row md:items-end justify-between space-y-4 md:space-y-0 mb-10 pb-8 border-b border-border/40"
-      >
-        <div>
-          <h2 className="text-3xl font-normal tracking-tight font-[family-name:var(--font-display)] text-foreground">Dashboard</h2>
-          <p className="text-sm text-muted-foreground mt-2">Welcome back to Markaestro.</p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Link href="/content"><Button variant="outline" className="bg-background rounded-xl">New Post</Button></Link>
-          <Link href="/campaigns"><Button className="rounded-xl">New Campaign</Button></Link>
-        </div>
-      </motion.div>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Your marketing engine at a glance."
+        action={
+          <>
+            <Link href="/content">
+              <Button variant="outline" className="rounded-lg h-9 text-[13px]">
+                New post
+              </Button>
+            </Link>
+            <Link href="/campaigns">
+              <Button className="rounded-lg h-9 text-[13px] gap-1.5">
+                <Plus className="h-3.5 w-3.5" />
+                New campaign
+              </Button>
+            </Link>
+          </>
+        }
+      />
 
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-        {metricCards.map((card, i) => (
-          <motion.div key={card.label} custom={i} initial="hidden" animate="visible" variants={fadeUp}>
-            <Card className="card-premium overflow-hidden border-border/40">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{card.label}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold tracking-tight">{card.value}</div>
-                <p className="text-xs text-muted-foreground flex items-center mt-3 font-medium">{card.detail}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7 mt-6">
-        <motion.div
-          className="md:col-span-2 lg:col-span-4"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.4, ease }}
-        >
-          <Card className="border-border/40">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">Publishing Activity</CardTitle>
-              <CardDescription>Posts published and scheduled over the last 7 days.</CardDescription>
-            </CardHeader>
-            <CardContent className="pl-0">
-              <DashboardOverviewChart data={dailyPosts} />
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          className="md:col-span-2 lg:col-span-3"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.4, ease }}
-        >
-          <Card className="border-border/40">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">Recent Posts</CardTitle>
-              <CardDescription>Latest published and scheduled content.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-5">
-                {recentPosts.length > 0 ? (
-                  recentPosts.map((post) => (
-                    <div key={post.id} className="flex items-start justify-between group">
-                      <div className="flex gap-3">
-                        <div className="mt-1.5 h-2 w-2 rounded-full bg-border group-hover:bg-primary transition-colors shrink-0" />
-                        <div className="grid gap-1">
-                          <p className="text-sm font-medium leading-none text-foreground line-clamp-1">
-                            {post.content || "Untitled post"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {channelLabels[post.channel] || post.channel}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-1 shrink-0 ml-3">
-                        <Badge
-                          variant="secondary"
-                          className={`text-[10px] font-medium h-5 border-0 ${
-                            post.status === "published"
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-blue-50 text-blue-700"
-                          }`}
-                        >
-                          {post.status}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground">
-                          {post.date ? new Date(post.date).toLocaleDateString() : ""}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="py-8 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      {loading ? "Loading..." : "No posts yet. Create your first post to see activity here."}
-                    </p>
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+        {/* Left column */}
+        <div className="flex flex-col gap-5 min-w-0">
+          {/* KPI row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {kpis.map((k) => (
+              <div
+                key={k.key}
+                className="rounded-xl p-4"
+                style={{
+                  background: "var(--mk-paper)",
+                  border: "1px solid var(--mk-rule)",
+                }}
+              >
+                <div className="mk-eyebrow">{k.label}</div>
+                <div
+                  className="mt-2 text-[26px] font-semibold mk-figure"
+                  style={{ color: "var(--mk-ink)" }}
+                >
+                  {k.value}
+                </div>
+                {k.sub && (
+                  <div
+                    className="mt-1 text-[11px] font-mono"
+                    style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
+                  >
+                    {k.sub}
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+            ))}
+          </div>
+
+          {/* Chart card */}
+          <div
+            className="rounded-xl p-5"
+            style={{
+              background: "var(--mk-paper)",
+              border: "1px solid var(--mk-rule)",
+            }}
+          >
+            <div className="flex items-start justify-between mb-3.5 gap-3 flex-wrap">
+              <div>
+                <div className="mk-eyebrow">Publishing activity · 7d</div>
+                <div
+                  className="mt-1 text-[18px] font-semibold"
+                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.02em" }}
+                >
+                  {fmtCount(publishedTotal)} published this week
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span
+                  className="inline-flex items-center gap-1.5 text-[11px]"
+                  style={{ color: "var(--mk-ink-60)" }}
+                >
+                  <span
+                    className="inline-block rounded-[2px]"
+                    style={{ width: 10, height: 10, background: "var(--mk-ink)" }}
+                  />
+                  Published
+                </span>
+                <span
+                  className="inline-flex items-center gap-1.5 text-[11px]"
+                  style={{ color: "var(--mk-ink-60)" }}
+                >
+                  <span
+                    className="inline-block rounded-[2px]"
+                    style={{ width: 10, height: 10, background: "var(--mk-accent)" }}
+                  />
+                  Scheduled
+                </span>
+              </div>
+            </div>
+            <DashboardOverviewChart data={dailyPosts} height={240} />
+          </div>
+
+          {/* Posts by channel */}
+          {m?.postsByChannel && Object.keys(m.postsByChannel).length > 0 && (
+            <div
+              className="rounded-xl overflow-hidden"
+              style={{
+                background: "var(--mk-paper)",
+                border: "1px solid var(--mk-rule)",
+              }}
+            >
+              <div
+                className="px-5 py-3.5 border-b"
+                style={{ borderColor: "var(--mk-rule)" }}
+              >
+                <div className="mk-eyebrow">Distribution</div>
+                <div
+                  className="mt-1 text-[16px] font-semibold"
+                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.02em" }}
+                >
+                  Posts by channel
+                </div>
+              </div>
+              <div className="divide-y" style={{ borderColor: "var(--mk-rule-soft)" }}>
+                {Object.entries(m.postsByChannel)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([ch, count], i, arr) => {
+                    const total = arr.reduce((a, [, v]) => a + v, 0) || 1;
+                    const pct = Math.round((count / total) * 100);
+                    return (
+                      <div key={ch} className="flex items-center gap-3 px-5 py-3">
+                        <Channel channel={ch} size={22} />
+                        <span
+                          className="flex-1 text-[13px]"
+                          style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+                        >
+                          {channelLabel(ch)}
+                        </span>
+                        <span
+                          className="font-mono text-[12px]"
+                          style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.01em" }}
+                        >
+                          {pct}%
+                        </span>
+                        <span
+                          className="font-mono text-[13px] mk-figure text-right w-10"
+                          style={{ color: "var(--mk-ink)" }}
+                        >
+                          {fmtCount(count)}
+                        </span>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right rail */}
+        <div className="flex flex-col gap-4 min-w-0">
+          <div
+            className="rounded-xl p-4"
+            style={{
+              background: "var(--mk-paper)",
+              border: "1px solid var(--mk-rule)",
+            }}
+          >
+            <div className="flex items-end justify-between mb-3">
+              <div>
+                <div className="mk-eyebrow">Up next</div>
+                <h3
+                  className="mt-1 text-[16px] font-semibold m-0"
+                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.02em" }}
+                >
+                  Recent posts
+                </h3>
+              </div>
+              <Link
+                href="/calendar"
+                className="text-[12px]"
+                style={{ color: "var(--mk-ink-60)" }}
+              >
+                Calendar →
+              </Link>
+            </div>
+
+            {recentPosts.length > 0 ? (
+              <div className="flex flex-col">
+                {recentPosts.map((post, i) => (
+                  <Link
+                    key={post.id}
+                    href={`/content/${post.id}`}
+                    className="flex items-start gap-2.5 py-2.5"
+                    style={{
+                      borderTop: i === 0 ? "none" : "1px solid var(--mk-rule-soft)",
+                    }}
+                  >
+                    <div className="pt-0.5">
+                      <Channel channel={post.channel} size={16} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className="text-[12.5px] font-medium line-clamp-2"
+                        style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+                      >
+                        {post.content || "Untitled post"}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Status value={post.status} />
+                        {post.date && (
+                          <span
+                            className="font-mono text-[9.5px]"
+                            style={{ color: "var(--mk-ink-40)", letterSpacing: "0.08em" }}
+                          >
+                            {new Date(post.date).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div
+                className="py-8 text-center text-[13px]"
+                style={{ color: "var(--mk-ink-60)" }}
+              >
+                {loading
+                  ? "Loading…"
+                  : "No posts yet. Create your first to see activity here."}
+              </div>
+            )}
+
+            <Link href="/content" className="block mt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full rounded-lg text-[12px] gap-1.5"
+              >
+                <Plus className="h-3 w-3" />
+                New post
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
     </AppShell>
   );

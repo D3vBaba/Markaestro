@@ -11,7 +11,6 @@ import FormField from "@/components/app/FormField";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { apiGet } from "@/lib/api-client";
-import { cn } from "@/lib/utils";
 
 type SmartSlot = {
   day: number;
@@ -24,12 +23,29 @@ type SmartSlot = {
 };
 
 function ScoreBadge({ score }: { score: number }) {
-  const color =
-    score >= 90 ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
-    score >= 80 ? "bg-blue-50 text-blue-700 border-blue-200" :
-    "bg-muted text-muted-foreground border-border/40";
+  const style: React.CSSProperties =
+    score >= 90
+      ? {
+          background: "color-mix(in oklch, var(--mk-pos) 14%, var(--mk-paper))",
+          color: "color-mix(in oklch, var(--mk-pos) 60%, var(--mk-ink))",
+          borderColor: "color-mix(in oklch, var(--mk-pos) 26%, var(--mk-rule))",
+        }
+      : score >= 80
+        ? {
+            background: "var(--mk-accent-soft)",
+            color: "var(--mk-accent)",
+            borderColor: "color-mix(in oklch, var(--mk-accent) 26%, var(--mk-rule))",
+          }
+        : {
+            background: "var(--mk-panel)",
+            color: "var(--mk-ink-60)",
+            borderColor: "var(--mk-rule)",
+          };
   return (
-    <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", color)}>
+    <span
+      className="text-[10px] font-semibold px-2 py-0.5 rounded-full border"
+      style={style}
+    >
       {score}%
     </span>
   );
@@ -114,7 +130,14 @@ export default function ScheduleSheet({
         </SheetHeader>
 
         {channel === "tiktok" && (
-          <div className="mx-6 mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          <div
+            className="mx-6 mt-2 rounded-lg px-3 py-2 text-[12px]"
+            style={{
+              background: "color-mix(in oklch, var(--mk-warn) 14%, var(--mk-paper))",
+              border: "1px solid color-mix(in oklch, var(--mk-warn) 28%, var(--mk-rule))",
+              color: "color-mix(in oklch, var(--mk-warn) 70%, var(--mk-ink))",
+            }}
+          >
             <span className="font-medium">TikTok finishes in the TikTok app.</span>{" "}
             At the scheduled time, Markaestro pushes the media to your TikTok inbox, then marks it ready once you can open TikTok to finish caption, privacy, and posting.
           </div>

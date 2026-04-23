@@ -196,20 +196,22 @@ export default function ChannelSelector({
               <span>{ch.label}</span>
               {/* Connection status dot */}
               <span
-                className={`absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full ${
-                  state === "ready"
-                    ? selected ? "bg-white/70" : "bg-emerald-500"
-                    : state === "needs-setup"
-                    ? selected ? "bg-white/70" : "bg-amber-400"
-                    : "bg-muted-foreground/25"
-                }`}
+                className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full"
+                style={{
+                  background:
+                    state === "ready"
+                      ? (selected ? "rgba(255,255,255,0.7)" : "var(--mk-pos)")
+                      : state === "needs-setup"
+                      ? (selected ? "rgba(255,255,255,0.7)" : "var(--mk-warn)")
+                      : "var(--mk-ink-20)",
+                }}
               />
             </button>
           );
         })}
       </div>
       {productId && selectedState === "needs-setup" && (
-        <p className="text-[11px] text-amber-600">
+        <p className="text-[11px]" style={{ color: "var(--mk-warn)" }}>
           ⚠ {setupHintPrefix[value]}{" "}
           <Link href="/products" className="underline underline-offset-2 hover:opacity-80">
             Products → Edit

@@ -31,15 +31,15 @@ const MONTH_NAMES = ["January","February","March","April","May","June","July","A
 const DAY_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 const CHANNEL_ACCENT: Record<string, string> = {
-  instagram: "#E1306C",
-  facebook:  "#1877F2",
-  tiktok:    "#EE1D52",
+  instagram: "var(--mk-ch-instagram)",
+  facebook:  "var(--mk-ch-facebook)",
+  tiktok:    "var(--mk-ch-tiktok)",
 };
 
 const CHANNEL_BG: Record<string, string> = {
-  instagram: "rgba(225,48,108,0.08)",
-  facebook:  "rgba(24,119,242,0.08)",
-  tiktok:    "rgba(238,29,82,0.08)",
+  instagram: "color-mix(in oklch, var(--mk-ch-instagram) 8%, transparent)",
+  facebook:  "color-mix(in oklch, var(--mk-ch-facebook) 8%, transparent)",
+  tiktok:    "color-mix(in oklch, var(--mk-ch-tiktok) 8%, transparent)",
 };
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -49,11 +49,11 @@ const CHANNEL_LABEL: Record<string, string> = {
 };
 
 const STATUS_DOT: Record<string, string> = {
-  published:  "#10b981",
-  scheduled:  "#6366f1",
-  draft:      "#9ca3af",
-  failed:     "#ef4444",
-  publishing: "#f59e0b",
+  published:  "var(--mk-pos)",
+  scheduled:  "var(--mk-accent)",
+  draft:      "var(--mk-ink-40)",
+  failed:     "var(--mk-neg)",
+  publishing: "var(--mk-warn)",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -450,35 +450,66 @@ export default function CalendarPage() {
         {/* ── Calendar column ── */}
         <div className="flex flex-col min-w-0 flex-1">
           {/* Header row */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
             <div>
-              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+              <h1
+                className="text-[26px] font-semibold m-0"
+                style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+              >
                 {MONTH_NAMES[month]}{" "}
-                <span className="text-muted-foreground font-normal">{year}</span>
+                <span
+                  className="font-normal"
+                  style={{ color: "var(--mk-ink-60)" }}
+                >
+                  {year}
+                </span>
               </h1>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p
+                className="text-[12px] mt-1 font-mono"
+                style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
+              >
                 {totalPosts} post{totalPosts !== 1 ? "s" : ""} this month
-                {dragItem && <span className="text-primary font-medium ml-2">· Drop on a day to reschedule</span>}
+                {dragItem && (
+                  <span
+                    className="ml-2 font-medium"
+                    style={{ color: "var(--mk-accent)" }}
+                  >
+                    · Drop on a day to reschedule
+                  </span>
+                )}
               </p>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <Link href="/content">
-                <Button size="sm" className="text-xs h-8 px-3 rounded-lg gap-1.5">
-                  <Plus className="h-3.5 w-3.5" /> New Post
+                <Button size="sm" className="h-8 px-3 rounded-lg gap-1.5 text-[12px]">
+                  <Plus className="h-3.5 w-3.5" /> New post
                 </Button>
               </Link>
               <Button
                 variant="ghost" size="sm"
-                className="text-xs h-8 px-3 text-muted-foreground hover:text-foreground rounded-lg"
+                className="h-8 px-3 rounded-lg text-[12px]"
+                style={{ color: "var(--mk-ink-60)" }}
                 onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); setSelected(null); }}
               >
                 Today
               </Button>
-              <div className="flex border border-border/50 rounded-lg overflow-hidden">
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none border-r border-border/50 hover:bg-muted" onClick={prevMonth}>
+              <div
+                className="flex rounded-lg overflow-hidden"
+                style={{ border: "1px solid var(--mk-rule)" }}
+              >
+                <Button
+                  variant="ghost" size="icon"
+                  className="h-8 w-8 rounded-none"
+                  style={{ borderRight: "1px solid var(--mk-rule)" }}
+                  onClick={prevMonth}
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none hover:bg-muted" onClick={nextMonth}>
+                <Button
+                  variant="ghost" size="icon"
+                  className="h-8 w-8 rounded-none"
+                  onClick={nextMonth}
+                >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -543,10 +574,26 @@ export default function CalendarPage() {
           ) : (
             <>
               {/* Desktop calendar grid */}
-              <div className="hidden md:flex flex-1 flex-col rounded-xl border border-border/40 overflow-hidden bg-card">
-                <div className="grid grid-cols-7 border-b border-border/40 bg-muted/20">
+              <div
+                className="hidden md:flex flex-1 flex-col rounded-xl overflow-hidden"
+                style={{
+                  background: "var(--mk-paper)",
+                  border: "1px solid var(--mk-rule)",
+                }}
+              >
+                <div
+                  className="grid grid-cols-7 border-b"
+                  style={{
+                    borderColor: "var(--mk-rule)",
+                    background: "var(--mk-surface)",
+                  }}
+                >
                   {DAY_NAMES.map((d) => (
-                    <div key={d} className="py-2.5 text-center text-xs font-medium text-muted-foreground/70 tracking-wider">
+                    <div
+                      key={d}
+                      className="py-2.5 text-center font-mono text-[9.5px] uppercase"
+                      style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
+                    >
                       {d}
                     </div>
                   ))}

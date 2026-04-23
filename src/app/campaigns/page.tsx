@@ -3,16 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Layers3, Target, Plus, ArrowUpRight } from "lucide-react";
+import { Calendar, Layers3, Target, Plus, ChevronRight } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/app/PageHeader";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import CampaignWizard from "./_components/CampaignWizard";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 type Campaign = {
   id: string;
@@ -32,25 +30,21 @@ type Campaign = {
   createdAt?: string;
 };
 
-const statusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-700",
-  scheduled: "bg-blue-50 text-blue-700",
-  active: "bg-emerald-50 text-emerald-700",
-  paused: "bg-amber-50 text-amber-700",
-  completed: "bg-slate-100 text-slate-700",
-  cancelled: "bg-rose-50 text-rose-700",
-};
-
-const pipelineStatusColors: Record<string, string> = {
-  pending_research: "bg-gray-100 text-gray-600",
-  researching: "bg-violet-50 text-violet-700",
-  research_complete: "bg-violet-50 text-violet-700",
-  generating: "bg-amber-50 text-amber-700",
-  generating_images: "bg-amber-50 text-amber-700",
-  generated: "bg-blue-50 text-blue-700",
-  scheduling: "bg-blue-50 text-blue-700",
-  scheduled: "bg-emerald-50 text-emerald-700",
-  failed: "bg-rose-50 text-rose-700",
+const statusPill: Record<string, { bg: string; fg: string }> = {
+  draft:     { bg: "var(--mk-panel)", fg: "var(--mk-ink-60)" },
+  scheduled: { bg: "color-mix(in oklch, var(--mk-pos) 14%, var(--mk-paper))", fg: "color-mix(in oklch, var(--mk-pos) 60%, var(--mk-ink))" },
+  active:    { bg: "color-mix(in oklch, var(--mk-pos) 14%, var(--mk-paper))", fg: "color-mix(in oklch, var(--mk-pos) 60%, var(--mk-ink))" },
+  paused:    { bg: "color-mix(in oklch, var(--mk-warn) 18%, var(--mk-paper))", fg: "color-mix(in oklch, var(--mk-warn) 60%, var(--mk-ink))" },
+  completed: { bg: "var(--mk-panel)", fg: "var(--mk-ink-60)" },
+  cancelled: { bg: "color-mix(in oklch, var(--mk-neg) 12%, var(--mk-paper))", fg: "var(--mk-neg)" },
+  failed:    { bg: "color-mix(in oklch, var(--mk-neg) 12%, var(--mk-paper))", fg: "var(--mk-neg)" },
+  pending_research:  { bg: "var(--mk-panel)", fg: "var(--mk-ink-60)" },
+  researching:       { bg: "var(--mk-accent-soft)", fg: "var(--mk-accent)" },
+  research_complete: { bg: "var(--mk-accent-soft)", fg: "var(--mk-accent)" },
+  generating:        { bg: "color-mix(in oklch, var(--mk-warn) 18%, var(--mk-paper))", fg: "color-mix(in oklch, var(--mk-warn) 60%, var(--mk-ink))" },
+  generating_images: { bg: "color-mix(in oklch, var(--mk-warn) 18%, var(--mk-paper))", fg: "color-mix(in oklch, var(--mk-warn) 60%, var(--mk-ink))" },
+  generated:         { bg: "var(--mk-accent-soft)", fg: "var(--mk-accent)" },
+  scheduling:        { bg: "var(--mk-accent-soft)", fg: "var(--mk-accent)" },
 };
 
 const pipelineStatusLabels: Record<string, string> = {
@@ -141,14 +135,17 @@ export default function CampaignsPage() {
         title="Campaigns"
         subtitle="Plan and ship high-converting multi-channel campaigns."
         action={
-          <Button onClick={() => setWizardOpen(true)} className="rounded-xl gap-1.5">
-            <Plus className="h-4 w-4" /> New campaign
+          <Button onClick={() => setWizardOpen(true)} className="rounded-lg h-9 text-[13px] gap-1.5">
+            <Plus className="h-3.5 w-3.5" /> New campaign
           </Button>
         }
       />
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-1 mb-6 border-b border-border/40">
+      <div
+        className="flex items-center gap-6 mb-5 border-b"
+        style={{ borderColor: "var(--mk-rule-soft)" }}
+      >
         {(["all", "standard", "pipeline"] as FilterTab[]).map((tab) => {
           const active = filter === tab;
           const label = tab === "all" ? "All" : tab === "standard" ? "Single posts" : "Pipelines";
@@ -156,21 +153,29 @@ export default function CampaignsPage() {
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={cn(
-                "relative px-3 py-2 text-sm transition-colors",
-                active ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground",
-              )}
+              className="relative py-2.5 text-[13px] transition-colors whitespace-nowrap"
+              style={{
+                marginBottom: -1,
+                color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
+                fontWeight: active ? 600 : 400,
+                letterSpacing: "-0.005em",
+                borderBottom: `2px solid ${active ? "var(--mk-ink)" : "transparent"}`,
+              }}
             >
               <span className="flex items-center gap-1.5">
                 {label}
-                <span className="text-[10px] tabular-nums text-muted-foreground/70">
+                <span
+                  className="font-mono text-[11px]"
+                  style={{ color: "var(--mk-ink-40)" }}
+                >
                   {counts[tab]}
                 </span>
               </span>
               {active && (
                 <motion.span
                   layoutId="campaigns-filter-underline"
-                  className="absolute left-0 right-0 -bottom-px h-0.5 bg-foreground"
+                  className="absolute left-0 right-0 -bottom-px h-px"
+                  style={{ background: "var(--mk-ink)" }}
                 />
               )}
             </button>
@@ -180,15 +185,19 @@ export default function CampaignsPage() {
 
       {/* List */}
       {loading ? (
-        <div className="grid gap-3">
+        <div className="grid gap-2.5">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 rounded-2xl bg-muted/30 animate-pulse" />
+            <div
+              key={i}
+              className="h-[78px] rounded-[10px] animate-pulse"
+              style={{ background: "var(--mk-panel)" }}
+            />
           ))}
         </div>
       ) : visible.length === 0 ? (
         <EmptyState onCreate={() => setWizardOpen(true)} filter={filter} />
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-2.5">
           <AnimatePresence initial={false}>
             {visible.map((c, i) => (
               <CampaignRow
@@ -229,15 +238,11 @@ function CampaignRow({
   onDelete: () => void;
 }) {
   const isPipeline = c.type === "pipeline";
-  const statusBadge = isPipeline && c.pipelineStatus ? (
-    <Badge variant="outline" className={cn("border-0 text-[10px]", pipelineStatusColors[c.pipelineStatus] || "")}>
-      {pipelineStatusLabels[c.pipelineStatus] || c.pipelineStatus}
-    </Badge>
-  ) : (
-    <Badge variant="outline" className={cn("capitalize border-0 text-[10px]", statusColors[c.status] || "")}>
-      {c.status}
-    </Badge>
-  );
+  const pillKey = isPipeline && c.pipelineStatus ? c.pipelineStatus : c.status;
+  const pillLabel = isPipeline && c.pipelineStatus
+    ? pipelineStatusLabels[c.pipelineStatus] || c.pipelineStatus
+    : c.status;
+  const pillStyle = statusPill[pillKey] ?? { bg: "var(--mk-panel)", fg: "var(--mk-ink-60)" };
 
   const channels = isPipeline
     ? (c.pipeline?.channels || []).map((ch) => channelLabels[ch] || ch).join(" · ")
@@ -246,74 +251,85 @@ function CampaignRow({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.22, delay: index * 0.03, ease: [0.25, 0.46, 0.45, 0.94] }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.2, delay: index * 0.03, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
       <button
         onClick={onOpen}
-        className="w-full text-left rounded-2xl border border-border/40 bg-card hover:border-foreground/25 hover:shadow-sm transition-all p-5 group"
+        className="w-full text-left rounded-[10px] transition-colors group"
+        style={{
+          background: "var(--mk-paper)",
+          border: "1px solid var(--mk-rule)",
+          padding: "14px 16px",
+        }}
       >
-        <div className="flex items-start gap-4">
+        <div className="grid items-center gap-3.5" style={{ gridTemplateColumns: "36px minmax(0, 1fr) auto auto" }}>
           {/* Icon */}
-          <div className={cn(
-            "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-            isPipeline
-              ? "bg-foreground/5 text-foreground group-hover:bg-foreground group-hover:text-background"
-              : "bg-muted text-muted-foreground group-hover:bg-foreground group-hover:text-background",
-          )}>
-            {isPipeline ? <Layers3 className="h-5 w-5" /> : <Target className="h-5 w-5" />}
+          <div
+            className="h-9 w-9 rounded-lg grid place-items-center shrink-0"
+            style={{ background: "var(--mk-panel)", color: "var(--mk-ink-80)" }}
+          >
+            {isPipeline ? <Layers3 className="h-4 w-4" /> : <Target className="h-4 w-4" />}
           </div>
 
           {/* Body */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-base font-medium text-foreground truncate">{c.name}</p>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-muted-foreground">
-                  <span>{isPipeline ? "Pipeline" : "Single post"}</span>
-                  <span className="text-muted-foreground/40">·</span>
-                  <span className="truncate">{channels}</span>
-                  {isPipeline && c.pipeline && (
-                    <>
-                      <span className="text-muted-foreground/40">·</span>
-                      <span>{c.pipeline.postCount} posts</span>
-                      <span className="text-muted-foreground/40">·</span>
-                      <span>{cadenceLabels[c.pipeline.cadence] || c.pipeline.cadence}</span>
-                    </>
-                  )}
-                  {!isPipeline && c.cta && (
-                    <>
-                      <span className="text-muted-foreground/40">·</span>
-                      <span className="truncate">CTA: {c.cta}</span>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                {statusBadge}
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-foreground transition-colors" />
-              </div>
-            </div>
-
-            <div className="mt-2.5 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 text-[11px] text-muted-foreground/70">
-                {c.scheduledAt && (
-                  <span className="inline-flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {new Date(c.scheduledAt).toLocaleDateString()}
+          <div className="min-w-0">
+            <p
+              className="text-[14px] font-medium truncate m-0"
+              style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+            >
+              {c.name}
+            </p>
+            <div
+              className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-[12px]"
+              style={{ color: "var(--mk-ink-60)" }}
+            >
+              <span className="whitespace-nowrap">{isPipeline ? "Pipeline" : "Single"}</span>
+              <span style={{ color: "var(--mk-ink-20)" }}>·</span>
+              <span className="truncate whitespace-nowrap">{channels}</span>
+              {isPipeline && c.pipeline && (
+                <>
+                  <span style={{ color: "var(--mk-ink-20)" }}>·</span>
+                  <span className="whitespace-nowrap">
+                    {c.pipeline.postCount} {c.pipeline.postCount === 1 ? "post" : "posts"}
                   </span>
-                )}
-                {c.createdAt && (
-                  <span>Created {new Date(c.createdAt).toLocaleDateString()}</span>
-                )}
-              </div>
+                  <span style={{ color: "var(--mk-ink-20)" }}>·</span>
+                  <span className="whitespace-nowrap">
+                    {cadenceLabels[c.pipeline.cadence] || c.pipeline.cadence}
+                  </span>
+                </>
+              )}
+              {!isPipeline && c.cta && (
+                <>
+                  <span style={{ color: "var(--mk-ink-20)" }}>·</span>
+                  <span className="truncate">CTA: {c.cta}</span>
+                </>
+              )}
+            </div>
+            <div
+              className="mt-1.5 flex items-center gap-3 font-mono text-[10.5px]"
+              style={{ color: "var(--mk-ink-40)", letterSpacing: "0.02em" }}
+            >
+              {c.scheduledAt && (
+                <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                  <Calendar className="h-3 w-3" />
+                  {new Date(c.scheduledAt).toLocaleDateString()}
+                </span>
+              )}
+              {c.createdAt && (
+                <span className="whitespace-nowrap">
+                  Created {new Date(c.createdAt).toLocaleDateString()}
+                </span>
+              )}
               <span
                 role="button"
                 tabIndex={0}
-                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.stopPropagation();
@@ -321,12 +337,31 @@ function CampaignRow({
                     onDelete();
                   }
                 }}
-                className="text-[11px] text-muted-foreground/60 hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-[color:var(--mk-neg)]"
               >
                 Delete
               </span>
             </div>
           </div>
+
+          {/* Status pill */}
+          <span
+            className="text-[11px] font-medium whitespace-nowrap"
+            style={{
+              padding: "4px 10px",
+              borderRadius: 999,
+              background: pillStyle.bg,
+              color: pillStyle.fg,
+              letterSpacing: "-0.005em",
+            }}
+          >
+            {pillLabel}
+          </span>
+
+          <ChevronRight
+            className="h-3.5 w-3.5 shrink-0"
+            style={{ color: "var(--mk-ink-40)" }}
+          />
         </div>
       </button>
     </motion.div>
@@ -340,16 +375,36 @@ function EmptyState({ onCreate, filter }: { onCreate: () => void; filter: Filter
     pipeline: "No pipelines yet",
   };
   return (
-    <div className="rounded-3xl border border-dashed border-border/50 bg-muted/10 py-16 text-center">
-      <div className="mx-auto h-12 w-12 rounded-2xl bg-foreground/5 flex items-center justify-center mb-4">
-        <Plus className="h-5 w-5 text-muted-foreground" />
+    <div
+      className="rounded-xl py-14 text-center"
+      style={{
+        background: "var(--mk-paper)",
+        border: "1px dashed var(--mk-rule)",
+      }}
+    >
+      <div
+        className="mx-auto h-11 w-11 rounded-xl grid place-items-center mb-3.5"
+        style={{ background: "var(--mk-panel)" }}
+      >
+        <Plus className="h-4 w-4" style={{ color: "var(--mk-ink-60)" }} />
       </div>
-      <p className="text-base font-medium text-foreground">{labels[filter]}</p>
-      <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+      <p
+        className="text-[14px] font-medium"
+        style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+      >
+        {labels[filter]}
+      </p>
+      <p
+        className="mt-1 text-[13px] max-w-sm mx-auto"
+        style={{ color: "var(--mk-ink-60)" }}
+      >
         Start with a single post for a quick announcement, or launch a pipeline for a full multi-stage funnel.
       </p>
-      <Button onClick={onCreate} className="rounded-xl mt-5 gap-1.5">
-        <Plus className="h-4 w-4" /> New campaign
+      <Button
+        onClick={onCreate}
+        className="rounded-lg mt-4 h-9 text-[13px] gap-1.5"
+      >
+        <Plus className="h-3.5 w-3.5" /> New campaign
       </Button>
     </div>
   );

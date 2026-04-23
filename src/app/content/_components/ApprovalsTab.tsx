@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { pillStyle } from "@/components/mk/pills";
+import { channelColor } from "@/components/mk/channels";
 
 type Post = {
   id: string;
@@ -22,12 +24,13 @@ type Post = {
   mediaUrls?: string[];
 };
 
-const CHANNEL_COLORS: Record<string, string> = {
-  instagram: "bg-pink-50 text-pink-700",
-  facebook: "bg-blue-50 text-blue-700",
-  tiktok: "bg-slate-50 text-slate-700",
-  x: "bg-sky-50 text-sky-700",
-};
+function channelPillStyle(channel: string): React.CSSProperties {
+  const c = channelColor(channel);
+  return {
+    background: `color-mix(in oklch, ${c} 12%, var(--mk-paper))`,
+    color: `color-mix(in oklch, ${c} 60%, var(--mk-ink))`,
+  };
+}
 
 export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
   const { current } = useWorkspace();
@@ -127,10 +130,10 @@ export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
               {pending.map((post) => (
                 <div key={post.id} className="rounded-2xl border bg-background p-4 flex flex-col gap-3">
                   <div className="flex items-center justify-between">
-                    <Badge className={`text-[11px] border-0 ${CHANNEL_COLORS[post.channel] ?? "bg-muted text-muted-foreground"}`}>
+                    <Badge className="text-[11px] border-0" style={channelPillStyle(post.channel)}>
                       {post.channel}
                     </Badge>
-                    <Badge className="bg-amber-50 text-amber-700 border-0 text-[11px]">Pending review</Badge>
+                    <Badge className="border-0 text-[11px]" style={pillStyle("warn")}>Pending review</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed flex-1 whitespace-pre-wrap line-clamp-5">
                     {post.content}
@@ -179,15 +182,21 @@ export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
             {myDrafts.map((post) => (
               <div key={post.id} className="rounded-2xl border bg-background p-4 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <Badge className={`text-[11px] border-0 ${CHANNEL_COLORS[post.channel] ?? "bg-muted text-muted-foreground"}`}>
+                  <Badge className="text-[11px] border-0" style={channelPillStyle(post.channel)}>
                     {post.channel}
                   </Badge>
                   {post.status === "rejected" && (
-                    <Badge className="bg-rose-50 text-rose-700 border-0 text-[11px]">Returned</Badge>
+                    <Badge className="border-0 text-[11px]" style={pillStyle("neg")}>Returned</Badge>
                   )}
                 </div>
                 {post.status === "rejected" && post.rejectionFeedback && (
-                  <div className="rounded-lg bg-rose-50 border border-rose-100 p-2.5">
+                  <div
+                    className="rounded-lg p-2.5"
+                    style={{
+                      background: "color-mix(in oklch, var(--mk-neg) 10%, var(--mk-paper))",
+                      border: "1px solid color-mix(in oklch, var(--mk-neg) 22%, var(--mk-rule))",
+                    }}
+                  >
                     <p className="text-xs text-rose-700 font-medium">Reviewer feedback:</p>
                     <p className="text-xs text-rose-600 mt-0.5">{post.rejectionFeedback}</p>
                   </div>

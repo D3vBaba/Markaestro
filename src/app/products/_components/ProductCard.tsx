@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight, Globe, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Globe, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ProductCardData = {
@@ -27,12 +26,12 @@ export type ConnectionChip = {
   username?: string | null;
 };
 
-const statusColors: Record<string, string> = {
-  active: "bg-emerald-50 text-emerald-700",
-  beta: "bg-blue-50 text-blue-700",
-  development: "bg-amber-50 text-amber-700",
-  sunset: "bg-rose-50 text-rose-700",
-  archived: "bg-gray-100 text-gray-600",
+const STATUS_PILL: Record<string, { bg: string; fg: string }> = {
+  active:      { bg: "color-mix(in oklch, var(--mk-pos) 14%, var(--mk-paper))", fg: "color-mix(in oklch, var(--mk-pos) 60%, var(--mk-ink))" },
+  beta:        { bg: "var(--mk-accent-soft)", fg: "var(--mk-accent)" },
+  development: { bg: "color-mix(in oklch, var(--mk-warn) 18%, var(--mk-paper))", fg: "color-mix(in oklch, var(--mk-warn) 60%, var(--mk-ink))" },
+  sunset:      { bg: "color-mix(in oklch, var(--mk-neg) 12%, var(--mk-paper))", fg: "var(--mk-neg)" },
+  archived:    { bg: "var(--mk-panel)", fg: "var(--mk-ink-60)" },
 };
 
 const categoryLabels: Record<string, string> = {
@@ -80,102 +79,91 @@ export default function ProductCard({
     : product.category
     ? [product.category]
     : ["saas"];
+  const pill = STATUS_PILL[product.status] ?? { bg: "var(--mk-panel)", fg: "var(--mk-ink-60)" };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.32, delay: index * 0.04, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ duration: 0.24, delay: index * 0.03, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="group relative"
     >
       <button
         onClick={onOpen}
-        className={cn(
-          "relative w-full text-left overflow-hidden",
-          "rounded-2xl border border-border/40 bg-card",
-          "transition-all duration-300",
-          "hover:border-foreground/25 hover:shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)]",
-          "hover:-translate-y-0.5",
-        )}
+        className="relative w-full text-left overflow-hidden transition-colors rounded-xl"
+        style={{
+          background: "var(--mk-paper)",
+          border: "1px solid var(--mk-rule)",
+        }}
       >
-        {/* Brand-color accent strip at the top */}
-        <div
-          aria-hidden
-          className="absolute top-0 left-0 right-0 h-1 opacity-70 group-hover:opacity-100 transition-opacity"
-          style={{
-            background: dominant
-              ? `linear-gradient(90deg, ${dominant} 0%, ${dominant}cc 50%, transparent 100%)`
-              : "linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)",
-          }}
-        />
-
-        {/* Subtle brand-tint wash on hover */}
-        {dominant && (
-          <div
-            aria-hidden
-            className="absolute inset-0 opacity-0 group-hover:opacity-[0.04] transition-opacity duration-500 pointer-events-none"
-            style={{ background: `radial-gradient(circle at top right, ${dominant}, transparent 70%)` }}
-          />
-        )}
-
-        <div className="relative p-5">
-          {/* Top row — logo + actions */}
+        <div className="relative p-4">
+          {/* Top row: logo + name + status */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               {product.brandIdentity?.logoUrl ? (
-                <div className="relative shrink-0">
-                  <div
-                    className="absolute inset-0 rounded-xl blur-md opacity-0 group-hover:opacity-30 transition-opacity"
-                    style={{ background: dominant || "rgba(0,0,0,0.2)" }}
-                  />
-                  <img
-                    src={product.brandIdentity.logoUrl}
-                    alt={`${product.name} logo`}
-                    className="relative h-11 w-11 rounded-xl object-contain border border-border/40 bg-white shrink-0"
-                  />
-                </div>
+                <img
+                  src={product.brandIdentity.logoUrl}
+                  alt={`${product.name} logo`}
+                  className="h-10 w-10 rounded-lg object-contain shrink-0"
+                  style={{
+                    background: "var(--mk-paper)",
+                    border: "1px solid var(--mk-rule)",
+                  }}
+                />
               ) : (
                 <div
-                  className="h-11 w-11 rounded-xl border border-border/40 flex items-center justify-center shrink-0 transition-colors"
+                  className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0 font-semibold"
                   style={{
-                    backgroundColor: dominant ? `${dominant}12` : undefined,
-                    color: dominant || undefined,
+                    background: dominant ? `${dominant}14` : "var(--mk-panel)",
+                    color: dominant || "var(--mk-ink-80)",
+                    border: "1px solid var(--mk-rule)",
+                    fontSize: 14,
+                    letterSpacing: "-0.01em",
                   }}
                 >
-                  <span className="text-sm font-semibold tracking-tight">
-                    {product.name.charAt(0).toUpperCase()}
-                  </span>
+                  {product.name.charAt(0).toUpperCase()}
                 </div>
               )}
 
               <div className="min-w-0 flex-1">
-                <p className="text-base font-semibold text-foreground tracking-tight truncate">
+                <p
+                  className="text-[14px] font-semibold truncate m-0"
+                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
+                >
                   {product.name}
                 </p>
-                <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
+                <div
+                  className="mt-1 text-[11px] font-mono uppercase flex items-center gap-1.5"
+                  style={{ color: "var(--mk-ink-40)", letterSpacing: "0.14em" }}
+                >
                   <span className="truncate">
                     {categories.map((c) => categoryLabels[c] || c).join(" · ")}
                   </span>
                   {product.pricingTier && (
                     <>
-                      <span className="text-muted-foreground/40">·</span>
-                      <span className="truncate">{product.pricingTier.split(",")[0].trim()}</span>
+                      <span style={{ color: "var(--mk-ink-20)" }}>·</span>
+                      <span className="truncate normal-case tracking-normal font-sans text-[11px]">
+                        {product.pricingTier.split(",")[0].trim()}
+                      </span>
                     </>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0">
-              <Badge
-                variant="outline"
-                className={cn(
-                  "capitalize border-0 text-[10px] font-medium",
-                  statusColors[product.status] || "",
-                )}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span
+                className="text-[11px] font-medium whitespace-nowrap capitalize"
+                style={{
+                  padding: "3px 8px",
+                  borderRadius: 999,
+                  background: pill.bg,
+                  color: pill.fg,
+                  letterSpacing: "-0.005em",
+                }}
               >
                 {product.status}
-              </Badge>
+              </span>
               <span
                 role="button"
                 tabIndex={0}
@@ -190,7 +178,12 @@ export default function ProductCard({
                     onDelete();
                   }
                 }}
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/5 cursor-pointer"
+                className={cn(
+                  "opacity-0 group-hover:opacity-100 transition-opacity",
+                  "h-6 w-6 rounded grid place-items-center cursor-pointer",
+                  "hover:text-mk-neg",
+                )}
+                style={{ color: "var(--mk-ink-40)" }}
                 aria-label="Delete product"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -200,14 +193,20 @@ export default function ProductCard({
 
           {/* Description */}
           {product.description && (
-            <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-2">
+            <p
+              className="mt-3 text-[13px] leading-relaxed line-clamp-2"
+              style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+            >
               {product.description}
             </p>
           )}
 
           {/* URL */}
           {product.url && (
-            <div className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground/80">
+            <div
+              className="mt-2.5 flex items-center gap-1.5 text-[11px] font-mono"
+              style={{ color: "var(--mk-ink-40)", letterSpacing: "0.02em" }}
+            >
               <Globe className="h-3 w-3" />
               <span className="truncate">{stripProtocol(product.url)}</span>
             </div>
@@ -219,25 +218,37 @@ export default function ProductCard({
               {product.tags.slice(0, 4).map((tag) => (
                 <span
                   key={tag}
-                  className="px-1.5 py-0.5 rounded-full bg-muted/50 text-muted-foreground text-[10px] tracking-wide border border-border/30"
+                  className="text-[10px]"
+                  style={{
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    background: "var(--mk-panel)",
+                    color: "var(--mk-ink-60)",
+                    border: "1px solid var(--mk-rule-soft)",
+                  }}
                 >
                   {tag}
                 </span>
               ))}
               {product.tags.length > 4 && (
-                <span className="px-1.5 py-0.5 text-[10px] text-muted-foreground/60">
+                <span
+                  className="text-[10px] px-1.5 py-0.5"
+                  style={{ color: "var(--mk-ink-40)" }}
+                >
                   +{product.tags.length - 4}
                 </span>
               )}
             </div>
           )}
 
-          {/* Divider */}
-          <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between gap-3">
-            {/* Connection dots */}
-            <div className="flex items-center gap-1.5 min-w-0">
+          {/* Divider + connection dots */}
+          <div
+            className="mt-3.5 pt-3 flex items-center justify-between gap-3 border-t"
+            style={{ borderColor: "var(--mk-rule-soft)" }}
+          >
+            <div className="flex items-center gap-2 min-w-0">
               {connections.length > 0 ? (
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
                   {connections.map((c) => {
                     const isConnected = c.status === "connected";
                     const hasError = !!c.lastRefreshError;
@@ -249,21 +260,22 @@ export default function ProductCard({
                       : c.username
                       ? `${label} · @${c.username}`
                       : label;
+                    const dotColor =
+                      isConnected && !hasError
+                        ? "var(--mk-pos)"
+                        : hasError
+                        ? "var(--mk-warn)"
+                        : "var(--mk-neg)";
                     return (
                       <span
                         key={c.provider}
                         title={title}
-                        className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground"
+                        className="inline-flex items-center gap-1 text-[10.5px] font-medium"
+                        style={{ color: "var(--mk-ink-60)" }}
                       >
                         <span
-                          className={cn(
-                            "h-1.5 w-1.5 rounded-full",
-                            isConnected && !hasError
-                              ? "bg-emerald-500"
-                              : hasError
-                              ? "bg-amber-500"
-                              : "bg-rose-400",
-                          )}
+                          className="inline-block rounded-full"
+                          style={{ width: 6, height: 6, background: dotColor }}
                         />
                         {label}
                       </span>
@@ -271,7 +283,10 @@ export default function ProductCard({
                   })}
                 </div>
               ) : (
-                <span className="text-[10px] text-muted-foreground/60 italic">
+                <span
+                  className="text-[10.5px] italic"
+                  style={{ color: "var(--mk-ink-40)" }}
+                >
                   No channels connected
                 </span>
               )}
@@ -279,14 +294,20 @@ export default function ProductCard({
 
             <div className="flex items-center gap-2 shrink-0">
               {product.createdAt && (
-                <span className="text-[10px] text-muted-foreground/50 tabular-nums">
+                <span
+                  className="text-[10px] font-mono tabular-nums"
+                  style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
+                >
                   {new Date(product.createdAt).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
                   })}
                 </span>
               )}
-              <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              <ChevronRight
+                className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                style={{ color: "var(--mk-ink-40)" }}
+              />
             </div>
           </div>
         </div>

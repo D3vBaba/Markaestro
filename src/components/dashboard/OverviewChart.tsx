@@ -3,79 +3,83 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 type DailyPost = {
-  label: string;
-  published: number;
-  scheduled: number;
+    label: string;
+    published: number;
+    scheduled: number;
 };
 
-export function DashboardOverviewChart({ data }: { data: DailyPost[] }) {
+export function DashboardOverviewChart({ data, height = 240 }: { data: DailyPost[]; height?: number }) {
     if (!data || data.length === 0) {
         return (
-            <div className="flex items-center justify-center h-[350px] text-sm text-muted-foreground">
+            <div
+                className="flex items-center justify-center text-sm"
+                style={{ height, color: "var(--mk-ink-60)" }}
+            >
                 No post activity yet.
             </div>
         );
     }
 
     return (
-        <ResponsiveContainer width="100%" height={350}>
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <defs>
-                    <linearGradient id="colorPublished" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="colorScheduled" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.12} />
-                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                    </linearGradient>
-                </defs>
+        <ResponsiveContainer width="100%" height={height}>
+            <AreaChart data={data} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
                 <XAxis
                     dataKey="label"
-                    stroke="#a1a1aa"
-                    fontSize={12}
+                    stroke="var(--mk-ink-40)"
+                    fontSize={10}
                     tickLine={false}
                     axisLine={false}
-                    dy={10}
+                    dy={8}
+                    tick={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
+                    tickFormatter={(v) => String(v).toUpperCase()}
                 />
                 <YAxis
-                    stroke="#a1a1aa"
-                    fontSize={12}
+                    stroke="var(--mk-ink-40)"
+                    fontSize={10}
                     tickLine={false}
                     axisLine={false}
                     allowDecimals={false}
-                    dx={-10}
+                    width={32}
+                    tick={{ fontFamily: "var(--font-mono)", letterSpacing: "0.06em" }}
                 />
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" opacity={0.4} />
+                <CartesianGrid
+                    strokeDasharray="2 4"
+                    vertical={false}
+                    stroke="var(--mk-rule-soft)"
+                />
                 <Tooltip
+                    cursor={{ stroke: "var(--mk-rule)", strokeWidth: 1 }}
                     contentStyle={{
-                        backgroundColor: "#ffffff",
-                        borderColor: "#e4e4e7",
-                        borderRadius: "12px",
-                        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.06)",
-                        color: "#18181b",
-                        fontSize: "13px",
+                        background: "var(--mk-paper)",
+                        border: "1px solid var(--mk-rule)",
+                        borderRadius: 8,
+                        boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+                        color: "var(--mk-ink)",
+                        fontSize: 12,
+                        padding: "6px 10px",
                     }}
-                    itemStyle={{ color: "#18181b" }}
+                    labelStyle={{ color: "var(--mk-ink-60)", fontSize: 11, marginBottom: 4 }}
+                    itemStyle={{ color: "var(--mk-ink)" }}
                 />
                 <Area
                     type="monotone"
                     dataKey="published"
                     name="Published"
-                    stroke="#10b981"
-                    fillOpacity={1}
-                    fill="url(#colorPublished)"
-                    strokeWidth={2}
+                    stroke="var(--mk-ink)"
+                    fill="var(--mk-ink)"
+                    fillOpacity={0.85}
+                    strokeWidth={0}
+                    stackId="1"
                 />
                 <Area
                     type="monotone"
                     dataKey="scheduled"
                     name="Scheduled"
-                    stroke="#6366f1"
-                    fillOpacity={1}
-                    fill="url(#colorScheduled)"
-                    strokeWidth={2}
-                    strokeDasharray="6 4"
+                    stroke="var(--mk-accent)"
+                    fill="var(--mk-accent)"
+                    fillOpacity={0.85}
+                    strokeWidth={0}
+                    stackId="1"
                 />
             </AreaChart>
         </ResponsiveContainer>

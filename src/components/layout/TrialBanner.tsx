@@ -28,11 +28,18 @@ export function TrialBanner() {
 
   return (
     <div
-      className={`flex items-center justify-between gap-3 px-6 py-2.5 text-sm ${
-        urgent
-          ? "bg-amber-50 text-amber-800 border-b border-amber-200"
-          : "bg-primary/5 text-primary border-b border-primary/10"
-      }`}
+      className="flex items-center justify-between gap-3 px-6 py-2.5 text-[13px] border-b"
+      style={{
+        background: urgent
+          ? "color-mix(in oklch, var(--mk-warn) 14%, var(--mk-paper))"
+          : "var(--mk-accent-soft)",
+        color: urgent
+          ? "color-mix(in oklch, var(--mk-warn) 70%, var(--mk-ink))"
+          : "var(--mk-accent)",
+        borderColor: urgent
+          ? "color-mix(in oklch, var(--mk-warn) 24%, var(--mk-paper))"
+          : "color-mix(in oklch, var(--mk-accent) 20%, var(--mk-paper))",
+      }}
     >
       <div className="flex items-center gap-2">
         <Clock className="h-3.5 w-3.5" />
