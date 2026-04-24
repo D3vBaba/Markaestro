@@ -1271,7 +1271,7 @@ function ChannelsSection({
           warn={!!tiktok?.lastRefreshError}
           warnLabel="Reconnect"
           detail={
-            tiktok?.tokenExpiresAt
+            tiktok?.lastRefreshError && tiktok?.tokenExpiresAt
               ? `Expires ${new Date(tiktok.tokenExpiresAt).toLocaleDateString()}`
               : undefined
           }
