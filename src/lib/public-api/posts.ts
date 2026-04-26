@@ -89,6 +89,8 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
     destinationProvider: resolvedDestination.destinationProvider,
     deliveryMode: resolvedDestination.deliveryMode || getDeliveryModeForChannel(input.channel),
     willAlsoPublishTo: resolvedDestination.willAlsoPublishTo,
+    workspaceId: ctx.workspaceId,
+    createdBy: ctx.ownerUid ?? ctx.clientId,
     createdByType: ctx.principalType,
     createdById: ctx.clientId,
     createdAt: now,
