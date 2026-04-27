@@ -3,6 +3,7 @@
 import { useState } from "react";
 import PlatformPreview from "@/components/app/PlatformPreview";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
+import { getSocialChannelLabel } from "@/lib/social/channel-catalog";
 
 type Post = {
   id: string;
@@ -16,13 +17,7 @@ type Post = {
   errorMessage?: string;
   mediaUrls?: string[];
   nextAction?: string;
-};
-
-const channelLabels: Record<string, string> = {
-  x: "X",
-  facebook: "Facebook",
-  instagram: "Instagram",
-  tiktok: "TikTok",
+  targetChannels?: string[];
 };
 
 const statusDotColors: Record<string, string> = {
@@ -43,7 +38,7 @@ const statusTextColors: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  exported_for_review: "Draft on TikTok",
+  exported_for_review: "Ready in TikTok",
 };
 
 // Shared pill button style
@@ -73,6 +68,9 @@ export default function PostCard({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const displayStatus = publishing ? "publishing" : post.status;
+  const channelLabel = post.targetChannels?.length
+    ? post.targetChannels.map(getSocialChannelLabel).join(" + ")
+    : getSocialChannelLabel(post.channel);
 
   return (
     <div className="group border border-border/50 rounded-xl overflow-hidden bg-card hover:border-border/80 hover:shadow-sm transition-all">
@@ -81,7 +79,7 @@ export default function PostCard({
         {/* Left: channel + scheduled date */}
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/70">
-            {channelLabels[post.channel] || post.channel}
+            {channelLabel}
           </span>
           {post.scheduledAt && post.status === "scheduled" && (
             <>
@@ -171,7 +169,7 @@ export default function PostCard({
         )}
       </div>
 
-      {/* TikTok draft banner: post was pushed to the creator's inbox and
+      {/* TikTok inbox banner: post was pushed to the creator's inbox and
           needs to be finalized from the TikTok app. */}
       {!publishing && post.status === "exported_for_review" && post.channel === "tiktok" && (
         <div
@@ -229,7 +227,7 @@ export default function PostCard({
             className="text-[12px] font-medium"
             style={{ color: "var(--mk-accent)" }}
           >
-            Publishing to {channelLabels[post.channel] || post.channel}…
+            Publishing to {channelLabel}...
           </p>
         </div>
       )}
@@ -283,7 +281,7 @@ export default function PostCard({
           open={confirmDelete}
           onOpenChange={setConfirmDelete}
           entity="post"
-          name={channelLabels[post.channel] || post.channel}
+          name={channelLabel}
           onConfirm={onDelete}
         />
       )}

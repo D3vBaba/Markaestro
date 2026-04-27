@@ -56,6 +56,10 @@ const channelDefaultRatio: Record<string, string> = {
   facebook: "1:1",
   instagram: "4:5",
   tiktok: "9:16",
+  linkedin: "1:1",
+  threads: "1:1",
+  pinterest: "3:4",
+  youtube: "16:9",
 };
 
 const CONTEXT_MAX_LENGTH = 500;
@@ -76,6 +80,7 @@ export default function CreateTab({
   const [generating, setGenerating] = useState(false);
   const [content, setContent] = useState("");
   const [postId, setPostId] = useState<string | null>(null);
+  const [selectedChannels, setSelectedChannels] = useState<string[]>(["facebook"]);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
@@ -141,6 +146,33 @@ export default function CreateTab({
     if (recs && !recs.includes(imageStyle as typeof recs[number])) {
       setImageStyle(recs[0]);
     }
+  };
+
+  const handleSelectedChannelsChange = (channels: string[]) => {
+    const normalized = Array.from(new Set(channels)).filter(Boolean);
+    const next = normalized.length > 0 ? normalized : [channel];
+    setSelectedChannels(next);
+    if (!next.includes(channel)) {
+      handleChannelChange(next[0]);
+    }
+  };
+
+  const getPostTargets = () => {
+    const normalized = selectedChannels.length > 0 ? selectedChannels : [channel];
+    return Array.from(new Set(normalized)).filter(Boolean);
+  };
+
+  const buildPostPayload = (mediaUrls?: string[]) => {
+    const targetChannels = getPostTargets();
+    const primaryChannel = targetChannels[0] || channel;
+
+    return {
+      content,
+      channel: primaryChannel,
+      productId,
+      targetChannels,
+      mediaUrls,
+    };
   };
 
   // Order styles for the current channel: recommended first (top pick flagged),
@@ -228,9 +260,11 @@ export default function CreateTab({
     setPostId(null);
     setImageUrls([]);
     try {
+      const targetChannels = getPostTargets();
       const res = await apiPost<{ id: string; content: string }>("/api/posts/generate", {
         productId,
-        channel,
+        channel: targetChannels[0] || channel,
+        targetChannels,
         contentType,
         additionalContext,
       });
@@ -340,7 +374,10 @@ export default function CreateTab({
   const ensurePostId = async (): Promise<string | null> => {
     if (postId) return postId;
     const mediaUrls = imageUrls.length > 0 ? imageUrls : undefined;
-    const res = await apiPost<{ id: string }>("/api/posts", { content, channel, status: "draft", mediaUrls });
+    const res = await apiPost<{ id: string }>("/api/posts", {
+      ...buildPostPayload(mediaUrls),
+      status: "draft",
+    });
     if (res.ok) {
       setPostId(res.data.id);
       return res.data.id;
@@ -353,7 +390,7 @@ export default function CreateTab({
     if (!content) return;
     const mediaUrls = imageUrls.length > 0 ? imageUrls : undefined;
     if (postId) {
-      const res = await apiPut(`/api/posts/${postId}`, { content, channel, mediaUrls });
+      const res = await apiPut(`/api/posts/${postId}`, buildPostPayload(mediaUrls));
       if (res.ok) { toast.success("Draft saved"); onPostCreated?.(); }
       else toast.error("Failed to save draft");
     } else {
@@ -367,7 +404,11 @@ export default function CreateTab({
     const mediaUrls = imageUrls.length > 0 ? imageUrls : undefined;
     const id = postId ?? await ensurePostId();
     if (!id) return;
-    const res = await apiPut(`/api/posts/${id}`, { content, channel, status: "scheduled", scheduledAt, mediaUrls });
+    const res = await apiPut(`/api/posts/${id}`, {
+      ...buildPostPayload(mediaUrls),
+      status: "scheduled",
+      scheduledAt,
+    });
     if (res.ok) {
       toast.success("Post scheduled");
       setContent("");
@@ -385,7 +426,7 @@ export default function CreateTab({
     const mediaUrls = imageUrls.length > 0 ? imageUrls : undefined;
     const id = postId ?? await ensurePostId();
     if (!id) { setPublishing(false); return; }
-    await apiPut(`/api/posts/${id}`, { content, channel, mediaUrls });
+    await apiPut(`/api/posts/${id}`, buildPostPayload(mediaUrls));
     const res = await apiPost<{
       ok: boolean;
       status?: string;
@@ -402,7 +443,7 @@ export default function CreateTab({
 
       if (res.data.status === "publishing" || res.data.pending) {
         if (hasTikTok) {
-          toast.success("Sending to TikTok. When it's ready, open the TikTok app's inbox to finish the caption and post.");
+          toast.success("Sending to TikTok. Markaestro is waiting for TikTok to confirm inbox delivery.");
         } else {
           toast.success("Post submitted and still processing.");
         }
@@ -418,7 +459,7 @@ export default function CreateTab({
       }
 
       if (res.data.status === "exported_for_review") {
-        toast.success("Sent to TikTok as a draft. Open the TikTok app's inbox, finish the caption, and tap Post.");
+        toast.success("TikTok confirmed inbox delivery. Open TikTok Inbox, finish the caption, and tap Post.");
         setContent("");
         setPostId(null);
         setImageUrls([]);
@@ -430,7 +471,7 @@ export default function CreateTab({
       if (successful.length > 1) {
         toast.success(`Posted to ${successful.map((c) => c.channel).join(" & ")}!`);
       } else if (hasTikTok) {
-        toast.success("Sent to TikTok as a draft. Open the TikTok app's inbox, finish the caption, and tap Post.");
+        toast.success("TikTok confirmed inbox delivery. Open TikTok Inbox, finish the caption, and tap Post.");
       } else {
         toast.success("Posted successfully!");
       }
@@ -497,14 +538,20 @@ export default function CreateTab({
           </button>
         </div>
 
-        <ChannelSelector value={channel} onChange={handleChannelChange} productId={productId} />
+        <ChannelSelector
+          value={channel}
+          onChange={handleChannelChange}
+          productId={productId}
+          selectedChannels={selectedChannels}
+          onSelectedChannelsChange={handleSelectedChannelsChange}
+        />
 
         {mode === "manual" ? (
           /* ── Manual path ── */
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Caption</label>
-              <ContentEditor content={content} onChange={setContent} channel={channel} />
+              <ContentEditor content={content} onChange={setContent} channel={channel} channels={selectedChannels} />
             </div>
 
             <div className="space-y-3">
@@ -634,7 +681,7 @@ export default function CreateTab({
 
         {content ? (
           <>
-            <ContentEditor content={content} onChange={setContent} channel={channel} />
+            <ContentEditor content={content} onChange={setContent} channel={channel} channels={selectedChannels} />
 
             {/* Platform preview */}
             <div className="border-t border-border/30 pt-6">

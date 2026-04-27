@@ -46,15 +46,20 @@ describe('tiktokPublishingAdapter', () => {
   });
 
   it('uses a verified-domain PULL_FROM_URL flow for videos', async () => {
-    fetchWithRetryMock.mockResolvedValueOnce(jsonResponse({
-      data: { publish_id: 'publish_123', upload_url: 'unused-for-pull-from-url' },
-      error: { code: 'ok', message: '', log_id: 'log_123' },
-    }));
+    fetchWithRetryMock
+      .mockResolvedValueOnce(jsonResponse({
+        data: { publish_id: 'publish_123', upload_url: 'unused-for-pull-from-url' },
+        error: { code: 'ok', message: '', log_id: 'log_123' },
+      }))
+      .mockResolvedValueOnce(jsonResponse({
+        data: { status: 'SEND_TO_USER_INBOX' },
+        error: { code: 'ok', message: '', log_id: 'log_124' },
+      }));
 
     const { tiktokPublishingAdapter } = await import('../platform/adapters/tiktok-publishing');
     const result = await tiktokPublishingAdapter.publish(connection, request);
 
-    expect(fetchWithRetryMock).toHaveBeenCalledTimes(1);
+    expect(fetchWithRetryMock).toHaveBeenCalledTimes(2);
     expect(fetchWithRetryMock).toHaveBeenCalledWith(
       'https://open.tiktokapis.com/v2/post/publish/inbox/video/init/',
       expect.objectContaining({
@@ -74,9 +79,11 @@ describe('tiktokPublishingAdapter', () => {
       },
     });
     expect(result).toEqual({
-      success: false,
-      pending: true,
+      success: true,
+      reviewRequired: true,
       externalId: 'publish_123',
+      externalUrl: 'https://www.tiktok.com/messages?lang=en',
+      nextAction: 'open_tiktok_inbox_and_complete_editing',
     });
   });
 

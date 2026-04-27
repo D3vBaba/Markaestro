@@ -98,7 +98,7 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
         const hasTikTok = (res.data.channels || []).some((c) => c.channel === "tiktok");
         if (hasTikTok) {
           toast.success(
-            "Sent to TikTok inbox. Open the TikTok app to finalize and post — we'll mark it as ready once TikTok confirms delivery.",
+            "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
             { id: toastId },
           );
         } else if (res.data.status === "publishing" || res.data.pending) {

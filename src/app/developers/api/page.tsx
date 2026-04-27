@@ -27,7 +27,7 @@ const endpointGroups = [
     endpoints: [
       { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft or scheduled post in the workspace." },
       { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status, publish results, and any follow-up action such as completing a TikTok inbox handoff." },
-      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. TikTok uses the same direct inbox handoff as the app, then finishes asynchronously once TikTok reports the draft is ready." },
+      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. TikTok uses the same inbox handoff as the app, then finishes once TikTok confirms inbox delivery." },
     ],
   },
   {
@@ -107,7 +107,7 @@ export default function DevelopersApiPage() {
             Public API v1 is workspace-scoped, supports images and video, and is designed for async automation.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            For TikTok, publish is still asynchronous: the run starts the inbox push immediately, then the worker updates the post once TikTok finishes processing and the creator can complete it in TikTok.
+            For TikTok, publish is still asynchronous: the run starts the inbox push, keeps polling TikTok until the platform confirms inbox delivery, then marks the post ready for creator completion in TikTok.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             Use only the versioned public routes under <code>/api/public/v1</code>. Internal app routes such as <code>/api/workspaces</code>,
@@ -142,7 +142,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>TikTok mirrors the app flow</CardTitle>
-                <CardDescription>TikTok photo and video posts use the same direct inbox handoff as the Markaestro UI. Once TikTok is ready, the post moves to review so the creator can finish it inside TikTok.</CardDescription>
+                <CardDescription>TikTok photo and video posts use the same inbox handoff as the Markaestro UI. Once TikTok confirms delivery, the creator finishes caption, privacy, and posting inside TikTok.</CardDescription>
               </CardHeader>
             </Card>
             <Card className="lg:col-span-3">
@@ -233,7 +233,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>5. Queue publish</CardTitle>
-                <CardDescription>Publishing always creates an async run. TikTok runs finish after the media is handed off and TikTok reports the inbox draft is ready for creator review.</CardDescription>
+                <CardDescription>Publishing always creates an async run. TikTok runs finish after the media is handed off and TikTok reports the inbox item is ready for creator completion.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.publish}</code></pre>
@@ -266,7 +266,7 @@ export default function DevelopersApiPage() {
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">TikTok</p>
-                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. Publishing pushes to the creator&apos;s TikTok inbox first, then marks the post ready for review once TikTok finishes processing.</p>
+                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. Publishing pushes to the creator&apos;s TikTok inbox first, then marks the post ready once TikTok confirms delivery.</p>
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">LinkedIn</p>

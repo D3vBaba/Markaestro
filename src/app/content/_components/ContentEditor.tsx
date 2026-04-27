@@ -1,28 +1,36 @@
 "use client";
 
 import { Textarea } from "@/components/ui/textarea";
-
-const CHAR_LIMITS: Record<string, number> = {
-  x: 280,
-  instagram: 2200,
-  facebook: 63206,
-  tiktok: 2200,
-};
+import {
+  getSocialChannelConfig,
+  getSocialChannelLabel,
+  getSocialChannelMaxLength,
+} from "@/lib/social/channel-catalog";
 
 export default function ContentEditor({
   content,
   onChange,
   channel,
+  channels,
   disabled,
 }: {
   content: string;
   onChange: (value: string) => void;
   channel: string;
+  channels?: string[];
   disabled?: boolean;
 }) {
-  const limit = CHAR_LIMITS[channel] || 63206;
+  const activeChannels = channels?.length ? channels : [channel];
+  const limit = Math.min(...activeChannels.map(getSocialChannelMaxLength));
+  const limitingChannel = activeChannels
+    .map((item) => getSocialChannelConfig(item))
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .sort((a, b) => a.maxLength - b.maxLength)[0];
   const count = content.length;
   const isOver = count > limit;
+  const channelLabel = activeChannels.length > 1
+    ? `${getSocialChannelLabel(limitingChannel?.channel ?? channel)} limit`
+    : getSocialChannelLabel(channel);
 
   return (
     <div className="space-y-2">
@@ -36,7 +44,7 @@ export default function ContentEditor({
       />
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground">
-          {channel === "instagram" ? "Instagram (2,200 chars)" : channel === "tiktok" ? "TikTok (2,200 chars)" : "Facebook (63,206 chars)"}
+          {channelLabel} ({limit.toLocaleString()} chars)
         </span>
         <span className={isOver ? "text-destructive font-medium" : "text-muted-foreground"}>
           {count.toLocaleString()} / {limit.toLocaleString()}

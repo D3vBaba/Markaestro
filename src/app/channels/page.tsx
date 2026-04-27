@@ -42,10 +42,10 @@ const channels = [
     name: "TikTok",
     category: "Social",
     color: "#000000",
-    description: "Reach Gen Z and beyond on the fastest-growing short-form platform. Markaestro pushes photos and videos into the creator's TikTok inbox, then tracks when they're ready for final review in TikTok.",
+    description: "Reach Gen Z and beyond on the fastest-growing short-form platform. Markaestro pushes photos and videos into the creator's TikTok inbox, then tracks when they're ready for final completion in TikTok.",
     capabilities: [
       "Video and photo inbox handoff",
-      "Creator review inside TikTok",
+      "Creator completion inside TikTok",
       "Scheduled delivery into TikTok inbox",
       "Fast status polling after handoff",
       "Status tracking inside Markaestro",

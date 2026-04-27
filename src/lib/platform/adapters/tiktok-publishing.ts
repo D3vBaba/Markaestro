@@ -30,6 +30,7 @@ function parseTikTokError(data: Record<string, unknown>): string | undefined {
 
 type TikTokPublishStatusResult = {
   status?: TikTokPublishStatus | string;
+  publiclyAvailablePostId?: string | string[];
   failReason?: string;
   error?: string;
 };
@@ -53,7 +54,121 @@ export async function fetchTikTokPublishStatus(
 
   return {
     status: data.data?.status as string | undefined,
+    publiclyAvailablePostId: (data.data?.publicaly_available_post_id || data.data?.publicly_available_post_id) as string | string[] | undefined,
     failReason: data.data?.fail_reason as string | undefined,
+  };
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getTikTokPollingConfig() {
+  const attempts = Number(process.env.TIKTOK_HANDOFF_POLL_ATTEMPTS || 18);
+  const intervalMs = Number(process.env.TIKTOK_HANDOFF_POLL_INTERVAL_MS || 10_000);
+
+  return {
+    attempts: Math.max(1, Math.min(attempts, 30)),
+    intervalMs: Math.max(1_000, Math.min(intervalMs, 30_000)),
+  };
+}
+
+function firstPostId(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+function getTikTokProfileHandle(connection: PlatformConnection): string {
+  const username = connection.metadata.username;
+  if (typeof username === 'string' && username) return username.replace(/^@/, '');
+
+  const openId = connection.metadata.openId;
+  if (typeof openId === 'string' && openId) return openId;
+
+  return '';
+}
+
+type TikTokHandoffResult =
+  | {
+      status: 'inbox';
+      publishId: string;
+      externalUrl: string;
+    }
+  | {
+      status: 'published';
+      publishId: string;
+      postId: string;
+      externalUrl: string;
+    }
+  | {
+      status: 'pending';
+      publishId: string;
+      lastStatus?: string;
+    }
+  | {
+      status: 'failed';
+      publishId: string;
+      error: string;
+    };
+
+async function waitForTikTokHandoff(
+  accessToken: string,
+  publishId: string,
+  connection: PlatformConnection,
+): Promise<TikTokHandoffResult> {
+  const { attempts, intervalMs } = getTikTokPollingConfig();
+  let lastStatus: string | undefined;
+
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    if (attempt > 0) {
+      await sleep(intervalMs);
+    }
+
+    const result = await fetchTikTokPublishStatus(accessToken, publishId);
+    if (result.error) {
+      return {
+        status: 'failed',
+        publishId,
+        error: result.error,
+      };
+    }
+
+    lastStatus = result.status;
+
+    if (result.status === 'SEND_TO_USER_INBOX') {
+      return {
+        status: 'inbox',
+        publishId,
+        externalUrl: 'https://www.tiktok.com/messages?lang=en',
+      };
+    }
+
+    if (result.status === 'PUBLISH_COMPLETE') {
+      const postId = firstPostId(result.publiclyAvailablePostId) || publishId;
+      const handle = getTikTokProfileHandle(connection);
+      return {
+        status: 'published',
+        publishId,
+        postId,
+        externalUrl: handle
+          ? `https://www.tiktok.com/@${handle}${postId === publishId ? '' : `/video/${postId}`}`
+          : 'https://www.tiktok.com/',
+      };
+    }
+
+    if (result.status === 'FAILED') {
+      return {
+        status: 'failed',
+        publishId,
+        error: result.failReason || 'TikTok reported publish failure',
+      };
+    }
+  }
+
+  return {
+    status: 'pending',
+    publishId,
+    lastStatus,
   };
 }
 
@@ -134,10 +249,33 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         if (result.error) {
           return { success: false, error: `TikTok publish failed: ${result.error}` };
         }
+
+        const handoff = await waitForTikTokHandoff(accessToken, result.publishId || '', connection);
+        if (handoff.status === 'inbox') {
+          return {
+            success: true,
+            reviewRequired: true,
+            externalId: handoff.publishId,
+            externalUrl: handoff.externalUrl,
+            nextAction: 'open_tiktok_inbox_and_complete_editing',
+          };
+        }
+        if (handoff.status === 'published') {
+          return {
+            success: true,
+            externalId: handoff.postId,
+            externalUrl: handoff.externalUrl,
+          };
+        }
+        if (handoff.status === 'failed') {
+          return { success: false, error: `TikTok publish failed: ${handoff.error}` };
+        }
+
         return {
           success: false,
           pending: true,
-          externalId: result.publishId || '',
+          externalId: handoff.publishId,
+          nextAction: handoff.lastStatus ? `TikTok is still processing (${handoff.lastStatus})` : undefined,
         };
       }
 
@@ -182,10 +320,32 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         return { success: false, error: 'TikTok did not return a publish ID' };
       }
 
+      const handoff = await waitForTikTokHandoff(accessToken, publishId, connection);
+      if (handoff.status === 'inbox') {
+        return {
+          success: true,
+          reviewRequired: true,
+          externalId: handoff.publishId,
+          externalUrl: handoff.externalUrl,
+          nextAction: 'open_tiktok_inbox_and_complete_editing',
+        };
+      }
+      if (handoff.status === 'published') {
+        return {
+          success: true,
+          externalId: handoff.postId,
+          externalUrl: handoff.externalUrl,
+        };
+      }
+      if (handoff.status === 'failed') {
+        return { success: false, error: `TikTok publish failed: ${handoff.error}` };
+      }
+
       return {
         success: false,
         pending: true,
-        externalId: publishId,
+        externalId: handoff.publishId,
+        nextAction: handoff.lastStatus ? `TikTok is still processing (${handoff.lastStatus})` : undefined,
       };
     } catch (e) {
       return {

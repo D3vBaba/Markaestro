@@ -1,5 +1,5 @@
 import { adminDb } from '@/lib/firebase-admin';
-import { publishPostMultiChannel } from '@/lib/social/publisher';
+import { getPostTargetChannels, publishStoredPost } from '@/lib/social/publisher';
 import { JobDoc } from './types';
 import { TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
 
@@ -36,20 +36,13 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
         if (!postSnap.exists) {
           message = `Post ${postId} not found`;
         } else {
-          const post = postSnap.data()!;
-          const productId = post.productId as string | undefined;
-          if (!productId && post.channel !== 'tiktok') {
+          const post = postSnap.data() as Record<string, unknown>;
+          const productId = typeof post.productId === 'string' ? post.productId : undefined;
+          const targetChannels = getPostTargetChannels(post);
+          if (!productId && targetChannels.some((channel) => channel !== 'tiktok')) {
             message = `Post ${postId} has no associated product — skipped`;
           } else {
-            const result = await publishPostMultiChannel(workspaceId, productId, {
-              content: post.content,
-              channel: post.channel,
-              mediaUrls: post.mediaUrls,
-              deliveryMode: post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
-              destinationProvider: typeof post.destinationProvider === 'string' && post.destinationProvider
-                ? post.destinationProvider
-                : undefined,
-            });
+            const result = await publishStoredPost(workspaceId, productId, post);
             const successfulChannels = result.channels.filter((c) => c.success);
             if (result.pending) {
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
@@ -59,7 +52,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
                 publishResults: result.channels,
                 updatedAt: new Date().toISOString(),
               });
-              message = `Post is still processing on ${post.channel}`;
+              message = `Post is still processing on ${targetChannels.join(' & ')}`;
             } else if (result.reviewRequired) {
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
                 status: 'exported_for_review',
@@ -69,7 +62,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
                 nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
                 updatedAt: new Date().toISOString(),
               });
-              message = `Post exported to ${post.channel} for manual review`;
+              message = `Post delivered to ${targetChannels.join(' & ')} for creator completion`;
             } else if (result.success) {
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
                 status: 'published',

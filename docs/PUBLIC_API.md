@@ -71,10 +71,9 @@ Meta account selection:
 
 TikTok:
 - products expose TikTok destinations only when a TikTok publishing connection is configured
-- the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents the connected TikTok account, not a Markaestro-only review queue
-- `POST /api/public/v1/posts/:id/publish` follows the same direct inbox handoff as the Markaestro app: it pushes the media to TikTok first, then the worker polls until TikTok reports `SEND_TO_USER_INBOX`
-- the initial publish run usually completes with the post in `publishing`
-- once TikTok finishes processing, post status becomes `exported_for_review`
+- the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents the connected TikTok account
+- `POST /api/public/v1/posts/:id/publish` follows the same inbox handoff as the Markaestro app: the publish worker pushes media to TikTok, keeps the job open, and polls TikTok until it reports `SEND_TO_USER_INBOX`, `PUBLISH_COMPLETE`, or `FAILED`
+- once TikTok confirms inbox delivery, post status becomes `exported_for_review`
 - `externalId` contains the TikTok `publish_id`
 - the follow-up action is `nextAction=open_tiktok_inbox_and_complete_editing`
 

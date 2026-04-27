@@ -488,6 +488,8 @@ export const createPostSchema = z.object({
   pipelineSequence: z.number().int().min(0).optional(),
   pipelineTheme: z.string().trim().max(200).optional(),
   targetChannels: z.array(z.enum(socialChannels)).optional(),
+  destinationProvider: z.string().trim().max(100).optional(),
+  deliveryMode: z.enum(['direct_publish', 'user_review']).optional(),
   /** Legacy value `slideshow` may still exist on older Firestore documents. */
   sourceType: z.enum(['manual', 'pipeline', 'slideshow']).optional(),
   /** Optional metadata preserved for legacy slideshow-exported posts and API stability. */
@@ -512,6 +514,8 @@ export const updatePostSchema = z.object({
   pipelineSequence: z.number().int().min(0).optional(),
   pipelineTheme: z.string().trim().max(200).optional(),
   targetChannels: z.array(z.enum(socialChannels)).optional(),
+  destinationProvider: z.string().trim().max(100).optional(),
+  deliveryMode: z.enum(['direct_publish', 'user_review']).optional(),
   /** Legacy value `slideshow` may still exist on older Firestore documents. */
   sourceType: z.enum(['manual', 'pipeline', 'slideshow']).optional(),
   /** Optional metadata preserved for legacy slideshow-exported posts and API stability. */

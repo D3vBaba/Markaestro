@@ -3,7 +3,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getAdapterForChannel } from '@/lib/platform/registry';
 import { getConnectionForChannel } from '@/lib/platform/connections';
 import type { PublishRequest, PublishResult } from '@/lib/platform/types';
-import type { SocialChannel } from '@/lib/schemas';
+import { socialChannels, type SocialChannel } from '@/lib/schemas';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import {
   isTikTokDraftOnlyChannel,
@@ -22,6 +22,7 @@ const RETRY_DELAYS_MS = [2 * 60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000, 30 * 60 *
 // Instagram/Meta rate-limit and quota errors need longer backoff to avoid triggering account restrictions.
 const META_MAX_RETRY_ATTEMPTS = 2;
 const META_RETRY_DELAYS_MS = [30 * 60 * 1000, 2 * 60 * 60 * 1000]; // 30min, 2hr
+const socialChannelSet = new Set<string>(socialChannels);
 
 export type ChannelPublishResult = {
   channel: SocialChannel;
@@ -94,18 +95,8 @@ export async function publishPost(
       return { success: false, error: validationError };
     }
 
-    // Public API requests (and anything else asking for user_review delivery)
-    // must stage TikTok content inside Markaestro instead of pushing to TikTok.
-    // The user reviews the staged draft in Markaestro, then explicitly clicks
-    // Publish — at which point the UI route forces direct_publish and we fall
-    // through to the adapter below to push to the TikTok inbox.
-    if (request.deliveryMode === 'user_review') {
-      return {
-        success: true,
-        reviewRequired: true,
-        nextAction: TIKTOK_MANUAL_REVIEW_ACTION,
-      };
-    }
+    // TikTok "review" is a platform inbox handoff. Keep going through the
+    // adapter so the server waits for TikTok to confirm SEND_TO_USER_INBOX.
   }
 
   const adapter = getAdapterForChannel(request.channel);
@@ -222,6 +213,34 @@ function getMaxRetryAttempts(metaRateLimited?: boolean): number {
 
 function asStringArray(value: unknown): string[] | undefined {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : undefined;
+}
+
+function asSocialChannel(value: unknown): value is SocialChannel {
+  return typeof value === 'string' && socialChannelSet.has(value);
+}
+
+function getDeliveryMode(value: unknown): PublishRequest['deliveryMode'] {
+  return value === 'user_review' ? 'user_review' : 'direct_publish';
+}
+
+function getDestinationProvider(value: unknown): string | undefined {
+  return typeof value === 'string' && value ? value : undefined;
+}
+
+function getPhotoCoverIndex(value: unknown): number | undefined {
+  return typeof value === 'number' ? value : undefined;
+}
+
+export function getPostTargetChannels(post: Record<string, unknown>): SocialChannel[] {
+  const targetChannels = asStringArray(post.targetChannels)
+    ?.filter(asSocialChannel)
+    .filter((channel, index, all) => all.indexOf(channel) === index);
+
+  if (targetChannels?.length) {
+    return targetChannels;
+  }
+
+  return asSocialChannel(post.channel) ? [post.channel] : [];
 }
 
 function aggregateChannelResults(
@@ -541,6 +560,87 @@ export async function publishPostMultiChannel(
   return aggregateChannelResults(results, request.channel);
 }
 
+async function publishExplicitChannels(
+  workspaceId: string,
+  productId: string | undefined,
+  primaryChannel: SocialChannel,
+  targetChannels: SocialChannel[],
+  request: Omit<PublishRequest, 'channel'>,
+): Promise<MultiChannelPublishResult> {
+  const results: ChannelPublishResult[] = [];
+
+  for (const channel of targetChannels) {
+    if (channel === 'instagram' && (!request.mediaUrls || request.mediaUrls.length === 0)) {
+      results.push({
+        channel,
+        success: false,
+        error: 'Skipped - Instagram requires media (image or video)',
+      });
+      continue;
+    }
+
+    const result = await publishPost(workspaceId, productId, {
+      ...request,
+      channel,
+    });
+
+    results.push({
+      channel,
+      success: result.success,
+      ...(result.pending != null && { pending: result.pending }),
+      ...(result.reviewRequired != null && { reviewRequired: result.reviewRequired }),
+      ...(result.externalId != null && { externalId: result.externalId }),
+      ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
+      ...(result.nextAction != null && { nextAction: result.nextAction }),
+      ...(result.error != null && { error: result.error }),
+    });
+  }
+
+  return aggregateChannelResults(results, primaryChannel);
+}
+
+export async function publishStoredPost(
+  workspaceId: string,
+  productId: string | undefined,
+  post: Record<string, unknown>,
+): Promise<MultiChannelPublishResult> {
+  const targetChannels = getPostTargetChannels(post);
+  const [primaryChannel] = targetChannels;
+
+  if (!primaryChannel) {
+    return {
+      success: false,
+      channels: [],
+      error: 'Post has no target channel',
+    };
+  }
+
+  if (!productId && targetChannels.some((channel) => channel !== 'tiktok')) {
+    return {
+      success: false,
+      channels: [],
+      error: 'Post has no associated product',
+    };
+  }
+
+  const request = {
+    content: String(post.content || ''),
+    mediaUrls: asStringArray(post.mediaUrls),
+    deliveryMode: getDeliveryMode(post.deliveryMode),
+    destinationProvider: getDestinationProvider(post.destinationProvider),
+    photoCoverIndex: getPhotoCoverIndex(post.slideshowCoverIndex),
+  } satisfies Omit<PublishRequest, 'channel'>;
+
+  if (targetChannels.length > 1 || asStringArray(post.targetChannels)?.length) {
+    return publishExplicitChannels(workspaceId, productId, primaryChannel, targetChannels, request);
+  }
+
+  return publishPostMultiChannel(workspaceId, productId, {
+    ...request,
+    channel: primaryChannel,
+  });
+}
+
 export async function recoverStalePublishingPosts(workspaceId: string): Promise<{ recovered: number; failed: number; errors: Array<{ postId: string; error: string }> }> {
   const postsRef = adminDb.collection(`workspaces/${workspaceId}/posts`);
   const staleBefore = new Date(Date.now() - PUBLISH_LEASE_MS).toISOString();
@@ -598,55 +698,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
 
   for (const claimed of claimedPosts) {
     try {
-      const targetChannels = asStringArray(claimed.post.targetChannels) as SocialChannel[] | undefined;
-      let result: MultiChannelPublishResult;
-
-      if (!claimed.productId && claimed.post.channel !== 'tiktok') {
-        result = {
-          success: false,
-          channels: [],
-          error: 'Post has no associated product',
-        };
-      } else if (targetChannels && targetChannels.length > 0) {
-        const channelResults: ChannelPublishResult[] = [];
-        for (const channel of targetChannels) {
-          const channelResult = await publishPost(workspaceId, claimed.productId, {
-            content: String(claimed.post.content || ''),
-            channel,
-            mediaUrls: asStringArray(claimed.post.mediaUrls),
-            destinationProvider: typeof claimed.post.destinationProvider === 'string' && claimed.post.destinationProvider
-              ? claimed.post.destinationProvider
-              : undefined,
-            photoCoverIndex: typeof claimed.post.slideshowCoverIndex === 'number' ? claimed.post.slideshowCoverIndex : undefined,
-          });
-          channelResults.push({
-            channel,
-            success: channelResult.success,
-            ...(channelResult.pending != null && { pending: channelResult.pending }),
-            ...(channelResult.reviewRequired != null && { reviewRequired: channelResult.reviewRequired }),
-            ...(channelResult.externalId != null && { externalId: channelResult.externalId }),
-            ...(channelResult.externalUrl != null && { externalUrl: channelResult.externalUrl }),
-            ...(channelResult.nextAction != null && { nextAction: channelResult.nextAction }),
-            ...(channelResult.error != null && { error: channelResult.error }),
-          });
-        }
-
-        result = aggregateChannelResults(
-          channelResults,
-          String(claimed.post.channel || targetChannels[0]) as SocialChannel,
-        );
-      } else {
-        result = await publishPostMultiChannel(workspaceId, claimed.productId, {
-          content: String(claimed.post.content || ''),
-          channel: String(claimed.post.channel) as SocialChannel,
-          mediaUrls: asStringArray(claimed.post.mediaUrls),
-          deliveryMode: claimed.post.deliveryMode === 'user_review' ? 'user_review' : 'direct_publish',
-          destinationProvider: typeof claimed.post.destinationProvider === 'string' && claimed.post.destinationProvider
-            ? claimed.post.destinationProvider
-            : undefined,
-          photoCoverIndex: typeof claimed.post.slideshowCoverIndex === 'number' ? claimed.post.slideshowCoverIndex : undefined,
-        });
-      }
+      const result = await publishStoredPost(workspaceId, claimed.productId, claimed.post);
 
       const outcome = result.success || result.pending
         ? await finalizeSuccessfulPublish(workspaceId, claimed, result)

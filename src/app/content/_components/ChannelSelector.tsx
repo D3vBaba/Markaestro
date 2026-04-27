@@ -3,32 +3,25 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { apiGet } from "@/lib/api-client";
+import { socialChannelCatalog } from "@/lib/social/channel-catalog";
 
-type IntegrationInfo = {
-  provider: string;
-  status: string;
-  scope?: "workspace" | "product";
-  pageId?: string | null;
-  pageName?: string | null;
-  igAccountId?: string | null;
-  username?: string | null;
-  boardId?: string | null;
-  channelId?: string | null;
-  lastRefreshError?: string | null;
+type ChannelState = "ready" | "needs_setup" | "disconnected";
+
+type ChannelInfo = {
+  channel: string;
+  label: string;
+  state: ChannelState;
+  reason: string | null;
+  destinationLabel: string | null;
 };
 
-type ChannelState = "ready" | "needs-setup" | "disconnected";
-
-const channels = [
-  { value: "facebook", label: "Facebook" },
-  { value: "instagram", label: "Instagram" },
-  { value: "tiktok", label: "TikTok" },
-  { value: "linkedin", label: "LinkedIn" },
-  { value: "threads", label: "Threads" },
-  { value: "pinterest", label: "Pinterest" },
-  { value: "youtube", label: "YouTube" },
-  { value: "x", label: "X" },
-] as const;
+const fallbackChannels: ChannelInfo[] = socialChannelCatalog.map((channel) => ({
+  channel: channel.channel,
+  label: channel.label,
+  state: "disconnected",
+  reason: channel.setupHint,
+  destinationLabel: null,
+}));
 
 // Brand colors per channel for the active state border
 const channelColors: Record<string, { active: string; dot: string }> = {
@@ -40,17 +33,6 @@ const channelColors: Record<string, { active: string; dot: string }> = {
   pinterest: { active: "border-[#E60023] bg-[#E60023] text-white", dot: "" },
   youtube:   { active: "border-[#FF0000] bg-[#FF0000] text-white", dot: "" },
   x:         { active: "border-black bg-black text-white", dot: "" },
-};
-
-const setupHintPrefix: Record<string, string> = {
-  facebook: "Connect Meta and select a Facebook page in",
-  instagram: "Connect Meta with a linked Instagram business account or connect Instagram directly in",
-  tiktok: "Connect TikTok in",
-  linkedin: "Connect LinkedIn in",
-  threads: "Connect Threads in",
-  pinterest: "Connect Pinterest and select a board in",
-  youtube: "Connect YouTube and select a channel in",
-  x: "Connect X in",
 };
 
 // Simple SVG icons for each platform
@@ -118,81 +100,88 @@ export default function ChannelSelector({
   value,
   onChange,
   productId,
+  selectedChannels,
+  onSelectedChannelsChange,
 }: {
   value: string;
   onChange: (channel: string) => void;
   productId?: string;
+  selectedChannels?: string[];
+  onSelectedChannelsChange?: (channels: string[]) => void;
 }) {
-  const [integrations, setIntegrations] = useState<IntegrationInfo[]>([]);
+  const [managedChannels, setManagedChannels] = useState<ChannelInfo[]>(fallbackChannels);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       if (!productId) {
-        if (!cancelled) setIntegrations([]);
+        if (!cancelled) setManagedChannels(fallbackChannels);
         return;
       }
-      const res = await apiGet<{ integrations: IntegrationInfo[] }>(`/api/integrations?productId=${productId}`);
+      const res = await apiGet<{ channels: ChannelInfo[] }>(`/api/social/channels?productId=${productId}`);
       if (cancelled) return;
       if (res.ok) {
-        setIntegrations(res.data.integrations?.filter((i) => i.scope === "product") || []);
+        setManagedChannels(res.data.channels?.length ? res.data.channels : fallbackChannels);
       }
     })();
     return () => { cancelled = true; };
   }, [productId]);
 
   function channelState(ch: string): ChannelState {
-    const meta = integrations.find((i) => i.provider === "meta");
-    const instagram = integrations.find((i) => i.provider === "instagram");
-    const metaOk = meta?.status === "connected";
-    const instagramOk = instagram?.status === "connected" && !!instagram?.igAccountId;
-
-    if (ch === "facebook") {
-      if (!metaOk) return "disconnected";
-      return meta?.pageId ? "ready" : "needs-setup";
-    }
-    if (ch === "instagram") {
-      if (meta?.igAccountId || instagramOk) return "ready";
-      if (metaOk) return "needs-setup";
-      return "disconnected";
-    }
-    if (ch === "pinterest") {
-      const conn = integrations.find((i) => i.provider === "pinterest");
-      if (conn?.status !== "connected") return "disconnected";
-      return conn.boardId ? "ready" : "needs-setup";
-    }
-    if (ch === "youtube") {
-      const conn = integrations.find((i) => i.provider === "youtube");
-      if (conn?.status !== "connected") return "disconnected";
-      return conn.channelId ? "ready" : "needs-setup";
-    }
-    const conn = integrations.find((i) => i.provider === ch);
-    return conn?.status === "connected" ? "ready" : "disconnected";
+    return managedChannels.find((item) => item.channel === ch)?.state ?? "disconnected";
   }
 
+  function channelReason(ch: string) {
+    return managedChannels.find((item) => item.channel === ch)?.reason || "Connect this channel in product settings.";
+  }
+
+  const selected = selectedChannels?.length ? selectedChannels : [value];
+  const selectedSet = new Set(selected);
   const selectedState = channelState(value);
+  const channels = managedChannels.length ? managedChannels : fallbackChannels;
+
+  function toggleChannel(ch: string) {
+    if (!onSelectedChannelsChange) {
+      onChange(ch);
+      return;
+    }
+
+    const next = selectedSet.has(ch)
+      ? selected.filter((item) => item !== ch)
+      : [...selected, ch];
+    const normalized = next.length > 0 ? next : [ch];
+    onSelectedChannelsChange(normalized);
+    onChange(normalized[0]);
+  }
 
   return (
     <div className="space-y-3">
-      <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Channel</label>
+      <div className="flex items-center justify-between gap-3">
+        <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Channels</label>
+        {onSelectedChannelsChange && (
+          <span className="text-[11px] text-muted-foreground">
+            {selected.length} selected
+          </span>
+        )}
+      </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {channels.map((ch) => {
-          const state = channelState(ch.value);
-          const selected = value === ch.value;
-          const colors = channelColors[ch.value];
+          const state = channelState(ch.channel);
+          const isSelected = selectedSet.has(ch.channel);
+          const colors = channelColors[ch.channel];
 
           return (
             <button
-              key={ch.value}
-              onClick={() => onChange(ch.value)}
-              title={state !== "ready" ? `${setupHintPrefix[ch.value]} Products → Edit` : undefined}
+              key={ch.channel}
+              onClick={() => toggleChannel(ch.channel)}
+              title={state !== "ready" ? channelReason(ch.channel) : ch.destinationLabel ?? undefined}
               className={`relative flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm transition-all ${
-                selected
+                isSelected
                   ? (colors?.active ?? "border-foreground bg-foreground text-background") + " font-medium shadow-sm"
                   : "border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground"
               }`}
             >
-              <ChannelIcon channel={ch.value} size={13} />
+              <ChannelIcon channel={ch.channel} size={13} />
               <span>{ch.label}</span>
               {/* Connection status dot */}
               <span
@@ -200,9 +189,9 @@ export default function ChannelSelector({
                 style={{
                   background:
                     state === "ready"
-                      ? (selected ? "rgba(255,255,255,0.7)" : "var(--mk-pos)")
-                      : state === "needs-setup"
-                      ? (selected ? "rgba(255,255,255,0.7)" : "var(--mk-warn)")
+                      ? (isSelected ? "rgba(255,255,255,0.7)" : "var(--mk-pos)")
+                      : state === "needs_setup"
+                      ? (isSelected ? "rgba(255,255,255,0.7)" : "var(--mk-warn)")
                       : "var(--mk-ink-20)",
                 }}
               />
@@ -210,19 +199,19 @@ export default function ChannelSelector({
           );
         })}
       </div>
-      {productId && selectedState === "needs-setup" && (
+      {productId && selectedState === "needs_setup" && (
         <p className="text-[11px]" style={{ color: "var(--mk-warn)" }}>
-          ⚠ {setupHintPrefix[value]}{" "}
+          {channelReason(value)}{" "}
           <Link href="/products" className="underline underline-offset-2 hover:opacity-80">
-            Products → Edit
+            Product settings
           </Link>
         </p>
       )}
       {productId && selectedState === "disconnected" && (
         <p className="text-[11px] text-muted-foreground">
-          Not connected — {setupHintPrefix[value]}{" "}
+          {channelReason(value)}{" "}
           <Link href="/products" className="underline underline-offset-2 hover:opacity-80">
-            Products → Edit
+            Product settings
           </Link>
         </p>
       )}

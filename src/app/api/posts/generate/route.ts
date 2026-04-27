@@ -15,6 +15,7 @@ export const runtime = 'nodejs';
 const generatePostSchema = z.object({
   productId: z.string().trim().min(1, 'Product ID is required'),
   channel: z.enum(socialChannels),
+  targetChannels: z.array(z.enum(socialChannels)).optional(),
   contentType: z.enum(['social_post', 'ad_copy', 'full_campaign']).default('social_post'),
   additionalContext: z.string().trim().max(2000).default(''),
 });
@@ -107,6 +108,7 @@ export async function POST(req: Request) {
       scheduledAt: null,
       mediaUrls: [],
       productId: data.productId,
+      targetChannels: data.targetChannels?.length ? data.targetChannels : [data.channel],
       generatedBy: 'openai',
       workspaceId: ctx.workspaceId,
       createdBy: ctx.uid,

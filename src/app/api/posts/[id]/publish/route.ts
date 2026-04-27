@@ -2,11 +2,12 @@ import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
-import { publishPostMultiChannel } from '@/lib/social/publisher';
+import { getPostTargetChannels, publishStoredPost } from '@/lib/social/publisher';
 import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
 import { TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
 
 export const runtime = 'nodejs';
+export const maxDuration = 300;
 
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -19,12 +20,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');
 
-    const post = snap.data()!;
-    const productId = post.productId as string | undefined;
+    const post = snap.data() as Record<string, unknown>;
+    const productId = typeof post.productId === 'string' ? post.productId : undefined;
+    const targetChannels = getPostTargetChannels(post);
 
-    // productId is optional for TikTok posts (UGC pipeline creates posts without a product link)
-    // For other channels, we still need it to look up platform connections
-    if (!productId && post.channel !== 'tiktok') {
+    // productId is optional for TikTok-only posts (UGC pipeline creates posts without a product link).
+    // Other channels use product-scoped connection metadata such as selected pages, boards, or channels.
+    if (!productId && targetChannels.some((channel) => channel !== 'tiktok')) {
       return apiOk({ ok: false, error: 'Post has no associated product' }, 400);
     }
 
@@ -32,7 +34,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // exported_for_review re-pushes the asset to the TikTok inbox so the creator can
     // finalize and post from the TikTok app instead of staying parked in Markaestro.
     const publishableStatuses = ['draft', 'scheduled', 'failed', 'exported_for_review'];
-    if (!publishableStatuses.includes(post.status)) {
+    const status = typeof post.status === 'string' ? post.status : '';
+    if (!publishableStatuses.includes(status)) {
       return apiOk({ ok: false, error: `Cannot publish a post with status "${post.status}"` }, 400);
     }
 
@@ -48,21 +51,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       updatedAt: new Date().toISOString(),
     });
 
-    console.log(`[publish] Post ${id}: channel=${post.channel}, productId=${productId}, mediaUrls=${JSON.stringify(post.mediaUrls)}`);
+    console.log(`[publish] Post ${id}: channels=${targetChannels.join(',')}, productId=${productId}, mediaUrls=${JSON.stringify(post.mediaUrls)}`);
 
     let result;
     try {
-      result = await publishPostMultiChannel(ctx.workspaceId, productId, {
-        content: post.content,
-        channel: post.channel,
-        mediaUrls: post.mediaUrls,
-        // The UI Publish button is an explicit "push it now" action: even if the
-        // post was originally created via a legacy user_review flow, clicking
-        // Publish must override and push to the platform.
+      result = await publishStoredPost(ctx.workspaceId, productId, {
+        ...post,
+        // The UI Publish button is an explicit "push it now" action: even if
+        // the post was originally created via a legacy user_review flow,
+        // clicking Publish must override and push to the platform.
         deliveryMode: 'direct_publish',
-        destinationProvider: typeof post.destinationProvider === 'string' && post.destinationProvider
-          ? post.destinationProvider
-          : undefined,
       });
     } catch (publishError) {
       // Unexpected exception — revert so post doesn't stay stuck in 'publishing'
@@ -91,7 +89,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       // isn't running, so short-poll inline before returning.
       let finalStatus: 'publishing' | 'exported_for_review' | 'published' | 'failed' = 'publishing';
       let inlineError: string | undefined;
-      if (post.channel === 'tiktok') {
+      if (targetChannels.includes('tiktok')) {
         const outcome = await pollTikTokPublishWithRetries(ctx.workspaceId, id);
         if (outcome.status === 'exported_for_review') finalStatus = 'exported_for_review';
         else if (outcome.status === 'published') finalStatus = 'published';

@@ -1,6 +1,6 @@
 import type { SocialChannel } from '@/lib/schemas';
 
-export const TIKTOK_MANUAL_REVIEW_ACTION = 'open_markaestro_drafts_and_post_manually';
+export const TIKTOK_MANUAL_REVIEW_ACTION = 'open_tiktok_inbox_and_complete_editing';
 
 export function isTikTokDraftOnlyChannel(channel: SocialChannel | string): channel is 'tiktok' {
   return channel === 'tiktok';

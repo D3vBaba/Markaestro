@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".claude/**",
   ]),
   // Dashboard and content tools use many dynamic / user-supplied image URLs.
   // Migrating everything to next/image requires remotePatterns for each host;

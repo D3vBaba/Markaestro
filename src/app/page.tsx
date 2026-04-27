@@ -222,7 +222,7 @@ export default function LandingPage() {
               <div className="mt-8 flex flex-col gap-4">
                 {[
                   { name: "Facebook & Instagram", desc: "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing." },
-                  { name: "TikTok", desc: "Photo and video content handed off to the creator's TikTok inbox for final review and posting." },
+                  { name: "TikTok", desc: "Photo and video content handed off to the creator's TikTok inbox for final completion and posting." },
                 ].map((ch) => (
                   <div key={ch.name} className="flex items-start gap-3">
                     <div

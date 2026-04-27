@@ -1,6 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { getConnectionForChannel } from '@/lib/platform/connections';
-import { publishPostMultiChannel } from '@/lib/social/publisher';
+import { publishStoredPost } from '@/lib/social/publisher';
 import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
@@ -157,19 +157,16 @@ async function processSingleRun(workspaceId: string, runId: string) {
       errorMessage: '',
     }, { merge: true });
 
-    const result = await publishPostMultiChannel(
+    const result = await publishStoredPost(
       workspaceId,
       typeof post.productId === 'string' && post.productId ? post.productId : undefined,
       {
+        ...post,
         content: String(post.content || ''),
-        channel: String(post.channel) as SocialChannel,
         mediaUrls: Array.isArray(post.mediaUrls)
           ? post.mediaUrls.filter((value): value is string => typeof value === 'string')
           : [],
         deliveryMode,
-        destinationProvider: typeof post.destinationProvider === 'string' && post.destinationProvider
-          ? post.destinationProvider
-          : undefined,
       },
     );
 
@@ -207,7 +204,7 @@ async function processSingleRun(workspaceId: string, runId: string) {
         exportedForReviewAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }, { merge: true });
-      await markRunFinished(workspaceId, runId, 'succeeded', 'Post exported for manual review', {
+      await markRunFinished(workspaceId, runId, 'succeeded', 'TikTok content delivered to inbox for creator completion', {
         reviewRequired: true,
         externalId: result.externalId || '',
         nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,

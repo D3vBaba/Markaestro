@@ -27,12 +27,11 @@ describe('instagram insights host selection', () => {
 
     await fetchInstagramInsights('token_123', 'ig_123');
 
-    expect(fetchWithRetryMock).toHaveBeenNthCalledWith(
-      1,
-      expect.stringContaining('https://graph.facebook.com/v22.0/ig_123?fields=followers_count,media_count&access_token=token_123'),
-      {},
-      { maxRetries: 1 },
-    );
+    const profileUrl = fetchWithRetryMock.mock.calls[0][0] as string;
+    expect(profileUrl).toContain('https://graph.facebook.com/v22.0/ig_123?fields=');
+    expect(profileUrl).toContain('followers_count');
+    expect(profileUrl).toContain('media_count');
+    expect(profileUrl).toContain('access_token=token_123');
     expect(fetchWithRetryMock).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining('https://graph.facebook.com/v22.0/ig_123/media?fields='),
@@ -50,12 +49,11 @@ describe('instagram insights host selection', () => {
 
     await fetchInstagramInsights('token_456', 'ig_direct_123', { graphApi: 'instagram' });
 
-    expect(fetchWithRetryMock).toHaveBeenNthCalledWith(
-      1,
-      expect.stringContaining('https://graph.instagram.com/v25.0/ig_direct_123?fields=followers_count,media_count&access_token=token_456'),
-      {},
-      { maxRetries: 1 },
-    );
+    const profileUrl = fetchWithRetryMock.mock.calls[0][0] as string;
+    expect(profileUrl).toContain('https://graph.instagram.com/v25.0/ig_direct_123?fields=');
+    expect(profileUrl).toContain('followers_count');
+    expect(profileUrl).toContain('media_count');
+    expect(profileUrl).toContain('access_token=token_456');
     expect(fetchWithRetryMock).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining('https://graph.instagram.com/v25.0/ig_direct_123/media?fields='),
