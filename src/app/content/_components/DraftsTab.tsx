@@ -43,7 +43,12 @@ export default function DraftsTab({ refreshKey }: { refreshKey: number }) {
       const drafts = draftsRes.ok ? (draftsRes.data.posts || []) : [];
       const reviewReady = reviewRes.ok ? (reviewRes.data.posts || []) : [];
       const failed = failedRes.ok ? (failedRes.data.posts || []) : [];
-      setPosts([...reviewReady, ...failed, ...drafts]);
+      const all = [...reviewReady, ...failed, ...drafts].sort((a, b) => {
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bTime - aTime;
+      });
+      setPosts(all);
     } catch {
       toast.error("Failed to load drafts");
     } finally {
