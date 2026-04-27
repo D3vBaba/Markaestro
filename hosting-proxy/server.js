@@ -1,4 +1,6 @@
 import http from 'node:http';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 
 const PORT = Number(process.env.PORT || 8080);
 const UPSTREAM = 'https://markaestro--markaestro-0226220726.us-central1.hosted.app';
@@ -12,12 +14,16 @@ const HOP_BY_HOP_HEADERS = new Set([
   'transfer-encoding',
   'upgrade',
   'host',
-  'content-length',
 ]);
 const RESPONSE_HEADER_ALLOWLIST = new Set([
+  // Range / size — TikTok's PULL_FROM_URL downloader needs these to pre-size
+  // and resume the stream; without them it falls back to a single linear read
+  // and stalls in PROCESSING_DOWNLOAD on any TCP hiccup.
+  'accept-ranges',
+  'content-length',
+  'content-range',
   'cache-control',
   'content-disposition',
-  'content-encoding',
   'content-language',
   'content-type',
   'etag',
@@ -72,7 +78,6 @@ http
       const targetUrl = new URL(req.url || '/', UPSTREAM);
       const headers = cloneHeaders(req.headers);
       headers.set('host', new URL(UPSTREAM).host);
-      headers.set('accept-encoding', 'identity');
       headers.set('x-forwarded-host', req.headers.host || '');
       headers.set('x-forwarded-proto', 'https');
 
@@ -91,10 +96,19 @@ http
 
       res.statusCode = upstreamRes.status;
 
+      // Node's fetch transparently decompresses gzip/br/deflate bodies, but the
+      // response Headers still report the original content-encoding and the
+      // (compressed) content-length. Forwarding either to the client makes the
+      // browser try to decode plain bytes and abort with
+      // ERR_CONTENT_DECODING_FAILED — so when fetch decompressed for us, drop
+      // both headers and let Node fall back to chunked transfer encoding.
+      const upstreamDecompressed = upstreamRes.headers.has('content-encoding');
+
       upstreamRes.headers.forEach((value, key) => {
         const lower = key.toLowerCase();
         if (HOP_BY_HOP_HEADERS.has(lower)) return;
         if (!RESPONSE_HEADER_ALLOWLIST.has(lower)) return;
+        if (upstreamDecompressed && (lower === 'content-encoding' || lower === 'content-length')) return;
 
         if (lower === 'location' && value.startsWith(UPSTREAM)) {
           const rewritten = value.replace(UPSTREAM, `https://${req.headers.host}`);
@@ -117,15 +131,11 @@ http
         return;
       }
 
-      const reader = upstreamRes.body.getReader();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        res.write(Buffer.from(value));
-      }
-
-      res.end();
+      // Pipe with backpressure instead of a hand-rolled read/write loop. The
+      // previous loop ignored res.write()'s return value and allocated a new
+      // Buffer per chunk, which under video load (50–500 MiB streams) created
+      // GC pressure and let the socket buffer balloon.
+      await pipeline(Readable.fromWeb(upstreamRes.body), res);
     } catch (error) {
       console.error('Proxy request failed', error);
       res.statusCode = 502;
