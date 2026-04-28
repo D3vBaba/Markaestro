@@ -1,8 +1,8 @@
 runConfig:
-  # At least one warm instance avoids 4–8s cold-start latency on /login and
-  # /dashboard hits — the first request of the day otherwise compiles the
-  # Next.js standalone runtime + initialises firebase-admin + Secret Manager.
-  minInstances: 1
+  # Scale to zero when idle to eliminate continuous charges. The first
+  # request after an idle period takes 4–8s to compile the Next.js standalone
+  # runtime + initialise firebase-admin + Secret Manager — accepted tradeoff.
+  minInstances: 0
   maxInstances: 10
   # Sharp, OpenAI SDK, firebase-admin, and parallel Gemini calls comfortably
   # push memory above the default 512 MiB under load. 1 GiB + 1 vCPU gives
