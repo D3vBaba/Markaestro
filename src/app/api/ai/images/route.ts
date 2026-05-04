@@ -8,7 +8,7 @@ import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 export const runtime = 'nodejs';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 250 * 1024 * 1024;
 const IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif']);
 const VIDEO_TYPES = new Set(['video/mp4', 'video/quicktime', 'video/webm']);
 const ALL_TYPES = new Set([...IMAGE_TYPES, ...VIDEO_TYPES]);
@@ -97,7 +97,7 @@ export async function GET(req: Request) {
     const [files] = await bucket.getFiles({ prefix });
 
     const media = files
-      .filter((f) => /\.(png|jpg|jpeg|webp|gif|mp4)$/i.test(f.name))
+      .filter((f) => /\.(png|jpg|jpeg|webp|gif|mp4|mov|webm)$/i.test(f.name))
       .map((f) => {
         const token = (f.metadata.metadata as Record<string, string> | undefined)
           ?.firebaseStorageDownloadTokens;

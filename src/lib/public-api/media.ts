@@ -20,7 +20,7 @@ export const PUBLIC_ALLOWED_VIDEO_TYPES = new Set([
 ]);
 
 export const PUBLIC_MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-export const PUBLIC_MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500 MB
+export const PUBLIC_MAX_VIDEO_SIZE = 250 * 1024 * 1024; // 250 MB
 
 export type PublicMediaAsset = {
   id: string;
@@ -67,7 +67,7 @@ export async function createMediaAsset(
     throw new Error('VALIDATION_FILE_TOO_LARGE_10MB');
   }
   if (isVideo && file.size > PUBLIC_MAX_VIDEO_SIZE) {
-    throw new Error('VALIDATION_FILE_TOO_LARGE_500MB');
+    throw new Error('VALIDATION_FILE_TOO_LARGE_250MB');
   }
 
   let width: number | null = null;

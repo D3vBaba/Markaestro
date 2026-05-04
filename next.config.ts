@@ -25,10 +25,9 @@ const CSP_REPORT_ONLY = [
     (APP_URL ? ` ${APP_URL}` : ''),
   "frame-src 'self' https://accounts.google.com https://apis.google.com https://checkout.stripe.com https://js.stripe.com" +
     (FIREBASE_AUTH_DOMAIN ? ` https://${FIREBASE_AUTH_DOMAIN}` : '') +
-    (FIREBASE_PROJECT ? ` https://${FIREBASE_PROJECT}.firebaseapp.com` : ''),
+  (FIREBASE_PROJECT ? ` https://${FIREBASE_PROJECT}.firebaseapp.com` : ''),
   "worker-src 'self' blob:",
   "object-src 'none'",
-  "upgrade-insecure-requests",
 ].join('; ');
 
 const SECURITY_HEADERS = [
@@ -43,11 +42,35 @@ const SECURITY_HEADERS = [
   { key: 'Content-Security-Policy-Report-Only', value: CSP_REPORT_ONLY },
 ];
 
+const FFMPEG_TRACE_FILES = [
+  './node_modules/@ffmpeg-installer/darwin-arm64/ffmpeg',
+  './node_modules/@ffmpeg-installer/darwin-x64/ffmpeg',
+  './node_modules/@ffmpeg-installer/linux-arm/ffmpeg',
+  './node_modules/@ffmpeg-installer/linux-arm64/ffmpeg',
+  './node_modules/@ffmpeg-installer/linux-ia32/ffmpeg',
+  './node_modules/@ffmpeg-installer/linux-x64/ffmpeg',
+  './node_modules/@ffmpeg-installer/win32-ia32/ffmpeg.exe',
+  './node_modules/@ffmpeg-installer/win32-x64/ffmpeg.exe',
+];
+
 const nextConfig: NextConfig = {
   reactCompiler: true,
   transpilePackages: ['firebase-admin'],
   output: 'standalone',
   outputFileTracingRoot: __dirname,
+  outputFileTracingIncludes: {
+    '/api/posts/[id]/publish': FFMPEG_TRACE_FILES,
+    '/api/public/v1/posts/[id]/publish': FFMPEG_TRACE_FILES,
+    '/api/worker/tick': FFMPEG_TRACE_FILES,
+    '/api/worker/tiktok-poll': FFMPEG_TRACE_FILES,
+  },
+  // Next.js 16 caps proxied request bodies at 10 MB by default — videos
+  // up to MAX_VIDEO_SIZE (250 MB, see /api/ai/images and /api/public/v1/media)
+  // were silently truncated and failing formData() parsing with a 500.
+  // Allow 260 MB to cover the 250 MB payload plus multipart overhead.
+  experimental: {
+    proxyClientMaxBodySize: '260mb',
+  },
   poweredByHeader: false,
   turbopack: {
     root: __dirname,

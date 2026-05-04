@@ -24,7 +24,7 @@ Public API v1 supports publishing automation (images and video) for:
 
 Accepted image types: `image/png`, `image/jpeg`, `image/webp`, `image/gif` (max 10 MB)
 
-Accepted video types: `video/mp4`, `video/quicktime`, `video/webm`, `video/x-msvideo`, `video/x-matroska` (max 500 MB)
+Accepted video types: `video/mp4`, `video/quicktime`, `video/webm`, `video/x-msvideo`, `video/x-matroska` (max 250 MB)
 
 ## Auth
 

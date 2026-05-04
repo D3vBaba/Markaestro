@@ -45,6 +45,7 @@ const channelLabels: Record<string, string> = {
 };
 
 const IMAGE_CUSTOM_PROMPT_MAX_LENGTH = 4000;
+const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
 
 export default function PostEditSheet({
   post,
@@ -87,18 +88,28 @@ export default function PostEditSheet({
   }, [post]);
 
   const channel = post?.channel ?? "facebook";
-  const currentImage = mediaUrls[0];
+  const currentMedia = mediaUrls[0];
+  const allowVideo = channel === "tiktok";
 
   const handleUpload = async (file: File) => {
-    if (file.size > 10 * 1024 * 1024) { toast.error("File must be under 10 MB"); return; }
+    const isVideo = file.type.startsWith("video/");
+    if (isVideo && !allowVideo) {
+      toast.error("Videos are available for TikTok posts only");
+      return;
+    }
+    const maxSize = isVideo ? 250 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error(isVideo ? "Video must be under 250 MB" : "Image must be under 10 MB");
+      return;
+    }
     setUploading(true);
     try {
       const fd = new FormData();
-      fd.append("image", file);
+      fd.append(isVideo ? "video" : "image", file);
       const res = await apiUpload<{ ok: boolean; url: string }>("/api/ai/images", fd);
       if (res.ok) {
         setMediaUrls([res.data.url]);
-        toast.success("Image uploaded");
+        toast.success(isVideo ? "Video uploaded" : "Image uploaded");
       } else {
         toast.error("Upload failed");
       }
@@ -177,8 +188,8 @@ export default function PostEditSheet({
             {/* Image */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <p className="mk-eyebrow">Image</p>
-                {currentImage && (
+                <p className="mk-eyebrow">{allowVideo ? "Media" : "Image"}</p>
+                {currentMedia && (
                   <button
                     onClick={() => setMediaUrls([])}
                     className="text-[11px] text-muted-foreground hover:text-destructive transition-colors"
@@ -188,9 +199,13 @@ export default function PostEditSheet({
                 )}
               </div>
 
-              {currentImage ? (
+              {currentMedia ? (
                 <div className="relative group rounded-xl overflow-hidden border border-border/40">
-                  <img src={currentImage} alt="Post image" className="w-full object-cover max-h-56" />
+                  {isVideoUrl(currentMedia) ? (
+                    <video src={currentMedia} className="w-full object-cover max-h-56 bg-black" muted playsInline preload="metadata" />
+                  ) : (
+                    <img src={currentMedia} alt="Post image" className="w-full object-cover max-h-56" />
+                  )}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button
                       onClick={() => fileInputRef.current?.click()}
@@ -212,15 +227,15 @@ export default function PostEditSheet({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <ImagePlus className="w-7 h-7 text-muted-foreground/40 mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Drop an image or click to upload</p>
-                  <p className="text-[11px] text-muted-foreground/50 mt-1">JPG, PNG, WebP · up to 10 MB</p>
+                  <p className="text-sm text-muted-foreground">{allowVideo ? "Drop media or click to upload" : "Drop an image or click to upload"}</p>
+                  <p className="text-[11px] text-muted-foreground/50 mt-1">{allowVideo ? "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
                 </div>
               )}
 
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/png,image/jpeg,image/webp"
+                accept={allowVideo ? "image/png,image/jpeg,image/webp,video/mp4,video/quicktime,video/webm" : "image/png,image/jpeg,image/webp"}
                 className="hidden"
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ""; }}
               />
@@ -342,7 +357,7 @@ export default function PostEditSheet({
               <PlatformPreview
                 content={content}
                 channel={channel}
-                mediaUrls={currentImage ? [currentImage] : undefined}
+                mediaUrls={currentMedia ? [currentMedia] : undefined}
               />
             </div>
           </div>
@@ -385,6 +400,7 @@ export default function PostEditSheet({
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         onSelect={(url) => { setMediaUrls([url]); setPickerOpen(false); }}
+        allowVideos={channel === "tiktok"}
       />
     </>
   );

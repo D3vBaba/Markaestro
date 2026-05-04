@@ -64,6 +64,7 @@ const channelDefaultRatio: Record<string, string> = {
 
 const CONTEXT_MAX_LENGTH = 500;
 const IMAGE_CUSTOM_PROMPT_MAX_LENGTH = 4000;
+const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
 
 export default function CreateTab({
   productId,
@@ -223,9 +224,9 @@ export default function CreateTab({
       const results = await Promise.all(
         filesToUpload.map(async (file) => {
           const isVideo = file.type.startsWith("video/");
-          const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+          const maxSize = isVideo ? 250 * 1024 * 1024 : 10 * 1024 * 1024;
           if (file.size > maxSize) {
-            toast.error(`${file.name}: must be under ${isVideo ? "100" : "10"} MB`);
+            toast.error(`${file.name}: must be under ${isVideo ? "250" : "10"} MB`);
             return null;
           }
           const fd = new FormData();
@@ -563,7 +564,7 @@ export default function CreateTab({
                 <div className="grid grid-cols-3 gap-2">
                   {imageUrls.map((url, i) => (
                     <div key={`${url}-${i}`} className="relative group aspect-square rounded-lg overflow-hidden border border-border/40">
-                      {url.match(/\.(mp4|mov|webm)(\?|$)/i) ? (
+                      {isVideoUrl(url) ? (
                         <video src={url} className="w-full h-full object-cover" />
                       ) : (
                         <img src={url} alt={`Media ${i + 1}`} className="w-full h-full object-cover" />
@@ -592,14 +593,14 @@ export default function CreateTab({
                   onClick={() => manualFileInputRef.current?.click()}
                 >
                   <p className="text-sm text-muted-foreground">{channel === "tiktok" ? "Drop videos or images" : "Drop images or click to upload"}</p>
-                  <p className="text-[11px] text-muted-foreground/50 mt-1">Up to {MAX_MEDIA} items · {channel === "tiktok" ? "MP4/MOV ≤100 MB · JPG/PNG ≤10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
+                  <p className="text-[11px] text-muted-foreground/50 mt-1">Up to {MAX_MEDIA} items · {channel === "tiktok" ? "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
                 </div>
               )}
               <input
                 ref={manualFileInputRef}
                 type="file"
                 multiple
-                accept={channel === "tiktok" ? "image/png,image/jpeg,image/webp,video/mp4,video/quicktime" : "image/png,image/jpeg,image/webp"}
+                accept={channel === "tiktok" ? "image/png,image/jpeg,image/webp,video/mp4,video/quicktime,video/webm" : "image/png,image/jpeg,image/webp"}
                 className="hidden"
                 onChange={(e) => {
                   const files = Array.from(e.target.files || []);
@@ -929,7 +930,11 @@ export default function CreateTab({
                   <div className="grid grid-cols-3 gap-2">
                     {imageUrls.map((url, i) => (
                       <div key={`${url}-${i}`} className="relative group aspect-square rounded-lg overflow-hidden border border-border/40">
-                        <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                        {isVideoUrl(url) ? (
+                          <video src={url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                        ) : (
+                          <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                        )}
                         <div className="absolute top-1 left-1 bg-black/60 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">
                           {i + 1}
                         </div>
@@ -963,6 +968,7 @@ export default function CreateTab({
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         onSelect={(url) => setImageUrls((prev) => (prev.includes(url) || prev.length >= MAX_MEDIA ? prev : [...prev, url]))}
+        allowVideos={channel === "tiktok"}
       />
     </div>
   );
