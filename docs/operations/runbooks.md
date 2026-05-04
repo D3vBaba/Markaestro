@@ -339,6 +339,37 @@ If a provider app is catastrophically blocked:
 
 ---
 
+## 5. TikTok publish webhook
+
+Endpoint: `POST /api/webhooks/tiktok` (`src/app/api/webhooks/tiktok/route.ts`).
+
+### What it does
+
+TikTok delivers Content Posting events (`post.publish.complete`,
+`post.publish.failed`, `post.publish.inbox_delivered`,
+`post.publish.publicly_available`) to this endpoint. The handler verifies
+the `TikTok-Signature` header (HMAC-SHA256 over `t.body` keyed by
+`TIKTOK_CLIENT_SECRET`), looks up the post by `publish_id`, and calls
+`pollTikTokPublishForPost` to reconcile state from the authoritative
+status API. The webhook is a *signal* — not a state push — so redelivery
+and out-of-order events are safe.
+
+The 1-min `pollPendingTikTokPublishes` Cloud Scheduler job remains the
+backstop if a webhook is missed or the callback URL is briefly down.
+
+### Configuration
+
+1. In the TikTok Developer Portal → your app → Webhooks: register
+   `https://<host>/api/webhooks/tiktok` and subscribe to all
+   `post.publish.*` events.
+2. Confirm `TIKTOK_CLIENT_SECRET` is set in Secret Manager and bound to
+   the Cloud Run service.
+3. Deliveries failing with 401 = signature mismatch (usually a stale
+   secret). With 500 = handler error; TikTok retries up to 72h with
+   exponential backoff.
+
+---
+
 ## Appendix — Paging chain
 
 1. `@on-call-primary` in PagerDuty (Cloud Run uptime + Sentry)

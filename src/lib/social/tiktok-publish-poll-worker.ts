@@ -16,6 +16,8 @@ type TikTokPublishPollResult = {
   errors: Array<{ workspaceId: string; postId: string; error: string }>;
 };
 
+const TIKTOK_PULL_TIMEOUT_MS = 70 * 60 * 1000;
+
 export type TikTokPostPollOutcome =
   | { status: 'no_external_id' }
   | { status: 'no_connection' }
@@ -29,6 +31,23 @@ function getApiClientId(post: Record<string, unknown>) {
   return post.createdByType === 'api_client' && typeof post.createdById === 'string'
     ? post.createdById
     : null;
+}
+
+function getPublishStartedAt(post: Record<string, unknown>): string | null {
+  for (const key of ['publishStartedAt', 'lastPublishAttemptAt', 'updatedAt']) {
+    const value = post[key];
+    if (typeof value === 'string' && value) return value;
+  }
+  return null;
+}
+
+function isPastTikTokPullTimeout(post: Record<string, unknown>): boolean {
+  const startedAt = getPublishStartedAt(post);
+  if (!startedAt) return false;
+
+  const startedMs = Date.parse(startedAt);
+  if (!Number.isFinite(startedMs)) return false;
+  return Date.now() - startedMs > TIKTOK_PULL_TIMEOUT_MS;
 }
 
 function withUpdatedTikTokResult(
@@ -240,8 +259,48 @@ export async function pollTikTokPublishForPost(
         : { status: 'still_processing' };
   }
 
+  if (
+    (liveStatus.status === 'PROCESSING_DOWNLOAD' || liveStatus.status === 'PROCESSING_UPLOAD') &&
+    isPastTikTokPullTimeout(post)
+  ) {
+    const bytes =
+      typeof liveStatus.downloadedBytes === 'number'
+        ? ` downloadedBytes=${liveStatus.downloadedBytes}`
+        : typeof liveStatus.uploadedBytes === 'number'
+          ? ` uploadedBytes=${liveStatus.uploadedBytes}`
+          : '';
+    const error = `TikTok did not finish media transfer within the one-hour processing window.${bytes}`;
+    const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'failed', error);
+    const summary = summarizePublishResults(nextPublishResults);
+    await postDocRef.update({
+      status: 'failed',
+      errorMessage: summary.firstError || error,
+      publishResults: nextPublishResults,
+      publishedChannels: summary.publishedChannels,
+      publishFinishedAt: now,
+      publishLeaseExpiresAt: null,
+      tiktokLastStatus: liveStatus.status,
+      ...(typeof liveStatus.downloadedBytes === 'number' ? { tiktokDownloadedBytes: liveStatus.downloadedBytes } : {}),
+      ...(typeof liveStatus.uploadedBytes === 'number' ? { tiktokUploadedBytes: liveStatus.uploadedBytes } : {}),
+      updatedAt: now,
+    });
+    if (clientId) {
+      await incrementApiClientStat(workspaceId, clientId, 'publish_failed');
+      await enqueueWebhookEvent(workspaceId, 'post.failed', {
+        postId: snap.id,
+        channel: post.channel,
+        status: 'failed',
+        error: summary.firstError || error,
+      });
+    }
+    return { status: 'failed', error: summary.firstError || error };
+  }
+
   await postDocRef.update({
     publishResults: withUpdatedTikTokResult(post.publishResults, 'pending'),
+    tiktokLastStatus: liveStatus.status || null,
+    ...(typeof liveStatus.downloadedBytes === 'number' ? { tiktokDownloadedBytes: liveStatus.downloadedBytes } : {}),
+    ...(typeof liveStatus.uploadedBytes === 'number' ? { tiktokUploadedBytes: liveStatus.uploadedBytes } : {}),
     updatedAt: now,
   });
   return { status: 'still_processing' };
@@ -270,6 +329,31 @@ export async function pollTikTokPublishWithRetries(
     if (last.status !== 'still_processing') return last;
   }
   return last;
+}
+
+/**
+ * Resolve the post(s) currently associated with a TikTok publish_id. Used by
+ * the webhook handler — TikTok only gives us the publish_id, so we have to
+ * look up which post (and workspace) it belongs to. Returns at most one match
+ * because publish_ids are globally unique within TikTok.
+ */
+export async function findPostByTikTokPublishId(publishId: string): Promise<{
+  workspaceId: string;
+  postRef: DocumentReference;
+} | null> {
+  if (!publishId) return null;
+  const snap = await adminDb
+    .collectionGroup('posts')
+    .where('externalId', '==', publishId)
+    .where('channel', '==', 'tiktok')
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  const doc = snap.docs[0];
+  // posts live at workspaces/{workspaceId}/posts/{postId}
+  const workspaceId = doc.ref.parent.parent?.id;
+  if (!workspaceId) return null;
+  return { workspaceId, postRef: doc.ref };
 }
 
 export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollResult> {
