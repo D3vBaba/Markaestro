@@ -15,6 +15,19 @@ const HOP_BY_HOP_HEADERS = new Set([
   'upgrade',
   'host',
 ]);
+const REQUEST_HEADER_BLOCKLIST = new Set([
+  // The proxy is a transforming intermediary because Node fetch may decode
+  // compressed upstream bodies before exposing the stream. Request identity
+  // bytes so response metadata still describes the body we pipe downstream.
+  'accept-encoding',
+]);
+const FETCH_DECODED_RESPONSE_HEADERS = new Set([
+  'accept-ranges',
+  'content-encoding',
+  'content-length',
+  'content-range',
+  'etag',
+]);
 const RESPONSE_HEADER_ALLOWLIST = new Set([
   // Range / size — TikTok's PULL_FROM_URL downloader needs these to pre-size
   // and resume the stream; without them it falls back to a single linear read
@@ -32,10 +45,12 @@ const RESPONSE_HEADER_ALLOWLIST = new Set([
   'set-cookie',
   'vary',
   // Security headers — forward from upstream
+  'content-security-policy-report-only',
   'strict-transport-security',
   'content-security-policy',
   'x-frame-options',
   'x-content-type-options',
+  'x-dns-prefetch-control',
   'referrer-policy',
   'permissions-policy',
   'x-xss-protection',
@@ -53,13 +68,16 @@ const DEFAULT_SECURITY_HEADERS = {
   'permissions-policy': 'camera=(), microphone=(), geolocation=()',
 };
 
-function cloneHeaders(headers) {
+const HTML_SHELL_CACHE_CONTROL = 'private, no-cache, no-store, max-age=0, must-revalidate';
+
+function cloneRequestHeaders(headers) {
   const result = new Headers();
 
   for (const [key, value] of Object.entries(headers)) {
     if (value == null) continue;
     const lower = key.toLowerCase();
     if (HOP_BY_HOP_HEADERS.has(lower)) continue;
+    if (REQUEST_HEADER_BLOCKLIST.has(lower)) continue;
 
     if (Array.isArray(value)) {
       for (const item of value) result.append(key, item);
@@ -72,12 +90,33 @@ function cloneHeaders(headers) {
   return result;
 }
 
+function isHtmlShellResponse(headers) {
+  const contentType = headers.get('content-type') || '';
+  return contentType.includes('text/html') || contentType.includes('text/x-component');
+}
+
+function sanitizeHeaderValue(key, value) {
+  if (key.toLowerCase() !== 'content-security-policy-report-only') {
+    return value;
+  }
+
+  // Browsers ignore upgrade-insecure-requests in Report-Only policies and log
+  // a console warning for every page load. Keep the real CSP report policy,
+  // but strip the no-op directive while the upstream app rolls forward.
+  return value
+    .split(';')
+    .map((directive) => directive.trim())
+    .filter((directive) => directive && directive !== 'upgrade-insecure-requests')
+    .join('; ');
+}
+
 http
   .createServer(async (req, res) => {
     try {
       const targetUrl = new URL(req.url || '/', UPSTREAM);
-      const headers = cloneHeaders(req.headers);
+      const headers = cloneRequestHeaders(req.headers);
       headers.set('host', new URL(UPSTREAM).host);
+      headers.set('accept-encoding', 'identity');
       headers.set('x-forwarded-host', req.headers.host || '');
       headers.set('x-forwarded-proto', 'https');
 
@@ -97,18 +136,17 @@ http
       res.statusCode = upstreamRes.status;
 
       // Node's fetch transparently decompresses gzip/br/deflate bodies, but the
-      // response Headers still report the original content-encoding and the
-      // (compressed) content-length. Forwarding either to the client makes the
-      // browser try to decode plain bytes and abort with
-      // ERR_CONTENT_DECODING_FAILED — so when fetch decompressed for us, drop
-      // both headers and let Node fall back to chunked transfer encoding.
+      // response Headers still report the original encoded representation. We
+      // request identity bytes above; this fallback keeps the proxy safe if an
+      // upstream ignores that request.
       const upstreamDecompressed = upstreamRes.headers.has('content-encoding');
+      const htmlShellResponse = isHtmlShellResponse(upstreamRes.headers);
 
       upstreamRes.headers.forEach((value, key) => {
         const lower = key.toLowerCase();
         if (HOP_BY_HOP_HEADERS.has(lower)) return;
         if (!RESPONSE_HEADER_ALLOWLIST.has(lower)) return;
-        if (upstreamDecompressed && (lower === 'content-encoding' || lower === 'content-length')) return;
+        if (upstreamDecompressed && FETCH_DECODED_RESPONSE_HEADERS.has(lower)) return;
 
         if (lower === 'location' && value.startsWith(UPSTREAM)) {
           const rewritten = value.replace(UPSTREAM, `https://${req.headers.host}`);
@@ -116,8 +154,16 @@ http
           return;
         }
 
-        res.setHeader(key, value);
+        if (htmlShellResponse && lower === 'cache-control') return;
+
+        res.setHeader(key, sanitizeHeaderValue(key, value));
       });
+
+      if (htmlShellResponse) {
+        res.setHeader('cache-control', HTML_SHELL_CACHE_CONTROL);
+        res.setHeader('pragma', 'no-cache');
+        res.setHeader('expires', '0');
+      }
 
       // Inject baseline security headers if upstream didn't send them
       for (const [header, value] of Object.entries(DEFAULT_SECURITY_HEADERS)) {

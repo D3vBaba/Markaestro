@@ -6,7 +6,7 @@ import { apiGet, apiDelete } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { toast } from "sonner";
-import { Trash2, X, Download, Link, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Download, ImageIcon, Play, Trash2, Video, X } from "lucide-react";
 
 type GalleryItem = {
   name: string;
@@ -19,7 +19,6 @@ type GalleryItem = {
 export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -35,14 +34,16 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
   }, [refreshKey]);
 
   const isVideo = (item: GalleryItem) =>
-    item.contentType?.startsWith("video/") || item.name.endsWith(".mp4");
+    item.contentType?.startsWith("video/") || /\.(mp4|mov|webm)(?:\?|$)/i.test(item.name);
 
-  const handleCopyUrl = (url: string) => {
-    navigator.clipboard.writeText(url);
-    setCopiedUrl(url);
-    toast.success("URL copied");
-    setTimeout(() => setCopiedUrl(null), 2000);
+  const formatSize = (size: number) => {
+    if (!Number.isFinite(size) || size <= 0) return "";
+    if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+    return `${Math.max(1, Math.round(size / 1024))} KB`;
   };
+
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
   const handleDownload = (url: string, name: string) => {
     const a = document.createElement("a");
@@ -176,7 +177,7 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          {items.length} file{items.length !== 1 ? "s" : ""}
+          {items.length} asset{items.length !== 1 ? "s" : ""}
           {selected.size > 0 && ` · ${selected.size} selected`}
         </p>
         <div className="flex items-center gap-2">
@@ -224,45 +225,60 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
 
       {/* Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {items.map((img) => {
+        {items.map((img, index) => {
           const isSelected = selected.has(img.name);
+          const video = isVideo(img);
+          const size = formatSize(img.size);
           return (
             <div
               key={img.name}
-              className={`group relative overflow-hidden rounded-lg border transition-all ${
+              className={`group relative aspect-square overflow-hidden rounded-xl border bg-muted/30 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
                 isSelected
-                  ? "border-foreground ring-2 ring-foreground/20"
-                  : "border-border/40"
+                  ? "border-foreground ring-2 ring-foreground/15"
+                  : "border-border/50 hover:border-foreground/25"
               }`}
               onClick={selectMode ? () => toggleSelect(img.name) : undefined}
             >
               {/* Thumbnail */}
-              {isVideo(img) ? (
+              {video ? (
                 <video
                   src={img.url}
-                  className="w-full aspect-video object-contain bg-black cursor-pointer"
+                  className="h-full w-full object-cover cursor-pointer"
                   playsInline
                   muted
                   preload="metadata"
-                  onClick={selectMode ? undefined : () => openLightbox(items.indexOf(img))}
+                  onClick={selectMode ? undefined : () => openLightbox(index)}
                 />
               ) : (
                 <img
                   src={img.url}
-                  alt={img.name}
-                  className="w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                  alt=""
+                  className="h-full w-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-[1.02]"
                   loading="lazy"
-                  onClick={selectMode ? undefined : () => openLightbox(items.indexOf(img))}
+                  onClick={selectMode ? undefined : () => openLightbox(index)}
                 />
               )}
 
-              {/* Badges */}
-              <div className="absolute top-2 left-2 flex items-center gap-1.5 pointer-events-none">
-                {isVideo(img) && (
-                  <span className="px-1.5 py-0.5 rounded bg-black/60 text-white text-[10px] font-medium">
-                    VIDEO
+              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent opacity-75 transition-opacity group-hover:opacity-95" />
+
+              <div className="absolute top-2 left-2 flex items-center gap-1.5 pointer-events-none rounded-full bg-black/55 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-white backdrop-blur">
+                {video ? <Video className="size-3" /> : <ImageIcon className="size-3" />}
+                {video ? "Video" : "Image"}
+              </div>
+
+              {video && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="flex size-10 items-center justify-center rounded-full bg-black/45 text-white shadow-lg backdrop-blur transition-transform group-hover:scale-105">
+                    <Play className="ml-0.5 size-4 fill-current" />
                   </span>
-                )}
+                </div>
+              )}
+
+              <div className="pointer-events-none absolute bottom-2 left-2 right-2 flex items-center justify-between gap-2 text-[11px] text-white">
+                <span className="rounded-full bg-black/45 px-2 py-1 font-medium backdrop-blur">
+                  {formatDate(img.createdAt)}
+                </span>
+                {size && <span className="rounded-full bg-black/45 px-2 py-1 backdrop-blur">{size}</span>}
               </div>
 
               {/* Selection checkbox */}
@@ -276,9 +292,7 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
                     }`}
                   >
                     {isSelected && (
-                      <svg className="w-3 h-3 text-background" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
+                      <Check className="w-3 h-3 text-background" />
                     )}
                   </div>
                 </div>
@@ -351,25 +365,16 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
               )}
 
               {/* Info + actions */}
-              <div className="flex items-center gap-3 bg-black/60 rounded-lg px-4 py-2">
-                <p className="text-white text-xs truncate max-w-50">{item.name}</p>
-                <span className="text-white/40 text-[10px]">
-                  {new Date(item.createdAt).toLocaleDateString()}
-                  {" · "}
-                  {item.size >= 1024 * 1024
-                    ? `${(item.size / (1024 * 1024)).toFixed(1)} MB`
-                    : `${(item.size / 1024).toFixed(0)} KB`}
+              <div className="flex items-center gap-3 rounded-xl bg-black/60 px-4 py-2 backdrop-blur">
+                <span className="flex items-center gap-1.5 text-white text-xs font-medium">
+                  {isVideo(item) ? <Video className="size-3.5" /> : <ImageIcon className="size-3.5" />}
+                  {isVideo(item) ? "Video" : "Image"}
+                </span>
+                <span className="text-white/55 text-[10px]">
+                  {formatDate(item.createdAt)}
+                  {formatSize(item.size) ? ` · ${formatSize(item.size)}` : ""}
                 </span>
                 <div className="flex gap-1.5 ml-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="h-7 text-[11px] gap-1.5"
-                    onClick={() => handleCopyUrl(item.url)}
-                  >
-                    <Link className="w-3 h-3" />
-                    {copiedUrl === item.url ? "Copied" : "Copy URL"}
-                  </Button>
                   <Button
                     size="sm"
                     variant="secondary"
@@ -401,7 +406,7 @@ export default function ImageGallery({ refreshKey }: { refreshKey: number }) {
       <ConfirmDeleteDialog
         open={!!deleteConfirm}
         onOpenChange={(open) => { if (!open) setDeleteConfirm(null); }}
-        entity={deleteConfirm?.type === "batch" ? `${selected.size} image${selected.size !== 1 ? "s" : ""}` : "image"}
+        entity={deleteConfirm?.type === "batch" ? `${selected.size} asset${selected.size !== 1 ? "s" : ""}` : "asset"}
         onConfirm={confirmImageDelete}
       />
     </div>

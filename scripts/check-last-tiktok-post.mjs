@@ -17,6 +17,7 @@
  */
 
 import admin from 'firebase-admin';
+import crypto from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -49,7 +50,7 @@ try {
 
 function resolveCredential() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (json) {
+  if (json && json.trim().startsWith('{')) {
     const parsed = JSON.parse(json);
     return admin.credential.cert(parsed);
   }
@@ -71,12 +72,12 @@ async function findLatestTikTokPost(workspaceFilter) {
     const wsId = ws.id;
     const snap = await db
       .collection(`workspaces/${wsId}/posts`)
-      .where('channel', '==', 'tiktok')
       .orderBy('updatedAt', 'desc')
-      .limit(1)
+      .limit(100)
       .get();
     if (snap.empty) continue;
-    const doc = snap.docs[0];
+    const doc = snap.docs.find((candidate) => candidate.data().channel === 'tiktok');
+    if (!doc) continue;
     const data = doc.data();
     if (!latest || (data.updatedAt || '') > (latest.updatedAt || '')) {
       latest = { workspaceId: wsId, postId: doc.id, ...data };
@@ -95,15 +96,35 @@ async function getTikTokConnection(workspaceId, productId) {
   // Mirror lib/platform/connections.ts lookup: product-scoped first, then workspace-scoped.
   const tryPaths = [];
   if (productId) {
-    tryPaths.push(`workspaces/${workspaceId}/products/${productId}/connections/tiktok`);
+    tryPaths.push(`workspaces/${workspaceId}/products/${productId}/platformConnections/tiktok`);
   }
-  tryPaths.push(`workspaces/${workspaceId}/connections/tiktok`);
+  tryPaths.push(`workspaces/${workspaceId}/platformConnections/tiktok`);
 
   for (const path of tryPaths) {
     const snap = await db.doc(path).get();
     if (snap.exists) return { path, ...snap.data() };
   }
   return null;
+}
+
+function decryptAccessToken(connection) {
+  const encoded = connection.accessTokenEncrypted;
+  if (!encoded) return connection.accessToken || connection.access_token || '';
+
+  const raw =
+    process.env.DATA_ENCRYPTION_KEY ||
+    process.env.ENCRYPTION_KEY ||
+    process.env.WORKER_SECRET;
+  if (!raw) return '';
+
+  const key = crypto.createHash('sha256').update(raw).digest();
+  const packed = Buffer.from(encoded, 'base64');
+  const iv = packed.subarray(0, 12);
+  const tag = packed.subarray(packed.length - 16);
+  const ciphertext = packed.subarray(12, packed.length - 16);
+  const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+  decipher.setAuthTag(tag);
+  return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
 }
 
 async function fetchTikTokStatus(accessToken, publishId) {
@@ -165,7 +186,7 @@ function redact(token) {
     return;
   }
 
-  const accessToken = connection.accessToken || connection.access_token;
+  const accessToken = decryptAccessToken(connection);
   console.log('\n=== Connection ===');
   console.log({
     path: connection.path,
