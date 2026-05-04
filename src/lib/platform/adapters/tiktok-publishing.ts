@@ -1,119 +1,16 @@
-import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { arch, platform, tmpdir } from 'node:os';
-import path from 'node:path';
 import { fetchWithRetry } from '@/lib/fetch-retry';
 import { detectMp4Audio } from '@/lib/media/mp4-audio-detect';
+import { transcodeForTikTok } from '@/lib/media/tiktok-transcode';
 import { readResponseBufferWithLimit } from '@/lib/network-security';
 import { isTikTokVideoUrl, validateTikTokMediaUrls } from '@/lib/tiktok-draft-flow';
 import { getAccessToken } from '../base-adapter';
 import { PlatformCapability } from '../types';
 import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
 
-const TIKTOK_PREFLIGHT_TIMEOUT_MS = 15_000;
 const TIKTOK_MAX_VIDEO_BYTES = 500 * 1024 * 1024;
 const TIKTOK_FILE_UPLOAD_TIMEOUT_MS = 120_000;
 const TIKTOK_MAX_WHOLE_UPLOAD_BYTES = 64 * 1024 * 1024;
 const TIKTOK_DEFAULT_CHUNK_BYTES = 10 * 1024 * 1024;
-
-function parseContentRangeTotal(contentRange: string | null): number | null {
-  if (!contentRange) return null;
-  const match = contentRange.match(/\/(\d+)$/);
-  if (!match) return null;
-  const total = Number(match[1]);
-  return Number.isFinite(total) && total > 0 ? total : null;
-}
-
-function parseHeaderByteLength(headers: Headers): number | null {
-  const rangeTotal = parseContentRangeTotal(headers.get('content-range'));
-  if (rangeTotal) return rangeTotal;
-
-  const contentLength = Number(headers.get('content-length') || '0');
-  return Number.isFinite(contentLength) && contentLength > 0 ? contentLength : null;
-}
-
-type TikTokVideoPreflight =
-  | {
-      ok: true;
-      sizeBytes: number;
-      contentType: string;
-      rangeSupported: boolean;
-    }
-  | { ok: false; error: string };
-
-async function preflightTikTokVideoPullUrl(videoUrl: string): Promise<TikTokVideoPreflight> {
-  try {
-    const head = await fetch(videoUrl, {
-      method: 'HEAD',
-      redirect: 'manual',
-      signal: AbortSignal.timeout(TIKTOK_PREFLIGHT_TIMEOUT_MS),
-    });
-
-    if (head.status >= 300 && head.status < 400) {
-      return { ok: false, error: 'TikTok media URL redirects. PULL_FROM_URL requires a final HTTPS URL with no redirects.' };
-    }
-    if (!head.ok) {
-      return { ok: false, error: `TikTok media URL HEAD check failed with HTTP ${head.status}` };
-    }
-
-    const contentType = head.headers.get('content-type') || '';
-    if (!contentType.startsWith('video/')) {
-      return { ok: false, error: `TikTok media URL returned ${contentType || 'no content-type'} instead of video/*` };
-    }
-
-    const sizeBytes = parseHeaderByteLength(head.headers);
-    if (!sizeBytes) {
-      return { ok: false, error: 'TikTok media URL did not expose Content-Length, so TikTok cannot reliably size the pull upload.' };
-    }
-
-    const range = await fetch(videoUrl, {
-      headers: { Range: 'bytes=0-0' },
-      redirect: 'manual',
-      signal: AbortSignal.timeout(TIKTOK_PREFLIGHT_TIMEOUT_MS),
-    });
-
-    try {
-      if (range.status >= 300 && range.status < 400) {
-        return { ok: false, error: 'TikTok media URL range check redirects. PULL_FROM_URL requires no redirects.' };
-      }
-
-      // Byte ranges are useful for a fast/resumable pull, but TikTok's
-      // PULL_FROM_URL prerequisites only require a stable HTTPS URL that does
-      // not redirect and remains accessible. Firebase Hosting can return 200
-      // for a Range probe while the same route supports 206 behind the proxy,
-      // so do not block a valid full-body response here.
-      if (range.status === 206) {
-        if (!range.headers.get('content-range')) {
-          return { ok: false, error: 'TikTok media URL returned 206 without Content-Range.' };
-        }
-        return { ok: true, sizeBytes, contentType, rangeSupported: true };
-      } else if (range.status === 200) {
-        const rangeContentType = range.headers.get('content-type') || '';
-        const rangeSizeBytes = parseHeaderByteLength(range.headers);
-        if (!rangeContentType.startsWith('video/')) {
-          return { ok: false, error: `TikTok media URL range probe returned ${rangeContentType || 'no content-type'} instead of video/*` };
-        }
-        if (!rangeSizeBytes) {
-          return { ok: false, error: 'TikTok media URL range probe did not expose Content-Length.' };
-        }
-        return { ok: true, sizeBytes, contentType, rangeSupported: false };
-      } else {
-        return { ok: false, error: `TikTok media URL range probe failed with HTTP ${range.status}` };
-      }
-    } finally {
-      if (range.body) {
-        await range.body.cancel();
-      }
-    }
-
-  } catch (error) {
-    return {
-      ok: false,
-      error: error instanceof Error ? `TikTok media URL preflight failed: ${error.message}` : 'TikTok media URL preflight failed',
-    };
-  }
-}
 
 export function getTikTokFileUploadPlan(videoSize: number) {
   if (videoSize <= 0) {
@@ -140,84 +37,6 @@ function isMp4LikeVideo(contentType: string, mediaUrl: string): boolean {
     /\.(mp4|mov)(?:[?&]|$)/i.test(mediaUrl);
 }
 
-function getFfmpegInstallerPlatform(): string | null {
-  const osPlatform = platform();
-  const osArch = arch();
-  if (osPlatform === 'darwin' && (osArch === 'arm64' || osArch === 'x64')) return `darwin-${osArch}`;
-  if (osPlatform === 'linux' && ['arm', 'arm64', 'ia32', 'x64'].includes(osArch)) return `linux-${osArch}`;
-  if (osPlatform === 'win32' && (osArch === 'ia32' || osArch === 'x64')) return `win32-${osArch}`;
-  return null;
-}
-
-function resolveFfmpegBinary(): string | null {
-  if (process.env.FFMPEG_BIN && existsSync(process.env.FFMPEG_BIN)) {
-    return process.env.FFMPEG_BIN;
-  }
-
-  const installerPlatform = getFfmpegInstallerPlatform();
-  if (!installerPlatform) return null;
-
-  const binary = platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
-  const candidates = [
-    path.join(/*turbopackIgnore: true*/ process.cwd(), 'node_modules', '@ffmpeg-installer', installerPlatform, binary),
-    path.join(/*turbopackIgnore: true*/ process.cwd(), '.next', 'standalone', 'node_modules', '@ffmpeg-installer', installerPlatform, binary),
-    path.join(path.dirname(process.execPath), 'node_modules', '@ffmpeg-installer', installerPlatform, binary),
-  ];
-
-  return candidates.find((candidate) => existsSync(candidate)) || null;
-}
-
-function runFfmpeg(args: string[]): Promise<void> {
-  const binary = resolveFfmpegBinary();
-  if (!binary) {
-    return Promise.reject(new Error('ffmpeg binary is not available'));
-  }
-
-  return new Promise((resolve, reject) => {
-    const child = spawn(binary, args);
-    const stderr: Buffer[] = [];
-
-    child.stderr.on('data', (chunk: Buffer) => {
-      stderr.push(Buffer.from(chunk));
-    });
-    child.on('error', reject);
-    child.on('close', (code: number | null) => {
-      if (code === 0) {
-        resolve();
-        return;
-      }
-
-      const message = Buffer.concat(stderr).toString('utf8').slice(-1200);
-      reject(new Error(`ffmpeg exited with code ${code}${message ? `: ${message}` : ''}`));
-    });
-  });
-}
-
-async function addSilentAudioTrack(buffer: Buffer): Promise<Buffer> {
-  const dir = await mkdtemp(path.join(tmpdir(), 'markaestro-tiktok-'));
-  const inputPath = path.join(dir, 'input.mp4');
-  const outputPath = path.join(dir, 'output.mp4');
-
-  try {
-    await writeFile(inputPath, buffer);
-    await runFfmpeg([
-      '-y',
-      '-i', inputPath,
-      '-f', 'lavfi',
-      '-i', 'anullsrc=channel_layout=stereo:sample_rate=44100',
-      '-shortest',
-      '-c:v', 'copy',
-      '-c:a', 'aac',
-      '-b:a', '96k',
-      '-movflags', '+faststart',
-      outputPath,
-    ]);
-    return await readFile(outputPath);
-  } finally {
-    await rm(dir, { recursive: true, force: true });
-  }
-}
-
 async function normalizeVideoForTikTokUpload(
   buffer: Buffer,
   contentType: string,
@@ -227,17 +46,14 @@ async function normalizeVideoForTikTokUpload(
     return { buffer, contentType };
   }
 
-  const audio = detectMp4Audio(buffer);
-  if (audio.kind !== 'no_audio') {
-    return { buffer, contentType };
-  }
+  const hasAudio = detectMp4Audio(buffer).kind !== 'no_audio';
 
   try {
-    const withSilentAudio = await addSilentAudioTrack(buffer);
-    return { buffer: withSilentAudio, contentType: 'video/mp4' };
+    const transcoded = await transcodeForTikTok(buffer, hasAudio);
+    return { buffer: transcoded, contentType: 'video/mp4' };
   } catch (error) {
     return {
-      error: error instanceof Error ? `Could not add TikTok-compatible silent audio track: ${error.message}` : 'Could not add TikTok-compatible silent audio track',
+      error: error instanceof Error ? `Could not transcode video for TikTok upload: ${error.message}` : 'Could not transcode video for TikTok upload',
     };
   }
 }
@@ -447,44 +263,12 @@ async function uploadVideoToTikTokInbox(
   accessToken: string,
   mediaUrl: string,
 ): Promise<{ publishId?: string; error?: string }> {
-  // Video assets already live on our server-side storage, so expose them on a
-  // verified Markaestro URL and let TikTok fetch them directly. This avoids the
-  // slower download-into-memory + chunked re-upload flow from our app server.
-  const proxyUrl = buildTikTokMediaProxyUrl(mediaUrl, 'video');
-  const preflight = await preflightTikTokVideoPullUrl(proxyUrl);
-  if (!preflight.ok) {
-    return { error: preflight.error };
-  }
-  if (!preflight.rangeSupported) {
-    return uploadVideoFileToTikTokInbox(accessToken, mediaUrl);
-  }
-
-  const initRes = await fetchWithRetry(`${TIKTOK_API}/post/publish/inbox/video/init/`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: JSON.stringify({
-      source_info: {
-        source: 'PULL_FROM_URL',
-        video_url: proxyUrl,
-      },
-    }),
-  });
-
-  const initData = await initRes.json();
-  const initError = parseTikTokError(initData);
-  if (initError) {
-    return { error: initError };
-  }
-
-  const publishId = initData.data?.publish_id as string | undefined;
-  if (!publishId) {
-    return { error: 'TikTok did not return a publish ID' };
-  }
-
-  return { publishId };
+  // Always download + transcode + upload via FILE_UPLOAD. PULL_FROM_URL would
+  // be faster (TikTok pulls the bytes directly) but it doesn't let us
+  // normalize frame rate, so AI-generated content (typically 8–16 fps) gets
+  // rejected with "frame rate check failed". Trade ~5–15s of upload latency
+  // for 100% compatibility.
+  return uploadVideoFileToTikTokInbox(accessToken, mediaUrl);
 }
 
 export const tiktokPublishingAdapter: PlatformAdapter = {

@@ -3,6 +3,7 @@ import type { PlatformConnection, PublishRequest } from '../platform/types';
 
 const fetchWithRetryMock = vi.fn();
 const getAccessTokenMock = vi.fn();
+const transcodeForTikTokMock = vi.fn();
 
 vi.mock('@/lib/fetch-retry', () => ({
   fetchWithRetry: fetchWithRetryMock,
@@ -10,6 +11,12 @@ vi.mock('@/lib/fetch-retry', () => ({
 
 vi.mock('@/lib/platform/base-adapter', () => ({
   getAccessToken: getAccessTokenMock,
+}));
+
+// Skip the real ffmpeg pipeline in unit tests — return the buffer unchanged
+// so we can assert FILE_UPLOAD wiring without a transcode binary.
+vi.mock('@/lib/media/tiktok-transcode', () => ({
+  transcodeForTikTok: transcodeForTikTokMock,
 }));
 
 function jsonResponse(body: unknown) {
@@ -31,10 +38,11 @@ const connection: PlatformConnection = {
   createdAt: '2026-04-21T00:00:00.000Z',
 };
 
+const videoUrl = 'https://firebasestorage.googleapis.com/v0/b/example-bucket/o/videos%2Fclip.mp4?alt=media&token=abc';
 const request: PublishRequest = {
   content: 'Video caption',
   channel: 'tiktok',
-  mediaUrls: ['https://firebasestorage.googleapis.com/v0/b/example-bucket/o/videos%2Fclip.mp4?alt=media&token=abc'],
+  mediaUrls: [videoUrl],
 };
 
 describe('tiktokPublishingAdapter', () => {
@@ -44,101 +52,15 @@ describe('tiktokPublishingAdapter', () => {
     vi.unstubAllGlobals();
     process.env.OAUTH_BASE_URL = 'https://markaestro.com';
     getAccessTokenMock.mockReturnValue('access_token_123');
+    // Default: pass the buffer through unchanged.
+    transcodeForTikTokMock.mockImplementation(async (buf: Buffer) => buf);
   });
 
-  it('uses a verified-domain PULL_FROM_URL flow for videos', async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(new Response(null, {
-        status: 200,
-        headers: {
-          'content-type': 'video/mp4',
-          'content-length': '123',
-          'accept-ranges': 'bytes',
-        },
-      }))
-      .mockResolvedValueOnce(new Response(Buffer.from([0]), {
-        status: 206,
-        headers: {
-          'content-type': 'video/mp4',
-          'content-length': '1',
-          'content-range': 'bytes 0-0/123',
-          'accept-ranges': 'bytes',
-        },
-      }));
-    vi.stubGlobal('fetch', fetchMock);
-
-    fetchWithRetryMock.mockResolvedValueOnce(jsonResponse({
-      data: { publish_id: 'publish_123', upload_url: 'unused-for-pull-from-url' },
-      error: { code: 'ok', message: '', log_id: 'log_123' },
-    }));
-
-    const { tiktokPublishingAdapter } = await import('../platform/adapters/tiktok-publishing');
-    const result = await tiktokPublishingAdapter.publish(connection, request);
-
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      1,
-      'https://markaestro.com/api/media/video-proxy?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fexample-bucket%2Fo%2Fvideos%252Fclip.mp4%3Falt%3Dmedia%26token%3Dabc',
-      expect.objectContaining({ method: 'HEAD', redirect: 'manual' }),
-    );
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
-      'https://markaestro.com/api/media/video-proxy?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fexample-bucket%2Fo%2Fvideos%252Fclip.mp4%3Falt%3Dmedia%26token%3Dabc',
-      expect.objectContaining({ headers: { Range: 'bytes=0-0' }, redirect: 'manual' }),
-    );
-    expect(fetchWithRetryMock).toHaveBeenCalledTimes(1);
-    expect(fetchWithRetryMock).toHaveBeenCalledWith(
-      'https://open.tiktokapis.com/v2/post/publish/inbox/video/init/',
-      expect.objectContaining({
-        method: 'POST',
-        headers: expect.objectContaining({
-          Authorization: 'Bearer access_token_123',
-        }),
-      }),
-    );
-
-    const [, init] = fetchWithRetryMock.mock.calls[0];
-    const body = JSON.parse(String(init?.body));
-    expect(body).toEqual({
-      source_info: {
-        source: 'PULL_FROM_URL',
-        video_url: 'https://markaestro.com/api/media/video-proxy?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fexample-bucket%2Fo%2Fvideos%252Fclip.mp4%3Falt%3Dmedia%26token%3Dabc',
-      },
-    });
-    expect(result).toEqual({
-      success: false,
-      pending: true,
-      externalId: 'publish_123',
-    });
-  });
-
-  it('falls back to FILE_UPLOAD when the public URL returns full-body 200 for the range probe', async () => {
-    vi.stubGlobal('fetch', vi
-      .fn()
-      .mockResolvedValueOnce(new Response(null, {
-        status: 200,
-        headers: {
-          'content-type': 'video/mp4',
-          'content-length': '123',
-          'accept-ranges': 'bytes',
-        },
-      }))
-      .mockResolvedValueOnce(new Response(Buffer.from([0]), {
-        status: 200,
-        headers: {
-          'content-type': 'video/mp4',
-          'content-length': '123',
-          'accept-ranges': 'bytes',
-        },
-      }))
-      .mockResolvedValueOnce(new Response(Buffer.from([1, 2, 3]), {
-        status: 200,
-        headers: {
-          'content-type': 'video/mp4',
-          'content-length': '3',
-        },
-      })));
+  it('always downloads, transcodes, and uploads via FILE_UPLOAD', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(new Response(Buffer.from([1, 2, 3]), {
+      status: 200,
+      headers: { 'content-type': 'video/mp4', 'content-length': '3' },
+    })));
 
     fetchWithRetryMock
       .mockResolvedValueOnce(jsonResponse({
@@ -149,6 +71,16 @@ describe('tiktokPublishingAdapter', () => {
 
     const { tiktokPublishingAdapter } = await import('../platform/adapters/tiktok-publishing');
     const result = await tiktokPublishingAdapter.publish(connection, request);
+
+    // Source URL is fetched directly — no preflight HEAD/Range probes.
+    expect((globalThis.fetch as ReturnType<typeof vi.fn>)).toHaveBeenCalledTimes(1);
+    expect((globalThis.fetch as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(
+      videoUrl,
+      expect.objectContaining({ redirect: 'error' }),
+    );
+
+    // Every TikTok upload goes through the transcoder for fps + audio compliance.
+    expect(transcodeForTikTokMock).toHaveBeenCalledTimes(1);
 
     expect(fetchWithRetryMock).toHaveBeenCalledWith(
       'https://open.tiktokapis.com/v2/post/publish/inbox/video/init/',
@@ -179,6 +111,23 @@ describe('tiktokPublishingAdapter', () => {
       success: false,
       pending: true,
       externalId: 'publish_123',
+    });
+  });
+
+  it('surfaces a transcode failure as a publish error instead of uploading bad bytes', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(new Response(Buffer.from([1, 2, 3]), {
+      status: 200,
+      headers: { 'content-type': 'video/mp4', 'content-length': '3' },
+    })));
+    transcodeForTikTokMock.mockRejectedValueOnce(new Error('ffmpeg exited with code 1'));
+
+    const { tiktokPublishingAdapter } = await import('../platform/adapters/tiktok-publishing');
+    const result = await tiktokPublishingAdapter.publish(connection, request);
+
+    expect(fetchWithRetryMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      success: false,
+      error: 'TikTok publish failed: Could not transcode video for TikTok upload: ffmpeg exited with code 1',
     });
   });
 
