@@ -44,12 +44,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // the old publish_id from an earlier exported_for_review state. Also clear
     // scheduledAt so the UI doesn't render a stale "Scheduled" badge on a post
     // we're actively publishing now.
+    const publishStartedAt = new Date().toISOString();
     await ref.update({
       status: 'publishing',
       externalId: '',
       errorMessage: '',
       scheduledAt: null,
-      updatedAt: new Date().toISOString(),
+      // Set once per publish attempt so the TikTok stuck-upload sweeper can
+      // measure elapsed time correctly. Without this, the sweeper falls back
+      // to `updatedAt`, which the poll worker refreshes every tick, so the
+      // 70-min give-up window never fires.
+      publishStartedAt,
+      updatedAt: publishStartedAt,
     });
 
     console.log(`[publish] Post ${id}: channels=${targetChannels.join(',')}, productId=${productId}, mediaUrls=${JSON.stringify(post.mediaUrls)}`);
