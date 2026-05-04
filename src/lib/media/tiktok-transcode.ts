@@ -57,10 +57,14 @@ function runFfmpeg(args: string[]): Promise<void> {
   });
 }
 
-// TikTok rejects videos outside 23–60 fps and rejects variable-frame-rate
-// content with "frame rate check failed". AI generators and many phone
-// recorders emit either, so we force every TikTok upload through ffmpeg at
-// 30 fps CFR. Adds ~5–15s per upload but eliminates the entire failure class.
+// TikTok rejects videos that fail any of:
+//  - frame rate outside 23–60 fps (errors as "frame rate check failed")
+//  - variable frame rate (same error)
+//  - resolution under 540×960 (silently stuck in PROCESSING_UPLOAD)
+// AI generators commonly emit 8–24 fps at 400–512 px short side, which trips
+// at least two of these. Every upload is force-normalised to 30 fps CFR with
+// the short side scaled up to 720 px (≥ TikTok minimum, leaving headroom).
+// Adds ~5–15s per upload, eliminates the entire failure class.
 export async function transcodeForTikTok(buffer: Buffer, hasAudio: boolean): Promise<Buffer> {
   const dir = await mkdtemp(path.join(tmpdir(), 'markaestro-tiktok-'));
   const inputPath = path.join(dir, 'input.mp4');
@@ -75,6 +79,10 @@ export async function transcodeForTikTok(buffer: Buffer, hasAudio: boolean): Pro
     args.push(
       '-r', '30',
       '-vsync', 'cfr',
+      // Scale so the shorter side is 720 px (≥ TikTok's 540 minimum). For
+      // portrait inputs (iw ≤ ih) set width=720, auto-compute height; for
+      // landscape, the inverse. -2 forces even output dimensions for x264.
+      '-vf', 'scale=if(gt(iw\\,ih)\\,-2\\,720):if(gt(iw\\,ih)\\,720\\,-2):flags=lanczos,setsar=1',
       '-c:v', 'libx264',
       '-preset', 'veryfast',
       '-crf', '23',

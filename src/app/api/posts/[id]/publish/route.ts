@@ -47,6 +47,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await ref.update({
       status: 'publishing',
       externalId: '',
+      errorMessage: '',
       scheduledAt: null,
       updatedAt: new Date().toISOString(),
     });
