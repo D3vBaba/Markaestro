@@ -531,7 +531,7 @@ function UsageMeter({
 function UsageTab() {
   const { status } = useSubscription();
   const [usage, setUsage] = useState<{
-    aiGenerations: UsageMetric;
+    mediaUploads: UsageMetric;
     channels: UsageMetric;
     products: { current: number };
   } | null>(null);
@@ -542,7 +542,7 @@ function UsageTab() {
       try {
         const res = await apiGet<{
           usage: {
-            aiGenerations: UsageMetric;
+            mediaUploads: UsageMetric;
             channels: UsageMetric;
             products: { current: number };
           };
@@ -590,11 +590,11 @@ function UsageTab() {
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
-          {/* AI Generations */}
+          {/* Media uploads */}
           <UsageMeter
-            label="AI generations"
-            current={usage?.aiGenerations.current ?? 0}
-            limit={usage?.aiGenerations.limit ?? plan.limits.aiGenerations}
+            label="Media uploads"
+            current={usage?.mediaUploads.current ?? 0}
+            limit={usage?.mediaUploads.limit ?? plan.limits.mediaUploads}
           />
 
           {/* Channels */}

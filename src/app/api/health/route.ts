@@ -49,7 +49,7 @@ export async function GET(req: Request) {
     secretManager: await timed(async () => {
       // Presence of expected env vars is enough — absence means
       // Secret Manager failed to resolve during boot.
-      const required = ['STRIPE_SECRET_KEY', 'OPENAI_API_KEY'];
+      const required = ['STRIPE_SECRET_KEY'];
       const missing = required.filter((k) => !process.env[k]);
       if (missing.length) throw new Error(`missing secrets: ${missing.join(', ')}`);
     }),

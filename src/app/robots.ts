@@ -11,9 +11,7 @@ const DISALLOW = [
   '/products',
   '/analytics',
   '/calendar',
-  '/campaigns',
   '/content',
-  '/ai-studio',
   '/onboarding',
   '/oauth/',
 ];

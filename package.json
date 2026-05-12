@@ -18,12 +18,10 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google-cloud/secret-manager": "^6.1.1",
-    "@google/generative-ai": "^0.24.1",
     "@sentry/nextjs": "^10.42.0",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.7.0",
     "next": "^16.2.1",
-    "openai": "^6.25.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",

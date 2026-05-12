@@ -3,7 +3,6 @@ import type { WorkspaceRole } from './schemas';
 export const workspacePermissions = [
   'analytics.read',
   'products.write',
-  'campaigns.write',
   'posts.write',
   'posts.publish',
   'posts.review',
@@ -12,7 +11,6 @@ export const workspacePermissions = [
   'team.manage',
   'team.roles.manage',
   'billing.manage',
-  'ai.use',
   'events.write',
 ] as const;
 
@@ -34,23 +32,19 @@ const PERMISSIONS_BY_ROLE: Record<WorkspaceRole, readonly WorkspacePermission[]>
   admin: [
     'analytics.read',
     'products.write',
-    'campaigns.write',
     'posts.write',
     'posts.publish',
     'posts.review',
     'ads.write',
     'integrations.manage',
     'team.manage',
-    'ai.use',
     'events.write',
   ],
   member: [
     'analytics.read',
     'products.write',
-    'campaigns.write',
     'posts.write',
     'posts.publish',
-    'ai.use',
     'events.write',
   ],
   analyst: [

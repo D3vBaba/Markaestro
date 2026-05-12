@@ -11,9 +11,9 @@ export type PlanConfig = {
   features: string[];
   limits: {
     channels: number;
-    aiGenerations: number; // -1 = unlimited
-    teamMembers: number;   // -1 = unlimited
-    workspaces: number;    // -1 = unlimited
+    mediaUploads: number; // -1 = unlimited
+    teamMembers: number;  // -1 = unlimited
+    workspaces: number;   // -1 = unlimited
   };
   gated: {
     advancedAnalytics: boolean;
@@ -34,7 +34,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     features: [
       '5 social channels',
       'Unlimited posts',
-      '50 AI generations / month (text & images)',
+      '500 media uploads / month',
       '1 team member',
       'Content calendar',
       'Basic analytics',
@@ -43,7 +43,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     ],
     limits: {
       channels: 5,
-      aiGenerations: 50,
+      mediaUploads: 500,
       teamMembers: 1,
       workspaces: 1,
     },
@@ -58,16 +58,16 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
   pro: {
     tier: 'pro',
     name: 'Pro',
-    description: 'For growing teams that need AI, analytics, and collaboration.',
+    description: 'For growing teams that need analytics and collaboration.',
     price: { monthly: 69, annual: 57 },
     highlighted: true,
     badge: 'Most Popular',
     features: [
       '15 social channels',
       'Unlimited posts',
-      '250 AI generations / month (text & images)',
+      '5,000 media uploads / month',
       '5 team members',
-      'Advanced analytics & AI insights',
+      'Advanced analytics',
       '5 workspaces',
       'Brand voice + brand identity',
       'Approval workflows',
@@ -76,7 +76,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     ],
     limits: {
       channels: 15,
-      aiGenerations: 250,
+      mediaUploads: 5000,
       teamMembers: 5,
       workspaces: 5,
     },
@@ -97,7 +97,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     features: [
       '50 social channels',
       'Unlimited posts',
-      '750 AI generations / month (text & images)',
+      'Unlimited media uploads',
       'Unlimited team members',
       'Everything in Pro',
       'Unlimited workspaces',
@@ -105,7 +105,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     ],
     limits: {
       channels: 50,
-      aiGenerations: 750,
+      mediaUploads: -1,
       teamMembers: -1,
       workspaces: -1,
     },
@@ -135,9 +135,9 @@ export const COMPARISON_CATEGORIES = [
     ],
   },
   {
-    name: 'AI Generation',
+    name: 'Media Library',
     features: [
-      { name: 'Text & image generations', starter: '50/mo', pro: '250/mo', business: '750/mo' },
+      { name: 'Media uploads', starter: '500/mo', pro: '5,000/mo', business: 'Unlimited' },
       { name: 'Brand voice profiles', starter: '1', pro: '5', business: 'Unlimited' },
       { name: 'Brand identity (logo & colors)', starter: false, pro: true, business: true },
     ],
@@ -145,7 +145,7 @@ export const COMPARISON_CATEGORIES = [
   {
     name: 'Analytics',
     features: [
-      { name: 'Advanced analytics & AI insights', starter: false, pro: true, business: true },
+      { name: 'Advanced analytics', starter: false, pro: true, business: true },
     ],
   },
   {

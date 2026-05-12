@@ -10,7 +10,6 @@ const PUBLIC_PATHS = [
   '/contact',
   '/features',
   '/channels',
-  '/ai-studio',
   '/pricing',
   '/developers/api',
   '/api/health',

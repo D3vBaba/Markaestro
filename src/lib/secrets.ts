@@ -81,9 +81,6 @@ export async function loadSecretsToEnv(): Promise<void> {
     'TIKTOK_CLIENT_SECRET',
     'LINKEDIN_CLIENT_ID',
     'LINKEDIN_CLIENT_SECRET',
-    'OPENAI_API_KEY',
-    'SERPER_API_KEY',
-    'GEMINI_API_KEY',
     'FIREBASE_SERVICE_ACCOUNT_JSON',
     // Stripe — API key + webhook signing secret are true secrets; price IDs
     // are non-secret config but live here too so the whole Stripe env set is

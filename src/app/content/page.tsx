@@ -10,7 +10,6 @@ import CreateTab from "./_components/CreateTab";
 import DraftsTab from "./_components/DraftsTab";
 import ScheduledTab from "./_components/ScheduledTab";
 import PublishedTab from "./_components/PublishedTab";
-import ImageGallery from "./_components/ImageGallery";
 import PerformanceTab from "./_components/PerformanceTab";
 import ApprovalsTab from "./_components/ApprovalsTab";
 import { FeatureGate } from "@/components/app/FeatureGate";
@@ -25,7 +24,6 @@ const tabs = [
   { value: "approvals", label: "Approvals" },
   { value: "scheduled", label: "Scheduled" },
   { value: "published", label: "Published" },
-  { value: "gallery", label: "Gallery" },
   { value: "performance", label: "Performance" },
 ] as const;
 
@@ -208,10 +206,6 @@ export default function PostsPage() {
 
         <TabsContent value="published">
           <PublishedTab refreshKey={refreshKey} />
-        </TabsContent>
-
-        <TabsContent value="gallery">
-          <ImageGallery refreshKey={refreshKey} />
         </TabsContent>
 
         <TabsContent value="performance">

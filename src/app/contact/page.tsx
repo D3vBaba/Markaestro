@@ -40,15 +40,15 @@ const faqs = [
   },
   {
     q: "Is there a free tier?",
-    a: "Yes. Markaestro offers a free plan that includes one workspace, basic content generation, and publishing to up to two channels. Upgrade anytime for unlimited channels and advanced AI features.",
+    a: "Yes. Markaestro offers a free plan that includes one workspace, a monthly media upload allowance, and publishing to up to two channels. Upgrade anytime for more channels and higher upload limits.",
   },
   {
-    q: "What AI models power the content generation?",
-    a: "Text content is generated using large language models fine-tuned on marketing copy. Images use Google's Gemini Imagen 3 as the primary engine, with OpenAI's DALL-E 3 as an automatic fallback for maximum reliability.",
+    q: "What kinds of media can I upload?",
+    a: "Images (JPG, PNG, WebP, up to 10 MB each) and videos (MP4, MOV, WebM, up to 250 MB each). Files are stored per workspace and attached to posts via the composer.",
   },
   {
     q: "Can I use Markaestro for multiple brands or clients?",
-    a: "Absolutely. Workspaces let you isolate brands, clients, or business units. Each workspace has its own products, brand voice profiles, channel connections, and team members.",
+    a: "Absolutely. Workspaces let you isolate brands, clients, or business units. Each workspace has its own products, brand assets, channel connections, and team members.",
   },
   {
     q: "How is my data protected?",
@@ -56,7 +56,7 @@ const faqs = [
   },
   {
     q: "Do you offer an API?",
-    a: "Markaestro's API is available to all paid plans. It covers campaign management, content generation, publishing, and analytics. Documentation is available in your dashboard.",
+    a: "Markaestro's API is available to all paid plans. It covers content management, media uploads, publishing, and analytics. Documentation is available in your dashboard.",
   },
 ];
 

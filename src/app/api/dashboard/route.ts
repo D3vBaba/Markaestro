@@ -22,19 +22,14 @@ export async function GET(req: Request) {
     requirePermission(ctx, 'analytics.read');
     const ws = ctx.workspaceId;
 
-    const [campaignsSnap, productsSnap, postsSnap] =
+    const [productsSnap, postsSnap] =
       await Promise.all([
-        adminDb.collection(`workspaces/${ws}/campaigns`).get(),
         adminDb.collection(`workspaces/${ws}/products`).get(),
         adminDb.collection(`workspaces/${ws}/posts`).get(),
       ]);
 
-    const campaigns = campaignsSnap.docs.map((d) => d.data());
     const products = productsSnap.docs.map((d) => d.data());
     const posts = postsSnap.docs.map((d) => d.data());
-    // Campaign stats
-    const activeCampaigns = campaigns.filter((c) => c.status === 'active').length;
-    const draftCampaigns = campaigns.filter((c) => c.status === 'draft').length;
 
     // Post stats
     const publishedPosts = posts.filter((p) => p.status === 'published').length;
@@ -87,9 +82,6 @@ export async function GET(req: Request) {
       metrics: {
         totalProducts: products.length,
         activeProducts: products.filter((p) => p.status === 'active').length,
-        totalCampaigns: campaigns.length,
-        activeCampaigns,
-        draftCampaigns,
         totalPosts: posts.length,
         publishedPosts,
         scheduledPosts,

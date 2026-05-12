@@ -11,7 +11,6 @@ import { useState } from "react";
 const navLinks = [
   { href: "/features", label: "Features" },
   { href: "/channels", label: "Channels" },
-  { href: "/ai-studio", label: "AI Studio" },
   { href: "/developers/api", label: "API" },
   { href: "/pricing", label: "Pricing" },
   { href: "/contact", label: "Contact" },
@@ -179,7 +178,6 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                 {[
                   { href: "/features", label: "Features" },
                   { href: "/channels", label: "Channels" },
-                  { href: "/ai-studio", label: "AI Studio" },
                   { href: "/pricing", label: "Pricing" },
                 ].map((l) => (
                   <Link

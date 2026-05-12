@@ -23,8 +23,6 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
         .get();
       message = `Contacts sync completed: ${contactsSnap.size} contacts in workspace`;
       details = { contactCount: contactsSnap.size };
-    } else if (job.type === 'generate_content') {
-      message = 'Content generation requires AI integration — configure Claude API key in settings';
     } else if (job.type === 'publish_post') {
       const postId = job.payload?.postId as string;
       if (!postId) {

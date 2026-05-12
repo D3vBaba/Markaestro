@@ -30,7 +30,7 @@ export default function PrivacyPage() {
             This Privacy Policy explains how Markaestro (&quot;Markaestro&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, discloses, and protects personal information when you access our marketing automation platform, website, applications, APIs, and related services (collectively, the &quot;Services&quot;).
           </p>
           <p className="mt-2">
-            Markaestro processes different categories of data in different roles. For account, billing, security, support, and website administration data, we generally act as the controller or business. For contact lists, campaign data, brand assets, uploaded media, analytics events, and similar data submitted by a workspace, we generally act as a processor or service provider on behalf of that workspace. If you are an end customer or contact contained in a Markaestro customer workspace, you should direct privacy requests to that workspace first.
+            Markaestro processes different categories of data in different roles. For account, billing, security, support, and website administration data, we generally act as the controller or business. For contact lists, post content, brand assets, uploaded media, analytics events, and similar data submitted by a workspace, we generally act as a processor or service provider on behalf of that workspace. If you are an end customer or contact contained in a Markaestro customer workspace, you should direct privacy requests to that workspace first.
           </p>
         </section>
 
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
             <li><strong>Account and identity data:</strong> email address, authentication identifiers, display name, and credentials handled through Firebase Authentication.</li>
             <li><strong>Workspace and team data:</strong> workspace name, membership records, user roles, and invite or access-management information.</li>
             <li><strong>Product and brand data:</strong> product names, descriptions, URLs, pricing tiers, categories, brand voice settings, sample voice text, target audience descriptions, keywords, avoid-word lists, logos, and brand color settings.</li>
-            <li><strong>Campaign and publishing data:</strong> campaigns, posts, ad creatives, captions, scheduled times, media URLs, target audience settings, call-to-action text, and related workflow configuration.</li>
+            <li><strong>Publishing data:</strong> posts, captions, scheduled times, media URLs, target audience settings, call-to-action text, and related workflow configuration.</li>
             <li><strong>Contact and CRM data:</strong> names, email addresses, status, lifecycle stage, source, tags, notes, product associations, and unsubscribe state for contacts you create, import, sync, or manage.</li>
             <li><strong>Automation and job configuration:</strong> automation steps, triggers, job schedules, job payloads, and related execution settings.</li>
             <li><strong>Support and communications data:</strong> information you send to us through email or contact forms, including message contents and any attachments you provide.</li>
@@ -64,8 +64,8 @@ export default function PrivacyPage() {
 
           <h3 className="mt-4 font-medium text-foreground">2.4 Files and uploads</h3>
           <ul className="mt-2 list-disc space-y-1 pl-6">
-            <li><strong>Media uploads:</strong> logos, screenshots, images, videos, and other files you upload for publishing, brand identity, or AI-assisted generation.</li>
-            <li><strong>Publicly accessible asset URLs:</strong> certain uploaded or generated assets may be stored using direct public cloud URLs so they can be rendered in social posts, landing assets, or generated creative workflows. You should only upload files you are authorized to publish or share in this manner.</li>
+            <li><strong>Media uploads:</strong> logos, images, videos, and other files you upload for publishing or brand identity.</li>
+            <li><strong>Publicly accessible asset URLs:</strong> certain uploaded assets may be stored using direct public cloud URLs so they can be rendered in social posts and external integrations. You should only upload files you are authorized to publish or share in this manner.</li>
           </ul>
         </section>
 
@@ -76,9 +76,8 @@ export default function PrivacyPage() {
             <ul className="list-disc space-y-1 pl-6">
               <li>provide, secure, maintain, troubleshoot, and improve the Services;</li>
               <li>authenticate users and enforce workspace access controls;</li>
-              <li>store and manage campaigns, products, brand settings, posts, and ad configurations;</li>
-              <li>publish or schedule content and create or synchronize campaigns with connected third-party services when directed by you;</li>
-              <li>generate text, images, insights, and recommendations using AI providers based on your prompts, brand inputs, and workspace content;</li>
+              <li>store and manage products, brand settings, posts, and uploaded media;</li>
+              <li>publish or schedule content to connected third-party services when directed by you;</li>
               <li>calculate and display dashboards, analytics, attribution, and performance summaries;</li>
               <li>detect fraud, abuse, security incidents, and unauthorized access;</li>
               <li>respond to support inquiries, legal requests, and enforcement matters; and</li>
@@ -108,7 +107,6 @@ export default function PrivacyPage() {
             <ul className="list-disc space-y-1 pl-6">
               <li><strong>Infrastructure providers:</strong> Google Cloud and Firebase for hosting, authentication, database, and storage services.</li>
               <li><strong>Error monitoring and diagnostics providers:</strong> providers such as Sentry to capture operational and security-related errors.</li>
-              <li><strong>AI providers:</strong> providers such as OpenAI and Google when you use AI-assisted text, image, insight, or strategy features.</li>
               <li><strong>Connected integration providers:</strong> TikTok, Meta, Google, and other services you authorize us to connect to or use on your behalf.</li>
               <li><strong>Other workspace users:</strong> your data may be visible to authorized members of your workspace based on role and permissions.</li>
               <li><strong>Professional advisers and authorities:</strong> when reasonably necessary to enforce our terms, investigate misuse, respond to legal process, or protect rights, safety, and security.</li>
@@ -118,46 +116,39 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">7. AI and Automated Processing</h2>
-          <p className="mt-3">
-            Markaestro offers AI-assisted features that may use prompts, product descriptions, brand voice instructions, campaign content, analytics summaries, uploaded screenshots, logos, and related workspace data to generate marketing copy, images, recommendations, and performance insights. These outputs are generated automatically and may be inaccurate, incomplete, or unsuitable for your use case. You are responsible for reviewing AI-generated outputs before publication, launch, or sending.
-          </p>
-        </section>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">7. Storage, Security, and Integrity</h2>
 
-        <section>
-          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">8. Storage, Security, and Integrity</h2>
-
-          <h3 className="mt-4 font-medium text-foreground">8.1 Infrastructure</h3>
+          <h3 className="mt-4 font-medium text-foreground">7.1 Infrastructure</h3>
           <p className="mt-2">
             Markaestro runs on Google Cloud and Firebase infrastructure, including Firestore, Authentication, and Cloud Storage. We use reasonable administrative, technical, and organizational measures designed to protect personal information against unauthorized access, loss, misuse, or alteration.
           </p>
 
-          <h3 className="mt-4 font-medium text-foreground">8.2 Secret handling</h3>
+          <h3 className="mt-4 font-medium text-foreground">7.2 Secret handling</h3>
           <p className="mt-2">
             We encrypt sensitive integration secrets such as OAuth access tokens and API keys before storage using authenticated encryption. Passwords for email-password authentication are managed by Firebase Authentication rather than stored directly by our application.
           </p>
 
-          <h3 className="mt-4 font-medium text-foreground">8.3 Important limitations</h3>
+          <h3 className="mt-4 font-medium text-foreground">7.3 Important limitations</h3>
           <p className="mt-2">
-            No internet or storage environment is completely secure. In addition, certain uploaded or generated assets may be intentionally stored at publicly reachable URLs to support publishing and creative workflows. You should not upload highly sensitive personal information, government IDs, payment card data, protected health information, or other regulated data unless we explicitly support that use in writing.
+            No internet or storage environment is completely secure. In addition, certain uploaded assets may be intentionally stored at publicly reachable URLs to support publishing workflows. You should not upload highly sensitive personal information, government IDs, payment card data, protected health information, or other regulated data unless we explicitly support that use in writing.
           </p>
         </section>
 
         <section>
-          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">9. International Transfers</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">8. International Transfers</h2>
           <p className="mt-3">
             We and our service providers may process information in the United States and other countries that may have different data protection laws from your jurisdiction. Where required, we use appropriate transfer mechanisms and safeguards for international transfers.
           </p>
         </section>
 
         <section>
-          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">10. Data Retention</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">9. Data Retention</h2>
           <div className="mt-3 space-y-2">
             <p>We retain information for as long as reasonably necessary to provide the Services, comply with legal obligations, resolve disputes, and enforce agreements. Retention periods vary by data type, for example:</p>
             <ul className="list-disc space-y-1 pl-6">
               <li>account and workspace records are retained while your account or workspace remains active;</li>
               <li>integration secrets are retained until disconnected, overwritten, or deleted;</li>
-              <li>content, contacts, posts, products, campaigns, analytics records, and event logs remain in the workspace until deleted or until the workspace is removed, subject to backup and legal retention cycles;</li>
+              <li>content, contacts, posts, products, uploaded media, analytics records, and event logs remain in the workspace until deleted or until the workspace is removed, subject to backup and legal retention cycles;</li>
               <li>short-lived OAuth state and related temporary authorization data may expire and be deleted automatically after a short period;</li>
               <li>support, abuse-prevention, and legal records may be retained longer where needed for legitimate business purposes or legal compliance.</li>
             </ul>
@@ -165,7 +156,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">11. Your Privacy Rights</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">10. Your Privacy Rights</h2>
           <div className="mt-3 space-y-2">
             <p>Depending on your jurisdiction, you may have rights to access, correct, delete, restrict, object to, or export your personal information, and to withdraw consent where consent is the basis for processing. You may also have the right not to receive discriminatory treatment for exercising your rights.</p>
             <ul className="list-disc space-y-1 pl-6">
@@ -178,28 +169,28 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">12. Your Responsibilities When You Use Markaestro</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">11. Your Responsibilities When You Use Markaestro</h2>
           <p className="mt-3">
-            If you upload contact information, campaign content, or third-party platform data into Markaestro, you are responsible for ensuring you have an appropriate legal basis to do so and for honoring applicable privacy, anti-spam, advertising, and consumer protection laws. This includes obtaining any required consents and honoring unsubscribe or suppression requests.
+            If you upload contact information, post content, media files, or third-party platform data into Markaestro, you are responsible for ensuring you have an appropriate legal basis to do so and for honoring applicable privacy, anti-spam, advertising, and consumer protection laws. This includes obtaining any required consents and honoring unsubscribe or suppression requests, and ensuring you hold the rights to any media you upload.
           </p>
         </section>
 
         <section>
-          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">13. Children&apos;s Privacy</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">12. Children&apos;s Privacy</h2>
           <p className="mt-3">
             The Services are not directed to children, and you may not use them if you are under 18. We do not knowingly collect personal information from children. If you believe a child has provided us personal information, contact us and we will investigate and take appropriate action.
           </p>
         </section>
 
         <section>
-          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">14. Changes to This Policy</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">13. Changes to This Policy</h2>
           <p className="mt-3">
             We may update this Privacy Policy from time to time. If we make material changes, we will post the updated version here and may provide additional notice through the Services or by email where appropriate. Your continued use of the Services after the effective date of the updated policy means the updated policy will apply to your future use.
           </p>
         </section>
 
         <section>
-          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">15. Contact Us</h2>
+          <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">14. Contact Us</h2>
           <p className="mt-3">
             If you have questions about this Privacy Policy or Markaestro&apos;s privacy practices, contact us at <a href="mailto:legal@markaestro.com" className="underline hover:text-foreground">legal@markaestro.com</a> or through our <a href="/contact" className="underline hover:text-foreground">contact page</a>.
           </p>

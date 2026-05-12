@@ -68,7 +68,7 @@ function LoginContent() {
             className="text-[40px] font-semibold leading-[1.05]"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
           >
-            Scale campaigns with
+            Publish everywhere with
             <br />
             <span style={{ color: "var(--mk-accent)" }}>precision.</span>
           </h1>
@@ -76,7 +76,7 @@ function LoginContent() {
             className="mt-5 max-w-md text-[14px] leading-relaxed"
             style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
           >
-            Authenticate once, manage every growth workflow in one place, and ship campaigns
+            Authenticate once, manage every social channel in one place, and ship posts
             faster with your team.
           </p>
 
@@ -84,11 +84,11 @@ function LoginContent() {
             {[
               {
                 title: "Performance-first dashboard",
-                desc: "Track campaign outcomes and channel efficiency in one view.",
+                desc: "Track post outcomes and channel efficiency in one view.",
               },
               {
-                title: "Automation-ready workflows",
-                desc: "Move from drafts to scheduled campaigns with fewer manual steps.",
+                title: "Streamlined publishing",
+                desc: "Move from draft caption to scheduled post with fewer manual steps.",
               },
               {
                 title: "Secure by default",

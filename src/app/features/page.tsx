@@ -19,23 +19,23 @@ const coreFeatures = [
     ],
   },
   {
-    title: "AI Content Generation",
-    description: "Generate on-brand copy powered by your product's unique voice profile. Choose tone, format, and channel, and Markaestro writes content that sounds like your team wrote it.",
+    title: "Media Upload & Library",
+    description: "Bring your own photography, video, and brand assets. Markaestro stores them per workspace and attaches them to posts with a single drop.",
     details: [
-      "Brand voice profiles per product",
-      "Multiple tone presets (professional, casual, bold, witty)",
-      "Channel-specific formatting and hashtags",
-      "One-click regeneration and variations",
+      "JPG, PNG, WebP, MP4, MOV, and WebM support",
+      "Up to 250 MB per video, 10 MB per image",
+      "Per-channel format checks before publish",
+      "Reuse uploaded media across multiple posts",
     ],
   },
   {
-    title: "AI Image Generation",
-    description: "Create scroll-stopping visuals without a designer. Markaestro integrates Gemini Imagen 3 and DALL-E 3 to generate branded images in every aspect ratio your channels need.",
+    title: "Multi-Channel Previews",
+    description: "See how every post will look on Facebook, Instagram, and TikTok before you publish. Captions, aspect ratios, character limits, and media specs are all rendered live.",
     details: [
-      "Brand colors and visual style baked in",
-      "1:1, 16:9, 9:16, and 4:5 aspect ratios",
-      "5 visual styles from photorealistic to abstract",
-      "Automatic fallback between AI providers",
+      "Pixel-accurate previews per platform",
+      "Live caption character-count tracking",
+      "Per-channel aspect-ratio guidance",
+      "Catch formatting issues before they ship",
     ],
   },
   {
@@ -63,11 +63,11 @@ const coreFeatures = [
 const platformFeatures = [
   {
     title: "Workspace Management",
-    description: "Organize brands, clients, or business units into isolated workspaces. Each workspace has its own products, campaigns, integrations, and team members.",
+    description: "Organize brands, clients, or business units into isolated workspaces. Each workspace has its own products, integrations, and team members.",
   },
   {
-    title: "Automation Workflows",
-    description: "Set up recurring campaigns with scheduled triggers, auto-publish rules, and webhook-driven workflows that keep your marketing engine running while you sleep.",
+    title: "Scheduling & Calendar",
+    description: "Queue posts on a unified calendar across all your channels. Reschedule with a drag, duplicate posts in a click, and keep a clear view of what's going out when.",
   },
   {
     title: "Role-Based Access",

@@ -3,7 +3,7 @@ import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
 import type { PlanTier } from '@/lib/stripe/plans';
 
-export type UsageType = 'aiGenerations';
+export type UsageType = 'mediaUploads';
 
 export type UsageCheckResult = {
   allowed: boolean;
@@ -19,14 +19,6 @@ function usageScopeId(uid: string, workspaceId?: string): string {
   return workspaceId ? `workspace:${workspaceId}` : `user:${uid}`;
 }
 
-/**
- * Atomically checks whether a user is within their quota for the given generation
- * type, and if so, increments the counter. Returns whether the request is allowed.
- *
- * Usage counters are stored in Firestore under `usage/{uid}` with field names
- * like `2026-03_aiGenerations`. This resets naturally each month as the field
- * key changes.
- */
 export async function checkAndIncrementUsage(
   uid: string,
   type: UsageType,
@@ -44,12 +36,10 @@ export async function checkAndIncrementUsage(
 
   const limit = plan.limits[type];
 
-  // 0 = feature not available on this plan
   if (limit === 0) {
     return { allowed: false, current: 0, limit: 0 };
   }
 
-  // -1 = unlimited (legacy safety valve)
   if (limit === -1) {
     return { allowed: true, current: 0, limit: -1 };
   }
@@ -71,15 +61,6 @@ export async function checkAndIncrementUsage(
   });
 }
 
-/**
- * Refund `n` units of usage that were optimistically incremented but
- * ultimately not consumed (e.g., downstream provider error after
- * checkAndIncrementUsage returned allowed=true).
- *
- * Uses FieldValue.increment(-n) to avoid lost updates under contention,
- * and clamps at 0 in a follow-up transaction only if the counter would
- * go negative — most refunds complete on the atomic path.
- */
 export async function refundUsage(
   uid: string,
   type: UsageType,
@@ -103,8 +84,6 @@ export async function refundUsage(
     });
     return;
   }
-  // Best-effort clamp if the atomic decrement went negative (race with a
-  // concurrent reset or manual admin edit).
   try {
     await adminDb.runTransaction(async (tx) => {
       const snap = await tx.get(docRef);
@@ -116,18 +95,14 @@ export async function refundUsage(
   }
 }
 
-/**
- * Returns the current month's usage counts for a user without modifying them.
- * Useful for displaying remaining quota in the UI.
- */
 export async function getUsage(
   uid: string,
   workspaceId?: string,
-): Promise<{ aiGenerations: number }> {
+): Promise<{ mediaUploads: number }> {
   const month = currentMonth();
   const snap = await adminDb.collection('usage').doc(usageScopeId(uid, workspaceId)).get();
   const data = snap.data() ?? {};
   return {
-    aiGenerations: (data[`${month}_aiGenerations`] as number) ?? 0,
+    mediaUploads: (data[`${month}_mediaUploads`] as number) ?? 0,
   };
 }

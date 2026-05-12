@@ -11,7 +11,7 @@ describe('getSafeNextPath', () => {
   it('passes through safe in-app paths', () => {
     expect(getSafeNextPath('/dashboard')).toBe('/dashboard');
     expect(getSafeNextPath('/settings')).toBe('/settings');
-    expect(getSafeNextPath('/campaigns/abc')).toBe('/campaigns/abc');
+    expect(getSafeNextPath('/content/abc')).toBe('/content/abc');
   });
 
   it('preserves query string and fragment on safe paths', () => {

@@ -10,7 +10,6 @@ export const runtime = 'nodejs';
 
 const eventTypes = [
   'email_sent', 'email_opened', 'email_clicked', 'email_bounced',
-  'campaign_started', 'campaign_completed',
   'contact_created', 'contact_updated', 'contact_unsubscribed',
   'page_view', 'signup', 'trial_started', 'purchase', 'churn',
 ] as const;
@@ -18,14 +17,12 @@ const eventTypes = [
 const createEventSchema = z.object({
   type: z.enum(eventTypes),
   contactId: z.string().trim().optional(),
-  campaignId: z.string().trim().optional(),
   productId: z.string().trim().optional(),
   metadata: z.record(z.string(), z.unknown()).default({}),
 });
 
 const listEventsSchema = z.object({
   type: z.string().optional(),
-  campaignId: z.string().optional(),
   contactId: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(200).default(50),
 });
@@ -37,15 +34,13 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const params = listEventsSchema.parse({
       type: url.searchParams.get('type') ?? undefined,
-      campaignId: url.searchParams.get('campaignId') ?? undefined,
       contactId: url.searchParams.get('contactId') ?? undefined,
       limit: url.searchParams.get('limit') ?? 50,
     });
 
     const filters: FieldFilter[] = [
-      params.type       && { field: 'type',       op: '==', value: params.type },
-      params.campaignId && { field: 'campaignId', op: '==', value: params.campaignId },
-      params.contactId  && { field: 'contactId',  op: '==', value: params.contactId },
+      params.type      && { field: 'type',      op: '==', value: params.type },
+      params.contactId && { field: 'contactId', op: '==', value: params.contactId },
     ].filter(Boolean) as FieldFilter[];
 
     const events = await executeListQuery(

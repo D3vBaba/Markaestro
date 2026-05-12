@@ -26,7 +26,7 @@ const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 const ROLES = [
   { id: "founder", label: "Founder / CEO", desc: "Building and growing my company" },
-  { id: "marketer", label: "Marketer", desc: "Running campaigns and content" },
+  { id: "marketer", label: "Marketer", desc: "Running content and channels" },
   { id: "agency", label: "Agency / Freelancer", desc: "Managing multiple clients" },
   { id: "creator", label: "Content Creator", desc: "Growing my personal brand" },
 ];
@@ -286,7 +286,6 @@ function OnboardingFooter() {
             <div className="mt-5 flex flex-col gap-3">
               <Link href="/features" className="text-sm text-muted-foreground hover:text-foreground transition">Features</Link>
               <Link href="/channels" className="text-sm text-muted-foreground hover:text-foreground transition">Channels</Link>
-              <Link href="/ai-studio" className="text-sm text-muted-foreground hover:text-foreground transition">AI Studio</Link>
               <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition">Pricing</Link>
             </div>
           </div>
@@ -364,7 +363,7 @@ export default function OnboardingPage() {
   const [connected, setConnected] = useState<Record<string, boolean>>(saved.connected ?? {});
   const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
 
-  const [postContent, setPostContent] = useState("");
+  const [postContent] = useState("");
 
   const [selectedTier, setSelectedTier] = useState<PlanTier>(saved.selectedTier ?? "pro");
   const [interval, setInterval] = useState<BillingInterval>(saved.interval ?? "annual");
@@ -480,31 +479,8 @@ export default function OnboardingPage() {
     }
   }
 
-  async function generatePreview() {
-    if (!productName || !productDesc) return;
-    setStep(6);
-    try {
-      const primaryChannel = channels[0] || "instagram";
-      const res = await apiFetch<{ postContent: string; primaryColor: string; logoUrl: string }>(
-        "/api/onboarding/preview",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            productName, productDescription: productDesc, productUrl,
-            channel: primaryChannel, logoUrl, primaryColor, secondaryColor, accentColor,
-            tone: tone || "Professional, engaging", targetAudience,
-            category: productCategory, pricingTier: productPricingTier, tags: productTags,
-          }),
-        }
-      );
-      if (res.ok) {
-        if (res.data.postContent) setPostContent(res.data.postContent);
-        if (res.data.primaryColor) setPrimaryColor(res.data.primaryColor);
-        if (res.data.logoUrl) setLogoUrl(res.data.logoUrl);
-      }
-    } catch { /* silent */ } finally {
-      setStep(7);
-    }
+  function generatePreview() {
+    setStep(7);
   }
 
   async function handleCheckout() {
@@ -1018,8 +994,8 @@ export default function OnboardingPage() {
                     onClick={generatePreview}
                   >
                     {Object.keys(connected).length > 0
-                      ? "Generate my first post"
-                      : "Skip and generate my first post"}
+                      ? "Continue to dashboard"
+                      : "Skip and continue"}
                   </Button>
                   <button
                     className="text-sm text-muted-foreground hover:text-foreground transition text-center"

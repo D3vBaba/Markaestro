@@ -1,4 +1,4 @@
-export type JobType = 'sync_contacts' | 'generate_content' | 'publish_post' | 'refresh_tokens';
+export type JobType = 'sync_contacts' | 'publish_post' | 'refresh_tokens';
 
 export type JobDoc = {
   workspaceId: string;

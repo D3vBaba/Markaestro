@@ -8,7 +8,6 @@ import {
   Menu,
   Home,
   Package,
-  Target,
   LayoutGrid,
   Calendar,
   TrendingUp,
@@ -33,7 +32,6 @@ import {
 const NAV_ICONS: Record<string, LucideIcon> = {
   "/dashboard": Home,
   "/products": Package,
-  "/campaigns": Target,
   "/content": LayoutGrid,
   "/calendar": Calendar,
   "/analytics": TrendingUp,

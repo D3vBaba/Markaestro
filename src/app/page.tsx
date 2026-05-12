@@ -28,7 +28,7 @@ export default function LandingPage() {
                 letterSpacing: "0.14em",
               }}
             >
-              AI-powered marketing automation
+              The social publishing hub for marketing teams
             </div>
             <h1
               className="text-[40px] sm:text-[56px] lg:text-[72px] font-semibold leading-[1.05]"
@@ -41,8 +41,8 @@ export default function LandingPage() {
               className="mt-6 text-[15px] sm:text-[17px] lg:text-[18px] leading-relaxed max-w-2xl mx-auto"
               style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
             >
-              Publish to every social channel, generate branded content with AI,
-              and track everything from a single dashboard.
+              Upload your media, write your captions, and publish to every
+              social channel from one dashboard.
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/login">
@@ -76,7 +76,7 @@ export default function LandingPage() {
             {[
               { value: "10hrs", label: "Saved per week" },
               { value: "5+", label: "Channels, one click" },
-              { value: "30s", label: "AI content generation" },
+              { value: "1", label: "Composer for every channel" },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -144,17 +144,17 @@ export default function LandingPage() {
               className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
               style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
             >
-              From first draft to published campaign, Markaestro handles every
-              step of your marketing workflow.
+              From draft caption to published post, Markaestro handles every
+              step of your social workflow.
             </p>
           </div>
 
           <div className="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
               { title: "Multi-channel publishing", desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly." },
-              { title: "AI content generation", desc: "Generate on-brand copy powered by your product's brand voice. Multiple tones, formats, and channel-specific optimization." },
-              { title: "AI image generation", desc: "Create branded visuals with Gemini Imagen 3 and DALL-E. Auto-matches your brand colors, style, and product identity." },
-              { title: "Smart scheduling", desc: "Queue posts for optimal engagement windows with AI-suggested timing per channel." },
+              { title: "Centralized media uploads", desc: "Bring your own images and videos. Upload once per post and ship to every connected channel." },
+              { title: "Multi-channel previews", desc: "See how every post will render on each platform before you publish — captions, aspect ratios, character limits." },
+              { title: "Scheduling & calendar", desc: "Queue posts on a unified calendar with per-channel timing. Reschedule, pause, or duplicate in a click." },
               { title: "Analytics dashboard", desc: "Track engagement rates and post performance across all channels in real time." },
               { title: "OAuth integrations", desc: "One-click connect to Meta and TikTok via secure OAuth. No manual token management required." },
             ].map(({ title, desc }) => (
@@ -258,7 +258,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: "Social channels", value: "3", sub: "Facebook, Instagram, TikTok" },
-                { label: "AI providers", value: "2", sub: "Gemini Imagen, OpenAI DALL-E" },
+                { label: "Composer", value: "1", sub: "Caption + media in one screen" },
                 { label: "Dashboards", value: "1", sub: "Unified publishing & analytics" },
               ].map((item) => (
                 <div
@@ -294,7 +294,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── AI Studio Preview ─── */}
+      {/* ─── Composer Preview ─── */}
       <section
         className="border-t"
         style={{
@@ -317,13 +317,13 @@ export default function LandingPage() {
                     className="w-1.5 h-1.5 rounded-full inline-block"
                     style={{ background: "var(--mk-accent)" }}
                   />
-                  AI content generation
+                  One composer, every channel
                 </div>
                 <div className="mt-5 flex flex-col gap-2.5 font-mono text-[12px]">
                   {[
-                    { label: "Brand voice", value: "Professional, confident, results-driven" },
-                    { label: "Tone", value: "Authoritative yet approachable" },
-                    { label: "Output", value: "Channel-optimized copy for Facebook, Instagram, TikTok" },
+                    { label: "Media", value: "Upload images or video — JPG, PNG, WebP, MP4" },
+                    { label: "Caption", value: "Write once, preview per channel before publishing" },
+                    { label: "Output", value: "Scheduled or instant posts to Facebook, Instagram, TikTok" },
                   ].map((row) => (
                     <div
                       key={row.label}
@@ -347,27 +347,27 @@ export default function LandingPage() {
             </div>
 
             <div className="order-1 lg:order-2">
-              <p className="mk-eyebrow">AI Studio</p>
+              <p className="mk-eyebrow">Composer</p>
               <h2
                 className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
                 style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
               >
-                Content that sounds{" "}
-                <span style={{ color: "var(--mk-accent)" }}>like you</span>
+                Your media,{" "}
+                <span style={{ color: "var(--mk-accent)" }}>your content</span>
               </h2>
               <p
                 className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
                 style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
               >
-                Train Markaestro on your brand voice, product identity, and
-                visual style. Every piece of content — text and images — is
-                generated to match your brand, not a generic template.
+                Upload the photos or videos you already have. Write the caption
+                you want. Markaestro handles the publishing, scheduling, and
+                analytics so you can stay focused on the creative work.
               </p>
               <div className="mt-8 flex flex-col gap-4">
                 {[
-                  "Brand voice profiles per product with tone, style, and vocabulary",
-                  "Gemini Imagen 3 for photorealistic branded images",
-                  "Channel-aware formatting: hashtags, char limits, media specs",
+                  "Upload images and video directly from your device or library",
+                  "Channel-aware previews: hashtags, char limits, media specs",
+                  "Schedule, publish instantly, or save to drafts in one click",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-3">
                     <div
@@ -384,9 +384,9 @@ export default function LandingPage() {
                 ))}
               </div>
               <div className="mt-8">
-                <Link href="/ai-studio">
+                <Link href="/features">
                   <Button variant="outline" className="rounded-lg h-9 text-[13px]">
-                    Explore AI Studio
+                    See all features
                   </Button>
                 </Link>
               </div>
@@ -415,7 +415,7 @@ export default function LandingPage() {
               className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
               style={{ color: "var(--mk-paper)", letterSpacing: "-0.03em" }}
             >
-              Ready to automate your marketing?
+              Ready to streamline your social publishing?
             </h2>
             <p
               className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
@@ -424,7 +424,7 @@ export default function LandingPage() {
                 letterSpacing: "-0.005em",
               }}
             >
-              Set up in minutes. Connect your channels, train your brand voice,
+              Set up in minutes. Connect your channels, upload your media,
               and start publishing.
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

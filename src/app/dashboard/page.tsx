@@ -16,9 +16,6 @@ import { Plus } from "lucide-react";
 type DashboardMetrics = {
   totalProducts: number;
   activeProducts: number;
-  totalCampaigns: number;
-  activeCampaigns: number;
-  draftCampaigns: number;
   totalPosts: number;
   publishedPosts: number;
   scheduledPosts: number;
@@ -85,12 +82,6 @@ export default function Home() {
       sub: `${m?.activeProducts ?? 0} active`,
     },
     {
-      key: "campaigns",
-      label: "Campaigns",
-      value: loading ? "—" : fmtCount(m?.totalCampaigns ?? 0),
-      sub: `${m?.activeCampaigns ?? 0} active · ${m?.draftCampaigns ?? 0} draft`,
-    },
-    {
       key: "posts",
       label: "Posts",
       value: loading ? "—" : fmtCount(m?.totalPosts ?? 0),
@@ -110,19 +101,12 @@ export default function Home() {
         title="Dashboard"
         subtitle="Your marketing engine at a glance."
         action={
-          <>
-            <Link href="/content">
-              <Button variant="outline" className="rounded-lg h-9 text-[13px]">
-                New post
-              </Button>
-            </Link>
-            <Link href="/campaigns">
-              <Button className="rounded-lg h-9 text-[13px] gap-1.5">
-                <Plus className="h-3.5 w-3.5" />
-                New campaign
-              </Button>
-            </Link>
-          </>
+          <Link href="/content">
+            <Button className="rounded-lg h-9 text-[13px] gap-1.5">
+              <Plus className="h-3.5 w-3.5" />
+              New post
+            </Button>
+          </Link>
         }
       />
 
