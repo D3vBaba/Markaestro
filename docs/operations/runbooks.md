@@ -16,7 +16,7 @@ The production project id is assumed to be `PROJECT_ID`. Substitute as needed.
 
 Applies to: `DATA_ENCRYPTION_KEY`, `SESSION_SIGNING_KEY`, `WORKER_SECRET`,
 `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, OAuth client secrets,
-`RESEND_API_KEY`, `SERPER_API_KEY`, AI provider keys.
+`RESEND_API_KEY`.
 
 ### Why you might be rotating
 
