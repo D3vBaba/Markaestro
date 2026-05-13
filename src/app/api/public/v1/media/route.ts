@@ -3,6 +3,7 @@ import { publicApiError } from '@/lib/public-api/response';
 import { createMediaAsset } from '@/lib/public-api/media';
 import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
 import { incrementApiClientStat } from '@/lib/public-api/analytics';
+import { checkAndIncrementUsage } from '@/lib/usage';
 
 export const runtime = 'nodejs';
 
@@ -15,6 +16,15 @@ export async function POST(req: Request) {
       scope: 'media.write',
       rateLimit: MEDIA_RATE_LIMIT,
     });
+
+    if (ctx.ownerUid) {
+      const quota = await checkAndIncrementUsage(ctx.ownerUid, 'mediaUploads', ctx.workspaceId);
+      if (!quota.allowed) {
+        return Response.json({
+          error: 'QUOTA_EXCEEDED_MEDIA_UPLOADS',
+        }, { status: 402, headers: ctx.rateLimitHeaders });
+      }
+    }
 
     const formData = await req.formData();
     const file = formData.get('file') as File | null;

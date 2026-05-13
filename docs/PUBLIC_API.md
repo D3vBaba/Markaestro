@@ -26,6 +26,10 @@ Accepted image types: `image/png`, `image/jpeg`, `image/webp`, `image/gif` (max 
 
 Accepted video types: `video/mp4`, `video/quicktime`, `video/webm`, `video/x-msvideo`, `video/x-matroska` (max 250 MB)
 
+Each upload counts against the workspace's monthly `mediaUploads`
+quota (shared with in-app uploads). When the quota is exhausted, the
+endpoint returns `402` with `error: "QUOTA_EXCEEDED_MEDIA_UPLOADS"`.
+
 ## Auth
 
 Use a workspace API key:
