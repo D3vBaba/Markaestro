@@ -6,7 +6,6 @@ import { linkedinPublishingAdapter } from './adapters/linkedin-publishing';
 import { threadsPublishingAdapter } from './adapters/threads-publishing';
 import { pinterestPublishingAdapter } from './adapters/pinterest-publishing';
 import { youtubePublishingAdapter } from './adapters/youtube-publishing';
-import { xPublishingAdapter } from './adapters/x-publishing';
 
 const adapters: PlatformAdapter[] = [
   metaPublishingAdapter,
@@ -15,7 +14,6 @@ const adapters: PlatformAdapter[] = [
   threadsPublishingAdapter,
   pinterestPublishingAdapter,
   youtubePublishingAdapter,
-  xPublishingAdapter,
 ];
 
 /**

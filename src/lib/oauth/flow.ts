@@ -387,15 +387,5 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
         channels: ['youtube'],
         capabilities: [PlatformCapability.PUBLISH_VIDEO],
       };
-    case 'x':
-      return {
-        channels: ['x'],
-        capabilities: [
-          PlatformCapability.PUBLISH_TEXT,
-          PlatformCapability.PUBLISH_IMAGE,
-          PlatformCapability.PUBLISH_VIDEO,
-          PlatformCapability.PUBLISH_CAROUSEL,
-        ],
-      };
   }
 }

@@ -85,11 +85,6 @@ env:
     value: https://markaestro.com/api/oauth/callback/youtube
     availability:
       - RUNTIME
-  - variable: X_OAUTH_REDIRECT_URI
-    value: https://markaestro.com/api/oauth/callback/x
-    availability:
-      - RUNTIME
-
   # Stripe — price IDs are public identifiers (same as .env.local)
   - variable: STRIPE_PRICE_STARTER_MONTHLY
     value: price_1TG1vdJUPkOCaFhqr4b27fQi
@@ -191,7 +186,3 @@ env:
     secret: YOUTUBE_CLIENT_ID
   - variable: YOUTUBE_CLIENT_SECRET
     secret: YOUTUBE_CLIENT_SECRET
-  - variable: X_CLIENT_ID
-    secret: X_CLIENT_ID
-  - variable: X_CLIENT_SECRET
-    secret: X_CLIENT_SECRET

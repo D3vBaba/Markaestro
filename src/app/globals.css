@@ -68,7 +68,6 @@
   --color-mk-ch-instagram: var(--mk-ch-instagram);
   --color-mk-ch-tiktok: var(--mk-ch-tiktok);
   --color-mk-ch-facebook: var(--mk-ch-facebook);
-  --color-mk-ch-x: var(--mk-ch-x);
   --color-mk-ch-youtube: var(--mk-ch-youtube);
   --color-mk-ch-linkedin: var(--mk-ch-linkedin);
   --color-mk-ch-pinterest: var(--mk-ch-pinterest);
@@ -99,7 +98,6 @@
   --mk-ch-instagram: #E1306C;
   --mk-ch-tiktok:    #111111;
   --mk-ch-facebook:  #1877F2;
-  --mk-ch-x:         #0F1419;
   --mk-ch-youtube:   #FF0033;
   --mk-ch-linkedin:  #0A66C2;
   --mk-ch-pinterest: #E60023;
@@ -171,7 +169,6 @@
   --mk-warn: oklch(0.80 0.15 70);
 
   --mk-ch-tiktok:  #F1F1F1;
-  --mk-ch-x:       #F1F1F1;
   --mk-ch-threads: #F1F1F1;
 
   --background: var(--mk-surface);

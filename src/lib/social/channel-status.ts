@@ -90,7 +90,7 @@ function getDestinationLabel(connection: PlatformConnection, channel: SocialChan
     return typeof metadata.pageName === 'string' && metadata.pageName ? metadata.pageName : null;
   }
 
-  if (channel === 'instagram' || channel === 'threads' || channel === 'tiktok' || channel === 'x') {
+  if (channel === 'instagram' || channel === 'threads' || channel === 'tiktok') {
     return typeof metadata.username === 'string' && metadata.username ? metadata.username : null;
   }
 

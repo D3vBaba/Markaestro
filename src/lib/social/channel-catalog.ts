@@ -109,19 +109,6 @@ export const socialChannelCatalog = [
     supportsScheduling: true,
     setupHint: 'Connect YouTube and select a channel in product settings.',
   },
-  {
-    channel: 'x',
-    label: 'X',
-    providerKeys: ['x'],
-    editor: 'normal',
-    maxLength: 280,
-    mediaKinds: ['text', 'image', 'video', 'carousel'],
-    mediaRequired: false,
-    maxMediaItems: 4,
-    supportsDirectPublish: true,
-    supportsScheduling: true,
-    setupHint: 'Connect X in product settings.',
-  },
 ] as const satisfies readonly ManagedSocialChannel[];
 
 export function getSocialChannelConfig(channel: string): ManagedSocialChannel | undefined {

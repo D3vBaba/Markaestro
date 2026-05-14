@@ -199,25 +199,6 @@ async function fetchYouTubeProfile(accessToken: string) {
   };
 }
 
-async function fetchXProfile(accessToken: string) {
-  const res = await fetch(
-    'https://api.twitter.com/2/users/me?user.fields=id,name,username,profile_image_url,verified',
-    { headers: { Authorization: `Bearer ${accessToken}` } },
-  );
-  const data = await res.json();
-  if (!res.ok || !data.data?.id) {
-    throw new Error(`X profile fetch failed: ${data.detail || data.title || data.error || 'Unknown error'}`);
-  }
-  const user = data.data;
-  return {
-    userId: String(user.id),
-    username: typeof user.username === 'string' ? user.username : '',
-    displayName: typeof user.name === 'string' ? user.name : (typeof user.username === 'string' ? user.username : 'X'),
-    pictureUrl: typeof user.profile_image_url === 'string' ? user.profile_image_url : '',
-    verified: Boolean(user.verified),
-  };
-}
-
 async function fetchInstagramProfile(accessToken: string) {
   const res = await fetch(
     `${INSTAGRAM_GRAPH_API}/me?${new URLSearchParams({
@@ -493,18 +474,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       } else {
         throw new Error('No YouTube channel found on this Google account');
       }
-    }
-
-    if (provider === 'x') {
-      if (!productId) {
-        throw new Error('VALIDATION_MISSING_PRODUCT_ID');
-      }
-      const profile = await fetchXProfile(tokens.accessToken);
-      extraData.userId = profile.userId;
-      extraData.username = profile.username;
-      extraData.displayName = profile.displayName;
-      if (profile.pictureUrl) extraData.pictureUrl = profile.pictureUrl;
-      extraData.verified = profile.verified;
     }
 
     // Meta: store user token at workspace level (not per-product)

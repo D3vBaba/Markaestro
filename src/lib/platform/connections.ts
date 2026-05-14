@@ -266,7 +266,5 @@ function channelToProviders(channel: SocialChannel, preferredProvider?: string):
       return prioritize(['pinterest']);
     case 'youtube':
       return prioritize(['youtube']);
-    case 'x':
-      return prioritize(['x']);
   }
 }

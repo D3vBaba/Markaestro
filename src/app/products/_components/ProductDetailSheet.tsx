@@ -108,7 +108,6 @@ const SOCIAL_PROVIDERS = [
   "threads",
   "pinterest",
   "youtube",
-  "x",
 ] as const;
 const providerLabels: Record<string, string> = {
   meta: "Meta (Facebook + Instagram)",
@@ -118,7 +117,6 @@ const providerLabels: Record<string, string> = {
   threads: "Threads",
   pinterest: "Pinterest",
   youtube: "YouTube",
-  x: "X (Twitter)",
 };
 
 const COLOR_PALETTE = [
@@ -1379,17 +1377,6 @@ function ChannelsSection({
           productId={productId}
         />
 
-        {/* X */}
-        <SimpleConnectCard
-          label={providerLabels.x}
-          integration={getIntegration("x")}
-          disconnecting={disconnecting}
-          onStartOAuth={onStartOAuth}
-          onDisconnect={onDisconnect}
-          detail={(integ) =>
-            integ?.username ? `@${integ.username}` : undefined
-          }
-        />
       </SectionCard>
     </>
   );
