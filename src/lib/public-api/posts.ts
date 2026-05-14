@@ -4,6 +4,7 @@ import type { PublicApiContext } from './auth';
 import { resolveMediaAssetUrls, type ResolvedPublicMediaAsset } from './media';
 import type { PublicDeliveryMode } from './scopes';
 import { resolvePublicPostDestination } from './products';
+import { assertSettingsMatchesChannel, type PostSettings } from './post-settings';
 
 type CreatePublicPostInput = {
   channel: SocialChannel;
@@ -12,6 +13,7 @@ type CreatePublicPostInput = {
   scheduledAt?: string | null;
   productId?: string;
   destinationId?: string;
+  settings?: PostSettings;
 };
 
 export function getDeliveryModeForChannel(channel: SocialChannel): PublicDeliveryMode {
@@ -65,6 +67,7 @@ export function validateResolvedPublicPostInput(
 
 export async function createPublicPost(ctx: PublicApiContext, input: CreatePublicPostInput) {
   validatePublicPostInput(input);
+  assertSettingsMatchesChannel(input.channel, input.settings);
 
   const mediaAssets = await resolveMediaAssetUrls(ctx.workspaceId, input.mediaAssetIds);
   validateResolvedPublicPostInput(input, mediaAssets);
@@ -89,6 +92,7 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
     destinationProvider: resolvedDestination.destinationProvider,
     deliveryMode: resolvedDestination.deliveryMode || getDeliveryModeForChannel(input.channel),
     willAlsoPublishTo: resolvedDestination.willAlsoPublishTo,
+    settings: input.settings ?? null,
     workspaceId: ctx.workspaceId,
     createdBy: ctx.ownerUid ?? ctx.clientId,
     createdByType: ctx.principalType,
@@ -120,6 +124,7 @@ export function serializePublicPost(post: Record<string, unknown>) {
     productId: post.productId || '',
     destinationId: post.destinationId || '',
     destinationProvider: post.destinationProvider || '',
+    settings: post.settings ?? null,
     mediaAssetIds: Array.isArray(post.mediaAssetIds) ? post.mediaAssetIds : [],
     mediaUrls: Array.isArray(post.mediaUrls) ? post.mediaUrls : [],
     scheduledAt: post.scheduledAt ?? null,

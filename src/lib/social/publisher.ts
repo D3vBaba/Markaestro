@@ -623,12 +623,20 @@ export async function publishStoredPost(
     };
   }
 
+  const settings = post.settings && typeof post.settings === 'object'
+    ? (post.settings as Record<string, unknown>)
+    : undefined;
+  const settingsPhotoCoverIndex = settings && typeof settings.photoCoverIndex === 'number'
+    ? settings.photoCoverIndex
+    : undefined;
+
   const request = {
     content: String(post.content || ''),
     mediaUrls: asStringArray(post.mediaUrls),
     deliveryMode: getDeliveryMode(post.deliveryMode),
     destinationProvider: getDestinationProvider(post.destinationProvider),
-    photoCoverIndex: getPhotoCoverIndex(post.slideshowCoverIndex),
+    photoCoverIndex: settingsPhotoCoverIndex ?? getPhotoCoverIndex(post.slideshowCoverIndex),
+    settings,
   } satisfies Omit<PublishRequest, 'channel'>;
 
   if (targetChannels.length > 1 || asStringArray(post.targetChannels)?.length) {

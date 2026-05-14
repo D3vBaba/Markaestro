@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { socialChannels } from '@/lib/schemas';
 import { publicApiScopes, publicWebhookEvents } from './scopes';
+import { postSettingsSchema } from './post-settings';
 
 // Serialized post shape returned by the public API (matches serializePublicPost).
 // Legacy slideshow-exported posts may include optional slideshow metadata fields.
@@ -15,6 +16,7 @@ export type PublicPostResponse = {
   externalUrl: string | null;
   productId: string;
   destinationId: string;
+  settings: unknown;
   sourceType: string;
   slideshowId: string;
   slideshowTitle: string;
@@ -40,6 +42,12 @@ export const createPublicPostSchema = z.object({
   scheduledAt: z.string().datetime().nullable().optional(),
   productId: z.string().trim().max(2000).optional(),
   destinationId: z.string().trim().max(2000).optional(),
+  settings: postSettingsSchema.optional(),
+});
+
+/** Body for batch create: `{ posts: [...] }`. */
+export const createPublicPostsBatchSchema = z.object({
+  posts: z.array(createPublicPostSchema).min(1).max(25),
 });
 
 export const listPublicPostsSchema = z.object({

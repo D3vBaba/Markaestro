@@ -131,8 +131,79 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \
     "caption": "Launch day.",
     "mediaAssetIds": ["ast_123", "ast_124"],
     "productId": "prod_123",
-    "destinationId": "instagram:instagram:ig_123"
+    "destinationId": "instagram:instagram:ig_123",
+    "settings": {
+      "__type": "instagram",
+      "postType": "feed",
+      "collaborators": ["partnerbrand"],
+      "altText": ["Front view of launch product", "Detail shot"]
+    }
   }'
+```
+
+### Platform-specific settings
+
+`settings` is a discriminated union — `__type` MUST equal the post's `channel`.
+Settings carried on a post are persisted verbatim and read by the adapter at
+publish time. Unrecognized fields are rejected by validation.
+
+**TikTok** (`__type: "tiktok"`)
+- `privacyLevel`: `"PUBLIC_TO_EVERYONE"` · `"MUTUAL_FOLLOW_FRIENDS"` · `"FOLLOWER_OF_CREATOR"` · `"SELF_ONLY"`
+- `disableComment`, `disableDuet`, `disableStitch`: boolean
+- `photoCoverIndex`: integer 0–9 (photo carousels)
+
+> Privacy and comment/duet/stitch toggles take effect once TikTok approves the
+> workspace for Direct Post mode. Markaestro publishes via MEDIA_UPLOAD inbox
+> handoff today, so these fields are accepted at the API boundary and
+> available to the publisher but the creator finalizes them inside TikTok.
+> `photoCoverIndex` is honored today.
+
+**Instagram** (`__type: "instagram"`)
+- `postType`: `"feed"` · `"reel"` · `"story"` (stories: single image/video only, no carousels)
+- `collaborators`: up to 3 IG usernames
+- `altText`: per-media accessibility text (parallel to `mediaAssetIds`)
+
+**YouTube** (`__type: "youtube"`)
+- `title`, `description`: override the auto-derived values
+- `tags`: up to 15 strings
+- `categoryId`: numeric YouTube category id (e.g. `"22"` for People & Blogs)
+- `privacyStatus`: `"public"` · `"unlisted"` · `"private"`
+- `madeForKids`: boolean
+- `thumbnailUrl`: URL of a previously uploaded image asset (≤2 MB); failure to apply the thumbnail does not fail the publish
+
+### Batch create
+
+Submit `{ "posts": [ ... ] }` (1–25 items) to create many posts in a single
+request. The response is `200` with per-item results — individual failures do
+NOT fail the whole call. `Idempotency-Key` covers the whole batch (the
+request hash is derived from the full payload).
+
+```bash
+curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: batch-001" \
+  -d '{
+    "posts": [
+      { "channel": "facebook",  "caption": "Hello FB",  "mediaAssetIds": ["ast_1"], "productId": "prod_1" },
+      { "channel": "instagram", "caption": "Hello IG",  "mediaAssetIds": ["ast_1"], "productId": "prod_1" },
+      { "channel": "tiktok",    "caption": "Hello TT",  "mediaAssetIds": ["ast_2"], "productId": "prod_1" }
+    ]
+  }'
+```
+
+Response shape:
+
+```json
+{
+  "results": [
+    { "ok": true,  "post": { "id": "pst_a", "...": "..." } },
+    { "ok": true,  "post": { "id": "pst_b", "...": "..." } },
+    { "ok": false, "error": "VALIDATION_TIKTOK_REQUIRES_MEDIA" }
+  ],
+  "created": 2,
+  "total": 3
+}
 ```
 
 5. Queue publish

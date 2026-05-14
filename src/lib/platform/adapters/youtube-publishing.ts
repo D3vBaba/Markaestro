@@ -3,6 +3,8 @@ import { getAccessToken, getMeta } from '../base-adapter';
 import { PlatformCapability } from '../types';
 import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
 import type { SocialChannel } from '@/lib/schemas';
+import { asYouTubeSettings, type YouTubeSettings } from '@/lib/public-api/post-settings';
+import { logger } from '@/lib/logger';
 
 // YouTube Data API v3 video upload. We use the resumable upload endpoint with
 // a single-chunk strategy — the whole video is sent in one PUT after
@@ -56,8 +58,17 @@ async function initUploadSession(
   description: string,
   contentLength: number,
   contentType: string,
+  settings?: YouTubeSettings,
 ): Promise<string> {
   const url = `${YOUTUBE_UPLOAD}/videos?uploadType=resumable&part=snippet,status`;
+  const snippet: Record<string, unknown> = {
+    title,
+    description,
+    categoryId: settings?.categoryId ?? '22',
+  };
+  if (settings?.tags && settings.tags.length > 0) {
+    snippet.tags = settings.tags;
+  }
   const res = await fetchWithRetry(url, {
     method: 'POST',
     headers: {
@@ -67,14 +78,10 @@ async function initUploadSession(
       'X-Upload-Content-Type': contentType,
     },
     body: JSON.stringify({
-      snippet: {
-        title,
-        description,
-        categoryId: '22',
-      },
+      snippet,
       status: {
-        privacyStatus: 'public',
-        selfDeclaredMadeForKids: false,
+        privacyStatus: settings?.privacyStatus ?? 'public',
+        selfDeclaredMadeForKids: settings?.madeForKids ?? false,
       },
     }),
   }, { maxRetries: 2 });
@@ -110,10 +117,36 @@ async function uploadVideoBinary(
   return String(data.id);
 }
 
+async function uploadThumbnail(
+  accessToken: string,
+  videoId: string,
+  thumbnailUrl: string,
+): Promise<void> {
+  const { bytes, contentType } = await downloadBinary(thumbnailUrl);
+  if (bytes.byteLength > 2 * 1024 * 1024) {
+    throw new Error('YouTube thumbnail must be 2 MB or smaller');
+  }
+  const url = `${YOUTUBE_UPLOAD}/thumbnails/set?videoId=${encodeURIComponent(videoId)}&uploadType=media`;
+  const res = await fetchWithRetry(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': contentType.startsWith('image/') ? contentType : 'image/jpeg',
+      'Content-Length': String(bytes.byteLength),
+    },
+    body: bytes as unknown as BodyInit,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`YouTube thumbnail upload failed (${res.status}): ${err.error?.message || res.statusText}`);
+  }
+}
+
 async function publishToYouTube(
   connection: PlatformConnection,
   content: string,
   mediaUrls: string[],
+  settings?: YouTubeSettings,
 ): Promise<PublishResult> {
   if (!getChannelId(connection)) {
     return { success: false, error: 'YouTube channel not selected. Pick a channel from product settings.' };
@@ -125,12 +158,29 @@ async function publishToYouTube(
   }
 
   const accessToken = getAccessToken(connection);
-  const { title, description } = splitContent(content);
+  const derived = splitContent(content);
+  const title = settings?.title ?? derived.title;
+  const description = settings?.description ?? derived.description;
 
   try {
     const { bytes, contentType } = await downloadBinary(videoUrl);
-    const uploadUrl = await initUploadSession(accessToken, title, description, bytes.byteLength, contentType);
+    const uploadUrl = await initUploadSession(accessToken, title, description, bytes.byteLength, contentType, settings);
     const videoId = await uploadVideoBinary(uploadUrl, bytes, contentType);
+
+    if (settings?.thumbnailUrl) {
+      try {
+        await uploadThumbnail(accessToken, videoId, settings.thumbnailUrl);
+      } catch (thumbErr) {
+        // Thumbnail failure is non-fatal: the video published, the default
+        // auto-thumbnail will stand in until the user retries.
+        logger.warn('youtube thumbnail upload failed', {
+          event: 'platform.youtube.thumbnail_failed',
+          videoId,
+          error: thumbErr instanceof Error ? thumbErr.message : String(thumbErr),
+        });
+      }
+    }
+
     return {
       success: true,
       externalId: videoId,
@@ -148,7 +198,7 @@ export const youtubePublishingAdapter: PlatformAdapter = {
   capabilities: [PlatformCapability.PUBLISH_VIDEO],
 
   async publish(connection, request: PublishRequest): Promise<PublishResult> {
-    return publishToYouTube(connection, request.content, request.mediaUrls ?? []);
+    return publishToYouTube(connection, request.content, request.mediaUrls ?? [], asYouTubeSettings(request.settings));
   },
 
   async testConnection(connection) {

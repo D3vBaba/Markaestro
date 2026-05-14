@@ -6,6 +6,8 @@ import { isTikTokVideoUrl, validateTikTokMediaUrls } from '@/lib/tiktok-draft-fl
 import { getAccessToken } from '../base-adapter';
 import { PlatformCapability } from '../types';
 import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
+import { asTikTokSettings } from '@/lib/public-api/post-settings';
+import { logger } from '@/lib/logger';
 
 const TIKTOK_MAX_VIDEO_BYTES = 500 * 1024 * 1024;
 const TIKTOK_FILE_UPLOAD_TIMEOUT_MS = 120_000;
@@ -318,6 +320,26 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
       // proxied through our own domain via /api/media/proxy.
       const proxyUrls = imageUrls.map((url) => buildTikTokMediaProxyUrl(url, 'image'));
 
+      const tiktokSettings = asTikTokSettings(request.settings);
+      const photoCoverIndex = tiktokSettings?.photoCoverIndex ?? request.photoCoverIndex ?? 0;
+
+      // privacy_level / disable_comment / disable_duet / disable_stitch only
+      // take effect with TikTok's Direct Post mode. Markaestro currently
+      // publishes photos via MEDIA_UPLOAD (inbox handoff), so these fields
+      // are accepted at the API boundary but ignored here until Direct Post
+      // is enabled. Log so integrators can see the value made it this far.
+      if (tiktokSettings && (
+        tiktokSettings.privacyLevel
+        || tiktokSettings.disableComment !== undefined
+        || tiktokSettings.disableDuet !== undefined
+        || tiktokSettings.disableStitch !== undefined
+      )) {
+        logger.info('tiktok settings ignored (MEDIA_UPLOAD inbox flow)', {
+          event: 'platform.tiktok.settings_ignored',
+          settings: tiktokSettings,
+        });
+      }
+
       const body: Record<string, unknown> = {
         post_info: {
           title: request.content.substring(0, 90),
@@ -325,7 +347,7 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         },
         source_info: {
           source: 'PULL_FROM_URL',
-          photo_cover_index: request.photoCoverIndex ?? 0,
+          photo_cover_index: photoCoverIndex,
           photo_images: proxyUrls,
         },
         post_mode: 'MEDIA_UPLOAD',

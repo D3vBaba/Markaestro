@@ -4,6 +4,7 @@ import { graphApiFetch, checkIgPublishingQuota, checkPagePublishingAccess } from
 import { PlatformCapability } from '../types';
 import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
 import type { SocialChannel } from '@/lib/schemas';
+import { asInstagramSettings, type InstagramSettings } from '@/lib/public-api/post-settings';
 
 const GRAPH_API = 'https://graph.facebook.com/v22.0';
 const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
@@ -274,20 +275,38 @@ async function createIgMediaContainer(
   graphApi: string,
   igAccountId: string,
   accessToken: string,
-  params: { imageUrl?: string; videoUrl?: string; caption?: string; isCarouselItem?: boolean },
+  params: {
+    imageUrl?: string;
+    videoUrl?: string;
+    caption?: string;
+    isCarouselItem?: boolean;
+    isStory?: boolean;
+    altText?: string;
+    collaborators?: string[];
+  },
 ): Promise<{ id?: string; error?: string }> {
   const body: Record<string, unknown> = {
     access_token: accessToken,
   };
   if (params.videoUrl) {
-    // Standalone video → REELS; carousel child → VIDEO
-    body.media_type = params.isCarouselItem ? 'VIDEO' : 'REELS';
+    // Standalone video → REELS (or STORIES); carousel child → VIDEO
+    body.media_type = params.isCarouselItem
+      ? 'VIDEO'
+      : params.isStory
+        ? 'STORIES'
+        : 'REELS';
     body.video_url = params.videoUrl;
   } else if (params.imageUrl) {
+    if (params.isStory) body.media_type = 'STORIES';
     body.image_url = params.imageUrl;
   }
   if (params.caption != null) body.caption = params.caption;
   if (params.isCarouselItem) body.is_carousel_item = true;
+  if (params.altText) body.alt_text = params.altText;
+  if (params.collaborators && params.collaborators.length > 0) {
+    // IG Graph accepts up to 3 collaborators by username, JSON-encoded.
+    body.collaborators = JSON.stringify(params.collaborators.slice(0, 3));
+  }
 
   const res = await graphApiFetch(`${graphApi}/${igAccountId}/media`, {
     method: 'POST',
@@ -306,6 +325,7 @@ async function publishToInstagram(
   connection: PlatformConnection,
   content: string,
   mediaUrls: string[] = [],
+  settings?: InstagramSettings,
 ): Promise<PublishResult> {
   const igAccountId = getInstagramAccountId(connection);
   if (!igAccountId) {
@@ -343,29 +363,37 @@ async function publishToInstagram(
     // Quota check is best-effort — don't block on check failure
   }
 
+  const isStory = settings?.postType === 'story';
+  if (isStory && mediaUrls.length > 1) {
+    return { success: false, error: 'Instagram stories support a single image or video, not carousels.' };
+  }
+  const altTexts = settings?.altText ?? [];
+  const collaborators = settings?.collaborators;
+
   try {
     let containerId: string | undefined;
     const hasVideo = mediaUrls.some(isVideoUrl);
     const videoPollOptions = { intervalMs: VIDEO_POLL_INTERVAL_MS, maxAttempts: VIDEO_POLL_MAX_ATTEMPTS };
 
     if (mediaUrls.length === 1) {
-      // Single media post (image or Reels video)
+      // Single media post (image, Reels video, or Story)
       const url = mediaUrls[0];
       const containerParams = isVideoUrl(url)
-        ? { videoUrl: url, caption: content }
-        : { imageUrl: url, caption: content };
+        ? { videoUrl: url, caption: content, isStory, collaborators }
+        : { imageUrl: url, caption: content, isStory, altText: altTexts[0], collaborators };
       const single = await createIgMediaContainer(graphApi, igAccountId, accessToken, containerParams);
       if (single.error) {
         return { success: false, error: `Instagram container error: ${single.error}` };
       }
       containerId = single.id;
     } else {
-      // Carousel: create one child container per media item (image or video)
+      // Carousel: create one child container per media item (image or video).
+      // alt_text is set per child where provided; collaborators are set on the parent only.
       const children = await Promise.all(
-        mediaUrls.map((url) => {
+        mediaUrls.map((url, idx) => {
           const childParams = isVideoUrl(url)
             ? { videoUrl: url, isCarouselItem: true as const }
-            : { imageUrl: url, isCarouselItem: true as const };
+            : { imageUrl: url, isCarouselItem: true as const, altText: altTexts[idx] };
           return createIgMediaContainer(graphApi, igAccountId, accessToken, childParams);
         }),
       );
@@ -384,15 +412,19 @@ async function publishToInstagram(
         }
       }
 
+      const carouselBody: Record<string, unknown> = {
+        media_type: 'CAROUSEL',
+        children: childIds.join(','),
+        caption: content,
+        access_token: accessToken,
+      };
+      if (collaborators && collaborators.length > 0) {
+        carouselBody.collaborators = JSON.stringify(collaborators.slice(0, 3));
+      }
       const parentRes = await graphApiFetch(`${graphApi}/${igAccountId}/media`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          media_type: 'CAROUSEL',
-          children: childIds.join(','),
-          caption: content,
-          access_token: accessToken,
-        }),
+        body: JSON.stringify(carouselBody),
       });
       if (!parentRes.ok) {
         const err = await parentRes.json().catch(() => ({}));
@@ -452,7 +484,7 @@ export const metaPublishingAdapter: PlatformAdapter = {
   async publish(connection: PlatformConnection, request: PublishRequest): Promise<PublishResult> {
     const mediaUrls = request.mediaUrls ?? [];
     if (request.channel === 'instagram') {
-      return publishToInstagram(connection, request.content, mediaUrls);
+      return publishToInstagram(connection, request.content, mediaUrls, asInstagramSettings(request.settings));
     }
     return publishToFacebook(connection, request.content, mediaUrls);
   },

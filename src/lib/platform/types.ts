@@ -62,9 +62,17 @@ export type PublishRequest = {
   /**
    * For TikTok photo carousels: which image (0-based) is the cover.
    * Defaults to 0 if not set. Maps to TikTok's `photo_cover_index`.
-   * Populated from `slideshowCoverIndex` on posts (e.g. legacy carousel exports).
+   * Populated from `slideshowCoverIndex` on posts (e.g. legacy carousel exports)
+   * or from `settings.photoCoverIndex` when the post was created with typed
+   * TikTok settings via the public API.
    */
   photoCoverIndex?: number;
+  /**
+   * Platform-specific settings carried verbatim from the post (public API
+   * `settings` field, discriminated by `__type`). Each adapter narrows this
+   * with its own type guard from `@/lib/public-api/post-settings`.
+   */
+  settings?: Record<string, unknown>;
 };
 
 export type PublishResult = {
