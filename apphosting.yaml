@@ -69,8 +69,8 @@ env:
     value: https://markaestro.com/api/oauth/callback/instagram
     availability:
       - RUNTIME
-  - variable: LINKEDIN_OAUTH_REDIRECT_URI
-    value: https://markaestro.com/api/oauth/callback/linkedin
+  - variable: META_OAUTH_REDIRECT_URI
+    value: https://markaestro.com/api/oauth/callback/meta
     availability:
       - RUNTIME
   - variable: THREADS_OAUTH_REDIRECT_URI
@@ -79,10 +79,6 @@ env:
       - RUNTIME
   - variable: PINTEREST_OAUTH_REDIRECT_URI
     value: https://markaestro.com/api/oauth/callback/pinterest
-    availability:
-      - RUNTIME
-  - variable: YOUTUBE_OAUTH_REDIRECT_URI
-    value: https://markaestro.com/api/oauth/callback/youtube
     availability:
       - RUNTIME
   # Stripe — price IDs are public identifiers (same as .env.local)
@@ -170,10 +166,6 @@ env:
     secret: TIKTOK_ADS_CLIENT_KEY
   - variable: TIKTOK_ADS_CLIENT_SECRET
     secret: TIKTOK_ADS_CLIENT_SECRET
-  - variable: LINKEDIN_CLIENT_ID
-    secret: LINKEDIN_CLIENT_ID
-  - variable: LINKEDIN_CLIENT_SECRET
-    secret: LINKEDIN_CLIENT_SECRET
   - variable: THREADS_APP_ID
     secret: THREADS_APP_ID
   - variable: THREADS_APP_SECRET
@@ -182,7 +174,3 @@ env:
     secret: PINTEREST_CLIENT_ID
   - variable: PINTEREST_CLIENT_SECRET
     secret: PINTEREST_CLIENT_SECRET
-  - variable: YOUTUBE_CLIENT_ID
-    secret: YOUTUBE_CLIENT_ID
-  - variable: YOUTUBE_CLIENT_SECRET
-    secret: YOUTUBE_CLIENT_SECRET

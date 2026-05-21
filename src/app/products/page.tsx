@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 type Product = ProductCardData;
 
-const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok", "linkedin"] as const;
+const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok", "threads", "pinterest"] as const;
 
 function getScopedSocialIntegrations(integrations: IntegrationInfo[]) {
   return integrations.filter(
@@ -32,7 +32,8 @@ const providerLabels: Record<string, string> = {
   meta: "Meta",
   instagram: "Instagram",
   tiktok: "TikTok",
-  linkedin: "LinkedIn",
+  threads: "Threads",
+  pinterest: "Pinterest",
 };
 
 export default function ProductsPage() {

@@ -354,16 +354,6 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
         channels: ['tiktok'],
         capabilities: [PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_VIDEO],
       };
-    case 'linkedin':
-      return {
-        channels: ['linkedin'],
-        capabilities: [
-          PlatformCapability.PUBLISH_TEXT,
-          PlatformCapability.PUBLISH_IMAGE,
-          PlatformCapability.PUBLISH_VIDEO,
-          PlatformCapability.PUBLISH_CAROUSEL,
-        ],
-      };
     case 'threads':
       return {
         channels: ['threads'],
@@ -381,11 +371,6 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
           PlatformCapability.PUBLISH_IMAGE,
           PlatformCapability.PUBLISH_VIDEO,
         ],
-      };
-    case 'youtube':
-      return {
-        channels: ['youtube'],
-        capabilities: [PlatformCapability.PUBLISH_VIDEO],
       };
   }
 }

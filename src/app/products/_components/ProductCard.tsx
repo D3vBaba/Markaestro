@@ -47,7 +47,8 @@ const providerShortLabels: Record<string, string> = {
   meta: "Meta",
   instagram: "IG",
   tiktok: "TikTok",
-  linkedin: "LinkedIn",
+  threads: "Threads",
+  pinterest: "Pinterest",
 };
 
 function stripProtocol(url: string) {

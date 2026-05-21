@@ -733,7 +733,7 @@ function IntegrationsTab() {
       />
 
       <p className="text-xs text-muted-foreground">
-        TikTok and LinkedIn integrations are set up per product on the{" "}
+        TikTok, Threads, and Pinterest integrations are set up per product on the{" "}
         <a href="/products" className="text-primary hover:underline">Products page</a>.
       </p>
 

@@ -13,7 +13,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     requirePermission(ctx, 'integrations.manage');
 
     const { provider } = await params;
-    if (provider !== 'meta' && provider !== 'pinterest' && provider !== 'youtube') {
+    if (provider !== 'meta' && provider !== 'pinterest') {
       throw new Error('INVALID_PROVIDER');
     }
 
@@ -22,27 +22,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       throw new Error('VALIDATION_MISSING_PAGE_ID');
     }
 
-    if (provider === 'pinterest' || provider === 'youtube') {
+    if (provider === 'pinterest') {
       if (!productId) throw new Error('VALIDATION_MISSING_PRODUCT_ID');
       const connRef = getConnectionRef(ctx.workspaceId, provider, productId);
       const snap = await connRef.get();
       if (!snap.exists) throw new Error('NOT_FOUND');
 
-      const metadataUpdate: Record<string, unknown> =
-        provider === 'pinterest'
-          ? {
-              'metadata.boardId': pageId,
-              'metadata.boardName': pageName || '',
-              'metadata.boardSelectionRequired': false,
-            }
-          : {
-              'metadata.channelId': pageId,
-              'metadata.channelTitle': pageName || '',
-              'metadata.channelSelectionRequired': false,
-            };
-
       await connRef.update({
-        ...metadataUpdate,
+        'metadata.boardId': pageId,
+        'metadata.boardName': pageName || '',
+        'metadata.boardSelectionRequired': false,
         updatedAt: new Date().toISOString(),
         updatedBy: ctx.uid,
       });

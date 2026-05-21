@@ -3,7 +3,6 @@ import {
   assertSettingsMatchesChannel,
   asTikTokSettings,
   asInstagramSettings,
-  asYouTubeSettings,
   postSettingsSchema,
 } from '../public-api/post-settings';
 import { createPublicPostSchema, createPublicPostsBatchSchema } from '../public-api/schemas';
@@ -29,26 +28,14 @@ describe('postSettingsSchema', () => {
     expect(result.__type).toBe('instagram');
   });
 
-  it('parses valid YouTube settings', () => {
-    const result = postSettingsSchema.parse({
-      __type: 'youtube',
-      title: 'My video',
-      categoryId: '22',
-      privacyStatus: 'unlisted',
-      madeForKids: false,
-      thumbnailUrl: 'https://example.com/thumb.jpg',
-    });
-    expect(result.__type).toBe('youtube');
-  });
-
   it('rejects unknown __type', () => {
     expect(() => postSettingsSchema.parse({ __type: 'reddit' })).toThrow();
   });
 
-  it('rejects non-numeric YouTube categoryId', () => {
+  it('rejects retired YouTube settings payloads', () => {
     expect(() => postSettingsSchema.parse({
       __type: 'youtube',
-      categoryId: 'gaming',
+      title: 'My video',
     })).toThrow();
   });
 
@@ -81,7 +68,7 @@ describe('assertSettingsMatchesChannel', () => {
 describe('type guards', () => {
   it('narrows TikTok settings only when __type matches', () => {
     expect(asTikTokSettings({ __type: 'tiktok', privacyLevel: 'SELF_ONLY' })).toBeTruthy();
-    expect(asTikTokSettings({ __type: 'youtube' })).toBeUndefined();
+    expect(asTikTokSettings({ __type: 'instagram' })).toBeUndefined();
     expect(asTikTokSettings(undefined)).toBeUndefined();
     expect(asTikTokSettings(null)).toBeUndefined();
   });
@@ -90,22 +77,17 @@ describe('type guards', () => {
     expect(asInstagramSettings({ __type: 'instagram', postType: 'story' })).toBeTruthy();
     expect(asInstagramSettings({ __type: 'tiktok' })).toBeUndefined();
   });
-
-  it('narrows YouTube settings only when __type matches', () => {
-    expect(asYouTubeSettings({ __type: 'youtube', title: 'x' })).toBeTruthy();
-    expect(asYouTubeSettings({ __type: 'instagram' })).toBeUndefined();
-  });
 });
 
 describe('createPublicPostSchema with settings', () => {
   it('accepts a post with matching channel and settings', () => {
     const parsed = createPublicPostSchema.parse({
-      channel: 'youtube',
-      caption: 'Episode 1',
+      channel: 'instagram',
+      caption: 'Launch day',
       mediaAssetIds: ['ast_1'],
-      settings: { __type: 'youtube', title: 'Episode 1' },
+      settings: { __type: 'instagram', postType: 'feed' },
     });
-    expect(parsed.settings?.__type).toBe('youtube');
+    expect(parsed.settings?.__type).toBe('instagram');
   });
 
   it('still accepts posts without settings', () => {

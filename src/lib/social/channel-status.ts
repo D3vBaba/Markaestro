@@ -98,14 +98,6 @@ function getDestinationLabel(connection: PlatformConnection, channel: SocialChan
     return typeof metadata.boardName === 'string' && metadata.boardName ? metadata.boardName : null;
   }
 
-  if (channel === 'youtube') {
-    return typeof metadata.channelTitle === 'string' && metadata.channelTitle ? metadata.channelTitle : null;
-  }
-
-  if (channel === 'linkedin') {
-    return typeof metadata.displayName === 'string' && metadata.displayName ? metadata.displayName : null;
-  }
-
   return null;
 }
 

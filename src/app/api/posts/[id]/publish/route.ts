@@ -5,6 +5,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { getPostTargetChannels, publishStoredPost } from '@/lib/social/publisher';
 import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
 import { TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -58,7 +59,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       updatedAt: publishStartedAt,
     });
 
-    console.log(`[publish] Post ${id}: channels=${targetChannels.join(',')}, productId=${productId}, mediaUrls=${JSON.stringify(post.mediaUrls)}`);
+    logger.info('publish started', {
+      event: 'posts.publish.started',
+      workspaceId: ctx.workspaceId,
+      postId: id,
+      channels: targetChannels,
+      productId: productId ?? null,
+      mediaCount: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 0,
+    });
 
     let result;
     try {
@@ -73,11 +81,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       // Unexpected exception — revert so post doesn't stay stuck in 'publishing'
       const msg = publishError instanceof Error ? publishError.message : 'Internal publishing error';
       await ref.update({ status: 'failed', errorMessage: msg, updatedAt: new Date().toISOString() });
-      console.error(`[publish] Exception for ${id}:`, publishError);
+      logger.error('publish failed', {
+        event: 'posts.publish.exception',
+        workspaceId: ctx.workspaceId,
+        postId: id,
+        err: publishError,
+      });
       return apiOk({ ok: false, id, status: 'failed', error: msg });
     }
 
-    console.log(`[publish] Result for ${id}:`, JSON.stringify(result));
+    logger.info('publish finished', {
+      event: 'posts.publish.finished',
+      workspaceId: ctx.workspaceId,
+      postId: id,
+      pending: result.pending,
+      channelResults: result.channels.map((c) => ({ channel: c.channel, success: c.success })),
+    });
 
     const successfulChannels = result.channels.filter((c) => c.success);
 

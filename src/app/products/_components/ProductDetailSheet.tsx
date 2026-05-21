@@ -104,19 +104,15 @@ const SOCIAL_PROVIDERS = [
   "meta",
   "instagram",
   "tiktok",
-  "linkedin",
   "threads",
   "pinterest",
-  "youtube",
 ] as const;
 const providerLabels: Record<string, string> = {
   meta: "Meta (Facebook + Instagram)",
   instagram: "Instagram (direct login)",
   tiktok: "TikTok",
-  linkedin: "LinkedIn",
   threads: "Threads",
   pinterest: "Pinterest",
-  youtube: "YouTube",
 };
 
 const COLOR_PALETTE = [
@@ -1165,8 +1161,6 @@ function ChannelsSection({
     meta?.status === "connected" || (meta?.scope === "workspace" && meta?.needsPageSelection);
   const instagram = getIntegration("instagram");
   const tiktok = getIntegration("tiktok");
-  const linkedin = getIntegration("linkedin");
-
   return (
     <>
       <SectionCard
@@ -1290,36 +1284,6 @@ function ChannelsSection({
           )}
         </ChannelCard>
 
-        {/* LinkedIn */}
-        <ChannelCard
-          label={providerLabels.linkedin}
-          connected={linkedin?.status === "connected" && !linkedin?.lastRefreshError}
-          warn={linkedin?.status === "expired" || !!linkedin?.lastRefreshError}
-          warnLabel="Reconnect"
-          detail={
-            linkedin?.tokenExpiresAt
-              ? `Expires ${new Date(linkedin.tokenExpiresAt).toLocaleDateString()} · requires re-auth every 60 days`
-              : undefined
-          }
-        >
-          {linkedin?.status === "connected" && !linkedin?.lastRefreshError ? (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => onDisconnect("linkedin", providerLabels.linkedin)}
-              disabled={disconnecting === "linkedin"}
-            >
-              {disconnecting === "linkedin" ? "…" : "Disconnect"}
-            </Button>
-          ) : (
-            <Button size="sm" onClick={() => onStartOAuth("linkedin")}>
-              {linkedin?.status === "expired" || linkedin?.lastRefreshError
-                ? "Reconnect"
-                : "Connect"}
-            </Button>
-          )}
-        </ChannelCard>
-
         {/* Threads */}
         <SimpleConnectCard
           label={providerLabels.threads}
@@ -1349,30 +1313,6 @@ function ChannelsSection({
           pickerLabel={(integ) => (integ?.boardId ? "Change board" : "Select board")}
           pickerProvider="pinterest"
           pickerDestinationLabel="board"
-          onPickerSelected={onRefreshIntegrations}
-          productId={productId}
-        />
-
-        {/* YouTube */}
-        <SimpleConnectCard
-          label={providerLabels.youtube}
-          integration={getIntegration("youtube")}
-          disconnecting={disconnecting}
-          onStartOAuth={onStartOAuth}
-          onDisconnect={onDisconnect}
-          detail={(integ) =>
-            integ?.channelTitle
-              ? `Uploading to: ${integ.channelTitle}`
-              : integ?.status === "connected"
-              ? "Select a channel to enable publishing"
-              : undefined
-          }
-          warnWhen={(integ) => !!integ && integ.status === "connected" && !integ.channelId}
-          warnLabel="Select channel"
-          pickerWhen={(integ) => !!integ && integ.status === "connected"}
-          pickerLabel={(integ) => (integ?.channelId ? "Change channel" : "Select channel")}
-          pickerProvider="youtube"
-          pickerDestinationLabel="channel"
           onPickerSelected={onRefreshIntegrations}
           productId={productId}
         />

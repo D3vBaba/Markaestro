@@ -41,28 +41,6 @@ async function exchangeInstagramToken(tokens: {
   };
 }
 
-async function fetchLinkedInProfile(accessToken: string) {
-  // OIDC userinfo endpoint — returns `sub` (LinkedIn member ID), name, email.
-  // The `sub` value is the Person URN suffix: urn:li:person:{sub}.
-  const res = await fetch('https://api.linkedin.com/v2/userinfo', {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  const data = await res.json();
-
-  if (!res.ok || !data.sub) {
-    throw new Error(
-      `LinkedIn profile fetch failed: ${data.error_description || data.error || data.message || 'Unknown error'}`,
-    );
-  }
-
-  return {
-    personId: String(data.sub),
-    displayName: typeof data.name === 'string' ? data.name : '',
-    email: typeof data.email === 'string' ? data.email : '',
-    pictureUrl: typeof data.picture === 'string' ? data.picture : '',
-  };
-}
-
 async function fetchTikTokProfile(accessToken: string) {
   const fields = [
     'open_id',
@@ -168,34 +146,6 @@ async function fetchPinterestProfile(accessToken: string) {
     displayName: typeof data.username === 'string' ? data.username : 'Pinterest',
     accountType: typeof data.account_type === 'string' ? data.account_type : '',
     profileImage: typeof data.profile_image === 'string' ? data.profile_image : '',
-  };
-}
-
-async function fetchYouTubeProfile(accessToken: string) {
-  const res = await fetch(
-    `https://www.googleapis.com/youtube/v3/channels?${new URLSearchParams({
-      part: 'id,snippet',
-      mine: 'true',
-    }).toString()}`,
-    { headers: { Authorization: `Bearer ${accessToken}` } },
-  );
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(`YouTube channel fetch failed: ${data.error?.message || 'Unknown error'}`);
-  }
-  const items = Array.isArray(data.items) ? data.items : [];
-  return {
-    channels: items.map((item: Record<string, unknown>) => {
-      const snippet = (item.snippet || {}) as Record<string, unknown>;
-      const thumbnails = (snippet.thumbnails || {}) as Record<string, unknown>;
-      const defaultThumb = (thumbnails.default || thumbnails.medium || thumbnails.high || {}) as Record<string, unknown>;
-      return {
-        id: String(item.id),
-        title: typeof snippet.title === 'string' ? snippet.title : '',
-        description: typeof snippet.description === 'string' ? snippet.description : '',
-        thumbnailUrl: typeof defaultThumb.url === 'string' ? defaultThumb.url : '',
-      };
-    }),
   };
 }
 
@@ -403,20 +353,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       }
     }
 
-    if (provider === 'linkedin') {
-      // LinkedIn doesn't return the person URN in the token response — fetch it via
-      // OIDC userinfo. The `sub` field becomes urn:li:person:{sub}, which we use as
-      // the `author` when publishing via /rest/posts.
-      const profile = await fetchLinkedInProfile(tokens.accessToken);
-      extraData.authorType = 'person';
-      extraData.authorUrn = `urn:li:person:${profile.personId}`;
-      extraData.personId = profile.personId;
-      extraData.displayName = profile.displayName || 'LinkedIn';
-      if (profile.email) extraData.email = profile.email;
-      if (profile.pictureUrl) extraData.pictureUrl = profile.pictureUrl;
-    }
-
-    let youtubeNeedsChannelSelection = false;
     let pinterestNeedsBoardSelection = false;
 
     if (provider === 'threads') {
@@ -452,28 +388,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       // selection so the UI can prompt the user.
       extraData.boardSelectionRequired = true;
       pinterestNeedsBoardSelection = true;
-    }
-
-    if (provider === 'youtube') {
-      if (!productId) {
-        throw new Error('VALIDATION_MISSING_PRODUCT_ID');
-      }
-      const profile = await fetchYouTubeProfile(tokens.accessToken);
-      if (profile.channels.length === 1) {
-        const channel = profile.channels[0];
-        extraData.channelId = channel.id;
-        extraData.channelTitle = channel.title;
-        if (channel.thumbnailUrl) extraData.pictureUrl = channel.thumbnailUrl;
-        extraData.displayName = channel.title || 'YouTube';
-        extraData.channelSelectionRequired = false;
-      } else if (profile.channels.length > 1) {
-        extraData.availableChannels = profile.channels;
-        extraData.channelSelectionRequired = true;
-        youtubeNeedsChannelSelection = true;
-        extraData.displayName = 'YouTube';
-      } else {
-        throw new Error('No YouTube channel found on this Google account');
-      }
     }
 
     // Meta: store user token at workspace level (not per-product)
@@ -513,7 +427,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         productId,
         ...(provider === 'meta' && metaNeedsPageSelection ? { needsPageSelect: '1' } : {}),
         ...(provider === 'pinterest' && pinterestNeedsBoardSelection ? { needsBoardSelect: '1' } : {}),
-        ...(provider === 'youtube' && youtubeNeedsChannelSelection ? { needsChannelSelect: '1' } : {}),
       });
     }
     const successBase = returnTo

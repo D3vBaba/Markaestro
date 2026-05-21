@@ -60,25 +60,6 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     clientIdParam: 'client_key',
     extraAuthParams: {},
   },
-  linkedin: {
-    authUrl: 'https://www.linkedin.com/oauth/v2/authorization',
-    tokenUrl: 'https://www.linkedin.com/oauth/v2/accessToken',
-    // openid/profile/email come from the Sign In with LinkedIn using OpenID Connect product,
-    // and are used here solely to obtain the member's Person URN via /v2/userinfo.
-    // w_member_social comes from the Share on LinkedIn product and authorizes posting.
-    // Organization posting (w_organization_social, r_organization_social) requires the
-    // Community Management API product, which is review-gated — add those scopes here
-    // once the app is approved.
-    scopes: [
-      'openid',
-      'profile',
-      'email',
-      'w_member_social',
-    ],
-    clientIdEnv: 'LINKEDIN_CLIENT_ID',
-    clientSecretEnv: 'LINKEDIN_CLIENT_SECRET',
-    extraAuthParams: {},
-  },
   threads: {
     authUrl: 'https://threads.net/oauth/authorize',
     tokenUrl: 'https://graph.threads.net/oauth/access_token',
@@ -106,26 +87,6 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     useBasicAuth: true,
     extraAuthParams: {},
   },
-  youtube: {
-    // YouTube Data API v3 uses Google OAuth. Scope youtube.upload lets us upload videos;
-    // youtube.readonly lets us list the user's channels for the post-auth channel picker.
-    // access_type=offline + prompt=consent ensures we receive a refresh token on every
-    // authorization (Google only issues one when prompt=consent).
-    authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-    tokenUrl: 'https://oauth2.googleapis.com/token',
-    revokeUrl: 'https://oauth2.googleapis.com/revoke',
-    scopes: [
-      'https://www.googleapis.com/auth/youtube.upload',
-      'https://www.googleapis.com/auth/youtube.readonly',
-    ],
-    clientIdEnv: 'YOUTUBE_CLIENT_ID',
-    clientSecretEnv: 'YOUTUBE_CLIENT_SECRET',
-    extraAuthParams: {
-      access_type: 'offline',
-      prompt: 'consent',
-      include_granted_scopes: 'true',
-    },
-  },
 };
 
 export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig {
@@ -136,10 +97,8 @@ const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   meta: 'META_OAUTH_REDIRECT_URI',
   instagram: 'INSTAGRAM_OAUTH_REDIRECT_URI',
   tiktok: 'TIKTOK_OAUTH_REDIRECT_URI',
-  linkedin: 'LINKEDIN_OAUTH_REDIRECT_URI',
   threads: 'THREADS_OAUTH_REDIRECT_URI',
   pinterest: 'PINTEREST_OAUTH_REDIRECT_URI',
-  youtube: 'YOUTUBE_OAUTH_REDIRECT_URI',
 };
 
 export function getAppUrl(): string {

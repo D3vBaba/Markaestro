@@ -43,32 +43,15 @@ export const instagramSettingsSchema = z.object({
   altText: z.array(z.string().trim().max(1000)).max(10).optional(),
 });
 
-// ── YouTube ───────────────────────────────────────────────────────
-
-export const youtubePrivacyStatuses = ['public', 'unlisted', 'private'] as const;
-
-export const youtubeSettingsSchema = z.object({
-  __type: z.literal('youtube'),
-  title: z.string().trim().min(1).max(100).optional(),
-  description: z.string().trim().max(5000).optional(),
-  tags: z.array(z.string().trim().min(1).max(100)).max(15).optional(),
-  categoryId: z.string().trim().regex(/^\d{1,3}$/, 'YouTube categoryId must be numeric').optional(),
-  privacyStatus: z.enum(youtubePrivacyStatuses).optional(),
-  madeForKids: z.boolean().optional(),
-  thumbnailUrl: z.string().url().max(2048).optional(),
-});
-
 // ── Discriminated union ───────────────────────────────────────────
 
 export const postSettingsSchema = z.discriminatedUnion('__type', [
   tiktokSettingsSchema,
   instagramSettingsSchema,
-  youtubeSettingsSchema,
 ]);
 
 export type TikTokSettings = z.infer<typeof tiktokSettingsSchema>;
 export type InstagramSettings = z.infer<typeof instagramSettingsSchema>;
-export type YouTubeSettings = z.infer<typeof youtubeSettingsSchema>;
 export type PostSettings = z.infer<typeof postSettingsSchema>;
 
 /**
@@ -85,12 +68,6 @@ export function asInstagramSettings(settings: unknown): InstagramSettings | unde
   if (!settings || typeof settings !== 'object') return undefined;
   const s = settings as { __type?: string };
   return s.__type === 'instagram' ? (settings as InstagramSettings) : undefined;
-}
-
-export function asYouTubeSettings(settings: unknown): YouTubeSettings | undefined {
-  if (!settings || typeof settings !== 'object') return undefined;
-  const s = settings as { __type?: string };
-  return s.__type === 'youtube' ? (settings as YouTubeSettings) : undefined;
 }
 
 /**

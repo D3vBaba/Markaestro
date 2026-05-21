@@ -115,10 +115,10 @@ describe('publishStoredPost', () => {
         externalId: 'fb_123',
         externalUrl: 'https://facebook.example/fb_123',
       }),
-      linkedin: vi.fn().mockResolvedValue({
+      threads: vi.fn().mockResolvedValue({
         success: true,
-        externalId: 'li_123',
-        externalUrl: 'https://linkedin.example/li_123',
+        externalId: 'th_123',
+        externalUrl: 'https://threads.example/th_123',
       }),
     };
 
@@ -133,16 +133,16 @@ describe('publishStoredPost', () => {
     const result = await publishStoredPost('ws_123', 'prod_123', {
       content: 'Launch post',
       channel: 'facebook',
-      targetChannels: ['facebook', 'linkedin'],
+      targetChannels: ['facebook', 'threads'],
       mediaUrls: [],
     });
 
     expect(result.success).toBe(true);
-    expect(result.channels.map((item) => item.channel)).toEqual(['facebook', 'linkedin']);
+    expect(result.channels.map((item) => item.channel)).toEqual(['facebook', 'threads']);
     expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'facebook', 'prod_123', undefined);
-    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'linkedin', 'prod_123', undefined);
+    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'threads', 'prod_123', undefined);
     expect(publishByChannel.facebook).toHaveBeenCalledTimes(1);
-    expect(publishByChannel.linkedin).toHaveBeenCalledTimes(1);
+    expect(publishByChannel.threads).toHaveBeenCalledTimes(1);
   });
 
   it('requires a product for non-TikTok stored posts', async () => {

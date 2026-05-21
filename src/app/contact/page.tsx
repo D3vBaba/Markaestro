@@ -36,11 +36,11 @@ const contactChannels = [
 const faqs = [
   {
     q: "How do I connect my social media accounts?",
-    a: "Go to Settings > Integrations in your dashboard. Click 'Connect' next to any platform (Facebook, Instagram, TikTok, Google) and authorize via OAuth. The entire process takes under a minute.",
+    a: "Open a product in your dashboard and connect the channels you publish to (Meta for Facebook and Instagram, TikTok, Threads, or Pinterest). Each connection uses OAuth and usually takes under a minute.",
   },
   {
-    q: "Is there a free tier?",
-    a: "Yes. Markaestro offers a free plan that includes one workspace, a monthly media upload allowance, and publishing to up to two channels. Upgrade anytime for more channels and higher upload limits.",
+    q: "Is there a free trial?",
+    a: "Yes. Every paid plan includes a free trial with full access. Your card is collected at signup but you are not charged until the trial ends. Cancel during the trial and pay nothing.",
   },
   {
     q: "What kinds of media can I upload?",

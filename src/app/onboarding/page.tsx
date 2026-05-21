@@ -48,8 +48,8 @@ const CHANNELS = [
   { id: "instagram", label: "Instagram" },
   { id: "facebook", label: "Facebook" },
   { id: "tiktok", label: "TikTok" },
-  { id: "linkedin", label: "LinkedIn" },
-  { id: "twitter", label: "X / Twitter" },
+  { id: "threads", label: "Threads" },
+  { id: "pinterest", label: "Pinterest" },
 ];
 
 const SOCIAL_PROVIDERS = [
@@ -983,7 +983,7 @@ export default function OnboardingPage() {
                   })}
 
                   <p className="text-sm text-muted-foreground px-1 pt-1">
-                    TikTok and LinkedIn can be connected per-product from your dashboard.
+                    TikTok, Threads, and Pinterest can be connected per-product from your dashboard.
                   </p>
                 </div>
 

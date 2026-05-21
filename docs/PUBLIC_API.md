@@ -4,7 +4,6 @@ Public API v1 supports publishing automation (images and video) for:
 - Facebook
 - Instagram
 - TikTok
-- LinkedIn
 
 ## Scope
 
@@ -18,7 +17,6 @@ Public API v1 supports publishing automation (images and video) for:
 - Facebook: text-only, image, or video posts; max 10 images; 1 video per post
 - Instagram: requires at least 1 media item (image or video); max 10 items; single video publishes as a Reel; carousels support mixed image/video
 - TikTok: requires at least 1 media item; either 1 video or up to 10 images; publish requests use the same direct inbox handoff as the app and become `exported_for_review` once TikTok finishes processing
-- LinkedIn: text-only, image, or video posts; max 20 images; 1 video per post
 
 ## Media upload
 
@@ -80,12 +78,6 @@ TikTok:
 - once TikTok confirms inbox delivery, post status becomes `exported_for_review`
 - `externalId` contains the TikTok `publish_id`
 - the follow-up action is `nextAction=open_tiktok_inbox_and_complete_editing`
-
-LinkedIn:
-- direct publish via the LinkedIn Posts API
-- supports text-only, single image, multi-image (up to 20), and single video
-- video uploads use binary chunked upload to LinkedIn's `/rest/videos` endpoint
-- post status becomes `published`
 
 ## Example flow
 
@@ -162,14 +154,6 @@ publish time. Unrecognized fields are rejected by validation.
 - `postType`: `"feed"` · `"reel"` · `"story"` (stories: single image/video only, no carousels)
 - `collaborators`: up to 3 IG usernames
 - `altText`: per-media accessibility text (parallel to `mediaAssetIds`)
-
-**YouTube** (`__type: "youtube"`)
-- `title`, `description`: override the auto-derived values
-- `tags`: up to 15 strings
-- `categoryId`: numeric YouTube category id (e.g. `"22"` for People & Blogs)
-- `privacyStatus`: `"public"` · `"unlisted"` · `"private"`
-- `madeForKids`: boolean
-- `thumbnailUrl`: URL of a previously uploaded image asset (≤2 MB); failure to apply the thumbnail does not fail the publish
 
 ### Batch create
 

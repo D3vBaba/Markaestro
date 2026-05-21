@@ -2,18 +2,14 @@ import type { SocialChannel } from '@/lib/schemas';
 import type { PlatformAdapter } from './types';
 import { metaPublishingAdapter } from './adapters/meta-publishing';
 import { tiktokPublishingAdapter } from './adapters/tiktok-publishing';
-import { linkedinPublishingAdapter } from './adapters/linkedin-publishing';
 import { threadsPublishingAdapter } from './adapters/threads-publishing';
 import { pinterestPublishingAdapter } from './adapters/pinterest-publishing';
-import { youtubePublishingAdapter } from './adapters/youtube-publishing';
 
 const adapters: PlatformAdapter[] = [
   metaPublishingAdapter,
   tiktokPublishingAdapter,
-  linkedinPublishingAdapter,
   threadsPublishingAdapter,
   pinterestPublishingAdapter,
-  youtubePublishingAdapter,
 ];
 
 /**

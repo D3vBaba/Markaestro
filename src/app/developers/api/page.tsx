@@ -23,7 +23,7 @@ const endpointGroups = [
   },
   {
     title: "Posts",
-    description: "Create, inspect, and publish posts for Facebook, Instagram, TikTok, and LinkedIn.",
+    description: "Create, inspect, and publish posts for Facebook, Instagram, and TikTok.",
     endpoints: [
       { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft or scheduled post in the workspace." },
       { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status, publish results, and any follow-up action such as completing a TikTok inbox handoff." },
@@ -102,7 +102,7 @@ export default function DevelopersApiPage() {
             Public publishing API
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
-            Upload images and videos, create posts, publish directly to Meta, Instagram, LinkedIn,
+            Upload images and videos, create posts, publish directly to Meta and Instagram,
             and hand TikTok content off to the creator&apos;s TikTok inbox using the same direct flow as the app.
             Public API v1 is workspace-scoped, supports images and video, and is designed for async automation.
           </p>
@@ -267,10 +267,6 @@ export default function DevelopersApiPage() {
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">TikTok</p>
                 <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. Publishing pushes to the creator&apos;s TikTok inbox first, then marks the post ready once TikTok confirms delivery.</p>
-              </div>
-              <div className="rounded-xl border p-4">
-                <p className="text-sm font-medium">LinkedIn</p>
-                <p className="mt-2 text-sm text-muted-foreground">Text-only, image, or video posts. Up to 20 images or 1 video per post. Direct publish.</p>
               </div>
             </CardContent>
           </Card>

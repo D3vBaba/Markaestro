@@ -9,10 +9,8 @@ export const PUBLISH_RATE_LIMITS: Record<SocialChannel, RateLimitConfig> = {
   facebook: { limit: 10, windowMs: 60_000 },
   instagram: { limit: 10, windowMs: 60_000 },
   tiktok: { limit: 4, windowMs: 60_000 },
-  linkedin: { limit: 5, windowMs: 60_000 },
   threads: { limit: 5, windowMs: 60_000 },
   pinterest: { limit: 5, windowMs: 60_000 },
-  youtube: { limit: 2, windowMs: 60_000 },
 };
 
 function encodeKey(raw: string) {
@@ -26,17 +24,11 @@ export function getPublishDestinationKey(channel: SocialChannel, connection: Pla
   if (channel === 'instagram') {
     return `instagram:${String(connection.metadata.igAccountId || connection.metadata.pageId || connection.workspaceId)}`;
   }
-  if (channel === 'linkedin') {
-    return `linkedin:${String(connection.metadata.authorUrn || connection.metadata.personId || connection.productId || connection.workspaceId)}`;
-  }
   if (channel === 'threads') {
     return `threads:${String(connection.metadata.threadsUserId || connection.metadata.username || connection.productId || connection.workspaceId)}`;
   }
   if (channel === 'pinterest') {
     return `pinterest:${String(connection.metadata.boardId || connection.metadata.username || connection.productId || connection.workspaceId)}`;
-  }
-  if (channel === 'youtube') {
-    return `youtube:${String(connection.metadata.channelId || connection.productId || connection.workspaceId)}`;
   }
   return `tiktok:${String(connection.metadata.openId || connection.metadata.username || connection.productId || connection.workspaceId)}`;
 }

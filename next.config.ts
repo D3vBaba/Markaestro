@@ -17,9 +17,9 @@ const CSP_REPORT_ONLY = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "img-src 'self' data: blob: https://firebasestorage.googleapis.com https://storage.googleapis.com https://lh3.googleusercontent.com https://*.fbcdn.net https://graph.facebook.com https://*.tiktokcdn.com https://*.licdn.com",
+  "img-src 'self' data: blob: https://firebasestorage.googleapis.com https://storage.googleapis.com https://lh3.googleusercontent.com https://*.fbcdn.net https://graph.facebook.com https://*.tiktokcdn.com https://*.pinimg.com",
   "media-src 'self' https://firebasestorage.googleapis.com https://storage.googleapis.com blob:",
-  "connect-src 'self' https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com https://api.stripe.com https://*.ingest.sentry.io https://*.sentry.io https://graph.facebook.com https://graph.instagram.com https://api.linkedin.com https://open-api.tiktok.com https://open.tiktokapis.com https://business-api.tiktok.com" +
+  "connect-src 'self' https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com https://api.stripe.com https://*.ingest.sentry.io https://*.sentry.io https://graph.facebook.com https://graph.instagram.com https://graph.threads.net https://api.pinterest.com https://open-api.tiktok.com https://open.tiktokapis.com https://business-api.tiktok.com" +
     (FIREBASE_AUTH_DOMAIN ? ` https://${FIREBASE_AUTH_DOMAIN}` : '') +
     (FIREBASE_PROJECT ? ` https://${FIREBASE_PROJECT}.firebaseapp.com https://${FIREBASE_PROJECT}.web.app` : '') +
     (APP_URL ? ` ${APP_URL}` : ''),
