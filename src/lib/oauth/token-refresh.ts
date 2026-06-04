@@ -44,7 +44,10 @@ async function refreshConnectionDoc(
   if (!connSnap.exists) return;
 
   const data = connSnap.data() as PlatformConnection;
-  if (data.status !== 'connected') return;
+  // Skip only permanently revoked connections. Connections in 'error' status
+  // (from a transient refresh failure) should be retried — the
+  // MAX_REFRESH_FAILURES counter below bounds how many times we try.
+  if (data.status === 'revoked') return;
 
   const failureCount = (data.metadata.refreshFailureCount as number) || 0;
   if (failureCount >= MAX_REFRESH_FAILURES) {
@@ -147,6 +150,61 @@ async function refreshConnectionDoc(
     result.failed++;
     result.errors.push({ ...errorContext, provider, error });
   }
+}
+
+/**
+ * Refresh a single connection's access token on demand (e.g. immediately
+ * before publishing) using its refresh token. Persists the new tokens to
+ * Firestore and returns a connection carrying the fresh encrypted access
+ * token, or null if the connection has no refresh token to refresh with.
+ *
+ * Unlike processTokenRefresh (the scheduled cron path), this ignores the 24h
+ * expiry window — the caller decides when a refresh is warranted.
+ */
+export async function refreshConnectionToken(
+  workspaceId: string,
+  provider: OAuthProvider,
+  connection: PlatformConnection,
+  productId?: string,
+): Promise<PlatformConnection | null> {
+  if (!connection.refreshTokenEncrypted) return null;
+
+  const connRef = getConnectionRef(workspaceId, provider, productId);
+  const now = new Date();
+  const refreshToken = decrypt(connection.refreshTokenEncrypted);
+  const newTokens = await refreshAccessToken(provider, refreshToken);
+
+  const newExpiresAt = newTokens.expiresIn
+    ? new Date(now.getTime() + newTokens.expiresIn * 1000).toISOString()
+    : undefined;
+
+  const accessTokenEncrypted = encrypt(newTokens.accessToken);
+  let refreshTokenEncrypted = connection.refreshTokenEncrypted;
+
+  const updatePayload: Record<string, unknown> = {
+    accessTokenEncrypted,
+    'metadata.lastRefreshAt': now.toISOString(),
+    'metadata.lastRefreshError': null,
+    'metadata.refreshFailureCount': 0,
+    status: 'connected',
+    updatedAt: now.toISOString(),
+  };
+  if (newExpiresAt) {
+    updatePayload.tokenExpiresAt = newExpiresAt;
+  }
+  if (newTokens.refreshToken && newTokens.refreshToken !== refreshToken) {
+    refreshTokenEncrypted = encrypt(newTokens.refreshToken);
+    updatePayload.refreshTokenEncrypted = refreshTokenEncrypted;
+  }
+
+  await connRef.update(updatePayload);
+
+  return {
+    ...connection,
+    accessTokenEncrypted,
+    refreshTokenEncrypted,
+    ...(newExpiresAt ? { tokenExpiresAt: newExpiresAt } : {}),
+  };
 }
 
 /**
