@@ -8,7 +8,15 @@ type DailyPost = {
     scheduled: number;
 };
 
-export function DashboardOverviewChart({ data, height = 240 }: { data: DailyPost[]; height?: number }) {
+export function DashboardOverviewChart({
+    data,
+    height = 240,
+    hiddenSeries = [],
+}: {
+    data: DailyPost[];
+    height?: number;
+    hiddenSeries?: string[];
+}) {
     if (!data || data.length === 0) {
         return (
             <div
@@ -70,6 +78,7 @@ export function DashboardOverviewChart({ data, height = 240 }: { data: DailyPost
                     fillOpacity={0.85}
                     strokeWidth={0}
                     stackId="1"
+                    hide={hiddenSeries.includes("published")}
                 />
                 <Area
                     type="monotone"
@@ -80,6 +89,7 @@ export function DashboardOverviewChart({ data, height = 240 }: { data: DailyPost
                     fillOpacity={0.85}
                     strokeWidth={0}
                     stackId="1"
+                    hide={hiddenSeries.includes("scheduled")}
                 />
             </AreaChart>
         </ResponsiveContainer>

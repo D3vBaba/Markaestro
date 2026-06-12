@@ -4,17 +4,33 @@ import type { FacebookPost, FacebookInsights, InstagramInsights, InstagramMedia 
 const GRAPH_API = 'https://graph.facebook.com/v22.0';
 const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
 
+/** Graph API `date_preset` for a lookback window in days. */
+function fbDatePreset(days: number): string {
+  if (days >= 90) return 'last_90d';
+  if (days >= 30) return 'last_30d';
+  return 'last_7d';
+}
+
+/** How many recent posts/media to pull for a given lookback window. */
+function recentItemLimit(days: number): number {
+  if (days >= 90) return 50;
+  if (days >= 30) return 25;
+  return 10;
+}
+
 // ── Facebook Page Insights ──────────────────────────────────────
 
 export async function fetchFacebookInsights(
   pageAccessToken: string,
   pageId: string,
   pageName?: string,
+  options?: { days?: number },
 ): Promise<FacebookInsights> {
+  const days = options?.days ?? 7;
   try {
     const [metricsResult, postsResult, profileResult] = await Promise.allSettled([
-      fetchPageMetrics(pageAccessToken, pageId),
-      fetchPagePosts(pageAccessToken, pageId),
+      fetchPageMetrics(pageAccessToken, pageId, days),
+      fetchPagePosts(pageAccessToken, pageId, days),
       fetchPageProfile(pageAccessToken, pageId),
     ]);
 
@@ -32,9 +48,19 @@ export async function fetchFacebookInsights(
       profileUrl: profile?.link,
       isVerified: profile?.isVerified,
       followers: profile?.followers,
-      impressions7d: metrics?.impressions,
-      engagements7d: metrics?.engagements,
-      reach7d: metrics?.reach,
+      rangeDays: days,
+      impressions: metrics?.impressions,
+      engagements: metrics?.engagements,
+      reach: metrics?.reach,
+      // Legacy 7d-suffixed fields: only populated when the window really is
+      // 7 days so the names never lie about the data they hold.
+      ...(days === 7
+        ? {
+            impressions7d: metrics?.impressions,
+            engagements7d: metrics?.engagements,
+            reach7d: metrics?.reach,
+          }
+        : {}),
       recentPosts: posts,
     };
   } catch (e) {
@@ -86,10 +112,11 @@ async function fetchPageProfile(token: string, pageId: string): Promise<Facebook
 async function fetchPageMetrics(
   token: string,
   pageId: string,
+  days: number,
 ): Promise<{ impressions: number; engagements: number; reach: number } | null> {
   const metrics = 'page_impressions,page_post_engagements,page_impressions_unique';
   const res = await graphApiFetch(
-    `${GRAPH_API}/${pageId}/insights?metric=${metrics}&period=day&date_preset=last_7d&access_token=${token}`,
+    `${GRAPH_API}/${pageId}/insights?metric=${metrics}&period=day&date_preset=${fbDatePreset(days)}&access_token=${token}`,
     {},
     { maxRetries: 1 },
   );
@@ -114,11 +141,11 @@ async function fetchPageMetrics(
   return { impressions, engagements, reach };
 }
 
-async function fetchPagePosts(token: string, pageId: string): Promise<FacebookPost[]> {
+async function fetchPagePosts(token: string, pageId: string, days: number): Promise<FacebookPost[]> {
   const fields =
     'id,message,created_time,full_picture,permalink_url,shares,likes.summary(true),comments.summary(true)';
   const res = await graphApiFetch(
-    `${GRAPH_API}/${pageId}/posts?fields=${fields}&limit=10&access_token=${token}`,
+    `${GRAPH_API}/${pageId}/posts?fields=${fields}&limit=${recentItemLimit(days)}&access_token=${token}`,
     {},
     { maxRetries: 1 },
   );
@@ -181,14 +208,15 @@ async function fetchFacebookPostInsights(
 export async function fetchInstagramInsights(
   accessToken: string,
   igAccountId: string,
-  options?: { graphApi?: 'facebook' | 'instagram' },
+  options?: { graphApi?: 'facebook' | 'instagram'; days?: number },
 ): Promise<InstagramInsights> {
   const graphApi = options?.graphApi === 'instagram' ? INSTAGRAM_GRAPH_API : GRAPH_API;
+  const days = options?.days ?? 7;
 
   try {
     const [profileResult, mediaResult] = await Promise.allSettled([
       fetchIgProfile(accessToken, igAccountId, graphApi),
-      fetchIgMedia(accessToken, igAccountId, graphApi),
+      fetchIgMedia(accessToken, igAccountId, graphApi, days),
     ]);
 
     const profile = profileResult.status === 'fulfilled' ? profileResult.value : null;
@@ -254,10 +282,15 @@ async function fetchIgProfile(
   };
 }
 
-async function fetchIgMedia(token: string, igAccountId: string, graphApi: string): Promise<InstagramMedia[]> {
+async function fetchIgMedia(
+  token: string,
+  igAccountId: string,
+  graphApi: string,
+  days: number,
+): Promise<InstagramMedia[]> {
   const fields = 'id,caption,media_type,media_url,thumbnail_url,timestamp,like_count,comments_count,permalink';
   const res = await graphApiFetch(
-    `${graphApi}/${igAccountId}/media?fields=${fields}&limit=10&access_token=${token}`,
+    `${graphApi}/${igAccountId}/media?fields=${fields}&limit=${recentItemLimit(days)}&access_token=${token}`,
     {},
     { maxRetries: 1 },
   );

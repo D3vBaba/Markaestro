@@ -24,6 +24,7 @@ export async function GET(req: Request) {
           status: data.status || 'revoked',
           keyPrefix: data.keyPrefix || '',
           createdAt: data.createdAt,
+          expiresAt: data.expiresAt || null,
           lastUsedAt: data.lastUsedAt || null,
         };
       }),
@@ -37,11 +38,22 @@ export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     requireAdmin(ctx);
+    // API keys can publish via the public API, which has no per-user
+    // verification concept — so key creation itself requires a verified email.
+    if (!ctx.emailVerified) {
+      return apiOk(
+        { error: 'EMAIL_NOT_VERIFIED', message: 'Verify your email to create API keys.' },
+        403,
+      );
+    }
     const body = await req.json();
     const data = createApiClientSchema.parse(body);
     const clientId = `cli_${crypto.randomUUID()}`;
     const apiKey = buildApiKey(ctx.workspaceId, clientId);
     const createdAt = new Date().toISOString();
+    const expiresAt = data.expiresInDays
+      ? new Date(Date.now() + data.expiresInDays * 24 * 60 * 60 * 1000).toISOString()
+      : null;
 
     await adminDb.doc(`workspaces/${ctx.workspaceId}/api_clients/${clientId}`).set({
       name: data.name,
@@ -51,6 +63,9 @@ export async function POST(req: Request) {
       keyPrefix: apiKey.keyPrefix,
       secretHash: apiKey.secretHash,
       createdAt,
+      expiresAt,
+      // Provenance snapshot: the issuer's email was verified at issuance time.
+      createdEmailVerified: true,
       revokedAt: null,
       lastUsedAt: null,
     });
@@ -63,6 +78,7 @@ export async function POST(req: Request) {
         status: 'active',
         keyPrefix: apiKey.keyPrefix,
         createdAt,
+        expiresAt,
       },
       apiKey: apiKey.token,
     }, 201);

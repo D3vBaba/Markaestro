@@ -10,11 +10,18 @@ function parseTikTokError(data: Record<string, unknown>): string | undefined {
   return (err.message as string) || (err.code as string) || 'Unknown TikTok error';
 }
 
-export async function fetchTikTokInsights(accessToken: string): Promise<TikTokInsights> {
+export async function fetchTikTokInsights(
+  accessToken: string,
+  options?: { days?: number },
+): Promise<TikTokInsights> {
+  const days = options?.days ?? 7;
+  // TikTok's Display API has no date-windowed metrics; the only lever is how
+  // many recent videos we pull, and /video/list caps max_count at 20.
+  const maxVideos = days > 7 ? 20 : 10;
   try {
     const [userResult, videosResult] = await Promise.allSettled([
       fetchUserInfo(accessToken),
-      fetchVideos(accessToken),
+      fetchVideos(accessToken, maxVideos),
     ]);
 
     const user = userResult.status === 'fulfilled' ? userResult.value : null;
@@ -102,7 +109,7 @@ async function fetchUserInfo(token: string): Promise<{
   };
 }
 
-async function fetchVideos(token: string): Promise<TikTokVideo[]> {
+async function fetchVideos(token: string, maxCount: number): Promise<TikTokVideo[]> {
   const fields = 'id,title,cover_image_url,create_time,share_url,view_count,like_count,comment_count,share_count';
   const res = await fetchWithRetry(
     `${TIKTOK_API}/video/list/?fields=${fields}`,
@@ -112,7 +119,7 @@ async function fetchVideos(token: string): Promise<TikTokVideo[]> {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ max_count: 10 }),
+      body: JSON.stringify({ max_count: maxCount }),
     },
     { maxRetries: 1 },
   );

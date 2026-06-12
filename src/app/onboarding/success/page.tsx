@@ -15,29 +15,44 @@ const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 export default function OnboardingSuccessPage() {
   const { user, loading: authLoading } = useAuth();
-  const { refresh } = useSubscription();
+  const { status, refresh } = useSubscription();
   const router = useRouter();
-  const [ready, setReady] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+
+  // Stop polling as soon as the subscription is confirmed.
+  const subscribed = !!status?.active;
+  const ready = subscribed || timedOut;
 
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (authLoading || !user || subscribed) return;
 
-    let attempts = 0;
-    const maxAttempts = 10;
+    // Poll with exponential backoff: 500ms start, ×1.5 per attempt, capped at
+    // 4s per interval and ~30s total. Falls through to the dashboard either way.
+    const MAX_TOTAL_MS = 30_000;
+    const MAX_DELAY_MS = 4_000;
+    let delay = 500;
+    let elapsed = 0;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     async function poll() {
       await refresh();
-      attempts++;
-      if (attempts < maxAttempts) {
-        setTimeout(poll, 1500);
+      if (cancelled) return;
+      if (elapsed >= MAX_TOTAL_MS) {
+        setTimedOut(true);
+        return;
       }
-      if (attempts >= 2) {
-        setReady(true);
-      }
+      timer = setTimeout(poll, delay);
+      elapsed += delay;
+      delay = Math.min(delay * 1.5, MAX_DELAY_MS);
     }
 
     poll();
-  }, [authLoading, user, refresh]);
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [authLoading, user, subscribed, refresh]);
 
   useEffect(() => {
     if (ready) {

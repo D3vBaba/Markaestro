@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet } from "@/lib/api-client";
 import { toast } from "sonner";
 
@@ -43,7 +44,13 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
   );
 }
 
-export default function PerformanceTab({ refreshKey }: { refreshKey: number }) {
+export default function PerformanceTab({
+  refreshKey,
+  onCreatePost,
+}: {
+  refreshKey: number;
+  onCreatePost?: () => void;
+}) {
   const [stats, setStats] = useState<PostStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,8 +71,28 @@ export default function PerformanceTab({ refreshKey }: { refreshKey: number }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-5 w-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-8 w-20 rounded-md" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="p-4 sm:p-5 rounded-lg border border-border/40 bg-card space-y-2">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-8 w-12" />
+            </div>
+          ))}
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-border/40 bg-card p-6 space-y-3">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-56" />
+              <Skeleton className="h-10 w-24" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -73,8 +100,12 @@ export default function PerformanceTab({ refreshKey }: { refreshKey: number }) {
   if (!stats || stats.total === 0) {
     return (
       <div className="text-center py-20">
-        <p className="text-sm text-muted-foreground">No performance data yet</p>
-        <p className="text-xs text-muted-foreground/60 mt-2">Create and publish posts to see analytics here.</p>
+        <p className="text-sm text-muted-foreground">No performance data yet.</p>
+        {onCreatePost && (
+          <Button variant="outline" size="sm" className="mt-4" onClick={onCreatePost}>
+            Create a post
+          </Button>
+        )}
       </div>
     );
   }

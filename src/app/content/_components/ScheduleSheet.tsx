@@ -8,9 +8,16 @@ import {
   SheetTitle, SheetFooter,
 } from "@/components/ui/sheet";
 import FormField from "@/components/app/FormField";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { apiGet } from "@/lib/api-client";
+
+type ScheduledPost = {
+  id: string;
+  channel: string;
+  scheduledAt?: string | null;
+};
 
 type SmartSlot = {
   day: number;
@@ -56,11 +63,17 @@ export default function ScheduleSheet({
   onOpenChange,
   onSchedule,
   channel,
+  initialDate,
+  excludePostId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSchedule: (date: string) => void;
   channel?: string;
+  /** Pre-fill the picker with an existing scheduled time (e.g. when rescheduling). */
+  initialDate?: string | null;
+  /** Post to ignore when checking for scheduling conflicts (the post being rescheduled). */
+  excludePostId?: string;
 }) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState("12:00");
@@ -68,6 +81,7 @@ export default function ScheduleSheet({
   const [smartSlots, setSmartSlots] = useState<SmartSlot[]>([]);
   const [smartLoaded, setSmartLoaded] = useState(false);
   const [showSmart, setShowSmart] = useState(true);
+  const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
 
   const handleSheetOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
@@ -80,6 +94,23 @@ export default function ScheduleSheet({
     }
     onOpenChange(nextOpen);
   };
+
+  // Pre-fill date/time when rescheduling an already-scheduled post.
+  // State is adjusted during render on the closed→open transition.
+  const [prefilledForOpen, setPrefilledForOpen] = useState(false);
+  if (open && !prefilledForOpen) {
+    setPrefilledForOpen(true);
+    if (initialDate) {
+      const d = new Date(initialDate);
+      if (!Number.isNaN(d.getTime())) {
+        setSelectedDate(d);
+        setTime(`${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`);
+      }
+    }
+  }
+  if (!open && prefilledForOpen) {
+    setPrefilledForOpen(false);
+  }
 
   // Fetch smart schedule suggestions when sheet opens
   useEffect(() => {
@@ -96,6 +127,36 @@ export default function ScheduleSheet({
       .catch(() => {})
       .finally(() => setSmartLoaded(true));
   }, [open, channel]);
+
+  // Fetch existing scheduled posts so we can warn about time collisions
+  useEffect(() => {
+    if (!open) return;
+    apiGet<{ posts: ScheduledPost[] }>("/api/posts?status=scheduled")
+      .then((res) => {
+        if (res.ok) setScheduledPosts(res.data.posts || []);
+      })
+      .catch(() => {});
+  }, [open]);
+
+  // Resolve the currently picked moment (suggestion or manual date + time)
+  const pickedDate: Date | null = (() => {
+    if (selectedSuggestionIso) return new Date(selectedSuggestionIso);
+    if (!selectedDate) return null;
+    const [hours, minutes] = time.split(":").map(Number);
+    const d = new Date(selectedDate);
+    d.setHours(hours, minutes, 0, 0);
+    return d;
+  })();
+
+  // Non-blocking warning when the picked time is within an hour of another scheduled post
+  const COLLISION_WINDOW_MS = 60 * 60 * 1000;
+  const collision = pickedDate
+    ? scheduledPosts.find((p) => {
+        if (!p.scheduledAt || p.id === excludePostId) return false;
+        const t = new Date(p.scheduledAt).getTime();
+        return Math.abs(t - pickedDate.getTime()) < COLLISION_WINDOW_MS;
+      })
+    : undefined;
 
   const handleSchedule = () => {
     if (!selectedDate) return;
@@ -159,7 +220,7 @@ export default function ScheduleSheet({
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
           {/* Smart Scheduling Suggestions */}
-          {smartSlots.length > 0 && (
+          {(!smartLoaded || smartSlots.length > 0) && (
             <div>
               <button
                 onClick={() => setShowSmart(!showSmart)}
@@ -177,9 +238,22 @@ export default function ScheduleSheet({
               {showSmart && (
                 <div className="space-y-2">
                   {!smartLoaded ? (
-                    <div className="flex items-center justify-center py-6">
-                      <div className="h-4 w-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                    </div>
+                    <>
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-full flex items-center gap-3 rounded-xl border border-border/40 bg-background p-3"
+                        >
+                          <div className="flex-1 min-w-0 space-y-1.5">
+                            <div className="flex items-center gap-2">
+                              <Skeleton className="h-4 w-36" />
+                              <Skeleton className="h-4 w-10 rounded-full" />
+                            </div>
+                            <Skeleton className="h-3 w-48" />
+                          </div>
+                        </div>
+                      ))}
+                    </>
                   ) : (
                     <>
                       {smartSlots.slice(0, 4).map((slot, i) => (
@@ -240,6 +314,25 @@ export default function ScheduleSheet({
               }}
             />
           </FormField>
+
+          {collision && collision.scheduledAt && (
+            <div
+              className="rounded-lg px-3 py-2 text-[12px]"
+              style={{
+                background: "color-mix(in oklch, var(--mk-warn) 14%, var(--mk-paper))",
+                border: "1px solid color-mix(in oklch, var(--mk-warn) 28%, var(--mk-rule))",
+                color: "color-mix(in oklch, var(--mk-warn) 70%, var(--mk-ink))",
+              }}
+            >
+              <span className="font-medium">Heads up:</span> another post is already scheduled around this time
+              ({new Date(collision.scheduledAt).toLocaleString([], {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              })}{collision.channel ? ` on ${collision.channel}` : ""}). You can still schedule both.
+            </div>
+          )}
         </div>
 
         <SheetFooter>

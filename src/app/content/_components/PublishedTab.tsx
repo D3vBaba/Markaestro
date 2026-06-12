@@ -3,7 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import PostCard from "./PostCard";
+import PostGridSkeleton from "./PostGridSkeleton";
 import Pagination from "@/components/app/Pagination";
 
 const POSTS_PER_PAGE = 6;
@@ -21,17 +23,33 @@ type Post = {
   mediaUrls?: string[];
 };
 
-export default function PublishedTab({ refreshKey }: { refreshKey: number }) {
+export default function PublishedTab({
+  refreshKey,
+  onCreatePost,
+}: {
+  refreshKey: number;
+  onCreatePost?: () => void;
+}) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
 
   const handleDelete = async (id: string) => {
+    // Optimistically remove, restore in place on failure
+    const idx = posts.findIndex((p) => p.id === id);
+    const removed = idx >= 0 ? posts[idx] : null;
+    setPosts((cur) => cur.filter((p) => p.id !== id));
     const res = await apiDelete(`/api/posts/${id}`);
     if (res.ok) {
       toast.success("Post deleted");
-      fetchPublished();
     } else {
+      if (removed) {
+        setPosts((cur) => {
+          const next = cur.filter((p) => p.id !== id);
+          next.splice(Math.min(idx, next.length), 0, removed);
+          return next;
+        });
+      }
       toast.error("Failed to delete post");
     }
   };
@@ -52,18 +70,18 @@ export default function PublishedTab({ refreshKey }: { refreshKey: number }) {
   }, [fetchPublished, refreshKey]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-5 w-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
-      </div>
-    );
+    return <PostGridSkeleton />;
   }
 
   if (posts.length === 0) {
     return (
       <div className="text-center py-20">
         <p className="text-sm text-muted-foreground">No published posts yet.</p>
-        <p className="text-xs text-muted-foreground/60 mt-2">Published posts will appear here with links to the live content.</p>
+        {onCreatePost && (
+          <Button variant="outline" size="sm" className="mt-4" onClick={onCreatePost}>
+            Create a post
+          </Button>
+        )}
       </div>
     );
   }

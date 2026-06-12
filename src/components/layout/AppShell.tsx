@@ -7,13 +7,11 @@ import { Header } from "./Header";
 import { TrialBanner } from "./TrialBanner";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus";
-import { useSubscription } from "@/components/providers/SubscriptionProvider";
-import { VerifyEmailGate } from "./VerifyEmailGate";
+import { VerifyEmailBanner } from "./VerifyEmailBanner";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const { completed, error: onboardingError, loading: onboardingLoading } = useOnboardingStatus();
-  const { status: subscriptionStatus, loading: subscriptionLoading } = useSubscription();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -30,13 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [loading, onboardingLoading, user, completed, onboardingError, router]);
 
-  const unverifiedAfterOnboarding = Boolean(user && completed === true && user.emailVerified === false);
-  const waitingForSubscriptionToEvaluateGate = unverifiedAfterOnboarding && subscriptionLoading;
-  const needsEmailVerification = Boolean(
-    unverifiedAfterOnboarding && subscriptionStatus?.active,
-  );
-
-  if (loading || onboardingLoading || waitingForSubscriptionToEvaluateGate) {
+  if (loading || onboardingLoading) {
     return (
       <div className="min-h-screen grid place-items-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -53,10 +45,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (!user) return null;
   if (completed === false && !onboardingError) return null;
 
-  if (needsEmailVerification) {
-    return <VerifyEmailGate />;
-  }
-
   return (
     <div className="grid h-screen w-full max-w-full overflow-hidden lg:grid-cols-[232px_1fr]">
       <Sidebar />
@@ -65,6 +53,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         style={{ background: "var(--mk-surface)" }}
       >
         <TrialBanner />
+        <VerifyEmailBanner />
         <Header />
         <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-6 sm:px-6 sm:py-7 lg:px-10 lg:py-7">
           {children}

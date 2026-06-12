@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Globe, FileSearch, Palette, Sparkles, PackageCheck, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ScanPhase } from "@/hooks/useProductScan";
@@ -53,6 +53,8 @@ export default function ScanProgressStepper({
   url?: string;
   compact?: boolean;
 }) {
+  const reducedMotion = useReducedMotion();
+
   if (phase === "idle") return null;
 
   const isDone = phase === "done";
@@ -81,11 +83,15 @@ export default function ScanProgressStepper({
           </div>
         ) : (
           <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              className="h-3.5 w-3.5 border-2 border-primary border-t-transparent rounded-full"
-            />
+            {reducedMotion ? (
+              <div className="h-3.5 w-3.5 border-2 border-primary border-t-transparent rounded-full" />
+            ) : (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                className="h-3.5 w-3.5 border-2 border-primary border-t-transparent rounded-full"
+              />
+            )}
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -135,13 +141,13 @@ export default function ScanProgressStepper({
                 )}>
                   {state === "done" ? (
                     <motion.div
-                      initial={{ scale: 0 }}
+                      initial={reducedMotion ? false : { scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15 }}
                     >
                       <Check className="h-4 w-4" />
                     </motion.div>
-                  ) : state === "active" ? (
+                  ) : state === "active" && !reducedMotion ? (
                     <motion.div
                       animate={{ scale: [1, 1.15, 1] }}
                       transition={{ duration: 1.2, repeat: Infinity }}
@@ -165,11 +171,15 @@ export default function ScanProgressStepper({
 
                 {/* Active pulse dot */}
                 {state === "active" && (
-                  <motion.span
-                    className="ml-auto h-1.5 w-1.5 rounded-full bg-primary"
-                    animate={{ opacity: [1, 0.3, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
+                  reducedMotion ? (
+                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+                  ) : (
+                    <motion.span
+                      className="ml-auto h-1.5 w-1.5 rounded-full bg-primary"
+                      animate={{ opacity: [1, 0.3, 1] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    />
+                  )
                 )}
               </motion.div>
             );

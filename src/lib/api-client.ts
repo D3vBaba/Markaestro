@@ -2,6 +2,11 @@
  * Client-side API helpers for authenticated requests.
  */
 
+/** Default timeout applied to every API request. */
+const REQUEST_TIMEOUT_MS = 15_000;
+/** Uploads get longer since large files legitimately take a while. */
+const UPLOAD_TIMEOUT_MS = 60_000;
+
 let _getIdToken: (() => Promise<string | null>) | null = null;
 let _authReady: Promise<void> | null = null;
 let _resolveAuthReady: (() => void) | null = null;
@@ -29,6 +34,18 @@ export function markAuthReady() {
   }
 }
 
+function timeoutResult<T>(): { ok: boolean; status: number; data: T } {
+  return {
+    ok: false,
+    status: 408,
+    data: { error: 'REQUEST_TIMEOUT', message: 'The request timed out. Please try again.' } as T,
+  };
+}
+
+function isAbortError(err: unknown): boolean {
+  return err instanceof DOMException && err.name === 'AbortError';
+}
+
 /** Make an authenticated JSON request to our API. */
 export async function apiFetch<T = unknown>(
   path: string,
@@ -39,17 +56,30 @@ export async function apiFetch<T = unknown>(
 
   const token = _getIdToken ? await _getIdToken() : null;
 
-  const res = await fetch(path, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  const data = await res.json();
-  return { ok: res.ok, status: res.status, data };
+  try {
+    const res = await fetch(path, {
+      ...init,
+      // Callers that pass their own signal keep it; everyone else gets the
+      // default timeout.
+      signal: init.signal ?? controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init.headers || {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+  } catch (err) {
+    if (isAbortError(err)) return timeoutResult<T>();
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 /** GET shortcut with workspace ID. */
@@ -94,11 +124,23 @@ export async function apiUpload<T = unknown>(
   if (_authReady) await _authReady;
   const token = _getIdToken ? await _getIdToken() : null;
   const sep = path.includes('?') ? '&' : '?';
-  const res = await fetch(`${path}${sep}workspaceId=${wsId}`, {
-    method: 'POST',
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-    body: formData,
-  });
-  const data = await res.json();
-  return { ok: res.ok, status: res.status, data };
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(`${path}${sep}workspaceId=${wsId}`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+      signal: controller.signal,
+    });
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+  } catch (err) {
+    if (isAbortError(err)) return timeoutResult<T>();
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 }

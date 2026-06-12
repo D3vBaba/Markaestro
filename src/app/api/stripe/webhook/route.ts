@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getStripe, tierFromPriceId } from '@/lib/stripe/server';
 import {
   upsertSubscriptionForWorkspace,
+  getSubscriptionForWorkspace,
   findWorkspaceIdByCustomerId,
 } from '@/lib/stripe/subscription';
 import { adminDb } from '@/lib/firebase-admin';
@@ -100,7 +101,17 @@ export async function POST(req: Request) {
         const subscription = event.data.object as Subscription;
         const workspaceId = await resolveWorkspaceIdFromSubscription(subscription);
         if (!workspaceId) break;
+        // Terminal events can trail a cancel→resubscribe sequence (Stripe
+        // retries for days and emits both `updated` and `deleted` for one
+        // cancellation). A canceled event for an OLD subscription id must
+        // not clobber the workspace's new live subscription or revoke
+        // freshly created API keys.
+        if (subscription.status === 'canceled' && await isStaleTerminalEvent(workspaceId, subscription.id)) break;
         await syncSubscription(workspaceId, subscription);
+        // Full cancellation only — past_due/unpaid grace states keep access.
+        if (subscription.status === 'canceled') {
+          await revokePublicApiAccessForWorkspace(workspaceId);
+        }
         break;
       }
 
@@ -108,6 +119,7 @@ export async function POST(req: Request) {
         const subscription = event.data.object as Subscription;
         const workspaceId = await resolveWorkspaceIdFromSubscription(subscription);
         if (!workspaceId) break;
+        if (await isStaleTerminalEvent(workspaceId, subscription.id)) break;
 
         await upsertSubscriptionForWorkspace(workspaceId, {
           stripeSubscriptionId: subscription.id,
@@ -115,6 +127,7 @@ export async function POST(req: Request) {
           cancelAtPeriodEnd: false,
           currentPeriodEnd: toIso(subscription.current_period_end),
         });
+        await revokePublicApiAccessForWorkspace(workspaceId);
         break;
       }
 
@@ -147,6 +160,7 @@ export async function POST(req: Request) {
         const workspaceId = await findWorkspaceIdByCustomerId(customer.id);
         if (!workspaceId) break;
         await upsertSubscriptionForWorkspace(workspaceId, { status: 'canceled', cancelAtPeriodEnd: false });
+        await revokePublicApiAccessForWorkspace(workspaceId);
         break;
       }
     }
@@ -162,6 +176,73 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ received: true });
+}
+
+/**
+ * A terminal (canceled/deleted) event is stale when the workspace has since
+ * moved on to a different live subscription — i.e. the user cancelled and
+ * immediately resubscribed, and this event refers to the old subscription.
+ * Read failures return false so a Firestore blip can't suppress a real
+ * cancellation (over-revoking is recoverable; missing one is not).
+ */
+async function isStaleTerminalEvent(workspaceId: string, eventSubscriptionId: string): Promise<boolean> {
+  try {
+    const current = await getSubscriptionForWorkspace(workspaceId);
+    return Boolean(
+      current?.stripeSubscriptionId &&
+      current.stripeSubscriptionId !== eventSubscriptionId &&
+      ['active', 'trialing'].includes(current.status),
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * A fully cancelled subscription must not leave live programmatic access
+ * behind: revoke every active public API key and disable every active
+ * webhook endpoint for the workspace. Idempotent (only touches
+ * status: 'active' docs) and best-effort — a failure here must not fail
+ * webhook processing, so errors are logged rather than rethrown.
+ */
+async function revokePublicApiAccessForWorkspace(workspaceId: string): Promise<void> {
+  const now = new Date().toISOString();
+  try {
+    const [clientsSnap, endpointsSnap] = await Promise.all([
+      adminDb
+        .collection(`workspaces/${workspaceId}/api_clients`)
+        .where('status', '==', 'active')
+        .get(),
+      adminDb
+        .collection(`workspaces/${workspaceId}/webhook_endpoints`)
+        .where('status', '==', 'active')
+        .get(),
+    ]);
+    if (clientsSnap.empty && endpointsSnap.empty) return;
+
+    const batch = adminDb.batch();
+    for (const doc of clientsSnap.docs) {
+      batch.set(doc.ref, {
+        status: 'revoked',
+        revokedAt: now,
+        revokedReason: 'subscription_canceled',
+      }, { merge: true });
+    }
+    for (const doc of endpointsSnap.docs) {
+      batch.set(doc.ref, {
+        status: 'disabled',
+        disabledReason: 'subscription_canceled',
+        updatedAt: now,
+      }, { merge: true });
+    }
+    await batch.commit();
+  } catch (err) {
+    logger.warn('failed to revoke public API access after cancellation', {
+      event: 'stripe.webhook.revoke_api_access_failed',
+      workspaceId,
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
 }
 
 async function resolveWorkspaceIdFromSubscription(subscription: Subscription): Promise<string | null> {

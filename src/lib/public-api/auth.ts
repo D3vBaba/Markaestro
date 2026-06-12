@@ -66,10 +66,20 @@ export async function requirePublicApiContext(
     scopes?: string[];
     status?: string;
     secretHash?: string;
+    expiresAt?: string | null;
   };
 
   if (data.status !== 'active' || !data.secretHash || !safeCompare(data.secretHash, hashSecret(parsed.secret))) {
     throw new Error('UNAUTHENTICATED');
+  }
+
+  // Expired keys behave exactly like revoked ones (legacy docs without
+  // expiresAt never expire). An unparseable expiresAt fails closed.
+  if (data.expiresAt) {
+    const expiresAtMs = new Date(data.expiresAt).getTime();
+    if (Number.isNaN(expiresAtMs) || expiresAtMs < Date.now()) {
+      throw new Error('UNAUTHENTICATED');
+    }
   }
 
   const scopes = (data.scopes || []) as PublicApiScope[];

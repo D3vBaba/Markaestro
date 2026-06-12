@@ -5,6 +5,7 @@ import { apiGet, apiPost } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -46,7 +47,6 @@ export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
   const [submitting, setSubmitting] = useState<string | null>(null);
 
   const fetchPosts = useCallback(async () => {
-    setLoading(true);
     try {
       const [pendingRes, draftRes] = await Promise.all([
         apiGet<{ posts: Post[] }>("/api/posts?status=pending_approval", wsId),
@@ -67,12 +67,23 @@ export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
 
   async function submitForApproval(postId: string) {
     setSubmitting(postId);
+    // Optimistically move the post from drafts to the pending queue
+    const post = myDrafts.find((p) => p.id === postId);
+    const prevDrafts = myDrafts;
+    const prevPending = pending;
+    setMyDrafts((cur) => cur.filter((p) => p.id !== postId));
+    if (post && isReviewer) {
+      setPending((cur) => [{ ...post, status: "pending_approval" }, ...cur]);
+    }
     try {
       const res = await apiPost("/api/posts/approval", { postId }, wsId);
       if (res.ok) {
         toast.success("Submitted for review");
+        // Background refetch picks up server-set fields (submittedBy, timestamps)
         fetchPosts();
       } else {
+        setMyDrafts(prevDrafts);
+        setPending(prevPending);
         toast.error("Failed to submit");
       }
     } finally {
@@ -82,6 +93,9 @@ export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
 
   async function decide(postId: string, decision: "approved" | "rejected") {
     setReviewing(postId);
+    // Optimistically remove from the pending queue
+    const prevPending = pending;
+    setPending((cur) => cur.filter((p) => p.id !== postId));
     try {
       const res = await apiPost("/api/posts/approval/review", {
         postId,
@@ -91,8 +105,10 @@ export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
       if (res.ok) {
         toast.success(decision === "approved" ? "Post approved" : "Post returned with feedback");
         setFeedback((f) => { const n = { ...f }; delete n[postId]; return n; });
+        // Background refetch: a rejected post lands back in the author's drafts
         fetchPosts();
       } else {
+        setPending(prevPending);
         toast.error("Failed to update");
       }
     } finally {
@@ -102,8 +118,28 @@ export default function ApprovalsTab({ refreshKey }: { refreshKey: number }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-5 w-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
+      <div className="space-y-10">
+        {[0, 1].map((section) => (
+          <section key={section}>
+            <Skeleton className="h-4 w-40 mb-4" />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border bg-background p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-3.5 w-full" />
+                    <Skeleton className="h-3.5 w-5/6" />
+                    <Skeleton className="h-3.5 w-2/3" />
+                  </div>
+                  <Skeleton className="h-8 w-full rounded-md" />
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
     );
   }

@@ -4,43 +4,19 @@ import { DEFAULT_WORKSPACE_ID, getWorkspaceId, isValidWorkspaceId } from '@/lib/
 import { decodeSessionCookie } from '@/lib/session-cookie';
 import { parseBearerToken } from '@/lib/bearer';
 import type { WorkspaceRole } from '@/lib/schemas';
-import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-
-const SUBSCRIPTION_REQUIRES_VERIFICATION = new Set(['active', 'trialing']);
-
-function isEmailVerificationExemptPath(pathname: string): boolean {
-  const exact = new Set([
-    '/api/stripe/status',
-    '/api/auth/session',
-    '/api/auth/emails/password-reset',
-    '/api/auth/emails/verify-email',
-    '/api/auth/emails/email-change',
-    '/api/auth/logout-all',
-  ]);
-  if (exact.has(pathname)) return true;
-  return false;
-}
-
-async function assertEmailVerifiedIfRequired(
-  req: Request,
-  uid: string,
-  workspaceId: string,
-  emailVerified: boolean,
-): Promise<void> {
-  if (emailVerified) return;
-  const pathname = new URL(req.url).pathname;
-  if (isEmailVerificationExemptPath(pathname)) return;
-  const sub = await getEffectiveSubscription({ uid, workspaceId });
-  if (sub && SUBSCRIPTION_REQUIRES_VERIFICATION.has(sub.status)) {
-    throw new Error('EMAIL_VERIFICATION_REQUIRED');
-  }
-}
 
 export type RequestContext = {
   uid: string;
   email?: string;
   workspaceId: string;
   role: WorkspaceRole;
+  /**
+   * Whether the user's email address is verified (from the decoded ID token's
+   * `email_verified` claim, or the Auth user record on the session-cookie path).
+   * Unverified users keep read/draft access; routes that push content outbound
+   * (publish, schedule) must check this and reject with EMAIL_NOT_VERIFIED.
+   */
+  emailVerified: boolean;
 };
 
 function normalizeEmail(email?: string | null): string | null {
@@ -87,7 +63,9 @@ async function getWorkspaceMembership(
   return { workspaceId, role };
 }
 
-async function bootstrapPersonalWorkspace(uid: string, email?: string): Promise<RequestContext> {
+type ResolvedWorkspaceContext = Omit<RequestContext, 'emailVerified'>;
+
+async function bootstrapPersonalWorkspace(uid: string, email?: string): Promise<ResolvedWorkspaceContext> {
   const workspaceId = personalWorkspaceId(uid);
   const now = new Date().toISOString();
   const wsRef = adminDb.doc(`workspaces/${workspaceId}`);
@@ -270,18 +248,14 @@ export async function requireContext(req: Request): Promise<RequestContext> {
 
   const resolved = await resolveContextForUser(uid, email, requestedWs);
 
-  // Verification is gated by the *effective* subscription for the workspace
-  // in use, so we can only enforce it after workspace resolution.
-  await assertEmailVerifiedIfRequired(req, uid, resolved.workspaceId, emailVerified);
-
-  return resolved;
+  return { ...resolved, emailVerified };
 }
 
 async function resolveContextForUser(
   uid: string,
   email: string | undefined,
   requestedWs: string,
-): Promise<RequestContext> {
+): Promise<ResolvedWorkspaceContext> {
   const requestedMembership = await getWorkspaceMembership(uid, requestedWs);
   if (requestedMembership) {
     return { uid, email, workspaceId: requestedMembership.workspaceId, role: requestedMembership.role };

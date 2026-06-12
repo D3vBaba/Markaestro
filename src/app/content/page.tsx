@@ -135,6 +135,7 @@ export default function PostsPage() {
   };
 
   const handlePostCreated = () => setRefreshKey((k) => k + 1);
+  const goToCreate = () => setActiveTab("create");
 
   return (
     <AppShell>
@@ -191,7 +192,7 @@ export default function PostsPage() {
         </TabsContent>
 
         <TabsContent value="drafts">
-          <DraftsTab refreshKey={refreshKey} />
+          <DraftsTab refreshKey={refreshKey} onCreatePost={goToCreate} />
         </TabsContent>
 
         <TabsContent value="approvals">
@@ -201,15 +202,15 @@ export default function PostsPage() {
         </TabsContent>
 
         <TabsContent value="scheduled">
-          <ScheduledTab refreshKey={refreshKey} />
+          <ScheduledTab refreshKey={refreshKey} onCreatePost={goToCreate} />
         </TabsContent>
 
         <TabsContent value="published">
-          <PublishedTab refreshKey={refreshKey} />
+          <PublishedTab refreshKey={refreshKey} onCreatePost={goToCreate} />
         </TabsContent>
 
         <TabsContent value="performance">
-          <PerformanceTab refreshKey={refreshKey} />
+          <PerformanceTab refreshKey={refreshKey} onCreatePost={goToCreate} />
         </TabsContent>
       </Tabs>
     </AppShell>

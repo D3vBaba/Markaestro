@@ -43,6 +43,16 @@ export async function POST(req: Request) {
     requirePermission(ctx, 'posts.write');
     const body = await req.json();
     const data = createPostSchema.parse(body);
+
+    // Scheduling queues an outbound publish, so it requires a verified email.
+    // Creating drafts (or any other status) stays open to unverified users.
+    if (data.status === 'scheduled' && !ctx.emailVerified) {
+      return apiOk(
+        { error: 'EMAIL_NOT_VERIFIED', message: 'Verify your email to publish.' },
+        403,
+      );
+    }
+
     const now = new Date().toISOString();
 
     const payload = {

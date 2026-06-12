@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import PageHeader from "@/components/app/PageHeader";
+import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiDelete, apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -27,7 +28,7 @@ import { pillStyle } from "@/components/mk/pills";
 import {
   User, Shield, Zap, Link2, Users, Building2, CreditCard,
   Pencil, Check, X, Loader2, KeyRound, Mail, BarChart3,
-  Copy, Webhook, BookOpen, ExternalLink, Trash2,
+  Copy, Webhook, BookOpen, ExternalLink, Trash2, RefreshCw,
 } from "lucide-react";
 
 type IntegrationInfo = {
@@ -60,6 +61,7 @@ type ApiClientInfo = {
   keyPrefix: string;
   createdAt: string;
   lastUsedAt?: string | null;
+  expiresAt?: string | null;
 };
 
 type ApiClientTrendPoint = {
@@ -89,6 +91,15 @@ type ApiAnalyticsTotals = {
   publishExportedForReview: number;
   publishFailed: number;
 };
+
+function formatShortDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function apiErrorMessage(data: unknown, fallback: string) {
+  const err = data as { message?: string; error?: string } | null | undefined;
+  return err?.message || err?.error || fallback;
+}
 
 function formatMonthKey(monthKey: string) {
   const [year, month] = monthKey.split('-').map(Number);
@@ -201,7 +212,7 @@ function SettingsPageContent() {
       </div>
 
       {activeTab === 'account' && <AccountTab />}
-      {activeTab === 'usage' && <UsageTab />}
+      {activeTab === 'usage' && <UsageTab onUpgrade={() => setActiveTab('billing')} />}
       {activeTab === 'integrations' && <IntegrationsTab />}
       {activeTab === 'team' && <TeamTab />}
       {activeTab === 'workspaces' && <WorkspacesTab />}
@@ -220,7 +231,8 @@ function AccountTab() {
   const [sendingVerification, setSendingVerification] = useState(false);
   const [changingEmail, setChangingEmail] = useState(false);
   const [newEmail, setNewEmail] = useState('');
-  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [pendingEmailChange, setPendingEmailChange] = useState<string | null>(null);
+  const [resendingEmailChange, setResendingEmailChange] = useState(false);
 
   if (!user) return null;
 
@@ -269,11 +281,25 @@ function AccountTab() {
     try {
       await requestEmailChange(candidate);
       toast.success('Confirm the email change from your inbox');
+      setPendingEmailChange(candidate);
       setNewEmail('');
     } catch {
       toast.error('Failed to start email change');
     } finally {
       setChangingEmail(false);
+    }
+  }
+
+  async function handleResendEmailChange() {
+    if (!pendingEmailChange) return;
+    setResendingEmailChange(true);
+    try {
+      await requestEmailChange(pendingEmailChange);
+      toast.success('Confirmation email re-sent');
+    } catch {
+      toast.error('Failed to resend confirmation');
+    } finally {
+      setResendingEmailChange(false);
     }
   }
 
@@ -400,6 +426,22 @@ function AccountTab() {
                   {changingEmail ? 'Sending…' : 'Send confirmation'}
                 </Button>
               </div>
+              {pendingEmailChange && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full px-2.5 py-1 text-xs" style={pillStyle("warn")}>
+                    Confirmation sent to {pendingEmailChange}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={handleResendEmailChange}
+                    disabled={resendingEmailChange}
+                  >
+                    {resendingEmailChange ? 'Resending…' : 'Resend'}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 
@@ -430,30 +472,17 @@ function AccountTab() {
               <p className="text-xs text-muted-foreground">
                 Permanently delete your account and all associated data. This cannot be undone.
               </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Account deletion is handled by support —{" "}
+                <a href="/contact" className="text-primary hover:underline">contact us</a>.
+              </p>
             </div>
-            <Button
-              variant="destructive"
-              size="sm"
-              className="shrink-0"
-              onClick={() => setShowDeleteAccount(true)}
-            >
+            <Button variant="destructive" size="sm" className="shrink-0" disabled>
               Delete account
             </Button>
           </div>
         </CardContent>
       </Card>
-
-      <ConfirmDeleteDialog
-        open={showDeleteAccount}
-        onOpenChange={setShowDeleteAccount}
-        entity="account"
-        name={email}
-        requireTypedConfirmation
-        warning="This will permanently delete your account, all workspaces you own, and all associated data. Team members will lose access to shared workspaces."
-        onConfirm={async () => {
-          toast.error("Account deletion is not yet available. Please contact support.");
-        }}
-      />
     </div>
   );
 }
@@ -528,7 +557,7 @@ function UsageMeter({
   );
 }
 
-function UsageTab() {
+function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
   const { status } = useSubscription();
   const [usage, setUsage] = useState<{
     mediaUploads: UsageMetric;
@@ -630,14 +659,7 @@ function UsageTab() {
             ))}
           </div>
           <div className="mt-4 pt-4 border-t">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const tabBtn = document.querySelector('[data-tab="billing"]') as HTMLButtonElement | null;
-                tabBtn?.click();
-              }}
-            >
+            <Button variant="outline" size="sm" onClick={onUpgrade}>
               Upgrade plan
             </Button>
           </div>
@@ -813,6 +835,7 @@ function TeamTab() {
   const { current: workspace } = useWorkspace();
   const [members, setMembers] = useState<Member[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteEmailError, setInviteEmailError] = useState<string | null>(null);
   const [inviteRole, setInviteRole] = useState<'admin' | 'member' | 'analyst'>('member');
   const [inviting, setInviting] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
@@ -832,10 +855,16 @@ function TeamTab() {
   useEffect(() => { fetchMembers(); }, [fetchMembers]);
 
   async function invite() {
-    if (!inviteEmail.trim()) return;
+    const candidate = inviteEmail.trim();
+    if (!candidate) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate)) {
+      setInviteEmailError('Enter a valid email address, e.g. colleague@example.com');
+      return;
+    }
+    setInviteEmailError(null);
     setInviting(true);
     try {
-      const res = await apiPost<{ status: string; email: string }>('/api/team', { email: inviteEmail.trim(), role: inviteRole }, wsId);
+      const res = await apiPost<{ status: string; email: string }>('/api/team', { email: candidate, role: inviteRole }, wsId);
       if (res.ok) {
         const s = res.data.status;
         if (s === 'pending') toast.success(`Invite sent to ${res.data.email} — they'll join when they sign up`);
@@ -934,25 +963,30 @@ function TeamTab() {
               <p className="text-xs font-medium text-muted-foreground">Invite a new member</p>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Input
+                  type="email"
                   placeholder="colleague@example.com"
                   value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
+                  onChange={(e) => { setInviteEmail(e.target.value); if (inviteEmailError) setInviteEmailError(null); }}
                   onKeyDown={(e) => e.key === 'Enter' && invite()}
                   className="flex-1"
                 />
-                <select
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value as 'admin' | 'member' | 'analyst')}
-                  className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="member">Member</option>
-                  <option value="analyst">Analyst</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <div className="sm:w-32">
+                  <Select
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value as 'admin' | 'member' | 'analyst')}
+                  >
+                    <option value="member">Member</option>
+                    <option value="analyst">Analyst</option>
+                    <option value="admin">Admin</option>
+                  </Select>
+                </div>
                 <Button onClick={invite} disabled={inviting || !inviteEmail.trim()}>
                   {inviting ? 'Inviting…' : 'Invite'}
                 </Button>
               </div>
+              {inviteEmailError && (
+                <p className="text-xs text-mk-neg">{inviteEmailError}</p>
+              )}
             </div>
           )}
 
@@ -1194,11 +1228,15 @@ function ApiAccessTab() {
 
   const [clientName, setClientName] = useState('');
   const [selectedScopes, setSelectedScopes] = useState<string[]>(['products.read', 'media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
+  const [expiresInDays, setExpiresInDays] = useState<'never' | '30' | '90' | '365'>('never');
   const [editingClient, setEditingClient] = useState<ApiClientInfo | null>(null);
   const [editingScopes, setEditingScopes] = useState<string[]>([]);
   const [creatingClient, setCreatingClient] = useState(false);
   const [savingClientScopes, setSavingClientScopes] = useState(false);
   const [createdApiKey, setCreatedApiKey] = useState<string | null>(null);
+  const [createdKeyMode, setCreatedKeyMode] = useState<'created' | 'rotated'>('created');
+  const [rotateTarget, setRotateTarget] = useState<ApiClientInfo | null>(null);
+  const [rotatingClient, setRotatingClient] = useState(false);
 
   const [webhookUrl, setWebhookUrl] = useState('');
   const [selectedEvents, setSelectedEvents] = useState<string[]>(['post.published', 'post.exported_for_review', 'post.failed']);
@@ -1266,17 +1304,23 @@ function ApiAccessTab() {
     try {
       const res = await apiPost<{ apiClient: ApiClientInfo; apiKey: string }>(
         '/api/settings/api-clients',
-        { name: clientName.trim(), scopes: selectedScopes },
+        {
+          name: clientName.trim(),
+          scopes: selectedScopes,
+          ...(expiresInDays !== 'never' ? { expiresInDays: Number(expiresInDays) } : {}),
+        },
         wsId,
       );
       if (!res.ok) {
-        toast.error('Failed to create API key');
+        toast.error(apiErrorMessage(res.data, 'Failed to create API key'));
         return;
       }
 
+      setCreatedKeyMode('created');
       setCreatedApiKey(res.data.apiKey);
       setClientName('');
       setSelectedScopes(['products.read', 'media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
+      setExpiresInDays('never');
       setCreateKeyOpen(false);
       await fetchApiAccess();
     } catch {
@@ -1300,6 +1344,32 @@ function ApiAccessTab() {
       toast.error('Failed to revoke API key');
     } finally {
       setRevokingClient(null);
+    }
+  }
+
+  async function rotateClient() {
+    if (!rotateTarget) return;
+    setRotatingClient(true);
+    try {
+      const res = await apiPost<{ apiClient: ApiClientInfo; apiKey: string }>(
+        `/api/settings/api-clients/${rotateTarget.id}/rotate`,
+        {},
+        wsId,
+      );
+      if (!res.ok) {
+        toast.error(apiErrorMessage(res.data, 'Failed to rotate API key'));
+        return;
+      }
+
+      setRotateTarget(null);
+      setCreatedKeyMode('rotated');
+      setCreatedApiKey(res.data.apiKey);
+      toast.success('API key rotated');
+      await fetchApiAccess();
+    } catch {
+      toast.error('Failed to rotate API key');
+    } finally {
+      setRotatingClient(false);
     }
   }
 
@@ -1532,12 +1602,23 @@ function ApiAccessTab() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge
-                              className="border-0"
-                              style={pillStyle(client.status === 'active' ? "pos" : "neutral")}
-                            >
-                              {client.status}
-                            </Badge>
+                            <div className="flex flex-col items-start gap-1.5">
+                              <Badge
+                                className="border-0"
+                                style={pillStyle(client.status === 'active' ? "pos" : "neutral")}
+                              >
+                                {client.status}
+                              </Badge>
+                              {client.expiresAt ? (
+                                new Date(client.expiresAt).getTime() <= Date.now() ? (
+                                  <Badge className="border-0" style={pillStyle("neg")}>Expired</Badge>
+                                ) : (
+                                  <p className="text-[11px] text-muted-foreground">Expires {formatShortDate(client.expiresAt)}</p>
+                                )
+                              ) : (
+                                <p className="text-[11px] text-muted-foreground">Never expires</p>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="text-muted-foreground">
                             {client.lastUsedAt ? new Date(client.lastUsedAt).toLocaleString() : 'Never'}
@@ -1552,6 +1633,15 @@ function ApiAccessTab() {
                               >
                                 <Pencil className="mr-1.5 h-3.5 w-3.5" />
                                 Edit permissions
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setRotateTarget(client)}
+                                disabled={client.status !== 'active' || rotatingClient}
+                              >
+                                <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+                                Rotate
                               </Button>
                               <Button
                                 variant="ghost"
@@ -1699,8 +1789,36 @@ function ApiAccessTab() {
               <Label htmlFor="api-client-name">Key name</Label>
               <Input id="api-client-name" placeholder="Zapier production" value={clientName} onChange={(e) => setClientName(e.target.value)} />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="api-client-expiry">Expires</Label>
+              <Select
+                id="api-client-expiry"
+                value={expiresInDays}
+                onChange={(e) => setExpiresInDays(e.target.value as 'never' | '30' | '90' | '365')}
+              >
+                <option value="never">Never</option>
+                <option value="30">30 days</option>
+                <option value="90">90 days</option>
+                <option value="365">1 year</option>
+              </Select>
+            </div>
             <div className="space-y-3">
-              <Label>Scopes</Label>
+              <div className="flex items-center justify-between">
+                <Label>Scopes</Label>
+                <button
+                  type="button"
+                  className="text-xs text-primary hover:underline"
+                  onClick={() =>
+                    setSelectedScopes(
+                      selectedScopes.length === API_SCOPE_OPTIONS.length
+                        ? []
+                        : API_SCOPE_OPTIONS.map((scope) => scope.id),
+                    )
+                  }
+                >
+                  {selectedScopes.length === API_SCOPE_OPTIONS.length ? 'Clear' : 'Select all'}
+                </button>
+              </div>
               <div className="grid gap-2 rounded-xl border p-3">
                 {API_SCOPE_OPTIONS.map((scope) => (
                   <Label key={scope.id} className="justify-start">
@@ -1809,10 +1927,32 @@ function ApiAccessTab() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={!!rotateTarget} onOpenChange={(open) => { if (!open && !rotatingClient) setRotateTarget(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Rotate API key</DialogTitle>
+            <DialogDescription>
+              Generates a new secret for this key. The old secret stops working immediately.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-xl border p-3">
+            <p className="text-sm font-medium">{rotateTarget?.name || 'API key'}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{rotateTarget?.keyPrefix}…</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRotateTarget(null)} disabled={rotatingClient}>Cancel</Button>
+            <Button onClick={rotateClient} disabled={rotatingClient}>
+              {rotatingClient && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+              {rotatingClient ? 'Rotating…' : 'Rotate key'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!createdApiKey} onOpenChange={(open) => { if (!open) setCreatedApiKey(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>API key created</DialogTitle>
+            <DialogTitle>{createdKeyMode === 'rotated' ? 'API key rotated' : 'API key created'}</DialogTitle>
             <DialogDescription>
               This secret is shown once. Copy it now and store it securely.
             </DialogDescription>
@@ -1839,7 +1979,7 @@ function ApiAccessTab() {
           <DialogHeader>
             <DialogTitle>Webhook secret created</DialogTitle>
             <DialogDescription>
-              This webhook signing secret is only shown once. Save it before you close this dialog.
+              This webhook signing secret is only shown once. Save it before you close this dialog. If you lose this secret, delete and recreate the endpoint.
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-xl border bg-muted/30 p-3">
@@ -1879,7 +2019,8 @@ function BillingTab() {
     try {
       const res = await apiFetch<{ url: string }>("/api/stripe/portal", { method: "POST" });
       if (res.ok && res.data.url) {
-        window.location.href = res.data.url;
+        window.open(res.data.url, "_blank", "noopener");
+        toast.success("Opening billing portal…");
       } else {
         toast.error("Failed to open billing portal");
       }

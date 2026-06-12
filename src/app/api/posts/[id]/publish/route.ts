@@ -15,6 +15,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'posts.publish');
+
+    // Outbound publishing is the one action gated on email verification.
+    // Unverified users keep full read/draft/edit access elsewhere.
+    if (!ctx.emailVerified) {
+      return apiOk(
+        { ok: false, code: 'EMAIL_NOT_VERIFIED', error: 'Verify your email to publish.' },
+        403,
+      );
+    }
+
     const { id } = await params;
 
     const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${id}`);

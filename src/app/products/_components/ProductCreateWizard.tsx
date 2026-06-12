@@ -39,7 +39,14 @@ export default function ProductCreateWizard({
 }) {
   const [mode, setMode] = useState<Mode>("start");
   const [scanUrl, setScanUrl] = useState("");
-  const { phase: scanPhase, scanning, scanned, scan: runScan, reset: resetScan } = useProductScan();
+  const {
+    phase: scanPhase,
+    scanning,
+    scanned,
+    scan: runScan,
+    cancel: cancelScan,
+    reset: resetScan,
+  } = useProductScan();
 
   // form state
   const [name, setName] = useState("");
@@ -341,12 +348,47 @@ export default function ProductCreateWizard({
                 className="space-y-4"
               >
                 <ScanProgressStepper phase={scanPhase} url={scanUrl} />
-                {scanPhase === "error" && (
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setMode("start")}>
-                      Try again
+                {scanning && (
+                  <div className="flex justify-end">
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        cancelScan();
+                        setMode("start");
+                      }}
+                      className="h-9 text-[13px]"
+                      style={{ color: "var(--mk-ink-60)" }}
+                    >
+                      Cancel scan
                     </Button>
-                    <Button onClick={() => setMode("manual")}>Enter manually</Button>
+                  </div>
+                )}
+                {scanPhase === "error" && (
+                  <div className="space-y-3">
+                    <p
+                      className="text-[12.5px]"
+                      style={{ color: "var(--mk-ink-60)" }}
+                    >
+                      We couldn&apos;t scan{" "}
+                      <span className="font-mono" style={{ color: "var(--mk-ink-80)" }}>
+                        {scanUrl}
+                      </span>
+                      . Retry the scan, or enter your details manually.
+                    </p>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        onClick={() => setMode("start")}
+                        className="h-9 text-[13px]"
+                        style={{ color: "var(--mk-ink-60)" }}
+                      >
+                        Edit URL
+                      </Button>
+                      <Button variant="outline" onClick={handleScan}>
+                        Retry scan
+                      </Button>
+                      <Button onClick={() => setMode("manual")}>Enter manually</Button>
+                    </div>
                   </div>
                 )}
               </motion.div>
@@ -417,10 +459,13 @@ export default function ProductCreateWizard({
                     <div className="flex flex-wrap gap-1">
                       {Object.entries(categoryLabels).map(([val, label]) => {
                         const active = categories.includes(val);
+                        const lastSelected = active && categories.length === 1;
                         return (
                           <button
                             key={val}
                             type="button"
+                            disabled={lastSelected}
+                            title={lastSelected ? "At least one category required" : undefined}
                             onClick={() =>
                               setCategories((prev) =>
                                 active
@@ -431,7 +476,7 @@ export default function ProductCreateWizard({
                               )
                             }
                             className={cn(
-                              "px-2 py-1 rounded-md border text-[11px] transition-all",
+                              "px-2 py-1 rounded-md border text-[11px] transition-all disabled:cursor-not-allowed",
                               active
                                 ? "border-foreground bg-foreground text-background font-medium"
                                 : "border-border/60 text-muted-foreground hover:border-foreground/30",

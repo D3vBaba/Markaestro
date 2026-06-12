@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
@@ -10,7 +10,8 @@ import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import ProductCard, { type ConnectionChip, type ProductCardData } from "./_components/ProductCard";
 import ProductDetailSheet, { type IntegrationInfo } from "./_components/ProductDetailSheet";
 import ProductCreateWizard from "./_components/ProductCreateWizard";
-import { apiGet, apiDelete } from "@/lib/api-client";
+import { apiDelete } from "@/lib/api-client";
+import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { toast } from "sonner";
 
 type Product = ProductCardData;
@@ -36,91 +37,150 @@ const providerLabels: Record<string, string> = {
   pinterest: "Pinterest",
 };
 
+type OauthCallback = {
+  result: string;
+  provider: string | null;
+  productId: string | null;
+  needsPageSelect: boolean;
+  message: string | null;
+};
+
+/** Read the OAuth redirect params once on mount (null during SSR / no callback). */
+function readOauthCallback(): OauthCallback | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const result = params.get("oauth");
+  if (!result) return null;
+  return {
+    result,
+    provider: params.get("provider"),
+    productId: params.get("productId"),
+    needsPageSelect: params.get("needsPageSelect") === "1",
+    message: params.get("message"),
+  };
+}
+
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [connectionCache, setConnectionCache] = useState<Record<string, ConnectionChip[]>>({});
+  const {
+    data: productsData,
+    loading,
+    refresh: refreshProducts,
+  } = useApiQuery<{ products: Product[] }>("/api/products");
+  // Optimistic delete overrides — hide cards immediately; on API failure the
+  // id is removed from the set so the card reappears.
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(() => new Set());
+  const products = useMemo(() => {
+    const base = productsData?.products ?? [];
+    return base.filter((p) => !deletedIds.has(p.id));
+  }, [productsData, deletedIds]);
+
+  // One batched request for every product's connection statuses (null path
+  // until the product list has loaded). Keyed on sorted ids so reordering
+  // doesn't bust the cache.
+  const connectionsPath = useMemo(() => {
+    const ids = (productsData?.products ?? []).map((p) => p.id);
+    if (ids.length === 0) return null;
+    return `/api/integrations?productIds=${[...ids].sort().join(",")}`;
+  }, [productsData]);
+  const { data: connectionsData } = useApiQuery<{
+    products: Record<string, IntegrationInfo[]>;
+  }>(connectionsPath);
+  const connectionCache = useMemo(() => {
+    const cache: Record<string, ConnectionChip[]> = {};
+    for (const [pid, integrations] of Object.entries(connectionsData?.products ?? {})) {
+      const scoped = getScopedSocialIntegrations(integrations || []);
+      cache[pid] = scoped.map((integ) => ({
+        provider: integ.provider,
+        status: integ.status,
+        lastRefreshError: integ.lastRefreshError,
+        pageName: integ.pageName,
+        username: integ.username,
+      }));
+    }
+    return cache;
+  }, [connectionsData]);
+
+  // OAuth callback params are captured once and drive the *initial* state
+  // below (highlight + sheet open on Channels) — no setState-in-effect needed.
+  const [oauthCallback] = useState(readOauthCallback);
+  const oauthProductId =
+    oauthCallback?.result === "success" ? oauthCallback.productId : null;
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(oauthProductId);
+  const [detailSection, setDetailSection] = useState<"foundation" | "channels">(
+    oauthProductId ? "channels" : "foundation",
+  );
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [filter, setFilter] = useState<FilterTab>("all");
-
-  const fetchProducts = async () => {
-    try {
-      const res = await apiGet<{ products: Product[] }>("/api/products");
-      if (res.ok) setProducts(res.data.products || []);
-    } catch {
-      toast.error("Failed to load products");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchConnectionStatuses = useCallback(async (list: Product[]) => {
-    const cache: Record<string, ConnectionChip[]> = {};
-    for (const p of list) {
-      const res = await apiGet<{ integrations: IntegrationInfo[] }>(
-        `/api/integrations?productId=${p.id}`,
-      );
-      if (res.ok) {
-        const scoped = getScopedSocialIntegrations(res.data.integrations || []);
-        cache[p.id] = scoped.map((integ) => ({
-          provider: integ.provider,
-          status: integ.status,
-          lastRefreshError: integ.lastRefreshError,
-          pageName: integ.pageName,
-          username: integ.username,
-        }));
-      }
-    }
-    setConnectionCache(cache);
-  }, []);
+  const [highlightId, setHighlightId] = useState<string | null>(oauthProductId);
 
   useEffect(() => {
-    fetchProducts();
+    // OAuth callback side effects: toasts, URL cleanup, cache invalidation
+    if (!oauthCallback) return;
+    const { result, provider, productId, needsPageSelect, message } = oauthCallback;
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
-    // Handle OAuth callback
-    const params = new URLSearchParams(window.location.search);
-    const oauthResult = params.get("oauth");
-    const provider = params.get("provider");
-    const productId = params.get("productId");
-    const needsPageSelect = params.get("needsPageSelect");
-
-    if (oauthResult === "success" && provider) {
+    if (result === "success" && provider) {
       toast.success(`${providerLabels[provider] || provider} connected`);
       window.history.replaceState({}, "", "/products");
-      fetchProducts();
-    } else if (oauthResult === "error" && provider) {
-      const message = params.get("message");
-      toast.error(`${provider} OAuth failed: ${message || "Unknown error"}`);
+      invalidateQueries("/api/products");
+      invalidateQueries("/api/integrations");
+    } else if (result === "error" && provider) {
+      const label = providerLabels[provider] || provider;
+      if (message && message.includes("access_denied")) {
+        toast.error(
+          `${label}: You declined the permission request — tap Connect to try again.`,
+        );
+      } else {
+        toast.error(`${label} connection failed: ${message || "Unknown error"}`);
+      }
       window.history.replaceState({}, "", "/products");
     }
 
-    if (oauthResult === "success" && productId) {
-      setDetailId(productId);
-      if (provider === "meta" && needsPageSelect === "1") {
-        setTimeout(() => {
-          toast.error("Select a Facebook page to finish Meta setup");
-        }, 300);
+    if (result === "success" && productId) {
+      // The card is highlighted from first render; fade it after a beat
+      timers.push(setTimeout(() => setHighlightId(null), 2500));
+      if (provider === "meta" && needsPageSelect) {
+        timers.push(
+          setTimeout(() => {
+            toast.info(
+              "Almost done — choose a Facebook page in Channels to finish Meta setup",
+            );
+          }, 300),
+        );
       }
     }
-  }, []);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      fetchConnectionStatuses(products);
-    }
-  }, [products, fetchConnectionStatuses]);
+    return () => timers.forEach(clearTimeout);
+  }, [oauthCallback]);
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-    const res = await apiDelete(`/api/products/${deleteTarget.id}`);
-    if (res.ok) {
-      toast.success("Product deleted");
-      fetchProducts();
-    } else {
+    const { id } = deleteTarget;
+    // Optimistic removal — hide the card immediately and re-show it (by
+    // dropping the override) if the API call fails.
+    setDeletedIds((prev) => new Set(prev).add(id));
+    const restore = () => {
+      setDeletedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
       toast.error("Failed to delete product");
+    };
+    try {
+      const res = await apiDelete(`/api/products/${id}`);
+      if (res.ok) {
+        toast.success("Product deleted");
+        // Refetch; the override keeps the card hidden until fresh data
+        // (without the product) arrives, so it never flashes back.
+        invalidateQueries("/api/products");
+      } else {
+        restore();
+      }
+    } catch {
+      restore();
     }
   };
 
@@ -194,7 +254,7 @@ export default function ProductsPage() {
         })}
       </div>
 
-      {loading ? (
+      {loading && !productsData ? (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div
@@ -215,6 +275,7 @@ export default function ProductsPage() {
                 product={p}
                 connections={connectionCache[p.id] || []}
                 index={i}
+                highlighted={highlightId === p.id}
                 onOpen={() => setDetailId(p.id)}
                 onDelete={() => setDeleteTarget({ id: p.id, name: p.name })}
               />
@@ -227,7 +288,7 @@ export default function ProductsPage() {
         open={createOpen}
         onOpenChange={setCreateOpen}
         onCreated={(id) => {
-          fetchProducts();
+          invalidateQueries("/api/products");
           setDetailId(id);
         }}
       />
@@ -235,11 +296,21 @@ export default function ProductsPage() {
       <ProductDetailSheet
         productId={detailId}
         open={!!detailId}
+        initialSection={detailSection}
         onOpenChange={(open) => {
-          if (!open) setDetailId(null);
+          if (!open) {
+            setDetailId(null);
+            setDetailSection("foundation");
+          }
         }}
-        onSaved={fetchProducts}
-        onDeleted={fetchProducts}
+        onSaved={() => {
+          invalidateQueries("/api/integrations");
+          refreshProducts();
+        }}
+        onDeleted={() => {
+          invalidateQueries("/api/integrations");
+          refreshProducts();
+        }}
       />
 
       <ConfirmDeleteDialog

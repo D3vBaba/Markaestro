@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useMemo, useState, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
-import { apiGet, apiPut } from "@/lib/api-client";
+import { AlertCircle, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
+import { apiPut } from "@/lib/api-client";
+import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -269,11 +271,14 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart }: {
   const thumb = p.mediaUrls?.[0];
   const draggable = p.status === "scheduled" || p.status === "draft";
 
+  const isFailed = p.status === "failed";
+
   return (
     <button
       onClick={onClick}
       draggable={draggable}
       onDragStart={onDragStart}
+      title={isFailed ? p.errorMessage || "Failed to publish" : undefined}
       className="w-full rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98] cursor-grab active:cursor-grabbing"
       style={{ background: isSelected ? accent + "20" : bg, borderLeft: `3px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
     >
@@ -290,6 +295,12 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart }: {
         <div style={{ color: accent }} className="shrink-0">
           {CHANNEL_ICON[p.channel] || null}
         </div>
+        {/* Failed indicator — surfaces errors without opening the detail panel */}
+        {isFailed && (
+          <span className="ml-auto shrink-0 flex items-center" style={{ color: "var(--mk-neg)" }} aria-label="Failed to publish">
+            <AlertCircle className="w-3 h-3" />
+          </span>
+        )}
       </div>
     </button>
   );
@@ -328,31 +339,69 @@ function MobileAgendaDay({ date, items, selected, onSelect }: {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function CalendarPage() {
+function CalendarPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: postsData,
+    loading,
+    error: loadError,
+    refresh,
+  } = useApiQuery<{ posts: Post[] }>("/api/posts?limit=200");
+  // Optimistic patches (postId → patched fields) layered over query data so
+  // drag-to-reschedule feels instant; cleared once fresh data arrives.
+  const [overrides, setOverrides] = useState<Record<string, Partial<Post>>>({});
+  const posts = useMemo(() => {
+    const base = postsData?.posts ?? [];
+    return base.map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
+  }, [postsData, overrides]);
   const [selected, setSelected] = useState<CalendarItem | null>(null);
   const [dragItem, setDragItem] = useState<Post | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [channelFilter, setChannelFilter] = useState<string | null>(null);
+  // Filters initialize from URL (?status=…&channel=…) so dashboard drill-ins work
+  const [statusFilter, setStatusFilter] = useState<string | null>(
+    () => searchParams.get("status")
+  );
+  const [channelFilter, setChannelFilter] = useState<string | null>(
+    () => searchParams.get("channel")
+  );
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const postRes = await apiGet<{ posts: Post[] }>("/api/posts?limit=200");
-      if (postRes.ok) setPosts(postRes.data.posts || []);
-    } catch {
-      toast.error("Failed to load calendar data");
-    } finally {
-      setLoading(false);
-    }
+  // Keep state in sync with the URL (e.g. back/forward navigation)
+  useEffect(() => {
+    setStatusFilter(searchParams.get("status"));
+    setChannelFilter(searchParams.get("channel"));
+  }, [searchParams]);
+
+  const applyFilters = useCallback(
+    (status: string | null, channel: string | null) => {
+      setStatusFilter(status);
+      setChannelFilter(channel);
+      const params = new URLSearchParams(searchParams.toString());
+      if (status) params.set("status", status);
+      else params.delete("status");
+      if (channel) params.set("channel", channel);
+      else params.delete("channel");
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams]
+  );
+
+  const hasActiveFilters = Boolean(statusFilter || channelFilter);
+  const clearFilters = () => applyFilters(null, null);
+
+  const clearOverride = useCallback((postId: string) => {
+    setOverrides((prev) => {
+      if (!(postId in prev)) return prev;
+      const next = { ...prev };
+      delete next[postId];
+      return next;
+    });
   }, []);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
 
   // ─── Drag & Drop handlers ────────────────────────────────────────────
   const handleDragStart = (post: Post) => (e: React.DragEvent) => {
@@ -375,28 +424,41 @@ export default function CalendarPage() {
     e.preventDefault();
     setDropTarget(null);
     if (!dragItem) return;
+    const post = dragItem;
+    setDragItem(null);
 
     // Preserve original time, just change the date
-    const originalDate = dragItem.scheduledAt ? new Date(dragItem.scheduledAt) : new Date();
+    const originalDate = post.scheduledAt ? new Date(post.scheduledAt) : new Date();
     const [y, m, d] = dateStr.split("-").map(Number);
     const newDate = new Date(originalDate);
     newDate.setFullYear(y, m - 1, d);
 
+    // Optimistically move the chip; revert by clearing the override on failure
+    setOverrides((prev) => ({
+      ...prev,
+      [post.id]: { scheduledAt: newDate.toISOString(), status: "scheduled" },
+    }));
+
     try {
-      const res = await apiPut(`/api/posts/${dragItem.id}`, {
+      const res = await apiPut(`/api/posts/${post.id}`, {
         scheduledAt: newDate.toISOString(),
         status: "scheduled",
       });
       if (res.ok) {
         toast.success(`Post moved to ${new Date(dateStr).toLocaleDateString([], { month: "short", day: "numeric" })}`);
-        fetchData();
+        // Drop every cached /api/posts query, then await our own refetch so
+        // the override is only cleared once fresh data is in place.
+        invalidateQueries("/api/posts");
+        await refresh();
+        clearOverride(post.id);
       } else {
+        clearOverride(post.id);
         toast.error("Failed to reschedule post");
       }
     } catch {
+      clearOverride(post.id);
       toast.error("Failed to reschedule post");
     }
-    setDragItem(null);
   };
 
   // Build date → items map (with filters applied)
@@ -489,6 +551,7 @@ export default function CalendarPage() {
                 variant="ghost" size="sm"
                 className="h-8 px-3 rounded-lg text-[12px]"
                 style={{ color: "var(--mk-ink-60)" }}
+                disabled={month === today.getMonth() && year === today.getFullYear()}
                 onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); setSelected(null); }}
               >
                 Today
@@ -527,7 +590,7 @@ export default function CalendarPage() {
               return (
                 <button
                   key={key}
-                  onClick={() => setStatusFilter(active ? null : key)}
+                  onClick={() => applyFilters(active ? null : key, channelFilter)}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all ${
                     active
                       ? "border-current bg-current/10"
@@ -547,7 +610,7 @@ export default function CalendarPage() {
               return (
                 <button
                   key={key}
-                  onClick={() => setChannelFilter(active ? null : key)}
+                  onClick={() => applyFilters(statusFilter, active ? null : key)}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all ${
                     active
                       ? "border-current bg-current/10"
@@ -566,13 +629,66 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          {/* Grid */}
-          {loading ? (
+          {/* Grid — spinner only on true initial load; post-mutation refetches
+              keep the (optimistically patched) grid on screen */}
+          {loading && !postsData ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="h-5 w-5 border-2 border-foreground/15 border-t-foreground rounded-full animate-spin" />
             </div>
+          ) : loadError && !postsData ? (
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 py-12">
+              <AlertCircle className="h-5 w-5" style={{ color: "var(--mk-neg)" }} />
+              <p className="text-sm text-muted-foreground m-0">
+                Failed to load calendar data
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-lg text-[12px]"
+                onClick={() => refresh()}
+              >
+                Retry
+              </Button>
+            </div>
           ) : (
             <>
+              {/* Desktop empty state — acknowledges active filters */}
+              {totalPosts === 0 && (
+                <div
+                  className="hidden md:flex items-center justify-between gap-3 rounded-lg px-4 py-3 mb-4"
+                  style={{
+                    background: "var(--mk-surface)",
+                    border: "1px dashed var(--mk-rule)",
+                  }}
+                >
+                  <p className="text-sm text-muted-foreground m-0">
+                    {hasActiveFilters
+                      ? "No posts matching your filters"
+                      : "No posts this month"}
+                  </p>
+                  {hasActiveFilters ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-lg text-[12px]"
+                      onClick={clearFilters}
+                    >
+                      Clear filters
+                    </Button>
+                  ) : (
+                    <Link href="/content">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-lg gap-1.5 text-[12px]"
+                      >
+                        <Plus className="h-3.5 w-3.5" /> Create post
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              )}
+
               {/* Desktop calendar grid */}
               <div
                 className="hidden md:flex flex-1 flex-col rounded-xl overflow-hidden"
@@ -624,8 +740,10 @@ export default function CalendarPage() {
                       >
                         <div className="flex justify-between items-center px-0.5">
                           <span
-                            className={`text-xs w-6 h-6 flex items-center justify-center rounded-full font-medium leading-none ${
-                              isToday ? "bg-foreground text-background" : "text-muted-foreground/60"
+                            className={`text-xs w-6 h-6 flex items-center justify-center rounded-full leading-none ${
+                              isToday
+                                ? "bg-primary text-primary-foreground font-semibold shadow-sm ring-2 ring-primary/25"
+                                : "text-muted-foreground/60 font-medium"
                             }`}
                           >
                             {day.getDate()}
@@ -667,12 +785,27 @@ export default function CalendarPage() {
               <div className="md:hidden space-y-3">
                 {agendaDays.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-sm text-muted-foreground">No posts this month.</p>
-                    <Link href="/content">
-                      <Button variant="outline" size="sm" className="mt-4 rounded-xl gap-1.5">
-                        <Plus className="h-3.5 w-3.5" /> Create Post
+                    <p className="text-sm text-muted-foreground">
+                      {hasActiveFilters
+                        ? "No posts matching your filters"
+                        : "No posts this month."}
+                    </p>
+                    {hasActiveFilters ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4 rounded-xl"
+                        onClick={clearFilters}
+                      >
+                        Clear filters
                       </Button>
-                    </Link>
+                    ) : (
+                      <Link href="/content">
+                        <Button variant="outline" size="sm" className="mt-4 rounded-xl gap-1.5">
+                          <Plus className="h-3.5 w-3.5" /> Create Post
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 ) : (
                   agendaDays.map(({ date, items }) => (
@@ -708,5 +841,13 @@ export default function CalendarPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+export default function CalendarPage() {
+  return (
+    <Suspense fallback={null}>
+      <CalendarPageContent />
+    </Suspense>
   );
 }

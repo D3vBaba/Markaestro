@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { Clock } from "lucide-react";
+import { toast } from "sonner";
 
 export function TrialBanner() {
   const { status, trialDaysLeft } = useSubscription();
@@ -19,7 +20,10 @@ export function TrialBanner() {
     try {
       const res = await apiFetch<{ url: string }>('/api/stripe/portal', { method: 'POST' });
       if (res.ok && res.data.url) {
-        window.location.href = res.data.url;
+        toast("Opening billing portal…");
+        window.open(res.data.url, "_blank", "noopener");
+      } else {
+        toast.error("Could not open the billing portal. Please try again.");
       }
     } finally {
       setBusy(false);

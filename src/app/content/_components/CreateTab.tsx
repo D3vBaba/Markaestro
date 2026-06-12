@@ -8,9 +8,18 @@ import ChannelSelector from "./ChannelSelector";
 import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
 import PlatformPreview from "@/components/app/PlatformPreview";
+import { getSocialChannelLabel } from "@/lib/social/channel-catalog";
 
 const MAX_MEDIA = 6;
+const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
 const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
+
+type StoredDraft = {
+  content: string;
+  selectedChannels: string[];
+  channel: string;
+  mediaUrls: string[];
+};
 
 export default function CreateTab({
   productId,
@@ -28,7 +37,59 @@ export default function CreateTab({
   const [publishing, setPublishing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [previewChannel, setPreviewChannel] = useState("facebook");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Draft safety (autosave-lite) ──────────────────────────────────────────
+  // Persist the in-progress draft locally so a reload/crash doesn't lose work.
+  const draftKey = `${DRAFT_STORAGE_PREFIX}_${productId || "default"}`;
+  const restoredRef = useRef(false);
+
+  const clearStoredDraft = () => {
+    if (typeof window !== "undefined") localStorage.removeItem(draftKey);
+  };
+
+  // Restore an unsaved draft once the product context is known
+  useEffect(() => {
+    if (restoredRef.current || !productId || typeof window === "undefined") return;
+    restoredRef.current = true;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as StoredDraft;
+      if (!saved.content || content) return;
+      setContent(saved.content);
+      if (saved.selectedChannels?.length) setSelectedChannels(saved.selectedChannels);
+      if (saved.channel) setChannel(saved.channel);
+      if (saved.mediaUrls?.length) setMediaUrls(saved.mediaUrls);
+      toast.info("Restored your unsaved draft", {
+        action: {
+          label: "Discard",
+          onClick: () => {
+            localStorage.removeItem(draftKey);
+            setContent("");
+            setMediaUrls([]);
+          },
+        },
+      });
+    } catch { /* corrupt entry — ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey, productId]);
+
+  // Save on a 1s debounce. Once the draft exists server-side (postId set)
+  // the local copy is redundant, so drop it. Never auto-creates server drafts.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handle = setTimeout(() => {
+      if (!content || postId) {
+        localStorage.removeItem(draftKey);
+        return;
+      }
+      const draft: StoredDraft = { content, selectedChannels, channel, mediaUrls };
+      localStorage.setItem(draftKey, JSON.stringify(draft));
+    }, 1000);
+    return () => clearTimeout(handle);
+  }, [content, selectedChannels, channel, mediaUrls, postId, draftKey]);
 
   // Poll a just-published post until it reaches a terminal state so the
   // card elsewhere in the app transitions out of `publishing` without
@@ -165,11 +226,11 @@ export default function CreateTab({
     const urls = mediaUrls.length > 0 ? mediaUrls : undefined;
     if (postId) {
       const res = await apiPut(`/api/posts/${postId}`, buildPostPayload(urls));
-      if (res.ok) { toast.success("Draft saved"); onPostCreated?.(); }
+      if (res.ok) { toast.success("Draft saved"); clearStoredDraft(); onPostCreated?.(); }
       else toast.error("Failed to save draft");
     } else {
       const id = await ensurePostId();
-      if (id) { toast.success("Draft saved"); onPostCreated?.(); }
+      if (id) { toast.success("Draft saved"); clearStoredDraft(); onPostCreated?.(); }
     }
   };
 
@@ -188,6 +249,7 @@ export default function CreateTab({
       setContent("");
       setPostId(null);
       setMediaUrls([]);
+      clearStoredDraft();
       onPostCreated?.();
     } else {
       toast.error("Failed to schedule post");
@@ -224,6 +286,7 @@ export default function CreateTab({
         setContent("");
         setPostId(null);
         setMediaUrls([]);
+        clearStoredDraft();
         onPostCreated?.();
         startStatusPolling(id);
         setPublishing(false);
@@ -235,6 +298,7 @@ export default function CreateTab({
         setContent("");
         setPostId(null);
         setMediaUrls([]);
+        clearStoredDraft();
         onPostCreated?.();
         setPublishing(false);
         return;
@@ -258,6 +322,7 @@ export default function CreateTab({
       setContent("");
       setPostId(null);
       setMediaUrls([]);
+      clearStoredDraft();
       onPostCreated?.();
     } else {
       toast.error(res.data.error || "Publishing failed");
@@ -265,8 +330,24 @@ export default function CreateTab({
     setPublishing(false);
   };
 
+  // Cmd/Ctrl+Enter: Post Now when ready, otherwise save a draft.
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!((e.metaKey || e.ctrlKey) && e.key === "Enter")) return;
+    if (!content || publishing) return;
+    e.preventDefault();
+    if (uploading) {
+      handleSaveDraft();
+    } else {
+      handlePostNow();
+    }
+  };
+
+  // Which platform the preview renders — falls back to the primary channel
+  // when the previously previewed channel is deselected.
+  const activePreviewChannel = selectedChannels.includes(previewChannel) ? previewChannel : channel;
+
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
+    <div className="grid gap-8 lg:grid-cols-2" onKeyDown={handleKeyDown}>
       {/* Left column — inputs */}
       <div className="space-y-6">
         <ChannelSelector
@@ -356,8 +437,25 @@ export default function CreateTab({
       {/* Right column — preview */}
       <div className="border border-border/40 rounded-lg p-4 sm:p-6 space-y-6 h-fit lg:sticky lg:top-20 bg-card">
         <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Preview</h3>
+        {selectedChannels.length > 1 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {selectedChannels.map((ch) => (
+              <button
+                key={ch}
+                onClick={() => setPreviewChannel(ch)}
+                className={`px-3 py-1 rounded-full border text-[11px] font-medium transition-colors ${
+                  activePreviewChannel === ch
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+                }`}
+              >
+                {getSocialChannelLabel(ch)}
+              </button>
+            ))}
+          </div>
+        )}
         {content ? (
-          <PlatformPreview content={content} channel={channel} mediaUrls={mediaUrls.length > 0 ? mediaUrls : undefined} />
+          <PlatformPreview content={content} channel={activePreviewChannel} mediaUrls={mediaUrls.length > 0 ? mediaUrls : undefined} />
         ) : (
           <div className="text-center py-16">
             <p className="text-sm text-muted-foreground">Your post preview will appear here.</p>

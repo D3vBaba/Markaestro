@@ -29,6 +29,8 @@ export type PublicPostResponse = {
 export const createApiClientSchema = z.object({
   name: z.string().trim().min(1).max(120),
   scopes: z.array(z.enum(publicApiScopes)).min(1).max(publicApiScopes.length),
+  // Optional key lifetime; omitted = the key never expires.
+  expiresInDays: z.union([z.literal(30), z.literal(90), z.literal(365)]).optional(),
 });
 
 export const updateApiClientScopesSchema = z.object({

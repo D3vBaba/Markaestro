@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet, apiPost } from "@/lib/api-client";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { ExternalLink } from "lucide-react";
 import { FeatureGate } from "@/components/app/FeatureGate";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
@@ -42,8 +46,11 @@ type FacebookInsights = {
   platform: "facebook"; connected: boolean; error?: string;
   pageName?: string; username?: string; avatarUrl?: string; bio?: string;
   profileUrl?: string; isVerified?: boolean;
-  followers?: number; impressions7d?: number;
-  engagements7d?: number; reach7d?: number; recentPosts?: FacebookPost[];
+  followers?: number; rangeDays?: number;
+  impressions?: number; engagements?: number; reach?: number;
+  // Legacy fields — populated only for the default 7d range.
+  impressions7d?: number; engagements7d?: number; reach7d?: number;
+  recentPosts?: FacebookPost[];
 };
 
 type InstagramInsights = {
@@ -77,6 +84,9 @@ type Tip = {
 
 const STORAGE_KEY = "markaestro_default_product";
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
+
+const RANGES = ["7d", "30d", "90d"] as const;
+type Range = (typeof RANGES)[number];
 
 const priorityTone: Record<string, PillTone> = {
   high: "neg",
@@ -170,7 +180,7 @@ function ProductContextBar({
 
   return (
     <div
-      className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg mb-6"
+      className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg"
       style={{
         background: "var(--mk-paper)",
         border: "1px solid var(--mk-rule)",
@@ -221,57 +231,119 @@ function ProductContextBar({
   );
 }
 
+// ── Date range selector ──────────────────────────────────────────
+
+function RangeSelector({
+  value,
+  onChange,
+}: {
+  value: Range;
+  onChange: (r: Range) => void;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label="Date range"
+      className="flex items-center gap-0.5 p-1 rounded-lg shrink-0"
+      style={{
+        background: "var(--mk-paper)",
+        border: "1px solid var(--mk-rule)",
+      }}
+    >
+      {RANGES.map((r) => (
+        <button
+          key={r}
+          onClick={() => onChange(r)}
+          aria-pressed={value === r}
+          className="px-2.5 py-1.5 rounded-md font-mono text-[10px] uppercase transition-colors"
+          style={{
+            letterSpacing: "0.12em",
+            ...(value === r ? pillStyle("ink") : { color: "var(--mk-ink-60)" }),
+          }}
+        >
+          {r}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ── Main page ────────────────────────────────────────────────────
 
-export default function AnalyticsPage() {
+function AnalyticsPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [productId, setProductId] = useState("");
-  const [insights, setInsights] = useState<UnifiedInsights | null>(null);
-  const [tips, setTips] = useState<Tip[] | null>(null);
-  const [insightsLoading, setInsightsLoading] = useState(false);
   const [tipsLoading, setTipsLoading] = useState(false);
 
-  // Load products + restore default from localStorage
+  // Date range lives in the URL (?range=30d) so views are shareable and
+  // survive refresh. 7d is the default and keeps the URL clean.
+  const rangeParam = searchParams.get("range");
+  const range: Range = RANGES.includes(rangeParam as Range) ? (rangeParam as Range) : "7d";
+
+  const handleRangeChange = useCallback(
+    (r: Range) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (r === "7d") params.delete("range");
+      else params.set("range", r);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams]
+  );
+
+  // Optimistically select the persisted product on mount so its insights
+  // fetch kicks off in parallel with the products fetch (no waterfall).
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) setProductId(saved);
+  }, []);
+
+  // Load products; keep the optimistic selection if it's still valid,
+  // otherwise fall back to the first product.
   const fetchProducts = useCallback(async () => {
     const res = await apiGet<{ products: Product[] }>("/api/products");
     if (!res.ok) return;
     const list: Product[] = res.data.products || [];
     setProducts(list);
     if (list.length === 0) return;
-    const saved = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
-    const validSaved = saved && list.some((p) => p.id === saved);
-    setProductId(validSaved ? saved! : list[0].id);
+    setProductId((current) =>
+      current && list.some((p) => p.id === current) ? current : list[0].id
+    );
   }, []);
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-  const fetchInsights = useCallback(async (pid: string) => {
-    if (!pid) return;
-    setInsightsLoading(true);
-    setInsights(null);
-    setTips(null);
-    try {
-      const res = await apiGet<UnifiedInsights>(`/api/insights/${pid}`);
-      if (res.ok) setInsights(res.data);
-    } catch { /* silent */ }
-    finally { setInsightsLoading(false); }
-  }, []);
-
-  useEffect(() => {
-    if (productId) fetchInsights(productId);
-  }, [productId, fetchInsights]);
+  // Cached insights query — revisits and range/product switches that hit the
+  // cache render instantly and revalidate in the background.
+  const insightsKey = productId ? `${productId}:${range}` : "";
+  const {
+    data: insights,
+    loading: insightsLoading,
+    refreshing: insightsRefreshing,
+    refresh: refreshInsights,
+  } = useApiQuery<UnifiedInsights>(
+    productId ? `/api/insights/${productId}?range=${range}` : null
+  );
 
   const handleProductChange = (id: string) => {
     setProductId(id);
     if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, id);
   };
 
+  // Tips are tied to the product+range they were generated for; stale tips
+  // simply stop rendering when the key changes (no effect needed).
+  const [tipsResult, setTipsResult] = useState<{ key: string; tips: Tip[] } | null>(null);
+  const tips = tipsResult && tipsResult.key === insightsKey ? tipsResult.tips : null;
+
   const fetchTips = async () => {
     if (!productId || !insights) return;
     setTipsLoading(true);
     try {
       const res = await apiPost<{ tips: Tip[] }>(`/api/insights/${productId}/tips`, { insights });
-      if (res.ok) setTips(res.data.tips);
+      if (res.ok) setTipsResult({ key: insightsKey, tips: res.data.tips });
     } catch { /* silent */ }
     finally { setTipsLoading(false); }
   };
@@ -291,27 +363,60 @@ export default function AnalyticsPage() {
               <Button
                 variant="outline"
                 className="rounded-lg h-9 text-[13px]"
-                onClick={() => fetchInsights(productId)}
-                disabled={insightsLoading}
+                onClick={() => refreshInsights()}
+                disabled={insightsLoading || insightsRefreshing}
               >
-                {insightsLoading ? "Refreshing…" : "Refresh"}
+                {insightsLoading || insightsRefreshing ? "Refreshing…" : "Refresh"}
               </Button>
             )
           }
         />
 
-        {/* Persistent product selector */}
-        <ProductContextBar
-          products={products}
-          productId={productId}
-          onChange={handleProductChange}
-        />
+        {/* Persistent product selector + date range */}
+        {products.length > 0 && (
+          <div className="flex items-stretch gap-3 mb-6 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <ProductContextBar
+                products={products}
+                productId={productId}
+                onChange={handleProductChange}
+              />
+            </div>
+            <RangeSelector value={range} onChange={handleRangeChange} />
+          </div>
+        )}
 
-        {/* Loading skeletons */}
+        {/* Loading skeletons — mirror the platform health card layout */}
         {insightsLoading && (
-          <div className="space-y-4">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 rounded-2xl bg-muted/30 animate-pulse" />
+              <div key={i} className="rounded-xl border border-border/50 bg-card p-5 space-y-4">
+                {/* Header: platform name + connection status */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-4 rounded" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                  <Skeleton className="h-3 w-16" />
+                </div>
+                {/* Profile row */}
+                <div className="flex items-start gap-3">
+                  <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+                  <div className="flex-1 min-w-0 space-y-1.5 pt-0.5">
+                    <Skeleton className="h-3.5 w-28" />
+                    <Skeleton className="h-3 w-full" />
+                  </div>
+                </div>
+                {/* Stats grid */}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  {Array.from({ length: 6 }).map((_, j) => (
+                    <div key={j} className="space-y-1.5">
+                      <Skeleton className="h-5 w-14" />
+                      <Skeleton className="h-2.5 w-16" />
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -336,7 +441,7 @@ export default function AnalyticsPage() {
             className="space-y-6"
           >
             {/* Platform health cards */}
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               <PlatformHealthCard
                 platform="Facebook"
                 connected={insights.facebook.connected}
@@ -351,9 +456,9 @@ export default function AnalyticsPage() {
                 } : undefined}
                 stats={insights.facebook.connected && !insights.facebook.error ? [
                   { label: "Followers", value: insights.facebook.followers?.toLocaleString() || "—" },
-                  { label: "Reach (7d)", value: insights.facebook.reach7d?.toLocaleString() || "—" },
-                  { label: "Engagements", value: insights.facebook.engagements7d?.toLocaleString() || "—" },
-                  { label: "Eng. Rate", value: engagementRate(insights.facebook.engagements7d || 0, insights.facebook.reach7d || 0) },
+                  { label: `Reach (${range})`, value: (insights.facebook.reach ?? insights.facebook.reach7d)?.toLocaleString() || "—" },
+                  { label: `Engagements (${range})`, value: (insights.facebook.engagements ?? insights.facebook.engagements7d)?.toLocaleString() || "—" },
+                  { label: "Eng. Rate", value: engagementRate(insights.facebook.engagements ?? insights.facebook.engagements7d ?? 0, insights.facebook.reach ?? insights.facebook.reach7d ?? 0) },
                   { label: "Avg. Views", value: avgStat(insights.facebook.recentPosts?.map((p) => p.views ?? 0).filter((v) => v > 0) || []) },
                   { label: "Posts", value: insights.facebook.recentPosts?.length.toString() || "—" },
                 ] : undefined}
@@ -535,6 +640,15 @@ export default function AnalyticsPage() {
         )}
       </FeatureGate>
     </AppShell>
+  );
+}
+
+// useSearchParams requires a Suspense boundary during prerendering.
+export default function AnalyticsPage() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsPageContent />
+    </Suspense>
   );
 }
 
@@ -785,9 +899,10 @@ function TopPostsCard({
                       href={post.permalink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline font-medium"
+                      className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
                     >
-                      View →
+                      View
+                      <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
                 </div>

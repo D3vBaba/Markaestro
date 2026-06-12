@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { apiPost } from "@/lib/api-client";
+import { apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 
 export type ScanData = {
@@ -55,6 +55,8 @@ export type UseProductScanReturn = {
   data: ScanData | null;
   /** Start a scan for the given URL */
   scan: (rawUrl: string) => Promise<ScanData | null>;
+  /** Cancel an in-flight scan (aborts the request, stops animation, returns to idle) */
+  cancel: () => void;
   /** Reset all state */
   reset: () => void;
 };
@@ -65,6 +67,7 @@ export function useProductScan(): UseProductScanReturn {
   const [scanned, setScanned] = useState(false);
   const [data, setData] = useState<ScanData | null>(null);
   const phaseTimerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
 
   const clearPhaseTimers = useCallback(() => {
     for (const t of phaseTimerRef.current) clearTimeout(t);
@@ -89,13 +92,21 @@ export function useProductScan(): UseProductScanReturn {
     }
     if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
 
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setScanning(true);
     setScanned(false);
     setData(null);
     startPhaseAnimation();
 
     try {
-      const res = await apiPost<ScanData>("/api/products/scan", { url });
+      const res = await apiFetch<ScanData>("/api/products/scan?workspaceId=default", {
+        method: "POST",
+        body: JSON.stringify({ url }),
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return null;
       if (res.ok) {
         clearPhaseTimers();
         setPhase("done");
@@ -109,16 +120,29 @@ export function useProductScan(): UseProductScanReturn {
         return null;
       }
     } catch {
+      // A cancelled scan aborts the fetch — that's not an error
+      if (controller.signal.aborted) return null;
       clearPhaseTimers();
       setPhase("error");
       toast.error("Scan failed — fill in your details manually");
       return null;
     } finally {
-      setScanning(false);
+      if (abortRef.current === controller) abortRef.current = null;
+      if (!controller.signal.aborted) setScanning(false);
     }
   }, [startPhaseAnimation, clearPhaseTimers]);
 
+  const cancel = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    clearPhaseTimers();
+    setPhase("idle");
+    setScanning(false);
+  }, [clearPhaseTimers]);
+
   const reset = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
     clearPhaseTimers();
     setPhase("idle");
     setScanning(false);
@@ -126,5 +150,5 @@ export function useProductScan(): UseProductScanReturn {
     setData(null);
   }, [clearPhaseTimers]);
 
-  return { phase, scanning, scanned, data, scan, reset };
+  return { phase, scanning, scanned, data, scan, cancel, reset };
 }

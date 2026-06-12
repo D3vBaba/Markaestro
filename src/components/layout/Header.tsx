@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { navigationGroups, settingsItem } from "@/lib/nav";
+import { CommandPalette } from "@/components/app/CommandPalette";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { cn } from "@/lib/utils";
@@ -42,6 +44,7 @@ export function Header() {
     const pathname = usePathname();
     const { user, logout } = useAuth();
     const { current: workspace } = useWorkspace();
+    const [paletteOpen, setPaletteOpen] = useState(false);
 
     const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
     const email = user?.email || "";
@@ -258,20 +261,22 @@ export function Header() {
 
             {/* Search + Avatar */}
             <div className="flex items-center gap-2.5">
-                <div
-                    className="hidden md:flex items-center gap-2 px-3 h-[34px] rounded-lg w-full md:w-[260px] lg:w-[320px]"
+                <button
+                    type="button"
+                    onClick={() => setPaletteOpen(true)}
+                    className="hidden md:flex items-center gap-2 px-3 h-[34px] rounded-lg w-full md:w-[260px] lg:w-[320px] cursor-pointer text-left"
                     style={{
                         border: "1px solid var(--mk-rule)",
                         background: "var(--mk-surface)",
                     }}
                 >
                     <Search className="h-3.5 w-3.5" style={{ color: "var(--mk-ink-40)" }} />
-                    <input
-                        type="search"
-                        placeholder="Search anything..."
-                        className="flex-1 bg-transparent border-none outline-none text-[12.5px]"
-                        style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
-                    />
+                    <span
+                        className="flex-1 text-[12.5px]"
+                        style={{ color: "var(--mk-ink-40)", letterSpacing: "-0.005em" }}
+                    >
+                        Search anything...
+                    </span>
                     <span
                         className="font-mono text-[9.5px] px-1.5 py-px rounded"
                         style={{
@@ -282,7 +287,16 @@ export function Header() {
                     >
                         {"⌘K"}
                     </span>
-                </div>
+                </button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="md:hidden shrink-0 rounded-lg h-10 w-10"
+                    onClick={() => setPaletteOpen(true)}
+                >
+                    <Search className="h-5 w-5" />
+                    <span className="sr-only">Search</span>
+                </Button>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <button
@@ -323,6 +337,8 @@ export function Header() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
+
+            <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
         </header>
     );
 }

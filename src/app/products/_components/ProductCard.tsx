@@ -61,20 +61,27 @@ function getDominantColor(p: ProductCardData): string | null {
   return null;
 }
 
+const MAX_VISIBLE_CONNECTIONS = 3;
+
 export default function ProductCard({
   product,
   connections,
   index,
+  highlighted = false,
   onOpen,
   onDelete,
 }: {
   product: ProductCardData;
   connections: ConnectionChip[];
   index: number;
+  /** Briefly pulses a ring around the card (e.g. after an OAuth redirect) */
+  highlighted?: boolean;
   onOpen: () => void;
   onDelete: () => void;
 }) {
   const dominant = getDominantColor(product);
+  const visibleConnections = connections.slice(0, MAX_VISIBLE_CONNECTIONS);
+  const overflowConnections = connections.slice(MAX_VISIBLE_CONNECTIONS);
   const categories = product.categories?.length
     ? product.categories
     : product.category
@@ -89,6 +96,16 @@ export default function ProductCard({
       transition={{ duration: 0.24, delay: index * 0.03, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="group relative h-full"
     >
+      {highlighted && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-xl animate-pulse z-10"
+          style={{
+            boxShadow:
+              "0 0 0 2px var(--mk-accent), 0 0 0 6px var(--mk-accent-soft)",
+          }}
+        />
+      )}
       <button
         onClick={onOpen}
         className="relative w-full text-left overflow-hidden transition-colors rounded-xl flex flex-col"
@@ -251,7 +268,7 @@ export default function ProductCard({
             <div className="flex items-center gap-2 min-w-0">
               {connections.length > 0 ? (
                 <div className="flex items-center gap-2 flex-wrap">
-                  {connections.map((c) => {
+                  {visibleConnections.map((c) => {
                     const isConnected = c.status === "connected";
                     const hasError = !!c.lastRefreshError;
                     const label = providerShortLabels[c.provider] || c.provider;
@@ -283,6 +300,17 @@ export default function ProductCard({
                       </span>
                     );
                   })}
+                  {overflowConnections.length > 0 && (
+                    <span
+                      title={overflowConnections
+                        .map((c) => providerShortLabels[c.provider] || c.provider)
+                        .join(", ")}
+                      className="text-[10.5px] font-medium"
+                      style={{ color: "var(--mk-ink-40)" }}
+                    >
+                      +{overflowConnections.length}
+                    </span>
+                  )}
                 </div>
               ) : (
                 <span

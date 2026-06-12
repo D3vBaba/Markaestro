@@ -52,8 +52,16 @@ export type FacebookInsights = {
   profileUrl?: string;
   isVerified?: boolean;
   followers?: number;
+  /** Window length (days) for impressions/engagements/reach. */
+  rangeDays?: number;
+  impressions?: number;
+  engagements?: number;
+  reach?: number;
+  /** @deprecated Populated only for the default 7-day range; use `impressions`. */
   impressions7d?: number;
+  /** @deprecated Populated only for the default 7-day range; use `engagements`. */
   engagements7d?: number;
+  /** @deprecated Populated only for the default 7-day range; use `reach`. */
   reach7d?: number;
   recentPosts?: FacebookPost[];
 };

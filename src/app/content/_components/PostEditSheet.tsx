@@ -30,6 +30,7 @@ export default function PostEditSheet({
   onOpenChange,
   onSave,
   onSchedule,
+  scheduleLabel = "Schedule",
   title = "Edit Post",
 }: {
   post: Post | null;
@@ -37,6 +38,7 @@ export default function PostEditSheet({
   onOpenChange: (open: boolean) => void;
   onSave: (content: string, mediaUrls?: string[]) => Promise<void>;
   onSchedule?: (content: string, mediaUrls?: string[]) => void;
+  scheduleLabel?: string;
   title?: string;
 }) {
   const [content, setContent] = useState("");
@@ -94,9 +96,20 @@ export default function PostEditSheet({
     }
   };
 
+  // Cmd/Ctrl+Enter saves. Escape already closes the sheet via Radix.
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && !saving) {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="overflow-y-auto sm:max-w-[560px] flex flex-col gap-0 p-0">
+      <SheetContent
+        className="overflow-y-auto sm:max-w-[560px] flex flex-col gap-0 p-0"
+        onKeyDown={handleKeyDown}
+      >
         <SheetHeader
           className="px-6 pt-6 pb-4 border-b"
           style={{ borderColor: "var(--mk-rule)" }}
@@ -204,7 +217,7 @@ export default function PostEditSheet({
               className="flex-1 h-9 rounded-lg text-[13px]"
               onClick={() => onSchedule(content, mediaUrls.length > 0 ? mediaUrls : undefined)}
             >
-              Schedule
+              {scheduleLabel}
             </Button>
           )}
           <Button

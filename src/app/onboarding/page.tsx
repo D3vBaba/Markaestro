@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
@@ -107,11 +107,17 @@ function loadState(): Partial<PersistedState> {
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
-const TOTAL_STEPS = 6;
+// 7 user-facing screens: role, team, goal, channels, product, socials, plan.
+// Step 6 ("generating") is a transient loader and is excluded from the count.
+const TOTAL_STEPS = 7;
+
+function displayStep(step: number) {
+  return step >= 6 ? TOTAL_STEPS : step + 1;
+}
 
 function ProgressBar({ step }: { step: number }) {
-  if (step >= 6) return null;
-  const pct = Math.round(((step + 1) / TOTAL_STEPS) * 100);
+  if (step === 6) return null;
+  const pct = Math.round((displayStep(step) / TOTAL_STEPS) * 100);
   return (
     <div
       className="h-px w-full"
@@ -124,6 +130,16 @@ function ProgressBar({ step }: { step: number }) {
         transition={{ duration: 0.4, ease }}
       />
     </div>
+  );
+}
+
+// ─── Auto-detected badge ──────────────────────────────────────────────────────
+
+function AutoDetectedBadge() {
+  return (
+    <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary align-middle">
+      Auto-detected
+    </span>
   );
 }
 
@@ -359,6 +375,7 @@ export default function OnboardingPage() {
   const [targetAudience, setTargetAudience] = useState(saved.targetAudience ?? "");
   const { phase: scanPhase, scanning, scanned: scanDone, scan: runScan, reset: resetScan } = useProductScan();
   const [manualEntry, setManualEntry] = useState(false);
+  const [autoFilled, setAutoFilled] = useState<Record<string, boolean>>({});
 
   const [connected, setConnected] = useState<Record<string, boolean>>(saved.connected ?? {});
   const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
@@ -368,6 +385,9 @@ export default function OnboardingPage() {
   const [selectedTier, setSelectedTier] = useState<PlanTier>(saved.selectedTier ?? "pro");
   const [interval, setInterval] = useState<BillingInterval>(saved.interval ?? "annual");
   const [busy, setBusy] = useState(false);
+
+  // Skips the leave-protection prompt for intentional redirects (OAuth, checkout).
+  const skipLeaveGuardRef = useRef(false);
 
   // ─── Persist state ──────────────────────────────────────────────────────────
 
@@ -416,6 +436,21 @@ export default function OnboardingPage() {
     }
   }, []);
 
+  // ─── Leave protection ───────────────────────────────────────────────────────
+  // Warn before leaving mid-flow (after the first answer, before the transient
+  // generating screen and the paywall, which both lead out of the flow).
+
+  useEffect(() => {
+    if (step < 1 || step > 5) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      if (skipLeaveGuardRef.current) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [step]);
+
   // ─── Auto-recommend plan ─────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -436,6 +471,10 @@ export default function OnboardingPage() {
 
   const displayName =
     user.displayName?.split(" ")[0] || user.email?.split("@")[0] || "there";
+
+  const trialEndLabel = new Date(
+    Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000,
+  ).toLocaleDateString("en-US", { month: "long", day: "numeric" });
 
   // ─── Handlers ───────────────────────────────────────────────────────────────
 
@@ -458,6 +497,12 @@ export default function OnboardingPage() {
       if (d.logoUrl) setLogoUrl(d.logoUrl);
       if (d.targetAudience) setTargetAudience(d.targetAudience);
       if (d.tone) setTone(d.tone);
+      setAutoFilled({
+        name: !!d.name,
+        description: !!d.description,
+        targetAudience: !!d.targetAudience,
+        tone: !!d.tone,
+      });
     } else {
       setManualEntry(true);
     }
@@ -471,6 +516,7 @@ export default function OnboardingPage() {
         workspaceId: "default",
         returnTo,
       });
+      skipLeaveGuardRef.current = true;
       window.location.href = `/api/oauth/authorize/${providerId}?${qs.toString()}`;
     } catch {
       toast.error("Could not initiate connection. Please try again.");
@@ -533,12 +579,12 @@ export default function OnboardingPage() {
           </Link>
 
           <div className="flex items-center gap-4">
-            {step < 6 && (
+            {step !== 6 && (
               <span
                 className="hidden sm:inline font-mono text-[10.5px] uppercase tabular-nums"
                 style={{ color: "var(--mk-ink-40)", letterSpacing: "0.14em" }}
               >
-                Step {step + 1} / {TOTAL_STEPS}
+                Step {displayStep(step)} / {TOTAL_STEPS}
               </span>
             )}
             <button
@@ -709,9 +755,8 @@ export default function OnboardingPage() {
                     size="lg"
                     className="w-full h-12 rounded-xl text-base"
                     onClick={() => setStep(4)}
-                    disabled={channels.length === 0}
                   >
-                    Continue
+                    {channels.length === 0 ? "Skip for now" : "Continue"}
                   </Button>
                   <button
                     className="text-sm text-muted-foreground hover:text-foreground transition text-center"
@@ -757,7 +802,7 @@ export default function OnboardingPage() {
                             className="h-12 rounded-lg text-base flex-1"
                             style={{ fontSize: "16px" }}
                             value={productUrl}
-                            onChange={(e) => { setProductUrl(e.target.value); if (scanDone) resetScan(); }}
+                            onChange={(e) => { setProductUrl(e.target.value); if (scanDone) { resetScan(); setAutoFilled({}); } }}
                             onKeyDown={(e) => e.key === "Enter" && !scanning && scanUrl()}
                           />
                           <Button
@@ -784,43 +829,55 @@ export default function OnboardingPage() {
                         >
 
                           <div>
-                            <label className="text-sm font-medium block mb-2">Product name</label>
+                            <label className="text-sm font-medium block mb-2">
+                              Product name
+                              {autoFilled.name && <AutoDetectedBadge />}
+                            </label>
                             <Input
                               className="h-11 rounded-lg"
                               style={{ fontSize: "16px" }}
                               value={productName}
-                              onChange={(e) => setProductName(e.target.value)}
+                              onChange={(e) => { setProductName(e.target.value); setAutoFilled((p) => ({ ...p, name: false })); }}
                             />
                           </div>
 
                           <div>
-                            <label className="text-sm font-medium block mb-2">Description</label>
+                            <label className="text-sm font-medium block mb-2">
+                              Description
+                              {autoFilled.description && <AutoDetectedBadge />}
+                            </label>
                             <textarea
                               className="w-full rounded-lg border bg-background px-3 py-3 text-base min-h-[96px] resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 leading-relaxed"
                               style={{ fontSize: "16px" }}
                               value={productDesc}
-                              onChange={(e) => setProductDesc(e.target.value)}
+                              onChange={(e) => { setProductDesc(e.target.value); setAutoFilled((p) => ({ ...p, description: false })); }}
                             />
                           </div>
 
                           <div className="grid sm:grid-cols-2 gap-4">
                             <div>
-                              <label className="text-sm font-medium block mb-2">Target audience</label>
+                              <label className="text-sm font-medium block mb-2">
+                                Target audience
+                                {autoFilled.targetAudience && <AutoDetectedBadge />}
+                              </label>
                               <Input
                                 className="h-11 rounded-lg"
                                 style={{ fontSize: "16px" }}
                                 value={targetAudience}
-                                onChange={(e) => setTargetAudience(e.target.value)}
+                                onChange={(e) => { setTargetAudience(e.target.value); setAutoFilled((p) => ({ ...p, targetAudience: false })); }}
                                 placeholder="e.g. B2B SaaS founders"
                               />
                             </div>
                             <div>
-                              <label className="text-sm font-medium block mb-2">Brand tone</label>
+                              <label className="text-sm font-medium block mb-2">
+                                Brand tone
+                                {autoFilled.tone && <AutoDetectedBadge />}
+                              </label>
                               <Input
                                 className="h-11 rounded-lg"
                                 style={{ fontSize: "16px" }}
                                 value={tone}
-                                onChange={(e) => setTone(e.target.value)}
+                                onChange={(e) => { setTone(e.target.value); setAutoFilled((p) => ({ ...p, tone: false })); }}
                                 placeholder="e.g. bold, direct"
                               />
                             </div>
@@ -1182,6 +1239,11 @@ export default function OnboardingPage() {
                   {/* Trial messaging — both intervals now have trial */}
                   <p className="text-center text-sm font-medium mt-4 text-emerald-600">
                     {TRIAL_DAYS}-day free trial on all plans · No charge until day {TRIAL_DAYS + 1}
+                  </p>
+                  <p className="text-center text-xs text-muted-foreground mt-1.5">
+                    Your trial ends on {trialEndLabel}, when your card is charged $
+                    {interval === "annual" ? PLANS[selectedTier].price.annual : PLANS[selectedTier].price.monthly}
+                    /mo{interval === "annual" ? ", billed annually" : ""}. Cancel anytime before then and you won&apos;t be charged.
                   </p>
                   {interval === "annual" && (
                     <p className="text-center text-xs text-muted-foreground mt-1">

@@ -217,10 +217,12 @@ const sections: { key: SectionKey; label: string; icon: typeof Package }[] = [
 
 function ColorField({
   label,
+  description,
   value,
   onChange,
 }: {
   label: string;
+  description?: string;
   value: string;
   onChange: (v: string) => void;
 }) {
@@ -229,6 +231,9 @@ function ColorField({
   return (
     <FormField label={label}>
       <div className="space-y-2">
+        {description && (
+          <p className="text-[11px] text-muted-foreground -mt-0.5">{description}</p>
+        )}
         <div className="grid grid-cols-12 gap-1">
           {COLOR_PALETTE.map((c) => (
             <button
@@ -773,7 +778,11 @@ export default function ProductDetailSheet({
         entity="integration"
         name={disconnectTarget?.label}
         confirmLabel="Disconnect"
-        warning="This will remove the connection for this product. You can reconnect later."
+        warning={
+          disconnectTarget
+            ? `Disconnect ${disconnectTarget.label}? You can reconnect anytime to resume publishing.`
+            : undefined
+        }
         onConfirm={confirmDisconnect}
       />
     </>
@@ -900,10 +909,13 @@ function FoundationSection({
             <div className="flex flex-wrap gap-1">
               {Object.entries(categoryLabels).map(([val, label]) => {
                 const active = form.categories.includes(val);
+                const lastSelected = active && form.categories.length === 1;
                 return (
                   <button
                     key={val}
                     type="button"
+                    disabled={lastSelected}
+                    title={lastSelected ? "At least one category required" : undefined}
                     onClick={() =>
                       patch(
                         "categories",
@@ -915,7 +927,7 @@ function FoundationSection({
                       )
                     }
                     className={cn(
-                      "px-2 py-1 rounded-md border text-[11px] transition-all",
+                      "px-2 py-1 rounded-md border text-[11px] transition-all disabled:cursor-not-allowed",
                       active
                         ? "border-foreground bg-foreground text-background font-medium"
                         : "border-border/60 text-muted-foreground hover:border-foreground/30",
@@ -1106,16 +1118,19 @@ function IdentitySection({
       <SectionCard title="Brand colors" description="Set once, reflected across cards and generated media.">
         <ColorField
           label="Primary"
+          description="Main brand color"
           value={form.identity.primaryColor}
           onChange={(v) => patchIdentity("primaryColor", v)}
         />
         <ColorField
           label="Secondary"
+          description="Supporting color"
           value={form.identity.secondaryColor}
           onChange={(v) => patchIdentity("secondaryColor", v)}
         />
         <ColorField
           label="Accent"
+          description="Highlights & CTAs"
           value={form.identity.accentColor}
           onChange={(v) => patchIdentity("accentColor", v)}
         />

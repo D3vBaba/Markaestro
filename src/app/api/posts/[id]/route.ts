@@ -28,6 +28,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const body = await req.json();
     const data = updatePostSchema.parse(body);
 
+    // Moving a post into "scheduled" queues an outbound publish, so it requires
+    // a verified email. Editing drafts/content stays open to unverified users.
+    if (data.status === 'scheduled' && !ctx.emailVerified) {
+      return apiOk(
+        { error: 'EMAIL_NOT_VERIFIED', message: 'Verify your email to publish.' },
+        403,
+      );
+    }
+
     const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${id}`);
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');

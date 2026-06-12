@@ -7,15 +7,27 @@ import { getAccessToken } from '@/lib/platform/base-adapter';
 import { fetchFacebookInsights, fetchInstagramInsights } from '@/lib/social/meta-insights';
 import { fetchTikTokInsights } from '@/lib/social/tiktok-insights';
 import type { FacebookInsights, InstagramInsights, TikTokInsights, UnifiedInsights } from '@/lib/social/types';
+import { z } from 'zod';
 
 export const runtime = 'nodejs';
 
+const querySchema = z.object({
+  range: z.enum(['7d', '30d', '90d']).default('7d'),
+});
+
+const RANGE_DAYS = { '7d': 7, '30d': 30, '90d': 90 } as const;
 
 export async function GET(req: Request, { params }: { params: Promise<{ productId: string }> }) {
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'analytics.read');
     const { productId } = await params;
+
+    const url = new URL(req.url);
+    const { range } = querySchema.parse({
+      range: url.searchParams.get('range') ?? undefined,
+    });
+    const days = RANGE_DAYS[range];
 
     // Load product name
     const productSnap = await adminDb.doc(`workspaces/${ctx.workspaceId}/products/${productId}`).get();
@@ -44,7 +56,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ productI
         }
         const token = resolveAccessToken(metaConn);
         const pageName = (metaConn.metadata.pageName as string) || undefined;
-        return fetchFacebookInsights(token, pageId, pageName);
+        return fetchFacebookInsights(token, pageId, pageName, { days });
       })(),
 
       // Instagram
@@ -53,7 +65,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ productI
           const igAccountId = metaConn.metadata.igAccountId as string | undefined;
           if (igAccountId) {
             const token = resolveAccessToken(metaConn);
-            return fetchInstagramInsights(token, igAccountId);
+            return fetchInstagramInsights(token, igAccountId, { days });
           }
         }
 
@@ -67,7 +79,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ productI
         }
 
         const token = getAccessToken(instagramConn);
-        return fetchInstagramInsights(token, igAccountId, { graphApi: 'instagram' });
+        return fetchInstagramInsights(token, igAccountId, { graphApi: 'instagram', days });
       })(),
 
       // TikTok
@@ -76,7 +88,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ productI
           return { platform: 'tiktok', connected: false };
         }
         const token = getAccessToken(tiktokConn);
-        return fetchTikTokInsights(token);
+        return fetchTikTokInsights(token, { days });
       })(),
     ]);
 

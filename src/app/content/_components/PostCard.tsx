@@ -56,6 +56,7 @@ export default function PostCard({
   onDelete,
   onCancel,
   onPublish,
+  onReschedule,
 }: {
   post: Post;
   publishing?: boolean;
@@ -63,6 +64,7 @@ export default function PostCard({
   onDelete?: () => void;
   onCancel?: () => void;
   onPublish?: () => void;
+  onReschedule?: () => void;
 }) {
   const [showPreview, setShowPreview] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -260,6 +262,12 @@ export default function PostCard({
             disabled={publishing}
           >
             {publishing ? "Publishing…" : "Publish"}
+          </button>
+        )}
+
+        {onReschedule && (
+          <button className={pillBtn} onClick={onReschedule}>
+            Reschedule
           </button>
         )}
 

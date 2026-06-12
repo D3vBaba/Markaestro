@@ -31,6 +31,13 @@ function LoginContent() {
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
   const [showReset, setShowReset] = useState(false);
+  const [resetCooldown, setResetCooldown] = useState(0);
+
+  useEffect(() => {
+    if (resetCooldown <= 0) return;
+    const timer = setTimeout(() => setResetCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resetCooldown]);
 
   const redirectTo = searchParams.get("next") || "/dashboard";
 
@@ -236,13 +243,14 @@ function LoginContent() {
                 <div className="flex flex-col gap-3">
                   <Button
                     className="h-11 w-full rounded-lg text-[13.5px]"
-                    disabled={busy}
+                    disabled={busy || resetCooldown > 0}
                     onClick={async () => {
                       if (!email) { setError("Please enter your email address above."); return; }
                       try {
                         setError(""); setSuccess(""); setBusy(true);
                         await resetPassword(email);
                         setSuccess("Password reset email sent. Check your inbox.");
+                        setResetCooldown(60);
                         setShowReset(false);
                       } catch (e: unknown) {
                         setError(friendlyAuthError(e));
@@ -251,7 +259,11 @@ function LoginContent() {
                       }
                     }}
                   >
-                    {busy ? "Sending…" : "Send reset link"}
+                    {busy
+                      ? "Sending…"
+                      : resetCooldown > 0
+                      ? `Resend in ${resetCooldown}s…`
+                      : "Send reset link"}
                   </Button>
                   <button
                     type="button"
