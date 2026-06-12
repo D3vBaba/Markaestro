@@ -17,6 +17,8 @@ import PageHeader from "@/components/app/PageHeader";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiDelete, apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
+import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
@@ -672,14 +674,14 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
 /* ─── Integrations Tab ──────────────────────────────────────────────────── */
 
 function IntegrationsTab() {
-  const [integrations, setIntegrations] = useState<IntegrationInfo[]>([]);
+  const {
+    data: integrationsData,
+    loading: integrationsLoading,
+    refresh: refreshIntegrations,
+  } = useApiQuery<{ integrations: IntegrationInfo[] }>("/api/integrations");
+  const integrations = integrationsData?.integrations ?? [];
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const [disconnectTarget, setDisconnectTarget] = useState<{ provider: string; label: string } | null>(null);
-
-  const fetchIntegrations = useCallback(async () => {
-    const res = await apiGet<{ integrations: IntegrationInfo[] }>("/api/integrations");
-    if (res.ok) setIntegrations(res.data.integrations || []);
-  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -690,15 +692,15 @@ function IntegrationsTab() {
     if (oauthResult === "success" && provider) {
       toast.success(`${provider === "meta" ? "Meta" : provider} connected successfully`);
       window.history.replaceState({}, "", "/settings");
-      setTimeout(fetchIntegrations, 500);
-    } else if (oauthResult === "error" && provider) {
+      // Give the callback a beat to finish writing the connection.
+      const timer = setTimeout(() => invalidateQueries("/api/integrations"), 500);
+      return () => clearTimeout(timer);
+    }
+    if (oauthResult === "error" && provider) {
       toast.error(`Failed to connect ${provider === "meta" ? "Meta" : provider}${message ? `: ${message}` : ""}`);
       window.history.replaceState({}, "", "/settings");
-      fetchIntegrations();
-    } else {
-      fetchIntegrations();
     }
-  }, [fetchIntegrations]);
+  }, []);
 
   const isConnected = (provider: string) =>
     integrations.find((i) => i.provider === provider)?.status === "connected";
@@ -719,7 +721,7 @@ function IntegrationsTab() {
       const res = await apiPost(`/api/oauth/disconnect/${provider}`, {});
       if (res.ok) {
         toast.success(`${disconnectTarget.label} disconnected`);
-        fetchIntegrations();
+        refreshIntegrations();
       } else {
         toast.error(`Failed to disconnect. Please try again.`);
       }
@@ -728,6 +730,22 @@ function IntegrationsTab() {
     } finally {
       setDisconnecting(null);
     }
+  }
+
+  if (integrationsLoading) {
+    return (
+      <div className="grid gap-5">
+        <Card className="border-border/30">
+          <CardHeader>
+            <Skeleton className="h-5 w-56" />
+            <Skeleton className="h-4 w-72" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-9 w-44" />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -833,7 +851,6 @@ function IntegrationCard({
 function TeamTab() {
   const { status } = useSubscription();
   const { current: workspace } = useWorkspace();
-  const [members, setMembers] = useState<Member[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteEmailError, setInviteEmailError] = useState<string | null>(null);
   const [inviteRole, setInviteRole] = useState<'admin' | 'member' | 'analyst'>('member');
@@ -847,12 +864,12 @@ function TeamTab() {
   const limit = plan.limits.teamMembers;
   const canInvite = workspace?.role === 'owner' || workspace?.role === 'admin';
 
-  const fetchMembers = useCallback(async () => {
-    const res = await apiGet<{ members: Member[] }>('/api/team', wsId);
-    if (res.ok) setMembers(res.data.members);
-  }, [wsId]);
-
-  useEffect(() => { fetchMembers(); }, [fetchMembers]);
+  const {
+    data: membersData,
+    loading: membersLoading,
+    refresh: fetchMembers,
+  } = useApiQuery<{ members: Member[] }>('/api/team', { wsId });
+  const members = membersData?.members ?? [];
 
   async function invite() {
     const candidate = inviteEmail.trim();
@@ -917,13 +934,26 @@ function TeamTab() {
           <CardDescription>
             {limit === -1
               ? `Unlimited members on the ${plan.name} plan`
-              : `${members.length} / ${limit} members on the ${plan.name} plan`}
+              : `${membersLoading ? "…" : members.length} / ${limit} members on the ${plan.name} plan`}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Member list */}
           <div className="rounded-xl border divide-y divide-border/40">
-            {members.length === 0 && (
+            {membersLoading && (
+              <>
+                {[0, 1].map((i) => (
+                  <div key={i} className="flex items-center gap-3 px-4 py-3">
+                    <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-4 w-48" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+            {!membersLoading && members.length === 0 && (
               <p className="text-sm text-muted-foreground px-4 py-3">No members yet.</p>
             )}
             {members.map((m) => (
