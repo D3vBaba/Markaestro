@@ -16,7 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import PageHeader from "@/components/app/PageHeader";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
-import { apiDelete, apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
+import { apiDelete, apiPost, apiPut, apiFetch } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -561,30 +561,16 @@ function UsageMeter({
 
 function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
   const { status } = useSubscription();
-  const [usage, setUsage] = useState<{
-    mediaUploads: UsageMetric;
-    channels: UsageMetric;
-    products: { current: number };
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await apiGet<{
-          usage: {
-            mediaUploads: UsageMetric;
-            channels: UsageMetric;
-            products: { current: number };
-          };
-          tier: string;
-          plan: string;
-        }>("/api/usage");
-        if (res.ok) setUsage(res.data.usage);
-      } catch { /* silent */ }
-      finally { setLoading(false); }
-    })();
-  }, []);
+  const { data: usageData, loading } = useApiQuery<{
+    usage: {
+      mediaUploads: UsageMetric;
+      channels: UsageMetric;
+      products: { current: number };
+    };
+    tier: string;
+    plan: string;
+  }>("/api/usage");
+  const usage = usageData?.usage ?? null;
 
   const tier = (status?.tier ?? 'starter') as PlanTier;
   const plan = PLANS[tier];
@@ -593,8 +579,21 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
     return (
       <div className="grid gap-5">
         <Card className="border-border/30">
-          <CardContent className="py-12 flex items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <CardHeader>
+            <Skeleton className="h-5 w-44" />
+            <Skeleton className="h-4 w-56" />
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {[0, 1].map((i) => (
+              <div key={i} className="space-y-2">
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+                <Skeleton className="h-2 w-full rounded-full" />
+              </div>
+            ))}
+            <Skeleton className="h-4 w-48" />
           </CardContent>
         </Card>
       </div>
@@ -1240,17 +1239,33 @@ function ApiAccessTab() {
   const wsId = workspace?.id ?? 'default';
   const canManage = workspace?.role === 'owner' || workspace?.role === 'admin';
 
-  const [apiClientAnalytics, setApiClientAnalytics] = useState<ApiClientAnalytics[]>([]);
-  const [analyticsTotals, setAnalyticsTotals] = useState<ApiAnalyticsTotals>({
+  const {
+    data: webhooksData,
+    loading: webhooksLoading,
+    refresh: refreshWebhooks,
+  } = useApiQuery<{ webhookEndpoints: WebhookEndpointInfo[] }>(
+    canManage ? '/api/settings/webhook-endpoints' : null,
+    { wsId },
+  );
+  const {
+    data: analyticsData,
+    loading: analyticsLoading,
+    refresh: refreshAnalytics,
+  } = useApiQuery<{ clients: ApiClientAnalytics[]; totals: ApiAnalyticsTotals }>(
+    canManage ? '/api/settings/api-clients/analytics' : null,
+    { wsId },
+  );
+  const webhookEndpoints = webhooksData?.webhookEndpoints ?? [];
+  const apiClientAnalytics = analyticsData?.clients ?? [];
+  const analyticsTotals: ApiAnalyticsTotals = analyticsData?.totals ?? {
     totalRequests: 0,
     currentMonthRequests: 0,
     publishQueued: 0,
     publishSucceeded: 0,
     publishExportedForReview: 0,
     publishFailed: 0,
-  });
-  const [webhookEndpoints, setWebhookEndpoints] = useState<WebhookEndpointInfo[]>([]);
-  const [loading, setLoading] = useState(true);
+  };
+  const loading = webhooksLoading || analyticsLoading;
 
   const [createKeyOpen, setCreateKeyOpen] = useState(false);
   const [createWebhookOpen, setCreateWebhookOpen] = useState(false);
@@ -1276,42 +1291,11 @@ function ApiAccessTab() {
   const [revokingClient, setRevokingClient] = useState<string | null>(null);
   const [disablingWebhook, setDisablingWebhook] = useState<string | null>(null);
 
+  // Refetch both queries after mutations. The hooks fetch on mount and serve
+  // cached data on revisits, so the tab never blanks while refetching.
   const fetchApiAccess = useCallback(async () => {
-    if (!canManage) {
-      setWebhookEndpoints([]);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const [webhooksRes, analyticsRes] = await Promise.all([
-        apiGet<{ webhookEndpoints: WebhookEndpointInfo[] }>('/api/settings/webhook-endpoints', wsId),
-        apiGet<{ clients: ApiClientAnalytics[]; totals: ApiAnalyticsTotals }>('/api/settings/api-clients/analytics', wsId),
-      ]);
-
-      if (webhooksRes.ok) setWebhookEndpoints(webhooksRes.data.webhookEndpoints || []);
-      if (analyticsRes.ok) {
-        setApiClientAnalytics(analyticsRes.data.clients || []);
-        setAnalyticsTotals(analyticsRes.data.totals || {
-          totalRequests: 0,
-          currentMonthRequests: 0,
-          publishQueued: 0,
-          publishSucceeded: 0,
-          publishExportedForReview: 0,
-          publishFailed: 0,
-        });
-      }
-    } catch {
-      toast.error('Failed to load API access settings');
-    } finally {
-      setLoading(false);
-    }
-  }, [canManage, wsId]);
-
-  useEffect(() => {
-    fetchApiAccess();
-  }, [fetchApiAccess]);
+    await Promise.all([refreshWebhooks(), refreshAnalytics()]);
+  }, [refreshWebhooks, refreshAnalytics]);
 
   async function copyText(value: string, label: string) {
     try {
@@ -1542,26 +1526,36 @@ function ApiAccessTab() {
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-xl border p-4">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Requests this month</p>
-              <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.currentMonthRequests.toLocaleString()}</p>
+              {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
+                <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.currentMonthRequests.toLocaleString()}</p>
+              )}
               <p className="mt-1 text-xs text-muted-foreground">{formatMonthKey(apiClientAnalytics[0]?.usage.currentMonth || new Date().toISOString().slice(0, 7))}</p>
             </div>
             <div className="rounded-xl border p-4">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Queued publishes</p>
-              <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.publishQueued.toLocaleString()}</p>
+              {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
+                <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.publishQueued.toLocaleString()}</p>
+              )}
               <p className="mt-1 text-xs text-muted-foreground">All keys in this workspace</p>
             </div>
             <div className="rounded-xl border p-4">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Completed outcomes</p>
-              <p className="mt-2 text-2xl font-semibold tabular-nums">
-                {(analyticsTotals.publishSucceeded + analyticsTotals.publishExportedForReview).toLocaleString()}
-              </p>
+              {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
+                <p className="mt-2 text-2xl font-semibold tabular-nums">
+                  {(analyticsTotals.publishSucceeded + analyticsTotals.publishExportedForReview).toLocaleString()}
+                </p>
+              )}
               <p className="mt-1 text-xs text-muted-foreground">
-                {analyticsTotals.publishSucceeded.toLocaleString()} direct publish · {analyticsTotals.publishExportedForReview.toLocaleString()} TikTok inbox handoffs
+                {loading
+                  ? "Direct publish · TikTok inbox handoffs"
+                  : `${analyticsTotals.publishSucceeded.toLocaleString()} direct publish · ${analyticsTotals.publishExportedForReview.toLocaleString()} TikTok inbox handoffs`}
               </p>
             </div>
             <div className="rounded-xl border p-4">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Failures</p>
-              <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.publishFailed.toLocaleString()}</p>
+              {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
+                <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.publishFailed.toLocaleString()}</p>
+              )}
               <p className="mt-1 text-xs text-muted-foreground">Tracked at publish-run completion</p>
             </div>
           </div>
