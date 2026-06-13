@@ -78,7 +78,7 @@ env:
   # behaviour change), then flip to "1" once app.markaestro.com is verified
   # live. Set back to "0" to roll back instantly.
   - variable: APP_DOMAIN_SPLIT_ENABLED
-    value: "0"
+    value: "1"
     availability:
       - RUNTIME
   - variable: TIKTOK_OAUTH_REDIRECT_URI
