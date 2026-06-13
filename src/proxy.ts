@@ -91,9 +91,16 @@ const APP_HOSTNAME = hostnameFromEnv(APP_URL);
 const MARKETING_HOSTNAME = hostnameFromEnv(MARKETING_URL);
 
 function requestHostname(req: NextRequest): string {
-  // X-Forwarded-Host is set by Firebase App Hosting / Cloud Run in front of us.
+  // x-mk-host is injected by the Firebase Hosting reverse proxy (hosting-proxy)
+  // and carries the real public host (app.markaestro.com / markaestro.com). We
+  // read it FIRST: Google Front End rewrites x-forwarded-host to the internal
+  // *.hosted.app name on the proxy→backend hop, so x-forwarded-host can no
+  // longer be trusted to hold the public host here.
   const raw =
-    req.headers.get('x-forwarded-host') || req.headers.get('host') || '';
+    req.headers.get('x-mk-host') ||
+    req.headers.get('x-forwarded-host') ||
+    req.headers.get('host') ||
+    '';
   return raw.split(':')[0].trim().toLowerCase();
 }
 

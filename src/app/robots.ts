@@ -34,7 +34,10 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     'https://markaestro.com';
 
   const h = await headers();
-  const host = (h.get('x-forwarded-host') || h.get('host') || '')
+  // x-mk-host is the real public host injected by the hosting-proxy; prefer it
+  // over x-forwarded-host (which GFE rewrites to the internal *.hosted.app name
+  // on the proxy→backend hop). See requestHostname() in src/proxy.ts.
+  const host = (h.get('x-mk-host') || h.get('x-forwarded-host') || h.get('host') || '')
     .split(':')[0]
     .trim()
     .toLowerCase();

@@ -115,9 +115,25 @@ http
     try {
       const targetUrl = new URL(req.url || '/', UPSTREAM);
       const headers = cloneRequestHeaders(req.headers);
+      // The public host (app.markaestro.com / markaestro.com) arrives from
+      // Firebase Hosting in our *incoming* x-forwarded-host; req.headers.host is
+      // the internal *.run.app name. The upstream App Hosting backend sits
+      // behind Google Front End, which overwrites x-forwarded-host with the
+      // internal *.hosted.app name before it reaches the Next app — so the
+      // host-based split there reads x-mk-host first (GFE passes non-forwarded
+      // headers through untouched). Forward the real public host on both.
+      const xfwd = req.headers['x-forwarded-host'];
+      const publicHost = (
+        (Array.isArray(xfwd) ? xfwd[0] : xfwd) ||
+        req.headers.host ||
+        ''
+      )
+        .split(',')[0]
+        .trim();
       headers.set('host', new URL(UPSTREAM).host);
       headers.set('accept-encoding', 'identity');
-      headers.set('x-forwarded-host', req.headers.host || '');
+      headers.set('x-forwarded-host', publicHost);
+      headers.set('x-mk-host', publicHost);
       headers.set('x-forwarded-proto', 'https');
 
       const init = {
@@ -149,7 +165,7 @@ http
         if (upstreamDecompressed && FETCH_DECODED_RESPONSE_HEADERS.has(lower)) return;
 
         if (lower === 'location' && value.startsWith(UPSTREAM)) {
-          const rewritten = value.replace(UPSTREAM, `https://${req.headers.host}`);
+          const rewritten = value.replace(UPSTREAM, `https://${publicHost}`);
           res.setHeader(key, rewritten);
           return;
         }
