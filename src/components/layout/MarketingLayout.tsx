@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { useOptionalAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -17,7 +17,7 @@ const navLinks = [
 ];
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user } = useOptionalAuth();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 

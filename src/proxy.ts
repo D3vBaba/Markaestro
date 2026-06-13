@@ -29,6 +29,120 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
+// ---------------------------------------------------------------------------
+// Domain split (marketing vs. app)
+//
+// markaestro.com        → public marketing surface
+// app.markaestro.com    → the application
+//
+// The apex→subdomain redirect is the only behaviour that can take the live
+// app down (if it activates before app.markaestro.com is fully provisioned).
+// It is therefore gated behind APP_DOMAIN_SPLIT_ENABLED. With the flag unset
+// (or "0"), this middleware behaves exactly as it did before the split: every
+// route is served on whatever host requested it. Flip the flag to "1" only
+// after app.markaestro.com is verified live. Rolling back = set it to "0".
+//
+// /api/* is NEVER host-redirected: OAuth provider callbacks and the Stripe
+// webhook stay on markaestro.com, while the app calls its own /api/* on the
+// subdomain. Both must keep working on both hosts.
+// ---------------------------------------------------------------------------
+
+/** Exact marketing routes that belong on the apex (markaestro.com). */
+const MARKETING_PATHS = new Set<string>([
+  '/',
+  '/features',
+  '/pricing',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/channels',
+]);
+
+/** Prefixes that belong on the marketing apex. */
+const MARKETING_PREFIXES = ['/developers'];
+
+function isMarketingPath(pathname: string): boolean {
+  if (MARKETING_PATHS.has(pathname)) return true;
+  return MARKETING_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
+function splitEnabled(): boolean {
+  const v = process.env.APP_DOMAIN_SPLIT_ENABLED;
+  return v === '1' || v === 'true';
+}
+
+function hostnameFromEnv(url: string | undefined): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+// Dedicated host-routing config, deliberately separate from NEXT_PUBLIC_APP_URL
+// (which stays on the apex so /api/* helpers like the TikTok media proxy never
+// depend on the subdomain being provisioned).
+const APP_URL = process.env.NEXT_PUBLIC_APP_ORIGIN;
+const MARKETING_URL = process.env.NEXT_PUBLIC_MARKETING_URL;
+const APP_HOSTNAME = hostnameFromEnv(APP_URL);
+const MARKETING_HOSTNAME = hostnameFromEnv(MARKETING_URL);
+
+function requestHostname(req: NextRequest): string {
+  // X-Forwarded-Host is set by Firebase App Hosting / Cloud Run in front of us.
+  const raw =
+    req.headers.get('x-forwarded-host') || req.headers.get('host') || '';
+  return raw.split(':')[0].trim().toLowerCase();
+}
+
+function isMarketingHost(host: string): boolean {
+  if (!MARKETING_HOSTNAME) return false;
+  return host === MARKETING_HOSTNAME || host === `www.${MARKETING_HOSTNAME}`;
+}
+
+/**
+ * Host-based redirect. Returns a redirect response when the requested host is
+ * wrong for the path, otherwise null. Only active when the split flag is on
+ * and both host envs are configured (so local dev is unaffected). Uses 307
+ * (temporary) redirects so a rollback is never cached permanently by browsers.
+ */
+function hostRedirect(req: NextRequest): NextResponse | null {
+  if (!splitEnabled()) return null;
+  if (!APP_HOSTNAME || !MARKETING_HOSTNAME) return null;
+
+  const { pathname, search } = req.nextUrl;
+
+  // Never relocate API routes or Next internals/static.
+  if (pathname.startsWith('/api/') || pathname.startsWith('/_next')) return null;
+
+  const host = requestHostname(req);
+  // Unknown hosts (preview channels, *.run.app, health checks) are left alone.
+  if (host !== APP_HOSTNAME && !isMarketingHost(host)) return null;
+
+  // On the app host: send the bare root to the dashboard (the auth guard will
+  // bounce to /login if needed); push any other marketing route to the apex.
+  if (host === APP_HOSTNAME) {
+    if (pathname === '/') {
+      const url = req.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url, 307);
+    }
+    if (isMarketingPath(pathname)) {
+      return NextResponse.redirect(`${MARKETING_URL}${pathname}${search}`, 307);
+    }
+    return null;
+  }
+
+  // On a marketing host: push app routes to the subdomain.
+  if (isMarketingHost(host) && !isMarketingPath(pathname)) {
+    return NextResponse.redirect(`${APP_URL}${pathname}${search}`, 307);
+  }
+
+  return null;
+}
+
 function corsAllowList(): string[] {
   return (process.env.PUBLIC_API_CORS_ORIGINS || '')
     .split(',')
@@ -63,6 +177,12 @@ export default async function proxy(req: NextRequest) {
     }
     return attachCors(req, NextResponse.next());
   }
+
+  // --- Host-based split (marketing apex vs. app subdomain) ---
+  // Runs before the auth guard so a misplaced URL is relocated to the correct
+  // host first. No-op unless APP_DOMAIN_SPLIT_ENABLED is on.
+  const relocated = hostRedirect(req);
+  if (relocated) return relocated;
 
   // --- Auth guard for protected pages ---
   if (!isPublicPath(pathname) && !pathname.startsWith('/api/')) {

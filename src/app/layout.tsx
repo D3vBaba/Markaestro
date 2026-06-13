@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/components/providers/AuthProvider";
-import { SubscriptionProvider } from "@/components/providers/SubscriptionProvider";
-import { WorkspaceProvider } from "@/components/providers/WorkspaceProvider";
 import { Toaster } from "sonner";
+
+// NOTE: The Firebase-backed auth/subscription/workspace providers were moved
+// out of the root layout and into the (app) route group layout
+// (src/app/(app)/layout.tsx). Marketing pages in the (marketing) group no
+// longer mount those providers, so anonymous marketing traffic never
+// initialises the Firebase client SDK or its auth listener.
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,11 +52,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased bg-background text-foreground selection:bg-primary/15 selection:text-foreground`}
       >
         <TooltipProvider>
-          <AuthProvider>
-            <SubscriptionProvider>
-              <WorkspaceProvider>{children}</WorkspaceProvider>
-            </SubscriptionProvider>
-          </AuthProvider>
+          {children}
           <Toaster position="bottom-right" richColors />
         </TooltipProvider>
       </body>

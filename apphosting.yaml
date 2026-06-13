@@ -47,7 +47,10 @@ env:
       - BUILD
       - RUNTIME
 
-  # App URL for OAuth callbacks
+  # App URL for OAuth callbacks. Intentionally kept on the apex (markaestro.com)
+  # so /api/* helpers — OAuth callbacks, the Stripe webhook, and the TikTok
+  # media proxy that TikTok's servers fetch at publish time — never depend on
+  # app.markaestro.com being provisioned. /api/* serves on both hosts.
   - variable: NEXT_PUBLIC_APP_URL
     value: https://markaestro.com
     availability:
@@ -55,6 +58,27 @@ env:
       - RUNTIME
   - variable: OAUTH_BASE_URL
     value: https://markaestro.com
+    availability:
+      - RUNTIME
+
+  # --- Domain split (marketing apex vs. app subdomain) ---
+  # Canonical web origins used ONLY by the host-routing middleware (src/proxy.ts).
+  # Kept separate from NEXT_PUBLIC_APP_URL above on purpose.
+  - variable: NEXT_PUBLIC_APP_ORIGIN
+    value: https://app.markaestro.com
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_MARKETING_URL
+    value: https://markaestro.com
+    availability:
+      - BUILD
+      - RUNTIME
+  # Master switch for the apex<->subdomain redirects. Deploy with "0" (no
+  # behaviour change), then flip to "1" once app.markaestro.com is verified
+  # live. Set back to "0" to roll back instantly.
+  - variable: APP_DOMAIN_SPLIT_ENABLED
+    value: "0"
     availability:
       - RUNTIME
   - variable: TIKTOK_OAUTH_REDIRECT_URI

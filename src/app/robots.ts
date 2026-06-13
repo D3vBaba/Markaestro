@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { headers } from 'next/headers';
 
 // Private, authenticated surfaces. These paths live behind the auth guard in
 // `src/proxy.ts`, but search engines still occasionally follow links from
@@ -16,8 +17,34 @@ const DISALLOW = [
   '/oauth/',
 ];
 
-export default function robots(): MetadataRoute.Robots {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://markaestro.com';
+function appOriginHostname(): string | null {
+  try {
+    return process.env.NEXT_PUBLIC_APP_ORIGIN
+      ? new URL(process.env.NEXT_PUBLIC_APP_ORIGIN).hostname.toLowerCase()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const marketingUrl =
+    process.env.NEXT_PUBLIC_MARKETING_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    'https://markaestro.com';
+
+  const h = await headers();
+  const host = (h.get('x-forwarded-host') || h.get('host') || '')
+    .split(':')[0]
+    .trim()
+    .toLowerCase();
+
+  // The application subdomain is entirely private: disallow all crawling.
+  if (host && host === appOriginHostname()) {
+    return { rules: [{ userAgent: '*', disallow: '/' }] };
+  }
+
+  // Marketing apex: allow the public surface, disallow app paths.
   return {
     rules: [
       {
@@ -26,7 +53,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: DISALLOW,
       },
     ],
-    sitemap: `${appUrl}/sitemap.xml`,
-    host: appUrl,
+    sitemap: `${marketingUrl}/sitemap.xml`,
+    host: marketingUrl,
   };
 }

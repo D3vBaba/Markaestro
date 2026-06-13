@@ -216,3 +216,16 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
+
+/**
+ * Like useAuth, but does NOT throw when rendered outside an AuthProvider.
+ * Used by shared chrome (e.g. MarketingLayout) that renders on the
+ * provider-free (marketing) route group. Returns `user: null` in that case,
+ * which is also the correct state on the marketing origin where Firebase auth
+ * is not persisted.
+ */
+export function useOptionalAuth(): { user: User | null; loading: boolean } {
+  const ctx = useContext(Ctx);
+  if (!ctx) return { user: null, loading: false };
+  return { user: ctx.user, loading: ctx.loading };
+}
