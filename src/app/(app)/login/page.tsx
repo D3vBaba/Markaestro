@@ -30,6 +30,9 @@ function LoginContent() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
+  // True once a sign-in has succeeded: keep the full-screen loader up until the
+  // redirect effect navigates, so the form never flashes back into view.
+  const [redirecting, setRedirecting] = useState(false);
   const [showReset, setShowReset] = useState(false);
   const [resetCooldown, setResetCooldown] = useState(0);
 
@@ -54,11 +57,30 @@ function LoginContent() {
       } else {
         await signUpEmail(email, password);
       }
+      // Success — hold the loader until onAuthStateChanged resolves and the
+      // redirect effect fires. Do NOT clear `busy` here (that would flash the form).
+      setRedirecting(true);
     } catch (e: unknown) {
       setError(friendlyAuthError(e));
-    } finally {
       setBusy(false);
     }
+  }
+
+  // Once signed in (or mid-redirect, or still restoring the session), show a
+  // loader instead of the form so sign-in goes straight to the dashboard with
+  // no flash of the login screen.
+  if (loading || user || redirecting) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 rounded-xl bg-primary animate-pulse" />
+          <div className="space-y-2">
+            <div className="h-3 w-32 rounded-full bg-muted animate-pulse" />
+            <div className="h-3 w-24 rounded-full bg-muted animate-pulse mx-auto" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -312,9 +334,9 @@ function LoginContent() {
                     setError("");
                     setBusy(true);
                     await signInGoogle();
+                    setRedirecting(true);
                   } catch (e: unknown) {
                     setError(friendlyAuthError(e));
-                  } finally {
                     setBusy(false);
                   }
                 }}
@@ -331,9 +353,9 @@ function LoginContent() {
                     setError("");
                     setBusy(true);
                     await signInFacebook();
+                    setRedirecting(true);
                   } catch (e: unknown) {
                     setError(friendlyAuthError(e));
-                  } finally {
                     setBusy(false);
                   }
                 }}
