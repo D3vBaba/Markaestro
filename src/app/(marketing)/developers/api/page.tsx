@@ -92,6 +92,37 @@ const webhookExample = `{
   }
 }`;
 
+const connectEndpoints = [
+  { method: "GET", path: "/api/connect/v1/social-accounts", note: "Lists connected Facebook, Instagram, and TikTok destinations as flat accounts." },
+  { method: "POST", path: "/api/connect/v1/media/create-upload-url", note: "Returns a short-lived, single-use signed PUT url plus a media id." },
+  { method: "PUT", path: "<upload_url>", note: "Upload the raw image bytes to the signed url. No API key needed — the signature authorizes it." },
+  { method: "POST", path: "/api/connect/v1/posts", note: "Creates a draft or scheduled post per selected account. snake_case body: media, social_accounts, scheduled_at, is_draft." },
+  { method: "GET", path: "/api/connect/v1/posts", note: "Lists workspace posts with flat status, caption, and media urls." },
+];
+
+const connectExample = `# 1. List connected accounts
+curl "$MARKAESTRO_URL/api/connect/v1/social-accounts" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+
+# 2. Request a signed upload url, then PUT the bytes
+curl -X POST "$MARKAESTRO_URL/api/connect/v1/media/create-upload-url" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{ "mime_type": "image/png", "size_bytes": 184320, "name": "slide-1.png" }'
+curl -X PUT "<upload_url>" -H "Content-Type: image/png" --data-binary @slide-1.png
+
+# 3. Create a scheduled post for one or more accounts
+curl -X POST "$MARKAESTRO_URL/api/connect/v1/posts" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "caption": "New drop",
+    "media": ["ast_111", "ast_222"],
+    "social_accounts": ["prod_123#instagram:instagram:ig_123"],
+    "scheduled_at": "2026-06-20T17:00:00.000Z",
+    "is_draft": false
+  }'`;
+
 export default function DevelopersApiPage() {
   return (
     <MarketingLayout>
@@ -112,6 +143,11 @@ export default function DevelopersApiPage() {
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             Use only the versioned public routes under <code>/api/public/v1</code>. Internal app routes such as <code>/api/workspaces</code>,
             <code>/api/posts</code>, <code>/api/integrations</code>, and <code>/api/analytics</code> require Firebase user auth and are not part of the public API contract.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            Already have a scheduling tool that speaks a snake_case <code>create-upload-url → post</code> API? The{" "}
+            <a href="#connect-api" className="underline underline-offset-2">Connect API</a> under <code>/api/connect/v1</code> is a
+            drop-in compatibility surface over these same endpoints.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/login">
@@ -268,6 +304,47 @@ export default function DevelopersApiPage() {
                 <p className="text-sm font-medium">TikTok</p>
                 <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. Publishing pushes to the creator&apos;s TikTok inbox first, then marks the post ready once TikTok confirms delivery.</p>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card id="connect-api" className="mt-12 scroll-mt-24">
+            <CardHeader>
+              <CardTitle>Connect API — compatibility surface</CardTitle>
+              <CardDescription>
+                A flat, snake_case integration surface at <code>/api/connect/v1</code> for pointing off-the-shelf
+                scheduling clients at Markaestro without building a custom integration. It maps the common{" "}
+                <code>create-upload-url → PUT → post</code> convention onto the same workspace, auth, and publish
+                pipeline as the API above. Set the client base URL to <code>/api/connect</code> and authenticate with the
+                same workspace API key (scopes <code>posts.read</code>, <code>posts.write</code>, <code>media.write</code>).
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {connectEndpoints.map((endpoint) => (
+                <div key={endpoint.path} className="rounded-xl border p-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span
+                      className="rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold"
+                      style={{
+                        background: "var(--mk-accent-soft)",
+                        color: "var(--mk-accent)",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      {endpoint.method}
+                    </span>
+                    <code className="text-sm">{endpoint.path}</code>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{endpoint.note}</p>
+                </div>
+              ))}
+              <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{connectExample}</code></pre>
+              <p className="text-sm text-muted-foreground">
+                Account ids from <code>/social-accounts</code> encode <code>productId#destinationId</code> — pass them back
+                verbatim in <code>social_accounts</code>, and the request fans out one post per account. Post status is one
+                of <code>draft</code>, <code>scheduled</code>, <code>processing</code>, <code>posted</code>, or{" "}
+                <code>failed</code>. Only Facebook, Instagram, and TikTok destinations are exposed; live engagement
+                analytics are not yet available on this surface — track results via <code>GET /api/connect/v1/posts</code>.
+              </p>
             </CardContent>
           </Card>
         </div>
