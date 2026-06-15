@@ -10,9 +10,12 @@ publishing pipeline:
   publish, async job runs, signed webhooks, batch create, per-channel settings.
   Documented below.
 
-Both support Facebook, Instagram, and TikTok. **TikTok is draft-only over the
-API** on either surface — a TikTok post is always created as a draft and is
-never auto-published; you finalize and publish it from the Markaestro app.
+Both support Facebook, Instagram, TikTok, and Threads. **Each channel is its own
+dedicated destination** — publishing to one never fans out to another (linking a
+Meta connection no longer co-publishes Facebook + Instagram). **TikTok is
+draft-only over the API** on either surface — a TikTok post is always created as
+a draft and is never auto-published; you finalize and publish it from the
+Markaestro app.
 
 ## Scope
 
@@ -316,8 +319,8 @@ Because every key is bound to a product (see *Scope by product* above), the
 Connect `social-accounts`, `products`, and `posts` lists return only that
 product, and posting to another product's account is rejected.
 
-Only **Facebook / Instagram / TikTok** destinations are exposed (the channels
-with publish support).
+**Facebook / Instagram / TikTok / Threads** destinations are exposed, each as
+its own dedicated path — publishing to one never fans out to another.
 
 ## Media upload
 

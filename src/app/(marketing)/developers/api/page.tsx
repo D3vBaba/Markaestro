@@ -93,7 +93,7 @@ const webhookExample = `{
 }`;
 
 const connectEndpoints = [
-  { method: "GET", path: "/api/connect/v1/social-accounts", note: "Lists connected Facebook, Instagram, and TikTok destinations as flat accounts, each labeled with its product so clients can group and disambiguate." },
+  { method: "GET", path: "/api/connect/v1/social-accounts", note: "Lists connected Facebook, Instagram, TikTok, and Threads destinations as flat accounts, each labeled with its product so clients can group and disambiguate. Each channel is its own dedicated path — no cross-channel fan-out." },
   { method: "GET", path: "/api/connect/v1/products", note: "Lists products with their connected accounts nested — a product-first picker." },
   { method: "POST", path: "/api/connect/v1/media/create-upload-url", note: "Returns a short-lived, single-use signed PUT url plus a media id." },
   { method: "PUT", path: "<upload_url>", note: "Upload the raw image bytes to the signed url. No API key needed — the signature authorizes it." },
@@ -208,8 +208,9 @@ export default function DevelopersApiPage() {
                 bound to one product, so it only sees and posts to that product. <strong className="text-foreground">TikTok
                 posts are created as drafts</strong> and finalized from the Markaestro app; Facebook and Instagram publish
                 programmatically. Post status is one of <code>draft</code>, <code>scheduled</code>, <code>processing</code>,{" "}
-                <code>posted</code>, or <code>failed</code>. Live engagement analytics are not yet available on this surface —
-                track results via <code>GET /api/connect/v1/posts</code>.
+                <code>posted</code>, or <code>failed</code>. Facebook, Instagram, TikTok, and Threads are each their own dedicated
+                destination — publishing to one never fans out to another. Live engagement analytics are not yet available
+                on this surface — track results via <code>GET /api/connect/v1/posts</code>.
               </p>
             </CardContent>
           </Card>

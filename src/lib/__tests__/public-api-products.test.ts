@@ -71,14 +71,15 @@ describe('public product discovery', () => {
         channel: 'facebook',
         id: 'meta:facebook:pg_123',
         accountId: 'pg_123',
-        willAlsoPublishTo: ['instagram'],
+        // Each Meta channel is its own dedicated path — no cross-channel fan-out.
+        willAlsoPublishTo: [],
       }),
       expect.objectContaining({
         provider: 'meta',
         channel: 'instagram',
         id: 'meta:instagram:ig_123',
         accountId: 'ig_123',
-        willAlsoPublishTo: ['facebook'],
+        willAlsoPublishTo: [],
       }),
       expect.objectContaining({
         provider: 'tiktok',

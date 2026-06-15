@@ -171,39 +171,6 @@ export async function publishPost(
   return result;
 }
 
-/**
- * Determine all Meta channels that should be published to.
- * When the user selects facebook or instagram, we auto-include
- * the other channel if the Meta connection supports it.
- */
-async function resolveMetaChannels(
-  workspaceId: string,
-  productId: string | undefined,
-  primaryChannel: SocialChannel,
-  destinationProvider?: string,
-): Promise<SocialChannel[]> {
-  if (primaryChannel !== 'facebook' && primaryChannel !== 'instagram') {
-    return [primaryChannel];
-  }
-
-  const connection = await getConnectionForChannel(
-    workspaceId,
-    primaryChannel,
-    productId,
-    destinationProvider,
-  );
-  if (!connection) return [primaryChannel];
-
-  const hasPage = !!connection.metadata.pageId;
-  const hasIg = !!connection.metadata.igAccountId;
-
-  if (hasPage && hasIg) {
-    return ['facebook', 'instagram'];
-  }
-
-  return [primaryChannel];
-}
-
 function classifyPublishError(error: string): PublishErrorClassification {
   const normalized = error.toLowerCase();
 
@@ -560,21 +527,17 @@ async function recoverSingleStalePublish(
 }
 
 /**
- * Publish a post to all applicable channels.
- * For Meta (Facebook/Instagram), if both channels are linked, publishes to both.
- * For other channels, publishes to just the selected channel.
+ * Publish a post to its single requested channel.
+ * Linking a Meta connection no longer fans a post out to both Facebook and
+ * Instagram — each channel is its own dedicated path. Users can still target
+ * multiple channels explicitly from the composer (see publishExplicitChannels).
  */
 export async function publishPostMultiChannel(
   workspaceId: string,
   productId: string | undefined,
   request: PublishRequest,
 ): Promise<MultiChannelPublishResult> {
-  const channels = await resolveMetaChannels(
-    workspaceId,
-    productId,
-    request.channel,
-    request.destinationProvider,
-  );
+  const channels: SocialChannel[] = [request.channel];
 
   const results: ChannelPublishResult[] = [];
 

@@ -15,7 +15,7 @@ export type PublicProductSummary = {
 
 export type PublicProductDestination = {
   id: string;
-  provider: 'meta' | 'instagram' | 'tiktok';
+  provider: 'meta' | 'instagram' | 'tiktok' | 'threads';
   channel: SocialChannel;
   status: 'ready';
   displayName: string;
@@ -90,7 +90,8 @@ function buildMetaDestinations(connection: PlatformConnection | null, fallbackNa
       pageId,
       igAccountId,
       deliveryMode: 'direct_publish',
-      willAlsoPublishTo: igAccountId ? ['instagram'] : [],
+      // Facebook is its own dedicated path — no cross-channel fan-out to Instagram.
+      willAlsoPublishTo: [],
     });
   }
 
@@ -105,7 +106,8 @@ function buildMetaDestinations(connection: PlatformConnection | null, fallbackNa
       pageId,
       igAccountId,
       deliveryMode: 'direct_publish',
-      willAlsoPublishTo: pageId ? ['facebook'] : [],
+      // Instagram is its own dedicated path — no cross-channel fan-out to Facebook.
+      willAlsoPublishTo: [],
     });
   }
 
@@ -166,6 +168,29 @@ function buildTikTokDestinations(
   }];
 }
 
+function buildThreadsDestinations(connection: PlatformConnection | null, fallbackName: string): PublicProductDestination[] {
+  if (!connection || connection.status !== 'connected') return [];
+
+  const threadsUserId = asString(connection.metadata.threadsUserId);
+  if (!threadsUserId) return [];
+
+  const username = asString(connection.metadata.username);
+  const displayName = asString(connection.metadata.displayName) || username || fallbackName;
+
+  return [{
+    id: buildDestinationId('threads', 'threads', threadsUserId),
+    provider: 'threads',
+    channel: 'threads',
+    status: 'ready',
+    displayName,
+    accountId: threadsUserId,
+    username,
+    deliveryMode: 'direct_publish',
+    // Threads is its own dedicated path.
+    willAlsoPublishTo: [],
+  }];
+}
+
 async function listWorkspaceLevelDestinations(
   workspaceId: string,
 ): Promise<WorkspaceDestination[]> {
@@ -219,16 +244,18 @@ export async function listPublicProductDestinations(
 
   const product = productSnap.data() as ProductRecord;
   const fallbackName = product.name || productId;
-  const [metaConn, instagramConn, tikTokConn] = await Promise.all([
+  const [metaConn, instagramConn, tikTokConn, threadsConn] = await Promise.all([
     getMetaConnectionMerged(workspaceId, productId),
     getConnection(workspaceId, 'instagram', productId),
     getConnection(workspaceId, 'tiktok', productId),
+    getConnection(workspaceId, 'threads', productId),
   ]);
 
   return [
     ...buildMetaDestinations(metaConn, fallbackName),
     ...buildInstagramDestinations(instagramConn, fallbackName),
     ...buildTikTokDestinations(productId, tikTokConn, fallbackName),
+    ...buildThreadsDestinations(threadsConn, fallbackName),
   ];
 }
 
