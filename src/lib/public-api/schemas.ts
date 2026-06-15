@@ -37,6 +37,10 @@ export const updateApiClientScopesSchema = z.object({
   scopes: z.array(z.enum(publicApiScopes)).min(1).max(publicApiScopes.length),
 });
 
+export const setApiClientArchivedSchema = z.object({
+  archived: z.boolean(),
+});
+
 export const createPublicPostSchema = z.object({
   channel: z.enum(socialChannels),
   caption: z.string().trim().max(4000).default(''),

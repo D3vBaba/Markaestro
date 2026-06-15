@@ -31,6 +31,7 @@ import {
   User, Shield, Zap, Link2, Users, Building2, CreditCard,
   Pencil, Check, X, Loader2, KeyRound, Mail, BarChart3,
   Copy, Webhook, BookOpen, ExternalLink, Trash2, RefreshCw,
+  Archive, ArchiveRestore,
 } from "lucide-react";
 
 type IntegrationInfo = {
@@ -60,6 +61,7 @@ type ApiClientInfo = {
   name: string;
   scopes: string[];
   status: 'active' | 'revoked';
+  archived?: boolean;
   keyPrefix: string;
   createdAt: string;
   lastUsedAt?: string | null;
@@ -1289,6 +1291,8 @@ function ApiAccessTab() {
   const [createdWebhookSecret, setCreatedWebhookSecret] = useState<string | null>(null);
 
   const [revokingClient, setRevokingClient] = useState<string | null>(null);
+  const [archivingClient, setArchivingClient] = useState<string | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
   const [disablingWebhook, setDisablingWebhook] = useState<string | null>(null);
 
   // Refetch both queries after mutations. The hooks fetch on mount and serve
@@ -1358,6 +1362,23 @@ function ApiAccessTab() {
       toast.error('Failed to revoke API key');
     } finally {
       setRevokingClient(null);
+    }
+  }
+
+  async function archiveClient(id: string, archived: boolean) {
+    setArchivingClient(id);
+    try {
+      const res = await apiPost(`/api/settings/api-clients/${id}/archive`, { archived }, wsId);
+      if (res.ok) {
+        toast.success(archived ? 'API key archived' : 'API key unarchived');
+        await fetchApiAccess();
+      } else {
+        toast.error(apiErrorMessage(res.data, archived ? 'Failed to archive API key' : 'Failed to unarchive API key'));
+      }
+    } catch {
+      toast.error(archived ? 'Failed to archive API key' : 'Failed to unarchive API key');
+    } finally {
+      setArchivingClient(null);
     }
   }
 
@@ -1474,6 +1495,13 @@ function ApiAccessTab() {
     );
   }
 
+  // Archived keys (revoked + archived) are hidden from the list by default so
+  // the active key roster stays readable; the "Show archived" toggle reveals them.
+  const archivedClientCount = apiClientAnalytics.filter((client) => client.archived).length;
+  const visibleClients = showArchived
+    ? apiClientAnalytics
+    : apiClientAnalytics.filter((client) => !client.archived);
+
   return (
     <div className="grid gap-5">
       <Card className="border-border/30">
@@ -1572,6 +1600,12 @@ function ApiAccessTab() {
                     <p className="text-sm font-medium">API keys</p>
                     <p className="text-xs text-muted-foreground">Create a key per integration, scope it down to the minimum needed access, and watch live request and publish behavior per key.</p>
                   </div>
+                  {archivedClientCount > 0 && (
+                    <Button variant="ghost" size="sm" onClick={() => setShowArchived((prev) => !prev)}>
+                      <Archive className="mr-1.5 h-3.5 w-3.5" />
+                      {showArchived ? 'Hide archived' : `Show archived (${archivedClientCount})`}
+                    </Button>
+                  )}
                 </div>
                 <Table>
                   <TableHeader>
@@ -1586,14 +1620,14 @@ function ApiAccessTab() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {apiClientAnalytics.length === 0 ? (
+                    {visibleClients.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="py-6 text-center text-muted-foreground">
-                          No API keys yet.
+                          {apiClientAnalytics.length === 0 ? 'No API keys yet.' : 'No active API keys.'}
                         </TableCell>
                       </TableRow>
                     ) : (
-                      apiClientAnalytics.map((client) => (
+                      visibleClients.map((client) => (
                         <TableRow key={client.id}>
                           <TableCell className="min-w-[220px]">
                             <div className="space-y-2">
@@ -1633,6 +1667,9 @@ function ApiAccessTab() {
                               >
                                 {client.status}
                               </Badge>
+                              {client.archived && (
+                                <Badge className="border-0" style={pillStyle("neutral")}>Archived</Badge>
+                              )}
                               {client.expiresAt ? (
                                 new Date(client.expiresAt).getTime() <= Date.now() ? (
                                   <Badge className="border-0" style={pillStyle("neg")}>Expired</Badge>
@@ -1649,34 +1686,60 @@ function ApiAccessTab() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1.5">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => openEditClient(client)}
-                                disabled={client.status !== 'active'}
-                              >
-                                <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                                Edit permissions
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setRotateTarget(client)}
-                                disabled={client.status !== 'active' || rotatingClient}
-                              >
-                                <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
-                                Rotate
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-mk-neg hover:text-mk-neg"
-                                onClick={() => revokeClient(client.id)}
-                                disabled={client.status !== 'active' || revokingClient === client.id}
-                              >
-                                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                                {revokingClient === client.id ? 'Revoking…' : 'Revoke'}
-                              </Button>
+                              {client.archived ? (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => archiveClient(client.id, false)}
+                                  disabled={archivingClient === client.id}
+                                >
+                                  <ArchiveRestore className="mr-1.5 h-3.5 w-3.5" />
+                                  {archivingClient === client.id ? 'Restoring…' : 'Unarchive'}
+                                </Button>
+                              ) : (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => openEditClient(client)}
+                                    disabled={client.status !== 'active'}
+                                  >
+                                    <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                                    Edit permissions
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setRotateTarget(client)}
+                                    disabled={client.status !== 'active' || rotatingClient}
+                                  >
+                                    <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+                                    Rotate
+                                  </Button>
+                                  {client.status === 'revoked' ? (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => archiveClient(client.id, true)}
+                                      disabled={archivingClient === client.id}
+                                    >
+                                      <Archive className="mr-1.5 h-3.5 w-3.5" />
+                                      {archivingClient === client.id ? 'Archiving…' : 'Archive'}
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-mk-neg hover:text-mk-neg"
+                                      onClick={() => revokeClient(client.id)}
+                                      disabled={revokingClient === client.id}
+                                    >
+                                      <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                                      {revokingClient === client.id ? 'Revoking…' : 'Revoke'}
+                                    </Button>
+                                  )}
+                                </>
+                              )}
                             </div>
                           </TableCell>
                       </TableRow>

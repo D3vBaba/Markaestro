@@ -81,6 +81,7 @@ export async function getApiClientAnalytics(workspaceId: string, days = 14) {
     const data = doc.data() as {
       name?: string;
       status?: string;
+      archived?: boolean;
       scopes?: string[];
       keyPrefix?: string;
       createdAt?: string;
@@ -113,6 +114,7 @@ export async function getApiClientAnalytics(workspaceId: string, days = 14) {
       id: doc.id,
       name: data.name || doc.id,
       status: data.status || 'revoked',
+      archived: data.archived === true,
       scopes: data.scopes || [],
       keyPrefix: data.keyPrefix || '',
       createdAt: data.createdAt || '',
