@@ -1,9 +1,18 @@
 # Markaestro Public API v1
 
-Public API v1 supports publishing automation (images and video) for:
-- Facebook
-- Instagram
-- TikTok
+Markaestro exposes two surfaces over the same workspace, auth, products, and
+publishing pipeline:
+
+- **[Connect API](#connect-api-compatibility-surface) (`/api/connect/v1`) —
+  recommended.** A small, flat, snake_case surface most scheduling clients can
+  target as-is. Start here.
+- **Public API v1 (`/api/public/v1`) — advanced.** Full control: explicit
+  publish, async job runs, signed webhooks, batch create, per-channel settings.
+  Documented below.
+
+Both support Facebook, Instagram, and TikTok. **TikTok is draft-only over the
+API** on either surface — a TikTok post is always created as a draft and is
+never auto-published; you finalize and publish it from the Markaestro app.
 
 ## Scope
 
@@ -16,7 +25,7 @@ Public API v1 supports publishing automation (images and video) for:
 
 - Facebook: text-only, image, or video posts; max 10 images; 1 video per post
 - Instagram: requires at least 1 media item (image or video); max 10 items; single video publishes as a Reel; carousels support mixed image/video
-- TikTok: requires at least 1 media item; either 1 video or up to 10 images; publish requests use the same direct inbox handoff as the app and become `exported_for_review` once TikTok finishes processing
+- TikTok: requires at least 1 media item; either 1 video or up to 10 images. **Draft-only via the API** — a TikTok post is always created as a draft and is never published by the API; a human finalizes and posts it from the Markaestro app (the manual TikTok inbox step). `POST /posts/:id/publish` rejects TikTok with `VALIDATION_TIKTOK_PUBLISH_VIA_APP_ONLY`
 
 ## Media upload
 
@@ -95,13 +104,12 @@ Meta account selection:
 - Products with a Facebook Page linked to Instagram will publish to both channels
 - Standalone Instagram professional accounts are supported through Instagram Login and do not require a Facebook Page
 
-TikTok:
+TikTok (draft-only via the API):
 - products expose TikTok destinations only when a TikTok publishing connection is configured
 - the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents the connected TikTok account
-- `POST /api/public/v1/posts/:id/publish` follows the same inbox handoff as the Markaestro app: the publish worker pushes media to TikTok, keeps the job open, and polls TikTok until it reports `SEND_TO_USER_INBOX`, `PUBLISH_COMPLETE`, or `FAILED`
-- once TikTok confirms inbox delivery, post status becomes `exported_for_review`
-- `externalId` contains the TikTok `publish_id`
-- the follow-up action is `nextAction=open_tiktok_inbox_and_complete_editing`
+- creating a TikTok post (native or Connect) always yields a **draft** — any `scheduledAt`/`scheduled_at` is ignored, and the worker never auto-publishes it
+- `POST /api/public/v1/posts/:id/publish` is rejected for TikTok with `VALIDATION_TIKTOK_PUBLISH_VIA_APP_ONLY`
+- to publish, a human opens the draft in the Markaestro app and posts it — that path runs the TikTok inbox handoff (`SEND_TO_USER_INBOX` → `exported_for_review`) exactly as a creator does by hand
 
 ## Example flow
 
@@ -331,6 +339,8 @@ resulting `media_id` is a normal Markaestro media asset usable in `POST /posts`.
 - `is_draft: true` → created as a **draft** (unscheduled).
 - otherwise → **scheduled** at `scheduled_at` (or immediately if omitted) and
   published by the worker, exactly like a native post.
+- **TikTok is always a draft** regardless of `is_draft`/`scheduled_at` — finalize
+  and publish it from the Markaestro app.
 
 ## Example flow
 

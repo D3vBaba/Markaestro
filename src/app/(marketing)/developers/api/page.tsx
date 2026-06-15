@@ -26,8 +26,8 @@ const endpointGroups = [
     description: "Create, inspect, and publish posts for Facebook, Instagram, and TikTok.",
     endpoints: [
       { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft or scheduled post in the workspace." },
-      { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status, publish results, and any follow-up action such as completing a TikTok inbox handoff." },
-      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. TikTok uses the same inbox handoff as the app, then finishes once TikTok confirms inbox delivery." },
+      { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status and publish results." },
+      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run for Facebook and Instagram. TikTok cannot be published via the API — TikTok posts are drafts you finalize in the Markaestro app." },
     ],
   },
   {
@@ -134,21 +134,21 @@ export default function DevelopersApiPage() {
             Public publishing API
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
-            Upload images and videos, create posts, publish directly to Meta and Instagram,
-            and hand TikTok content off to the creator&apos;s TikTok inbox using the same direct flow as the app.
-            Public API v1 is workspace-scoped, supports images and video, and is designed for async automation.
+            Upload media, create posts, and publish to Facebook and Instagram, all scoped to a product via a workspace
+            API key. The recommended way to integrate is the{" "}
+            <a href="#connect-api" className="underline underline-offset-2">Connect API</a> — a small, flat
+            <code>/api/connect/v1</code> surface that most scheduling tools can target as-is.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            For TikTok, publish is still asynchronous: the run starts the inbox push, keeps polling TikTok until the platform confirms inbox delivery, then marks the post ready for creator completion in TikTok.
+            Need full control — explicit publish, job-run polling, signed webhooks, batch, per-channel settings? The
+            advanced <code>/api/public/v1</code> API further down exposes all of it. Both share the same auth, products,
+            and publishing pipeline; use only these versioned public routes (internal app routes require Firebase user
+            auth and are not part of the public contract).
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            Use only the versioned public routes under <code>/api/public/v1</code>. Internal app routes such as <code>/api/workspaces</code>,
-            <code>/api/posts</code>, <code>/api/integrations</code>, and <code>/api/analytics</code> require Firebase user auth and are not part of the public API contract.
-          </p>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            Already have a scheduling tool that speaks a snake_case <code>create-upload-url → post</code> API? The{" "}
-            <a href="#connect-api" className="underline underline-offset-2">Connect API</a> under <code>/api/connect/v1</code> is a
-            drop-in compatibility surface over these same endpoints.
+            <strong className="text-foreground">TikTok is draft-only over the API.</strong> A TikTok post is always
+            created as a draft in Markaestro and is never auto-published — you finalize and post it from the Markaestro
+            app, the same manual TikTok step a creator does by hand. Facebook and Instagram publish programmatically.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             Workspaces can have multiple products. Every API key is bound to one product when you create it, so calls
@@ -167,6 +167,61 @@ export default function DevelopersApiPage() {
 
       <section>
         <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
+          <Card id="connect-api" className="scroll-mt-24" style={{ borderColor: "var(--mk-accent)" }}>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <CardTitle>Connect API</CardTitle>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "var(--mk-accent-soft)", color: "var(--mk-accent)" }}>Recommended</span>
+              </div>
+              <CardDescription>
+                The default way to integrate: a flat, snake_case surface at <code>/api/connect/v1</code> that most
+                scheduling tools can target as-is. It maps the common <code>create-upload-url → PUT → post</code>{" "}
+                convention onto the same workspace, auth, products, and publishing pipeline as the full API below. Set
+                the client base URL to <code>/api/connect</code> and authenticate with a product-scoped workspace API key
+                (scopes <code>posts.read</code>, <code>posts.write</code>, <code>media.write</code>).
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {connectEndpoints.map((endpoint) => (
+                <div key={endpoint.path} className="rounded-xl border p-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span
+                      className="rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold"
+                      style={{
+                        background: "var(--mk-accent-soft)",
+                        color: "var(--mk-accent)",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      {endpoint.method}
+                    </span>
+                    <code className="text-sm">{endpoint.path}</code>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{endpoint.note}</p>
+                </div>
+              ))}
+              <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{connectExample}</code></pre>
+              <p className="text-sm text-muted-foreground">
+                Each account from <code>/social-accounts</code> is labeled with its <code>product</code> (the same account can
+                appear under multiple products), and its <code>id</code> encodes <code>productId#destinationId</code> — pass it
+                back verbatim in <code>social_accounts</code>, and the request fans out one post per account. Each key is
+                bound to one product, so it only sees and posts to that product. <strong className="text-foreground">TikTok
+                posts are created as drafts</strong> and finalized from the Markaestro app; Facebook and Instagram publish
+                programmatically. Post status is one of <code>draft</code>, <code>scheduled</code>, <code>processing</code>,{" "}
+                <code>posted</code>, or <code>failed</code>. Live engagement analytics are not yet available on this surface —
+                track results via <code>GET /api/connect/v1/posts</code>.
+              </p>
+            </CardContent>
+          </Card>
+
+          <div className="mt-16 mb-2">
+            <h2 className="text-2xl font-semibold tracking-[-0.02em]">Advanced: full Public API</h2>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              The complete <code>/api/public/v1</code> surface — explicit publish, async job runs, signed webhooks,
+              batch create, and per-channel settings. Use it when the Connect API is not enough.
+            </p>
+          </div>
+
           <div className="grid gap-6 lg:grid-cols-3">
             <Card>
               <CardHeader>
@@ -182,8 +237,8 @@ export default function DevelopersApiPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>TikTok mirrors the app flow</CardTitle>
-                <CardDescription>TikTok photo and video posts use the same inbox handoff as the Markaestro UI. Once TikTok confirms delivery, the creator finishes caption, privacy, and posting inside TikTok.</CardDescription>
+                <CardTitle>TikTok is draft-only</CardTitle>
+                <CardDescription>TikTok posts created via the API always land in your Markaestro drafts. You finalize and publish them from the app — the same manual TikTok step a creator does by hand. The API never posts to TikTok.</CardDescription>
               </CardHeader>
             </Card>
             <Card className="lg:col-span-3">
@@ -265,7 +320,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>TikTok example</CardTitle>
-                <CardDescription>Use the connected TikTok destination returned for the product. Publishing this post follows the same inbox handoff flow as the app.</CardDescription>
+                <CardDescription>Use the connected TikTok destination returned for the product. The post always lands as a draft in Markaestro — finalize and publish it from the app. The API never posts to TikTok.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.tiktokCreatePost}</code></pre>
@@ -274,7 +329,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>5. Queue publish</CardTitle>
-                <CardDescription>Publishing always creates an async run. TikTok runs finish after the media is handed off and TikTok reports the inbox item is ready for creator completion.</CardDescription>
+                <CardDescription>Publishing creates an async run for Facebook and Instagram. TikTok is not publishable via the API — those posts stay drafts until you publish them in the Markaestro app.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.publish}</code></pre>
@@ -307,53 +362,11 @@ export default function DevelopersApiPage() {
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">TikTok</p>
-                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. Publishing pushes to the creator&apos;s TikTok inbox first, then marks the post ready once TikTok confirms delivery.</p>
+                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. API posts are always created as drafts — publish from the Markaestro app; the API never posts to TikTok.</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card id="connect-api" className="mt-12 scroll-mt-24">
-            <CardHeader>
-              <CardTitle>Connect API — compatibility surface</CardTitle>
-              <CardDescription>
-                A flat, snake_case integration surface at <code>/api/connect/v1</code> for pointing off-the-shelf
-                scheduling clients at Markaestro without building a custom integration. It maps the common{" "}
-                <code>create-upload-url → PUT → post</code> convention onto the same workspace, auth, and publish
-                pipeline as the API above. Set the client base URL to <code>/api/connect</code> and authenticate with the
-                same workspace API key (scopes <code>posts.read</code>, <code>posts.write</code>, <code>media.write</code>).
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {connectEndpoints.map((endpoint) => (
-                <div key={endpoint.path} className="rounded-xl border p-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span
-                      className="rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold"
-                      style={{
-                        background: "var(--mk-accent-soft)",
-                        color: "var(--mk-accent)",
-                        letterSpacing: "0.06em",
-                      }}
-                    >
-                      {endpoint.method}
-                    </span>
-                    <code className="text-sm">{endpoint.path}</code>
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">{endpoint.note}</p>
-                </div>
-              ))}
-              <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{connectExample}</code></pre>
-              <p className="text-sm text-muted-foreground">
-                Each account from <code>/social-accounts</code> is labeled with its <code>product</code> (the same account can
-                appear under multiple products), and its <code>id</code> encodes <code>productId#destinationId</code> — pass it
-                back verbatim in <code>social_accounts</code>, and the request fans out one post per account. Each key is
-                bound to one product, so it only sees and posts to that product. Post status is one of <code>draft</code>, <code>scheduled</code>,{" "}
-                <code>processing</code>, <code>posted</code>, or <code>failed</code>. Only Facebook, Instagram, and TikTok
-                destinations are exposed; live engagement analytics are not yet available on this surface — track results via{" "}
-                <code>GET /api/connect/v1/posts</code>.
-              </p>
-            </CardContent>
-          </Card>
         </div>
       </section>
     </MarketingLayout>

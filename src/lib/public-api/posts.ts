@@ -87,14 +87,20 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
     productId,
     input.destinationId,
   );
+  // TikTok posts created through the API ALWAYS land in drafts and are never
+  // auto-published or scheduled: a human finalizes them from the Markaestro app,
+  // exactly as if they had drafted it there (TikTok publishing is a manual inbox
+  // handoff — programmatic auto-publish is intentionally disabled). Any
+  // scheduledAt on a TikTok post is ignored and coerced to a draft.
+  const effectiveScheduledAt = input.channel === 'tiktok' ? null : input.scheduledAt || null;
   const now = new Date().toISOString();
   const ref = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`).doc();
-  const status = input.scheduledAt ? 'scheduled' : 'draft';
+  const status = effectiveScheduledAt ? 'scheduled' : 'draft';
   const payload = {
     content: input.caption,
     channel: input.channel,
     status,
-    scheduledAt: input.scheduledAt || null,
+    scheduledAt: effectiveScheduledAt,
     mediaUrls: mediaAssets.map((asset) => asset.url),
     mediaAssetIds: input.mediaAssetIds,
     productId: resolvedDestination.productId || '',
