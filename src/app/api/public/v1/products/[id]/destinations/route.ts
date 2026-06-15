@@ -17,6 +17,10 @@ export async function GET(
       rateLimit: DESTINATIONS_RATE_LIMIT,
     });
     const { id } = await params;
+    // A product-bound key may only inspect its own product's destinations.
+    if (ctx.productId && ctx.productId !== id) {
+      throw new Error('VALIDATION_PRODUCT_SCOPE_MISMATCH');
+    }
     const destinations = await listPublicProductDestinations(ctx.workspaceId, id);
 
     return Response.json({

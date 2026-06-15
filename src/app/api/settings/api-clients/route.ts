@@ -27,6 +27,7 @@ export async function GET(req: Request) {
           createdAt: data.createdAt,
           expiresAt: data.expiresAt || null,
           lastUsedAt: data.lastUsedAt || null,
+          productId: data.productId || null,
         };
       }),
     });
@@ -49,6 +50,18 @@ export async function POST(req: Request) {
     }
     const body = await req.json();
     const data = createApiClientSchema.parse(body);
+
+    // Validate an optional product binding up front so we never mint a key
+    // pointed at a non-existent product.
+    if (data.productId) {
+      const productSnap = await adminDb
+        .doc(`workspaces/${ctx.workspaceId}/products/${data.productId}`)
+        .get();
+      if (!productSnap.exists) {
+        return apiOk({ error: 'PRODUCT_NOT_FOUND', message: 'Selected product does not exist.' }, 404);
+      }
+    }
+
     const clientId = `cli_${crypto.randomUUID()}`;
     const apiKey = buildApiKey(ctx.workspaceId, clientId);
     const createdAt = new Date().toISOString();
@@ -66,6 +79,8 @@ export async function POST(req: Request) {
       secretHash: apiKey.secretHash,
       createdAt,
       expiresAt,
+      // Optional product binding (null = workspace-wide).
+      productId: data.productId || null,
       // Provenance snapshot: the issuer's email was verified at issuance time.
       createdEmailVerified: true,
       revokedAt: null,
@@ -81,6 +96,7 @@ export async function POST(req: Request) {
         keyPrefix: apiKey.keyPrefix,
         createdAt,
         expiresAt,
+        productId: data.productId || null,
       },
       apiKey: apiKey.token,
     }, 201);

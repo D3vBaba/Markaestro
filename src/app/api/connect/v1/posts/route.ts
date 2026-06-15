@@ -83,7 +83,13 @@ export async function GET(req: Request) {
       .limit(limit)
       .get();
 
-    const data = snap.docs.map((doc) => {
+    // A product-bound key only sees its own product's posts (filtered in memory
+    // to avoid requiring a productId+createdAt composite index).
+    const docs = ctx.productId
+      ? snap.docs.filter((doc) => (doc.data() as { productId?: string }).productId === ctx.productId)
+      : snap.docs;
+
+    const data = docs.map((doc) => {
       const p = doc.data() as Record<string, unknown>;
       const mediaUrls = Array.isArray(p.mediaUrls) ? (p.mediaUrls as unknown[]).map(String) : [];
       const status = mapPostStatus(p.status);

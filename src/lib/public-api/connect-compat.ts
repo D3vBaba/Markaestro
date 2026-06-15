@@ -34,8 +34,19 @@ export type ConnectAccount = {
   // Markaestro productId (optional) + destinationId so a created post can be
   // resolved back to the exact connected account.
   id: string;
+  // The product this account belongs to. The same social account can appear
+  // under multiple products — these fields let clients group and disambiguate.
+  product_id: string | null;
+  product: string | null;
   platform: SocialChannel;
   username: string;
+};
+
+export type ConnectProduct = {
+  id: string;
+  name: string;
+  channels: SocialChannel[];
+  accounts: ConnectAccount[];
 };
 
 // ── Account id <-> destination encoding ──────────────────────────────────────
@@ -59,17 +70,25 @@ export function parseAccountId(token: string): {
 }
 
 // List every connected, publishable destination for a workspace, deduped.
-export async function listConnectedAccounts(workspaceId: string): Promise<ConnectAccount[]> {
+// When `boundProductId` is set (a product-bound key), only that product's
+// accounts are returned and the workspace-level fallback is skipped.
+export async function listConnectedAccounts(
+  workspaceId: string,
+  boundProductId?: string,
+): Promise<ConnectAccount[]> {
   const byToken = new Map<string, ConnectAccount>();
 
   // Product-scoped destinations (the primary Markaestro model).
   const products = await listPublicProducts(workspaceId);
   for (const product of products) {
+    if (boundProductId && product.id !== boundProductId) continue;
     const destinations = await listPublicProductDestinations(workspaceId, product.id);
     for (const d of destinations) {
       const token = encodeAccountId(product.id, d.id);
       byToken.set(token, {
         id: token,
+        product_id: product.id,
+        product: product.name,
         platform: d.channel,
         username: d.username || d.displayName || d.channel,
       });
@@ -78,22 +97,45 @@ export async function listConnectedAccounts(workspaceId: string): Promise<Connec
 
   // Workspace-level single-destination fallback (no product configured).
   // resolvePublicPostDestination only succeeds when exactly one exists.
-  for (const channel of CONNECT_CHANNELS) {
-    try {
-      const resolved = await resolvePublicPostDestination(workspaceId, channel);
-      if (resolved?.destinationId && !byToken.has(resolved.destinationId)) {
-        byToken.set(resolved.destinationId, {
-          id: resolved.destinationId,
-          platform: channel,
-          username: channel,
-        });
+  // Skipped for product-bound keys (those are product-scoped by definition).
+  if (!boundProductId) {
+    for (const channel of CONNECT_CHANNELS) {
+      try {
+        const resolved = await resolvePublicPostDestination(workspaceId, channel);
+        if (resolved?.destinationId && !byToken.has(resolved.destinationId)) {
+          byToken.set(resolved.destinationId, {
+            id: resolved.destinationId,
+            product_id: resolved.productId || null,
+            product: null,
+            platform: channel,
+            username: channel,
+          });
+        }
+      } catch {
+        // 0 or >1 workspace-level destinations for this channel — skip.
       }
-    } catch {
-      // 0 or >1 workspace-level destinations for this channel — skip.
     }
   }
 
   return [...byToken.values()];
+}
+
+// List products with their connected accounts nested — a product-first picker
+// for clients that want to scope by product. Honors a product-bound key.
+export async function listConnectProducts(
+  workspaceId: string,
+  boundProductId?: string,
+): Promise<ConnectProduct[]> {
+  const accounts = await listConnectedAccounts(workspaceId, boundProductId);
+  const products = await listPublicProducts(workspaceId);
+  return products
+    .filter((p) => !boundProductId || p.id === boundProductId)
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      channels: p.availableChannels,
+      accounts: accounts.filter((a) => a.product_id === p.id),
+    }));
 }
 
 // ── Post status mapping ──────────────────────────────────────────────────────

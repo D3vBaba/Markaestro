@@ -86,6 +86,7 @@ export async function getApiClientAnalytics(workspaceId: string, days = 14) {
       keyPrefix?: string;
       createdAt?: string;
       lastUsedAt?: string | null;
+      productId?: string | null;
       usage?: {
         totalRequests?: number;
         currentMonth?: string;
@@ -119,6 +120,7 @@ export async function getApiClientAnalytics(workspaceId: string, days = 14) {
       keyPrefix: data.keyPrefix || '',
       createdAt: data.createdAt || '',
       lastUsedAt: data.lastUsedAt || data.usage?.lastRequestAt || null,
+      productId: data.productId || null,
       usage: {
         totalRequests: data.usage?.totalRequests || 0,
         currentMonth: data.usage?.currentMonth || currentMonthKey(),

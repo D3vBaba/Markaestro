@@ -69,12 +69,22 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
   validatePublicPostInput(input);
   assertSettingsMatchesChannel(input.channel, input.settings);
 
+  // Product-bound keys force their own product: a missing productId defaults to
+  // it, and an explicit productId for any other product is rejected.
+  let productId = input.productId;
+  if (ctx.productId) {
+    if (productId && productId !== ctx.productId) {
+      throw new Error('VALIDATION_PRODUCT_SCOPE_MISMATCH');
+    }
+    productId = ctx.productId;
+  }
+
   const mediaAssets = await resolveMediaAssetUrls(ctx.workspaceId, input.mediaAssetIds);
   validateResolvedPublicPostInput(input, mediaAssets);
   const resolvedDestination = await resolvePublicPostDestination(
     ctx.workspaceId,
     input.channel,
-    input.productId,
+    productId,
     input.destinationId,
   );
   const now = new Date().toISOString();

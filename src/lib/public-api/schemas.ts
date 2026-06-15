@@ -31,6 +31,10 @@ export const createApiClientSchema = z.object({
   scopes: z.array(z.enum(publicApiScopes)).min(1).max(publicApiScopes.length),
   // Optional key lifetime; omitted = the key never expires.
   expiresInDays: z.union([z.literal(30), z.literal(90), z.literal(365)]).optional(),
+  // Optional product binding. When set, the key is scoped to a single product:
+  // every call auto-targets it and requests for other products are rejected.
+  // Omitted = workspace-wide (the caller passes productId per request).
+  productId: z.string().trim().min(1).max(200).optional(),
 });
 
 export const updateApiClientScopesSchema = z.object({

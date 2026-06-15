@@ -11,6 +11,9 @@ export type PublicApiContext = {
   clientId: string;
   ownerUid?: string;
   scopes: PublicApiScope[];
+  // When set, the key is bound to a single product: calls auto-target it and
+  // requests for any other product are rejected. Undefined = workspace-wide.
+  productId?: string;
   rateLimitHeaders: Record<string, string>;
 };
 
@@ -67,6 +70,7 @@ export async function requirePublicApiContext(
     status?: string;
     secretHash?: string;
     expiresAt?: string | null;
+    productId?: string | null;
   };
 
   if (data.status !== 'active' || !data.secretHash || !safeCompare(data.secretHash, hashSecret(parsed.secret))) {
@@ -129,6 +133,7 @@ export async function requirePublicApiContext(
     clientId: parsed.clientId,
     ownerUid: data.ownerUid,
     scopes,
+    productId: data.productId || undefined,
     rateLimitHeaders,
   };
 }

@@ -93,7 +93,8 @@ const webhookExample = `{
 }`;
 
 const connectEndpoints = [
-  { method: "GET", path: "/api/connect/v1/social-accounts", note: "Lists connected Facebook, Instagram, and TikTok destinations as flat accounts." },
+  { method: "GET", path: "/api/connect/v1/social-accounts", note: "Lists connected Facebook, Instagram, and TikTok destinations as flat accounts, each labeled with its product so clients can group and disambiguate." },
+  { method: "GET", path: "/api/connect/v1/products", note: "Lists products with their connected accounts nested — a product-first picker." },
   { method: "POST", path: "/api/connect/v1/media/create-upload-url", note: "Returns a short-lived, single-use signed PUT url plus a media id." },
   { method: "PUT", path: "<upload_url>", note: "Upload the raw image bytes to the signed url. No API key needed — the signature authorizes it." },
   { method: "POST", path: "/api/connect/v1/posts", note: "Creates a draft or scheduled post per selected account. snake_case body: media, social_accounts, scheduled_at, is_draft." },
@@ -148,6 +149,11 @@ export default function DevelopersApiPage() {
             Already have a scheduling tool that speaks a snake_case <code>create-upload-url → post</code> API? The{" "}
             <a href="#connect-api" className="underline underline-offset-2">Connect API</a> under <code>/api/connect/v1</code> is a
             drop-in compatibility surface over these same endpoints.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            Workspaces can have multiple products. Scope every call to a product — list products, then pass{" "}
+            <code>productId</code> — or bind an API key to a single product so calls target it automatically and other
+            products are rejected.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/login">
@@ -339,11 +345,13 @@ export default function DevelopersApiPage() {
               ))}
               <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{connectExample}</code></pre>
               <p className="text-sm text-muted-foreground">
-                Account ids from <code>/social-accounts</code> encode <code>productId#destinationId</code> — pass them back
-                verbatim in <code>social_accounts</code>, and the request fans out one post per account. Post status is one
-                of <code>draft</code>, <code>scheduled</code>, <code>processing</code>, <code>posted</code>, or{" "}
-                <code>failed</code>. Only Facebook, Instagram, and TikTok destinations are exposed; live engagement
-                analytics are not yet available on this surface — track results via <code>GET /api/connect/v1/posts</code>.
+                Each account from <code>/social-accounts</code> is labeled with its <code>product</code> (the same account can
+                appear under multiple products), and its <code>id</code> encodes <code>productId#destinationId</code> — pass it
+                back verbatim in <code>social_accounts</code>, and the request fans out one post per account. A product-bound
+                key only sees and posts to its own product. Post status is one of <code>draft</code>, <code>scheduled</code>,{" "}
+                <code>processing</code>, <code>posted</code>, or <code>failed</code>. Only Facebook, Instagram, and TikTok
+                destinations are exposed; live engagement analytics are not yet available on this surface — track results via{" "}
+                <code>GET /api/connect/v1/posts</code>.
               </p>
             </CardContent>
           </Card>

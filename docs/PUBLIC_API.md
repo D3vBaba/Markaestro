@@ -37,6 +37,30 @@ Use a workspace API key:
 Manage API keys from:
 - `/settings?tab=api`
 
+## Scope by product
+
+A workspace can have **many products**, and the same social account can belong
+to more than one. Always work in a product context:
+
+1. `GET /api/public/v1/products` — discover product ids.
+2. `GET /api/public/v1/products/:id/destinations` — inspect that product's
+   connected accounts.
+3. Create posts with `productId` (and `destinationId` when a product has more
+   than one destination for the channel).
+
+If you omit `productId` and the choice is ambiguous, the API returns
+`VALIDATION_PRODUCT_ID_REQUIRED_FOR_CHANNEL` (or
+`…DESTINATION_ID_REQUIRED…`). Sending `productId` on every call is recommended.
+
+### Product-bound keys
+
+When you create an API key you may **bind it to a single product**. A bound key
+auto-targets that product, so you can omit `productId` entirely — and any
+request that names a *different* product is rejected with
+`VALIDATION_PRODUCT_SCOPE_MISMATCH`. `GET /products`, `GET /posts`, and the
+Connect equivalents are all filtered to the bound product. Use a bound key per
+product/brand for hard isolation; leave a key unbound to operate workspace-wide.
+
 ## Main endpoints
 
 - `GET /api/public/v1/products`
@@ -262,7 +286,8 @@ short-lived signature in the URL and carries no `Authorization` header.
 
 | Method & path | Body / params | Returns |
 | --- | --- | --- |
-| `GET /api/connect/v1/social-accounts` | — | `{ data: [ { id, platform, username } ] }` |
+| `GET /api/connect/v1/social-accounts` | — | `{ data: [ { id, product_id, product, platform, username } ] }` |
+| `GET /api/connect/v1/products` | — | `{ data: [ { id, name, channels, accounts[] } ] }` |
 | `POST /api/connect/v1/media/create-upload-url` | `{ mime_type, size_bytes, name }` | `{ media_id, upload_url }` |
 | `PUT <upload_url>` | raw image bytes, `Content-Type` header | `{ media_id, url }` |
 | `POST /api/connect/v1/posts` | `{ caption, media: [media_id…], social_accounts: [id…], scheduled_at, is_draft }` | `{ id, created[], errors[] }` |
@@ -274,10 +299,20 @@ short-lived signature in the URL and carries no `Authorization` header.
 ## Accounts & targeting
 
 `GET /api/connect/v1/social-accounts` returns one entry per connected,
-publishable destination. The `id` is an opaque token that encodes the
-Markaestro `productId#destinationId` (or a bare `destinationId` for a single
-workspace-level destination) — pass it back **verbatim** in `social_accounts`
-when creating a post. `POST /posts` fans out one underlying post per id.
+publishable destination. Each entry carries `product_id` + `product` (name) so
+clients can **group and disambiguate** — the same social account can appear
+under multiple products with the same `username`. The `id` is an opaque token
+that encodes the Markaestro `productId#destinationId` (or a bare `destinationId`
+for a single workspace-level destination) — pass it back **verbatim** in
+`social_accounts` when creating a post. `POST /posts` fans out one underlying
+post per id.
+
+For a product-first picker, `GET /api/connect/v1/products` returns each product
+with its accounts nested.
+
+**Product-bound keys** (see *Scope by product* above) apply here too: a bound
+key's `social-accounts`, `products`, and `posts` lists are filtered to its
+product, and posting to another product's account is rejected.
 
 Only **Facebook / Instagram / TikTok** destinations are exposed (the channels
 with publish support).

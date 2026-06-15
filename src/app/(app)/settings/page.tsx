@@ -66,6 +66,7 @@ type ApiClientInfo = {
   createdAt: string;
   lastUsedAt?: string | null;
   expiresAt?: string | null;
+  productId?: string | null;
 };
 
 type ApiClientTrendPoint = {
@@ -1257,6 +1258,13 @@ function ApiAccessTab() {
     canManage ? '/api/settings/api-clients/analytics' : null,
     { wsId },
   );
+  const { data: productsData } = useApiQuery<{ products: { id: string; name: string }[] }>(
+    canManage ? '/api/products' : null,
+    { wsId },
+  );
+  const products = productsData?.products ?? [];
+  const productNameById = (id: string | null | undefined) =>
+    id ? products.find((p) => p.id === id)?.name ?? id : null;
   const webhookEndpoints = webhooksData?.webhookEndpoints ?? [];
   const apiClientAnalytics = analyticsData?.clients ?? [];
   const analyticsTotals: ApiAnalyticsTotals = analyticsData?.totals ?? {
@@ -1276,6 +1284,7 @@ function ApiAccessTab() {
   const [clientName, setClientName] = useState('');
   const [selectedScopes, setSelectedScopes] = useState<string[]>(['products.read', 'media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
   const [expiresInDays, setExpiresInDays] = useState<'never' | '30' | '90' | '365'>('never');
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [editingClient, setEditingClient] = useState<ApiClientInfo | null>(null);
   const [editingScopes, setEditingScopes] = useState<string[]>([]);
   const [creatingClient, setCreatingClient] = useState(false);
@@ -1326,6 +1335,7 @@ function ApiAccessTab() {
           name: clientName.trim(),
           scopes: selectedScopes,
           ...(expiresInDays !== 'never' ? { expiresInDays: Number(expiresInDays) } : {}),
+          ...(selectedProductId ? { productId: selectedProductId } : {}),
         },
         wsId,
       );
@@ -1339,6 +1349,7 @@ function ApiAccessTab() {
       setClientName('');
       setSelectedScopes(['products.read', 'media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
       setExpiresInDays('never');
+      setSelectedProductId('');
       setCreateKeyOpen(false);
       await fetchApiAccess();
     } catch {
@@ -1633,6 +1644,11 @@ function ApiAccessTab() {
                             <div className="space-y-2">
                               <p className="font-medium">{client.name}</p>
                               <p className="text-xs text-muted-foreground">{client.keyPrefix}…</p>
+                              {client.productId && (
+                                <Badge variant="outline" className="font-normal text-[10px]">
+                                  Product: {productNameById(client.productId)}
+                                </Badge>
+                              )}
                               <ApiTrendBars points={client.trend} />
                               <p className="text-[11px] text-muted-foreground">Last 14 days request trend</p>
                             </div>
@@ -1888,6 +1904,22 @@ function ApiAccessTab() {
                 <option value="90">90 days</option>
                 <option value="365">1 year</option>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="api-client-product">Product scope</Label>
+              <Select
+                id="api-client-product"
+                value={selectedProductId}
+                onChange={(e) => setSelectedProductId(e.target.value)}
+              >
+                <option value="">All products (workspace-wide)</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Bind this key to one product so every call targets it and other products are rejected. Leave it on All products to pass a product per request.
+              </p>
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">

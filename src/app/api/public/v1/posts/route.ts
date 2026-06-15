@@ -32,9 +32,15 @@ export async function GET(req: Request) {
       { filters, orderByField: 'createdAt', limit: params.limit },
     );
 
+    // A product-bound key only sees its own product's posts. Filtered in memory
+    // to avoid requiring a productId+createdAt composite index.
+    const scoped = ctx.productId
+      ? posts.filter((post) => (post as { productId?: string }).productId === ctx.productId)
+      : posts;
+
     return Response.json({
-      posts: posts.map((post) => serializePublicPost(post as Record<string, unknown>)),
-      count: posts.length,
+      posts: scoped.map((post) => serializePublicPost(post as Record<string, unknown>)),
+      count: scoped.length,
     }, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);

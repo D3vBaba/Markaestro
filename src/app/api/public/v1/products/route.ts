@@ -14,7 +14,9 @@ export async function GET(req: Request) {
       rateLimit: PRODUCTS_RATE_LIMIT,
     });
 
-    const products = await listPublicProducts(ctx.workspaceId);
+    const all = await listPublicProducts(ctx.workspaceId);
+    // A product-bound key only sees its own product.
+    const products = ctx.productId ? all.filter((p) => p.id === ctx.productId) : all;
     return Response.json({ products, count: products.length }, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);
