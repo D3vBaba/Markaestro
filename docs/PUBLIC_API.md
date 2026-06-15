@@ -50,6 +50,12 @@ Manage API keys from:
 - `GET /api/public/v1/webhook-endpoints`
 - `DELETE /api/public/v1/webhook-endpoints/:id`
 
+> **Connecting an off-the-shelf scheduling client** that speaks the common
+> snake_case `create-upload-url → PUT → post` convention? See the
+> [Connect API](#connect-api-compatibility-surface) — a drop-in compatibility
+> surface over these same endpoints (point the client's base at
+> `<host>/api/connect`).
+
 ## Publish behavior
 
 Meta:
@@ -224,3 +230,118 @@ Headers:
 - `X-Markaestro-Signature`
 
 Webhook secrets are shown once at creation time and stored hashed at rest.
+
+---
+
+# Connect API (compatibility surface)
+
+`/api/connect/v1/*` is a **flat, snake_case integration surface** for external
+scheduling clients that speak the common `create-upload-url → PUT bytes →
+create post` convention (the shape used by many off-the-shelf scheduling tools).
+It is a thin compatibility layer over the native Public API above — same
+workspace model, same auth, same publish pipeline and worker — that translates
+those conventions onto Markaestro's products/destinations/posts model.
+
+**When to use which:**
+- New integration you control end to end → use the native `/api/public/v1`.
+- Pointing an existing snake_case scheduling client at Markaestro without
+  rewriting it → use `/api/connect/v1` (set the client's API base to
+  `<host>/api/connect`).
+
+## Auth
+
+Same workspace API key as the Public API, with scopes `posts.read`,
+`posts.write`, `media.write`:
+
+`Authorization: Bearer mk_live_<workspaceId>.<clientId>.<secret>`
+
+The signed media-upload `PUT` (below) is the one exception — it authorizes via a
+short-lived signature in the URL and carries no `Authorization` header.
+
+## Endpoints
+
+| Method & path | Body / params | Returns |
+| --- | --- | --- |
+| `GET /api/connect/v1/social-accounts` | — | `{ data: [ { id, platform, username } ] }` |
+| `POST /api/connect/v1/media/create-upload-url` | `{ mime_type, size_bytes, name }` | `{ media_id, upload_url }` |
+| `PUT <upload_url>` | raw image bytes, `Content-Type` header | `{ media_id, url }` |
+| `POST /api/connect/v1/posts` | `{ caption, media: [media_id…], social_accounts: [id…], scheduled_at, is_draft }` | `{ id, created[], errors[] }` |
+| `GET /api/connect/v1/posts` | `?limit=` | `{ data: [ post… ] }` |
+| `GET /api/connect/v1/media` | — | `{ data: [] }` (thumbnails are embedded on posts; best-effort) |
+| `GET /api/connect/v1/analytics` | — | `{ data: [] }` (reserved — see limitations) |
+| `POST /api/connect/v1/analytics/sync` | — | `{ ok: true }` |
+
+## Accounts & targeting
+
+`GET /api/connect/v1/social-accounts` returns one entry per connected,
+publishable destination. The `id` is an opaque token that encodes the
+Markaestro `productId#destinationId` (or a bare `destinationId` for a single
+workspace-level destination) — pass it back **verbatim** in `social_accounts`
+when creating a post. `POST /posts` fans out one underlying post per id.
+
+Only **Facebook / Instagram / TikTok** destinations are exposed (the channels
+with publish support).
+
+## Media upload
+
+Two-step, S3-style presigned flow:
+
+1. `POST /media/create-upload-url` with `{ mime_type, size_bytes, name }` →
+   returns `{ media_id, upload_url }`.
+2. `PUT` the raw bytes to `upload_url` (set `Content-Type`). The URL is
+   single-use, bound to that one `media_id`, and **expires after 15 minutes**.
+
+Accepted: `image/png`, `image/jpeg`, `image/webp`, `image/gif`, max 10 MB. The
+resulting `media_id` is a normal Markaestro media asset usable in `POST /posts`.
+
+## Post status & scheduling
+
+`status` on a returned post is one of `draft` · `scheduled` · `processing` ·
+`posted` · `failed` (mapped from native statuses). Scheduling:
+
+- `is_draft: true` → created as a **draft** (unscheduled).
+- otherwise → **scheduled** at `scheduled_at` (or immediately if omitted) and
+  published by the worker, exactly like a native post.
+
+## Example flow
+
+```bash
+# 1. Discover connected accounts
+curl "$MARKAESTRO_URL/api/connect/v1/social-accounts" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+# → { "data": [ { "id": "prod_123#instagram:instagram:ig_123",
+#                 "platform": "instagram", "username": "yourbrand" } ] }
+
+# 2. For each image: request an upload URL, then PUT the bytes
+RESP=$(curl -s -X POST "$MARKAESTRO_URL/api/connect/v1/media/create-upload-url" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "mime_type": "image/png", "size_bytes": 184320, "name": "slide-1.png" }')
+# RESP → { "media_id": "ast_…", "upload_url": "https://…/api/connect/v1/media/upload?token=…" }
+curl -X PUT "<upload_url>" -H "Content-Type: image/png" --data-binary @slide-1.png
+
+# 3. Create the post (draft or scheduled)
+curl -X POST "$MARKAESTRO_URL/api/connect/v1/posts" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "caption": "New drop 🔥",
+    "media": ["ast_111", "ast_222"],
+    "social_accounts": ["prod_123#instagram:instagram:ig_123"],
+    "scheduled_at": "2026-06-20T17:00:00.000Z",
+    "is_draft": false
+  }'
+
+# 4. List posts and their status
+curl "$MARKAESTRO_URL/api/connect/v1/posts?limit=20" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+```
+
+## Limitations
+
+- **No live engagement analytics yet** — `GET /analytics` returns an empty set
+  and `POST /analytics/sync` is a no-op (kept so clients that poll them don't
+  error). Track publish results via `GET /posts` or webhooks instead.
+- **Threads / Pinterest are not exposed** through this surface.
+- For richer control (per-channel `settings`, batch create, explicit publish,
+  job-run polling, webhooks), use the native `/api/public/v1` endpoints.

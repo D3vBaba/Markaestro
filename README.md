@@ -24,6 +24,12 @@ Open http://localhost:3000
 - `docs/MVP_PLAN.md` execution plan
 - `db/schema.sql` starter database schema
 
+## Integrations & API
+- `docs/PUBLIC_API.md` — the **Public API v1** (`/api/public/v1`) for publishing
+  automation, plus the **Connect API** (`/api/connect/v1`): a drop-in,
+  snake_case compatibility surface for pointing off-the-shelf scheduling clients
+  at Markaestro. Both use workspace API keys (Settings → API).
+
 ## Next implementation steps
 1. Pick backend (Supabase or Firebase)
 2. Add auth + workspace isolation
