@@ -1326,7 +1326,7 @@ function ApiAccessTab() {
   }
 
   async function createClient() {
-    if (!clientName.trim() || selectedScopes.length === 0) return;
+    if (!clientName.trim() || selectedScopes.length === 0 || !selectedProductId) return;
     setCreatingClient(true);
     try {
       const res = await apiPost<{ apiClient: ApiClientInfo; apiKey: string }>(
@@ -1906,19 +1906,22 @@ function ApiAccessTab() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="api-client-product">Product scope</Label>
+              <Label htmlFor="api-client-product">Product</Label>
               <Select
                 id="api-client-product"
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
+                disabled={products.length === 0}
               >
-                <option value="">All products (workspace-wide)</option>
+                <option value="" disabled>Select a product…</option>
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </Select>
               <p className="text-xs text-muted-foreground">
-                Bind this key to one product so every call targets it and other products are rejected. Leave it on All products to pass a product per request.
+                {products.length === 0
+                  ? 'Create a product first — every API key is scoped to one product.'
+                  : 'Required. The key only targets this product; requests for any other product are rejected.'}
               </p>
             </div>
             <div className="space-y-3">
@@ -1954,7 +1957,7 @@ function ApiAccessTab() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateKeyOpen(false)}>Cancel</Button>
-            <Button onClick={createClient} disabled={creatingClient || !clientName.trim() || selectedScopes.length === 0}>
+            <Button onClick={createClient} disabled={creatingClient || !clientName.trim() || selectedScopes.length === 0 || !selectedProductId}>
               {creatingClient ? 'Creating…' : 'Create key'}
             </Button>
           </DialogFooter>

@@ -51,15 +51,12 @@ export async function POST(req: Request) {
     const body = await req.json();
     const data = createApiClientSchema.parse(body);
 
-    // Validate an optional product binding up front so we never mint a key
-    // pointed at a non-existent product.
-    if (data.productId) {
-      const productSnap = await adminDb
-        .doc(`workspaces/${ctx.workspaceId}/products/${data.productId}`)
-        .get();
-      if (!productSnap.exists) {
-        return apiOk({ error: 'PRODUCT_NOT_FOUND', message: 'Selected product does not exist.' }, 404);
-      }
+    // Every key is bound to a product — validate it exists before minting.
+    const productSnap = await adminDb
+      .doc(`workspaces/${ctx.workspaceId}/products/${data.productId}`)
+      .get();
+    if (!productSnap.exists) {
+      return apiOk({ error: 'PRODUCT_NOT_FOUND', message: 'Selected product does not exist.' }, 404);
     }
 
     const clientId = `cli_${crypto.randomUUID()}`;

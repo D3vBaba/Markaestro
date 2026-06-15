@@ -39,27 +39,21 @@ Manage API keys from:
 
 ## Scope by product
 
-A workspace can have **many products**, and the same social account can belong
-to more than one. Always work in a product context:
+Every API key is **bound to exactly one product**, chosen when the key is
+created (Settings → API). A key only ever operates within its product:
 
-1. `GET /api/public/v1/products` — discover product ids.
-2. `GET /api/public/v1/products/:id/destinations` — inspect that product's
-   connected accounts.
-3. Create posts with `productId` (and `destinationId` when a product has more
-   than one destination for the channel).
+- The key auto-targets its product, so you **don't pass `productId`** when
+  creating posts. You may still pass `destinationId` when the product has more
+  than one destination for the channel.
+- `GET /api/public/v1/products` returns just the key's product, and
+  `GET /api/public/v1/products/:id/destinations` works only for it.
+- `GET /api/public/v1/posts` returns only that product's posts.
+- Naming a different product (a `productId` for another product) is rejected
+  with `VALIDATION_PRODUCT_SCOPE_MISMATCH`.
 
-If you omit `productId` and the choice is ambiguous, the API returns
-`VALIDATION_PRODUCT_ID_REQUIRED_FOR_CHANNEL` (or
-`…DESTINATION_ID_REQUIRED…`). Sending `productId` on every call is recommended.
-
-### Product-bound keys
-
-When you create an API key you may **bind it to a single product**. A bound key
-auto-targets that product, so you can omit `productId` entirely — and any
-request that names a *different* product is rejected with
-`VALIDATION_PRODUCT_SCOPE_MISMATCH`. `GET /products`, `GET /posts`, and the
-Connect equivalents are all filtered to the bound product. Use a bound key per
-product/brand for hard isolation; leave a key unbound to operate workspace-wide.
+A workspace can have many products, and the same social account can belong to
+more than one — binding keeps each key cleanly isolated to one. To publish for
+several products, create one key per product.
 
 ## Main endpoints
 
@@ -310,8 +304,8 @@ post per id.
 For a product-first picker, `GET /api/connect/v1/products` returns each product
 with its accounts nested.
 
-**Product-bound keys** (see *Scope by product* above) apply here too: a bound
-key's `social-accounts`, `products`, and `posts` lists are filtered to its
+Because every key is bound to a product (see *Scope by product* above), the
+Connect `social-accounts`, `products`, and `posts` lists return only that
 product, and posting to another product's account is rejected.
 
 Only **Facebook / Instagram / TikTok** destinations are exposed (the channels
