@@ -55,11 +55,35 @@ async function syncSessionCookie(user: User | null) {
   }
 }
 
-/** Check if the device is likely mobile (used to decide popup vs redirect). */
-function isMobile() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  );
+/**
+ * Sign in with a popup, falling back to a full-page redirect ONLY when the
+ * environment genuinely can't open a popup.
+ *
+ * We deliberately avoid signInWithRedirect as the default: our authDomain is the
+ * marketing apex (markaestro.com) while the app runs on app.markaestro.com, and
+ * iOS Safari fails to restore the session after a cross-subdomain redirect — it
+ * lands back on /login as if sign-in never happened. signInWithPopup stays
+ * first-party (the popup posts the result back to the opener) and works on iOS
+ * when opened from a tap, so it's the reliable path on mobile and desktop alike.
+ */
+async function signInWithProvider(
+  provider: GoogleAuthProvider | FacebookAuthProvider,
+) {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e: unknown) {
+    const code = (e as { code?: string })?.code;
+    if (
+      code === 'auth/popup-blocked' ||
+      code === 'auth/operation-not-supported-in-this-environment' ||
+      code === 'auth/web-storage-unsupported'
+    ) {
+      // The browser can't do popups at all — fall back to a redirect.
+      await signInWithRedirect(auth, provider);
+      return;
+    }
+    throw e;
+  }
 }
 
 /** Map Firebase error codes to user-friendly messages. */
@@ -148,19 +172,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signInGoogle: async () => {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
-        if (isMobile()) {
-          await signInWithRedirect(auth, provider);
-        } else {
-          await signInWithPopup(auth, provider);
-        }
+        await signInWithProvider(provider);
       },
       signInFacebook: async () => {
         const provider = new FacebookAuthProvider();
-        if (isMobile()) {
-          await signInWithRedirect(auth, provider);
-        } else {
-          await signInWithPopup(auth, provider);
-        }
+        await signInWithProvider(provider);
       },
       logout: async () => {
         try {
