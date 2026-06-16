@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Upload, X, Loader2, Check, Dot, Globe, Palette, Link2, Mic,
+  Upload, X, Loader2, Check, Dot, Globe, Palette, Link2, Pencil,
   Package, Trash2, Image as ImageIcon,
 } from "lucide-react";
 import {
@@ -180,15 +180,6 @@ type Form = {
   categories: string[];
   status: string;
   tags: string[];
-  voice: {
-    tone: string;
-    style: string;
-    keywords: string;
-    avoidWords: string;
-    cta: string;
-    sampleVoice: string;
-    targetAudience: string;
-  };
   identity: {
     logoUrl: string;
     primaryColor: string;
@@ -199,7 +190,6 @@ type Form = {
 
 function buildForm(
   product: Product,
-  voice: BrandVoice | null,
   identity: BrandIdentity | null,
 ): Form {
   return {
@@ -213,15 +203,6 @@ function buildForm(
       : ["saas"],
     status: product.status || "active",
     tags: [...(product.tags || [])],
-    voice: {
-      tone: voice?.tone || "",
-      style: voice?.style || "",
-      keywords: (voice?.keywords || []).join(", "),
-      avoidWords: (voice?.avoidWords || []).join(", "),
-      cta: voice?.cta || "",
-      sampleVoice: voice?.sampleVoice || "",
-      targetAudience: voice?.targetAudience || "",
-    },
     identity: {
       logoUrl: identity?.logoUrl || "",
       primaryColor: identity?.primaryColor || "",
@@ -237,11 +218,10 @@ function hasChanges(a: Form, b: Form) {
 
 // ---------- section nav ----------
 
-type SectionKey = "foundation" | "voice" | "identity" | "channels";
+type SectionKey = "foundation" | "identity" | "channels";
 
 const sections: { key: SectionKey; label: string; icon: typeof Package }[] = [
   { key: "foundation", label: "Foundation", icon: Package },
-  { key: "voice", label: "Voice", icon: Mic },
   { key: "identity", label: "Identity", icon: Palette },
   { key: "channels", label: "Channels", icon: Link2 },
 ];
@@ -346,6 +326,8 @@ export default function ProductDetailSheet({
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [section, setSection] = useState<SectionKey>(initialSection);
+  // The product opens read-only; "Edit" unlocks the form, saving re-locks it.
+  const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   // Integrations state
@@ -379,12 +361,12 @@ export default function ProductDetailSheet({
         if (cancelled) return;
         if (pRes.ok) {
           const prod = pRes.data;
-          const voice = bvRes.ok ? bvRes.data.brandVoice : null;
           const identity = bvRes.ok ? bvRes.data.brandIdentity : null;
-          const f = buildForm(prod, voice, identity);
+          const f = buildForm(prod, identity);
           setBaseline(f);
           setForm(f);
           setLastSavedAt(null);
+          setEditing(false);
         }
         if (intRes.ok) {
           setIntegrations(getScopedSocialIntegrations(intRes.data.integrations || []));
@@ -424,13 +406,6 @@ export default function ProductDetailSheet({
           tags: form.tags,
         }),
         apiPut(`/api/products/${productId}/brand-voice`, {
-          tone: form.voice.tone,
-          style: form.voice.style,
-          keywords: form.voice.keywords.split(",").map((k) => k.trim()).filter(Boolean),
-          avoidWords: form.voice.avoidWords.split(",").map((k) => k.trim()).filter(Boolean),
-          cta: form.voice.cta,
-          sampleVoice: form.voice.sampleVoice,
-          targetAudience: form.voice.targetAudience,
           brandIdentity: {
             logoUrl: form.identity.logoUrl,
             primaryColor: form.identity.primaryColor,
@@ -446,13 +421,14 @@ export default function ProductDetailSheet({
         return;
       }
       if (!voiceRes.ok) {
-        toast.error("Saved product details, but failed to save brand voice");
+        toast.error("Saved product details, but failed to save brand identity");
         return;
       }
 
       const saved = new Date().toISOString();
       setBaseline(form);
       setLastSavedAt(saved);
+      setEditing(false);
       toast.success("Saved");
       onSaved();
     } catch {
@@ -611,11 +587,6 @@ export default function ProductDetailSheet({
     setForm({ ...form, [k]: v });
   };
 
-  const patchVoice = <K extends keyof Form["voice"]>(k: K, v: Form["voice"][K]) => {
-    if (!form) return;
-    setForm({ ...form, voice: { ...form.voice, [k]: v } });
-  };
-
   const patchIdentity = <K extends keyof Form["identity"]>(k: K, v: Form["identity"][K]) => {
     if (!form) return;
     setForm({ ...form, identity: { ...form.identity, [k]: v } });
@@ -668,21 +639,48 @@ export default function ProductDetailSheet({
                   </SheetDescription>
                 </div>
               </div>
-              <Button
-                size="sm"
-                onClick={save}
-                disabled={!dirty || saving || loading}
-                className="rounded-lg gap-1.5 shrink-0"
-              >
-                {saving ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : dirty ? (
-                  <Check className="h-3.5 w-3.5" />
+              <div className="flex items-center gap-2 shrink-0">
+                {editing ? (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        if (baseline) setForm(baseline);
+                        setEditing(false);
+                      }}
+                      disabled={saving}
+                      className="rounded-lg text-muted-foreground"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={save}
+                      disabled={!dirty || saving || loading}
+                      className="rounded-lg gap-1.5"
+                    >
+                      {saving ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Check className="h-3.5 w-3.5" />
+                      )}
+                      {saving ? "Saving…" : "Save"}
+                    </Button>
+                  </>
                 ) : (
-                  <Check className="h-3.5 w-3.5" />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditing(true)}
+                    disabled={loading}
+                    className="rounded-lg gap-1.5"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit
+                  </Button>
                 )}
-                {saving ? "Saving…" : dirty ? "Save changes" : "Saved"}
-              </Button>
+              </div>
             </div>
 
             {/* Section nav */}
@@ -737,10 +735,8 @@ export default function ProductDetailSheet({
                     <FoundationSection
                       form={form}
                       patch={patch}
+                      readOnly={!editing}
                     />
-                  )}
-                  {section === "voice" && (
-                    <VoiceSection form={form} patchVoice={patchVoice} />
                   )}
                   {section === "identity" && (
                     <IdentitySection
@@ -749,6 +745,7 @@ export default function ProductDetailSheet({
                       logoUploading={logoUploading}
                       logoInputRef={logoInputRef}
                       onLogoUpload={handleLogoUpload}
+                      readOnly={!editing}
                     />
                   )}
                   {section === "channels" && (
@@ -801,7 +798,7 @@ export default function ProductDetailSheet({
         onOpenChange={setDeleteOpen}
         entity="product"
         name={form?.name}
-        warning="All brand voice settings and connections for this product will also be removed."
+        warning="All settings and channel connections for this product will also be removed."
         onConfirm={confirmDelete}
       />
 
@@ -905,13 +902,120 @@ function SectionCard({
   );
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  active: "Active",
+  beta: "Beta",
+  development: "Development",
+  sunset: "Sunset",
+  archived: "Archived",
+};
+
+// A labeled read-only row used in the locked (view) state.
+function ReadRow({
+  label,
+  value,
+  children,
+  multiline,
+  emphasis,
+}: {
+  label: string;
+  value?: string;
+  children?: React.ReactNode;
+  multiline?: boolean;
+  emphasis?: boolean;
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/80">
+        {label}
+      </p>
+      {children ?? (
+        <p
+          className={cn(
+            "text-sm text-foreground",
+            emphasis && "text-[15px] font-semibold",
+            multiline && "whitespace-pre-wrap leading-relaxed text-[13px] text-muted-foreground",
+            !value && "text-muted-foreground",
+          )}
+        >
+          {value || "—"}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function Chip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-md border border-border/60 bg-muted/30 px-2 py-0.5 text-[11px] text-foreground">
+      {children}
+    </span>
+  );
+}
+
 function FoundationSection({
   form,
   patch,
+  readOnly,
 }: {
   form: Form;
   patch: <K extends keyof Form>(k: K, v: Form[K]) => void;
+  readOnly: boolean;
 }) {
+  if (readOnly) {
+    return (
+      <>
+        <SectionCard title="Basics">
+          <ReadRow label="Product name" value={form.name} emphasis />
+          <ReadRow label="Description" value={form.description} multiline />
+          <ReadRow label="Website">
+            {form.url ? (
+              <a
+                href={form.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+              >
+                <Globe className="h-3.5 w-3.5" />
+                {form.url.replace(/^https?:\/\//, "")}
+              </a>
+            ) : (
+              <p className="text-sm text-muted-foreground">—</p>
+            )}
+          </ReadRow>
+        </SectionCard>
+
+        <SectionCard title="Positioning">
+          <ReadRow label="Category">
+            <div className="flex flex-wrap gap-1.5">
+              {form.categories.length ? (
+                form.categories.map((c) => <Chip key={c}>{categoryLabels[c] || c}</Chip>)
+              ) : (
+                <span className="text-sm text-muted-foreground">—</span>
+              )}
+            </div>
+          </ReadRow>
+          <ReadRow label="Status">
+            <Badge className="border-0" style={pillStyle(form.status === "active" ? "pos" : "neutral")}>
+              {STATUS_LABELS[form.status] || form.status}
+            </Badge>
+          </ReadRow>
+          <ReadRow label="Tags">
+            {form.tags.length ? (
+              <div className="flex flex-wrap gap-1.5">
+                {form.tags.map((t) => (
+                  <Chip key={t}>{t}</Chip>
+                ))}
+              </div>
+            ) : (
+              <span className="text-sm text-muted-foreground">No tags</span>
+            )}
+          </ReadRow>
+        </SectionCard>
+      </>
+    );
+  }
+
   return (
     <>
       <SectionCard title="Basics" description="How your product is identified across Markaestro.">
@@ -996,96 +1100,67 @@ function FoundationSection({
   );
 }
 
-function VoiceSection({
-  form,
-  patchVoice,
-}: {
-  form: Form;
-  patchVoice: <K extends keyof Form["voice"]>(k: K, v: Form["voice"][K]) => void;
-}) {
-  return (
-    <>
-      <SectionCard
-        title="Voice"
-        description="Instructs AI-generated copy so it sounds consistent with your brand."
-      >
-        <div className="grid grid-cols-2 gap-3">
-          <FormField label="Tone">
-            <Input
-              placeholder="Professional, bold…"
-              value={form.voice.tone}
-              onChange={(e) => patchVoice("tone", e.target.value)}
-            />
-          </FormField>
-          <FormField label="Style">
-            <Input
-              placeholder="Concise, conversational…"
-              value={form.voice.style}
-              onChange={(e) => patchVoice("style", e.target.value)}
-            />
-          </FormField>
-        </div>
-        <FormField label="Target audience">
-          <Input
-            placeholder="SaaS founders, indie hackers…"
-            value={form.voice.targetAudience}
-            onChange={(e) => patchVoice("targetAudience", e.target.value)}
-          />
-        </FormField>
-        <FormField label="Default CTA">
-          <Input
-            placeholder="Start your free trial"
-            value={form.voice.cta}
-            onChange={(e) => patchVoice("cta", e.target.value)}
-          />
-        </FormField>
-      </SectionCard>
-
-      <SectionCard title="Vocabulary" description="Comma-separated lists.">
-        <FormField label="Signature words">
-          <Input
-            placeholder="innovate, automate, scale…"
-            value={form.voice.keywords}
-            onChange={(e) => patchVoice("keywords", e.target.value)}
-          />
-        </FormField>
-        <FormField label="Words to avoid">
-          <Input
-            placeholder="synergy, leverage, disrupt…"
-            value={form.voice.avoidWords}
-            onChange={(e) => patchVoice("avoidWords", e.target.value)}
-          />
-        </FormField>
-      </SectionCard>
-
-      <SectionCard
-        title="Sample writing"
-        description="Paste a paragraph that sounds exactly like your brand."
-      >
-        <Textarea
-          rows={5}
-          placeholder="Paste an example of your ideal brand writing here…"
-          value={form.voice.sampleVoice}
-          onChange={(e) => patchVoice("sampleVoice", e.target.value)}
-        />
-      </SectionCard>
-    </>
-  );
-}
-
 function IdentitySection({
   form,
   patchIdentity,
   logoUploading,
   logoInputRef,
   onLogoUpload,
+  readOnly,
 }: {
   form: Form;
   patchIdentity: <K extends keyof Form["identity"]>(k: K, v: Form["identity"][K]) => void;
   logoUploading: boolean;
   logoInputRef: React.RefObject<HTMLInputElement | null>;
   onLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  readOnly: boolean;
 }) {
+  if (readOnly) {
+    const swatches: { label: string; color: string }[] = [
+      { label: "Primary", color: form.identity.primaryColor },
+      { label: "Secondary", color: form.identity.secondaryColor },
+      { label: "Accent", color: form.identity.accentColor },
+    ];
+    return (
+      <>
+        <SectionCard title="Logo">
+          {form.identity.logoUrl ? (
+            <img
+              src={form.identity.logoUrl}
+              alt="Logo"
+              className="h-20 w-20 rounded-2xl object-contain border border-border/50 bg-white"
+            />
+          ) : (
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-dashed border-border/60 bg-muted/20">
+              <ImageIcon className="h-6 w-6 text-muted-foreground/50" />
+            </div>
+          )}
+        </SectionCard>
+
+        <SectionCard title="Brand colors">
+          <div className="flex flex-wrap gap-4">
+            {swatches.map((s) => (
+              <div key={s.label} className="flex items-center gap-2.5">
+                <span
+                  className="h-9 w-9 rounded-xl border border-border/50 shadow-sm"
+                  style={{
+                    background: /^#[0-9A-Fa-f]{6}$/i.test(s.color) ? s.color : "transparent",
+                  }}
+                />
+                <div className="leading-tight">
+                  <p className="text-[11px] font-medium text-foreground">{s.label}</p>
+                  <p className="font-mono text-[11px] uppercase text-muted-foreground">
+                    {s.color || "—"}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      </>
+    );
+  }
+
   return (
     <>
       <SectionCard title="Logo" description="Used on cards, generated media, and previews.">
