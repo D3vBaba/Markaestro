@@ -639,6 +639,37 @@ export default function ProductDetailSheet({
                   </SheetDescription>
                 </div>
               </div>
+            </div>
+
+            {/* Section nav + edit controls (same row) */}
+            <div className="mt-4 -mb-0.5 flex items-center justify-between gap-3">
+              <nav className="flex items-center gap-0.5">
+              {sections.map((s) => {
+                const active = section === s.key;
+                const Icon = s.icon;
+                return (
+                  <button
+                    key={s.key}
+                    onClick={() => setSection(s.key)}
+                    className={cn(
+                      "relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md transition-colors",
+                      active
+                        ? "text-foreground font-medium"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {s.label}
+                    {active && (
+                      <motion.span
+                        layoutId="product-section-underline"
+                        className="absolute left-2.5 right-2.5 -bottom-[9px] h-0.5 bg-foreground"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+              </nav>
               <div className="flex items-center gap-2 shrink-0">
                 {editing ? (
                   <>
@@ -682,35 +713,6 @@ export default function ProductDetailSheet({
                 )}
               </div>
             </div>
-
-            {/* Section nav */}
-            <nav className="flex items-center gap-0.5 mt-4 -mb-0.5">
-              {sections.map((s) => {
-                const active = section === s.key;
-                const Icon = s.icon;
-                return (
-                  <button
-                    key={s.key}
-                    onClick={() => setSection(s.key)}
-                    className={cn(
-                      "relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md transition-colors",
-                      active
-                        ? "text-foreground font-medium"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {s.label}
-                    {active && (
-                      <motion.span
-                        layoutId="product-section-underline"
-                        className="absolute left-2.5 right-2.5 -bottom-[9px] h-0.5 bg-foreground"
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
           </SheetHeader>
 
           {/* Content — scrollable */}
