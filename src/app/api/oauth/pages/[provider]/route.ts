@@ -56,11 +56,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const url = new URL(req.url);
     const productId = url.searchParams.get('productId') || undefined;
 
-    // Meta reads from workspace-level connection; product-scoped providers read
-    // from the product-level doc where their OAuth tokens were stored.
-    const conn = provider === 'meta'
-      ? await getConnection(ctx.workspaceId, 'meta')
-      : await getConnection(ctx.workspaceId, provider, productId);
+    // Every provider — including Meta — is linked per product, so the OAuth
+    // tokens live on the product-level connection doc.
+    const conn = await getConnection(ctx.workspaceId, provider, productId);
 
     if (!conn || !conn.accessTokenEncrypted) {
       return apiOk({ pages: [] });

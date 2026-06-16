@@ -218,11 +218,11 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
   for (const ws of wsDocs) {
     const workspaceId = ws.id;
 
-    // Workspace-level: Meta
+    // Workspace-level Meta (legacy; new connections are product-level below).
     const metaRef = getConnectionRef(workspaceId, 'meta');
     await refreshConnectionDoc(metaRef, 'meta', result, { workspaceId });
 
-    // Product-level OAuth (Meta is workspace-level)
+    // Product-level OAuth — every provider, including Meta, is linked per product.
     const socialProviders: OAuthProvider[] = ['instagram', 'tiktok', 'threads', 'pinterest'];
     const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
 
@@ -234,13 +234,14 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
         await refreshConnectionDoc(connRef, provider, result, { workspaceId, productId });
       }
 
-      // Also try to refresh legacy product-level Meta connections (backward compat)
-      const legacyMetaRef = getConnectionRef(workspaceId, 'meta', productId);
-      const legacySnap = await legacyMetaRef.get();
-      if (legacySnap.exists) {
-        const legacyData = legacySnap.data() as PlatformConnection;
-        if (legacyData.accessTokenEncrypted) {
-          await refreshConnectionDoc(legacyMetaRef, 'meta', result, { workspaceId, productId });
+      // Product-level Meta — each product links its own Facebook login, so its
+      // token lives here and must be refreshed alongside the other providers.
+      const productMetaRef = getConnectionRef(workspaceId, 'meta', productId);
+      const metaSnap = await productMetaRef.get();
+      if (metaSnap.exists) {
+        const metaData = metaSnap.data() as PlatformConnection;
+        if (metaData.accessTokenEncrypted) {
+          await refreshConnectionDoc(productMetaRef, 'meta', result, { workspaceId, productId });
         }
       }
     }

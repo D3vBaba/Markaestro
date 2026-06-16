@@ -662,10 +662,11 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
 
 /* ─── Integrations Tab ──────────────────────────────────────────────────── */
 
-// Channels you can link to a product. Meta provisions the Facebook Page and its
-// linked Instagram account; each channel publishes only to itself.
+// Each product links its own individual account per channel — nothing is shared
+// across products, and Facebook and Instagram are separate links.
 const PRODUCT_CHANNELS: { provider: string; label: string; sub: string }[] = [
-  { provider: "meta", label: "Meta", sub: "Facebook & Instagram" },
+  { provider: "meta", label: "Facebook", sub: "Facebook Page (Facebook login)" },
+  { provider: "instagram", label: "Instagram", sub: "Instagram account (Instagram login)" },
   { provider: "tiktok", label: "TikTok", sub: "TikTok account" },
   { provider: "threads", label: "Threads", sub: "Threads account" },
 ];
@@ -674,6 +675,7 @@ type ConnEntry = {
   provider: string;
   scope?: "workspace" | "product";
   status?: string;
+  pageId?: string | null;
   pageName?: string | null;
   igAccountId?: string | null;
   username?: string | null;
@@ -742,7 +744,10 @@ function IntegrationsTab() {
     setPages(null);
     setPagesError("");
     (async () => {
-      const res = await apiGet<{ pages?: MetaPage[]; error?: string }>("/api/oauth/pages/meta", wsId);
+      const res = await apiGet<{ pages?: MetaPage[]; error?: string }>(
+        `/api/oauth/pages/meta?productId=${encodeURIComponent(pagePickerProduct)}`,
+        wsId,
+      );
       if (cancelled) return;
       if (!res.ok) {
         setPages([]);
@@ -808,10 +813,14 @@ function IntegrationsTab() {
     const entry = (connsByProduct[productId] || []).find((c) => c.provider === provider);
     if (!entry) return { state: "disconnected" };
     if (provider === "meta") {
-      if (entry.scope === "product" && entry.status === "connected" && !entry.pageSelectionRequired) {
-        return { state: "connected", label: `${entry.pageName || "Facebook Page"}${entry.igAccountId ? " + Instagram" : ""}` };
+      // Only the product's OWN Meta connection counts — ignore any leftover
+      // workspace-level Meta from the previous shared model.
+      if (entry.scope !== "product") return { state: "disconnected" };
+      // Facebook: a Page is chosen (connected), or linked but awaiting a Page pick.
+      if (entry.status === "connected" && entry.pageId && !entry.pageSelectionRequired) {
+        return { state: "connected", label: entry.pageName || "Facebook Page" };
       }
-      if (entry.needsPageSelection || entry.pageSelectionRequired) return { state: "needs-page" };
+      if (entry.pageSelectionRequired) return { state: "needs-page" };
       return { state: "disconnected" };
     }
     if (entry.status === "connected") return { state: "connected", label: entry.username ? `@${entry.username}` : undefined };

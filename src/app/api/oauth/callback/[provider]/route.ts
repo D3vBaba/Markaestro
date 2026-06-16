@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { exchangeCode, storeTokens } from '@/lib/oauth/flow';
 import { encrypt } from '@/lib/crypto';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
-import { getConnectionRef } from '@/lib/platform/connections';
 import { getAppUrl } from '@/lib/oauth/config';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 
@@ -390,34 +389,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       pinterestNeedsBoardSelection = true;
     }
 
-    // Meta: store user token at workspace level (not per-product)
-    if (provider === 'meta') {
-      // Store workspace-level user token (without productId)
-      await storeTokens(workspaceId, 'meta', tokens, userId, extraData);
-
-      // If exactly 1 page AND productId in state: also write page selection to product-level doc
-      if (productId && !metaNeedsPageSelection && extraData.pageId) {
-        const prodRef = getConnectionRef(workspaceId, 'meta', productId);
-        await prodRef.set({
-          provider: 'meta',
-          status: 'connected',
-          metadata: {
-            pageId: extraData.pageId,
-            pageName: extraData.pageName,
-            pageAccessTokenEncrypted: extraData.pageAccessTokenEncrypted,
-            igAccountId: extraData.igAccountId || null,
-            pageSelectionRequired: false,
-          },
-          workspaceId,
-          productId,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        }, { merge: true });
-      }
-    } else {
-      await storeTokens(workspaceId, provider as OAuthProvider, tokens, userId, extraData, productId);
+    // Every provider — including Meta — is linked per product. Each product
+    // links its own Facebook login (no shared workspace-level Meta connection):
+    // the user token + page metadata are stored together on the product doc.
+    if (provider === 'meta' && !productId) {
+      throw new Error('VALIDATION_MISSING_PRODUCT_ID');
     }
+    await storeTokens(workspaceId, provider as OAuthProvider, tokens, userId, extraData, productId);
 
     const appUrl = getAppUrl();
     if (productId) {

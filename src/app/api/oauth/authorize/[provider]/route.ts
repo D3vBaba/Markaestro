@@ -11,9 +11,12 @@ export const runtime = 'nodejs';
 
 
 const ALLOWED = new Set<string>(oauthProviders);
-const SOCIAL_PROVIDERS = new Set(['instagram', 'tiktok', 'threads', 'pinterest']);
+// Every social provider is linked per product (productId required) — including
+// Meta. Each product links its own Facebook login; nothing is shared workspace-wide.
+const SOCIAL_PROVIDERS = new Set(['meta', 'instagram', 'tiktok', 'threads', 'pinterest']);
 
 function getFallbackPath(productId?: string, returnTo?: string) {
+  if (productId && returnTo) return returnTo;
   if (productId) return '/products';
   if (returnTo) return returnTo;
   return '/settings';

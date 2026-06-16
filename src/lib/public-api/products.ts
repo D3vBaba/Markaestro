@@ -95,22 +95,8 @@ function buildMetaDestinations(connection: PlatformConnection | null, fallbackNa
     });
   }
 
-  if (igAccountId) {
-    destinations.push({
-      id: buildDestinationId('meta', 'instagram', igAccountId),
-      provider: 'meta',
-      channel: 'instagram',
-      status: 'ready',
-      displayName: pageName,
-      accountId: igAccountId,
-      pageId,
-      igAccountId,
-      deliveryMode: 'direct_publish',
-      // Instagram is its own dedicated path — no cross-channel fan-out to Facebook.
-      willAlsoPublishTo: [],
-    });
-  }
-
+  // Meta provides only the Facebook destination. Instagram is linked separately
+  // via Instagram Login (buildInstagramDestinations), never from the Page here.
   return destinations;
 }
 

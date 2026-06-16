@@ -71,14 +71,8 @@ describe('public product discovery', () => {
         channel: 'facebook',
         id: 'meta:facebook:pg_123',
         accountId: 'pg_123',
-        // Each Meta channel is its own dedicated path — no cross-channel fan-out.
-        willAlsoPublishTo: [],
-      }),
-      expect.objectContaining({
-        provider: 'meta',
-        channel: 'instagram',
-        id: 'meta:instagram:ig_123',
-        accountId: 'ig_123',
+        // Meta provides only Facebook. Instagram is linked separately via
+        // Instagram Login, never derived from the Facebook Page here.
         willAlsoPublishTo: [],
       }),
       expect.objectContaining({
@@ -196,7 +190,7 @@ describe('public product discovery', () => {
     );
   });
 
-  it('requires destinationId when one product has multiple instagram destinations', async () => {
+  it('Instagram resolves to the Instagram Login account, ignoring the Facebook Page IG', async () => {
     const { resolvePublicPostDestination } = await import('../public-api/products');
 
     docMock.mockReturnValue({
@@ -206,6 +200,9 @@ describe('public product discovery', () => {
       }),
     });
 
+    // The Facebook Page has a linked Instagram, but it must NOT produce an
+    // Instagram destination — Instagram comes only from the Instagram Login
+    // connection. So there is exactly one Instagram destination and it resolves.
     getMetaConnectionMergedMock.mockResolvedValue({
       status: 'connected',
       metadata: {
@@ -229,8 +226,8 @@ describe('public product discovery', () => {
       return null;
     });
 
-    await expect(
-      resolvePublicPostDestination('ws_123', 'instagram', 'prod_123'),
-    ).rejects.toThrow('VALIDATION_DESTINATION_ID_REQUIRED_FOR_CHANNEL');
+    const resolved = await resolvePublicPostDestination('ws_123', 'instagram', 'prod_123');
+    expect(resolved.destinationProvider).toBe('instagram');
+    expect(resolved.destinationId).toBe('instagram:instagram:ig_direct_123');
   });
 });

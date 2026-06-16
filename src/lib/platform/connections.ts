@@ -44,29 +44,11 @@ export async function getMetaConnectionMerged(
   workspaceId: string,
   productId?: string,
 ): Promise<PlatformConnection | null> {
-  const wsConn = await getConnection(workspaceId, 'meta');
-
-  if (wsConn) {
-    if (!productId) return wsConn;
-
-    const prodConn = await getConnection(workspaceId, 'meta', productId);
-    if (!prodConn) return wsConn;
-
-    // Merge: workspace user token + product page metadata
-    return {
-      ...wsConn,
-      productId,
-      metadata: { ...wsConn.metadata, ...prodConn.metadata },
-    };
-  }
-
-  // Backward compat: legacy product-level connection with its own user token
-  if (productId) {
-    const prodConn = await getConnection(workspaceId, 'meta', productId);
-    if (prodConn?.accessTokenEncrypted) return prodConn;
-  }
-
-  return null;
+  // Meta is linked per product: the user token and the chosen Facebook Page live
+  // together on the product's own connection. There is no shared workspace-level
+  // Meta connection, so a Meta lookup without a productId resolves to nothing.
+  if (!productId) return null;
+  return getConnection(workspaceId, 'meta', productId);
 }
 
 function hasReadyMetaDestination(connection: PlatformConnection | null, channel: SocialChannel): connection is PlatformConnection {
@@ -255,7 +237,9 @@ function channelToProviders(channel: SocialChannel, preferredProvider?: string):
     case 'facebook':
       return prioritize(['meta']);
     case 'instagram':
-      return prioritize(['meta', 'instagram']);
+      // Instagram is its own independent connection (Instagram Login), separate
+      // from the Facebook Page's linked Instagram. Meta no longer serves it.
+      return prioritize(['instagram']);
     case 'tiktok':
       return prioritize(['tiktok']);
     case 'threads':
