@@ -421,7 +421,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
 
     const appUrl = getAppUrl();
     if (productId) {
-      return redirectThroughBridge(appUrl, '/products', {
+      // Honor returnTo (e.g. the Settings → Integrations tab) so a per-product
+      // connect returns where it started; default to the Products page.
+      const base = (returnTo && sanitizeAppReturnTo(returnTo, appUrl)) || '/products';
+      return redirectThroughBridge(appUrl, base, {
         oauth: 'success',
         provider,
         productId,

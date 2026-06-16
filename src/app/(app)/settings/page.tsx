@@ -16,7 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import PageHeader from "@/components/app/PageHeader";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
-import { apiDelete, apiPost, apiPut, apiFetch } from "@/lib/api-client";
+import { apiDelete, apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -33,19 +33,6 @@ import {
   Copy, Webhook, BookOpen, ExternalLink, Trash2, RefreshCw,
   Archive, ArchiveRestore,
 } from "lucide-react";
-
-type IntegrationInfo = {
-  provider: string;
-  enabled: boolean;
-  status: string;
-  hasApiKey: boolean;
-  hasAccessToken: boolean;
-  fromEmail?: string;
-  tokenExpiresAt?: string | null;
-  lastRefreshError?: string | null;
-  pageId?: string | null;
-  pageName?: string | null;
-};
 
 type Member = {
   uid: string;
@@ -675,176 +662,293 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
 
 /* ─── Integrations Tab ──────────────────────────────────────────────────── */
 
+// Channels you can link to a product. Meta provisions the Facebook Page and its
+// linked Instagram account; each channel publishes only to itself.
+const PRODUCT_CHANNELS: { provider: string; label: string; sub: string }[] = [
+  { provider: "meta", label: "Meta", sub: "Facebook & Instagram" },
+  { provider: "tiktok", label: "TikTok", sub: "TikTok account" },
+  { provider: "threads", label: "Threads", sub: "Threads account" },
+];
+
+type ConnEntry = {
+  provider: string;
+  scope?: "workspace" | "product";
+  status?: string;
+  pageName?: string | null;
+  igAccountId?: string | null;
+  username?: string | null;
+  pageSelectionRequired?: boolean;
+  needsPageSelection?: boolean;
+};
+
+type MetaPage = { id: string; name: string; hasInstagram: boolean; igAccountId: string | null };
+
 function IntegrationsTab() {
+  const { current: workspace } = useWorkspace();
+  const wsId = workspace?.id ?? "default";
+
+  const { data: productsData, loading: productsLoading } = useApiQuery<{
+    products: { id: string; name: string }[];
+  }>("/api/products", { wsId });
+  const products = productsData?.products ?? [];
+  const productIds = products.map((p) => p.id).join(",");
+
   const {
-    data: integrationsData,
-    loading: integrationsLoading,
-    refresh: refreshIntegrations,
-  } = useApiQuery<{ integrations: IntegrationInfo[] }>("/api/integrations");
-  const integrations = integrationsData?.integrations ?? [];
-  const [disconnecting, setDisconnecting] = useState<string | null>(null);
-  const [disconnectTarget, setDisconnectTarget] = useState<{ provider: string; label: string } | null>(null);
+    data: connData,
+    loading: connLoading,
+    refresh: refreshConns,
+  } = useApiQuery<{ products: Record<string, ConnEntry[]> }>(
+    productIds ? `/api/integrations?productIds=${productIds}` : null,
+    { wsId },
+  );
+  const connsByProduct = connData?.products ?? {};
+
+  const [busy, setBusy] = useState<string | null>(null); // `${productId}:${provider}`
+  const [disconnectTarget, setDisconnectTarget] = useState<{ productId: string; provider: string; label: string } | null>(null);
+
+  // Meta page picker (multiple Facebook Pages → pick one for this product).
+  const [pagePickerProduct, setPagePickerProduct] = useState<string | null>(null);
+  const [pages, setPages] = useState<MetaPage[] | null>(null);
+  const [pagesError, setPagesError] = useState("");
+  const [selectingPage, setSelectingPage] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const oauthResult = params.get("oauth");
+    const oauth = params.get("oauth");
     const provider = params.get("provider");
-    const message = params.get("message");
+    const productId = params.get("productId");
+    const needsPageSelect = params.get("needsPageSelect");
 
-    if (oauthResult === "success" && provider) {
-      toast.success(`${provider === "meta" ? "Meta" : provider} connected successfully`);
-      window.history.replaceState({}, "", "/settings");
-      // Give the callback a beat to finish writing the connection.
+    if (oauth === "success" && provider) {
+      toast.success(`${provider === "meta" ? "Meta" : provider} connected`);
+      window.history.replaceState({}, "", "/settings?tab=integrations");
       const timer = setTimeout(() => invalidateQueries("/api/integrations"), 500);
+      if (needsPageSelect === "1" && provider === "meta" && productId) {
+        setPagePickerProduct(productId);
+      }
       return () => clearTimeout(timer);
     }
-    if (oauthResult === "error" && provider) {
+    if (oauth === "error" && provider) {
+      const message = params.get("message");
       toast.error(`Failed to connect ${provider === "meta" ? "Meta" : provider}${message ? `: ${message}` : ""}`);
-      window.history.replaceState({}, "", "/settings");
+      window.history.replaceState({}, "", "/settings?tab=integrations");
     }
   }, []);
 
-  const isConnected = (provider: string) =>
-    integrations.find((i) => i.provider === provider)?.status === "connected";
+  // Load the user's Facebook Pages when the picker opens.
+  useEffect(() => {
+    if (!pagePickerProduct) return;
+    let cancelled = false;
+    setPages(null);
+    setPagesError("");
+    (async () => {
+      const res = await apiGet<{ pages?: MetaPage[]; error?: string }>("/api/oauth/pages/meta", wsId);
+      if (cancelled) return;
+      if (!res.ok) {
+        setPages([]);
+        setPagesError(res.data?.error || "Couldn't load your Facebook Pages.");
+        return;
+      }
+      setPages(res.data.pages || []);
+      if (res.data.error) setPagesError(res.data.error);
+    })();
+    return () => { cancelled = true; };
+  }, [pagePickerProduct, wsId]);
 
-  const needsReconnect = (provider: string) =>
-    integrations.find((i) => i.provider === provider)?.lastRefreshError != null;
-
-  function startOAuth(provider: string) {
-    const qs = new URLSearchParams({ workspaceId: "default" });
-    window.location.href = `/api/oauth/authorize/${provider}?${qs.toString()}`;
+  function connect(provider: string, productId: string) {
+    const returnTo = encodeURIComponent("/settings?tab=integrations");
+    window.location.href = `/api/oauth/authorize/${provider}?productId=${encodeURIComponent(productId)}&returnTo=${returnTo}`;
   }
 
   async function confirmDisconnect() {
     if (!disconnectTarget) return;
-    const { provider } = disconnectTarget;
-    setDisconnecting(provider);
+    const { productId, provider, label } = disconnectTarget;
+    setBusy(`${productId}:${provider}`);
     try {
-      const res = await apiPost(`/api/oauth/disconnect/${provider}`, {});
+      const res = await apiPost(`/api/oauth/disconnect/${provider}`, { productId }, wsId);
       if (res.ok) {
-        toast.success(`${disconnectTarget.label} disconnected`);
-        refreshIntegrations();
+        toast.success(`${label} unlinked`);
+        refreshConns();
       } else {
-        toast.error(`Failed to disconnect. Please try again.`);
+        toast.error("Failed to unlink. Please try again.");
       }
     } catch {
-      toast.error(`Something went wrong. Please try again.`);
+      toast.error("Something went wrong. Please try again.");
     } finally {
-      setDisconnecting(null);
+      setBusy(null);
+      setDisconnectTarget(null);
     }
   }
 
-  if (integrationsLoading) {
+  async function selectPage(page: MetaPage) {
+    if (!pagePickerProduct) return;
+    setSelectingPage(page.id);
+    try {
+      const res = await apiPost(
+        "/api/oauth/pages/meta/select",
+        { pageId: page.id, pageName: page.name, productId: pagePickerProduct },
+        wsId,
+      );
+      if (res.ok) {
+        toast.success(`Linked ${page.name}`);
+        setPagePickerProduct(null);
+        refreshConns();
+      } else {
+        toast.error("Failed to link this Page. Please try again.");
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setSelectingPage(null);
+    }
+  }
+
+  type ChannelStatus = { state: "connected" | "needs-page" | "disconnected"; label?: string };
+  function channelStatus(productId: string, provider: string): ChannelStatus {
+    const entry = (connsByProduct[productId] || []).find((c) => c.provider === provider);
+    if (!entry) return { state: "disconnected" };
+    if (provider === "meta") {
+      if (entry.scope === "product" && entry.status === "connected" && !entry.pageSelectionRequired) {
+        return { state: "connected", label: `${entry.pageName || "Facebook Page"}${entry.igAccountId ? " + Instagram" : ""}` };
+      }
+      if (entry.needsPageSelection || entry.pageSelectionRequired) return { state: "needs-page" };
+      return { state: "disconnected" };
+    }
+    if (entry.status === "connected") return { state: "connected", label: entry.username ? `@${entry.username}` : undefined };
+    return { state: "disconnected" };
+  }
+
+  if (productsLoading || (!!productIds && connLoading && !connData)) {
     return (
       <div className="grid gap-5">
-        <Card className="border-border/30">
-          <CardHeader>
-            <Skeleton className="h-5 w-56" />
-            <Skeleton className="h-4 w-72" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-9 w-44" />
-          </CardContent>
-        </Card>
+        {[0, 1].map((i) => (
+          <Card key={i} className="border-border/30">
+            <CardHeader><Skeleton className="h-5 w-48" /></CardHeader>
+            <CardContent className="space-y-2">
+              <Skeleton className="h-14 w-full" />
+              <Skeleton className="h-14 w-full" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <Card className="border-border/30">
+        <CardHeader>
+          <CardTitle>No products yet</CardTitle>
+          <CardDescription>Create a product, then link its social channels here.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <a href="/products"><Button>Create a product</Button></a>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <div className="grid gap-5">
-      <IntegrationCard
-        title="Meta (Facebook + Instagram)"
-        description="Publish posts to Facebook and Instagram."
-        connected={isConnected("meta")}
-        needsReconnect={needsReconnect("meta")}
-        reconnectNote="Your Meta connection needs to be refreshed"
-        onConnect={() => startOAuth("meta")}
-        onDisconnect={() => setDisconnectTarget({ provider: "meta", label: "Meta (Facebook + Instagram)" })}
-        disconnecting={disconnecting === "meta"}
-        connectLabel="Connect Meta account"
-        extraNote={isConnected("meta") ? (
-          <p className="text-xs text-muted-foreground">
-            Choose which Facebook page each product posts to in{" "}
-            <a href="/products" className="text-primary hover:underline">Products → Edit</a>.
-          </p>
-        ) : (
-          <p className="text-xs text-muted-foreground">
-            One connection covers all your products. You can assign a different Facebook page per product afterwards.
-          </p>
-        )}
-      />
-
-      <p className="text-xs text-muted-foreground">
-        TikTok, Threads, and Pinterest integrations are set up per product on the{" "}
-        <a href="/products" className="text-primary hover:underline">Products page</a>.
+      <p className="text-sm text-muted-foreground">
+        Link each product to its own social channels. Each channel publishes only to itself — Meta covers a Facebook
+        Page and its linked Instagram account.
       </p>
+
+      {products.map((product) => (
+        <Card key={product.id} className="border-border/30">
+          <CardHeader>
+            <CardTitle>{product.name}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2.5">
+            {PRODUCT_CHANNELS.map((ch) => {
+              const st = channelStatus(product.id, ch.provider);
+              const isBusy = busy === `${product.id}:${ch.provider}`;
+              return (
+                <div key={ch.provider} className="flex items-center justify-between gap-3 rounded-xl border p-3.5">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium">{ch.label}</p>
+                      {st.state === "connected" && <Badge className="border-0" style={pillStyle("pos")}>Linked</Badge>}
+                      {st.state === "needs-page" && <Badge className="border-0" style={pillStyle("warn")}>Pick a Page</Badge>}
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {st.state === "connected" ? (st.label || "Linked and ready.") : ch.sub}
+                    </p>
+                  </div>
+                  <div className="shrink-0">
+                    {st.state === "connected" ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={isBusy}
+                        onClick={() => setDisconnectTarget({ productId: product.id, provider: ch.provider, label: `${ch.label} · ${product.name}` })}
+                      >
+                        {isBusy ? "Unlinking…" : "Unlink"}
+                      </Button>
+                    ) : st.state === "needs-page" ? (
+                      <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>Choose Page</Button>
+                    ) : (
+                      <Button size="sm" onClick={() => connect(ch.provider, product.id)}>Link</Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* Meta Facebook Page picker */}
+      <Dialog open={!!pagePickerProduct} onOpenChange={(open) => { if (!open) setPagePickerProduct(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Choose a Facebook Page</DialogTitle>
+            <DialogDescription>
+              Pick the Page this product posts to. Its linked Instagram account is included automatically.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+            {pages === null ? (
+              <>
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+              </>
+            ) : pagesError && pages.length === 0 ? (
+              <p className="text-sm text-mk-warn">{pagesError}</p>
+            ) : pages.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No Facebook Pages were found on your Meta account.</p>
+            ) : (
+              pages.map((pg) => (
+                <button
+                  key={pg.id}
+                  type="button"
+                  disabled={!!selectingPage}
+                  onClick={() => selectPage(pg)}
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border p-3.5 text-left transition-colors hover:border-primary/50 disabled:opacity-60"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{pg.name}</p>
+                    <p className="text-xs text-muted-foreground">{pg.hasInstagram ? "Facebook + Instagram" : "Facebook only"}</p>
+                  </div>
+                  <span className="text-xs text-primary shrink-0">{selectingPage === pg.id ? "Linking…" : "Select"}</span>
+                </button>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDeleteDialog
         open={!!disconnectTarget}
         onOpenChange={(open) => { if (!open) setDisconnectTarget(null); }}
-        entity="integration"
+        entity="connection"
         name={disconnectTarget?.label}
-        confirmLabel="Disconnect"
-        warning="This will revoke access and disconnect all products using this integration. You can reconnect at any time."
+        confirmLabel="Unlink"
+        warning="This unlinks the channel from this product only. Other products keep their own connections. You can re-link any time."
         onConfirm={confirmDisconnect}
       />
     </div>
-  );
-}
-
-function IntegrationCard({
-  title, description, connected, needsReconnect, reconnectNote,
-  onConnect, onDisconnect, disconnecting, connectLabel, extraNote,
-}: {
-  title: string; description: string; connected: boolean; needsReconnect: boolean;
-  reconnectNote: string; onConnect: () => void; onDisconnect: () => void;
-  disconnecting: boolean; connectLabel: string; extraNote?: React.ReactNode;
-}) {
-  return (
-    <Card className="border-border/30">
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <CardTitle>{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {needsReconnect && <Badge className="border-0" style={pillStyle("warn")}>Action needed</Badge>}
-            {connected && !needsReconnect && <Badge className="border-0" style={pillStyle("pos")}>Connected</Badge>}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {connected ? (
-          <div className="rounded-xl border p-4 space-y-3">
-            {needsReconnect ? (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-mk-warn">{reconnectNote}</p>
-                <div className="flex flex-wrap gap-2 pt-1">
-                  <Button size="sm" onClick={onConnect}>Reconnect</Button>
-                  <Button variant="outline" size="sm" onClick={onDisconnect} disabled={disconnecting}>
-                    {disconnecting ? "Removing..." : "Remove"}
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <p className="text-sm">Connected and ready to use.</p>
-                <Button variant="outline" size="sm" className="shrink-0" onClick={onDisconnect} disabled={disconnecting}>
-                  {disconnecting ? "Removing..." : "Disconnect"}
-                </Button>
-              </div>
-            )}
-            {extraNote}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <Button onClick={onConnect}>{connectLabel}</Button>
-            {extraNote}
-          </div>
-        )}
-      </CardContent>
-    </Card>
   );
 }
 
