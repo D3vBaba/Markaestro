@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ChevronRight, Globe, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { categoryLabel } from "./categories";
 
 export type ProductCardData = {
   id: string;
@@ -12,7 +13,6 @@ export type ProductCardData = {
   categories?: string[];
   category?: string;
   status: string;
-  tags: string[];
   brandIdentity?: { logoUrl: string; primaryColor: string; secondaryColor: string; accentColor: string };
   createdAt?: string;
 };
@@ -31,15 +31,6 @@ const STATUS_PILL: Record<string, { bg: string; fg: string }> = {
   development: { bg: "color-mix(in oklch, var(--mk-warn) 18%, var(--mk-paper))", fg: "color-mix(in oklch, var(--mk-warn) 60%, var(--mk-ink))" },
   sunset:      { bg: "color-mix(in oklch, var(--mk-neg) 12%, var(--mk-paper))", fg: "var(--mk-neg)" },
   archived:    { bg: "var(--mk-panel)", fg: "var(--mk-ink-60)" },
-};
-
-const categoryLabels: Record<string, string> = {
-  saas: "SaaS",
-  mobile: "Mobile",
-  web: "Web",
-  api: "API",
-  marketplace: "Marketplace",
-  other: "Other",
 };
 
 const providerShortLabels: Record<string, string> = {
@@ -155,7 +146,7 @@ export default function ProductCard({
                   style={{ color: "var(--mk-ink-40)", letterSpacing: "0.14em" }}
                 >
                   <span className="truncate">
-                    {categories.map((c) => categoryLabels[c] || c).join(" · ")}
+                    {categories.map((c) => categoryLabel(c)).join(" · ")}
                   </span>
                 </div>
               </div>
@@ -219,35 +210,6 @@ export default function ProductCard({
             >
               <Globe className="h-3 w-3" />
               <span className="truncate">{stripProtocol(product.url)}</span>
-            </div>
-          )}
-
-          {/* Tags */}
-          {product.tags && product.tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1">
-              {product.tags.slice(0, 4).map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px]"
-                  style={{
-                    padding: "2px 8px",
-                    borderRadius: 999,
-                    background: "var(--mk-panel)",
-                    color: "var(--mk-ink-60)",
-                    border: "1px solid var(--mk-rule-soft)",
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
-              {product.tags.length > 4 && (
-                <span
-                  className="text-[10px] px-1.5 py-0.5"
-                  style={{ color: "var(--mk-ink-40)" }}
-                >
-                  +{product.tags.length - 4}
-                </span>
-              )}
             </div>
           )}
 

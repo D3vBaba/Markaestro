@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
-import TagInput from "@/components/app/TagInput";
+import CategorySelect from "./CategorySelect";
+import { categoryLabel, categoryColor } from "./categories";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiGet, apiPut, apiPost, apiDelete, apiUpload } from "@/lib/api-client";
 import { getCurrentInAppBrowserName, isCurrentBrowserMobile } from "@/lib/in-app-browser";
@@ -50,7 +51,6 @@ export type Product = {
   categories?: string[];
   category?: string;
   status: string;
-  tags: string[];
   brandVoice?: BrandVoice;
   brandIdentity?: BrandIdentity;
   createdAt?: string;
@@ -89,15 +89,6 @@ type MetaPage = {
 };
 
 // ---------- constants ----------
-
-const categoryLabels: Record<string, string> = {
-  saas: "SaaS",
-  mobile: "Mobile App",
-  web: "Web App",
-  api: "API",
-  marketplace: "Marketplace",
-  other: "Other",
-};
 
 const SOCIAL_PROVIDERS = [
   "meta",
@@ -179,7 +170,6 @@ type Form = {
   url: string;
   categories: string[];
   status: string;
-  tags: string[];
   identity: {
     logoUrl: string;
     primaryColor: string;
@@ -202,7 +192,6 @@ function buildForm(
       ? [product.category]
       : ["saas"],
     status: product.status || "active",
-    tags: [...(product.tags || [])],
     identity: {
       logoUrl: identity?.logoUrl || "",
       primaryColor: identity?.primaryColor || "",
@@ -403,7 +392,6 @@ export default function ProductDetailSheet({
           url: form.url || "",
           categories: form.categories,
           status: form.status,
-          tags: form.tags,
         }),
         apiPut(`/api/products/${productId}/brand-voice`, {
           brandIdentity: {
@@ -947,13 +935,6 @@ function ReadRow({
   );
 }
 
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded-md border border-border/60 bg-muted/30 px-2 py-0.5 text-[11px] text-foreground">
-      {children}
-    </span>
-  );
-}
 
 function FoundationSection({
   form,
@@ -989,29 +970,26 @@ function FoundationSection({
 
         <SectionCard title="Positioning">
           <ReadRow label="Category">
-            <div className="flex flex-wrap gap-1.5">
-              {form.categories.length ? (
-                form.categories.map((c) => <Chip key={c}>{categoryLabels[c] || c}</Chip>)
-              ) : (
-                <span className="text-sm text-muted-foreground">—</span>
-              )}
-            </div>
+            {form.categories.length ? (
+              <div className="flex flex-wrap gap-1.5">
+                {form.categories.map((c) => (
+                  <span
+                    key={c}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/30 px-2 py-0.5 text-[11px] text-foreground"
+                  >
+                    <span className="h-2 w-2 rounded-full" style={{ background: categoryColor(c) }} />
+                    {categoryLabel(c)}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="text-sm text-muted-foreground">—</span>
+            )}
           </ReadRow>
           <ReadRow label="Status">
             <Badge className="border-0" style={pillStyle(form.status === "active" ? "pos" : "neutral")}>
               {STATUS_LABELS[form.status] || form.status}
             </Badge>
-          </ReadRow>
-          <ReadRow label="Tags">
-            {form.tags.length ? (
-              <div className="flex flex-wrap gap-1.5">
-                {form.tags.map((t) => (
-                  <Chip key={t}>{t}</Chip>
-                ))}
-              </div>
-            ) : (
-              <span className="text-sm text-muted-foreground">No tags</span>
-            )}
           </ReadRow>
         </SectionCard>
       </>
@@ -1047,38 +1025,10 @@ function FoundationSection({
       <SectionCard title="Positioning">
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Category">
-            <div className="flex flex-wrap gap-1">
-              {Object.entries(categoryLabels).map(([val, label]) => {
-                const active = form.categories.includes(val);
-                const lastSelected = active && form.categories.length === 1;
-                return (
-                  <button
-                    key={val}
-                    type="button"
-                    disabled={lastSelected}
-                    title={lastSelected ? "At least one category required" : undefined}
-                    onClick={() =>
-                      patch(
-                        "categories",
-                        active
-                          ? form.categories.length > 1
-                            ? form.categories.filter((c) => c !== val)
-                            : form.categories
-                          : [...form.categories, val],
-                      )
-                    }
-                    className={cn(
-                      "px-2 py-1 rounded-md border text-[11px] transition-all disabled:cursor-not-allowed",
-                      active
-                        ? "border-foreground bg-foreground text-background font-medium"
-                        : "border-border/60 text-muted-foreground hover:border-foreground/30",
-                    )}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+            <CategorySelect
+              value={form.categories[0] || ""}
+              onChange={(v) => patch("categories", [v])}
+            />
           </FormField>
           <FormField label="Status">
             <Select value={form.status} onChange={(e) => patch("status", e.target.value)}>
@@ -1090,13 +1040,6 @@ function FoundationSection({
             </Select>
           </FormField>
         </div>
-        <FormField label="Tags">
-          <TagInput
-            tags={form.tags}
-            onChange={(v) => patch("tags", v)}
-            placeholder="analytics, ai, b2b…"
-          />
-        </FormField>
       </SectionCard>
     </>
   );

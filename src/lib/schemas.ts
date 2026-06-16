@@ -163,7 +163,11 @@ export const brandIdentitySchema = z.object({
 // ── Product Schemas ────────────────────────────────────────────────
 
 export const productStatuses = ['active', 'beta', 'development', 'sunset', 'archived'] as const;
-export const productCategories = ['saas', 'mobile', 'web', 'api', 'marketplace', 'other'] as const;
+export const productCategories = [
+  'saas', 'mobile', 'web', 'api', 'marketplace', 'ecommerce', 'fintech',
+  'healthtech', 'edtech', 'gaming', 'social', 'productivity', 'developer-tools',
+  'ai', 'media', 'agency', 'creator', 'hardware', 'nonprofit', 'other',
+] as const;
 
 const categoryEnum = z.enum(productCategories);
 const categoriesSchema = z
@@ -177,7 +181,6 @@ export const createProductSchema = z.object({
   url: z.string().trim().url('Invalid URL').or(z.literal('')).default(''),
   categories: categoriesSchema,
   status: z.enum(productStatuses).default('active'),
-  tags: tagsSchema,
   brandVoice: brandVoiceSchema.optional(),
   brandIdentity: brandIdentitySchema.optional(),
   knowledge: productKnowledgeSchema.optional(),
@@ -189,7 +192,6 @@ export const updateProductSchema = z.object({
   url: z.string().trim().url('Invalid URL').or(z.literal('')).optional(),
   categories: categoriesSchema.optional(),
   status: z.enum(productStatuses).optional(),
-  tags: tagsSchema.optional(),
   brandVoice: brandVoiceSchema.optional(),
   brandIdentity: brandIdentitySchema.optional(),
   knowledge: productKnowledgeSchema.optional(),

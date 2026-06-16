@@ -10,21 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import FormField from "@/components/app/FormField";
-import TagInput from "@/components/app/TagInput";
+import CategorySelect from "./CategorySelect";
 import ScanProgressStepper from "@/components/app/ScanProgressStepper";
 import { useProductScan } from "@/hooks/useProductScan";
 import { apiPost, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-
-const categoryLabels: Record<string, string> = {
-  saas: "SaaS",
-  mobile: "Mobile",
-  web: "Web",
-  api: "API",
-  marketplace: "Marketplace",
-  other: "Other",
-};
 
 type Mode = "start" | "scan" | "manual" | "review";
 
@@ -53,7 +43,6 @@ export default function ProductCreateWizard({
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [categories, setCategories] = useState<string[]>(["saas"]);
-  const [tags, setTags] = useState<string[]>([]);
   const [primaryColor, setPrimaryColor] = useState("");
   const [secondaryColor, setSecondaryColor] = useState("");
   const [accentColor, setAccentColor] = useState("");
@@ -71,7 +60,6 @@ export default function ProductCreateWizard({
     setDescription("");
     setUrl("");
     setCategories(["saas"]);
-    setTags([]);
     setPrimaryColor("");
     setSecondaryColor("");
     setAccentColor("");
@@ -99,7 +87,6 @@ export default function ProductCreateWizard({
       setDescription(d.description || "");
       setUrl(full);
       setCategories(d.category ? [d.category] : ["saas"]);
-      setTags(d.tags || []);
       setPrimaryColor(d.primaryColor || "");
       setSecondaryColor(d.secondaryColor || "");
       setAccentColor(d.accentColor || "");
@@ -126,7 +113,6 @@ export default function ProductCreateWizard({
         description,
         url: url || "",
         categories,
-        tags,
       });
       if (!res.ok) {
         const err = res.data as { error?: string; issues?: { message: string }[] };
@@ -446,44 +432,11 @@ export default function ProductCreateWizard({
                   </div>
                 </FormField>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField label="Category">
-                    <div className="flex flex-wrap gap-1">
-                      {Object.entries(categoryLabels).map(([val, label]) => {
-                        const active = categories.includes(val);
-                        const lastSelected = active && categories.length === 1;
-                        return (
-                          <button
-                            key={val}
-                            type="button"
-                            disabled={lastSelected}
-                            title={lastSelected ? "At least one category required" : undefined}
-                            onClick={() =>
-                              setCategories((prev) =>
-                                active
-                                  ? prev.length > 1
-                                    ? prev.filter((c) => c !== val)
-                                    : prev
-                                  : [...prev, val],
-                              )
-                            }
-                            className={cn(
-                              "px-2 py-1 rounded-md border text-[11px] transition-all disabled:cursor-not-allowed",
-                              active
-                                ? "border-foreground bg-foreground text-background font-medium"
-                                : "border-border/60 text-muted-foreground hover:border-foreground/30",
-                            )}
-                          >
-                            {label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </FormField>
-                </div>
-
-                <FormField label="Tags">
-                  <TagInput tags={tags} onChange={setTags} placeholder="analytics, ai, b2b…" />
+                <FormField label="Category">
+                  <CategorySelect
+                    value={categories[0] || ""}
+                    onChange={(v) => setCategories([v])}
+                  />
                 </FormField>
 
                 {(primaryColor || secondaryColor || accentColor || logoUrl || targetAudience || tone) && (
