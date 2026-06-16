@@ -12,7 +12,6 @@ export type ProductCardData = {
   categories?: string[];
   category?: string;
   status: string;
-  pricingTier: string;
   tags: string[];
   brandIdentity?: { logoUrl: string; primaryColor: string; secondaryColor: string; accentColor: string };
   createdAt?: string;
@@ -158,14 +157,6 @@ export default function ProductCard({
                   <span className="truncate">
                     {categories.map((c) => categoryLabels[c] || c).join(" · ")}
                   </span>
-                  {product.pricingTier && (
-                    <>
-                      <span style={{ color: "var(--mk-ink-20)" }}>·</span>
-                      <span className="truncate normal-case tracking-normal font-sans text-[11px]">
-                        {product.pricingTier.split(",")[0].trim()}
-                      </span>
-                    </>
-                  )}
                 </div>
               </div>
             </div>

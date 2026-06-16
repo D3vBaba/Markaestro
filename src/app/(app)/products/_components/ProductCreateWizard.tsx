@@ -53,7 +53,6 @@ export default function ProductCreateWizard({
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [categories, setCategories] = useState<string[]>(["saas"]);
-  const [pricing, setPricing] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [primaryColor, setPrimaryColor] = useState("");
   const [secondaryColor, setSecondaryColor] = useState("");
@@ -72,7 +71,6 @@ export default function ProductCreateWizard({
     setDescription("");
     setUrl("");
     setCategories(["saas"]);
-    setPricing([]);
     setTags([]);
     setPrimaryColor("");
     setSecondaryColor("");
@@ -101,11 +99,6 @@ export default function ProductCreateWizard({
       setDescription(d.description || "");
       setUrl(full);
       setCategories(d.category ? [d.category] : ["saas"]);
-      setPricing(
-        d.pricingTier
-          ? d.pricingTier.split(",").map((s) => s.trim()).filter(Boolean)
-          : [],
-      );
       setTags(d.tags || []);
       setPrimaryColor(d.primaryColor || "");
       setSecondaryColor(d.secondaryColor || "");
@@ -133,7 +126,6 @@ export default function ProductCreateWizard({
         description,
         url: url || "",
         categories,
-        pricingTier: pricing.join(", "),
         tags,
       });
       if (!res.ok) {
@@ -487,13 +479,6 @@ export default function ProductCreateWizard({
                         );
                       })}
                     </div>
-                  </FormField>
-                  <FormField label="Pricing">
-                    <TagInput
-                      tags={pricing}
-                      onChange={setPricing}
-                      placeholder="Free, Pro $29/mo…"
-                    />
                   </FormField>
                 </div>
 

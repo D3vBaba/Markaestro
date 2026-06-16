@@ -50,7 +50,6 @@ export type Product = {
   categories?: string[];
   category?: string;
   status: string;
-  pricingTier: string;
   tags: string[];
   brandVoice?: BrandVoice;
   brandIdentity?: BrandIdentity;
@@ -108,11 +107,49 @@ const SOCIAL_PROVIDERS = [
   "pinterest",
 ] as const;
 const providerLabels: Record<string, string> = {
-  meta: "Meta (Facebook + Instagram)",
-  instagram: "Instagram (direct login)",
+  meta: "Facebook",
+  instagram: "Instagram",
   tiktok: "TikTok",
   threads: "Threads",
   pinterest: "Pinterest",
+};
+
+// Brand glyphs for each channel — a white mark on the platform's color.
+const CHANNEL_BRAND: Record<string, { bg: string; icon: React.ReactNode }> = {
+  meta: {
+    bg: "#1877F2",
+    icon: (
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="#fff" aria-hidden>
+        <path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6 4.39 10.97 10.13 11.85v-8.38H7.08v-3.47h3.05V9.41c0-3 1.79-4.67 4.53-4.67 1.31 0 2.69.24 2.69.24v2.95h-1.52c-1.49 0-1.96.93-1.96 1.87v2.25h3.33l-.53 3.47h-2.8v8.38C19.61 23.04 24 18.07 24 12.07z" />
+      </svg>
+    ),
+  },
+  instagram: {
+    bg: "linear-gradient(135deg,#feda75 0%,#fa7e1e 30%,#d62976 60%,#962fbf 100%)",
+    icon: (
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" strokeWidth="2" aria-hidden>
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.2" cy="6.8" r="1.1" fill="#fff" stroke="none" />
+      </svg>
+    ),
+  },
+  tiktok: {
+    bg: "#111111",
+    icon: (
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="#fff" aria-hidden>
+        <path d="M16.2 3c.3 1.9 1.4 3.4 3.3 3.6v2.5c-1.2 0-2.4-.4-3.3-1v5.7a5.4 5.4 0 1 1-5.4-5.4c.3 0 .5 0 .8.1v2.6a2.85 2.85 0 1 0 2 2.7V3h2.6z" />
+      </svg>
+    ),
+  },
+  threads: {
+    bg: "#111111",
+    icon: <span className="text-[15px] font-bold leading-none text-white">@</span>,
+  },
+  pinterest: {
+    bg: "#E60023",
+    icon: <span className="text-[13px] font-bold leading-none text-white">P</span>,
+  },
 };
 
 const COLOR_PALETTE = [
@@ -125,11 +162,12 @@ const COLOR_PALETTE = [
 ];
 
 function getScopedSocialIntegrations(integrations: IntegrationInfo[]) {
+  // Every channel is linked per product now — only product-scoped connections
+  // count (any leftover workspace-level Meta from the old shared model is ignored).
   return integrations.filter(
     (integration) =>
       SOCIAL_PROVIDERS.includes(integration.provider as typeof SOCIAL_PROVIDERS[number]) &&
-      (integration.scope === "product" ||
-        (integration.provider === "meta" && integration.scope === "workspace")),
+      integration.scope === "product",
   );
 }
 
@@ -141,7 +179,6 @@ type Form = {
   url: string;
   categories: string[];
   status: string;
-  pricing: string[];
   tags: string[];
   voice: {
     tone: string;
@@ -175,10 +212,6 @@ function buildForm(
       ? [product.category]
       : ["saas"],
     status: product.status || "active",
-    pricing: (product.pricingTier || "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean),
     tags: [...(product.tags || [])],
     voice: {
       tone: voice?.tone || "",
@@ -388,7 +421,6 @@ export default function ProductDetailSheet({
           url: form.url || "",
           categories: form.categories,
           status: form.status,
-          pricingTier: form.pricing.join(", "),
           tags: form.tags,
         }),
         apiPut(`/api/products/${productId}/brand-voice`, {
@@ -523,9 +555,12 @@ export default function ProductDetailSheet({
   }
 
   async function loadMetaPages() {
+    if (!productId) return;
     setLoadingPages(true);
     try {
-      const res = await apiGet<{ pages: MetaPage[] }>(`/api/oauth/pages/meta`);
+      const res = await apiGet<{ pages: MetaPage[] }>(
+        `/api/oauth/pages/meta?productId=${productId}`,
+      );
       if (res.ok) {
         setMetaPages(res.data.pages || []);
         if (res.data.pages?.length === 0) toast.error("No Facebook pages found.");
@@ -949,13 +984,6 @@ function FoundationSection({
             </Select>
           </FormField>
         </div>
-        <FormField label="Pricing tier">
-          <TagInput
-            tags={form.pricing}
-            onChange={(v) => patch("pricing", v)}
-            placeholder="Free, Pro $29/mo…"
-          />
-        </FormField>
         <FormField label="Tags">
           <TagInput
             tags={form.tags}
@@ -1172,8 +1200,8 @@ function ChannelsSection({
 }) {
   void integrations; // used via getIntegration
   const meta = getIntegration("meta");
-  const metaConnected =
-    meta?.status === "connected" || (meta?.scope === "workspace" && meta?.needsPageSelection);
+  const metaConnected = meta?.status === "connected";
+  const metaHasPage = metaConnected && !!meta?.pageId;
   const instagram = getIntegration("instagram");
   const tiktok = getIntegration("tiktok");
   return (
@@ -1182,36 +1210,45 @@ function ChannelsSection({
         title="Connected channels"
         description="Connect social accounts so you can schedule from this product."
       >
-        {/* Meta */}
+        {/* Facebook (Meta) — its own per-product Facebook login */}
         <ChannelCard
+          provider="meta"
           label={providerLabels.meta}
-          connected={!!metaConnected}
-          warn={!!metaConnected && !meta?.pageId}
-          warnLabel="Select page"
+          connected={!!metaHasPage}
+          warn={!!metaConnected && !metaHasPage}
+          warnLabel="Pick a Page"
           detail={
-            meta?.pageName
-              ? `${meta.pageName}${meta.igAccountId ? " · Instagram linked" : ""}`
+            metaHasPage
+              ? meta?.pageName || "Facebook Page linked"
               : metaConnected
-              ? "Select a Facebook page to enable publishing"
-              : undefined
+              ? "Choose which Facebook Page this product posts to"
+              : "Link this product's own Facebook Page"
           }
         >
           {metaConnected ? (
             <>
               <Button variant="outline" size="sm" onClick={onLoadPages} disabled={loadingPages}>
-                {loadingPages ? "Loading…" : meta?.pageId ? "Change page" : "Select page"}
+                {loadingPages ? "Loading…" : metaHasPage ? "Change Page" : "Choose Page"}
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onDisconnect("meta", providerLabels.meta)}
+                disabled={disconnecting === "meta"}
+              >
+                {disconnecting === "meta" ? "…" : "Unlink"}
               </Button>
               {metaPages.length > 0 && (
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-2 pt-2 w-full">
                   <Select
                     value={selectedPageId}
                     onChange={(e) => onSelectedPageIdChange(e.target.value)}
                     className="flex-1"
                   >
-                    <option value="">Select a page…</option>
+                    <option value="">Select a Page…</option>
                     {metaPages.map((pg) => (
                       <option key={pg.id} value={pg.id}>
-                        {pg.name} {pg.hasInstagram ? "(IG linked)" : ""}
+                        {pg.name}
                       </option>
                     ))}
                   </Select>
@@ -1226,18 +1263,15 @@ function ChannelsSection({
               )}
             </>
           ) : (
-            <p className="text-[11px] text-muted-foreground">
-              Connect Meta in{" "}
-              <a href="/settings" className="text-primary hover:underline">
-                Settings
-              </a>{" "}
-              first, then pick a page here.
-            </p>
+            <Button size="sm" onClick={() => onStartOAuth("meta")}>
+              Connect
+            </Button>
           )}
         </ChannelCard>
 
-        {/* Instagram */}
+        {/* Instagram — its own Instagram Login, separate from Facebook */}
         <ChannelCard
+          provider="instagram"
           label={providerLabels.instagram}
           connected={instagram?.status === "connected"}
           warn={!!instagram?.lastRefreshError}
@@ -1273,6 +1307,7 @@ function ChannelsSection({
 
         {/* TikTok */}
         <ChannelCard
+          provider="tiktok"
           label={providerLabels.tiktok}
           connected={tiktok?.status === "connected"}
           warn={!!tiktok?.lastRefreshError}
@@ -1438,6 +1473,7 @@ function SimpleConnectCard({
 
   return (
     <ChannelCard
+      provider={provider}
       label={label}
       connected={!!connected}
       warn={needsReconnect || (warnWhen ? warnWhen(integration) : false)}
@@ -1498,6 +1534,7 @@ function SimpleConnectCard({
 }
 
 function ChannelCard({
+  provider,
   label,
   connected,
   warn,
@@ -1505,6 +1542,7 @@ function ChannelCard({
   detail,
   children,
 }: {
+  provider?: string;
   label: string;
   connected: boolean;
   warn?: boolean;
@@ -1512,25 +1550,39 @@ function ChannelCard({
   detail?: string;
   children: React.ReactNode;
 }) {
+  const brand = provider ? CHANNEL_BRAND[provider] : undefined;
   return (
-    <div className="rounded-lg border border-border/50 p-3 space-y-2.5">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <p className="text-sm font-medium text-foreground truncate">{label}</p>
-          {connected && (
-            <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("pos")}>
-              Connected
-            </Badge>
-          )}
-          {warn && (
-            <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
-              {warnLabel || "Warning"}
-            </Badge>
-          )}
+    <div
+      className="group rounded-xl border border-border/50 p-3.5 transition-colors hover:border-border data-[on=true]:border-[color:var(--mk-pos)]/30"
+      data-on={connected ? "true" : "false"}
+    >
+      <div className="flex items-start gap-3">
+        {brand && (
+          <span
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] shadow-sm"
+            style={{ background: brand.bg }}
+          >
+            {brand.icon}
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 min-w-0">
+            <p className="text-sm font-semibold text-foreground truncate">{label}</p>
+            {connected && (
+              <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("pos")}>
+                Linked
+              </Badge>
+            )}
+            {warn && (
+              <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
+                {warnLabel || "Warning"}
+              </Badge>
+            )}
+          </div>
+          {detail && <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">{detail}</p>}
         </div>
       </div>
-      {detail && <p className="text-[11px] text-muted-foreground">{detail}</p>}
-      <div className="flex flex-wrap items-center gap-2">{children}</div>
+      <div className="mt-2.5 flex flex-wrap items-center gap-2 pl-12">{children}</div>
     </div>
   );
 }
