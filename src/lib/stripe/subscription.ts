@@ -13,12 +13,43 @@ import type { PlanTier } from './plans';
  * records onto the corresponding workspaceId.
  */
 const COLLECTION = 'subscriptions';
+/**
+ * Account-level entitlements, keyed by Firebase uid. Unlike `subscriptions`
+ * (which belong to a workspace), an entitlement here grants its plan to the
+ * user in EVERY workspace they're in. Used for manual comps (e.g. reviewer /
+ * tester accounts) and any future per-user plan. `getEffectiveSubscription`
+ * lets an active account entitlement override the workspace subscription.
+ */
+const ACCOUNT_COLLECTION = 'accountEntitlements';
 const ACTIVE_STATUSES = new Set(['active', 'trialing']);
 
 export async function getSubscriptionForWorkspace(workspaceId: string): Promise<SubscriptionRecord | null> {
   const doc = await adminDb.collection(COLLECTION).doc(workspaceId).get();
   if (!doc.exists) return null;
   return doc.data() as SubscriptionRecord;
+}
+
+/** Read the account-level entitlement for a user (applies across all workspaces). */
+export async function getAccountEntitlement(uid: string): Promise<SubscriptionRecord | null> {
+  const doc = await adminDb.collection(ACCOUNT_COLLECTION).doc(uid).get();
+  if (!doc.exists) return null;
+  return doc.data() as SubscriptionRecord;
+}
+
+/** Grant/update an account-level entitlement for a user. */
+export async function upsertAccountEntitlement(
+  uid: string,
+  data: Partial<SubscriptionRecord>,
+): Promise<void> {
+  await adminDb
+    .collection(ACCOUNT_COLLECTION)
+    .doc(uid)
+    .set({ ...data, updatedAt: new Date().toISOString() }, { merge: true });
+}
+
+/** Revoke an account-level entitlement. */
+export async function deleteAccountEntitlement(uid: string): Promise<void> {
+  await adminDb.collection(ACCOUNT_COLLECTION).doc(uid).delete();
 }
 
 export async function upsertSubscriptionForWorkspace(
@@ -78,29 +109,41 @@ export async function getEffectiveSubscription(
 ): Promise<SubscriptionRecord | null> {
   // Support both the new object form and the legacy
   // `getEffectiveSubscription(uid, workspaceId)` positional form.
+  const uid = typeof opts === 'string' ? opts : opts.uid;
   const workspaceId =
     typeof opts === 'string' ? legacyWorkspaceId : opts.workspaceId;
-  if (!workspaceId) return null;
 
-  const primary = await getSubscriptionForWorkspace(workspaceId);
-  if (primary) return primary;
+  // Account-level entitlement (manual comps / per-user plans) is granted to the
+  // user, not a workspace, so an active one takes precedence and applies no
+  // matter which workspace the request is scoped to.
+  const account = uid ? await getAccountEntitlement(uid) : null;
+  if (account && ACTIVE_STATUSES.has(account.status)) return account;
 
-  // Legacy fallback: any member of the workspace had a uid-keyed sub.
-  const membersSnap = await adminDb.collection(`workspaces/${workspaceId}/members`).get();
-  const candidates: SubscriptionRecord[] = [];
-  for (const member of membersSnap.docs) {
-    const legacy = await adminDb.collection(COLLECTION).doc(member.id).get();
-    if (legacy.exists) candidates.push(legacy.data() as SubscriptionRecord);
+  if (workspaceId) {
+    const primary = await getSubscriptionForWorkspace(workspaceId);
+    if (primary) return primary;
+
+    // Legacy fallback: any member of the workspace had a uid-keyed sub.
+    const membersSnap = await adminDb.collection(`workspaces/${workspaceId}/members`).get();
+    const candidates: SubscriptionRecord[] = [];
+    for (const member of membersSnap.docs) {
+      const legacy = await adminDb.collection(COLLECTION).doc(member.id).get();
+      if (legacy.exists) candidates.push(legacy.data() as SubscriptionRecord);
+    }
+    if (candidates.length > 0) {
+      candidates.sort((a, b) => {
+        const priority = (s: SubscriptionRecord) => (ACTIVE_STATUSES.has(s.status) ? 2 : s.status === 'past_due' ? 1 : 0);
+        const diff = priority(b) - priority(a);
+        if (diff !== 0) return diff;
+        return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+      });
+      return candidates[0];
+    }
   }
-  if (candidates.length === 0) return null;
 
-  candidates.sort((a, b) => {
-    const priority = (s: SubscriptionRecord) => (ACTIVE_STATUSES.has(s.status) ? 2 : s.status === 'past_due' ? 1 : 0);
-    const diff = priority(b) - priority(a);
-    if (diff !== 0) return diff;
-    return (b.updatedAt || '').localeCompare(a.updatedAt || '');
-  });
-  return candidates[0];
+  // Nothing active at the workspace level — surface any (possibly inactive)
+  // account record so billing history / past comps still resolve.
+  return account;
 }
 
 /** @deprecated use getSubscriptionForWorkspace */
