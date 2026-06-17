@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
 import { encrypt } from '@/lib/crypto';
+import { logger } from '@/lib/logger';
 import { getProviderConfig, getRedirectUri, getClientCredentials } from './config';
 import type { OAuthProvider, SocialChannel } from '@/lib/schemas';
 import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
@@ -157,6 +158,18 @@ export async function exchangeCode(
   });
 
   const data = await res.json();
+
+  if (provider === 'instagram') {
+    // Confirm the short-lived token's response shape (never log the token) so
+    // we can tell whether access_token is where exchangeInstagramToken reads it.
+    logger.info('instagram short-lived exchange response', {
+      event: 'oauth.instagram.short_lived.response',
+      httpStatus: res.status,
+      keys: Object.keys(data || {}).join(','),
+      hasAccessToken: Boolean(data?.access_token),
+      hasUserId: Boolean(data?.user_id),
+    });
+  }
 
   if (!res.ok && !data.access_token) {
     throw new Error(`OAuth token exchange failed: ${data.error_description || data.error || data.message || 'Unknown error'}`);

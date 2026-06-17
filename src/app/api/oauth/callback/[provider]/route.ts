@@ -4,6 +4,7 @@ import { encrypt } from '@/lib/crypto';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { getAppUrl } from '@/lib/oauth/config';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -28,11 +29,27 @@ async function exchangeInstagramToken(tokens: {
     }).toString()}`,
     { method: 'GET' },
   );
-  const data = await res.json();
+  const data = await res.json().catch(() => ({} as Record<string, unknown>));
 
   if (!res.ok || !data.access_token) {
+    // Capture the FULL Meta payload (no token is present on failures) so the
+    // exact ig_exchange_token error is recoverable from Cloud Logging — this is
+    // the durable-fix signal we can't reproduce without a live short-lived token.
+    logger.error('instagram long-lived exchange failed', {
+      event: 'oauth.instagram.long_lived.failed',
+      httpStatus: res.status,
+      body: JSON.stringify(data).slice(0, 1200),
+      shortTokenLen: (tokens.accessToken || '').length,
+    });
     throw new Error(`Instagram token exchange failed: ${data.error_message || data.error?.message || data.error || 'Unknown error'}`);
   }
+
+  // Confirm we actually got a long-lived (~60d) token, not a passthrough.
+  logger.info('instagram long-lived exchange ok', {
+    event: 'oauth.instagram.long_lived.ok',
+    expiresIn: data.expires_in ? Number(data.expires_in) : null,
+    tokenType: typeof data.token_type === 'string' ? data.token_type : null,
+  });
 
   return {
     accessToken: String(data.access_token),
