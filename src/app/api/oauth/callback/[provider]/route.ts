@@ -5,6 +5,7 @@ import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { getAppUrl } from '@/lib/oauth/config';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 import { logger } from '@/lib/logger';
+import { IG_LOGIN_UNSUPPORTED_MESSAGE, isInstagramGraphUnsupported } from '@/lib/oauth/instagram-errors';
 
 export const runtime = 'nodejs';
 
@@ -41,6 +42,9 @@ async function exchangeInstagramToken(tokens: {
       body: JSON.stringify(data).slice(0, 1200),
       shortTokenLen: (tokens.accessToken || '').length,
     });
+    if (isInstagramGraphUnsupported(data)) {
+      throw new Error(IG_LOGIN_UNSUPPORTED_MESSAGE);
+    }
     throw new Error(`Instagram token exchange failed: ${data.error_message || data.error?.message || data.error || 'Unknown error'}`);
   }
 
@@ -175,6 +179,9 @@ async function fetchInstagramProfile(accessToken: string) {
   const data = await res.json();
 
   if (!res.ok) {
+    if (isInstagramGraphUnsupported(data)) {
+      throw new Error(IG_LOGIN_UNSUPPORTED_MESSAGE);
+    }
     throw new Error(`Instagram profile fetch failed: ${data.error?.message || data.error_message || 'Unknown error'}`);
   }
 
