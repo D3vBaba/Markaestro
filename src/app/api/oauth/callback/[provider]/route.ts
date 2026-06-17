@@ -275,6 +275,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         // Continue with short-lived token if exchange fails
       }
 
+      // Persist the app-scoped user id so the deauthorize / data-deletion
+      // webhooks can map a Meta "remove app" event back to this connection.
+      try {
+        const meRes = await fetch(
+          `https://graph.facebook.com/v22.0/me?fields=id&access_token=${encodeURIComponent(tokens.accessToken)}`,
+        );
+        const meData = await meRes.json();
+        if (meData.id) extraData.metaUserId = String(meData.id);
+      } catch {
+        // Non-fatal — webhook mapping just no-ops if the id is absent.
+      }
+
       // Fetch user's pages for later selection
       try {
         const pagesRes = await fetch(
