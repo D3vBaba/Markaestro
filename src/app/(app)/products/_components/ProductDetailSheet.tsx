@@ -23,6 +23,7 @@ import { getCurrentInAppBrowserName, isCurrentBrowserMobile } from "@/lib/in-app
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
+import { resolveChannelStatus } from "@/lib/integrations/channel-status";
 
 // ---------- types ----------
 
@@ -1220,9 +1221,13 @@ function ChannelsSection({
 }) {
   void integrations; // used via getIntegration
   const meta = getIntegration("meta");
-  const metaConnected = meta?.status === "connected";
-  const metaHasPage = metaConnected && !!meta?.pageId;
+  // Use the shared resolver so this sheet and the Settings page can never
+  // disagree (a workspace-scoped Meta leftover must not read as connected here).
+  const metaState = resolveChannelStatus("meta", meta);
+  const metaHasPage = metaState.state === "connected";
+  const metaConnected = metaState.state === "connected" || metaState.state === "needs-page";
   const instagram = getIntegration("instagram");
+  const instagramConnected = resolveChannelStatus("instagram", instagram).state === "connected";
   const tiktok = getIntegration("tiktok");
   return (
     <>
@@ -1293,11 +1298,11 @@ function ChannelsSection({
         <ChannelCard
           provider="instagram"
           label={providerLabels.instagram}
-          connected={instagram?.status === "connected"}
+          connected={instagramConnected}
           warn={!!instagram?.lastRefreshError}
           warnLabel="Reconnect"
           detail={
-            instagram?.status === "connected"
+            instagramConnected
               ? [
                   instagram?.username ? `@${instagram.username}` : null,
                   instagram?.tokenExpiresAt

@@ -325,9 +325,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         throw new Error('VALIDATION_MISSING_PRODUCT_ID');
       }
 
-      const longLivedTokens = await exchangeInstagramToken(tokens);
-      tokens.accessToken = longLivedTokens.accessToken;
-      tokens.expiresIn = longLivedTokens.expiresIn;
+      // Exchange the short-lived token (~1h) for a long-lived one (~60d).
+      // Best-effort: a failure here must NOT drop the whole connection — fall
+      // back to the short-lived token so the account still links (this matches
+      // the meta/threads branches, which already degrade gracefully). Without
+      // this, any hiccup in ig_exchange_token left Instagram "unlinking itself"
+      // because storeTokens never ran.
+      try {
+        const longLivedTokens = await exchangeInstagramToken(tokens);
+        tokens.accessToken = longLivedTokens.accessToken;
+        tokens.expiresIn = longLivedTokens.expiresIn;
+      } catch (e) {
+        console.warn('Instagram long-lived exchange failed:', e instanceof Error ? e.message : e);
+      }
 
       const profile = await fetchInstagramProfile(tokens.accessToken);
       extraData.igAccountId = profile.userId;

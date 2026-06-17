@@ -27,6 +27,7 @@ import { PLANS } from "@/lib/stripe/plans";
 import type { PlanTier } from "@/lib/stripe/plans";
 import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
+import { resolveChannelStatus, type ChannelStatus } from "@/lib/integrations/channel-status";
 import {
   User, Shield, Zap, Link2, Users, Building2, CreditCard,
   Pencil, Check, X, Loader2, KeyRound, Mail, BarChart3,
@@ -808,23 +809,9 @@ function IntegrationsTab() {
     }
   }
 
-  type ChannelStatus = { state: "connected" | "needs-page" | "disconnected"; label?: string };
   function channelStatus(productId: string, provider: string): ChannelStatus {
     const entry = (connsByProduct[productId] || []).find((c) => c.provider === provider);
-    if (!entry) return { state: "disconnected" };
-    if (provider === "meta") {
-      // Only the product's OWN Meta connection counts — ignore any leftover
-      // workspace-level Meta from the previous shared model.
-      if (entry.scope !== "product") return { state: "disconnected" };
-      // Facebook: a Page is chosen (connected), or linked but awaiting a Page pick.
-      if (entry.status === "connected" && entry.pageId && !entry.pageSelectionRequired) {
-        return { state: "connected", label: entry.pageName || "Facebook Page" };
-      }
-      if (entry.pageSelectionRequired) return { state: "needs-page" };
-      return { state: "disconnected" };
-    }
-    if (entry.status === "connected") return { state: "connected", label: entry.username ? `@${entry.username}` : undefined };
-    return { state: "disconnected" };
+    return resolveChannelStatus(provider, entry);
   }
 
   if (productsLoading || (!!productIds && connLoading && !connData)) {
