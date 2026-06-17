@@ -237,9 +237,14 @@ function channelToProviders(channel: SocialChannel, preferredProvider?: string):
     case 'facebook':
       return prioritize(['meta']);
     case 'instagram':
-      // Instagram is its own independent connection (Instagram Login), separate
-      // from the Facebook Page's linked Instagram. Meta no longer serves it.
-      return prioritize(['instagram']);
+      // Prefer the standalone Instagram Login connection (the user's own token),
+      // but fall back to the Facebook Page's linked Instagram Business account.
+      // The Page path publishes via the long-lived (effectively non-expiring)
+      // Page token, so company Instagram keeps working even if the standalone
+      // 60-day token lapses — the durable default. getConnectionForChannel only
+      // resolves meta here when the chosen Page actually has a linked IG
+      // (hasReadyMetaDestination checks metadata.igAccountId).
+      return prioritize(['instagram', 'meta']);
     case 'tiktok':
       return prioritize(['tiktok']);
     case 'threads':
