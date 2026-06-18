@@ -3,6 +3,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { updatePostSchema } from '@/lib/schemas';
+import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 
 export const runtime = 'nodejs';
 
@@ -40,13 +41,47 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const ref = adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${id}`);
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');
+    const existing = snap.data() as Record<string, unknown>;
+    const nextPost = {
+      ...existing,
+      ...Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined)),
+    };
+
+    if (nextPost.status === 'scheduled') {
+      const issues = await getSocialPostPreflightIssues(
+        ctx.workspaceId,
+        typeof nextPost.productId === 'string' && nextPost.productId ? nextPost.productId : undefined,
+        {
+          content: typeof nextPost.content === 'string' ? nextPost.content : '',
+          channel: typeof nextPost.channel === 'string' ? nextPost.channel : undefined,
+          targetChannels: Array.isArray(nextPost.targetChannels) ? nextPost.targetChannels : undefined,
+          mediaUrls: Array.isArray(nextPost.mediaUrls) ? nextPost.mediaUrls.filter((url): url is string => typeof url === 'string') : undefined,
+        },
+        { requireReadyChannels: true },
+      );
+      if (issues.length > 0) {
+        return apiOk({ error: 'VALIDATION_ERROR', issues }, 400);
+      }
+    }
 
     // Strip undefined keys so we only overwrite fields explicitly sent
     const filtered = Object.fromEntries(
       Object.entries(data).filter(([, v]) => v !== undefined),
     );
+    const clearsPublishResults = ['content', 'channel', 'targetChannels', 'mediaUrls', 'productId', 'destinationProvider']
+      .some((key) => key in filtered);
     const patch = {
       ...filtered,
+      ...(clearsPublishResults
+        ? {
+            publishResults: [],
+            publishedChannels: [],
+            retryFailedChannelsOnly: null,
+            externalId: '',
+            externalUrl: '',
+            errorMessage: '',
+          }
+        : {}),
       updatedAt: new Date().toISOString(),
       updatedBy: ctx.uid,
     };

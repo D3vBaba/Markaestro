@@ -11,6 +11,7 @@ import {
   TIKTOK_MANUAL_REVIEW_ACTION,
   validateTikTokMediaUrls,
 } from '@/lib/tiktok-draft-flow';
+import { firstSocialPostValidationError } from '@/lib/social/post-validation';
 
 export type { PublishRequest, PublishResult };
 
@@ -71,6 +72,8 @@ export type ChannelPublishResult = {
 export type MultiChannelPublishResult = {
   /** True only when all required channels have completed successfully */
   success: boolean;
+  /** True when at least one channel succeeded and at least one channel failed */
+  partialFailure?: boolean;
   /** True when one or more channels are still processing asynchronously */
   pending?: boolean;
   reviewRequired?: boolean;
@@ -101,6 +104,12 @@ type ClaimedScheduledPost = {
   attemptCount: number;
 };
 
+export type ClaimedPublishPost = ClaimedScheduledPost;
+
+type FinalizePublishOptions = {
+  retryOnFailure?: boolean;
+};
+
 export type ScheduledPostsProcessResult = {
   claimed: number;
   processed: number;
@@ -109,8 +118,9 @@ export type ScheduledPostsProcessResult = {
   pending: number;
   retried: number;
   failed: number;
+  partialFailed: number;
   recovered: number;
-  results: Array<{ postId: string; outcome: 'published' | 'exported_for_review' | 'pending' | 'retried' | 'failed' | 'recovered'; error?: string }>;
+  results: Array<{ postId: string; outcome: 'published' | 'exported_for_review' | 'pending' | 'retried' | 'failed' | 'partial_failed' | 'recovered'; error?: string }>;
   errors: Array<{ postId: string; error: string }>;
 };
 
@@ -259,6 +269,51 @@ export function getPostTargetChannels(post: Record<string, unknown>): SocialChan
   return asSocialChannel(post.channel) ? [post.channel] : [];
 }
 
+function shouldReuseSuccessfulChannelResults(post: Record<string, unknown>): boolean {
+  return post.retryFailedChannelsOnly === true || post.status === 'failed' || post.status === 'partial_failed';
+}
+
+function getReusableSuccessfulChannelResults(
+  post: Record<string, unknown>,
+  targetChannels: SocialChannel[],
+): ChannelPublishResult[] {
+  if (!shouldReuseSuccessfulChannelResults(post) || !Array.isArray(post.publishResults)) {
+    return [];
+  }
+
+  const targetSet = new Set(targetChannels);
+  const seen = new Set<SocialChannel>();
+  const reusable: ChannelPublishResult[] = [];
+
+  for (const result of post.publishResults) {
+    if (!result || typeof result !== 'object') continue;
+    const current = result as Record<string, unknown>;
+    const channel = current.channel;
+    if (!asSocialChannel(channel) || !targetSet.has(channel) || seen.has(channel)) continue;
+    if (current.success !== true) continue;
+
+    seen.add(channel);
+    reusable.push({
+      channel,
+      success: true,
+      ...(typeof current.externalId === 'string' && { externalId: current.externalId }),
+      ...(typeof current.externalUrl === 'string' && { externalUrl: current.externalUrl }),
+      ...(typeof current.nextAction === 'string' && { nextAction: current.nextAction }),
+      ...(current.reviewRequired === true && { reviewRequired: true }),
+    });
+  }
+
+  return reusable;
+}
+
+function getRemainingTargetChannels(
+  targetChannels: SocialChannel[],
+  reusableResults: ChannelPublishResult[],
+): SocialChannel[] {
+  const alreadySucceeded = new Set(reusableResults.map((result) => result.channel));
+  return targetChannels.filter((channel) => !alreadySucceeded.has(channel));
+}
+
 function aggregateChannelResults(
   channelResults: ChannelPublishResult[],
   primaryChannel: SocialChannel,
@@ -266,10 +321,13 @@ function aggregateChannelResults(
   const primaryResult = channelResults.find((result) => result.channel === primaryChannel) || channelResults[0];
   const anyPending = channelResults.some((result) => result.pending);
   const allSucceeded = channelResults.length > 0 && channelResults.every((result) => result.success);
+  const anySucceeded = channelResults.some((result) => result.success);
   const firstFailure = channelResults.find((result) => !result.success && !result.pending);
+  const anyFailure = Boolean(firstFailure);
 
   return {
     success: allSucceeded,
+    partialFailure: anySucceeded && anyFailure ? true : undefined,
     pending: anyPending || undefined,
     reviewRequired: primaryResult?.reviewRequired || undefined,
     channels: channelResults,
@@ -345,9 +403,84 @@ async function claimDueScheduledPosts(
   return claimed;
 }
 
-async function finalizeSuccessfulPublish(
+export type ImmediatePublishClaimResult =
+  | { ok: true; claimed: ClaimedPublishPost }
+  | { ok: false; status: number; error: string };
+
+export async function claimPostForImmediatePublish(
   workspaceId: string,
-  claimed: ClaimedScheduledPost,
+  postId: string,
+  workerId = `direct:${crypto.randomUUID()}`,
+): Promise<ImmediatePublishClaimResult> {
+  const nowIso = new Date().toISOString();
+  const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`);
+  const publishableStatuses = new Set(['draft', 'scheduled', 'failed', 'partial_failed', 'exported_for_review']);
+
+  const claimed = await adminDb.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) {
+      return { ok: false, status: 404, error: 'Post not found' } satisfies ImmediatePublishClaimResult;
+    }
+
+    const post = snap.data() as Record<string, unknown>;
+    const status = typeof post.status === 'string' ? post.status : '';
+    const leaseExpiresAt = typeof post.publishLeaseExpiresAt === 'string' ? post.publishLeaseExpiresAt : '';
+
+    if (status === 'publishing' && leaseExpiresAt && leaseExpiresAt > nowIso) {
+      return { ok: false, status: 409, error: 'This post is already publishing.' } satisfies ImmediatePublishClaimResult;
+    }
+
+    if (status === 'publishing' && !leaseExpiresAt) {
+      return { ok: false, status: 409, error: 'This post is already publishing.' } satisfies ImmediatePublishClaimResult;
+    }
+
+    if (status !== 'publishing' && !publishableStatuses.has(status)) {
+      return {
+        ok: false,
+        status: 400,
+        error: `Cannot publish a post with status "${post.status}"`,
+      } satisfies ImmediatePublishClaimResult;
+    }
+
+    const attemptCount = typeof post.publishAttemptCount === 'number' ? post.publishAttemptCount : 0;
+    const attemptId = crypto.randomUUID();
+    tx.update(ref, {
+      status: 'publishing',
+      publishAttemptId: attemptId,
+      publishAttemptCount: attemptCount + 1,
+      publishStartedAt: nowIso,
+      lastPublishAttemptAt: nowIso,
+      publishLeaseExpiresAt: buildLeaseExpiry(),
+      claimedAt: nowIso,
+      claimedByWorker: workerId,
+      externalId: '',
+      externalUrl: '',
+      errorMessage: '',
+      lastErrorCode: '',
+      lastErrorCategory: '',
+      nextRetryAt: null,
+      scheduledAt: null,
+      updatedAt: nowIso,
+    });
+
+    return {
+      ok: true,
+      claimed: {
+        postId,
+        productId: typeof post.productId === 'string' ? post.productId : undefined,
+        post,
+        attemptId,
+        attemptCount: attemptCount + 1,
+      },
+    } satisfies ImmediatePublishClaimResult;
+  });
+
+  return claimed;
+}
+
+export async function finalizeSuccessfulPublish(
+  workspaceId: string,
+  claimed: ClaimedPublishPost,
   result: MultiChannelPublishResult,
 ): Promise<'published' | 'pending' | 'exported_for_review'> {
   const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
@@ -361,6 +494,7 @@ async function finalizeSuccessfulPublish(
       publishResults: result.channels,
       publishFinishedAt: null,
       publishLeaseExpiresAt: null,
+      retryFailedChannelsOnly: result.partialFailure ? true : null,
       updatedAt: nowIso,
     });
     return 'pending';
@@ -380,6 +514,7 @@ async function finalizeSuccessfulPublish(
       lastErrorCode: '',
       lastErrorCategory: '',
       nextRetryAt: null,
+      retryFailedChannelsOnly: null,
       updatedAt: nowIso,
     });
     if (claimed.post.createdByType === 'api_client') {
@@ -408,6 +543,7 @@ async function finalizeSuccessfulPublish(
     lastErrorCode: '',
     lastErrorCategory: '',
     nextRetryAt: null,
+    retryFailedChannelsOnly: null,
     updatedAt: nowIso,
   });
   if (claimed.post.createdByType === 'api_client') {
@@ -422,15 +558,19 @@ async function finalizeSuccessfulPublish(
   return 'published';
 }
 
-async function finalizeFailedPublish(
+export async function finalizeFailedPublish(
   workspaceId: string,
-  claimed: ClaimedScheduledPost,
+  claimed: ClaimedPublishPost,
   result: MultiChannelPublishResult,
-): Promise<'retried' | 'failed'> {
+  options: FinalizePublishOptions = {},
+): Promise<'retried' | 'failed' | 'partial_failed'> {
   const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
   const nowIso = new Date().toISOString();
   const message = result.error || 'Unknown publishing error';
   const classification = classifyPublishError(message);
+  const hasSuccessfulChannel = result.channels.some((channel) => channel.success);
+  const hasFailedChannel = result.channels.some((channel) => !channel.success && !channel.pending);
+  const partialFailure = result.partialFailure || (hasSuccessfulChannel && hasFailedChannel);
   const originalScheduledAt = typeof claimed.post.originalScheduledAt === 'string'
     ? claimed.post.originalScheduledAt
     : typeof claimed.post.scheduledAt === 'string'
@@ -438,8 +578,9 @@ async function finalizeFailedPublish(
       : null;
 
   const maxRetries = getMaxRetryAttempts(classification.metaRateLimited);
+  const retryOnFailure = options.retryOnFailure ?? true;
 
-  if (classification.retryable && claimed.attemptCount < maxRetries) {
+  if (retryOnFailure && classification.retryable && claimed.attemptCount < maxRetries) {
     const retryAt = computeRetryAt(claimed.attemptCount, classification.metaRateLimited);
     await ref.update({
       status: 'scheduled',
@@ -450,6 +591,8 @@ async function finalizeFailedPublish(
       lastErrorCode: classification.code,
       lastErrorCategory: classification.category,
       publishResults: result.channels,
+      publishedChannels: result.channels.filter((channel) => channel.success).map((channel) => channel.channel),
+      retryFailedChannelsOnly: partialFailure ? true : null,
       publishFinishedAt: nowIso,
       publishLeaseExpiresAt: null,
       updatedAt: nowIso,
@@ -458,11 +601,13 @@ async function finalizeFailedPublish(
   }
 
   await ref.update({
-    status: 'failed',
+    status: partialFailure ? 'partial_failed' : 'failed',
     errorMessage: message,
     lastErrorCode: classification.code,
     lastErrorCategory: classification.category,
     publishResults: result.channels,
+    publishedChannels: result.channels.filter((channel) => channel.success).map((channel) => channel.channel),
+    retryFailedChannelsOnly: partialFailure ? true : null,
     publishFinishedAt: nowIso,
     publishLeaseExpiresAt: null,
     updatedAt: nowIso,
@@ -475,7 +620,7 @@ async function finalizeFailedPublish(
       error: message,
     });
   }
-  return 'failed';
+  return partialFailure ? 'partial_failed' : 'failed';
 }
 
 async function recoverSingleStalePublish(
@@ -618,6 +763,7 @@ export async function publishStoredPost(
 ): Promise<MultiChannelPublishResult> {
   const targetChannels = getPostTargetChannels(post);
   const [primaryChannel] = targetChannels;
+  const mediaUrls = asStringArray(post.mediaUrls) ?? [];
 
   if (!primaryChannel) {
     return {
@@ -635,6 +781,20 @@ export async function publishStoredPost(
     };
   }
 
+  const validationError = firstSocialPostValidationError({
+    content: String(post.content || ''),
+    channel: primaryChannel,
+    targetChannels,
+    mediaUrls,
+  });
+  if (validationError) {
+    return {
+      success: false,
+      channels: [],
+      error: validationError,
+    };
+  }
+
   const settings = post.settings && typeof post.settings === 'object'
     ? (post.settings as Record<string, unknown>)
     : undefined;
@@ -644,21 +804,30 @@ export async function publishStoredPost(
 
   const request = {
     content: String(post.content || ''),
-    mediaUrls: asStringArray(post.mediaUrls),
+    mediaUrls,
     deliveryMode: getDeliveryMode(post.deliveryMode),
     destinationProvider: getDestinationProvider(post.destinationProvider),
     photoCoverIndex: settingsPhotoCoverIndex ?? getPhotoCoverIndex(post.slideshowCoverIndex),
     settings,
   } satisfies Omit<PublishRequest, 'channel'>;
 
-  if (targetChannels.length > 1 || asStringArray(post.targetChannels)?.length) {
-    return publishExplicitChannels(workspaceId, productId, primaryChannel, targetChannels, request);
+  const reusableResults = getReusableSuccessfulChannelResults(post, targetChannels);
+  const remainingChannels = getRemainingTargetChannels(targetChannels, reusableResults);
+
+  if (remainingChannels.length === 0 && reusableResults.length > 0) {
+    return aggregateChannelResults(reusableResults, primaryChannel);
   }
 
-  return publishPostMultiChannel(workspaceId, productId, {
+  if (targetChannels.length > 1 || asStringArray(post.targetChannels)?.length) {
+    const result = await publishExplicitChannels(workspaceId, productId, primaryChannel, remainingChannels, request);
+    return aggregateChannelResults([...reusableResults, ...result.channels], primaryChannel);
+  }
+
+  const result = await publishPostMultiChannel(workspaceId, productId, {
     ...request,
-    channel: primaryChannel,
+    channel: remainingChannels[0] ?? primaryChannel,
   });
+  return aggregateChannelResults([...reusableResults, ...result.channels], primaryChannel);
 }
 
 export async function recoverStalePublishingPosts(workspaceId: string): Promise<{ recovered: number; failed: number; errors: Array<{ postId: string; error: string }> }> {
@@ -711,6 +880,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
     pending: 0,
     retried: 0,
     failed: 0,
+    partialFailed: 0,
     recovered: 0,
     results: [],
     errors: [],
@@ -731,6 +901,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
       if (outcome === 'pending') summary.pending++;
       if (outcome === 'retried') summary.retried++;
       if (outcome === 'failed') summary.failed++;
+      if (outcome === 'partial_failed') summary.partialFailed++;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown publishing error';
       const classification = classifyPublishError(message);

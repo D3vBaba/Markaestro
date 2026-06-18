@@ -12,6 +12,8 @@ type AppUsage = {
 };
 
 let lastAppUsage: AppUsage | null = null;
+let lastAppUsageUpdatedAt = 0;
+const META_APP_USAGE_BACKOFF_MS = 60_000;
 
 /**
  * Parse the X-App-Usage header returned by every Graph API response.
@@ -38,6 +40,7 @@ function parseAppUsage(response: Response): AppUsage | null {
  */
 export function isAppUsageThrottled(): boolean {
   if (!lastAppUsage) return false;
+  if (Date.now() - lastAppUsageUpdatedAt > META_APP_USAGE_BACKOFF_MS) return false;
   return (
     lastAppUsage.callCount > 80 ||
     lastAppUsage.totalCpuTime > 80 ||
@@ -53,7 +56,9 @@ export function getAppUsage(): AppUsage | null {
 
 /**
  * Fetch from Meta's Graph API, tracking X-App-Usage headers automatically.
- * Throws if the app is already throttled (>80% of rate limit consumed).
+ * Tracks X-App-Usage headers as advisory telemetry. Actual 429/5xx handling is
+ * delegated to fetchWithRetry so a stale process-local usage sample cannot
+ * block unrelated tenants.
  */
 export async function graphApiFetch(
   url: string,
@@ -62,9 +67,8 @@ export async function graphApiFetch(
 ): Promise<Response> {
   if (isAppUsageThrottled()) {
     const usage = lastAppUsage!;
-    throw new Error(
-      `Meta API rate limit approaching (call_count=${usage.callCount}%, cpu_time=${usage.totalCpuTime}%, total_time=${usage.totalTime}%). ` +
-      'Backing off to avoid account restriction.',
+    console.warn(
+      `[meta-graph-api] High API usage sample before request: call_count=${usage.callCount}%, cpu_time=${usage.totalCpuTime}%, total_time=${usage.totalTime}%`,
     );
   }
 
@@ -73,6 +77,7 @@ export async function graphApiFetch(
   const usage = parseAppUsage(response);
   if (usage) {
     lastAppUsage = usage;
+    lastAppUsageUpdatedAt = Date.now();
     if (usage.callCount > 70 || usage.totalCpuTime > 70 || usage.totalTime > 70) {
       console.warn(
         `[meta-graph-api] High API usage: call_count=${usage.callCount}%, cpu_time=${usage.totalCpuTime}%, total_time=${usage.totalTime}%`,

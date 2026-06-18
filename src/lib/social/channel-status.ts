@@ -17,6 +17,7 @@ export type ManagedSocialChannelStatus = ManagedSocialChannel & {
   connectionScope: 'workspace' | 'product' | null;
   destinationLabel: string | null;
   capabilities: string[];
+  lastRefreshError?: string | null;
 };
 
 type ConnectionBundle = {
@@ -118,6 +119,7 @@ function buildStatus(
       connectionScope: null,
       destinationLabel: null,
       capabilities: [],
+      lastRefreshError: null,
     };
   }
 
@@ -130,18 +132,23 @@ function buildStatus(
       connectionScope: null,
       destinationLabel: null,
       capabilities: [...adapter.capabilities],
+      lastRefreshError: null,
     };
   }
 
   if (match.connection.status !== 'connected') {
+    const refreshError = typeof match.connection.metadata.lastRefreshError === 'string'
+      ? match.connection.metadata.lastRefreshError
+      : null;
     return {
       ...config,
       state: 'disconnected',
-      reason: config.setupHint,
+      reason: refreshError || `${config.label} connection is ${match.connection.status}. Reconnect it in product settings.`,
       provider: match.connection.provider,
       connectionScope: match.scope,
       destinationLabel: getDestinationLabel(match.connection, config.channel),
       capabilities: [...adapter.capabilities],
+      lastRefreshError: refreshError,
     };
   }
 
@@ -156,6 +163,9 @@ function buildStatus(
     connectionScope: match.scope,
     destinationLabel: getDestinationLabel(match.connection, config.channel),
     capabilities: [...adapter.capabilities],
+    lastRefreshError: typeof match.connection.metadata.lastRefreshError === 'string'
+      ? match.connection.metadata.lastRefreshError
+      : null,
   };
 }
 
@@ -169,4 +179,22 @@ export async function listManagedSocialChannelStatuses(
   ]);
 
   return socialChannelCatalog.map((config) => buildStatus(config, { workspace, product }, productId));
+}
+
+export async function getUnavailableSocialChannels(
+  workspaceId: string,
+  productId: string | undefined,
+  channels: SocialChannel[],
+): Promise<Array<{ channel: SocialChannel; reason: string }>> {
+  const statuses = await listManagedSocialChannelStatuses(workspaceId, productId);
+  const byChannel = new Map(statuses.map((status) => [status.channel, status]));
+
+  return channels.flatMap((channel) => {
+    const status = byChannel.get(channel);
+    if (status?.state === 'ready') return [];
+    return [{
+      channel,
+      reason: status?.reason || `${channel} is not connected for this product.`,
+    }];
+  });
 }

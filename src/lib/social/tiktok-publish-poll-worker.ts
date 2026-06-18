@@ -24,6 +24,7 @@ export type TikTokPostPollOutcome =
   | { status: 'still_processing' }
   | { status: 'exported_for_review' }
   | { status: 'published' }
+  | { status: 'partial_failed'; error: string }
   | { status: 'failed'; error: string }
   | { status: 'error'; error: string };
 
@@ -93,15 +94,17 @@ function getSuccessfulChannels(publishResults: unknown): SocialChannel[] {
 function summarizePublishResults(publishResults: unknown): {
   allSucceeded: boolean;
   anyPending: boolean;
+  partialFailed: boolean;
   firstError?: string;
   publishedChannels: SocialChannel[];
 } {
   if (!Array.isArray(publishResults) || publishResults.length === 0) {
-    return { allSucceeded: false, anyPending: false, firstError: 'Missing publish results', publishedChannels: [] };
+    return { allSucceeded: false, anyPending: false, partialFailed: false, firstError: 'Missing publish results', publishedChannels: [] };
   }
 
   let anyPending = false;
   let allSucceeded = true;
+  let anySucceeded = false;
   let firstError: string | undefined;
 
   for (const result of publishResults) {
@@ -113,6 +116,7 @@ function summarizePublishResults(publishResults: unknown): {
 
     const current = result as { success?: boolean; pending?: boolean; error?: string };
     if (current.pending) anyPending = true;
+    if (current.success) anySucceeded = true;
     if (!current.success) {
       allSucceeded = false;
       if (!current.pending) {
@@ -124,6 +128,7 @@ function summarizePublishResults(publishResults: unknown): {
   return {
     allSucceeded,
     anyPending,
+    partialFailed: anySucceeded && Boolean(firstError),
     firstError,
     publishedChannels: getSuccessfulChannels(publishResults),
   };
@@ -167,12 +172,13 @@ export async function pollTikTokPublishForPost(
   if (liveStatus.status === 'PUBLISH_COMPLETE') {
     const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
     const summary = summarizePublishResults(nextPublishResults);
-    const nextStatus = summary.allSucceeded ? 'published' : summary.anyPending ? 'publishing' : 'failed';
+    const nextStatus = summary.allSucceeded ? 'published' : summary.anyPending ? 'publishing' : summary.partialFailed ? 'partial_failed' : 'failed';
     await postDocRef.update({
       status: nextStatus,
       publishResults: nextPublishResults,
       publishedChannels: summary.publishedChannels,
       ...(summary.allSucceeded ? { publishedAt: now } : {}),
+      ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
       ...(!summary.allSucceeded && !summary.anyPending
         ? { errorMessage: summary.firstError || 'One or more channels failed' }
         : {}),
@@ -187,7 +193,7 @@ export async function pollTikTokPublishForPost(
         externalId: typeof post.externalId === 'string' ? post.externalId : '',
         externalUrl: typeof post.externalUrl === 'string' ? post.externalUrl : '',
       });
-    } else if (clientId && nextStatus === 'failed') {
+    } else if (clientId && (nextStatus === 'failed' || nextStatus === 'partial_failed')) {
       await incrementApiClientStat(workspaceId, clientId, 'publish_failed');
       await enqueueWebhookEvent(workspaceId, 'post.failed', {
         postId: snap.id,
@@ -198,7 +204,9 @@ export async function pollTikTokPublishForPost(
     }
     return nextStatus === 'published'
       ? { status: 'published' }
-      : nextStatus === 'failed'
+      : nextStatus === 'partial_failed'
+        ? { status: 'partial_failed', error: summary.firstError || 'One or more channels failed' }
+        : nextStatus === 'failed'
         ? { status: 'failed', error: summary.firstError || 'One or more channels failed' }
         : { status: 'still_processing' };
   }
@@ -208,15 +216,22 @@ export async function pollTikTokPublishForPost(
   if (liveStatus.status === 'SEND_TO_USER_INBOX') {
     const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
     const summary = summarizePublishResults(nextPublishResults);
+    const nextStatus = summary.allSucceeded ? 'exported_for_review' : summary.anyPending ? 'publishing' : summary.partialFailed ? 'partial_failed' : 'failed';
     await postDocRef.update({
-      status: 'exported_for_review',
-      nextAction: 'open_tiktok_inbox_and_complete_editing',
-      exportedForReviewAt: now,
+      status: nextStatus,
+      ...(nextStatus === 'exported_for_review' ? {
+        nextAction: 'open_tiktok_inbox_and_complete_editing',
+        exportedForReviewAt: now,
+      } : {}),
+      ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
       publishResults: nextPublishResults,
       publishedChannels: summary.publishedChannels,
+      ...(!summary.allSucceeded && !summary.anyPending
+        ? { errorMessage: summary.firstError || 'One or more channels failed' }
+        : {}),
       updatedAt: now,
     });
-    if (clientId) {
+    if (clientId && nextStatus === 'exported_for_review') {
       await incrementApiClientStat(workspaceId, clientId, 'publish_exported_for_review');
       await enqueueWebhookEvent(workspaceId, 'post.exported_for_review', {
         postId: snap.id,
@@ -226,24 +241,39 @@ export async function pollTikTokPublishForPost(
         externalUrl: typeof post.externalUrl === 'string' ? post.externalUrl : '',
         nextAction: 'open_tiktok_inbox_and_complete_editing',
       });
+    } else if (clientId && (nextStatus === 'failed' || nextStatus === 'partial_failed')) {
+      await incrementApiClientStat(workspaceId, clientId, 'publish_failed');
+      await enqueueWebhookEvent(workspaceId, 'post.failed', {
+        postId: snap.id,
+        channel: post.channel,
+        status: nextStatus,
+        error: summary.firstError || 'One or more channels failed',
+      });
     }
-    return { status: 'exported_for_review' };
+    return nextStatus === 'exported_for_review'
+      ? { status: 'exported_for_review' }
+      : nextStatus === 'partial_failed'
+        ? { status: 'partial_failed', error: summary.firstError || 'One or more channels failed' }
+        : nextStatus === 'failed'
+          ? { status: 'failed', error: summary.firstError || 'One or more channels failed' }
+          : { status: 'still_processing' };
   }
 
   if (liveStatus.status === 'FAILED') {
     const error = `TikTok publish failed: ${liveStatus.failReason || 'Unknown TikTok failure'}`;
     const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'failed', error);
     const summary = summarizePublishResults(nextPublishResults);
-    const nextStatus = summary.anyPending ? 'publishing' : summary.allSucceeded ? 'published' : 'failed';
+    const nextStatus = summary.anyPending ? 'publishing' : summary.allSucceeded ? 'published' : summary.partialFailed ? 'partial_failed' : 'failed';
     await postDocRef.update({
       status: nextStatus,
       errorMessage: summary.firstError || error,
       publishResults: nextPublishResults,
       publishedChannels: summary.publishedChannels,
       ...(nextStatus === 'published' ? { publishedAt: now } : {}),
+      ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
       updatedAt: now,
     });
-    if (clientId && nextStatus === 'failed') {
+    if (clientId && (nextStatus === 'failed' || nextStatus === 'partial_failed')) {
       await incrementApiClientStat(workspaceId, clientId, 'publish_failed');
       await enqueueWebhookEvent(workspaceId, 'post.failed', {
         postId: snap.id,
@@ -254,6 +284,8 @@ export async function pollTikTokPublishForPost(
     }
     return nextStatus === 'failed'
       ? { status: 'failed', error: summary.firstError || error }
+      : nextStatus === 'partial_failed'
+        ? { status: 'partial_failed', error: summary.firstError || error }
       : nextStatus === 'published'
         ? { status: 'published' }
         : { status: 'still_processing' };
@@ -272,13 +304,15 @@ export async function pollTikTokPublishForPost(
     const error = `TikTok did not finish media transfer within the one-hour processing window.${bytes}`;
     const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'failed', error);
     const summary = summarizePublishResults(nextPublishResults);
+    const nextStatus = summary.partialFailed ? 'partial_failed' : 'failed';
     await postDocRef.update({
-      status: 'failed',
+      status: nextStatus,
       errorMessage: summary.firstError || error,
       publishResults: nextPublishResults,
       publishedChannels: summary.publishedChannels,
       publishFinishedAt: now,
       publishLeaseExpiresAt: null,
+      ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
       tiktokLastStatus: liveStatus.status,
       ...(typeof liveStatus.downloadedBytes === 'number' ? { tiktokDownloadedBytes: liveStatus.downloadedBytes } : {}),
       ...(typeof liveStatus.uploadedBytes === 'number' ? { tiktokUploadedBytes: liveStatus.uploadedBytes } : {}),
@@ -289,11 +323,13 @@ export async function pollTikTokPublishForPost(
       await enqueueWebhookEvent(workspaceId, 'post.failed', {
         postId: snap.id,
         channel: post.channel,
-        status: 'failed',
+        status: nextStatus,
         error: summary.firstError || error,
       });
     }
-    return { status: 'failed', error: summary.firstError || error };
+    return nextStatus === 'partial_failed'
+      ? { status: 'partial_failed', error: summary.firstError || error }
+      : { status: 'failed', error: summary.firstError || error };
   }
 
   await postDocRef.update({

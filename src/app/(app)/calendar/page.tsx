@@ -36,18 +36,24 @@ const CHANNEL_ACCENT: Record<string, string> = {
   instagram: "var(--mk-ch-instagram)",
   facebook:  "var(--mk-ch-facebook)",
   tiktok:    "var(--mk-ch-tiktok)",
+  threads:   "var(--mk-ink)",
+  pinterest: "#E60023",
 };
 
 const CHANNEL_BG: Record<string, string> = {
   instagram: "color-mix(in oklch, var(--mk-ch-instagram) 8%, transparent)",
   facebook:  "color-mix(in oklch, var(--mk-ch-facebook) 8%, transparent)",
   tiktok:    "color-mix(in oklch, var(--mk-ch-tiktok) 8%, transparent)",
+  threads:   "color-mix(in oklch, var(--mk-ink) 8%, transparent)",
+  pinterest: "color-mix(in oklch, #E60023 8%, transparent)",
 };
 
 const CHANNEL_LABEL: Record<string, string> = {
   instagram: "Instagram",
   facebook:  "Facebook",
   tiktok:    "TikTok",
+  threads:   "Threads",
+  pinterest: "Pinterest",
 };
 
 const STATUS_DOT: Record<string, string> = {
@@ -55,12 +61,18 @@ const STATUS_DOT: Record<string, string> = {
   scheduled:  "var(--mk-accent)",
   draft:      "var(--mk-ink-40)",
   failed:     "var(--mk-neg)",
+  partial_failed: "var(--mk-warn)",
   publishing: "var(--mk-warn)",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
+function isoDate(d: Date) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 function getDateForPost(p: Post): string | null {
   if (p.publishedAt) return isoDate(new Date(p.publishedAt));
@@ -271,7 +283,7 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart }: {
   const thumb = p.mediaUrls?.[0];
   const draggable = p.status === "scheduled" || p.status === "draft";
 
-  const isFailed = p.status === "failed";
+  const isFailed = p.status === "failed" || p.status === "partial_failed";
 
   return (
     <button
@@ -585,6 +597,7 @@ function CalendarPageContent() {
               { key: "published", label: "Published", color: STATUS_DOT.published },
               { key: "scheduled", label: "Scheduled", color: STATUS_DOT.scheduled },
               { key: "failed", label: "Failed", color: STATUS_DOT.failed },
+              { key: "partial_failed", label: "Partially failed", color: STATUS_DOT.partial_failed },
             ].map(({ key, label, color }) => {
               const active = statusFilter === key;
               return (

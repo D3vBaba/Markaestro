@@ -26,7 +26,6 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       'business_management',
       'instagram_basic',
       'instagram_content_publish',
-      'instagram_manage_insights',
     ],
     clientIdEnv: 'META_APP_ID',
     clientSecretEnv: 'META_APP_SECRET',
@@ -38,11 +37,13 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     scopes: [
       'instagram_business_basic',
       'instagram_business_content_publish',
-      'instagram_business_manage_insights',
     ],
     clientIdEnv: 'INSTAGRAM_APP_ID',
     clientSecretEnv: 'INSTAGRAM_APP_SECRET',
-    extraAuthParams: {},
+    extraAuthParams: {
+      enable_fb_login: 'false',
+      force_reauth: 'true',
+    },
   },
   tiktok: {
     authUrl: 'https://www.tiktok.com/v2/auth/authorize/',
@@ -66,7 +67,6 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     scopes: [
       'threads_basic',
       'threads_content_publish',
-      'threads_manage_insights',
     ],
     clientIdEnv: 'THREADS_APP_ID',
     clientSecretEnv: 'THREADS_APP_SECRET',

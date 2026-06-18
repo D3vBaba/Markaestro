@@ -4,6 +4,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { updateProductSchema } from '@/lib/schemas';
+import { getAllMatchingDocs } from '@/lib/firestore-pagination';
 
 export const runtime = 'nodejs';
 
@@ -53,8 +54,38 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'products')}/${id}`);
     const snap = await ref.get();
     if (!snap.exists) throw new Error('NOT_FOUND');
-    await ref.delete();
-    return apiOk({ ok: true, id });
+
+    const postsRef = adminDb.collection(`${workspaceCollection(ctx.workspaceId, 'posts')}`);
+    const activePosts = await postsRef
+      .where('productId', '==', id)
+      .where('status', 'in', ['scheduled', 'publishing'])
+      .limit(1)
+      .get();
+    if (!activePosts.empty) {
+      return apiOk({
+        ok: false,
+        error: 'Cancel or finish scheduled/publishing posts before deleting this product.',
+      }, 409);
+    }
+
+    const referencingPosts = await getAllMatchingDocs(
+      postsRef.where('productId', '==', id).orderBy('__name__'),
+    );
+    for (let i = 0; i < referencingPosts.length; i += 450) {
+      const batch = adminDb.batch();
+      for (const post of referencingPosts.slice(i, i + 450)) {
+        batch.update(post.ref, {
+          productId: '',
+          deletedProductId: id,
+          productDeletedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+      await batch.commit();
+    }
+
+    await adminDb.recursiveDelete(ref);
+    return apiOk({ ok: true, id, detachedPosts: referencingPosts.length });
   } catch (error) {
     return apiError(error);
   }

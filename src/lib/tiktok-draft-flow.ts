@@ -1,6 +1,7 @@
 import type { SocialChannel } from '@/lib/schemas';
 
 export const TIKTOK_MANUAL_REVIEW_ACTION = 'open_tiktok_inbox_and_complete_editing';
+export const TIKTOK_MAX_IMAGE_COUNT = 35;
 
 export function isTikTokDraftOnlyChannel(channel: SocialChannel | string): channel is 'tiktok' {
   return channel === 'tiktok';
@@ -29,8 +30,8 @@ export function validateTikTokMediaUrls(mediaUrls?: string[]): string | null {
     return 'TikTok does not support mixing video and image assets in one post.';
   }
 
-  if (imageUrls.length > 10) {
-    return 'TikTok supports up to 10 images per post.';
+  if (imageUrls.length > TIKTOK_MAX_IMAGE_COUNT) {
+    return `TikTok supports up to ${TIKTOK_MAX_IMAGE_COUNT} images per post.`;
   }
 
   return null;

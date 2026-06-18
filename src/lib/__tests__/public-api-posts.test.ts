@@ -23,7 +23,7 @@ describe('public post validation', () => {
       channel: 'instagram',
       caption: 'Hello world',
       mediaAssetIds: [],
-    })).toThrow('VALIDATION_INSTAGRAM_REQUIRES_IMAGE');
+    })).toThrow('VALIDATION_INSTAGRAM_REQUIRES_MEDIA');
 
     expect(() => validatePublicPostInput({
       channel: 'tiktok',
@@ -32,11 +32,17 @@ describe('public post validation', () => {
     })).toThrow('VALIDATION_TIKTOK_REQUIRES_MEDIA');
   });
 
-  it('caps media assets at 10 across channels', () => {
+  it('uses platform-specific media caps', () => {
     expect(() => validatePublicPostInput({
       channel: 'tiktok',
       caption: 'Carousel',
-      mediaAssetIds: Array.from({ length: 11 }, (_, idx) => `ast_${idx}`),
+      mediaAssetIds: Array.from({ length: 36 }, (_, idx) => `ast_${idx}`),
+    })).toThrow('VALIDATION_TOO_MANY_MEDIA_ASSETS');
+
+    expect(() => validatePublicPostInput({
+      channel: 'pinterest',
+      caption: 'Pin',
+      mediaAssetIds: Array.from({ length: 6 }, (_, idx) => `ast_${idx}`),
     })).toThrow('VALIDATION_TOO_MANY_MEDIA_ASSETS');
   });
 
@@ -66,6 +72,17 @@ describe('public post validation', () => {
       { id: 'ast_1', url: 'https://example.com/1.mp4', mimeType: 'video/mp4', type: 'video' },
       { id: 'ast_2', url: 'https://example.com/2.jpg', mimeType: 'image/jpeg', type: 'image' },
     ])).toThrow('VALIDATION_TIKTOK_VIDEO_CANNOT_BE_COMBINED');
+  });
+
+  it('rejects Pinterest videos mixed with other media', () => {
+    expect(() => validateResolvedPublicPostInput({
+      channel: 'pinterest',
+      caption: 'Pin',
+      mediaAssetIds: ['ast_1', 'ast_2'],
+    }, [
+      { id: 'ast_1', url: 'https://example.com/1.mp4', mimeType: 'video/mp4', type: 'video' },
+      { id: 'ast_2', url: 'https://example.com/2.jpg', mimeType: 'image/jpeg', type: 'image' },
+    ])).toThrow('VALIDATION_PINTEREST_VIDEO_MUST_BE_SINGLE_MEDIA');
   });
 
   it('serializes content as caption and preserves legacy slideshow metadata on posts', () => {

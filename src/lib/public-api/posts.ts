@@ -5,6 +5,7 @@ import { resolveMediaAssetUrls, type ResolvedPublicMediaAsset } from './media';
 import type { PublicDeliveryMode } from './scopes';
 import { resolvePublicPostDestination } from './products';
 import { assertSettingsMatchesChannel, type PostSettings } from './post-settings';
+import { getSocialChannelConfig } from '@/lib/social/channel-catalog';
 
 type CreatePublicPostInput = {
   channel: SocialChannel;
@@ -23,25 +24,24 @@ export function getDeliveryModeForChannel(channel: SocialChannel): PublicDeliver
 
 export function validatePublicPostInput(input: CreatePublicPostInput) {
   const count = input.mediaAssetIds.length;
+  const config = getSocialChannelConfig(input.channel);
 
-  if (count > 10) {
+  if (config && count > config.maxMediaItems) {
     throw new Error('VALIDATION_TOO_MANY_MEDIA_ASSETS');
+  }
+
+  if (config?.mediaRequired && count < 1) {
+    throw new Error(`VALIDATION_${input.channel.toUpperCase()}_REQUIRES_MEDIA`);
+  }
+
+  if (input.caption.length > (config?.maxLength ?? 65000)) {
+    throw new Error(`VALIDATION_${input.channel.toUpperCase()}_CAPTION_TOO_LONG`);
   }
 
   switch (input.channel) {
     case 'facebook':
       if (!input.caption && count === 0) {
         throw new Error('VALIDATION_FACEBOOK_POST_REQUIRES_CONTENT_OR_MEDIA');
-      }
-      break;
-    case 'instagram':
-      if (count < 1) {
-        throw new Error('VALIDATION_INSTAGRAM_REQUIRES_IMAGE');
-      }
-      break;
-    case 'tiktok':
-      if (count < 1) {
-        throw new Error('VALIDATION_TIKTOK_REQUIRES_MEDIA');
       }
       break;
   }
@@ -51,11 +51,16 @@ export function validateResolvedPublicPostInput(
   input: CreatePublicPostInput,
   mediaAssets: ResolvedPublicMediaAsset[],
 ) {
+  const videoCount = mediaAssets.filter((asset) => asset.type === 'video').length;
+
+  if (input.channel === 'pinterest' && videoCount > 0 && mediaAssets.length > 1) {
+    throw new Error('VALIDATION_PINTEREST_VIDEO_MUST_BE_SINGLE_MEDIA');
+  }
+
   if (input.channel !== 'tiktok') {
     return;
   }
 
-  const videoCount = mediaAssets.filter((asset) => asset.type === 'video').length;
   if (videoCount > 1) {
     throw new Error('VALIDATION_TIKTOK_MAX_ONE_VIDEO');
   }

@@ -6,6 +6,7 @@ import { getProviderConfig, getRedirectUri, getClientCredentials } from './confi
 import type { OAuthProvider, SocialChannel } from '@/lib/schemas';
 import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
 import type { PlatformConnection } from '@/lib/platform/types';
+import { isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
 
 export type OAuthTokens = {
   accessToken: string;
@@ -56,9 +57,9 @@ export async function generateAuthUrl(
   };
 
   const clientIdParam = config.clientIdParam || 'client_id';
-  // Scope separator varies by provider: OAuth 2 spec says space, but TikTok
-  // and Meta's Threads dialog require comma-separated scopes.
-  const commaSeparated = provider === 'tiktok' || provider === 'threads';
+  // Scope separator varies by provider: OAuth 2 spec says space, but Instagram
+  // Business Login, TikTok, and Meta's Threads dialog use comma-separated scopes.
+  const commaSeparated = provider === 'instagram' || provider === 'tiktok' || provider === 'threads';
   const authParams: Record<string, string> = {
     [clientIdParam]: clientId,
     redirect_uri: redirectUri,
@@ -83,6 +84,41 @@ export async function generateAuthUrl(
 
   const params = new URLSearchParams(authParams);
   return `${config.authUrl}?${params.toString()}`;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export function normalizeOAuthTokenResponse(
+  provider: OAuthProvider,
+  data: unknown,
+): Record<string, unknown> {
+  if (!isRecord(data)) return {};
+
+  if (provider !== 'instagram') {
+    return data;
+  }
+
+  const nested = data.data;
+  if (Array.isArray(nested) && isRecord(nested[0])) {
+    return nested[0];
+  }
+
+  return data;
+}
+
+function optionalString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function optionalNumber(value: unknown): number | undefined {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
 }
 
 /**
@@ -158,6 +194,8 @@ export async function exchangeCode(
   });
 
   const data = await res.json();
+  const tokenData = normalizeOAuthTokenResponse(provider, data);
+  const accessToken = optionalString(tokenData.access_token);
 
   if (provider === 'instagram') {
     // Confirm the short-lived token's response shape (never log the token) so
@@ -166,25 +204,44 @@ export async function exchangeCode(
       event: 'oauth.instagram.short_lived.response',
       httpStatus: res.status,
       keys: Object.keys(data || {}).join(','),
-      hasAccessToken: Boolean(data?.access_token),
-      hasUserId: Boolean(data?.user_id),
+      tokenKeys: Object.keys(tokenData || {}).join(','),
+      hasAccessToken: Boolean(accessToken),
+      hasTopLevelAccessToken: Boolean(data?.access_token),
+      hasNestedAccessToken: Boolean(Array.isArray(data?.data) && data.data.some((item: unknown) => isRecord(item) && Boolean(item.access_token))),
+      hasUserId: Boolean(tokenData?.user_id),
     });
   }
 
-  if (!res.ok && !data.access_token) {
+  if (!res.ok || !accessToken) {
     throw new Error(`OAuth token exchange failed: ${data.error_description || data.error || data.message || 'Unknown error'}`);
   }
 
   const tokens: OAuthTokens = {
-    accessToken: data.access_token,
-    refreshToken: data.refresh_token,
-    expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
-    tokenType: data.token_type,
-    scope: data.scope,
-    openId: data.open_id,
+    accessToken,
+    refreshToken: optionalString(tokenData.refresh_token),
+    expiresIn: optionalNumber(tokenData.expires_in),
+    tokenType: optionalString(tokenData.token_type),
+    scope: optionalString(tokenData.scope) || optionalString(tokenData.permissions),
+    openId: optionalString(tokenData.open_id),
   };
 
-  return { tokens, workspaceId: state.workspaceId, userId: state.userId, productId: state.productId, returnTo: state.returnTo };
+  const extraData: Record<string, unknown> = {};
+  if (provider === 'instagram') {
+    const instagramUserId = optionalString(tokenData.user_id);
+    if (instagramUserId) extraData.igAccountId = instagramUserId;
+
+    const permissions = optionalString(tokenData.permissions);
+    if (permissions) extraData.instagramPermissions = permissions;
+  }
+
+  return {
+    tokens,
+    workspaceId: state.workspaceId,
+    userId: state.userId,
+    productId: state.productId,
+    returnTo: state.returnTo,
+    extraData: Object.keys(extraData).length > 0 ? extraData : undefined,
+  };
 }
 
 /**
@@ -195,14 +252,29 @@ export async function refreshAccessToken(
   refreshToken: string,
 ): Promise<OAuthTokens> {
   if (provider === 'instagram') {
-    const res = await fetch(
+    let res = await fetch(
       `https://graph.instagram.com/refresh_access_token?${new URLSearchParams({
         grant_type: 'ig_refresh_token',
         access_token: refreshToken,
       }).toString()}`,
       { method: 'GET' },
     );
-    const data = await res.json();
+    let data = await res.json();
+
+    if (!res.ok && isInstagramMethodTypeUnsupported(data, 'get')) {
+      res = await fetch('https://graph.instagram.com/refresh_access_token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+        },
+        body: new URLSearchParams({
+          grant_type: 'ig_refresh_token',
+          access_token: refreshToken,
+        }).toString(),
+      });
+      data = await res.json();
+    }
 
     if (!res.ok && !data.access_token) {
       throw new Error(`Token refresh failed for ${provider}: ${data.error_message || data.error || data.message || 'Unknown error'}`);
@@ -210,7 +282,7 @@ export async function refreshAccessToken(
 
     return {
       accessToken: data.access_token || refreshToken,
-      refreshToken,
+      refreshToken: data.access_token || refreshToken,
       expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
       tokenType: data.token_type,
       scope: data.scope,
@@ -360,7 +432,7 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
     case 'instagram':
       return {
         channels: ['instagram'],
-        capabilities: [PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_CAROUSEL],
+        capabilities: [PlatformCapability.PUBLISH_IMAGE, PlatformCapability.PUBLISH_VIDEO, PlatformCapability.PUBLISH_CAROUSEL],
       };
     case 'tiktok':
       return {

@@ -224,11 +224,13 @@ async function processSingleRun(workspaceId: string, runId: string) {
     }
 
     if (result.success) {
+      const successfulChannels = result.channels.filter((channel) => channel.success).map((channel) => channel.channel);
       await postRef.set({
         status: 'published',
         externalId: result.externalId || '',
         externalUrl: result.externalUrl || '',
         publishResults: result.channels,
+        publishedChannels: successfulChannels,
         publishedAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }, { merge: true });
@@ -249,10 +251,13 @@ async function processSingleRun(workspaceId: string, runId: string) {
       return { runId, status: 'succeeded' };
     }
 
+    const partialFailure = result.partialFailure || result.channels.some((channel) => channel.success) && result.channels.some((channel) => !channel.success && !channel.pending);
     await postRef.set({
-      status: 'failed',
+      status: partialFailure ? 'partial_failed' : 'failed',
       errorMessage: result.error || 'Unknown publishing error',
       publishResults: result.channels,
+      publishedChannels: result.channels.filter((channel) => channel.success).map((channel) => channel.channel),
+      retryFailedChannelsOnly: partialFailure ? true : null,
       updatedAt: new Date().toISOString(),
     }, { merge: true });
     await markRunFinished(workspaceId, runId, 'failed', result.error || 'Unknown publishing error');

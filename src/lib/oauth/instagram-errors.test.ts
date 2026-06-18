@@ -1,13 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { isInstagramGraphUnsupported, IG_LOGIN_UNSUPPORTED_MESSAGE } from './instagram-errors';
+import {
+  isInstagramGraphUnsupported,
+  isInstagramMethodTypeUnsupported,
+  IG_LOGIN_UNSUPPORTED_MESSAGE,
+} from './instagram-errors';
 
 describe('isInstagramGraphUnsupported', () => {
-  it('matches the IGApiException code 100 "Unsupported request" response', () => {
-    expect(
-      isInstagramGraphUnsupported({
-        error: { code: 100, message: 'Unsupported request - method type: get' },
-      }),
-    ).toBe(true);
+  it('does not treat method-type errors as account eligibility failures', () => {
+    const error = {
+      error: { code: 100, message: 'Unsupported request - method type: get' },
+    };
+
+    expect(isInstagramMethodTypeUnsupported(error, 'get')).toBe(true);
+    expect(isInstagramGraphUnsupported(error)).toBe(false);
   });
 
   it('matches on the message even if the code differs', () => {

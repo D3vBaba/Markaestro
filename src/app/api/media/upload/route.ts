@@ -4,7 +4,7 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { uploadToStorage } from '@/lib/storage';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
-import { checkAndIncrementUsage } from '@/lib/usage';
+import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
 
 export const runtime = 'nodejs';
 
@@ -15,6 +15,7 @@ const VIDEO_TYPES = new Set(['video/mp4', 'video/quicktime', 'video/webm']);
 const ALL_TYPES = new Set([...IMAGE_TYPES, ...VIDEO_TYPES]);
 
 export async function POST(req: Request) {
+  let reservedQuota: { uid: string; workspaceId: string } | null = null;
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'posts.write');
@@ -24,6 +25,7 @@ export async function POST(req: Request) {
     if (!quota.allowed) {
       return apiError(new Error('QUOTA_EXCEEDED_MEDIA_UPLOADS'));
     }
+    reservedQuota = { uid: ctx.uid, workspaceId: ctx.workspaceId };
 
     const formData = await req.formData();
     const file = (formData.get('image') || formData.get('video') || formData.get('file')) as File | null;
@@ -52,8 +54,12 @@ export async function POST(req: Request) {
       uploadedAt: new Date().toISOString(),
     });
 
+    reservedQuota = null;
     return apiOk({ ok: true, url, contentType: file.type });
   } catch (error) {
+    if (reservedQuota) {
+      await refundUsage(reservedQuota.uid, 'mediaUploads', 1, reservedQuota.workspaceId);
+    }
     return apiError(error);
   }
 }

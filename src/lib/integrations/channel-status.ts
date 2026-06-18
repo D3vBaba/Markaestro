@@ -16,6 +16,9 @@ export type ChannelStatusEntry = {
   pageName?: string | null;
   pageSelectionRequired?: boolean | null;
   username?: string | null;
+  boardId?: string | null;
+  boardName?: string | null;
+  boardSelectionRequired?: boolean | null;
 };
 
 export type ChannelStatus = {
@@ -51,6 +54,16 @@ export function resolveChannelStatus(
       return { state: "connected", label: entry.pageName || "Facebook Page" };
     }
     if (entry.status === "connected" || entry.pageSelectionRequired) {
+      return { state: "needs-page" };
+    }
+    return { state: "disconnected" };
+  }
+
+  if (provider === "pinterest") {
+    if (entry.status === "connected" && entry.boardId && !entry.boardSelectionRequired) {
+      return { state: "connected", label: entry.boardName || "Pinterest board" };
+    }
+    if (entry.status === "connected" || entry.boardSelectionRequired) {
       return { state: "needs-page" };
     }
     return { state: "disconnected" };

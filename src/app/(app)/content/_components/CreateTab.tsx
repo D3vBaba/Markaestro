@@ -8,9 +8,10 @@ import ChannelSelector from "./ChannelSelector";
 import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
 import PlatformPreview from "@/components/app/PlatformPreview";
-import { getSocialChannelLabel } from "@/lib/social/channel-catalog";
+import { getSocialChannelConfig, getSocialChannelLabel } from "@/lib/social/channel-catalog";
+import { getSharedMediaLimit, validateSocialPost } from "@/lib/social/post-validation";
+import type { SocialChannel } from "@/lib/schemas";
 
-const MAX_MEDIA = 6;
 const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
 const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
 
@@ -104,7 +105,7 @@ export default function CreateTab({
 
     const INTERVAL_MS = 10_000;
     const MAX_ATTEMPTS = 12;
-    const TERMINAL = new Set(["exported_for_review", "published", "failed"]);
+    const TERMINAL = new Set(["exported_for_review", "published", "failed", "partial_failed"]);
 
     let attempt = 0;
     const tick = async () => {
@@ -147,6 +148,34 @@ export default function CreateTab({
     return Array.from(new Set(normalized)).filter(Boolean);
   };
 
+  const getTypedPostTargets = (): SocialChannel[] => (
+    getPostTargets().filter((item): item is SocialChannel => Boolean(getSocialChannelConfig(item)))
+  );
+
+  const getMediaLimit = () => {
+    const limit = getSharedMediaLimit(getTypedPostTargets());
+    return Number.isFinite(limit) && limit > 0 ? limit : 1;
+  };
+
+  const selectedChannelsAllowVideo = () => getTypedPostTargets().every((target) => {
+    const config = getSocialChannelConfig(target);
+    return config?.mediaKinds.includes("video");
+  });
+
+  const validateCurrentPost = (urls = mediaUrls) => {
+    const issues = validateSocialPost({
+      content,
+      channel,
+      targetChannels: getTypedPostTargets(),
+      mediaUrls: urls,
+    });
+    if (issues.length > 0) {
+      toast.error(issues[0].message);
+      return false;
+    }
+    return true;
+  };
+
   const buildPostPayload = (urls?: string[]) => {
     const targetChannels = getPostTargets();
     const primaryChannel = targetChannels[0] || channel;
@@ -162,14 +191,19 @@ export default function CreateTab({
   const handleUpload = async (files: File[]) => {
     if (files.length === 0) return;
     const containsVideo = files.some((f) => f.type.startsWith("video/"));
+    if (containsVideo && !selectedChannelsAllowVideo()) {
+      toast.error("One or more selected channels does not support video uploads");
+      return;
+    }
     if (containsVideo && files.length > 1) {
       toast.error("Videos must be uploaded on their own");
       return;
     }
 
-    const available = MAX_MEDIA - mediaUrls.length;
+    const maxMedia = getMediaLimit();
+    const available = maxMedia - mediaUrls.length;
     if (available <= 0) {
-      toast.error(`Maximum ${MAX_MEDIA} media items`);
+      toast.error(`Maximum ${maxMedia} media item${maxMedia === 1 ? "" : "s"} for the selected channels`);
       return;
     }
     const filesToUpload = files.slice(0, available);
@@ -196,7 +230,7 @@ export default function CreateTab({
       );
       const uploaded = results.filter((u): u is string => !!u);
       if (uploaded.length > 0) {
-        setMediaUrls((prev) => [...prev, ...uploaded].slice(0, MAX_MEDIA));
+        setMediaUrls((prev) => [...prev, ...uploaded].slice(0, maxMedia));
         toast.success(`${uploaded.length} file${uploaded.length > 1 ? "s" : ""} uploaded`);
       }
     } catch {
@@ -236,6 +270,7 @@ export default function CreateTab({
 
   const handleSchedule = async (scheduledAt: string) => {
     if (!content) return;
+    if (!validateCurrentPost()) return;
     const urls = mediaUrls.length > 0 ? mediaUrls : undefined;
     const id = postId ?? await ensurePostId();
     if (!id) return;
@@ -258,6 +293,7 @@ export default function CreateTab({
 
   const handlePostNow = async () => {
     if (!content) return;
+    if (!validateCurrentPost()) return;
     setPublishing(true);
     const urls = mediaUrls.length > 0 ? mediaUrls : undefined;
     const id = postId ?? await ensurePostId();
@@ -345,6 +381,8 @@ export default function CreateTab({
   // Which platform the preview renders — falls back to the primary channel
   // when the previously previewed channel is deselected.
   const activePreviewChannel = selectedChannels.includes(previewChannel) ? previewChannel : channel;
+  const mediaLimit = getMediaLimit();
+  const allowVideo = selectedChannelsAllowVideo();
 
   return (
     <div className="grid gap-8 lg:grid-cols-2" onKeyDown={handleKeyDown}>
@@ -366,7 +404,7 @@ export default function CreateTab({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Media</label>
-            <span className="text-[11px] text-muted-foreground">{mediaUrls.length}/{MAX_MEDIA}</span>
+            <span className="text-[11px] text-muted-foreground">{mediaUrls.length}/{mediaLimit}</span>
           </div>
           {mediaUrls.length > 0 ? (
             <div className="grid grid-cols-3 gap-2">
@@ -386,7 +424,7 @@ export default function CreateTab({
                   </button>
                 </div>
               ))}
-              {mediaUrls.length < MAX_MEDIA && (
+              {mediaUrls.length < mediaLimit && (
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className="aspect-square rounded-lg border-2 border-dashed border-border/50 hover:border-foreground/30 text-xs text-muted-foreground"
@@ -400,15 +438,15 @@ export default function CreateTab({
               className="border-2 border-dashed border-border/50 hover:border-foreground/30 rounded-xl p-8 text-center cursor-pointer transition-colors"
               onClick={() => fileInputRef.current?.click()}
             >
-              <p className="text-sm text-muted-foreground">{channel === "tiktok" ? "Drop videos or images" : "Drop images or click to upload"}</p>
-              <p className="text-[11px] text-muted-foreground/50 mt-1">Up to {MAX_MEDIA} items · {channel === "tiktok" ? "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
+              <p className="text-sm text-muted-foreground">{allowVideo ? "Drop images or videos" : "Drop images or click to upload"}</p>
+              <p className="text-[11px] text-muted-foreground/50 mt-1">Up to {mediaLimit} item{mediaLimit === 1 ? "" : "s"} · {allowVideo ? "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
             </div>
           )}
           <input
             ref={fileInputRef}
             type="file"
             multiple
-            accept={channel === "tiktok" ? "image/png,image/jpeg,image/webp,video/mp4,video/quicktime,video/webm" : "image/png,image/jpeg,image/webp"}
+            accept={allowVideo ? "image/png,image/jpeg,image/webp,video/mp4,video/quicktime,video/webm" : "image/png,image/jpeg,image/webp"}
             className="hidden"
             onChange={(e) => {
               const files = Array.from(e.target.files || []);
@@ -416,7 +454,7 @@ export default function CreateTab({
               e.target.value = "";
             }}
           />
-          <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => fileInputRef.current?.click()} disabled={uploading || mediaUrls.length >= MAX_MEDIA}>
+          <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => fileInputRef.current?.click()} disabled={uploading || mediaUrls.length >= mediaLimit}>
             {uploading ? "Uploading…" : "Upload"}
           </Button>
         </div>

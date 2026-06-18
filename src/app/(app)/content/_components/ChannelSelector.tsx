@@ -134,6 +134,11 @@ export default function ChannelSelector({
   const channels = managedChannels.length ? managedChannels : fallbackChannels;
 
   function toggleChannel(ch: string) {
+    if (channelState(ch) !== "ready") {
+      onChange(ch);
+      return;
+    }
+
     if (!onSelectedChannelsChange) {
       onChange(ch);
       return;
@@ -162,15 +167,19 @@ export default function ChannelSelector({
           const state = channelState(ch.channel);
           const isSelected = selectedSet.has(ch.channel);
           const colors = channelColors[ch.channel];
+          const disabled = state !== "ready";
 
           return (
             <button
               key={ch.channel}
               onClick={() => toggleChannel(ch.channel)}
+              disabled={disabled}
               title={state !== "ready" ? channelReason(ch.channel) : ch.destinationLabel ?? undefined}
               className={`relative flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm transition-all ${
-                isSelected
+                isSelected && !disabled
                   ? (colors?.active ?? "border-foreground bg-foreground text-background") + " font-medium shadow-sm"
+                  : disabled
+                  ? "border-border/40 text-muted-foreground/50 cursor-not-allowed bg-muted/20"
                   : "border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground"
               }`}
             >

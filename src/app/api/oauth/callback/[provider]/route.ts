@@ -5,7 +5,7 @@ import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { getAppUrl } from '@/lib/oauth/config';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 import { logger } from '@/lib/logger';
-import { IG_LOGIN_UNSUPPORTED_MESSAGE, isInstagramGraphUnsupported } from '@/lib/oauth/instagram-errors';
+import { IG_LOGIN_UNSUPPORTED_MESSAGE, isInstagramGraphUnsupported, isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
 
 export const runtime = 'nodejs';
 
@@ -22,7 +22,7 @@ async function exchangeInstagramToken(tokens: {
     throw new Error('Missing OAuth credentials for instagram: INSTAGRAM_APP_SECRET');
   }
 
-  const res = await fetch(
+  let res = await fetch(
     `https://graph.instagram.com/access_token?${new URLSearchParams({
       grant_type: 'ig_exchange_token',
       client_secret: appSecret,
@@ -30,7 +30,27 @@ async function exchangeInstagramToken(tokens: {
     }).toString()}`,
     { method: 'GET' },
   );
-  const data = await res.json().catch(() => ({} as Record<string, unknown>));
+  let data = await res.json().catch(() => ({} as Record<string, unknown>));
+
+  if (!res.ok && isInstagramMethodTypeUnsupported(data, 'get')) {
+    logger.warn('instagram long-lived exchange retrying with post', {
+      event: 'oauth.instagram.long_lived.retry_post',
+      httpStatus: res.status,
+    });
+    res = await fetch('https://graph.instagram.com/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
+      body: new URLSearchParams({
+        grant_type: 'ig_exchange_token',
+        client_secret: appSecret,
+        access_token: tokens.accessToken,
+      }).toString(),
+    });
+    data = await res.json().catch(() => ({} as Record<string, unknown>));
+  }
 
   if (!res.ok || !data.access_token) {
     // Capture the FULL Meta payload (no token is present on failures) so the
@@ -358,15 +378,26 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       try {
         const longLivedTokens = await exchangeInstagramToken(tokens);
         tokens.accessToken = longLivedTokens.accessToken;
+        tokens.refreshToken = longLivedTokens.accessToken;
         tokens.expiresIn = longLivedTokens.expiresIn;
       } catch (e) {
         console.warn('Instagram long-lived exchange failed:', e instanceof Error ? e.message : e);
       }
 
-      const profile = await fetchInstagramProfile(tokens.accessToken);
-      extraData.igAccountId = profile.userId;
-      extraData.username = profile.username;
-      extraData.displayName = profile.username || 'Instagram';
+      try {
+        const profile = await fetchInstagramProfile(tokens.accessToken);
+        extraData.igAccountId = profile.userId;
+        extraData.username = profile.username;
+      } catch (e) {
+        if (!extraData.igAccountId) {
+          throw e;
+        }
+        logger.warn('instagram profile fetch failed; using token response user_id', {
+          event: 'oauth.instagram.profile.fallback_to_token_user_id',
+          err: e instanceof Error ? e.message : String(e),
+        });
+      }
+      extraData.displayName = (typeof extraData.username === 'string' && extraData.username) || 'Instagram';
       extraData.loginType = 'instagram_login';
     }
 
@@ -376,8 +407,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         extraData.openId = tokens.openId;
       }
 
-      // Fetch profile using the newly-approved user.info.profile + user.info.stats scopes
-      // so the connection metadata reflects the creator's identity and current stats.
+      // Fetch profile metadata so the connection reflects the creator identity.
       try {
         const profile = await fetchTikTokProfile(tokens.accessToken);
         if (profile.openId) extraData.openId = profile.openId;

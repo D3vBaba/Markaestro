@@ -3,6 +3,7 @@ import { requirePermission } from '@/lib/rbac';
 import { encrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection, resolveUserAccessToken, getConnectionRef } from '@/lib/platform/connections';
+import type { PlatformConnection } from '@/lib/platform/types';
 
 export const runtime = 'nodejs';
 
@@ -27,16 +28,30 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       const connRef = getConnectionRef(ctx.workspaceId, provider, productId);
       const snap = await connRef.get();
       if (!snap.exists) throw new Error('NOT_FOUND');
+      const connection = snap.data() as PlatformConnection;
+      const accessToken = resolveUserAccessToken(connection);
+
+      const boardsRes = await fetch('https://api.pinterest.com/v5/boards?page_size=100', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const boardsData = await boardsRes.json();
+      if (!boardsRes.ok || !Array.isArray(boardsData.items)) {
+        throw new Error(boardsData.message || 'Failed to verify Pinterest board');
+      }
+      const selectedBoard = boardsData.items.find((board: Record<string, unknown>) => String(board.id) === String(pageId));
+      if (!selectedBoard) {
+        throw new Error('NOT_FOUND');
+      }
 
       await connRef.update({
         'metadata.boardId': pageId,
-        'metadata.boardName': pageName || '',
+        'metadata.boardName': pageName || String(selectedBoard.name ?? ''),
         'metadata.boardSelectionRequired': false,
         updatedAt: new Date().toISOString(),
         updatedBy: ctx.uid,
       });
 
-      return apiOk({ ok: true, id: pageId, name: pageName || '' });
+      return apiOk({ ok: true, id: pageId, name: pageName || String(selectedBoard.name ?? '') });
     }
 
     // Per-product Meta: the user token lives on the product's own connection.

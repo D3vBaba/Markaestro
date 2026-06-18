@@ -73,10 +73,13 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
               });
               message = `Post published to ${successfulChannels.map((c) => c.channel).join(' & ')}`;
             } else {
+              const partialFailure = result.partialFailure || result.channels.some((c) => c.success) && result.channels.some((c) => !c.success && !c.pending);
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
-                status: 'failed',
+                status: partialFailure ? 'partial_failed' : 'failed',
                 errorMessage: result.error || 'Unknown error',
                 publishResults: result.channels,
+                publishedChannels: successfulChannels.map((c) => c.channel),
+                retryFailedChannelsOnly: partialFailure ? true : null,
                 updatedAt: new Date().toISOString(),
               });
               message = `Post publish failed: ${result.error}`;

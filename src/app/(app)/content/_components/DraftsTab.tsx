@@ -46,7 +46,7 @@ export default function DraftsTab({
       const [draftsRes, reviewRes, failedRes] = await Promise.all([
         apiGet<{ posts: Post[] }>("/api/posts?status=draft"),
         apiGet<{ posts: Post[] }>("/api/posts?status=exported_for_review"),
-        apiGet<{ posts: Post[] }>("/api/posts?status=failed"),
+        apiGet<{ posts: Post[] }>("/api/posts?status=failed,partial_failed"),
       ]);
       const drafts = draftsRes.ok ? (draftsRes.data.posts || []) : [];
       const reviewReady = reviewRes.ok ? (reviewRes.data.posts || []) : [];

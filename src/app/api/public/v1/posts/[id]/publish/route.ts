@@ -31,7 +31,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     const status = String(post.status || '');
-    if (!['draft', 'scheduled', 'failed', 'exported_for_review'].includes(status)) {
+    if (!['draft', 'scheduled', 'failed', 'partial_failed', 'exported_for_review'].includes(status)) {
       return Response.json({
         error: 'VALIDATION_POST_NOT_PUBLISHABLE',
       }, { status: 400, headers: ctx.rateLimitHeaders });

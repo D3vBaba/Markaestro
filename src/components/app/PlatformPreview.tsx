@@ -170,6 +170,74 @@ function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
   );
 }
 
+// ─── Threads ─────────────────────────────────────────────────────────────────
+
+function ThreadsPreview({ content, mediaUrls }: PlatformPreviewProps) {
+  const media = mediaUrls?.[0];
+  return (
+    <div className="rounded-2xl border border-zinc-200 bg-white p-3 shadow-md dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="flex gap-3">
+        <div className="flex flex-col items-center">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-950 text-sm font-semibold text-white dark:bg-white dark:text-zinc-950">
+            Y
+          </div>
+          <div className="mt-2 w-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between">
+            <p className="text-[13px] font-semibold text-zinc-950 dark:text-white">yourproduct</p>
+            <span className="text-[11px] text-zinc-400">now</span>
+          </div>
+          <p className="mt-1 whitespace-pre-wrap break-words text-[13px] leading-snug text-zinc-900 dark:text-zinc-100">
+            {content.length > 500 ? content.slice(0, 500) + "..." : content}
+          </p>
+          {media && (
+            <div className="mt-3 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
+              <MediaDisplay url={media} className="max-h-64 w-full object-cover" />
+            </div>
+          )}
+          <div className="mt-3 flex items-center gap-4 text-zinc-500">
+            <Heart className="h-4 w-4" />
+            <MessageCircle className="h-4 w-4" />
+            <Share2 className="h-4 w-4" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Pinterest ───────────────────────────────────────────────────────────────
+
+function PinterestPreview({ content, mediaUrls }: PlatformPreviewProps) {
+  const media = mediaUrls?.[0];
+  return (
+    <div className="mx-auto max-w-[280px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-950">
+      {media ? (
+        <MediaDisplay url={media} className="max-h-[380px] w-full object-cover" />
+      ) : (
+        <div className="flex aspect-[2/3] w-full items-center justify-center bg-zinc-100 text-zinc-400 dark:bg-zinc-900">
+          <Bookmark className="h-8 w-8" />
+        </div>
+      )}
+      <div className="space-y-2 p-3">
+        <div className="flex items-start justify-between gap-2">
+          <p className="line-clamp-2 text-[13px] font-semibold leading-snug text-zinc-950 dark:text-white">
+            {content.split("\n")[0] || "Untitled Pin"}
+          </p>
+          <span className="rounded-full bg-[#E60023] px-2 py-1 text-[10px] font-semibold text-white">
+            Save
+          </span>
+        </div>
+        <p className="line-clamp-3 whitespace-pre-wrap break-words text-[12px] leading-snug text-zinc-600 dark:text-zinc-300">
+          {content}
+        </p>
+        <p className="text-[10px] text-zinc-400">yourproduct.com</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Ad Preview Types & Helpers ──────────────────────────────────────────────
 
 export type AdPreviewProps = {
@@ -436,7 +504,9 @@ export default function PlatformPreview({ content, channel, mediaUrls, externalU
       {channel === "instagram" && <InstagramPreview content={content} channel={channel} mediaUrls={mediaUrls} />}
       {channel === "facebook"  && <FacebookPreview  content={content} channel={channel} mediaUrls={mediaUrls} />}
       {channel === "tiktok"    && <TikTokPreview    content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {!["instagram","facebook","tiktok"].includes(channel) && (
+      {channel === "threads"   && <ThreadsPreview   content={content} channel={channel} mediaUrls={mediaUrls} />}
+      {channel === "pinterest" && <PinterestPreview content={content} channel={channel} mediaUrls={mediaUrls} />}
+      {!["instagram","facebook","tiktok","threads","pinterest"].includes(channel) && (
         <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
         </div>

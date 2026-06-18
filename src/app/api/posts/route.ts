@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { createPostSchema, paginationSchema } from '@/lib/schemas';
 import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
+import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 
 export const runtime = 'nodejs';
 
@@ -51,6 +52,18 @@ export async function POST(req: Request) {
         { error: 'EMAIL_NOT_VERIFIED', message: 'Verify your email to publish.' },
         403,
       );
+    }
+
+    if (data.status === 'scheduled') {
+      const issues = await getSocialPostPreflightIssues(
+        ctx.workspaceId,
+        data.productId || undefined,
+        data,
+        { requireReadyChannels: true },
+      );
+      if (issues.length > 0) {
+        return apiOk({ error: 'VALIDATION_ERROR', issues }, 400);
+      }
     }
 
     const now = new Date().toISOString();

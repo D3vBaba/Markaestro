@@ -670,6 +670,7 @@ const PRODUCT_CHANNELS: { provider: string; label: string; sub: string }[] = [
   { provider: "instagram", label: "Instagram", sub: "Instagram account (Instagram login)" },
   { provider: "tiktok", label: "TikTok", sub: "TikTok account" },
   { provider: "threads", label: "Threads", sub: "Threads account" },
+  { provider: "pinterest", label: "Pinterest", sub: "Pinterest account and board" },
 ];
 
 type ConnEntry = {
@@ -680,6 +681,9 @@ type ConnEntry = {
   pageName?: string | null;
   igAccountId?: string | null;
   username?: string | null;
+  boardId?: string | null;
+  boardName?: string | null;
+  boardSelectionRequired?: boolean;
   pageSelectionRequired?: boolean;
   needsPageSelection?: boolean;
 };
@@ -866,7 +870,11 @@ function IntegrationsTab() {
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium">{ch.label}</p>
                       {st.state === "connected" && <Badge className="border-0" style={pillStyle("pos")}>Linked</Badge>}
-                      {st.state === "needs-page" && <Badge className="border-0" style={pillStyle("warn")}>Pick a Page</Badge>}
+                      {st.state === "needs-page" && (
+                        <Badge className="border-0" style={pillStyle("warn")}>
+                          {ch.provider === "pinterest" ? "Pick a board" : "Pick a Page"}
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground truncate">
                       {st.state === "connected" ? (st.label || "Linked and ready.") : ch.sub}
@@ -883,7 +891,11 @@ function IntegrationsTab() {
                         {isBusy ? "Unlinking…" : "Unlink"}
                       </Button>
                     ) : st.state === "needs-page" ? (
-                      <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>Choose Page</Button>
+                      ch.provider === "pinterest" ? (
+                        <a href="/products"><Button size="sm">Choose board</Button></a>
+                      ) : (
+                        <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>Choose Page</Button>
+                      )
                     ) : (
                       <Button size="sm" onClick={() => connect(ch.provider, product.id)}>Link</Button>
                     )}

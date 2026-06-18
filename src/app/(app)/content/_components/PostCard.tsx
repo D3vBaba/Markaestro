@@ -25,12 +25,14 @@ const statusDotColors: Record<string, string> = {
   scheduled: "bg-mk-accent",
   published: "bg-mk-pos",
   failed: "bg-mk-neg",
+  partial_failed: "bg-mk-warn",
   publishing: "bg-mk-warn",
   exported_for_review: "bg-mk-accent",
 };
 
 const statusTextColors: Record<string, string> = {
   failed: "text-mk-neg",
+  partial_failed: "text-mk-warn",
   published: "text-mk-pos",
   scheduled: "text-mk-ink-60",
   publishing: "text-mk-warn",
@@ -39,6 +41,7 @@ const statusTextColors: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
   exported_for_review: "Ready in TikTok",
+  partial_failed: "Partially failed",
 };
 
 // Shared pill button style

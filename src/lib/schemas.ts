@@ -25,7 +25,7 @@ export const tagsSchema = z
 // ── Enums ──────────────────────────────────────────────────────────
 
 export const socialChannels = ['facebook', 'instagram', 'tiktok', 'threads', 'pinterest'] as const;
-export const postStatuses = ['draft', 'scheduled', 'publishing', 'published', 'exported_for_review', 'failed'] as const;
+export const postStatuses = ['draft', 'scheduled', 'publishing', 'published', 'exported_for_review', 'failed', 'partial_failed'] as const;
 export const contactStatuses = ['active', 'pending', 'bounced', 'unsubscribed'] as const;
 export const contactLifecycleStages = ['lead', 'trial', 'customer', 'churned', 'advocate'] as const;
 export const contactSources = ['organic', 'paid', 'referral', 'social', 'email', 'direct', 'other'] as const;
@@ -213,7 +213,7 @@ export const createPostSchema = z.object({
   channel: z.enum(socialChannels),
   status: z.enum(postStatuses).default('draft'),
   scheduledAt: z.string().datetime().nullable().optional(),
-  mediaUrls: z.array(z.string().url()).max(10).default([]),
+  mediaUrls: z.array(z.string().url()).max(35).default([]),
   productId: optionalString,
   targetChannels: z.array(z.enum(socialChannels)).optional(),
   destinationProvider: z.string().trim().max(100).optional(),
@@ -225,7 +225,7 @@ export const updatePostSchema = z.object({
   channel: z.enum(socialChannels).optional(),
   status: z.enum(postStatuses).optional(),
   scheduledAt: z.string().datetime().nullable().optional(),
-  mediaUrls: z.array(z.string().url()).max(10).optional(),
+  mediaUrls: z.array(z.string().url()).max(35).optional(),
   productId: z.string().trim().max(2000).optional(),
   externalId: z.string().trim().max(500).optional(),
   externalUrl: z.string().trim().max(2000).optional(),

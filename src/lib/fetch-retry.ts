@@ -33,6 +33,20 @@ function getBackoffDelay(attempt: number, baseDelayMs: number, maxDelayMs: numbe
   return Math.min(exponential + jitter, maxDelayMs);
 }
 
+function redactUrl(rawUrl: string): string {
+  try {
+    const url = new URL(rawUrl);
+    for (const key of [...url.searchParams.keys()]) {
+      if (/token|secret|signature|key|code/i.test(key)) {
+        url.searchParams.set(key, '[redacted]');
+      }
+    }
+    return url.toString();
+  } catch {
+    return rawUrl.replace(/([?&][^=]*(?:token|secret|signature|key|code)[^=]*=)[^&\s]+/gi, '$1[redacted]');
+  }
+}
+
 /**
  * Fetch with automatic retries on transient failures.
  * Respects Retry-After headers from 429 responses.
@@ -44,6 +58,7 @@ export async function fetchWithRetry(
 ): Promise<Response> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   let lastError: Error | null = null;
+  const safeUrl = redactUrl(url);
 
   for (let attempt = 0; attempt <= opts.maxRetries; attempt++) {
     try {
@@ -75,7 +90,7 @@ export async function fetchWithRetry(
         }
 
         console.warn(
-          `[fetchWithRetry] ${response.status} from ${url}, retrying in ${Math.round(delayMs)}ms (attempt ${attempt + 1}/${opts.maxRetries})`,
+          `[fetchWithRetry] ${response.status} from ${safeUrl}, retrying in ${Math.round(delayMs)}ms (attempt ${attempt + 1}/${opts.maxRetries})`,
         );
         await new Promise((r) => setTimeout(r, delayMs));
         continue;
@@ -90,7 +105,7 @@ export async function fetchWithRetry(
       if (attempt < opts.maxRetries) {
         const delayMs = getBackoffDelay(attempt, opts.baseDelayMs, opts.maxDelayMs);
         console.warn(
-          `[fetchWithRetry] ${lastError.message} from ${url}, retrying in ${Math.round(delayMs)}ms (attempt ${attempt + 1}/${opts.maxRetries})`,
+          `[fetchWithRetry] ${lastError.message} from ${safeUrl}, retrying in ${Math.round(delayMs)}ms (attempt ${attempt + 1}/${opts.maxRetries})`,
         );
         await new Promise((r) => setTimeout(r, delayMs));
         continue;
@@ -98,5 +113,5 @@ export async function fetchWithRetry(
     }
   }
 
-  throw lastError || new Error(`fetchWithRetry: all ${opts.maxRetries} retries exhausted for ${url}`);
+  throw lastError || new Error(`fetchWithRetry: all ${opts.maxRetries} retries exhausted for ${safeUrl}`);
 }

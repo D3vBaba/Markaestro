@@ -82,6 +82,7 @@ export default function ScheduleSheet({
   const [smartLoaded, setSmartLoaded] = useState(false);
   const [showSmart, setShowSmart] = useState(true);
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "local time";
 
   const handleSheetOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
@@ -313,6 +314,9 @@ export default function ScheduleSheet({
                 setSelectedSuggestionIso(null);
               }}
             />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Schedules use your local timezone ({timezone}) and are stored in UTC.
+            </p>
           </FormField>
 
           {collision && collision.scheduledAt && (

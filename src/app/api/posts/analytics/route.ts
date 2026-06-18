@@ -34,7 +34,7 @@ export async function GET(req: Request) {
       if (post.status === 'published') byChannel[ch].published++;
       else if (post.status === 'scheduled') byChannel[ch].scheduled++;
       else if (post.status === 'draft') byChannel[ch].draft++;
-      else if (post.status === 'failed') byChannel[ch].failed++;
+      else if (post.status === 'failed' || post.status === 'partial_failed') byChannel[ch].failed++;
     }
 
     // Published in last 7 / 30 days
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
     // Failed rate
     const total = posts.length;
     const totalPublished = published.length;
-    const totalFailed = posts.filter((p) => p.status === 'failed').length;
+    const totalFailed = posts.filter((p) => p.status === 'failed' || p.status === 'partial_failed').length;
     const totalScheduled = posts.filter((p) => p.status === 'scheduled').length;
     const totalDraft = posts.filter((p) => p.status === 'draft').length;
     const publishSuccessRate = totalPublished + totalFailed > 0

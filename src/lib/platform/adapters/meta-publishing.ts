@@ -5,6 +5,7 @@ import { PlatformCapability } from '../types';
 import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
 import type { SocialChannel } from '@/lib/schemas';
 import { asInstagramSettings, type InstagramSettings } from '@/lib/public-api/post-settings';
+import { isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
 
 const GRAPH_API = 'https://graph.facebook.com/v22.0';
 const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
@@ -501,6 +502,11 @@ export const metaPublishingAdapter: PlatformAdapter = {
         );
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
+          const igAccountId = getInstagramAccountId(connection);
+          if (igAccountId && isInstagramMethodTypeUnsupported(err, 'get')) {
+            const username = typeof connection.metadata.username === 'string' ? connection.metadata.username : '';
+            return { ok: true, label: username || 'Instagram connected' };
+          }
           return { ok: false, error: err.error?.message || err.error_message || `HTTP ${res.status}` };
         }
         const data = await res.json();

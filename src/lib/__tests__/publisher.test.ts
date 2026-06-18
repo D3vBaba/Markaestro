@@ -161,4 +161,45 @@ describe('publishStoredPost', () => {
     });
     expect(getConnectionForChannelMock).not.toHaveBeenCalled();
   });
+
+  it('retries only failed channels after a partial failure', async () => {
+    const facebookPublish = vi.fn().mockResolvedValue({
+      success: true,
+      externalId: 'fb_new',
+    });
+    const instagramPublish = vi.fn().mockResolvedValue({
+      success: true,
+      externalId: 'ig_123',
+    });
+
+    getAdapterForChannelMock.mockImplementation((channel: string) => ({
+      publish: channel === 'facebook' ? facebookPublish : instagramPublish,
+      validateConnection: () => null,
+    }));
+    getConnectionForChannelMock.mockResolvedValue({ status: 'connected' });
+
+    const { publishStoredPost } = await import('../social/publisher');
+
+    const result = await publishStoredPost('ws_123', 'prod_123', {
+      status: 'partial_failed',
+      content: 'Launch post',
+      channel: 'facebook',
+      targetChannels: ['facebook', 'instagram'],
+      mediaUrls: ['https://example.com/image.jpg'],
+      publishResults: [
+        { channel: 'facebook', success: true, externalId: 'fb_123' },
+        { channel: 'instagram', success: false, error: 'previous failure' },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.channels).toEqual([
+      { channel: 'facebook', success: true, externalId: 'fb_123' },
+      { channel: 'instagram', success: true, externalId: 'ig_123' },
+    ]);
+    expect(facebookPublish).not.toHaveBeenCalled();
+    expect(instagramPublish).toHaveBeenCalledTimes(1);
+    expect(getConnectionForChannelMock).toHaveBeenCalledTimes(1);
+    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'instagram', 'prod_123', undefined);
+  });
 });

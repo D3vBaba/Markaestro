@@ -171,6 +171,21 @@ function attachCors(req: NextRequest, res: NextResponse): NextResponse {
   return res;
 }
 
+async function hasValidSession(req: NextRequest): Promise<boolean> {
+  const cookie = req.cookies.get('__session')?.value;
+  return Boolean(cookie && (await verifySessionCookieAsync(cookie)));
+}
+
+function dashboardRedirectUrl(req: NextRequest): URL | string {
+  if (splitEnabled() && APP_URL) {
+    return `${APP_URL}/dashboard`;
+  }
+  const url = req.nextUrl.clone();
+  url.pathname = '/dashboard';
+  url.search = '';
+  return url;
+}
+
 export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -191,10 +206,15 @@ export default async function proxy(req: NextRequest) {
   const relocated = hostRedirect(req);
   if (relocated) return relocated;
 
+  // Authenticated users visiting the public root should land in the product,
+  // not the marketing CTA loop. Keep other marketing pages readable.
+  if (pathname === '/' && await hasValidSession(req)) {
+    return NextResponse.redirect(dashboardRedirectUrl(req), 307);
+  }
+
   // --- Auth guard for protected pages ---
   if (!isPublicPath(pathname) && !pathname.startsWith('/api/')) {
-    const cookie = req.cookies.get('__session')?.value;
-    if (!cookie || !(await verifySessionCookieAsync(cookie))) {
+    if (!(await hasValidSession(req))) {
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = '/login';
       loginUrl.searchParams.set('next', `${pathname}${req.nextUrl.search}`);
@@ -211,12 +231,8 @@ export default async function proxy(req: NextRequest) {
 
   // Redirect authenticated users away from /login
   if (pathname === '/login') {
-    const cookie = req.cookies.get('__session')?.value;
-    if (cookie && (await verifySessionCookieAsync(cookie))) {
-      const dashboardUrl = req.nextUrl.clone();
-      dashboardUrl.pathname = '/dashboard';
-      dashboardUrl.search = '';
-      return NextResponse.redirect(dashboardUrl);
+    if (await hasValidSession(req)) {
+      return NextResponse.redirect(dashboardRedirectUrl(req));
     }
   }
 

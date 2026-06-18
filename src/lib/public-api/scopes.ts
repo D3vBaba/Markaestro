@@ -33,6 +33,7 @@ export const publicPostStatuses = [
   'published',
   'exported_for_review',
   'failed',
+  'partial_failed',
 ] as const;
 
 export type PublicPostStatus = (typeof publicPostStatuses)[number];

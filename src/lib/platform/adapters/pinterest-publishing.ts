@@ -127,6 +127,9 @@ async function publishToPinterest(
   if (mediaUrls.length === 0) {
     return { success: false, error: 'Pinterest requires at least one image or video.' };
   }
+  if (mediaUrls.some(isVideoUrl) && mediaUrls.length > 1) {
+    return { success: false, error: 'Pinterest video pins must use a single video without additional images.' };
+  }
 
   const accessToken = getAccessToken(connection);
   try {
