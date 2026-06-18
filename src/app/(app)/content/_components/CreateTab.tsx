@@ -11,6 +11,7 @@ import PlatformPreview from "@/components/app/PlatformPreview";
 import { getSocialChannelConfig, getSocialChannelLabel } from "@/lib/social/channel-catalog";
 import { getSharedMediaLimit, validateSocialPost } from "@/lib/social/post-validation";
 import type { SocialChannel } from "@/lib/schemas";
+import { isPlatformActionRequiredStatus, LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from "@/lib/tiktok-draft-flow";
 
 const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
 const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
@@ -105,7 +106,7 @@ export default function CreateTab({
 
     const INTERVAL_MS = 10_000;
     const MAX_ATTEMPTS = 12;
-    const TERMINAL = new Set(["exported_for_review", "published", "failed", "partial_failed"]);
+    const TERMINAL = new Set([PLATFORM_ACTION_REQUIRED_STATUS, LEGACY_EXPORTED_FOR_REVIEW_STATUS, "published", "failed", "partial_failed"]);
 
     let attempt = 0;
     const tick = async () => {
@@ -329,7 +330,7 @@ export default function CreateTab({
         return;
       }
 
-      if (res.data.status === "exported_for_review") {
+      if (isPlatformActionRequiredStatus(res.data.status)) {
         toast.success("TikTok confirmed inbox delivery. Open TikTok Inbox, finish the caption, and tap Post.");
         setContent("");
         setPostId(null);

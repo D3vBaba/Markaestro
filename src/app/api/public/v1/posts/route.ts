@@ -5,7 +5,7 @@ import { createPublicPost, serializePublicPost } from '@/lib/public-api/posts';
 import { createPublicPostSchema, createPublicPostsBatchSchema, listPublicPostsSchema } from '@/lib/public-api/schemas';
 import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
 import { executeListQuery } from '@/lib/firestore-list-query';
-import { incrementApiClientStat } from '@/lib/public-api/analytics';
+import { incrementApiClientStat } from '@/lib/public-api/usage';
 
 export const runtime = 'nodejs';
 

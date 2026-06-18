@@ -6,21 +6,18 @@ import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import { acquirePublishLock, assertPublishRateLimit, getPublishDestinationKey, releasePublishLock } from './publish-throttle';
 import { enqueueWebhookEvent } from './webhooks';
-import { incrementApiClientStat } from './analytics';
-import { isTikTokDraftOnlyChannel, TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
+import { incrementApiClientStat } from './usage';
 
 const MAX_PUBLIC_RUNS_PER_WORKSPACE = 20;
 
 export function resolveQueuedPublishDeliveryMode(post: Record<string, unknown>) {
-  return isTikTokDraftOnlyChannel(String(post.channel))
-    ? 'direct_publish'
-    : post.deliveryMode === 'user_review'
-      ? 'user_review'
-      : 'direct_publish';
+  if (String(post.channel) === 'tiktok') return 'platform_inbox';
+  return 'direct_publish';
 }
 
 export function requiresConnectedPublishDestination(post: Record<string, unknown>) {
-  return resolveQueuedPublishDeliveryMode(post) === 'direct_publish';
+  const deliveryMode = resolveQueuedPublishDeliveryMode(post);
+  return deliveryMode === 'direct_publish' || deliveryMode === 'platform_inbox';
 }
 
 function nextRetryIso(seconds: number) {
@@ -180,9 +177,8 @@ async function processSingleRun(workspaceId: string, runId: string) {
       }, { merge: true });
 
       // Short-poll TikTok inline so local/dev (without the 1-min cron) still
-      // transitions quickly, and so the `post.exported_for_review` webhook
-      // fires before we acknowledge the run. In prod the tick is short so
-      // this only adds a few seconds before the run is marked done.
+      // transitions quickly. In prod the tick is short so this only adds a
+      // few seconds before the run is marked done.
       if (post.channel === 'tiktok') {
         await pollTikTokPublishWithRetries(workspaceId, run.resourceId);
       }
@@ -190,35 +186,6 @@ async function processSingleRun(workspaceId: string, runId: string) {
       await markRunFinished(workspaceId, runId, 'succeeded', 'Publish handed off to platform', {
         pending: true,
         externalId: result.externalId || '',
-      });
-      return { runId, status: 'succeeded' };
-    }
-
-    if (result.reviewRequired) {
-      await postRef.set({
-        status: 'exported_for_review',
-        externalId: result.externalId || '',
-        externalUrl: result.externalUrl || '',
-        publishResults: result.channels,
-        nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
-        exportedForReviewAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }, { merge: true });
-      await markRunFinished(workspaceId, runId, 'succeeded', 'TikTok content delivered to inbox for creator completion', {
-        reviewRequired: true,
-        externalId: result.externalId || '',
-        nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
-      });
-      if (clientId) {
-        await incrementApiClientStat(workspaceId, clientId, 'publish_exported_for_review');
-      }
-      await enqueueWebhookEvent(workspaceId, 'post.exported_for_review', {
-        postId: run.resourceId,
-        channel: post.channel,
-        status: 'exported_for_review',
-        externalId: result.externalId || '',
-        externalUrl: result.externalUrl || '',
-        nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
       });
       return { runId, status: 'succeeded' };
     }
@@ -267,7 +234,7 @@ async function processSingleRun(workspaceId: string, runId: string) {
     await enqueueWebhookEvent(workspaceId, 'post.failed', {
       postId: run.resourceId,
       channel: post.channel,
-      status: 'failed',
+      status: partialFailure ? 'partial_failed' : 'failed',
       error: result.error || 'Unknown publishing error',
     });
     return { runId, status: 'failed' };

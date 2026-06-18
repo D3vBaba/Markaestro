@@ -92,10 +92,6 @@ async function fetchTikTokProfile(accessToken: string) {
     'bio_description',
     'profile_deep_link',
     'is_verified',
-    'follower_count',
-    'following_count',
-    'likes_count',
-    'video_count',
   ].join(',');
 
   const res = await fetch(`https://open.tiktokapis.com/v2/user/info/?fields=${fields}`, {
@@ -125,10 +121,6 @@ async function fetchTikTokProfile(accessToken: string) {
     bioDescription: typeof user.bio_description === 'string' ? user.bio_description : '',
     profileDeepLink: typeof user.profile_deep_link === 'string' ? user.profile_deep_link : '',
     isVerified: typeof user.is_verified === 'boolean' ? user.is_verified : false,
-    followerCount: typeof user.follower_count === 'number' ? user.follower_count : 0,
-    followingCount: typeof user.following_count === 'number' ? user.following_count : 0,
-    likesCount: typeof user.likes_count === 'number' ? user.likes_count : 0,
-    videoCount: typeof user.video_count === 'number' ? user.video_count : 0,
   };
 }
 
@@ -418,12 +410,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         if (profile.bioDescription) extraData.bioDescription = profile.bioDescription;
         if (profile.profileDeepLink) extraData.profileDeepLink = profile.profileDeepLink;
         extraData.isVerified = profile.isVerified;
-        extraData.followerCount = profile.followerCount;
-        extraData.followingCount = profile.followingCount;
-        extraData.likesCount = profile.likesCount;
-        extraData.videoCount = profile.videoCount;
       } catch (e) {
-        // Non-fatal — insights endpoint will re-fetch on demand
+        // Non-fatal — the connection can still publish using token metadata.
         console.warn('TikTok profile fetch failed:', e instanceof Error ? e.message : e);
       }
     }

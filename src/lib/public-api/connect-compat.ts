@@ -17,7 +17,6 @@
 //   PUT  /v1/media/upload?token=…    → store bytes as a media_asset
 //   POST /v1/posts                   → one post per selected destination
 //   GET  /v1/posts                   → workspace posts in Connect shape
-//   GET  /v1/analytics, /sync        → reserved (no platform metrics yet)
 import crypto from 'crypto';
 import type { SocialChannel } from '@/lib/schemas';
 import {
@@ -151,6 +150,7 @@ export function mapPostStatus(status: unknown): string {
       return 'scheduled';
     case 'failed':
       return 'failed';
+    case 'platform_action_required':
     case 'exported_for_review':
     case 'draft':
     default:

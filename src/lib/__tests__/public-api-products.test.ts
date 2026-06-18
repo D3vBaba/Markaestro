@@ -80,7 +80,7 @@ describe('public product discovery', () => {
         channel: 'tiktok',
         id: 'tiktok:tiktok:tt_open_123',
         accountId: 'tt_open_123',
-        deliveryMode: 'direct_publish',
+        deliveryMode: 'platform_inbox',
         displayName: 'Acme on TikTok',
         username: 'acmebrand',
       }),

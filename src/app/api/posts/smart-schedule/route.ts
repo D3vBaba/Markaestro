@@ -13,7 +13,7 @@ const querySchema = z.object({
 /**
  * Industry best-practice optimal posting windows (UTC).
  * These are baseline recommendations; in a future iteration this would
- * be replaced with per-workspace engagement analytics.
+ * be replaced with per-workspace publishing history.
  */
 const OPTIMAL_WINDOWS: Record<string, { day: number; hour: number; score: number }[]> = {
   instagram: [

@@ -56,7 +56,7 @@ const faqs = [
   },
   {
     q: "Do you offer an API?",
-    a: "Markaestro's API is available to all paid plans. It covers content management, media uploads, publishing, and analytics. Documentation is available in your dashboard.",
+    a: "Markaestro's API is available to all paid plans. It covers content management, media uploads, publishing, and post status. Documentation is available in your dashboard.",
   },
 ];
 

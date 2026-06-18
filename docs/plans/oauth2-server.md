@@ -196,8 +196,8 @@ Both paths produce a `PublicApiContext`. The OAuth2 path sets
 `principalType: 'oauth_app'`, `appId`, `grantId`, scopes from the grant
 (not the app's max).
 
-Rate limits and analytics already key on `clientId` — for OAuth2 we'll use
-`appId:grantId` as the analytics key so per-app usage stats roll up.
+Rate limits and usage counters already key on `clientId` — for OAuth2 we'll use
+`appId:grantId` as the usage key so per-app request stats roll up.
 
 ## Consent screen
 

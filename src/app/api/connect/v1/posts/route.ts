@@ -6,7 +6,7 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
 import { createPublicPost } from '@/lib/public-api/posts';
-import { incrementApiClientStat } from '@/lib/public-api/analytics';
+import { incrementApiClientStat } from '@/lib/public-api/usage';
 import { parseAccountId, mapPostStatus } from '@/lib/public-api/connect-compat';
 
 export const runtime = 'nodejs';
@@ -32,8 +32,10 @@ export async function POST(req: Request) {
     const mediaAssetIds = Array.isArray(body.media) ? body.media.map(String) : [];
     const accounts = Array.isArray(body.social_accounts) ? body.social_accounts.map(String) : [];
     if (accounts.length === 0) throw new Error('VALIDATION_NO_DESTINATION');
-    // Draft → unscheduled; otherwise schedule (or fire immediately via "now").
-    const scheduledAt = body.is_draft ? null : body.scheduled_at || new Date().toISOString();
+    // Connect create is draft-first. Scheduling clients may send scheduling
+    // fields, but Markaestro stores drafts so users can publish intentionally
+    // from the matching product workflow.
+    const scheduledAt = null;
 
     const created: Array<{ id: string; channel: string; status: string }> = [];
     const errors: Array<{ account: string; error: string }> = [];

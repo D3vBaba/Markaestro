@@ -112,6 +112,12 @@ function optionalString(value: unknown): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined;
 }
 
+function optionalIdString(value: unknown): string | undefined {
+  if (typeof value === 'string' && value.length > 0) return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return undefined;
+}
+
 function optionalNumber(value: unknown): number | undefined {
   if (typeof value === 'number') return value;
   if (typeof value === 'string' && value.trim()) {
@@ -119,6 +125,20 @@ function optionalNumber(value: unknown): number | undefined {
     return Number.isFinite(parsed) ? parsed : undefined;
   }
   return undefined;
+}
+
+export function instagramExtraDataFromTokenResponse(
+  tokenData: Record<string, unknown>,
+): Record<string, unknown> {
+  const extraData: Record<string, unknown> = {};
+
+  const instagramUserId = optionalIdString(tokenData.user_id);
+  if (instagramUserId) extraData.igAccountId = instagramUserId;
+
+  const permissions = optionalString(tokenData.permissions);
+  if (permissions) extraData.instagramPermissions = permissions;
+
+  return extraData;
 }
 
 /**
@@ -227,11 +247,7 @@ export async function exchangeCode(
 
   const extraData: Record<string, unknown> = {};
   if (provider === 'instagram') {
-    const instagramUserId = optionalString(tokenData.user_id);
-    if (instagramUserId) extraData.igAccountId = instagramUserId;
-
-    const permissions = optionalString(tokenData.permissions);
-    if (permissions) extraData.instagramPermissions = permissions;
+    Object.assign(extraData, instagramExtraDataFromTokenResponse(tokenData));
   }
 
   return {

@@ -1,10 +1,16 @@
 import type { SocialChannel } from '@/lib/schemas';
 
-export const TIKTOK_MANUAL_REVIEW_ACTION = 'open_tiktok_inbox_and_complete_editing';
+export const TIKTOK_MANUAL_PUBLISH_ACTION = 'open_tiktok_inbox_and_complete_posting';
+export const PLATFORM_ACTION_REQUIRED_STATUS = 'platform_action_required';
+export const LEGACY_EXPORTED_FOR_REVIEW_STATUS = 'exported_for_review';
 export const TIKTOK_MAX_IMAGE_COUNT = 35;
 
 export function isTikTokDraftOnlyChannel(channel: SocialChannel | string): channel is 'tiktok' {
   return channel === 'tiktok';
+}
+
+export function isPlatformActionRequiredStatus(status: unknown): boolean {
+  return status === PLATFORM_ACTION_REQUIRED_STATUS || status === LEGACY_EXPORTED_FOR_REVIEW_STATUS;
 }
 
 export function isTikTokVideoUrl(url: string): boolean {

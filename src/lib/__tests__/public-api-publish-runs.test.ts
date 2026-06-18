@@ -2,23 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { requiresConnectedPublishDestination, resolveQueuedPublishDeliveryMode } from '../public-api/publish-runs';
 
 describe('public API queued publish flow', () => {
-  it('forces TikTok queued publishes onto the direct publish path', () => {
+  it('uses the platform inbox path for TikTok queued publishes', () => {
     const post = {
       channel: 'tiktok',
-      deliveryMode: 'user_review',
+    };
+
+    expect(resolveQueuedPublishDeliveryMode(post)).toBe('platform_inbox');
+    expect(requiresConnectedPublishDestination(post)).toBe(true);
+  });
+
+  it('ignores legacy review delivery mode and still requires a connected destination', () => {
+    const post = {
+      channel: 'facebook',
+      deliveryMode: 'legacy_review_mode',
     };
 
     expect(resolveQueuedPublishDeliveryMode(post)).toBe('direct_publish');
     expect(requiresConnectedPublishDestination(post)).toBe(true);
-  });
-
-  it('preserves explicit user review only for non-TikTok channels', () => {
-    const post = {
-      channel: 'facebook',
-      deliveryMode: 'user_review',
-    };
-
-    expect(resolveQueuedPublishDeliveryMode(post)).toBe('user_review');
-    expect(requiresConnectedPublishDestination(post)).toBe(false);
   });
 });

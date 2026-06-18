@@ -36,7 +36,7 @@ const channels = [
       "Scheduling for best engagement times",
       "Instagram Login for standalone professional accounts",
     ],
-    connection: "OAuth via Meta (linked to Facebook Page)",
+    connection: "OAuth via Instagram Login or Meta Login",
   },
   {
     name: "TikTok",
@@ -56,7 +56,7 @@ const channels = [
 
 const stats = [
   { value: "3", label: "Social Channels", sub: "Facebook, Instagram, TikTok" },
-  { value: "1", label: "Dashboard", sub: "Unified publishing & analytics" },
+  { value: "1", label: "Dashboard", sub: "Unified publishing workflow" },
   { value: "0", label: "Manual Tokens", sub: "Fully OAuth, fully automated" },
 ];
 

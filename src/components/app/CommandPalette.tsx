@@ -10,7 +10,6 @@ import {
     Package,
     LayoutGrid,
     Calendar,
-    TrendingUp,
     Settings,
     Link2,
     SquarePen,
@@ -25,7 +24,6 @@ const NAV_ICONS: Record<string, LucideIcon> = {
     "/products": Package,
     "/content": LayoutGrid,
     "/calendar": Calendar,
-    "/analytics": TrendingUp,
     "/channels": Link2,
     "/settings": Settings,
 };

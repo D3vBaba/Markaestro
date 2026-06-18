@@ -8,7 +8,8 @@ import { socialChannels, type SocialChannel } from '@/lib/schemas';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import {
   isTikTokDraftOnlyChannel,
-  TIKTOK_MANUAL_REVIEW_ACTION,
+  LEGACY_EXPORTED_FOR_REVIEW_STATUS,
+  PLATFORM_ACTION_REQUIRED_STATUS,
   validateTikTokMediaUrls,
 } from '@/lib/tiktok-draft-flow';
 import { firstSocialPostValidationError } from '@/lib/social/post-validation';
@@ -62,7 +63,6 @@ export type ChannelPublishResult = {
   channel: SocialChannel;
   success: boolean;
   pending?: boolean;
-  reviewRequired?: boolean;
   externalId?: string;
   externalUrl?: string;
   nextAction?: string;
@@ -76,7 +76,6 @@ export type MultiChannelPublishResult = {
   partialFailure?: boolean;
   /** True when one or more channels are still processing asynchronously */
   pending?: boolean;
-  reviewRequired?: boolean;
   /** Results for each channel that was attempted */
   channels: ChannelPublishResult[];
   /** Primary channel external ID (for backwards compat) */
@@ -114,13 +113,12 @@ export type ScheduledPostsProcessResult = {
   claimed: number;
   processed: number;
   published: number;
-  exportedForReview: number;
   pending: number;
   retried: number;
   failed: number;
   partialFailed: number;
   recovered: number;
-  results: Array<{ postId: string; outcome: 'published' | 'exported_for_review' | 'pending' | 'retried' | 'failed' | 'partial_failed' | 'recovered'; error?: string }>;
+  results: Array<{ postId: string; outcome: 'published' | 'pending' | 'retried' | 'failed' | 'partial_failed' | 'recovered'; error?: string }>;
   errors: Array<{ postId: string; error: string }>;
 };
 
@@ -245,12 +243,12 @@ function asSocialChannel(value: unknown): value is SocialChannel {
   return typeof value === 'string' && socialChannelSet.has(value);
 }
 
-function getDeliveryMode(value: unknown): PublishRequest['deliveryMode'] {
-  return value === 'user_review' ? 'user_review' : 'direct_publish';
-}
-
 function getDestinationProvider(value: unknown): string | undefined {
   return typeof value === 'string' && value ? value : undefined;
+}
+
+function getEffectiveDeliveryMode(channel: SocialChannel): PublishRequest['deliveryMode'] {
+  return channel === 'tiktok' ? 'platform_inbox' : 'direct_publish';
 }
 
 function getPhotoCoverIndex(value: unknown): number | undefined {
@@ -299,7 +297,6 @@ function getReusableSuccessfulChannelResults(
       ...(typeof current.externalId === 'string' && { externalId: current.externalId }),
       ...(typeof current.externalUrl === 'string' && { externalUrl: current.externalUrl }),
       ...(typeof current.nextAction === 'string' && { nextAction: current.nextAction }),
-      ...(current.reviewRequired === true && { reviewRequired: true }),
     });
   }
 
@@ -329,7 +326,6 @@ function aggregateChannelResults(
     success: allSucceeded,
     partialFailure: anySucceeded && anyFailure ? true : undefined,
     pending: anyPending || undefined,
-    reviewRequired: primaryResult?.reviewRequired || undefined,
     channels: channelResults,
     externalId: primaryResult?.externalId,
     externalUrl: primaryResult?.externalUrl,
@@ -414,7 +410,14 @@ export async function claimPostForImmediatePublish(
 ): Promise<ImmediatePublishClaimResult> {
   const nowIso = new Date().toISOString();
   const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`);
-  const publishableStatuses = new Set(['draft', 'scheduled', 'failed', 'partial_failed', 'exported_for_review']);
+  const publishableStatuses = new Set([
+    'draft',
+    'scheduled',
+    'failed',
+    'partial_failed',
+    PLATFORM_ACTION_REQUIRED_STATUS,
+    LEGACY_EXPORTED_FOR_REVIEW_STATUS,
+  ]);
 
   const claimed = await adminDb.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
@@ -482,7 +485,7 @@ export async function finalizeSuccessfulPublish(
   workspaceId: string,
   claimed: ClaimedPublishPost,
   result: MultiChannelPublishResult,
-): Promise<'published' | 'pending' | 'exported_for_review'> {
+): Promise<'published' | 'pending'> {
   const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
   const nowIso = new Date().toISOString();
 
@@ -498,36 +501,6 @@ export async function finalizeSuccessfulPublish(
       updatedAt: nowIso,
     });
     return 'pending';
-  }
-
-  if (result.reviewRequired) {
-    await ref.update({
-      status: 'exported_for_review',
-      externalId: result.externalId || '',
-      externalUrl: result.externalUrl || '',
-      publishResults: result.channels,
-      nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
-      exportedForReviewAt: nowIso,
-      publishFinishedAt: nowIso,
-      publishLeaseExpiresAt: null,
-      errorMessage: '',
-      lastErrorCode: '',
-      lastErrorCategory: '',
-      nextRetryAt: null,
-      retryFailedChannelsOnly: null,
-      updatedAt: nowIso,
-    });
-    if (claimed.post.createdByType === 'api_client') {
-      await enqueueWebhookEvent(workspaceId, 'post.exported_for_review', {
-        postId: claimed.postId,
-        channel: claimed.post.channel,
-        status: 'exported_for_review',
-        externalId: result.externalId || '',
-        externalUrl: result.externalUrl || '',
-        nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
-      });
-    }
-    return 'exported_for_review';
   }
 
   await ref.update({
@@ -706,7 +679,6 @@ export async function publishPostMultiChannel(
       channel,
       success: result.success,
       ...(result.pending != null && { pending: result.pending }),
-      ...(result.reviewRequired != null && { reviewRequired: result.reviewRequired }),
       ...(result.externalId != null && { externalId: result.externalId }),
       ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
       ...(result.nextAction != null && { nextAction: result.nextAction }),
@@ -745,7 +717,6 @@ async function publishExplicitChannels(
       channel,
       success: result.success,
       ...(result.pending != null && { pending: result.pending }),
-      ...(result.reviewRequired != null && { reviewRequired: result.reviewRequired }),
       ...(result.externalId != null && { externalId: result.externalId }),
       ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
       ...(result.nextAction != null && { nextAction: result.nextAction }),
@@ -805,7 +776,7 @@ export async function publishStoredPost(
   const request = {
     content: String(post.content || ''),
     mediaUrls,
-    deliveryMode: getDeliveryMode(post.deliveryMode),
+    deliveryMode: getEffectiveDeliveryMode(primaryChannel),
     destinationProvider: getDestinationProvider(post.destinationProvider),
     photoCoverIndex: settingsPhotoCoverIndex ?? getPhotoCoverIndex(post.slideshowCoverIndex),
     settings,
@@ -876,7 +847,6 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
     claimed: claimedPosts.length,
     processed: 0,
     published: 0,
-    exportedForReview: 0,
     pending: 0,
     retried: 0,
     failed: 0,
@@ -897,7 +867,6 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
       summary.processed++;
       summary.results.push({ postId: claimed.postId, outcome, error: result.error });
       if (outcome === 'published') summary.published++;
-      if (outcome === 'exported_for_review') summary.exportedForReview++;
       if (outcome === 'pending') summary.pending++;
       if (outcome === 'retried') summary.retried++;
       if (outcome === 'failed') summary.failed++;

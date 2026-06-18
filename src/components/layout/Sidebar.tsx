@@ -22,7 +22,6 @@ import {
   Package,
   LayoutGrid,
   Calendar,
-  TrendingUp,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -32,7 +31,6 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/products": Package,
   "/content": LayoutGrid,
   "/calendar": Calendar,
-  "/analytics": TrendingUp,
   "/settings": Settings,
 };
 

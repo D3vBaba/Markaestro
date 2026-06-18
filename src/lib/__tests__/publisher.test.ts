@@ -39,40 +39,7 @@ describe('publishPost', () => {
     expect(getAdapterForChannelMock).not.toHaveBeenCalled();
   });
 
-  it('routes TikTok user_review requests through the platform inbox handoff', async () => {
-    const publishMock = vi.fn().mockResolvedValue({
-      success: true,
-      reviewRequired: true,
-      externalId: 'publish_abc',
-      externalUrl: 'https://www.tiktok.com/messages?lang=en',
-      nextAction: 'open_tiktok_inbox_and_complete_editing',
-    });
-    getAdapterForChannelMock.mockReturnValue({
-      publish: publishMock,
-      validateConnection: () => null,
-    });
-    getConnectionForChannelMock.mockResolvedValue({ status: 'connected' });
-
-    const { publishPost } = await import('../social/publisher');
-    const result = await publishPost('ws_123', undefined, {
-      channel: 'tiktok',
-      content: 'Demo',
-      mediaUrls: ['https://example.com/videos/demo.mp4'],
-      deliveryMode: 'user_review',
-    });
-
-    expect(result).toEqual({
-      success: true,
-      reviewRequired: true,
-      externalId: 'publish_abc',
-      externalUrl: 'https://www.tiktok.com/messages?lang=en',
-      nextAction: 'open_tiktok_inbox_and_complete_editing',
-    });
-    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'tiktok', undefined, undefined);
-    expect(publishMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('pushes TikTok posts to the adapter when deliveryMode is direct_publish (UI Publish click)', async () => {
+  it('pushes TikTok posts to the adapter using the platform inbox handoff', async () => {
     const publishMock = vi.fn().mockResolvedValue({
       success: false,
       pending: true,
@@ -90,7 +57,7 @@ describe('publishPost', () => {
       channel: 'tiktok',
       content: 'Demo',
       mediaUrls: ['https://example.com/videos/demo.mp4'],
-      deliveryMode: 'direct_publish',
+      deliveryMode: 'platform_inbox',
     });
 
     expect(result).toEqual({

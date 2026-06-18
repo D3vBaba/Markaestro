@@ -19,7 +19,7 @@ type RecentPost = {
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
-    requirePermission(ctx, 'analytics.read');
+    requirePermission(ctx, 'dashboard.read');
     const ws = ctx.workspaceId;
 
     const [productsSnap, postsSnap] =

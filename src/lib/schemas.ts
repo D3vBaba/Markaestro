@@ -25,7 +25,7 @@ export const tagsSchema = z
 // ── Enums ──────────────────────────────────────────────────────────
 
 export const socialChannels = ['facebook', 'instagram', 'tiktok', 'threads', 'pinterest'] as const;
-export const postStatuses = ['draft', 'scheduled', 'publishing', 'published', 'exported_for_review', 'failed', 'partial_failed'] as const;
+export const postStatuses = ['draft', 'scheduled', 'publishing', 'published', 'platform_action_required', 'failed', 'partial_failed'] as const;
 export const contactStatuses = ['active', 'pending', 'bounced', 'unsubscribed'] as const;
 export const contactLifecycleStages = ['lead', 'trial', 'customer', 'churned', 'advocate'] as const;
 export const contactSources = ['organic', 'paid', 'referral', 'social', 'email', 'direct', 'other'] as const;
@@ -217,7 +217,7 @@ export const createPostSchema = z.object({
   productId: optionalString,
   targetChannels: z.array(z.enum(socialChannels)).optional(),
   destinationProvider: z.string().trim().max(100).optional(),
-  deliveryMode: z.enum(['direct_publish', 'user_review']).optional(),
+  deliveryMode: z.enum(['direct_publish', 'platform_inbox']).optional(),
 });
 
 export const updatePostSchema = z.object({
@@ -232,7 +232,7 @@ export const updatePostSchema = z.object({
   errorMessage: z.string().trim().max(2000).optional(),
   targetChannels: z.array(z.enum(socialChannels)).optional(),
   destinationProvider: z.string().trim().max(100).optional(),
-  deliveryMode: z.enum(['direct_publish', 'user_review']).optional(),
+  deliveryMode: z.enum(['direct_publish', 'platform_inbox']).optional(),
 });
 
 // ── Pagination ─────────────────────────────────────────────────────

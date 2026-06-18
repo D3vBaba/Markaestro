@@ -6,7 +6,7 @@ export const PUBLIC_API_STAT_EVENTS = [
   'post_create',
   'publish_queued',
   'publish_succeeded',
-  'publish_exported_for_review',
+  'publish_action_required',
   'publish_failed',
 ] as const;
 
@@ -68,7 +68,7 @@ export async function incrementApiClientStat(
   });
 }
 
-export async function getApiClientAnalytics(workspaceId: string, days = 14) {
+export async function getApiClientUsage(workspaceId: string, days = 14) {
   const clientsSnap = await adminDb.collection(`workspaces/${workspaceId}/api_clients`).get();
   const now = new Date();
   const dayKeys = Array.from({ length: days }, (_, idx) => {
@@ -106,7 +106,7 @@ export async function getApiClientAnalytics(workspaceId: string, days = 14) {
         requests: counts.request || 0,
         queued: counts.publish_queued || 0,
         succeeded: counts.publish_succeeded || 0,
-        exportedForReview: counts.publish_exported_for_review || 0,
+        actionRequired: (counts.publish_action_required || 0) + (counts.publish_exported_for_review || 0),
         failed: counts.publish_failed || 0,
       };
     });
@@ -140,7 +140,7 @@ export async function getApiClientAnalytics(workspaceId: string, days = 14) {
     acc.currentMonthRequests += client.usage.currentMonthCounts.request || 0;
     acc.publishQueued += client.usage.currentMonthCounts.publish_queued || 0;
     acc.publishSucceeded += client.usage.currentMonthCounts.publish_succeeded || 0;
-    acc.publishExportedForReview += client.usage.currentMonthCounts.publish_exported_for_review || 0;
+    acc.publishActionRequired += (client.usage.currentMonthCounts.publish_action_required || 0) + (client.usage.currentMonthCounts.publish_exported_for_review || 0);
     acc.publishFailed += client.usage.currentMonthCounts.publish_failed || 0;
     return acc;
   }, {
@@ -148,7 +148,7 @@ export async function getApiClientAnalytics(workspaceId: string, days = 14) {
     currentMonthRequests: 0,
     publishQueued: 0,
     publishSucceeded: 0,
-    publishExportedForReview: 0,
+    publishActionRequired: 0,
     publishFailed: 0,
   });
 

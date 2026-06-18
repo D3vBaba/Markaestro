@@ -30,7 +30,7 @@ export default function PrivacyPage() {
             This Privacy Policy explains how Markaestro (&quot;Markaestro&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, discloses, and protects personal information when you access our marketing automation platform, website, applications, APIs, and related services (collectively, the &quot;Services&quot;).
           </p>
           <p className="mt-2">
-            Markaestro processes different categories of data in different roles. For account, billing, security, support, and website administration data, we generally act as the controller or business. For contact lists, post content, brand assets, uploaded media, analytics events, and similar data submitted by a workspace, we generally act as a processor or service provider on behalf of that workspace. If you are an end customer or contact contained in a Markaestro customer workspace, you should direct privacy requests to that workspace first.
+            Markaestro processes different categories of data in different roles. For account, billing, security, support, and website administration data, we generally act as the controller or business. For contact lists, post content, brand assets, uploaded media, activity events, and similar data submitted by a workspace, we generally act as a processor or service provider on behalf of that workspace. If you are an end customer or contact contained in a Markaestro customer workspace, you should direct privacy requests to that workspace first.
           </p>
         </section>
 
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
           <h3 className="mt-4 font-medium text-foreground">2.2 Information from connected services and integrations</h3>
           <ul className="mt-2 list-disc space-y-1 pl-6">
             <li><strong>OAuth and integration data:</strong> access tokens, refresh tokens, token expiry data, provider account identifiers, usernames, open IDs, page or account selections, and provider-specific metadata needed to maintain a connection.</li>
-            <li><strong>Social and analytics data:</strong> page lists, account profile information, post status, follower or profile metrics, engagement metrics, and related reporting data retrieved from providers such as TikTok, Meta, and similar services you connect.</li>
+            <li><strong>Social connection data:</strong> page lists, account profile information, post status, publish destinations, and related connection metadata retrieved from providers such as TikTok, Meta, and similar services you connect.</li>
           </ul>
 
           <h3 className="mt-4 font-medium text-foreground">2.3 Information collected automatically</h3>
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
               <li>authenticate users and enforce workspace access controls;</li>
               <li>store and manage products, brand settings, posts, and uploaded media;</li>
               <li>publish or schedule content to connected third-party services when directed by you;</li>
-              <li>calculate and display dashboards, analytics, attribution, and performance summaries;</li>
+              <li>display dashboards, post queues, publishing state, and workspace activity summaries;</li>
               <li>detect fraud, abuse, security incidents, and unauthorized access;</li>
               <li>respond to support inquiries, legal requests, and enforcement matters; and</li>
               <li>comply with legal obligations and protect our rights, users, and platform.</li>
@@ -148,7 +148,7 @@ export default function PrivacyPage() {
             <ul className="list-disc space-y-1 pl-6">
               <li>account and workspace records are retained while your account or workspace remains active;</li>
               <li>integration secrets are retained until disconnected, overwritten, or deleted;</li>
-              <li>content, contacts, posts, products, uploaded media, analytics records, and event logs remain in the workspace until deleted or until the workspace is removed, subject to backup and legal retention cycles;</li>
+              <li>content, contacts, posts, products, uploaded media, activity records, and event logs remain in the workspace until deleted or until the workspace is removed, subject to backup and legal retention cycles;</li>
               <li>short-lived OAuth state and related temporary authorization data may expire and be deleted automatically after a short period;</li>
               <li>support, abuse-prevention, and legal records may be retained longer where needed for legitimate business purposes or legal compliance.</li>
             </ul>

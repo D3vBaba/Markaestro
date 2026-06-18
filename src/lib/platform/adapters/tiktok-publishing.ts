@@ -315,7 +315,7 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
 
       // Photo carousel path uses MEDIA_UPLOAD (video.upload scope). Content
       // lands in the user's TikTok inbox; they finalize caption/privacy and
-      // post from the app. Direct Post requires a separate audit approval.
+      // post from the app. Direct Post requires separate platform access.
       // PULL_FROM_URL still requires a verified domain, so Firebase URLs are
       // proxied through our own domain via /api/media/proxy.
       const proxyUrls = imageUrls.map((url) => buildTikTokMediaProxyUrl(url, 'image'));

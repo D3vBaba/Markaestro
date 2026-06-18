@@ -13,8 +13,8 @@ import { z } from 'zod';
 // privacy / disable_comment / disable_duet / disable_stitch are only
 // honored by TikTok's Direct Post mode. Markaestro currently publishes
 // via MEDIA_UPLOAD (creator finishes in the TikTok inbox), so these
-// fields are accepted for forward-compat once we get TikTok Direct Post
-// audit approval. `photo_cover_index` IS honored today for photo
+// fields are accepted for forward-compat if Direct Post access is enabled.
+// `photo_cover_index` IS honored today for photo
 // carousels.
 export const tiktokPrivacyLevels = [
   'PUBLIC_TO_EVERYONE',

@@ -4,6 +4,7 @@ import { useState } from "react";
 import PlatformPreview from "@/components/app/PlatformPreview";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { getSocialChannelLabel } from "@/lib/social/channel-catalog";
+import { isPlatformActionRequiredStatus, LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from "@/lib/tiktok-draft-flow";
 
 type Post = {
   id: string;
@@ -27,7 +28,8 @@ const statusDotColors: Record<string, string> = {
   failed: "bg-mk-neg",
   partial_failed: "bg-mk-warn",
   publishing: "bg-mk-warn",
-  exported_for_review: "bg-mk-accent",
+  [PLATFORM_ACTION_REQUIRED_STATUS]: "bg-mk-accent",
+  [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: "bg-mk-accent",
 };
 
 const statusTextColors: Record<string, string> = {
@@ -36,11 +38,13 @@ const statusTextColors: Record<string, string> = {
   published: "text-mk-pos",
   scheduled: "text-mk-ink-60",
   publishing: "text-mk-warn",
-  exported_for_review: "text-mk-accent",
+  [PLATFORM_ACTION_REQUIRED_STATUS]: "text-mk-accent",
+  [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: "text-mk-accent",
 };
 
 const statusLabels: Record<string, string> = {
-  exported_for_review: "Ready in TikTok",
+  [PLATFORM_ACTION_REQUIRED_STATUS]: "Ready in TikTok",
+  [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: "Ready in TikTok",
   partial_failed: "Partially failed",
 };
 
@@ -176,7 +180,7 @@ export default function PostCard({
 
       {/* TikTok inbox banner: post was pushed to the creator's inbox and
           needs to be finalized from the TikTok app. */}
-      {!publishing && post.status === "exported_for_review" && post.channel === "tiktok" && (
+      {!publishing && isPlatformActionRequiredStatus(post.status) && post.channel === "tiktok" && (
         <div
           className="mx-4 mb-3 flex items-start gap-2 rounded-lg border px-3 py-2"
           style={{

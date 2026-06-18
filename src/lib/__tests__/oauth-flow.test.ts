@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isInstagramGraphUnsupported, isInstagramMethodTypeUnsupported } from '../oauth/instagram-errors';
 import { getProviderConfig } from '../oauth/config';
-import { normalizeOAuthTokenResponse } from '../oauth/flow';
+import { instagramExtraDataFromTokenResponse, normalizeOAuthTokenResponse } from '../oauth/flow';
 
 describe('oauth provider config', () => {
   it('requests publishing-only Instagram scopes', () => {
@@ -34,6 +34,19 @@ describe('normalizeOAuthTokenResponse', () => {
       access_token: 'short_ig_token',
       user_id: 'ig_user_123',
       permissions: 'instagram_business_basic,instagram_business_content_publish',
+    });
+  });
+
+  it('stores numeric Instagram user ids returned by Meta as string account ids', () => {
+    const token = normalizeOAuthTokenResponse('instagram', {
+      access_token: 'short_ig_token',
+      user_id: 17841400000000000,
+      permissions: 'instagram_business_basic,instagram_business_content_publish',
+    });
+
+    expect(instagramExtraDataFromTokenResponse(token)).toEqual({
+      igAccountId: '17841400000000000',
+      instagramPermissions: 'instagram_business_basic,instagram_business_content_publish',
     });
   });
 

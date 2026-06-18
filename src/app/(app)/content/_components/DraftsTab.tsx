@@ -9,6 +9,7 @@ import PostEditSheet from "./PostEditSheet";
 import ScheduleSheet from "./ScheduleSheet";
 import PostGridSkeleton from "./PostGridSkeleton";
 import Pagination from "@/components/app/Pagination";
+import { isPlatformActionRequiredStatus, LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from "@/lib/tiktok-draft-flow";
 
 const POSTS_PER_PAGE = 6;
 
@@ -45,7 +46,7 @@ export default function DraftsTab({
     try {
       const [draftsRes, reviewRes, failedRes] = await Promise.all([
         apiGet<{ posts: Post[] }>("/api/posts?status=draft"),
-        apiGet<{ posts: Post[] }>("/api/posts?status=exported_for_review"),
+        apiGet<{ posts: Post[] }>(`/api/posts?status=${PLATFORM_ACTION_REQUIRED_STATUS},${LEGACY_EXPORTED_FOR_REVIEW_STATUS}`),
         apiGet<{ posts: Post[] }>("/api/posts?status=failed,partial_failed"),
       ]);
       const drafts = draftsRes.ok ? (draftsRes.data.posts || []) : [];
@@ -127,7 +128,7 @@ export default function DraftsTab({
           );
           // TikTok posts stay here while waiting in the inbox — flip the status locally
           setPosts((cur) =>
-            cur.map((p) => (p.id === id ? { ...p, status: "exported_for_review" } : p)),
+            cur.map((p) => (p.id === id ? { ...p, status: PLATFORM_ACTION_REQUIRED_STATUS } : p)),
           );
         } else {
           if (res.data.status === "publishing" || res.data.pending) {
@@ -218,9 +219,9 @@ export default function DraftsTab({
     );
   }
 
-  // Posts pushed to the TikTok inbox aren't really drafts — surface them separately
-  const waitingInTikTok = posts.filter((p) => p.status === "exported_for_review");
-  const draftPosts = posts.filter((p) => p.status !== "exported_for_review");
+  // Posts pushed to the TikTok inbox aren't really drafts — surface them separately.
+  const waitingInTikTok = posts.filter((p) => isPlatformActionRequiredStatus(p.status));
+  const draftPosts = posts.filter((p) => !isPlatformActionRequiredStatus(p.status));
 
   const totalPages = Math.ceil(draftPosts.length / POSTS_PER_PAGE);
   const paginatedPosts = draftPosts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);

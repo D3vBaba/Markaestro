@@ -8,7 +8,6 @@ export const PlatformCapability = {
   PUBLISH_IMAGE: 'publish_image',
   PUBLISH_VIDEO: 'publish_video',
   PUBLISH_CAROUSEL: 'publish_carousel',
-  ANALYTICS: 'analytics',
 } as const;
 
 export type PlatformCapability = (typeof PlatformCapability)[keyof typeof PlatformCapability];
@@ -78,7 +77,6 @@ export type PublishRequest = {
 export type PublishResult = {
   success: boolean;
   pending?: boolean;
-  reviewRequired?: boolean;
   externalId?: string;
   externalUrl?: string;
   nextAction?: string;

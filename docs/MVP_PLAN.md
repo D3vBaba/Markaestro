@@ -6,12 +6,11 @@
 - Posts: draft → schedule → publish, with media uploads
 - Multi-channel publishing: Facebook, Instagram, TikTok
 - Calendar and scheduler queue
-- Analytics dashboard
+- Publishing dashboard
 - Public API + webhooks
 - Stripe billing with media-upload quotas
 
 ## In progress
-- Approval workflows
 - Smart scheduling
 
 ## Out of scope

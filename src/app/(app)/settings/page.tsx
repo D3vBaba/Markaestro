@@ -63,11 +63,11 @@ type ApiClientTrendPoint = {
   requests: number;
   queued: number;
   succeeded: number;
-  exportedForReview: number;
+  actionRequired: number;
   failed: number;
 };
 
-type ApiClientAnalytics = ApiClientInfo & {
+type ApiClientUsage = ApiClientInfo & {
   usage: {
     totalRequests: number;
     currentMonth: string;
@@ -76,12 +76,12 @@ type ApiClientAnalytics = ApiClientInfo & {
   trend: ApiClientTrendPoint[];
 };
 
-type ApiAnalyticsTotals = {
+type ApiUsageTotals = {
   totalRequests: number;
   currentMonthRequests: number;
   publishQueued: number;
   publishSucceeded: number;
-  publishExportedForReview: number;
+  publishActionRequired: number;
   publishFailed: number;
 };
 
@@ -140,7 +140,7 @@ const API_SCOPE_OPTIONS = [
 const WEBHOOK_EVENT_OPTIONS = [
   { id: 'post.publish.queued', label: 'Post queued' },
   { id: 'post.published', label: 'Meta publish completed' },
-  { id: 'post.exported_for_review', label: 'TikTok inbox item ready' },
+  { id: 'post.action_required', label: 'TikTok action required' },
   { id: 'post.failed', label: 'Post failed' },
 ] as const;
 
@@ -1037,7 +1037,7 @@ function TeamTab() {
     owner: "Full access to everything",
     admin: "Manage team, integrations, and content",
     member: "Create and publish content",
-    analyst: "View-only analytics access",
+    analyst: "View-only dashboard access",
   };
 
   return (
@@ -1363,11 +1363,11 @@ function ApiAccessTab() {
     { wsId },
   );
   const {
-    data: analyticsData,
-    loading: analyticsLoading,
-    refresh: refreshAnalytics,
-  } = useApiQuery<{ clients: ApiClientAnalytics[]; totals: ApiAnalyticsTotals }>(
-    canManage ? '/api/settings/api-clients/analytics' : null,
+    data: usageData,
+    loading: usageLoading,
+    refresh: refreshUsage,
+  } = useApiQuery<{ clients: ApiClientUsage[]; totals: ApiUsageTotals }>(
+    canManage ? '/api/settings/api-clients/usage' : null,
     { wsId },
   );
   const { data: productsData } = useApiQuery<{ products: { id: string; name: string }[] }>(
@@ -1378,16 +1378,16 @@ function ApiAccessTab() {
   const productNameById = (id: string | null | undefined) =>
     id ? products.find((p) => p.id === id)?.name ?? id : null;
   const webhookEndpoints = webhooksData?.webhookEndpoints ?? [];
-  const apiClientAnalytics = analyticsData?.clients ?? [];
-  const analyticsTotals: ApiAnalyticsTotals = analyticsData?.totals ?? {
+  const apiClientUsage = usageData?.clients ?? [];
+  const usageTotals: ApiUsageTotals = usageData?.totals ?? {
     totalRequests: 0,
     currentMonthRequests: 0,
     publishQueued: 0,
     publishSucceeded: 0,
-    publishExportedForReview: 0,
+    publishActionRequired: 0,
     publishFailed: 0,
   };
-  const loading = webhooksLoading || analyticsLoading;
+  const loading = webhooksLoading || usageLoading;
 
   const [createKeyOpen, setCreateKeyOpen] = useState(false);
   const [createWebhookOpen, setCreateWebhookOpen] = useState(false);
@@ -1407,7 +1407,7 @@ function ApiAccessTab() {
   const [rotatingClient, setRotatingClient] = useState(false);
 
   const [webhookUrl, setWebhookUrl] = useState('');
-  const [selectedEvents, setSelectedEvents] = useState<string[]>(['post.published', 'post.exported_for_review', 'post.failed']);
+  const [selectedEvents, setSelectedEvents] = useState<string[]>(['post.published', 'post.action_required', 'post.failed']);
   const [creatingWebhook, setCreatingWebhook] = useState(false);
   const [createdWebhookSecret, setCreatedWebhookSecret] = useState<string | null>(null);
 
@@ -1419,8 +1419,8 @@ function ApiAccessTab() {
   // Refetch both queries after mutations. The hooks fetch on mount and serve
   // cached data on revisits, so the tab never blanks while refetching.
   const fetchApiAccess = useCallback(async () => {
-    await Promise.all([refreshWebhooks(), refreshAnalytics()]);
-  }, [refreshWebhooks, refreshAnalytics]);
+    await Promise.all([refreshWebhooks(), refreshUsage()]);
+  }, [refreshWebhooks, refreshUsage]);
 
   async function copyText(value: string, label: string) {
     try {
@@ -1578,7 +1578,7 @@ function ApiAccessTab() {
 
       setCreatedWebhookSecret(res.data.webhookEndpoint.secret);
       setWebhookUrl('');
-      setSelectedEvents(['post.published', 'post.exported_for_review', 'post.failed']);
+      setSelectedEvents(['post.published', 'post.action_required', 'post.failed']);
       setCreateWebhookOpen(false);
       await fetchApiAccess();
     } catch {
@@ -1620,10 +1620,10 @@ function ApiAccessTab() {
 
   // Archived keys (revoked + archived) are hidden from the list by default so
   // the active key roster stays readable; the "Show archived" toggle reveals them.
-  const archivedClientCount = apiClientAnalytics.filter((client) => client.archived).length;
+  const archivedClientCount = apiClientUsage.filter((client) => client.archived).length;
   const visibleClients = showArchived
-    ? apiClientAnalytics
-    : apiClientAnalytics.filter((client) => !client.archived);
+    ? apiClientUsage
+    : apiClientUsage.filter((client) => !client.archived);
 
   return (
     <div className="grid gap-5">
@@ -1678,14 +1678,14 @@ function ApiAccessTab() {
             <div className="rounded-xl border p-4">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Requests this month</p>
               {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.currentMonthRequests.toLocaleString()}</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.currentMonthRequests.toLocaleString()}</p>
               )}
-              <p className="mt-1 text-xs text-muted-foreground">{formatMonthKey(apiClientAnalytics[0]?.usage.currentMonth || new Date().toISOString().slice(0, 7))}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{formatMonthKey(apiClientUsage[0]?.usage.currentMonth || new Date().toISOString().slice(0, 7))}</p>
             </div>
             <div className="rounded-xl border p-4">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Queued publishes</p>
               {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.publishQueued.toLocaleString()}</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.publishQueued.toLocaleString()}</p>
               )}
               <p className="mt-1 text-xs text-muted-foreground">All keys in this workspace</p>
             </div>
@@ -1693,19 +1693,19 @@ function ApiAccessTab() {
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Completed outcomes</p>
               {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
                 <p className="mt-2 text-2xl font-semibold tabular-nums">
-                  {(analyticsTotals.publishSucceeded + analyticsTotals.publishExportedForReview).toLocaleString()}
+                  {(usageTotals.publishSucceeded + usageTotals.publishActionRequired).toLocaleString()}
                 </p>
               )}
               <p className="mt-1 text-xs text-muted-foreground">
                 {loading
-                  ? "Direct publish · TikTok inbox handoffs"
-                  : `${analyticsTotals.publishSucceeded.toLocaleString()} direct publish · ${analyticsTotals.publishExportedForReview.toLocaleString()} TikTok inbox handoffs`}
+                  ? "Direct publish · TikTok action required"
+                  : `${usageTotals.publishSucceeded.toLocaleString()} direct publish · ${usageTotals.publishActionRequired.toLocaleString()} TikTok action required`}
               </p>
             </div>
             <div className="rounded-xl border p-4">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Failures</p>
               {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{analyticsTotals.publishFailed.toLocaleString()}</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.publishFailed.toLocaleString()}</p>
               )}
               <p className="mt-1 text-xs text-muted-foreground">Tracked at publish-run completion</p>
             </div>
@@ -1746,7 +1746,7 @@ function ApiAccessTab() {
                     {visibleClients.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="py-6 text-center text-muted-foreground">
-                          {apiClientAnalytics.length === 0 ? 'No API keys yet.' : 'No active API keys.'}
+                          {apiClientUsage.length === 0 ? 'No API keys yet.' : 'No active API keys.'}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -1776,7 +1776,7 @@ function ApiAccessTab() {
                             <div className="space-y-1 text-xs text-muted-foreground">
                               <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString()}</span> queued</p>
                               <p><span className="font-medium text-mk-pos tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString()}</span> direct publish</p>
-                              <p><span className="font-medium text-primary tabular-nums">{(client.usage.currentMonthCounts.publish_exported_for_review || 0).toLocaleString()}</span> TikTok inbox handoffs</p>
+                              <p><span className="font-medium text-primary tabular-nums">{((client.usage.currentMonthCounts.publish_action_required || 0) + (client.usage.currentMonthCounts.publish_exported_for_review || 0)).toLocaleString()}</span> TikTok action required</p>
                               <p><span className="font-medium text-mk-neg tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString()}</span> failed</p>
                             </div>
                           </TableCell>
@@ -1881,7 +1881,7 @@ function ApiAccessTab() {
                 <div className="flex items-center justify-between border-b px-4 py-3">
                   <div>
                     <p className="text-sm font-medium">Webhook endpoints</p>
-                    <p className="text-xs text-muted-foreground">Receive delivery events when publishes queue, complete, hand TikTok posts off to the inbox for creator completion, or fail. These are signed and retried from the worker.</p>
+                    <p className="text-xs text-muted-foreground">Receive delivery events when publishes queue, complete, need user action in TikTok, or fail. These are signed and retried from the worker.</p>
                   </div>
                   <Button variant="outline" size="sm" onClick={() => setCreateWebhookOpen(true)}>
                     <Webhook className="mr-1.5 h-3.5 w-3.5" />

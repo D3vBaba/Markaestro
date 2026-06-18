@@ -37,7 +37,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">2. Description of Service</h2>
           <p className="mt-3">
-            Markaestro is a social publishing platform for managing products, brand assets, uploaded media, social publishing, and analytics. The Services may integrate with third-party platforms including TikTok, Meta, Firebase, and other services made available by Markaestro from time to time.
+            Markaestro is a social publishing platform for managing products, brand assets, uploaded media, and social publishing workflows. The Services may integrate with third-party platforms including TikTok, Meta, Firebase, and other services made available by Markaestro from time to time.
           </p>
         </section>
 
@@ -93,7 +93,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.01em]">7. Third-Party Services and Integrations</h2>
           <p className="mt-3">
-            Markaestro may connect to third-party platforms, including messaging or analytics tools. By connecting a third-party service, you authorize Markaestro to access, store, refresh, and use credentials and related data as needed to provide the requested functionality within the permissions you grant.
+            Markaestro may connect to third-party publishing platforms and workflow tools. By connecting a third-party service, you authorize Markaestro to access, store, refresh, and use credentials and related data as needed to provide the requested functionality within the permissions you grant.
           </p>
           <p className="mt-2">
             You remain responsible for complying with the third party&apos;s terms, policies, technical requirements, publishing rules, and account restrictions. Markaestro is not responsible for API changes, service outages, account suspensions, content moderation decisions, rejected posts, revoked tokens, or third-party platform actions.

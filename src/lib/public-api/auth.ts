@@ -3,7 +3,7 @@ import { safeCompare } from '@/lib/crypto';
 import { RATE_LIMITS, checkRateLimit, type RateLimitConfig } from '@/lib/rate-limit';
 import { parseApiKey, hashSecret } from './keys';
 import type { PublicApiScope } from './scopes';
-import { incrementApiClientStat } from './analytics';
+import { incrementApiClientStat } from './usage';
 
 export type PublicApiContext = {
   principalType: 'api_client';

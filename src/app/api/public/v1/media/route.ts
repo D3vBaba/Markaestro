@@ -2,7 +2,7 @@ import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
 import { createMediaAsset } from '@/lib/public-api/media';
 import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
-import { incrementApiClientStat } from '@/lib/public-api/analytics';
+import { incrementApiClientStat } from '@/lib/public-api/usage';
 import { checkAndIncrementUsage } from '@/lib/usage';
 
 export const runtime = 'nodejs';

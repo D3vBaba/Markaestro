@@ -11,7 +11,7 @@ const endpointGroups = [
     description: "Discover the products and publish destinations available to the API key.",
     endpoints: [
       { method: "GET", path: "/api/public/v1/products", note: "Lists products plus the channels currently available for each one." },
-      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the publish destinations for that product, including standalone Instagram Login destinations, Meta fan-out behavior, and connected TikTok destinations." },
+      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the publish destinations for that product, including standalone Instagram Login, Facebook Page, Threads, and connected TikTok destinations." },
     ],
   },
   {
@@ -25,9 +25,9 @@ const endpointGroups = [
     title: "Posts",
     description: "Create, inspect, and publish posts for Facebook, Instagram, and TikTok.",
     endpoints: [
-      { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft or scheduled post in the workspace." },
+      { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft in the workspace for the selected product destination." },
       { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status and publish results." },
-      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run for Facebook and Instagram. TikTok cannot be published via the API — TikTok posts are drafts you finalize in the Markaestro app." },
+      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. Facebook and Instagram publish directly; TikTok uses the inbox handoff and still requires creator completion in TikTok." },
     ],
   },
   {
@@ -80,15 +80,15 @@ const examples = {
 
 const webhookExample = `{
   "id": "evt_123",
-  "type": "post.exported_for_review",
+  "type": "post.action_required",
   "createdAt": "2026-04-08T18:06:10.000Z",
   "workspaceId": "ws_123",
   "data": {
     "postId": "pst_123",
     "channel": "tiktok",
-    "status": "exported_for_review",
+    "status": "platform_action_required",
     "externalId": "p_inbox_url~v2.7631796255831721997",
-    "nextAction": "open_tiktok_inbox_and_complete_editing"
+    "nextAction": "open_tiktok_inbox_and_complete_posting"
   }
 }`;
 
@@ -97,7 +97,7 @@ const connectEndpoints = [
   { method: "GET", path: "/api/connect/v1/products", note: "Lists products with their connected accounts nested — a product-first picker." },
   { method: "POST", path: "/api/connect/v1/media/create-upload-url", note: "Returns a short-lived, single-use signed PUT url plus a media id." },
   { method: "PUT", path: "<upload_url>", note: "Upload the raw image bytes to the signed url. No API key needed — the signature authorizes it." },
-  { method: "POST", path: "/api/connect/v1/posts", note: "Creates a draft or scheduled post per selected account. snake_case body: media, social_accounts, scheduled_at, is_draft." },
+  { method: "POST", path: "/api/connect/v1/posts", note: "Creates a draft per selected account. snake_case body: media, social_accounts, scheduled_at, is_draft; scheduling fields are accepted for compatibility and ignored." },
   { method: "GET", path: "/api/connect/v1/posts", note: "Lists workspace posts with flat status, caption, and media urls." },
 ];
 
@@ -112,16 +112,14 @@ curl -X POST "$MARKAESTRO_URL/api/connect/v1/media/create-upload-url" \\
   -d '{ "mime_type": "image/png", "size_bytes": 184320, "name": "slide-1.png" }'
 curl -X PUT "<upload_url>" -H "Content-Type: image/png" --data-binary @slide-1.png
 
-# 3. Create a scheduled post for one or more accounts
+# 3. Create a draft post for one or more accounts
 curl -X POST "$MARKAESTRO_URL/api/connect/v1/posts" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "caption": "New drop",
     "media": ["ast_111", "ast_222"],
-    "social_accounts": ["prod_123#instagram:instagram:ig_123"],
-    "scheduled_at": "2026-06-20T17:00:00.000Z",
-    "is_draft": false
+    "social_accounts": ["prod_123#instagram:instagram:ig_123"]
   }'`;
 
 export default function DevelopersApiPage() {
@@ -146,9 +144,9 @@ export default function DevelopersApiPage() {
             auth and are not part of the public contract).
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            <strong className="text-foreground">TikTok is draft-only over the API.</strong> A TikTok post is always
-            created as a draft in Markaestro and is never auto-published — you finalize and post it from the Markaestro
-            app, the same manual TikTok step a creator does by hand. Facebook and Instagram publish programmatically.
+            <strong className="text-foreground">TikTok is draft-first over the API.</strong> A TikTok post is always
+            created as a draft in Markaestro. Explicit publish uses TikTok&apos;s inbox handoff, never public Direct Post,
+            and the creator finalizes inside TikTok. Facebook and Instagram publish programmatically.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             Workspaces can have multiple products. Every API key is bound to one product when you create it, so calls
@@ -207,10 +205,10 @@ export default function DevelopersApiPage() {
                 back verbatim in <code>social_accounts</code>, and the request fans out one post per account. Each key is
                 bound to one product, so it only sees and posts to that product. <strong className="text-foreground">TikTok
                 posts are created as drafts</strong> and finalized from the Markaestro app; Facebook and Instagram publish
-                programmatically. Post status is one of <code>draft</code>, <code>scheduled</code>, <code>processing</code>,{" "}
+                programmatically after an explicit publish action. Post status is one of <code>draft</code>, <code>processing</code>,{" "}
                 <code>posted</code>, or <code>failed</code>. Facebook, Instagram, TikTok, and Threads are each their own dedicated
-                destination — publishing to one never fans out to another. Live engagement analytics are not yet available
-                on this surface — track results via <code>GET /api/connect/v1/posts</code>.
+                destination — publishing to one never fans out to another. Track publishing state through{" "}
+                <code>GET /api/connect/v1/posts</code>.
               </p>
             </CardContent>
           </Card>
@@ -238,8 +236,8 @@ export default function DevelopersApiPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>TikTok is draft-only</CardTitle>
-                <CardDescription>TikTok posts created via the API always land in your Markaestro drafts. You finalize and publish them from the app — the same manual TikTok step a creator does by hand. The API never posts to TikTok.</CardDescription>
+                <CardTitle>TikTok uses inbox handoff</CardTitle>
+                <CardDescription>TikTok posts created via the API always land in your Markaestro drafts. Publishing sends them to the creator&apos;s TikTok inbox for final caption, privacy, and posting.</CardDescription>
               </CardHeader>
             </Card>
             <Card className="lg:col-span-3">
@@ -312,7 +310,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>4. Create a post</CardTitle>
-                <CardDescription>Create a draft or scheduled post using those asset ids.</CardDescription>
+                <CardDescription>Create a draft using those asset ids.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.createPost}</code></pre>
@@ -321,7 +319,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>TikTok example</CardTitle>
-                <CardDescription>Use the connected TikTok destination returned for the product. The post always lands as a draft in Markaestro — finalize and publish it from the app. The API never posts to TikTok.</CardDescription>
+                <CardDescription>Use the connected TikTok destination returned for the product. It reports platform_inbox delivery, lands as a Markaestro draft, and is sent to the creator&apos;s TikTok inbox only when publish is explicitly queued.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.tiktokCreatePost}</code></pre>
@@ -330,7 +328,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>5. Queue publish</CardTitle>
-                <CardDescription>Publishing creates an async run for Facebook and Instagram. TikTok is not publishable via the API — those posts stay drafts until you publish them in the Markaestro app.</CardDescription>
+                <CardDescription>Publishing creates an async run. Facebook and Instagram publish directly; TikTok queues the inbox handoff and returns action-required when TikTok accepts it.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.publish}</code></pre>
@@ -363,7 +361,7 @@ export default function DevelopersApiPage() {
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">TikTok</p>
-                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. API posts are always created as drafts — publish from the Markaestro app; the API never posts to TikTok.</p>
+                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. API posts are always created as drafts; explicit publish sends the draft to the creator&apos;s TikTok inbox, not public Direct Post.</p>
               </div>
             </CardContent>
           </Card>

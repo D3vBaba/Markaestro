@@ -10,9 +10,6 @@ import CreateTab from "./_components/CreateTab";
 import DraftsTab from "./_components/DraftsTab";
 import ScheduledTab from "./_components/ScheduledTab";
 import PublishedTab from "./_components/PublishedTab";
-import PerformanceTab from "./_components/PerformanceTab";
-import ApprovalsTab from "./_components/ApprovalsTab";
-import { FeatureGate } from "@/components/app/FeatureGate";
 
 const STORAGE_KEY = "markaestro_default_product";
 
@@ -21,10 +18,8 @@ type Product = { id: string; name: string };
 const tabs = [
   { value: "create", label: "Create" },
   { value: "drafts", label: "Drafts" },
-  { value: "approvals", label: "Approvals" },
   { value: "scheduled", label: "Scheduled" },
   { value: "published", label: "Published" },
-  { value: "performance", label: "Performance" },
 ] as const;
 
 // ── Persistent product context bar ───────────────────────────────────────────
@@ -195,22 +190,12 @@ export default function PostsPage() {
           <DraftsTab refreshKey={refreshKey} onCreatePost={goToCreate} />
         </TabsContent>
 
-        <TabsContent value="approvals">
-          <FeatureGate feature="approvalWorkflows">
-            <ApprovalsTab refreshKey={refreshKey} />
-          </FeatureGate>
-        </TabsContent>
-
         <TabsContent value="scheduled">
           <ScheduledTab refreshKey={refreshKey} onCreatePost={goToCreate} />
         </TabsContent>
 
         <TabsContent value="published">
           <PublishedTab refreshKey={refreshKey} onCreatePost={goToCreate} />
-        </TabsContent>
-
-        <TabsContent value="performance">
-          <PerformanceTab refreshKey={refreshKey} onCreatePost={goToCreate} />
         </TabsContent>
       </Tabs>
     </AppShell>

@@ -2,11 +2,15 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getConnectionForChannel } from '@/lib/platform/connections';
 import { getAccessToken } from '@/lib/platform/base-adapter';
 import { fetchTikTokPublishStatus } from '@/lib/platform/adapters/tiktok-publishing';
-import { incrementApiClientStat } from '@/lib/public-api/analytics';
+import { incrementApiClientStat } from '@/lib/public-api/usage';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import type { SocialChannel } from '@/lib/schemas';
 import { getAllDocs, getAllMatchingDocs } from '@/lib/firestore-pagination';
 import type { DocumentReference } from 'firebase-admin/firestore';
+import {
+  PLATFORM_ACTION_REQUIRED_STATUS,
+  TIKTOK_MANUAL_PUBLISH_ACTION,
+} from '@/lib/tiktok-draft-flow';
 
 type TikTokPublishPollResult = {
   polled: number;
@@ -22,7 +26,7 @@ export type TikTokPostPollOutcome =
   | { status: 'no_external_id' }
   | { status: 'no_connection' }
   | { status: 'still_processing' }
-  | { status: 'exported_for_review' }
+  | { status: 'platform_action_required' }
   | { status: 'published' }
   | { status: 'partial_failed'; error: string }
   | { status: 'failed'; error: string }
@@ -211,17 +215,17 @@ export async function pollTikTokPublishForPost(
         : { status: 'still_processing' };
   }
 
-  // MEDIA_UPLOAD mode always terminates at SEND_TO_USER_INBOX — the
-  // creator finalizes caption/privacy and posts from the TikTok app.
+  // MEDIA_UPLOAD mode always terminates at SEND_TO_USER_INBOX: the creator
+  // finalizes caption/privacy and posts from the TikTok app.
   if (liveStatus.status === 'SEND_TO_USER_INBOX') {
     const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
     const summary = summarizePublishResults(nextPublishResults);
-    const nextStatus = summary.allSucceeded ? 'exported_for_review' : summary.anyPending ? 'publishing' : summary.partialFailed ? 'partial_failed' : 'failed';
+    const nextStatus = summary.allSucceeded ? PLATFORM_ACTION_REQUIRED_STATUS : summary.anyPending ? 'publishing' : summary.partialFailed ? 'partial_failed' : 'failed';
     await postDocRef.update({
       status: nextStatus,
-      ...(nextStatus === 'exported_for_review' ? {
-        nextAction: 'open_tiktok_inbox_and_complete_editing',
-        exportedForReviewAt: now,
+      ...(nextStatus === PLATFORM_ACTION_REQUIRED_STATUS ? {
+        nextAction: TIKTOK_MANUAL_PUBLISH_ACTION,
+        actionRequiredAt: now,
       } : {}),
       ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
       publishResults: nextPublishResults,
@@ -231,15 +235,15 @@ export async function pollTikTokPublishForPost(
         : {}),
       updatedAt: now,
     });
-    if (clientId && nextStatus === 'exported_for_review') {
-      await incrementApiClientStat(workspaceId, clientId, 'publish_exported_for_review');
-      await enqueueWebhookEvent(workspaceId, 'post.exported_for_review', {
+    if (clientId && nextStatus === PLATFORM_ACTION_REQUIRED_STATUS) {
+      await incrementApiClientStat(workspaceId, clientId, 'publish_action_required');
+      await enqueueWebhookEvent(workspaceId, 'post.action_required', {
         postId: snap.id,
         channel: post.channel,
-        status: 'exported_for_review',
+        status: PLATFORM_ACTION_REQUIRED_STATUS,
         externalId: typeof post.externalId === 'string' ? post.externalId : '',
         externalUrl: typeof post.externalUrl === 'string' ? post.externalUrl : '',
-        nextAction: 'open_tiktok_inbox_and_complete_editing',
+        nextAction: TIKTOK_MANUAL_PUBLISH_ACTION,
       });
     } else if (clientId && (nextStatus === 'failed' || nextStatus === 'partial_failed')) {
       await incrementApiClientStat(workspaceId, clientId, 'publish_failed');
@@ -250,8 +254,8 @@ export async function pollTikTokPublishForPost(
         error: summary.firstError || 'One or more channels failed',
       });
     }
-    return nextStatus === 'exported_for_review'
-      ? { status: 'exported_for_review' }
+    return nextStatus === PLATFORM_ACTION_REQUIRED_STATUS
+      ? { status: PLATFORM_ACTION_REQUIRED_STATUS }
       : nextStatus === 'partial_failed'
         ? { status: 'partial_failed', error: summary.firstError || 'One or more channels failed' }
         : nextStatus === 'failed'
@@ -344,7 +348,7 @@ export async function pollTikTokPublishForPost(
 
 /**
  * Poll TikTok for a single post with short retries, returning as soon as the
- * post reaches a terminal state (exported_for_review / published / failed) or
+ * post reaches a terminal state (platform_action_required / published / failed) or
  * the budget is exhausted. Intended to be called inline from publish routes
  * so local / dev environments without Cloud Scheduler still transition
  * quickly out of `publishing`.
@@ -418,7 +422,7 @@ export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollRes
           case 'published':
             result.completed++;
             break;
-          case 'exported_for_review':
+          case 'platform_action_required':
             result.completed++;
             break;
           case 'failed':

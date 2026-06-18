@@ -12,10 +12,10 @@ publishing pipeline:
 
 Both support Facebook, Instagram, TikTok, and Threads. **Each channel is its own
 dedicated destination** — publishing to one never fans out to another (linking a
-Meta connection no longer co-publishes Facebook + Instagram). **TikTok is
-draft-only over the API** on either surface — a TikTok post is always created as
-a draft and is never auto-published; you finalize and publish it from the
-Markaestro app.
+Meta connection no longer co-publishes Facebook + Instagram). **API create is
+draft-first** on either surface: `POST /posts` stores drafts for the selected
+product destination. Publish explicitly later from Markaestro or, where allowed,
+through the public publish endpoint.
 
 ## Scope
 
@@ -28,7 +28,7 @@ Markaestro app.
 
 - Facebook: text-only, image, or video posts; max 10 images; 1 video per post
 - Instagram: requires at least 1 media item (image or video); max 10 items; single video publishes as a Reel; carousels support mixed image/video
-- TikTok: requires at least 1 media item; either 1 video or up to 10 images. **Draft-only via the API** — a TikTok post is always created as a draft and is never published by the API; a human finalizes and posts it from the Markaestro app (the manual TikTok inbox step). `POST /posts/:id/publish` rejects TikTok with `VALIDATION_TIKTOK_PUBLISH_VIA_APP_ONLY`
+- TikTok: requires at least 1 media item; either 1 video or up to 10 images. API create always stores a draft. Explicit publish uses TikTok's inbox handoff (`platform_inbox`) and never public Direct Post; the creator still finalizes and posts inside TikTok.
 
 ## Media upload
 
@@ -89,8 +89,8 @@ several products, create one key per product.
 ## Publish behavior
 
 Meta:
-- direct publish
-- if a selected Facebook Page has a linked Instagram business account, Markaestro fans the publish out to both Facebook and Instagram
+- direct publish for the selected Facebook Page destination
+- no automatic fan-out to Instagram; create a separate Instagram post for an Instagram destination
 - post status becomes `published`
 
 Instagram Login:
@@ -104,15 +104,16 @@ Meta account selection:
 - Include `productId` when your workspace has more than one eligible product for the chosen channel
 - Include `destinationId` when the chosen product has more than one eligible destination for the chosen channel
 - Facebook-only products work
-- Products with a Facebook Page linked to Instagram will publish to both channels
+- Products with both Facebook and Instagram connections expose separate destinations
 - Standalone Instagram professional accounts are supported through Instagram Login and do not require a Facebook Page
 
-TikTok (draft-only via the API):
+TikTok (draft-first with inbox handoff):
 - products expose TikTok destinations only when a TikTok publishing connection is configured
 - the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents the connected TikTok account
-- creating a TikTok post (native or Connect) always yields a **draft** — any `scheduledAt`/`scheduled_at` is ignored, and the worker never auto-publishes it
-- `POST /api/public/v1/posts/:id/publish` is rejected for TikTok with `VALIDATION_TIKTOK_PUBLISH_VIA_APP_ONLY`
-- to publish, a human opens the draft in the Markaestro app and posts it — that path runs the TikTok inbox handoff (`SEND_TO_USER_INBOX` → `exported_for_review`) exactly as a creator does by hand
+- TikTok destinations use `deliveryMode: "platform_inbox"` to make the inbox handoff explicit
+- creating any post (native or Connect) yields a **draft** — any `scheduledAt`/`scheduled_at` is ignored, and the worker never auto-publishes API-created drafts
+- `POST /api/public/v1/posts/:id/publish` queues the same TikTok inbox handoff used by the app, never public Direct Post
+- once TikTok confirms `SEND_TO_USER_INBOX`, the post becomes `platform_action_required`; the creator opens TikTok to finalize caption/privacy and post
 
 ## Example flow
 
@@ -179,8 +180,8 @@ publish time. Unrecognized fields are rejected by validation.
 - `disableComment`, `disableDuet`, `disableStitch`: boolean
 - `photoCoverIndex`: integer 0–9 (photo carousels)
 
-> Privacy and comment/duet/stitch toggles take effect once TikTok approves the
-> workspace for Direct Post mode. Markaestro publishes via MEDIA_UPLOAD inbox
+> Privacy and comment/duet/stitch toggles take effect once Direct Post access is
+> enabled for the workspace. Markaestro publishes via MEDIA_UPLOAD inbox
 > handoff today, so these fields are accepted at the API boundary and
 > available to the publisher but the creator finalizes them inside TikTok.
 > `photoCoverIndex` is honored today.
@@ -245,13 +246,13 @@ curl "$MARKAESTRO_URL/api/public/v1/job-runs/run_123" \
 Supported events:
 - `post.publish.queued`
 - `post.published`
-- `post.exported_for_review`
+- `post.action_required`
 - `post.failed`
 
 TikTok webhook semantics:
-- `post.exported_for_review` means the post has been handed off to the creator's TikTok inbox and is ready for them to finish inside TikTok
+- `post.action_required` means the post has been handed off to the creator's TikTok inbox and is ready for them to finish inside TikTok
 - it does not mean the post has been publicly published yet
-- payloads include `nextAction=open_tiktok_inbox_and_complete_editing`
+- payloads include `nextAction=open_tiktok_inbox_and_complete_posting`
 
 Headers:
 - `X-Markaestro-Event`
@@ -298,8 +299,6 @@ short-lived signature in the URL and carries no `Authorization` header.
 | `POST /api/connect/v1/posts` | `{ caption, media: [media_id…], social_accounts: [id…], scheduled_at, is_draft }` | `{ id, created[], errors[] }` |
 | `GET /api/connect/v1/posts` | `?limit=` | `{ data: [ post… ] }` |
 | `GET /api/connect/v1/media` | — | `{ data: [] }` (thumbnails are embedded on posts; best-effort) |
-| `GET /api/connect/v1/analytics` | — | `{ data: [] }` (reserved — see limitations) |
-| `POST /api/connect/v1/analytics/sync` | — | `{ ok: true }` |
 
 ## Accounts & targeting
 
@@ -336,14 +335,14 @@ resulting `media_id` is a normal Markaestro media asset usable in `POST /posts`.
 
 ## Post status & scheduling
 
-`status` on a returned post is one of `draft` · `scheduled` · `processing` ·
-`posted` · `failed` (mapped from native statuses). Scheduling:
+`status` on a returned post is one of `draft` · `processing` · `posted` ·
+`failed` (mapped from native statuses). Create is draft-first:
 
-- `is_draft: true` → created as a **draft** (unscheduled).
-- otherwise → **scheduled** at `scheduled_at` (or immediately if omitted) and
-  published by the worker, exactly like a native post.
-- **TikTok is always a draft** regardless of `is_draft`/`scheduled_at` — finalize
-  and publish it from the Markaestro app.
+- Every `POST /api/connect/v1/posts` call creates **drafts**.
+- `scheduled_at` and `is_draft` are accepted for compatibility with scheduling
+  clients, but Markaestro ignores them during create.
+- Publish from the Markaestro app or a supported explicit publish endpoint.
+- **TikTok is always a draft** from the API — finalize and publish it from the Markaestro app.
 
 ## Example flow
 
@@ -362,16 +361,14 @@ RESP=$(curl -s -X POST "$MARKAESTRO_URL/api/connect/v1/media/create-upload-url" 
 # RESP → { "media_id": "ast_…", "upload_url": "https://…/api/connect/v1/media/upload?token=…" }
 curl -X PUT "<upload_url>" -H "Content-Type: image/png" --data-binary @slide-1.png
 
-# 3. Create the post (draft or scheduled)
+# 3. Create the post draft
 curl -X POST "$MARKAESTRO_URL/api/connect/v1/posts" \
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "caption": "New drop 🔥",
     "media": ["ast_111", "ast_222"],
-    "social_accounts": ["prod_123#instagram:instagram:ig_123"],
-    "scheduled_at": "2026-06-20T17:00:00.000Z",
-    "is_draft": false
+    "social_accounts": ["prod_123#instagram:instagram:ig_123"]
   }'
 
 # 4. List posts and their status
@@ -381,9 +378,9 @@ curl "$MARKAESTRO_URL/api/connect/v1/posts?limit=20" \
 
 ## Limitations
 
-- **No live engagement analytics yet** — `GET /analytics` returns an empty set
-  and `POST /analytics/sync` is a no-op (kept so clients that poll them don't
-  error). Track publish results via `GET /posts` or webhooks instead.
+- **Publishing-only surface** — the Connect API exposes account discovery,
+  media upload, post creation, and post status. It does not expose engagement
+  metrics or provider insights.
 - **Threads / Pinterest are not exposed** through this surface.
 - For richer control (per-channel `settings`, batch create, explicit publish,
   job-run polling, webhooks), use the native `/api/public/v1` endpoints.

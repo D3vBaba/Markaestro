@@ -10,7 +10,6 @@ const DISALLOW = [
   '/dashboard',
   '/settings',
   '/products',
-  '/analytics',
   '/calendar',
   '/content',
   '/onboarding',

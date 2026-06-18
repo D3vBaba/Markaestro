@@ -9,7 +9,7 @@ import {
   publishStoredPost,
 } from '@/lib/social/publisher';
 import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
-import { TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
+import { PLATFORM_ACTION_REQUIRED_STATUS, TIKTOK_MANUAL_PUBLISH_ACTION } from '@/lib/tiktok-draft-flow';
 import { logger } from '@/lib/logger';
 import { formatPreflightIssues, getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 
@@ -90,13 +90,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     let result;
     try {
-      result = await publishStoredPost(ctx.workspaceId, productId, {
-        ...post,
-        // The UI Publish button is an explicit "push it now" action: even if
-        // the post was originally created via a legacy user_review flow,
-        // clicking Publish must override and push to the platform.
-        deliveryMode: 'direct_publish',
-      });
+      result = await publishStoredPost(ctx.workspaceId, productId, post);
     } catch (publishError) {
       const msg = publishError instanceof Error ? publishError.message : 'Internal publishing error';
       await finalizeFailedPublish(ctx.workspaceId, claim.claimed, {
@@ -128,11 +122,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       // creator's inbox usually finishes in 15–45s. In prod this is picked
       // up by the 1-min Cloud Scheduler poll worker; locally / in dev that
       // isn't running, so short-poll inline before returning.
-      let finalStatus: 'publishing' | 'exported_for_review' | 'published' | 'failed' | 'partial_failed' = 'publishing';
+      let finalStatus: 'publishing' | 'platform_action_required' | 'published' | 'failed' | 'partial_failed' = 'publishing';
       let inlineError: string | undefined;
       if (targetChannels.includes('tiktok')) {
         const outcome = await pollTikTokPublishWithRetries(ctx.workspaceId, id);
-        if (outcome.status === 'exported_for_review') finalStatus = 'exported_for_review';
+        if (outcome.status === PLATFORM_ACTION_REQUIRED_STATUS) finalStatus = PLATFORM_ACTION_REQUIRED_STATUS;
         else if (outcome.status === 'published') finalStatus = 'published';
         else if (outcome.status === 'partial_failed') {
           finalStatus = 'partial_failed';
@@ -151,7 +145,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         pending: finalStatus === 'publishing',
         externalId: result.externalId,
         externalUrl: result.externalUrl,
-        nextAction: finalStatus === 'exported_for_review' ? TIKTOK_MANUAL_REVIEW_ACTION : undefined,
+        nextAction: finalStatus === PLATFORM_ACTION_REQUIRED_STATUS ? TIKTOK_MANUAL_PUBLISH_ACTION : undefined,
         error: inlineError,
         channels: result.channels,
       });

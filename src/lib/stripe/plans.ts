@@ -16,8 +16,6 @@ export type PlanConfig = {
     workspaces: number;   // -1 = unlimited
   };
   gated: {
-    advancedAnalytics: boolean;
-    approvalWorkflows: boolean;
     smartScheduling: boolean;
     brandIdentity: boolean;
     prioritySupport: boolean;
@@ -37,7 +35,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       '500 media uploads / month',
       '1 team member',
       'Content calendar',
-      'Basic analytics',
       '1 workspace',
       'Brand voice (1 profile)',
     ],
@@ -48,8 +45,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: 1,
     },
     gated: {
-      advancedAnalytics: false,
-      approvalWorkflows: false,
       smartScheduling: false,
       brandIdentity: false,
       prioritySupport: false,
@@ -58,7 +53,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
   pro: {
     tier: 'pro',
     name: 'Pro',
-    description: 'For growing teams that need analytics and collaboration.',
+    description: 'For growing teams that need collaboration and scheduling.',
     price: { monthly: 69, annual: 57 },
     highlighted: true,
     badge: 'Most Popular',
@@ -67,10 +62,8 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       'Unlimited posts',
       '5,000 media uploads / month',
       '5 team members',
-      'Advanced analytics',
       '5 workspaces',
       'Brand voice + brand identity',
-      'Approval workflows',
       'Smart scheduling',
       'Priority support',
     ],
@@ -81,8 +74,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: 5,
     },
     gated: {
-      advancedAnalytics: true,
-      approvalWorkflows: true,
       smartScheduling: true,
       brandIdentity: true,
       prioritySupport: true,
@@ -110,8 +101,6 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: -1,
     },
     gated: {
-      advancedAnalytics: true,
-      approvalWorkflows: true,
       smartScheduling: true,
       brandIdentity: true,
       prioritySupport: true,
@@ -143,17 +132,10 @@ export const COMPARISON_CATEGORIES = [
     ],
   },
   {
-    name: 'Analytics',
-    features: [
-      { name: 'Advanced analytics', starter: false, pro: true, business: true },
-    ],
-  },
-  {
     name: 'Team & Workspace',
     features: [
       { name: 'Team members', starter: '1', pro: '5', business: 'Unlimited' },
       { name: 'Workspaces', starter: '1', pro: '5', business: 'Unlimited' },
-      { name: 'Approval workflows', starter: false, pro: true, business: true },
       { name: 'Role-based access control', starter: true, pro: true, business: true },
     ],
   },

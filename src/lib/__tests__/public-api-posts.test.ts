@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getDeliveryModeForChannel, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
+import { getDeliveryModeForChannel, getPublicPostInitialState, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
 
 describe('public post validation', () => {
   it('allows facebook text-only posts', () => {
@@ -46,10 +46,15 @@ describe('public post validation', () => {
     })).toThrow('VALIDATION_TOO_MANY_MEDIA_ASSETS');
   });
 
-  it('uses direct publish mode for all public API channels', () => {
+  it('uses direct publish for Meta channels and inbox handoff for TikTok', () => {
     expect(getDeliveryModeForChannel('facebook')).toBe('direct_publish');
     expect(getDeliveryModeForChannel('instagram')).toBe('direct_publish');
-    expect(getDeliveryModeForChannel('tiktok')).toBe('direct_publish');
+    expect(getDeliveryModeForChannel('tiktok')).toBe('platform_inbox');
+  });
+
+  it('creates public API posts as drafts even when a schedule is supplied', () => {
+    expect(getPublicPostInitialState()).toEqual({ status: 'draft', scheduledAt: null });
+    expect(getPublicPostInitialState('2026-06-20T17:00:00.000Z')).toEqual({ status: 'draft', scheduledAt: null });
   });
 
   it('rejects TikTok posts with multiple videos', () => {
@@ -89,13 +94,13 @@ describe('public post validation', () => {
     const serialized = serializePublicPost({
       id: 'pst_123',
       channel: 'tiktok',
-      status: 'exported_for_review',
+      status: 'platform_action_required',
       content: 'Draft me',
       destinationId: 'tiktok:tiktok:tt_open_123',
       destinationProvider: 'tiktok',
       mediaAssetIds: ['ast_1'],
       mediaUrls: ['https://example.com/1.jpg'],
-      nextAction: 'open_tiktok_inbox_and_complete_editing',
+      nextAction: 'open_tiktok_inbox_and_complete_posting',
       sourceType: 'slideshow',
       slideshowId: 'ss_123',
       slideshowTitle: 'Launch sequence',
@@ -108,7 +113,7 @@ describe('public post validation', () => {
     expect(serialized.caption).toBe('Draft me');
     expect(serialized.destinationId).toBe('tiktok:tiktok:tt_open_123');
     expect(serialized.destinationProvider).toBe('tiktok');
-    expect(serialized.nextAction).toBe('open_tiktok_inbox_and_complete_editing');
+    expect(serialized.nextAction).toBe('open_tiktok_inbox_and_complete_posting');
     expect(serialized.sourceType).toBe('slideshow');
     expect(serialized.slideshowId).toBe('ss_123');
     expect(serialized.slideshowTitle).toBe('Launch sequence');

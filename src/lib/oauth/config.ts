@@ -52,7 +52,6 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     scopes: [
       'user.info.basic',
       'user.info.profile',
-      'user.info.stats',
       'video.publish',
       'video.upload',
     ],

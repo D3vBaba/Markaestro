@@ -18,7 +18,7 @@ type TikTokPostSnapshot = {
   externalUrl?: string;
   productId?: string;
   publishedAt?: string;
-  exportedForReviewAt?: string;
+  actionRequiredAt?: string;
   updatedAt?: string;
   createdAt?: string;
   errorMessage?: string;

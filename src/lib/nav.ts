@@ -23,12 +23,6 @@ export const navigationGroups: NavGroup[] = [
             { name: "Calendar", href: "/calendar" },
         ],
     },
-    {
-        group: "Insights",
-        items: [
-            { name: "Analytics", href: "/analytics" },
-        ],
-    },
 ];
 
 export const settingsItem: NavItem = {

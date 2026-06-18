@@ -155,7 +155,7 @@ export default function LandingPage() {
               { title: "Centralized media uploads", desc: "Bring your own images and videos. Upload once per post and ship to every connected channel." },
               { title: "Multi-channel previews", desc: "See how every post will render on each platform before you publish — captions, aspect ratios, character limits." },
               { title: "Scheduling & calendar", desc: "Queue posts on a unified calendar with per-channel timing. Reschedule, pause, or duplicate in a click." },
-              { title: "Analytics dashboard", desc: "Track engagement rates and post performance across all channels in real time." },
+              { title: "Publishing dashboard", desc: "Track drafts, scheduled posts, and publish status across every channel." },
               { title: "OAuth integrations", desc: "One-click connect to Meta and TikTok via secure OAuth. No manual token management required." },
             ].map(({ title, desc }) => (
               <div
@@ -259,7 +259,7 @@ export default function LandingPage() {
               {[
                 { label: "Social channels", value: "3", sub: "Facebook, Instagram, TikTok" },
                 { label: "Composer", value: "1", sub: "Caption + media in one screen" },
-                { label: "Dashboards", value: "1", sub: "Unified publishing & analytics" },
+                { label: "Dashboard", value: "1", sub: "Unified publishing workflow" },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -360,8 +360,8 @@ export default function LandingPage() {
                 style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
               >
                 Upload the photos or videos you already have. Write the caption
-                you want. Markaestro handles the publishing, scheduling, and
-                analytics so you can stay focused on the creative work.
+                you want. Markaestro handles publishing and scheduling so you
+                can stay focused on the creative work.
               </p>
               <div className="mt-8 flex flex-col gap-4">
                 {[

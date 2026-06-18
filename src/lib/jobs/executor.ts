@@ -1,7 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { getPostTargetChannels, publishStoredPost } from '@/lib/social/publisher';
 import { JobDoc } from './types';
-import { TIKTOK_MANUAL_REVIEW_ACTION } from '@/lib/tiktok-draft-flow';
 
 export async function executeJob(workspaceId: string, jobId: string, job: JobDoc) {
   const startedAt = new Date().toISOString();
@@ -51,16 +50,6 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
                 updatedAt: new Date().toISOString(),
               });
               message = `Post is still processing on ${targetChannels.join(' & ')}`;
-            } else if (result.reviewRequired) {
-              await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
-                status: 'exported_for_review',
-                externalId: result.externalId || '',
-                externalUrl: result.externalUrl || '',
-                publishResults: result.channels,
-                nextAction: result.nextAction || TIKTOK_MANUAL_REVIEW_ACTION,
-                updatedAt: new Date().toISOString(),
-              });
-              message = `Post delivered to ${targetChannels.join(' & ')} for creator completion`;
             } else if (result.success) {
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
                 status: 'published',

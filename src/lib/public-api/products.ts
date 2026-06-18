@@ -23,7 +23,7 @@ export type PublicProductDestination = {
   pageId?: string | null;
   igAccountId?: string | null;
   username?: string | null;
-  deliveryMode: 'direct_publish' | 'user_review';
+  deliveryMode: 'direct_publish' | 'platform_inbox';
   willAlsoPublishTo: SocialChannel[];
 };
 
@@ -149,7 +149,7 @@ function buildTikTokDestinations(
     displayName,
     accountId,
     username,
-    deliveryMode: 'direct_publish',
+    deliveryMode: 'platform_inbox',
     willAlsoPublishTo: [],
   }];
 }

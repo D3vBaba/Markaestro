@@ -39,13 +39,13 @@ const coreFeatures = [
     ],
   },
   {
-    title: "Analytics Dashboard",
-    description: "See how every post performs in one unified view. Track engagement, reach, and interactions across all connected channels without exporting spreadsheets.",
+    title: "Publishing Dashboard",
+    description: "See every draft, scheduled post, and publishing state in one workspace view without jumping between platforms.",
     details: [
-      "Real-time publishing activity charts",
-      "Per-channel engagement breakdown",
-      "Post-level performance trends",
-      "Export-ready reporting",
+      "Draft, scheduled, and published queues",
+      "Per-channel publishing status",
+      "Failed-post retry workflow",
+      "Workspace-level content overview",
     ],
   },
   {

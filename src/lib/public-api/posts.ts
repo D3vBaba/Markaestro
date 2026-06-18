@@ -18,8 +18,13 @@ type CreatePublicPostInput = {
 };
 
 export function getDeliveryModeForChannel(channel: SocialChannel): PublicDeliveryMode {
-  void channel;
+  if (channel === 'tiktok') return 'platform_inbox';
   return 'direct_publish';
+}
+
+export function getPublicPostInitialState(scheduledAt?: string | null) {
+  void scheduledAt;
+  return { status: 'draft' as const, scheduledAt: null };
 }
 
 export function validatePublicPostInput(input: CreatePublicPostInput) {
@@ -92,20 +97,17 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
     productId,
     input.destinationId,
   );
-  // TikTok posts created through the API ALWAYS land in drafts and are never
-  // auto-published or scheduled: a human finalizes them from the Markaestro app,
-  // exactly as if they had drafted it there (TikTok publishing is a manual inbox
-  // handoff — programmatic auto-publish is intentionally disabled). Any
-  // scheduledAt on a TikTok post is ignored and coerced to a draft.
-  const effectiveScheduledAt = input.channel === 'tiktok' ? null : input.scheduledAt || null;
+  // External API create is draft-first. Integrations can prepare posts for the
+  // right product/destination, and a user or explicit publish call handles the
+  // outbound platform action later.
+  const initialState = getPublicPostInitialState(input.scheduledAt);
   const now = new Date().toISOString();
   const ref = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`).doc();
-  const status = effectiveScheduledAt ? 'scheduled' : 'draft';
   const payload = {
     content: input.caption,
     channel: input.channel,
-    status,
-    scheduledAt: effectiveScheduledAt,
+    status: initialState.status,
+    scheduledAt: initialState.scheduledAt,
     mediaUrls: mediaAssets.map((asset) => asset.url),
     mediaAssetIds: input.mediaAssetIds,
     productId: resolvedDestination.productId || '',

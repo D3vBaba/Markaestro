@@ -13,7 +13,7 @@ export type PublicApiScope = (typeof publicApiScopes)[number];
 export const publicWebhookEvents = [
   'post.publish.queued',
   'post.published',
-  'post.exported_for_review',
+  'post.action_required',
   'post.failed',
 ] as const;
 
@@ -21,7 +21,7 @@ export type PublicWebhookEvent = (typeof publicWebhookEvents)[number];
 
 export const publicDeliveryModes = [
   'direct_publish',
-  'user_review',
+  'platform_inbox',
 ] as const;
 
 export type PublicDeliveryMode = (typeof publicDeliveryModes)[number];
@@ -31,7 +31,7 @@ export const publicPostStatuses = [
   'scheduled',
   'publishing',
   'published',
-  'exported_for_review',
+  'platform_action_required',
   'failed',
   'partial_failed',
 ] as const;

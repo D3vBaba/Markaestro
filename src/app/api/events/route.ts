@@ -30,7 +30,7 @@ const listEventsSchema = z.object({
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
-    requirePermission(ctx, 'analytics.read');
+    requirePermission(ctx, 'dashboard.read');
     const url = new URL(req.url);
     const params = listEventsSchema.parse({
       type: url.searchParams.get('type') ?? undefined,

@@ -4,7 +4,8 @@ import { publicApiError } from '@/lib/public-api/response';
 import { getPublicPost } from '@/lib/public-api/posts';
 import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
-import { incrementApiClientStat } from '@/lib/public-api/analytics';
+import { incrementApiClientStat } from '@/lib/public-api/usage';
+import { LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
 
 export const runtime = 'nodejs';
 
@@ -20,18 +21,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const { id } = await params;
     const post = await getPublicPost(ctx.workspaceId, id);
 
-    // TikTok is never published through the API — it only ever lands in drafts,
-    // and a human finalizes the post from the Markaestro app (the TikTok inbox
-    // handoff is a manual step). Keeps the programmatic path identical to a user
-    // drafting in-app, then publishing themselves.
-    if (String(post.channel) === 'tiktok') {
-      return Response.json({
-        error: 'VALIDATION_TIKTOK_PUBLISH_VIA_APP_ONLY',
-      }, { status: 400, headers: ctx.rateLimitHeaders });
-    }
-
     const status = String(post.status || '');
-    if (!['draft', 'scheduled', 'failed', 'partial_failed', 'exported_for_review'].includes(status)) {
+    if (!['draft', 'scheduled', 'failed', 'partial_failed', PLATFORM_ACTION_REQUIRED_STATUS, LEGACY_EXPORTED_FOR_REVIEW_STATUS].includes(status)) {
       return Response.json({
         error: 'VALIDATION_POST_NOT_PUBLISHABLE',
       }, { status: 400, headers: ctx.rateLimitHeaders });
