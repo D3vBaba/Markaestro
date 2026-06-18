@@ -16,7 +16,11 @@ export type SocialPostValidationIssue = {
 };
 
 export function normalizeTargetChannels(input: SocialPostValidationInput): SocialChannel[] {
-  const raw = input.targetChannels?.length ? input.targetChannels : input.channel ? [input.channel] : [];
+  const raw = Array.isArray(input.targetChannels)
+    ? input.targetChannels
+    : input.channel
+      ? [input.channel]
+      : [];
   const channels: SocialChannel[] = [];
 
   for (const channel of raw) {

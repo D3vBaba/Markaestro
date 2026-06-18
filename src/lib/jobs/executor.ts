@@ -1,6 +1,20 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { getPostTargetChannels, publishStoredPost } from '@/lib/social/publisher';
+import { PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
+import { logger } from '@/lib/logger';
 import { JobDoc } from './types';
+
+export function shouldDisableRecurringPublishJob(job: Pick<JobDoc, 'type' | 'schedule'>): boolean {
+  return job.type === 'publish_post' && job.schedule !== 'manual';
+}
+
+export function getPublishJobSkipReason(post: Record<string, unknown>): string | null {
+  const status = typeof post.status === 'string' ? post.status : '';
+  if (status === 'publishing') return 'post is already publishing';
+  if (status === 'published') return 'post is already published';
+  if (status === PLATFORM_ACTION_REQUIRED_STATUS) return 'post is already waiting for platform action';
+  return null;
+}
 
 export async function executeJob(workspaceId: string, jobId: string, job: JobDoc) {
   const startedAt = new Date().toISOString();
@@ -16,7 +30,19 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
     let message = 'No-op';
     let details: Record<string, unknown> = {};
 
-    if (job.type === 'sync_contacts') {
+    if (shouldDisableRecurringPublishJob(job)) {
+      message = 'Recurring publish_post jobs are disabled. Use scheduled posts or explicit publish runs instead.';
+      details = {
+        disabled: true,
+        reason: 'publish_post jobs must not run on a recurring schedule',
+      };
+      logger.warn('recurring publish_post job disabled', {
+        event: 'jobs.publish_post.recurring_disabled',
+        workspaceId,
+        jobId,
+        schedule: job.schedule,
+      });
+    } else if (job.type === 'sync_contacts') {
       const contactsSnap = await adminDb
         .collection(`workspaces/${workspaceId}/contacts`)
         .get();
@@ -36,7 +62,19 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
           const post = postSnap.data() as Record<string, unknown>;
           const productId = typeof post.productId === 'string' ? post.productId : undefined;
           const targetChannels = getPostTargetChannels(post);
-          if (!productId && targetChannels.some((channel) => channel !== 'tiktok')) {
+          const skipReason = getPublishJobSkipReason(post);
+          if (skipReason) {
+            message = `Post ${postId} skipped: ${skipReason}`;
+            details = { skipped: true, reason: skipReason, status: post.status };
+            logger.info('publish_post job skipped existing publish state', {
+              event: 'jobs.publish_post.skipped_existing_state',
+              workspaceId,
+              jobId,
+              postId,
+              status: post.status,
+              reason: skipReason,
+            });
+          } else if (!productId && targetChannels.some((channel) => channel !== 'tiktok')) {
             message = `Post ${postId} has no associated product — skipped`;
           } else {
             const result = await publishStoredPost(workspaceId, productId, post);
@@ -87,7 +125,14 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
     const next = computeNextRun(job.schedule, job.hourUTC, job.minuteUTC);
     await adminDb.doc(`workspaces/${workspaceId}/jobs/${jobId}`).update({
       lastRunAt: finishedAt,
-      nextRunAt: next,
+      nextRunAt: shouldDisableRecurringPublishJob(job) ? null : next,
+      ...(shouldDisableRecurringPublishJob(job)
+        ? {
+            enabled: false,
+            disabledAt: finishedAt,
+            disabledReason: 'Recurring publish_post jobs are disabled by the publisher safety guard.',
+          }
+        : {}),
       updatedAt: finishedAt,
     });
 

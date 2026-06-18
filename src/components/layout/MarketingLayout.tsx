@@ -85,7 +85,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                     Sign in
                   </Button>
                 </Link>
-                <Link href="/login">
+                <Link href="/onboarding">
                   <Button className="rounded-lg h-9 text-[13px]">
                     Get started
                   </Button>
@@ -223,7 +223,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                   Sign in
                 </Link>
                 <Link
-                  href="/login"
+                  href="/onboarding"
                   className="text-[13px]"
                   style={{ color: "var(--mk-ink-60)" }}
                 >

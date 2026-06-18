@@ -41,8 +41,7 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     clientIdEnv: 'INSTAGRAM_APP_ID',
     clientSecretEnv: 'INSTAGRAM_APP_SECRET',
     extraAuthParams: {
-      enable_fb_login: 'false',
-      force_reauth: 'true',
+      enable_fb_login: 'true',
     },
   },
   tiktok: {

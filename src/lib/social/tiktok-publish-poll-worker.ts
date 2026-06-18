@@ -1,7 +1,9 @@
 import { adminDb } from '@/lib/firebase-admin';
+import { logger } from '@/lib/logger';
 import { getConnectionForChannel } from '@/lib/platform/connections';
 import { getAccessToken } from '@/lib/platform/base-adapter';
 import { fetchTikTokPublishStatus } from '@/lib/platform/adapters/tiktok-publishing';
+import { isTikTokTokenExpiringSoon, isTikTokTokenInvalid, refreshTikTokConnection } from '@/lib/platform/tiktok-auth';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import type { SocialChannel } from '@/lib/schemas';
@@ -155,23 +157,75 @@ export async function pollTikTokPublishForPost(
 
   if (!post.externalId) return { status: 'no_external_id' };
 
+  const productId = typeof post.productId === 'string' && post.productId ? post.productId : undefined;
   const connection = await getConnectionForChannel(
     workspaceId,
     'tiktok',
-    typeof post.productId === 'string' && post.productId ? post.productId : undefined,
+    productId,
   );
   if (!connection) return { status: 'no_connection' };
 
+  let activeConnection = connection;
+  if (isTikTokTokenExpiringSoon(activeConnection)) {
+    activeConnection = (await refreshTikTokConnection(workspaceId, productId, activeConnection)) ?? activeConnection;
+  }
+
   let liveStatus: Awaited<ReturnType<typeof fetchTikTokPublishStatus>>;
   try {
-    liveStatus = await fetchTikTokPublishStatus(getAccessToken(connection), String(post.externalId));
+    liveStatus = await fetchTikTokPublishStatus(getAccessToken(activeConnection), String(post.externalId));
   } catch (err) {
+    logger.warn('tiktok publish status fetch failed', {
+      event: 'tiktok.publish.status_fetch_failed',
+      workspaceId,
+      postId: postDocRef.id,
+      publishId: String(post.externalId),
+      err,
+    });
     return { status: 'error', error: err instanceof Error ? err.message : 'TikTok status fetch failed' };
   }
-  if (liveStatus.error) return { status: 'error', error: liveStatus.error };
+  if (isTikTokTokenInvalid(liveStatus.error)) {
+    const refreshed = await refreshTikTokConnection(workspaceId, productId, activeConnection);
+    if (refreshed) {
+      activeConnection = refreshed;
+      try {
+        liveStatus = await fetchTikTokPublishStatus(getAccessToken(activeConnection), String(post.externalId));
+      } catch (err) {
+        logger.warn('tiktok publish status fetch failed after token refresh', {
+          event: 'tiktok.publish.status_fetch_failed',
+          workspaceId,
+          postId: postDocRef.id,
+          publishId: String(post.externalId),
+          refreshed: true,
+          err,
+        });
+        return { status: 'error', error: err instanceof Error ? err.message : 'TikTok status fetch failed' };
+      }
+    }
+  }
+  if (liveStatus.error) {
+    logger.warn('tiktok publish status returned error', {
+      event: 'tiktok.publish.status_error',
+      workspaceId,
+      postId: postDocRef.id,
+      publishId: String(post.externalId),
+      error: liveStatus.error,
+    });
+    return { status: 'error', error: liveStatus.error };
+  }
 
   const now = new Date().toISOString();
   const clientId = getApiClientId(post);
+
+  logger.info('tiktok publish status polled', {
+    event: 'tiktok.publish.status',
+    workspaceId,
+    postId: postDocRef.id,
+    publishId: String(post.externalId),
+    status: liveStatus.status,
+    ...(typeof liveStatus.downloadedBytes === 'number' ? { downloadedBytes: liveStatus.downloadedBytes } : {}),
+    ...(typeof liveStatus.uploadedBytes === 'number' ? { uploadedBytes: liveStatus.uploadedBytes } : {}),
+    ...(liveStatus.status === 'FAILED' && liveStatus.failReason ? { failReason: liveStatus.failReason } : {}),
+  });
 
   if (liveStatus.status === 'PUBLISH_COMPLETE') {
     const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
@@ -183,9 +237,9 @@ export async function pollTikTokPublishForPost(
       publishedChannels: summary.publishedChannels,
       ...(summary.allSucceeded ? { publishedAt: now } : {}),
       ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
-      ...(!summary.allSucceeded && !summary.anyPending
-        ? { errorMessage: summary.firstError || 'One or more channels failed' }
-        : {}),
+      errorMessage: !summary.allSucceeded && !summary.anyPending
+        ? summary.firstError || 'One or more channels failed'
+        : '',
       updatedAt: now,
     });
     if (clientId && nextStatus === 'published') {
@@ -230,9 +284,9 @@ export async function pollTikTokPublishForPost(
       ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
       publishResults: nextPublishResults,
       publishedChannels: summary.publishedChannels,
-      ...(!summary.allSucceeded && !summary.anyPending
-        ? { errorMessage: summary.firstError || 'One or more channels failed' }
-        : {}),
+      errorMessage: !summary.allSucceeded && !summary.anyPending
+        ? summary.firstError || 'One or more channels failed'
+        : '',
       updatedAt: now,
     });
     if (clientId && nextStatus === PLATFORM_ACTION_REQUIRED_STATUS) {

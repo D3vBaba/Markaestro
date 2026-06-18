@@ -215,7 +215,7 @@ export default function FeaturesPage() {
               Start for free. No credit card required. Connect your first channel in under two minutes.
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link href="/login">
+              <Link href="/onboarding">
                 <Button
                   size="lg"
                   className="h-11 px-7 rounded-lg text-[13.5px]"

@@ -170,7 +170,7 @@ export default function PricingPage() {
                       </p>
                     )}
                   </div>
-                  <Link href="/login" className="mt-6 block">
+                  <Link href="/onboarding" className="mt-6 block">
                     <Button
                       variant={tier.highlighted ? "default" : "outline"}
                       className={cn(
@@ -310,7 +310,7 @@ export default function PricingPage() {
               Full access on any annual plan. No charge until day {TRIAL_DAYS + 1}. Cancel anytime.
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link href="/login">
+              <Link href="/onboarding">
                 <Button size="lg" variant="secondary" className="h-11 px-7 rounded-lg text-[13.5px] bg-mk-paper text-mk-ink hover:bg-mk-paper/90">
                   Start Free Trial
                 </Button>

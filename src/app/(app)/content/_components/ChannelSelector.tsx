@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { apiGet } from "@/lib/api-client";
 import { socialChannelCatalog } from "@/lib/social/channel-catalog";
+import {
+  areChannelSelectionsEqual,
+  reconcileReadyChannelSelection,
+} from "@/lib/social/channel-selection";
 
 type ChannelState = "ready" | "needs_setup" | "disconnected";
 
@@ -103,12 +107,17 @@ export default function ChannelSelector({
   onSelectedChannelsChange?: (channels: string[]) => void;
 }) {
   const [managedChannels, setManagedChannels] = useState<ChannelInfo[]>(fallbackChannels);
+  const [loadedProductKey, setLoadedProductKey] = useState<string | null>(null);
+  const productKey = productId ?? "";
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       if (!productId) {
-        if (!cancelled) setManagedChannels(fallbackChannels);
+        if (!cancelled) {
+          setManagedChannels(fallbackChannels);
+          setLoadedProductKey(productKey);
+        }
         return;
       }
       const res = await apiGet<{ channels: ChannelInfo[] }>(`/api/social/channels?productId=${productId}`);
@@ -116,9 +125,10 @@ export default function ChannelSelector({
       if (res.ok) {
         setManagedChannels(res.data.channels?.length ? res.data.channels : fallbackChannels);
       }
+      setLoadedProductKey(productKey);
     })();
     return () => { cancelled = true; };
-  }, [productId]);
+  }, [productId, productKey]);
 
   function channelState(ch: string): ChannelState {
     return managedChannels.find((item) => item.channel === ch)?.state ?? "disconnected";
@@ -128,10 +138,29 @@ export default function ChannelSelector({
     return managedChannels.find((item) => item.channel === ch)?.reason || "Connect this channel in product settings.";
   }
 
-  const selected = selectedChannels?.length ? selectedChannels : [value];
+  const selected = useMemo(
+    () => selectedChannels !== undefined ? selectedChannels : [value],
+    [selectedChannels, value],
+  );
   const selectedSet = new Set(selected);
   const selectedState = channelState(value);
-  const channels = managedChannels.length ? managedChannels : fallbackChannels;
+  const channels = useMemo(
+    () => managedChannels.length ? managedChannels : fallbackChannels,
+    [managedChannels],
+  );
+  const loadedChannels = loadedProductKey === productKey;
+
+  useEffect(() => {
+    if (!loadedChannels || !onSelectedChannelsChange) return;
+
+    const reconciled = reconcileReadyChannelSelection(value, selected, channels);
+    if (!areChannelSelectionsEqual(reconciled.selectedChannels, selected)) {
+      onSelectedChannelsChange(reconciled.selectedChannels);
+    }
+    if (reconciled.channel !== value) {
+      onChange(reconciled.channel);
+    }
+  }, [channels, loadedChannels, onChange, onSelectedChannelsChange, selected, value]);
 
   function toggleChannel(ch: string) {
     if (channelState(ch) !== "ready") {

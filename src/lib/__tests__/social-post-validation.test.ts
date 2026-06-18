@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateSocialPost } from '../social/post-validation';
+import { normalizeTargetChannels, validateSocialPost } from '../social/post-validation';
 
 describe('validateSocialPost', () => {
   it('requires media for media-only social channels', () => {
@@ -14,6 +14,22 @@ describe('validateSocialPost', () => {
       'VALIDATION_INSTAGRAM_MEDIA_REQUIRED',
       'VALIDATION_PINTEREST_MEDIA_REQUIRED',
     ]);
+  });
+
+  it('does not fall back to channel when targetChannels is explicitly empty', () => {
+    expect(normalizeTargetChannels({
+      channel: 'facebook',
+      targetChannels: [],
+    })).toEqual([]);
+
+    expect(validateSocialPost({
+      content: 'Launch',
+      channel: 'facebook',
+      targetChannels: [],
+    })).toContainEqual({
+      code: 'VALIDATION_CHANNEL_REQUIRED',
+      message: 'Select at least one publishing channel.',
+    });
   });
 
   it('applies the strictest media cap across selected channels', () => {

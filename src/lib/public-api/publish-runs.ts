@@ -4,6 +4,8 @@ import { publishStoredPost } from '@/lib/social/publisher';
 import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
+import { PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
+import { logger } from '@/lib/logger';
 import { acquirePublishLock, assertPublishRateLimit, getPublishDestinationKey, releasePublishLock } from './publish-throttle';
 import { enqueueWebhookEvent } from './webhooks';
 import { incrementApiClientStat } from './usage';
@@ -18,6 +20,14 @@ export function resolveQueuedPublishDeliveryMode(post: Record<string, unknown>) 
 export function requiresConnectedPublishDestination(post: Record<string, unknown>) {
   const deliveryMode = resolveQueuedPublishDeliveryMode(post);
   return deliveryMode === 'direct_publish' || deliveryMode === 'platform_inbox';
+}
+
+export function getPublishRunSkipReason(post: Record<string, unknown>): string | null {
+  const status = String(post.status || '');
+  if (status === 'publishing') return 'Post is already publishing';
+  if (status === 'published') return 'Post is already published';
+  if (status === PLATFORM_ACTION_REQUIRED_STATUS) return 'Post is already ready for platform action';
+  return null;
 }
 
 function nextRetryIso(seconds: number) {
@@ -110,7 +120,25 @@ async function processSingleRun(workspaceId: string, runId: string) {
     ? post.createdById
     : null;
   const deliveryMode = resolveQueuedPublishDeliveryMode(post);
+  const skipReason = getPublishRunSkipReason(post);
   let destinationKey: string | null = null;
+
+  if (skipReason) {
+    logger.warn('queued publish run skipped existing publish state', {
+      event: 'public_api.publish_run.skipped_existing_state',
+      workspaceId,
+      runId,
+      postId: run.resourceId,
+      status: post.status,
+      reason: skipReason,
+    });
+    await markRunFinished(workspaceId, runId, 'succeeded', skipReason, {
+      skipped: true,
+      postStatus: post.status,
+      externalId: typeof post.externalId === 'string' ? post.externalId : '',
+    });
+    return { runId, status: 'skipped' };
+  }
 
   if (requiresConnectedPublishDestination(post)) {
     const connection = await resolveConnectionForPost(workspaceId, post);

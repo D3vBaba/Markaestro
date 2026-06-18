@@ -4,9 +4,8 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
-import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api-client";
@@ -23,33 +22,149 @@ import { toast } from "sonner";
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 // ─── Quiz data ────────────────────────────────────────────────────────────────
+// Ten questions asked BEFORE registration. They personalise the recommended plan
+// and the value framing on the paywall, and build investment so the user is more
+// likely to register and start a trial.
 
-const ROLES = [
-  { id: "founder", label: "Founder / CEO", desc: "Building and growing my company" },
-  { id: "marketer", label: "Marketer", desc: "Running content and channels" },
-  { id: "agency", label: "Agency / Freelancer", desc: "Managing multiple clients" },
-  { id: "creator", label: "Content Creator", desc: "Growing my personal brand" },
-];
+type QuizOption = { id: string; label: string; desc?: string };
+type QuizQuestion = {
+  id: string;
+  type: "single" | "multi";
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  options: QuizOption[];
+  columns?: boolean; // render options in two columns
+};
 
-const TEAM_SIZES = [
-  { id: "solo", label: "Just me", desc: "Solo founder or independent" },
-  { id: "small", label: "2–5 people", desc: "Small but mighty" },
-  { id: "medium", label: "6–20 people", desc: "Growing team" },
-  { id: "large", label: "20+ people", desc: "Established organisation" },
-];
-
-const GOALS = [
-  { id: "social", label: "Grow social following", desc: "Build audience and engagement" },
-  { id: "sales", label: "Drive more sales", desc: "Convert leads into customers" },
-  { id: "time", label: "Save time on content", desc: "Automate repetitive tasks" },
-];
-
-const CHANNELS = [
-  { id: "instagram", label: "Instagram" },
-  { id: "facebook", label: "Facebook" },
-  { id: "tiktok", label: "TikTok" },
-  { id: "threads", label: "Threads" },
-  { id: "pinterest", label: "Pinterest" },
+const QUIZ_QUESTIONS: QuizQuestion[] = [
+  {
+    id: "role",
+    type: "single",
+    eyebrow: "Let's get started",
+    title: "What best describes your role?",
+    subtitle: "We'll personalise Markaestro to how you work.",
+    options: [
+      { id: "founder", label: "Founder / CEO", desc: "Building and growing my company" },
+      { id: "marketer", label: "Marketer", desc: "Running content and channels" },
+      { id: "agency", label: "Agency / Freelancer", desc: "Managing multiple clients" },
+      { id: "creator", label: "Content Creator", desc: "Growing my personal brand" },
+    ],
+  },
+  {
+    id: "teamSize",
+    type: "single",
+    eyebrow: "Your team",
+    title: "How big is your team?",
+    options: [
+      { id: "solo", label: "Just me", desc: "Solo founder or independent" },
+      { id: "small", label: "2–5 people", desc: "Small but mighty" },
+      { id: "medium", label: "6–20 people", desc: "Growing team" },
+      { id: "large", label: "20+ people", desc: "Established organisation" },
+    ],
+  },
+  {
+    id: "goal",
+    type: "single",
+    eyebrow: "Your focus",
+    title: "What's your primary goal?",
+    subtitle: "We'll tailor your setup and recommend the right plan.",
+    options: [
+      { id: "social", label: "Grow social following", desc: "Build audience and engagement" },
+      { id: "sales", label: "Drive more sales", desc: "Convert leads into customers" },
+      { id: "time", label: "Save time on content", desc: "Automate the repetitive work" },
+    ],
+  },
+  {
+    id: "channels",
+    type: "multi",
+    eyebrow: "Your channels",
+    title: "Where do you want to publish?",
+    subtitle: "Pick all that apply. You can change this later.",
+    columns: true,
+    options: [
+      { id: "instagram", label: "Instagram" },
+      { id: "facebook", label: "Facebook" },
+      { id: "tiktok", label: "TikTok" },
+      { id: "threads", label: "Threads" },
+      { id: "pinterest", label: "Pinterest" },
+    ],
+  },
+  {
+    id: "postingToday",
+    type: "single",
+    eyebrow: "Today",
+    title: "How do you post right now?",
+    options: [
+      { id: "manual", label: "Manually in each app", desc: "Logging into every platform" },
+      { id: "spreadsheet", label: "Spreadsheet & reminders", desc: "Tracking it by hand" },
+      { id: "tool", label: "Another scheduling tool", desc: "Looking for something better" },
+      { id: "starting", label: "Just getting started", desc: "No real system yet" },
+    ],
+  },
+  {
+    id: "frequency",
+    type: "single",
+    eyebrow: "Cadence",
+    title: "How often do you want to post?",
+    options: [
+      { id: "daily", label: "Every day", desc: "Maximum presence" },
+      { id: "few", label: "A few times a week", desc: "Steady and consistent" },
+      { id: "weekly", label: "About once a week", desc: "Quality over quantity" },
+      { id: "unsure", label: "Not sure yet", desc: "Help me figure it out" },
+    ],
+  },
+  {
+    id: "challenge",
+    type: "single",
+    eyebrow: "The hard part",
+    title: "What's your biggest challenge?",
+    options: [
+      { id: "consistency", label: "Staying consistent", desc: "Posting on a regular schedule" },
+      { id: "time", label: "Finding the time", desc: "Too much already on my plate" },
+      { id: "ideas", label: "Coming up with content", desc: "Running out of ideas" },
+      { id: "juggling", label: "Juggling channels", desc: "Too many platforms to manage" },
+    ],
+  },
+  {
+    id: "contentTypes",
+    type: "multi",
+    eyebrow: "Your content",
+    title: "What do you post about?",
+    subtitle: "Pick all that apply.",
+    columns: true,
+    options: [
+      { id: "product", label: "Product & promotions" },
+      { id: "educational", label: "Tips & education" },
+      { id: "bts", label: "Behind the scenes" },
+      { id: "news", label: "News & updates" },
+    ],
+  },
+  {
+    id: "hoursPerWeek",
+    type: "single",
+    eyebrow: "Time spent",
+    title: "How much time goes into social each week?",
+    subtitle: "Be honest — most teams underestimate this.",
+    options: [
+      { id: "lt2", label: "Under 2 hours" },
+      { id: "2to5", label: "2–5 hours" },
+      { id: "5to10", label: "5–10 hours" },
+      { id: "gt10", label: "10+ hours" },
+    ],
+  },
+  {
+    id: "success",
+    type: "single",
+    eyebrow: "Success",
+    title: "What would make this a win?",
+    options: [
+      { id: "followers", label: "More followers & reach", desc: "Grow the audience" },
+      { id: "sales", label: "More leads & sales", desc: "Turn content into revenue" },
+      { id: "timeback", label: "Hours back in my week", desc: "Spend less time posting" },
+      { id: "consistency", label: "A consistent presence", desc: "Never go quiet again" },
+    ],
+  },
 ];
 
 const SOCIAL_PROVIDERS = [
@@ -61,6 +176,31 @@ const SOCIAL_PROVIDERS = [
   },
 ];
 
+// ─── Step indices ─────────────────────────────────────────────────────────────
+// 0..9   = the ten quiz questions
+// 10     = register (skipped when already signed in)
+// 11     = add an app (scan / manual / skip)
+// 12     = connect socials
+// 13     = generating (transient loader)
+// 14     = paywall
+
+const QUIZ_COUNT = QUIZ_QUESTIONS.length;
+const REGISTER_STEP = QUIZ_COUNT; // 10
+const PRODUCT_STEP = QUIZ_COUNT + 1; // 11
+const SOCIALS_STEP = QUIZ_COUNT + 2; // 12
+const GENERATING_STEP = QUIZ_COUNT + 3; // 13
+const PAYWALL_STEP = QUIZ_COUNT + 4; // 14
+
+// Ordered list of user-facing screens (the transient generating loader excluded)
+// used to drive the progress bar.
+const FLOW_STEPS = [
+  ...QUIZ_QUESTIONS.map((_, i) => i),
+  REGISTER_STEP,
+  PRODUCT_STEP,
+  SOCIALS_STEP,
+  PAYWALL_STEP,
+];
+
 // ─── Plan recommender ─────────────────────────────────────────────────────────
 
 function recommendPlan(role: string, teamSize: string): PlanTier {
@@ -69,16 +209,18 @@ function recommendPlan(role: string, teamSize: string): PlanTier {
   return "starter";
 }
 
+// Estimated hours Markaestro can save per week, keyed off the time-spent answer.
+const HOURS_SAVED: Record<string, number> = { lt2: 3, "2to5": 6, "5to10": 9, gt10: 14 };
+
 // ─── Persisted state ──────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "onboarding_state_v2";
+const STORAGE_KEY = "onboarding_state_v3";
+
+type Answers = Record<string, string | string[]>;
 
 type PersistedState = {
   step: number;
-  role: string;
-  teamSize: string;
-  goal: string;
-  channels: string[];
+  answers: Answers;
   productUrl: string;
   productName: string;
   productDesc: string;
@@ -91,6 +233,7 @@ type PersistedState = {
   logoUrl: string;
   tone: string;
   targetAudience: string;
+  productId: string;
   selectedTier: PlanTier;
   interval: BillingInterval;
   connected: Record<string, boolean>;
@@ -107,22 +250,12 @@ function loadState(): Partial<PersistedState> {
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
-// 7 user-facing screens: role, team, goal, channels, product, socials, plan.
-// Step 6 ("generating") is a transient loader and is excluded from the count.
-const TOTAL_STEPS = 7;
-
-function displayStep(step: number) {
-  return step >= 6 ? TOTAL_STEPS : step + 1;
-}
-
 function ProgressBar({ step }: { step: number }) {
-  if (step === 6) return null;
-  const pct = Math.round((displayStep(step) / TOTAL_STEPS) * 100);
+  if (step === GENERATING_STEP) return null;
+  const idx = FLOW_STEPS.indexOf(step);
+  const pct = idx === -1 ? 0 : Math.round(((idx + 1) / FLOW_STEPS.length) * 100);
   return (
-    <div
-      className="h-px w-full"
-      style={{ background: "var(--mk-rule)" }}
-    >
+    <div className="h-px w-full" style={{ background: "var(--mk-rule)" }}>
       <motion.div
         className="h-full"
         style={{ background: "var(--mk-accent)" }}
@@ -323,7 +456,7 @@ function OnboardingFooter() {
             </p>
             <div className="mt-5 flex flex-col gap-3">
               <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition">Sign In</Link>
-              <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition">Create Account</Link>
+              <Link href="/onboarding" className="text-sm text-muted-foreground hover:text-foreground transition">Create Account</Link>
             </div>
           </div>
         </div>
@@ -346,21 +479,25 @@ function OnboardingFooter() {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function OnboardingPage() {
-  const { user, loading: authLoading, logout } = useAuth();
-  const { loading: subLoading } = useSubscription();
-  const { completed, error: onboardingError, loading: onboardingLoading } = useOnboardingStatus();
+  const {
+    user,
+    loading: authLoading,
+    logout,
+    signInEmail,
+    signUpEmail,
+    signInGoogle,
+    signInFacebook,
+  } = useAuth();
+  const { status: subStatus, loading: subLoading } = useSubscription();
   const router = useRouter();
 
   const saved = loadState();
 
-  // Steps: 0=role, 1=team, 2=goal, 3=channels, 4=product, 5=socials, 6=generating, 7=paywall
   const [step, setStep] = useState(saved.step ?? 0);
+  const [answers, setAnswers] = useState<Answers>(saved.answers ?? {});
 
-  const [role, setRole] = useState(saved.role ?? "");
-  const [teamSize, setTeamSize] = useState(saved.teamSize ?? "");
-  const [goal, setGoal] = useState(saved.goal ?? "");
-  const [channels, setChannels] = useState<string[]>(saved.channels ?? []);
-
+  // Product
+  const [productMode, setProductMode] = useState<"scan" | "manual">("scan");
   const [productUrl, setProductUrl] = useState(saved.productUrl ?? "");
   const [productName, setProductName] = useState(saved.productName ?? "");
   const [productDesc, setProductDesc] = useState(saved.productDesc ?? "");
@@ -373,18 +510,27 @@ export default function OnboardingPage() {
   const [logoUrl, setLogoUrl] = useState(saved.logoUrl ?? "");
   const [tone, setTone] = useState(saved.tone ?? "");
   const [targetAudience, setTargetAudience] = useState(saved.targetAudience ?? "");
+  const [productId, setProductId] = useState(saved.productId ?? "");
   const { phase: scanPhase, scanning, scanned: scanDone, scan: runScan, reset: resetScan } = useProductScan();
-  const [manualEntry, setManualEntry] = useState(false);
   const [autoFilled, setAutoFilled] = useState<Record<string, boolean>>({});
 
+  // Socials
   const [connected, setConnected] = useState<Record<string, boolean>>(saved.connected ?? {});
   const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
 
   const [postContent] = useState("");
 
+  // Plan
   const [selectedTier, setSelectedTier] = useState<PlanTier>(saved.selectedTier ?? "pro");
   const [interval, setInterval] = useState<BillingInterval>(saved.interval ?? "annual");
   const [busy, setBusy] = useState(false);
+
+  // Register
+  const [regMode, setRegMode] = useState<"signup" | "signin">("signup");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regError, setRegError] = useState("");
+  const [regBusy, setRegBusy] = useState(false);
 
   // Skips the leave-protection prompt for intentional redirects (OAuth, checkout).
   const skipLeaveGuardRef = useRef(false);
@@ -393,30 +539,36 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const snapshot: PersistedState = {
-      step, role, teamSize, goal, channels,
+      step, answers,
       productUrl, productName, productDesc, productCategory, productPricingTier, productTags,
-      primaryColor, secondaryColor, accentColor, logoUrl, tone, targetAudience,
+      primaryColor, secondaryColor, accentColor, logoUrl, tone, targetAudience, productId,
       selectedTier, interval, connected,
     };
     try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot)); } catch { /* ignore */ }
   }, [
-    step, role, teamSize, goal, channels,
+    step, answers,
     productUrl, productName, productDesc, productCategory, productPricingTier, productTags,
-    primaryColor, secondaryColor, accentColor, logoUrl, tone, targetAudience,
+    primaryColor, secondaryColor, accentColor, logoUrl, tone, targetAudience, productId,
     selectedTier, interval, connected,
   ]);
 
-  // ─── Auth guards ────────────────────────────────────────────────────────────
+  // ─── Guards ───────────────────────────────────────────────────────────────
+  // The quiz is public — no auth required. Only a user who already has an active
+  // subscription is sent away (they've finished onboarding).
 
   useEffect(() => {
-    if (!authLoading && !user) router.replace("/login?next=/onboarding");
-  }, [authLoading, user, router]);
+    if (authLoading || subLoading) return;
+    if (user && subStatus?.active) router.replace("/dashboard");
+  }, [authLoading, subLoading, user, subStatus, router]);
 
+  // Once registration succeeds, advance into the setup phase. Also covers a
+  // signed-in-but-not-subscribed user who reaches the register step.
   useEffect(() => {
-    if (!authLoading && !onboardingLoading && (completed || onboardingError)) {
-      router.replace("/dashboard");
+    if (user && step === REGISTER_STEP) {
+      setRegBusy(false);
+      setStep(PRODUCT_STEP);
     }
-  }, [authLoading, onboardingLoading, completed, onboardingError, router]);
+  }, [user, step]);
 
   // ─── OAuth return ───────────────────────────────────────────────────────────
 
@@ -424,7 +576,11 @@ export default function OnboardingPage() {
     const params = new URLSearchParams(window.location.search);
     const oauthResult = params.get("oauth");
     const oauthProvider = params.get("provider");
+    const oauthProductId = params.get("productId");
     if (oauthResult && oauthProvider) {
+      if (oauthProductId) {
+        setProductId(oauthProductId);
+      }
       if (oauthResult === "success") {
         setConnected((prev) => ({ ...prev, [oauthProvider]: true }));
         const label = oauthProvider === "meta" ? "Meta (Facebook + Instagram)" : oauthProvider;
@@ -436,12 +592,20 @@ export default function OnboardingPage() {
     }
   }, []);
 
-  // ─── Leave protection ───────────────────────────────────────────────────────
-  // Warn before leaving mid-flow (after the first answer, before the transient
-  // generating screen and the paywall, which both lead out of the flow).
+  // ─── Generating → paywall ─────────────────────────────────────────────────
 
   useEffect(() => {
-    if (step < 1 || step > 5) return;
+    if (step !== GENERATING_STEP) return;
+    const t = setTimeout(() => setStep(PAYWALL_STEP), 2200);
+    return () => clearTimeout(t);
+  }, [step]);
+
+  // ─── Leave protection ───────────────────────────────────────────────────────
+  // Warn before leaving mid-flow (after the first answer, up to the socials step,
+  // which is the last screen before the generating loader and the paywall).
+
+  useEffect(() => {
+    if (step < 1 || step > SOCIALS_STEP) return;
     const handler = (e: BeforeUnloadEvent) => {
       if (skipLeaveGuardRef.current) return;
       e.preventDefault();
@@ -454,12 +618,12 @@ export default function OnboardingPage() {
   // ─── Auto-recommend plan ─────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (role && teamSize) {
-      setSelectedTier(recommendPlan(role, teamSize));
-    }
-  }, [role, teamSize]);
+    const role = (answers.role as string) || "";
+    const teamSize = (answers.teamSize as string) || "";
+    if (role && teamSize) setSelectedTier(recommendPlan(role, teamSize));
+  }, [answers.role, answers.teamSize]);
 
-  if (authLoading || subLoading || onboardingLoading || !user) {
+  if (authLoading || (user && subLoading)) {
     return (
       <div className="min-h-screen grid place-items-center bg-background">
         <div className="h-8 w-8 rounded-lg bg-primary animate-pulse" />
@@ -467,16 +631,32 @@ export default function OnboardingPage() {
     );
   }
 
-  if (completed || onboardingError) return null;
-
-  const displayName =
-    user.displayName?.split(" ")[0] || user.email?.split("@")[0] || "there";
+  if (user && subStatus?.active) return null;
 
   const trialEndLabel = new Date(
     Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000,
   ).toLocaleDateString("en-US", { month: "long", day: "numeric" });
 
-  // ─── Handlers ───────────────────────────────────────────────────────────────
+  const hoursSaved = HOURS_SAVED[(answers.hoursPerWeek as string)] ?? 6;
+
+  // ─── Quiz helpers ─────────────────────────────────────────────────────────
+
+  function answerSingle(questionId: string, optionId: string, nextStep: number) {
+    setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
+    setTimeout(() => setStep(nextStep), 200);
+  }
+
+  function toggleMulti(questionId: string, optionId: string) {
+    setAnswers((prev) => {
+      const current = Array.isArray(prev[questionId]) ? (prev[questionId] as string[]) : [];
+      const next = current.includes(optionId)
+        ? current.filter((c) => c !== optionId)
+        : [...current, optionId];
+      return { ...prev, [questionId]: next };
+    });
+  }
+
+  // ─── Product handlers ───────────────────────────────────────────────────────
 
   async function scanUrl() {
     let url = productUrl.trim();
@@ -504,16 +684,79 @@ export default function OnboardingPage() {
         tone: !!d.tone,
       });
     } else {
-      setManualEntry(true);
+      setProductMode("manual");
+    }
+  }
+
+  async function ensureOnboardingProduct() {
+    if (productId) return productId;
+
+    const normalizedUrl = productUrl.trim()
+      ? (/^https?:\/\//i.test(productUrl.trim()) ? productUrl.trim() : `https://${productUrl.trim()}`)
+      : "";
+    const res = await apiFetch<{ id: string }>("/api/products", {
+      method: "POST",
+      body: JSON.stringify({
+        name: productName.trim() || "My product",
+        description: productDesc.trim(),
+        url: normalizedUrl,
+        categories: [productCategory || "saas"],
+        status: "active",
+        brandVoice: {
+          tone: tone.trim(),
+          targetAudience: targetAudience.trim(),
+        },
+        brandIdentity: {
+          logoUrl,
+          primaryColor,
+          secondaryColor,
+          accentColor,
+        },
+      }),
+    });
+
+    if (!res.ok || !res.data.id) {
+      throw new Error("PRODUCT_CREATE_FAILED");
+    }
+
+    setProductId(res.data.id);
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        ...loadState(),
+        productId: res.data.id,
+      }));
+    } catch {
+      // The OAuth callback also carries productId; session storage is only a resilience layer.
+    }
+    return res.data.id;
+  }
+
+  // Continue out of the product step. Creates the product when the user supplied
+  // details; otherwise advances straight on (the step is fully skippable).
+  async function handleProductContinue() {
+    if (!productName.trim()) {
+      setStep(SOCIALS_STEP);
+      return;
+    }
+    setBusy(true);
+    try {
+      await ensureOnboardingProduct();
+    } catch {
+      toast.error("Couldn't save your product — you can add it later from the dashboard.");
+    } finally {
+      setBusy(false);
+      setStep(SOCIALS_STEP);
     }
   }
 
   async function connectSocial(providerId: string) {
     setConnectingProvider(providerId);
     try {
-      const returnTo = `${window.location.origin}/onboarding`;
+      const ensuredProductId = await ensureOnboardingProduct();
+      const returnTo = "/onboarding";
       const qs = new URLSearchParams({
         workspaceId: "default",
+        productId: ensuredProductId,
         returnTo,
       });
       skipLeaveGuardRef.current = true;
@@ -525,30 +768,61 @@ export default function OnboardingPage() {
     }
   }
 
-  function generatePreview() {
-    setStep(7);
-  }
+  // ─── Register handlers ──────────────────────────────────────────────────────
 
-  async function handleCheckout() {
-    setBusy(true);
+  async function handleRegister() {
+    if (!regEmail.trim() || !regPassword) {
+      setRegError("Enter your email and a password to continue.");
+      return;
+    }
+    setRegError("");
+    setRegBusy(true);
     try {
-      const res = await apiFetch<{ url: string }>("/api/stripe/checkout", {
-        method: "POST",
-        body: JSON.stringify({ tier: selectedTier, interval }),
-      });
-      if (res.ok && res.data.url) window.location.href = res.data.url;
-    } catch { /* silent */ } finally {
-      setBusy(false);
+      if (regMode === "signup") {
+        await signUpEmail(regEmail.trim(), regPassword);
+      } else {
+        await signInEmail(regEmail.trim(), regPassword);
+      }
+      // onAuthStateChanged sets the user; the guard effect advances the step.
+      // Keep regBusy true so the button stays in its loading state until then.
+    } catch (e: unknown) {
+      setRegError(friendlyAuthError(e));
+      setRegBusy(false);
     }
   }
 
-  function toggleChannel(id: string) {
-    setChannels((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
+  async function handleSocialRegister(provider: "google" | "facebook") {
+    setRegError("");
+    setRegBusy(true);
+    try {
+      if (provider === "google") await signInGoogle();
+      else await signInFacebook();
+    } catch (e: unknown) {
+      setRegError(friendlyAuthError(e));
+      setRegBusy(false);
+    }
+  }
+
+  function handleCheckout() {
+    setBusy(true);
+    apiFetch<{ url: string }>("/api/stripe/checkout", {
+      method: "POST",
+      body: JSON.stringify({ tier: selectedTier, interval }),
+    })
+      .then((res) => {
+        if (res.ok && res.data.url) {
+          skipLeaveGuardRef.current = true;
+          window.location.href = res.data.url;
+        } else {
+          setBusy(false);
+        }
+      })
+      .catch(() => setBusy(false));
   }
 
   // ─── Render ──────────────────────────────────────────────────────────────────
+
+  const currentQuestion = step < QUIZ_COUNT ? QUIZ_QUESTIONS[step] : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -579,21 +853,31 @@ export default function OnboardingPage() {
           </Link>
 
           <div className="flex items-center gap-4">
-            {step !== 6 && (
+            {step < QUIZ_COUNT && (
               <span
                 className="hidden sm:inline font-mono text-[10.5px] uppercase tabular-nums"
                 style={{ color: "var(--mk-ink-40)", letterSpacing: "0.14em" }}
               >
-                Step {displayStep(step)} / {TOTAL_STEPS}
+                Question {step + 1} / {QUIZ_COUNT}
               </span>
             )}
-            <button
-              className="text-[12.5px] transition-colors"
-              style={{ color: "var(--mk-ink-60)" }}
-              onClick={logout}
-            >
-              Sign out
-            </button>
+            {user ? (
+              <button
+                className="text-[12.5px] transition-colors"
+                style={{ color: "var(--mk-ink-60)" }}
+                onClick={logout}
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="text-[12.5px] transition-colors"
+                style={{ color: "var(--mk-ink-60)" }}
+              >
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
         <ProgressBar step={step} />
@@ -604,172 +888,222 @@ export default function OnboardingPage() {
         <div className="mx-auto max-w-2xl px-5 sm:px-8 py-12 sm:py-16">
           <AnimatePresence mode="wait">
 
-            {/* ── Step 0: Role ────────────────────────────────────────────── */}
-            {step === 0 && (
+            {/* ── Quiz questions (data-driven) ────────────────────────────── */}
+            {currentQuestion && (
               <motion.div
-                key="role"
+                key={`q-${currentQuestion.id}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -14 }}
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-10 sm:mb-12">
-                  <p className="mk-eyebrow mb-4">
-                    Welcome, {displayName}
-                  </p>
+                  <p className="mk-eyebrow mb-4">{currentQuestion.eyebrow}</p>
                   <h1 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
-                    What best describes your role?
+                    {currentQuestion.title}
                   </h1>
-                  <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    We&apos;ll personalise Markaestro to how you work.
-                  </p>
+                  {currentQuestion.subtitle && (
+                    <p className="mt-4 text-base text-muted-foreground leading-relaxed">
+                      {currentQuestion.subtitle}
+                    </p>
+                  )}
                 </div>
-                <div className="grid gap-3">
-                  {ROLES.map((r, i) => (
-                    <SelectionTile
-                      key={r.id}
-                      selected={role === r.id}
-                      label={r.label}
-                      desc={r.desc}
-                      delay={i * 0.05}
-                      onClick={() => { setRole(r.id); setTimeout(() => setStep(1), 200); }}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
 
-            {/* ── Step 1: Team size ───────────────────────────────────────── */}
-            {step === 1 && (
-              <motion.div
-                key="team"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.32, ease }}
-              >
-                <div className="mb-10 sm:mb-12">
-                  <p className="mk-eyebrow mb-4">
-                    Tell us a bit more
-                  </p>
-                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
-                    How big is your team?
-                  </h2>
+                <div className={cn("grid gap-3", currentQuestion.columns && "sm:grid-cols-2")}>
+                  {currentQuestion.options.map((opt, i) => {
+                    if (currentQuestion.type === "multi") {
+                      const sel = Array.isArray(answers[currentQuestion.id])
+                        ? (answers[currentQuestion.id] as string[]).includes(opt.id)
+                        : false;
+                      return (
+                        <SelectionTile
+                          key={opt.id}
+                          multi
+                          selected={sel}
+                          label={opt.label}
+                          desc={opt.desc}
+                          delay={i * 0.04}
+                          onClick={() => toggleMulti(currentQuestion.id, opt.id)}
+                        />
+                      );
+                    }
+                    return (
+                      <SelectionTile
+                        key={opt.id}
+                        selected={answers[currentQuestion.id] === opt.id}
+                        label={opt.label}
+                        desc={opt.desc}
+                        delay={i * 0.05}
+                        onClick={() => answerSingle(currentQuestion.id, opt.id, step + 1)}
+                      />
+                    );
+                  })}
                 </div>
-                <div className="grid gap-3">
-                  {TEAM_SIZES.map((t, i) => (
-                    <SelectionTile
-                      key={t.id}
-                      selected={teamSize === t.id}
-                      label={t.label}
-                      desc={t.desc}
-                      delay={i * 0.05}
-                      onClick={() => { setTeamSize(t.id); setTimeout(() => setStep(2), 200); }}
-                    />
-                  ))}
-                </div>
-                <button
-                  className="mt-8 text-sm text-muted-foreground hover:text-foreground transition"
-                  onClick={() => setStep(0)}
-                >
-                  ← Back
-                </button>
-              </motion.div>
-            )}
 
-            {/* ── Step 2: Primary goal ─────────────────────────────────────── */}
-            {step === 2 && (
-              <motion.div
-                key="goal"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.32, ease }}
-              >
-                <div className="mb-10 sm:mb-12">
-                  <p className="mk-eyebrow mb-4">
-                    Almost there
-                  </p>
-                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
-                    What&apos;s your primary goal?
-                  </h2>
-                  <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    We&apos;ll recommend the right plan for your needs.
-                  </p>
-                </div>
-                <div className="grid gap-3">
-                  {GOALS.map((g, i) => (
-                    <SelectionTile
-                      key={g.id}
-                      selected={goal === g.id}
-                      label={g.label}
-                      desc={g.desc}
-                      delay={i * 0.05}
-                      onClick={() => { setGoal(g.id); setTimeout(() => setStep(3), 200); }}
-                    />
-                  ))}
-                </div>
-                <button
-                  className="mt-8 text-sm text-muted-foreground hover:text-foreground transition"
-                  onClick={() => setStep(1)}
-                >
-                  ← Back
-                </button>
-              </motion.div>
-            )}
+                {/* Multi-select steps need an explicit advance button. */}
+                {currentQuestion.type === "multi" && (
+                  <div className="mt-8">
+                    <Button
+                      size="lg"
+                      className="w-full h-12 rounded-xl text-base"
+                      onClick={() => setStep(step + 1)}
+                    >
+                      {Array.isArray(answers[currentQuestion.id]) &&
+                      (answers[currentQuestion.id] as string[]).length > 0
+                        ? "Continue"
+                        : "Skip for now"}
+                    </Button>
+                  </div>
+                )}
 
-            {/* ── Step 3: Channels ─────────────────────────────────────────── */}
-            {step === 3 && (
-              <motion.div
-                key="channels"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.32, ease }}
-              >
-                <div className="mb-10 sm:mb-12">
-                  <p className="mk-eyebrow mb-4">
-                    Last question
-                  </p>
-                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
-                    Which channels do you use?
-                  </h2>
-                  <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    Pick all that apply. You can add more later.
-                  </p>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {CHANNELS.map((c, i) => (
-                    <SelectionTile
-                      key={c.id}
-                      multi
-                      selected={channels.includes(c.id)}
-                      label={c.label}
-                      delay={i * 0.04}
-                      onClick={() => toggleChannel(c.id)}
-                    />
-                  ))}
-                </div>
-                <div className="mt-8 flex flex-col gap-3">
-                  <Button
-                    size="lg"
-                    className="w-full h-12 rounded-xl text-base"
-                    onClick={() => setStep(4)}
-                  >
-                    {channels.length === 0 ? "Skip for now" : "Continue"}
-                  </Button>
+                {step > 0 && (
                   <button
-                    className="text-sm text-muted-foreground hover:text-foreground transition text-center"
-                    onClick={() => setStep(2)}
+                    className="mt-6 text-sm text-muted-foreground hover:text-foreground transition"
+                    onClick={() => setStep(step - 1)}
                   >
                     ← Back
                   </button>
-                </div>
+                )}
               </motion.div>
             )}
 
-            {/* ── Step 4: Product setup ────────────────────────────────────── */}
-            {step === 4 && (
+            {/* ── Register ─────────────────────────────────────────────────── */}
+            {/* Only shown to logged-out visitors; a signed-in user is advanced
+                past this step by the guard effect, so we never flash the form. */}
+            {step === REGISTER_STEP && !user && (
+              <motion.div
+                key="register"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -14 }}
+                transition={{ duration: 0.32, ease }}
+              >
+                <div className="mb-8">
+                  <p className="mk-eyebrow mb-4">Save your progress</p>
+                  <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
+                    {regMode === "signup"
+                      ? "Create your account to continue"
+                      : "Welcome back"}
+                  </h2>
+                  <p className="mt-4 text-base text-muted-foreground leading-relaxed">
+                    Your answers are saved. Create a free account to set up your
+                    workspace — no card required to keep going.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border p-5 sm:p-6">
+                  <div
+                    className="grid grid-cols-2 gap-1 rounded-lg p-1 mb-5"
+                    style={{ background: "var(--mk-panel)", border: "1px solid var(--mk-rule)" }}
+                  >
+                    {(["signup", "signin"] as const).map((m) => (
+                      <button
+                        key={m}
+                        className="h-8 rounded-[6px] text-[12.5px] font-medium transition-colors"
+                        style={{
+                          background: regMode === m ? "var(--mk-paper)" : "transparent",
+                          color: regMode === m ? "var(--mk-ink)" : "var(--mk-ink-60)",
+                          border: regMode === m ? "1px solid var(--mk-rule)" : "1px solid transparent",
+                        }}
+                        onClick={() => { setRegMode(m); setRegError(""); }}
+                      >
+                        {m === "signup" ? "Create account" : "Sign in"}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <Input
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                      placeholder="name@company.com"
+                      type="email"
+                      autoComplete="email"
+                      className="h-11 rounded-lg"
+                      style={{ fontSize: "16px" }}
+                      onKeyDown={(e) => e.key === "Enter" && !regBusy && handleRegister()}
+                    />
+                    <Input
+                      value={regPassword}
+                      onChange={(e) => setRegPassword(e.target.value)}
+                      placeholder="Password"
+                      type="password"
+                      autoComplete={regMode === "signup" ? "new-password" : "current-password"}
+                      className="h-11 rounded-lg"
+                      style={{ fontSize: "16px" }}
+                      onKeyDown={(e) => e.key === "Enter" && !regBusy && handleRegister()}
+                    />
+
+                    {regError && (
+                      <p className="rounded-lg px-3.5 py-2.5 text-[12px] bg-destructive/10 text-destructive">
+                        {regError}
+                      </p>
+                    )}
+
+                    <Button
+                      className="h-11 w-full rounded-lg text-[14px]"
+                      disabled={regBusy}
+                      onClick={handleRegister}
+                    >
+                      {regBusy
+                        ? "Please wait…"
+                        : regMode === "signup"
+                        ? "Create account & continue"
+                        : "Sign in & continue"}
+                    </Button>
+                  </div>
+
+                  <div className="relative my-5 flex items-center gap-3">
+                    <span className="flex-1 h-px" style={{ background: "var(--mk-rule)" }} />
+                    <span
+                      className="font-mono text-[9.5px] uppercase"
+                      style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
+                    >
+                      Or continue with
+                    </span>
+                    <span className="flex-1 h-px" style={{ background: "var(--mk-rule)" }} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <Button
+                      variant="outline"
+                      className="h-11 w-full rounded-lg gap-2 text-[13.5px]"
+                      disabled={regBusy}
+                      onClick={() => handleSocialRegister("google")}
+                    >
+                      <svg className="h-4 w-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                      Google
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-11 w-full rounded-lg gap-2 text-[13.5px]"
+                      disabled={regBusy}
+                      onClick={() => handleSocialRegister("facebook")}
+                    >
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="var(--mk-ch-facebook)"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                      Facebook
+                    </Button>
+                  </div>
+                </div>
+
+                <p className="mt-5 text-center text-[11.5px]" style={{ color: "var(--mk-ink-40)" }}>
+                  By continuing you agree to our{" "}
+                  <a href="/terms" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>Terms</a>{" "}
+                  and{" "}
+                  <a href="/privacy" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>Privacy Policy</a>.
+                </p>
+
+                <button
+                  className="mt-4 text-sm text-muted-foreground hover:text-foreground transition mx-auto block"
+                  onClick={() => setStep(QUIZ_COUNT - 1)}
+                >
+                  ← Back
+                </button>
+              </motion.div>
+            )}
+
+            {/* ── Add an app ───────────────────────────────────────────────── */}
+            {step === PRODUCT_STEP && (
               <motion.div
                 key="product"
                 initial={{ opacity: 0, y: 20 }}
@@ -777,134 +1111,144 @@ export default function OnboardingPage() {
                 exit={{ opacity: 0, y: -14 }}
                 transition={{ duration: 0.32, ease }}
               >
-                <div className="mb-10 sm:mb-12">
-                  <p className="mk-eyebrow mb-4">
-                    Your product
-                  </p>
+                <div className="mb-8">
+                  <p className="mk-eyebrow mb-4">Your product</p>
                   <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
-                    Tell us what you&apos;re marketing
+                    Add the app you&apos;re marketing
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    Enter your website URL and we&apos;ll scan it with AI to fill in your product details automatically.
+                    Scan your website to auto-fill the details, add it manually, or
+                    skip this for now — you can always do it later.
                   </p>
                 </div>
 
-                {!manualEntry ? (
-                  <div className="space-y-5">
-                    <div className="rounded-xl border p-5 sm:p-6 space-y-5">
-                      <div>
-                        <label className="text-sm font-medium text-foreground block mb-2">
-                          Website URL
-                        </label>
-                        <div className="flex gap-2.5">
-                          <Input
-                            placeholder="yourproduct.com"
-                            className="h-12 rounded-lg text-base flex-1"
-                            style={{ fontSize: "16px" }}
-                            value={productUrl}
-                            onChange={(e) => { setProductUrl(e.target.value); if (scanDone) { resetScan(); setAutoFilled({}); } }}
-                            onKeyDown={(e) => e.key === "Enter" && !scanning && scanUrl()}
-                          />
-                          <Button
-                            className="h-12 rounded-lg px-5 shrink-0 text-sm font-medium"
-                            onClick={scanUrl}
-                            disabled={scanning || !productUrl.trim()}
-                            variant={scanDone ? "outline" : "default"}
-                          >
-                            {scanning ? "Scanning…" : scanDone ? "Re-scan" : "Scan"}
-                          </Button>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                          Our AI reads your site and fills in name, description, brand colours, and more.
-                        </p>
-                      </div>
+                {/* Mode toggle */}
+                <div
+                  className="grid grid-cols-2 gap-1 rounded-lg p-1 mb-6"
+                  style={{ background: "var(--mk-panel)", border: "1px solid var(--mk-rule)" }}
+                >
+                  {(["scan", "manual"] as const).map((m) => (
+                    <button
+                      key={m}
+                      className="h-9 rounded-[6px] text-[13px] font-medium transition-colors"
+                      style={{
+                        background: productMode === m ? "var(--mk-paper)" : "transparent",
+                        color: productMode === m ? "var(--mk-ink)" : "var(--mk-ink-60)",
+                        border: productMode === m ? "1px solid var(--mk-rule)" : "1px solid transparent",
+                      }}
+                      onClick={() => setProductMode(m)}
+                    >
+                      {m === "scan" ? "Scan a website" : "Enter manually"}
+                    </button>
+                  ))}
+                </div>
 
-                      <ScanProgressStepper phase={scanPhase} url={productUrl} />
-
-                      {scanDone && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="space-y-4 pt-5 border-t"
+                {productMode === "scan" ? (
+                  <div className="rounded-xl border p-5 sm:p-6 space-y-5">
+                    <div>
+                      <label className="text-sm font-medium text-foreground block mb-2">
+                        Website URL
+                      </label>
+                      <div className="flex gap-2.5">
+                        <Input
+                          placeholder="yourproduct.com"
+                          className="h-12 rounded-lg text-base flex-1"
+                          style={{ fontSize: "16px" }}
+                          value={productUrl}
+                          onChange={(e) => { setProductUrl(e.target.value); if (scanDone) { resetScan(); setAutoFilled({}); } }}
+                          onKeyDown={(e) => e.key === "Enter" && !scanning && scanUrl()}
+                        />
+                        <Button
+                          className="h-12 rounded-lg px-5 shrink-0 text-sm font-medium"
+                          onClick={scanUrl}
+                          disabled={scanning || !productUrl.trim()}
+                          variant={scanDone ? "outline" : "default"}
                         >
+                          {scanning ? "Scanning…" : scanDone ? "Re-scan" : "Scan"}
+                        </Button>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                        Our AI reads your site and fills in name, description, brand colours, and more.
+                      </p>
+                    </div>
 
+                    <ScanProgressStepper phase={scanPhase} url={productUrl} />
+
+                    {scanDone && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-4 pt-5 border-t"
+                      >
+                        <div>
+                          <label className="text-sm font-medium block mb-2">
+                            Product name
+                            {autoFilled.name && <AutoDetectedBadge />}
+                          </label>
+                          <Input
+                            className="h-11 rounded-lg"
+                            style={{ fontSize: "16px" }}
+                            value={productName}
+                            onChange={(e) => { setProductName(e.target.value); setAutoFilled((p) => ({ ...p, name: false })); }}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium block mb-2">
+                            Description
+                            {autoFilled.description && <AutoDetectedBadge />}
+                          </label>
+                          <textarea
+                            className="w-full rounded-lg border bg-background px-3 py-3 text-base min-h-[96px] resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 leading-relaxed"
+                            style={{ fontSize: "16px" }}
+                            value={productDesc}
+                            onChange={(e) => { setProductDesc(e.target.value); setAutoFilled((p) => ({ ...p, description: false })); }}
+                          />
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-4">
                           <div>
                             <label className="text-sm font-medium block mb-2">
-                              Product name
-                              {autoFilled.name && <AutoDetectedBadge />}
+                              Target audience
+                              {autoFilled.targetAudience && <AutoDetectedBadge />}
                             </label>
                             <Input
                               className="h-11 rounded-lg"
                               style={{ fontSize: "16px" }}
-                              value={productName}
-                              onChange={(e) => { setProductName(e.target.value); setAutoFilled((p) => ({ ...p, name: false })); }}
+                              value={targetAudience}
+                              onChange={(e) => { setTargetAudience(e.target.value); setAutoFilled((p) => ({ ...p, targetAudience: false })); }}
+                              placeholder="e.g. B2B SaaS founders"
                             />
                           </div>
-
                           <div>
                             <label className="text-sm font-medium block mb-2">
-                              Description
-                              {autoFilled.description && <AutoDetectedBadge />}
+                              Brand tone
+                              {autoFilled.tone && <AutoDetectedBadge />}
                             </label>
-                            <textarea
-                              className="w-full rounded-lg border bg-background px-3 py-3 text-base min-h-[96px] resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 leading-relaxed"
+                            <Input
+                              className="h-11 rounded-lg"
                               style={{ fontSize: "16px" }}
-                              value={productDesc}
-                              onChange={(e) => { setProductDesc(e.target.value); setAutoFilled((p) => ({ ...p, description: false })); }}
+                              value={tone}
+                              onChange={(e) => { setTone(e.target.value); setAutoFilled((p) => ({ ...p, tone: false })); }}
+                              placeholder="e.g. bold, direct"
                             />
                           </div>
+                        </div>
 
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <div>
-                              <label className="text-sm font-medium block mb-2">
-                                Target audience
-                                {autoFilled.targetAudience && <AutoDetectedBadge />}
-                              </label>
-                              <Input
-                                className="h-11 rounded-lg"
-                                style={{ fontSize: "16px" }}
-                                value={targetAudience}
-                                onChange={(e) => { setTargetAudience(e.target.value); setAutoFilled((p) => ({ ...p, targetAudience: false })); }}
-                                placeholder="e.g. B2B SaaS founders"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-sm font-medium block mb-2">
-                                Brand tone
-                                {autoFilled.tone && <AutoDetectedBadge />}
-                              </label>
-                              <Input
-                                className="h-11 rounded-lg"
-                                style={{ fontSize: "16px" }}
-                                value={tone}
-                                onChange={(e) => { setTone(e.target.value); setAutoFilled((p) => ({ ...p, tone: false })); }}
-                                placeholder="e.g. bold, direct"
-                              />
-                            </div>
+                        {primaryColor && (
+                          <div className="flex items-center gap-3 pt-1">
+                            <div
+                              className="h-9 w-9 rounded-lg border shrink-0"
+                              style={{ backgroundColor: primaryColor }}
+                            />
+                            <p className="text-sm text-muted-foreground">
+                              Brand colour detected:{" "}
+                              <span className="font-mono text-foreground">{primaryColor}</span>
+                            </p>
                           </div>
-
-                          {primaryColor && (
-                            <div className="flex items-center gap-3 pt-1">
-                              <div
-                                className="h-9 w-9 rounded-lg border shrink-0"
-                                style={{ backgroundColor: primaryColor }}
-                              />
-                              <p className="text-sm text-muted-foreground">
-                                Brand colour detected:{" "}
-                                <span className="font-mono text-foreground">{primaryColor}</span>
-                              </p>
-                            </div>
-                          )}
-                        </motion.div>
-                      )}
-                    </div>
-
-                    <button
-                      className="text-sm text-primary hover:underline block mx-auto"
-                      onClick={() => setManualEntry(true)}
-                    >
-                      Don&apos;t have a website? Enter manually →
-                    </button>
+                        )}
+                      </motion.div>
+                    )}
                   </div>
                 ) : (
                   <div className="rounded-xl border p-5 sm:p-6 space-y-4">
@@ -919,7 +1263,9 @@ export default function OnboardingPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium block mb-2">What does it do?</label>
+                      <label className="text-sm font-medium block mb-2">
+                        What does it do? <span className="text-muted-foreground font-normal">(optional)</span>
+                      </label>
                       <textarea
                         className="w-full rounded-lg border bg-background px-3 py-3 text-base min-h-[108px] resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 leading-relaxed"
                         style={{ fontSize: "16px" }}
@@ -930,7 +1276,9 @@ export default function OnboardingPage() {
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-medium block mb-2">Target audience</label>
+                        <label className="text-sm font-medium block mb-2">
+                          Target audience <span className="text-muted-foreground font-normal">(optional)</span>
+                        </label>
                         <Input
                           className="h-11 rounded-lg"
                           style={{ fontSize: "16px" }}
@@ -940,7 +1288,9 @@ export default function OnboardingPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium block mb-2">Brand tone</label>
+                        <label className="text-sm font-medium block mb-2">
+                          Brand tone <span className="text-muted-foreground font-normal">(optional)</span>
+                        </label>
                         <Input
                           className="h-11 rounded-lg"
                           style={{ fontSize: "16px" }}
@@ -950,12 +1300,6 @@ export default function OnboardingPage() {
                         />
                       </div>
                     </div>
-                    <button
-                      className="text-sm text-primary hover:underline"
-                      onClick={() => setManualEntry(false)}
-                    >
-                      ← Scan a URL instead
-                    </button>
                   </div>
                 )}
 
@@ -963,23 +1307,26 @@ export default function OnboardingPage() {
                   <Button
                     size="lg"
                     className="w-full h-12 rounded-xl text-base"
-                    onClick={() => setStep(5)}
-                    disabled={!productName.trim() || !productDesc.trim()}
+                    onClick={handleProductContinue}
+                    disabled={busy}
                   >
-                    Continue
+                    {busy ? "Saving…" : productName.trim() ? "Continue" : "Skip for now"}
                   </Button>
-                  <button
-                    className="text-sm text-muted-foreground hover:text-foreground transition text-center"
-                    onClick={() => setStep(3)}
-                  >
-                    ← Back
-                  </button>
+                  {productName.trim() && (
+                    <button
+                      className="text-sm text-muted-foreground hover:text-foreground transition text-center"
+                      onClick={() => setStep(SOCIALS_STEP)}
+                      disabled={busy}
+                    >
+                      Skip for now
+                    </button>
+                  )}
                 </div>
               </motion.div>
             )}
 
-            {/* ── Step 5: Connect socials ─────────────────────────────────── */}
-            {step === 5 && (
+            {/* ── Connect socials ─────────────────────────────────────────── */}
+            {step === SOCIALS_STEP && (
               <motion.div
                 key="socials"
                 initial={{ opacity: 0, y: 20 }}
@@ -988,9 +1335,7 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-10 sm:mb-12">
-                  <p className="mk-eyebrow mb-4">
-                    Connect your accounts
-                  </p>
+                  <p className="mk-eyebrow mb-4">Connect your accounts</p>
                   <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
                     Add your social accounts
                   </h2>
@@ -1048,15 +1393,15 @@ export default function OnboardingPage() {
                   <Button
                     size="lg"
                     className="w-full h-12 rounded-xl text-base"
-                    onClick={generatePreview}
+                    onClick={() => setStep(GENERATING_STEP)}
                   >
                     {Object.keys(connected).length > 0
-                      ? "Continue to dashboard"
+                      ? "Continue"
                       : "Skip and continue"}
                   </Button>
                   <button
                     className="text-sm text-muted-foreground hover:text-foreground transition text-center"
-                    onClick={() => setStep(4)}
+                    onClick={() => setStep(PRODUCT_STEP)}
                   >
                     ← Back
                   </button>
@@ -1064,8 +1409,8 @@ export default function OnboardingPage() {
               </motion.div>
             )}
 
-            {/* ── Step 6: Generating ──────────────────────────────────────── */}
-            {step === 6 && (
+            {/* ── Generating ──────────────────────────────────────────────── */}
+            {step === GENERATING_STEP && (
               <motion.div
                 key="generating"
                 initial={{ opacity: 0 }}
@@ -1095,20 +1440,20 @@ export default function OnboardingPage() {
                     ))}
                   </motion.div>
                   <h2 className="text-[24px] sm:text-[28px] font-semibold tracking-[-0.025em] mb-4">
-                    Creating your first post
+                    Building your workspace
                   </h2>
                   <p className="text-base text-muted-foreground max-w-sm leading-relaxed">
-                    Reading your product, understanding your brand, and writing content tailored to your audience.
+                    Reading your answers, understanding your brand, and preparing content tailored to your audience.
                   </p>
                   <p className="mt-8 text-sm text-muted-foreground">
-                    This takes about 10 seconds
+                    This takes just a moment
                   </p>
                 </div>
               </motion.div>
             )}
 
-            {/* ── Step 7: Paywall ─────────────────────────────────────────── */}
-            {step === 7 && (
+            {/* ── Paywall ─────────────────────────────────────────────────── */}
+            {step === PAYWALL_STEP && (
               <motion.div
                 key="paywall"
                 initial={{ opacity: 0, y: 20 }}
@@ -1127,18 +1472,17 @@ export default function OnboardingPage() {
                       border: "1px solid color-mix(in oklch, var(--mk-pos) 26%, var(--mk-rule))",
                     }}
                   >
-                    <span
-                      className="font-bold text-base"
-                      style={{ color: "var(--mk-pos)" }}
-                    >
+                    <span className="font-bold text-base" style={{ color: "var(--mk-pos)" }}>
                       ✓
                     </span>
                   </motion.div>
                   <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
-                    Your first post is ready
+                    Your workspace is ready
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    Start your {TRIAL_DAYS}-day free trial to publish it — and everything else you create.
+                    Based on your answers, Markaestro can save you about{" "}
+                    <span className="font-semibold text-foreground">{hoursSaved} hours a week</span>.
+                    Start your {TRIAL_DAYS}-day free trial to publish — and everything else you create.
                   </p>
                 </div>
 
@@ -1151,7 +1495,7 @@ export default function OnboardingPage() {
                   {postContent ? (
                     <PostPreviewCard
                       content={postContent}
-                      productName={productName}
+                      productName={productName || "Your brand"}
                       primaryColor={primaryColor}
                       locked
                     />

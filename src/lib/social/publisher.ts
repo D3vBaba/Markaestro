@@ -2,8 +2,8 @@ import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
 import { getAdapterForChannel } from '@/lib/platform/registry';
 import { getConnectionForChannel } from '@/lib/platform/connections';
-import { refreshConnectionToken } from '@/lib/oauth/token-refresh';
-import type { PlatformConnection, PublishRequest, PublishResult } from '@/lib/platform/types';
+import type { PublishRequest, PublishResult } from '@/lib/platform/types';
+import { isTikTokTokenExpiringSoon, isTikTokTokenInvalid, refreshTikTokConnection } from '@/lib/platform/tiktok-auth';
 import { socialChannels, type SocialChannel } from '@/lib/schemas';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import {
@@ -26,38 +26,6 @@ const RETRY_DELAYS_MS = [2 * 60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000, 30 * 60 *
 const META_MAX_RETRY_ATTEMPTS = 2;
 const META_RETRY_DELAYS_MS = [30 * 60 * 1000, 2 * 60 * 60 * 1000]; // 30min, 2hr
 const socialChannelSet = new Set<string>(socialChannels);
-
-// TikTok access tokens are short-lived (~24h). Refresh proactively when within
-// this window of expiry, just before publishing, so long-queued posts don't
-// fail on a stale token.
-const TIKTOK_TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
-
-function isTokenExpiringSoon(connection: PlatformConnection): boolean {
-  if (!connection.tokenExpiresAt) return false;
-  return new Date(connection.tokenExpiresAt).getTime() <= Date.now() + TIKTOK_TOKEN_REFRESH_BUFFER_MS;
-}
-
-function isTikTokTokenInvalid(error?: string): boolean {
-  return !!error && /access_token_invalid/i.test(error);
-}
-
-async function refreshTikTokConnection(
-  workspaceId: string,
-  productId: string | undefined,
-  connection: PlatformConnection,
-): Promise<PlatformConnection | null> {
-  try {
-    return await refreshConnectionToken(
-      workspaceId,
-      'tiktok',
-      connection,
-      connection.productId ?? productId,
-    );
-  } catch (error) {
-    console.error('[publish] TikTok token refresh failed:', error);
-    return null;
-  }
-}
 
 export type ChannelPublishResult = {
   channel: SocialChannel;
@@ -163,7 +131,7 @@ export async function publishPost(
   // TikTok tokens expire fast; refresh up front if the token is at/near expiry,
   // then fall back to a reactive refresh-and-retry if TikTok still rejects it.
   let activeConnection = connection;
-  if (request.channel === 'tiktok' && isTokenExpiringSoon(activeConnection)) {
+  if (request.channel === 'tiktok' && isTikTokTokenExpiringSoon(activeConnection)) {
     activeConnection = (await refreshTikTokConnection(workspaceId, productId, activeConnection)) ?? activeConnection;
   }
 
@@ -256,12 +224,13 @@ function getPhotoCoverIndex(value: unknown): number | undefined {
 }
 
 export function getPostTargetChannels(post: Record<string, unknown>): SocialChannel[] {
-  const targetChannels = asStringArray(post.targetChannels)
+  const rawTargetChannels = asStringArray(post.targetChannels);
+  const targetChannels = rawTargetChannels
     ?.filter(asSocialChannel)
     .filter((channel, index, all) => all.indexOf(channel) === index);
 
-  if (targetChannels?.length) {
-    return targetChannels;
+  if (rawTargetChannels) {
+    return targetChannels ?? [];
   }
 
   return asSocialChannel(post.channel) ? [post.channel] : [];
@@ -435,6 +404,18 @@ export async function claimPostForImmediatePublish(
 
     if (status === 'publishing' && !leaseExpiresAt) {
       return { ok: false, status: 409, error: 'This post is already publishing.' } satisfies ImmediatePublishClaimResult;
+    }
+
+    const targetChannels = getPostTargetChannels(post);
+    if (
+      (status === PLATFORM_ACTION_REQUIRED_STATUS || status === LEGACY_EXPORTED_FOR_REVIEW_STATUS) &&
+      targetChannels.includes('tiktok')
+    ) {
+      return {
+        ok: false,
+        status: 409,
+        error: 'This TikTok post is already ready in the TikTok inbox.',
+      } satisfies ImmediatePublishClaimResult;
     }
 
     if (status !== 'publishing' && !publishableStatuses.has(status)) {

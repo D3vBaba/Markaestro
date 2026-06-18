@@ -10,8 +10,7 @@ describe('oauth provider config', () => {
       'instagram_business_content_publish',
     ]);
     expect(getProviderConfig('instagram').extraAuthParams).toEqual({
-      enable_fb_login: 'false',
-      force_reauth: 'true',
+      enable_fb_login: 'true',
     });
     expect(getProviderConfig('meta').scopes).not.toContain('instagram_manage_insights');
     expect(getProviderConfig('threads').scopes).not.toContain('threads_manage_insights');

@@ -19,7 +19,6 @@ import CategorySelect from "./CategorySelect";
 import { categoryLabel, categoryColor } from "./categories";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiGet, apiPut, apiPost, apiDelete, apiUpload } from "@/lib/api-client";
-import { getCurrentInAppBrowserName, isCurrentBrowserMobile } from "@/lib/in-app-browser";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
@@ -483,20 +482,11 @@ export default function ProductDetailSheet({
 
   function startOAuth(provider: string) {
     if (!productId) return;
-    if (provider === "instagram") {
-      const iab = getCurrentInAppBrowserName();
-      if (iab) {
-        toast.error(
-          `Instagram linking does not complete inside the ${iab} in-app browser. Open Markaestro in Safari or Chrome and try again.`,
-        );
-        return;
-      }
-      if (isCurrentBrowserMobile()) {
-        toast.error("Instagram direct login only works on desktop.");
-        return;
-      }
-    }
-    const qs = new URLSearchParams({ workspaceId: "default", productId });
+    const qs = new URLSearchParams({
+      workspaceId: "default",
+      productId,
+      returnTo: "/products",
+    });
     window.location.href = `/api/oauth/authorize/${provider}?${qs.toString()}`;
   }
 

@@ -145,8 +145,7 @@ export default function CreateTab({
   };
 
   const getPostTargets = () => {
-    const normalized = selectedChannels.length > 0 ? selectedChannels : [channel];
-    return Array.from(new Set(normalized)).filter(Boolean);
+    return Array.from(new Set(selectedChannels)).filter(Boolean);
   };
 
   const getTypedPostTargets = (): SocialChannel[] => (
@@ -164,10 +163,16 @@ export default function CreateTab({
   });
 
   const validateCurrentPost = (urls = mediaUrls) => {
+    const targetChannels = getTypedPostTargets();
+    if (targetChannels.length === 0) {
+      toast.error("Select at least one ready publishing channel.");
+      return false;
+    }
+
     const issues = validateSocialPost({
       content,
       channel,
-      targetChannels: getTypedPostTargets(),
+      targetChannels,
       mediaUrls: urls,
     });
     if (issues.length > 0) {

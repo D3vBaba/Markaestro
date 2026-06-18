@@ -6,6 +6,7 @@ import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistId
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 import { LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
+import { getPublishRunSkipReason } from '@/lib/public-api/publish-runs';
 
 export const runtime = 'nodejs';
 
@@ -20,6 +21,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
     const { id } = await params;
     const post = await getPublicPost(ctx.workspaceId, id);
+    const skipReason = getPublishRunSkipReason(post);
+    if (skipReason) {
+      return Response.json({
+        error: 'VALIDATION_POST_ALREADY_PUBLISHING',
+        message: skipReason,
+      }, { status: 409, headers: ctx.rateLimitHeaders });
+    }
 
     const status = String(post.status || '');
     if (!['draft', 'scheduled', 'failed', 'partial_failed', PLATFORM_ACTION_REQUIRED_STATUS, LEGACY_EXPORTED_FOR_REVIEW_STATUS].includes(status)) {

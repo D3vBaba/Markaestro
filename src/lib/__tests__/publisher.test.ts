@@ -129,6 +129,27 @@ describe('publishStoredPost', () => {
     expect(getConnectionForChannelMock).not.toHaveBeenCalled();
   });
 
+  it('does not publish through the legacy channel fallback when targetChannels is explicitly empty', async () => {
+    const { getPostTargetChannels, publishStoredPost } = await import('../social/publisher');
+
+    const post = {
+      content: 'Launch post',
+      channel: 'facebook',
+      targetChannels: [],
+    };
+
+    expect(getPostTargetChannels(post)).toEqual([]);
+
+    const result = await publishStoredPost('ws_123', 'prod_123', post);
+
+    expect(result).toEqual({
+      success: false,
+      channels: [],
+      error: 'Post has no target channel',
+    });
+    expect(getConnectionForChannelMock).not.toHaveBeenCalled();
+  });
+
   it('retries only failed channels after a partial failure', async () => {
     const facebookPublish = vi.fn().mockResolvedValue({
       success: true,

@@ -16,6 +16,8 @@ import { formatPreflightIssues, getSocialPostPreflightIssues } from '@/lib/socia
 export const runtime = 'nodejs';
 export const maxDuration = 300;
 
+const TIKTOK_INLINE_POLL_ATTEMPTS = 10;
+const TIKTOK_INLINE_POLL_INTERVAL_MS = 5_000;
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -118,14 +120,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (result.pending) {
       await finalizeSuccessfulPublish(ctx.workspaceId, claim.claimed, result);
 
-      // TikTok's init call hands us a publish_id but the transcode into the
-      // creator's inbox usually finishes in 15–45s. In prod this is picked
-      // up by the 1-min Cloud Scheduler poll worker; locally / in dev that
-      // isn't running, so short-poll inline before returning.
+      // TikTok's init call hands us a publish_id before the creator inbox
+      // handoff is complete. Poll across the normal 15–45s TikTok processing
+      // window so the in-app publish button usually returns with the inbox
+      // action ready instead of leaving the post stuck in `publishing`.
       let finalStatus: 'publishing' | 'platform_action_required' | 'published' | 'failed' | 'partial_failed' = 'publishing';
       let inlineError: string | undefined;
       if (targetChannels.includes('tiktok')) {
-        const outcome = await pollTikTokPublishWithRetries(ctx.workspaceId, id);
+        const outcome = await pollTikTokPublishWithRetries(ctx.workspaceId, id, {
+          attempts: TIKTOK_INLINE_POLL_ATTEMPTS,
+          intervalMs: TIKTOK_INLINE_POLL_INTERVAL_MS,
+        });
         if (outcome.status === PLATFORM_ACTION_REQUIRED_STATUS) finalStatus = PLATFORM_ACTION_REQUIRED_STATUS;
         else if (outcome.status === 'published') finalStatus = 'published';
         else if (outcome.status === 'partial_failed') {
@@ -136,6 +141,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           finalStatus = 'failed';
           inlineError = outcome.error;
         }
+        logger.info('tiktok inline publish poll finished', {
+          event: 'posts.publish.tiktok_inline_poll',
+          workspaceId: ctx.workspaceId,
+          postId: id,
+          outcome: outcome.status,
+          attempts: TIKTOK_INLINE_POLL_ATTEMPTS,
+          intervalMs: TIKTOK_INLINE_POLL_INTERVAL_MS,
+          ...(inlineError ? { error: inlineError } : {}),
+        });
       }
 
       return apiOk({
