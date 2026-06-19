@@ -9,8 +9,10 @@ describe('oauth provider config', () => {
       'instagram_business_basic',
       'instagram_business_content_publish',
     ]);
+    // Must stay 'false' so the mobile dialog never hands off to the native
+    // Facebook/Instagram app — keeps connect in the browser.
     expect(getProviderConfig('instagram').extraAuthParams).toEqual({
-      enable_fb_login: 'true',
+      enable_fb_login: 'false',
     });
     expect(getProviderConfig('meta').scopes).not.toContain('instagram_manage_insights');
     expect(getProviderConfig('threads').scopes).not.toContain('threads_manage_insights');

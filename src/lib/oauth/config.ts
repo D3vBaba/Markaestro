@@ -40,8 +40,13 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     ],
     clientIdEnv: 'INSTAGRAM_APP_ID',
     clientSecretEnv: 'INSTAGRAM_APP_SECRET',
+    // enable_fb_login MUST stay 'false': with 'true', the Instagram dialog
+    // offers Facebook SSO, which on mobile hands off to the native Facebook/
+    // Instagram app (the app opens and the connect never completes in-browser).
+    // 'false' keeps a pure in-browser Instagram web login so users can connect
+    // from the mobile browser.
     extraAuthParams: {
-      enable_fb_login: 'true',
+      enable_fb_login: 'false',
     },
   },
   tiktok: {
