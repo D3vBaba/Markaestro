@@ -6,6 +6,7 @@ import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { pillStyle } from "@/components/mk/pills";
 
@@ -92,36 +93,36 @@ function LoginContent() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease }}
         >
-          <p className="mk-eyebrow mb-4">Sign in to Markaestro</p>
+          <p className="mk-eyebrow mb-4">Welcome back</p>
           <h1
             className="text-[40px] font-semibold leading-[1.05]"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
           >
-            Publish everywhere with
+            Your whole social
             <br />
-            <span style={{ color: "var(--mk-accent)" }}>precision.</span>
+            workflow, <span style={{ color: "var(--mk-accent)" }}>one login.</span>
           </h1>
           <p
             className="mt-5 max-w-md text-[14px] leading-relaxed"
             style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
           >
-            Authenticate once, manage every social channel in one place, and ship posts
-            faster with your team.
+            Stop logging into five apps to post once. Sign in to publish
+            everywhere, schedule weeks ahead, and get your time back.
           </p>
 
           <div className="mt-10 flex flex-col gap-5">
             {[
               {
-                title: "Performance-first dashboard",
-                desc: "Track post outcomes and channel efficiency in one view.",
+                title: "Publish everywhere at once",
+                desc: "Facebook, Instagram, TikTok and more — from a single composer.",
               },
               {
-                title: "Streamlined publishing",
-                desc: "Move from draft caption to scheduled post with fewer manual steps.",
+                title: "Schedule weeks ahead",
+                desc: "Set your cadence once and never go quiet again.",
               },
               {
-                title: "Secure by default",
-                desc: "Workspace boundaries and authenticated access for your team.",
+                title: "Hours back every week",
+                desc: "The copy-paste-and-log-in busywork simply disappears.",
               },
             ].map((item) => (
               <div key={item.title} className="flex items-start gap-3">
@@ -145,6 +146,27 @@ function LoginContent() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* CTA for new visitors — the sign-in page should still sell. */}
+          <div
+            className="mt-10 rounded-xl border p-5 max-w-md"
+            style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
+          >
+            <p
+              className="text-[13.5px] font-semibold"
+              style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+            >
+              New to Markaestro?
+            </p>
+            <p className="mt-1 text-[12.5px]" style={{ color: "var(--mk-ink-60)" }}>
+              Answer 10 quick questions and we&apos;ll build your posting plan — see how many hours you&apos;ll get back, free.
+            </p>
+            <Link href="/onboarding" className="mt-4 block">
+              <Button className="h-10 w-full rounded-lg text-[13px]">
+                Build my plan — it&apos;s free →
+              </Button>
+            </Link>
           </div>
         </motion.div>
 

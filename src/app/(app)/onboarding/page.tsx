@@ -41,46 +41,46 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: "role",
     type: "single",
-    eyebrow: "Let's get started",
-    title: "What best describes your role?",
-    subtitle: "We'll personalise Markaestro to how you work.",
+    eyebrow: "Let's build your engine",
+    title: "What's your role?",
+    subtitle: "We'll tailor everything to how you actually work.",
     options: [
-      { id: "founder", label: "Founder / CEO", desc: "Building and growing my company" },
-      { id: "marketer", label: "Marketer", desc: "Running content and channels" },
-      { id: "agency", label: "Agency / Freelancer", desc: "Managing multiple clients" },
-      { id: "creator", label: "Content Creator", desc: "Growing my personal brand" },
+      { id: "founder", label: "Founder / CEO", desc: "Wearing every hat — including marketing" },
+      { id: "marketer", label: "Marketer", desc: "Owning content across every channel" },
+      { id: "agency", label: "Agency / Freelancer", desc: "Juggling posts for multiple clients" },
+      { id: "creator", label: "Content Creator", desc: "Growing an audience that's all you" },
     ],
   },
   {
     id: "teamSize",
     type: "single",
     eyebrow: "Your team",
-    title: "How big is your team?",
+    title: "Who's behind the posting?",
     options: [
-      { id: "solo", label: "Just me", desc: "Solo founder or independent" },
-      { id: "small", label: "2–5 people", desc: "Small but mighty" },
-      { id: "medium", label: "6–20 people", desc: "Growing team" },
-      { id: "large", label: "20+ people", desc: "Established organisation" },
+      { id: "solo", label: "Just me", desc: "And honestly, it's a lot" },
+      { id: "small", label: "2–5 people", desc: "Small team, many hats" },
+      { id: "medium", label: "6–20 people", desc: "Coordination is getting messy" },
+      { id: "large", label: "20+ people", desc: "Keeping everyone consistent is hard" },
     ],
   },
   {
     id: "goal",
     type: "single",
-    eyebrow: "Your focus",
-    title: "What's your primary goal?",
-    subtitle: "We'll tailor your setup and recommend the right plan.",
+    eyebrow: "The mission",
+    title: "What are you really after?",
+    subtitle: "It shapes your setup and the plan we recommend.",
     options: [
-      { id: "social", label: "Grow social following", desc: "Build audience and engagement" },
-      { id: "sales", label: "Drive more sales", desc: "Convert leads into customers" },
-      { id: "time", label: "Save time on content", desc: "Automate the repetitive work" },
+      { id: "social", label: "Grow my following", desc: "More reach, more engagement" },
+      { id: "sales", label: "Drive more sales", desc: "Turn posts into pipeline" },
+      { id: "time", label: "Win back my time", desc: "Stop drowning in content" },
     ],
   },
   {
     id: "channels",
     type: "multi",
-    eyebrow: "Your channels",
-    title: "Where do you want to publish?",
-    subtitle: "Pick all that apply. You can change this later.",
+    eyebrow: "Your stage",
+    title: "Where does your audience live?",
+    subtitle: "Pick all that apply — you'll publish to each in one click.",
     columns: true,
     options: [
       { id: "instagram", label: "Instagram" },
@@ -93,45 +93,48 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: "postingToday",
     type: "single",
-    eyebrow: "Today",
-    title: "How do you post right now?",
+    eyebrow: "Be honest",
+    title: "How are you posting today?",
+    subtitle: "Most teams tell us this is the painful part.",
     options: [
-      { id: "manual", label: "Manually in each app", desc: "Logging into every platform" },
-      { id: "spreadsheet", label: "Spreadsheet & reminders", desc: "Tracking it by hand" },
-      { id: "tool", label: "Another scheduling tool", desc: "Looking for something better" },
-      { id: "starting", label: "Just getting started", desc: "No real system yet" },
+      { id: "manual", label: "Manually in each app", desc: "Logging in everywhere, one by one" },
+      { id: "spreadsheet", label: "Spreadsheets & reminders", desc: "Sticky notes and hope" },
+      { id: "tool", label: "Another scheduling tool", desc: "One I've quietly outgrown" },
+      { id: "starting", label: "Barely posting at all", desc: "No real system yet" },
     ],
   },
   {
     id: "frequency",
     type: "single",
-    eyebrow: "Cadence",
-    title: "How often do you want to post?",
+    eyebrow: "The cadence you want",
+    title: "How often do you want to show up?",
+    subtitle: "We'll keep you on schedule automatically.",
     options: [
-      { id: "daily", label: "Every day", desc: "Maximum presence" },
-      { id: "few", label: "A few times a week", desc: "Steady and consistent" },
-      { id: "weekly", label: "About once a week", desc: "Quality over quantity" },
-      { id: "unsure", label: "Not sure yet", desc: "Help me figure it out" },
+      { id: "daily", label: "Every day", desc: "Stay top of mind" },
+      { id: "few", label: "A few times a week", desc: "Steady wins the race" },
+      { id: "weekly", label: "About once a week", desc: "Quality over noise" },
+      { id: "unsure", label: "Not sure yet", desc: "Tell me what actually works" },
     ],
   },
   {
     id: "challenge",
     type: "single",
-    eyebrow: "The hard part",
-    title: "What's your biggest challenge?",
+    eyebrow: "The real problem",
+    title: "What keeps tripping you up?",
+    subtitle: "This is the thing we're going to fix for you.",
     options: [
-      { id: "consistency", label: "Staying consistent", desc: "Posting on a regular schedule" },
-      { id: "time", label: "Finding the time", desc: "Too much already on my plate" },
-      { id: "ideas", label: "Coming up with content", desc: "Running out of ideas" },
-      { id: "juggling", label: "Juggling channels", desc: "Too many platforms to manage" },
+      { id: "consistency", label: "Staying consistent", desc: "I start strong, then go quiet" },
+      { id: "time", label: "Finding the time", desc: "There's never enough of it" },
+      { id: "ideas", label: "Coming up with content", desc: "I keep running dry on ideas" },
+      { id: "juggling", label: "Juggling channels", desc: "Too many platforms to keep up with" },
     ],
   },
   {
     id: "contentTypes",
     type: "multi",
-    eyebrow: "Your content",
-    title: "What do you post about?",
-    subtitle: "Pick all that apply.",
+    eyebrow: "Your voice",
+    title: "What do you want to post?",
+    subtitle: "Pick all that apply — we'll help you fill the calendar.",
     columns: true,
     options: [
       { id: "product", label: "Product & promotions" },
@@ -143,9 +146,9 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: "hoursPerWeek",
     type: "single",
-    eyebrow: "Time spent",
-    title: "How much time goes into social each week?",
-    subtitle: "Be honest — most teams underestimate this.",
+    eyebrow: "The hidden cost",
+    title: "How many hours a week vanish into this?",
+    subtitle: "Be honest — it's almost always more than it feels.",
     options: [
       { id: "lt2", label: "Under 2 hours" },
       { id: "2to5", label: "2–5 hours" },
@@ -156,16 +159,49 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: "success",
     type: "single",
-    eyebrow: "Success",
-    title: "What would make this a win?",
+    eyebrow: "90 days from now",
+    title: "What would make this worth it?",
+    subtitle: "We'll point your whole setup at this outcome.",
     options: [
-      { id: "followers", label: "More followers & reach", desc: "Grow the audience" },
-      { id: "sales", label: "More leads & sales", desc: "Turn content into revenue" },
-      { id: "timeback", label: "Hours back in my week", desc: "Spend less time posting" },
-      { id: "consistency", label: "A consistent presence", desc: "Never go quiet again" },
+      { id: "followers", label: "A bigger, engaged audience", desc: "Reach that compounds" },
+      { id: "sales", label: "Content that drives revenue", desc: "Posts that actually convert" },
+      { id: "timeback", label: "My evenings & weekends back", desc: "Hours returned every week" },
+      { id: "consistency", label: "Never going quiet again", desc: "A presence I can rely on" },
     ],
   },
 ];
+
+// ─── Pain → payoff mapping ─────────────────────────────────────────────────────
+// Carries the user's stated challenge into the generating screen and paywall so
+// the close speaks directly to the problem they just told us about.
+
+const CHALLENGE_COPY: Record<string, { short: string; headline: string; line: string }> = {
+  consistency: {
+    short: "staying consistent",
+    headline: "You'll never go quiet again",
+    line: "Schedule weeks of posts in one sitting — Markaestro publishes on time, every time, so the silence stops.",
+  },
+  time: {
+    short: "finding the time",
+    headline: "Let's win those hours back",
+    line: "Write once, publish everywhere, and schedule ahead. The copy-paste-and-log-in busywork simply disappears.",
+  },
+  ideas: {
+    short: "coming up with content",
+    headline: "Your calendar won't run dry",
+    line: "Turn one idea into a week of posts across every channel — so you're never staring at a blank screen.",
+  },
+  juggling: {
+    short: "juggling channels",
+    headline: "One place for every channel",
+    line: "Compose once and publish to all your platforms from a single screen — no more tab-juggling or dropped posts.",
+  },
+};
+
+function challengeCopy(answers: Answers) {
+  const key = (answers.challenge as string) || "time";
+  return CHALLENGE_COPY[key] ?? CHALLENGE_COPY.time;
+}
 
 const SOCIAL_PROVIDERS = [
   {
@@ -638,6 +674,12 @@ export default function OnboardingPage() {
   ).toLocaleDateString("en-US", { month: "long", day: "numeric" });
 
   const hoursSaved = HOURS_SAVED[(answers.hoursPerWeek as string)] ?? 6;
+  const channelCount = Array.isArray(answers.channels) ? (answers.channels as string[]).length : 0;
+  const frequencyLabel =
+    QUIZ_QUESTIONS.find((q) => q.id === "frequency")
+      ?.options.find((o) => o.id === answers.frequency)
+      ?.label.toLowerCase() ?? "on a steady cadence";
+  const challenge = challengeCopy(answers);
 
   // ─── Quiz helpers ─────────────────────────────────────────────────────────
 
@@ -907,6 +949,19 @@ export default function OnboardingPage() {
                       {currentQuestion.subtitle}
                     </p>
                   )}
+                  {step === 0 && (
+                    <div
+                      className="mt-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-mono text-[10px] uppercase"
+                      style={{
+                        border: "1px solid color-mix(in oklch, var(--mk-accent) 24%, var(--mk-rule))",
+                        background: "var(--mk-accent-soft)",
+                        color: "var(--mk-accent)",
+                        letterSpacing: "0.12em",
+                      }}
+                    >
+                      Takes 2 minutes · No card required
+                    </div>
+                  )}
                 </div>
 
                 <div className={cn("grid gap-3", currentQuestion.columns && "sm:grid-cols-2")}>
@@ -979,17 +1034,52 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-8">
-                  <p className="mk-eyebrow mb-4">Save your progress</p>
+                  <p className="mk-eyebrow mb-4">Your plan is ready</p>
                   <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
                     {regMode === "signup"
-                      ? "Create your account to continue"
+                      ? "Save your plan & claim your time back"
                       : "Welcome back"}
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    Your answers are saved. Create a free account to set up your
-                    workspace — no card required to keep going.
+                    {regMode === "signup"
+                      ? "Create your free account to lock in the workflow we just built — no card required to keep going."
+                      : "Sign in to pick up right where you left off."}
                   </p>
                 </div>
+
+                {/* Personalised recap — shows what they built so registering
+                    feels like claiming it back, not filling out a form. */}
+                {regMode === "signup" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease }}
+                    className="mb-6 rounded-xl border p-5"
+                    style={{ background: "var(--mk-panel)", borderColor: "var(--mk-rule)" }}
+                  >
+                    <p className="mk-eyebrow mb-3">Waiting in your workspace</p>
+                    <div className="flex flex-col gap-2.5">
+                      {[
+                        channelCount > 0
+                          ? `${channelCount} channel${channelCount > 1 ? "s" : ""} ready to publish in one click`
+                          : "Every channel, published from one place",
+                        `Posts scheduled ${frequencyLabel} — automatically`,
+                        `~${hoursSaved} hours a week back in your calendar`,
+                        challenge.headline,
+                      ].map((item) => (
+                        <div key={item} className="flex items-start gap-2.5">
+                          <span
+                            className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0"
+                            style={{ background: "var(--mk-accent)" }}
+                          />
+                          <p className="text-[14px] leading-snug" style={{ color: "var(--mk-ink-80)" }}>
+                            {item}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
 
                 <div className="rounded-xl border p-5 sm:p-6">
                   <div
@@ -1048,9 +1138,14 @@ export default function OnboardingPage() {
                       {regBusy
                         ? "Please wait…"
                         : regMode === "signup"
-                        ? "Create account & continue"
+                        ? "Claim my plan — it's free"
                         : "Sign in & continue"}
                     </Button>
+                    {regMode === "signup" && (
+                      <p className="text-center text-[12px]" style={{ color: "var(--mk-ink-40)" }}>
+                        Free to start · 14-day trial · Cancel anytime
+                      </p>
+                    )}
                   </div>
 
                   <div className="relative my-5 flex items-center gap-3">
@@ -1440,10 +1535,10 @@ export default function OnboardingPage() {
                     ))}
                   </motion.div>
                   <h2 className="text-[24px] sm:text-[28px] font-semibold tracking-[-0.025em] mb-4">
-                    Building your workspace
+                    Building your workflow
                   </h2>
                   <p className="text-base text-muted-foreground max-w-sm leading-relaxed">
-                    Reading your answers, understanding your brand, and preparing content tailored to your audience.
+                    Setting up your channels and a posting plan built around {challenge.short} — the problem you came here to solve.
                   </p>
                   <p className="mt-8 text-sm text-muted-foreground">
                     This takes just a moment
@@ -1477,10 +1572,10 @@ export default function OnboardingPage() {
                     </span>
                   </motion.div>
                   <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
-                    Your workspace is ready
+                    {challenge.headline}
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    Based on your answers, Markaestro can save you about{" "}
+                    {challenge.line} You&apos;ll get back about{" "}
                     <span className="font-semibold text-foreground">{hoursSaved} hours a week</span>.
                     Start your {TRIAL_DAYS}-day free trial to publish — and everything else you create.
                   </p>
