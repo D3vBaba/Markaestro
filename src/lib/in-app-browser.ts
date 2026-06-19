@@ -38,3 +38,26 @@ export function isCurrentBrowserMobile(): boolean {
 
   return isMobileUserAgent(window.navigator.userAgent || '');
 }
+
+/**
+ * Start a social OAuth authorize navigation from a user gesture.
+ *
+ * On mobile we open the authorize endpoint in a NEW TAB instead of a top-level
+ * redirect. A fresh top-level navigation to the Meta authorize domains
+ * (www.instagram.com / www.facebook.com / threads.net) lets the OS hand the
+ * request off to the installed native app via Universal/App Links, which
+ * strands the user in the app ("opens the app and goes nowhere"). Opening a new
+ * tab keeps the flow in the browser; the OAuth callback lands on
+ * /oauth/complete, which refreshes the original tab and closes this one.
+ *
+ * Desktop keeps the simpler same-tab redirect. If the new tab is blocked we
+ * fall back to a same-tab redirect so connect still works.
+ */
+export function startOAuthAuthorize(authorizePath: string): void {
+  if (typeof window === 'undefined') return;
+  if (isCurrentBrowserMobile()) {
+    const tab = window.open(authorizePath, '_blank');
+    if (tab) return;
+  }
+  window.location.href = authorizePath;
+}

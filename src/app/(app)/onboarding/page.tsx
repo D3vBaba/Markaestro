@@ -9,6 +9,7 @@ import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api-client";
+import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { useProductScan } from "@/hooks/useProductScan";
 import ScanProgressStepper from "@/components/app/ScanProgressStepper";
 import { PLANS, TRIAL_DAYS } from "@/lib/stripe/plans";
@@ -802,7 +803,7 @@ export default function OnboardingPage() {
         returnTo,
       });
       skipLeaveGuardRef.current = true;
-      window.location.href = `/api/oauth/authorize/${providerId}?${qs.toString()}`;
+      startOAuthAuthorize(`/api/oauth/authorize/${providerId}?${qs.toString()}`);
     } catch {
       toast.error("Could not initiate connection. Please try again.");
     } finally {

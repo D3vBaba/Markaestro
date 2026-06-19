@@ -17,6 +17,7 @@ import PageHeader from "@/components/app/PageHeader";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiDelete, apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
+import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -767,7 +768,7 @@ function IntegrationsTab() {
 
   function connect(provider: string, productId: string) {
     const returnTo = encodeURIComponent("/settings?tab=integrations");
-    window.location.href = `/api/oauth/authorize/${provider}?productId=${encodeURIComponent(productId)}&returnTo=${returnTo}`;
+    startOAuthAuthorize(`/api/oauth/authorize/${provider}?productId=${encodeURIComponent(productId)}&returnTo=${returnTo}`);
   }
 
   async function confirmDisconnect() {

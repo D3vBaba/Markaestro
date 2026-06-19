@@ -19,6 +19,7 @@ import CategorySelect from "./CategorySelect";
 import { categoryLabel, categoryColor } from "./categories";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import { apiGet, apiPut, apiPost, apiDelete, apiUpload } from "@/lib/api-client";
+import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
@@ -487,7 +488,7 @@ export default function ProductDetailSheet({
       productId,
       returnTo: "/products",
     });
-    window.location.href = `/api/oauth/authorize/${provider}?${qs.toString()}`;
+    startOAuthAuthorize(`/api/oauth/authorize/${provider}?${qs.toString()}`);
   }
 
   async function confirmDisconnect() {
