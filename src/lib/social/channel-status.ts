@@ -33,6 +33,14 @@ function mergeMetaConnection(
   if (workspaceConnection && productConnection) {
     return {
       ...workspaceConnection,
+      // Readiness follows the product connection, which owns the publishing
+      // destination (selected Page + linked IG business account) and a
+      // long-lived Page access token. Page/IG publishing uses that Page token
+      // (see resolveAccessToken), not the workspace user token — so a lapsed
+      // 60-day user token (workspace status 'error'/'expired') must not blur out
+      // an otherwise-valid channel. The workspace connection still supplies the
+      // user token for account/ads APIs and its availablePages metadata.
+      status: productConnection.status,
       productId,
       metadata: {
         ...workspaceConnection.metadata,
