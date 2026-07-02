@@ -5,7 +5,11 @@ import { PlatformCapability } from '../types';
 import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
 import type { SocialChannel } from '@/lib/schemas';
 import { asInstagramSettings, type InstagramSettings } from '@/lib/public-api/post-settings';
-import { isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
+import {
+  IG_LOGIN_UNSUPPORTED_MESSAGE,
+  isInstagramGraphRefusal,
+  isInstagramMethodTypeUnsupported,
+} from '@/lib/oauth/instagram-errors';
 
 const GRAPH_API = 'https://graph.facebook.com/v22.0';
 const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
@@ -101,6 +105,50 @@ function getInstagramGraphApi(connection: PlatformConnection): string {
 
 function getInstagramAccountId(connection: PlatformConnection): string {
   return getMeta(connection, 'igAccountId', '');
+}
+
+/**
+ * Resolve the Instagram professional-account ID to publish against for a
+ * standalone Instagram Login connection.
+ *
+ * The OAuth token response's user_id is an app-scoped ID; older connections
+ * stored it as igAccountId when the connect-time profile fetch failed. Content
+ * publishing requires the professional-account ID (the `user_id` field of
+ * GET /me), and POSTing /media with the app-scoped ID fails with code 100
+ * "Unsupported request - method type: post". Ask /me at publish time and fall
+ * back to the stored ID only when /me is unavailable.
+ *
+ * Returns `refused: true` when graph.instagram.com blanket-refuses the token
+ * (account not eligible for the Instagram API) so callers can surface the
+ * actionable reconnect message instead of the raw Graph error.
+ */
+async function resolveInstagramLoginPublishId(
+  connection: PlatformConnection,
+  accessToken: string,
+): Promise<{ id: string; refused?: boolean }> {
+  const storedId = getInstagramAccountId(connection);
+  try {
+    const res = await graphApiFetch(
+      `${INSTAGRAM_GRAPH_API}/me?${new URLSearchParams({
+        fields: 'user_id',
+        access_token: accessToken,
+      }).toString()}`,
+      {},
+      { maxRetries: 1 },
+    );
+    const data = await res.json();
+    if (!res.ok) {
+      return { id: storedId, refused: isInstagramGraphRefusal(data) };
+    }
+    const userId = typeof data.user_id === 'string' && data.user_id
+      ? data.user_id
+      : typeof data.user_id === 'number'
+        ? String(data.user_id)
+        : '';
+    return { id: userId || storedId };
+  } catch {
+    return { id: storedId };
+  }
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────
@@ -271,6 +319,19 @@ async function publishToFacebook(
 
 // ── Instagram publish ───────────────────────────────────────────────
 
+/**
+ * Turn a Graph error payload into a user-facing message. On the Instagram
+ * Login host, a blanket code-100 refusal means the account can't use the
+ * Instagram API — surface the actionable reconnect message instead of the
+ * raw "Unsupported request - method type: <verb>".
+ */
+function igErrorMessage(graphApi: string, err: { error?: { code?: number; message?: string } }, fallback: string): string {
+  if (graphApi === INSTAGRAM_GRAPH_API && isInstagramGraphRefusal(err)) {
+    return IG_LOGIN_UNSUPPORTED_MESSAGE;
+  }
+  return err.error?.message || fallback;
+}
+
 /** Create an Instagram media container for image or video. For carousel children, pass isCarouselItem=true and omit caption. */
 async function createIgMediaContainer(
   graphApi: string,
@@ -316,7 +377,7 @@ async function createIgMediaContainer(
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    return { error: err.error?.message || res.statusText };
+    return { error: igErrorMessage(graphApi, err, res.statusText) };
   }
   const data = await res.json();
   return { id: data.id };
@@ -328,7 +389,7 @@ async function publishToInstagram(
   mediaUrls: string[] = [],
   settings?: InstagramSettings,
 ): Promise<PublishResult> {
-  const igAccountId = getInstagramAccountId(connection);
+  let igAccountId = getInstagramAccountId(connection);
   if (!igAccountId) {
     return {
       success: false,
@@ -349,6 +410,14 @@ async function publishToInstagram(
 
   const accessToken = resolveAccessToken(connection);
   const graphApi = getInstagramGraphApi(connection);
+
+  if (connection.provider === 'instagram') {
+    const resolved = await resolveInstagramLoginPublishId(connection, accessToken);
+    if (resolved.refused) {
+      return { success: false, error: IG_LOGIN_UNSUPPORTED_MESSAGE };
+    }
+    igAccountId = resolved.id || igAccountId;
+  }
 
   // Check Instagram publishing quota before creating containers
   try {
@@ -429,7 +498,7 @@ async function publishToInstagram(
       });
       if (!parentRes.ok) {
         const err = await parentRes.json().catch(() => ({}));
-        return { success: false, error: `Instagram carousel container error: ${err.error?.message || parentRes.statusText}` };
+        return { success: false, error: `Instagram carousel container error: ${igErrorMessage(graphApi, err, parentRes.statusText)}` };
       }
       const parentData = await parentRes.json();
       containerId = parentData.id;
@@ -456,7 +525,7 @@ async function publishToInstagram(
 
     if (!publishRes.ok) {
       const err = await publishRes.json().catch(() => ({}));
-      return { success: false, error: `Instagram publish error: ${err.error?.message || publishRes.statusText}` };
+      return { success: false, error: `Instagram publish error: ${igErrorMessage(graphApi, err, publishRes.statusText)}` };
     }
 
     const publishData = await publishRes.json();

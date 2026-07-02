@@ -5,7 +5,7 @@ import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { getAppUrl } from '@/lib/oauth/config';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 import { logger } from '@/lib/logger';
-import { IG_LOGIN_UNSUPPORTED_MESSAGE, isInstagramGraphUnsupported, isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
+import { IG_LOGIN_UNSUPPORTED_MESSAGE, isInstagramGraphRefusal, isInstagramGraphUnsupported, isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
 import {
   discoverLinkedInDestinations,
   linkedinCommunityMetadataFromDiscovery,
@@ -67,7 +67,9 @@ async function exchangeInstagramToken(tokens: {
       body: JSON.stringify(data).slice(0, 1200),
       shortTokenLen: (tokens.accessToken || '').length,
     });
-    if (isInstagramGraphUnsupported(data)) {
+    // The GET→POST retry already ran above, so a method-type error here is the
+    // blanket "this token isn't served" refusal, not a verb-routing quirk.
+    if (isInstagramGraphRefusal(data)) {
       throw new Error(IG_LOGIN_UNSUPPORTED_MESSAGE);
     }
     throw new Error(`Instagram token exchange failed: ${data.error_message || data.error?.message || data.error || 'Unknown error'}`);
@@ -372,12 +374,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       // the meta/threads branches, which already degrade gracefully). Without
       // this, any hiccup in ig_exchange_token left Instagram "unlinking itself"
       // because storeTokens never ran.
+      let exchangeRefused = false;
       try {
         const longLivedTokens = await exchangeInstagramToken(tokens);
         tokens.accessToken = longLivedTokens.accessToken;
         tokens.refreshToken = longLivedTokens.accessToken;
         tokens.expiresIn = longLivedTokens.expiresIn;
       } catch (e) {
+        exchangeRefused = e instanceof Error && e.message === IG_LOGIN_UNSUPPORTED_MESSAGE;
         console.warn('Instagram long-lived exchange failed:', e instanceof Error ? e.message : e);
       }
 
@@ -386,6 +390,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         extraData.igAccountId = profile.userId;
         extraData.username = profile.username;
       } catch (e) {
+        // graph.instagram.com refused both the token exchange and the profile
+        // read: this account can't use the Instagram API at all (typically a
+        // personal, non-Professional account). Storing it anyway would create
+        // a connection that looks linked but can never publish — fail the
+        // connect with the actionable message instead.
+        if (exchangeRefused) {
+          throw new Error(IG_LOGIN_UNSUPPORTED_MESSAGE);
+        }
         if (!extraData.igAccountId) {
           throw e;
         }

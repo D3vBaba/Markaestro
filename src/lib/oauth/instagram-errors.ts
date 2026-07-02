@@ -39,3 +39,22 @@ export function isInstagramGraphUnsupported(data: {
   if (isInstagramMethodTypeUnsupported(data)) return false;
   return err.code === 100 || /unsupported request/i.test(err.message || '');
 }
+
+/**
+ * Detect the blanket "graph.instagram.com refuses this token entirely" state.
+ *
+ * When an account is ineligible for the Instagram API (personal account, or
+ * the token/app pairing isn't served), EVERY endpoint — /me, ig_exchange_token,
+ * /media, refresh_access_token — returns IGApiException code 100 "Unsupported
+ * request - method type: <verb>". A single method-type error on one verb can
+ * be a routing quirk (callers retry GET→POST), but once the retry has happened
+ * a method-type error is the refusal itself, not a verb problem.
+ *
+ * Use this AFTER any GET→POST retry: it treats both the classic code-100
+ * "unsupported request" and the method-type variant as the same hard refusal.
+ */
+export function isInstagramGraphRefusal(data: {
+  error?: { code?: number; message?: string };
+}): boolean {
+  return isInstagramGraphUnsupported(data) || isInstagramMethodTypeUnsupported(data);
+}

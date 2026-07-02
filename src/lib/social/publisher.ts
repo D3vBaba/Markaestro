@@ -167,6 +167,23 @@ export async function publishPost(
     ).catch(() => undefined);
   }
 
+  // Instagram Login blanket refusal: graph.instagram.com will never serve this
+  // token (account not eligible), so mark the connection revoked — the channel
+  // tile then shows the reconnect message instead of staying "ready".
+  if (
+    request.channel === 'instagram' &&
+    activeConnection.provider === 'instagram' &&
+    result.error &&
+    result.error.includes("can't be linked directly")
+  ) {
+    await markConnectionAuthError(
+      workspaceId,
+      activeConnection.provider,
+      result.error,
+      activeConnection.productId || productId,
+    ).catch(() => undefined);
+  }
+
   if (request.channel === 'tiktok' && isTikTokTokenInvalid(result.error)) {
     const refreshed = await refreshTikTokConnection(workspaceId, productId, activeConnection);
     if (refreshed) {

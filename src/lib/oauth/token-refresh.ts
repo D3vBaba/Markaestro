@@ -30,6 +30,10 @@ const PERMANENT_ERROR_PATTERNS = [
   'Error validating access token',
   'Session has expired',
   'The user has not authorized application',
+  // graph.instagram.com blanket refusal (account not eligible for the
+  // Instagram API) — surfaced as the friendly reconnect message.
+  "can't be linked directly",
+  'Unsupported request',
 ];
 
 function isPermanentError(error: string): boolean {
@@ -67,8 +71,22 @@ async function refreshConnectionDoc(
     return;
   }
 
-  if (!data.tokenExpiresAt) return;
-  if (data.tokenExpiresAt > threshold) return;
+  if (!data.tokenExpiresAt) {
+    // Instagram Login connections whose long-lived exchange failed at connect
+    // time are stored WITHOUT tokenExpiresAt (short-lived ~1h token). Skipping
+    // them here left dead connections marked 'connected' forever — instead,
+    // health-check them via refresh_access_token once the token is old enough
+    // (Meta requires tokens to be ≥24h old before refresh). A hard refusal or
+    // expiry marks the connection revoked so the UI says "reconnect".
+    if (provider !== 'instagram') return;
+    const updatedAtMs = Date.parse(data.updatedAt || '');
+    if (Number.isFinite(updatedAtMs) && now.getTime() - updatedAtMs < 24 * 60 * 60 * 1000) {
+      result.skipped++;
+      return;
+    }
+  } else if (data.tokenExpiresAt > threshold) {
+    return;
+  }
 
   // Meta/Instagram without refreshToken: extend the existing user token directly
   if (!data.refreshTokenEncrypted && (provider === 'meta' || provider === 'instagram')) {

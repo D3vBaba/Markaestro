@@ -6,7 +6,22 @@ import { getProviderConfig, getRedirectUri, getClientCredentials } from './confi
 import type { OAuthProvider, SocialChannel } from '@/lib/schemas';
 import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
 import type { PlatformConnection } from '@/lib/platform/types';
-import { isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
+import { IG_LOGIN_UNSUPPORTED_MESSAGE, isInstagramGraphRefusal, isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
+
+/**
+ * Flatten a provider token-endpoint error payload into a readable message.
+ * Graph-style errors nest an object under `error` — stringifying that
+ * directly produced "[object Object]" in stored lastRefreshError values.
+ */
+function describeTokenError(data: Record<string, unknown>): string {
+  const error = data?.error;
+  if (error && typeof error === 'object') {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string' && message) return message;
+    return JSON.stringify(error).slice(0, 300);
+  }
+  return String(data?.error_description || data?.error_message || error || data?.message || 'Unknown error');
+}
 import {
   linkedinStorageProviderForKind,
   type LinkedInCredentialKind,
@@ -376,7 +391,12 @@ export async function refreshAccessToken(
     }
 
     if (!res.ok && !data.access_token) {
-      throw new Error(`Token refresh failed for ${provider}: ${data.error_message || data.error || data.message || 'Unknown error'}`);
+      // Blanket code-100 refusal: graph.instagram.com does not serve this
+      // token at all (account not eligible for the Instagram API) — permanent.
+      if (isInstagramGraphRefusal(data)) {
+        throw new Error(IG_LOGIN_UNSUPPORTED_MESSAGE);
+      }
+      throw new Error(`Token refresh failed for ${provider}: ${describeTokenError(data)}`);
     }
 
     return {
@@ -426,7 +446,7 @@ export async function refreshAccessToken(
   const data = await res.json();
 
   if (!res.ok && !data.access_token) {
-    throw new Error(`Token refresh failed for ${provider}: ${data.error_description || data.error || data.message || 'Unknown error'}`);
+    throw new Error(`Token refresh failed for ${provider}: ${describeTokenError(data)}`);
   }
 
   return {
