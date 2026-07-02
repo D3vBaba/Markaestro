@@ -89,6 +89,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
       { id: "tiktok", label: "TikTok" },
       { id: "threads", label: "Threads" },
       { id: "pinterest", label: "Pinterest" },
+      { id: "linkedin", label: "LinkedIn" },
     ],
   },
   {

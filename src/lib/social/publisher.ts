@@ -1,7 +1,11 @@
 import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
 import { getAdapterForChannel } from '@/lib/platform/registry';
-import { getConnectionForChannel } from '@/lib/platform/connections';
+import {
+  getConnectionForChannel,
+  getLinkedInConnectionForDestination,
+  markConnectionAuthError,
+} from '@/lib/platform/connections';
 import type { PublishRequest, PublishResult } from '@/lib/platform/types';
 import { isTikTokTokenExpiringSoon, isTikTokTokenInvalid, refreshTikTokConnection } from '@/lib/platform/tiktok-auth';
 import { socialChannels, type SocialChannel } from '@/lib/schemas';
@@ -13,6 +17,8 @@ import {
   validateTikTokMediaUrls,
 } from '@/lib/tiktok-draft-flow';
 import { firstSocialPostValidationError } from '@/lib/social/post-validation';
+import { getTikTokPublishMappingRef } from '@/lib/social/tiktok-publish-mapping';
+import { logger } from '@/lib/logger';
 
 export type { PublishRequest, PublishResult };
 
@@ -77,6 +83,10 @@ type FinalizePublishOptions = {
   retryOnFailure?: boolean;
 };
 
+type PublishStoredPostOptions = {
+  onChannelResult?: (result: ChannelPublishResult) => Promise<void>;
+};
+
 export type ScheduledPostsProcessResult = {
   claimed: number;
   processed: number;
@@ -113,12 +123,19 @@ export async function publishPost(
     return { success: false, error: `Unsupported channel: ${request.channel}` };
   }
 
-  const connection = await getConnectionForChannel(
-    workspaceId,
-    request.channel,
-    productId,
-    request.destinationProvider,
-  );
+  const connection = request.channel === 'linkedin'
+    ? await getLinkedInConnectionForDestination(
+      workspaceId,
+      productId,
+      request.destinationId,
+      request.destinationProvider,
+    )
+    : await getConnectionForChannel(
+      workspaceId,
+      request.channel,
+      productId,
+      request.destinationProvider,
+    );
   if (!connection) {
     return { success: false, error: `${request.channel} integration is not configured or disabled` };
   }
@@ -136,6 +153,19 @@ export async function publishPost(
   }
 
   const result = await adapter.publish(activeConnection, request);
+
+  if (
+    request.channel === 'linkedin' &&
+    result.error &&
+    /LINKEDIN_AUTH_REVOKED|LINKEDIN_PERMISSION_DENIED/i.test(result.error)
+  ) {
+    await markConnectionAuthError(
+      workspaceId,
+      activeConnection.provider,
+      result.error,
+      activeConnection.productId || productId,
+    ).catch(() => undefined);
+  }
 
   if (request.channel === 'tiktok' && isTikTokTokenInvalid(result.error)) {
     const refreshed = await refreshTikTokConnection(workspaceId, productId, activeConnection);
@@ -178,6 +208,7 @@ function classifyPublishError(error: string): PublishErrorClassification {
     { pattern: /requires media|text-only posts are not supported/, code: 'MEDIA_REQUIRED' },
     { pattern: /integration is not configured|connection not found|not configured or disabled/, code: 'INTEGRATION_MISSING' },
     { pattern: /product not found|no associated product/, code: 'PRODUCT_MISSING' },
+    { pattern: /linkedin_auth_revoked|linkedin_permission_denied|permission_denied|insufficient permissions/, code: 'AUTHORIZATION_REQUIRED' },
     { pattern: /unsupported channel|invalid|forbidden|unauthenticated/, code: 'INVALID_REQUEST' },
   ];
   for (const { pattern, code } of permanentPatterns) {
@@ -212,6 +243,10 @@ function asSocialChannel(value: unknown): value is SocialChannel {
 }
 
 function getDestinationProvider(value: unknown): string | undefined {
+  return typeof value === 'string' && value ? value : undefined;
+}
+
+function getDestinationId(value: unknown): string | undefined {
   return typeof value === 'string' && value ? value : undefined;
 }
 
@@ -270,6 +305,134 @@ function getReusableSuccessfulChannelResults(
   }
 
   return reusable;
+}
+
+function asChannelPublishResult(value: unknown): ChannelPublishResult | null {
+  if (!value || typeof value !== 'object') return null;
+  const current = value as Record<string, unknown>;
+  if (!asSocialChannel(current.channel)) return null;
+
+  return {
+    channel: current.channel,
+    success: current.success === true,
+    ...(current.pending != null && { pending: current.pending === true }),
+    ...(typeof current.externalId === 'string' && { externalId: current.externalId }),
+    ...(typeof current.externalUrl === 'string' && { externalUrl: current.externalUrl }),
+    ...(typeof current.nextAction === 'string' && { nextAction: current.nextAction }),
+    ...(typeof current.error === 'string' && { error: current.error }),
+  };
+}
+
+function mergeInFlightChannelResult(
+  targetChannels: SocialChannel[],
+  existingResults: unknown,
+  incoming: ChannelPublishResult,
+): ChannelPublishResult[] {
+  const byChannel = new Map<SocialChannel, ChannelPublishResult>();
+
+  for (const channel of targetChannels) {
+    byChannel.set(channel, { channel, success: false, pending: true });
+  }
+
+  if (Array.isArray(existingResults)) {
+    for (const item of existingResults) {
+      const parsed = asChannelPublishResult(item);
+      if (!parsed || !byChannel.has(parsed.channel)) continue;
+      byChannel.set(parsed.channel, parsed);
+    }
+  }
+
+  if (byChannel.has(incoming.channel)) {
+    byChannel.set(incoming.channel, incoming);
+  }
+
+  return targetChannels
+    .map((channel) => byChannel.get(channel))
+    .filter((item): item is ChannelPublishResult => Boolean(item));
+}
+
+function mergeCompletedChannelResults(
+  nextResults: ChannelPublishResult[],
+  existingResults: unknown,
+): ChannelPublishResult[] {
+  if (!Array.isArray(existingResults)) return nextResults;
+
+  const completedByChannel = new Map<SocialChannel, ChannelPublishResult>();
+  for (const item of existingResults) {
+    const parsed = asChannelPublishResult(item);
+    if (!parsed || parsed.success !== true) continue;
+    completedByChannel.set(parsed.channel, parsed);
+  }
+
+  return nextResults.map((next) => {
+    const completed = completedByChannel.get(next.channel);
+    if (!completed) return next;
+
+    const sameExternalId =
+      !next.externalId ||
+      !completed.externalId ||
+      next.externalId === completed.externalId;
+
+    if (!sameExternalId || next.success === true) return next;
+
+    return {
+      ...next,
+      ...completed,
+      success: true,
+      pending: false,
+    };
+  });
+}
+
+export async function persistTikTokPendingPublish(
+  workspaceId: string,
+  claimed: ClaimedPublishPost,
+  targetChannels: SocialChannel[],
+  result: ChannelPublishResult,
+): Promise<void> {
+  if (result.channel !== 'tiktok' || !result.externalId) return;
+
+  const nowIso = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const postRef = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
+  const mappingRef = getTikTokPublishMappingRef(result.externalId);
+
+  await adminDb.runTransaction(async (tx) => {
+    const snap = await tx.get(postRef);
+    if (!snap.exists) return;
+
+    const current = snap.data() as Record<string, unknown>;
+    if (current.publishAttemptId !== claimed.attemptId || current.status !== 'publishing') {
+      return;
+    }
+
+    const mergedResults = mergeInFlightChannelResult(targetChannels, current.publishResults, result);
+    const currentExternalId = typeof current.externalId === 'string' ? current.externalId : '';
+    const shouldUseTikTokAsPrimary = targetChannels[0] === 'tiktok' || !currentExternalId;
+
+    tx.update(postRef, {
+      ...(shouldUseTikTokAsPrimary ? { externalId: result.externalId } : {}),
+      tiktokPublishId: result.externalId,
+      publishResults: mergedResults,
+      updatedAt: nowIso,
+    });
+    tx.set(mappingRef, {
+      publishId: result.externalId,
+      workspaceId,
+      postId: claimed.postId,
+      attemptId: claimed.attemptId,
+      createdAt: nowIso,
+      updatedAt: nowIso,
+      expiresAt,
+    }, { merge: true });
+  });
+
+  logger.info('tiktok pending publish id persisted', {
+    event: 'posts.publish.tiktok_publish_id_persisted',
+    workspaceId,
+    postId: claimed.postId,
+    publishId: result.externalId,
+  });
 }
 
 function getRemainingTargetChannels(
@@ -471,11 +634,17 @@ export async function finalizeSuccessfulPublish(
   const nowIso = new Date().toISOString();
 
   if (result.pending) {
+    const currentSnap = await ref.get();
+    const currentPost = currentSnap.exists ? currentSnap.data() as Record<string, unknown> : {};
+    const mergedChannels = mergeCompletedChannelResults(result.channels, currentPost.publishResults);
+    const tiktokResult = mergedChannels.find((channel) => channel.channel === 'tiktok');
+
     await ref.update({
       status: 'publishing',
       externalId: result.externalId || '',
       externalUrl: result.externalUrl || '',
-      publishResults: result.channels,
+      ...(tiktokResult?.externalId ? { tiktokPublishId: tiktokResult.externalId } : {}),
+      publishResults: mergedChannels,
       publishFinishedAt: null,
       publishLeaseExpiresAt: null,
       retryFailedChannelsOnly: result.partialFailure ? true : null,
@@ -635,6 +804,7 @@ export async function publishPostMultiChannel(
   workspaceId: string,
   productId: string | undefined,
   request: PublishRequest,
+  options: PublishStoredPostOptions = {},
 ): Promise<MultiChannelPublishResult> {
   const channels: SocialChannel[] = [request.channel];
 
@@ -656,7 +826,7 @@ export async function publishPostMultiChannel(
       channel,
     });
 
-    results.push({
+    const channelResult: ChannelPublishResult = {
       channel,
       success: result.success,
       ...(result.pending != null && { pending: result.pending }),
@@ -664,7 +834,9 @@ export async function publishPostMultiChannel(
       ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
       ...(result.nextAction != null && { nextAction: result.nextAction }),
       ...(result.error != null && { error: result.error }),
-    });
+    };
+    results.push(channelResult);
+    await options.onChannelResult?.(channelResult);
   }
 
   return aggregateChannelResults(results, request.channel);
@@ -676,6 +848,7 @@ async function publishExplicitChannels(
   primaryChannel: SocialChannel,
   targetChannels: SocialChannel[],
   request: Omit<PublishRequest, 'channel'>,
+  options: PublishStoredPostOptions = {},
 ): Promise<MultiChannelPublishResult> {
   const results: ChannelPublishResult[] = [];
 
@@ -694,7 +867,7 @@ async function publishExplicitChannels(
       channel,
     });
 
-    results.push({
+    const channelResult: ChannelPublishResult = {
       channel,
       success: result.success,
       ...(result.pending != null && { pending: result.pending }),
@@ -702,7 +875,9 @@ async function publishExplicitChannels(
       ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
       ...(result.nextAction != null && { nextAction: result.nextAction }),
       ...(result.error != null && { error: result.error }),
-    });
+    };
+    results.push(channelResult);
+    await options.onChannelResult?.(channelResult);
   }
 
   return aggregateChannelResults(results, primaryChannel);
@@ -712,6 +887,7 @@ export async function publishStoredPost(
   workspaceId: string,
   productId: string | undefined,
   post: Record<string, unknown>,
+  options: PublishStoredPostOptions = {},
 ): Promise<MultiChannelPublishResult> {
   const targetChannels = getPostTargetChannels(post);
   const [primaryChannel] = targetChannels;
@@ -759,6 +935,7 @@ export async function publishStoredPost(
     mediaUrls,
     deliveryMode: getEffectiveDeliveryMode(primaryChannel),
     destinationProvider: getDestinationProvider(post.destinationProvider),
+    destinationId: getDestinationId(post.destinationId),
     photoCoverIndex: settingsPhotoCoverIndex ?? getPhotoCoverIndex(post.slideshowCoverIndex),
     settings,
   } satisfies Omit<PublishRequest, 'channel'>;
@@ -771,14 +948,14 @@ export async function publishStoredPost(
   }
 
   if (targetChannels.length > 1 || asStringArray(post.targetChannels)?.length) {
-    const result = await publishExplicitChannels(workspaceId, productId, primaryChannel, remainingChannels, request);
+    const result = await publishExplicitChannels(workspaceId, productId, primaryChannel, remainingChannels, request, options);
     return aggregateChannelResults([...reusableResults, ...result.channels], primaryChannel);
   }
 
   const result = await publishPostMultiChannel(workspaceId, productId, {
     ...request,
     channel: remainingChannels[0] ?? primaryChannel,
-  });
+  }, options);
   return aggregateChannelResults([...reusableResults, ...result.channels], primaryChannel);
 }
 
@@ -839,7 +1016,15 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
 
   for (const claimed of claimedPosts) {
     try {
-      const result = await publishStoredPost(workspaceId, claimed.productId, claimed.post);
+      const targetChannels = getPostTargetChannels(claimed.post);
+      const result = await publishStoredPost(workspaceId, claimed.productId, claimed.post, {
+        onChannelResult: (channelResult) => persistTikTokPendingPublish(
+          workspaceId,
+          claimed,
+          targetChannels,
+          channelResult,
+        ),
+      });
 
       const outcome = result.success || result.pending
         ? await finalizeSuccessfulPublish(workspaceId, claimed, result)

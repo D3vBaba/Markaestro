@@ -6,6 +6,7 @@ import {
   finalizeFailedPublish,
   finalizeSuccessfulPublish,
   getPostTargetChannels,
+  persistTikTokPendingPublish,
   publishStoredPost,
 } from '@/lib/social/publisher';
 import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
@@ -92,7 +93,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     let result;
     try {
-      result = await publishStoredPost(ctx.workspaceId, productId, post);
+      result = await publishStoredPost(ctx.workspaceId, productId, post, {
+        onChannelResult: (channelResult) => persistTikTokPendingPublish(
+          ctx.workspaceId,
+          claim.claimed,
+          targetChannels,
+          channelResult,
+        ),
+      });
     } catch (publishError) {
       const msg = publishError instanceof Error ? publishError.message : 'Internal publishing error';
       await finalizeFailedPublish(ctx.workspaceId, claim.claimed, {

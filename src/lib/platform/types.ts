@@ -58,6 +58,7 @@ export type PublishRequest = {
   mediaUrls?: string[];
   deliveryMode?: PublicDeliveryMode;
   destinationProvider?: string;
+  destinationId?: string;
   /**
    * For TikTok photo carousels: which image (0-based) is the cover.
    * Defaults to 0 if not set. Maps to TikTok's `photo_cover_index`.

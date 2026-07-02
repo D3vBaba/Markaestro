@@ -46,12 +46,12 @@ export async function POST(req: Request) {
   try {
     const match = await findPostByTikTokPublishId(publishId);
     if (!match) {
-      logger.info('tiktok webhook for unknown publish_id', {
-        event: 'tiktok.webhook.unknown_publish_id',
+      logger.warn('tiktok webhook mapping not ready', {
+        event: 'tiktok.webhook.mapping_not_ready',
         publishId,
         type: event.event,
       });
-      return NextResponse.json({ received: true, ignored: 'unknown_publish_id' });
+      return NextResponse.json({ error: 'mapping_not_ready' }, { status: 500 });
     }
 
     const outcome = await pollTikTokPublishForPost(match.workspaceId, match.postRef);

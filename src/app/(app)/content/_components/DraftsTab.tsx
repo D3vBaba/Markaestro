@@ -10,6 +10,7 @@ import ScheduleSheet from "./ScheduleSheet";
 import PostGridSkeleton from "./PostGridSkeleton";
 import Pagination from "@/components/app/Pagination";
 import { isPlatformActionRequiredStatus, LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from "@/lib/tiktok-draft-flow";
+import { getPublishUiOutcome } from "@/lib/social/publish-ui-outcome";
 
 const POSTS_PER_PAGE = 6;
 
@@ -21,6 +22,7 @@ type Post = {
   scheduledAt?: string | null;
   publishedAt?: string;
   externalUrl?: string;
+  nextAction?: string;
   createdAt?: string;
   errorMessage?: string;
   mediaUrls?: string[];
@@ -115,24 +117,38 @@ export default function DraftsTab({
         ok: boolean;
         status?: string;
         pending?: boolean;
+        nextAction?: string;
         error?: string;
         channels?: Array<{ channel: string; success: boolean; pending?: boolean }>;
       }>(`/api/posts/${id}/publish`, {});
 
       if (res.ok && res.data.ok) {
-        const hasTikTok = (res.data.channels || []).some((c) => c.channel === "tiktok");
-        if (hasTikTok) {
+        const outcome = getPublishUiOutcome(res.data);
+        if (outcome.platformActionRequired) {
           toast.success(
             "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
             { id: toastId },
           );
           // TikTok posts stay here while waiting in the inbox — flip the status locally
           setPosts((cur) =>
-            cur.map((p) => (p.id === id ? { ...p, status: PLATFORM_ACTION_REQUIRED_STATUS } : p)),
+            cur.map((p) =>
+              p.id === id
+                ? {
+                    ...p,
+                    status: PLATFORM_ACTION_REQUIRED_STATUS,
+                    nextAction: res.data.nextAction,
+                  }
+                : p,
+            ),
           );
         } else {
-          if (res.data.status === "publishing" || res.data.pending) {
-            toast.success("Post submitted and still processing.", { id: toastId });
+          if (outcome.processing) {
+            toast.success(
+              outcome.hasTikTok
+                ? "TikTok accepted the upload and is still processing it."
+                : "Post submitted and still processing.",
+              { id: toastId },
+            );
           } else {
             toast.success("Posted!", { id: toastId });
           }

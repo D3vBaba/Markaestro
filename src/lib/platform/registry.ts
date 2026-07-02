@@ -4,12 +4,14 @@ import { metaPublishingAdapter } from './adapters/meta-publishing';
 import { tiktokPublishingAdapter } from './adapters/tiktok-publishing';
 import { threadsPublishingAdapter } from './adapters/threads-publishing';
 import { pinterestPublishingAdapter } from './adapters/pinterest-publishing';
+import { linkedinPublishingAdapter } from './adapters/linkedin-publishing';
 
 const adapters: PlatformAdapter[] = [
   metaPublishingAdapter,
   tiktokPublishingAdapter,
   threadsPublishingAdapter,
   pinterestPublishingAdapter,
+  linkedinPublishingAdapter,
 ];
 
 /**

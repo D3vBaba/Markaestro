@@ -151,6 +151,89 @@ describe('public product discovery', () => {
     }));
   });
 
+  it('lists LinkedIn profile and page destinations for a connected product', async () => {
+    const { listPublicProductDestinations, resolvePublicPostDestination } = await import('../public-api/products');
+
+    docMock.mockReturnValue({
+      get: vi.fn().mockResolvedValue({
+        exists: true,
+        data: () => ({ name: 'Acme', status: 'active', categories: ['saas'] }),
+      }),
+    });
+
+    getMetaConnectionMergedMock.mockResolvedValue(null);
+    getConnectionMock.mockImplementation(async (_workspaceId: string, provider: string) => {
+      if (provider === 'linkedin_profile') {
+        return {
+          status: 'connected',
+          provider: 'linkedin_profile',
+          productId: 'prod_123',
+          workspaceId: 'ws_123',
+          metadata: {
+            linkedinProfileId: 'person_123',
+            linkedinProfileUrn: 'urn:li:person:person_123',
+            linkedinProfileName: 'Pat Publisher',
+          },
+        };
+      }
+      if (provider === 'linkedin_community') {
+        return {
+          status: 'connected',
+          provider: 'linkedin_community',
+          productId: 'prod_123',
+          workspaceId: 'ws_123',
+          metadata: {
+            linkedinPages: [
+              {
+                id: '2414183',
+                urn: 'urn:li:organization:2414183',
+                type: 'page',
+                name: 'Acme LinkedIn',
+                role: 'ADMINISTRATOR',
+              },
+            ],
+            linkedinDestinationUrn: 'urn:li:organization:2414183',
+            linkedinDestinationName: 'Acme LinkedIn',
+          },
+        };
+      }
+      return null;
+    });
+
+    const destinations = await listPublicProductDestinations('ws_123', 'prod_123');
+
+    expect(destinations).toEqual([
+      expect.objectContaining({
+        id: 'linkedin:linkedin:person_123',
+        provider: 'linkedin',
+        channel: 'linkedin',
+        accountId: 'person_123',
+        displayName: 'Pat Publisher',
+      }),
+      expect.objectContaining({
+        id: 'linkedin:linkedin:2414183',
+        provider: 'linkedin',
+        channel: 'linkedin',
+        accountId: '2414183',
+        pageId: '2414183',
+        displayName: 'Acme LinkedIn',
+      }),
+    ]);
+
+    const resolved = await resolvePublicPostDestination(
+      'ws_123',
+      'linkedin',
+      'prod_123',
+      'linkedin:linkedin:2414183',
+    );
+    expect(resolved).toEqual(expect.objectContaining({
+      productId: 'prod_123',
+      destinationId: 'linkedin:linkedin:2414183',
+      destinationProvider: 'linkedin',
+      deliveryMode: 'direct_publish',
+    }));
+  });
+
   it('requires productId when multiple products can publish to the same channel', async () => {
     const { resolvePublicPostProductId } = await import('../public-api/products');
 

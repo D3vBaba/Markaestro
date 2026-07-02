@@ -17,6 +17,22 @@ describe('oauth provider config', () => {
     expect(getProviderConfig('meta').scopes).not.toContain('instagram_manage_insights');
     expect(getProviderConfig('threads').scopes).not.toContain('threads_manage_insights');
   });
+
+  it('uses separate LinkedIn OAuth credentials for profile and community flows', () => {
+    expect(getProviderConfig('linkedin', 'profile')).toEqual(expect.objectContaining({
+      clientIdEnv: 'LINKEDIN_PROFILE_CLIENT_ID',
+      clientSecretEnv: 'LINKEDIN_PROFILE_CLIENT_SECRET',
+      scopes: expect.arrayContaining(['openid', 'profile', 'w_member_social']),
+    }));
+    expect(getProviderConfig('linkedin', 'profile').scopes).not.toContain('w_organization_social');
+
+    expect(getProviderConfig('linkedin', 'community')).toEqual(expect.objectContaining({
+      clientIdEnv: 'LINKEDIN_COMMUNITY_CLIENT_ID',
+      clientSecretEnv: 'LINKEDIN_COMMUNITY_CLIENT_SECRET',
+      scopes: expect.arrayContaining(['r_basicprofile', 'w_organization_social', 'rw_organization_admin']),
+    }));
+    expect(getProviderConfig('linkedin', 'community').scopes).not.toContain('w_member_social');
+  });
 });
 
 describe('normalizeOAuthTokenResponse', () => {

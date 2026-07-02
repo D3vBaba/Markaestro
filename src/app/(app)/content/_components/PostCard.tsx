@@ -77,6 +77,7 @@ export default function PostCard({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const displayStatus = publishing ? "publishing" : post.status;
+  const hasTikTokTarget = post.channel === "tiktok" || post.targetChannels?.includes("tiktok");
   const channelLabel = post.targetChannels?.length
     ? post.targetChannels.map(getSocialChannelLabel).join(" + ")
     : getSocialChannelLabel(post.channel);
@@ -180,7 +181,7 @@ export default function PostCard({
 
       {/* TikTok inbox banner: post was pushed to the creator's inbox and
           needs to be finalized from the TikTok app. */}
-      {!publishing && isPlatformActionRequiredStatus(post.status) && post.channel === "tiktok" && (
+      {!publishing && isPlatformActionRequiredStatus(post.status) && hasTikTokTarget && (
         <div
           className="mx-4 mb-3 flex items-start gap-2 rounded-lg border px-3 py-2"
           style={{

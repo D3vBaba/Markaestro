@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const getAdapterForChannelMock = vi.fn();
 const getConnectionForChannelMock = vi.fn();
+const getLinkedInConnectionForDestinationMock = vi.fn();
+const markConnectionAuthErrorMock = vi.fn();
 
 vi.mock('@/lib/firebase-admin', () => ({
   adminDb: {},
@@ -13,6 +15,8 @@ vi.mock('@/lib/platform/registry', () => ({
 
 vi.mock('@/lib/platform/connections', () => ({
   getConnectionForChannel: getConnectionForChannelMock,
+  getLinkedInConnectionForDestination: getLinkedInConnectionForDestinationMock,
+  markConnectionAuthError: markConnectionAuthErrorMock,
 }));
 
 vi.mock('@/lib/public-api/webhooks', () => ({
@@ -22,6 +26,7 @@ vi.mock('@/lib/public-api/webhooks', () => ({
 describe('publishPost', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getLinkedInConnectionForDestinationMock.mockResolvedValue(null);
   });
 
   it('rejects TikTok posts without media before touching the adapter', async () => {
@@ -73,6 +78,7 @@ describe('publishPost', () => {
 describe('publishStoredPost', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getLinkedInConnectionForDestinationMock.mockResolvedValue(null);
   });
 
   it('publishes each explicit target channel without auto-expanding Meta destinations', async () => {
@@ -110,6 +116,49 @@ describe('publishStoredPost', () => {
     expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'threads', 'prod_123', undefined);
     expect(publishByChannel.facebook).toHaveBeenCalledTimes(1);
     expect(publishByChannel.threads).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports a TikTok pending publish id before later channels finish', async () => {
+    const onChannelResult = vi.fn().mockResolvedValue(undefined);
+    const publishByChannel = {
+      tiktok: vi.fn().mockResolvedValue({
+        success: false,
+        pending: true,
+        externalId: 'publish_abc',
+      }),
+      threads: vi.fn().mockResolvedValue({
+        success: true,
+        externalId: 'threads_123',
+      }),
+    };
+
+    getAdapterForChannelMock.mockImplementation((channel: keyof typeof publishByChannel) => ({
+      publish: publishByChannel[channel],
+      validateConnection: () => null,
+    }));
+    getConnectionForChannelMock.mockResolvedValue({ status: 'connected' });
+
+    const { publishStoredPost } = await import('../social/publisher');
+
+    const result = await publishStoredPost('ws_123', 'prod_123', {
+      content: 'Launch post',
+      channel: 'tiktok',
+      targetChannels: ['tiktok', 'threads'],
+      mediaUrls: ['https://example.com/video.mp4'],
+    }, { onChannelResult });
+
+    expect(result.pending).toBe(true);
+    expect(onChannelResult).toHaveBeenNthCalledWith(1, {
+      channel: 'tiktok',
+      success: false,
+      pending: true,
+      externalId: 'publish_abc',
+    });
+    expect(onChannelResult).toHaveBeenNthCalledWith(2, {
+      channel: 'threads',
+      success: true,
+      externalId: 'threads_123',
+    });
   });
 
   it('requires a product for non-TikTok stored posts', async () => {

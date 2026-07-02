@@ -6,6 +6,7 @@ import { generateAuthUrl } from '@/lib/oauth/flow';
 import { getAppUrl } from '@/lib/oauth/config';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
+import { parseLinkedInCredentialKind } from '@/lib/platform/linkedin-providers';
 
 export const runtime = 'nodejs';
 
@@ -13,7 +14,7 @@ export const runtime = 'nodejs';
 const ALLOWED = new Set<string>(oauthProviders);
 // Every social provider is linked per product (productId required) — including
 // Meta. Each product links its own Facebook login; nothing is shared workspace-wide.
-const SOCIAL_PROVIDERS = new Set(['meta', 'instagram', 'tiktok', 'threads', 'pinterest']);
+const SOCIAL_PROVIDERS = new Set(['meta', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin']);
 
 function getFallbackPath(productId?: string, returnTo?: string) {
   if (productId && returnTo) return returnTo;
@@ -44,8 +45,14 @@ function parseAuthorizeInput(req: Request, body: Record<string, unknown>) {
     (typeof body.returnTo === 'string' ? body.returnTo : null) ||
     url.searchParams.get('returnTo') ||
     undefined;
+  const linkedinCredentialKind = parseLinkedInCredentialKind(
+    (typeof body.linkedinMode === 'string' ? body.linkedinMode : null) ||
+    url.searchParams.get('linkedinMode') ||
+    (typeof body.linkedinCredentialKind === 'string' ? body.linkedinCredentialKind : null) ||
+    url.searchParams.get('linkedinCredentialKind'),
+  );
 
-  return { productId, rawReturnTo };
+  return { productId, rawReturnTo, linkedinCredentialKind };
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ provider: string }> }) {
@@ -59,7 +66,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     }
 
     const body = await req.json().catch(() => ({}));
-    const { productId, rawReturnTo } = parseAuthorizeInput(req, body);
+    const { productId, rawReturnTo, linkedinCredentialKind } = parseAuthorizeInput(req, body);
     const returnTo = rawReturnTo
       ? sanitizeAppReturnTo(rawReturnTo, getAppUrl()) ?? undefined
       : undefined;
@@ -79,6 +86,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       ctx.uid,
       productId,
       returnTo,
+      provider === 'linkedin' ? { linkedinCredentialKind } : undefined,
     );
 
     return apiOk({ authUrl });
@@ -101,7 +109,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       throw new Error('INVALID_PROVIDER');
     }
 
-    const { productId, rawReturnTo } = parseAuthorizeInput(req, {});
+    const { productId, rawReturnTo, linkedinCredentialKind } = parseAuthorizeInput(req, {});
     const returnTo = rawReturnTo
       ? sanitizeAppReturnTo(rawReturnTo, getAppUrl()) ?? undefined
       : undefined;
@@ -121,6 +129,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       ctx.uid,
       productId,
       returnTo,
+      provider === 'linkedin' ? { linkedinCredentialKind } : undefined,
     );
 
     return NextResponse.redirect(authUrl);

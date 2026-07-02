@@ -6,6 +6,11 @@ import { getAppUrl } from '@/lib/oauth/config';
 import { sanitizeAppReturnTo } from '@/lib/network-security';
 import { logger } from '@/lib/logger';
 import { IG_LOGIN_UNSUPPORTED_MESSAGE, isInstagramGraphUnsupported, isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
+import {
+  discoverLinkedInDestinations,
+  linkedinCommunityMetadataFromDiscovery,
+  linkedinProfileMetadataFromDiscovery,
+} from '@/lib/platform/linkedin-api';
 
 export const runtime = 'nodejs';
 
@@ -277,7 +282,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       code,
       state,
     );
-    const { tokens, workspaceId, userId, productId, returnTo } = exchangeResult;
+    const { tokens, workspaceId, userId, productId, returnTo, linkedinCredentialKind, storageProvider } = exchangeResult;
 
     const extraData: Record<string, unknown> = {};
     let metaNeedsPageSelection = false;
@@ -453,13 +458,29 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       pinterestNeedsBoardSelection = true;
     }
 
+    if (provider === 'linkedin') {
+      if (!productId) {
+        throw new Error('VALIDATION_MISSING_PRODUCT_ID');
+      }
+      const discovery = await discoverLinkedInDestinations(tokens.accessToken, tokens.scope);
+      if (linkedinCredentialKind === 'community') {
+        Object.assign(extraData, linkedinCommunityMetadataFromDiscovery(discovery, tokens.scope));
+        extraData.displayName = `${discovery.profile.name} LinkedIn Pages`;
+        extraData.username = discovery.profile.name;
+      } else {
+        Object.assign(extraData, linkedinProfileMetadataFromDiscovery(discovery, tokens.scope));
+        extraData.displayName = discovery.profile.name;
+        extraData.username = discovery.profile.name;
+      }
+    }
+
     // Every provider — including Meta — is linked per product. Each product
     // links its own Facebook login (no shared workspace-level Meta connection):
     // the user token + page metadata are stored together on the product doc.
     if (provider === 'meta' && !productId) {
       throw new Error('VALIDATION_MISSING_PRODUCT_ID');
     }
-    await storeTokens(workspaceId, provider as OAuthProvider, tokens, userId, extraData, productId);
+    await storeTokens(workspaceId, provider as OAuthProvider, tokens, userId, extraData, productId, storageProvider);
 
     const appUrl = getAppUrl();
     if (productId) {
@@ -470,6 +491,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         oauth: 'success',
         provider,
         productId,
+        ...(provider === 'linkedin' && linkedinCredentialKind ? { linkedinMode: linkedinCredentialKind } : {}),
         ...(provider === 'meta' && metaNeedsPageSelection ? { needsPageSelect: '1' } : {}),
         ...(provider === 'pinterest' && pinterestNeedsBoardSelection ? { needsBoardSelect: '1' } : {}),
       });

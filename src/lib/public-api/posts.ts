@@ -49,6 +49,11 @@ export function validatePublicPostInput(input: CreatePublicPostInput) {
         throw new Error('VALIDATION_FACEBOOK_POST_REQUIRES_CONTENT_OR_MEDIA');
       }
       break;
+    case 'linkedin':
+      if (!input.caption.trim()) {
+        throw new Error('VALIDATION_LINKEDIN_POST_REQUIRES_CONTENT');
+      }
+      break;
   }
 }
 
@@ -60,6 +65,10 @@ export function validateResolvedPublicPostInput(
 
   if (input.channel === 'pinterest' && videoCount > 0 && mediaAssets.length > 1) {
     throw new Error('VALIDATION_PINTEREST_VIDEO_MUST_BE_SINGLE_MEDIA');
+  }
+
+  if (input.channel === 'linkedin' && videoCount > 0 && mediaAssets.length > 1) {
+    throw new Error('VALIDATION_LINKEDIN_VIDEO_MUST_BE_SINGLE_MEDIA');
   }
 
   if (input.channel !== 'tiktok') {

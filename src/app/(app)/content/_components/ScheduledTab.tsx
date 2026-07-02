@@ -9,6 +9,7 @@ import PostEditSheet from "./PostEditSheet";
 import ScheduleSheet from "./ScheduleSheet";
 import PostGridSkeleton from "./PostGridSkeleton";
 import Pagination from "@/components/app/Pagination";
+import { getPublishUiOutcome } from "@/lib/social/publish-ui-outcome";
 
 const POSTS_PER_PAGE = 6;
 
@@ -28,9 +29,11 @@ type Post = {
 export default function ScheduledTab({
   refreshKey,
   onCreatePost,
+  onPlatformActionRequired,
 }: {
   refreshKey: number;
   onCreatePost?: () => void;
+  onPlatformActionRequired?: () => void;
 }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,19 +112,26 @@ export default function ScheduledTab({
         ok: boolean;
         status?: string;
         pending?: boolean;
+        nextAction?: string;
         error?: string;
-        channels?: Array<{ channel: string; success: boolean }>;
+        channels?: Array<{ channel: string; success: boolean; pending?: boolean }>;
       }>(`/api/posts/${id}/publish`, {});
 
       if (res.ok && res.data.ok) {
-        const hasTikTok = (res.data.channels || []).some((c) => c.channel === "tiktok");
-        if (hasTikTok) {
+        const outcome = getPublishUiOutcome(res.data);
+        if (outcome.platformActionRequired) {
           toast.success(
             "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
             { id: toastId },
           );
-        } else if (res.data.status === "publishing" || res.data.pending) {
-          toast.success("Post submitted and still processing.", { id: toastId });
+          onPlatformActionRequired?.();
+        } else if (outcome.processing) {
+          toast.success(
+            outcome.hasTikTok
+              ? "TikTok accepted the upload and is still processing it."
+              : "Post submitted and still processing.",
+            { id: toastId },
+          );
         } else {
           toast.success("Posted!", { id: toastId });
         }

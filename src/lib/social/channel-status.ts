@@ -1,6 +1,6 @@
 import { getAdapterForChannel } from '@/lib/platform/registry';
 import { listConnections } from '@/lib/platform/connections';
-import type { PlatformConnection } from '@/lib/platform/types';
+import type { PlatformAdapter, PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import {
   getSocialChannelProviderKeys,
@@ -80,16 +80,34 @@ function findProviderConnection(
   return null;
 }
 
+type ChannelConnectionMatch = { connection: PlatformConnection; scope: 'workspace' | 'product' };
+
 function findConnectionForChannel(
   bundle: ConnectionBundle,
   channel: SocialChannel,
+  adapter: PlatformAdapter | undefined,
   productId?: string,
-): { connection: PlatformConnection; scope: 'workspace' | 'product' } | null {
-  for (const provider of getSocialChannelProviderKeys(channel)) {
-    const match = findProviderConnection(bundle, provider, productId);
-    if (match) return match;
-  }
-  return null;
+): ChannelConnectionMatch | null {
+  const candidates = getSocialChannelProviderKeys(channel)
+    .map((provider) => findProviderConnection(bundle, provider, productId))
+    .filter((match): match is ChannelConnectionMatch => Boolean(match));
+
+  // A channel can be served by more than one provider (e.g. Instagram via the
+  // standalone Instagram Login connection or via the Meta Page's linked IG
+  // business account; LinkedIn via profile/community/public credentials).
+  // Prefer the candidate that is actually ready to publish so one provider's
+  // incomplete setup can't shadow another provider's working connection.
+  // Fall back to a connected-but-unconfigured candidate (surfaces its setup
+  // hint), then to anything present (surfaces the reconnect message).
+  return (
+    candidates.find((match) =>
+      match.connection.status === 'connected' &&
+      (!adapter || adapter.validateConnection(match.connection, channel) === null)
+    ) ||
+    candidates.find((match) => match.connection.status === 'connected') ||
+    candidates[0] ||
+    null
+  );
 }
 
 function getDestinationLabel(connection: PlatformConnection, channel: SocialChannel): string | null {
@@ -107,6 +125,12 @@ function getDestinationLabel(connection: PlatformConnection, channel: SocialChan
     return typeof metadata.boardName === 'string' && metadata.boardName ? metadata.boardName : null;
   }
 
+  if (channel === 'linkedin') {
+    return typeof metadata.linkedinDestinationName === 'string' && metadata.linkedinDestinationName
+      ? metadata.linkedinDestinationName
+      : null;
+  }
+
   return null;
 }
 
@@ -116,7 +140,7 @@ function buildStatus(
   productId?: string,
 ): ManagedSocialChannelStatus {
   const adapter = getAdapterForChannel(config.channel);
-  const match = findConnectionForChannel(bundle, config.channel, productId);
+  const match = findConnectionForChannel(bundle, config.channel, adapter, productId);
 
   if (!adapter) {
     return {

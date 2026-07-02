@@ -68,7 +68,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const filtered = Object.fromEntries(
       Object.entries(data).filter(([, v]) => v !== undefined),
     );
-    const clearsPublishResults = ['content', 'channel', 'targetChannels', 'mediaUrls', 'productId', 'destinationProvider']
+    const clearsPublishResults = ['content', 'channel', 'targetChannels', 'mediaUrls', 'productId', 'destinationProvider', 'destinationId']
       .some((key) => key in filtered);
     const patch = {
       ...filtered,
@@ -80,6 +80,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             externalId: '',
             externalUrl: '',
             errorMessage: '',
+            tiktokPublishId: '',
+            tiktokLastStatus: '',
+            tiktokStatusUpdatedAt: null,
+            nextAction: null,
+            actionRequiredAt: null,
           }
         : {}),
       updatedAt: new Date().toISOString(),

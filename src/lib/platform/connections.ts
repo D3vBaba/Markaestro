@@ -3,6 +3,12 @@ import { decrypt } from '@/lib/crypto';
 import type { SocialChannel } from '@/lib/schemas';
 import type { PlatformConnection, ConnectionStatus } from './types';
 import { getAllDocs } from '@/lib/firestore-pagination';
+import { getSelectedLinkedInDestination, matchLinkedInDestination } from '@/lib/platform/linkedin-api';
+import {
+  isLinkedInConnectionProvider,
+  LINKEDIN_CONNECTION_PROVIDERS,
+  LINKEDIN_PUBLIC_PROVIDER,
+} from '@/lib/platform/linkedin-providers';
 
 /**
  * Firestore path for platform connections.
@@ -125,6 +131,61 @@ export async function getConnectionForChannel(
   return null;
 }
 
+function prioritizeProviders(providers: string[], preferredProvider?: string): string[] {
+  if (!preferredProvider || !providers.includes(preferredProvider)) return providers;
+  return [preferredProvider, ...providers.filter((provider) => provider !== preferredProvider)];
+}
+
+async function getCandidateConnection(
+  workspaceId: string,
+  provider: string,
+  productId?: string,
+): Promise<PlatformConnection | null> {
+  if (productId) {
+    const productConn = await getConnection(workspaceId, provider, productId);
+    if (productConn?.status === 'connected') return productConn;
+  }
+
+  const workspaceConn = await getConnection(workspaceId, provider);
+  if (workspaceConn?.status === 'connected') return workspaceConn;
+
+  if (!productId) {
+    return getSoleProductScopedConnection(workspaceId, provider);
+  }
+
+  return null;
+}
+
+export async function getLinkedInConnectionForDestination(
+  workspaceId: string,
+  productId?: string,
+  destinationId?: string,
+  preferredProvider?: string,
+): Promise<PlatformConnection | null> {
+  const providers = prioritizeProviders(
+    [...LINKEDIN_CONNECTION_PROVIDERS],
+    preferredProvider && isLinkedInConnectionProvider(preferredProvider)
+      ? preferredProvider
+      : undefined,
+  );
+
+  const candidates = (await Promise.all(
+    providers.map((provider) => getCandidateConnection(workspaceId, provider, productId)),
+  )).filter((conn): conn is PlatformConnection => Boolean(conn));
+
+  if (destinationId) {
+    return candidates.find((conn) => Boolean(matchLinkedInDestination(conn, destinationId))) || null;
+  }
+
+  const selected = candidates.find((conn) =>
+    typeof conn.metadata.linkedinDestinationUrn === 'string' &&
+    Boolean(getSelectedLinkedInDestination(conn))
+  );
+  if (selected) return selected;
+
+  return candidates.find((conn) => conn.provider !== LINKEDIN_PUBLIC_PROVIDER) || candidates[0] || null;
+}
+
 async function getSoleProductScopedConnection(
   workspaceId: string,
   provider: string,
@@ -198,6 +259,20 @@ export async function updateConnectionStatus(
   });
 }
 
+export async function markConnectionAuthError(
+  workspaceId: string,
+  provider: string,
+  error: string,
+  productId?: string,
+): Promise<void> {
+  await getConnectionRef(workspaceId, provider, productId).update({
+    status: 'revoked',
+    'metadata.lastRefreshError': error,
+    'metadata.refreshFailureCount': 1,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
 /**
  * Delete a platform connection.
  */
@@ -251,5 +326,7 @@ function channelToProviders(channel: SocialChannel, preferredProvider?: string):
       return prioritize(['threads']);
     case 'pinterest':
       return prioritize(['pinterest']);
+    case 'linkedin':
+      return prioritize(['linkedin_profile', 'linkedin_community', 'linkedin']);
   }
 }

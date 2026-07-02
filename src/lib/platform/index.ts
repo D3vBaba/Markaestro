@@ -16,5 +16,6 @@ export {
   deleteConnection,
   listConnections,
   updateConnectionStatus,
+  markConnectionAuthError,
 } from './connections';
 export { getAccessToken, getMeta } from './base-adapter';

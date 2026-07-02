@@ -159,4 +159,29 @@ describe('pollTikTokPublishWithRetries', () => {
     expect(fetchTikTokPublishStatusMock).toHaveBeenNthCalledWith(1, 'old_access_token', 'publish_123');
     expect(fetchTikTokPublishStatusMock).toHaveBeenNthCalledWith(2, 'new_access_token', 'publish_123');
   });
+
+  it('resolves webhook publish ids through the durable TikTok mapping', async () => {
+    const mappingRef = {
+      get: vi.fn().mockResolvedValue({
+        exists: true,
+        data: () => ({
+          workspaceId: 'ws_123',
+          postId: 'post_123',
+        }),
+      }),
+    };
+    const postRef = buildPostRef(buildPendingTikTokPost());
+    adminDocMock.mockImplementation((path: string) => (
+      path.startsWith('tiktok_publish_mappings/')
+        ? mappingRef
+        : postRef
+    ));
+
+    const { findPostByTikTokPublishId } = await import('../social/tiktok-publish-poll-worker');
+    const match = await findPostByTikTokPublishId('publish_123');
+
+    expect(match).toEqual({ workspaceId: 'ws_123', postRef });
+    expect(adminDocMock).toHaveBeenCalledWith(expect.stringMatching(/^tiktok_publish_mappings\/[a-f0-9]{64}$/));
+    expect(adminDocMock).toHaveBeenCalledWith('workspaces/ws_123/posts/post_123');
+  });
 });

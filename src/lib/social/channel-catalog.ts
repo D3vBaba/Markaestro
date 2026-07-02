@@ -34,7 +34,10 @@ export const socialChannelCatalog = [
   {
     channel: 'instagram',
     label: 'Instagram',
-    providerKeys: ['meta', 'instagram'],
+    // Same preference order as the publish path (channelToProviders in
+    // platform/connections.ts): standalone Instagram Login first, then the
+    // Meta Page's linked IG business account.
+    providerKeys: ['instagram', 'meta'],
     editor: 'normal',
     maxLength: 2200,
     mediaKinds: ['image', 'video', 'carousel'],
@@ -82,6 +85,19 @@ export const socialChannelCatalog = [
     supportsDirectPublish: true,
     supportsScheduling: true,
     setupHint: 'Connect Pinterest and select a board in product settings.',
+  },
+  {
+    channel: 'linkedin',
+    label: 'LinkedIn',
+    providerKeys: ['linkedin_profile', 'linkedin_community', 'linkedin'],
+    editor: 'normal',
+    maxLength: 3000,
+    mediaKinds: ['text', 'image', 'video', 'carousel'],
+    mediaRequired: false,
+    maxMediaItems: 20,
+    supportsDirectPublish: true,
+    supportsScheduling: true,
+    setupHint: 'Connect LinkedIn and select a Profile or Page in product settings.',
   },
 ] as const satisfies readonly ManagedSocialChannel[];
 

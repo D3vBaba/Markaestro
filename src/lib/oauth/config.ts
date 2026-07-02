@@ -1,4 +1,5 @@
 import type { OAuthProvider } from '@/lib/schemas';
+import type { LinkedInCredentialKind } from '@/lib/platform/linkedin-providers';
 
 export type OAuthProviderConfig = {
   authUrl: string;
@@ -12,6 +13,36 @@ export type OAuthProviderConfig = {
   extraAuthParams?: Record<string, string>;
   usePKCE?: boolean;
   useBasicAuth?: boolean;
+};
+
+const linkedinProfileConfig: OAuthProviderConfig = {
+  authUrl: 'https://www.linkedin.com/oauth/v2/authorization',
+  tokenUrl: 'https://www.linkedin.com/oauth/v2/accessToken',
+  scopes: [
+    'openid',
+    'profile',
+    'w_member_social',
+  ],
+  clientIdEnv: 'LINKEDIN_PROFILE_CLIENT_ID',
+  clientSecretEnv: 'LINKEDIN_PROFILE_CLIENT_SECRET',
+  extraAuthParams: {},
+};
+
+const linkedinCommunityConfig: OAuthProviderConfig = {
+  authUrl: 'https://www.linkedin.com/oauth/v2/authorization',
+  tokenUrl: 'https://www.linkedin.com/oauth/v2/accessToken',
+  scopes: [
+    'r_basicprofile',
+    'w_organization_social',
+    'r_organization_social',
+    // The approved developer configuration exposes rw_organization_admin,
+    // not r_organization_admin. We request it only to discover administrable
+    // Pages via read-only Organization ACL/lookup endpoints.
+    'rw_organization_admin',
+  ],
+  clientIdEnv: 'LINKEDIN_COMMUNITY_CLIENT_ID',
+  clientSecretEnv: 'LINKEDIN_COMMUNITY_CLIENT_SECRET',
+  extraAuthParams: {},
 };
 
 const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
@@ -90,9 +121,20 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     useBasicAuth: true,
     extraAuthParams: {},
   },
+  linkedin: {
+    ...linkedinProfileConfig,
+  },
 };
 
-export function getProviderConfig(provider: OAuthProvider): OAuthProviderConfig {
+export function getProviderConfig(
+  provider: OAuthProvider,
+  linkedinCredentialKind?: LinkedInCredentialKind,
+): OAuthProviderConfig {
+  if (provider === 'linkedin') {
+    return linkedinCredentialKind === 'community'
+      ? linkedinCommunityConfig
+      : linkedinProfileConfig;
+  }
   return providerConfigs[provider];
 }
 
@@ -102,6 +144,7 @@ const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   tiktok: 'TIKTOK_OAUTH_REDIRECT_URI',
   threads: 'THREADS_OAUTH_REDIRECT_URI',
   pinterest: 'PINTEREST_OAUTH_REDIRECT_URI',
+  linkedin: 'LINKEDIN_OAUTH_REDIRECT_URI',
 };
 
 export function getAppUrl(): string {
@@ -120,15 +163,21 @@ export function getRedirectUri(provider: OAuthProvider): string {
   return `${getAppUrl()}/api/oauth/callback/${provider}`;
 }
 
-export function getClientCredentials(provider: OAuthProvider): { clientId: string; clientSecret: string } {
-  const config = getProviderConfig(provider);
+export function getClientCredentials(
+  provider: OAuthProvider,
+  linkedinCredentialKind?: LinkedInCredentialKind,
+): { clientId: string; clientSecret: string } {
+  const config = getProviderConfig(provider, linkedinCredentialKind);
   // Trim whitespace/newlines — secrets uploaded via `echo "x" | gcloud secrets
   // create` carry a trailing \n, which corrupts Basic Auth headers and authorize
   // URLs (X rejects with "Missing valid authorization header").
   const clientId = (process.env[config.clientIdEnv] || '').trim();
   const clientSecret = (process.env[config.clientSecretEnv] || '').trim();
   if (!clientId || !clientSecret) {
-    throw new Error(`Missing OAuth credentials for ${provider}: ${config.clientIdEnv} and/or ${config.clientSecretEnv}`);
+    const suffix = provider === 'linkedin' && linkedinCredentialKind
+      ? ` (${linkedinCredentialKind})`
+      : '';
+    throw new Error(`Missing OAuth credentials for ${provider}${suffix}: ${config.clientIdEnv} and/or ${config.clientSecretEnv}`);
   }
   return { clientId, clientSecret };
 }

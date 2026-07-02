@@ -77,6 +77,18 @@ export type IntegrationInfo = {
   boardId?: string | null;
   boardName?: string | null;
   boardSelectionRequired?: boolean | null;
+  linkedinProfileId?: string | null;
+  linkedinProfileName?: string | null;
+  linkedinProfileConnected?: boolean | null;
+  linkedinCommunityConnected?: boolean | null;
+  linkedinProfileStatus?: string | null;
+  linkedinCommunityStatus?: string | null;
+  linkedinPages?: Array<{ id: string; urn: string; name: string; type: "page"; role?: string | null }>;
+  linkedinDestinationUrn?: string | null;
+  linkedinDestinationName?: string | null;
+  linkedinDestinationType?: "profile" | "page" | null;
+  linkedinDestinationSelectionRequired?: boolean | null;
+  linkedinPageDiscoveryError?: string | null;
   channelId?: string | null;
   channelTitle?: string | null;
   channelSelectionRequired?: boolean | null;
@@ -97,6 +109,7 @@ const SOCIAL_PROVIDERS = [
   "tiktok",
   "threads",
   "pinterest",
+  "linkedin",
 ] as const;
 const providerLabels: Record<string, string> = {
   meta: "Facebook",
@@ -104,6 +117,9 @@ const providerLabels: Record<string, string> = {
   tiktok: "TikTok",
   threads: "Threads",
   pinterest: "Pinterest",
+  linkedin: "LinkedIn",
+  linkedin_profile: "LinkedIn Profile",
+  linkedin_community: "LinkedIn Pages",
 };
 
 // Brand glyphs for each channel — a white mark on the platform's color.
@@ -141,6 +157,10 @@ const CHANNEL_BRAND: Record<string, { bg: string; icon: React.ReactNode }> = {
   pinterest: {
     bg: "#E60023",
     icon: <span className="text-[13px] font-bold leading-none text-white">P</span>,
+  },
+  linkedin: {
+    bg: "#0A66C2",
+    icon: <span className="text-[12px] font-bold leading-none text-white">in</span>,
   },
 };
 
@@ -323,7 +343,7 @@ export default function ProductDetailSheet({
   // Integrations state
   const [integrations, setIntegrations] = useState<IntegrationInfo[]>([]);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
-  const [disconnectTarget, setDisconnectTarget] = useState<{ provider: string; label: string } | null>(null);
+  const [disconnectTarget, setDisconnectTarget] = useState<{ provider: string; label: string; linkedinMode?: "profile" | "community" } | null>(null);
   const [metaPages, setMetaPages] = useState<MetaPage[]>([]);
   const [selectedPageId, setSelectedPageId] = useState("");
   const [loadingPages, setLoadingPages] = useState(false);
@@ -481,24 +501,31 @@ export default function ProductDetailSheet({
     if (res.ok) setIntegrations(getScopedSocialIntegrations(res.data.integrations || []));
   };
 
-  function startOAuth(provider: string) {
+  function startOAuth(provider: string, linkedinMode?: "profile" | "community") {
     if (!productId) return;
     const qs = new URLSearchParams({
       workspaceId: "default",
       productId,
       returnTo: "/products",
     });
+    if (provider === "linkedin" && linkedinMode) {
+      qs.set("linkedinMode", linkedinMode);
+    }
     startOAuthAuthorize(`/api/oauth/authorize/${provider}?${qs.toString()}`);
   }
 
   async function confirmDisconnect() {
     if (!disconnectTarget || !productId) return;
-    const { provider } = disconnectTarget;
-    setDisconnecting(provider);
+    const { provider, label, linkedinMode } = disconnectTarget;
+    const busyKey = linkedinMode ? `${provider}:${linkedinMode}` : provider;
+    setDisconnecting(busyKey);
     try {
-      const res = await apiPost(`/api/oauth/disconnect/${provider}`, { productId });
+      const res = await apiPost(`/api/oauth/disconnect/${provider}`, {
+        productId,
+        ...(linkedinMode ? { linkedinMode } : {}),
+      });
       if (res.ok) {
-        toast.success(`${providerLabels[provider] || provider} disconnected`);
+        toast.success(`${label || providerLabels[provider] || provider} disconnected`);
         await refreshIntegrations();
       } else {
         toast.error(`Failed to disconnect ${provider}`);
@@ -507,6 +534,7 @@ export default function ProductDetailSheet({
       toast.error(`Failed to disconnect ${provider}`);
     } finally {
       setDisconnecting(null);
+      setDisconnectTarget(null);
     }
   }
 
@@ -1204,8 +1232,8 @@ function ChannelsSection({
   onLoadPages: () => void;
   onSelectedPageIdChange: (v: string) => void;
   onSelectPage: () => void;
-  onStartOAuth: (provider: string) => void;
-  onDisconnect: (provider: string, label: string) => void;
+  onStartOAuth: (provider: string, linkedinMode?: "profile" | "community") => void;
+  onDisconnect: (provider: string, label: string, linkedinMode?: "profile" | "community") => void;
   getIntegration: (provider: string) => IntegrationInfo | undefined;
   onRefreshIntegrations: () => void | Promise<void>;
   productId: string | null;
@@ -1383,12 +1411,187 @@ function ChannelsSection({
           productId={productId}
         />
 
+        {/* LinkedIn */}
+        <LinkedInConnectCard
+          integration={getIntegration("linkedin")}
+          disconnecting={disconnecting}
+          onStartOAuth={onStartOAuth}
+          onDisconnect={onDisconnect}
+          onPickerSelected={onRefreshIntegrations}
+          productId={productId}
+        />
+
       </SectionCard>
     </>
   );
 }
 
-type PickerDestination = { id: string; name: string };
+type PickerDestination = { id: string; name: string; type?: string; accountId?: string; urn?: string };
+
+function LinkedInConnectCard({
+  integration,
+  disconnecting,
+  onStartOAuth,
+  onDisconnect,
+  onPickerSelected,
+  productId,
+}: {
+  integration: IntegrationInfo | undefined;
+  disconnecting: string | null;
+  onStartOAuth: (provider: string, linkedinMode?: "profile" | "community") => void;
+  onDisconnect: (provider: string, label: string, linkedinMode?: "profile" | "community") => void;
+  onPickerSelected?: () => void | Promise<void>;
+  productId?: string | null;
+}) {
+  const profileConnected =
+    integration?.linkedinProfileConnected === true ||
+    (integration?.status === "connected" && integration.linkedinDestinationType === "profile");
+  const communityConnected =
+    integration?.linkedinCommunityConnected === true ||
+    (Array.isArray(integration?.linkedinPages) && integration.linkedinPages.length > 0);
+  const connected = profileConnected || communityConnected;
+  const needsReconnect =
+    integration?.status === "expired" ||
+    !!integration?.lastRefreshError ||
+    integration?.linkedinProfileStatus === "expired" ||
+    integration?.linkedinCommunityStatus === "expired";
+  const needsTarget = connected && !integration?.linkedinDestinationUrn;
+  const [destinations, setDestinations] = useState<PickerDestination[]>([]);
+  const [loadingDestinations, setLoadingDestinations] = useState(false);
+  const [selectedDestinationId, setSelectedDestinationId] = useState("");
+  const [selecting, setSelecting] = useState(false);
+
+  async function loadDestinations() {
+    if (!productId) return;
+    setLoadingDestinations(true);
+    try {
+      const res = await apiGet<{ pages: PickerDestination[] }>(
+        `/api/oauth/pages/linkedin?productId=${productId}`,
+      );
+      if (res.ok) {
+        setDestinations(res.data.pages || []);
+        if ((res.data.pages || []).length === 0) {
+          toast.error("No LinkedIn targets found.");
+        }
+      } else {
+        toast.error("Failed to load LinkedIn targets");
+      }
+    } catch {
+      toast.error("Failed to load LinkedIn targets");
+    } finally {
+      setLoadingDestinations(false);
+    }
+  }
+
+  async function selectDestination() {
+    if (!selectedDestinationId || !productId) return;
+    const picked = destinations.find((d) => d.id === selectedDestinationId);
+    setSelecting(true);
+    try {
+      const res = await apiPost<{ ok: boolean; name?: string }>(
+        "/api/oauth/pages/linkedin/select",
+        {
+          pageId: selectedDestinationId,
+          pageName: picked?.name,
+          productId,
+        },
+      );
+      if (res.ok && res.data.ok) {
+        toast.success(`LinkedIn target "${picked?.name || ""}" selected`);
+        setDestinations([]);
+        setSelectedDestinationId("");
+        if (onPickerSelected) await onPickerSelected();
+      } else {
+        toast.error("Failed to select LinkedIn target");
+      }
+    } catch {
+      toast.error("Failed to select LinkedIn target");
+    } finally {
+      setSelecting(false);
+    }
+  }
+
+  return (
+    <ChannelCard
+      provider="linkedin"
+      label={providerLabels.linkedin}
+      connected={connected && !needsTarget && !needsReconnect}
+      warn={needsReconnect || needsTarget}
+      warnLabel={needsReconnect ? "Reconnect" : "Select target"}
+      detail={
+        integration?.linkedinDestinationName
+          ? `Posting to: ${integration.linkedinDestinationName}`
+          : connected
+          ? "Select a Profile or Page to enable publishing"
+          : undefined
+      }
+    >
+      <div className="flex flex-wrap gap-2 justify-end">
+        {profileConnected ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onDisconnect("linkedin", providerLabels.linkedin_profile, "profile")}
+            disabled={disconnecting === "linkedin:profile"}
+          >
+            {disconnecting === "linkedin:profile" ? "…" : "Unlink Profile"}
+          </Button>
+        ) : (
+          <Button size="sm" onClick={() => onStartOAuth("linkedin", "profile")}>
+            Link Profile
+          </Button>
+        )}
+        {communityConnected ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onDisconnect("linkedin", providerLabels.linkedin_community, "community")}
+            disabled={disconnecting === "linkedin:community"}
+          >
+            {disconnecting === "linkedin:community" ? "…" : "Unlink Pages"}
+          </Button>
+        ) : (
+          <Button size="sm" onClick={() => onStartOAuth("linkedin", "community")}>
+            Link Pages
+          </Button>
+        )}
+        {connected && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadDestinations}
+            disabled={loadingDestinations}
+          >
+            {loadingDestinations ? "Loading…" : integration?.linkedinDestinationUrn ? "Change target" : "Select target"}
+          </Button>
+        )}
+      </div>
+      {connected && destinations.length > 0 && (
+        <div className="flex gap-2 pt-2 w-full">
+          <Select
+            value={selectedDestinationId}
+            onChange={(e) => setSelectedDestinationId(e.target.value)}
+            className="flex-1"
+          >
+            <option value="">Select a target…</option>
+            {destinations.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </Select>
+          <Button
+            size="sm"
+            onClick={selectDestination}
+            disabled={selecting || !selectedDestinationId}
+          >
+            {selecting ? "…" : "Select"}
+          </Button>
+        </div>
+      )}
+    </ChannelCard>
+  );
+}
 
 function SimpleConnectCard({
   label,

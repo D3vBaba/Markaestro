@@ -5,6 +5,12 @@ import type { OAuthProvider } from '@/lib/schemas';
 import { getConnectionRef } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
 import { getAllDocs } from '@/lib/firestore-pagination';
+import {
+  linkedinCredentialKindForProvider,
+  LINKEDIN_COMMUNITY_PROVIDER,
+  LINKEDIN_PROFILE_PROVIDER,
+} from '@/lib/platform/linkedin-providers';
+import type { LinkedInCredentialKind } from '@/lib/platform/linkedin-providers';
 
 type RefreshResult = {
   refreshed: number;
@@ -36,6 +42,7 @@ async function refreshConnectionDoc(
   provider: OAuthProvider,
   result: RefreshResult,
   errorContext: { workspaceId: string; productId?: string },
+  options: { storageProvider?: string; linkedinCredentialKind?: LinkedInCredentialKind } = {},
 ): Promise<void> {
   const now = new Date();
   const threshold = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
@@ -69,7 +76,9 @@ async function refreshConnectionDoc(
 
     try {
       const currentToken = decrypt(data.accessTokenEncrypted);
-      const newTokens = await refreshAccessToken(provider, currentToken);
+      const newTokens = await refreshAccessToken(provider, currentToken, {
+        linkedinCredentialKind: options.linkedinCredentialKind,
+      });
 
       const newExpiresAt = newTokens.expiresIn
         ? new Date(now.getTime() + newTokens.expiresIn * 1000).toISOString()
@@ -102,7 +111,7 @@ async function refreshConnectionDoc(
         updatedAt: now.toISOString(),
       });
       result.failed++;
-      result.errors.push({ ...errorContext, provider, error });
+      result.errors.push({ ...errorContext, provider: options.storageProvider || provider, error });
     }
     return;
   }
@@ -112,7 +121,9 @@ async function refreshConnectionDoc(
 
   try {
     const refreshToken = decrypt(data.refreshTokenEncrypted);
-    const newTokens = await refreshAccessToken(provider, refreshToken);
+    const newTokens = await refreshAccessToken(provider, refreshToken, {
+      linkedinCredentialKind: options.linkedinCredentialKind,
+    });
 
     const newExpiresAt = newTokens.expiresIn
       ? new Date(now.getTime() + newTokens.expiresIn * 1000).toISOString()
@@ -148,7 +159,7 @@ async function refreshConnectionDoc(
       updatedAt: now.toISOString(),
     });
     result.failed++;
-    result.errors.push({ ...errorContext, provider, error });
+    result.errors.push({ ...errorContext, provider: options.storageProvider || provider, error });
   }
 }
 
@@ -224,6 +235,7 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
 
     // Product-level OAuth — every provider, including Meta, is linked per product.
     const socialProviders: OAuthProvider[] = ['instagram', 'tiktok', 'threads', 'pinterest'];
+    const linkedInProviders = [LINKEDIN_PROFILE_PROVIDER, LINKEDIN_COMMUNITY_PROVIDER, 'linkedin'];
     const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
 
     for (const productDoc of productDocs) {
@@ -232,6 +244,14 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
       for (const provider of socialProviders) {
         const connRef = getConnectionRef(workspaceId, provider, productId);
         await refreshConnectionDoc(connRef, provider, result, { workspaceId, productId });
+      }
+
+      for (const storageProvider of linkedInProviders) {
+        const connRef = getConnectionRef(workspaceId, storageProvider, productId);
+        await refreshConnectionDoc(connRef, 'linkedin', result, { workspaceId, productId }, {
+          storageProvider,
+          linkedinCredentialKind: linkedinCredentialKindForProvider(storageProvider),
+        });
       }
 
       // Product-level Meta — each product links its own Facebook login, so its

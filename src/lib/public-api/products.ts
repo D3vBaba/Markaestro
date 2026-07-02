@@ -3,6 +3,11 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 import { getConnection, getConnectionForChannel, getMetaConnectionMerged } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
+import { getStoredLinkedInDestinations } from '@/lib/platform/linkedin-api';
+import {
+  LINKEDIN_COMMUNITY_PROVIDER,
+  LINKEDIN_PROFILE_PROVIDER,
+} from '@/lib/platform/linkedin-providers';
 
 export type PublicProductSummary = {
   id: string;
@@ -15,7 +20,7 @@ export type PublicProductSummary = {
 
 export type PublicProductDestination = {
   id: string;
-  provider: 'meta' | 'instagram' | 'tiktok' | 'threads';
+  provider: 'meta' | 'instagram' | 'tiktok' | 'threads' | 'linkedin';
   channel: SocialChannel;
   status: 'ready';
   displayName: string;
@@ -177,6 +182,23 @@ function buildThreadsDestinations(connection: PlatformConnection | null, fallbac
   }];
 }
 
+function buildLinkedInDestinations(connection: PlatformConnection | null, fallbackName: string): PublicProductDestination[] {
+  if (!connection || connection.status !== 'connected') return [];
+
+  return getStoredLinkedInDestinations(connection).map((destination) => ({
+    id: buildDestinationId('linkedin', 'linkedin', destination.id),
+    provider: 'linkedin',
+    channel: 'linkedin',
+    status: 'ready',
+    displayName: destination.name || fallbackName,
+    accountId: destination.id,
+    username: destination.type === 'profile' ? destination.name : null,
+    pageId: destination.type === 'page' ? destination.id : null,
+    deliveryMode: 'direct_publish',
+    willAlsoPublishTo: [],
+  }));
+}
+
 async function listWorkspaceLevelDestinations(
   workspaceId: string,
 ): Promise<WorkspaceDestination[]> {
@@ -230,11 +252,14 @@ export async function listPublicProductDestinations(
 
   const product = productSnap.data() as ProductRecord;
   const fallbackName = product.name || productId;
-  const [metaConn, instagramConn, tikTokConn, threadsConn] = await Promise.all([
+  const [metaConn, instagramConn, tikTokConn, threadsConn, linkedInProfileConn, linkedInCommunityConn, linkedInLegacyConn] = await Promise.all([
     getMetaConnectionMerged(workspaceId, productId),
     getConnection(workspaceId, 'instagram', productId),
     getConnection(workspaceId, 'tiktok', productId),
     getConnection(workspaceId, 'threads', productId),
+    getConnection(workspaceId, LINKEDIN_PROFILE_PROVIDER, productId),
+    getConnection(workspaceId, LINKEDIN_COMMUNITY_PROVIDER, productId),
+    getConnection(workspaceId, 'linkedin', productId),
   ]);
 
   return [
@@ -242,6 +267,9 @@ export async function listPublicProductDestinations(
     ...buildInstagramDestinations(instagramConn, fallbackName),
     ...buildTikTokDestinations(productId, tikTokConn, fallbackName),
     ...buildThreadsDestinations(threadsConn, fallbackName),
+    ...buildLinkedInDestinations(linkedInProfileConn, fallbackName),
+    ...buildLinkedInDestinations(linkedInCommunityConn, fallbackName),
+    ...(linkedInProfileConn || linkedInCommunityConn ? [] : buildLinkedInDestinations(linkedInLegacyConn, fallbackName)),
   ];
 }
 

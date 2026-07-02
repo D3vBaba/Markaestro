@@ -71,12 +71,12 @@ describe('POST /api/webhooks/tiktok', () => {
     expect(findPostByTikTokPublishIdMock).not.toHaveBeenCalled();
   });
 
-  it('returns 200 when the publish_id is unknown', async () => {
+  it('returns 500 when the publish_id mapping is not ready so TikTok retries', async () => {
     findPostByTikTokPublishIdMock.mockResolvedValueOnce(null);
     const { POST } = await import('./route');
     const res = await POST(signedRequest(buildBody()));
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ received: true, ignored: 'unknown_publish_id' });
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: 'mapping_not_ready' });
     expect(pollTikTokPublishForPostMock).not.toHaveBeenCalled();
   });
 

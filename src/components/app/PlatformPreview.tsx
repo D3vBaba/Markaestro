@@ -238,6 +238,42 @@ function PinterestPreview({ content, mediaUrls }: PlatformPreviewProps) {
   );
 }
 
+// ─── LinkedIn ────────────────────────────────────────────────────────────────
+
+function LinkedInPreview({ content, mediaUrls }: PlatformPreviewProps) {
+  const media = mediaUrls?.[0];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="flex items-start justify-between p-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-[#0A66C2] text-[12px] font-bold text-white">
+            in
+          </div>
+          <div>
+            <p className="text-[13px] font-semibold leading-none text-zinc-950 dark:text-white">Your Product</p>
+            <p className="mt-0.5 text-[10px] text-zinc-500">Company Page · now</p>
+          </div>
+        </div>
+        <span className="text-base leading-none text-zinc-400">···</span>
+      </div>
+      <p className="px-3 pb-3 whitespace-pre-wrap break-words text-[13px] leading-snug text-zinc-900 dark:text-zinc-100">
+        {content.length > 300 ? content.slice(0, 300) + "..." : content}
+      </p>
+      {media && (
+        <div className="border-y border-zinc-100 dark:border-zinc-800">
+          <MediaDisplay url={media} className="max-h-72 w-full object-cover" />
+        </div>
+      )}
+      <div className="flex items-center justify-around px-3 py-2 text-[12px] font-medium text-zinc-500">
+        <span>Like</span>
+        <span>Comment</span>
+        <span>Repost</span>
+        <span>Send</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Ad Preview Types & Helpers ──────────────────────────────────────────────
 
 export type AdPreviewProps = {
@@ -506,7 +542,8 @@ export default function PlatformPreview({ content, channel, mediaUrls, externalU
       {channel === "tiktok"    && <TikTokPreview    content={content} channel={channel} mediaUrls={mediaUrls} />}
       {channel === "threads"   && <ThreadsPreview   content={content} channel={channel} mediaUrls={mediaUrls} />}
       {channel === "pinterest" && <PinterestPreview content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {!["instagram","facebook","tiktok","threads","pinterest"].includes(channel) && (
+      {channel === "linkedin"  && <LinkedInPreview  content={content} channel={channel} mediaUrls={mediaUrls} />}
+      {!["instagram","facebook","tiktok","threads","pinterest","linkedin"].includes(channel) && (
         <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
         </div>

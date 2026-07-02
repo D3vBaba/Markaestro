@@ -24,7 +24,7 @@ export const tagsSchema = z
 
 // ── Enums ──────────────────────────────────────────────────────────
 
-export const socialChannels = ['facebook', 'instagram', 'tiktok', 'threads', 'pinterest'] as const;
+export const socialChannels = ['facebook', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin'] as const;
 export const postStatuses = ['draft', 'scheduled', 'publishing', 'published', 'platform_action_required', 'failed', 'partial_failed'] as const;
 export const contactStatuses = ['active', 'pending', 'bounced', 'unsubscribed'] as const;
 export const contactLifecycleStages = ['lead', 'trial', 'customer', 'churned', 'advocate'] as const;
@@ -32,8 +32,8 @@ export const contactSources = ['organic', 'paid', 'referral', 'social', 'email',
 export const triggerTypes = ['manual', 'event', 'schedule', 'segment'] as const;
 export const jobTypes = ['sync_contacts', 'publish_post', 'refresh_tokens'] as const;
 export const jobSchedules = ['manual', 'daily'] as const;
-export const integrationProviders = ['facebook', 'instagram', 'meta', 'tiktok', 'threads', 'pinterest'] as const;
-export const oauthProviders = ['meta', 'instagram', 'tiktok', 'threads', 'pinterest'] as const;
+export const integrationProviders = ['facebook', 'instagram', 'meta', 'tiktok', 'threads', 'pinterest', 'linkedin'] as const;
+export const oauthProviders = ['meta', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin'] as const;
 export const workspaceRoles = ['owner', 'admin', 'member', 'analyst'] as const;
 
 // ── Contact Schemas ────────────────────────────────────────────────
@@ -216,6 +216,7 @@ export const createPostSchema = z.object({
   mediaUrls: z.array(z.string().url()).max(35).default([]),
   productId: optionalString,
   targetChannels: z.array(z.enum(socialChannels)).optional(),
+  destinationId: z.string().trim().max(2000).optional(),
   destinationProvider: z.string().trim().max(100).optional(),
   deliveryMode: z.enum(['direct_publish', 'platform_inbox']).optional(),
 });
@@ -231,6 +232,7 @@ export const updatePostSchema = z.object({
   externalUrl: z.string().trim().max(2000).optional(),
   errorMessage: z.string().trim().max(2000).optional(),
   targetChannels: z.array(z.enum(socialChannels)).optional(),
+  destinationId: z.string().trim().max(2000).optional(),
   destinationProvider: z.string().trim().max(100).optional(),
   deliveryMode: z.enum(['direct_publish', 'platform_inbox']).optional(),
 });

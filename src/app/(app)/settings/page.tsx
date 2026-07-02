@@ -672,6 +672,7 @@ const PRODUCT_CHANNELS: { provider: string; label: string; sub: string }[] = [
   { provider: "tiktok", label: "TikTok", sub: "TikTok account" },
   { provider: "threads", label: "Threads", sub: "Threads account" },
   { provider: "pinterest", label: "Pinterest", sub: "Pinterest account and board" },
+  { provider: "linkedin", label: "LinkedIn", sub: "LinkedIn Profile or Page" },
 ];
 
 type ConnEntry = {
@@ -685,11 +686,23 @@ type ConnEntry = {
   boardId?: string | null;
   boardName?: string | null;
   boardSelectionRequired?: boolean;
+  linkedinDestinationUrn?: string | null;
+  linkedinDestinationName?: string | null;
+  linkedinDestinationType?: "profile" | "page" | null;
+  linkedinDestinationSelectionRequired?: boolean;
+  linkedinProfileConnected?: boolean;
+  linkedinCommunityConnected?: boolean;
   pageSelectionRequired?: boolean;
   needsPageSelection?: boolean;
 };
 
 type MetaPage = { id: string; name: string; hasInstagram: boolean; igAccountId: string | null };
+
+function providerDisplayName(provider: string): string {
+  if (provider === "meta") return "Meta";
+  if (provider === "linkedin") return "LinkedIn";
+  return provider;
+}
 
 function IntegrationsTab() {
   const { current: workspace } = useWorkspace();
@@ -728,7 +741,7 @@ function IntegrationsTab() {
     const needsPageSelect = params.get("needsPageSelect");
 
     if (oauth === "success" && provider) {
-      toast.success(`${provider === "meta" ? "Meta" : provider} connected`);
+      toast.success(`${providerDisplayName(provider)} connected`);
       window.history.replaceState({}, "", "/settings?tab=integrations");
       const timer = setTimeout(() => invalidateQueries("/api/integrations"), 500);
       if (needsPageSelect === "1" && provider === "meta" && productId) {
@@ -738,7 +751,7 @@ function IntegrationsTab() {
     }
     if (oauth === "error" && provider) {
       const message = params.get("message");
-      toast.error(`Failed to connect ${provider === "meta" ? "Meta" : provider}${message ? `: ${message}` : ""}`);
+      toast.error(`Failed to connect ${providerDisplayName(provider)}${message ? `: ${message}` : ""}`);
       window.history.replaceState({}, "", "/settings?tab=integrations");
     }
   }, []);
@@ -766,9 +779,15 @@ function IntegrationsTab() {
     return () => { cancelled = true; };
   }, [pagePickerProduct, wsId]);
 
-  function connect(provider: string, productId: string) {
-    const returnTo = encodeURIComponent("/settings?tab=integrations");
-    startOAuthAuthorize(`/api/oauth/authorize/${provider}?productId=${encodeURIComponent(productId)}&returnTo=${returnTo}`);
+  function connect(provider: string, productId: string, linkedinMode?: "profile" | "community") {
+    const qs = new URLSearchParams({
+      productId,
+      returnTo: "/settings?tab=integrations",
+    });
+    if (provider === "linkedin" && linkedinMode) {
+      qs.set("linkedinMode", linkedinMode);
+    }
+    startOAuthAuthorize(`/api/oauth/authorize/${provider}?${qs.toString()}`);
   }
 
   async function confirmDisconnect() {
@@ -873,7 +892,7 @@ function IntegrationsTab() {
                       {st.state === "connected" && <Badge className="border-0" style={pillStyle("pos")}>Linked</Badge>}
                       {st.state === "needs-page" && (
                         <Badge className="border-0" style={pillStyle("warn")}>
-                          {ch.provider === "pinterest" ? "Pick a board" : "Pick a Page"}
+                          {ch.provider === "pinterest" ? "Pick a board" : ch.provider === "linkedin" ? "Pick target" : "Pick a Page"}
                         </Badge>
                       )}
                     </div>
@@ -894,9 +913,16 @@ function IntegrationsTab() {
                     ) : st.state === "needs-page" ? (
                       ch.provider === "pinterest" ? (
                         <a href="/products"><Button size="sm">Choose board</Button></a>
+                      ) : ch.provider === "linkedin" ? (
+                        <a href="/products"><Button size="sm">Choose target</Button></a>
                       ) : (
                         <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>Choose Page</Button>
                       )
+                    ) : ch.provider === "linkedin" ? (
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => connect(ch.provider, product.id, "profile")}>Profile</Button>
+                        <Button size="sm" variant="outline" onClick={() => connect(ch.provider, product.id, "community")}>Pages</Button>
+                      </div>
                     ) : (
                       <Button size="sm" onClick={() => connect(ch.provider, product.id)}>Link</Button>
                     )}

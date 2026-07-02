@@ -19,6 +19,10 @@ export type ChannelStatusEntry = {
   boardId?: string | null;
   boardName?: string | null;
   boardSelectionRequired?: boolean | null;
+  linkedinDestinationUrn?: string | null;
+  linkedinDestinationName?: string | null;
+  linkedinDestinationType?: "profile" | "page" | null;
+  linkedinDestinationSelectionRequired?: boolean | null;
 };
 
 export type ChannelStatus = {
@@ -64,6 +68,16 @@ export function resolveChannelStatus(
       return { state: "connected", label: entry.boardName || "Pinterest board" };
     }
     if (entry.status === "connected" || entry.boardSelectionRequired) {
+      return { state: "needs-page" };
+    }
+    return { state: "disconnected" };
+  }
+
+  if (provider === "linkedin") {
+    if (entry.status === "connected" && entry.linkedinDestinationUrn && !entry.linkedinDestinationSelectionRequired) {
+      return { state: "connected", label: entry.linkedinDestinationName || "LinkedIn destination" };
+    }
+    if (entry.status === "connected" || entry.linkedinDestinationSelectionRequired) {
       return { state: "needs-page" };
     }
     return { state: "disconnected" };

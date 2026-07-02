@@ -13,6 +13,7 @@ import {
   PLATFORM_ACTION_REQUIRED_STATUS,
   TIKTOK_MANUAL_PUBLISH_ACTION,
 } from '@/lib/tiktok-draft-flow';
+import { getTikTokPublishMappingRef } from '@/lib/social/tiktok-publish-mapping';
 
 type TikTokPublishPollResult = {
   polled: number;
@@ -46,6 +47,41 @@ function getPublishStartedAt(post: Record<string, unknown>): string | null {
     if (typeof value === 'string' && value) return value;
   }
   return null;
+}
+
+function getTikTokPublishId(post: Record<string, unknown>): string | null {
+  if (typeof post.tiktokPublishId === 'string' && post.tiktokPublishId) {
+    return post.tiktokPublishId;
+  }
+
+  if (post.channel === 'tiktok' && typeof post.externalId === 'string' && post.externalId) {
+    return post.externalId;
+  }
+
+  if (Array.isArray(post.publishResults)) {
+    for (const result of post.publishResults) {
+      if (!result || typeof result !== 'object') continue;
+      const current = result as Record<string, unknown>;
+      if (current.channel === 'tiktok' && typeof current.externalId === 'string' && current.externalId) {
+        return current.externalId;
+      }
+    }
+  }
+
+  return null;
+}
+
+function postTargetsTikTok(post: Record<string, unknown>): boolean {
+  if (post.channel === 'tiktok') return true;
+  if (Array.isArray(post.targetChannels) && post.targetChannels.includes('tiktok')) return true;
+  if (Array.isArray(post.publishResults)) {
+    return post.publishResults.some((result) => (
+      result &&
+      typeof result === 'object' &&
+      (result as Record<string, unknown>).channel === 'tiktok'
+    ));
+  }
+  return false;
 }
 
 function isPastTikTokPullTimeout(post: Record<string, unknown>): boolean {
@@ -154,8 +190,9 @@ export async function pollTikTokPublishForPost(
   const snap = await postDocRef.get();
   if (!snap.exists) return { status: 'error', error: 'Post not found' };
   const post = snap.data() as Record<string, unknown>;
+  const publishId = getTikTokPublishId(post);
 
-  if (!post.externalId) return { status: 'no_external_id' };
+  if (!publishId) return { status: 'no_external_id' };
 
   const productId = typeof post.productId === 'string' && post.productId ? post.productId : undefined;
   const connection = await getConnectionForChannel(
@@ -172,13 +209,13 @@ export async function pollTikTokPublishForPost(
 
   let liveStatus: Awaited<ReturnType<typeof fetchTikTokPublishStatus>>;
   try {
-    liveStatus = await fetchTikTokPublishStatus(getAccessToken(activeConnection), String(post.externalId));
+    liveStatus = await fetchTikTokPublishStatus(getAccessToken(activeConnection), publishId);
   } catch (err) {
     logger.warn('tiktok publish status fetch failed', {
       event: 'tiktok.publish.status_fetch_failed',
       workspaceId,
       postId: postDocRef.id,
-      publishId: String(post.externalId),
+      publishId,
       err,
     });
     return { status: 'error', error: err instanceof Error ? err.message : 'TikTok status fetch failed' };
@@ -188,13 +225,13 @@ export async function pollTikTokPublishForPost(
     if (refreshed) {
       activeConnection = refreshed;
       try {
-        liveStatus = await fetchTikTokPublishStatus(getAccessToken(activeConnection), String(post.externalId));
+        liveStatus = await fetchTikTokPublishStatus(getAccessToken(activeConnection), publishId);
       } catch (err) {
         logger.warn('tiktok publish status fetch failed after token refresh', {
           event: 'tiktok.publish.status_fetch_failed',
           workspaceId,
           postId: postDocRef.id,
-          publishId: String(post.externalId),
+          publishId,
           refreshed: true,
           err,
         });
@@ -207,7 +244,7 @@ export async function pollTikTokPublishForPost(
       event: 'tiktok.publish.status_error',
       workspaceId,
       postId: postDocRef.id,
-      publishId: String(post.externalId),
+      publishId,
       error: liveStatus.error,
     });
     return { status: 'error', error: liveStatus.error };
@@ -220,7 +257,7 @@ export async function pollTikTokPublishForPost(
     event: 'tiktok.publish.status',
     workspaceId,
     postId: postDocRef.id,
-    publishId: String(post.externalId),
+    publishId,
     status: liveStatus.status,
     ...(typeof liveStatus.downloadedBytes === 'number' ? { downloadedBytes: liveStatus.downloadedBytes } : {}),
     ...(typeof liveStatus.uploadedBytes === 'number' ? { uploadedBytes: liveStatus.uploadedBytes } : {}),
@@ -234,6 +271,7 @@ export async function pollTikTokPublishForPost(
     await postDocRef.update({
       status: nextStatus,
       publishResults: nextPublishResults,
+      tiktokPublishId: publishId,
       publishedChannels: summary.publishedChannels,
       ...(summary.allSucceeded ? { publishedAt: now } : {}),
       ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
@@ -248,7 +286,7 @@ export async function pollTikTokPublishForPost(
         postId: snap.id,
         channel: post.channel,
         status: nextStatus,
-        externalId: typeof post.externalId === 'string' ? post.externalId : '',
+        externalId: publishId,
         externalUrl: typeof post.externalUrl === 'string' ? post.externalUrl : '',
       });
     } else if (clientId && (nextStatus === 'failed' || nextStatus === 'partial_failed')) {
@@ -281,6 +319,7 @@ export async function pollTikTokPublishForPost(
         nextAction: TIKTOK_MANUAL_PUBLISH_ACTION,
         actionRequiredAt: now,
       } : {}),
+      tiktokPublishId: publishId,
       ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
       publishResults: nextPublishResults,
       publishedChannels: summary.publishedChannels,
@@ -295,7 +334,7 @@ export async function pollTikTokPublishForPost(
         postId: snap.id,
         channel: post.channel,
         status: PLATFORM_ACTION_REQUIRED_STATUS,
-        externalId: typeof post.externalId === 'string' ? post.externalId : '',
+        externalId: publishId,
         externalUrl: typeof post.externalUrl === 'string' ? post.externalUrl : '',
         nextAction: TIKTOK_MANUAL_PUBLISH_ACTION,
       });
@@ -326,6 +365,7 @@ export async function pollTikTokPublishForPost(
       status: nextStatus,
       errorMessage: summary.firstError || error,
       publishResults: nextPublishResults,
+      tiktokPublishId: publishId,
       publishedChannels: summary.publishedChannels,
       ...(nextStatus === 'published' ? { publishedAt: now } : {}),
       ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
@@ -372,6 +412,7 @@ export async function pollTikTokPublishForPost(
       publishLeaseExpiresAt: null,
       ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
       tiktokLastStatus: liveStatus.status,
+      tiktokPublishId: publishId,
       ...(typeof liveStatus.downloadedBytes === 'number' ? { tiktokDownloadedBytes: liveStatus.downloadedBytes } : {}),
       ...(typeof liveStatus.uploadedBytes === 'number' ? { tiktokUploadedBytes: liveStatus.uploadedBytes } : {}),
       updatedAt: now,
@@ -393,6 +434,7 @@ export async function pollTikTokPublishForPost(
   await postDocRef.update({
     publishResults: withUpdatedTikTokResult(post.publishResults, 'pending'),
     tiktokLastStatus: liveStatus.status || null,
+    tiktokPublishId: publishId,
     ...(typeof liveStatus.downloadedBytes === 'number' ? { tiktokDownloadedBytes: liveStatus.downloadedBytes } : {}),
     ...(typeof liveStatus.uploadedBytes === 'number' ? { tiktokUploadedBytes: liveStatus.uploadedBytes } : {}),
     updatedAt: now,
@@ -436,18 +478,46 @@ export async function findPostByTikTokPublishId(publishId: string): Promise<{
   postRef: DocumentReference;
 } | null> {
   if (!publishId) return null;
-  const snap = await adminDb
+
+  const mappingSnap = await getTikTokPublishMappingRef(publishId).get();
+  if (mappingSnap.exists) {
+    const mapping = mappingSnap.data() as Record<string, unknown>;
+    const workspaceId = typeof mapping.workspaceId === 'string' ? mapping.workspaceId : '';
+    const postId = typeof mapping.postId === 'string' ? mapping.postId : '';
+    if (workspaceId && postId) {
+      return {
+        workspaceId,
+        postRef: adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`),
+      };
+    }
+  }
+
+  const byTikTokIdSnap = await adminDb
+    .collectionGroup('posts')
+    .where('tiktokPublishId', '==', publishId)
+    .limit(5)
+    .get();
+  for (const doc of byTikTokIdSnap.docs) {
+    const post = doc.data() as Record<string, unknown>;
+    if (!postTargetsTikTok(post)) continue;
+    const workspaceId = doc.ref.parent.parent?.id;
+    if (workspaceId) return { workspaceId, postRef: doc.ref };
+  }
+
+  const byExternalIdSnap = await adminDb
     .collectionGroup('posts')
     .where('externalId', '==', publishId)
-    .where('channel', '==', 'tiktok')
-    .limit(1)
+    .limit(5)
     .get();
-  if (snap.empty) return null;
-  const doc = snap.docs[0];
-  // posts live at workspaces/{workspaceId}/posts/{postId}
-  const workspaceId = doc.ref.parent.parent?.id;
-  if (!workspaceId) return null;
-  return { workspaceId, postRef: doc.ref };
+  for (const doc of byExternalIdSnap.docs) {
+    const post = doc.data() as Record<string, unknown>;
+    if (!postTargetsTikTok(post)) continue;
+    // posts live at workspaces/{workspaceId}/posts/{postId}
+    const workspaceId = doc.ref.parent.parent?.id;
+    if (workspaceId) return { workspaceId, postRef: doc.ref };
+  }
+
+  return null;
 }
 
 export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollResult> {
@@ -460,13 +530,13 @@ export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollRes
       adminDb
         .collection(`workspaces/${workspaceId}/posts`)
         .where('status', '==', 'publishing')
-        .where('channel', '==', 'tiktok')
         .orderBy('updatedAt', 'asc'),
     );
 
     for (const doc of postsDocs) {
       const post = doc.data();
-      if (!post.externalId) continue;
+      if (!postTargetsTikTok(post)) continue;
+      if (!getTikTokPublishId(post)) continue;
 
       result.polled++;
 

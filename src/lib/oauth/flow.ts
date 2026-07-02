@@ -7,14 +7,20 @@ import type { OAuthProvider, SocialChannel } from '@/lib/schemas';
 import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
 import type { PlatformConnection } from '@/lib/platform/types';
 import { isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
+import {
+  linkedinStorageProviderForKind,
+  type LinkedInCredentialKind,
+} from '@/lib/platform/linkedin-providers';
 
 export type OAuthTokens = {
   accessToken: string;
   refreshToken?: string;
   expiresIn?: number;
+  refreshTokenExpiresIn?: number;
   tokenType?: string;
   scope?: string;
   openId?: string; // TikTok-specific
+  idToken?: string;
 };
 
 type OAuthState = {
@@ -26,7 +32,12 @@ type OAuthState = {
   codeVerifier?: string;
   productId?: string;
   returnTo?: string;
+  linkedinCredentialKind?: LinkedInCredentialKind;
 };
+
+function shortHash(value: string): string {
+  return crypto.createHash('sha256').update(value).digest('hex').slice(0, 12);
+}
 
 /**
  * Generate an OAuth authorization URL and store state in Firestore.
@@ -37,9 +48,13 @@ export async function generateAuthUrl(
   userId: string,
   productId?: string,
   returnTo?: string,
+  options: { linkedinCredentialKind?: LinkedInCredentialKind } = {},
 ): Promise<string> {
-  const config = getProviderConfig(provider);
-  const { clientId } = getClientCredentials(provider);
+  const linkedinCredentialKind = provider === 'linkedin'
+    ? options.linkedinCredentialKind || 'profile'
+    : undefined;
+  const config = getProviderConfig(provider, linkedinCredentialKind);
+  const { clientId } = getClientCredentials(provider, linkedinCredentialKind);
   const redirectUri = getRedirectUri(provider);
 
   const stateId = crypto.randomUUID();
@@ -54,6 +69,7 @@ export async function generateAuthUrl(
     expiresAt: expiresAt.toISOString(),
     ...(productId ? { productId } : {}),
     ...(returnTo ? { returnTo } : {}),
+    ...(linkedinCredentialKind ? { linkedinCredentialKind } : {}),
   };
 
   const clientIdParam = config.clientIdParam || 'client_id';
@@ -83,6 +99,17 @@ export async function generateAuthUrl(
   await adminDb.doc(`oauth_states/${stateId}`).set(stateDoc);
 
   const params = new URLSearchParams(authParams);
+  if (provider === 'linkedin') {
+    logger.info('linkedin authorization url created', {
+      event: 'oauth.linkedin.authorize.created',
+      kind: linkedinCredentialKind,
+      clientIdHash: shortHash(clientId),
+      stateHash: shortHash(stateId),
+      redirectUri,
+      scopes: config.scopes.join(' '),
+      productId: productId || null,
+    });
+  }
   return `${config.authUrl}?${params.toString()}`;
 }
 
@@ -148,7 +175,16 @@ export async function exchangeCode(
   provider: OAuthProvider,
   code: string,
   stateId: string,
-): Promise<{ tokens: OAuthTokens; workspaceId: string; userId: string; productId?: string; returnTo?: string; extraData?: Record<string, unknown> }> {
+): Promise<{
+  tokens: OAuthTokens;
+  workspaceId: string;
+  userId: string;
+  productId?: string;
+  returnTo?: string;
+  extraData?: Record<string, unknown>;
+  linkedinCredentialKind?: LinkedInCredentialKind;
+  storageProvider?: string;
+}> {
   const stateRef = adminDb.doc(`oauth_states/${stateId}`);
   const stateSnap = await stateRef.get();
 
@@ -171,51 +207,91 @@ export async function exchangeCode(
   const codeVerifier = state.codeVerifier;
   await stateRef.delete();
 
-  const config = getProviderConfig(provider);
-  const { clientId, clientSecret } = getClientCredentials(provider);
+  let linkedinCredentialKind = provider === 'linkedin'
+    ? state.linkedinCredentialKind || 'profile'
+    : undefined;
   const redirectUri = getRedirectUri(provider);
 
-  const body: Record<string, string> = {
-    code,
-    redirect_uri: redirectUri,
-    grant_type: 'authorization_code',
-  };
+  async function requestToken(kind?: LinkedInCredentialKind) {
+    const config = getProviderConfig(provider, kind);
+    const { clientId, clientSecret } = getClientCredentials(provider, kind);
+    const body: Record<string, string> = {
+      code,
+      redirect_uri: redirectUri,
+      grant_type: 'authorization_code',
+    };
 
-  if (codeVerifier) {
-    body.code_verifier = codeVerifier;
+    if (codeVerifier) {
+      body.code_verifier = codeVerifier;
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Accept: 'application/json',
+    };
+
+    if (config.useBasicAuth) {
+      // RFC 6749 §2.3.1: client_id and client_secret in Basic Auth must be
+      // percent-encoded before base64. Pinterest enforces this strictly — raw
+      // creds with special characters return "Authentication failed".
+      const encoded = `${encodeURIComponent(clientId)}:${encodeURIComponent(clientSecret)}`;
+      headers.Authorization = `Basic ${Buffer.from(encoded).toString('base64')}`;
+      // X confidential clients require client_id in the body *in addition* to
+      // the Basic Auth header. Sending it everywhere is safe — other providers
+      // ignore it when the header auth is valid.
+      const clientIdParam = config.clientIdParam || 'client_id';
+      body[clientIdParam] = clientId;
+    } else {
+      const clientIdParam = config.clientIdParam || 'client_id';
+      body[clientIdParam] = clientId;
+      body.client_secret = clientSecret;
+    }
+
+    const res = await fetch(config.tokenUrl, {
+      method: 'POST',
+      headers,
+      body: new URLSearchParams(body).toString(),
+    });
+    const data = await res.json();
+    const tokenData = normalizeOAuthTokenResponse(provider, data);
+    const accessToken = optionalString(tokenData.access_token);
+    if (provider === 'linkedin') {
+      logger.info('linkedin token exchange response', {
+        event: 'oauth.linkedin.token_exchange.response',
+        kind,
+        clientIdHash: shortHash(clientId),
+        httpStatus: res.status,
+        hasAccessToken: Boolean(accessToken),
+        redirectUri,
+        error: res.ok ? null : String(data.error_description || data.error || data.message || 'Unknown error'),
+      });
+    }
+    return { res, data, tokenData, accessToken };
   }
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    Accept: 'application/json',
-  };
+  let tokenResponse = await requestToken(linkedinCredentialKind);
+  let { res, data, tokenData, accessToken } = tokenResponse;
 
-  if (config.useBasicAuth) {
-    // RFC 6749 §2.3.1: client_id and client_secret in Basic Auth must be
-    // percent-encoded before base64. Pinterest enforces this strictly — raw
-    // creds with special characters return "Authentication failed".
-    const encoded = `${encodeURIComponent(clientId)}:${encodeURIComponent(clientSecret)}`;
-    headers['Authorization'] = `Basic ${Buffer.from(encoded).toString('base64')}`;
-    // X confidential clients require client_id in the body *in addition* to
-    // the Basic Auth header. Sending it everywhere is safe — other providers
-    // ignore it when the header auth is valid.
-    const clientIdParam = config.clientIdParam || 'client_id';
-    body[clientIdParam] = clientId;
-  } else {
-    const clientIdParam = config.clientIdParam || 'client_id';
-    body[clientIdParam] = clientId;
-    body.client_secret = clientSecret;
+  if (
+    provider === 'linkedin' &&
+    linkedinCredentialKind &&
+    (!res.ok || !accessToken) &&
+    /client authentication failed/i.test(String(data.error_description || data.error || data.message || ''))
+  ) {
+    const retryKind: LinkedInCredentialKind = linkedinCredentialKind === 'community' ? 'profile' : 'community';
+    logger.warn('linkedin token exchange retrying alternate client', {
+      event: 'oauth.linkedin.token_exchange.retry_alternate_client',
+      requestedKind: linkedinCredentialKind,
+      retryKind,
+      httpStatus: res.status,
+      error: String(data.error_description || data.error || data.message || 'Unknown error'),
+    });
+    tokenResponse = await requestToken(retryKind);
+    ({ res, data, tokenData, accessToken } = tokenResponse);
+    if (res.ok && accessToken) {
+      linkedinCredentialKind = retryKind;
+    }
   }
-
-  const res = await fetch(config.tokenUrl, {
-    method: 'POST',
-    headers,
-    body: new URLSearchParams(body).toString(),
-  });
-
-  const data = await res.json();
-  const tokenData = normalizeOAuthTokenResponse(provider, data);
-  const accessToken = optionalString(tokenData.access_token);
 
   if (provider === 'instagram') {
     // Confirm the short-lived token's response shape (never log the token) so
@@ -240,9 +316,11 @@ export async function exchangeCode(
     accessToken,
     refreshToken: optionalString(tokenData.refresh_token),
     expiresIn: optionalNumber(tokenData.expires_in),
+    refreshTokenExpiresIn: optionalNumber(tokenData.refresh_token_expires_in),
     tokenType: optionalString(tokenData.token_type),
     scope: optionalString(tokenData.scope) || optionalString(tokenData.permissions),
     openId: optionalString(tokenData.open_id),
+    idToken: optionalString(tokenData.id_token),
   };
 
   const extraData: Record<string, unknown> = {};
@@ -257,6 +335,10 @@ export async function exchangeCode(
     productId: state.productId,
     returnTo: state.returnTo,
     extraData: Object.keys(extraData).length > 0 ? extraData : undefined,
+    ...(linkedinCredentialKind ? {
+      linkedinCredentialKind,
+      storageProvider: linkedinStorageProviderForKind(linkedinCredentialKind),
+    } : {}),
   };
 }
 
@@ -266,6 +348,7 @@ export async function exchangeCode(
 export async function refreshAccessToken(
   provider: OAuthProvider,
   refreshToken: string,
+  options: { linkedinCredentialKind?: LinkedInCredentialKind } = {},
 ): Promise<OAuthTokens> {
   if (provider === 'instagram') {
     let res = await fetch(
@@ -305,8 +388,8 @@ export async function refreshAccessToken(
     };
   }
 
-  const config = getProviderConfig(provider);
-  const { clientId, clientSecret } = getClientCredentials(provider);
+  const config = getProviderConfig(provider, options.linkedinCredentialKind);
+  const { clientId, clientSecret } = getClientCredentials(provider, options.linkedinCredentialKind);
 
   const body: Record<string, string> = {};
 
@@ -350,8 +433,10 @@ export async function refreshAccessToken(
     accessToken: data.access_token,
     refreshToken: data.refresh_token || refreshToken,
     expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
+    refreshTokenExpiresIn: data.refresh_token_expires_in ? Number(data.refresh_token_expires_in) : undefined,
     tokenType: data.token_type,
     scope: data.scope,
+    idToken: data.id_token,
   };
 }
 
@@ -391,23 +476,28 @@ export async function storeTokens(
   userId: string,
   extraData?: Record<string, unknown>,
   productId?: string,
+  storageProvider?: string,
 ): Promise<void> {
   const now = new Date();
   const tokenExpiresAt = tokens.expiresIn
     ? new Date(now.getTime() + tokens.expiresIn * 1000).toISOString()
     : undefined;
+  const refreshTokenExpiresAt = tokens.refreshTokenExpiresIn
+    ? new Date(now.getTime() + tokens.refreshTokenExpiresIn * 1000).toISOString()
+    : undefined;
 
-  const { channels, capabilities } = providerChannelsAndCapabilities(provider);
+  const connectionProvider = storageProvider || provider;
+  const { channels, capabilities } = providerChannelsAndCapabilities(connectionProvider);
 
   const connPath = productId
-    ? `workspaces/${workspaceId}/products/${productId}/platformConnections/${provider}`
-    : `workspaces/${workspaceId}/platformConnections/${provider}`;
+    ? `workspaces/${workspaceId}/products/${productId}/platformConnections/${connectionProvider}`
+    : `workspaces/${workspaceId}/platformConnections/${connectionProvider}`;
   const connRef = adminDb.doc(connPath);
   const existingSnap = await connRef.get();
   const existing = existingSnap.exists ? (existingSnap.data() as Partial<PlatformConnection>) : null;
 
   const connection: PlatformConnection = {
-    provider,
+    provider: connectionProvider,
     channels,
     capabilities,
     status: ConnectionStatus.CONNECTED,
@@ -415,6 +505,8 @@ export async function storeTokens(
     metadata: {
       lastRefreshError: null,
       refreshFailureCount: 0,
+      ...(tokens.scope ? { oauthScopes: tokens.scope } : {}),
+      ...(refreshTokenExpiresAt ? { refreshTokenExpiresAt } : {}),
       ...(extraData || {}),
     },
     workspaceId,
@@ -435,7 +527,7 @@ export async function storeTokens(
   await connRef.set(connection);
 }
 
-function providerChannelsAndCapabilities(provider: OAuthProvider): {
+function providerChannelsAndCapabilities(provider: string): {
   channels: SocialChannel[];
   capabilities: PlatformCapability[];
 } {
@@ -473,5 +565,19 @@ function providerChannelsAndCapabilities(provider: OAuthProvider): {
           PlatformCapability.PUBLISH_VIDEO,
         ],
       };
+    case 'linkedin':
+    case 'linkedin_profile':
+    case 'linkedin_community':
+      return {
+        channels: ['linkedin'],
+        capabilities: [
+          PlatformCapability.PUBLISH_TEXT,
+          PlatformCapability.PUBLISH_IMAGE,
+          PlatformCapability.PUBLISH_VIDEO,
+          PlatformCapability.PUBLISH_CAROUSEL,
+        ],
+      };
+    default:
+      throw new Error(`Unsupported OAuth provider: ${provider}`);
   }
 }

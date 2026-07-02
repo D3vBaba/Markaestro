@@ -112,7 +112,8 @@ export default function ChannelSelector({
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+
+    async function loadChannels() {
       if (!productId) {
         if (!cancelled) {
           setManagedChannels(fallbackChannels);
@@ -126,8 +127,22 @@ export default function ChannelSelector({
         setManagedChannels(res.data.channels?.length ? res.data.channels : fallbackChannels);
       }
       setLoadedProductKey(productKey);
-    })();
-    return () => { cancelled = true; };
+    }
+
+    loadChannels();
+
+    // Connecting a social account happens in another tab (the OAuth flow opens
+    // a new tab), so refresh statuses when the user comes back to this one.
+    function onFocus() {
+      if (document.visibilityState === "visible") loadChannels();
+    }
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
   }, [productId, productKey]);
 
   function channelState(ch: string): ChannelState {

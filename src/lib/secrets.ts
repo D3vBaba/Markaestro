@@ -83,6 +83,10 @@ export async function loadSecretsToEnv(): Promise<void> {
     'THREADS_APP_SECRET',
     'PINTEREST_CLIENT_ID',
     'PINTEREST_CLIENT_SECRET',
+    'LINKEDIN_PROFILE_CLIENT_ID',
+    'LINKEDIN_PROFILE_CLIENT_SECRET',
+    'LINKEDIN_COMMUNITY_CLIENT_ID',
+    'LINKEDIN_COMMUNITY_CLIENT_SECRET',
     'FIREBASE_SERVICE_ACCOUNT_JSON',
     // Stripe — API key + webhook signing secret are true secrets; price IDs
     // are non-secret config but live here too so the whole Stripe env set is

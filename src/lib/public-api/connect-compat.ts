@@ -26,7 +26,7 @@ import {
 } from './products';
 
 // Only these channels have working publish destinations in Markaestro today.
-const CONNECT_CHANNELS: SocialChannel[] = ['facebook', 'instagram', 'tiktok'];
+const CONNECT_CHANNELS: SocialChannel[] = ['facebook', 'instagram', 'tiktok', 'linkedin'];
 
 export type ConnectAccount = {
   // Opaque id a client round-trips as a "social account". Encodes the

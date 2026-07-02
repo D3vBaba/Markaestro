@@ -38,6 +38,7 @@ const CHANNEL_ACCENT: Record<string, string> = {
   tiktok:    "var(--mk-ch-tiktok)",
   threads:   "var(--mk-ink)",
   pinterest: "#E60023",
+  linkedin:  "var(--mk-ch-linkedin)",
 };
 
 const CHANNEL_BG: Record<string, string> = {
@@ -46,6 +47,7 @@ const CHANNEL_BG: Record<string, string> = {
   tiktok:    "color-mix(in oklch, var(--mk-ch-tiktok) 8%, transparent)",
   threads:   "color-mix(in oklch, var(--mk-ink) 8%, transparent)",
   pinterest: "color-mix(in oklch, #E60023 8%, transparent)",
+  linkedin:  "color-mix(in oklch, var(--mk-ch-linkedin) 8%, transparent)",
 };
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -54,6 +56,7 @@ const CHANNEL_LABEL: Record<string, string> = {
   tiktok:    "TikTok",
   threads:   "Threads",
   pinterest: "Pinterest",
+  linkedin:  "LinkedIn",
 };
 
 const STATUS_DOT: Record<string, string> = {

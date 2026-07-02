@@ -125,6 +125,23 @@ export function validateSocialPost(input: SocialPostValidationInput): SocialPost
     });
   }
 
+  if (channels.includes('linkedin')) {
+    if (!content) {
+      issues.push({
+        channel: 'linkedin',
+        code: 'VALIDATION_LINKEDIN_CONTENT_REQUIRED',
+        message: 'LinkedIn posts require text content.',
+      });
+    }
+    if (hasVideo && mediaUrls.length > 1) {
+      issues.push({
+        channel: 'linkedin',
+        code: 'VALIDATION_LINKEDIN_VIDEO_MUST_BE_SINGLE_MEDIA',
+        message: 'LinkedIn video posts must use a single video without additional images.',
+      });
+    }
+  }
+
   return issues;
 }
 

@@ -11,7 +11,7 @@ const endpointGroups = [
     description: "Discover the products and publish destinations available to the API key.",
     endpoints: [
       { method: "GET", path: "/api/public/v1/products", note: "Lists products plus the channels currently available for each one." },
-      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the publish destinations for that product, including standalone Instagram Login, Facebook Page, Threads, and connected TikTok destinations." },
+      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the publish destinations for that product, including standalone Instagram Login, Facebook Page, Threads, LinkedIn Profile/Page, and connected TikTok destinations." },
     ],
   },
   {
@@ -23,11 +23,11 @@ const endpointGroups = [
   },
   {
     title: "Posts",
-    description: "Create, inspect, and publish posts for Facebook, Instagram, and TikTok.",
+    description: "Create, inspect, and publish posts for Facebook, Instagram, LinkedIn, Threads, Pinterest, and TikTok.",
     endpoints: [
       { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft in the workspace for the selected product destination." },
       { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status and publish results." },
-      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. Facebook and Instagram publish directly; TikTok uses the inbox handoff and still requires creator completion in TikTok." },
+      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. Facebook, Instagram, LinkedIn, Threads, and Pinterest publish directly; TikTok uses the inbox handoff and still requires creator completion in TikTok." },
     ],
   },
   {
@@ -93,7 +93,7 @@ const webhookExample = `{
 }`;
 
 const connectEndpoints = [
-  { method: "GET", path: "/api/connect/v1/social-accounts", note: "Lists connected Facebook, Instagram, TikTok, and Threads destinations as flat accounts, each labeled with its product so clients can group and disambiguate. Each channel is its own dedicated path — no cross-channel fan-out." },
+  { method: "GET", path: "/api/connect/v1/social-accounts", note: "Lists connected Facebook, Instagram, TikTok, LinkedIn, and Threads destinations as flat accounts, each labeled with its product so clients can group and disambiguate. Each channel is its own dedicated path — no cross-channel fan-out." },
   { method: "GET", path: "/api/connect/v1/products", note: "Lists products with their connected accounts nested — a product-first picker." },
   { method: "POST", path: "/api/connect/v1/media/create-upload-url", note: "Returns a short-lived, single-use signed PUT url plus a media id." },
   { method: "PUT", path: "<upload_url>", note: "Upload the raw image bytes to the signed url. No API key needed — the signature authorizes it." },
@@ -132,7 +132,7 @@ export default function DevelopersApiPage() {
             Public publishing API
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
-            Upload media, create posts, and publish to Facebook and Instagram, all scoped to a product via a workspace
+            Upload media, create posts, and publish to Facebook, Instagram, LinkedIn, Threads, and Pinterest, all scoped to a product via a workspace
             API key. The recommended way to integrate is the{" "}
             <a href="#connect-api" className="underline underline-offset-2">Connect API</a> — a small, flat
             <code>/api/connect/v1</code> surface that most scheduling tools can target as-is.
@@ -146,7 +146,7 @@ export default function DevelopersApiPage() {
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             <strong className="text-foreground">TikTok is draft-first over the API.</strong> A TikTok post is always
             created as a draft in Markaestro. Explicit publish uses TikTok&apos;s inbox handoff, never public Direct Post,
-            and the creator finalizes inside TikTok. Facebook and Instagram publish programmatically.
+                and the creator finalizes inside TikTok. Facebook, Instagram, LinkedIn, Threads, and Pinterest publish programmatically.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             Workspaces can have multiple products. Every API key is bound to one product when you create it, so calls
@@ -204,9 +204,9 @@ export default function DevelopersApiPage() {
                 appear under multiple products), and its <code>id</code> encodes <code>productId#destinationId</code> — pass it
                 back verbatim in <code>social_accounts</code>, and the request fans out one post per account. Each key is
                 bound to one product, so it only sees and posts to that product. <strong className="text-foreground">TikTok
-                posts are created as drafts</strong> and finalized from the Markaestro app; Facebook and Instagram publish
+                posts are created as drafts</strong> and finalized from the Markaestro app; Facebook, Instagram, LinkedIn, Threads, and Pinterest publish
                 programmatically after an explicit publish action. Post status is one of <code>draft</code>, <code>processing</code>,{" "}
-                <code>posted</code>, or <code>failed</code>. Facebook, Instagram, TikTok, and Threads are each their own dedicated
+                <code>posted</code>, or <code>failed</code>. Facebook, Instagram, LinkedIn, TikTok, and Threads are each their own dedicated
                 destination — publishing to one never fans out to another. Track publishing state through{" "}
                 <code>GET /api/connect/v1/posts</code>.
               </p>
@@ -292,7 +292,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>2. Inspect destinations</CardTitle>
-                <CardDescription>See the linked pages and accounts for a product before creating the post. Use the returned <code>destinationId</code> when a product has more than one Instagram destination.</CardDescription>
+                <CardDescription>See the linked pages and accounts for a product before creating the post. Use the returned <code>destinationId</code> when a product has multiple destinations, such as a LinkedIn Profile plus Pages.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.listDestinations}</code></pre>
@@ -328,7 +328,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>5. Queue publish</CardTitle>
-                <CardDescription>Publishing creates an async run. Facebook and Instagram publish directly; TikTok queues the inbox handoff and returns action-required when TikTok accepts it.</CardDescription>
+                <CardDescription>Publishing creates an async run. Facebook, Instagram, LinkedIn, Threads, and Pinterest publish directly; TikTok queues the inbox handoff and returns action-required when TikTok accepts it.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.publish}</code></pre>
@@ -362,6 +362,10 @@ export default function DevelopersApiPage() {
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">TikTok</p>
                 <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. API posts are always created as drafts; explicit publish sends the draft to the creator&apos;s TikTok inbox, not public Direct Post.</p>
+              </div>
+              <div className="rounded-xl border p-4">
+                <p className="text-sm font-medium">LinkedIn</p>
+                <p className="mt-2 text-sm text-muted-foreground">Text, single image, single video, or organic multi-image posts up to 20 images. Target either the connected Profile or a managed Page.</p>
               </div>
             </CardContent>
           </Card>

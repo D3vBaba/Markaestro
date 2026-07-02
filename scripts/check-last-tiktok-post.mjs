@@ -58,7 +58,10 @@ function resolveCredential() {
 }
 
 if (!admin.apps.length) {
-  admin.initializeApp({ credential: resolveCredential() });
+  admin.initializeApp({
+    credential: resolveCredential(),
+    projectId: process.env.GOOGLE_CLOUD_PROJECT || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  });
 }
 const db = admin.firestore();
 
@@ -140,11 +143,6 @@ async function fetchTikTokStatus(accessToken, publishId) {
   return { httpStatus: res.status, body };
 }
 
-function redact(token) {
-  if (!token || typeof token !== 'string') return '<missing>';
-  return `${token.slice(0, 6)}…${token.slice(-4)} (len=${token.length})`;
-}
-
 (async () => {
   const post = args.post
     ? await getPostById(args.workspace, args.post)
@@ -187,14 +185,16 @@ function redact(token) {
   }
 
   const accessToken = decryptAccessToken(connection);
+  const metadata = connection.metadata || {};
   console.log('\n=== Connection ===');
   console.log({
     path: connection.path,
-    openId: connection.openId || connection.open_id,
-    username: connection.username,
-    scope: connection.scope,
-    expiresAt: connection.expiresAt,
-    accessTokenPreview: redact(accessToken),
+    openId: metadata.openId || connection.openId || connection.open_id,
+    username: metadata.username || connection.username,
+    displayName: metadata.displayName,
+    scope: metadata.oauthScopes || metadata.scope || connection.scope,
+    tokenExpiresAt: connection.tokenExpiresAt,
+    hasAccessToken: Boolean(accessToken),
   });
 
   if (!accessToken) {
