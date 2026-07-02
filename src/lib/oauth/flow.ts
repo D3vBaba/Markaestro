@@ -408,6 +408,31 @@ export async function refreshAccessToken(
     };
   }
 
+  if (provider === 'threads') {
+    // Threads long-lived tokens refresh in place (th_refresh_token), same
+    // model as Instagram Login — there is no separate refresh token.
+    const res = await fetch(
+      `https://graph.threads.net/refresh_access_token?${new URLSearchParams({
+        grant_type: 'th_refresh_token',
+        access_token: refreshToken,
+      }).toString()}`,
+      { method: 'GET' },
+    );
+    const data = await res.json();
+
+    if (!res.ok && !data.access_token) {
+      throw new Error(`Token refresh failed for ${provider}: ${describeTokenError(data)}`);
+    }
+
+    return {
+      accessToken: data.access_token || refreshToken,
+      refreshToken: data.access_token || refreshToken,
+      expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
+      tokenType: data.token_type,
+      scope: data.scope,
+    };
+  }
+
   const config = getProviderConfig(provider, options.linkedinCredentialKind);
   const { clientId, clientSecret } = getClientCredentials(provider, options.linkedinCredentialKind);
 

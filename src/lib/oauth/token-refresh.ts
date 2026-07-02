@@ -88,8 +88,8 @@ async function refreshConnectionDoc(
     return;
   }
 
-  // Meta/Instagram without refreshToken: extend the existing user token directly
-  if (!data.refreshTokenEncrypted && (provider === 'meta' || provider === 'instagram')) {
+  // Meta/Instagram/Threads without refreshToken: extend the existing token directly
+  if (!data.refreshTokenEncrypted && (provider === 'meta' || provider === 'instagram' || provider === 'threads')) {
     if (!data.accessTokenEncrypted) return;
 
     try {
