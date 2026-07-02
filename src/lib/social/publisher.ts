@@ -174,7 +174,7 @@ export async function publishPost(
     request.channel === 'instagram' &&
     activeConnection.provider === 'instagram' &&
     result.error &&
-    result.error.includes("can't be linked directly")
+    result.error.includes("couldn't authorize this account")
   ) {
     await markConnectionAuthError(
       workspaceId,

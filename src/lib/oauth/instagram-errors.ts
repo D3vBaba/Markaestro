@@ -5,13 +5,17 @@
 
 /**
  * Shown when graph.instagram.com refuses a freshly-issued Instagram Login token
- * (IGApiException code 100 "Unsupported request") — i.e. the account/app isn't
- * eligible for the Instagram Graph API (typically a personal, non-Professional
- * account, or the app's Instagram product isn't enabled). The durable path for
- * those users is the Facebook Page's linked Instagram, so point them there.
+ * (IGApiException code 100 "Unsupported request"). Two causes produce the same
+ * blanket refusal and can't be told apart server-side:
+ *  - the Instagram account isn't a Professional (Business/Creator) account, or
+ *  - OUR app's "Instagram API with Instagram business login" setup is
+ *    incomplete (app in Development Mode without the account added as an
+ *    Instagram Tester, or missing Advanced Access for instagram_business_*).
+ * Keep the copy end-user actionable and point at the Facebook Page path,
+ * which publishes via the Meta login instead.
  */
 export const IG_LOGIN_UNSUPPORTED_MESSAGE =
-  "This Instagram account can't be linked directly. Connect your Facebook Page instead — it includes Instagram (the account must be a Professional/Business account).";
+  "Instagram couldn't authorize this account for publishing. Make sure it's a Professional (Business/Creator) account, or connect your Facebook Page instead — it includes Instagram.";
 
 export function isInstagramMethodTypeUnsupported(
   data: { error?: { message?: string } },

@@ -30,9 +30,9 @@ const PERMANENT_ERROR_PATTERNS = [
   'Error validating access token',
   'Session has expired',
   'The user has not authorized application',
-  // graph.instagram.com blanket refusal (account not eligible for the
-  // Instagram API) — surfaced as the friendly reconnect message.
-  "can't be linked directly",
+  // graph.instagram.com blanket refusal (account or app setup not eligible
+  // for the Instagram API) — surfaced as IG_LOGIN_UNSUPPORTED_MESSAGE.
+  "couldn't authorize this account",
   'Unsupported request',
 ];
 
