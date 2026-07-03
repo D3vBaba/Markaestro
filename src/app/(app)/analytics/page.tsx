@@ -79,8 +79,14 @@ function Card({
 export default function AnalyticsPage() {
   const [days, setDays] = useState(28);
   const [channel, setChannel] = useState<SocialChannel | undefined>(undefined);
+  const [productId, setProductId] = useState<string>("");
   const [trendMetric, setTrendMetric] = useState<(typeof TREND_METRICS)[number]["key"]>("views");
   const [exporting, setExporting] = useState(false);
+
+  const { data: productsData } = useApiQuery<{ products: Array<{ id: string; name: string }> }>(
+    "/api/products",
+  );
+  const products = productsData?.products ?? [];
 
   const { canAccess, getLimit } = useSubscription();
   const maxDays = getLimit("analyticsWindowDays");
@@ -95,11 +101,13 @@ export default function AnalyticsPage() {
   }, [maxDays, days]);
 
   const tz = useMemo(() => -new Date().getTimezoneOffset(), []);
-  const path = `/api/analytics?days=${days}&tz=${tz}${channel ? `&channel=${channel}` : ""}`;
+  const filterParams = `${channel ? `&channel=${channel}` : ""}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`;
+  const path = `/api/analytics?days=${days}&tz=${tz}${filterParams}`;
   const { data, loading, refreshing, error, refresh } = useApiQuery<AnalyticsResponse>(path);
 
   const clamped = data && data.window.days < data.window.requestedDays;
-  const noPostsAtAll = data && !loading && data.totals.posts === 0 && data.coverage.postsAnalyzed === 0
+  const noPostsAtAll = data && !loading && !channel && !productId
+    && data.totals.posts === 0 && data.coverage.postsAnalyzed === 0
     && data.followerTrend.length === 0;
   const warmingUp = data && !loading && !noPostsAtAll
     && data.coverage.postsAnalyzed > 0 && data.coverage.postsWithMetrics === 0;
@@ -109,7 +117,7 @@ export default function AnalyticsPage() {
   async function handleExport() {
     setExporting(true);
     try {
-      const res = await apiDownload(`/api/analytics/export?days=${Math.min(days, 730)}${channel ? `&channel=${channel}` : ""}`);
+      const res = await apiDownload(`/api/analytics/export?days=${Math.min(days, 730)}${filterParams}`);
       if (!res.ok || !res.blob) {
         toast.error("Export failed. Please try again.");
         return;
@@ -195,6 +203,26 @@ export default function AnalyticsPage() {
             );
           })}
         </div>
+        {products.length > 0 && (
+          <select
+            value={productId}
+            onChange={(e) => setProductId(e.target.value)}
+            className="h-8 px-2.5 rounded-lg text-[12px] cursor-pointer focus:outline-none"
+            style={{
+              border: "1px solid var(--mk-rule)",
+              background: "var(--mk-paper)",
+              color: productId ? "var(--mk-ink)" : "var(--mk-ink-60)",
+            }}
+            title="Filter by product"
+          >
+            <option value="">All products</option>
+            {products.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        )}
         {channel && (
           <button
             type="button"

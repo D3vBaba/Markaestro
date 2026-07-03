@@ -241,6 +241,9 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
   const priorSinceDate = dateNDaysAgo(untilDate, 2 * days - 1);
   const priorUntilDate = dateNDaysAgo(untilDate, days);
   const sinceIso = `${sinceDate}T00:00:00.000Z`;
+  // Product-filtered totals come from post rows (aggregates are workspace-
+  // wide), so fetch back to the prior window to keep the comparison deltas.
+  const fetchSinceIso = productId ? `${priorSinceDate}T00:00:00.000Z` : sinceIso;
 
   const [aggSnap, audienceSnap, postsSnap] = await Promise.all([
     adminDb
@@ -255,7 +258,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
     adminDb
       .collection(`workspaces/${workspaceId}/posts`)
       .where('status', '==', 'published')
-      .where('publishedAt', '>=', sinceIso)
+      .where('publishedAt', '>=', fetchSinceIso)
       .orderBy('publishedAt', 'desc')
       .limit(MAX_POSTS_ANALYZED + 1)
       .select(
@@ -268,13 +271,18 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
   // ── Posts → rows (leaderboard, heatmap, content types, insights) ──
   const truncated = postsSnap.docs.length > MAX_POSTS_ANALYZED;
   const rows: AnalyticsPostRow[] = [];
+  const priorRows: AnalyticsPostRow[] = [];
   let lastMetricsAt: string | null = null;
   for (const doc of postsSnap.docs.slice(0, MAX_POSTS_ANALYZED)) {
     const post = doc.data() as PostDocData;
     if (productId && post.productId !== productId) continue;
     const row = postToRow(doc.id, post, channel);
     if (channel && !row.channels.includes(channel)) continue;
-    rows.push(row);
+    if (row.publishedAt >= sinceIso) {
+      rows.push(row);
+    } else {
+      priorRows.push(row);
+    }
     if (post.metricsUpdatedAt && (!lastMetricsAt || post.metricsUpdatedAt > lastMetricsAt)) {
       lastMetricsAt = post.metricsUpdatedAt;
     }
@@ -295,7 +303,11 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
   };
 
   const currentTotals = useAggregates ? totalsFromAggregates(currentAggs, channel) : totalsFromRows(rows);
-  const priorTotals = useAggregates ? totalsFromAggregates(priorAggs, channel) : null;
+  // When the bounded fetch truncated, the prior window is incomplete — drop
+  // the comparison rather than showing a delta against partial data.
+  const priorTotals = useAggregates
+    ? totalsFromAggregates(priorAggs, channel)
+    : truncated ? null : totalsFromRows(priorRows);
 
   const daily: AnalyticsResponse['daily'] = [];
   for (let i = days - 1; i >= 0; i--) {
