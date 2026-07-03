@@ -7,10 +7,14 @@ import { emptyMetrics, getAccessToken, metricNum } from '../base-adapter';
 import { PlatformCapability } from '../types';
 import type {
   AudienceFetchResult,
+  DeletePostResult,
+  ListPostsInput,
+  ListPostsResult,
   MetricsFetchInput,
   MetricsFetchResult,
   PlatformAdapter,
   PlatformConnection,
+  PlatformPostSummary,
   PublishRequest,
   PublishResult,
 } from '../types';
@@ -339,6 +343,84 @@ async function fetchTikTokMetrics(
   return { ok: true, metrics };
 }
 
+// ── Platform post management (list only — TikTok has no delete API) ─
+
+const DEFAULT_LIST_LIMIT = 20;
+/** TikTok's video/list max_count ceiling. */
+const MAX_LIST_LIMIT = 20;
+
+function classifyTikTokListError(status: number, code: string): 'auth' | 'unsupported' | 'transient' {
+  if (status === 401 || code === 'access_token_invalid' || code === 'token_expired') return 'auth';
+  if (code === 'scope_not_authorized' || code === 'scope_permission_missed') return 'unsupported';
+  return 'transient';
+}
+
+/** Display API video list — requires the `video.list` scope. */
+async function listTikTokVideos(
+  connection: PlatformConnection,
+  input: ListPostsInput,
+): Promise<ListPostsResult> {
+  const accessToken = getAccessToken(connection);
+  const maxCount = Math.min(Math.max(1, Math.floor(input.limit || DEFAULT_LIST_LIMIT)), MAX_LIST_LIMIT);
+  const body: Record<string, unknown> = { max_count: maxCount };
+  if (input.cursor && /^\d+$/.test(input.cursor)) {
+    body.cursor = Number(input.cursor);
+  }
+
+  const res = await fetchWithRetry(
+    `${TIKTOK_API}/video/list/?fields=id,title,video_description,create_time,cover_image_url,share_url`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: JSON.stringify(body),
+    },
+    { maxRetries: 1 },
+  );
+  const data = await res.json().catch(() => ({}));
+  const error = parseTikTokError(data);
+  if (error || !res.ok) {
+    const code = (data.error?.code as string | undefined) || '';
+    return {
+      ok: false,
+      error: error || `TikTok video list failed (HTTP ${res.status})`,
+      reason: classifyTikTokListError(res.status, code),
+    };
+  }
+
+  const videos = (data.data?.videos as Array<Record<string, unknown>> | undefined) ?? [];
+  const posts: PlatformPostSummary[] = videos
+    .filter((video) => video.id !== undefined && video.id !== null)
+    .map((video) => {
+      const createTime = metricNum(video.create_time);
+      const description = typeof video.video_description === 'string' && video.video_description
+        ? video.video_description
+        : typeof video.title === 'string' ? video.title : null;
+      return {
+        externalId: String(video.id),
+        channel: 'tiktok' as const,
+        content: description,
+        mediaType: 'video' as const,
+        mediaUrl: null,
+        thumbnailUrl: typeof video.cover_image_url === 'string' ? video.cover_image_url : null,
+        permalink: typeof video.share_url === 'string' ? video.share_url : null,
+        publishedAt: createTime !== null ? new Date(createTime * 1000).toISOString() : null,
+        // TikTok's public API has no video-delete endpoint.
+        canDelete: false,
+      };
+    });
+
+  const hasMore = data.data?.has_more === true;
+  const cursor = metricNum(data.data?.cursor);
+  return {
+    ok: true,
+    posts,
+    nextCursor: hasMore && cursor !== null ? String(cursor) : undefined,
+  };
+}
+
 /** Requires the `user.info.stats` scope; returns unsupported when not granted. */
 async function fetchTikTokAudience(connection: PlatformConnection): Promise<AudienceFetchResult> {
   const accessToken = getAccessToken(connection);
@@ -493,6 +575,22 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : 'TikTok audience fetch failed', reason: 'transient' };
     }
+  },
+
+  async listPosts(connection: PlatformConnection, input: ListPostsInput): Promise<ListPostsResult> {
+    try {
+      return await listTikTokVideos(connection, input);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'TikTok video list failed', reason: 'transient' };
+    }
+  },
+
+  async deletePost(): Promise<DeletePostResult> {
+    return {
+      ok: false,
+      error: 'TikTok does not allow apps to delete videos. Remove it from the TikTok app instead.',
+      reason: 'unsupported',
+    };
   },
 
   async testConnection(connection: PlatformConnection) {

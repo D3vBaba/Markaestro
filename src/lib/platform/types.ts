@@ -132,6 +132,59 @@ export type AudienceFetchResult =
   | { ok: true; followers: number; raw?: Record<string, number> }
   | { ok: false; error: string; reason: 'auth' | 'not_found' | 'unsupported' | 'transient' };
 
+// ── Platform post management (list / delete) ────────────────────────
+
+/**
+ * A post as it exists on the platform right now, fetched live from the
+ * platform's API (not from our Firestore records). Fields a platform does
+ * not return are `null`.
+ */
+export type PlatformPostSummary = {
+  /** Platform post/media ID (Graph media ID, LinkedIn URN, pin ID, …). */
+  externalId: string;
+  channel: SocialChannel;
+  /** Post text/caption. */
+  content: string | null;
+  mediaType: 'text' | 'image' | 'video' | 'carousel' | 'unknown';
+  mediaUrl: string | null;
+  thumbnailUrl: string | null;
+  permalink: string | null;
+  /** ISO timestamp the post went live. */
+  publishedAt: string | null;
+  /**
+   * Whether the platform's API supports deleting this post. False where the
+   * platform has no delete endpoint (Instagram media, TikTok videos).
+   */
+  canDelete: boolean;
+};
+
+export type ListPostsInput = {
+  channel: SocialChannel;
+  /** Opaque pagination cursor returned as `nextCursor` by a previous page. */
+  cursor?: string;
+  /** Max posts per page; adapters clamp to platform limits. */
+  limit?: number;
+  /** LinkedIn destination to list from (profile vs page). */
+  destinationId?: string;
+};
+
+export type ListPostsResult =
+  | { ok: true; posts: PlatformPostSummary[]; nextCursor?: string }
+  | { ok: false; error: string; reason: 'auth' | 'unsupported' | 'transient' };
+
+export type DeletePostInput = {
+  channel: SocialChannel;
+  /** Platform post/media ID to delete. */
+  externalId: string;
+  /** LinkedIn destination the post belongs to (profile vs page). */
+  destinationId?: string;
+};
+
+/** `reason` semantics match MetricsFetchResult. */
+export type DeletePostResult =
+  | { ok: true }
+  | { ok: false; error: string; reason: 'auth' | 'not_found' | 'unsupported' | 'transient' };
+
 // ── Platform Adapter Interface ──────────────────────────────────────
 
 export interface PlatformAdapter {
@@ -158,4 +211,10 @@ export interface PlatformAdapter {
 
   /** Fetch the current follower/audience count for a channel (optional per adapter) */
   fetchAudience?(connection: PlatformConnection, channel: SocialChannel): Promise<AudienceFetchResult>;
+
+  /** List the account's published posts live from the platform (optional per adapter) */
+  listPosts?(connection: PlatformConnection, input: ListPostsInput): Promise<ListPostsResult>;
+
+  /** Delete a post on the platform (optional per adapter) */
+  deletePost?(connection: PlatformConnection, input: DeletePostInput): Promise<DeletePostResult>;
 }

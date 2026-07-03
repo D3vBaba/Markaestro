@@ -3,10 +3,15 @@ import { emptyMetrics, getAccessToken, metricNum } from '../base-adapter';
 import { PlatformCapability } from '../types';
 import type {
   AudienceFetchResult,
+  DeletePostInput,
+  DeletePostResult,
+  ListPostsInput,
+  ListPostsResult,
   MetricsFetchInput,
   MetricsFetchResult,
   PlatformAdapter,
   PlatformConnection,
+  PlatformPostSummary,
   PublishRequest,
   PublishResult,
 } from '../types';
@@ -533,6 +538,104 @@ async function fetchLinkedInAudience(connection: PlatformConnection): Promise<Au
   }
 }
 
+// ── Platform post management (list / delete) ───────────────────────
+
+const DEFAULT_LIST_LIMIT = 24;
+const MAX_LIST_LIMIT = 50;
+
+function mapLinkedInContent(content: unknown): PlatformPostSummary['mediaType'] {
+  if (!content || typeof content !== 'object') return 'text';
+  const record = content as Record<string, unknown>;
+  if (record.multiImage) return 'carousel';
+  const media = record.media as Record<string, unknown> | undefined;
+  if (media && typeof media.id === 'string') {
+    if (media.id.includes(':video:')) return 'video';
+    if (media.id.includes(':image:')) return 'image';
+    return 'unknown';
+  }
+  if (record.article) return 'unknown';
+  return 'text';
+}
+
+/**
+ * List posts authored by the selected destination via the versioned Posts
+ * API author finder. Organization listing needs r_organization_admin /
+ * Community Management access; member listing is gated by LinkedIn and may
+ * come back 403 — classified as unsupported with the API's message.
+ */
+async function listLinkedInPosts(
+  connection: PlatformConnection,
+  input: ListPostsInput,
+): Promise<ListPostsResult> {
+  const destination = matchLinkedInDestination(connection, input.destinationId);
+  if (!destination) {
+    return { ok: false, error: 'Select a LinkedIn Profile or Page in product settings.', reason: 'unsupported' };
+  }
+  const accessToken = getAccessToken(connection);
+  const count = Math.min(Math.max(1, Math.floor(input.limit || DEFAULT_LIST_LIMIT)), MAX_LIST_LIMIT);
+  const start = input.cursor && /^\d+$/.test(input.cursor) ? Number(input.cursor) : 0;
+
+  try {
+    const data = await linkedinGet(
+      accessToken,
+      `/posts?author=${encodeURIComponent(destination.urn)}&q=author&count=${count}&start=${start}&sortBy=LAST_MODIFIED`,
+    ) as { elements?: Array<Record<string, unknown>>; paging?: { total?: number } };
+
+    const elements = Array.isArray(data.elements) ? data.elements : [];
+    const posts: PlatformPostSummary[] = elements
+      .filter((el) => typeof el.id === 'string' && el.id)
+      .map((el) => {
+        const publishedAtMs = metricNum(el.publishedAt ?? el.createdAt);
+        return {
+          externalId: String(el.id),
+          channel: 'linkedin' as const,
+          content: typeof el.commentary === 'string' ? el.commentary : null,
+          mediaType: mapLinkedInContent(el.content),
+          mediaUrl: null,
+          thumbnailUrl: null,
+          permalink: `https://www.linkedin.com/feed/update/${el.id}/`,
+          publishedAt: publishedAtMs !== null ? new Date(publishedAtMs).toISOString() : null,
+          canDelete: true,
+        };
+      });
+
+    const total = metricNum(data.paging?.total);
+    const nextStart = start + elements.length;
+    const hasMore = elements.length === count && (total === null || nextStart < total);
+    return { ok: true, posts, nextCursor: hasMore ? String(nextStart) : undefined };
+  } catch (error) {
+    const reason = classifyLinkedInError(error);
+    return {
+      ok: false,
+      error: sanitizeLinkedInError(error),
+      reason: reason === 'not_found' ? 'unsupported' : reason,
+    };
+  }
+}
+
+async function deleteLinkedInPost(
+  connection: PlatformConnection,
+  input: DeletePostInput,
+): Promise<DeletePostResult> {
+  const destination = matchLinkedInDestination(connection, input.destinationId);
+  if (destination) {
+    const scopeError = validateScope(connection, destination);
+    if (scopeError) return { ok: false, error: scopeError, reason: 'unsupported' };
+  }
+  const accessToken = getAccessToken(connection);
+  const res = await fetchWithRetry(`${LINKEDIN_API}/posts/${encodeURIComponent(input.externalId)}`, {
+    method: 'DELETE',
+    headers: linkedinRestHeaders(accessToken),
+  }, { maxRetries: 1 });
+  if (!res.ok && res.status !== 204) {
+    const data = await res.json().catch(() => ({})) as Record<string, unknown>;
+    const message = typeof data.message === 'string' ? data.message : res.statusText;
+    const error = new LinkedInApiError(res.status, message || 'LinkedIn post delete failed');
+    return { ok: false, error: sanitizeLinkedInError(error), reason: classifyLinkedInError(error) };
+  }
+  return { ok: true };
+}
+
 export const linkedinPublishingAdapter: PlatformAdapter = {
   id: 'linkedin-publishing',
   name: 'LinkedIn',
@@ -559,6 +662,27 @@ export const linkedinPublishingAdapter: PlatformAdapter = {
   async fetchAudience(connection): Promise<AudienceFetchResult> {
     try {
       return await fetchLinkedInAudience(connection);
+    } catch (e) {
+      return { ok: false, error: sanitizeLinkedInError(e), reason: classifyLinkedInError(e) };
+    }
+  },
+
+  async listPosts(connection, input: ListPostsInput): Promise<ListPostsResult> {
+    try {
+      return await listLinkedInPosts(connection, input);
+    } catch (e) {
+      const reason = classifyLinkedInError(e);
+      return {
+        ok: false,
+        error: sanitizeLinkedInError(e),
+        reason: reason === 'not_found' ? 'unsupported' : reason,
+      };
+    }
+  },
+
+  async deletePost(connection, input: DeletePostInput): Promise<DeletePostResult> {
+    try {
+      return await deleteLinkedInPost(connection, input);
     } catch (e) {
       return { ok: false, error: sanitizeLinkedInError(e), reason: classifyLinkedInError(e) };
     }

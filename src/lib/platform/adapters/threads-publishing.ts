@@ -3,10 +3,15 @@ import { emptyMetrics, getAccessToken, getMeta, metricNum } from '../base-adapte
 import { PlatformCapability } from '../types';
 import type {
   AudienceFetchResult,
+  DeletePostInput,
+  DeletePostResult,
+  ListPostsInput,
+  ListPostsResult,
   MetricsFetchInput,
   MetricsFetchResult,
   PlatformAdapter,
   PlatformConnection,
+  PlatformPostSummary,
   PublishRequest,
   PublishResult,
 } from '../types';
@@ -263,6 +268,109 @@ async function fetchThreadsAudience(connection: PlatformConnection): Promise<Aud
   return { ok: true, followers };
 }
 
+// ── Platform post management (list / delete) ───────────────────────
+
+const DEFAULT_LIST_LIMIT = 24;
+const MAX_LIST_LIMIT = 50;
+const THREADS_LIST_FIELDS = 'id,text,media_type,media_url,thumbnail_url,permalink,timestamp';
+
+function mapThreadsMediaType(mediaType: string | undefined): PlatformPostSummary['mediaType'] {
+  switch (mediaType) {
+    case 'TEXT_POST': return 'text';
+    case 'IMAGE': return 'image';
+    case 'VIDEO': return 'video';
+    case 'CAROUSEL_ALBUM': return 'carousel';
+    default: return 'unknown';
+  }
+}
+
+/** Threads delete needs the `threads_delete` permission (granted on reconnect). */
+function isThreadsPermissionError(status: number, data: ThreadsError): boolean {
+  const code = data.error?.code;
+  const message = data.error?.message || '';
+  return status === 403 || code === 10 || code === 200 || /permission|scope/i.test(message);
+}
+
+async function listThreadsPosts(
+  connection: PlatformConnection,
+  input: ListPostsInput,
+): Promise<ListPostsResult> {
+  const userId = getThreadsUserId(connection);
+  if (!userId) {
+    return { ok: false, error: 'Threads user ID missing. Reconnect Threads from product settings.', reason: 'unsupported' };
+  }
+  const accessToken = getAccessToken(connection);
+  const limit = Math.min(Math.max(1, Math.floor(input.limit || DEFAULT_LIST_LIMIT)), MAX_LIST_LIMIT);
+  const url = `${THREADS_API}/${userId}/threads?${new URLSearchParams({
+    fields: THREADS_LIST_FIELDS,
+    limit: String(limit),
+    access_token: accessToken,
+    ...(input.cursor ? { after: input.cursor } : {}),
+  }).toString()}`;
+
+  const res = await fetchWithRetry(url, {}, { maxRetries: 1 });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const reason = classifyThreadsError(res.status, data);
+    return {
+      ok: false,
+      error: data.error?.message || `Threads posts fetch failed (HTTP ${res.status})`,
+      reason: reason === 'not_found' ? 'unsupported' : reason,
+    };
+  }
+
+  const posts: PlatformPostSummary[] = ((data.data ?? []) as Array<Record<string, unknown>>)
+    .filter((post) => typeof post.id === 'string' && post.id)
+    .map((post) => ({
+      externalId: String(post.id),
+      channel: 'threads' as const,
+      content: typeof post.text === 'string' ? post.text : null,
+      mediaType: mapThreadsMediaType(typeof post.media_type === 'string' ? post.media_type : undefined),
+      mediaUrl: typeof post.media_url === 'string' ? post.media_url : null,
+      thumbnailUrl: typeof post.thumbnail_url === 'string'
+        ? post.thumbnail_url
+        : typeof post.media_url === 'string' ? post.media_url : null,
+      permalink: typeof post.permalink === 'string' ? post.permalink : null,
+      publishedAt: typeof post.timestamp === 'string' ? new Date(post.timestamp).toISOString() : null,
+      canDelete: true,
+    }));
+
+  // Threads only includes paging.next when another page exists.
+  const paging = data.paging as { cursors?: { after?: string }; next?: string } | undefined;
+  const nextCursor = paging?.next && paging.cursors?.after ? paging.cursors.after : undefined;
+  return { ok: true, posts, nextCursor };
+}
+
+async function deleteThreadsPost(
+  connection: PlatformConnection,
+  mediaId: string,
+): Promise<DeletePostResult> {
+  const accessToken = getAccessToken(connection);
+  const url = `${THREADS_API}/${encodeURIComponent(mediaId)}?${new URLSearchParams({
+    access_token: accessToken,
+  }).toString()}`;
+  const res = await fetchWithRetry(url, { method: 'DELETE' }, { maxRetries: 1 });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    if (isThreadsPermissionError(res.status, data)) {
+      return {
+        ok: false,
+        error: 'Threads delete permission missing. Reconnect Threads to grant the delete permission, then try again.',
+        reason: 'unsupported',
+      };
+    }
+    return {
+      ok: false,
+      error: data.error?.message || `Threads post delete failed (HTTP ${res.status})`,
+      reason: classifyThreadsError(res.status, data),
+    };
+  }
+  if (data.success === false) {
+    return { ok: false, error: 'Threads did not confirm the deletion', reason: 'transient' };
+  }
+  return { ok: true };
+}
+
 export const threadsPublishingAdapter: PlatformAdapter = {
   id: 'threads-publishing',
   name: 'Threads',
@@ -291,6 +399,22 @@ export const threadsPublishingAdapter: PlatformAdapter = {
       return await fetchThreadsAudience(connection);
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : 'Threads audience fetch failed', reason: 'transient' };
+    }
+  },
+
+  async listPosts(connection, input: ListPostsInput): Promise<ListPostsResult> {
+    try {
+      return await listThreadsPosts(connection, input);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Threads posts fetch failed', reason: 'transient' };
+    }
+  },
+
+  async deletePost(connection, input: DeletePostInput): Promise<DeletePostResult> {
+    try {
+      return await deleteThreadsPost(connection, input.externalId);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Threads post delete failed', reason: 'transient' };
     }
   },
 

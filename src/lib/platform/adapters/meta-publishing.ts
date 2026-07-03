@@ -4,10 +4,15 @@ import { graphApiFetch, checkIgPublishingQuota, checkPagePublishingAccess } from
 import { PlatformCapability } from '../types';
 import type {
   AudienceFetchResult,
+  DeletePostInput,
+  DeletePostResult,
+  ListPostsInput,
+  ListPostsResult,
   MetricsFetchInput,
   MetricsFetchResult,
   PlatformAdapter,
   PlatformConnection,
+  PlatformPostSummary,
   PublishRequest,
   PublishResult,
 } from '../types';
@@ -727,6 +732,187 @@ async function fetchMetaAudience(
   return { ok: true, followers };
 }
 
+// ── Platform post management (list / delete) ───────────────────────
+
+const DEFAULT_LIST_LIMIT = 24;
+const MAX_LIST_LIMIT = 50;
+
+function clampListLimit(limit?: number): number {
+  if (!limit || !Number.isFinite(limit)) return DEFAULT_LIST_LIMIT;
+  return Math.min(Math.max(1, Math.floor(limit)), MAX_LIST_LIMIT);
+}
+
+const IG_MEDIA_LIST_FIELDS = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp';
+const FB_POST_LIST_FIELDS = 'id,message,created_time,permalink_url,full_picture,attachments{media_type}';
+
+function mapFacebookAttachmentType(mediaType: string | undefined, hasPicture: boolean): PlatformPostSummary['mediaType'] {
+  switch (mediaType) {
+    case 'photo': return 'image';
+    case 'video': case 'video_inline': case 'video_autoplay': return 'video';
+    case 'album': return 'carousel';
+    default: return hasPicture ? 'image' : 'text';
+  }
+}
+
+function mapInstagramMediaType(mediaType: string | undefined): PlatformPostSummary['mediaType'] {
+  switch (mediaType) {
+    case 'IMAGE': return 'image';
+    case 'VIDEO': return 'video';
+    case 'CAROUSEL_ALBUM': return 'carousel';
+    default: return 'unknown';
+  }
+}
+
+type GraphPaging = { paging?: { cursors?: { after?: string }; next?: string } };
+
+function graphNextCursor(data: GraphPaging): string | undefined {
+  // Graph only includes `next` when another page exists; `after` alone can
+  // point past the final item.
+  return data.paging?.next && data.paging.cursors?.after ? data.paging.cursors.after : undefined;
+}
+
+async function listFacebookPosts(
+  connection: PlatformConnection,
+  input: ListPostsInput,
+): Promise<ListPostsResult> {
+  const pageId = getMeta(connection, 'pageId', '');
+  if (!pageId) {
+    return { ok: false, error: 'No Facebook page selected. Select a page in product settings.', reason: 'unsupported' };
+  }
+  const accessToken = resolveAccessToken(connection);
+  const params = new URLSearchParams({
+    fields: FB_POST_LIST_FIELDS,
+    limit: String(clampListLimit(input.limit)),
+    ...(input.cursor ? { after: input.cursor } : {}),
+  });
+  const res = await graphApiFetch(
+    `${GRAPH_API}/${pageId}/published_posts?${params.toString()}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+    { maxRetries: 1 },
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const reason = classifyGraphError(res.status, data);
+    return {
+      ok: false,
+      error: data.error?.message || `Facebook posts fetch failed (HTTP ${res.status})`,
+      reason: reason === 'not_found' ? 'unsupported' : reason,
+    };
+  }
+
+  const posts: PlatformPostSummary[] = ((data.data ?? []) as Array<Record<string, unknown>>)
+    .filter((post) => typeof post.id === 'string' && post.id)
+    .map((post) => {
+      const attachment = (post.attachments as { data?: Array<{ media_type?: string }> } | undefined)?.data?.[0];
+      const fullPicture = typeof post.full_picture === 'string' ? post.full_picture : null;
+      return {
+        externalId: String(post.id),
+        channel: 'facebook' as const,
+        content: typeof post.message === 'string' ? post.message : null,
+        mediaType: mapFacebookAttachmentType(attachment?.media_type, Boolean(fullPicture)),
+        mediaUrl: fullPicture,
+        thumbnailUrl: fullPicture,
+        permalink: typeof post.permalink_url === 'string' ? post.permalink_url : null,
+        publishedAt: typeof post.created_time === 'string' ? new Date(post.created_time).toISOString() : null,
+        canDelete: true,
+      };
+    });
+
+  return { ok: true, posts, nextCursor: graphNextCursor(data) };
+}
+
+async function listInstagramMedia(
+  connection: PlatformConnection,
+  input: ListPostsInput,
+): Promise<ListPostsResult> {
+  const accessToken = resolveAccessToken(connection);
+  const graphApi = getInstagramGraphApi(connection);
+  const limit = String(clampListLimit(input.limit));
+
+  let url: string;
+  if (connection.provider === 'instagram') {
+    // Instagram Login host authenticates via query token and resolves the
+    // account through /me.
+    url = `${INSTAGRAM_GRAPH_API}/me/media?${new URLSearchParams({
+      fields: IG_MEDIA_LIST_FIELDS,
+      limit,
+      access_token: accessToken,
+      ...(input.cursor ? { after: input.cursor } : {}),
+    }).toString()}`;
+  } else {
+    const igAccountId = getInstagramAccountId(connection);
+    if (!igAccountId) {
+      return { ok: false, error: 'No Instagram account linked. Select a Facebook page with a linked Instagram business account.', reason: 'unsupported' };
+    }
+    url = `${GRAPH_API}/${igAccountId}/media?${new URLSearchParams({
+      fields: IG_MEDIA_LIST_FIELDS,
+      limit,
+      ...(input.cursor ? { after: input.cursor } : {}),
+    }).toString()}`;
+  }
+
+  const res = await graphApiFetch(
+    url,
+    graphApi === INSTAGRAM_GRAPH_API ? {} : { headers: { Authorization: `Bearer ${accessToken}` } },
+    { maxRetries: 1 },
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    if (graphApi === INSTAGRAM_GRAPH_API && isInstagramGraphRefusal(data)) {
+      return { ok: false, error: IG_LOGIN_UNSUPPORTED_MESSAGE, reason: 'unsupported' };
+    }
+    const reason = classifyGraphError(res.status, data);
+    return {
+      ok: false,
+      error: data.error?.message || `Instagram media fetch failed (HTTP ${res.status})`,
+      reason: reason === 'not_found' ? 'unsupported' : reason,
+    };
+  }
+
+  const posts: PlatformPostSummary[] = ((data.data ?? []) as Array<Record<string, unknown>>)
+    .filter((media) => typeof media.id === 'string' && media.id)
+    .map((media) => ({
+      externalId: String(media.id),
+      channel: 'instagram' as const,
+      content: typeof media.caption === 'string' ? media.caption : null,
+      mediaType: mapInstagramMediaType(typeof media.media_type === 'string' ? media.media_type : undefined),
+      mediaUrl: typeof media.media_url === 'string' ? media.media_url : null,
+      thumbnailUrl: typeof media.thumbnail_url === 'string'
+        ? media.thumbnail_url
+        : typeof media.media_url === 'string' ? media.media_url : null,
+      permalink: typeof media.permalink === 'string' ? media.permalink : null,
+      publishedAt: typeof media.timestamp === 'string' ? new Date(media.timestamp).toISOString() : null,
+      // The Instagram API has no media-delete endpoint.
+      canDelete: false,
+    }));
+
+  return { ok: true, posts, nextCursor: graphNextCursor(data) };
+}
+
+async function deleteFacebookPost(
+  connection: PlatformConnection,
+  postId: string,
+): Promise<DeletePostResult> {
+  const accessToken = resolveAccessToken(connection);
+  const res = await graphApiFetch(
+    `${GRAPH_API}/${encodeURIComponent(postId)}`,
+    { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
+    { maxRetries: 1 },
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return {
+      ok: false,
+      error: data.error?.message || `Facebook post delete failed (HTTP ${res.status})`,
+      reason: classifyGraphError(res.status, data),
+    };
+  }
+  if (data.success === false) {
+    return { ok: false, error: 'Facebook did not confirm the deletion', reason: 'transient' };
+  }
+  return { ok: true };
+}
+
 // ── Adapter ─────────────────────────────────────────────────────────
 
 export const metaPublishingAdapter: PlatformAdapter = {
@@ -764,6 +950,32 @@ export const metaPublishingAdapter: PlatformAdapter = {
       return await fetchMetaAudience(connection, channel);
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : 'Meta audience fetch failed', reason: 'transient' };
+    }
+  },
+
+  async listPosts(connection: PlatformConnection, input: ListPostsInput): Promise<ListPostsResult> {
+    try {
+      if (input.channel === 'instagram') {
+        return await listInstagramMedia(connection, input);
+      }
+      return await listFacebookPosts(connection, input);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Meta posts fetch failed', reason: 'transient' };
+    }
+  },
+
+  async deletePost(connection: PlatformConnection, input: DeletePostInput): Promise<DeletePostResult> {
+    if (input.channel === 'instagram') {
+      return {
+        ok: false,
+        error: 'Instagram does not allow apps to delete posts. Remove it from the Instagram app instead.',
+        reason: 'unsupported',
+      };
+    }
+    try {
+      return await deleteFacebookPost(connection, input.externalId);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Facebook post delete failed', reason: 'transient' };
     }
   },
 

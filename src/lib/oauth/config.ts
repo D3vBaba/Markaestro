@@ -89,6 +89,10 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       'user.info.profile',
       'video.publish',
       'video.upload',
+      // Needed by the On Platform tab (video/list) and post metrics
+      // (video/query). Must be enabled on the TikTok app before it can be
+      // requested; existing connections must reconnect to grant it.
+      'video.list',
     ],
     clientIdEnv: 'TIKTOK_CLIENT_KEY',
     clientSecretEnv: 'TIKTOK_CLIENT_SECRET',
@@ -101,6 +105,9 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     scopes: [
       'threads_basic',
       'threads_content_publish',
+      // Needed to delete posts from the On Platform tab. Connections made
+      // before this scope was added must reconnect to grant it.
+      'threads_delete',
     ],
     clientIdEnv: 'THREADS_APP_ID',
     clientSecretEnv: 'THREADS_APP_SECRET',

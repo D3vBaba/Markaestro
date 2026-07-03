@@ -3,10 +3,15 @@ import { emptyMetrics, getAccessToken, getMeta, metricNum } from '../base-adapte
 import { PlatformCapability } from '../types';
 import type {
   AudienceFetchResult,
+  DeletePostInput,
+  DeletePostResult,
+  ListPostsInput,
+  ListPostsResult,
   MetricsFetchInput,
   MetricsFetchResult,
   PlatformAdapter,
   PlatformConnection,
+  PlatformPostSummary,
   PublishRequest,
   PublishResult,
 } from '../types';
@@ -257,6 +262,99 @@ async function fetchPinterestAudience(connection: PlatformConnection): Promise<A
   return { ok: true, followers, raw: monthlyViews !== null ? { monthly_views: monthlyViews } : undefined };
 }
 
+// ── Platform post management (list / delete) ───────────────────────
+
+const DEFAULT_LIST_LIMIT = 24;
+/** Pinterest page_size ceiling. */
+const MAX_LIST_LIMIT = 100;
+
+function mapPinterestMediaType(mediaType: string | undefined): PlatformPostSummary['mediaType'] {
+  switch (mediaType) {
+    case 'image': return 'image';
+    case 'video': return 'video';
+    case 'multiple_images': case 'multiple_videos': case 'multiple_mixed': return 'carousel';
+    default: return 'unknown';
+  }
+}
+
+function pinThumbnail(media: Record<string, unknown> | undefined): string | null {
+  const images = media?.images as Record<string, { url?: string }> | undefined;
+  if (!images) return null;
+  const preferred = images['600x'] || images['400x300'] || images['orig'];
+  if (preferred?.url) return preferred.url;
+  for (const size of Object.values(images)) {
+    if (size?.url) return size.url;
+  }
+  return null;
+}
+
+async function listPinterestPins(
+  connection: PlatformConnection,
+  input: ListPostsInput,
+): Promise<ListPostsResult> {
+  const accessToken = getAccessToken(connection);
+  const pageSize = Math.min(Math.max(1, Math.floor(input.limit || DEFAULT_LIST_LIMIT)), MAX_LIST_LIMIT);
+  const params = new URLSearchParams({
+    page_size: String(pageSize),
+    ...(input.cursor ? { bookmark: input.cursor } : {}),
+  });
+  const res = await fetchWithRetry(`${PINTEREST_API}/pins?${params.toString()}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  }, { maxRetries: 1 });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const reason = classifyPinterestStatus(res.status);
+    return {
+      ok: false,
+      error: data.message || `Pinterest pins fetch failed (HTTP ${res.status})`,
+      reason: reason === 'not_found' ? 'unsupported' : reason,
+    };
+  }
+
+  const posts: PlatformPostSummary[] = ((data.items ?? []) as Array<Record<string, unknown>>)
+    .filter((pin) => typeof pin.id === 'string' && pin.id)
+    .map((pin) => {
+      const media = pin.media as Record<string, unknown> | undefined;
+      const description = typeof pin.description === 'string' && pin.description
+        ? pin.description
+        : typeof pin.title === 'string' ? pin.title : null;
+      return {
+        externalId: String(pin.id),
+        channel: 'pinterest' as const,
+        content: description,
+        mediaType: mapPinterestMediaType(typeof media?.media_type === 'string' ? media.media_type : undefined),
+        mediaUrl: pinThumbnail(media),
+        thumbnailUrl: pinThumbnail(media),
+        permalink: `https://www.pinterest.com/pin/${pin.id}/`,
+        publishedAt: typeof pin.created_at === 'string' ? new Date(pin.created_at).toISOString() : null,
+        canDelete: true,
+      };
+    });
+
+  const bookmark = typeof data.bookmark === 'string' && data.bookmark ? data.bookmark : undefined;
+  return { ok: true, posts, nextCursor: bookmark };
+}
+
+async function deletePinterestPin(
+  connection: PlatformConnection,
+  pinId: string,
+): Promise<DeletePostResult> {
+  const accessToken = getAccessToken(connection);
+  const res = await fetchWithRetry(`${PINTEREST_API}/pins/${encodeURIComponent(pinId)}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  }, { maxRetries: 1 });
+  if (!res.ok && res.status !== 204) {
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: false,
+      error: data.message || `Pinterest pin delete failed (HTTP ${res.status})`,
+      reason: classifyPinterestStatus(res.status),
+    };
+  }
+  return { ok: true };
+}
+
 export const pinterestPublishingAdapter: PlatformAdapter = {
   id: 'pinterest-publishing',
   name: 'Pinterest',
@@ -283,6 +381,22 @@ export const pinterestPublishingAdapter: PlatformAdapter = {
       return await fetchPinterestAudience(connection);
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : 'Pinterest audience fetch failed', reason: 'transient' };
+    }
+  },
+
+  async listPosts(connection, input: ListPostsInput): Promise<ListPostsResult> {
+    try {
+      return await listPinterestPins(connection, input);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Pinterest pins fetch failed', reason: 'transient' };
+    }
+  },
+
+  async deletePost(connection, input: DeletePostInput): Promise<DeletePostResult> {
+    try {
+      return await deletePinterestPin(connection, input.externalId);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Pinterest pin delete failed', reason: 'transient' };
     }
   },
 
