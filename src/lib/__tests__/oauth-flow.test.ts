@@ -4,18 +4,21 @@ import { getProviderConfig } from '../oauth/config';
 import { instagramExtraDataFromTokenResponse, normalizeOAuthTokenResponse } from '../oauth/flow';
 
 describe('oauth provider config', () => {
-  it('requests publishing-only Instagram scopes', () => {
+  it('requests publishing and insights scopes for Meta-family providers', () => {
     expect(getProviderConfig('instagram').scopes).toEqual([
       'instagram_business_basic',
       'instagram_business_content_publish',
+      'instagram_business_manage_insights',
     ]);
     // Must stay 'false' so the mobile dialog never hands off to the native
     // Facebook/Instagram app — keeps connect in the browser.
     expect(getProviderConfig('instagram').extraAuthParams).toEqual({
       enable_fb_login: 'false',
     });
-    expect(getProviderConfig('meta').scopes).not.toContain('instagram_manage_insights');
-    expect(getProviderConfig('threads').scopes).not.toContain('threads_manage_insights');
+    // Analytics ingestion needs the insights scopes on every Meta surface.
+    expect(getProviderConfig('meta').scopes).toContain('instagram_manage_insights');
+    expect(getProviderConfig('meta').scopes).toContain('read_insights');
+    expect(getProviderConfig('threads').scopes).toContain('threads_manage_insights');
   });
 
   it('uses separate LinkedIn OAuth credentials for profile and community flows', () => {

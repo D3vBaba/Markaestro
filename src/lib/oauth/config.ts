@@ -57,6 +57,10 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       'business_management',
       'instagram_basic',
       'instagram_content_publish',
+      // Analytics: IG media/account insights + FB Page/post insights.
+      // Connections made before these were added must reconnect to grant them.
+      'instagram_manage_insights',
+      'read_insights',
     ],
     clientIdEnv: 'META_APP_ID',
     clientSecretEnv: 'META_APP_SECRET',
@@ -68,6 +72,8 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     scopes: [
       'instagram_business_basic',
       'instagram_business_content_publish',
+      // Analytics: media/account insights on the Instagram Login host.
+      'instagram_business_manage_insights',
     ],
     clientIdEnv: 'INSTAGRAM_APP_ID',
     clientSecretEnv: 'INSTAGRAM_APP_SECRET',
@@ -108,6 +114,8 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       // Needed to delete posts from the On Platform tab. Connections made
       // before this scope was added must reconnect to grant it.
       'threads_delete',
+      // Analytics: post insights + followers_count.
+      'threads_manage_insights',
     ],
     clientIdEnv: 'THREADS_APP_ID',
     clientSecretEnv: 'THREADS_APP_SECRET',

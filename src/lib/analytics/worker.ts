@@ -6,6 +6,7 @@ import {
   backfillSinceIso,
   initPollStateForRecentPosts,
   pollDueMetrics,
+  retryDeadMetricsPosts,
 } from './metrics-poller';
 import { ANALYTICS_META_PATH, utcDateOf, type AnalyticsMetaDoc } from './types';
 
@@ -22,6 +23,7 @@ export type AnalyticsTickResult = {
   polled: number;
   aggregatedDates: number;
   audienceCaptured?: number;
+  deadRetried?: number;
   errors: Array<{ kind: string; error: string }>;
 };
 
@@ -97,6 +99,15 @@ export async function processAnalyticsTick(workspaceId: string): Promise<Analyti
     }
   } catch (err) {
     result.errors.push({ kind: 'audience', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
+    if (meta.metricsBackfillAt && meta.lastDeadRetryDate !== today) {
+      result.deadRetried = await retryDeadMetricsPosts(workspaceId, nowIso);
+      metaUpdate.lastDeadRetryDate = today;
+    }
+  } catch (err) {
+    result.errors.push({ kind: 'metrics-retry', error: err instanceof Error ? err.message : 'unknown' });
   }
 
   if (Object.keys(metaUpdate).length > 0) {

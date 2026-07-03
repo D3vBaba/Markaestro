@@ -100,6 +100,7 @@ export type AnalyticsMetaDoc = {
   lastAudienceDate?: string;
   lastAudienceAttemptAt?: string;
   lastSweepAt?: string;
+  lastDeadRetryDate?: string;
   updatedAt?: string;
 };
 

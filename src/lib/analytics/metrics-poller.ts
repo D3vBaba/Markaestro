@@ -312,3 +312,50 @@ export async function initPollStateForRecentPosts(
 export function backfillSinceIso(nowIso: string): string {
   return new Date(Date.parse(nowIso) - METRICS_BACKFILL_DAYS * 24 * 3600_000).toISOString();
 }
+
+/**
+ * Re-activate posts previously parked as 'unsupported' or 'failed' so they
+ * get another metrics attempt. Missing-scope errors park posts permanently;
+ * once the user reconnects the channel with the new insights scopes, this
+ * daily pass picks those posts back up (genuinely unsupported posts simply
+ * get re-parked after one cheap fetch).
+ */
+export async function retryDeadMetricsPosts(workspaceId: string, nowIso: string): Promise<number> {
+  const snap = await adminDb
+    .collection(`workspaces/${workspaceId}/posts`)
+    .where('status', '==', 'published')
+    .where('metricsStatus', 'in', ['unsupported', 'failed'])
+    .where('publishedAt', '>=', backfillSinceIso(nowIso))
+    .limit(300)
+    .get();
+  if (snap.empty) return 0;
+
+  const now = Date.parse(nowIso);
+  let batch = adminDb.batch();
+  let batchSize = 0;
+  for (const doc of snap.docs) {
+    const post = doc.data() as PostDocData;
+    if (!post.publishedAt) continue;
+    const state = initialPollState(post.publishedAt, now);
+    batch.update(doc.ref, {
+      metricsStatus: 'active',
+      metricsPollStage: state.stage,
+      metricsNextPollAt: state.nextAt,
+      metricsAttempts: 0,
+    });
+    batchSize++;
+    if (batchSize >= 400) {
+      await batch.commit();
+      batch = adminDb.batch();
+      batchSize = 0;
+    }
+  }
+  if (batchSize > 0) await batch.commit();
+
+  logger.info('dead metrics posts re-activated', {
+    event: 'analytics.dead_retry',
+    workspaceId,
+    reactivated: snap.size,
+  });
+  return snap.size;
+}
