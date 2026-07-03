@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider";
 import { Input } from "@/components/ui/input";
@@ -21,27 +21,31 @@ export default function LoginPage() {
 }
 
 function LoginContent() {
-  const { user, loading, signInEmail, signUpEmail, signInGoogle, resetPassword } = useAuth();
+  const { user, loading, requestSignInCode, signInWithCode, signInGoogle } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  // Passwordless: ask for the email, send a one-time code, then verify it.
+  const [stage, setStage] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
   // True once a sign-in has succeeded: keep the full-screen loader up until the
   // redirect effect navigates, so the form never flashes back into view.
   const [redirecting, setRedirecting] = useState(false);
-  const [showReset, setShowReset] = useState(false);
-  const [resetCooldown, setResetCooldown] = useState(0);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const codeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (resetCooldown <= 0) return;
-    const timer = setTimeout(() => setResetCooldown((s) => s - 1), 1000);
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown((s) => s - 1), 1000);
     return () => clearTimeout(timer);
-  }, [resetCooldown]);
+  }, [resendCooldown]);
+
+  useEffect(() => {
+    if (stage === "code") codeInputRef.current?.focus();
+  }, [stage]);
 
   const redirectTo = searchParams.get("next") || "/dashboard";
 
@@ -49,15 +53,40 @@ function LoginContent() {
     if (!loading && user) router.replace(redirectTo);
   }, [loading, user, router, redirectTo]);
 
-  async function handlePrimary() {
+  async function handleSendCode() {
+    if (!email.trim()) {
+      setError("Please enter your email address.");
+      return;
+    }
     try {
       setError("");
       setBusy(true);
-      if (mode === "signin") {
-        await signInEmail(email, password);
+      await requestSignInCode(email.trim());
+      setStage("code");
+      setCode("");
+      setResendCooldown(60);
+    } catch (e: unknown) {
+      // A recent code is still valid — let the user go enter it.
+      if (e instanceof Error && e.message === "OTP_COOLDOWN") {
+        setStage("code");
+        setResendCooldown(60);
       } else {
-        await signUpEmail(email, password);
+        setError(friendlyAuthError(e));
       }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleVerifyCode() {
+    if (code.replace(/\D/g, "").length < 6) {
+      setError("Enter the 6-digit code from your email.");
+      return;
+    }
+    try {
+      setError("");
+      setBusy(true);
+      await signInWithCode(email.trim(), code);
       // Success — hold the loader until onAuthStateChanged resolves and the
       // redirect effect fires. Do NOT clear `busy` here (that would flash the form).
       setRedirecting(true);
@@ -185,85 +214,55 @@ function LoginContent() {
           >
             <div>
               <p className="mk-eyebrow">
-                {mode === "signin" ? "Welcome back" : "Start here"}
+                {stage === "email" ? "Sign in or sign up" : "Check your inbox"}
               </p>
               <h2
                 className="mt-1.5 text-[22px] sm:text-[24px] font-semibold m-0"
                 style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
               >
-                {mode === "signin" ? "Sign in to your account" : "Create your account"}
+                {stage === "email" ? "Continue with your email" : "Enter your code"}
               </h2>
               <p
                 className="mt-1.5 text-[13px]"
                 style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
               >
-                {mode === "signin"
-                  ? "Continue where you left off."
-                  : "Start building your marketing engine."}
+                {stage === "email" ? (
+                  "No password needed — we'll email you a one-time code. New here? The same code creates your account."
+                ) : (
+                  <>
+                    We sent a 6-digit code to{" "}
+                    <span className="font-medium" style={{ color: "var(--mk-ink)" }}>
+                      {email.trim()}
+                    </span>
+                    .
+                  </>
+                )}
               </p>
             </div>
 
-            {/* Mode toggle */}
-            <div
-              className="mt-5 grid grid-cols-2 gap-1 rounded-lg p-1"
-              style={{
-                background: "var(--mk-panel)",
-                border: "1px solid var(--mk-rule)",
-              }}
-            >
-              <button
-                className="h-8 rounded-[6px] text-[12.5px] font-medium transition-colors"
-                style={{
-                  background: mode === "signin" ? "var(--mk-paper)" : "transparent",
-                  color: mode === "signin" ? "var(--mk-ink)" : "var(--mk-ink-60)",
-                  border: mode === "signin" ? "1px solid var(--mk-rule)" : "1px solid transparent",
-                  letterSpacing: "-0.005em",
-                }}
-                onClick={() => setMode("signin")}
-              >
-                Sign in
-              </button>
-              <button
-                className="h-8 rounded-[6px] text-[12.5px] font-medium transition-colors"
-                style={{
-                  background: mode === "signup" ? "var(--mk-paper)" : "transparent",
-                  color: mode === "signup" ? "var(--mk-ink)" : "var(--mk-ink-60)",
-                  border: mode === "signup" ? "1px solid var(--mk-rule)" : "1px solid transparent",
-                  letterSpacing: "-0.005em",
-                }}
-                onClick={() => setMode("signup")}
-              >
-                Sign up
-              </button>
-            </div>
-
             <div className="mt-5 flex flex-col gap-3">
-              <Input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                type="email"
-                className="h-11 rounded-lg text-[13.5px]"
-              />
-              <Input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                type="password"
-                className="h-11 rounded-lg text-[13.5px]"
-              />
-
-              {mode === "signin" && !showReset && (
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    className="text-[11.5px] font-medium hover:underline"
-                    style={{ color: "var(--mk-accent)" }}
-                    onClick={() => { setShowReset(true); setError(""); setSuccess(""); }}
-                  >
-                    Forgot password?
-                  </button>
-                </div>
+              {stage === "email" ? (
+                <Input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  type="email"
+                  autoComplete="email"
+                  className="h-11 rounded-lg text-[13.5px]"
+                  onKeyDown={(e) => e.key === "Enter" && !busy && handleSendCode()}
+                />
+              ) : (
+                <Input
+                  ref={codeInputRef}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="123456"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  className="h-12 rounded-lg text-center font-mono text-[20px] tracking-[0.4em]"
+                  onKeyDown={(e) => e.key === "Enter" && !busy && handleVerifyCode()}
+                />
               )}
 
               {error && (
@@ -274,58 +273,44 @@ function LoginContent() {
                   {error}
                 </p>
               )}
-              {success && (
-                <p
-                  className="rounded-lg px-3.5 py-2.5 text-[12px]"
-                  style={pillStyle("pos")}
-                >
-                  {success}
-                </p>
-              )}
 
-              {showReset ? (
-                <div className="flex flex-col gap-3">
-                  <Button
-                    className="h-11 w-full rounded-lg text-[13.5px]"
-                    disabled={busy || resetCooldown > 0}
-                    onClick={async () => {
-                      if (!email) { setError("Please enter your email address above."); return; }
-                      try {
-                        setError(""); setSuccess(""); setBusy(true);
-                        await resetPassword(email);
-                        setSuccess("Password reset email sent. Check your inbox.");
-                        setResetCooldown(60);
-                        setShowReset(false);
-                      } catch (e: unknown) {
-                        setError(friendlyAuthError(e));
-                      } finally {
-                        setBusy(false);
-                      }
-                    }}
-                  >
-                    {busy
-                      ? "Sending…"
-                      : resetCooldown > 0
-                      ? `Resend in ${resetCooldown}s…`
-                      : "Send reset link"}
-                  </Button>
-                  <button
-                    type="button"
-                    className="w-full text-center text-[12px] transition-colors"
-                    style={{ color: "var(--mk-ink-60)" }}
-                    onClick={() => { setShowReset(false); setError(""); }}
-                  >
-                    Back to sign in
-                  </button>
-                </div>
-              ) : (
+              {stage === "email" ? (
                 <Button
                   className="h-11 w-full rounded-lg text-[13.5px]"
                   disabled={busy}
-                  onClick={handlePrimary}
+                  onClick={handleSendCode}
                 >
-                  {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+                  {busy ? "Sending code…" : "Email me a code"}
                 </Button>
+              ) : (
+                <>
+                  <Button
+                    className="h-11 w-full rounded-lg text-[13.5px]"
+                    disabled={busy || code.length < 6}
+                    onClick={handleVerifyCode}
+                  >
+                    {busy ? "Verifying…" : "Sign in"}
+                  </Button>
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      className="text-[12px] transition-colors"
+                      style={{ color: "var(--mk-ink-60)" }}
+                      onClick={() => { setStage("email"); setCode(""); setError(""); }}
+                    >
+                      ← Use a different email
+                    </button>
+                    <button
+                      type="button"
+                      className="text-[12px] font-medium hover:underline disabled:opacity-50 disabled:no-underline"
+                      style={{ color: "var(--mk-accent)" }}
+                      disabled={busy || resendCooldown > 0}
+                      onClick={handleSendCode}
+                    >
+                      {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
+                    </button>
+                  </div>
+                </>
               )}
             </div>
 

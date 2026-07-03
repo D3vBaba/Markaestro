@@ -21,7 +21,7 @@ import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { PLANS } from "@/lib/stripe/plans";
@@ -219,13 +219,13 @@ function SettingsPageContent() {
 /* ─── Account Tab ──────────────────────────────────────────────────────────── */
 
 function AccountTab() {
-  const { user, resetPassword, sendVerificationEmail, requestEmailChange, logout } = useAuth();
+  const { user, requestEmailChangeCode, confirmEmailChangeCode, logout } = useAuth();
   const { current: workspace } = useWorkspace();
-  const [resettingPassword, setResettingPassword] = useState(false);
-  const [sendingVerification, setSendingVerification] = useState(false);
   const [changingEmail, setChangingEmail] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [pendingEmailChange, setPendingEmailChange] = useState<string | null>(null);
+  const [emailChangeCode, setEmailChangeCode] = useState('');
+  const [confirmingEmailChange, setConfirmingEmailChange] = useState(false);
   const [resendingEmailChange, setResendingEmailChange] = useState(false);
 
   if (!user) return null;
@@ -234,53 +234,51 @@ function AccountTab() {
   const email = user.email || "";
   const initials = displayName.slice(0, 2).toUpperCase();
 
-  // Check sign-in method
-  const hasPassword = user.providerData?.some((p) => p.providerId === "password");
-  const providers = user.providerData?.map((p) => {
-    if (p.providerId === "password") return "Email & Password";
-    if (p.providerId === "google.com") return "Google";
-    if (p.providerId === "facebook.com") return "Facebook";
-    return p.providerId;
-  }) ?? [];
+  // Sign-in method badges. Code sign-ins mint custom tokens, which leave
+  // providerData empty — that IS the email-code method.
+  const providers = (user.providerData ?? [])
+    .map((p) => {
+      if (p.providerId === "password") return "Email code";
+      if (p.providerId === "google.com") return "Google";
+      if (p.providerId === "facebook.com") return "Facebook";
+      return p.providerId;
+    })
+    .filter((label, i, arr) => arr.indexOf(label) === i);
+  if (providers.length === 0) providers.push("Email code");
 
-  async function handleResetPassword() {
-    if (!email) return;
-    setResettingPassword(true);
-    try {
-      await resetPassword(email);
-      toast.success("Password reset email sent — check your inbox");
-    } catch {
-      toast.error("Failed to send password reset email");
-    } finally {
-      setResettingPassword(false);
-    }
-  }
-
-  async function handleSendVerification() {
-    setSendingVerification(true);
-    try {
-      await sendVerificationEmail();
-      toast.success('Verification email sent — check your inbox');
-    } catch {
-      toast.error('Failed to send verification email');
-    } finally {
-      setSendingVerification(false);
-    }
-  }
+  // Google accounts keep their email in sync with Google — changing it here
+  // would desync the two, so only offer it to email-based accounts.
+  const canChangeEmail = !user.providerData?.some((p) => p.providerId === "google.com");
 
   async function handleEmailChange() {
-    const candidate = newEmail.trim();
+    const candidate = newEmail.trim().toLowerCase();
     if (!candidate) return;
     setChangingEmail(true);
     try {
-      await requestEmailChange(candidate);
-      toast.success('Confirm the email change from your inbox');
+      await requestEmailChangeCode(candidate);
+      toast.success('Code sent to your new address — enter it below');
       setPendingEmailChange(candidate);
+      setEmailChangeCode('');
       setNewEmail('');
-    } catch {
-      toast.error('Failed to start email change');
+    } catch (e: unknown) {
+      toast.error(friendlyAuthError(e));
     } finally {
       setChangingEmail(false);
+    }
+  }
+
+  async function handleConfirmEmailChange() {
+    if (!pendingEmailChange || emailChangeCode.length < 6) return;
+    setConfirmingEmailChange(true);
+    try {
+      await confirmEmailChangeCode(pendingEmailChange, emailChangeCode);
+      toast.success('Email updated');
+      setPendingEmailChange(null);
+      setEmailChangeCode('');
+    } catch (e: unknown) {
+      toast.error(friendlyAuthError(e));
+    } finally {
+      setConfirmingEmailChange(false);
     }
   }
 
@@ -288,10 +286,10 @@ function AccountTab() {
     if (!pendingEmailChange) return;
     setResendingEmailChange(true);
     try {
-      await requestEmailChange(pendingEmailChange);
-      toast.success('Confirmation email re-sent');
-    } catch {
-      toast.error('Failed to resend confirmation');
+      await requestEmailChangeCode(pendingEmailChange);
+      toast.success('Code re-sent');
+    } catch (e: unknown) {
+      toast.error(friendlyAuthError(e));
     } finally {
       setResendingEmailChange(false);
     }
@@ -328,7 +326,7 @@ function AccountTab() {
               <div className="flex flex-wrap items-center gap-2">
                 {providers.map((p) => (
                   <Badge key={p} variant="outline" className="text-xs font-normal">
-                    {p === "Email & Password" ? <KeyRound className="h-3 w-3 mr-1" /> : null}
+                    {p === "Email code" ? <KeyRound className="h-3 w-3 mr-1" /> : null}
                     {p === "Google" ? <Mail className="h-3 w-3 mr-1" /> : null}
                     {p}
                   </Badge>
@@ -351,88 +349,88 @@ function AccountTab() {
             <Shield className="h-4 w-4" />
             Security
           </CardTitle>
-          <CardDescription>Manage your password and sign-in methods.</CardDescription>
+          <CardDescription>Manage your sign-in methods.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!user.emailVerified && (
-            <div className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium">Email verification</p>
-                <p className="text-xs text-muted-foreground">
-                  Verify your email address to secure your account.
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="shrink-0"
-                onClick={handleSendVerification}
-                disabled={sendingVerification}
-              >
-                {sendingVerification ? 'Sending…' : 'Send verification email'}
-              </Button>
-            </div>
-          )}
+          <div className="rounded-xl border p-4">
+            <p className="text-sm font-medium">Passwordless sign-in</p>
+            <p className="text-xs text-muted-foreground">
+              You sign in with a one-time code sent to your email — there is no
+              password to manage or reset.
+            </p>
+          </div>
 
-          {hasPassword && (
-            <div className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium">Password</p>
-                <p className="text-xs text-muted-foreground">
-                  Send a password reset link to your email address.
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="shrink-0"
-                onClick={handleResetPassword}
-                disabled={resettingPassword}
-              >
-                {resettingPassword ? "Sending…" : "Reset password"}
-              </Button>
-            </div>
-          )}
-
-          {hasPassword && (
+          {canChangeEmail && (
             <div className="rounded-xl border p-4 space-y-3">
               <div>
                 <p className="text-sm font-medium">Change email</p>
                 <p className="text-xs text-muted-foreground">
-                  We’ll email a confirmation link to your new address.
+                  We’ll email a one-time code to your new address to confirm it.
                 </p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Input
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="new-email@company.com"
-                  type="email"
-                  className="h-10 rounded-xl"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="shrink-0"
-                  onClick={handleEmailChange}
-                  disabled={changingEmail || !newEmail.trim()}
-                >
-                  {changingEmail ? 'Sending…' : 'Send confirmation'}
-                </Button>
-              </div>
-              {pendingEmailChange && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full px-2.5 py-1 text-xs" style={pillStyle("warn")}>
-                    Confirmation sent to {pendingEmailChange}
-                  </span>
+              {pendingEmailChange ? (
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full px-2.5 py-1 text-xs" style={pillStyle("warn")}>
+                      Code sent to {pendingEmailChange}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={handleResendEmailChange}
+                      disabled={resendingEmailChange}
+                    >
+                      {resendingEmailChange ? 'Resending…' : 'Resend'}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => { setPendingEmailChange(null); setEmailChangeCode(''); }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Input
+                      value={emailChangeCode}
+                      onChange={(e) => setEmailChangeCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="123456"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      className="h-10 rounded-xl text-center font-mono tracking-[0.3em] sm:max-w-[160px]"
+                      onKeyDown={(e) => e.key === 'Enter' && handleConfirmEmailChange()}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 h-10"
+                      onClick={handleConfirmEmailChange}
+                      disabled={confirmingEmailChange || emailChangeCode.length < 6}
+                    >
+                      {confirmingEmailChange ? 'Confirming…' : 'Confirm change'}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    placeholder="new-email@company.com"
+                    type="email"
+                    className="h-10 rounded-xl"
+                  />
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
-                    className="h-7 text-xs"
-                    onClick={handleResendEmailChange}
-                    disabled={resendingEmailChange}
+                    className="shrink-0 h-10"
+                    onClick={handleEmailChange}
+                    disabled={changingEmail || !newEmail.trim()}
                   >
-                    {resendingEmailChange ? 'Resending…' : 'Resend'}
+                    {changingEmail ? 'Sending…' : 'Send code'}
                   </Button>
                 </div>
               )}

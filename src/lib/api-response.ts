@@ -55,6 +55,18 @@ export function apiError(error: unknown): NextResponse {
   if (msg === 'INVALID_PROVIDER') {
     return NextResponse.json({ error: msg, requestId }, { status: 400 });
   }
+  if (msg === 'OTP_COOLDOWN') {
+    return NextResponse.json({ error: msg, requestId }, { status: 429 });
+  }
+  if (msg === 'OTP_INVALID' || msg === 'OTP_EXPIRED' || msg === 'OTP_TOO_MANY_ATTEMPTS') {
+    return NextResponse.json({ error: msg, requestId }, { status: 400 });
+  }
+  if (msg === 'EMAIL_IN_USE') {
+    return NextResponse.json({ error: msg, requestId }, { status: 409 });
+  }
+  if (msg === 'USER_DISABLED') {
+    return NextResponse.json({ error: msg, requestId }, { status: 403 });
+  }
   if (msg === 'INVALID_STATE' || msg === 'STATE_EXPIRED' || msg === 'STATE_MISMATCH') {
     return NextResponse.json({ error: msg, requestId }, { status: 400 });
   }

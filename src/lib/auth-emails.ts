@@ -1,16 +1,24 @@
 /**
- * Transactional HTML + plain text for Firebase auth flows delivered via Resend.
+ * Transactional HTML + plain text for auth flows delivered via Resend.
  * Table-based layout improves rendering in Gmail/Outlook; inline CSS only.
+ *
+ * Dark-mode rules (learned the hard way):
+ * - No CSS gradients: Gmail dark mode inverts text colors but cannot recolor
+ *   gradient backgrounds, which left white-on-dark headers unreadable.
+ * - Solid colors everywhere, with `bgcolor` attribute fallbacks, so client
+ *   dark-mode transforms keep text/background contrast coherent.
+ * - The logo ships as an image with a baked-in white tile: mail clients never
+ *   recolor images, so the banner brand stays bright in light AND dark mode.
  */
 
 const BRAND = {
-  bgPage: '#f1f5f9',
+  bgPage: '#eef2f7',
   cardBg: '#ffffff',
   ink: '#0f172a',
   muted: '#64748b',
   border: '#e2e8f0',
   accent: '#2563eb',
-  headerBg: 'linear-gradient(135deg, #0f172a 0%, #1e293b 45%, #0f172a 100%)',
+  panelBg: '#f8fafc',
 };
 
 export type AuthEmailPayload = {
@@ -28,60 +36,80 @@ function escapeHtml(value: string) {
     .replaceAll("'", '&#039;');
 }
 
-function escapeAttr(value: string) {
-  return escapeHtml(value);
+function getBaseUrl(): string {
+  const base =
+    process.env.OAUTH_BASE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    'https://markaestro.com';
+  return base.replace(/\/+$/, '');
 }
 
-function ctaButton(href: string, label: string) {
-  return `<a href="${escapeAttr(href)}" style="display:inline-block;background:${BRAND.accent};color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:9999px;font-weight:600;font-size:15px;letter-spacing:0.01em;box-shadow:0 4px 14px rgba(37,99,235,0.35);">${escapeHtml(label)}</a>`;
+/**
+ * Big, copy-friendly one-time code. Saturated accent on a light panel: mail
+ * clients keep saturated colors through dark-mode transforms, and if the
+ * panel is darkened the accent still contrasts.
+ */
+function codeBlock(code: string) {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 0 0;">
+    <tr>
+      <td align="center" bgcolor="${BRAND.panelBg}" style="background-color:${BRAND.panelBg};border:1px solid ${BRAND.border};border-radius:14px;padding:24px 16px;">
+        <span style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:36px;font-weight:700;letter-spacing:12px;color:${BRAND.accent};">${escapeHtml(code)}</span>
+      </td>
+    </tr>
+  </table>`;
 }
 
-function linkFallback(url: string) {
-  return `<p style="margin:20px 0 0 0;color:${BRAND.muted};font-size:12px;line-height:1.6;">
-    Button not working? Copy this link into your browser:<br/>
-    <span style="display:block;margin-top:8px;padding:12px 14px;background:#f8fafc;border:1px solid ${BRAND.border};border-radius:10px;word-break:break-all;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:11px;color:${BRAND.ink};">${escapeHtml(url)}</span>
-  </p>`;
-}
-
-function footerLegal() {
+function footerLegal(note: string) {
   return `<p style="margin:28px 0 0 0;padding-top:22px;border-top:1px solid ${BRAND.border};color:${BRAND.muted};font-size:12px;line-height:1.6;">
-    If you did not request this email, you can ignore it. Your account will stay unchanged.
+    ${escapeHtml(note)}
   </p>`;
 }
 
-function brandWrap(params: { title: string; preheader?: string; bodyHtml: string }) {
+function brandWrap(params: { title: string; preheader?: string; bodyHtml: string; footerNote?: string }) {
   const preheader = params.preheader
     ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(params.preheader)}</div>`
     : '';
+  const logoUrl = `${getBaseUrl()}/email/logo.png`;
 
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="supported-color-schemes" content="light dark" />
     <title>${escapeHtml(params.title)}</title>
   </head>
-  <body style="margin:0;padding:0;background:${BRAND.bgPage};-webkit-font-smoothing:antialiased;">
+  <body style="margin:0;padding:0;background-color:${BRAND.bgPage};-webkit-font-smoothing:antialiased;">
     ${preheader}
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.bgPage};padding:40px 16px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${BRAND.bgPage}" style="background-color:${BRAND.bgPage};padding:40px 16px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:${BRAND.cardBg};border-radius:20px;overflow:hidden;border:1px solid ${BRAND.border};box-shadow:0 25px 50px -12px rgba(15,23,42,0.12);">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;border-radius:20px;overflow:hidden;border:1px solid ${BRAND.border};">
             <tr>
-              <td style="background:${BRAND.headerBg};padding:28px 32px 26px 32px;text-align:center;">
-                <div style="display:inline-block;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);margin-bottom:14px;">
-                  <span style="font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.75);">Markaestro</span>
-                </div>
-                <h1 style="margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:22px;font-weight:600;line-height:1.3;color:#ffffff;letter-spacing:-0.02em;">
-                  ${escapeHtml(params.title)}
-                </h1>
+              <td bgcolor="${BRAND.accent}" height="4" style="background-color:${BRAND.accent};height:4px;line-height:4px;font-size:0;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td bgcolor="${BRAND.cardBg}" style="background-color:${BRAND.cardBg};padding:26px 32px 24px 32px;border-bottom:1px solid ${BRAND.border};">
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="vertical-align:middle;">
+                      <img src="${logoUrl}" width="36" height="36" alt="Markaestro" style="display:block;width:36px;height:36px;border-radius:9px;border:1px solid ${BRAND.border};" />
+                    </td>
+                    <td style="vertical-align:middle;padding-left:12px;">
+                      <span style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.02em;color:${BRAND.ink};">Markaestro</span>
+                    </td>
+                  </tr>
+                </table>
               </td>
             </tr>
             <tr>
-              <td style="padding:28px 32px 32px 32px;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.65;color:${BRAND.ink};">
+              <td bgcolor="${BRAND.cardBg}" style="background-color:${BRAND.cardBg};padding:30px 32px 32px 32px;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.65;color:${BRAND.ink};">
+                <h1 style="margin:0 0 14px 0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:21px;font-weight:600;line-height:1.3;color:${BRAND.ink};letter-spacing:-0.02em;">
+                  ${escapeHtml(params.title)}
+                </h1>
                 ${params.bodyHtml}
-                ${footerLegal()}
+                ${footerLegal(params.footerNote || 'If you did not request this email, you can ignore it. Your account will stay unchanged.')}
               </td>
             </tr>
           </table>
@@ -95,80 +123,56 @@ function brandWrap(params: { title: string; preheader?: string; bodyHtml: string
 </html>`;
 }
 
-export function passwordResetEmail(params: { actionUrl: string; email?: string | null }): AuthEmailPayload {
-  const title = 'Reset your password';
+/** One-time code for signing in (also serves as email verification). */
+export function signInCodeEmail(params: { code: string; email?: string | null }): AuthEmailPayload {
+  const title = 'Your sign-in code';
   const html = brandWrap({
     title,
-    preheader: 'Reset your Markaestro password in one tap.',
+    preheader: `${params.code} is your Markaestro sign-in code.`,
     bodyHtml: `
-      <p style="margin:0 0 16px 0;">We received a request to reset the password for <strong>${escapeHtml(params.email || 'your account')}</strong>.</p>
-      <p style="margin:0 0 22px 0;color:${BRAND.muted};font-size:14px;">Use the button below to choose a new password. This link expires for your security.</p>
-      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
-        <tr><td style="text-align:center;">${ctaButton(params.actionUrl, 'Reset password')}</td></tr>
-      </table>
-      ${linkFallback(params.actionUrl)}
+      <p style="margin:0 0 16px 0;">Use this code to sign in as <strong>${escapeHtml(params.email || 'your account')}</strong>:</p>
+      ${codeBlock(params.code)}
+      <p style="margin:18px 0 0 0;color:${BRAND.muted};font-size:13px;">The code expires in 10 minutes. Never share it with anyone — Markaestro will never ask you for it.</p>
     `,
+    footerNote: 'If you did not try to sign in, you can ignore this email. Without the code, no one can access your account.',
   });
   const text = [
-    'Reset your Markaestro password',
+    'Your Markaestro sign-in code',
     '',
-    `We received a request to reset the password for ${params.email || 'your account'}.`,
+    `Code: ${params.code}`,
     '',
-    `Open this link to continue: ${params.actionUrl}`,
-    '',
-    'If you did not request this, you can ignore this email.',
+    'The code expires in 10 minutes. Never share it with anyone.',
+    'If you did not try to sign in, you can ignore this email.',
   ].join('\n');
-  return { subject: 'Reset your Markaestro password', html, text };
+  return { subject: `${params.code} is your Markaestro sign-in code`, html, text };
 }
 
-export function verifyEmail(params: { actionUrl: string; email?: string | null }): AuthEmailPayload {
-  const title = 'Confirm your email';
-  const html = brandWrap({
-    title,
-    preheader: 'Verify your email to finish securing your Markaestro account.',
-    bodyHtml: `
-      <p style="margin:0 0 16px 0;">Please confirm <strong>${escapeHtml(params.email || 'your email address')}</strong> so we can keep your workspace and billing secure.</p>
-      <p style="margin:0 0 22px 0;color:${BRAND.muted};font-size:14px;">One tap is all it takes.</p>
-      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
-        <tr><td style="text-align:center;">${ctaButton(params.actionUrl, 'Verify email')}</td></tr>
-      </table>
-      ${linkFallback(params.actionUrl)}
-    `,
-  });
-  const text = [
-    'Confirm your email for Markaestro',
-    '',
-    `Verify: ${params.actionUrl}`,
-    '',
-    'If you did not create an account, you can ignore this email.',
-  ].join('\n');
-  return { subject: 'Confirm your email for Markaestro', html, text };
-}
-
-export function verifyAndChangeEmail(params: { actionUrl: string; newEmail: string }): AuthEmailPayload {
+/** One-time code sent to the NEW address to confirm an email change. */
+export function emailChangeCodeEmail(params: { code: string; newEmail: string }): AuthEmailPayload {
   const title = 'Confirm your new email';
   const html = brandWrap({
     title,
-    preheader: 'Approve your Markaestro email change.',
+    preheader: `${params.code} is your code to confirm this email change.`,
     bodyHtml: `
-      <p style="margin:0 0 16px 0;">You requested to change your Markaestro email to <strong>${escapeHtml(params.newEmail)}</strong>.</p>
-      <p style="margin:0 0 22px 0;color:${BRAND.muted};font-size:14px;">Confirm this change to keep signing in without interruption.</p>
-      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
-        <tr><td style="text-align:center;">${ctaButton(params.actionUrl, 'Confirm new email')}</td></tr>
-      </table>
-      ${linkFallback(params.actionUrl)}
+      <p style="margin:0 0 16px 0;">You requested to change your Markaestro email to <strong>${escapeHtml(params.newEmail)}</strong>. Enter this code in the app to confirm:</p>
+      ${codeBlock(params.code)}
+      <p style="margin:18px 0 0 0;color:${BRAND.muted};font-size:13px;">The code expires in 10 minutes. Never share it with anyone.</p>
     `,
+    footerNote: 'If you did not request this change, you can ignore this email and your address will stay the same.',
   });
   const text = [
     'Confirm your new Markaestro email',
     '',
     `New email: ${params.newEmail}`,
+    `Code: ${params.code}`,
     '',
-    `Confirm: ${params.actionUrl}`,
+    'The code expires in 10 minutes.',
+    'If you did not request this change, you can ignore this email.',
   ].join('\n');
-  return { subject: 'Confirm your new email for Markaestro', html, text };
+  return { subject: `${params.code} is your code to confirm your new Markaestro email`, html, text };
 }
 
+/** Heads-up to the OLD address when an email change is requested. */
 export function emailChangeNotice(params: { oldEmail: string; newEmail: string }): AuthEmailPayload {
   const title = 'Email change requested';
   const html = brandWrap({
@@ -176,21 +180,26 @@ export function emailChangeNotice(params: { oldEmail: string; newEmail: string }
     preheader: 'A Markaestro email change was requested.',
     bodyHtml: `
       <p style="margin:0 0 16px 0;">Someone requested to change the email on this Markaestro account:</p>
-      <p style="margin:0 0 22px 0;padding:16px 18px;background:#f8fafc;border:1px solid ${BRAND.border};border-radius:12px;font-size:14px;">
-        <span style="color:${BRAND.muted};font-size:12px;display:block;margin-bottom:6px;">From → To</span>
-        <strong>${escapeHtml(params.oldEmail)}</strong>
-        <span style="color:${BRAND.muted};"> → </span>
-        <strong>${escapeHtml(params.newEmail)}</strong>
-      </p>
-      <p style="margin:0;color:${BRAND.muted};font-size:14px;">If this was you, no action is needed on this email — complete the confirmation on the <strong>new address</strong>. If this was not you, reset your password and contact support.</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td bgcolor="${BRAND.panelBg}" style="background-color:${BRAND.panelBg};border:1px solid ${BRAND.border};border-radius:12px;padding:16px 18px;font-size:14px;color:${BRAND.ink};">
+            <span style="color:${BRAND.muted};font-size:12px;display:block;margin-bottom:6px;">From &rarr; To</span>
+            <strong>${escapeHtml(params.oldEmail)}</strong>
+            <span style="color:${BRAND.muted};"> &rarr; </span>
+            <strong>${escapeHtml(params.newEmail)}</strong>
+          </td>
+        </tr>
+      </table>
+      <p style="margin:22px 0 0 0;color:${BRAND.muted};font-size:14px;">If this was you, complete the confirmation with the code we sent to the <strong>new address</strong>. If this was not you, your email has not changed — but please contact support right away.</p>
     `,
+    footerNote: 'This notice was sent because a change was requested for your account.',
   });
   const text = [
     'Email change requested on Markaestro',
     '',
-    `${params.oldEmail} → ${params.newEmail}`,
+    `${params.oldEmail} -> ${params.newEmail}`,
     '',
-    'If this was not you, reset your password and contact support.',
+    'If this was not you, your email has not changed — contact support right away.',
   ].join('\n');
   return { subject: 'Email change requested · Markaestro', html, text };
 }

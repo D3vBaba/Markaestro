@@ -4,9 +4,8 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
   GoogleAuthProvider,
   User,
-  createUserWithEmailAndPassword,
   onAuthStateChanged,
-  signInWithEmailAndPassword,
+  signInWithCustomToken,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
@@ -19,13 +18,14 @@ import { useRouter } from 'next/navigation';
 type AuthCtx = {
   user: User | null;
   loading: boolean;
-  signInEmail: (email: string, password: string) => Promise<void>;
-  signUpEmail: (email: string, password: string) => Promise<void>;
+  /** Email a one-time sign-in code (also used to verify an inbox). */
+  requestSignInCode: (email: string) => Promise<void>;
+  /** Exchange a code for a session. Creates the account on first sign-in. */
+  signInWithCode: (email: string, code: string) => Promise<void>;
   signInGoogle: () => Promise<void>;
   logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-  sendVerificationEmail: () => Promise<void>;
-  requestEmailChange: (newEmail: string) => Promise<void>;
+  requestEmailChangeCode: (newEmail: string) => Promise<void>;
+  confirmEmailChangeCode: (newEmail: string, code: string) => Promise<void>;
   getIdToken: () => Promise<string | null>;
 };
 
@@ -82,23 +82,30 @@ async function signInWithProvider(provider: GoogleAuthProvider) {
   }
 }
 
-/** Map Firebase error codes to user-friendly messages. */
+/** Map Firebase and code-flow API error codes to user-friendly messages. */
 export function friendlyAuthError(error: unknown): string {
-  const code = (error as { code?: string })?.code;
+  const code =
+    (error as { code?: string })?.code ||
+    (error instanceof Error ? error.message : '');
   switch (code) {
     case 'auth/invalid-email':
+    case 'VALIDATION_ERROR':
       return 'Please enter a valid email address.';
     case 'auth/user-disabled':
+    case 'USER_DISABLED':
       return 'This account has been disabled. Contact support.';
-    case 'auth/user-not-found':
-    case 'auth/wrong-password':
-    case 'auth/invalid-credential':
-      return 'Invalid email or password.';
-    case 'auth/email-already-in-use':
+    case 'OTP_INVALID':
+      return 'That code is incorrect. Check the latest email and try again.';
+    case 'OTP_EXPIRED':
+      return 'That code has expired. Request a new one.';
+    case 'OTP_TOO_MANY_ATTEMPTS':
+      return 'Too many incorrect attempts. Request a new code.';
+    case 'OTP_COOLDOWN':
+      return 'A code was just sent. Check your inbox, or retry in a minute.';
+    case 'EMAIL_IN_USE':
       return 'An account with this email already exists.';
-    case 'auth/weak-password':
-      return 'Password must be at least 6 characters.';
     case 'auth/too-many-requests':
+    case 'RATE_LIMITED':
       return 'Too many attempts. Please try again later.';
     case 'auth/popup-closed-by-user':
     case 'auth/cancelled-popup-request':
@@ -112,6 +119,28 @@ export function friendlyAuthError(error: unknown): string {
     default:
       return 'Authentication failed. Please try again.';
   }
+}
+
+/** POST JSON to an auth API route; throws Error(code) on non-2xx. */
+async function postAuthApi<T = unknown>(
+  path: string,
+  body: Record<string, unknown>,
+  idToken?: string,
+): Promise<T> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (idToken) headers.Authorization = `Bearer ${idToken}`;
+  const resp = await fetch(path, { method: 'POST', headers, body: JSON.stringify(body) });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    throw new Error(
+      typeof data?.error === 'string'
+        ? data.error
+        : resp.status === 429
+          ? 'RATE_LIMITED'
+          : 'INTERNAL_ERROR',
+    );
+  }
+  return data as T;
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -149,21 +178,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       loading,
-      signInEmail: async (email, password) => {
-        await signInWithEmailAndPassword(auth, email, password);
+      requestSignInCode: async (email) => {
+        await postAuthApi('/api/auth/otp/request', { email });
       },
-      signUpEmail: async (email, password) => {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        // Fire-and-forget: email verification is delivered via Resend (server-generated action link)
-        try {
-          const idToken = await cred.user.getIdToken();
-          await fetch('/api/auth/emails/verify-email', {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${idToken}` },
-          });
-        } catch {
-          // Non-critical; user can resend from Settings
-        }
+      signInWithCode: async (email, code) => {
+        const { token } = await postAuthApi<{ token: string }>('/api/auth/otp/verify', { email, code });
+        await signInWithCustomToken(auth, token);
       },
       signInGoogle: async () => {
         const provider = new GoogleAuthProvider();
@@ -184,29 +204,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await signOut(auth);
         router.replace('/login');
       },
-      resetPassword: async (email: string) => {
-        await fetch('/api/auth/emails/password-reset', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-      },
-      sendVerificationEmail: async () => {
+      requestEmailChangeCode: async (newEmail: string) => {
         const token = await auth.currentUser?.getIdToken();
         if (!token) throw new Error('UNAUTHENTICATED');
-        await fetch('/api/auth/emails/verify-email', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await postAuthApi('/api/auth/email-change/request', { newEmail }, token);
       },
-      requestEmailChange: async (newEmail: string) => {
-        const token = await auth.currentUser?.getIdToken();
-        if (!token) throw new Error('UNAUTHENTICATED');
-        await fetch('/api/auth/emails/email-change', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ newEmail }),
-        });
+      confirmEmailChangeCode: async (newEmail: string, code: string) => {
+        const current = auth.currentUser;
+        const token = await current?.getIdToken();
+        if (!current || !token) throw new Error('UNAUTHENTICATED');
+        await postAuthApi('/api/auth/email-change/confirm', { newEmail, code }, token);
+        // The email changed server-side — refresh the local user and the
+        // session cookie so the new claims are visible immediately.
+        await current.getIdToken(true);
+        await current.reload();
+        await syncSessionCookie(auth.currentUser);
+        setUser(auth.currentUser);
       },
       getIdToken: async () => {
         if (!auth.currentUser) return null;

@@ -521,8 +521,8 @@ export default function OnboardingPage() {
     user,
     loading: authLoading,
     logout,
-    signInEmail,
-    signUpEmail,
+    requestSignInCode,
+    signInWithCode,
     signInGoogle,
   } = useAuth();
   const { status: subStatus, loading: subLoading } = useSubscription();
@@ -562,12 +562,19 @@ export default function OnboardingPage() {
   const [interval, setInterval] = useState<BillingInterval>(saved.interval ?? "annual");
   const [busy, setBusy] = useState(false);
 
-  // Register
-  const [regMode, setRegMode] = useState<"signup" | "signin">("signup");
+  // Register — passwordless: email first, then the one-time code we sent.
+  const [regStage, setRegStage] = useState<"email" | "code">("email");
   const [regEmail, setRegEmail] = useState("");
-  const [regPassword, setRegPassword] = useState("");
+  const [regCode, setRegCode] = useState("");
   const [regError, setRegError] = useState("");
   const [regBusy, setRegBusy] = useState(false);
+  const [regCooldown, setRegCooldown] = useState(0);
+
+  useEffect(() => {
+    if (regCooldown <= 0) return;
+    const timer = setTimeout(() => setRegCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [regCooldown]);
 
   // Skips the leave-protection prompt for intentional redirects (OAuth, checkout).
   const skipLeaveGuardRef = useRef(false);
@@ -813,19 +820,41 @@ export default function OnboardingPage() {
 
   // ─── Register handlers ──────────────────────────────────────────────────────
 
-  async function handleRegister() {
-    if (!regEmail.trim() || !regPassword) {
-      setRegError("Enter your email and a password to continue.");
+  async function handleSendRegCode() {
+    if (!regEmail.trim()) {
+      setRegError("Enter your email to continue.");
       return;
     }
     setRegError("");
     setRegBusy(true);
     try {
-      if (regMode === "signup") {
-        await signUpEmail(regEmail.trim(), regPassword);
+      await requestSignInCode(regEmail.trim());
+      setRegStage("code");
+      setRegCode("");
+      setRegCooldown(60);
+      setRegBusy(false);
+    } catch (e: unknown) {
+      // A recent code is still valid — let the user go enter it.
+      if (e instanceof Error && e.message === "OTP_COOLDOWN") {
+        setRegStage("code");
+        setRegCooldown(60);
+        setRegBusy(false);
       } else {
-        await signInEmail(regEmail.trim(), regPassword);
+        setRegError(friendlyAuthError(e));
+        setRegBusy(false);
       }
+    }
+  }
+
+  async function handleVerifyRegCode() {
+    if (regCode.length < 6) {
+      setRegError("Enter the 6-digit code from your email.");
+      return;
+    }
+    setRegError("");
+    setRegBusy(true);
+    try {
+      await signInWithCode(regEmail.trim(), regCode);
       // onAuthStateChanged sets the user; the guard effect advances the step.
       // Keep regBusy true so the button stays in its loading state until then.
     } catch (e: unknown) {
@@ -1036,20 +1065,20 @@ export default function OnboardingPage() {
                 <div className="mb-8">
                   <p className="mk-eyebrow mb-4">Your plan is ready</p>
                   <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
-                    {regMode === "signup"
+                    {regStage === "email"
                       ? "Save your plan & claim your time back"
-                      : "Welcome back"}
+                      : "Check your inbox"}
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    {regMode === "signup"
-                      ? "Create your free account to lock in the workflow we just built — no card required to keep going."
-                      : "Sign in to pick up right where you left off."}
+                    {regStage === "email"
+                      ? "No password needed — enter your email and we'll send a one-time code. Already have an account? The same code signs you in."
+                      : `We sent a 6-digit code to ${regEmail.trim()}.`}
                   </p>
                 </div>
 
                 {/* Personalised recap — shows what they built so registering
                     feels like claiming it back, not filling out a form. */}
-                {regMode === "signup" && (
+                {regStage === "email" && (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1082,47 +1111,31 @@ export default function OnboardingPage() {
                 )}
 
                 <div className="rounded-xl border p-5 sm:p-6">
-                  <div
-                    className="grid grid-cols-2 gap-1 rounded-lg p-1 mb-5"
-                    style={{ background: "var(--mk-panel)", border: "1px solid var(--mk-rule)" }}
-                  >
-                    {(["signup", "signin"] as const).map((m) => (
-                      <button
-                        key={m}
-                        className="h-8 rounded-[6px] text-[12.5px] font-medium transition-colors"
-                        style={{
-                          background: regMode === m ? "var(--mk-paper)" : "transparent",
-                          color: regMode === m ? "var(--mk-ink)" : "var(--mk-ink-60)",
-                          border: regMode === m ? "1px solid var(--mk-rule)" : "1px solid transparent",
-                        }}
-                        onClick={() => { setRegMode(m); setRegError(""); }}
-                      >
-                        {m === "signup" ? "Create account" : "Sign in"}
-                      </button>
-                    ))}
-                  </div>
-
                   <div className="flex flex-col gap-3">
-                    <Input
-                      value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
-                      placeholder="name@company.com"
-                      type="email"
-                      autoComplete="email"
-                      className="h-11 rounded-lg"
-                      style={{ fontSize: "16px" }}
-                      onKeyDown={(e) => e.key === "Enter" && !regBusy && handleRegister()}
-                    />
-                    <Input
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      placeholder="Password"
-                      type="password"
-                      autoComplete={regMode === "signup" ? "new-password" : "current-password"}
-                      className="h-11 rounded-lg"
-                      style={{ fontSize: "16px" }}
-                      onKeyDown={(e) => e.key === "Enter" && !regBusy && handleRegister()}
-                    />
+                    {regStage === "email" ? (
+                      <Input
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        placeholder="name@company.com"
+                        type="email"
+                        autoComplete="email"
+                        className="h-11 rounded-lg"
+                        style={{ fontSize: "16px" }}
+                        onKeyDown={(e) => e.key === "Enter" && !regBusy && handleSendRegCode()}
+                      />
+                    ) : (
+                      <Input
+                        value={regCode}
+                        onChange={(e) => setRegCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        placeholder="123456"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        className="h-12 rounded-lg text-center font-mono tracking-[0.4em]"
+                        style={{ fontSize: "20px" }}
+                        onKeyDown={(e) => e.key === "Enter" && !regBusy && handleVerifyRegCode()}
+                      />
+                    )}
 
                     {regError && (
                       <p className="rounded-lg px-3.5 py-2.5 text-[12px] bg-destructive/10 text-destructive">
@@ -1130,18 +1143,44 @@ export default function OnboardingPage() {
                       </p>
                     )}
 
-                    <Button
-                      className="h-11 w-full rounded-lg text-[14px]"
-                      disabled={regBusy}
-                      onClick={handleRegister}
-                    >
-                      {regBusy
-                        ? "Please wait…"
-                        : regMode === "signup"
-                        ? "Claim my plan — it's free"
-                        : "Sign in & continue"}
-                    </Button>
-                    {regMode === "signup" && (
+                    {regStage === "email" ? (
+                      <Button
+                        className="h-11 w-full rounded-lg text-[14px]"
+                        disabled={regBusy}
+                        onClick={handleSendRegCode}
+                      >
+                        {regBusy ? "Sending code…" : "Claim my plan — it's free"}
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          className="h-11 w-full rounded-lg text-[14px]"
+                          disabled={regBusy || regCode.length < 6}
+                          onClick={handleVerifyRegCode}
+                        >
+                          {regBusy ? "Verifying…" : "Continue"}
+                        </Button>
+                        <div className="flex items-center justify-between">
+                          <button
+                            type="button"
+                            className="text-[12px] text-muted-foreground hover:text-foreground transition"
+                            onClick={() => { setRegStage("email"); setRegCode(""); setRegError(""); }}
+                          >
+                            ← Use a different email
+                          </button>
+                          <button
+                            type="button"
+                            className="text-[12px] font-medium hover:underline disabled:opacity-50 disabled:no-underline"
+                            style={{ color: "var(--mk-accent)" }}
+                            disabled={regBusy || regCooldown > 0}
+                            onClick={handleSendRegCode}
+                          >
+                            {regCooldown > 0 ? `Resend in ${regCooldown}s` : "Resend code"}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                    {regStage === "email" && (
                       <p className="text-center text-[12px]" style={{ color: "var(--mk-ink-40)" }}>
                         Free to start · 14-day trial · Cancel anytime
                       </p>
