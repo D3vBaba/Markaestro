@@ -1,7 +1,15 @@
 import { fetchWithRetry } from '@/lib/fetch-retry';
-import { getAccessToken, getMeta } from '../base-adapter';
+import { emptyMetrics, getAccessToken, getMeta, metricNum } from '../base-adapter';
 import { PlatformCapability } from '../types';
-import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
+import type {
+  AudienceFetchResult,
+  MetricsFetchInput,
+  MetricsFetchResult,
+  PlatformAdapter,
+  PlatformConnection,
+  PublishRequest,
+  PublishResult,
+} from '../types';
 import type { SocialChannel } from '@/lib/schemas';
 
 // Pinterest API v5. Pins must be attached to a board — the board is selected
@@ -162,6 +170,93 @@ async function publishToPinterest(
   }
 }
 
+// ── Metrics ─────────────────────────────────────────────────────────
+
+/** Pin analytics only reach back 90 days; clamp the query window accordingly. */
+const PINTEREST_ANALYTICS_MAX_DAYS = 89;
+const PIN_METRIC_TYPES = 'IMPRESSION,PIN_CLICK,OUTBOUND_CLICK,SAVE,TOTAL_COMMENTS,TOTAL_REACTIONS';
+
+function classifyPinterestStatus(status: number): 'auth' | 'not_found' | 'unsupported' | 'transient' {
+  if (status === 401) return 'auth';
+  if (status === 404) return 'not_found';
+  if (status === 403) return 'unsupported';
+  return 'transient';
+}
+
+function pinterestDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+async function fetchPinterestMetrics(
+  connection: PlatformConnection,
+  pinId: string,
+  publishedAt?: string,
+): Promise<MetricsFetchResult> {
+  const accessToken = getAccessToken(connection);
+  const now = new Date();
+  const earliest = new Date(now.getTime() - PINTEREST_ANALYTICS_MAX_DAYS * 24 * 3600 * 1000);
+  const published = publishedAt ? new Date(publishedAt) : earliest;
+  const start = published > earliest ? published : earliest;
+
+  const params = new URLSearchParams({
+    start_date: pinterestDate(start),
+    end_date: pinterestDate(now),
+    metric_types: PIN_METRIC_TYPES,
+    app_types: 'ALL',
+  });
+  const res = await fetchWithRetry(
+    `${PINTEREST_API}/pins/${encodeURIComponent(pinId)}/analytics?${params.toString()}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+    { maxRetries: 1 },
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return {
+      ok: false,
+      error: data.message || `Pinterest pin analytics failed (HTTP ${res.status})`,
+      reason: classifyPinterestStatus(res.status),
+    };
+  }
+
+  // Period totals live in summary_metrics; lifetime_metrics only carries
+  // TOTAL_COMMENTS / TOTAL_REACTIONS. Merge both (lifetime wins where present).
+  const summary = (data.all?.summary_metrics ?? {}) as Record<string, unknown>;
+  const lifetime = (data.all?.lifetime_metrics ?? {}) as Record<string, unknown>;
+  const values: Record<string, number> = {};
+  for (const [key, value] of Object.entries({ ...summary, ...lifetime })) {
+    const num = metricNum(value);
+    if (num !== null) values[key] = num;
+  }
+
+  const metrics = emptyMetrics();
+  metrics.views = metricNum(values.IMPRESSION);
+  metrics.saves = metricNum(values.SAVE);
+  metrics.clicks = metricNum(values.OUTBOUND_CLICK);
+  metrics.comments = metricNum(values.TOTAL_COMMENTS);
+  metrics.likes = metricNum(values.TOTAL_REACTIONS);
+  metrics.raw = values;
+  return { ok: true, metrics };
+}
+
+async function fetchPinterestAudience(connection: PlatformConnection): Promise<AudienceFetchResult> {
+  const accessToken = getAccessToken(connection);
+  const res = await fetchWithRetry(`${PINTEREST_API}/user_account`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  }, { maxRetries: 1 });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return {
+      ok: false,
+      error: data.message || `HTTP ${res.status}`,
+      reason: classifyPinterestStatus(res.status),
+    };
+  }
+  const followers = metricNum(data.follower_count);
+  if (followers === null) return { ok: false, error: 'follower_count not returned', reason: 'unsupported' };
+  const monthlyViews = metricNum(data.monthly_views);
+  return { ok: true, followers, raw: monthlyViews !== null ? { monthly_views: monthlyViews } : undefined };
+}
+
 export const pinterestPublishingAdapter: PlatformAdapter = {
   id: 'pinterest-publishing',
   name: 'Pinterest',
@@ -173,6 +268,22 @@ export const pinterestPublishingAdapter: PlatformAdapter = {
 
   async publish(connection, request: PublishRequest): Promise<PublishResult> {
     return publishToPinterest(connection, request.content, request.mediaUrls ?? []);
+  },
+
+  async fetchMetrics(connection, input: MetricsFetchInput): Promise<MetricsFetchResult> {
+    try {
+      return await fetchPinterestMetrics(connection, input.externalId, input.publishedAt);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Pinterest metrics fetch failed', reason: 'transient' };
+    }
+  },
+
+  async fetchAudience(connection): Promise<AudienceFetchResult> {
+    try {
+      return await fetchPinterestAudience(connection);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Pinterest audience fetch failed', reason: 'transient' };
+    }
   },
 
   async testConnection(connection) {

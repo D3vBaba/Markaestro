@@ -115,6 +115,33 @@ export function apiDelete<T = unknown>(path: string, body?: unknown, wsId = 'def
   });
 }
 
+/** Download a file (e.g. CSV export) as a Blob. */
+export async function apiDownload(
+  path: string,
+  wsId = 'default',
+): Promise<{ ok: boolean; status: number; blob: Blob | null }> {
+  if (_authReady) await _authReady;
+  const token = _getIdToken ? await _getIdToken() : null;
+  const sep = path.includes('?') ? '&' : '?';
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(`${path}${sep}workspaceId=${wsId}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      signal: controller.signal,
+    });
+    const blob = res.ok ? await res.blob() : null;
+    return { ok: res.ok, status: res.status, blob };
+  } catch (err) {
+    if (isAbortError(err)) return { ok: false, status: 408, blob: null };
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 /** Upload a file via FormData (does NOT set Content-Type — browser adds multipart boundary). */
 export async function apiUpload<T = unknown>(
   path: string,

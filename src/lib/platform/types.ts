@@ -84,6 +84,54 @@ export type PublishResult = {
   error?: string;
 };
 
+// ── Metrics types ───────────────────────────────────────────────────
+
+/**
+ * Post-level metrics normalized across platforms. A metric a platform does
+ * not expose is `null` — never a fabricated zero. Platform-specific extras
+ * (with their verbatim API metric names) go in `raw`.
+ *
+ * `views` is the canonical view/impression count: Meta deprecated the
+ * `impressions` family across 2024–2026 in favor of views-style metrics,
+ * and every other platform reports a views-like counter.
+ */
+export type NormalizedPostMetrics = {
+  views: number | null;
+  reach: number | null;
+  likes: number | null;
+  comments: number | null;
+  shares: number | null;
+  saves: number | null;
+  clicks: number | null;
+  videoViews: number | null;
+  raw: Record<string, number>;
+};
+
+export type MetricsFetchInput = {
+  channel: SocialChannel;
+  /** Platform post/media ID recorded at publish time. */
+  externalId: string;
+  /** ISO timestamp the post went live (bounds date-ranged analytics APIs). */
+  publishedAt?: string;
+  /** LinkedIn destination the post was published to (profile vs page). */
+  destinationId?: string;
+};
+
+/**
+ * `reason` drives the poller's state machine:
+ * - auth: token invalid/revoked → surface on the connection, retry later
+ * - not_found: post deleted on the platform → stop polling
+ * - unsupported: platform/account can't provide metrics → stop polling
+ * - transient: network/rate-limit/5xx → retry with backoff
+ */
+export type MetricsFetchResult =
+  | { ok: true; metrics: NormalizedPostMetrics }
+  | { ok: false; error: string; reason: 'auth' | 'not_found' | 'unsupported' | 'transient' };
+
+export type AudienceFetchResult =
+  | { ok: true; followers: number; raw?: Record<string, number> }
+  | { ok: false; error: string; reason: 'auth' | 'not_found' | 'unsupported' | 'transient' };
+
 // ── Platform Adapter Interface ──────────────────────────────────────
 
 export interface PlatformAdapter {
@@ -104,4 +152,10 @@ export interface PlatformAdapter {
 
   /** Validate that the connection has the required metadata for a given channel */
   validateConnection(connection: PlatformConnection, channel: SocialChannel): string | null;
+
+  /** Fetch post-level insights for a published post (optional per adapter) */
+  fetchMetrics?(connection: PlatformConnection, input: MetricsFetchInput): Promise<MetricsFetchResult>;
+
+  /** Fetch the current follower/audience count for a channel (optional per adapter) */
+  fetchAudience?(connection: PlatformConnection, channel: SocialChannel): Promise<AudienceFetchResult>;
 }

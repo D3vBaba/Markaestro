@@ -1,7 +1,15 @@
 import { fetchWithRetry } from '@/lib/fetch-retry';
-import { getAccessToken, getMeta } from '../base-adapter';
+import { emptyMetrics, getAccessToken, getMeta, metricNum } from '../base-adapter';
 import { PlatformCapability } from '../types';
-import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
+import type {
+  AudienceFetchResult,
+  MetricsFetchInput,
+  MetricsFetchResult,
+  PlatformAdapter,
+  PlatformConnection,
+  PublishRequest,
+  PublishResult,
+} from '../types';
 import type { SocialChannel } from '@/lib/schemas';
 
 // Threads uses a Meta-style 2-step publish: create a media container, then call
@@ -176,6 +184,85 @@ async function publishToThreads(
   }
 }
 
+// ── Metrics ─────────────────────────────────────────────────────────
+
+/** Complete Threads media-insights metric list (no reach/saves/clicks at post level). */
+const THREADS_MEDIA_METRICS = 'views,likes,replies,reposts,quotes,shares';
+
+type ThreadsError = { error?: { code?: number; message?: string } };
+
+function classifyThreadsError(status: number, data: ThreadsError): 'auth' | 'not_found' | 'unsupported' | 'transient' {
+  const code = data.error?.code;
+  const message = data.error?.message || '';
+  if (status === 401 || code === 190) return 'auth';
+  if (code === 100 && /does not exist|unsupported get request/i.test(message)) return 'not_found';
+  if (code === 10 || code === 200) return 'unsupported';
+  return 'transient';
+}
+
+async function fetchThreadsMetrics(
+  connection: PlatformConnection,
+  mediaId: string,
+): Promise<MetricsFetchResult> {
+  const accessToken = getAccessToken(connection);
+  const url = `${THREADS_API}/${mediaId}/insights?${new URLSearchParams({
+    metric: THREADS_MEDIA_METRICS,
+    access_token: accessToken,
+  }).toString()}`;
+  const res = await fetchWithRetry(url, {}, { maxRetries: 1 });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return {
+      ok: false,
+      error: data.error?.message || `Threads insights failed (HTTP ${res.status})`,
+      reason: classifyThreadsError(res.status, data),
+    };
+  }
+
+  const values: Record<string, number> = {};
+  for (const entry of (data.data ?? []) as Array<{ name?: string; values?: Array<{ value?: unknown }>; total_value?: { value?: unknown } }>) {
+    if (!entry.name) continue;
+    const value = metricNum(entry.total_value?.value ?? entry.values?.[0]?.value);
+    if (value !== null) values[entry.name] = value;
+  }
+  // Reposting others' content returns an empty insights array — nothing to record.
+  if (Object.keys(values).length === 0) {
+    return { ok: false, error: 'Threads returned no insights for this post', reason: 'unsupported' };
+  }
+
+  const metrics = emptyMetrics();
+  metrics.views = metricNum(values.views);
+  metrics.likes = metricNum(values.likes);
+  metrics.comments = metricNum(values.replies);
+  // `reposts` is the reshare-equivalent; direct `shares` (sends) stay in raw.
+  metrics.shares = metricNum(values.reposts);
+  metrics.raw = values;
+  return { ok: true, metrics };
+}
+
+async function fetchThreadsAudience(connection: PlatformConnection): Promise<AudienceFetchResult> {
+  const userId = getThreadsUserId(connection);
+  if (!userId) return { ok: false, error: 'Threads user ID missing', reason: 'unsupported' };
+  const accessToken = getAccessToken(connection);
+  const url = `${THREADS_API}/${userId}/threads_insights?${new URLSearchParams({
+    metric: 'followers_count',
+    access_token: accessToken,
+  }).toString()}`;
+  const res = await fetchWithRetry(url, {}, { maxRetries: 1 });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return {
+      ok: false,
+      error: data.error?.message || `HTTP ${res.status}`,
+      reason: classifyThreadsError(res.status, data),
+    };
+  }
+  const entry = (data.data ?? []).find((d: { name?: string }) => d.name === 'followers_count');
+  const followers = metricNum(entry?.total_value?.value ?? entry?.values?.[0]?.value);
+  if (followers === null) return { ok: false, error: 'followers_count not returned', reason: 'unsupported' };
+  return { ok: true, followers };
+}
+
 export const threadsPublishingAdapter: PlatformAdapter = {
   id: 'threads-publishing',
   name: 'Threads',
@@ -189,6 +276,22 @@ export const threadsPublishingAdapter: PlatformAdapter = {
 
   async publish(connection, request: PublishRequest): Promise<PublishResult> {
     return publishToThreads(connection, request.content, request.mediaUrls ?? []);
+  },
+
+  async fetchMetrics(connection, input: MetricsFetchInput): Promise<MetricsFetchResult> {
+    try {
+      return await fetchThreadsMetrics(connection, input.externalId);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Threads metrics fetch failed', reason: 'transient' };
+    }
+  },
+
+  async fetchAudience(connection): Promise<AudienceFetchResult> {
+    try {
+      return await fetchThreadsAudience(connection);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Threads audience fetch failed', reason: 'transient' };
+    }
   },
 
   async testConnection(connection) {

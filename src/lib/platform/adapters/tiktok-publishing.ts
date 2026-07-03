@@ -3,9 +3,17 @@ import { detectMp4Audio } from '@/lib/media/mp4-audio-detect';
 import { transcodeForTikTok } from '@/lib/media/tiktok-transcode';
 import { readResponseBufferWithLimit } from '@/lib/network-security';
 import { isTikTokVideoUrl, validateTikTokMediaUrls } from '@/lib/tiktok-draft-flow';
-import { getAccessToken } from '../base-adapter';
+import { emptyMetrics, getAccessToken, metricNum } from '../base-adapter';
 import { PlatformCapability } from '../types';
-import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
+import type {
+  AudienceFetchResult,
+  MetricsFetchInput,
+  MetricsFetchResult,
+  PlatformAdapter,
+  PlatformConnection,
+  PublishRequest,
+  PublishResult,
+} from '../types';
 import { asTikTokSettings } from '@/lib/public-api/post-settings';
 import { logger } from '@/lib/logger';
 
@@ -273,6 +281,90 @@ async function uploadVideoToTikTokInbox(
   return uploadVideoFileToTikTokInbox(accessToken, mediaUrl);
 }
 
+// ── Metrics ─────────────────────────────────────────────────────────
+
+/**
+ * Display API video counters — the complete set (no saves/reach/watch-time
+ * without a TikTok Business account). Requires the `video.list` scope.
+ */
+async function fetchTikTokMetrics(
+  connection: PlatformConnection,
+  videoId: string,
+): Promise<MetricsFetchResult> {
+  const accessToken = getAccessToken(connection);
+  const res = await fetchWithRetry(
+    `${TIKTOK_API}/video/query/?fields=id,like_count,comment_count,share_count,view_count`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: JSON.stringify({ filters: { video_ids: [videoId] } }),
+    },
+    { maxRetries: 1 },
+  );
+  const data = await res.json().catch(() => ({}));
+  const error = parseTikTokError(data);
+  if (error || !res.ok) {
+    const code = (data.error?.code as string | undefined) || '';
+    const reason = res.status === 401 || code === 'access_token_invalid' || code === 'token_expired'
+      ? 'auth'
+      : code === 'scope_not_authorized' || code === 'scope_permission_missed'
+        ? 'unsupported'
+        : 'transient';
+    return { ok: false, error: error || `TikTok video query failed (HTTP ${res.status})`, reason };
+  }
+
+  const video = (data.data?.videos as Array<Record<string, unknown>> | undefined)?.find(
+    (v) => String(v.id) === String(videoId),
+  );
+  if (!video) {
+    // The stored ID may still be an inbox publish_id (user never finalized the
+    // post in TikTok) or the video was deleted — either way, nothing to poll.
+    return { ok: false, error: 'Video not found on TikTok', reason: 'not_found' };
+  }
+
+  const metrics = emptyMetrics();
+  metrics.views = metricNum(video.view_count);
+  metrics.videoViews = metricNum(video.view_count);
+  metrics.likes = metricNum(video.like_count);
+  metrics.comments = metricNum(video.comment_count);
+  metrics.shares = metricNum(video.share_count);
+  metrics.raw = Object.fromEntries(
+    ['view_count', 'like_count', 'comment_count', 'share_count']
+      .map((k) => [k, metricNum(video[k])] as const)
+      .filter((entry): entry is [string, number] => entry[1] !== null),
+  );
+  return { ok: true, metrics };
+}
+
+/** Requires the `user.info.stats` scope; returns unsupported when not granted. */
+async function fetchTikTokAudience(connection: PlatformConnection): Promise<AudienceFetchResult> {
+  const accessToken = getAccessToken(connection);
+  const res = await fetchWithRetry(
+    `${TIKTOK_API}/user/info/?fields=follower_count`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+    { maxRetries: 1 },
+  );
+  const data = await res.json().catch(() => ({}));
+  const error = parseTikTokError(data);
+  if (error || !res.ok) {
+    const code = (data.error?.code as string | undefined) || '';
+    const reason = res.status === 401 || code === 'access_token_invalid' || code === 'token_expired'
+      ? 'auth'
+      : code === 'scope_not_authorized' || code === 'scope_permission_missed'
+        ? 'unsupported'
+        : 'transient';
+    return { ok: false, error: error || `HTTP ${res.status}`, reason };
+  }
+  const followers = metricNum(data.data?.user?.follower_count);
+  if (followers === null) {
+    return { ok: false, error: 'follower_count not returned (user.info.stats scope missing?)', reason: 'unsupported' };
+  }
+  return { ok: true, followers };
+}
+
 export const tiktokPublishingAdapter: PlatformAdapter = {
   id: 'tiktok-publishing',
   name: 'TikTok',
@@ -384,6 +476,22 @@ export const tiktokPublishingAdapter: PlatformAdapter = {
         success: false,
         error: e instanceof Error ? e.message : 'Unknown TikTok publishing error',
       };
+    }
+  },
+
+  async fetchMetrics(connection: PlatformConnection, input: MetricsFetchInput): Promise<MetricsFetchResult> {
+    try {
+      return await fetchTikTokMetrics(connection, input.externalId);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'TikTok metrics fetch failed', reason: 'transient' };
+    }
+  },
+
+  async fetchAudience(connection: PlatformConnection): Promise<AudienceFetchResult> {
+    try {
+      return await fetchTikTokAudience(connection);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'TikTok audience fetch failed', reason: 'transient' };
     }
   },
 

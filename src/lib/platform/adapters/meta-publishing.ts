@@ -1,8 +1,16 @@
 import { decrypt } from '@/lib/crypto';
-import { getAccessToken, getMeta } from '../base-adapter';
+import { emptyMetrics, getAccessToken, getMeta, metricNum } from '../base-adapter';
 import { graphApiFetch, checkIgPublishingQuota, checkPagePublishingAccess } from '../meta-graph-api';
 import { PlatformCapability } from '../types';
-import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
+import type {
+  AudienceFetchResult,
+  MetricsFetchInput,
+  MetricsFetchResult,
+  PlatformAdapter,
+  PlatformConnection,
+  PublishRequest,
+  PublishResult,
+} from '../types';
 import type { SocialChannel } from '@/lib/schemas';
 import { asInstagramSettings, type InstagramSettings } from '@/lib/public-api/post-settings';
 import {
@@ -538,6 +546,187 @@ async function publishToInstagram(
   }
 }
 
+// ── Metrics ─────────────────────────────────────────────────────────
+
+/**
+ * Media insights metric set valid for FEED, REELS, and carousel parents on
+ * Graph v22+/Instagram v25+. `impressions` was deprecated in v22 (Jan 2025);
+ * `views` is the canonical view count for all media types.
+ */
+const IG_MEDIA_METRICS = 'views,reach,likes,comments,shares,saved,total_interactions';
+const IG_MEDIA_METRICS_FALLBACK = 'reach,likes,comments,shares,saved';
+
+/**
+ * Facebook post insights after the 2024–2026 metric purges. The views family
+ * (`post_media_view`, `post_total_media_view_unique`) replaced impressions/
+ * reach; `post_clicks` and `post_video_views` still resolve on v25.
+ */
+const FB_POST_METRICS = 'post_media_view,post_total_media_view_unique,post_clicks,post_video_views';
+const FB_POST_METRICS_FALLBACK = 'post_clicks,post_video_views';
+
+type GraphError = { error?: { code?: number; error_subcode?: number; message?: string } };
+
+function classifyGraphError(status: number, data: GraphError): 'auth' | 'not_found' | 'unsupported' | 'transient' {
+  const code = data.error?.code;
+  const message = data.error?.message || '';
+  if (status === 401 || code === 190 || code === 102) return 'auth';
+  if (code === 100 && /does not exist|cannot be loaded|unsupported get request/i.test(message)) return 'not_found';
+  if (code === 10 || code === 200 || code === 3) return 'unsupported';
+  if (status === 429 || code === 4 || code === 17 || code === 32 || code === 613 || status >= 500) return 'transient';
+  return 'transient';
+}
+
+function isInvalidMetricError(data: GraphError): boolean {
+  return data.error?.code === 100 && /metric/i.test(data.error?.message || '');
+}
+
+type InsightEntry = { name?: string; values?: Array<{ value?: unknown }>; total_value?: { value?: unknown } };
+
+function readInsights(data: { data?: InsightEntry[] }): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const entry of data.data ?? []) {
+    if (!entry.name) continue;
+    const value = metricNum(entry.total_value?.value ?? entry.values?.[0]?.value);
+    if (value !== null) out[entry.name] = value;
+  }
+  return out;
+}
+
+async function fetchInsightsCall(
+  graphApi: string,
+  objectId: string,
+  metrics: string,
+  accessToken: string,
+): Promise<{ ok: true; values: Record<string, number> } | { ok: false; status: number; data: GraphError }> {
+  const useQueryToken = graphApi === INSTAGRAM_GRAPH_API;
+  const url = `${graphApi}/${objectId}/insights?${new URLSearchParams({
+    metric: metrics,
+    ...(useQueryToken ? { access_token: accessToken } : {}),
+  }).toString()}`;
+  const res = await graphApiFetch(
+    url,
+    useQueryToken ? {} : { headers: { Authorization: `Bearer ${accessToken}` } },
+    { maxRetries: 1 },
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { ok: false, status: res.status, data };
+  return { ok: true, values: readInsights(data) };
+}
+
+async function fetchInstagramMetrics(
+  connection: PlatformConnection,
+  mediaId: string,
+): Promise<MetricsFetchResult> {
+  const accessToken = resolveAccessToken(connection);
+  const graphApi = getInstagramGraphApi(connection);
+
+  let call = await fetchInsightsCall(graphApi, mediaId, IG_MEDIA_METRICS, accessToken);
+  if (!call.ok && isInvalidMetricError(call.data)) {
+    call = await fetchInsightsCall(graphApi, mediaId, IG_MEDIA_METRICS_FALLBACK, accessToken);
+  }
+  if (!call.ok) {
+    return {
+      ok: false,
+      error: call.data.error?.message || `Instagram insights failed (HTTP ${call.status})`,
+      reason: classifyGraphError(call.status, call.data),
+    };
+  }
+
+  const v = call.values;
+  const metrics = emptyMetrics();
+  metrics.views = metricNum(v.views);
+  metrics.reach = metricNum(v.reach);
+  metrics.likes = metricNum(v.likes);
+  metrics.comments = metricNum(v.comments);
+  metrics.shares = metricNum(v.shares);
+  metrics.saves = metricNum(v.saved);
+  metrics.raw = v;
+  return { ok: true, metrics };
+}
+
+async function fetchFacebookMetrics(
+  connection: PlatformConnection,
+  postId: string,
+): Promise<MetricsFetchResult> {
+  const accessToken = resolveAccessToken(connection);
+
+  // Engagement counts come from always-available post fields; the insights
+  // edge below is best-effort because Meta keeps pruning its metric list.
+  const fieldsRes = await graphApiFetch(
+    `${GRAPH_API}/${postId}?fields=reactions.summary(true).limit(0),comments.summary(true).limit(0),shares`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+    { maxRetries: 1 },
+  );
+  const fieldsData = await fieldsRes.json().catch(() => ({}));
+  if (!fieldsRes.ok) {
+    return {
+      ok: false,
+      error: fieldsData.error?.message || `Facebook post fetch failed (HTTP ${fieldsRes.status})`,
+      reason: classifyGraphError(fieldsRes.status, fieldsData),
+    };
+  }
+
+  const metrics = emptyMetrics();
+  metrics.likes = metricNum(fieldsData.reactions?.summary?.total_count);
+  metrics.comments = metricNum(fieldsData.comments?.summary?.total_count);
+  metrics.shares = metricNum(fieldsData.shares?.count) ?? (fieldsData.shares === undefined ? 0 : null);
+
+  let call = await fetchInsightsCall(GRAPH_API, postId, FB_POST_METRICS, accessToken);
+  if (!call.ok && isInvalidMetricError(call.data)) {
+    call = await fetchInsightsCall(GRAPH_API, postId, FB_POST_METRICS_FALLBACK, accessToken);
+  }
+  if (call.ok) {
+    const v = call.values;
+    metrics.views = metricNum(v.post_media_view);
+    metrics.reach = metricNum(v.post_total_media_view_unique);
+    metrics.clicks = metricNum(v.post_clicks);
+    metrics.videoViews = metricNum(v.post_video_views);
+    metrics.raw = v;
+  }
+  return { ok: true, metrics };
+}
+
+async function fetchMetaAudience(
+  connection: PlatformConnection,
+  channel: SocialChannel,
+): Promise<AudienceFetchResult> {
+  const accessToken = resolveAccessToken(connection);
+  const graphApi = getInstagramGraphApi(connection);
+
+  let url: string;
+  if (channel === 'instagram') {
+    if (connection.provider === 'instagram') {
+      url = `${graphApi}/me?${new URLSearchParams({ fields: 'followers_count', access_token: accessToken }).toString()}`;
+    } else {
+      const igAccountId = getInstagramAccountId(connection);
+      if (!igAccountId) return { ok: false, error: 'No Instagram account linked', reason: 'unsupported' };
+      url = `${GRAPH_API}/${igAccountId}?fields=followers_count`;
+    }
+  } else {
+    const pageId = getMeta(connection, 'pageId', '');
+    if (!pageId) return { ok: false, error: 'No Facebook page selected', reason: 'unsupported' };
+    url = `${GRAPH_API}/${pageId}?fields=followers_count`;
+  }
+
+  const useQueryToken = url.includes('access_token=');
+  const res = await graphApiFetch(
+    url,
+    useQueryToken ? {} : { headers: { Authorization: `Bearer ${accessToken}` } },
+    { maxRetries: 1 },
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return {
+      ok: false,
+      error: data.error?.message || `HTTP ${res.status}`,
+      reason: classifyGraphError(res.status, data),
+    };
+  }
+  const followers = metricNum(data.followers_count);
+  if (followers === null) return { ok: false, error: 'followers_count not returned', reason: 'unsupported' };
+  return { ok: true, followers };
+}
+
 // ── Adapter ─────────────────────────────────────────────────────────
 
 export const metaPublishingAdapter: PlatformAdapter = {
@@ -557,6 +746,25 @@ export const metaPublishingAdapter: PlatformAdapter = {
       return publishToInstagram(connection, request.content, mediaUrls, asInstagramSettings(request.settings));
     }
     return publishToFacebook(connection, request.content, mediaUrls);
+  },
+
+  async fetchMetrics(connection: PlatformConnection, input: MetricsFetchInput): Promise<MetricsFetchResult> {
+    try {
+      if (input.channel === 'instagram') {
+        return await fetchInstagramMetrics(connection, input.externalId);
+      }
+      return await fetchFacebookMetrics(connection, input.externalId);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Meta metrics fetch failed', reason: 'transient' };
+    }
+  },
+
+  async fetchAudience(connection: PlatformConnection, channel: SocialChannel): Promise<AudienceFetchResult> {
+    try {
+      return await fetchMetaAudience(connection, channel);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Meta audience fetch failed', reason: 'transient' };
+    }
   },
 
   async testConnection(connection: PlatformConnection) {

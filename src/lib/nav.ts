@@ -13,6 +13,7 @@ export const navigationGroups: NavGroup[] = [
         group: "Overview",
         items: [
             { name: "Dashboard", href: "/dashboard" },
+            { name: "Analytics", href: "/analytics" },
         ],
     },
     {

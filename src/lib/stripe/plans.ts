@@ -14,11 +14,13 @@ export type PlanConfig = {
     mediaUploads: number; // -1 = unlimited
     teamMembers: number;  // -1 = unlimited
     workspaces: number;   // -1 = unlimited
+    analyticsWindowDays: number; // -1 = unlimited history
   };
   gated: {
     smartScheduling: boolean;
     brandIdentity: boolean;
     prioritySupport: boolean;
+    analyticsCsvExport: boolean;
   };
 };
 
@@ -37,17 +39,20 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       'Content calendar',
       '1 workspace',
       'Brand voice (1 profile)',
+      'Analytics (7-day window)',
     ],
     limits: {
       channels: 5,
       mediaUploads: 500,
       teamMembers: 1,
       workspaces: 1,
+      analyticsWindowDays: 7,
     },
     gated: {
       smartScheduling: false,
       brandIdentity: false,
       prioritySupport: false,
+      analyticsCsvExport: false,
     },
   },
   pro: {
@@ -65,6 +70,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       '5 workspaces',
       'Brand voice + brand identity',
       'Smart scheduling',
+      'Analytics (90-day window)',
       'Priority support',
     ],
     limits: {
@@ -72,11 +78,13 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       mediaUploads: 5000,
       teamMembers: 5,
       workspaces: 5,
+      analyticsWindowDays: 90,
     },
     gated: {
       smartScheduling: true,
       brandIdentity: true,
       prioritySupport: true,
+      analyticsCsvExport: false,
     },
   },
   business: {
@@ -92,6 +100,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       'Unlimited team members',
       'Everything in Pro',
       'Unlimited workspaces',
+      'Unlimited analytics history + CSV export',
       'Priority support',
     ],
     limits: {
@@ -99,11 +108,13 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       mediaUploads: -1,
       teamMembers: -1,
       workspaces: -1,
+      analyticsWindowDays: -1,
     },
     gated: {
       smartScheduling: true,
       brandIdentity: true,
       prioritySupport: true,
+      analyticsCsvExport: true,
     },
   },
 };
@@ -129,6 +140,14 @@ export const COMPARISON_CATEGORIES = [
       { name: 'Media uploads', starter: '500/mo', pro: '5,000/mo', business: 'Unlimited' },
       { name: 'Brand voice profiles', starter: '1', pro: '5', business: 'Unlimited' },
       { name: 'Brand identity (logo & colors)', starter: false, pro: true, business: true },
+    ],
+  },
+  {
+    name: 'Analytics',
+    features: [
+      { name: 'Post & follower analytics', starter: true, pro: true, business: true },
+      { name: 'History window', starter: '7 days', pro: '90 days', business: 'Unlimited' },
+      { name: 'CSV export', starter: false, pro: false, business: true },
     ],
   },
   {

@@ -1,12 +1,21 @@
 import { fetchWithRetry } from '@/lib/fetch-retry';
-import { getAccessToken } from '../base-adapter';
+import { emptyMetrics, getAccessToken, metricNum } from '../base-adapter';
 import { PlatformCapability } from '../types';
-import type { PlatformAdapter, PlatformConnection, PublishRequest, PublishResult } from '../types';
+import type {
+  AudienceFetchResult,
+  MetricsFetchInput,
+  MetricsFetchResult,
+  PlatformAdapter,
+  PlatformConnection,
+  PublishRequest,
+  PublishResult,
+} from '../types';
 import type { SocialChannel } from '@/lib/schemas';
 import {
   LINKEDIN_API,
   LinkedInApiError,
   fetchLinkedInProfile,
+  getSelectedLinkedInDestination,
   hasLinkedInScope,
   linkedinRestHeaders,
   matchLinkedInDestination,
@@ -327,6 +336,203 @@ async function publishToLinkedIn(
   }
 }
 
+// ── Metrics ─────────────────────────────────────────────────────────
+
+function classifyLinkedInError(error: unknown): 'auth' | 'not_found' | 'unsupported' | 'transient' {
+  if (error instanceof LinkedInApiError) {
+    if (error.status === 401) return 'auth';
+    if (error.status === 403) return 'unsupported';
+    if (error.status === 404) return 'not_found';
+  }
+  return 'transient';
+}
+
+async function linkedinGet(accessToken: string, path: string): Promise<unknown> {
+  const res = await fetchWithRetry(`${LINKEDIN_API}${path}`, {
+    headers: linkedinRestHeaders(accessToken),
+  }, { maxRetries: 1 });
+  const data: unknown = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const record = (data ?? {}) as Record<string, unknown>;
+    const message = typeof record.message === 'string' ? record.message : res.statusText;
+    throw new LinkedInApiError(res.status, message || 'LinkedIn API error');
+  }
+  return data;
+}
+
+/**
+ * Fresh like/comment counts, available for both member and organization
+ * posts — the fallback when the richer statistics endpoints are not
+ * accessible with the connection's scopes.
+ */
+async function fetchSocialActionCounts(
+  accessToken: string,
+  postUrn: string,
+): Promise<{ likes: number | null; comments: number | null }> {
+  const data = await linkedinGet(accessToken, `/socialActions/${encodeURIComponent(postUrn)}`) as {
+    likesSummary?: { totalLikes?: unknown; aggregatedTotalLikes?: unknown };
+    commentsSummary?: { totalFirstLevelComments?: unknown; aggregatedTotalComments?: unknown };
+  };
+  return {
+    likes: metricNum(data.likesSummary?.aggregatedTotalLikes ?? data.likesSummary?.totalLikes),
+    comments: metricNum(data.commentsSummary?.aggregatedTotalComments ?? data.commentsSummary?.totalFirstLevelComments),
+  };
+}
+
+/** Lifetime organic stats for a single organization post (admin scope required). */
+async function fetchOrganizationPostMetrics(
+  accessToken: string,
+  destination: LinkedInDestination,
+  postUrn: string,
+): Promise<MetricsFetchResult> {
+  const param = postUrn.includes(':ugcPost:') ? 'ugcPosts' : 'shares';
+  const path = `/organizationalEntityShareStatistics?q=organizationalEntity` +
+    `&organizationalEntity=${encodeURIComponent(destination.urn)}` +
+    `&${param}=List(${encodeURIComponent(postUrn)})`;
+
+  try {
+    const data = await linkedinGet(accessToken, path) as {
+      elements?: Array<{ totalShareStatistics?: Record<string, unknown> }>;
+    };
+    const stats = data.elements?.[0]?.totalShareStatistics;
+    if (!stats) {
+      // An absent element can mean zero activity, but also stats that simply
+      // haven't populated yet — don't fabricate zeros. Fall back to the
+      // always-fresh like/comment counts and leave the rest null.
+      const counts = await fetchSocialActionCounts(accessToken, postUrn);
+      const metrics = emptyMetrics();
+      metrics.likes = counts.likes;
+      metrics.comments = counts.comments;
+      return { ok: true, metrics };
+    }
+    // The element exists, so unreported fields within it are real zeros.
+    const metrics = emptyMetrics();
+    metrics.views = metricNum(stats.impressionCount) ?? 0;
+    metrics.reach = metricNum(stats.uniqueImpressionsCount) ?? 0;
+    metrics.clicks = metricNum(stats.clickCount) ?? 0;
+    metrics.likes = metricNum(stats.likeCount) ?? 0;
+    metrics.comments = metricNum(stats.commentCount) ?? 0;
+    metrics.shares = metricNum(stats.shareCount) ?? 0;
+    for (const [key, value] of Object.entries(stats)) {
+      const num = metricNum(value);
+      if (num !== null) metrics.raw[key] = num;
+    }
+    return { ok: true, metrics };
+  } catch (error) {
+    const reason = classifyLinkedInError(error);
+    if (reason !== 'unsupported') {
+      return { ok: false, error: sanitizeLinkedInError(error), reason };
+    }
+    // No rw_organization_admin — fall back to public like/comment counts.
+    try {
+      const counts = await fetchSocialActionCounts(accessToken, postUrn);
+      const metrics = emptyMetrics();
+      metrics.likes = counts.likes;
+      metrics.comments = counts.comments;
+      return { ok: true, metrics };
+    } catch (fallbackError) {
+      return { ok: false, error: sanitizeLinkedInError(fallbackError), reason: classifyLinkedInError(fallbackError) };
+    }
+  }
+}
+
+/**
+ * Member (profile) post analytics via memberCreatorPostAnalytics — needs the
+ * r_member_postAnalytics scope; falls back to socialActions counts, and only
+ * reports unsupported when neither surface is available.
+ */
+async function fetchMemberPostMetrics(
+  accessToken: string,
+  postUrn: string,
+): Promise<MetricsFetchResult> {
+  const entityKey = postUrn.includes(':ugcPost:') ? 'ugc' : 'share';
+  const metrics = emptyMetrics();
+  let gotAnalytics = false;
+
+  try {
+    const data = await linkedinGet(
+      accessToken,
+      `/memberCreatorPostAnalytics?q=entity&entity=(${entityKey}:${encodeURIComponent(postUrn)})&aggregation=TOTAL`,
+    ) as { elements?: Array<{ metricType?: { creatorPostAnalyticsMetricType?: string } | string; count?: unknown }> };
+    for (const el of data.elements ?? []) {
+      const type = typeof el.metricType === 'string'
+        ? el.metricType
+        : el.metricType?.creatorPostAnalyticsMetricType;
+      const count = metricNum(el.count);
+      if (!type || count === null) continue;
+      metrics.raw[type] = count;
+      if (type === 'IMPRESSION') metrics.views = count;
+      if (type === 'MEMBERS_REACHED') metrics.reach = count;
+      if (type === 'REACTION') metrics.likes = count;
+      if (type === 'COMMENT') metrics.comments = count;
+      if (type === 'RESHARE') metrics.shares = count;
+      if (type === 'POST_SAVE') metrics.saves = count;
+      if (type === 'LINK_CLICKS') metrics.clicks = count;
+      gotAnalytics = true;
+    }
+  } catch (error) {
+    const reason = classifyLinkedInError(error);
+    if (reason === 'auth' || reason === 'not_found') {
+      return { ok: false, error: sanitizeLinkedInError(error), reason };
+    }
+  }
+
+  if (!gotAnalytics) {
+    try {
+      const counts = await fetchSocialActionCounts(accessToken, postUrn);
+      metrics.likes = counts.likes;
+      metrics.comments = counts.comments;
+    } catch (fallbackError) {
+      return { ok: false, error: sanitizeLinkedInError(fallbackError), reason: classifyLinkedInError(fallbackError) };
+    }
+  }
+  return { ok: true, metrics };
+}
+
+async function fetchLinkedInMetrics(
+  connection: PlatformConnection,
+  input: MetricsFetchInput,
+): Promise<MetricsFetchResult> {
+  const destination = matchLinkedInDestination(connection, input.destinationId);
+  if (!destination) {
+    return { ok: false, error: 'No LinkedIn destination stored for this post', reason: 'unsupported' };
+  }
+  const accessToken = getAccessToken(connection);
+  if (destination.type === 'page') {
+    return fetchOrganizationPostMetrics(accessToken, destination, input.externalId);
+  }
+  return fetchMemberPostMetrics(accessToken, input.externalId);
+}
+
+async function fetchLinkedInAudience(connection: PlatformConnection): Promise<AudienceFetchResult> {
+  const destination = getSelectedLinkedInDestination(connection);
+  if (!destination) return { ok: false, error: 'No LinkedIn destination selected', reason: 'unsupported' };
+  const accessToken = getAccessToken(connection);
+
+  try {
+    if (destination.type === 'page') {
+      const data = await linkedinGet(
+        accessToken,
+        `/networkSizes/${encodeURIComponent(destination.urn)}?edgeType=COMPANY_FOLLOWED_BY_MEMBER`,
+      ) as { firstDegreeSize?: unknown };
+      const followers = metricNum(data.firstDegreeSize);
+      if (followers === null) return { ok: false, error: 'firstDegreeSize not returned', reason: 'unsupported' };
+      return { ok: true, followers };
+    }
+    const data = await linkedinGet(accessToken, `/memberFollowersCount?q=me`) as {
+      elements?: Array<{ followersCount?: unknown }>;
+      followersCount?: unknown;
+    };
+    const followers = metricNum(data.elements?.[0]?.followersCount ?? data.followersCount);
+    if (followers === null) {
+      return { ok: false, error: 'followersCount not returned (r_member_profileAnalytics scope missing?)', reason: 'unsupported' };
+    }
+    return { ok: true, followers };
+  } catch (error) {
+    return { ok: false, error: sanitizeLinkedInError(error), reason: classifyLinkedInError(error) };
+  }
+}
+
 export const linkedinPublishingAdapter: PlatformAdapter = {
   id: 'linkedin-publishing',
   name: 'LinkedIn',
@@ -340,6 +546,22 @@ export const linkedinPublishingAdapter: PlatformAdapter = {
 
   async publish(connection, request: PublishRequest): Promise<PublishResult> {
     return publishToLinkedIn(connection, request);
+  },
+
+  async fetchMetrics(connection, input: MetricsFetchInput): Promise<MetricsFetchResult> {
+    try {
+      return await fetchLinkedInMetrics(connection, input);
+    } catch (e) {
+      return { ok: false, error: sanitizeLinkedInError(e), reason: classifyLinkedInError(e) };
+    }
+  },
+
+  async fetchAudience(connection): Promise<AudienceFetchResult> {
+    try {
+      return await fetchLinkedInAudience(connection);
+    } catch (e) {
+      return { ok: false, error: sanitizeLinkedInError(e), reason: classifyLinkedInError(e) };
+    }
   },
 
   async testConnection(connection) {

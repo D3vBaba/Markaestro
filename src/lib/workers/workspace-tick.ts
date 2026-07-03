@@ -23,6 +23,7 @@ import { processScheduledPosts, recoverStalePublishingPosts } from '@/lib/social
 import { getAllMatchingDocs } from '@/lib/firestore-pagination';
 import { processQueuedPublicPublishRuns } from '@/lib/public-api/publish-runs';
 import { processPendingWebhookDeliveries } from '@/lib/public-api/webhook-delivery';
+import { processAnalyticsTick, type AnalyticsTickResult } from '@/lib/analytics/worker';
 import { logger } from '@/lib/logger';
 
 export type WorkspaceTickResult = {
@@ -42,6 +43,7 @@ export type WorkspaceTickResult = {
   jobsScanned: number;
   jobsProcessed: number;
   jobResults: Array<{ jobId: string } & Record<string, unknown>>;
+  analytics?: AnalyticsTickResult;
   errors: Array<{ kind: string; postId?: string; error: string }>;
 };
 
@@ -89,6 +91,14 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     errors.push({ kind: 'webhook-delivery', error: err instanceof Error ? err.message : 'unknown' });
   }
 
+  let analytics: WorkspaceTickResult['analytics'];
+  try {
+    analytics = await processAnalyticsTick(workspaceId);
+    analytics.errors.forEach((e) => errors.push({ kind: e.kind, error: e.error }));
+  } catch (err) {
+    errors.push({ kind: 'analytics', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
   try {
     const jobsDocs = await getAllMatchingDocs(
       adminDb
@@ -126,6 +136,7 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     jobsScanned,
     jobsProcessed: jobResults.length,
     jobResults,
+    analytics,
     errors,
   };
 }
