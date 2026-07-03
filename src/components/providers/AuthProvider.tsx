@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
-  FacebookAuthProvider,
   GoogleAuthProvider,
   User,
   createUserWithEmailAndPassword,
@@ -23,7 +22,6 @@ type AuthCtx = {
   signInEmail: (email: string, password: string) => Promise<void>;
   signUpEmail: (email: string, password: string) => Promise<void>;
   signInGoogle: () => Promise<void>;
-  signInFacebook: () => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   sendVerificationEmail: () => Promise<void>;
@@ -66,9 +64,7 @@ async function syncSessionCookie(user: User | null) {
  * first-party (the popup posts the result back to the opener) and works on iOS
  * when opened from a tap, so it's the reliable path on mobile and desktop alike.
  */
-async function signInWithProvider(
-  provider: GoogleAuthProvider | FacebookAuthProvider,
-) {
+async function signInWithProvider(provider: GoogleAuthProvider) {
   try {
     await signInWithPopup(auth, provider);
   } catch (e: unknown) {
@@ -132,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return auth.currentUser.getIdToken();
     });
 
-    // Handle redirect result (for mobile Google/Facebook sign-in)
+    // Handle redirect result (for mobile Google sign-in)
     getRedirectResult(auth).catch(() => {
       // Redirect result errors are non-critical — user just stays on login
     });
@@ -172,10 +168,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signInGoogle: async () => {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
-        await signInWithProvider(provider);
-      },
-      signInFacebook: async () => {
-        const provider = new FacebookAuthProvider();
         await signInWithProvider(provider);
       },
       logout: async () => {

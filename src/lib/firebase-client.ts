@@ -11,7 +11,7 @@ function resolveAuthDomain() {
   if (hostname === 'localhost' || hostname === '127.0.0.1') return configured;
 
   // signInWithPopup/Redirect open `https://<authDomain>/__/auth/handler`, and the
-  // OAuth providers (Google/Facebook) must have that exact URL authorized as a
+  // OAuth providers (Google) must have that exact URL authorized as a
   // redirect URI. The app subdomain (app.markaestro.com) is NOT provisioned as a
   // redirect URI, so using it made the popup close instantly. Route every
   // markaestro.com host through the marketing apex instead: it is same-site with
