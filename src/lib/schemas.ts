@@ -218,7 +218,7 @@ export const createPostSchema = z.object({
   targetChannels: z.array(z.enum(socialChannels)).optional(),
   destinationId: z.string().trim().max(2000).optional(),
   destinationProvider: z.string().trim().max(100).optional(),
-  deliveryMode: z.enum(['direct_publish', 'platform_inbox']).optional(),
+  deliveryMode: z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']).optional(),
 });
 
 export const updatePostSchema = z.object({
@@ -234,7 +234,7 @@ export const updatePostSchema = z.object({
   targetChannels: z.array(z.enum(socialChannels)).optional(),
   destinationId: z.string().trim().max(2000).optional(),
   destinationProvider: z.string().trim().max(100).optional(),
-  deliveryMode: z.enum(['direct_publish', 'platform_inbox']).optional(),
+  deliveryMode: z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']).optional(),
 });
 
 // ── Pagination ─────────────────────────────────────────────────────

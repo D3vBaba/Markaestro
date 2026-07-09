@@ -22,6 +22,7 @@ export type PublicWebhookEvent = (typeof publicWebhookEvents)[number];
 export const publicDeliveryModes = [
   'direct_publish',
   'platform_inbox',
+  'manual_reminder',
 ] as const;
 
 export type PublicDeliveryMode = (typeof publicDeliveryModes)[number];

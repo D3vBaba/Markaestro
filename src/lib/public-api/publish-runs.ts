@@ -5,6 +5,11 @@ import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-w
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import { PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
+import {
+  isManualReminderDeliveryMode,
+  MANUAL_REMINDER_DELIVERY_MODE,
+  MANUAL_REMINDER_NEXT_ACTION,
+} from '@/lib/manual-publish-flow';
 import { logger } from '@/lib/logger';
 import { acquirePublishLock, assertPublishRateLimit, getPublishDestinationKey, releasePublishLock } from './publish-throttle';
 import { enqueueWebhookEvent } from './webhooks';
@@ -13,6 +18,7 @@ import { incrementApiClientStat } from './usage';
 const MAX_PUBLIC_RUNS_PER_WORKSPACE = 20;
 
 export function resolveQueuedPublishDeliveryMode(post: Record<string, unknown>) {
+  if (isManualReminderDeliveryMode(post.deliveryMode)) return MANUAL_REMINDER_DELIVERY_MODE;
   if (String(post.channel) === 'tiktok') return 'platform_inbox';
   return 'direct_publish';
 }
@@ -194,6 +200,30 @@ async function processSingleRun(workspaceId: string, runId: string) {
         deliveryMode,
       },
     );
+
+    if (result.actionRequired) {
+      const nowIso = new Date().toISOString();
+      await postRef.set({
+        status: PLATFORM_ACTION_REQUIRED_STATUS,
+        nextAction: MANUAL_REMINDER_NEXT_ACTION,
+        publishResults: result.channels,
+        manualReminderReadyAt: nowIso,
+        errorMessage: '',
+        updatedAt: nowIso,
+      }, { merge: true });
+      await markRunFinished(workspaceId, runId, 'succeeded', 'Post is ready for manual posting', {
+        actionRequired: true,
+      });
+      if (clientId) {
+        await enqueueWebhookEvent(workspaceId, 'post.action_required', {
+          postId: run.resourceId,
+          channel: post.channel,
+          status: PLATFORM_ACTION_REQUIRED_STATUS,
+          nextAction: MANUAL_REMINDER_NEXT_ACTION,
+        });
+      }
+      return { runId, status: 'succeeded' };
+    }
 
     if (result.pending) {
       await postRef.set({

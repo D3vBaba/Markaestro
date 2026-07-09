@@ -16,6 +16,11 @@ import {
   PLATFORM_ACTION_REQUIRED_STATUS,
   validateTikTokMediaUrls,
 } from '@/lib/tiktok-draft-flow';
+import {
+  isManualReminderDeliveryMode,
+  isManualReminderPost,
+  MANUAL_REMINDER_NEXT_ACTION,
+} from '@/lib/manual-publish-flow';
 import { firstSocialPostValidationError } from '@/lib/social/post-validation';
 import { getTikTokPublishMappingRef } from '@/lib/social/tiktok-publish-mapping';
 import { logger } from '@/lib/logger';
@@ -37,6 +42,8 @@ export type ChannelPublishResult = {
   channel: SocialChannel;
   success: boolean;
   pending?: boolean;
+  /** Waiting on the user to post manually — not published, but not a failure. */
+  actionRequired?: boolean;
   externalId?: string;
   externalUrl?: string;
   nextAction?: string;
@@ -50,6 +57,8 @@ export type MultiChannelPublishResult = {
   partialFailure?: boolean;
   /** True when one or more channels are still processing asynchronously */
   pending?: boolean;
+  /** True when the post is waiting for the user to publish it manually */
+  actionRequired?: boolean;
   /** Results for each channel that was attempted */
   channels: ChannelPublishResult[];
   /** Primary channel external ID (for backwards compat) */
@@ -92,11 +101,12 @@ export type ScheduledPostsProcessResult = {
   processed: number;
   published: number;
   pending: number;
+  actionRequired: number;
   retried: number;
   failed: number;
   partialFailed: number;
   recovered: number;
-  results: Array<{ postId: string; outcome: 'published' | 'pending' | 'retried' | 'failed' | 'partial_failed' | 'recovered'; error?: string }>;
+  results: Array<{ postId: string; outcome: 'published' | 'pending' | 'action_required' | 'retried' | 'failed' | 'partial_failed' | 'recovered'; error?: string }>;
   errors: Array<{ postId: string; error: string }>;
 };
 
@@ -108,6 +118,17 @@ export async function publishPost(
   productId: string | undefined,
   request: PublishRequest,
 ): Promise<PublishResult> {
+  // Manual reminder posts never touch a platform API — the user posts the
+  // content natively themselves. Short-circuit before any adapter,
+  // connection, or token logic can run.
+  if (isManualReminderDeliveryMode(request.deliveryMode)) {
+    return {
+      success: false,
+      actionRequired: true,
+      nextAction: MANUAL_REMINDER_NEXT_ACTION,
+    };
+  }
+
   if (isTikTokDraftOnlyChannel(request.channel)) {
     const validationError = validateTikTokMediaUrls(request.mediaUrls);
     if (validationError) {
@@ -333,6 +354,7 @@ function asChannelPublishResult(value: unknown): ChannelPublishResult | null {
     channel: current.channel,
     success: current.success === true,
     ...(current.pending != null && { pending: current.pending === true }),
+    ...(current.actionRequired != null && { actionRequired: current.actionRequired === true }),
     ...(typeof current.externalId === 'string' && { externalId: current.externalId }),
     ...(typeof current.externalUrl === 'string' && { externalUrl: current.externalUrl }),
     ...(typeof current.nextAction === 'string' && { nextAction: current.nextAction }),
@@ -466,20 +488,22 @@ function aggregateChannelResults(
 ): MultiChannelPublishResult {
   const primaryResult = channelResults.find((result) => result.channel === primaryChannel) || channelResults[0];
   const anyPending = channelResults.some((result) => result.pending);
+  const anyActionRequired = channelResults.some((result) => result.actionRequired);
   const allSucceeded = channelResults.length > 0 && channelResults.every((result) => result.success);
   const anySucceeded = channelResults.some((result) => result.success);
-  const firstFailure = channelResults.find((result) => !result.success && !result.pending);
+  const firstFailure = channelResults.find((result) => !result.success && !result.pending && !result.actionRequired);
   const anyFailure = Boolean(firstFailure);
 
   return {
     success: allSucceeded,
     partialFailure: anySucceeded && anyFailure ? true : undefined,
     pending: anyPending || undefined,
+    actionRequired: anyActionRequired || undefined,
     channels: channelResults,
     externalId: primaryResult?.externalId,
     externalUrl: primaryResult?.externalUrl,
     nextAction: primaryResult?.nextAction,
-    error: !allSucceeded && !anyPending ? firstFailure?.error || 'One or more channels failed to publish' : undefined,
+    error: !allSucceeded && !anyPending && anyFailure ? firstFailure?.error || 'One or more channels failed to publish' : undefined,
   };
 }
 
@@ -589,7 +613,8 @@ export async function claimPostForImmediatePublish(
     const targetChannels = getPostTargetChannels(post);
     if (
       (status === PLATFORM_ACTION_REQUIRED_STATUS || status === LEGACY_EXPORTED_FOR_REVIEW_STATUS) &&
-      targetChannels.includes('tiktok')
+      targetChannels.includes('tiktok') &&
+      !isManualReminderPost(post)
     ) {
       return {
         ok: false,
@@ -640,6 +665,45 @@ export async function claimPostForImmediatePublish(
   });
 
   return claimed;
+}
+
+/**
+ * Move a claimed manual-reminder post into the manual publishing queue.
+ * No platform API was (or ever will be) called for it — the post waits in
+ * `platform_action_required` until the user posts natively and confirms.
+ */
+export async function finalizeManualReminderPublish(
+  workspaceId: string,
+  claimed: ClaimedPublishPost,
+  result: MultiChannelPublishResult,
+): Promise<'action_required'> {
+  const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
+  const nowIso = new Date().toISOString();
+
+  await ref.update({
+    status: PLATFORM_ACTION_REQUIRED_STATUS,
+    nextAction: MANUAL_REMINDER_NEXT_ACTION,
+    publishResults: result.channels,
+    manualReminderReadyAt: nowIso,
+    errorMessage: '',
+    lastErrorCode: '',
+    lastErrorCategory: '',
+    nextRetryAt: null,
+    publishFinishedAt: nowIso,
+    publishLeaseExpiresAt: null,
+    updatedAt: nowIso,
+  });
+
+  if (claimed.post.createdByType === 'api_client') {
+    await enqueueWebhookEvent(workspaceId, 'post.action_required', {
+      postId: claimed.postId,
+      channel: claimed.post.channel,
+      status: PLATFORM_ACTION_REQUIRED_STATUS,
+      nextAction: MANUAL_REMINDER_NEXT_ACTION,
+    });
+  }
+
+  return 'action_required';
 }
 
 export async function finalizeSuccessfulPublish(
@@ -847,6 +911,7 @@ export async function publishPostMultiChannel(
       channel,
       success: result.success,
       ...(result.pending != null && { pending: result.pending }),
+      ...(result.actionRequired != null && { actionRequired: result.actionRequired }),
       ...(result.externalId != null && { externalId: result.externalId }),
       ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
       ...(result.nextAction != null && { nextAction: result.nextAction }),
@@ -888,6 +953,7 @@ async function publishExplicitChannels(
       channel,
       success: result.success,
       ...(result.pending != null && { pending: result.pending }),
+      ...(result.actionRequired != null && { actionRequired: result.actionRequired }),
       ...(result.externalId != null && { externalId: result.externalId }),
       ...(result.externalUrl != null && { externalUrl: result.externalUrl }),
       ...(result.nextAction != null && { nextAction: result.nextAction }),
@@ -915,6 +981,25 @@ export async function publishStoredPost(
       success: false,
       channels: [],
       error: 'Post has no target channel',
+    };
+  }
+
+  // Manual reminder posts skip the entire adapter pipeline (and the product /
+  // connection requirements that only exist to serve platform API calls).
+  // Callers move the post into the manual publishing queue instead.
+  if (isManualReminderPost(post)) {
+    const channels = targetChannels.map((channel) => ({
+      channel,
+      success: false,
+      actionRequired: true,
+      nextAction: MANUAL_REMINDER_NEXT_ACTION,
+    } satisfies ChannelPublishResult));
+
+    return {
+      success: false,
+      actionRequired: true,
+      channels,
+      nextAction: MANUAL_REMINDER_NEXT_ACTION,
     };
   }
 
@@ -1023,6 +1108,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
     processed: 0,
     published: 0,
     pending: 0,
+    actionRequired: 0,
     retried: 0,
     failed: 0,
     partialFailed: 0,
@@ -1043,14 +1129,17 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
         ),
       });
 
-      const outcome = result.success || result.pending
-        ? await finalizeSuccessfulPublish(workspaceId, claimed, result)
-        : await finalizeFailedPublish(workspaceId, claimed, result);
+      const outcome = result.actionRequired
+        ? await finalizeManualReminderPublish(workspaceId, claimed, result)
+        : result.success || result.pending
+          ? await finalizeSuccessfulPublish(workspaceId, claimed, result)
+          : await finalizeFailedPublish(workspaceId, claimed, result);
 
       summary.processed++;
       summary.results.push({ postId: claimed.postId, outcome, error: result.error });
       if (outcome === 'published') summary.published++;
       if (outcome === 'pending') summary.pending++;
+      if (outcome === 'action_required') summary.actionRequired++;
       if (outcome === 'retried') summary.retried++;
       if (outcome === 'failed') summary.failed++;
       if (outcome === 'partial_failed') summary.partialFailed++;

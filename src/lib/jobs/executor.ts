@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { getPostTargetChannels, publishStoredPost } from '@/lib/social/publisher';
 import { PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
+import { isManualReminderPost, MANUAL_REMINDER_NEXT_ACTION } from '@/lib/manual-publish-flow';
 import { logger } from '@/lib/logger';
 import { JobDoc } from './types';
 
@@ -74,12 +75,21 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
               status: post.status,
               reason: skipReason,
             });
-          } else if (!productId && targetChannels.some((channel) => channel !== 'tiktok')) {
+          } else if (!productId && !isManualReminderPost(post) && targetChannels.some((channel) => channel !== 'tiktok')) {
             message = `Post ${postId} has no associated product — skipped`;
           } else {
             const result = await publishStoredPost(workspaceId, productId, post);
             const successfulChannels = result.channels.filter((c) => c.success);
-            if (result.pending) {
+            if (result.actionRequired) {
+              await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
+                status: PLATFORM_ACTION_REQUIRED_STATUS,
+                nextAction: MANUAL_REMINDER_NEXT_ACTION,
+                publishResults: result.channels,
+                manualReminderReadyAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              });
+              message = `Post is ready for manual posting on ${targetChannels.join(' & ')}`;
+            } else if (result.pending) {
               await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
                 status: 'publishing',
                 externalId: result.externalId || '',

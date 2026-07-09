@@ -21,6 +21,26 @@ describe('public API queued publish flow', () => {
     expect(requiresConnectedPublishDestination(post)).toBe(true);
   });
 
+  it('routes manual reminder posts without requiring a connected destination', () => {
+    const post = {
+      channel: 'instagram',
+      deliveryMode: 'manual_reminder',
+    };
+
+    expect(resolveQueuedPublishDeliveryMode(post)).toBe('manual_reminder');
+    expect(requiresConnectedPublishDestination(post)).toBe(false);
+  });
+
+  it('keeps the manual reminder mode for TikTok posts instead of the platform inbox handoff', () => {
+    const post = {
+      channel: 'tiktok',
+      deliveryMode: 'manual_reminder',
+    };
+
+    expect(resolveQueuedPublishDeliveryMode(post)).toBe('manual_reminder');
+    expect(requiresConnectedPublishDestination(post)).toBe(false);
+  });
+
   it('does not start another publish for posts already in progress or handed off', () => {
     expect(getPublishRunSkipReason({ status: 'publishing', channel: 'tiktok' })).toBe('Post is already publishing');
     expect(getPublishRunSkipReason({ status: 'published', channel: 'facebook' })).toBe('Post is already published');

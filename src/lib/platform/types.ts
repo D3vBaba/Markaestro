@@ -78,6 +78,12 @@ export type PublishRequest = {
 export type PublishResult = {
   success: boolean;
   pending?: boolean;
+  /**
+   * The post was routed to the manual publishing queue instead of a platform
+   * API — the user must post it natively and confirm. `success` stays false
+   * because nothing has been published yet, but this is not a failure.
+   */
+  actionRequired?: boolean;
   externalId?: string;
   externalUrl?: string;
   nextAction?: string;

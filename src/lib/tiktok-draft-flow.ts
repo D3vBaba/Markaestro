@@ -1,16 +1,18 @@
 import type { SocialChannel } from '@/lib/schemas';
 
+// The shared "waiting on the user" status now lives in the channel-agnostic
+// manual publish flow; re-exported here so existing import sites keep working.
+export {
+  PLATFORM_ACTION_REQUIRED_STATUS,
+  LEGACY_EXPORTED_FOR_REVIEW_STATUS,
+  isPlatformActionRequiredStatus,
+} from '@/lib/manual-publish-flow';
+
 export const TIKTOK_MANUAL_PUBLISH_ACTION = 'open_tiktok_inbox_and_complete_posting';
-export const PLATFORM_ACTION_REQUIRED_STATUS = 'platform_action_required';
-export const LEGACY_EXPORTED_FOR_REVIEW_STATUS = 'exported_for_review';
 export const TIKTOK_MAX_IMAGE_COUNT = 35;
 
 export function isTikTokDraftOnlyChannel(channel: SocialChannel | string): channel is 'tiktok' {
   return channel === 'tiktok';
-}
-
-export function isPlatformActionRequiredStatus(status: unknown): boolean {
-  return status === PLATFORM_ACTION_REQUIRED_STATUS || status === LEGACY_EXPORTED_FOR_REVIEW_STATUS;
 }
 
 export function isTikTokVideoUrl(url: string): boolean {

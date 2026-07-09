@@ -4,6 +4,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import {
   claimPostForImmediatePublish,
   finalizeFailedPublish,
+  finalizeManualReminderPublish,
   finalizeSuccessfulPublish,
   getPostTargetChannels,
   persistTikTokPendingPublish,
@@ -11,6 +12,7 @@ import {
 } from '@/lib/social/publisher';
 import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
 import { PLATFORM_ACTION_REQUIRED_STATUS, TIKTOK_MANUAL_PUBLISH_ACTION } from '@/lib/tiktok-draft-flow';
+import { isManualReminderPost } from '@/lib/manual-publish-flow';
 import { logger } from '@/lib/logger';
 import { formatPreflightIssues, getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 
@@ -49,9 +51,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       error: message,
     }));
 
-    // productId is optional for TikTok-only posts (UGC pipeline creates posts without a product link).
+    const manualReminder = isManualReminderPost(post);
+
+    // productId is optional for TikTok-only posts (UGC pipeline creates posts without a product link)
+    // and for manual reminder posts (no platform API call means no connection metadata is needed).
     // Other channels use product-scoped connection metadata such as selected pages, boards, or channels.
-    if (!productId && targetChannels.some((channel) => channel !== 'tiktok')) {
+    if (!productId && !manualReminder && targetChannels.some((channel) => channel !== 'tiktok')) {
       await finalizeFailedPublish(ctx.workspaceId, claim.claimed, {
         success: false,
         channels: failedChannels('Post has no associated product'),
@@ -70,7 +75,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         targetChannels,
         mediaUrls,
       },
-      { requireReadyChannels: true },
+      // Manual reminder posts don't need a connected/ready channel — nothing
+      // is sent to the platform, so only content validation applies.
+      { requireReadyChannels: !manualReminder },
     );
     if (preflightIssues.length > 0) {
       const message = formatPreflightIssues(preflightIssues);
@@ -124,6 +131,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       pending: result.pending,
       channelResults: result.channels.map((c) => ({ channel: c.channel, success: c.success })),
     });
+
+    if (result.actionRequired) {
+      await finalizeManualReminderPublish(ctx.workspaceId, claim.claimed, result);
+      return apiOk({
+        ok: true,
+        id,
+        status: PLATFORM_ACTION_REQUIRED_STATUS,
+        nextAction: result.nextAction,
+        channels: result.channels,
+      });
+    }
 
     if (result.pending) {
       await finalizeSuccessfulPublish(ctx.workspaceId, claim.claimed, result);
