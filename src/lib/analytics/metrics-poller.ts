@@ -116,6 +116,88 @@ export async function pollDueMetrics(workspaceId: string, nowIso: string): Promi
   return summary;
 }
 
+type ChannelFetchOutcome = 'ok' | 'auth' | 'not_found' | 'unsupported' | 'transient';
+
+/**
+ * Fetch the latest metrics for each published channel target of a post.
+ * Shared by the scheduled poller (pollOnePost) and the on-demand refresh
+ * (refreshPostsNow). Connections are resolved through the provided cache, and
+ * an auth failure flags the connection's health once per (provider, product).
+ */
+async function fetchPostChannelMetrics(
+  post: PostDocData,
+  targets: Array<{ channel: SocialChannel; externalId: string }>,
+  publishedAt: string,
+  workspaceId: string,
+  connectionCache: Map<string, PlatformConnection | null>,
+  authFlagged: Set<string>,
+): Promise<{
+  byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
+  outcomes: ChannelFetchOutcome[];
+  lastError: string;
+  channelFetches: number;
+}> {
+  const byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>> = { ...(post.metricsByChannel ?? {}) };
+  const outcomes: ChannelFetchOutcome[] = [];
+  let lastError = '';
+  let channelFetches = 0;
+
+  for (const target of targets) {
+    const adapter = getAdapterForChannel(target.channel);
+    if (!adapter?.fetchMetrics) {
+      outcomes.push('unsupported');
+      continue;
+    }
+
+    const cacheKey = `${target.channel}:${post.productId || ''}`;
+    let connection = connectionCache.get(cacheKey);
+    if (connection === undefined) {
+      connection = await getConnectionForChannel(
+        workspaceId,
+        target.channel,
+        post.productId || undefined,
+        post.destinationProvider || undefined,
+      );
+      connectionCache.set(cacheKey, connection);
+    }
+    if (!connection) {
+      outcomes.push('transient');
+      lastError = `No connected ${target.channel} account`;
+      continue;
+    }
+
+    channelFetches++;
+    const result = await adapter.fetchMetrics(connection, {
+      channel: target.channel,
+      externalId: target.externalId,
+      publishedAt,
+      destinationId: post.destinationId,
+    });
+
+    if (result.ok) {
+      byChannel[target.channel] = result.metrics;
+      outcomes.push('ok');
+    } else {
+      outcomes.push(result.reason);
+      lastError = result.error;
+      if (result.reason === 'auth') {
+        // Surface token problems on the connection (integration status
+        // machine) so the channel shows a health warning — but only once
+        // per connection per run.
+        const flagKey = `${connection.provider}:${connection.productId || ''}`;
+        if (!authFlagged.has(flagKey)) {
+          authFlagged.add(flagKey);
+          try {
+            await updateConnectionStatus(workspaceId, connection.provider, 'error', connection.productId);
+          } catch { /* connection doc may be gone; the poll retry covers it */ }
+        }
+      }
+    }
+  }
+
+  return { byChannel, outcomes, lastError, channelFetches };
+}
+
 async function pollOnePost(
   doc: FirebaseFirestore.QueryDocumentSnapshot,
   workspaceId: string,
@@ -142,62 +224,15 @@ async function pollOnePost(
     return;
   }
 
-  const byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>> = { ...(post.metricsByChannel ?? {}) };
-  const outcomes: Array<'ok' | 'auth' | 'not_found' | 'unsupported' | 'transient'> = [];
-  let lastError = '';
-
-  for (const target of targets) {
-    const adapter = getAdapterForChannel(target.channel);
-    if (!adapter?.fetchMetrics) {
-      outcomes.push('unsupported');
-      continue;
-    }
-
-    const cacheKey = `${target.channel}:${post.productId || ''}`;
-    let connection = connectionCache.get(cacheKey);
-    if (connection === undefined) {
-      connection = await getConnectionForChannel(
-        workspaceId,
-        target.channel,
-        post.productId || undefined,
-        post.destinationProvider || undefined,
-      );
-      connectionCache.set(cacheKey, connection);
-    }
-    if (!connection) {
-      outcomes.push('transient');
-      lastError = `No connected ${target.channel} account`;
-      continue;
-    }
-
-    summary.channelFetches++;
-    const result = await adapter.fetchMetrics(connection, {
-      channel: target.channel,
-      externalId: target.externalId,
-      publishedAt,
-      destinationId: post.destinationId,
-    });
-
-    if (result.ok) {
-      byChannel[target.channel] = result.metrics;
-      outcomes.push('ok');
-    } else {
-      outcomes.push(result.reason);
-      lastError = result.error;
-      if (result.reason === 'auth') {
-        // Surface token problems on the connection (integration status
-        // machine) so the channel shows a health warning — but only once
-        // per connection per tick.
-        const flagKey = `${connection.provider}:${connection.productId || ''}`;
-        if (!authFlagged.has(flagKey)) {
-          authFlagged.add(flagKey);
-          try {
-            await updateConnectionStatus(workspaceId, connection.provider, 'error', connection.productId);
-          } catch { /* connection doc may be gone; the poll retry covers it */ }
-        }
-      }
-    }
-  }
+  const { byChannel, outcomes, lastError, channelFetches } = await fetchPostChannelMetrics(
+    post,
+    targets,
+    publishedAt,
+    workspaceId,
+    connectionCache,
+    authFlagged,
+  );
+  summary.channelFetches += channelFetches;
 
   const anyOk = outcomes.includes('ok');
   const allDead = outcomes.every((o) => o === 'unsupported' || o === 'not_found');
@@ -272,6 +307,103 @@ async function pollOnePost(
       summary.errors.push({ postId: doc.id, error: lastError || 'transient metrics error' });
     }
   }
+}
+
+/**
+ * On-demand, ad-hoc metrics refresh for the most recent published posts,
+ * optionally filtered by product / channel. Unlike pollDueMetrics this ignores
+ * the decaying poll schedule and — deliberately — does NOT advance it: it only
+ * refreshes the denormalized `metricsByChannel` (and writes a snapshot at the
+ * post's current stage) so the Analytics page can pull live numbers when the
+ * user clicks Refresh. Bounded by `limit` and run with light concurrency to
+ * stay within the request/client timeout while capping platform API load.
+ */
+export async function refreshPostsNow(
+  workspaceId: string,
+  nowIso: string,
+  opts: { productId?: string; channel?: SocialChannel; sinceIso?: string; limit?: number } = {},
+): Promise<MetricsPollSummary> {
+  const summary: MetricsPollSummary = { due: 0, polled: 0, channelFetches: 0, affectedDates: [], errors: [] };
+  const limit = Math.min(Math.max(opts.limit ?? 15, 1), MAX_METRIC_POLLS_PER_TICK);
+  const sinceIso = opts.sinceIso ?? backfillSinceIso(nowIso);
+
+  let query: FirebaseFirestore.Query = adminDb
+    .collection(`workspaces/${workspaceId}/posts`)
+    .where('status', '==', 'published');
+  if (opts.productId) query = query.where('productId', '==', opts.productId);
+  query = query.where('publishedAt', '>=', sinceIso).orderBy('publishedAt', 'desc').limit(limit);
+
+  const snap = await query.get();
+  summary.due = snap.size;
+  if (snap.empty) return summary;
+
+  const connectionCache = new Map<string, PlatformConnection | null>();
+  const authFlagged = new Set<string>();
+
+  const refreshOne = async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+    const post = doc.data() as PostDocData;
+    const publishedAt = post.publishedAt || nowIso;
+    let targets = publishTargets(post);
+    if (opts.channel) targets = targets.filter((t) => t.channel === opts.channel);
+    if (targets.length === 0) return;
+
+    const { byChannel, outcomes, lastError, channelFetches } = await fetchPostChannelMetrics(
+      post,
+      targets,
+      publishedAt,
+      workspaceId,
+      connectionCache,
+      authFlagged,
+    );
+    summary.channelFetches += channelFetches;
+
+    if (!outcomes.includes('ok')) {
+      if (lastError) summary.errors.push({ postId: doc.id, error: lastError });
+      return;
+    }
+
+    const stage = Math.min(post.metricsPollStage ?? 0, METRIC_POLL_STAGES.length - 1);
+    const stageKey = METRIC_POLL_STAGES[stage].key;
+    await doc.ref.collection('metrics').doc(stageKey).set({
+      postId: doc.id,
+      stageKey,
+      capturedAt: nowIso,
+      publishedAt: post.publishedAt ?? null,
+      byChannel,
+    });
+    // Only the denormalized latest-metrics fields are touched; the decaying
+    // schedule (metricsPollStage / metricsNextPollAt / metricsStatus) is left
+    // to the background poller so ad-hoc refreshes never rush the cadence.
+    await doc.ref.update({
+      metricsByChannel: byChannel,
+      metricsUpdatedAt: nowIso,
+      metricsLastError: lastError || FieldValue.delete(),
+    });
+    summary.polled++;
+    const date = utcDateOf(publishedAt);
+    if (!summary.affectedDates.includes(date)) summary.affectedDates.push(date);
+  };
+
+  // Light concurrency: a shared cursor consumed by a few workers. JS is
+  // single-threaded, so the shared summary/cache mutations need no locking.
+  const docs = snap.docs;
+  let cursor = 0;
+  const REFRESH_CONCURRENCY = 5;
+  const worker = async () => {
+    while (cursor < docs.length) {
+      const doc = docs[cursor++];
+      try {
+        await refreshOne(doc);
+      } catch (err) {
+        summary.errors.push({ postId: doc.id, error: err instanceof Error ? err.message : 'unknown' });
+      }
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(REFRESH_CONCURRENCY, docs.length) }, () => worker()),
+  );
+
+  return summary;
 }
 
 /**

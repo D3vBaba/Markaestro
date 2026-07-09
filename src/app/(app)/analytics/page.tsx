@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
-import { apiDownload } from "@/lib/api-client";
+import { apiDownload, apiPost } from "@/lib/api-client";
 import { KpiCard } from "@/components/analytics/KpiCard";
 import { TrendChart, FollowerTrendChart } from "@/components/analytics/TrendChart";
 import { BestTimeHeatmap } from "@/components/analytics/BestTimeHeatmap";
@@ -82,6 +82,7 @@ export default function AnalyticsPage() {
   const [productId, setProductId] = useState<string>("");
   const [trendMetric, setTrendMetric] = useState<(typeof TREND_METRICS)[number]["key"]>("views");
   const [exporting, setExporting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   const { data: productsData } = useApiQuery<{ products: Array<{ id: string; name: string }> }>(
     "/api/products",
@@ -114,6 +115,35 @@ export default function AnalyticsPage() {
 
   const followerSpark = data?.followerTrend.map((p) => p.total) ?? [];
 
+  // Pull fresh numbers straight from each platform (bypassing the background
+  // poller's schedule), then re-read the analytics so the page reflects them.
+  async function handleRefresh() {
+    if (syncing || refreshing) return;
+    setSyncing(true);
+    try {
+      const res = await apiPost<{ updated: number; scanned: number }>("/api/analytics/refresh", {
+        ...(channel ? { channel } : {}),
+        ...(productId ? { productId } : {}),
+      });
+      if (res.ok) {
+        if (res.data.updated > 0) {
+          toast.success(`Updated ${res.data.updated} post${res.data.updated === 1 ? "" : "s"} from source`);
+        } else {
+          toast.message("No new platform metrics available");
+        }
+      } else if (res.status === 429) {
+        toast.error("Too many refreshes — try again in a minute.");
+      } else {
+        toast.error("Couldn't pull live data. Showing the latest stored numbers.");
+      }
+    } catch {
+      toast.error("Couldn't pull live data. Showing the latest stored numbers.");
+    } finally {
+      await refresh();
+      setSyncing(false);
+    }
+  }
+
   async function handleExport() {
     setExporting(true);
     try {
@@ -143,11 +173,12 @@ export default function AnalyticsPage() {
             <Button
               variant="outline"
               className="rounded-lg h-9 text-[13px] gap-1.5"
-              onClick={() => refresh()}
-              disabled={loading || refreshing}
+              onClick={handleRefresh}
+              disabled={loading || refreshing || syncing}
+              title="Pull the latest numbers from each connected platform"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
-              {refreshing ? "Refreshing…" : "Refresh"}
+              <RefreshCw className={`h-3.5 w-3.5 ${syncing || refreshing ? "animate-spin" : ""}`} />
+              {syncing ? "Pulling live data…" : refreshing ? "Refreshing…" : "Refresh"}
             </Button>
             {canExport ? (
               <Button

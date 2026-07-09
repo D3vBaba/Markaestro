@@ -160,3 +160,79 @@ describe('pollDueMetrics', () => {
     }));
   });
 });
+
+describe('refreshPostsNow', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getConnectionForChannelMock.mockResolvedValue({
+      provider: 'meta',
+      productId: 'prod_123',
+    });
+  });
+
+  it('refreshes denormalized metrics + snapshot without advancing the poll schedule', async () => {
+    const post = makePostDoc({
+      productId: 'prod_123',
+      publishedAt: '2026-03-10T00:00:00.000Z',
+      metricsPollStage: 2, // -> stageKey '24h'
+      metricsStatus: 'complete',
+      metricsNextPollAt: '2026-03-20T00:00:00.000Z',
+      publishResults: [{ channel: 'facebook', success: true, externalId: 'fb_1' }],
+    });
+    collectionMock.mockReturnValue(makeQuery([post.doc]));
+    getAdapterForChannelMock.mockReturnValue({
+      fetchMetrics: vi.fn(async () => ({ ok: true, metrics: makeMetrics({ views: 250 }) })),
+    });
+
+    const { refreshPostsNow } = await import('../analytics/metrics-poller');
+    const summary = await refreshPostsNow('ws_123', '2026-03-15T12:00:00.000Z', {
+      productId: 'prod_123',
+    });
+
+    expect(summary.polled).toBe(1);
+    expect(summary.affectedDates).toEqual(['2026-03-10']);
+    expect(post.snapshotSet).toHaveBeenCalledWith(expect.objectContaining({
+      stageKey: '24h',
+      capturedAt: '2026-03-15T12:00:00.000Z',
+      byChannel: { facebook: expect.objectContaining({ views: 250 }) },
+    }));
+
+    // The denormalized latest-metrics fields update...
+    const updateArg = post.ref.update.mock.calls[0][0] as Record<string, unknown>;
+    expect(updateArg).toMatchObject({
+      metricsByChannel: { facebook: expect.objectContaining({ views: 250 }) },
+      metricsUpdatedAt: '2026-03-15T12:00:00.000Z',
+    });
+    // ...but the decaying schedule is deliberately left untouched.
+    expect(updateArg).not.toHaveProperty('metricsPollStage');
+    expect(updateArg).not.toHaveProperty('metricsNextPollAt');
+    expect(updateArg).not.toHaveProperty('metricsStatus');
+  });
+
+  it('only fetches the requested channel when a channel filter is supplied', async () => {
+    const post = makePostDoc({
+      productId: 'prod_123',
+      publishedAt: '2026-03-10T00:00:00.000Z',
+      metricsPollStage: 0,
+      publishResults: [
+        { channel: 'facebook', success: true, externalId: 'fb_1' },
+        { channel: 'instagram', success: true, externalId: 'ig_1' },
+      ],
+    });
+    collectionMock.mockReturnValue(makeQuery([post.doc]));
+    const fetchMetrics = vi.fn(async () => ({ ok: true, metrics: makeMetrics({ views: 5 }) }));
+    getAdapterForChannelMock.mockReturnValue({ fetchMetrics });
+
+    const { refreshPostsNow } = await import('../analytics/metrics-poller');
+    const summary = await refreshPostsNow('ws_123', '2026-03-15T12:00:00.000Z', {
+      channel: 'instagram',
+    });
+
+    expect(summary.channelFetches).toBe(1);
+    expect(fetchMetrics).toHaveBeenCalledTimes(1);
+    expect(fetchMetrics).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ channel: 'instagram', externalId: 'ig_1' }),
+    );
+  });
+});
