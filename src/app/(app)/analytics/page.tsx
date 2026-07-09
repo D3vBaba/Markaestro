@@ -18,7 +18,7 @@ import { ChannelTable } from "@/components/analytics/ChannelTable";
 import { channelLabel } from "@/components/mk/channels";
 import { fmtCount } from "@/components/mk/format";
 import type { AnalyticsResponse } from "@/lib/analytics/api-shape";
-import type { SocialChannel } from "@/lib/schemas";
+import { socialChannels, type SocialChannel } from "@/lib/schemas";
 import { AlertCircle, Download, Lightbulb, Lock, Plus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
@@ -203,6 +203,24 @@ export default function AnalyticsPage() {
             );
           })}
         </div>
+        <select
+          value={channel ?? ""}
+          onChange={(e) => setChannel((e.target.value || undefined) as SocialChannel | undefined)}
+          className="h-8 px-2.5 rounded-lg text-[12px] cursor-pointer focus:outline-none"
+          style={{
+            border: "1px solid var(--mk-rule)",
+            background: "var(--mk-paper)",
+            color: channel ? "var(--mk-ink)" : "var(--mk-ink-60)",
+          }}
+          title="Filter by platform"
+        >
+          <option value="">All platforms</option>
+          {socialChannels.map((ch) => (
+            <option key={ch} value={ch}>
+              {channelLabel(ch)}
+            </option>
+          ))}
+        </select>
         {products.length > 0 && (
           <select
             value={productId}
@@ -222,17 +240,6 @@ export default function AnalyticsPage() {
               </option>
             ))}
           </select>
-        )}
-        {channel && (
-          <button
-            type="button"
-            onClick={() => setChannel(undefined)}
-            className="h-8 px-3 rounded-lg text-[12px] inline-flex items-center gap-1.5 cursor-pointer"
-            style={{ border: "1px solid var(--mk-rule)", color: "var(--mk-ink)" }}
-            title="Clear channel filter"
-          >
-            {channelLabel(channel)} ×
-          </button>
         )}
         {clamped && (
           <span className="text-[11.5px]" style={{ color: "var(--mk-ink-60)" }}>

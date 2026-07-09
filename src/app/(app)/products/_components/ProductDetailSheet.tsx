@@ -1357,9 +1357,14 @@ function ChannelsSection({
           warn={!!tiktok?.lastRefreshError}
           warnLabel="Reconnect"
           detail={
-            tiktok?.lastRefreshError && tiktok?.tokenExpiresAt
-              ? `Expires ${new Date(tiktok.tokenExpiresAt).toLocaleDateString()}`
-              : undefined
+            [
+              tiktok?.username ? `@${tiktok.username}` : null,
+              tiktok?.lastRefreshError && tiktok?.tokenExpiresAt
+                ? `Expires ${new Date(tiktok.tokenExpiresAt).toLocaleDateString()}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || undefined
           }
         >
           {tiktok?.status === "connected" ? (
@@ -1385,6 +1390,7 @@ function ChannelsSection({
           disconnecting={disconnecting}
           onStartOAuth={onStartOAuth}
           onDisconnect={onDisconnect}
+          detail={(integ) => (integ?.username ? `@${integ.username}` : undefined)}
         />
 
         {/* Pinterest */}
