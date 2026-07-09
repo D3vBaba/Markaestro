@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -702,6 +703,89 @@ function providerDisplayName(provider: string): string {
   return provider;
 }
 
+const MANUAL_POSTING_CHANNELS = [
+  { id: "instagram", label: "Instagram" },
+  { id: "facebook", label: "Facebook" },
+  { id: "tiktok", label: "TikTok" },
+  { id: "threads", label: "Threads" },
+  { id: "linkedin", label: "LinkedIn" },
+  { id: "pinterest", label: "Pinterest" },
+] as const;
+
+/**
+ * Workspace default: channels switched on here publish via the manual
+ * "To Post" queue — Markaestro never calls the platform's API for them,
+ * and the user posts natively from a reminder instead.
+ */
+function ManualPostingCard() {
+  const { current: workspace } = useWorkspace();
+  const wsId = workspace?.id ?? "default";
+  const canManage = workspace?.role === "owner" || workspace?.role === "admin";
+
+  const { data, loading, refresh } = useApiQuery<{ manualPublishChannels: string[] }>(
+    "/api/settings/publishing",
+    { wsId },
+  );
+  const [savingChannel, setSavingChannel] = useState<string | null>(null);
+  const enabled = new Set(data?.manualPublishChannels ?? []);
+
+  const toggleChannel = async (channel: string) => {
+    if (savingChannel || loading) return;
+    const next = enabled.has(channel)
+      ? [...enabled].filter((c) => c !== channel)
+      : [...enabled, channel];
+
+    setSavingChannel(channel);
+    try {
+      const res = await apiPut<{ manualPublishChannels?: string[]; error?: string }>(
+        "/api/settings/publishing",
+        { manualPublishChannels: next },
+        wsId,
+      );
+      if (res.ok) {
+        refresh();
+      } else {
+        toast.error("Failed to update publishing settings");
+      }
+    } finally {
+      setSavingChannel(null);
+    }
+  };
+
+  return (
+    <Card className="border-border/30">
+      <CardHeader>
+        <CardTitle>Manual posting</CardTitle>
+        <CardDescription>
+          Posts for these channels skip automated publishing entirely. When one is due,
+          it lands in your To Post queue and you get a reminder — download the media,
+          post it natively from the app, then mark it as posted. Markaestro never calls
+          the platform&apos;s API for these posts.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2.5">
+        {MANUAL_POSTING_CHANNELS.map((channel) => (
+          <div key={channel.id} className="flex items-center justify-between gap-3 rounded-xl border p-3.5">
+            <div className="min-w-0">
+              <p className="text-sm font-medium">{channel.label}</p>
+              <p className="text-xs text-muted-foreground">
+                {enabled.has(channel.id)
+                  ? "Manual — new posts go to the To Post queue."
+                  : "Automated — new posts publish via the official API."}
+              </p>
+            </div>
+            <Switch
+              checked={enabled.has(channel.id)}
+              disabled={!canManage || loading || savingChannel === channel.id}
+              onCheckedChange={() => toggleChannel(channel.id)}
+            />
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 function IntegrationsTab() {
   const { current: workspace } = useWorkspace();
   const wsId = workspace?.id ?? "default";
@@ -868,6 +952,8 @@ function IntegrationsTab() {
 
   return (
     <div className="grid gap-5">
+      <ManualPostingCard />
+
       <p className="text-sm text-muted-foreground">
         Link each product to its own social channels. Each channel publishes only to itself — Meta covers Facebook
         Pages, and Instagram uses the standalone Instagram connection.

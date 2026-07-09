@@ -5,6 +5,8 @@ import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { createPostSchema, paginationSchema } from '@/lib/schemas';
 import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
+import { getManualPublishChannels, resolveInAppDeliveryMode } from '@/lib/manual-publish-settings';
+import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
 
 export const runtime = 'nodejs';
 
@@ -54,12 +56,24 @@ export async function POST(req: Request) {
       );
     }
 
+    // Workspace publishing defaults: channels set to manual posting make the
+    // post a manual reminder unless the request picked a mode explicitly.
+    const manualChannels = await getManualPublishChannels(ctx.workspaceId);
+    const deliveryMode = resolveInAppDeliveryMode(
+      data.targetChannels?.length ? data.targetChannels : [data.channel],
+      data.deliveryMode,
+      manualChannels,
+    );
+    const isManualReminder = isManualReminderDeliveryMode(deliveryMode);
+
     if (data.status === 'scheduled') {
       const issues = await getSocialPostPreflightIssues(
         ctx.workspaceId,
         data.productId || undefined,
         data,
-        { requireReadyChannels: true },
+        // Manual posts never contact the platform, so a connected/ready
+        // channel isn't required to schedule their reminder.
+        { requireReadyChannels: !isManualReminder },
       );
       if (issues.length > 0) {
         return apiOk({ error: 'VALIDATION_ERROR', issues }, 400);
@@ -70,6 +84,7 @@ export async function POST(req: Request) {
 
     const payload = {
       ...data,
+      ...(deliveryMode ? { deliveryMode } : {}),
       workspaceId: ctx.workspaceId,
       createdBy: ctx.uid,
       createdAt: now,
