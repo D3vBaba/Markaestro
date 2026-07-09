@@ -89,17 +89,23 @@ export default function AnalyticsPage() {
   );
   const products = productsData?.products ?? [];
 
-  const { canAccess, getLimit } = useSubscription();
+  const { canAccess, getLimit, loading: subLoading } = useSubscription();
   const maxDays = getLimit("analyticsWindowDays");
   const canExport = canAccess("analyticsCsvExport");
 
   // Land on the widest range the plan allows instead of a locked preset.
+  // getLimit() returns 0 until the subscription status loads; clamping against
+  // that would force the window to 0 and — since this clamp only ever shrinks
+  // `days` — leave it stuck there even after the real limit arrives. So wait
+  // for a real, positive (or unlimited) limit before touching `days`, and
+  // never fall back to 0.
   useEffect(() => {
-    if (maxDays !== -1 && days > maxDays) {
+    if (subLoading || maxDays === -1 || maxDays <= 0) return;
+    if (days > maxDays) {
       const widest = [...RANGE_PRESETS].reverse().find((p) => p.days <= maxDays);
-      setDays(widest?.days ?? maxDays);
+      setDays(widest?.days ?? RANGE_PRESETS[0].days);
     }
-  }, [maxDays, days]);
+  }, [maxDays, days, subLoading]);
 
   const tz = useMemo(() => -new Date().getTimezoneOffset(), []);
   const filterParams = `${channel ? `&channel=${channel}` : ""}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`;
@@ -212,7 +218,9 @@ export default function AnalyticsPage() {
           style={{ border: "1px solid var(--mk-rule)" }}
         >
           {RANGE_PRESETS.map((preset) => {
-            const locked = maxDays !== -1 && preset.days > maxDays;
+            // maxDays is 0 until the subscription loads — don't flash every
+            // preset as locked during that window.
+            const locked = maxDays !== -1 && maxDays > 0 && preset.days > maxDays;
             const active = days === preset.days;
             return (
               <button
