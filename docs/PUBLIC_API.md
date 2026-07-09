@@ -88,12 +88,35 @@ several products, create one key per product.
 
 ## Publish behavior
 
-Meta:
+Delivery modes (`deliveryMode` on create, optional):
+- `manual_reminder` — **default for `facebook`, `instagram`, and `tiktok`.** The
+  server never calls the platform API for the post. Publishing moves it to
+  `platform_action_required` with `nextAction: "post_manually_from_reminder"`;
+  the workspace user downloads the media, posts natively themselves, and
+  confirms in the app. No connected platform account or destination is
+  required to create or publish these posts (a destination is still attached
+  when one is configured, for attribution).
+- `direct_publish` — official platform API publishing. Default for `threads`,
+  `linkedin`, and `pinterest`; Meta channels accept it as an explicit opt-in.
+  Requires a connected destination. On `tiktok` it maps to `platform_inbox`
+  (TikTok's only API-publishing path).
+- `platform_inbox` — TikTok inbox handoff only; rejected on other channels
+  with `VALIDATION_DELIVERY_MODE_NOT_SUPPORTED_FOR_CHANNEL`.
+
+Manual reminder (`manual_reminder`):
+- `POST /api/public/v1/posts/:id/publish` queues the post into the manual
+  posting queue instead of contacting any platform
+- the post lands in `platform_action_required` and a `post.action_required`
+  webhook fires
+- the post becomes `published` only after the workspace user confirms they
+  posted it natively
+
+Meta (with explicit `deliveryMode: "direct_publish"`):
 - direct publish for the selected Facebook Page destination
 - no automatic fan-out to Instagram; create a separate Instagram post for an Instagram destination
 - post status becomes `published`
 
-Instagram Login:
+Instagram Login (with explicit `deliveryMode: "direct_publish"`):
 - direct publish for standalone Instagram professional accounts
 - exposed as a separate destination in `GET /api/public/v1/products/:id/destinations`
 
@@ -106,7 +129,11 @@ Meta account selection:
 - Products with both Facebook and Instagram connections expose separate destinations
 - Standalone Instagram professional accounts are supported through Instagram Login and do not require a Facebook Page
 
-TikTok (draft-first with inbox handoff):
+TikTok (draft-first; manual reminder by default, inbox handoff on opt-in):
+- by default (`manual_reminder`) publishing a TikTok post never calls the
+  TikTok API — the user posts natively from the reminder queue
+- the behavior below applies when the post opted into API publishing
+  (`deliveryMode: "direct_publish"` or `"platform_inbox"`):
 - products expose TikTok destinations only when a TikTok publishing connection is configured
 - the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents the connected TikTok account
 - TikTok destinations use `deliveryMode: "platform_inbox"` to make the inbox handoff explicit
@@ -167,6 +194,12 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \
     }
   }'
 ```
+
+`deliveryMode` may be added to the body. Omitted, Instagram defaults to
+`manual_reminder` (no Instagram API call is ever made for the post; the
+workspace user posts it natively from the reminder queue). Pass
+`"deliveryMode": "direct_publish"` to opt this post into official-API
+publishing instead.
 
 ### Platform-specific settings
 
@@ -341,7 +374,10 @@ resulting `media_id` is a normal Markaestro media asset usable in `POST /posts`.
 - `scheduled_at` and `is_draft` are accepted for compatibility with scheduling
   clients, but Markaestro ignores them during create.
 - Publish from the Markaestro app or a supported explicit publish endpoint.
-- **TikTok is always a draft** from the API — finalize and publish it from the Markaestro app.
+- **Facebook, Instagram, and TikTok posts default to manual publishing**
+  (`manual_reminder`) — publishing moves them to an action-required state and
+  the workspace user posts natively from the Markaestro reminder queue. No
+  platform API is called for these posts.
 
 ## Example flow
 

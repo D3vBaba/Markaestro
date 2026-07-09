@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getDeliveryModeForChannel, getPublicPostInitialState, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
+import { getDeliveryModeForChannel, getPublicPostInitialState, resolveRequestedDeliveryMode, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
 
 describe('public post validation', () => {
   it('allows facebook text-only posts', () => {
@@ -46,10 +46,27 @@ describe('public post validation', () => {
     })).toThrow('VALIDATION_TOO_MANY_MEDIA_ASSETS');
   });
 
-  it('uses direct publish for Meta channels and inbox handoff for TikTok', () => {
-    expect(getDeliveryModeForChannel('facebook')).toBe('direct_publish');
-    expect(getDeliveryModeForChannel('instagram')).toBe('direct_publish');
-    expect(getDeliveryModeForChannel('tiktok')).toBe('platform_inbox');
+  it('defaults Meta and TikTok posts to manual reminder, everything else to direct publish', () => {
+    expect(getDeliveryModeForChannel('facebook')).toBe('manual_reminder');
+    expect(getDeliveryModeForChannel('instagram')).toBe('manual_reminder');
+    expect(getDeliveryModeForChannel('tiktok')).toBe('manual_reminder');
+    expect(getDeliveryModeForChannel('threads')).toBe('direct_publish');
+    expect(getDeliveryModeForChannel('linkedin')).toBe('direct_publish');
+    expect(getDeliveryModeForChannel('pinterest')).toBe('direct_publish');
+  });
+
+  it('lets clients opt into API publishing per post', () => {
+    expect(resolveRequestedDeliveryMode('instagram')).toBe('manual_reminder');
+    expect(resolveRequestedDeliveryMode('instagram', 'direct_publish')).toBe('direct_publish');
+    expect(resolveRequestedDeliveryMode('linkedin', 'manual_reminder')).toBe('manual_reminder');
+    // TikTok's only API-publishing path is the inbox handoff.
+    expect(resolveRequestedDeliveryMode('tiktok', 'direct_publish')).toBe('platform_inbox');
+    expect(resolveRequestedDeliveryMode('tiktok', 'platform_inbox')).toBe('platform_inbox');
+  });
+
+  it('rejects the platform inbox mode on channels without an inbox handoff', () => {
+    expect(() => resolveRequestedDeliveryMode('facebook', 'platform_inbox'))
+      .toThrow('VALIDATION_DELIVERY_MODE_NOT_SUPPORTED_FOR_CHANNEL');
   });
 
   it('creates public API posts as drafts even when a schedule is supplied', () => {

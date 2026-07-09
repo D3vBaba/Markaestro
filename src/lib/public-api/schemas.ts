@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { socialChannels } from '@/lib/schemas';
-import { publicApiScopes, publicWebhookEvents } from './scopes';
+import { publicApiScopes, publicDeliveryModes, publicWebhookEvents } from './scopes';
 import { postSettingsSchema } from './post-settings';
 
 // Serialized post shape returned by the public API (matches serializePublicPost).
@@ -16,6 +16,7 @@ export type PublicPostResponse = {
   externalUrl: string | null;
   productId: string;
   destinationId: string;
+  deliveryMode: string;
   settings: unknown;
   sourceType: string;
   slideshowId: string;
@@ -51,6 +52,9 @@ export const createPublicPostSchema = z.object({
   scheduledAt: z.string().datetime().nullable().optional(),
   productId: z.string().trim().max(2000).optional(),
   destinationId: z.string().trim().max(2000).optional(),
+  // Omitted = channel default: manual_reminder for facebook/instagram/tiktok,
+  // direct_publish everywhere else. Clients opt into API publishing per post.
+  deliveryMode: z.enum(publicDeliveryModes).optional(),
   settings: postSettingsSchema.optional(),
 });
 
