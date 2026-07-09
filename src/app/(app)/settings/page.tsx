@@ -869,8 +869,8 @@ function IntegrationsTab() {
   return (
     <div className="grid gap-5">
       <p className="text-sm text-muted-foreground">
-        Link each product to its own social channels. Each channel publishes only to itself — Meta covers a Facebook
-        Page and its linked Instagram account.
+        Link each product to its own social channels. Each channel publishes only to itself — Meta covers Facebook
+        Pages, and Instagram uses the standalone Instagram connection.
       </p>
 
       {products.map((product) => (
@@ -938,7 +938,7 @@ function IntegrationsTab() {
           <DialogHeader>
             <DialogTitle>Choose a Facebook Page</DialogTitle>
             <DialogDescription>
-              Pick the Page this product posts to. Its linked Instagram account is included automatically.
+              Pick the Facebook Page this product posts to.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-[50vh] overflow-y-auto">

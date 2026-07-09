@@ -97,6 +97,7 @@ function withUpdatedTikTokResult(
   publishResults: unknown,
   status: 'success' | 'failed' | 'pending',
   error?: string,
+  externalId?: string,
 ) {
   const next = Array.isArray(publishResults)
     ? publishResults.map((result) => {
@@ -108,6 +109,7 @@ function withUpdatedTikTokResult(
           ...(result as Record<string, unknown>),
           success: status === 'success',
           pending: status === 'pending',
+          ...(externalId ? { externalId } : {}),
           ...(error ? { error } : {}),
         };
       })
@@ -120,9 +122,19 @@ function withUpdatedTikTokResult(
       channel: 'tiktok',
       success: status === 'success',
       pending: status === 'pending',
+      ...(externalId ? { externalId } : {}),
       ...(error ? { error } : {}),
     },
   ];
+}
+
+function firstTikTokPublicPostId(value: unknown): string | null {
+  if (typeof value === 'string' && value) return value;
+  if (Array.isArray(value)) {
+    const first = value.find((item): item is string => typeof item === 'string' && item.length > 0);
+    return first ?? null;
+  }
+  return null;
 }
 
 function getSuccessfulChannels(publishResults: unknown): SocialChannel[] {
@@ -265,13 +277,22 @@ export async function pollTikTokPublishForPost(
   });
 
   if (liveStatus.status === 'PUBLISH_COMPLETE') {
-    const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
+    const publicPostId = firstTikTokPublicPostId(liveStatus.publiclyAvailablePostId);
+    const analyticsExternalId = publicPostId || publishId;
+    const nextPublishResults = withUpdatedTikTokResult(
+      post.publishResults,
+      'success',
+      undefined,
+      analyticsExternalId,
+    );
     const summary = summarizePublishResults(nextPublishResults);
     const nextStatus = summary.allSucceeded ? 'published' : summary.anyPending ? 'publishing' : summary.partialFailed ? 'partial_failed' : 'failed';
     await postDocRef.update({
       status: nextStatus,
+      ...(post.channel === 'tiktok' ? { externalId: analyticsExternalId } : {}),
       publishResults: nextPublishResults,
       tiktokPublishId: publishId,
+      ...(publicPostId ? { tiktokPublicPostId: publicPostId } : {}),
       publishedChannels: summary.publishedChannels,
       ...(summary.allSucceeded ? { publishedAt: now } : {}),
       ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
@@ -286,7 +307,7 @@ export async function pollTikTokPublishForPost(
         postId: snap.id,
         channel: post.channel,
         status: nextStatus,
-        externalId: publishId,
+        externalId: analyticsExternalId,
         externalUrl: typeof post.externalUrl === 'string' ? post.externalUrl : '',
       });
     } else if (clientId && (nextStatus === 'failed' || nextStatus === 'partial_failed')) {

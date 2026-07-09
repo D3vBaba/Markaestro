@@ -15,8 +15,7 @@ vi.mock('@/lib/platform/registry', () => ({
   getAdapterForChannel: getAdapterForChannelMock,
 }));
 
-// Mirror the real Meta adapter's readiness check: Facebook needs a selected
-// page, Instagram needs a linked IG business account.
+// Mirror the real adapters' readiness checks for these tests.
 const metaAdapter = {
   capabilities: ['publish_text', 'publish_image'],
   validateConnection(connection: PlatformConnection, channel: SocialChannel): string | null {
@@ -43,13 +42,14 @@ describe('listManagedSocialChannelStatuses — Meta workspace/product merge', ()
     getAdapterForChannelMock.mockReturnValue(metaAdapter);
   });
 
-  it('keeps Instagram/Facebook ready when the product Page connection is valid but the workspace user token lapsed', async () => {
+  it('keeps Facebook ready when the product Page connection is valid but the workspace user token lapsed', async () => {
     // Workspace-level Meta: expired 60-day user token, refresh gave up → 'error'.
     const workspaceMeta = conn({
       status: 'error',
       metadata: { refreshFailureCount: 5, lastRefreshError: 'Token refresh failed for meta', pageSelectionRequired: true },
     });
-    // Product-level Meta: selected Page + linked IG + long-lived Page token.
+    // Product-level Meta: selected Page + long-lived Page token. Even if this
+    // legacy record still has igAccountId, Instagram must use standalone login.
     const productMeta = conn({
       status: 'connected',
       productId: 'prod_1',
@@ -68,9 +68,9 @@ describe('listManagedSocialChannelStatuses — Meta workspace/product merge', ()
     const statuses = await listManagedSocialChannelStatuses('default', 'prod_1');
     const byChannel = new Map(statuses.map((s) => [s.channel, s]));
 
-    expect(byChannel.get('instagram')?.state).toBe('ready');
+    expect(byChannel.get('instagram')?.state).toBe('disconnected');
     expect(byChannel.get('facebook')?.state).toBe('ready');
-    expect(byChannel.get('instagram')?.destinationLabel).toBe(null); // no username on this legacy conn
+    expect(byChannel.get('instagram')?.provider).toBe(null);
   });
 
   it('keeps Instagram ready via the standalone Instagram connection when Meta has no linked IG account', async () => {
@@ -101,7 +101,7 @@ describe('listManagedSocialChannelStatuses — Meta workspace/product merge', ()
     expect(byChannel.get('facebook')?.state).toBe('ready');
   });
 
-  it('keeps Instagram ready via Meta when only the standalone Instagram connection has lapsed', async () => {
+  it('does not fall back to Meta Instagram when the standalone Instagram connection has lapsed', async () => {
     const productMeta = conn({
       status: 'connected',
       productId: 'prod_1',
@@ -120,8 +120,8 @@ describe('listManagedSocialChannelStatuses — Meta workspace/product merge', ()
     const statuses = await listManagedSocialChannelStatuses('default', 'prod_1');
     const instagram = statuses.find((s) => s.channel === 'instagram');
 
-    expect(instagram?.state).toBe('ready');
-    expect(instagram?.provider).toBe('meta');
+    expect(instagram?.state).toBe('disconnected');
+    expect(instagram?.provider).toBe('instagram');
   });
 
   it('reports disconnected when the product Page connection itself is not connected', async () => {

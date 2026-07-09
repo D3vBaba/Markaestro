@@ -54,12 +54,8 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       'pages_show_list',
       'pages_read_engagement',
       'pages_manage_posts',
-      'business_management',
-      'instagram_basic',
-      'instagram_content_publish',
-      // Analytics: IG media/account insights + FB Page/post insights.
-      // Connections made before these were added must reconnect to grant them.
-      'instagram_manage_insights',
+      // Analytics: Facebook Page/post insights. Instagram analytics uses the
+      // standalone Instagram Login provider below.
       'read_insights',
     ],
     clientIdEnv: 'META_APP_ID',
@@ -99,6 +95,8 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       // (video/query). Must be enabled on the TikTok app before it can be
       // requested; existing connections must reconnect to grant it.
       'video.list',
+      // Audience snapshots request follower_count from /user/info/.
+      'user.info.stats',
     ],
     clientIdEnv: 'TIKTOK_CLIENT_KEY',
     clientSecretEnv: 'TIKTOK_CLIENT_SECRET',

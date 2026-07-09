@@ -333,7 +333,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       // Fetch user's pages for later selection
       try {
         const pagesRes = await fetch(
-          `https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token,instagram_business_account`,
+          `https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token`,
           { headers: { Authorization: `Bearer ${tokens.accessToken}` } },
         );
         const pagesData = await pagesRes.json();
@@ -342,7 +342,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
           extraData.availablePages = pagesData.data.map((p: Record<string, unknown>) => ({
             id: p.id,
             name: p.name,
-            hasIg: Boolean(p.instagram_business_account),
           }));
           if (pagesData.data.length === 1) {
             const page = pagesData.data[0] as Record<string, unknown>;
@@ -350,9 +349,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
             extraData.pageName = page.name;
             extraData.pageAccessTokenEncrypted = encrypt(page.access_token as string);
             extraData.pageSelectionRequired = false;
-            if ((page.instagram_business_account as Record<string, unknown> | undefined)?.id) {
-              extraData.igAccountId = (page.instagram_business_account as Record<string, unknown>).id;
-            }
           } else {
             metaNeedsPageSelection = true;
             extraData.pageSelectionRequired = true;

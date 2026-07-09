@@ -13,7 +13,7 @@ listed host directly.
 ## Handoff checklist
 
 - [ ] Rotate production Meta secrets with `bash scripts/rotate-meta-secrets.sh`.
-- [ ] Run the Facebook Pages and Instagram-via-Facebook publishing test calls below.
+- [ ] Run the Facebook Pages test calls below.
 - [ ] Run the Instagram Business Login publishing test calls below.
 - [ ] Run the Threads publishing test calls below.
 - [ ] Re-check Meta App Review after Meta registers the calls.
@@ -25,14 +25,14 @@ permission. There are **three different token types** here — you must generate
 each one:
 
 1. **Facebook User / Page token** (Graph API Explorer ▸ Generate Access Token) —
-   for the Facebook Pages + Instagram-via-Facebook permissions.
+   for the Facebook Pages permissions.
 2. **Instagram Business Login token** — for the `instagram_business_*`
    permissions (generated via the Instagram login flow, not the FB explorer).
 3. **Threads token** — for `threads_*` permissions, via `graph.threads.net`
    (separate from the Facebook Graph API).
 
-For Page/Instagram scopes you must also have a **connected Facebook Page and
-Instagram Business account** with a role on the app, and select it when prompted.
+For Facebook Page scopes you must also have a **connected Facebook Page** with a
+role on the app, and select it when prompted.
 
 ⚠️ **Publish calls post real content.** `*_content_publish` and
 `pages_manage_posts` create an actual post/thread on the connected account. Use a
@@ -50,23 +50,19 @@ Generate a token with these permissions, select your Page when prompted.
 | Permission | Method | Call |
 |---|---|---|
 | `pages_show_list` | GET | `/me/accounts` |
-| `business_management` | GET | `/me/businesses` |
 | `pages_read_engagement` | GET | `/{page-id}?fields=name,fan_count,engagement` |
 | `pages_manage_posts` ⚠️ | POST | `/{page-id}/feed?message=Markaestro%20test%20post` |
+| `read_insights` | GET | `/{page-id}/insights?metric=page_post_engagements&period=day` |
 
 (`{page-id}` comes from the `/me/accounts` response. For the Page-scoped calls,
-switch the **User or Page** dropdown to the Page so the token is a Page token.)
+switch the **User or Page** dropdown to the Page so the token is a Page token.
+Use a Page-level `/insights` edge call for `read_insights`; a Page/profile read
+like `/{page-id}?fields=fan_count` does **not** satisfy the App Review test-call
+check. Avoid using `/{page-id}/feed` just to find a post unless you have also
+requested `pages_read_user_content`; Meta can reject feed reads even when
+`pages_read_engagement` is present.)
 
-## 2) Instagram via Facebook login (same FB token, +IG permissions)
-
-Get `{ig-user-id}` from `/{page-id}?fields=instagram_business_account`.
-
-| Permission | Method | Call |
-|---|---|---|
-| `instagram_basic` | GET | `/{ig-user-id}?fields=username,media_count` |
-| `instagram_content_publish` ⚠️ | POST | `/{ig-user-id}/media?image_url=https%3A%2F%2Fmarkaestro.com%2Fmarkaestro-logo.png&caption=Markaestro%20test` then `/{ig-user-id}/media_publish?creation_id={creation-id}` |
-
-## 3) Instagram Business Login (separate IG token)
+## 2) Instagram Business Login (separate IG token)
 
 Generate via the **Instagram API ▸ API setup with Instagram login** flow
 (Instagram Business Login), then call against `https://graph.instagram.com/v25.0`.
@@ -75,8 +71,12 @@ Generate via the **Instagram API ▸ API setup with Instagram login** flow
 |---|---|---|
 | `instagram_business_basic` | GET | `/me?fields=user_id,username` |
 | `instagram_business_content_publish` ⚠️ | POST | `/me/media?image_url=https%3A%2F%2Fmarkaestro.com%2Fmarkaestro-logo.png&caption=Markaestro%20test` then `/me/media_publish?creation_id={creation-id}` |
+| `instagram_business_manage_insights` | GET | `/{media-id}/insights?metric=reach,likes,comments,shares,saved` |
 
-## 4) Threads (Threads token, `graph.threads.net`)
+Use the `id` returned by `/me/media_publish` as `{media-id}` for the standalone
+Instagram Login insights check.
+
+## 3) Threads (Threads token, `graph.threads.net`)
 
 Generate a Threads token via the Threads login flow (Use cases ▸ Access the
 Threads API). Base host is `https://graph.threads.net/v1.0`.
@@ -85,17 +85,23 @@ Threads API). Base host is `https://graph.threads.net/v1.0`.
 |---|---|---|
 | `threads_basic` | GET | `/me?fields=id,username,threads_profile_picture_url` |
 | `threads_content_publish` ⚠️ | POST | `/me/threads?media_type=TEXT&text=Markaestro%20test` then `/me/threads_publish?creation_id={id}` |
+| `threads_manage_insights` | GET | `/{threads-media-id}/insights?metric=views,likes,replies,reposts,quotes,shares` |
+| `threads_delete` ⚠️ | DELETE | `/{threads-media-id}` |
 
 For each two-step publish call, use the `id` returned by the first call as the
-`creation_id` in the second call.
+`creation_id` in the second call. For the delete check, first publish a temporary
+post specifically for deletion, then call `DELETE /{threads-media-id}` using the
+`id` returned by `/me/threads_publish`. Listing posts or reading `/me` does not
+exercise `threads_delete`. Use that same published `{threads-media-id}` for the
+`threads_manage_insights` check before deleting it.
 
 ---
 
 ## Suggested order
 
-1. Generate the FB token → run the four Pages calls + two Instagram-via-FB calls.
-2. Generate the Instagram Business Login token → run the two `instagram_business_*` calls.
-3. Generate the Threads token → run the two `threads_*` calls.
+1. Generate the FB token → run the four Pages calls.
+2. Generate the Instagram Business Login token → run the three `instagram_business_*` calls.
+3. Generate the Threads token → run the four `threads_*` calls.
 4. Wait up to 24h, then re-check App Review ▸ Allowed usage; the API-test-call
    checks should be satisfied.
 

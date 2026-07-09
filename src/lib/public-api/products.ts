@@ -81,7 +81,6 @@ function buildMetaDestinations(connection: PlatformConnection | null, fallbackNa
 
   const pageId = asString(connection.metadata.pageId);
   const pageName = asString(connection.metadata.pageName) || fallbackName;
-  const igAccountId = asString(connection.metadata.igAccountId);
   const destinations: PublicProductDestination[] = [];
 
   if (pageId) {
@@ -93,7 +92,6 @@ function buildMetaDestinations(connection: PlatformConnection | null, fallbackNa
       displayName: pageName,
       accountId: pageId,
       pageId,
-      igAccountId,
       deliveryMode: 'direct_publish',
       // Facebook is its own dedicated path — no cross-channel fan-out to Instagram.
       willAlsoPublishTo: [],

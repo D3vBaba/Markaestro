@@ -15,10 +15,20 @@ describe('oauth provider config', () => {
     expect(getProviderConfig('instagram').extraAuthParams).toEqual({
       enable_fb_login: 'false',
     });
-    // Analytics ingestion needs the insights scopes on every Meta surface.
-    expect(getProviderConfig('meta').scopes).toContain('instagram_manage_insights');
+    expect(getProviderConfig('meta').scopes).toEqual([
+      'pages_show_list',
+      'pages_read_engagement',
+      'pages_manage_posts',
+      'read_insights',
+    ]);
+    expect(getProviderConfig('meta').scopes).not.toContain('business_management');
+    expect(getProviderConfig('meta').scopes).not.toContain('instagram_basic');
+    expect(getProviderConfig('meta').scopes).not.toContain('instagram_content_publish');
+    expect(getProviderConfig('meta').scopes).not.toContain('instagram_manage_insights');
     expect(getProviderConfig('meta').scopes).toContain('read_insights');
     expect(getProviderConfig('threads').scopes).toContain('threads_manage_insights');
+    expect(getProviderConfig('tiktok').scopes).toContain('video.list');
+    expect(getProviderConfig('tiktok').scopes).toContain('user.info.stats');
   });
 
   it('uses separate LinkedIn OAuth credentials for profile and community flows', () => {

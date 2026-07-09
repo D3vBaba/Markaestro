@@ -20,7 +20,7 @@ export const runtime = 'nodejs';
 
 async function fetchMetaPages(accessToken: string) {
   const res = await fetch(
-    'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token,instagram_business_account',
+    'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token',
     { headers: { Authorization: `Bearer ${accessToken}` } },
   );
   const data = await res.json();
@@ -31,8 +31,8 @@ async function fetchMetaPages(accessToken: string) {
     pages: data.data.map((p: Record<string, unknown>) => ({
       id: p.id,
       name: p.name,
-      hasInstagram: Boolean(p.instagram_business_account),
-      igAccountId: (p.instagram_business_account as Record<string, string>)?.id || null,
+      hasInstagram: false,
+      igAccountId: null,
     })),
   };
 }

@@ -201,6 +201,7 @@ async function pollOnePost(
 
   const anyOk = outcomes.includes('ok');
   const allDead = outcomes.every((o) => o === 'unsupported' || o === 'not_found');
+  const hasRetryableError = outcomes.some((o) => o === 'auth' || o === 'transient');
 
   if (anyOk) {
     await postRef.collection('metrics').doc(stageKey).set({
@@ -211,16 +212,35 @@ async function pollOnePost(
       byChannel,
     });
     const next = nextPollAfter(stage, publishedAt, now);
-    await postRef.update({
+    const attempts = hasRetryableError ? (post.metricsAttempts ?? 0) + 1 : 0;
+    const retryMixed = hasRetryableError && attempts < MAX_TRANSIENT_ATTEMPTS;
+    const update: Record<string, unknown> = {
       metricsByChannel: byChannel,
       metricsUpdatedAt: nowIso,
-      metricsStatus: next ? 'active' : 'complete',
-      metricsAttempts: 0,
       metricsLastError: lastError || FieldValue.delete(),
-      ...(next
-        ? { metricsPollStage: next.stage, metricsNextPollAt: next.nextAt }
-        : { metricsNextPollAt: FieldValue.delete() }),
-    });
+    };
+    if (retryMixed) {
+      const backoffMs = Math.min(attempts * 3600_000, 24 * 3600_000);
+      Object.assign(update, {
+        metricsStatus: 'active',
+        metricsAttempts: attempts,
+        metricsPollStage: stage,
+        metricsNextPollAt: new Date(now + backoffMs).toISOString(),
+      });
+      summary.errors.push({ postId: doc.id, error: lastError || 'partial metrics fetch failed; retry scheduled' });
+    } else {
+      Object.assign(update, {
+        metricsStatus: next ? 'active' : 'complete',
+        metricsAttempts: 0,
+        ...(next
+          ? { metricsPollStage: next.stage, metricsNextPollAt: next.nextAt }
+          : { metricsNextPollAt: FieldValue.delete() }),
+      });
+      if (hasRetryableError) {
+        summary.errors.push({ postId: doc.id, error: lastError || 'partial metrics fetch retry budget exhausted' });
+      }
+    }
+    await postRef.update(update);
     summary.polled++;
     const date = utcDateOf(publishedAt);
     if (!summary.affectedDates.includes(date)) summary.affectedDates.push(date);

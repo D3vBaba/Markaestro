@@ -34,10 +34,9 @@ export const socialChannelCatalog = [
   {
     channel: 'instagram',
     label: 'Instagram',
-    // Same preference order as the publish path (channelToProviders in
-    // platform/connections.ts): standalone Instagram Login first, then the
-    // Meta Page's linked IG business account.
-    providerKeys: ['instagram', 'meta'],
+    // Instagram is linked through standalone Instagram Login. Facebook Page
+    // connections are intentionally Facebook-only.
+    providerKeys: ['instagram'],
     editor: 'normal',
     maxLength: 2200,
     mediaKinds: ['image', 'video', 'carousel'],
@@ -45,7 +44,7 @@ export const socialChannelCatalog = [
     maxMediaItems: 10,
     supportsDirectPublish: true,
     supportsScheduling: true,
-    setupHint: 'Connect Meta with a linked Instagram business account or connect Instagram directly.',
+    setupHint: 'Connect Instagram in product settings.',
   },
   {
     channel: 'tiktok',

@@ -128,6 +128,15 @@ async function runChecks() {
       .limit(1)
       .get(),
   );
+  await check('posts.where(status==published).where(productId).orderBy(publishedAt desc) [analytics product]', (db) =>
+    db.collection(`workspaces/${WS}/posts`)
+      .where('status', '==', 'published')
+      .where('productId', '==', 'sentinel')
+      .where('publishedAt', '>=', '1970-01-01T00:00:00.000Z')
+      .orderBy('publishedAt', 'desc')
+      .limit(1)
+      .get(),
+  );
 
   // ── Campaigns ─────────────────────────────────────────────────────────────
   console.log('\nCampaigns:');

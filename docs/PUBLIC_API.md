@@ -94,9 +94,8 @@ Meta:
 - post status becomes `published`
 
 Instagram Login:
-- direct publish for standalone Instagram professional accounts that are not linked to a Facebook Page
+- direct publish for standalone Instagram professional accounts
 - exposed as a separate destination in `GET /api/public/v1/products/:id/destinations`
-- if a product has both a Meta-linked Instagram destination and a standalone Instagram Login destination, include `destinationId` when creating the post
 
 Meta account selection:
 - Use `GET /api/public/v1/products` to discover product ids

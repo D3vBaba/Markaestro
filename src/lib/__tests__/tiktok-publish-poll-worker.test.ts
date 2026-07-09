@@ -160,6 +160,38 @@ describe('pollTikTokPublishWithRetries', () => {
     expect(fetchTikTokPublishStatusMock).toHaveBeenNthCalledWith(2, 'new_access_token', 'publish_123');
   });
 
+  it('stores TikTok public post ids when publish status completes', async () => {
+    const postRef = buildPostRef(buildPendingTikTokPost());
+    adminDocMock.mockReturnValue(postRef);
+    fetchTikTokPublishStatusMock.mockResolvedValueOnce({
+      status: 'PUBLISH_COMPLETE',
+      publiclyAvailablePostId: 'video_789',
+    });
+
+    const { pollTikTokPublishWithRetries } = await import('../social/tiktok-publish-poll-worker');
+    const outcome = await pollTikTokPublishWithRetries('ws_123', 'post_123', {
+      attempts: 1,
+      intervalMs: 0,
+    });
+
+    expect(outcome).toEqual({ status: 'published' });
+    expect(postRef.update).toHaveBeenLastCalledWith(expect.objectContaining({
+      status: 'published',
+      externalId: 'video_789',
+      tiktokPublishId: 'publish_123',
+      tiktokPublicPostId: 'video_789',
+      publishResults: [
+        {
+          channel: 'tiktok',
+          success: true,
+          pending: false,
+          externalId: 'video_789',
+        },
+      ],
+      publishedChannels: ['tiktok'],
+    }));
+  });
+
   it('resolves webhook publish ids through the durable TikTok mapping', async () => {
     const mappingRef = {
       get: vi.fn().mockResolvedValue({

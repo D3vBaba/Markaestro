@@ -33,13 +33,13 @@ function mergeMetaConnection(
   if (workspaceConnection && productConnection) {
     return {
       ...workspaceConnection,
-      // Readiness follows the product connection, which owns the publishing
-      // destination (selected Page + linked IG business account) and a
-      // long-lived Page access token. Page/IG publishing uses that Page token
-      // (see resolveAccessToken), not the workspace user token — so a lapsed
-      // 60-day user token (workspace status 'error'/'expired') must not blur out
-      // an otherwise-valid channel. The workspace connection still supplies the
-      // user token for account/ads APIs and its availablePages metadata.
+      // Readiness follows the product connection, which owns the selected Page
+      // and its long-lived Page access token. Facebook publishing uses that Page
+      // token (see resolveAccessToken), not the workspace user token — so a
+      // lapsed 60-day user token (workspace status 'error'/'expired') must not
+      // blur out an otherwise-valid Page channel. The workspace connection still
+      // supplies the user token for account/ads APIs and its availablePages
+      // metadata.
       status: productConnection.status,
       productId,
       metadata: {
@@ -92,9 +92,8 @@ function findConnectionForChannel(
     .map((provider) => findProviderConnection(bundle, provider, productId))
     .filter((match): match is ChannelConnectionMatch => Boolean(match));
 
-  // A channel can be served by more than one provider (e.g. Instagram via the
-  // standalone Instagram Login connection or via the Meta Page's linked IG
-  // business account; LinkedIn via profile/community/public credentials).
+  // A channel can be served by more than one provider (e.g. LinkedIn via
+  // profile/community/public credentials).
   // Prefer the candidate that is actually ready to publish so one provider's
   // incomplete setup can't shadow another provider's working connection.
   // Fall back to a connected-but-unconfigured candidate (surfaces its setup

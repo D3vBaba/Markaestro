@@ -408,7 +408,7 @@ async function publishToInstagram(
       success: false,
       error: connection.provider === 'instagram'
         ? 'No Instagram professional account connected.'
-        : 'No Instagram account linked. Select a Facebook page with a linked Instagram business account.',
+        : 'No Instagram professional account connected.',
     };
   }
 
@@ -842,7 +842,7 @@ async function listInstagramMedia(
   } else {
     const igAccountId = getInstagramAccountId(connection);
     if (!igAccountId) {
-      return { ok: false, error: 'No Instagram account linked. Select a Facebook page with a linked Instagram business account.', reason: 'unsupported' };
+      return { ok: false, error: 'No Instagram professional account connected.', reason: 'unsupported' };
     }
     url = `${GRAPH_API}/${igAccountId}/media?${new URLSearchParams({
       fields: IG_MEDIA_LIST_FIELDS,

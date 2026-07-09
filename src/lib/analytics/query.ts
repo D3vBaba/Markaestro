@@ -47,6 +47,13 @@ type PostDocData = {
   metricsUpdatedAt?: string;
 };
 
+function selectAnalyticsPostFields(query: FirebaseFirestore.Query): FirebaseFirestore.Query {
+  return query.select(
+    'content', 'channel', 'publishedChannels', 'publishedAt', 'externalUrl',
+    'productId', 'mediaUrls', 'metricsByChannel', 'metricsUpdatedAt',
+  );
+}
+
 function isVideoUrl(url: string): boolean {
   const lower = url.toLowerCase();
   return /\.(mp4|mov|avi|webm|mkv)(\?|$)/.test(lower) || lower.includes('/videos/');
@@ -244,6 +251,15 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
   // Product-filtered totals come from post rows (aggregates are workspace-
   // wide), so fetch back to the prior window to keep the comparison deltas.
   const fetchSinceIso = productId ? `${priorSinceDate}T00:00:00.000Z` : sinceIso;
+  const postsBaseQuery = adminDb
+    .collection(`workspaces/${workspaceId}/posts`)
+    .where('status', '==', 'published');
+  const postsQuery = selectAnalyticsPostFields(
+    (productId ? postsBaseQuery.where('productId', '==', productId) : postsBaseQuery)
+      .where('publishedAt', '>=', fetchSinceIso)
+      .orderBy('publishedAt', 'desc')
+      .limit(MAX_POSTS_ANALYZED + 1),
+  );
 
   const [aggSnap, audienceSnap, postsSnap] = await Promise.all([
     adminDb
@@ -255,17 +271,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       .collection(`workspaces/${workspaceId}/audienceSnapshots`)
       .where('date', '>=', priorSinceDate)
       .get(),
-    adminDb
-      .collection(`workspaces/${workspaceId}/posts`)
-      .where('status', '==', 'published')
-      .where('publishedAt', '>=', fetchSinceIso)
-      .orderBy('publishedAt', 'desc')
-      .limit(MAX_POSTS_ANALYZED + 1)
-      .select(
-        'content', 'channel', 'publishedChannels', 'publishedAt', 'externalUrl',
-        'productId', 'mediaUrls', 'metricsByChannel', 'metricsUpdatedAt',
-      )
-      .get(),
+    postsQuery.get(),
   ]);
 
   // ── Posts → rows (leaderboard, heatmap, content types, insights) ──
@@ -501,17 +507,16 @@ export async function fetchPostRowsForExport(
   channel?: SocialChannel,
   productId?: string,
 ): Promise<AnalyticsPostRow[]> {
-  const snap = await adminDb
+  const baseQuery = adminDb
     .collection(`workspaces/${workspaceId}/posts`)
-    .where('status', '==', 'published')
-    .where('publishedAt', '>=', sinceIso)
-    .orderBy('publishedAt', 'desc')
-    .limit(5000)
-    .select(
-      'content', 'channel', 'publishedChannels', 'publishedAt', 'externalUrl',
-      'productId', 'mediaUrls', 'metricsByChannel', 'metricsUpdatedAt',
-    )
-    .get();
+    .where('status', '==', 'published');
+  const query = selectAnalyticsPostFields(
+    (productId ? baseQuery.where('productId', '==', productId) : baseQuery)
+      .where('publishedAt', '>=', sinceIso)
+      .orderBy('publishedAt', 'desc')
+      .limit(5000),
+  );
+  const snap = await query.get();
 
   const rows: AnalyticsPostRow[] = [];
   for (const doc of snap.docs) {

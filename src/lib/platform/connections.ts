@@ -60,7 +60,6 @@ export async function getMetaConnectionMerged(
 function hasReadyMetaDestination(connection: PlatformConnection | null, channel: SocialChannel): connection is PlatformConnection {
   if (!connection || connection.status !== 'connected') return false;
   if (channel === 'facebook') return Boolean(connection.metadata.pageId);
-  if (channel === 'instagram') return Boolean(connection.metadata.igAccountId);
   return false;
 }
 
@@ -312,14 +311,10 @@ function channelToProviders(channel: SocialChannel, preferredProvider?: string):
     case 'facebook':
       return prioritize(['meta']);
     case 'instagram':
-      // Prefer the standalone Instagram Login connection (the user's own token),
-      // but fall back to the Facebook Page's linked Instagram Business account.
-      // The Page path publishes via the long-lived (effectively non-expiring)
-      // Page token, so company Instagram keeps working even if the standalone
-      // 60-day token lapses — the durable default. getConnectionForChannel only
-      // resolves meta here when the chosen Page actually has a linked IG
-      // (hasReadyMetaDestination checks metadata.igAccountId).
-      return prioritize(['instagram', 'meta']);
+      // Instagram is served only by the standalone Instagram Login provider.
+      // Facebook Page connections remain Facebook-only, even if legacy Meta
+      // records still contain an igAccountId.
+      return prioritize(['instagram']);
     case 'tiktok':
       return prioritize(['tiktok']);
     case 'threads':

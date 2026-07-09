@@ -192,7 +192,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
 
     // Fetch pages to get the selected page's access token
     const pagesRes = await fetch(
-      'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token,instagram_business_account',
+      'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token',
       { headers: { Authorization: `Bearer ${userAccessToken}` } },
     );
     const pagesData = await pagesRes.json();
@@ -216,7 +216,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
         pageId,
         pageName: pageName || selectedPage.name,
         pageAccessTokenEncrypted: encrypt(selectedPage.access_token as string),
-        igAccountId: selectedPage.instagram_business_account?.id || null,
+        igAccountId: null,
         pageSelectionRequired: false,
       },
       workspaceId: ctx.workspaceId,
@@ -229,7 +229,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       ok: true,
       pageId,
       pageName: pageName || selectedPage.name,
-      igAccountId: selectedPage.instagram_business_account?.id || null,
+      igAccountId: null,
     });
   } catch (error) {
     return apiError(error);

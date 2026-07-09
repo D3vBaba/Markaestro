@@ -55,12 +55,26 @@ async function probe(label, url, init) {
     const res = await fetch(url, init);
     const body = await res.json().catch(() => ({}));
     console.log(`  [${res.status}] ${label}`);
-    console.log(`        ${JSON.stringify(body).slice(0, 400)}`);
+    console.log(`        ${JSON.stringify(redactSecrets(body)).slice(0, 400)}`);
     return { status: res.status, body };
   } catch (e) {
     console.log(`  [ERR] ${label}: ${e.message}`);
     return { status: 0, body: {} };
   }
+}
+
+function redactSecrets(value) {
+  if (Array.isArray(value)) return value.map(redactSecrets);
+  if (!value || typeof value !== 'object') return value;
+  const out = {};
+  for (const [key, raw] of Object.entries(value)) {
+    if (/access_token|refresh_token|client_secret|app_secret/i.test(key)) {
+      out[key] = '[redacted]';
+    } else {
+      out[key] = redactSecrets(raw);
+    }
+  }
+  return out;
 }
 
 const q = (params) => new URLSearchParams(params).toString();
@@ -79,6 +93,7 @@ for (const doc of interesting) {
   console.log(`  metadata: ${JSON.stringify({
     igAccountId: md.igAccountId, username: md.username, loginType: md.loginType,
     instagramPermissions: md.instagramPermissions,
+    oauthScopes: md.oauthScopes,
     pageId: md.pageId, pageName: md.pageName,
     hasPageToken: Boolean(md.pageAccessTokenEncrypted),
     pageSelectionRequired: md.pageSelectionRequired,
@@ -123,8 +138,8 @@ for (const doc of interesting) {
     if (md.pageAccessTokenEncrypted && md.pageId) {
       try {
         const pageToken = decrypt(md.pageAccessTokenEncrypted);
-        await probe(`GET page ${md.pageId}?fields=name,instagram_business_account (page token)`,
-          `https://graph.facebook.com/v22.0/${md.pageId}?${q({ fields: 'name,instagram_business_account{id,username}', access_token: pageToken })}`);
+        await probe(`GET page ${md.pageId}?fields=name (page token)`,
+          `https://graph.facebook.com/v22.0/${md.pageId}?${q({ fields: 'name', access_token: pageToken })}`);
       } catch (e) {
         console.log(`  !! cannot decrypt page token: ${e.message}`);
       }
@@ -173,8 +188,8 @@ if (eyecashDoc) {
   if (md.pageAccessTokenEncrypted) {
     const pageToken = decrypt(md.pageAccessTokenEncrypted);
     console.log(`  page token prefix: ${pageToken.slice(0, 6)}... length=${pageToken.length}`);
-    await probe(`GET page ${md.pageId}?fields=name,instagram_business_account`,
-      `https://graph.facebook.com/v22.0/${md.pageId}?${q({ fields: 'name,instagram_business_account{id,username}', access_token: pageToken })}`);
+    await probe(`GET page ${md.pageId}?fields=name`,
+      `https://graph.facebook.com/v22.0/${md.pageId}?${q({ fields: 'name', access_token: pageToken })}`);
     await probe('debug_token page token via META app',
       `https://graph.facebook.com/v22.0/debug_token?${q({ input_token: pageToken, access_token: `${process.env.META_APP_ID}|${process.env.META_APP_SECRET}` })}`);
   }
