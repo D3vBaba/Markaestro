@@ -25,9 +25,9 @@ const endpointGroups = [
     title: "Posts",
     description: "Create, inspect, and publish posts for Facebook, Instagram, LinkedIn, Threads, Pinterest, and TikTok.",
     endpoints: [
-      { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft in the workspace for the selected product destination." },
-      { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status and publish results." },
-      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. Facebook, Instagram, LinkedIn, Threads, and Pinterest publish directly; TikTok uses the inbox handoff and still requires creator completion in TikTok." },
+      { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft in the workspace. Facebook, Instagram, and TikTok default to manual posting (deliveryMode manual_reminder); pass deliveryMode direct_publish to opt a post into API publishing." },
+      { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status, delivery mode, and publish results." },
+      { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. Manual posts land in the workspace's To Post queue for native posting; LinkedIn, Threads, and Pinterest publish directly; opted-in Meta posts publish via the official API, and opted-in TikTok posts use the inbox handoff." },
     ],
   },
   {
@@ -85,10 +85,9 @@ const webhookExample = `{
   "workspaceId": "ws_123",
   "data": {
     "postId": "pst_123",
-    "channel": "tiktok",
+    "channel": "instagram",
     "status": "platform_action_required",
-    "externalId": "p_inbox_url~v2.7631796255831721997",
-    "nextAction": "open_tiktok_inbox_and_complete_posting"
+    "nextAction": "post_manually_from_reminder"
   }
 }`;
 
@@ -144,9 +143,13 @@ export default function DevelopersApiPage() {
             auth and are not part of the public contract).
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            <strong className="text-foreground">TikTok is draft-first over the API.</strong> A TikTok post is always
-            created as a draft in Markaestro. Explicit publish uses TikTok&apos;s inbox handoff, never public Direct Post,
-                and the creator finalizes inside TikTok. Facebook, Instagram, LinkedIn, Threads, and Pinterest publish programmatically.
+            <strong className="text-foreground">Facebook, Instagram, and TikTok are manual-first over the API.</strong>{" "}
+            Posts for those channels default to <code>manual_reminder</code> delivery: Markaestro never calls the
+            platform&apos;s API for them. Publishing moves the post to the workspace&apos;s To Post queue, where the
+            owner downloads the media, posts natively, and confirms — so posts appear exactly as if created by hand.
+            Pass <code>deliveryMode: &quot;direct_publish&quot;</code> on create to opt a post into official-API
+            publishing instead (on TikTok that means the inbox handoff, never public Direct Post). LinkedIn, Threads,
+            and Pinterest publish programmatically by default.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             Workspaces can have multiple products. Every API key is bound to one product when you create it, so calls
@@ -203,9 +206,10 @@ export default function DevelopersApiPage() {
                 Each account from <code>/social-accounts</code> is labeled with its <code>product</code> (the same account can
                 appear under multiple products), and its <code>id</code> encodes <code>productId#destinationId</code> — pass it
                 back verbatim in <code>social_accounts</code>, and the request fans out one post per account. Each key is
-                bound to one product, so it only sees and posts to that product. <strong className="text-foreground">TikTok
-                posts are created as drafts</strong> and finalized from the Markaestro app; Facebook, Instagram, LinkedIn, Threads, and Pinterest publish
-                programmatically after an explicit publish action. Post status is one of <code>draft</code>, <code>processing</code>,{" "}
+                bound to one product, so it only sees and posts to that product. <strong className="text-foreground">Facebook,
+                Instagram, and TikTok posts are manual-first</strong> — created as drafts and published natively by the
+                workspace owner from the Markaestro To Post queue, never via the platform&apos;s API. LinkedIn, Threads,
+                and Pinterest publish programmatically after an explicit publish action. Post status is one of <code>draft</code>, <code>processing</code>,{" "}
                 <code>posted</code>, or <code>failed</code>. Facebook, Instagram, LinkedIn, TikTok, and Threads are each their own dedicated
                 destination — publishing to one never fans out to another. Track publishing state through{" "}
                 <code>GET /api/connect/v1/posts</code>.
@@ -224,8 +228,8 @@ export default function DevelopersApiPage() {
           <div className="grid gap-6 lg:grid-cols-3">
             <Card>
               <CardHeader>
-                <CardTitle>Meta publishes directly</CardTitle>
-                <CardDescription>Facebook and Instagram complete inside Markaestro once the platform accepts the publish.</CardDescription>
+                <CardTitle>Meta &amp; TikTok are manual-first</CardTitle>
+                <CardDescription>Facebook, Instagram, and TikTok posts default to the manual To Post queue — no platform API call, the workspace owner posts natively and confirms. Opt into API publishing per post with deliveryMode.</CardDescription>
               </CardHeader>
             </Card>
             <Card>
@@ -236,8 +240,8 @@ export default function DevelopersApiPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>TikTok uses inbox handoff</CardTitle>
-                <CardDescription>TikTok posts created via the API always land in your Markaestro drafts. Publishing sends them to the creator&apos;s TikTok inbox for final caption, privacy, and posting.</CardDescription>
+                <CardTitle>TikTok opt-in uses inbox handoff</CardTitle>
+                <CardDescription>A TikTok post opted into API publishing is sent to the creator&apos;s TikTok inbox for final caption, privacy, and posting — never public Direct Post.</CardDescription>
               </CardHeader>
             </Card>
             <Card className="lg:col-span-3">
@@ -310,7 +314,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>4. Create a post</CardTitle>
-                <CardDescription>Create a draft using those asset ids.</CardDescription>
+                <CardDescription>Create a draft using those asset ids. Instagram defaults to manual posting; add <code>&quot;deliveryMode&quot;: &quot;direct_publish&quot;</code> to opt this post into official-API publishing.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.createPost}</code></pre>
@@ -319,7 +323,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>TikTok example</CardTitle>
-                <CardDescription>Use the connected TikTok destination returned for the product. It reports platform_inbox delivery, lands as a Markaestro draft, and is sent to the creator&apos;s TikTok inbox only when publish is explicitly queued.</CardDescription>
+                <CardDescription>TikTok posts land as Markaestro drafts and default to manual posting from the To Post queue. With <code>deliveryMode: &quot;platform_inbox&quot;</code> (or <code>direct_publish</code>), an explicit publish sends the draft to the creator&apos;s TikTok inbox instead.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.tiktokCreatePost}</code></pre>
@@ -328,7 +332,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>5. Queue publish</CardTitle>
-                <CardDescription>Publishing creates an async run. Facebook, Instagram, LinkedIn, Threads, and Pinterest publish directly; TikTok queues the inbox handoff and returns action-required when TikTok accepts it.</CardDescription>
+                <CardDescription>Publishing creates an async run. Manual posts (the Facebook/Instagram/TikTok default) move to the To Post queue and fire <code>post.action_required</code>; LinkedIn, Threads, Pinterest, and opted-in Meta posts publish directly; opted-in TikTok posts queue the inbox handoff.</CardDescription>
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.publish}</code></pre>
@@ -353,15 +357,15 @@ export default function DevelopersApiPage() {
             <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">Facebook</p>
-                <p className="mt-2 text-sm text-muted-foreground">Text-only, image, or video posts. Up to 10 images or 1 video per post. Direct publish.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Text-only, image, or video posts. Up to 10 images or 1 video per post. Manual posting by default; direct publish on opt-in.</p>
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">Instagram</p>
-                <p className="mt-2 text-sm text-muted-foreground">At least one image or video, up to 10 items. Single video publishes as a Reel. Carousels support mixed image/video.</p>
+                <p className="mt-2 text-sm text-muted-foreground">At least one image or video, up to 10 items. Single video publishes as a Reel. Manual posting by default; direct publish on opt-in.</p>
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">TikTok</p>
-                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. API posts are always created as drafts; explicit publish sends the draft to the creator&apos;s TikTok inbox, not public Direct Post.</p>
+                <p className="mt-2 text-sm text-muted-foreground">At least one image or video. Up to 10 images or 1 video. Manual posting by default; opted-in posts go to the creator&apos;s TikTok inbox, never public Direct Post.</p>
               </div>
               <div className="rounded-xl border p-4">
                 <p className="text-sm font-medium">LinkedIn</p>
