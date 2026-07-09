@@ -11,7 +11,7 @@
  *   recolor images, so the banner brand stays bright in light AND dark mode.
  */
 
-const BRAND = {
+export const BRAND = {
   bgPage: '#eef2f7',
   cardBg: '#ffffff',
   ink: '#0f172a',
@@ -27,7 +27,7 @@ export type AuthEmailPayload = {
   text: string;
 };
 
-function escapeHtml(value: string) {
+export function escapeHtml(value: string) {
   return value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
@@ -36,7 +36,7 @@ function escapeHtml(value: string) {
     .replaceAll("'", '&#039;');
 }
 
-function getBaseUrl(): string {
+export function getBaseUrl(): string {
   const base =
     process.env.OAUTH_BASE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
@@ -65,7 +65,7 @@ function footerLegal(note: string) {
   </p>`;
 }
 
-function brandWrap(params: { title: string; preheader?: string; bodyHtml: string; footerNote?: string }) {
+export function brandWrap(params: { title: string; preheader?: string; bodyHtml: string; footerNote?: string }) {
   const preheader = params.preheader
     ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(params.preheader)}</div>`
     : '';

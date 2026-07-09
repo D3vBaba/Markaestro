@@ -154,6 +154,31 @@ describe('manual reminder publishing', () => {
     expect(tiktokFlow.isPlatformActionRequiredStatus('exported_for_review')).toBe(true);
   });
 
+  it('extracts platform post IDs from pasted URLs where possible', async () => {
+    const { parseManualPostUrl } = await import('../manual-publish-flow');
+
+    expect(parseManualPostUrl('instagram', 'https://www.instagram.com/p/Cxyz123_aB/'))
+      .toEqual({ externalUrl: 'https://www.instagram.com/p/Cxyz123_aB/', externalId: 'Cxyz123_aB' });
+    expect(parseManualPostUrl('instagram', 'https://www.instagram.com/reel/AbC-123/?igsh=x').externalId)
+      .toBe('AbC-123');
+    expect(parseManualPostUrl('tiktok', 'https://www.tiktok.com/@brand/video/7301234567890123456').externalId)
+      .toBe('7301234567890123456');
+    expect(parseManualPostUrl('facebook', 'https://www.facebook.com/brand/posts/pfbid0abc123').externalId)
+      .toBe('pfbid0abc123');
+    expect(parseManualPostUrl('facebook', 'https://www.facebook.com/permalink.php?story_fbid=123456&id=789').externalId)
+      .toBe('123456');
+
+    // Unparseable inputs keep the URL but yield no ID.
+    expect(parseManualPostUrl('instagram', 'https://www.instagram.com/yourbrand/'))
+      .toEqual({ externalUrl: 'https://www.instagram.com/yourbrand/', externalId: '' });
+    expect(parseManualPostUrl('linkedin', 'https://www.linkedin.com/feed/update/urn:li:activity:123/').externalId)
+      .toBe('');
+    expect(parseManualPostUrl('instagram', 'not a url'))
+      .toEqual({ externalUrl: 'not a url', externalId: '' });
+    expect(parseManualPostUrl('instagram', '  '))
+      .toEqual({ externalUrl: '', externalId: '' });
+  });
+
   it('identifies manual reminder posts by delivery mode only', async () => {
     const { isManualReminderPost, isManualReminderDeliveryMode } = await import('../manual-publish-flow');
 

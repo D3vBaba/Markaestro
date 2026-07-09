@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { apiGet, apiPost, apiDelete, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import PostCard from "./PostCard";
+import PostCard, { isManualQueuePost } from "./PostCard";
 import PostEditSheet from "./PostEditSheet";
 import ScheduleSheet from "./ScheduleSheet";
 import PostGridSkeleton from "./PostGridSkeleton";
@@ -23,6 +23,7 @@ type Post = {
   publishedAt?: string;
   externalUrl?: string;
   nextAction?: string;
+  deliveryMode?: string;
   createdAt?: string;
   errorMessage?: string;
   mediaUrls?: string[];
@@ -106,10 +107,14 @@ export default function DraftsTab({
       return next;
     });
 
+    const target = posts.find((p) => p.id === id);
+    const isManual = target ? isManualQueuePost(target) : false;
     const isTikTok = channel === "tiktok";
-    const loadingMessage = isTikTok
-      ? "Pushing to TikTok inbox…"
-      : "Publishing post…";
+    const loadingMessage = isManual
+      ? "Adding to your To Post queue…"
+      : isTikTok
+        ? "Pushing to TikTok inbox…"
+        : "Publishing post…";
     const toastId = toast.loading(loadingMessage);
 
     try {
@@ -126,10 +131,12 @@ export default function DraftsTab({
         const outcome = getPublishUiOutcome(res.data);
         if (outcome.platformActionRequired) {
           toast.success(
-            "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
+            outcome.manualReminder
+              ? "Added to your To Post queue. Post it natively, then mark it as posted."
+              : "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
             { id: toastId },
           );
-          // TikTok posts stay here while waiting in the inbox — flip the status locally
+          // These posts stay here while waiting on the user — flip the status locally
           setPosts((cur) =>
             cur.map((p) =>
               p.id === id
@@ -235,15 +242,38 @@ export default function DraftsTab({
     );
   }
 
-  // Posts pushed to the TikTok inbox aren't really drafts — surface them separately.
-  const waitingInTikTok = posts.filter((p) => isPlatformActionRequiredStatus(p.status));
+  // Posts waiting on the user aren't really drafts — surface them separately:
+  // manual-queue posts the user publishes natively, and TikTok inbox handoffs.
+  const actionRequired = posts.filter((p) => isPlatformActionRequiredStatus(p.status));
+  const toPost = actionRequired.filter((p) => isManualQueuePost(p));
+  const waitingInTikTok = actionRequired.filter((p) => !isManualQueuePost(p));
   const draftPosts = posts.filter((p) => !isPlatformActionRequiredStatus(p.status));
 
   const totalPages = Math.ceil(draftPosts.length / POSTS_PER_PAGE);
   const paginatedPosts = draftPosts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
 
+  const hasQueueSections = toPost.length > 0 || waitingInTikTok.length > 0;
+
   return (
     <>
+      {toPost.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
+            To Post
+          </h3>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {toPost.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                onDelete={() => handleDelete(post.id)}
+                onMarkedPosted={fetchDrafts}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {waitingInTikTok.length > 0 && (
         <div className="mb-8">
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
@@ -263,7 +293,7 @@ export default function DraftsTab({
 
       {draftPosts.length > 0 && (
         <>
-          {waitingInTikTok.length > 0 && (
+          {hasQueueSections && (
             <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
               Drafts
             </h3>

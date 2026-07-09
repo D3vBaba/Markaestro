@@ -3,8 +3,12 @@
 import { useState } from "react";
 import PlatformPreview from "@/components/app/PlatformPreview";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
+import MarkPostedDialog from "./MarkPostedDialog";
 import { getSocialChannelLabel } from "@/lib/social/channel-catalog";
 import { isPlatformActionRequiredStatus, LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from "@/lib/tiktok-draft-flow";
+import { MANUAL_REMINDER_DELIVERY_MODE, MANUAL_REMINDER_NEXT_ACTION } from "@/lib/manual-publish-flow";
+import { downloadMediaFiles } from "@/lib/download-media";
+import { toast } from "sonner";
 
 type Post = {
   id: string;
@@ -18,8 +22,25 @@ type Post = {
   errorMessage?: string;
   mediaUrls?: string[];
   nextAction?: string;
+  deliveryMode?: string;
   targetChannels?: string[];
 };
+
+const channelAppUrls: Record<string, string> = {
+  instagram: "https://www.instagram.com/",
+  tiktok: "https://www.tiktok.com/",
+  facebook: "https://www.facebook.com/",
+  threads: "https://www.threads.net/",
+  linkedin: "https://www.linkedin.com/",
+  pinterest: "https://www.pinterest.com/",
+};
+
+export function isManualQueuePost(post: Pick<Post, "nextAction" | "deliveryMode">): boolean {
+  return (
+    post.nextAction === MANUAL_REMINDER_NEXT_ACTION ||
+    post.deliveryMode === MANUAL_REMINDER_DELIVERY_MODE
+  );
+}
 
 const statusDotColors: Record<string, string> = {
   draft: "bg-mk-ink-20",
@@ -64,6 +85,7 @@ export default function PostCard({
   onCancel,
   onPublish,
   onReschedule,
+  onMarkedPosted,
 }: {
   post: Post;
   publishing?: boolean;
@@ -72,15 +94,39 @@ export default function PostCard({
   onCancel?: () => void;
   onPublish?: () => void;
   onReschedule?: () => void;
+  onMarkedPosted?: () => void;
 }) {
   const [showPreview, setShowPreview] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [markPostedOpen, setMarkPostedOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const displayStatus = publishing ? "publishing" : post.status;
   const hasTikTokTarget = post.channel === "tiktok" || post.targetChannels?.includes("tiktok");
   const channelLabel = post.targetChannels?.length
     ? post.targetChannels.map(getSocialChannelLabel).join(" + ")
     : getSocialChannelLabel(post.channel);
+  const inManualQueue = isPlatformActionRequiredStatus(post.status) && isManualQueuePost(post);
+  const primaryChannelLabel = getSocialChannelLabel(post.channel);
+
+  const handleCopyCaption = async () => {
+    try {
+      await navigator.clipboard.writeText(post.content);
+      toast.success("Caption copied");
+    } catch {
+      toast.error("Couldn't copy the caption");
+    }
+  };
+
+  const handleDownloadMedia = async () => {
+    if (downloading || !post.mediaUrls?.length) return;
+    setDownloading(true);
+    try {
+      await downloadMediaFiles(post.mediaUrls);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="group border border-border/50 rounded-xl overflow-hidden bg-card hover:border-border/80 hover:shadow-sm transition-all">
@@ -128,7 +174,7 @@ export default function PostCard({
           <span
             className={`text-[10px] uppercase tracking-wider font-medium ${statusTextColors[displayStatus] || "text-muted-foreground"}`}
           >
-            {statusLabels[displayStatus] || displayStatus}
+            {inManualQueue && !publishing ? "Ready to post" : statusLabels[displayStatus] || displayStatus}
           </span>
         </div>
       </div>
@@ -179,9 +225,49 @@ export default function PostCard({
         )}
       </div>
 
+      {/* Manual posting banner: the post is waiting in the To Post queue —
+          the user publishes it natively themselves and confirms. */}
+      {!publishing && inManualQueue && (
+        <div
+          className="mx-4 mb-3 flex items-start gap-2 rounded-lg border px-3 py-2"
+          style={{
+            background: "var(--mk-accent-soft)",
+            borderColor: "color-mix(in oklch, var(--mk-accent) 30%, var(--mk-paper))",
+          }}
+        >
+          <div
+            className="mt-0.5 w-2 h-2 rounded-full shrink-0"
+            style={{ background: "var(--mk-accent)" }}
+          />
+          <div className="min-w-0 flex-1">
+            <p
+              className="text-[12px] font-medium"
+              style={{ color: "var(--mk-accent)" }}
+            >
+              Ready to post on {primaryChannelLabel}
+            </p>
+            <p className="text-[11px] text-mk-ink-60 mt-0.5">
+              Download the media, copy the caption, post it from the {primaryChannelLabel} app
+              as you normally would, then mark it as posted here.
+            </p>
+            {channelAppUrls[post.channel] && (
+              <a
+                href={channelAppUrls[post.channel]}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex mt-1.5 text-[11px] font-medium underline"
+                style={{ color: "var(--mk-accent)" }}
+              >
+                Open {primaryChannelLabel}
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* TikTok inbox banner: post was pushed to the creator's inbox and
           needs to be finalized from the TikTok app. */}
-      {!publishing && isPlatformActionRequiredStatus(post.status) && hasTikTokTarget && (
+      {!publishing && !inManualQueue && isPlatformActionRequiredStatus(post.status) && hasTikTokTarget && (
         <div
           className="mx-4 mb-3 flex items-start gap-2 rounded-lg border px-3 py-2"
           style={{
@@ -257,6 +343,26 @@ export default function PostCard({
           </a>
         )}
 
+        {inManualQueue && (
+          <>
+            <button className={pillBtn} onClick={handleCopyCaption}>
+              Copy caption
+            </button>
+            {(post.mediaUrls?.length ?? 0) > 0 && (
+              <button
+                className={downloading ? pillBtnDisabled : pillBtn}
+                onClick={handleDownloadMedia}
+                disabled={downloading}
+              >
+                {downloading ? "Downloading…" : "Download media"}
+              </button>
+            )}
+            <button className={pillBtn} onClick={() => setMarkPostedOpen(true)}>
+              Mark as posted
+            </button>
+          </>
+        )}
+
         {onEdit && (
           <button className={pillBtn} onClick={onEdit}>
             Edit
@@ -299,6 +405,16 @@ export default function PostCard({
           entity="post"
           name={channelLabel}
           onConfirm={onDelete}
+        />
+      )}
+
+      {inManualQueue && (
+        <MarkPostedDialog
+          open={markPostedOpen}
+          onOpenChange={setMarkPostedOpen}
+          postId={post.id}
+          channelLabel={primaryChannelLabel}
+          onMarked={onMarkedPosted}
         />
       )}
     </div>

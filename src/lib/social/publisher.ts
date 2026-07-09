@@ -21,6 +21,7 @@ import {
   isManualReminderPost,
   MANUAL_REMINDER_NEXT_ACTION,
 } from '@/lib/manual-publish-flow';
+import { sendManualPostReminderEmail } from '@/lib/manual-publish-emails';
 import { firstSocialPostValidationError } from '@/lib/social/post-validation';
 import { getTikTokPublishMappingRef } from '@/lib/social/tiktok-publish-mapping';
 import { logger } from '@/lib/logger';
@@ -676,6 +677,7 @@ export async function finalizeManualReminderPublish(
   workspaceId: string,
   claimed: ClaimedPublishPost,
   result: MultiChannelPublishResult,
+  options: { notify?: boolean } = {},
 ): Promise<'action_required'> {
   const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
   const nowIso = new Date().toISOString();
@@ -701,6 +703,12 @@ export async function finalizeManualReminderPublish(
       status: PLATFORM_ACTION_REQUIRED_STATUS,
       nextAction: MANUAL_REMINDER_NEXT_ACTION,
     });
+  }
+
+  // The email nudge is for transitions the user isn't watching (scheduler,
+  // API-queued publishes) — in-app publishes skip it. Never fatal.
+  if (options.notify) {
+    await sendManualPostReminderEmail(workspaceId, claimed.postId, claimed.post);
   }
 
   return 'action_required';
@@ -1130,7 +1138,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
       });
 
       const outcome = result.actionRequired
-        ? await finalizeManualReminderPublish(workspaceId, claimed, result)
+        ? await finalizeManualReminderPublish(workspaceId, claimed, result, { notify: true })
         : result.success || result.pending
           ? await finalizeSuccessfulPublish(workspaceId, claimed, result)
           : await finalizeFailedPublish(workspaceId, claimed, result);

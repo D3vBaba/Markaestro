@@ -10,6 +10,7 @@ import {
   MANUAL_REMINDER_DELIVERY_MODE,
   MANUAL_REMINDER_NEXT_ACTION,
 } from '@/lib/manual-publish-flow';
+import { sendManualPostReminderEmail } from '@/lib/manual-publish-emails';
 import { logger } from '@/lib/logger';
 import { acquirePublishLock, assertPublishRateLimit, getPublishDestinationKey, releasePublishLock } from './publish-throttle';
 import { enqueueWebhookEvent } from './webhooks';
@@ -214,6 +215,7 @@ async function processSingleRun(workspaceId: string, runId: string) {
       await markRunFinished(workspaceId, runId, 'succeeded', 'Post is ready for manual posting', {
         actionRequired: true,
       });
+      await sendManualPostReminderEmail(workspaceId, run.resourceId, post);
       if (clientId) {
         await enqueueWebhookEvent(workspaceId, 'post.action_required', {
           postId: run.resourceId,

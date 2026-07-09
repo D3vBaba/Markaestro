@@ -2,6 +2,7 @@ import {
   isPlatformActionRequiredStatus,
   TIKTOK_MANUAL_PUBLISH_ACTION,
 } from '@/lib/tiktok-draft-flow';
+import { MANUAL_REMINDER_NEXT_ACTION } from '@/lib/manual-publish-flow';
 
 type PublishChannelResult = {
   channel: string;
@@ -27,6 +28,8 @@ export function getPublishUiOutcome(response: PublishUiResponse) {
     status,
     hasTikTok,
     platformActionRequired,
+    // Waiting in the manual "To Post" queue rather than a platform inbox.
+    manualReminder: response.nextAction === MANUAL_REMINDER_NEXT_ACTION,
     processing: status === 'publishing' || Boolean(response.pending),
   };
 }
