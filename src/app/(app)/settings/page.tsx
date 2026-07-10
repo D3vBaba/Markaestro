@@ -177,7 +177,7 @@ function SettingsPageContent() {
 
       {/* Tab bar */}
       <div
-        className="flex gap-6 border-b mb-6 overflow-x-auto no-scrollbar"
+        className="flex gap-5 sm:gap-6 border-b mb-6 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
         style={{ borderColor: "var(--mk-rule-soft)" }}
       >
         {TABS.map((tab) => {
@@ -188,7 +188,7 @@ function SettingsPageContent() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               data-tab={tab.id}
-              className="flex items-center gap-1.5 py-2.5 text-[13px] transition-colors -mb-px whitespace-nowrap"
+              className="flex items-center gap-1.5 py-3 sm:py-2.5 text-[13px] transition-colors -mb-px whitespace-nowrap shrink-0"
               style={{
                 color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
                 fontWeight: active ? 600 : 400,
@@ -372,7 +372,7 @@ function AccountTab() {
               {pendingEmailChange ? (
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full px-2.5 py-1 text-xs" style={pillStyle("warn")}>
+                    <span className="rounded-full px-2.5 py-1 text-xs break-all" style={pillStyle("warn")}>
                       Code sent to {pendingEmailChange}
                     </span>
                     <Button
@@ -969,9 +969,9 @@ function IntegrationsTab() {
               const st = channelStatus(product.id, ch.provider);
               const isBusy = busy === `${product.id}:${ch.provider}`;
               return (
-                <div key={ch.provider} className="flex items-center justify-between gap-3 rounded-xl border p-3.5">
+                <div key={ch.provider} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3.5">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-medium">{ch.label}</p>
                       {st.state === "connected" && <Badge className="border-0" style={pillStyle("pos")}>Linked</Badge>}
                       {st.state === "needs-page" && (
@@ -1405,7 +1405,7 @@ function WorkspacesTab() {
                         <p className="text-sm font-medium truncate">{ws.name}</p>
                         {ws.role === 'owner' && (
                           <button
-                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            className="text-muted-foreground hover:text-foreground transition-colors p-2 -m-1 grid place-items-center"
                             onClick={() => { setEditingId(ws.id); setEditName(ws.name); }}
                           >
                             <Pencil className="h-3 w-3" />
@@ -1829,13 +1829,13 @@ function ApiAccessTab() {
           ) : (
             <>
               <div className="rounded-xl border">
-                <div className="flex items-center justify-between border-b px-4 py-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b px-4 py-3">
                   <div>
                     <p className="text-sm font-medium">API keys</p>
                     <p className="text-xs text-muted-foreground">Create a key per integration, scope it down to the minimum needed access, and watch live request and publish behavior per key.</p>
                   </div>
                   {archivedClientCount > 0 && (
-                    <Button variant="ghost" size="sm" onClick={() => setShowArchived((prev) => !prev)}>
+                    <Button variant="ghost" size="sm" className="shrink-0 self-start sm:self-auto" onClick={() => setShowArchived((prev) => !prev)}>
                       <Archive className="mr-1.5 h-3.5 w-3.5" />
                       {showArchived ? 'Hide archived' : `Show archived (${archivedClientCount})`}
                     </Button>
@@ -1989,12 +1989,12 @@ function ApiAccessTab() {
               </div>
 
               <div className="rounded-xl border">
-                <div className="flex items-center justify-between border-b px-4 py-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b px-4 py-3">
                   <div>
                     <p className="text-sm font-medium">Webhook endpoints</p>
                     <p className="text-xs text-muted-foreground">Receive delivery events when publishes queue, complete, need user action in TikTok, or fail. These are signed and retried from the worker.</p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => setCreateWebhookOpen(true)}>
+                  <Button variant="outline" size="sm" className="shrink-0 self-start sm:self-auto" onClick={() => setCreateWebhookOpen(true)}>
                     <Webhook className="mr-1.5 h-3.5 w-3.5" />
                     Add webhook
                   </Button>
@@ -2025,7 +2025,7 @@ function ApiAccessTab() {
                                 <p className="text-xs text-muted-foreground">Created {new Date(endpoint.createdAt).toLocaleString()}</p>
                               </div>
                               <button
-                                className="text-muted-foreground hover:text-foreground transition-colors"
+                                className="text-muted-foreground hover:text-foreground transition-colors p-2 -m-1.5 grid place-items-center shrink-0"
                                 onClick={() => copyText(endpoint.url, 'Webhook URL')}
                               >
                                 <Copy className="h-3.5 w-3.5" />
@@ -2443,7 +2443,7 @@ function BillingTab() {
           <CardDescription>See what each plan includes.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {(["starter", "pro", "business"] as const).map((t) => {
               const p = PLANS[t];
               const isCurrent = t === tier;

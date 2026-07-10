@@ -32,7 +32,7 @@ export function TrialBanner() {
 
   return (
     <div
-      className="flex items-center justify-between gap-3 px-6 py-2.5 text-[13px] border-b"
+      className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 sm:px-6 py-2.5 text-[13px] border-b"
       style={{
         background: urgent
           ? "color-mix(in oklch, var(--mk-warn) 14%, var(--mk-paper))"
@@ -53,7 +53,7 @@ export function TrialBanner() {
             : `${trialDaysLeft} day${trialDaysLeft === 1 ? "" : "s"} left in your trial`}
         </span>
         {status.tier && (
-          <span className="text-xs opacity-70">
+          <span className="text-xs opacity-70 hidden sm:inline">
             · {status.tier.charAt(0).toUpperCase() + status.tier.slice(1)} plan
           </span>
         )}
@@ -61,7 +61,7 @@ export function TrialBanner() {
       <Button
         size="sm"
         variant={urgent ? "default" : "outline"}
-        className="h-7 text-xs rounded-lg"
+        className="h-9 sm:h-7 text-xs rounded-lg shrink-0"
         onClick={handleUpgrade}
         disabled={busy}
       >

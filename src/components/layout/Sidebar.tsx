@@ -51,7 +51,7 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "hidden lg:flex flex-col h-screen sticky top-0 shrink-0 border-r",
+        "hidden lg:flex flex-col h-dvh sticky top-0 shrink-0 border-r",
         className,
       )}
       style={{

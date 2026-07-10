@@ -96,7 +96,7 @@ export default function CategorySelect({
                       setOpen(false);
                     }}
                     className={cn(
-                      "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
+                      "flex w-full min-h-10 sm:min-h-0 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
                       selected ? "text-foreground" : "text-foreground/90 hover:bg-muted/60",
                     )}
                     style={selected ? { background: "var(--mk-accent-soft)" } : undefined}

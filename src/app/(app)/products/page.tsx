@@ -61,6 +61,19 @@ function readOauthCallback(): OauthCallback | null {
   };
 }
 
+/** Read the ?open=<productId>&section=… deep link once on mount (e.g. the
+    "Connect" CTA on the Posts page's On Platform tab). */
+function readOpenDeepLink(): { productId: string; section: "foundation" | "channels" } | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const productId = params.get("open");
+  if (!productId) return null;
+  return {
+    productId,
+    section: params.get("section") === "channels" ? "channels" : "foundation",
+  };
+}
+
 export default function ProductsPage() {
   const {
     data: productsData,
@@ -101,20 +114,29 @@ export default function ProductsPage() {
     return cache;
   }, [connectionsData]);
 
-  // OAuth callback params are captured once and drive the *initial* state
-  // below (highlight + sheet open on Channels) — no setState-in-effect needed.
+  // OAuth callback / deep-link params are captured once and drive the
+  // *initial* state below (highlight + sheet open on a section) — no
+  // setState-in-effect needed.
   const [oauthCallback] = useState(readOauthCallback);
+  const [openDeepLink] = useState(readOpenDeepLink);
   const oauthProductId =
     oauthCallback?.result === "success" ? oauthCallback.productId : null;
+  const initialDetailId = oauthProductId ?? openDeepLink?.productId ?? null;
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [detailId, setDetailId] = useState<string | null>(oauthProductId);
+  const [detailId, setDetailId] = useState<string | null>(initialDetailId);
   const [detailSection, setDetailSection] = useState<"foundation" | "channels">(
-    oauthProductId ? "channels" : "foundation",
+    oauthProductId ? "channels" : openDeepLink?.section ?? "foundation",
   );
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [filter, setFilter] = useState<FilterTab>("all");
   const [highlightId, setHighlightId] = useState<string | null>(oauthProductId);
+
+  useEffect(() => {
+    // Deep-link cleanup — the sheet is already open from initial state; drop
+    // the params so a refresh doesn't re-open it.
+    if (openDeepLink) window.history.replaceState({}, "", "/products");
+  }, [openDeepLink]);
 
   useEffect(() => {
     // OAuth callback side effects: toasts, URL cleanup, cache invalidation

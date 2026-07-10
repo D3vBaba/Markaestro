@@ -1282,7 +1282,7 @@ export default function OnboardingPage() {
                           onKeyDown={(e) => e.key === "Enter" && !scanning && scanUrl()}
                         />
                         <Button
-                          className="h-12 rounded-lg px-5 shrink-0 text-sm font-medium"
+                          className="h-12 rounded-lg shrink-0 text-sm font-medium w-28 px-0 sm:w-auto sm:px-5"
                           onClick={scanUrl}
                           disabled={scanning || !productUrl.trim()}
                           variant={scanDone ? "outline" : "default"}
@@ -1636,7 +1636,7 @@ export default function OnboardingPage() {
                   transition={{ delay: 0.25, duration: 0.35 }}
                   className="mt-10"
                 >
-                  <div className="flex items-baseline justify-between mb-5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3 mb-5">
                     <p className="text-base font-semibold">Recommended for you</p>
                     <span className="text-sm text-muted-foreground">Based on your answers</span>
                   </div>
@@ -1655,14 +1655,19 @@ export default function OnboardingPage() {
                           )}
                           onClick={() => setInterval(iv)}
                         >
-                          {iv === "monthly" ? "Monthly" : "Annual — save 17%"}
+                          {iv === "monthly" ? "Monthly" : (
+                            <>
+                              Annual<span className="hidden sm:inline"> — save 17%</span>
+                              <span className="sm:hidden"> · −17%</span>
+                            </>
+                          )}
                         </button>
                       ))}
                     </div>
                   </div>
 
                   {/* Plan cards */}
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="grid gap-4 sm:gap-3 sm:grid-cols-3">
                     {(["starter", "pro", "business"] as PlanTier[]).map((tierKey) => {
                       const plan = PLANS[tierKey];
                       const price = interval === "annual" ? plan.price.annual : plan.price.monthly;
@@ -1720,7 +1725,7 @@ export default function OnboardingPage() {
 
                   <Button
                     size="lg"
-                    className="w-full mt-6 h-13 rounded-xl text-base"
+                    className="w-full mt-6 h-13 rounded-xl px-3 sm:px-6 text-[14px] sm:text-base"
                     onClick={handleCheckout}
                     disabled={busy}
                   >

@@ -423,7 +423,7 @@ export default function CreateTab({
                   )}
                   <button
                     onClick={() => setMediaUrls((prev) => prev.filter((_, idx) => idx !== i))}
-                    className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center"
+                    className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white text-sm w-8 h-8 sm:text-[10px] sm:w-5 sm:h-5 rounded-full flex items-center justify-center"
                     aria-label="Remove"
                   >
                     ×

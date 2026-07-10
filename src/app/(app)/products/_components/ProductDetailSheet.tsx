@@ -257,14 +257,14 @@ function ColorField({
         {description && (
           <p className="text-[11px] text-muted-foreground -mt-0.5">{description}</p>
         )}
-        <div className="grid grid-cols-12 gap-1">
+        <div className="grid grid-cols-8 sm:grid-cols-12 gap-1.5 sm:gap-1">
           {COLOR_PALETTE.map((c) => (
             <button
               key={c}
               type="button"
               aria-label={`Set ${label} to ${c}`}
               className={cn(
-                "h-6 w-full rounded-md border transition-all",
+                "aspect-square sm:aspect-auto sm:h-6 w-full rounded-md border transition-all",
                 value === c
                   ? "ring-2 ring-foreground ring-offset-1 ring-offset-background scale-105"
                   : "hover:scale-110",
@@ -616,7 +616,7 @@ export default function ProductDetailSheet({
           )}
 
           {/* Header — sticky */}
-          <SheetHeader className="px-6 pt-5 pb-3 border-b border-border/40">
+          <SheetHeader className="px-4 sm:px-6 pt-5 pb-3 border-b border-border/40">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 {form?.identity.logoUrl ? (
@@ -650,8 +650,8 @@ export default function ProductDetailSheet({
             </div>
 
             {/* Section nav + edit controls (same row) */}
-            <div className="mt-4 -mb-0.5 flex items-center justify-between gap-3">
-              <nav className="flex items-center gap-0.5">
+            <div className="mt-4 -mb-0.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+              <nav className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide max-w-full">
               {sections.map((s) => {
                 const active = section === s.key;
                 const Icon = s.icon;
@@ -660,7 +660,7 @@ export default function ProductDetailSheet({
                     key={s.key}
                     onClick={() => setSection(s.key)}
                     className={cn(
-                      "relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md transition-colors",
+                      "relative flex items-center gap-1.5 px-2.5 py-2 sm:py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0",
                       active
                         ? "text-foreground font-medium"
                         : "text-muted-foreground hover:text-foreground",
@@ -724,7 +724,7 @@ export default function ProductDetailSheet({
           </SheetHeader>
 
           {/* Content — scrollable */}
-          <div className="flex-1 overflow-y-auto px-6 py-5">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5">
             {loading || !form ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
@@ -785,10 +785,10 @@ export default function ProductDetailSheet({
 
           {/* Footer — delete + status recap */}
           {!loading && form && (
-            <div className="px-6 py-3 border-t border-border/40 bg-muted/20 flex items-center justify-between gap-2">
+            <div className="px-4 sm:px-6 py-3 border-t border-border/40 bg-muted/20 flex items-center justify-between gap-2">
               <button
                 onClick={() => setDeleteOpen(true)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors inline-flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors inline-flex items-center gap-1 py-2 -my-2 px-1 -mx-1"
               >
                 <Trash2 className="h-3 w-3" /> Delete product
               </button>
@@ -1043,7 +1043,7 @@ function FoundationSection({
       </SectionCard>
 
       <SectionCard title="Positioning">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormField label="Category">
             <CategorySelect
               value={form.categories[0] || ""}
@@ -1151,7 +1151,7 @@ function IdentitySection({
               onChange={onLogoUpload}
               className="hidden"
             />
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -1807,7 +1807,7 @@ function ChannelCard({
           {detail && <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">{detail}</p>}
         </div>
       </div>
-      <div className="mt-2.5 flex flex-wrap items-center gap-2 pl-12">{children}</div>
+      <div className="mt-2.5 flex flex-wrap items-center gap-2 pl-0 sm:pl-12">{children}</div>
     </div>
   );
 }

@@ -69,13 +69,13 @@ const statusLabels: Record<string, string> = {
   partial_failed: "Partially failed",
 };
 
-// Shared pill button style
+// Shared pill button style — taller on touch viewports, compact from sm up
 const pillBtn =
-  "inline-flex items-center gap-1 px-3 py-1 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-accent bg-mk-paper";
+  "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-accent bg-mk-paper";
 const pillBtnDestructive =
-  "inline-flex items-center gap-1 px-3 py-1 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-neg bg-mk-paper";
+  "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-neg bg-mk-paper";
 const pillBtnDisabled =
-  "inline-flex items-center gap-1 px-3 py-1 rounded-full border text-[11px] font-medium cursor-not-allowed whitespace-nowrap border-mk-rule-soft text-mk-ink-40 bg-mk-paper";
+  "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium cursor-not-allowed whitespace-nowrap border-mk-rule-soft text-mk-ink-40 bg-mk-paper";
 
 export default function PostCard({
   post,
@@ -134,7 +134,7 @@ export default function PostCard({
       <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border/30">
         {/* Left: channel + scheduled date */}
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/70">
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/70 truncate min-w-0">
             {channelLabel}
           </span>
           {post.scheduledAt && post.status === "scheduled" && (

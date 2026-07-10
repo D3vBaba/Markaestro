@@ -44,7 +44,11 @@ export function BestTimeHeatmap({
 
   return (
     <div>
-      <Heatmap data={avg} days={DAYS} hours={HOURS} max={max} height={170} />
+      <div className="overflow-x-auto scrollbar-hide -mx-1 px-1">
+        <div className="min-w-[480px]">
+          <Heatmap data={avg} days={DAYS} hours={HOURS} max={max} height={170} />
+        </div>
+      </div>
       <p
         className="mt-2.5 mb-0 text-[10.5px] font-mono"
         style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}

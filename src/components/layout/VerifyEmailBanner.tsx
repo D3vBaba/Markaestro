@@ -74,7 +74,7 @@ export function VerifyEmailBanner() {
 
   return (
     <div
-      className="flex flex-wrap items-center justify-between gap-3 px-6 py-2.5 text-[13px] border-b"
+      className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-2.5 text-[13px] border-b"
       style={{
         background: "color-mix(in oklch, var(--mk-warn) 14%, var(--mk-paper))",
         color: "color-mix(in oklch, var(--mk-warn) 70%, var(--mk-ink))",
@@ -83,7 +83,7 @@ export function VerifyEmailBanner() {
     >
       <div className="flex items-center gap-2 min-w-0">
         <MailWarning className="h-3.5 w-3.5 shrink-0" />
-        <span className="font-medium truncate">
+        <span className="font-medium min-w-0">
           Verify your email to publish
           {email && codeSent ? (
             <>
@@ -101,14 +101,14 @@ export function VerifyEmailBanner() {
             type="text"
             inputMode="numeric"
             autoComplete="one-time-code"
-            className="h-7 w-28 rounded-lg text-center font-mono text-xs tracking-[0.25em]"
+            className="h-9 sm:h-7 w-32 sm:w-28 rounded-lg text-center font-mono text-xs tracking-[0.25em]"
             onKeyDown={(e) => e.key === "Enter" && handleVerify()}
           />
         )}
         {codeSent && (
           <Button
             size="sm"
-            className="h-7 text-xs rounded-lg"
+            className="h-9 sm:h-7 text-xs rounded-lg"
             onClick={handleVerify}
             disabled={verifying || code.length < 6}
           >
@@ -118,7 +118,7 @@ export function VerifyEmailBanner() {
         <Button
           size="sm"
           variant="outline"
-          className="h-7 text-xs rounded-lg"
+          className="h-9 sm:h-7 text-xs rounded-lg"
           onClick={handleSendCode}
           disabled={sending || cooldownLeft > 0}
         >

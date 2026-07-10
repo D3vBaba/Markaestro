@@ -94,7 +94,7 @@ export default function Home() {
         title="Dashboard"
         subtitle="Your marketing engine at a glance."
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="outline"
               className="rounded-lg h-9 text-[13px] gap-1.5"
@@ -233,7 +233,7 @@ export default function Home() {
                       onClick={() => toggleSeries(s.key)}
                       aria-pressed={!hidden}
                       title={hidden ? `Show ${s.label}` : `Hide ${s.label}`}
-                      className={`inline-flex items-center gap-1.5 text-[11px] cursor-pointer transition-opacity ${
+                      className={`inline-flex items-center gap-1.5 text-[11px] cursor-pointer transition-opacity py-2 -my-2 px-1 -mx-1 ${
                         hidden ? "opacity-40 line-through" : "hover:opacity-80"
                       }`}
                       style={{ color: "var(--mk-ink-60)" }}
@@ -317,7 +317,7 @@ export default function Home() {
                           {fmtCount(count)}
                         </span>
                         <ChevronRight
-                          className="h-3.5 w-3.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-3.5 w-3.5 shrink-0 opacity-40 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
                           style={{ color: "var(--mk-ink-40)" }}
                         />
                       </Link>
@@ -373,7 +373,7 @@ export default function Home() {
                 {recentPosts.map((post, i) => (
                   <Link
                     key={post.id}
-                    href={`/content/${post.id}`}
+                    href={`/calendar?post=${post.id}`}
                     className="flex items-start gap-2.5 py-2.5"
                     style={{
                       borderTop: i === 0 ? "none" : "1px solid var(--mk-rule-soft)",

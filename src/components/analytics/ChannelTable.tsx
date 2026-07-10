@@ -29,8 +29,8 @@ export function ChannelTable({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-[12.5px]">
+    <div className="overflow-x-auto overscroll-x-contain">
+      <table className="w-full min-w-[560px] border-collapse text-[12.5px]">
         <thead>
           <tr style={{ borderBottom: "1px solid var(--mk-rule)" }}>
             <th className="text-left font-normal py-2 pr-3 mk-eyebrow">Channel</th>

@@ -17,6 +17,10 @@ const COLUMNS: Array<{ key: SortKey; label: string }> = [
   { key: "publishedAt", label: "Published" },
 ];
 
+// On phones the table scrolls horizontally; keep it from collapsing to
+// min-content so the scroll affordance engages instead of crushed columns.
+const TABLE_MIN_W = "min-w-[640px]";
+
 function cell(value: number | null): string {
   return value === null ? "—" : fmtCount(Math.round(value));
 }
@@ -45,8 +49,8 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-[12.5px]">
+    <div className="overflow-x-auto overscroll-x-contain">
+      <table className={`w-full ${TABLE_MIN_W} border-collapse text-[12.5px]`}>
         <thead>
           <tr style={{ borderBottom: "1px solid var(--mk-rule)" }}>
             <th
@@ -60,7 +64,7 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
                 <button
                   type="button"
                   onClick={() => setSortKey(col.key)}
-                  className="mk-eyebrow inline-flex items-center gap-1 cursor-pointer hover:opacity-70"
+                  className="mk-eyebrow inline-flex items-center gap-1 cursor-pointer hover:opacity-70 py-2.5 -my-2.5 px-1 -mx-1"
                   title={`Sort by ${col.label}`}
                 >
                   {col.label}
@@ -118,7 +122,7 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     title="Open on platform"
-                    className="inline-flex opacity-50 hover:opacity-100"
+                    className="inline-flex opacity-70 hover:opacity-100 p-2 -m-2"
                     style={{ color: "var(--mk-ink)" }}
                   >
                     <ArrowUpRight className="h-3.5 w-3.5" />

@@ -87,7 +87,7 @@ function ProductContextBar({
           </span>
           <button
             onClick={() => setEditing(true)}
-            className="shrink-0 text-[11px] px-2 py-1 rounded transition-colors"
+            className="shrink-0 text-[11px] px-2.5 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded transition-colors"
             style={{ color: "var(--mk-ink-60)" }}
           >
             Change

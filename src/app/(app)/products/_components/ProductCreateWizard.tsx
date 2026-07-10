@@ -169,7 +169,7 @@ export default function ProductCreateWizard({
         )}
 
         <SheetHeader
-          className="px-6 pt-6 pb-4 border-b"
+          className="px-4 sm:px-6 pt-6 pb-4 border-b"
           style={{ borderColor: "var(--mk-rule)" }}
         >
           <p className="mk-eyebrow">New product</p>
@@ -190,7 +190,7 @@ export default function ProductCreateWizard({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5">
           <AnimatePresence mode="wait">
             {mode === "start" && (
               <motion.div
@@ -233,7 +233,7 @@ export default function ProductCreateWizard({
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <div className="relative flex-1">
                       <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                       <Input
@@ -247,7 +247,7 @@ export default function ProductCreateWizard({
                         autoFocus
                       />
                     </div>
-                    <Button onClick={handleScan} disabled={!scanUrl.trim() || scanning}>
+                    <Button onClick={handleScan} disabled={!scanUrl.trim() || scanning} className="h-10 sm:h-9">
                       {scanning ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
@@ -334,7 +334,7 @@ export default function ProductCreateWizard({
                         cancelScan();
                         setMode("start");
                       }}
-                      className="h-9 text-[13px]"
+                      className="h-10 sm:h-9 text-[13px]"
                       style={{ color: "var(--mk-ink-60)" }}
                     >
                       Cancel scan
@@ -348,24 +348,24 @@ export default function ProductCreateWizard({
                       style={{ color: "var(--mk-ink-60)" }}
                     >
                       We couldn&apos;t scan{" "}
-                      <span className="font-mono" style={{ color: "var(--mk-ink-80)" }}>
+                      <span className="font-mono break-all" style={{ color: "var(--mk-ink-80)" }}>
                         {scanUrl}
                       </span>
                       . Retry the scan, or enter your details manually.
                     </p>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex flex-wrap justify-end gap-2">
                       <Button
                         variant="ghost"
                         onClick={() => setMode("start")}
-                        className="h-9 text-[13px]"
+                        className="h-10 sm:h-9 text-[13px]"
                         style={{ color: "var(--mk-ink-60)" }}
                       >
                         Edit URL
                       </Button>
-                      <Button variant="outline" onClick={handleScan}>
+                      <Button variant="outline" onClick={handleScan} className="h-10 sm:h-9">
                         Retry scan
                       </Button>
-                      <Button onClick={() => setMode("manual")}>Enter manually</Button>
+                      <Button onClick={() => setMode("manual")} className="h-10 sm:h-9">Enter manually</Button>
                     </div>
                   </div>
                 )}
@@ -459,7 +459,7 @@ export default function ProductCreateWizard({
                       </div>
                     )}
                     {(primaryColor || secondaryColor || accentColor) && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         {[primaryColor, secondaryColor, accentColor]
                           .filter((c) => c && /^#[0-9A-Fa-f]{6}$/i.test(c))
                           .map((c, i) => (
@@ -498,7 +498,7 @@ export default function ProductCreateWizard({
 
         {(mode === "review" || mode === "manual") && (
           <div
-            className="px-6 py-3 border-t flex items-center justify-between gap-2"
+            className="px-4 sm:px-6 py-3 border-t flex flex-wrap items-center justify-between gap-2"
             style={{
               borderColor: "var(--mk-rule)",
               background: "var(--mk-surface)",
@@ -508,7 +508,7 @@ export default function ProductCreateWizard({
               variant="ghost"
               size="sm"
               onClick={() => setMode("start")}
-              className="h-9 text-[13px]"
+              className="h-10 sm:h-9 text-[13px]"
               style={{ color: "var(--mk-ink-60)" }}
             >
               Start over
@@ -516,7 +516,7 @@ export default function ProductCreateWizard({
             <Button
               onClick={create}
               disabled={saving || !name.trim()}
-              className="rounded-lg h-9 text-[13px]"
+              className="rounded-lg h-10 sm:h-9 text-[13px]"
             >
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
               {saving ? "Creating…" : "Create product"}

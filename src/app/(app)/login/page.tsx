@@ -291,10 +291,10 @@ function LoginContent() {
                   >
                     {busy ? "Verifying…" : "Sign in"}
                   </Button>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <button
                       type="button"
-                      className="text-[12px] transition-colors"
+                      className="text-[12px] transition-colors py-2.5 -my-1 px-1 -mx-1"
                       style={{ color: "var(--mk-ink-60)" }}
                       onClick={() => { setStage("email"); setCode(""); setError(""); }}
                     >
@@ -302,7 +302,7 @@ function LoginContent() {
                     </button>
                     <button
                       type="button"
-                      className="text-[12px] font-medium hover:underline disabled:opacity-50 disabled:no-underline"
+                      className="text-[12px] font-medium hover:underline disabled:opacity-50 disabled:no-underline py-2.5 -my-1 px-1 -mx-1"
                       style={{ color: "var(--mk-accent)" }}
                       disabled={busy || resendCooldown > 0}
                       onClick={handleSendCode}

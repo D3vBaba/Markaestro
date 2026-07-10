@@ -61,7 +61,7 @@ export default function TagInput({
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); removeTag(i); }}
-            className="hover:opacity-70 transition-opacity"
+            className="hover:opacity-70 transition-opacity p-1.5 -m-1"
           >
             <X className="h-3 w-3" />
           </button>

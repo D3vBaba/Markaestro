@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { MobileTabBar } from "./MobileTabBar";
 import { TrialBanner } from "./TrialBanner";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus";
@@ -30,7 +31,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (loading || onboardingLoading) {
     return (
-      <div className="min-h-screen grid place-items-center bg-background">
+      <div className="min-h-dvh grid place-items-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 rounded-xl bg-primary animate-pulse" />
           <div className="space-y-2">
@@ -46,18 +47,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (completed === false && !onboardingError) return null;
 
   return (
-    <div className="grid h-screen w-full max-w-full overflow-hidden lg:grid-cols-[232px_1fr]">
+    <div className="grid h-dvh w-full max-w-full overflow-hidden lg:grid-cols-[232px_1fr]">
       <Sidebar />
       <div
-        className="flex flex-col h-screen min-w-0 overflow-hidden"
+        className="flex flex-col h-dvh min-w-0 overflow-hidden"
         style={{ background: "var(--mk-surface)" }}
       >
         <TrialBanner />
         <VerifyEmailBanner />
         <Header />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-6 sm:px-6 sm:py-7 lg:px-10 lg:py-7">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-5 pb-8 sm:px-6 sm:py-7 lg:px-10 lg:py-7">
           {children}
         </main>
+        <MobileTabBar />
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState, useCallback } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
-import { apiPut } from "@/lib/api-client";
+import { apiGet, apiPut } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -211,7 +211,7 @@ function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void })
   const accent = CHANNEL_ACCENT[post.channel] || "#6366f1";
   const statusDate = post.publishedAt || post.scheduledAt;
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full min-h-0 flex flex-col">
       <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border/40 flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: accent }} />
@@ -223,7 +223,7 @@ function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void })
             {post.status}
           </span>
         </div>
-        <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={onClose} className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -274,11 +274,13 @@ const CHANNEL_ICON: Record<string, React.ReactNode> = {
   ),
 };
 
-function VisualEventChip({ item, onClick, isSelected, onDragStart }: {
+function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = false }: {
   item: CalendarItem;
   onClick: () => void;
   isSelected: boolean;
   onDragStart?: (e: React.DragEvent) => void;
+  /** Agenda rows render time + caption snippet so they're informative without opening the panel. */
+  showDetail?: boolean;
 }) {
   const p = item.post;
   const accent = CHANNEL_ACCENT[p.channel] || "#6366f1";
@@ -287,6 +289,7 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart }: {
   const draggable = p.status === "scheduled" || p.status === "draft";
 
   const isFailed = p.status === "failed" || p.status === "partial_failed";
+  const when = p.publishedAt || p.scheduledAt;
 
   return (
     <button
@@ -297,12 +300,12 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart }: {
       className="w-full rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98] cursor-grab active:cursor-grabbing"
       style={{ background: isSelected ? accent + "20" : bg, borderLeft: `3px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
     >
-      <div className="px-1.5 py-1 flex items-center gap-1.5">
+      <div className={`px-1.5 flex items-center gap-1.5 ${showDetail ? "py-2 min-h-[44px]" : "py-1"}`}>
         {/* Media thumbnail */}
         {thumb && !isVideoUrl(thumb) ? (
-          <img src={thumb} alt="" className="w-6 h-6 rounded object-cover shrink-0" draggable={false} />
+          <img src={thumb} alt="" className={`rounded object-cover shrink-0 ${showDetail ? "w-8 h-8" : "w-6 h-6"}`} draggable={false} />
         ) : (
-          <div className="w-6 h-6 rounded shrink-0 flex items-center justify-center" style={{ background: accent + "18" }}>
+          <div className={`rounded shrink-0 flex items-center justify-center ${showDetail ? "w-8 h-8" : "w-6 h-6"}`} style={{ background: accent + "18" }}>
             <div style={{ color: accent }}>{CHANNEL_ICON[p.channel] || null}</div>
           </div>
         )}
@@ -310,6 +313,16 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart }: {
         <div style={{ color: accent }} className="shrink-0">
           {CHANNEL_ICON[p.channel] || null}
         </div>
+        {showDetail && (
+          <span className="flex-1 min-w-0 text-left text-[12px] truncate text-foreground/80">
+            {p.content || "Untitled post"}
+          </span>
+        )}
+        {showDetail && when && (
+          <span className="shrink-0 font-mono text-[10.5px] text-muted-foreground">
+            {formatTime(when)}
+          </span>
+        )}
         {/* Failed indicator — surfaces errors without opening the detail panel */}
         {isFailed && (
           <span className="ml-auto shrink-0 flex items-center" style={{ color: "var(--mk-neg)" }} aria-label="Failed to publish">
@@ -345,7 +358,7 @@ function MobileAgendaDay({ date, items, selected, onSelect }: {
       <div className="space-y-1.5">
         {items.map((item, i) => {
           const isItemSelected = selected !== null && selected.post.id === item.post.id;
-          return <VisualEventChip key={i} item={item} isSelected={isItemSelected} onClick={() => onSelect(isItemSelected ? null : item)} />;
+          return <VisualEventChip key={i} item={item} isSelected={isItemSelected} showDetail onClick={() => onSelect(isItemSelected ? null : item)} />;
         })}
       </div>
     </div>
@@ -390,6 +403,66 @@ function CalendarPageContent() {
     setStatusFilter(searchParams.get("status"));
     setChannelFilter(searchParams.get("channel"));
   }, [searchParams]);
+
+  // ── Deep-link to a single post (?post=<id>) ──────────────────────────
+  // The dashboard's "Recent posts" widget links here. Open the post's
+  // preview panel and jump to its month; if it's already been deleted,
+  // show a friendly notice instead of a dead end.
+  const [deletedNotice, setDeletedNotice] = useState(false);
+  const handledFocusRef = useRef<string | null>(null);
+  useEffect(() => {
+    const focusId = searchParams.get("post");
+    if (!focusId) return;
+    // Wait for the first page of posts before deciding "not found".
+    if (loading && !postsData) return;
+    if (handledFocusRef.current === focusId) return;
+    handledFocusRef.current = focusId;
+
+    const clearParam = () => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("post");
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    };
+
+    const focusOn = (post: Post) => {
+      const when = post.publishedAt || post.scheduledAt;
+      if (when) {
+        const d = new Date(when);
+        setYear(d.getFullYear());
+        setMonth(d.getMonth());
+      }
+      setDeletedNotice(false);
+      setSelected({ kind: "post", date: getDateForPost(post) ?? "", post });
+    };
+
+    // Fast path: the post is already in the loaded window.
+    const existing = posts.find((p) => p.id === focusId);
+    if (existing) {
+      focusOn(existing);
+      clearParam();
+      return;
+    }
+
+    // Otherwise ask the API definitively — the post may simply be outside
+    // the loaded window, or it may have been deleted.
+    let cancelled = false;
+    (async () => {
+      const res = await apiGet<Post>(`/api/posts/${focusId}`);
+      if (cancelled) return;
+      if (res.ok) {
+        focusOn(res.data);
+      } else if (res.status === 404) {
+        setDeletedNotice(true);
+      } else {
+        toast.error("Couldn't open that post. Please try again.");
+      }
+      clearParam();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams, loading, postsData, posts, pathname, router]);
 
   const applyFilters = useCallback(
     (status: string | null, channel: string | null) => {
@@ -526,6 +599,29 @@ function CalendarPageContent() {
       <div className="flex flex-col lg:flex-row gap-6 h-full">
         {/* ── Calendar column ── */}
         <div className="flex flex-col min-w-0 flex-1">
+          {/* Deleted-post notice — shown when a deep link points at a post
+              that no longer exists (e.g. an old "Recent posts" link) */}
+          {deletedNotice && (
+            <div
+              className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 mb-4"
+              style={{ background: "var(--mk-surface)", border: "1px dashed var(--mk-rule)" }}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <AlertCircle className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-40)" }} />
+                <p className="text-[13px] m-0" style={{ color: "var(--mk-ink-60)" }}>
+                  That post has been deleted and is no longer available.
+                </p>
+              </div>
+              <button
+                onClick={() => setDeletedNotice(false)}
+                aria-label="Dismiss"
+                className="shrink-0 w-7 h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
           {/* Header row */}
           <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
             <div>
@@ -558,13 +654,13 @@ function CalendarPageContent() {
             </div>
             <div className="flex items-center gap-2">
               <Link href="/content">
-                <Button size="sm" className="h-8 px-3 rounded-lg gap-1.5 text-[12px]">
+                <Button size="sm" className="h-10 md:h-8 px-3 rounded-lg gap-1.5 text-[12px]">
                   <Plus className="h-3.5 w-3.5" /> New post
                 </Button>
               </Link>
               <Button
                 variant="ghost" size="sm"
-                className="h-8 px-3 rounded-lg text-[12px]"
+                className="h-10 md:h-8 px-3 rounded-lg text-[12px]"
                 style={{ color: "var(--mk-ink-60)" }}
                 disabled={month === today.getMonth() && year === today.getFullYear()}
                 onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); setSelected(null); }}
@@ -577,7 +673,7 @@ function CalendarPageContent() {
               >
                 <Button
                   variant="ghost" size="icon"
-                  className="h-8 w-8 rounded-none"
+                  className="h-10 w-10 md:h-8 md:w-8 rounded-none"
                   style={{ borderRight: "1px solid var(--mk-rule)" }}
                   onClick={prevMonth}
                 >
@@ -585,7 +681,7 @@ function CalendarPageContent() {
                 </Button>
                 <Button
                   variant="ghost" size="icon"
-                  className="h-8 w-8 rounded-none"
+                  className="h-10 w-10 md:h-8 md:w-8 rounded-none"
                   onClick={nextMonth}
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -595,7 +691,7 @@ function CalendarPageContent() {
           </div>
 
           {/* Filters + Legend */}
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 flex-wrap">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 flex-nowrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
             {[
               { key: "published", label: "Published", color: STATUS_DOT.published },
               { key: "scheduled", label: "Scheduled", color: STATUS_DOT.scheduled },
@@ -607,7 +703,7 @@ function CalendarPageContent() {
                 <button
                   key={key}
                   onClick={() => applyFilters(active ? null : key, channelFilter)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all ${
+                  className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all ${
                     active
                       ? "border-current bg-current/10"
                       : "border-transparent hover:bg-muted"
@@ -627,7 +723,7 @@ function CalendarPageContent() {
                 <button
                   key={key}
                   onClick={() => applyFilters(statusFilter, active ? null : key)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all ${
+                  className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all ${
                     active
                       ? "border-current bg-current/10"
                       : "border-transparent hover:bg-muted"
@@ -639,8 +735,8 @@ function CalendarPageContent() {
                 </button>
               );
             })}
-            <div className="w-px h-3 bg-border/50 hidden sm:block" />
-            <div className="flex items-center gap-1.5">
+            <div className="w-px h-3 bg-border/50 hidden md:block" />
+            <div className="hidden md:flex items-center gap-1.5">
               <span className="text-[11px] text-muted-foreground">Drag to reschedule</span>
             </div>
           </div>
@@ -850,7 +946,10 @@ function CalendarPageContent() {
         {selected && (
           <div className="lg:hidden fixed inset-0 z-50">
             <div className="absolute inset-0 bg-black/50" onClick={() => setSelected(null)} />
-            <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl bg-card overflow-hidden animate-in slide-in-from-bottom duration-200">
+            <div
+              className="absolute bottom-0 left-0 right-0 max-h-[85dvh] rounded-t-2xl bg-card overflow-hidden animate-in slide-in-from-bottom duration-200 flex flex-col"
+              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+            >
               <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
             </div>
           </div>

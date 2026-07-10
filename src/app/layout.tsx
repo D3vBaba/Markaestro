@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,6 +25,16 @@ const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fcfcfb" },
+    { media: "(prefers-color-scheme: dark)", color: "#1c1d22" },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "Markaestro | Premium Application Marketing",
@@ -53,7 +63,11 @@ export default function RootLayout({
       >
         <TooltipProvider>
           {children}
-          <Toaster position="bottom-right" richColors />
+          <Toaster
+            position="bottom-right"
+            richColors
+            mobileOffset={{ bottom: "72px" }}
+          />
         </TooltipProvider>
       </body>
     </html>

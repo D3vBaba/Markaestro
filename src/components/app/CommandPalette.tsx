@@ -84,7 +84,7 @@ export function CommandPalette({
             <DialogPrimitive.Portal>
                 <DialogPrimitive.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50" />
                 <DialogPrimitive.Content
-                    className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[20%] left-[50%] z-50 w-full max-w-[560px] translate-x-[-50%] rounded-xl border shadow-xl overflow-hidden p-0 duration-200"
+                    className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[10%] sm:top-[20%] left-[50%] z-50 w-[calc(100%-2rem)] max-w-[560px] translate-x-[-50%] rounded-xl border shadow-xl overflow-hidden p-0 duration-200"
                     style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
                 >
                     <DialogPrimitive.Title className="sr-only">Command palette</DialogPrimitive.Title>
@@ -114,7 +114,7 @@ export function CommandPalette({
                                 ESC
                             </span>
                         </div>
-                        <Command.List className="max-h-[320px] overflow-y-auto p-2">
+                        <Command.List className="max-h-[min(320px,55dvh)] overflow-y-auto p-2">
                             <Command.Empty
                                 className="py-8 text-center text-[12.5px]"
                                 style={{ color: "var(--mk-ink-40)" }}

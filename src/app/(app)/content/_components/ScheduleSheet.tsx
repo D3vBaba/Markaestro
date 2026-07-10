@@ -185,7 +185,7 @@ export default function ScheduleSheet({
 
   return (
     <Sheet open={open} onOpenChange={handleSheetOpenChange}>
-      <SheetContent className="overflow-y-auto">
+      <SheetContent>
         <SheetHeader
           className="px-6 pt-6 pb-4 border-b"
           style={{ borderColor: "var(--mk-rule)" }}
@@ -219,7 +219,7 @@ export default function ScheduleSheet({
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-5">
           {/* Smart Scheduling Suggestions */}
           {(!smartLoaded || smartSlots.length > 0) && (
             <div>

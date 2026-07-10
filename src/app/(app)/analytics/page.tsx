@@ -175,7 +175,7 @@ export default function AnalyticsPage() {
         title="Analytics"
         subtitle="What your posts earned — measured from each platform's own data."
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="outline"
               className="rounded-lg h-9 text-[13px] gap-1.5"
@@ -229,7 +229,7 @@ export default function AnalyticsPage() {
                 disabled={locked}
                 onClick={() => setDays(preset.days)}
                 title={locked ? `The ${preset.label} window requires a higher plan` : `Last ${preset.label}`}
-                className="px-3 h-8 text-[12px] font-medium inline-flex items-center gap-1 transition-colors disabled:cursor-not-allowed"
+                className="px-3.5 sm:px-3 h-10 sm:h-8 text-[12px] font-medium inline-flex items-center gap-1 transition-colors disabled:cursor-not-allowed"
                 style={{
                   background: active ? "var(--mk-ink)" : "var(--mk-paper)",
                   color: active ? "var(--mk-paper)" : locked ? "var(--mk-ink-40)" : "var(--mk-ink)",
@@ -245,7 +245,7 @@ export default function AnalyticsPage() {
         <select
           value={channel ?? ""}
           onChange={(e) => setChannel((e.target.value || undefined) as SocialChannel | undefined)}
-          className="h-8 px-2.5 rounded-lg text-[12px] cursor-pointer focus:outline-none"
+          className="h-10 sm:h-8 px-2.5 rounded-lg text-[12px] cursor-pointer focus:outline-none max-w-full"
           style={{
             border: "1px solid var(--mk-rule)",
             background: "var(--mk-paper)",
@@ -264,7 +264,7 @@ export default function AnalyticsPage() {
           <select
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
-            className="h-8 px-2.5 rounded-lg text-[12px] cursor-pointer focus:outline-none"
+            className="h-10 sm:h-8 px-2.5 rounded-lg text-[12px] cursor-pointer focus:outline-none max-w-full sm:max-w-[240px]"
             style={{
               border: "1px solid var(--mk-rule)",
               background: "var(--mk-paper)",
@@ -428,13 +428,13 @@ export default function AnalyticsPage() {
                   : undefined
               }
               action={
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 flex-wrap">
                   {TREND_METRICS.map((m) => (
                     <button
                       key={m.key}
                       type="button"
                       onClick={() => setTrendMetric(m.key)}
-                      className="px-2 h-7 rounded-md text-[11.5px] cursor-pointer transition-colors"
+                      className="px-3 sm:px-2 h-9 sm:h-7 rounded-md text-[11.5px] cursor-pointer transition-colors"
                       style={{
                         background: trendMetric === m.key ? "var(--mk-ink)" : "transparent",
                         color: trendMetric === m.key ? "var(--mk-paper)" : "var(--mk-ink-60)",

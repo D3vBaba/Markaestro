@@ -103,7 +103,7 @@ export default function ProductCard({
         style={{
           background: "var(--mk-paper)",
           border: "1px solid var(--mk-rule)",
-          height: 260,
+          minHeight: 260,
         }}
       >
         <div className="relative p-4 flex-1 flex flex-col min-h-0">
@@ -181,8 +181,8 @@ export default function ProductCard({
                   }
                 }}
                 className={cn(
-                  "opacity-0 group-hover:opacity-100 transition-opacity",
-                  "h-6 w-6 rounded grid place-items-center cursor-pointer",
+                  "opacity-60 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity",
+                  "h-9 w-9 lg:h-6 lg:w-6 rounded grid place-items-center cursor-pointer",
                   "hover:text-mk-neg",
                 )}
                 style={{ color: "var(--mk-ink-40)" }}
