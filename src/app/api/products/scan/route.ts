@@ -1,13 +1,42 @@
 import { z } from 'zod';
+import sharp from 'sharp';
 import { requireContext } from '@/lib/server-auth';
 import { apiError, apiOk } from '@/lib/api-response';
-import { assertSafeOutboundUrl, readResponseTextWithLimit } from '@/lib/network-security';
+import {
+  assertSafeOutboundUrl,
+  readResponseBufferWithLimit,
+  readResponseTextWithLimit,
+} from '@/lib/network-security';
+import {
+  collectLogoCandidates,
+  extractCssColors,
+  extractInlineStyles,
+  extractJsonLdBrand,
+  findManifestHref,
+  findStylesheetHrefs,
+  getMetaContent,
+  getTitle,
+  isNeutral,
+  normalizeColor,
+  parseManifest,
+  pickDescription,
+  pickName,
+  pickPalette,
+  rgbToHex,
+  type WeightedColor,
+} from '@/lib/products/scan-extract';
 
 export const runtime = 'nodejs';
 
 const MAX_HTML_BYTES = 2 * 1024 * 1024;
+const MAX_CSS_BYTES = 300 * 1024;
+const MAX_MANIFEST_BYTES = 100 * 1024;
+const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
 const FETCH_TIMEOUT_MS = 10_000;
+const ASSET_TIMEOUT_MS = 4_000;
 const MAX_REDIRECTS = 3;
+const MAX_STYLESHEETS = 3;
+const MAX_LOGO_ATTEMPTS = 4;
 const MAX_TAGS = 6;
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
@@ -27,95 +56,6 @@ const STOP_WORDS = new Set([
   'your',
 ]);
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function decodeHtmlEntities(value: string): string {
-  return value
-    .replace(/&#x([0-9a-f]+);/gi, (match, hex) => {
-      const cp = Number.parseInt(hex, 16);
-      return cp <= 0x10ffff ? String.fromCodePoint(cp) : match;
-    })
-    .replace(/&#(\d+);/g, (match, dec) => {
-      const cp = Number(dec);
-      return cp <= 0x10ffff ? String.fromCodePoint(cp) : match;
-    })
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&(?:#39|apos);/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&');
-}
-
-function getMetaContent(html: string, key: string): string {
-  const keyPattern = new RegExp(
-    `(?:name|property)\\s*=\\s*["']${escapeRegExp(key)}["']`,
-    'i',
-  );
-  for (const tag of html.match(/<meta\s[^>]*>/gi) ?? []) {
-    if (!keyPattern.test(tag)) continue;
-    const content = tag.match(/content\s*=\s*["']([^"']*)["']/i)?.[1];
-    if (content) return decodeHtmlEntities(content).trim();
-  }
-  return '';
-}
-
-function getTitle(html: string): string {
-  const raw = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '';
-  return decodeHtmlEntities(raw).replace(/\s+/g, ' ').trim();
-}
-
-function resolveUrl(href: string, base: URL): string {
-  try {
-    const resolved = new URL(href, base);
-    return ['http:', 'https:'].includes(resolved.protocol) ? resolved.toString() : '';
-  } catch {
-    return '';
-  }
-}
-
-function extractLogoUrl(html: string, baseUrl: URL): string {
-  const ogImage = getMetaContent(html, 'og:image');
-  if (ogImage) return resolveUrl(ogImage, baseUrl);
-
-  let appleTouchIcon = '';
-  let bestFavicon = '';
-  let bestFaviconSize = -1;
-
-  for (const tag of html.match(/<link\s[^>]*>/gi) ?? []) {
-    const rel = (tag.match(/rel\s*=\s*["']([^"']*)["']/i)?.[1] ?? '').toLowerCase();
-    const href = tag.match(/href\s*=\s*["']([^"']*)["']/i)?.[1] ?? '';
-    if (!rel || !href) continue;
-
-    if (rel.includes('apple-touch-icon')) {
-      if (!appleTouchIcon) appleTouchIcon = href;
-    } else if (rel.split(/\s+/).includes('icon')) {
-      const size = Number(tag.match(/sizes\s*=\s*["'](\d+)x\d+["']/i)?.[1] ?? 0);
-      if (size > bestFaviconSize) {
-        bestFaviconSize = size;
-        bestFavicon = href;
-      }
-    }
-  }
-
-  const chosen = appleTouchIcon || bestFavicon;
-  return chosen ? resolveUrl(chosen, baseUrl) : '';
-}
-
-function extractName(html: string): string {
-  const siteName = getMetaContent(html, 'og:site_name');
-  if (siteName) return siteName;
-
-  const ogTitle = getMetaContent(html, 'og:title');
-  if (ogTitle) return ogTitle;
-
-  // <title> often appends taglines ("Acme — Ship faster"); keep the first segment.
-  const title = getTitle(html);
-  return title.split(/\s*[|•·–—]\s*/)[0]?.trim() ?? '';
-}
-
 function extractTags(html: string, title: string, description: string): string[] {
   const keywords = getMetaContent(html, 'keywords')
     .split(',')
@@ -123,8 +63,6 @@ function extractTags(html: string, title: string, description: string): string[]
     .filter(Boolean);
   if (keywords.length > 0) return keywords.slice(0, MAX_TAGS);
 
-  // Fall back to prominent words from the title/description — generic only,
-  // no category guessing.
   const words = `${title} ${description}`
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, ' ')
@@ -173,6 +111,100 @@ async function fetchHtml(rawUrl: string): Promise<{ html: string; finalUrl: URL 
   throw new Error('VALIDATION_SCAN_FETCH_FAILED');
 }
 
+/** Best-effort asset fetch: every failure returns null — enrichment must
+    never sink the scan itself. */
+async function fetchAsset(
+  url: string,
+  maxBytes: number,
+): Promise<{ buffer: Buffer; contentType: string } | null> {
+  try {
+    const target = await assertSafeOutboundUrl(url);
+    const res = await fetch(target.toString(), {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(ASSET_TIMEOUT_MS),
+      headers: { 'User-Agent': USER_AGENT },
+    });
+    if (!res.ok) return null;
+    const buffer = await readResponseBufferWithLimit(res, maxBytes);
+    return { buffer, contentType: res.headers.get('content-type') || '' };
+  } catch {
+    return null;
+  }
+}
+
+type ValidatedLogo = { url: string; raster: Buffer | null };
+
+/** Downloads candidates in ranked order and keeps the first real image:
+    SVG accepted as-is; rasters must decode and be at least icon-sized with
+    a plausible logo aspect ratio. */
+async function validateLogo(candidates: { url: string }[]): Promise<ValidatedLogo | null> {
+  for (const candidate of candidates.slice(0, MAX_LOGO_ATTEMPTS)) {
+    const asset = await fetchAsset(candidate.url, MAX_IMAGE_BYTES);
+    if (!asset) continue;
+
+    const isSvg =
+      asset.contentType.includes('svg') || /\.svg(\?|$)/i.test(candidate.url);
+    if (isSvg) {
+      // Guard against HTML error pages served at .svg URLs.
+      const head = asset.buffer.subarray(0, 4096).toString('utf8');
+      if (/<svg[\s>]/i.test(head)) return { url: candidate.url, raster: null };
+      continue;
+    }
+
+    if (!asset.contentType.startsWith('image/') && asset.contentType !== '') continue;
+    // Same guard for rasters: a body starting with "<" is an HTML page.
+    if (asset.buffer[0] === 0x3c) continue;
+    try {
+      const meta = await sharp(asset.buffer).metadata();
+      const w = meta.width ?? 0;
+      const h = meta.height ?? 0;
+      if (w < 32 || h < 32) continue;
+      const aspect = w / h;
+      if (aspect < 0.2 || aspect > 5) continue;
+      return { url: candidate.url, raster: asset.buffer };
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+/** Dominant non-neutral colors of the logo (coarse 32-step quantization). */
+async function quantizeLogoColors(buffer: Buffer): Promise<WeightedColor[]> {
+  try {
+    const { data, info } = await sharp(buffer)
+      .resize(48, 48, { fit: 'inside' })
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    const counts = new Map<string, { r: number; g: number; b: number; n: number }>();
+    for (let i = 0; i + 3 < data.length; i += info.channels) {
+      const [r, g, b, a] = [data[i], data[i + 1], data[i + 2], data[i + 3]];
+      if (a < 128) continue;
+      const key = `${r >> 5}-${g >> 5}-${b >> 5}`;
+      const bucket = counts.get(key) ?? { r: 0, g: 0, b: 0, n: 0 };
+      bucket.r += r; bucket.g += g; bucket.b += b; bucket.n += 1;
+      counts.set(key, bucket);
+    }
+
+    return [...counts.values()]
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 6)
+      .map((bucket) => ({
+        hex: rgbToHex(
+          Math.round(bucket.r / bucket.n),
+          Math.round(bucket.g / bucket.n),
+          Math.round(bucket.b / bucket.n),
+        ),
+        weight: 5 * (bucket.n / (48 * 48)) * 10,
+      }))
+      .filter((c) => !isNeutral(c.hex));
+  } catch {
+    return [];
+  }
+}
+
 export async function POST(req: Request) {
   try {
     await requireContext(req);
@@ -190,23 +222,70 @@ export async function POST(req: Request) {
       throw new Error(msg.startsWith('VALIDATION_') ? msg : 'VALIDATION_SCAN_FETCH_FAILED');
     }
 
-    const name = extractName(html);
-    const description =
-      getMetaContent(html, 'description') ||
-      getMetaContent(html, 'og:description') ||
-      getMetaContent(html, 'twitter:description');
+    const jsonLd = extractJsonLdBrand(html);
     const title = getTitle(html);
 
+    // Enrichment fetches run in parallel; each is individually best-effort
+    // and time-capped so the scan always answers within the UI's budget.
+    const manifestHref = findManifestHref(html, finalUrl);
+    const stylesheetHrefs = findStylesheetHrefs(html, finalUrl, MAX_STYLESHEETS);
+
+    const [manifestAsset, ...cssAssets] = await Promise.all([
+      manifestHref ? fetchAsset(manifestHref, MAX_MANIFEST_BYTES) : Promise.resolve(null),
+      ...stylesheetHrefs.map((href) => fetchAsset(href, MAX_CSS_BYTES)),
+    ]);
+
+    const manifest = manifestAsset
+      ? parseManifest(manifestAsset.buffer.toString('utf8'), finalUrl)
+      : null;
+
+    // Logo: ranked candidates (never og:image), validated by actually
+    // decoding the bytes. Manifest icons slot in after apple-touch-icon.
+    const candidates = collectLogoCandidates(html, finalUrl, jsonLd);
+    for (const icon of manifest?.icons.slice(0, 1) ?? []) {
+      if (!candidates.some((c) => c.url === icon.src)) {
+        candidates.push({ url: icon.src, source: 'manifest' });
+      }
+    }
+    // Last resort: the conventional favicon path, even when undeclared.
+    const rootFavicon = new URL('/favicon.ico', finalUrl.origin).toString();
+    if (!candidates.some((c) => c.url === rootFavicon)) {
+      candidates.push({ url: rootFavicon, source: 'root-favicon' });
+    }
+    const logo = await validateLogo(candidates);
+
+    // Colors: named CSS brand properties and literal frequency, the
+    // manifest/meta theme colors, and the logo's own dominant colors.
+    const colorCandidates: WeightedColor[] = [];
+    const css =
+      extractInlineStyles(html) +
+      '\n' +
+      cssAssets
+        .filter((asset): asset is NonNullable<typeof asset> => asset !== null)
+        .map((asset) => asset.buffer.toString('utf8'))
+        .join('\n');
+    colorCandidates.push(...extractCssColors(css));
+
+    const metaTheme = normalizeColor(getMetaContent(html, 'theme-color'));
+    if (metaTheme && !isNeutral(metaTheme)) colorCandidates.push({ hex: metaTheme, weight: 6 });
+    if (manifest?.themeColor && !isNeutral(manifest.themeColor)) {
+      colorCandidates.push({ hex: manifest.themeColor, weight: 8 });
+    }
+    if (logo?.raster) colorCandidates.push(...(await quantizeLogoColors(logo.raster)));
+
+    const palette = pickPalette(colorCandidates);
+    const description = pickDescription(html, jsonLd);
+
     return apiOk({
-      name,
+      name: pickName(html, jsonLd) || manifest?.name || '',
       description,
       category: '',
       pricingTier: '',
       tags: extractTags(html, title, description),
-      primaryColor: getMetaContent(html, 'theme-color'),
-      secondaryColor: '',
-      accentColor: '',
-      logoUrl: extractLogoUrl(html, finalUrl),
+      primaryColor: palette.primaryColor,
+      secondaryColor: palette.secondaryColor,
+      accentColor: palette.accentColor,
+      logoUrl: logo?.url ?? '',
       targetAudience: '',
       tone: '',
     });

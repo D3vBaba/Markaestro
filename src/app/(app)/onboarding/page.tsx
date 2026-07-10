@@ -1356,7 +1356,7 @@ export default function OnboardingPage() {
                         </Button>
                       </div>
                       <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                        Our AI reads your site and fills in name, description, brand colours, and more.
+                        We read your site and fill in the name, description, logo, and brand colours.
                       </p>
                     </div>
 

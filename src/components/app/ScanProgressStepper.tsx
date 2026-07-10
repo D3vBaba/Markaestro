@@ -16,7 +16,7 @@ const STEPS: Step[] = [
   { phase: "connecting", label: "Connect to site", activeLabel: "Connecting to site…", icon: Globe },
   { phase: "reading", label: "Read website content", activeLabel: "Reading website content…", icon: FileSearch },
   { phase: "extracting", label: "Extract brand colours", activeLabel: "Extracting brand colours & logo…", icon: Palette },
-  { phase: "analyzing", label: "Analyse with AI", activeLabel: "Analysing with AI…", icon: Sparkles },
+  { phase: "analyzing", label: "Analyse brand signals", activeLabel: "Analysing brand signals…", icon: Sparkles },
   { phase: "finalizing", label: "Build brand profile", activeLabel: "Building your brand profile…", icon: PackageCheck },
 ];
 
