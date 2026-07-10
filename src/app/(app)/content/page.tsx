@@ -102,7 +102,11 @@ function ProductContextBar({
 
 export default function PostsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [activeTab, setActiveTab] = useState("create");
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === "undefined") return "create";
+    const requested = new URLSearchParams(window.location.search).get("tab");
+    return tabs.some((tab) => tab.value === requested) ? requested! : "create";
+  });
   const [products, setProducts] = useState<Product[]>([]);
   const [productId, setProductId] = useState("");
 
