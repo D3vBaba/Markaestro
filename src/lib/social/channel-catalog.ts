@@ -29,7 +29,7 @@ export const socialChannelCatalog = [
     maxMediaItems: 10,
     supportsDirectPublish: true,
     supportsScheduling: true,
-    setupHint: 'Connect Meta and select a Facebook page in product settings.',
+    setupHint: 'Connect Meta and select a Facebook page in brand settings.',
   },
   {
     channel: 'instagram',
@@ -44,7 +44,7 @@ export const socialChannelCatalog = [
     maxMediaItems: 10,
     supportsDirectPublish: true,
     supportsScheduling: true,
-    setupHint: 'Connect Instagram in product settings.',
+    setupHint: 'Connect Instagram in brand settings.',
   },
   {
     channel: 'tiktok',
@@ -57,7 +57,7 @@ export const socialChannelCatalog = [
     maxMediaItems: 35,
     supportsDirectPublish: false,
     supportsScheduling: true,
-    setupHint: 'Connect TikTok in product settings.',
+    setupHint: 'Connect TikTok in brand settings.',
   },
   {
     channel: 'threads',
@@ -70,7 +70,7 @@ export const socialChannelCatalog = [
     maxMediaItems: 10,
     supportsDirectPublish: true,
     supportsScheduling: true,
-    setupHint: 'Connect Threads in product settings.',
+    setupHint: 'Connect Threads in brand settings.',
   },
   {
     channel: 'pinterest',
@@ -83,7 +83,7 @@ export const socialChannelCatalog = [
     maxMediaItems: 5,
     supportsDirectPublish: true,
     supportsScheduling: true,
-    setupHint: 'Connect Pinterest and select a board in product settings.',
+    setupHint: 'Connect Pinterest and select a board in brand settings.',
   },
   {
     channel: 'linkedin',
@@ -96,7 +96,7 @@ export const socialChannelCatalog = [
     maxMediaItems: 20,
     supportsDirectPublish: true,
     supportsScheduling: true,
-    setupHint: 'Connect LinkedIn and select a Profile or Page in product settings.',
+    setupHint: 'Connect LinkedIn and select a Profile or Page in brand settings.',
   },
 ] as const satisfies readonly ManagedSocialChannel[];
 

@@ -270,9 +270,9 @@ export default function AnalyticsPage() {
               background: "var(--mk-paper)",
               color: productId ? "var(--mk-ink)" : "var(--mk-ink-60)",
             }}
-            title="Filter by product"
+            title="Filter by brand"
           >
-            <option value="">All products</option>
+            <option value="">All brands</option>
             {products.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}

@@ -190,12 +190,12 @@ export default function ProductsPage() {
         next.delete(id);
         return next;
       });
-      toast.error("Failed to delete product");
+      toast.error("Failed to delete brand");
     };
     try {
       const res = await apiDelete(`/api/products/${id}`);
       if (res.ok) {
-        toast.success("Product deleted");
+        toast.success("Brand deleted");
         // Refetch; the override keeps the card hidden until fresh data
         // (without the product) arrives, so it never flashes back.
         invalidateQueries("/api/products");
@@ -228,11 +228,11 @@ export default function ProductsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Products"
-        subtitle="Register and track the applications you market."
+        title="Brands"
+        subtitle="Everything you market — products, businesses, clients, or yourself."
         action={
           <Button onClick={() => setCreateOpen(true)} className="rounded-lg h-9 text-[13px] gap-1.5">
-            <Plus className="h-3.5 w-3.5" /> Add product
+            <Plus className="h-3.5 w-3.5" /> Add brand
           </Button>
         }
       />
@@ -341,9 +341,9 @@ export default function ProductsPage() {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        entity="product"
+        entity="brand"
         name={deleteTarget?.name}
-        warning="All brand voice settings for this product will also be removed."
+        warning="All brand voice settings for this brand will also be removed."
         onConfirm={confirmDelete}
       />
     </AppShell>
@@ -358,8 +358,8 @@ function EmptyState({
   filter: FilterTab;
 }) {
   const labels = {
-    all: "No products yet",
-    active: "No active products",
+    all: "No brands yet",
+    active: "No active brands",
     development: "Nothing in development",
   } as const;
   return (
@@ -386,10 +386,10 @@ function EmptyState({
         className="mt-1 text-[13px] max-w-sm mx-auto"
         style={{ color: "var(--mk-ink-60)" }}
       >
-        Register your first application to start crafting brand-accurate marketing.
+        Add your first brand to start crafting on-voice marketing.
       </p>
       <Button onClick={onCreate} className="rounded-lg mt-4 h-9 text-[13px] gap-1.5">
-        <Plus className="h-3.5 w-3.5" /> Add product
+        <Plus className="h-3.5 w-3.5" /> Add brand
       </Button>
     </div>
   );

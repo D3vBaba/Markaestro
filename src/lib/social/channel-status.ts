@@ -174,7 +174,7 @@ function buildStatus(
     return {
       ...config,
       state: 'disconnected',
-      reason: refreshError || `${config.label} connection is ${match.connection.status}. Reconnect it in product settings.`,
+      reason: refreshError || `${config.label} connection is ${match.connection.status}. Reconnect it in brand settings.`,
       provider: match.connection.provider,
       connectionScope: match.scope,
       destinationLabel: getDestinationLabel(match.connection, config.channel),
@@ -225,7 +225,7 @@ export async function getUnavailableSocialChannels(
     if (status?.state === 'ready') return [];
     return [{
       channel,
-      reason: status?.reason || `${channel} is not connected for this product.`,
+      reason: status?.reason || `${channel} is not connected for this brand.`,
     }];
   });
 }

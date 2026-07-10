@@ -36,7 +36,7 @@ const contactChannels = [
 const faqs = [
   {
     q: "How do I connect my social media accounts?",
-    a: "Open a product in your dashboard and connect the channels you publish to (Meta for Facebook and Instagram, TikTok, Threads, or Pinterest). Each connection uses OAuth and usually takes under a minute.",
+    a: "Open a brand in your dashboard and connect the channels you publish to (Meta for Facebook and Instagram, TikTok, Threads, or Pinterest). Each connection uses OAuth and usually takes under a minute.",
   },
   {
     q: "Is there a free trial?",
@@ -48,7 +48,7 @@ const faqs = [
   },
   {
     q: "Can I use Markaestro for multiple brands or clients?",
-    a: "Absolutely. Workspaces let you isolate brands, clients, or business units. Each workspace has its own products, brand assets, channel connections, and team members.",
+    a: "Absolutely. Workspaces let you isolate brands, clients, or business units. Each workspace has its own brands, assets, channel connections, and team members.",
   },
   {
     q: "How is my data protected?",

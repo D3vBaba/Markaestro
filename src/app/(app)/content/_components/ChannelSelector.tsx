@@ -150,7 +150,7 @@ export default function ChannelSelector({
   }
 
   function channelReason(ch: string) {
-    return managedChannels.find((item) => item.channel === ch)?.reason || "Connect this channel in product settings.";
+    return managedChannels.find((item) => item.channel === ch)?.reason || "Connect this channel in brand settings.";
   }
 
   const selected = useMemo(

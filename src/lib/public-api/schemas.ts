@@ -45,18 +45,27 @@ export const setApiClientArchivedSchema = z.object({
   archived: z.boolean(),
 });
 
-export const createPublicPostSchema = z.object({
-  channel: z.enum(socialChannels),
-  caption: z.string().trim().max(4000).default(''),
-  mediaAssetIds: z.array(z.string().trim().min(1)).max(35).default([]),
-  scheduledAt: z.string().datetime().nullable().optional(),
-  productId: z.string().trim().max(2000).optional(),
-  destinationId: z.string().trim().max(2000).optional(),
-  // Omitted = channel default: manual_reminder for facebook/instagram/tiktok,
-  // direct_publish everywhere else. Clients opt into API publishing per post.
-  deliveryMode: z.enum(publicDeliveryModes).optional(),
-  settings: postSettingsSchema.optional(),
-});
+export const createPublicPostSchema = z
+  .object({
+    channel: z.enum(socialChannels),
+    caption: z.string().trim().max(4000).default(''),
+    mediaAssetIds: z.array(z.string().trim().min(1)).max(35).default([]),
+    scheduledAt: z.string().datetime().nullable().optional(),
+    productId: z.string().trim().max(2000).optional(),
+    // Accepted alias for `productId`. The dashboard calls the entity a
+    // Brand; the wire format keeps `productId` for backwards compatibility.
+    // When both are sent, `productId` wins.
+    brandId: z.string().trim().max(2000).optional(),
+    destinationId: z.string().trim().max(2000).optional(),
+    // Omitted = channel default: manual_reminder for facebook/instagram/tiktok,
+    // direct_publish everywhere else. Clients opt into API publishing per post.
+    deliveryMode: z.enum(publicDeliveryModes).optional(),
+    settings: postSettingsSchema.optional(),
+  })
+  .transform(({ brandId, ...rest }) => ({
+    ...rest,
+    productId: rest.productId ?? brandId,
+  }));
 
 /** Body for batch create: `{ posts: [...] }`. */
 export const createPublicPostsBatchSchema = z.object({

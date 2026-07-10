@@ -40,9 +40,22 @@ type QuizQuestion = {
 
 const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
-    id: "role",
+    id: "marketing",
     type: "single",
     eyebrow: "Let's build your engine",
+    title: "What are you marketing?",
+    subtitle: "Markaestro adapts to whatever you're growing.",
+    options: [
+      { id: "product", label: "An app or product", desc: "Software, e-commerce, or something you've built" },
+      { id: "business", label: "A business", desc: "A company, shop, or local service" },
+      { id: "personal", label: "Myself", desc: "A personal brand or audience that's all you" },
+      { id: "clients", label: "Clients", desc: "Brands you manage for other people" },
+    ],
+  },
+  {
+    id: "role",
+    type: "single",
+    eyebrow: "Your seat",
     title: "What's your role?",
     subtitle: "We'll tailor everything to how you actually work.",
     options: [
@@ -205,6 +218,52 @@ function challengeCopy(answers: Answers) {
   return CHALLENGE_COPY[key] ?? CHALLENGE_COPY.time;
 }
 
+// ─── "What are you marketing?" → tailored brand step ─────────────────────────
+// The add-a-brand screen speaks the user's language: an app founder scans a
+// product site, a personal brand may have no website at all.
+
+const MARKETING_COPY: Record<string, { eyebrow: string; title: string; sub: string }> = {
+  product: {
+    eyebrow: "Your product",
+    title: "Add the product you're marketing",
+    sub: "Scan your website to auto-fill the details, add it manually, or skip this for now — you can always do it later.",
+  },
+  business: {
+    eyebrow: "Your business",
+    title: "Add the business you're marketing",
+    sub: "Scan your website to auto-fill the details, add it manually, or skip this for now — you can always do it later.",
+  },
+  personal: {
+    eyebrow: "Your brand",
+    title: "Set up your personal brand",
+    sub: "Have a website or portfolio? Scan it to auto-fill. No site? Enter your details manually — it takes a minute.",
+  },
+  clients: {
+    eyebrow: "Your first client",
+    title: "Add your first client's brand",
+    sub: "Start with one client — scan their website to auto-fill, or enter the details manually. You can add more brands anytime.",
+  },
+};
+
+const MARKETING_FALLBACK = {
+  eyebrow: "Your brand",
+  title: "Add the brand you're marketing",
+  sub: "Scan your website to auto-fill the details, add it manually, or skip this for now — you can always do it later.",
+};
+
+function marketingCopy(answers: Answers) {
+  return MARKETING_COPY[(answers.marketing as string) || ""] ?? MARKETING_FALLBACK;
+}
+
+// Sensible default category per marketing type — a starting point the user
+// can change in the manual form or later in the brand's settings.
+const MARKETING_DEFAULT_CATEGORY: Record<string, string> = {
+  product: "saas",
+  business: "local-business",
+  personal: "personal-brand",
+  clients: "agency",
+};
+
 const SOCIAL_PROVIDERS = [
   {
     id: "meta",
@@ -215,19 +274,17 @@ const SOCIAL_PROVIDERS = [
 ];
 
 // ─── Step indices ─────────────────────────────────────────────────────────────
-// 0..9   = the ten quiz questions
-// 10     = register (skipped when already signed in)
-// 11     = add an app (scan / manual / skip)
-// 12     = connect socials
-// 13     = generating (transient loader)
-// 14     = paywall
+// 0..QUIZ_COUNT-1 = the quiz questions
+// then: register (skipped when already signed in) → add a brand
+// (scan / manual / skip) → connect socials → generating (transient
+// loader) → paywall
 
 const QUIZ_COUNT = QUIZ_QUESTIONS.length;
-const REGISTER_STEP = QUIZ_COUNT; // 10
-const PRODUCT_STEP = QUIZ_COUNT + 1; // 11
-const SOCIALS_STEP = QUIZ_COUNT + 2; // 12
-const GENERATING_STEP = QUIZ_COUNT + 3; // 13
-const PAYWALL_STEP = QUIZ_COUNT + 4; // 14
+const REGISTER_STEP = QUIZ_COUNT;
+const PRODUCT_STEP = QUIZ_COUNT + 1;
+const SOCIALS_STEP = QUIZ_COUNT + 2;
+const GENERATING_STEP = QUIZ_COUNT + 3;
+const PAYWALL_STEP = QUIZ_COUNT + 4;
 
 // Ordered list of user-facing screens (the transient generating loader excluded)
 // used to drive the progress bar.
@@ -252,7 +309,9 @@ const HOURS_SAVED: Record<string, number> = { lt2: 3, "2to5": 6, "5to10": 9, gt1
 
 // ─── Persisted state ──────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "onboarding_state_v3";
+// v4: the "What are you marketing?" question shifted every step index, so
+// stale v3 sessions must not resume onto the wrong screen.
+const STORAGE_KEY = "onboarding_state_v4";
 
 type Answers = Record<string, string | string[]>;
 
@@ -693,6 +752,13 @@ export default function OnboardingPage() {
 
   function answerSingle(questionId: string, optionId: string, nextStep: number) {
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
+    if (questionId === "marketing") {
+      // Seed the brand step with a fitting default category (still editable
+      // in the manual form), and lead personal brands with the manual path —
+      // they often have no website to scan.
+      setProductCategory(MARKETING_DEFAULT_CATEGORY[optionId] ?? "other");
+      if (optionId === "personal") setProductMode("manual");
+    }
     setTimeout(() => setStep(nextStep), 200);
   }
 
@@ -747,7 +813,7 @@ export default function OnboardingPage() {
     const res = await apiFetch<{ id: string }>("/api/products", {
       method: "POST",
       body: JSON.stringify({
-        name: productName.trim() || "My product",
+        name: productName.trim() || "My brand",
         description: productDesc.trim(),
         url: normalizedUrl,
         categories: [productCategory || "saas"],
@@ -792,7 +858,7 @@ export default function OnboardingPage() {
     try {
       await ensureOnboardingProduct();
     } catch {
-      toast.error("Couldn't save your product — you can add it later from the dashboard.");
+      toast.error("Couldn't save your brand — you can add it later from the dashboard.");
     } finally {
       setBusy(false);
       setStep(SOCIALS_STEP);
@@ -1235,13 +1301,12 @@ export default function OnboardingPage() {
                 transition={{ duration: 0.32, ease }}
               >
                 <div className="mb-8">
-                  <p className="mk-eyebrow mb-4">Your product</p>
+                  <p className="mk-eyebrow mb-4">{marketingCopy(answers).eyebrow}</p>
                   <h2 className="text-[28px] sm:text-[34px] font-semibold leading-[1.1] tracking-[-0.03em]">
-                    Add the app you&apos;re marketing
+                    {marketingCopy(answers).title}
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                    Scan your website to auto-fill the details, add it manually, or
-                    skip this for now — you can always do it later.
+                    {marketingCopy(answers).sub}
                   </p>
                 </div>
 
@@ -1274,7 +1339,7 @@ export default function OnboardingPage() {
                       </label>
                       <div className="flex gap-2.5">
                         <Input
-                          placeholder="yourproduct.com"
+                          placeholder="yourbrand.com"
                           className="h-12 rounded-lg text-base flex-1"
                           style={{ fontSize: "16px" }}
                           value={productUrl}
@@ -1305,7 +1370,7 @@ export default function OnboardingPage() {
                       >
                         <div>
                           <label className="text-sm font-medium block mb-2">
-                            Product name
+                            Brand name
                             {autoFilled.name && <AutoDetectedBadge />}
                           </label>
                           <Input
@@ -1376,7 +1441,7 @@ export default function OnboardingPage() {
                 ) : (
                   <div className="rounded-xl border p-5 sm:p-6 space-y-4">
                     <div>
-                      <label className="text-sm font-medium block mb-2">Product name</label>
+                      <label className="text-sm font-medium block mb-2">Brand name</label>
                       <Input
                         className="h-12 rounded-lg"
                         style={{ fontSize: "16px" }}
@@ -1392,7 +1457,7 @@ export default function OnboardingPage() {
                       <textarea
                         className="w-full rounded-lg border bg-background px-3 py-3 text-base min-h-[108px] resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 leading-relaxed"
                         style={{ fontSize: "16px" }}
-                        placeholder="Describe your product and who it's for..."
+                        placeholder="Describe this brand and who it's for..."
                         value={productDesc}
                         onChange={(e) => setProductDesc(e.target.value)}
                       />
@@ -1508,7 +1573,7 @@ export default function OnboardingPage() {
                   })}
 
                   <p className="text-sm text-muted-foreground px-1 pt-1">
-                    TikTok, Threads, and Pinterest can be connected per-product from your dashboard.
+                    TikTok, Threads, and Pinterest can be connected per-brand from your dashboard.
                   </p>
                 </div>
 

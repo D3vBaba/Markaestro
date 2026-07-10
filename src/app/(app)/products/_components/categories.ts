@@ -1,6 +1,6 @@
 import type { ProductCategory } from "@/lib/schemas";
 
-// Display labels for every product category. Keys must stay in sync with
+// Display labels for every brand category. Keys must stay in sync with
 // `productCategories` in src/lib/schemas.ts.
 export const PRODUCT_CATEGORY_LABELS: Record<ProductCategory, string> = {
   saas: "SaaS",
@@ -22,6 +22,15 @@ export const PRODUCT_CATEGORY_LABELS: Record<ProductCategory, string> = {
   creator: "Creator",
   hardware: "Hardware",
   nonprofit: "Nonprofit",
+  "local-business": "Local Business",
+  "personal-brand": "Personal Brand",
+  "fashion-beauty": "Fashion & Beauty",
+  "food-restaurant": "Food & Restaurant",
+  "music-entertainment": "Music & Entertainment",
+  "real-estate": "Real Estate",
+  "coaching-services": "Coaching & Services",
+  fitness: "Fitness",
+  "travel-hospitality": "Travel & Hospitality",
   other: "Other",
 };
 
@@ -31,6 +40,8 @@ const CATEGORY_PALETTE = [
   "#14B8A6", "#8B5CF6", "#EF4444", "#10B981", "#3B82F6",
   "#F97316", "#A855F7", "#06B6D4", "#84CC16", "#E11D48",
   "#0D9488", "#7C3AED", "#DB2777", "#65A30D", "#475569",
+  "#D97706", "#BE185D", "#0284C7", "#4D7C0F", "#9333EA",
+  "#B91C1C", "#0F766E", "#C2410C", "#1D4ED8", "#57534E",
 ];
 
 export type CategoryOption = { value: ProductCategory; label: string; color: string };

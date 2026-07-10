@@ -118,7 +118,7 @@ function InstagramMockup({ post }: { post: Post }) {
             </div>
           </div>
           <div>
-            <p className="text-[12px] font-semibold leading-none text-zinc-900 dark:text-white">yourproduct</p>
+            <p className="text-[12px] font-semibold leading-none text-zinc-900 dark:text-white">yourbrand</p>
             <p className="text-[10px] text-zinc-400 mt-0.5">Sponsored</p>
           </div>
         </div>
@@ -145,7 +145,7 @@ function InstagramMockup({ post }: { post: Post }) {
           <span>Save</span>
         </div>
         <p className="text-[12px] text-zinc-900 dark:text-white leading-snug">
-          <span className="font-semibold">yourproduct </span>
+          <span className="font-semibold">yourbrand </span>
           {post.content.length > 120 ? post.content.slice(0, 120) + "…" : post.content}
         </p>
       </div>
@@ -163,7 +163,7 @@ function FacebookMockup({ post }: { post: Post }) {
             <span className="text-white font-black text-xl leading-none">f</span>
           </div>
           <div>
-            <p className="text-[13px] font-semibold leading-none text-zinc-900 dark:text-[#e4e6ea]">Your Product</p>
+            <p className="text-[13px] font-semibold leading-none text-zinc-900 dark:text-[#e4e6ea]">Your Brand</p>
             <p className="text-[10px] text-zinc-500 mt-0.5">Just now · 🌐</p>
           </div>
         </div>
@@ -197,7 +197,7 @@ function TikTokMockup({ post }: { post: Post }) {
         )}
         <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0.3) 100%)" }} />
         <div className="absolute bottom-0 left-0 right-7 p-2.5">
-          <p className="text-[9px] font-bold text-white mb-0.5">@yourproduct</p>
+          <p className="text-[9px] font-bold text-white mb-0.5">@yourbrand</p>
           <p className="text-[8px] text-white/80 leading-tight line-clamp-3">{post.content}</p>
         </div>
       </div>

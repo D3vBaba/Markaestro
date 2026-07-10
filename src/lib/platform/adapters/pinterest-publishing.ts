@@ -135,7 +135,7 @@ async function publishToPinterest(
 ): Promise<PublishResult> {
   const boardId = getBoardId(connection);
   if (!boardId) {
-    return { success: false, error: 'Pinterest board not selected. Pick a board from product settings.' };
+    return { success: false, error: 'Pinterest board not selected. Pick a board from brand settings.' };
   }
   if (mediaUrls.length === 0) {
     return { success: false, error: 'Pinterest requires at least one image or video.' };
@@ -420,7 +420,7 @@ export const pinterestPublishingAdapter: PlatformAdapter = {
   validateConnection(connection, _channel: SocialChannel): string | null {
     void _channel;
     if (!getBoardId(connection)) {
-      return 'Pinterest board not selected. Pick a board from product settings.';
+      return 'Pinterest board not selected. Pick a board from brand settings.';
     }
     return null;
   },

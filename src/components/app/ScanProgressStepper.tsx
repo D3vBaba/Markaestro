@@ -17,7 +17,7 @@ const STEPS: Step[] = [
   { phase: "reading", label: "Read website content", activeLabel: "Reading website content…", icon: FileSearch },
   { phase: "extracting", label: "Extract brand colours", activeLabel: "Extracting brand colours & logo…", icon: Palette },
   { phase: "analyzing", label: "Analyse with AI", activeLabel: "Analysing with AI…", icon: Sparkles },
-  { phase: "finalizing", label: "Build product profile", activeLabel: "Building your product profile…", icon: PackageCheck },
+  { phase: "finalizing", label: "Build brand profile", activeLabel: "Building your brand profile…", icon: PackageCheck },
 ];
 
 const PHASE_ORDER: Record<string, number> = {
@@ -104,7 +104,7 @@ export default function ScanProgressStepper({
               ? "Scan complete — review and confirm below"
               : isError
                 ? "Scan failed — please fill in manually"
-                : "Researching your product…"}
+                : "Researching your brand…"}
           </p>
           {url && !isDone && !isError && (
             <p className="text-xs text-muted-foreground truncate mt-0.5">{url}</p>

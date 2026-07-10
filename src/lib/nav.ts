@@ -19,7 +19,7 @@ export const navigationGroups: NavGroup[] = [
     {
         group: "Marketing",
         items: [
-            { name: "Products", href: "/products" },
+            { name: "Brands", href: "/products" },
             { name: "Posts", href: "/content" },
             { name: "Calendar", href: "/calendar" },
         ],

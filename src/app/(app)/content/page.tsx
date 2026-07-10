@@ -56,7 +56,7 @@ function ProductContextBar({
         className="font-mono text-[9.5px] uppercase shrink-0"
         style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
       >
-        Product
+        Brand
       </span>
 
       {editing ? (
@@ -83,7 +83,7 @@ function ProductContextBar({
             className="flex-1 text-[13px] font-medium truncate min-w-0"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
           >
-            {selected?.name ?? "No product selected"}
+            {selected?.name ?? "No brand selected"}
           </span>
           <button
             onClick={() => setEditing(true)}

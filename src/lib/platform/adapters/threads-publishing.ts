@@ -121,7 +121,7 @@ async function publishToThreads(
 ): Promise<PublishResult> {
   const userId = getThreadsUserId(connection);
   if (!userId) {
-    return { success: false, error: 'Threads user ID missing. Reconnect Threads from product settings.' };
+    return { success: false, error: 'Threads user ID missing. Reconnect Threads from brand settings.' };
   }
   const accessToken = getAccessToken(connection);
 
@@ -297,7 +297,7 @@ async function listThreadsPosts(
 ): Promise<ListPostsResult> {
   const userId = getThreadsUserId(connection);
   if (!userId) {
-    return { ok: false, error: 'Threads user ID missing. Reconnect Threads from product settings.', reason: 'unsupported' };
+    return { ok: false, error: 'Threads user ID missing. Reconnect Threads from brand settings.', reason: 'unsupported' };
   }
   const accessToken = getAccessToken(connection);
   const limit = Math.min(Math.max(1, Math.floor(input.limit || DEFAULT_LIST_LIMIT)), MAX_LIST_LIMIT);
@@ -442,7 +442,7 @@ export const threadsPublishingAdapter: PlatformAdapter = {
   validateConnection(connection, _channel: SocialChannel): string | null {
     void _channel;
     if (!getThreadsUserId(connection)) {
-      return 'Threads account not linked. Reconnect Threads from product settings.';
+      return 'Threads account not linked. Reconnect Threads from brand settings.';
     }
     return null;
   },

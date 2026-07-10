@@ -116,7 +116,7 @@ export default function ProductCreateWizard({
       });
       if (!res.ok) {
         const err = res.data as { error?: string; issues?: { message: string }[] };
-        toast.error(err.issues?.[0]?.message || err.error || "Failed to create product");
+        toast.error(err.issues?.[0]?.message || err.error || "Failed to create brand");
         return;
       }
       const created = res.data;
@@ -140,12 +140,12 @@ export default function ProductCreateWizard({
           },
         }).catch(() => {});
       }
-      toast.success("Product added");
+      toast.success("Brand added");
       reset();
       onOpenChange(false);
       onCreated(created.id);
     } catch {
-      toast.error("Failed to create product");
+      toast.error("Failed to create brand");
     } finally {
       setSaving(false);
     }
@@ -172,19 +172,19 @@ export default function ProductCreateWizard({
           className="px-4 sm:px-6 pt-6 pb-4 border-b"
           style={{ borderColor: "var(--mk-rule)" }}
         >
-          <p className="mk-eyebrow">New product</p>
+          <p className="mk-eyebrow">New brand</p>
           <SheetTitle
             className="text-[22px] font-semibold m-0"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
           >
-            Add product
+            Add brand
           </SheetTitle>
           <SheetDescription
             className="text-[13px]"
             style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
           >
             {mode === "start" && "Start by scanning your website, or enter details manually."}
-            {mode === "scan" && "Researching your product…"}
+            {mode === "scan" && "Researching your brand…"}
             {mode === "manual" && "Fill out the essentials — you can add more later."}
             {mode === "review" && "Review what we found, tweak anything, then save."}
           </SheetDescription>
@@ -238,7 +238,7 @@ export default function ProductCreateWizard({
                       <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                       <Input
                         className="pl-9"
-                        placeholder="https://yourproduct.com"
+                        placeholder="https://yourbrand.com"
                         value={scanUrl}
                         onChange={(e) => setScanUrl(e.target.value)}
                         onKeyDown={(e) => {
@@ -404,7 +404,7 @@ export default function ProductCreateWizard({
                   </div>
                 )}
 
-                <FormField label="Product name">
+                <FormField label="Brand name">
                   <Input
                     placeholder="DripCheckr"
                     value={name}
@@ -415,7 +415,7 @@ export default function ProductCreateWizard({
                 <FormField label="Description">
                   <Textarea
                     rows={3}
-                    placeholder="What does your product do?"
+                    placeholder="What is this brand about?"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
@@ -425,7 +425,7 @@ export default function ProductCreateWizard({
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                     <Input
                       className="pl-9"
-                      placeholder="https://yourproduct.com"
+                      placeholder="https://yourbrand.com"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
                     />
@@ -487,7 +487,7 @@ export default function ProductCreateWizard({
                       </FormField>
                     )}
                     <p className="text-[10px] text-muted-foreground/70">
-                      You can fine-tune all of this after creating the product.
+                      You can fine-tune all of this after creating the brand.
                     </p>
                   </div>
                 )}
@@ -519,7 +519,7 @@ export default function ProductCreateWizard({
               className="rounded-lg h-10 sm:h-9 text-[13px]"
             >
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
-              {saving ? "Creating…" : "Create product"}
+              {saving ? "Creating…" : "Create brand"}
             </Button>
           </div>
         )}

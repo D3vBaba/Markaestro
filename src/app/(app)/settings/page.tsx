@@ -130,7 +130,7 @@ type WebhookEndpointInfo = {
 };
 
 const API_SCOPE_OPTIONS = [
-  { id: 'products.read', label: 'Read products' },
+  { id: 'products.read', label: 'Read brands' },
   { id: 'media.write', label: 'Upload media' },
   { id: 'posts.read', label: 'Read posts' },
   { id: 'posts.write', label: 'Create posts' },
@@ -627,7 +627,7 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
 
           {/* Products */}
           <div className="flex items-center justify-between pt-1">
-            <p className="text-sm font-medium">Products registered</p>
+            <p className="text-sm font-medium">Brands registered</p>
             <p className="text-sm text-muted-foreground tabular-nums">
               {usage?.products.current ?? 0}
             </p>
@@ -940,11 +940,11 @@ function IntegrationsTab() {
     return (
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>No products yet</CardTitle>
-          <CardDescription>Create a product, then link its social channels here.</CardDescription>
+          <CardTitle>No brands yet</CardTitle>
+          <CardDescription>Create a brand, then link its social channels here.</CardDescription>
         </CardHeader>
         <CardContent>
-          <a href="/products"><Button>Create a product</Button></a>
+          <a href="/products"><Button>Create a brand</Button></a>
         </CardContent>
       </Card>
     );
@@ -955,7 +955,7 @@ function IntegrationsTab() {
       <ManualPostingCard />
 
       <p className="text-sm text-muted-foreground">
-        Link each product to its own social channels. Each channel publishes only to itself — Meta covers Facebook
+        Link each brand to its own social channels. Each channel publishes only to itself — Meta covers Facebook
         Pages, and Instagram uses the standalone Instagram connection.
       </p>
 
@@ -1024,7 +1024,7 @@ function IntegrationsTab() {
           <DialogHeader>
             <DialogTitle>Choose a Facebook Page</DialogTitle>
             <DialogDescription>
-              Pick the Facebook Page this product posts to.
+              Pick the Facebook Page this brand posts to.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-[50vh] overflow-y-auto">
@@ -1064,7 +1064,7 @@ function IntegrationsTab() {
         entity="connection"
         name={disconnectTarget?.label}
         confirmLabel="Unlink"
-        warning="This unlinks the channel from this product only. Other products keep their own connections. You can re-link any time."
+        warning="This unlinks the channel from this brand only. Other brands keep their own connections. You can re-link any time."
         onConfirm={confirmDisconnect}
       />
     </div>
@@ -1869,7 +1869,7 @@ function ApiAccessTab() {
                               <p className="text-xs text-muted-foreground">{client.keyPrefix}…</p>
                               {client.productId && (
                                 <Badge variant="outline" className="font-normal text-[10px]">
-                                  Product: {productNameById(client.productId)}
+                                  Brand: {productNameById(client.productId)}
                                 </Badge>
                               )}
                               <ApiTrendBars points={client.trend} />
@@ -2129,22 +2129,22 @@ function ApiAccessTab() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="api-client-product">Product</Label>
+              <Label htmlFor="api-client-product">Brand</Label>
               <Select
                 id="api-client-product"
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
                 disabled={products.length === 0}
               >
-                <option value="" disabled>Select a product…</option>
+                <option value="" disabled>Select a brand…</option>
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </Select>
               <p className="text-xs text-muted-foreground">
                 {products.length === 0
-                  ? 'Create a product first — every API key is scoped to one product.'
-                  : 'Required. The key only targets this product; requests for any other product are rejected.'}
+                  ? 'Create a brand first — every API key is scoped to one brand.'
+                  : 'Required. The key only targets this brand; requests for any other brand are rejected.'}
               </p>
             </div>
             <div className="space-y-3">

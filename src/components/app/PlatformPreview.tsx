@@ -40,7 +40,7 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
             </div>
           </div>
           <div>
-            <p className="text-[12px] font-semibold text-zinc-900 dark:text-white leading-none">yourproduct</p>
+            <p className="text-[12px] font-semibold text-zinc-900 dark:text-white leading-none">yourbrand</p>
             <p className="text-[10px] text-zinc-400 mt-0.5">Sponsored</p>
           </div>
         </div>
@@ -73,7 +73,7 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
         </div>
         <p className="text-[12px] font-semibold text-zinc-900 dark:text-white">0 likes</p>
         <p className="text-[12px] text-zinc-900 dark:text-white leading-snug">
-          <span className="font-semibold">yourproduct </span>
+          <span className="font-semibold">yourbrand </span>
           {content.length > 120 ? content.slice(0, 120) + "… more" : content}
         </p>
         <p className="text-[10px] uppercase tracking-wide text-zinc-400">just now</p>
@@ -94,7 +94,7 @@ function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
             <span className="text-white font-black text-xl leading-none">f</span>
           </div>
           <div>
-            <p className="text-[13px] font-semibold text-zinc-900 dark:text-[#e4e6ea] leading-none">Your Product</p>
+            <p className="text-[13px] font-semibold text-zinc-900 dark:text-[#e4e6ea] leading-none">Your Brand</p>
             <p className="text-[10px] text-zinc-500 mt-0.5">Just now · 🌐</p>
           </div>
         </div>
@@ -158,7 +158,7 @@ function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
         </div>
 
         <div className="absolute bottom-0 left-0 right-8 p-3">
-          <p className="text-[10px] font-bold text-white mb-0.5">@yourproduct</p>
+          <p className="text-[10px] font-bold text-white mb-0.5">@yourbrand</p>
           <p className="text-[9px] text-white/80 leading-tight line-clamp-3">{content}</p>
           <div className="flex items-center gap-1 mt-1.5">
             <div className="w-3 h-3 rounded-full animate-spin" style={{ background: "linear-gradient(135deg,#EE1D52,#69C9D0)", animationDuration: "3s" }} />
@@ -185,7 +185,7 @@ function ThreadsPreview({ content, mediaUrls }: PlatformPreviewProps) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between">
-            <p className="text-[13px] font-semibold text-zinc-950 dark:text-white">yourproduct</p>
+            <p className="text-[13px] font-semibold text-zinc-950 dark:text-white">yourbrand</p>
             <span className="text-[11px] text-zinc-400">now</span>
           </div>
           <p className="mt-1 whitespace-pre-wrap break-words text-[13px] leading-snug text-zinc-900 dark:text-zinc-100">
@@ -232,7 +232,7 @@ function PinterestPreview({ content, mediaUrls }: PlatformPreviewProps) {
         <p className="line-clamp-3 whitespace-pre-wrap break-words text-[12px] leading-snug text-zinc-600 dark:text-zinc-300">
           {content}
         </p>
-        <p className="text-[10px] text-zinc-400">yourproduct.com</p>
+        <p className="text-[10px] text-zinc-400">yourbrand.com</p>
       </div>
     </div>
   );
@@ -250,7 +250,7 @@ function LinkedInPreview({ content, mediaUrls }: PlatformPreviewProps) {
             in
           </div>
           <div>
-            <p className="text-[13px] font-semibold leading-none text-zinc-950 dark:text-white">Your Product</p>
+            <p className="text-[13px] font-semibold leading-none text-zinc-950 dark:text-white">Your Brand</p>
             <p className="mt-0.5 text-[10px] text-zinc-500">Company Page · now</p>
           </div>
         </div>
@@ -345,7 +345,7 @@ export function FacebookAdPreview({ headline, primaryText, description, imageUrl
                       <span className="text-white font-black text-sm leading-none">Y</span>
                     </div>
                     <div>
-                      <p className="text-[12px] font-semibold text-zinc-900 leading-none">Your Product</p>
+                      <p className="text-[12px] font-semibold text-zinc-900 leading-none">Your Brand</p>
                       <div className="flex items-center gap-1 mt-0.5">
                         <span className="text-[9px] text-zinc-400">Sponsored</span>
                         <span className="text-[9px] text-zinc-400">·</span>
@@ -486,7 +486,7 @@ export function TikTokAdPreview({ headline, primaryText, imageUrl, videoUrl, cta
               <span className="text-[8px] text-white/80 font-medium uppercase tracking-wide">Sponsored</span>
             </div>
 
-            <p className="text-[10px] font-bold text-white leading-tight">@yourproduct</p>
+            <p className="text-[10px] font-bold text-white leading-tight">@yourbrand</p>
             {(primaryText || headline) && (
               <p className="text-[9px] text-white/85 leading-snug line-clamp-2">
                 {primaryText || headline}
@@ -507,7 +507,7 @@ export function TikTokAdPreview({ headline, primaryText, imageUrl, videoUrl, cta
 
             <div className="flex items-center gap-1.5 mt-1">
               <div className="w-3 h-3 rounded-full animate-spin shrink-0" style={{ background: "linear-gradient(135deg,#EE1D52,#69C9D0)", animationDuration: "3s" }} />
-              <p className="text-[7px] text-white/50 truncate">Original sound · yourproduct</p>
+              <p className="text-[7px] text-white/50 truncate">Original sound · yourbrand</p>
             </div>
           </div>
         </div>

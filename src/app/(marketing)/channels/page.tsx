@@ -19,7 +19,7 @@ const channels = [
       "Photo and video publishing",
       "Carousel and multi-image posts",
       "Scheduling for optimal engagement",
-      "Per-page targeting per product",
+      "Per-page targeting per brand",
     ],
     connection: "OAuth via Meta Business Suite",
   },

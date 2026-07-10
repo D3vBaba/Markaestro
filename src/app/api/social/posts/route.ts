@@ -52,7 +52,7 @@ function failureResponse(reason: FailureReason, message: string) {
       error: FAILURE_CODE[reason],
       reason,
       message: reason === 'auth'
-        ? `${message} — reconnect the account from product settings.`
+        ? `${message} — reconnect the account from brand settings.`
         : message,
     },
     FAILURE_STATUS[reason],
@@ -122,7 +122,7 @@ export async function GET(req: Request) {
         {
           error: 'NOT_CONNECTED',
           reason: 'not_connected',
-          message: `${getSocialChannelLabel(query.channel)} is not connected. Connect it from product settings.`,
+          message: `${getSocialChannelLabel(query.channel)} is not connected. Connect it from brand settings.`,
         },
         400,
       );
@@ -169,7 +169,7 @@ export async function DELETE(req: Request) {
         {
           error: 'NOT_CONNECTED',
           reason: 'not_connected',
-          message: `${getSocialChannelLabel(query.channel)} is not connected. Connect it from product settings.`,
+          message: `${getSocialChannelLabel(query.channel)} is not connected. Connect it from brand settings.`,
         },
         400,
       );

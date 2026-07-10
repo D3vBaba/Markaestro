@@ -63,7 +63,7 @@ const coreFeatures = [
 const platformFeatures = [
   {
     title: "Workspace Management",
-    description: "Organize brands, clients, or business units into isolated workspaces. Each workspace has its own products, integrations, and team members.",
+    description: "Organize the brands you market — clients, business units, or your own ventures — into isolated workspaces. Each workspace has its own brands, integrations, and team members.",
   },
   {
     title: "Scheduling & Calendar",
@@ -172,10 +172,10 @@ export default function FeaturesPage() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="mk-eyebrow">Platform</p>
             <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] leading-[1.1] lg:text-4xl">
-              Built for teams that <span className="text-primary">move fast</span>
+              Built for everyone who <span className="text-primary">publishes</span>
             </h2>
             <p className="mt-5 text-muted-foreground leading-relaxed">
-              Beyond the core tools, Markaestro gives you the infrastructure to scale your marketing operations.
+              Beyond the core tools, Markaestro gives you the infrastructure to scale — from a single brand to a full client roster.
             </p>
           </div>
           <div className="mt-16 grid gap-6 sm:grid-cols-3">

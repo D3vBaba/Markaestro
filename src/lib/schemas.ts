@@ -166,7 +166,14 @@ export const productStatuses = ['active', 'beta', 'development', 'sunset', 'arch
 export const productCategories = [
   'saas', 'mobile', 'web', 'api', 'marketplace', 'ecommerce', 'fintech',
   'healthtech', 'edtech', 'gaming', 'social', 'productivity', 'developer-tools',
-  'ai', 'media', 'agency', 'creator', 'hardware', 'nonprofit', 'other',
+  'ai', 'media', 'agency', 'creator', 'hardware', 'nonprofit',
+  // Non-software brands — Markaestro serves businesses, creators, and
+  // personal brands, not just product companies. Additive only so existing
+  // documents keep validating.
+  'local-business', 'personal-brand', 'fashion-beauty', 'food-restaurant',
+  'music-entertainment', 'real-estate', 'coaching-services', 'fitness',
+  'travel-hospitality',
+  'other',
 ] as const;
 
 const categoryEnum = z.enum(productCategories);

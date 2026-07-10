@@ -34,13 +34,13 @@ export default function ProductPicker({
 
   return (
     <div className="space-y-3">
-      <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Product</label>
+      <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Brand</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full h-11 rounded-lg border border-border/60 bg-background px-3 text-sm focus:border-foreground focus:outline-none transition-colors"
       >
-        <option value="">Select a product...</option>
+        <option value="">Select a brand...</option>
         {products.map((p) => (
           <option key={p.id} value={p.id}>
             {p.name}

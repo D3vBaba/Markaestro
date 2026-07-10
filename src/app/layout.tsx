@@ -37,8 +37,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Markaestro | Premium Application Marketing",
-  description: "Automate your marketing with Markaestro, the ethical and premium marketing engine.",
+  title: "Markaestro | Premium Brand Marketing",
+  description: "Publish, schedule, and measure every brand you market — products, businesses, clients, or yourself — with Markaestro, the ethical and premium marketing engine.",
   manifest: '/site.webmanifest',
   icons: {
     icon: [

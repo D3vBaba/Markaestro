@@ -7,11 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 const endpointGroups = [
   {
-    title: "Products and destinations",
-    description: "Discover the products and publish destinations available to the API key.",
+    title: "Brands and destinations",
+    description:
+      "Discover the brands and publish destinations available to the API key. Brands are called products in the wire format — paths and payloads use products/productId for backwards compatibility, and POST bodies also accept brandId as an alias.",
     endpoints: [
-      { method: "GET", path: "/api/public/v1/products", note: "Lists products plus the channels currently available for each one." },
-      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the publish destinations for that product, including standalone Instagram Login, Facebook Page, Threads, LinkedIn Profile/Page, and connected TikTok destinations." },
+      { method: "GET", path: "/api/public/v1/products", note: "Lists the key's brands plus the channels currently available for each one." },
+      { method: "GET", path: "/api/public/v1/products/:id/destinations", note: "Lists the publish destinations for that brand, including standalone Instagram Login, Facebook Page, Threads, LinkedIn Profile/Page, and connected TikTok destinations." },
     ],
   },
   {
@@ -93,7 +94,7 @@ const webhookExample = `{
 
 const connectEndpoints = [
   { method: "GET", path: "/api/connect/v1/social-accounts", note: "Lists connected Facebook, Instagram, TikTok, LinkedIn, and Threads destinations as flat accounts, each labeled with its product so clients can group and disambiguate. Each channel is its own dedicated path — no cross-channel fan-out." },
-  { method: "GET", path: "/api/connect/v1/products", note: "Lists products with their connected accounts nested — a product-first picker." },
+  { method: "GET", path: "/api/connect/v1/products", note: "Lists brands (wire name: products) with their connected accounts nested — a brand-first picker." },
   { method: "POST", path: "/api/connect/v1/media/create-upload-url", note: "Returns a short-lived, single-use signed PUT url plus a media id." },
   { method: "PUT", path: "<upload_url>", note: "Upload the raw image bytes to the signed url. No API key needed — the signature authorizes it." },
   { method: "POST", path: "/api/connect/v1/posts", note: "Creates a draft per selected account. snake_case body: media, social_accounts, scheduled_at, is_draft; scheduling fields are accepted for compatibility and ignored." },
@@ -203,10 +204,10 @@ export default function DevelopersApiPage() {
               ))}
               <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{connectExample}</code></pre>
               <p className="text-sm text-muted-foreground">
-                Each account from <code>/social-accounts</code> is labeled with its <code>product</code> (the same account can
-                appear under multiple products), and its <code>id</code> encodes <code>productId#destinationId</code> — pass it
-                back verbatim in <code>social_accounts</code>, and the request fans out one post per account. Each key is
-                bound to one product, so it only sees and posts to that product. <strong className="text-foreground">Facebook,
+                Each account from <code>/social-accounts</code> is labeled with its <code>product</code> — the wire-format
+                name for a brand (the same account can appear under multiple brands) — and its <code>id</code> encodes{" "}
+                <code>productId#destinationId</code> — pass it back verbatim in <code>social_accounts</code>, and the request
+                fans out one post per account. Each key is bound to one brand, so it only sees and posts to that brand. <strong className="text-foreground">Facebook,
                 Instagram, and TikTok posts are manual-first</strong> — created as drafts and published natively by the
                 workspace owner from the Markaestro To Post queue, never via the platform&apos;s API. LinkedIn, Threads,
                 and Pinterest publish programmatically after an explicit publish action. Post status is one of <code>draft</code>, <code>processing</code>,{" "}
@@ -235,7 +236,7 @@ export default function DevelopersApiPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Instagram Login supported</CardTitle>
-                <CardDescription>Products can expose standalone Instagram professional accounts even when no Facebook Page is linked.</CardDescription>
+                <CardDescription>Brands can expose standalone Instagram professional accounts even when no Facebook Page is linked.</CardDescription>
               </CardHeader>
             </Card>
             <Card>

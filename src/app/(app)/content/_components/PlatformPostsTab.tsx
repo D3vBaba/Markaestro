@@ -126,7 +126,7 @@ function ChannelStates({
       <StateCard
         icon={<ChannelIcon channel={channel} size={22} />}
         title={`${label} isn't connected yet`}
-        body={`Connect ${label} to this product and its live posts will show up here — including ones published outside Markaestro.`}
+        body={`Connect ${label} to this brand and its live posts will show up here — including ones published outside Markaestro.`}
       >
         <Button size="sm" className="rounded-lg" asChild>
           <Link href={connectHref}>Connect {label}</Link>
@@ -140,7 +140,7 @@ function ChannelStates({
       <StateCard
         icon={<ChannelIcon channel={channel} size={22} />}
         title={`${label} needs to be reconnected`}
-        body={`The ${label} connection has expired, so we can't browse its posts right now. Reconnect it from product settings to pick up where you left off.`}
+        body={`The ${label} connection has expired, so we can't browse its posts right now. Reconnect it from brand settings to pick up where you left off.`}
       >
         <Button size="sm" className="rounded-lg" asChild>
           <Link href={connectHref}>Reconnect {label}</Link>

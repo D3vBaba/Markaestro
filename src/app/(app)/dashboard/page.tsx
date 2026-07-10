@@ -70,7 +70,7 @@ export default function Home() {
   const kpis: Kpi[] = [
     {
       key: "products",
-      label: "Products",
+      label: "Brands",
       value: fmtCount(m?.totalProducts ?? 0),
       sub: `${m?.activeProducts ?? 0} active`,
     },

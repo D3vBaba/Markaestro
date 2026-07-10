@@ -14,7 +14,7 @@ import {
 const TABS: { name: string; href: string; icon: LucideIcon }[] = [
   { name: "Home", href: "/dashboard", icon: Home },
   { name: "Analytics", href: "/analytics", icon: ChartNoAxesColumn },
-  { name: "Products", href: "/products", icon: Package },
+  { name: "Brands", href: "/products", icon: Package },
   { name: "Posts", href: "/content", icon: LayoutGrid },
   { name: "Calendar", href: "/calendar", icon: Calendar },
 ];

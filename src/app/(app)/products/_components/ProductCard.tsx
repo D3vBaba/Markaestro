@@ -186,7 +186,7 @@ export default function ProductCard({
                   "hover:text-mk-neg",
                 )}
                 style={{ color: "var(--mk-ink-40)" }}
-                aria-label="Delete product"
+                aria-label="Delete brand"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </span>

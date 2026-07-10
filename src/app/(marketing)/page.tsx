@@ -28,7 +28,7 @@ export default function LandingPage() {
                 letterSpacing: "0.14em",
               }}
             >
-              The social publishing hub for marketing teams
+              The social publishing hub for every brand you run
             </div>
             <h1
               className="text-[40px] sm:text-[56px] lg:text-[72px] font-semibold leading-[1.05]"
@@ -41,7 +41,8 @@ export default function LandingPage() {
               className="mt-6 text-[15px] sm:text-[17px] lg:text-[18px] leading-relaxed max-w-2xl mx-auto"
               style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
             >
-              Upload your media, write your captions, and publish to every
+              Upload your media, write your captions, and publish every brand
+              you market — your business, your clients, or yourself — to every
               social channel from one dashboard.
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -105,7 +106,7 @@ export default function LandingPage() {
               className="text-center mk-eyebrow mb-5"
               style={{ letterSpacing: "0.2em" }}
             >
-              Trusted by marketing teams at
+              Trusted by founders, teams, and agencies at
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 opacity-50">
               {["Acme Corp", "TechFlow", "GrowthLab", "Launchpad", "ScaleUp", "BrandForge"].map((name) => (

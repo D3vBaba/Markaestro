@@ -569,7 +569,7 @@ async function listLinkedInPosts(
 ): Promise<ListPostsResult> {
   const destination = matchLinkedInDestination(connection, input.destinationId);
   if (!destination) {
-    return { ok: false, error: 'Select a LinkedIn Profile or Page in product settings.', reason: 'unsupported' };
+    return { ok: false, error: 'Select a LinkedIn Profile or Page in brand settings.', reason: 'unsupported' };
   }
   const accessToken = getAccessToken(connection);
   const count = Math.min(Math.max(1, Math.floor(input.limit || DEFAULT_LIST_LIMIT)), MAX_LIST_LIMIT);
@@ -702,7 +702,7 @@ export const linkedinPublishingAdapter: PlatformAdapter = {
     void _channel;
     const destination = matchLinkedInDestination(connection);
     if (!destination) {
-      return 'Select a LinkedIn Profile or Page in product settings.';
+      return 'Select a LinkedIn Profile or Page in brand settings.';
     }
     return validateScope(connection, destination);
   },

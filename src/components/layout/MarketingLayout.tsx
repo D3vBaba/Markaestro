@@ -168,7 +168,8 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                 className="mt-4 text-[12.5px] leading-relaxed"
                 style={{ color: "var(--mk-ink-60)" }}
               >
-                The marketing automation platform for modern teams.
+                The marketing platform for every brand you run — your
+                business, your clients, or yourself.
               </p>
             </div>
 

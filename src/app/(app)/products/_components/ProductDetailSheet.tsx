@@ -382,7 +382,7 @@ export default function ProductDetailSheet({
           setIntegrations(getScopedSocialIntegrations(intRes.data.integrations || []));
         }
       } catch {
-        toast.error("Failed to load product");
+        toast.error("Failed to load brand");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -401,7 +401,7 @@ export default function ProductDetailSheet({
   const save = async () => {
     if (!productId || !form) return;
     if (!form.name.trim()) {
-      toast.error("Product name is required");
+      toast.error("Brand name is required");
       return;
     }
     setSaving(true);
@@ -426,11 +426,11 @@ export default function ProductDetailSheet({
 
       if (!detailsRes.ok) {
         const err = detailsRes.data as { error?: string; issues?: { message: string }[] };
-        toast.error(err.issues?.[0]?.message || err.error || "Failed to save product details");
+        toast.error(err.issues?.[0]?.message || err.error || "Failed to save brand details");
         return;
       }
       if (!voiceRes.ok) {
-        toast.error("Saved product details, but failed to save brand identity");
+        toast.error("Saved brand details, but failed to save brand identity");
         return;
       }
 
@@ -451,11 +451,11 @@ export default function ProductDetailSheet({
     if (!productId) return;
     const res = await apiDelete(`/api/products/${productId}`);
     if (res.ok) {
-      toast.success("Product deleted");
+      toast.success("Brand deleted");
       onOpenChange(false);
       onDeleted();
     } else {
-      toast.error("Failed to delete product");
+      toast.error("Failed to delete brand");
     }
   };
 
@@ -640,7 +640,7 @@ export default function ProductDetailSheet({
                 )}
                 <div className="min-w-0">
                   <SheetTitle className="text-base truncate">
-                    {form?.name || "Product"}
+                    {form?.name || "Brand"}
                   </SheetTitle>
                   <SheetDescription className="text-xs mt-0.5">
                     <SaveIndicator dirty={dirty} saving={saving} lastSavedAt={lastSavedAt} />
@@ -790,7 +790,7 @@ export default function ProductDetailSheet({
                 onClick={() => setDeleteOpen(true)}
                 className="text-xs text-muted-foreground hover:text-destructive transition-colors inline-flex items-center gap-1 py-2 -my-2 px-1 -mx-1"
               >
-                <Trash2 className="h-3 w-3" /> Delete product
+                <Trash2 className="h-3 w-3" /> Delete brand
               </button>
               <SaveIndicator
                 dirty={dirty}
@@ -806,9 +806,9 @@ export default function ProductDetailSheet({
       <ConfirmDeleteDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        entity="product"
+        entity="brand"
         name={form?.name}
-        warning="All settings and channel connections for this product will also be removed."
+        warning="All settings and channel connections for this brand will also be removed."
         onConfirm={confirmDelete}
       />
 
@@ -969,7 +969,7 @@ function FoundationSection({
     return (
       <>
         <SectionCard title="Basics">
-          <ReadRow label="Product name" value={form.name} emphasis />
+          <ReadRow label="Brand name" value={form.name} emphasis />
           <ReadRow label="Description" value={form.description} multiline />
           <ReadRow label="Website">
             {form.url ? (
@@ -1018,8 +1018,8 @@ function FoundationSection({
 
   return (
     <>
-      <SectionCard title="Basics" description="How your product is identified across Markaestro.">
-        <FormField label="Product name">
+      <SectionCard title="Basics" description="How your brand is identified across Markaestro.">
+        <FormField label="Brand name">
           <Input value={form.name} onChange={(e) => patch("name", e.target.value)} />
         </FormField>
         <FormField label="Description">
@@ -1034,7 +1034,7 @@ function FoundationSection({
             <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               className="pl-9"
-              placeholder="https://yourproduct.com"
+              placeholder="https://yourbrand.com"
               value={form.url}
               onChange={(e) => patch("url", e.target.value)}
             />
@@ -1252,7 +1252,7 @@ function ChannelsSection({
     <>
       <SectionCard
         title="Connected channels"
-        description="Connect social accounts so you can schedule from this product."
+        description="Connect social accounts so you can schedule from this brand."
       >
         {/* Facebook (Meta) — its own per-product Facebook login */}
         <ChannelCard
@@ -1265,8 +1265,8 @@ function ChannelsSection({
             metaHasPage
               ? meta?.pageName || "Facebook Page linked"
               : metaConnected
-              ? "Choose which Facebook Page this product posts to"
-              : "Link this product's own Facebook Page"
+              ? "Choose which Facebook Page this brand posts to"
+              : "Link this brand's own Facebook Page"
           }
         >
           {metaConnected ? (

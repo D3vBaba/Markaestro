@@ -777,7 +777,7 @@ async function listFacebookPosts(
 ): Promise<ListPostsResult> {
   const pageId = getMeta(connection, 'pageId', '');
   if (!pageId) {
-    return { ok: false, error: 'No Facebook page selected. Select a page in product settings.', reason: 'unsupported' };
+    return { ok: false, error: 'No Facebook page selected. Select a page in brand settings.', reason: 'unsupported' };
   }
   const accessToken = resolveAccessToken(connection);
   const params = new URLSearchParams({

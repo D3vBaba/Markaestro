@@ -38,9 +38,10 @@ type PaletteItem = {
 const NAVIGATION_ITEMS: PaletteItem[] = [
     ...navigationGroups.flatMap((group) =>
         group.items.map((item) => ({
-            label: item.name,
+            label: item.href === "/products" ? "Brands" : item.name,
             href: item.href,
             icon: NAV_ICONS[item.href] ?? Home,
+            keywords: item.href === "/products" ? ["products", "brand"] : undefined,
         })),
     ),
     { label: "Channels", href: "/channels", icon: Link2, keywords: ["integrations", "connections"] },
@@ -49,7 +50,7 @@ const NAVIGATION_ITEMS: PaletteItem[] = [
 
 const QUICK_ACTIONS: PaletteItem[] = [
     { label: "Create post", href: "/content", icon: SquarePen, keywords: ["new", "write", "content"] },
-    { label: "Add product", href: "/products", icon: PackagePlus, keywords: ["new", "create"] },
+    { label: "Add brand", href: "/products", icon: PackagePlus, keywords: ["new", "create", "product"] },
     { label: "Connect channel", href: "/channels", icon: Link2, keywords: ["integration", "social"] },
     { label: "Billing", href: "/settings?tab=billing", icon: CreditCard, keywords: ["plan", "subscription", "upgrade", "invoice"] },
 ];
