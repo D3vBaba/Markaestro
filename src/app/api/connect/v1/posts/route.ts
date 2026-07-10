@@ -7,7 +7,12 @@ import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
 import { createPublicPost } from '@/lib/public-api/posts';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
-import { parseAccountId, mapPostStatus } from '@/lib/public-api/connect-compat';
+import {
+  getConnectScheduledDeliveryMode,
+  mapPostStatus,
+  parseAccountId,
+  resolveConnectSchedule,
+} from '@/lib/public-api/connect-compat';
 
 export const runtime = 'nodejs';
 
@@ -32,10 +37,10 @@ export async function POST(req: Request) {
     const mediaAssetIds = Array.isArray(body.media) ? body.media.map(String) : [];
     const accounts = Array.isArray(body.social_accounts) ? body.social_accounts.map(String) : [];
     if (accounts.length === 0) throw new Error('VALIDATION_NO_DESTINATION');
-    // Connect create is draft-first. Scheduling clients may send scheduling
-    // fields, but Markaestro stores drafts so users can publish intentionally
-    // from the matching product workflow.
-    const scheduledAt = null;
+    // Stay draft-first unless the scheduling client explicitly requests a
+    // non-draft post with a timestamp. TikTok schedules an inbox handoff, never
+    // an unattended public Direct Post.
+    const scheduledAt = resolveConnectSchedule(body.scheduled_at, body.is_draft);
 
     const created: Array<{ id: string; channel: string; status: string }> = [];
     const errors: Array<{ account: string; error: string }> = [];
@@ -47,11 +52,28 @@ export async function POST(req: Request) {
           channel,
           caption,
           mediaAssetIds,
-          scheduledAt,
+          // createPublicPost is deliberately draft-first. Connect promotes the
+          // stored post to scheduled immediately below when scheduling was
+          // explicitly requested.
+          scheduledAt: null,
           productId,
           destinationId,
+          ...(scheduledAt ? { deliveryMode: getConnectScheduledDeliveryMode(channel) } : {}),
         });
-        created.push({ id: post.id, channel: post.channel, status: post.status });
+        if (scheduledAt) {
+          const now = new Date().toISOString();
+          await adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${post.id}`).set({
+            status: 'scheduled',
+            scheduledAt,
+            originalScheduledAt: scheduledAt,
+            updatedAt: now,
+          }, { merge: true });
+        }
+        created.push({
+          id: post.id,
+          channel: post.channel,
+          status: scheduledAt ? 'scheduled' : post.status,
+        });
       } catch (e) {
         errors.push({ account, error: e instanceof Error ? e.message : 'UNKNOWN_ERROR' });
       }

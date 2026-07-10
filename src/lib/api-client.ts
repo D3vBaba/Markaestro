@@ -10,6 +10,16 @@ const UPLOAD_TIMEOUT_MS = 60_000;
 let _getIdToken: (() => Promise<string | null>) | null = null;
 let _authReady: Promise<void> | null = null;
 let _resolveAuthReady: (() => void) | null = null;
+let _workspaceId = 'default';
+
+/** Keep generic API helpers aligned with the workspace selected in the UI. */
+export function setApiWorkspaceId(workspaceId: string | null | undefined) {
+  _workspaceId = workspaceId?.trim() || 'default';
+}
+
+function activeWorkspaceId(workspaceId?: string) {
+  return workspaceId?.trim() || _workspaceId;
+}
 
 // Create a promise that resolves when auth is ready
 function _initAuthGate() {
@@ -83,33 +93,33 @@ export async function apiFetch<T = unknown>(
 }
 
 /** GET shortcut with workspace ID. */
-export function apiGet<T = unknown>(path: string, wsId = 'default') {
+export function apiGet<T = unknown>(path: string, wsId?: string) {
   const sep = path.includes('?') ? '&' : '?';
-  return apiFetch<T>(`${path}${sep}workspaceId=${wsId}`);
+  return apiFetch<T>(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`);
 }
 
 /** POST shortcut with workspace ID. */
-export function apiPost<T = unknown>(path: string, body: unknown, wsId = 'default') {
+export function apiPost<T = unknown>(path: string, body: unknown, wsId?: string) {
   const sep = path.includes('?') ? '&' : '?';
-  return apiFetch<T>(`${path}${sep}workspaceId=${wsId}`, {
+  return apiFetch<T>(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
     method: 'POST',
     body: JSON.stringify(body),
   });
 }
 
 /** PUT shortcut with workspace ID. */
-export function apiPut<T = unknown>(path: string, body: unknown, wsId = 'default') {
+export function apiPut<T = unknown>(path: string, body: unknown, wsId?: string) {
   const sep = path.includes('?') ? '&' : '?';
-  return apiFetch<T>(`${path}${sep}workspaceId=${wsId}`, {
+  return apiFetch<T>(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
     method: 'PUT',
     body: JSON.stringify(body),
   });
 }
 
 /** DELETE shortcut with workspace ID. Optionally accepts a JSON body. */
-export function apiDelete<T = unknown>(path: string, body?: unknown, wsId = 'default') {
+export function apiDelete<T = unknown>(path: string, body?: unknown, wsId?: string) {
   const sep = path.includes('?') ? '&' : '?';
-  return apiFetch<T>(`${path}${sep}workspaceId=${wsId}`, {
+  return apiFetch<T>(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
     method: 'DELETE',
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
@@ -118,7 +128,7 @@ export function apiDelete<T = unknown>(path: string, body?: unknown, wsId = 'def
 /** Download a file (e.g. CSV export) as a Blob. */
 export async function apiDownload(
   path: string,
-  wsId = 'default',
+  wsId?: string,
 ): Promise<{ ok: boolean; status: number; blob: Blob | null }> {
   if (_authReady) await _authReady;
   const token = _getIdToken ? await _getIdToken() : null;
@@ -128,7 +138,7 @@ export async function apiDownload(
   const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
 
   try {
-    const res = await fetch(`${path}${sep}workspaceId=${wsId}`, {
+    const res = await fetch(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       signal: controller.signal,
     });
@@ -146,7 +156,7 @@ export async function apiDownload(
 export async function apiUpload<T = unknown>(
   path: string,
   formData: FormData,
-  wsId = 'default',
+  wsId?: string,
 ): Promise<{ ok: boolean; status: number; data: T }> {
   if (_authReady) await _authReady;
   const token = _getIdToken ? await _getIdToken() : null;
@@ -156,7 +166,7 @@ export async function apiUpload<T = unknown>(
   const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
 
   try {
-    const res = await fetch(`${path}${sep}workspaceId=${wsId}`, {
+    const res = await fetch(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
       method: 'POST',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,

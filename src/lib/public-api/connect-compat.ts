@@ -48,6 +48,24 @@ export type ConnectProduct = {
   accounts: ConnectAccount[];
 };
 
+// Connect clients commonly send both `scheduled_at` and `is_draft`. Preserve
+// draft-first behavior unless the client explicitly sets is_draft=false and
+// supplies an ISO timestamp. A scheduled TikTok post uses the creator-inbox
+// handoff; other channels opt into their official direct-publish path.
+export function resolveConnectSchedule(
+  scheduledAt: string | null | undefined,
+  isDraft: boolean | undefined,
+): string | null {
+  if (isDraft !== false || !scheduledAt) return null;
+  const timestamp = Date.parse(scheduledAt);
+  if (!Number.isFinite(timestamp)) throw new Error('VALIDATION_INVALID_SCHEDULED_AT');
+  return new Date(timestamp).toISOString();
+}
+
+export function getConnectScheduledDeliveryMode(channel: SocialChannel) {
+  return channel === 'tiktok' ? 'platform_inbox' as const : 'direct_publish' as const;
+}
+
 // ── Account id <-> destination encoding ──────────────────────────────────────
 // Token shape: `${productId}#${destinationId}` (product-scoped) or
 // `${destinationId}` (workspace-level). destinationId is `provider:channel:acct`

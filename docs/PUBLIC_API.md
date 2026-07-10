@@ -137,7 +137,7 @@ TikTok (draft-first; manual reminder by default, inbox handoff on opt-in):
 - products expose TikTok destinations only when a TikTok publishing connection is configured
 - the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents the connected TikTok account
 - TikTok destinations use `deliveryMode: "platform_inbox"` to make the inbox handoff explicit
-- creating any post (native or Connect) yields a **draft** — any `scheduledAt`/`scheduled_at` is ignored, and the worker never auto-publishes API-created drafts
+- Public API creates remain **draft-first**. Connect clients can explicitly schedule by sending `is_draft=false` with `scheduled_at`; TikTok schedules the creator-inbox handoff, while supported direct channels use their official publishing path.
 - `POST /api/public/v1/posts/:id/publish` queues the same TikTok inbox handoff used by the app, never public Direct Post
 - once TikTok confirms `SEND_TO_USER_INBOX`, the post becomes `platform_action_required`; the creator opens TikTok to finalize caption/privacy and post
 

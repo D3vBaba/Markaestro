@@ -97,7 +97,7 @@ const connectEndpoints = [
   { method: "GET", path: "/api/connect/v1/products", note: "Lists brands (wire name: products) with their connected accounts nested — a brand-first picker." },
   { method: "POST", path: "/api/connect/v1/media/create-upload-url", note: "Returns a short-lived, single-use signed PUT url plus a media id." },
   { method: "PUT", path: "<upload_url>", note: "Upload the raw image bytes to the signed url. No API key needed — the signature authorizes it." },
-  { method: "POST", path: "/api/connect/v1/posts", note: "Creates a draft per selected account. snake_case body: media, social_accounts, scheduled_at, is_draft; scheduling fields are accepted for compatibility and ignored." },
+  { method: "POST", path: "/api/connect/v1/posts", note: "Creates a draft per selected account. Set is_draft=false with scheduled_at to schedule delivery; TikTok uses the creator-inbox handoff." },
   { method: "GET", path: "/api/connect/v1/posts", note: "Lists workspace posts with flat status, caption, and media urls." },
 ];
 

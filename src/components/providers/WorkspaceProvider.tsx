@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { apiFetch } from '@/lib/api-client';
+import { apiFetch, setApiWorkspaceId } from '@/lib/api-client';
 
 export type WorkspaceInfo = {
   id: string;
@@ -58,6 +58,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     if (authLoading) return;
     fetchWorkspaces();
   }, [authLoading, fetchWorkspaces]);
+
+  useEffect(() => {
+    setApiWorkspaceId(currentId);
+  }, [currentId]);
 
   const switchWorkspace = useCallback((id: string) => {
     setCurrentId(id);

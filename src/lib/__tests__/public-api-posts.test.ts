@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getDeliveryModeForChannel, getPublicPostInitialState, resolveRequestedDeliveryMode, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
+import { getConnectScheduledDeliveryMode, resolveConnectSchedule } from '../public-api/connect-compat';
 
 describe('public post validation', () => {
   it('allows facebook text-only posts', () => {
@@ -72,6 +73,16 @@ describe('public post validation', () => {
   it('creates public API posts as drafts even when a schedule is supplied', () => {
     expect(getPublicPostInitialState()).toEqual({ status: 'draft', scheduledAt: null });
     expect(getPublicPostInitialState('2026-06-20T17:00:00.000Z')).toEqual({ status: 'draft', scheduledAt: null });
+  });
+
+  it('honors explicit Connect schedules while keeping ordinary creates draft-first', () => {
+    expect(resolveConnectSchedule('2026-07-12T21:15:00.000Z', true)).toBeNull();
+    expect(resolveConnectSchedule('2026-07-12T21:15:00.000Z', undefined)).toBeNull();
+    expect(resolveConnectSchedule(null, false)).toBeNull();
+    expect(resolveConnectSchedule('2026-07-12T21:15:00Z', false)).toBe('2026-07-12T21:15:00.000Z');
+    expect(() => resolveConnectSchedule('not-a-date', false)).toThrow('VALIDATION_INVALID_SCHEDULED_AT');
+    expect(getConnectScheduledDeliveryMode('tiktok')).toBe('platform_inbox');
+    expect(getConnectScheduledDeliveryMode('instagram')).toBe('direct_publish');
   });
 
   it('rejects TikTok posts with multiple videos', () => {
