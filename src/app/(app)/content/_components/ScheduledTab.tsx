@@ -28,10 +28,13 @@ type Post = {
 
 export default function ScheduledTab({
   refreshKey,
+  productId,
   onCreatePost,
   onPlatformActionRequired,
 }: {
   refreshKey: number;
+  /** Selected brand — scopes this tab to that brand's posts. */
+  productId?: string;
   onCreatePost?: () => void;
   onPlatformActionRequired?: () => void;
 }) {
@@ -44,16 +47,21 @@ export default function ScheduledTab({
   const [publishingIds, setPublishingIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
 
+  // A different brand means a different result set — start from page 1.
+  useEffect(() => { setPage(1); }, [productId]);
+
   const fetchScheduled = useCallback(async () => {
     try {
-      const res = await apiGet<{ posts: Post[] }>("/api/posts?status=scheduled");
+      const res = await apiGet<{ posts: Post[] }>(
+        `/api/posts?status=scheduled${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`
+      );
       if (res.ok) setPosts(res.data.posts || []);
     } catch {
       toast.error("Failed to load scheduled posts");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [productId]);
 
   useEffect(() => {
     fetchScheduled();

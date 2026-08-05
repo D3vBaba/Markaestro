@@ -23,6 +23,15 @@ type Post = {
   createdAt?: string;
   errorMessage?: string;
   mediaUrls?: string[];
+  /** Brands are stored as `products` in Firestore; posts link via productId. */
+  productId?: string;
+};
+
+/** A brand, as returned by /api/products (the storage name for brands). */
+type Brand = {
+  id: string;
+  name: string;
+  brandIdentity?: { logoUrl?: string; primaryColor?: string };
 };
 
 type CalendarItem = { kind: "post"; date: string; post: Post };
@@ -58,6 +67,9 @@ const CHANNEL_LABEL: Record<string, string> = {
   pinterest: "Pinterest",
   linkedin:  "LinkedIn",
 };
+
+/** Sentinel brand filter value matching posts that have no brand linked. */
+const UNASSIGNED_BRAND = "none";
 
 const STATUS_DOT: Record<string, string> = {
   published:  "var(--mk-pos)",
@@ -219,11 +231,12 @@ function TikTokMockup({ post }: { post: Post }) {
 
 // ─── Detail Panels ────────────────────────────────────────────────────────────
 
-function PostDetailPanel({ post, onClose, onBack }: {
+function PostDetailPanel({ post, onClose, onBack, brandName }: {
   post: Post;
   onClose: () => void;
   /** Present when the post was opened from a day list — returns to that list. */
   onBack?: () => void;
+  brandName?: string;
 }) {
   const accent = CHANNEL_ACCENT[post.channel] || "#6366f1";
   const statusDate = post.publishedAt || post.scheduledAt;
@@ -254,9 +267,15 @@ function PostDetailPanel({ post, onClose, onBack }: {
         </button>
       </div>
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
-        {statusDate && (
+        {(statusDate || brandName) && (
           <p className="text-[11px] text-muted-foreground">
-            {post.status === "published" ? "Published" : "Scheduled"} · {formatDate(statusDate)} at {formatTime(statusDate)}
+            {statusDate && (
+              <>
+                {post.status === "published" ? "Published" : "Scheduled"} · {formatDate(statusDate)} at {formatTime(statusDate)}
+              </>
+            )}
+            {statusDate && brandName && " · "}
+            {brandName}
           </p>
         )}
         <div>
@@ -463,6 +482,13 @@ function CalendarPageContent() {
     error: loadError,
     refresh,
   } = useApiQuery<{ posts: Post[] }>("/api/posts?limit=200");
+  // Same query key as the Brands page, so this usually hits a warm cache.
+  const { data: brandsData } = useApiQuery<{ products: Brand[] }>("/api/products");
+  const brands = useMemo(() => brandsData?.products ?? [], [brandsData]);
+  const brandsById = useMemo(
+    () => new Map(brands.map((b) => [b.id, b])),
+    [brands]
+  );
   // Optimistic patches (postId → patched fields) layered over query data so
   // drag-to-reschedule feels instant; cleared once fresh data arrives.
   const [overrides, setOverrides] = useState<Record<string, Partial<Post>>>({});
@@ -476,18 +502,24 @@ function CalendarPageContent() {
   const [dayView, setDayView] = useState<string | null>(null);
   const [dragItem, setDragItem] = useState<Post | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
-  // Filters initialize from URL (?status=…&channel=…) so dashboard drill-ins work
+  // Filters initialize from URL (?status=…&channel=…&brand=…) so dashboard
+  // drill-ins and shared links work
   const [statusFilter, setStatusFilter] = useState<string | null>(
     () => searchParams.get("status")
   );
   const [channelFilter, setChannelFilter] = useState<string | null>(
     () => searchParams.get("channel")
   );
+  // A brand id, or UNASSIGNED_BRAND for posts with no brand linked.
+  const [brandFilter, setBrandFilter] = useState<string | null>(
+    () => searchParams.get("brand")
+  );
 
   // Keep state in sync with the URL (e.g. back/forward navigation)
   useEffect(() => {
     setStatusFilter(searchParams.get("status"));
     setChannelFilter(searchParams.get("channel"));
+    setBrandFilter(searchParams.get("brand"));
   }, [searchParams]);
 
   // ── Deep-link to a single post (?post=<id>) ──────────────────────────
@@ -551,23 +583,40 @@ function CalendarPageContent() {
     };
   }, [searchParams, loading, postsData, posts, pathname, router]);
 
+  // Patch one or more filters at once; omitted keys keep their current value.
+  // Each filter mirrors into the URL so views stay shareable.
   const applyFilters = useCallback(
-    (status: string | null, channel: string | null) => {
-      setStatusFilter(status);
-      setChannelFilter(channel);
+    (patch: { status?: string | null; channel?: string | null; brand?: string | null }) => {
+      const next = {
+        status: "status" in patch ? patch.status ?? null : statusFilter,
+        channel: "channel" in patch ? patch.channel ?? null : channelFilter,
+        brand: "brand" in patch ? patch.brand ?? null : brandFilter,
+      };
+      setStatusFilter(next.status);
+      setChannelFilter(next.channel);
+      setBrandFilter(next.brand);
+
       const params = new URLSearchParams(searchParams.toString());
-      if (status) params.set("status", status);
-      else params.delete("status");
-      if (channel) params.set("channel", channel);
-      else params.delete("channel");
+      for (const [key, value] of Object.entries(next)) {
+        if (value) params.set(key, value);
+        else params.delete(key);
+      }
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
-    [router, pathname, searchParams]
+    [router, pathname, searchParams, statusFilter, channelFilter, brandFilter]
   );
 
-  const hasActiveFilters = Boolean(statusFilter || channelFilter);
-  const clearFilters = () => applyFilters(null, null);
+  // Brand select options beyond the loaded brands: a "No brand" bucket when any
+  // post lacks one, and a placeholder when ?brand= names a brand we can't resolve.
+  const hasUnassignedPosts = posts.some((p) => !p.productId);
+  const unknownBrandId =
+    brandFilter && brandFilter !== UNASSIGNED_BRAND && !brandsById.has(brandFilter)
+      ? brandFilter
+      : null;
+
+  const hasActiveFilters = Boolean(statusFilter || channelFilter || brandFilter);
+  const clearFilters = () => applyFilters({ status: null, channel: null, brand: null });
 
   const clearOverride = useCallback((postId: string) => {
     setOverrides((prev) => {
@@ -639,7 +688,9 @@ function CalendarPageContent() {
   // Build date → items map (with filters applied)
   const filteredPosts = posts.filter((p) =>
     (!statusFilter || p.status === statusFilter) &&
-    (!channelFilter || p.channel === channelFilter)
+    (!channelFilter || p.channel === channelFilter) &&
+    (!brandFilter ||
+      (brandFilter === UNASSIGNED_BRAND ? !p.productId : p.productId === brandFilter))
   );
   const itemsByDate = new Map<string, CalendarItem[]>();
   for (const post of filteredPosts) {
@@ -681,6 +732,7 @@ function CalendarPageContent() {
           post={selected.post}
           onClose={closeRail}
           onBack={dayView ? () => setSelected(null) : undefined}
+          brandName={selected.post.productId ? brandsById.get(selected.post.productId)?.name : undefined}
         />
       );
     }
@@ -847,7 +899,7 @@ function CalendarPageContent() {
               return (
                 <button
                   key={key}
-                  onClick={() => applyFilters(active ? null : key, channelFilter)}
+                  onClick={() => applyFilters({ status: active ? null : key })}
                   className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all ${
                     active
                       ? "border-current bg-current/10"
@@ -867,7 +919,7 @@ function CalendarPageContent() {
               return (
                 <button
                   key={key}
-                  onClick={() => applyFilters(statusFilter, active ? null : key)}
+                  onClick={() => applyFilters({ channel: active ? null : key })}
                   className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all ${
                     active
                       ? "border-current bg-current/10"
@@ -880,6 +932,49 @@ function CalendarPageContent() {
                 </button>
               );
             })}
+            {/* Brand filter — a select rather than chips, since a workspace can
+                have many brands and the chip row is already dense. */}
+            {(brands.length > 0 || brandFilter) && (
+              <>
+                <div className="w-px h-3 bg-border/50 hidden sm:block" />
+                <label
+                  className={`flex items-center gap-1.5 pl-3 sm:pl-2.5 pr-1 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all cursor-pointer ${
+                    brandFilter ? "bg-current/10" : "border-transparent hover:bg-muted"
+                  }`}
+                  style={
+                    brandFilter
+                      ? {
+                          color: "var(--mk-accent)",
+                          borderColor: "color-mix(in oklch, var(--mk-accent) 60%, transparent)",
+                        }
+                      : undefined
+                  }
+                >
+                  <span
+                    className="w-0.5 h-3 rounded-full shrink-0"
+                    style={{ background: brandFilter ? "var(--mk-accent)" : "var(--mk-ink-40)" }}
+                  />
+                  <span className={brandFilter ? "" : "text-muted-foreground"}>Brand</span>
+                  <select
+                    value={brandFilter ?? ""}
+                    onChange={(e) => applyFilters({ brand: e.target.value || null })}
+                    aria-label="Filter by brand"
+                    className="bg-transparent border-none outline-none cursor-pointer text-[11px] font-medium max-w-36 truncate text-inherit"
+                  >
+                    <option value="">All</option>
+                    {brands.map((b) => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                    {(hasUnassignedPosts || brandFilter === UNASSIGNED_BRAND) && (
+                      <option value={UNASSIGNED_BRAND}>No brand</option>
+                    )}
+                    {/* Keeps the control in sync when ?brand= names a brand that
+                        hasn't loaded yet or has since been deleted. */}
+                    {unknownBrandId && <option value={unknownBrandId}>Unknown brand</option>}
+                  </select>
+                </label>
+              </>
+            )}
             <div className="w-px h-3 bg-border/50 hidden md:block" />
             <div className="hidden md:flex items-center gap-1.5">
               <span className="text-[11px] text-muted-foreground">Drag to reschedule</span>

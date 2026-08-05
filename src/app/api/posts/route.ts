@@ -20,6 +20,8 @@ export async function GET(req: Request) {
       status: url.searchParams.get('status') ?? undefined,
     });
     const channel = url.searchParams.get('channel') ?? undefined;
+    // Brands are stored as `products`; posts link to one via productId.
+    const productId = url.searchParams.get('productId') ?? undefined;
 
     const filters: FieldFilter[] = [];
     if (status) {
@@ -29,6 +31,7 @@ export async function GET(req: Request) {
         : { field: 'status', op: 'in', value: statuses });
     }
     if (channel) filters.push({ field: 'channel', op: '==', value: channel });
+    if (productId) filters.push({ field: 'productId', op: '==', value: productId });
 
     const posts = await executeListQuery(
       adminDb.collection(`workspaces/${ctx.workspaceId}/posts`),

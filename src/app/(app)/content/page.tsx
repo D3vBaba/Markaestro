@@ -197,19 +197,20 @@ export default function PostsPage() {
         </TabsContent>
 
         <TabsContent value="drafts">
-          <DraftsTab refreshKey={refreshKey} onCreatePost={goToCreate} />
+          <DraftsTab refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
         </TabsContent>
 
         <TabsContent value="scheduled">
           <ScheduledTab
             refreshKey={refreshKey}
+            productId={productId}
             onCreatePost={goToCreate}
             onPlatformActionRequired={goToDraftsAndRefresh}
           />
         </TabsContent>
 
         <TabsContent value="published">
-          <PublishedTab refreshKey={refreshKey} onCreatePost={goToCreate} />
+          <PublishedTab refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
         </TabsContent>
 
         <TabsContent value="on-platform">

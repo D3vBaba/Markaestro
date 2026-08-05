@@ -25,14 +25,20 @@ type Post = {
 
 export default function PublishedTab({
   refreshKey,
+  productId,
   onCreatePost,
 }: {
   refreshKey: number;
+  /** Selected brand — scopes this tab to that brand's posts. */
+  productId?: string;
   onCreatePost?: () => void;
 }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+
+  // A different brand means a different result set — start from page 1.
+  useEffect(() => { setPage(1); }, [productId]);
 
   const handleDelete = async (id: string) => {
     // Optimistically remove, restore in place on failure
@@ -56,14 +62,16 @@ export default function PublishedTab({
 
   const fetchPublished = useCallback(async () => {
     try {
-      const res = await apiGet<{ posts: Post[] }>("/api/posts?status=published");
+      const res = await apiGet<{ posts: Post[] }>(
+        `/api/posts?status=published${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`
+      );
       if (res.ok) setPosts(res.data.posts || []);
     } catch {
       toast.error("Failed to load published posts");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [productId]);
 
   useEffect(() => {
     fetchPublished();

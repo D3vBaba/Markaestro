@@ -31,9 +31,12 @@ type Post = {
 
 export default function DraftsTab({
   refreshKey,
+  productId,
   onCreatePost,
 }: {
   refreshKey: number;
+  /** Selected brand — scopes this tab to that brand's posts. */
+  productId?: string;
   onCreatePost?: () => void;
 }) {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -45,12 +48,16 @@ export default function DraftsTab({
   const [schedulePending, setSchedulePending] = useState<{ content: string; mediaUrls?: string[]; channel?: string } | null>(null);
   const [publishingIds, setPublishingIds] = useState<Set<string>>(new Set());
 
+  // A different brand means a different result set — start from page 1.
+  useEffect(() => { setPage(1); }, [productId]);
+
   const fetchDrafts = useCallback(async () => {
+    const brandParam = productId ? `&productId=${encodeURIComponent(productId)}` : "";
     try {
       const [draftsRes, reviewRes, failedRes] = await Promise.all([
-        apiGet<{ posts: Post[] }>("/api/posts?status=draft"),
-        apiGet<{ posts: Post[] }>(`/api/posts?status=${PLATFORM_ACTION_REQUIRED_STATUS},${LEGACY_EXPORTED_FOR_REVIEW_STATUS}`),
-        apiGet<{ posts: Post[] }>("/api/posts?status=failed,partial_failed"),
+        apiGet<{ posts: Post[] }>(`/api/posts?status=draft${brandParam}`),
+        apiGet<{ posts: Post[] }>(`/api/posts?status=${PLATFORM_ACTION_REQUIRED_STATUS},${LEGACY_EXPORTED_FOR_REVIEW_STATUS}${brandParam}`),
+        apiGet<{ posts: Post[] }>(`/api/posts?status=failed,partial_failed${brandParam}`),
       ]);
       const drafts = draftsRes.ok ? (draftsRes.data.posts || []) : [];
       const reviewReady = reviewRes.ok ? (reviewRes.data.posts || []) : [];
@@ -66,7 +73,7 @@ export default function DraftsTab({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [productId]);
 
   useEffect(() => {
     fetchDrafts();
