@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState, useCallback } from "rea
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
+import { AlertCircle, ArrowLeft, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 import { apiGet, apiPut } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { toast } from "sonner";
@@ -81,6 +81,18 @@ function getDateForPost(p: Post): string | null {
   if (p.publishedAt) return isoDate(new Date(p.publishedAt));
   if (p.scheduledAt) return isoDate(new Date(p.scheduledAt));
   return null;
+}
+
+/** Sort key for ordering a day's posts chronologically. */
+function getTimeForPost(p: Post): number {
+  const when = p.publishedAt || p.scheduledAt;
+  return when ? new Date(when).getTime() : 0;
+}
+
+/** Parse an ISO `YYYY-MM-DD` as a local-midnight Date (avoids UTC drift). */
+function parseIsoDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
 function calendarDays(year: number, month: number): (Date | null)[] {
@@ -207,14 +219,28 @@ function TikTokMockup({ post }: { post: Post }) {
 
 // ─── Detail Panels ────────────────────────────────────────────────────────────
 
-function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void }) {
+function PostDetailPanel({ post, onClose, onBack }: {
+  post: Post;
+  onClose: () => void;
+  /** Present when the post was opened from a day list — returns to that list. */
+  onBack?: () => void;
+}) {
   const accent = CHANNEL_ACCENT[post.channel] || "#6366f1";
   const statusDate = post.publishedAt || post.scheduledAt;
   return (
     <div className="h-full min-h-0 flex flex-col">
       <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border/40 flex-shrink-0">
-        <div className="flex items-center gap-2.5">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ background: accent }} />
+        <div className="flex items-center gap-2.5 min-w-0">
+          {onBack && (
+            <button
+              onClick={onBack}
+              aria-label="Back to day"
+              className="w-9 h-9 lg:w-7 lg:h-7 -ml-1.5 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+          )}
+          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: accent }} />
           <span className="text-sm font-semibold">{CHANNEL_LABEL[post.channel] || post.channel}</span>
           <span
             className="text-[10px] font-medium px-1.5 py-0.5 rounded-full border capitalize"
@@ -334,6 +360,63 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = 
   );
 }
 
+// ─── Day Posts Panel ─────────────────────────────────────────────────────────
+// A month cell only has room for a few chips. This lists every post on a single
+// day so busy days stay fully reviewable.
+
+function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart }: {
+  dateStr: string;
+  items: CalendarItem[];
+  onSelect: (item: CalendarItem) => void;
+  onClose: () => void;
+  /** Lets rows be dragged onto the grid to reschedule, same as cell chips. */
+  onDragStart: (post: Post) => (e: React.DragEvent) => void;
+}) {
+  const date = parseIsoDate(dateStr);
+  const isToday = dateStr === isoDate(new Date());
+
+  return (
+    <div className="h-full min-h-0 flex flex-col">
+      <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-4 border-b border-border/40 shrink-0">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold m-0 truncate">
+              {date.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}
+            </p>
+            {isToday && (
+              <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0">Today</span>
+            )}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-0.5 m-0">
+            {items.length} post{items.length !== 1 ? "s" : ""} · select one to preview
+          </p>
+        </div>
+        <button onClick={onClose} aria-label="Close" className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5">
+        {items.length === 0 ? (
+          <p className="text-[12px] text-muted-foreground text-center py-8 m-0">
+            No posts on this day.
+          </p>
+        ) : (
+          items.map((item) => (
+            <VisualEventChip
+              key={item.post.id}
+              item={item}
+              isSelected={false}
+              showDetail
+              onClick={() => onSelect(item)}
+              onDragStart={onDragStart(item.post)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Mobile Agenda View ──────────────────────────────────────────────────────
 
 function MobileAgendaDay({ date, items, selected, onSelect }: {
@@ -388,6 +471,9 @@ function CalendarPageContent() {
     return base.map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
   }, [postsData, overrides]);
   const [selected, setSelected] = useState<CalendarItem | null>(null);
+  // ISO date whose full post list is open in the side rail. Kept set while a
+  // post from that day is previewed so "back" returns to the list.
+  const [dayView, setDayView] = useState<string | null>(null);
   const [dragItem, setDragItem] = useState<Post | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   // Filters initialize from URL (?status=…&channel=…) so dashboard drill-ins work
@@ -433,6 +519,7 @@ function CalendarPageContent() {
         setMonth(d.getMonth());
       }
       setDeletedNotice(false);
+      setDayView(null);
       setSelected({ kind: "post", date: getDateForPost(post) ?? "", post });
     };
 
@@ -562,9 +649,67 @@ function CalendarPageContent() {
     list.push({ kind: "post", date, post });
     itemsByDate.set(date, list);
   }
+  // Chronological within a day, so the cell's visible chips are the earliest
+  // ones and the day list reads top-to-bottom in posting order.
+  for (const list of itemsByDate.values()) {
+    list.sort((a, b) => getTimeForPost(a.post) - getTimeForPost(b.post));
+  }
 
   const days = calendarDays(year, month);
   const todayStr = isoDate(today);
+
+  // ─── Side rail: day list ⇄ single-post preview ───────────────────────
+  const openDay = (dateStr: string) => {
+    setSelected(null);
+    setDayView(dateStr);
+  };
+  const openPost = (item: CalendarItem, fromDayList: boolean) => {
+    if (!fromDayList) setDayView(null);
+    setSelected(item);
+  };
+  const closeRail = () => {
+    setSelected(null);
+    setDayView(null);
+  };
+  const railOpen = Boolean(selected || dayView);
+
+  // Rendered twice (desktop sidebar + mobile sheet) — only one is ever visible.
+  const renderRail = () => {
+    if (selected) {
+      return (
+        <PostDetailPanel
+          post={selected.post}
+          onClose={closeRail}
+          onBack={dayView ? () => setSelected(null) : undefined}
+        />
+      );
+    }
+    if (dayView) {
+      return (
+        <DayPostsPanel
+          dateStr={dayView}
+          items={itemsByDate.get(dayView) ?? []}
+          onSelect={(item) => openPost(item, true)}
+          onClose={closeRail}
+          onDragStart={handleDragStart}
+        />
+      );
+    }
+    return null;
+  };
+
+  // Escape steps back through the rail: post → day list → closed.
+  useEffect(() => {
+    if (!railOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      // From a post opened out of a day list, step back to the list first.
+      if (selected && dayView) setSelected(null);
+      else { setSelected(null); setDayView(null); }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [railOpen, selected, dayView]);
 
   const prevMonth = () => month === 0 ? (setMonth(11), setYear(y => y - 1)) : setMonth(m => m - 1);
   const nextMonth = () => month === 11 ? (setMonth(0), setYear(y => y + 1)) : setMonth(m => m + 1);
@@ -663,7 +808,7 @@ function CalendarPageContent() {
                 className="h-10 md:h-8 px-3 rounded-lg text-[12px]"
                 style={{ color: "var(--mk-ink-60)" }}
                 disabled={month === today.getMonth() && year === today.getFullYear()}
-                onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); setSelected(null); }}
+                onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); closeRail(); }}
               >
                 Today
               </Button>
@@ -839,13 +984,16 @@ function CalendarPageContent() {
                     const MAX = 3;
                     const overflow = Math.max(0, items.length - MAX);
                     const isDropTarget = dropTarget === dateStr;
+                    const isDayOpen = dayView === dateStr;
 
                     return (
                       <div
                         key={dateStr}
                         className={`border-b border-r border-border/25 p-1.5 flex flex-col gap-1 transition-colors overflow-hidden ${
                           isToday ? "bg-primary/[0.03]" : "bg-background hover:bg-muted/10"
-                        } ${isDropTarget ? "drop-highlight" : ""}`}
+                        } ${isDropTarget ? "drop-highlight" : ""} ${
+                          isDayOpen ? "ring-1 ring-inset ring-primary/30" : ""
+                        }`}
                         onDragOver={handleDragOver(dateStr)}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop(dateStr)}
@@ -861,19 +1009,28 @@ function CalendarPageContent() {
                             {day.getDate()}
                           </span>
                           {items.length > 0 && (
-                            <span className="text-[9px] text-muted-foreground/40 font-medium">{items.length}</span>
+                            <button
+                              onClick={() => openDay(dateStr)}
+                              title={`View all ${items.length} post${items.length !== 1 ? "s" : ""} on this day`}
+                              aria-label={`View all ${items.length} post${items.length !== 1 ? "s" : ""} on ${day.toLocaleDateString([], { month: "long", day: "numeric" })}`}
+                              className={`text-[9px] font-medium min-w-4 h-4 px-1 rounded-full transition-colors hover:bg-muted ${
+                                isDayOpen ? "bg-muted text-foreground" : "text-muted-foreground/40 hover:text-foreground"
+                              }`}
+                            >
+                              {items.length}
+                            </button>
                           )}
                         </div>
 
                         <div className="flex-1 flex flex-col gap-1 min-h-0 overflow-hidden">
-                          {items.slice(0, MAX).map((item, i) => {
+                          {items.slice(0, MAX).map((item) => {
                             const isItemSelected = selected !== null && selected.post.id === item.post.id;
                             return (
                               <VisualEventChip
-                                key={i}
+                                key={item.post.id}
                                 item={item}
                                 isSelected={isItemSelected}
-                                onClick={() => setSelected(isItemSelected ? null : item)}
+                                onClick={() => (isItemSelected ? closeRail() : openPost(item, false))}
                                 onDragStart={handleDragStart(item.post)}
                               />
                             );
@@ -881,7 +1038,7 @@ function CalendarPageContent() {
                           {overflow > 0 && (
                             <button
                               className="text-[10px] font-medium text-muted-foreground/60 hover:text-foreground transition-colors pl-2 text-left"
-                              onClick={() => setSelected(items[MAX])}
+                              onClick={() => openDay(dateStr)}
                             >
                               +{overflow} more
                             </button>
@@ -926,7 +1083,7 @@ function CalendarPageContent() {
                       date={date}
                       items={items}
                       selected={selected}
-                      onSelect={setSelected}
+                      onSelect={(item) => (item ? openPost(item, false) : closeRail())}
                     />
                   ))
                 )}
@@ -935,22 +1092,22 @@ function CalendarPageContent() {
           )}
         </div>
 
-        {/* ── Detail panel: sidebar on desktop ── */}
-        {selected && (
+        {/* ── Side rail: sidebar on desktop ── */}
+        {railOpen && (
           <div className="detail-panel shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden hidden lg:block lg:w-[380px]">
-            <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
+            {renderRail()}
           </div>
         )}
 
-        {/* ── Detail panel: modal on mobile ── */}
-        {selected && (
+        {/* ── Side rail: modal on mobile ── */}
+        {railOpen && (
           <div className="lg:hidden fixed inset-0 z-50">
-            <div className="absolute inset-0 bg-black/50" onClick={() => setSelected(null)} />
+            <div className="absolute inset-0 bg-black/50" onClick={closeRail} />
             <div
               className="absolute bottom-0 left-0 right-0 max-h-[85dvh] rounded-t-2xl bg-card overflow-hidden animate-in slide-in-from-bottom duration-200 flex flex-col"
               style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
             >
-              <PostDetailPanel post={selected.post} onClose={() => setSelected(null)} />
+              {renderRail()}
             </div>
           </div>
         )}
