@@ -11,8 +11,11 @@ import PostGridSkeleton from "./PostGridSkeleton";
 import Pagination from "@/components/app/Pagination";
 import { isPlatformActionRequiredStatus, LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from "@/lib/tiktok-draft-flow";
 import { getPublishUiOutcome } from "@/lib/social/publish-ui-outcome";
+import { sortPostsByNewestDate } from "@/lib/post-ordering";
 
 const POSTS_PER_PAGE = 6;
+/** Load the whole set so pagination walks every post, not just the first page. */
+const POSTS_FETCH_LIMIT = 1000;
 
 type Post = {
   id: string;
@@ -52,22 +55,16 @@ export default function DraftsTab({
   useEffect(() => { setPage(1); }, [productId]);
 
   const fetchDrafts = useCallback(async () => {
-    const brandParam = productId ? `&productId=${encodeURIComponent(productId)}` : "";
+    const scope = `&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`;
     try {
       const [draftsRes, reviewRes, failedRes] = await Promise.all([
-        apiGet<{ posts: Post[] }>(`/api/posts?status=draft${brandParam}`),
-        apiGet<{ posts: Post[] }>(`/api/posts?status=${PLATFORM_ACTION_REQUIRED_STATUS},${LEGACY_EXPORTED_FOR_REVIEW_STATUS}${brandParam}`),
-        apiGet<{ posts: Post[] }>(`/api/posts?status=failed,partial_failed${brandParam}`),
+        apiGet<{ posts: Post[] }>(`/api/posts?status=draft${scope}`),
+        apiGet<{ posts: Post[] }>(`/api/posts?status=${PLATFORM_ACTION_REQUIRED_STATUS},${LEGACY_EXPORTED_FOR_REVIEW_STATUS}${scope}`),
+        apiGet<{ posts: Post[] }>(`/api/posts?status=failed,partial_failed${scope}`),
       ]);
       const drafts = draftsRes.ok ? (draftsRes.data.posts || []) : [];
       const reviewReady = reviewRes.ok ? (reviewRes.data.posts || []) : [];
-      const failed = failedRes.ok ? (failedRes.data.posts || []) : [];
-      const all = [...reviewReady, ...failed, ...drafts].sort((a, b) => {
-        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return bTime - aTime;
-      });
-      setPosts(all);
+      setPosts([...reviewReady, ...(failedRes.ok ? (failedRes.data.posts || []) : []), ...drafts]);
     } catch {
       toast.error("Failed to load drafts");
     } finally {
@@ -251,10 +248,13 @@ export default function DraftsTab({
 
   // Posts waiting on the user aren't really drafts — surface them separately:
   // manual-queue posts the user publishes natively, and TikTok inbox handoffs.
-  const actionRequired = posts.filter((p) => isPlatformActionRequiredStatus(p.status));
+  // Newest date first across all three fetched sets, so page 1 is the most
+  // recent and paging walks backwards.
+  const ordered = sortPostsByNewestDate(posts);
+  const actionRequired = ordered.filter((p) => isPlatformActionRequiredStatus(p.status));
   const toPost = actionRequired.filter((p) => isManualQueuePost(p));
   const waitingInTikTok = actionRequired.filter((p) => !isManualQueuePost(p));
-  const draftPosts = posts.filter((p) => !isPlatformActionRequiredStatus(p.status));
+  const draftPosts = ordered.filter((p) => !isPlatformActionRequiredStatus(p.status));
 
   const totalPages = Math.ceil(draftPosts.length / POSTS_PER_PAGE);
   const paginatedPosts = draftPosts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);

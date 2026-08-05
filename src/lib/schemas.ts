@@ -257,7 +257,10 @@ export const updatePostSchema = z.object({
 // ── Pagination ─────────────────────────────────────────────────────
 
 export const paginationSchema = z.object({
-  limit: z.coerce.number().int().min(1).max(200).default(50),
+  // Ceiling raised from 200 so list views that paginate client-side can load a
+  // complete set — a workspace can hold hundreds of posts of one status, and a
+  // lower cap silently hid the remainder.
+  limit: z.coerce.number().int().min(1).max(1000).default(50),
   cursor: z.string().optional(),
   status: z.string().optional(),
   search: z.string().trim().max(200).optional(),

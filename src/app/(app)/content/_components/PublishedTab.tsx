@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import PostCard from "./PostCard";
 import PostGridSkeleton from "./PostGridSkeleton";
 import Pagination from "@/components/app/Pagination";
+import { sortPostsByNewestDate } from "@/lib/post-ordering";
 
 const POSTS_PER_PAGE = 6;
+/** Load the whole set so pagination walks every post, not just the first page. */
+const POSTS_FETCH_LIMIT = 1000;
 
 type Post = {
   id: string;
@@ -63,7 +66,7 @@ export default function PublishedTab({
   const fetchPublished = useCallback(async () => {
     try {
       const res = await apiGet<{ posts: Post[] }>(
-        `/api/posts?status=published${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`
+        `/api/posts?status=published&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`
       );
       if (res.ok) setPosts(res.data.posts || []);
     } catch {
@@ -94,8 +97,10 @@ export default function PublishedTab({
     );
   }
 
-  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
-  const paginatedPosts = posts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
+  // Newest date first, so page 1 is the most recent and paging walks backwards.
+  const ordered = sortPostsByNewestDate(posts);
+  const totalPages = Math.ceil(ordered.length / POSTS_PER_PAGE);
+  const paginatedPosts = ordered.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
 
   return (
     <>

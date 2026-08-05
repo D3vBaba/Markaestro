@@ -106,7 +106,14 @@ export async function GET(req: Request) {
       collection,
       { filters, orderByField: 'createdAt', limit },
     );
-    return apiOk({ workspaceId: ctx.workspaceId, posts, count: posts.length });
+    return apiOk({
+      workspaceId: ctx.workspaceId,
+      posts,
+      count: posts.length,
+      // Filling the limit exactly may mean more exist; callers that present a
+      // list as complete need to know rather than assume.
+      truncated: posts.length >= limit,
+    });
   } catch (error) {
     return apiError(error);
   }

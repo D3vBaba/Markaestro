@@ -10,8 +10,11 @@ import ScheduleSheet from "./ScheduleSheet";
 import PostGridSkeleton from "./PostGridSkeleton";
 import Pagination from "@/components/app/Pagination";
 import { getPublishUiOutcome } from "@/lib/social/publish-ui-outcome";
+import { sortPostsByNewestDate } from "@/lib/post-ordering";
 
 const POSTS_PER_PAGE = 6;
+/** Load the whole set so pagination walks every post, not just the first page. */
+const POSTS_FETCH_LIMIT = 1000;
 
 type Post = {
   id: string;
@@ -53,7 +56,7 @@ export default function ScheduledTab({
   const fetchScheduled = useCallback(async () => {
     try {
       const res = await apiGet<{ posts: Post[] }>(
-        `/api/posts?status=scheduled${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`
+        `/api/posts?status=scheduled&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`
       );
       if (res.ok) setPosts(res.data.posts || []);
     } catch {
@@ -243,8 +246,11 @@ export default function ScheduledTab({
     );
   }
 
-  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
-  const paginatedPosts = posts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
+  // Sorted at render, not at fetch, so an optimistic reschedule re-orders the
+  // list immediately instead of waiting for the refetch.
+  const ordered = sortPostsByNewestDate(posts);
+  const totalPages = Math.ceil(ordered.length / POSTS_PER_PAGE);
+  const paginatedPosts = ordered.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
 
   return (
     <>
