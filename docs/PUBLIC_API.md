@@ -59,9 +59,20 @@ created (Settings → API). A key only ever operates within its product:
   than one destination for the channel.
 - `GET /api/public/v1/products` returns just the key's product, and
   `GET /api/public/v1/products/:id/destinations` works only for it.
-- `GET /api/public/v1/posts` returns only that product's posts.
+- `GET /api/public/v1/posts` returns only that product's posts. The optional
+  `?productId=` filter may name the key's own product (same result) but is
+  rejected with `FORBIDDEN` for any other — it exists for workspace-wide keys,
+  which have no binding of their own.
+- `GET /api/public/v1/posts/:id`, `DELETE /api/public/v1/posts/:id`,
+  `POST /api/public/v1/posts/:id/publish`, and `GET /api/public/v1/job-runs/:id`
+  answer `404 NOT_FOUND` for anything outside the key's product — `404` rather
+  than `403` so a key cannot probe for ids it doesn't own. A job run inherits
+  the product of the post it acts on.
 - Naming a different product (a `productId` for another product) is rejected
   with `VALIDATION_PRODUCT_SCOPE_MISMATCH`.
+
+Because each key is pinned to one product, **listing what is scheduled across
+several brands means one call per key**, not one call with a filter.
 
 A workspace can have many products, and the same social account can belong to
 more than one — binding keeps each key cleanly isolated to one. To publish for
@@ -73,7 +84,9 @@ several products, create one key per product.
 - `GET /api/public/v1/products/:id/destinations`
 - `POST /api/public/v1/media`
 - `POST /api/public/v1/posts`
+- `GET /api/public/v1/posts` — `?status=`, `?productId=`, `?limit=` (max 100)
 - `GET /api/public/v1/posts/:id`
+- `DELETE /api/public/v1/posts/:id`
 - `POST /api/public/v1/posts/:id/publish`
 - `GET /api/public/v1/job-runs/:id`
 - `POST /api/public/v1/webhook-endpoints`
@@ -272,6 +285,39 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/posts/pst_123/publish" \
 curl "$MARKAESTRO_URL/api/public/v1/job-runs/run_123" \
   -H "Authorization: Bearer $MARKAESTRO_API_KEY"
 ```
+
+## Reviewing and cancelling the schedule
+
+Listing uses `posts.read` and deleting uses `posts.write` — no new scope, so
+keys issued before these existed can call both without being reissued.
+
+```bash
+# What is queued for this key's brand, newest first
+curl "$MARKAESTRO_URL/api/public/v1/posts?status=scheduled&limit=100" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+
+# Cancel one
+curl -X DELETE "$MARKAESTRO_URL/api/public/v1/posts/pst_123" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+```
+
+```json
+{ "deleted": true, "id": "pst_123" }
+```
+
+`status` matches one value — use `scheduled` for the queue, `draft`,
+`published`, `failed`, and so on for the rest. Every post carries `productId`,
+so a workspace-wide key can group results by brand without a second call.
+
+Deleting removes the post from Markaestro only:
+
+- A **published** post can be deleted, but its live platform copy stays up —
+  Markaestro just stops tracking it. Retract it on the platform itself.
+- A post **mid-publish** is refused with `400 VALIDATION_POST_IS_PUBLISHING`.
+  Deleting then would let the in-flight run publish anyway, leaving a live post
+  with no record. Wait for it to settle, then delete.
+- A **scheduled** post drops out of the publish sweep immediately; the
+  scheduler selects by status and due time, so no orphaned job remains.
 
 ## Webhooks
 
