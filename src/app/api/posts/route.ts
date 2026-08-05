@@ -2,7 +2,8 @@ import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
-import { createPostSchema, paginationSchema } from '@/lib/schemas';
+import { createPostSchema, paginationSchema, postWindowSchema } from '@/lib/schemas';
+import type { CollectionReference } from 'firebase-admin/firestore';
 import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 import { getManualPublishChannels, resolveInAppDeliveryMode } from '@/lib/manual-publish-settings';
@@ -10,6 +11,46 @@ import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
 
 export const runtime = 'nodejs';
 
+
+// A post lands on the calendar under publishedAt when it has one, otherwise
+// scheduledAt. Firestore can't OR across two fields in one query, so the window
+// is two range reads merged by id. The ceiling only exists so a malformed range
+// can't read the whole collection; a month never approaches it.
+const WINDOW_SAFETY_LIMIT = 1000;
+
+type PostDoc = { id: string } & Record<string, unknown>;
+
+async function fetchPostsInWindow(
+  collection: CollectionReference,
+  from?: string,
+  to?: string,
+): Promise<{ posts: PostDoc[]; truncated: boolean }> {
+  const readField = async (field: 'scheduledAt' | 'publishedAt') => {
+    const filters: FieldFilter[] = [];
+    if (from) filters.push({ field, op: '>=', value: from });
+    if (to) filters.push({ field, op: '<', value: to });
+    return executeListQuery(collection, {
+      filters,
+      orderByField: field,
+      limit: WINDOW_SAFETY_LIMIT,
+    });
+  };
+
+  const [scheduled, published] = await Promise.all([
+    readField('scheduledAt'),
+    readField('publishedAt'),
+  ]);
+
+  // A published post can match both reads; dedupe by id.
+  const byId = new Map<string, PostDoc>();
+  for (const post of [...scheduled, ...published]) byId.set(post.id, post);
+
+  return {
+    posts: [...byId.values()],
+    truncated:
+      scheduled.length >= WINDOW_SAFETY_LIMIT || published.length >= WINDOW_SAFETY_LIMIT,
+  };
+}
 
 export async function GET(req: Request) {
   try {
@@ -22,10 +63,38 @@ export async function GET(req: Request) {
     const channel = url.searchParams.get('channel') ?? undefined;
     // Brands are stored as `products`; posts link to one via productId.
     const productId = url.searchParams.get('productId') ?? undefined;
+    const { from, to } = postWindowSchema.parse({
+      from: url.searchParams.get('from') ?? undefined,
+      to: url.searchParams.get('to') ?? undefined,
+    });
+
+    const statuses = status
+      ? status.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+    const collection = adminDb.collection(`workspaces/${ctx.workspaceId}/posts`);
+
+    if (from || to) {
+      const window = await fetchPostsInWindow(collection, from, to);
+      // Secondary filters run in memory: combining a range with an equality on
+      // another field would need a composite index per combination, and the
+      // window already bounds the result set to one view's worth of posts.
+      const posts = window.posts.filter((post) =>
+        (statuses.length === 0 || statuses.includes(String(post.status ?? ''))) &&
+        (!channel || post.channel === channel) &&
+        (!productId || post.productId === productId)
+      );
+      return apiOk({
+        workspaceId: ctx.workspaceId,
+        posts,
+        count: posts.length,
+        // True only if a single window overflowed the safety ceiling, which
+        // would mean the view is showing an incomplete month.
+        truncated: window.truncated,
+      });
+    }
 
     const filters: FieldFilter[] = [];
-    if (status) {
-      const statuses = status.split(',').map((s) => s.trim()).filter(Boolean);
+    if (statuses.length > 0) {
       filters.push(statuses.length === 1
         ? { field: 'status', op: '==', value: statuses[0] }
         : { field: 'status', op: 'in', value: statuses });
@@ -34,7 +103,7 @@ export async function GET(req: Request) {
     if (productId) filters.push({ field: 'productId', op: '==', value: productId });
 
     const posts = await executeListQuery(
-      adminDb.collection(`workspaces/${ctx.workspaceId}/posts`),
+      collection,
       { filters, orderByField: 'createdAt', limit },
     );
     return apiOk({ workspaceId: ctx.workspaceId, posts, count: posts.length });

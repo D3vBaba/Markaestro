@@ -476,12 +476,24 @@ function CalendarPageContent() {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
+  // Fetch the month being viewed rather than "the N most recent posts". The
+  // API orders by createdAt, which has nothing to do with the day a post lands
+  // on, so a recency window silently drops posts the grid needs to draw.
+  // Bounds are local midnight to local midnight because the grid renders local
+  // days, and the API compares them against UTC instants.
+  const monthWindow = useMemo(() => {
+    const params = new URLSearchParams({
+      from: new Date(year, month, 1).toISOString(),
+      to: new Date(year, month + 1, 1).toISOString(),
+    });
+    return `/api/posts?${params.toString()}`;
+  }, [year, month]);
   const {
     data: postsData,
     loading,
     error: loadError,
     refresh,
-  } = useApiQuery<{ posts: Post[] }>("/api/posts?limit=200");
+  } = useApiQuery<{ posts: Post[]; truncated?: boolean }>(monthWindow);
   // Same query key as the Brands page, so this usually hits a warm cache.
   const { data: brandsData } = useApiQuery<{ products: Brand[] }>("/api/products");
   const brands = useMemo(() => brandsData?.products ?? [], [brandsData]);
@@ -816,6 +828,21 @@ function CalendarPageContent() {
               >
                 <X className="h-4 w-4" />
               </button>
+            </div>
+          )}
+
+          {/* Safety-ceiling notice — the month held more posts than one read
+              returns, so the grid below is incomplete. Should not happen in
+              practice; shown rather than silently dropping posts. */}
+          {postsData?.truncated && (
+            <div
+              className="flex items-center gap-2.5 rounded-lg px-4 py-3 mb-4"
+              style={{ background: "var(--mk-surface)", border: "1px dashed var(--mk-warn)" }}
+            >
+              <AlertCircle className="h-4 w-4 shrink-0" style={{ color: "var(--mk-warn)" }} />
+              <p className="text-[13px] m-0" style={{ color: "var(--mk-ink-60)" }}>
+                This month has more posts than the calendar can load at once — some are not shown.
+              </p>
             </div>
           )}
 

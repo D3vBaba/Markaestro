@@ -215,6 +215,16 @@ export const metaIntegrationSchema = z.object({
 
 // ── Post Schemas ──────────────────────────────────────────────────
 
+/**
+ * Calendar window for GET /api/posts. Bounds the result set by the date a post
+ * actually lands on rather than by recency, so a month view can load every
+ * post it needs to draw.
+ */
+export const postWindowSchema = z.object({
+  from: z.string().datetime().optional(),
+  to: z.string().datetime().optional(),
+});
+
 export const createPostSchema = z.object({
   content: z.string().trim().min(1, 'Content is required').max(65000),
   channel: z.enum(socialChannels),
