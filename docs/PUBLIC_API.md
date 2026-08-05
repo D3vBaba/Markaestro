@@ -61,8 +61,7 @@ created (Settings → API). A key only ever operates within its product:
   `GET /api/public/v1/products/:id/destinations` works only for it.
 - `GET /api/public/v1/posts` returns only that product's posts. The optional
   `?productId=` filter may name the key's own product (same result) but is
-  rejected with `FORBIDDEN` for any other — it exists for workspace-wide keys,
-  which have no binding of their own.
+  rejected with `FORBIDDEN` for any other.
 - `GET /api/public/v1/posts/:id`, `DELETE /api/public/v1/posts/:id`,
   `POST /api/public/v1/posts/:id/publish`, and `GET /api/public/v1/job-runs/:id`
   answer `404 NOT_FOUND` for anything outside the key's product — `404` rather
@@ -73,6 +72,11 @@ created (Settings → API). A key only ever operates within its product:
 
 Because each key is pinned to one product, **listing what is scheduled across
 several brands means one call per key**, not one call with a filter.
+
+The binding is enforced at authentication, not just at creation. A key with no
+product binding — only possible for keys issued before binding was required —
+is refused with `403 API_KEY_NOT_BOUND_TO_PRODUCT`. Replace it with a new key
+from Settings → API, which binds it to one brand.
 
 A workspace can have many products, and the same social account can belong to
 more than one — binding keeps each key cleanly isolated to one. To publish for

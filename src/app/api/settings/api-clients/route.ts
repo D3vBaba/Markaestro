@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       // Required product binding — createApiClientSchema rejects an empty
       // productId and the product's existence is checked above, so a key can
       // never be minted workspace-wide. Keys predating this requirement have
-      // no productId field and still authenticate workspace-wide.
+      // no productId field and are refused at authentication.
       productId: data.productId,
       // Provenance snapshot: the issuer's email was verified at issuance time.
       createdEmailVerified: true,

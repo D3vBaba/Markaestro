@@ -11,9 +11,10 @@ export type PublicApiContext = {
   clientId: string;
   ownerUid?: string;
   scopes: PublicApiScope[];
-  // When set, the key is bound to a single product: calls auto-target it and
-  // requests for any other product are rejected. Undefined = workspace-wide.
-  productId?: string;
+  // Every authenticated key is bound to exactly one product: calls auto-target
+  // it and requests for any other product are rejected. Unbound keys are
+  // refused at authentication, so this is always set.
+  productId: string;
   rateLimitHeaders: Record<string, string>;
 };
 
@@ -48,6 +49,25 @@ export function hasPublicApiScope(
   if (grantedScopes.includes(requiredScope)) return true;
   const impliedBy = impliedScopeGrants[requiredScope] || [];
   return impliedBy.some((scope) => grantedScopes.includes(scope));
+}
+
+/**
+ * Every API key is bound to exactly one product — the binding is what scopes a
+ * key to a single brand. Keys minted before that requirement carry no
+ * productId and would otherwise authenticate workspace-wide, so they are
+ * refused rather than silently granted access across every brand.
+ *
+ * Returns the bound product id so callers get a non-optional value.
+ */
+export function requireApiClientProduct(productId: string | null | undefined): string {
+  const bound = typeof productId === 'string' ? productId.trim() : '';
+  if (!bound) {
+    throw new Response(JSON.stringify({
+      error: 'API_KEY_NOT_BOUND_TO_PRODUCT',
+      message: 'This API key is not bound to a brand. Create a new key in Settings → API, which binds it to one brand.',
+    }), { status: 403, headers: { 'Content-Type': 'application/json' } });
+  }
+  return bound;
 }
 
 export async function requirePublicApiContext(
@@ -91,6 +111,8 @@ export async function requirePublicApiContext(
     throw new Error('FORBIDDEN');
   }
 
+  const productId = requireApiClientProduct(data.productId);
+
   const rateLimitConfig = options.rateLimit || RATE_LIMITS.api;
   const pathname = new URL(req.url).pathname;
 
@@ -133,7 +155,7 @@ export async function requirePublicApiContext(
     clientId: parsed.clientId,
     ownerUid: data.ownerUid,
     scopes,
-    productId: data.productId || undefined,
+    productId,
     rateLimitHeaders,
   };
 }
