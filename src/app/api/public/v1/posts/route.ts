@@ -1,10 +1,10 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
-import { createPublicPost, serializePublicPost } from '@/lib/public-api/posts';
+import { createPublicPost, resolvePublicPostBrandScope, serializePublicPost } from '@/lib/public-api/posts';
 import { createPublicPostSchema, createPublicPostsBatchSchema, listPublicPostsSchema } from '@/lib/public-api/schemas';
 import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
-import { executeListQuery } from '@/lib/firestore-list-query';
+import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 
 export const runtime = 'nodejs';
@@ -22,25 +22,26 @@ export async function GET(req: Request) {
     const params = listPublicPostsSchema.parse({
       limit: url.searchParams.get('limit') ?? 25,
       status: url.searchParams.get('status') ?? undefined,
+      productId: url.searchParams.get('productId') ?? undefined,
     });
 
-    const filters = params.status
-      ? [{ field: 'status', op: '==', value: params.status } as const]
-      : [];
+    // A brand-bound key is always pinned to its own brand; an unbound key may
+    // filter by ?productId. Applied as a query filter rather than in memory so
+    // `limit` counts matching posts — filtering after the fetch could return
+    // fewer (or none) while more existed.
+    const brandId = resolvePublicPostBrandScope(ctx.productId, params.productId);
+    const filters: FieldFilter[] = [];
+    if (params.status) filters.push({ field: 'status', op: '==', value: params.status });
+    if (brandId) filters.push({ field: 'productId', op: '==', value: brandId });
+
     const posts = await executeListQuery(
       adminDb.collection(`workspaces/${ctx.workspaceId}/posts`),
       { filters, orderByField: 'createdAt', limit: params.limit },
     );
 
-    // A product-bound key only sees its own product's posts. Filtered in memory
-    // to avoid requiring a productId+createdAt composite index.
-    const scoped = ctx.productId
-      ? posts.filter((post) => (post as { productId?: string }).productId === ctx.productId)
-      : posts;
-
     return Response.json({
-      posts: scoped.map((post) => serializePublicPost(post as Record<string, unknown>)),
-      count: scoped.length,
+      posts: posts.map((post) => serializePublicPost(post as Record<string, unknown>)),
+      count: posts.length,
     }, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);

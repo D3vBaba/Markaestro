@@ -75,6 +75,8 @@ export const createPublicPostsBatchSchema = z.object({
 export const listPublicPostsSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(25),
   status: z.string().trim().max(200).optional(),
+  /** Brand to scope the listing to; brands are stored as `products`. */
+  productId: z.string().trim().max(2000).optional(),
 });
 
 export const registerWebhookEndpointSchema = z.object({

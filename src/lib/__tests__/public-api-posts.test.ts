@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getDeliveryModeForChannel, getPublicPostInitialState, resolveRequestedDeliveryMode, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
+import { assertPublicPostDeletable, assertPublicPostInBrandScope, getDeliveryModeForChannel, getPublicPostInitialState, resolvePublicPostBrandScope, resolveRequestedDeliveryMode, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
 import { getConnectScheduledDeliveryMode, resolveConnectSchedule } from '../public-api/connect-compat';
 
 describe('public post validation', () => {
@@ -147,5 +147,47 @@ describe('public post validation', () => {
     expect(serialized.slideshowTitle).toBe('Launch sequence');
     expect(serialized.slideshowSlideCount).toBe(6);
     expect(serialized.slideshowCoverIndex).toBe(0);
+  });
+});
+
+describe('brand scoping', () => {
+  it('lets an unbound workspace key filter by any brand, or none', () => {
+    expect(resolvePublicPostBrandScope(undefined, 'prod_a')).toBe('prod_a');
+    expect(resolvePublicPostBrandScope(undefined, undefined)).toBeUndefined();
+    // An empty ?productId= is "no filter", not a brand named "".
+    expect(resolvePublicPostBrandScope(undefined, '')).toBeUndefined();
+  });
+
+  it('pins a brand-bound key to its own brand', () => {
+    expect(resolvePublicPostBrandScope('prod_a', undefined)).toBe('prod_a');
+    expect(resolvePublicPostBrandScope('prod_a', 'prod_a')).toBe('prod_a');
+  });
+
+  it('refuses a brand-bound key asking for another brand', () => {
+    expect(() => resolvePublicPostBrandScope('prod_a', 'prod_b')).toThrow('FORBIDDEN');
+  });
+
+  it('hides another brand post from a brand-bound key as NOT_FOUND', () => {
+    expect(() => assertPublicPostInBrandScope({ productId: 'prod_b' }, 'prod_a'))
+      .toThrow('NOT_FOUND');
+    expect(() => assertPublicPostInBrandScope({}, 'prod_a')).toThrow('NOT_FOUND');
+  });
+
+  it('allows a brand-bound key its own brand, and an unbound key anything', () => {
+    expect(() => assertPublicPostInBrandScope({ productId: 'prod_a' }, 'prod_a')).not.toThrow();
+    expect(() => assertPublicPostInBrandScope({ productId: 'prod_b' }, undefined)).not.toThrow();
+  });
+});
+
+describe('post deletion guards', () => {
+  it('refuses to delete a post already handed to the publisher', () => {
+    expect(() => assertPublicPostDeletable({ status: 'publishing' }))
+      .toThrow('VALIDATION_POST_IS_PUBLISHING');
+  });
+
+  it('allows deleting posts in every settled state', () => {
+    for (const status of ['draft', 'scheduled', 'published', 'failed', 'partial_failed']) {
+      expect(() => assertPublicPostDeletable({ status })).not.toThrow();
+    }
   });
 });

@@ -6,6 +6,7 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
 import { createPublicPost } from '@/lib/public-api/posts';
+import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 import {
   getConnectScheduledDeliveryMode,
@@ -101,24 +102,22 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const limit = Math.min(Math.max(Number(url.searchParams.get('limit')) || 100, 1), 100);
 
-    const snap = await adminDb
-      .collection(workspaceCollection(ctx.workspaceId, 'posts'))
-      .orderBy('createdAt', 'desc')
-      .limit(limit)
-      .get();
+    // A product-bound key only sees its own product's posts. Applied as a query
+    // filter rather than in memory so `limit` counts matching posts — filtering
+    // after the fetch could return fewer (or none) while more existed.
+    const filters: FieldFilter[] = [];
+    if (ctx.productId) filters.push({ field: 'productId', op: '==', value: ctx.productId });
 
-    // A product-bound key only sees its own product's posts (filtered in memory
-    // to avoid requiring a productId+createdAt composite index).
-    const docs = ctx.productId
-      ? snap.docs.filter((doc) => (doc.data() as { productId?: string }).productId === ctx.productId)
-      : snap.docs;
+    const posts = await executeListQuery(
+      adminDb.collection(workspaceCollection(ctx.workspaceId, 'posts')),
+      { filters, orderByField: 'createdAt', limit },
+    );
 
-    const data = docs.map((doc) => {
-      const p = doc.data() as Record<string, unknown>;
+    const data = posts.map((p) => {
       const mediaUrls = Array.isArray(p.mediaUrls) ? (p.mediaUrls as unknown[]).map(String) : [];
       const status = mapPostStatus(p.status);
       return {
-        id: doc.id,
+        id: p.id,
         caption: String(p.content || ''),
         status,
         scheduled_at: (p.scheduledAt as string) || null,

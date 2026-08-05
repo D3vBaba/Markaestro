@@ -24,11 +24,13 @@ const endpointGroups = [
   },
   {
     title: "Posts",
-    description: "Create, inspect, and publish posts for Facebook, Instagram, LinkedIn, Threads, Pinterest, and TikTok.",
+    description: "Create, list, inspect, publish, and delete posts for Facebook, Instagram, LinkedIn, Threads, Pinterest, and TikTok.",
     endpoints: [
       { method: "POST", path: "/api/public/v1/posts", note: "Creates a draft in the workspace. Facebook, Instagram, and TikTok default to manual posting (deliveryMode manual_reminder); pass deliveryMode direct_publish to opt a post into API publishing." },
+      { method: "GET", path: "/api/public/v1/posts", note: "Lists posts, newest first. Filter with ?status=scheduled to see what is queued, and ?productId= to scope to one brand. A brand-bound key is always limited to its own brand and may omit productId." },
       { method: "GET", path: "/api/public/v1/posts/:id", note: "Returns current post status, delivery mode, and publish results." },
       { method: "POST", path: "/api/public/v1/posts/:id/publish", note: "Queues an async publish run. Manual posts land in the workspace's To Post queue for native posting; LinkedIn, Threads, and Pinterest publish directly; opted-in Meta posts publish via the official API, and opted-in TikTok posts use the inbox handoff." },
+      { method: "DELETE", path: "/api/public/v1/posts/:id", note: "Deletes the post from Markaestro. Uses the existing posts.write scope. Returns 400 VALIDATION_POST_IS_PUBLISHING while a publish run is in flight. Deleting a published post does not retract the live platform copy." },
     ],
   },
   {
@@ -66,6 +68,17 @@ const examples = {
   publish: `curl -X POST "$MARKAESTRO_URL/api/public/v1/posts/pst_123/publish" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
   -H "Idempotency-Key: publish-001"`,
+  listScheduled: `# What is scheduled for one brand
+curl "$MARKAESTRO_URL/api/public/v1/posts?status=scheduled&productId=prod_123&limit=100" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+
+# Omit productId to see every brand the key can reach
+curl "$MARKAESTRO_URL/api/public/v1/posts?status=scheduled" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+
+# Cancel one
+curl -X DELETE "$MARKAESTRO_URL/api/public/v1/posts/pst_123" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"`,
   tiktokCreatePost: `curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
   -H "Content-Type: application/json" \\
@@ -337,6 +350,15 @@ export default function DevelopersApiPage() {
               </CardHeader>
               <CardContent>
                 <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.publish}</code></pre>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>6. Review the schedule and cancel</CardTitle>
+                <CardDescription>List what is queued for a brand, then delete anything you no longer want to go out. Both use scopes existing keys already carry — <code>posts.read</code> and <code>posts.write</code>.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <pre className="overflow-x-auto rounded-lg p-4 text-[12px] leading-6" style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}><code>{examples.listScheduled}</code></pre>
               </CardContent>
             </Card>
             <Card>

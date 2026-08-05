@@ -1,7 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
-import { getPublicPost } from '@/lib/public-api/posts';
+import { assertPublicPostInBrandScope, getPublicPost } from '@/lib/public-api/posts';
 import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
@@ -21,6 +21,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
     const { id } = await params;
     const post = await getPublicPost(ctx.workspaceId, id);
+    assertPublicPostInBrandScope(post, ctx.productId);
     const skipReason = getPublishRunSkipReason(post);
     if (skipReason) {
       return Response.json({

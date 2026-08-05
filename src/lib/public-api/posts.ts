@@ -194,6 +194,50 @@ export async function getPublicPost(workspaceId: string, postId: string): Promis
   return { id: snap.id, ...(snap.data() as Record<string, unknown>) };
 }
 
+/**
+ * Resolve which brand (productId) a list query should be scoped to.
+ *
+ * A brand-bound key is hard-scoped to its own brand: it may omit the filter or
+ * name its own brand, but asking for another brand is forbidden. An unbound
+ * workspace key may filter by any brand, or omit it to list every brand.
+ */
+export function resolvePublicPostBrandScope(
+  keyProductId?: string,
+  requestedProductId?: string,
+): string | undefined {
+  if (!keyProductId) return requestedProductId || undefined;
+  if (requestedProductId && requestedProductId !== keyProductId) {
+    throw new Error('FORBIDDEN');
+  }
+  return keyProductId;
+}
+
+/**
+ * A brand-bound key must not read or mutate another brand's post. Reported as
+ * NOT_FOUND rather than FORBIDDEN so a key cannot probe for post ids that
+ * exist outside its brand.
+ */
+export function assertPublicPostInBrandScope(
+  post: Record<string, unknown>,
+  keyProductId?: string,
+) {
+  if (!keyProductId) return;
+  if (post.productId !== keyProductId) throw new Error('NOT_FOUND');
+}
+
+/**
+ * A post already handed to the publisher must not be deleted out from under
+ * it — the run would keep going and could publish, leaving a live post with
+ * no record. Callers should cancel or wait for it to settle first.
+ */
+export function assertPublicPostDeletable(post: Record<string, unknown>) {
+  if (post.status === 'publishing') throw new Error('VALIDATION_POST_IS_PUBLISHING');
+}
+
+export async function deletePublicPost(workspaceId: string, postId: string) {
+  await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).delete();
+}
+
 export function serializePublicPost(post: Record<string, unknown>) {
   return {
     id: String(post.id),
