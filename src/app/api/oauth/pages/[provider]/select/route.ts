@@ -15,6 +15,8 @@ import {
   LINKEDIN_COMMUNITY_PROVIDER,
   LINKEDIN_PROFILE_PROVIDER,
 } from '@/lib/platform/linkedin-providers';
+import { getPinterestApiUrl } from '@/lib/pinterest-api';
+import { fetchMetaManagedPages } from '@/lib/meta-pages';
 
 export const runtime = 'nodejs';
 
@@ -42,7 +44,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       const connection = snap.data() as PlatformConnection;
       const accessToken = resolveUserAccessToken(connection);
 
-      const boardsRes = await fetch('https://api.pinterest.com/v5/boards?page_size=100', {
+      const boardsRes = await fetch(`${getPinterestApiUrl('/boards')}?page_size=100`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const boardsData = await boardsRes.json();
@@ -190,19 +192,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     if (!prodConn) throw new Error('NOT_FOUND');
     const userAccessToken = resolveUserAccessToken(prodConn);
 
-    // Fetch pages to get the selected page's access token
-    const pagesRes = await fetch(
-      'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token',
-      { headers: { Authorization: `Bearer ${userAccessToken}` } },
-    );
-    const pagesData = await pagesRes.json();
-
-    if (!pagesRes.ok || !pagesData.data) {
-      throw new Error('Failed to fetch pages from Meta');
-    }
-
-    const selectedPage = pagesData.data.find((p: Record<string, unknown>) => p.id === pageId);
-    if (!selectedPage) {
+    // Resolve the selected Page from either /me/accounts or the granular
+    // asset targets returned by Facebook Login for Business.
+    const pagesResult = await fetchMetaManagedPages(userAccessToken);
+    const selectedPage = pagesResult.pages.find((page) => page.id === pageId);
+    if (!selectedPage || !selectedPage.accessToken) {
       throw new Error('NOT_FOUND');
     }
 
@@ -215,7 +209,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       metadata: {
         pageId,
         pageName: pageName || selectedPage.name,
-        pageAccessTokenEncrypted: encrypt(selectedPage.access_token as string),
+        pageAccessTokenEncrypted: encrypt(selectedPage.accessToken),
         igAccountId: null,
         pageSelectionRequired: false,
       },

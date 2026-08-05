@@ -655,26 +655,23 @@ async function fetchFacebookMetrics(
 ): Promise<MetricsFetchResult> {
   const accessToken = resolveAccessToken(connection);
 
-  // Engagement counts come from always-available post fields; the insights
-  // edge below is best-effort because Meta keeps pruning its metric list.
+  // Reactions/comments/shares are optional enrichment. Some otherwise-valid
+  // Page tokens can read /insights but cannot read these post fields without
+  // pages_read_user_content. Do not discard successful read_insights data just
+  // because that separate permission was not granted.
   const fieldsRes = await graphApiFetch(
     `${GRAPH_API}/${postId}?fields=reactions.summary(true).limit(0),comments.summary(true).limit(0),shares`,
     { headers: { Authorization: `Bearer ${accessToken}` } },
     { maxRetries: 1 },
   );
   const fieldsData = await fieldsRes.json().catch(() => ({}));
-  if (!fieldsRes.ok) {
-    return {
-      ok: false,
-      error: fieldsData.error?.message || `Facebook post fetch failed (HTTP ${fieldsRes.status})`,
-      reason: classifyGraphError(fieldsRes.status, fieldsData),
-    };
-  }
 
   const metrics = emptyMetrics();
-  metrics.likes = metricNum(fieldsData.reactions?.summary?.total_count);
-  metrics.comments = metricNum(fieldsData.comments?.summary?.total_count);
-  metrics.shares = metricNum(fieldsData.shares?.count) ?? (fieldsData.shares === undefined ? 0 : null);
+  if (fieldsRes.ok) {
+    metrics.likes = metricNum(fieldsData.reactions?.summary?.total_count);
+    metrics.comments = metricNum(fieldsData.comments?.summary?.total_count);
+    metrics.shares = metricNum(fieldsData.shares?.count) ?? (fieldsData.shares === undefined ? 0 : null);
+  }
 
   let call = await fetchInsightsCall(GRAPH_API, postId, FB_POST_METRICS, accessToken);
   if (!call.ok && isInvalidMetricError(call.data)) {
@@ -687,8 +684,20 @@ async function fetchFacebookMetrics(
     metrics.clicks = metricNum(v.post_clicks);
     metrics.videoViews = metricNum(v.post_video_views);
     metrics.raw = v;
+    return { ok: true, metrics };
   }
-  return { ok: true, metrics };
+
+  // Preserve useful engagement data when Meta temporarily rejects or prunes
+  // an insights metric. If neither source is readable, surface the insights
+  // failure because read_insights is the primary capability of this method.
+  if (fieldsRes.ok) return { ok: true, metrics };
+  return {
+    ok: false,
+    error: call.data.error?.message
+      || fieldsData.error?.message
+      || `Facebook insights failed (HTTP ${call.status})`,
+    reason: classifyGraphError(call.status, call.data),
+  };
 }
 
 async function fetchMetaAudience(

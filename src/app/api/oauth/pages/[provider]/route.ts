@@ -14,31 +14,14 @@ import {
   LINKEDIN_COMMUNITY_PROVIDER,
   LINKEDIN_PROFILE_PROVIDER,
 } from '@/lib/platform/linkedin-providers';
+import { getPinterestApiUrl } from '@/lib/pinterest-api';
+import { fetchMetaManagedPages } from '@/lib/meta-pages';
 
 export const runtime = 'nodejs';
 
 
-async function fetchMetaPages(accessToken: string) {
-  const res = await fetch(
-    'https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token',
-    { headers: { Authorization: `Bearer ${accessToken}` } },
-  );
-  const data = await res.json();
-  if (!res.ok || !data.data) {
-    return { pages: [], error: data.error?.message || 'Failed to fetch pages' };
-  }
-  return {
-    pages: data.data.map((p: Record<string, unknown>) => ({
-      id: p.id,
-      name: p.name,
-      hasInstagram: false,
-      igAccountId: null,
-    })),
-  };
-}
-
 async function fetchPinterestBoards(accessToken: string) {
-  const res = await fetch('https://api.pinterest.com/v5/boards?page_size=100', {
+  const res = await fetch(`${getPinterestApiUrl('/boards')}?page_size=100`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   const data = await res.json();
@@ -194,7 +177,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const accessToken = resolveUserAccessToken(conn);
 
     if (provider === 'meta') {
-      return apiOk(await fetchMetaPages(accessToken));
+      const result = await fetchMetaManagedPages(accessToken);
+      return apiOk({
+        pages: result.pages.map((page) => ({
+          id: page.id,
+          name: page.name,
+          hasInstagram: false,
+          igAccountId: null,
+        })),
+        ...(result.error ? { error: result.error } : {}),
+      });
     }
     return apiOk(await fetchPinterestBoards(accessToken));
   } catch (error) {

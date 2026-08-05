@@ -11,6 +11,8 @@ import {
   linkedinCommunityMetadataFromDiscovery,
   linkedinProfileMetadataFromDiscovery,
 } from '@/lib/platform/linkedin-api';
+import { getPinterestApiEnvironment, getPinterestApiUrl } from '@/lib/pinterest-api';
+import { fetchMetaManagedPages } from '@/lib/meta-pages';
 
 export const runtime = 'nodejs';
 
@@ -173,7 +175,7 @@ async function exchangeThreadsLongLivedToken(shortToken: string) {
 }
 
 async function fetchPinterestProfile(accessToken: string) {
-  const res = await fetch('https://api.pinterest.com/v5/user_account', {
+  const res = await fetch(getPinterestApiUrl('/user_account'), {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   const data = await res.json();
@@ -332,23 +334,24 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
 
       // Fetch user's pages for later selection
       try {
-        const pagesRes = await fetch(
-          `https://graph.facebook.com/v22.0/me/accounts?fields=id,name,access_token`,
-          { headers: { Authorization: `Bearer ${tokens.accessToken}` } },
-        );
-        const pagesData = await pagesRes.json();
-        if (pagesData.data && pagesData.data.length > 0) {
+        const pagesResult = await fetchMetaManagedPages(tokens.accessToken);
+        if (pagesResult.pages.length > 0) {
           // Store pages metadata (without tokens) for the page selector
-          extraData.availablePages = pagesData.data.map((p: Record<string, unknown>) => ({
-            id: p.id,
-            name: p.name,
+          extraData.availablePages = pagesResult.pages.map((page) => ({
+            id: page.id,
+            name: page.name,
           }));
-          if (pagesData.data.length === 1) {
-            const page = pagesData.data[0] as Record<string, unknown>;
+          if (pagesResult.pages.length === 1) {
+            const page = pagesResult.pages[0];
             extraData.pageId = page.id;
             extraData.pageName = page.name;
-            extraData.pageAccessTokenEncrypted = encrypt(page.access_token as string);
-            extraData.pageSelectionRequired = false;
+            if (page.accessToken) {
+              extraData.pageAccessTokenEncrypted = encrypt(page.accessToken);
+              extraData.pageSelectionRequired = false;
+            } else {
+              metaNeedsPageSelection = true;
+              extraData.pageSelectionRequired = true;
+            }
           } else {
             metaNeedsPageSelection = true;
             extraData.pageSelectionRequired = true;
@@ -460,6 +463,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       extraData.displayName = profile.displayName;
       if (profile.profileImage) extraData.pictureUrl = profile.profileImage;
       if (profile.accountType) extraData.accountType = profile.accountType;
+      extraData.pinterestApiEnvironment = getPinterestApiEnvironment();
       // Board picker runs after this callback. Flag the connection as needing
       // selection so the UI can prompt the user.
       extraData.boardSelectionRequired = true;
