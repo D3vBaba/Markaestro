@@ -50,11 +50,35 @@ export async function getMetaConnectionMerged(
   workspaceId: string,
   productId?: string,
 ): Promise<PlatformConnection | null> {
-  // Meta is linked per product: the user token and the chosen Facebook Page live
-  // together on the product's own connection. There is no shared workspace-level
-  // Meta connection, so a Meta lookup without a productId resolves to nothing.
-  if (!productId) return null;
-  return getConnection(workspaceId, 'meta', productId);
+  const workspaceConnection = await getConnection(workspaceId, 'meta');
+
+  if (workspaceConnection) {
+    if (!productId) return workspaceConnection;
+
+    const productConnection = await getConnection(workspaceId, 'meta', productId);
+    if (!productConnection) return workspaceConnection;
+
+    // Meta authorizes the app-user once, while each product owns its selected
+    // Page. Use the canonical workspace credential and the product Page token.
+    return {
+      ...workspaceConnection,
+      status: productConnection.status,
+      productId,
+      metadata: {
+        ...workspaceConnection.metadata,
+        ...productConnection.metadata,
+      },
+    };
+  }
+
+  // Backward compatibility for product connections created before the shared
+  // Meta credential was restored.
+  if (productId) {
+    const productConnection = await getConnection(workspaceId, 'meta', productId);
+    if (productConnection?.accessTokenEncrypted) return productConnection;
+  }
+
+  return null;
 }
 
 function hasReadyMetaDestination(connection: PlatformConnection | null, channel: SocialChannel): connection is PlatformConnection {

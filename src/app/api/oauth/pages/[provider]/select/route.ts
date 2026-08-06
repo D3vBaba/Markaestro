@@ -1,6 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
-import { encrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { getConnection, resolveUserAccessToken, getConnectionRef } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
@@ -17,6 +16,10 @@ import {
 } from '@/lib/platform/linkedin-providers';
 import { getPinterestApiUrl } from '@/lib/pinterest-api';
 import { fetchMetaManagedPages } from '@/lib/meta-pages';
+import {
+  saveMetaProductPageSelection,
+  syncGrantedMetaProductConnections,
+} from '@/lib/oauth/meta-connection-sync';
 
 export const runtime = 'nodejs';
 
@@ -186,11 +189,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       });
     }
 
-    // Per-product Meta: the user token lives on the product's own connection.
     if (!productId) throw new Error('VALIDATION_MISSING_PRODUCT_ID');
-    const prodConn = await getConnection(ctx.workspaceId, 'meta', productId);
-    if (!prodConn) throw new Error('NOT_FOUND');
-    const userAccessToken = resolveUserAccessToken(prodConn);
+    const workspaceConnection = await getConnection(ctx.workspaceId, 'meta');
+    const productConnection = await getConnection(ctx.workspaceId, 'meta', productId);
+    const credentialConnection = workspaceConnection || productConnection;
+    if (!credentialConnection) throw new Error('NOT_FOUND');
+    const userAccessToken = resolveUserAccessToken(credentialConnection);
 
     // Resolve the selected Page from either /me/accounts or the granular
     // asset targets returned by Facebook Login for Business.
@@ -200,24 +204,25 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       throw new Error('NOT_FOUND');
     }
 
-    // Merge the chosen page onto the product's Meta connection (the user token
-    // already on the doc is preserved).
-    const prodRef = getConnectionRef(ctx.workspaceId, 'meta', productId);
-    await prodRef.set({
-      provider: 'meta',
-      status: 'connected',
-      metadata: {
-        pageId,
-        pageName: pageName || selectedPage.name,
-        pageAccessTokenEncrypted: encrypt(selectedPage.accessToken),
-        igAccountId: null,
-        pageSelectionRequired: false,
-      },
+    await syncGrantedMetaProductConnections({
+      workspaceId: ctx.workspaceId,
+      userId: ctx.uid,
+      userAccessToken,
+      tokenExpiresAt: credentialConnection.tokenExpiresAt,
+      pages: pagesResult.pages,
+    });
+    await saveMetaProductPageSelection({
       workspaceId: ctx.workspaceId,
       productId,
-      updatedBy: ctx.uid,
-      updatedAt: new Date().toISOString(),
-    }, { merge: true });
+      userId: ctx.uid,
+      userAccessToken,
+      tokenExpiresAt: credentialConnection.tokenExpiresAt,
+      page: {
+        ...selectedPage,
+        name: pageName || selectedPage.name,
+      },
+      availablePages: pagesResult.pages,
+    });
 
     return apiOk({
       ok: true,

@@ -166,9 +166,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       });
     }
 
-    // Every provider — including Meta — is linked per product, so the OAuth
-    // tokens live on the product-level connection doc.
-    const conn = await getConnection(ctx.workspaceId, provider, productId);
+    // Meta keeps one canonical app-user credential at workspace scope and a
+    // product-level Page selection. Fall back to a legacy product token during
+    // migration; other providers remain product-scoped.
+    const conn = provider === 'meta'
+      ? (await getConnection(ctx.workspaceId, 'meta')) ||
+        (await getConnection(ctx.workspaceId, 'meta', productId))
+      : await getConnection(ctx.workspaceId, provider, productId);
 
     if (!conn || !conn.accessTokenEncrypted) {
       return apiOk({ pages: [] });

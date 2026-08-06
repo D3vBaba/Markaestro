@@ -12,8 +12,9 @@ export const runtime = 'nodejs';
 
 
 const ALLOWED = new Set<string>(oauthProviders);
-// Every social provider is linked per product (productId required) — including
-// Meta. Each product links its own Facebook login; nothing is shared workspace-wide.
+// Every social provider is configured from a product (productId required).
+// Meta keeps the selected Page per product but shares its app-user credential
+// at workspace scope because Facebook permissions are not product-scoped.
 const SOCIAL_PROVIDERS = new Set(['meta', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin']);
 
 function getFallbackPath(productId?: string, returnTo?: string) {

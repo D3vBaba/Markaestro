@@ -12,7 +12,12 @@ import {
   linkedinProfileMetadataFromDiscovery,
 } from '@/lib/platform/linkedin-api';
 import { getPinterestApiEnvironment, getPinterestApiUrl } from '@/lib/pinterest-api';
-import { fetchMetaManagedPages } from '@/lib/meta-pages';
+import { fetchMetaManagedPages, type MetaManagedPage } from '@/lib/meta-pages';
+import {
+  markMetaProductPageSelectionRequired,
+  saveMetaProductPageSelection,
+  syncGrantedMetaProductConnections,
+} from '@/lib/oauth/meta-connection-sync';
 
 export const runtime = 'nodejs';
 
@@ -290,6 +295,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
 
     const extraData: Record<string, unknown> = {};
     let metaNeedsPageSelection = false;
+    let metaPages: MetaManagedPage[] = [];
 
     if (exchangeResult.extraData) {
       Object.assign(extraData, exchangeResult.extraData);
@@ -335,6 +341,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       // Fetch user's pages for later selection
       try {
         const pagesResult = await fetchMetaManagedPages(tokens.accessToken);
+        metaPages = pagesResult.pages;
         if (pagesResult.pages.length > 0) {
           // Store pages metadata (without tokens) for the page selector
           extraData.availablePages = pagesResult.pages.map((page) => ({
@@ -356,9 +363,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
             metaNeedsPageSelection = true;
             extraData.pageSelectionRequired = true;
           }
+        } else {
+          metaNeedsPageSelection = true;
+          extraData.pageSelectionRequired = true;
         }
       } catch {
-        // Non-fatal — user can still select pages later
+        // Non-fatal — user can still select pages later.
+        metaNeedsPageSelection = true;
+        extraData.pageSelectionRequired = true;
       }
     }
 
@@ -486,13 +498,77 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       }
     }
 
-    // Every provider — including Meta — is linked per product. Each product
-    // links its own Facebook login (no shared workspace-level Meta connection):
-    // the user token + page metadata are stored together on the product doc.
     if (provider === 'meta' && !productId) {
       throw new Error('VALIDATION_MISSING_PRODUCT_ID');
     }
-    await storeTokens(workspaceId, provider as OAuthProvider, tokens, userId, extraData, productId, storageProvider);
+
+    if (provider === 'meta') {
+      // Facebook permissions belong to the app-user, not to an individual
+      // Markaestro product. Store one canonical user credential and keep only
+      // the selected Page/Page token on each product connection.
+      const workspaceMetaData = { ...extraData };
+      delete workspaceMetaData.pageId;
+      delete workspaceMetaData.pageName;
+      delete workspaceMetaData.pageAccessTokenEncrypted;
+      delete workspaceMetaData.pageSelectionRequired;
+      await storeTokens(
+        workspaceId,
+        'meta',
+        tokens,
+        userId,
+        workspaceMetaData,
+      );
+
+      const tokenExpiresAt = tokens.expiresIn
+        ? new Date(Date.now() + tokens.expiresIn * 1000).toISOString()
+        : undefined;
+      const syncResult = metaPages.length > 0
+        ? await syncGrantedMetaProductConnections({
+          workspaceId,
+          userId,
+          userAccessToken: tokens.accessToken,
+          tokenExpiresAt,
+          pages: metaPages,
+        })
+        : { syncedProductIds: [], revokedProductIds: [] };
+
+      if (productId && metaPages.length === 1 && metaPages[0].accessToken) {
+        await saveMetaProductPageSelection({
+          workspaceId,
+          productId,
+          userId,
+          userAccessToken: tokens.accessToken,
+          tokenExpiresAt,
+          page: metaPages[0],
+          availablePages: metaPages,
+        });
+        metaNeedsPageSelection = false;
+      } else if (productId && syncResult.syncedProductIds.includes(productId)) {
+        // Reauthorization refreshed the already-selected Page; no second
+        // product-level selection is necessary.
+        metaNeedsPageSelection = false;
+      } else if (productId && metaPages.length > 0) {
+        await markMetaProductPageSelectionRequired({
+          workspaceId,
+          productId,
+          userId,
+          userAccessToken: tokens.accessToken,
+          tokenExpiresAt,
+          availablePages: metaPages,
+        });
+        metaNeedsPageSelection = true;
+      }
+    } else {
+      await storeTokens(
+        workspaceId,
+        provider as OAuthProvider,
+        tokens,
+        userId,
+        extraData,
+        productId,
+        storageProvider,
+      );
+    }
 
     const appUrl = getAppUrl();
     if (productId) {

@@ -247,7 +247,9 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
   for (const ws of wsDocs) {
     const workspaceId = ws.id;
 
-    // Workspace-level Meta (legacy; new connections are product-level below).
+    // Meta's app-user credential is workspace-scoped. Product Meta documents
+    // only own Page selections and Page tokens; refreshing copied product user
+    // tokens can incorrectly mark otherwise-healthy Page connections revoked.
     const metaRef = getConnectionRef(workspaceId, 'meta');
     await refreshConnectionDoc(metaRef, 'meta', result, { workspaceId });
 
@@ -270,17 +272,6 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
           storageProvider,
           linkedinCredentialKind: linkedinCredentialKindForProvider(storageProvider),
         });
-      }
-
-      // Product-level Meta — each product links its own Facebook login, so its
-      // token lives here and must be refreshed alongside the other providers.
-      const productMetaRef = getConnectionRef(workspaceId, 'meta', productId);
-      const metaSnap = await productMetaRef.get();
-      if (metaSnap.exists) {
-        const metaData = metaSnap.data() as PlatformConnection;
-        if (metaData.accessTokenEncrypted) {
-          await refreshConnectionDoc(productMetaRef, 'meta', result, { workspaceId, productId });
-        }
       }
     }
   }
