@@ -137,8 +137,17 @@ function buildTikTokMediaProxyUrl(mediaUrl: string, kind: 'image' | 'video'): st
     throw new Error('Missing app URL for TikTok media proxy');
   }
 
-  const proxyPath = kind === 'video' ? '/api/media/video-proxy' : '/api/media/proxy';
-  const proxyUrl = new URL(proxyPath, appUrl);
+  if (kind === 'image') {
+    // TikTok's photo puller failed against the query-parameter proxy shape
+    // (`photo_pull_failed`) even though the route served a valid JPEG to every
+    // client we tested. Its fetcher is known to normalize nested URLs in query
+    // strings and to expect an image extension on the path, so images go
+    // through the opaque, extension-terminated route instead.
+    const token = Buffer.from(mediaUrl, 'utf8').toString('base64url');
+    return new URL(`/api/media/tiktok/${token}.jpg`, appUrl).toString();
+  }
+
+  const proxyUrl = new URL('/api/media/video-proxy', appUrl);
   proxyUrl.searchParams.set('url', mediaUrl);
   return proxyUrl.toString();
 }
