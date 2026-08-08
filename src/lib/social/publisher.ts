@@ -179,6 +179,21 @@ export async function publishPost(
     await markConnectionAuthError(activeConnection, result.error).catch(() => undefined);
   }
 
+  // Facebook withdrew access to this Page — typically because a later
+  // authorization used Login for Business asset selection and did not include
+  // it. The stored Page token is dead, so record that on the connection instead
+  // of leaving the tile green while every post silently fails.
+  if (
+    request.channel === 'facebook' &&
+    result.error &&
+    /impersonating a user's page|Error validating access token|Session has expired/i.test(result.error)
+  ) {
+    await markConnectionAuthError(
+      activeConnection,
+      'Facebook no longer grants this Page to Markaestro. Reconnect Facebook and tick this Page in the permissions dialog.',
+    ).catch(() => undefined);
+  }
+
   // Instagram Login blanket refusal: graph.instagram.com will never serve this
   // token (account not eligible), so mark the connection revoked — the channel
   // tile then shows the reconnect message instead of staying "ready".

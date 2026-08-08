@@ -206,17 +206,17 @@ export async function markMetaProductPageSelectionRequired(
  * A Facebook Login token is app-user scoped, not product scoped. Whenever a
  * user reauthorizes Meta, refresh every linked Page the new grant covers.
  *
- * This never revokes. Facebook Login for Business asks which Pages to grant on
- * every authorization, so a Page missing from *this* grant usually means the
- * user simply did not tick it again — not that access was withdrawn. Because
- * this runs across every brand in the workspace, treating absence as removal
- * meant reconnecting one brand disconnected all the others. Page tokens are
- * long-lived and independent of the user token that issued them, so those other
- * Pages keep publishing regardless.
+ * Facebook Login for Business asks which Pages to grant on every
+ * authorization, and a Page left unticked genuinely loses access: Graph
+ * validates the parent grant on every call, so that Page's stored token stops
+ * working immediately. Pages outside a fully-enumerated grant are therefore
+ * marked with an actionable message rather than left looking healthy while
+ * every scheduled post fails.
  *
- * Genuine loss of access is detected where it is unambiguous: a failing publish
- * or token refresh marks the connection, and Meta's deauthorize/data-deletion
- * webhooks remove connections outright.
+ * `grantIsComplete` is what makes this safe. It is true only when both
+ * /me/accounts and the granular asset grant were read end to end, so a
+ * truncated or partially-failed read can never mark another brand's Page.
+ * Nothing is deleted either way — reconnecting and ticking the Page restores it.
  */
 export async function syncGrantedMetaProductConnections(
   input: MetaCredential & {
@@ -227,7 +227,7 @@ export async function syncGrantedMetaProductConnections(
      */
     grantIsComplete: boolean;
   },
-): Promise<{ syncedProductIds: string[] }> {
+): Promise<{ syncedProductIds: string[]; ungrantedProductIds: string[] }> {
   const grantedPages = new Map(
     input.pages.map((page) => [page.id, page]),
   );
@@ -249,6 +249,7 @@ export async function syncGrantedMetaProductConnections(
   const batch = adminDb.batch();
   const now = new Date().toISOString();
   const syncedProductIds = new Set<string>();
+  const ungrantedProductIds = new Set<string>();
   let writes = 0;
 
   for (const { productId, conn } of connections) {
@@ -306,12 +307,33 @@ export async function syncGrantedMetaProductConnections(
       continue;
     }
 
-    // Absent from this grant. Leave it alone — see the note above.
+    // Absent from a fully-enumerated grant. Facebook Login for Business asset
+    // selection means the user simply may not have ticked this Page this time —
+    // either way the app can no longer publish to it, and the stored Page token
+    // is dead. Say so plainly instead of leaving the tile green while every
+    // scheduled post fails. The Page connection is kept so reconnecting and
+    // ticking the Page restores it without relinking.
+    if (!input.grantIsComplete) continue;
+
+    batch.update(ref, {
+      status: 'error',
+      'metadata.pageSelectionRequired': false,
+      'metadata.lastRefreshError':
+        'Facebook no longer grants this Page to Markaestro. Reconnect Facebook and tick this Page in the permissions dialog.',
+      'metadata.refreshFailureCount': 1,
+      updatedBy: input.userId,
+      updatedAt: now,
+    });
+    ungrantedProductIds.add(productId);
+    writes++;
   }
 
   if (writes > 0) {
     await batch.commit();
   }
 
-  return { syncedProductIds: [...syncedProductIds] };
+  return {
+    syncedProductIds: [...syncedProductIds],
+    ungrantedProductIds: [...ungrantedProductIds],
+  };
 }

@@ -546,7 +546,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
           // A partial read must not overwrite the cached Page list.
           grantIsComplete: metaGrantIsComplete,
         })
-        : { syncedProductIds: [] };
+        : { syncedProductIds: [] as string[], ungrantedProductIds: [] as string[] };
 
       if (productId && metaPages.length === 1 && metaPages[0].accessToken) {
         await saveMetaProductPageSelection({

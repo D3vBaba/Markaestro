@@ -71,11 +71,11 @@ describe('syncGrantedMetaProductConnections', () => {
     );
   });
 
-  it('leaves other brands untouched when a grant covers only one Page', async () => {
+  it('flags a Page the grant no longer covers with an actionable message', async () => {
     const { syncGrantedMetaProductConnections } = await import('@/lib/oauth/meta-connection-sync');
 
-    // Reconnecting one brand: the user ticked only that brand's Page in
-    // Facebook's asset dialog. The other brand must survive intact.
+    // Facebook's asset dialog granted only page_a. page_b's stored token is
+    // dead from this moment, so saying "connected" would be a lie.
     const result = await syncGrantedMetaProductConnections({
       ...input,
       pages: [grantedPage('page_a', 'page-a-token')],
@@ -83,19 +83,26 @@ describe('syncGrantedMetaProductConnections', () => {
     });
 
     expect(result.syncedProductIds).toEqual(['prod_1']);
-    expect(updateFor('meta:page_b')).toBeUndefined();
-    expect(batchUpdate.mock.calls.every(([, update]) => update.status !== 'revoked')).toBe(true);
+    expect(result.ungrantedProductIds).toEqual(['prod_2']);
+
+    const pageB = updateFor('meta:page_b');
+    expect(pageB.status).toBe('error');
+    expect(pageB['metadata.lastRefreshError']).toMatch(/tick this Page/);
+    // Nothing is deleted — reconnecting and ticking the Page restores it.
+    expect(pageB['metadata.pageAccessTokenEncrypted']).toBeUndefined();
   });
 
-  it('never writes a revoked status, even on a fully enumerated grant', async () => {
+  it('leaves every brand alone when the grant was read incompletely', async () => {
     const { syncGrantedMetaProductConnections } = await import('@/lib/oauth/meta-connection-sync');
 
-    await syncGrantedMetaProductConnections({
+    // A truncated or partially failed read is not evidence of anything.
+    const result = await syncGrantedMetaProductConnections({
       ...input,
       pages: [],
-      grantIsComplete: true,
+      grantIsComplete: false,
     });
 
+    expect(result.ungrantedProductIds).toEqual([]);
     expect(batchUpdate).not.toHaveBeenCalled();
   });
 
@@ -110,6 +117,7 @@ describe('syncGrantedMetaProductConnections', () => {
     });
 
     expect(result.syncedProductIds).toEqual(['prod_1', 'prod_2']);
+    expect(result.ungrantedProductIds).toEqual([]);
 
     // The stored Page token must be left untouched, not deleted or overwritten.
     const pageB = updateFor('meta:page_b');
