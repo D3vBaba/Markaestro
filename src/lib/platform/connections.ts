@@ -1,4 +1,5 @@
 import { adminDb } from '@/lib/firebase-admin';
+import { logger } from '@/lib/logger';
 import { decrypt } from '@/lib/crypto';
 import type { SocialChannel } from '@/lib/schemas';
 import type { PlatformConnection, ConnectionStatus } from './types';
@@ -401,15 +402,34 @@ export async function getConnectionForChannel(
   }
 
   const candidates = await listChannelConnections(workspaceId, channel, productId, preferredProvider);
+  const connected = candidates.filter((conn) => conn.status === 'connected');
 
   if (destinationId) {
     const requested = candidates.find((conn) => connectionMatchesDestination(conn, destinationId));
-    // An explicit destination must never silently publish somewhere else.
-    if (!requested) return null;
-    return requested.status === 'connected' ? requested : null;
+    if (requested?.status === 'connected') return requested;
+
+    // The recorded destination no longer resolves — the account was unlinked
+    // and relinked, or the id predates the current format. A scheduled post
+    // must still go out on the account this brand has connected rather than
+    // failing, so fall back to it and say so in the logs.
+    const fallback = connected[0] || null;
+    if (fallback) {
+      logger.warn('publish destination fell back to this brand\'s connected account', {
+        event: 'connections.destination.fallback',
+        channel,
+        workspaceId,
+        productId: productId || null,
+        requestedDestinationId: destinationId,
+        usedDestinationId: fallback.accountKey || null,
+        reason: requested
+          ? `requested destination is ${requested.status}`
+          : 'requested destination is not linked to this brand',
+      });
+    }
+    return fallback;
   }
 
-  return candidates.find((conn) => conn.status === 'connected') || null;
+  return connected[0] || null;
 }
 
 function prioritizeProviders(providers: string[], preferredProvider?: string): string[] {
@@ -461,11 +481,24 @@ export async function getLinkedInConnectionForDestination(
     // every document can "see" every Page. Prefer the document that actually
     // owns this destination, then fall back to metadata matching for legacy
     // records that hold all destinations in one document.
-    return (
+    const requested =
       pool.find((conn) => connectionMatchesDestination(conn, destinationId)) ||
-      pool.find((conn) => Boolean(matchLinkedInDestination(conn, destinationId))) ||
-      null
-    );
+      pool.find((conn) => Boolean(matchLinkedInDestination(conn, destinationId)));
+    if (requested) return requested;
+
+    // Same reasoning as getConnectionForChannel: keep the post going out.
+    const fallback = connected[0] || null;
+    if (fallback) {
+      logger.warn('linkedin destination fell back to this brand\'s connected account', {
+        event: 'connections.destination.fallback',
+        channel: 'linkedin',
+        workspaceId,
+        productId: productId || null,
+        requestedDestinationId: destinationId,
+        usedDestinationId: fallback.accountKey || null,
+      });
+    }
+    return fallback;
   }
 
   const selected = pool.find((conn) =>

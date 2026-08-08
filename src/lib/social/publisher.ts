@@ -152,13 +152,9 @@ export async function publishPost(
     request.destinationId,
   );
   if (!connection) {
-    // A post that names a destination must never fall back to a different one.
-    return {
-      success: false,
-      error: request.destinationId
-        ? `The selected ${request.channel} account is no longer linked or is disconnected`
-        : `${request.channel} integration is not configured or disabled`,
-    };
+    // Reached only when the brand has no connected account for this channel at
+    // all — an unresolvable destination falls back rather than failing.
+    return { success: false, error: `${request.channel} integration is not configured or disabled` };
   }
 
   const validationError = adapter.validateConnection(connection, request.channel);

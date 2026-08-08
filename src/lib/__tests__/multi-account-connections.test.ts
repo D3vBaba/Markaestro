@@ -104,7 +104,22 @@ describe('multi-account connections', () => {
     expect(fallback?.metadata.pageName).toBe('Page A');
   });
 
-  it('refuses to publish elsewhere when the named Page is gone', async () => {
+  it('resolves the public API destination id form', async () => {
+    setCollections([
+      ['meta:page_a', page('page_a', 'Page A', '2026-08-01T00:00:00.000Z')],
+      ['meta:page_b', page('page_b', 'Page B', '2026-08-02T00:00:00.000Z')],
+    ]);
+
+    const { getConnectionForChannel } = await import('@/lib/platform/connections');
+
+    // Posts created through the public API store `provider:channel:accountId`.
+    const chosen = await getConnectionForChannel(
+      'ws_1', 'facebook', 'prod_1', undefined, 'meta:facebook:page_b',
+    );
+    expect(chosen?.metadata.pageName).toBe('Page B');
+  });
+
+  it('still publishes on the connected Page when the named one is gone', async () => {
     setCollections([
       ['meta:page_a', page('page_a', 'Page A', '2026-08-01T00:00:00.000Z')],
     ]);
@@ -112,10 +127,11 @@ describe('multi-account connections', () => {
     const { getConnectionForChannel } = await import('@/lib/platform/connections');
     const chosen = await getConnectionForChannel('ws_1', 'facebook', 'prod_1', undefined, 'page_removed');
 
-    expect(chosen).toBeNull();
+    // A scheduled post must not fail because a destination was relinked.
+    expect(chosen?.metadata.pageName).toBe('Page A');
   });
 
-  it('does not fall back to another Page when the named one is disconnected', async () => {
+  it('falls back past a disconnected Page to a healthy one', async () => {
     setCollections([
       ['meta:page_a', page('page_a', 'Page A', '2026-08-01T00:00:00.000Z')],
       ['meta:page_b', page('page_b', 'Page B', '2026-08-02T00:00:00.000Z', 'revoked')],
@@ -123,9 +139,19 @@ describe('multi-account connections', () => {
 
     const { getConnectionForChannel } = await import('@/lib/platform/connections');
 
-    expect(await getConnectionForChannel('ws_1', 'facebook', 'prod_1', undefined, 'page_b')).toBeNull();
+    expect((await getConnectionForChannel('ws_1', 'facebook', 'prod_1', undefined, 'page_b'))?.metadata.pageName)
+      .toBe('Page A');
     // A broken Page must not hide the healthy ones from the default path.
     expect((await getConnectionForChannel('ws_1', 'facebook', 'prod_1'))?.metadata.pageName).toBe('Page A');
+  });
+
+  it('returns nothing when the brand has no connected account at all', async () => {
+    setCollections([
+      ['meta:page_a', page('page_a', 'Page A', '2026-08-01T00:00:00.000Z', 'revoked')],
+    ]);
+
+    const { getConnectionForChannel } = await import('@/lib/platform/connections');
+    expect(await getConnectionForChannel('ws_1', 'facebook', 'prod_1', undefined, 'page_a')).toBeNull();
   });
 
   it('links two Instagram accounts to one brand without either displacing the other', async () => {

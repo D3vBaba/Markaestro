@@ -169,13 +169,48 @@ export function connectionIdentityKey(connection: PlatformConnection): string {
 }
 
 /**
- * LinkedIn destination ids are passed around as URNs, bare organization ids, or
- * the legacy `linkedin:linkedin:{id}` form. Normalize before comparing.
+ * Channel segment of the public API's `${provider}:${channel}:${accountId}`
+ * destination id. Kept local so this module stays free of schema imports.
+ */
+const PUBLIC_DESTINATION_CHANNELS = new Set([
+  'facebook',
+  'instagram',
+  'tiktok',
+  'threads',
+  'pinterest',
+  'linkedin',
+]);
+
+const PUBLIC_DESTINATION_PROVIDERS = new Set([
+  'meta',
+  'instagram',
+  'tiktok',
+  'threads',
+  'pinterest',
+  'linkedin',
+  'linkedin_profile',
+  'linkedin_community',
+]);
+
+/**
+ * Destination ids reach us in several shapes. The public API mints
+ * `${provider}:${channel}:${accountId}` (`meta:facebook:123`), the composer
+ * stores the bare account id, and LinkedIn adds URNs plus a legacy
+ * `linkedin:linkedin:{id}` form. Reduce all of them to the account id.
+ *
+ * A URN such as `urn:li:organization:99` is deliberately left intact: `urn` is
+ * not a provider key, so it is never mistaken for the public form.
  */
 export function normalizeDestinationId(destinationId: string): string {
-  return destinationId.startsWith('linkedin:linkedin:')
-    ? destinationId.slice('linkedin:linkedin:'.length)
-    : destinationId;
+  const parts = destinationId.split(CONNECTION_ID_SEPARATOR);
+  if (
+    parts.length >= 3 &&
+    PUBLIC_DESTINATION_PROVIDERS.has(parts[0]) &&
+    PUBLIC_DESTINATION_CHANNELS.has(parts[1])
+  ) {
+    return parts.slice(2).join(CONNECTION_ID_SEPARATOR);
+  }
+  return destinationId;
 }
 
 /** Whether a connection publishes to the requested destination. */
