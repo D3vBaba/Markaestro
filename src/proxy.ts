@@ -64,13 +64,25 @@ const MARKETING_PATHS = new Set<string>([
   '/privacy',
   '/terms',
   '/channels',
-  // Crawler + agent entry points belong on the apex. Without these, the
-  // apex→subdomain redirect below would bounce /robots.txt to the app host,
-  // whose robots.txt disallows everything — deindexing the marketing site.
-  '/robots.txt',
+  // Crawler + agent entry points. The canonical copy lives on the apex, so the
+  // app host redirects here. NOTE: /robots.txt is deliberately absent — see
+  // NEVER_RELOCATED_PATHS below.
   '/sitemap.xml',
   '/llms.txt',
 ]);
+
+/**
+ * Paths that must never be host-redirected, because each host has to answer
+ * them with its OWN content.
+ *
+ * robots.txt is per-host by definition: a crawler fetching
+ * app.markaestro.com/robots.txt applies whatever it gets back to that host.
+ * robots.ts already branches on host (apex → marketing rules; app → disallow
+ * all), so relocating the request in either direction breaks one of the two:
+ * sending the apex to the app host deindexes the marketing site, and sending
+ * the app host to the apex hands the private app an "Allow: /".
+ */
+const NEVER_RELOCATED_PATHS = new Set<string>(['/robots.txt']);
 
 /** Prefixes that belong on the marketing apex. */
 const MARKETING_PREFIXES = ['/developers'];
@@ -135,8 +147,10 @@ function hostRedirect(req: NextRequest): NextResponse | null {
 
   const { pathname, search } = req.nextUrl;
 
-  // Never relocate API routes or Next internals/static.
+  // Never relocate API routes, Next internals/static, or the per-host files
+  // each host must answer for itself.
   if (pathname.startsWith('/api/') || pathname.startsWith('/_next')) return null;
+  if (NEVER_RELOCATED_PATHS.has(pathname)) return null;
 
   const host = requestHostname(req);
   // Unknown hosts (preview channels, *.run.app, health checks) are left alone.
