@@ -68,7 +68,9 @@ function resolveConnection(
   if (channel === 'linkedin') {
     return getLinkedInConnectionForDestination(workspaceId, productId, destinationId);
   }
-  return getConnectionForChannel(workspaceId, channel, productId);
+  // A brand can have several accounts linked per channel; honor the one the
+  // caller asked for instead of always taking the default.
+  return getConnectionForChannel(workspaceId, channel, productId, undefined, destinationId);
 }
 
 function isRefreshableProvider(provider: string): provider is OAuthProvider {

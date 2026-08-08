@@ -12,7 +12,10 @@ export async function getSocialPostPreflightIssues(
   workspaceId: string,
   productId: string | undefined,
   input: SocialPostValidationInput,
-  options: { requireReadyChannels?: boolean } = {},
+  options: {
+    requireReadyChannels?: boolean;
+    channelDestinations?: Partial<Record<SocialChannel, string>>;
+  } = {},
 ): Promise<SocialPostValidationIssue[]> {
   const issues = validateSocialPost(input);
 
@@ -23,7 +26,12 @@ export async function getSocialPostPreflightIssues(
   const channels = normalizeTargetChannels(input);
   if (channels.length === 0) return issues;
 
-  const unavailable = await getUnavailableSocialChannels(workspaceId, productId, channels as SocialChannel[]);
+  const unavailable = await getUnavailableSocialChannels(
+    workspaceId,
+    productId,
+    channels as SocialChannel[],
+    options.channelDestinations,
+  );
   for (const item of unavailable) {
     issues.push({
       channel: item.channel,

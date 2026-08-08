@@ -5,6 +5,7 @@ const docMock = vi.fn();
 const getMetaConnectionMergedMock = vi.fn();
 const getConnectionMock = vi.fn();
 const getConnectionForChannelMock = vi.fn();
+const listProviderConnectionsMock = vi.fn();
 
 vi.mock('@/lib/firebase-admin', () => ({
   adminDb: {
@@ -21,11 +22,22 @@ vi.mock('@/lib/platform/connections', () => ({
   getMetaConnectionMerged: getMetaConnectionMergedMock,
   getConnection: getConnectionMock,
   getConnectionForChannel: getConnectionForChannelMock,
+  listProviderConnections: listProviderConnectionsMock,
 }));
 
 describe('public product discovery', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Each provider resolves to a list of linked destinations. By default a
+    // provider has at most one, which is what most of these cases set up.
+    listProviderConnectionsMock.mockImplementation(
+      async (workspaceId: string, provider: string, productId?: string) => {
+        const conn = provider === 'meta'
+          ? await getMetaConnectionMergedMock(workspaceId, productId)
+          : await getConnectionMock(workspaceId, provider, productId);
+        return conn ? [conn] : [];
+      },
+    );
   });
 
   it('lists linked Meta and connected TikTok destinations for a product', async () => {

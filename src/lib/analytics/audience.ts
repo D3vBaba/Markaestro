@@ -1,7 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { getAllDocs } from '@/lib/firestore-pagination';
 import { getAdapterForChannel } from '@/lib/platform/registry';
-import { listConnections, updateConnectionStatus } from '@/lib/platform/connections';
+import { listConnections, setConnectionStatus } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import { logger } from '@/lib/logger';
@@ -75,7 +75,7 @@ export async function captureAudienceSnapshots(
       if (!result.ok) {
         if (result.reason === 'auth') {
           try {
-            await updateConnectionStatus(workspaceId, connection.provider, 'error', connection.productId);
+            await setConnectionStatus(connection, 'error');
           } catch { /* connection doc may be gone */ }
           summary.errors.push({ channel, error: result.error });
         } else if (result.reason === 'transient') {

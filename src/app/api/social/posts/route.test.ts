@@ -102,7 +102,7 @@ describe('GET /api/social/posts', () => {
     expect(res.status).toBe(200);
     expect(body.posts).toEqual([samplePost]);
     expect(body.nextCursor).toBe('cur_2');
-    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_1', 'facebook', 'prod_1');
+    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_1', 'facebook', 'prod_1', undefined, undefined);
     expect(listPosts).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
       channel: 'facebook',
       limit: 10,

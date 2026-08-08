@@ -11,12 +11,20 @@ import {
 
 type ChannelState = "ready" | "needs_setup" | "disconnected";
 
+/** One linked account a channel can publish to. */
+type ChannelDestination = {
+  destinationId: string | null;
+  label: string | null;
+  state: ChannelState;
+};
+
 type ChannelInfo = {
   channel: string;
   label: string;
   state: ChannelState;
   reason: string | null;
   destinationLabel: string | null;
+  destinations?: ChannelDestination[];
 };
 
 const fallbackChannels: ChannelInfo[] = socialChannelCatalog.map((channel) => ({
@@ -25,6 +33,7 @@ const fallbackChannels: ChannelInfo[] = socialChannelCatalog.map((channel) => ({
   state: "disconnected",
   reason: channel.setupHint,
   destinationLabel: null,
+  destinations: [],
 }));
 
 // Brand colors per channel for the active state border
@@ -99,12 +108,17 @@ export default function ChannelSelector({
   productId,
   selectedChannels,
   onSelectedChannelsChange,
+  channelDestinations,
+  onChannelDestinationsChange,
 }: {
   value: string;
   onChange: (channel: string) => void;
   productId?: string;
   selectedChannels?: string[];
   onSelectedChannelsChange?: (channels: string[]) => void;
+  /** Which linked account each channel posts to, keyed by channel. */
+  channelDestinations?: Record<string, string>;
+  onChannelDestinationsChange?: (destinations: Record<string, string>) => void;
 }) {
   const [managedChannels, setManagedChannels] = useState<ChannelInfo[]>(fallbackChannels);
   const [loadedProductKey, setLoadedProductKey] = useState<string | null>(null);
@@ -177,6 +191,44 @@ export default function ChannelSelector({
     }
   }, [channels, loadedChannels, onChange, onSelectedChannelsChange, selected, value]);
 
+  /** Ready accounts for a channel — only these can be posted to. */
+  function readyDestinations(ch: string): ChannelDestination[] {
+    const info = managedChannels.find((item) => item.channel === ch);
+    return (info?.destinations ?? []).filter(
+      (dest) => dest.state === "ready" && dest.destinationId,
+    );
+  }
+
+  // Channels where the brand has more than one linked account need an explicit
+  // choice; a single-account channel resolves on the server.
+  const channelsNeedingDestination = selected.filter(
+    (ch) => channelState(ch) === "ready" && readyDestinations(ch).length > 1,
+  );
+
+  useEffect(() => {
+    if (!loadedChannels || !onChannelDestinationsChange) return;
+
+    const current = channelDestinations ?? {};
+    const next: Record<string, string> = {};
+
+    for (const ch of selected) {
+      const destinations = readyDestinations(ch);
+      if (destinations.length === 0) continue;
+      const chosen = current[ch];
+      // Default to the first linked account, and drop a stale choice whose
+      // account has since been unlinked.
+      const valid = destinations.some((dest) => dest.destinationId === chosen);
+      const resolved = valid ? chosen : destinations[0].destinationId;
+      if (resolved) next[ch] = resolved;
+    }
+
+    const changed =
+      Object.keys(next).length !== Object.keys(current).length ||
+      Object.entries(next).some(([ch, id]) => current[ch] !== id);
+    if (changed) onChannelDestinationsChange(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channels, loadedChannels, selected, channelDestinations, onChannelDestinationsChange]);
+
   function toggleChannel(ch: string) {
     if (channelState(ch) !== "ready") {
       onChange(ch);
@@ -245,6 +297,38 @@ export default function ChannelSelector({
           );
         })}
       </div>
+      {channelsNeedingDestination.length > 0 && onChannelDestinationsChange && (
+        <div className="space-y-2 rounded-lg border border-border/50 p-2.5">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Post to
+          </p>
+          {channelsNeedingDestination.map((ch) => {
+            const info = channels.find((item) => item.channel === ch);
+            const destinations = readyDestinations(ch);
+            return (
+              <label key={ch} className="flex items-center gap-2 text-[12px]">
+                <span className="w-20 shrink-0 text-muted-foreground">{info?.label ?? ch}</span>
+                <select
+                  className="min-w-0 flex-1 rounded-md border border-border/60 bg-transparent px-2 py-1 text-[12px]"
+                  value={channelDestinations?.[ch] ?? destinations[0].destinationId ?? ""}
+                  onChange={(e) =>
+                    onChannelDestinationsChange({
+                      ...(channelDestinations ?? {}),
+                      [ch]: e.target.value,
+                    })
+                  }
+                >
+                  {destinations.map((dest) => (
+                    <option key={dest.destinationId} value={dest.destinationId ?? ""}>
+                      {dest.label || dest.destinationId}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            );
+          })}
+        </div>
+      )}
       {productId && selectedState === "needs_setup" && (
         <p className="text-[11px]" style={{ color: "var(--mk-warn)" }}>
           {channelReason(value)}{" "}

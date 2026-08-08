@@ -70,7 +70,7 @@ describe('publishPost', () => {
       pending: true,
       externalId: 'publish_abc',
     });
-    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'tiktok', undefined, undefined);
+    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'tiktok', undefined, undefined, undefined);
     expect(publishMock).toHaveBeenCalledTimes(1);
   });
 });
@@ -112,8 +112,8 @@ describe('publishStoredPost', () => {
 
     expect(result.success).toBe(true);
     expect(result.channels.map((item) => item.channel)).toEqual(['facebook', 'threads']);
-    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'facebook', 'prod_123', undefined);
-    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'threads', 'prod_123', undefined);
+    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'facebook', 'prod_123', undefined, undefined);
+    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'threads', 'prod_123', undefined, undefined);
     expect(publishByChannel.facebook).toHaveBeenCalledTimes(1);
     expect(publishByChannel.threads).toHaveBeenCalledTimes(1);
   });
@@ -237,6 +237,6 @@ describe('publishStoredPost', () => {
     expect(facebookPublish).not.toHaveBeenCalled();
     expect(instagramPublish).toHaveBeenCalledTimes(1);
     expect(getConnectionForChannelMock).toHaveBeenCalledTimes(1);
-    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'instagram', 'prod_123', undefined);
+    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'instagram', 'prod_123', undefined, undefined);
   });
 });

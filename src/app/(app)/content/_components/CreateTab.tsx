@@ -35,6 +35,8 @@ export default function CreateTab({
   const [content, setContent] = useState("");
   const [postId, setPostId] = useState<string | null>(null);
   const [selectedChannels, setSelectedChannels] = useState<string[]>(["facebook"]);
+  // Which linked account each channel posts to, when a brand has several.
+  const [channelDestinations, setChannelDestinations] = useState<Record<string, string>>({});
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -185,12 +187,17 @@ export default function CreateTab({
   const buildPostPayload = (urls?: string[]) => {
     const targetChannels = getPostTargets();
     const primaryChannel = targetChannels[0] || channel;
+    // Only send destinations for channels this post actually targets.
+    const destinations = Object.fromEntries(
+      Object.entries(channelDestinations).filter(([ch]) => targetChannels.includes(ch)),
+    );
     return {
       content,
       channel: primaryChannel,
       productId,
       targetChannels,
       mediaUrls: urls,
+      ...(Object.keys(destinations).length > 0 ? { channelDestinations: destinations } : {}),
     };
   };
 
@@ -399,6 +406,8 @@ export default function CreateTab({
           onChange={handleChannelChange}
           productId={productId}
           selectedChannels={selectedChannels}
+          channelDestinations={channelDestinations}
+          onChannelDestinationsChange={setChannelDestinations}
           onSelectedChannelsChange={handleSelectedChannelsChange}
         />
 

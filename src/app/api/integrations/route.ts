@@ -12,12 +12,41 @@ import {
 export const runtime = 'nodejs';
 
 
+/**
+ * One linked destination, as the UI renders it in a channel's account list.
+ */
+function maskAccount(conn: PlatformConnection, scope: 'workspace' | 'product') {
+  return {
+    connectionId: conn.connectionId ?? conn.provider,
+    provider: conn.provider,
+    scope,
+    destinationId: conn.accountKey ?? null,
+    label: conn.accountLabel ?? null,
+    status: conn.status,
+    enabled: conn.status === 'connected',
+    productId: conn.productId ?? null,
+    tokenExpiresAt: conn.tokenExpiresAt ?? null,
+    lastRefreshError: conn.metadata.lastRefreshError ?? null,
+    pageId: conn.metadata.pageId ?? null,
+    pageName: conn.metadata.pageName ?? null,
+    boardId: conn.metadata.boardId ?? null,
+    boardName: conn.metadata.boardName ?? null,
+    username: conn.metadata.username ?? null,
+    igAccountId: conn.metadata.igAccountId ?? null,
+    linkedinDestinationUrn: conn.metadata.linkedinDestinationUrn ?? null,
+    linkedinDestinationName: conn.metadata.linkedinDestinationName ?? null,
+    linkedinDestinationType: conn.metadata.linkedinDestinationType ?? null,
+  };
+}
+
 function maskConnection(
   conn: PlatformConnection,
   scope: 'workspace' | 'product',
 ) {
   return {
     provider: conn.provider,
+    connectionId: conn.connectionId ?? conn.provider,
+    destinationId: conn.accountKey ?? null,
     scope,
     productId: conn.productId ?? null,
     enabled: conn.status === 'connected',
@@ -109,15 +138,44 @@ function maskLinkedInConnectionBundle(
   };
 }
 
+/**
+ * One entry per provider, carrying every destination linked for it. A brand
+ * that has ten Facebook Pages linked returns a single `meta` entry whose
+ * `accounts` array holds all ten — the channel tile lists them and each can be
+ * unlinked on its own.
+ */
 function maskConnections(
   conns: PlatformConnection[],
   scope: 'workspace' | 'product',
 ) {
   const regular = conns.filter((conn) => !isLinkedInConnectionProvider(conn.provider));
   const linkedIn = conns.filter((conn) => isLinkedInConnectionProvider(conn.provider));
+
+  const byProvider = new Map<string, PlatformConnection[]>();
+  for (const conn of regular) {
+    byProvider.set(conn.provider, [...(byProvider.get(conn.provider) || []), conn]);
+  }
+
+  const entries = [...byProvider.values()].map((group) => {
+    // The healthiest destination represents the provider so one broken account
+    // cannot make the whole channel read as disconnected.
+    const primary = group.find((conn) => conn.status === 'connected') || group[0];
+    return {
+      ...maskConnection(primary, scope),
+      accounts: group.map((conn) => maskAccount(conn, scope)),
+    };
+  });
+
   return [
-    ...regular.map((conn) => maskConnection(conn, scope)),
-    ...(linkedIn.length > 0 ? [maskLinkedInConnectionBundle(linkedIn, scope)] : []),
+    ...entries,
+    ...(linkedIn.length > 0
+      ? [{
+        ...maskLinkedInConnectionBundle(linkedIn, scope),
+        accounts: linkedIn
+          .filter((conn) => conn.accountKey)
+          .map((conn) => maskAccount(conn, scope)),
+      }]
+      : []),
   ];
 }
 

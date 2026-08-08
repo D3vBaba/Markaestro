@@ -4,6 +4,7 @@ const requireContextMock = vi.fn();
 const requirePermissionMock = vi.fn();
 const getConnectionMock = vi.fn();
 const deleteConnectionMock = vi.fn();
+const listProviderConnectionsMock = vi.fn();
 const revokeAccessTokenMock = vi.fn();
 const decryptMock = vi.fn();
 
@@ -18,6 +19,7 @@ vi.mock('@/lib/rbac', () => ({
 vi.mock('@/lib/platform/connections', () => ({
   getConnection: getConnectionMock,
   deleteConnection: deleteConnectionMock,
+  listProviderConnections: listProviderConnectionsMock,
 }));
 
 vi.mock('@/lib/oauth/flow', () => ({
@@ -52,6 +54,7 @@ describe('POST /api/oauth/disconnect/[provider]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     requireContextMock.mockResolvedValue(context);
+    listProviderConnectionsMock.mockResolvedValue([]);
   });
 
   it('removes only the local Meta Page selection for a product', async () => {

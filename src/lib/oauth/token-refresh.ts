@@ -2,7 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { decrypt, encrypt } from '@/lib/crypto';
 import { refreshAccessToken } from './flow';
 import type { OAuthProvider } from '@/lib/schemas';
-import { getConnectionRef } from '@/lib/platform/connections';
+import { listAllConnectionDocs, refForConnection } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
 import { getAllDocs } from '@/lib/firestore-pagination';
 import {
@@ -198,7 +198,9 @@ export async function refreshConnectionToken(
 ): Promise<PlatformConnection | null> {
   if (!connection.refreshTokenEncrypted) return null;
 
-  const connRef = getConnectionRef(workspaceId, provider, productId);
+  // Refresh the exact document this connection came from — a brand can have
+  // several accounts linked for the same provider.
+  const connRef = refForConnection({ ...connection, workspaceId, productId });
   const now = new Date();
   const refreshToken = decrypt(connection.refreshTokenEncrypted);
   const newTokens = await refreshAccessToken(provider, refreshToken);
@@ -250,33 +252,65 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
     // Meta's app-user credential is workspace-scoped. Product Meta documents
     // only own Page selections and Page tokens; refreshing copied product user
     // tokens can incorrectly mark otherwise-healthy Page connections revoked.
-    const metaRef = getConnectionRef(workspaceId, 'meta');
-    await refreshConnectionDoc(metaRef, 'meta', result, { workspaceId });
+    for (const connection of await listAllConnectionDocs(workspaceId)) {
+      if (connection.provider !== 'meta') continue;
+      await refreshConnectionDoc(refForConnection(connection), 'meta', result, { workspaceId });
+    }
 
-    // Product-level OAuth — every provider, including Meta, is linked per product.
-    const socialProviders: OAuthProvider[] = ['instagram', 'tiktok', 'threads', 'pinterest'];
-    const linkedInProviders = [LINKEDIN_PROFILE_PROVIDER, LINKEDIN_COMMUNITY_PROVIDER, 'linkedin'];
+    // Product-level OAuth. Enumerate the actual connection documents rather
+    // than guessing ids: a brand can have many accounts linked per provider.
     const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
 
     for (const productDoc of productDocs) {
       const productId = productDoc.id;
 
-      for (const provider of socialProviders) {
-        const connRef = getConnectionRef(workspaceId, provider, productId);
-        await refreshConnectionDoc(connRef, provider, result, { workspaceId, productId });
-      }
+      // Every document, including pending grants that the display list hides
+      // once destinations exist — their token is what enumerates more
+      // Pages/boards later, so it must not be left to expire.
+      for (const connection of await listAllConnectionDocs(workspaceId, productId)) {
+        const provider = refreshableProvider(connection.provider);
+        if (!provider) continue;
 
-      for (const storageProvider of linkedInProviders) {
-        const connRef = getConnectionRef(workspaceId, storageProvider, productId);
-        await refreshConnectionDoc(connRef, 'linkedin', result, { workspaceId, productId }, {
-          storageProvider,
-          linkedinCredentialKind: linkedinCredentialKindForProvider(storageProvider),
-        });
+        await refreshConnectionDoc(
+          refForConnection({ ...connection, workspaceId, productId }),
+          provider,
+          result,
+          { workspaceId, productId },
+          {
+            storageProvider: connection.provider,
+            linkedinCredentialKind: linkedinCredentialKindForProvider(connection.provider),
+          },
+        );
       }
     }
   }
 
   return result;
+}
+
+// Meta is deliberately absent: product Meta documents hold a copy of the
+// workspace user token plus a long-lived Page token. Refreshing those copies
+// can mark otherwise-healthy Page connections revoked, so only the canonical
+// workspace credential is refreshed.
+const PRODUCT_REFRESH_PROVIDERS = new Set<string>([
+  'instagram',
+  'tiktok',
+  'threads',
+  'pinterest',
+]);
+
+/** Map a stored provider key to the OAuth provider whose refresh flow applies. */
+function refreshableProvider(storageProvider: string): OAuthProvider | null {
+  if (
+    storageProvider === LINKEDIN_PROFILE_PROVIDER ||
+    storageProvider === LINKEDIN_COMMUNITY_PROVIDER ||
+    storageProvider === 'linkedin'
+  ) {
+    return 'linkedin';
+  }
+  return PRODUCT_REFRESH_PROVIDERS.has(storageProvider)
+    ? (storageProvider as OAuthProvider)
+    : null;
 }
 
 /**

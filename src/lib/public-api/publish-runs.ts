@@ -1,5 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { getConnectionForChannel } from '@/lib/platform/connections';
+import { getPostChannelDestinations } from '@/lib/social/publisher';
 import { publishStoredPost } from '@/lib/social/publisher';
 import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
 import type { PlatformConnection } from '@/lib/platform/types';
@@ -102,6 +103,7 @@ async function resolveConnectionForPost(
     String(post.channel) as SocialChannel,
     typeof post.productId === 'string' && post.productId ? post.productId : undefined,
     typeof post.destinationProvider === 'string' && post.destinationProvider ? post.destinationProvider : undefined,
+    getPostChannelDestinations(post)[String(post.channel) as SocialChannel],
   );
 }
 

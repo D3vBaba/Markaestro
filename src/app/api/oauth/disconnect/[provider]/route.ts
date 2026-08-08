@@ -4,7 +4,11 @@ import { decrypt } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
 import { revokeAccessToken } from '@/lib/oauth/flow';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
-import { getConnection, deleteConnection } from '@/lib/platform/connections';
+import {
+  deleteConnection,
+  getConnection,
+  listProviderConnections,
+} from '@/lib/platform/connections';
 import { adminDb } from '@/lib/firebase-admin';
 import {
   linkedinStorageProviderForKind,
@@ -28,6 +32,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
 
     const body = await req.json().catch(() => ({}));
     const productId = body.productId as string | undefined;
+    // Unlink exactly one linked account/Page/board, leaving the brand's other
+    // accounts on the same platform untouched.
+    const destinationId = typeof body.destinationId === 'string' && body.destinationId
+      ? body.destinationId
+      : undefined;
     const linkedinCredentialKind = provider === 'linkedin'
       ? parseLinkedInCredentialKind(body.linkedinMode || body.linkedinCredentialKind)
       : undefined;
@@ -37,9 +46,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
         : ['linkedin_profile', 'linkedin_community', 'linkedin']
       : [provider];
 
+    if (destinationId) {
+      const removed = await unlinkDestination(
+        ctx.workspaceId,
+        provider as OAuthProvider,
+        providersToDisconnect,
+        destinationId,
+        productId,
+      );
+      return apiOk({ ok: true, provider, disconnected: removed, destinationId });
+    }
+
     // Meta permissions are app-user scoped. Revoking one product's copied user
     // token revokes every Facebook Page connected by that same user, so a
-    // product-level unlink must only remove the local Page selection.
+    // product-level unlink must only remove the local Page selections.
     if (provider === 'meta' && productId) {
       await deleteConnection(ctx.workspaceId, 'meta', productId);
       return apiOk({ ok: true, provider, disconnected: true });
@@ -71,17 +91,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
     // when that product is unlinked.
     for (const storageProvider of providersToDisconnect) {
       const conn = await getConnection(ctx.workspaceId, storageProvider, productId);
+      const linked = await listProviderConnections(ctx.workspaceId, storageProvider, productId);
+      const tokenSource = conn?.accessTokenEncrypted
+        ? conn
+        : linked.find((candidate) => Boolean(candidate.accessTokenEncrypted));
 
-      if (conn) {
-        if (conn.accessTokenEncrypted) {
-          try {
-            const token = decrypt(conn.accessTokenEncrypted);
-            await revokeAccessToken(provider as OAuthProvider, token);
-          } catch {
-            // Best-effort
-          }
+      if (tokenSource?.accessTokenEncrypted) {
+        try {
+          await revokeAccessToken(provider as OAuthProvider, decrypt(tokenSource.accessTokenEncrypted));
+        } catch {
+          // Best-effort
         }
+      }
 
+      if (conn || linked.length > 0) {
         await deleteConnection(ctx.workspaceId, storageProvider, productId);
       }
     }
@@ -90,4 +113,40 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
   } catch (error) {
     return apiError(error);
   }
+}
+
+/**
+ * Remove one linked destination. The provider token is only revoked when this
+ * was the last destination using it — Pinterest boards and LinkedIn Pages share
+ * one authorization across every destination linked from it.
+ */
+async function unlinkDestination(
+  workspaceId: string,
+  provider: OAuthProvider,
+  storageProviders: string[],
+  destinationId: string,
+  productId?: string,
+): Promise<boolean> {
+  for (const storageProvider of storageProviders) {
+    const linked = await listProviderConnections(workspaceId, storageProvider, productId);
+    const target = linked.find((conn) => conn.accountKey === destinationId);
+    if (!target) continue;
+
+    await deleteConnection(workspaceId, storageProvider, productId, destinationId);
+
+    const remaining = linked.filter((conn) => conn.accountKey !== destinationId);
+    // Meta's grant is app-user scoped and shared across brands — never revoke
+    // it from a per-Page unlink.
+    if (provider !== 'meta' && remaining.length === 0 && target.accessTokenEncrypted) {
+      try {
+        await revokeAccessToken(provider, decrypt(target.accessTokenEncrypted));
+      } catch {
+        // Best-effort
+      }
+    }
+
+    return true;
+  }
+
+  return false;
 }

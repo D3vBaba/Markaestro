@@ -2,10 +2,11 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase-admin';
 import { getAllMatchingDocs } from '@/lib/firestore-pagination';
 import { getAdapterForChannel } from '@/lib/platform/registry';
-import { getConnectionForChannel, updateConnectionStatus } from '@/lib/platform/connections';
+import { getConnectionForChannel, setConnectionStatus } from '@/lib/platform/connections';
 import type { NormalizedPostMetrics, PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import { logger } from '@/lib/logger';
+import { getPostChannelDestinations } from '@/lib/social/publisher';
 import {
   MAX_METRIC_POLLS_PER_TICK,
   MAX_TRANSIENT_ATTEMPTS,
@@ -30,10 +31,12 @@ type PublishResultEntry = {
 
 type PostDocData = {
   channel?: string;
+  targetChannels?: string[];
   externalId?: string;
   productId?: string;
   destinationId?: string;
   destinationProvider?: string;
+  channelDestinations?: Record<string, string>;
   publishedAt?: string;
   publishResults?: PublishResultEntry[];
   metricsByChannel?: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
@@ -141,6 +144,7 @@ async function fetchPostChannelMetrics(
   const outcomes: ChannelFetchOutcome[] = [];
   let lastError = '';
   let channelFetches = 0;
+  const channelDestinations = getPostChannelDestinations(post as unknown as Record<string, unknown>);
 
   for (const target of targets) {
     const adapter = getAdapterForChannel(target.channel);
@@ -149,7 +153,10 @@ async function fetchPostChannelMetrics(
       continue;
     }
 
-    const cacheKey = `${target.channel}:${post.productId || ''}`;
+    // Metrics must come from the account the post actually went to — a brand
+    // can have several Pages/accounts linked for one channel.
+    const destinationId = channelDestinations[target.channel];
+    const cacheKey = `${target.channel}:${post.productId || ''}:${destinationId || ''}`;
     let connection = connectionCache.get(cacheKey);
     if (connection === undefined) {
       connection = await getConnectionForChannel(
@@ -157,6 +164,7 @@ async function fetchPostChannelMetrics(
         target.channel,
         post.productId || undefined,
         post.destinationProvider || undefined,
+        destinationId,
       );
       connectionCache.set(cacheKey, connection);
     }
@@ -171,7 +179,7 @@ async function fetchPostChannelMetrics(
       channel: target.channel,
       externalId: target.externalId,
       publishedAt,
-      destinationId: post.destinationId,
+      destinationId: destinationId ?? post.destinationId,
     });
 
     if (result.ok) {
@@ -184,11 +192,11 @@ async function fetchPostChannelMetrics(
         // Surface token problems on the connection (integration status
         // machine) so the channel shows a health warning — but only once
         // per connection per run.
-        const flagKey = `${connection.provider}:${connection.productId || ''}`;
+        const flagKey = `${connection.connectionId || connection.provider}:${connection.productId || ''}`;
         if (!authFlagged.has(flagKey)) {
           authFlagged.add(flagKey);
           try {
-            await updateConnectionStatus(workspaceId, connection.provider, 'error', connection.productId);
+            await setConnectionStatus(connection, 'error');
           } catch { /* connection doc may be gone; the poll retry covers it */ }
         }
       }

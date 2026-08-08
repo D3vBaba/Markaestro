@@ -150,9 +150,14 @@ export async function POST(req: Request) {
         ctx.workspaceId,
         data.productId || undefined,
         data,
-        // Manual posts never contact the platform, so a connected/ready
-        // channel isn't required to schedule their reminder.
-        { requireReadyChannels: !isManualReminder },
+        {
+          // Manual posts never contact the platform, so a connected/ready
+          // channel isn't required to schedule their reminder.
+          requireReadyChannels: !isManualReminder,
+          // Validate the specific linked account the post names, not just that
+          // the channel has something connected.
+          channelDestinations: data.channelDestinations,
+        },
       );
       if (issues.length > 0) {
         return apiOk({ error: 'VALIDATION_ERROR', issues }, 400);

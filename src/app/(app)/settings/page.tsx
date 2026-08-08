@@ -812,6 +812,7 @@ function IntegrationsTab() {
   // Meta page picker (multiple Facebook Pages → pick one for this product).
   const [pagePickerProduct, setPagePickerProduct] = useState<string | null>(null);
   const [pages, setPages] = useState<MetaPage[] | null>(null);
+  const [linkedPageIds, setLinkedPageIds] = useState<string[]>([]);
   const [pagesError, setPagesError] = useState("");
   const [selectingPage, setSelectingPage] = useState<string | null>(null);
 
@@ -845,7 +846,7 @@ function IntegrationsTab() {
     setPages(null);
     setPagesError("");
     (async () => {
-      const res = await apiGet<{ pages?: MetaPage[]; error?: string }>(
+      const res = await apiGet<{ pages?: MetaPage[]; linkedIds?: string[]; error?: string }>(
         `/api/oauth/pages/meta?productId=${encodeURIComponent(pagePickerProduct)}`,
         wsId,
       );
@@ -856,6 +857,7 @@ function IntegrationsTab() {
         return;
       }
       setPages(res.data.pages || []);
+      setLinkedPageIds(res.data.linkedIds || []);
       if (res.data.error) setPagesError(res.data.error);
     })();
     return () => { cancelled = true; };
@@ -903,7 +905,7 @@ function IntegrationsTab() {
       );
       if (res.ok) {
         toast.success(`Linked ${page.name}`);
-        setPagePickerProduct(null);
+        setLinkedPageIds((prev) => [...new Set([...prev, page.id])]);
         refreshConns();
       } else {
         toast.error("Failed to link this Page. Please try again.");
@@ -986,14 +988,21 @@ function IntegrationsTab() {
                   </div>
                   <div className="shrink-0">
                     {st.state === "connected" ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={isBusy}
-                        onClick={() => setDisconnectTarget({ productId: product.id, provider: ch.provider, label: `${ch.label} · ${product.name}` })}
-                      >
-                        {isBusy ? "Unlinking…" : "Unlink"}
-                      </Button>
+                      <div className="flex gap-2">
+                        {ch.provider === "meta" && (
+                          <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>
+                            Add Page
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={isBusy}
+                          onClick={() => setDisconnectTarget({ productId: product.id, provider: ch.provider, label: `${ch.label} · ${product.name}` })}
+                        >
+                          {isBusy ? "Unlinking…" : "Unlink"}
+                        </Button>
+                      </div>
                     ) : st.state === "needs-page" ? (
                       ch.provider === "pinterest" ? (
                         <a href="/products"><Button size="sm">Choose board</Button></a>
@@ -1022,9 +1031,10 @@ function IntegrationsTab() {
       <Dialog open={!!pagePickerProduct} onOpenChange={(open) => { if (!open) setPagePickerProduct(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Choose a Facebook Page</DialogTitle>
+            <DialogTitle>Choose Facebook Pages</DialogTitle>
             <DialogDescription>
-              Pick the Facebook Page this brand posts to.
+              Link every Page this brand posts to — you can add as many as your
+              Facebook account manages, and pick between them when composing.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-[50vh] overflow-y-auto">
@@ -1042,7 +1052,7 @@ function IntegrationsTab() {
                 <button
                   key={pg.id}
                   type="button"
-                  disabled={!!selectingPage}
+                  disabled={!!selectingPage || linkedPageIds.includes(pg.id)}
                   onClick={() => selectPage(pg)}
                   className="flex w-full items-center justify-between gap-3 rounded-xl border p-3.5 text-left transition-colors hover:border-primary/50 disabled:opacity-60"
                 >
@@ -1050,7 +1060,13 @@ function IntegrationsTab() {
                     <p className="text-sm font-medium truncate">{pg.name}</p>
                     <p className="text-xs text-muted-foreground">{pg.hasInstagram ? "Facebook + Instagram" : "Facebook only"}</p>
                   </div>
-                  <span className="text-xs text-primary shrink-0">{selectingPage === pg.id ? "Linking…" : "Select"}</span>
+                  <span className="text-xs text-primary shrink-0">
+                    {linkedPageIds.includes(pg.id)
+                      ? "Linked"
+                      : selectingPage === pg.id
+                      ? "Linking…"
+                      : "Link"}
+                  </span>
                 </button>
               ))
             )}

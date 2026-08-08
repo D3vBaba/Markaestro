@@ -57,7 +57,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
           targetChannels: Array.isArray(nextPost.targetChannels) ? nextPost.targetChannels : undefined,
           mediaUrls: Array.isArray(nextPost.mediaUrls) ? nextPost.mediaUrls.filter((url): url is string => typeof url === 'string') : undefined,
         },
-        { requireReadyChannels: true },
+        {
+          requireReadyChannels: true,
+          channelDestinations: nextPost.channelDestinations as
+            | Record<string, string>
+            | undefined,
+        },
       );
       if (issues.length > 0) {
         return apiOk({ error: 'VALIDATION_ERROR', issues }, 400);

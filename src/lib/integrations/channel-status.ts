@@ -12,6 +12,8 @@ export type ChannelStatusEntry = {
   provider: string;
   scope?: "workspace" | "product";
   status?: string;
+  /** Every account/Page/board linked for this provider on this product. */
+  accounts?: Array<{ destinationId?: string | null; label?: string | null; enabled?: boolean }>;
   pageId?: string | null;
   pageName?: string | null;
   pageSelectionRequired?: boolean | null;
@@ -49,6 +51,16 @@ export function resolveChannelStatus(
   if (!entry) return { state: "disconnected" };
   // Per-product model: workspace-scoped leftovers never count as linked.
   if (entry.scope === "workspace") return { state: "disconnected" };
+
+  // Several accounts can be linked per channel; name them collectively rather
+  // than showing only whichever one happens to sort first.
+  const linkedAccounts = (entry.accounts ?? []).filter((account) => account.destinationId);
+  if (linkedAccounts.length > 1 && entry.status === "connected") {
+    return {
+      state: "connected",
+      label: `${linkedAccounts.length} accounts linked`,
+    };
+  }
 
   if (provider === "meta") {
     // Facebook is only usable once a Page is chosen. Connected-without-a-page

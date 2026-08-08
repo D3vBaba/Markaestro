@@ -57,8 +57,28 @@ export type Product = {
   createdAt?: string;
 };
 
+/**
+ * One account/Page/board linked for a channel. A brand can link as many as the
+ * platform grant exposes — ten Facebook Pages are ten linked accounts, each
+ * publishable and unlinkable on its own.
+ */
+export type LinkedAccount = {
+  connectionId: string;
+  provider: string;
+  destinationId: string | null;
+  label: string | null;
+  status: string;
+  enabled: boolean;
+  lastRefreshError?: string | null;
+  pageName?: string | null;
+  boardName?: string | null;
+  username?: string | null;
+  linkedinDestinationName?: string | null;
+};
+
 export type IntegrationInfo = {
   provider: string;
+  accounts?: LinkedAccount[];
   scope?: "workspace" | "product";
   productId?: string | null;
   enabled: boolean;
@@ -345,7 +365,7 @@ export default function ProductDetailSheet({
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const [disconnectTarget, setDisconnectTarget] = useState<{ provider: string; label: string; linkedinMode?: "profile" | "community" } | null>(null);
   const [metaPages, setMetaPages] = useState<MetaPage[]>([]);
-  const [selectedPageId, setSelectedPageId] = useState("");
+  const [metaLinkedPageIds, setMetaLinkedPageIds] = useState<string[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
   const [selectingPage, setSelectingPage] = useState(false);
 
@@ -542,11 +562,12 @@ export default function ProductDetailSheet({
     if (!productId) return;
     setLoadingPages(true);
     try {
-      const res = await apiGet<{ pages: MetaPage[] }>(
+      const res = await apiGet<{ pages: MetaPage[]; linkedIds?: string[] }>(
         `/api/oauth/pages/meta?productId=${productId}`,
       );
       if (res.ok) {
         setMetaPages(res.data.pages || []);
+        setMetaLinkedPageIds(res.data.linkedIds || []);
         if (res.data.pages?.length === 0) toast.error("No Facebook pages found.");
       }
     } catch {
@@ -556,25 +577,30 @@ export default function ProductDetailSheet({
     }
   }
 
-  async function selectMetaPage() {
-    if (!selectedPageId || !productId) return;
+  // Linking is additive — a brand can post to as many Facebook Pages as the
+  // Meta grant covers, so choosing Pages never displaces the ones already set.
+  async function selectMetaPages(pageIds: string[]) {
+    if (pageIds.length === 0 || !productId) return;
     setSelectingPage(true);
-    const page = metaPages.find((p) => p.id === selectedPageId);
+    const pageNames = Object.fromEntries(
+      pageIds.map((id) => [id, metaPages.find((page) => page.id === id)?.name || ""]),
+    );
     try {
-      const res = await apiPost<{ ok: boolean; pageName: string }>(
+      const res = await apiPost<{ ok: boolean; linked?: Array<{ name: string }> }>(
         "/api/oauth/pages/meta/select",
-        { pageId: selectedPageId, pageName: page?.name, productId },
+        { pageIds, pageNames, productId },
       );
       if (res.ok && res.data.ok) {
-        toast.success(`Page "${res.data.pageName}" selected`);
+        const count = res.data.linked?.length ?? pageIds.length;
+        toast.success(`${count} Facebook Page${count === 1 ? "" : "s"} linked`);
         setMetaPages([]);
-        setSelectedPageId("");
+        setMetaLinkedPageIds([]);
         await refreshIntegrations();
       } else {
-        toast.error("Failed to select page");
+        toast.error("Failed to link Pages");
       }
     } catch {
-      toast.error("Failed to select page");
+      toast.error("Failed to link Pages");
     } finally {
       setSelectingPage(false);
     }
@@ -764,11 +790,10 @@ export default function ProductDetailSheet({
                       disconnecting={disconnecting}
                       loadingPages={loadingPages}
                       metaPages={metaPages}
-                      selectedPageId={selectedPageId}
+                      metaLinkedPageIds={metaLinkedPageIds}
                       selectingPage={selectingPage}
                       onLoadPages={loadMetaPages}
-                      onSelectedPageIdChange={setSelectedPageId}
-                      onSelectPage={selectMetaPage}
+                      onSelectPages={selectMetaPages}
                       onStartOAuth={startOAuth}
                       onDisconnect={(provider, label) =>
                         setDisconnectTarget({ provider, label })
@@ -1212,11 +1237,10 @@ function ChannelsSection({
   disconnecting,
   loadingPages,
   metaPages,
-  selectedPageId,
+  metaLinkedPageIds,
   selectingPage,
   onLoadPages,
-  onSelectedPageIdChange,
-  onSelectPage,
+  onSelectPages,
   onStartOAuth,
   onDisconnect,
   getIntegration,
@@ -1227,11 +1251,10 @@ function ChannelsSection({
   disconnecting: string | null;
   loadingPages: boolean;
   metaPages: MetaPage[];
-  selectedPageId: string;
+  metaLinkedPageIds: string[];
   selectingPage: boolean;
   onLoadPages: () => void;
-  onSelectedPageIdChange: (v: string) => void;
-  onSelectPage: () => void;
+  onSelectPages: (pageIds: string[]) => void | Promise<void>;
   onStartOAuth: (provider: string, linkedinMode?: "profile" | "community") => void;
   onDisconnect: (provider: string, label: string, linkedinMode?: "profile" | "community") => void;
   getIntegration: (provider: string) => IntegrationInfo | undefined;
@@ -1240,6 +1263,7 @@ function ChannelsSection({
 }) {
   void integrations; // used via getIntegration
   const meta = getIntegration("meta");
+  const metaAccounts = (meta?.accounts ?? []).filter((account) => account.destinationId);
   // Use the shared resolver so this sheet and the Settings page can never
   // disagree (a workspace-scoped Meta leftover must not read as connected here).
   const metaState = resolveChannelStatus("meta", meta);
@@ -1263,16 +1287,18 @@ function ChannelsSection({
           warnLabel="Pick a Page"
           detail={
             metaHasPage
-              ? meta?.pageName || "Facebook Page linked"
+              ? metaAccounts.length > 1
+                ? `${metaAccounts.length} Facebook Pages linked`
+                : meta?.pageName || "Facebook Page linked"
               : metaConnected
-              ? "Choose which Facebook Page this brand posts to"
-              : "Link this brand's own Facebook Page"
+              ? "Choose which Facebook Pages this brand posts to"
+              : "Link this brand's Facebook Pages"
           }
         >
           {metaConnected ? (
             <>
               <Button variant="outline" size="sm" onClick={onLoadPages} disabled={loadingPages}>
-                {loadingPages ? "Loading…" : metaHasPage ? "Change Page" : "Choose Page"}
+                {loadingPages ? "Loading…" : metaHasPage ? "Add Pages" : "Choose Pages"}
               </Button>
               <Button
                 variant="destructive"
@@ -1280,31 +1306,21 @@ function ChannelsSection({
                 onClick={() => onDisconnect("meta", providerLabels.meta)}
                 disabled={disconnecting === "meta"}
               >
-                {disconnecting === "meta" ? "…" : "Unlink"}
+                {disconnecting === "meta" ? "…" : "Unlink all"}
               </Button>
-              {metaPages.length > 0 && (
-                <div className="flex gap-2 pt-2 w-full">
-                  <Select
-                    value={selectedPageId}
-                    onChange={(e) => onSelectedPageIdChange(e.target.value)}
-                    className="flex-1"
-                  >
-                    <option value="">Select a Page…</option>
-                    {metaPages.map((pg) => (
-                      <option key={pg.id} value={pg.id}>
-                        {pg.name}
-                      </option>
-                    ))}
-                  </Select>
-                  <Button
-                    size="sm"
-                    onClick={onSelectPage}
-                    disabled={selectingPage || !selectedPageId}
-                  >
-                    {selectingPage ? "…" : "Select"}
-                  </Button>
-                </div>
-              )}
+              <LinkedAccountsList
+                accounts={metaAccounts}
+                provider="meta"
+                productId={productId}
+                onChanged={onRefreshIntegrations}
+              />
+              <DestinationPicker
+                destinations={metaPages}
+                linkedIds={metaLinkedPageIds}
+                destinationLabel="Page"
+                busy={selectingPage}
+                onLink={onSelectPages}
+              />
             </>
           ) : (
             <Button size="sm" onClick={() => onStartOAuth("meta")}>
@@ -1641,20 +1657,22 @@ function SimpleConnectCard({
 
   const pickerActive = !!(pickerWhen && pickerProvider && pickerWhen(integration));
   const [destinations, setDestinations] = useState<PickerDestination[]>([]);
+  const [linkedIds, setLinkedIds] = useState<string[]>([]);
   const [loadingDestinations, setLoadingDestinations] = useState(false);
-  const [selectedDestinationId, setSelectedDestinationId] = useState("");
   const [selecting, setSelecting] = useState(false);
   const destinationLabel = pickerDestinationLabel || "destination";
+  const accounts = integration?.accounts ?? [];
 
   async function loadDestinations() {
     if (!pickerProvider || !productId) return;
     setLoadingDestinations(true);
     try {
-      const res = await apiGet<{ pages: PickerDestination[] }>(
+      const res = await apiGet<{ pages: PickerDestination[]; linkedIds?: string[] }>(
         `/api/oauth/pages/${pickerProvider}?productId=${productId}`,
       );
       if (res.ok) {
         setDestinations(res.data.pages || []);
+        setLinkedIds(res.data.linkedIds || []);
         if ((res.data.pages || []).length === 0) {
           toast.error(`No ${destinationLabel}s found.`);
         }
@@ -1668,29 +1686,28 @@ function SimpleConnectCard({
     }
   }
 
-  async function selectDestination() {
-    if (!selectedDestinationId || !pickerProvider || !productId) return;
-    const picked = destinations.find((d) => d.id === selectedDestinationId);
+  async function linkDestinations(ids: string[]) {
+    if (ids.length === 0 || !pickerProvider || !productId) return;
+    const names = Object.fromEntries(
+      ids.map((id) => [id, destinations.find((d) => d.id === id)?.name || ""]),
+    );
     setSelecting(true);
     try {
-      const res = await apiPost<{ ok: boolean; name?: string }>(
+      const res = await apiPost<{ ok: boolean; linked?: Array<{ name: string }> }>(
         `/api/oauth/pages/${pickerProvider}/select`,
-        {
-          pageId: selectedDestinationId,
-          pageName: picked?.name,
-          productId,
-        },
+        { pageIds: ids, pageNames: names, productId },
       );
       if (res.ok && res.data.ok) {
-        toast.success(`${destinationLabel} "${picked?.name || ""}" selected`);
+        const count = res.data.linked?.length ?? ids.length;
+        toast.success(`${count} ${destinationLabel}${count === 1 ? "" : "s"} linked`);
         setDestinations([]);
-        setSelectedDestinationId("");
+        setLinkedIds([]);
         if (onPickerSelected) await onPickerSelected();
       } else {
-        toast.error(`Failed to select ${destinationLabel}`);
+        toast.error(`Failed to link ${destinationLabel}s`);
       }
     } catch {
-      toast.error(`Failed to select ${destinationLabel}`);
+      toast.error(`Failed to link ${destinationLabel}s`);
     } finally {
       setSelecting(false);
     }
@@ -1725,28 +1742,20 @@ function SimpleConnectCard({
           >
             {disconnecting === provider ? "…" : "Disconnect"}
           </Button>
-          {pickerActive && destinations.length > 0 && (
-            <div className="flex gap-2 pt-2 w-full">
-              <Select
-                value={selectedDestinationId}
-                onChange={(e) => setSelectedDestinationId(e.target.value)}
-                className="flex-1"
-              >
-                <option value="">Select a {destinationLabel}…</option>
-                {destinations.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
-                ))}
-              </Select>
-              <Button
-                size="sm"
-                onClick={selectDestination}
-                disabled={selecting || !selectedDestinationId}
-              >
-                {selecting ? "…" : "Select"}
-              </Button>
-            </div>
+          <LinkedAccountsList
+            accounts={accounts}
+            provider={provider}
+            productId={productId}
+            onChanged={() => onPickerSelected?.()}
+          />
+          {pickerActive && (
+            <DestinationPicker
+              destinations={destinations}
+              linkedIds={linkedIds}
+              destinationLabel={destinationLabel}
+              busy={selecting}
+              onLink={linkDestinations}
+            />
           )}
         </>
       ) : (
@@ -1755,6 +1764,159 @@ function SimpleConnectCard({
         </Button>
       )}
     </ChannelCard>
+  );
+}
+
+function accountName(account: LinkedAccount): string {
+  return (
+    account.label ||
+    account.pageName ||
+    account.boardName ||
+    account.linkedinDestinationName ||
+    (account.username ? `@${account.username}` : null) ||
+    account.destinationId ||
+    "Linked account"
+  );
+}
+
+/**
+ * The accounts already linked for a channel, each with its own unlink control.
+ * Unlinking one leaves the rest of the brand's accounts on that platform alone.
+ */
+function LinkedAccountsList({
+  accounts,
+  provider,
+  productId,
+  linkedinMode,
+  onChanged,
+}: {
+  accounts: LinkedAccount[];
+  provider: string;
+  productId?: string | null;
+  linkedinMode?: "profile" | "community";
+  onChanged: () => void | Promise<void>;
+}) {
+  const [unlinking, setUnlinking] = useState<string | null>(null);
+
+  if (accounts.length === 0) return null;
+
+  async function unlink(account: LinkedAccount) {
+    if (!productId || !account.destinationId) return;
+    setUnlinking(account.destinationId);
+    try {
+      const res = await apiPost(`/api/oauth/disconnect/${provider}`, {
+        productId,
+        destinationId: account.destinationId,
+        ...(linkedinMode ? { linkedinMode } : {}),
+      });
+      if (res.ok) {
+        toast.success(`${accountName(account)} unlinked`);
+        await onChanged();
+      } else {
+        toast.error(`Failed to unlink ${accountName(account)}`);
+      }
+    } catch {
+      toast.error(`Failed to unlink ${accountName(account)}`);
+    } finally {
+      setUnlinking(null);
+    }
+  }
+
+  return (
+    <div className="w-full space-y-1.5 pt-1">
+      {accounts.map((account) => (
+        <div
+          key={account.connectionId}
+          className="flex items-center gap-2 rounded-lg border border-border/40 px-2.5 py-1.5"
+        >
+          <span className="min-w-0 flex-1 truncate text-[12px] text-foreground">
+            {accountName(account)}
+          </span>
+          {!account.enabled && (
+            <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
+              {account.status === "revoked" ? "Reconnect" : account.status}
+            </Badge>
+          )}
+          {account.destinationId && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-[11px]"
+              onClick={() => unlink(account)}
+              disabled={unlinking === account.destinationId}
+            >
+              {unlinking === account.destinationId ? "…" : "Unlink"}
+            </Button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Multi-select picker for a provider's available destinations. Linking is
+ * additive: choosing a Page never displaces one already linked.
+ */
+function DestinationPicker({
+  destinations,
+  linkedIds,
+  destinationLabel,
+  busy,
+  onLink,
+}: {
+  destinations: PickerDestination[];
+  linkedIds: string[];
+  destinationLabel: string;
+  busy: boolean;
+  onLink: (ids: string[]) => void | Promise<void>;
+}) {
+  const [selected, setSelected] = useState<string[]>([]);
+  const linked = new Set(linkedIds);
+  const selectable = destinations.filter((item) => !linked.has(item.id));
+
+  if (destinations.length === 0) return null;
+
+  if (selectable.length === 0) {
+    return (
+      <p className="w-full pt-1 text-[11.5px] text-muted-foreground">
+        Every available {destinationLabel} is already linked to this brand.
+      </p>
+    );
+  }
+
+  const toggle = (id: string) => {
+    setSelected((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+  };
+
+  return (
+    <div className="w-full space-y-2 pt-1">
+      <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border/40 p-1.5">
+        {selectable.map((item) => (
+          <label
+            key={item.id}
+            className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-[12px] hover:bg-muted/50"
+          >
+            <input
+              type="checkbox"
+              className="h-3.5 w-3.5 accent-mk-pos"
+              checked={selected.includes(item.id)}
+              onChange={() => toggle(item.id)}
+            />
+            <span className="min-w-0 flex-1 truncate">{item.name}</span>
+          </label>
+        ))}
+      </div>
+      <Button
+        size="sm"
+        onClick={() => onLink(selected)}
+        disabled={busy || selected.length === 0}
+      >
+        {busy
+          ? "…"
+          : `Link ${selected.length || ""} ${destinationLabel}${selected.length === 1 ? "" : "s"}`.replace(/\s+/g, " ")}
+      </Button>
+    </div>
   );
 }
 

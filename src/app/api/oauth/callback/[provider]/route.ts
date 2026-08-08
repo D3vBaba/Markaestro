@@ -188,6 +188,9 @@ async function fetchPinterestProfile(accessToken: string) {
     throw new Error(`Pinterest profile fetch failed: ${data.message || 'Unknown error'}`);
   }
   return {
+    // Identifies the authorizing account so a second Pinterest login adds a
+    // credential instead of replacing the first.
+    id: typeof data.id === 'string' || typeof data.id === 'number' ? String(data.id) : '',
     username: typeof data.username === 'string' ? data.username : '',
     displayName: typeof data.username === 'string' ? data.username : 'Pinterest',
     accountType: typeof data.account_type === 'string' ? data.account_type : '',
@@ -471,6 +474,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         throw new Error('VALIDATION_MISSING_PRODUCT_ID');
       }
       const profile = await fetchPinterestProfile(tokens.accessToken);
+      if (profile.id) extraData.pinterestUserId = profile.id;
       extraData.username = profile.username;
       extraData.displayName = profile.displayName;
       if (profile.profileImage) extraData.pictureUrl = profile.profileImage;

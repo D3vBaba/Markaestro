@@ -1,6 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { workspaceCollection } from '@/lib/firestore-paths';
-import { getConnection, getConnectionForChannel, getMetaConnectionMerged } from '@/lib/platform/connections';
+import { getConnection, getConnectionForChannel, listProviderConnections } from '@/lib/platform/connections';
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import { getStoredLinkedInDestinations } from '@/lib/platform/linkedin-api';
@@ -200,8 +200,10 @@ function buildLinkedInDestinations(connection: PlatformConnection | null, fallba
 async function listWorkspaceLevelDestinations(
   workspaceId: string,
 ): Promise<WorkspaceDestination[]> {
-  const metaConn = await getMetaConnectionMerged(workspaceId);
-  return buildMetaDestinations(metaConn, 'Workspace').map((destination) => ({ destination }));
+  const metaConns = await listProviderConnections(workspaceId, 'meta');
+  return metaConns
+    .flatMap((conn) => buildMetaDestinations(conn, 'Workspace'))
+    .map((destination) => ({ destination }));
 }
 
 async function listAllProductDestinations(
@@ -250,24 +252,33 @@ export async function listPublicProductDestinations(
 
   const product = productSnap.data() as ProductRecord;
   const fallbackName = product.name || productId;
-  const [metaConn, instagramConn, tikTokConn, threadsConn, linkedInProfileConn, linkedInCommunityConn, linkedInLegacyConn] = await Promise.all([
-    getMetaConnectionMerged(workspaceId, productId),
-    getConnection(workspaceId, 'instagram', productId),
-    getConnection(workspaceId, 'tiktok', productId),
-    getConnection(workspaceId, 'threads', productId),
-    getConnection(workspaceId, LINKEDIN_PROFILE_PROVIDER, productId),
-    getConnection(workspaceId, LINKEDIN_COMMUNITY_PROVIDER, productId),
-    getConnection(workspaceId, 'linkedin', productId),
+  // A brand can link several accounts per provider (ten Facebook Pages, two
+  // Instagram accounts, …) — every one of them is a publishable destination.
+  const [metaConns, instagramConns, tikTokConns, threadsConns, linkedInProfileConns, linkedInCommunityConns, linkedInLegacyConns] = await Promise.all([
+    listProviderConnections(workspaceId, 'meta', productId),
+    listProviderConnections(workspaceId, 'instagram', productId),
+    listProviderConnections(workspaceId, 'tiktok', productId),
+    listProviderConnections(workspaceId, 'threads', productId),
+    listProviderConnections(workspaceId, LINKEDIN_PROFILE_PROVIDER, productId),
+    listProviderConnections(workspaceId, LINKEDIN_COMMUNITY_PROVIDER, productId),
+    listProviderConnections(workspaceId, 'linkedin', productId),
   ]);
 
+  const metaCredential = await getConnection(workspaceId, 'meta');
+  const mergedMetaConns = metaConns.map((conn) => (metaCredential
+    ? { ...conn, metadata: { ...metaCredential.metadata, ...conn.metadata } }
+    : conn));
+
   return [
-    ...buildMetaDestinations(metaConn, fallbackName),
-    ...buildInstagramDestinations(instagramConn, fallbackName),
-    ...buildTikTokDestinations(productId, tikTokConn, fallbackName),
-    ...buildThreadsDestinations(threadsConn, fallbackName),
-    ...buildLinkedInDestinations(linkedInProfileConn, fallbackName),
-    ...buildLinkedInDestinations(linkedInCommunityConn, fallbackName),
-    ...(linkedInProfileConn || linkedInCommunityConn ? [] : buildLinkedInDestinations(linkedInLegacyConn, fallbackName)),
+    ...mergedMetaConns.flatMap((conn) => buildMetaDestinations(conn, fallbackName)),
+    ...instagramConns.flatMap((conn) => buildInstagramDestinations(conn, fallbackName)),
+    ...tikTokConns.flatMap((conn) => buildTikTokDestinations(productId, conn, fallbackName)),
+    ...threadsConns.flatMap((conn) => buildThreadsDestinations(conn, fallbackName)),
+    ...linkedInProfileConns.flatMap((conn) => buildLinkedInDestinations(conn, fallbackName)),
+    ...linkedInCommunityConns.flatMap((conn) => buildLinkedInDestinations(conn, fallbackName)),
+    ...(linkedInProfileConns.length > 0 || linkedInCommunityConns.length > 0
+      ? []
+      : linkedInLegacyConns.flatMap((conn) => buildLinkedInDestinations(conn, fallbackName))),
   ];
 }
 

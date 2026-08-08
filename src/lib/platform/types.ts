@@ -26,6 +26,25 @@ export type ConnectionStatus = (typeof ConnectionStatus)[keyof typeof Connection
 export type PlatformConnection = {
   /** OAuth provider key (meta, tiktok, etc.) */
   provider: string;
+  /**
+   * Firestore document id: `${provider}:${accountKey}` for a linked
+   * destination, or the bare provider for a legacy/credential document.
+   * Absent on documents written before connections became account-scoped.
+   */
+  connectionId?: string;
+  /**
+   * External destination this connection publishes to — Facebook Page id,
+   * Instagram/Threads/TikTok account id, Pinterest board id, LinkedIn URN.
+   * Null while the user has authorized but not yet picked a destination.
+   */
+  accountKey?: string | null;
+  /** Display name for the destination (Page name, @username, board name). */
+  accountLabel?: string | null;
+  /**
+   * The account that authorized this grant — the Facebook app-user, Pinterest
+   * account, or LinkedIn member. Several destinations can share one credential.
+   */
+  credentialKey?: string | null;
   /** Which channels this connection serves */
   channels: SocialChannel[];
   /** Capabilities this connection supports */

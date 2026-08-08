@@ -225,6 +225,16 @@ export const postWindowSchema = z.object({
   to: z.string().datetime().optional(),
 });
 
+/**
+ * Which linked account each channel publishes to, keyed by channel. A brand can
+ * link several Facebook Pages (or Instagram accounts, LinkedIn Pages, …), so a
+ * post names the one it means rather than relying on a single per-channel slot.
+ */
+export const channelDestinationsSchema = z.record(
+  z.enum(socialChannels),
+  z.string().trim().max(2000),
+);
+
 export const createPostSchema = z.object({
   content: z.string().trim().min(1, 'Content is required').max(65000),
   channel: z.enum(socialChannels),
@@ -235,6 +245,7 @@ export const createPostSchema = z.object({
   targetChannels: z.array(z.enum(socialChannels)).optional(),
   destinationId: z.string().trim().max(2000).optional(),
   destinationProvider: z.string().trim().max(100).optional(),
+  channelDestinations: channelDestinationsSchema.optional(),
   deliveryMode: z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']).optional(),
 });
 
@@ -251,6 +262,7 @@ export const updatePostSchema = z.object({
   targetChannels: z.array(z.enum(socialChannels)).optional(),
   destinationId: z.string().trim().max(2000).optional(),
   destinationProvider: z.string().trim().max(100).optional(),
+  channelDestinations: channelDestinationsSchema.optional(),
   deliveryMode: z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']).optional(),
 });
 

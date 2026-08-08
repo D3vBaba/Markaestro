@@ -7,6 +7,13 @@ import type { OAuthProvider, SocialChannel } from '@/lib/schemas';
 import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
 import type { PlatformConnection } from '@/lib/platform/types';
 import { IG_LOGIN_UNSUPPORTED_MESSAGE, isInstagramGraphRefusal, isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
+import { getConnectionRef } from '@/lib/platform/connections';
+import {
+  buildConnectionId,
+  deriveAccountKey,
+  deriveAccountLabel,
+  deriveCredentialKey,
+} from '@/lib/platform/connection-identity';
 
 /**
  * Flatten a provider token-endpoint error payload into a readable message.
@@ -513,6 +520,13 @@ export async function revokeAccessToken(
 
 /**
  * Store OAuth tokens as a PlatformConnection in Firestore.
+ *
+ * The document is keyed by provider *and* the destination the grant resolves to
+ * (Instagram/Threads/TikTok account, Facebook Page, …), so linking a second
+ * account of the same platform adds a connection instead of overwriting the
+ * first. Providers whose destination is picked after the callback (Meta Pages,
+ * Pinterest boards, LinkedIn organizations) land on the bare-provider document
+ * until the user chooses, at which point the destination document is created.
  */
 export async function storeTokens(
   workspaceId: string,
@@ -534,30 +548,49 @@ export async function storeTokens(
   const connectionProvider = storageProvider || provider;
   const { channels, capabilities } = providerChannelsAndCapabilities(connectionProvider);
 
-  const connPath = productId
-    ? `workspaces/${workspaceId}/products/${productId}/platformConnections/${connectionProvider}`
-    : `workspaces/${workspaceId}/platformConnections/${connectionProvider}`;
-  const connRef = adminDb.doc(connPath);
+  const metadata: Record<string, unknown> = {
+    lastRefreshError: null,
+    refreshFailureCount: 0,
+    ...(tokens.scope ? { oauthScopes: tokens.scope } : {}),
+    ...(refreshTokenExpiresAt ? { refreshTokenExpiresAt } : {}),
+    ...(extraData || {}),
+  };
+
+  const accountKey = deriveAccountKey(connectionProvider, metadata);
+  const accountLabel = deriveAccountLabel(connectionProvider, metadata);
+  const credentialKey = deriveCredentialKey(connectionProvider, metadata);
+
+  // Destination-scoped once the grant names one. Otherwise scope the pending
+  // grant to the account that authorized it, so logging in with a second
+  // Pinterest/LinkedIn account adds a credential instead of overwriting the
+  // first. Workspace scope keeps the bare provider id: Meta's app-user
+  // credential is canonical there and is looked up by name.
+  const docKey = accountKey ?? (productId ? credentialKey : null);
+  const connRef = getConnectionRef(workspaceId, connectionProvider, productId, docKey);
   const existingSnap = await connRef.get();
   const existing = existingSnap.exists ? (existingSnap.data() as Partial<PlatformConnection>) : null;
 
+  // A pre-existing single-slot document for the same destination is the same
+  // connection under its old name; carry its creation date and retire it.
+  const legacy = docKey
+    ? await findSupersededLegacyConnection(workspaceId, connectionProvider, docKey, productId, accountKey)
+    : null;
+
   const connection: PlatformConnection = {
     provider: connectionProvider,
+    connectionId: connRef.id,
+    accountKey: accountKey ?? null,
+    accountLabel: accountLabel ?? null,
+    credentialKey: credentialKey ?? null,
     channels,
     capabilities,
     status: ConnectionStatus.CONNECTED,
     accessTokenEncrypted: encrypt(tokens.accessToken),
-    metadata: {
-      lastRefreshError: null,
-      refreshFailureCount: 0,
-      ...(tokens.scope ? { oauthScopes: tokens.scope } : {}),
-      ...(refreshTokenExpiresAt ? { refreshTokenExpiresAt } : {}),
-      ...(extraData || {}),
-    },
+    metadata,
     workspaceId,
     updatedBy: userId,
     updatedAt: now.toISOString(),
-    createdAt: existing?.createdAt || now.toISOString(),
+    createdAt: existing?.createdAt || legacy?.data.createdAt || now.toISOString(),
   };
 
   if (tokens.refreshToken) {
@@ -570,6 +603,47 @@ export async function storeTokens(
     connection.productId = productId;
   }
   await connRef.set(connection);
+  if (legacy) {
+    await legacy.ref.delete();
+  }
+}
+
+/**
+ * Find a legacy provider-keyed document that the record now being written
+ * supersedes — either because it already points at the same destination, or
+ * because it is the pending grant from the same account, now stored under a
+ * scoped id.
+ */
+async function findSupersededLegacyConnection(
+  workspaceId: string,
+  provider: string,
+  docKey: string,
+  productId?: string,
+  accountKey?: string | null,
+): Promise<{ ref: FirebaseFirestore.DocumentReference; data: Partial<PlatformConnection> } | null> {
+  const legacyRef = getConnectionRef(workspaceId, provider, productId);
+  if (legacyRef.id === buildConnectionId(provider, docKey)) return null;
+
+  const snap = await legacyRef.get();
+  if (!snap.exists) return null;
+
+  const data = snap.data() as Partial<PlatformConnection>;
+  const legacyAccountKey = deriveAccountKey(provider, data.metadata);
+
+  // A legacy record pointing at a different destination is a separate
+  // connection and must survive.
+  if (legacyAccountKey) {
+    return accountKey && legacyAccountKey === accountKey ? { ref: legacyRef, data } : null;
+  }
+
+  // A destination-less legacy record only belongs to this write when the same
+  // account authorized it.
+  const legacyCredentialKey = deriveCredentialKey(provider, data.metadata);
+  if (legacyCredentialKey && legacyCredentialKey !== docKey && legacyCredentialKey !== accountKey) {
+    return null;
+  }
+
+  return { ref: legacyRef, data };
 }
 
 function providerChannelsAndCapabilities(provider: string): {

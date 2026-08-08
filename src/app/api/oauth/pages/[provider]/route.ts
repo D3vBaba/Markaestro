@@ -1,7 +1,13 @@
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
-import { getConnection, getConnectionRef, resolveUserAccessToken } from '@/lib/platform/connections';
+import {
+  getConnection,
+  listProviderConnections,
+  listProviderCredentials,
+  refForConnection,
+  resolveUserAccessToken,
+} from '@/lib/platform/connections';
 import {
   discoverLinkedInDestinations,
   fetchLinkedInProfile,
@@ -130,6 +136,25 @@ async function fetchLinkedInCommunityDestinations(
   }
 }
 
+/**
+ * Any connection for a provider can enumerate the grant — they all carry the
+ * same authorizing user token. Used when the pending document has already been
+ * superseded by linked destinations.
+ */
+async function firstCredential(workspaceId: string, provider: string, productId?: string) {
+  const conns = await listProviderConnections(workspaceId, provider, productId);
+  return conns.find((conn) => Boolean(conn.accessTokenEncrypted)) || null;
+}
+
+/** Two accounts can surface the same destination; show it once. */
+function dedupeById<T extends { id: string }>(items: T[]): T[] {
+  const seen = new Map<string, T>();
+  for (const item of items) {
+    if (!seen.has(item.id)) seen.set(item.id, item);
+  }
+  return [...seen.values()];
+}
+
 export async function GET(req: Request, { params }: { params: Promise<{ provider: string }> }) {
   try {
     const ctx = await requireContext(req);
@@ -143,56 +168,90 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const url = new URL(req.url);
     const productId = url.searchParams.get('productId') || undefined;
 
+    // Destinations already linked to this brand, so the picker can show which
+    // Pages/boards are in use instead of implying only one may be chosen.
+    const linkedIds = productId
+      ? (await listProviderConnections(ctx.workspaceId, provider, productId))
+        .map((linked) => linked.accountKey)
+        .filter((id): id is string => Boolean(id))
+      : [];
+
     if (provider === 'linkedin') {
-      const [profileConn, communityConn, legacyConn] = await Promise.all([
-        getConnection(ctx.workspaceId, LINKEDIN_PROFILE_PROVIDER, productId),
-        getConnection(ctx.workspaceId, LINKEDIN_COMMUNITY_PROVIDER, productId),
-        getConnection(ctx.workspaceId, 'linkedin', productId),
-      ]);
-      const profileRef = getConnectionRef(ctx.workspaceId, LINKEDIN_PROFILE_PROVIDER, productId);
-      const communityRef = getConnectionRef(ctx.workspaceId, LINKEDIN_COMMUNITY_PROVIDER, productId);
-      const [profileResult, communityResult] = await Promise.all([
-        fetchLinkedInProfileDestinations(profileConn, profileRef),
-        fetchLinkedInCommunityDestinations(communityConn, communityRef),
-      ]);
-      const legacyResult = !profileConn && !communityConn && legacyConn?.accessTokenEncrypted
-        ? await fetchLinkedInDestinations(resolveUserAccessToken(legacyConn), legacyConn)
-        : { pages: [] };
-      const pages = [...profileResult.pages, ...communityResult.pages, ...legacyResult.pages];
-      const errors = [profileResult.error, communityResult.error, legacyResult.error].filter(Boolean);
+      const credentialsByProvider = await Promise.all(
+        [LINKEDIN_PROFILE_PROVIDER, LINKEDIN_COMMUNITY_PROVIDER, 'linkedin'].map(
+          async (storageProvider) => ({
+            storageProvider,
+            credentials: productId
+              ? await listProviderCredentials(ctx.workspaceId, storageProvider, productId)
+              : [],
+          }),
+        ),
+      );
+
+      const profileCreds = credentialsByProvider[0].credentials;
+      const communityCreds = credentialsByProvider[1].credentials;
+      const legacyCreds = credentialsByProvider[2].credentials;
+
+      // Every authorizing member is enumerated, so a second LinkedIn login
+      // never hides the first member's Pages.
+      const results = [
+        ...await Promise.all(profileCreds.map((conn) =>
+          fetchLinkedInProfileDestinations(conn, refForConnection(conn)))),
+        ...await Promise.all(communityCreds.map((conn) =>
+          fetchLinkedInCommunityDestinations(conn, refForConnection(conn)))),
+        ...(profileCreds.length === 0 && communityCreds.length === 0
+          ? await Promise.all(legacyCreds.map((conn) =>
+            fetchLinkedInDestinations(resolveUserAccessToken(conn), conn)))
+          : []),
+      ];
+
+      const pages = dedupeById(results.flatMap((result) => result.pages));
+      const errors = results.map((result) => result.error).filter(Boolean);
       return apiOk({
         pages,
-        ...(errors.length ? { error: errors.join(' ') } : {}),
+        linkedIds,
+        ...(errors.length ? { error: [...new Set(errors)].join(' ') } : {}),
       });
     }
 
-    // Meta keeps one canonical app-user credential at workspace scope and a
-    // product-level Page selection. Fall back to a legacy product token during
-    // migration; other providers remain product-scoped.
-    const conn = provider === 'meta'
-      ? (await getConnection(ctx.workspaceId, 'meta')) ||
-        (await getConnection(ctx.workspaceId, 'meta', productId))
-      : await getConnection(ctx.workspaceId, provider, productId);
+    // Meta keeps one canonical app-user credential at workspace scope; other
+    // providers authorize per product and may have several accounts linked.
+    const credentials = provider === 'meta'
+      ? [
+        (await getConnection(ctx.workspaceId, 'meta')) ||
+        (await firstCredential(ctx.workspaceId, 'meta', productId)),
+      ].filter((conn): conn is NonNullable<typeof conn> => Boolean(conn?.accessTokenEncrypted))
+      : productId
+        ? await listProviderCredentials(ctx.workspaceId, provider, productId)
+        : [];
 
-    if (!conn || !conn.accessTokenEncrypted) {
-      return apiOk({ pages: [] });
+    if (credentials.length === 0) {
+      return apiOk({ pages: [], linkedIds: [] });
     }
 
-    const accessToken = resolveUserAccessToken(conn);
+    const fetched = await Promise.all(credentials.map(async (conn) => {
+      const accessToken = resolveUserAccessToken(conn);
+      if (provider === 'meta') {
+        const result = await fetchMetaManagedPages(accessToken);
+        return {
+          pages: result.pages.map((page) => ({
+            id: page.id,
+            name: page.name,
+            hasInstagram: false,
+            igAccountId: null,
+          })),
+          error: result.error,
+        };
+      }
+      return fetchPinterestBoards(accessToken);
+    }));
 
-    if (provider === 'meta') {
-      const result = await fetchMetaManagedPages(accessToken);
-      return apiOk({
-        pages: result.pages.map((page) => ({
-          id: page.id,
-          name: page.name,
-          hasInstagram: false,
-          igAccountId: null,
-        })),
-        ...(result.error ? { error: result.error } : {}),
-      });
-    }
-    return apiOk(await fetchPinterestBoards(accessToken));
+    const errors = fetched.map((result) => result.error).filter(Boolean);
+    return apiOk({
+      pages: dedupeById(fetched.flatMap((result) => result.pages)),
+      linkedIds,
+      ...(errors.length ? { error: [...new Set(errors)].join(' ') } : {}),
+    });
   } catch (error) {
     return apiError(error);
   }

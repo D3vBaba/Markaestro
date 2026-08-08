@@ -3,7 +3,6 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getAdapterForChannel } from '@/lib/platform/registry';
 import {
   getConnectionForChannel,
-  getLinkedInConnectionForDestination,
   markConnectionAuthError,
 } from '@/lib/platform/connections';
 import type { PublishRequest, PublishResult } from '@/lib/platform/types';
@@ -145,21 +144,21 @@ export async function publishPost(
     return { success: false, error: `Unsupported channel: ${request.channel}` };
   }
 
-  const connection = request.channel === 'linkedin'
-    ? await getLinkedInConnectionForDestination(
-      workspaceId,
-      productId,
-      request.destinationId,
-      request.destinationProvider,
-    )
-    : await getConnectionForChannel(
-      workspaceId,
-      request.channel,
-      productId,
-      request.destinationProvider,
-    );
+  const connection = await getConnectionForChannel(
+    workspaceId,
+    request.channel,
+    productId,
+    request.destinationProvider,
+    request.destinationId,
+  );
   if (!connection) {
-    return { success: false, error: `${request.channel} integration is not configured or disabled` };
+    // A post that names a destination must never fall back to a different one.
+    return {
+      success: false,
+      error: request.destinationId
+        ? `The selected ${request.channel} account is no longer linked or is disconnected`
+        : `${request.channel} integration is not configured or disabled`,
+    };
   }
 
   const validationError = adapter.validateConnection(connection, request.channel);
@@ -181,12 +180,7 @@ export async function publishPost(
     result.error &&
     /LINKEDIN_AUTH_REVOKED|LINKEDIN_PERMISSION_DENIED/i.test(result.error)
   ) {
-    await markConnectionAuthError(
-      workspaceId,
-      activeConnection.provider,
-      result.error,
-      activeConnection.productId || productId,
-    ).catch(() => undefined);
+    await markConnectionAuthError(activeConnection, result.error).catch(() => undefined);
   }
 
   // Instagram Login blanket refusal: graph.instagram.com will never serve this
@@ -198,12 +192,7 @@ export async function publishPost(
     result.error &&
     result.error.includes("couldn't authorize this account")
   ) {
-    await markConnectionAuthError(
-      workspaceId,
-      activeConnection.provider,
-      result.error,
-      activeConnection.productId || productId,
-    ).catch(() => undefined);
+    await markConnectionAuthError(activeConnection, result.error).catch(() => undefined);
   }
 
   if (request.channel === 'tiktok' && isTikTokTokenInvalid(result.error)) {
@@ -287,6 +276,36 @@ function getDestinationProvider(value: unknown): string | undefined {
 
 function getDestinationId(value: unknown): string | undefined {
   return typeof value === 'string' && value ? value : undefined;
+}
+
+/**
+ * Which linked account each channel should publish to, e.g.
+ * `{ facebook: '<pageId>', linkedin: 'urn:li:organization:42' }`. A brand can
+ * link several Pages/accounts per channel, so the post records the one it means.
+ */
+export function getPostChannelDestinations(
+  post: Record<string, unknown>,
+): Partial<Record<SocialChannel, string>> {
+  const raw = post.channelDestinations;
+  const map: Partial<Record<SocialChannel, string>> = {};
+
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    for (const [channel, destinationId] of Object.entries(raw as Record<string, unknown>)) {
+      if (asSocialChannel(channel) && typeof destinationId === 'string' && destinationId) {
+        map[channel] = destinationId;
+      }
+    }
+  }
+
+  // A single-channel post may carry a bare `destinationId` instead. Never apply
+  // it across channels — a Facebook Page id means nothing to Threads.
+  const targetChannels = getPostTargetChannels(post);
+  const bare = getDestinationId(post.destinationId);
+  if (bare && targetChannels.length === 1 && !map[targetChannels[0]]) {
+    map[targetChannels[0]] = bare;
+  }
+
+  return map;
 }
 
 function getEffectiveDeliveryMode(channel: SocialChannel): PublishRequest['deliveryMode'] {
@@ -894,6 +913,7 @@ export async function publishPostMultiChannel(
   productId: string | undefined,
   request: PublishRequest,
   options: PublishStoredPostOptions = {},
+  destinationsByChannel: Partial<Record<SocialChannel, string>> = {},
 ): Promise<MultiChannelPublishResult> {
   const channels: SocialChannel[] = [request.channel];
 
@@ -913,6 +933,7 @@ export async function publishPostMultiChannel(
     const result = await publishPost(workspaceId, productId, {
       ...request,
       channel,
+      destinationId: destinationsByChannel[channel] ?? request.destinationId,
     });
 
     const channelResult: ChannelPublishResult = {
@@ -939,6 +960,7 @@ async function publishExplicitChannels(
   targetChannels: SocialChannel[],
   request: Omit<PublishRequest, 'channel'>,
   options: PublishStoredPostOptions = {},
+  destinationsByChannel: Partial<Record<SocialChannel, string>> = {},
 ): Promise<MultiChannelPublishResult> {
   const results: ChannelPublishResult[] = [];
 
@@ -955,6 +977,9 @@ async function publishExplicitChannels(
     const result = await publishPost(workspaceId, productId, {
       ...request,
       channel,
+      // Each channel resolves its own linked account; a Page id from one
+      // channel must never leak into another.
+      destinationId: destinationsByChannel[channel],
     });
 
     const channelResult: ChannelPublishResult = {
@@ -1057,15 +1082,17 @@ export async function publishStoredPost(
     return aggregateChannelResults(reusableResults, primaryChannel);
   }
 
+  const channelDestinations = getPostChannelDestinations(post);
+
   if (targetChannels.length > 1 || asStringArray(post.targetChannels)?.length) {
-    const result = await publishExplicitChannels(workspaceId, productId, primaryChannel, remainingChannels, request, options);
+    const result = await publishExplicitChannels(workspaceId, productId, primaryChannel, remainingChannels, request, options, channelDestinations);
     return aggregateChannelResults([...reusableResults, ...result.channels], primaryChannel);
   }
 
   const result = await publishPostMultiChannel(workspaceId, productId, {
     ...request,
     channel: remainingChannels[0] ?? primaryChannel,
-  }, options);
+  }, options, channelDestinations);
   return aggregateChannelResults([...reusableResults, ...result.channels], primaryChannel);
 }
 
