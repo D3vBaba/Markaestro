@@ -105,6 +105,12 @@ env:
     value: https://markaestro.com/api/oauth/callback/pinterest
     availability:
       - RUNTIME
+  # Trial access cannot create Pins against the production API. Keep OAuth
+  # tokens, board IDs, and Pin writes in Sandbox until Standard is approved.
+  - variable: PINTEREST_API_ENVIRONMENT
+    value: sandbox
+    availability:
+      - RUNTIME
   - variable: LINKEDIN_OAUTH_REDIRECT_URI
     value: https://markaestro.com/api/oauth/callback/linkedin
     availability:

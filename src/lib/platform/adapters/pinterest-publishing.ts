@@ -16,13 +16,13 @@ import type {
   PublishResult,
 } from '../types';
 import type { SocialChannel } from '@/lib/schemas';
+import { getPinterestApiEnvironment, getPinterestApiUrl, isPinterestSandbox } from '@/lib/pinterest-api';
 
 // Pinterest API v5. Pins must be attached to a board — the board is selected
 // post-OAuth via /api/oauth/pages/pinterest/select and stored on the connection.
 // Videos need a separate upload flow; v5 accepts a direct media URL for images
 // and supports video via media registration (`POST /v5/media`) followed by
 // polling until `status === succeeded`.
-const PINTEREST_API = 'https://api.pinterest.com/v5';
 const VIDEO_POLL_INTERVAL_MS = 3000;
 const VIDEO_POLL_MAX_ATTEMPTS = 60;
 
@@ -45,7 +45,7 @@ async function downloadBinary(url: string): Promise<{ bytes: Buffer; contentType
 }
 
 async function registerVideoUpload(accessToken: string): Promise<{ mediaId: string; uploadUrl: string; uploadParams: Record<string, string> }> {
-  const res = await fetchWithRetry(`${PINTEREST_API}/media`, {
+  const res = await fetchWithRetry(getPinterestApiUrl('/media'), {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -80,7 +80,7 @@ async function uploadVideoBinary(uploadUrl: string, params: Record<string, strin
 
 async function waitForVideoReady(accessToken: string, mediaId: string): Promise<void> {
   for (let i = 0; i < VIDEO_POLL_MAX_ATTEMPTS; i++) {
-    const res = await fetchWithRetry(`${PINTEREST_API}/media/${encodeURIComponent(mediaId)}`, {
+    const res = await fetchWithRetry(getPinterestApiUrl(`/media/${encodeURIComponent(mediaId)}`), {
       headers: { Authorization: `Bearer ${accessToken}` },
     }, { maxRetries: 1 });
     const data = await res.json().catch(() => ({}));
@@ -106,7 +106,7 @@ async function createPin(
   description: string,
   mediaSource: PinMediaSource,
 ): Promise<{ pinId: string; url: string }> {
-  const res = await fetchWithRetry(`${PINTEREST_API}/pins`, {
+  const res = await fetchWithRetry(getPinterestApiUrl('/pins'), {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -142,6 +142,12 @@ async function publishToPinterest(
   }
   if (mediaUrls.some(isVideoUrl) && mediaUrls.length > 1) {
     return { success: false, error: 'Pinterest video pins must use a single video without additional images.' };
+  }
+  if (mediaUrls.some(isVideoUrl) && isPinterestSandbox()) {
+    return {
+      success: false,
+      error: 'Pinterest Sandbox does not support video Pins. Use an image Pin for the Trial-access demo.',
+    };
   }
 
   const accessToken = getAccessToken(connection);
@@ -210,7 +216,7 @@ async function fetchPinterestMetrics(
     app_types: 'ALL',
   });
   const res = await fetchWithRetry(
-    `${PINTEREST_API}/pins/${encodeURIComponent(pinId)}/analytics?${params.toString()}`,
+    `${getPinterestApiUrl(`/pins/${encodeURIComponent(pinId)}/analytics`)}?${params.toString()}`,
     { headers: { Authorization: `Bearer ${accessToken}` } },
     { maxRetries: 1 },
   );
@@ -245,7 +251,7 @@ async function fetchPinterestMetrics(
 
 async function fetchPinterestAudience(connection: PlatformConnection): Promise<AudienceFetchResult> {
   const accessToken = getAccessToken(connection);
-  const res = await fetchWithRetry(`${PINTEREST_API}/user_account`, {
+  const res = await fetchWithRetry(getPinterestApiUrl('/user_account'), {
     headers: { Authorization: `Bearer ${accessToken}` },
   }, { maxRetries: 1 });
   const data = await res.json().catch(() => ({}));
@@ -298,7 +304,7 @@ async function listPinterestPins(
     page_size: String(pageSize),
     ...(input.cursor ? { bookmark: input.cursor } : {}),
   });
-  const res = await fetchWithRetry(`${PINTEREST_API}/pins?${params.toString()}`, {
+  const res = await fetchWithRetry(`${getPinterestApiUrl('/pins')}?${params.toString()}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   }, { maxRetries: 1 });
   const data = await res.json().catch(() => ({}));
@@ -340,7 +346,7 @@ async function deletePinterestPin(
   pinId: string,
 ): Promise<DeletePostResult> {
   const accessToken = getAccessToken(connection);
-  const res = await fetchWithRetry(`${PINTEREST_API}/pins/${encodeURIComponent(pinId)}`, {
+  const res = await fetchWithRetry(getPinterestApiUrl(`/pins/${encodeURIComponent(pinId)}`), {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${accessToken}` },
   }, { maxRetries: 1 });
@@ -403,7 +409,7 @@ export const pinterestPublishingAdapter: PlatformAdapter = {
   async testConnection(connection) {
     const accessToken = getAccessToken(connection);
     try {
-      const res = await fetchWithRetry(`${PINTEREST_API}/user_account`, {
+      const res = await fetchWithRetry(getPinterestApiUrl('/user_account'), {
         headers: { Authorization: `Bearer ${accessToken}` },
       }, { maxRetries: 1 });
       const data = await res.json().catch(() => ({}));
@@ -419,6 +425,11 @@ export const pinterestPublishingAdapter: PlatformAdapter = {
 
   validateConnection(connection, _channel: SocialChannel): string | null {
     void _channel;
+    const connectionEnvironment = getMeta<string>(connection, 'pinterestApiEnvironment', '');
+    const configuredEnvironment = getPinterestApiEnvironment();
+    if (connectionEnvironment && connectionEnvironment !== configuredEnvironment) {
+      return `Pinterest is connected to ${connectionEnvironment}, but Markaestro is configured for ${configuredEnvironment}. Reconnect Pinterest.`;
+    }
     if (!getBoardId(connection)) {
       return 'Pinterest board not selected. Pick a board from brand settings.';
     }

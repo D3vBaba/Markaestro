@@ -1,5 +1,6 @@
 import type { OAuthProvider } from '@/lib/schemas';
 import type { LinkedInCredentialKind } from '@/lib/platform/linkedin-providers';
+import { getPinterestApiUrl } from '@/lib/pinterest-api';
 
 export type OAuthProviderConfig = {
   authUrl: string;
@@ -124,6 +125,9 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     tokenUrl: 'https://api.pinterest.com/v5/oauth/token',
     scopes: [
       'boards:read',
+      // Pinterest currently requires boards:write when creating a Pin, even
+      // when the target board already exists. Existing connections must
+      // reconnect after this scope is added.
       'boards:write',
       'pins:read',
       'pins:write',
@@ -147,6 +151,12 @@ export function getProviderConfig(
     return linkedinCredentialKind === 'community'
       ? linkedinCommunityConfig
       : linkedinProfileConfig;
+  }
+  if (provider === 'pinterest') {
+    return {
+      ...providerConfigs.pinterest,
+      tokenUrl: getPinterestApiUrl('/oauth/token'),
+    };
   }
   return providerConfigs[provider];
 }
