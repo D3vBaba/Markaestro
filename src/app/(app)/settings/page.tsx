@@ -705,7 +705,7 @@ type ConnEntry = {
   needsPageSelection?: boolean;
 };
 
-type MetaPage = { id: string; name: string; hasInstagram: boolean; igAccountId: string | null };
+type MetaPage = { id: string; name: string; hasInstagram: boolean; igAccountId: string | null; accountId?: string | null; accountLabel?: string | null };
 
 function providerDisplayName(provider: string): string {
   if (provider === "meta") return "Meta";
@@ -1046,7 +1046,7 @@ function IntegrationsTab() {
                           size="sm"
                           onClick={() => connect(ch.provider, product.id)}
                         >
-                          Reconnect
+                          {ch.provider === "meta" ? "Reconnect / add account" : "Reconnect"}
                         </Button>
                         <Button
                           variant="outline"
@@ -1117,8 +1117,9 @@ function IntegrationsTab() {
           <DialogHeader>
             <DialogTitle>Choose Facebook Pages</DialogTitle>
             <DialogDescription>
-              Link every Page this brand posts to — you can add as many as your
-              Facebook account manages, and pick between them when composing.
+              Link every Page this brand posts to, from any Facebook account you
+              have connected. Pages stay tied to the account that granted them,
+              and you pick between them when composing.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-[50vh] overflow-y-auto">
@@ -1142,7 +1143,9 @@ function IntegrationsTab() {
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{pg.name}</p>
-                    <p className="text-xs text-muted-foreground">{pg.hasInstagram ? "Facebook + Instagram" : "Facebook only"}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {pg.accountLabel ? `via ${pg.accountLabel}` : "Facebook Page"}
+                    </p>
                   </div>
                   <span className="text-xs text-primary shrink-0">
                     {linkedPageIds.includes(pg.id)

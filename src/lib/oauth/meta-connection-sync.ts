@@ -22,6 +22,12 @@ type MetaCredential = {
   userId: string;
   userAccessToken: string;
   tokenExpiresAt?: string;
+  /**
+   * App-scoped id of the Facebook account that authorized this grant. Pages are
+   * stamped with it so two connected Facebook accounts stay separated — one
+   * account's grant must never refresh or re-token the other's Pages.
+   */
+  credentialKey?: string | null;
 };
 
 type MetaPageSelectionInput = MetaCredential & {
@@ -58,6 +64,7 @@ export async function saveMetaProductPageSelection(
     connectionId: ref.id,
     accountKey: input.page.id,
     accountLabel: input.page.name,
+    ...(input.credentialKey ? { credentialKey: input.credentialKey } : {}),
     channels: [...META_CHANNELS],
     capabilities: META_CAPABILITIES,
     status: 'connected',
@@ -105,6 +112,7 @@ export async function setMetaProductPageSelections(
       userId: input.userId,
       userAccessToken: input.userAccessToken,
       tokenExpiresAt: input.tokenExpiresAt,
+      credentialKey: input.credentialKey,
       page,
       availablePages: input.availablePages || input.pages,
     });
@@ -171,6 +179,7 @@ export async function markMetaProductPageSelectionRequired(
     connectionId: ref.id,
     accountKey: null,
     accountLabel: null,
+    ...(input.credentialKey ? { credentialKey: input.credentialKey } : {}),
     channels: [...META_CHANNELS],
     capabilities: META_CAPABILITIES,
     status: 'connected',
@@ -246,6 +255,13 @@ export async function syncGrantedMetaProductConnections(
     const pageId = typeof conn.metadata.pageId === 'string' ? conn.metadata.pageId : '';
     if (!pageId) continue;
 
+    // A Page owned by a different Facebook account is none of this grant's
+    // business. Pages linked before accounts were stamped have no owner
+    // recorded, so they stay eligible.
+    if (input.credentialKey && conn.credentialKey && conn.credentialKey !== input.credentialKey) {
+      continue;
+    }
+
     // Update the document this connection actually came from — a legacy
     // provider-keyed record still lives at its old id until it is rewritten.
     const ref = refForConnection(conn);
@@ -265,6 +281,7 @@ export async function syncGrantedMetaProductConnections(
         accountKey: pageId,
         accountLabel: page.name,
         connectionId: ref.id,
+        ...(input.credentialKey ? { credentialKey: input.credentialKey } : {}),
         'metadata.pageName': page.name,
         ...(input.grantIsComplete ? { 'metadata.availablePages': availablePages } : {}),
         // The Page is granted — it just needs its token re-issued by

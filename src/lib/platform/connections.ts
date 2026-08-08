@@ -220,33 +220,77 @@ export async function listProviderConnections(
 }
 
 /**
- * The canonical app-user credential for a provider at workspace scope. Meta
- * authorizes the app-user once and that grant covers every Page, so the user
- * token lives here rather than on any single Page connection.
+ * Every app-user credential a provider holds at workspace scope, oldest first.
+ *
+ * Meta authorizes an app-user once and that grant covers the Pages the user
+ * ticked, so the user token lives here rather than on any single Page. A
+ * workspace can hold more than one — connecting a second Facebook account adds
+ * a credential, and each one owns only its own Pages.
+ */
+export async function listWorkspaceCredentials(
+  workspaceId: string,
+  provider: string,
+): Promise<PlatformConnection[]> {
+  const docs = (await listConnectionDocs(workspaceId))
+    .filter((conn) => conn.provider === provider && Boolean(conn.accessTokenEncrypted));
+
+  const byCredential = new Map<string, PlatformConnection>();
+  for (const conn of docs) {
+    const key = conn.credentialKey || conn.connectionId || provider;
+    if (!byCredential.has(key)) byCredential.set(key, conn);
+  }
+
+  return [...byCredential.values()].sort(
+    (a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''),
+  );
+}
+
+/**
+ * One workspace credential. Pass `credentialKey` to address a specific
+ * account; without it this returns the oldest, which is the right answer only
+ * when a single account is connected.
  */
 export async function getWorkspaceCredential(
   workspaceId: string,
   provider: string,
+  credentialKey?: string | null,
 ): Promise<PlatformConnection | null> {
-  return getConnection(workspaceId, provider);
+  const credentials = await listWorkspaceCredentials(workspaceId, provider);
+  if (credentialKey) {
+    return credentials.find((conn) => conn.credentialKey === credentialKey) || null;
+  }
+  return credentials[0] || null;
 }
 
 /**
- * Overlay the canonical workspace user token onto a product Page connection.
- * Publishing uses the Page token (see resolveAccessToken); account and ads APIs
- * need the user token, and the workspace copy is the one being refreshed.
+ * Overlay the workspace user token onto a Page connection. Publishing uses the
+ * Page token (see resolveAccessToken); account and ads APIs need the user
+ * token, and the workspace copy is the one being refreshed.
+ *
+ * The credential must be the one that authorized *this* Page. With two Facebook
+ * accounts connected, overlaying an arbitrary credential would hand one
+ * account's user token — and its metaUserId — to the other account's Pages.
  */
 function mergeMetaCredential(
   connection: PlatformConnection,
-  credential: PlatformConnection | null,
+  credentials: PlatformConnection[],
 ): PlatformConnection {
-  if (!credential) return connection;
+  const owner = connection.credentialKey
+    ? credentials.find((cred) => cred.credentialKey === connection.credentialKey)
+    // A Page linked before credentials were keyed can only be matched when a
+    // single account exists; otherwise leave it on its own stored tokens.
+    : credentials.length === 1
+      ? credentials[0]
+      : undefined;
+
+  if (!owner) return connection;
+
   return {
     ...connection,
-    accessTokenEncrypted: credential.accessTokenEncrypted || connection.accessTokenEncrypted,
-    ...(credential.tokenExpiresAt ? { tokenExpiresAt: credential.tokenExpiresAt } : {}),
+    accessTokenEncrypted: owner.accessTokenEncrypted || connection.accessTokenEncrypted,
+    ...(owner.tokenExpiresAt ? { tokenExpiresAt: owner.tokenExpiresAt } : {}),
     metadata: {
-      ...credential.metadata,
+      ...owner.metadata,
       ...connection.metadata,
     },
   };
@@ -262,18 +306,18 @@ export async function getMetaConnectionMerged(
   productId?: string,
   accountKey?: string | null,
 ): Promise<PlatformConnection | null> {
-  const credential = await getWorkspaceCredential(workspaceId, 'meta');
+  const credentials = await listWorkspaceCredentials(workspaceId, 'meta');
 
-  if (!productId) return credential;
+  if (!productId) return credentials[0] || null;
 
   const productConnections = await listProviderConnections(workspaceId, 'meta', productId);
   const productConnection = accountKey
     ? productConnections.find((conn) => conn.accountKey === accountKey)
     : productConnections.find((conn) => Boolean(conn.metadata.pageId)) || productConnections[0];
 
-  if (!productConnection) return credential;
+  if (!productConnection) return credentials[0] || null;
 
-  return mergeMetaCredential(productConnection, credential);
+  return mergeMetaCredential(productConnection, credentials);
 }
 
 function hasReadyMetaDestination(
@@ -302,12 +346,14 @@ export async function listChannelConnections(
     listConnections(workspaceId),
   ]);
 
-  const metaCredential = workspaceConnections.find((conn) => conn.provider === 'meta') || null;
+  const metaCredentials = workspaceConnections.filter(
+    (conn) => conn.provider === 'meta' && Boolean(conn.accessTokenEncrypted),
+  );
 
   const forProvider = (source: PlatformConnection[], provider: string) =>
     source
       .filter((conn) => conn.provider === provider)
-      .map((conn) => (provider === 'meta' ? mergeMetaCredential(conn, metaCredential) : conn));
+      .map((conn) => (provider === 'meta' ? mergeMetaCredential(conn, metaCredentials) : conn));
 
   const results: PlatformConnection[] = [];
   for (const provider of providers) {
@@ -442,13 +488,13 @@ async function getSoleProductScopedConnection(
   channel?: SocialChannel,
 ): Promise<PlatformConnection | null> {
   const productDocs = await getAllDocs(`workspaces/${workspaceId}/products`);
-  const credential = provider === 'meta' ? await getWorkspaceCredential(workspaceId, 'meta') : null;
+  const credentials = provider === 'meta' ? await listWorkspaceCredentials(workspaceId, 'meta') : [];
 
   let found: PlatformConnection | null = null;
 
   for (const product of productDocs) {
     const conns = (await listProviderConnections(workspaceId, provider, product.id))
-      .map((conn) => (provider === 'meta' ? mergeMetaCredential(conn, credential) : conn))
+      .map((conn) => (provider === 'meta' ? mergeMetaCredential(conn, credentials) : conn))
       .filter((conn) => conn.status === 'connected')
       .filter((conn) => (provider === 'meta' && channel ? hasReadyMetaDestination(conn, channel) : true));
 

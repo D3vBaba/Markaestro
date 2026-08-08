@@ -7,6 +7,7 @@ import {
   linkDestinationConnection,
   listProviderConnections,
   listProviderCredentials,
+  listWorkspaceCredentials,
   refForConnection,
   resolveUserAccessToken,
 } from '@/lib/platform/connections';
@@ -139,44 +140,64 @@ async function selectMetaPages(
   productId: string,
   selection: SelectionRequest,
 ) {
-  const credential = (await getConnection(workspaceId, 'meta')) ||
-    (await resolveCredentials(workspaceId, 'meta', productId))[0];
-  if (!credential) throw new Error('NOT_FOUND');
+  const credentials = await listWorkspaceCredentials(workspaceId, 'meta');
+  if (credentials.length === 0) throw new Error('NOT_FOUND');
 
-  const userAccessToken = resolveUserAccessToken(credential);
+  // Each connected Facebook account reaches only its own Pages. Resolve the
+  // grant per account so every Page is linked with the credential that owns it
+  // — mixing them would hand one account's token to the other's Pages.
+  const grants = await Promise.all(credentials.map(async (credential) => ({
+    credential,
+    result: await fetchMetaManagedPages(resolveUserAccessToken(credential)),
+  })));
 
-  // Resolve selected Pages from either /me/accounts or the granular asset
-  // targets returned by Facebook Login for Business.
-  const pagesResult = await fetchMetaManagedPages(userAccessToken);
-  const selectedPages = selection.ids.map((pageId) => {
-    const page = pagesResult.pages.find((candidate) => candidate.id === pageId);
-    if (!page?.accessToken) throw new Error('NOT_FOUND');
-    return { ...page, name: selection.names[pageId] || page.name };
-  });
+  const linked: Array<{ id: string; name: string; accountId: string | null }> = [];
+  const allAvailablePages = grants.flatMap((grant) => grant.result.pages);
 
-  // Deliberately no workspace-wide sync here. Linking a Page to this brand is
-  // not a reauthorization, and the sync revokes Pages absent from the fetched
-  // list — so adding a Page to one brand was disconnecting Pages belonging to
-  // other brands. Reauthorization is handled in the OAuth callback, which is
-  // the only place a genuinely new grant arrives.
-  const { linkedPageIds, unlinkedPageIds } = await setMetaProductPageSelections({
+  for (const pageId of selection.ids) {
+    const owner = grants.find((grant) =>
+      grant.result.pages.some((page) => page.id === pageId && page.accessToken),
+    );
+    const page = owner?.result.pages.find((candidate) => candidate.id === pageId);
+    if (!owner || !page?.accessToken) throw new Error('NOT_FOUND');
+
+    // Deliberately no workspace-wide sync here. Linking a Page to this brand is
+    // not a reauthorization; reauthorization is handled in the OAuth callback,
+    // which is the only place a genuinely new grant arrives.
+    await setMetaProductPageSelections({
+      workspaceId,
+      productId,
+      userId,
+      userAccessToken: resolveUserAccessToken(owner.credential),
+      tokenExpiresAt: owner.credential.tokenExpiresAt,
+      credentialKey: owner.credential.credentialKey,
+      pages: [{ ...page, name: selection.names[pageId] || page.name }],
+      availablePages: owner.result.pages,
+    });
+
+    linked.push({
+      id: page.id,
+      name: selection.names[pageId] || page.name,
+      accountId: owner.credential.credentialKey ?? null,
+    });
+  }
+
+  const unlinked = await unlinkOtherDestinations(
     workspaceId,
+    'meta',
     productId,
-    userId,
-    userAccessToken,
-    tokenExpiresAt: credential.tokenExpiresAt,
-    pages: selectedPages,
-    availablePages: pagesResult.pages,
-    exclusive: selection.exclusive,
-  });
+    selection,
+    linked.map((page) => page.id),
+  );
 
   return {
     ok: true,
-    linked: selectedPages.map((page) => ({ id: page.id, name: page.name })),
-    unlinked: unlinkedPageIds,
+    linked,
+    unlinked,
+    availablePages: allAvailablePages.length,
     // Legacy single-selection response fields.
-    pageId: linkedPageIds[0] ?? null,
-    pageName: selectedPages[0]?.name ?? null,
+    pageId: linked[0]?.id ?? null,
+    pageName: linked[0]?.name ?? null,
     igAccountId: null,
   };
 }

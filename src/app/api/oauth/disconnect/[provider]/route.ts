@@ -6,8 +6,10 @@ import { revokeAccessToken } from '@/lib/oauth/flow';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import {
   deleteConnection,
+  deleteConnectionById,
   getConnection,
   listProviderConnections,
+  listWorkspaceCredentials,
 } from '@/lib/platform/connections';
 import { adminDb } from '@/lib/firebase-admin';
 import {
@@ -65,26 +67,56 @@ export async function POST(req: Request, { params }: { params: Promise<{ provide
       return apiOk({ ok: true, provider, disconnected: true });
     }
 
-    // A workspace-wide Meta unlink is the only flow allowed to revoke the
-    // app-user grant. It also removes every product Page selection.
+    // A workspace-wide Meta unlink is the only flow allowed to revoke an
+    // app-user grant. With more than one Facebook account connected it must
+    // name which one: `accountId` scopes the revoke and the Page cleanup to
+    // that account, leaving the other account's Pages connected.
     if (provider === 'meta' && !productId) {
-      const workspaceConnection = await getConnection(ctx.workspaceId, 'meta');
-      if (workspaceConnection?.accessTokenEncrypted) {
-        try {
-          await revokeAccessToken('meta', decrypt(workspaceConnection.accessTokenEncrypted));
-        } catch {
-          // Best-effort
-        }
+      const accountId = typeof body.accountId === 'string' && body.accountId
+        ? body.accountId
+        : undefined;
+      const credentials = await listWorkspaceCredentials(ctx.workspaceId, 'meta');
+      const targets = accountId
+        ? credentials.filter((cred) => cred.credentialKey === accountId)
+        : credentials;
+
+      if (accountId && targets.length === 0) {
+        throw new Error('NOT_FOUND');
       }
 
-      await deleteConnection(ctx.workspaceId, 'meta');
+      for (const credential of targets) {
+        if (credential.accessTokenEncrypted) {
+          try {
+            await revokeAccessToken('meta', decrypt(credential.accessTokenEncrypted));
+          } catch {
+            // Best-effort
+          }
+        }
+        await deleteConnectionById(ctx.workspaceId, credential.connectionId || 'meta');
+      }
+
+      const revokedKeys = new Set(
+        targets.map((credential) => credential.credentialKey).filter(Boolean),
+      );
       const productsSnap = await adminDb
         .collection(`workspaces/${ctx.workspaceId}/products`)
         .get();
-      await Promise.all(productsSnap.docs.map((product) =>
-        deleteConnection(ctx.workspaceId, 'meta', product.id),
-      ));
-      return apiOk({ ok: true, provider, disconnected: true });
+
+      await Promise.all(productsSnap.docs.map(async (product) => {
+        const pageConns = await listProviderConnections(ctx.workspaceId, 'meta', product.id);
+        await Promise.all(pageConns
+          // Without an accountId every Meta connection goes. With one, only
+          // Pages that account owns — Pages linked before accounts were
+          // stamped have no owner and are left alone.
+          .filter((conn) => !accountId || (conn.credentialKey && revokedKeys.has(conn.credentialKey)))
+          .map((conn) => deleteConnectionById(
+            ctx.workspaceId,
+            conn.connectionId || 'meta',
+            product.id,
+          )));
+      }));
+
+      return apiOk({ ok: true, provider, disconnected: true, accountId: accountId ?? null });
     }
 
     // Other providers own independent product credentials and can be revoked

@@ -530,14 +530,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       const tokenExpiresAt = tokens.expiresIn
         ? new Date(Date.now() + tokens.expiresIn * 1000).toISOString()
         : undefined;
+      // Which Facebook account authorized this grant. Pages are stamped with it
+      // so a second connected account never touches the first one's Pages.
+      const metaCredentialKey = typeof extraData.metaUserId === 'string'
+        ? extraData.metaUserId
+        : undefined;
       const syncResult = metaPages.length > 0
         ? await syncGrantedMetaProductConnections({
           workspaceId,
           userId,
           userAccessToken: tokens.accessToken,
           tokenExpiresAt,
+          credentialKey: metaCredentialKey,
           pages: metaPages,
-          // Only a fully-enumerated grant may revoke other brands' Pages.
+          // A partial read must not overwrite the cached Page list.
           grantIsComplete: metaGrantIsComplete,
         })
         : { syncedProductIds: [] };
@@ -549,6 +555,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
           userId,
           userAccessToken: tokens.accessToken,
           tokenExpiresAt,
+          credentialKey: metaCredentialKey,
           page: metaPages[0],
           availablePages: metaPages,
         });
@@ -564,6 +571,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
           userId,
           userAccessToken: tokens.accessToken,
           tokenExpiresAt,
+          credentialKey: metaCredentialKey,
           availablePages: metaPages,
         });
         metaNeedsPageSelection = true;

@@ -52,8 +52,28 @@ function connection(
   };
 }
 
-const WORKSPACE_CREDENTIAL_PATH = 'workspaces/workspace_1/platformConnections/meta';
+const WORKSPACE_COLLECTION_PATH = 'workspaces/workspace_1/platformConnections';
 const PRODUCT_COLLECTION_PATH = 'workspaces/workspace_1/products/product_1/platformConnections';
+
+/**
+ * Wire both scopes. A workspace credential is a document *in* the workspace
+ * collection, so it must show up in the collection listing as well as a direct
+ * read — that is how Firestore behaves.
+ */
+function setScopes(
+  workspace: Array<[string, PlatformConnection]>,
+  product: Array<[string, PlatformConnection]>,
+) {
+  getDocMock.mockImplementation((path: string) => {
+    const match = workspace.find(([id]) => `${WORKSPACE_COLLECTION_PATH}/${id}` === path);
+    return snapshot(match ? match[1] : null);
+  });
+  getCollectionMock.mockImplementation(async (path: string) => {
+    if (path === WORKSPACE_COLLECTION_PATH) return collectionSnapshot(workspace);
+    if (path === PRODUCT_COLLECTION_PATH) return collectionSnapshot(product);
+    return collectionSnapshot([]);
+  });
+}
 
 describe('getMetaConnectionMerged', () => {
   beforeEach(() => {
@@ -75,14 +95,7 @@ describe('getMetaConnectionMerged', () => {
         pageAccessTokenEncrypted: 'product-page-token',
       },
     });
-    getDocMock.mockImplementation((path: string) =>
-      path === WORKSPACE_CREDENTIAL_PATH ? snapshot(workspace) : snapshot(null),
-    );
-    getCollectionMock.mockImplementation(async (path: string) =>
-      path === PRODUCT_COLLECTION_PATH
-        ? collectionSnapshot([['meta:page_1', product]])
-        : collectionSnapshot([]),
-    );
+    setScopes([['meta', workspace]], [['meta:page_1', product]]);
 
     const { getMetaConnectionMerged } = await import('@/lib/platform/connections');
     const merged = await getMetaConnectionMerged('workspace_1', 'product_1');
@@ -103,14 +116,7 @@ describe('getMetaConnectionMerged', () => {
       productId: 'product_1',
       metadata: { pageId: 'page_1' },
     });
-    getDocMock.mockImplementation((path: string) =>
-      path === WORKSPACE_CREDENTIAL_PATH ? snapshot(workspace) : snapshot(null),
-    );
-    getCollectionMock.mockImplementation(async (path: string) =>
-      path === PRODUCT_COLLECTION_PATH
-        ? collectionSnapshot([['meta:page_1', product]])
-        : collectionSnapshot([]),
-    );
+    setScopes([['meta', workspace]], [['meta:page_1', product]]);
 
     const { getMetaConnectionMerged } = await import('@/lib/platform/connections');
     const merged = await getMetaConnectionMerged('workspace_1', 'product_1');
@@ -124,13 +130,8 @@ describe('getMetaConnectionMerged', () => {
       accessTokenEncrypted: 'legacy-product-token',
       metadata: { pageId: 'page_1' },
     });
-    getDocMock.mockImplementation(() => snapshot(null));
-    getCollectionMock.mockImplementation(async (path: string) =>
-      path === PRODUCT_COLLECTION_PATH
-        // Legacy documents are keyed by the bare provider.
-        ? collectionSnapshot([['meta', product]])
-        : collectionSnapshot([]),
-    );
+    // Legacy documents are keyed by the bare provider.
+    setScopes([], [['meta', product]]);
 
     const { getMetaConnectionMerged } = await import('@/lib/platform/connections');
     const merged = await getMetaConnectionMerged('workspace_1', 'product_1');
@@ -151,14 +152,7 @@ describe('getMetaConnectionMerged', () => {
       metadata: { pageId: 'page_2', pageName: 'Page Two' },
       createdAt: '2026-08-02T00:00:00.000Z',
     });
-    getDocMock.mockImplementation((path: string) =>
-      path === WORKSPACE_CREDENTIAL_PATH ? snapshot(workspace) : snapshot(null),
-    );
-    getCollectionMock.mockImplementation(async (path: string) =>
-      path === PRODUCT_COLLECTION_PATH
-        ? collectionSnapshot([['meta:page_1', pageOne], ['meta:page_2', pageTwo]])
-        : collectionSnapshot([]),
-    );
+    setScopes([['meta', workspace]], [['meta:page_1', pageOne], ['meta:page_2', pageTwo]]);
 
     const { getMetaConnectionMerged } = await import('@/lib/platform/connections');
 

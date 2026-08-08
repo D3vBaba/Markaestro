@@ -560,12 +560,10 @@ export async function storeTokens(
   const accountLabel = deriveAccountLabel(connectionProvider, metadata);
   const credentialKey = deriveCredentialKey(connectionProvider, metadata);
 
-  // Destination-scoped once the grant names one. Otherwise scope the pending
-  // grant to the account that authorized it, so logging in with a second
-  // Pinterest/LinkedIn account adds a credential instead of overwriting the
-  // first. Workspace scope keeps the bare provider id: Meta's app-user
-  // credential is canonical there and is looked up by name.
-  const docKey = accountKey ?? (productId ? credentialKey : null);
+  // Destination-scoped once the grant names one. Otherwise scope the grant to
+  // the account that authorized it, so connecting a second Facebook, Pinterest
+  // or LinkedIn account adds a credential instead of overwriting the first.
+  const docKey = accountKey ?? credentialKey;
   const connRef = getConnectionRef(workspaceId, connectionProvider, productId, docKey);
   const existingSnap = await connRef.get();
   const existing = existingSnap.exists ? (existingSnap.data() as Partial<PlatformConnection>) : null;

@@ -2,9 +2,9 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import {
-  getConnection,
   listProviderConnections,
   listProviderCredentials,
+  listWorkspaceCredentials,
   refForConnection,
   resolveUserAccessToken,
 } from '@/lib/platform/connections';
@@ -136,14 +136,14 @@ async function fetchLinkedInCommunityDestinations(
   }
 }
 
-/**
- * Any connection for a provider can enumerate the grant — they all carry the
- * same authorizing user token. Used when the pending document has already been
- * superseded by linked destinations.
- */
-async function firstCredential(workspaceId: string, provider: string, productId?: string) {
-  const conns = await listProviderConnections(workspaceId, provider, productId);
-  return conns.find((conn) => Boolean(conn.accessTokenEncrypted)) || null;
+/** Human-readable name for a connected account, for grouping in the picker. */
+function accountLabelFor(conn: PlatformConnection, provider: string): string {
+  const metadata = conn.metadata || {};
+  for (const key of ['username', 'displayName', 'linkedinProfileName', 'linkedinAuthorizingProfileName']) {
+    const value = metadata[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return conn.credentialKey ? `${provider} account ${conn.credentialKey}` : provider;
 }
 
 /** Two accounts can surface the same destination; show it once. */
@@ -214,42 +214,65 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       });
     }
 
-    // Meta keeps one canonical app-user credential at workspace scope; other
-    // providers authorize per product and may have several accounts linked.
+    // Meta credentials live at workspace scope, one per connected Facebook
+    // account; other providers authorize per product. Either way there can be
+    // several, and each reaches only its own Pages/boards.
     const credentials = provider === 'meta'
-      ? [
-        (await getConnection(ctx.workspaceId, 'meta')) ||
-        (await firstCredential(ctx.workspaceId, 'meta', productId)),
-      ].filter((conn): conn is NonNullable<typeof conn> => Boolean(conn?.accessTokenEncrypted))
+      ? await listWorkspaceCredentials(ctx.workspaceId, 'meta')
       : productId
         ? await listProviderCredentials(ctx.workspaceId, provider, productId)
         : [];
 
     if (credentials.length === 0) {
-      return apiOk({ pages: [], linkedIds: [] });
+      return apiOk({ pages: [], linkedIds: [], accounts: [] });
     }
 
     const fetched = await Promise.all(credentials.map(async (conn) => {
       const accessToken = resolveUserAccessToken(conn);
+      // Which connected account these destinations belong to, so the picker can
+      // group them and the caller can link each with the right credential.
+      const accountId = conn.credentialKey || conn.connectionId || provider;
+      const accountLabel = accountLabelFor(conn, provider);
+
       if (provider === 'meta') {
         const result = await fetchMetaManagedPages(accessToken);
         return {
+          accountId,
+          accountLabel,
           pages: result.pages.map((page) => ({
             id: page.id,
             name: page.name,
             hasInstagram: false,
             igAccountId: null,
+            accountId,
+            accountLabel,
           })),
           error: result.error,
         };
       }
-      return fetchPinterestBoards(accessToken);
+
+      const boards = await fetchPinterestBoards(accessToken);
+      return {
+        accountId,
+        accountLabel,
+        pages: boards.pages.map((board: Record<string, unknown>) => ({
+          ...board,
+          accountId,
+          accountLabel,
+        })),
+        error: boards.error,
+      };
     }));
 
     const errors = fetched.map((result) => result.error).filter(Boolean);
     return apiOk({
       pages: dedupeById(fetched.flatMap((result) => result.pages)),
       linkedIds,
+      accounts: fetched.map((result) => ({
+        id: result.accountId,
+        label: result.accountLabel,
+        pageCount: result.pages.length,
+      })),
       ...(errors.length ? { error: [...new Set(errors)].join(' ') } : {}),
     });
   } catch (error) {

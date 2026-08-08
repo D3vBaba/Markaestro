@@ -119,6 +119,9 @@ type MetaPage = {
   name: string;
   hasInstagram: boolean;
   igAccountId: string | null;
+  /** Which connected Facebook account owns this Page. */
+  accountId?: string | null;
+  accountLabel?: string | null;
 };
 
 // ---------- constants ----------
@@ -1300,10 +1303,11 @@ function ChannelsSection({
               <Button variant="outline" size="sm" onClick={onLoadPages} disabled={loadingPages}>
                 {loadingPages ? "Loading…" : metaHasPage ? "Add Pages" : "Choose Pages"}
               </Button>
-              {/* Reconnect re-runs Facebook login in place. Unlinking first is
-                  never required and would drop this brand's Pages. */}
+              {/* Re-running Facebook login adds a credential rather than
+                  replacing one, so this both refreshes the current account and
+                  connects an additional one. Unlinking first is never needed. */}
               <Button variant="outline" size="sm" onClick={() => onStartOAuth("meta")}>
-                Reconnect
+                Reconnect / add account
               </Button>
               <Button
                 variant="destructive"
@@ -1457,7 +1461,7 @@ function ChannelsSection({
   );
 }
 
-type PickerDestination = { id: string; name: string; type?: string; accountId?: string; urn?: string };
+type PickerDestination = { id: string; name: string; type?: string; accountId?: string | null; accountLabel?: string | null; urn?: string };
 
 function LinkedInConnectCard({
   integration,
@@ -1905,22 +1909,41 @@ function DestinationPicker({
     setSelected((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   };
 
+  // With two accounts connected, show whose Pages these are.
+  const groups = new Map<string, { label: string; items: PickerDestination[] }>();
+  for (const item of selectable) {
+    const key = item.accountId || "";
+    const group = groups.get(key) || { label: item.accountLabel || "", items: [] };
+    group.items.push(item);
+    groups.set(key, group);
+  }
+  const showAccountHeadings = groups.size > 1;
+
   return (
     <div className="w-full space-y-2 pt-1">
       <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border/40 p-1.5">
-        {selectable.map((item) => (
-          <label
-            key={item.id}
-            className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-[12px] hover:bg-muted/50"
-          >
-            <input
-              type="checkbox"
-              className="h-3.5 w-3.5 accent-mk-pos"
-              checked={selected.includes(item.id)}
-              onChange={() => toggle(item.id)}
-            />
-            <span className="min-w-0 flex-1 truncate">{item.name}</span>
-          </label>
+        {[...groups.entries()].map(([key, group]) => (
+          <div key={key || "default"} className="space-y-1">
+            {showAccountHeadings && (
+              <p className="px-2 pt-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                {group.label || "Connected account"}
+              </p>
+            )}
+            {group.items.map((item) => (
+              <label
+                key={item.id}
+                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-[12px] hover:bg-muted/50"
+              >
+                <input
+                  type="checkbox"
+                  className="h-3.5 w-3.5 accent-mk-pos"
+                  checked={selected.includes(item.id)}
+                  onChange={() => toggle(item.id)}
+                />
+                <span className="min-w-0 flex-1 truncate">{item.name}</span>
+              </label>
+            ))}
+          </div>
         ))}
       </div>
       <Button
