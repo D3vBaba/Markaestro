@@ -145,7 +145,7 @@ export default function DevelopersApiPage() {
             Public publishing API
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground">
-            Upload media, create posts, and publish to Facebook, Instagram, LinkedIn, Threads, and Pinterest, all scoped to a product via a workspace
+            Upload media, create posts, and publish to Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest, all scoped to a product via a workspace
             API key. The recommended way to integrate is the{" "}
             <a href="#connect-api" className="underline underline-offset-2">Connect API</a> — a small, flat
             <code>/api/connect/v1</code> surface that most scheduling tools can target as-is.
@@ -169,13 +169,37 @@ export default function DevelopersApiPage() {
             Workspaces can have multiple products. Every API key is bound to one product when you create it, so calls
             target that product automatically and requests for any other product are rejected.
           </p>
+          <div
+            className="mt-8 rounded-xl border p-5"
+            style={{ borderColor: "var(--mk-accent)", background: "var(--mk-accent-soft)" }}
+          >
+            <p className="text-sm font-semibold" style={{ color: "var(--mk-accent)" }}>
+              Building an AI agent?
+            </p>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed" style={{ color: "var(--mk-ink-80)" }}>
+              Start with the{" "}
+              <Link href="/developers/agents" className="underline underline-offset-2">
+                AI agent guide
+              </Link>{" "}
+              instead. It has copy-paste tool schemas, a system-prompt brief, the retry and error-handling rules an
+              agent needs, and a four-command quickstart. Your agent can also read{" "}
+              <a href="/llms.txt" className="underline underline-offset-2">
+                /llms.txt
+              </a>{" "}
+              directly.
+            </p>
+          </div>
+
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/login">
-              <Button className="rounded-lg h-9 text-[13px]">Open Markaestro</Button>
+            <Link href="/developers/agents">
+              <Button className="rounded-lg h-9 text-[13px]">AI agent guide</Button>
             </Link>
             <a href="/settings?tab=api">
               <Button variant="outline" className="rounded-lg h-9 text-[13px]">Manage API keys</Button>
             </a>
+            <Link href="/login">
+              <Button variant="ghost" className="rounded-lg h-9 text-[13px]">Open Markaestro</Button>
+            </Link>
           </div>
         </div>
       </section>

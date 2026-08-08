@@ -11,17 +11,25 @@ const PUBLIC_PATHS = [
   '/features',
   '/channels',
   '/pricing',
-  '/developers/api',
   '/api/health',
   '/onboarding',
   '/onboarding/success',
   '/oauth/complete',
   '/auth/action',
   '/site.webmanifest',
+  // Crawler and agent entry points. Served from the marketing apex (see
+  // MARKETING_PATHS) and readable without a session.
+  '/robots.txt',
+  '/sitemap.xml',
+  '/llms.txt',
 ];
 
-/** Prefixes that are always public (static assets, auth callbacks). */
-const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding'];
+/**
+ * Prefixes that are always public (static assets, auth callbacks, and the
+ * whole developer documentation surface — `/developers/*` mirrors
+ * MARKETING_PREFIXES so a new docs page is public the moment it exists).
+ */
+const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/developers', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding'];
 
 function isPublicPath(pathname: string): boolean {
   if (pathname === '/') return true;
@@ -56,6 +64,12 @@ const MARKETING_PATHS = new Set<string>([
   '/privacy',
   '/terms',
   '/channels',
+  // Crawler + agent entry points belong on the apex. Without these, the
+  // apex→subdomain redirect below would bounce /robots.txt to the app host,
+  // whose robots.txt disallows everything — deindexing the marketing site.
+  '/robots.txt',
+  '/sitemap.xml',
+  '/llms.txt',
 ]);
 
 /** Prefixes that belong on the marketing apex. */

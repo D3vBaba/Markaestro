@@ -159,6 +159,18 @@ export const COMPARISON_CATEGORIES = [
     ],
   },
   {
+    // API access is not plan-gated: key creation checks role and verified
+    // email, never the subscription tier. Every row here is intentionally
+    // true across all three plans.
+    name: 'Developers & AI Agents',
+    features: [
+      { name: 'Workspace API keys', starter: true, pro: true, business: true },
+      { name: 'Publishing API (Connect + full v1)', starter: true, pro: true, business: true },
+      { name: 'Signed webhooks', starter: true, pro: true, business: true },
+      { name: 'Per-brand key scoping & expiry', starter: true, pro: true, business: true },
+    ],
+  },
+  {
     name: 'Support',
     features: [
       { name: 'Email support', starter: true, pro: true, business: true },

@@ -37,6 +37,10 @@ const faqs = [
     a: `All plans (Starter, Pro, Business) on both monthly and annual billing include the ${TRIAL_DAYS}-day free trial. Annual billing also saves you 18% compared to monthly.`,
   },
   {
+    q: "Can my AI agent or my own software use Markaestro?",
+    a: "Yes, on every plan at no extra cost. Any workspace admin can mint API keys from Settings → API and hand one to an AI agent, a script, or an off-the-shelf scheduling tool. Each key is bound to a single brand, carries only the scopes you tick, and can be given an expiry. See the AI agent guide for the tool definitions and a working four-command quickstart.",
+  },
+  {
     q: "Do you offer discounts for nonprofits or startups?",
     a: "Yes. We offer 50% off for verified nonprofits and early-stage startups (under $1M revenue). Contact us to apply.",
   },

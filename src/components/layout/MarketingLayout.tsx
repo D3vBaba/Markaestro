@@ -11,6 +11,7 @@ import { useState } from "react";
 const navLinks = [
   { href: "/features", label: "Features" },
   { href: "/channels", label: "Channels" },
+  { href: "/developers/agents", label: "AI Agents" },
   { href: "/developers/api", label: "API" },
   { href: "/pricing", label: "Pricing" },
   { href: "/contact", label: "Contact" },
@@ -51,7 +52,8 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-7">
+          {/* gap tightens at md so six links still clear the logo + CTAs */}
+          <nav className="hidden md:flex items-center gap-5 lg:gap-7">
             {navLinks.map((link) => {
               const active = pathname === link.href;
               return (
@@ -147,7 +149,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         }}
       >
         <div className="mx-auto max-w-7xl px-5 sm:px-6 py-14">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
             <div>
               <div className="flex items-center gap-2.5">
                 <Image
@@ -190,6 +192,33 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                     {l.label}
                   </Link>
                 ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="mk-eyebrow">Developers</p>
+              <div className="mt-4 flex flex-col gap-3">
+                {[
+                  { href: "/developers/agents", label: "AI agents" },
+                  { href: "/developers/api", label: "API reference" },
+                ].map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className="text-[13px] transition-colors"
+                    style={{ color: "var(--mk-ink-60)" }}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+                {/* Static text brief for agents/crawlers — not a Next route. */}
+                <a
+                  href="/llms.txt"
+                  className="text-[13px] transition-colors"
+                  style={{ color: "var(--mk-ink-60)" }}
+                >
+                  Agent brief (llms.txt)
+                </a>
               </div>
             </div>
 

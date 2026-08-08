@@ -1,0 +1,134 @@
+# Markaestro
+
+> Social publishing for every brand you run. Connect Facebook, Instagram,
+> TikTok, LinkedIn, Threads, and Pinterest once in the dashboard, then publish
+> and schedule from one place — or hand an API key to an AI agent and let it
+> drive. Markaestro does not generate content: your captions and your media,
+> its publishing pipeline.
+
+Human docs: https://markaestro.com/developers/api
+Agent guide: https://markaestro.com/developers/agents
+
+## For AI agents
+
+Base URL: https://markaestro.com
+Auth: `Authorization: Bearer mk_live_<workspaceId>.<clientId>.<secret>`
+Keys are created by a workspace admin at /settings?tab=api and are bound to
+exactly ONE brand. You cannot reach another brand with the key you hold, and
+you never need to pass a brand/product id.
+
+Two surfaces over the same pipeline:
+- `/api/connect/v1` — flat, snake_case, fewest calls. Start here.
+- `/api/public/v1`  — full control: explicit publish, async runs, webhooks,
+  batch create, per-channel settings.
+
+### Connect API (recommended)
+
+    GET  /api/connect/v1/social-accounts
+         → { data: [ { id, product_id, product, platform, username } ] }
+         `id` is opaque — pass it back verbatim in `social_accounts`.
+
+    GET  /api/connect/v1/products
+         → brands with their accounts nested
+
+    POST /api/connect/v1/media/create-upload-url
+         { mime_type, size_bytes, name } → { media_id, upload_url }
+         PUT the raw bytes to upload_url with the right Content-Type.
+         Single-use, expires in 15 minutes, needs no Authorization header.
+
+    POST /api/connect/v1/posts
+         { caption, media: [media_id], social_accounts: [id],
+           scheduled_at, is_draft }
+         Draft-first. Send is_draft=false WITH scheduled_at to schedule.
+         Fans out one post per account id. → { id, created[], errors[] }
+
+    GET  /api/connect/v1/posts?limit=
+         → status is one of draft | processing | posted | failed
+
+### Public API v1 (full control)
+
+    GET    /api/public/v1/products
+    GET    /api/public/v1/products/:id/destinations
+    POST   /api/public/v1/media                      (multipart, field: file)
+    POST   /api/public/v1/posts                      (create — always a DRAFT)
+    POST   /api/public/v1/posts                      ({ posts: [...] } = batch, 1–25)
+    GET    /api/public/v1/posts?status=&limit=       (limit max 100)
+    GET    /api/public/v1/posts/:id
+    DELETE /api/public/v1/posts/:id
+    POST   /api/public/v1/posts/:id/publish          → 202 { run: { id, status } }
+    GET    /api/public/v1/job-runs/:id               → queued|running|succeeded|failed
+    POST   /api/public/v1/webhook-endpoints
+    GET    /api/public/v1/webhook-endpoints
+    DELETE /api/public/v1/webhook-endpoints/:id
+
+Create body: `{ channel, caption, mediaAssetIds[], destinationId?,
+deliveryMode?, settings? }`. `channel` is one of facebook, instagram, tiktok,
+threads, pinterest, linkedin. Caption max 4000 chars. Creating never schedules
+on this surface — it stores a draft; publish explicitly, or use the Connect
+API to schedule.
+
+Post status: draft | scheduled | publishing | published |
+platform_action_required | failed | partial_failed
+
+Scopes: products.read, media.write, posts.read, posts.write, posts.publish,
+job_runs.read, webhooks.manage
+
+### Rules that matter
+
+1. Discover before you post. Call `/social-accounts` at the start of a run and
+   pass ids back verbatim. Never hardcode or cache an account id across runs.
+2. Upload media first — posts reference media ids, not files. Images: png,
+   jpeg, webp, gif up to 10 MB. Video: mp4, mov, webm up to 250 MB.
+3. Facebook, Instagram, and TikTok are MANUAL-FIRST. They default to
+   `deliveryMode: manual_reminder` — Markaestro never calls the platform API
+   for them. Publishing moves the post to `platform_action_required` and a
+   human posts it natively from the To Post queue, then confirms. This is
+   intended behavior, not a failure. Only send `deliveryMode: "direct_publish"`
+   if the operator explicitly asked for unattended publishing; on TikTok that
+   means the creator-inbox handoff, never a public Direct Post. LinkedIn,
+   Threads, and Pinterest publish programmatically on explicit publish.
+4. Send `Idempotency-Key` on every POST. Reuse the SAME key when retrying the
+   SAME request; a different body under the same key is rejected. Replays are
+   honored for 24 hours.
+5. Publishing is async. `POST /publish` returns a run id — poll
+   `/job-runs/:id`, or register a webhook. Never report a post as live until a
+   run says `succeeded` or the post says `published`.
+6. Rate limits: 60 req/min per endpoint, 240 req/min per key. Read
+   `X-RateLimit-Remaining`; on 429 sleep for `Retry-After` seconds, then retry.
+7. Deleting a scheduled post cancels it. Deleting a PUBLISHED post only stops
+   Markaestro tracking it — the live platform copy stays up.
+
+### Errors
+
+Every error is JSON: `{ "error": "CODE", "requestId": "..." }`. Quote the
+requestId when reporting a failure.
+
+    401 UNAUTHENTICATED                     key missing/revoked/expired — stop, ask a human
+    403 FORBIDDEN                           key lacks the scope — stop
+    403 API_KEY_NOT_BOUND_TO_PRODUCT        legacy key — ask for a replacement
+    400 VALIDATION_*                        bad payload — fix it, do not retry unchanged
+    400 VALIDATION_IDEMPOTENCY_KEY_REUSED   same key, different body — mint a new one
+    400 VALIDATION_POST_IS_PUBLISHING       delete blocked by an in-flight run — wait
+    402 QUOTA_EXCEEDED_MEDIA_UPLOADS        monthly upload quota hit — stop uploading
+    404 NOT_FOUND                           id is outside this key's brand
+    409 VALIDATION_POST_ALREADY_PUBLISHING  a run is already queued — poll it
+    429 RATE_LIMITED                        back off for Retry-After seconds
+
+### Webhooks
+
+Events: post.publish.queued, post.published, post.action_required, post.failed
+Headers: X-Markaestro-Event, X-Markaestro-Timestamp, X-Markaestro-Signature
+(HMAC of the body with the webhook secret, shown once at creation). Verify the
+signature before acting on a delivery.
+
+## Pages
+
+- https://markaestro.com/ — overview
+- https://markaestro.com/features — what the platform does
+- https://markaestro.com/channels — per-channel capabilities and limits
+- https://markaestro.com/pricing — plans; API access is included on all of them
+- https://markaestro.com/developers/api — full API reference
+- https://markaestro.com/developers/agents — AI agent guide, tool schemas
+- https://markaestro.com/terms — terms of service
+- https://markaestro.com/privacy — privacy policy
+- https://markaestro.com/contact — support and sales

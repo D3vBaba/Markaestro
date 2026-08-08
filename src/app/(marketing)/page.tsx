@@ -2,10 +2,29 @@
 
 import Link from "next/link";
 import MarketingLayout from "@/components/layout/MarketingLayout";
+import CopyBlock from "@/components/marketing/CopyBlock";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
+
+// Deliberately the shortest true version of the integration: discover, then
+// schedule. Anything longer stops reading as "this is easy" on a landing page.
+const agentSnippet = `# 1. Which accounts can this key post to?
+curl "$MARKAESTRO_URL/api/connect/v1/social-accounts" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+
+# 2. Put a post on the calendar.
+curl -X POST "$MARKAESTRO_URL/api/connect/v1/posts" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "caption": "Cold brew season starts Friday.",
+    "media": ["ast_777"],
+    "social_accounts": ["prod_123#instagram:instagram:ig_123"],
+    "is_draft": false,
+    "scheduled_at": "2026-08-14T15:00:00.000Z"
+  }'`;
 
 export default function LandingPage() {
   return (
@@ -43,7 +62,8 @@ export default function LandingPage() {
             >
               Upload your media, write your captions, and publish every brand
               you market — your business, your clients, or yourself — to every
-              social channel from one dashboard.
+              social channel from one dashboard. Or hand an API key to your AI
+              agent and let it run the whole thing.
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/onboarding">
@@ -76,7 +96,7 @@ export default function LandingPage() {
           >
             {[
               { value: "10hrs", label: "Saved per week" },
-              { value: "5+", label: "Channels, one click" },
+              { value: "6", label: "Channels, one click" },
               { value: "1", label: "Composer for every channel" },
             ].map((stat) => (
               <div
@@ -95,7 +115,8 @@ export default function LandingPage() {
             ))}
           </motion.div>
 
-          {/* Social proof */}
+          {/* Social proof. Deliberately no company names or logos — we don't
+              put a brand here until it's a real customer who agreed to it. */}
           <motion.div
             className="mx-auto mt-14 max-w-3xl"
             initial={{ opacity: 0 }}
@@ -103,22 +124,11 @@ export default function LandingPage() {
             transition={{ delay: 0.5, duration: 0.6, ease }}
           >
             <p
-              className="text-center mk-eyebrow mb-5"
+              className="text-center mk-eyebrow"
               style={{ letterSpacing: "0.2em" }}
             >
-              Trusted by founders, teams, and agencies at
+              Trusted by founders
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 opacity-50">
-              {["Acme Corp", "TechFlow", "GrowthLab", "Launchpad", "ScaleUp", "BrandForge"].map((name) => (
-                <span
-                  key={name}
-                  className="text-[13px] font-semibold"
-                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
-                >
-                  {name}
-                </span>
-              ))}
-            </div>
           </motion.div>
         </div>
       </section>
@@ -152,12 +162,12 @@ export default function LandingPage() {
 
           <div className="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { title: "Multi-channel publishing", desc: "Publish to Facebook, Instagram, and TikTok from a single composer. Schedule posts or publish instantly." },
+              { title: "Multi-channel publishing", desc: "Publish to Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest from a single composer. Schedule posts or publish instantly." },
               { title: "Centralized media uploads", desc: "Bring your own images and videos. Upload once per post and ship to every connected channel." },
               { title: "Multi-channel previews", desc: "See how every post will render on each platform before you publish — captions, aspect ratios, character limits." },
               { title: "Scheduling & calendar", desc: "Queue posts on a unified calendar with per-channel timing. Reschedule, pause, or duplicate in a click." },
               { title: "Publishing dashboard", desc: "Track drafts, scheduled posts, and publish status across every channel." },
-              { title: "OAuth integrations", desc: "One-click connect to Meta and TikTok via secure OAuth. No manual token management required." },
+              { title: "OAuth integrations", desc: "One-click connect to Meta, TikTok, LinkedIn, Threads, and Pinterest via secure OAuth. No manual token management required." },
             ].map(({ title, desc }) => (
               <div
                 key={title}
@@ -224,6 +234,8 @@ export default function LandingPage() {
                 {[
                   { name: "Facebook & Instagram", desc: "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing." },
                   { name: "TikTok", desc: "Photo and video content handed off to the creator's TikTok inbox for final completion and posting." },
+                  { name: "LinkedIn", desc: "Your profile or a Page you manage. Text, image, video, and multi-image posts up to 20 images." },
+                  { name: "Threads & Pinterest", desc: "Threads carousels up to 20 items; Pinterest image and video pins to the board you pick." },
                 ].map((ch) => (
                   <div key={ch.name} className="flex items-start gap-3">
                     <div
@@ -258,9 +270,10 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: "Social channels", value: "3", sub: "Facebook, Instagram, TikTok" },
+                { label: "Social channels", value: "6", sub: "Meta, TikTok, LinkedIn, Threads, Pinterest" },
                 { label: "Composer", value: "1", sub: "Caption + media in one screen" },
                 { label: "Dashboard", value: "1", sub: "Unified publishing workflow" },
+                { label: "API", value: "1", sub: "One key, agent-ready" },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -324,7 +337,7 @@ export default function LandingPage() {
                   {[
                     { label: "Media", value: "Upload images or video — JPG, PNG, WebP, MP4" },
                     { label: "Caption", value: "Write once, preview per channel before publishing" },
-                    { label: "Output", value: "Scheduled or instant posts to Facebook, Instagram, TikTok" },
+                    { label: "Output", value: "Scheduled or instant posts to all six connected channels" },
                   ].map((row) => (
                     <div
                       key={row.label}
@@ -392,6 +405,74 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── AI Agents ─── */}
+      <section
+        className="border-t"
+        style={{
+          borderColor: "var(--mk-rule)",
+          background: "var(--mk-surface)",
+        }}
+      >
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
+          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+            <div>
+              <p className="mk-eyebrow">AI agents</p>
+              <h2
+                className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
+                style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
+              >
+                Or let your agent{" "}
+                <span style={{ color: "var(--mk-accent)" }}>run it</span>
+              </h2>
+              <p
+                className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
+                style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+              >
+                Every workspace can mint API keys. Give one to your AI agent and
+                it can discover which accounts it&apos;s allowed to post to,
+                upload media, draft and schedule posts, publish them, and report
+                back on what actually shipped — without touching a single
+                platform API itself.
+              </p>
+              <div className="mt-8 flex flex-col gap-4">
+                {[
+                  "One key is scoped to one brand — an agent can't wander into another",
+                  "Facebook, Instagram, and TikTok stay manual-first: a human posts, always",
+                  "Idempotent writes, async publish runs, and signed webhooks built in",
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-3">
+                    <div
+                      className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ background: "var(--mk-accent)" }}
+                    />
+                    <p
+                      className="text-[13.5px]"
+                      style={{ color: "var(--mk-ink-80)", letterSpacing: "-0.005em" }}
+                    >
+                      {item}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link href="/developers/agents">
+                  <Button className="rounded-lg h-9 text-[13px]">
+                    Read the agent guide
+                  </Button>
+                </Link>
+                <Link href="/developers/api">
+                  <Button variant="outline" className="rounded-lg h-9 text-[13px]">
+                    API reference
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <CopyBlock code={agentSnippet} label="your agent, on day one" />
           </div>
         </div>
       </section>

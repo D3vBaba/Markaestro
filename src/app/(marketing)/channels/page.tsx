@@ -52,10 +52,55 @@ const channels = [
     ],
     connection: "OAuth via TikTok for Developers",
   },
+  {
+    name: "LinkedIn",
+    category: "Professional",
+    color: "#0A66C2",
+    description: "Publish to your own LinkedIn profile or to a Page you manage. Text, image, video, and organic multi-image posts go out over LinkedIn's official API.",
+    capabilities: [
+      "Text-only posts",
+      "Single image or single video posts",
+      "Multi-image posts up to 20 images",
+      "Target a Profile or a managed Page",
+      "Programmatic publishing, no manual step",
+      "Scheduling from the shared calendar",
+    ],
+    connection: "OAuth via LinkedIn",
+  },
+  {
+    name: "Threads",
+    category: "Social",
+    color: "#111111",
+    description: "Meta's text-first network. Markaestro creates the media container, waits for it to finish processing, then publishes — so slow video uploads never silently fail.",
+    capabilities: [
+      "Text-only posts",
+      "Single image or single video posts",
+      "Carousels up to 20 items",
+      "Container status polling before publish",
+      "Programmatic publishing, no manual step",
+      "Scheduling from the shared calendar",
+    ],
+    connection: "OAuth via Threads",
+  },
+  {
+    name: "Pinterest",
+    category: "Discovery",
+    color: "#E60023",
+    description: "Pin your images and video to a board you choose when you connect. Your caption becomes the pin description, and everything publishes over the official Pinterest API.",
+    capabilities: [
+      "Image pins",
+      "Video pins with upload status polling",
+      "Board picked at connection time",
+      "Caption becomes the pin description",
+      "Programmatic publishing, no manual step",
+      "Scheduling from the shared calendar",
+    ],
+    connection: "OAuth via Pinterest",
+  },
 ];
 
 const stats = [
-  { value: "3", label: "Social Channels", sub: "Facebook, Instagram, TikTok" },
+  { value: "6", label: "Social Channels", sub: "Meta, TikTok, LinkedIn, Threads, Pinterest" },
   { value: "1", label: "Dashboard", sub: "Unified publishing workflow" },
   { value: "0", label: "Manual Tokens", sub: "Fully OAuth, fully automated" },
 ];
@@ -251,7 +296,9 @@ export default function ChannelsPage() {
                 color: "color-mix(in oklch, var(--mk-paper) 70%, transparent)",
               }}
             >
-              No API keys. No developer setup. Just click, authorize, and start publishing.
+              Click, authorize, and start publishing — no developer setup required. Once a channel is connected,
+              your team publishes from the dashboard and your AI agent can publish to the same channel through the
+              API.
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/onboarding">
@@ -263,7 +310,7 @@ export default function ChannelsPage() {
                   Get started free
                 </Button>
               </Link>
-              <Link href="/features">
+              <Link href="/developers/agents">
                 <Button
                   size="lg"
                   variant="ghost"
@@ -272,7 +319,7 @@ export default function ChannelsPage() {
                     color: "color-mix(in oklch, var(--mk-paper) 80%, transparent)",
                   }}
                 >
-                  See all features
+                  Automate it with an agent
                 </Button>
               </Link>
             </div>

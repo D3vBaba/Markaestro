@@ -1,16 +1,26 @@
 "use client";
 
 import MarketingLayout from "@/components/layout/MarketingLayout";
+import CopyBlock from "@/components/marketing/CopyBlock";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
-const coreFeatures = [
+type CoreFeature = {
+  title: string;
+  description: string;
+  details: string[];
+  /** Renders in place of the title placeholder when the feature is best shown as code. */
+  code?: string;
+  codeLabel?: string;
+};
+
+const coreFeatures: CoreFeature[] = [
   {
     title: "Multi-Channel Publishing",
-    description: "Compose once, publish everywhere. Write a single post and adapt it for Facebook, Instagram, and TikTok in one click. Schedule for optimal timing or publish instantly.",
+    description: "Compose once, publish everywhere. Write a single post and adapt it for Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest in one click. Schedule for optimal timing or publish instantly.",
     details: [
       "Unified composer with per-channel preview",
       "Drag-and-drop media management",
@@ -30,7 +40,7 @@ const coreFeatures = [
   },
   {
     title: "Multi-Channel Previews",
-    description: "See how every post will look on Facebook, Instagram, and TikTok before you publish. Captions, aspect ratios, character limits, and media specs are all rendered live.",
+    description: "See how every post will look on each network before you publish — Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest each get their own preview. Captions, aspect ratios, character limits, and media specs are all rendered live.",
     details: [
       "Pixel-accurate previews per platform",
       "Live caption character-count tracking",
@@ -52,11 +62,32 @@ const coreFeatures = [
     title: "OAuth Integrations",
     description: "Connect your accounts in one click with industry-standard OAuth. No manual API keys, no token juggling. Markaestro securely stores and refreshes credentials for you.",
     details: [
-      "One-click connect for Meta and TikTok",
+      "One-click connect for Meta, TikTok, LinkedIn, Threads, and Pinterest",
       "Encrypted token storage at rest",
       "Automatic token refresh",
       "Granular disconnect per platform",
     ],
+  },
+  {
+    title: "API & AI Agents",
+    description: "Everything the dashboard does, your software can do too. Mint an API key, hand it to an AI agent or a script, and let it discover accounts, upload media, schedule posts, publish, and report back — on every plan, at no extra cost.",
+    details: [
+      "Keys scoped to a single brand, with optional expiry",
+      "Idempotent writes so a retry never double-posts",
+      "Async publish runs plus HMAC-signed webhooks",
+      "Manual-first on Meta and TikTok — a human still posts",
+    ],
+    codeLabel: "schedule a post from anything that speaks HTTP",
+    code: `curl -X POST "$MARKAESTRO_URL/api/connect/v1/posts" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "caption": "Cold brew season starts Friday.",
+    "media": ["ast_777"],
+    "social_accounts": ["prod_123#instagram:instagram:ig_123"],
+    "is_draft": false,
+    "scheduled_at": "2026-08-14T15:00:00.000Z"
+  }'`,
   },
 ];
 
@@ -140,25 +171,37 @@ export default function FeaturesPage() {
                 </div>
 
                 <div
-                  className="rounded-xl p-10 lg:p-14"
+                  className="rounded-xl p-6 sm:p-10 lg:p-14"
                   style={{
                     background: "var(--mk-surface)",
                     border: "1px solid var(--mk-rule)",
                   }}
                 >
-                  <div className="flex items-center justify-center">
-                    <div
-                      className="rounded-xl p-7"
-                      style={{ background: "var(--mk-accent-soft)" }}
-                    >
-                      <p
-                        className="text-[16px] font-semibold"
-                        style={{ color: "var(--mk-accent)", letterSpacing: "-0.01em" }}
+                  {feature.code ? (
+                    <>
+                      <CopyBlock code={feature.code} label={feature.codeLabel} />
+                      <Link
+                        href="/developers/agents"
+                        className="mt-4 inline-block text-sm text-primary hover:underline"
                       >
-                        {feature.title}
-                      </p>
+                        Read the AI agent guide →
+                      </Link>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <div
+                        className="rounded-xl p-7"
+                        style={{ background: "var(--mk-accent-soft)" }}
+                      >
+                        <p
+                          className="text-[16px] font-semibold"
+                          style={{ color: "var(--mk-accent)", letterSpacing: "-0.01em" }}
+                        >
+                          {feature.title}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </motion.div>
             ))}
