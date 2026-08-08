@@ -24,10 +24,7 @@ import {
 } from '@/lib/platform/linkedin-providers';
 import { getPinterestApiUrl } from '@/lib/pinterest-api';
 import { fetchMetaManagedPages } from '@/lib/meta-pages';
-import {
-  setMetaProductPageSelections,
-  syncGrantedMetaProductConnections,
-} from '@/lib/oauth/meta-connection-sync';
+import { setMetaProductPageSelections } from '@/lib/oauth/meta-connection-sync';
 
 export const runtime = 'nodejs';
 
@@ -157,14 +154,11 @@ async function selectMetaPages(
     return { ...page, name: selection.names[pageId] || page.name };
   });
 
-  await syncGrantedMetaProductConnections({
-    workspaceId,
-    userId,
-    userAccessToken,
-    tokenExpiresAt: credential.tokenExpiresAt,
-    pages: pagesResult.pages,
-  });
-
+  // Deliberately no workspace-wide sync here. Linking a Page to this brand is
+  // not a reauthorization, and the sync revokes Pages absent from the fetched
+  // list — so adding a Page to one brand was disconnecting Pages belonging to
+  // other brands. Reauthorization is handled in the OAuth callback, which is
+  // the only place a genuinely new grant arrives.
   const { linkedPageIds, unlinkedPageIds } = await setMetaProductPageSelections({
     workspaceId,
     productId,

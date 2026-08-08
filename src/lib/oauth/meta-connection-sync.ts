@@ -198,9 +198,21 @@ export async function markMetaProductPageSelectionRequired(
  * A Facebook Login token is app-user scoped, not product scoped. Whenever a
  * user reauthorizes Meta, refresh every linked Page whose grant still covers it
  * and clearly revoke Pages that were removed from the grant.
+ *
+ * Revoking is deliberately conservative. It happens only when `grantIsComplete`
+ * says the Page list was enumerated end to end, because this runs across every
+ * brand in the workspace: treating a truncated or partially-failed read as the
+ * whole grant disconnected Pages belonging to other brands that were perfectly
+ * healthy. A Page that is present in the grant but returned no fresh Page token
+ * is left connected on its existing token rather than revoked — Page tokens are
+ * long-lived, and a missing token in one response is not a de-authorization.
  */
 export async function syncGrantedMetaProductConnections(
-  input: MetaCredential & { pages: MetaManagedPage[] },
+  input: MetaCredential & {
+    pages: MetaManagedPage[];
+    /** Whether `pages` is the full grant. Revocation requires this. */
+    grantIsComplete: boolean;
+  },
 ): Promise<{ syncedProductIds: string[]; revokedProductIds: string[] }> {
   const grantedPages = new Map(
     input.pages.map((page) => [page.id, page]),
@@ -235,30 +247,47 @@ export async function syncGrantedMetaProductConnections(
     const ref = refForConnection(conn);
     const page = grantedPages.get(pageId);
 
-    if (page?.accessToken) {
+    if (page) {
+      // Page tokens do not expire, so a response that carried none can fall
+      // back to the stored one. Only a connection with neither is unusable.
+      const storedPageToken = typeof conn.metadata.pageAccessTokenEncrypted === 'string'
+        ? conn.metadata.pageAccessTokenEncrypted
+        : '';
+      const hasUsableToken = Boolean(page.accessToken || storedPageToken);
+
       const update: Record<string, unknown> = {
         accessTokenEncrypted: encrypt(input.userAccessToken),
-        status: 'connected',
+        status: hasUsableToken ? 'connected' : 'error',
         accountKey: pageId,
         accountLabel: page.name,
         connectionId: ref.id,
         'metadata.pageName': page.name,
-        'metadata.pageAccessTokenEncrypted': encrypt(page.accessToken),
         'metadata.availablePages': availablePages,
-        'metadata.pageSelectionRequired': false,
-        'metadata.lastRefreshError': null,
-        'metadata.refreshFailureCount': 0,
+        // The Page is granted — it just needs its token re-issued by
+        // re-picking it, which is a different problem from losing access.
+        'metadata.pageSelectionRequired': !hasUsableToken,
+        'metadata.lastRefreshError': hasUsableToken
+          ? null
+          : 'Facebook did not return a token for this Page. Pick it again in brand settings.',
+        'metadata.refreshFailureCount': hasUsableToken ? 0 : 1,
         updatedBy: input.userId,
         updatedAt: now,
       };
+      if (page.accessToken) {
+        update['metadata.pageAccessTokenEncrypted'] = encrypt(page.accessToken);
+      }
       if (input.tokenExpiresAt) {
         update.tokenExpiresAt = input.tokenExpiresAt;
       }
       batch.update(ref, update);
-      syncedProductIds.add(productId);
+      if (hasUsableToken) syncedProductIds.add(productId);
       writes++;
       continue;
     }
+
+    // Absent from the grant. Only trust that when the grant was read in full —
+    // otherwise leave this brand's Page exactly as it was.
+    if (!input.grantIsComplete) continue;
 
     batch.update(ref, {
       status: 'revoked',

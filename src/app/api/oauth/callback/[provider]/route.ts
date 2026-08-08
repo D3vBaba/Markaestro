@@ -299,6 +299,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const extraData: Record<string, unknown> = {};
     let metaNeedsPageSelection = false;
     let metaPages: MetaManagedPage[] = [];
+    // A partial Page read must never be treated as the whole grant — see
+    // syncGrantedMetaProductConnections.
+    let metaGrantIsComplete = false;
 
     if (exchangeResult.extraData) {
       Object.assign(extraData, exchangeResult.extraData);
@@ -345,6 +348,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       try {
         const pagesResult = await fetchMetaManagedPages(tokens.accessToken);
         metaPages = pagesResult.pages;
+        metaGrantIsComplete = pagesResult.complete;
         if (pagesResult.pages.length > 0) {
           // Store pages metadata (without tokens) for the page selector
           extraData.availablePages = pagesResult.pages.map((page) => ({
@@ -533,6 +537,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
           userAccessToken: tokens.accessToken,
           tokenExpiresAt,
           pages: metaPages,
+          // Only a fully-enumerated grant may revoke other brands' Pages.
+          grantIsComplete: metaGrantIsComplete,
         })
         : { syncedProductIds: [], revokedProductIds: [] };
 
