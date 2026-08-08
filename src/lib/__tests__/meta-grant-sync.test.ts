@@ -14,10 +14,6 @@ vi.mock('@/lib/firebase-admin', () => ({
   },
 }));
 
-vi.mock('firebase-admin/firestore', () => ({
-  FieldValue: { delete: () => '__deleted__' },
-}));
-
 vi.mock('@/lib/crypto', () => ({
   encrypt: (value: string) => `enc(${value})`,
 }));
@@ -60,6 +56,10 @@ const input = {
   userAccessToken: 'user-token',
 };
 
+function updateFor(connectionId: string) {
+  return batchUpdate.mock.calls.find(([ref]) => ref.id === connectionId)?.[1];
+}
+
 describe('syncGrantedMetaProductConnections', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -71,25 +71,11 @@ describe('syncGrantedMetaProductConnections', () => {
     );
   });
 
-  it('never revokes another brand when the grant was read incompletely', async () => {
+  it('leaves other brands untouched when a grant covers only one Page', async () => {
     const { syncGrantedMetaProductConnections } = await import('@/lib/oauth/meta-connection-sync');
 
-    // Only page_a came back — a truncated or partially failed read.
-    const result = await syncGrantedMetaProductConnections({
-      ...input,
-      pages: [grantedPage('page_a', 'page-a-token')],
-      grantIsComplete: false,
-    });
-
-    expect(result.revokedProductIds).toEqual([]);
-    expect(result.syncedProductIds).toEqual(['prod_1']);
-    const revokes = batchUpdate.mock.calls.filter(([, update]) => update.status === 'revoked');
-    expect(revokes).toHaveLength(0);
-  });
-
-  it('revokes a Page only once the full grant confirms it is gone', async () => {
-    const { syncGrantedMetaProductConnections } = await import('@/lib/oauth/meta-connection-sync');
-
+    // Reconnecting one brand: the user ticked only that brand's Page in
+    // Facebook's asset dialog. The other brand must survive intact.
     const result = await syncGrantedMetaProductConnections({
       ...input,
       pages: [grantedPage('page_a', 'page-a-token')],
@@ -97,7 +83,20 @@ describe('syncGrantedMetaProductConnections', () => {
     });
 
     expect(result.syncedProductIds).toEqual(['prod_1']);
-    expect(result.revokedProductIds).toEqual(['prod_2']);
+    expect(updateFor('meta:page_b')).toBeUndefined();
+    expect(batchUpdate.mock.calls.every(([, update]) => update.status !== 'revoked')).toBe(true);
+  });
+
+  it('never writes a revoked status, even on a fully enumerated grant', async () => {
+    const { syncGrantedMetaProductConnections } = await import('@/lib/oauth/meta-connection-sync');
+
+    await syncGrantedMetaProductConnections({
+      ...input,
+      pages: [],
+      grantIsComplete: true,
+    });
+
+    expect(batchUpdate).not.toHaveBeenCalled();
   });
 
   it('keeps a granted Page connected when the response carried no Page token', async () => {
@@ -110,17 +109,15 @@ describe('syncGrantedMetaProductConnections', () => {
       grantIsComplete: true,
     });
 
-    expect(result.revokedProductIds).toEqual([]);
     expect(result.syncedProductIds).toEqual(['prod_1', 'prod_2']);
 
     // The stored Page token must be left untouched, not deleted or overwritten.
-    const pageBUpdate = batchUpdate.mock.calls.find(([ref]) => ref.id === 'meta:page_b')?.[1];
-    expect(pageBUpdate.status).toBe('connected');
-    expect(pageBUpdate).not.toHaveProperty('metadata.pageAccessTokenEncrypted');
+    const pageB = updateFor('meta:page_b');
+    expect(pageB.status).toBe('connected');
+    expect(pageB).not.toHaveProperty('metadata.pageAccessTokenEncrypted');
   });
 
-  it('asks for a re-pick, not a reconnect, when a granted Page has no usable token', async () => {
-    // Previously revoked: its stored Page token was deleted.
+  it('asks for a re-pick when a granted Page has no usable token at all', async () => {
     listProviderConnectionsMock.mockImplementation(async (_ws, _provider, productId) =>
       productId === 'prod_1' ? [pageConnection('page_a')] : [pageConnection('page_b', '')],
     );
@@ -132,16 +129,14 @@ describe('syncGrantedMetaProductConnections', () => {
       grantIsComplete: true,
     });
 
-    expect(result.revokedProductIds).toEqual([]);
     expect(result.syncedProductIds).toEqual(['prod_1']);
-
-    const pageBUpdate = batchUpdate.mock.calls.find(([ref]) => ref.id === 'meta:page_b')?.[1];
-    expect(pageBUpdate.status).toBe('error');
-    expect(pageBUpdate['metadata.pageSelectionRequired']).toBe(true);
-    expect(pageBUpdate['metadata.lastRefreshError']).toMatch(/Pick it again/);
+    const pageB = updateFor('meta:page_b');
+    expect(pageB.status).toBe('error');
+    expect(pageB['metadata.pageSelectionRequired']).toBe(true);
+    expect(pageB['metadata.lastRefreshError']).toMatch(/Pick it again/);
   });
 
-  it('restores a Page that a previous partial read had revoked', async () => {
+  it('restores a Page that an earlier build had wrongly revoked', async () => {
     listProviderConnectionsMock.mockImplementation(async (_ws, _provider, productId) => {
       const conn = pageConnection(productId === 'prod_1' ? 'page_a' : 'page_b', '');
       return [{
@@ -161,11 +156,22 @@ describe('syncGrantedMetaProductConnections', () => {
       grantIsComplete: true,
     });
 
-    expect(result.revokedProductIds).toEqual([]);
     expect(result.syncedProductIds).toEqual(['prod_1', 'prod_2']);
     for (const [, update] of batchUpdate.mock.calls) {
       expect(update.status).toBe('connected');
       expect(update['metadata.lastRefreshError']).toBeNull();
     }
+  });
+
+  it('does not overwrite the cached Page list from a partial read', async () => {
+    const { syncGrantedMetaProductConnections } = await import('@/lib/oauth/meta-connection-sync');
+
+    await syncGrantedMetaProductConnections({
+      ...input,
+      pages: [grantedPage('page_a', 'page-a-token')],
+      grantIsComplete: false,
+    });
+
+    expect(updateFor('meta:page_a')).not.toHaveProperty('metadata.availablePages');
   });
 });

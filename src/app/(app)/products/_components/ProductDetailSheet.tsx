@@ -847,7 +847,7 @@ export default function ProductDetailSheet({
         confirmLabel="Disconnect"
         warning={
           disconnectTarget
-            ? `Disconnect ${disconnectTarget.label}? You can reconnect anytime to resume publishing.`
+            ? `This removes every ${disconnectTarget.label} account linked to this brand. Other brands keep their own connections. To swap a single account, use Unlink next to it instead — and to refresh access, use Reconnect rather than disconnecting.`
             : undefined
         }
         onConfirm={confirmDisconnect}
@@ -1300,13 +1300,22 @@ function ChannelsSection({
               <Button variant="outline" size="sm" onClick={onLoadPages} disabled={loadingPages}>
                 {loadingPages ? "Loading…" : metaHasPage ? "Add Pages" : "Choose Pages"}
               </Button>
+              {/* Reconnect re-runs Facebook login in place. Unlinking first is
+                  never required and would drop this brand's Pages. */}
+              <Button variant="outline" size="sm" onClick={() => onStartOAuth("meta")}>
+                Reconnect
+              </Button>
               <Button
                 variant="destructive"
                 size="sm"
                 onClick={() => onDisconnect("meta", providerLabels.meta)}
                 disabled={disconnecting === "meta"}
               >
-                {disconnecting === "meta" ? "…" : "Unlink all"}
+                {disconnecting === "meta"
+                  ? "…"
+                  : metaAccounts.length > 1
+                  ? `Unlink all ${metaAccounts.length}`
+                  : "Unlink"}
               </Button>
               <LinkedAccountsList
                 accounts={metaAccounts}
@@ -1734,13 +1743,20 @@ function SimpleConnectCard({
               {loadingDestinations ? "Loading…" : pickerLabel(integration)}
             </Button>
           )}
+          <Button variant="outline" size="sm" onClick={() => onStartOAuth(provider)}>
+            Reconnect
+          </Button>
           <Button
             variant="destructive"
             size="sm"
             onClick={() => onDisconnect(provider, label)}
             disabled={disconnecting === provider}
           >
-            {disconnecting === provider ? "…" : "Disconnect"}
+            {disconnecting === provider
+              ? "…"
+              : accounts.length > 1
+              ? `Disconnect all ${accounts.length}`
+              : "Disconnect"}
           </Button>
           <LinkedAccountsList
             accounts={accounts}

@@ -674,8 +674,18 @@ const PRODUCT_CHANNELS: { provider: string; label: string; sub: string }[] = [
   { provider: "linkedin", label: "LinkedIn", sub: "LinkedIn Profile or Page" },
 ];
 
+/** One linked account/Page/board for a channel. */
+type ConnAccount = {
+  connectionId: string;
+  destinationId?: string | null;
+  label?: string | null;
+  status?: string;
+  enabled?: boolean;
+};
+
 type ConnEntry = {
   provider: string;
+  accounts?: ConnAccount[];
   scope?: "workspace" | "product";
   status?: string;
   pageId?: string | null;
@@ -922,6 +932,40 @@ function IntegrationsTab() {
     return resolveChannelStatus(provider, entry);
   }
 
+  /** The individual accounts/Pages linked for a channel on a brand. */
+  function channelAccounts(productId: string, provider: string) {
+    const entry = (connsByProduct[productId] || []).find((c) => c.provider === provider);
+    return (entry?.accounts ?? []).filter((account) => account.destinationId);
+  }
+
+  // Unlink one Page/account, leaving the brand's other accounts on that
+  // platform — and every other brand — untouched.
+  async function unlinkAccount(
+    productId: string,
+    provider: string,
+    destinationId: string,
+    label: string,
+  ) {
+    setBusy(`${productId}:${provider}:${destinationId}`);
+    try {
+      const res = await apiPost(
+        `/api/oauth/disconnect/${provider}`,
+        { productId, destinationId },
+        wsId,
+      );
+      if (res.ok) {
+        toast.success(`${label} unlinked`);
+        refreshConns();
+      } else {
+        toast.error(`Failed to unlink ${label}`);
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   if (productsLoading || (!!productIds && connLoading && !connData)) {
     return (
       <div className="grid gap-5">
@@ -970,6 +1014,7 @@ function IntegrationsTab() {
             {PRODUCT_CHANNELS.map((ch) => {
               const st = channelStatus(product.id, ch.provider);
               const isBusy = busy === `${product.id}:${ch.provider}`;
+              const accounts = channelAccounts(product.id, ch.provider);
               return (
                 <div key={ch.provider} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3.5">
                   <div className="min-w-0">
@@ -994,13 +1039,22 @@ function IntegrationsTab() {
                             Add Page
                           </Button>
                         )}
+                        {/* Reconnect re-runs OAuth in place. Unlinking first is
+                            never required and would drop this brand's Pages. */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => connect(ch.provider, product.id)}
+                        >
+                          Reconnect
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           disabled={isBusy}
                           onClick={() => setDisconnectTarget({ productId: product.id, provider: ch.provider, label: `${ch.label} · ${product.name}` })}
                         >
-                          {isBusy ? "Unlinking…" : "Unlink"}
+                          {isBusy ? "Unlinking…" : accounts.length > 1 ? "Unlink all" : "Unlink"}
                         </Button>
                       </div>
                     ) : st.state === "needs-page" ? (
@@ -1020,6 +1074,36 @@ function IntegrationsTab() {
                       <Button size="sm" onClick={() => connect(ch.provider, product.id)}>Link</Button>
                     )}
                   </div>
+                  {accounts.length > 0 && (
+                    <div className="w-full space-y-1.5">
+                      {accounts.map((account) => {
+                        const label = account.label || account.destinationId || "Linked account";
+                        const accountBusy = busy === `${product.id}:${ch.provider}:${account.destinationId}`;
+                        return (
+                          <div
+                            key={account.connectionId}
+                            className="flex items-center gap-2 rounded-lg border border-border/40 px-2.5 py-1.5"
+                          >
+                            <span className="min-w-0 flex-1 truncate text-[12px]">{label}</span>
+                            {account.enabled === false && (
+                              <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
+                                {account.status === "revoked" ? "Reconnect" : account.status}
+                              </Badge>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-[11px]"
+                              disabled={accountBusy}
+                              onClick={() => unlinkAccount(product.id, ch.provider, account.destinationId!, label)}
+                            >
+                              {accountBusy ? "…" : "Unlink"}
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}

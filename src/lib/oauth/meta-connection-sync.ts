@@ -1,4 +1,3 @@
-import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase-admin';
 import { encrypt } from '@/lib/crypto';
 import { PlatformCapability } from '@/lib/platform/types';
@@ -196,24 +195,30 @@ export async function markMetaProductPageSelectionRequired(
 
 /**
  * A Facebook Login token is app-user scoped, not product scoped. Whenever a
- * user reauthorizes Meta, refresh every linked Page whose grant still covers it
- * and clearly revoke Pages that were removed from the grant.
+ * user reauthorizes Meta, refresh every linked Page the new grant covers.
  *
- * Revoking is deliberately conservative. It happens only when `grantIsComplete`
- * says the Page list was enumerated end to end, because this runs across every
- * brand in the workspace: treating a truncated or partially-failed read as the
- * whole grant disconnected Pages belonging to other brands that were perfectly
- * healthy. A Page that is present in the grant but returned no fresh Page token
- * is left connected on its existing token rather than revoked — Page tokens are
- * long-lived, and a missing token in one response is not a de-authorization.
+ * This never revokes. Facebook Login for Business asks which Pages to grant on
+ * every authorization, so a Page missing from *this* grant usually means the
+ * user simply did not tick it again — not that access was withdrawn. Because
+ * this runs across every brand in the workspace, treating absence as removal
+ * meant reconnecting one brand disconnected all the others. Page tokens are
+ * long-lived and independent of the user token that issued them, so those other
+ * Pages keep publishing regardless.
+ *
+ * Genuine loss of access is detected where it is unambiguous: a failing publish
+ * or token refresh marks the connection, and Meta's deauthorize/data-deletion
+ * webhooks remove connections outright.
  */
 export async function syncGrantedMetaProductConnections(
   input: MetaCredential & {
     pages: MetaManagedPage[];
-    /** Whether `pages` is the full grant. Revocation requires this. */
+    /**
+     * Whether `pages` is the full grant. A partial read must not overwrite the
+     * cached Page list the picker shows.
+     */
     grantIsComplete: boolean;
   },
-): Promise<{ syncedProductIds: string[]; revokedProductIds: string[] }> {
+): Promise<{ syncedProductIds: string[] }> {
   const grantedPages = new Map(
     input.pages.map((page) => [page.id, page]),
   );
@@ -235,7 +240,6 @@ export async function syncGrantedMetaProductConnections(
   const batch = adminDb.batch();
   const now = new Date().toISOString();
   const syncedProductIds = new Set<string>();
-  const revokedProductIds = new Set<string>();
   let writes = 0;
 
   for (const { productId, conn } of connections) {
@@ -262,7 +266,7 @@ export async function syncGrantedMetaProductConnections(
         accountLabel: page.name,
         connectionId: ref.id,
         'metadata.pageName': page.name,
-        'metadata.availablePages': availablePages,
+        ...(input.grantIsComplete ? { 'metadata.availablePages': availablePages } : {}),
         // The Page is granted — it just needs its token re-issued by
         // re-picking it, which is a different problem from losing access.
         'metadata.pageSelectionRequired': !hasUsableToken,
@@ -285,31 +289,12 @@ export async function syncGrantedMetaProductConnections(
       continue;
     }
 
-    // Absent from the grant. Only trust that when the grant was read in full —
-    // otherwise leave this brand's Page exactly as it was.
-    if (!input.grantIsComplete) continue;
-
-    batch.update(ref, {
-      status: 'revoked',
-      'metadata.pageAccessTokenEncrypted': FieldValue.delete(),
-      'metadata.availablePages': availablePages,
-      'metadata.pageSelectionRequired': true,
-      'metadata.lastRefreshError':
-        'This Facebook Page is not included in the current Markaestro Page permissions.',
-      'metadata.refreshFailureCount': 1,
-      updatedBy: input.userId,
-      updatedAt: now,
-    });
-    revokedProductIds.add(productId);
-    writes++;
+    // Absent from this grant. Leave it alone — see the note above.
   }
 
   if (writes > 0) {
     await batch.commit();
   }
 
-  return {
-    syncedProductIds: [...syncedProductIds],
-    revokedProductIds: [...revokedProductIds],
-  };
+  return { syncedProductIds: [...syncedProductIds] };
 }

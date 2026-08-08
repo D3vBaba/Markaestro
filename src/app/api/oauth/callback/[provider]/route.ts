@@ -540,7 +540,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
           // Only a fully-enumerated grant may revoke other brands' Pages.
           grantIsComplete: metaGrantIsComplete,
         })
-        : { syncedProductIds: [], revokedProductIds: [] };
+        : { syncedProductIds: [] };
 
       if (productId && metaPages.length === 1 && metaPages[0].accessToken) {
         await saveMetaProductPageSelection({
