@@ -24,6 +24,12 @@ export const navigationGroups: NavGroup[] = [
             { name: "Calendar", href: "/calendar" },
         ],
     },
+    {
+        group: "Help",
+        items: [
+            { name: "Connect channels", href: "/guides/channels" },
+        ],
+    },
 ];
 
 export const settingsItem: NavItem = {

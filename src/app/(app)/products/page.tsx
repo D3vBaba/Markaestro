@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { AlertTriangle, Plus } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/app/PageHeader";
@@ -43,6 +44,8 @@ type OauthCallback = {
   provider: string | null;
   productId: string | null;
   needsPageSelect: boolean;
+  /** Pages this authorization dropped out of the Facebook grant. */
+  ungrantedPages: string[];
   message: string | null;
 };
 
@@ -57,6 +60,7 @@ function readOauthCallback(): OauthCallback | null {
     provider: params.get("provider"),
     productId: params.get("productId"),
     needsPageSelect: params.get("needsPageSelect") === "1",
+    ungrantedPages: (params.get("ungrantedPages") || "").split("|").filter(Boolean),
     message: params.get("message"),
   };
 }
@@ -131,6 +135,14 @@ export default function ProductsPage() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [filter, setFilter] = useState<FilterTab>("all");
   const [highlightId, setHighlightId] = useState<string | null>(oauthProductId);
+  // Facebook's dialog replaces the whole grant, so a narrowed selection
+  // silently kills the Pages left unticked. Surface that persistently — a toast
+  // that fades is how this became a day of failed posts.
+  const [ungrantedPages, setUngrantedPages] = useState<string[]>(
+    oauthCallback?.result === "success" && oauthCallback.provider === "meta"
+      ? oauthCallback.ungrantedPages
+      : [],
+  );
 
   useEffect(() => {
     // Deep-link cleanup — the sheet is already open from initial state; drop
@@ -236,6 +248,41 @@ export default function ProductsPage() {
           </Button>
         }
       />
+
+      {ungrantedPages.length > 0 && (
+        <div
+          className="mb-5 flex gap-3 rounded-xl border p-4"
+          style={{
+            borderColor: "var(--mk-warn)",
+            background: "color-mix(in srgb, var(--mk-warn) 8%, transparent)",
+          }}
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--mk-warn)" }} />
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-medium">
+              {ungrantedPages.length} Facebook{" "}
+              {ungrantedPages.length === 1 ? "Page is" : "Pages are"} no longer authorized
+            </p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+              This login did not include {ungrantedPages.join(", ")}. Facebook replaces the whole permission
+              set each time you connect, so those Pages cannot publish until you reconnect and tick them.
+              Scheduled posts for them will fail.
+            </p>
+            <div className="mt-2.5 flex flex-wrap items-center gap-3">
+              <Link href="/guides/channels" className="text-[12.5px] underline underline-offset-2">
+                How connecting works
+              </Link>
+              <button
+                type="button"
+                onClick={() => setUngrantedPages([])}
+                className="text-[12.5px] text-muted-foreground underline underline-offset-2"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         className="flex items-center gap-6 mb-5 border-b overflow-x-auto scrollbar-hide"

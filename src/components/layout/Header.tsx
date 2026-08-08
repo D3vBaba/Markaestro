@@ -13,6 +13,7 @@ import {
   Calendar,
   Settings as SettingsIcon,
   type LucideIcon,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -36,6 +37,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/content": LayoutGrid,
   "/calendar": Calendar,
   "/settings": SettingsIcon,
+  "/guides/channels": BookOpen,
 };
 
 export function Header() {

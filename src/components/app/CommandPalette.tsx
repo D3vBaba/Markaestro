@@ -16,6 +16,7 @@ import {
     PackagePlus,
     CreditCard,
     type LucideIcon,
+    BookOpen,
 } from "lucide-react";
 import { navigationGroups, settingsItem } from "@/lib/nav";
 
@@ -26,6 +27,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
     "/calendar": Calendar,
     "/channels": Link2,
     "/settings": Settings,
+    "/guides/channels": BookOpen,
 };
 
 type PaletteItem = {

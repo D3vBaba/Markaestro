@@ -227,7 +227,7 @@ export async function syncGrantedMetaProductConnections(
      */
     grantIsComplete: boolean;
   },
-): Promise<{ syncedProductIds: string[]; ungrantedProductIds: string[] }> {
+): Promise<{ syncedProductIds: string[]; ungrantedProductIds: string[]; ungrantedPageNames: string[] }> {
   const grantedPages = new Map(
     input.pages.map((page) => [page.id, page]),
   );
@@ -250,6 +250,7 @@ export async function syncGrantedMetaProductConnections(
   const now = new Date().toISOString();
   const syncedProductIds = new Set<string>();
   const ungrantedProductIds = new Set<string>();
+  const ungrantedPageNames = new Set<string>();
   let writes = 0;
 
   for (const { productId, conn } of connections) {
@@ -325,6 +326,11 @@ export async function syncGrantedMetaProductConnections(
       updatedAt: now,
     });
     ungrantedProductIds.add(productId);
+    ungrantedPageNames.add(
+      typeof conn.metadata.pageName === 'string' && conn.metadata.pageName
+        ? conn.metadata.pageName
+        : pageId,
+    );
     writes++;
   }
 
@@ -335,5 +341,8 @@ export async function syncGrantedMetaProductConnections(
   return {
     syncedProductIds: [...syncedProductIds],
     ungrantedProductIds: [...ungrantedProductIds],
+    // Named so the connect flow can tell the user exactly what they dropped,
+    // instead of letting them find out when a scheduled post fails.
+    ungrantedPageNames: [...ungrantedPageNames],
   };
 }

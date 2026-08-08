@@ -302,6 +302,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     // A partial Page read must never be treated as the whole grant — see
     // syncGrantedMetaProductConnections.
     let metaGrantIsComplete = false;
+    // Pages this authorization dropped out of the grant, reported on the
+    // redirect so the user hears about it now rather than from a failed post.
+    let metaUngrantedPageNames: string[] = [];
 
     if (exchangeResult.extraData) {
       Object.assign(extraData, exchangeResult.extraData);
@@ -546,7 +549,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
           // A partial read must not overwrite the cached Page list.
           grantIsComplete: metaGrantIsComplete,
         })
-        : { syncedProductIds: [] as string[], ungrantedProductIds: [] as string[] };
+        : { syncedProductIds: [] as string[], ungrantedProductIds: [] as string[], ungrantedPageNames: [] as string[] };
+
+      metaUngrantedPageNames = syncResult.ungrantedPageNames;
 
       if (productId && metaPages.length === 1 && metaPages[0].accessToken) {
         await saveMetaProductPageSelection({
@@ -599,6 +604,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         productId,
         ...(provider === 'linkedin' && linkedinCredentialKind ? { linkedinMode: linkedinCredentialKind } : {}),
         ...(provider === 'meta' && metaNeedsPageSelection ? { needsPageSelect: '1' } : {}),
+        // Pages this authorization dropped, so the user is told immediately
+        // rather than discovering it when a scheduled post fails.
+        ...(provider === 'meta' && metaUngrantedPageNames.length > 0
+          ? { ungrantedPages: metaUngrantedPageNames.slice(0, 8).join('|') }
+          : {}),
         ...(provider === 'pinterest' && pinterestNeedsBoardSelection ? { needsBoardSelect: '1' } : {}),
       });
     }

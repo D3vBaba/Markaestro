@@ -23,6 +23,7 @@ import {
   LayoutGrid,
   Calendar,
   Settings,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 
@@ -32,6 +33,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/content": LayoutGrid,
   "/calendar": Calendar,
   "/settings": Settings,
+  "/guides/channels": BookOpen,
 };
 
 export function Sidebar({ className }: { className?: string }) {

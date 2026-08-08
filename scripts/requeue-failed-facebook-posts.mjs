@@ -12,6 +12,7 @@
  *   node scripts/requeue-failed-facebook-posts.mjs            # preview
  *   node scripts/requeue-failed-facebook-posts.mjs --apply
  *   node scripts/requeue-failed-facebook-posts.mjs --apply --hours 48
+ *   node scripts/requeue-failed-facebook-posts.mjs --apply --exclude id1,id2
  */
 import admin from 'firebase-admin';
 import { readFileSync } from 'node:fs';
@@ -20,6 +21,11 @@ import { resolve } from 'node:path';
 const APPLY = process.argv.includes('--apply');
 const hoursArg = process.argv.indexOf('--hours');
 const HOURS = hoursArg > -1 ? Number(process.argv[hoursArg + 1]) : 24;
+// Post ids to leave alone, e.g. the second copy of a double-scheduled post.
+const excludeArg = process.argv.indexOf('--exclude');
+const EXCLUDE = new Set(
+  excludeArg > -1 ? String(process.argv[excludeArg + 1] || '').split(',').map((id) => id.trim()).filter(Boolean) : [],
+);
 
 const envPath = resolve(process.cwd(), '.env.local');
 const raw = readFileSync(envPath, 'utf8');
@@ -93,6 +99,12 @@ for (const ws of workspaces.docs) {
     considered++;
     const productName = productNames.get(post.productId) ?? post.productId ?? '-';
 
+    if (EXCLUDE.has(doc.id)) {
+      console.log(`HOLD  ${doc.id} [${productName}] — excluded by --exclude`);
+      skipped++;
+      continue;
+    }
+
     // Only worth retrying if the brand has a publishable Page — otherwise the
     // retry would fail again for a different, real reason.
     if (!post.productId || !connectedPages.has(post.productId)) {
@@ -103,7 +115,8 @@ for (const ws of workspaces.docs) {
 
     console.log(
       `RETRY ${doc.id} [${productName}] → ${connectedPages.get(post.productId)}\n` +
-      `      was: ${post.status} · destinationId=${JSON.stringify(post.destinationId ?? null)}`,
+      `      was: ${post.status} · originally scheduled ${post.scheduledAt ?? '-'}\n` +
+      `      content: ${JSON.stringify(String(post.content ?? '').replace(/\s+/g, ' ').slice(0, 70))}`,
     );
 
     if (APPLY) {

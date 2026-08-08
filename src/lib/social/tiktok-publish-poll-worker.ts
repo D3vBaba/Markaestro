@@ -6,6 +6,7 @@ import { fetchTikTokPublishStatus } from '@/lib/platform/adapters/tiktok-publish
 import { isTikTokTokenExpiringSoon, isTikTokTokenInvalid, refreshTikTokConnection } from '@/lib/platform/tiktok-auth';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
+import { sendTikTokInboxEmail } from '@/lib/tiktok-inbox-emails';
 import type { SocialChannel } from '@/lib/schemas';
 import { getAllDocs, getAllMatchingDocs } from '@/lib/firestore-pagination';
 import type { DocumentReference } from 'firebase-admin/firestore';
@@ -349,6 +350,12 @@ export async function pollTikTokPublishForPost(
         : '',
       updatedAt: now,
     });
+    // The video is in the creator's TikTok inbox and cannot go live until they
+    // post it from the app. Nothing else tells them, so email the prompt.
+    if (nextStatus === PLATFORM_ACTION_REQUIRED_STATUS) {
+      await sendTikTokInboxEmail(workspaceId, snap.id, post);
+    }
+
     if (clientId && nextStatus === PLATFORM_ACTION_REQUIRED_STATUS) {
       await incrementApiClientStat(workspaceId, clientId, 'publish_action_required');
       await enqueueWebhookEvent(workspaceId, 'post.action_required', {
