@@ -159,13 +159,18 @@ export async function checkPagePublishingAccess(
     const err = await res.json().catch(() => ({}));
     const message = err.error?.message || `HTTP ${res.status}`;
 
-    // Error code 190 = invalid/expired token, 10 = permission denied
-    if (err.error?.code === 190 || err.error?.code === 10) {
+    // Code 190 is an invalid or expired token: nothing will publish with it,
+    // so fail fast and tell the user to reconnect.
+    if (err.error?.code === 190) {
       return { canPublish: false, error: `Facebook access error: ${message}` };
     }
 
-    // If we can't determine PPA status, let the publish attempt proceed
-    // so it fails with a more specific error from the actual publish call.
+    // Everything else — notably code 10, permission denied — means only that we
+    // could not *inspect* the Page. Reading `tasks` needs one of
+    // pages_read_engagement / pages_show_list / …; publishing needs
+    // pages_manage_posts, which the token may well hold. Treating a failed
+    // preflight read as "cannot publish" turned healthy Pages into failed
+    // posts, so let the publish call itself return the authoritative error.
     console.warn(`[meta-graph-api] PPA check inconclusive (${res.status}): ${message}`);
     return { canPublish: true };
   }
