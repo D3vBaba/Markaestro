@@ -5,7 +5,8 @@ import {
   getConnectionForChannel,
   markConnectionAuthError,
 } from '@/lib/platform/connections';
-import type { PublishRequest, PublishResult } from '@/lib/platform/types';
+import type { PlatformConnection, PublishRequest, PublishResult } from '@/lib/platform/types';
+import { isPublishAuthFailure, publishAuthFailureMessage } from '@/lib/platform/auth-errors';
 import { isTikTokTokenExpiringSoon, isTikTokTokenInvalid, refreshTikTokConnection } from '@/lib/platform/tiktok-auth';
 import { socialChannels, type SocialChannel } from '@/lib/schemas';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
@@ -171,49 +172,37 @@ export async function publishPost(
 
   const result = await adapter.publish(activeConnection, request);
 
-  if (
-    request.channel === 'linkedin' &&
-    result.error &&
-    /LINKEDIN_AUTH_REVOKED|LINKEDIN_PERMISSION_DENIED/i.test(result.error)
-  ) {
-    await markConnectionAuthError(activeConnection, result.error).catch(() => undefined);
-  }
-
-  // Facebook withdrew access to this Page — typically because a later
-  // authorization used Login for Business asset selection and did not include
-  // it. The stored Page token is dead, so record that on the connection instead
-  // of leaving the tile green while every post silently fails.
-  if (
-    request.channel === 'facebook' &&
-    result.error &&
-    /impersonating a user's page|Error validating access token|Session has expired/i.test(result.error)
-  ) {
-    await markConnectionAuthError(
-      activeConnection,
-      'Facebook no longer grants this Page to Markaestro. Reconnect Facebook and tick this Page in the permissions dialog.',
-    ).catch(() => undefined);
-  }
-
-  // Instagram Login blanket refusal: graph.instagram.com will never serve this
-  // token (account not eligible), so mark the connection revoked — the channel
-  // tile then shows the reconnect message instead of staying "ready".
-  if (
-    request.channel === 'instagram' &&
-    activeConnection.provider === 'instagram' &&
-    result.error &&
-    result.error.includes("couldn't authorize this account")
-  ) {
-    await markConnectionAuthError(activeConnection, result.error).catch(() => undefined);
-  }
-
+  // TikTok tokens are short-lived by design, so a rejected one gets a refresh
+  // and one retry before it counts as a real authorization failure.
   if (request.channel === 'tiktok' && isTikTokTokenInvalid(result.error)) {
     const refreshed = await refreshTikTokConnection(workspaceId, productId, activeConnection);
     if (refreshed) {
-      return adapter.publish(refreshed, request);
+      const retried = await adapter.publish(refreshed, request);
+      await recordAuthFailure(refreshed, request.channel, retried.error);
+      return retried;
     }
   }
 
+  await recordAuthFailure(activeConnection, request.channel, result.error);
+
   return result;
+}
+
+/**
+ * Record a credential rejection on the connection it came from, so the channel
+ * stops advertising itself as ready. Best-effort: the publish outcome is
+ * already decided, and failing to annotate it must not change that.
+ */
+async function recordAuthFailure(
+  connection: PlatformConnection,
+  channel: SocialChannel,
+  error?: string,
+): Promise<void> {
+  if (!isPublishAuthFailure(error)) return;
+  await markConnectionAuthError(
+    connection,
+    publishAuthFailureMessage(channel, error as string),
+  ).catch(() => undefined);
 }
 
 function classifyPublishError(error: string): PublishErrorClassification {

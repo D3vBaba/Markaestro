@@ -204,6 +204,7 @@
       "connect": "Connect",
       "reconnect": "Reconnect",
       "reconnectAddAccount": "Reconnect / add account",
+      "disconnect": "Disconnect",
       "disconnectAllCount": "Disconnect all {count}",
       "unlinkAllCount": "Unlink all {count}",
       "unlink": "Unlink",

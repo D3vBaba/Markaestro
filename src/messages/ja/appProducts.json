@@ -204,6 +204,7 @@
       "connect": "接続",
       "reconnect": "再接続",
       "reconnectAddAccount": "再接続 / アカウントを追加",
+      "disconnect": "切断",
       "disconnectAllCount": "{count}件すべて切断",
       "unlinkAllCount": "{count}件すべて連携解除",
       "unlink": "連携解除",

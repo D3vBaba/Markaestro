@@ -204,6 +204,7 @@
       "connect": "اتصال",
       "reconnect": "إعادة الاتصال",
       "reconnectAddAccount": "إعادة الاتصال / إضافة حساب",
+      "disconnect": "قطع الاتصال",
       "disconnectAllCount": "قطع اتصال جميع الـ {count}",
       "unlinkAllCount": "إلغاء ربط جميع الـ {count}",
       "unlink": "إلغاء الربط",

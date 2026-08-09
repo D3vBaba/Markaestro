@@ -204,6 +204,7 @@
       "connect": "连接",
       "reconnect": "重新连接",
       "reconnectAddAccount": "重新连接 / 添加账户",
+      "disconnect": "断开连接",
       "disconnectAllCount": "断开全部 {count} 个",
       "unlinkAllCount": "取消关联全部 {count} 个",
       "unlink": "取消关联",

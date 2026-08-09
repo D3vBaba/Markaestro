@@ -204,6 +204,7 @@
       "connect": "Collega",
       "reconnect": "Riconnetti",
       "reconnectAddAccount": "Riconnetti / aggiungi account",
+      "disconnect": "Disconnetti",
       "disconnectAllCount": "Disconnetti tutte le {count}",
       "unlinkAllCount": "Scollega tutte le {count}",
       "unlink": "Scollega",
