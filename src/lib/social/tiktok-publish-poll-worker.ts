@@ -272,6 +272,7 @@ export async function pollTikTokPublishForPost(
     postId: postDocRef.id,
     publishId,
     status: liveStatus.status,
+    publiclyAvailablePostId: liveStatus.publiclyAvailablePostId ?? null,
     ...(typeof liveStatus.downloadedBytes === 'number' ? { downloadedBytes: liveStatus.downloadedBytes } : {}),
     ...(typeof liveStatus.uploadedBytes === 'number' ? { uploadedBytes: liveStatus.uploadedBytes } : {}),
     ...(liveStatus.status === 'FAILED' && liveStatus.failReason ? { failReason: liveStatus.failReason } : {}),
