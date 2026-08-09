@@ -573,20 +573,41 @@ export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollRes
 
   for (const ws of wsDocs) {
     const workspaceId = ws.id;
+    // Two independent queries, isolated so one failing (e.g. a composite
+    // index that's still building) can't take down the other — the
+    // 'publishing' query covers in-flight publishes actively being
+    // finalized and must keep working even if the action-required re-poll
+    // query is temporarily unavailable.
     const [publishingDocs, actionRequiredDocs] = await Promise.all([
       getAllMatchingDocs(
         adminDb
           .collection(`workspaces/${workspaceId}/posts`)
           .where('status', '==', 'publishing')
           .orderBy('updatedAt', 'asc'),
-      ),
+      ).catch((error) => {
+        logger.warn('tiktok publishing-status poll query failed', {
+          event: 'tiktok.publish.poll_query_failed',
+          workspaceId,
+          query: 'publishing',
+          err: error,
+        });
+        return [] as FirebaseFirestore.QueryDocumentSnapshot[];
+      }),
       getAllMatchingDocs(
         adminDb
           .collection(`workspaces/${workspaceId}/posts`)
           .where('status', '==', PLATFORM_ACTION_REQUIRED_STATUS)
           .where('actionRequiredAt', '>=', repollCutoffIso)
           .orderBy('actionRequiredAt', 'asc'),
-      ),
+      ).catch((error) => {
+        logger.warn('tiktok action-required poll query failed', {
+          event: 'tiktok.publish.poll_query_failed',
+          workspaceId,
+          query: 'platform_action_required',
+          err: error,
+        });
+        return [] as FirebaseFirestore.QueryDocumentSnapshot[];
+      }),
     ]);
 
     for (const doc of [...publishingDocs, ...actionRequiredDocs]) {
