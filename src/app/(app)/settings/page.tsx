@@ -171,8 +171,21 @@ function SettingsPageContent() {
   const t = useTranslations("settings");
   const searchParams = useSearchParams();
   const rawTab = searchParams?.get('tab');
-  const initialTab = (TABS.find((t) => t.id === rawTab)?.id ?? 'account') as Tab;
-  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
+  const urlTab = TABS.find((tab) => tab.id === rawTab)?.id as Tab | undefined;
+  const [activeTab, setActiveTab] = useState<Tab>(urlTab ?? 'account');
+
+  // A ?tab= link has to win even when Settings is already on screen. Seeding
+  // state at mount was not enough: "Manage workspaces" in the sidebar navigates
+  // to /settings?tab=workspaces client-side, which updates the URL without
+  // remounting this component, so the visible tab never changed and the link
+  // looked dead. Re-sync whenever the param itself changes — adjusting state
+  // during render (rather than in an effect) keeps it to a single pass.
+  const [syncedUrlTab, setSyncedUrlTab] = useState(urlTab);
+  if (urlTab !== syncedUrlTab) {
+    setSyncedUrlTab(urlTab);
+    // Ignore the param disappearing so in-page tab clicks are not undone.
+    if (urlTab) setActiveTab(urlTab);
+  }
 
   return (
     <AppShell>
