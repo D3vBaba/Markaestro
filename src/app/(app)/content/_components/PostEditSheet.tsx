@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
@@ -51,12 +51,17 @@ export default function PostEditSheet({
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  // Load the fields when a different post is opened. Adjusting during render
+  // rather than in an effect means the sheet's first frame already shows the
+  // right post instead of briefly showing the previous one's text.
+  const [loadedPost, setLoadedPost] = useState(post);
+  if (post !== loadedPost) {
+    setLoadedPost(post);
     if (post) {
       setContent(post.content);
       setMediaUrls(post.mediaUrls ?? []);
     }
-  }, [post]);
+  }
 
   const channel = post?.channel ?? "facebook";
   const currentMedia = mediaUrls[0];

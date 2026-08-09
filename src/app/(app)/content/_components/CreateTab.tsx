@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { apiGet, apiPost, apiPut, apiUpload } from "@/lib/api-client";
+import { deferFromEffect } from "@/lib/defer-from-effect";
 import { toast } from "sonner";
 import ChannelSelector from "./ChannelSelector";
 import ContentEditor from "./ContentEditor";
@@ -59,6 +60,7 @@ export default function CreateTab({
   useEffect(() => {
     if (restoredRef.current || !productId || typeof window === "undefined") return;
     restoredRef.current = true;
+    deferFromEffect(() => {
     try {
       const raw = localStorage.getItem(draftKey);
       if (!raw) return;
@@ -79,6 +81,7 @@ export default function CreateTab({
         },
       });
     } catch { /* corrupt entry — ignore */ }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftKey, productId]);
 

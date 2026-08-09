@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import AppShell from "@/components/layout/AppShell";
@@ -97,13 +97,14 @@ export default function AnalyticsPage() {
   // `days` — leave it stuck there even after the real limit arrives. So wait
   // for a real, positive (or unlimited) limit before touching `days`, and
   // never fall back to 0.
-  useEffect(() => {
-    if (subLoading || maxDays === -1 || maxDays <= 0) return;
-    if (days > maxDays) {
-      const widest = [...RANGE_PRESETS].reverse().find((p) => p.days <= maxDays);
-      setDays(widest?.days ?? RANGE_PRESETS[0].days);
-    }
-  }, [maxDays, days, subLoading]);
+  // Clamp the selected range to what the plan allows. Adjusted during render so
+  // the chart never draws once with a range the plan does not permit.
+  const [clampedForMaxDays, setClampedForMaxDays] = useState(maxDays);
+  if (maxDays !== clampedForMaxDays) setClampedForMaxDays(maxDays);
+  if (!subLoading && maxDays !== -1 && maxDays > 0 && days > maxDays) {
+    const widest = [...RANGE_PRESETS].reverse().find((preset) => preset.days <= maxDays);
+    setDays(widest?.days ?? RANGE_PRESETS[0].days);
+  }
 
   const tz = useMemo(() => -new Date().getTimezoneOffset(), []);
   const filterParams = `${channel ? `&channel=${channel}` : ""}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`;

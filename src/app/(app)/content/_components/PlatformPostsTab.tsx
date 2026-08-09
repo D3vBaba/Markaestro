@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { AlertCircle } from "lucide-react";
 import { apiDelete, apiGet } from "@/lib/api-client";
+import { deferFromEffect } from "@/lib/defer-from-effect";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
@@ -349,7 +350,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
   }, [buildPath]);
 
   useEffect(() => {
-    fetchPosts();
+    deferFromEffect(fetchPosts);
   }, [fetchPosts]);
 
   const loadMore = async () => {

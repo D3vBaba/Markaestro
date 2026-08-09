@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -146,13 +148,13 @@ function AuthActionContent() {
             >
               {t('canceledFallback.message')}
             </p>
-            <a
+            <Link
               className="mt-4 block text-center text-[12px] font-medium hover:underline"
               style={{ color: 'var(--mk-accent)' }}
               href="/login"
             >
               {t('canceledFallback.backToSignIn')}
-            </a>
+            </Link>
           </div>
         </div>
       </MarketingLayout>
@@ -245,13 +247,13 @@ function AuthActionContent() {
                 >
                   {status === 'working' ? t('updating') : t('updatePassword')}
                 </Button>
-                <a
+                <Link
                   className="block text-center text-[12px] font-medium hover:underline"
                   style={{ color: 'var(--mk-accent)' }}
                   href="/login"
                 >
                   {t('backToSignIn')}
-                </a>
+                </Link>
               </div>
             ) : (
               <div className="flex flex-col gap-3">

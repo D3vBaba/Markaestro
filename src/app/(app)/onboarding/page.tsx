@@ -10,6 +10,7 @@ import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api-client";
+import { deferFromEffect } from "@/lib/defer-from-effect";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { useProductScan } from "@/hooks/useProductScan";
 import ScanProgressStepper from "@/components/app/ScanProgressStepper";
@@ -394,6 +395,9 @@ export default function OnboardingPage() {
   const saved = loadState();
 
   const [step, setStep] = useState(saved.step ?? 0);
+  // Sampled once per mount: the trial-end date must not shift because React
+  // re-rendered, and it is only ever shown as a reassurance label.
+  const [trialStartedAt] = useState(() => Date.now());
   const [answers, setAnswers] = useState<Answers>(saved.answers ?? {});
 
   // Product
@@ -470,12 +474,12 @@ export default function OnboardingPage() {
 
   // Once registration succeeds, advance into the setup phase. Also covers a
   // signed-in-but-not-subscribed user who reaches the register step.
-  useEffect(() => {
-    if (user && step === REGISTER_STEP) {
-      setRegBusy(false);
-      setStep(PRODUCT_STEP);
-    }
-  }, [user, step]);
+  // Adjusted during render so the register step is never painted again after
+  // the account exists.
+  if (user && step === REGISTER_STEP) {
+    setRegBusy(false);
+    setStep(PRODUCT_STEP);
+  }
 
   // ─── OAuth return ───────────────────────────────────────────────────────────
 
@@ -485,6 +489,7 @@ export default function OnboardingPage() {
     const oauthProvider = params.get("provider");
     const oauthProductId = params.get("productId");
     if (oauthResult && oauthProvider) {
+      deferFromEffect(() => {
       if (oauthProductId) {
         setProductId(oauthProductId);
       }
@@ -496,6 +501,7 @@ export default function OnboardingPage() {
         toast.error(t("socials.connectFailedToast", { provider: oauthProvider }));
       }
       window.history.replaceState({}, "", "/onboarding");
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -525,11 +531,18 @@ export default function OnboardingPage() {
 
   // ─── Auto-recommend plan ─────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const role = (answers.role as string) || "";
-    const teamSize = (answers.teamSize as string) || "";
-    if (role && teamSize) setSelectedTier(recommendPlan(role, teamSize));
-  }, [answers.role, answers.teamSize]);
+  // Derived from the answers, so it is adjusted during render: the recommended
+  // tier is already highlighted on the frame that reveals the plan step.
+  const recommendRole = (answers.role as string) || "";
+  const recommendTeamSize = (answers.teamSize as string) || "";
+  const recommendKey = `${recommendRole}|${recommendTeamSize}`;
+  const [recommendedFor, setRecommendedFor] = useState(recommendKey);
+  if (recommendKey !== recommendedFor) {
+    setRecommendedFor(recommendKey);
+    if (recommendRole && recommendTeamSize) {
+      setSelectedTier(recommendPlan(recommendRole, recommendTeamSize));
+    }
+  }
 
   if (authLoading || (user && subLoading)) {
     return (
@@ -542,7 +555,7 @@ export default function OnboardingPage() {
   if (user && subStatus?.active) return null;
 
   const trialEndLabel = new Date(
-    Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000,
+    trialStartedAt + TRIAL_DAYS * 24 * 60 * 60 * 1000,
   ).toLocaleDateString(locale, { month: "long", day: "numeric" });
 
   const hoursSaved = HOURS_SAVED[(answers.hoursPerWeek as string)] ?? 6;
@@ -1097,9 +1110,9 @@ export default function OnboardingPage() {
 
                 <p className="mt-5 text-center text-[11.5px]" style={{ color: "var(--mk-ink-40)" }}>
                   {t("register.agreeTermsPrefix")}{" "}
-                  <a href="/terms" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>{t("register.terms")}</a>{" "}
+                  <Link href="/terms" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>{t("register.terms")}</Link>{" "}
                   {t("register.and")}{" "}
-                  <a href="/privacy" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>{t("register.privacyPolicy")}</a>.
+                  <Link href="/privacy" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>{t("register.privacyPolicy")}</Link>.
                 </p>
 
                 <button

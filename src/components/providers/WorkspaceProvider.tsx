@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { deferFromEffect } from "@/lib/defer-from-effect";
 import { useAuth } from '@/components/providers/AuthProvider';
 import { apiFetch, setApiWorkspaceId } from '@/lib/api-client';
 
@@ -56,7 +57,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (authLoading) return;
-    fetchWorkspaces();
+    deferFromEffect(fetchWorkspaces);
   }, [authLoading, fetchWorkspaces]);
 
   useEffect(() => {

@@ -72,6 +72,16 @@ function fetchDeduped(key: string, path: string, wsId: string): Promise<FetchRes
   return promise;
 }
 
+/**
+ * Start a fetch from an effect without updating state synchronously inside it.
+ * runFetch flips `loading`/`refreshing` before its first await, so calling it
+ * inline from an effect costs an extra render pass (and trips
+ * react-hooks/set-state-in-effect). A microtask still lands before paint.
+ */
+function deferFetch(start: () => void): void {
+  void Promise.resolve().then(start);
+}
+
 export type UseApiQueryReturn<T> = {
   /** Latest data (cached or fresh); null until the first successful fetch. */
   data: T | null;
@@ -132,19 +142,32 @@ export function useApiQuery<T = unknown>(
     [key, path, wsId],
   );
 
+  // Re-seed from the cache when the key changes. The initial state above
+  // already does this for the first render; repeating it in the effect meant a
+  // synchronous setState there, which costs an extra render pass and trips
+  // react-hooks/set-state-in-effect. Adjusting during render instead keeps a
+  // key change to one pass and shows cached data without an empty frame.
+  const [syncedKey, setSyncedKey] = useState(key);
+  if (key !== syncedKey) {
+    setSyncedKey(key);
+    // A null key keeps whatever was last shown, as it always has.
+    if (key) {
+      const entry = cache.get(key);
+      setData(entry ? (entry.data as T) : null);
+      setLoading(!entry);
+    }
+  }
+
   useEffect(() => {
     if (!key) {
       generationRef.current++;
       return;
     }
     const entry = cache.get(key);
-    if (entry) {
-      setData(entry.data as T);
-      setLoading(false);
-      if (Date.now() - entry.updatedAt > staleMs) runFetch(true);
-    } else {
-      setData(null);
-      runFetch(false);
+    if (!entry) {
+      deferFetch(() => runFetch(false));
+    } else if (Date.now() - entry.updatedAt > staleMs) {
+      deferFetch(() => runFetch(true));
     }
     return subscribe(key, () => runFetch(cache.has(key)));
   }, [key, staleMs, runFetch]);

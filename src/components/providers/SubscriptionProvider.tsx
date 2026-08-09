@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { deferFromEffect } from "@/lib/defer-from-effect";
 import { useAuth } from '@/components/providers/AuthProvider';
 import { apiFetch } from '@/lib/api-client';
 import type { PlanTier } from '@/lib/stripe/plans';
@@ -66,16 +67,20 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (authLoading) return;
-    fetchStatus();
+    deferFromEffect(fetchStatus);
   }, [authLoading, fetchStatus]);
+
+  // Sampled once per mount: reading the clock during render makes the output
+  // depend on when React happened to re-render. A day counter does not need to
+  // tick mid-session, and the value refreshes on the next page load.
+  const [nowAtMount] = useState(() => Date.now());
 
   const trialDaysLeft = useMemo(() => {
     if (!status?.trialing || !status.trialEnd) return null;
     const end = new Date(status.trialEnd).getTime();
-    const now = Date.now();
-    const days = Math.max(0, Math.ceil((end - now) / (1000 * 60 * 60 * 24)));
+    const days = Math.max(0, Math.ceil((end - nowAtMount) / (1000 * 60 * 60 * 24)));
     return days;
-  }, [status]);
+  }, [status, nowAtMount]);
 
   const canAccess = useCallback(
     (feature: keyof typeof PLANS.starter.gated): boolean => {

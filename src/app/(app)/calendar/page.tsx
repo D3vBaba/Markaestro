@@ -548,12 +548,16 @@ function CalendarPageContent() {
     () => searchParams.get("brand")
   );
 
-  // Keep state in sync with the URL (e.g. back/forward navigation)
-  useEffect(() => {
+  // Keep state in sync with the URL (e.g. back/forward navigation). Adjusted
+  // during render so a history move paints the right filters in one pass.
+  const urlFilterKey = `${searchParams.get("status") ?? ""}|${searchParams.get("channel") ?? ""}|${searchParams.get("brand") ?? ""}`;
+  const [syncedFilterKey, setSyncedFilterKey] = useState(urlFilterKey);
+  if (urlFilterKey !== syncedFilterKey) {
+    setSyncedFilterKey(urlFilterKey);
     setStatusFilter(searchParams.get("status"));
     setChannelFilter(searchParams.get("channel"));
     setBrandFilter(searchParams.get("brand"));
-  }, [searchParams]);
+  }
 
   // ── Deep-link to a single post (?post=<id>) ──────────────────────────
   // The dashboard's "Recent posts" widget links here. Open the post's

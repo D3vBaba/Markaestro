@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { apiFetch } from "@/lib/api-client";
+import { deferFromEffect } from "@/lib/defer-from-effect";
 
 type OnboardingStatusResponse = {
   completed: boolean;
@@ -53,7 +54,7 @@ export function useOnboardingStatus() {
 
   useEffect(() => {
     if (authLoading) return;
-    refresh();
+    deferFromEffect(refresh);
   }, [authLoading, refresh]);
 
   return {

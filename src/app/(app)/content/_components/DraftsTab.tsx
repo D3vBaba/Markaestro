@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { apiGet, apiPost, apiDelete, apiPut } from "@/lib/api-client";
+import { deferFromEffect } from "@/lib/defer-from-effect";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import PostCard, { isManualQueuePost } from "./PostCard";
@@ -54,7 +55,13 @@ export default function DraftsTab({
   const [publishingIds, setPublishingIds] = useState<Set<string>>(new Set());
 
   // A different brand means a different result set — start from page 1.
-  useEffect(() => { setPage(1); }, [productId]);
+  // Adjusted during render rather than in an effect so the new brand's first
+  // render already shows page 1 instead of paging twice.
+  const [pagedProductId, setPagedProductId] = useState(productId);
+  if (productId !== pagedProductId) {
+    setPagedProductId(productId);
+    setPage(1);
+  }
 
   const fetchDrafts = useCallback(async () => {
     const scope = `&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`;
@@ -76,7 +83,7 @@ export default function DraftsTab({
   }, [productId]);
 
   useEffect(() => {
-    fetchDrafts();
+    deferFromEffect(fetchDrafts);
   }, [fetchDrafts, refreshKey]);
 
   // Remove a post from the list immediately; returns a function that restores it in place.

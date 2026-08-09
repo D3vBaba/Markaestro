@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export const dynamic = 'force-dynamic';
 
 import { Suspense, useEffect, useState, useCallback } from "react";
@@ -20,6 +22,7 @@ import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import AppLocaleSwitcher from "@/components/app/AppLocaleSwitcher";
 import { apiDelete, apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
+import { deferFromEffect } from "@/lib/defer-from-effect";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -493,7 +496,7 @@ function AccountTab() {
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {t("dangerZone.deleteHandledBy")}{" "}
-                <a href="/contact" className="text-primary hover:underline">{t("dangerZone.contactUs")}</a>.
+                <Link href="/contact" className="text-primary hover:underline">{t("dangerZone.contactUs")}</Link>.
               </p>
             </div>
             <Button variant="destructive" size="sm" className="shrink-0" disabled>
@@ -873,7 +876,7 @@ function IntegrationsTab() {
       window.history.replaceState({}, "", "/settings?tab=integrations");
       const timer = setTimeout(() => invalidateQueries("/api/integrations"), 500);
       if (needsPageSelect === "1" && provider === "meta" && productId) {
-        setPagePickerProduct(productId);
+        deferFromEffect(() => setPagePickerProduct(productId));
       }
       return () => clearTimeout(timer);
     }
@@ -893,9 +896,9 @@ function IntegrationsTab() {
   useEffect(() => {
     if (!pagePickerProduct) return;
     let cancelled = false;
-    setPages(null);
-    setPagesError("");
     (async () => {
+      setPages(null);
+      setPagesError("");
       const res = await apiGet<{ pages?: MetaPage[]; linkedIds?: string[]; error?: string }>(
         `/api/oauth/pages/meta?productId=${encodeURIComponent(pagePickerProduct)}`,
         wsId,
@@ -1030,7 +1033,7 @@ function IntegrationsTab() {
           <CardDescription>{t("noProductsDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <a href="/products"><Button>{t("createBrand")}</Button></a>
+          <Link href="/products"><Button>{t("createBrand")}</Button></Link>
         </CardContent>
       </Card>
     );
@@ -1099,9 +1102,9 @@ function IntegrationsTab() {
                       </div>
                     ) : st.state === "needs-page" ? (
                       ch.provider === "pinterest" ? (
-                        <a href="/products"><Button size="sm">{t("chooseBoard")}</Button></a>
+                        <Link href="/products"><Button size="sm">{t("chooseBoard")}</Button></Link>
                       ) : ch.provider === "linkedin" ? (
-                        <a href="/products"><Button size="sm">{t("chooseTarget")}</Button></a>
+                        <Link href="/products"><Button size="sm">{t("chooseTarget")}</Button></Link>
                       ) : (
                         <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>{t("choosePage")}</Button>
                       )
@@ -1390,7 +1393,7 @@ function TeamTab() {
           {canInvite && limit !== -1 && members.length >= limit && (
             <p className="text-xs text-muted-foreground pt-1">
               {t("limitReached")}{' '}
-              <a href="/settings?tab=billing" className="text-primary hover:underline">{t("upgradePlan")}</a> {t("toInviteMore")}
+              <Link href="/settings?tab=billing" className="text-primary hover:underline">{t("upgradePlan")}</Link> {t("toInviteMore")}
             </p>
           )}
         </CardContent>
@@ -1592,7 +1595,7 @@ function WorkspacesTab() {
           {!canCreate && (
             <p className="text-xs text-muted-foreground pt-1">
               {t("limitReached")}{' '}
-              <a href="/settings?tab=billing" className="text-primary hover:underline">{t("upgradePlan")}</a> {t("toCreateMore")}
+              <Link href="/settings?tab=billing" className="text-primary hover:underline">{t("upgradePlan")}</Link> {t("toCreateMore")}
             </p>
           )}
         </CardContent>
@@ -1606,6 +1609,9 @@ function WorkspacesTab() {
 function ApiAccessTab() {
   const t = useTranslations("settings.api");
   const locale = useLocale();
+  // Sampled once per mount rather than read during render: an API key's
+  // expired/active badge must not depend on when React happened to re-render.
+  const [nowAtMount] = useState(() => Date.now());
   const { current: workspace } = useWorkspace();
   const wsId = workspace?.id ?? 'default';
   const canManage = workspace?.role === 'owner' || workspace?.role === 'admin';
@@ -2055,7 +2061,7 @@ function ApiAccessTab() {
                                 <Badge className="border-0" style={pillStyle("neutral")}>{t("keysSection.archivedBadge")}</Badge>
                               )}
                               {client.expiresAt ? (
-                                new Date(client.expiresAt).getTime() <= Date.now() ? (
+                                new Date(client.expiresAt).getTime() <= nowAtMount ? (
                                   <Badge className="border-0" style={pillStyle("neg")}>{t("keysSection.expiredBadge")}</Badge>
                                 ) : (
                                   <p className="text-[11px] text-muted-foreground">{t("keysSection.expires", { date: formatShortDate(client.expiresAt, locale) })}</p>

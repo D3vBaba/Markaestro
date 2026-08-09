@@ -98,7 +98,6 @@ function ProductContextBar({
 
 export default function PostsPage() {
   const t = useTranslations("content.page");
-  const tTabs = useTranslations("content.page.tabs");
   const tabs = TAB_IDS.map((value) => ({
     value,
     label: t(`tabs.${value === "on-platform" ? "onPlatform" : value}`),
