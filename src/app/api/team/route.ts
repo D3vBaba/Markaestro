@@ -7,6 +7,9 @@ import { PLANS } from '@/lib/stripe/plans';
 import type { PlanTier } from '@/lib/stripe/plans';
 import { sendResendEmail } from '@/lib/resend';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { brandWrap, escapeHtml, getEmailTranslator, strongTag, type AuthEmailPayload } from '@/lib/auth-emails';
+import { resolveMemberLocale } from '@/lib/resolve-app-locale';
+import { pickLocaleFromAcceptLanguage, routing, type AppLocale } from '@/i18n/routing';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -38,27 +41,68 @@ export async function GET(req: Request) {
   }
 }
 
+async function buildInviteEmail(params: {
+  workspaceName: string;
+  role: 'admin' | 'member' | 'analyst';
+  inviterEmail?: string;
+  appUrl: string;
+  locale: AppLocale;
+}): Promise<AuthEmailPayload> {
+  const { workspaceName, role, inviterEmail, appUrl, locale } = params;
+  const t = await getEmailTranslator(locale);
+  const loginUrl = `${appUrl}/login`;
+  const roleLabel = t(`teamInvite.roleLabels.${role}`);
+  const subject = t('teamInvite.subject', { workspaceName });
+
+  const html = brandWrap({
+    locale,
+    title: t('teamInvite.title'),
+    preheader: t('teamInvite.preheader', { workspaceName }),
+    bodyHtml: `
+      <p style="margin:0 0 16px 0;">${escapeHtml(t('teamInvite.greeting'))}</p>
+      <p style="margin:0 0 16px 0;">${
+        inviterEmail
+          ? t.markup('teamInvite.bodyIntroWithInviter', { inviterEmail: escapeHtml(inviterEmail), workspaceName: escapeHtml(workspaceName), roleLabel: escapeHtml(roleLabel), ...strongTag })
+          : t.markup('teamInvite.bodyIntroNoInviter', { workspaceName: escapeHtml(workspaceName), roleLabel: escapeHtml(roleLabel), ...strongTag })
+      }</p>
+      <p style="margin:0 0 8px 0;">${escapeHtml(t('teamInvite.signInInstructions'))}</p>
+      <p style="margin:0 0 16px 0;"><a href="${loginUrl}" style="color:#2563eb;">${escapeHtml(loginUrl)}</a></p>
+    `,
+    footerNote: t('teamInvite.declineNote'),
+    copyrightText: t('shared.copyright', { year: new Date().getFullYear() }),
+  });
+
+  const text = t('teamInvite.plain.summary', {
+    inviter: inviterEmail || t('teamInvite.plain.fallbackInviter'),
+    workspaceName,
+    roleLabel,
+    url: loginUrl,
+  });
+
+  return { subject, html, text };
+}
+
 async function sendInviteEmail(params: {
   to: string;
   workspaceName: string;
-  role: string;
+  role: 'admin' | 'member' | 'analyst';
   inviterEmail?: string;
+  inviterUid?: string;
+  inviterAcceptLanguage?: string | null;
   appUrl: string;
 }): Promise<void> {
-  const { to, workspaceName, role, inviterEmail, appUrl } = params;
+  const { to, inviterUid, inviterAcceptLanguage, ...rest } = params;
   try {
-    await sendResendEmail({
-      to,
-      subject: `You've been invited to join ${workspaceName} on Markaestro`,
-      html: `
-        <p>Hi,</p>
-        <p>${inviterEmail ? `<strong>${inviterEmail}</strong>` : 'A teammate'} has invited you to join the <strong>${workspaceName}</strong> workspace on Markaestro as a <strong>${role}</strong>.</p>
-        <p>Sign in (or create an account) using this email address and the invitation will be applied automatically:</p>
-        <p><a href="${appUrl}/login">${appUrl}/login</a></p>
-        <p>If you don't want to join, simply ignore this email — the invitation will expire after 30 days.</p>
-      `.trim(),
-      text: `${inviterEmail || 'A teammate'} has invited you to join ${workspaceName} on Markaestro as a ${role}. Accept by signing in at ${appUrl}/login`,
-    });
+    // The invitee has no member doc yet (they may not even have an account),
+    // so there's no locale to read for them — use the inviter's own
+    // preference instead, since they're the one who chose the team's
+    // working language.
+    const locale =
+      (inviterUid ? await resolveMemberLocale(inviterUid) : null) ??
+      pickLocaleFromAcceptLanguage(inviterAcceptLanguage) ??
+      routing.defaultLocale;
+    const payload = await buildInviteEmail({ ...rest, locale });
+    await sendResendEmail({ to, subject: payload.subject, html: payload.html, text: payload.text });
   } catch (err) {
     // Non-fatal — invite is persisted; the user can still accept on login.
     console.warn('[team.invite] email delivery failed (non-fatal):', err);
@@ -138,6 +182,8 @@ export async function POST(req: Request) {
       workspaceName,
       role,
       inviterEmail: ctx.email,
+      inviterUid: ctx.uid,
+      inviterAcceptLanguage: req.headers.get('accept-language'),
       appUrl,
     });
 

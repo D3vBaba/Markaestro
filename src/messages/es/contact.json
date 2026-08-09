@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "eyebrow": "Contacto",
+    "titleLead": "Nos encantaría",
+    "titleHighlight": "saber de ti",
+    "subtitle": "Ya sea que tengas una pregunta sobre funciones, necesites ayuda con una integración o quieras explorar una asociación — nuestro equipo está aquí para ayudarte."
+  },
+  "channels": [
+    {
+      "title": "Consultas generales",
+      "description": "Preguntas sobre Markaestro, precios o asociaciones.",
+      "email": "hello@markaestro.com",
+      "response": "1-2 días laborables"
+    },
+    {
+      "title": "Soporte técnico",
+      "description": "Ayuda con integraciones, problemas de publicación o acceso a la cuenta.",
+      "email": "support@markaestro.com",
+      "response": "Menos de 24 horas"
+    },
+    {
+      "title": "Privacidad y asuntos legales",
+      "description": "Solicitudes de datos, preguntas de cumplimiento o consultas legales.",
+      "email": "legal@markaestro.com",
+      "response": "2-3 días laborables"
+    }
+  ],
+  "form": {
+    "eyebrow": "Enviar un mensaje",
+    "title": "Ponte en contacto directamente",
+    "description": "Completa el formulario y te responderemos lo antes posible. Para problemas técnicos urgentes, incluye «URGENTE» en el asunto.",
+    "officeHoursTitle": "Horario de oficina",
+    "officeHoursWeekday": "Lunes a viernes: 9:00 - 18:00 EST",
+    "officeHoursWeekend": "Sábado y domingo: Cerrado",
+    "enterpriseTitle": "Empresas y asociaciones",
+    "enterpriseDescription": "Para precios empresariales, integraciones personalizadas u oportunidades de asociación, contáctanos en",
+    "enterpriseEmail": "partnerships@markaestro.com",
+    "sentTitle": "Mensaje listo",
+    "sentDescription": "Tu cliente de correo debería haberse abierto con el mensaje ya redactado. Si no fue así, escríbenos directamente a",
+    "supportEmail": "support@markaestro.com",
+    "sendAnother": "Enviar otro mensaje",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Tu nombre",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@empresa.com",
+    "subjectLabel": "Asunto",
+    "subjectPlaceholder": "¿En qué podemos ayudarte?",
+    "messageLabel": "Mensaje",
+    "messagePlaceholder": "Cuéntanos más sobre tu pregunta o problema...",
+    "submit": "Enviar mensaje",
+    "privacyNotice": "Al enviar un mensaje, aceptas nuestra",
+    "privacyLink": "Política de Privacidad"
+  },
+  "faqEyebrow": "Preguntas frecuentes",
+  "faqTitle": "Preguntas frecuentes",
+  "faqs": [
+    {
+      "q": "¿Cómo conecto mis cuentas de redes sociales?",
+      "a": "Abre una marca en tu panel y conecta los canales en los que publicas (Meta para Facebook e Instagram, TikTok, Threads o Pinterest). Cada conexión usa OAuth y suele tardar menos de un minuto."
+    },
+    {
+      "q": "¿Hay una prueba gratuita?",
+      "a": "Sí. Todos los planes de pago incluyen una prueba gratuita con acceso completo. Se solicita tu tarjeta al registrarte, pero no se te cobrará hasta que termine la prueba. Cancela durante la prueba y no pagarás nada."
+    },
+    {
+      "q": "¿Qué tipo de contenido puedo subir?",
+      "a": "Imágenes (JPG, PNG, WebP, hasta 10 MB cada una) y vídeos (MP4, MOV, WebM, hasta 250 MB cada uno). Los archivos se guardan por espacio de trabajo y se adjuntan a las publicaciones desde el editor."
+    },
+    {
+      "q": "¿Puedo usar Markaestro para varias marcas o clientes?",
+      "a": "Por supuesto. Los espacios de trabajo te permiten aislar marcas, clientes o unidades de negocio. Cada espacio tiene sus propias marcas, activos, conexiones de canales y miembros del equipo."
+    },
+    {
+      "q": "¿Cómo se protegen mis datos?",
+      "a": "Los tokens OAuth están cifrados en reposo. Toda la comunicación de la API usa TLS. Seguimos el principio de mínimo privilegio para el acceso a los datos. Consulta nuestra Política de Privacidad para más información."
+    },
+    {
+      "q": "¿Ofrecen una API?",
+      "a": "La API de Markaestro está disponible en todos los planes de pago. Cubre gestión de contenido, subida de archivos, publicación y estado de publicaciones. La documentación está disponible en tu panel."
+    }
+  ],
+  "cta": {
+    "title": "¿Listo para empezar?",
+    "subtitle": "Crea tu cuenta gratuita y empieza a publicar en minutos. Sin tarjeta de crédito.",
+    "button": "Comienza gratis"
+  }
+}

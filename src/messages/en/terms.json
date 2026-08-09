@@ -1,0 +1,147 @@
+{
+  "eyebrow": "Legal",
+  "title": "Terms of Service",
+  "lastUpdated": "Last updated · March 10, 2026",
+  "sections": [
+    {
+      "heading": "1. Agreement to Terms",
+      "blocks": [
+        { "type": "p", "text": "These Terms of Service (\"Terms\") govern your access to and use of Markaestro's website, application, APIs, and related services (collectively, the \"Services\"). By accessing or using the Services, you agree to be bound by these Terms. If you do not agree, do not use the Services." },
+        { "type": "p", "text": "If you use the Services on behalf of a company, organization, or other legal entity, you represent that you have authority to bind that entity, and \"you\" includes that entity." }
+      ]
+    },
+    {
+      "heading": "2. Description of Service",
+      "blocks": [
+        { "type": "p", "text": "Markaestro is a social publishing platform for managing products, brand assets, uploaded media, and social publishing workflows. The Services may integrate with third-party platforms including TikTok, Meta, Firebase, and other services made available by Markaestro from time to time." }
+      ]
+    },
+    {
+      "heading": "3. Eligibility and Accounts",
+      "blocks": [
+        { "type": "p", "text": "You must be at least 18 years old and capable of forming a binding contract to use the Services. You agree to provide accurate, current, and complete information and to keep it updated." },
+        { "type": "ul", "items": [
+          "You are responsible for safeguarding your account credentials and any authentication methods tied to your account.",
+          "You are responsible for all activity occurring under your account and within your workspace, whether or not authorized by you, unless caused by our breach of these Terms or applicable law.",
+          "You must notify us promptly if you suspect unauthorized access, credential compromise, or other account misuse."
+        ] },
+        { "type": "p", "text": "Accounts registered through bots, deceptive identities, or unauthorized automated methods are prohibited." }
+      ]
+    },
+    {
+      "heading": "4. Workspaces and Team Access",
+      "blocks": [
+        { "type": "p", "text": "Markaestro is organized around workspaces. Workspace owners and administrators may add or remove members and assign roles. The workspace owner is responsible for authorizing access, maintaining lawful instructions, and ensuring that all workspace users comply with these Terms. Deleting or removing a user does not automatically remove content, logs, or records previously created in the workspace." }
+      ]
+    },
+    {
+      "heading": "5. Customer Data and Compliance Responsibilities",
+      "blocks": [
+        { "type": "p", "text": "You retain responsibility for the legality, accuracy, and use of any data or content you submit to Markaestro, including contact lists, brand assets, uploaded media, and messages sent through the Services." },
+        { "type": "ul", "items": [
+          "You must have all rights, permissions, licenses, and legal bases necessary to upload, process, publish, or send that data or content.",
+          "You are responsible for complying with applicable privacy, anti-spam, consumer protection, and platform-specific rules, including consent, notice, unsubscribe, and suppression obligations.",
+          "You must not use Markaestro to process special category or other highly regulated data unless we expressly agree in writing to support that use."
+        ] }
+      ]
+    },
+    {
+      "heading": "6. Acceptable Use",
+      "blocks": [
+        { "type": "p", "text": "You may not use the Services to:" },
+        { "type": "ul", "items": [
+          "violate any law, regulation, court order, or third-party right;",
+          "send spam, unlawful marketing, phishing, or deceptive or manipulative content;",
+          "publish or distribute infringing, defamatory, obscene, fraudulent, hateful, or otherwise unlawful material;",
+          "attempt to gain unauthorized access to any account, workspace, system, or network;",
+          "reverse engineer, scrape, or abuse the Services except as permitted by applicable law;",
+          "interfere with the operation, integrity, or security of the Services;",
+          "circumvent rate limits, quotas, access restrictions, or security controls; or",
+          "use the Services in a way that causes Markaestro or its providers to violate platform terms or contractual obligations."
+        ] }
+      ]
+    },
+    {
+      "heading": "7. Third-Party Services and Integrations",
+      "blocks": [
+        { "type": "p", "text": "Markaestro may connect to third-party publishing platforms and workflow tools. By connecting a third-party service, you authorize Markaestro to access, store, refresh, and use credentials and related data as needed to provide the requested functionality within the permissions you grant." },
+        { "type": "p", "text": "You remain responsible for complying with the third party's terms, policies, technical requirements, publishing rules, and account restrictions. Markaestro is not responsible for API changes, service outages, account suspensions, content moderation decisions, rejected posts, revoked tokens, or third-party platform actions." }
+      ]
+    },
+    {
+      "heading": "8. Uploads and Public Content",
+      "blocks": [
+        { "type": "p", "text": "Files uploaded through Markaestro may be stored using publicly reachable cloud URLs so they can be used in social posts. You must not upload any file or content unless you are authorized to make it available in that way and hold all required rights. You acknowledge that content published through third-party platforms may become public and subject to those platforms' terms and visibility settings." }
+      ]
+    },
+    {
+      "heading": "9. Intellectual Property and Licenses",
+      "blocks": [
+        { "type": "p", "text": "As between the parties, you retain ownership of your content, customer data, uploaded assets, and workspace materials. You grant Markaestro a non-exclusive, worldwide, limited license to host, store, copy, transform, display, transmit, and otherwise process that content only as necessary to operate, secure, improve, and provide the Services to you." },
+        { "type": "p", "text": "Markaestro and its licensors retain all rights, title, and interest in the Services, including software, interfaces, documentation, branding, and related intellectual property. No rights are granted except as expressly stated in these Terms." }
+      ]
+    },
+    {
+      "heading": "10. Feedback",
+      "blocks": [
+        { "type": "p", "text": "If you provide ideas, suggestions, feedback, or improvement requests, you grant Markaestro a perpetual, irrevocable, worldwide, sublicensable, royalty-free right to use them without restriction or compensation to you." }
+      ]
+    },
+    {
+      "heading": "11. Privacy",
+      "blocks": [
+        { "type": "p", "text": "Your use of the Services is also subject to our <privacyLink>Privacy Policy</privacyLink>, which explains how we collect, use, and disclose information. Where we process customer data on your behalf, you instruct us to do so in accordance with these Terms, the applicable product settings, and your lawful use of the Services." }
+      ]
+    },
+    {
+      "heading": "12. Service Changes, Beta Features, and Availability",
+      "blocks": [
+        { "type": "p", "text": "We may add, change, suspend, or remove features at any time. Some features may be labeled beta, preview, experimental, or similar. Those features are provided on an as-available basis and may contain bugs, incomplete functionality, or changing requirements. We do not guarantee that any feature, integration, or provider connection will remain available or operate without interruption." }
+      ]
+    },
+    {
+      "heading": "13. Suspension and Termination",
+      "blocks": [
+        { "type": "p", "text": "You may stop using the Services at any time. We may suspend or terminate your access, remove content, disable integrations, or take other protective action if we reasonably believe you have violated these Terms, created legal or security risk, failed to comply with platform obligations, or used the Services in a way that could harm Markaestro, its users, or third parties." },
+        { "type": "p", "text": "Upon termination, your right to use the Services ends immediately, but sections that by their nature should survive will survive, including those relating to intellectual property, disclaimers, limitations of liability, indemnification, and dispute terms." }
+      ]
+    },
+    {
+      "heading": "14. Disclaimers",
+      "blocks": [
+        { "type": "p", "text": "To the maximum extent permitted by law, the Services are provided \"as is\" and \"as available.\" Markaestro disclaims all warranties, whether express, implied, statutory, or otherwise, including warranties of merchantability, fitness for a particular purpose, non-infringement, accuracy, reliability, availability, or that the Services will be uninterrupted, secure, error-free, or meet your expectations." }
+      ]
+    },
+    {
+      "heading": "15. Limitation of Liability",
+      "blocks": [
+        { "type": "p", "text": "To the maximum extent permitted by law, Markaestro and its affiliates, officers, employees, contractors, and licensors will not be liable for any indirect, incidental, special, consequential, exemplary, or punitive damages, or for any loss of profits, revenues, goodwill, use, or data, even if advised of the possibility of such damages." },
+        { "type": "p", "text": "To the maximum extent permitted by law, Markaestro's total aggregate liability arising out of or relating to the Services or these Terms will not exceed the greater of the amount you paid us for the Services in the 12 months before the event giving rise to the claim or one hundred U.S. dollars (US$100)." }
+      ]
+    },
+    {
+      "heading": "16. Indemnification",
+      "blocks": [
+        { "type": "p", "text": "You will defend, indemnify, and hold harmless Markaestro and its affiliates, officers, employees, contractors, and licensors from and against any claims, liabilities, damages, judgments, losses, costs, and expenses, including reasonable legal fees, arising out of or related to your content, your data, your use of the Services, your use of third-party integrations, or your violation of these Terms or applicable law." }
+      ]
+    },
+    {
+      "heading": "17. Governing Law",
+      "blocks": [
+        { "type": "p", "text": "These Terms are governed by the laws of the State of Delaware, United States, without regard to conflict of laws principles, except to the extent non-waivable law in your jurisdiction requires otherwise." }
+      ]
+    },
+    {
+      "heading": "18. Changes to These Terms",
+      "blocks": [
+        { "type": "p", "text": "We may update these Terms from time to time. If we make material changes, we will post the updated version and may provide additional notice. Your continued use of the Services after the effective date of revised Terms constitutes acceptance of the revised Terms." }
+      ]
+    },
+    {
+      "heading": "19. Contact",
+      "blocks": [
+        { "type": "p", "text": "If you have questions about these Terms, contact us through <contactLink>our contact page</contactLink> or email <mailLink>legal@markaestro.com</mailLink>." }
+      ]
+    }
+  ]
+}

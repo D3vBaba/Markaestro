@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "المنشورات",
+    "subtitle": "أنشئ، جدول، وانشر محتوى عضويًا عبر قنواتك الاجتماعية.",
+    "tabs": {
+      "create": "إنشاء",
+      "drafts": "المسودات",
+      "scheduled": "المجدولة",
+      "published": "المنشورة",
+      "onPlatform": "على المنصة"
+    },
+    "productBar": {
+      "brand": "العلامة التجارية",
+      "noBrandSelected": "لم يتم اختيار علامة تجارية",
+      "change": "تغيير"
+    }
+  },
+  "editor": {
+    "placeholder": "سيظهر المحتوى المُنشأ هنا...",
+    "limitSuffix": "الحد الأقصى"
+  },
+  "productPicker": {
+    "brand": "العلامة التجارية",
+    "selectBrand": "اختر علامة تجارية...",
+    "tone": "النبرة:",
+    "style": "الأسلوب:",
+    "audience": "الجمهور:"
+  },
+  "markPostedDialog": {
+    "title": "وضع علامة كمنشور",
+    "description": "أكّد أنك نشرت هذا المنشور بنفسك على {channel}. الصق رابط المنشور المباشر إن كان متوفرًا لديك — سيربط ذلك المنشور بتحليلاته لاحقًا.",
+    "urlPlaceholder": "https://www.{channel}.com/… (اختياري)",
+    "cancel": "إلغاء",
+    "confirm": "وضع علامة كمنشور",
+    "toasts": {
+      "marked": "تم وضع علامة كمنشور",
+      "failed": "تعذّر وضع علامة كمنشور"
+    }
+  },
+  "publishedTab": {
+    "empty": "لا توجد منشورات منشورة بعد.",
+    "createPost": "إنشاء منشور",
+    "toasts": {
+      "deleted": "تم حذف المنشور",
+      "deleteFailed": "تعذّر حذف المنشور",
+      "loadFailed": "تعذّر تحميل المنشورات المنشورة"
+    }
+  },
+  "scheduledTab": {
+    "empty": "لا يوجد شيء مجدول بعد.",
+    "scheduleFirst": "جدول منشورك الأول",
+    "editTitle": "تعديل المنشور المجدول",
+    "saveAndReschedule": "حفظ وإعادة الجدولة",
+    "toasts": {
+      "loadFailed": "تعذّر تحميل المنشورات المجدولة",
+      "movedToDrafts": "تمت الإعادة إلى المسودات",
+      "cancelFailed": "تعذّر إلغاء الجدولة",
+      "deleted": "تم حذف المنشور",
+      "deleteFailed": "تعذّر حذف المنشور",
+      "pushingTikTok": "جارٍ الإرسال إلى صندوق وارد TikTok…",
+      "publishingPost": "جارٍ نشر المنشور…",
+      "tiktokInboxConfirmed": "أكّد TikTok التسليم إلى صندوق الوارد. افتح تطبيق TikTok للإنهاء والنشر.",
+      "tiktokProcessing": "قبِل TikTok الرفع وهو لا يزال قيد المعالجة.",
+      "stillProcessing": "تم إرسال المنشور وهو لا يزال قيد المعالجة.",
+      "posted": "تم النشر!",
+      "publishFailed": "فشل النشر",
+      "updated": "تم تحديث المنشور",
+      "updateFailed": "تعذّر التحديث",
+      "rescheduled": "تمت إعادة جدولة المنشور",
+      "rescheduleFailed": "تعذّرت إعادة الجدولة"
+    }
+  },
+  "draftsTab": {
+    "empty": "لا توجد مسودات بعد.",
+    "createFirst": "أنشئ منشورك الأول",
+    "editTitle": "تعديل المسودة",
+    "toPostHeading": "بانتظار النشر",
+    "waitingInTikTokHeading": "بانتظار في TikTok",
+    "draftsHeading": "المسودات",
+    "toasts": {
+      "loadFailed": "تعذّر تحميل المسودات",
+      "deleted": "تم حذف المسودة",
+      "deleteFailed": "تعذّر الحذف",
+      "addingToQueue": "جارٍ الإضافة إلى قائمة “بانتظار النشر”…",
+      "pushingTikTok": "جارٍ الإرسال إلى صندوق وارد TikTok…",
+      "publishingPost": "جارٍ نشر المنشور…",
+      "addedToQueue": "تمت الإضافة إلى قائمة “بانتظار النشر”. انشره مباشرة، ثم ضعه كمنشور.",
+      "tiktokInboxConfirmed": "أكّد TikTok التسليم إلى صندوق الوارد. افتح تطبيق TikTok للإنهاء والنشر.",
+      "tiktokProcessing": "قبِل TikTok الرفع وهو لا يزال قيد المعالجة.",
+      "stillProcessing": "تم إرسال المنشور وهو لا يزال قيد المعالجة.",
+      "posted": "تم النشر!",
+      "publishFailed": "فشل النشر",
+      "updated": "تم تحديث المسودة",
+      "updateFailed": "تعذّر التحديث",
+      "scheduled": "تمت جدولة المنشور",
+      "scheduleFailed": "تعذّرت الجدولة"
+    }
+  },
+  "channelSelector": {
+    "channels": "القنوات",
+    "selectedCount": "{count} محدَّدة",
+    "postTo": "النشر إلى",
+    "defaultReason": "قم بربط هذه القناة في إعدادات العلامة التجارية.",
+    "productSettings": "إعدادات المنتج"
+  },
+  "scheduleSheet": {
+    "eyebrow": "الجدولة",
+    "title": "جدولة المنشور",
+    "description": "اختر تاريخًا ووقتًا، أو استخدم الأوقات المثلى المقترحة بالذكاء الاصطناعي.",
+    "tiktokNoteLabel": "يُنهى TikTok داخل تطبيق TikTok.",
+    "tiktokNoteBody": "في الوقت المحدد، يرسل Markaestro الوسائط إلى صندوق وارد TikTok الخاص بك، ويضعها كجاهزة بمجرد أن تتمكن من فتح TikTok لإنهاء التسمية التوضيحية والخصوصية والنشر.",
+    "smartSchedule": "الجدولة الذكية",
+    "aiSuggested": "مقترح بالذكاء الاصطناعي",
+    "hide": "إخفاء",
+    "show": "إظهار",
+    "basedOnData": "بناءً على بيانات التفاعل في المجال لـ{channel}",
+    "thisChannel": "هذه القناة",
+    "orPickManually": "أو الاختيار يدويًا",
+    "timeLabel": "الوقت",
+    "timezoneNote": "تستخدم الجدولة منطقتك الزمنية المحلية ({timezone}) وتُخزَّن بتوقيت UTC.",
+    "headsUp": "تنبيه:",
+    "collisionNote": "هناك منشور آخر مجدول بالفعل قرب هذا الوقت ({date}{channel}). لا يزال بإمكانك جدولة كليهما.",
+    "onChannel": " على {channel}",
+    "scheduleFor": "الجدولة في {date} الساعة {time}",
+    "selectDate": "اختر تاريخًا"
+  },
+  "postEditSheet": {
+    "caption": "التسمية التوضيحية",
+    "media": "الوسائط",
+    "image": "الصورة",
+    "remove": "إزالة",
+    "replace": "استبدال",
+    "dropMedia": "أفلت الوسائط أو انقر للرفع",
+    "dropImage": "أفلت صورة أو انقر للرفع",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 ميغابايت · JPG/PNG ≤10 ميغابايت",
+    "mediaHintImage": "JPG وPNG وWebP · حتى 10 ميغابايت",
+    "uploading": "جارٍ الرفع…",
+    "upload": "رفع",
+    "preview": "معاينة",
+    "cancel": "إلغاء",
+    "saving": "جارٍ الحفظ…",
+    "save": "حفظ",
+    "defaultTitle": "تعديل المنشور",
+    "defaultScheduleLabel": "جدولة",
+    "toasts": {
+      "videoTikTokOnly": "الفيديوهات متاحة فقط لمنشورات TikTok",
+      "videoTooLarge": "يجب أن يكون الفيديو أقل من 250 ميغابايت",
+      "imageTooLarge": "يجب أن تكون الصورة أقل من 10 ميغابايت",
+      "videoUploaded": "تم رفع الفيديو",
+      "imageUploaded": "تم رفع الصورة",
+      "uploadFailed": "فشل الرفع"
+    }
+  },
+  "postCard": {
+    "readyToPost": "جاهز للنشر",
+    "readyInTikTok": "جاهز في TikTok",
+    "partiallyFailed": "فشل جزئي",
+    "text": "نص",
+    "preview": "معاينة",
+    "view": "عرض",
+    "copyCaption": "نسخ التسمية التوضيحية",
+    "downloadMedia": "تنزيل الوسائط",
+    "downloading": "جارٍ التنزيل…",
+    "markAsPosted": "وضع علامة كمنشور",
+    "edit": "تعديل",
+    "publish": "نشر",
+    "publishing": "جارٍ النشر…",
+    "reschedule": "إعادة الجدولة",
+    "unschedule": "إلغاء الجدولة",
+    "delete": "حذف",
+    "readyToPostOn": "جاهز للنشر على {channel}",
+    "manualInstructions": "نزّل الوسائط، وانسخ التسمية التوضيحية، وانشرها من تطبيق {channel} كما تفعل عادةً، ثم ضعها كمنشورة هنا.",
+    "openChannel": "فتح {channel}",
+    "readyInTikTokInbox": "جاهز في صندوق وارد TikTok الخاص بك",
+    "tiktokInboxInstructions": "افتح تطبيق TikTok ← صندوق الوارد ← اضغط على إشعار الرفع لإنهاء التسمية التوضيحية والنشر. تنتهي صلاحية المسودات بعد ~7 أيام.",
+    "openTikTok": "فتح TikTok",
+    "publishingTo": "جارٍ النشر على {channel}...",
+    "toasts": {
+      "captionCopied": "تم نسخ التسمية التوضيحية",
+      "copyFailed": "تعذّر نسخ التسمية التوضيحية"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "تحديث",
+    "liveFrom": "منشورات مباشرة من حساب {channel} المتصل لديك — بما في ذلك المنشورة خارج Markaestro.",
+    "loadMore": "تحميل المزيد",
+    "loading": "جارٍ التحميل…",
+    "noCaption": "بلا تسمية توضيحية",
+    "view": "عرض",
+    "deleting": "جارٍ الحذف…",
+    "delete": "حذف",
+    "noDeleteHints": {
+      "instagram": "لا يسمح Instagram للتطبيقات بحذف المنشورات — احذفها من تطبيق Instagram.",
+      "tiktok": "لا يسمح TikTok للتطبيقات بحذف الفيديوهات — احذفها من تطبيق TikTok."
+    },
+    "noDeleteDefault": "الحذف غير مدعوم لهذا المنشور.",
+    "deleteWarning": "سيؤدي هذا إلى إزالة المنشور نهائيًا من {channel}.",
+    "states": {
+      "notConnectedTitle": "{channel} غير متصل بعد",
+      "notConnectedBody": "قم بربط {channel} بهذه العلامة التجارية وستظهر منشوراتها المباشرة هنا — بما في ذلك المنشورة خارج Markaestro.",
+      "connect": "ربط {channel}",
+      "authTitle": "يحتاج {channel} إلى إعادة الاتصال",
+      "authBody": "انتهت صلاحية الاتصال بـ{channel}، لذا لا يمكننا استعراض منشوراته الآن. أعد ربطه من إعدادات العلامة التجارية لمتابعة ما توقفت عنده.",
+      "reconnect": "إعادة ربط {channel}",
+      "checkAgain": "التحقق مرة أخرى",
+      "unsupportedTitle": "استعراض منشورات {channel} غير متاح",
+      "linkedinPartnerBody": "لا يسمح LinkedIn إلا للتطبيقات الشريكة المعتمدة باستعراض منشورات الحساب. كل ما تنشره عبر Markaestro يظل يظهر في علامة تبويب المنشورة لديك.",
+      "unsupportedBody": "لا يسمح {channel} للتطبيقات باستعراض منشورات الحساب. كل ما تنشره عبر Markaestro يظل يظهر في علامة تبويب المنشورة لديك.",
+      "errorTitle": "تعذّر تحميل منشورات {channel}",
+      "errorBody": "لم يستجب {channel} كما هو متوقع. عادةً ما تكون هذه مشكلة مؤقتة — حاول مرة أخرى بعد قليل.",
+      "tryAgain": "المحاولة مرة أخرى",
+      "emptyTitle": "لا توجد منشورات على {channel} بعد",
+      "emptyBody": "عندما ينشر هذا الحساب — عبر Markaestro أو مباشرة على {channel} — ستظهر منشوراته هنا."
+    },
+    "toasts": {
+      "loadMoreFailed": "تعذّر تحميل المزيد من المنشورات",
+      "deleted": "تم حذف المنشور من {channel}",
+      "deleteFailed": "تعذّر حذف المنشور على المنصة"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "تمت استعادة مسودتك غير المحفوظة",
+    "discard": "تجاهل",
+    "caption": "التسمية التوضيحية",
+    "media": "الوسائط",
+    "removeMedia": "إزالة",
+    "addMedia": "+ إضافة",
+    "dropImagesOrVideos": "أفلت صورًا أو فيديوهات",
+    "dropImages": "أفلت صورًا أو انقر للرفع",
+    "mediaCountHint": "{count, plural, zero {بلا حد} one {عنصر واحد كحد أقصى} two {عنصران كحد أقصى} few {# عناصر كحد أقصى} many {# عنصرًا كحد أقصى} other {# عنصر كحد أقصى}} · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 ميغابايت · JPG/PNG/WebP ≤10 ميغابايت",
+    "mediaHintImage": "JPG وPNG وWebP · حتى 10 ميغابايت",
+    "uploading": "جارٍ الرفع…",
+    "upload": "رفع",
+    "saveDraft": "حفظ المسودة",
+    "schedule": "جدولة",
+    "postNow": "النشر الآن",
+    "posting": "جارٍ النشر…",
+    "preview": "معاينة",
+    "previewPlaceholder": "ستظهر معاينة منشورك هنا.",
+    "previewHint": "اكتب تسمية توضيحية وارفع الوسائط للبدء.",
+    "toasts": {
+      "selectChannel": "اختر قناة نشر واحدة جاهزة على الأقل.",
+      "videoNotSupported": "قناة واحدة أو أكثر من القنوات المحددة لا تدعم رفع الفيديو",
+      "videoAlone": "يجب رفع الفيديوهات بمفردها",
+      "maxMedia": "{count, plural, zero {لا يوجد حد أقصى} one {الحد الأقصى عنصر وسائط واحد} two {الحد الأقصى عنصرا وسائط} few {الحد الأقصى # عناصر وسائط} many {الحد الأقصى # عنصر وسائط} other {الحد الأقصى # عنصر وسائط}} للقنوات المحددة",
+      "fileTooLarge": "{file}: يجب أن يكون أقل من {size} ميغابايت",
+      "fileUploadFailed": "{file}: فشل الرفع",
+      "filesUploaded": "{count, plural, zero {تم رفع لا شيء} one {تم رفع ملف واحد} two {تم رفع ملفين} few {تم رفع # ملفات} many {تم رفع # ملفًا} other {تم رفع # ملف}}",
+      "uploadFailed": "فشل الرفع",
+      "createFailed": "تعذّر إنشاء المنشور",
+      "draftSaved": "تم حفظ المسودة",
+      "draftSaveFailed": "تعذّر حفظ المسودة",
+      "scheduled": "تمت جدولة المنشور",
+      "scheduleFailed": "تعذّرت جدولة المنشور",
+      "tiktokSending": "جارٍ الإرسال إلى TikTok. ينتظر Markaestro تأكيد TikTok لتسليم صندوق الوارد.",
+      "stillProcessing": "تم إرسال المنشور وهو لا يزال قيد المعالجة.",
+      "tiktokInboxConfirmed": "أكّد TikTok التسليم إلى صندوق الوارد. افتح صندوق وارد TikTok، وأنهِ التسمية التوضيحية، واضغط على نشر.",
+      "postedToMultiple": "تم النشر على {channels}!",
+      "postedSuccess": "تم النشر بنجاح!",
+      "publishFailed": "فشل النشر"
+    }
+  }
+}

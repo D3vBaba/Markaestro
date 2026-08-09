@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Delta } from "@/components/mk/Delta";
 import { Spark } from "@/components/mk/Spark";
@@ -30,11 +31,12 @@ export function KpiCard({
   sub?: string;
   loading?: boolean;
 }) {
+  const locale = useLocale();
   const display = value === null
     ? "—"
     : format === "percent"
       ? `${(value * 100).toFixed(1)}%`
-      : fmtCount(value);
+      : fmtCount(value, locale);
 
   return (
     <div
@@ -68,7 +70,7 @@ export function KpiCard({
                     : deltaAbsolute > 0 ? "var(--mk-pos)" : "var(--mk-neg)",
                 }}
               >
-                {deltaAbsolute > 0 ? "▲" : deltaAbsolute < 0 ? "▼" : "·"} {fmtCount(Math.abs(deltaAbsolute))}
+                {deltaAbsolute > 0 ? "▲" : deltaAbsolute < 0 ? "▼" : "·"} {fmtCount(Math.abs(deltaAbsolute), locale)}
               </span>
             )}
           </div>

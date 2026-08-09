@@ -1,0 +1,37 @@
+{
+  "title": "Tableau de bord",
+  "subtitle": "Votre moteur de marketing en un coup d'œil.",
+  "refresh": "Actualiser",
+  "refreshing": "Actualisation…",
+  "newPost": "Nouvelle publication",
+  "errorTitle": "Impossible de charger votre tableau de bord",
+  "errorBody": "Nous n'avons pas pu charger les données de votre tableau de bord.",
+  "retry": "Réessayer",
+  "kpis": {
+    "brands": "Marques",
+    "brandsActive": "{count} actives",
+    "posts": "Publications",
+    "postsSub": "{published} publiées · {scheduled} programmées",
+    "publishedWeek": "Publié · 7j",
+    "acrossDays": "sur {count} jours"
+  },
+  "chart": {
+    "eyebrow": "Activité de publication · 7j",
+    "publishedThisWeek": "{count} publiées cette semaine",
+    "show": "Afficher {label}",
+    "hide": "Masquer {label}",
+    "noActivity": "Aucune activité de publication pour le moment."
+  },
+  "distribution": {
+    "eyebrow": "Répartition",
+    "title": "Publications par canal",
+    "viewInCalendar": "Voir les publications {channel} dans le calendrier"
+  },
+  "recentPosts": {
+    "eyebrow": "À venir",
+    "title": "Publications récentes",
+    "viewAll": "Tout voir →",
+    "untitled": "Publication sans titre",
+    "empty": "Aucune publication pour le moment. Créez la première pour voir l'activité ici."
+  }
+}

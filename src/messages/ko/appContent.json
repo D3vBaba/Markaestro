@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "게시물",
+    "subtitle": "소셜 채널 전반에서 오가닉 콘텐츠를 만들고, 예약하고, 게시하세요.",
+    "tabs": {
+      "create": "만들기",
+      "drafts": "임시 저장",
+      "scheduled": "예약됨",
+      "published": "게시됨",
+      "onPlatform": "플랫폼 내"
+    },
+    "productBar": {
+      "brand": "브랜드",
+      "noBrandSelected": "선택된 브랜드 없음",
+      "change": "변경"
+    }
+  },
+  "editor": {
+    "placeholder": "생성된 콘텐츠가 여기에 표시됩니다...",
+    "limitSuffix": "제한"
+  },
+  "productPicker": {
+    "brand": "브랜드",
+    "selectBrand": "브랜드 선택...",
+    "tone": "톤:",
+    "style": "스타일:",
+    "audience": "대상:"
+  },
+  "markPostedDialog": {
+    "title": "게시됨으로 표시",
+    "description": "{channel}에 직접 게시했음을 확인해 주세요. 게시된 링크가 있다면 붙여넣어 주세요 — 이후 분석 데이터와 연결하는 데 사용됩니다.",
+    "urlPlaceholder": "https://www.{channel}.com/…(선택 사항)",
+    "cancel": "취소",
+    "confirm": "게시됨으로 표시",
+    "toasts": {
+      "marked": "게시됨으로 표시했습니다",
+      "failed": "게시됨으로 표시하지 못했습니다"
+    }
+  },
+  "publishedTab": {
+    "empty": "아직 게시된 게시물이 없습니다.",
+    "createPost": "게시물 만들기",
+    "toasts": {
+      "deleted": "게시물이 삭제되었습니다",
+      "deleteFailed": "게시물 삭제에 실패했습니다",
+      "loadFailed": "게시된 게시물을 불러오지 못했습니다"
+    }
+  },
+  "scheduledTab": {
+    "empty": "아직 예약된 항목이 없습니다.",
+    "scheduleFirst": "첫 게시물을 예약하세요",
+    "editTitle": "예약된 게시물 편집",
+    "saveAndReschedule": "저장 후 다시 예약",
+    "toasts": {
+      "loadFailed": "예약된 게시물을 불러오지 못했습니다",
+      "movedToDrafts": "임시 저장으로 다시 이동했습니다",
+      "cancelFailed": "예약 취소에 실패했습니다",
+      "deleted": "게시물이 삭제되었습니다",
+      "deleteFailed": "게시물 삭제에 실패했습니다",
+      "pushingTikTok": "TikTok 받은함으로 전송 중…",
+      "publishingPost": "게시 중…",
+      "tiktokInboxConfirmed": "TikTok이 받은함 전달을 확인했습니다. TikTok 앱을 열어 마무리하고 게시하세요.",
+      "tiktokProcessing": "TikTok이 업로드를 수락했으며 아직 처리 중입니다.",
+      "stillProcessing": "게시물이 제출되었으며 아직 처리 중입니다.",
+      "posted": "게시되었습니다!",
+      "publishFailed": "게시에 실패했습니다",
+      "updated": "게시물이 업데이트되었습니다",
+      "updateFailed": "업데이트에 실패했습니다",
+      "rescheduled": "게시물이 다시 예약되었습니다",
+      "rescheduleFailed": "다시 예약하지 못했습니다"
+    }
+  },
+  "draftsTab": {
+    "empty": "아직 임시 저장된 항목이 없습니다.",
+    "createFirst": "첫 게시물을 만드세요",
+    "editTitle": "임시 저장 편집",
+    "toPostHeading": "게시 대기",
+    "waitingInTikTokHeading": "TikTok에서 대기 중",
+    "draftsHeading": "임시 저장",
+    "toasts": {
+      "loadFailed": "임시 저장 항목을 불러오지 못했습니다",
+      "deleted": "임시 저장 항목이 삭제되었습니다",
+      "deleteFailed": "삭제에 실패했습니다",
+      "addingToQueue": "“게시 대기” 대기열에 추가 중…",
+      "pushingTikTok": "TikTok 받은함으로 전송 중…",
+      "publishingPost": "게시 중…",
+      "addedToQueue": "“게시 대기” 대기열에 추가되었습니다. 직접 게시한 후 게시 완료로 표시하세요.",
+      "tiktokInboxConfirmed": "TikTok이 받은함 전달을 확인했습니다. TikTok 앱을 열어 마무리하고 게시하세요.",
+      "tiktokProcessing": "TikTok이 업로드를 수락했으며 아직 처리 중입니다.",
+      "stillProcessing": "게시물이 제출되었으며 아직 처리 중입니다.",
+      "posted": "게시되었습니다!",
+      "publishFailed": "게시에 실패했습니다",
+      "updated": "임시 저장 항목이 업데이트되었습니다",
+      "updateFailed": "업데이트에 실패했습니다",
+      "scheduled": "게시물이 예약되었습니다",
+      "scheduleFailed": "예약에 실패했습니다"
+    }
+  },
+  "channelSelector": {
+    "channels": "채널",
+    "selectedCount": "{count}개 선택됨",
+    "postTo": "게시 대상",
+    "defaultReason": "브랜드 설정에서 이 채널을 연결하세요.",
+    "productSettings": "제품 설정"
+  },
+  "scheduleSheet": {
+    "eyebrow": "예약",
+    "title": "게시물 예약",
+    "description": "날짜와 시간을 선택하거나 AI가 제안하는 최적의 시간대를 사용하세요.",
+    "tiktokNoteLabel": "TikTok은 TikTok 앱에서 마무리됩니다.",
+    "tiktokNoteBody": "예약된 시간이 되면 Markaestro가 미디어를 TikTok 받은함으로 전송하고, TikTok을 열어 캡션, 공개 범위, 게시를 마무리할 수 있게 되면 준비 완료로 표시합니다.",
+    "smartSchedule": "스마트 예약",
+    "aiSuggested": "AI 제안",
+    "hide": "숨기기",
+    "show": "표시",
+    "basedOnData": "{channel}의 업계 참여 데이터를 기반으로 함",
+    "thisChannel": "이 채널",
+    "orPickManually": "또는 직접 선택",
+    "timeLabel": "시간",
+    "timezoneNote": "예약은 현지 시간대({timezone})를 사용하며 UTC로 저장됩니다.",
+    "headsUp": "참고:",
+    "collisionNote": "이 시간대 근처에 이미 다른 게시물이 예약되어 있습니다({date}{channel}). 그래도 둘 다 예약할 수 있습니다.",
+    "onChannel": "({channel})",
+    "scheduleFor": "{date} {time}에 예약",
+    "selectDate": "날짜를 선택하세요"
+  },
+  "postEditSheet": {
+    "caption": "캡션",
+    "media": "미디어",
+    "image": "이미지",
+    "remove": "제거",
+    "replace": "교체",
+    "dropMedia": "미디어를 드롭하거나 클릭하여 업로드",
+    "dropImage": "이미지를 드롭하거나 클릭하여 업로드",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · 최대 10 MB",
+    "uploading": "업로드 중…",
+    "upload": "업로드",
+    "preview": "미리보기",
+    "cancel": "취소",
+    "saving": "저장 중…",
+    "save": "저장",
+    "defaultTitle": "게시물 편집",
+    "defaultScheduleLabel": "예약",
+    "toasts": {
+      "videoTikTokOnly": "동영상은 TikTok 게시물에서만 사용할 수 있습니다",
+      "videoTooLarge": "동영상은 250MB 미만이어야 합니다",
+      "imageTooLarge": "이미지는 10MB 미만이어야 합니다",
+      "videoUploaded": "동영상이 업로드되었습니다",
+      "imageUploaded": "이미지가 업로드되었습니다",
+      "uploadFailed": "업로드에 실패했습니다"
+    }
+  },
+  "postCard": {
+    "readyToPost": "게시 준비 완료",
+    "readyInTikTok": "TikTok에서 준비 완료",
+    "partiallyFailed": "부분 실패",
+    "text": "텍스트",
+    "preview": "미리보기",
+    "view": "보기",
+    "copyCaption": "캡션 복사",
+    "downloadMedia": "미디어 다운로드",
+    "downloading": "다운로드 중…",
+    "markAsPosted": "게시됨으로 표시",
+    "edit": "편집",
+    "publish": "게시",
+    "publishing": "게시 중…",
+    "reschedule": "다시 예약",
+    "unschedule": "예약 취소",
+    "delete": "삭제",
+    "readyToPostOn": "{channel}에 게시할 준비가 되었습니다",
+    "manualInstructions": "미디어를 다운로드하고 캡션을 복사한 후, 평소처럼 {channel} 앱에서 게시하고 여기에서 게시됨으로 표시하세요.",
+    "openChannel": "{channel} 열기",
+    "readyInTikTokInbox": "TikTok 받은함에서 준비 완료",
+    "tiktokInboxInstructions": "TikTok 앱 열기 → 받은함 → 업로드 알림을 탭하여 캡션을 마무리하고 게시하세요. 임시 저장 항목은 약 7일 후 만료됩니다.",
+    "openTikTok": "TikTok 열기",
+    "publishingTo": "{channel}에 게시 중...",
+    "toasts": {
+      "captionCopied": "캡션이 복사되었습니다",
+      "copyFailed": "캡션을 복사하지 못했습니다"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "새로고침",
+    "liveFrom": "연결된 {channel} 계정의 실시간 게시물입니다 — Markaestro 외부에서 게시된 항목도 포함됩니다.",
+    "loadMore": "더 불러오기",
+    "loading": "불러오는 중…",
+    "noCaption": "캡션 없음",
+    "view": "보기",
+    "deleting": "삭제 중…",
+    "delete": "삭제",
+    "noDeleteHints": {
+      "instagram": "Instagram은 앱에서 게시물을 삭제하는 것을 허용하지 않습니다 — Instagram 앱에서 삭제하세요.",
+      "tiktok": "TikTok은 앱에서 동영상을 삭제하는 것을 허용하지 않습니다 — TikTok 앱에서 삭제하세요."
+    },
+    "noDeleteDefault": "이 게시물은 삭제를 지원하지 않습니다.",
+    "deleteWarning": "이 작업은 {channel}에서 게시물을 영구적으로 제거합니다.",
+    "states": {
+      "notConnectedTitle": "{channel}이(가) 아직 연결되지 않았습니다",
+      "notConnectedBody": "이 브랜드에 {channel}을(를) 연결하면 Markaestro 외부에서 게시된 항목을 포함해 실시간 게시물이 여기에 표시됩니다.",
+      "connect": "{channel} 연결",
+      "authTitle": "{channel}을(를) 다시 연결해야 합니다",
+      "authBody": "{channel} 연결이 만료되어 현재 게시물을 탐색할 수 없습니다. 브랜드 설정에서 다시 연결하여 중단한 부분부터 계속하세요.",
+      "reconnect": "{channel} 다시 연결",
+      "checkAgain": "다시 확인",
+      "unsupportedTitle": "{channel} 게시물 탐색을 이용할 수 없습니다",
+      "linkedinPartnerBody": "LinkedIn은 승인된 파트너 앱만 계정 게시물을 탐색할 수 있도록 허용합니다. Markaestro를 통해 게시한 항목은 계속 게시됨 탭에 표시됩니다.",
+      "unsupportedBody": "{channel}은(는) 앱에서 계정 게시물을 탐색하는 것을 허용하지 않습니다. Markaestro를 통해 게시한 항목은 계속 게시됨 탭에 표시됩니다.",
+      "errorTitle": "{channel} 게시물을 불러올 수 없습니다",
+      "errorBody": "{channel}이(가) 예상대로 응답하지 않았습니다. 대개 일시적인 문제입니다 — 잠시 후 다시 시도해 주세요.",
+      "tryAgain": "다시 시도",
+      "emptyTitle": "{channel}에 아직 게시물이 없습니다",
+      "emptyBody": "이 계정이 Markaestro를 통해 또는 {channel}에서 직접 게시하면 게시물이 여기에 표시됩니다."
+    },
+    "toasts": {
+      "loadMoreFailed": "추가 게시물을 불러오지 못했습니다",
+      "deleted": "{channel}에서 게시물이 삭제되었습니다",
+      "deleteFailed": "플랫폼에서 게시물 삭제에 실패했습니다"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "저장되지 않은 임시 저장 항목을 복원했습니다",
+    "discard": "삭제",
+    "caption": "캡션",
+    "media": "미디어",
+    "removeMedia": "제거",
+    "addMedia": "+ 추가",
+    "dropImagesOrVideos": "이미지 또는 동영상 드롭",
+    "dropImages": "이미지를 드롭하거나 클릭하여 업로드",
+    "mediaCountHint": "최대 {count}개 · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · 최대 10 MB",
+    "uploading": "업로드 중…",
+    "upload": "업로드",
+    "saveDraft": "임시 저장",
+    "schedule": "예약",
+    "postNow": "지금 게시",
+    "posting": "게시 중…",
+    "preview": "미리보기",
+    "previewPlaceholder": "게시물 미리보기가 여기에 표시됩니다.",
+    "previewHint": "캡션을 작성하고 미디어를 업로드하여 시작하세요.",
+    "toasts": {
+      "selectChannel": "게시 준비가 된 채널을 하나 이상 선택하세요.",
+      "videoNotSupported": "선택한 채널 중 하나 이상이 동영상 업로드를 지원하지 않습니다",
+      "videoAlone": "동영상은 단독으로 업로드해야 합니다",
+      "maxMedia": "선택한 채널에서는 최대 {count}개의 미디어 항목만 허용됩니다",
+      "fileTooLarge": "{file}: {size}MB 미만이어야 합니다",
+      "fileUploadFailed": "{file}: 업로드에 실패했습니다",
+      "filesUploaded": "{count}개의 파일이 업로드되었습니다",
+      "uploadFailed": "업로드에 실패했습니다",
+      "createFailed": "게시물 생성에 실패했습니다",
+      "draftSaved": "임시 저장되었습니다",
+      "draftSaveFailed": "임시 저장에 실패했습니다",
+      "scheduled": "게시물이 예약되었습니다",
+      "scheduleFailed": "게시물 예약에 실패했습니다",
+      "tiktokSending": "TikTok으로 전송 중입니다. Markaestro가 TikTok의 받은함 전달 확인을 기다리고 있습니다.",
+      "stillProcessing": "게시물이 제출되었으며 아직 처리 중입니다.",
+      "tiktokInboxConfirmed": "TikTok이 받은함 전달을 확인했습니다. TikTok 받은함을 열어 캡션을 마무리하고 게시를 탭하세요.",
+      "postedToMultiple": "{channels}에 게시되었습니다!",
+      "postedSuccess": "성공적으로 게시되었습니다!",
+      "publishFailed": "게시에 실패했습니다"
+    }
+  }
+}

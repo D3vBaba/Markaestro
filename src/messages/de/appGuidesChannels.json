@@ -1,0 +1,93 @@
+{
+  "page": {
+    "title": "Kanäle verbinden",
+    "subtitle": "Wie Berechtigungen und Marken zusammenspielen, und die genauen Schritte für jede Plattform."
+  },
+  "intro": {
+    "title": "Das Wichtigste zuerst",
+    "body": "Das Verbinden eines Kanals besteht aus zwei getrennten Dingen, und deren Verwechslung ist es, was das Posten kaputt macht.",
+    "layer1Badge": "Ebene 1 · Berechtigung",
+    "layer1Title": "Was die Plattform uns erlaubt zu berühren",
+    "layer1Body": "Wird im eigenen Dialog der Plattform beim Anmelden festgelegt. Bei Facebook betrifft dies deinen <bold>gesamten Workspace</bold>, und jede neue Anmeldung <bold>ersetzt</bold> die vorherige Auswahl.",
+    "layer2Badge": "Ebene 2 · Routing",
+    "layer2Title": "Auf welches Konto diese Marke postet",
+    "layer2Body": "Wird innerhalb von Markaestro pro Marke festgelegt. Hier lebt „eine Seite pro Marke“ — und eine Marke kann bei Bedarf mehrere Konten haben.",
+    "warning": "<bold>Gewähre alles, dann grenze pro Marke ein.</bold> Hake im Plattform-Dialog jedes Konto an, auf das du jemals posten könntest. Nur eines dort auszuwählen, entzieht den anderen den Zugriff, und ihre geplanten Beiträge beginnen zu scheitern."
+  },
+  "guides": {
+    "meta": {
+      "label": "Facebook",
+      "scope": "Eine einzige Facebook-Anmeldung deckt deinen gesamten Workspace ab. Jede Marke wählt danach ihre eigene Seite.",
+      "steps": {
+        "0": { "title": "Öffne eine Marke und tippe bei Facebook auf Verbinden", "detail": "Marken → Marke auswählen → Kanäle. Es spielt keine Rolle, mit welcher Marke du beginnst; die Anmeldung gilt für alle Marken." },
+        "1": { "title": "Hake jede Seite an, die Markaestro verwalten soll", "detail": "Der Facebook-Dialog ist die Berechtigungsliste. Was du anhakst, wird die vollständige Menge, die Markaestro berühren darf, und ersetzt die vorherige Auswahl. Eine nicht angehakte Seite verliert sofort den Zugriff." },
+        "2": { "title": "Wähle, auf welche Seite diese Marke postet", "detail": "Zurück in Markaestro, verwende Seiten auswählen. Das ist Routing, keine Berechtigung — jede Marke kann auf ihre eigene Seite verweisen, und eine Marke kann mehrere haben." }
+      },
+      "gotcha": "Wenn du im Facebook-Dialog nur eine Seite anhakst, wird die Seite jeder anderen Marke getrennt. Hake immer alle an und grenze dann pro Marke innerhalb von Markaestro ein."
+    },
+    "instagram": {
+      "label": "Instagram",
+      "scope": "Wird pro Marke verbunden, über die eigene Anmeldung von Instagram statt über Facebook.",
+      "steps": {
+        "0": { "title": "Tippe im Kanäle-Tab der Marke bei Instagram auf Verbinden", "detail": "Dies ist unabhängig von Facebook — das Verknüpfen einer Facebook-Seite verknüpft nicht deren Instagram-Konto." },
+        "1": { "title": "Melde dich mit dem Instagram-Konto selbst an", "detail": "Das Konto muss ein professionelles Konto (Unternehmen oder Creator) sein. Persönliche Konten können nicht über die API veröffentlichen." }
+      },
+      "gotcha": "Wenn Instagram die Anmeldung verweigert, ist das Konto fast sicher noch persönlich. Stelle es in der Instagram-App auf Professionell um und verbinde dich erneut."
+    },
+    "tiktok": {
+      "label": "TikTok",
+      "scope": "Wird pro Marke verbunden. TikTok erfordert, dass du jeden Beitrag in der eigenen App abschließt.",
+      "steps": {
+        "0": { "title": "Tippe bei TikTok auf Verbinden und autorisiere", "detail": "Markaestro lädt das Video hoch und sendet es an deinen TikTok-Posteingang." },
+        "1": { "title": "Schließe den Beitrag in der TikTok-App ab", "detail": "TikTok erlaubt keine vollständige Veröffentlichung von außerhalb der eigenen App. Wenn ein Beitrag deinen Posteingang erreicht, senden wir dir eine E-Mail, und der Beitrag bleibt bis zur Bestätigung in Zu posten." }
+      },
+      "gotcha": "Ein TikTok-Beitrag ist erst live, wenn du die TikTok-App öffnest und ihn veröffentlichst. Die E-Mail ist deine Erinnerung."
+    },
+    "threads": {
+      "label": "Threads",
+      "scope": "Wird pro Marke mit eigener Anmeldung verbunden.",
+      "steps": {
+        "0": { "title": "Tippe bei Threads auf Verbinden", "detail": "Autorisiere mit dem Threads-Konto, von dem aus du posten möchtest." }
+      }
+    },
+    "pinterest": {
+      "label": "Pinterest",
+      "scope": "Wird pro Marke verbunden. Pinnwände funktionieren wie Facebook-Seiten — wähle aus, auf welche diese Marke pinnt.",
+      "steps": {
+        "0": { "title": "Tippe bei Pinterest auf Verbinden", "detail": "Autorisiere das Pinterest-Unternehmenskonto." },
+        "1": { "title": "Wähle eine Pinnwand", "detail": "Pins benötigen eine Ziel-Pinnwand. Du kannst mehrere Pinnwände mit einer Marke verknüpfen und beim Erstellen zwischen ihnen wählen." }
+      }
+    },
+    "linkedin": {
+      "label": "LinkedIn",
+      "scope": "Wird pro Marke verbunden, entweder als persönliches Profil oder als Unternehmensseite.",
+      "steps": {
+        "0": { "title": "Wähle beim Verbinden Profil oder Seiten", "detail": "Dies sind getrennte Autorisierungen. Verbinde beide, wenn du sowohl als du selbst als auch als Unternehmen postest." },
+        "1": { "title": "Wähle das Ziel", "detail": "Wähle aus, auf welches Profil oder welche Unternehmensseite diese Marke veröffentlicht." }
+      }
+    }
+  },
+  "troubleshooting": {
+    "title": "Wenn etwas nicht mehr funktioniert",
+    "subtitle": "Was jede Meldung bedeutet und der schnellste Ausweg.",
+    "items": {
+      "0": {
+        "q": "Eine Marke zeigt „Facebook erneut verbinden und diese Seite anhaken“",
+        "a": "Die aktuellen Facebook-Berechtigungen enthalten diese Seite nicht mehr — meist weil eine spätere Anmeldung weniger Seiten angehakt hat. Verbinde dich erneut über eine beliebige Marke und hake alle Seiten an. Nichts geht verloren; die Seitenauswahl der Marke wird automatisch wiederhergestellt."
+      },
+      "1": {
+        "q": "Eine Marke zeigt „In den Markeneinstellungen erneut auswählen“",
+        "a": "Die Seite ist weiterhin freigegeben, aber ihr Token muss erneut ausgestellt werden. Öffne den Kanäle-Tab der Marke und wähle die Seite erneut aus."
+      },
+      "2": {
+        "q": "Geplante Beiträge schlagen fehl",
+        "a": "Prüfe zuerst den Kanäle-Tab der Marke. Wenn alle Kanäle verbunden aussehen, verbinde die Plattform erneut und hake alle Konten an — eine eingeschränkte Berechtigungsmenge ist die häufigste Ursache."
+      },
+      "3": {
+        "q": "Ein TikTok-Beitrag ist nie live gegangen",
+        "a": "TikTok-Beiträge müssen in der TikTok-App abgeschlossen werden. Prüfe deine E-Mails auf die Erinnerung oder öffne Zu posten in Markaestro."
+      }
+    },
+    "manageFrom": "Verwalte jede Verbindung über <brands>Marken</brands> oder <settings>Einstellungen → Integrationen</settings>."
+  }
+}

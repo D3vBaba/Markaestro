@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Heart, MessageCircle, Bookmark, Share2, ExternalLink } from "lucide-react";
 
 export type PlatformPreviewProps = {
@@ -29,6 +30,7 @@ function MediaDisplay({ url, className, aspectClass }: { url: string; className?
 // ─── Instagram ────────────────────────────────────────────────────────────────
 
 function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
+  const t = useTranslations("appCommon.platformPreview");
   const img = mediaUrls?.[0];
   return (
     <div className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-md">
@@ -41,7 +43,7 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
           </div>
           <div>
             <p className="text-[12px] font-semibold text-zinc-900 dark:text-white leading-none">yourbrand</p>
-            <p className="text-[10px] text-zinc-400 mt-0.5">Sponsored</p>
+            <p className="text-[10px] text-zinc-400 mt-0.5">{t("sponsored")}</p>
           </div>
         </div>
         <span className="text-zinc-400 text-base leading-none">···</span>
@@ -71,12 +73,12 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
           </div>
           <Bookmark className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
         </div>
-        <p className="text-[12px] font-semibold text-zinc-900 dark:text-white">0 likes</p>
+        <p className="text-[12px] font-semibold text-zinc-900 dark:text-white">{t("zeroLikes")}</p>
         <p className="text-[12px] text-zinc-900 dark:text-white leading-snug">
           <span className="font-semibold">yourbrand </span>
           {content.length > 120 ? content.slice(0, 120) + "… more" : content}
         </p>
-        <p className="text-[10px] uppercase tracking-wide text-zinc-400">just now</p>
+        <p className="text-[10px] uppercase tracking-wide text-zinc-400">{t("justNow")}</p>
       </div>
     </div>
   );
@@ -85,7 +87,13 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
 // ─── Facebook ─────────────────────────────────────────────────────────────────
 
 function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
+  const t = useTranslations("appCommon.platformPreview");
   const img = mediaUrls?.[0];
+  const reactionButtons = [
+    { key: "like", emoji: "👍", label: t("like") },
+    { key: "comment", emoji: "💬", label: t("comment") },
+    { key: "share", emoji: "↗", label: t("share") },
+  ];
   return (
     <div className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#242526] shadow-md overflow-hidden">
       <div className="flex items-start justify-between p-3">
@@ -95,7 +103,7 @@ function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
           </div>
           <div>
             <p className="text-[13px] font-semibold text-zinc-900 dark:text-[#e4e6ea] leading-none">Your Brand</p>
-            <p className="text-[10px] text-zinc-500 mt-0.5">Just now · 🌐</p>
+            <p className="text-[10px] text-zinc-500 mt-0.5">{t("justNow")} · 🌐</p>
           </div>
         </div>
         <span className="text-zinc-400 text-base leading-none">···</span>
@@ -110,12 +118,12 @@ function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
       <div className="px-3 py-2 border-t border-zinc-100 dark:border-zinc-700/50">
         <div className="flex items-center justify-between text-[11px] text-zinc-500 pb-1.5">
           <span>👍 0</span>
-          <span>0 comments</span>
+          <span>{t("zeroComments")}</span>
         </div>
         <div className="flex items-center justify-around border-t border-zinc-100 dark:border-zinc-700/50 pt-1.5">
-          {["👍 Like", "💬 Comment", "↗ Share"].map((l) => (
-            <button key={l} className="flex-1 text-center text-[12px] font-medium text-zinc-500 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 rounded-lg transition-colors">
-              {l}
+          {reactionButtons.map((btn) => (
+            <button key={btn.key} className="flex-1 text-center text-[12px] font-medium text-zinc-500 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 rounded-lg transition-colors">
+              {btn.emoji} {btn.label}
             </button>
           ))}
         </div>
@@ -127,6 +135,7 @@ function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
 // ─── TikTok ───────────────────────────────────────────────────────────────────
 
 function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
+  const t = useTranslations("appCommon.platformPreview");
   const img = mediaUrls?.[0];
   return (
     <div className="flex justify-center">
@@ -141,8 +150,8 @@ function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
         <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.3) 100%)" }} />
 
         <div className="absolute top-3 left-0 right-0 flex justify-center gap-5 text-[9px] text-white/70">
-          <span>Following</span>
-          <span className="font-bold text-white border-b border-white pb-0.5">For You</span>
+          <span>{t("following")}</span>
+          <span className="font-bold text-white border-b border-white pb-0.5">{t("forYou")}</span>
         </div>
 
         <div className="absolute right-2 bottom-16 flex flex-col items-center gap-3.5">
@@ -162,7 +171,7 @@ function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
           <p className="text-[9px] text-white/80 leading-tight line-clamp-3">{content}</p>
           <div className="flex items-center gap-1 mt-1.5">
             <div className="w-3 h-3 rounded-full animate-spin" style={{ background: "linear-gradient(135deg,#EE1D52,#69C9D0)", animationDuration: "3s" }} />
-            <p className="text-[7px] text-white/50">Original sound</p>
+            <p className="text-[7px] text-white/50">{t("originalSound")}</p>
           </div>
         </div>
       </div>
@@ -173,6 +182,7 @@ function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
 // ─── Threads ─────────────────────────────────────────────────────────────────
 
 function ThreadsPreview({ content, mediaUrls }: PlatformPreviewProps) {
+  const t = useTranslations("appCommon.platformPreview");
   const media = mediaUrls?.[0];
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-3 shadow-md dark:border-zinc-800 dark:bg-zinc-950">
@@ -186,7 +196,7 @@ function ThreadsPreview({ content, mediaUrls }: PlatformPreviewProps) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between">
             <p className="text-[13px] font-semibold text-zinc-950 dark:text-white">yourbrand</p>
-            <span className="text-[11px] text-zinc-400">now</span>
+            <span className="text-[11px] text-zinc-400">{t("now")}</span>
           </div>
           <p className="mt-1 whitespace-pre-wrap break-words text-[13px] leading-snug text-zinc-900 dark:text-zinc-100">
             {content.length > 500 ? content.slice(0, 500) + "..." : content}
@@ -210,6 +220,7 @@ function ThreadsPreview({ content, mediaUrls }: PlatformPreviewProps) {
 // ─── Pinterest ───────────────────────────────────────────────────────────────
 
 function PinterestPreview({ content, mediaUrls }: PlatformPreviewProps) {
+  const t = useTranslations("appCommon.platformPreview");
   const media = mediaUrls?.[0];
   return (
     <div className="mx-auto max-w-[280px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-950">
@@ -223,10 +234,10 @@ function PinterestPreview({ content, mediaUrls }: PlatformPreviewProps) {
       <div className="space-y-2 p-3">
         <div className="flex items-start justify-between gap-2">
           <p className="line-clamp-2 text-[13px] font-semibold leading-snug text-zinc-950 dark:text-white">
-            {content.split("\n")[0] || "Untitled Pin"}
+            {content.split("\n")[0] || t("untitledPin")}
           </p>
           <span className="rounded-full bg-[#E60023] px-2 py-1 text-[10px] font-semibold text-white">
-            Save
+            {t("save")}
           </span>
         </div>
         <p className="line-clamp-3 whitespace-pre-wrap break-words text-[12px] leading-snug text-zinc-600 dark:text-zinc-300">
@@ -241,6 +252,7 @@ function PinterestPreview({ content, mediaUrls }: PlatformPreviewProps) {
 // ─── LinkedIn ────────────────────────────────────────────────────────────────
 
 function LinkedInPreview({ content, mediaUrls }: PlatformPreviewProps) {
+  const t = useTranslations("appCommon.platformPreview");
   const media = mediaUrls?.[0];
   return (
     <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-950">
@@ -251,7 +263,7 @@ function LinkedInPreview({ content, mediaUrls }: PlatformPreviewProps) {
           </div>
           <div>
             <p className="text-[13px] font-semibold leading-none text-zinc-950 dark:text-white">Your Brand</p>
-            <p className="mt-0.5 text-[10px] text-zinc-500">Company Page · now</p>
+            <p className="mt-0.5 text-[10px] text-zinc-500">{t("companyPageNow")}</p>
           </div>
         </div>
         <span className="text-base leading-none text-zinc-400">···</span>
@@ -265,10 +277,10 @@ function LinkedInPreview({ content, mediaUrls }: PlatformPreviewProps) {
         </div>
       )}
       <div className="flex items-center justify-around px-3 py-2 text-[12px] font-medium text-zinc-500">
-        <span>Like</span>
-        <span>Comment</span>
-        <span>Repost</span>
-        <span>Send</span>
+        <span>{t("like")}</span>
+        <span>{t("comment")}</span>
+        <span>{t("repost")}</span>
+        <span>{t("send")}</span>
       </div>
     </div>
   );
@@ -287,14 +299,11 @@ export type AdPreviewProps = {
   ctaType?: string;
 };
 
-const CTA_LABELS: Record<string, string> = {
-  LEARN_MORE: "Learn More", SHOP_NOW: "Shop Now", SIGN_UP: "Sign Up",
-  DOWNLOAD: "Download", GET_QUOTE: "Get Quote", CONTACT_US: "Contact Us",
-};
-
 // ─── Facebook Ad Mockup (phone frame) ────────────────────────────────────────
 
 export function FacebookAdPreview({ headline, primaryText, description, imageUrl, videoUrl, linkUrl, ctaType }: AdPreviewProps) {
+  const t = useTranslations("appCommon.platformPreview");
+  const ctaLabel = (type: string) => (t.has(`cta.${type}`) ? t(`cta.${type}`) : type);
   const domain = linkUrl ? linkUrl.replace(/^https?:\/\//, "").split("/")[0] : null;
 
   return (
@@ -347,7 +356,7 @@ export function FacebookAdPreview({ headline, primaryText, description, imageUrl
                     <div>
                       <p className="text-[12px] font-semibold text-zinc-900 leading-none">Your Brand</p>
                       <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-[9px] text-zinc-400">Sponsored</span>
+                        <span className="text-[9px] text-zinc-400">{t("sponsored")}</span>
                         <span className="text-[9px] text-zinc-400">·</span>
                         <svg className="w-2 h-2 text-zinc-400" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" /></svg>
                       </div>
@@ -384,15 +393,19 @@ export function FacebookAdPreview({ headline, primaryText, description, imageUrl
                   </div>
                   {ctaType && (
                     <button className="shrink-0 px-2.5 py-1 text-[11px] font-semibold rounded bg-zinc-200 text-zinc-800 whitespace-nowrap">
-                      {CTA_LABELS[ctaType] || ctaType}
+                      {ctaLabel(ctaType)}
                     </button>
                   )}
                 </div>
 
                 <div className="flex items-center justify-around border-t border-zinc-100 px-2 py-1">
-                  {["👍 Like", "💬 Comment", "↗ Share"].map((l) => (
-                    <button key={l} className="flex-1 text-center text-[11px] font-medium text-zinc-500 py-1 hover:bg-zinc-50 rounded">
-                      {l}
+                  {[
+                    { key: "like", emoji: "👍", label: t("like") },
+                    { key: "comment", emoji: "💬", label: t("comment") },
+                    { key: "share", emoji: "↗", label: t("share") },
+                  ].map((btn) => (
+                    <button key={btn.key} className="flex-1 text-center text-[11px] font-medium text-zinc-500 py-1 hover:bg-zinc-50 rounded">
+                      {btn.emoji} {btn.label}
                     </button>
                   ))}
                 </div>
@@ -417,7 +430,7 @@ export function FacebookAdPreview({ headline, primaryText, description, imageUrl
         </div>
 
         {/* Platform label beneath phone */}
-        <p className="text-center text-[10px] text-muted-foreground mt-3 uppercase tracking-widest font-medium">Facebook / Instagram Ad</p>
+        <p className="text-center text-[10px] text-muted-foreground mt-3 uppercase tracking-widest font-medium">{t("facebookInstagramAd")}</p>
       </div>
     </div>
   );
@@ -426,6 +439,8 @@ export function FacebookAdPreview({ headline, primaryText, description, imageUrl
 // ─── TikTok Ad Mockup (phone frame) ──────────────────────────────────────────
 
 export function TikTokAdPreview({ headline, primaryText, imageUrl, videoUrl, ctaType }: AdPreviewProps) {
+  const t = useTranslations("appCommon.platformPreview");
+  const ctaLabel = (type: string) => (t.has(`cta.${type}`) ? t(`cta.${type}`) : type);
   return (
     <div className="flex justify-center py-2">
       <div className="relative w-full max-w-55">
@@ -483,7 +498,7 @@ export function TikTokAdPreview({ headline, primaryText, imageUrl, videoUrl, cta
           <div className="absolute bottom-0 left-0 right-10 p-3 z-10 space-y-1.5">
             {/* Sponsored badge */}
             <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-2 py-0.5">
-              <span className="text-[8px] text-white/80 font-medium uppercase tracking-wide">Sponsored</span>
+              <span className="text-[8px] text-white/80 font-medium uppercase tracking-wide">{t("sponsored")}</span>
             </div>
 
             <p className="text-[10px] font-bold text-white leading-tight">@yourbrand</p>
@@ -497,7 +512,7 @@ export function TikTokAdPreview({ headline, primaryText, imageUrl, videoUrl, cta
             {ctaType && (
               <div className="pt-1">
                 <button className="flex items-center gap-1.5 bg-white text-zinc-900 rounded-full px-3 py-1 text-[10px] font-bold">
-                  {CTA_LABELS[ctaType] || ctaType}
+                  {ctaLabel(ctaType)}
                   <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path d="m9 18 6-6-6-6" />
                   </svg>
@@ -507,12 +522,12 @@ export function TikTokAdPreview({ headline, primaryText, imageUrl, videoUrl, cta
 
             <div className="flex items-center gap-1.5 mt-1">
               <div className="w-3 h-3 rounded-full animate-spin shrink-0" style={{ background: "linear-gradient(135deg,#EE1D52,#69C9D0)", animationDuration: "3s" }} />
-              <p className="text-[7px] text-white/50 truncate">Original sound · yourbrand</p>
+              <p className="text-[7px] text-white/50 truncate">{t("originalSoundWithBrand")}</p>
             </div>
           </div>
         </div>
 
-        <p className="text-center text-[10px] text-muted-foreground mt-3 uppercase tracking-widest font-medium">TikTok Ad</p>
+        <p className="text-center text-[10px] text-muted-foreground mt-3 uppercase tracking-widest font-medium">{t("tiktokAd")}</p>
       </div>
     </div>
   );
@@ -521,18 +536,19 @@ export function TikTokAdPreview({ headline, primaryText, imageUrl, videoUrl, cta
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export default function PlatformPreview({ content, channel, mediaUrls, externalUrl }: PlatformPreviewProps) {
+  const t = useTranslations("appCommon.platformPreview");
   if (!content && !mediaUrls?.length) return null;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
-          {channel.charAt(0).toUpperCase() + channel.slice(1)} Preview
+          {channel.charAt(0).toUpperCase() + channel.slice(1)} {t("previewSuffix")}
         </p>
         {externalUrl && (
           <a href={externalUrl} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-            <ExternalLink className="w-3 h-3" /> View live
+            <ExternalLink className="w-3 h-3" /> {t("viewLive")}
           </a>
         )}
       </div>

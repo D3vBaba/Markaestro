@@ -2,13 +2,16 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { Link as LocaleLink } from "@/i18n/navigation";
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { pillStyle } from "@/components/mk/pills";
+import { isRtlLocale } from "@/i18n/routing";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
@@ -21,6 +24,9 @@ export default function LoginPage() {
 }
 
 function LoginContent() {
+  const t = useTranslations("auth.login");
+  const tAuthErrors = useTranslations("appCommon.authErrors");
+  const isRtl = isRtlLocale(useLocale());
   const { user, loading, requestSignInCode, signInWithCode, signInGoogle } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,7 +61,7 @@ function LoginContent() {
 
   async function handleSendCode() {
     if (!email.trim()) {
-      setError("Please enter your email address.");
+      setError(t("errors.enterEmail"));
       return;
     }
     try {
@@ -71,7 +77,7 @@ function LoginContent() {
         setStage("code");
         setResendCooldown(60);
       } else {
-        setError(friendlyAuthError(e));
+        setError(friendlyAuthError(e, tAuthErrors));
       }
     } finally {
       setBusy(false);
@@ -80,7 +86,7 @@ function LoginContent() {
 
   async function handleVerifyCode() {
     if (code.replace(/\D/g, "").length < 6) {
-      setError("Enter the 6-digit code from your email.");
+      setError(t("errors.enterCode"));
       return;
     }
     try {
@@ -91,7 +97,7 @@ function LoginContent() {
       // redirect effect fires. Do NOT clear `busy` here (that would flash the form).
       setRedirecting(true);
     } catch (e: unknown) {
-      setError(friendlyAuthError(e));
+      setError(friendlyAuthError(e, tAuthErrors));
       setBusy(false);
     }
   }
@@ -113,48 +119,40 @@ function LoginContent() {
     );
   }
 
+  const heroPoints = [
+    { key: "publish", title: t("hero.points.publish.title"), desc: t("hero.points.publish.desc") },
+    { key: "schedule", title: t("hero.points.schedule.title"), desc: t("hero.points.schedule.desc") },
+    { key: "hours", title: t("hero.points.hours.title"), desc: t("hero.points.hours.desc") },
+  ];
+
   return (
-    <MarketingLayout>
+    <MarketingLayout hideLocaleSwitcher>
       <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 p-6 lg:grid-cols-2 lg:p-10 min-h-[calc(100vh-4rem)]">
         <motion.div
           className="hidden lg:block"
-          initial={{ opacity: 0, x: -16 }}
+          initial={{ opacity: 0, x: isRtl ? 16 : -16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease }}
         >
-          <p className="mk-eyebrow mb-4">Welcome back</p>
+          <p className="mk-eyebrow mb-4">{t("hero.eyebrow")}</p>
           <h1
             className="text-[40px] font-semibold leading-[1.05]"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
           >
-            Your whole social
+            {t("hero.titleLine1")}
             <br />
-            workflow, <span style={{ color: "var(--mk-accent)" }}>one login.</span>
+            {t("hero.titleLine2Prefix")}<span style={{ color: "var(--mk-accent)" }}>{t("hero.titleLine2Accent")}</span>
           </h1>
           <p
             className="mt-5 max-w-md text-[14px] leading-relaxed"
             style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
           >
-            Stop logging into five apps to post once. Sign in to publish
-            everywhere, schedule weeks ahead, and get your time back.
+            {t("hero.subtitle")}
           </p>
 
           <div className="mt-10 flex flex-col gap-5">
-            {[
-              {
-                title: "Publish everywhere at once",
-                desc: "Facebook, Instagram, TikTok and more — from a single composer.",
-              },
-              {
-                title: "Schedule weeks ahead",
-                desc: "Set your cadence once and never go quiet again.",
-              },
-              {
-                title: "Hours back every week",
-                desc: "The copy-paste-and-log-in busywork simply disappears.",
-              },
-            ].map((item) => (
-              <div key={item.title} className="flex items-start gap-3">
+            {heroPoints.map((item) => (
+              <div key={item.key} className="flex items-start gap-3">
                 <div
                   className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
                   style={{ background: "var(--mk-accent)" }}
@@ -186,14 +184,14 @@ function LoginContent() {
               className="text-[13.5px] font-semibold"
               style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
             >
-              New to Markaestro?
+              {t("hero.newHere.title")}
             </p>
             <p className="mt-1 text-[12.5px]" style={{ color: "var(--mk-ink-60)" }}>
-              Answer 10 quick questions and we&apos;ll build your posting plan — see how many hours you&apos;ll get back, free.
+              {t("hero.newHere.body")}
             </p>
             <Link href="/onboarding" className="mt-4 block">
               <Button className="h-10 w-full rounded-lg text-[13px]">
-                Build my plan — it&apos;s free →
+                {t("hero.newHere.cta")}
               </Button>
             </Link>
           </div>
@@ -214,28 +212,28 @@ function LoginContent() {
           >
             <div>
               <p className="mk-eyebrow">
-                {stage === "email" ? "Sign in or sign up" : "Check your inbox"}
+                {stage === "email" ? t("form.eyebrowEmail") : t("form.eyebrowCode")}
               </p>
               <h2
                 className="mt-1.5 text-[22px] sm:text-[24px] font-semibold m-0"
                 style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
               >
-                {stage === "email" ? "Continue with your email" : "Enter your code"}
+                {stage === "email" ? t("form.titleEmail") : t("form.titleCode")}
               </h2>
               <p
                 className="mt-1.5 text-[13px]"
                 style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
               >
                 {stage === "email" ? (
-                  "No password needed — we'll email you a one-time code. New here? The same code creates your account."
+                  t("form.subtitleEmail")
                 ) : (
-                  <>
-                    We sent a 6-digit code to{" "}
-                    <span className="font-medium" style={{ color: "var(--mk-ink)" }}>
-                      {email.trim()}
-                    </span>
-                    .
-                  </>
+                  t.rich("form.subtitleCode", {
+                    email: () => (
+                      <span className="font-medium" style={{ color: "var(--mk-ink)" }}>
+                        {email.trim()}
+                      </span>
+                    ),
+                  })
                 )}
               </p>
             </div>
@@ -245,7 +243,7 @@ function LoginContent() {
                 <Input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
+                  placeholder={t("form.emailPlaceholder")}
                   type="email"
                   autoComplete="email"
                   className="h-11 rounded-lg text-[13.5px]"
@@ -256,7 +254,7 @@ function LoginContent() {
                   ref={codeInputRef}
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  placeholder="123456"
+                  placeholder={t("form.codePlaceholder")}
                   type="text"
                   inputMode="numeric"
                   autoComplete="one-time-code"
@@ -280,7 +278,7 @@ function LoginContent() {
                   disabled={busy}
                   onClick={handleSendCode}
                 >
-                  {busy ? "Sending code…" : "Email me a code"}
+                  {busy ? t("form.sendingCode") : t("form.sendCode")}
                 </Button>
               ) : (
                 <>
@@ -289,7 +287,7 @@ function LoginContent() {
                     disabled={busy || code.length < 6}
                     onClick={handleVerifyCode}
                   >
-                    {busy ? "Verifying…" : "Sign in"}
+                    {busy ? t("form.verifying") : t("form.signIn")}
                   </Button>
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <button
@@ -298,7 +296,7 @@ function LoginContent() {
                       style={{ color: "var(--mk-ink-60)" }}
                       onClick={() => { setStage("email"); setCode(""); setError(""); }}
                     >
-                      ← Use a different email
+                      {t("form.useDifferentEmail")}
                     </button>
                     <button
                       type="button"
@@ -307,7 +305,7 @@ function LoginContent() {
                       disabled={busy || resendCooldown > 0}
                       onClick={handleSendCode}
                     >
-                      {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
+                      {resendCooldown > 0 ? t("form.resendIn", { seconds: resendCooldown }) : t("form.resendCode")}
                     </button>
                   </div>
                 </>
@@ -323,7 +321,7 @@ function LoginContent() {
                 className="font-mono text-[9.5px] uppercase"
                 style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
               >
-                Or continue with
+                {t("form.orContinueWith")}
               </span>
               <span
                 className="flex-1 h-px"
@@ -342,13 +340,13 @@ function LoginContent() {
                   await signInGoogle();
                   setRedirecting(true);
                 } catch (e: unknown) {
-                  setError(friendlyAuthError(e));
+                  setError(friendlyAuthError(e, tAuthErrors));
                   setBusy(false);
                 }
               }}
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-              Continue with Google
+              {t("form.continueWithGoogle")}
             </Button>
           </div>
 
@@ -356,23 +354,18 @@ function LoginContent() {
             className="mt-5 text-center text-[11.5px]"
             style={{ color: "var(--mk-ink-40)" }}
           >
-            By continuing you agree to our{" "}
-            <a
-              href="/terms"
-              className="hover:underline"
-              style={{ color: "var(--mk-ink-60)" }}
-            >
-              Terms
-            </a>{" "}
-            and{" "}
-            <a
-              href="/privacy"
-              className="hover:underline"
-              style={{ color: "var(--mk-ink-60)" }}
-            >
-              Privacy Policy
-            </a>
-            .
+            {t.rich("form.legal", {
+              terms: (chunks) => (
+                <LocaleLink href="/terms" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>
+                  {chunks}
+                </LocaleLink>
+              ),
+              privacy: (chunks) => (
+                <LocaleLink href="/privacy" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>
+                  {chunks}
+                </LocaleLink>
+              ),
+            })}
           </p>
         </motion.div>
       </div>

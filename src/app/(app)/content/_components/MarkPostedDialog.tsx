@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ export default function MarkPostedDialog({
   channelLabel: string;
   onMarked?: () => void;
 }) {
+  const t = useTranslations("content.markPostedDialog");
   const [url, setUrl] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -40,15 +42,15 @@ export default function MarkPostedDialog({
         trimmed ? { externalUrl: trimmed } : {},
       );
       if (res.ok && res.data.ok) {
-        toast.success("Marked as posted");
+        toast.success(t("toasts.marked"));
         setUrl("");
         onOpenChange(false);
         onMarked?.();
       } else {
-        toast.error(res.data?.error || "Failed to mark as posted");
+        toast.error(res.data?.error || t("toasts.failed"));
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to mark as posted");
+      toast.error(err instanceof Error ? err.message : t("toasts.failed"));
     } finally {
       setSaving(false);
     }
@@ -58,26 +60,24 @@ export default function MarkPostedDialog({
     <Dialog open={open} onOpenChange={(next) => !saving && onOpenChange(next)}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Mark as posted</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
-            Confirm you published this post on {channelLabel} yourself. Paste the
-            link to the live post if you have it — it connects the post to its
-            analytics later.
+            {t("description", { channel: channelLabel })}
           </DialogDescription>
         </DialogHeader>
         <Input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder={`https://www.${channelLabel.toLowerCase()}.com/… (optional)`}
+          placeholder={t("urlPlaceholder", { channel: channelLabel.toLowerCase() })}
           disabled={saving}
         />
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button onClick={handleConfirm} disabled={saving}>
-            {saving && <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />}
-            Mark as posted
+            {saving && <Loader2 className="w-4 h-4 me-1.5 animate-spin" />}
+            {t("confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

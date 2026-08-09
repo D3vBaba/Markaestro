@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { motion } from "framer-motion";
@@ -14,6 +15,7 @@ import Link from "next/link";
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 export default function OnboardingSuccessPage() {
+  const t = useTranslations("onboarding.success");
   const { user, loading: authLoading } = useAuth();
   const { status, refresh } = useSubscription();
   const router = useRouter();
@@ -117,7 +119,7 @@ export default function OnboardingSuccessPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.15, duration: 0.3 }}
           >
-            All set
+            {t("allSet")}
           </motion.p>
 
           <motion.h1
@@ -127,7 +129,7 @@ export default function OnboardingSuccessPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4, ease }}
           >
-            You&apos;re ready to launch.
+            {t("readyToLaunch")}
           </motion.h1>
 
           <motion.p
@@ -137,7 +139,7 @@ export default function OnboardingSuccessPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.4, ease }}
           >
-            Your account is set up. Taking you to your dashboard…
+            {t("settingUpAccount")}
           </motion.p>
 
           <motion.div

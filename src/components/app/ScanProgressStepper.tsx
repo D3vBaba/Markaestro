@@ -1,23 +1,23 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Globe, FileSearch, Palette, Sparkles, PackageCheck, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isRtlLocale } from "@/i18n/routing";
 import type { ScanPhase } from "@/hooks/useProductScan";
 
 type Step = {
   phase: ScanPhase;
-  label: string;
-  activeLabel: string;
   icon: React.ElementType;
 };
 
 const STEPS: Step[] = [
-  { phase: "connecting", label: "Connect to site", activeLabel: "Connecting to site…", icon: Globe },
-  { phase: "reading", label: "Read website content", activeLabel: "Reading website content…", icon: FileSearch },
-  { phase: "extracting", label: "Extract brand colours", activeLabel: "Extracting brand colours & logo…", icon: Palette },
-  { phase: "analyzing", label: "Analyse brand signals", activeLabel: "Analysing brand signals…", icon: Sparkles },
-  { phase: "finalizing", label: "Build brand profile", activeLabel: "Building your brand profile…", icon: PackageCheck },
+  { phase: "connecting", icon: Globe },
+  { phase: "reading", icon: FileSearch },
+  { phase: "extracting", icon: Palette },
+  { phase: "analyzing", icon: Sparkles },
+  { phase: "finalizing", icon: PackageCheck },
 ];
 
 const PHASE_ORDER: Record<string, number> = {
@@ -53,6 +53,8 @@ export default function ScanProgressStepper({
   url?: string;
   compact?: boolean;
 }) {
+  const t = useTranslations("appCommon.scanProgressStepper");
+  const isRtl = isRtlLocale(useLocale());
   const reducedMotion = useReducedMotion();
 
   if (phase === "idle") return null;
@@ -101,10 +103,10 @@ export default function ScanProgressStepper({
             isError && "text-destructive",
           )}>
             {isDone
-              ? "Scan complete — review and confirm below"
+              ? t("scanComplete")
               : isError
-                ? "Scan failed — please fill in manually"
-                : "Researching your brand…"}
+                ? t("scanFailed")
+                : t("researching")}
           </p>
           {url && !isDone && !isError && (
             <p className="text-xs text-muted-foreground truncate mt-0.5">{url}</p>
@@ -122,7 +124,7 @@ export default function ScanProgressStepper({
             return (
               <motion.div
                 key={step.phase}
-                initial={{ opacity: 0, x: -8 }}
+                initial={{ opacity: 0, x: isRtl ? 8 : -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.2, delay: i * 0.06 }}
                 className={cn(
@@ -166,16 +168,18 @@ export default function ScanProgressStepper({
                   state === "done" && "text-muted-foreground",
                   state === "pending" && "text-muted-foreground",
                 )}>
-                  {state === "active" ? step.activeLabel : step.label}
+                  {state === "active"
+                    ? t(`steps.${step.phase}.activeLabel`)
+                    : t(`steps.${step.phase}.label`)}
                 </span>
 
                 {/* Active pulse dot */}
                 {state === "active" && (
                   reducedMotion ? (
-                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+                    <span className="ms-auto h-1.5 w-1.5 rounded-full bg-primary" />
                   ) : (
                     <motion.span
-                      className="ml-auto h-1.5 w-1.5 rounded-full bg-primary"
+                      className="ms-auto h-1.5 w-1.5 rounded-full bg-primary"
                       animate={{ opacity: [1, 0.3, 1] }}
                       transition={{ duration: 1, repeat: Infinity }}
                     />

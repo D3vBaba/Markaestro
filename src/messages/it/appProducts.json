@@ -1,0 +1,254 @@
+{
+  "categories": {
+    "saas": "SaaS",
+    "mobile": "App mobile",
+    "web": "App web",
+    "api": "API",
+    "marketplace": "Marketplace",
+    "ecommerce": "E-commerce",
+    "fintech": "Fintech",
+    "healthtech": "Health Tech",
+    "edtech": "Ed Tech",
+    "gaming": "Gaming",
+    "social": "Social",
+    "productivity": "Produttività",
+    "developer-tools": "Strumenti per sviluppatori",
+    "ai": "IA",
+    "media": "Media",
+    "agency": "Agenzia",
+    "creator": "Creator",
+    "hardware": "Hardware",
+    "nonprofit": "No profit",
+    "local-business": "Attività locale",
+    "personal-brand": "Brand personale",
+    "fashion-beauty": "Moda e bellezza",
+    "food-restaurant": "Cibo e ristorazione",
+    "music-entertainment": "Musica e intrattenimento",
+    "real-estate": "Immobiliare",
+    "coaching-services": "Coaching e servizi",
+    "fitness": "Fitness",
+    "travel-hospitality": "Viaggi e ospitalità",
+    "other": "Altro"
+  },
+  "categorySelect": {
+    "selectCategory": "Seleziona una categoria"
+  },
+  "productStatus": {
+    "active": "Attivo",
+    "beta": "Beta",
+    "development": "In sviluppo",
+    "sunset": "Dismesso",
+    "archived": "Archiviato"
+  },
+  "productCard": {
+    "noChannelsConnected": "Nessun canale collegato",
+    "reconnectNeeded": "{label} — riconnessione necessaria",
+    "deleteBrand": "Elimina brand"
+  },
+  "page": {
+    "title": "Brand",
+    "subtitle": "Tutto ciò che promuovi — prodotti, attività, clienti o te stesso.",
+    "addBrand": "Aggiungi brand",
+    "filters": {
+      "all": "Tutti",
+      "active": "Attivi",
+      "development": "In sviluppo"
+    },
+    "ungrantedPages": {
+      "title": "{count, plural, one {# Pagina Facebook non è più autorizzata} other {# Pagine Facebook non sono più autorizzate}}",
+      "body": "Questo accesso non includeva {pages}. Facebook sostituisce l'intero set di permessi ogni volta che ti connetti, quindi quelle Pagine non potranno pubblicare finché non ti riconnetti e le selezioni. I post pianificati per esse falliranno.",
+      "howItWorks": "Come funziona la connessione",
+      "dismiss": "Ignora"
+    },
+    "emptyState": {
+      "all": "Ancora nessun brand",
+      "active": "Nessun brand attivo",
+      "development": "Nulla in sviluppo",
+      "body": "Aggiungi il tuo primo brand per iniziare a creare un marketing coerente con la tua voce."
+    },
+    "deleteWarning": "Verranno rimosse anche tutte le impostazioni di voice del brand per questo brand.",
+    "toasts": {
+      "connected": "{provider} connesso",
+      "declinedPermission": "{provider}: hai rifiutato la richiesta di autorizzazione — tocca Connetti per riprovare.",
+      "connectionFailed": "Connessione a {provider} non riuscita: {message}",
+      "unknownError": "Errore sconosciuto",
+      "almostDone": "Quasi fatto — scegli una pagina Facebook in Canali per completare la configurazione di Meta",
+      "deleteFailed": "Impossibile eliminare il brand",
+      "deleted": "Brand eliminato"
+    }
+  },
+  "createWizard": {
+    "eyebrow": "Nuovo brand",
+    "title": "Aggiungi brand",
+    "descriptions": {
+      "start": "Inizia scansionando il tuo sito web, oppure inserisci i dettagli manualmente.",
+      "scan": "Ricerca del tuo brand in corso…",
+      "manual": "Compila gli elementi essenziali — potrai aggiungerne altri in seguito.",
+      "review": "Rivedi ciò che abbiamo trovato, modifica ciò che vuoi, poi salva."
+    },
+    "scanCard": {
+      "title": "Scansiona il tuo sito web",
+      "body": "Estrarremo nome, descrizione, colori del brand, logo e tono così potrai partire già al 90%.",
+      "urlPlaceholder": "https://tuobrand.com",
+      "scan": "Scansiona"
+    },
+    "or": "Oppure",
+    "manualCard": {
+      "title": "Inserisci manualmente",
+      "body": "Salta la scansione e compila tu stesso il modulo."
+    },
+    "cancelScan": "Annulla scansione",
+    "scanError": {
+      "body": "Non siamo riusciti a scansionare {url}. Riprova la scansione o inserisci i tuoi dati manualmente.",
+      "editUrl": "Modifica URL",
+      "retry": "Riprova scansione",
+      "enterManually": "Inserisci manualmente"
+    },
+    "scanComplete": "Scansione completata — rivedi e modifica quanto necessario qui sotto.",
+    "fields": {
+      "brandName": "Nome del brand",
+      "brandNamePlaceholder": "DripCheckr",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "Di cosa si occupa questo brand?",
+      "website": "Sito web",
+      "websitePlaceholder": "https://tuobrand.com",
+      "category": "Categoria"
+    },
+    "brandIntelligence": "Brand intelligence",
+    "logoDetected": "Logo rilevato dal sito",
+    "targetAudience": "Pubblico di riferimento",
+    "brandTone": "Tono del brand",
+    "fineTuneNote": "Potrai affinare tutto questo dopo aver creato il brand.",
+    "startOver": "Ricomincia",
+    "createBrand": "Crea brand",
+    "creating": "Creazione…",
+    "toasts": {
+      "enterUrl": "Inserisci prima un URL",
+      "nameRequired": "Il nome è obbligatorio",
+      "createFailed": "Impossibile creare il brand",
+      "brandAdded": "Brand aggiunto"
+    }
+  },
+  "detailSheet": {
+    "sections": {
+      "foundation": "Fondamenta",
+      "identity": "Identità",
+      "channels": "Canali"
+    },
+    "brandFallback": "Brand",
+    "saveIndicator": {
+      "saving": "Salvataggio…",
+      "unsavedChanges": "Modifiche non salvate",
+      "savedAt": "Salvato · {time}",
+      "allSaved": "Tutte le modifiche salvate"
+    },
+    "cancel": "Annulla",
+    "save": "Salva",
+    "edit": "Modifica",
+    "deleteBrand": "Elimina brand",
+    "deleteWarning": "Verranno rimosse anche tutte le impostazioni e connessioni ai canali di questo brand.",
+    "disconnectWarning": "Questo rimuove ogni account {label} collegato a questo brand. Gli altri brand mantengono le proprie connessioni. Per sostituire un singolo account, usa invece Scollega accanto ad esso — e per rinnovare l'accesso usa Riconnetti invece di disconnettere.",
+    "disconnect": "Disconnetti",
+    "unsavedConfirm": "Hai modifiche non salvate. Chiudere senza salvare?",
+    "toasts": {
+      "loadFailed": "Impossibile caricare il brand",
+      "nameRequired": "Il nome del brand è obbligatorio",
+      "saveDetailsFailed": "Impossibile salvare i dettagli del brand",
+      "saveIdentityFailed": "Dettagli del brand salvati, ma impossibile salvare l'identità del brand",
+      "saved": "Salvato",
+      "deleteFailed": "Impossibile eliminare il brand",
+      "deleted": "Brand eliminato",
+      "logoTooLarge": "Il logo deve essere inferiore a 2 MB",
+      "logoUploaded": "Logo caricato",
+      "logoUploadFailed": "Impossibile caricare il logo",
+      "disconnected": "{label} disconnesso",
+      "disconnectFailed": "Impossibile disconnettere {provider}",
+      "noFacebookPages": "Nessuna pagina Facebook trovata.",
+      "loadPagesFailed": "Impossibile caricare le pagine",
+      "pagesLinked": "{count, plural, one {# Pagina Facebook collegata} other {# Pagine Facebook collegate}}",
+      "linkPagesFailed": "Impossibile collegare le Pagine"
+    },
+    "foundation": {
+      "basicsTitle": "Informazioni di base",
+      "basicsDescription": "Come viene identificato il tuo brand su Markaestro.",
+      "brandName": "Nome del brand",
+      "description": "Descrizione",
+      "website": "Sito web",
+      "positioningTitle": "Posizionamento",
+      "category": "Categoria",
+      "status": "Stato"
+    },
+    "identity": {
+      "logoTitle": "Logo",
+      "logoDescription": "Usato su schede, contenuti generati e anteprime.",
+      "colorsTitle": "Colori del brand",
+      "colorsDescription": "Impostati una volta, si riflettono su schede e contenuti generati.",
+      "primary": "Primario",
+      "primaryDescription": "Colore principale del brand",
+      "secondary": "Secondario",
+      "secondaryDescription": "Colore di supporto",
+      "accent": "Accento",
+      "accentDescription": "Evidenziazioni e CTA",
+      "upload": "Carica",
+      "uploading": "Caricamento…",
+      "replace": "Sostituisci",
+      "remove": "Rimuovi",
+      "fileHint": "PNG, JPG, WebP o SVG. Max 2 MB.",
+      "clearColor": "Cancella colore",
+      "openColorPicker": "Apri selettore colore",
+      "setColorTo": "Imposta {label} su {color}"
+    },
+    "channels": {
+      "title": "Canali collegati",
+      "description": "Collega account social per poter pianificare da questo brand.",
+      "connect": "Collega",
+      "reconnect": "Riconnetti",
+      "reconnectAddAccount": "Riconnetti / aggiungi account",
+      "disconnectAllCount": "Disconnetti tutte le {count}",
+      "unlinkAllCount": "Scollega tutte le {count}",
+      "unlink": "Scollega",
+      "loading": "Caricamento…",
+      "addPages": "Aggiungi Pagine",
+      "choosePages": "Scegli Pagine",
+      "pickAPage": "Scegli una Pagina",
+      "metaPagesLinkedCount": "{count} Pagine Facebook collegate",
+      "facebookPageLinked": "Pagina Facebook collegata",
+      "chooseWhichPages": "Scegli su quali Pagine Facebook pubblica questo brand",
+      "linkPages": "Collega le Pagine Facebook di questo brand",
+      "instagramNote": "Per account professionali non collegati a una pagina Facebook.",
+      "expires": "Scade il {date}",
+      "linked": "Collegato",
+      "reconnectBadge": "Riconnetti",
+      "selectBoard": "Seleziona bacheca",
+      "changeBoard": "Cambia bacheca",
+      "pinningTo": "Pin su: {board}",
+      "selectBoardToEnable": "Seleziona una bacheca per abilitare la pubblicazione",
+      "linkProfile": "Collega profilo",
+      "unlinkProfile": "Scollega profilo",
+      "linkPagesBtn": "Collega Pagine",
+      "unlinkPagesBtn": "Scollega Pagine",
+      "selectTarget": "Seleziona destinazione",
+      "changeTarget": "Cambia destinazione",
+      "selectTargetPlaceholder": "Seleziona una destinazione…",
+      "select": "Seleziona",
+      "postingTo": "Pubblicazione su: {target}",
+      "selectProfileOrPage": "Seleziona un Profilo o una Pagina per abilitare la pubblicazione",
+      "everyDestinationLinked": "Ogni {destination} disponibile è già collegata a questo brand.",
+      "linkedCount": "{count} {destination} collegata",
+      "connectedAccount": "Account connesso",
+      "warning": "Avviso",
+      "linkedAccountFallback": "Account collegato",
+      "toasts": {
+        "noLinkedInTargets": "Nessuna destinazione LinkedIn trovata.",
+        "loadLinkedInFailed": "Impossibile caricare le destinazioni LinkedIn",
+        "linkedInSelected": "Destinazione LinkedIn \"{name}\" selezionata",
+        "selectLinkedInFailed": "Impossibile selezionare la destinazione LinkedIn",
+        "noDestinationsFound": "Nessuna {destination} trovata.",
+        "loadDestinationsFailed": "Impossibile caricare le {destination}",
+        "linkDestinationsFailed": "Impossibile collegare le {destination}",
+        "accountUnlinked": "{account} scollegato",
+        "unlinkFailed": "Impossibile scollegare {account}"
+      }
+    }
+  }
+}

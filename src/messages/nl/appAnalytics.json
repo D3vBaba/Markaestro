@@ -1,0 +1,120 @@
+{
+  "page": {
+    "title": "Analyses",
+    "subtitle": "Wat je berichten hebben opgeleverd — gemeten met de eigen gegevens van elk platform.",
+    "refresh": {
+      "idle": "Vernieuwen",
+      "refreshing": "Bezig met vernieuwen…",
+      "pulling": "Live gegevens ophalen…",
+      "title": "Haal de nieuwste cijfers op van elk verbonden platform"
+    },
+    "export": {
+      "idle": "CSV exporteren",
+      "exporting": "Bezig met exporteren…",
+      "lockedTitle": "CSV-export is inbegrepen bij het Business-plan"
+    },
+    "filters": {
+      "allPlatforms": "Alle platforms",
+      "platformTitle": "Filteren op platform",
+      "allBrands": "Alle merken",
+      "brandTitle": "Filteren op merk",
+      "rangeTitle": "Laatste {label}",
+      "rangeLockedTitle": "De periode van {label} vereist een hoger plan",
+      "windowNote": "{days} dagen weergegeven — het analysevenster van je plan."
+    },
+    "error": {
+      "message": "Analyses konden niet worden geladen.",
+      "retry": "Opnieuw proberen"
+    },
+    "emptyState": {
+      "eyebrow": "Nog geen gegevens",
+      "title": "Publiceer je eerste bericht om te beginnen met meten",
+      "body": "Zodra een bericht is gepubliceerd, haalt Markaestro binnen ongeveer een uur de weergaven, bereik en betrokkenheid op van het platform — en blijft dit 30 dagen bijhouden. Het aantal volgers wordt dagelijks vastgelegd voor elk verbonden kanaal.",
+      "createPost": "Bericht maken"
+    },
+    "warmingUp": "Statistieken worden verzameld — de eerste gegevens komen ongeveer een uur na publicatie binnen en worden daarna 30 dagen lang met afnemende frequentie bijgewerkt.",
+    "kpis": {
+      "views": { "label": "Weergaven", "sub": "t.o.v. vorige periode" },
+      "reach": { "label": "Bereik", "sub": "unieke bereikte accounts" },
+      "engagement": { "label": "Betrokkenheid", "sub": "likes + reacties + keer gedeeld + opgeslagen" },
+      "engagementRate": { "label": "Betrokkenheidspercentage", "sub": "betrokkenheid ÷ bereik" },
+      "followers": { "label": "Volgers", "sub": "alle verbonden kanalen" }
+    },
+    "insights": {
+      "basedOn": "GEBASEERD OP {count} BERICHTEN"
+    },
+    "trend": {
+      "eyebrow": "Prestaties · {days}d",
+      "metrics": { "views": "Weergaven", "reach": "Bereik", "engagements": "Betrokkenheid", "posts": "Berichten" }
+    },
+    "audience": {
+      "eyebrow": "Publiek",
+      "title": "Volgers",
+      "titleWithCount": "{count} volgers"
+    },
+    "timing": { "eyebrow": "Timing", "title": "Wanneer je berichten het best presteren" },
+    "format": { "eyebrow": "Formaat", "title": "Wat de meeste betrokkenheid oplevert" },
+    "channels": { "eyebrow": "Kanalen", "title": "Prestaties per kanaal" },
+    "posts": { "eyebrow": "Berichten", "title": "Best presterende berichten" },
+    "provenance": {
+      "base": "Statistieken volgen de API-definities van elk platform en kunnen tot 48 uur achterlopen op de eigen inzichten van het platform. Een \"—\" betekent dat het platform die statistiek niet levert (Threads en TikTok rapporteren bijvoorbeeld geen bereik). Betrokkenheidspercentage is betrokkenheid ÷ bereik.",
+      "truncated": " Weergaven per bericht zijn gebaseerd op de {count} meest recente berichten in deze periode.",
+      "lastUpdate": " Laatste update van statistieken: {date}."
+    },
+    "toasts": {
+      "updated": "{count, plural, one {# bericht bijgewerkt vanuit de bron} other {# berichten bijgewerkt vanuit de bron}}",
+      "noNewMetrics": "Geen nieuwe platformstatistieken beschikbaar",
+      "tooManyRefreshes": "Te veel vernieuwingen — probeer het over een minuut opnieuw.",
+      "pullFailed": "Live gegevens konden niet worden opgehaald. De laatst opgeslagen cijfers worden weergegeven.",
+      "exportFailed": "Exporteren mislukt. Probeer het opnieuw."
+    }
+  },
+  "contentTypeBars": {
+    "types": { "image": "Afbeeldingen", "video": "Video's", "carousel": "Carrousels", "text": "Tekstberichten" },
+    "notEnoughVariety": "Nog niet genoeg variatie",
+    "publishAtLeastTwo": "Publiceer ten minste twee contentformaten (afbeeldingen, video's, carrousels, tekst) om ze te vergelijken.",
+    "postsCount": "{count, plural, one {# bericht} other {# berichten}}",
+    "avgEng": "gem. betr."
+  },
+  "trendChart": {
+    "noData": "Nog geen gegevens voor deze periode.",
+    "followerHistoryBuilds": "De volgersgeschiedenis wordt opgebouwd uit dagelijkse momentopnamen — de trend verschijnt na een paar dagen met gegevens.",
+    "followersSeriesName": "Volgers"
+  },
+  "channelTable": {
+    "columns": {
+      "channel": "Kanaal",
+      "posts": "Berichten",
+      "views": "Weergaven",
+      "reach": "Bereik",
+      "engagement": "Betrokkenheid",
+      "erReach": "BP (bereik)",
+      "followers": "Volgers"
+    },
+    "empty": "Verbind een kanaal en publiceer om de prestaties per kanaal te zien.",
+    "clearFilter": "Kanaalfilter wissen",
+    "filterTo": "Filteren op {channel}"
+  },
+  "bestTimeHeatmap": {
+    "notEnoughData": "Nog niet genoeg gegevens",
+    "unlocksAt": "De heatmap voor publicatietijden wordt ontgrendeld zodra {min} berichten betrokkenheidsgegevens hebben ({sampleSize} tot nu toe).",
+    "footer": "GEM. BETROKKENHEID PER BERICHT · JE LOKALE TIJD · {count} BERICHTEN"
+  },
+  "leaderboardTable": {
+    "post": "Bericht",
+    "columns": {
+      "views": "Weergaven",
+      "reach": "Bereik",
+      "engagement": "Betrokkenheid",
+      "erReach": "BP (bereik)",
+      "published": "Gepubliceerd"
+    },
+    "empty": "Nog geen berichten met statistieken in deze periode. Statistieken komen ongeveer een uur na publicatie binnen.",
+    "untitledPost": "Bericht zonder titel",
+    "sortBy": "Sorteren op {label}",
+    "openOnPlatform": "Openen op platform"
+  },
+  "stackedArea": {
+    "noData": "Nog geen gegevens."
+  }
+}

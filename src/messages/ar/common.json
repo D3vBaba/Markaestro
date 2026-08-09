@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "features": "المزايا",
+    "channels": "القنوات",
+    "aiAgents": "وكلاء الذكاء الاصطناعي",
+    "api": "API",
+    "pricing": "الأسعار",
+    "contact": "تواصل معنا",
+    "dashboard": "لوحة التحكم",
+    "signIn": "تسجيل الدخول",
+    "getStarted": "ابدأ الآن"
+  },
+  "footer": {
+    "tagline": "منصة التسويق لكل علامة تجارية تديرها — سواء كانت شركتك أو عملاءك أو نفسك.",
+    "productHeading": "المنتج",
+    "developersHeading": "المطورون",
+    "companyHeading": "الشركة",
+    "getStartedHeading": "ابدأ الآن",
+    "features": "المزايا",
+    "channels": "القنوات",
+    "pricing": "الأسعار",
+    "aiAgents": "وكلاء الذكاء الاصطناعي",
+    "apiReference": "مرجع API",
+    "agentBrief": "ملخص الوكلاء (llms.txt)",
+    "contact": "تواصل معنا",
+    "termsOfService": "شروط الخدمة",
+    "privacyPolicy": "سياسة الخصوصية",
+    "signIn": "تسجيل الدخول",
+    "createAccount": "إنشاء حساب",
+    "copyright": "© {year} Markaestro. جميع الحقوق محفوظة.",
+    "terms": "الشروط",
+    "privacy": "الخصوصية"
+  },
+  "copyBlock": {
+    "copy": "نسخ",
+    "copied": "تم النسخ",
+    "copyAriaLabel": "نسخ إلى الحافظة",
+    "copiedAriaLabel": "تم النسخ"
+  },
+  "localeSwitcher": {
+    "label": "اللغة"
+  },
+  "legalDisclaimer": {
+    "text": "هذه الصفحة ترجمة بمساعدة آلية. النسخة الإنجليزية هي النص المعتمد قانونيًا.",
+    "viewEnglish": "عرض النسخة الإنجليزية"
+  }
+}

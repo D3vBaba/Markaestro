@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "features": "機能",
+    "channels": "チャネル",
+    "aiAgents": "AIエージェント",
+    "api": "API",
+    "pricing": "料金",
+    "contact": "お問い合わせ",
+    "dashboard": "ダッシュボード",
+    "signIn": "ログイン",
+    "getStarted": "はじめる"
+  },
+  "footer": {
+    "tagline": "あなたが運営するすべてのブランドのためのマーケティングプラットフォーム — 自社ビジネス、クライアント、あるいはあなた自身のために。",
+    "productHeading": "プロダクト",
+    "developersHeading": "開発者向け",
+    "companyHeading": "会社情報",
+    "getStartedHeading": "はじめる",
+    "features": "機能",
+    "channels": "チャネル",
+    "pricing": "料金",
+    "aiAgents": "AIエージェント",
+    "apiReference": "APIリファレンス",
+    "agentBrief": "エージェント向け概要（llms.txt）",
+    "contact": "お問い合わせ",
+    "termsOfService": "利用規約",
+    "privacyPolicy": "プライバシーポリシー",
+    "signIn": "ログイン",
+    "createAccount": "アカウント作成",
+    "copyright": "© {year} Markaestro. 無断複写・転載を禁じます。",
+    "terms": "利用規約",
+    "privacy": "プライバシー"
+  },
+  "copyBlock": {
+    "copy": "コピー",
+    "copied": "コピーしました",
+    "copyAriaLabel": "クリップボードにコピー",
+    "copiedAriaLabel": "コピーしました"
+  },
+  "localeSwitcher": {
+    "label": "言語"
+  },
+  "legalDisclaimer": {
+    "text": "このページは機械支援による翻訳です。法的に有効なテキストは英語版となります。",
+    "viewEnglish": "英語版を見る"
+  }
+}

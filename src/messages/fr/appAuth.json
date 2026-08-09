@@ -1,0 +1,94 @@
+{
+  "login": {
+    "hero": {
+      "eyebrow": "Content de vous revoir",
+      "titleLine1": "Tout votre workflow",
+      "titleLine2Prefix": "social, ",
+      "titleLine2Accent": "une seule connexion.",
+      "subtitle": "Arrêtez de vous connecter à cinq applications pour publier une fois. Connectez-vous pour publier partout, planifier des semaines à l'avance et récupérer votre temps.",
+      "points": {
+        "publish": { "title": "Publiez partout en une fois", "desc": "Facebook, Instagram, TikTok et plus — depuis un seul éditeur." },
+        "schedule": { "title": "Planifiez des semaines à l'avance", "desc": "Définissez votre rythme une fois et ne restez plus jamais silencieux." },
+        "hours": { "title": "Récupérez des heures chaque semaine", "desc": "Les tâches fastidieuses de copier-coller et de connexion disparaissent tout simplement." }
+      },
+      "newHere": {
+        "title": "Nouveau sur Markaestro ?",
+        "body": "Répondez à 10 questions rapides et nous créerons votre plan de publication — découvrez combien d'heures vous récupérerez, gratuitement.",
+        "cta": "Créer mon plan — c'est gratuit →"
+      }
+    },
+    "form": {
+      "eyebrowEmail": "Connexion ou inscription",
+      "eyebrowCode": "Consultez votre boîte de réception",
+      "titleEmail": "Continuer avec votre e-mail",
+      "titleCode": "Saisissez votre code",
+      "subtitleEmail": "Aucun mot de passe requis — nous vous enverrons un code à usage unique par e-mail. Nouveau ici ? Le même code crée votre compte.",
+      "subtitleCode": "Nous avons envoyé un code à 6 chiffres à <email></email>.",
+      "emailPlaceholder": "nom@entreprise.com",
+      "codePlaceholder": "123456",
+      "sendCode": "M'envoyer un code",
+      "sendingCode": "Envoi du code…",
+      "signIn": "Se connecter",
+      "verifying": "Vérification…",
+      "useDifferentEmail": "← Utiliser un autre e-mail",
+      "resendCode": "Renvoyer le code",
+      "resendIn": "Renvoyer dans {seconds}s",
+      "orContinueWith": "Ou continuer avec",
+      "continueWithGoogle": "Continuer avec Google",
+      "legal": "En continuant, vous acceptez nos <terms>Conditions</terms> et notre <privacy>Politique de confidentialité</privacy>."
+    },
+    "errors": {
+      "enterEmail": "Veuillez saisir votre adresse e-mail.",
+      "enterCode": "Saisissez le code à 6 chiffres reçu par e-mail."
+    }
+  },
+  "authAction": {
+    "unsupportedAction": "Action non prise en charge.",
+    "canceledFallback": {
+      "eyebrow": "Compte",
+      "title": "Action sur le compte",
+      "subtitle": "Nous n'avons pas pu traiter ce lien.",
+      "message": "Paramètres d'action manquants ou invalides.",
+      "backToSignIn": "Retour à la connexion"
+    },
+    "titles": {
+      "resetPassword": "Définir un nouveau mot de passe",
+      "verifyEmail": "Vérifiez votre e-mail",
+      "verifyAndChangeEmail": "Confirmer le changement d'e-mail",
+      "default": "Action sur le compte"
+    },
+    "eyebrows": {
+      "resetPassword": "Réinitialiser",
+      "verifyEmail": "Vérifier",
+      "verifyAndChangeEmail": "Confirmer",
+      "default": "Compte"
+    },
+    "subtitles": {
+      "resetPassword": "Choisissez un nouveau mot de passe pour votre compte.",
+      "default": "Effectuez l'action demandée."
+    },
+    "emailVerifiedSuccess": "E-mail vérifié avec succès.",
+    "emailUpdatedSuccess": "E-mail mis à jour avec succès.",
+    "genericError": "Une erreur s'est produite.",
+    "genericSuccess": "Terminé.",
+    "resettingPasswordFor": "Réinitialisation du mot de passe pour <email></email>",
+    "newPasswordPlaceholder": "Nouveau mot de passe",
+    "updatePassword": "Mettre à jour le mot de passe",
+    "updating": "Mise à jour…",
+    "passwordUpdatedSuccess": "Mot de passe mis à jour avec succès. Vous pouvez maintenant vous connecter.",
+    "backToSignIn": "Retour à la connexion",
+    "working": "Traitement en cours…",
+    "continue": "Continuer",
+    "errors": {
+      "expiredActionCode": "Ce lien a expiré. Veuillez demander un nouvel e-mail.",
+      "invalidActionCode": "Ce lien est invalide ou a déjà été utilisé.",
+      "userDisabled": "Ce compte a été désactivé.",
+      "weakPassword": "Le mot de passe doit contenir au moins 6 caractères.",
+      "default": "Une erreur s'est produite. Veuillez réessayer."
+    }
+  },
+  "oauthComplete": {
+    "title": "Finalisation de la connexion",
+    "subtitle": "Restauration de votre session et retour à l'application."
+  }
+}

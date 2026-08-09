@@ -1,7 +1,10 @@
 import type { ProductCategory } from "@/lib/schemas";
+import type { useTranslations } from "next-intl";
 
-// Display labels for every brand category. Keys must stay in sync with
-// `productCategories` in src/lib/schemas.ts.
+// Canonical set of category keys with English fallback labels (used only if a
+// translation lookup fails). Keys must stay in sync with `productCategories`
+// in src/lib/schemas.ts. Display labels normally come from
+// messages/{locale}/appProducts.json under `categories.<key>`.
 export const PRODUCT_CATEGORY_LABELS: Record<ProductCategory, string> = {
   saas: "SaaS",
   mobile: "Mobile App",
@@ -44,17 +47,19 @@ const CATEGORY_PALETTE = [
   "#B91C1C", "#0F766E", "#C2410C", "#1D4ED8", "#57534E",
 ];
 
-export type CategoryOption = { value: ProductCategory; label: string; color: string };
+export type CategoryOption = { value: ProductCategory; color: string };
 
-export const PRODUCT_CATEGORY_OPTIONS: CategoryOption[] = (
-  Object.keys(PRODUCT_CATEGORY_LABELS) as ProductCategory[]
-).map((value, i) => ({
+export const PRODUCT_CATEGORY_KEYS = Object.keys(PRODUCT_CATEGORY_LABELS) as ProductCategory[];
+
+export const PRODUCT_CATEGORY_OPTIONS: CategoryOption[] = PRODUCT_CATEGORY_KEYS.map((value, i) => ({
   value,
-  label: PRODUCT_CATEGORY_LABELS[value],
   color: CATEGORY_PALETTE[i % CATEGORY_PALETTE.length],
 }));
 
-export function categoryLabel(value: string): string {
+type CategoryTranslator = ReturnType<typeof useTranslations>;
+
+export function categoryLabel(value: string, t?: CategoryTranslator): string {
+  if (t && t.has(value)) return t(value);
   return PRODUCT_CATEGORY_LABELS[value as ProductCategory] || value;
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import type { useTranslations } from 'next-intl';
 import {
   GoogleAuthProvider,
   User,
@@ -82,43 +83,55 @@ async function signInWithProvider(provider: GoogleAuthProvider) {
   }
 }
 
-/** Map Firebase and code-flow API error codes to user-friendly messages. */
-export function friendlyAuthError(error: unknown): string {
+type AuthErrorTranslator = ReturnType<typeof useTranslations>;
+
+const AUTH_ERROR_KEYS: Record<string, string> = {
+  'auth/invalid-email': 'invalidEmail',
+  VALIDATION_ERROR: 'invalidEmail',
+  'auth/user-disabled': 'userDisabled',
+  USER_DISABLED: 'userDisabled',
+  OTP_INVALID: 'otpInvalid',
+  OTP_EXPIRED: 'otpExpired',
+  OTP_TOO_MANY_ATTEMPTS: 'otpTooManyAttempts',
+  OTP_COOLDOWN: 'otpCooldown',
+  EMAIL_IN_USE: 'emailInUse',
+  'auth/too-many-requests': 'rateLimited',
+  RATE_LIMITED: 'rateLimited',
+  'auth/popup-closed-by-user': 'popupClosed',
+  'auth/cancelled-popup-request': 'popupClosed',
+  'auth/popup-blocked': 'popupBlocked',
+  'auth/account-exists-with-different-credential': 'accountExistsDifferentCredential',
+  'auth/network-request-failed': 'networkError',
+};
+
+const AUTH_ERROR_FALLBACK_EN: Record<string, string> = {
+  invalidEmail: 'Please enter a valid email address.',
+  userDisabled: 'This account has been disabled. Contact support.',
+  otpInvalid: 'That code is incorrect. Check the latest email and try again.',
+  otpExpired: 'That code has expired. Request a new one.',
+  otpTooManyAttempts: 'Too many incorrect attempts. Request a new code.',
+  otpCooldown: 'A code was just sent. Check your inbox, or retry in a minute.',
+  emailInUse: 'An account with this email already exists.',
+  rateLimited: 'Too many attempts. Please try again later.',
+  popupClosed: 'Sign-in was cancelled.',
+  popupBlocked: 'Pop-up was blocked by your browser. Please allow pop-ups and try again.',
+  accountExistsDifferentCredential: 'An account already exists with a different sign-in method for this email.',
+  networkError: 'Network error. Check your connection and try again.',
+  default: 'Authentication failed. Please try again.',
+};
+
+/**
+ * Map Firebase and code-flow API error codes to user-friendly messages.
+ * Pass a translator scoped to `appCommon.authErrors` (e.g.
+ * `useTranslations("appCommon.authErrors")`) to localize the result;
+ * without one this falls back to English.
+ */
+export function friendlyAuthError(error: unknown, t?: AuthErrorTranslator): string {
   const code =
     (error as { code?: string })?.code ||
     (error instanceof Error ? error.message : '');
-  switch (code) {
-    case 'auth/invalid-email':
-    case 'VALIDATION_ERROR':
-      return 'Please enter a valid email address.';
-    case 'auth/user-disabled':
-    case 'USER_DISABLED':
-      return 'This account has been disabled. Contact support.';
-    case 'OTP_INVALID':
-      return 'That code is incorrect. Check the latest email and try again.';
-    case 'OTP_EXPIRED':
-      return 'That code has expired. Request a new one.';
-    case 'OTP_TOO_MANY_ATTEMPTS':
-      return 'Too many incorrect attempts. Request a new code.';
-    case 'OTP_COOLDOWN':
-      return 'A code was just sent. Check your inbox, or retry in a minute.';
-    case 'EMAIL_IN_USE':
-      return 'An account with this email already exists.';
-    case 'auth/too-many-requests':
-    case 'RATE_LIMITED':
-      return 'Too many attempts. Please try again later.';
-    case 'auth/popup-closed-by-user':
-    case 'auth/cancelled-popup-request':
-      return 'Sign-in was cancelled.';
-    case 'auth/popup-blocked':
-      return 'Pop-up was blocked by your browser. Please allow pop-ups and try again.';
-    case 'auth/account-exists-with-different-credential':
-      return 'An account already exists with a different sign-in method for this email.';
-    case 'auth/network-request-failed':
-      return 'Network error. Check your connection and try again.';
-    default:
-      return 'Authentication failed. Please try again.';
-  }
+  const key = AUTH_ERROR_KEYS[code] ?? 'default';
+  return t ? t(key) : AUTH_ERROR_FALLBACK_EN[key];
 }
 
 /** POST JSON to an auth API route; throws Error(code) on non-2xx. */

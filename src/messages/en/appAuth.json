@@ -1,0 +1,94 @@
+{
+  "login": {
+    "hero": {
+      "eyebrow": "Welcome back",
+      "titleLine1": "Your whole social",
+      "titleLine2Prefix": "workflow, ",
+      "titleLine2Accent": "one login.",
+      "subtitle": "Stop logging into five apps to post once. Sign in to publish everywhere, schedule weeks ahead, and get your time back.",
+      "points": {
+        "publish": { "title": "Publish everywhere at once", "desc": "Facebook, Instagram, TikTok and more — from a single composer." },
+        "schedule": { "title": "Schedule weeks ahead", "desc": "Set your cadence once and never go quiet again." },
+        "hours": { "title": "Hours back every week", "desc": "The copy-paste-and-log-in busywork simply disappears." }
+      },
+      "newHere": {
+        "title": "New to Markaestro?",
+        "body": "Answer 10 quick questions and we'll build your posting plan — see how many hours you'll get back, free.",
+        "cta": "Build my plan — it's free →"
+      }
+    },
+    "form": {
+      "eyebrowEmail": "Sign in or sign up",
+      "eyebrowCode": "Check your inbox",
+      "titleEmail": "Continue with your email",
+      "titleCode": "Enter your code",
+      "subtitleEmail": "No password needed — we'll email you a one-time code. New here? The same code creates your account.",
+      "subtitleCode": "We sent a 6-digit code to <email></email>.",
+      "emailPlaceholder": "name@company.com",
+      "codePlaceholder": "123456",
+      "sendCode": "Email me a code",
+      "sendingCode": "Sending code…",
+      "signIn": "Sign in",
+      "verifying": "Verifying…",
+      "useDifferentEmail": "← Use a different email",
+      "resendCode": "Resend code",
+      "resendIn": "Resend in {seconds}s",
+      "orContinueWith": "Or continue with",
+      "continueWithGoogle": "Continue with Google",
+      "legal": "By continuing you agree to our <terms>Terms</terms> and <privacy>Privacy Policy</privacy>."
+    },
+    "errors": {
+      "enterEmail": "Please enter your email address.",
+      "enterCode": "Enter the 6-digit code from your email."
+    }
+  },
+  "authAction": {
+    "unsupportedAction": "Unsupported action.",
+    "canceledFallback": {
+      "eyebrow": "Account",
+      "title": "Account action",
+      "subtitle": "We could not complete this link.",
+      "message": "Missing or invalid action parameters.",
+      "backToSignIn": "Back to sign in"
+    },
+    "titles": {
+      "resetPassword": "Set a new password",
+      "verifyEmail": "Verify your email",
+      "verifyAndChangeEmail": "Confirm email change",
+      "default": "Account action"
+    },
+    "eyebrows": {
+      "resetPassword": "Reset",
+      "verifyEmail": "Verify",
+      "verifyAndChangeEmail": "Confirm",
+      "default": "Account"
+    },
+    "subtitles": {
+      "resetPassword": "Choose a new password for your account.",
+      "default": "Complete the requested action."
+    },
+    "emailVerifiedSuccess": "Email verified successfully.",
+    "emailUpdatedSuccess": "Email updated successfully.",
+    "genericError": "Something went wrong.",
+    "genericSuccess": "Done.",
+    "resettingPasswordFor": "Resetting password for <email></email>",
+    "newPasswordPlaceholder": "New password",
+    "updatePassword": "Update password",
+    "updating": "Updating…",
+    "passwordUpdatedSuccess": "Password updated successfully. You can now sign in.",
+    "backToSignIn": "Back to sign in",
+    "working": "Working…",
+    "continue": "Continue",
+    "errors": {
+      "expiredActionCode": "This link has expired. Please request a new email.",
+      "invalidActionCode": "This link is invalid or has already been used.",
+      "userDisabled": "This account has been disabled.",
+      "weakPassword": "Password must be at least 6 characters.",
+      "default": "Something went wrong. Please try again."
+    }
+  },
+  "oauthComplete": {
+    "title": "Finishing connection",
+    "subtitle": "Restoring your session and returning you to the app."
+  }
+}

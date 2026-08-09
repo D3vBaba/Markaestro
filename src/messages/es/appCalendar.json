@@ -1,0 +1,68 @@
+{
+  "statusLabels": {
+    "published": "Publicado",
+    "scheduled": "Programado",
+    "draft": "Borrador",
+    "failed": "Fallido",
+    "partial_failed": "Parcialmente fallido",
+    "publishing": "Publicando"
+  },
+  "mockups": {
+    "sponsored": "Patrocinado",
+    "like": "Me gusta",
+    "comment": "Comentar",
+    "share": "Compartir",
+    "save": "Guardar",
+    "justNow": "Justo ahora",
+    "likeAction": "👍 Me gusta",
+    "commentAction": "💬 Comentar",
+    "shareAction": "↗ Compartir"
+  },
+  "detailPanel": {
+    "backToDay": "Volver al día",
+    "close": "Cerrar",
+    "published": "Publicado",
+    "scheduled": "Programado",
+    "preview": "Vista previa",
+    "viewLivePost": "Ver publicación en vivo",
+    "untitledPost": "Publicación sin título",
+    "failedToPublish": "Error al publicar"
+  },
+  "dayPanel": {
+    "today": "Hoy",
+    "postCount": "{count, plural, one {# publicación} other {# publicaciones}} · selecciona una para ver la vista previa",
+    "noPosts": "No hay publicaciones este día."
+  },
+  "agenda": {
+    "today": "Hoy",
+    "itemCount": "{count, plural, one {# elemento} other {# elementos}}"
+  },
+  "deletedNotice": "Esa publicación se ha eliminado y ya no está disponible.",
+  "dismiss": "Descartar",
+  "truncatedNotice": "Este mes tiene más publicaciones de las que el calendario puede cargar a la vez — algunas no se muestran.",
+  "postsThisMonth": "{count, plural, one {# publicación} other {# publicaciones}} este mes",
+  "dropToReschedule": "· Suelta en un día para reprogramar",
+  "newPost": "Nueva publicación",
+  "today": "Hoy",
+  "filters": {
+    "brand": "Marca",
+    "all": "Todas",
+    "noBrand": "Sin marca",
+    "unknownBrand": "Marca desconocida",
+    "dragToReschedule": "Arrastra para reprogramar"
+  },
+  "loadError": "No se pudieron cargar los datos del calendario",
+  "retry": "Reintentar",
+  "noPostsMatchingFilters": "No hay publicaciones que coincidan con tus filtros",
+  "noPostsThisMonth": "No hay publicaciones este mes",
+  "noPostsThisMonthPeriod": "No hay publicaciones este mes.",
+  "clearFilters": "Borrar filtros",
+  "createPost": "Crear publicación",
+  "createPostCaps": "Crear publicación",
+  "postMovedToast": "Publicación movida al {date}",
+  "rescheduleFailedToast": "No se pudo reprogramar la publicación",
+  "postNotFoundToast": "No se pudo abrir esa publicación. Inténtalo de nuevo.",
+  "viewAllPostsOnDay": "Ver {count, plural, one {# publicación} other {# publicaciones}} de este día",
+  "viewAllPostsOnDate": "Ver {count, plural, one {# publicación} other {# publicaciones}} del {date}",
+  "moreCount": "+{count} más"
+}

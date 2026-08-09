@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import PlatformPreview from "@/components/app/PlatformPreview";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import MarkPostedDialog from "./MarkPostedDialog";
@@ -63,12 +64,6 @@ const statusTextColors: Record<string, string> = {
   [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: "text-mk-accent",
 };
 
-const statusLabels: Record<string, string> = {
-  [PLATFORM_ACTION_REQUIRED_STATUS]: "Ready in TikTok",
-  [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: "Ready in TikTok",
-  partial_failed: "Partially failed",
-};
-
 // Shared pill button style — taller on touch viewports, compact from sm up
 const pillBtn =
   "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-accent bg-mk-paper";
@@ -96,6 +91,13 @@ export default function PostCard({
   onReschedule?: () => void;
   onMarkedPosted?: () => void;
 }) {
+  const t = useTranslations("content.postCard");
+  const locale = useLocale();
+  const statusLabels: Record<string, string> = {
+    [PLATFORM_ACTION_REQUIRED_STATUS]: t("readyInTikTok"),
+    [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: t("readyInTikTok"),
+    partial_failed: t("partiallyFailed"),
+  };
   const [showPreview, setShowPreview] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [markPostedOpen, setMarkPostedOpen] = useState(false);
@@ -112,9 +114,9 @@ export default function PostCard({
   const handleCopyCaption = async () => {
     try {
       await navigator.clipboard.writeText(post.content);
-      toast.success("Caption copied");
+      toast.success(t("toasts.captionCopied"));
     } catch {
-      toast.error("Couldn't copy the caption");
+      toast.error(t("toasts.copyFailed"));
     }
   };
 
@@ -141,7 +143,7 @@ export default function PostCard({
             <>
               <span className="w-px h-3 bg-border/60" />
               <span className="text-[11px] text-muted-foreground truncate">
-                {new Date(post.scheduledAt).toLocaleString(undefined, {
+                {new Date(post.scheduledAt).toLocaleString(locale, {
                   month: "short",
                   day: "numeric",
                   hour: "numeric",
@@ -154,7 +156,7 @@ export default function PostCard({
             <>
               <span className="w-px h-3 bg-border/60" />
               <span className="text-[11px] text-muted-foreground truncate">
-                {new Date(post.publishedAt ?? post.createdAt!).toLocaleDateString(undefined, {
+                {new Date(post.publishedAt ?? post.createdAt!).toLocaleDateString(locale, {
                   month: "short",
                   day: "numeric",
                 })}
@@ -174,7 +176,7 @@ export default function PostCard({
           <span
             className={`text-[10px] uppercase tracking-wider font-medium ${statusTextColors[displayStatus] || "text-muted-foreground"}`}
           >
-            {inManualQueue && !publishing ? "Ready to post" : statusLabels[displayStatus] || displayStatus}
+            {inManualQueue && !publishing ? t("readyToPost") : statusLabels[displayStatus] || displayStatus}
           </span>
         </div>
       </div>
@@ -244,11 +246,10 @@ export default function PostCard({
               className="text-[12px] font-medium"
               style={{ color: "var(--mk-accent)" }}
             >
-              Ready to post on {primaryChannelLabel}
+              {t("readyToPostOn", { channel: primaryChannelLabel })}
             </p>
             <p className="text-[11px] text-mk-ink-60 mt-0.5">
-              Download the media, copy the caption, post it from the {primaryChannelLabel} app
-              as you normally would, then mark it as posted here.
+              {t("manualInstructions", { channel: primaryChannelLabel })}
             </p>
             {channelAppUrls[post.channel] && (
               <a
@@ -258,7 +259,7 @@ export default function PostCard({
                 className="inline-flex mt-1.5 text-[11px] font-medium underline"
                 style={{ color: "var(--mk-accent)" }}
               >
-                Open {primaryChannelLabel}
+                {t("openChannel", { channel: primaryChannelLabel })}
               </a>
             )}
           </div>
@@ -284,11 +285,10 @@ export default function PostCard({
               className="text-[12px] font-medium"
               style={{ color: "var(--mk-accent)" }}
             >
-              Ready in your TikTok inbox
+              {t("readyInTikTokInbox")}
             </p>
             <p className="text-[11px] text-mk-ink-60 mt-0.5">
-              Open the TikTok app → Inbox → tap the upload notification to finish the caption and post.
-              Drafts expire after ~7 days.
+              {t("tiktokInboxInstructions")}
             </p>
             <a
               href="https://www.tiktok.com/"
@@ -297,7 +297,7 @@ export default function PostCard({
               className="inline-flex mt-1.5 text-[11px] font-medium underline"
               style={{ color: "var(--mk-accent)" }}
             >
-              Open TikTok
+              {t("openTikTok")}
             </a>
           </div>
         </div>
@@ -323,7 +323,7 @@ export default function PostCard({
             className="text-[12px] font-medium"
             style={{ color: "var(--mk-accent)" }}
           >
-            Publishing to {channelLabel}...
+            {t("publishingTo", { channel: channelLabel })}
           </p>
         </div>
       )}
@@ -334,19 +334,19 @@ export default function PostCard({
           className={pillBtn}
           onClick={() => setShowPreview((v) => !v)}
         >
-          {showPreview ? "Text" : "Preview"}
+          {showPreview ? t("text") : t("preview")}
         </button>
 
         {post.externalUrl && (
           <a href={post.externalUrl} target="_blank" rel="noopener noreferrer">
-            <button className={pillBtn}>View</button>
+            <button className={pillBtn}>{t("view")}</button>
           </a>
         )}
 
         {inManualQueue && (
           <>
             <button className={pillBtn} onClick={handleCopyCaption}>
-              Copy caption
+              {t("copyCaption")}
             </button>
             {(post.mediaUrls?.length ?? 0) > 0 && (
               <button
@@ -354,18 +354,18 @@ export default function PostCard({
                 onClick={handleDownloadMedia}
                 disabled={downloading}
               >
-                {downloading ? "Downloading…" : "Download media"}
+                {downloading ? t("downloading") : t("downloadMedia")}
               </button>
             )}
             <button className={pillBtn} onClick={() => setMarkPostedOpen(true)}>
-              Mark as posted
+              {t("markAsPosted")}
             </button>
           </>
         )}
 
         {onEdit && (
           <button className={pillBtn} onClick={onEdit}>
-            Edit
+            {t("edit")}
           </button>
         )}
 
@@ -375,25 +375,25 @@ export default function PostCard({
             onClick={publishing ? undefined : onPublish}
             disabled={publishing}
           >
-            {publishing ? "Publishing…" : "Publish"}
+            {publishing ? t("publishing") : t("publish")}
           </button>
         )}
 
         {onReschedule && (
           <button className={pillBtn} onClick={onReschedule}>
-            Reschedule
+            {t("reschedule")}
           </button>
         )}
 
         {onCancel && (
           <button className={pillBtn} onClick={onCancel}>
-            Unschedule
+            {t("unschedule")}
           </button>
         )}
 
         {onDelete && (
           <button className={pillBtnDestructive} onClick={() => setConfirmDelete(true)}>
-            Delete
+            {t("delete")}
           </button>
         )}
       </div>

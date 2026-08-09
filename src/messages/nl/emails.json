@@ -1,0 +1,103 @@
+{
+  "shared": {
+    "footerDefault": "Als je deze e-mail niet hebt aangevraagd, kun je hem negeren. Je account blijft ongewijzigd.",
+    "copyright": "© {year} Markaestro · Groei-workflows, op één plek",
+    "ctaOpenQueue": "Je publicatiewachtrij openen"
+  },
+  "signInCode": {
+    "subject": "{code} is je Markaestro-inlogcode",
+    "preheader": "{code} is je Markaestro-inlogcode.",
+    "title": "Je inlogcode",
+    "bodyIntro": "Gebruik deze code om in te loggen als <strong>{email}</strong>:",
+    "fallbackAccount": "je account",
+    "expiryNote": "De code verloopt over 10 minuten. Deel hem met niemand — Markaestro zal er nooit naar vragen.",
+    "footerNote": "Als je niet probeerde in te loggen, kun je deze e-mail negeren. Zonder de code kan niemand toegang krijgen tot je account.",
+    "plain": {
+      "heading": "Je Markaestro-inlogcode",
+      "codeLabel": "Code: {code}",
+      "expiry": "De code verloopt over 10 minuten. Deel hem met niemand.",
+      "footer": "Als je niet probeerde in te loggen, kun je deze e-mail negeren."
+    }
+  },
+  "emailChangeCode": {
+    "subject": "{code} is je code om je nieuwe Markaestro-e-mailadres te bevestigen",
+    "preheader": "{code} is je code om deze e-mailwijziging te bevestigen.",
+    "title": "Bevestig je nieuwe e-mailadres",
+    "bodyIntro": "Je hebt gevraagd om je Markaestro-e-mailadres te wijzigen in <strong>{newEmail}</strong>. Voer deze code in de app in om te bevestigen:",
+    "expiryNote": "De code verloopt over 10 minuten. Deel hem met niemand.",
+    "footerNote": "Als je deze wijziging niet hebt aangevraagd, kun je deze e-mail negeren en blijft je adres hetzelfde.",
+    "plain": {
+      "heading": "Bevestig je nieuwe Markaestro-e-mailadres",
+      "newEmailLabel": "Nieuw e-mailadres: {newEmail}",
+      "codeLabel": "Code: {code}",
+      "expiry": "De code verloopt over 10 minuten.",
+      "footer": "Als je deze wijziging niet hebt aangevraagd, kun je deze e-mail negeren."
+    }
+  },
+  "emailChangeNotice": {
+    "subject": "E-mailwijziging aangevraagd · Markaestro",
+    "preheader": "Er is een Markaestro-e-mailwijziging aangevraagd.",
+    "title": "E-mailwijziging aangevraagd",
+    "bodyIntro": "Iemand heeft gevraagd om het e-mailadres van dit Markaestro-account te wijzigen:",
+    "fromToLabel": "Van → Naar",
+    "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
+    "bodyOutro": "Als jij dit was, rond de bevestiging dan af met de code die we naar het <strong>nieuwe adres</strong> hebben gestuurd. Als jij dit niet was, is je e-mailadres niet gewijzigd — neem dan direct contact op met support.",
+    "footerNote": "Dit bericht is verzonden omdat er een wijziging voor je account is aangevraagd.",
+    "plain": {
+      "heading": "E-mailwijziging aangevraagd op Markaestro",
+      "changeSummary": "{oldEmail} -> {newEmail}",
+      "warning": "Als jij dit niet was, is je e-mailadres niet gewijzigd — neem direct contact op met support."
+    }
+  },
+  "manualPostReminder": {
+    "subject": "Je {channelLabel}-bericht is klaar",
+    "preheader": "Een {channelLabel}-bericht wacht in je publicatiewachtrij.",
+    "bodyIntro": "Er wacht een bericht in je publicatiewachtrij. Haal de media en bijschrift op uit Markaestro, publiceer het vanuit de {channelLabel}-app en markeer het daarna als gepubliceerd.",
+    "footerNote": "Je ontvangt dit omdat een bericht in je Markaestro-werkruimte wacht om handmatig te worden gepubliceerd.",
+    "plain": {
+      "heading": "Je {channelLabel}-bericht is klaar om te publiceren",
+      "captionLabel": "Bijschrift:",
+      "queueLink": "Je publicatiewachtrij openen: {url}"
+    }
+  },
+  "tiktokInbox": {
+    "subjectWithBrand": "Rond je TikTok-bericht voor {brandName} af",
+    "subjectNoBrand": "Rond je TikTok-bericht af",
+    "preheader": "Je video wacht in de TikTok-app — open deze om te publiceren.",
+    "bodyIntroWithBrand": "Je video is geüpload en wacht in je TikTok-inbox voor <strong>{brandName}</strong>. TikTok vereist dat de definitieve publicatie vanuit hun app gebeurt, dus deze is nog niet live.",
+    "bodyIntroNoBrand": "Je video is geüpload en wacht in je TikTok-inbox. TikTok vereist dat de definitieve publicatie vanuit hun app gebeurt, dus deze is nog niet live.",
+    "toPublishLabel": "Zo publiceer je het",
+    "step1": "Open de TikTok-app",
+    "step2": "Ga naar je inbox-meldingen",
+    "step3": "Open de geüploade video, pas eventueel het bijschrift of de privacy aan, en publiceer",
+    "captionLabel": "Je bijschrift",
+    "closingNote": "Zodra het live staat, markeer het dan als gepubliceerd in Markaestro zodat je statistieken accuraat blijven.",
+    "footerNote": "Je ontvangt dit omdat een TikTok-bericht in je Markaestro-werkruimte wacht om te worden gepubliceerd.",
+    "plain": {
+      "bodyIntro": "Je video is geüpload en wacht in je TikTok-inbox. TikTok vereist dat de definitieve publicatie vanuit hun app gebeurt, dus deze is nog niet live.",
+      "toPublishLabel": "Zo publiceer je het:",
+      "captionLabel": "Je bijschrift:",
+      "queueLink": "Je publicatiewachtrij openen: {url}"
+    }
+  },
+  "teamInvite": {
+    "subject": "Je bent uitgenodigd voor {workspaceName} op Markaestro",
+    "title": "Je bent uitgenodigd",
+    "preheader": "Word lid van {workspaceName} op Markaestro.",
+    "greeting": "Hallo,",
+    "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> heeft je uitgenodigd om lid te worden van de werkruimte <strong>{workspaceName}</strong> op Markaestro {roleLabel}.",
+    "bodyIntroNoInviter": "Een teamgenoot heeft je uitgenodigd om lid te worden van de werkruimte <strong>{workspaceName}</strong> op Markaestro {roleLabel}.",
+    "signInInstructions": "Log in (of maak een account aan) met dit e-mailadres en de uitnodiging wordt automatisch toegepast:",
+    "declineNote": "Als je niet wilt deelnemen, negeer dan gewoon deze e-mail — de uitnodiging verloopt na 30 dagen.",
+    "roleLabels": {
+      "admin": "als beheerder",
+      "member": "als lid",
+      "analyst": "als analist"
+    },
+    "footerNote": "Je ontvangt dit omdat iemand dit e-mailadres heeft uitgenodigd voor een Markaestro-werkruimte.",
+    "plain": {
+      "fallbackInviter": "Een teamgenoot",
+      "summary": "{inviter} heeft je uitgenodigd om lid te worden van {workspaceName} op Markaestro {roleLabel}. Accepteer door in te loggen op {url}"
+    }
+  }
+}

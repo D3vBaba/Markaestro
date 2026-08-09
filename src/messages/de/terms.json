@@ -1,0 +1,147 @@
+{
+  "eyebrow": "Rechtliches",
+  "title": "Nutzungsbedingungen",
+  "lastUpdated": "Zuletzt aktualisiert · 10. März 2026",
+  "sections": [
+    {
+      "heading": "1. Zustimmung zu den Bedingungen",
+      "blocks": [
+        { "type": "p", "text": "Diese Nutzungsbedingungen („Bedingungen“) regeln deinen Zugriff auf und die Nutzung der Website, Anwendung, APIs und zugehörigen Dienste von Markaestro (zusammen die „Dienste“). Durch den Zugriff auf oder die Nutzung der Dienste erklärst du dich mit diesen Bedingungen einverstanden. Wenn du nicht zustimmst, nutze die Dienste nicht." },
+        { "type": "p", "text": "Wenn du die Dienste im Namen eines Unternehmens, einer Organisation oder einer anderen juristischen Person nutzt, versicherst du, zur Bindung dieser Einheit befugt zu sein, und „du“ schließt diese Einheit mit ein." }
+      ]
+    },
+    {
+      "heading": "2. Beschreibung des Dienstes",
+      "blocks": [
+        { "type": "p", "text": "Markaestro ist eine Social-Publishing-Plattform zur Verwaltung von Produkten, Markenressourcen, hochgeladenen Medien und Social-Publishing-Workflows. Die Dienste können sich mit Plattformen Dritter integrieren, darunter TikTok, Meta, Firebase und andere Dienste, die Markaestro von Zeit zu Zeit bereitstellt." }
+      ]
+    },
+    {
+      "heading": "3. Berechtigung und Konten",
+      "blocks": [
+        { "type": "p", "text": "Du musst mindestens 18 Jahre alt und in der Lage sein, einen verbindlichen Vertrag abzuschließen, um die Dienste zu nutzen. Du erklärst dich damit einverstanden, korrekte, aktuelle und vollständige Informationen bereitzustellen und diese aktuell zu halten." },
+        { "type": "ul", "items": [
+          "Du bist dafür verantwortlich, die Zugangsdaten deines Kontos und alle damit verbundenen Authentifizierungsmethoden zu schützen.",
+          "Du bist für sämtliche Aktivitäten verantwortlich, die unter deinem Konto und innerhalb deines Arbeitsbereichs stattfinden, unabhängig davon, ob sie von dir autorisiert wurden, es sei denn, sie beruhen auf einem Verstoß unsererseits gegen diese Bedingungen oder geltendes Recht.",
+          "Du musst uns umgehend informieren, wenn du unbefugten Zugriff, eine Kompromittierung von Zugangsdaten oder anderen Missbrauch des Kontos vermutest."
+        ] },
+        { "type": "p", "text": "Konten, die über Bots, täuschende Identitäten oder unbefugte automatisierte Methoden registriert wurden, sind untersagt." }
+      ]
+    },
+    {
+      "heading": "4. Arbeitsbereiche und Teamzugriff",
+      "blocks": [
+        { "type": "p", "text": "Markaestro ist um Arbeitsbereiche herum organisiert. Inhaber und Administratoren eines Arbeitsbereichs können Mitglieder hinzufügen oder entfernen und Rollen zuweisen. Der Inhaber des Arbeitsbereichs ist dafür verantwortlich, den Zugriff zu autorisieren, rechtmäßige Anweisungen aufrechtzuerhalten und sicherzustellen, dass alle Nutzer des Arbeitsbereichs diese Bedingungen einhalten. Das Löschen oder Entfernen eines Nutzers entfernt nicht automatisch zuvor im Arbeitsbereich erstellte Inhalte, Protokolle oder Aufzeichnungen." }
+      ]
+    },
+    {
+      "heading": "5. Kundendaten und Compliance-Verantwortlichkeiten",
+      "blocks": [
+        { "type": "p", "text": "Du behältst die Verantwortung für die Rechtmäßigkeit, Richtigkeit und Nutzung aller Daten oder Inhalte, die du an Markaestro übermittelst, einschließlich Kontaktlisten, Markenressourcen, hochgeladenen Medien und über die Dienste gesendeten Nachrichten." },
+        { "type": "ul", "items": [
+          "Du musst über alle Rechte, Genehmigungen, Lizenzen und Rechtsgrundlagen verfügen, die zum Hochladen, Verarbeiten, Veröffentlichen oder Senden dieser Daten oder Inhalte erforderlich sind.",
+          "Du bist dafür verantwortlich, geltende Datenschutz-, Antispam-, Verbraucherschutz- und plattformspezifische Regeln einzuhalten, einschließlich Einwilligungs-, Hinweis-, Abmelde- und Unterdrückungspflichten.",
+          "Du darfst Markaestro nicht zur Verarbeitung besonderer Kategorien oder anderer stark regulierter Daten nutzen, es sei denn, wir stimmen einer solchen Nutzung ausdrücklich schriftlich zu."
+        ] }
+      ]
+    },
+    {
+      "heading": "6. Zulässige Nutzung",
+      "blocks": [
+        { "type": "p", "text": "Du darfst die Dienste nicht nutzen, um:" },
+        { "type": "ul", "items": [
+          "gegen Gesetze, Vorschriften, Gerichtsbeschlüsse oder Rechte Dritter zu verstoßen;",
+          "Spam, unrechtmäßiges Marketing, Phishing oder täuschende oder manipulative Inhalte zu versenden;",
+          "rechtsverletzendes, verleumderisches, obszönes, betrügerisches, hasserfülltes oder anderweitig rechtswidriges Material zu veröffentlichen oder zu verbreiten;",
+          "zu versuchen, unbefugten Zugriff auf ein Konto, einen Arbeitsbereich, ein System oder ein Netzwerk zu erlangen;",
+          "die Dienste zurückzuentwickeln, zu scrapen oder zu missbrauchen, außer soweit nach geltendem Recht zulässig;",
+          "den Betrieb, die Integrität oder die Sicherheit der Dienste zu beeinträchtigen;",
+          "Ratenlimits, Kontingente, Zugriffsbeschränkungen oder Sicherheitskontrollen zu umgehen; oder",
+          "die Dienste so zu nutzen, dass Markaestro oder seine Anbieter gegen Plattformbedingungen oder vertragliche Verpflichtungen verstoßen."
+        ] }
+      ]
+    },
+    {
+      "heading": "7. Dienste und Integrationen Dritter",
+      "blocks": [
+        { "type": "p", "text": "Markaestro kann sich mit Veröffentlichungsplattformen und Workflow-Tools Dritter verbinden. Durch das Verbinden eines Dienstes Dritter autorisierst du Markaestro, im Rahmen der von dir erteilten Berechtigungen auf Zugangsdaten und zugehörige Daten zuzugreifen, sie zu speichern, zu erneuern und wie zur Bereitstellung der angeforderten Funktionalität erforderlich zu nutzen." },
+        { "type": "p", "text": "Du bleibst dafür verantwortlich, die Bedingungen, Richtlinien, technischen Anforderungen, Veröffentlichungsregeln und Kontobeschränkungen des Dritten einzuhalten. Markaestro ist nicht verantwortlich für API-Änderungen, Dienstausfälle, Kontosperrungen, Entscheidungen zur Inhaltsmoderation, abgelehnte Beiträge, widerrufene Tokens oder Handlungen von Plattformen Dritter." }
+      ]
+    },
+    {
+      "heading": "8. Uploads und öffentliche Inhalte",
+      "blocks": [
+        { "type": "p", "text": "Über Markaestro hochgeladene Dateien können über öffentlich erreichbare Cloud-URLs gespeichert werden, damit sie in sozialen Beiträgen verwendet werden können. Du darfst keine Datei oder Inhalte hochladen, es sei denn, du bist befugt, sie auf diese Weise verfügbar zu machen, und besitzt alle erforderlichen Rechte. Du erkennst an, dass über Plattformen Dritter veröffentlichte Inhalte öffentlich werden können und den Bedingungen und Sichtbarkeitseinstellungen dieser Plattformen unterliegen." }
+      ]
+    },
+    {
+      "heading": "9. Geistiges Eigentum und Lizenzen",
+      "blocks": [
+        { "type": "p", "text": "Zwischen den Parteien behältst du das Eigentum an deinen Inhalten, Kundendaten, hochgeladenen Ressourcen und Arbeitsbereichsmaterialien. Du gewährst Markaestro eine nicht-exklusive, weltweite, begrenzte Lizenz, diese Inhalte zu hosten, zu speichern, zu kopieren, umzuwandeln, anzuzeigen, zu übermitteln und anderweitig zu verarbeiten, nur soweit dies zum Betrieb, zur Sicherung, Verbesserung und Bereitstellung der Dienste für dich erforderlich ist." },
+        { "type": "p", "text": "Markaestro und seine Lizenzgeber behalten sämtliche Rechte, Titel und Interessen an den Diensten, einschließlich Software, Schnittstellen, Dokumentation, Markenzeichen und zugehörigem geistigem Eigentum. Es werden keine Rechte gewährt, außer den in diesen Bedingungen ausdrücklich genannten." }
+      ]
+    },
+    {
+      "heading": "10. Rückmeldungen",
+      "blocks": [
+        { "type": "p", "text": "Wenn du Ideen, Vorschläge, Rückmeldungen oder Verbesserungswünsche einreichst, gewährst du Markaestro ein unbefristetes, unwiderrufliches, weltweites, unterlizenzierbares, gebührenfreies Recht, diese ohne Einschränkung oder Vergütung an dich zu nutzen." }
+      ]
+    },
+    {
+      "heading": "11. Datenschutz",
+      "blocks": [
+        { "type": "p", "text": "Deine Nutzung der Dienste unterliegt auch unserer <privacyLink>Datenschutzerklärung</privacyLink>, die erläutert, wie wir Informationen erheben, nutzen und offenlegen. Wenn wir Kundendaten in deinem Auftrag verarbeiten, beauftragst du uns damit gemäß diesen Bedingungen, den geltenden Produkteinstellungen und deiner rechtmäßigen Nutzung der Dienste." }
+      ]
+    },
+    {
+      "heading": "12. Dienständerungen, Beta-Funktionen und Verfügbarkeit",
+      "blocks": [
+        { "type": "p", "text": "Wir können jederzeit Funktionen hinzufügen, ändern, aussetzen oder entfernen. Manche Funktionen können als Beta, Vorschau, experimentell oder Ähnliches gekennzeichnet sein. Diese Funktionen werden im verfügbaren Zustand bereitgestellt und können Fehler, unvollständige Funktionalität oder sich ändernde Anforderungen enthalten. Wir garantieren nicht, dass eine Funktion, Integration oder Anbieterverbindung verfügbar bleibt oder unterbrechungsfrei funktioniert." }
+      ]
+    },
+    {
+      "heading": "13. Aussetzung und Kündigung",
+      "blocks": [
+        { "type": "p", "text": "Du kannst die Nutzung der Dienste jederzeit beenden. Wir können deinen Zugriff aussetzen oder kündigen, Inhalte entfernen, Integrationen deaktivieren oder andere Schutzmaßnahmen ergreifen, wenn wir vernünftigerweise glauben, dass du gegen diese Bedingungen verstoßen, ein rechtliches oder Sicherheitsrisiko geschaffen, Plattformpflichten nicht eingehalten oder die Dienste in einer Weise genutzt hast, die Markaestro, seinen Nutzern oder Dritten schaden könnte." },
+        { "type": "p", "text": "Nach der Kündigung endet dein Recht zur Nutzung der Dienste sofort, aber Abschnitte, die ihrer Natur nach fortbestehen sollten, bleiben bestehen, einschließlich derjenigen zu geistigem Eigentum, Gewährleistungsausschlüssen, Haftungsbeschränkungen, Freistellung und Streitbeilegung." }
+      ]
+    },
+    {
+      "heading": "14. Gewährleistungsausschluss",
+      "blocks": [
+        { "type": "p", "text": "Im gesetzlich maximal zulässigen Umfang werden die Dienste „wie besehen“ und „wie verfügbar“ bereitgestellt. Markaestro schließt sämtliche Gewährleistungen aus, ob ausdrücklich, stillschweigend, gesetzlich oder anderweitig, einschließlich der Gewährleistung der Marktgängigkeit, Eignung für einen bestimmten Zweck, Nichtverletzung, Genauigkeit, Zuverlässigkeit, Verfügbarkeit oder dass die Dienste unterbrechungsfrei, sicher, fehlerfrei oder deinen Erwartungen entsprechend funktionieren." }
+      ]
+    },
+    {
+      "heading": "15. Haftungsbeschränkung",
+      "blocks": [
+        { "type": "p", "text": "Im gesetzlich maximal zulässigen Umfang haften Markaestro und seine verbundenen Unternehmen, leitenden Angestellten, Mitarbeiter, Auftragnehmer und Lizenzgeber nicht für indirekte, zufällige, besondere, Folge-, exemplarische oder Strafschäden oder für entgangenen Gewinn, Umsatz, Goodwill, Nutzung oder Daten, selbst wenn auf die Möglichkeit solcher Schäden hingewiesen wurde." },
+        { "type": "p", "text": "Im gesetzlich maximal zulässigen Umfang übersteigt die gesamte kumulierte Haftung von Markaestro, die aus oder im Zusammenhang mit den Diensten oder diesen Bedingungen entsteht, nicht den höheren Betrag aus dem, was du uns für die Dienste in den 12 Monaten vor dem anspruchsbegründenden Ereignis gezahlt hast, oder einhundert US-Dollar (100 US$)." }
+      ]
+    },
+    {
+      "heading": "16. Freistellung",
+      "blocks": [
+        { "type": "p", "text": "Du wirst Markaestro und seine verbundenen Unternehmen, leitenden Angestellten, Mitarbeiter, Auftragnehmer und Lizenzgeber verteidigen, freistellen und schadlos halten von und gegen sämtliche Ansprüche, Haftungen, Schäden, Urteile, Verluste, Kosten und Ausgaben, einschließlich angemessener Rechtskosten, die aus oder im Zusammenhang mit deinen Inhalten, deinen Daten, deiner Nutzung der Dienste, deiner Nutzung von Integrationen Dritter oder deinem Verstoß gegen diese Bedingungen oder geltendes Recht entstehen." }
+      ]
+    },
+    {
+      "heading": "17. Anwendbares Recht",
+      "blocks": [
+        { "type": "p", "text": "Diese Bedingungen unterliegen den Gesetzen des US-Bundesstaates Delaware, ohne Berücksichtigung der Kollisionsnormen, außer soweit unabdingbares Recht deiner Gerichtsbarkeit etwas anderes vorschreibt." }
+      ]
+    },
+    {
+      "heading": "18. Änderungen dieser Bedingungen",
+      "blocks": [
+        { "type": "p", "text": "Wir können diese Bedingungen von Zeit zu Zeit aktualisieren. Bei wesentlichen Änderungen veröffentlichen wir die aktualisierte Version und können zusätzliche Hinweise geben. Deine fortgesetzte Nutzung der Dienste nach dem Inkrafttreten überarbeiteter Bedingungen stellt die Annahme dieser überarbeiteten Bedingungen dar." }
+      ]
+    },
+    {
+      "heading": "19. Kontakt",
+      "blocks": [
+        { "type": "p", "text": "Wenn du Fragen zu diesen Bedingungen hast, kontaktiere uns über <contactLink>unsere Kontaktseite</contactLink> oder per E-Mail an <mailLink>legal@markaestro.com</mailLink>." }
+      ]
+    }
+  ]
+}

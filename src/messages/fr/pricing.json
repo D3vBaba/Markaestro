@@ -1,0 +1,173 @@
+{
+  "hero": {
+    "eyebrow": "Tarifs",
+    "titleLead": "Tout votre moteur marketing,",
+    "titleHighlight": "un prix simple",
+    "subtitle": "Pas de frais cachés, pas de surprise par utilisateur. Tous les forfaits incluent un essai gratuit de {trialDays} jours. Annulez à tout moment.",
+    "monthlyToggle": "Mensuel",
+    "annualToggle": "Annuel",
+    "annualSaveBadge": "ÉCONOMISEZ 18 %",
+    "trialLine": "Essai gratuit de {trialDays} jours sur tous les forfaits — aucun paiement avant le jour {trialEndDay}",
+    "annualSavingsSuffix": " · La facturation annuelle permet d'économiser 18 %"
+  },
+  "planNames": {
+    "starter": "Starter",
+    "pro": "Pro",
+    "business": "Business"
+  },
+  "mostPopularBadge": "Le plus populaire",
+  "plans": {
+    "starter": {
+      "description": "Pour les indépendants du marketing qui publient sur Meta et TikTok.",
+      "features": [
+        "5 canaux sociaux",
+        "Publications illimitées",
+        "500 imports de contenu par mois",
+        "1 membre d'équipe",
+        "Calendrier de contenu",
+        "1 espace de travail",
+        "Voix de marque (1 profil)",
+        "Analyses (fenêtre de 7 jours)"
+      ]
+    },
+    "pro": {
+      "description": "Pour les équipes en croissance qui ont besoin de collaboration et de programmation.",
+      "features": [
+        "15 canaux sociaux",
+        "Publications illimitées",
+        "5 000 imports de contenu par mois",
+        "5 membres d'équipe",
+        "5 espaces de travail",
+        "Voix de marque + identité de marque",
+        "Programmation intelligente",
+        "Analyses (fenêtre de 90 jours)",
+        "Support prioritaire"
+      ]
+    },
+    "business": {
+      "description": "Pour les agences qui gèrent plusieurs marques à grande échelle.",
+      "features": [
+        "50 canaux sociaux",
+        "Publications illimitées",
+        "Imports de contenu illimités",
+        "Membres d'équipe illimités",
+        "Tout ce qui est inclus dans Pro",
+        "Espaces de travail illimités",
+        "Historique d'analyses illimité + export CSV",
+        "Support prioritaire"
+      ]
+    }
+  },
+  "planCard": {
+    "perMonth": "/mois",
+    "billedAnnually": "· Facturé annuellement ({annualTotal} $/an)",
+    "justPerDay": "Soit seulement {dailyCost} $/jour",
+    "billedMonthly": "Facturé mensuellement · Passez à l'annuel et économisez 17 %",
+    "startTrialButton": "Démarrer l'essai gratuit de {trialDays} jours",
+    "noChargeLine": "Aucun paiement pendant {trialDays} jours · Annulez à tout moment",
+    "everythingIncluded": "Tout est inclus"
+  },
+  "comparison": {
+    "titleLead": "Comparez",
+    "titleHighlight": "chaque fonctionnalité",
+    "subtitle": "Voyez exactement ce qui est inclus dans chaque forfait.",
+    "categories": [
+      {
+        "name": "Publication",
+        "features": [
+          { "name": "Canaux sociaux" },
+          { "name": "Publications par mois" },
+          { "name": "Calendrier de contenu" },
+          { "name": "Programmation en masse" },
+          { "name": "Programmation intelligente" }
+        ]
+      },
+      {
+        "name": "Bibliothèque de contenu",
+        "features": [
+          { "name": "Imports de contenu" },
+          { "name": "Profils de voix de marque" },
+          { "name": "Identité de marque (logo et couleurs)" }
+        ]
+      },
+      {
+        "name": "Analyses",
+        "features": [
+          { "name": "Analyses des publications et abonnés" },
+          { "name": "Fenêtre d'historique" },
+          { "name": "Export CSV" }
+        ]
+      },
+      {
+        "name": "Équipe et espace de travail",
+        "features": [
+          { "name": "Membres d'équipe" },
+          { "name": "Espaces de travail" },
+          { "name": "Contrôle d'accès basé sur les rôles" }
+        ]
+      },
+      {
+        "name": "Développeurs et agents IA",
+        "features": [
+          { "name": "Clés API de l'espace de travail" },
+          { "name": "API de publication (Connect + v1 complète)" },
+          { "name": "Webhooks signés" },
+          { "name": "Clés limitées par marque et avec expiration" }
+        ]
+      },
+      {
+        "name": "Support",
+        "features": [
+          { "name": "Support par e-mail" },
+          { "name": "Support prioritaire" }
+        ]
+      }
+    ]
+  },
+  "faqTitleLead": "Questions fréquentes",
+  "faqTitleHighlight": "sur les tarifs",
+  "faqs": [
+    {
+      "q": "Puis-je changer de forfait à tout moment ?",
+      "a": "Oui. Vous pouvez passer à un forfait supérieur ou inférieur à tout moment. En cas de passage à un forfait supérieur, la différence au prorata vous sera facturée. En cas de passage à un forfait inférieur, le nouveau tarif prend effet à votre prochain cycle de facturation."
+    },
+    {
+      "q": "Qu'est-ce qui compte comme « canal social » ?",
+      "a": "Chaque compte social connecté compte comme un canal. Par exemple, une page Facebook, un compte professionnel Instagram et un compte TikTok représenteraient 3 canaux."
+    },
+    {
+      "q": "Qu'est-ce qui compte comme import de contenu ?",
+      "a": "Chaque image ou vidéo importée dans un espace de travail compte comme un import de contenu dans votre quota mensuel. Réutiliser un fichier déjà importé dans plusieurs publications ne compte pas une seconde fois. Consultez le tableau comparatif pour les limites mensuelles de chaque forfait."
+    },
+    {
+      "q": "Que se passe-t-il quand j'atteins ma limite d'imports de contenu ?",
+      "a": "Vous pouvez continuer à publier des publications utilisant du contenu déjà présent dans votre espace de travail — seuls les nouveaux imports sont bloqués. Votre quota d'imports se réinitialise au début de chaque cycle de facturation, et vous pouvez passer à un forfait supérieur à tout moment pour un quota plus élevé."
+    },
+    {
+      "q": "Comment fonctionne l'essai gratuit ?",
+      "a": "Tous les forfaits — mensuels et annuels — incluent un essai gratuit de {trialDays} jours. Votre carte est enregistrée à l'inscription mais ne sera débitée qu'à la fin de l'essai. Annulez à tout moment pendant l'essai et ne payez rien."
+    },
+    {
+      "q": "Quels forfaits incluent l'essai gratuit ?",
+      "a": "Tous les forfaits (Starter, Pro, Business), en facturation mensuelle comme annuelle, incluent l'essai gratuit de {trialDays} jours. La facturation annuelle vous fait aussi économiser 18 % par rapport au mensuel."
+    },
+    {
+      "q": "Mon agent IA ou mon propre logiciel peut-il utiliser Markaestro ?",
+      "a": "Oui, sur tous les forfaits et sans coût supplémentaire. Tout administrateur d'espace de travail peut générer des clés API depuis Paramètres → API et en confier une à un agent IA, un script ou un outil de programmation externe. Chaque clé est limitée à une seule marque, ne comporte que les permissions cochées, et peut avoir une date d'expiration. Consultez le guide pour agents IA pour les définitions d'outils et un démarrage rapide en quatre commandes."
+    },
+    {
+      "q": "Proposez-vous des réductions pour les associations ou les startups ?",
+      "a": "Oui. Nous offrons 50 % de réduction pour les associations à but non lucratif vérifiées et les startups en phase de démarrage (moins d'1 million de dollars de revenus). Contactez-nous pour en faire la demande."
+    },
+    {
+      "q": "Quels moyens de paiement acceptez-vous ?",
+      "a": "Nous acceptons toutes les principales cartes de crédit et de débit (Visa, Mastercard, Amex). Les forfaits entreprise peuvent payer par facture."
+    }
+  ],
+  "cta": {
+    "title": "Essayez Markaestro gratuitement pendant {trialDays} jours",
+    "subtitle": "Accès complet avec tout forfait annuel. Aucun paiement avant le jour {trialEndDay}. Annulez à tout moment.",
+    "primaryButton": "Démarrer l'essai gratuit",
+    "secondaryButton": "Parler aux ventes"
+  }
+}

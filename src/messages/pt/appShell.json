@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "groups": {
+      "overview": "Visão Geral",
+      "marketing": "Marketing",
+      "help": "Ajuda"
+    },
+    "items": {
+      "dashboard": "Painel",
+      "analytics": "Análises",
+      "brands": "Marcas",
+      "posts": "Publicações",
+      "calendar": "Calendário",
+      "connectChannels": "Conectar canais",
+      "settings": "Configurações"
+    },
+    "signOut": "Sair",
+    "workspaceSwitcher": {
+      "yourWorkspaces": "Seus workspaces",
+      "manageWorkspaces": "Gerenciar workspaces"
+    },
+    "toggleMenu": "Alternar menu de navegação",
+    "navigationMenu": "Menu de navegação",
+    "navigationMenuDescription": "Links de navegação principal"
+  },
+  "mobileTabBar": {
+    "home": "Início",
+    "analytics": "Análises",
+    "brands": "Marcas",
+    "posts": "Publicações",
+    "calendar": "Calendário"
+  },
+  "header": {
+    "searchPlaceholder": "Buscar qualquer coisa...",
+    "search": "Buscar"
+  },
+  "commandPalette": {
+    "title": "Paleta de comandos",
+    "description": "Buscar páginas e ações rápidas",
+    "searchPlaceholder": "Buscar páginas e ações...",
+    "noResults": "Nenhum resultado encontrado.",
+    "groupNavigation": "Navegação",
+    "groupQuickActions": "Ações rápidas",
+    "channels": "Canais",
+    "actions": {
+      "createPost": "Criar publicação",
+      "addBrand": "Adicionar marca",
+      "connectChannel": "Conectar canal",
+      "billing": "Faturamento"
+    }
+  },
+  "trialBanner": {
+    "endsToday": "Seu teste termina hoje",
+    "daysLeft": "{days, plural, one {Falta # dia de teste} other {Faltam # dias de teste}}",
+    "planSuffix": " · Plano {tier}",
+    "manageBilling": "Gerenciar Faturamento",
+    "loading": "Carregando...",
+    "openingPortal": "Abrindo o portal de faturamento…",
+    "portalError": "Não foi possível abrir o portal de faturamento. Tente novamente."
+  },
+  "verifyEmailBanner": {
+    "prompt": "Verifique seu e-mail para publicar",
+    "promptWithCode": " — digite o código que enviamos para <emailTag>{email}</emailTag>",
+    "sendCode": "Enviar código",
+    "resendCode": "Reenviar código",
+    "resendCountdown": "Reenviar ({seconds}s)",
+    "sending": "Enviando…",
+    "verify": "Verificar",
+    "verifying": "Verificando…",
+    "codeSent": "Código enviado — verifique sua caixa de entrada e spam.",
+    "sendError": "Não foi possível enviar agora. Tente novamente em um minuto.",
+    "verified": "E-mail verificado — tudo pronto."
+  },
+  "localeSwitcher": {
+    "label": "Idioma",
+    "description": "Escolha o idioma que o Markaestro usa em todo o aplicativo.",
+    "error": "Não foi possível atualizar seu idioma. Tente novamente."
+  },
+  "logout": {
+    "title": "Sair do Markaestro?",
+    "description": "Você precisará de um novo código por e-mail para entrar novamente, e qualquer trabalho não salvo no editor será perdido.",
+    "cancel": "Continuar conectado",
+    "confirm": "Sair",
+    "confirming": "Saindo…"
+  }
+}

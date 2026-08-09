@@ -1,0 +1,93 @@
+{
+  "page": {
+    "title": "Connecting channels",
+    "subtitle": "How permissions and brands fit together, and the exact steps for each platform."
+  },
+  "intro": {
+    "title": "The one thing to understand first",
+    "body": "Connecting a channel is two separate things, and mixing them up is what breaks posting.",
+    "layer1Badge": "Layer 1 · Permission",
+    "layer1Title": "What the platform lets us touch",
+    "layer1Body": "Set in the platform's own dialog when you log in. On Facebook this covers your <bold>whole workspace</bold>, and each new login <bold>replaces</bold> the previous selection.",
+    "layer2Badge": "Layer 2 · Routing",
+    "layer2Title": "Which account this brand posts to",
+    "layer2Body": "Set inside Markaestro, per brand. This is where \"one Page per brand\" lives — and a brand can hold several accounts if you want.",
+    "warning": "<bold>Grant everything, then narrow per brand.</bold> In the platform dialog tick every account you might ever post to. Choosing just one there revokes the rest, and their scheduled posts start failing."
+  },
+  "guides": {
+    "meta": {
+      "label": "Facebook",
+      "scope": "One Facebook login covers your whole workspace. Each brand then picks its own Page.",
+      "steps": {
+        "0": { "title": "Open a brand and press Connect on Facebook", "detail": "Brands → pick a brand → Channels. It does not matter which brand you start from; the login applies to every brand." },
+        "1": { "title": "Tick every Page you want Markaestro to manage", "detail": "Facebook's dialog is the permission list. Whatever you tick becomes the complete set Markaestro may touch, and it replaces the previous set. A Page you leave unticked loses access immediately." },
+        "2": { "title": "Choose which Page this brand posts to", "detail": "Back in Markaestro, use Choose Pages. This is routing, not permission — each brand can point at its own Page, and one brand can hold several." }
+      },
+      "gotcha": "Ticking only one Page in Facebook's dialog will disconnect every other brand's Page. Always tick them all, then narrow per brand inside Markaestro."
+    },
+    "instagram": {
+      "label": "Instagram",
+      "scope": "Connected per brand, using Instagram's own login rather than Facebook's.",
+      "steps": {
+        "0": { "title": "Press Connect on Instagram in the brand's Channels tab", "detail": "This is separate from Facebook — linking a Facebook Page does not link its Instagram account." },
+        "1": { "title": "Log in with the Instagram account itself", "detail": "The account must be a Professional (Business or Creator) account. Personal accounts cannot publish through the API." }
+      },
+      "gotcha": "If Instagram refuses the login, the account is almost certainly still a personal account. Switch it to Professional in the Instagram app, then reconnect."
+    },
+    "tiktok": {
+      "label": "TikTok",
+      "scope": "Connected per brand. TikTok requires you to finish each post in their app.",
+      "steps": {
+        "0": { "title": "Press Connect on TikTok and authorize", "detail": "Markaestro uploads the video and sends it to your TikTok inbox." },
+        "1": { "title": "Finish the post in the TikTok app", "detail": "TikTok does not allow full publishing from outside their app. When a post reaches your inbox we email you, and the post sits in To Post until you confirm." }
+      },
+      "gotcha": "A TikTok post is not live until you open the TikTok app and publish it. The email is your prompt."
+    },
+    "threads": {
+      "label": "Threads",
+      "scope": "Connected per brand, using its own login.",
+      "steps": {
+        "0": { "title": "Press Connect on Threads", "detail": "Authorize with the Threads account you want to post from." }
+      }
+    },
+    "pinterest": {
+      "label": "Pinterest",
+      "scope": "Connected per brand. Boards work like Facebook Pages — pick which one this brand pins to.",
+      "steps": {
+        "0": { "title": "Press Connect on Pinterest", "detail": "Authorize the Pinterest business account." },
+        "1": { "title": "Choose a board", "detail": "Pins need a destination board. You can link several boards to one brand and choose between them when composing." }
+      }
+    },
+    "linkedin": {
+      "label": "LinkedIn",
+      "scope": "Connected per brand, as either a personal profile or a company Page.",
+      "steps": {
+        "0": { "title": "Choose Profile or Pages when connecting", "detail": "They are separate authorizations. Connect both if you post as yourself and as the company." },
+        "1": { "title": "Pick the destination", "detail": "Select which profile or company Page this brand publishes to." }
+      }
+    }
+  },
+  "troubleshooting": {
+    "title": "If something stops working",
+    "subtitle": "What each message means and the quickest way out.",
+    "items": {
+      "0": {
+        "q": "A brand says “Reconnect Facebook and tick this Page”",
+        "a": "Facebook's current permissions no longer include that Page — usually because a later login ticked fewer Pages. Reconnect from any brand and tick every Page. Nothing is lost; the brand's Page choice is restored automatically."
+      },
+      "1": {
+        "q": "A brand says “Pick it again in brand settings”",
+        "a": "The Page is still granted but its token needs reissuing. Open the brand's Channels tab and select the Page again."
+      },
+      "2": {
+        "q": "Scheduled posts are failing",
+        "a": "Check the brand's Channels tab first. If every channel looks connected, reconnect the platform and tick all accounts — a narrowed permission set is the most common cause."
+      },
+      "3": {
+        "q": "A TikTok post never went live",
+        "a": "TikTok posts must be finished in the TikTok app. Check your email for the prompt, or open To Post in Markaestro."
+      }
+    },
+    "manageFrom": "Manage every connection from <brands>Brands</brands> or <settings>Settings → Integrations</settings>."
+  }
+}

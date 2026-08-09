@@ -1,26 +1,65 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import NextLink from "next/link";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useOptionalAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
+import LocaleSwitcher from "@/components/marketing/LocaleSwitcher";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
-const navLinks = [
-  { href: "/features", label: "Features" },
-  { href: "/channels", label: "Channels" },
-  { href: "/developers/agents", label: "AI Agents" },
-  { href: "/developers/api", label: "API" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/contact", label: "Contact" },
-];
-
-export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+export default function MarketingLayout({
+  children,
+  hideLocaleSwitcher = false,
+}: {
+  children: React.ReactNode;
+  /**
+   * Set on pages that live in the (app) route tree (e.g. /login,
+   * /auth/action) rather than under [locale] — the marketing LocaleSwitcher
+   * navigates via a locale-prefixed URL (next-intl's routing), which has no
+   * corresponding route there and would 404. Those pages resolve locale
+   * server-side instead (see (app)/layout.tsx), with no in-page switcher.
+   */
+  hideLocaleSwitcher?: boolean;
+}) {
+  const t = useTranslations("common");
   const { user } = useOptionalAuth();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = [
+    { href: "/features", label: t("nav.features") },
+    { href: "/channels", label: t("nav.channels") },
+    { href: "/developers/agents", label: t("nav.aiAgents") },
+    { href: "/developers/api", label: t("nav.api") },
+    { href: "/pricing", label: t("nav.pricing") },
+    { href: "/contact", label: t("nav.contact") },
+  ];
+
+  const footerProductLinks = [
+    { href: "/features", label: t("footer.features") },
+    { href: "/channels", label: t("footer.channels") },
+    { href: "/pricing", label: t("footer.pricing") },
+  ];
+
+  const footerDeveloperLinks = [
+    { href: "/developers/agents", label: t("footer.aiAgents") },
+    { href: "/developers/api", label: t("footer.apiReference") },
+  ];
+
+  const footerCompanyLinks = [
+    { href: "/contact", label: t("footer.contact") },
+    { href: "/terms", label: t("footer.termsOfService") },
+    { href: "/privacy", label: t("footer.privacyPolicy") },
+  ];
+
+  const footerBottomLinks = [
+    { href: "/terms", label: t("footer.terms") },
+    { href: "/privacy", label: t("footer.privacy") },
+    { href: "/contact", label: t("footer.contact") },
+  ];
 
   return (
     <div
@@ -74,24 +113,25 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           </nav>
 
           <div className="flex items-center gap-2.5">
+            {!hideLocaleSwitcher && <LocaleSwitcher />}
             {user ? (
-              <Link href="/dashboard">
+              <NextLink href="/dashboard">
                 <Button className="rounded-lg h-9 text-[13px]">
-                  Dashboard
+                  {t("nav.dashboard")}
                 </Button>
-              </Link>
+              </NextLink>
             ) : (
               <>
-                <Link href="/login" className="hidden sm:block">
+                <NextLink href="/login" className="hidden sm:block">
                   <Button variant="ghost" className="h-9 rounded-lg text-[13px]">
-                    Sign in
+                    {t("nav.signIn")}
                   </Button>
-                </Link>
-                <Link href="/onboarding">
+                </NextLink>
+                <NextLink href="/onboarding">
                   <Button className="rounded-lg h-9 text-[13px]">
-                    Get started
+                    {t("nav.getStarted")}
                   </Button>
-                </Link>
+                </NextLink>
               </>
             )}
             <Button
@@ -170,19 +210,14 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                 className="mt-4 text-[12.5px] leading-relaxed"
                 style={{ color: "var(--mk-ink-60)" }}
               >
-                The marketing platform for every brand you run — your
-                business, your clients, or yourself.
+                {t("footer.tagline")}
               </p>
             </div>
 
             <div>
-              <p className="mk-eyebrow">Product</p>
+              <p className="mk-eyebrow">{t("footer.productHeading")}</p>
               <div className="mt-4 flex flex-col gap-3">
-                {[
-                  { href: "/features", label: "Features" },
-                  { href: "/channels", label: "Channels" },
-                  { href: "/pricing", label: "Pricing" },
-                ].map((l) => (
+                {footerProductLinks.map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
@@ -196,12 +231,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             </div>
 
             <div>
-              <p className="mk-eyebrow">Developers</p>
+              <p className="mk-eyebrow">{t("footer.developersHeading")}</p>
               <div className="mt-4 flex flex-col gap-3">
-                {[
-                  { href: "/developers/agents", label: "AI agents" },
-                  { href: "/developers/api", label: "API reference" },
-                ].map((l) => (
+                {footerDeveloperLinks.map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
@@ -211,25 +243,22 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                     {l.label}
                   </Link>
                 ))}
-                {/* Static text brief for agents/crawlers — not a Next route. */}
+                {/* Static text brief for agents/crawlers — not a Next route,
+                    and not locale-routed (see task 14 notes on llms.txt). */}
                 <a
                   href="/llms.txt"
                   className="text-[13px] transition-colors"
                   style={{ color: "var(--mk-ink-60)" }}
                 >
-                  Agent brief (llms.txt)
+                  {t("footer.agentBrief")}
                 </a>
               </div>
             </div>
 
             <div>
-              <p className="mk-eyebrow">Company</p>
+              <p className="mk-eyebrow">{t("footer.companyHeading")}</p>
               <div className="mt-4 flex flex-col gap-3">
-                {[
-                  { href: "/contact", label: "Contact" },
-                  { href: "/terms", label: "Terms of Service" },
-                  { href: "/privacy", label: "Privacy Policy" },
-                ].map((l) => (
+                {footerCompanyLinks.map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
@@ -243,22 +272,22 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             </div>
 
             <div>
-              <p className="mk-eyebrow">Get started</p>
+              <p className="mk-eyebrow">{t("footer.getStartedHeading")}</p>
               <div className="mt-4 flex flex-col gap-3">
-                <Link
+                <NextLink
                   href="/login"
                   className="text-[13px]"
                   style={{ color: "var(--mk-ink-60)" }}
                 >
-                  Sign in
-                </Link>
-                <Link
+                  {t("footer.signIn")}
+                </NextLink>
+                <NextLink
                   href="/onboarding"
                   className="text-[13px]"
                   style={{ color: "var(--mk-ink-60)" }}
                 >
-                  Create account
-                </Link>
+                  {t("footer.createAccount")}
+                </NextLink>
               </div>
             </div>
           </div>
@@ -271,14 +300,10 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               className="text-[11.5px]"
               style={{ color: "var(--mk-ink-40)" }}
             >
-              &copy; {new Date().getFullYear()} Markaestro. All rights reserved.
+              {t("footer.copyright", { year: new Date().getFullYear() })}
             </p>
             <div className="flex gap-6">
-              {[
-                { href: "/terms", label: "Terms" },
-                { href: "/privacy", label: "Privacy" },
-                { href: "/contact", label: "Contact" },
-              ].map((l) => (
+              {footerBottomLinks.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}

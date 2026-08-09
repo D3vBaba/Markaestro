@@ -1,0 +1,103 @@
+{
+  "shared": {
+    "footerDefault": "이 이메일을 요청하지 않으셨다면 무시하셔도 됩니다. 계정은 변경되지 않습니다.",
+    "copyright": "© {year} Markaestro · 성장 워크플로우, 한곳에서",
+    "ctaOpenQueue": "게시 대기열 열기"
+  },
+  "signInCode": {
+    "subject": "{code}는 회원님의 Markaestro 로그인 코드입니다",
+    "preheader": "{code}는 회원님의 Markaestro 로그인 코드입니다.",
+    "title": "로그인 코드",
+    "bodyIntro": "<strong>{email}</strong>(으)로 로그인하려면 이 코드를 사용하세요:",
+    "fallbackAccount": "회원님의 계정",
+    "expiryNote": "이 코드는 10분 후 만료됩니다. 누구와도 공유하지 마세요 — Markaestro는 이 코드를 절대 요청하지 않습니다.",
+    "footerNote": "로그인을 시도하지 않으셨다면 이 이메일을 무시하셔도 됩니다. 코드가 없으면 아무도 계정에 접근할 수 없습니다.",
+    "plain": {
+      "heading": "Markaestro 로그인 코드",
+      "codeLabel": "코드: {code}",
+      "expiry": "이 코드는 10분 후 만료됩니다. 누구와도 공유하지 마세요.",
+      "footer": "로그인을 시도하지 않으셨다면 이 이메일을 무시하셔도 됩니다."
+    }
+  },
+  "emailChangeCode": {
+    "subject": "{code}는 새 Markaestro 이메일을 확인하는 코드입니다",
+    "preheader": "{code}는 이 이메일 변경을 확인하는 코드입니다.",
+    "title": "새 이메일 확인",
+    "bodyIntro": "Markaestro 이메일을 <strong>{newEmail}</strong>(으)로 변경하도록 요청하셨습니다. 확인하려면 앱에서 이 코드를 입력하세요:",
+    "expiryNote": "이 코드는 10분 후 만료됩니다. 누구와도 공유하지 마세요.",
+    "footerNote": "이 변경을 요청하지 않으셨다면 이 이메일을 무시하셔도 되며, 이메일 주소는 그대로 유지됩니다.",
+    "plain": {
+      "heading": "새 Markaestro 이메일 확인",
+      "newEmailLabel": "새 이메일: {newEmail}",
+      "codeLabel": "코드: {code}",
+      "expiry": "이 코드는 10분 후 만료됩니다.",
+      "footer": "이 변경을 요청하지 않으셨다면 이 이메일을 무시하셔도 됩니다."
+    }
+  },
+  "emailChangeNotice": {
+    "subject": "이메일 변경 요청됨 · Markaestro",
+    "preheader": "Markaestro 이메일 변경이 요청되었습니다.",
+    "title": "이메일 변경 요청됨",
+    "bodyIntro": "누군가 이 Markaestro 계정의 이메일 변경을 요청했습니다:",
+    "fromToLabel": "변경 전 → 변경 후",
+    "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
+    "bodyOutro": "본인이 요청하신 경우, <strong>새 주소</strong>로 보낸 코드로 확인을 완료하세요. 본인이 아니라면 이메일은 변경되지 않았지만, 즉시 지원팀에 문의해 주세요.",
+    "footerNote": "계정에 대한 변경이 요청되어 이 알림을 보내드립니다.",
+    "plain": {
+      "heading": "Markaestro 이메일 변경 요청됨",
+      "changeSummary": "{oldEmail} -> {newEmail}",
+      "warning": "본인이 아니라면 이메일은 변경되지 않았지만, 즉시 지원팀에 문의해 주세요."
+    }
+  },
+  "manualPostReminder": {
+    "subject": "{channelLabel} 게시물이 준비되었습니다",
+    "preheader": "{channelLabel} 게시물이 게시 대기열에서 기다리고 있습니다.",
+    "bodyIntro": "게시물이 게시 대기열에서 기다리고 있습니다. Markaestro에서 미디어와 캡션을 가져와 {channelLabel} 앱에서 게시한 후 게시 완료로 표시하세요.",
+    "footerNote": "Markaestro 워크스페이스의 게시물이 수동 게시를 기다리고 있어 이 이메일을 받으셨습니다.",
+    "plain": {
+      "heading": "{channelLabel} 게시물을 게시할 준비가 되었습니다",
+      "captionLabel": "캡션:",
+      "queueLink": "게시 대기열 열기: {url}"
+    }
+  },
+  "tiktokInbox": {
+    "subjectWithBrand": "{brandName}의 TikTok 게시물을 완료하세요",
+    "subjectNoBrand": "TikTok 게시물을 완료하세요",
+    "preheader": "동영상이 TikTok 앱에서 기다리고 있습니다 — 열어서 게시하세요.",
+    "bodyIntroWithBrand": "동영상이 업로드되어 <strong>{brandName}</strong>의 TikTok 받은편지함에서 기다리고 있습니다. TikTok은 최종 게시를 앱에서 진행해야 하므로 아직 게시되지 않았습니다.",
+    "bodyIntroNoBrand": "동영상이 업로드되어 TikTok 받은편지함에서 기다리고 있습니다. TikTok은 최종 게시를 앱에서 진행해야 하므로 아직 게시되지 않았습니다.",
+    "toPublishLabel": "게시하는 방법",
+    "step1": "TikTok 앱을 여세요",
+    "step2": "받은편지함 알림으로 이동하세요",
+    "step3": "업로드된 동영상을 열고 원하는 대로 캡션이나 공개 범위를 조정한 후 게시하세요",
+    "captionLabel": "캡션",
+    "closingNote": "게시가 완료되면 분석 데이터가 정확하게 유지되도록 Markaestro에서 게시 완료로 표시하세요.",
+    "footerNote": "Markaestro 워크스페이스의 TikTok 게시물이 게시를 기다리고 있어 이 이메일을 받으셨습니다.",
+    "plain": {
+      "bodyIntro": "동영상이 업로드되어 TikTok 받은편지함에서 기다리고 있습니다. TikTok은 최종 게시를 앱에서 진행해야 하므로 아직 게시되지 않았습니다.",
+      "toPublishLabel": "게시하는 방법:",
+      "captionLabel": "캡션:",
+      "queueLink": "게시 대기열 열기: {url}"
+    }
+  },
+  "teamInvite": {
+    "subject": "Markaestro의 {workspaceName}에 초대되었습니다",
+    "title": "초대장이 도착했습니다",
+    "preheader": "Markaestro의 {workspaceName}에 참여하세요.",
+    "greeting": "안녕하세요,",
+    "bodyIntroWithInviter": "<strong>{inviterEmail}</strong>님이 Markaestro의 <strong>{workspaceName}</strong> 워크스페이스에 {roleLabel}(으)로 참여하도록 초대했습니다.",
+    "bodyIntroNoInviter": "팀원이 Markaestro의 <strong>{workspaceName}</strong> 워크스페이스에 {roleLabel}(으)로 참여하도록 초대했습니다.",
+    "signInInstructions": "이 이메일 주소로 로그인(또는 계정 생성)하면 초대가 자동으로 적용됩니다:",
+    "declineNote": "참여하고 싶지 않으시면 이 이메일을 무시하시면 됩니다 — 초대는 30일 후 만료됩니다.",
+    "roleLabels": {
+      "admin": "관리자",
+      "member": "멤버",
+      "analyst": "분석가"
+    },
+    "footerNote": "누군가 이 이메일 주소를 Markaestro 워크스페이스에 초대하여 이 이메일을 받으셨습니다.",
+    "plain": {
+      "fallbackInviter": "팀원",
+      "summary": "{inviter}님이 Markaestro의 {workspaceName}에 {roleLabel}(으)로 참여하도록 초대했습니다. {url}에서 로그인하여 수락하세요"
+    }
+  }
+}

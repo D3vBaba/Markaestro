@@ -1,0 +1,68 @@
+{
+  "statusLabels": {
+    "published": "已发布",
+    "scheduled": "已排期",
+    "draft": "草稿",
+    "failed": "失败",
+    "partial_failed": "部分失败",
+    "publishing": "发布中"
+  },
+  "mockups": {
+    "sponsored": "赞助内容",
+    "like": "赞",
+    "comment": "评论",
+    "share": "分享",
+    "save": "收藏",
+    "justNow": "刚刚",
+    "likeAction": "👍 赞",
+    "commentAction": "💬 评论",
+    "shareAction": "↗ 分享"
+  },
+  "detailPanel": {
+    "backToDay": "返回当天",
+    "close": "关闭",
+    "published": "已发布",
+    "scheduled": "已排期",
+    "preview": "预览",
+    "viewLivePost": "查看已发布的帖子",
+    "untitledPost": "无标题帖子",
+    "failedToPublish": "发布失败"
+  },
+  "dayPanel": {
+    "today": "今天",
+    "postCount": "{count}篇帖子 · 选择一篇进行预览",
+    "noPosts": "当天没有帖子。"
+  },
+  "agenda": {
+    "today": "今天",
+    "itemCount": "{count}项"
+  },
+  "deletedNotice": "该帖子已被删除，不再可用。",
+  "dismiss": "关闭",
+  "truncatedNotice": "本月的帖子数量超过了日历一次可加载的上限 — 部分帖子未显示。",
+  "postsThisMonth": "本月共{count}篇帖子",
+  "dropToReschedule": "· 拖放到某一天以重新排期",
+  "newPost": "新建帖子",
+  "today": "今天",
+  "filters": {
+    "brand": "品牌",
+    "all": "全部",
+    "noBrand": "无品牌",
+    "unknownBrand": "未知品牌",
+    "dragToReschedule": "拖动以重新排期"
+  },
+  "loadError": "加载日历数据失败",
+  "retry": "重试",
+  "noPostsMatchingFilters": "没有符合筛选条件的帖子",
+  "noPostsThisMonth": "本月没有帖子",
+  "noPostsThisMonthPeriod": "本月没有帖子。",
+  "clearFilters": "清除筛选",
+  "createPost": "创建帖子",
+  "createPostCaps": "创建帖子",
+  "postMovedToast": "帖子已移动至{date}",
+  "rescheduleFailedToast": "重新排期帖子失败",
+  "postNotFoundToast": "无法打开该帖子，请重试。",
+  "viewAllPostsOnDay": "查看当天全部{count}篇帖子",
+  "viewAllPostsOnDate": "查看{date}的全部{count}篇帖子",
+  "moreCount": "还有{count}篇"
+}

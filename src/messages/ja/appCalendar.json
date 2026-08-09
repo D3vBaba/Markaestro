@@ -1,0 +1,68 @@
+{
+  "statusLabels": {
+    "published": "公開済み",
+    "scheduled": "予約済み",
+    "draft": "下書き",
+    "failed": "失敗",
+    "partial_failed": "一部失敗",
+    "publishing": "公開中"
+  },
+  "mockups": {
+    "sponsored": "広告",
+    "like": "いいね",
+    "comment": "コメント",
+    "share": "シェア",
+    "save": "保存",
+    "justNow": "たった今",
+    "likeAction": "👍 いいね",
+    "commentAction": "💬 コメント",
+    "shareAction": "↗ シェア"
+  },
+  "detailPanel": {
+    "backToDay": "その日に戻る",
+    "close": "閉じる",
+    "published": "公開済み",
+    "scheduled": "予約済み",
+    "preview": "プレビュー",
+    "viewLivePost": "公開済みの投稿を見る",
+    "untitledPost": "無題の投稿",
+    "failedToPublish": "公開に失敗しました"
+  },
+  "dayPanel": {
+    "today": "今日",
+    "postCount": "{count}件の投稿 · プレビューする投稿を選択してください",
+    "noPosts": "この日には投稿がありません。"
+  },
+  "agenda": {
+    "today": "今日",
+    "itemCount": "{count}件"
+  },
+  "deletedNotice": "この投稿は削除されており、現在ご利用いただけません。",
+  "dismiss": "閉じる",
+  "truncatedNotice": "この月にはカレンダーが一度に読み込める上限を超える投稿があります — 一部は表示されていません。",
+  "postsThisMonth": "今月は{count}件の投稿",
+  "dropToReschedule": "· 日付にドロップして再スケジュール",
+  "newPost": "新規投稿",
+  "today": "今日",
+  "filters": {
+    "brand": "ブランド",
+    "all": "すべて",
+    "noBrand": "ブランドなし",
+    "unknownBrand": "不明なブランド",
+    "dragToReschedule": "ドラッグして再スケジュール"
+  },
+  "loadError": "カレンダーデータの読み込みに失敗しました",
+  "retry": "再試行",
+  "noPostsMatchingFilters": "フィルターに一致する投稿がありません",
+  "noPostsThisMonth": "今月の投稿はありません",
+  "noPostsThisMonthPeriod": "今月の投稿はありません。",
+  "clearFilters": "フィルターをクリア",
+  "createPost": "投稿を作成",
+  "createPostCaps": "投稿を作成",
+  "postMovedToast": "投稿を{date}に移動しました",
+  "rescheduleFailedToast": "投稿の再スケジュールに失敗しました",
+  "postNotFoundToast": "その投稿を開けませんでした。もう一度お試しください。",
+  "viewAllPostsOnDay": "この日の投稿{count}件をすべて見る",
+  "viewAllPostsOnDate": "{date}の投稿{count}件をすべて見る",
+  "moreCount": "他{count}件"
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -23,6 +24,8 @@ export default function CategorySelect({
   onChange: (value: string) => void;
   disabled?: boolean;
 }) {
+  const t = useTranslations("products.categories");
+  const tSelect = useTranslations("products.categorySelect");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -63,7 +66,7 @@ export default function CategorySelect({
             style={{ background: value ? categoryColor(value) : "var(--mk-ink-20)" }}
           />
           <span className={cn("truncate", !value && "text-muted-foreground")}>
-            {value ? categoryLabel(value) : "Select a category"}
+            {value ? categoryLabel(value, t) : tSelect("selectCategory")}
           </span>
         </span>
         <ChevronDown
@@ -96,7 +99,7 @@ export default function CategorySelect({
                       setOpen(false);
                     }}
                     className={cn(
-                      "flex w-full min-h-10 sm:min-h-0 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
+                      "flex w-full min-h-10 sm:min-h-0 items-center gap-2.5 rounded-lg px-2.5 py-2 text-start text-sm transition-colors",
                       selected ? "text-foreground" : "text-foreground/90 hover:bg-muted/60",
                     )}
                     style={selected ? { background: "var(--mk-accent-soft)" } : undefined}
@@ -105,7 +108,7 @@ export default function CategorySelect({
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
                       style={{ background: opt.color }}
                     />
-                    <span className="flex-1 truncate">{opt.label}</span>
+                    <span className="flex-1 truncate">{categoryLabel(opt.value, t)}</span>
                     {selected && (
                       <Check className="h-4 w-4 shrink-0" style={{ color: "var(--mk-accent)" }} />
                     )}

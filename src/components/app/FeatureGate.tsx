@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { PLANS } from "@/lib/stripe/plans";
 import type { PlanTier } from "@/lib/stripe/plans";
@@ -26,6 +27,7 @@ function getMinimumTier(feature: FeatureKey): PlanTier {
 }
 
 function DefaultUpgradePrompt({ feature }: { feature: FeatureKey }) {
+  const t = useTranslations("appCommon.featureGate");
   const [busy, setBusy] = useState(false);
   const minTier = getMinimumTier(feature);
   const plan = PLANS[minTier];
@@ -35,10 +37,10 @@ function DefaultUpgradePrompt({ feature }: { feature: FeatureKey }) {
     try {
       const res = await apiFetch<{ url: string }>("/api/stripe/portal", { method: "POST" });
       if (res.ok && res.data.url) {
-        toast("Opening billing portal…");
+        toast(t("openingPortal"));
         window.open(res.data.url, "_blank", "noopener");
       } else {
-        toast.error("Could not open the billing portal. Please try again.");
+        toast.error(t("portalError"));
       }
     } finally {
       setBusy(false);
@@ -51,14 +53,13 @@ function DefaultUpgradePrompt({ feature }: { feature: FeatureKey }) {
         <Lock className="h-5 w-5 text-muted-foreground" />
       </div>
       <h3 className="text-base font-semibold">
-        Upgrade to {plan.name}
+        {t("upgradeTo", { plan: plan.name })}
       </h3>
       <p className="mt-1.5 text-sm text-muted-foreground max-w-sm">
-        This feature requires the {plan.name} plan or higher.
-        Upgrade to unlock it starting at ${plan.price.annual}/mo.
+        {t("requiresPlan", { plan: plan.name, price: plan.price.annual })}
       </p>
       <Button className="mt-5 rounded-xl" onClick={handleUpgrade} disabled={busy}>
-        {busy ? "Loading..." : `Upgrade to ${plan.name}`}
+        {busy ? t("loading") : t("upgradeTo", { plan: plan.name })}
       </Button>
     </div>
   );

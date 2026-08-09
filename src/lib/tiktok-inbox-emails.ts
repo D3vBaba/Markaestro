@@ -9,42 +9,48 @@
 
 import { adminDb } from '@/lib/firebase-admin';
 import { sendResendEmail } from '@/lib/resend';
-import { BRAND, brandWrap, escapeHtml, getBaseUrl, type AuthEmailPayload } from '@/lib/auth-emails';
+import { BRAND, brandWrap, escapeHtml, getBaseUrl, getEmailTranslator, strongTag, type AuthEmailPayload } from '@/lib/auth-emails';
 import { logger } from '@/lib/logger';
+import { isAppLocale, routing, type AppLocale } from '@/i18n/routing';
 
 const MAX_RECIPIENTS = 5;
 const CAPTION_PREVIEW_LENGTH = 240;
 
-export function tiktokInboxEmail(params: {
+export async function tiktokInboxEmail(params: {
   brandName?: string | null;
   caption: string;
-}): AuthEmailPayload {
+  locale: AppLocale;
+}): Promise<AuthEmailPayload> {
+  const t = await getEmailTranslator(params.locale);
   const subject = params.brandName
-    ? `Finish your TikTok post for ${params.brandName}`
-    : 'Finish your TikTok post';
+    ? t('tiktokInbox.subjectWithBrand', { brandName: params.brandName })
+    : t('tiktokInbox.subjectNoBrand');
   const queueUrl = `${getBaseUrl()}/content`;
   const preview = params.caption.length > CAPTION_PREVIEW_LENGTH
     ? `${params.caption.slice(0, CAPTION_PREVIEW_LENGTH)}…`
     : params.caption;
 
   const html = brandWrap({
+    locale: params.locale,
     title: subject,
-    preheader: 'Your video is waiting in the TikTok app — open it to publish.',
+    preheader: t('tiktokInbox.preheader'),
     bodyHtml: `
-      <p style="margin:0 0 16px 0;">Your video has been uploaded and is waiting in your TikTok inbox${
-        params.brandName ? ` for <strong>${escapeHtml(params.brandName)}</strong>` : ''
-      }. TikTok requires the final post to be made from their app, so it is not live yet.</p>
+      <p style="margin:0 0 16px 0;">${
+        params.brandName
+          ? t.markup('tiktokInbox.bodyIntroWithBrand', { brandName: escapeHtml(params.brandName), ...strongTag })
+          : escapeHtml(t('tiktokInbox.bodyIntroNoBrand'))
+      }</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td bgcolor="${BRAND.panelBg}" style="background-color:${BRAND.panelBg};border:1px solid ${BRAND.border};border-radius:12px;padding:16px 18px;font-size:14px;line-height:1.6;color:${BRAND.ink};">
-            <strong style="display:block;margin-bottom:8px;">To publish it</strong>
-            1. Open the TikTok app<br />
-            2. Go to your inbox notifications<br />
-            3. Open the uploaded video, adjust the caption or privacy if you want, and post
+            <strong style="display:block;margin-bottom:8px;">${escapeHtml(t('tiktokInbox.toPublishLabel'))}</strong>
+            1. ${escapeHtml(t('tiktokInbox.step1'))}<br />
+            2. ${escapeHtml(t('tiktokInbox.step2'))}<br />
+            3. ${escapeHtml(t('tiktokInbox.step3'))}
           </td>
         </tr>
       </table>
-      ${preview ? `<p style="margin:20px 0 8px 0;font-size:13px;color:${BRAND.muted};">Your caption</p>
+      ${preview ? `<p style="margin:20px 0 8px 0;font-size:13px;color:${BRAND.muted};">${escapeHtml(t('tiktokInbox.captionLabel'))}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td bgcolor="${BRAND.panelBg}" style="background-color:${BRAND.panelBg};border:1px solid ${BRAND.border};border-radius:12px;padding:16px 18px;font-size:14px;line-height:1.6;color:${BRAND.ink};white-space:pre-wrap;">${escapeHtml(preview)}</td>
@@ -53,33 +59,34 @@ export function tiktokInboxEmail(params: {
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0 0 0;">
         <tr>
           <td bgcolor="${BRAND.accent}" style="background-color:${BRAND.accent};border-radius:10px;">
-            <a href="${queueUrl}" style="display:inline-block;padding:12px 22px;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">Open your To Post queue</a>
+            <a href="${queueUrl}" style="display:inline-block;padding:12px 22px;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">${escapeHtml(t('shared.ctaOpenQueue'))}</a>
           </td>
         </tr>
       </table>
-      <p style="margin:16px 0 0 0;font-size:13px;color:${BRAND.muted};">Once it is live, mark it as posted in Markaestro so your analytics stay accurate.</p>
+      <p style="margin:16px 0 0 0;font-size:13px;color:${BRAND.muted};">${escapeHtml(t('tiktokInbox.closingNote'))}</p>
     `,
-    footerNote: 'You are receiving this because a TikTok post in your Markaestro workspace is waiting to be published.',
+    footerNote: t('tiktokInbox.footerNote'),
+    copyrightText: t('shared.copyright', { year: new Date().getFullYear() }),
   });
 
   const text = [
     subject,
     '',
-    'Your video has been uploaded and is waiting in your TikTok inbox. TikTok requires the final post to be made from their app, so it is not live yet.',
+    t('tiktokInbox.plain.bodyIntro'),
     '',
-    'To publish it:',
-    '1. Open the TikTok app',
-    '2. Go to your inbox notifications',
-    '3. Open the uploaded video, adjust the caption or privacy if you want, and post',
+    t('tiktokInbox.plain.toPublishLabel'),
+    `1. ${t('tiktokInbox.step1')}`,
+    `2. ${t('tiktokInbox.step2')}`,
+    `3. ${t('tiktokInbox.step3')}`,
     '',
-    preview ? `Your caption:\n${preview}\n` : '',
-    `Open your To Post queue: ${queueUrl}`,
+    preview ? `${t('tiktokInbox.plain.captionLabel')}\n${preview}\n` : '',
+    t('tiktokInbox.plain.queueLink', { url: queueUrl }),
   ].filter(Boolean).join('\n');
 
   return { subject, html, text };
 }
 
-async function getRecipients(workspaceId: string): Promise<string[]> {
+async function getRecipients(workspaceId: string): Promise<Array<{ email: string; locale: AppLocale }>> {
   const snap = await adminDb
     .collection(`workspaces/${workspaceId}/members`)
     .where('role', 'in', ['owner', 'admin'])
@@ -87,8 +94,13 @@ async function getRecipients(workspaceId: string): Promise<string[]> {
     .get();
 
   return snap.docs
-    .map((doc) => doc.data()?.email)
-    .filter((email): email is string => typeof email === 'string' && email.includes('@'));
+    .map((doc) => {
+      const data = doc.data();
+      const email = data?.email;
+      const locale = isAppLocale(data?.locale) ? data.locale : routing.defaultLocale;
+      return typeof email === 'string' && email.includes('@') ? { email, locale } : null;
+    })
+    .filter((r): r is { email: string; locale: AppLocale } => r !== null);
 }
 
 async function getBrandName(workspaceId: string, productId: unknown): Promise<string | null> {
@@ -118,17 +130,30 @@ export async function sendTikTokInboxEmail(
     const recipients = await getRecipients(workspaceId);
     if (recipients.length === 0) return;
 
-    const payload = tiktokInboxEmail({
-      brandName: await getBrandName(workspaceId, post.productId),
-      caption: String(post.content || ''),
-    });
+    const brandName = await getBrandName(workspaceId, post.productId);
+    const caption = String(post.content || '');
 
-    await sendResendEmail({
-      to: recipients,
-      subject: payload.subject,
-      html: payload.html,
-      text: payload.text,
-    });
+    // Recipients can each have their own locale preference — group them so
+    // every group gets a body rendered in its own language rather than one
+    // language for the whole batch.
+    const byLocale = new Map<AppLocale, string[]>();
+    for (const { email, locale } of recipients) {
+      const group = byLocale.get(locale) ?? [];
+      group.push(email);
+      byLocale.set(locale, group);
+    }
+
+    await Promise.all(
+      Array.from(byLocale.entries()).map(async ([locale, emails]) => {
+        const payload = await tiktokInboxEmail({ brandName, caption, locale });
+        await sendResendEmail({
+          to: emails,
+          subject: payload.subject,
+          html: payload.html,
+          text: payload.text,
+        });
+      }),
+    );
 
     await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).update({
       tiktokInboxEmailSentAt: new Date().toISOString(),

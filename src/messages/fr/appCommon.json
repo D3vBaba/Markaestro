@@ -1,0 +1,107 @@
+{
+  "status": {
+    "published": "Publié",
+    "scheduled": "Programmé",
+    "draft": "Brouillon",
+    "failed": "Échoué",
+    "active": "Actif",
+    "paused": "En pause",
+    "ended": "Terminé",
+    "live": "En direct",
+    "completed": "Terminé",
+    "cancelled": "Annulé"
+  },
+  "authErrors": {
+    "invalidEmail": "Veuillez saisir une adresse e-mail valide.",
+    "userDisabled": "Ce compte a été désactivé. Contactez le support.",
+    "otpInvalid": "Ce code est incorrect. Consultez le dernier e-mail et réessayez.",
+    "otpExpired": "Ce code a expiré. Demandez-en un nouveau.",
+    "otpTooManyAttempts": "Trop de tentatives incorrectes. Demandez un nouveau code.",
+    "otpCooldown": "Un code vient d'être envoyé. Consultez votre boîte de réception ou réessayez dans une minute.",
+    "emailInUse": "Un compte existe déjà avec cette adresse e-mail.",
+    "rateLimited": "Trop de tentatives. Réessayez plus tard.",
+    "popupClosed": "La connexion a été annulée.",
+    "popupBlocked": "La fenêtre pop-up a été bloquée par votre navigateur. Autorisez les pop-ups et réessayez.",
+    "accountExistsDifferentCredential": "Un compte existe déjà avec une méthode de connexion différente pour cet e-mail.",
+    "networkError": "Erreur réseau. Vérifiez votre connexion et réessayez.",
+    "default": "Échec de l'authentification. Veuillez réessayer."
+  },
+  "confirmDeleteDialog": {
+    "entities": {
+      "brand": "marque",
+      "connection": "connexion",
+      "teamMember": "membre de l'équipe",
+      "integration": "intégration",
+      "post": "post"
+    },
+    "titleGeneric": "Supprimer {entity}",
+    "titleNamed": "Supprimer {entity} ?",
+    "descriptionNamed": "Voulez-vous vraiment supprimer <name></name> ? Cette action est irréversible.",
+    "descriptionGeneric": "Voulez-vous vraiment supprimer cet(te) {entity} ? Cette action est irréversible.",
+    "typeToConfirm": "Tapez <name></name> pour confirmer.",
+    "cancel": "Annuler",
+    "deleteDefault": "Supprimer"
+  },
+  "featureGate": {
+    "openingPortal": "Ouverture du portail de facturation…",
+    "portalError": "Impossible d'ouvrir le portail de facturation. Veuillez réessayer.",
+    "upgradeTo": "Passer au forfait {plan}",
+    "requiresPlan": "Cette fonctionnalité nécessite le forfait {plan} ou supérieur. Débloquez-la à partir de {price} $/mois.",
+    "loading": "Chargement..."
+  },
+  "metricCard": {
+    "vsLastPeriod": "vs période précédente"
+  },
+  "pagination": {
+    "firstPage": "Première page",
+    "previousPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "lastPage": "Dernière page"
+  },
+  "tagInput": {
+    "defaultPlaceholder": "Tapez et appuyez sur Entrée…"
+  },
+  "scanProgressStepper": {
+    "steps": {
+      "connecting": { "label": "Connexion au site", "activeLabel": "Connexion au site…" },
+      "reading": { "label": "Lecture du contenu du site", "activeLabel": "Lecture du contenu du site…" },
+      "extracting": { "label": "Extraction des couleurs de marque", "activeLabel": "Extraction des couleurs de marque et du logo…" },
+      "analyzing": { "label": "Analyse des signaux de marque", "activeLabel": "Analyse des signaux de marque…" },
+      "finalizing": { "label": "Création du profil de marque", "activeLabel": "Création de votre profil de marque…" }
+    },
+    "scanComplete": "Analyse terminée — vérifiez et confirmez ci-dessous",
+    "scanFailed": "Échec de l'analyse — veuillez remplir manuellement",
+    "researching": "Recherche sur votre marque…"
+  },
+  "platformPreview": {
+    "sponsored": "Sponsorisé",
+    "justNow": "à l'instant",
+    "now": "à l'instant",
+    "zeroLikes": "0 mention J'aime",
+    "zeroComments": "0 commentaire",
+    "like": "J'aime",
+    "comment": "Commenter",
+    "share": "Partager",
+    "repost": "Republier",
+    "send": "Envoyer",
+    "following": "Abonnements",
+    "forYou": "Pour toi",
+    "originalSound": "Son original",
+    "originalSoundWithBrand": "Son original · yourbrand",
+    "save": "Enregistrer",
+    "untitledPin": "Épingle sans titre",
+    "viewLive": "Voir en direct",
+    "previewSuffix": "Aperçu",
+    "companyPageNow": "Page d'entreprise · à l'instant",
+    "cta": {
+      "LEARN_MORE": "En savoir plus",
+      "SHOP_NOW": "Acheter",
+      "SIGN_UP": "S'inscrire",
+      "DOWNLOAD": "Télécharger",
+      "GET_QUOTE": "Obtenir un devis",
+      "CONTACT_US": "Nous contacter"
+    },
+    "facebookInstagramAd": "Publicité Facebook / Instagram",
+    "tiktokAd": "Publicité TikTok"
+  }
+}

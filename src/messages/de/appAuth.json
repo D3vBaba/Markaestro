@@ -1,0 +1,94 @@
+{
+  "login": {
+    "hero": {
+      "eyebrow": "Willkommen zurück",
+      "titleLine1": "Dein gesamter Social-",
+      "titleLine2Prefix": "Workflow, ",
+      "titleLine2Accent": "ein Login.",
+      "subtitle": "Schluss damit, dich in fünf Apps anzumelden, um einmal zu posten. Melde dich an, um überall zu veröffentlichen, Wochen im Voraus zu planen und deine Zeit zurückzugewinnen.",
+      "points": {
+        "publish": { "title": "Überall gleichzeitig veröffentlichen", "desc": "Facebook, Instagram, TikTok und mehr — aus einem einzigen Editor." },
+        "schedule": { "title": "Wochen im Voraus planen", "desc": "Lege deinen Rhythmus einmal fest und werde nie wieder still." },
+        "hours": { "title": "Jede Woche Stunden zurückgewinnen", "desc": "Die lästige Kopier-, Einfüge- und Anmeldearbeit fällt einfach weg." }
+      },
+      "newHere": {
+        "title": "Neu bei Markaestro?",
+        "body": "Beantworte 10 kurze Fragen und wir erstellen deinen Posting-Plan — sieh kostenlos, wie viele Stunden du zurückgewinnst.",
+        "cta": "Meinen Plan erstellen — kostenlos →"
+      }
+    },
+    "form": {
+      "eyebrowEmail": "Anmelden oder registrieren",
+      "eyebrowCode": "Prüfe dein Postfach",
+      "titleEmail": "Weiter mit deiner E-Mail",
+      "titleCode": "Gib deinen Code ein",
+      "subtitleEmail": "Kein Passwort nötig — wir senden dir per E-Mail einen einmaligen Code. Neu hier? Derselbe Code erstellt dein Konto.",
+      "subtitleCode": "Wir haben einen 6-stelligen Code an <email></email> gesendet.",
+      "emailPlaceholder": "name@unternehmen.com",
+      "codePlaceholder": "123456",
+      "sendCode": "Code per E-Mail senden",
+      "sendingCode": "Code wird gesendet…",
+      "signIn": "Anmelden",
+      "verifying": "Wird überprüft…",
+      "useDifferentEmail": "← Andere E-Mail verwenden",
+      "resendCode": "Code erneut senden",
+      "resendIn": "Erneut senden in {seconds}s",
+      "orContinueWith": "Oder weiter mit",
+      "continueWithGoogle": "Weiter mit Google",
+      "legal": "Mit dem Fortfahren stimmst du unseren <terms>Nutzungsbedingungen</terms> und unserer <privacy>Datenschutzerklärung</privacy> zu."
+    },
+    "errors": {
+      "enterEmail": "Bitte gib deine E-Mail-Adresse ein.",
+      "enterCode": "Gib den 6-stelligen Code aus deiner E-Mail ein."
+    }
+  },
+  "authAction": {
+    "unsupportedAction": "Nicht unterstützte Aktion.",
+    "canceledFallback": {
+      "eyebrow": "Konto",
+      "title": "Kontoaktion",
+      "subtitle": "Wir konnten diesen Link nicht verarbeiten.",
+      "message": "Fehlende oder ungültige Aktionsparameter.",
+      "backToSignIn": "Zurück zur Anmeldung"
+    },
+    "titles": {
+      "resetPassword": "Neues Passwort festlegen",
+      "verifyEmail": "Bestätige deine E-Mail",
+      "verifyAndChangeEmail": "E-Mail-Änderung bestätigen",
+      "default": "Kontoaktion"
+    },
+    "eyebrows": {
+      "resetPassword": "Zurücksetzen",
+      "verifyEmail": "Bestätigen",
+      "verifyAndChangeEmail": "Bestätigen",
+      "default": "Konto"
+    },
+    "subtitles": {
+      "resetPassword": "Wähle ein neues Passwort für dein Konto.",
+      "default": "Schließe die angeforderte Aktion ab."
+    },
+    "emailVerifiedSuccess": "E-Mail erfolgreich bestätigt.",
+    "emailUpdatedSuccess": "E-Mail erfolgreich aktualisiert.",
+    "genericError": "Etwas ist schiefgelaufen.",
+    "genericSuccess": "Erledigt.",
+    "resettingPasswordFor": "Passwort wird zurückgesetzt für <email></email>",
+    "newPasswordPlaceholder": "Neues Passwort",
+    "updatePassword": "Passwort aktualisieren",
+    "updating": "Wird aktualisiert…",
+    "passwordUpdatedSuccess": "Passwort erfolgreich aktualisiert. Du kannst dich jetzt anmelden.",
+    "backToSignIn": "Zurück zur Anmeldung",
+    "working": "Wird verarbeitet…",
+    "continue": "Weiter",
+    "errors": {
+      "expiredActionCode": "Dieser Link ist abgelaufen. Bitte fordere eine neue E-Mail an.",
+      "invalidActionCode": "Dieser Link ist ungültig oder wurde bereits verwendet.",
+      "userDisabled": "Dieses Konto wurde deaktiviert.",
+      "weakPassword": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "default": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+    }
+  },
+  "oauthComplete": {
+    "title": "Verbindung wird abgeschlossen",
+    "subtitle": "Deine Sitzung wird wiederhergestellt und du wirst zur App zurückgeleitet."
+  }
+}

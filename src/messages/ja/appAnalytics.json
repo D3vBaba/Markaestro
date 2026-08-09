@@ -1,0 +1,120 @@
+{
+  "page": {
+    "title": "アナリティクス",
+    "subtitle": "投稿が獲得した成果 — 各プラットフォーム自身のデータで測定。",
+    "refresh": {
+      "idle": "更新",
+      "refreshing": "更新中…",
+      "pulling": "ライブデータを取得中…",
+      "title": "接続済みの各プラットフォームから最新の数値を取得"
+    },
+    "export": {
+      "idle": "CSVをエクスポート",
+      "exporting": "エクスポート中…",
+      "lockedTitle": "CSVエクスポートはBusinessプランに含まれます"
+    },
+    "filters": {
+      "allPlatforms": "すべてのプラットフォーム",
+      "platformTitle": "プラットフォームで絞り込み",
+      "allBrands": "すべてのブランド",
+      "brandTitle": "ブランドで絞り込み",
+      "rangeTitle": "過去{label}",
+      "rangeLockedTitle": "{label}の期間には上位プランが必要です",
+      "windowNote": "{days}日間を表示中 — プランのアナリティクス期間です。"
+    },
+    "error": {
+      "message": "アナリティクスを読み込めませんでした。",
+      "retry": "再試行"
+    },
+    "emptyState": {
+      "eyebrow": "まだデータがありません",
+      "title": "最初の投稿を公開して測定を始めましょう",
+      "body": "投稿が公開されると、Markaestroは約1時間以内にそのビュー数、リーチ、エンゲージメントをプラットフォームから取得し、30日間追跡し続けます。フォロワー数は接続済みのすべてのチャンネルで毎日記録されます。",
+      "createPost": "投稿を作成"
+    },
+    "warmingUp": "メトリクスを収集中です — 公開から約1時間後に最初のデータが届き、その後30日間、頻度を下げながら更新されます。",
+    "kpis": {
+      "views": { "label": "ビュー数", "sub": "前期間比" },
+      "reach": { "label": "リーチ", "sub": "到達したユニークアカウント数" },
+      "engagement": { "label": "エンゲージメント", "sub": "いいね + コメント + シェア + 保存" },
+      "engagementRate": { "label": "エンゲージメント率", "sub": "エンゲージメント ÷ リーチ" },
+      "followers": { "label": "フォロワー", "sub": "接続済みのすべてのチャンネル" }
+    },
+    "insights": {
+      "basedOn": "{count}件の投稿に基づく"
+    },
+    "trend": {
+      "eyebrow": "パフォーマンス · {days}日間",
+      "metrics": { "views": "ビュー数", "reach": "リーチ", "engagements": "エンゲージメント", "posts": "投稿数" }
+    },
+    "audience": {
+      "eyebrow": "オーディエンス",
+      "title": "フォロワー",
+      "titleWithCount": "フォロワー{count}人"
+    },
+    "timing": { "eyebrow": "タイミング", "title": "投稿が最も成果を出す時間帯" },
+    "format": { "eyebrow": "フォーマット", "title": "エンゲージメントを獲得する形式" },
+    "channels": { "eyebrow": "チャンネル", "title": "チャンネル別パフォーマンス" },
+    "posts": { "eyebrow": "投稿", "title": "上位の投稿" },
+    "provenance": {
+      "base": "メトリクスは各プラットフォームのAPI定義に基づいており、ネイティブのインサイトより最大48時間遅れることがあります。「—」はそのプラットフォームがそのメトリクスを提供していないことを示します（例：ThreadsとTikTokはリーチを報告しません）。エンゲージメント率はエンゲージメント ÷ リーチです。",
+      "truncated": " 投稿単位のビュー数は、この期間内の直近{count}件の投稿に基づいています。",
+      "lastUpdate": " メトリクスの最終更新：{date}。"
+    },
+    "toasts": {
+      "updated": "{count, plural, other {ソースから#件の投稿を更新しました}}",
+      "noNewMetrics": "新しいプラットフォームメトリクスはありません",
+      "tooManyRefreshes": "更新回数が多すぎます — 1分後にもう一度お試しください。",
+      "pullFailed": "ライブデータを取得できませんでした。保存されている最新の数値を表示しています。",
+      "exportFailed": "エクスポートに失敗しました。もう一度お試しください。"
+    }
+  },
+  "contentTypeBars": {
+    "types": { "image": "画像", "video": "動画", "carousel": "カルーセル", "text": "テキスト投稿" },
+    "notEnoughVariety": "まだ十分なバリエーションがありません",
+    "publishAtLeastTwo": "少なくとも2つのコンテンツ形式（画像、動画、カルーセル、テキスト）を公開すると比較できます。",
+    "postsCount": "{count, plural, other {#件の投稿}}",
+    "avgEng": "平均エンゲージメント"
+  },
+  "trendChart": {
+    "noData": "この期間のデータはまだありません。",
+    "followerHistoryBuilds": "フォロワー履歴は毎日のスナップショットから構築されます — 数日分のデータが集まるとトレンドが表示されます。",
+    "followersSeriesName": "フォロワー"
+  },
+  "channelTable": {
+    "columns": {
+      "channel": "チャンネル",
+      "posts": "投稿数",
+      "views": "ビュー数",
+      "reach": "リーチ",
+      "engagement": "エンゲージメント",
+      "erReach": "ER（リーチ）",
+      "followers": "フォロワー"
+    },
+    "empty": "チャンネルを接続して投稿すると、チャンネル別のパフォーマンスが表示されます。",
+    "clearFilter": "チャンネルフィルターを解除",
+    "filterTo": "{channel}で絞り込み"
+  },
+  "bestTimeHeatmap": {
+    "notEnoughData": "まだ十分なデータがありません",
+    "unlocksAt": "投稿時間帯のヒートマップは、{min}件の投稿にエンゲージメントデータが集まると表示されます（現在{sampleSize}件）。",
+    "footer": "投稿あたりの平均エンゲージメント · あなたのローカル時間 · {count}件の投稿"
+  },
+  "leaderboardTable": {
+    "post": "投稿",
+    "columns": {
+      "views": "ビュー数",
+      "reach": "リーチ",
+      "engagement": "エンゲージメント",
+      "erReach": "ER（リーチ）",
+      "published": "公開日"
+    },
+    "empty": "この期間にメトリクスのある投稿はまだありません。メトリクスは公開から約1時間後に届きます。",
+    "untitledPost": "無題の投稿",
+    "sortBy": "{label}で並べ替え",
+    "openOnPlatform": "プラットフォームで開く"
+  },
+  "stackedArea": {
+    "noData": "まだデータがありません。"
+  }
+}

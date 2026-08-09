@@ -1,0 +1,103 @@
+{
+  "shared": {
+    "footerDefault": "如果你没有请求此邮件，可以忽略它。你的账户不会有任何变化。",
+    "copyright": "© {year} Markaestro · 增长工作流，尽在一处",
+    "ctaOpenQueue": "打开待发布队列"
+  },
+  "signInCode": {
+    "subject": "{code} 是你的 Markaestro 登录验证码",
+    "preheader": "{code} 是你的 Markaestro 登录验证码。",
+    "title": "你的登录验证码",
+    "bodyIntro": "使用此验证码以 <strong>{email}</strong> 身份登录：",
+    "fallbackAccount": "你的账户",
+    "expiryNote": "验证码将在 10 分钟后失效。请勿与任何人分享 — Markaestro 绝不会向你索要验证码。",
+    "footerNote": "如果你没有尝试登录，可以忽略此邮件。没有验证码，任何人都无法访问你的账户。",
+    "plain": {
+      "heading": "你的 Markaestro 登录验证码",
+      "codeLabel": "验证码：{code}",
+      "expiry": "验证码将在 10 分钟后失效。请勿与任何人分享。",
+      "footer": "如果你没有尝试登录，可以忽略此邮件。"
+    }
+  },
+  "emailChangeCode": {
+    "subject": "{code} 是确认你新 Markaestro 邮箱的验证码",
+    "preheader": "{code} 是确认此次邮箱更改的验证码。",
+    "title": "确认你的新邮箱",
+    "bodyIntro": "你请求将 Markaestro 邮箱更改为 <strong>{newEmail}</strong>。请在应用中输入此验证码以确认：",
+    "expiryNote": "验证码将在 10 分钟后失效。请勿与任何人分享。",
+    "footerNote": "如果你没有请求此更改，可以忽略此邮件，你的邮箱地址将保持不变。",
+    "plain": {
+      "heading": "确认你的新 Markaestro 邮箱",
+      "newEmailLabel": "新邮箱：{newEmail}",
+      "codeLabel": "验证码：{code}",
+      "expiry": "验证码将在 10 分钟后失效。",
+      "footer": "如果你没有请求此更改，可以忽略此邮件。"
+    }
+  },
+  "emailChangeNotice": {
+    "subject": "邮箱更改请求 · Markaestro",
+    "preheader": "有人请求更改 Markaestro 邮箱地址。",
+    "title": "邮箱更改请求",
+    "bodyIntro": "有人请求更改此 Markaestro 账户的邮箱地址：",
+    "fromToLabel": "从 → 到",
+    "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
+    "bodyOutro": "如果是你本人操作，请使用发送到<strong>新邮箱</strong>的验证码完成确认。如果不是你本人操作，你的邮箱尚未更改 — 但请立即联系支持团队。",
+    "footerNote": "此通知是因为你的账户收到了更改请求而发送的。",
+    "plain": {
+      "heading": "Markaestro 邮箱更改请求",
+      "changeSummary": "{oldEmail} -> {newEmail}",
+      "warning": "如果不是你本人操作，你的邮箱尚未更改 — 请立即联系支持团队。"
+    }
+  },
+  "manualPostReminder": {
+    "subject": "你的 {channelLabel} 帖子已准备就绪",
+    "preheader": "一条 {channelLabel} 帖子正在你的待发布队列中等待。",
+    "bodyIntro": "有一条帖子正在你的待发布队列中等待。请从 Markaestro 获取素材和文案，通过 {channelLabel} 应用发布，然后将其标记为已发布。",
+    "footerNote": "你收到此邮件是因为你的 Markaestro 工作区中有一条帖子正在等待手动发布。",
+    "plain": {
+      "heading": "你的 {channelLabel} 帖子已准备好发布",
+      "captionLabel": "文案：",
+      "queueLink": "打开待发布队列：{url}"
+    }
+  },
+  "tiktokInbox": {
+    "subjectWithBrand": "完成 {brandName} 的 TikTok 发布",
+    "subjectNoBrand": "完成你的 TikTok 发布",
+    "preheader": "你的视频正在 TikTok 应用中等待 — 打开应用以完成发布。",
+    "bodyIntroWithBrand": "你的视频已上传，正在 <strong>{brandName}</strong> 的 TikTok 收件箱中等待。TikTok 要求在其应用内完成最终发布，因此该视频尚未正式发布。",
+    "bodyIntroNoBrand": "你的视频已上传，正在 TikTok 收件箱中等待。TikTok 要求在其应用内完成最终发布，因此该视频尚未正式发布。",
+    "toPublishLabel": "发布方法",
+    "step1": "打开 TikTok 应用",
+    "step2": "进入收件箱通知",
+    "step3": "打开已上传的视频，如需可调整文案或隐私设置，然后发布",
+    "captionLabel": "你的文案",
+    "closingNote": "发布后，请在 Markaestro 中将其标记为已发布，以确保数据分析的准确性。",
+    "footerNote": "你收到此邮件是因为你的 Markaestro 工作区中有一条 TikTok 帖子正在等待发布。",
+    "plain": {
+      "bodyIntro": "你的视频已上传，正在 TikTok 收件箱中等待。TikTok 要求在其应用内完成最终发布，因此该视频尚未正式发布。",
+      "toPublishLabel": "发布方法：",
+      "captionLabel": "你的文案：",
+      "queueLink": "打开待发布队列：{url}"
+    }
+  },
+  "teamInvite": {
+    "subject": "你已受邀加入 Markaestro 上的 {workspaceName}",
+    "title": "你已收到邀请",
+    "preheader": "加入 Markaestro 上的 {workspaceName}。",
+    "greeting": "你好，",
+    "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> 邀请你以{roleLabel}身份加入 Markaestro 上的 <strong>{workspaceName}</strong> 工作区。",
+    "bodyIntroNoInviter": "一位团队成员邀请你以{roleLabel}身份加入 Markaestro 上的 <strong>{workspaceName}</strong> 工作区。",
+    "signInInstructions": "使用此邮箱地址登录（或创建账户），邀请将自动生效：",
+    "declineNote": "如果你不想加入，只需忽略此邮件 — 邀请将在 30 天后失效。",
+    "roleLabels": {
+      "admin": "管理员",
+      "member": "成员",
+      "analyst": "分析师"
+    },
+    "footerNote": "你收到此邮件是因为有人将此邮箱地址邀请加入了 Markaestro 工作区。",
+    "plain": {
+      "fallbackInviter": "一位团队成员",
+      "summary": "{inviter} 邀请你以{roleLabel}身份加入 Markaestro 上的 {workspaceName}。请登录 {url} 接受邀请"
+    }
+  }
+}

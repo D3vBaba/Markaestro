@@ -1,0 +1,147 @@
+{
+  "eyebrow": "Mentions légales",
+  "title": "Conditions d'utilisation",
+  "lastUpdated": "Dernière mise à jour · 10 mars 2026",
+  "sections": [
+    {
+      "heading": "1. Acceptation des Conditions",
+      "blocks": [
+        { "type": "p", "text": "Les présentes Conditions d'utilisation (les « Conditions ») régissent votre accès et votre utilisation du site web, de l'application, des API et des services associés de Markaestro (collectivement, les « Services »). En accédant aux Services ou en les utilisant, vous acceptez d'être lié par les présentes Conditions. Si vous n'êtes pas d'accord, n'utilisez pas les Services." },
+        { "type": "p", "text": "Si vous utilisez les Services pour le compte d'une entreprise, d'une organisation ou d'une autre entité juridique, vous déclarez avoir l'autorité pour engager cette entité, et « vous » désigne également cette entité." }
+      ]
+    },
+    {
+      "heading": "2. Description du Service",
+      "blocks": [
+        { "type": "p", "text": "Markaestro est une plateforme de publication sociale pour gérer des produits, des actifs de marque, des contenus importés et des flux de publication sociale. Les Services peuvent s'intégrer à des plateformes tierces, notamment TikTok, Meta, Firebase et d'autres services que Markaestro met à disposition de temps à autre." }
+      ]
+    },
+    {
+      "heading": "3. Éligibilité et Comptes",
+      "blocks": [
+        { "type": "p", "text": "Vous devez avoir au moins 18 ans et être capable de conclure un contrat contraignant pour utiliser les Services. Vous acceptez de fournir des informations exactes, actuelles et complètes, et de les tenir à jour." },
+        { "type": "ul", "items": [
+          "Vous êtes responsable de la protection des identifiants de votre compte et de toute méthode d'authentification qui y est associée.",
+          "Vous êtes responsable de toute activité se produisant sous votre compte et au sein de votre espace de travail, qu'elle soit ou non autorisée par vous, sauf si elle résulte d'un manquement de notre part à ces Conditions ou à la loi applicable.",
+          "Vous devez nous informer rapidement si vous soupçonnez un accès non autorisé, une compromission d'identifiants ou tout autre usage abusif du compte."
+        ] },
+        { "type": "p", "text": "Les comptes créés via des robots, des identités trompeuses ou des méthodes automatisées non autorisées sont interdits." }
+      ]
+    },
+    {
+      "heading": "4. Espaces de Travail et Accès de l'Équipe",
+      "blocks": [
+        { "type": "p", "text": "Markaestro s'organise autour d'espaces de travail. Les propriétaires et administrateurs d'un espace de travail peuvent ajouter ou retirer des membres et attribuer des rôles. Le propriétaire de l'espace de travail est responsable de l'autorisation d'accès, du maintien d'instructions licites et du respect des présentes Conditions par tous les utilisateurs de l'espace de travail. La suppression d'un utilisateur ne supprime pas automatiquement le contenu, les journaux ou les enregistrements créés précédemment dans l'espace de travail." }
+      ]
+    },
+    {
+      "heading": "5. Données Client et Responsabilités de Conformité",
+      "blocks": [
+        { "type": "p", "text": "Vous conservez la responsabilité de la légalité, de l'exactitude et de l'utilisation de toute donnée ou contenu que vous soumettez à Markaestro, y compris les listes de contacts, les actifs de marque, les contenus importés et les messages envoyés via les Services." },
+        { "type": "ul", "items": [
+          "Vous devez disposer de tous les droits, autorisations, licences et bases légales nécessaires pour importer, traiter, publier ou envoyer ces données ou ce contenu.",
+          "Vous êtes responsable du respect des règles applicables en matière de confidentialité, d'antispam, de protection des consommateurs et des règles spécifiques à chaque plateforme, y compris les obligations de consentement, d'information, de désabonnement et de suppression.",
+          "Vous ne devez pas utiliser Markaestro pour traiter des catégories particulières de données ou d'autres données hautement réglementées, sauf accord exprès et écrit de notre part pour prendre en charge cet usage."
+        ] }
+      ]
+    },
+    {
+      "heading": "6. Utilisation Acceptable",
+      "blocks": [
+        { "type": "p", "text": "Vous ne pouvez pas utiliser les Services pour :" },
+        { "type": "ul", "items": [
+          "enfreindre une loi, un règlement, une décision de justice ou un droit de tiers ;",
+          "envoyer du spam, du marketing illicite, du hameçonnage ou du contenu trompeur ou manipulateur ;",
+          "publier ou diffuser du contenu contrefaisant, diffamatoire, obscène, frauduleux, haineux ou autrement illégal ;",
+          "tenter d'obtenir un accès non autorisé à un compte, un espace de travail, un système ou un réseau ;",
+          "procéder à de l'ingénierie inverse, à de l'extraction de données ou abuser des Services, sauf dans la mesure permise par la loi applicable ;",
+          "interférer avec le fonctionnement, l'intégrité ou la sécurité des Services ;",
+          "contourner les limites de débit, les quotas, les restrictions d'accès ou les contrôles de sécurité ; ou",
+          "utiliser les Services d'une manière qui amène Markaestro ou ses fournisseurs à enfreindre les conditions d'une plateforme ou des obligations contractuelles."
+        ] }
+      ]
+    },
+    {
+      "heading": "7. Services et Intégrations Tiers",
+      "blocks": [
+        { "type": "p", "text": "Markaestro peut se connecter à des plateformes de publication et outils de flux de travail tiers. En connectant un service tiers, vous autorisez Markaestro à accéder aux identifiants et données associées, à les stocker, les renouveler et les utiliser dans la mesure nécessaire pour fournir la fonctionnalité demandée, dans les limites des permissions que vous accordez." },
+        { "type": "p", "text": "Vous demeurez responsable du respect des conditions, politiques, exigences techniques, règles de publication et restrictions de compte du tiers. Markaestro n'est pas responsable des changements d'API, des interruptions de service, des suspensions de compte, des décisions de modération de contenu, des publications rejetées, des jetons révoqués ou des actions des plateformes tierces." }
+      ]
+    },
+    {
+      "heading": "8. Contenus Importés et Publics",
+      "blocks": [
+        { "type": "p", "text": "Les fichiers importés via Markaestro peuvent être stockés à l'aide d'URLs cloud publiquement accessibles afin de pouvoir être utilisés dans des publications sociales. Vous ne devez importer aucun fichier ou contenu sauf si vous êtes autorisé à le rendre disponible de cette manière et si vous détenez tous les droits requis. Vous reconnaissez que le contenu publié via des plateformes tierces peut devenir public et être soumis aux conditions et paramètres de visibilité de ces plateformes." }
+      ]
+    },
+    {
+      "heading": "9. Propriété Intellectuelle et Licences",
+      "blocks": [
+        { "type": "p", "text": "Entre les parties, vous conservez la propriété de votre contenu, de vos données client, de vos actifs importés et de vos éléments d'espace de travail. Vous accordez à Markaestro une licence non exclusive, mondiale et limitée pour héberger, stocker, copier, transformer, afficher, transmettre et traiter autrement ce contenu, uniquement dans la mesure nécessaire pour exploiter, sécuriser, améliorer et vous fournir les Services." },
+        { "type": "p", "text": "Markaestro et ses concédants conservent tous les droits, titres et intérêts relatifs aux Services, y compris les logiciels, interfaces, documentation, marque et propriété intellectuelle associée. Aucun droit n'est accordé, sauf ceux expressément énoncés dans les présentes Conditions." }
+      ]
+    },
+    {
+      "heading": "10. Retours d'expérience",
+      "blocks": [
+        { "type": "p", "text": "Si vous fournissez des idées, suggestions, retours ou demandes d'amélioration, vous accordez à Markaestro un droit perpétuel, irrévocable, mondial, sous-licenciable et libre de redevance de les utiliser sans restriction ni compensation à votre égard." }
+      ]
+    },
+    {
+      "heading": "11. Confidentialité",
+      "blocks": [
+        { "type": "p", "text": "Votre utilisation des Services est également soumise à notre <privacyLink>Politique de confidentialité</privacyLink>, qui explique comment nous collectons, utilisons et divulguons les informations. Lorsque nous traitons des données client en votre nom, vous nous donnez instruction de le faire conformément aux présentes Conditions, aux paramètres applicables du produit et à votre utilisation licite des Services." }
+      ]
+    },
+    {
+      "heading": "12. Modifications du Service, Fonctionnalités Bêta et Disponibilité",
+      "blocks": [
+        { "type": "p", "text": "Nous pouvons ajouter, modifier, suspendre ou retirer des fonctionnalités à tout moment. Certaines fonctionnalités peuvent être qualifiées de bêta, d'aperçu, d'expérimentales ou similaires. Ces fonctionnalités sont fournies telles quelles selon leur disponibilité et peuvent contenir des bugs, des fonctionnalités incomplètes ou des exigences changeantes. Nous ne garantissons pas qu'une fonctionnalité, une intégration ou une connexion à un fournisseur restera disponible ou fonctionnera sans interruption." }
+      ]
+    },
+    {
+      "heading": "13. Suspension et Résiliation",
+      "blocks": [
+        { "type": "p", "text": "Vous pouvez cesser d'utiliser les Services à tout moment. Nous pouvons suspendre ou résilier votre accès, supprimer du contenu, désactiver des intégrations ou prendre d'autres mesures de protection si nous estimons raisonnablement que vous avez enfreint les présentes Conditions, créé un risque juridique ou de sécurité, manqué à des obligations envers une plateforme, ou utilisé les Services d'une manière susceptible de nuire à Markaestro, à ses utilisateurs ou à des tiers." },
+        { "type": "p", "text": "À la résiliation, votre droit d'utiliser les Services cesse immédiatement, mais les sections qui, de par leur nature, doivent survivre survivront, y compris celles relatives à la propriété intellectuelle, aux exclusions de garantie, aux limitations de responsabilité, à l'indemnisation et aux dispositions relatives aux litiges." }
+      ]
+    },
+    {
+      "heading": "14. Exclusions de Garantie",
+      "blocks": [
+        { "type": "p", "text": "Dans toute la mesure permise par la loi, les Services sont fournis « tels quels » et « selon leur disponibilité ». Markaestro décline toute garantie, expresse, implicite, légale ou autre, y compris les garanties de qualité marchande, d'adéquation à un usage particulier, de non-contrefaçon, d'exactitude, de fiabilité, de disponibilité, ou que les Services fonctionneront sans interruption, en toute sécurité, sans erreur ou conformément à vos attentes." }
+      ]
+    },
+    {
+      "heading": "15. Limitation de Responsabilité",
+      "blocks": [
+        { "type": "p", "text": "Dans toute la mesure permise par la loi, Markaestro et ses filiales, dirigeants, employés, sous-traitants et concédants ne seront pas responsables des dommages indirects, accessoires, spéciaux, consécutifs, exemplaires ou punitifs, ni des pertes de bénéfices, de revenus, de réputation, d'usage ou de données, même s'ils ont été avertis de la possibilité de tels dommages." },
+        { "type": "p", "text": "Dans toute la mesure permise par la loi, la responsabilité totale et cumulée de Markaestro découlant des Services ou des présentes Conditions, ou s'y rapportant, ne dépassera pas le montant le plus élevé entre celui que vous nous avez versé pour les Services au cours des 12 mois précédant l'événement à l'origine de la réclamation, ou cent dollars américains (100 $ US)." }
+      ]
+    },
+    {
+      "heading": "16. Indemnisation",
+      "blocks": [
+        { "type": "p", "text": "Vous défendrez, indemniserez et tiendrez Markaestro et ses filiales, dirigeants, employés, sous-traitants et concédants à l'abri de toute réclamation, responsabilité, dommage, jugement, perte, coût et dépense, y compris les honoraires juridiques raisonnables, découlant de ou liés à votre contenu, vos données, votre utilisation des Services, votre utilisation d'intégrations tierces, ou votre violation des présentes Conditions ou de la loi applicable." }
+      ]
+    },
+    {
+      "heading": "17. Loi Applicable",
+      "blocks": [
+        { "type": "p", "text": "Les présentes Conditions sont régies par les lois de l'État du Delaware, aux États-Unis, sans égard aux principes de conflit de lois, sauf dans la mesure où la loi non susceptible de renonciation de votre juridiction en dispose autrement." }
+      ]
+    },
+    {
+      "heading": "18. Modifications des présentes Conditions",
+      "blocks": [
+        { "type": "p", "text": "Nous pouvons mettre à jour les présentes Conditions de temps à autre. Si nous apportons des modifications substantielles, nous publierons la version mise à jour et pourrons fournir un avis supplémentaire. Votre utilisation continue des Services après la date d'entrée en vigueur des Conditions révisées constitue une acceptation de ces Conditions révisées." }
+      ]
+    },
+    {
+      "heading": "19. Contact",
+      "blocks": [
+        { "type": "p", "text": "Si vous avez des questions concernant les présentes Conditions, contactez-nous via <contactLink>notre page de contact</contactLink> ou par e-mail à <mailLink>legal@markaestro.com</mailLink>." }
+      ]
+    }
+  ]
+}

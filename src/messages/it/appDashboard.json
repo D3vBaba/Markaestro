@@ -1,0 +1,37 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Il tuo motore di marketing a colpo d'occhio.",
+  "refresh": "Aggiorna",
+  "refreshing": "Aggiornamento…",
+  "newPost": "Nuovo post",
+  "errorTitle": "Impossibile caricare la tua dashboard",
+  "errorBody": "Non siamo riusciti a caricare i dati della tua dashboard.",
+  "retry": "Riprova",
+  "kpis": {
+    "brands": "Brand",
+    "brandsActive": "{count} attivi",
+    "posts": "Post",
+    "postsSub": "{published} pubblicati · {scheduled} programmati",
+    "publishedWeek": "Pubblicati · 7g",
+    "acrossDays": "in {count} giorni"
+  },
+  "chart": {
+    "eyebrow": "Attività di pubblicazione · 7g",
+    "publishedThisWeek": "{count} pubblicati questa settimana",
+    "show": "Mostra {label}",
+    "hide": "Nascondi {label}",
+    "noActivity": "Ancora nessuna attività di pubblicazione."
+  },
+  "distribution": {
+    "eyebrow": "Distribuzione",
+    "title": "Post per canale",
+    "viewInCalendar": "Vedi i post {channel} nel calendario"
+  },
+  "recentPosts": {
+    "eyebrow": "In arrivo",
+    "title": "Post recenti",
+    "viewAll": "Vedi tutti →",
+    "untitled": "Post senza titolo",
+    "empty": "Ancora nessun post. Crea il primo per vedere qui l'attività."
+  }
+}

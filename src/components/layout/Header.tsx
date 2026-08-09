@@ -14,14 +14,18 @@ import {
   Settings as SettingsIcon,
   type LucideIcon,
   BookOpen,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { navigationGroups, settingsItem } from "@/lib/nav";
 import { CommandPalette } from "@/components/app/CommandPalette";
+import LogoutConfirmDialog from "@/components/app/LogoutConfirmDialog";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { cn } from "@/lib/utils";
+import { isRtlLocale } from "@/i18n/routing";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +47,10 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 export function Header() {
     const pathname = usePathname();
     const { user, logout } = useAuth();
+    const t = useTranslations("shell.nav");
+    const tHeader = useTranslations("shell.header");
+    const isRtl = isRtlLocale(useLocale());
+    const [logoutOpen, setLogoutOpen] = useState(false);
     const { current: workspace } = useWorkspace();
     const [paletteOpen, setPaletteOpen] = useState(false);
 
@@ -74,16 +82,16 @@ export function Header() {
                         className="shrink-0 lg:hidden rounded-lg h-10 w-10"
                     >
                         <Menu className="h-5 w-5" />
-                        <span className="sr-only">Toggle navigation menu</span>
+                        <span className="sr-only">{t("toggleMenu")}</span>
                     </Button>
                 </SheetTrigger>
                 <SheetContent
-                    side="left"
+                    side={isRtl ? "right" : "left"}
                     className="w-[288px] sm:w-[308px] p-0 flex flex-col"
                     style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
                 >
-                    <SheetTitle className="sr-only">Navigation menu</SheetTitle>
-                    <SheetDescription className="sr-only">Main navigation links</SheetDescription>
+                    <SheetTitle className="sr-only">{t("navigationMenu")}</SheetTitle>
+                    <SheetDescription className="sr-only">{t("navigationMenuDescription")}</SheetDescription>
 
                     {/* Brand */}
                     <div className="flex items-center gap-2.5 px-4 pt-5 pb-3">
@@ -145,12 +153,12 @@ export function Header() {
                     {/* Nav groups */}
                     <nav className="flex-1 overflow-y-auto px-2.5 py-4 flex flex-col gap-3.5">
                         {navigationGroups.map((group) => (
-                            <div key={group.group}>
+                            <div key={group.id}>
                                 <p
                                     className="px-2.5 pb-1.5 font-mono text-[9px] uppercase"
                                     style={{ color: "var(--mk-ink-40)", letterSpacing: "0.2em" }}
                                 >
-                                    {group.group}
+                                    {t(`groups.${group.id}`)}
                                 </p>
                                 <div className="flex flex-col gap-px">
                                     {group.items.map((item) => {
@@ -158,7 +166,7 @@ export function Header() {
                                         const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                                         return (
                                             <Link
-                                                key={item.name}
+                                                key={item.id}
                                                 href={item.href}
                                                 className={cn(
                                                     "flex items-center gap-2.5 rounded-[7px] px-2.5 py-2.5 text-[14px]",
@@ -174,7 +182,7 @@ export function Header() {
                                                     className="h-4 w-4 shrink-0"
                                                     style={{ color: isActive ? "var(--mk-ink)" : "var(--mk-ink-60)" }}
                                                 />
-                                                <span>{item.name}</span>
+                                                <span>{t(`items.${item.id}`)}</span>
                                             </Link>
                                         );
                                     })}
@@ -198,7 +206,7 @@ export function Header() {
                             }}
                         >
                             <SettingsIcon className="h-4 w-4" style={{ color: "var(--mk-ink-60)" }} />
-                            <span>{settingsItem.name}</span>
+                            <span>{t("items.settings")}</span>
                         </Link>
                         <div
                             className="mt-2 flex items-center gap-2.5 px-2.5 pt-2.5 pb-1 border-t"
@@ -229,11 +237,13 @@ export function Header() {
                             </div>
                             <button
                                 type="button"
-                                onClick={logout}
-                                className="shrink-0 text-[11px] whitespace-nowrap px-2 py-1 rounded"
+                                onClick={() => setLogoutOpen(true)}
+                                aria-label={t("signOut")}
+                                className="shrink-0 inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] transition-colors hover:bg-[color:var(--mk-panel)] hover:text-mk-neg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mk-accent)]"
                                 style={{ color: "var(--mk-ink-60)" }}
                             >
-                                log out
+                                <LogOut className="h-3.5 w-3.5" />
+                                {t("signOut")}
                             </button>
                         </div>
                     </div>
@@ -264,7 +274,7 @@ export function Header() {
                 <button
                     type="button"
                     onClick={() => setPaletteOpen(true)}
-                    className="hidden md:flex items-center gap-2 px-3 h-[34px] rounded-lg w-full md:w-[260px] lg:w-[320px] cursor-pointer text-left"
+                    className="hidden md:flex items-center gap-2 px-3 h-[34px] rounded-lg w-full md:w-[260px] lg:w-[320px] cursor-pointer text-start"
                     style={{
                         border: "1px solid var(--mk-rule)",
                         background: "var(--mk-surface)",
@@ -275,7 +285,7 @@ export function Header() {
                         className="flex-1 text-[12.5px]"
                         style={{ color: "var(--mk-ink-40)", letterSpacing: "-0.005em" }}
                     >
-                        Search anything...
+                        {tHeader("searchPlaceholder")}
                     </span>
                     <span
                         className="font-mono text-[9.5px] px-1.5 py-px rounded"
@@ -295,7 +305,7 @@ export function Header() {
                     onClick={() => setPaletteOpen(true)}
                 >
                     <Search className="h-5 w-5" />
-                    <span className="sr-only">Search</span>
+                    <span className="sr-only">{tHeader("search")}</span>
                 </Button>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -323,22 +333,28 @@ export function Header() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                             <Link href="/settings" className="cursor-pointer">
-                                Settings
+                                {t("items.settings")}
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            className="cursor-pointer"
+                            className="cursor-pointer gap-2"
                             style={{ color: "var(--mk-neg)" }}
-                            onClick={logout}
+                            onSelect={(event) => {
+                                // Let the menu close first, then confirm.
+                                event.preventDefault();
+                                setLogoutOpen(true);
+                            }}
                         >
-                            Sign out
+                            <LogOut className="h-3.5 w-3.5" />
+                            {t("signOut")}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
 
             <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+            <LogoutConfirmDialog open={logoutOpen} onOpenChange={setLogoutOpen} onConfirm={logout} />
         </header>
     );
 }

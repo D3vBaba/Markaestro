@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Home,
   ChartNoAxesColumn,
@@ -11,16 +12,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-const TABS: { name: string; href: string; icon: LucideIcon }[] = [
-  { name: "Home", href: "/dashboard", icon: Home },
-  { name: "Analytics", href: "/analytics", icon: ChartNoAxesColumn },
-  { name: "Brands", href: "/products", icon: Package },
-  { name: "Posts", href: "/content", icon: LayoutGrid },
-  { name: "Calendar", href: "/calendar", icon: Calendar },
+const TABS: { id: string; href: string; icon: LucideIcon }[] = [
+  { id: "home", href: "/dashboard", icon: Home },
+  { id: "analytics", href: "/analytics", icon: ChartNoAxesColumn },
+  { id: "brands", href: "/products", icon: Package },
+  { id: "posts", href: "/content", icon: LayoutGrid },
+  { id: "calendar", href: "/calendar", icon: Calendar },
 ];
 
 export function MobileTabBar() {
   const pathname = usePathname();
+  const t = useTranslations("shell.mobileTabBar");
 
   return (
     <nav
@@ -57,7 +59,7 @@ export function MobileTabBar() {
                   letterSpacing: "-0.005em",
                 }}
               >
-                {tab.name}
+                {t(tab.id)}
               </span>
             </Link>
           );

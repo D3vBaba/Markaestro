@@ -1,0 +1,316 @@
+{
+  "questionCounter": "Question {current} / {total}",
+  "signOut": "Se déconnecter",
+  "signIn": "Se connecter",
+  "back": "← Retour",
+  "continue": "Continuer",
+  "skipForNow": "Passer pour l'instant",
+  "takes2Minutes": "2 minutes suffisent · Aucune carte requise",
+  "quiz": {
+    "marketing": {
+      "eyebrow": "Construisons votre moteur",
+      "title": "Que faites-vous la promotion ?",
+      "subtitle": "Markaestro s'adapte à tout ce que vous développez.",
+      "options": {
+        "product": { "label": "Une application ou un produit", "desc": "Logiciel, e-commerce, ou quelque chose que vous avez créé" },
+        "business": { "label": "Une entreprise", "desc": "Une société, une boutique ou un service local" },
+        "personal": { "label": "Moi-même", "desc": "Une marque personnelle ou une audience qui n'est que vous" },
+        "clients": { "label": "Des clients", "desc": "Des marques que vous gérez pour d'autres personnes" }
+      }
+    },
+    "role": {
+      "eyebrow": "Votre poste",
+      "title": "Quel est votre rôle ?",
+      "subtitle": "Nous adapterons tout à votre façon de travailler.",
+      "options": {
+        "founder": { "label": "Fondateur / PDG", "desc": "Portant toutes les casquettes — y compris le marketing" },
+        "marketer": { "label": "Marketeur", "desc": "Responsable du contenu sur tous les canaux" },
+        "agency": { "label": "Agence / Freelance", "desc": "Jonglant avec les publications de plusieurs clients" },
+        "creator": { "label": "Créateur de contenu", "desc": "Développant une audience qui n'est que vous" }
+      }
+    },
+    "teamSize": {
+      "eyebrow": "Votre équipe",
+      "title": "Qui se cache derrière les publications ?",
+      "options": {
+        "solo": { "label": "Juste moi", "desc": "Et honnêtement, c'est beaucoup" },
+        "small": { "label": "2 à 5 personnes", "desc": "Petite équipe, plusieurs casquettes" },
+        "medium": { "label": "6 à 20 personnes", "desc": "La coordination devient compliquée" },
+        "large": { "label": "20+ personnes", "desc": "Garder tout le monde cohérent est difficile" }
+      }
+    },
+    "goal": {
+      "eyebrow": "La mission",
+      "title": "Qu'est-ce que vous recherchez vraiment ?",
+      "subtitle": "Cela façonne votre configuration et le forfait que nous recommandons.",
+      "options": {
+        "social": { "label": "Développer mon audience", "desc": "Plus de portée, plus d'engagement" },
+        "sales": { "label": "Générer plus de ventes", "desc": "Transformer les publications en opportunités" },
+        "time": { "label": "Récupérer mon temps", "desc": "Arrêter de se noyer dans le contenu" }
+      }
+    },
+    "channels": {
+      "eyebrow": "Votre étape",
+      "title": "Où se trouve votre audience ?",
+      "subtitle": "Sélectionnez tout ce qui s'applique — vous publierez sur chacun en un clic.",
+      "options": {
+        "instagram": { "label": "Instagram" },
+        "facebook": { "label": "Facebook" },
+        "tiktok": { "label": "TikTok" },
+        "threads": { "label": "Threads" },
+        "pinterest": { "label": "Pinterest" },
+        "linkedin": { "label": "LinkedIn" }
+      }
+    },
+    "postingToday": {
+      "eyebrow": "Soyez honnête",
+      "title": "Comment publiez-vous aujourd'hui ?",
+      "subtitle": "La plupart des équipes nous disent que c'est la partie pénible.",
+      "options": {
+        "manual": { "label": "Manuellement dans chaque application", "desc": "Se connecter partout, une par une" },
+        "spreadsheet": { "label": "Tableurs et rappels", "desc": "Post-its et espoir" },
+        "tool": { "label": "Un autre outil de planification", "desc": "Un que j'ai discrètement dépassé" },
+        "starting": { "label": "Je ne publie presque jamais", "desc": "Pas encore de vrai système" }
+      }
+    },
+    "frequency": {
+      "eyebrow": "Le rythme souhaité",
+      "title": "À quelle fréquence voulez-vous être présent ?",
+      "subtitle": "Nous vous garderons dans le planning automatiquement.",
+      "options": {
+        "daily": { "label": "Tous les jours", "desc": "Rester présent à l'esprit" },
+        "few": { "label": "Plusieurs fois par semaine", "desc": "La régularité gagne la course" },
+        "weekly": { "label": "Environ une fois par semaine", "desc": "La qualité plutôt que le bruit" },
+        "unsure": { "label": "Pas encore sûr", "desc": "Dites-moi ce qui fonctionne vraiment" }
+      }
+    },
+    "challenge": {
+      "eyebrow": "Le vrai problème",
+      "title": "Qu'est-ce qui vous fait trébucher ?",
+      "subtitle": "C'est exactement ce que nous allons résoudre pour vous.",
+      "options": {
+        "consistency": { "label": "Rester régulier", "desc": "Je commence fort, puis je me tais" },
+        "time": { "label": "Trouver le temps", "desc": "Il n'y en a jamais assez" },
+        "ideas": { "label": "Trouver du contenu", "desc": "Je manque constamment d'idées" },
+        "juggling": { "label": "Jongler entre les canaux", "desc": "Trop de plateformes à suivre" }
+      }
+    },
+    "contentTypes": {
+      "eyebrow": "Votre voix",
+      "title": "Que voulez-vous publier ?",
+      "subtitle": "Sélectionnez tout ce qui s'applique — nous vous aiderons à remplir le calendrier.",
+      "options": {
+        "product": { "label": "Produit et promotions" },
+        "educational": { "label": "Conseils et éducation" },
+        "bts": { "label": "Dans les coulisses" },
+        "news": { "label": "Actualités et mises à jour" }
+      }
+    },
+    "hoursPerWeek": {
+      "eyebrow": "Le coût caché",
+      "title": "Combien d'heures par semaine y consacrez-vous ?",
+      "subtitle": "Soyez honnête — c'est presque toujours plus qu'il n'y paraît.",
+      "options": {
+        "lt2": { "label": "Moins de 2 heures" },
+        "2to5": { "label": "2 à 5 heures" },
+        "5to10": { "label": "5 à 10 heures" },
+        "gt10": { "label": "Plus de 10 heures" }
+      }
+    },
+    "success": {
+      "eyebrow": "Dans 90 jours",
+      "title": "Qu'est-ce qui rendrait tout cela utile ?",
+      "subtitle": "Nous orienterons toute votre configuration vers ce résultat.",
+      "options": {
+        "followers": { "label": "Une audience plus grande et engagée", "desc": "Une portée qui s'accumule" },
+        "sales": { "label": "Du contenu qui génère des revenus", "desc": "Des publications qui convertissent vraiment" },
+        "timeback": { "label": "Récupérer mes soirées et week-ends", "desc": "Des heures rendues chaque semaine" },
+        "consistency": { "label": "Ne plus jamais me taire", "desc": "Une présence sur laquelle je peux compter" }
+      }
+    }
+  },
+  "challengeCopy": {
+    "consistency": {
+      "short": "rester régulier",
+      "headline": "Vous ne serez plus jamais silencieux",
+      "line": "Planifiez des semaines de publications en une seule fois — Markaestro publie à l'heure, à chaque fois, pour que le silence s'arrête."
+    },
+    "time": {
+      "short": "trouver le temps",
+      "headline": "Récupérons ces heures",
+      "line": "Rédigez une fois, publiez partout et planifiez à l'avance. Le travail fastidieux de copier-coller et de connexion disparaît tout simplement."
+    },
+    "ideas": {
+      "short": "trouver du contenu",
+      "headline": "Votre calendrier ne sera jamais vide",
+      "line": "Transformez une idée en une semaine de publications sur chaque canal — pour ne plus jamais fixer un écran vide."
+    },
+    "juggling": {
+      "short": "jongler entre les canaux",
+      "headline": "Un seul endroit pour chaque canal",
+      "line": "Rédigez une fois et publiez sur toutes vos plateformes depuis un seul écran — fini le jonglage entre onglets et les publications manquées."
+    }
+  },
+  "marketingCopy": {
+    "product": {
+      "eyebrow": "Votre produit",
+      "title": "Ajoutez le produit que vous promouvez",
+      "sub": "Analysez votre site pour préremplir les détails, ajoutez-le manuellement, ou passez cette étape pour l'instant — vous pourrez toujours le faire plus tard."
+    },
+    "business": {
+      "eyebrow": "Votre entreprise",
+      "title": "Ajoutez l'entreprise que vous promouvez",
+      "sub": "Analysez votre site pour préremplir les détails, ajoutez-le manuellement, ou passez cette étape pour l'instant — vous pourrez toujours le faire plus tard."
+    },
+    "personal": {
+      "eyebrow": "Votre marque",
+      "title": "Configurez votre marque personnelle",
+      "sub": "Vous avez un site web ou un portfolio ? Analysez-le pour le préremplissage. Pas de site ? Saisissez vos informations manuellement — cela prend une minute."
+    },
+    "clients": {
+      "eyebrow": "Votre premier client",
+      "title": "Ajoutez la marque de votre premier client",
+      "sub": "Commencez avec un client — analysez son site pour le préremplissage, ou saisissez les détails manuellement. Vous pouvez ajouter d'autres marques à tout moment."
+    },
+    "fallback": {
+      "eyebrow": "Votre marque",
+      "title": "Ajoutez la marque que vous promouvez",
+      "sub": "Analysez votre site pour préremplir les détails, ajoutez-le manuellement, ou passez cette étape pour l'instant — vous pourrez toujours le faire plus tard."
+    }
+  },
+  "socialProviders": {
+    "meta": {
+      "label": "Meta",
+      "fullLabel": "Meta (Facebook + Instagram)",
+      "description": "Connectez Facebook et Instagram",
+      "note": "Pages, Reels, publications du fil, Stories"
+    }
+  },
+  "footer": {
+    "tagline": "La plateforme premium d'automatisation marketing pour les équipes modernes.",
+    "product": "Produit",
+    "features": "Fonctionnalités",
+    "channels": "Canaux",
+    "pricing": "Tarifs",
+    "company": "Entreprise",
+    "contact": "Contact",
+    "termsOfService": "Conditions d'utilisation",
+    "privacyPolicy": "Politique de confidentialité",
+    "getStarted": "Commencer",
+    "signIn": "Se connecter",
+    "createAccount": "Créer un compte",
+    "copyright": "© {year} Markaestro. Tous droits réservés.",
+    "terms": "Conditions",
+    "privacy": "Confidentialité"
+  },
+  "register": {
+    "yourPlanIsReady": "Votre forfait est prêt",
+    "titleEmail": "Enregistrez votre forfait et récupérez votre temps",
+    "titleCode": "Consultez votre boîte de réception",
+    "subtitleEmail": "Aucun mot de passe nécessaire — saisissez votre e-mail et nous vous enverrons un code à usage unique. Vous avez déjà un compte ? Le même code vous connecte.",
+    "subtitleCode": "Nous avons envoyé un code à 6 chiffres à {email}.",
+    "waitingInWorkspace": "En attente dans votre espace de travail",
+    "recap": {
+      "channelsReady": "{count, plural, one {# canal prêt à publier en un clic} other {# canaux prêts à publier en un clic}}",
+      "everyChannel": "Chaque canal, publié depuis un seul endroit",
+      "postsScheduled": "Publications planifiées {frequency} — automatiquement",
+      "hoursBack": "~{hours} heures par semaine récupérées dans votre planning",
+      "onSteadyCadence": "à un rythme régulier"
+    },
+    "emailPlaceholder": "nom@entreprise.com",
+    "codePlaceholder": "123456",
+    "sendingCode": "Envoi du code…",
+    "claimPlan": "Récupérer mon forfait — c'est gratuit",
+    "verifying": "Vérification…",
+    "continueBtn": "Continuer",
+    "useDifferentEmail": "← Utiliser un autre e-mail",
+    "resendIn": "Renvoyer dans {seconds}s",
+    "resendCode": "Renvoyer le code",
+    "freeTrialNote": "Gratuit pour commencer · Essai de 14 jours · Annulez à tout moment",
+    "orContinueWith": "Ou continuer avec",
+    "continueWithGoogle": "Continuer avec Google",
+    "agreeTermsPrefix": "En continuant, vous acceptez nos",
+    "and": "et",
+    "terms": "Conditions",
+    "privacyPolicy": "Politique de confidentialité",
+    "errors": {
+      "enterEmail": "Saisissez votre e-mail pour continuer.",
+      "enterCode": "Saisissez le code à 6 chiffres reçu par e-mail."
+    }
+  },
+  "product": {
+    "scanWebsite": "Analyser un site web",
+    "enterManually": "Saisir manuellement",
+    "websiteUrl": "URL du site web",
+    "urlPlaceholder": "votremarque.com",
+    "scanning": "Analyse en cours…",
+    "rescan": "Ré-analyser",
+    "scan": "Analyser",
+    "scanHelp": "Nous lisons votre site et remplissons le nom, la description, le logo et les couleurs de marque.",
+    "autoDetected": "Détecté automatiquement",
+    "brandName": "Nom de la marque",
+    "description": "Description",
+    "targetAudience": "Public cible",
+    "targetAudiencePlaceholder": "ex. fondateurs SaaS B2B",
+    "brandTone": "Ton de la marque",
+    "brandTonePlaceholder": "ex. audacieux, direct",
+    "brandColorDetected": "Couleur de marque détectée :",
+    "manualBrandNamePlaceholder": "ex. Acme CRM",
+    "whatDoesItDo": "Que fait-il ?",
+    "optional": "(facultatif)",
+    "manualDescPlaceholder": "Décrivez cette marque et à qui elle s'adresse...",
+    "saving": "Enregistrement…",
+    "couldntSaveBrand": "Impossible d'enregistrer votre marque — vous pourrez l'ajouter plus tard depuis le tableau de bord."
+  },
+  "socials": {
+    "connectYourAccounts": "Connectez vos comptes",
+    "addSocialAccounts": "Ajoutez vos comptes de réseaux sociaux",
+    "subtitle": "Connectez les plateformes sur lesquelles vous voulez publier. Vous pourrez toujours ajouter ou modifier cela plus tard depuis vos paramètres.",
+    "connected": "Connecté",
+    "connect": "Connecter",
+    "redirecting": "Redirection…",
+    "otherChannelsNote": "TikTok, Threads et Pinterest peuvent être connectés par marque depuis votre tableau de bord.",
+    "skipAndContinue": "Passer et continuer",
+    "couldNotInitiate": "Impossible d'initier la connexion. Veuillez réessayer.",
+    "connectedToast": "{label} connecté",
+    "connectFailedToast": "Échec de la connexion à {provider}"
+  },
+  "generating": {
+    "title": "Création de votre flux de travail",
+    "subtitle": "Configuration de vos canaux et d'un plan de publication construit autour de {challenge} — le problème que vous êtes venu résoudre.",
+    "takesAMoment": "Cela ne prend qu'un instant"
+  },
+  "paywall": {
+    "youllGetBackPrefix": "Vous récupérerez environ",
+    "hoursAWeek": "heures par semaine",
+    "startTrialSuffix": "Démarrez votre essai gratuit de {days} jours pour publier — et tout ce que vous créez d'autre.",
+    "firstPostReady": "Votre première publication est prête dans votre tableau de bord.",
+    "subscribeToPublish": "Abonnez-vous pour publier",
+    "postReadyOneStepAway": "Votre publication est prête — à une étape près",
+    "justNow": "À l'instant",
+    "like": "J'aime",
+    "comment": "Commenter",
+    "share": "Partager",
+    "recommendedForYou": "Recommandé pour vous",
+    "basedOnAnswers": "Basé sur vos réponses",
+    "monthly": "Mensuel",
+    "annual": "Annuel",
+    "saveAnnual": "— économisez 17 %",
+    "saveAnnualShort": "· −17 %",
+    "selected": "Sélectionné",
+    "perMonth": "/mois",
+    "perMonthShort": "/mois",
+    "trialAllPlans": "Essai gratuit de {days} jours sur tous les forfaits · Aucun frais avant le jour {dayAfter}",
+    "trialEndsOn": "Votre essai se termine le {date}, date à laquelle votre carte sera débitée de {price} $/mois{billedAnnually}. Annulez à tout moment avant cette date et vous ne serez pas facturé.",
+    "billedAnnually": ", facturation annuelle",
+    "annualSavingsNote": "La facturation annuelle vous fait économiser 17 % par rapport au mensuel",
+    "settingUp": "Configuration…",
+    "startTrialButton": "Démarrer l'essai gratuit de {days} jours — {plan}",
+    "cardRequired": "Carte requise · Annulez à tout moment avant la fin de l'essai"
+  },
+  "success": {
+    "allSet": "Tout est prêt",
+    "readyToLaunch": "Vous êtes prêt à vous lancer.",
+    "settingUpAccount": "Votre compte est configuré. Direction votre tableau de bord…"
+  }
+}

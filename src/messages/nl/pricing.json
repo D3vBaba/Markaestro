@@ -1,0 +1,173 @@
+{
+  "hero": {
+    "eyebrow": "Prijzen",
+    "titleLead": "Je volledige marketingmotor,",
+    "titleHighlight": "één simpele prijs",
+    "subtitle": "Geen verborgen kosten, geen verrassingen per gebruiker. Elk abonnement bevat een gratis proefperiode van {trialDays} dagen. Op elk moment op te zeggen.",
+    "monthlyToggle": "Maandelijks",
+    "annualToggle": "Jaarlijks",
+    "annualSaveBadge": "BESPAAR 18%",
+    "trialLine": "Gratis proefperiode van {trialDays} dagen op alle abonnementen — geen kosten tot dag {trialEndDay}",
+    "annualSavingsSuffix": " · Jaarlijkse facturering bespaart 18%"
+  },
+  "planNames": {
+    "starter": "Starter",
+    "pro": "Pro",
+    "business": "Business"
+  },
+  "mostPopularBadge": "Meest Populair",
+  "plans": {
+    "starter": {
+      "description": "Voor zelfstandige marketeers die publiceren op Meta en TikTok.",
+      "features": [
+        "5 sociale kanalen",
+        "Onbeperkt aantal posts",
+        "500 media-uploads / maand",
+        "1 teamlid",
+        "Contentkalender",
+        "1 workspace",
+        "Merkstem (1 profiel)",
+        "Analyse (7-daags venster)"
+      ]
+    },
+    "pro": {
+      "description": "Voor groeiende teams die samenwerking en planning nodig hebben.",
+      "features": [
+        "15 sociale kanalen",
+        "Onbeperkt aantal posts",
+        "5.000 media-uploads / maand",
+        "5 teamleden",
+        "5 workspaces",
+        "Merkstem + merkidentiteit",
+        "Slim plannen",
+        "Analyse (90-daags venster)",
+        "Prioriteitsondersteuning"
+      ]
+    },
+    "business": {
+      "description": "Voor bureaus die meerdere merken op grote schaal beheren.",
+      "features": [
+        "50 sociale kanalen",
+        "Onbeperkt aantal posts",
+        "Onbeperkte media-uploads",
+        "Onbeperkt aantal teamleden",
+        "Alles uit Pro",
+        "Onbeperkt aantal workspaces",
+        "Onbeperkte analysegeschiedenis + CSV-export",
+        "Prioriteitsondersteuning"
+      ]
+    }
+  },
+  "planCard": {
+    "perMonth": "/mnd",
+    "billedAnnually": "· Jaarlijks gefactureerd (${annualTotal}/jaar)",
+    "justPerDay": "Dat is slechts ${dailyCost}/dag",
+    "billedMonthly": "Maandelijks gefactureerd · Schakel over naar jaarlijks en bespaar 17%",
+    "startTrialButton": "Start Gratis Proefperiode van {trialDays} Dagen",
+    "noChargeLine": "Geen kosten voor {trialDays} dagen · Op elk moment op te zeggen",
+    "everythingIncluded": "Alles inbegrepen"
+  },
+  "comparison": {
+    "titleLead": "Vergelijk",
+    "titleHighlight": "elke functie",
+    "subtitle": "Zie precies wat er in elk abonnement is inbegrepen.",
+    "categories": [
+      {
+        "name": "Publiceren",
+        "features": [
+          { "name": "Sociale kanalen" },
+          { "name": "Posts per maand" },
+          { "name": "Contentkalender" },
+          { "name": "Bulk-inplannen" },
+          { "name": "Slim plannen" }
+        ]
+      },
+      {
+        "name": "Mediabibliotheek",
+        "features": [
+          { "name": "Media-uploads" },
+          { "name": "Merkstemprofielen" },
+          { "name": "Merkidentiteit (logo en kleuren)" }
+        ]
+      },
+      {
+        "name": "Analyse",
+        "features": [
+          { "name": "Post- en volgeranalyse" },
+          { "name": "Geschiedenisvenster" },
+          { "name": "CSV-export" }
+        ]
+      },
+      {
+        "name": "Team en Workspace",
+        "features": [
+          { "name": "Teamleden" },
+          { "name": "Workspaces" },
+          { "name": "Rolgebaseerde toegangscontrole" }
+        ]
+      },
+      {
+        "name": "Ontwikkelaars en AI-agents",
+        "features": [
+          { "name": "Workspace-API-sleutels" },
+          { "name": "Publicatie-API (Connect + volledige v1)" },
+          { "name": "Ondertekende webhooks" },
+          { "name": "Sleutelbeperking en vervaldatum per merk" }
+        ]
+      },
+      {
+        "name": "Ondersteuning",
+        "features": [
+          { "name": "E-mailondersteuning" },
+          { "name": "Prioriteitsondersteuning" }
+        ]
+      }
+    ]
+  },
+  "faqTitleLead": "Vragen over",
+  "faqTitleHighlight": "Prijzen",
+  "faqs": [
+    {
+      "q": "Kan ik op elk moment van abonnement wisselen?",
+      "a": "Ja. Je kunt je abonnement op elk moment upgraden of downgraden. Bij een upgrade wordt het naar rato berekende verschil in rekening gebracht. Bij een downgrade gaat het nieuwe tarief in bij je volgende factureringscyclus."
+    },
+    {
+      "q": "Wat telt als een 'sociaal kanaal'?",
+      "a": "Elk verbonden sociaal account telt als één kanaal. Bijvoorbeeld: één Facebook-pagina, één zakelijk Instagram-account en één TikTok-account zouden 3 kanalen zijn."
+    },
+    {
+      "q": "Wat telt als een media-upload?",
+      "a": "Elk afbeeldings- of videobestand dat naar een workspace wordt geüpload, telt als één media-upload voor je maandelijkse quotum. Het hergebruiken van een reeds geüpload bestand in meerdere posts telt niet opnieuw. Zie de vergelijkingstabel voor maandelijkse limieten per abonnement."
+    },
+    {
+      "q": "Wat gebeurt er als ik mijn media-uploadlimiet bereik?",
+      "a": "Je kunt posts blijven publiceren die media gebruiken die al in je workspace staan — alleen nieuwe uploads worden geblokkeerd. Je media-uploadquotum wordt gereset bij het begin van elke factureringscyclus, en je kunt je abonnement op elk moment upgraden voor een hoger quotum."
+    },
+    {
+      "q": "Hoe werkt de gratis proefperiode?",
+      "a": "Elk abonnement — maandelijks en jaarlijks — bevat een gratis proefperiode van {trialDays} dagen. Je kaart wordt geregistreerd bij aanmelding, maar er worden geen kosten in rekening gebracht totdat de proefperiode eindigt. Zeg op elk moment tijdens de proefperiode op en betaal niets."
+    },
+    {
+      "q": "Welke abonnementen bevatten de gratis proefperiode?",
+      "a": "Alle abonnementen (Starter, Pro, Business) met zowel maandelijkse als jaarlijkse facturering bevatten de gratis proefperiode van {trialDays} dagen. Jaarlijkse facturering bespaart je bovendien 18% ten opzichte van maandelijks."
+    },
+    {
+      "q": "Kan mijn AI-agent of mijn eigen software Markaestro gebruiken?",
+      "a": "Ja, op elk abonnement zonder extra kosten. Elke workspacebeheerder kan API-sleutels genereren via Instellingen → API en er een geven aan een AI-agent, een script of een kant-en-klare planningstool. Elke sleutel is gebonden aan één merk, heeft alleen de reikwijdtes die je aanvinkt, en kan een vervaldatum krijgen. Zie de AI-agentgids voor de tooldefinities en een werkende snelstartgids met vier commando's."
+    },
+    {
+      "q": "Bieden jullie kortingen aan voor non-profits of startups?",
+      "a": "Ja. We bieden 50% korting aan geverifieerde non-profits en startups in een vroeg stadium (met minder dan $1 miljoen omzet). Neem contact met ons op om dit aan te vragen."
+    },
+    {
+      "q": "Welke betaalmethoden accepteren jullie?",
+      "a": "We accepteren alle belangrijke krediet- en debetkaarten (Visa, Mastercard, Amex). Enterprise-abonnementen kunnen per factuur betalen."
+    }
+  ],
+  "cta": {
+    "title": "Probeer Markaestro {trialDays} dagen gratis",
+    "subtitle": "Volledige toegang bij elk jaarabonnement. Geen kosten tot dag {trialEndDay}. Op elk moment op te zeggen.",
+    "primaryButton": "Start Gratis Proefperiode",
+    "secondaryButton": "Praat met Sales"
+  }
+}

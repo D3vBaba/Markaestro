@@ -1,0 +1,89 @@
+{
+  "hero": {
+    "badge": "당신이 운영하는 모든 브랜드를 위한 소셜 퍼블리싱 허브",
+    "titleLead": "당신의 마케팅 엔진 전체를",
+    "titleHighlight": "하나의 플랫폼에",
+    "subtitle": "미디어를 업로드하고, 캡션을 작성하고, 당신이 마케팅하는 모든 브랜드 — 당신의 비즈니스든, 고객사든, 혹은 당신 자신이든 — 를 하나의 대시보드에서 모든 소셜 채널로 발행하세요. 또는 API 키를 AI 에이전트에게 넘겨주고 전 과정을 맡길 수도 있습니다.",
+    "primaryButton": "무료로 시작하기",
+    "secondaryButton": "기능 보기",
+    "stats": [
+      { "value": "10시간", "label": "매주 절약되는 시간" },
+      { "value": "6", "label": "채널, 클릭 한 번으로" },
+      { "value": "1", "label": "모든 채널을 위한 하나의 편집기" }
+    ],
+    "trustedBy": "창업자들이 신뢰하는"
+  },
+  "featuresPreview": {
+    "eyebrow": "플랫폼",
+    "titleLead": "성장에 필요한 모든 것을",
+    "titleHighlight": "한 곳에서",
+    "subtitle": "캡션 초안 작성부터 게시물 발행까지, Markaestro가 소셜 워크플로우의 모든 단계를 처리합니다.",
+    "items": [
+      { "title": "멀티 채널 발행", "desc": "하나의 편집기에서 Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest에 발행하세요. 예약 발행도, 즉시 발행도 가능합니다." },
+      { "title": "통합 미디어 업로드", "desc": "직접 촬영한 이미지와 동영상을 그대로 사용하세요. 게시물당 한 번만 업로드하면 연결된 모든 채널에 배포됩니다." },
+      { "title": "멀티 채널 미리보기", "desc": "발행 전 각 플랫폼에서 게시물이 어떻게 표시될지 확인하세요 — 캡션, 화면 비율, 글자 수 제한까지." },
+      { "title": "예약 및 캘린더", "desc": "채널별 시간을 설정해 통합 캘린더에 게시물을 대기시키세요. 재예약, 일시중지, 복제까지 클릭 한 번이면 충분합니다." },
+      { "title": "발행 대시보드", "desc": "모든 채널에 걸쳐 초안, 예약된 게시물, 발행 상태를 한눈에 추적하세요." },
+      { "title": "OAuth 연동", "desc": "안전한 OAuth로 Meta, TikTok, LinkedIn, Threads, Pinterest에 원클릭으로 연결하세요. 수동 토큰 관리는 필요 없습니다." }
+    ],
+    "exploreButton": "모든 기능 살펴보기"
+  },
+  "channelsPreview": {
+    "eyebrow": "채널",
+    "titleLead": "당신의 오디언스에게",
+    "titleHighlight": "어디서든 다가가세요",
+    "subtitle": "한 번만 연결하면 모든 주요 플랫폼에 발행할 수 있습니다. API 차이, 글자 수 제한, 미디어 요구사항은 채널별로 Markaestro가 알아서 처리합니다.",
+    "channels": [
+      { "name": "Facebook & Instagram", "desc": "Meta를 통해 OAuth로 연결됩니다. 페이지, 피드 게시물, 스토리, IG 비즈니스 발행을 지원합니다." },
+      { "name": "TikTok", "desc": "사진과 동영상 콘텐츠는 최종 마무리와 게시를 위해 크리에이터의 TikTok 받은함으로 전달됩니다." },
+      { "name": "LinkedIn", "desc": "본인 프로필 또는 관리 중인 페이지에 발행할 수 있습니다. 텍스트, 이미지, 동영상, 최대 20장까지의 다중 이미지 게시물을 지원합니다." },
+      { "name": "Threads & Pinterest", "desc": "Threads 캐러셀은 최대 20개 항목까지, Pinterest 이미지 및 동영상 핀은 선택한 보드에 게시됩니다." }
+    ],
+    "seeAllButton": "모든 채널 보기",
+    "stats": [
+      { "label": "소셜 채널", "value": "6", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
+      { "label": "편집기", "value": "1", "sub": "한 화면에서 캡션 + 미디어" },
+      { "label": "대시보드", "value": "1", "sub": "통합된 발행 워크플로우" },
+      { "label": "API", "value": "1", "sub": "하나의 키로 에이전트 대응 완료" }
+    ]
+  },
+  "composerPreview": {
+    "panelLabel": "하나의 편집기, 모든 채널",
+    "rows": [
+      { "label": "미디어", "value": "이미지 또는 동영상 업로드 — JPG, PNG, WebP, MP4" },
+      { "label": "캡션", "value": "한 번만 작성하고, 발행 전 채널별로 미리보기" },
+      { "label": "출력", "value": "연결된 6개 채널 모두에 예약 발행 또는 즉시 발행" }
+    ],
+    "eyebrow": "편집기",
+    "titleLead": "당신의 미디어,",
+    "titleHighlight": "당신의 콘텐츠",
+    "subtitle": "이미 가지고 있는 사진이나 동영상을 업로드하세요. 원하는 캡션을 작성하세요. 발행과 예약은 Markaestro가 처리하므로, 당신은 창작 작업에만 집중할 수 있습니다.",
+    "bullets": [
+      "기기나 라이브러리에서 이미지와 동영상을 바로 업로드",
+      "채널을 인식하는 미리보기: 해시태그, 글자 수 제한, 미디어 사양",
+      "예약, 즉시 발행, 또는 클릭 한 번으로 초안 저장"
+    ],
+    "seeFeaturesButton": "모든 기능 보기"
+  },
+  "agentSection": {
+    "eyebrow": "AI 에이전트",
+    "titleLead": "혹은 당신의 에이전트가",
+    "titleHighlight": "대신 처리하도록",
+    "subtitle": "모든 워크스페이스는 API 키를 발급할 수 있습니다. AI 에이전트에게 키를 넘겨주면 에이전트가 발행 권한이 있는 계정을 파악하고, 미디어를 업로드하고, 게시물을 작성 및 예약하고, 발행하고, 실제로 무엇이 발행되었는지 보고할 수 있습니다 — 플랫폼 API를 직접 건드리는 일 없이 말이죠.",
+    "bullets": [
+      "하나의 키는 하나의 브랜드에만 한정됩니다 — 에이전트가 다른 브랜드로 넘어갈 수 없습니다",
+      "Facebook, Instagram, TikTok은 항상 수동 우선 방식을 유지합니다: 항상 사람이 발행합니다",
+      "멱등적 쓰기, 비동기 발행 실행, 서명된 웹훅이 기본 내장되어 있습니다"
+    ],
+    "primaryButton": "에이전트 가이드 읽기",
+    "secondaryButton": "API 레퍼런스",
+    "codeLabel": "첫날부터 당신의 에이전트와 함께"
+  },
+  "cta": {
+    "eyebrow": "시작하기",
+    "title": "소셜 발행을 더 효율적으로 만들 준비가 되셨나요?",
+    "subtitle": "몇 분 만에 설정을 마치세요. 채널을 연결하고, 미디어를 업로드하고, 발행을 시작하세요.",
+    "primaryButton": "무료로 시작하기",
+    "secondaryButton": "영업팀에 문의"
+  }
+}

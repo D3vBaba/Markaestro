@@ -1,0 +1,173 @@
+{
+  "hero": {
+    "eyebrow": "Preise",
+    "titleLead": "Deine gesamte Marketing-Engine,",
+    "titleHighlight": "ein einfacher Preis",
+    "subtitle": "Keine versteckten Gebühren, keine Überraschungen pro Nutzer. Jeder Tarif enthält eine kostenlose {trialDays}-tägige Testphase. Jederzeit kündbar.",
+    "monthlyToggle": "Monatlich",
+    "annualToggle": "Jährlich",
+    "annualSaveBadge": "18 % SPAREN",
+    "trialLine": "{trialDays}-tägige kostenlose Testphase bei allen Tarifen — keine Kosten bis Tag {trialEndDay}",
+    "annualSavingsSuffix": " · Jährliche Abrechnung spart 18 %"
+  },
+  "planNames": {
+    "starter": "Starter",
+    "pro": "Pro",
+    "business": "Business"
+  },
+  "mostPopularBadge": "Am beliebtesten",
+  "plans": {
+    "starter": {
+      "description": "Für Einzelmarketer, die auf Meta und TikTok veröffentlichen.",
+      "features": [
+        "5 soziale Kanäle",
+        "Unbegrenzte Beiträge",
+        "500 Medien-Uploads / Monat",
+        "1 Teammitglied",
+        "Content-Kalender",
+        "1 Arbeitsbereich",
+        "Markenstimme (1 Profil)",
+        "Analysen (7-Tage-Fenster)"
+      ]
+    },
+    "pro": {
+      "description": "Für wachsende Teams, die Zusammenarbeit und Planung benötigen.",
+      "features": [
+        "15 soziale Kanäle",
+        "Unbegrenzte Beiträge",
+        "5.000 Medien-Uploads / Monat",
+        "5 Teammitglieder",
+        "5 Arbeitsbereiche",
+        "Markenstimme + Markenidentität",
+        "Intelligente Planung",
+        "Analysen (90-Tage-Fenster)",
+        "Priorisierter Support"
+      ]
+    },
+    "business": {
+      "description": "Für Agenturen, die mehrere Marken im großen Maßstab verwalten.",
+      "features": [
+        "50 soziale Kanäle",
+        "Unbegrenzte Beiträge",
+        "Unbegrenzte Medien-Uploads",
+        "Unbegrenzte Teammitglieder",
+        "Alles aus Pro",
+        "Unbegrenzte Arbeitsbereiche",
+        "Unbegrenzter Analyseverlauf + CSV-Export",
+        "Priorisierter Support"
+      ]
+    }
+  },
+  "planCard": {
+    "perMonth": "/Monat",
+    "billedAnnually": "· Jährlich abgerechnet ({annualTotal} $/Jahr)",
+    "justPerDay": "Das sind nur {dailyCost} $/Tag",
+    "billedMonthly": "Monatlich abgerechnet · Zu jährlich wechseln und 17 % sparen",
+    "startTrialButton": "{trialDays}-tägige kostenlose Testphase starten",
+    "noChargeLine": "Keine Kosten für {trialDays} Tage · Jederzeit kündbar",
+    "everythingIncluded": "Alles enthalten"
+  },
+  "comparison": {
+    "titleLead": "Vergleiche",
+    "titleHighlight": "jede Funktion",
+    "subtitle": "Sieh genau, was in jedem Tarif enthalten ist.",
+    "categories": [
+      {
+        "name": "Veröffentlichung",
+        "features": [
+          { "name": "Soziale Kanäle" },
+          { "name": "Beiträge pro Monat" },
+          { "name": "Content-Kalender" },
+          { "name": "Massenplanung" },
+          { "name": "Intelligente Planung" }
+        ]
+      },
+      {
+        "name": "Medienbibliothek",
+        "features": [
+          { "name": "Medien-Uploads" },
+          { "name": "Markenstimme-Profile" },
+          { "name": "Markenidentität (Logo & Farben)" }
+        ]
+      },
+      {
+        "name": "Analysen",
+        "features": [
+          { "name": "Beitrags- und Follower-Analysen" },
+          { "name": "Verlaufsfenster" },
+          { "name": "CSV-Export" }
+        ]
+      },
+      {
+        "name": "Team & Arbeitsbereich",
+        "features": [
+          { "name": "Teammitglieder" },
+          { "name": "Arbeitsbereiche" },
+          { "name": "Rollenbasierte Zugriffskontrolle" }
+        ]
+      },
+      {
+        "name": "Entwickler & KI-Agenten",
+        "features": [
+          { "name": "API-Schlüssel für Arbeitsbereiche" },
+          { "name": "Veröffentlichungs-API (Connect + vollständige v1)" },
+          { "name": "Signierte Webhooks" },
+          { "name": "Markengebundene Schlüssel mit Ablaufdatum" }
+        ]
+      },
+      {
+        "name": "Support",
+        "features": [
+          { "name": "E-Mail-Support" },
+          { "name": "Priorisierter Support" }
+        ]
+      }
+    ]
+  },
+  "faqTitleLead": "Häufige Fragen",
+  "faqTitleHighlight": "zu Preisen",
+  "faqs": [
+    {
+      "q": "Kann ich jederzeit den Tarif wechseln?",
+      "a": "Ja. Du kannst deinen Tarif jederzeit upgraden oder downgraden. Bei einem Upgrade wird dir die anteilige Differenz berechnet. Bei einem Downgrade tritt der neue Tarif zu deinem nächsten Abrechnungszyklus in Kraft."
+    },
+    {
+      "q": "Was zählt als „sozialer Kanal“?",
+      "a": "Jedes verbundene soziale Konto zählt als ein Kanal. Zum Beispiel wären eine Facebook-Seite, ein geschäftliches Instagram-Konto und ein TikTok-Konto 3 Kanäle."
+    },
+    {
+      "q": "Was zählt als Medien-Upload?",
+      "a": "Jede Bild- oder Videodatei, die in einen Arbeitsbereich hochgeladen wird, zählt als ein Medien-Upload gegen dein monatliches Kontingent. Die Wiederverwendung einer bereits hochgeladenen Datei in mehreren Beiträgen zählt nicht erneut. Die monatlichen Limits pro Tarif findest du in der Vergleichstabelle."
+    },
+    {
+      "q": "Was passiert, wenn ich mein Medien-Upload-Limit erreiche?",
+      "a": "Du kannst weiterhin Beiträge veröffentlichen, die bereits vorhandene Inhalte in deinem Arbeitsbereich verwenden — nur neue Uploads werden blockiert. Dein Medien-Upload-Kontingent wird zu Beginn jedes Abrechnungszyklus zurückgesetzt, und du kannst dein Abo jederzeit für ein höheres Kontingent upgraden."
+    },
+    {
+      "q": "Wie funktioniert die kostenlose Testphase?",
+      "a": "Jeder Tarif — monatlich und jährlich — enthält eine kostenlose {trialDays}-tägige Testphase. Deine Karte wird bei der Anmeldung erfasst, aber erst nach Ablauf der Testphase belastet. Kündige jederzeit während der Testphase und zahle nichts."
+    },
+    {
+      "q": "Welche Tarife enthalten die kostenlose Testphase?",
+      "a": "Alle Tarife (Starter, Pro, Business) — sowohl monatlich als auch jährlich abgerechnet — enthalten die kostenlose {trialDays}-tägige Testphase. Die jährliche Abrechnung spart dir zudem 18 % gegenüber der monatlichen."
+    },
+    {
+      "q": "Kann mein KI-Agent oder meine eigene Software Markaestro nutzen?",
+      "a": "Ja, in jedem Tarif und ohne Aufpreis. Jeder Administrator eines Arbeitsbereichs kann API-Schlüssel unter Einstellungen → API erstellen und an einen KI-Agenten, ein Skript oder ein vorgefertigtes Planungstool weitergeben. Jeder Schlüssel ist an eine einzelne Marke gebunden, enthält nur die von dir ausgewählten Berechtigungen und kann ein Ablaufdatum erhalten. Im Leitfaden für KI-Agenten findest du die Tool-Definitionen und einen funktionierenden Schnellstart mit vier Befehlen."
+    },
+    {
+      "q": "Bietet ihr Rabatte für gemeinnützige Organisationen oder Startups an?",
+      "a": "Ja. Wir bieten 50 % Rabatt für verifizierte gemeinnützige Organisationen und Frühphasen-Startups (unter 1 Mio. $ Umsatz). Kontaktiere uns, um dich zu bewerben."
+    },
+    {
+      "q": "Welche Zahlungsmethoden akzeptiert ihr?",
+      "a": "Wir akzeptieren alle gängigen Kredit- und Debitkarten (Visa, Mastercard, Amex). Enterprise-Tarife können per Rechnung zahlen."
+    }
+  ],
+  "cta": {
+    "title": "Teste Markaestro {trialDays} Tage lang kostenlos",
+    "subtitle": "Voller Zugriff bei jedem Jahrestarif. Keine Kosten bis Tag {trialEndDay}. Jederzeit kündbar.",
+    "primaryButton": "Kostenlose Testphase starten",
+    "secondaryButton": "Mit dem Vertrieb sprechen"
+  }
+}

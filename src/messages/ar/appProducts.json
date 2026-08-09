@@ -1,0 +1,254 @@
+{
+  "categories": {
+    "saas": "SaaS",
+    "mobile": "تطبيق جوال",
+    "web": "تطبيق ويب",
+    "api": "API",
+    "marketplace": "سوق إلكتروني",
+    "ecommerce": "تجارة إلكترونية",
+    "fintech": "تقنية مالية",
+    "healthtech": "تقنية صحية",
+    "edtech": "تقنية تعليمية",
+    "gaming": "ألعاب",
+    "social": "اجتماعي",
+    "productivity": "إنتاجية",
+    "developer-tools": "أدوات المطورين",
+    "ai": "ذكاء اصطناعي",
+    "media": "إعلام",
+    "agency": "وكالة",
+    "creator": "صانع محتوى",
+    "hardware": "أجهزة",
+    "nonprofit": "غير ربحي",
+    "local-business": "نشاط تجاري محلي",
+    "personal-brand": "علامة شخصية",
+    "fashion-beauty": "أزياء وتجميل",
+    "food-restaurant": "طعام ومطاعم",
+    "music-entertainment": "موسيقى وترفيه",
+    "real-estate": "عقارات",
+    "coaching-services": "تدريب وخدمات",
+    "fitness": "لياقة بدنية",
+    "travel-hospitality": "سفر وضيافة",
+    "other": "أخرى"
+  },
+  "categorySelect": {
+    "selectCategory": "اختر فئة"
+  },
+  "productStatus": {
+    "active": "نشط",
+    "beta": "تجريبي",
+    "development": "قيد التطوير",
+    "sunset": "متوقف",
+    "archived": "مؤرشف"
+  },
+  "productCard": {
+    "noChannelsConnected": "لا توجد قنوات متصلة",
+    "reconnectNeeded": "{label} — يلزم إعادة الاتصال",
+    "deleteBrand": "حذف العلامة التجارية"
+  },
+  "page": {
+    "title": "العلامات التجارية",
+    "subtitle": "كل ما تروّج له — منتجات، أعمال، عملاء، أو نفسك.",
+    "addBrand": "إضافة علامة تجارية",
+    "filters": {
+      "all": "الكل",
+      "active": "نشطة",
+      "development": "قيد التطوير"
+    },
+    "ungrantedPages": {
+      "title": "{count, plural, zero {لم تعد أي صفحة فيسبوك مصرَّحة} one {صفحة فيسبوك واحدة لم تعد مصرَّحة} two {صفحتا فيسبوك لم تعودا مصرَّحتين} few {# صفحات فيسبوك لم تعد مصرَّحة} many {# صفحة فيسبوك لم تعد مصرَّحة} other {# صفحة فيسبوك لم تعد مصرَّحة}}",
+      "body": "لم يشمل هذا الدخول {pages}. يستبدل فيسبوك مجموعة الأذونات بالكامل عند كل اتصال، لذا لن تتمكن هذه الصفحات من النشر حتى تعيد الاتصال وتحددها. المنشورات المجدولة لها ستفشل.",
+      "howItWorks": "كيف يعمل الاتصال",
+      "dismiss": "إغلاق"
+    },
+    "emptyState": {
+      "all": "لا توجد علامات تجارية بعد",
+      "active": "لا توجد علامات تجارية نشطة",
+      "development": "لا شيء قيد التطوير",
+      "body": "أضف علامتك التجارية الأولى لتبدأ في صنع تسويق يعبّر عن أسلوبك."
+    },
+    "deleteWarning": "ستتم أيضًا إزالة جميع إعدادات نبرة العلامة التجارية لهذه العلامة.",
+    "toasts": {
+      "connected": "تم الاتصال بـ {provider}",
+      "declinedPermission": "{provider}: لقد رفضت طلب الإذن — اضغط على \"اتصال\" للمحاولة مرة أخرى.",
+      "connectionFailed": "فشل الاتصال بـ {provider}: {message}",
+      "unknownError": "خطأ غير معروف",
+      "almostDone": "أوشكنا على الانتهاء — اختر صفحة فيسبوك في القنوات لإكمال إعداد Meta",
+      "deleteFailed": "فشل حذف العلامة التجارية",
+      "deleted": "تم حذف العلامة التجارية"
+    }
+  },
+  "createWizard": {
+    "eyebrow": "علامة تجارية جديدة",
+    "title": "إضافة علامة تجارية",
+    "descriptions": {
+      "start": "ابدأ بمسح موقعك الإلكتروني، أو أدخل التفاصيل يدويًا.",
+      "scan": "جارٍ البحث عن علامتك التجارية…",
+      "manual": "املأ العناصر الأساسية — يمكنك إضافة المزيد لاحقًا.",
+      "review": "راجع ما وجدناه، وعدّل ما تريد، ثم احفظ."
+    },
+    "scanCard": {
+      "title": "امسح موقعك الإلكتروني",
+      "body": "سنستخرج الاسم والوصف وألوان العلامة التجارية والشعار والنبرة، لتبدأ بنسبة إنجاز 90%.",
+      "urlPlaceholder": "https://yourbrand.com",
+      "scan": "مسح"
+    },
+    "or": "أو",
+    "manualCard": {
+      "title": "إدخال يدوي",
+      "body": "تخطَّ المسح واملأ النموذج بنفسك."
+    },
+    "cancelScan": "إلغاء المسح",
+    "scanError": {
+      "body": "تعذّر علينا مسح {url}. أعد محاولة المسح أو أدخل تفاصيلك يدويًا.",
+      "editUrl": "تعديل الرابط",
+      "retry": "إعادة المسح",
+      "enterManually": "إدخال يدوي"
+    },
+    "scanComplete": "اكتمل المسح — راجع وعدّل أي شيء أدناه.",
+    "fields": {
+      "brandName": "اسم العلامة التجارية",
+      "brandNamePlaceholder": "DripCheckr",
+      "description": "الوصف",
+      "descriptionPlaceholder": "ما موضوع هذه العلامة التجارية؟",
+      "website": "الموقع الإلكتروني",
+      "websitePlaceholder": "https://yourbrand.com",
+      "category": "الفئة"
+    },
+    "brandIntelligence": "ذكاء العلامة التجارية",
+    "logoDetected": "تم اكتشاف شعار من الموقع",
+    "targetAudience": "الجمهور المستهدف",
+    "brandTone": "نبرة العلامة التجارية",
+    "fineTuneNote": "يمكنك ضبط كل هذا بدقة بعد إنشاء العلامة التجارية.",
+    "startOver": "البدء من جديد",
+    "createBrand": "إنشاء علامة تجارية",
+    "creating": "جارٍ الإنشاء…",
+    "toasts": {
+      "enterUrl": "أدخل رابطًا أولًا",
+      "nameRequired": "الاسم مطلوب",
+      "createFailed": "فشل إنشاء العلامة التجارية",
+      "brandAdded": "تمت إضافة العلامة التجارية"
+    }
+  },
+  "detailSheet": {
+    "sections": {
+      "foundation": "الأساسيات",
+      "identity": "الهوية",
+      "channels": "القنوات"
+    },
+    "brandFallback": "علامة تجارية",
+    "saveIndicator": {
+      "saving": "جارٍ الحفظ…",
+      "unsavedChanges": "تغييرات غير محفوظة",
+      "savedAt": "تم الحفظ · {time}",
+      "allSaved": "تم حفظ جميع التغييرات"
+    },
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "edit": "تعديل",
+    "deleteBrand": "حذف العلامة التجارية",
+    "deleteWarning": "ستتم أيضًا إزالة جميع الإعدادات واتصالات القنوات لهذه العلامة التجارية.",
+    "disconnectWarning": "سيؤدي هذا إلى إزالة كل حساب {label} مرتبط بهذه العلامة التجارية. تحتفظ العلامات التجارية الأخرى باتصالاتها الخاصة. لتبديل حساب واحد فقط، استخدم بدلًا من ذلك \"إلغاء الربط\" بجانبه — ولتجديد الوصول، استخدم \"إعادة الاتصال\" بدلًا من قطع الاتصال.",
+    "disconnect": "قطع الاتصال",
+    "unsavedConfirm": "لديك تغييرات غير محفوظة. هل تريد الإغلاق دون حفظ؟",
+    "toasts": {
+      "loadFailed": "فشل تحميل العلامة التجارية",
+      "nameRequired": "اسم العلامة التجارية مطلوب",
+      "saveDetailsFailed": "فشل حفظ تفاصيل العلامة التجارية",
+      "saveIdentityFailed": "تم حفظ تفاصيل العلامة التجارية، لكن فشل حفظ هوية العلامة التجارية",
+      "saved": "تم الحفظ",
+      "deleteFailed": "فشل حذف العلامة التجارية",
+      "deleted": "تم حذف العلامة التجارية",
+      "logoTooLarge": "يجب أن يكون حجم الشعار أقل من 2 ميغابايت",
+      "logoUploaded": "تم رفع الشعار",
+      "logoUploadFailed": "فشل رفع الشعار",
+      "disconnected": "تم قطع اتصال {label}",
+      "disconnectFailed": "فشل قطع اتصال {provider}",
+      "noFacebookPages": "لم يتم العثور على صفحات فيسبوك.",
+      "loadPagesFailed": "فشل تحميل الصفحات",
+      "pagesLinked": "{count, plural, zero {لم يتم ربط أي صفحة فيسبوك} one {تم ربط صفحة فيسبوك واحدة} two {تم ربط صفحتَي فيسبوك} few {تم ربط # صفحات فيسبوك} many {تم ربط # صفحة فيسبوك} other {تم ربط # صفحة فيسبوك}}",
+      "linkPagesFailed": "فشل ربط الصفحات"
+    },
+    "foundation": {
+      "basicsTitle": "المعلومات الأساسية",
+      "basicsDescription": "كيف يتم تحديد علامتك التجارية داخل Markaestro.",
+      "brandName": "اسم العلامة التجارية",
+      "description": "الوصف",
+      "website": "الموقع الإلكتروني",
+      "positioningTitle": "التموضع",
+      "category": "الفئة",
+      "status": "الحالة"
+    },
+    "identity": {
+      "logoTitle": "الشعار",
+      "logoDescription": "يُستخدم في البطاقات والوسائط المُنشأة والمعاينات.",
+      "colorsTitle": "ألوان العلامة التجارية",
+      "colorsDescription": "بمجرد ضبطها، تنعكس في البطاقات والوسائط المُنشأة.",
+      "primary": "أساسي",
+      "primaryDescription": "لون العلامة التجارية الرئيسي",
+      "secondary": "ثانوي",
+      "secondaryDescription": "لون داعم",
+      "accent": "لون مميز",
+      "accentDescription": "للإبراز وأزرار الدعوة لاتخاذ إجراء",
+      "upload": "رفع",
+      "uploading": "جارٍ الرفع…",
+      "replace": "استبدال",
+      "remove": "إزالة",
+      "fileHint": "PNG أو JPG أو WebP أو SVG. الحد الأقصى 2 ميغابايت.",
+      "clearColor": "مسح اللون",
+      "openColorPicker": "فتح منتقي الألوان",
+      "setColorTo": "ضبط {label} على {color}"
+    },
+    "channels": {
+      "title": "القنوات المتصلة",
+      "description": "اربط حسابات التواصل الاجتماعي لتتمكن من الجدولة من هذه العلامة التجارية.",
+      "connect": "اتصال",
+      "reconnect": "إعادة الاتصال",
+      "reconnectAddAccount": "إعادة الاتصال / إضافة حساب",
+      "disconnectAllCount": "قطع اتصال جميع الـ {count}",
+      "unlinkAllCount": "إلغاء ربط جميع الـ {count}",
+      "unlink": "إلغاء الربط",
+      "loading": "جارٍ التحميل…",
+      "addPages": "إضافة صفحات",
+      "choosePages": "اختيار صفحات",
+      "pickAPage": "اختيار صفحة",
+      "metaPagesLinkedCount": "تم ربط {count} صفحة فيسبوك",
+      "facebookPageLinked": "تم ربط صفحة فيسبوك",
+      "chooseWhichPages": "اختر صفحات فيسبوك التي تنشر عليها هذه العلامة التجارية",
+      "linkPages": "اربط صفحات فيسبوك الخاصة بهذه العلامة التجارية",
+      "instagramNote": "للحسابات الاحترافية غير المرتبطة بصفحة فيسبوك.",
+      "expires": "تنتهي الصلاحية في {date}",
+      "linked": "مرتبط",
+      "reconnectBadge": "إعادة الاتصال",
+      "selectBoard": "اختيار لوحة",
+      "changeBoard": "تغيير اللوحة",
+      "pinningTo": "التثبيت على: {board}",
+      "selectBoardToEnable": "اختر لوحة لتفعيل النشر",
+      "linkProfile": "ربط الملف الشخصي",
+      "unlinkProfile": "إلغاء ربط الملف الشخصي",
+      "linkPagesBtn": "ربط الصفحات",
+      "unlinkPagesBtn": "إلغاء ربط الصفحات",
+      "selectTarget": "اختيار الوجهة",
+      "changeTarget": "تغيير الوجهة",
+      "selectTargetPlaceholder": "اختر وجهة…",
+      "select": "اختيار",
+      "postingTo": "النشر إلى: {target}",
+      "selectProfileOrPage": "اختر ملفًا شخصيًا أو صفحة لتفعيل النشر",
+      "everyDestinationLinked": "كل {destination} متاحة مرتبطة بالفعل بهذه العلامة التجارية.",
+      "linkedCount": "تم ربط {count} {destination}",
+      "connectedAccount": "حساب متصل",
+      "warning": "تحذير",
+      "linkedAccountFallback": "حساب مرتبط",
+      "toasts": {
+        "noLinkedInTargets": "لم يتم العثور على وجهات LinkedIn.",
+        "loadLinkedInFailed": "فشل تحميل وجهات LinkedIn",
+        "linkedInSelected": "تم اختيار وجهة LinkedIn \"{name}\"",
+        "selectLinkedInFailed": "فشل اختيار وجهة LinkedIn",
+        "noDestinationsFound": "لم يتم العثور على {destination}.",
+        "loadDestinationsFailed": "فشل تحميل {destination}",
+        "linkDestinationsFailed": "فشل ربط {destination}",
+        "accountUnlinked": "تم إلغاء ربط {account}",
+        "unlinkFailed": "فشل إلغاء ربط {account}"
+      }
+    }
+  }
+}

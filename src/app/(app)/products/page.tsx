@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, Plus } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
@@ -79,6 +80,7 @@ function readOpenDeepLink(): { productId: string; section: "foundation" | "chann
 }
 
 export default function ProductsPage() {
+  const t = useTranslations("products.page");
   const {
     data: productsData,
     loading,
@@ -157,18 +159,16 @@ export default function ProductsPage() {
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     if (result === "success" && provider) {
-      toast.success(`${providerLabels[provider] || provider} connected`);
+      toast.success(t("toasts.connected", { provider: providerLabels[provider] || provider }));
       window.history.replaceState({}, "", "/products");
       invalidateQueries("/api/products");
       invalidateQueries("/api/integrations");
     } else if (result === "error" && provider) {
       const label = providerLabels[provider] || provider;
       if (message && message.includes("access_denied")) {
-        toast.error(
-          `${label}: You declined the permission request — tap Connect to try again.`,
-        );
+        toast.error(t("toasts.declinedPermission", { provider: label }));
       } else {
-        toast.error(`${label} connection failed: ${message || "Unknown error"}`);
+        toast.error(t("toasts.connectionFailed", { provider: label, message: message || t("toasts.unknownError") }));
       }
       window.history.replaceState({}, "", "/products");
     }
@@ -179,15 +179,14 @@ export default function ProductsPage() {
       if (provider === "meta" && needsPageSelect) {
         timers.push(
           setTimeout(() => {
-            toast.info(
-              "Almost done — choose a Facebook page in Channels to finish Meta setup",
-            );
+            toast.info(t("toasts.almostDone"));
           }, 300),
         );
       }
     }
 
     return () => timers.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oauthCallback]);
 
   const confirmDelete = async () => {
@@ -202,12 +201,12 @@ export default function ProductsPage() {
         next.delete(id);
         return next;
       });
-      toast.error("Failed to delete brand");
+      toast.error(t("toasts.deleteFailed"));
     };
     try {
       const res = await apiDelete(`/api/products/${id}`);
       if (res.ok) {
-        toast.success("Brand deleted");
+        toast.success(t("toasts.deleted"));
         // Refetch; the override keeps the card hidden until fresh data
         // (without the product) arrives, so it never flashes back.
         invalidateQueries("/api/products");
@@ -232,19 +231,19 @@ export default function ProductsPage() {
   });
 
   const filterLabels: Record<FilterTab, string> = {
-    all: "All",
-    active: "Active",
-    development: "In dev",
+    all: t("filters.all"),
+    active: t("filters.active"),
+    development: t("filters.development"),
   };
 
   return (
     <AppShell>
       <PageHeader
-        title="Brands"
-        subtitle="Everything you market — products, businesses, clients, or yourself."
+        title={t("title")}
+        subtitle={t("subtitle")}
         action={
           <Button onClick={() => setCreateOpen(true)} className="rounded-lg h-9 text-[13px] gap-1.5">
-            <Plus className="h-3.5 w-3.5" /> Add brand
+            <Plus className="h-3.5 w-3.5" /> {t("addBrand")}
           </Button>
         }
       />
@@ -260,24 +259,21 @@ export default function ProductsPage() {
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--mk-warn)" }} />
           <div className="min-w-0 flex-1">
             <p className="text-[13px] font-medium">
-              {ungrantedPages.length} Facebook{" "}
-              {ungrantedPages.length === 1 ? "Page is" : "Pages are"} no longer authorized
+              {t("ungrantedPages.title", { count: ungrantedPages.length })}
             </p>
             <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
-              This login did not include {ungrantedPages.join(", ")}. Facebook replaces the whole permission
-              set each time you connect, so those Pages cannot publish until you reconnect and tick them.
-              Scheduled posts for them will fail.
+              {t("ungrantedPages.body", { pages: ungrantedPages.join(", ") })}
             </p>
             <div className="mt-2.5 flex flex-wrap items-center gap-3">
               <Link href="/guides/channels" className="text-[12.5px] underline underline-offset-2">
-                How connecting works
+                {t("ungrantedPages.howItWorks")}
               </Link>
               <button
                 type="button"
                 onClick={() => setUngrantedPages([])}
                 className="text-[12.5px] text-muted-foreground underline underline-offset-2"
               >
-                Dismiss
+                {t("ungrantedPages.dismiss")}
               </button>
             </div>
           </div>
@@ -390,7 +386,7 @@ export default function ProductsPage() {
         }}
         entity="brand"
         name={deleteTarget?.name}
-        warning="All brand voice settings for this brand will also be removed."
+        warning={t("deleteWarning")}
         onConfirm={confirmDelete}
       />
     </AppShell>
@@ -404,10 +400,11 @@ function EmptyState({
   onCreate: () => void;
   filter: FilterTab;
 }) {
+  const t = useTranslations("products.page");
   const labels = {
-    all: "No brands yet",
-    active: "No active brands",
-    development: "Nothing in development",
+    all: t("emptyState.all"),
+    active: t("emptyState.active"),
+    development: t("emptyState.development"),
   } as const;
   return (
     <div
@@ -433,10 +430,10 @@ function EmptyState({
         className="mt-1 text-[13px] max-w-sm mx-auto"
         style={{ color: "var(--mk-ink-60)" }}
       >
-        Add your first brand to start crafting on-voice marketing.
+        {t("emptyState.body")}
       </p>
       <Button onClick={onCreate} className="rounded-lg mt-4 h-9 text-[13px] gap-1.5">
-        <Plus className="h-3.5 w-3.5" /> Add brand
+        <Plus className="h-3.5 w-3.5" /> {t("addBrand")}
       </Button>
     </div>
   );

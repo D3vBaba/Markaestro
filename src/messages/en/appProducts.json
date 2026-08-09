@@ -1,0 +1,254 @@
+{
+  "categories": {
+    "saas": "SaaS",
+    "mobile": "Mobile App",
+    "web": "Web App",
+    "api": "API",
+    "marketplace": "Marketplace",
+    "ecommerce": "E-commerce",
+    "fintech": "Fintech",
+    "healthtech": "Health Tech",
+    "edtech": "Ed Tech",
+    "gaming": "Gaming",
+    "social": "Social",
+    "productivity": "Productivity",
+    "developer-tools": "Developer Tools",
+    "ai": "AI",
+    "media": "Media",
+    "agency": "Agency",
+    "creator": "Creator",
+    "hardware": "Hardware",
+    "nonprofit": "Nonprofit",
+    "local-business": "Local Business",
+    "personal-brand": "Personal Brand",
+    "fashion-beauty": "Fashion & Beauty",
+    "food-restaurant": "Food & Restaurant",
+    "music-entertainment": "Music & Entertainment",
+    "real-estate": "Real Estate",
+    "coaching-services": "Coaching & Services",
+    "fitness": "Fitness",
+    "travel-hospitality": "Travel & Hospitality",
+    "other": "Other"
+  },
+  "categorySelect": {
+    "selectCategory": "Select a category"
+  },
+  "productStatus": {
+    "active": "Active",
+    "beta": "Beta",
+    "development": "Development",
+    "sunset": "Sunset",
+    "archived": "Archived"
+  },
+  "productCard": {
+    "noChannelsConnected": "No channels connected",
+    "reconnectNeeded": "{label} — reconnect needed",
+    "deleteBrand": "Delete brand"
+  },
+  "page": {
+    "title": "Brands",
+    "subtitle": "Everything you market — products, businesses, clients, or yourself.",
+    "addBrand": "Add brand",
+    "filters": {
+      "all": "All",
+      "active": "Active",
+      "development": "In dev"
+    },
+    "ungrantedPages": {
+      "title": "{count, plural, one {# Facebook Page is no longer authorized} other {# Facebook Pages are no longer authorized}}",
+      "body": "This login did not include {pages}. Facebook replaces the whole permission set each time you connect, so those Pages cannot publish until you reconnect and tick them. Scheduled posts for them will fail.",
+      "howItWorks": "How connecting works",
+      "dismiss": "Dismiss"
+    },
+    "emptyState": {
+      "all": "No brands yet",
+      "active": "No active brands",
+      "development": "Nothing in development",
+      "body": "Add your first brand to start crafting on-voice marketing."
+    },
+    "deleteWarning": "All brand voice settings for this brand will also be removed.",
+    "toasts": {
+      "connected": "{provider} connected",
+      "declinedPermission": "{provider}: You declined the permission request — tap Connect to try again.",
+      "connectionFailed": "{provider} connection failed: {message}",
+      "unknownError": "Unknown error",
+      "almostDone": "Almost done — choose a Facebook page in Channels to finish Meta setup",
+      "deleteFailed": "Failed to delete brand",
+      "deleted": "Brand deleted"
+    }
+  },
+  "createWizard": {
+    "eyebrow": "New brand",
+    "title": "Add brand",
+    "descriptions": {
+      "start": "Start by scanning your website, or enter details manually.",
+      "scan": "Researching your brand…",
+      "manual": "Fill out the essentials — you can add more later.",
+      "review": "Review what we found, tweak anything, then save."
+    },
+    "scanCard": {
+      "title": "Scan your website",
+      "body": "We'll extract your name, description, brand colours, logo and tone so you can start with 90% done.",
+      "urlPlaceholder": "https://yourbrand.com",
+      "scan": "Scan"
+    },
+    "or": "Or",
+    "manualCard": {
+      "title": "Enter manually",
+      "body": "Skip the scan and fill the form yourself."
+    },
+    "cancelScan": "Cancel scan",
+    "scanError": {
+      "body": "We couldn't scan {url}. Retry the scan, or enter your details manually.",
+      "editUrl": "Edit URL",
+      "retry": "Retry scan",
+      "enterManually": "Enter manually"
+    },
+    "scanComplete": "Scan complete — review and edit anything below.",
+    "fields": {
+      "brandName": "Brand name",
+      "brandNamePlaceholder": "DripCheckr",
+      "description": "Description",
+      "descriptionPlaceholder": "What is this brand about?",
+      "website": "Website",
+      "websitePlaceholder": "https://yourbrand.com",
+      "category": "Category"
+    },
+    "brandIntelligence": "Brand intelligence",
+    "logoDetected": "Logo detected from site",
+    "targetAudience": "Target audience",
+    "brandTone": "Brand tone",
+    "fineTuneNote": "You can fine-tune all of this after creating the brand.",
+    "startOver": "Start over",
+    "createBrand": "Create brand",
+    "creating": "Creating…",
+    "toasts": {
+      "enterUrl": "Enter a URL first",
+      "nameRequired": "Name is required",
+      "createFailed": "Failed to create brand",
+      "brandAdded": "Brand added"
+    }
+  },
+  "detailSheet": {
+    "sections": {
+      "foundation": "Foundation",
+      "identity": "Identity",
+      "channels": "Channels"
+    },
+    "brandFallback": "Brand",
+    "saveIndicator": {
+      "saving": "Saving…",
+      "unsavedChanges": "Unsaved changes",
+      "savedAt": "Saved · {time}",
+      "allSaved": "All changes saved"
+    },
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "deleteBrand": "Delete brand",
+    "deleteWarning": "All settings and channel connections for this brand will also be removed.",
+    "disconnectWarning": "This removes every {label} account linked to this brand. Other brands keep their own connections. To swap a single account, use Unlink next to it instead — and to refresh access, use Reconnect rather than disconnecting.",
+    "disconnect": "Disconnect",
+    "unsavedConfirm": "You have unsaved changes. Close without saving?",
+    "toasts": {
+      "loadFailed": "Failed to load brand",
+      "nameRequired": "Brand name is required",
+      "saveDetailsFailed": "Failed to save brand details",
+      "saveIdentityFailed": "Saved brand details, but failed to save brand identity",
+      "saved": "Saved",
+      "deleteFailed": "Failed to delete brand",
+      "deleted": "Brand deleted",
+      "logoTooLarge": "Logo must be under 2 MB",
+      "logoUploaded": "Logo uploaded",
+      "logoUploadFailed": "Failed to upload logo",
+      "disconnected": "{label} disconnected",
+      "disconnectFailed": "Failed to disconnect {provider}",
+      "noFacebookPages": "No Facebook pages found.",
+      "loadPagesFailed": "Failed to load pages",
+      "pagesLinked": "{count, plural, one {# Facebook Page linked} other {# Facebook Pages linked}}",
+      "linkPagesFailed": "Failed to link Pages"
+    },
+    "foundation": {
+      "basicsTitle": "Basics",
+      "basicsDescription": "How your brand is identified across Markaestro.",
+      "brandName": "Brand name",
+      "description": "Description",
+      "website": "Website",
+      "positioningTitle": "Positioning",
+      "category": "Category",
+      "status": "Status"
+    },
+    "identity": {
+      "logoTitle": "Logo",
+      "logoDescription": "Used on cards, generated media, and previews.",
+      "colorsTitle": "Brand colors",
+      "colorsDescription": "Set once, reflected across cards and generated media.",
+      "primary": "Primary",
+      "primaryDescription": "Main brand color",
+      "secondary": "Secondary",
+      "secondaryDescription": "Supporting color",
+      "accent": "Accent",
+      "accentDescription": "Highlights & CTAs",
+      "upload": "Upload",
+      "uploading": "Uploading…",
+      "replace": "Replace",
+      "remove": "Remove",
+      "fileHint": "PNG, JPG, WebP, or SVG. Max 2 MB.",
+      "clearColor": "Clear color",
+      "openColorPicker": "Open color picker",
+      "setColorTo": "Set {label} to {color}"
+    },
+    "channels": {
+      "title": "Connected channels",
+      "description": "Connect social accounts so you can schedule from this brand.",
+      "connect": "Connect",
+      "reconnect": "Reconnect",
+      "reconnectAddAccount": "Reconnect / add account",
+      "disconnectAllCount": "Disconnect all {count}",
+      "unlinkAllCount": "Unlink all {count}",
+      "unlink": "Unlink",
+      "loading": "Loading…",
+      "addPages": "Add Pages",
+      "choosePages": "Choose Pages",
+      "pickAPage": "Pick a Page",
+      "metaPagesLinkedCount": "{count} Facebook Pages linked",
+      "facebookPageLinked": "Facebook Page linked",
+      "chooseWhichPages": "Choose which Facebook Pages this brand posts to",
+      "linkPages": "Link this brand's Facebook Pages",
+      "instagramNote": "For professional accounts not linked to a Facebook page.",
+      "expires": "Expires {date}",
+      "linked": "Linked",
+      "reconnectBadge": "Reconnect",
+      "selectBoard": "Select board",
+      "changeBoard": "Change board",
+      "pinningTo": "Pinning to: {board}",
+      "selectBoardToEnable": "Select a board to enable publishing",
+      "linkProfile": "Link Profile",
+      "unlinkProfile": "Unlink Profile",
+      "linkPagesBtn": "Link Pages",
+      "unlinkPagesBtn": "Unlink Pages",
+      "selectTarget": "Select target",
+      "changeTarget": "Change target",
+      "selectTargetPlaceholder": "Select a target…",
+      "select": "Select",
+      "postingTo": "Posting to: {target}",
+      "selectProfileOrPage": "Select a Profile or Page to enable publishing",
+      "everyDestinationLinked": "Every available {destination} is already linked to this brand.",
+      "linkedCount": "{count} {destination} linked",
+      "connectedAccount": "Connected account",
+      "warning": "Warning",
+      "linkedAccountFallback": "Linked account",
+      "toasts": {
+        "noLinkedInTargets": "No LinkedIn targets found.",
+        "loadLinkedInFailed": "Failed to load LinkedIn targets",
+        "linkedInSelected": "LinkedIn target \"{name}\" selected",
+        "selectLinkedInFailed": "Failed to select LinkedIn target",
+        "noDestinationsFound": "No {destination}s found.",
+        "loadDestinationsFailed": "Failed to load {destination}s",
+        "linkDestinationsFailed": "Failed to link {destination}s",
+        "accountUnlinked": "{account} unlinked",
+        "unlinkFailed": "Failed to unlink {account}"
+      }
+    }
+  }
+}

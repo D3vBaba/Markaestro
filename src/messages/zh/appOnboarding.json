@@ -1,0 +1,316 @@
+{
+  "questionCounter": "问题 {current} / {total}",
+  "signOut": "退出登录",
+  "signIn": "登录",
+  "back": "← 返回",
+  "continue": "继续",
+  "skipForNow": "暂时跳过",
+  "takes2Minutes": "仅需2分钟 · 无需信用卡",
+  "quiz": {
+    "marketing": {
+      "eyebrow": "让我们搭建你的增长引擎",
+      "title": "你在推广什么？",
+      "subtitle": "无论你在发展什么，Markaestro 都能适配。",
+      "options": {
+        "product": { "label": "一个应用或产品", "desc": "软件、电商，或你打造的其他产品" },
+        "business": { "label": "一门生意", "desc": "公司、店铺或本地服务" },
+        "personal": { "label": "我自己", "desc": "只属于你自己的个人品牌或受众" },
+        "clients": { "label": "客户", "desc": "你为其他人管理的品牌" }
+      }
+    },
+    "role": {
+      "eyebrow": "你的角色",
+      "title": "你的角色是什么？",
+      "subtitle": "我们会根据你实际的工作方式定制一切。",
+      "options": {
+        "founder": { "label": "创始人 / CEO", "desc": "身兼数职 — 包括营销" },
+        "marketer": { "label": "营销人员", "desc": "负责所有渠道的内容" },
+        "agency": { "label": "代理机构 / 自由职业者", "desc": "同时兼顾多个客户的发布内容" },
+        "creator": { "label": "内容创作者", "desc": "打造只属于你自己的受众" }
+      }
+    },
+    "teamSize": {
+      "eyebrow": "你的团队",
+      "title": "谁在负责发布内容？",
+      "options": {
+        "solo": { "label": "只有我一个人", "desc": "说实话，工作量不小" },
+        "small": { "label": "2–5 人", "desc": "小团队，身兼多职" },
+        "medium": { "label": "6–20 人", "desc": "协作正变得越来越混乱" },
+        "large": { "label": "20 人以上", "desc": "保持所有人步调一致很难" }
+      }
+    },
+    "goal": {
+      "eyebrow": "使命",
+      "title": "你真正想要达成的是什么？",
+      "subtitle": "这将决定你的配置以及我们为你推荐的套餐。",
+      "options": {
+        "social": { "label": "增加我的关注者", "desc": "更多曝光，更多互动" },
+        "sales": { "label": "带动更多销售", "desc": "把帖子变成销售管道" },
+        "time": { "label": "把时间找回来", "desc": "不再被内容制作淹没" }
+      }
+    },
+    "channels": {
+      "eyebrow": "你所在的阶段",
+      "title": "你的受众在哪里？",
+      "subtitle": "选择所有符合的选项 — 你可以一键发布到每一个渠道。",
+      "options": {
+        "instagram": { "label": "Instagram" },
+        "facebook": { "label": "Facebook" },
+        "tiktok": { "label": "TikTok" },
+        "threads": { "label": "Threads" },
+        "pinterest": { "label": "Pinterest" },
+        "linkedin": { "label": "LinkedIn" }
+      }
+    },
+    "postingToday": {
+      "eyebrow": "请诚实回答",
+      "title": "你目前是怎么发布内容的？",
+      "subtitle": "大多数团队都告诉我们，这是最痛苦的部分。",
+      "options": {
+        "manual": { "label": "在每个应用里手动操作", "desc": "到处一个个登录" },
+        "spreadsheet": { "label": "表格和提醒事项", "desc": "便利贴加祈祷" },
+        "tool": { "label": "另一个排期工具", "desc": "一个我已经悄悄用腻了的工具" },
+        "starting": { "label": "几乎没怎么发布", "desc": "还没有真正的体系" }
+      }
+    },
+    "frequency": {
+      "eyebrow": "你想要的节奏",
+      "title": "你希望多久发布一次？",
+      "subtitle": "我们会自动帮你保持发布节奏。",
+      "options": {
+        "daily": { "label": "每天", "desc": "始终保持存在感" },
+        "few": { "label": "每周几次", "desc": "稳扎稳打才能赢" },
+        "weekly": { "label": "大约每周一次", "desc": "重质不重量" },
+        "unsure": { "label": "还不确定", "desc": "告诉我什么真正有效" }
+      }
+    },
+    "challenge": {
+      "eyebrow": "真正的问题",
+      "title": "是什么一直在拖你后腿？",
+      "subtitle": "这正是我们要为你解决的问题。",
+      "options": {
+        "consistency": { "label": "保持持续更新", "desc": "刚开始很有劲，然后就沉寂了" },
+        "time": { "label": "挤出时间", "desc": "时间总是不够用" },
+        "ideas": { "label": "构思内容", "desc": "灵感总是很快就用光" },
+        "juggling": { "label": "兼顾多个渠道", "desc": "平台太多，忙不过来" }
+      }
+    },
+    "contentTypes": {
+      "eyebrow": "你的风格",
+      "title": "你想发布什么内容？",
+      "subtitle": "选择所有符合的选项 — 我们会帮你填满内容日历。",
+      "options": {
+        "product": { "label": "产品与促销" },
+        "educational": { "label": "小贴士与知识科普" },
+        "bts": { "label": "幕后花絮" },
+        "news": { "label": "新闻与动态" }
+      }
+    },
+    "hoursPerWeek": {
+      "eyebrow": "隐藏的成本",
+      "title": "每周有多少小时消耗在这上面？",
+      "subtitle": "请诚实回答 — 实际耗时几乎总是比感觉的更多。",
+      "options": {
+        "lt2": { "label": "不到2小时" },
+        "2to5": { "label": "2–5小时" },
+        "5to10": { "label": "5–10小时" },
+        "gt10": { "label": "10小时以上" }
+      }
+    },
+    "success": {
+      "eyebrow": "90天后",
+      "title": "什么样的结果会让这一切值得？",
+      "subtitle": "我们会让你的整套配置都朝着这个目标努力。",
+      "options": {
+        "followers": { "label": "更大、更有粘性的受众群体", "desc": "持续累积的曝光度" },
+        "sales": { "label": "能带来收入的内容", "desc": "真正能转化的帖子" },
+        "timeback": { "label": "找回我的夜晚和周末", "desc": "每周都能拿回属于自己的时间" },
+        "consistency": { "label": "再也不会沉寂下去", "desc": "一份值得信赖的存在感" }
+      }
+    }
+  },
+  "challengeCopy": {
+    "consistency": {
+      "short": "保持持续更新",
+      "headline": "你再也不会沉寂下去",
+      "line": "一次性排好几周的发布计划 — Markaestro 每次都准时发布，沉寂就此结束。"
+    },
+    "time": {
+      "short": "挤出时间",
+      "headline": "让我们把这些时间找回来",
+      "line": "只写一次，处处发布，提前排好日程。复制粘贴、反复登录的繁琐工作就此消失。"
+    },
+    "ideas": {
+      "short": "构思内容",
+      "headline": "你的内容日历不会再枯竭",
+      "line": "把一个灵感变成每个渠道整整一周的发布内容 — 再也不用对着空白屏幕发呆。"
+    },
+    "juggling": {
+      "short": "兼顾多个渠道",
+      "headline": "所有渠道汇聚一处",
+      "line": "只需创作一次，即可从单一界面发布到你所有的平台 — 不再需要来回切换标签页，也不再有漏发的帖子。"
+    }
+  },
+  "marketingCopy": {
+    "product": {
+      "eyebrow": "你的产品",
+      "title": "添加你正在推广的产品",
+      "sub": "扫描你的网站以自动填充详情，或手动添加，或暂时跳过 — 你随时都可以稍后再完成。"
+    },
+    "business": {
+      "eyebrow": "你的业务",
+      "title": "添加你正在推广的业务",
+      "sub": "扫描你的网站以自动填充详情，或手动添加，或暂时跳过 — 你随时都可以稍后再完成。"
+    },
+    "personal": {
+      "eyebrow": "你的品牌",
+      "title": "设置你的个人品牌",
+      "sub": "有网站或作品集吗？扫描即可自动填充。没有网站？手动输入你的详情 — 只需一分钟。"
+    },
+    "clients": {
+      "eyebrow": "你的第一位客户",
+      "title": "添加你第一位客户的品牌",
+      "sub": "先从一位客户开始 — 扫描其网站自动填充，或手动输入详情。你可以随时添加更多品牌。"
+    },
+    "fallback": {
+      "eyebrow": "你的品牌",
+      "title": "添加你正在推广的品牌",
+      "sub": "扫描你的网站以自动填充详情，或手动添加，或暂时跳过 — 你随时都可以稍后再完成。"
+    }
+  },
+  "socialProviders": {
+    "meta": {
+      "label": "Meta",
+      "fullLabel": "Meta（Facebook + Instagram）",
+      "description": "连接 Facebook 和 Instagram",
+      "note": "主页、Reels、动态帖子、快拍"
+    }
+  },
+  "footer": {
+    "tagline": "面向现代团队的高级营销自动化平台。",
+    "product": "产品",
+    "features": "功能",
+    "channels": "渠道",
+    "pricing": "定价",
+    "company": "公司",
+    "contact": "联系我们",
+    "termsOfService": "服务条款",
+    "privacyPolicy": "隐私政策",
+    "getStarted": "开始使用",
+    "signIn": "登录",
+    "createAccount": "创建账户",
+    "copyright": "© {year} Markaestro。保留所有权利。",
+    "terms": "条款",
+    "privacy": "隐私"
+  },
+  "register": {
+    "yourPlanIsReady": "你的套餐已准备就绪",
+    "titleEmail": "保存你的套餐，找回你的时间",
+    "titleCode": "请查看你的收件箱",
+    "subtitleEmail": "无需密码 — 输入你的邮箱，我们会发送一次性验证码。已有账户？同一个验证码即可登录。",
+    "subtitleCode": "我们已向 {email} 发送了一个6位验证码。",
+    "waitingInWorkspace": "正在你的工作区中等待",
+    "recap": {
+      "channelsReady": "已有 {count} 个渠道可一键发布",
+      "everyChannel": "所有渠道，一处统一发布",
+      "postsScheduled": "帖子已{frequency}自动排期",
+      "hoursBack": "每周为你的日程找回约 {hours} 小时",
+      "onSteadyCadence": "按稳定节奏"
+    },
+    "emailPlaceholder": "name@company.com",
+    "codePlaceholder": "123456",
+    "sendingCode": "正在发送验证码…",
+    "claimPlan": "领取我的套餐 — 完全免费",
+    "verifying": "正在验证…",
+    "continueBtn": "继续",
+    "useDifferentEmail": "← 使用其他邮箱",
+    "resendIn": "{seconds}秒后可重新发送",
+    "resendCode": "重新发送验证码",
+    "freeTrialNote": "免费开始 · 14天试用 · 随时可取消",
+    "orContinueWith": "或使用以下方式继续",
+    "continueWithGoogle": "使用 Google 继续",
+    "agreeTermsPrefix": "继续即表示你同意我们的",
+    "and": "和",
+    "terms": "条款",
+    "privacyPolicy": "隐私政策",
+    "errors": {
+      "enterEmail": "请输入邮箱以继续。",
+      "enterCode": "请输入邮箱中收到的6位验证码。"
+    }
+  },
+  "product": {
+    "scanWebsite": "扫描网站",
+    "enterManually": "手动输入",
+    "websiteUrl": "网站网址",
+    "urlPlaceholder": "yourbrand.com",
+    "scanning": "正在扫描…",
+    "rescan": "重新扫描",
+    "scan": "扫描",
+    "scanHelp": "我们会读取你的网站，并自动填写名称、简介、Logo 和品牌色。",
+    "autoDetected": "自动识别",
+    "brandName": "品牌名称",
+    "description": "简介",
+    "targetAudience": "目标受众",
+    "targetAudiencePlaceholder": "例如：B2B SaaS 创始人",
+    "brandTone": "品牌语气",
+    "brandTonePlaceholder": "例如：大胆、直接",
+    "brandColorDetected": "已检测到品牌色：",
+    "manualBrandNamePlaceholder": "例如：Acme CRM",
+    "whatDoesItDo": "它是做什么的？",
+    "optional": "（可选）",
+    "manualDescPlaceholder": "描述这个品牌以及它面向的人群……",
+    "saving": "正在保存…",
+    "couldntSaveBrand": "未能保存你的品牌 — 你可以稍后从仪表盘中添加。"
+  },
+  "socials": {
+    "connectYourAccounts": "连接你的账户",
+    "addSocialAccounts": "添加你的社交账户",
+    "subtitle": "连接你想发布内容的平台。你可以随时在设置中添加或更改这些连接。",
+    "connected": "已连接",
+    "connect": "连接",
+    "redirecting": "正在跳转…",
+    "otherChannelsNote": "TikTok、Threads 和 Pinterest 可以在仪表盘中按品牌单独连接。",
+    "skipAndContinue": "跳过并继续",
+    "couldNotInitiate": "无法发起连接，请重试。",
+    "connectedToast": "已连接 {label}",
+    "connectFailedToast": "连接 {provider} 失败"
+  },
+  "generating": {
+    "title": "正在搭建你的工作流",
+    "subtitle": "正在围绕“{challenge}”这个问题，为你设置渠道和发布计划。",
+    "takesAMoment": "只需片刻"
+  },
+  "paywall": {
+    "youllGetBackPrefix": "你将大约找回",
+    "hoursAWeek": "小时／周",
+    "startTrialSuffix": "开始你的{days}天免费试用，即可发布内容 — 以及你创建的其他一切。",
+    "firstPostReady": "你的第一篇帖子已在仪表盘中准备就绪。",
+    "subscribeToPublish": "订阅后即可发布",
+    "postReadyOneStepAway": "你的帖子已就绪 — 只差最后一步",
+    "justNow": "刚刚",
+    "like": "赞",
+    "comment": "评论",
+    "share": "分享",
+    "recommendedForYou": "为你推荐",
+    "basedOnAnswers": "基于你的回答",
+    "monthly": "按月",
+    "annual": "按年",
+    "saveAnnual": "— 节省17%",
+    "saveAnnualShort": "· −17%",
+    "selected": "已选择",
+    "perMonth": "/月",
+    "perMonthShort": "/月",
+    "trialAllPlans": "所有套餐均享{days}天免费试用 · 第{dayAfter}天前不产生任何费用",
+    "trialEndsOn": "你的试用将于{date}结束，届时将向你的银行卡收取每月 ${price}{billedAnnually}。在此之前随时取消，不会产生任何费用。",
+    "billedAnnually": "，按年计费",
+    "annualSavingsNote": "按年计费比按月计费节省17%",
+    "settingUp": "正在设置…",
+    "startTrialButton": "开始{days}天免费试用 — {plan}",
+    "cardRequired": "需要绑定银行卡 · 试用结束前可随时取消"
+  },
+  "success": {
+    "allSet": "一切就绪",
+    "readyToLaunch": "你已准备好开始了。",
+    "settingUpAccount": "你的账户已设置完成，正在带你前往仪表盘…"
+  }
+}

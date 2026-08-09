@@ -1,0 +1,254 @@
+{
+  "categories": {
+    "saas": "SaaS",
+    "mobile": "移动应用",
+    "web": "网页应用",
+    "api": "API",
+    "marketplace": "交易市场",
+    "ecommerce": "电子商务",
+    "fintech": "金融科技",
+    "healthtech": "健康科技",
+    "edtech": "教育科技",
+    "gaming": "游戏",
+    "social": "社交",
+    "productivity": "效率工具",
+    "developer-tools": "开发者工具",
+    "ai": "人工智能",
+    "media": "媒体",
+    "agency": "代理机构",
+    "creator": "创作者",
+    "hardware": "硬件",
+    "nonprofit": "非营利组织",
+    "local-business": "本地商家",
+    "personal-brand": "个人品牌",
+    "fashion-beauty": "时尚与美妆",
+    "food-restaurant": "美食与餐饮",
+    "music-entertainment": "音乐与娱乐",
+    "real-estate": "房地产",
+    "coaching-services": "培训与服务",
+    "fitness": "健身",
+    "travel-hospitality": "旅行与酒店",
+    "other": "其他"
+  },
+  "categorySelect": {
+    "selectCategory": "选择一个类别"
+  },
+  "productStatus": {
+    "active": "使用中",
+    "beta": "测试版",
+    "development": "开发中",
+    "sunset": "已停用",
+    "archived": "已归档"
+  },
+  "productCard": {
+    "noChannelsConnected": "未连接任何渠道",
+    "reconnectNeeded": "{label} — 需要重新连接",
+    "deleteBrand": "删除品牌"
+  },
+  "page": {
+    "title": "品牌",
+    "subtitle": "你所推广的一切 — 产品、企业、客户或你自己。",
+    "addBrand": "添加品牌",
+    "filters": {
+      "all": "全部",
+      "active": "使用中",
+      "development": "开发中"
+    },
+    "ungrantedPages": {
+      "title": "{count}个 Facebook 主页不再获得授权",
+      "body": "此次登录未包含{pages}。Facebook 每次连接都会替换整个权限集，因此这些主页在你重新连接并勾选它们之前将无法发布内容。已排期给它们的帖子将会失败。",
+      "howItWorks": "连接原理",
+      "dismiss": "关闭"
+    },
+    "emptyState": {
+      "all": "还没有品牌",
+      "active": "没有使用中的品牌",
+      "development": "没有正在开发的品牌",
+      "body": "添加你的第一个品牌，开始打造符合你风格的营销内容。"
+    },
+    "deleteWarning": "此品牌的所有品牌语气设置也将被删除。",
+    "toasts": {
+      "connected": "已连接{provider}",
+      "declinedPermission": "{provider}：你拒绝了权限请求 — 点击“连接”重试。",
+      "connectionFailed": "连接{provider}失败：{message}",
+      "unknownError": "未知错误",
+      "almostDone": "即将完成 — 在“渠道”中选择一个 Facebook 主页以完成 Meta 设置",
+      "deleteFailed": "删除品牌失败",
+      "deleted": "品牌已删除"
+    }
+  },
+  "createWizard": {
+    "eyebrow": "新品牌",
+    "title": "添加品牌",
+    "descriptions": {
+      "start": "先扫描你的网站，或手动输入详细信息。",
+      "scan": "正在研究你的品牌…",
+      "manual": "填写必要信息 — 之后可以添加更多内容。",
+      "review": "查看我们找到的信息，进行任何调整，然后保存。"
+    },
+    "scanCard": {
+      "title": "扫描你的网站",
+      "body": "我们会提取你的名称、简介、品牌色、Logo 和语气风格，让你从 90% 完成度开始。",
+      "urlPlaceholder": "https://yourbrand.com",
+      "scan": "扫描"
+    },
+    "or": "或",
+    "manualCard": {
+      "title": "手动输入",
+      "body": "跳过扫描，自行填写表单。"
+    },
+    "cancelScan": "取消扫描",
+    "scanError": {
+      "body": "我们无法扫描{url}。请重试扫描，或手动输入你的详细信息。",
+      "editUrl": "编辑网址",
+      "retry": "重新扫描",
+      "enterManually": "手动输入"
+    },
+    "scanComplete": "扫描完成 — 请查看并编辑以下任意内容。",
+    "fields": {
+      "brandName": "品牌名称",
+      "brandNamePlaceholder": "DripCheckr",
+      "description": "简介",
+      "descriptionPlaceholder": "这个品牌是关于什么的？",
+      "website": "网站",
+      "websitePlaceholder": "https://yourbrand.com",
+      "category": "类别"
+    },
+    "brandIntelligence": "品牌智能信息",
+    "logoDetected": "已从网站检测到 Logo",
+    "targetAudience": "目标受众",
+    "brandTone": "品牌语气",
+    "fineTuneNote": "创建品牌后，你可以对以上所有内容进行微调。",
+    "startOver": "重新开始",
+    "createBrand": "创建品牌",
+    "creating": "正在创建…",
+    "toasts": {
+      "enterUrl": "请先输入网址",
+      "nameRequired": "名称为必填项",
+      "createFailed": "创建品牌失败",
+      "brandAdded": "品牌已添加"
+    }
+  },
+  "detailSheet": {
+    "sections": {
+      "foundation": "基础信息",
+      "identity": "品牌形象",
+      "channels": "渠道"
+    },
+    "brandFallback": "品牌",
+    "saveIndicator": {
+      "saving": "正在保存…",
+      "unsavedChanges": "有未保存的更改",
+      "savedAt": "已保存 · {time}",
+      "allSaved": "所有更改已保存"
+    },
+    "cancel": "取消",
+    "save": "保存",
+    "edit": "编辑",
+    "deleteBrand": "删除品牌",
+    "deleteWarning": "此品牌的所有设置和渠道连接也将被移除。",
+    "disconnectWarning": "此操作将移除与该品牌关联的所有{label}账户。其他品牌将保留各自的连接。若只想更换单个账户，请改用其旁边的“取消关联”；若要刷新访问权限，请使用“重新连接”而不是断开连接。",
+    "disconnect": "断开连接",
+    "unsavedConfirm": "你有未保存的更改。是否不保存直接关闭？",
+    "toasts": {
+      "loadFailed": "加载品牌失败",
+      "nameRequired": "品牌名称为必填项",
+      "saveDetailsFailed": "保存品牌详细信息失败",
+      "saveIdentityFailed": "品牌详细信息已保存，但保存品牌形象失败",
+      "saved": "已保存",
+      "deleteFailed": "删除品牌失败",
+      "deleted": "品牌已删除",
+      "logoTooLarge": "Logo 必须小于 2 MB",
+      "logoUploaded": "Logo 已上传",
+      "logoUploadFailed": "上传 Logo 失败",
+      "disconnected": "已断开{label}连接",
+      "disconnectFailed": "断开{provider}连接失败",
+      "noFacebookPages": "未找到 Facebook 主页。",
+      "loadPagesFailed": "加载主页失败",
+      "pagesLinked": "已关联{count}个 Facebook 主页",
+      "linkPagesFailed": "关联主页失败"
+    },
+    "foundation": {
+      "basicsTitle": "基本信息",
+      "basicsDescription": "你的品牌在 Markaestro 中的识别方式。",
+      "brandName": "品牌名称",
+      "description": "简介",
+      "website": "网站",
+      "positioningTitle": "定位",
+      "category": "类别",
+      "status": "状态"
+    },
+    "identity": {
+      "logoTitle": "Logo",
+      "logoDescription": "用于卡片、生成的媒体内容和预览。",
+      "colorsTitle": "品牌色",
+      "colorsDescription": "设置一次后，将体现在卡片和生成的媒体内容中。",
+      "primary": "主色",
+      "primaryDescription": "主要品牌色",
+      "secondary": "辅助色",
+      "secondaryDescription": "辅助配色",
+      "accent": "强调色",
+      "accentDescription": "用于突出显示与行动号召",
+      "upload": "上传",
+      "uploading": "正在上传…",
+      "replace": "替换",
+      "remove": "移除",
+      "fileHint": "PNG、JPG、WebP 或 SVG，最大 2 MB。",
+      "clearColor": "清除颜色",
+      "openColorPicker": "打开取色器",
+      "setColorTo": "将{label}设为{color}"
+    },
+    "channels": {
+      "title": "已连接渠道",
+      "description": "连接社交账户，即可从该品牌进行排期发布。",
+      "connect": "连接",
+      "reconnect": "重新连接",
+      "reconnectAddAccount": "重新连接 / 添加账户",
+      "disconnectAllCount": "断开全部 {count} 个",
+      "unlinkAllCount": "取消关联全部 {count} 个",
+      "unlink": "取消关联",
+      "loading": "正在加载…",
+      "addPages": "添加主页",
+      "choosePages": "选择主页",
+      "pickAPage": "选择一个主页",
+      "metaPagesLinkedCount": "已关联 {count} 个 Facebook 主页",
+      "facebookPageLinked": "已关联 Facebook 主页",
+      "chooseWhichPages": "选择此品牌要发布到的 Facebook 主页",
+      "linkPages": "关联此品牌的 Facebook 主页",
+      "instagramNote": "适用于未关联 Facebook 主页的专业账户。",
+      "expires": "有效期至 {date}",
+      "linked": "已关联",
+      "reconnectBadge": "重新连接",
+      "selectBoard": "选择看板",
+      "changeBoard": "更改看板",
+      "pinningTo": "正在固定至：{board}",
+      "selectBoardToEnable": "选择一个看板以启用发布",
+      "linkProfile": "关联个人资料",
+      "unlinkProfile": "取消关联个人资料",
+      "linkPagesBtn": "关联主页",
+      "unlinkPagesBtn": "取消关联主页",
+      "selectTarget": "选择目标",
+      "changeTarget": "更改目标",
+      "selectTargetPlaceholder": "选择一个目标…",
+      "select": "选择",
+      "postingTo": "发布至：{target}",
+      "selectProfileOrPage": "选择一个个人资料或主页以启用发布",
+      "everyDestinationLinked": "所有可用的{destination}均已关联到此品牌。",
+      "linkedCount": "已关联 {count} 个{destination}",
+      "connectedAccount": "已连接账户",
+      "warning": "警告",
+      "linkedAccountFallback": "已关联账户",
+      "toasts": {
+        "noLinkedInTargets": "未找到 LinkedIn 目标。",
+        "loadLinkedInFailed": "加载 LinkedIn 目标失败",
+        "linkedInSelected": "已选择 LinkedIn 目标“{name}”",
+        "selectLinkedInFailed": "选择 LinkedIn 目标失败",
+        "noDestinationsFound": "未找到{destination}。",
+        "loadDestinationsFailed": "加载{destination}失败",
+        "linkDestinationsFailed": "关联{destination}失败",
+        "accountUnlinked": "已取消关联{account}",
+        "unlinkFailed": "取消关联{account}失败"
+      }
+    }
+  }
+}

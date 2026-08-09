@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "Publicações",
+    "subtitle": "Crie, agende e publique conteúdo orgânico nos seus canais sociais.",
+    "tabs": {
+      "create": "Criar",
+      "drafts": "Rascunhos",
+      "scheduled": "Agendadas",
+      "published": "Publicadas",
+      "onPlatform": "Na plataforma"
+    },
+    "productBar": {
+      "brand": "Marca",
+      "noBrandSelected": "Nenhuma marca selecionada",
+      "change": "Alterar"
+    }
+  },
+  "editor": {
+    "placeholder": "O conteúdo gerado aparecerá aqui...",
+    "limitSuffix": "limite"
+  },
+  "productPicker": {
+    "brand": "Marca",
+    "selectBrand": "Selecione uma marca...",
+    "tone": "Tom:",
+    "style": "Estilo:",
+    "audience": "Público:"
+  },
+  "markPostedDialog": {
+    "title": "Marcar como publicado",
+    "description": "Confirme que você mesmo publicou esta postagem em {channel}. Cole o link da postagem ao vivo, se tiver — isso conecta a postagem às suas análises mais tarde.",
+    "urlPlaceholder": "https://www.{channel}.com/… (opcional)",
+    "cancel": "Cancelar",
+    "confirm": "Marcar como publicado",
+    "toasts": {
+      "marked": "Marcado como publicado",
+      "failed": "Falha ao marcar como publicado"
+    }
+  },
+  "publishedTab": {
+    "empty": "Ainda não há publicações publicadas.",
+    "createPost": "Criar uma publicação",
+    "toasts": {
+      "deleted": "Publicação excluída",
+      "deleteFailed": "Falha ao excluir a publicação",
+      "loadFailed": "Falha ao carregar as publicações publicadas"
+    }
+  },
+  "scheduledTab": {
+    "empty": "Nada agendado ainda.",
+    "scheduleFirst": "Agende sua primeira publicação",
+    "editTitle": "Editar publicação agendada",
+    "saveAndReschedule": "Salvar e reagendar",
+    "toasts": {
+      "loadFailed": "Falha ao carregar as publicações agendadas",
+      "movedToDrafts": "Movida de volta para rascunhos",
+      "cancelFailed": "Falha ao cancelar o agendamento",
+      "deleted": "Publicação excluída",
+      "deleteFailed": "Falha ao excluir a publicação",
+      "pushingTikTok": "Enviando para a caixa de entrada do TikTok…",
+      "publishingPost": "Publicando…",
+      "tiktokInboxConfirmed": "O TikTok confirmou a entrega na caixa de entrada. Abra o app do TikTok para finalizar e publicar.",
+      "tiktokProcessing": "O TikTok aceitou o envio e ainda está processando.",
+      "stillProcessing": "Publicação enviada e ainda em processamento.",
+      "posted": "Publicado!",
+      "publishFailed": "Falha ao publicar",
+      "updated": "Publicação atualizada",
+      "updateFailed": "Falha ao atualizar",
+      "rescheduled": "Publicação reagendada",
+      "rescheduleFailed": "Falha ao reagendar"
+    }
+  },
+  "draftsTab": {
+    "empty": "Ainda não há rascunhos.",
+    "createFirst": "Crie sua primeira publicação",
+    "editTitle": "Editar rascunho",
+    "toPostHeading": "Para publicar",
+    "waitingInTikTokHeading": "Aguardando no TikTok",
+    "draftsHeading": "Rascunhos",
+    "toasts": {
+      "loadFailed": "Falha ao carregar os rascunhos",
+      "deleted": "Rascunho excluído",
+      "deleteFailed": "Falha ao excluir",
+      "addingToQueue": "Adicionando à sua fila “Para publicar”…",
+      "pushingTikTok": "Enviando para a caixa de entrada do TikTok…",
+      "publishingPost": "Publicando…",
+      "addedToQueue": "Adicionado à sua fila “Para publicar”. Publique nativamente e depois marque como publicado.",
+      "tiktokInboxConfirmed": "O TikTok confirmou a entrega na caixa de entrada. Abra o app do TikTok para finalizar e publicar.",
+      "tiktokProcessing": "O TikTok aceitou o envio e ainda está processando.",
+      "stillProcessing": "Publicação enviada e ainda em processamento.",
+      "posted": "Publicado!",
+      "publishFailed": "Falha ao publicar",
+      "updated": "Rascunho atualizado",
+      "updateFailed": "Falha ao atualizar",
+      "scheduled": "Publicação agendada",
+      "scheduleFailed": "Falha ao agendar"
+    }
+  },
+  "channelSelector": {
+    "channels": "Canais",
+    "selectedCount": "{count} selecionado(s)",
+    "postTo": "Publicar em",
+    "defaultReason": "Conecte este canal nas configurações da marca.",
+    "productSettings": "Configurações do produto"
+  },
+  "scheduleSheet": {
+    "eyebrow": "Agendar",
+    "title": "Agendar publicação",
+    "description": "Escolha uma data e hora, ou use os horários ideais sugeridos por IA.",
+    "tiktokNoteLabel": "O TikTok é finalizado no app do TikTok.",
+    "tiktokNoteBody": "No horário agendado, o Markaestro envia a mídia para sua caixa de entrada do TikTok e a marca como pronta assim que você puder abrir o TikTok para finalizar legenda, privacidade e publicação.",
+    "smartSchedule": "Agendamento inteligente",
+    "aiSuggested": "Sugerido por IA",
+    "hide": "Ocultar",
+    "show": "Mostrar",
+    "basedOnData": "Com base em dados de engajamento do setor para {channel}",
+    "thisChannel": "este canal",
+    "orPickManually": "ou escolher manualmente",
+    "timeLabel": "Horário",
+    "timezoneNote": "Os agendamentos usam seu fuso horário local ({timezone}) e são armazenados em UTC.",
+    "headsUp": "Atenção:",
+    "collisionNote": "outra publicação já está agendada perto deste horário ({date}{channel}). Você ainda pode agendar as duas.",
+    "onChannel": " em {channel}",
+    "scheduleFor": "Agendar para {date} às {time}",
+    "selectDate": "Selecione uma data"
+  },
+  "postEditSheet": {
+    "caption": "Legenda",
+    "media": "Mídia",
+    "image": "Imagem",
+    "remove": "Remover",
+    "replace": "Substituir",
+    "dropMedia": "Solte a mídia ou clique para enviar",
+    "dropImage": "Solte uma imagem ou clique para enviar",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · até 10 MB",
+    "uploading": "Enviando…",
+    "upload": "Enviar",
+    "preview": "Pré-visualização",
+    "cancel": "Cancelar",
+    "saving": "Salvando…",
+    "save": "Salvar",
+    "defaultTitle": "Editar publicação",
+    "defaultScheduleLabel": "Agendar",
+    "toasts": {
+      "videoTikTokOnly": "Vídeos estão disponíveis apenas para publicações do TikTok",
+      "videoTooLarge": "O vídeo deve ter menos de 250 MB",
+      "imageTooLarge": "A imagem deve ter menos de 10 MB",
+      "videoUploaded": "Vídeo enviado",
+      "imageUploaded": "Imagem enviada",
+      "uploadFailed": "Falha no envio"
+    }
+  },
+  "postCard": {
+    "readyToPost": "Pronto para publicar",
+    "readyInTikTok": "Pronto no TikTok",
+    "partiallyFailed": "Parcialmente falhou",
+    "text": "Texto",
+    "preview": "Pré-visualização",
+    "view": "Ver",
+    "copyCaption": "Copiar legenda",
+    "downloadMedia": "Baixar mídia",
+    "downloading": "Baixando…",
+    "markAsPosted": "Marcar como publicado",
+    "edit": "Editar",
+    "publish": "Publicar",
+    "publishing": "Publicando…",
+    "reschedule": "Reagendar",
+    "unschedule": "Cancelar agendamento",
+    "delete": "Excluir",
+    "readyToPostOn": "Pronto para publicar em {channel}",
+    "manualInstructions": "Baixe a mídia, copie a legenda, publique pelo app do {channel} como faria normalmente e depois marque como publicado aqui.",
+    "openChannel": "Abrir {channel}",
+    "readyInTikTokInbox": "Pronto na sua caixa de entrada do TikTok",
+    "tiktokInboxInstructions": "Abra o app do TikTok → Caixa de entrada → toque na notificação de envio para finalizar a legenda e publicar. Rascunhos expiram após ~7 dias.",
+    "openTikTok": "Abrir TikTok",
+    "publishingTo": "Publicando em {channel}...",
+    "toasts": {
+      "captionCopied": "Legenda copiada",
+      "copyFailed": "Não foi possível copiar a legenda"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "Atualizar",
+    "liveFrom": "Publicações ao vivo da sua conta {channel} conectada — incluindo publicações feitas fora do Markaestro.",
+    "loadMore": "Carregar mais",
+    "loading": "Carregando…",
+    "noCaption": "Sem legenda",
+    "view": "Ver",
+    "deleting": "Excluindo…",
+    "delete": "Excluir",
+    "noDeleteHints": {
+      "instagram": "O Instagram não permite que aplicativos excluam publicações — remova-as no app do Instagram.",
+      "tiktok": "O TikTok não permite que aplicativos excluam vídeos — remova-os no app do TikTok."
+    },
+    "noDeleteDefault": "A exclusão não é suportada para esta publicação.",
+    "deleteWarning": "Isso remove permanentemente a publicação do {channel}.",
+    "states": {
+      "notConnectedTitle": "{channel} ainda não está conectado",
+      "notConnectedBody": "Conecte {channel} a esta marca e suas publicações ao vivo aparecerão aqui — incluindo as feitas fora do Markaestro.",
+      "connect": "Conectar {channel}",
+      "authTitle": "{channel} precisa ser reconectado",
+      "authBody": "A conexão com {channel} expirou, então não podemos navegar pelas publicações agora. Reconecte nas configurações da marca para continuar de onde parou.",
+      "reconnect": "Reconectar {channel}",
+      "checkAgain": "Verificar novamente",
+      "unsupportedTitle": "Navegar pelas publicações do {channel} não está disponível",
+      "linkedinPartnerBody": "O LinkedIn só permite que aplicativos parceiros aprovados naveguem pelas publicações da conta. Tudo o que você publicar pelo Markaestro ainda aparece na sua aba Publicadas.",
+      "unsupportedBody": "O {channel} não permite que aplicativos naveguem pelas publicações da conta. Tudo o que você publicar pelo Markaestro ainda aparece na sua aba Publicadas.",
+      "errorTitle": "Não foi possível carregar as publicações do {channel}",
+      "errorBody": "O {channel} não respondeu como esperado. Isso costuma ser temporário — tente novamente em instantes.",
+      "tryAgain": "Tentar novamente",
+      "emptyTitle": "Ainda não há publicações no {channel}",
+      "emptyBody": "Quando esta conta publicar — pelo Markaestro ou diretamente no {channel} — as publicações aparecerão aqui."
+    },
+    "toasts": {
+      "loadMoreFailed": "Falha ao carregar mais publicações",
+      "deleted": "Publicação excluída do {channel}",
+      "deleteFailed": "Falha ao excluir a publicação na plataforma"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "Seu rascunho não salvo foi restaurado",
+    "discard": "Descartar",
+    "caption": "Legenda",
+    "media": "Mídia",
+    "removeMedia": "Remover",
+    "addMedia": "+ Adicionar",
+    "dropImagesOrVideos": "Solte imagens ou vídeos",
+    "dropImages": "Solte imagens ou clique para enviar",
+    "mediaCountHint": "Até {count, plural, one {# item} other {# itens}} · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · até 10 MB",
+    "uploading": "Enviando…",
+    "upload": "Enviar",
+    "saveDraft": "Salvar rascunho",
+    "schedule": "Agendar",
+    "postNow": "Publicar agora",
+    "posting": "Publicando…",
+    "preview": "Pré-visualização",
+    "previewPlaceholder": "A pré-visualização da sua publicação aparecerá aqui.",
+    "previewHint": "Escreva uma legenda e envie sua mídia para começar.",
+    "toasts": {
+      "selectChannel": "Selecione pelo menos um canal de publicação pronto.",
+      "videoNotSupported": "Um ou mais canais selecionados não suportam envio de vídeo",
+      "videoAlone": "Vídeos devem ser enviados sozinhos",
+      "maxMedia": "Máximo de {count, plural, one {# item de mídia} other {# itens de mídia}} para os canais selecionados",
+      "fileTooLarge": "{file}: deve ter menos de {size} MB",
+      "fileUploadFailed": "{file}: falha no envio",
+      "filesUploaded": "{count, plural, one {# arquivo enviado} other {# arquivos enviados}}",
+      "uploadFailed": "Falha no envio",
+      "createFailed": "Falha ao criar a publicação",
+      "draftSaved": "Rascunho salvo",
+      "draftSaveFailed": "Falha ao salvar o rascunho",
+      "scheduled": "Publicação agendada",
+      "scheduleFailed": "Falha ao agendar a publicação",
+      "tiktokSending": "Enviando para o TikTok. O Markaestro está aguardando a confirmação de entrega na caixa de entrada pelo TikTok.",
+      "stillProcessing": "Publicação enviada e ainda em processamento.",
+      "tiktokInboxConfirmed": "O TikTok confirmou a entrega na caixa de entrada. Abra a Caixa de entrada do TikTok, finalize a legenda e toque em Publicar.",
+      "postedToMultiple": "Publicado em {channels}!",
+      "postedSuccess": "Publicado com sucesso!",
+      "publishFailed": "Falha ao publicar"
+    }
+  }
+}

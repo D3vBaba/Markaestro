@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "eyebrow": "平台",
+    "titleLead": "成长所需的一切，",
+    "titleHighlight": "尽在这里",
+    "subtitle": "从第一份草稿到最终发布，Markaestro 覆盖你社交工作流的每一步。一个平台，零上下文切换。"
+  },
+  "coreFeatures": [
+    {
+      "title": "多渠道发布",
+      "description": "一次创作，处处发布。撰写一篇内容，一键适配 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。可在最佳时机排期，也可立即发布。",
+      "details": [
+        "统一编辑器，支持按渠道预览",
+        "拖放式素材管理",
+        "面向内容日历的批量排期",
+        "自动调整图片尺寸以符合平台规格"
+      ]
+    },
+    {
+      "title": "素材上传与素材库",
+      "description": "使用你自己的摄影作品、视频和品牌素材。Markaestro 会按工作区存储这些素材，只需一次拖放即可附加到内容中。",
+      "details": [
+        "支持 JPG、PNG、WebP、MP4、MOV、WebM",
+        "视频最大 250MB，图片最大 10MB",
+        "发布前按渠道进行格式检查",
+        "已上传的素材可在多篇内容中复用"
+      ]
+    },
+    {
+      "title": "多渠道预览",
+      "description": "发布前查看每篇内容在各社交网络上的呈现效果 —— Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest 均拥有各自的独立预览。文案、宽高比、字数限制和素材规格全部实时渲染。",
+      "details": [
+        "各平台像素级精准预览",
+        "文案字数实时统计",
+        "按渠道提供宽高比指导",
+        "在发布前发现格式问题"
+      ]
+    },
+    {
+      "title": "发布控制台",
+      "description": "在一个工作区视图中查看所有草稿、已排期内容和发布状态，无需在各平台之间来回切换。",
+      "details": [
+        "草稿、已排期、已发布队列",
+        "按渠道显示发布状态",
+        "失败内容的重试流程",
+        "工作区级别的内容总览"
+      ]
+    },
+    {
+      "title": "OAuth 集成",
+      "description": "使用业界标准的 OAuth 一键连接你的账号。无需手动管理 API 密钥，也无需在令牌之间来回切换。Markaestro 会为你安全存储并自动刷新凭证。",
+      "details": [
+        "一键连接 Meta、TikTok、LinkedIn、Threads 和 Pinterest",
+        "静态存储的令牌均经过加密",
+        "令牌自动刷新",
+        "支持按平台精细化断开连接"
+      ]
+    },
+    {
+      "title": "API 与 AI 代理",
+      "description": "控制台能做的一切，你的软件同样能做。生成一个 API 密钥，交给 AI 代理或脚本，让它发现账号、上传素材、排期内容、发布并回报结果 —— 任何套餐均可使用，且无需额外付费。",
+      "details": [
+        "密钥限定于单一品牌，可选设置有效期",
+        "幂等写入，重试也不会造成重复发布",
+        "异步发布任务，配合 HMAC 签名的 Webhook",
+        "Meta 和 TikTok 上仍以人工优先 —— 真人完成发布"
+      ],
+      "codeLabel": "任何能说 HTTP 的程序都能排期发布",
+      "agentGuideLink": "阅读 AI 代理指南 →"
+    }
+  ],
+  "platformFeatures": [
+    {
+      "title": "工作区管理",
+      "description": "将你负责营销的品牌 —— 客户、业务部门，或自己的项目 —— 组织到彼此独立的工作区中。每个工作区都拥有独立的品牌、集成和团队成员。"
+    },
+    {
+      "title": "排期与日历",
+      "description": "在跨越所有渠道的统一日历中管理排期内容。拖动即可重新排期，一键复制内容，随时清楚掌握何时会发布什么。"
+    },
+    {
+      "title": "基于角色的访问控制",
+      "description": "通过所有者、管理员、成员三级角色，控制谁可以发布、编辑或查看内容。团队高效协作的同时，敏感设置依然安全可控。"
+    }
+  ],
+  "platformSection": {
+    "eyebrow": "平台",
+    "titleLead": "为每一位内容发布者",
+    "titleHighlight": "而生",
+    "subtitle": "除核心工具外，Markaestro 还为你提供可扩展的基础设施 —— 从单一品牌到完整的客户矩阵。"
+  },
+  "cta": {
+    "title": "准备好实际体验一下了吗？",
+    "subtitle": "免费开始，无需信用卡。两分钟内即可连接你的第一个渠道。",
+    "primaryButton": "免费开始",
+    "secondaryButton": "联系销售"
+  }
+}

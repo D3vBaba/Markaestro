@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { AlertCircle } from "lucide-react";
 import { apiDelete, apiGet } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -32,11 +33,6 @@ type ListResponse = {
   error?: string;
   reason?: string;
   message?: string;
-};
-
-const NO_DELETE_HINTS: Partial<Record<Channel, string>> = {
-  instagram: "Instagram doesn't allow apps to delete posts — remove them in the Instagram app.",
-  tiktok: "TikTok doesn't allow apps to delete videos — remove them in the TikTok app.",
 };
 
 type Failure = { reason: string | null; message: string | null };
@@ -118,6 +114,7 @@ function ChannelStates({
   productId: string;
   onRetry: () => void;
 }) {
+  const t = useTranslations("content.platformPostsTab");
   const label = getSocialChannelLabel(channel);
   const connectHref = `/products?open=${encodeURIComponent(productId)}&section=channels`;
 
@@ -125,11 +122,11 @@ function ChannelStates({
     return (
       <StateCard
         icon={<ChannelIcon channel={channel} size={22} />}
-        title={`${label} isn't connected yet`}
-        body={`Connect ${label} to this brand and its live posts will show up here — including ones published outside Markaestro.`}
+        title={t("states.notConnectedTitle", { channel: label })}
+        body={t("states.notConnectedBody", { channel: label })}
       >
         <Button size="sm" className="rounded-lg" asChild>
-          <Link href={connectHref}>Connect {label}</Link>
+          <Link href={connectHref}>{t("states.connect", { channel: label })}</Link>
         </Button>
       </StateCard>
     );
@@ -139,14 +136,14 @@ function ChannelStates({
     return (
       <StateCard
         icon={<ChannelIcon channel={channel} size={22} />}
-        title={`${label} needs to be reconnected`}
-        body={`The ${label} connection has expired, so we can't browse its posts right now. Reconnect it from brand settings to pick up where you left off.`}
+        title={t("states.authTitle", { channel: label })}
+        body={t("states.authBody", { channel: label })}
       >
         <Button size="sm" className="rounded-lg" asChild>
-          <Link href={connectHref}>Reconnect {label}</Link>
+          <Link href={connectHref}>{t("states.reconnect", { channel: label })}</Link>
         </Button>
         <Button size="sm" variant="outline" className="rounded-lg" onClick={onRetry}>
-          Check again
+          {t("states.checkAgain")}
         </Button>
       </StateCard>
     );
@@ -156,11 +153,11 @@ function ChannelStates({
     return (
       <StateCard
         icon={<ChannelIcon channel={channel} size={22} />}
-        title={`Browsing ${label} posts isn't available`}
+        title={t("states.unsupportedTitle", { channel: label })}
         body={
           isLinkedInPartnerRestriction(channel, failure)
-            ? "LinkedIn only lets approved partner apps browse account posts. Anything you publish through Markaestro still appears in your Published tab."
-            : `${label} doesn't let apps browse account posts. Anything you publish through Markaestro still appears in your Published tab.`
+            ? t("states.linkedinPartnerBody")
+            : t("states.unsupportedBody", { channel: label })
         }
       />
     );
@@ -171,12 +168,12 @@ function ChannelStates({
       <StateCard
         tone="error"
         icon={<AlertCircle className="h-5 w-5" style={{ color: "var(--mk-ink-60)" }} />}
-        title={`Couldn't load ${label} posts`}
-        body={`${label} didn't respond as expected. This is usually temporary — give it another try in a moment.`}
+        title={t("states.errorTitle", { channel: label })}
+        body={t("states.errorBody", { channel: label })}
         detail={failure.message ?? undefined}
       >
         <Button size="sm" variant="outline" className="rounded-lg" onClick={onRetry}>
-          Try again
+          {t("states.tryAgain")}
         </Button>
       </StateCard>
     );
@@ -186,11 +183,11 @@ function ChannelStates({
   return (
     <StateCard
       icon={<ChannelIcon channel={channel} size={22} />}
-      title={`No posts on ${label} yet`}
-      body={`When this account publishes — through Markaestro or directly on ${label} — its posts will appear here.`}
+      title={t("states.emptyTitle", { channel: label })}
+      body={t("states.emptyBody", { channel: label })}
     >
       <Button size="sm" variant="outline" className="rounded-lg" onClick={onRetry}>
-        Refresh
+        {t("refresh")}
       </Button>
     </StateCard>
   );
@@ -205,6 +202,12 @@ function PlatformPostCard({
   onDelete: () => void;
   deleting: boolean;
 }) {
+  const t = useTranslations("content.platformPostsTab");
+  const locale = useLocale();
+  const noDeleteHints: Partial<Record<Channel, string>> = {
+    instagram: t("noDeleteHints.instagram"),
+    tiktok: t("noDeleteHints.tiktok"),
+  };
   const [confirmDelete, setConfirmDelete] = useState(false);
   const thumbnail = post.thumbnailUrl || post.mediaUrl;
 
@@ -220,7 +223,7 @@ function PlatformPostCard({
             <>
               <span className="w-px h-3 bg-border/60" />
               <span className="text-[11px] text-muted-foreground truncate">
-                {new Date(post.publishedAt).toLocaleDateString(undefined, {
+                {new Date(post.publishedAt).toLocaleDateString(locale, {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
@@ -260,7 +263,7 @@ function PlatformPostCard({
       {/* Content */}
       <div className="px-4 py-3 flex-1">
         <p className="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word line-clamp-4 text-foreground/80">
-          {post.content || <span className="text-muted-foreground italic">No caption</span>}
+          {post.content || <span className="text-muted-foreground italic">{t("noCaption")}</span>}
         </p>
       </div>
 
@@ -269,7 +272,7 @@ function PlatformPostCard({
         {post.permalink && (
           <a href={post.permalink} target="_blank" rel="noopener noreferrer">
             <button className="inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-accent bg-mk-paper">
-              View
+              {t("view")}
             </button>
           </a>
         )}
@@ -279,11 +282,11 @@ function PlatformPostCard({
             onClick={() => setConfirmDelete(true)}
             disabled={deleting}
           >
-            {deleting ? "Deleting…" : "Delete"}
+            {deleting ? t("deleting") : t("delete")}
           </button>
         ) : (
           <span className="text-[11px] text-muted-foreground">
-            {NO_DELETE_HINTS[post.channel] || "Deleting isn't supported for this post."}
+            {noDeleteHints[post.channel] || t("noDeleteDefault")}
           </span>
         )}
       </div>
@@ -294,7 +297,7 @@ function PlatformPostCard({
           onOpenChange={setConfirmDelete}
           entity="post"
           name={getSocialChannelLabel(post.channel)}
-          warning={`This permanently removes the post from ${getSocialChannelLabel(post.channel)}.`}
+          warning={t("deleteWarning", { channel: getSocialChannelLabel(post.channel) })}
           onConfirm={onDelete}
         />
       )}
@@ -303,6 +306,7 @@ function PlatformPostCard({
 }
 
 export default function PlatformPostsTab({ productId }: { productId: string }) {
+  const t = useTranslations("content.platformPostsTab");
   const [channel, setChannel] = useState<Channel>("facebook");
   const [posts, setPosts] = useState<PlatformPost[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -361,7 +365,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
         });
         setNextCursor(res.data.nextCursor ?? null);
       } else {
-        toast.error(res.data.message || "Failed to load more posts");
+        toast.error(res.data.message || t("toasts.loadMoreFailed"));
       }
     } finally {
       setLoadingMore(false);
@@ -378,9 +382,9 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
       );
       if (res.ok) {
         setPosts((cur) => cur.filter((p) => p.externalId !== post.externalId));
-        toast.success(`Post deleted from ${getSocialChannelLabel(post.channel)}`);
+        toast.success(t("toasts.deleted", { channel: getSocialChannelLabel(post.channel) }));
       } else {
-        toast.error(res.data.message || "Failed to delete the post on the platform");
+        toast.error(res.data.message || t("toasts.deleteFailed"));
       }
     } finally {
       setDeletingId(null);
@@ -407,15 +411,14 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
         <button
           onClick={fetchPosts}
           disabled={loading}
-          className="ml-auto px-3 py-2 sm:py-1.5 min-h-9 sm:min-h-0 rounded-full border border-mk-rule text-[12px] font-medium text-mk-accent bg-mk-paper hover:bg-mk-panel transition-colors disabled:opacity-60"
+          className="ms-auto px-3 py-2 sm:py-1.5 min-h-9 sm:min-h-0 rounded-full border border-mk-rule text-[12px] font-medium text-mk-accent bg-mk-paper hover:bg-mk-panel transition-colors disabled:opacity-60"
         >
-          Refresh
+          {t("refresh")}
         </button>
       </div>
 
       <p className="text-[12px] text-muted-foreground">
-        Live posts from your connected {getSocialChannelLabel(channel)} account — including posts
-        published outside Markaestro.
+        {t("liveFrom", { channel: getSocialChannelLabel(channel) })}
       </p>
 
       {loading ? (
@@ -442,7 +445,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
           {nextCursor && (
             <div className="flex justify-center">
               <Button variant="outline" size="sm" onClick={loadMore} disabled={loadingMore}>
-                {loadingMore ? "Loading…" : "Load more"}
+                {loadingMore ? t("loading") : t("loadMore")}
               </Button>
             </div>
           )}

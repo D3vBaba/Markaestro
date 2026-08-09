@@ -1,0 +1,99 @@
+{
+  "hero": {
+    "eyebrow": "Entwickler",
+    "title": "Öffentliche Veröffentlichungs-API",
+    "intro1": "Lade Medien hoch, erstelle Beiträge und veröffentliche auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest, jeweils auf ein Produkt beschränkt über einen Arbeitsbereichs-API-Schlüssel. Der empfohlene Weg zur Integration ist die <connectLink>Connect-API</connectLink> — eine kleine, flache<code>/api/connect/v1</code>-Oberfläche, die die meisten Planungstools direkt verwenden können.",
+    "intro2": "Brauchst du volle Kontrolle — explizite Veröffentlichung, Abfrage von Job-Läufen, signierte Webhooks, Batch-Verarbeitung, kanalspezifische Einstellungen? Die erweiterte <code>/api/public/v1</code>-API weiter unten stellt all das bereit. Beide teilen sich Authentifizierung, Produkte und Veröffentlichungspipeline; verwende ausschließlich diese versionierten öffentlichen Routen (interne App-Routen erfordern Firebase-Nutzerauthentifizierung und sind nicht Teil des öffentlichen Vertrags).",
+    "intro3": "<strong>Facebook, Instagram und TikTok sind über die API grundsätzlich manuell.</strong> Beiträge für diese Kanäle nutzen standardmäßig die <code>manual_reminder</code>-Zustellung: Markaestro ruft niemals die API der Plattform für sie auf. Das Veröffentlichen verschiebt den Beitrag in die „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs, wo der Inhaber die Medien herunterlädt, nativ postet und bestätigt — sodass Beiträge genau so erscheinen, als wären sie von Hand erstellt worden. Übergib <code>deliveryMode: \"direct_publish\"</code> beim Erstellen, um einen Beitrag stattdessen für die offizielle API-Veröffentlichung zu aktivieren (bei TikTok bedeutet das die Posteingangsübergabe, niemals den öffentlichen Direct Post). LinkedIn, Threads und Pinterest veröffentlichen standardmäßig programmatisch.",
+    "intro4": "Arbeitsbereiche können mehrere Produkte haben. Jeder API-Schlüssel ist bei der Erstellung an ein Produkt gebunden, sodass Aufrufe automatisch dieses Produkt ansteuern und Anfragen für jedes andere Produkt abgelehnt werden.",
+    "agentCallout": {
+      "title": "Baust du einen KI-Agenten?",
+      "body": "Beginne stattdessen mit dem <agentLink>Leitfaden für KI-Agenten</agentLink>. Er enthält fertige Tool-Schemas zum Kopieren, eine System-Prompt-Kurzübersicht, die Wiederholungs- und Fehlerbehandlungsregeln, die ein Agent braucht, sowie einen Schnellstart mit vier Befehlen. Dein Agent kann auch direkt <llmsLink>/llms.txt</llmsLink> lesen."
+    },
+    "agentGuideButton": "Leitfaden für KI-Agenten",
+    "manageKeysButton": "API-Schlüssel verwalten",
+    "openAppButton": "Markaestro öffnen"
+  },
+  "connectApi": {
+    "title": "Connect-API",
+    "recommendedBadge": "Empfohlen",
+    "description": "Der Standardweg zur Integration: eine flache snake_case-Oberfläche unter <code>/api/connect/v1</code>, die die meisten Planungstools direkt verwenden können. Sie bildet die gängige <code>create-upload-url → PUT → post</code>-Konvention auf denselben Arbeitsbereich, dieselbe Authentifizierung, Produkte und Veröffentlichungspipeline ab wie die vollständige API unten. Setze die Basis-URL des Clients auf <code>/api/connect</code> und authentifiziere dich mit einem produktbeschränkten Arbeitsbereichs-API-Schlüssel (Berechtigungen <code>posts.read</code>, <code>posts.write</code>, <code>media.write</code>).",
+    "endpoints": [
+      { "method": "GET", "path": "/api/connect/v1/social-accounts", "note": "Listet verbundene Facebook-, Instagram-, TikTok-, LinkedIn- und Threads-Ziele als flache Konten auf, jeweils mit ihrem Produkt beschriftet, damit Clients gruppieren und unterscheiden können. Jeder Kanal ist ein eigener dedizierter Pfad — keine kanalübergreifende Verteilung." },
+      { "method": "GET", "path": "/api/connect/v1/products", "note": "Listet Marken (API-Name: products) mit ihren verbundenen Konten verschachtelt auf — eine markenzentrierte Auswahl." },
+      { "method": "POST", "path": "/api/connect/v1/media/create-upload-url", "note": "Gibt eine kurzlebige, einmal verwendbare signierte PUT-URL sowie eine Medien-ID zurück." },
+      { "method": "PUT", "path": "<upload_url>", "note": "Lädt die rohen Bild-Bytes an die signierte URL hoch. Kein API-Schlüssel nötig — die Signatur autorisiert die Anfrage." },
+      { "method": "POST", "path": "/api/connect/v1/posts", "note": "Erstellt einen Entwurf pro ausgewähltem Konto. Setze is_draft=false mit scheduled_at, um die Zustellung zu planen; TikTok nutzt die Posteingangsübergabe des Creators." },
+      { "method": "GET", "path": "/api/connect/v1/posts", "note": "Listet Arbeitsbereichsbeiträge mit flachem Status, Text und Medien-URLs auf." }
+    ],
+    "footnote": "Jedes Konto aus <code>/social-accounts</code> ist mit seinem <code>product</code> beschriftet — dem API-Namen für eine Marke (dasselbe Konto kann unter mehreren Marken erscheinen) — und seine <code>id</code> kodiert <code>productId#destinationId</code> — gib sie unverändert in <code>social_accounts</code> zurück, und die Anfrage verteilt sich auf einen Beitrag pro Konto. Jeder Schlüssel ist an eine Marke gebunden, sieht und postet also nur für diese Marke. <strong>Facebook-, Instagram- und TikTok-Beiträge sind grundsätzlich manuell</strong> — sie werden als Entwürfe erstellt und vom Arbeitsbereichsinhaber nativ aus der „Zu veröffentlichen“-Warteschlange von Markaestro veröffentlicht, niemals über die API der Plattform. LinkedIn, Threads und Pinterest veröffentlichen programmatisch nach einer expliziten Veröffentlichungsaktion. Der Status eines Beitrags ist entweder <code>draft</code>, <code>processing</code>, <code>posted</code> oder <code>failed</code>. Facebook, Instagram, LinkedIn, TikTok und Threads sind jeweils eigene dedizierte Ziele — das Veröffentlichen auf einem verteilt sich niemals auf ein anderes. Verfolge den Veröffentlichungsstatus über <code>GET /api/connect/v1/posts</code>."
+  },
+  "advancedSection": {
+    "title": "Erweitert: vollständige öffentliche API",
+    "description": "Die vollständige <code>/api/public/v1</code>-Oberfläche — explizite Veröffentlichung, asynchrone Job-Läufe, signierte Webhooks, Batch-Erstellung und kanalspezifische Einstellungen. Nutze sie, wenn die Connect-API nicht ausreicht."
+  },
+  "highlightCards": [
+    { "title": "Meta & TikTok sind grundsätzlich manuell", "description": "Facebook-, Instagram- und TikTok-Beiträge nutzen standardmäßig die manuelle „Zu veröffentlichen“-Warteschlange — kein Plattform-API-Aufruf, der Arbeitsbereichsinhaber postet nativ und bestätigt. Aktiviere die API-Veröffentlichung pro Beitrag mit deliveryMode." },
+    { "title": "Instagram Login unterstützt", "description": "Marken können eigenständige professionelle Instagram-Konten anbieten, auch wenn keine Facebook-Seite verknüpft ist." },
+    { "title": "TikTok nutzt bei Aktivierung die Posteingangsübergabe", "description": "Ein TikTok-Beitrag mit aktivierter API-Veröffentlichung wird zur finalen Text-, Datenschutz- und Veröffentlichungsbearbeitung an den Posteingang des Creators auf TikTok gesendet — niemals als öffentlicher Direct Post." },
+    { "title": "Asynchron per Design", "description": "Jede Veröffentlichung gibt eine Lauf-ID zurück. Frage Läufe ab oder abonniere signierte Webhooks, statt einen synchronen Abschluss anzunehmen." }
+  ],
+  "endpointGroups": [
+    {
+      "title": "Marken und Ziele",
+      "description": "Entdecke die Marken und Veröffentlichungsziele, die für den API-Schlüssel verfügbar sind. Marken werden im API-Format products genannt — Pfade und Nutzdaten verwenden aus Kompatibilitätsgründen products/productId, und POST-Bodies akzeptieren auch brandId als Alias.",
+      "endpoints": [
+        { "method": "GET", "path": "/api/public/v1/products", "note": "Listet die Marken des Schlüssels sowie die aktuell verfügbaren Kanäle für jede auf." },
+        { "method": "GET", "path": "/api/public/v1/products/:id/destinations", "note": "Listet die Veröffentlichungsziele dieser Marke auf, einschließlich eigenständigem Instagram Login, Facebook-Seite, Threads, LinkedIn-Profil/-Seite und verbundenen TikTok-Zielen." }
+      ]
+    },
+    {
+      "title": "Medien",
+      "description": "Lade Bilder oder Videos in den von Markaestro verwalteten Speicher hoch, bevor du Beiträge erstellst.",
+      "endpoints": [
+        { "method": "POST", "path": "/api/public/v1/media", "note": "Multipart-Upload. Gibt eine Asset-ID und gehostete URL zurück." }
+      ]
+    },
+    {
+      "title": "Beiträge",
+      "description": "Erstelle, liste, prüfe, veröffentliche und lösche Beiträge für Facebook, Instagram, LinkedIn, Threads, Pinterest und TikTok.",
+      "endpoints": [
+        { "method": "POST", "path": "/api/public/v1/posts", "note": "Erstellt einen Entwurf im Arbeitsbereich. Facebook, Instagram und TikTok nutzen standardmäßig manuelle Veröffentlichung (deliveryMode manual_reminder); übergib deliveryMode direct_publish, um einen Beitrag für die API-Veröffentlichung zu aktivieren." },
+        { "method": "GET", "path": "/api/public/v1/posts", "note": "Listet Beiträge auf, neueste zuerst. Filtere mit ?status=scheduled, um zu sehen, was eingereiht ist, und ?productId=, um auf eine Marke zu beschränken. Ein markengebundener Schlüssel ist immer auf seine eigene Marke beschränkt und kann productId weglassen." },
+        { "method": "GET", "path": "/api/public/v1/posts/:id", "note": "Gibt den aktuellen Beitragsstatus, den Zustellmodus und die Veröffentlichungsergebnisse zurück." },
+        { "method": "POST", "path": "/api/public/v1/posts/:id/publish", "note": "Reiht einen asynchronen Veröffentlichungslauf ein. Manuelle Beiträge landen zur nativen Veröffentlichung in der „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs; LinkedIn, Threads und Pinterest veröffentlichen direkt; aktivierte Meta-Beiträge werden über die offizielle API veröffentlicht, und aktivierte TikTok-Beiträge nutzen die Posteingangsübergabe." },
+        { "method": "DELETE", "path": "/api/public/v1/posts/:id", "note": "Löscht den Beitrag aus Markaestro. Nutzt die vorhandene Berechtigung posts.write. Gibt 400 VALIDATION_POST_IS_PUBLISHING zurück, während ein Veröffentlichungslauf läuft. Das Löschen eines bereits veröffentlichten Beitrags entfernt nicht die aktive Kopie auf der Plattform." }
+      ]
+    },
+    {
+      "title": "Läufe und Webhooks",
+      "description": "Verfolge asynchrone Arbeit durch Abfrage oder signierte Webhook-Zustellung.",
+      "endpoints": [
+        { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "Gibt queued, running, succeeded oder failed zurück." },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registriert ein Webhook-Ziel mit einem API-Schlüssel." },
+        { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "Listet registrierte Webhook-Ziele für den Geltungsbereich dieses API-Schlüssels auf." },
+        { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Deaktiviert ein Webhook-Ziel." }
+      ]
+    }
+  ],
+  "examples": {
+    "listProducts": { "title": "1. Produkte auflisten", "description": "Entdecke, auf welche Produkte dieser API-Schlüssel zugreifen kann." },
+    "listDestinations": { "title": "2. Ziele prüfen", "description": "Sieh dir die verknüpften Seiten und Konten eines Produkts an, bevor du den Beitrag erstellst. Verwende die zurückgegebene <code>destinationId</code>, wenn ein Produkt mehrere Ziele hat, etwa ein LinkedIn-Profil plus Seiten." },
+    "upload": { "title": "3. Medien hochladen", "description": "Jeder Beitrag referenziert zuvor hochgeladene Medien-Assets." },
+    "createPost": { "title": "4. Beitrag erstellen", "description": "Erstelle einen Entwurf mit diesen Asset-IDs. Instagram nutzt standardmäßig manuelle Veröffentlichung; füge <code>\"deliveryMode\": \"direct_publish\"</code> hinzu, um diesen Beitrag für die offizielle API-Veröffentlichung zu aktivieren." },
+    "tiktokCreatePost": { "title": "TikTok-Beispiel", "description": "TikTok-Beiträge landen als Markaestro-Entwürfe und nutzen standardmäßig die manuelle Veröffentlichung aus der „Zu veröffentlichen“-Warteschlange. Mit <code>deliveryMode: \"platform_inbox\"</code> (oder <code>direct_publish</code>) sendet eine explizite Veröffentlichung den Entwurf stattdessen an den Posteingang des Creators auf TikTok." },
+    "publish": { "title": "5. Veröffentlichung einreihen", "description": "Das Veröffentlichen erstellt einen asynchronen Lauf. Manuelle Beiträge (der Standard bei Facebook/Instagram/TikTok) wandern in die „Zu veröffentlichen“-Warteschlange und lösen <code>post.action_required</code> aus; LinkedIn, Threads, Pinterest und aktivierte Meta-Beiträge veröffentlichen direkt; aktivierte TikTok-Beiträge reihen die Posteingangsübergabe ein." },
+    "listScheduled": { "title": "6. Zeitplan prüfen und abbrechen", "description": "Liste auf, was für eine Marke eingereiht ist, und lösche alles, was nicht mehr veröffentlicht werden soll. Beide nutzen Berechtigungen, die bestehende Schlüssel bereits haben — <code>posts.read</code> und <code>posts.write</code>." },
+    "webhook": { "title": "Beispiel für Webhook-Payload", "description": "Zustellungen sind mit HMAC über dein Webhook-Secret signiert." }
+  },
+  "channelBehavior": {
+    "title": "Kanalverhalten",
+    "description": "Von der öffentlichen API durchgesetzte Validierungs- und Zustellregeln.",
+    "channels": [
+      { "name": "Facebook", "rule": "Reine Text-, Bild- oder Video-Beiträge. Bis zu 10 Bilder oder 1 Video pro Beitrag. Standardmäßig manuelle Veröffentlichung; direkte Veröffentlichung bei Aktivierung." },
+      { "name": "Instagram", "rule": "Mindestens ein Bild oder Video, bis zu 10 Elemente. Ein einzelnes Video wird als Reel veröffentlicht. Standardmäßig manuelle Veröffentlichung; direkte Veröffentlichung bei Aktivierung." },
+      { "name": "TikTok", "rule": "Mindestens ein Bild oder Video. Bis zu 10 Bilder oder 1 Video. Standardmäßig manuelle Veröffentlichung; aktivierte Beiträge gehen an den Posteingang des Creators auf TikTok, niemals als öffentlicher Direct Post." },
+      { "name": "LinkedIn", "rule": "Text, einzelnes Bild, einzelnes Video oder organische Multi-Bild-Beiträge mit bis zu 20 Bildern. Ziele auf das verbundene Profil oder eine verwaltete Seite." }
+    ]
+  }
+}

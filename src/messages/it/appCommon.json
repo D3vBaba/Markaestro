@@ -1,0 +1,107 @@
+{
+  "status": {
+    "published": "Pubblicato",
+    "scheduled": "Programmato",
+    "draft": "Bozza",
+    "failed": "Non riuscito",
+    "active": "Attivo",
+    "paused": "In pausa",
+    "ended": "Terminato",
+    "live": "In diretta",
+    "completed": "Completato",
+    "cancelled": "Annullato"
+  },
+  "authErrors": {
+    "invalidEmail": "Inserisci un indirizzo email valido.",
+    "userDisabled": "Questo account è stato disabilitato. Contatta l'assistenza.",
+    "otpInvalid": "Il codice non è corretto. Controlla l'ultima email e riprova.",
+    "otpExpired": "Il codice è scaduto. Richiedine uno nuovo.",
+    "otpTooManyAttempts": "Troppi tentativi errati. Richiedi un nuovo codice.",
+    "otpCooldown": "Un codice è stato appena inviato. Controlla la posta in arrivo o riprova tra un minuto.",
+    "emailInUse": "Esiste già un account con questa email.",
+    "rateLimited": "Troppi tentativi. Riprova più tardi.",
+    "popupClosed": "L'accesso è stato annullato.",
+    "popupBlocked": "Il pop-up è stato bloccato dal browser. Consenti i pop-up e riprova.",
+    "accountExistsDifferentCredential": "Esiste già un account con un metodo di accesso diverso per questa email.",
+    "networkError": "Errore di rete. Controlla la connessione e riprova.",
+    "default": "Autenticazione non riuscita. Riprova."
+  },
+  "confirmDeleteDialog": {
+    "entities": {
+      "brand": "brand",
+      "connection": "connessione",
+      "teamMember": "membro del team",
+      "integration": "integrazione",
+      "post": "post"
+    },
+    "titleGeneric": "Elimina {entity}",
+    "titleNamed": "Eliminare {entity}?",
+    "descriptionNamed": "Sei sicuro di voler eliminare <name></name>? Questa azione non può essere annullata.",
+    "descriptionGeneric": "Sei sicuro di voler eliminare questo/a {entity}? Questa azione non può essere annullata.",
+    "typeToConfirm": "Digita <name></name> per confermare.",
+    "cancel": "Annulla",
+    "deleteDefault": "Elimina"
+  },
+  "featureGate": {
+    "openingPortal": "Apertura del portale di fatturazione…",
+    "portalError": "Impossibile aprire il portale di fatturazione. Riprova.",
+    "upgradeTo": "Passa a {plan}",
+    "requiresPlan": "Questa funzione richiede il piano {plan} o superiore. Sbloccala a partire da ${price}/mese.",
+    "loading": "Caricamento in corso..."
+  },
+  "metricCard": {
+    "vsLastPeriod": "vs periodo precedente"
+  },
+  "pagination": {
+    "firstPage": "Prima pagina",
+    "previousPage": "Pagina precedente",
+    "nextPage": "Pagina successiva",
+    "lastPage": "Ultima pagina"
+  },
+  "tagInput": {
+    "defaultPlaceholder": "Digita e premi Invio…"
+  },
+  "scanProgressStepper": {
+    "steps": {
+      "connecting": { "label": "Connessione al sito", "activeLabel": "Connessione al sito…" },
+      "reading": { "label": "Lettura dei contenuti del sito", "activeLabel": "Lettura dei contenuti del sito…" },
+      "extracting": { "label": "Estrazione dei colori del brand", "activeLabel": "Estrazione dei colori del brand e del logo…" },
+      "analyzing": { "label": "Analisi dei segnali del brand", "activeLabel": "Analisi dei segnali del brand…" },
+      "finalizing": { "label": "Creazione del profilo del brand", "activeLabel": "Creazione del tuo profilo del brand…" }
+    },
+    "scanComplete": "Scansione completata — rivedi e conferma qui sotto",
+    "scanFailed": "Scansione non riuscita — compila manualmente",
+    "researching": "Ricerca del tuo brand in corso…"
+  },
+  "platformPreview": {
+    "sponsored": "Sponsorizzato",
+    "justNow": "poco fa",
+    "now": "ora",
+    "zeroLikes": "0 mi piace",
+    "zeroComments": "0 commenti",
+    "like": "Mi piace",
+    "comment": "Commenta",
+    "share": "Condividi",
+    "repost": "Ripubblica",
+    "send": "Invia",
+    "following": "Seguiti",
+    "forYou": "Per te",
+    "originalSound": "Audio originale",
+    "originalSoundWithBrand": "Audio originale · yourbrand",
+    "save": "Salva",
+    "untitledPin": "Pin senza titolo",
+    "viewLive": "Visualizza dal vivo",
+    "previewSuffix": "Anteprima",
+    "companyPageNow": "Pagina aziendale · ora",
+    "cta": {
+      "LEARN_MORE": "Scopri di più",
+      "SHOP_NOW": "Acquista ora",
+      "SIGN_UP": "Iscriviti",
+      "DOWNLOAD": "Scarica",
+      "GET_QUOTE": "Richiedi preventivo",
+      "CONTACT_US": "Contattaci"
+    },
+    "facebookInstagramAd": "Annuncio Facebook / Instagram",
+    "tiktokAd": "Annuncio TikTok"
+  }
+}

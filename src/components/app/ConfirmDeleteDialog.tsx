@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,7 @@ import { Loader2 } from "lucide-react";
 type ConfirmDeleteDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** What is being deleted, e.g. "product", "campaign", "team member" */
+  /** What is being deleted — a key into appCommon.confirmDeleteDialog.entities, e.g. "brand", "post", "teamMember" */
   entity: string;
   /** The name of the item being deleted, shown in bold */
   name?: string;
@@ -40,6 +41,8 @@ export default function ConfirmDeleteDialog({
   confirmLabel,
   onConfirm,
 }: ConfirmDeleteDialogProps) {
+  const t = useTranslations("appCommon.confirmDeleteDialog");
+  const entityLabel = t.has(`entities.${entity}`) ? t(`entities.${entity}`) : entity;
   const [loading, setLoading] = useState(false);
   const [typed, setTyped] = useState("");
 
@@ -67,21 +70,15 @@ export default function ConfirmDeleteDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            Delete {entity}
-            {name ? "?" : ""}
+            {name ? t("titleNamed", { entity: entityLabel }) : t("titleGeneric", { entity: entityLabel })}
           </DialogTitle>
           <DialogDescription className="pt-1 leading-relaxed">
             {name ? (
-              <>
-                Are you sure you want to delete{" "}
-                <span className="font-semibold text-foreground">{name}</span>?
-                This action cannot be undone.
-              </>
+              t.rich("descriptionNamed", {
+                name: () => <span className="font-semibold text-foreground">{name}</span>,
+              })
             ) : (
-              <>
-                Are you sure you want to delete this {entity}? This action
-                cannot be undone.
-              </>
+              t("descriptionGeneric", { entity: entityLabel })
             )}
           </DialogDescription>
         </DialogHeader>
@@ -95,11 +92,9 @@ export default function ConfirmDeleteDialog({
         {needsTyping && (
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
-              Type{" "}
-              <span className="font-mono font-semibold text-foreground">
-                {name}
-              </span>{" "}
-              to confirm.
+              {t.rich("typeToConfirm", {
+                name: () => <span className="font-mono font-semibold text-foreground">{name}</span>,
+              })}
             </p>
             <Input
               value={typed}
@@ -119,15 +114,15 @@ export default function ConfirmDeleteDialog({
             onClick={() => handleOpenChange(false)}
             disabled={loading}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             disabled={loading || !typedMatch}
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
-            {confirmLabel || "Delete"}
+            {loading && <Loader2 className="h-4 w-4 animate-spin me-1.5" />}
+            {confirmLabel || t("deleteDefault")}
           </Button>
         </DialogFooter>
       </DialogContent>

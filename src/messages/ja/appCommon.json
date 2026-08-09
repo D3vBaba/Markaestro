@@ -1,0 +1,107 @@
+{
+  "status": {
+    "published": "公開済み",
+    "scheduled": "予約済み",
+    "draft": "下書き",
+    "failed": "失敗",
+    "active": "有効",
+    "paused": "一時停止",
+    "ended": "終了",
+    "live": "配信中",
+    "completed": "完了",
+    "cancelled": "キャンセル済み"
+  },
+  "authErrors": {
+    "invalidEmail": "有効なメールアドレスを入力してください。",
+    "userDisabled": "このアカウントは無効化されています。サポートにお問い合わせください。",
+    "otpInvalid": "そのコードは間違っています。最新のメールを確認し、再度お試しください。",
+    "otpExpired": "そのコードの有効期限が切れました。新しいコードをリクエストしてください。",
+    "otpTooManyAttempts": "間違った試行が多すぎます。新しいコードをリクエストしてください。",
+    "otpCooldown": "コードを送信したばかりです。受信トレイを確認するか、1分後に再試行してください。",
+    "emailInUse": "このメールアドレスのアカウントはすでに存在します。",
+    "rateLimited": "試行回数が多すぎます。しばらくしてから再試行してください。",
+    "popupClosed": "サインインがキャンセルされました。",
+    "popupBlocked": "ブラウザによってポップアップがブロックされました。ポップアップを許可して再試行してください。",
+    "accountExistsDifferentCredential": "このメールアドレスには別のサインイン方法のアカウントがすでに存在します。",
+    "networkError": "ネットワークエラーです。接続を確認して再試行してください。",
+    "default": "認証に失敗しました。もう一度お試しください。"
+  },
+  "confirmDeleteDialog": {
+    "entities": {
+      "brand": "ブランド",
+      "connection": "接続",
+      "teamMember": "チームメンバー",
+      "integration": "連携",
+      "post": "投稿"
+    },
+    "titleGeneric": "{entity}を削除",
+    "titleNamed": "{entity}を削除しますか？",
+    "descriptionNamed": "<name></name>を削除してもよろしいですか？この操作は元に戻せません。",
+    "descriptionGeneric": "この{entity}を削除してもよろしいですか？この操作は元に戻せません。",
+    "typeToConfirm": "確認のため<name></name>と入力してください。",
+    "cancel": "キャンセル",
+    "deleteDefault": "削除"
+  },
+  "featureGate": {
+    "openingPortal": "請求ポータルを開いています…",
+    "portalError": "請求ポータルを開けませんでした。もう一度お試しください。",
+    "upgradeTo": "{plan}にアップグレード",
+    "requiresPlan": "この機能には{plan}プラン以上が必要です。月額${price}からアップグレードして利用できます。",
+    "loading": "読み込み中..."
+  },
+  "metricCard": {
+    "vsLastPeriod": "前期間比"
+  },
+  "pagination": {
+    "firstPage": "最初のページ",
+    "previousPage": "前のページ",
+    "nextPage": "次のページ",
+    "lastPage": "最後のページ"
+  },
+  "tagInput": {
+    "defaultPlaceholder": "入力してEnterを押してください…"
+  },
+  "scanProgressStepper": {
+    "steps": {
+      "connecting": { "label": "サイトに接続", "activeLabel": "サイトに接続しています…" },
+      "reading": { "label": "ウェブサイトのコンテンツを読み取り", "activeLabel": "ウェブサイトのコンテンツを読み取っています…" },
+      "extracting": { "label": "ブランドカラーを抽出", "activeLabel": "ブランドカラーとロゴを抽出しています…" },
+      "analyzing": { "label": "ブランドシグナルを分析", "activeLabel": "ブランドシグナルを分析しています…" },
+      "finalizing": { "label": "ブランドプロフィールを作成", "activeLabel": "ブランドプロフィールを作成しています…" }
+    },
+    "scanComplete": "スキャンが完了しました — 以下を確認して確定してください",
+    "scanFailed": "スキャンに失敗しました — 手動で入力してください",
+    "researching": "ブランドを調査しています…"
+  },
+  "platformPreview": {
+    "sponsored": "広告",
+    "justNow": "たった今",
+    "now": "今",
+    "zeroLikes": "0件のいいね",
+    "zeroComments": "0件のコメント",
+    "like": "いいね",
+    "comment": "コメント",
+    "share": "シェア",
+    "repost": "リポスト",
+    "send": "送信",
+    "following": "フォロー中",
+    "forYou": "おすすめ",
+    "originalSound": "オリジナル楽曲",
+    "originalSoundWithBrand": "オリジナル楽曲 · yourbrand",
+    "save": "保存",
+    "untitledPin": "無題のピン",
+    "viewLive": "実際の投稿を見る",
+    "previewSuffix": "プレビュー",
+    "companyPageNow": "会社ページ · 今",
+    "cta": {
+      "LEARN_MORE": "詳しく見る",
+      "SHOP_NOW": "今すぐ購入",
+      "SIGN_UP": "登録する",
+      "DOWNLOAD": "ダウンロード",
+      "GET_QUOTE": "見積もりを取得",
+      "CONTACT_US": "お問い合わせ"
+    },
+    "facebookInstagramAd": "Facebook / Instagram広告",
+    "tiktokAd": "TikTok広告"
+  }
+}

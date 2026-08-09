@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import PageHeader from "@/components/app/PageHeader";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
+import AppLocaleSwitcher from "@/components/app/AppLocaleSwitcher";
 import { apiDelete, apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
@@ -87,8 +89,8 @@ type ApiUsageTotals = {
   publishFailed: number;
 };
 
-function formatShortDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+function formatShortDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
 }
 
 function apiErrorMessage(data: unknown, fallback: string) {
@@ -96,13 +98,13 @@ function apiErrorMessage(data: unknown, fallback: string) {
   return err?.message || err?.error || fallback;
 }
 
-function formatMonthKey(monthKey: string) {
+function formatMonthKey(monthKey: string, locale: string) {
   const [year, month] = monthKey.split('-').map(Number);
   if (!year || !month) return monthKey;
-  return new Date(year, month - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  return new Date(year, month - 1, 1).toLocaleDateString(locale, { month: "long", year: "numeric" });
 }
 
-function ApiTrendBars({ points }: { points: ApiClientTrendPoint[] }) {
+function ApiTrendBars({ points, requestsLabel }: { points: ApiClientTrendPoint[]; requestsLabel: string }) {
   const max = Math.max(...points.map((point) => point.requests), 1);
 
   return (
@@ -112,7 +114,7 @@ function ApiTrendBars({ points }: { points: ApiClientTrendPoint[] }) {
           <div
             className="w-full rounded-t-sm bg-primary/60 transition-all"
             style={{ height: `${Math.max((point.requests / max) * 100, point.requests > 0 ? 10 : 2)}%` }}
-            title={`${point.label}: ${point.requests} requests`}
+            title={`${point.label}: ${point.requests} ${requestsLabel}`}
           />
         </div>
       ))}
@@ -130,30 +132,30 @@ type WebhookEndpointInfo = {
 };
 
 const API_SCOPE_OPTIONS = [
-  { id: 'products.read', label: 'Read brands' },
-  { id: 'media.write', label: 'Upload media' },
-  { id: 'posts.read', label: 'Read posts' },
-  { id: 'posts.write', label: 'Create posts' },
-  { id: 'posts.publish', label: 'Publish posts' },
-  { id: 'job_runs.read', label: 'Read publish runs' },
-  { id: 'webhooks.manage', label: 'Manage webhooks' },
+  { id: 'products.read', labelKey: 'productsRead' },
+  { id: 'media.write', labelKey: 'mediaWrite' },
+  { id: 'posts.read', labelKey: 'postsRead' },
+  { id: 'posts.write', labelKey: 'postsWrite' },
+  { id: 'posts.publish', labelKey: 'postsPublish' },
+  { id: 'job_runs.read', labelKey: 'jobRunsRead' },
+  { id: 'webhooks.manage', labelKey: 'webhooksManage' },
 ] as const;
 
 const WEBHOOK_EVENT_OPTIONS = [
-  { id: 'post.publish.queued', label: 'Post queued' },
-  { id: 'post.published', label: 'Meta publish completed' },
-  { id: 'post.action_required', label: 'TikTok action required' },
-  { id: 'post.failed', label: 'Post failed' },
+  { id: 'post.publish.queued', labelKey: 'postPublishQueued' },
+  { id: 'post.published', labelKey: 'postPublished' },
+  { id: 'post.action_required', labelKey: 'postActionRequired' },
+  { id: 'post.failed', labelKey: 'postFailed' },
 ] as const;
 
 const TABS = [
-  { id: 'account', label: 'Account', icon: User },
-  { id: 'usage', label: 'Usage', icon: BarChart3 },
-  { id: 'integrations', label: 'Integrations', icon: Link2 },
-  { id: 'team', label: 'Team', icon: Users },
-  { id: 'workspaces', label: 'Workspaces', icon: Building2 },
-  { id: 'api', label: 'API Access', icon: KeyRound },
-  { id: 'billing', label: 'Billing', icon: CreditCard },
+  { id: 'account', icon: User },
+  { id: 'usage', icon: BarChart3 },
+  { id: 'integrations', icon: Link2 },
+  { id: 'team', icon: Users },
+  { id: 'workspaces', icon: Building2 },
+  { id: 'api', icon: KeyRound },
+  { id: 'billing', icon: CreditCard },
 ] as const;
 type Tab = typeof TABS[number]['id'];
 
@@ -166,6 +168,7 @@ export default function SettingsPage() {
 }
 
 function SettingsPageContent() {
+  const t = useTranslations("settings");
   const searchParams = useSearchParams();
   const rawTab = searchParams?.get('tab');
   const initialTab = (TABS.find((t) => t.id === rawTab)?.id ?? 'account') as Tab;
@@ -173,7 +176,7 @@ function SettingsPageContent() {
 
   return (
     <AppShell>
-      <PageHeader title="Settings" subtitle="Manage your account, team, integrations, and billing." />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* Tab bar */}
       <div
@@ -200,7 +203,7 @@ function SettingsPageContent() {
                 className="h-3.5 w-3.5"
                 style={{ color: active ? "var(--mk-ink)" : "var(--mk-ink-60)" }}
               />
-              {tab.label}
+              {t(`tabs.${tab.id}`)}
             </button>
           );
         })}
@@ -220,6 +223,8 @@ function SettingsPageContent() {
 /* ─── Account Tab ──────────────────────────────────────────────────────────── */
 
 function AccountTab() {
+  const t = useTranslations("settings.account");
+  const tAuthErrors = useTranslations("appCommon.authErrors");
   const { user, requestEmailChangeCode, confirmEmailChangeCode, logout } = useAuth();
   const { current: workspace } = useWorkspace();
   const [changingEmail, setChangingEmail] = useState(false);
@@ -239,13 +244,15 @@ function AccountTab() {
   // providerData empty — that IS the email-code method.
   const providers = (user.providerData ?? [])
     .map((p) => {
-      if (p.providerId === "password") return "Email code";
-      if (p.providerId === "google.com") return "Google";
-      if (p.providerId === "facebook.com") return "Facebook";
+      if (p.providerId === "password") return t("profile.providerEmailCode");
+      if (p.providerId === "google.com") return t("profile.providerGoogle");
+      if (p.providerId === "facebook.com") return t("profile.providerFacebook");
       return p.providerId;
     })
     .filter((label, i, arr) => arr.indexOf(label) === i);
-  if (providers.length === 0) providers.push("Email code");
+  if (providers.length === 0) providers.push(t("profile.providerEmailCode"));
+  const isEmailCodeLabel = (label: string) => label === t("profile.providerEmailCode");
+  const isGoogleLabel = (label: string) => label === t("profile.providerGoogle");
 
   // Google accounts keep their email in sync with Google — changing it here
   // would desync the two, so only offer it to email-based accounts.
@@ -257,12 +264,12 @@ function AccountTab() {
     setChangingEmail(true);
     try {
       await requestEmailChangeCode(candidate);
-      toast.success('Code sent to your new address — enter it below');
+      toast.success(t("toasts.codeSent"));
       setPendingEmailChange(candidate);
       setEmailChangeCode('');
       setNewEmail('');
     } catch (e: unknown) {
-      toast.error(friendlyAuthError(e));
+      toast.error(friendlyAuthError(e, tAuthErrors));
     } finally {
       setChangingEmail(false);
     }
@@ -273,11 +280,11 @@ function AccountTab() {
     setConfirmingEmailChange(true);
     try {
       await confirmEmailChangeCode(pendingEmailChange, emailChangeCode);
-      toast.success('Email updated');
+      toast.success(t("toasts.emailUpdated"));
       setPendingEmailChange(null);
       setEmailChangeCode('');
     } catch (e: unknown) {
-      toast.error(friendlyAuthError(e));
+      toast.error(friendlyAuthError(e, tAuthErrors));
     } finally {
       setConfirmingEmailChange(false);
     }
@@ -288,9 +295,9 @@ function AccountTab() {
     setResendingEmailChange(true);
     try {
       await requestEmailChangeCode(pendingEmailChange);
-      toast.success('Code re-sent');
+      toast.success(t("toasts.codeResent"));
     } catch (e: unknown) {
-      toast.error(friendlyAuthError(e));
+      toast.error(friendlyAuthError(e, tAuthErrors));
     } finally {
       setResendingEmailChange(false);
     }
@@ -301,8 +308,8 @@ function AccountTab() {
       {/* Profile */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>Your account information.</CardDescription>
+          <CardTitle>{t("profile.title")}</CardTitle>
+          <CardDescription>{t("profile.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-start gap-4">
@@ -327,8 +334,8 @@ function AccountTab() {
               <div className="flex flex-wrap items-center gap-2">
                 {providers.map((p) => (
                   <Badge key={p} variant="outline" className="text-xs font-normal">
-                    {p === "Email code" ? <KeyRound className="h-3 w-3 mr-1" /> : null}
-                    {p === "Google" ? <Mail className="h-3 w-3 mr-1" /> : null}
+                    {isEmailCodeLabel(p) ? <KeyRound className="h-3 w-3 me-1" /> : null}
+                    {isGoogleLabel(p) ? <Mail className="h-3 w-3 me-1" /> : null}
                     {p}
                   </Badge>
                 ))}
@@ -343,37 +350,43 @@ function AccountTab() {
         </CardContent>
       </Card>
 
+      {/* Language */}
+      <Card className="border-border/30">
+        <CardContent className="pt-6">
+          <AppLocaleSwitcher />
+        </CardContent>
+      </Card>
+
       {/* Security */}
       <Card className="border-border/30">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Security
+            {t("security.title")}
           </CardTitle>
-          <CardDescription>Manage your sign-in methods.</CardDescription>
+          <CardDescription>{t("security.description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">Passwordless sign-in</p>
+            <p className="text-sm font-medium">{t("security.passwordlessTitle")}</p>
             <p className="text-xs text-muted-foreground">
-              You sign in with a one-time code sent to your email — there is no
-              password to manage or reset.
+              {t("security.passwordlessDescription")}
             </p>
           </div>
 
           {canChangeEmail && (
             <div className="rounded-xl border p-4 space-y-3">
               <div>
-                <p className="text-sm font-medium">Change email</p>
+                <p className="text-sm font-medium">{t("security.changeEmailTitle")}</p>
                 <p className="text-xs text-muted-foreground">
-                  We’ll email a one-time code to your new address to confirm it.
+                  {t("security.changeEmailDescription")}
                 </p>
               </div>
               {pendingEmailChange ? (
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full px-2.5 py-1 text-xs break-all" style={pillStyle("warn")}>
-                      Code sent to {pendingEmailChange}
+                      {t("security.codeSentTo", { email: pendingEmailChange })}
                     </span>
                     <Button
                       variant="ghost"
@@ -382,7 +395,7 @@ function AccountTab() {
                       onClick={handleResendEmailChange}
                       disabled={resendingEmailChange}
                     >
-                      {resendingEmailChange ? 'Resending…' : 'Resend'}
+                      {resendingEmailChange ? t("security.resending") : t("security.resend")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -390,7 +403,7 @@ function AccountTab() {
                       className="h-7 text-xs"
                       onClick={() => { setPendingEmailChange(null); setEmailChangeCode(''); }}
                     >
-                      Cancel
+                      {t("security.cancel")}
                     </Button>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3">
@@ -411,7 +424,7 @@ function AccountTab() {
                       onClick={handleConfirmEmailChange}
                       disabled={confirmingEmailChange || emailChangeCode.length < 6}
                     >
-                      {confirmingEmailChange ? 'Confirming…' : 'Confirm change'}
+                      {confirmingEmailChange ? t("security.confirming") : t("security.confirmChange")}
                     </Button>
                   </div>
                 </div>
@@ -420,7 +433,7 @@ function AccountTab() {
                   <Input
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
-                    placeholder="new-email@company.com"
+                    placeholder={t("security.newEmailPlaceholder")}
                     type="email"
                     className="h-10 rounded-xl"
                   />
@@ -431,7 +444,7 @@ function AccountTab() {
                     onClick={handleEmailChange}
                     disabled={changingEmail || !newEmail.trim()}
                   >
-                    {changingEmail ? 'Sending…' : 'Send code'}
+                    {changingEmail ? t("security.sending") : t("security.sendCode")}
                   </Button>
                 </div>
               )}
@@ -440,13 +453,13 @@ function AccountTab() {
 
           <div className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium">Sign out</p>
+              <p className="text-sm font-medium">{t("security.signOutTitle")}</p>
               <p className="text-xs text-muted-foreground">
-                Sign out of all devices.
+                {t("security.signOutDescription")}
               </p>
             </div>
             <Button variant="outline" size="sm" className="shrink-0" onClick={logout}>
-              Sign out
+              {t("security.signOut")}
             </Button>
           </div>
         </CardContent>
@@ -455,23 +468,23 @@ function AccountTab() {
       {/* Danger zone */}
       <Card className="border-destructive/20">
         <CardHeader>
-          <CardTitle className="text-destructive">Danger zone</CardTitle>
-          <CardDescription>Irreversible actions that affect your account.</CardDescription>
+          <CardTitle className="text-destructive">{t("dangerZone.title")}</CardTitle>
+          <CardDescription>{t("dangerZone.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-xl border border-destructive/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium">Delete account</p>
+              <p className="text-sm font-medium">{t("dangerZone.deleteTitle")}</p>
               <p className="text-xs text-muted-foreground">
-                Permanently delete your account and all associated data. This cannot be undone.
+                {t("dangerZone.deleteDescription")}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Account deletion is handled by support —{" "}
-                <a href="/contact" className="text-primary hover:underline">contact us</a>.
+                {t("dangerZone.deleteHandledBy")}{" "}
+                <a href="/contact" className="text-primary hover:underline">{t("dangerZone.contactUs")}</a>.
               </p>
             </div>
             <Button variant="destructive" size="sm" className="shrink-0" disabled>
-              Delete account
+              {t("dangerZone.deleteAccount")}
             </Button>
           </div>
         </CardContent>
@@ -487,12 +500,15 @@ function UsageMeter({
   current,
   limit,
   unit,
+  locale,
 }: {
   label: string;
   current: number;
   limit: number;
   unit?: string;
+  locale: string;
 }) {
+  const t = useTranslations("settings.usage");
   const unlimited = limit === -1;
   const unavailable = limit === 0;
   const pct = unlimited ? 0 : unavailable ? 0 : Math.min((current / limit) * 100, 100);
@@ -515,11 +531,13 @@ function UsageMeter({
           }}
         >
           {unavailable ? (
-            <span className="text-muted-foreground">Not available</span>
+            <span className="text-muted-foreground">{t("notAvailable")}</span>
           ) : unlimited ? (
-            <>{current.toLocaleString()} used{unit ? ` ${unit}` : ""}</>
+            unit ? t("usedWithUnit", { count: current.toLocaleString(locale), unit }) : t("used", { count: current.toLocaleString(locale) })
           ) : (
-            <>{current.toLocaleString()} / {limit.toLocaleString()}{unit ? ` ${unit}` : ""}</>
+            unit
+              ? t("usedOfWithUnit", { current: current.toLocaleString(locale), limit: limit.toLocaleString(locale), unit })
+              : t("usedOf", { current: current.toLocaleString(locale), limit: limit.toLocaleString(locale) })
           )}
         </p>
       </div>
@@ -551,6 +569,8 @@ function UsageMeter({
 }
 
 function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
+  const t = useTranslations("settings.usage");
+  const locale = useLocale();
   const { status } = useSubscription();
   const { data: usageData, loading } = useApiQuery<{
     usage: {
@@ -591,7 +611,7 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
     );
   }
 
-  const month = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const month = new Date().toLocaleDateString(locale, { month: "long", year: "numeric" });
 
   return (
     <div className="grid gap-5">
@@ -601,33 +621,35 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Zap className="h-4 w-4" />
-                Usage this month
+                {t("title")}
               </CardTitle>
-              <CardDescription>{month} · {plan.name} plan</CardDescription>
+              <CardDescription>{month} · {plan.name}</CardDescription>
             </div>
             {status?.trialing && (
-              <Badge className="bg-primary/10 text-primary border-0">Trial</Badge>
+              <Badge className="bg-primary/10 text-primary border-0">{t("trial")}</Badge>
             )}
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
           {/* Media uploads */}
           <UsageMeter
-            label="Media uploads"
+            label={t("mediaUploads")}
             current={usage?.mediaUploads.current ?? 0}
             limit={usage?.mediaUploads.limit ?? plan.limits.mediaUploads}
+            locale={locale}
           />
 
           {/* Channels */}
           <UsageMeter
-            label="Connected channels"
+            label={t("connectedChannels")}
             current={usage?.channels.current ?? 0}
             limit={usage?.channels.limit ?? plan.limits.channels}
+            locale={locale}
           />
 
           {/* Products */}
           <div className="flex items-center justify-between pt-1">
-            <p className="text-sm font-medium">Brands registered</p>
+            <p className="text-sm font-medium">{t("brandsRegistered")}</p>
             <p className="text-sm text-muted-foreground tabular-nums">
               {usage?.products.current ?? 0}
             </p>
@@ -638,8 +660,8 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
       {/* Plan limits summary */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>Plan limits</CardTitle>
-          <CardDescription>What your {plan.name} plan includes.</CardDescription>
+          <CardTitle>{t("planLimitsTitle")}</CardTitle>
+          <CardDescription>{t("planLimitsDescription", { plan: plan.name })}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
@@ -652,7 +674,7 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
           </div>
           <div className="mt-4 pt-4 border-t">
             <Button variant="outline" size="sm" onClick={onUpgrade}>
-              Upgrade plan
+              {t("upgradePlan")}
             </Button>
           </div>
         </CardContent>
@@ -665,13 +687,13 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
 
 // Each product links its own individual account per channel — nothing is shared
 // across products, and Facebook and Instagram are separate links.
-const PRODUCT_CHANNELS: { provider: string; label: string; sub: string }[] = [
-  { provider: "meta", label: "Facebook", sub: "Facebook Page (Facebook login)" },
-  { provider: "instagram", label: "Instagram", sub: "Instagram account (Instagram login)" },
-  { provider: "tiktok", label: "TikTok", sub: "TikTok account" },
-  { provider: "threads", label: "Threads", sub: "Threads account" },
-  { provider: "pinterest", label: "Pinterest", sub: "Pinterest account and board" },
-  { provider: "linkedin", label: "LinkedIn", sub: "LinkedIn Profile or Page" },
+const PRODUCT_CHANNELS: { provider: string; channelKey: string }[] = [
+  { provider: "meta", channelKey: "meta" },
+  { provider: "instagram", channelKey: "instagram" },
+  { provider: "tiktok", channelKey: "tiktok" },
+  { provider: "threads", channelKey: "threads" },
+  { provider: "pinterest", channelKey: "pinterest" },
+  { provider: "linkedin", channelKey: "linkedin" },
 ];
 
 /** One linked account/Page/board for a channel. */
@@ -707,19 +729,13 @@ type ConnEntry = {
 
 type MetaPage = { id: string; name: string; hasInstagram: boolean; igAccountId: string | null; accountId?: string | null; accountLabel?: string | null };
 
-function providerDisplayName(provider: string): string {
-  if (provider === "meta") return "Meta";
-  if (provider === "linkedin") return "LinkedIn";
-  return provider;
-}
-
 const MANUAL_POSTING_CHANNELS = [
-  { id: "instagram", label: "Instagram" },
-  { id: "facebook", label: "Facebook" },
-  { id: "tiktok", label: "TikTok" },
-  { id: "threads", label: "Threads" },
-  { id: "linkedin", label: "LinkedIn" },
-  { id: "pinterest", label: "Pinterest" },
+  { id: "instagram" },
+  { id: "facebook" },
+  { id: "tiktok" },
+  { id: "threads" },
+  { id: "linkedin" },
+  { id: "pinterest" },
 ] as const;
 
 /**
@@ -728,6 +744,8 @@ const MANUAL_POSTING_CHANNELS = [
  * and the user posts natively from a reminder instead.
  */
 function ManualPostingCard() {
+  const t = useTranslations("settings.manualPosting");
+  const tChannels = useTranslations("settings.integrations.manualChannels");
   const { current: workspace } = useWorkspace();
   const wsId = workspace?.id ?? "default";
   const canManage = workspace?.role === "owner" || workspace?.role === "admin";
@@ -755,7 +773,7 @@ function ManualPostingCard() {
       if (res.ok) {
         refresh();
       } else {
-        toast.error("Failed to update publishing settings");
+        toast.error(t("updateFailed"));
       }
     } finally {
       setSavingChannel(null);
@@ -765,23 +783,20 @@ function ManualPostingCard() {
   return (
     <Card className="border-border/30">
       <CardHeader>
-        <CardTitle>Manual posting</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
         <CardDescription>
-          Posts for these channels skip automated publishing entirely. When one is due,
-          it lands in your To Post queue and you get a reminder — download the media,
-          post it natively from the app, then mark it as posted. Markaestro never calls
-          the platform&apos;s API for these posts.
+          {t("description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2.5">
         {MANUAL_POSTING_CHANNELS.map((channel) => (
           <div key={channel.id} className="flex items-center justify-between gap-3 rounded-xl border p-3.5">
             <div className="min-w-0">
-              <p className="text-sm font-medium">{channel.label}</p>
+              <p className="text-sm font-medium">{tChannels(channel.id)}</p>
               <p className="text-xs text-muted-foreground">
                 {enabled.has(channel.id)
-                  ? "Manual — new posts go to the To Post queue."
-                  : "Automated — new posts publish via the official API."}
+                  ? t("manualStatus")
+                  : t("automatedStatus")}
               </p>
             </div>
             <Switch
@@ -797,6 +812,7 @@ function ManualPostingCard() {
 }
 
 function IntegrationsTab() {
+  const t = useTranslations("settings.integrations");
   const { current: workspace } = useWorkspace();
   const wsId = workspace?.id ?? "default";
 
@@ -826,6 +842,12 @@ function IntegrationsTab() {
   const [pagesError, setPagesError] = useState("");
   const [selectingPage, setSelectingPage] = useState<string | null>(null);
 
+  function providerDisplayName(provider: string): string {
+    if (provider === "meta") return "Meta";
+    if (provider === "linkedin") return "LinkedIn";
+    return provider;
+  }
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const oauth = params.get("oauth");
@@ -834,7 +856,7 @@ function IntegrationsTab() {
     const needsPageSelect = params.get("needsPageSelect");
 
     if (oauth === "success" && provider) {
-      toast.success(`${providerDisplayName(provider)} connected`);
+      toast.success(t("toasts.connected", { provider: providerDisplayName(provider) }));
       window.history.replaceState({}, "", "/settings?tab=integrations");
       const timer = setTimeout(() => invalidateQueries("/api/integrations"), 500);
       if (needsPageSelect === "1" && provider === "meta" && productId) {
@@ -844,9 +866,14 @@ function IntegrationsTab() {
     }
     if (oauth === "error" && provider) {
       const message = params.get("message");
-      toast.error(`Failed to connect ${providerDisplayName(provider)}${message ? `: ${message}` : ""}`);
+      toast.error(
+        message
+          ? t("toasts.connectFailedWithMessage", { provider: providerDisplayName(provider), message })
+          : t("toasts.connectFailed", { provider: providerDisplayName(provider) }),
+      );
       window.history.replaceState({}, "", "/settings?tab=integrations");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load the user's Facebook Pages when the picker opens.
@@ -863,7 +890,7 @@ function IntegrationsTab() {
       if (cancelled) return;
       if (!res.ok) {
         setPages([]);
-        setPagesError(res.data?.error || "Couldn't load your Facebook Pages.");
+        setPagesError(res.data?.error || t("pagePicker.noneFound"));
         return;
       }
       setPages(res.data.pages || []);
@@ -871,7 +898,7 @@ function IntegrationsTab() {
       if (res.data.error) setPagesError(res.data.error);
     })();
     return () => { cancelled = true; };
-  }, [pagePickerProduct, wsId]);
+  }, [pagePickerProduct, wsId, t]);
 
   function connect(provider: string, productId: string, linkedinMode?: "profile" | "community") {
     const qs = new URLSearchParams({
@@ -891,13 +918,13 @@ function IntegrationsTab() {
     try {
       const res = await apiPost(`/api/oauth/disconnect/${provider}`, { productId }, wsId);
       if (res.ok) {
-        toast.success(`${label} unlinked`);
+        toast.success(t("toasts.unlinked", { label }));
         refreshConns();
       } else {
-        toast.error("Failed to unlink. Please try again.");
+        toast.error(t("toasts.unlinkFailed"));
       }
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("toasts.somethingWrong"));
     } finally {
       setBusy(null);
       setDisconnectTarget(null);
@@ -914,14 +941,14 @@ function IntegrationsTab() {
         wsId,
       );
       if (res.ok) {
-        toast.success(`Linked ${page.name}`);
+        toast.success(t("toasts.linkedPage", { name: page.name }));
         setLinkedPageIds((prev) => [...new Set([...prev, page.id])]);
         refreshConns();
       } else {
-        toast.error("Failed to link this Page. Please try again.");
+        toast.error(t("toasts.linkPageFailed"));
       }
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("toasts.somethingWrong"));
     } finally {
       setSelectingPage(null);
     }
@@ -954,13 +981,13 @@ function IntegrationsTab() {
         wsId,
       );
       if (res.ok) {
-        toast.success(`${label} unlinked`);
+        toast.success(t("toasts.unlinked", { label }));
         refreshConns();
       } else {
-        toast.error(`Failed to unlink ${label}`);
+        toast.error(t("toasts.unlinkFailedLabel", { label }));
       }
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("toasts.somethingWrong"));
     } finally {
       setBusy(null);
     }
@@ -986,11 +1013,11 @@ function IntegrationsTab() {
     return (
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>No brands yet</CardTitle>
-          <CardDescription>Create a brand, then link its social channels here.</CardDescription>
+          <CardTitle>{t("noProductsTitle")}</CardTitle>
+          <CardDescription>{t("noProductsDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <a href="/products"><Button>Create a brand</Button></a>
+          <a href="/products"><Button>{t("createBrand")}</Button></a>
         </CardContent>
       </Card>
     );
@@ -1001,8 +1028,7 @@ function IntegrationsTab() {
       <ManualPostingCard />
 
       <p className="text-sm text-muted-foreground">
-        Link each brand to its own social channels. Each channel publishes only to itself — Meta covers Facebook
-        Pages, and Instagram uses the standalone Instagram connection.
+        {t("linkDescription")}
       </p>
 
       {products.map((product) => (
@@ -1015,20 +1041,21 @@ function IntegrationsTab() {
               const st = channelStatus(product.id, ch.provider);
               const isBusy = busy === `${product.id}:${ch.provider}`;
               const accounts = channelAccounts(product.id, ch.provider);
+              const channelLabel = t(`channels.${ch.channelKey}.label`);
               return (
                 <div key={ch.provider} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3.5">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-medium">{ch.label}</p>
-                      {st.state === "connected" && <Badge className="border-0" style={pillStyle("pos")}>Linked</Badge>}
+                      <p className="text-sm font-medium">{channelLabel}</p>
+                      {st.state === "connected" && <Badge className="border-0" style={pillStyle("pos")}>{t("linked")}</Badge>}
                       {st.state === "needs-page" && (
                         <Badge className="border-0" style={pillStyle("warn")}>
-                          {ch.provider === "pinterest" ? "Pick a board" : ch.provider === "linkedin" ? "Pick target" : "Pick a Page"}
+                          {ch.provider === "pinterest" ? t("pickBoard") : ch.provider === "linkedin" ? t("pickTarget") : t("pickPage")}
                         </Badge>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground truncate">
-                      {st.state === "connected" ? (st.label || "Linked and ready.") : ch.sub}
+                      {st.state === "connected" ? (st.label || t("linkedAndReady")) : t(`channels.${ch.channelKey}.sub`)}
                     </p>
                   </div>
                   <div className="shrink-0">
@@ -1036,7 +1063,7 @@ function IntegrationsTab() {
                       <div className="flex gap-2">
                         {ch.provider === "meta" && (
                           <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>
-                            Add Page
+                            {t("addPage")}
                           </Button>
                         )}
                         {/* Reconnect re-runs OAuth in place. Unlinking first is
@@ -1046,38 +1073,38 @@ function IntegrationsTab() {
                           size="sm"
                           onClick={() => connect(ch.provider, product.id)}
                         >
-                          {ch.provider === "meta" ? "Reconnect / add account" : "Reconnect"}
+                          {ch.provider === "meta" ? t("reconnectAddAccount") : t("reconnect")}
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           disabled={isBusy}
-                          onClick={() => setDisconnectTarget({ productId: product.id, provider: ch.provider, label: `${ch.label} · ${product.name}` })}
+                          onClick={() => setDisconnectTarget({ productId: product.id, provider: ch.provider, label: `${channelLabel} · ${product.name}` })}
                         >
-                          {isBusy ? "Unlinking…" : accounts.length > 1 ? "Unlink all" : "Unlink"}
+                          {isBusy ? t("unlinking") : accounts.length > 1 ? t("unlinkAll") : t("unlink")}
                         </Button>
                       </div>
                     ) : st.state === "needs-page" ? (
                       ch.provider === "pinterest" ? (
-                        <a href="/products"><Button size="sm">Choose board</Button></a>
+                        <a href="/products"><Button size="sm">{t("chooseBoard")}</Button></a>
                       ) : ch.provider === "linkedin" ? (
-                        <a href="/products"><Button size="sm">Choose target</Button></a>
+                        <a href="/products"><Button size="sm">{t("chooseTarget")}</Button></a>
                       ) : (
-                        <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>Choose Page</Button>
+                        <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>{t("choosePage")}</Button>
                       )
                     ) : ch.provider === "linkedin" ? (
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={() => connect(ch.provider, product.id, "profile")}>Profile</Button>
-                        <Button size="sm" variant="outline" onClick={() => connect(ch.provider, product.id, "community")}>Pages</Button>
+                        <Button size="sm" onClick={() => connect(ch.provider, product.id, "profile")}>{t("profileButton")}</Button>
+                        <Button size="sm" variant="outline" onClick={() => connect(ch.provider, product.id, "community")}>{t("pagesButton")}</Button>
                       </div>
                     ) : (
-                      <Button size="sm" onClick={() => connect(ch.provider, product.id)}>Link</Button>
+                      <Button size="sm" onClick={() => connect(ch.provider, product.id)}>{t("link")}</Button>
                     )}
                   </div>
                   {accounts.length > 0 && (
                     <div className="w-full space-y-1.5">
                       {accounts.map((account) => {
-                        const label = account.label || account.destinationId || "Linked account";
+                        const label = account.label || account.destinationId || t("linkedAccountFallback");
                         const accountBusy = busy === `${product.id}:${ch.provider}:${account.destinationId}`;
                         return (
                           <div
@@ -1087,7 +1114,7 @@ function IntegrationsTab() {
                             <span className="min-w-0 flex-1 truncate text-[12px]">{label}</span>
                             {account.enabled === false && (
                               <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
-                                {account.status === "revoked" ? "Reconnect" : account.status}
+                                {account.status === "revoked" ? t("reconnect") : account.status}
                               </Badge>
                             )}
                             <Button
@@ -1097,7 +1124,7 @@ function IntegrationsTab() {
                               disabled={accountBusy}
                               onClick={() => unlinkAccount(product.id, ch.provider, account.destinationId!, label)}
                             >
-                              {accountBusy ? "…" : "Unlink"}
+                              {accountBusy ? "…" : t("unlink")}
                             </Button>
                           </div>
                         );
@@ -1115,11 +1142,9 @@ function IntegrationsTab() {
       <Dialog open={!!pagePickerProduct} onOpenChange={(open) => { if (!open) setPagePickerProduct(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Choose Facebook Pages</DialogTitle>
+            <DialogTitle>{t("pagePicker.title")}</DialogTitle>
             <DialogDescription>
-              Link every Page this brand posts to, from any Facebook account you
-              have connected. Pages stay tied to the account that granted them,
-              and you pick between them when composing.
+              {t("pagePicker.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-[50vh] overflow-y-auto">
@@ -1131,7 +1156,7 @@ function IntegrationsTab() {
             ) : pagesError && pages.length === 0 ? (
               <p className="text-sm text-mk-warn">{pagesError}</p>
             ) : pages.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No Facebook Pages were found on your Meta account.</p>
+              <p className="text-sm text-muted-foreground">{t("pagePicker.noneFound")}</p>
             ) : (
               pages.map((pg) => (
                 <button
@@ -1139,20 +1164,20 @@ function IntegrationsTab() {
                   type="button"
                   disabled={!!selectingPage || linkedPageIds.includes(pg.id)}
                   onClick={() => selectPage(pg)}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border p-3.5 text-left transition-colors hover:border-primary/50 disabled:opacity-60"
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border p-3.5 text-start transition-colors hover:border-primary/50 disabled:opacity-60"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{pg.name}</p>
                     <p className="text-xs text-muted-foreground truncate">
-                      {pg.accountLabel ? `via ${pg.accountLabel}` : "Facebook Page"}
+                      {pg.accountLabel ? `via ${pg.accountLabel}` : t("channels.meta.label")}
                     </p>
                   </div>
                   <span className="text-xs text-primary shrink-0">
                     {linkedPageIds.includes(pg.id)
-                      ? "Linked"
+                      ? t("linked")
                       : selectingPage === pg.id
-                      ? "Linking…"
-                      : "Link"}
+                      ? t("pagePicker.linking")
+                      : t("link")}
                   </span>
                 </button>
               ))
@@ -1166,8 +1191,8 @@ function IntegrationsTab() {
         onOpenChange={(open) => { if (!open) setDisconnectTarget(null); }}
         entity="connection"
         name={disconnectTarget?.label}
-        confirmLabel="Unlink"
-        warning="This unlinks the channel from this brand only. Other brands keep their own connections. You can re-link any time."
+        confirmLabel={t("disconnectDialog.confirmLabel")}
+        warning={t("disconnectDialog.warning")}
         onConfirm={confirmDisconnect}
       />
     </div>
@@ -1177,6 +1202,7 @@ function IntegrationsTab() {
 /* ─── Team Tab ──────────────────────────────────────────────────────────── */
 
 function TeamTab() {
+  const t = useTranslations("settings.team");
   const { status } = useSubscription();
   const { current: workspace } = useWorkspace();
   const [inviteEmail, setInviteEmail] = useState('');
@@ -1203,7 +1229,7 @@ function TeamTab() {
     const candidate = inviteEmail.trim();
     if (!candidate) return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate)) {
-      setInviteEmailError('Enter a valid email address, e.g. colleague@example.com');
+      setInviteEmailError(t("toasts.invalidEmail"));
       return;
     }
     setInviteEmailError(null);
@@ -1212,18 +1238,18 @@ function TeamTab() {
       const res = await apiPost<{ status: string; email: string }>('/api/team', { email: candidate, role: inviteRole }, wsId);
       if (res.ok) {
         const s = res.data.status;
-        if (s === 'pending') toast.success(`Invite sent to ${res.data.email} — they'll join when they sign up`);
-        else if (s === 'already_owner') toast.info(`${inviteEmail} is already an owner`);
-        else toast.success(`${inviteEmail} added as ${inviteRole}`);
+        if (s === 'pending') toast.success(t("toasts.inviteSent", { email: res.data.email }));
+        else if (s === 'already_owner') toast.info(t("toasts.alreadyOwner", { email: inviteEmail }));
+        else toast.success(t("toasts.addedAs", { email: inviteEmail, role: t(`roleLabels.${inviteRole}`) }));
         setInviteEmail('');
         fetchMembers();
       } else {
         const err = (res.data as { error?: string }).error;
-        if (err === 'TEAM_LIMIT_REACHED') toast.error(`Your ${plan.name} plan supports up to ${limit} team members. Upgrade to add more.`);
-        else toast.error('Failed to invite. Please try again.');
+        if (err === 'TEAM_LIMIT_REACHED') toast.error(t("toasts.limitReached", { plan: plan.name, limit }));
+        else toast.error(t("toasts.inviteFailed"));
       }
     } catch {
-      toast.error('Something went wrong.');
+      toast.error(t("toasts.somethingWrong"));
     } finally {
       setInviting(false);
     }
@@ -1235,34 +1261,34 @@ function TeamTab() {
     try {
       const res = await apiFetch(`/api/team/${removeTarget.uid}?workspaceId=${wsId}`, { method: 'DELETE' });
       if (res.ok) {
-        toast.success('Member removed');
+        toast.success(t("toasts.memberRemoved"));
         fetchMembers();
       } else {
-        toast.error('Failed to remove member');
+        toast.error(t("toasts.removeFailed"));
       }
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t("toasts.somethingWrongRemove"));
     } finally {
       setRemoving(null);
     }
   }
 
   const roleDescriptions: Record<string, string> = {
-    owner: "Full access to everything",
-    admin: "Manage team, integrations, and content",
-    member: "Create and publish content",
-    analyst: "View-only dashboard access",
+    owner: t("roles.owner"),
+    admin: t("roles.admin"),
+    member: t("roles.member"),
+    analyst: t("roles.analyst"),
   };
 
   return (
     <div className="grid gap-5">
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>Team members</CardTitle>
+          <CardTitle>{t("membersTitle")}</CardTitle>
           <CardDescription>
             {limit === -1
-              ? `Unlimited members on the ${plan.name} plan`
-              : `${membersLoading ? "…" : members.length} / ${limit} members on the ${plan.name} plan`}
+              ? t("unlimitedMembers", { plan: plan.name })
+              : t("memberCount", { count: membersLoading ? "…" : members.length, limit, plan: plan.name })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -1282,7 +1308,7 @@ function TeamTab() {
               </>
             )}
             {!membersLoading && members.length === 0 && (
-              <p className="text-sm text-muted-foreground px-4 py-3">No members yet.</p>
+              <p className="text-sm text-muted-foreground px-4 py-3">{t("noMembers")}</p>
             )}
             {members.map((m) => (
               <div key={m.uid} className="flex items-center justify-between px-4 py-3 gap-3">
@@ -1294,8 +1320,8 @@ function TeamTab() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{m.email}</p>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {m.role}
+                    <p className="text-xs text-muted-foreground">
+                      {t(`roleLabels.${m.role}`)}
                       {roleDescriptions[m.role] ? ` — ${roleDescriptions[m.role]}` : ""}
                     </p>
                   </div>
@@ -1308,7 +1334,7 @@ function TeamTab() {
                     onClick={() => setRemoveTarget({ uid: m.uid, email: m.email })}
                     disabled={removing === m.uid}
                   >
-                    {removing === m.uid ? 'Removing…' : 'Remove'}
+                    {removing === m.uid ? t("removing") : t("remove")}
                   </Button>
                 )}
               </div>
@@ -1318,11 +1344,11 @@ function TeamTab() {
           {/* Invite form */}
           {canInvite && (limit === -1 || members.length < limit) && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Invite a new member</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("inviteLabel")}</p>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   type="email"
-                  placeholder="colleague@example.com"
+                  placeholder={t("emailPlaceholder")}
                   value={inviteEmail}
                   onChange={(e) => { setInviteEmail(e.target.value); if (inviteEmailError) setInviteEmailError(null); }}
                   onKeyDown={(e) => e.key === 'Enter' && invite()}
@@ -1333,13 +1359,13 @@ function TeamTab() {
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value as 'admin' | 'member' | 'analyst')}
                   >
-                    <option value="member">Member</option>
-                    <option value="analyst">Analyst</option>
-                    <option value="admin">Admin</option>
+                    <option value="member">{t("roleLabels.member")}</option>
+                    <option value="analyst">{t("roleLabels.analyst")}</option>
+                    <option value="admin">{t("roleLabels.admin")}</option>
                   </Select>
                 </div>
                 <Button onClick={invite} disabled={inviting || !inviteEmail.trim()}>
-                  {inviting ? 'Inviting…' : 'Invite'}
+                  {inviting ? t("inviting") : t("invite")}
                 </Button>
               </div>
               {inviteEmailError && (
@@ -1350,8 +1376,8 @@ function TeamTab() {
 
           {canInvite && limit !== -1 && members.length >= limit && (
             <p className="text-xs text-muted-foreground pt-1">
-              Team member limit reached.{' '}
-              <a href="/settings?tab=billing" className="text-primary hover:underline">Upgrade your plan</a> to invite more.
+              {t("limitReached")}{' '}
+              <a href="/settings?tab=billing" className="text-primary hover:underline">{t("upgradePlan")}</a> {t("toInviteMore")}
             </p>
           )}
         </CardContent>
@@ -1360,14 +1386,14 @@ function TeamTab() {
       {/* Roles reference */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>Roles & permissions</CardTitle>
-          <CardDescription>What each role can do in this workspace.</CardDescription>
+          <CardTitle>{t("roles.title")}</CardTitle>
+          <CardDescription>{t("roles.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid sm:grid-cols-2 gap-3">
             {(["owner", "admin", "member", "analyst"] as const).map((role) => (
               <div key={role} className="rounded-lg border p-3">
-                <p className="text-sm font-medium capitalize">{role}</p>
+                <p className="text-sm font-medium">{t(`roleLabels.${role}`)}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{roleDescriptions[role]}</p>
               </div>
             ))}
@@ -1378,10 +1404,10 @@ function TeamTab() {
       <ConfirmDeleteDialog
         open={!!removeTarget}
         onOpenChange={(open) => { if (!open) setRemoveTarget(null); }}
-        entity="team member"
+        entity="teamMember"
         name={removeTarget?.email}
-        confirmLabel="Remove"
-        warning="This person will immediately lose access to this workspace."
+        confirmLabel={t("removeDialog.confirmLabel")}
+        warning={t("removeDialog.warning")}
         onConfirm={confirmRemoveMember}
       />
     </div>
@@ -1391,6 +1417,7 @@ function TeamTab() {
 /* ─── Workspaces Tab ────────────────────────────────────────────────────── */
 
 function WorkspacesTab() {
+  const t = useTranslations("settings.workspaces");
   const { status } = useSubscription();
   const { workspaces, current, switchWorkspace, refresh } = useWorkspace();
   const [newName, setNewName] = useState('');
@@ -1414,20 +1441,20 @@ function WorkspacesTab() {
         body: JSON.stringify({ name: newName.trim() }),
       });
       if (res.ok) {
-        toast.success(`Workspace "${newName.trim()}" created`);
+        toast.success(t("toasts.created", { name: newName.trim() }));
         setNewName('');
         await refresh();
         switchWorkspace(res.data.id);
       } else {
         const err = (res.data as { error?: string }).error;
         if (err === 'WORKSPACE_LIMIT_REACHED') {
-          toast.error(`Your ${plan.name} plan supports up to ${limit} workspace${limit === 1 ? '' : 's'}. Upgrade to create more.`);
+          toast.error(t("toasts.limitReachedError", { plan: plan.name, limit }));
         } else {
-          toast.error('Failed to create workspace');
+          toast.error(t("toasts.createFailed"));
         }
       }
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t("toasts.somethingWrong"));
     } finally {
       setCreating(false);
     }
@@ -1439,14 +1466,14 @@ function WorkspacesTab() {
     try {
       const res = await apiPut(`/api/workspaces/${id}`, { name: editName.trim() });
       if (res.ok) {
-        toast.success('Workspace renamed');
+        toast.success(t("toasts.renamed"));
         setEditingId(null);
         await refresh();
       } else {
-        toast.error('Failed to rename workspace');
+        toast.error(t("toasts.renameFailed"));
       }
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t("toasts.somethingWrong"));
     } finally {
       setSaving(false);
     }
@@ -1456,11 +1483,11 @@ function WorkspacesTab() {
     <div className="grid gap-5">
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>Workspaces</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
           <CardDescription>
             {limit === -1
-              ? `Unlimited workspaces on the ${plan.name} plan`
-              : `${ownedCount} / ${limit} workspace${limit === 1 ? '' : 's'} owned on the ${plan.name} plan`}
+              ? t("unlimitedWorkspaces", { plan: plan.name })
+              : t("ownedCount", { count: ownedCount, limit, plan: plan.name })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -1515,15 +1542,15 @@ function WorkspacesTab() {
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground capitalize">{ws.role}</p>
+                      <p className="text-xs text-muted-foreground">{t(`roleLabels.${ws.role}`)}</p>
                     </>
                   )}
                 </div>
                 {ws.id === current?.id ? (
-                  <Badge className="bg-primary/10 text-primary border-0 shrink-0">Active</Badge>
+                  <Badge className="bg-primary/10 text-primary border-0 shrink-0">{t("active")}</Badge>
                 ) : (
                   <Button variant="outline" size="sm" className="shrink-0" onClick={() => switchWorkspace(ws.id)}>
-                    Switch
+                    {t("switch")}
                   </Button>
                 )}
               </div>
@@ -1533,17 +1560,17 @@ function WorkspacesTab() {
           {/* Create workspace */}
           {canCreate && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Create a new workspace</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("createLabel")}</p>
               <div className="flex gap-2">
                 <Input
-                  placeholder="New workspace name"
+                  placeholder={t("namePlaceholder")}
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && createWorkspace()}
                   className="flex-1"
                 />
                 <Button onClick={createWorkspace} disabled={creating || !newName.trim()}>
-                  {creating ? 'Creating…' : 'Create'}
+                  {creating ? t("creating") : t("create")}
                 </Button>
               </div>
             </div>
@@ -1551,8 +1578,8 @@ function WorkspacesTab() {
 
           {!canCreate && (
             <p className="text-xs text-muted-foreground pt-1">
-              Workspace limit reached.{' '}
-              <a href="/settings?tab=billing" className="text-primary hover:underline">Upgrade your plan</a> to create more.
+              {t("limitReached")}{' '}
+              <a href="/settings?tab=billing" className="text-primary hover:underline">{t("upgradePlan")}</a> {t("toCreateMore")}
             </p>
           )}
         </CardContent>
@@ -1564,6 +1591,8 @@ function WorkspacesTab() {
 /* ─── API Access Tab ───────────────────────────────────────────────────── */
 
 function ApiAccessTab() {
+  const t = useTranslations("settings.api");
+  const locale = useLocale();
   const { current: workspace } = useWorkspace();
   const wsId = workspace?.id ?? 'default';
   const canManage = workspace?.role === 'owner' || workspace?.role === 'admin';
@@ -1636,12 +1665,12 @@ function ApiAccessTab() {
     await Promise.all([refreshWebhooks(), refreshUsage()]);
   }, [refreshWebhooks, refreshUsage]);
 
-  async function copyText(value: string, label: string) {
+  async function copyText(value: string, successMsg: string, failMsg: string) {
     try {
       await navigator.clipboard.writeText(value);
-      toast.success(`${label} copied`);
+      toast.success(successMsg);
     } catch {
-      toast.error(`Failed to copy ${label.toLowerCase()}`);
+      toast.error(failMsg);
     }
   }
 
@@ -1666,7 +1695,7 @@ function ApiAccessTab() {
         wsId,
       );
       if (!res.ok) {
-        toast.error(apiErrorMessage(res.data, 'Failed to create API key'));
+        toast.error(apiErrorMessage(res.data, t("toasts.createKeyFailed")));
         return;
       }
 
@@ -1679,7 +1708,7 @@ function ApiAccessTab() {
       setCreateKeyOpen(false);
       await fetchApiAccess();
     } catch {
-      toast.error('Failed to create API key');
+      toast.error(t("toasts.createKeyFailed"));
     } finally {
       setCreatingClient(false);
     }
@@ -1690,13 +1719,13 @@ function ApiAccessTab() {
     try {
       const res = await apiDelete(`/api/settings/api-clients/${id}`, undefined, wsId);
       if (res.ok) {
-        toast.success('API key revoked');
+        toast.success(t("toasts.keyRevoked"));
         await fetchApiAccess();
       } else {
-        toast.error('Failed to revoke API key');
+        toast.error(t("toasts.revokeFailed"));
       }
     } catch {
-      toast.error('Failed to revoke API key');
+      toast.error(t("toasts.revokeFailed"));
     } finally {
       setRevokingClient(null);
     }
@@ -1707,13 +1736,13 @@ function ApiAccessTab() {
     try {
       const res = await apiPost(`/api/settings/api-clients/${id}/archive`, { archived }, wsId);
       if (res.ok) {
-        toast.success(archived ? 'API key archived' : 'API key unarchived');
+        toast.success(archived ? t("toasts.keyArchived") : t("toasts.keyUnarchived"));
         await fetchApiAccess();
       } else {
-        toast.error(apiErrorMessage(res.data, archived ? 'Failed to archive API key' : 'Failed to unarchive API key'));
+        toast.error(apiErrorMessage(res.data, archived ? t("toasts.archiveFailed") : t("toasts.unarchiveFailed")));
       }
     } catch {
-      toast.error(archived ? 'Failed to archive API key' : 'Failed to unarchive API key');
+      toast.error(archived ? t("toasts.archiveFailed") : t("toasts.unarchiveFailed"));
     } finally {
       setArchivingClient(null);
     }
@@ -1729,17 +1758,17 @@ function ApiAccessTab() {
         wsId,
       );
       if (!res.ok) {
-        toast.error(apiErrorMessage(res.data, 'Failed to rotate API key'));
+        toast.error(apiErrorMessage(res.data, t("toasts.rotateFailed")));
         return;
       }
 
       setRotateTarget(null);
       setCreatedKeyMode('rotated');
       setCreatedApiKey(res.data.apiKey);
-      toast.success('API key rotated');
+      toast.success(t("toasts.keyRotated"));
       await fetchApiAccess();
     } catch {
-      toast.error('Failed to rotate API key');
+      toast.error(t("toasts.rotateFailed"));
     } finally {
       setRotatingClient(false);
     }
@@ -1761,16 +1790,16 @@ function ApiAccessTab() {
         wsId,
       );
       if (res.ok) {
-        toast.success('API key permissions updated');
+        toast.success(t("toasts.permissionsUpdated"));
         setEditKeyOpen(false);
         setEditingClient(null);
         setEditingScopes([]);
         await fetchApiAccess();
       } else {
-        toast.error('Failed to update API key permissions');
+        toast.error(t("toasts.permissionsUpdateFailed"));
       }
     } catch {
-      toast.error('Failed to update API key permissions');
+      toast.error(t("toasts.permissionsUpdateFailed"));
     } finally {
       setSavingClientScopes(false);
     }
@@ -1786,7 +1815,7 @@ function ApiAccessTab() {
         wsId,
       );
       if (!res.ok) {
-        toast.error('Failed to create webhook endpoint');
+        toast.error(t("toasts.createWebhookFailed"));
         return;
       }
 
@@ -1796,7 +1825,7 @@ function ApiAccessTab() {
       setCreateWebhookOpen(false);
       await fetchApiAccess();
     } catch {
-      toast.error('Failed to create webhook endpoint');
+      toast.error(t("toasts.createWebhookFailed"));
     } finally {
       setCreatingWebhook(false);
     }
@@ -1807,13 +1836,13 @@ function ApiAccessTab() {
     try {
       const res = await apiDelete(`/api/settings/webhook-endpoints/${id}`, undefined, wsId);
       if (res.ok) {
-        toast.success('Webhook endpoint disabled');
+        toast.success(t("toasts.webhookDisabled"));
         await fetchApiAccess();
       } else {
-        toast.error('Failed to disable webhook endpoint');
+        toast.error(t("toasts.disableWebhookFailed"));
       }
     } catch {
-      toast.error('Failed to disable webhook endpoint');
+      toast.error(t("toasts.disableWebhookFailed"));
     } finally {
       setDisablingWebhook(null);
     }
@@ -1824,8 +1853,8 @@ function ApiAccessTab() {
       <div className="grid gap-5">
         <Card className="border-border/30">
           <CardHeader>
-            <CardTitle>API Access</CardTitle>
-            <CardDescription>Only workspace owners and admins can manage API keys and webhook endpoints.</CardDescription>
+            <CardTitle>{t("restricted.title")}</CardTitle>
+            <CardDescription>{t("restricted.description")}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -1847,21 +1876,21 @@ function ApiAccessTab() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <KeyRound className="h-4 w-4" />
-                Public API
+                {t("title")}
               </CardTitle>
               <CardDescription>
-                Manage workspace API keys, webhook destinations, and publishing behavior for Meta and TikTok.
+                {t("description")}
               </CardDescription>
             </div>
             <div className="flex flex-wrap gap-2">
               <a href="/developers/api" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="sm">
-                  <BookOpen className="mr-1.5 h-3.5 w-3.5" />
-                  View docs
+                  <BookOpen className="me-1.5 h-3.5 w-3.5" />
+                  {t("viewDocs")}
                 </Button>
               </a>
               <Button size="sm" onClick={() => setCreateKeyOpen(true)}>
-                Create API key
+                {t("createKey")}
               </Button>
             </div>
           </div>
@@ -1869,59 +1898,59 @@ function ApiAccessTab() {
         <CardContent className="space-y-4">
           <div className="grid gap-3 lg:grid-cols-3">
             <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">Video support</p>
+              <p className="text-sm font-medium">{t("infoCards.videoSupportTitle")}</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Public API v1 supports Facebook, Instagram, and TikTok media uploads. TikTok videos follow the same direct inbox handoff as the app before the creator finishes them in TikTok.
+                {t("infoCards.videoSupportDescription")}
               </p>
             </div>
             <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">Channel media caps</p>
+              <p className="text-sm font-medium">{t("infoCards.mediaCapsTitle")}</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                TikTok supports either 1 video or up to 10 images per post. Other channels keep their own platform-specific media limits.
+                {t("infoCards.mediaCapsDescription")}
               </p>
             </div>
             <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">TikTok inbox handoffs</p>
+              <p className="text-sm font-medium">{t("infoCards.inboxTitle")}</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                TikTok content is pushed to the creator&apos;s TikTok inbox. Markaestro keeps polling TikTok until the platform confirms the inbox item is ready for creator completion.
+                {t("infoCards.inboxDescription")}
               </p>
             </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-xl border p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Requests this month</p>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("stats.requestsThisMonth")}</p>
               {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.currentMonthRequests.toLocaleString()}</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.currentMonthRequests.toLocaleString(locale)}</p>
               )}
-              <p className="mt-1 text-xs text-muted-foreground">{formatMonthKey(apiClientUsage[0]?.usage.currentMonth || new Date().toISOString().slice(0, 7))}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{formatMonthKey(apiClientUsage[0]?.usage.currentMonth || new Date().toISOString().slice(0, 7), locale)}</p>
             </div>
             <div className="rounded-xl border p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Queued publishes</p>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("stats.queuedPublishes")}</p>
               {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.publishQueued.toLocaleString()}</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.publishQueued.toLocaleString(locale)}</p>
               )}
-              <p className="mt-1 text-xs text-muted-foreground">All keys in this workspace</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("stats.allKeysInWorkspace")}</p>
             </div>
             <div className="rounded-xl border p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Completed outcomes</p>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("stats.completedOutcomes")}</p>
               {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
                 <p className="mt-2 text-2xl font-semibold tabular-nums">
-                  {(usageTotals.publishSucceeded + usageTotals.publishActionRequired).toLocaleString()}
+                  {(usageTotals.publishSucceeded + usageTotals.publishActionRequired).toLocaleString(locale)}
                 </p>
               )}
               <p className="mt-1 text-xs text-muted-foreground">
                 {loading
-                  ? "Direct publish · TikTok action required"
-                  : `${usageTotals.publishSucceeded.toLocaleString()} direct publish · ${usageTotals.publishActionRequired.toLocaleString()} TikTok action required`}
+                  ? t("stats.outcomesLoading")
+                  : t("stats.outcomesBreakdown", { succeeded: usageTotals.publishSucceeded.toLocaleString(locale), actionRequired: usageTotals.publishActionRequired.toLocaleString(locale) })}
               </p>
             </div>
             <div className="rounded-xl border p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Failures</p>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("stats.failures")}</p>
               {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.publishFailed.toLocaleString()}</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.publishFailed.toLocaleString(locale)}</p>
               )}
-              <p className="mt-1 text-xs text-muted-foreground">Tracked at publish-run completion</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("stats.trackedAtCompletion")}</p>
             </div>
           </div>
 
@@ -1934,33 +1963,33 @@ function ApiAccessTab() {
               <div className="rounded-xl border">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium">API keys</p>
-                    <p className="text-xs text-muted-foreground">Create a key per integration, scope it down to the minimum needed access, and watch live request and publish behavior per key.</p>
+                    <p className="text-sm font-medium">{t("keysSection.title")}</p>
+                    <p className="text-xs text-muted-foreground">{t("keysSection.description")}</p>
                   </div>
                   {archivedClientCount > 0 && (
                     <Button variant="ghost" size="sm" className="shrink-0 self-start sm:self-auto" onClick={() => setShowArchived((prev) => !prev)}>
-                      <Archive className="mr-1.5 h-3.5 w-3.5" />
-                      {showArchived ? 'Hide archived' : `Show archived (${archivedClientCount})`}
+                      <Archive className="me-1.5 h-3.5 w-3.5" />
+                      {showArchived ? t("keysSection.hideArchived") : t("keysSection.showArchived", { count: archivedClientCount })}
                     </Button>
                   )}
                 </div>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Usage</TableHead>
-                      <TableHead>Publish outcomes</TableHead>
-                      <TableHead>Scopes</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Last used</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t("keysSection.columns.name")}</TableHead>
+                      <TableHead>{t("keysSection.columns.usage")}</TableHead>
+                      <TableHead>{t("keysSection.columns.publishOutcomes")}</TableHead>
+                      <TableHead>{t("keysSection.columns.scopes")}</TableHead>
+                      <TableHead>{t("keysSection.columns.status")}</TableHead>
+                      <TableHead>{t("keysSection.columns.lastUsed")}</TableHead>
+                      <TableHead className="text-end">{t("keysSection.columns.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {visibleClients.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="py-6 text-center text-muted-foreground">
-                          {apiClientUsage.length === 0 ? 'No API keys yet.' : 'No active API keys.'}
+                          {apiClientUsage.length === 0 ? t("keysSection.empty") : t("keysSection.emptyFiltered")}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -1972,26 +2001,26 @@ function ApiAccessTab() {
                               <p className="text-xs text-muted-foreground">{client.keyPrefix}…</p>
                               {client.productId && (
                                 <Badge variant="outline" className="font-normal text-[10px]">
-                                  Brand: {productNameById(client.productId)}
+                                  {t("keysSection.brandBadge", { name: productNameById(client.productId) ?? "" })}
                                 </Badge>
                               )}
-                              <ApiTrendBars points={client.trend} />
-                              <p className="text-[11px] text-muted-foreground">Last 14 days request trend</p>
+                              <ApiTrendBars points={client.trend} requestsLabel={t("keysSection.requestsThisMonth")} />
+                              <p className="text-[11px] text-muted-foreground">{t("keysSection.trendCaption")}</p>
                             </div>
                           </TableCell>
                           <TableCell className="min-w-[180px]">
                             <div className="space-y-1 text-xs text-muted-foreground">
-                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.request || 0).toLocaleString()}</span> requests this month</p>
-                              <p><span className="font-medium text-foreground tabular-nums">{client.usage.totalRequests.toLocaleString()}</span> total requests</p>
-                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.media_upload || 0).toLocaleString()}</span> uploads · <span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.post_create || 0).toLocaleString()}</span> posts created</p>
+                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.request || 0).toLocaleString(locale)}</span> {t("keysSection.requestsThisMonth")}</p>
+                              <p><span className="font-medium text-foreground tabular-nums">{client.usage.totalRequests.toLocaleString(locale)}</span> {t("keysSection.totalRequests")}</p>
+                              <p>{t("keysSection.uploadsAndPosts", { uploads: (client.usage.currentMonthCounts.media_upload || 0).toLocaleString(locale), posts: (client.usage.currentMonthCounts.post_create || 0).toLocaleString(locale) })}</p>
                             </div>
                           </TableCell>
                           <TableCell className="min-w-[200px]">
                             <div className="space-y-1 text-xs text-muted-foreground">
-                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString()}</span> queued</p>
-                              <p><span className="font-medium text-mk-pos tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString()}</span> direct publish</p>
-                              <p><span className="font-medium text-primary tabular-nums">{((client.usage.currentMonthCounts.publish_action_required || 0) + (client.usage.currentMonthCounts.publish_exported_for_review || 0)).toLocaleString()}</span> TikTok action required</p>
-                              <p><span className="font-medium text-mk-neg tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString()}</span> failed</p>
+                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString(locale)}</span> {t("keysSection.queued")}</p>
+                              <p><span className="font-medium text-mk-pos tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString(locale)}</span> {t("keysSection.directPublish")}</p>
+                              <p><span className="font-medium text-primary tabular-nums">{((client.usage.currentMonthCounts.publish_action_required || 0) + (client.usage.currentMonthCounts.publish_exported_for_review || 0)).toLocaleString(locale)}</span> {t("keysSection.actionRequired")}</p>
+                              <p><span className="font-medium text-mk-neg tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString(locale)}</span> {t("keysSection.failed")}</p>
                             </div>
                           </TableCell>
                           <TableCell className="max-w-[320px] whitespace-normal">
@@ -2007,26 +2036,26 @@ function ApiAccessTab() {
                                 className="border-0"
                                 style={pillStyle(client.status === 'active' ? "pos" : "neutral")}
                               >
-                                {client.status}
+                                {t(`keysSection.statusLabels.${client.status}`)}
                               </Badge>
                               {client.archived && (
-                                <Badge className="border-0" style={pillStyle("neutral")}>Archived</Badge>
+                                <Badge className="border-0" style={pillStyle("neutral")}>{t("keysSection.archivedBadge")}</Badge>
                               )}
                               {client.expiresAt ? (
                                 new Date(client.expiresAt).getTime() <= Date.now() ? (
-                                  <Badge className="border-0" style={pillStyle("neg")}>Expired</Badge>
+                                  <Badge className="border-0" style={pillStyle("neg")}>{t("keysSection.expiredBadge")}</Badge>
                                 ) : (
-                                  <p className="text-[11px] text-muted-foreground">Expires {formatShortDate(client.expiresAt)}</p>
+                                  <p className="text-[11px] text-muted-foreground">{t("keysSection.expires", { date: formatShortDate(client.expiresAt, locale) })}</p>
                                 )
                               ) : (
-                                <p className="text-[11px] text-muted-foreground">Never expires</p>
+                                <p className="text-[11px] text-muted-foreground">{t("keysSection.neverExpires")}</p>
                               )}
                             </div>
                           </TableCell>
                           <TableCell className="text-muted-foreground">
-                            {client.lastUsedAt ? new Date(client.lastUsedAt).toLocaleString() : 'Never'}
+                            {client.lastUsedAt ? new Date(client.lastUsedAt).toLocaleString(locale) : t("keysSection.never")}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-end">
                             <div className="flex justify-end gap-1.5">
                               {client.archived ? (
                                 <Button
@@ -2035,8 +2064,8 @@ function ApiAccessTab() {
                                   onClick={() => archiveClient(client.id, false)}
                                   disabled={archivingClient === client.id}
                                 >
-                                  <ArchiveRestore className="mr-1.5 h-3.5 w-3.5" />
-                                  {archivingClient === client.id ? 'Restoring…' : 'Unarchive'}
+                                  <ArchiveRestore className="me-1.5 h-3.5 w-3.5" />
+                                  {archivingClient === client.id ? t("keysSection.restoring") : t("keysSection.unarchive")}
                                 </Button>
                               ) : (
                                 <>
@@ -2046,8 +2075,8 @@ function ApiAccessTab() {
                                     onClick={() => openEditClient(client)}
                                     disabled={client.status !== 'active'}
                                   >
-                                    <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                                    Edit permissions
+                                    <Pencil className="me-1.5 h-3.5 w-3.5" />
+                                    {t("keysSection.editPermissions")}
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -2055,8 +2084,8 @@ function ApiAccessTab() {
                                     onClick={() => setRotateTarget(client)}
                                     disabled={client.status !== 'active' || rotatingClient}
                                   >
-                                    <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
-                                    Rotate
+                                    <RefreshCw className="me-1.5 h-3.5 w-3.5" />
+                                    {t("keysSection.rotate")}
                                   </Button>
                                   {client.status === 'revoked' ? (
                                     <Button
@@ -2065,8 +2094,8 @@ function ApiAccessTab() {
                                       onClick={() => archiveClient(client.id, true)}
                                       disabled={archivingClient === client.id}
                                     >
-                                      <Archive className="mr-1.5 h-3.5 w-3.5" />
-                                      {archivingClient === client.id ? 'Archiving…' : 'Archive'}
+                                      <Archive className="me-1.5 h-3.5 w-3.5" />
+                                      {archivingClient === client.id ? t("keysSection.archiving") : t("keysSection.archive")}
                                     </Button>
                                   ) : (
                                     <Button
@@ -2076,8 +2105,8 @@ function ApiAccessTab() {
                                       onClick={() => revokeClient(client.id)}
                                       disabled={revokingClient === client.id}
                                     >
-                                      <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                                      {revokingClient === client.id ? 'Revoking…' : 'Revoke'}
+                                      <Trash2 className="me-1.5 h-3.5 w-3.5" />
+                                      {revokingClient === client.id ? t("keysSection.revoking") : t("keysSection.revoke")}
                                     </Button>
                                   )}
                                 </>
@@ -2094,28 +2123,28 @@ function ApiAccessTab() {
               <div className="rounded-xl border">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium">Webhook endpoints</p>
-                    <p className="text-xs text-muted-foreground">Receive delivery events when publishes queue, complete, need user action in TikTok, or fail. These are signed and retried from the worker.</p>
+                    <p className="text-sm font-medium">{t("webhooksSection.title")}</p>
+                    <p className="text-xs text-muted-foreground">{t("webhooksSection.description")}</p>
                   </div>
                   <Button variant="outline" size="sm" className="shrink-0 self-start sm:self-auto" onClick={() => setCreateWebhookOpen(true)}>
-                    <Webhook className="mr-1.5 h-3.5 w-3.5" />
-                    Add webhook
+                    <Webhook className="me-1.5 h-3.5 w-3.5" />
+                    {t("webhooksSection.addWebhook")}
                   </Button>
                 </div>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Endpoint</TableHead>
-                      <TableHead>Events</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t("webhooksSection.columns.endpoint")}</TableHead>
+                      <TableHead>{t("webhooksSection.columns.events")}</TableHead>
+                      <TableHead>{t("webhooksSection.columns.status")}</TableHead>
+                      <TableHead className="text-end">{t("webhooksSection.columns.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {webhookEndpoints.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={4} className="py-6 text-center text-muted-foreground">
-                          No webhook endpoints yet.
+                          {t("webhooksSection.empty")}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -2125,11 +2154,11 @@ function ApiAccessTab() {
                             <div className="flex items-start gap-2">
                               <div className="min-w-0">
                                 <p className="font-medium break-all">{endpoint.url}</p>
-                                <p className="text-xs text-muted-foreground">Created {new Date(endpoint.createdAt).toLocaleString()}</p>
+                                <p className="text-xs text-muted-foreground">{t("webhooksSection.created", { date: new Date(endpoint.createdAt).toLocaleString(locale) })}</p>
                               </div>
                               <button
                                 className="text-muted-foreground hover:text-foreground transition-colors p-2 -m-1.5 grid place-items-center shrink-0"
-                                onClick={() => copyText(endpoint.url, 'Webhook URL')}
+                                onClick={() => copyText(endpoint.url, t("toasts.webhookUrlCopied"), t("toasts.webhookUrlCopyFailed"))}
                               >
                                 <Copy className="h-3.5 w-3.5" />
                               </button>
@@ -2147,10 +2176,10 @@ function ApiAccessTab() {
                               className="border-0"
                               style={pillStyle(endpoint.status === 'active' ? "pos" : "neutral")}
                             >
-                              {endpoint.status}
+                              {t(`webhooksSection.statusLabels.${endpoint.status}`)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-end">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -2158,7 +2187,7 @@ function ApiAccessTab() {
                               onClick={() => disableWebhook(endpoint.id)}
                               disabled={endpoint.status !== 'active' || disablingWebhook === endpoint.id}
                             >
-                              {disablingWebhook === endpoint.id ? 'Disabling…' : 'Disable'}
+                              {disablingWebhook === endpoint.id ? t("webhooksSection.disabling") : t("webhooksSection.disable")}
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -2174,32 +2203,32 @@ function ApiAccessTab() {
 
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>Operational notes</CardTitle>
-          <CardDescription>Behavior that external integrators should expect from the v1 publishing API.</CardDescription>
+          <CardTitle>{t("operationalNotes.title")}</CardTitle>
+          <CardDescription>{t("operationalNotes.description")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">Rate limiting</p>
+            <p className="text-sm font-medium">{t("operationalNotes.rateLimitTitle")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Markaestro enforces API-key rate limits plus destination-level throttling so one integration cannot overload a workspace or platform account.
+              {t("operationalNotes.rateLimitDescription")}
             </p>
           </div>
           <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">Webhook secrets are one-time visible</p>
+            <p className="text-sm font-medium">{t("operationalNotes.webhookSecretTitle")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Store the returned webhook secret immediately. It is hashed at rest and not shown again.
+              {t("operationalNotes.webhookSecretDescription")}
             </p>
           </div>
           <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">Async publish runs</p>
+            <p className="text-sm font-medium">{t("operationalNotes.asyncTitle")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Every publish returns a queued run. Poll the run endpoint or subscribe to webhooks instead of assuming immediate delivery.
+              {t("operationalNotes.asyncDescription")}
             </p>
           </div>
           <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">TikTok inbox items need user completion</p>
+            <p className="text-sm font-medium">{t("operationalNotes.tiktokInboxTitle")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              TikTok posts are pushed into the creator&apos;s TikTok inbox first. Once TikTok finishes processing, the creator opens TikTok to finish caption, privacy, and posting. Scheduling triggers that inbox handoff; it does not publish publicly on the creator&apos;s behalf.
+              {t("operationalNotes.tiktokInboxDescription")}
             </p>
           </div>
         </CardContent>
@@ -2208,51 +2237,51 @@ function ApiAccessTab() {
       <Dialog open={createKeyOpen} onOpenChange={setCreateKeyOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create API key</DialogTitle>
+            <DialogTitle>{t("createKeyDialog.title")}</DialogTitle>
             <DialogDescription>
-              Create a scoped key for a single integration. Keep scopes narrow and rotate per workflow.
+              {t("createKeyDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="api-client-name">Key name</Label>
-              <Input id="api-client-name" placeholder="Zapier production" value={clientName} onChange={(e) => setClientName(e.target.value)} />
+              <Label htmlFor="api-client-name">{t("createKeyDialog.nameLabel")}</Label>
+              <Input id="api-client-name" placeholder={t("createKeyDialog.namePlaceholder")} value={clientName} onChange={(e) => setClientName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="api-client-expiry">Expires</Label>
+              <Label htmlFor="api-client-expiry">{t("createKeyDialog.expiresLabel")}</Label>
               <Select
                 id="api-client-expiry"
                 value={expiresInDays}
                 onChange={(e) => setExpiresInDays(e.target.value as 'never' | '30' | '90' | '365')}
               >
-                <option value="never">Never</option>
-                <option value="30">30 days</option>
-                <option value="90">90 days</option>
-                <option value="365">1 year</option>
+                <option value="never">{t("createKeyDialog.expiresNever")}</option>
+                <option value="30">{t("createKeyDialog.expires30")}</option>
+                <option value="90">{t("createKeyDialog.expires90")}</option>
+                <option value="365">{t("createKeyDialog.expires365")}</option>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="api-client-product">Brand</Label>
+              <Label htmlFor="api-client-product">{t("createKeyDialog.brandLabel")}</Label>
               <Select
                 id="api-client-product"
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
                 disabled={products.length === 0}
               >
-                <option value="" disabled>Select a brand…</option>
+                <option value="" disabled>{t("createKeyDialog.brandPlaceholder")}</option>
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </Select>
               <p className="text-xs text-muted-foreground">
                 {products.length === 0
-                  ? 'Create a brand first — every API key is scoped to one brand.'
-                  : 'Required. The key only targets this brand; requests for any other brand are rejected.'}
+                  ? t("createKeyDialog.brandHelpEmpty")
+                  : t("createKeyDialog.brandHelpRequired")}
               </p>
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>Scopes</Label>
+                <Label>{t("createKeyDialog.scopesLabel")}</Label>
                 <button
                   type="button"
                   className="text-xs text-primary hover:underline"
@@ -2264,7 +2293,7 @@ function ApiAccessTab() {
                     )
                   }
                 >
-                  {selectedScopes.length === API_SCOPE_OPTIONS.length ? 'Clear' : 'Select all'}
+                  {selectedScopes.length === API_SCOPE_OPTIONS.length ? t("createKeyDialog.clearAll") : t("createKeyDialog.selectAll")}
                 </button>
               </div>
               <div className="grid gap-2 rounded-xl border p-3">
@@ -2274,7 +2303,7 @@ function ApiAccessTab() {
                       checked={selectedScopes.includes(scope.id)}
                       onCheckedChange={(checked) => setSelectedScopes((current) => toggleSelection(current, scope.id, checked === true))}
                     />
-                    <span>{scope.label}</span>
+                    <span>{t(`scopes.${scope.labelKey}`)}</span>
                     <span className="text-xs text-muted-foreground">{scope.id}</span>
                   </Label>
                 ))}
@@ -2282,9 +2311,9 @@ function ApiAccessTab() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateKeyOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setCreateKeyOpen(false)}>{t("createKeyDialog.cancel")}</Button>
             <Button onClick={createClient} disabled={creatingClient || !clientName.trim() || selectedScopes.length === 0 || !selectedProductId}>
-              {creatingClient ? 'Creating…' : 'Create key'}
+              {creatingClient ? t("createKeyDialog.creating") : t("createKeyDialog.create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2293,18 +2322,18 @@ function ApiAccessTab() {
       <Dialog open={createWebhookOpen} onOpenChange={setCreateWebhookOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add webhook endpoint</DialogTitle>
+            <DialogTitle>{t("createWebhookDialog.title")}</DialogTitle>
             <DialogDescription>
-              Markaestro signs every delivery. Use a dedicated endpoint and verify the signature before processing events.
+              {t("createWebhookDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="webhook-url">Destination URL</Label>
-              <Input id="webhook-url" placeholder="https://example.com/markaestro/webhook" value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} />
+              <Label htmlFor="webhook-url">{t("createWebhookDialog.urlLabel")}</Label>
+              <Input id="webhook-url" placeholder={t("createWebhookDialog.urlPlaceholder")} value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} />
             </div>
             <div className="space-y-3">
-              <Label>Events</Label>
+              <Label>{t("createWebhookDialog.eventsLabel")}</Label>
               <div className="grid gap-2 rounded-xl border p-3">
                 {WEBHOOK_EVENT_OPTIONS.map((eventName) => (
                   <Label key={eventName.id} className="justify-start">
@@ -2312,7 +2341,7 @@ function ApiAccessTab() {
                       checked={selectedEvents.includes(eventName.id)}
                       onCheckedChange={(checked) => setSelectedEvents((current) => toggleSelection(current, eventName.id, checked === true))}
                     />
-                    <span>{eventName.label}</span>
+                    <span>{t(`webhookEvents.${eventName.labelKey}`)}</span>
                     <span className="text-xs text-muted-foreground">{eventName.id}</span>
                   </Label>
                 ))}
@@ -2320,9 +2349,9 @@ function ApiAccessTab() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateWebhookOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setCreateWebhookOpen(false)}>{t("createWebhookDialog.cancel")}</Button>
             <Button onClick={createWebhook} disabled={creatingWebhook || !webhookUrl.trim() || selectedEvents.length === 0}>
-              {creatingWebhook ? 'Creating…' : 'Add webhook'}
+              {creatingWebhook ? t("createWebhookDialog.creating") : t("createWebhookDialog.create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2340,18 +2369,18 @@ function ApiAccessTab() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit API key permissions</DialogTitle>
+            <DialogTitle>{t("editKeyDialog.title")}</DialogTitle>
             <DialogDescription>
-              Update the scopes for this key. Changes take effect immediately for future requests.
+              {t("editKeyDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-xl border p-3">
-              <p className="text-sm font-medium">{editingClient?.name || 'API key'}</p>
+              <p className="text-sm font-medium">{editingClient?.name || t("editKeyDialog.fallbackName")}</p>
               <p className="mt-1 text-xs text-muted-foreground">{editingClient?.keyPrefix}…</p>
             </div>
             <div className="space-y-3">
-              <Label>Scopes</Label>
+              <Label>{t("editKeyDialog.scopesLabel")}</Label>
               <div className="grid gap-2 rounded-xl border p-3">
                 {API_SCOPE_OPTIONS.map((scope) => (
                   <Label key={scope.id} className="justify-start">
@@ -2359,7 +2388,7 @@ function ApiAccessTab() {
                       checked={editingScopes.includes(scope.id)}
                       onCheckedChange={(checked) => setEditingScopes((current) => toggleSelection(current, scope.id, checked === true))}
                     />
-                    <span>{scope.label}</span>
+                    <span>{t(`scopes.${scope.labelKey}`)}</span>
                     <span className="text-xs text-muted-foreground">{scope.id}</span>
                   </Label>
                 ))}
@@ -2367,9 +2396,9 @@ function ApiAccessTab() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditKeyOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setEditKeyOpen(false)}>{t("editKeyDialog.cancel")}</Button>
             <Button onClick={saveClientScopes} disabled={savingClientScopes || editingScopes.length === 0}>
-              {savingClientScopes ? 'Saving…' : 'Save permissions'}
+              {savingClientScopes ? t("editKeyDialog.saving") : t("editKeyDialog.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2378,20 +2407,20 @@ function ApiAccessTab() {
       <Dialog open={!!rotateTarget} onOpenChange={(open) => { if (!open && !rotatingClient) setRotateTarget(null); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Rotate API key</DialogTitle>
+            <DialogTitle>{t("rotateKeyDialog.title")}</DialogTitle>
             <DialogDescription>
-              Generates a new secret for this key. The old secret stops working immediately.
+              {t("rotateKeyDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-xl border p-3">
-            <p className="text-sm font-medium">{rotateTarget?.name || 'API key'}</p>
+            <p className="text-sm font-medium">{rotateTarget?.name || t("rotateKeyDialog.fallbackName")}</p>
             <p className="mt-1 text-xs text-muted-foreground">{rotateTarget?.keyPrefix}…</p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRotateTarget(null)} disabled={rotatingClient}>Cancel</Button>
+            <Button variant="outline" onClick={() => setRotateTarget(null)} disabled={rotatingClient}>{t("rotateKeyDialog.cancel")}</Button>
             <Button onClick={rotateClient} disabled={rotatingClient}>
-              {rotatingClient && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-              {rotatingClient ? 'Rotating…' : 'Rotate key'}
+              {rotatingClient && <Loader2 className="me-1.5 h-4 w-4 animate-spin" />}
+              {rotatingClient ? t("rotateKeyDialog.rotating") : t("rotateKeyDialog.rotate")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2400,23 +2429,23 @@ function ApiAccessTab() {
       <Dialog open={!!createdApiKey} onOpenChange={(open) => { if (!open) setCreatedApiKey(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{createdKeyMode === 'rotated' ? 'API key rotated' : 'API key created'}</DialogTitle>
+            <DialogTitle>{createdKeyMode === 'rotated' ? t("createdKeyDialog.titleRotated") : t("createdKeyDialog.titleCreated")}</DialogTitle>
             <DialogDescription>
-              This secret is shown once. Copy it now and store it securely.
+              {t("createdKeyDialog.description")}
             </DialogDescription>
           </DialogHeader>
               <div className="rounded-xl border bg-muted/30 p-3">
             <code className="break-all text-xs">{createdApiKey}</code>
           </div>
           <a href="/developers/api" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
-            Review the integration guide before distributing this key
+            {t("createdKeyDialog.reviewGuide")}
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreatedApiKey(null)}>Close</Button>
-            <Button onClick={() => createdApiKey && copyText(createdApiKey, 'API key')}>
-              <Copy className="mr-1.5 h-3.5 w-3.5" />
-              Copy key
+            <Button variant="outline" onClick={() => setCreatedApiKey(null)}>{t("createdKeyDialog.close")}</Button>
+            <Button onClick={() => createdApiKey && copyText(createdApiKey, t("toasts.apiKeyCopied"), t("toasts.apiKeyCopyFailed"))}>
+              <Copy className="me-1.5 h-3.5 w-3.5" />
+              {t("createdKeyDialog.copyKey")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2425,22 +2454,22 @@ function ApiAccessTab() {
       <Dialog open={!!createdWebhookSecret} onOpenChange={(open) => { if (!open) setCreatedWebhookSecret(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Webhook secret created</DialogTitle>
+            <DialogTitle>{t("createdWebhookDialog.title")}</DialogTitle>
             <DialogDescription>
-              This webhook signing secret is only shown once. Save it before you close this dialog. If you lose this secret, delete and recreate the endpoint.
+              {t("createdWebhookDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-xl border bg-muted/30 p-3">
             <code className="break-all text-xs">{createdWebhookSecret}</code>
           </div>
           <p className="text-xs text-muted-foreground">
-            Markaestro sends `X-Markaestro-Event`, `X-Markaestro-Timestamp`, and `X-Markaestro-Signature` headers on every delivery.
+            {t("createdWebhookDialog.headerNote")}
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreatedWebhookSecret(null)}>Close</Button>
-            <Button onClick={() => createdWebhookSecret && copyText(createdWebhookSecret, 'Webhook secret')}>
-              <Copy className="mr-1.5 h-3.5 w-3.5" />
-              Copy secret
+            <Button variant="outline" onClick={() => setCreatedWebhookSecret(null)}>{t("createdWebhookDialog.close")}</Button>
+            <Button onClick={() => createdWebhookSecret && copyText(createdWebhookSecret, t("toasts.webhookSecretCopied"), t("toasts.webhookSecretCopyFailed"))}>
+              <Copy className="me-1.5 h-3.5 w-3.5" />
+              {t("createdWebhookDialog.copySecret")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2452,6 +2481,8 @@ function ApiAccessTab() {
 /* ─── Billing Tab ──────────────────────────────────────────────────────── */
 
 function BillingTab() {
+  const t = useTranslations("settings.billing");
+  const locale = useLocale();
   const { status, trialDaysLeft } = useSubscription();
   const { current: workspace } = useWorkspace();
   const [busy, setBusy] = useState(false);
@@ -2468,12 +2499,12 @@ function BillingTab() {
       const res = await apiFetch<{ url: string }>("/api/stripe/portal", { method: "POST" });
       if (res.ok && res.data.url) {
         window.open(res.data.url, "_blank", "noopener");
-        toast.success("Opening billing portal…");
+        toast.success(t("toasts.openingPortal"));
       } else {
-        toast.error("Failed to open billing portal");
+        toast.error(t("toasts.openPortalFailed"));
       }
     } catch {
-      toast.error("Something went wrong");
+      toast.error(t("toasts.somethingWrong"));
     } finally {
       setBusy(false);
     }
@@ -2486,20 +2517,20 @@ function BillingTab() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <CardTitle>Billing & Subscription</CardTitle>
-              <CardDescription>Manage your plan, payment method, and invoices.</CardDescription>
+              <CardTitle>{t("title")}</CardTitle>
+              <CardDescription>{t("description")}</CardDescription>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {status.trialing && (
                 <Badge className="bg-primary/10 text-primary border-0">
-                  Trial · {trialDaysLeft} day{trialDaysLeft === 1 ? "" : "s"} left
+                  {t("trialBadge", { days: trialDaysLeft ?? 0 })}
                 </Badge>
               )}
               {status.active && !status.trialing && (
-                <Badge className="border-0" style={pillStyle("pos")}>Active</Badge>
+                <Badge className="border-0" style={pillStyle("pos")}>{t("activeBadge")}</Badge>
               )}
               {status.cancelAtPeriodEnd && (
-                <Badge className="border-0" style={pillStyle("warn")}>Cancels at period end</Badge>
+                <Badge className="border-0" style={pillStyle("warn")}>{t("cancelsAtPeriodEndBadge")}</Badge>
               )}
             </div>
           </div>
@@ -2509,29 +2540,29 @@ function BillingTab() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-medium">
-                  {plan ? `${plan.name} Plan` : "No active plan"}
+                  {plan ? t("planName", { plan: plan.name }) : t("noActivePlan")}
                   {status.interval && (
                     <span className="text-muted-foreground font-normal">
-                      {" "}· {status.interval === "annual" ? "Annual" : "Monthly"} billing
+                      {" "}· {status.interval === "annual" ? t("annualBilling") : t("monthlyBilling")}
                     </span>
                   )}
                 </p>
                 {plan && (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    ${status.interval === "annual" ? plan.price.annual : plan.price.monthly}/mo
+                    {t("priceLine", { price: status.interval === "annual" ? plan.price.annual : plan.price.monthly })}
                     {status.currentPeriodEnd && (
-                      <> · Renews {new Date(status.currentPeriodEnd).toLocaleDateString()}</>
+                      <> · {t("renews", { date: new Date(status.currentPeriodEnd).toLocaleDateString(locale) })}</>
                     )}
                   </p>
                 )}
               </div>
               {canManageBilling ? (
                 <Button variant="outline" size="sm" className="shrink-0" onClick={openPortal} disabled={busy}>
-                  {busy ? "Opening..." : "Manage Billing"}
+                  {busy ? t("opening") : t("manageBilling")}
                 </Button>
               ) : (
-                <p className="text-xs text-muted-foreground sm:text-right">
-                  Billing is managed by the workspace owner.
+                <p className="text-xs text-muted-foreground sm:text-end">
+                  {t("managedByOwner")}
                 </p>
               )}
             </div>
@@ -2542,17 +2573,17 @@ function BillingTab() {
       {/* Plan comparison */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>Compare plans</CardTitle>
-          <CardDescription>See what each plan includes.</CardDescription>
+          <CardTitle>{t("comparePlansTitle")}</CardTitle>
+          <CardDescription>{t("comparePlansDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {(["starter", "pro", "business"] as const).map((t) => {
-              const p = PLANS[t];
-              const isCurrent = t === tier;
+            {(["starter", "pro", "business"] as const).map((tKey) => {
+              const p = PLANS[tKey];
+              const isCurrent = tKey === tier;
               return (
                 <div
-                  key={t}
+                  key={tKey}
                   className={cn(
                     "rounded-xl border p-4 space-y-3 transition-colors",
                     isCurrent && "border-primary/30 bg-primary/5",
@@ -2561,11 +2592,11 @@ function BillingTab() {
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-semibold">{p.name}</p>
-                      {isCurrent && <Badge className="bg-primary/10 text-primary border-0 text-[10px]">Current</Badge>}
+                      {isCurrent && <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{t("currentBadge")}</Badge>}
                       {p.badge && !isCurrent && <Badge variant="outline" className="text-[10px]">{p.badge}</Badge>}
                     </div>
                     <p className="text-lg font-bold mt-1">
-                      ${p.price.monthly}<span className="text-xs font-normal text-muted-foreground">/mo</span>
+                      {t("priceMonthly", { price: p.price.monthly })}<span className="text-xs font-normal text-muted-foreground">{t("perMonth")}</span>
                     </p>
                     <p className="text-xs text-muted-foreground">{p.description}</p>
                   </div>
@@ -2577,8 +2608,8 @@ function BillingTab() {
                       </div>
                     ))}
                     {p.features.length > 6 && (
-                      <p className="text-xs text-muted-foreground pl-4.5">
-                        +{p.features.length - 6} more
+                      <p className="text-xs text-muted-foreground ps-4.5">
+                        {t("moreFeatures", { count: p.features.length - 6 })}
                       </p>
                     )}
                   </div>

@@ -1,0 +1,94 @@
+{
+  "login": {
+    "hero": {
+      "eyebrow": "Bem-vindo de volta",
+      "titleLine1": "Todo o seu fluxo",
+      "titleLine2Prefix": "social, ",
+      "titleLine2Accent": "um único login.",
+      "subtitle": "Pare de fazer login em cinco apps para publicar uma vez. Faça login para publicar em todo lugar, agendar com semanas de antecedência e recuperar seu tempo.",
+      "points": {
+        "publish": { "title": "Publique em todos os lugares de uma vez", "desc": "Facebook, Instagram, TikTok e mais — a partir de um único editor." },
+        "schedule": { "title": "Agende com semanas de antecedência", "desc": "Defina seu ritmo uma vez e nunca mais fique em silêncio." },
+        "hours": { "title": "Recupere horas toda semana", "desc": "O trabalho repetitivo de copiar, colar e fazer login simplesmente desaparece." }
+      },
+      "newHere": {
+        "title": "Novo no Markaestro?",
+        "body": "Responda 10 perguntas rápidas e criaremos seu plano de publicações — veja quantas horas você vai recuperar, de graça.",
+        "cta": "Criar meu plano — é grátis →"
+      }
+    },
+    "form": {
+      "eyebrowEmail": "Entrar ou criar conta",
+      "eyebrowCode": "Verifique sua caixa de entrada",
+      "titleEmail": "Continuar com seu e-mail",
+      "titleCode": "Digite seu código",
+      "subtitleEmail": "Sem necessidade de senha — enviaremos um código de uso único por e-mail. Novo por aqui? O mesmo código cria sua conta.",
+      "subtitleCode": "Enviamos um código de 6 dígitos para <email></email>.",
+      "emailPlaceholder": "nome@empresa.com",
+      "codePlaceholder": "123456",
+      "sendCode": "Enviar código por e-mail",
+      "sendingCode": "Enviando código…",
+      "signIn": "Entrar",
+      "verifying": "Verificando…",
+      "useDifferentEmail": "← Usar outro e-mail",
+      "resendCode": "Reenviar código",
+      "resendIn": "Reenviar em {seconds}s",
+      "orContinueWith": "Ou continue com",
+      "continueWithGoogle": "Continuar com o Google",
+      "legal": "Ao continuar, você concorda com nossos <terms>Termos</terms> e nossa <privacy>Política de Privacidade</privacy>."
+    },
+    "errors": {
+      "enterEmail": "Digite seu endereço de e-mail.",
+      "enterCode": "Digite o código de 6 dígitos do seu e-mail."
+    }
+  },
+  "authAction": {
+    "unsupportedAction": "Ação não suportada.",
+    "canceledFallback": {
+      "eyebrow": "Conta",
+      "title": "Ação da conta",
+      "subtitle": "Não conseguimos concluir este link.",
+      "message": "Parâmetros de ação ausentes ou inválidos.",
+      "backToSignIn": "Voltar para o login"
+    },
+    "titles": {
+      "resetPassword": "Definir uma nova senha",
+      "verifyEmail": "Verifique seu e-mail",
+      "verifyAndChangeEmail": "Confirmar alteração de e-mail",
+      "default": "Ação da conta"
+    },
+    "eyebrows": {
+      "resetPassword": "Redefinir",
+      "verifyEmail": "Verificar",
+      "verifyAndChangeEmail": "Confirmar",
+      "default": "Conta"
+    },
+    "subtitles": {
+      "resetPassword": "Escolha uma nova senha para sua conta.",
+      "default": "Conclua a ação solicitada."
+    },
+    "emailVerifiedSuccess": "E-mail verificado com sucesso.",
+    "emailUpdatedSuccess": "E-mail atualizado com sucesso.",
+    "genericError": "Algo deu errado.",
+    "genericSuccess": "Concluído.",
+    "resettingPasswordFor": "Redefinindo a senha de <email></email>",
+    "newPasswordPlaceholder": "Nova senha",
+    "updatePassword": "Atualizar senha",
+    "updating": "Atualizando…",
+    "passwordUpdatedSuccess": "Senha atualizada com sucesso. Agora você pode entrar.",
+    "backToSignIn": "Voltar para o login",
+    "working": "Processando…",
+    "continue": "Continuar",
+    "errors": {
+      "expiredActionCode": "Este link expirou. Solicite um novo e-mail.",
+      "invalidActionCode": "Este link é inválido ou já foi usado.",
+      "userDisabled": "Esta conta foi desativada.",
+      "weakPassword": "A senha deve ter pelo menos 6 caracteres.",
+      "default": "Algo deu errado. Tente novamente."
+    }
+  },
+  "oauthComplete": {
+    "title": "Finalizando a conexão",
+    "subtitle": "Restaurando sua sessão e retornando você ao aplicativo."
+  }
+}

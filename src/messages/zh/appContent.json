@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "帖子",
+    "subtitle": "在各个社交渠道创建、排期并发布自然内容。",
+    "tabs": {
+      "create": "创建",
+      "drafts": "草稿",
+      "scheduled": "已排期",
+      "published": "已发布",
+      "onPlatform": "平台内容"
+    },
+    "productBar": {
+      "brand": "品牌",
+      "noBrandSelected": "未选择品牌",
+      "change": "更改"
+    }
+  },
+  "editor": {
+    "placeholder": "生成的内容将显示在此处...",
+    "limitSuffix": "字数上限"
+  },
+  "productPicker": {
+    "brand": "品牌",
+    "selectBrand": "选择一个品牌...",
+    "tone": "语气：",
+    "style": "风格：",
+    "audience": "受众："
+  },
+  "markPostedDialog": {
+    "title": "标记为已发布",
+    "description": "确认你已自行在{channel}上发布此内容。如果有已发布内容的链接，请粘贴在此 — 以便日后将该帖子与其数据分析关联起来。",
+    "urlPlaceholder": "https://www.{channel}.com/…（可选）",
+    "cancel": "取消",
+    "confirm": "标记为已发布",
+    "toasts": {
+      "marked": "已标记为已发布",
+      "failed": "标记为已发布失败"
+    }
+  },
+  "publishedTab": {
+    "empty": "还没有已发布的帖子。",
+    "createPost": "创建帖子",
+    "toasts": {
+      "deleted": "帖子已删除",
+      "deleteFailed": "删除帖子失败",
+      "loadFailed": "加载已发布帖子失败"
+    }
+  },
+  "scheduledTab": {
+    "empty": "还没有已排期的内容。",
+    "scheduleFirst": "排期你的第一篇帖子",
+    "editTitle": "编辑已排期的帖子",
+    "saveAndReschedule": "保存并重新排期",
+    "toasts": {
+      "loadFailed": "加载已排期帖子失败",
+      "movedToDrafts": "已移回草稿",
+      "cancelFailed": "取消排期失败",
+      "deleted": "帖子已删除",
+      "deleteFailed": "删除帖子失败",
+      "pushingTikTok": "正在推送到 TikTok 收件箱…",
+      "publishingPost": "正在发布…",
+      "tiktokInboxConfirmed": "TikTok 已确认送达收件箱。请打开 TikTok 应用完成设置并发布。",
+      "tiktokProcessing": "TikTok 已接受上传，仍在处理中。",
+      "stillProcessing": "帖子已提交，仍在处理中。",
+      "posted": "已发布！",
+      "publishFailed": "发布失败",
+      "updated": "帖子已更新",
+      "updateFailed": "更新失败",
+      "rescheduled": "帖子已重新排期",
+      "rescheduleFailed": "重新排期失败"
+    }
+  },
+  "draftsTab": {
+    "empty": "还没有草稿。",
+    "createFirst": "创建你的第一篇帖子",
+    "editTitle": "编辑草稿",
+    "toPostHeading": "待发布",
+    "waitingInTikTokHeading": "在 TikTok 中等待",
+    "draftsHeading": "草稿",
+    "toasts": {
+      "loadFailed": "加载草稿失败",
+      "deleted": "草稿已删除",
+      "deleteFailed": "删除失败",
+      "addingToQueue": "正在添加到你的“待发布”队列…",
+      "pushingTikTok": "正在推送到 TikTok 收件箱…",
+      "publishingPost": "正在发布…",
+      "addedToQueue": "已添加到你的“待发布”队列。请原生发布后，将其标记为已发布。",
+      "tiktokInboxConfirmed": "TikTok 已确认送达收件箱。请打开 TikTok 应用完成设置并发布。",
+      "tiktokProcessing": "TikTok 已接受上传，仍在处理中。",
+      "stillProcessing": "帖子已提交，仍在处理中。",
+      "posted": "已发布！",
+      "publishFailed": "发布失败",
+      "updated": "草稿已更新",
+      "updateFailed": "更新失败",
+      "scheduled": "帖子已排期",
+      "scheduleFailed": "排期失败"
+    }
+  },
+  "channelSelector": {
+    "channels": "渠道",
+    "selectedCount": "已选择 {count} 个",
+    "postTo": "发布至",
+    "defaultReason": "请在品牌设置中连接此渠道。",
+    "productSettings": "产品设置"
+  },
+  "scheduleSheet": {
+    "eyebrow": "排期",
+    "title": "排期发布",
+    "description": "选择日期和时间，或使用 AI 建议的最佳时段。",
+    "tiktokNoteLabel": "TikTok 需在 TikTok 应用中完成最后步骤。",
+    "tiktokNoteBody": "到达排期时间后，Markaestro 会将媒体推送到你的 TikTok 收件箱，等你打开 TikTok 完成说明文字、隐私设置和发布后，即标记为完成。",
+    "smartSchedule": "智能排期",
+    "aiSuggested": "AI 建议",
+    "hide": "隐藏",
+    "show": "显示",
+    "basedOnData": "基于{channel}的行业互动数据",
+    "thisChannel": "该渠道",
+    "orPickManually": "或手动选择",
+    "timeLabel": "时间",
+    "timezoneNote": "排期使用你的本地时区（{timezone}），并以 UTC 存储。",
+    "headsUp": "提醒：",
+    "collisionNote": "已有另一篇帖子安排在此时间附近（{date}{channel}）。你仍可以同时排期两者。",
+    "onChannel": "（{channel}）",
+    "scheduleFor": "排期至 {date} {time}",
+    "selectDate": "请选择日期"
+  },
+  "postEditSheet": {
+    "caption": "文案",
+    "media": "媒体",
+    "image": "图片",
+    "remove": "移除",
+    "replace": "替换",
+    "dropMedia": "拖放媒体文件或点击上传",
+    "dropImage": "拖放图片或点击上传",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB",
+    "mediaHintImage": "JPG、PNG、WebP · 最大 10 MB",
+    "uploading": "正在上传…",
+    "upload": "上传",
+    "preview": "预览",
+    "cancel": "取消",
+    "saving": "正在保存…",
+    "save": "保存",
+    "defaultTitle": "编辑帖子",
+    "defaultScheduleLabel": "排期",
+    "toasts": {
+      "videoTikTokOnly": "视频仅适用于 TikTok 帖子",
+      "videoTooLarge": "视频必须小于 250 MB",
+      "imageTooLarge": "图片必须小于 10 MB",
+      "videoUploaded": "视频已上传",
+      "imageUploaded": "图片已上传",
+      "uploadFailed": "上传失败"
+    }
+  },
+  "postCard": {
+    "readyToPost": "已准备好发布",
+    "readyInTikTok": "已在 TikTok 中就绪",
+    "partiallyFailed": "部分失败",
+    "text": "文字",
+    "preview": "预览",
+    "view": "查看",
+    "copyCaption": "复制文案",
+    "downloadMedia": "下载媒体",
+    "downloading": "正在下载…",
+    "markAsPosted": "标记为已发布",
+    "edit": "编辑",
+    "publish": "发布",
+    "publishing": "正在发布…",
+    "reschedule": "重新排期",
+    "unschedule": "取消排期",
+    "delete": "删除",
+    "readyToPostOn": "已准备好在{channel}发布",
+    "manualInstructions": "下载媒体文件，复制文案，像往常一样通过{channel}应用发布，然后在此处将其标记为已发布。",
+    "openChannel": "打开{channel}",
+    "readyInTikTokInbox": "已在你的 TikTok 收件箱中就绪",
+    "tiktokInboxInstructions": "打开 TikTok 应用 → 收件箱 → 点击上传通知以完成文案并发布。草稿约 7 天后过期。",
+    "openTikTok": "打开 TikTok",
+    "publishingTo": "正在发布到{channel}...",
+    "toasts": {
+      "captionCopied": "文案已复制",
+      "copyFailed": "无法复制文案"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "刷新",
+    "liveFrom": "来自你已连接的{channel}账户的已发布内容 — 包括在 Markaestro 之外发布的内容。",
+    "loadMore": "加载更多",
+    "loading": "正在加载…",
+    "noCaption": "无文案",
+    "view": "查看",
+    "deleting": "正在删除…",
+    "delete": "删除",
+    "noDeleteHints": {
+      "instagram": "Instagram 不允许应用删除帖子 — 请在 Instagram 应用中删除。",
+      "tiktok": "TikTok 不允许应用删除视频 — 请在 TikTok 应用中删除。"
+    },
+    "noDeleteDefault": "此帖子不支持删除。",
+    "deleteWarning": "此操作将从{channel}永久删除该帖子。",
+    "states": {
+      "notConnectedTitle": "{channel}尚未连接",
+      "notConnectedBody": "将{channel}连接到此品牌后，其已发布内容将显示在此处 — 包括在 Markaestro 之外发布的内容。",
+      "connect": "连接{channel}",
+      "authTitle": "{channel}需要重新连接",
+      "authBody": "{channel}的连接已过期，目前无法浏览其帖子。请在品牌设置中重新连接，从中断处继续。",
+      "reconnect": "重新连接{channel}",
+      "checkAgain": "再次检查",
+      "unsupportedTitle": "无法浏览{channel}的帖子",
+      "linkedinPartnerBody": "LinkedIn 仅允许获批的合作伙伴应用浏览账户帖子。通过 Markaestro 发布的内容仍会显示在你的“已发布”标签页中。",
+      "unsupportedBody": "{channel}不允许应用浏览账户帖子。通过 Markaestro 发布的内容仍会显示在你的“已发布”标签页中。",
+      "errorTitle": "无法加载{channel}的帖子",
+      "errorBody": "{channel}未按预期响应。这通常是暂时性问题 — 请稍后再试一次。",
+      "tryAgain": "重试",
+      "emptyTitle": "{channel}上还没有帖子",
+      "emptyBody": "当此账户发布内容时 — 无论通过 Markaestro 还是直接在{channel}上 — 其帖子都会显示在此处。"
+    },
+    "toasts": {
+      "loadMoreFailed": "加载更多帖子失败",
+      "deleted": "已从{channel}删除帖子",
+      "deleteFailed": "在平台上删除帖子失败"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "已恢复你未保存的草稿",
+    "discard": "丢弃",
+    "caption": "文案",
+    "media": "媒体",
+    "removeMedia": "移除",
+    "addMedia": "+ 添加",
+    "dropImagesOrVideos": "拖放图片或视频",
+    "dropImages": "拖放图片或点击上传",
+    "mediaCountHint": "最多 {count} 项 · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB",
+    "mediaHintImage": "JPG、PNG、WebP · 最大 10 MB",
+    "uploading": "正在上传…",
+    "upload": "上传",
+    "saveDraft": "保存草稿",
+    "schedule": "排期",
+    "postNow": "立即发布",
+    "posting": "正在发布…",
+    "preview": "预览",
+    "previewPlaceholder": "你的帖子预览将显示在此处。",
+    "previewHint": "撰写文案并上传媒体文件即可开始。",
+    "toasts": {
+      "selectChannel": "请至少选择一个可发布的渠道。",
+      "videoNotSupported": "一个或多个所选渠道不支持视频上传",
+      "videoAlone": "视频必须单独上传",
+      "maxMedia": "所选渠道最多支持 {count} 个媒体项",
+      "fileTooLarge": "{file}：必须小于 {size} MB",
+      "fileUploadFailed": "{file}：上传失败",
+      "filesUploaded": "已上传 {count} 个文件",
+      "uploadFailed": "上传失败",
+      "createFailed": "创建帖子失败",
+      "draftSaved": "草稿已保存",
+      "draftSaveFailed": "保存草稿失败",
+      "scheduled": "帖子已排期",
+      "scheduleFailed": "排期帖子失败",
+      "tiktokSending": "正在发送到 TikTok。Markaestro 正在等待 TikTok 确认收件箱送达。",
+      "stillProcessing": "帖子已提交，仍在处理中。",
+      "tiktokInboxConfirmed": "TikTok 已确认送达收件箱。请打开 TikTok 收件箱，完成文案后点击“发布”。",
+      "postedToMultiple": "已发布到{channels}！",
+      "postedSuccess": "发布成功！",
+      "publishFailed": "发布失败"
+    }
+  }
+}

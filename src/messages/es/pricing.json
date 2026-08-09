@@ -1,0 +1,173 @@
+{
+  "hero": {
+    "eyebrow": "Precios",
+    "titleLead": "Todo tu motor de marketing,",
+    "titleHighlight": "un precio simple",
+    "subtitle": "Sin comisiones ocultas, sin sorpresas por usuario. Todos los planes incluyen una prueba gratuita de {trialDays} días. Cancela cuando quieras.",
+    "monthlyToggle": "Mensual",
+    "annualToggle": "Anual",
+    "annualSaveBadge": "AHORRA 18%",
+    "trialLine": "Prueba gratuita de {trialDays} días en todos los planes — sin cargo hasta el día {trialEndDay}",
+    "annualSavingsSuffix": " · La facturación anual ahorra un 18%"
+  },
+  "planNames": {
+    "starter": "Starter",
+    "pro": "Pro",
+    "business": "Business"
+  },
+  "mostPopularBadge": "Más popular",
+  "plans": {
+    "starter": {
+      "description": "Para profesionales del marketing que publican en Meta y TikTok en solitario.",
+      "features": [
+        "5 canales sociales",
+        "Publicaciones ilimitadas",
+        "500 subidas de contenido al mes",
+        "1 miembro del equipo",
+        "Calendario de contenido",
+        "1 espacio de trabajo",
+        "Voz de marca (1 perfil)",
+        "Analíticas (ventana de 7 días)"
+      ]
+    },
+    "pro": {
+      "description": "Para equipos en crecimiento que necesitan colaboración y programación.",
+      "features": [
+        "15 canales sociales",
+        "Publicaciones ilimitadas",
+        "5.000 subidas de contenido al mes",
+        "5 miembros del equipo",
+        "5 espacios de trabajo",
+        "Voz de marca + identidad de marca",
+        "Programación inteligente",
+        "Analíticas (ventana de 90 días)",
+        "Soporte prioritario"
+      ]
+    },
+    "business": {
+      "description": "Para agencias que gestionan varias marcas a gran escala.",
+      "features": [
+        "50 canales sociales",
+        "Publicaciones ilimitadas",
+        "Subidas de contenido ilimitadas",
+        "Miembros del equipo ilimitados",
+        "Todo lo del plan Pro",
+        "Espacios de trabajo ilimitados",
+        "Historial de analíticas ilimitado + exportación CSV",
+        "Soporte prioritario"
+      ]
+    }
+  },
+  "planCard": {
+    "perMonth": "/mes",
+    "billedAnnually": "· Facturado anualmente (${annualTotal}/año)",
+    "justPerDay": "Eso es solo ${dailyCost}/día",
+    "billedMonthly": "Facturado mensualmente · Cambia a anual y ahorra un 17%",
+    "startTrialButton": "Iniciar prueba gratuita de {trialDays} días",
+    "noChargeLine": "Sin cargo durante {trialDays} días · Cancela cuando quieras",
+    "everythingIncluded": "Todo incluido"
+  },
+  "comparison": {
+    "titleLead": "Compara",
+    "titleHighlight": "cada función",
+    "subtitle": "Ve exactamente qué incluye cada plan.",
+    "categories": [
+      {
+        "name": "Publicación",
+        "features": [
+          { "name": "Canales sociales" },
+          { "name": "Publicaciones al mes" },
+          { "name": "Calendario de contenido" },
+          { "name": "Programación masiva" },
+          { "name": "Programación inteligente" }
+        ]
+      },
+      {
+        "name": "Biblioteca de contenido",
+        "features": [
+          { "name": "Subidas de contenido" },
+          { "name": "Perfiles de voz de marca" },
+          { "name": "Identidad de marca (logo y colores)" }
+        ]
+      },
+      {
+        "name": "Analíticas",
+        "features": [
+          { "name": "Analíticas de publicaciones y seguidores" },
+          { "name": "Ventana de historial" },
+          { "name": "Exportación CSV" }
+        ]
+      },
+      {
+        "name": "Equipo y espacio de trabajo",
+        "features": [
+          { "name": "Miembros del equipo" },
+          { "name": "Espacios de trabajo" },
+          { "name": "Control de acceso basado en roles" }
+        ]
+      },
+      {
+        "name": "Desarrolladores y agentes de IA",
+        "features": [
+          { "name": "Claves de API del espacio de trabajo" },
+          { "name": "API de publicación (Connect + v1 completa)" },
+          { "name": "Webhooks firmados" },
+          { "name": "Claves limitadas por marca y con vencimiento" }
+        ]
+      },
+      {
+        "name": "Soporte",
+        "features": [
+          { "name": "Soporte por correo electrónico" },
+          { "name": "Soporte prioritario" }
+        ]
+      }
+    ]
+  },
+  "faqTitleLead": "Preguntas frecuentes",
+  "faqTitleHighlight": "sobre precios",
+  "faqs": [
+    {
+      "q": "¿Puedo cambiar de plan en cualquier momento?",
+      "a": "Sí. Puedes mejorar o reducir tu plan en cualquier momento. Al mejorar, se te cobrará la diferencia prorrateada. Al reducir, la nueva tarifa entra en vigor en tu siguiente ciclo de facturación."
+    },
+    {
+      "q": "¿Qué cuenta como «canal social»?",
+      "a": "Cada cuenta social conectada cuenta como un canal. Por ejemplo, una página de Facebook, una cuenta empresarial de Instagram y una cuenta de TikTok serían 3 canales."
+    },
+    {
+      "q": "¿Qué cuenta como subida de contenido?",
+      "a": "Cada imagen o vídeo subido a un espacio de trabajo cuenta como una subida de contenido dentro de tu cuota mensual. Reutilizar un archivo ya subido en varias publicaciones no cuenta de nuevo. Consulta la tabla comparativa para ver los límites mensuales de cada plan."
+    },
+    {
+      "q": "¿Qué ocurre cuando alcanzo mi límite de subidas de contenido?",
+      "a": "Puedes seguir publicando publicaciones que usen contenido ya presente en tu espacio de trabajo — solo se bloquean las subidas nuevas. Tu cuota de subidas se reinicia al comienzo de cada ciclo de facturación, y puedes mejorar tu plan en cualquier momento para obtener una cuota mayor."
+    },
+    {
+      "q": "¿Cómo funciona la prueba gratuita?",
+      "a": "Todos los planes — mensual y anual — incluyen una prueba gratuita de {trialDays} días. Se solicita tu tarjeta al registrarte, pero no se te cobrará hasta que termine la prueba. Cancela en cualquier momento durante la prueba y no pagarás nada."
+    },
+    {
+      "q": "¿Qué planes incluyen la prueba gratuita?",
+      "a": "Todos los planes (Starter, Pro, Business), tanto en facturación mensual como anual, incluyen la prueba gratuita de {trialDays} días. La facturación anual también te ahorra un 18% frente a la mensual."
+    },
+    {
+      "q": "¿Puede mi agente de IA o mi propio software usar Markaestro?",
+      "a": "Sí, en todos los planes y sin coste adicional. Cualquier administrador del espacio de trabajo puede generar claves de API desde Configuración → API y entregar una a un agente de IA, un script o una herramienta de programación externa. Cada clave está limitada a una sola marca, incluye solo los permisos que marques y puede tener fecha de vencimiento. Consulta la guía para agentes de IA para ver las definiciones de herramientas y una guía rápida de cuatro comandos."
+    },
+    {
+      "q": "¿Ofrecen descuentos para organizaciones sin ánimo de lucro o startups?",
+      "a": "Sí. Ofrecemos un 50% de descuento para organizaciones sin ánimo de lucro verificadas y startups en etapa inicial (con ingresos inferiores a 1 millón de dólares). Contáctanos para solicitarlo."
+    },
+    {
+      "q": "¿Qué métodos de pago aceptan?",
+      "a": "Aceptamos todas las principales tarjetas de crédito y débito (Visa, Mastercard, Amex). Los planes empresariales pueden pagar mediante factura."
+    }
+  ],
+  "cta": {
+    "title": "Prueba Markaestro gratis durante {trialDays} días",
+    "subtitle": "Acceso completo con cualquier plan anual. Sin cargo hasta el día {trialEndDay}. Cancela cuando quieras.",
+    "primaryButton": "Iniciar prueba gratuita",
+    "secondaryButton": "Hablar con ventas"
+  }
+}

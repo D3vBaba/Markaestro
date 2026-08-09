@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ export default function ScheduledTab({
   onCreatePost?: () => void;
   onPlatformActionRequired?: () => void;
 }) {
+  const t = useTranslations("content.scheduledTab");
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [editPost, setEditPost] = useState<Post | null>(null);
@@ -60,10 +62,11 @@ export default function ScheduledTab({
       );
       if (res.ok) setPosts(res.data.posts || []);
     } catch {
-      toast.error("Failed to load scheduled posts");
+      toast.error(t("toasts.loadFailed"));
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
   useEffect(() => {
@@ -89,11 +92,11 @@ export default function ScheduledTab({
     const restore = removeOptimistic(id);
     const res = await apiPut(`/api/posts/${id}`, { status: "draft", scheduledAt: null });
     if (res.ok) {
-      toast.success("Moved back to drafts");
+      toast.success(t("toasts.movedToDrafts"));
       fetchScheduled();
     } else {
       restore();
-      toast.error("Failed to cancel schedule");
+      toast.error(t("toasts.cancelFailed"));
     }
   };
 
@@ -101,10 +104,10 @@ export default function ScheduledTab({
     const restore = removeOptimistic(id);
     const res = await apiDelete(`/api/posts/${id}`);
     if (res.ok) {
-      toast.success("Post deleted");
+      toast.success(t("toasts.deleted"));
     } else {
       restore();
-      toast.error("Failed to delete post");
+      toast.error(t("toasts.deleteFailed"));
     }
   };
 
@@ -115,7 +118,7 @@ export default function ScheduledTab({
 
     const isTikTok = channel === "tiktok";
     const toastId = toast.loading(
-      isTikTok ? "Pushing to TikTok inbox…" : "Publishing post…",
+      isTikTok ? t("toasts.pushingTikTok") : t("toasts.publishingPost"),
     );
 
     try {
@@ -132,29 +135,29 @@ export default function ScheduledTab({
         const outcome = getPublishUiOutcome(res.data);
         if (outcome.platformActionRequired) {
           toast.success(
-            "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
+            t("toasts.tiktokInboxConfirmed"),
             { id: toastId },
           );
           onPlatformActionRequired?.();
         } else if (outcome.processing) {
           toast.success(
             outcome.hasTikTok
-              ? "TikTok accepted the upload and is still processing it."
-              : "Post submitted and still processing.",
+              ? t("toasts.tiktokProcessing")
+              : t("toasts.stillProcessing"),
             { id: toastId },
           );
         } else {
-          toast.success("Posted!", { id: toastId });
+          toast.success(t("toasts.posted"), { id: toastId });
         }
         // Post is no longer scheduled — drop it immediately, refetch in the background
         setPosts((cur) => cur.filter((p) => p.id !== id));
         fetchScheduled();
       } else {
-        toast.error(res.data.error || "Publishing failed", { id: toastId });
+        toast.error(res.data.error || t("toasts.publishFailed"), { id: toastId });
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Publishing failed",
+        err instanceof Error ? err.message : t("toasts.publishFailed"),
         { id: toastId },
       );
     } finally {
@@ -176,10 +179,10 @@ export default function ScheduledTab({
     setEditPost(null);
     const res = await apiPut(`/api/posts/${target.id}`, { content, mediaUrls: mediaUrls ?? null });
     if (res.ok) {
-      toast.success("Post updated");
+      toast.success(t("toasts.updated"));
     } else {
       setPosts((cur) => cur.map((p) => (p.id === target.id ? { ...p, ...prev } : p)));
-      toast.error("Failed to update");
+      toast.error(t("toasts.updateFailed"));
     }
   };
 
@@ -221,11 +224,11 @@ export default function ScheduledTab({
       scheduledAt,
     });
     if (res.ok) {
-      toast.success("Post rescheduled");
+      toast.success(t("toasts.rescheduled"));
       fetchScheduled();
     } else {
       setPosts((cur) => cur.map((p) => (p.id === target.id ? { ...p, ...prev } : p)));
-      toast.error("Failed to reschedule");
+      toast.error(t("toasts.rescheduleFailed"));
     }
   };
 
@@ -236,10 +239,10 @@ export default function ScheduledTab({
   if (posts.length === 0) {
     return (
       <div className="text-center py-20">
-        <p className="text-sm text-muted-foreground">Nothing scheduled yet.</p>
+        <p className="text-sm text-muted-foreground">{t("empty")}</p>
         {onCreatePost && (
           <Button variant="outline" size="sm" className="mt-4" onClick={onCreatePost}>
-            Schedule your first post
+            {t("scheduleFirst")}
           </Button>
         )}
       </div>
@@ -277,8 +280,8 @@ export default function ScheduledTab({
         onOpenChange={(open) => !open && setEditPost(null)}
         onSave={handleSaveEdit}
         onSchedule={handleSaveAndReschedule}
-        scheduleLabel="Save & Reschedule"
-        title="Edit Scheduled Post"
+        scheduleLabel={t("saveAndReschedule")}
+        title={t("editTitle")}
       />
 
       <ScheduleSheet

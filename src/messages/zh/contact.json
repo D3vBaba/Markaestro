@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "eyebrow": "联系我们",
+    "titleLead": "我们很乐意",
+    "titleHighlight": "听取你的意见",
+    "subtitle": "无论你对功能有疑问、需要集成方面的帮助，还是想探讨合作机会 —— 我们的团队随时为你提供支持。"
+  },
+  "channels": [
+    {
+      "title": "一般咨询",
+      "description": "有关 Markaestro、价格或合作的相关问题。",
+      "email": "hello@markaestro.com",
+      "response": "1-2 个工作日"
+    },
+    {
+      "title": "技术支持",
+      "description": "有关集成、发布问题或账号访问的帮助。",
+      "email": "support@markaestro.com",
+      "response": "24 小时以内"
+    },
+    {
+      "title": "隐私与法律",
+      "description": "数据相关请求、合规问题或法律咨询。",
+      "email": "legal@markaestro.com",
+      "response": "2-3 个工作日"
+    }
+  ],
+  "form": {
+    "eyebrow": "发送消息",
+    "title": "直接与我们取得联系",
+    "description": "请填写表单，我们会尽快回复你。如遇紧急技术问题，请在主题中注明「URGENT」。",
+    "officeHoursTitle": "办公时间",
+    "officeHoursWeekday": "周一至周五：上午 9:00 至下午 6:00（美国东部时间）",
+    "officeHoursWeekend": "周六、周日：休息",
+    "enterpriseTitle": "企业与合作",
+    "enterpriseDescription": "如需咨询企业定价、定制集成或合作机会，请联系：",
+    "enterpriseEmail": "partnerships@markaestro.com",
+    "sentTitle": "消息已准备就绪",
+    "sentDescription": "你的邮件客户端应已打开，并自动填充好消息内容。如果没有打开，请直接发送邮件至：",
+    "supportEmail": "support@markaestro.com",
+    "sendAnother": "发送另一条消息",
+    "nameLabel": "姓名",
+    "namePlaceholder": "你的姓名",
+    "emailLabel": "邮箱",
+    "emailPlaceholder": "you@company.com",
+    "subjectLabel": "主题",
+    "subjectPlaceholder": "我们可以如何帮助你？",
+    "messageLabel": "消息内容",
+    "messagePlaceholder": "请详细描述你的问题或疑问……",
+    "submit": "发送消息",
+    "privacyNotice": "发送消息即表示你同意我们的",
+    "privacyLink": "隐私政策"
+  },
+  "faqEyebrow": "常见问题",
+  "faqTitle": "常见问题解答",
+  "faqs": [
+    {
+      "q": "如何连接我的社交媒体账号？",
+      "a": "在控制台中打开一个品牌，连接你要发布的渠道（Meta 用于 Facebook 和 Instagram，此外还有 TikTok、Threads 或 Pinterest）。每次连接都使用 OAuth，通常一分钟以内即可完成。"
+    },
+    {
+      "q": "有免费试用吗？",
+      "a": "有的。每个付费套餐都包含一次拥有完整功能的免费试用。你的支付卡信息会在注册时收集，但在试用期结束前不会产生任何费用。在试用期内取消无需支付任何费用。"
+    },
+    {
+      "q": "我可以上传哪些类型的素材？",
+      "a": "图片（JPG、PNG、WebP，每个最大 10MB）以及视频（MP4、MOV、WebM，每个最大 250MB）。文件按工作区存储，并通过编辑器附加到内容中。"
+    },
+    {
+      "q": "我可以将 Markaestro 用于多个品牌或客户吗？",
+      "a": "当然可以。工作区功能让你可以将不同的品牌、客户或业务部门相互隔离管理。每个工作区都拥有独立的品牌、素材、渠道连接和团队成员。"
+    },
+    {
+      "q": "我的数据如何得到保护？",
+      "a": "OAuth 令牌在静态存储时均经过加密。所有 API 通信均使用 TLS。我们在数据访问方面遵循最小权限原则。完整详情请参阅我们的隐私政策。"
+    },
+    {
+      "q": "你们提供 API 吗？",
+      "a": "Markaestro 的 API 面向所有付费套餐开放。它涵盖内容管理、素材上传、发布以及内容状态查询。文档可在你的控制台中查看。"
+    }
+  ],
+  "cta": {
+    "title": "准备好开始了吗？",
+    "subtitle": "创建你的免费账户，几分钟内即可开始发布。无需信用卡。",
+    "button": "免费开始"
+  }
+}

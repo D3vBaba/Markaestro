@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "Publications",
+    "subtitle": "Créez, planifiez et publiez du contenu organique sur vos canaux sociaux.",
+    "tabs": {
+      "create": "Créer",
+      "drafts": "Brouillons",
+      "scheduled": "Planifiées",
+      "published": "Publiées",
+      "onPlatform": "Sur la plateforme"
+    },
+    "productBar": {
+      "brand": "Marque",
+      "noBrandSelected": "Aucune marque sélectionnée",
+      "change": "Changer"
+    }
+  },
+  "editor": {
+    "placeholder": "Le contenu généré apparaîtra ici...",
+    "limitSuffix": "limite"
+  },
+  "productPicker": {
+    "brand": "Marque",
+    "selectBrand": "Sélectionnez une marque...",
+    "tone": "Ton :",
+    "style": "Style :",
+    "audience": "Audience :"
+  },
+  "markPostedDialog": {
+    "title": "Marquer comme publié",
+    "description": "Confirmez que vous avez publié cette publication vous-même sur {channel}. Collez le lien vers la publication en ligne si vous l'avez — cela relie la publication à ses statistiques plus tard.",
+    "urlPlaceholder": "https://www.{channel}.com/… (facultatif)",
+    "cancel": "Annuler",
+    "confirm": "Marquer comme publié",
+    "toasts": {
+      "marked": "Marqué comme publié",
+      "failed": "Échec du marquage comme publié"
+    }
+  },
+  "publishedTab": {
+    "empty": "Aucune publication publiée pour l'instant.",
+    "createPost": "Créer une publication",
+    "toasts": {
+      "deleted": "Publication supprimée",
+      "deleteFailed": "Échec de la suppression de la publication",
+      "loadFailed": "Échec du chargement des publications publiées"
+    }
+  },
+  "scheduledTab": {
+    "empty": "Rien de planifié pour l'instant.",
+    "scheduleFirst": "Planifiez votre première publication",
+    "editTitle": "Modifier la publication planifiée",
+    "saveAndReschedule": "Enregistrer et replanifier",
+    "toasts": {
+      "loadFailed": "Échec du chargement des publications planifiées",
+      "movedToDrafts": "Remis dans les brouillons",
+      "cancelFailed": "Échec de l'annulation de la planification",
+      "deleted": "Publication supprimée",
+      "deleteFailed": "Échec de la suppression de la publication",
+      "pushingTikTok": "Envoi vers la boîte de réception TikTok…",
+      "publishingPost": "Publication en cours…",
+      "tiktokInboxConfirmed": "TikTok a confirmé la livraison dans la boîte de réception. Ouvrez l'application TikTok pour finaliser et publier.",
+      "tiktokProcessing": "TikTok a accepté l'envoi et est encore en train de le traiter.",
+      "stillProcessing": "Publication envoyée et toujours en cours de traitement.",
+      "posted": "Publié !",
+      "publishFailed": "Échec de la publication",
+      "updated": "Publication mise à jour",
+      "updateFailed": "Échec de la mise à jour",
+      "rescheduled": "Publication replanifiée",
+      "rescheduleFailed": "Échec de la replanification"
+    }
+  },
+  "draftsTab": {
+    "empty": "Aucun brouillon pour l'instant.",
+    "createFirst": "Créez votre première publication",
+    "editTitle": "Modifier le brouillon",
+    "toPostHeading": "À publier",
+    "waitingInTikTokHeading": "En attente dans TikTok",
+    "draftsHeading": "Brouillons",
+    "toasts": {
+      "loadFailed": "Échec du chargement des brouillons",
+      "deleted": "Brouillon supprimé",
+      "deleteFailed": "Échec de la suppression",
+      "addingToQueue": "Ajout à votre file « À publier »…",
+      "pushingTikTok": "Envoi vers la boîte de réception TikTok…",
+      "publishingPost": "Publication en cours…",
+      "addedToQueue": "Ajouté à votre file « À publier ». Publiez-le nativement, puis marquez-le comme publié.",
+      "tiktokInboxConfirmed": "TikTok a confirmé la livraison dans la boîte de réception. Ouvrez l'application TikTok pour finaliser et publier.",
+      "tiktokProcessing": "TikTok a accepté l'envoi et est encore en train de le traiter.",
+      "stillProcessing": "Publication envoyée et toujours en cours de traitement.",
+      "posted": "Publié !",
+      "publishFailed": "Échec de la publication",
+      "updated": "Brouillon mis à jour",
+      "updateFailed": "Échec de la mise à jour",
+      "scheduled": "Publication planifiée",
+      "scheduleFailed": "Échec de la planification"
+    }
+  },
+  "channelSelector": {
+    "channels": "Canaux",
+    "selectedCount": "{count} sélectionné(s)",
+    "postTo": "Publier sur",
+    "defaultReason": "Connectez ce canal dans les paramètres de la marque.",
+    "productSettings": "Paramètres du produit"
+  },
+  "scheduleSheet": {
+    "eyebrow": "Planifier",
+    "title": "Planifier la publication",
+    "description": "Choisissez une date et une heure, ou utilisez les créneaux optimaux suggérés par IA.",
+    "tiktokNoteLabel": "TikTok se finalise dans l'application TikTok.",
+    "tiktokNoteBody": "À l'heure planifiée, Markaestro envoie le contenu vers votre boîte de réception TikTok, puis le marque comme prêt une fois que vous pouvez ouvrir TikTok pour finaliser la légende, la confidentialité et la publication.",
+    "smartSchedule": "Planification intelligente",
+    "aiSuggested": "Suggéré par IA",
+    "hide": "Masquer",
+    "show": "Afficher",
+    "basedOnData": "Basé sur les données d'engagement du secteur pour {channel}",
+    "thisChannel": "ce canal",
+    "orPickManually": "ou choisir manuellement",
+    "timeLabel": "Heure",
+    "timezoneNote": "Les planifications utilisent votre fuseau horaire local ({timezone}) et sont stockées en UTC.",
+    "headsUp": "Attention :",
+    "collisionNote": "une autre publication est déjà planifiée à peu près à cette heure ({date}{channel}). Vous pouvez tout de même planifier les deux.",
+    "onChannel": " sur {channel}",
+    "scheduleFor": "Planifier pour le {date} à {time}",
+    "selectDate": "Sélectionnez une date"
+  },
+  "postEditSheet": {
+    "caption": "Légende",
+    "media": "Média",
+    "image": "Image",
+    "remove": "Retirer",
+    "replace": "Remplacer",
+    "dropMedia": "Déposez un média ou cliquez pour l'importer",
+    "dropImage": "Déposez une image ou cliquez pour l'importer",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 Mo · JPG/PNG ≤10 Mo",
+    "mediaHintImage": "JPG, PNG, WebP · jusqu'à 10 Mo",
+    "uploading": "Importation…",
+    "upload": "Importer",
+    "preview": "Aperçu",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer",
+    "defaultTitle": "Modifier la publication",
+    "defaultScheduleLabel": "Planifier",
+    "toasts": {
+      "videoTikTokOnly": "Les vidéos sont disponibles uniquement pour les publications TikTok",
+      "videoTooLarge": "La vidéo doit faire moins de 250 Mo",
+      "imageTooLarge": "L'image doit faire moins de 10 Mo",
+      "videoUploaded": "Vidéo importée",
+      "imageUploaded": "Image importée",
+      "uploadFailed": "Échec de l'importation"
+    }
+  },
+  "postCard": {
+    "readyToPost": "Prêt à publier",
+    "readyInTikTok": "Prêt dans TikTok",
+    "partiallyFailed": "Partiellement échoué",
+    "text": "Texte",
+    "preview": "Aperçu",
+    "view": "Voir",
+    "copyCaption": "Copier la légende",
+    "downloadMedia": "Télécharger le média",
+    "downloading": "Téléchargement…",
+    "markAsPosted": "Marquer comme publié",
+    "edit": "Modifier",
+    "publish": "Publier",
+    "publishing": "Publication…",
+    "reschedule": "Replanifier",
+    "unschedule": "Déplanifier",
+    "delete": "Supprimer",
+    "readyToPostOn": "Prêt à publier sur {channel}",
+    "manualInstructions": "Téléchargez le média, copiez la légende, publiez-le depuis l'application {channel} comme vous le feriez normalement, puis marquez-le comme publié ici.",
+    "openChannel": "Ouvrir {channel}",
+    "readyInTikTokInbox": "Prêt dans votre boîte de réception TikTok",
+    "tiktokInboxInstructions": "Ouvrez l'application TikTok → Boîte de réception → appuyez sur la notification d'envoi pour terminer la légende et publier. Les brouillons expirent après ~7 jours.",
+    "openTikTok": "Ouvrir TikTok",
+    "publishingTo": "Publication sur {channel}...",
+    "toasts": {
+      "captionCopied": "Légende copiée",
+      "copyFailed": "Impossible de copier la légende"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "Actualiser",
+    "liveFrom": "Publications en direct de votre compte {channel} connecté — y compris celles publiées en dehors de Markaestro.",
+    "loadMore": "Charger plus",
+    "loading": "Chargement…",
+    "noCaption": "Pas de légende",
+    "view": "Voir",
+    "deleting": "Suppression…",
+    "delete": "Supprimer",
+    "noDeleteHints": {
+      "instagram": "Instagram ne permet pas aux applications de supprimer des publications — supprimez-les dans l'application Instagram.",
+      "tiktok": "TikTok ne permet pas aux applications de supprimer des vidéos — supprimez-les dans l'application TikTok."
+    },
+    "noDeleteDefault": "La suppression n'est pas prise en charge pour cette publication.",
+    "deleteWarning": "Cette action supprime définitivement la publication de {channel}.",
+    "states": {
+      "notConnectedTitle": "{channel} n'est pas encore connecté",
+      "notConnectedBody": "Connectez {channel} à cette marque et ses publications en direct apparaîtront ici — y compris celles publiées en dehors de Markaestro.",
+      "connect": "Connecter {channel}",
+      "authTitle": "{channel} doit être reconnecté",
+      "authBody": "La connexion à {channel} a expiré, nous ne pouvons donc pas parcourir ses publications pour le moment. Reconnectez-la depuis les paramètres de la marque pour reprendre là où vous en étiez.",
+      "reconnect": "Reconnecter {channel}",
+      "checkAgain": "Vérifier à nouveau",
+      "unsupportedTitle": "La consultation des publications {channel} n'est pas disponible",
+      "linkedinPartnerBody": "LinkedIn ne permet qu'aux applications partenaires approuvées de parcourir les publications du compte. Tout ce que vous publiez via Markaestro apparaît toujours dans votre onglet Publiées.",
+      "unsupportedBody": "{channel} ne permet pas aux applications de parcourir les publications du compte. Tout ce que vous publiez via Markaestro apparaît toujours dans votre onglet Publiées.",
+      "errorTitle": "Impossible de charger les publications {channel}",
+      "errorBody": "{channel} n'a pas répondu comme prévu. C'est généralement temporaire — réessayez dans un instant.",
+      "tryAgain": "Réessayer",
+      "emptyTitle": "Aucune publication sur {channel} pour l'instant",
+      "emptyBody": "Lorsque ce compte publiera — via Markaestro ou directement sur {channel} — ses publications apparaîtront ici."
+    },
+    "toasts": {
+      "loadMoreFailed": "Échec du chargement de publications supplémentaires",
+      "deleted": "Publication supprimée de {channel}",
+      "deleteFailed": "Échec de la suppression de la publication sur la plateforme"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "Votre brouillon non enregistré a été restauré",
+    "discard": "Ignorer",
+    "caption": "Légende",
+    "media": "Média",
+    "removeMedia": "Retirer",
+    "addMedia": "+ Ajouter",
+    "dropImagesOrVideos": "Déposez des images ou des vidéos",
+    "dropImages": "Déposez des images ou cliquez pour les importer",
+    "mediaCountHint": "Jusqu'à {count, plural, one {# élément} other {# éléments}} · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 Mo · JPG/PNG/WebP ≤10 Mo",
+    "mediaHintImage": "JPG, PNG, WebP · jusqu'à 10 Mo",
+    "uploading": "Importation…",
+    "upload": "Importer",
+    "saveDraft": "Enregistrer le brouillon",
+    "schedule": "Planifier",
+    "postNow": "Publier maintenant",
+    "posting": "Publication…",
+    "preview": "Aperçu",
+    "previewPlaceholder": "L'aperçu de votre publication apparaîtra ici.",
+    "previewHint": "Rédigez une légende et importez votre média pour commencer.",
+    "toasts": {
+      "selectChannel": "Sélectionnez au moins un canal de publication prêt.",
+      "videoNotSupported": "Un ou plusieurs canaux sélectionnés ne prennent pas en charge l'envoi de vidéos",
+      "videoAlone": "Les vidéos doivent être envoyées seules",
+      "maxMedia": "Maximum {count, plural, one {# élément média} other {# éléments média}} pour les canaux sélectionnés",
+      "fileTooLarge": "{file} : doit faire moins de {size} Mo",
+      "fileUploadFailed": "{file} : échec de l'importation",
+      "filesUploaded": "{count, plural, one {# fichier importé} other {# fichiers importés}}",
+      "uploadFailed": "Échec de l'importation",
+      "createFailed": "Échec de la création de la publication",
+      "draftSaved": "Brouillon enregistré",
+      "draftSaveFailed": "Échec de l'enregistrement du brouillon",
+      "scheduled": "Publication planifiée",
+      "scheduleFailed": "Échec de la planification de la publication",
+      "tiktokSending": "Envoi vers TikTok. Markaestro attend que TikTok confirme la livraison dans la boîte de réception.",
+      "stillProcessing": "Publication envoyée et toujours en cours de traitement.",
+      "tiktokInboxConfirmed": "TikTok a confirmé la livraison dans la boîte de réception. Ouvrez la boîte de réception TikTok, terminez la légende et appuyez sur Publier.",
+      "postedToMultiple": "Publié sur {channels} !",
+      "postedSuccess": "Publié avec succès !",
+      "publishFailed": "Échec de la publication"
+    }
+  }
+}

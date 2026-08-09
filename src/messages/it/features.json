@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "eyebrow": "Piattaforma",
+    "titleLead": "Tutto ciò che ti serve per",
+    "titleHighlight": "crescere",
+    "subtitle": "Dalla prima bozza al post pubblicato, Markaestro gestisce ogni fase del tuo workflow social. Un'unica piattaforma, zero cambi di contesto."
+  },
+  "coreFeatures": [
+    {
+      "title": "Pubblicazione Multicanale",
+      "description": "Componi una volta, pubblica ovunque. Scrivi un unico post e adattalo per Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest con un clic. Programma per il momento ottimale o pubblica istantaneamente.",
+      "details": [
+        "Editor unificato con anteprima per canale",
+        "Gestione dei contenuti drag-and-drop",
+        "Programmazione in blocco per calendari editoriali",
+        "Ridimensionamento automatico delle immagini secondo le specifiche della piattaforma"
+      ]
+    },
+    {
+      "title": "Caricamento e Libreria Contenuti",
+      "description": "Utilizza le tue fotografie, i tuoi video e i materiali del tuo brand. Markaestro li archivia per workspace e li allega ai post con un unico trascinamento.",
+      "details": [
+        "Supporto per JPG, PNG, WebP, MP4, MOV e WebM",
+        "Fino a 250 MB per video, 10 MB per immagine",
+        "Controlli di formato per canale prima della pubblicazione",
+        "Riutilizza i contenuti caricati su più post"
+      ]
+    },
+    {
+      "title": "Anteprime Multicanale",
+      "description": "Vedi come apparirà ogni post su ciascun network prima di pubblicare — Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest hanno ognuna la propria anteprima dedicata. Didascalie, proporzioni, limiti di caratteri e specifiche dei contenuti vengono resi in tempo reale.",
+      "details": [
+        "Anteprime precise al pixel per ogni piattaforma",
+        "Conteggio caratteri della didascalia in tempo reale",
+        "Indicazioni sulle proporzioni per canale",
+        "Individua problemi di formattazione prima della pubblicazione"
+      ]
+    },
+    {
+      "title": "Dashboard di Pubblicazione",
+      "description": "Vedi ogni bozza, post programmato e stato di pubblicazione in un'unica vista del workspace senza passare da una piattaforma all'altra.",
+      "details": [
+        "Code di bozze, programmati e pubblicati",
+        "Stato di pubblicazione per canale",
+        "Workflow di ripetizione per post falliti",
+        "Panoramica dei contenuti a livello di workspace"
+      ]
+    },
+    {
+      "title": "Integrazioni OAuth",
+      "description": "Connetti i tuoi account con un clic tramite OAuth, lo standard del settore. Nessuna chiave API manuale, nessun malabarismo con i token. Markaestro archivia e rinnova le tue credenziali in modo sicuro per te.",
+      "details": [
+        "Connessione con un clic per Meta, TikTok, LinkedIn, Threads e Pinterest",
+        "Archiviazione dei token crittografata a riposo",
+        "Rinnovo automatico dei token",
+        "Disconnessione granulare per piattaforma"
+      ]
+    },
+    {
+      "title": "API e Agenti IA",
+      "description": "Tutto ciò che fa la dashboard, può farlo anche il tuo software. Genera una chiave API, consegnala a un agente IA o a uno script, e lascia che scopra gli account, carichi contenuti, programmi post, pubblichi e riferisca — su ogni piano, senza costi aggiuntivi.",
+      "details": [
+        "Chiavi limitate a un singolo brand, con scadenza opzionale",
+        "Scritture idempotenti così un tentativo ripetuto non pubblica mai due volte",
+        "Esecuzioni di pubblicazione asincrone e webhook firmati con HMAC",
+        "Manuale per prima cosa su Meta e TikTok — è ancora una persona a pubblicare"
+      ],
+      "codeLabel": "programma un post da qualsiasi cosa parli HTTP",
+      "agentGuideLink": "Leggi la guida per agenti IA →"
+    }
+  ],
+  "platformFeatures": [
+    {
+      "title": "Gestione Workspace",
+      "description": "Organizza i brand che promuovi — clienti, unità aziendali o le tue iniziative — in workspace isolati. Ogni workspace ha i propri brand, integrazioni e membri del team."
+    },
+    {
+      "title": "Programmazione e Calendario",
+      "description": "Metti in coda i post su un calendario unificato in tutti i tuoi canali. Riprogramma con un trascinamento, duplica i post in un clic e mantieni una visione chiara di cosa uscirà e quando."
+    },
+    {
+      "title": "Accesso Basato su Ruoli",
+      "description": "Controlla chi può pubblicare, modificare o visualizzare con ruoli a tre livelli: Proprietario, Amministratore e Membro. Mantieni le impostazioni sensibili sotto controllo mentre il tuo team lavora velocemente."
+    }
+  ],
+  "platformSection": {
+    "eyebrow": "Piattaforma",
+    "titleLead": "Pensata per chiunque",
+    "titleHighlight": "pubblichi",
+    "subtitle": "Oltre agli strumenti principali, Markaestro ti offre l'infrastruttura per crescere — da un singolo brand a un intero portafoglio clienti."
+  },
+  "cta": {
+    "title": "Pronto a vederlo in azione?",
+    "subtitle": "Inizia gratis. Nessuna carta di credito richiesta. Connetti il tuo primo canale in meno di due minuti.",
+    "primaryButton": "Inizia gratis",
+    "secondaryButton": "Contatta il team commerciale"
+  }
+}

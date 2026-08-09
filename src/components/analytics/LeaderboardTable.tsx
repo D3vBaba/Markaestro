@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { Channel } from "@/components/mk/Channel";
 import { fmtCount } from "@/components/mk/format";
@@ -9,24 +10,28 @@ import type { AnalyticsPostRow } from "@/lib/analytics/api-shape";
 
 type SortKey = "engagements" | "views" | "reach" | "erByReach" | "publishedAt";
 
-const COLUMNS: Array<{ key: SortKey; label: string }> = [
-  { key: "views", label: "Views" },
-  { key: "reach", label: "Reach" },
-  { key: "engagements", label: "Engagement" },
-  { key: "erByReach", label: "ER (reach)" },
-  { key: "publishedAt", label: "Published" },
-];
+const COLUMN_KEYS: SortKey[] = ["views", "reach", "engagements", "erByReach", "publishedAt"];
+
+const COLUMN_LABEL_KEYS: Record<SortKey, string> = {
+  views: "columns.views",
+  reach: "columns.reach",
+  engagements: "columns.engagement",
+  erByReach: "columns.erReach",
+  publishedAt: "columns.published",
+};
 
 // On phones the table scrolls horizontally; keep it from collapsing to
 // min-content so the scroll affordance engages instead of crushed columns.
 const TABLE_MIN_W = "min-w-[640px]";
 
-function cell(value: number | null): string {
-  return value === null ? "—" : fmtCount(Math.round(value));
+function cell(value: number | null, locale?: string): string {
+  return value === null ? "—" : fmtCount(Math.round(value), locale);
 }
 
 /** Top posts, sortable by any metric. Unavailable metrics render as "—". */
 export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
+  const t = useTranslations("analytics.leaderboardTable");
+  const locale = useLocale();
   const [sortKey, setSortKey] = useState<SortKey>("engagements");
 
   const sorted = useMemo(() => {
@@ -43,7 +48,7 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
   if (rows.length === 0) {
     return (
       <div className="py-10 text-center text-[13px]" style={{ color: "var(--mk-ink-60)" }}>
-        No posts with metrics in this period yet. Metrics arrive about an hour after publishing.
+        {t("empty")}
       </div>
     );
   }
@@ -57,21 +62,24 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
               className="text-left font-normal py-2 pr-3 mk-eyebrow"
               style={{ minWidth: 220 }}
             >
-              Post
+              {t("post")}
             </th>
-            {COLUMNS.map((col) => (
-              <th key={col.key} className="text-right font-normal py-2 px-2 whitespace-nowrap">
-                <button
-                  type="button"
-                  onClick={() => setSortKey(col.key)}
-                  className="mk-eyebrow inline-flex items-center gap-1 cursor-pointer hover:opacity-70 py-2.5 -my-2.5 px-1 -mx-1"
-                  title={`Sort by ${col.label}`}
-                >
-                  {col.label}
-                  {sortKey === col.key && <ArrowDown className="h-3 w-3" />}
-                </button>
-              </th>
-            ))}
+            {COLUMN_KEYS.map((key) => {
+              const label = t(COLUMN_LABEL_KEYS[key]);
+              return (
+                <th key={key} className="text-right font-normal py-2 px-2 whitespace-nowrap">
+                  <button
+                    type="button"
+                    onClick={() => setSortKey(key)}
+                    className="mk-eyebrow inline-flex items-center gap-1 cursor-pointer hover:opacity-70 py-2.5 -my-2.5 px-1 -mx-1"
+                    title={t("sortBy", { label })}
+                  >
+                    {label}
+                    {sortKey === key && <ArrowDown className="h-3 w-3" />}
+                  </button>
+                </th>
+              );
+            })}
             <th className="w-8" />
           </tr>
         </thead>
@@ -93,18 +101,18 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
                     className="line-clamp-2 min-w-0"
                     style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
                   >
-                    {row.content || "Untitled post"}
+                    {row.content || t("untitledPost")}
                   </span>
                 </Link>
               </td>
               <td className="text-right px-2 font-mono mk-figure" style={{ color: "var(--mk-ink)" }}>
-                {cell(row.views)}
+                {cell(row.views, locale)}
               </td>
               <td className="text-right px-2 font-mono mk-figure" style={{ color: "var(--mk-ink)" }}>
-                {cell(row.reach)}
+                {cell(row.reach, locale)}
               </td>
               <td className="text-right px-2 font-mono mk-figure" style={{ color: "var(--mk-ink)" }}>
-                {cell(row.engagements)}
+                {cell(row.engagements, locale)}
               </td>
               <td className="text-right px-2 font-mono" style={{ color: "var(--mk-ink-60)" }}>
                 {row.erByReach === null ? "—" : `${(row.erByReach * 100).toFixed(1)}%`}
@@ -113,7 +121,7 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
                 className="text-right px-2 font-mono text-[11px] whitespace-nowrap"
                 style={{ color: "var(--mk-ink-40)" }}
               >
-                {row.publishedAt ? new Date(row.publishedAt).toLocaleDateString() : "—"}
+                {row.publishedAt ? new Date(row.publishedAt).toLocaleDateString(locale) : "—"}
               </td>
               <td className="text-right pl-1">
                 {row.externalUrl && (
@@ -121,7 +129,7 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
                     href={row.externalUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    title="Open on platform"
+                    title={t("openOnPlatform")}
                     className="inline-flex opacity-70 hover:opacity-100 p-2 -m-2"
                     style={{ color: "var(--mk-ink)" }}
                   >

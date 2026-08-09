@@ -1,0 +1,37 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Your marketing engine at a glance.",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing…",
+  "newPost": "New post",
+  "errorTitle": "Couldn't load your dashboard",
+  "errorBody": "We couldn't load your dashboard data.",
+  "retry": "Retry",
+  "kpis": {
+    "brands": "Brands",
+    "brandsActive": "{count} active",
+    "posts": "Posts",
+    "postsSub": "{published} published · {scheduled} scheduled",
+    "publishedWeek": "Published · 7d",
+    "acrossDays": "across {count} days"
+  },
+  "chart": {
+    "eyebrow": "Publishing activity · 7d",
+    "publishedThisWeek": "{count} published this week",
+    "show": "Show {label}",
+    "hide": "Hide {label}",
+    "noActivity": "No post activity yet."
+  },
+  "distribution": {
+    "eyebrow": "Distribution",
+    "title": "Posts by channel",
+    "viewInCalendar": "View {channel} posts in calendar"
+  },
+  "recentPosts": {
+    "eyebrow": "Up next",
+    "title": "Recent posts",
+    "viewAll": "View all →",
+    "untitled": "Untitled post",
+    "empty": "No posts yet. Create your first to see activity here."
+  }
+}

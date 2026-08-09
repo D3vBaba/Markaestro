@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "eyebrow": "Contato",
+    "titleLead": "Adoraríamos",
+    "titleHighlight": "ouvir você",
+    "subtitle": "Seja para tirar dúvidas sobre recursos, obter ajuda com uma integração ou explorar uma parceria — nossa equipe está aqui para ajudar."
+  },
+  "channels": [
+    {
+      "title": "Perguntas Gerais",
+      "description": "Dúvidas sobre o Markaestro, preços ou parcerias.",
+      "email": "hello@markaestro.com",
+      "response": "1-2 dias úteis"
+    },
+    {
+      "title": "Suporte Técnico",
+      "description": "Ajuda com integrações, problemas de publicação ou acesso à conta.",
+      "email": "support@markaestro.com",
+      "response": "Menos de 24 horas"
+    },
+    {
+      "title": "Privacidade e Jurídico",
+      "description": "Solicitações de dados, dúvidas de conformidade ou questões jurídicas.",
+      "email": "legal@markaestro.com",
+      "response": "2-3 dias úteis"
+    }
+  ],
+  "form": {
+    "eyebrow": "Envie uma Mensagem",
+    "title": "Entre em contato diretamente",
+    "description": "Preencha o formulário e retornaremos assim que possível. Para questões técnicas urgentes, inclua \"URGENTE\" no assunto.",
+    "officeHoursTitle": "Horário de Atendimento",
+    "officeHoursWeekday": "Segunda a Sexta: 9h às 18h (horário do leste dos EUA)",
+    "officeHoursWeekend": "Sábado e Domingo: Fechado",
+    "enterpriseTitle": "Empresas e Parcerias",
+    "enterpriseDescription": "Para preços empresariais, integrações personalizadas ou oportunidades de parceria, fale conosco em",
+    "enterpriseEmail": "partnerships@markaestro.com",
+    "sentTitle": "Mensagem Pronta",
+    "sentDescription": "Seu cliente de e-mail deve ter aberto com a mensagem pré-preenchida. Se isso não aconteceu, envie um e-mail diretamente para",
+    "supportEmail": "support@markaestro.com",
+    "sendAnother": "Enviar Outra Mensagem",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Seu nome",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "voce@empresa.com",
+    "subjectLabel": "Assunto",
+    "subjectPlaceholder": "Como podemos ajudar?",
+    "messageLabel": "Mensagem",
+    "messagePlaceholder": "Conte mais sobre sua dúvida ou problema...",
+    "submit": "Enviar Mensagem",
+    "privacyNotice": "Ao enviar uma mensagem, você concorda com nossa",
+    "privacyLink": "Política de Privacidade"
+  },
+  "faqEyebrow": "FAQ",
+  "faqTitle": "Perguntas frequentes",
+  "faqs": [
+    {
+      "q": "Como conecto minhas contas de mídia social?",
+      "a": "Abra uma marca no seu painel e conecte os canais em que você publica (Meta para Facebook e Instagram, TikTok, Threads ou Pinterest). Cada conexão usa OAuth e geralmente leva menos de um minuto."
+    },
+    {
+      "q": "Existe teste grátis?",
+      "a": "Sim. Todo plano pago inclui um teste grátis com acesso completo. Seu cartão é coletado no cadastro, mas você não será cobrado até o fim do teste. Cancele durante o teste e não pague nada."
+    },
+    {
+      "q": "Que tipos de mídia posso enviar?",
+      "a": "Imagens (JPG, PNG, WebP, até 10 MB cada) e vídeos (MP4, MOV, WebM, até 250 MB cada). Os arquivos são armazenados por workspace e anexados a posts através do editor."
+    },
+    {
+      "q": "Posso usar o Markaestro para várias marcas ou clientes?",
+      "a": "Com certeza. Os workspaces permitem isolar marcas, clientes ou unidades de negócio. Cada workspace tem suas próprias marcas, ativos, conexões de canal e membros de equipe."
+    },
+    {
+      "q": "Como meus dados são protegidos?",
+      "a": "Os tokens OAuth são criptografados em repouso. Toda comunicação de API usa TLS. Seguimos o princípio do menor privilégio para acesso a dados. Veja nossa Política de Privacidade para mais detalhes."
+    },
+    {
+      "q": "Vocês oferecem uma API?",
+      "a": "A API do Markaestro está disponível em todos os planos pagos. Ela cobre gerenciamento de conteúdo, uploads de mídia, publicação e status de posts. A documentação está disponível no seu painel."
+    }
+  ],
+  "cta": {
+    "title": "Pronto para começar?",
+    "subtitle": "Crie sua conta gratuita e comece a publicar em minutos. Sem necessidade de cartão de crédito.",
+    "button": "Comece grátis"
+  }
+}

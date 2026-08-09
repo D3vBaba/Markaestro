@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "Post",
+    "subtitle": "Crea, pianifica e pubblica contenuti organici sui tuoi canali social.",
+    "tabs": {
+      "create": "Crea",
+      "drafts": "Bozze",
+      "scheduled": "Pianificati",
+      "published": "Pubblicati",
+      "onPlatform": "Sulla piattaforma"
+    },
+    "productBar": {
+      "brand": "Brand",
+      "noBrandSelected": "Nessun brand selezionato",
+      "change": "Cambia"
+    }
+  },
+  "editor": {
+    "placeholder": "Il contenuto generato apparirà qui...",
+    "limitSuffix": "limite"
+  },
+  "productPicker": {
+    "brand": "Brand",
+    "selectBrand": "Seleziona un brand...",
+    "tone": "Tono:",
+    "style": "Stile:",
+    "audience": "Pubblico:"
+  },
+  "markPostedDialog": {
+    "title": "Segna come pubblicato",
+    "description": "Conferma di aver pubblicato tu stesso questo post su {channel}. Incolla il link al post live se ce l'hai — collegherà il post alle sue statistiche in seguito.",
+    "urlPlaceholder": "https://www.{channel}.com/… (facoltativo)",
+    "cancel": "Annulla",
+    "confirm": "Segna come pubblicato",
+    "toasts": {
+      "marked": "Segnato come pubblicato",
+      "failed": "Impossibile segnare come pubblicato"
+    }
+  },
+  "publishedTab": {
+    "empty": "Ancora nessun post pubblicato.",
+    "createPost": "Crea un post",
+    "toasts": {
+      "deleted": "Post eliminato",
+      "deleteFailed": "Impossibile eliminare il post",
+      "loadFailed": "Impossibile caricare i post pubblicati"
+    }
+  },
+  "scheduledTab": {
+    "empty": "Ancora nulla di pianificato.",
+    "scheduleFirst": "Pianifica il tuo primo post",
+    "editTitle": "Modifica post pianificato",
+    "saveAndReschedule": "Salva e ripianifica",
+    "toasts": {
+      "loadFailed": "Impossibile caricare i post pianificati",
+      "movedToDrafts": "Riportato nelle bozze",
+      "cancelFailed": "Impossibile annullare la pianificazione",
+      "deleted": "Post eliminato",
+      "deleteFailed": "Impossibile eliminare il post",
+      "pushingTikTok": "Invio alla posta in arrivo di TikTok…",
+      "publishingPost": "Pubblicazione del post…",
+      "tiktokInboxConfirmed": "TikTok ha confermato la consegna in posta in arrivo. Apri l'app TikTok per finalizzare e pubblicare.",
+      "tiktokProcessing": "TikTok ha accettato il caricamento e lo sta ancora elaborando.",
+      "stillProcessing": "Post inviato e ancora in elaborazione.",
+      "posted": "Pubblicato!",
+      "publishFailed": "Pubblicazione non riuscita",
+      "updated": "Post aggiornato",
+      "updateFailed": "Aggiornamento non riuscito",
+      "rescheduled": "Post ripianificato",
+      "rescheduleFailed": "Ripianificazione non riuscita"
+    }
+  },
+  "draftsTab": {
+    "empty": "Ancora nessuna bozza.",
+    "createFirst": "Crea il tuo primo post",
+    "editTitle": "Modifica bozza",
+    "toPostHeading": "Da pubblicare",
+    "waitingInTikTokHeading": "In attesa in TikTok",
+    "draftsHeading": "Bozze",
+    "toasts": {
+      "loadFailed": "Impossibile caricare le bozze",
+      "deleted": "Bozza eliminata",
+      "deleteFailed": "Impossibile eliminare",
+      "addingToQueue": "Aggiunta alla tua coda “Da pubblicare”…",
+      "pushingTikTok": "Invio alla posta in arrivo di TikTok…",
+      "publishingPost": "Pubblicazione del post…",
+      "addedToQueue": "Aggiunto alla tua coda “Da pubblicare”. Pubblicalo in modo nativo, poi contrassegnalo come pubblicato.",
+      "tiktokInboxConfirmed": "TikTok ha confermato la consegna in posta in arrivo. Apri l'app TikTok per finalizzare e pubblicare.",
+      "tiktokProcessing": "TikTok ha accettato il caricamento e lo sta ancora elaborando.",
+      "stillProcessing": "Post inviato e ancora in elaborazione.",
+      "posted": "Pubblicato!",
+      "publishFailed": "Pubblicazione non riuscita",
+      "updated": "Bozza aggiornata",
+      "updateFailed": "Aggiornamento non riuscito",
+      "scheduled": "Post pianificato",
+      "scheduleFailed": "Pianificazione non riuscita"
+    }
+  },
+  "channelSelector": {
+    "channels": "Canali",
+    "selectedCount": "{count} selezionati",
+    "postTo": "Pubblica su",
+    "defaultReason": "Collega questo canale nelle impostazioni del brand.",
+    "productSettings": "Impostazioni del prodotto"
+  },
+  "scheduleSheet": {
+    "eyebrow": "Pianifica",
+    "title": "Pianifica post",
+    "description": "Scegli una data e un'ora, oppure usa gli orari ottimali suggeriti dall'IA.",
+    "tiktokNoteLabel": "TikTok si finalizza nell'app TikTok.",
+    "tiktokNoteBody": "All'orario pianificato, Markaestro invia il contenuto alla tua posta in arrivo di TikTok e lo contrassegna come pronto non appena puoi aprire TikTok per finalizzare didascalia, privacy e pubblicazione.",
+    "smartSchedule": "Pianificazione intelligente",
+    "aiSuggested": "Suggerito dall'IA",
+    "hide": "Nascondi",
+    "show": "Mostra",
+    "basedOnData": "Basato sui dati di coinvolgimento del settore per {channel}",
+    "thisChannel": "questo canale",
+    "orPickManually": "oppure scegli manualmente",
+    "timeLabel": "Ora",
+    "timezoneNote": "Le pianificazioni usano il tuo fuso orario locale ({timezone}) e vengono salvate in UTC.",
+    "headsUp": "Attenzione:",
+    "collisionNote": "un altro post è già pianificato in prossimità di questo orario ({date}{channel}). Puoi comunque pianificare entrambi.",
+    "onChannel": " su {channel}",
+    "scheduleFor": "Pianifica per il {date} alle {time}",
+    "selectDate": "Seleziona una data"
+  },
+  "postEditSheet": {
+    "caption": "Didascalia",
+    "media": "Media",
+    "image": "Immagine",
+    "remove": "Rimuovi",
+    "replace": "Sostituisci",
+    "dropMedia": "Trascina un media o fai clic per caricarlo",
+    "dropImage": "Trascina un'immagine o fai clic per caricarla",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · fino a 10 MB",
+    "uploading": "Caricamento…",
+    "upload": "Carica",
+    "preview": "Anteprima",
+    "cancel": "Annulla",
+    "saving": "Salvataggio…",
+    "save": "Salva",
+    "defaultTitle": "Modifica post",
+    "defaultScheduleLabel": "Pianifica",
+    "toasts": {
+      "videoTikTokOnly": "I video sono disponibili solo per i post TikTok",
+      "videoTooLarge": "Il video deve essere inferiore a 250 MB",
+      "imageTooLarge": "L'immagine deve essere inferiore a 10 MB",
+      "videoUploaded": "Video caricato",
+      "imageUploaded": "Immagine caricata",
+      "uploadFailed": "Caricamento non riuscito"
+    }
+  },
+  "postCard": {
+    "readyToPost": "Pronto per la pubblicazione",
+    "readyInTikTok": "Pronto in TikTok",
+    "partiallyFailed": "Parzialmente non riuscito",
+    "text": "Testo",
+    "preview": "Anteprima",
+    "view": "Visualizza",
+    "copyCaption": "Copia didascalia",
+    "downloadMedia": "Scarica media",
+    "downloading": "Download…",
+    "markAsPosted": "Segna come pubblicato",
+    "edit": "Modifica",
+    "publish": "Pubblica",
+    "publishing": "Pubblicazione…",
+    "reschedule": "Ripianifica",
+    "unschedule": "Annulla pianificazione",
+    "delete": "Elimina",
+    "readyToPostOn": "Pronto per la pubblicazione su {channel}",
+    "manualInstructions": "Scarica il media, copia la didascalia, pubblicalo dall'app di {channel} come faresti normalmente, poi contrassegnalo come pubblicato qui.",
+    "openChannel": "Apri {channel}",
+    "readyInTikTokInbox": "Pronto nella tua posta in arrivo di TikTok",
+    "tiktokInboxInstructions": "Apri l'app TikTok → Posta in arrivo → tocca la notifica di caricamento per completare la didascalia e pubblicare. Le bozze scadono dopo ~7 giorni.",
+    "openTikTok": "Apri TikTok",
+    "publishingTo": "Pubblicazione su {channel}...",
+    "toasts": {
+      "captionCopied": "Didascalia copiata",
+      "copyFailed": "Impossibile copiare la didascalia"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "Aggiorna",
+    "liveFrom": "Post live dal tuo account {channel} collegato — inclusi quelli pubblicati fuori da Markaestro.",
+    "loadMore": "Carica altri",
+    "loading": "Caricamento…",
+    "noCaption": "Nessuna didascalia",
+    "view": "Visualizza",
+    "deleting": "Eliminazione…",
+    "delete": "Elimina",
+    "noDeleteHints": {
+      "instagram": "Instagram non consente alle app di eliminare i post — rimuovili nell'app Instagram.",
+      "tiktok": "TikTok non consente alle app di eliminare i video — rimuovili nell'app TikTok."
+    },
+    "noDeleteDefault": "L'eliminazione non è supportata per questo post.",
+    "deleteWarning": "Questo rimuove definitivamente il post da {channel}.",
+    "states": {
+      "notConnectedTitle": "{channel} non è ancora collegato",
+      "notConnectedBody": "Collega {channel} a questo brand e i suoi post live appariranno qui — inclusi quelli pubblicati fuori da Markaestro.",
+      "connect": "Collega {channel}",
+      "authTitle": "{channel} deve essere ricollegato",
+      "authBody": "La connessione a {channel} è scaduta, quindi al momento non possiamo sfogliare i suoi post. Ricollegala dalle impostazioni del brand per riprendere da dove avevi lasciato.",
+      "reconnect": "Ricollega {channel}",
+      "checkAgain": "Controlla di nuovo",
+      "unsupportedTitle": "La consultazione dei post {channel} non è disponibile",
+      "linkedinPartnerBody": "LinkedIn consente solo alle app partner approvate di sfogliare i post dell'account. Tutto ciò che pubblichi tramite Markaestro appare comunque nella tua scheda Pubblicati.",
+      "unsupportedBody": "{channel} non consente alle app di sfogliare i post dell'account. Tutto ciò che pubblichi tramite Markaestro appare comunque nella tua scheda Pubblicati.",
+      "errorTitle": "Impossibile caricare i post {channel}",
+      "errorBody": "{channel} non ha risposto come previsto. Di solito è temporaneo — riprova tra un momento.",
+      "tryAgain": "Riprova",
+      "emptyTitle": "Ancora nessun post su {channel}",
+      "emptyBody": "Quando questo account pubblica — tramite Markaestro o direttamente su {channel} — i suoi post appariranno qui."
+    },
+    "toasts": {
+      "loadMoreFailed": "Impossibile caricare altri post",
+      "deleted": "Post eliminato da {channel}",
+      "deleteFailed": "Impossibile eliminare il post sulla piattaforma"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "La tua bozza non salvata è stata ripristinata",
+    "discard": "Scarta",
+    "caption": "Didascalia",
+    "media": "Media",
+    "removeMedia": "Rimuovi",
+    "addMedia": "+ Aggiungi",
+    "dropImagesOrVideos": "Trascina immagini o video",
+    "dropImages": "Trascina immagini o fai clic per caricarle",
+    "mediaCountHint": "Fino a {count, plural, one {# elemento} other {# elementi}} · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · fino a 10 MB",
+    "uploading": "Caricamento…",
+    "upload": "Carica",
+    "saveDraft": "Salva bozza",
+    "schedule": "Pianifica",
+    "postNow": "Pubblica ora",
+    "posting": "Pubblicazione…",
+    "preview": "Anteprima",
+    "previewPlaceholder": "L'anteprima del tuo post apparirà qui.",
+    "previewHint": "Scrivi una didascalia e carica il tuo media per iniziare.",
+    "toasts": {
+      "selectChannel": "Seleziona almeno un canale di pubblicazione pronto.",
+      "videoNotSupported": "Uno o più canali selezionati non supportano il caricamento di video",
+      "videoAlone": "I video devono essere caricati da soli",
+      "maxMedia": "Massimo {count, plural, one {# elemento multimediale} other {# elementi multimediali}} per i canali selezionati",
+      "fileTooLarge": "{file}: deve essere inferiore a {size} MB",
+      "fileUploadFailed": "{file}: caricamento non riuscito",
+      "filesUploaded": "{count, plural, one {# file caricato} other {# file caricati}}",
+      "uploadFailed": "Caricamento non riuscito",
+      "createFailed": "Impossibile creare il post",
+      "draftSaved": "Bozza salvata",
+      "draftSaveFailed": "Impossibile salvare la bozza",
+      "scheduled": "Post pianificato",
+      "scheduleFailed": "Impossibile pianificare il post",
+      "tiktokSending": "Invio a TikTok in corso. Markaestro è in attesa che TikTok confermi la consegna in posta in arrivo.",
+      "stillProcessing": "Post inviato e ancora in elaborazione.",
+      "tiktokInboxConfirmed": "TikTok ha confermato la consegna in posta in arrivo. Apri la Posta in arrivo di TikTok, completa la didascalia e tocca Pubblica.",
+      "postedToMultiple": "Pubblicato su {channels}!",
+      "postedSuccess": "Pubblicato con successo!",
+      "publishFailed": "Pubblicazione non riuscita"
+    }
+  }
+}

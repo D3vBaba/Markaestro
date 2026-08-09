@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { DashboardOverviewChart } from "@/components/dashboard/OverviewChart";
@@ -55,6 +56,9 @@ export default function Home() {
   const { data, loading, refreshing, error, refresh } =
     useApiQuery<DashboardData>("/api/dashboard");
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
+  const locale = useLocale();
+  const t = useTranslations("dashboard");
+  const tStatus = useTranslations("appCommon.status");
 
   const dailyPosts = data?.dailyPosts ?? [];
   const recentPosts = data?.recentPosts ?? [];
@@ -70,29 +74,29 @@ export default function Home() {
   const kpis: Kpi[] = [
     {
       key: "products",
-      label: "Brands",
-      value: fmtCount(m?.totalProducts ?? 0),
-      sub: `${m?.activeProducts ?? 0} active`,
+      label: t("kpis.brands"),
+      value: fmtCount(m?.totalProducts ?? 0, locale),
+      sub: t("kpis.brandsActive", { count: m?.activeProducts ?? 0 }),
     },
     {
       key: "posts",
-      label: "Posts",
-      value: fmtCount(m?.totalPosts ?? 0),
-      sub: `${m?.publishedPosts ?? 0} published · ${m?.scheduledPosts ?? 0} scheduled`,
+      label: t("kpis.posts"),
+      value: fmtCount(m?.totalPosts ?? 0, locale),
+      sub: t("kpis.postsSub", { published: m?.publishedPosts ?? 0, scheduled: m?.scheduledPosts ?? 0 }),
     },
     {
       key: "week",
-      label: "Published · 7d",
-      value: fmtCount(publishedTotal),
-      sub: `across ${dailyPosts.length} days`,
+      label: t("kpis.publishedWeek"),
+      value: fmtCount(publishedTotal, locale),
+      sub: t("kpis.acrossDays", { count: dailyPosts.length }),
     },
   ];
 
   return (
     <AppShell>
       <PageHeader
-        title="Dashboard"
-        subtitle="Your marketing engine at a glance."
+        title={t("title")}
+        subtitle={t("subtitle")}
         action={
           <div className="flex items-center gap-2 flex-wrap">
             <Button
@@ -104,12 +108,12 @@ export default function Home() {
               <RefreshCw
                 className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`}
               />
-              {refreshing ? "Refreshing…" : "Refresh"}
+              {refreshing ? t("refreshing") : t("refresh")}
             </Button>
             <Link href="/content">
               <Button className="rounded-lg h-9 text-[13px] gap-1.5">
                 <Plus className="h-3.5 w-3.5" />
-                New post
+                {t("newPost")}
               </Button>
             </Link>
           </div>
@@ -135,13 +139,13 @@ export default function Home() {
               className="text-[13px] font-medium m-0"
               style={{ color: "var(--mk-ink)" }}
             >
-              Couldn&apos;t load your dashboard
+              {t("errorTitle")}
             </p>
             <p
               className="text-[12px] mt-0.5 m-0"
               style={{ color: "var(--mk-ink-60)" }}
             >
-              We couldn&apos;t load your dashboard data.
+              {t("errorBody")}
             </p>
           </div>
           <Button
@@ -150,7 +154,7 @@ export default function Home() {
             className="rounded-lg text-[12px] shrink-0"
             onClick={() => refresh()}
           >
-            Retry
+            {t("retry")}
           </Button>
         </div>
       )}
@@ -208,7 +212,7 @@ export default function Home() {
           >
             <div className="flex items-start justify-between mb-3.5 gap-3 flex-wrap">
               <div>
-                <div className="mk-eyebrow">Publishing activity · 7d</div>
+                <div className="mk-eyebrow">{t("chart.eyebrow")}</div>
                 {loading ? (
                   <Skeleton className="mt-1.5 h-6 w-44" />
                 ) : (
@@ -216,14 +220,14 @@ export default function Home() {
                     className="mt-1 text-[18px] font-semibold"
                     style={{ color: "var(--mk-ink)", letterSpacing: "-0.02em" }}
                   >
-                    {fmtCount(publishedTotal)} published this week
+                    {t("chart.publishedThisWeek", { count: fmtCount(publishedTotal, locale) })}
                   </div>
                 )}
               </div>
               <div className="flex items-center gap-3">
                 {[
-                  { key: "published", label: "Published", color: "var(--mk-ink)" },
-                  { key: "scheduled", label: "Scheduled", color: "var(--mk-accent)" },
+                  { key: "published", label: tStatus("published"), color: "var(--mk-ink)" },
+                  { key: "scheduled", label: tStatus("scheduled"), color: "var(--mk-accent)" },
                 ].map((s) => {
                   const hidden = hiddenSeries.includes(s.key);
                   return (
@@ -232,7 +236,7 @@ export default function Home() {
                       type="button"
                       onClick={() => toggleSeries(s.key)}
                       aria-pressed={!hidden}
-                      title={hidden ? `Show ${s.label}` : `Hide ${s.label}`}
+                      title={hidden ? t("chart.show", { label: s.label }) : t("chart.hide", { label: s.label })}
                       className={`inline-flex items-center gap-1.5 text-[11px] cursor-pointer transition-opacity py-2 -my-2 px-1 -mx-1 ${
                         hidden ? "opacity-40 line-through" : "hover:opacity-80"
                       }`}
@@ -276,12 +280,12 @@ export default function Home() {
                 className="px-4 sm:px-5 py-3 sm:py-3.5 border-b"
                 style={{ borderColor: "var(--mk-rule)" }}
               >
-                <div className="mk-eyebrow">Distribution</div>
+                <div className="mk-eyebrow">{t("distribution.eyebrow")}</div>
                 <div
                   className="mt-1 text-[15px] sm:text-[16px] font-semibold"
                   style={{ color: "var(--mk-ink)", letterSpacing: "-0.02em" }}
                 >
-                  Posts by channel
+                  {t("distribution.title")}
                 </div>
               </div>
               <div className="divide-y" style={{ borderColor: "var(--mk-rule-soft)" }}>
@@ -294,7 +298,7 @@ export default function Home() {
                       <Link
                         key={ch}
                         href={`/calendar?channel=${encodeURIComponent(ch)}`}
-                        title={`View ${channelLabel(ch)} posts in calendar`}
+                        title={t("distribution.viewInCalendar", { channel: channelLabel(ch) })}
                         className="group flex items-center gap-3 px-4 sm:px-5 py-3 transition-colors hover:bg-muted/40"
                       >
                         <Channel channel={ch} size={22} />
@@ -314,7 +318,7 @@ export default function Home() {
                           className="font-mono text-[13px] mk-figure text-right w-10"
                           style={{ color: "var(--mk-ink)" }}
                         >
-                          {fmtCount(count)}
+                          {fmtCount(count, locale)}
                         </span>
                         <ChevronRight
                           className="h-3.5 w-3.5 shrink-0 opacity-40 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
@@ -339,12 +343,12 @@ export default function Home() {
           >
             <div className="flex items-end justify-between mb-3">
               <div>
-                <div className="mk-eyebrow">Up next</div>
+                <div className="mk-eyebrow">{t("recentPosts.eyebrow")}</div>
                 <h3
                   className="mt-1 text-[16px] font-semibold m-0"
                   style={{ color: "var(--mk-ink)", letterSpacing: "-0.02em" }}
                 >
-                  Recent posts
+                  {t("recentPosts.title")}
                 </h3>
               </div>
               <Link
@@ -352,7 +356,7 @@ export default function Home() {
                 className="text-[12px] font-medium hover:underline underline-offset-2"
                 style={{ color: "var(--mk-ink-60)" }}
               >
-                View all →
+                {t("recentPosts.viewAll")}
               </Link>
             </div>
 
@@ -387,7 +391,7 @@ export default function Home() {
                         className="text-[12.5px] font-medium line-clamp-2"
                         style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
                       >
-                        {post.content || "Untitled post"}
+                        {post.content || t("recentPosts.untitled")}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <Status value={post.status} />
@@ -396,7 +400,7 @@ export default function Home() {
                             className="font-mono text-[9.5px]"
                             style={{ color: "var(--mk-ink-40)", letterSpacing: "0.08em" }}
                           >
-                            {new Date(post.date).toLocaleDateString()}
+                            {new Date(post.date).toLocaleDateString(locale)}
                           </span>
                         )}
                       </div>
@@ -409,7 +413,7 @@ export default function Home() {
                 className="py-8 text-center text-[13px]"
                 style={{ color: "var(--mk-ink-60)" }}
               >
-                No posts yet. Create your first to see activity here.
+                {t("recentPosts.empty")}
               </div>
             )}
 
@@ -420,7 +424,7 @@ export default function Home() {
                 className="w-full rounded-lg text-[12px] gap-1.5"
               >
                 <Plus className="h-3 w-3" />
-                New post
+                {t("newPost")}
               </Button>
             </Link>
           </div>

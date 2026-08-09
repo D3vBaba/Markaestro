@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { apiGet, apiPost, apiDelete, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ export default function DraftsTab({
   productId?: string;
   onCreatePost?: () => void;
 }) {
+  const t = useTranslations("content.draftsTab");
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [editPost, setEditPost] = useState<Post | null>(null);
@@ -66,10 +68,11 @@ export default function DraftsTab({
       const reviewReady = reviewRes.ok ? (reviewRes.data.posts || []) : [];
       setPosts([...reviewReady, ...(failedRes.ok ? (failedRes.data.posts || []) : []), ...drafts]);
     } catch {
-      toast.error("Failed to load drafts");
+      toast.error(t("toasts.loadFailed"));
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
   useEffect(() => {
@@ -95,10 +98,10 @@ export default function DraftsTab({
     const restore = removeOptimistic(id);
     const res = await apiDelete(`/api/posts/${id}`);
     if (res.ok) {
-      toast.success("Draft deleted");
+      toast.success(t("toasts.deleted"));
     } else {
       restore();
-      toast.error("Failed to delete");
+      toast.error(t("toasts.deleteFailed"));
     }
   };
 
@@ -115,10 +118,10 @@ export default function DraftsTab({
     const isManual = target ? isManualQueuePost(target) : false;
     const isTikTok = channel === "tiktok";
     const loadingMessage = isManual
-      ? "Adding to your To Post queue…"
+      ? t("toasts.addingToQueue")
       : isTikTok
-        ? "Pushing to TikTok inbox…"
-        : "Publishing post…";
+        ? t("toasts.pushingTikTok")
+        : t("toasts.publishingPost");
     const toastId = toast.loading(loadingMessage);
 
     try {
@@ -136,8 +139,8 @@ export default function DraftsTab({
         if (outcome.platformActionRequired) {
           toast.success(
             outcome.manualReminder
-              ? "Added to your To Post queue. Post it natively, then mark it as posted."
-              : "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
+              ? t("toasts.addedToQueue")
+              : t("toasts.tiktokInboxConfirmed"),
             { id: toastId },
           );
           // These posts stay here while waiting on the user — flip the status locally
@@ -156,12 +159,12 @@ export default function DraftsTab({
           if (outcome.processing) {
             toast.success(
               outcome.hasTikTok
-                ? "TikTok accepted the upload and is still processing it."
-                : "Post submitted and still processing.",
+                ? t("toasts.tiktokProcessing")
+                : t("toasts.stillProcessing"),
               { id: toastId },
             );
           } else {
-            toast.success("Posted!", { id: toastId });
+            toast.success(t("toasts.posted"), { id: toastId });
           }
           // No longer a draft — drop it immediately
           setPosts((cur) => cur.filter((p) => p.id !== id));
@@ -169,11 +172,11 @@ export default function DraftsTab({
         // Background refetch keeps server-computed fields fresh without blocking the UI
         fetchDrafts();
       } else {
-        toast.error(res.data.error || "Publishing failed", { id: toastId });
+        toast.error(res.data.error || t("toasts.publishFailed"), { id: toastId });
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Publishing failed",
+        err instanceof Error ? err.message : t("toasts.publishFailed"),
         { id: toastId },
       );
     } finally {
@@ -195,10 +198,10 @@ export default function DraftsTab({
     setEditPost(null);
     const res = await apiPut(`/api/posts/${target.id}`, { content, mediaUrls: mediaUrls ?? null });
     if (res.ok) {
-      toast.success("Draft updated");
+      toast.success(t("toasts.updated"));
     } else {
       setPosts((cur) => cur.map((p) => (p.id === target.id ? { ...p, ...prev } : p)));
-      toast.error("Failed to update");
+      toast.error(t("toasts.updateFailed"));
     }
   };
 
@@ -222,10 +225,10 @@ export default function DraftsTab({
       scheduledAt,
     });
     if (res.ok) {
-      toast.success("Post scheduled");
+      toast.success(t("toasts.scheduled"));
     } else {
       restore();
-      toast.error("Failed to schedule");
+      toast.error(t("toasts.scheduleFailed"));
     }
   };
 
@@ -236,10 +239,10 @@ export default function DraftsTab({
   if (posts.length === 0) {
     return (
       <div className="text-center py-20">
-        <p className="text-sm text-muted-foreground">No drafts yet.</p>
+        <p className="text-sm text-muted-foreground">{t("empty")}</p>
         {onCreatePost && (
           <Button variant="outline" size="sm" className="mt-4" onClick={onCreatePost}>
-            Create your first post
+            {t("createFirst")}
           </Button>
         )}
       </div>
@@ -266,7 +269,7 @@ export default function DraftsTab({
       {toPost.length > 0 && (
         <div className="mb-8">
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
-            To Post
+            {t("toPostHeading")}
           </h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {toPost.map((post) => (
@@ -284,7 +287,7 @@ export default function DraftsTab({
       {waitingInTikTok.length > 0 && (
         <div className="mb-8">
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
-            Waiting in TikTok
+            {t("waitingInTikTokHeading")}
           </h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {waitingInTikTok.map((post) => (
@@ -302,7 +305,7 @@ export default function DraftsTab({
         <>
           {hasQueueSections && (
             <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
-              Drafts
+              {t("draftsHeading")}
             </h3>
           )}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -328,7 +331,7 @@ export default function DraftsTab({
         onOpenChange={(open) => !open && setEditPost(null)}
         onSave={handleSaveEdit}
         onSchedule={handleScheduleFromEdit}
-        title="Edit Draft"
+        title={t("editTitle")}
       />
 
       <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} channel={scheduleChannel} />

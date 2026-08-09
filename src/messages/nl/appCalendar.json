@@ -1,0 +1,68 @@
+{
+  "statusLabels": {
+    "published": "Gepubliceerd",
+    "scheduled": "Gepland",
+    "draft": "Concept",
+    "failed": "Mislukt",
+    "partial_failed": "Gedeeltelijk mislukt",
+    "publishing": "Wordt gepubliceerd"
+  },
+  "mockups": {
+    "sponsored": "Gesponsord",
+    "like": "Vind ik leuk",
+    "comment": "Reageren",
+    "share": "Delen",
+    "save": "Opslaan",
+    "justNow": "Zojuist",
+    "likeAction": "👍 Vind ik leuk",
+    "commentAction": "💬 Reageren",
+    "shareAction": "↗ Delen"
+  },
+  "detailPanel": {
+    "backToDay": "Terug naar de dag",
+    "close": "Sluiten",
+    "published": "Gepubliceerd",
+    "scheduled": "Gepland",
+    "preview": "Voorbeeld",
+    "viewLivePost": "Live post bekijken",
+    "untitledPost": "Post zonder titel",
+    "failedToPublish": "Publiceren mislukt"
+  },
+  "dayPanel": {
+    "today": "Vandaag",
+    "postCount": "{count, plural, one {# post} other {# posts}} · selecteer er één voor een voorbeeld",
+    "noPosts": "Geen posts op deze dag."
+  },
+  "agenda": {
+    "today": "Vandaag",
+    "itemCount": "{count, plural, one {# item} other {# items}}"
+  },
+  "deletedNotice": "Die post is verwijderd en niet meer beschikbaar.",
+  "dismiss": "Sluiten",
+  "truncatedNotice": "Deze maand heeft meer posts dan de kalender in één keer kan laden — sommige worden niet weergegeven.",
+  "postsThisMonth": "{count, plural, one {# post} other {# posts}} deze maand",
+  "dropToReschedule": "· Zet op een dag neer om opnieuw te plannen",
+  "newPost": "Nieuwe post",
+  "today": "Vandaag",
+  "filters": {
+    "brand": "Merk",
+    "all": "Alle",
+    "noBrand": "Geen merk",
+    "unknownBrand": "Onbekend merk",
+    "dragToReschedule": "Sleep om opnieuw te plannen"
+  },
+  "loadError": "Kalendergegevens konden niet worden geladen",
+  "retry": "Opnieuw proberen",
+  "noPostsMatchingFilters": "Geen posts die overeenkomen met je filters",
+  "noPostsThisMonth": "Geen posts deze maand",
+  "noPostsThisMonthPeriod": "Geen posts deze maand.",
+  "clearFilters": "Filters wissen",
+  "createPost": "Post maken",
+  "createPostCaps": "Post maken",
+  "postMovedToast": "Post verplaatst naar {date}",
+  "rescheduleFailedToast": "Post opnieuw plannen mislukt",
+  "postNotFoundToast": "Die post kon niet worden geopend. Probeer het opnieuw.",
+  "viewAllPostsOnDay": "Alle {count, plural, one {# post} other {# posts}} van deze dag bekijken",
+  "viewAllPostsOnDate": "Alle {count, plural, one {# post} other {# posts}} van {date} bekijken",
+  "moreCount": "+{count} meer"
+}

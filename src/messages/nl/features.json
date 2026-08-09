@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "eyebrow": "Platform",
+    "titleLead": "Alles wat je nodig hebt om te",
+    "titleHighlight": "groeien",
+    "subtitle": "Van eerste concept tot gepubliceerde post: Markaestro regelt elke stap van je social workflow. Eén platform, geen contextwisselingen."
+  },
+  "coreFeatures": [
+    {
+      "title": "Publiceren op Meerdere Kanalen",
+      "description": "Eén keer opstellen, overal publiceren. Schrijf één post en pas hem met één klik aan voor Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest. Plan in voor het optimale moment of publiceer direct.",
+      "details": [
+        "Gecombineerde editor met voorbeeldweergave per kanaal",
+        "Sleep-en-neerzet mediabeheer",
+        "Bulk-inplannen voor contentkalenders",
+        "Automatisch formaat aanpassen aan platformspecificaties"
+      ]
+    },
+    {
+      "title": "Media-upload en Bibliotheek",
+      "description": "Gebruik je eigen fotografie, video's en merkmateriaal. Markaestro slaat ze op per workspace en koppelt ze met één sleepactie aan posts.",
+      "details": [
+        "Ondersteuning voor JPG, PNG, WebP, MP4, MOV en WebM",
+        "Tot 250 MB per video, 10 MB per afbeelding",
+        "Formaatcontroles per kanaal vóór publicatie",
+        "Hergebruik geüploade media in meerdere posts"
+      ]
+    },
+    {
+      "title": "Voorbeeldweergave voor Meerdere Kanalen",
+      "description": "Zie hoe elke post op elk netwerk eruitziet voordat je publiceert — Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest krijgen elk hun eigen voorbeeldweergave. Onderschriften, beeldverhoudingen, tekenlimieten en mediaspecificaties worden allemaal live weergegeven.",
+      "details": [
+        "Pixelnauwkeurige voorbeeldweergaven per platform",
+        "Live telling van onderschriftkarakters",
+        "Richtlijnen voor beeldverhouding per kanaal",
+        "Spoor opmaakproblemen op vóór publicatie"
+      ]
+    },
+    {
+      "title": "Publicatiedashboard",
+      "description": "Zie elk concept, elke geplande post en elke publicatiestatus in één workspaceoverzicht zonder tussen platformen te schakelen.",
+      "details": [
+        "Concept-, geplande en gepubliceerde wachtrijen",
+        "Publicatiestatus per kanaal",
+        "Retry-workflow voor mislukte posts",
+        "Contentoverzicht op workspaceniveau"
+      ]
+    },
+    {
+      "title": "OAuth-integraties",
+      "description": "Verbind je accounts met één klik via de standaard OAuth in de sector. Geen handmatige API-sleutels, geen gejongleer met tokens. Markaestro slaat je inloggegevens veilig op en vernieuwt ze automatisch.",
+      "details": [
+        "Verbinden met één klik voor Meta, TikTok, LinkedIn, Threads en Pinterest",
+        "Versleutelde opslag van tokens in rust",
+        "Automatische vernieuwing van tokens",
+        "Gedetailleerde ontkoppeling per platform"
+      ]
+    },
+    {
+      "title": "API en AI-agents",
+      "description": "Alles wat het dashboard doet, kan jouw software ook. Genereer een API-sleutel, geef die aan een AI-agent of script, en laat die accounts ontdekken, media uploaden, posts plannen, publiceren en rapporteren — op elk abonnement, zonder extra kosten.",
+      "details": [
+        "Sleutels beperkt tot één merk, met optionele vervaldatum",
+        "Idempotente writes zodat een retry nooit dubbel post",
+        "Asynchrone publicatieruns plus HMAC-ondertekende webhooks",
+        "Manual-first bij Meta en TikTok — een mens plaatst nog steeds"
+      ],
+      "codeLabel": "plan een post vanuit alles wat HTTP spreekt",
+      "agentGuideLink": "Lees de AI-agentgids →"
+    }
+  ],
+  "platformFeatures": [
+    {
+      "title": "Workspacebeheer",
+      "description": "Organiseer de merken die je promoot — klanten, bedrijfsonderdelen of je eigen ondernemingen — in geïsoleerde workspaces. Elke workspace heeft zijn eigen merken, integraties en teamleden."
+    },
+    {
+      "title": "Planning en Kalender",
+      "description": "Plaats posts in een gecombineerde kalender voor al je kanalen. Herplan met een sleepactie, dupliceer posts met één klik, en houd altijd duidelijk zicht op wat wanneer uitgaat."
+    },
+    {
+      "title": "Rolgebaseerde Toegang",
+      "description": "Bepaal wie kan publiceren, bewerken of bekijken met drie rolniveaus: Eigenaar, Beheerder en Lid. Houd gevoelige instellingen afgeschermd terwijl je team snel blijft werken."
+    }
+  ],
+  "platformSection": {
+    "eyebrow": "Platform",
+    "titleLead": "Gebouwd voor iedereen die",
+    "titleHighlight": "publiceert",
+    "subtitle": "Naast de kerntools biedt Markaestro je de infrastructuur om te schalen — van één merk tot een volledig klantenbestand."
+  },
+  "cta": {
+    "title": "Klaar om het in actie te zien?",
+    "subtitle": "Start gratis. Geen creditcard nodig. Verbind je eerste kanaal in minder dan twee minuten.",
+    "primaryButton": "Gratis aan de slag",
+    "secondaryButton": "Contact met sales"
+  }
+}

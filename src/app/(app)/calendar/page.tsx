@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
@@ -38,9 +39,8 @@ type CalendarItem = { kind: "post"; date: string; post: Post };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const DAY_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-
+// Channel names are platform brand names (Instagram, TikTok, ...) — proper
+// nouns that stay in English across every locale, same as elsewhere in the app.
 const CHANNEL_ACCENT: Record<string, string> = {
   instagram: "var(--mk-ch-instagram)",
   facebook:  "var(--mk-ch-facebook)",
@@ -117,11 +117,11 @@ function calendarDays(year: number, month: number): (Date | null)[] {
   return cells;
 }
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+function formatTime(iso: string, locale: string) {
+  return new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
 }
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
 }
 
 function isVideoUrl(url: string): boolean {
@@ -131,6 +131,7 @@ function isVideoUrl(url: string): boolean {
 // ─── Platform Mockups ─────────────────────────────────────────────────────────
 
 function InstagramMockup({ post }: { post: Post }) {
+  const t = useTranslations("calendar.mockups");
   const img = post.mediaUrls?.[0];
   return (
     <div className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-md max-w-[320px] mx-auto">
@@ -143,7 +144,7 @@ function InstagramMockup({ post }: { post: Post }) {
           </div>
           <div>
             <p className="text-[12px] font-semibold leading-none text-zinc-900 dark:text-white">yourbrand</p>
-            <p className="text-[10px] text-zinc-400 mt-0.5">Sponsored</p>
+            <p className="text-[10px] text-zinc-400 mt-0.5">{t("sponsored")}</p>
           </div>
         </div>
         <span className="text-zinc-400 text-lg leading-none">···</span>
@@ -162,11 +163,11 @@ function InstagramMockup({ post }: { post: Post }) {
       <div className="px-3 pt-2.5 pb-3 space-y-1.5">
         <div className="flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
           <div className="flex items-center gap-3">
-            <span>Like</span>
-            <span>Comment</span>
-            <span>Share</span>
+            <span>{t("like")}</span>
+            <span>{t("comment")}</span>
+            <span>{t("share")}</span>
           </div>
-          <span>Save</span>
+          <span>{t("save")}</span>
         </div>
         <p className="text-[12px] text-zinc-900 dark:text-white leading-snug">
           <span className="font-semibold">yourbrand </span>
@@ -178,6 +179,7 @@ function InstagramMockup({ post }: { post: Post }) {
 }
 
 function FacebookMockup({ post }: { post: Post }) {
+  const t = useTranslations("calendar.mockups");
   const img = post.mediaUrls?.[0];
   return (
     <div className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#242526] shadow-md max-w-[320px] mx-auto overflow-hidden">
@@ -188,7 +190,7 @@ function FacebookMockup({ post }: { post: Post }) {
           </div>
           <div>
             <p className="text-[13px] font-semibold leading-none text-zinc-900 dark:text-[#e4e6ea]">Your Brand</p>
-            <p className="text-[10px] text-zinc-500 mt-0.5">Just now · 🌐</p>
+            <p className="text-[10px] text-zinc-500 mt-0.5">{t("justNow")} · 🌐</p>
           </div>
         </div>
       </div>
@@ -198,7 +200,7 @@ function FacebookMockup({ post }: { post: Post }) {
       {img && !isVideoUrl(img) && <img src={img} alt="" className="w-full object-cover max-h-48" />}
       <div className="px-3 py-2 border-t border-zinc-100 dark:border-zinc-700/50">
         <div className="flex items-center justify-around pt-1">
-          {["👍 Like","💬 Comment","↗ Share"].map((l) => (
+          {[t("likeAction"), t("commentAction"), t("shareAction")].map((l) => (
             <button key={l} className="flex-1 text-center text-[12px] font-medium text-zinc-500 py-1 rounded-lg">{l}</button>
           ))}
         </div>
@@ -238,6 +240,9 @@ function PostDetailPanel({ post, onClose, onBack, brandName }: {
   onBack?: () => void;
   brandName?: string;
 }) {
+  const t = useTranslations("calendar.detailPanel");
+  const tStatus = useTranslations("calendar.statusLabels");
+  const locale = useLocale();
   const accent = CHANNEL_ACCENT[post.channel] || "#6366f1";
   const statusDate = post.publishedAt || post.scheduledAt;
   return (
@@ -247,8 +252,8 @@ function PostDetailPanel({ post, onClose, onBack, brandName }: {
           {onBack && (
             <button
               onClick={onBack}
-              aria-label="Back to day"
-              className="w-9 h-9 lg:w-7 lg:h-7 -ml-1.5 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0"
+              aria-label={t("backToDay")}
+              className="w-9 h-9 lg:w-7 lg:h-7 -ms-1.5 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -259,10 +264,10 @@ function PostDetailPanel({ post, onClose, onBack, brandName }: {
             className="text-[10px] font-medium px-1.5 py-0.5 rounded-full border capitalize"
             style={{ color: STATUS_DOT[post.status], borderColor: STATUS_DOT[post.status] + "50", background: STATUS_DOT[post.status] + "12" }}
           >
-            {post.status}
+            {tStatus.has(post.status) ? tStatus(post.status) : post.status}
           </span>
         </div>
-        <button onClick={onClose} className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
+        <button onClick={onClose} aria-label={t("close")} className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -271,7 +276,7 @@ function PostDetailPanel({ post, onClose, onBack, brandName }: {
           <p className="text-[11px] text-muted-foreground">
             {statusDate && (
               <>
-                {post.status === "published" ? "Published" : "Scheduled"} · {formatDate(statusDate)} at {formatTime(statusDate)}
+                {post.status === "published" ? t("published") : t("scheduled")} · {formatDate(statusDate, locale)} {formatTime(statusDate, locale)}
               </>
             )}
             {statusDate && brandName && " · "}
@@ -279,7 +284,7 @@ function PostDetailPanel({ post, onClose, onBack, brandName }: {
           </p>
         )}
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 font-medium">Preview</p>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 font-medium">{t("preview")}</p>
           {post.channel === "instagram" && <InstagramMockup post={post} />}
           {post.channel === "facebook" && <FacebookMockup post={post} />}
           {post.channel === "tiktok" && <TikTokMockup post={post} />}
@@ -297,7 +302,7 @@ function PostDetailPanel({ post, onClose, onBack, brandName }: {
         {post.externalUrl && (
           <a href={post.externalUrl} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors w-fit">
-            View live post
+            {t("viewLivePost")}
           </a>
         )}
       </div>
@@ -327,6 +332,8 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = 
   /** Agenda rows render time + caption snippet so they're informative without opening the panel. */
   showDetail?: boolean;
 }) {
+  const t = useTranslations("calendar.detailPanel");
+  const locale = useLocale();
   const p = item.post;
   const accent = CHANNEL_ACCENT[p.channel] || "#6366f1";
   const bg = CHANNEL_BG[p.channel] || "rgba(99,102,241,0.08)";
@@ -341,7 +348,7 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = 
       onClick={onClick}
       draggable={draggable}
       onDragStart={onDragStart}
-      title={isFailed ? p.errorMessage || "Failed to publish" : undefined}
+      title={isFailed ? p.errorMessage || t("failedToPublish") : undefined}
       className="w-full rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98] cursor-grab active:cursor-grabbing"
       style={{ background: isSelected ? accent + "20" : bg, borderLeft: `3px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
     >
@@ -359,18 +366,18 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = 
           {CHANNEL_ICON[p.channel] || null}
         </div>
         {showDetail && (
-          <span className="flex-1 min-w-0 text-left text-[12px] truncate text-foreground/80">
-            {p.content || "Untitled post"}
+          <span className="flex-1 min-w-0 text-start text-[12px] truncate text-foreground/80">
+            {p.content || t("untitledPost")}
           </span>
         )}
         {showDetail && when && (
           <span className="shrink-0 font-mono text-[10.5px] text-muted-foreground">
-            {formatTime(when)}
+            {formatTime(when, locale)}
           </span>
         )}
         {/* Failed indicator — surfaces errors without opening the detail panel */}
         {isFailed && (
-          <span className="ml-auto shrink-0 flex items-center" style={{ color: "var(--mk-neg)" }} aria-label="Failed to publish">
+          <span className="ms-auto shrink-0 flex items-center" style={{ color: "var(--mk-neg)" }} aria-label={t("failedToPublish")}>
             <AlertCircle className="w-3 h-3" />
           </span>
         )}
@@ -391,6 +398,8 @@ function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart }: {
   /** Lets rows be dragged onto the grid to reschedule, same as cell chips. */
   onDragStart: (post: Post) => (e: React.DragEvent) => void;
 }) {
+  const t = useTranslations("calendar.dayPanel");
+  const locale = useLocale();
   const date = parseIsoDate(dateStr);
   const isToday = dateStr === isoDate(new Date());
 
@@ -400,14 +409,14 @@ function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart }: {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold m-0 truncate">
-              {date.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}
+              {date.toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric" })}
             </p>
             {isToday && (
-              <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0">Today</span>
+              <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0">{t("today")}</span>
             )}
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5 m-0">
-            {items.length} post{items.length !== 1 ? "s" : ""} · select one to preview
+            {t("postCount", { count: items.length })}
           </p>
         </div>
         <button onClick={onClose} aria-label="Close" className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
@@ -417,7 +426,7 @@ function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart }: {
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5">
         {items.length === 0 ? (
           <p className="text-[12px] text-muted-foreground text-center py-8 m-0">
-            No posts on this day.
+            {t("noPosts")}
           </p>
         ) : (
           items.map((item) => (
@@ -444,6 +453,8 @@ function MobileAgendaDay({ date, items, selected, onSelect }: {
   selected: CalendarItem | null;
   onSelect: (item: CalendarItem | null) => void;
 }) {
+  const t = useTranslations("calendar.agenda");
+  const locale = useLocale();
   const todayStr = isoDate(new Date());
   const dateStr = isoDate(date);
   const isToday = dateStr === todayStr;
@@ -452,10 +463,10 @@ function MobileAgendaDay({ date, items, selected, onSelect }: {
     <div className={`rounded-xl border border-border/30 p-3 ${isToday ? "bg-primary/[0.03] border-primary/20" : "bg-card"}`}>
       <div className="flex items-center gap-2 mb-2">
         <span className={`text-sm font-semibold ${isToday ? "text-primary" : "text-foreground"}`}>
-          {date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })}
+          {date.toLocaleDateString(locale, { weekday: "short", month: "short", day: "numeric" })}
         </span>
-        {isToday && <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Today</span>}
-        <span className="text-[10px] text-muted-foreground ml-auto">{items.length} {items.length === 1 ? "item" : "items"}</span>
+        {isToday && <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">{t("today")}</span>}
+        <span className="text-[10px] text-muted-foreground ms-auto">{t("itemCount", { count: items.length })}</span>
       </div>
       <div className="space-y-1.5">
         {items.map((item, i) => {
@@ -470,12 +481,22 @@ function MobileAgendaDay({ date, items, selected, onSelect }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 function CalendarPageContent() {
+  const t = useTranslations("calendar");
+  const tStatus = useTranslations("calendar.statusLabels");
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
+  // Locale-aware month name and Sun-first weekday abbreviations. Jan 1 2023 was
+  // a Sunday, used purely as an anchor date to walk the week in order.
+  const monthLabel = new Date(year, month, 1).toLocaleDateString(locale, { month: "long" });
+  const dayNames = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => new Date(2023, 0, 1 + i).toLocaleDateString(locale, { weekday: "short" })),
+    [locale],
+  );
   // Fetch the month being viewed rather than "the N most recent posts". The
   // API orders by createdAt, which has nothing to do with the day a post lands
   // on, so a recency window silently drops posts the grid needs to draw.
@@ -586,13 +607,14 @@ function CalendarPageContent() {
       } else if (res.status === 404) {
         setDeletedNotice(true);
       } else {
-        toast.error("Couldn't open that post. Please try again.");
+        toast.error(t("postNotFoundToast"));
       }
       clearParam();
     })();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, loading, postsData, posts, pathname, router]);
 
   // Patch one or more filters at once; omitted keys keep their current value.
@@ -681,7 +703,7 @@ function CalendarPageContent() {
         status: "scheduled",
       });
       if (res.ok) {
-        toast.success(`Post moved to ${new Date(dateStr).toLocaleDateString([], { month: "short", day: "numeric" })}`);
+        toast.success(t("postMovedToast", { date: new Date(dateStr).toLocaleDateString(locale, { month: "short", day: "numeric" }) }));
         // Drop every cached /api/posts query, then await our own refetch so
         // the override is only cleared once fresh data is in place.
         invalidateQueries("/api/posts");
@@ -689,11 +711,11 @@ function CalendarPageContent() {
         clearOverride(post.id);
       } else {
         clearOverride(post.id);
-        toast.error("Failed to reschedule post");
+        toast.error(t("rescheduleFailedToast"));
       }
     } catch {
       clearOverride(post.id);
-      toast.error("Failed to reschedule post");
+      toast.error(t("rescheduleFailedToast"));
     }
   };
 
@@ -818,12 +840,12 @@ function CalendarPageContent() {
               <div className="flex items-center gap-2.5 min-w-0">
                 <AlertCircle className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-40)" }} />
                 <p className="text-[13px] m-0" style={{ color: "var(--mk-ink-60)" }}>
-                  That post has been deleted and is no longer available.
+                  {t("deletedNotice")}
                 </p>
               </div>
               <button
                 onClick={() => setDeletedNotice(false)}
-                aria-label="Dismiss"
+                aria-label={t("dismiss")}
                 className="shrink-0 w-7 h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="h-4 w-4" />
@@ -841,7 +863,7 @@ function CalendarPageContent() {
             >
               <AlertCircle className="h-4 w-4 shrink-0" style={{ color: "var(--mk-warn)" }} />
               <p className="text-[13px] m-0" style={{ color: "var(--mk-ink-60)" }}>
-                This month has more posts than the calendar can load at once — some are not shown.
+                {t("truncatedNotice")}
               </p>
             </div>
           )}
@@ -850,10 +872,10 @@ function CalendarPageContent() {
           <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
             <div>
               <h1
-                className="text-[26px] font-semibold m-0"
+                className="text-[26px] font-semibold m-0 capitalize"
                 style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
               >
-                {MONTH_NAMES[month]}{" "}
+                {monthLabel}{" "}
                 <span
                   className="font-normal"
                   style={{ color: "var(--mk-ink-60)" }}
@@ -865,13 +887,13 @@ function CalendarPageContent() {
                 className="text-[12px] mt-1 font-mono"
                 style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
               >
-                {totalPosts} post{totalPosts !== 1 ? "s" : ""} this month
+                {t("postsThisMonth", { count: totalPosts })}
                 {dragItem && (
                   <span
-                    className="ml-2 font-medium"
+                    className="ms-2 font-medium"
                     style={{ color: "var(--mk-accent)" }}
                   >
-                    · Drop on a day to reschedule
+                    {t("dropToReschedule")}
                   </span>
                 )}
               </p>
@@ -879,7 +901,7 @@ function CalendarPageContent() {
             <div className="flex items-center gap-2">
               <Link href="/content">
                 <Button size="sm" className="h-10 md:h-8 px-3 rounded-lg gap-1.5 text-[12px]">
-                  <Plus className="h-3.5 w-3.5" /> New post
+                  <Plus className="h-3.5 w-3.5" /> {t("newPost")}
                 </Button>
               </Link>
               <Button
@@ -889,7 +911,7 @@ function CalendarPageContent() {
                 disabled={month === today.getMonth() && year === today.getFullYear()}
                 onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); closeRail(); }}
               >
-                Today
+                {t("today")}
               </Button>
               <div
                 className="flex rounded-lg overflow-hidden"
@@ -917,11 +939,11 @@ function CalendarPageContent() {
           {/* Filters + Legend */}
           <div className="flex items-center gap-2 sm:gap-3 mb-4 flex-nowrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
             {[
-              { key: "published", label: "Published", color: STATUS_DOT.published },
-              { key: "scheduled", label: "Scheduled", color: STATUS_DOT.scheduled },
-              { key: "failed", label: "Failed", color: STATUS_DOT.failed },
-              { key: "partial_failed", label: "Partially failed", color: STATUS_DOT.partial_failed },
-            ].map(({ key, label, color }) => {
+              { key: "published", color: STATUS_DOT.published },
+              { key: "scheduled", color: STATUS_DOT.scheduled },
+              { key: "failed", color: STATUS_DOT.failed },
+              { key: "partial_failed", color: STATUS_DOT.partial_failed },
+            ].map(({ key, color }) => {
               const active = statusFilter === key;
               return (
                 <button
@@ -935,7 +957,7 @@ function CalendarPageContent() {
                   style={active ? { color, borderColor: color + "60" } : undefined}
                 >
                   <span className="w-2 h-2 rounded-full" style={{ background: color }} />
-                  <span className={active ? "" : "text-muted-foreground"}>{label}</span>
+                  <span className={active ? "" : "text-muted-foreground"}>{tStatus(key)}</span>
                 </button>
               );
             })}
@@ -965,7 +987,7 @@ function CalendarPageContent() {
               <>
                 <div className="w-px h-3 bg-border/50 hidden sm:block" />
                 <label
-                  className={`flex items-center gap-1.5 pl-3 sm:pl-2.5 pr-1 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 ps-3 sm:ps-2.5 pe-1 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all cursor-pointer ${
                     brandFilter ? "bg-current/10" : "border-transparent hover:bg-muted"
                   }`}
                   style={
@@ -981,30 +1003,30 @@ function CalendarPageContent() {
                     className="w-0.5 h-3 rounded-full shrink-0"
                     style={{ background: brandFilter ? "var(--mk-accent)" : "var(--mk-ink-40)" }}
                   />
-                  <span className={brandFilter ? "" : "text-muted-foreground"}>Brand</span>
+                  <span className={brandFilter ? "" : "text-muted-foreground"}>{t("filters.brand")}</span>
                   <select
                     value={brandFilter ?? ""}
                     onChange={(e) => applyFilters({ brand: e.target.value || null })}
-                    aria-label="Filter by brand"
+                    aria-label={t("filters.brand")}
                     className="bg-transparent border-none outline-none cursor-pointer text-[11px] font-medium max-w-36 truncate text-inherit"
                   >
-                    <option value="">All</option>
+                    <option value="">{t("filters.all")}</option>
                     {brands.map((b) => (
                       <option key={b.id} value={b.id}>{b.name}</option>
                     ))}
                     {(hasUnassignedPosts || brandFilter === UNASSIGNED_BRAND) && (
-                      <option value={UNASSIGNED_BRAND}>No brand</option>
+                      <option value={UNASSIGNED_BRAND}>{t("filters.noBrand")}</option>
                     )}
                     {/* Keeps the control in sync when ?brand= names a brand that
                         hasn't loaded yet or has since been deleted. */}
-                    {unknownBrandId && <option value={unknownBrandId}>Unknown brand</option>}
+                    {unknownBrandId && <option value={unknownBrandId}>{t("filters.unknownBrand")}</option>}
                   </select>
                 </label>
               </>
             )}
             <div className="w-px h-3 bg-border/50 hidden md:block" />
             <div className="hidden md:flex items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground">Drag to reschedule</span>
+              <span className="text-[11px] text-muted-foreground">{t("filters.dragToReschedule")}</span>
             </div>
           </div>
 
@@ -1018,7 +1040,7 @@ function CalendarPageContent() {
             <div className="flex-1 flex flex-col items-center justify-center gap-3 py-12">
               <AlertCircle className="h-5 w-5" style={{ color: "var(--mk-neg)" }} />
               <p className="text-sm text-muted-foreground m-0">
-                Failed to load calendar data
+                {t("loadError")}
               </p>
               <Button
                 variant="outline"
@@ -1026,7 +1048,7 @@ function CalendarPageContent() {
                 className="rounded-lg text-[12px]"
                 onClick={() => refresh()}
               >
-                Retry
+                {t("retry")}
               </Button>
             </div>
           ) : (
@@ -1042,8 +1064,8 @@ function CalendarPageContent() {
                 >
                   <p className="text-sm text-muted-foreground m-0">
                     {hasActiveFilters
-                      ? "No posts matching your filters"
-                      : "No posts this month"}
+                      ? t("noPostsMatchingFilters")
+                      : t("noPostsThisMonth")}
                   </p>
                   {hasActiveFilters ? (
                     <Button
@@ -1052,7 +1074,7 @@ function CalendarPageContent() {
                       className="rounded-lg text-[12px]"
                       onClick={clearFilters}
                     >
-                      Clear filters
+                      {t("clearFilters")}
                     </Button>
                   ) : (
                     <Link href="/content">
@@ -1061,7 +1083,7 @@ function CalendarPageContent() {
                         size="sm"
                         className="rounded-lg gap-1.5 text-[12px]"
                       >
-                        <Plus className="h-3.5 w-3.5" /> Create post
+                        <Plus className="h-3.5 w-3.5" /> {t("createPost")}
                       </Button>
                     </Link>
                   )}
@@ -1083,7 +1105,7 @@ function CalendarPageContent() {
                     background: "var(--mk-surface)",
                   }}
                 >
-                  {DAY_NAMES.map((d) => (
+                  {dayNames.map((d) => (
                     <div
                       key={d}
                       className="py-2.5 text-center font-mono text-[9.5px] uppercase"
@@ -1097,7 +1119,7 @@ function CalendarPageContent() {
                 <div className="grid grid-cols-7 flex-1" style={{ gridAutoRows: "1fr" }}>
                   {days.map((day, idx) => {
                     if (!day) {
-                      return <div key={`pad-${idx}`} className="border-b border-r border-border/25 bg-muted/10" />;
+                      return <div key={`pad-${idx}`} className="border-b border-e border-border/25 bg-muted/10" />;
                     }
 
                     const dateStr = isoDate(day);
@@ -1111,7 +1133,7 @@ function CalendarPageContent() {
                     return (
                       <div
                         key={dateStr}
-                        className={`border-b border-r border-border/25 p-1.5 flex flex-col gap-1 transition-colors overflow-hidden ${
+                        className={`border-b border-e border-border/25 p-1.5 flex flex-col gap-1 transition-colors overflow-hidden ${
                           isToday ? "bg-primary/[0.03]" : "bg-background hover:bg-muted/10"
                         } ${isDropTarget ? "drop-highlight" : ""} ${
                           isDayOpen ? "ring-1 ring-inset ring-primary/30" : ""
@@ -1133,8 +1155,8 @@ function CalendarPageContent() {
                           {items.length > 0 && (
                             <button
                               onClick={() => openDay(dateStr)}
-                              title={`View all ${items.length} post${items.length !== 1 ? "s" : ""} on this day`}
-                              aria-label={`View all ${items.length} post${items.length !== 1 ? "s" : ""} on ${day.toLocaleDateString([], { month: "long", day: "numeric" })}`}
+                              title={t("viewAllPostsOnDay", { count: items.length })}
+                              aria-label={t("viewAllPostsOnDate", { count: items.length, date: day.toLocaleDateString(locale, { month: "long", day: "numeric" }) })}
                               className={`text-[9px] font-medium min-w-4 h-4 px-1 rounded-full transition-colors hover:bg-muted ${
                                 isDayOpen ? "bg-muted text-foreground" : "text-muted-foreground/40 hover:text-foreground"
                               }`}
@@ -1159,10 +1181,10 @@ function CalendarPageContent() {
                           })}
                           {overflow > 0 && (
                             <button
-                              className="text-[10px] font-medium text-muted-foreground/60 hover:text-foreground transition-colors pl-2 text-left"
+                              className="text-[10px] font-medium text-muted-foreground/60 hover:text-foreground transition-colors ps-2 text-start"
                               onClick={() => openDay(dateStr)}
                             >
-                              +{overflow} more
+                              {t("moreCount", { count: overflow })}
                             </button>
                           )}
                         </div>
@@ -1178,8 +1200,8 @@ function CalendarPageContent() {
                   <div className="text-center py-12">
                     <p className="text-sm text-muted-foreground">
                       {hasActiveFilters
-                        ? "No posts matching your filters"
-                        : "No posts this month."}
+                        ? t("noPostsMatchingFilters")
+                        : t("noPostsThisMonthPeriod")}
                     </p>
                     {hasActiveFilters ? (
                       <Button
@@ -1188,12 +1210,12 @@ function CalendarPageContent() {
                         className="mt-4 rounded-xl"
                         onClick={clearFilters}
                       >
-                        Clear filters
+                        {t("clearFilters")}
                       </Button>
                     ) : (
                       <Link href="/content">
                         <Button variant="outline" size="sm" className="mt-4 rounded-xl gap-1.5">
-                          <Plus className="h-3.5 w-3.5" /> Create Post
+                          <Plus className="h-3.5 w-3.5" /> {t("createPostCaps")}
                         </Button>
                       </Link>
                     )}

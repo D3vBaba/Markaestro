@@ -1,0 +1,37 @@
+{
+  "title": "ダッシュボード",
+  "subtitle": "マーケティングの全体像を一目で確認できます。",
+  "refresh": "更新",
+  "refreshing": "更新中…",
+  "newPost": "新規投稿",
+  "errorTitle": "ダッシュボードを読み込めませんでした",
+  "errorBody": "ダッシュボードのデータを読み込めませんでした。",
+  "retry": "再試行",
+  "kpis": {
+    "brands": "ブランド",
+    "brandsActive": "有効 {count} 件",
+    "posts": "投稿",
+    "postsSub": "公開済み {published} 件 · 予約済み {scheduled} 件",
+    "publishedWeek": "公開済み · 過去7日間",
+    "acrossDays": "{count} 日間"
+  },
+  "chart": {
+    "eyebrow": "投稿アクティビティ · 過去7日間",
+    "publishedThisWeek": "今週 {count} 件公開",
+    "show": "{label}を表示",
+    "hide": "{label}を非表示",
+    "noActivity": "まだ投稿アクティビティがありません。"
+  },
+  "distribution": {
+    "eyebrow": "配信状況",
+    "title": "チャネル別投稿数",
+    "viewInCalendar": "{channel}の投稿をカレンダーで見る"
+  },
+  "recentPosts": {
+    "eyebrow": "次の予定",
+    "title": "最近の投稿",
+    "viewAll": "すべて見る →",
+    "untitled": "無題の投稿",
+    "empty": "まだ投稿がありません。最初の投稿を作成すると、ここにアクティビティが表示されます。"
+  }
+}

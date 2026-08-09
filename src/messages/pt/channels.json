@@ -1,0 +1,115 @@
+{
+  "hero": {
+    "eyebrow": "Canais",
+    "titleLead": "Alcance seu público",
+    "titleHighlight": "em todo lugar",
+    "subtitle": "Conecte uma vez e publique em todas as principais plataformas. O Markaestro cuida das diferenças de API, limites de caracteres e requisitos de mídia para que você foque na mensagem."
+  },
+  "stats": [
+    { "value": "6", "label": "Canais Sociais", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
+    { "value": "1", "label": "Painel", "sub": "Fluxo de publicação unificado" },
+    { "value": "0", "label": "Tokens Manuais", "sub": "Totalmente OAuth, totalmente automatizado" }
+  ],
+  "channels": [
+    {
+      "name": "Facebook",
+      "category": "Social",
+      "description": "Alcance bilhões na maior rede social do mundo. Publique em Páginas e gerencie posts de feed com total controle criativo.",
+      "capabilities": [
+        "Posts de feed em Páginas com mídia rica",
+        "Posts de link com cartões de pré-visualização",
+        "Publicação de fotos e vídeos",
+        "Posts de carrossel e múltiplas imagens",
+        "Agendamento para engajamento ideal",
+        "Segmentação por página para cada marca"
+      ],
+      "connection": "OAuth via Meta Business Suite"
+    },
+    {
+      "name": "Instagram",
+      "category": "Social",
+      "description": "Publique em contas comerciais do Instagram diretamente pelo Markaestro. Posts de feed, carrosséis e Stories com mídia formatada automaticamente para cada posicionamento.",
+      "capabilities": [
+        "Posts de feed com imagem ou vídeo únicos",
+        "Posts de carrossel (até 10 slides)",
+        "Corte automático para proporções 1:1 e 4:5",
+        "Legenda com otimização de hashtags",
+        "Agendamento para os melhores horários de engajamento",
+        "Login do Instagram para contas profissionais independentes"
+      ],
+      "connection": "OAuth via Login do Instagram ou Login do Meta"
+    },
+    {
+      "name": "TikTok",
+      "category": "Social",
+      "description": "Alcance a Geração Z e além na plataforma de vídeos curtos que mais cresce. O Markaestro envia fotos e vídeos para a caixa de entrada do criador no TikTok e acompanha quando estão prontos para a conclusão final no TikTok.",
+      "capabilities": [
+        "Envio de vídeos e fotos para a caixa de entrada",
+        "Conclusão pelo criador dentro do TikTok",
+        "Entrega agendada na caixa de entrada do TikTok",
+        "Verificação rápida de status após o envio",
+        "Acompanhamento de status dentro do Markaestro"
+      ],
+      "connection": "OAuth via TikTok for Developers"
+    },
+    {
+      "name": "LinkedIn",
+      "category": "Profissional",
+      "description": "Publique no seu próprio perfil do LinkedIn ou em uma Página que você gerencia. Posts de texto, imagem, vídeo e múltiplas imagens orgânicas são publicados pela API oficial do LinkedIn.",
+      "capabilities": [
+        "Posts somente texto",
+        "Posts de imagem única ou vídeo único",
+        "Posts de múltiplas imagens com até 20 imagens",
+        "Direcione para um Perfil ou uma Página gerenciada",
+        "Publicação programática, sem etapa manual",
+        "Agendamento a partir do calendário compartilhado"
+      ],
+      "connection": "OAuth via LinkedIn"
+    },
+    {
+      "name": "Threads",
+      "category": "Social",
+      "description": "A rede do Meta focada em texto. O Markaestro cria o contêiner de mídia, aguarda a conclusão do processamento e então publica — para que uploads de vídeo lentos nunca falhem silenciosamente.",
+      "capabilities": [
+        "Posts somente texto",
+        "Posts de imagem única ou vídeo único",
+        "Carrosséis com até 20 itens",
+        "Verificação de status do contêiner antes de publicar",
+        "Publicação programática, sem etapa manual",
+        "Agendamento a partir do calendário compartilhado"
+      ],
+      "connection": "OAuth via Threads"
+    },
+    {
+      "name": "Pinterest",
+      "category": "Descoberta",
+      "description": "Fixe suas imagens e vídeos em um board de sua escolha no momento da conexão. Sua legenda se torna a descrição do pin, e tudo é publicado pela API oficial do Pinterest.",
+      "capabilities": [
+        "Pins de imagem",
+        "Pins de vídeo com verificação de status de upload",
+        "Board escolhido no momento da conexão",
+        "A legenda se torna a descrição do pin",
+        "Publicação programática, sem etapa manual",
+        "Agendamento a partir do calendário compartilhado"
+      ],
+      "connection": "OAuth via Pinterest"
+    }
+  ],
+  "capabilitiesLabel": "Capacidades",
+  "howItWorks": {
+    "eyebrow": "Como Funciona",
+    "titleLead": "Conectado em",
+    "titleHighlight": "três etapas",
+    "steps": [
+      { "step": "01", "title": "Conectar", "desc": "Clique em 'Conectar' em qualquer canal. Autorize via OAuth. O Markaestro armazena e renova seus tokens automaticamente e com segurança." },
+      { "step": "02", "title": "Criar", "desc": "Escreva seu conteúdo no editor unificado. Pré-visualize como ele aparecerá em cada plataforma antes de publicar." },
+      { "step": "03", "title": "Publicar", "desc": "Clique em publicar ou agende para depois. O Markaestro cuida da formatação, especificações de mídia e chamadas de API para cada canal." }
+    ]
+  },
+  "cta": {
+    "title": "Conecte seu primeiro canal em menos de dois minutos",
+    "subtitle": "Clique, autorize e comece a publicar — sem necessidade de configuração de desenvolvedor. Depois que um canal é conectado, sua equipe publica pelo painel e seu agente de IA pode publicar no mesmo canal através da API.",
+    "primaryButton": "Comece grátis",
+    "secondaryButton": "Automatize com um agente"
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "Berichten",
+    "subtitle": "Maak, plan en publiceer organische content op je social-mediakanalen.",
+    "tabs": {
+      "create": "Maken",
+      "drafts": "Concepten",
+      "scheduled": "Gepland",
+      "published": "Gepubliceerd",
+      "onPlatform": "Op platform"
+    },
+    "productBar": {
+      "brand": "Merk",
+      "noBrandSelected": "Geen merk geselecteerd",
+      "change": "Wijzigen"
+    }
+  },
+  "editor": {
+    "placeholder": "Gegenereerde content verschijnt hier...",
+    "limitSuffix": "limiet"
+  },
+  "productPicker": {
+    "brand": "Merk",
+    "selectBrand": "Selecteer een merk...",
+    "tone": "Toon:",
+    "style": "Stijl:",
+    "audience": "Doelgroep:"
+  },
+  "markPostedDialog": {
+    "title": "Markeren als geplaatst",
+    "description": "Bevestig dat je dit bericht zelf hebt geplaatst op {channel}. Plak de link naar het live bericht als je die hebt — dit koppelt het bericht later aan de statistieken.",
+    "urlPlaceholder": "https://www.{channel}.com/… (optioneel)",
+    "cancel": "Annuleren",
+    "confirm": "Markeren als geplaatst",
+    "toasts": {
+      "marked": "Gemarkeerd als geplaatst",
+      "failed": "Markeren als geplaatst mislukt"
+    }
+  },
+  "publishedTab": {
+    "empty": "Nog geen gepubliceerde berichten.",
+    "createPost": "Een bericht maken",
+    "toasts": {
+      "deleted": "Bericht verwijderd",
+      "deleteFailed": "Bericht verwijderen mislukt",
+      "loadFailed": "Gepubliceerde berichten laden mislukt"
+    }
+  },
+  "scheduledTab": {
+    "empty": "Nog niets gepland.",
+    "scheduleFirst": "Plan je eerste bericht",
+    "editTitle": "Gepland bericht bewerken",
+    "saveAndReschedule": "Opslaan & opnieuw plannen",
+    "toasts": {
+      "loadFailed": "Geplande berichten laden mislukt",
+      "movedToDrafts": "Teruggezet naar concepten",
+      "cancelFailed": "Planning annuleren mislukt",
+      "deleted": "Bericht verwijderd",
+      "deleteFailed": "Bericht verwijderen mislukt",
+      "pushingTikTok": "Wordt verzonden naar TikTok-postvak…",
+      "publishingPost": "Bericht wordt gepubliceerd…",
+      "tiktokInboxConfirmed": "TikTok heeft de bezorging in het postvak bevestigd. Open de TikTok-app om af te ronden en te plaatsen.",
+      "tiktokProcessing": "TikTok heeft de upload geaccepteerd en verwerkt deze nog.",
+      "stillProcessing": "Bericht verzonden en wordt nog verwerkt.",
+      "posted": "Geplaatst!",
+      "publishFailed": "Publiceren mislukt",
+      "updated": "Bericht bijgewerkt",
+      "updateFailed": "Bijwerken mislukt",
+      "rescheduled": "Bericht opnieuw gepland",
+      "rescheduleFailed": "Opnieuw plannen mislukt"
+    }
+  },
+  "draftsTab": {
+    "empty": "Nog geen concepten.",
+    "createFirst": "Maak je eerste bericht",
+    "editTitle": "Concept bewerken",
+    "toPostHeading": "Nog te plaatsen",
+    "waitingInTikTokHeading": "Wacht in TikTok",
+    "draftsHeading": "Concepten",
+    "toasts": {
+      "loadFailed": "Concepten laden mislukt",
+      "deleted": "Concept verwijderd",
+      "deleteFailed": "Verwijderen mislukt",
+      "addingToQueue": "Wordt toegevoegd aan je wachtrij “Nog te plaatsen”…",
+      "pushingTikTok": "Wordt verzonden naar TikTok-postvak…",
+      "publishingPost": "Bericht wordt gepubliceerd…",
+      "addedToQueue": "Toegevoegd aan je wachtrij “Nog te plaatsen”. Plaats het native en markeer het daarna als geplaatst.",
+      "tiktokInboxConfirmed": "TikTok heeft de bezorging in het postvak bevestigd. Open de TikTok-app om af te ronden en te plaatsen.",
+      "tiktokProcessing": "TikTok heeft de upload geaccepteerd en verwerkt deze nog.",
+      "stillProcessing": "Bericht verzonden en wordt nog verwerkt.",
+      "posted": "Geplaatst!",
+      "publishFailed": "Publiceren mislukt",
+      "updated": "Concept bijgewerkt",
+      "updateFailed": "Bijwerken mislukt",
+      "scheduled": "Bericht gepland",
+      "scheduleFailed": "Plannen mislukt"
+    }
+  },
+  "channelSelector": {
+    "channels": "Kanalen",
+    "selectedCount": "{count} geselecteerd",
+    "postTo": "Plaatsen op",
+    "defaultReason": "Verbind dit kanaal in de merkinstellingen.",
+    "productSettings": "Productinstellingen"
+  },
+  "scheduleSheet": {
+    "eyebrow": "Plannen",
+    "title": "Bericht plannen",
+    "description": "Kies een datum en tijd, of gebruik door AI voorgestelde optimale tijdstippen.",
+    "tiktokNoteLabel": "TikTok wordt afgerond in de TikTok-app.",
+    "tiktokNoteBody": "Op het geplande tijdstip stuurt Markaestro de media naar je TikTok-postvak en markeert het als gereed zodra je TikTok kunt openen om onderschrift, privacy en plaatsing af te ronden.",
+    "smartSchedule": "Slim plannen",
+    "aiSuggested": "AI-suggestie",
+    "hide": "Verbergen",
+    "show": "Tonen",
+    "basedOnData": "Gebaseerd op branchegegevens over betrokkenheid voor {channel}",
+    "thisChannel": "dit kanaal",
+    "orPickManually": "of handmatig kiezen",
+    "timeLabel": "Tijd",
+    "timezoneNote": "Planningen gebruiken je lokale tijdzone ({timezone}) en worden opgeslagen in UTC.",
+    "headsUp": "Let op:",
+    "collisionNote": "er staat al een ander bericht gepland rond dit tijdstip ({date}{channel}). Je kunt nog steeds beide plannen.",
+    "onChannel": " op {channel}",
+    "scheduleFor": "Plannen voor {date} om {time}",
+    "selectDate": "Selecteer een datum"
+  },
+  "postEditSheet": {
+    "caption": "Bijschrift",
+    "media": "Media",
+    "image": "Afbeelding",
+    "remove": "Verwijderen",
+    "replace": "Vervangen",
+    "dropMedia": "Sleep media hierheen of klik om te uploaden",
+    "dropImage": "Sleep een afbeelding hierheen of klik om te uploaden",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · tot 10 MB",
+    "uploading": "Bezig met uploaden…",
+    "upload": "Uploaden",
+    "preview": "Voorbeeld",
+    "cancel": "Annuleren",
+    "saving": "Bezig met opslaan…",
+    "save": "Opslaan",
+    "defaultTitle": "Bericht bewerken",
+    "defaultScheduleLabel": "Plannen",
+    "toasts": {
+      "videoTikTokOnly": "Video's zijn alleen beschikbaar voor TikTok-berichten",
+      "videoTooLarge": "De video moet kleiner zijn dan 250 MB",
+      "imageTooLarge": "De afbeelding moet kleiner zijn dan 10 MB",
+      "videoUploaded": "Video geüpload",
+      "imageUploaded": "Afbeelding geüpload",
+      "uploadFailed": "Uploaden mislukt"
+    }
+  },
+  "postCard": {
+    "readyToPost": "Klaar om te plaatsen",
+    "readyInTikTok": "Klaar in TikTok",
+    "partiallyFailed": "Gedeeltelijk mislukt",
+    "text": "Tekst",
+    "preview": "Voorbeeld",
+    "view": "Bekijken",
+    "copyCaption": "Bijschrift kopiëren",
+    "downloadMedia": "Media downloaden",
+    "downloading": "Bezig met downloaden…",
+    "markAsPosted": "Markeren als geplaatst",
+    "edit": "Bewerken",
+    "publish": "Publiceren",
+    "publishing": "Bezig met publiceren…",
+    "reschedule": "Opnieuw plannen",
+    "unschedule": "Planning opheffen",
+    "delete": "Verwijderen",
+    "readyToPostOn": "Klaar om te plaatsen op {channel}",
+    "manualInstructions": "Download de media, kopieer het bijschrift, plaats het vanuit de {channel}-app zoals je normaal zou doen, en markeer het daarna hier als geplaatst.",
+    "openChannel": "{channel} openen",
+    "readyInTikTokInbox": "Klaar in je TikTok-postvak",
+    "tiktokInboxInstructions": "Open de TikTok-app → Postvak → tik op de upload-melding om het bijschrift af te ronden en te plaatsen. Concepten verlopen na ~7 dagen.",
+    "openTikTok": "TikTok openen",
+    "publishingTo": "Wordt gepubliceerd op {channel}...",
+    "toasts": {
+      "captionCopied": "Bijschrift gekopieerd",
+      "copyFailed": "Kon het bijschrift niet kopiëren"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "Vernieuwen",
+    "liveFrom": "Live berichten van je verbonden {channel}-account — inclusief berichten die buiten Markaestro zijn geplaatst.",
+    "loadMore": "Meer laden",
+    "loading": "Bezig met laden…",
+    "noCaption": "Geen bijschrift",
+    "view": "Bekijken",
+    "deleting": "Bezig met verwijderen…",
+    "delete": "Verwijderen",
+    "noDeleteHints": {
+      "instagram": "Instagram staat apps niet toe om berichten te verwijderen — verwijder ze in de Instagram-app.",
+      "tiktok": "TikTok staat apps niet toe om video's te verwijderen — verwijder ze in de TikTok-app."
+    },
+    "noDeleteDefault": "Verwijderen wordt niet ondersteund voor dit bericht.",
+    "deleteWarning": "Dit verwijdert het bericht permanent van {channel}.",
+    "states": {
+      "notConnectedTitle": "{channel} is nog niet verbonden",
+      "notConnectedBody": "Verbind {channel} met dit merk en de live berichten verschijnen hier — inclusief berichten die buiten Markaestro zijn geplaatst.",
+      "connect": "{channel} verbinden",
+      "authTitle": "{channel} moet opnieuw worden verbonden",
+      "authBody": "De verbinding met {channel} is verlopen, waardoor we de berichten nu niet kunnen doorbladeren. Verbind deze opnieuw via de merkinstellingen om verder te gaan waar je gebleven was.",
+      "reconnect": "{channel} opnieuw verbinden",
+      "checkAgain": "Opnieuw controleren",
+      "unsupportedTitle": "Berichten van {channel} doorbladeren is niet beschikbaar",
+      "linkedinPartnerBody": "LinkedIn staat alleen goedgekeurde partner-apps toe om accountberichten te doorbladeren. Alles wat je via Markaestro publiceert, verschijnt nog steeds in je tabblad Gepubliceerd.",
+      "unsupportedBody": "{channel} staat apps niet toe om accountberichten te doorbladeren. Alles wat je via Markaestro publiceert, verschijnt nog steeds in je tabblad Gepubliceerd.",
+      "errorTitle": "Berichten van {channel} laden mislukt",
+      "errorBody": "{channel} reageerde niet zoals verwacht. Dit is meestal tijdelijk — probeer het over een moment opnieuw.",
+      "tryAgain": "Opnieuw proberen",
+      "emptyTitle": "Nog geen berichten op {channel}",
+      "emptyBody": "Zodra dit account publiceert — via Markaestro of rechtstreeks op {channel} — verschijnen de berichten hier."
+    },
+    "toasts": {
+      "loadMoreFailed": "Meer berichten laden mislukt",
+      "deleted": "Bericht verwijderd van {channel}",
+      "deleteFailed": "Bericht op het platform verwijderen mislukt"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "Je niet-opgeslagen concept is hersteld",
+    "discard": "Verwerpen",
+    "caption": "Bijschrift",
+    "media": "Media",
+    "removeMedia": "Verwijderen",
+    "addMedia": "+ Toevoegen",
+    "dropImagesOrVideos": "Sleep afbeeldingen of video's hierheen",
+    "dropImages": "Sleep afbeeldingen hierheen of klik om te uploaden",
+    "mediaCountHint": "Tot {count, plural, one {# item} other {# items}} · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · tot 10 MB",
+    "uploading": "Bezig met uploaden…",
+    "upload": "Uploaden",
+    "saveDraft": "Concept opslaan",
+    "schedule": "Plannen",
+    "postNow": "Nu plaatsen",
+    "posting": "Bezig met plaatsen…",
+    "preview": "Voorbeeld",
+    "previewPlaceholder": "De voorbeeldweergave van je bericht verschijnt hier.",
+    "previewHint": "Schrijf een bijschrift en upload je media om te beginnen.",
+    "toasts": {
+      "selectChannel": "Selecteer minstens één gereed publicatiekanaal.",
+      "videoNotSupported": "Een of meer geselecteerde kanalen ondersteunen geen video-uploads",
+      "videoAlone": "Video's moeten afzonderlijk worden geüpload",
+      "maxMedia": "Maximaal {count, plural, one {# media-item} other {# media-items}} voor de geselecteerde kanalen",
+      "fileTooLarge": "{file}: moet kleiner zijn dan {size} MB",
+      "fileUploadFailed": "{file}: uploaden mislukt",
+      "filesUploaded": "{count, plural, one {# bestand geüpload} other {# bestanden geüpload}}",
+      "uploadFailed": "Uploaden mislukt",
+      "createFailed": "Bericht aanmaken mislukt",
+      "draftSaved": "Concept opgeslagen",
+      "draftSaveFailed": "Concept opslaan mislukt",
+      "scheduled": "Bericht gepland",
+      "scheduleFailed": "Bericht plannen mislukt",
+      "tiktokSending": "Wordt verzonden naar TikTok. Markaestro wacht tot TikTok de bezorging in het postvak bevestigt.",
+      "stillProcessing": "Bericht verzonden en wordt nog verwerkt.",
+      "tiktokInboxConfirmed": "TikTok heeft de bezorging in het postvak bevestigd. Open het TikTok-postvak, rond het bijschrift af en tik op Plaatsen.",
+      "postedToMultiple": "Geplaatst op {channels}!",
+      "postedSuccess": "Succesvol geplaatst!",
+      "publishFailed": "Publiceren mislukt"
+    }
+  }
+}

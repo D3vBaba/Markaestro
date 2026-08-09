@@ -1,0 +1,107 @@
+{
+  "status": {
+    "published": "Gepubliceerd",
+    "scheduled": "Gepland",
+    "draft": "Concept",
+    "failed": "Mislukt",
+    "active": "Actief",
+    "paused": "Gepauzeerd",
+    "ended": "Beëindigd",
+    "live": "Live",
+    "completed": "Voltooid",
+    "cancelled": "Geannuleerd"
+  },
+  "authErrors": {
+    "invalidEmail": "Voer een geldig e-mailadres in.",
+    "userDisabled": "Dit account is uitgeschakeld. Neem contact op met support.",
+    "otpInvalid": "Die code is onjuist. Controleer de nieuwste e-mail en probeer het opnieuw.",
+    "otpExpired": "Die code is verlopen. Vraag een nieuwe aan.",
+    "otpTooManyAttempts": "Te veel onjuiste pogingen. Vraag een nieuwe code aan.",
+    "otpCooldown": "Er is zojuist een code verzonden. Controleer je inbox of probeer het over een minuut opnieuw.",
+    "emailInUse": "Er bestaat al een account met dit e-mailadres.",
+    "rateLimited": "Te veel pogingen. Probeer het later opnieuw.",
+    "popupClosed": "Het inloggen is geannuleerd.",
+    "popupBlocked": "De pop-up is geblokkeerd door je browser. Sta pop-ups toe en probeer het opnieuw.",
+    "accountExistsDifferentCredential": "Er bestaat al een account met een andere inlogmethode voor dit e-mailadres.",
+    "networkError": "Netwerkfout. Controleer je verbinding en probeer het opnieuw.",
+    "default": "Authenticatie mislukt. Probeer het opnieuw."
+  },
+  "confirmDeleteDialog": {
+    "entities": {
+      "brand": "merk",
+      "connection": "verbinding",
+      "teamMember": "teamlid",
+      "integration": "integratie",
+      "post": "bericht"
+    },
+    "titleGeneric": "{entity} verwijderen",
+    "titleNamed": "{entity} verwijderen?",
+    "descriptionNamed": "Weet je zeker dat je <name></name> wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+    "descriptionGeneric": "Weet je zeker dat je dit/deze {entity} wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+    "typeToConfirm": "Typ <name></name> om te bevestigen.",
+    "cancel": "Annuleren",
+    "deleteDefault": "Verwijderen"
+  },
+  "featureGate": {
+    "openingPortal": "Factureringsportaal wordt geopend…",
+    "portalError": "Kon het factureringsportaal niet openen. Probeer het opnieuw.",
+    "upgradeTo": "Upgraden naar {plan}",
+    "requiresPlan": "Deze functie vereist het {plan}-plan of hoger. Upgrade om het te ontgrendelen vanaf ${price}/maand.",
+    "loading": "Bezig met laden..."
+  },
+  "metricCard": {
+    "vsLastPeriod": "t.o.v. vorige periode"
+  },
+  "pagination": {
+    "firstPage": "Eerste pagina",
+    "previousPage": "Vorige pagina",
+    "nextPage": "Volgende pagina",
+    "lastPage": "Laatste pagina"
+  },
+  "tagInput": {
+    "defaultPlaceholder": "Typ en druk op Enter…"
+  },
+  "scanProgressStepper": {
+    "steps": {
+      "connecting": { "label": "Verbinden met site", "activeLabel": "Verbinden met site…" },
+      "reading": { "label": "Websitecontent lezen", "activeLabel": "Websitecontent wordt gelezen…" },
+      "extracting": { "label": "Merkkleuren extraheren", "activeLabel": "Merkkleuren & logo worden geëxtraheerd…" },
+      "analyzing": { "label": "Merksignalen analyseren", "activeLabel": "Merksignalen worden geanalyseerd…" },
+      "finalizing": { "label": "Merkprofiel opbouwen", "activeLabel": "Je merkprofiel wordt opgebouwd…" }
+    },
+    "scanComplete": "Scan voltooid — controleer en bevestig hieronder",
+    "scanFailed": "Scan mislukt — vul handmatig in",
+    "researching": "Je merk wordt onderzocht…"
+  },
+  "platformPreview": {
+    "sponsored": "Gesponsord",
+    "justNow": "zojuist",
+    "now": "nu",
+    "zeroLikes": "0 vind-ik-leuks",
+    "zeroComments": "0 reacties",
+    "like": "Vind ik leuk",
+    "comment": "Reageren",
+    "share": "Delen",
+    "repost": "Repost",
+    "send": "Versturen",
+    "following": "Volgend",
+    "forYou": "Voor jou",
+    "originalSound": "Originele audio",
+    "originalSoundWithBrand": "Originele audio · yourbrand",
+    "save": "Opslaan",
+    "untitledPin": "Pin zonder titel",
+    "viewLive": "Live bekijken",
+    "previewSuffix": "Voorbeeld",
+    "companyPageNow": "Bedrijfspagina · nu",
+    "cta": {
+      "LEARN_MORE": "Meer informatie",
+      "SHOP_NOW": "Nu winkelen",
+      "SIGN_UP": "Aanmelden",
+      "DOWNLOAD": "Downloaden",
+      "GET_QUOTE": "Offerte aanvragen",
+      "CONTACT_US": "Neem contact op"
+    },
+    "facebookInstagramAd": "Facebook-/Instagram-advertentie",
+    "tiktokAd": "TikTok-advertentie"
+  }
+}

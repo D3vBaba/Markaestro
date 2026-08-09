@@ -1,0 +1,115 @@
+{
+  "hero": {
+    "eyebrow": "チャネル",
+    "titleLead": "あなたのオーディエンスに",
+    "titleHighlight": "どこでも届く",
+    "subtitle": "一度接続すれば、主要なすべてのプラットフォームに投稿できます。API仕様の違い、文字数制限、メディア要件はMarkaestroが処理するので、あなたはメッセージに集中できます。"
+  },
+  "stats": [
+    { "value": "6", "label": "ソーシャルチャネル", "sub": "Meta、TikTok、LinkedIn、Threads、Pinterest" },
+    { "value": "1", "label": "ダッシュボード", "sub": "統一された投稿ワークフロー" },
+    { "value": "0", "label": "手動トークン", "sub": "完全OAuth、完全自動化" }
+  ],
+  "channels": [
+    {
+      "name": "Facebook",
+      "category": "ソーシャル",
+      "description": "世界最大のソーシャルネットワークで数十億人にリーチ。ページに投稿し、フィード投稿を完全なクリエイティブコントロールで管理できます。",
+      "capabilities": [
+        "リッチメディア付きページフィード投稿",
+        "プレビューカード付きリンク投稿",
+        "写真・動画の投稿",
+        "カルーセルおよび複数画像投稿",
+        "最適なエンゲージメントのためのスケジューリング",
+        "ブランドごとのページ単位ターゲティング"
+      ],
+      "connection": "OAuth via Meta Business Suite"
+    },
+    {
+      "name": "Instagram",
+      "category": "ソーシャル",
+      "description": "Markaestroから直接Instagramビジネスアカウントに投稿。フィード投稿、カルーセル、ストーリーズに対応し、各配置に合わせてメディアを自動フォーマットします。",
+      "capabilities": [
+        "単一画像・単一動画のフィード投稿",
+        "カルーセル投稿（最大10スライド）",
+        "1:1・4:5比率への自動トリミング",
+        "ハッシュタグ最適化付きキャプション",
+        "最適なエンゲージメント時間へのスケジューリング",
+        "Facebookページ未連携でも使えるInstagramログイン"
+      ],
+      "connection": "OAuth via Instagram Login or Meta Login"
+    },
+    {
+      "name": "TikTok",
+      "category": "ソーシャル",
+      "description": "最も急成長しているショート動画プラットフォームでZ世代以降にリーチ。Markaestroは写真や動画をクリエイターのTikTok受信箱に送信し、最終仕上げの準備が整うタイミングを追跡します。",
+      "capabilities": [
+        "動画・写真の受信箱への引き渡し",
+        "TikTok内でのクリエイターによる仕上げ",
+        "TikTok受信箱への予約配信",
+        "引き渡し後の高速ステータス確認",
+        "Markaestro内でのステータス追跡"
+      ],
+      "connection": "OAuth via TikTok for Developers"
+    },
+    {
+      "name": "LinkedIn",
+      "category": "プロフェッショナル",
+      "description": "あなた自身のLinkedInプロフィール、または管理しているページに投稿。テキスト、画像、動画、オーガニックな複数画像投稿がLinkedInの公式APIを通じて配信されます。",
+      "capabilities": [
+        "テキストのみの投稿",
+        "単一画像または単一動画の投稿",
+        "最大20枚までの複数画像投稿",
+        "プロフィールまたは管理ページを対象に選択",
+        "手動ステップ不要のプログラムによる投稿",
+        "共有カレンダーからのスケジューリング"
+      ],
+      "connection": "OAuth via LinkedIn"
+    },
+    {
+      "name": "Threads",
+      "category": "ソーシャル",
+      "description": "Metaのテキスト中心のネットワーク。Markaestroはメディアコンテナを作成し、処理完了を待ってから公開するため、動画のアップロードが遅い場合でも静かに失敗することがありません。",
+      "capabilities": [
+        "テキストのみの投稿",
+        "単一画像または単一動画の投稿",
+        "最大20項目までのカルーセル",
+        "公開前のコンテナステータス確認",
+        "手動ステップ不要のプログラムによる投稿",
+        "共有カレンダーからのスケジューリング"
+      ],
+      "connection": "OAuth via Threads"
+    },
+    {
+      "name": "Pinterest",
+      "category": "発見",
+      "description": "接続時に選んだボードに画像や動画をピン留め。あなたのキャプションがピンの説明文になり、すべてがPinterest公式APIを通じて公開されます。",
+      "capabilities": [
+        "画像ピン",
+        "アップロードステータス確認付きの動画ピン",
+        "接続時に選択するボード",
+        "キャプションがそのままピンの説明文に",
+        "手動ステップ不要のプログラムによる投稿",
+        "共有カレンダーからのスケジューリング"
+      ],
+      "connection": "OAuth via Pinterest"
+    }
+  ],
+  "capabilitiesLabel": "対応機能",
+  "howItWorks": {
+    "eyebrow": "利用の流れ",
+    "titleLead": "3ステップで",
+    "titleHighlight": "接続完了",
+    "steps": [
+      { "step": "01", "title": "接続", "desc": "任意のチャネルで「接続」をクリック。OAuthで認証すれば、Markaestroがトークンを安全に保管し、自動的に更新します。" },
+      { "step": "02", "title": "作成", "desc": "統合エディタでコンテンツを作成。公開前に各プラットフォームでの表示をプレビューできます。" },
+      { "step": "03", "title": "公開", "desc": "公開ボタンを押すか、後日への予約を選択。フォーマット、メディア仕様、各チャネルへのAPI呼び出しはMarkaestroが処理します。" }
+    ]
+  },
+  "cta": {
+    "title": "2分以内に最初のチャネルを接続",
+    "subtitle": "クリックして認証すれば、すぐに投稿を開始できます — 開発者による設定は不要です。チャネルが接続されると、チームはダッシュボードから投稿でき、AIエージェントもAPIを通じて同じチャネルに投稿できます。",
+    "primaryButton": "無料で始める",
+    "secondaryButton": "エージェントで自動化する"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "groups": {
+      "overview": "Overzicht",
+      "marketing": "Marketing",
+      "help": "Help"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "analytics": "Analyse",
+      "brands": "Merken",
+      "posts": "Posts",
+      "calendar": "Kalender",
+      "connectChannels": "Kanalen verbinden",
+      "settings": "Instellingen"
+    },
+    "signOut": "Uitloggen",
+    "workspaceSwitcher": {
+      "yourWorkspaces": "Jouw workspaces",
+      "manageWorkspaces": "Workspaces beheren"
+    },
+    "toggleMenu": "Navigatiemenu in-/uitschakelen",
+    "navigationMenu": "Navigatiemenu",
+    "navigationMenuDescription": "Belangrijkste navigatielinks"
+  },
+  "mobileTabBar": {
+    "home": "Start",
+    "analytics": "Analyse",
+    "brands": "Merken",
+    "posts": "Posts",
+    "calendar": "Kalender"
+  },
+  "header": {
+    "searchPlaceholder": "Zoek naar alles...",
+    "search": "Zoeken"
+  },
+  "commandPalette": {
+    "title": "Opdrachtenpalet",
+    "description": "Zoek naar pagina's en snelle acties",
+    "searchPlaceholder": "Zoek naar pagina's en acties...",
+    "noResults": "Geen resultaten gevonden.",
+    "groupNavigation": "Navigatie",
+    "groupQuickActions": "Snelle acties",
+    "channels": "Kanalen",
+    "actions": {
+      "createPost": "Post maken",
+      "addBrand": "Merk toevoegen",
+      "connectChannel": "Kanaal verbinden",
+      "billing": "Facturering"
+    }
+  },
+  "trialBanner": {
+    "endsToday": "Je proefperiode eindigt vandaag",
+    "daysLeft": "{days, plural, one {Nog # dag proefperiode} other {Nog # dagen proefperiode}}",
+    "planSuffix": " · {tier}-abonnement",
+    "manageBilling": "Facturering Beheren",
+    "loading": "Bezig met laden...",
+    "openingPortal": "Factureringsportaal wordt geopend…",
+    "portalError": "Kon het factureringsportaal niet openen. Probeer het opnieuw."
+  },
+  "verifyEmailBanner": {
+    "prompt": "Bevestig je e-mailadres om te publiceren",
+    "promptWithCode": " — voer de code in die we hebben gestuurd naar <emailTag>{email}</emailTag>",
+    "sendCode": "Code versturen",
+    "resendCode": "Code opnieuw versturen",
+    "resendCountdown": "Opnieuw versturen ({seconds}s)",
+    "sending": "Versturen…",
+    "verify": "Bevestigen",
+    "verifying": "Bevestigen…",
+    "codeSent": "Code verstuurd — controleer je inbox en spammap.",
+    "sendError": "Kon nu niet versturen. Probeer het over een minuut opnieuw.",
+    "verified": "E-mail bevestigd — je bent helemaal klaar."
+  },
+  "localeSwitcher": {
+    "label": "Taal",
+    "description": "Kies de taal die Markaestro in de hele app gebruikt.",
+    "error": "Kon je taal niet bijwerken. Probeer het opnieuw."
+  },
+  "logout": {
+    "title": "Uitloggen bij Markaestro?",
+    "description": "Je hebt een nieuwe e-mailcode nodig om weer in te loggen en niet-opgeslagen werk in de editor gaat verloren.",
+    "cancel": "Ingelogd blijven",
+    "confirm": "Uitloggen",
+    "confirming": "Bezig met uitloggen…"
+  }
+}

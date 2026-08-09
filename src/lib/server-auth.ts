@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { DEFAULT_WORKSPACE_ID, getWorkspaceId, isValidWorkspaceId } from '@/lib/workspace';
 import { decodeSessionCookie } from '@/lib/session-cookie';
 import { parseBearerToken } from '@/lib/bearer';
+import { pickLocaleFromAcceptLanguage } from '@/i18n/routing';
 import type { WorkspaceRole } from '@/lib/schemas';
 
 export type RequestContext = {
@@ -65,7 +66,11 @@ async function getWorkspaceMembership(
 
 type ResolvedWorkspaceContext = Omit<RequestContext, 'emailVerified'>;
 
-async function bootstrapPersonalWorkspace(uid: string, email?: string): Promise<ResolvedWorkspaceContext> {
+async function bootstrapPersonalWorkspace(
+  uid: string,
+  email?: string,
+  acceptLanguage?: string | null,
+): Promise<ResolvedWorkspaceContext> {
   const workspaceId = personalWorkspaceId(uid);
   const now = new Date().toISOString();
   const wsRef = adminDb.doc(`workspaces/${workspaceId}`);
@@ -89,6 +94,7 @@ async function bootstrapPersonalWorkspace(uid: string, email?: string): Promise<
         email: email || '',
         role: 'owner',
         joinedAt: now,
+        locale: pickLocaleFromAcceptLanguage(acceptLanguage),
       });
     }
   });
@@ -114,7 +120,7 @@ async function findUserMembership(uid: string): Promise<{ workspaceId: string; r
   return { workspaceId, role };
 }
 
-async function acceptPendingInvites(uid: string, email?: string): Promise<void> {
+async function acceptPendingInvites(uid: string, email?: string, acceptLanguage?: string | null): Promise<void> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) return;
 
@@ -157,6 +163,7 @@ async function acceptPendingInvites(uid: string, email?: string): Promise<void> 
         email: normalizedEmail,
         role: data.role || 'member',
         joinedAt: now,
+        locale: pickLocaleFromAcceptLanguage(acceptLanguage),
       }, { merge: true });
     }
 
@@ -229,8 +236,10 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     throw new Error('UNAUTHENTICATED');
   }
 
+  const acceptLanguage = req.headers.get('accept-language');
+
   try {
-    await acceptPendingInvites(uid, email);
+    await acceptPendingInvites(uid, email, acceptLanguage);
   } catch (err) {
     // Non-fatal — pending invite resolution should not block auth. Typically
     // caused by a missing Firestore collection-group index on pendingInvites.email.
@@ -246,7 +255,7 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     throw new Error('VALIDATION_INVALID_WORKSPACE_ID');
   }
 
-  const resolved = await resolveContextForUser(uid, email, requestedWs);
+  const resolved = await resolveContextForUser(uid, email, requestedWs, acceptLanguage);
 
   return { ...resolved, emailVerified };
 }
@@ -255,6 +264,7 @@ async function resolveContextForUser(
   uid: string,
   email: string | undefined,
   requestedWs: string,
+  acceptLanguage?: string | null,
 ): Promise<ResolvedWorkspaceContext> {
   const requestedMembership = await getWorkspaceMembership(uid, requestedWs);
   if (requestedMembership) {
@@ -270,5 +280,5 @@ async function resolveContextForUser(
     return { uid, email, workspaceId: membership.workspaceId, role: membership.role };
   }
 
-  return bootstrapPersonalWorkspace(uid, email);
+  return bootstrapPersonalWorkspace(uid, email, acceptLanguage);
 }

@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "eyebrow": "Plataforma",
+    "titleLead": "Todo lo que necesitas para",
+    "titleHighlight": "crecer",
+    "subtitle": "Desde el primer borrador hasta la publicación, Markaestro se encarga de cada paso de tu flujo de trabajo social. Una plataforma, cero cambios de contexto."
+  },
+  "coreFeatures": [
+    {
+      "title": "Publicación multicanal",
+      "description": "Redacta una vez, publica en todas partes. Escribe una sola publicación y adáptala para Facebook, Instagram, TikTok, LinkedIn, Threads y Pinterest con un clic. Programa para el momento óptimo o publica al instante.",
+      "details": [
+        "Editor unificado con vista previa por canal",
+        "Gestión de contenido mediante arrastrar y soltar",
+        "Programación masiva para calendarios de contenido",
+        "Redimensionado automático de imágenes según cada plataforma"
+      ]
+    },
+    {
+      "title": "Subida y biblioteca de contenido",
+      "description": "Aporta tu propia fotografía, vídeo y activos de marca. Markaestro los guarda por espacio de trabajo y los adjunta a publicaciones con un solo gesto.",
+      "details": [
+        "Compatible con JPG, PNG, WebP, MP4, MOV y WebM",
+        "Hasta 250 MB por vídeo, 10 MB por imagen",
+        "Verificación de formato por canal antes de publicar",
+        "Reutiliza el contenido subido en varias publicaciones"
+      ]
+    },
+    {
+      "title": "Vistas previas multicanal",
+      "description": "Comprueba cómo se verá cada publicación en cada red antes de publicar — Facebook, Instagram, TikTok, LinkedIn, Threads y Pinterest tienen su propia vista previa. Textos, proporciones de imagen, límites de caracteres y especificaciones de contenido se renderizan en tiempo real.",
+      "details": [
+        "Vistas previas precisas al píxel por plataforma",
+        "Recuento de caracteres en vivo para el texto",
+        "Guía de proporción de imagen por canal",
+        "Detecta problemas de formato antes de publicar"
+      ]
+    },
+    {
+      "title": "Panel de publicación",
+      "description": "Ve cada borrador, publicación programada y estado de publicación en una sola vista de espacio de trabajo sin saltar entre plataformas.",
+      "details": [
+        "Colas de borradores, programadas y publicadas",
+        "Estado de publicación por canal",
+        "Flujo de reintento para publicaciones fallidas",
+        "Vista general de contenido a nivel de espacio de trabajo"
+      ]
+    },
+    {
+      "title": "Integraciones OAuth",
+      "description": "Conecta tus cuentas con un clic mediante OAuth estándar del sector. Sin claves de API manuales, sin gestión de tokens. Markaestro guarda y renueva las credenciales de forma segura por ti.",
+      "details": [
+        "Conexión con un clic para Meta, TikTok, LinkedIn, Threads y Pinterest",
+        "Almacenamiento cifrado de tokens en reposo",
+        "Renovación automática de tokens",
+        "Desconexión granular por plataforma"
+      ]
+    },
+    {
+      "title": "API y agentes de IA",
+      "description": "Todo lo que hace el panel, tu software también puede hacerlo. Genera una clave de API, entrégasela a un agente de IA o a un script, y deja que descubra cuentas, suba contenido, programe publicaciones, publique y reporte resultados — en todos los planes, sin coste adicional.",
+      "details": [
+        "Claves limitadas a una sola marca, con vencimiento opcional",
+        "Escrituras idempotentes: un reintento nunca duplica una publicación",
+        "Publicaciones asíncronas más webhooks firmados con HMAC",
+        "Publicación manual por defecto en Meta y TikTok: siempre publica una persona"
+      ],
+      "codeLabel": "programa una publicación desde cualquier cosa que hable HTTP",
+      "agentGuideLink": "Leer la guía para agentes de IA →"
+    }
+  ],
+  "platformFeatures": [
+    {
+      "title": "Gestión de espacios de trabajo",
+      "description": "Organiza las marcas que gestionas — clientes, unidades de negocio o tus propios proyectos — en espacios de trabajo aislados. Cada espacio tiene sus propias marcas, integraciones y miembros del equipo."
+    },
+    {
+      "title": "Programación y calendario",
+      "description": "Organiza publicaciones en un calendario unificado en todos tus canales. Reprograma arrastrando, duplica publicaciones con un clic y mantén una visión clara de qué sale y cuándo."
+    },
+    {
+      "title": "Acceso basado en roles",
+      "description": "Controla quién puede publicar, editar o solo ver con tres niveles de roles: Propietario, Administrador y Miembro. Mantén la configuración sensible protegida mientras tu equipo avanza rápido."
+    }
+  ],
+  "platformSection": {
+    "eyebrow": "Plataforma",
+    "titleLead": "Diseñada para todos los que",
+    "titleHighlight": "publican",
+    "subtitle": "Más allá de las herramientas principales, Markaestro te da la infraestructura para escalar — desde una sola marca hasta una cartera completa de clientes."
+  },
+  "cta": {
+    "title": "¿Listo para verlo en acción?",
+    "subtitle": "Empieza gratis. Sin tarjeta de crédito. Conecta tu primer canal en menos de dos minutos.",
+    "primaryButton": "Comienza gratis",
+    "secondaryButton": "Contactar con ventas"
+  }
+}

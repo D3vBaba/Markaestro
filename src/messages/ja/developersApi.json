@@ -1,0 +1,99 @@
+{
+  "hero": {
+    "eyebrow": "開発者向け",
+    "title": "パブリック投稿API",
+    "intro1": "メディアをアップロードし、投稿を作成して、Facebook、Instagram、TikTok、LinkedIn、Threads、Pinterestに公開できます。すべてワークスペースAPIキーを通じて特定のプロダクトに紐付けられます。統合には<connectLink>Connect API</connectLink>を推奨します — ほとんどのスケジューリングツールがそのまま利用できる、小規模でフラットな<code>/api/connect/v1</code>のサーフェスです。",
+    "intro2": "明示的な公開、ジョブ実行のポーリング、署名付きWebhook、バッチ処理、チャネルごとの設定など、より高度な制御が必要な場合は？下部にある高度な<code>/api/public/v1</code> APIがすべてを公開しています。どちらも同じ認証、プロダクト、投稿パイプラインを共有します。バージョン管理されたこれらのパブリックルートのみを使用してください（内部アプリのルートはFirebaseユーザー認証が必要で、パブリックな契約の対象ではありません）。",
+    "intro3": "<strong>Facebook、Instagram、TikTokは、API経由でもマニュアルファーストです。</strong> これらのチャネルの投稿は、デフォルトで<code>manual_reminder</code>配信になります：Markaestroはこれらに対してプラットフォームのAPIを呼び出すことはありません。公開処理により投稿はワークスペースの「投稿待ち」キューに移動し、そこでオーナーがメディアをダウンロードし、ネイティブに投稿して確認します — そのため、投稿はまるで手作業で作成されたかのように表示されます。作成時に<code>deliveryMode: \"direct_publish\"</code>を渡すことで、代わりに公式API経由での公開を選択できます（TikTokの場合、これは受信箱への引き渡しを意味し、パブリックなDirect Postになることは決してありません）。LinkedIn、Threads、Pinterestはデフォルトでプログラムによる公開が行われます。",
+    "intro4": "ワークスペースは複数のプロダクトを持つことができます。各APIキーは作成時に1つのプロダクトに紐付けられるため、呼び出しは自動的にそのプロダクトを対象とし、他のプロダクトへのリクエストは拒否されます。",
+    "agentCallout": {
+      "title": "AIエージェントを構築していますか？",
+      "body": "代わりに<agentLink>AIエージェントガイド</agentLink>から始めてください。コピー＆ペーストできるツールスキーマ、システムプロンプトの概要、エージェントに必要なリトライとエラー処理のルール、4コマンドのクイックスタートが揃っています。エージェントは<llmsLink>/llms.txt</llmsLink>を直接読み込むこともできます。"
+    },
+    "agentGuideButton": "AIエージェントガイド",
+    "manageKeysButton": "APIキーを管理",
+    "openAppButton": "Markaestroを開く"
+  },
+  "connectApi": {
+    "title": "Connect API",
+    "recommendedBadge": "推奨",
+    "description": "統合のデフォルトの方法：ほとんどのスケジューリングツールがそのまま利用できる、<code>/api/connect/v1</code>のフラットでsnake_caseなサーフェスです。一般的な<code>create-upload-url → PUT → post</code>の流れを、下記のフルAPIと同じワークスペース、認証、プロダクト、投稿パイプラインにマッピングします。クライアントのベースURLを<code>/api/connect</code>に設定し、プロダクトに限定されたワークスペースAPIキー（スコープ：<code>posts.read</code>、<code>posts.write</code>、<code>media.write</code>）で認証してください。",
+    "endpoints": [
+      { "method": "GET", "path": "/api/connect/v1/social-accounts", "note": "接続済みのFacebook、Instagram、TikTok、LinkedIn、Threadsの配信先を、それぞれのプロダクトがラベル付けされたフラットなアカウントとして一覧表示します。クライアントはこれをグループ化して区別できます。各チャネルは専用の独立したパスを持ち、チャネル間でのファンアウトはありません。" },
+      { "method": "GET", "path": "/api/connect/v1/products", "note": "接続済みアカウントがネストされたブランド（API上の名称：products）を一覧表示します — ブランドを起点としたピッカーです。" },
+      { "method": "POST", "path": "/api/connect/v1/media/create-upload-url", "note": "短時間有効・1回限り使用の署名付きPUT URLと、メディアIDを返します。" },
+      { "method": "PUT", "path": "<upload_url>", "note": "署名付きURLに画像の生バイトデータをアップロードします。署名自体が認可となるため、APIキーは不要です。" },
+      { "method": "POST", "path": "/api/connect/v1/posts", "note": "選択した各アカウントごとに下書きを作成します。is_draft=falseとscheduled_atを設定すると配信を予約できます。TikTokはクリエイター受信箱への引き渡しを使用します。" },
+      { "method": "GET", "path": "/api/connect/v1/posts", "note": "ワークスペースの投稿を、フラットなステータス、キャプション、メディアURLとともに一覧表示します。" }
+    ],
+    "footnote": "<code>/social-accounts</code>から返される各アカウントには、その<code>product</code>（ブランドを表すAPI上の名称。同じアカウントが複数のブランドに紐付くこともあります）がラベル付けされ、その<code>id</code>には<code>productId#destinationId</code>がエンコードされています — これを<code>social_accounts</code>にそのまま渡すと、リクエストはアカウントごとに1件の投稿としてファンアウトされます。各キーは1つのブランドに紐付いており、そのブランドのみを閲覧・投稿できます。<strong>Facebook、Instagram、TikTokの投稿はマニュアルファースト</strong>です — 下書きとして作成され、Markaestroの「投稿待ち」キューからワークスペースのオーナーがネイティブに公開します。プラットフォームのAPIを経由することはありません。LinkedIn、Threads、Pinterestは明示的な公開アクションの後、プログラムによって公開されます。投稿のステータスは<code>draft</code>、<code>processing</code>、<code>posted</code>、<code>failed</code>のいずれかです。Facebook、Instagram、LinkedIn、TikTok、Threadsはそれぞれ専用の配信先を持ち、1つへの公開が他へファンアウトすることはありません。公開状態は<code>GET /api/connect/v1/posts</code>を通じて追跡できます。"
+  },
+  "advancedSection": {
+    "title": "高度な機能：完全版パブリックAPI",
+    "description": "明示的な公開、非同期ジョブ実行、署名付きWebhook、バッチ作成、チャネルごとの設定を含む、完全な<code>/api/public/v1</code>サーフェスです。Connect APIでは不十分な場合にご利用ください。"
+  },
+  "highlightCards": [
+    { "title": "MetaとTikTokはマニュアルファースト", "description": "Facebook、Instagram、TikTokの投稿はデフォルトで手動の「投稿待ち」キューに入ります — プラットフォームAPIの呼び出しはなく、ワークスペースのオーナーがネイティブに投稿して確認します。deliveryModeで投稿ごとにAPI公開を選択できます。" },
+    { "title": "Instagramログインに対応", "description": "Facebookページが連携されていない場合でも、ブランドは独立したInstagramプロフェッショナルアカウントを利用できます。" },
+    { "title": "TikTokのオプトインは受信箱への引き渡しを使用", "description": "API公開を選択したTikTok投稿は、最終的なキャプション、プライバシー設定、投稿のためにクリエイターのTikTok受信箱に送信されます — パブリックなDirect Postになることは決してありません。" },
+    { "title": "設計上、非同期", "description": "すべての公開処理は実行IDを返します。同期的な完了を前提とせず、実行状況をポーリングするか、署名付きWebhookを購読してください。" }
+  ],
+  "endpointGroups": [
+    {
+      "title": "ブランドと配信先",
+      "description": "APIキーで利用可能なブランドと公開先を確認できます。ブランドはAPI上ではproductsと呼ばれます — パスとペイロードは後方互換性のためproducts/productIdを使用し、POSTボディはbrandIdをエイリアスとして受け付けます。",
+      "endpoints": [
+        { "method": "GET", "path": "/api/public/v1/products", "note": "キーが持つブランドと、それぞれで現在利用可能なチャネルを一覧表示します。" },
+        { "method": "GET", "path": "/api/public/v1/products/:id/destinations", "note": "そのブランドの公開先を一覧表示します。独立したInstagramログイン、Facebookページ、Threads、LinkedInプロフィール／ページ、接続済みのTikTok配信先が含まれます。" }
+      ]
+    },
+    {
+      "title": "メディア",
+      "description": "投稿を作成する前に、画像や動画をMarkaestro管理下のストレージにアップロードします。",
+      "endpoints": [
+        { "method": "POST", "path": "/api/public/v1/media", "note": "マルチパートアップロード。アセットIDとホスト先URLを返します。" }
+      ]
+    },
+    {
+      "title": "投稿",
+      "description": "Facebook、Instagram、LinkedIn、Threads、Pinterest、TikTokの投稿を作成、一覧表示、確認、公開、削除できます。",
+      "endpoints": [
+        { "method": "POST", "path": "/api/public/v1/posts", "note": "ワークスペースに下書きを作成します。Facebook、Instagram、TikTokはデフォルトで手動投稿（deliveryMode manual_reminder）になります。deliveryMode direct_publishを渡すとAPI公開を選択できます。" },
+        { "method": "GET", "path": "/api/public/v1/posts", "note": "投稿を新しい順に一覧表示します。?status=scheduledで予約中の投稿を絞り込み、?productId=で特定のブランドに限定できます。ブランドに紐付いたキーは常に自身のブランドに限定されており、productIdを省略できます。" },
+        { "method": "GET", "path": "/api/public/v1/posts/:id", "note": "現在の投稿ステータス、配信モード、公開結果を返します。" },
+        { "method": "POST", "path": "/api/public/v1/posts/:id/publish", "note": "非同期の公開実行をキューに追加します。手動投稿はワークスペースの「投稿待ち」キューに入りネイティブ投稿を待ちます。LinkedIn、Threads、Pinterestは直接公開され、オプトインしたMeta投稿は公式APIを通じて、オプトインしたTikTok投稿は受信箱への引き渡しを使用します。" },
+        { "method": "DELETE", "path": "/api/public/v1/posts/:id", "note": "Markaestroから投稿を削除します。既存のposts.writeスコープを使用します。公開実行が進行中の場合は400 VALIDATION_POST_IS_PUBLISHINGを返します。公開済みの投稿を削除しても、プラットフォーム上の公開済みコピーは撤回されません。" }
+      ]
+    },
+    {
+      "title": "実行とWebhook",
+      "description": "ポーリングまたは署名付きWebhook配信で非同期処理を追跡します。",
+      "endpoints": [
+        { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "queued、running、succeeded、failedのいずれかを返します。" },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "APIキーを使用してWebhook配信先を登録します。" },
+        { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "そのAPIキーのスコープで登録済みのWebhook配信先を一覧表示します。" },
+        { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Webhook配信先を無効化します。" }
+      ]
+    }
+  ],
+  "examples": {
+    "listProducts": { "title": "1. プロダクトを一覧表示", "description": "このAPIキーが対象にできるプロダクトを確認します。" },
+    "listDestinations": { "title": "2. 配信先を確認", "description": "投稿を作成する前に、プロダクトに紐付いたページやアカウントを確認します。LinkedInプロフィールと複数のページなど、プロダクトが複数の配信先を持つ場合は、返された<code>destinationId</code>を使用してください。" },
+    "upload": { "title": "3. メディアをアップロード", "description": "各投稿は、事前にアップロードされたメディアアセットを参照します。" },
+    "createPost": { "title": "4. 投稿を作成", "description": "それらのアセットIDを使って下書きを作成します。Instagramはデフォルトで手動投稿になります。この投稿を公式API公開の対象にするには<code>\"deliveryMode\": \"direct_publish\"</code>を追加してください。" },
+    "tiktokCreatePost": { "title": "TikTokの例", "description": "TikTokの投稿はMarkaestroの下書きとして届き、デフォルトで「投稿待ち」キューからの手動投稿になります。<code>deliveryMode: \"platform_inbox\"</code>（または<code>direct_publish</code>）を使用すると、明示的な公開によって下書きがクリエイターのTikTok受信箱に送信されます。" },
+    "publish": { "title": "5. 公開をキューに追加", "description": "公開処理は非同期の実行を作成します。手動投稿（Facebook/Instagram/TikTokのデフォルト）は「投稿待ち」キューに移動し<code>post.action_required</code>が発火します。LinkedIn、Threads、Pinterest、オプトインしたMeta投稿は直接公開され、オプトインしたTikTok投稿は受信箱への引き渡しをキューに追加します。" },
+    "listScheduled": { "title": "6. スケジュールを確認してキャンセル", "description": "ブランドの予約状況を一覧表示し、不要になったものを削除します。どちらも既存のキーがすでに持つスコープ — <code>posts.read</code>と<code>posts.write</code> — を使用します。" },
+    "webhook": { "title": "Webhookペイロードの例", "description": "配信は、あなたのWebhookシークレットを使ってHMACで署名されます。" }
+  },
+  "channelBehavior": {
+    "title": "チャネルごとの動作",
+    "description": "パブリックAPIによって適用されるバリデーションと配信ルールです。",
+    "channels": [
+      { "name": "Facebook", "rule": "テキストのみ、画像、または動画の投稿。1投稿につき最大10枚の画像または1本の動画。デフォルトは手動投稿、オプトインで直接公開。" },
+      { "name": "Instagram", "rule": "画像または動画を1つ以上、最大10項目。単一動画はリールとして公開されます。デフォルトは手動投稿、オプトインで直接公開。" },
+      { "name": "TikTok", "rule": "画像または動画を1つ以上。最大10枚の画像または1本の動画。デフォルトは手動投稿、オプトインした投稿はクリエイターのTikTok受信箱へ送信され、パブリックなDirect Postになることは決してありません。" },
+      { "name": "LinkedIn", "rule": "テキスト、単一画像、単一動画、または最大20枚までのオーガニックな複数画像投稿。接続済みのプロフィールまたは管理ページを対象にできます。" }
+    ]
+  }
+}

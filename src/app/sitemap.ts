@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { routing } from '@/i18n/routing';
 
 /**
  * Sitemap for the public marketing surface.
@@ -10,6 +11,12 @@ import type { MetadataRoute } from 'next';
  * The path list is maintained by hand rather than derived from the route tree:
  * the (app) and (marketing) route groups share a filesystem, so anything
  * automatic would need an allowlist anyway.
+ *
+ * Every page here is fully localized, including the two developer-docs pages
+ * — only the CODE inside them (curl samples, JSON tool schemas, the
+ * copy-pasteable agent system-prompt brief) stays English, same as
+ * docs/PUBLIC_API.md and public/llms.txt; the surrounding prose translates
+ * like every other page.
  */
 const MARKETING_ROUTES: Array<{
   path: string;
@@ -36,10 +43,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const lastModified = new Date();
 
-  return MARKETING_ROUTES.map(({ path, changeFrequency, priority }) => ({
-    url: `${marketingUrl}${path === '/' ? '' : path}`,
-    lastModified,
-    changeFrequency,
-    priority,
-  }));
+  const localePath = (locale: string, path: string) => {
+    if (locale === routing.defaultLocale) return path;
+    return path === '/' ? `/${locale}` : `/${locale}${path}`;
+  };
+
+  return MARKETING_ROUTES.map(({ path, changeFrequency, priority }) => {
+    const url = `${marketingUrl}${localePath(routing.defaultLocale, path)}`;
+
+    // hreflang alternates for every locale variant, plus x-default pointing
+    // at the unprefixed English page — mirrors what next-intl's own
+    // middleware already emits as an HTTP Link header per request.
+    const languages: Record<string, string> = { 'x-default': url };
+    for (const locale of routing.locales) {
+      languages[locale] = `${marketingUrl}${localePath(locale, path)}`;
+    }
+
+    return {
+      url,
+      lastModified,
+      changeFrequency,
+      priority,
+      alternates: { languages },
+    };
+  });
 }

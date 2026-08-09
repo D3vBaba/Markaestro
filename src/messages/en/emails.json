@@ -1,0 +1,103 @@
+{
+  "shared": {
+    "footerDefault": "If you did not request this email, you can ignore it. Your account will stay unchanged.",
+    "copyright": "© {year} Markaestro · Growth workflows, one place",
+    "ctaOpenQueue": "Open your To Post queue"
+  },
+  "signInCode": {
+    "subject": "{code} is your Markaestro sign-in code",
+    "preheader": "{code} is your Markaestro sign-in code.",
+    "title": "Your sign-in code",
+    "bodyIntro": "Use this code to sign in as <strong>{email}</strong>:",
+    "fallbackAccount": "your account",
+    "expiryNote": "The code expires in 10 minutes. Never share it with anyone — Markaestro will never ask you for it.",
+    "footerNote": "If you did not try to sign in, you can ignore this email. Without the code, no one can access your account.",
+    "plain": {
+      "heading": "Your Markaestro sign-in code",
+      "codeLabel": "Code: {code}",
+      "expiry": "The code expires in 10 minutes. Never share it with anyone.",
+      "footer": "If you did not try to sign in, you can ignore this email."
+    }
+  },
+  "emailChangeCode": {
+    "subject": "{code} is your code to confirm your new Markaestro email",
+    "preheader": "{code} is your code to confirm this email change.",
+    "title": "Confirm your new email",
+    "bodyIntro": "You requested to change your Markaestro email to <strong>{newEmail}</strong>. Enter this code in the app to confirm:",
+    "expiryNote": "The code expires in 10 minutes. Never share it with anyone.",
+    "footerNote": "If you did not request this change, you can ignore this email and your address will stay the same.",
+    "plain": {
+      "heading": "Confirm your new Markaestro email",
+      "newEmailLabel": "New email: {newEmail}",
+      "codeLabel": "Code: {code}",
+      "expiry": "The code expires in 10 minutes.",
+      "footer": "If you did not request this change, you can ignore this email."
+    }
+  },
+  "emailChangeNotice": {
+    "subject": "Email change requested · Markaestro",
+    "preheader": "A Markaestro email change was requested.",
+    "title": "Email change requested",
+    "bodyIntro": "Someone requested to change the email on this Markaestro account:",
+    "fromToLabel": "From → To",
+    "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
+    "bodyOutro": "If this was you, complete the confirmation with the code we sent to the <strong>new address</strong>. If this was not you, your email has not changed — but please contact support right away.",
+    "footerNote": "This notice was sent because a change was requested for your account.",
+    "plain": {
+      "heading": "Email change requested on Markaestro",
+      "changeSummary": "{oldEmail} -> {newEmail}",
+      "warning": "If this was not you, your email has not changed — contact support right away."
+    }
+  },
+  "manualPostReminder": {
+    "subject": "Your {channelLabel} post is ready",
+    "preheader": "A {channelLabel} post is waiting in your To Post queue.",
+    "bodyIntro": "A post is waiting in your To Post queue. Grab the media and caption from Markaestro, publish it from the {channelLabel} app, then mark it as posted.",
+    "footerNote": "You are receiving this because a post in your Markaestro workspace is waiting to be published manually.",
+    "plain": {
+      "heading": "Your {channelLabel} post is ready to publish",
+      "captionLabel": "Caption:",
+      "queueLink": "Open your To Post queue: {url}"
+    }
+  },
+  "tiktokInbox": {
+    "subjectWithBrand": "Finish your TikTok post for {brandName}",
+    "subjectNoBrand": "Finish your TikTok post",
+    "preheader": "Your video is waiting in the TikTok app — open it to publish.",
+    "bodyIntroWithBrand": "Your video has been uploaded and is waiting in your TikTok inbox for <strong>{brandName}</strong>. TikTok requires the final post to be made from their app, so it is not live yet.",
+    "bodyIntroNoBrand": "Your video has been uploaded and is waiting in your TikTok inbox. TikTok requires the final post to be made from their app, so it is not live yet.",
+    "toPublishLabel": "To publish it",
+    "step1": "Open the TikTok app",
+    "step2": "Go to your inbox notifications",
+    "step3": "Open the uploaded video, adjust the caption or privacy if you want, and post",
+    "captionLabel": "Your caption",
+    "closingNote": "Once it is live, mark it as posted in Markaestro so your analytics stay accurate.",
+    "footerNote": "You are receiving this because a TikTok post in your Markaestro workspace is waiting to be published.",
+    "plain": {
+      "bodyIntro": "Your video has been uploaded and is waiting in your TikTok inbox. TikTok requires the final post to be made from their app, so it is not live yet.",
+      "toPublishLabel": "To publish it:",
+      "captionLabel": "Your caption:",
+      "queueLink": "Open your To Post queue: {url}"
+    }
+  },
+  "teamInvite": {
+    "subject": "You've been invited to join {workspaceName} on Markaestro",
+    "title": "You're invited",
+    "preheader": "Join {workspaceName} on Markaestro.",
+    "greeting": "Hi,",
+    "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> has invited you to join the <strong>{workspaceName}</strong> workspace on Markaestro {roleLabel}.",
+    "bodyIntroNoInviter": "A teammate has invited you to join the <strong>{workspaceName}</strong> workspace on Markaestro {roleLabel}.",
+    "signInInstructions": "Sign in (or create an account) using this email address and the invitation will be applied automatically:",
+    "declineNote": "If you don't want to join, simply ignore this email — the invitation will expire after 30 days.",
+    "roleLabels": {
+      "admin": "as an admin",
+      "member": "as a member",
+      "analyst": "as an analyst"
+    },
+    "footerNote": "You are receiving this because someone invited this email address to a Markaestro workspace.",
+    "plain": {
+      "fallbackInviter": "A teammate",
+      "summary": "{inviter} has invited you to join {workspaceName} on Markaestro {roleLabel}. Accept by signing in at {url}"
+    }
+  }
+}

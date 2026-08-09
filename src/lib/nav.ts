@@ -1,39 +1,39 @@
 export type NavItem = {
-    name: string;
+    id: string;
     href: string;
 };
 
 export type NavGroup = {
-    group: string;
+    id: string;
     items: NavItem[];
 };
 
 export const navigationGroups: NavGroup[] = [
     {
-        group: "Overview",
+        id: "overview",
         items: [
-            { name: "Dashboard", href: "/dashboard" },
-            { name: "Analytics", href: "/analytics" },
+            { id: "dashboard", href: "/dashboard" },
+            { id: "analytics", href: "/analytics" },
         ],
     },
     {
-        group: "Marketing",
+        id: "marketing",
         items: [
-            { name: "Brands", href: "/products" },
-            { name: "Posts", href: "/content" },
-            { name: "Calendar", href: "/calendar" },
+            { id: "brands", href: "/products" },
+            { id: "posts", href: "/content" },
+            { id: "calendar", href: "/calendar" },
         ],
     },
     {
-        group: "Help",
+        id: "help",
         items: [
-            { name: "Connect channels", href: "/guides/channels" },
+            { id: "connectChannels", href: "/guides/channels" },
         ],
     },
 ];
 
 export const settingsItem: NavItem = {
-    name: "Settings",
+    id: "settings",
     href: "/settings",
 };
 

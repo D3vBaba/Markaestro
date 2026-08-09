@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +11,8 @@ type PaginationProps = {
 };
 
 export default function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
+  const t = useTranslations("appCommon.pagination");
+
   if (totalPages <= 1) return null;
 
   return (
@@ -19,20 +22,20 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
         size="sm"
         onClick={() => onPageChange(1)}
         disabled={page <= 1}
-        aria-label="First page"
+        aria-label={t("firstPage")}
         className="h-10 w-10 sm:h-8 sm:w-8 p-0 shrink-0"
       >
-        <ChevronsLeft className="h-4 w-4" />
+        <ChevronsLeft className="h-4 w-4 rtl:-scale-x-100" />
       </Button>
       <Button
         variant="outline"
         size="sm"
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        aria-label="Previous page"
+        aria-label={t("previousPage")}
         className="h-10 w-10 sm:h-8 sm:w-8 p-0 shrink-0"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="h-4 w-4 rtl:-scale-x-100" />
       </Button>
       <span className="text-sm sm:text-xs text-muted-foreground tabular-nums px-2 shrink-0">
         {page} / {totalPages}
@@ -42,20 +45,20 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
         size="sm"
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        aria-label="Next page"
+        aria-label={t("nextPage")}
         className="h-10 w-10 sm:h-8 sm:w-8 p-0 shrink-0"
       >
-        <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="h-4 w-4 rtl:-scale-x-100" />
       </Button>
       <Button
         variant="outline"
         size="sm"
         onClick={() => onPageChange(totalPages)}
         disabled={page >= totalPages}
-        aria-label="Last page"
+        aria-label={t("lastPage")}
         className="h-10 w-10 sm:h-8 sm:w-8 p-0 shrink-0"
       >
-        <ChevronsRight className="h-4 w-4" />
+        <ChevronsRight className="h-4 w-4 rtl:-scale-x-100" />
       </Button>
     </div>
   );

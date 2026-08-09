@@ -1,0 +1,103 @@
+{
+  "shared": {
+    "footerDefault": "Si no solicitaste este correo, puedes ignorarlo. Tu cuenta no sufrirá cambios.",
+    "copyright": "© {year} Markaestro · Flujos de crecimiento, un solo lugar",
+    "ctaOpenQueue": "Abrir tu cola de publicación"
+  },
+  "signInCode": {
+    "subject": "{code} es tu código de acceso de Markaestro",
+    "preheader": "{code} es tu código de acceso de Markaestro.",
+    "title": "Tu código de acceso",
+    "bodyIntro": "Usa este código para iniciar sesión como <strong>{email}</strong>:",
+    "fallbackAccount": "tu cuenta",
+    "expiryNote": "El código caduca en 10 minutos. No lo compartas con nadie — Markaestro nunca te lo pedirá.",
+    "footerNote": "Si no intentaste iniciar sesión, puedes ignorar este correo. Sin el código, nadie puede acceder a tu cuenta.",
+    "plain": {
+      "heading": "Tu código de acceso de Markaestro",
+      "codeLabel": "Código: {code}",
+      "expiry": "El código caduca en 10 minutos. No lo compartas con nadie.",
+      "footer": "Si no intentaste iniciar sesión, puedes ignorar este correo."
+    }
+  },
+  "emailChangeCode": {
+    "subject": "{code} es tu código para confirmar tu nuevo correo de Markaestro",
+    "preheader": "{code} es tu código para confirmar este cambio de correo.",
+    "title": "Confirma tu nuevo correo",
+    "bodyIntro": "Solicitaste cambiar tu correo de Markaestro a <strong>{newEmail}</strong>. Introduce este código en la app para confirmarlo:",
+    "expiryNote": "El código caduca en 10 minutos. No lo compartas con nadie.",
+    "footerNote": "Si no solicitaste este cambio, puedes ignorar este correo y tu dirección seguirá igual.",
+    "plain": {
+      "heading": "Confirma tu nuevo correo de Markaestro",
+      "newEmailLabel": "Nuevo correo: {newEmail}",
+      "codeLabel": "Código: {code}",
+      "expiry": "El código caduca en 10 minutos.",
+      "footer": "Si no solicitaste este cambio, puedes ignorar este correo."
+    }
+  },
+  "emailChangeNotice": {
+    "subject": "Cambio de correo solicitado · Markaestro",
+    "preheader": "Se solicitó un cambio de correo en Markaestro.",
+    "title": "Cambio de correo solicitado",
+    "bodyIntro": "Alguien solicitó cambiar el correo de esta cuenta de Markaestro:",
+    "fromToLabel": "De → A",
+    "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
+    "bodyOutro": "Si fuiste tú, completa la confirmación con el código que enviamos a la <strong>nueva dirección</strong>. Si no fuiste tú, tu correo no ha cambiado — pero contacta con soporte de inmediato.",
+    "footerNote": "Este aviso se envió porque se solicitó un cambio para tu cuenta.",
+    "plain": {
+      "heading": "Cambio de correo solicitado en Markaestro",
+      "changeSummary": "{oldEmail} -> {newEmail}",
+      "warning": "Si no fuiste tú, tu correo no ha cambiado — contacta con soporte de inmediato."
+    }
+  },
+  "manualPostReminder": {
+    "subject": "Tu publicación de {channelLabel} está lista",
+    "preheader": "Una publicación de {channelLabel} espera en tu cola de publicación.",
+    "bodyIntro": "Una publicación espera en tu cola de publicación. Obtén el contenido multimedia y el texto desde Markaestro, publícalo desde la app de {channelLabel} y márcalo como publicado.",
+    "footerNote": "Recibes esto porque una publicación en tu espacio de trabajo de Markaestro espera ser publicada manualmente.",
+    "plain": {
+      "heading": "Tu publicación de {channelLabel} está lista para publicar",
+      "captionLabel": "Texto:",
+      "queueLink": "Abrir tu cola de publicación: {url}"
+    }
+  },
+  "tiktokInbox": {
+    "subjectWithBrand": "Termina tu publicación de TikTok para {brandName}",
+    "subjectNoBrand": "Termina tu publicación de TikTok",
+    "preheader": "Tu video espera en la app de TikTok — ábrela para publicarlo.",
+    "bodyIntroWithBrand": "Tu video se ha subido y espera en tu bandeja de entrada de TikTok para <strong>{brandName}</strong>. TikTok requiere que la publicación final se haga desde su app, así que aún no está publicada.",
+    "bodyIntroNoBrand": "Tu video se ha subido y espera en tu bandeja de entrada de TikTok. TikTok requiere que la publicación final se haga desde su app, así que aún no está publicada.",
+    "toPublishLabel": "Para publicarlo",
+    "step1": "Abre la app de TikTok",
+    "step2": "Ve a las notificaciones de tu bandeja de entrada",
+    "step3": "Abre el video subido, ajusta el texto o la privacidad si quieres, y publícalo",
+    "captionLabel": "Tu texto",
+    "closingNote": "Una vez publicado, márcalo como publicado en Markaestro para que tus analíticas se mantengan precisas.",
+    "footerNote": "Recibes esto porque una publicación de TikTok en tu espacio de trabajo de Markaestro espera ser publicada.",
+    "plain": {
+      "bodyIntro": "Tu video se ha subido y espera en tu bandeja de entrada de TikTok. TikTok requiere que la publicación final se haga desde su app, así que aún no está publicada.",
+      "toPublishLabel": "Para publicarlo:",
+      "captionLabel": "Tu texto:",
+      "queueLink": "Abrir tu cola de publicación: {url}"
+    }
+  },
+  "teamInvite": {
+    "subject": "Te han invitado a unirte a {workspaceName} en Markaestro",
+    "title": "Estás invitado",
+    "preheader": "Únete a {workspaceName} en Markaestro.",
+    "greeting": "Hola,",
+    "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> te ha invitado a unirte al espacio de trabajo <strong>{workspaceName}</strong> en Markaestro {roleLabel}.",
+    "bodyIntroNoInviter": "Un compañero de equipo te ha invitado a unirte al espacio de trabajo <strong>{workspaceName}</strong> en Markaestro {roleLabel}.",
+    "signInInstructions": "Inicia sesión (o crea una cuenta) con esta dirección de correo y la invitación se aplicará automáticamente:",
+    "declineNote": "Si no quieres unirte, simplemente ignora este correo — la invitación caducará en 30 días.",
+    "roleLabels": {
+      "admin": "como administrador",
+      "member": "como miembro",
+      "analyst": "como analista"
+    },
+    "footerNote": "Recibes esto porque alguien invitó a esta dirección de correo a un espacio de trabajo de Markaestro.",
+    "plain": {
+      "fallbackInviter": "Un compañero de equipo",
+      "summary": "{inviter} te ha invitado a unirte a {workspaceName} en Markaestro {roleLabel}. Acepta iniciando sesión en {url}"
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "login": {
+    "hero": {
+      "eyebrow": "欢迎回来",
+      "titleLine1": "你的整个社媒工作流",
+      "titleLine2Prefix": "只需",
+      "titleLine2Accent": "一次登录。",
+      "subtitle": "不用再为发一次帖登录五个应用。登录即可随处发布、提前数周排期，把时间还给自己。",
+      "points": {
+        "publish": { "title": "一次性发布到所有渠道", "desc": "Facebook、Instagram、TikTok 等 — 只需一个编辑器。" },
+        "schedule": { "title": "提前数周排期", "desc": "设定一次发布节奏，再也不会断更。" },
+        "hours": { "title": "每周省下大量时间", "desc": "复制粘贴、来回登录的繁琐工作从此消失。" }
+      },
+      "newHere": {
+        "title": "第一次使用 Markaestro？",
+        "body": "回答 10 个简单问题，我们将为你制定发布计划 — 免费查看你能省下多少时间。",
+        "cta": "制定我的计划 — 免费 →"
+      }
+    },
+    "form": {
+      "eyebrowEmail": "登录或注册",
+      "eyebrowCode": "请查收邮箱",
+      "titleEmail": "使用邮箱继续",
+      "titleCode": "输入验证码",
+      "subtitleEmail": "无需密码 — 我们会通过邮件发送一次性验证码。首次使用？同一个验证码即可创建账户。",
+      "subtitleCode": "我们已将 6 位验证码发送至<email></email>。",
+      "emailPlaceholder": "name@company.com",
+      "codePlaceholder": "123456",
+      "sendCode": "通过邮件获取验证码",
+      "sendingCode": "正在发送验证码…",
+      "signIn": "登录",
+      "verifying": "正在验证…",
+      "useDifferentEmail": "← 使用其他邮箱",
+      "resendCode": "重新发送验证码",
+      "resendIn": "{seconds}秒后可重新发送",
+      "orContinueWith": "或使用以下方式继续",
+      "continueWithGoogle": "使用 Google 继续",
+      "legal": "继续即表示你同意我们的<terms>服务条款</terms>和<privacy>隐私政策</privacy>。"
+    },
+    "errors": {
+      "enterEmail": "请输入你的电子邮件地址。",
+      "enterCode": "请输入邮件中的 6 位验证码。"
+    }
+  },
+  "authAction": {
+    "unsupportedAction": "不支持的操作。",
+    "canceledFallback": {
+      "eyebrow": "账户",
+      "title": "账户操作",
+      "subtitle": "我们无法完成此链接对应的操作。",
+      "message": "操作参数缺失或无效。",
+      "backToSignIn": "返回登录"
+    },
+    "titles": {
+      "resetPassword": "设置新密码",
+      "verifyEmail": "验证你的邮箱",
+      "verifyAndChangeEmail": "确认更改邮箱",
+      "default": "账户操作"
+    },
+    "eyebrows": {
+      "resetPassword": "重置",
+      "verifyEmail": "验证",
+      "verifyAndChangeEmail": "确认",
+      "default": "账户"
+    },
+    "subtitles": {
+      "resetPassword": "为你的账户选择一个新密码。",
+      "default": "完成所请求的操作。"
+    },
+    "emailVerifiedSuccess": "邮箱验证成功。",
+    "emailUpdatedSuccess": "邮箱更新成功。",
+    "genericError": "出了点问题。",
+    "genericSuccess": "已完成。",
+    "resettingPasswordFor": "正在为<email></email>重置密码",
+    "newPasswordPlaceholder": "新密码",
+    "updatePassword": "更新密码",
+    "updating": "正在更新…",
+    "passwordUpdatedSuccess": "密码更新成功，现在可以登录了。",
+    "backToSignIn": "返回登录",
+    "working": "处理中…",
+    "continue": "继续",
+    "errors": {
+      "expiredActionCode": "此链接已过期，请重新申请邮件。",
+      "invalidActionCode": "此链接无效或已被使用。",
+      "userDisabled": "此账户已被禁用。",
+      "weakPassword": "密码长度至少为 6 个字符。",
+      "default": "出了点问题，请重试。"
+    }
+  },
+  "oauthComplete": {
+    "title": "正在完成连接",
+    "subtitle": "正在恢复你的会话并返回应用。"
+  }
+}

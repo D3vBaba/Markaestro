@@ -1,8 +1,37 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { headers } from "next/headers";
+import { Geist, Geist_Mono, Instrument_Serif, Noto_Sans_Arabic } from "next/font/google";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
+import { DirectionProvider } from "@/components/ui/direction-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
+import { isRtlLocale, type AppLocale } from "@/i18n/routing";
+import { isLocaleRoutedPath, stripLocale } from "@/lib/proxy-paths";
+import { resolveAppLocale } from "@/lib/resolve-app-locale";
+
+/**
+ * next-intl's getLocale() only resolves correctly for pages nested under
+ * src/app/[locale]/... — outside that segment (the (app) route group) it has
+ * no URL locale to negotiate against and always returns the default locale.
+ * proxy.ts forwards the real request path via the x-pathname header (see
+ * nextWithPathname there); when that path isn't one of the locale-routed
+ * marketing pages, this is the (app) tree, and we resolve its locale the
+ * same way (app)/layout.tsx does — signed-in member preference, else
+ * Accept-Language — so `<html lang/dir>` matches what the page actually
+ * renders instead of silently staying "en"/"ltr" for every app route.
+ */
+async function resolveRootLocale(): Promise<AppLocale> {
+  const headerList = await headers();
+  const pathname = headerList.get("x-pathname");
+  if (pathname) {
+    const { rest } = stripLocale(pathname);
+    if (!isLocaleRoutedPath(rest)) {
+      return resolveAppLocale();
+    }
+  }
+  return getLocale() as Promise<AppLocale>;
+}
 
 // NOTE: The Firebase-backed auth/subscription/workspace providers were moved
 // out of the root layout and into the (app) route group layout
@@ -24,6 +53,18 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
   subsets: ["latin"],
   weight: "400",
+});
+
+// Geist has zero Arabic glyph coverage (Latin-only family). For the `ar`
+// locale we override --font-geist-sans (which --font-sans resolves to, see
+// globals.css `@theme inline`) so every `font-sans` usage — body copy and
+// headings alike — picks this up instead, with no component-level changes.
+// --font-mono (used by .mk-eyebrow labels) is left on Geist Mono: browsers
+// fall back to the OS's Arabic-capable UI font for that small amount of
+// mono-styled text, which is an acceptable gap for a handful of short labels.
+const notoSansArabic = Noto_Sans_Arabic({
+  variable: "--font-noto-sans-arabic",
+  subsets: ["arabic"],
 });
 
 export const viewport: Viewport = {
@@ -51,24 +92,31 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await resolveRootLocale();
+  const rtl = isRtlLocale(locale);
+
   return (
-    <html lang="en">
+    <html lang={locale} dir={rtl ? "rtl" : "ltr"}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased bg-background text-foreground selection:bg-primary/15 selection:text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${notoSansArabic.variable} antialiased bg-background text-foreground selection:bg-primary/15 selection:text-foreground`}
+        style={rtl ? ({ "--font-geist-sans": "var(--font-noto-sans-arabic)" } as React.CSSProperties) : undefined}
       >
-        <TooltipProvider>
-          {children}
-          <Toaster
-            position="bottom-right"
-            richColors
-            mobileOffset={{ bottom: "72px" }}
-          />
-        </TooltipProvider>
+        <DirectionProvider dir={rtl ? "rtl" : "ltr"}>
+          <TooltipProvider>
+            {children}
+            <Toaster
+              position="bottom-right"
+              richColors
+              mobileOffset={{ bottom: "72px" }}
+              dir={rtl ? "rtl" : "ltr"}
+            />
+          </TooltipProvider>
+        </DirectionProvider>
       </body>
     </html>
   );

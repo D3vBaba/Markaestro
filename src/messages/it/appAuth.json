@@ -1,0 +1,94 @@
+{
+  "login": {
+    "hero": {
+      "eyebrow": "Bentornato",
+      "titleLine1": "Tutto il tuo flusso",
+      "titleLine2Prefix": "social, ",
+      "titleLine2Accent": "un solo accesso.",
+      "subtitle": "Smetti di accedere a cinque app per pubblicare una volta. Accedi per pubblicare ovunque, programmare con settimane di anticipo e riprenderti il tuo tempo.",
+      "points": {
+        "publish": { "title": "Pubblica ovunque in un colpo solo", "desc": "Facebook, Instagram, TikTok e altro — da un unico editor." },
+        "schedule": { "title": "Programma con settimane di anticipo", "desc": "Imposta il tuo ritmo una volta e non restare mai più in silenzio." },
+        "hours": { "title": "Recupera ore ogni settimana", "desc": "Il lavoro noioso di copia-incolla e accessi ripetuti semplicemente scompare." }
+      },
+      "newHere": {
+        "title": "Nuovo su Markaestro?",
+        "body": "Rispondi a 10 domande veloci e creeremo il tuo piano di pubblicazione — scopri gratuitamente quante ore recupererai.",
+        "cta": "Crea il mio piano — è gratis →"
+      }
+    },
+    "form": {
+      "eyebrowEmail": "Accedi o registrati",
+      "eyebrowCode": "Controlla la tua casella di posta",
+      "titleEmail": "Continua con la tua email",
+      "titleCode": "Inserisci il tuo codice",
+      "subtitleEmail": "Nessuna password necessaria — ti invieremo un codice monouso via email. Sei nuovo? Lo stesso codice crea il tuo account.",
+      "subtitleCode": "Abbiamo inviato un codice a 6 cifre a <email></email>.",
+      "emailPlaceholder": "nome@azienda.com",
+      "codePlaceholder": "123456",
+      "sendCode": "Inviami un codice",
+      "sendingCode": "Invio del codice…",
+      "signIn": "Accedi",
+      "verifying": "Verifica in corso…",
+      "useDifferentEmail": "← Usa un'altra email",
+      "resendCode": "Invia di nuovo il codice",
+      "resendIn": "Reinvio tra {seconds}s",
+      "orContinueWith": "Oppure continua con",
+      "continueWithGoogle": "Continua con Google",
+      "legal": "Continuando accetti i nostri <terms>Termini</terms> e la nostra <privacy>Informativa sulla privacy</privacy>."
+    },
+    "errors": {
+      "enterEmail": "Inserisci il tuo indirizzo email.",
+      "enterCode": "Inserisci il codice a 6 cifre ricevuto via email."
+    }
+  },
+  "authAction": {
+    "unsupportedAction": "Azione non supportata.",
+    "canceledFallback": {
+      "eyebrow": "Account",
+      "title": "Azione sull'account",
+      "subtitle": "Non siamo riusciti a completare questo link.",
+      "message": "Parametri dell'azione mancanti o non validi.",
+      "backToSignIn": "Torna all'accesso"
+    },
+    "titles": {
+      "resetPassword": "Imposta una nuova password",
+      "verifyEmail": "Verifica la tua email",
+      "verifyAndChangeEmail": "Conferma il cambio email",
+      "default": "Azione sull'account"
+    },
+    "eyebrows": {
+      "resetPassword": "Reimposta",
+      "verifyEmail": "Verifica",
+      "verifyAndChangeEmail": "Conferma",
+      "default": "Account"
+    },
+    "subtitles": {
+      "resetPassword": "Scegli una nuova password per il tuo account.",
+      "default": "Completa l'azione richiesta."
+    },
+    "emailVerifiedSuccess": "Email verificata con successo.",
+    "emailUpdatedSuccess": "Email aggiornata con successo.",
+    "genericError": "Qualcosa è andato storto.",
+    "genericSuccess": "Fatto.",
+    "resettingPasswordFor": "Reimpostazione della password per <email></email>",
+    "newPasswordPlaceholder": "Nuova password",
+    "updatePassword": "Aggiorna password",
+    "updating": "Aggiornamento…",
+    "passwordUpdatedSuccess": "Password aggiornata con successo. Ora puoi accedere.",
+    "backToSignIn": "Torna all'accesso",
+    "working": "Elaborazione in corso…",
+    "continue": "Continua",
+    "errors": {
+      "expiredActionCode": "Questo link è scaduto. Richiedi una nuova email.",
+      "invalidActionCode": "Questo link non è valido o è già stato utilizzato.",
+      "userDisabled": "Questo account è stato disabilitato.",
+      "weakPassword": "La password deve contenere almeno 6 caratteri.",
+      "default": "Qualcosa è andato storto. Riprova."
+    }
+  },
+  "oauthComplete": {
+    "title": "Completamento della connessione",
+    "subtitle": "Ripristino della tua sessione e ritorno all'app in corso."
+  }
+}

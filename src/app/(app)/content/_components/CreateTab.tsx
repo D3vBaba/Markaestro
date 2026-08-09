@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { apiGet, apiPost, apiPut, apiUpload } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -31,6 +32,7 @@ export default function CreateTab({
   onProductChange?: (id: string) => void;
   onPostCreated?: () => void;
 }) {
+  const t = useTranslations("content.createTab");
   const [channel, setChannel] = useState("facebook");
   const [content, setContent] = useState("");
   const [postId, setPostId] = useState<string | null>(null);
@@ -66,9 +68,9 @@ export default function CreateTab({
       if (saved.selectedChannels?.length) setSelectedChannels(saved.selectedChannels);
       if (saved.channel) setChannel(saved.channel);
       if (saved.mediaUrls?.length) setMediaUrls(saved.mediaUrls);
-      toast.info("Restored your unsaved draft", {
+      toast.info(t("restoredDraft"), {
         action: {
-          label: "Discard",
+          label: t("discard"),
           onClick: () => {
             localStorage.removeItem(draftKey);
             setContent("");
@@ -167,7 +169,7 @@ export default function CreateTab({
   const validateCurrentPost = (urls = mediaUrls) => {
     const targetChannels = getTypedPostTargets();
     if (targetChannels.length === 0) {
-      toast.error("Select at least one ready publishing channel.");
+      toast.error(t("toasts.selectChannel"));
       return false;
     }
 
@@ -205,18 +207,18 @@ export default function CreateTab({
     if (files.length === 0) return;
     const containsVideo = files.some((f) => f.type.startsWith("video/"));
     if (containsVideo && !selectedChannelsAllowVideo()) {
-      toast.error("One or more selected channels does not support video uploads");
+      toast.error(t("toasts.videoNotSupported"));
       return;
     }
     if (containsVideo && files.length > 1) {
-      toast.error("Videos must be uploaded on their own");
+      toast.error(t("toasts.videoAlone"));
       return;
     }
 
     const maxMedia = getMediaLimit();
     const available = maxMedia - mediaUrls.length;
     if (available <= 0) {
-      toast.error(`Maximum ${maxMedia} media item${maxMedia === 1 ? "" : "s"} for the selected channels`);
+      toast.error(t("toasts.maxMedia", { count: maxMedia }));
       return;
     }
     const filesToUpload = files.slice(0, available);
@@ -228,14 +230,14 @@ export default function CreateTab({
           const isVideo = file.type.startsWith("video/");
           const maxSize = isVideo ? 250 * 1024 * 1024 : 10 * 1024 * 1024;
           if (file.size > maxSize) {
-            toast.error(`${file.name}: must be under ${isVideo ? "250" : "10"} MB`);
+            toast.error(t("toasts.fileTooLarge", { file: file.name, size: isVideo ? "250" : "10" }));
             return null;
           }
           const fd = new FormData();
           fd.append(isVideo ? "video" : "image", file);
           const res = await apiUpload<{ ok: boolean; url: string }>("/api/media/upload", fd);
           if (!res.ok) {
-            toast.error(`${file.name}: upload failed`);
+            toast.error(t("toasts.fileUploadFailed", { file: file.name }));
             return null;
           }
           return res.data.url;
@@ -244,10 +246,10 @@ export default function CreateTab({
       const uploaded = results.filter((u): u is string => !!u);
       if (uploaded.length > 0) {
         setMediaUrls((prev) => [...prev, ...uploaded].slice(0, maxMedia));
-        toast.success(`${uploaded.length} file${uploaded.length > 1 ? "s" : ""} uploaded`);
+        toast.success(t("toasts.filesUploaded", { count: uploaded.length }));
       }
     } catch {
-      toast.error("Upload failed");
+      toast.error(t("toasts.uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -264,7 +266,7 @@ export default function CreateTab({
       setPostId(res.data.id);
       return res.data.id;
     }
-    toast.error("Failed to create post");
+    toast.error(t("toasts.createFailed"));
     return null;
   };
 
@@ -273,11 +275,11 @@ export default function CreateTab({
     const urls = mediaUrls.length > 0 ? mediaUrls : undefined;
     if (postId) {
       const res = await apiPut(`/api/posts/${postId}`, buildPostPayload(urls));
-      if (res.ok) { toast.success("Draft saved"); clearStoredDraft(); onPostCreated?.(); }
-      else toast.error("Failed to save draft");
+      if (res.ok) { toast.success(t("toasts.draftSaved")); clearStoredDraft(); onPostCreated?.(); }
+      else toast.error(t("toasts.draftSaveFailed"));
     } else {
       const id = await ensurePostId();
-      if (id) { toast.success("Draft saved"); clearStoredDraft(); onPostCreated?.(); }
+      if (id) { toast.success(t("toasts.draftSaved")); clearStoredDraft(); onPostCreated?.(); }
     }
   };
 
@@ -293,14 +295,14 @@ export default function CreateTab({
       scheduledAt,
     });
     if (res.ok) {
-      toast.success("Post scheduled");
+      toast.success(t("toasts.scheduled"));
       setContent("");
       setPostId(null);
       setMediaUrls([]);
       clearStoredDraft();
       onPostCreated?.();
     } else {
-      toast.error("Failed to schedule post");
+      toast.error(t("toasts.scheduleFailed"));
     }
   };
 
@@ -328,9 +330,9 @@ export default function CreateTab({
 
       if (res.data.status === "publishing" || res.data.pending) {
         if (hasTikTok) {
-          toast.success("Sending to TikTok. Markaestro is waiting for TikTok to confirm inbox delivery.");
+          toast.success(t("toasts.tiktokSending"));
         } else {
-          toast.success("Post submitted and still processing.");
+          toast.success(t("toasts.stillProcessing"));
         }
         setContent("");
         setPostId(null);
@@ -343,7 +345,7 @@ export default function CreateTab({
       }
 
       if (isPlatformActionRequiredStatus(res.data.status)) {
-        toast.success("TikTok confirmed inbox delivery. Open TikTok Inbox, finish the caption, and tap Post.");
+        toast.success(t("toasts.tiktokInboxConfirmed"));
         setContent("");
         setPostId(null);
         setMediaUrls([]);
@@ -354,11 +356,11 @@ export default function CreateTab({
       }
 
       if (successful.length > 1) {
-        toast.success(`Posted to ${successful.map((c) => c.channel).join(" & ")}!`);
+        toast.success(t("toasts.postedToMultiple", { channels: successful.map((c) => c.channel).join(" & ") }));
       } else if (hasTikTok) {
-        toast.success("TikTok confirmed inbox delivery. Open TikTok Inbox, finish the caption, and tap Post.");
+        toast.success(t("toasts.tiktokInboxConfirmed"));
       } else {
-        toast.success("Posted successfully!");
+        toast.success(t("toasts.postedSuccess"));
       }
 
       for (const ch of successful) {
@@ -374,7 +376,7 @@ export default function CreateTab({
       clearStoredDraft();
       onPostCreated?.();
     } else {
-      toast.error(res.data.error || "Publishing failed");
+      toast.error(res.data.error || t("toasts.publishFailed"));
     }
     setPublishing(false);
   };
@@ -412,13 +414,13 @@ export default function CreateTab({
         />
 
         <div className="space-y-2">
-          <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Caption</label>
+          <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("caption")}</label>
           <ContentEditor content={content} onChange={setContent} channel={channel} channels={selectedChannels} />
         </div>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Media</label>
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("media")}</label>
             <span className="text-[11px] text-muted-foreground">{mediaUrls.length}/{mediaLimit}</span>
           </div>
           {mediaUrls.length > 0 ? (
@@ -432,8 +434,8 @@ export default function CreateTab({
                   )}
                   <button
                     onClick={() => setMediaUrls((prev) => prev.filter((_, idx) => idx !== i))}
-                    className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white text-sm w-8 h-8 sm:text-[10px] sm:w-5 sm:h-5 rounded-full flex items-center justify-center"
-                    aria-label="Remove"
+                    className="absolute top-1 end-1 bg-black/60 hover:bg-black/80 text-white text-sm w-8 h-8 sm:text-[10px] sm:w-5 sm:h-5 rounded-full flex items-center justify-center"
+                    aria-label={t("removeMedia")}
                   >
                     ×
                   </button>
@@ -444,7 +446,7 @@ export default function CreateTab({
                   onClick={() => fileInputRef.current?.click()}
                   className="aspect-square rounded-lg border-2 border-dashed border-border/50 hover:border-foreground/30 text-xs text-muted-foreground"
                 >
-                  + Add
+                  {t("addMedia")}
                 </button>
               )}
             </div>
@@ -453,8 +455,8 @@ export default function CreateTab({
               className="border-2 border-dashed border-border/50 hover:border-foreground/30 rounded-xl p-8 text-center cursor-pointer transition-colors"
               onClick={() => fileInputRef.current?.click()}
             >
-              <p className="text-sm text-muted-foreground">{allowVideo ? "Drop images or videos" : "Drop images or click to upload"}</p>
-              <p className="text-[11px] text-muted-foreground/50 mt-1">Up to {mediaLimit} item{mediaLimit === 1 ? "" : "s"} · {allowVideo ? "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
+              <p className="text-sm text-muted-foreground">{allowVideo ? t("dropImagesOrVideos") : t("dropImages")}</p>
+              <p className="text-[11px] text-muted-foreground/50 mt-1">{t("mediaCountHint", { count: mediaLimit, hint: allowVideo ? t("mediaHintVideo") : t("mediaHintImage") })}</p>
             </div>
           )}
           <input
@@ -470,26 +472,26 @@ export default function CreateTab({
             }}
           />
           <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => fileInputRef.current?.click()} disabled={uploading || mediaUrls.length >= mediaLimit}>
-            {uploading ? "Uploading…" : "Upload"}
+            {uploading ? t("uploading") : t("upload")}
           </Button>
         </div>
 
         <div className="grid grid-cols-3 gap-2 pt-2">
           <Button variant="outline" onClick={handleSaveDraft} disabled={!content} className="h-11 sm:h-9 text-xs sm:text-sm">
-            Save Draft
+            {t("saveDraft")}
           </Button>
           <Button variant="outline" onClick={() => setScheduleOpen(true)} disabled={!content} className="h-11 sm:h-9 text-xs sm:text-sm">
-            Schedule
+            {t("schedule")}
           </Button>
           <Button onClick={handlePostNow} disabled={publishing || !content} className="h-11 sm:h-9 text-xs sm:text-sm">
-            {publishing ? "Posting…" : "Post Now"}
+            {publishing ? t("posting") : t("postNow")}
           </Button>
         </div>
       </div>
 
       {/* Right column — preview */}
       <div className="border border-border/40 rounded-lg p-4 sm:p-6 space-y-6 h-fit lg:sticky lg:top-20 bg-card">
-        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Preview</h3>
+        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("preview")}</h3>
         {selectedChannels.length > 1 && (
           <div className="flex flex-wrap items-center gap-1.5">
             {selectedChannels.map((ch) => (
@@ -511,8 +513,8 @@ export default function CreateTab({
           <PlatformPreview content={content} channel={activePreviewChannel} mediaUrls={mediaUrls.length > 0 ? mediaUrls : undefined} />
         ) : (
           <div className="text-center py-16">
-            <p className="text-sm text-muted-foreground">Your post preview will appear here.</p>
-            <p className="text-xs text-muted-foreground/60 mt-2">Write a caption and upload your media to get started.</p>
+            <p className="text-sm text-muted-foreground">{t("previewPlaceholder")}</p>
+            <p className="text-xs text-muted-foreground/60 mt-2">{t("previewHint")}</p>
           </div>
         )}
       </div>

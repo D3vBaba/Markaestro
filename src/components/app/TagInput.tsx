@@ -1,17 +1,20 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
 export default function TagInput({
   tags,
   onChange,
-  placeholder = "Type and press Enter…",
+  placeholder,
 }: {
   tags: string[];
   onChange: (tags: string[]) => void;
   placeholder?: string;
 }) {
+  const t = useTranslations("appCommon.tagInput");
+  const effectivePlaceholder = placeholder ?? t("defaultPlaceholder");
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -73,7 +76,7 @@ export default function TagInput({
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         onBlur={() => { if (input.trim()) addTag(input); }}
-        placeholder={tags.length === 0 ? placeholder : ""}
+        placeholder={tags.length === 0 ? effectivePlaceholder : ""}
         className="flex-1 min-w-20 bg-transparent outline-none placeholder:text-muted-foreground text-sm"
       />
     </div>

@@ -1,0 +1,316 @@
+{
+  "questionCounter": "Question {current} / {total}",
+  "signOut": "Sign out",
+  "signIn": "Sign in",
+  "back": "← Back",
+  "continue": "Continue",
+  "skipForNow": "Skip for now",
+  "takes2Minutes": "Takes 2 minutes · No card required",
+  "quiz": {
+    "marketing": {
+      "eyebrow": "Let's build your engine",
+      "title": "What are you marketing?",
+      "subtitle": "Markaestro adapts to whatever you're growing.",
+      "options": {
+        "product": { "label": "An app or product", "desc": "Software, e-commerce, or something you've built" },
+        "business": { "label": "A business", "desc": "A company, shop, or local service" },
+        "personal": { "label": "Myself", "desc": "A personal brand or audience that's all you" },
+        "clients": { "label": "Clients", "desc": "Brands you manage for other people" }
+      }
+    },
+    "role": {
+      "eyebrow": "Your seat",
+      "title": "What's your role?",
+      "subtitle": "We'll tailor everything to how you actually work.",
+      "options": {
+        "founder": { "label": "Founder / CEO", "desc": "Wearing every hat — including marketing" },
+        "marketer": { "label": "Marketer", "desc": "Owning content across every channel" },
+        "agency": { "label": "Agency / Freelancer", "desc": "Juggling posts for multiple clients" },
+        "creator": { "label": "Content Creator", "desc": "Growing an audience that's all you" }
+      }
+    },
+    "teamSize": {
+      "eyebrow": "Your team",
+      "title": "Who's behind the posting?",
+      "options": {
+        "solo": { "label": "Just me", "desc": "And honestly, it's a lot" },
+        "small": { "label": "2–5 people", "desc": "Small team, many hats" },
+        "medium": { "label": "6–20 people", "desc": "Coordination is getting messy" },
+        "large": { "label": "20+ people", "desc": "Keeping everyone consistent is hard" }
+      }
+    },
+    "goal": {
+      "eyebrow": "The mission",
+      "title": "What are you really after?",
+      "subtitle": "It shapes your setup and the plan we recommend.",
+      "options": {
+        "social": { "label": "Grow my following", "desc": "More reach, more engagement" },
+        "sales": { "label": "Drive more sales", "desc": "Turn posts into pipeline" },
+        "time": { "label": "Win back my time", "desc": "Stop drowning in content" }
+      }
+    },
+    "channels": {
+      "eyebrow": "Your stage",
+      "title": "Where does your audience live?",
+      "subtitle": "Pick all that apply — you'll publish to each in one click.",
+      "options": {
+        "instagram": { "label": "Instagram" },
+        "facebook": { "label": "Facebook" },
+        "tiktok": { "label": "TikTok" },
+        "threads": { "label": "Threads" },
+        "pinterest": { "label": "Pinterest" },
+        "linkedin": { "label": "LinkedIn" }
+      }
+    },
+    "postingToday": {
+      "eyebrow": "Be honest",
+      "title": "How are you posting today?",
+      "subtitle": "Most teams tell us this is the painful part.",
+      "options": {
+        "manual": { "label": "Manually in each app", "desc": "Logging in everywhere, one by one" },
+        "spreadsheet": { "label": "Spreadsheets & reminders", "desc": "Sticky notes and hope" },
+        "tool": { "label": "Another scheduling tool", "desc": "One I've quietly outgrown" },
+        "starting": { "label": "Barely posting at all", "desc": "No real system yet" }
+      }
+    },
+    "frequency": {
+      "eyebrow": "The cadence you want",
+      "title": "How often do you want to show up?",
+      "subtitle": "We'll keep you on schedule automatically.",
+      "options": {
+        "daily": { "label": "Every day", "desc": "Stay top of mind" },
+        "few": { "label": "A few times a week", "desc": "Steady wins the race" },
+        "weekly": { "label": "About once a week", "desc": "Quality over noise" },
+        "unsure": { "label": "Not sure yet", "desc": "Tell me what actually works" }
+      }
+    },
+    "challenge": {
+      "eyebrow": "The real problem",
+      "title": "What keeps tripping you up?",
+      "subtitle": "This is the thing we're going to fix for you.",
+      "options": {
+        "consistency": { "label": "Staying consistent", "desc": "I start strong, then go quiet" },
+        "time": { "label": "Finding the time", "desc": "There's never enough of it" },
+        "ideas": { "label": "Coming up with content", "desc": "I keep running dry on ideas" },
+        "juggling": { "label": "Juggling channels", "desc": "Too many platforms to keep up with" }
+      }
+    },
+    "contentTypes": {
+      "eyebrow": "Your voice",
+      "title": "What do you want to post?",
+      "subtitle": "Pick all that apply — we'll help you fill the calendar.",
+      "options": {
+        "product": { "label": "Product & promotions" },
+        "educational": { "label": "Tips & education" },
+        "bts": { "label": "Behind the scenes" },
+        "news": { "label": "News & updates" }
+      }
+    },
+    "hoursPerWeek": {
+      "eyebrow": "The hidden cost",
+      "title": "How many hours a week vanish into this?",
+      "subtitle": "Be honest — it's almost always more than it feels.",
+      "options": {
+        "lt2": { "label": "Under 2 hours" },
+        "2to5": { "label": "2–5 hours" },
+        "5to10": { "label": "5–10 hours" },
+        "gt10": { "label": "10+ hours" }
+      }
+    },
+    "success": {
+      "eyebrow": "90 days from now",
+      "title": "What would make this worth it?",
+      "subtitle": "We'll point your whole setup at this outcome.",
+      "options": {
+        "followers": { "label": "A bigger, engaged audience", "desc": "Reach that compounds" },
+        "sales": { "label": "Content that drives revenue", "desc": "Posts that actually convert" },
+        "timeback": { "label": "My evenings & weekends back", "desc": "Hours returned every week" },
+        "consistency": { "label": "Never going quiet again", "desc": "A presence I can rely on" }
+      }
+    }
+  },
+  "challengeCopy": {
+    "consistency": {
+      "short": "staying consistent",
+      "headline": "You'll never go quiet again",
+      "line": "Schedule weeks of posts in one sitting — Markaestro publishes on time, every time, so the silence stops."
+    },
+    "time": {
+      "short": "finding the time",
+      "headline": "Let's win those hours back",
+      "line": "Write once, publish everywhere, and schedule ahead. The copy-paste-and-log-in busywork simply disappears."
+    },
+    "ideas": {
+      "short": "coming up with content",
+      "headline": "Your calendar won't run dry",
+      "line": "Turn one idea into a week of posts across every channel — so you're never staring at a blank screen."
+    },
+    "juggling": {
+      "short": "juggling channels",
+      "headline": "One place for every channel",
+      "line": "Compose once and publish to all your platforms from a single screen — no more tab-juggling or dropped posts."
+    }
+  },
+  "marketingCopy": {
+    "product": {
+      "eyebrow": "Your product",
+      "title": "Add the product you're marketing",
+      "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now — you can always do it later."
+    },
+    "business": {
+      "eyebrow": "Your business",
+      "title": "Add the business you're marketing",
+      "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now — you can always do it later."
+    },
+    "personal": {
+      "eyebrow": "Your brand",
+      "title": "Set up your personal brand",
+      "sub": "Have a website or portfolio? Scan it to auto-fill. No site? Enter your details manually — it takes a minute."
+    },
+    "clients": {
+      "eyebrow": "Your first client",
+      "title": "Add your first client's brand",
+      "sub": "Start with one client — scan their website to auto-fill, or enter the details manually. You can add more brands anytime."
+    },
+    "fallback": {
+      "eyebrow": "Your brand",
+      "title": "Add the brand you're marketing",
+      "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now — you can always do it later."
+    }
+  },
+  "socialProviders": {
+    "meta": {
+      "label": "Meta",
+      "fullLabel": "Meta (Facebook + Instagram)",
+      "description": "Connect Facebook and Instagram",
+      "note": "Pages, Reels, Feed posts, Stories"
+    }
+  },
+  "footer": {
+    "tagline": "The premium marketing automation platform for modern teams.",
+    "product": "Product",
+    "features": "Features",
+    "channels": "Channels",
+    "pricing": "Pricing",
+    "company": "Company",
+    "contact": "Contact",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "getStarted": "Get Started",
+    "signIn": "Sign In",
+    "createAccount": "Create Account",
+    "copyright": "© {year} Markaestro. All rights reserved.",
+    "terms": "Terms",
+    "privacy": "Privacy"
+  },
+  "register": {
+    "yourPlanIsReady": "Your plan is ready",
+    "titleEmail": "Save your plan & claim your time back",
+    "titleCode": "Check your inbox",
+    "subtitleEmail": "No password needed — enter your email and we'll send a one-time code. Already have an account? The same code signs you in.",
+    "subtitleCode": "We sent a 6-digit code to {email}.",
+    "waitingInWorkspace": "Waiting in your workspace",
+    "recap": {
+      "channelsReady": "{count, plural, one {# channel ready to publish in one click} other {# channels ready to publish in one click}}",
+      "everyChannel": "Every channel, published from one place",
+      "postsScheduled": "Posts scheduled {frequency} — automatically",
+      "hoursBack": "~{hours} hours a week back in your calendar",
+      "onSteadyCadence": "on a steady cadence"
+    },
+    "emailPlaceholder": "name@company.com",
+    "codePlaceholder": "123456",
+    "sendingCode": "Sending code…",
+    "claimPlan": "Claim my plan — it's free",
+    "verifying": "Verifying…",
+    "continueBtn": "Continue",
+    "useDifferentEmail": "← Use a different email",
+    "resendIn": "Resend in {seconds}s",
+    "resendCode": "Resend code",
+    "freeTrialNote": "Free to start · 14-day trial · Cancel anytime",
+    "orContinueWith": "Or continue with",
+    "continueWithGoogle": "Continue with Google",
+    "agreeTermsPrefix": "By continuing you agree to our",
+    "and": "and",
+    "terms": "Terms",
+    "privacyPolicy": "Privacy Policy",
+    "errors": {
+      "enterEmail": "Enter your email to continue.",
+      "enterCode": "Enter the 6-digit code from your email."
+    }
+  },
+  "product": {
+    "scanWebsite": "Scan a website",
+    "enterManually": "Enter manually",
+    "websiteUrl": "Website URL",
+    "urlPlaceholder": "yourbrand.com",
+    "scanning": "Scanning…",
+    "rescan": "Re-scan",
+    "scan": "Scan",
+    "scanHelp": "We read your site and fill in the name, description, logo, and brand colours.",
+    "autoDetected": "Auto-detected",
+    "brandName": "Brand name",
+    "description": "Description",
+    "targetAudience": "Target audience",
+    "targetAudiencePlaceholder": "e.g. B2B SaaS founders",
+    "brandTone": "Brand tone",
+    "brandTonePlaceholder": "e.g. bold, direct",
+    "brandColorDetected": "Brand colour detected:",
+    "manualBrandNamePlaceholder": "e.g. Acme CRM",
+    "whatDoesItDo": "What does it do?",
+    "optional": "(optional)",
+    "manualDescPlaceholder": "Describe this brand and who it's for...",
+    "saving": "Saving…",
+    "couldntSaveBrand": "Couldn't save your brand — you can add it later from the dashboard."
+  },
+  "socials": {
+    "connectYourAccounts": "Connect your accounts",
+    "addSocialAccounts": "Add your social accounts",
+    "subtitle": "Connect the platforms you want to post to. You can always add or change this from your settings later.",
+    "connected": "Connected",
+    "connect": "Connect",
+    "redirecting": "Redirecting…",
+    "otherChannelsNote": "TikTok, Threads, and Pinterest can be connected per-brand from your dashboard.",
+    "skipAndContinue": "Skip and continue",
+    "couldNotInitiate": "Could not initiate connection. Please try again.",
+    "connectedToast": "{label} connected",
+    "connectFailedToast": "Failed to connect {provider}"
+  },
+  "generating": {
+    "title": "Building your workflow",
+    "subtitle": "Setting up your channels and a posting plan built around {challenge} — the problem you came here to solve.",
+    "takesAMoment": "This takes just a moment"
+  },
+  "paywall": {
+    "youllGetBackPrefix": "You'll get back about",
+    "hoursAWeek": "hours a week",
+    "startTrialSuffix": "Start your {days}-day free trial to publish — and everything else you create.",
+    "firstPostReady": "Your first post is ready inside your dashboard.",
+    "subscribeToPublish": "Subscribe to publish",
+    "postReadyOneStepAway": "Your post is ready — one step away",
+    "justNow": "Just now",
+    "like": "Like",
+    "comment": "Comment",
+    "share": "Share",
+    "recommendedForYou": "Recommended for you",
+    "basedOnAnswers": "Based on your answers",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "saveAnnual": "— save 17%",
+    "saveAnnualShort": "· −17%",
+    "selected": "Selected",
+    "perMonth": "/month",
+    "perMonthShort": "/mo",
+    "trialAllPlans": "{days}-day free trial on all plans · No charge until day {dayAfter}",
+    "trialEndsOn": "Your trial ends on {date}, when your card is charged ${price}/mo{billedAnnually}. Cancel anytime before then and you won't be charged.",
+    "billedAnnually": ", billed annually",
+    "annualSavingsNote": "Annual billing saves you 17% compared to monthly",
+    "settingUp": "Setting up…",
+    "startTrialButton": "Start {days}-Day Free Trial — {plan}",
+    "cardRequired": "Card required · Cancel anytime before the trial ends"
+  },
+  "success": {
+    "allSet": "All set",
+    "readyToLaunch": "You're ready to launch.",
+    "settingUpAccount": "Your account is set up. Taking you to your dashboard…"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "title": "Panel",
+  "subtitle": "Tu motor de marketing de un vistazo.",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando…",
+  "newPost": "Nueva publicación",
+  "errorTitle": "No se pudo cargar tu panel",
+  "errorBody": "No pudimos cargar los datos de tu panel.",
+  "retry": "Reintentar",
+  "kpis": {
+    "brands": "Marcas",
+    "brandsActive": "{count} activas",
+    "posts": "Publicaciones",
+    "postsSub": "{published} publicadas · {scheduled} programadas",
+    "publishedWeek": "Publicado · 7d",
+    "acrossDays": "en {count} días"
+  },
+  "chart": {
+    "eyebrow": "Actividad de publicación · 7d",
+    "publishedThisWeek": "{count} publicadas esta semana",
+    "show": "Mostrar {label}",
+    "hide": "Ocultar {label}",
+    "noActivity": "Aún no hay actividad de publicaciones."
+  },
+  "distribution": {
+    "eyebrow": "Distribución",
+    "title": "Publicaciones por canal",
+    "viewInCalendar": "Ver publicaciones de {channel} en el calendario"
+  },
+  "recentPosts": {
+    "eyebrow": "A continuación",
+    "title": "Publicaciones recientes",
+    "viewAll": "Ver todas →",
+    "untitled": "Publicación sin título",
+    "empty": "Aún no hay publicaciones. Crea la primera para ver actividad aquí."
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "shared": {
+    "footerDefault": "إذا لم تطلب هذا البريد الإلكتروني، يمكنك تجاهله. لن يتغير حسابك.",
+    "copyright": "© {year} Markaestro · سير عمل النمو، في مكان واحد",
+    "ctaOpenQueue": "فتح قائمة الانتظار للنشر"
+  },
+  "signInCode": {
+    "subject": "{code} هو رمز تسجيل الدخول الخاص بك في Markaestro",
+    "preheader": "{code} هو رمز تسجيل الدخول الخاص بك في Markaestro.",
+    "title": "رمز تسجيل الدخول الخاص بك",
+    "bodyIntro": "استخدم هذا الرمز لتسجيل الدخول كـ <strong>{email}</strong>:",
+    "fallbackAccount": "حسابك",
+    "expiryNote": "تنتهي صلاحية الرمز خلال 10 دقائق. لا تشاركه مع أي شخص — لن يطلبه Markaestro منك أبدًا.",
+    "footerNote": "إذا لم تحاول تسجيل الدخول، يمكنك تجاهل هذا البريد الإلكتروني. بدون الرمز، لا يمكن لأحد الوصول إلى حسابك.",
+    "plain": {
+      "heading": "رمز تسجيل الدخول الخاص بك في Markaestro",
+      "codeLabel": "الرمز: {code}",
+      "expiry": "تنتهي صلاحية الرمز خلال 10 دقائق. لا تشاركه مع أي شخص.",
+      "footer": "إذا لم تحاول تسجيل الدخول، يمكنك تجاهل هذا البريد الإلكتروني."
+    }
+  },
+  "emailChangeCode": {
+    "subject": "{code} هو رمز تأكيد بريدك الإلكتروني الجديد في Markaestro",
+    "preheader": "{code} هو رمز تأكيد تغيير البريد الإلكتروني هذا.",
+    "title": "تأكيد بريدك الإلكتروني الجديد",
+    "bodyIntro": "طلبت تغيير بريدك الإلكتروني في Markaestro إلى <strong>{newEmail}</strong>. أدخل هذا الرمز في التطبيق للتأكيد:",
+    "expiryNote": "تنتهي صلاحية الرمز خلال 10 دقائق. لا تشاركه مع أي شخص.",
+    "footerNote": "إذا لم تطلب هذا التغيير، يمكنك تجاهل هذا البريد الإلكتروني وسيبقى عنوانك كما هو.",
+    "plain": {
+      "heading": "تأكيد بريدك الإلكتروني الجديد في Markaestro",
+      "newEmailLabel": "البريد الإلكتروني الجديد: {newEmail}",
+      "codeLabel": "الرمز: {code}",
+      "expiry": "تنتهي صلاحية الرمز خلال 10 دقائق.",
+      "footer": "إذا لم تطلب هذا التغيير، يمكنك تجاهل هذا البريد الإلكتروني."
+    }
+  },
+  "emailChangeNotice": {
+    "subject": "تم طلب تغيير البريد الإلكتروني · Markaestro",
+    "preheader": "تم طلب تغيير بريد إلكتروني في Markaestro.",
+    "title": "تم طلب تغيير البريد الإلكتروني",
+    "bodyIntro": "طلب أحدهم تغيير البريد الإلكتروني لهذا الحساب في Markaestro:",
+    "fromToLabel": "من ← إلى",
+    "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
+    "bodyOutro": "إذا كنت أنت من طلب ذلك، أكمل التأكيد باستخدام الرمز الذي أرسلناه إلى <strong>العنوان الجديد</strong>. إذا لم تكن أنت، فلم يتغير بريدك الإلكتروني — لكن يرجى التواصل مع الدعم فورًا.",
+    "footerNote": "تم إرسال هذا الإشعار لأنه تم طلب تغيير على حسابك.",
+    "plain": {
+      "heading": "تم طلب تغيير البريد الإلكتروني في Markaestro",
+      "changeSummary": "{oldEmail} -> {newEmail}",
+      "warning": "إذا لم تكن أنت، فلم يتغير بريدك الإلكتروني — تواصل مع الدعم فورًا."
+    }
+  },
+  "manualPostReminder": {
+    "subject": "منشورك على {channelLabel} جاهز",
+    "preheader": "منشور على {channelLabel} ينتظر في قائمة الانتظار للنشر.",
+    "bodyIntro": "هناك منشور ينتظر في قائمة الانتظار للنشر. احصل على الوسائط والنص من Markaestro، وانشره من تطبيق {channelLabel}، ثم ضعه كـ«منشور».",
+    "footerNote": "تصلك هذه الرسالة لأن منشورًا في مساحة عمل Markaestro الخاصة بك ينتظر النشر يدويًا.",
+    "plain": {
+      "heading": "منشورك على {channelLabel} جاهز للنشر",
+      "captionLabel": "النص:",
+      "queueLink": "فتح قائمة الانتظار للنشر: {url}"
+    }
+  },
+  "tiktokInbox": {
+    "subjectWithBrand": "أكمل منشور TikTok الخاص بـ {brandName}",
+    "subjectNoBrand": "أكمل منشور TikTok الخاص بك",
+    "preheader": "يوجد فيديو ينتظر في تطبيق TikTok — افتحه لنشره.",
+    "bodyIntroWithBrand": "تم رفع الفيديو الخاص بك وهو ينتظر في صندوق وارد TikTok لـ <strong>{brandName}</strong>. يتطلب TikTok إجراء النشر النهائي من داخل تطبيقه، لذا فهو لم يُنشر بعد.",
+    "bodyIntroNoBrand": "تم رفع الفيديو الخاص بك وهو ينتظر في صندوق وارد TikTok. يتطلب TikTok إجراء النشر النهائي من داخل تطبيقه، لذا فهو لم يُنشر بعد.",
+    "toPublishLabel": "لنشره",
+    "step1": "افتح تطبيق TikTok",
+    "step2": "انتقل إلى إشعارات صندوق الوارد",
+    "step3": "افتح الفيديو الذي تم رفعه، وعدّل النص أو إعدادات الخصوصية إن أردت، ثم انشره",
+    "captionLabel": "النص الخاص بك",
+    "closingNote": "بمجرد نشره، ضعه كـ«منشور» في Markaestro لتبقى تحليلاتك دقيقة.",
+    "footerNote": "تصلك هذه الرسالة لأن منشور TikTok في مساحة عمل Markaestro الخاصة بك ينتظر النشر.",
+    "plain": {
+      "bodyIntro": "تم رفع الفيديو الخاص بك وهو ينتظر في صندوق وارد TikTok. يتطلب TikTok إجراء النشر النهائي من داخل تطبيقه، لذا فهو لم يُنشر بعد.",
+      "toPublishLabel": "لنشره:",
+      "captionLabel": "النص الخاص بك:",
+      "queueLink": "فتح قائمة الانتظار للنشر: {url}"
+    }
+  },
+  "teamInvite": {
+    "subject": "تمت دعوتك للانضمام إلى {workspaceName} على Markaestro",
+    "title": "لديك دعوة",
+    "preheader": "انضم إلى {workspaceName} على Markaestro.",
+    "greeting": "مرحبًا،",
+    "bodyIntroWithInviter": "دعاك <strong>{inviterEmail}</strong> للانضمام إلى مساحة عمل <strong>{workspaceName}</strong> على Markaestro {roleLabel}.",
+    "bodyIntroNoInviter": "دعاك أحد أعضاء الفريق للانضمام إلى مساحة عمل <strong>{workspaceName}</strong> على Markaestro {roleLabel}.",
+    "signInInstructions": "سجّل الدخول (أو أنشئ حسابًا) باستخدام عنوان البريد الإلكتروني هذا، وسيتم تطبيق الدعوة تلقائيًا:",
+    "declineNote": "إذا كنت لا ترغب في الانضمام، تجاهل هذا البريد الإلكتروني فحسب — ستنتهي صلاحية الدعوة بعد 30 يومًا.",
+    "roleLabels": {
+      "admin": "كمسؤول",
+      "member": "كعضو",
+      "analyst": "كمحلل"
+    },
+    "footerNote": "تصلك هذه الرسالة لأن أحدهم دعا عنوان البريد الإلكتروني هذا إلى مساحة عمل في Markaestro.",
+    "plain": {
+      "fallbackInviter": "أحد أعضاء الفريق",
+      "summary": "دعاك {inviter} للانضمام إلى {workspaceName} على Markaestro {roleLabel}. اقبل الدعوة بتسجيل الدخول عبر {url}"
+    }
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "eyebrow": "Rechtliches",
+  "title": "Datenschutzerklärung",
+  "lastUpdated": "Zuletzt aktualisiert · 10. März 2026",
+  "sections": [
+    {
+      "heading": "1. Geltungsbereich und Rollen",
+      "blocks": [
+        { "type": "p", "text": "Diese Datenschutzerklärung erläutert, wie Markaestro („Markaestro“, „wir“ oder „unser“) personenbezogene Daten erhebt, nutzt, offenlegt und schützt, wenn du auf unsere Marketing-Automatisierungsplattform, Website, Anwendungen, APIs und zugehörigen Dienste (zusammen die „Dienste“) zugreifst." },
+        { "type": "p", "text": "Markaestro verarbeitet unterschiedliche Datenkategorien in unterschiedlichen Rollen. Für Konto-, Abrechnungs-, Sicherheits-, Support- und Website-Verwaltungsdaten agieren wir im Allgemeinen als Verantwortlicher. Für Kontaktlisten, Beitragsinhalte, Markenressourcen, hochgeladene Medien, Aktivitätsereignisse und ähnliche von einem Arbeitsbereich übermittelte Daten agieren wir im Allgemeinen als Auftragsverarbeiter im Namen dieses Arbeitsbereichs. Wenn du ein Endkunde oder Kontakt bist, der in einem Kunden-Arbeitsbereich von Markaestro enthalten ist, solltest du Datenschutzanfragen zunächst an diesen Arbeitsbereich richten." }
+      ]
+    },
+    {
+      "heading": "2. Informationen, die wir erheben",
+      "blocks": [
+        { "type": "h3", "text": "2.1 Informationen, die du direkt bereitstellst" },
+        { "type": "ul", "items": [
+          "<strong>Konto- und Identitätsdaten:</strong> E-Mail-Adresse, Authentifizierungskennungen, Anzeigename und über Firebase Authentication verwaltete Zugangsdaten.",
+          "<strong>Arbeitsbereichs- und Teamdaten:</strong> Name des Arbeitsbereichs, Mitgliedschaftsdatensätze, Nutzerrollen sowie Einladungs- oder Zugriffsverwaltungsinformationen.",
+          "<strong>Produkt- und Markendaten:</strong> Produktnamen, Beschreibungen, URLs, Preisstufen, Kategorien, Markenstimme-Einstellungen, Beispieltexte für die Stimme, Zielgruppenbeschreibungen, Schlüsselwörter, Vermeidungswortlisten, Logos und Markenfarbeinstellungen.",
+          "<strong>Veröffentlichungsdaten:</strong> Beiträge, Texte, geplante Zeiten, Medien-URLs, Zielgruppeneinstellungen, Call-to-Action-Text und zugehörige Workflow-Konfiguration.",
+          "<strong>Kontakt- und CRM-Daten:</strong> Namen, E-Mail-Adressen, Status, Lebenszyklusphase, Quelle, Tags, Notizen, Produktzuordnungen und Abmeldestatus für Kontakte, die du erstellst, importierst, synchronisierst oder verwaltest.",
+          "<strong>Automatisierungs- und Aufgabenkonfiguration:</strong> Automatisierungsschritte, Auslöser, Aufgabenpläne, Aufgabendaten und zugehörige Ausführungseinstellungen.",
+          "<strong>Support- und Kommunikationsdaten:</strong> Informationen, die du uns per E-Mail oder Kontaktformular sendest, einschließlich Nachrichteninhalten und bereitgestellten Anhängen."
+        ] },
+        { "type": "h3", "text": "2.2 Informationen von verbundenen Diensten und Integrationen" },
+        { "type": "ul", "items": [
+          "<strong>OAuth- und Integrationsdaten:</strong> Zugriffstokens, Erneuerungstokens, Token-Ablaufdaten, Anbieter-Kontokennungen, Nutzernamen, Open-IDs, Seiten- oder Kontoauswahlen sowie anbieterspezifische Metadaten, die zur Aufrechterhaltung einer Verbindung erforderlich sind.",
+          "<strong>Daten zu sozialen Verbindungen:</strong> Seitenlisten, Kontoprofilinformationen, Beitragsstatus, Veröffentlichungsziele und zugehörige Verbindungsmetadaten, abgerufen von Anbietern wie TikTok, Meta und ähnlichen Diensten, die du verbindest."
+        ] },
+        { "type": "h3", "text": "2.3 Automatisch erhobene Informationen" },
+        { "type": "ul", "items": [
+          "<strong>Nutzungs- und Aktivitätsdaten:</strong> besuchte Seiten, genutzte Funktionen, ausgeführte Aktionen, Zeitstempel und arbeitsbereichsbezogene Aktivitätsereignisse.",
+          "<strong>Technische Daten:</strong> IP-Adresse, Browsertyp, Geräteinformationen, Betriebssystem, Anfragemetadaten und ungefährer Standort, abgeleitet aus Netzwerkinformationen.",
+          "<strong>Diagnosen und Protokolle:</strong> API-Fehlerdetails, Anfrage-IDs, Sicherheitsereignisse, Prüfprotokolle, Daten zu Hintergrundaufgabenläufen und Telemetrie zur Zuverlässigkeit und Missbrauchsprävention, einschließlich Diagnoseverarbeitung über Sentry.",
+          "<strong>Cookie- und lokale Speicherdaten:</strong> wesentliche Sitzungs-, Authentifizierungs- und Präferenzinformationen zum Betrieb der Dienste."
+        ] },
+        { "type": "h3", "text": "2.4 Dateien und Uploads" },
+        { "type": "ul", "items": [
+          "<strong>Medien-Uploads:</strong> Logos, Bilder, Videos und andere Dateien, die du für Veröffentlichung oder Markenidentität hochlädst.",
+          "<strong>Öffentlich zugängliche Ressourcen-URLs:</strong> Bestimmte hochgeladene Ressourcen können über direkte öffentliche Cloud-URLs gespeichert werden, damit sie in sozialen Beiträgen und externen Integrationen dargestellt werden können. Lade nur Dateien hoch, die du auf diese Weise veröffentlichen oder teilen darfst."
+        ] }
+      ]
+    },
+    {
+      "heading": "3. Wie wir Informationen nutzen",
+      "blocks": [
+        { "type": "p", "text": "Wir nutzen personenbezogene Daten und Kundendaten, um:" },
+        { "type": "ul", "items": [
+          "die Dienste bereitzustellen, zu sichern, zu warten, zu debuggen und zu verbessern;",
+          "Nutzer zu authentifizieren und Zugriffskontrollen für den Arbeitsbereich durchzusetzen;",
+          "Produkte, Markeneinstellungen, Beiträge und hochgeladene Medien zu speichern und zu verwalten;",
+          "Inhalte auf verbundene Dienste Dritter zu veröffentlichen oder zu planen, wenn du dies anweist;",
+          "Dashboards, Beitragswarteschlangen, Veröffentlichungsstatus und Aktivitätszusammenfassungen des Arbeitsbereichs anzuzeigen;",
+          "Betrug, Missbrauch, Sicherheitsvorfälle und unbefugten Zugriff zu erkennen;",
+          "auf Support-Anfragen, rechtliche Forderungen und Durchsetzungsangelegenheiten zu reagieren; und",
+          "rechtliche Verpflichtungen einzuhalten und unsere Rechte, Nutzer und Plattform zu schützen."
+        ] }
+      ]
+    },
+    {
+      "heading": "4. Rechtsgrundlagen der Verarbeitung",
+      "blocks": [
+        { "type": "p", "text": "Soweit gesetzlich erforderlich, stützen wir uns auf eine oder mehrere der folgenden Rechtsgrundlagen: Vertragserfüllung, berechtigte Interessen, Einwilligung und Einhaltung rechtlicher Verpflichtungen. Wir verarbeiten beispielsweise Kontodaten zur vertraglichen Bereitstellung der Dienste, nutzen Protokolle und Sicherheitstelemetrie aufgrund berechtigten Interesses am Betrieb einer sicheren Plattform, und können uns bei bestimmten Kommunikationen oder Integrationsberechtigungen, sofern erforderlich, auf die Einwilligung stützen." }
+      ]
+    },
+    {
+      "heading": "5. Cookies und ähnliche Technologien",
+      "blocks": [
+        { "type": "p", "text": "Wir verwenden essenzielle Cookies, Tokens und ähnliche Speichertechnologien, um dich angemeldet zu halten, die Sitzungsintegrität zu wahren, Präferenzen zu merken und die Dienste zu sichern. Wir können auch technische Telemetrie und Diagnosetools verwenden, um Anwendungsfehler und Leistung zu überwachen. Wir verkaufen keine personenbezogenen Daten und verwenden im Rahmen der authentifizierten Anwendungserfahrung keine kontextübergreifenden Verhaltenswerbe-Cookies." }
+      ]
+    },
+    {
+      "heading": "6. Wie wir Informationen weitergeben",
+      "blocks": [
+        { "type": "p", "text": "Wir verkaufen keine personenbezogenen Daten. Wir geben Informationen nur wie für die oben beschriebenen Zwecke erforderlich weiter, unter anderem an:" },
+        { "type": "ul", "items": [
+          "<strong>Infrastrukturanbieter:</strong> Google Cloud und Firebase für Hosting-, Authentifizierungs-, Datenbank- und Speicherdienste.",
+          "<strong>Anbieter für Fehlerüberwachung und Diagnose:</strong> Anbieter wie Sentry zur Erfassung betrieblicher und sicherheitsbezogener Fehler.",
+          "<strong>Verbundene Integrationsanbieter:</strong> TikTok, Meta, Google und andere Dienste, die du uns zur Verbindung oder Nutzung in deinem Namen autorisierst.",
+          "<strong>Andere Nutzer des Arbeitsbereichs:</strong> Deine Daten können für autorisierte Mitglieder deines Arbeitsbereichs je nach Rolle und Berechtigungen sichtbar sein.",
+          "<strong>Fachberater und Behörden:</strong> wenn dies angemessenerweise erforderlich ist, um unsere Bedingungen durchzusetzen, Missbrauch zu untersuchen, auf rechtliche Verfahren zu reagieren oder Rechte, Sicherheit und Schutz zu wahren.",
+          "<strong>Gegenparteien bei Unternehmenstransaktionen:</strong> im Zusammenhang mit einer Fusion, Übernahme, Finanzierung, Umstrukturierung, einem Verkauf von Vermögenswerten oder einem ähnlichen Ereignis, vorbehaltlich angemessener Vertraulichkeitsschutzmaßnahmen."
+        ] }
+      ]
+    },
+    {
+      "heading": "7. Speicherung, Sicherheit und Integrität",
+      "blocks": [
+        { "type": "h3", "text": "7.1 Infrastruktur" },
+        { "type": "p", "text": "Markaestro läuft auf Google-Cloud- und Firebase-Infrastruktur, einschließlich Firestore, Authentication und Cloud Storage. Wir setzen angemessene administrative, technische und organisatorische Maßnahmen ein, die personenbezogene Daten vor unbefugtem Zugriff, Verlust, Missbrauch oder Veränderung schützen sollen." },
+        { "type": "h3", "text": "7.2 Umgang mit Geheimnissen" },
+        { "type": "p", "text": "Wir verschlüsseln sensible Integrationsgeheimnisse wie OAuth-Zugriffstokens und API-Schlüssel vor der Speicherung mittels authentifizierter Verschlüsselung. Passwörter für die Authentifizierung per E-Mail und Passwort werden von Firebase Authentication verwaltet und nicht direkt von unserer Anwendung gespeichert." },
+        { "type": "h3", "text": "7.3 Wichtige Einschränkungen" },
+        { "type": "p", "text": "Keine Internet- oder Speicherumgebung ist vollständig sicher. Zusätzlich können bestimmte hochgeladene Ressourcen absichtlich unter öffentlich erreichbaren URLs gespeichert werden, um Veröffentlichungs-Workflows zu unterstützen. Du solltest keine hochsensiblen personenbezogenen Daten, staatliche Ausweisdokumente, Zahlungskartendaten, geschützte Gesundheitsinformationen oder andere regulierte Daten hochladen, es sei denn, wir unterstützen diese Nutzung ausdrücklich schriftlich." }
+      ]
+    },
+    {
+      "heading": "8. Internationale Übermittlungen",
+      "blocks": [
+        { "type": "p", "text": "Wir und unsere Dienstleister können Informationen in den Vereinigten Staaten und anderen Ländern verarbeiten, die möglicherweise andere Datenschutzgesetze als deine Gerichtsbarkeit haben. Soweit erforderlich, verwenden wir geeignete Übermittlungsmechanismen und Schutzmaßnahmen für internationale Übermittlungen." }
+      ]
+    },
+    {
+      "heading": "9. Datenspeicherung",
+      "blocks": [
+        { "type": "p", "text": "Wir speichern Informationen so lange, wie es angemessenerweise erforderlich ist, um die Dienste bereitzustellen, rechtliche Verpflichtungen einzuhalten, Streitigkeiten beizulegen und Vereinbarungen durchzusetzen. Die Speicherdauer variiert je nach Datentyp, zum Beispiel:" },
+        { "type": "ul", "items": [
+          "Konto- und Arbeitsbereichsdatensätze werden aufbewahrt, solange dein Konto oder Arbeitsbereich aktiv bleibt;",
+          "Integrationsgeheimnisse werden bis zur Trennung, Überschreibung oder Löschung aufbewahrt;",
+          "Inhalte, Kontakte, Beiträge, Produkte, hochgeladene Medien, Aktivitätsdatensätze und Ereignisprotokolle verbleiben im Arbeitsbereich, bis sie oder der Arbeitsbereich gelöscht werden, vorbehaltlich Backup- und gesetzlicher Aufbewahrungszyklen;",
+          "kurzlebiger OAuth-Status und zugehörige temporäre Autorisierungsdaten können nach kurzer Zeit automatisch ablaufen und gelöscht werden;",
+          "Support-, Missbrauchspräventions- und rechtliche Datensätze können länger aufbewahrt werden, wenn dies für legitime Geschäftszwecke oder rechtliche Compliance erforderlich ist."
+        ] }
+      ]
+    },
+    {
+      "heading": "10. Deine Datenschutzrechte",
+      "blocks": [
+        { "type": "p", "text": "Je nach deiner Gerichtsbarkeit kannst du Rechte auf Zugang, Berichtigung, Löschung, Einschränkung, Widerspruch oder Export deiner personenbezogenen Daten sowie auf Widerruf der Einwilligung haben, sofern die Einwilligung die Grundlage der Verarbeitung ist. Du hast möglicherweise auch das Recht, für die Ausübung deiner Rechte nicht diskriminierend behandelt zu werden." },
+        { "type": "ul", "items": [
+          "<strong>EWR, Großbritannien und ähnliche Regionen:</strong> Du kannst Rechte auf Widerspruch, Einschränkung der Verarbeitung, Portabilität oder auf Beschwerde bei deiner örtlichen Aufsichtsbehörde haben.",
+          "<strong>Kalifornien und ähnliche US-Bundesstaatengesetze:</strong> Du kannst Rechte auf Kenntnis, Zugang, Löschung und Berichtigung personenbezogener Daten sowie auf Einschränkung bestimmter sensibler Datennutzungen haben, soweit anwendbar. Markaestro verkauft keine personenbezogenen Daten und gibt sie nicht für kontextübergreifende Verhaltenswerbung weiter, wie diese Begriffe im geltenden Landesrecht definiert sind.",
+          "<strong>Endkundenkontakte:</strong> Wenn deine Informationen in einem Kunden-Arbeitsbereich von Markaestro gespeichert sind, müssen wir deine Anfrage möglicherweise an diesen Kunden weiterleiten, da dieser Zwecke und Mittel der Verarbeitung dieser Daten bestimmt."
+        ] },
+        { "type": "p", "text": "Um Rechte an von uns kontrollierten Daten auszuüben, kontaktiere uns unter <mailLink>legal@markaestro.com</mailLink>. Wir müssen deine Identität möglicherweise verifizieren, bevor wir eine Anfrage bearbeiten." }
+      ]
+    },
+    {
+      "heading": "11. Deine Verantwortlichkeiten bei der Nutzung von Markaestro",
+      "blocks": [
+        { "type": "p", "text": "Wenn du Kontaktinformationen, Beitragsinhalte, Mediendateien oder Daten von Plattformen Dritter in Markaestro hochlädst, bist du dafür verantwortlich sicherzustellen, dass du über eine angemessene Rechtsgrundlage dafür verfügst, und die geltenden Datenschutz-, Antispam-, Werbe- und Verbraucherschutzgesetze einzuhalten. Dies umfasst das Einholen erforderlicher Einwilligungen und die Beachtung von Abmelde- oder Unterdrückungsanfragen sowie die Sicherstellung, dass du die Rechte an allen von dir hochgeladenen Medien besitzt." }
+      ]
+    },
+    {
+      "heading": "12. Datenschutz für Minderjährige",
+      "blocks": [
+        { "type": "p", "text": "Die Dienste richten sich nicht an Kinder, und du darfst sie nicht nutzen, wenn du unter 18 Jahre alt bist. Wir erheben wissentlich keine personenbezogenen Daten von Kindern. Wenn du glaubst, dass ein Kind uns personenbezogene Daten übermittelt hat, kontaktiere uns, und wir werden dies untersuchen und angemessene Maßnahmen ergreifen." }
+      ]
+    },
+    {
+      "heading": "13. Änderungen dieser Richtlinie",
+      "blocks": [
+        { "type": "p", "text": "Wir können diese Datenschutzerklärung von Zeit zu Zeit aktualisieren. Bei wesentlichen Änderungen veröffentlichen wir die aktualisierte Version hier und können zusätzliche Hinweise über die Dienste oder per E-Mail geben, sofern angemessen. Deine fortgesetzte Nutzung der Dienste nach dem Inkrafttreten der aktualisierten Richtlinie bedeutet, dass diese aktualisierte Richtlinie für deine künftige Nutzung gilt." }
+      ]
+    },
+    {
+      "heading": "14. Kontaktiere uns",
+      "blocks": [
+        { "type": "p", "text": "Wenn du Fragen zu dieser Datenschutzerklärung oder den Datenschutzpraktiken von Markaestro hast, kontaktiere uns unter <mailLink>legal@markaestro.com</mailLink> oder über unsere <contactLink>Kontaktseite</contactLink>." }
+      ]
+    }
+  ]
+}

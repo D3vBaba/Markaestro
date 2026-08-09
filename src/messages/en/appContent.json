@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "Posts",
+    "subtitle": "Create, schedule, and publish organic content across your social channels.",
+    "tabs": {
+      "create": "Create",
+      "drafts": "Drafts",
+      "scheduled": "Scheduled",
+      "published": "Published",
+      "onPlatform": "On Platform"
+    },
+    "productBar": {
+      "brand": "Brand",
+      "noBrandSelected": "No brand selected",
+      "change": "Change"
+    }
+  },
+  "editor": {
+    "placeholder": "Generated content will appear here...",
+    "limitSuffix": "limit"
+  },
+  "productPicker": {
+    "brand": "Brand",
+    "selectBrand": "Select a brand...",
+    "tone": "Tone:",
+    "style": "Style:",
+    "audience": "Audience:"
+  },
+  "markPostedDialog": {
+    "title": "Mark as posted",
+    "description": "Confirm you published this post on {channel} yourself. Paste the link to the live post if you have it — it connects the post to its analytics later.",
+    "urlPlaceholder": "https://www.{channel}.com/… (optional)",
+    "cancel": "Cancel",
+    "confirm": "Mark as posted",
+    "toasts": {
+      "marked": "Marked as posted",
+      "failed": "Failed to mark as posted"
+    }
+  },
+  "publishedTab": {
+    "empty": "No published posts yet.",
+    "createPost": "Create a post",
+    "toasts": {
+      "deleted": "Post deleted",
+      "deleteFailed": "Failed to delete post",
+      "loadFailed": "Failed to load published posts"
+    }
+  },
+  "scheduledTab": {
+    "empty": "Nothing scheduled yet.",
+    "scheduleFirst": "Schedule your first post",
+    "editTitle": "Edit Scheduled Post",
+    "saveAndReschedule": "Save & Reschedule",
+    "toasts": {
+      "loadFailed": "Failed to load scheduled posts",
+      "movedToDrafts": "Moved back to drafts",
+      "cancelFailed": "Failed to cancel schedule",
+      "deleted": "Post deleted",
+      "deleteFailed": "Failed to delete post",
+      "pushingTikTok": "Pushing to TikTok inbox…",
+      "publishingPost": "Publishing post…",
+      "tiktokInboxConfirmed": "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
+      "tiktokProcessing": "TikTok accepted the upload and is still processing it.",
+      "stillProcessing": "Post submitted and still processing.",
+      "posted": "Posted!",
+      "publishFailed": "Publishing failed",
+      "updated": "Post updated",
+      "updateFailed": "Failed to update",
+      "rescheduled": "Post rescheduled",
+      "rescheduleFailed": "Failed to reschedule"
+    }
+  },
+  "draftsTab": {
+    "empty": "No drafts yet.",
+    "createFirst": "Create your first post",
+    "editTitle": "Edit Draft",
+    "toPostHeading": "To Post",
+    "waitingInTikTokHeading": "Waiting in TikTok",
+    "draftsHeading": "Drafts",
+    "toasts": {
+      "loadFailed": "Failed to load drafts",
+      "deleted": "Draft deleted",
+      "deleteFailed": "Failed to delete",
+      "addingToQueue": "Adding to your To Post queue…",
+      "pushingTikTok": "Pushing to TikTok inbox…",
+      "publishingPost": "Publishing post…",
+      "addedToQueue": "Added to your To Post queue. Post it natively, then mark it as posted.",
+      "tiktokInboxConfirmed": "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
+      "tiktokProcessing": "TikTok accepted the upload and is still processing it.",
+      "stillProcessing": "Post submitted and still processing.",
+      "posted": "Posted!",
+      "publishFailed": "Publishing failed",
+      "updated": "Draft updated",
+      "updateFailed": "Failed to update",
+      "scheduled": "Post scheduled",
+      "scheduleFailed": "Failed to schedule"
+    }
+  },
+  "channelSelector": {
+    "channels": "Channels",
+    "selectedCount": "{count} selected",
+    "postTo": "Post to",
+    "defaultReason": "Connect this channel in brand settings.",
+    "productSettings": "Product settings"
+  },
+  "scheduleSheet": {
+    "eyebrow": "Schedule",
+    "title": "Schedule post",
+    "description": "Pick a date and time, or use AI-suggested optimal slots.",
+    "tiktokNoteLabel": "TikTok finishes in the TikTok app.",
+    "tiktokNoteBody": "At the scheduled time, Markaestro pushes the media to your TikTok inbox, then marks it ready once you can open TikTok to finish caption, privacy, and posting.",
+    "smartSchedule": "Smart Schedule",
+    "aiSuggested": "AI Suggested",
+    "hide": "Hide",
+    "show": "Show",
+    "basedOnData": "Based on industry engagement data for {channel}",
+    "thisChannel": "this channel",
+    "orPickManually": "or pick manually",
+    "timeLabel": "Time",
+    "timezoneNote": "Schedules use your local timezone ({timezone}) and are stored in UTC.",
+    "headsUp": "Heads up:",
+    "collisionNote": "another post is already scheduled around this time ({date}{channel}). You can still schedule both.",
+    "onChannel": " on {channel}",
+    "scheduleFor": "Schedule for {date} at {time}",
+    "selectDate": "Select a date"
+  },
+  "postEditSheet": {
+    "caption": "Caption",
+    "media": "Media",
+    "image": "Image",
+    "remove": "Remove",
+    "replace": "Replace",
+    "dropMedia": "Drop media or click to upload",
+    "dropImage": "Drop an image or click to upload",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · up to 10 MB",
+    "uploading": "Uploading…",
+    "upload": "Upload",
+    "preview": "Preview",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "save": "Save",
+    "defaultTitle": "Edit Post",
+    "defaultScheduleLabel": "Schedule",
+    "toasts": {
+      "videoTikTokOnly": "Videos are available for TikTok posts only",
+      "videoTooLarge": "Video must be under 250 MB",
+      "imageTooLarge": "Image must be under 10 MB",
+      "videoUploaded": "Video uploaded",
+      "imageUploaded": "Image uploaded",
+      "uploadFailed": "Upload failed"
+    }
+  },
+  "postCard": {
+    "readyToPost": "Ready to post",
+    "readyInTikTok": "Ready in TikTok",
+    "partiallyFailed": "Partially failed",
+    "text": "Text",
+    "preview": "Preview",
+    "view": "View",
+    "copyCaption": "Copy caption",
+    "downloadMedia": "Download media",
+    "downloading": "Downloading…",
+    "markAsPosted": "Mark as posted",
+    "edit": "Edit",
+    "publish": "Publish",
+    "publishing": "Publishing…",
+    "reschedule": "Reschedule",
+    "unschedule": "Unschedule",
+    "delete": "Delete",
+    "readyToPostOn": "Ready to post on {channel}",
+    "manualInstructions": "Download the media, copy the caption, post it from the {channel} app as you normally would, then mark it as posted here.",
+    "openChannel": "Open {channel}",
+    "readyInTikTokInbox": "Ready in your TikTok inbox",
+    "tiktokInboxInstructions": "Open the TikTok app → Inbox → tap the upload notification to finish the caption and post. Drafts expire after ~7 days.",
+    "openTikTok": "Open TikTok",
+    "publishingTo": "Publishing to {channel}...",
+    "toasts": {
+      "captionCopied": "Caption copied",
+      "copyFailed": "Couldn't copy the caption"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "Refresh",
+    "liveFrom": "Live posts from your connected {channel} account — including posts published outside Markaestro.",
+    "loadMore": "Load more",
+    "loading": "Loading…",
+    "noCaption": "No caption",
+    "view": "View",
+    "deleting": "Deleting…",
+    "delete": "Delete",
+    "noDeleteHints": {
+      "instagram": "Instagram doesn't allow apps to delete posts — remove them in the Instagram app.",
+      "tiktok": "TikTok doesn't allow apps to delete videos — remove them in the TikTok app."
+    },
+    "noDeleteDefault": "Deleting isn't supported for this post.",
+    "deleteWarning": "This permanently removes the post from {channel}.",
+    "states": {
+      "notConnectedTitle": "{channel} isn't connected yet",
+      "notConnectedBody": "Connect {channel} to this brand and its live posts will show up here — including ones published outside Markaestro.",
+      "connect": "Connect {channel}",
+      "authTitle": "{channel} needs to be reconnected",
+      "authBody": "The {channel} connection has expired, so we can't browse its posts right now. Reconnect it from brand settings to pick up where you left off.",
+      "reconnect": "Reconnect {channel}",
+      "checkAgain": "Check again",
+      "unsupportedTitle": "Browsing {channel} posts isn't available",
+      "linkedinPartnerBody": "LinkedIn only lets approved partner apps browse account posts. Anything you publish through Markaestro still appears in your Published tab.",
+      "unsupportedBody": "{channel} doesn't let apps browse account posts. Anything you publish through Markaestro still appears in your Published tab.",
+      "errorTitle": "Couldn't load {channel} posts",
+      "errorBody": "{channel} didn't respond as expected. This is usually temporary — give it another try in a moment.",
+      "tryAgain": "Try again",
+      "emptyTitle": "No posts on {channel} yet",
+      "emptyBody": "When this account publishes — through Markaestro or directly on {channel} — its posts will appear here."
+    },
+    "toasts": {
+      "loadMoreFailed": "Failed to load more posts",
+      "deleted": "Post deleted from {channel}",
+      "deleteFailed": "Failed to delete the post on the platform"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "Restored your unsaved draft",
+    "discard": "Discard",
+    "caption": "Caption",
+    "media": "Media",
+    "removeMedia": "Remove",
+    "addMedia": "+ Add",
+    "dropImagesOrVideos": "Drop images or videos",
+    "dropImages": "Drop images or click to upload",
+    "mediaCountHint": "Up to {count, plural, one {# item} other {# items}} · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · up to 10 MB",
+    "uploading": "Uploading…",
+    "upload": "Upload",
+    "saveDraft": "Save Draft",
+    "schedule": "Schedule",
+    "postNow": "Post Now",
+    "posting": "Posting…",
+    "preview": "Preview",
+    "previewPlaceholder": "Your post preview will appear here.",
+    "previewHint": "Write a caption and upload your media to get started.",
+    "toasts": {
+      "selectChannel": "Select at least one ready publishing channel.",
+      "videoNotSupported": "One or more selected channels does not support video uploads",
+      "videoAlone": "Videos must be uploaded on their own",
+      "maxMedia": "Maximum {count, plural, one {# media item} other {# media items}} for the selected channels",
+      "fileTooLarge": "{file}: must be under {size} MB",
+      "fileUploadFailed": "{file}: upload failed",
+      "filesUploaded": "{count, plural, one {# file uploaded} other {# files uploaded}}",
+      "uploadFailed": "Upload failed",
+      "createFailed": "Failed to create post",
+      "draftSaved": "Draft saved",
+      "draftSaveFailed": "Failed to save draft",
+      "scheduled": "Post scheduled",
+      "scheduleFailed": "Failed to schedule post",
+      "tiktokSending": "Sending to TikTok. Markaestro is waiting for TikTok to confirm inbox delivery.",
+      "stillProcessing": "Post submitted and still processing.",
+      "tiktokInboxConfirmed": "TikTok confirmed inbox delivery. Open TikTok Inbox, finish the caption, and tap Post.",
+      "postedToMultiple": "Posted to {channels}!",
+      "postedSuccess": "Posted successfully!",
+      "publishFailed": "Publishing failed"
+    }
+  }
+}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Command } from "cmdk";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import {
@@ -30,31 +31,31 @@ const NAV_ICONS: Record<string, LucideIcon> = {
     "/guides/channels": BookOpen,
 };
 
-type PaletteItem = {
-    label: string;
+type PaletteItemData = {
+    id: string;
     href: string;
     icon: LucideIcon;
     keywords?: string[];
 };
 
-const NAVIGATION_ITEMS: PaletteItem[] = [
+const NAVIGATION_ITEMS: PaletteItemData[] = [
     ...navigationGroups.flatMap((group) =>
         group.items.map((item) => ({
-            label: item.href === "/products" ? "Brands" : item.name,
+            id: item.id,
             href: item.href,
             icon: NAV_ICONS[item.href] ?? Home,
-            keywords: item.href === "/products" ? ["products", "brand"] : undefined,
+            keywords: item.id === "brands" ? ["products", "brand"] : undefined,
         })),
     ),
-    { label: "Channels", href: "/channels", icon: Link2, keywords: ["integrations", "connections"] },
-    { label: settingsItem.name, href: settingsItem.href, icon: Settings },
+    { id: "channels", href: "/channels", icon: Link2, keywords: ["integrations", "connections"] },
+    { id: settingsItem.id, href: settingsItem.href, icon: Settings },
 ];
 
-const QUICK_ACTIONS: PaletteItem[] = [
-    { label: "Create post", href: "/content", icon: SquarePen, keywords: ["new", "write", "content"] },
-    { label: "Add brand", href: "/products", icon: PackagePlus, keywords: ["new", "create", "product"] },
-    { label: "Connect channel", href: "/channels", icon: Link2, keywords: ["integration", "social"] },
-    { label: "Billing", href: "/settings?tab=billing", icon: CreditCard, keywords: ["plan", "subscription", "upgrade", "invoice"] },
+const QUICK_ACTIONS: PaletteItemData[] = [
+    { id: "createPost", href: "/content", icon: SquarePen, keywords: ["new", "write", "content"] },
+    { id: "addBrand", href: "/products", icon: PackagePlus, keywords: ["new", "create", "product"] },
+    { id: "connectChannel", href: "/channels", icon: Link2, keywords: ["integration", "social"] },
+    { id: "billing", href: "/settings?tab=billing", icon: CreditCard, keywords: ["plan", "subscription", "upgrade", "invoice"] },
 ];
 
 export function CommandPalette({
@@ -65,6 +66,24 @@ export function CommandPalette({
     onOpenChange: (open: boolean) => void;
 }) {
     const router = useRouter();
+    const t = useTranslations("shell.commandPalette");
+    const tNav = useTranslations("shell.nav");
+
+    // "Channels" and quick actions aren't sidebar nav items, so they don't
+    // have a shell.nav.items entry — resolve those from this namespace
+    // instead while everything else reuses the sidebar's own labels.
+    const paletteLabel = (id: string): string =>
+        id === "channels" ? t("channels") : tNav(`items.${id}`);
+
+    const navigationItems = useMemo(
+        () => NAVIGATION_ITEMS.map((item) => ({ ...item, label: paletteLabel(item.id) })),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [t, tNav],
+    );
+    const quickActions = useMemo(
+        () => QUICK_ACTIONS.map((item) => ({ ...item, label: t(`actions.${item.id}`) })),
+        [t],
+    );
 
     useEffect(() => {
         function onKeyDown(e: KeyboardEvent) {
@@ -90,11 +109,11 @@ export function CommandPalette({
                     className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[10%] sm:top-[20%] left-[50%] z-50 w-[calc(100%-2rem)] max-w-[560px] translate-x-[-50%] rounded-xl border shadow-xl overflow-hidden p-0 duration-200"
                     style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
                 >
-                    <DialogPrimitive.Title className="sr-only">Command palette</DialogPrimitive.Title>
+                    <DialogPrimitive.Title className="sr-only">{t("title")}</DialogPrimitive.Title>
                     <DialogPrimitive.Description className="sr-only">
-                        Search for pages and quick actions
+                        {t("description")}
                     </DialogPrimitive.Description>
-                    <Command label="Command palette">
+                    <Command label={t("title")}>
                         <div
                             className="flex items-center gap-2.5 px-4 border-b"
                             style={{ borderColor: "var(--mk-rule)" }}
@@ -102,7 +121,7 @@ export function CommandPalette({
                             <Search className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-40)" }} />
                             <Command.Input
                                 autoFocus
-                                placeholder="Search pages and actions..."
+                                placeholder={t("searchPlaceholder")}
                                 className="flex-1 h-12 bg-transparent border-none outline-none text-[13.5px]"
                                 style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
                             />
@@ -122,13 +141,13 @@ export function CommandPalette({
                                 className="py-8 text-center text-[12.5px]"
                                 style={{ color: "var(--mk-ink-40)" }}
                             >
-                                No results found.
+                                {t("noResults")}
                             </Command.Empty>
                             <Command.Group
-                                heading="Navigation"
+                                heading={t("groupNavigation")}
                                 className="[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[9px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.2em] [&_[cmdk-group-heading]]:text-[var(--mk-ink-40)]"
                             >
-                                {NAVIGATION_ITEMS.map((item) => {
+                                {navigationItems.map((item) => {
                                     const Icon = item.icon;
                                     return (
                                         <Command.Item
@@ -145,14 +164,14 @@ export function CommandPalette({
                                 })}
                             </Command.Group>
                             <Command.Group
-                                heading="Quick actions"
+                                heading={t("groupQuickActions")}
                                 className="mt-1.5 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[9px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.2em] [&_[cmdk-group-heading]]:text-[var(--mk-ink-40)]"
                             >
-                                {QUICK_ACTIONS.map((item) => {
+                                {quickActions.map((item) => {
                                     const Icon = item.icon;
                                     return (
                                         <Command.Item
-                                            key={`action-${item.label}`}
+                                            key={`action-${item.id}`}
                                             value={`${item.label} ${item.keywords?.join(" ") ?? ""}`}
                                             onSelect={() => go(item.href)}
                                             className="flex items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-[13px] cursor-pointer data-[selected=true]:bg-[var(--mk-panel)]"

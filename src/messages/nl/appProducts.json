@@ -1,0 +1,254 @@
+{
+  "categories": {
+    "saas": "SaaS",
+    "mobile": "Mobiele app",
+    "web": "Webapp",
+    "api": "API",
+    "marketplace": "Marketplace",
+    "ecommerce": "E-commerce",
+    "fintech": "Fintech",
+    "healthtech": "Health Tech",
+    "edtech": "Ed Tech",
+    "gaming": "Gaming",
+    "social": "Social",
+    "productivity": "Productiviteit",
+    "developer-tools": "Ontwikkelaarstools",
+    "ai": "AI",
+    "media": "Media",
+    "agency": "Bureau",
+    "creator": "Creator",
+    "hardware": "Hardware",
+    "nonprofit": "Non-profit",
+    "local-business": "Lokale onderneming",
+    "personal-brand": "Persoonlijk merk",
+    "fashion-beauty": "Mode en beauty",
+    "food-restaurant": "Eten en restaurants",
+    "music-entertainment": "Muziek en entertainment",
+    "real-estate": "Vastgoed",
+    "coaching-services": "Coaching en diensten",
+    "fitness": "Fitness",
+    "travel-hospitality": "Reizen en horeca",
+    "other": "Overig"
+  },
+  "categorySelect": {
+    "selectCategory": "Selecteer een categorie"
+  },
+  "productStatus": {
+    "active": "Actief",
+    "beta": "Bèta",
+    "development": "In ontwikkeling",
+    "sunset": "Uitfaserend",
+    "archived": "Gearchiveerd"
+  },
+  "productCard": {
+    "noChannelsConnected": "Geen kanalen verbonden",
+    "reconnectNeeded": "{label} — opnieuw verbinden nodig",
+    "deleteBrand": "Merk verwijderen"
+  },
+  "page": {
+    "title": "Merken",
+    "subtitle": "Alles wat je promoot — producten, bedrijven, klanten of jezelf.",
+    "addBrand": "Merk toevoegen",
+    "filters": {
+      "all": "Alle",
+      "active": "Actief",
+      "development": "In ontwikkeling"
+    },
+    "ungrantedPages": {
+      "title": "{count, plural, one {# Facebook-pagina is niet meer geautoriseerd} other {# Facebook-pagina's zijn niet meer geautoriseerd}}",
+      "body": "Deze aanmelding bevatte {pages} niet. Facebook vervangt de volledige toestemmingsset bij elke verbinding, dus die pagina's kunnen pas weer publiceren als je opnieuw verbindt en ze aanvinkt. Geplande posts hiervoor mislukken.",
+      "howItWorks": "Hoe verbinden werkt",
+      "dismiss": "Sluiten"
+    },
+    "emptyState": {
+      "all": "Nog geen merken",
+      "active": "Geen actieve merken",
+      "development": "Niets in ontwikkeling",
+      "body": "Voeg je eerste merk toe om marketing in jouw eigen stem te maken."
+    },
+    "deleteWarning": "Alle merkstem-instellingen voor dit merk worden ook verwijderd.",
+    "toasts": {
+      "connected": "{provider} verbonden",
+      "declinedPermission": "{provider}: je hebt het toestemmingsverzoek geweigerd — tik op Verbinden om het opnieuw te proberen.",
+      "connectionFailed": "Verbinding met {provider} mislukt: {message}",
+      "unknownError": "Onbekende fout",
+      "almostDone": "Bijna klaar — kies een Facebook-pagina in Kanalen om de Meta-instelling af te ronden",
+      "deleteFailed": "Merk verwijderen mislukt",
+      "deleted": "Merk verwijderd"
+    }
+  },
+  "createWizard": {
+    "eyebrow": "Nieuw merk",
+    "title": "Merk toevoegen",
+    "descriptions": {
+      "start": "Begin met het scannen van je website of voer de gegevens handmatig in.",
+      "scan": "Je merk wordt onderzocht…",
+      "manual": "Vul de essentiële gegevens in — je kunt later meer toevoegen.",
+      "review": "Bekijk wat we gevonden hebben, pas alles aan en sla op."
+    },
+    "scanCard": {
+      "title": "Scan je website",
+      "body": "We halen je naam, beschrijving, merkkleuren, logo en toon eruit, zodat je met 90% klaar begint.",
+      "urlPlaceholder": "https://jouwmerk.com",
+      "scan": "Scannen"
+    },
+    "or": "Of",
+    "manualCard": {
+      "title": "Handmatig invoeren",
+      "body": "Sla de scan over en vul het formulier zelf in."
+    },
+    "cancelScan": "Scan annuleren",
+    "scanError": {
+      "body": "We konden {url} niet scannen. Probeer de scan opnieuw of voer je gegevens handmatig in.",
+      "editUrl": "URL bewerken",
+      "retry": "Scan opnieuw proberen",
+      "enterManually": "Handmatig invoeren"
+    },
+    "scanComplete": "Scan voltooid — bekijk en bewerk hieronder wat je wilt.",
+    "fields": {
+      "brandName": "Merknaam",
+      "brandNamePlaceholder": "DripCheckr",
+      "description": "Beschrijving",
+      "descriptionPlaceholder": "Waar gaat dit merk over?",
+      "website": "Website",
+      "websitePlaceholder": "https://jouwmerk.com",
+      "category": "Categorie"
+    },
+    "brandIntelligence": "Merkinformatie",
+    "logoDetected": "Logo gedetecteerd op site",
+    "targetAudience": "Doelgroep",
+    "brandTone": "Merktoon",
+    "fineTuneNote": "Je kunt dit alles verfijnen nadat je het merk hebt aangemaakt.",
+    "startOver": "Opnieuw beginnen",
+    "createBrand": "Merk aanmaken",
+    "creating": "Bezig met aanmaken…",
+    "toasts": {
+      "enterUrl": "Voer eerst een URL in",
+      "nameRequired": "Naam is verplicht",
+      "createFailed": "Merk aanmaken mislukt",
+      "brandAdded": "Merk toegevoegd"
+    }
+  },
+  "detailSheet": {
+    "sections": {
+      "foundation": "Basis",
+      "identity": "Identiteit",
+      "channels": "Kanalen"
+    },
+    "brandFallback": "Merk",
+    "saveIndicator": {
+      "saving": "Bezig met opslaan…",
+      "unsavedChanges": "Niet-opgeslagen wijzigingen",
+      "savedAt": "Opgeslagen · {time}",
+      "allSaved": "Alle wijzigingen opgeslagen"
+    },
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "edit": "Bewerken",
+    "deleteBrand": "Merk verwijderen",
+    "deleteWarning": "Alle instellingen en kanaalverbindingen van dit merk worden ook verwijderd.",
+    "disconnectWarning": "Dit verwijdert elk {label}-account dat aan dit merk is gekoppeld. Andere merken behouden hun eigen verbindingen. Om slechts één account te wisselen, gebruik in plaats daarvan Ontkoppelen ernaast — en om de toegang te vernieuwen, gebruik Opnieuw verbinden in plaats van te verbreken.",
+    "disconnect": "Verbinding verbreken",
+    "unsavedConfirm": "Je hebt niet-opgeslagen wijzigingen. Sluiten zonder op te slaan?",
+    "toasts": {
+      "loadFailed": "Merk laden mislukt",
+      "nameRequired": "Merknaam is verplicht",
+      "saveDetailsFailed": "Merkgegevens opslaan mislukt",
+      "saveIdentityFailed": "Merkgegevens opgeslagen, maar merkidentiteit opslaan mislukt",
+      "saved": "Opgeslagen",
+      "deleteFailed": "Merk verwijderen mislukt",
+      "deleted": "Merk verwijderd",
+      "logoTooLarge": "Het logo moet kleiner zijn dan 2 MB",
+      "logoUploaded": "Logo geüpload",
+      "logoUploadFailed": "Logo uploaden mislukt",
+      "disconnected": "{label} verbinding verbroken",
+      "disconnectFailed": "Verbinding met {provider} verbreken mislukt",
+      "noFacebookPages": "Geen Facebook-pagina's gevonden.",
+      "loadPagesFailed": "Pagina's laden mislukt",
+      "pagesLinked": "{count, plural, one {# Facebook-pagina gekoppeld} other {# Facebook-pagina's gekoppeld}}",
+      "linkPagesFailed": "Pagina's koppelen mislukt"
+    },
+    "foundation": {
+      "basicsTitle": "Basisgegevens",
+      "basicsDescription": "Hoe je merk wordt geïdentificeerd binnen Markaestro.",
+      "brandName": "Merknaam",
+      "description": "Beschrijving",
+      "website": "Website",
+      "positioningTitle": "Positionering",
+      "category": "Categorie",
+      "status": "Status"
+    },
+    "identity": {
+      "logoTitle": "Logo",
+      "logoDescription": "Gebruikt op kaarten, gegenereerde media en voorbeelden.",
+      "colorsTitle": "Merkkleuren",
+      "colorsDescription": "Eenmaal ingesteld, weerspiegeld op kaarten en gegenereerde media.",
+      "primary": "Primair",
+      "primaryDescription": "Hoofdmerkkleur",
+      "secondary": "Secundair",
+      "secondaryDescription": "Ondersteunende kleur",
+      "accent": "Accent",
+      "accentDescription": "Accenten & CTA's",
+      "upload": "Uploaden",
+      "uploading": "Bezig met uploaden…",
+      "replace": "Vervangen",
+      "remove": "Verwijderen",
+      "fileHint": "PNG, JPG, WebP of SVG. Max. 2 MB.",
+      "clearColor": "Kleur wissen",
+      "openColorPicker": "Kleurkiezer openen",
+      "setColorTo": "{label} instellen op {color}"
+    },
+    "channels": {
+      "title": "Verbonden kanalen",
+      "description": "Verbind social-media-accounts zodat je vanuit dit merk kunt plannen.",
+      "connect": "Verbinden",
+      "reconnect": "Opnieuw verbinden",
+      "reconnectAddAccount": "Opnieuw verbinden / account toevoegen",
+      "disconnectAllCount": "Alle {count} verbreken",
+      "unlinkAllCount": "Alle {count} ontkoppelen",
+      "unlink": "Ontkoppelen",
+      "loading": "Bezig met laden…",
+      "addPages": "Pagina's toevoegen",
+      "choosePages": "Pagina's kiezen",
+      "pickAPage": "Een pagina kiezen",
+      "metaPagesLinkedCount": "{count} Facebook-pagina's gekoppeld",
+      "facebookPageLinked": "Facebook-pagina gekoppeld",
+      "chooseWhichPages": "Kies op welke Facebook-pagina's dit merk plaatst",
+      "linkPages": "Koppel de Facebook-pagina's van dit merk",
+      "instagramNote": "Voor zakelijke accounts die niet aan een Facebook-pagina zijn gekoppeld.",
+      "expires": "Verloopt op {date}",
+      "linked": "Gekoppeld",
+      "reconnectBadge": "Opnieuw verbinden",
+      "selectBoard": "Bord selecteren",
+      "changeBoard": "Bord wijzigen",
+      "pinningTo": "Pinnen op: {board}",
+      "selectBoardToEnable": "Selecteer een bord om publiceren in te schakelen",
+      "linkProfile": "Profiel koppelen",
+      "unlinkProfile": "Profiel ontkoppelen",
+      "linkPagesBtn": "Pagina's koppelen",
+      "unlinkPagesBtn": "Pagina's ontkoppelen",
+      "selectTarget": "Doel selecteren",
+      "changeTarget": "Doel wijzigen",
+      "selectTargetPlaceholder": "Selecteer een doel…",
+      "select": "Selecteren",
+      "postingTo": "Plaatsen op: {target}",
+      "selectProfileOrPage": "Selecteer een profiel of pagina om publiceren in te schakelen",
+      "everyDestinationLinked": "Elk beschikbaar {destination} is al gekoppeld aan dit merk.",
+      "linkedCount": "{count} {destination} gekoppeld",
+      "connectedAccount": "Verbonden account",
+      "warning": "Waarschuwing",
+      "linkedAccountFallback": "Gekoppeld account",
+      "toasts": {
+        "noLinkedInTargets": "Geen LinkedIn-doelen gevonden.",
+        "loadLinkedInFailed": "LinkedIn-doelen laden mislukt",
+        "linkedInSelected": "LinkedIn-doel \"{name}\" geselecteerd",
+        "selectLinkedInFailed": "LinkedIn-doel selecteren mislukt",
+        "noDestinationsFound": "Geen {destination} gevonden.",
+        "loadDestinationsFailed": "{destination} laden mislukt",
+        "linkDestinationsFailed": "{destination} koppelen mislukt",
+        "accountUnlinked": "{account} ontkoppeld",
+        "unlinkFailed": "{account} ontkoppelen mislukt"
+      }
+    }
+  }
+}

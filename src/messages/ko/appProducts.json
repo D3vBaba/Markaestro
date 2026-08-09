@@ -1,0 +1,254 @@
+{
+  "categories": {
+    "saas": "SaaS",
+    "mobile": "모바일 앱",
+    "web": "웹 앱",
+    "api": "API",
+    "marketplace": "마켓플레이스",
+    "ecommerce": "이커머스",
+    "fintech": "핀테크",
+    "healthtech": "헬스테크",
+    "edtech": "에듀테크",
+    "gaming": "게임",
+    "social": "소셜",
+    "productivity": "생산성",
+    "developer-tools": "개발자 도구",
+    "ai": "AI",
+    "media": "미디어",
+    "agency": "에이전시",
+    "creator": "크리에이터",
+    "hardware": "하드웨어",
+    "nonprofit": "비영리단체",
+    "local-business": "지역 비즈니스",
+    "personal-brand": "퍼스널 브랜드",
+    "fashion-beauty": "패션 및 뷰티",
+    "food-restaurant": "음식 및 레스토랑",
+    "music-entertainment": "음악 및 엔터테인먼트",
+    "real-estate": "부동산",
+    "coaching-services": "코칭 및 서비스",
+    "fitness": "피트니스",
+    "travel-hospitality": "여행 및 숙박",
+    "other": "기타"
+  },
+  "categorySelect": {
+    "selectCategory": "카테고리 선택"
+  },
+  "productStatus": {
+    "active": "활성",
+    "beta": "베타",
+    "development": "개발 중",
+    "sunset": "종료됨",
+    "archived": "보관됨"
+  },
+  "productCard": {
+    "noChannelsConnected": "연결된 채널이 없습니다",
+    "reconnectNeeded": "{label} — 재연결 필요",
+    "deleteBrand": "브랜드 삭제"
+  },
+  "page": {
+    "title": "브랜드",
+    "subtitle": "마케팅하는 모든 것 — 제품, 비즈니스, 클라이언트, 또는 나 자신.",
+    "addBrand": "브랜드 추가",
+    "filters": {
+      "all": "전체",
+      "active": "활성",
+      "development": "개발 중"
+    },
+    "ungrantedPages": {
+      "title": "{count, plural, other {Facebook 페이지 #개가 더 이상 승인되지 않았습니다}}",
+      "body": "이번 로그인에는 {pages}가 포함되지 않았습니다. Facebook은 연결할 때마다 전체 권한 세트를 교체하므로, 다시 연결하여 체크하기 전까지 해당 페이지는 게시할 수 없습니다. 해당 페이지로 예약된 게시물은 실패합니다.",
+      "howItWorks": "연결 작동 방식",
+      "dismiss": "닫기"
+    },
+    "emptyState": {
+      "all": "아직 브랜드가 없습니다",
+      "active": "활성 브랜드가 없습니다",
+      "development": "개발 중인 브랜드가 없습니다",
+      "body": "첫 브랜드를 추가하고 나만의 목소리로 마케팅을 시작하세요."
+    },
+    "deleteWarning": "이 브랜드의 모든 브랜드 보이스 설정도 함께 삭제됩니다.",
+    "toasts": {
+      "connected": "{provider} 연결됨",
+      "declinedPermission": "{provider}: 권한 요청을 거부했습니다 — 다시 시도하려면 연결을 탭하세요.",
+      "connectionFailed": "{provider} 연결 실패: {message}",
+      "unknownError": "알 수 없는 오류",
+      "almostDone": "거의 완료되었습니다 — Meta 설정을 마치려면 채널에서 Facebook 페이지를 선택하세요",
+      "deleteFailed": "브랜드 삭제에 실패했습니다",
+      "deleted": "브랜드가 삭제되었습니다"
+    }
+  },
+  "createWizard": {
+    "eyebrow": "새 브랜드",
+    "title": "브랜드 추가",
+    "descriptions": {
+      "start": "웹사이트를 스캔하거나 세부 정보를 직접 입력하세요.",
+      "scan": "브랜드를 조사하는 중…",
+      "manual": "필수 항목을 입력하세요 — 나중에 더 추가할 수 있습니다.",
+      "review": "찾은 내용을 검토하고 원하는 대로 조정한 후 저장하세요."
+    },
+    "scanCard": {
+      "title": "웹사이트 스캔",
+      "body": "이름, 설명, 브랜드 색상, 로고, 톤을 추출하여 90% 완료된 상태로 시작할 수 있게 해드립니다.",
+      "urlPlaceholder": "https://yourbrand.com",
+      "scan": "스캔"
+    },
+    "or": "또는",
+    "manualCard": {
+      "title": "직접 입력",
+      "body": "스캔을 건너뛰고 직접 양식을 작성하세요."
+    },
+    "cancelScan": "스캔 취소",
+    "scanError": {
+      "body": "{url}을(를) 스캔할 수 없습니다. 스캔을 다시 시도하거나 세부 정보를 직접 입력하세요.",
+      "editUrl": "URL 편집",
+      "retry": "스캔 재시도",
+      "enterManually": "직접 입력"
+    },
+    "scanComplete": "스캔이 완료되었습니다 — 아래 내용을 검토하고 편집하세요.",
+    "fields": {
+      "brandName": "브랜드 이름",
+      "brandNamePlaceholder": "DripCheckr",
+      "description": "설명",
+      "descriptionPlaceholder": "이 브랜드는 무엇에 관한 것인가요?",
+      "website": "웹사이트",
+      "websitePlaceholder": "https://yourbrand.com",
+      "category": "카테고리"
+    },
+    "brandIntelligence": "브랜드 인텔리전스",
+    "logoDetected": "사이트에서 로고를 감지했습니다",
+    "targetAudience": "타겟 고객",
+    "brandTone": "브랜드 톤",
+    "fineTuneNote": "브랜드를 만든 후 이 모든 내용을 미세 조정할 수 있습니다.",
+    "startOver": "처음부터 다시",
+    "createBrand": "브랜드 만들기",
+    "creating": "만드는 중…",
+    "toasts": {
+      "enterUrl": "먼저 URL을 입력하세요",
+      "nameRequired": "이름은 필수입니다",
+      "createFailed": "브랜드 생성에 실패했습니다",
+      "brandAdded": "브랜드가 추가되었습니다"
+    }
+  },
+  "detailSheet": {
+    "sections": {
+      "foundation": "기본 정보",
+      "identity": "아이덴티티",
+      "channels": "채널"
+    },
+    "brandFallback": "브랜드",
+    "saveIndicator": {
+      "saving": "저장 중…",
+      "unsavedChanges": "저장되지 않은 변경 사항",
+      "savedAt": "저장됨 · {time}",
+      "allSaved": "모든 변경 사항이 저장되었습니다"
+    },
+    "cancel": "취소",
+    "save": "저장",
+    "edit": "편집",
+    "deleteBrand": "브랜드 삭제",
+    "deleteWarning": "이 브랜드의 모든 설정 및 채널 연결도 함께 제거됩니다.",
+    "disconnectWarning": "이 작업은 이 브랜드에 연결된 모든 {label} 계정을 제거합니다. 다른 브랜드는 각자의 연결을 유지합니다. 단일 계정만 교체하려면 대신 옆의 연결 해제를 사용하세요 — 액세스를 갱신하려면 연결 해제 대신 다시 연결을 사용하세요.",
+    "disconnect": "연결 해제",
+    "unsavedConfirm": "저장되지 않은 변경 사항이 있습니다. 저장하지 않고 닫으시겠습니까?",
+    "toasts": {
+      "loadFailed": "브랜드를 불러오지 못했습니다",
+      "nameRequired": "브랜드 이름은 필수입니다",
+      "saveDetailsFailed": "브랜드 세부 정보 저장에 실패했습니다",
+      "saveIdentityFailed": "브랜드 세부 정보는 저장되었지만 브랜드 아이덴티티 저장에 실패했습니다",
+      "saved": "저장되었습니다",
+      "deleteFailed": "브랜드 삭제에 실패했습니다",
+      "deleted": "브랜드가 삭제되었습니다",
+      "logoTooLarge": "로고는 2MB 미만이어야 합니다",
+      "logoUploaded": "로고가 업로드되었습니다",
+      "logoUploadFailed": "로고 업로드에 실패했습니다",
+      "disconnected": "{label} 연결이 해제되었습니다",
+      "disconnectFailed": "{provider} 연결 해제에 실패했습니다",
+      "noFacebookPages": "Facebook 페이지를 찾을 수 없습니다.",
+      "loadPagesFailed": "페이지를 불러오지 못했습니다",
+      "pagesLinked": "Facebook 페이지 {count}개가 연결되었습니다",
+      "linkPagesFailed": "페이지 연결에 실패했습니다"
+    },
+    "foundation": {
+      "basicsTitle": "기본 정보",
+      "basicsDescription": "Markaestro에서 브랜드가 식별되는 방식입니다.",
+      "brandName": "브랜드 이름",
+      "description": "설명",
+      "website": "웹사이트",
+      "positioningTitle": "포지셔닝",
+      "category": "카테고리",
+      "status": "상태"
+    },
+    "identity": {
+      "logoTitle": "로고",
+      "logoDescription": "카드, 생성된 미디어 및 미리보기에 사용됩니다.",
+      "colorsTitle": "브랜드 색상",
+      "colorsDescription": "한 번 설정하면 카드 및 생성된 미디어에 반영됩니다.",
+      "primary": "기본",
+      "primaryDescription": "메인 브랜드 색상",
+      "secondary": "보조",
+      "secondaryDescription": "보조 색상",
+      "accent": "강조",
+      "accentDescription": "강조 표시 및 CTA",
+      "upload": "업로드",
+      "uploading": "업로드 중…",
+      "replace": "교체",
+      "remove": "제거",
+      "fileHint": "PNG, JPG, WebP 또는 SVG. 최대 2MB.",
+      "clearColor": "색상 지우기",
+      "openColorPicker": "색상 선택기 열기",
+      "setColorTo": "{label}을(를) {color}로 설정"
+    },
+    "channels": {
+      "title": "연결된 채널",
+      "description": "소셜 계정을 연결하면 이 브랜드에서 예약할 수 있습니다.",
+      "connect": "연결",
+      "reconnect": "다시 연결",
+      "reconnectAddAccount": "다시 연결 / 계정 추가",
+      "disconnectAllCount": "{count}개 모두 연결 해제",
+      "unlinkAllCount": "{count}개 모두 연결 해제",
+      "unlink": "연결 해제",
+      "loading": "불러오는 중…",
+      "addPages": "페이지 추가",
+      "choosePages": "페이지 선택",
+      "pickAPage": "페이지 선택",
+      "metaPagesLinkedCount": "Facebook 페이지 {count}개 연결됨",
+      "facebookPageLinked": "Facebook 페이지 연결됨",
+      "chooseWhichPages": "이 브랜드가 게시할 Facebook 페이지를 선택하세요",
+      "linkPages": "이 브랜드의 Facebook 페이지를 연결하세요",
+      "instagramNote": "Facebook 페이지에 연결되지 않은 프로페셔널 계정용입니다.",
+      "expires": "만료일: {date}",
+      "linked": "연결됨",
+      "reconnectBadge": "다시 연결",
+      "selectBoard": "보드 선택",
+      "changeBoard": "보드 변경",
+      "pinningTo": "핀 위치: {board}",
+      "selectBoardToEnable": "게시를 활성화하려면 보드를 선택하세요",
+      "linkProfile": "프로필 연결",
+      "unlinkProfile": "프로필 연결 해제",
+      "linkPagesBtn": "페이지 연결",
+      "unlinkPagesBtn": "페이지 연결 해제",
+      "selectTarget": "대상 선택",
+      "changeTarget": "대상 변경",
+      "selectTargetPlaceholder": "대상 선택…",
+      "select": "선택",
+      "postingTo": "게시 대상: {target}",
+      "selectProfileOrPage": "게시를 활성화하려면 프로필 또는 페이지를 선택하세요",
+      "everyDestinationLinked": "사용 가능한 모든 {destination}이(가) 이미 이 브랜드에 연결되어 있습니다.",
+      "linkedCount": "{destination} {count}개 연결됨",
+      "connectedAccount": "연결된 계정",
+      "warning": "경고",
+      "linkedAccountFallback": "연결된 계정",
+      "toasts": {
+        "noLinkedInTargets": "LinkedIn 대상을 찾을 수 없습니다.",
+        "loadLinkedInFailed": "LinkedIn 대상을 불러오지 못했습니다",
+        "linkedInSelected": "LinkedIn 대상 \"{name}\"이(가) 선택되었습니다",
+        "selectLinkedInFailed": "LinkedIn 대상 선택에 실패했습니다",
+        "noDestinationsFound": "{destination}을(를) 찾을 수 없습니다.",
+        "loadDestinationsFailed": "{destination}을(를) 불러오지 못했습니다",
+        "linkDestinationsFailed": "{destination} 연결에 실패했습니다",
+        "accountUnlinked": "{account} 연결이 해제되었습니다",
+        "unlinkFailed": "{account} 연결 해제에 실패했습니다"
+      }
+    }
+  }
+}

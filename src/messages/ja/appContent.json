@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "投稿",
+    "subtitle": "ソーシャルチャンネル全体でオーガニックコンテンツを作成、予約、公開します。",
+    "tabs": {
+      "create": "作成",
+      "drafts": "下書き",
+      "scheduled": "予約済み",
+      "published": "公開済み",
+      "onPlatform": "プラットフォーム上"
+    },
+    "productBar": {
+      "brand": "ブランド",
+      "noBrandSelected": "ブランドが選択されていません",
+      "change": "変更"
+    }
+  },
+  "editor": {
+    "placeholder": "生成されたコンテンツがここに表示されます...",
+    "limitSuffix": "の上限"
+  },
+  "productPicker": {
+    "brand": "ブランド",
+    "selectBrand": "ブランドを選択...",
+    "tone": "トーン：",
+    "style": "スタイル：",
+    "audience": "対象層："
+  },
+  "markPostedDialog": {
+    "title": "投稿済みとしてマーク",
+    "description": "この投稿をご自身で{channel}に公開したことを確認してください。公開済みの投稿へのリンクがあれば貼り付けてください — 後でアナリティクスと投稿を紐付けるのに使われます。",
+    "urlPlaceholder": "https://www.{channel}.com/…（任意）",
+    "cancel": "キャンセル",
+    "confirm": "投稿済みとしてマーク",
+    "toasts": {
+      "marked": "投稿済みとしてマークしました",
+      "failed": "投稿済みとしてマークできませんでした"
+    }
+  },
+  "publishedTab": {
+    "empty": "公開済みの投稿はまだありません。",
+    "createPost": "投稿を作成",
+    "toasts": {
+      "deleted": "投稿を削除しました",
+      "deleteFailed": "投稿の削除に失敗しました",
+      "loadFailed": "公開済みの投稿を読み込めませんでした"
+    }
+  },
+  "scheduledTab": {
+    "empty": "まだ予約されていません。",
+    "scheduleFirst": "最初の投稿を予約する",
+    "editTitle": "予約済み投稿を編集",
+    "saveAndReschedule": "保存して再スケジュール",
+    "toasts": {
+      "loadFailed": "予約済みの投稿を読み込めませんでした",
+      "movedToDrafts": "下書きに戻しました",
+      "cancelFailed": "予約のキャンセルに失敗しました",
+      "deleted": "投稿を削除しました",
+      "deleteFailed": "投稿の削除に失敗しました",
+      "pushingTikTok": "TikTok受信箱に送信中…",
+      "publishingPost": "投稿を公開中…",
+      "tiktokInboxConfirmed": "TikTokが受信箱への配信を確認しました。TikTokアプリを開いて仕上げて投稿してください。",
+      "tiktokProcessing": "TikTokがアップロードを受け付け、まだ処理中です。",
+      "stillProcessing": "投稿を送信しました。まだ処理中です。",
+      "posted": "投稿しました！",
+      "publishFailed": "公開に失敗しました",
+      "updated": "投稿を更新しました",
+      "updateFailed": "更新に失敗しました",
+      "rescheduled": "投稿を再スケジュールしました",
+      "rescheduleFailed": "再スケジュールに失敗しました"
+    }
+  },
+  "draftsTab": {
+    "empty": "まだ下書きはありません。",
+    "createFirst": "最初の投稿を作成する",
+    "editTitle": "下書きを編集",
+    "toPostHeading": "投稿待ち",
+    "waitingInTikTokHeading": "TikTokで待機中",
+    "draftsHeading": "下書き",
+    "toasts": {
+      "loadFailed": "下書きを読み込めませんでした",
+      "deleted": "下書きを削除しました",
+      "deleteFailed": "削除に失敗しました",
+      "addingToQueue": "「投稿待ち」キューに追加中…",
+      "pushingTikTok": "TikTok受信箱に送信中…",
+      "publishingPost": "投稿を公開中…",
+      "addedToQueue": "「投稿待ち」キューに追加しました。アプリから直接投稿し、その後投稿済みとしてマークしてください。",
+      "tiktokInboxConfirmed": "TikTokが受信箱への配信を確認しました。TikTokアプリを開いて仕上げて投稿してください。",
+      "tiktokProcessing": "TikTokがアップロードを受け付け、まだ処理中です。",
+      "stillProcessing": "投稿を送信しました。まだ処理中です。",
+      "posted": "投稿しました！",
+      "publishFailed": "公開に失敗しました",
+      "updated": "下書きを更新しました",
+      "updateFailed": "更新に失敗しました",
+      "scheduled": "投稿を予約しました",
+      "scheduleFailed": "予約に失敗しました"
+    }
+  },
+  "channelSelector": {
+    "channels": "チャンネル",
+    "selectedCount": "{count}件選択中",
+    "postTo": "投稿先",
+    "defaultReason": "ブランド設定でこのチャンネルを接続してください。",
+    "productSettings": "プロダクト設定"
+  },
+  "scheduleSheet": {
+    "eyebrow": "スケジュール",
+    "title": "投稿を予約",
+    "description": "日時を選択するか、AIが提案する最適な時間帯を使用してください。",
+    "tiktokNoteLabel": "TikTokはTikTokアプリで仕上げます。",
+    "tiktokNoteBody": "予約時刻になると、Markaestroはメディアを あなたのTikTok受信箱に送信し、TikTokを開いてキャプション、公開範囲、投稿を仕上げられる状態になったら準備完了とします。",
+    "smartSchedule": "スマートスケジュール",
+    "aiSuggested": "AI提案",
+    "hide": "非表示",
+    "show": "表示",
+    "basedOnData": "{channel}の業界エンゲージメントデータに基づく",
+    "thisChannel": "このチャンネル",
+    "orPickManually": "または手動で選択",
+    "timeLabel": "時刻",
+    "timezoneNote": "予約はお使いのローカルタイムゾーン（{timezone}）を使用し、UTCで保存されます。",
+    "headsUp": "ご注意：",
+    "collisionNote": "この時間帯に別の投稿がすでに予約されています（{date}{channel}）。両方を予約することも可能です。",
+    "onChannel": "（{channel}）",
+    "scheduleFor": "{date} {time}に予約",
+    "selectDate": "日付を選択してください"
+  },
+  "postEditSheet": {
+    "caption": "キャプション",
+    "media": "メディア",
+    "image": "画像",
+    "remove": "削除",
+    "replace": "差し替え",
+    "dropMedia": "メディアをドロップするかクリックしてアップロード",
+    "dropImage": "画像をドロップするかクリックしてアップロード",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB",
+    "mediaHintImage": "JPG、PNG、WebP · 最大10 MB",
+    "uploading": "アップロード中…",
+    "upload": "アップロード",
+    "preview": "プレビュー",
+    "cancel": "キャンセル",
+    "saving": "保存中…",
+    "save": "保存",
+    "defaultTitle": "投稿を編集",
+    "defaultScheduleLabel": "予約",
+    "toasts": {
+      "videoTikTokOnly": "動画はTikTok投稿でのみ利用できます",
+      "videoTooLarge": "動画は250 MB未満にしてください",
+      "imageTooLarge": "画像は10 MB未満にしてください",
+      "videoUploaded": "動画をアップロードしました",
+      "imageUploaded": "画像をアップロードしました",
+      "uploadFailed": "アップロードに失敗しました"
+    }
+  },
+  "postCard": {
+    "readyToPost": "投稿準備完了",
+    "readyInTikTok": "TikTokで準備完了",
+    "partiallyFailed": "一部失敗",
+    "text": "テキスト",
+    "preview": "プレビュー",
+    "view": "表示",
+    "copyCaption": "キャプションをコピー",
+    "downloadMedia": "メディアをダウンロード",
+    "downloading": "ダウンロード中…",
+    "markAsPosted": "投稿済みとしてマーク",
+    "edit": "編集",
+    "publish": "公開",
+    "publishing": "公開中…",
+    "reschedule": "再スケジュール",
+    "unschedule": "予約解除",
+    "delete": "削除",
+    "readyToPostOn": "{channel}への投稿準備が完了しました",
+    "manualInstructions": "メディアをダウンロードし、キャプションをコピーして、通常どおり{channel}アプリから投稿した後、ここで投稿済みとしてマークしてください。",
+    "openChannel": "{channel}を開く",
+    "readyInTikTokInbox": "TikTok受信箱で準備完了",
+    "tiktokInboxInstructions": "TikTokアプリを開く → 受信箱 → アップロード通知をタップしてキャプションを仕上げ、投稿してください。下書きは約7日で失効します。",
+    "openTikTok": "TikTokを開く",
+    "publishingTo": "{channel}に公開中...",
+    "toasts": {
+      "captionCopied": "キャプションをコピーしました",
+      "copyFailed": "キャプションをコピーできませんでした"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "更新",
+    "liveFrom": "接続済みの{channel}アカウントの公開済み投稿です — Markaestro以外で公開されたものも含みます。",
+    "loadMore": "さらに読み込む",
+    "loading": "読み込み中…",
+    "noCaption": "キャプションなし",
+    "view": "表示",
+    "deleting": "削除中…",
+    "delete": "削除",
+    "noDeleteHints": {
+      "instagram": "Instagramはアプリからの投稿削除を許可していません — Instagramアプリで削除してください。",
+      "tiktok": "TikTokはアプリからの動画削除を許可していません — TikTokアプリで削除してください。"
+    },
+    "noDeleteDefault": "この投稿の削除はサポートされていません。",
+    "deleteWarning": "これにより投稿が{channel}から完全に削除されます。",
+    "states": {
+      "notConnectedTitle": "{channel}はまだ接続されていません",
+      "notConnectedBody": "このブランドに{channel}を接続すると、Markaestro以外で公開されたものも含め、公開済みの投稿がここに表示されます。",
+      "connect": "{channel}を接続",
+      "authTitle": "{channel}の再接続が必要です",
+      "authBody": "{channel}との接続の有効期限が切れたため、現在投稿を閲覧できません。ブランド設定から再接続して、続きから再開してください。",
+      "reconnect": "{channel}を再接続",
+      "checkAgain": "再確認",
+      "unsupportedTitle": "{channel}の投稿の閲覧はご利用いただけません",
+      "linkedinPartnerBody": "LinkedInは承認済みのパートナーアプリのみアカウントの投稿を閲覧できます。Markaestroを通じて公開したものは引き続き「公開済み」タブに表示されます。",
+      "unsupportedBody": "{channel}はアプリによるアカウント投稿の閲覧を許可していません。Markaestroを通じて公開したものは引き続き「公開済み」タブに表示されます。",
+      "errorTitle": "{channel}の投稿を読み込めませんでした",
+      "errorBody": "{channel}から想定通りの応答がありませんでした。通常は一時的な問題です — しばらくしてからもう一度お試しください。",
+      "tryAgain": "再試行",
+      "emptyTitle": "{channel}にはまだ投稿がありません",
+      "emptyBody": "このアカウントがMarkaestro経由または{channel}上で直接公開すると、投稿がここに表示されます。"
+    },
+    "toasts": {
+      "loadMoreFailed": "追加の投稿を読み込めませんでした",
+      "deleted": "{channel}から投稿を削除しました",
+      "deleteFailed": "プラットフォーム上の投稿を削除できませんでした"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "未保存の下書きを復元しました",
+    "discard": "破棄",
+    "caption": "キャプション",
+    "media": "メディア",
+    "removeMedia": "削除",
+    "addMedia": "＋ 追加",
+    "dropImagesOrVideos": "画像または動画をドロップ",
+    "dropImages": "画像をドロップするかクリックしてアップロード",
+    "mediaCountHint": "最大{count}件 · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB",
+    "mediaHintImage": "JPG、PNG、WebP · 最大10 MB",
+    "uploading": "アップロード中…",
+    "upload": "アップロード",
+    "saveDraft": "下書きを保存",
+    "schedule": "予約",
+    "postNow": "今すぐ投稿",
+    "posting": "投稿中…",
+    "preview": "プレビュー",
+    "previewPlaceholder": "投稿のプレビューがここに表示されます。",
+    "previewHint": "キャプションを入力し、メディアをアップロードして始めましょう。",
+    "toasts": {
+      "selectChannel": "公開準備が整った投稿先チャンネルを少なくとも1つ選択してください。",
+      "videoNotSupported": "選択したチャンネルの一部が動画アップロードに対応していません",
+      "videoAlone": "動画は単独でアップロードする必要があります",
+      "maxMedia": "選択したチャンネルでは最大{count}件のメディア項目までです",
+      "fileTooLarge": "{file}：{size} MB未満にしてください",
+      "fileUploadFailed": "{file}：アップロードに失敗しました",
+      "filesUploaded": "{count}件のファイルをアップロードしました",
+      "uploadFailed": "アップロードに失敗しました",
+      "createFailed": "投稿の作成に失敗しました",
+      "draftSaved": "下書きを保存しました",
+      "draftSaveFailed": "下書きの保存に失敗しました",
+      "scheduled": "投稿を予約しました",
+      "scheduleFailed": "投稿の予約に失敗しました",
+      "tiktokSending": "TikTokに送信中です。Markaestroは受信箱への配信確認をTikTokから待っています。",
+      "stillProcessing": "投稿を送信しました。まだ処理中です。",
+      "tiktokInboxConfirmed": "TikTokが受信箱への配信を確認しました。TikTok受信箱を開いてキャプションを仕上げ、「投稿」をタップしてください。",
+      "postedToMultiple": "{channels}に投稿しました！",
+      "postedSuccess": "投稿に成功しました！",
+      "publishFailed": "公開に失敗しました"
+    }
+  }
+}

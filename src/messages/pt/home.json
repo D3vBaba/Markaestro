@@ -1,0 +1,89 @@
+{
+  "hero": {
+    "badge": "O hub de publicação social para cada marca que você gerencia",
+    "titleLead": "Todo o seu motor de marketing",
+    "titleHighlight": "em uma única plataforma",
+    "subtitle": "Envie sua mídia, escreva suas legendas e publique cada marca que você promove — seu negócio, seus clientes ou você mesmo — em todos os canais sociais a partir de um único painel. Ou entregue uma chave de API ao seu agente de IA e deixe que ele cuide de tudo.",
+    "primaryButton": "Comece grátis",
+    "secondaryButton": "Ver recursos",
+    "stats": [
+      { "value": "10h", "label": "Economizadas por semana" },
+      { "value": "6", "label": "Canais, um clique" },
+      { "value": "1", "label": "Editor para todos os canais" }
+    ],
+    "trustedBy": "Aprovado por fundadores"
+  },
+  "featuresPreview": {
+    "eyebrow": "Plataforma",
+    "titleLead": "Tudo o que você precisa para",
+    "titleHighlight": "crescer",
+    "subtitle": "Do rascunho da legenda à publicação, o Markaestro cuida de cada etapa do seu fluxo de trabalho social.",
+    "items": [
+      { "title": "Publicação multicanal", "desc": "Publique no Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest a partir de um único editor. Agende posts ou publique instantaneamente." },
+      { "title": "Uploads de mídia centralizados", "desc": "Traga suas próprias imagens e vídeos. Envie uma vez por post e distribua para todos os canais conectados." },
+      { "title": "Pré-visualizações multicanal", "desc": "Veja como cada post vai aparecer em cada plataforma antes de publicar — legendas, proporções, limites de caracteres." },
+      { "title": "Agendamento e calendário", "desc": "Organize posts em um calendário unificado com horários por canal. Reagende, pause ou duplique com um clique." },
+      { "title": "Painel de publicação", "desc": "Acompanhe rascunhos, posts agendados e status de publicação em todos os canais." },
+      { "title": "Integrações OAuth", "desc": "Conecte-se com um clique ao Meta, TikTok, LinkedIn, Threads e Pinterest via OAuth seguro. Sem gerenciamento manual de tokens." }
+    ],
+    "exploreButton": "Explorar todos os recursos"
+  },
+  "channelsPreview": {
+    "eyebrow": "Canais",
+    "titleLead": "Alcance seu público",
+    "titleHighlight": "em todo lugar",
+    "subtitle": "Conecte uma vez e publique em todas as principais plataformas. O Markaestro cuida das diferenças de API, limites de caracteres e requisitos de mídia de cada canal.",
+    "channels": [
+      { "name": "Facebook e Instagram", "desc": "Conectado via OAuth com o Meta. Páginas, posts de feed, stories e publicação comercial no IG." },
+      { "name": "TikTok", "desc": "Conteúdo de fotos e vídeos enviado para a caixa de entrada do criador no TikTok para conclusão e publicação finais." },
+      { "name": "LinkedIn", "desc": "Seu perfil ou uma Página que você gerencia. Posts de texto, imagem, vídeo e múltiplas imagens com até 20 imagens." },
+      { "name": "Threads e Pinterest", "desc": "Carrosséis do Threads com até 20 itens; pins de imagem e vídeo do Pinterest no board que você escolher." }
+    ],
+    "seeAllButton": "Ver todos os canais",
+    "stats": [
+      { "label": "Canais sociais", "value": "6", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
+      { "label": "Editor", "value": "1", "sub": "Legenda + mídia em uma única tela" },
+      { "label": "Painel", "value": "1", "sub": "Fluxo de publicação unificado" },
+      { "label": "API", "value": "1", "sub": "Uma chave, pronta para agentes" }
+    ]
+  },
+  "composerPreview": {
+    "panelLabel": "Um editor, todos os canais",
+    "rows": [
+      { "label": "Mídia", "value": "Envie imagens ou vídeos — JPG, PNG, WebP, MP4" },
+      { "label": "Legenda", "value": "Escreva uma vez, pré-visualize por canal antes de publicar" },
+      { "label": "Resultado", "value": "Posts agendados ou instantâneos nos seis canais conectados" }
+    ],
+    "eyebrow": "Editor",
+    "titleLead": "Sua mídia,",
+    "titleHighlight": "seu conteúdo",
+    "subtitle": "Envie as fotos ou vídeos que você já tem. Escreva a legenda que quiser. O Markaestro cuida da publicação e do agendamento para que você fique focado no trabalho criativo.",
+    "bullets": [
+      "Envie imagens e vídeos diretamente do seu dispositivo ou biblioteca",
+      "Pré-visualizações por canal: hashtags, limites de caracteres, especificações de mídia",
+      "Agende, publique instantaneamente ou salve como rascunho com um clique"
+    ],
+    "seeFeaturesButton": "Ver todos os recursos"
+  },
+  "agentSection": {
+    "eyebrow": "Agentes de IA",
+    "titleLead": "Ou deixe seu agente",
+    "titleHighlight": "cuidar disso",
+    "subtitle": "Todo workspace pode gerar chaves de API. Entregue uma ao seu agente de IA e ele poderá descobrir em quais contas tem permissão para publicar, enviar mídia, criar e agendar posts, publicá-los e informar o que realmente foi ao ar — sem tocar em nenhuma API de plataforma diretamente.",
+    "bullets": [
+      "Uma chave é vinculada a uma única marca — um agente não pode acessar outra",
+      "Facebook, Instagram e TikTok permanecem manual-first: um humano sempre publica",
+      "Gravações idempotentes, execuções de publicação assíncronas e webhooks assinados já inclusos"
+    ],
+    "primaryButton": "Ler o guia do agente",
+    "secondaryButton": "Referência da API",
+    "codeLabel": "seu agente, desde o primeiro dia"
+  },
+  "cta": {
+    "eyebrow": "Comece agora",
+    "title": "Pronto para simplificar sua publicação social?",
+    "subtitle": "Configure em minutos. Conecte seus canais, envie sua mídia e comece a publicar.",
+    "primaryButton": "Comece grátis",
+    "secondaryButton": "Fale com vendas"
+  }
+}

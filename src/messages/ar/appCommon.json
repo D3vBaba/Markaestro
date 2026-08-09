@@ -1,0 +1,107 @@
+{
+  "status": {
+    "published": "منشور",
+    "scheduled": "مجدول",
+    "draft": "مسودة",
+    "failed": "فشل",
+    "active": "نشط",
+    "paused": "متوقف مؤقتًا",
+    "ended": "منتهٍ",
+    "live": "مباشر",
+    "completed": "مكتمل",
+    "cancelled": "ملغى"
+  },
+  "authErrors": {
+    "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صالح.",
+    "userDisabled": "تم تعطيل هذا الحساب. تواصل مع الدعم.",
+    "otpInvalid": "هذا الرمز غير صحيح. تحقق من آخر بريد إلكتروني وأعد المحاولة.",
+    "otpExpired": "انتهت صلاحية هذا الرمز. اطلب رمزًا جديدًا.",
+    "otpTooManyAttempts": "عدد كبير جدًا من المحاولات الخاطئة. اطلب رمزًا جديدًا.",
+    "otpCooldown": "تم إرسال رمز للتو. تحقق من بريدك الوارد، أو أعد المحاولة بعد دقيقة.",
+    "emailInUse": "يوجد حساب بالفعل بهذا البريد الإلكتروني.",
+    "rateLimited": "عدد كبير جدًا من المحاولات. حاول مرة أخرى لاحقًا.",
+    "popupClosed": "تم إلغاء تسجيل الدخول.",
+    "popupBlocked": "تم حظر النافذة المنبثقة بواسطة متصفحك. اسمح بالنوافذ المنبثقة وأعد المحاولة.",
+    "accountExistsDifferentCredential": "يوجد حساب بالفعل بطريقة تسجيل دخول مختلفة لهذا البريد الإلكتروني.",
+    "networkError": "خطأ في الشبكة. تحقق من اتصالك وأعد المحاولة.",
+    "default": "فشلت المصادقة. حاول مرة أخرى."
+  },
+  "confirmDeleteDialog": {
+    "entities": {
+      "brand": "العلامة التجارية",
+      "connection": "الاتصال",
+      "teamMember": "عضو الفريق",
+      "integration": "التكامل",
+      "post": "المنشور"
+    },
+    "titleGeneric": "حذف {entity}",
+    "titleNamed": "حذف {entity}؟",
+    "descriptionNamed": "هل أنت متأكد من رغبتك في حذف <name></name>؟ لا يمكن التراجع عن هذا الإجراء.",
+    "descriptionGeneric": "هل أنت متأكد من رغبتك في حذف هذا العنصر ({entity})؟ لا يمكن التراجع عن هذا الإجراء.",
+    "typeToConfirm": "اكتب <name></name> للتأكيد.",
+    "cancel": "إلغاء",
+    "deleteDefault": "حذف"
+  },
+  "featureGate": {
+    "openingPortal": "جارٍ فتح بوابة الفوترة…",
+    "portalError": "تعذّر فتح بوابة الفوترة. حاول مرة أخرى.",
+    "upgradeTo": "الترقية إلى {plan}",
+    "requiresPlan": "تتطلب هذه الميزة خطة {plan} أو أعلى. قم بالترقية لإلغاء القفل ابتداءً من ${price} شهريًا.",
+    "loading": "جارٍ التحميل..."
+  },
+  "metricCard": {
+    "vsLastPeriod": "مقارنة بالفترة السابقة"
+  },
+  "pagination": {
+    "firstPage": "الصفحة الأولى",
+    "previousPage": "الصفحة السابقة",
+    "nextPage": "الصفحة التالية",
+    "lastPage": "الصفحة الأخيرة"
+  },
+  "tagInput": {
+    "defaultPlaceholder": "اكتب واضغط Enter…"
+  },
+  "scanProgressStepper": {
+    "steps": {
+      "connecting": { "label": "الاتصال بالموقع", "activeLabel": "جارٍ الاتصال بالموقع…" },
+      "reading": { "label": "قراءة محتوى الموقع", "activeLabel": "جارٍ قراءة محتوى الموقع…" },
+      "extracting": { "label": "استخراج ألوان العلامة التجارية", "activeLabel": "جارٍ استخراج ألوان العلامة التجارية والشعار…" },
+      "analyzing": { "label": "تحليل إشارات العلامة التجارية", "activeLabel": "جارٍ تحليل إشارات العلامة التجارية…" },
+      "finalizing": { "label": "بناء ملف العلامة التجارية", "activeLabel": "جارٍ بناء ملف علامتك التجارية…" }
+    },
+    "scanComplete": "اكتمل المسح — راجع وأكّد أدناه",
+    "scanFailed": "فشل المسح — يرجى التعبئة يدويًا",
+    "researching": "جارٍ البحث عن علامتك التجارية…"
+  },
+  "platformPreview": {
+    "sponsored": "إعلان ممول",
+    "justNow": "الآن",
+    "now": "الآن",
+    "zeroLikes": "0 إعجاب",
+    "zeroComments": "0 تعليق",
+    "like": "إعجاب",
+    "comment": "تعليق",
+    "share": "مشاركة",
+    "repost": "إعادة نشر",
+    "send": "إرسال",
+    "following": "المتابَعون",
+    "forYou": "لك",
+    "originalSound": "الصوت الأصلي",
+    "originalSoundWithBrand": "الصوت الأصلي · yourbrand",
+    "save": "حفظ",
+    "untitledPin": "لوحة بلا عنوان",
+    "viewLive": "عرض مباشر",
+    "previewSuffix": "معاينة",
+    "companyPageNow": "صفحة الشركة · الآن",
+    "cta": {
+      "LEARN_MORE": "معرفة المزيد",
+      "SHOP_NOW": "تسوّق الآن",
+      "SIGN_UP": "إنشاء حساب",
+      "DOWNLOAD": "تنزيل",
+      "GET_QUOTE": "طلب عرض سعر",
+      "CONTACT_US": "تواصل معنا"
+    },
+    "facebookInstagramAd": "إعلان فيسبوك / إنستغرام",
+    "tiktokAd": "إعلان TikTok"
+  }
+}

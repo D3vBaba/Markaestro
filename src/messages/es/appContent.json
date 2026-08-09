@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "Publicaciones",
+    "subtitle": "Crea, programa y publica contenido orgánico en tus canales sociales.",
+    "tabs": {
+      "create": "Crear",
+      "drafts": "Borradores",
+      "scheduled": "Programadas",
+      "published": "Publicadas",
+      "onPlatform": "En la plataforma"
+    },
+    "productBar": {
+      "brand": "Marca",
+      "noBrandSelected": "Ninguna marca seleccionada",
+      "change": "Cambiar"
+    }
+  },
+  "editor": {
+    "placeholder": "El contenido generado aparecerá aquí...",
+    "limitSuffix": "límite"
+  },
+  "productPicker": {
+    "brand": "Marca",
+    "selectBrand": "Selecciona una marca...",
+    "tone": "Tono:",
+    "style": "Estilo:",
+    "audience": "Audiencia:"
+  },
+  "markPostedDialog": {
+    "title": "Marcar como publicado",
+    "description": "Confirma que publicaste esta publicación en {channel} tú mismo/a. Pega el enlace a la publicación en vivo si lo tienes — así se conecta la publicación con sus analíticas más adelante.",
+    "urlPlaceholder": "https://www.{channel}.com/… (opcional)",
+    "cancel": "Cancelar",
+    "confirm": "Marcar como publicado",
+    "toasts": {
+      "marked": "Marcado como publicado",
+      "failed": "No se pudo marcar como publicado"
+    }
+  },
+  "publishedTab": {
+    "empty": "Aún no hay publicaciones publicadas.",
+    "createPost": "Crear una publicación",
+    "toasts": {
+      "deleted": "Publicación eliminada",
+      "deleteFailed": "No se pudo eliminar la publicación",
+      "loadFailed": "No se pudieron cargar las publicaciones publicadas"
+    }
+  },
+  "scheduledTab": {
+    "empty": "Nada programado aún.",
+    "scheduleFirst": "Programa tu primera publicación",
+    "editTitle": "Editar publicación programada",
+    "saveAndReschedule": "Guardar y reprogramar",
+    "toasts": {
+      "loadFailed": "No se pudieron cargar las publicaciones programadas",
+      "movedToDrafts": "Movida de nuevo a borradores",
+      "cancelFailed": "No se pudo cancelar la programación",
+      "deleted": "Publicación eliminada",
+      "deleteFailed": "No se pudo eliminar la publicación",
+      "pushingTikTok": "Enviando a la bandeja de TikTok…",
+      "publishingPost": "Publicando…",
+      "tiktokInboxConfirmed": "TikTok confirmó la entrega en la bandeja. Abre la app de TikTok para finalizar y publicar.",
+      "tiktokProcessing": "TikTok aceptó la subida y todavía la está procesando.",
+      "stillProcessing": "Publicación enviada y aún en proceso.",
+      "posted": "¡Publicado!",
+      "publishFailed": "Error al publicar",
+      "updated": "Publicación actualizada",
+      "updateFailed": "No se pudo actualizar",
+      "rescheduled": "Publicación reprogramada",
+      "rescheduleFailed": "No se pudo reprogramar"
+    }
+  },
+  "draftsTab": {
+    "empty": "Aún no hay borradores.",
+    "createFirst": "Crea tu primera publicación",
+    "editTitle": "Editar borrador",
+    "toPostHeading": "Por publicar",
+    "waitingInTikTokHeading": "Esperando en TikTok",
+    "draftsHeading": "Borradores",
+    "toasts": {
+      "loadFailed": "No se pudieron cargar los borradores",
+      "deleted": "Borrador eliminado",
+      "deleteFailed": "No se pudo eliminar",
+      "addingToQueue": "Añadiendo a tu cola “Por publicar”…",
+      "pushingTikTok": "Enviando a la bandeja de TikTok…",
+      "publishingPost": "Publicando…",
+      "addedToQueue": "Añadido a tu cola “Por publicar”. Publícalo de forma nativa y luego márcalo como publicado.",
+      "tiktokInboxConfirmed": "TikTok confirmó la entrega en la bandeja. Abre la app de TikTok para finalizar y publicar.",
+      "tiktokProcessing": "TikTok aceptó la subida y todavía la está procesando.",
+      "stillProcessing": "Publicación enviada y aún en proceso.",
+      "posted": "¡Publicado!",
+      "publishFailed": "Error al publicar",
+      "updated": "Borrador actualizado",
+      "updateFailed": "No se pudo actualizar",
+      "scheduled": "Publicación programada",
+      "scheduleFailed": "No se pudo programar"
+    }
+  },
+  "channelSelector": {
+    "channels": "Canales",
+    "selectedCount": "{count} seleccionados",
+    "postTo": "Publicar en",
+    "defaultReason": "Conecta este canal en la configuración de la marca.",
+    "productSettings": "Configuración del producto"
+  },
+  "scheduleSheet": {
+    "eyebrow": "Programar",
+    "title": "Programar publicación",
+    "description": "Elige una fecha y hora, o usa los horarios óptimos sugeridos por IA.",
+    "tiktokNoteLabel": "TikTok se finaliza en la app de TikTok.",
+    "tiktokNoteBody": "A la hora programada, Markaestro envía el contenido a tu bandeja de TikTok, y lo marca como listo cuando puedas abrir TikTok para finalizar el subtítulo, la privacidad y la publicación.",
+    "smartSchedule": "Programación inteligente",
+    "aiSuggested": "Sugerido por IA",
+    "hide": "Ocultar",
+    "show": "Mostrar",
+    "basedOnData": "Basado en datos de interacción del sector para {channel}",
+    "thisChannel": "este canal",
+    "orPickManually": "o elige manualmente",
+    "timeLabel": "Hora",
+    "timezoneNote": "Las programaciones usan tu zona horaria local ({timezone}) y se guardan en UTC.",
+    "headsUp": "Aviso:",
+    "collisionNote": "ya hay otra publicación programada cerca de esta hora ({date}{channel}). Aun así puedes programar ambas.",
+    "onChannel": " en {channel}",
+    "scheduleFor": "Programar para el {date} a las {time}",
+    "selectDate": "Selecciona una fecha"
+  },
+  "postEditSheet": {
+    "caption": "Descripción",
+    "media": "Contenido multimedia",
+    "image": "Imagen",
+    "remove": "Quitar",
+    "replace": "Reemplazar",
+    "dropMedia": "Suelta el contenido o haz clic para subirlo",
+    "dropImage": "Suelta una imagen o haz clic para subirla",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · hasta 10 MB",
+    "uploading": "Subiendo…",
+    "upload": "Subir",
+    "preview": "Vista previa",
+    "cancel": "Cancelar",
+    "saving": "Guardando…",
+    "save": "Guardar",
+    "defaultTitle": "Editar publicación",
+    "defaultScheduleLabel": "Programar",
+    "toasts": {
+      "videoTikTokOnly": "Los videos solo están disponibles para publicaciones de TikTok",
+      "videoTooLarge": "El video debe pesar menos de 250 MB",
+      "imageTooLarge": "La imagen debe pesar menos de 10 MB",
+      "videoUploaded": "Video subido",
+      "imageUploaded": "Imagen subida",
+      "uploadFailed": "Error al subir"
+    }
+  },
+  "postCard": {
+    "readyToPost": "Listo para publicar",
+    "readyInTikTok": "Listo en TikTok",
+    "partiallyFailed": "Parcialmente fallido",
+    "text": "Texto",
+    "preview": "Vista previa",
+    "view": "Ver",
+    "copyCaption": "Copiar descripción",
+    "downloadMedia": "Descargar contenido",
+    "downloading": "Descargando…",
+    "markAsPosted": "Marcar como publicado",
+    "edit": "Editar",
+    "publish": "Publicar",
+    "publishing": "Publicando…",
+    "reschedule": "Reprogramar",
+    "unschedule": "Anular programación",
+    "delete": "Eliminar",
+    "readyToPostOn": "Listo para publicar en {channel}",
+    "manualInstructions": "Descarga el contenido, copia la descripción, publícalo desde la app de {channel} como lo harías normalmente, y luego márcalo como publicado aquí.",
+    "openChannel": "Abrir {channel}",
+    "readyInTikTokInbox": "Listo en tu bandeja de TikTok",
+    "tiktokInboxInstructions": "Abre la app de TikTok → Bandeja → toca la notificación de subida para terminar la descripción y publicar. Los borradores caducan tras ~7 días.",
+    "openTikTok": "Abrir TikTok",
+    "publishingTo": "Publicando en {channel}...",
+    "toasts": {
+      "captionCopied": "Descripción copiada",
+      "copyFailed": "No se pudo copiar la descripción"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "Actualizar",
+    "liveFrom": "Publicaciones en vivo de tu cuenta de {channel} conectada — incluidas las publicadas fuera de Markaestro.",
+    "loadMore": "Cargar más",
+    "loading": "Cargando…",
+    "noCaption": "Sin descripción",
+    "view": "Ver",
+    "deleting": "Eliminando…",
+    "delete": "Eliminar",
+    "noDeleteHints": {
+      "instagram": "Instagram no permite que las apps eliminen publicaciones — elimínalas en la app de Instagram.",
+      "tiktok": "TikTok no permite que las apps eliminen videos — elimínalos en la app de TikTok."
+    },
+    "noDeleteDefault": "No se admite la eliminación de esta publicación.",
+    "deleteWarning": "Esto elimina permanentemente la publicación de {channel}.",
+    "states": {
+      "notConnectedTitle": "{channel} aún no está conectado",
+      "notConnectedBody": "Conecta {channel} a esta marca y sus publicaciones en vivo aparecerán aquí — incluidas las publicadas fuera de Markaestro.",
+      "connect": "Conectar {channel}",
+      "authTitle": "{channel} necesita reconectarse",
+      "authBody": "La conexión con {channel} ha caducado, así que no podemos explorar sus publicaciones ahora mismo. Reconéctala desde la configuración de la marca para retomar donde lo dejaste.",
+      "reconnect": "Reconectar {channel}",
+      "checkAgain": "Comprobar de nuevo",
+      "unsupportedTitle": "No se puede explorar las publicaciones de {channel}",
+      "linkedinPartnerBody": "LinkedIn solo permite a apps socias aprobadas explorar las publicaciones de la cuenta. Todo lo que publiques a través de Markaestro sigue apareciendo en tu pestaña de Publicadas.",
+      "unsupportedBody": "{channel} no permite que las apps exploren las publicaciones de la cuenta. Todo lo que publiques a través de Markaestro sigue apareciendo en tu pestaña de Publicadas.",
+      "errorTitle": "No se pudieron cargar las publicaciones de {channel}",
+      "errorBody": "{channel} no respondió como se esperaba. Esto suele ser temporal — inténtalo de nuevo en un momento.",
+      "tryAgain": "Intentar de nuevo",
+      "emptyTitle": "Aún no hay publicaciones en {channel}",
+      "emptyBody": "Cuando esta cuenta publique — a través de Markaestro o directamente en {channel} — sus publicaciones aparecerán aquí."
+    },
+    "toasts": {
+      "loadMoreFailed": "No se pudieron cargar más publicaciones",
+      "deleted": "Publicación eliminada de {channel}",
+      "deleteFailed": "No se pudo eliminar la publicación en la plataforma"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "Se restauró tu borrador sin guardar",
+    "discard": "Descartar",
+    "caption": "Descripción",
+    "media": "Contenido multimedia",
+    "removeMedia": "Quitar",
+    "addMedia": "+ Añadir",
+    "dropImagesOrVideos": "Suelta imágenes o videos",
+    "dropImages": "Suelta imágenes o haz clic para subirlas",
+    "mediaCountHint": "Hasta {count, plural, one {# elemento} other {# elementos}} · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · hasta 10 MB",
+    "uploading": "Subiendo…",
+    "upload": "Subir",
+    "saveDraft": "Guardar borrador",
+    "schedule": "Programar",
+    "postNow": "Publicar ahora",
+    "posting": "Publicando…",
+    "preview": "Vista previa",
+    "previewPlaceholder": "La vista previa de tu publicación aparecerá aquí.",
+    "previewHint": "Escribe una descripción y sube tu contenido para empezar.",
+    "toasts": {
+      "selectChannel": "Selecciona al menos un canal de publicación listo.",
+      "videoNotSupported": "Uno o más de los canales seleccionados no admite la subida de video",
+      "videoAlone": "Los videos deben subirse solos",
+      "maxMedia": "Máximo {count, plural, one {# elemento multimedia} other {# elementos multimedia}} para los canales seleccionados",
+      "fileTooLarge": "{file}: debe pesar menos de {size} MB",
+      "fileUploadFailed": "{file}: error al subir",
+      "filesUploaded": "{count, plural, one {# archivo subido} other {# archivos subidos}}",
+      "uploadFailed": "Error al subir",
+      "createFailed": "No se pudo crear la publicación",
+      "draftSaved": "Borrador guardado",
+      "draftSaveFailed": "No se pudo guardar el borrador",
+      "scheduled": "Publicación programada",
+      "scheduleFailed": "No se pudo programar la publicación",
+      "tiktokSending": "Enviando a TikTok. Markaestro está esperando que TikTok confirme la entrega en la bandeja.",
+      "stillProcessing": "Publicación enviada y aún en proceso.",
+      "tiktokInboxConfirmed": "TikTok confirmó la entrega en la bandeja. Abre la Bandeja de TikTok, termina la descripción y toca Publicar.",
+      "postedToMultiple": "¡Publicado en {channels}!",
+      "postedSuccess": "¡Publicado con éxito!",
+      "publishFailed": "Error al publicar"
+    }
+  }
+}

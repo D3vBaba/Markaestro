@@ -1,0 +1,254 @@
+{
+  "categories": {
+    "saas": "SaaS",
+    "mobile": "Mobile App",
+    "web": "Web-App",
+    "api": "API",
+    "marketplace": "Marktplatz",
+    "ecommerce": "E-Commerce",
+    "fintech": "Fintech",
+    "healthtech": "Health Tech",
+    "edtech": "Ed Tech",
+    "gaming": "Gaming",
+    "social": "Social",
+    "productivity": "Produktivität",
+    "developer-tools": "Entwicklertools",
+    "ai": "KI",
+    "media": "Medien",
+    "agency": "Agentur",
+    "creator": "Creator",
+    "hardware": "Hardware",
+    "nonprofit": "Non-Profit",
+    "local-business": "Lokales Geschäft",
+    "personal-brand": "Persönliche Marke",
+    "fashion-beauty": "Mode & Beauty",
+    "food-restaurant": "Essen & Restaurant",
+    "music-entertainment": "Musik & Unterhaltung",
+    "real-estate": "Immobilien",
+    "coaching-services": "Coaching & Dienstleistungen",
+    "fitness": "Fitness",
+    "travel-hospitality": "Reisen & Gastgewerbe",
+    "other": "Sonstiges"
+  },
+  "categorySelect": {
+    "selectCategory": "Kategorie auswählen"
+  },
+  "productStatus": {
+    "active": "Aktiv",
+    "beta": "Beta",
+    "development": "In Entwicklung",
+    "sunset": "Auslaufend",
+    "archived": "Archiviert"
+  },
+  "productCard": {
+    "noChannelsConnected": "Keine Kanäle verbunden",
+    "reconnectNeeded": "{label} — erneute Verbindung nötig",
+    "deleteBrand": "Marke löschen"
+  },
+  "page": {
+    "title": "Marken",
+    "subtitle": "Alles, was du bewirbst — Produkte, Unternehmen, Kunden oder dich selbst.",
+    "addBrand": "Marke hinzufügen",
+    "filters": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "development": "In Entwicklung"
+    },
+    "ungrantedPages": {
+      "title": "{count, plural, one {# Facebook-Seite ist nicht mehr autorisiert} other {# Facebook-Seiten sind nicht mehr autorisiert}}",
+      "body": "Diese Anmeldung enthielt {pages} nicht. Facebook ersetzt bei jeder Verbindung den gesamten Berechtigungssatz, sodass diese Seiten erst wieder veröffentlichen können, wenn du dich erneut verbindest und sie ankreuzt. Geplante Beiträge für sie schlagen fehl.",
+      "howItWorks": "So funktioniert das Verbinden",
+      "dismiss": "Verwerfen"
+    },
+    "emptyState": {
+      "all": "Noch keine Marken",
+      "active": "Keine aktiven Marken",
+      "development": "Nichts in Entwicklung",
+      "body": "Füge deine erste Marke hinzu, um mit stimmiger Markenkommunikation zu starten."
+    },
+    "deleteWarning": "Alle Markenstimme-Einstellungen dieser Marke werden ebenfalls entfernt.",
+    "toasts": {
+      "connected": "{provider} verbunden",
+      "declinedPermission": "{provider}: Du hast die Berechtigungsanfrage abgelehnt — tippe auf Verbinden, um es erneut zu versuchen.",
+      "connectionFailed": "Verbindung zu {provider} fehlgeschlagen: {message}",
+      "unknownError": "Unbekannter Fehler",
+      "almostDone": "Fast fertig — wähle eine Facebook-Seite unter Kanäle, um die Meta-Einrichtung abzuschließen",
+      "deleteFailed": "Marke konnte nicht gelöscht werden",
+      "deleted": "Marke gelöscht"
+    }
+  },
+  "createWizard": {
+    "eyebrow": "Neue Marke",
+    "title": "Marke hinzufügen",
+    "descriptions": {
+      "start": "Beginne mit dem Scannen deiner Website oder gib die Details manuell ein.",
+      "scan": "Deine Marke wird recherchiert…",
+      "manual": "Fülle das Wesentliche aus — du kannst später mehr hinzufügen.",
+      "review": "Überprüfe, was wir gefunden haben, passe alles an und speichere."
+    },
+    "scanCard": {
+      "title": "Scanne deine Website",
+      "body": "Wir extrahieren deinen Namen, deine Beschreibung, Markenfarben, dein Logo und deinen Ton, damit du mit 90 % Vorarbeit startest.",
+      "urlPlaceholder": "https://deinemarke.com",
+      "scan": "Scannen"
+    },
+    "or": "Oder",
+    "manualCard": {
+      "title": "Manuell eingeben",
+      "body": "Überspringe den Scan und fülle das Formular selbst aus."
+    },
+    "cancelScan": "Scan abbrechen",
+    "scanError": {
+      "body": "Wir konnten {url} nicht scannen. Versuche den Scan erneut oder gib deine Daten manuell ein.",
+      "editUrl": "URL bearbeiten",
+      "retry": "Scan erneut versuchen",
+      "enterManually": "Manuell eingeben"
+    },
+    "scanComplete": "Scan abgeschlossen — überprüfe und bearbeite unten alles Nötige.",
+    "fields": {
+      "brandName": "Markenname",
+      "brandNamePlaceholder": "DripCheckr",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Worum geht es bei dieser Marke?",
+      "website": "Website",
+      "websitePlaceholder": "https://deinemarke.com",
+      "category": "Kategorie"
+    },
+    "brandIntelligence": "Markenintelligenz",
+    "logoDetected": "Logo von der Website erkannt",
+    "targetAudience": "Zielgruppe",
+    "brandTone": "Markenton",
+    "fineTuneNote": "Du kannst all das nach dem Erstellen der Marke feinjustieren.",
+    "startOver": "Von vorn beginnen",
+    "createBrand": "Marke erstellen",
+    "creating": "Wird erstellt…",
+    "toasts": {
+      "enterUrl": "Gib zuerst eine URL ein",
+      "nameRequired": "Name ist erforderlich",
+      "createFailed": "Marke konnte nicht erstellt werden",
+      "brandAdded": "Marke hinzugefügt"
+    }
+  },
+  "detailSheet": {
+    "sections": {
+      "foundation": "Grundlagen",
+      "identity": "Identität",
+      "channels": "Kanäle"
+    },
+    "brandFallback": "Marke",
+    "saveIndicator": {
+      "saving": "Wird gespeichert…",
+      "unsavedChanges": "Nicht gespeicherte Änderungen",
+      "savedAt": "Gespeichert · {time}",
+      "allSaved": "Alle Änderungen gespeichert"
+    },
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "deleteBrand": "Marke löschen",
+    "deleteWarning": "Alle Einstellungen und Kanalverbindungen dieser Marke werden ebenfalls entfernt.",
+    "disconnectWarning": "Dies entfernt jedes mit dieser Marke verknüpfte {label}-Konto. Andere Marken behalten ihre eigenen Verbindungen. Um nur ein einzelnes Konto auszutauschen, nutze stattdessen „Trennen“ daneben — und um den Zugriff zu erneuern, nutze „Erneut verbinden“ statt zu trennen.",
+    "disconnect": "Trennen",
+    "unsavedConfirm": "Du hast nicht gespeicherte Änderungen. Ohne Speichern schließen?",
+    "toasts": {
+      "loadFailed": "Marke konnte nicht geladen werden",
+      "nameRequired": "Markenname ist erforderlich",
+      "saveDetailsFailed": "Markendetails konnten nicht gespeichert werden",
+      "saveIdentityFailed": "Markendetails gespeichert, aber Markenidentität konnte nicht gespeichert werden",
+      "saved": "Gespeichert",
+      "deleteFailed": "Marke konnte nicht gelöscht werden",
+      "deleted": "Marke gelöscht",
+      "logoTooLarge": "Das Logo muss unter 2 MB groß sein",
+      "logoUploaded": "Logo hochgeladen",
+      "logoUploadFailed": "Logo konnte nicht hochgeladen werden",
+      "disconnected": "{label} getrennt",
+      "disconnectFailed": "{provider} konnte nicht getrennt werden",
+      "noFacebookPages": "Keine Facebook-Seiten gefunden.",
+      "loadPagesFailed": "Seiten konnten nicht geladen werden",
+      "pagesLinked": "{count, plural, one {# Facebook-Seite verknüpft} other {# Facebook-Seiten verknüpft}}",
+      "linkPagesFailed": "Seiten konnten nicht verknüpft werden"
+    },
+    "foundation": {
+      "basicsTitle": "Grunddaten",
+      "basicsDescription": "Wie deine Marke in Markaestro identifiziert wird.",
+      "brandName": "Markenname",
+      "description": "Beschreibung",
+      "website": "Website",
+      "positioningTitle": "Positionierung",
+      "category": "Kategorie",
+      "status": "Status"
+    },
+    "identity": {
+      "logoTitle": "Logo",
+      "logoDescription": "Wird auf Karten, generierten Medien und Vorschauen verwendet.",
+      "colorsTitle": "Markenfarben",
+      "colorsDescription": "Einmal festgelegt, spiegeln sie sich in Karten und generierten Medien wider.",
+      "primary": "Primär",
+      "primaryDescription": "Hauptmarkenfarbe",
+      "secondary": "Sekundär",
+      "secondaryDescription": "Unterstützende Farbe",
+      "accent": "Akzent",
+      "accentDescription": "Hervorhebungen & CTAs",
+      "upload": "Hochladen",
+      "uploading": "Wird hochgeladen…",
+      "replace": "Ersetzen",
+      "remove": "Entfernen",
+      "fileHint": "PNG, JPG, WebP oder SVG. Max. 2 MB.",
+      "clearColor": "Farbe löschen",
+      "openColorPicker": "Farbwähler öffnen",
+      "setColorTo": "{label} auf {color} setzen"
+    },
+    "channels": {
+      "title": "Verbundene Kanäle",
+      "description": "Verbinde Social-Media-Konten, um von dieser Marke aus planen zu können.",
+      "connect": "Verbinden",
+      "reconnect": "Erneut verbinden",
+      "reconnectAddAccount": "Erneut verbinden / Konto hinzufügen",
+      "disconnectAllCount": "Alle {count} trennen",
+      "unlinkAllCount": "Alle {count} trennen",
+      "unlink": "Trennen",
+      "loading": "Wird geladen…",
+      "addPages": "Seiten hinzufügen",
+      "choosePages": "Seiten auswählen",
+      "pickAPage": "Eine Seite auswählen",
+      "metaPagesLinkedCount": "{count} Facebook-Seiten verknüpft",
+      "facebookPageLinked": "Facebook-Seite verknüpft",
+      "chooseWhichPages": "Wähle aus, auf welchen Facebook-Seiten diese Marke postet",
+      "linkPages": "Verknüpfe die Facebook-Seiten dieser Marke",
+      "instagramNote": "Für professionelle Konten, die nicht mit einer Facebook-Seite verknüpft sind.",
+      "expires": "Läuft ab am {date}",
+      "linked": "Verknüpft",
+      "reconnectBadge": "Erneut verbinden",
+      "selectBoard": "Pinnwand auswählen",
+      "changeBoard": "Pinnwand ändern",
+      "pinningTo": "Wird gepinnt auf: {board}",
+      "selectBoardToEnable": "Wähle eine Pinnwand, um das Veröffentlichen zu aktivieren",
+      "linkProfile": "Profil verknüpfen",
+      "unlinkProfile": "Profil trennen",
+      "linkPagesBtn": "Seiten verknüpfen",
+      "unlinkPagesBtn": "Seiten trennen",
+      "selectTarget": "Ziel auswählen",
+      "changeTarget": "Ziel ändern",
+      "selectTargetPlaceholder": "Ziel auswählen…",
+      "select": "Auswählen",
+      "postingTo": "Wird gepostet auf: {target}",
+      "selectProfileOrPage": "Wähle ein Profil oder eine Seite, um das Veröffentlichen zu aktivieren",
+      "everyDestinationLinked": "Jedes verfügbare {destination} ist bereits mit dieser Marke verknüpft.",
+      "linkedCount": "{count} {destination} verknüpft",
+      "connectedAccount": "Verbundenes Konto",
+      "warning": "Warnung",
+      "linkedAccountFallback": "Verknüpftes Konto",
+      "toasts": {
+        "noLinkedInTargets": "Keine LinkedIn-Ziele gefunden.",
+        "loadLinkedInFailed": "LinkedIn-Ziele konnten nicht geladen werden",
+        "linkedInSelected": "LinkedIn-Ziel „{name}“ ausgewählt",
+        "selectLinkedInFailed": "LinkedIn-Ziel konnte nicht ausgewählt werden",
+        "noDestinationsFound": "Keine {destination} gefunden.",
+        "loadDestinationsFailed": "{destination} konnten nicht geladen werden",
+        "linkDestinationsFailed": "{destination} konnten nicht verknüpft werden",
+        "accountUnlinked": "{account} getrennt",
+        "unlinkFailed": "{account} konnte nicht getrennt werden"
+      }
+    }
+  }
+}

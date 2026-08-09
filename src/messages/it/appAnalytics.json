@@ -1,0 +1,120 @@
+{
+  "page": {
+    "title": "Analisi",
+    "subtitle": "Cosa hanno reso i tuoi post — misurato con i dati propri di ogni piattaforma.",
+    "refresh": {
+      "idle": "Aggiorna",
+      "refreshing": "Aggiornamento…",
+      "pulling": "Recupero dati in tempo reale…",
+      "title": "Recupera i numeri più recenti da ogni piattaforma collegata"
+    },
+    "export": {
+      "idle": "Esporta CSV",
+      "exporting": "Esportazione…",
+      "lockedTitle": "L'esportazione CSV è inclusa nel piano Business"
+    },
+    "filters": {
+      "allPlatforms": "Tutte le piattaforme",
+      "platformTitle": "Filtra per piattaforma",
+      "allBrands": "Tutti i brand",
+      "brandTitle": "Filtra per brand",
+      "rangeTitle": "Ultimi {label}",
+      "rangeLockedTitle": "Il periodo di {label} richiede un piano superiore",
+      "windowNote": "Visualizzazione di {days} giorni — la finestra di analisi del tuo piano."
+    },
+    "error": {
+      "message": "Impossibile caricare le analisi.",
+      "retry": "Riprova"
+    },
+    "emptyState": {
+      "eyebrow": "Ancora nessun dato",
+      "title": "Pubblica il tuo primo post per iniziare a misurare",
+      "body": "Non appena un post viene pubblicato, Markaestro ne recupera visualizzazioni, copertura ed engagement dalla piattaforma entro circa un'ora — e continua a monitorarli per 30 giorni. Il numero di follower viene registrato ogni giorno per ogni canale collegato.",
+      "createPost": "Crea un post"
+    },
+    "warmingUp": "Raccolta delle metriche in corso — i primi dati arrivano circa un'ora dopo la pubblicazione, poi si aggiornano con una frequenza decrescente per 30 giorni.",
+    "kpis": {
+      "views": { "label": "Visualizzazioni", "sub": "vs periodo precedente" },
+      "reach": { "label": "Copertura", "sub": "account unici raggiunti" },
+      "engagement": { "label": "Engagement", "sub": "mi piace + commenti + condivisioni + salvataggi" },
+      "engagementRate": { "label": "Tasso di engagement", "sub": "engagement ÷ copertura" },
+      "followers": { "label": "Follower", "sub": "tutti i canali collegati" }
+    },
+    "insights": {
+      "basedOn": "BASATO SU {count} POST"
+    },
+    "trend": {
+      "eyebrow": "Andamento · {days}g",
+      "metrics": { "views": "Visualizzazioni", "reach": "Copertura", "engagements": "Engagement", "posts": "Post" }
+    },
+    "audience": {
+      "eyebrow": "Pubblico",
+      "title": "Follower",
+      "titleWithCount": "{count} follower"
+    },
+    "timing": { "eyebrow": "Orari", "title": "Quando i tuoi post rendono di più" },
+    "format": { "eyebrow": "Formato", "title": "Cosa genera più engagement" },
+    "channels": { "eyebrow": "Canali", "title": "Andamento per canale" },
+    "posts": { "eyebrow": "Post", "title": "Post principali" },
+    "provenance": {
+      "base": "Le metriche seguono le definizioni API di ciascuna piattaforma e possono essere in ritardo fino a 48 ore rispetto alle statistiche native. Un \"—\" significa che la piattaforma non fornisce quella metrica (ad esempio, Threads e TikTok non riportano la copertura). Il tasso di engagement è engagement ÷ copertura.",
+      "truncated": " Le visualizzazioni per post si basano sui {count} post più recenti in questo periodo.",
+      "lastUpdate": " Ultimo aggiornamento delle metriche: {date}."
+    },
+    "toasts": {
+      "updated": "{count, plural, one {Aggiornato # post dalla fonte} other {Aggiornati # post dalla fonte}}",
+      "noNewMetrics": "Nessuna nuova metrica della piattaforma disponibile",
+      "tooManyRefreshes": "Troppi aggiornamenti — riprova tra un minuto.",
+      "pullFailed": "Impossibile recuperare i dati in tempo reale. Vengono mostrati gli ultimi numeri salvati.",
+      "exportFailed": "Esportazione non riuscita. Riprova."
+    }
+  },
+  "contentTypeBars": {
+    "types": { "image": "Immagini", "video": "Video", "carousel": "Caroselli", "text": "Post di testo" },
+    "notEnoughVariety": "Non c'è ancora abbastanza varietà",
+    "publishAtLeastTwo": "Pubblica almeno due formati di contenuto (immagini, video, caroselli, testo) per confrontarli.",
+    "postsCount": "{count, plural, one {# post} other {# post}}",
+    "avgEng": "eng. medio"
+  },
+  "trendChart": {
+    "noData": "Nessun dato per questo periodo, per ora.",
+    "followerHistoryBuilds": "La cronologia dei follower si costruisce a partire da rilevazioni giornaliere — l'andamento appare dopo un paio di giorni di dati.",
+    "followersSeriesName": "Follower"
+  },
+  "channelTable": {
+    "columns": {
+      "channel": "Canale",
+      "posts": "Post",
+      "views": "Visualizzazioni",
+      "reach": "Copertura",
+      "engagement": "Engagement",
+      "erReach": "ER (copertura)",
+      "followers": "Follower"
+    },
+    "empty": "Collega un canale e pubblica per vedere l'andamento per canale.",
+    "clearFilter": "Rimuovi filtro canale",
+    "filterTo": "Filtra per {channel}"
+  },
+  "bestTimeHeatmap": {
+    "notEnoughData": "Non ci sono ancora abbastanza dati",
+    "unlocksAt": "La mappa di calore degli orari si sblocca quando {min} post hanno dati di engagement ({sampleSize} finora).",
+    "footer": "ENGAGEMENT MEDIO PER POST · IL TUO ORARIO LOCALE · {count} POST"
+  },
+  "leaderboardTable": {
+    "post": "Post",
+    "columns": {
+      "views": "Visualizzazioni",
+      "reach": "Copertura",
+      "engagement": "Engagement",
+      "erReach": "ER (copertura)",
+      "published": "Pubblicato"
+    },
+    "empty": "Non ci sono ancora post con metriche in questo periodo. Le metriche arrivano circa un'ora dopo la pubblicazione.",
+    "untitledPost": "Post senza titolo",
+    "sortBy": "Ordina per {label}",
+    "openOnPlatform": "Apri sulla piattaforma"
+  },
+  "stackedArea": {
+    "noData": "Ancora nessun dato."
+  }
+}

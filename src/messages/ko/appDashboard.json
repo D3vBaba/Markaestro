@@ -1,0 +1,37 @@
+{
+  "title": "대시보드",
+  "subtitle": "마케팅 현황을 한눈에 확인하세요.",
+  "refresh": "새로고침",
+  "refreshing": "새로고침 중…",
+  "newPost": "새 게시물",
+  "errorTitle": "대시보드를 불러올 수 없습니다",
+  "errorBody": "대시보드 데이터를 불러올 수 없습니다.",
+  "retry": "다시 시도",
+  "kpis": {
+    "brands": "브랜드",
+    "brandsActive": "활성 {count}개",
+    "posts": "게시물",
+    "postsSub": "발행 {published}개 · 예약 {scheduled}개",
+    "publishedWeek": "발행됨 · 최근 7일",
+    "acrossDays": "{count}일간"
+  },
+  "chart": {
+    "eyebrow": "게시 활동 · 최근 7일",
+    "publishedThisWeek": "이번 주 {count}개 발행",
+    "show": "{label} 표시",
+    "hide": "{label} 숨기기",
+    "noActivity": "아직 게시 활동이 없습니다."
+  },
+  "distribution": {
+    "eyebrow": "분포",
+    "title": "채널별 게시물",
+    "viewInCalendar": "캘린더에서 {channel} 게시물 보기"
+  },
+  "recentPosts": {
+    "eyebrow": "다음 예정",
+    "title": "최근 게시물",
+    "viewAll": "전체 보기 →",
+    "untitled": "제목 없는 게시물",
+    "empty": "아직 게시물이 없습니다. 첫 게시물을 만들어 여기서 활동을 확인해 보세요."
+  }
+}

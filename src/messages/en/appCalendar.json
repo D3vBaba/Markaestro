@@ -1,0 +1,68 @@
+{
+  "statusLabels": {
+    "published": "Published",
+    "scheduled": "Scheduled",
+    "draft": "Draft",
+    "failed": "Failed",
+    "partial_failed": "Partially failed",
+    "publishing": "Publishing"
+  },
+  "mockups": {
+    "sponsored": "Sponsored",
+    "like": "Like",
+    "comment": "Comment",
+    "share": "Share",
+    "save": "Save",
+    "justNow": "Just now",
+    "likeAction": "👍 Like",
+    "commentAction": "💬 Comment",
+    "shareAction": "↗ Share"
+  },
+  "detailPanel": {
+    "backToDay": "Back to day",
+    "close": "Close",
+    "published": "Published",
+    "scheduled": "Scheduled",
+    "preview": "Preview",
+    "viewLivePost": "View live post",
+    "untitledPost": "Untitled post",
+    "failedToPublish": "Failed to publish"
+  },
+  "dayPanel": {
+    "today": "Today",
+    "postCount": "{count, plural, one {# post} other {# posts}} · select one to preview",
+    "noPosts": "No posts on this day."
+  },
+  "agenda": {
+    "today": "Today",
+    "itemCount": "{count, plural, one {# item} other {# items}}"
+  },
+  "deletedNotice": "That post has been deleted and is no longer available.",
+  "dismiss": "Dismiss",
+  "truncatedNotice": "This month has more posts than the calendar can load at once — some are not shown.",
+  "postsThisMonth": "{count, plural, one {# post} other {# posts}} this month",
+  "dropToReschedule": "· Drop on a day to reschedule",
+  "newPost": "New post",
+  "today": "Today",
+  "filters": {
+    "brand": "Brand",
+    "all": "All",
+    "noBrand": "No brand",
+    "unknownBrand": "Unknown brand",
+    "dragToReschedule": "Drag to reschedule"
+  },
+  "loadError": "Failed to load calendar data",
+  "retry": "Retry",
+  "noPostsMatchingFilters": "No posts matching your filters",
+  "noPostsThisMonth": "No posts this month",
+  "noPostsThisMonthPeriod": "No posts this month.",
+  "clearFilters": "Clear filters",
+  "createPost": "Create post",
+  "createPostCaps": "Create Post",
+  "postMovedToast": "Post moved to {date}",
+  "rescheduleFailedToast": "Failed to reschedule post",
+  "postNotFoundToast": "Couldn't open that post. Please try again.",
+  "viewAllPostsOnDay": "View all {count, plural, one {# post} other {# posts}} on this day",
+  "viewAllPostsOnDate": "View all {count, plural, one {# post} other {# posts}} on {date}",
+  "moreCount": "+{count} more"
+}

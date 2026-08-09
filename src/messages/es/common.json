@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "features": "Funciones",
+    "channels": "Canales",
+    "aiAgents": "Agentes de IA",
+    "api": "API",
+    "pricing": "Precios",
+    "contact": "Contacto",
+    "dashboard": "Panel",
+    "signIn": "Iniciar sesión",
+    "getStarted": "Comenzar"
+  },
+  "footer": {
+    "tagline": "La plataforma de marketing para cada marca que gestionas: tu negocio, tus clientes o tú mismo.",
+    "productHeading": "Producto",
+    "developersHeading": "Desarrolladores",
+    "companyHeading": "Empresa",
+    "getStartedHeading": "Comenzar",
+    "features": "Funciones",
+    "channels": "Canales",
+    "pricing": "Precios",
+    "aiAgents": "Agentes de IA",
+    "apiReference": "Referencia de la API",
+    "agentBrief": "Resumen para agentes (llms.txt)",
+    "contact": "Contacto",
+    "termsOfService": "Términos del Servicio",
+    "privacyPolicy": "Política de Privacidad",
+    "signIn": "Iniciar sesión",
+    "createAccount": "Crear cuenta",
+    "copyright": "© {year} Markaestro. Todos los derechos reservados.",
+    "terms": "Términos",
+    "privacy": "Privacidad"
+  },
+  "copyBlock": {
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "copyAriaLabel": "Copiar al portapapeles",
+    "copiedAriaLabel": "Copiado"
+  },
+  "localeSwitcher": {
+    "label": "Idioma"
+  },
+  "legalDisclaimer": {
+    "text": "Esta página es una traducción asistida por máquina. La versión en inglés es el texto legalmente vinculante.",
+    "viewEnglish": "Ver la versión en inglés"
+  }
+}

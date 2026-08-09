@@ -1,0 +1,115 @@
+{
+  "hero": {
+    "eyebrow": "채널",
+    "titleLead": "당신의 오디언스에게",
+    "titleHighlight": "어디서든 다가가세요",
+    "subtitle": "한 번만 연결하면 모든 주요 플랫폼에 발행할 수 있습니다. API 차이, 글자 수 제한, 미디어 요구사항은 Markaestro가 처리하니, 당신은 메시지에만 집중하세요."
+  },
+  "stats": [
+    { "value": "6", "label": "소셜 채널", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
+    { "value": "1", "label": "대시보드", "sub": "통합된 발행 워크플로우" },
+    { "value": "0", "label": "수동 토큰", "sub": "완전한 OAuth, 완전한 자동화" }
+  ],
+  "channels": [
+    {
+      "name": "Facebook",
+      "category": "소셜",
+      "description": "세계 최대 소셜 네트워크에서 수십억 명에게 다가가세요. 페이지에 발행하고, 완전한 창작 자유도로 피드 게시물을 관리하세요.",
+      "capabilities": [
+        "리치 미디어를 포함한 페이지 피드 게시물",
+        "미리보기 카드가 포함된 링크 게시물",
+        "사진 및 동영상 발행",
+        "캐러셀 및 다중 이미지 게시물",
+        "최적의 참여를 위한 예약 발행",
+        "브랜드별 페이지 단위 타겟팅"
+      ],
+      "connection": "OAuth via Meta Business Suite"
+    },
+    {
+      "name": "Instagram",
+      "category": "소셜",
+      "description": "Markaestro에서 바로 Instagram 비즈니스 계정에 발행하세요. 피드 게시물, 캐러셀, 스토리를 각 게재 위치에 맞게 자동 포맷된 미디어로 지원합니다.",
+      "capabilities": [
+        "단일 이미지 및 동영상 피드 게시물",
+        "캐러셀 게시물 (최대 10장)",
+        "1:1, 4:5 비율로 자동 크롭",
+        "해시태그 최적화가 포함된 캡션",
+        "최적의 참여 시간대에 예약",
+        "독립 전문 계정을 위한 Instagram 로그인"
+      ],
+      "connection": "OAuth via Instagram Login or Meta Login"
+    },
+    {
+      "name": "TikTok",
+      "category": "소셜",
+      "description": "가장 빠르게 성장하는 숏폼 플랫폼에서 Z세대는 물론 그 이상의 오디언스에게 다가가세요. Markaestro는 사진과 동영상을 크리에이터의 TikTok 받은함으로 전달하고, TikTok 내에서 최종 마무리 준비가 완료되는 시점을 추적합니다.",
+      "capabilities": [
+        "동영상 및 사진 받은함 전달",
+        "TikTok 내에서 크리에이터가 마무리",
+        "TikTok 받은함으로 예약 전달",
+        "전달 후 빠른 상태 확인",
+        "Markaestro 내 상태 추적"
+      ],
+      "connection": "OAuth via TikTok for Developers"
+    },
+    {
+      "name": "LinkedIn",
+      "category": "전문직",
+      "description": "본인의 LinkedIn 프로필 또는 관리 중인 페이지에 발행하세요. 텍스트, 이미지, 동영상, 오가닉 다중 이미지 게시물은 LinkedIn 공식 API를 통해 전송됩니다.",
+      "capabilities": [
+        "텍스트 전용 게시물",
+        "단일 이미지 또는 단일 동영상 게시물",
+        "최대 20장까지의 다중 이미지 게시물",
+        "프로필 또는 관리 중인 페이지를 대상으로 지정",
+        "수동 단계 없는 프로그래매틱 발행",
+        "공유 캘린더에서 예약"
+      ],
+      "connection": "OAuth via LinkedIn"
+    },
+    {
+      "name": "Threads",
+      "category": "소셜",
+      "description": "Meta의 텍스트 중심 네트워크입니다. Markaestro는 미디어 컨테이너를 생성하고, 처리가 완료될 때까지 기다린 후 발행하므로, 업로드 속도가 느린 동영상도 조용히 실패하는 일이 없습니다.",
+      "capabilities": [
+        "텍스트 전용 게시물",
+        "단일 이미지 또는 단일 동영상 게시물",
+        "최대 20개 항목까지의 캐러셀",
+        "발행 전 컨테이너 상태 확인",
+        "수동 단계 없는 프로그래매틱 발행",
+        "공유 캘린더에서 예약"
+      ],
+      "connection": "OAuth via Threads"
+    },
+    {
+      "name": "Pinterest",
+      "category": "탐색",
+      "description": "연결 시 선택한 보드에 이미지와 동영상을 핀으로 저장하세요. 작성한 캡션이 핀 설명이 되며, 모든 발행은 공식 Pinterest API를 통해 진행됩니다.",
+      "capabilities": [
+        "이미지 핀",
+        "업로드 상태 확인이 포함된 동영상 핀",
+        "연결 시점에 보드 선택",
+        "캡션이 자동으로 핀 설명이 됨",
+        "수동 단계 없는 프로그래매틱 발행",
+        "공유 캘린더에서 예약"
+      ],
+      "connection": "OAuth via Pinterest"
+    }
+  ],
+  "capabilitiesLabel": "지원 기능",
+  "howItWorks": {
+    "eyebrow": "작동 방식",
+    "titleLead": "3단계로",
+    "titleHighlight": "연결 완료",
+    "steps": [
+      { "step": "01", "title": "연결", "desc": "원하는 채널에서 '연결'을 클릭하세요. OAuth로 승인하면, Markaestro가 토큰을 안전하게 저장하고 자동으로 갱신합니다." },
+      { "step": "02", "title": "작성", "desc": "통합 편집기에서 콘텐츠를 작성하세요. 발행 전 각 플랫폼에서 어떻게 보일지 미리 확인할 수 있습니다." },
+      { "step": "03", "title": "발행", "desc": "발행 버튼을 누르거나 나중으로 예약하세요. 포맷, 미디어 사양, 각 채널로의 API 호출은 Markaestro가 처리합니다." }
+    ]
+  },
+  "cta": {
+    "title": "2분 이내에 첫 번째 채널을 연결하세요",
+    "subtitle": "클릭하고 승인하면 바로 발행을 시작할 수 있습니다 — 개발자 설정은 필요 없습니다. 채널이 연결되면, 팀은 대시보드에서 발행하고 AI 에이전트도 API를 통해 같은 채널에 발행할 수 있습니다.",
+    "primaryButton": "무료로 시작하기",
+    "secondaryButton": "에이전트로 자동화하기"
+  }
+}

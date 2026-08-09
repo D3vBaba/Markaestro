@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { apiGet } from "@/lib/api-client";
 import { socialChannelCatalog } from "@/lib/social/channel-catalog";
 import {
@@ -120,6 +121,7 @@ export default function ChannelSelector({
   channelDestinations?: Record<string, string>;
   onChannelDestinationsChange?: (destinations: Record<string, string>) => void;
 }) {
+  const t = useTranslations("content.channelSelector");
   const [managedChannels, setManagedChannels] = useState<ChannelInfo[]>(fallbackChannels);
   const [loadedProductKey, setLoadedProductKey] = useState<string | null>(null);
   const productKey = productId ?? "";
@@ -164,7 +166,7 @@ export default function ChannelSelector({
   }
 
   function channelReason(ch: string) {
-    return managedChannels.find((item) => item.channel === ch)?.reason || "Connect this channel in brand settings.";
+    return managedChannels.find((item) => item.channel === ch)?.reason || t("defaultReason");
   }
 
   const selected = useMemo(
@@ -251,10 +253,10 @@ export default function ChannelSelector({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Channels</label>
+        <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("channels")}</label>
         {onSelectedChannelsChange && (
           <span className="text-[11px] text-muted-foreground">
-            {selected.length} selected
+            {t("selectedCount", { count: selected.length })}
           </span>
         )}
       </div>
@@ -283,7 +285,7 @@ export default function ChannelSelector({
               <span>{ch.label}</span>
               {/* Connection status dot */}
               <span
-                className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full"
+                className="absolute top-1.5 end-1.5 h-1.5 w-1.5 rounded-full"
                 style={{
                   background:
                     state === "ready"
@@ -300,7 +302,7 @@ export default function ChannelSelector({
       {channelsNeedingDestination.length > 0 && onChannelDestinationsChange && (
         <div className="space-y-2 rounded-lg border border-border/50 p-2.5">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Post to
+            {t("postTo")}
           </p>
           {channelsNeedingDestination.map((ch) => {
             const info = channels.find((item) => item.channel === ch);
@@ -333,7 +335,7 @@ export default function ChannelSelector({
         <p className="text-[11px]" style={{ color: "var(--mk-warn)" }}>
           {channelReason(value)}{" "}
           <Link href="/products" className="underline underline-offset-2 hover:opacity-80">
-            Product settings
+            {t("productSettings")}
           </Link>
         </p>
       )}
@@ -341,7 +343,7 @@ export default function ChannelSelector({
         <p className="text-[11px] text-muted-foreground">
           {channelReason(value)}{" "}
           <Link href="/products" className="underline underline-offset-2 hover:opacity-80">
-            Product settings
+            {t("productSettings")}
           </Link>
         </p>
       )}

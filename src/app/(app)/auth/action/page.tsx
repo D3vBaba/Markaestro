@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { applyActionCode, confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
 import MarketingLayout from '@/components/layout/MarketingLayout';
@@ -11,20 +12,16 @@ import { pillStyle } from '@/components/mk/pills';
 
 type Mode = 'resetPassword' | 'verifyEmail' | 'verifyAndChangeEmail' | string;
 
-function friendlyActionError(err: unknown) {
+const ACTION_ERROR_KEYS: Record<string, string> = {
+  'auth/expired-action-code': 'expiredActionCode',
+  'auth/invalid-action-code': 'invalidActionCode',
+  'auth/user-disabled': 'userDisabled',
+  'auth/weak-password': 'weakPassword',
+};
+
+function friendlyActionError(err: unknown, t: ReturnType<typeof useTranslations>) {
   const code = (err as { code?: string })?.code || '';
-  switch (code) {
-    case 'auth/expired-action-code':
-      return 'This link has expired. Please request a new email.';
-    case 'auth/invalid-action-code':
-      return 'This link is invalid or has already been used.';
-    case 'auth/user-disabled':
-      return 'This account has been disabled.';
-    case 'auth/weak-password':
-      return 'Password must be at least 6 characters.';
-    default:
-      return 'Something went wrong. Please try again.';
-  }
+  return t(`errors.${ACTION_ERROR_KEYS[code] ?? 'default'}`);
 }
 
 export default function AuthActionPage() {
@@ -36,6 +33,7 @@ export default function AuthActionPage() {
 }
 
 function AuthActionContent() {
+  const t = useTranslations('auth.authAction');
   const searchParams = useSearchParams();
   const mode = (searchParams.get('mode') || '') as Mode;
   const oobCode = searchParams.get('oobCode') || '';
@@ -64,7 +62,7 @@ function AuthActionContent() {
         } catch (err) {
           if (!cancelled) {
             setStatus('error');
-            setMessage(friendlyActionError(err));
+            setMessage(friendlyActionError(err, t));
           }
         }
         return;
@@ -76,13 +74,13 @@ function AuthActionContent() {
           if (!cancelled) {
             setStatus('success');
             setMessage(
-              mode === 'verifyEmail' ? 'Email verified successfully.' : 'Email updated successfully.',
+              mode === 'verifyEmail' ? t('emailVerifiedSuccess') : t('emailUpdatedSuccess'),
             );
           }
         } catch (err) {
           if (!cancelled) {
             setStatus('error');
-            setMessage(friendlyActionError(err));
+            setMessage(friendlyActionError(err, t));
           }
         }
         return;
@@ -90,7 +88,7 @@ function AuthActionContent() {
 
       if (!cancelled) {
         setStatus('error');
-        setMessage('Unsupported action.');
+        setMessage(t('unsupportedAction'));
       }
     };
 
@@ -98,29 +96,29 @@ function AuthActionContent() {
     return () => {
       cancelled = true;
     };
-  }, [canProceed, mode, oobCode]);
+  }, [canProceed, mode, oobCode, t]);
 
   const titleLabel =
     mode === 'resetPassword'
-      ? 'Set a new password'
+      ? t('titles.resetPassword')
       : mode === 'verifyEmail'
-        ? 'Verify your email'
+        ? t('titles.verifyEmail')
         : mode === 'verifyAndChangeEmail'
-          ? 'Confirm email change'
-          : 'Account action';
+          ? t('titles.verifyAndChangeEmail')
+          : t('titles.default');
 
   const eyebrow =
     mode === 'resetPassword'
-      ? 'Reset'
+      ? t('eyebrows.resetPassword')
       : mode === 'verifyEmail'
-        ? 'Verify'
+        ? t('eyebrows.verifyEmail')
         : mode === 'verifyAndChangeEmail'
-          ? 'Confirm'
-          : 'Account';
+          ? t('eyebrows.verifyAndChangeEmail')
+          : t('eyebrows.default');
 
   if (!canProceed) {
     return (
-      <MarketingLayout>
+      <MarketingLayout hideLocaleSwitcher>
         <div className="mx-auto w-full max-w-lg p-6 min-h-[calc(100vh-4rem)] flex items-center">
           <div
             className="w-full rounded-xl p-6 sm:p-7"
@@ -129,31 +127,31 @@ function AuthActionContent() {
               border: '1px solid var(--mk-rule)',
             }}
           >
-            <p className="mk-eyebrow">Account</p>
+            <p className="mk-eyebrow">{t('canceledFallback.eyebrow')}</p>
             <h1
               className="mt-1.5 text-[22px] sm:text-[24px] font-semibold m-0"
               style={{ color: 'var(--mk-ink)', letterSpacing: '-0.025em' }}
             >
-              Account action
+              {t('canceledFallback.title')}
             </h1>
             <p
               className="mt-1.5 text-[13px]"
               style={{ color: 'var(--mk-ink-60)' }}
             >
-              We could not complete this link.
+              {t('canceledFallback.subtitle')}
             </p>
             <p
               className="mt-5 rounded-lg px-3.5 py-2.5 text-[12px]"
               style={pillStyle('neg')}
             >
-              Missing or invalid action parameters.
+              {t('canceledFallback.message')}
             </p>
             <a
               className="mt-4 block text-center text-[12px] font-medium hover:underline"
               style={{ color: 'var(--mk-accent)' }}
               href="/login"
             >
-              Back to sign in
+              {t('canceledFallback.backToSignIn')}
             </a>
           </div>
         </div>
@@ -162,7 +160,7 @@ function AuthActionContent() {
   }
 
   return (
-    <MarketingLayout>
+    <MarketingLayout hideLocaleSwitcher>
       <div className="mx-auto w-full max-w-lg p-6 min-h-[calc(100vh-4rem)] flex items-center">
         <div
           className="w-full rounded-xl p-6 sm:p-7"
@@ -183,8 +181,8 @@ function AuthActionContent() {
             style={{ color: 'var(--mk-ink-60)' }}
           >
             {mode === 'resetPassword'
-              ? 'Choose a new password for your account.'
-              : 'Complete the requested action.'}
+              ? t('subtitles.resetPassword')
+              : t('subtitles.default')}
           </p>
 
           <div className="mt-5 flex flex-col gap-3">
@@ -193,7 +191,7 @@ function AuthActionContent() {
                 className="rounded-lg px-3.5 py-2.5 text-[12px]"
                 style={pillStyle('neg')}
               >
-                {message || 'Something went wrong.'}
+                {message || t('genericError')}
               </p>
             )}
             {status === 'success' && (
@@ -201,7 +199,7 @@ function AuthActionContent() {
                 className="rounded-lg px-3.5 py-2.5 text-[12px]"
                 style={pillStyle('pos')}
               >
-                {message || 'Done.'}
+                {message || t('genericSuccess')}
               </p>
             )}
 
@@ -212,19 +210,19 @@ function AuthActionContent() {
                     className="text-[12px]"
                     style={{ color: 'var(--mk-ink-60)' }}
                   >
-                    Resetting password for{' '}
-                    <span
-                      className="font-medium"
-                      style={{ color: 'var(--mk-ink)' }}
-                    >
-                      {emailForReset}
-                    </span>
+                    {t.rich('resettingPasswordFor', {
+                      email: () => (
+                        <span className="font-medium" style={{ color: 'var(--mk-ink)' }}>
+                          {emailForReset}
+                        </span>
+                      ),
+                    })}
                   </p>
                 )}
                 <Input
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="New password"
+                  placeholder={t('newPasswordPlaceholder')}
                   type="password"
                   className="h-11 rounded-lg text-[13.5px]"
                   disabled={status === 'working' || status === 'success'}
@@ -238,21 +236,21 @@ function AuthActionContent() {
                       setMessage('');
                       await confirmPasswordReset(auth, oobCode, password);
                       setStatus('success');
-                      setMessage('Password updated successfully. You can now sign in.');
+                      setMessage(t('passwordUpdatedSuccess'));
                     } catch (err) {
                       setStatus('error');
-                      setMessage(friendlyActionError(err));
+                      setMessage(friendlyActionError(err, t));
                     }
                   }}
                 >
-                  {status === 'working' ? 'Updating…' : 'Update password'}
+                  {status === 'working' ? t('updating') : t('updatePassword')}
                 </Button>
                 <a
                   className="block text-center text-[12px] font-medium hover:underline"
                   style={{ color: 'var(--mk-accent)' }}
                   href="/login"
                 >
-                  Back to sign in
+                  {t('backToSignIn')}
                 </a>
               </div>
             ) : (
@@ -262,7 +260,7 @@ function AuthActionContent() {
                     className="text-[12px]"
                     style={{ color: 'var(--mk-ink-60)' }}
                   >
-                    Working…
+                    {t('working')}
                   </p>
                 )}
                 <a
@@ -270,7 +268,7 @@ function AuthActionContent() {
                   style={{ color: 'var(--mk-accent)' }}
                   href={continueUrl.startsWith('/') ? continueUrl : '/login'}
                 >
-                  Continue
+                  {t('continue')}
                 </a>
               </div>
             )}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { MailWarning } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider";
@@ -19,6 +20,8 @@ const RESEND_COOLDOWN_S = 60;
  */
 export function VerifyEmailBanner() {
   const { user, requestSignInCode, signInWithCode } = useAuth();
+  const t = useTranslations("shell.verifyEmailBanner");
+  const tAuthErrors = useTranslations("appCommon.authErrors");
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
@@ -42,7 +45,7 @@ export function VerifyEmailBanner() {
     setSending(true);
     try {
       await requestSignInCode(email);
-      toast.success("Code sent — check your inbox and spam folder.");
+      toast.success(t("codeSent"));
       setCodeSent(true);
       setCooldownLeft(RESEND_COOLDOWN_S);
     } catch (e: unknown) {
@@ -50,7 +53,7 @@ export function VerifyEmailBanner() {
         setCodeSent(true);
         setCooldownLeft(RESEND_COOLDOWN_S);
       } else {
-        toast.error("Could not send right now. Try again in a minute.");
+        toast.error(t("sendError"));
       }
     } finally {
       setSending(false);
@@ -64,9 +67,9 @@ export function VerifyEmailBanner() {
       // Confirming the code marks the email verified server-side and refreshes
       // the session, so `user.emailVerified` flips and the banner unmounts.
       await signInWithCode(email, code);
-      toast.success("Email verified — you're all set.");
+      toast.success(t("verified"));
     } catch (e: unknown) {
-      toast.error(friendlyAuthError(e));
+      toast.error(friendlyAuthError(e, tAuthErrors));
     } finally {
       setVerifying(false);
     }
@@ -84,10 +87,14 @@ export function VerifyEmailBanner() {
       <div className="flex items-center gap-2 min-w-0">
         <MailWarning className="h-3.5 w-3.5 shrink-0" />
         <span className="font-medium min-w-0">
-          Verify your email to publish
+          {t("prompt")}
           {email && codeSent ? (
             <>
-              {" "}— enter the code we sent to <span className="font-semibold break-all">{email}</span>
+              {" "}
+              {t.rich("promptWithCode", {
+                email,
+                emailTag: (chunks) => <span className="font-semibold break-all">{chunks}</span>,
+              })}
             </>
           ) : null}
         </span>
@@ -112,7 +119,7 @@ export function VerifyEmailBanner() {
             onClick={handleVerify}
             disabled={verifying || code.length < 6}
           >
-            {verifying ? "Verifying…" : "Verify"}
+            {verifying ? t("verifying") : t("verify")}
           </Button>
         )}
         <Button
@@ -123,12 +130,12 @@ export function VerifyEmailBanner() {
           disabled={sending || cooldownLeft > 0}
         >
           {sending
-            ? "Sending…"
+            ? t("sending")
             : cooldownLeft > 0
-              ? `Resend (${cooldownLeft}s)`
+              ? t("resendCountdown", { seconds: cooldownLeft })
               : codeSent
-                ? "Resend code"
-                : "Send code"}
+                ? t("resendCode")
+                : t("sendCode")}
         </Button>
       </div>
     </div>

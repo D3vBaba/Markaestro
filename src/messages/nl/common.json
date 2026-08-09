@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "features": "Functies",
+    "channels": "Kanalen",
+    "aiAgents": "AI-agents",
+    "api": "API",
+    "pricing": "Prijzen",
+    "contact": "Contact",
+    "dashboard": "Dashboard",
+    "signIn": "Inloggen",
+    "getStarted": "Aan de slag"
+  },
+  "footer": {
+    "tagline": "Het marketingplatform voor elk merk dat je runt — je eigen bedrijf, je klanten, of jezelf.",
+    "productHeading": "Product",
+    "developersHeading": "Ontwikkelaars",
+    "companyHeading": "Bedrijf",
+    "getStartedHeading": "Aan de slag",
+    "features": "Functies",
+    "channels": "Kanalen",
+    "pricing": "Prijzen",
+    "aiAgents": "AI-agents",
+    "apiReference": "API-referentie",
+    "agentBrief": "Agent-samenvatting (llms.txt)",
+    "contact": "Contact",
+    "termsOfService": "Gebruiksvoorwaarden",
+    "privacyPolicy": "Privacybeleid",
+    "signIn": "Inloggen",
+    "createAccount": "Account aanmaken",
+    "copyright": "© {year} Markaestro. Alle rechten voorbehouden.",
+    "terms": "Voorwaarden",
+    "privacy": "Privacy"
+  },
+  "copyBlock": {
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "copyAriaLabel": "Kopiëren naar klembord",
+    "copiedAriaLabel": "Gekopieerd"
+  },
+  "localeSwitcher": {
+    "label": "Taal"
+  },
+  "legalDisclaimer": {
+    "text": "Deze pagina is een machinaal ondersteunde vertaling. De Engelse versie is de juridisch bindende tekst.",
+    "viewEnglish": "Bekijk de Engelse versie"
+  }
+}

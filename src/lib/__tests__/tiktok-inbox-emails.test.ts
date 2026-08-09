@@ -16,12 +16,18 @@ vi.mock('@/lib/firebase-admin', () => ({
   },
 }));
 
-vi.mock('@/lib/auth-emails', () => ({
-  BRAND: { ink: '#000', muted: '#666', border: '#eee', accent: '#00f', panelBg: '#fafafa' },
-  brandWrap: ({ bodyHtml }: { bodyHtml: string }) => `<html>${bodyHtml}</html>`,
-  escapeHtml: (value: string) => value,
-  getBaseUrl: () => 'https://markaestro.com',
-}));
+vi.mock('@/lib/auth-emails', async () => {
+  const { createTranslator } = await import('next-intl');
+  const messages = (await import('@/messages/en/emails.json')).default;
+  return {
+    BRAND: { ink: '#000', muted: '#666', border: '#eee', accent: '#00f', panelBg: '#fafafa' },
+    brandWrap: ({ bodyHtml }: { bodyHtml: string }) => `<html>${bodyHtml}</html>`,
+    escapeHtml: (value: string) => value,
+    getBaseUrl: () => 'https://markaestro.com',
+    getEmailTranslator: async () => createTranslator({ locale: 'en', messages }),
+    strongTag: { strong: (chunks: string) => `<strong>${chunks}</strong>` },
+  };
+});
 
 function member(email: string) {
   return { data: () => ({ email }) };
@@ -37,7 +43,7 @@ describe('TikTok inbox email', () => {
 
   it('tells the creator the post is not live and how to finish it', async () => {
     const { tiktokInboxEmail } = await import('@/lib/tiktok-inbox-emails');
-    const payload = tiktokInboxEmail({ brandName: 'EyeCash', caption: 'Track every receipt' });
+    const payload = await tiktokInboxEmail({ brandName: 'EyeCash', caption: 'Track every receipt', locale: 'en' });
 
     expect(payload.subject).toBe('Finish your TikTok post for EyeCash');
     // The whole point of the mail: it is NOT published yet.

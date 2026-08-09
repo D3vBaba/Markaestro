@@ -4,6 +4,7 @@ import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { createOtp } from '@/lib/auth-otp';
 import { signInCodeEmail } from '@/lib/auth-emails';
 import { sendResendEmail } from '@/lib/resend';
+import { pickLocaleFromAcceptLanguage } from '@/i18n/routing';
 
 export const runtime = 'nodejs';
 
@@ -24,7 +25,11 @@ export async function POST(req: Request) {
     const email = body.email.trim().toLowerCase();
 
     const code = await createOtp('sign-in', email);
-    const tpl = signInCodeEmail({ code, email });
+    // Pre-auth: there's no uid yet (the account may not even exist), so
+    // there's no member doc to read a stored locale from — fall back to
+    // the browser's own Accept-Language.
+    const locale = pickLocaleFromAcceptLanguage(req.headers.get('accept-language'));
+    const tpl = await signInCodeEmail({ code, email, locale });
     await sendResendEmail({ to: email, subject: tpl.subject, html: tpl.html, text: tpl.text });
 
     const resp = apiOk({ ok: true });

@@ -1,0 +1,316 @@
+{
+  "questionCounter": "질문 {current} / {total}",
+  "signOut": "로그아웃",
+  "signIn": "로그인",
+  "back": "← 뒤로",
+  "continue": "계속",
+  "skipForNow": "나중에 하기",
+  "takes2Minutes": "2분 소요 · 카드 필요 없음",
+  "quiz": {
+    "marketing": {
+      "eyebrow": "함께 성장 엔진을 만들어봐요",
+      "title": "무엇을 마케팅하고 있나요?",
+      "subtitle": "Markaestro는 당신이 키우고 있는 무엇이든 맞춰 드립니다.",
+      "options": {
+        "product": { "label": "앱 또는 제품", "desc": "소프트웨어, 이커머스, 또는 직접 만든 무언가" },
+        "business": { "label": "비즈니스", "desc": "회사, 매장, 또는 지역 서비스" },
+        "personal": { "label": "나 자신", "desc": "오직 나만의 퍼스널 브랜드나 오디언스" },
+        "clients": { "label": "클라이언트", "desc": "다른 사람을 위해 관리하는 브랜드" }
+      }
+    },
+    "role": {
+      "eyebrow": "당신의 역할",
+      "title": "당신의 역할은 무엇인가요?",
+      "subtitle": "실제 업무 방식에 맞게 모든 것을 조정해 드립니다.",
+      "options": {
+        "founder": { "label": "창업자 / CEO", "desc": "마케팅을 포함해 모든 역할을 도맡고 있음" },
+        "marketer": { "label": "마케터", "desc": "모든 채널의 콘텐츠를 담당" },
+        "agency": { "label": "에이전시 / 프리랜서", "desc": "여러 클라이언트의 게시물을 동시에 처리" },
+        "creator": { "label": "콘텐츠 크리에이터", "desc": "오직 나만의 오디언스를 키우는 중" }
+      }
+    },
+    "teamSize": {
+      "eyebrow": "당신의 팀",
+      "title": "게시물은 누가 담당하고 있나요?",
+      "options": {
+        "solo": { "label": "저 혼자", "desc": "솔직히 말하면, 일이 정말 많아요" },
+        "small": { "label": "2~5명", "desc": "소규모 팀, 여러 역할 겸임" },
+        "medium": { "label": "6~20명", "desc": "협업이 점점 복잡해지고 있음" },
+        "large": { "label": "20명 이상", "desc": "모두를 일관되게 유지하기 어려움" }
+      }
+    },
+    "goal": {
+      "eyebrow": "미션",
+      "title": "진짜로 원하는 것은 무엇인가요?",
+      "subtitle": "이 답변이 당신의 설정과 추천 요금제를 결정합니다.",
+      "options": {
+        "social": { "label": "팔로워 늘리기", "desc": "더 넓은 도달, 더 많은 참여" },
+        "sales": { "label": "매출 늘리기", "desc": "게시물을 매출 파이프라인으로" },
+        "time": { "label": "시간 되찾기", "desc": "콘텐츠에 파묻히는 걸 멈추기" }
+      }
+    },
+    "channels": {
+      "eyebrow": "당신의 단계",
+      "title": "당신의 오디언스는 어디에 있나요?",
+      "subtitle": "해당하는 모든 항목을 선택하세요 — 클릭 한 번으로 각 채널에 게시할 수 있습니다.",
+      "options": {
+        "instagram": { "label": "Instagram" },
+        "facebook": { "label": "Facebook" },
+        "tiktok": { "label": "TikTok" },
+        "threads": { "label": "Threads" },
+        "pinterest": { "label": "Pinterest" },
+        "linkedin": { "label": "LinkedIn" }
+      }
+    },
+    "postingToday": {
+      "eyebrow": "솔직하게 답해주세요",
+      "title": "지금은 어떻게 게시하고 있나요?",
+      "subtitle": "많은 팀이 이 부분이 가장 힘들다고 말합니다.",
+      "options": {
+        "manual": { "label": "각 앱에서 수동으로", "desc": "여기저기 하나씩 로그인" },
+        "spreadsheet": { "label": "스프레드시트와 리마인더", "desc": "포스트잇과 희망" },
+        "tool": { "label": "다른 예약 게시 도구", "desc": "조용히 감당이 안 되기 시작한 도구" },
+        "starting": { "label": "거의 게시하지 않음", "desc": "아직 제대로 된 체계가 없음" }
+      }
+    },
+    "frequency": {
+      "eyebrow": "원하는 게시 빈도",
+      "title": "얼마나 자주 노출되고 싶나요?",
+      "subtitle": "자동으로 일정에 맞춰 유지해 드립니다.",
+      "options": {
+        "daily": { "label": "매일", "desc": "꾸준히 존재감 유지" },
+        "few": { "label": "주 몇 회", "desc": "꾸준함이 결국 이깁니다" },
+        "weekly": { "label": "주 1회 정도", "desc": "소음보다 품질" },
+        "unsure": { "label": "아직 잘 모르겠음", "desc": "실제로 효과적인 방법을 알려주세요" }
+      }
+    },
+    "challenge": {
+      "eyebrow": "진짜 문제",
+      "title": "무엇이 계속 발목을 잡나요?",
+      "subtitle": "이것이 바로 저희가 해결해 드릴 부분입니다.",
+      "options": {
+        "consistency": { "label": "꾸준함 유지하기", "desc": "처음엔 열심히 하다가 금세 조용해짐" },
+        "time": { "label": "시간 확보하기", "desc": "시간은 늘 부족함" },
+        "ideas": { "label": "콘텐츠 아이디어 떠올리기", "desc": "아이디어가 계속 바닥남" },
+        "juggling": { "label": "여러 채널 동시에 관리하기", "desc": "따라가기엔 플랫폼이 너무 많음" }
+      }
+    },
+    "contentTypes": {
+      "eyebrow": "당신의 목소리",
+      "title": "무엇을 게시하고 싶나요?",
+      "subtitle": "해당하는 모든 항목을 선택하세요 — 캘린더 채우는 것을 도와드릴게요.",
+      "options": {
+        "product": { "label": "제품 및 프로모션" },
+        "educational": { "label": "팁 및 정보" },
+        "bts": { "label": "비하인드 스토리" },
+        "news": { "label": "소식 및 업데이트" }
+      }
+    },
+    "hoursPerWeek": {
+      "eyebrow": "숨겨진 비용",
+      "title": "일주일에 몇 시간이 여기에 사라지나요?",
+      "subtitle": "솔직하게 — 체감보다 거의 항상 더 많습니다.",
+      "options": {
+        "lt2": { "label": "2시간 미만" },
+        "2to5": { "label": "2~5시간" },
+        "5to10": { "label": "5~10시간" },
+        "gt10": { "label": "10시간 이상" }
+      }
+    },
+    "success": {
+      "eyebrow": "90일 후",
+      "title": "무엇이 이루어지면 가치가 있다고 느낄까요?",
+      "subtitle": "당신의 전체 설정을 이 결과에 맞춰 드립니다.",
+      "options": {
+        "followers": { "label": "더 크고 활발한 오디언스", "desc": "누적되는 도달력" },
+        "sales": { "label": "매출로 이어지는 콘텐츠", "desc": "실제로 전환되는 게시물" },
+        "timeback": { "label": "저녁과 주말 되찾기", "desc": "매주 돌려받는 시간" },
+        "consistency": { "label": "다시는 잠잠해지지 않기", "desc": "믿고 의지할 수 있는 존재감" }
+      }
+    }
+  },
+  "challengeCopy": {
+    "consistency": {
+      "short": "꾸준함 유지하기",
+      "headline": "다시는 조용해지지 않을 거예요",
+      "line": "한 번에 몇 주 분량의 게시물을 예약하세요 — Markaestro가 매번 제시간에 게시해 침묵을 끝냅니다."
+    },
+    "time": {
+      "short": "시간 확보하기",
+      "headline": "그 시간을 되찾아 드릴게요",
+      "line": "한 번 작성하고 어디에나 게시하며 미리 예약하세요. 복사-붙여넣기와 로그인 반복 작업이 그냥 사라집니다."
+    },
+    "ideas": {
+      "short": "콘텐츠 아이디어 떠올리기",
+      "headline": "캘린더가 텅 비는 일은 없을 거예요",
+      "line": "하나의 아이디어를 모든 채널을 위한 일주일치 게시물로 바꿔 드립니다 — 더 이상 빈 화면을 멍하니 바라볼 일이 없습니다."
+    },
+    "juggling": {
+      "short": "여러 채널 동시에 관리하기",
+      "headline": "모든 채널을 한곳에서",
+      "line": "한 번 작성하고 하나의 화면에서 모든 플랫폼에 게시하세요 — 더 이상 탭을 이리저리 오가거나 게시물을 놓칠 일이 없습니다."
+    }
+  },
+  "marketingCopy": {
+    "product": {
+      "eyebrow": "당신의 제품",
+      "title": "마케팅할 제품을 추가하세요",
+      "sub": "웹사이트를 스캔해 세부 정보를 자동으로 채우거나, 직접 입력하거나, 지금은 건너뛰세요 — 언제든 나중에 할 수 있습니다."
+    },
+    "business": {
+      "eyebrow": "당신의 비즈니스",
+      "title": "마케팅할 비즈니스를 추가하세요",
+      "sub": "웹사이트를 스캔해 세부 정보를 자동으로 채우거나, 직접 입력하거나, 지금은 건너뛰세요 — 언제든 나중에 할 수 있습니다."
+    },
+    "personal": {
+      "eyebrow": "당신의 브랜드",
+      "title": "퍼스널 브랜드를 설정하세요",
+      "sub": "웹사이트나 포트폴리오가 있나요? 스캔하면 자동으로 채워드립니다. 사이트가 없다면 직접 입력하세요 — 1분이면 충분합니다."
+    },
+    "clients": {
+      "eyebrow": "첫 번째 클라이언트",
+      "title": "첫 번째 클라이언트의 브랜드를 추가하세요",
+      "sub": "먼저 클라이언트 한 명으로 시작하세요 — 웹사이트를 스캔해 자동으로 채우거나 직접 입력하세요. 브랜드는 언제든 추가할 수 있습니다."
+    },
+    "fallback": {
+      "eyebrow": "당신의 브랜드",
+      "title": "마케팅할 브랜드를 추가하세요",
+      "sub": "웹사이트를 스캔해 세부 정보를 자동으로 채우거나, 직접 입력하거나, 지금은 건너뛰세요 — 언제든 나중에 할 수 있습니다."
+    }
+  },
+  "socialProviders": {
+    "meta": {
+      "label": "Meta",
+      "fullLabel": "Meta (Facebook + Instagram)",
+      "description": "Facebook과 Instagram 연결",
+      "note": "페이지, 릴스, 피드 게시물, 스토리"
+    }
+  },
+  "footer": {
+    "tagline": "현대적인 팀을 위한 프리미엄 마케팅 자동화 플랫폼.",
+    "product": "제품",
+    "features": "기능",
+    "channels": "채널",
+    "pricing": "요금제",
+    "company": "회사 소개",
+    "contact": "문의하기",
+    "termsOfService": "이용약관",
+    "privacyPolicy": "개인정보 처리방침",
+    "getStarted": "시작하기",
+    "signIn": "로그인",
+    "createAccount": "계정 만들기",
+    "copyright": "© {year} Markaestro. 모든 권리 보유.",
+    "terms": "약관",
+    "privacy": "개인정보"
+  },
+  "register": {
+    "yourPlanIsReady": "요금제가 준비되었습니다",
+    "titleEmail": "요금제를 저장하고 시간을 되찾으세요",
+    "titleCode": "받은 편지함을 확인하세요",
+    "subtitleEmail": "비밀번호가 필요 없습니다 — 이메일을 입력하면 일회용 코드를 보내드립니다. 이미 계정이 있으신가요? 동일한 코드로 로그인할 수 있습니다.",
+    "subtitleCode": "{email}(으)로 6자리 코드를 보냈습니다.",
+    "waitingInWorkspace": "워크스페이스에서 대기 중",
+    "recap": {
+      "channelsReady": "클릭 한 번으로 게시할 준비가 된 채널 {count}개",
+      "everyChannel": "모든 채널을 한곳에서 게시",
+      "postsScheduled": "게시물이 {frequency} 자동으로 예약됩니다",
+      "hoursBack": "캘린더에 매주 약 {hours}시간이 다시 확보됩니다",
+      "onSteadyCadence": "꾸준한 리듬으로"
+    },
+    "emailPlaceholder": "name@company.com",
+    "codePlaceholder": "123456",
+    "sendingCode": "코드 전송 중…",
+    "claimPlan": "무료로 내 요금제 받기",
+    "verifying": "확인 중…",
+    "continueBtn": "계속",
+    "useDifferentEmail": "← 다른 이메일 사용",
+    "resendIn": "{seconds}초 후 재전송 가능",
+    "resendCode": "코드 재전송",
+    "freeTrialNote": "무료로 시작 · 14일 무료 체험 · 언제든지 취소 가능",
+    "orContinueWith": "또는 다음으로 계속하기",
+    "continueWithGoogle": "Google로 계속하기",
+    "agreeTermsPrefix": "계속 진행하면 당사의",
+    "and": "및",
+    "terms": "약관",
+    "privacyPolicy": "개인정보 처리방침",
+    "errors": {
+      "enterEmail": "계속하려면 이메일을 입력하세요.",
+      "enterCode": "이메일로 받은 6자리 코드를 입력하세요."
+    }
+  },
+  "product": {
+    "scanWebsite": "웹사이트 스캔",
+    "enterManually": "직접 입력",
+    "websiteUrl": "웹사이트 URL",
+    "urlPlaceholder": "yourbrand.com",
+    "scanning": "스캔 중…",
+    "rescan": "다시 스캔",
+    "scan": "스캔",
+    "scanHelp": "사이트를 읽어 이름, 설명, 로고, 브랜드 색상을 자동으로 채워 드립니다.",
+    "autoDetected": "자동 감지됨",
+    "brandName": "브랜드 이름",
+    "description": "설명",
+    "targetAudience": "타겟 고객",
+    "targetAudiencePlaceholder": "예: B2B SaaS 창업자",
+    "brandTone": "브랜드 톤",
+    "brandTonePlaceholder": "예: 대담함, 직설적",
+    "brandColorDetected": "감지된 브랜드 색상:",
+    "manualBrandNamePlaceholder": "예: Acme CRM",
+    "whatDoesItDo": "어떤 서비스인가요?",
+    "optional": "(선택 사항)",
+    "manualDescPlaceholder": "이 브랜드와 대상 고객을 설명해 주세요...",
+    "saving": "저장 중…",
+    "couldntSaveBrand": "브랜드를 저장하지 못했습니다 — 나중에 대시보드에서 추가할 수 있습니다."
+  },
+  "socials": {
+    "connectYourAccounts": "계정 연결하기",
+    "addSocialAccounts": "소셜 계정 추가",
+    "subtitle": "게시하고 싶은 플랫폼을 연결하세요. 나중에 설정에서 언제든지 추가하거나 변경할 수 있습니다.",
+    "connected": "연결됨",
+    "connect": "연결",
+    "redirecting": "리디렉션 중…",
+    "otherChannelsNote": "TikTok, Threads, Pinterest는 대시보드에서 브랜드별로 연결할 수 있습니다.",
+    "skipAndContinue": "건너뛰고 계속하기",
+    "couldNotInitiate": "연결을 시작할 수 없습니다. 다시 시도해 주세요.",
+    "connectedToast": "{label} 연결됨",
+    "connectFailedToast": "{provider} 연결 실패"
+  },
+  "generating": {
+    "title": "워크플로 구축 중",
+    "subtitle": "당신이 해결하고 싶었던 문제인 {challenge}을(를) 중심으로 채널과 게시 계획을 설정하고 있습니다.",
+    "takesAMoment": "잠시만 기다려 주세요"
+  },
+  "paywall": {
+    "youllGetBackPrefix": "약",
+    "hoursAWeek": "시간／주를 되찾게 됩니다",
+    "startTrialSuffix": "{days}일 무료 체험을 시작하고 게시 기능과 그 밖에 만드는 모든 것을 이용해 보세요.",
+    "firstPostReady": "첫 게시물이 대시보드 안에 준비되어 있습니다.",
+    "subscribeToPublish": "구독하면 게시할 수 있습니다",
+    "postReadyOneStepAway": "게시물이 준비되었습니다 — 한 단계만 남았습니다",
+    "justNow": "방금 전",
+    "like": "좋아요",
+    "comment": "댓글",
+    "share": "공유",
+    "recommendedForYou": "당신을 위한 추천",
+    "basedOnAnswers": "답변을 기반으로 함",
+    "monthly": "월간",
+    "annual": "연간",
+    "saveAnnual": "— 17% 절약",
+    "saveAnnualShort": "· −17%",
+    "selected": "선택됨",
+    "perMonth": "/월",
+    "perMonthShort": "/월",
+    "trialAllPlans": "모든 요금제 {days}일 무료 체험 · {dayAfter}일째까지 요금 청구 없음",
+    "trialEndsOn": "체험은 {date}에 종료되며, 이후 카드에서 ${price}/월{billedAnnually}이 청구됩니다. 그 전에 언제든지 취소하면 요금이 청구되지 않습니다.",
+    "billedAnnually": ", 연간 결제",
+    "annualSavingsNote": "연간 결제 시 월간 결제 대비 17% 절약됩니다",
+    "settingUp": "설정 중…",
+    "startTrialButton": "{days}일 무료 체험 시작 — {plan}",
+    "cardRequired": "카드 등록 필요 · 체험 종료 전 언제든지 취소 가능"
+  },
+  "success": {
+    "allSet": "모든 준비 완료",
+    "readyToLaunch": "이제 시작할 준비가 되었습니다.",
+    "settingUpAccount": "계정 설정이 완료되었습니다. 대시보드로 이동 중입니다…"
+  }
+}

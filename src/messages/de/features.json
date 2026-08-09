@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "eyebrow": "Plattform",
+    "titleLead": "Alles, was du brauchst, um zu",
+    "titleHighlight": "wachsen",
+    "subtitle": "Vom ersten Entwurf bis zum veröffentlichten Beitrag übernimmt Markaestro jeden Schritt deines Social-Workflows. Eine Plattform, null Kontextwechsel."
+  },
+  "coreFeatures": [
+    {
+      "title": "Multichannel-Veröffentlichung",
+      "description": "Einmal verfassen, überall veröffentlichen. Schreibe einen Beitrag und passe ihn mit einem Klick für Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest an. Plane für den optimalen Zeitpunkt oder veröffentliche sofort.",
+      "details": [
+        "Einheitlicher Editor mit Vorschau pro Kanal",
+        "Medienverwaltung per Drag & Drop",
+        "Massenplanung für Content-Kalender",
+        "Automatische Größenanpassung von Bildern an Plattformvorgaben"
+      ]
+    },
+    {
+      "title": "Medien-Upload & Bibliothek",
+      "description": "Bring deine eigene Fotografie, Videos und Markenmaterialien mit. Markaestro speichert sie pro Arbeitsbereich und fügt sie Beiträgen mit einem einzigen Zug hinzu.",
+      "details": [
+        "Unterstützt JPG, PNG, WebP, MP4, MOV und WebM",
+        "Bis zu 250 MB pro Video, 10 MB pro Bild",
+        "Formatprüfung pro Kanal vor der Veröffentlichung",
+        "Hochgeladene Inhalte in mehreren Beiträgen wiederverwenden"
+      ]
+    },
+    {
+      "title": "Multichannel-Vorschauen",
+      "description": "Sieh dir an, wie jeder Beitrag auf jedem Netzwerk aussehen wird, bevor du veröffentlichst — Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest haben jeweils eine eigene Vorschau. Texte, Seitenverhältnisse, Zeichenlimits und Medienspezifikationen werden live dargestellt.",
+      "details": [
+        "Pixelgenaue Vorschauen pro Plattform",
+        "Live-Zeichenzähler für Texte",
+        "Hinweise zum Seitenverhältnis pro Kanal",
+        "Formatierungsprobleme erkennen, bevor sie live gehen"
+      ]
+    },
+    {
+      "title": "Veröffentlichungs-Dashboard",
+      "description": "Sieh jeden Entwurf, geplanten Beitrag und Veröffentlichungsstatus in einer einzigen Arbeitsbereichsansicht, ohne zwischen Plattformen zu wechseln.",
+      "details": [
+        "Warteschlangen für Entwürfe, geplante und veröffentlichte Beiträge",
+        "Veröffentlichungsstatus pro Kanal",
+        "Wiederholungs-Workflow für fehlgeschlagene Beiträge",
+        "Inhaltsübersicht auf Arbeitsbereichsebene"
+      ]
+    },
+    {
+      "title": "OAuth-Integrationen",
+      "description": "Verbinde deine Konten mit einem Klick über branchenüblichen OAuth-Standard. Keine manuellen API-Schlüssel, kein Token-Jonglieren. Markaestro speichert und erneuert Zugangsdaten sicher für dich.",
+      "details": [
+        "Ein-Klick-Verbindung für Meta, TikTok, LinkedIn, Threads und Pinterest",
+        "Verschlüsselte Token-Speicherung im Ruhezustand",
+        "Automatische Token-Erneuerung",
+        "Granulares Trennen pro Plattform"
+      ]
+    },
+    {
+      "title": "API & KI-Agenten",
+      "description": "Alles, was das Dashboard kann, kann deine Software auch. Erstelle einen API-Schlüssel, gib ihn an einen KI-Agenten oder ein Skript weiter und lass ihn Konten entdecken, Inhalte hochladen, Beiträge planen, veröffentlichen und zurückmelden — in jedem Tarif, ohne Aufpreis.",
+      "details": [
+        "Schlüssel auf eine einzelne Marke beschränkt, mit optionalem Ablaufdatum",
+        "Idempotente Schreibvorgänge, sodass ein Wiederholungsversuch nie doppelt postet",
+        "Asynchrone Veröffentlichungsläufe plus HMAC-signierte Webhooks",
+        "Grundsätzlich manuell bei Meta und TikTok — ein Mensch postet weiterhin"
+      ],
+      "codeLabel": "plane einen Beitrag von allem, was HTTP spricht",
+      "agentGuideLink": "KI-Agenten-Leitfaden lesen →"
+    }
+  ],
+  "platformFeatures": [
+    {
+      "title": "Arbeitsbereichsverwaltung",
+      "description": "Organisiere die Marken, die du betreust — Kunden, Geschäftsbereiche oder eigene Projekte — in isolierten Arbeitsbereichen. Jeder Arbeitsbereich hat eigene Marken, Integrationen und Teammitglieder."
+    },
+    {
+      "title": "Planung & Kalender",
+      "description": "Reihe Beiträge in einem einheitlichen Kalender über alle deine Kanäle ein. Verschiebe per Drag & Drop, dupliziere Beiträge mit einem Klick und behalte den Überblick, was wann veröffentlicht wird."
+    },
+    {
+      "title": "Rollenbasierter Zugriff",
+      "description": "Steuere mit drei Rollenstufen, wer veröffentlichen, bearbeiten oder nur ansehen darf: Inhaber, Administrator und Mitglied. Halte sensible Einstellungen geschützt, während dein Team schnell vorankommt."
+    }
+  ],
+  "platformSection": {
+    "eyebrow": "Plattform",
+    "titleLead": "Entwickelt für alle, die",
+    "titleHighlight": "veröffentlichen",
+    "subtitle": "Über die Kernwerkzeuge hinaus bietet dir Markaestro die Infrastruktur zum Skalieren — von einer einzelnen Marke bis zu einem vollständigen Kundenportfolio."
+  },
+  "cta": {
+    "title": "Bereit, es in Aktion zu sehen?",
+    "subtitle": "Starte kostenlos. Keine Kreditkarte erforderlich. Verbinde deinen ersten Kanal in unter zwei Minuten.",
+    "primaryButton": "Kostenlos loslegen",
+    "secondaryButton": "Vertrieb kontaktieren"
+  }
+}

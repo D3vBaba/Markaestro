@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "features": "기능",
+    "channels": "채널",
+    "aiAgents": "AI 에이전트",
+    "api": "API",
+    "pricing": "요금제",
+    "contact": "문의하기",
+    "dashboard": "대시보드",
+    "signIn": "로그인",
+    "getStarted": "시작하기"
+  },
+  "footer": {
+    "tagline": "당신이 운영하는 모든 브랜드를 위한 마케팅 플랫폼 — 당신의 비즈니스든, 고객사든, 혹은 당신 자신이든.",
+    "productHeading": "제품",
+    "developersHeading": "개발자",
+    "companyHeading": "회사",
+    "getStartedHeading": "시작하기",
+    "features": "기능",
+    "channels": "채널",
+    "pricing": "요금제",
+    "aiAgents": "AI 에이전트",
+    "apiReference": "API 레퍼런스",
+    "agentBrief": "에이전트 브리프 (llms.txt)",
+    "contact": "문의하기",
+    "termsOfService": "서비스 이용약관",
+    "privacyPolicy": "개인정보 처리방침",
+    "signIn": "로그인",
+    "createAccount": "계정 만들기",
+    "copyright": "© {year} Markaestro. 모든 권리 보유.",
+    "terms": "이용약관",
+    "privacy": "개인정보"
+  },
+  "copyBlock": {
+    "copy": "복사",
+    "copied": "복사됨",
+    "copyAriaLabel": "클립보드에 복사",
+    "copiedAriaLabel": "복사됨"
+  },
+  "localeSwitcher": {
+    "label": "언어"
+  },
+  "legalDisclaimer": {
+    "text": "이 페이지는 기계 번역의 도움을 받아 작성되었습니다. 법적으로 유효한 문서는 영어 버전입니다.",
+    "viewEnglish": "영어 버전 보기"
+  }
+}

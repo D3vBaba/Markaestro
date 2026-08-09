@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Textarea } from "@/components/ui/textarea";
 import {
   getSocialChannelConfig,
@@ -20,6 +21,7 @@ export default function ContentEditor({
   channels?: string[];
   disabled?: boolean;
 }) {
+  const t = useTranslations("content.editor");
   const activeChannels = channels?.length ? channels : [channel];
   const limit = Math.min(...activeChannels.map(getSocialChannelMaxLength));
   const limitingChannel = activeChannels
@@ -29,7 +31,7 @@ export default function ContentEditor({
   const count = content.length;
   const isOver = count > limit;
   const channelLabel = activeChannels.length > 1
-    ? `${getSocialChannelLabel(limitingChannel?.channel ?? channel)} limit`
+    ? `${getSocialChannelLabel(limitingChannel?.channel ?? channel)} ${t("limitSuffix")}`
     : getSocialChannelLabel(channel);
 
   return (
@@ -39,7 +41,7 @@ export default function ContentEditor({
         onChange={(e) => onChange(e.target.value)}
         rows={8}
         disabled={disabled}
-        placeholder="Generated content will appear here..."
+        placeholder={t("placeholder")}
         className="font-mono text-sm"
       />
       <div className="flex items-center justify-between text-xs">

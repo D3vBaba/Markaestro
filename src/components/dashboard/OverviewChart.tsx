@@ -1,6 +1,8 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { isRtlLocale } from "@/i18n/routing";
 
 type DailyPost = {
     label: string;
@@ -17,13 +19,20 @@ export function DashboardOverviewChart({
     height?: number;
     hiddenSeries?: string[];
 }) {
+    const t = useTranslations("dashboard.chart");
+    const tStatus = useTranslations("appCommon.status");
+    // Recharts has no built-in RTL support — the x-axis always progresses
+    // left-to-right internally, so for RTL locales we explicitly reverse it
+    // to match the reading direction (time flows right-to-left).
+    const isRtl = isRtlLocale(useLocale());
+
     if (!data || data.length === 0) {
         return (
             <div
                 className="flex items-center justify-center text-sm"
                 style={{ height, color: "var(--mk-ink-60)" }}
             >
-                No post activity yet.
+                {t("noActivity")}
             </div>
         );
     }
@@ -33,6 +42,7 @@ export function DashboardOverviewChart({
             <AreaChart data={data} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
                 <XAxis
                     dataKey="label"
+                    reversed={isRtl}
                     stroke="var(--mk-ink-40)"
                     fontSize={10}
                     tickLine={false}
@@ -48,6 +58,7 @@ export function DashboardOverviewChart({
                     axisLine={false}
                     allowDecimals={false}
                     width={32}
+                    orientation={isRtl ? "right" : "left"}
                     tick={{ fontFamily: "var(--font-mono)", letterSpacing: "0.06em" }}
                 />
                 <CartesianGrid
@@ -72,7 +83,7 @@ export function DashboardOverviewChart({
                 <Area
                     type="monotone"
                     dataKey="published"
-                    name="Published"
+                    name={tStatus("published")}
                     stroke="var(--mk-ink)"
                     fill="var(--mk-ink)"
                     fillOpacity={0.85}
@@ -83,7 +94,7 @@ export function DashboardOverviewChart({
                 <Area
                     type="monotone"
                     dataKey="scheduled"
-                    name="Scheduled"
+                    name={tStatus("scheduled")}
                     stroke="var(--mk-accent)"
                     fill="var(--mk-accent)"
                     fillOpacity={0.85}

@@ -1,0 +1,94 @@
+{
+  "login": {
+    "hero": {
+      "eyebrow": "Welkom terug",
+      "titleLine1": "Je hele social",
+      "titleLine2Prefix": "workflow, ",
+      "titleLine2Accent": "één login.",
+      "subtitle": "Stop met inloggen op vijf apps om één keer te posten. Log in om overal te publiceren, weken vooruit te plannen en je tijd terug te krijgen.",
+      "points": {
+        "publish": { "title": "Publiceer overal tegelijk", "desc": "Facebook, Instagram, TikTok en meer — vanuit één editor." },
+        "schedule": { "title": "Plan weken vooruit", "desc": "Stel je ritme één keer in en blijf altijd actief." },
+        "hours": { "title": "Elke week uren terugwinnen", "desc": "Het kopiëren, plakken en inloggen verdwijnt gewoon." }
+      },
+      "newHere": {
+        "title": "Nieuw bij Markaestro?",
+        "body": "Beantwoord 10 korte vragen en we stellen je publicatieplan samen — ontdek gratis hoeveel uur je terugwint.",
+        "cta": "Mijn plan maken — gratis →"
+      }
+    },
+    "form": {
+      "eyebrowEmail": "Inloggen of registreren",
+      "eyebrowCode": "Controleer je inbox",
+      "titleEmail": "Doorgaan met je e-mail",
+      "titleCode": "Voer je code in",
+      "subtitleEmail": "Geen wachtwoord nodig — we e-mailen je een eenmalige code. Nieuw hier? Dezelfde code maakt je account aan.",
+      "subtitleCode": "We hebben een 6-cijferige code gestuurd naar <email></email>.",
+      "emailPlaceholder": "naam@bedrijf.com",
+      "codePlaceholder": "123456",
+      "sendCode": "Stuur mij een code",
+      "sendingCode": "Code wordt verzonden…",
+      "signIn": "Inloggen",
+      "verifying": "Bezig met verifiëren…",
+      "useDifferentEmail": "← Ander e-mailadres gebruiken",
+      "resendCode": "Code opnieuw versturen",
+      "resendIn": "Opnieuw versturen over {seconds}s",
+      "orContinueWith": "Of ga verder met",
+      "continueWithGoogle": "Doorgaan met Google",
+      "legal": "Door verder te gaan ga je akkoord met onze <terms>Voorwaarden</terms> en ons <privacy>Privacybeleid</privacy>."
+    },
+    "errors": {
+      "enterEmail": "Voer je e-mailadres in.",
+      "enterCode": "Voer de 6-cijferige code uit je e-mail in."
+    }
+  },
+  "authAction": {
+    "unsupportedAction": "Niet-ondersteunde actie.",
+    "canceledFallback": {
+      "eyebrow": "Account",
+      "title": "Accountactie",
+      "subtitle": "We konden deze link niet verwerken.",
+      "message": "Ontbrekende of ongeldige actieparameters.",
+      "backToSignIn": "Terug naar inloggen"
+    },
+    "titles": {
+      "resetPassword": "Nieuw wachtwoord instellen",
+      "verifyEmail": "Verifieer je e-mail",
+      "verifyAndChangeEmail": "E-mailwijziging bevestigen",
+      "default": "Accountactie"
+    },
+    "eyebrows": {
+      "resetPassword": "Opnieuw instellen",
+      "verifyEmail": "Verifiëren",
+      "verifyAndChangeEmail": "Bevestigen",
+      "default": "Account"
+    },
+    "subtitles": {
+      "resetPassword": "Kies een nieuw wachtwoord voor je account.",
+      "default": "Voltooi de gevraagde actie."
+    },
+    "emailVerifiedSuccess": "E-mail succesvol geverifieerd.",
+    "emailUpdatedSuccess": "E-mail succesvol bijgewerkt.",
+    "genericError": "Er ging iets mis.",
+    "genericSuccess": "Klaar.",
+    "resettingPasswordFor": "Wachtwoord opnieuw instellen voor <email></email>",
+    "newPasswordPlaceholder": "Nieuw wachtwoord",
+    "updatePassword": "Wachtwoord bijwerken",
+    "updating": "Bezig met bijwerken…",
+    "passwordUpdatedSuccess": "Wachtwoord succesvol bijgewerkt. Je kunt nu inloggen.",
+    "backToSignIn": "Terug naar inloggen",
+    "working": "Bezig met verwerken…",
+    "continue": "Doorgaan",
+    "errors": {
+      "expiredActionCode": "Deze link is verlopen. Vraag een nieuwe e-mail aan.",
+      "invalidActionCode": "Deze link is ongeldig of al gebruikt.",
+      "userDisabled": "Dit account is uitgeschakeld.",
+      "weakPassword": "Het wachtwoord moet minimaal 6 tekens bevatten.",
+      "default": "Er ging iets mis. Probeer het opnieuw."
+    }
+  },
+  "oauthComplete": {
+    "title": "Verbinding afronden",
+    "subtitle": "Je sessie wordt hersteld en je wordt teruggeleid naar de app."
+  }
+}

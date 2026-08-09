@@ -1,0 +1,254 @@
+{
+  "categories": {
+    "saas": "SaaS",
+    "mobile": "モバイルアプリ",
+    "web": "ウェブアプリ",
+    "api": "API",
+    "marketplace": "マーケットプレイス",
+    "ecommerce": "Eコマース",
+    "fintech": "フィンテック",
+    "healthtech": "ヘルステック",
+    "edtech": "エドテック",
+    "gaming": "ゲーム",
+    "social": "ソーシャル",
+    "productivity": "生産性",
+    "developer-tools": "開発者向けツール",
+    "ai": "AI",
+    "media": "メディア",
+    "agency": "代理店",
+    "creator": "クリエイター",
+    "hardware": "ハードウェア",
+    "nonprofit": "非営利団体",
+    "local-business": "地域ビジネス",
+    "personal-brand": "個人ブランド",
+    "fashion-beauty": "ファッション＆ビューティー",
+    "food-restaurant": "フード＆レストラン",
+    "music-entertainment": "音楽＆エンターテインメント",
+    "real-estate": "不動産",
+    "coaching-services": "コーチング＆サービス",
+    "fitness": "フィットネス",
+    "travel-hospitality": "旅行＆ホスピタリティ",
+    "other": "その他"
+  },
+  "categorySelect": {
+    "selectCategory": "カテゴリーを選択"
+  },
+  "productStatus": {
+    "active": "有効",
+    "beta": "ベータ版",
+    "development": "開発中",
+    "sunset": "終了",
+    "archived": "アーカイブ済み"
+  },
+  "productCard": {
+    "noChannelsConnected": "接続されているチャンネルはありません",
+    "reconnectNeeded": "{label} — 再接続が必要です",
+    "deleteBrand": "ブランドを削除"
+  },
+  "page": {
+    "title": "ブランド",
+    "subtitle": "マーケティングするすべてのもの — プロダクト、ビジネス、クライアント、またはあなた自身。",
+    "addBrand": "ブランドを追加",
+    "filters": {
+      "all": "すべて",
+      "active": "有効",
+      "development": "開発中"
+    },
+    "ungrantedPages": {
+      "title": "{count, plural, other {Facebookページ #件が承認されなくなりました}}",
+      "body": "このログインには{pages}が含まれていませんでした。Facebookは接続のたびに権限セット全体を置き換えるため、再接続してチェックを入れるまでそれらのページは公開できません。それらへの予約投稿は失敗します。",
+      "howItWorks": "接続の仕組み",
+      "dismiss": "閉じる"
+    },
+    "emptyState": {
+      "all": "まだブランドがありません",
+      "active": "有効なブランドがありません",
+      "development": "開発中のブランドはありません",
+      "body": "最初のブランドを追加して、あなたらしいマーケティングを始めましょう。"
+    },
+    "deleteWarning": "このブランドのブランドボイス設定もすべて削除されます。",
+    "toasts": {
+      "connected": "{provider}を接続しました",
+      "declinedPermission": "{provider}：権限リクエストを拒否しました — もう一度試すには「接続」をタップしてください。",
+      "connectionFailed": "{provider}の接続に失敗しました：{message}",
+      "unknownError": "不明なエラー",
+      "almostDone": "もう少しです — チャンネルでFacebookページを選択してMetaの設定を完了してください",
+      "deleteFailed": "ブランドの削除に失敗しました",
+      "deleted": "ブランドを削除しました"
+    }
+  },
+  "createWizard": {
+    "eyebrow": "新しいブランド",
+    "title": "ブランドを追加",
+    "descriptions": {
+      "start": "ウェブサイトをスキャンするか、詳細を手動で入力してください。",
+      "scan": "ブランドを調査しています…",
+      "manual": "必須項目を入力してください — 詳細は後で追加できます。",
+      "review": "見つかった内容を確認し、必要に応じて調整してから保存してください。"
+    },
+    "scanCard": {
+      "title": "ウェブサイトをスキャン",
+      "body": "名前、説明、ブランドカラー、ロゴ、トーンを抽出するので、90%完成した状態から始められます。",
+      "urlPlaceholder": "https://yourbrand.com",
+      "scan": "スキャン"
+    },
+    "or": "または",
+    "manualCard": {
+      "title": "手動で入力",
+      "body": "スキャンをスキップしてご自身でフォームに入力してください。"
+    },
+    "cancelScan": "スキャンをキャンセル",
+    "scanError": {
+      "body": "{url}をスキャンできませんでした。スキャンを再試行するか、詳細を手動で入力してください。",
+      "editUrl": "URLを編集",
+      "retry": "スキャンを再試行",
+      "enterManually": "手動で入力"
+    },
+    "scanComplete": "スキャンが完了しました — 以下を確認し、必要に応じて編集してください。",
+    "fields": {
+      "brandName": "ブランド名",
+      "brandNamePlaceholder": "DripCheckr",
+      "description": "説明",
+      "descriptionPlaceholder": "このブランドについて教えてください",
+      "website": "ウェブサイト",
+      "websitePlaceholder": "https://yourbrand.com",
+      "category": "カテゴリー"
+    },
+    "brandIntelligence": "ブランドインテリジェンス",
+    "logoDetected": "サイトからロゴを検出しました",
+    "targetAudience": "ターゲット層",
+    "brandTone": "ブランドトーン",
+    "fineTuneNote": "ブランド作成後にこれらすべてを微調整できます。",
+    "startOver": "最初からやり直す",
+    "createBrand": "ブランドを作成",
+    "creating": "作成中…",
+    "toasts": {
+      "enterUrl": "まずURLを入力してください",
+      "nameRequired": "名前は必須です",
+      "createFailed": "ブランドの作成に失敗しました",
+      "brandAdded": "ブランドを追加しました"
+    }
+  },
+  "detailSheet": {
+    "sections": {
+      "foundation": "基本情報",
+      "identity": "アイデンティティ",
+      "channels": "チャンネル"
+    },
+    "brandFallback": "ブランド",
+    "saveIndicator": {
+      "saving": "保存中…",
+      "unsavedChanges": "未保存の変更",
+      "savedAt": "保存済み · {time}",
+      "allSaved": "すべての変更を保存しました"
+    },
+    "cancel": "キャンセル",
+    "save": "保存",
+    "edit": "編集",
+    "deleteBrand": "ブランドを削除",
+    "deleteWarning": "このブランドの設定とチャンネル接続もすべて削除されます。",
+    "disconnectWarning": "これにより、このブランドにリンクされているすべての{label}アカウントが削除されます。他のブランドは独自の接続を維持します。1つのアカウントだけを切り替えるには、代わりに横にある「連携解除」を使用してください — アクセスを更新するには、切断ではなく「再接続」を使用してください。",
+    "disconnect": "切断",
+    "unsavedConfirm": "未保存の変更があります。保存せずに閉じますか？",
+    "toasts": {
+      "loadFailed": "ブランドを読み込めませんでした",
+      "nameRequired": "ブランド名は必須です",
+      "saveDetailsFailed": "ブランドの詳細を保存できませんでした",
+      "saveIdentityFailed": "ブランドの詳細は保存されましたが、ブランドアイデンティティの保存に失敗しました",
+      "saved": "保存しました",
+      "deleteFailed": "ブランドの削除に失敗しました",
+      "deleted": "ブランドを削除しました",
+      "logoTooLarge": "ロゴは2 MB未満にしてください",
+      "logoUploaded": "ロゴをアップロードしました",
+      "logoUploadFailed": "ロゴのアップロードに失敗しました",
+      "disconnected": "{label}を切断しました",
+      "disconnectFailed": "{provider}の切断に失敗しました",
+      "noFacebookPages": "Facebookページが見つかりませんでした。",
+      "loadPagesFailed": "ページを読み込めませんでした",
+      "pagesLinked": "Facebookページを{count}件連携しました",
+      "linkPagesFailed": "ページの連携に失敗しました"
+    },
+    "foundation": {
+      "basicsTitle": "基本情報",
+      "basicsDescription": "Markaestro内でのブランドの識別方法です。",
+      "brandName": "ブランド名",
+      "description": "説明",
+      "website": "ウェブサイト",
+      "positioningTitle": "ポジショニング",
+      "category": "カテゴリー",
+      "status": "ステータス"
+    },
+    "identity": {
+      "logoTitle": "ロゴ",
+      "logoDescription": "カード、生成されたメディア、プレビューで使用されます。",
+      "colorsTitle": "ブランドカラー",
+      "colorsDescription": "一度設定すると、カードや生成されたメディアに反映されます。",
+      "primary": "プライマリー",
+      "primaryDescription": "メインのブランドカラー",
+      "secondary": "セカンダリー",
+      "secondaryDescription": "補助的なカラー",
+      "accent": "アクセント",
+      "accentDescription": "強調表示とCTA",
+      "upload": "アップロード",
+      "uploading": "アップロード中…",
+      "replace": "差し替え",
+      "remove": "削除",
+      "fileHint": "PNG、JPG、WebP、SVG。最大2 MB。",
+      "clearColor": "色をクリア",
+      "openColorPicker": "カラーピッカーを開く",
+      "setColorTo": "{label}を{color}に設定"
+    },
+    "channels": {
+      "title": "接続済みチャンネル",
+      "description": "ソーシャルアカウントを接続すると、このブランドから予約投稿できます。",
+      "connect": "接続",
+      "reconnect": "再接続",
+      "reconnectAddAccount": "再接続 / アカウントを追加",
+      "disconnectAllCount": "{count}件すべて切断",
+      "unlinkAllCount": "{count}件すべて連携解除",
+      "unlink": "連携解除",
+      "loading": "読み込み中…",
+      "addPages": "ページを追加",
+      "choosePages": "ページを選択",
+      "pickAPage": "ページを選択",
+      "metaPagesLinkedCount": "Facebookページを{count}件連携済み",
+      "facebookPageLinked": "Facebookページを連携済み",
+      "chooseWhichPages": "このブランドが投稿するFacebookページを選択してください",
+      "linkPages": "このブランドのFacebookページを連携してください",
+      "instagramNote": "Facebookページに連携されていないプロアカウント向けです。",
+      "expires": "有効期限：{date}",
+      "linked": "連携済み",
+      "reconnectBadge": "再接続",
+      "selectBoard": "ボードを選択",
+      "changeBoard": "ボードを変更",
+      "pinningTo": "ピン留め先：{board}",
+      "selectBoardToEnable": "公開を有効にするにはボードを選択してください",
+      "linkProfile": "プロフィールを連携",
+      "unlinkProfile": "プロフィールの連携を解除",
+      "linkPagesBtn": "ページを連携",
+      "unlinkPagesBtn": "ページの連携を解除",
+      "selectTarget": "対象を選択",
+      "changeTarget": "対象を変更",
+      "selectTargetPlaceholder": "対象を選択…",
+      "select": "選択",
+      "postingTo": "投稿先：{target}",
+      "selectProfileOrPage": "公開を有効にするにはプロフィールまたはページを選択してください",
+      "everyDestinationLinked": "利用可能な{destination}はすべてこのブランドに連携済みです。",
+      "linkedCount": "{destination}を{count}件連携しました",
+      "connectedAccount": "接続済みアカウント",
+      "warning": "警告",
+      "linkedAccountFallback": "連携済みアカウント",
+      "toasts": {
+        "noLinkedInTargets": "LinkedInの対象が見つかりませんでした。",
+        "loadLinkedInFailed": "LinkedInの対象を読み込めませんでした",
+        "linkedInSelected": "LinkedInの対象「{name}」を選択しました",
+        "selectLinkedInFailed": "LinkedInの対象を選択できませんでした",
+        "noDestinationsFound": "{destination}が見つかりませんでした。",
+        "loadDestinationsFailed": "{destination}を読み込めませんでした",
+        "linkDestinationsFailed": "{destination}の連携に失敗しました",
+        "accountUnlinked": "{account}の連携を解除しました",
+        "unlinkFailed": "{account}の連携解除に失敗しました"
+      }
+    }
+  }
+}

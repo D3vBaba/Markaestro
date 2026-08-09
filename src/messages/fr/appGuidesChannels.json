@@ -1,0 +1,93 @@
+{
+  "page": {
+    "title": "Connecter les canaux",
+    "subtitle": "Comment les autorisations et les marques s'articulent, et les étapes précises pour chaque plateforme."
+  },
+  "intro": {
+    "title": "La première chose à comprendre",
+    "body": "Connecter un canal implique deux choses distinctes, et les confondre est ce qui casse la publication.",
+    "layer1Badge": "Niveau 1 · Autorisation",
+    "layer1Title": "Ce que la plateforme nous laisse toucher",
+    "layer1Body": "Défini dans la boîte de dialogue propre à la plateforme lors de la connexion. Sur Facebook, cela couvre <bold>tout votre espace de travail</bold>, et chaque nouvelle connexion <bold>remplace</bold> la sélection précédente.",
+    "layer2Badge": "Niveau 2 · Routage",
+    "layer2Title": "Sur quel compte cette marque publie",
+    "layer2Body": "Défini dans Markaestro, par marque. C'est là que vit la règle « une Page par marque » — et une marque peut détenir plusieurs comptes si vous le souhaitez.",
+    "warning": "<bold>Accordez tout, puis affinez par marque.</bold> Dans la boîte de dialogue de la plateforme, cochez tous les comptes sur lesquels vous pourriez un jour publier. N'en choisir qu'un seul révoque les autres, et leurs publications programmées commencent à échouer."
+  },
+  "guides": {
+    "meta": {
+      "label": "Facebook",
+      "scope": "Une seule connexion Facebook couvre tout votre espace de travail. Chaque marque choisit ensuite sa propre Page.",
+      "steps": {
+        "0": { "title": "Ouvrez une marque et appuyez sur Connecter sur Facebook", "detail": "Marques → choisissez une marque → Canaux. Peu importe la marque de départ ; la connexion s'applique à toutes les marques." },
+        "1": { "title": "Cochez toutes les Pages que vous souhaitez confier à Markaestro", "detail": "La boîte de dialogue de Facebook est la liste des autorisations. Tout ce que vous cochez devient l'ensemble complet que Markaestro peut toucher, et remplace la sélection précédente. Une Page laissée décochée perd immédiatement son accès." },
+        "2": { "title": "Choisissez sur quelle Page cette marque publie", "detail": "De retour dans Markaestro, utilisez Choisir les Pages. C'est du routage, pas une autorisation — chaque marque peut pointer vers sa propre Page, et une marque peut en détenir plusieurs." }
+      },
+      "gotcha": "Ne cocher qu'une seule Page dans la boîte de dialogue Facebook déconnectera la Page de toutes les autres marques. Cochez-les toujours toutes, puis affinez par marque dans Markaestro."
+    },
+    "instagram": {
+      "label": "Instagram",
+      "scope": "Connecté par marque, en utilisant la propre connexion d'Instagram plutôt que celle de Facebook.",
+      "steps": {
+        "0": { "title": "Appuyez sur Connecter sur Instagram dans l'onglet Canaux de la marque", "detail": "Ceci est distinct de Facebook — lier une Page Facebook ne lie pas son compte Instagram." },
+        "1": { "title": "Connectez-vous avec le compte Instagram lui-même", "detail": "Le compte doit être un compte Professionnel (Entreprise ou Créateur). Les comptes personnels ne peuvent pas publier via l'API." }
+      },
+      "gotcha": "Si Instagram refuse la connexion, le compte est presque certainement encore personnel. Passez-le en Professionnel dans l'application Instagram, puis reconnectez-vous."
+    },
+    "tiktok": {
+      "label": "TikTok",
+      "scope": "Connecté par marque. TikTok exige de finaliser chaque publication dans son application.",
+      "steps": {
+        "0": { "title": "Appuyez sur Connecter sur TikTok et autorisez", "detail": "Markaestro téléverse la vidéo et l'envoie dans votre boîte de réception TikTok." },
+        "1": { "title": "Finalisez la publication dans l'application TikTok", "detail": "TikTok ne permet pas de publier entièrement depuis l'extérieur de son application. Quand une publication arrive dans votre boîte de réception, nous vous envoyons un e-mail, et elle reste en attente de publication jusqu'à confirmation." }
+      },
+      "gotcha": "Une publication TikTok n'est pas en ligne tant que vous n'ouvrez pas l'application TikTok pour la publier. L'e-mail est votre rappel."
+    },
+    "threads": {
+      "label": "Threads",
+      "scope": "Connecté par marque, avec sa propre connexion.",
+      "steps": {
+        "0": { "title": "Appuyez sur Connecter sur Threads", "detail": "Autorisez le compte Threads depuis lequel vous souhaitez publier." }
+      }
+    },
+    "pinterest": {
+      "label": "Pinterest",
+      "scope": "Connecté par marque. Les tableaux fonctionnent comme les Pages Facebook — choisissez celui sur lequel cette marque épingle.",
+      "steps": {
+        "0": { "title": "Appuyez sur Connecter sur Pinterest", "detail": "Autorisez le compte professionnel Pinterest." },
+        "1": { "title": "Choisissez un tableau", "detail": "Les épingles nécessitent un tableau de destination. Vous pouvez lier plusieurs tableaux à une marque et choisir entre eux lors de la rédaction." }
+      }
+    },
+    "linkedin": {
+      "label": "LinkedIn",
+      "scope": "Connecté par marque, en tant que profil personnel ou Page d'entreprise.",
+      "steps": {
+        "0": { "title": "Choisissez Profil ou Pages lors de la connexion", "detail": "Ce sont des autorisations distinctes. Connectez les deux si vous publiez en votre nom et au nom de l'entreprise." },
+        "1": { "title": "Choisissez la destination", "detail": "Sélectionnez le profil ou la Page d'entreprise sur lequel cette marque publie." }
+      }
+    }
+  },
+  "troubleshooting": {
+    "title": "En cas de dysfonctionnement",
+    "subtitle": "Ce que signifie chaque message et le moyen le plus rapide de le résoudre.",
+    "items": {
+      "0": {
+        "q": "Une marque affiche « Reconnectez Facebook et cochez cette Page »",
+        "a": "Les autorisations Facebook actuelles n'incluent plus cette Page — généralement parce qu'une connexion ultérieure a coché moins de Pages. Reconnectez-vous depuis n'importe quelle marque et cochez toutes les Pages. Rien n'est perdu ; le choix de Page de la marque est restauré automatiquement."
+      },
+      "1": {
+        "q": "Une marque affiche « Sélectionnez-la à nouveau dans les paramètres de la marque »",
+        "a": "La Page est toujours accordée mais son jeton doit être réémis. Ouvrez l'onglet Canaux de la marque et sélectionnez à nouveau la Page."
+      },
+      "2": {
+        "q": "Des publications programmées échouent",
+        "a": "Vérifiez d'abord l'onglet Canaux de la marque. Si tous les canaux semblent connectés, reconnectez la plateforme et cochez tous les comptes — un ensemble d'autorisations réduit est la cause la plus fréquente."
+      },
+      "3": {
+        "q": "Une publication TikTok n'a jamais été mise en ligne",
+        "a": "Les publications TikTok doivent être finalisées dans l'application TikTok. Consultez votre e-mail pour le rappel, ou ouvrez À publier dans Markaestro."
+      }
+    },
+    "manageFrom": "Gérez chaque connexion depuis <brands>Marques</brands> ou <settings>Paramètres → Intégrations</settings>."
+  }
+}

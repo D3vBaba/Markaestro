@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "eyebrow": "Contact",
+    "titleLead": "Nous serions ravis de",
+    "titleHighlight": "vous entendre",
+    "subtitle": "Que vous ayez une question sur nos fonctionnalités, besoin d'aide pour une intégration, ou que vous souhaitiez explorer un partenariat — notre équipe est là pour vous aider."
+  },
+  "channels": [
+    {
+      "title": "Demandes générales",
+      "description": "Questions sur Markaestro, les tarifs ou les partenariats.",
+      "email": "hello@markaestro.com",
+      "response": "1 à 2 jours ouvrés"
+    },
+    {
+      "title": "Support technique",
+      "description": "Aide pour les intégrations, les problèmes de publication ou l'accès au compte.",
+      "email": "support@markaestro.com",
+      "response": "Moins de 24 heures"
+    },
+    {
+      "title": "Confidentialité et questions juridiques",
+      "description": "Demandes de données, questions de conformité ou demandes juridiques.",
+      "email": "legal@markaestro.com",
+      "response": "2 à 3 jours ouvrés"
+    }
+  ],
+  "form": {
+    "eyebrow": "Envoyer un message",
+    "title": "Contactez-nous directement",
+    "description": "Remplissez le formulaire et nous vous répondrons dès que possible. Pour les problèmes techniques urgents, indiquez « URGENT » dans l'objet.",
+    "officeHoursTitle": "Horaires d'ouverture",
+    "officeHoursWeekday": "Lundi - Vendredi : 9h00 - 18h00 (heure de l'Est)",
+    "officeHoursWeekend": "Samedi - Dimanche : Fermé",
+    "enterpriseTitle": "Entreprises et partenariats",
+    "enterpriseDescription": "Pour les tarifs entreprise, les intégrations personnalisées ou les opportunités de partenariat, contactez-nous à",
+    "enterpriseEmail": "partnerships@markaestro.com",
+    "sentTitle": "Message prêt",
+    "sentDescription": "Votre client de messagerie devrait s'être ouvert avec le message pré-rempli. Si ce n'est pas le cas, écrivez-nous directement à",
+    "supportEmail": "support@markaestro.com",
+    "sendAnother": "Envoyer un autre message",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Votre nom",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "vous@entreprise.com",
+    "subjectLabel": "Objet",
+    "subjectPlaceholder": "Comment pouvons-nous vous aider ?",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Dites-nous en plus sur votre question ou votre problème...",
+    "submit": "Envoyer le message",
+    "privacyNotice": "En envoyant un message, vous acceptez notre",
+    "privacyLink": "Politique de confidentialité"
+  },
+  "faqEyebrow": "FAQ",
+  "faqTitle": "Questions fréquentes",
+  "faqs": [
+    {
+      "q": "Comment connecter mes comptes de réseaux sociaux ?",
+      "a": "Ouvrez une marque dans votre tableau de bord et connectez les canaux sur lesquels vous publiez (Meta pour Facebook et Instagram, TikTok, Threads ou Pinterest). Chaque connexion utilise OAuth et prend généralement moins d'une minute."
+    },
+    {
+      "q": "Y a-t-il un essai gratuit ?",
+      "a": "Oui. Chaque forfait payant inclut un essai gratuit avec accès complet. Votre carte est enregistrée à l'inscription mais ne sera débitée qu'à la fin de l'essai. Annulez pendant l'essai et ne payez rien."
+    },
+    {
+      "q": "Quels types de contenu puis-je importer ?",
+      "a": "Des images (JPG, PNG, WebP, jusqu'à 10 Mo chacune) et des vidéos (MP4, MOV, WebM, jusqu'à 250 Mo chacune). Les fichiers sont stockés par espace de travail et associés aux publications via l'éditeur."
+    },
+    {
+      "q": "Puis-je utiliser Markaestro pour plusieurs marques ou clients ?",
+      "a": "Tout à fait. Les espaces de travail vous permettent d'isoler marques, clients ou unités commerciales. Chaque espace a ses propres marques, actifs, connexions de canaux et membres d'équipe."
+    },
+    {
+      "q": "Comment mes données sont-elles protégées ?",
+      "a": "Les jetons OAuth sont chiffrés au repos. Toute communication API utilise TLS. Nous suivons le principe du moindre privilège pour l'accès aux données. Consultez notre Politique de confidentialité pour tous les détails."
+    },
+    {
+      "q": "Proposez-vous une API ?",
+      "a": "L'API de Markaestro est disponible sur tous les forfaits payants. Elle couvre la gestion de contenu, l'import de fichiers, la publication et le statut des publications. La documentation est disponible dans votre tableau de bord."
+    }
+  ],
+  "cta": {
+    "title": "Prêt à commencer ?",
+    "subtitle": "Créez votre compte gratuit et commencez à publier en quelques minutes. Aucune carte bancaire requise.",
+    "button": "Commencer gratuitement"
+  }
+}

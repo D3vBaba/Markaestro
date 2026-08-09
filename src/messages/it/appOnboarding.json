@@ -1,0 +1,316 @@
+{
+  "questionCounter": "Domanda {current} / {total}",
+  "signOut": "Esci",
+  "signIn": "Accedi",
+  "back": "← Indietro",
+  "continue": "Continua",
+  "skipForNow": "Salta per ora",
+  "takes2Minutes": "Richiede 2 minuti · Nessuna carta richiesta",
+  "quiz": {
+    "marketing": {
+      "eyebrow": "Costruiamo il tuo motore",
+      "title": "Cosa stai promuovendo?",
+      "subtitle": "Markaestro si adatta a qualsiasi cosa tu stia facendo crescere.",
+      "options": {
+        "product": { "label": "Un'app o un prodotto", "desc": "Software, e-commerce, o qualcosa che hai creato" },
+        "business": { "label": "Un'attività", "desc": "Un'azienda, un negozio o un servizio locale" },
+        "personal": { "label": "Me stesso", "desc": "Un brand personale o un pubblico che sei solo tu" },
+        "clients": { "label": "Clienti", "desc": "Brand che gestisci per altre persone" }
+      }
+    },
+    "role": {
+      "eyebrow": "Il tuo ruolo",
+      "title": "Qual è il tuo ruolo?",
+      "subtitle": "Adatteremo tutto al modo in cui lavori davvero.",
+      "options": {
+        "founder": { "label": "Fondatore / CEO", "desc": "Indossi ogni cappello — incluso il marketing" },
+        "marketer": { "label": "Marketer", "desc": "Responsabile dei contenuti su ogni canale" },
+        "agency": { "label": "Agenzia / Freelance", "desc": "Gestisci contenuti per più clienti" },
+        "creator": { "label": "Content Creator", "desc": "Fai crescere un pubblico che sei solo tu" }
+      }
+    },
+    "teamSize": {
+      "eyebrow": "Il tuo team",
+      "title": "Chi c'è dietro le pubblicazioni?",
+      "options": {
+        "solo": { "label": "Solo io", "desc": "E onestamente, è tanto lavoro" },
+        "small": { "label": "2–5 persone", "desc": "Team piccolo, tanti ruoli" },
+        "medium": { "label": "6–20 persone", "desc": "Il coordinamento sta diventando complicato" },
+        "large": { "label": "20+ persone", "desc": "Mantenere tutti coerenti è difficile" }
+      }
+    },
+    "goal": {
+      "eyebrow": "La missione",
+      "title": "Cosa stai veramente cercando?",
+      "subtitle": "Questo definisce la tua configurazione e il piano che ti consigliamo.",
+      "options": {
+        "social": { "label": "Far crescere i miei follower", "desc": "Più copertura, più coinvolgimento" },
+        "sales": { "label": "Aumentare le vendite", "desc": "Trasformare i post in opportunità di vendita" },
+        "time": { "label": "Riprendermi il mio tempo", "desc": "Smettere di annegare nei contenuti" }
+      }
+    },
+    "channels": {
+      "eyebrow": "La tua fase",
+      "title": "Dove si trova il tuo pubblico?",
+      "subtitle": "Seleziona tutto ciò che si applica — pubblicherai su ciascuno con un clic.",
+      "options": {
+        "instagram": { "label": "Instagram" },
+        "facebook": { "label": "Facebook" },
+        "tiktok": { "label": "TikTok" },
+        "threads": { "label": "Threads" },
+        "pinterest": { "label": "Pinterest" },
+        "linkedin": { "label": "LinkedIn" }
+      }
+    },
+    "postingToday": {
+      "eyebrow": "Sii sincero",
+      "title": "Come pubblichi oggi?",
+      "subtitle": "La maggior parte dei team ci dice che questa è la parte più difficile.",
+      "options": {
+        "manual": { "label": "Manualmente in ogni app", "desc": "Accedendo ovunque, uno alla volta" },
+        "spreadsheet": { "label": "Fogli di calcolo e promemoria", "desc": "Post-it e speranza" },
+        "tool": { "label": "Un altro strumento di pianificazione", "desc": "Uno che ho silenziosamente superato" },
+        "starting": { "label": "Pubblico quasi nulla", "desc": "Ancora nessun sistema reale" }
+      }
+    },
+    "frequency": {
+      "eyebrow": "Il ritmo che desideri",
+      "title": "Con quale frequenza vuoi farti vedere?",
+      "subtitle": "Ti manterremo in programma automaticamente.",
+      "options": {
+        "daily": { "label": "Ogni giorno", "desc": "Resta sempre presente" },
+        "few": { "label": "Qualche volta a settimana", "desc": "La costanza vince la gara" },
+        "weekly": { "label": "Circa una volta a settimana", "desc": "Qualità prima di tutto" },
+        "unsure": { "label": "Non ancora sicuro", "desc": "Dimmi cosa funziona davvero" }
+      }
+    },
+    "challenge": {
+      "eyebrow": "Il vero problema",
+      "title": "Cosa continua a farti inciampare?",
+      "subtitle": "È proprio questo che risolveremo per te.",
+      "options": {
+        "consistency": { "label": "Restare costante", "desc": "Inizio forte, poi mi fermo" },
+        "time": { "label": "Trovare il tempo", "desc": "Non ce n'è mai abbastanza" },
+        "ideas": { "label": "Trovare idee per i contenuti", "desc": "Le idee finiscono sempre" },
+        "juggling": { "label": "Gestire più canali", "desc": "Troppe piattaforme da seguire" }
+      }
+    },
+    "contentTypes": {
+      "eyebrow": "La tua voce",
+      "title": "Cosa vuoi pubblicare?",
+      "subtitle": "Seleziona tutto ciò che si applica — ti aiuteremo a riempire il calendario.",
+      "options": {
+        "product": { "label": "Prodotto e promozioni" },
+        "educational": { "label": "Consigli e formazione" },
+        "bts": { "label": "Dietro le quinte" },
+        "news": { "label": "Notizie e aggiornamenti" }
+      }
+    },
+    "hoursPerWeek": {
+      "eyebrow": "Il costo nascosto",
+      "title": "Quante ore a settimana svaniscono in questo?",
+      "subtitle": "Sii sincero — è quasi sempre di più di quanto sembri.",
+      "options": {
+        "lt2": { "label": "Meno di 2 ore" },
+        "2to5": { "label": "2–5 ore" },
+        "5to10": { "label": "5–10 ore" },
+        "gt10": { "label": "Più di 10 ore" }
+      }
+    },
+    "success": {
+      "eyebrow": "Tra 90 giorni",
+      "title": "Cosa renderebbe tutto questo utile?",
+      "subtitle": "Orienteremo l'intera configurazione verso questo risultato.",
+      "options": {
+        "followers": { "label": "Un pubblico più grande e coinvolto", "desc": "Una copertura che si accumula" },
+        "sales": { "label": "Contenuti che generano ricavi", "desc": "Post che convertono davvero" },
+        "timeback": { "label": "Riprendermi sere e weekend", "desc": "Ore restituite ogni settimana" },
+        "consistency": { "label": "Non fermarmi mai più", "desc": "Una presenza su cui posso contare" }
+      }
+    }
+  },
+  "challengeCopy": {
+    "consistency": {
+      "short": "restare costante",
+      "headline": "Non ti fermerai mai più",
+      "line": "Pianifica settimane di post in un'unica sessione — Markaestro pubblica puntualmente, ogni volta, così il silenzio finisce."
+    },
+    "time": {
+      "short": "trovare il tempo",
+      "headline": "Riprendiamoci quelle ore",
+      "line": "Scrivi una volta, pubblica ovunque e pianifica in anticipo. Il lavoro di copia-incolla e accessi ripetuti semplicemente scompare."
+    },
+    "ideas": {
+      "short": "trovare idee per i contenuti",
+      "headline": "Il tuo calendario non resterà mai a secco",
+      "line": "Trasforma un'idea in una settimana di post su ogni canale — così non fisserai mai più uno schermo vuoto."
+    },
+    "juggling": {
+      "short": "gestire più canali",
+      "headline": "Un unico posto per ogni canale",
+      "line": "Componi una volta e pubblica su tutte le tue piattaforme da un'unica schermata — basta passare da una scheda all'altra o perdere post."
+    }
+  },
+  "marketingCopy": {
+    "product": {
+      "eyebrow": "Il tuo prodotto",
+      "title": "Aggiungi il prodotto che stai promuovendo",
+      "sub": "Scansiona il tuo sito per compilare automaticamente i dettagli, aggiungili manualmente, oppure salta questo passaggio per ora — puoi sempre farlo più tardi."
+    },
+    "business": {
+      "eyebrow": "La tua attività",
+      "title": "Aggiungi l'attività che stai promuovendo",
+      "sub": "Scansiona il tuo sito per compilare automaticamente i dettagli, aggiungili manualmente, oppure salta questo passaggio per ora — puoi sempre farlo più tardi."
+    },
+    "personal": {
+      "eyebrow": "Il tuo brand",
+      "title": "Configura il tuo brand personale",
+      "sub": "Hai un sito o un portfolio? Scansionalo per la compilazione automatica. Nessun sito? Inserisci i tuoi dati manualmente — richiede un minuto."
+    },
+    "clients": {
+      "eyebrow": "Il tuo primo cliente",
+      "title": "Aggiungi il brand del tuo primo cliente",
+      "sub": "Inizia con un cliente — scansiona il suo sito per la compilazione automatica, oppure inserisci i dettagli manualmente. Puoi aggiungere altri brand in qualsiasi momento."
+    },
+    "fallback": {
+      "eyebrow": "Il tuo brand",
+      "title": "Aggiungi il brand che stai promuovendo",
+      "sub": "Scansiona il tuo sito per compilare automaticamente i dettagli, aggiungili manualmente, oppure salta questo passaggio per ora — puoi sempre farlo più tardi."
+    }
+  },
+  "socialProviders": {
+    "meta": {
+      "label": "Meta",
+      "fullLabel": "Meta (Facebook + Instagram)",
+      "description": "Collega Facebook e Instagram",
+      "note": "Pagine, Reel, post del feed, Storie"
+    }
+  },
+  "footer": {
+    "tagline": "La piattaforma premium di automazione marketing per i team moderni.",
+    "product": "Prodotto",
+    "features": "Funzionalità",
+    "channels": "Canali",
+    "pricing": "Prezzi",
+    "company": "Azienda",
+    "contact": "Contatti",
+    "termsOfService": "Termini di servizio",
+    "privacyPolicy": "Informativa sulla privacy",
+    "getStarted": "Inizia",
+    "signIn": "Accedi",
+    "createAccount": "Crea account",
+    "copyright": "© {year} Markaestro. Tutti i diritti riservati.",
+    "terms": "Termini",
+    "privacy": "Privacy"
+  },
+  "register": {
+    "yourPlanIsReady": "Il tuo piano è pronto",
+    "titleEmail": "Salva il tuo piano e riprenditi il tuo tempo",
+    "titleCode": "Controlla la tua casella di posta",
+    "subtitleEmail": "Nessuna password necessaria — inserisci la tua email e ti invieremo un codice monouso. Hai già un account? Lo stesso codice ti farà accedere.",
+    "subtitleCode": "Abbiamo inviato un codice a 6 cifre a {email}.",
+    "waitingInWorkspace": "In attesa nel tuo spazio di lavoro",
+    "recap": {
+      "channelsReady": "{count, plural, one {# canale pronto per pubblicare con un clic} other {# canali pronti per pubblicare con un clic}}",
+      "everyChannel": "Ogni canale, pubblicato da un unico posto",
+      "postsScheduled": "Post pianificati {frequency} — automaticamente",
+      "hoursBack": "~{hours} ore a settimana recuperate nel tuo calendario",
+      "onSteadyCadence": "a un ritmo costante"
+    },
+    "emailPlaceholder": "nome@azienda.com",
+    "codePlaceholder": "123456",
+    "sendingCode": "Invio del codice…",
+    "claimPlan": "Riscatta il mio piano — è gratis",
+    "verifying": "Verifica in corso…",
+    "continueBtn": "Continua",
+    "useDifferentEmail": "← Usa un'altra email",
+    "resendIn": "Reinvia tra {seconds}s",
+    "resendCode": "Reinvia codice",
+    "freeTrialNote": "Gratis per iniziare · Prova di 14 giorni · Annulla quando vuoi",
+    "orContinueWith": "Oppure continua con",
+    "continueWithGoogle": "Continua con Google",
+    "agreeTermsPrefix": "Continuando accetti i nostri",
+    "and": "e",
+    "terms": "Termini",
+    "privacyPolicy": "Informativa sulla privacy",
+    "errors": {
+      "enterEmail": "Inserisci la tua email per continuare.",
+      "enterCode": "Inserisci il codice a 6 cifre ricevuto via email."
+    }
+  },
+  "product": {
+    "scanWebsite": "Scansiona un sito web",
+    "enterManually": "Inserisci manualmente",
+    "websiteUrl": "URL del sito web",
+    "urlPlaceholder": "tuobrand.com",
+    "scanning": "Scansione in corso…",
+    "rescan": "Ripeti scansione",
+    "scan": "Scansiona",
+    "scanHelp": "Leggiamo il tuo sito e compiliamo nome, descrizione, logo e colori del brand.",
+    "autoDetected": "Rilevato automaticamente",
+    "brandName": "Nome del brand",
+    "description": "Descrizione",
+    "targetAudience": "Pubblico di riferimento",
+    "targetAudiencePlaceholder": "es. fondatori SaaS B2B",
+    "brandTone": "Tono del brand",
+    "brandTonePlaceholder": "es. audace, diretto",
+    "brandColorDetected": "Colore del brand rilevato:",
+    "manualBrandNamePlaceholder": "es. Acme CRM",
+    "whatDoesItDo": "Cosa fa?",
+    "optional": "(facoltativo)",
+    "manualDescPlaceholder": "Descrivi questo brand e a chi è rivolto...",
+    "saving": "Salvataggio…",
+    "couldntSaveBrand": "Non è stato possibile salvare il tuo brand — potrai aggiungerlo più tardi dalla dashboard."
+  },
+  "socials": {
+    "connectYourAccounts": "Collega i tuoi account",
+    "addSocialAccounts": "Aggiungi i tuoi account social",
+    "subtitle": "Collega le piattaforme su cui vuoi pubblicare. Potrai sempre aggiungerle o modificarle più tardi dalle impostazioni.",
+    "connected": "Collegato",
+    "connect": "Collega",
+    "redirecting": "Reindirizzamento…",
+    "otherChannelsNote": "TikTok, Threads e Pinterest possono essere collegati per singolo brand dalla tua dashboard.",
+    "skipAndContinue": "Salta e continua",
+    "couldNotInitiate": "Impossibile avviare la connessione. Riprova.",
+    "connectedToast": "{label} collegato",
+    "connectFailedToast": "Connessione a {provider} non riuscita"
+  },
+  "generating": {
+    "title": "Creazione del tuo flusso di lavoro",
+    "subtitle": "Stiamo configurando i tuoi canali e un piano di pubblicazione costruito attorno a {challenge} — il problema che sei venuto a risolvere.",
+    "takesAMoment": "Ci vorrà solo un momento"
+  },
+  "paywall": {
+    "youllGetBackPrefix": "Ti riprenderai circa",
+    "hoursAWeek": "ore a settimana",
+    "startTrialSuffix": "Avvia la tua prova gratuita di {days} giorni per pubblicare — e tutto il resto che crei.",
+    "firstPostReady": "Il tuo primo post è pronto nella tua dashboard.",
+    "subscribeToPublish": "Abbonati per pubblicare",
+    "postReadyOneStepAway": "Il tuo post è pronto — a un passo dalla pubblicazione",
+    "justNow": "Proprio ora",
+    "like": "Mi piace",
+    "comment": "Commenta",
+    "share": "Condividi",
+    "recommendedForYou": "Consigliato per te",
+    "basedOnAnswers": "In base alle tue risposte",
+    "monthly": "Mensile",
+    "annual": "Annuale",
+    "saveAnnual": "— risparmia il 17%",
+    "saveAnnualShort": "· −17%",
+    "selected": "Selezionato",
+    "perMonth": "/mese",
+    "perMonthShort": "/mese",
+    "trialAllPlans": "Prova gratuita di {days} giorni su tutti i piani · Nessun addebito fino al giorno {dayAfter}",
+    "trialEndsOn": "La tua prova termina il {date}, quando alla tua carta verranno addebitati ${price}/mese{billedAnnually}. Annulla in qualsiasi momento prima di allora e non ti verrà addebitato nulla.",
+    "billedAnnually": ", fatturazione annuale",
+    "annualSavingsNote": "La fatturazione annuale ti fa risparmiare il 17% rispetto a quella mensile",
+    "settingUp": "Configurazione…",
+    "startTrialButton": "Avvia la prova gratuita di {days} giorni — {plan}",
+    "cardRequired": "Carta richiesta · Annulla in qualsiasi momento prima della fine della prova"
+  },
+  "success": {
+    "allSet": "Tutto pronto",
+    "readyToLaunch": "Sei pronto per partire.",
+    "settingUpAccount": "Il tuo account è configurato. Ti stiamo portando alla tua dashboard…"
+  }
+}

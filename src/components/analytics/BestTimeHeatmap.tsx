@@ -1,8 +1,12 @@
 "use client";
 
+import { useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Heatmap } from "@/components/mk/Heatmap";
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+// 2024-01-01 was a Monday — anchor for computing locale-aware short weekday
+// abbreviations in Mon-first order without hardcoding English day names.
+const WEEK_ANCHOR = new Date("2024-01-01T00:00:00Z");
 const HOURS = Array.from({ length: 24 }, (_, h) => (h % 3 === 0 ? String(h) : ""));
 const MIN_SAMPLE = 10;
 
@@ -19,6 +23,18 @@ export function BestTimeHeatmap({
   posts: number[][];
   sampleSize: number;
 }) {
+  const t = useTranslations("analytics.bestTimeHeatmap");
+  const locale = useLocale();
+  const days = useMemo(
+    () =>
+      Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(WEEK_ANCHOR);
+        d.setUTCDate(d.getUTCDate() + i);
+        return d.toLocaleDateString(locale, { weekday: "short", timeZone: "UTC" });
+      }),
+    [locale],
+  );
+
   if (sampleSize < MIN_SAMPLE) {
     return (
       <div
@@ -26,11 +42,10 @@ export function BestTimeHeatmap({
         style={{ color: "var(--mk-ink-60)" }}
       >
         <p className="text-[13px] font-medium m-0" style={{ color: "var(--mk-ink)" }}>
-          Not enough data yet
+          {t("notEnoughData")}
         </p>
         <p className="text-[12px] m-0">
-          The posting-time heatmap unlocks once {MIN_SAMPLE} posts have engagement data
-          ({sampleSize} so far).
+          {t("unlocksAt", { min: MIN_SAMPLE, sampleSize })}
         </p>
       </div>
     );
@@ -46,14 +61,14 @@ export function BestTimeHeatmap({
     <div>
       <div className="overflow-x-auto scrollbar-hide -mx-1 px-1">
         <div className="min-w-[480px]">
-          <Heatmap data={avg} days={DAYS} hours={HOURS} max={max} height={170} />
+          <Heatmap data={avg} days={days} hours={HOURS} max={max} height={170} />
         </div>
       </div>
       <p
         className="mt-2.5 mb-0 text-[10.5px] font-mono"
         style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
       >
-        AVG ENGAGEMENT PER POST · YOUR LOCAL TIME · {sampleSize} POSTS
+        {t("footer", { count: sampleSize })}
       </p>
     </div>
   );

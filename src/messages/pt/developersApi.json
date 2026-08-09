@@ -1,0 +1,99 @@
+{
+  "hero": {
+    "eyebrow": "Desenvolvedores",
+    "title": "API pública de publicação",
+    "intro1": "Envie mídia, crie posts e publique no Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest, tudo vinculado a um produto por meio de uma chave de API do workspace. A forma recomendada de integrar é a <connectLink>Connect API</connectLink> — uma superfície pequena e simples em <code>/api/connect/v1</code> que a maioria das ferramentas de agendamento pode usar como está.",
+    "intro2": "Precisa de controle total — publicação explícita, verificação de execução de tarefas, webhooks assinados, lote, configurações por canal? A API avançada <code>/api/public/v1</code> mais abaixo expõe tudo isso. Ambas compartilham a mesma autenticação, produtos e pipeline de publicação; use apenas essas rotas públicas versionadas (as rotas internas do app exigem autenticação de usuário do Firebase e não fazem parte do contrato público).",
+    "intro3": "<strong>Facebook, Instagram e TikTok são manual-first via API.</strong> Posts para esses canais usam por padrão a entrega <code>manual_reminder</code>: o Markaestro nunca chama a API da plataforma para eles. A publicação move o post para a fila 'Para Publicar' do workspace, onde o proprietário baixa a mídia, publica nativamente e confirma — de modo que os posts aparecem exatamente como se tivessem sido criados manualmente. Passe <code>deliveryMode: \"direct_publish\"</code> na criação para optar por publicação via API oficial (no TikTok isso significa o envio para a caixa de entrada, nunca Direct Post público). LinkedIn, Threads e Pinterest publicam programaticamente por padrão.",
+    "intro4": "Workspaces podem ter múltiplos produtos. Cada chave de API é vinculada a um produto no momento da criação, então as chamadas atingem esse produto automaticamente e solicitações para qualquer outro produto são rejeitadas.",
+    "agentCallout": {
+      "title": "Construindo um agente de IA?",
+      "body": "Comece pelo <agentLink>guia do agente de IA</agentLink>. Ele traz esquemas de ferramentas prontos para copiar e colar, um resumo de prompt de sistema, as regras de nova tentativa e tratamento de erros que um agente precisa, e um guia rápido de quatro comandos. Seu agente também pode ler <llmsLink>/llms.txt</llmsLink> diretamente."
+    },
+    "agentGuideButton": "Guia do agente de IA",
+    "manageKeysButton": "Gerenciar chaves de API",
+    "openAppButton": "Abrir Markaestro"
+  },
+  "connectApi": {
+    "title": "Connect API",
+    "recommendedBadge": "Recomendado",
+    "description": "A forma padrão de integrar: uma superfície simples em snake_case em <code>/api/connect/v1</code> que a maioria das ferramentas de agendamento pode usar como está. Ela mapeia a convenção comum <code>create-upload-url → PUT → post</code> para o mesmo workspace, autenticação, produtos e pipeline de publicação da API completa abaixo. Defina a URL base do cliente como <code>/api/connect</code> e autentique com uma chave de API do workspace vinculada a um produto (escopos <code>posts.read</code>, <code>posts.write</code>, <code>media.write</code>).",
+    "endpoints": [
+      { "method": "GET", "path": "/api/connect/v1/social-accounts", "note": "Lista destinos conectados do Facebook, Instagram, TikTok, LinkedIn e Threads como contas simples, cada uma rotulada com seu produto para que os clientes possam agrupar e diferenciar. Cada canal tem seu próprio caminho dedicado — sem propagação entre canais." },
+      { "method": "GET", "path": "/api/connect/v1/products", "note": "Lista marcas (nome na API: products) com suas contas conectadas aninhadas — um seletor com marca em primeiro lugar." },
+      { "method": "POST", "path": "/api/connect/v1/media/create-upload-url", "note": "Retorna uma URL PUT assinada, de uso único e curta duração, mais um id de mídia." },
+      { "method": "PUT", "path": "<upload_url>", "note": "Envie os bytes brutos da imagem para a URL assinada. Não é necessária chave de API — a assinatura já autoriza." },
+      { "method": "POST", "path": "/api/connect/v1/posts", "note": "Cria um rascunho para cada conta selecionada. Defina is_draft=false com scheduled_at para agendar a entrega; o TikTok usa o envio para a caixa de entrada do criador." },
+      { "method": "GET", "path": "/api/connect/v1/posts", "note": "Lista posts do workspace com status, legenda e URLs de mídia simplificados." }
+    ],
+    "footnote": "Cada conta retornada por <code>/social-accounts</code> é rotulada com seu <code>product</code> — o nome no formato da API para uma marca (a mesma conta pode aparecer sob várias marcas) — e seu <code>id</code> codifica <code>productId#destinationId</code> — passe-o de volta literalmente em <code>social_accounts</code>, e a solicitação se propaga em um post por conta. Cada chave é vinculada a uma marca, então ela só vê e publica nessa marca. <strong>Posts do Facebook, Instagram e TikTok são manual-first</strong> — criados como rascunhos e publicados nativamente pelo proprietário do workspace a partir da fila 'Para Publicar' do Markaestro, nunca via API da plataforma. LinkedIn, Threads e Pinterest publicam programaticamente após uma ação de publicação explícita. O status do post é um entre <code>draft</code>, <code>processing</code>, <code>posted</code> ou <code>failed</code>. Facebook, Instagram, LinkedIn, TikTok e Threads são cada um seu próprio destino dedicado — publicar em um nunca se propaga para outro. Acompanhe o estado de publicação através de <code>GET /api/connect/v1/posts</code>."
+  },
+  "advancedSection": {
+    "title": "Avançado: API Pública completa",
+    "description": "A superfície completa <code>/api/public/v1</code> — publicação explícita, execuções de tarefas assíncronas, webhooks assinados, criação em lote e configurações por canal. Use quando a Connect API não for suficiente."
+  },
+  "highlightCards": [
+    { "title": "Meta e TikTok são manual-first", "description": "Posts do Facebook, Instagram e TikTok usam por padrão a fila manual 'Para Publicar' — sem chamada à API da plataforma, o proprietário do workspace publica nativamente e confirma. Opte por publicação via API por post com deliveryMode." },
+    { "title": "Login do Instagram compatível", "description": "As marcas podem expor contas profissionais independentes do Instagram mesmo sem uma Página do Facebook vinculada." },
+    { "title": "Opção do TikTok usa envio para caixa de entrada", "description": "Um post do TikTok que optar por publicação via API é enviado para a caixa de entrada do criador para legenda final, privacidade e publicação — nunca Direct Post público." },
+    { "title": "Assíncrono por design", "description": "Toda publicação retorna um id de execução. Verifique as execuções ou inscreva-se em webhooks assinados em vez de assumir conclusão síncrona." }
+  ],
+  "endpointGroups": [
+    {
+      "title": "Marcas e destinos",
+      "description": "Descubra as marcas e destinos de publicação disponíveis para a chave de API. As marcas são chamadas de products no formato da API — caminhos e payloads usam products/productId por compatibilidade retroativa, e os corpos de POST também aceitam brandId como um alias.",
+      "endpoints": [
+        { "method": "GET", "path": "/api/public/v1/products", "note": "Lista as marcas da chave, além dos canais atualmente disponíveis para cada uma." },
+        { "method": "GET", "path": "/api/public/v1/products/:id/destinations", "note": "Lista os destinos de publicação dessa marca, incluindo Login do Instagram independente, Página do Facebook, Threads, Perfil/Página do LinkedIn e destinos do TikTok conectados." }
+      ]
+    },
+    {
+      "title": "Mídia",
+      "description": "Envie imagens ou vídeos para o armazenamento gerenciado do Markaestro antes de criar posts.",
+      "endpoints": [
+        { "method": "POST", "path": "/api/public/v1/media", "note": "Upload multipart. Retorna um id de ativo e a URL hospedada." }
+      ]
+    },
+    {
+      "title": "Posts",
+      "description": "Crie, liste, inspecione, publique e exclua posts para Facebook, Instagram, LinkedIn, Threads, Pinterest e TikTok.",
+      "endpoints": [
+        { "method": "POST", "path": "/api/public/v1/posts", "note": "Cria um rascunho no workspace. Facebook, Instagram e TikTok usam por padrão publicação manual (deliveryMode manual_reminder); passe deliveryMode direct_publish para optar por publicação via API." },
+        { "method": "GET", "path": "/api/public/v1/posts", "note": "Lista posts, do mais recente ao mais antigo. Filtre com ?status=scheduled para ver o que está na fila, e ?productId= para limitar a uma marca. Uma chave vinculada a uma marca sempre é limitada à sua própria marca e pode omitir productId." },
+        { "method": "GET", "path": "/api/public/v1/posts/:id", "note": "Retorna o status atual do post, o modo de entrega e os resultados de publicação." },
+        { "method": "POST", "path": "/api/public/v1/posts/:id/publish", "note": "Enfileira uma execução de publicação assíncrona. Posts manuais entram na fila 'Para Publicar' do workspace para publicação nativa; LinkedIn, Threads e Pinterest publicam diretamente; posts do Meta com opção ativada publicam via API oficial, e posts do TikTok com opção ativada usam o envio para caixa de entrada." },
+        { "method": "DELETE", "path": "/api/public/v1/posts/:id", "note": "Exclui o post do Markaestro. Usa o escopo posts.write existente. Retorna 400 VALIDATION_POST_IS_PUBLISHING enquanto uma execução de publicação está em andamento. Excluir um post publicado não retira a cópia ativa na plataforma." }
+      ]
+    },
+    {
+      "title": "Execuções e Webhooks",
+      "description": "Acompanhe trabalho assíncrono por verificação ou entrega de webhook assinado.",
+      "endpoints": [
+        { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "Retorna queued, running, succeeded ou failed." },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registra um destino de webhook usando uma chave de API." },
+        { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "Lista os destinos de webhook registrados para o escopo dessa chave de API." },
+        { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Desativa um destino de webhook." }
+      ]
+    }
+  ],
+  "examples": {
+    "listProducts": { "title": "1. Listar produtos", "description": "Descubra quais produtos essa chave de API pode acessar." },
+    "listDestinations": { "title": "2. Inspecionar destinos", "description": "Veja as páginas e contas vinculadas de um produto antes de criar o post. Use o <code>destinationId</code> retornado quando um produto tiver vários destinos, como um Perfil do LinkedIn mais Páginas." },
+    "upload": { "title": "3. Enviar mídia", "description": "Cada post referencia ativos de mídia enviados anteriormente." },
+    "createPost": { "title": "4. Criar um post", "description": "Crie um rascunho usando esses ids de ativos. O Instagram usa publicação manual por padrão; adicione <code>\"deliveryMode\": \"direct_publish\"</code> para optar por publicação via API oficial nesse post." },
+    "tiktokCreatePost": { "title": "Exemplo do TikTok", "description": "Posts do TikTok chegam como rascunhos do Markaestro e usam publicação manual por padrão a partir da fila 'Para Publicar'. Com <code>deliveryMode: \"platform_inbox\"</code> (ou <code>direct_publish</code>), uma publicação explícita envia o rascunho para a caixa de entrada do criador no TikTok." },
+    "publish": { "title": "5. Enfileirar publicação", "description": "A publicação cria uma execução assíncrona. Posts manuais (o padrão do Facebook/Instagram/TikTok) vão para a fila 'Para Publicar' e disparam <code>post.action_required</code>; LinkedIn, Threads, Pinterest e posts do Meta com opção ativada publicam diretamente; posts do TikTok com opção ativada enfileiram o envio para caixa de entrada." },
+    "listScheduled": { "title": "6. Revisar a programação e cancelar", "description": "Liste o que está na fila para uma marca, então exclua qualquer coisa que você não queira mais publicar. Ambos usam escopos que chaves existentes já possuem — <code>posts.read</code> e <code>posts.write</code>." },
+    "webhook": { "title": "Exemplo de payload de webhook", "description": "As entregas são assinadas com HMAC usando o segredo do seu webhook." }
+  },
+  "channelBehavior": {
+    "title": "Comportamento por canal",
+    "description": "Regras de validação e entrega aplicadas pela API pública.",
+    "channels": [
+      { "name": "Facebook", "rule": "Posts somente texto, imagem ou vídeo. Até 10 imagens ou 1 vídeo por post. Publicação manual por padrão; publicação direta com opção ativada." },
+      { "name": "Instagram", "rule": "Pelo menos uma imagem ou vídeo, até 10 itens. Vídeo único publica como Reel. Publicação manual por padrão; publicação direta com opção ativada." },
+      { "name": "TikTok", "rule": "Pelo menos uma imagem ou vídeo. Até 10 imagens ou 1 vídeo. Publicação manual por padrão; posts com opção ativada vão para a caixa de entrada do criador no TikTok, nunca Direct Post público." },
+      { "name": "LinkedIn", "rule": "Texto, imagem única, vídeo único ou posts orgânicos de múltiplas imagens com até 20 imagens. Direcione para o Perfil conectado ou uma Página gerenciada." }
+    ]
+  }
+}

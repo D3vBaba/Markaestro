@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "eyebrow": "Contact",
+    "titleLead": "We'd love to",
+    "titleHighlight": "hear from you",
+    "subtitle": "Whether you have a question about features, need help with an integration, or want to explore a partnership — our team is here to help."
+  },
+  "channels": [
+    {
+      "title": "General Inquiries",
+      "description": "Questions about Markaestro, pricing, or partnerships.",
+      "email": "hello@markaestro.com",
+      "response": "1-2 business days"
+    },
+    {
+      "title": "Technical Support",
+      "description": "Help with integrations, publishing issues, or account access.",
+      "email": "support@markaestro.com",
+      "response": "Under 24 hours"
+    },
+    {
+      "title": "Privacy & Legal",
+      "description": "Data requests, compliance questions, or legal inquiries.",
+      "email": "legal@markaestro.com",
+      "response": "2-3 business days"
+    }
+  ],
+  "form": {
+    "eyebrow": "Send a Message",
+    "title": "Get in touch directly",
+    "description": "Fill out the form and we'll get back to you as soon as possible. For urgent technical issues, include \"URGENT\" in the subject line.",
+    "officeHoursTitle": "Office Hours",
+    "officeHoursWeekday": "Monday - Friday: 9:00 AM - 6:00 PM EST",
+    "officeHoursWeekend": "Saturday - Sunday: Closed",
+    "enterpriseTitle": "Enterprise & Partnerships",
+    "enterpriseDescription": "For enterprise pricing, custom integrations, or partnership opportunities, reach us at",
+    "enterpriseEmail": "partnerships@markaestro.com",
+    "sentTitle": "Message Ready",
+    "sentDescription": "Your email client should have opened with the message pre-filled. If it didn't, email us directly at",
+    "supportEmail": "support@markaestro.com",
+    "sendAnother": "Send Another Message",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@company.com",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "How can we help?",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Tell us more about your question or issue...",
+    "submit": "Send Message",
+    "privacyNotice": "By sending a message, you agree to our",
+    "privacyLink": "Privacy Policy"
+  },
+  "faqEyebrow": "FAQ",
+  "faqTitle": "Frequently asked questions",
+  "faqs": [
+    {
+      "q": "How do I connect my social media accounts?",
+      "a": "Open a brand in your dashboard and connect the channels you publish to (Meta for Facebook and Instagram, TikTok, Threads, or Pinterest). Each connection uses OAuth and usually takes under a minute."
+    },
+    {
+      "q": "Is there a free trial?",
+      "a": "Yes. Every paid plan includes a free trial with full access. Your card is collected at signup but you are not charged until the trial ends. Cancel during the trial and pay nothing."
+    },
+    {
+      "q": "What kinds of media can I upload?",
+      "a": "Images (JPG, PNG, WebP, up to 10 MB each) and videos (MP4, MOV, WebM, up to 250 MB each). Files are stored per workspace and attached to posts via the composer."
+    },
+    {
+      "q": "Can I use Markaestro for multiple brands or clients?",
+      "a": "Absolutely. Workspaces let you isolate brands, clients, or business units. Each workspace has its own brands, assets, channel connections, and team members."
+    },
+    {
+      "q": "How is my data protected?",
+      "a": "OAuth tokens are encrypted at rest. All API communication uses TLS. We follow principle of least privilege for data access. See our Privacy Policy for full details."
+    },
+    {
+      "q": "Do you offer an API?",
+      "a": "Markaestro's API is available to all paid plans. It covers content management, media uploads, publishing, and post status. Documentation is available in your dashboard."
+    }
+  ],
+  "cta": {
+    "title": "Ready to get started?",
+    "subtitle": "Create your free account and start publishing in minutes. No credit card required.",
+    "button": "Get started free"
+  }
+}

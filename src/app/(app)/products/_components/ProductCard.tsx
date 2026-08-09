@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations, useLocale } from "next-intl";
 import { ChevronRight, Globe, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { categoryLabel } from "./categories";
@@ -70,6 +71,10 @@ export default function ProductCard({
   onOpen: () => void;
   onDelete: () => void;
 }) {
+  const t = useTranslations("products.productCard");
+  const tCategories = useTranslations("products.categories");
+  const tStatus = useTranslations("products.productStatus");
+  const locale = useLocale();
   const dominant = getDominantColor(product);
   const visibleConnections = connections.slice(0, MAX_VISIBLE_CONNECTIONS);
   const overflowConnections = connections.slice(MAX_VISIBLE_CONNECTIONS);
@@ -99,7 +104,7 @@ export default function ProductCard({
       )}
       <button
         onClick={onOpen}
-        className="relative w-full text-left overflow-hidden transition-colors rounded-xl flex flex-col"
+        className="relative w-full text-start overflow-hidden transition-colors rounded-xl flex flex-col"
         style={{
           background: "var(--mk-paper)",
           border: "1px solid var(--mk-rule)",
@@ -147,7 +152,7 @@ export default function ProductCard({
                   style={{ color: "var(--mk-ink-40)", letterSpacing: "0.14em" }}
                 >
                   <span className="truncate">
-                    {categories.map((c) => categoryLabel(c)).join(" · ")}
+                    {categories.map((c) => categoryLabel(c, tCategories)).join(" · ")}
                   </span>
                 </div>
               </div>
@@ -164,7 +169,7 @@ export default function ProductCard({
                   letterSpacing: "-0.005em",
                 }}
               >
-                {product.status}
+                {tStatus.has(product.status) ? tStatus(product.status) : product.status}
               </span>
               <span
                 role="button"
@@ -186,7 +191,7 @@ export default function ProductCard({
                   "hover:text-mk-neg",
                 )}
                 style={{ color: "var(--mk-ink-40)" }}
-                aria-label="Delete brand"
+                aria-label={t("deleteBrand")}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </span>
@@ -227,7 +232,7 @@ export default function ProductCard({
                     const hasError = !!c.lastRefreshError;
                     const label = providerShortLabels[c.provider] || c.provider;
                     const title = hasError
-                      ? `${label} — reconnect needed`
+                      ? t("reconnectNeeded", { label })
                       : c.pageName
                       ? `${label} · ${c.pageName}`
                       : c.username
@@ -271,7 +276,7 @@ export default function ProductCard({
                   className="text-[10.5px] italic"
                   style={{ color: "var(--mk-ink-40)" }}
                 >
-                  No channels connected
+                  {t("noChannelsConnected")}
                 </span>
               )}
             </div>
@@ -282,7 +287,7 @@ export default function ProductCard({
                   className="text-[10px] font-mono tabular-nums"
                   style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
                 >
-                  {new Date(product.createdAt).toLocaleDateString(undefined, {
+                  {new Date(product.createdAt).toLocaleDateString(locale, {
                     month: "short",
                     day: "numeric",
                   })}

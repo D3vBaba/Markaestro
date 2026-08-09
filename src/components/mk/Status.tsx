@@ -1,19 +1,25 @@
-const MAP: Record<string, { dot: string; label: string }> = {
-  published: { dot: "var(--mk-pos)",    label: "Published" },
-  scheduled: { dot: "var(--mk-ink-60)", label: "Scheduled" },
-  draft:     { dot: "var(--mk-ink-20)", label: "Draft" },
-  failed:    { dot: "var(--mk-neg)",    label: "Failed" },
-  active:    { dot: "var(--mk-pos)",    label: "Active" },
-  paused:    { dot: "var(--mk-warn)",   label: "Paused" },
-  ended:     { dot: "var(--mk-ink-40)", label: "Ended" },
-  live:      { dot: "var(--mk-neg)",    label: "Live" },
-  completed: { dot: "var(--mk-ink-60)", label: "Completed" },
-  cancelled: { dot: "var(--mk-neg)",    label: "Cancelled" },
+"use client";
+
+import { useTranslations } from "next-intl";
+
+const DOT: Record<string, string> = {
+  published: "var(--mk-pos)",
+  scheduled: "var(--mk-ink-60)",
+  draft: "var(--mk-ink-20)",
+  failed: "var(--mk-neg)",
+  active: "var(--mk-pos)",
+  paused: "var(--mk-warn)",
+  ended: "var(--mk-ink-40)",
+  live: "var(--mk-neg)",
+  completed: "var(--mk-ink-60)",
+  cancelled: "var(--mk-neg)",
 };
 
 export function Status({ value, label }: { value: string; label?: string }) {
+  const t = useTranslations("appCommon.status");
   const key = value?.toLowerCase();
-  const s = MAP[key] || { dot: "var(--mk-ink-40)", label: label ?? value };
+  const dot = DOT[key] ?? "var(--mk-ink-40)";
+  const resolvedLabel = label ?? (key in DOT ? t(key) : value);
   return (
     <span
       className="inline-flex items-center gap-[7px] text-[12px]"
@@ -21,9 +27,9 @@ export function Status({ value, label }: { value: string; label?: string }) {
     >
       <span
         className="inline-block rounded-full"
-        style={{ width: 6, height: 6, background: s.dot }}
+        style={{ width: 6, height: 6, background: dot }}
       />
-      {label ?? s.label}
+      {resolvedLabel}
     </span>
   );
 }

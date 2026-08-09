@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import LogoutConfirmDialog from "@/components/app/LogoutConfirmDialog";
 import { cn } from "@/lib/utils";
 import { navigationGroups, settingsItem } from "@/lib/nav";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -24,6 +27,7 @@ import {
   Calendar,
   Settings,
   BookOpen,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 
@@ -39,6 +43,8 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const t = useTranslations("shell.nav");
+  const [logoutOpen, setLogoutOpen] = useState(false);
   const { workspaces, current, switchWorkspace } = useWorkspace();
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
@@ -53,7 +59,7 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "hidden lg:flex flex-col h-dvh sticky top-0 shrink-0 border-r",
+        "hidden lg:flex flex-col h-dvh sticky top-0 shrink-0 border-e",
         className,
       )}
       style={{
@@ -85,7 +91,7 @@ export function Sidebar({ className }: { className?: string }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-mk-panel"
+                className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-start transition-colors hover:bg-mk-panel"
                 style={{ border: "1px solid var(--mk-rule)", background: "var(--mk-paper)" }}
               >
                 <div
@@ -116,7 +122,7 @@ export function Sidebar({ className }: { className?: string }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56">
               <DropdownMenuLabel className="text-[11px] text-muted-foreground font-normal">
-                Your workspaces
+                {t("workspaceSwitcher.yourWorkspaces")}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               {workspaces.map((ws) => (
@@ -139,7 +145,7 @@ export function Sidebar({ className }: { className?: string }) {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/settings?tab=workspaces" className="cursor-pointer text-sm">
-                  Manage workspaces
+                  {t("workspaceSwitcher.manageWorkspaces")}
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -150,7 +156,7 @@ export function Sidebar({ className }: { className?: string }) {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-2.5 py-4 flex flex-col gap-3.5">
         {navigationGroups.map((group) => (
-          <div key={group.group}>
+          <div key={group.id}>
             <p
               className="px-2.5 pb-1.5 font-mono text-[9px] uppercase"
               style={{
@@ -158,7 +164,7 @@ export function Sidebar({ className }: { className?: string }) {
                 letterSpacing: "0.2em",
               }}
             >
-              {group.group}
+              {t(`groups.${group.id}`)}
             </p>
             <div className="flex flex-col gap-px">
               {group.items.map((item) => {
@@ -166,7 +172,7 @@ export function Sidebar({ className }: { className?: string }) {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                 return (
                   <Link
-                    key={item.name}
+                    key={item.id}
                     href={item.href}
                     className={cn(
                       "flex items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-[13px] transition-colors",
@@ -182,7 +188,7 @@ export function Sidebar({ className }: { className?: string }) {
                       className="h-[15px] w-[15px] shrink-0"
                       style={{ color: isActive ? "var(--mk-ink)" : "var(--mk-ink-60)" }}
                     />
-                    <span className="whitespace-nowrap">{item.name}</span>
+                    <span className="whitespace-nowrap">{t(`items.${item.id}`)}</span>
                   </Link>
                 );
               })}
@@ -209,7 +215,7 @@ export function Sidebar({ className }: { className?: string }) {
           }}
         >
           <Settings className="h-[15px] w-[15px]" style={{ color: "var(--mk-ink-60)" }} />
-          <span>Settings</span>
+          <span>{t("items.settings")}</span>
         </Link>
 
         <div
@@ -241,15 +247,18 @@ export function Sidebar({ className }: { className?: string }) {
           </div>
           <button
             type="button"
-            onClick={logout}
-            title="Log out"
-            className="text-[10.5px] whitespace-nowrap shrink-0 px-1.5 py-1 rounded hover:text-mk-neg transition-colors"
-            style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+            onClick={() => setLogoutOpen(true)}
+            title={t("signOut")}
+            aria-label={t("signOut")}
+            className="shrink-0 grid h-7 w-7 place-items-center rounded-lg transition-colors hover:bg-[color:var(--mk-panel)] hover:text-mk-neg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mk-accent)]"
+            style={{ color: "var(--mk-ink-60)" }}
           >
-            log out
+            <LogOut className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
+
+      <LogoutConfirmDialog open={logoutOpen} onOpenChange={setLogoutOpen} onConfirm={logout} />
     </aside>
   );
 }

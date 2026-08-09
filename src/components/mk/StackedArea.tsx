@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 type Series = { key: string; color: string; label?: string; opacity?: number };
 
 export function StackedArea<T extends { label: string }>({
@@ -5,19 +9,23 @@ export function StackedArea<T extends { label: string }>({
   series,
   height = 220,
   showGrid = true,
+  locale,
 }: {
   data: T[];
   series: Series[];
   height?: number;
   showGrid?: boolean;
+  locale?: string;
 }) {
+  const t = useTranslations("analytics.stackedArea");
+
   if (!data.length) {
     return (
       <div
         className="grid place-items-center text-sm"
         style={{ height, color: "var(--mk-ink-60)" }}
       >
-        No data yet.
+        {t("noData")}
       </div>
     );
   }
@@ -36,7 +44,7 @@ export function StackedArea<T extends { label: string }>({
   const fmt = (n: number) => {
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
     if (n >= 10_000) return (n / 1000).toFixed(1) + "k";
-    if (n >= 1000) return n.toLocaleString();
+    if (n >= 1000) return n.toLocaleString(locale);
     return String(n);
   };
 

@@ -1,0 +1,107 @@
+{
+  "status": {
+    "published": "已发布",
+    "scheduled": "已排期",
+    "draft": "草稿",
+    "failed": "失败",
+    "active": "启用中",
+    "paused": "已暂停",
+    "ended": "已结束",
+    "live": "直播中",
+    "completed": "已完成",
+    "cancelled": "已取消"
+  },
+  "authErrors": {
+    "invalidEmail": "请输入有效的电子邮件地址。",
+    "userDisabled": "此账户已被禁用。请联系支持团队。",
+    "otpInvalid": "验证码不正确。请查看最新邮件后重试。",
+    "otpExpired": "验证码已过期。请重新获取。",
+    "otpTooManyAttempts": "错误尝试次数过多。请重新获取验证码。",
+    "otpCooldown": "验证码刚刚已发送。请查收邮箱，或一分钟后重试。",
+    "emailInUse": "该邮箱已被注册。",
+    "rateLimited": "尝试次数过多，请稍后再试。",
+    "popupClosed": "登录已取消。",
+    "popupBlocked": "浏览器已阻止弹出窗口。请允许弹出窗口后重试。",
+    "accountExistsDifferentCredential": "该邮箱已使用其他登录方式注册过账户。",
+    "networkError": "网络错误，请检查网络连接后重试。",
+    "default": "身份验证失败，请重试。"
+  },
+  "confirmDeleteDialog": {
+    "entities": {
+      "brand": "品牌",
+      "connection": "连接",
+      "teamMember": "团队成员",
+      "integration": "集成",
+      "post": "帖子"
+    },
+    "titleGeneric": "删除{entity}",
+    "titleNamed": "删除{entity}？",
+    "descriptionNamed": "确定要删除<name></name>吗？此操作无法撤销。",
+    "descriptionGeneric": "确定要删除此{entity}吗？此操作无法撤销。",
+    "typeToConfirm": "输入<name></name>以确认。",
+    "cancel": "取消",
+    "deleteDefault": "删除"
+  },
+  "featureGate": {
+    "openingPortal": "正在打开账单门户…",
+    "portalError": "无法打开账单门户，请重试。",
+    "upgradeTo": "升级到{plan}",
+    "requiresPlan": "此功能需要{plan}套餐或更高级别。升级后即可使用，起价为每月 ${price}。",
+    "loading": "加载中..."
+  },
+  "metricCard": {
+    "vsLastPeriod": "较上一周期"
+  },
+  "pagination": {
+    "firstPage": "第一页",
+    "previousPage": "上一页",
+    "nextPage": "下一页",
+    "lastPage": "最后一页"
+  },
+  "tagInput": {
+    "defaultPlaceholder": "输入后按 Enter 键…"
+  },
+  "scanProgressStepper": {
+    "steps": {
+      "connecting": { "label": "连接网站", "activeLabel": "正在连接网站…" },
+      "reading": { "label": "读取网站内容", "activeLabel": "正在读取网站内容…" },
+      "extracting": { "label": "提取品牌色", "activeLabel": "正在提取品牌色与 Logo…" },
+      "analyzing": { "label": "分析品牌信号", "activeLabel": "正在分析品牌信号…" },
+      "finalizing": { "label": "构建品牌档案", "activeLabel": "正在构建你的品牌档案…" }
+    },
+    "scanComplete": "扫描完成 — 请在下方查看并确认",
+    "scanFailed": "扫描失败 — 请手动填写",
+    "researching": "正在研究你的品牌…"
+  },
+  "platformPreview": {
+    "sponsored": "赞助内容",
+    "justNow": "刚刚",
+    "now": "现在",
+    "zeroLikes": "0 个赞",
+    "zeroComments": "0 条评论",
+    "like": "赞",
+    "comment": "评论",
+    "share": "分享",
+    "repost": "转发",
+    "send": "发送",
+    "following": "关注中",
+    "forYou": "推荐",
+    "originalSound": "原声",
+    "originalSoundWithBrand": "原声 · yourbrand",
+    "save": "保存",
+    "untitledPin": "无标题 Pin",
+    "viewLive": "查看实际效果",
+    "previewSuffix": "预览",
+    "companyPageNow": "企业主页 · 现在",
+    "cta": {
+      "LEARN_MORE": "了解更多",
+      "SHOP_NOW": "立即购买",
+      "SIGN_UP": "立即注册",
+      "DOWNLOAD": "下载",
+      "GET_QUOTE": "获取报价",
+      "CONTACT_US": "联系我们"
+    },
+    "facebookInstagramAd": "Facebook / Instagram 广告",
+    "tiktokAd": "TikTok 广告"
+  }
+}

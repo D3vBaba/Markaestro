@@ -1,0 +1,103 @@
+{
+  "shared": {
+    "footerDefault": "このメールに心当たりがない場合は無視してください。アカウントに変更は加えられません。",
+    "copyright": "© {year} Markaestro · 成長のためのワークフローを、ひとつの場所に",
+    "ctaOpenQueue": "投稿予定を開く"
+  },
+  "signInCode": {
+    "subject": "{code} はMarkaestroのサインインコードです",
+    "preheader": "{code} はMarkaestroのサインインコードです。",
+    "title": "サインインコード",
+    "bodyIntro": "<strong>{email}</strong>としてサインインするには、このコードを使用してください：",
+    "fallbackAccount": "あなたのアカウント",
+    "expiryNote": "このコードの有効期限は10分です。誰にも共有しないでください — Markaestroがこのコードを尋ねることはありません。",
+    "footerNote": "サインインを試みていない場合は、このメールを無視してください。コードがなければ誰もアカウントにアクセスできません。",
+    "plain": {
+      "heading": "Markaestroのサインインコード",
+      "codeLabel": "コード：{code}",
+      "expiry": "このコードの有効期限は10分です。誰にも共有しないでください。",
+      "footer": "サインインを試みていない場合は、このメールを無視してください。"
+    }
+  },
+  "emailChangeCode": {
+    "subject": "{code} は新しいMarkaestroのメールアドレスを確認するコードです",
+    "preheader": "{code} はこのメールアドレス変更を確認するコードです。",
+    "title": "新しいメールアドレスを確認",
+    "bodyIntro": "Markaestroのメールアドレスを<strong>{newEmail}</strong>に変更するリクエストを受け付けました。確認するには、アプリでこのコードを入力してください：",
+    "expiryNote": "このコードの有効期限は10分です。誰にも共有しないでください。",
+    "footerNote": "この変更をリクエストしていない場合は、このメールを無視してください。メールアドレスは変更されません。",
+    "plain": {
+      "heading": "新しいMarkaestroのメールアドレスを確認",
+      "newEmailLabel": "新しいメールアドレス：{newEmail}",
+      "codeLabel": "コード：{code}",
+      "expiry": "このコードの有効期限は10分です。",
+      "footer": "この変更をリクエストしていない場合は、このメールを無視してください。"
+    }
+  },
+  "emailChangeNotice": {
+    "subject": "メールアドレスの変更がリクエストされました · Markaestro",
+    "preheader": "Markaestroのメールアドレス変更がリクエストされました。",
+    "title": "メールアドレスの変更がリクエストされました",
+    "bodyIntro": "このMarkaestroアカウントのメールアドレスを変更するリクエストがありました：",
+    "fromToLabel": "変更前 → 変更後",
+    "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
+    "bodyOutro": "これがご本人による操作であれば、<strong>新しいメールアドレス</strong>に送信されたコードで確認を完了してください。心当たりがない場合、メールアドレスは変更されていませんが、すぐにサポートまでご連絡ください。",
+    "footerNote": "このお知らせは、アカウントに対して変更がリクエストされたため送信されました。",
+    "plain": {
+      "heading": "Markaestroでメールアドレスの変更がリクエストされました",
+      "changeSummary": "{oldEmail} -> {newEmail}",
+      "warning": "心当たりがない場合、メールアドレスは変更されていませんが、すぐにサポートまでご連絡ください。"
+    }
+  },
+  "manualPostReminder": {
+    "subject": "{channelLabel}の投稿の準備ができました",
+    "preheader": "{channelLabel}の投稿が投稿予定で待機しています。",
+    "bodyIntro": "投稿が投稿予定で待機しています。Markaestroからメディアとキャプションを取得し、{channelLabel}アプリから公開したら、投稿済みとしてマークしてください。",
+    "footerNote": "Markaestroのワークスペースで手動公開待ちの投稿があるため、このメールが送信されています。",
+    "plain": {
+      "heading": "{channelLabel}の投稿を公開する準備ができました",
+      "captionLabel": "キャプション：",
+      "queueLink": "投稿予定を開く：{url}"
+    }
+  },
+  "tiktokInbox": {
+    "subjectWithBrand": "{brandName}のTikTok投稿を完了してください",
+    "subjectNoBrand": "TikTok投稿を完了してください",
+    "preheader": "動画はTikTokアプリで待機しています — 開いて公開してください。",
+    "bodyIntroWithBrand": "動画がアップロードされ、<strong>{brandName}</strong>のTikTok受信箱で待機しています。TikTokでは最終的な投稿をアプリから行う必要があるため、まだ公開されていません。",
+    "bodyIntroNoBrand": "動画がアップロードされ、TikTok受信箱で待機しています。TikTokでは最終的な投稿をアプリから行う必要があるため、まだ公開されていません。",
+    "toPublishLabel": "公開する方法",
+    "step1": "TikTokアプリを開く",
+    "step2": "受信箱の通知に移動する",
+    "step3": "アップロードされた動画を開き、必要に応じてキャプションや公開範囲を調整して投稿する",
+    "captionLabel": "キャプション",
+    "closingNote": "公開されたら、分析データを正確に保つためにMarkaestroで投稿済みとしてマークしてください。",
+    "footerNote": "Markaestroのワークスペースで公開待ちのTikTok投稿があるため、このメールが送信されています。",
+    "plain": {
+      "bodyIntro": "動画がアップロードされ、TikTok受信箱で待機しています。TikTokでは最終的な投稿をアプリから行う必要があるため、まだ公開されていません。",
+      "toPublishLabel": "公開する方法：",
+      "captionLabel": "キャプション：",
+      "queueLink": "投稿予定を開く：{url}"
+    }
+  },
+  "teamInvite": {
+    "subject": "Markaestroで{workspaceName}に招待されました",
+    "title": "招待が届いています",
+    "preheader": "Markaestroで{workspaceName}に参加しましょう。",
+    "greeting": "こんにちは。",
+    "bodyIntroWithInviter": "<strong>{inviterEmail}</strong>さんが、Markaestroの<strong>{workspaceName}</strong>ワークスペースに{roleLabel}としてあなたを招待しました。",
+    "bodyIntroNoInviter": "チームメンバーが、Markaestroの<strong>{workspaceName}</strong>ワークスペースに{roleLabel}としてあなたを招待しました。",
+    "signInInstructions": "このメールアドレスでサインイン（またはアカウントを作成）すると、招待が自動的に適用されます：",
+    "declineNote": "参加を希望しない場合は、このメールを無視してください — 招待は30日後に無効になります。",
+    "roleLabels": {
+      "admin": "管理者",
+      "member": "メンバー",
+      "analyst": "アナリスト"
+    },
+    "footerNote": "誰かがこのメールアドレスをMarkaestroのワークスペースに招待したため、このメールが送信されています。",
+    "plain": {
+      "fallbackInviter": "チームメンバー",
+      "summary": "{inviter}さんが、Markaestroの{workspaceName}に{roleLabel}としてあなたを招待しました。{url}からサインインして承認してください"
+    }
+  }
+}

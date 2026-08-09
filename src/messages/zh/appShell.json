@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "groups": {
+      "overview": "概览",
+      "marketing": "营销",
+      "help": "帮助"
+    },
+    "items": {
+      "dashboard": "控制台",
+      "analytics": "数据分析",
+      "brands": "品牌",
+      "posts": "内容",
+      "calendar": "日历",
+      "connectChannels": "连接渠道",
+      "settings": "设置"
+    },
+    "signOut": "退出登录",
+    "workspaceSwitcher": {
+      "yourWorkspaces": "你的工作区",
+      "manageWorkspaces": "管理工作区"
+    },
+    "toggleMenu": "切换导航菜单",
+    "navigationMenu": "导航菜单",
+    "navigationMenuDescription": "主要导航链接"
+  },
+  "mobileTabBar": {
+    "home": "首页",
+    "analytics": "数据分析",
+    "brands": "品牌",
+    "posts": "内容",
+    "calendar": "日历"
+  },
+  "header": {
+    "searchPlaceholder": "搜索任何内容...",
+    "search": "搜索"
+  },
+  "commandPalette": {
+    "title": "命令面板",
+    "description": "搜索页面和快捷操作",
+    "searchPlaceholder": "搜索页面和操作...",
+    "noResults": "未找到结果。",
+    "groupNavigation": "导航",
+    "groupQuickActions": "快捷操作",
+    "channels": "渠道",
+    "actions": {
+      "createPost": "创建内容",
+      "addBrand": "添加品牌",
+      "connectChannel": "连接渠道",
+      "billing": "账单"
+    }
+  },
+  "trialBanner": {
+    "endsToday": "你的试用今天到期",
+    "daysLeft": "试用还剩 {days} 天",
+    "planSuffix": " · {tier} 套餐",
+    "manageBilling": "管理账单",
+    "loading": "加载中...",
+    "openingPortal": "正在打开账单管理页面…",
+    "portalError": "无法打开账单管理页面，请重试。"
+  },
+  "verifyEmailBanner": {
+    "prompt": "验证邮箱后即可发布",
+    "promptWithCode": " — 请输入发送至 <emailTag>{email}</emailTag> 的验证码",
+    "sendCode": "发送验证码",
+    "resendCode": "重新发送验证码",
+    "resendCountdown": "重新发送（{seconds}秒）",
+    "sending": "发送中…",
+    "verify": "验证",
+    "verifying": "验证中…",
+    "codeSent": "验证码已发送 — 请查看收件箱和垃圾邮件文件夹。",
+    "sendError": "暂时无法发送，请一分钟后重试。",
+    "verified": "邮箱已验证 — 一切就绪。"
+  },
+  "localeSwitcher": {
+    "label": "语言",
+    "description": "选择 Markaestro 在整个应用中使用的语言。",
+    "error": "无法更新你的语言设置，请重试。"
+  },
+  "logout": {
+    "title": "退出 Markaestro？",
+    "description": "重新登录需要新的邮箱验证码，编辑器中未保存的内容将会丢失。",
+    "cancel": "保持登录",
+    "confirm": "退出登录",
+    "confirming": "正在退出…"
+  }
+}

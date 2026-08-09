@@ -1,0 +1,68 @@
+{
+  "statusLabels": {
+    "published": "Pubblicato",
+    "scheduled": "Pianificato",
+    "draft": "Bozza",
+    "failed": "Non riuscito",
+    "partial_failed": "Parzialmente non riuscito",
+    "publishing": "Pubblicazione in corso"
+  },
+  "mockups": {
+    "sponsored": "Sponsorizzato",
+    "like": "Mi piace",
+    "comment": "Commenta",
+    "share": "Condividi",
+    "save": "Salva",
+    "justNow": "Proprio ora",
+    "likeAction": "👍 Mi piace",
+    "commentAction": "💬 Commenta",
+    "shareAction": "↗ Condividi"
+  },
+  "detailPanel": {
+    "backToDay": "Torna al giorno",
+    "close": "Chiudi",
+    "published": "Pubblicato",
+    "scheduled": "Pianificato",
+    "preview": "Anteprima",
+    "viewLivePost": "Visualizza il post pubblicato",
+    "untitledPost": "Post senza titolo",
+    "failedToPublish": "Pubblicazione non riuscita"
+  },
+  "dayPanel": {
+    "today": "Oggi",
+    "postCount": "{count, plural, one {# post} other {# post}} · selezionane uno per l'anteprima",
+    "noPosts": "Nessun post in questo giorno."
+  },
+  "agenda": {
+    "today": "Oggi",
+    "itemCount": "{count, plural, one {# elemento} other {# elementi}}"
+  },
+  "deletedNotice": "Questo post è stato eliminato e non è più disponibile.",
+  "dismiss": "Ignora",
+  "truncatedNotice": "Questo mese ha più post di quanti il calendario possa caricarne in una volta — alcuni non vengono mostrati.",
+  "postsThisMonth": "{count, plural, one {# post} other {# post}} questo mese",
+  "dropToReschedule": "· Rilascia su un giorno per riprogrammare",
+  "newPost": "Nuovo post",
+  "today": "Oggi",
+  "filters": {
+    "brand": "Brand",
+    "all": "Tutti",
+    "noBrand": "Nessun brand",
+    "unknownBrand": "Brand sconosciuto",
+    "dragToReschedule": "Trascina per riprogrammare"
+  },
+  "loadError": "Impossibile caricare i dati del calendario",
+  "retry": "Riprova",
+  "noPostsMatchingFilters": "Nessun post corrisponde ai tuoi filtri",
+  "noPostsThisMonth": "Nessun post questo mese",
+  "noPostsThisMonthPeriod": "Nessun post questo mese.",
+  "clearFilters": "Cancella filtri",
+  "createPost": "Crea post",
+  "createPostCaps": "Crea post",
+  "postMovedToast": "Post spostato al {date}",
+  "rescheduleFailedToast": "Impossibile riprogrammare il post",
+  "postNotFoundToast": "Impossibile aprire questo post. Riprova.",
+  "viewAllPostsOnDay": "Visualizza tutti i {count, plural, one {# post} other {# post}} di questo giorno",
+  "viewAllPostsOnDate": "Visualizza tutti i {count, plural, one {# post} other {# post}} del {date}",
+  "moreCount": "+{count} altri"
+}

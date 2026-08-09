@@ -1,0 +1,37 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Je marketingmotor in één oogopslag.",
+  "refresh": "Vernieuwen",
+  "refreshing": "Bezig met vernieuwen…",
+  "newPost": "Nieuwe post",
+  "errorTitle": "Kon je dashboard niet laden",
+  "errorBody": "We konden je dashboardgegevens niet laden.",
+  "retry": "Opnieuw proberen",
+  "kpis": {
+    "brands": "Merken",
+    "brandsActive": "{count} actief",
+    "posts": "Posts",
+    "postsSub": "{published} gepubliceerd · {scheduled} gepland",
+    "publishedWeek": "Gepubliceerd · 7d",
+    "acrossDays": "over {count} dagen"
+  },
+  "chart": {
+    "eyebrow": "Publicatieactiviteit · 7d",
+    "publishedThisWeek": "{count} gepubliceerd deze week",
+    "show": "{label} tonen",
+    "hide": "{label} verbergen",
+    "noActivity": "Nog geen publicatieactiviteit."
+  },
+  "distribution": {
+    "eyebrow": "Verdeling",
+    "title": "Posts per kanaal",
+    "viewInCalendar": "Bekijk {channel}-posts in de kalender"
+  },
+  "recentPosts": {
+    "eyebrow": "Binnenkort",
+    "title": "Recente posts",
+    "viewAll": "Alles bekijken →",
+    "untitled": "Naamloze post",
+    "empty": "Nog geen posts. Maak je eerste post om hier activiteit te zien."
+  }
+}

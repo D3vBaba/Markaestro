@@ -1,0 +1,120 @@
+{
+  "page": {
+    "title": "Análises",
+    "subtitle": "O que suas publicações renderam — medido com os dados de cada plataforma.",
+    "refresh": {
+      "idle": "Atualizar",
+      "refreshing": "Atualizando…",
+      "pulling": "Buscando dados em tempo real…",
+      "title": "Buscar os números mais recentes de cada plataforma conectada"
+    },
+    "export": {
+      "idle": "Exportar CSV",
+      "exporting": "Exportando…",
+      "lockedTitle": "A exportação em CSV está incluída no plano Business"
+    },
+    "filters": {
+      "allPlatforms": "Todas as plataformas",
+      "platformTitle": "Filtrar por plataforma",
+      "allBrands": "Todas as marcas",
+      "brandTitle": "Filtrar por marca",
+      "rangeTitle": "Últimos {label}",
+      "rangeLockedTitle": "O período de {label} exige um plano superior",
+      "windowNote": "Mostrando {days} dias — a janela de análises do seu plano."
+    },
+    "error": {
+      "message": "Não foi possível carregar as análises.",
+      "retry": "Tentar novamente"
+    },
+    "emptyState": {
+      "eyebrow": "Ainda sem dados",
+      "title": "Publique sua primeira postagem para começar a medir",
+      "body": "Assim que uma postagem for publicada, o Markaestro busca suas visualizações, alcance e engajamento na plataforma em cerca de uma hora — e continua acompanhando por 30 dias. O número de seguidores é registrado diariamente em cada canal conectado.",
+      "createPost": "Criar uma postagem"
+    },
+    "warmingUp": "Coletando métricas — os primeiros dados chegam cerca de uma hora após a publicação e depois são atualizados em uma frequência decrescente por 30 dias.",
+    "kpis": {
+      "views": { "label": "Visualizações", "sub": "vs. período anterior" },
+      "reach": { "label": "Alcance", "sub": "contas únicas alcançadas" },
+      "engagement": { "label": "Engajamento", "sub": "curtidas + comentários + compartilhamentos + salvamentos" },
+      "engagementRate": { "label": "Taxa de engajamento", "sub": "engajamento ÷ alcance" },
+      "followers": { "label": "Seguidores", "sub": "todos os canais conectados" }
+    },
+    "insights": {
+      "basedOn": "BASEADO EM {count} POSTAGENS"
+    },
+    "trend": {
+      "eyebrow": "Desempenho · {days}d",
+      "metrics": { "views": "Visualizações", "reach": "Alcance", "engagements": "Engajamento", "posts": "Postagens" }
+    },
+    "audience": {
+      "eyebrow": "Audiência",
+      "title": "Seguidores",
+      "titleWithCount": "{count} seguidores"
+    },
+    "timing": { "eyebrow": "Horários", "title": "Quando suas postagens têm melhor desempenho" },
+    "format": { "eyebrow": "Formato", "title": "O que gera mais engajamento" },
+    "channels": { "eyebrow": "Canais", "title": "Desempenho por canal" },
+    "posts": { "eyebrow": "Postagens", "title": "Melhores postagens" },
+    "provenance": {
+      "base": "As métricas seguem as definições de API de cada plataforma e podem ficar até 48 horas atrás das estatísticas nativas. Um \"—\" significa que a plataforma não fornece essa métrica (por exemplo, Threads e TikTok não informam alcance). A taxa de engajamento é engajamento ÷ alcance.",
+      "truncated": " As visualizações por postagem se baseiam nas {count} postagens mais recentes deste período.",
+      "lastUpdate": " Última atualização das métricas: {date}."
+    },
+    "toasts": {
+      "updated": "{count, plural, one {# postagem atualizada a partir da origem} other {# postagens atualizadas a partir da origem}}",
+      "noNewMetrics": "Nenhuma nova métrica da plataforma disponível",
+      "tooManyRefreshes": "Muitas atualizações — tente novamente em um minuto.",
+      "pullFailed": "Não foi possível buscar dados em tempo real. Mostrando os últimos números salvos.",
+      "exportFailed": "Falha na exportação. Tente novamente."
+    }
+  },
+  "contentTypeBars": {
+    "types": { "image": "Imagens", "video": "Vídeos", "carousel": "Carrosséis", "text": "Postagens de texto" },
+    "notEnoughVariety": "Ainda não há variedade suficiente",
+    "publishAtLeastTwo": "Publique pelo menos dois formatos de conteúdo (imagens, vídeos, carrosséis, texto) para compará-los.",
+    "postsCount": "{count, plural, one {# postagem} other {# postagens}}",
+    "avgEng": "engaj. médio"
+  },
+  "trendChart": {
+    "noData": "Ainda não há dados para este período.",
+    "followerHistoryBuilds": "O histórico de seguidores é construído a partir de capturas diárias — a tendência aparece após alguns dias de dados.",
+    "followersSeriesName": "Seguidores"
+  },
+  "channelTable": {
+    "columns": {
+      "channel": "Canal",
+      "posts": "Postagens",
+      "views": "Visualizações",
+      "reach": "Alcance",
+      "engagement": "Engajamento",
+      "erReach": "TE (alcance)",
+      "followers": "Seguidores"
+    },
+    "empty": "Conecte um canal e publique para ver o desempenho por canal.",
+    "clearFilter": "Limpar filtro de canal",
+    "filterTo": "Filtrar por {channel}"
+  },
+  "bestTimeHeatmap": {
+    "notEnoughData": "Ainda não há dados suficientes",
+    "unlocksAt": "O mapa de calor de horários é desbloqueado quando {min} postagens tiverem dados de engajamento ({sampleSize} até agora).",
+    "footer": "ENGAJ. MÉDIO POR POSTAGEM · SEU HORÁRIO LOCAL · {count} POSTAGENS"
+  },
+  "leaderboardTable": {
+    "post": "Postagem",
+    "columns": {
+      "views": "Visualizações",
+      "reach": "Alcance",
+      "engagement": "Engajamento",
+      "erReach": "TE (alcance)",
+      "published": "Publicado"
+    },
+    "empty": "Ainda não há postagens com métricas neste período. As métricas chegam cerca de uma hora após a publicação.",
+    "untitledPost": "Postagem sem título",
+    "sortBy": "Ordenar por {label}",
+    "openOnPlatform": "Abrir na plataforma"
+  },
+  "stackedArea": {
+    "noData": "Ainda sem dados."
+  }
+}

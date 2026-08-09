@@ -1,0 +1,93 @@
+{
+  "page": {
+    "title": "Conectar canales",
+    "subtitle": "Cómo encajan los permisos y las marcas, y los pasos exactos para cada plataforma."
+  },
+  "intro": {
+    "title": "Lo primero que hay que entender",
+    "body": "Conectar un canal implica dos cosas separadas, y confundirlas es lo que rompe la publicación.",
+    "layer1Badge": "Capa 1 · Permiso",
+    "layer1Title": "Lo que la plataforma nos permite tocar",
+    "layer1Body": "Se establece en el propio diálogo de la plataforma al iniciar sesión. En Facebook esto cubre todo tu <bold>espacio de trabajo</bold>, y cada nuevo inicio de sesión <bold>reemplaza</bold> la selección anterior.",
+    "layer2Badge": "Capa 2 · Enrutamiento",
+    "layer2Title": "A qué cuenta publica esta marca",
+    "layer2Body": "Se establece dentro de Markaestro, por marca. Aquí es donde vive \"una Página por marca\" — y una marca puede tener varias cuentas si lo deseas.",
+    "warning": "<bold>Concede todo y luego ajusta por marca.</bold> En el diálogo de la plataforma, marca todas las cuentas en las que podrías publicar alguna vez. Elegir solo una allí revoca el resto, y sus publicaciones programadas empiezan a fallar."
+  },
+  "guides": {
+    "meta": {
+      "label": "Facebook",
+      "scope": "Un único inicio de sesión de Facebook cubre todo tu espacio de trabajo. Cada marca elige después su propia Página.",
+      "steps": {
+        "0": { "title": "Abre una marca y pulsa Conectar en Facebook", "detail": "Marcas → elige una marca → Canales. No importa desde qué marca empieces; el inicio de sesión se aplica a todas las marcas." },
+        "1": { "title": "Marca todas las Páginas que quieras que gestione Markaestro", "detail": "El diálogo de Facebook es la lista de permisos. Todo lo que marques se convierte en el conjunto completo que Markaestro puede tocar, y reemplaza al anterior. Una Página que dejes sin marcar pierde el acceso de inmediato." },
+        "2": { "title": "Elige a qué Página publica esta marca", "detail": "De vuelta en Markaestro, usa Elegir Páginas. Esto es enrutamiento, no permiso — cada marca puede apuntar a su propia Página, y una marca puede tener varias." }
+      },
+      "gotcha": "Marcar solo una Página en el diálogo de Facebook desconectará la Página de todas las demás marcas. Márcalas todas siempre, y luego ajusta por marca dentro de Markaestro."
+    },
+    "instagram": {
+      "label": "Instagram",
+      "scope": "Se conecta por marca, usando el propio inicio de sesión de Instagram en lugar del de Facebook.",
+      "steps": {
+        "0": { "title": "Pulsa Conectar en Instagram dentro de la pestaña Canales de la marca", "detail": "Esto es independiente de Facebook — vincular una Página de Facebook no vincula su cuenta de Instagram." },
+        "1": { "title": "Inicia sesión con la propia cuenta de Instagram", "detail": "La cuenta debe ser una cuenta Profesional (Empresa o Creador). Las cuentas personales no pueden publicar a través de la API." }
+      },
+      "gotcha": "Si Instagram rechaza el inicio de sesión, la cuenta casi con seguridad sigue siendo personal. Cámbiala a Profesional en la app de Instagram y vuelve a conectar."
+    },
+    "tiktok": {
+      "label": "TikTok",
+      "scope": "Se conecta por marca. TikTok requiere que termines cada publicación en su app.",
+      "steps": {
+        "0": { "title": "Pulsa Conectar en TikTok y autoriza", "detail": "Markaestro sube el video y lo envía a tu bandeja de entrada de TikTok." },
+        "1": { "title": "Termina la publicación en la app de TikTok", "detail": "TikTok no permite publicar completamente desde fuera de su app. Cuando una publicación llega a tu bandeja, te enviamos un correo, y la publicación queda en Por publicar hasta que la confirmes." }
+      },
+      "gotcha": "Una publicación de TikTok no está en directo hasta que abres la app de TikTok y la publicas. El correo es tu aviso."
+    },
+    "threads": {
+      "label": "Threads",
+      "scope": "Se conecta por marca, usando su propio inicio de sesión.",
+      "steps": {
+        "0": { "title": "Pulsa Conectar en Threads", "detail": "Autoriza con la cuenta de Threads desde la que quieras publicar." }
+      }
+    },
+    "pinterest": {
+      "label": "Pinterest",
+      "scope": "Se conecta por marca. Los tableros funcionan como las Páginas de Facebook — elige a cuál fija esta marca.",
+      "steps": {
+        "0": { "title": "Pulsa Conectar en Pinterest", "detail": "Autoriza la cuenta de empresa de Pinterest." },
+        "1": { "title": "Elige un tablero", "detail": "Los Pines necesitan un tablero de destino. Puedes vincular varios tableros a una marca y elegir entre ellos al redactar." }
+      }
+    },
+    "linkedin": {
+      "label": "LinkedIn",
+      "scope": "Se conecta por marca, como perfil personal o como Página de empresa.",
+      "steps": {
+        "0": { "title": "Elige Perfil o Páginas al conectar", "detail": "Son autorizaciones independientes. Conecta ambas si publicas como tú mismo y como la empresa." },
+        "1": { "title": "Elige el destino", "detail": "Selecciona a qué perfil o Página de empresa publica esta marca." }
+      }
+    }
+  },
+  "troubleshooting": {
+    "title": "Si algo deja de funcionar",
+    "subtitle": "Qué significa cada mensaje y la salida más rápida.",
+    "items": {
+      "0": {
+        "q": "Una marca dice \"Reconecta Facebook y marca esta Página\"",
+        "a": "Los permisos actuales de Facebook ya no incluyen esa Página — normalmente porque un inicio de sesión posterior marcó menos Páginas. Reconecta desde cualquier marca y marca todas las Páginas. No se pierde nada; la Página elegida por la marca se restaura automáticamente."
+      },
+      "1": {
+        "q": "Una marca dice \"Elígela de nuevo en la configuración de la marca\"",
+        "a": "La Página sigue concedida pero su token necesita renovarse. Abre la pestaña Canales de la marca y selecciona la Página de nuevo."
+      },
+      "2": {
+        "q": "Las publicaciones programadas están fallando",
+        "a": "Revisa primero la pestaña Canales de la marca. Si todos los canales parecen conectados, reconecta la plataforma y marca todas las cuentas — un conjunto de permisos reducido es la causa más común."
+      },
+      "3": {
+        "q": "Una publicación de TikTok nunca se puso en directo",
+        "a": "Las publicaciones de TikTok deben terminarse en la app de TikTok. Revisa tu correo para ver el aviso, o abre Por publicar en Markaestro."
+      }
+    },
+    "manageFrom": "Gestiona cada conexión desde <brands>Marcas</brands> o <settings>Configuración → Integraciones</settings>."
+  }
+}

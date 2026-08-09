@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "title": "Markaestro voor AI-agents | Automatiseer social publishing met een API-sleutel",
+    "description": "Geef je AI-agent een Markaestro-API-sleutel en die kan verbonden socialmedia-accounts ontdekken, media uploaden, posts opstellen, inplannen en publiceren op Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest — met merkgebonden sleutels, idempotente writes en publicatie met een mens in de loop.",
+    "ogTitle": "Markaestro voor AI-agents",
+    "ogDescription": "Eén API-sleutel maakt van Markaestro een publicatietool die je agent kan aanroepen: accounts ontdekken, media uploaden, opstellen, inplannen, publiceren en terugrapporteren."
+  },
+  "hero": {
+    "eyebrow": "Voor AI-agents",
+    "title": "Geef je agent een API-sleutel. Hij runt je socialmediakanalen.",
+    "intro1": "Markaestro is gebouwd om door software te worden bediend. Eén workspace-API-sleutel geeft een agent alles wat nodig is om te ontdekken naar welke accounts hij mag posten, media te uploaden, posts op te stellen en in te plannen, ze te publiceren, en terug te rapporteren wat er daadwerkelijk is geplaatst — op Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest.",
+    "intro2": "Geen SDK om te installeren, geen OAuth-flow die de agent moet overleven, geen platformspecifieke inloggegevens om in de gaten te houden. Je team verbindt de accounts één keer in het dashboard; de agent praat vanaf dan met één bearer-token-API.",
+    "createKeyButton": "Maak een API-sleutel aan",
+    "apiReferenceButton": "Volledige API-referentie",
+    "machineBriefButton": "Machineleesbare samenvatting →"
+  },
+  "why": {
+    "eyebrow": "Ontworpen voor autonomie, doelbewust begrensd",
+    "title": "Waarom een API-sleutel de hele integratie is",
+    "intro": "Het moeilijke aan het laten aanraken van social media door een agent is niet de HTTP. Het is ervoor zorgen dat een verward model niet naar het verkeerde merk kan posten, niet dubbel post bij een retry, of iets verzendt dat niemand heeft gelezen. Die garanties zitten in de API-interface zelf, niet in je prompt.",
+    "cards": [
+      { "title": "Eén sleutel, één merk", "body": "Elke API-sleutel wordt bij het aanmaken aan één merk gebonden. Een agent met die sleutel kan alleen dat merk zien en er alleen naartoe posten — verzoeken tussen merken worden geweigerd bij authenticatie, niet door afspraak." },
+      { "title": "Ontdekking, geen vaste id's", "body": "De agent vraagt naar welke accounts hij kan posten en krijgt ondoorzichtige id's terug om direct door te geven. Geen paginanummers, geen gegraaf in Business Manager, geen configuratiebestand dat verouderd raakt zodra een verbinding opnieuw wordt gekoppeld." },
+      { "title": "Idempotente writes", "body": "Stuur een Idempotency-Key mee bij elke aanmaak of publicatie. Een herhaalde aanroep binnen 24 uur speelt het originele antwoord opnieuw af in plaats van een tweede post te maken — de faalmodus waar agents het vaakst tegenaan lopen." },
+      { "title": "Er blijft altijd een mens in de loop", "body": "Posts op Facebook, Instagram en TikTok zijn manual-first: jouw agent bereidt ze voor, een mens plaatst ze native. Er gaat niets onbeheerd naar buiten tenzij je die post expliciet aanmeldt." }
+    ]
+  },
+  "loop": {
+    "eyebrow": "De agent-loop",
+    "title": "Vijf aanroepen, van begin tot eind",
+    "intro": "Elke Markaestro-automatisering is een variant op deze loop. Stappen één tot en met drie zijn de <connectLink>Connect API</connectLink> — de platte interface waar de meeste agents op moeten mikken. Stappen vier en vijf raken de volledige <code>/api/public/v1</code>-API voor expliciete publicatie en run-tracking.",
+    "steps": [
+      { "step": "01", "title": "Ontdekken", "body": "Retourneert elk verbonden, publiceerbaar account voor het merk van de sleutel, elk met een platform, gebruikersnaam en een ondoorzichtige id. Roep dit aan bij het begin van een run — verbindingen veranderen." },
+      { "step": "02", "title": "Media uploaden", "body": "Genereer een kortstondige, eenmalig bruikbare ondertekende URL, en doe vervolgens een PUT van de ruwe bytes ernaartoe. Je krijgt een media-id terug. Afbeeldingen tot 10 MB; de volledige API accepteert ook video tot 250 MB." },
+      { "step": "03", "title": "Concept of inplannen", "body": "Geef het onderschrift, de media-id's en de account-id's letterlijk door. Laat het als concept staan voor beoordeling, of stuur is_draft false met scheduled_at om het op de kalender te zetten." },
+      { "step": "04", "title": "Publiceren", "body": "Plaatst een asynchrone run in de wachtrij. LinkedIn, Threads en Pinterest gaan via de officiële API naar buiten. Facebook, Instagram en TikTok komen in de 'Te Plaatsen'-wachtrij van de workspace terecht zodat een mens native kan plaatsen." },
+      { "step": "05", "title": "Terugrapporteren", "body": "Peil de run-id, of registreer een webhook-endpoint en laat Markaestro post.published, post.action_required en post.failed naar je pushen. Neem nooit aan dat een publicatie synchroon is voltooid." }
+    ]
+  },
+  "quickstart": {
+    "eyebrow": "Snelstart",
+    "title": "Een werkende integratie in vier commando's",
+    "intro": "Genereer eerst de sleutel: open <settingsLink>Instellingen → API</settingsLink>, kies het merk waartoe deze toegang mag hebben, vink de benodigde scopes aan, en geef optioneel een vervaldatum op. De sleutel wordt eenmalig getoond — plaats deze direct in de geheimenopslag van je agent. Het aanmaken van sleutels vereist een beheerder of eigenaar met een geverifieerd e-mailadres.",
+    "step1": { "title": "1. Ontdek de accounts", "description": "De eerste aanroep in elke run. Verbindingen veranderen; id's mogen nooit in een prompt worden ingebakken." },
+    "step2": { "title": "2. Upload de media", "description": "Twee stappen: genereer een ondertekende, eenmalig bruikbare URL, en doe vervolgens een PUT van de bytes. De URL verloopt na 15 minuten en heeft geen eigen authenticatieheader nodig." },
+    "step3": { "title": "3. Plan het in, en houd het in de gaten", "description": "Aanmaken is standaard concept-first. Stuur in plaats daarvan <code>is_draft: false</code> met een <code>scheduled_at</code>-tijdstempel om de post op de kalender te zetten." },
+    "bashLabel": "bash",
+    "responseLabel": "antwoord"
+  },
+  "toolDefs": {
+    "eyebrow": "Direct bruikbaar",
+    "title": "Tooldefinities en een agent-samenvatting",
+    "intro": "Twee dingen om te kopiëren. De eerste is een set toolschema's die de hele publicatieloop dekken — geschreven in JSON Schema, dus ze werken als Claude-tooldefinities, OpenAI-functies, of de invoervorm voor een MCP-server die je zelf host. De tweede is de operationele samenvatting die een model ervan weerhoudt er iets onverwachts mee te doen.",
+    "schemasTitle": "Toolschema's",
+    "schemasDescription": "Zes tools: accounts tonen, media uploaden, aanmaken, publiceren, tonen, verwijderen. Koppel elk aan het bijbehorende endpoint hierboven.",
+    "schemasLabel": "tools.json",
+    "briefTitle": "Agent-samenvatting",
+    "briefDescription": "Plak dit in je system prompt. Het codeert het gedrag dat een betrouwbare publicatieagent onderscheidt van een agent die dubbel post en te vroeg de overwinning uitroept.",
+    "briefLabel": "system prompt",
+    "briefFooter": "Je agent kan dit ook zelf ophalen: <code>curl https://markaestro.com/llms.txt</code> retourneert een platte-tekst-samenvatting van de hele API — endpoints, regels en foutafhandeling — klein genoeg om in de context te passen."
+  },
+  "recipes": {
+    "eyebrow": "Recepten",
+    "title": "De vier workflows die agents daadwerkelijk uitvoeren",
+    "bashLabel": "bash",
+    "publish": { "title": "Publiceer en bevestig", "description": "Maak een concept aan, publiceer het expliciet, peil vervolgens de run. De enige eerlijke manier om de operator te vertellen dat een post is uitgegaan." },
+    "audit": { "title": "Controleer en annuleer de wachtrij", "description": "Toon wat is ingepland, laat het aan een mens zien, verwijder wat wordt afgewezen. Beide aanroepen gebruiken scopes die een bestaande sleutel al heeft." },
+    "batch": { "title": "Vul een hele week in één aanroep", "description": "Batchaanmaak accepteert tot 25 posts en retourneert resultaten per item, zodat één misvormd item de run niet laat mislukken." },
+    "webhook": { "title": "Laat je bellen in plaats van te pollen", "description": "Langlopende agents zouden een webhook moeten registreren en slapen. Leveringen worden HMAC-ondertekend met een geheim dat eenmalig wordt getoond bij aanmaak." }
+  },
+  "guardrails": {
+    "eyebrow": "Waarborgen",
+    "title": "Wat de agent wel en niet kan doen",
+    "intro": "Autonomie is alleen nuttig als de impactzone klein is. De standaardinstellingen van Markaestro gaan ervan uit dat de aanroeper software is die het mis kan hebben.",
+    "calloutTitle": "Facebook, Instagram en TikTok zijn manual-first",
+    "calloutBody": "Posts die je agent voor deze kanalen aanmaakt, gebruiken standaard <code>manual_reminder</code>: Markaestro roept nooit de API van het platform voor hen aan. Publicatie verplaatst de post naar de 'Te Plaatsen'-wachtrij van de workspace, waar een mens de media downloadt, native plaatst en bevestigt — zodat de post er precies uitziet alsof deze met de hand is gemaakt, en een mens elke post ziet voordat deze publiekelijk bestaat. Een agent kan één post laten kiezen voor publicatie via de officiële API met <code>deliveryMode: \"direct_publish\"</code>, en op TikTok betekent dit de overdracht naar de inbox van de maker, nooit een onbeheerde openbare post. LinkedIn, Threads en Pinterest publiceren programmatisch zodra je agent hier expliciet om vraagt.",
+    "items": [
+      { "title": "Beperk de scope van de sleutel", "body": "Kies alleen de scopes die de agent nodig heeft: products.read, media.write, posts.read, posts.write, posts.publish, job_runs.read, webhooks.manage. Een onderzoeksagent die alleen de kalender leest, krijgt posts.read en niets anders." },
+      { "title": "Geef een vervaldatum op", "body": "Sleutels kunnen worden aangemaakt met een vervaldatum. Een verlopen sleutel gedraagt zich precies als een ingetrokken sleutel, zodat een sleutel die uit de omgeving van een agent lekt, vanzelf ophoudt te werken." },
+      { "title": "Roteer en trek in", "body": "Roteer een sleutel ter plaatse of trek deze volledig in vanuit Instellingen → API. Elke sleutel toont het laatste gebruiksmoment en verzoekvolume, zodat een agent die stil wordt — of ontspoort — zichtbaar is." },
+      { "title": "Snelheidslimieten worden afgedwongen", "body": "60 verzoeken per minuut per endpoint en 240 per minuut per sleutel. Elk antwoord bevat X-RateLimit-Limit, -Remaining en -Reset; een 429 bevat Retry-After. Respecteer dit in plaats van te blijven proberen." },
+      { "title": "Markaestro schrijft nooit voor jou", "body": "Er is geen generatiestap. Het onderschrift komt van je agent, de media komt uit je bibliotheek of de pijplijn van je agent. Markaestro is de handen, niet de stem." },
+      { "title": "Verwijderingen zijn aan de Markaestro-kant", "body": "Het verwijderen van een geplande post annuleert deze voordat hij wordt verzonden. Het verwijderen van een gepubliceerde post stopt alleen het volgen door Markaestro — de live post blijft staan totdat iemand hem op het platform verwijdert." }
+    ]
+  },
+  "errors": {
+    "eyebrow": "Foutafhandeling",
+    "title": "Leer welke fouten het waard zijn om opnieuw te proberen",
+    "intro": "Elk foutantwoord is JSON met een stabiele <code>error</code>-code en een <code>requestId</code>. Laat je agent de requestId citeren wanneer hij een storing meldt — dat is wat ondersteuning nodig heeft om de aanroep te traceren.",
+    "statusHeader": "Status",
+    "codeHeader": "Code",
+    "actionHeader": "Wat de agent moet doen",
+    "rows": [
+      { "status": "401", "code": "UNAUTHENTICATED", "action": "Sleutel ontbreekt, is ingetrokken of verlopen. Stop en vraag een mens om een nieuwe — opnieuw proberen helpt niet." },
+      { "status": "403", "code": "FORBIDDEN", "action": "De sleutel mist de scope voor deze aanroep. Meld welke aanroep is mislukt; scopes worden gewijzigd in Instellingen → API." },
+      { "status": "403", "code": "API_KEY_NOT_BOUND_TO_PRODUCT", "action": "Een sleutel uitgegeven vóór merkbinding. Vraag om een vervangende sleutel." },
+      { "status": "400", "code": "VALIDATION_*", "action": "De payload schond een kanaalregel (media ontbreekt, verkeerde leveringsmodus, verkeerde scheduled_at). Corrigeer het verzoek; probeer het niet ongewijzigd opnieuw." },
+      { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "Dezelfde Idempotency-Key is met een andere body verzonden. Genereer een nieuwe sleutel per afzonderlijk verzoek." },
+      { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Probeerde een post te verwijderen terwijl een publicatierun bezig is. Wacht tot de run is afgerond en verwijder dan." },
+      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Een publicatierun voor deze post staat al in de wachtrij. Publiceer niet opnieuw — peil in plaats daarvan de bestaande run." },
+      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "De workspace heeft het maandelijkse uploadquotum bereikt. Stop met uploaden en breng dit onder de aandacht — bestaande media wordt nog steeds gepubliceerd." },
+      { "status": "404", "code": "NOT_FOUND", "action": "De id valt buiten het merk van deze sleutel. Beantwoord als 404 in plaats van 403, zodat sleutels geen id's kunnen aftasten die ze niet bezitten." },
+      { "status": "429", "code": "RATE_LIMITED", "action": "Wacht het aantal seconden dat Retry-After aangeeft, en probeer dan hetzelfde verzoek opnieuw met dezelfde Idempotency-Key." }
+    ]
+  },
+  "stacks": {
+    "eyebrow": "Gebruik je eigen stack",
+    "title": "Als het een HTTPS-verzoek kan doen, kan het publiceren",
+    "intro": "Er is geen Markaestro-clientbibliotheek om te adopteren en geen framework om op te standaardiseren. Bearer token, JSON erin, JSON eruit.",
+    "items": [
+      { "name": "Claude en de Claude Agent SDK", "body": "Voeg de tooldefinities hierboven toe aan je toollijst. De JSON Schema-vormen zijn al in Claude's tool-use-formaat." },
+      { "name": "Function calling van OpenAI", "body": "Dezelfde schema's mappen één-op-één op functiedefinities — hernoem input_schema naar parameters." },
+      { "name": "MCP-servers", "body": "Als je agent MCP spreekt, verpak deze zes aanroepen dan in een kleine server. Er is niets Markaestro-specifieks te installeren aan geen van beide kanten." },
+      { "name": "n8n, Make, Zapier", "body": "Elk endpoint is een gewoon HTTP-verzoek met een bearer token. Geen SDK, geen ondertekeningsceremonie, geen OAuth-dans voor de agent." },
+      { "name": "LangChain en LlamaIndex", "body": "Standaard REST-tools. De tweestapsupload van media is de enige flow met meerdere aanroepen, en is twee regels." },
+      { "name": "Een cronjob en curl", "body": "Niet elke agent heeft een framework nodig. De snelstart hierboven is een complete, werkende integratie in vier commando's." }
+    ]
+  },
+  "cta": {
+    "title": "Geef je agent iets echts te doen",
+    "subtitle": "Verbind je kanalen, genereer een merkgebonden sleutel, en geef die door. De snelstart hierboven is de hele integratie.",
+    "primaryButton": "Gratis aan de slag",
+    "secondaryButton": "Lees de API-referentie"
+  }
+}

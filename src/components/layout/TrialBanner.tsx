@@ -6,10 +6,12 @@ import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function TrialBanner() {
   const { status, trialDaysLeft } = useSubscription();
   const [busy, setBusy] = useState(false);
+  const t = useTranslations("shell.trialBanner");
 
   if (!status?.trialing || trialDaysLeft === null) return null;
 
@@ -20,10 +22,10 @@ export function TrialBanner() {
     try {
       const res = await apiFetch<{ url: string }>('/api/stripe/portal', { method: 'POST' });
       if (res.ok && res.data.url) {
-        toast("Opening billing portal…");
+        toast(t("openingPortal"));
         window.open(res.data.url, "_blank", "noopener");
       } else {
-        toast.error("Could not open the billing portal. Please try again.");
+        toast.error(t("portalError"));
       }
     } finally {
       setBusy(false);
@@ -49,12 +51,12 @@ export function TrialBanner() {
         <Clock className="h-3.5 w-3.5" />
         <span className="font-medium">
           {trialDaysLeft === 0
-            ? "Your trial ends today"
-            : `${trialDaysLeft} day${trialDaysLeft === 1 ? "" : "s"} left in your trial`}
+            ? t("endsToday")
+            : t("daysLeft", { days: trialDaysLeft })}
         </span>
         {status.tier && (
           <span className="text-xs opacity-70 hidden sm:inline">
-            · {status.tier.charAt(0).toUpperCase() + status.tier.slice(1)} plan
+            {t("planSuffix", { tier: status.tier.charAt(0).toUpperCase() + status.tier.slice(1) })}
           </span>
         )}
       </div>
@@ -65,7 +67,7 @@ export function TrialBanner() {
         onClick={handleUpgrade}
         disabled={busy}
       >
-        {busy ? "Loading..." : "Manage Billing"}
+        {busy ? t("loading") : t("manageBilling")}
       </Button>
     </div>
   );

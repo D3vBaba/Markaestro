@@ -1,0 +1,154 @@
+{
+  "eyebrow": "Mentions légales",
+  "title": "Politique de confidentialité",
+  "lastUpdated": "Dernière mise à jour · 10 mars 2026",
+  "sections": [
+    {
+      "heading": "1. Portée et Rôles",
+      "blocks": [
+        { "type": "p", "text": "La présente Politique de confidentialité explique comment Markaestro (« Markaestro », « nous » ou « notre ») collecte, utilise, divulgue et protège les informations personnelles lorsque vous accédez à notre plateforme d'automatisation marketing, notre site web, nos applications, nos API et les services associés (collectivement, les « Services »)." },
+        { "type": "p", "text": "Markaestro traite différentes catégories de données selon différents rôles. Pour les données de compte, de facturation, de sécurité, de support et d'administration du site web, nous agissons généralement en tant que responsable du traitement. Pour les listes de contacts, le contenu des publications, les actifs de marque, les contenus importés, les événements d'activité et les données similaires soumises par un espace de travail, nous agissons généralement en tant que sous-traitant ou prestataire de services pour le compte de cet espace de travail. Si vous êtes un client final ou un contact figurant dans l'espace de travail d'un client de Markaestro, vous devez adresser vos demandes de confidentialité à cet espace de travail en premier lieu." }
+      ]
+    },
+    {
+      "heading": "2. Informations que Nous Collectons",
+      "blocks": [
+        { "type": "h3", "text": "2.1 Informations que vous fournissez directement" },
+        { "type": "ul", "items": [
+          "<strong>Données de compte et d'identité :</strong> adresse e-mail, identifiants d'authentification, nom affiché et identifiants gérés via Firebase Authentication.",
+          "<strong>Données d'espace de travail et d'équipe :</strong> nom de l'espace de travail, enregistrements d'adhésion, rôles utilisateur et informations d'invitation ou de gestion des accès.",
+          "<strong>Données de produit et de marque :</strong> noms de produits, descriptions, URLs, niveaux de prix, catégories, paramètres de voix de marque, exemples de texte de voix, descriptions de public cible, mots-clés, listes de mots à éviter, logos et paramètres de couleurs de marque.",
+          "<strong>Données de publication :</strong> publications, textes, horaires programmés, URLs de contenu, paramètres de public cible, texte d'appel à l'action et configuration associée du flux de travail.",
+          "<strong>Données de contact et CRM :</strong> noms, adresses e-mail, statut, étape du cycle de vie, source, étiquettes, notes, associations de produits et statut de désabonnement des contacts que vous créez, importez, synchronisez ou gérez.",
+          "<strong>Configuration d'automatisation et de tâches :</strong> étapes d'automatisation, déclencheurs, calendriers de tâches, données de tâches et configuration d'exécution associée.",
+          "<strong>Données de support et de communications :</strong> informations que vous nous envoyez par e-mail ou formulaires de contact, y compris le contenu des messages et toute pièce jointe fournie."
+        ] },
+        { "type": "h3", "text": "2.2 Informations issues de services et intégrations connectés" },
+        { "type": "ul", "items": [
+          "<strong>Données OAuth et d'intégration :</strong> jetons d'accès, jetons de renouvellement, données d'expiration des jetons, identifiants de compte du fournisseur, noms d'utilisateur, ID ouverts, sélections de page ou de compte, et métadonnées spécifiques au fournisseur nécessaires au maintien d'une connexion.",
+          "<strong>Données de connexion sociale :</strong> listes de pages, informations de profil de compte, statut des publications, destinations de publication et métadonnées de connexion associées, obtenues auprès de fournisseurs tels que TikTok, Meta et services similaires que vous connectez."
+        ] },
+        { "type": "h3", "text": "2.3 Informations collectées automatiquement" },
+        { "type": "ul", "items": [
+          "<strong>Données d'utilisation et d'activité :</strong> pages visitées, fonctionnalités utilisées, actions effectuées, horodatages et événements d'activité limités à l'espace de travail.",
+          "<strong>Données techniques :</strong> adresse IP, type de navigateur, informations sur l'appareil, système d'exploitation, métadonnées de requête et localisation approximative dérivée des informations réseau.",
+          "<strong>Diagnostics et journaux :</strong> détails des erreurs API, ID de requête, événements de sécurité, journaux d'audit, données d'exécution de tâches en arrière-plan et télémétrie capturée pour la fiabilité et la prévention des abus, y compris le traitement de diagnostic via Sentry.",
+          "<strong>Données de cookies et de stockage local :</strong> informations essentielles de session, d'authentification et de préférences utilisées pour exploiter les Services."
+        ] },
+        { "type": "h3", "text": "2.4 Fichiers et imports" },
+        { "type": "ul", "items": [
+          "<strong>Contenus importés :</strong> logos, images, vidéos et autres fichiers que vous importez pour la publication ou l'identité de marque.",
+          "<strong>URLs d'actifs à accès public :</strong> certains actifs importés peuvent être stockés à l'aide d'URLs cloud publiques directes afin de pouvoir être affichés dans des publications sociales et des intégrations externes. Vous ne devez importer que des fichiers que vous êtes autorisé à publier ou partager de cette manière."
+        ] }
+      ]
+    },
+    {
+      "heading": "3. Comment Nous Utilisons les Informations",
+      "blocks": [
+        { "type": "p", "text": "Nous utilisons les informations personnelles et les données client pour :" },
+        { "type": "ul", "items": [
+          "fournir, sécuriser, maintenir, dépanner et améliorer les Services ;",
+          "authentifier les utilisateurs et appliquer les contrôles d'accès à l'espace de travail ;",
+          "stocker et gérer les produits, les paramètres de marque, les publications et les contenus importés ;",
+          "publier ou programmer du contenu sur des services tiers connectés à votre demande ;",
+          "afficher les tableaux de bord, les files de publications, le statut de publication et les résumés d'activité de l'espace de travail ;",
+          "détecter la fraude, les abus, les incidents de sécurité et les accès non autorisés ;",
+          "répondre aux demandes de support, demandes juridiques et questions de mise en application ; et",
+          "respecter les obligations légales et protéger nos droits, nos utilisateurs et notre plateforme."
+        ] }
+      ]
+    },
+    {
+      "heading": "4. Bases Légales du Traitement",
+      "blocks": [
+        { "type": "p", "text": "Lorsque la loi l'exige, nous nous appuyons sur une ou plusieurs des bases légales suivantes : exécution d'un contrat, intérêts légitimes, consentement et respect des obligations légales. Par exemple, nous traitons les données de compte pour fournir les Services dans le cadre d'un contrat, nous utilisons les journaux et la télémétrie de sécurité pour un intérêt légitime à exploiter une plateforme sécurisée, et nous pouvons nous appuyer sur le consentement lorsque cela est requis pour certaines communications ou permissions d'intégration." }
+      ]
+    },
+    {
+      "heading": "5. Cookies et Technologies Similaires",
+      "blocks": [
+        { "type": "p", "text": "Nous utilisons des cookies essentiels, des jetons et des technologies de stockage similaires pour vous maintenir connecté, préserver l'intégrité de la session, mémoriser les préférences et sécuriser les Services. Nous pouvons également utiliser de la télémétrie technique et des outils de diagnostic pour surveiller les erreurs et les performances de l'application. Nous ne vendons pas d'informations personnelles et n'utilisons pas de cookies de publicité comportementale entre contextes dans le cadre de l'expérience authentifiée de l'application." }
+      ]
+    },
+    {
+      "heading": "6. Comment Nous Partageons les Informations",
+      "blocks": [
+        { "type": "p", "text": "Nous ne vendons pas d'informations personnelles. Nous partageons des informations uniquement selon les besoins décrits ci-dessus, notamment avec :" },
+        { "type": "ul", "items": [
+          "<strong>Fournisseurs d'infrastructure :</strong> Google Cloud et Firebase pour les services d'hébergement, d'authentification, de base de données et de stockage.",
+          "<strong>Fournisseurs de surveillance et de diagnostic des erreurs :</strong> des fournisseurs tels que Sentry pour capturer les erreurs opérationnelles et liées à la sécurité.",
+          "<strong>Fournisseurs d'intégration connectés :</strong> TikTok, Meta, Google et d'autres services que vous nous autorisez à connecter ou à utiliser en votre nom.",
+          "<strong>Autres utilisateurs de l'espace de travail :</strong> vos données peuvent être visibles par les membres autorisés de votre espace de travail selon leur rôle et leurs permissions.",
+          "<strong>Conseillers professionnels et autorités :</strong> lorsque cela est raisonnablement nécessaire pour faire respecter nos conditions, enquêter sur un usage abusif, répondre à une procédure légale ou protéger des droits, la sécurité et la protection.",
+          "<strong>Contreparties de transactions commerciales :</strong> dans le cadre d'une fusion, d'une acquisition, d'un financement, d'une restructuration, d'une cession d'actifs ou d'un événement similaire, sous réserve de protections de confidentialité appropriées."
+        ] }
+      ]
+    },
+    {
+      "heading": "7. Stockage, Sécurité et Intégrité",
+      "blocks": [
+        { "type": "h3", "text": "7.1 Infrastructure" },
+        { "type": "p", "text": "Markaestro fonctionne sur l'infrastructure Google Cloud et Firebase, y compris Firestore, Authentication et Cloud Storage. Nous utilisons des mesures administratives, techniques et organisationnelles raisonnables conçues pour protéger les informations personnelles contre les accès non autorisés, la perte, l'usage abusif ou l'altération." },
+        { "type": "h3", "text": "7.2 Gestion des secrets" },
+        { "type": "p", "text": "Nous chiffrons les secrets d'intégration sensibles tels que les jetons d'accès OAuth et les clés API avant leur stockage, à l'aide d'un chiffrement authentifié. Les mots de passe pour l'authentification par e-mail et mot de passe sont gérés par Firebase Authentication plutôt que stockés directement par notre application." },
+        { "type": "h3", "text": "7.3 Limitations importantes" },
+        { "type": "p", "text": "Aucun environnement internet ou de stockage n'est totalement sécurisé. De plus, certains actifs importés peuvent être intentionnellement stockés à des URLs à accès public afin de prendre en charge les flux de publication. Vous ne devez pas importer d'informations personnelles hautement sensibles, de documents d'identité gouvernementaux, de données de carte de paiement, d'informations de santé protégées ou d'autres données réglementées, sauf accord exprès et écrit de notre part pour prendre en charge cet usage." }
+      ]
+    },
+    {
+      "heading": "8. Transferts Internationaux",
+      "blocks": [
+        { "type": "p", "text": "Nous et nos prestataires de services pouvons traiter des informations aux États-Unis et dans d'autres pays qui peuvent avoir des lois de protection des données différentes de celles de votre juridiction. Lorsque cela est requis, nous utilisons des mécanismes et garanties de transfert appropriés pour les transferts internationaux." }
+      ]
+    },
+    {
+      "heading": "9. Conservation des Données",
+      "blocks": [
+        { "type": "p", "text": "Nous conservons les informations aussi longtemps que raisonnablement nécessaire pour fournir les Services, respecter les obligations légales, résoudre les litiges et faire respecter les accords. Les durées de conservation varient selon le type de données, par exemple :" },
+        { "type": "ul", "items": [
+          "les enregistrements de compte et d'espace de travail sont conservés tant que votre compte ou espace de travail reste actif ;",
+          "les secrets d'intégration sont conservés jusqu'à leur déconnexion, leur remplacement ou leur suppression ;",
+          "le contenu, les contacts, les publications, les produits, les contenus importés, les enregistrements d'activité et les journaux d'événements restent dans l'espace de travail jusqu'à leur suppression ou celle de l'espace de travail, sous réserve des cycles de sauvegarde et de conservation légale ;",
+          "l'état OAuth de courte durée et les données d'autorisation temporaire associées peuvent expirer et être supprimés automatiquement après une brève période ;",
+          "les enregistrements de support, de prévention des abus et juridiques peuvent être conservés plus longtemps lorsque cela est nécessaire pour des motifs commerciaux légitimes ou de conformité légale."
+        ] }
+      ]
+    },
+    {
+      "heading": "10. Vos Droits en Matière de Confidentialité",
+      "blocks": [
+        { "type": "p", "text": "Selon votre juridiction, vous pouvez disposer de droits d'accès, de rectification, de suppression, de limitation, d'opposition ou d'exportation de vos informations personnelles, et de retrait de votre consentement lorsque celui-ci constitue la base du traitement. Vous pouvez également avoir le droit de ne pas subir de traitement discriminatoire pour l'exercice de vos droits." },
+        { "type": "ul", "items": [
+          "<strong>EEE, Royaume-Uni et régions similaires :</strong> vous pouvez disposer de droits d'opposition, de limitation du traitement, de demande de portabilité, ou de déposer une plainte auprès de votre autorité de contrôle locale.",
+          "<strong>Californie et lois d'État américaines similaires :</strong> vous pouvez disposer de droits de savoir, d'accéder, de supprimer et de corriger des informations personnelles, et de limiter certains usages de données sensibles le cas échéant. Markaestro ne vend pas d'informations personnelles ni ne les partage à des fins de publicité comportementale entre contextes, tels que ces termes sont définis par la loi d'État applicable.",
+          "<strong>Contacts finaux des clients :</strong> si vos informations se trouvent dans l'espace de travail d'un client de Markaestro, il se peut que nous devions rediriger votre demande vers ce client, car c'est lui qui détermine les finalités et les moyens du traitement de ces données."
+        ] },
+        { "type": "p", "text": "Pour exercer des droits sur les données que nous contrôlons, contactez-nous à <mailLink>legal@markaestro.com</mailLink>. Il se peut que nous devions vérifier votre identité avant de traiter une demande." }
+      ]
+    },
+    {
+      "heading": "11. Vos Responsabilités en Utilisant Markaestro",
+      "blocks": [
+        { "type": "p", "text": "Si vous importez des informations de contact, du contenu de publications, des fichiers multimédias ou des données de plateformes tierces dans Markaestro, vous êtes responsable de vous assurer que vous disposez d'une base légale appropriée pour le faire et de respecter les lois applicables en matière de confidentialité, d'antispam, de publicité et de protection des consommateurs. Cela inclut l'obtention des consentements requis et le respect des demandes de désabonnement ou de suppression, ainsi que la garantie que vous détenez les droits sur tout contenu que vous importez." }
+      ]
+    },
+    {
+      "heading": "12. Confidentialité des Mineurs",
+      "blocks": [
+        { "type": "p", "text": "Les Services ne sont pas destinés aux mineurs, et vous ne pouvez pas les utiliser si vous avez moins de 18 ans. Nous ne collectons pas sciemment d'informations personnelles auprès de mineurs. Si vous pensez qu'un mineur nous a fourni des informations personnelles, contactez-nous et nous mènerons une enquête et prendrons les mesures appropriées." }
+      ]
+    },
+    {
+      "heading": "13. Modifications de cette Politique",
+      "blocks": [
+        { "type": "p", "text": "Nous pouvons mettre à jour cette Politique de confidentialité de temps à autre. Si nous apportons des modifications substantielles, nous publierons la version mise à jour ici et pourrons fournir un avis supplémentaire via les Services ou par e-mail lorsque cela est approprié. Votre utilisation continue des Services après la date d'entrée en vigueur de la politique mise à jour signifie que cette politique mise à jour s'appliquera à votre usage futur." }
+      ]
+    },
+    {
+      "heading": "14. Nous Contacter",
+      "blocks": [
+        { "type": "p", "text": "Si vous avez des questions concernant cette Politique de confidentialité ou les pratiques de Markaestro en matière de confidentialité, contactez-nous à <mailLink>legal@markaestro.com</mailLink> ou via notre <contactLink>page de contact</contactLink>." }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "login": {
+    "hero": {
+      "eyebrow": "مرحبًا بعودتك",
+      "titleLine1": "سير عملك الاجتماعي بالكامل",
+      "titleLine2Prefix": "بتسجيل دخول ",
+      "titleLine2Accent": "واحد.",
+      "subtitle": "توقف عن تسجيل الدخول إلى خمسة تطبيقات لنشر منشور واحد. سجّل الدخول للنشر في كل مكان، والجدولة قبل أسابيع، واسترجاع وقتك.",
+      "points": {
+        "publish": { "title": "انشر في كل مكان دفعة واحدة", "desc": "فيسبوك وإنستغرام وTikTok والمزيد — من محرر واحد." },
+        "schedule": { "title": "جدوِل قبل أسابيع", "desc": "اضبط وتيرتك مرة واحدة ولن تتوقف عن النشر مجددًا." },
+        "hours": { "title": "استرجع ساعات كل أسبوع", "desc": "أعمال النسخ واللصق وتسجيل الدخول المتكررة تختفي ببساطة." }
+      },
+      "newHere": {
+        "title": "جديد على Markaestro؟",
+        "body": "أجب عن 10 أسئلة سريعة وسنبني خطة النشر الخاصة بك — اكتشف مجانًا كم ساعة ستسترجع.",
+        "cta": "إنشاء خطتي — مجانًا ←"
+      }
+    },
+    "form": {
+      "eyebrowEmail": "تسجيل الدخول أو إنشاء حساب",
+      "eyebrowCode": "تحقق من بريدك الوارد",
+      "titleEmail": "المتابعة عبر بريدك الإلكتروني",
+      "titleCode": "أدخل الرمز الخاص بك",
+      "subtitleEmail": "لا حاجة لكلمة مرور — سنرسل لك رمزًا لمرة واحدة عبر البريد الإلكتروني. جديد هنا؟ نفس الرمز ينشئ حسابك.",
+      "subtitleCode": "أرسلنا رمزًا مكوّنًا من 6 أرقام إلى <email></email>.",
+      "emailPlaceholder": "name@company.com",
+      "codePlaceholder": "123456",
+      "sendCode": "أرسل لي رمزًا",
+      "sendingCode": "جارٍ إرسال الرمز…",
+      "signIn": "تسجيل الدخول",
+      "verifying": "جارٍ التحقق…",
+      "useDifferentEmail": "→ استخدام بريد إلكتروني مختلف",
+      "resendCode": "إعادة إرسال الرمز",
+      "resendIn": "إعادة الإرسال خلال {seconds} ثانية",
+      "orContinueWith": "أو تابع باستخدام",
+      "continueWithGoogle": "المتابعة باستخدام Google",
+      "legal": "بالمتابعة، فإنك توافق على <terms>الشروط</terms> و<privacy>سياسة الخصوصية</privacy> الخاصة بنا."
+    },
+    "errors": {
+      "enterEmail": "يرجى إدخال عنوان بريدك الإلكتروني.",
+      "enterCode": "أدخل الرمز المكوّن من 6 أرقام من بريدك الإلكتروني."
+    }
+  },
+  "authAction": {
+    "unsupportedAction": "إجراء غير مدعوم.",
+    "canceledFallback": {
+      "eyebrow": "الحساب",
+      "title": "إجراء الحساب",
+      "subtitle": "تعذّر علينا إتمام هذا الرابط.",
+      "message": "معاملات الإجراء مفقودة أو غير صالحة.",
+      "backToSignIn": "العودة إلى تسجيل الدخول"
+    },
+    "titles": {
+      "resetPassword": "تعيين كلمة مرور جديدة",
+      "verifyEmail": "تحقق من بريدك الإلكتروني",
+      "verifyAndChangeEmail": "تأكيد تغيير البريد الإلكتروني",
+      "default": "إجراء الحساب"
+    },
+    "eyebrows": {
+      "resetPassword": "إعادة تعيين",
+      "verifyEmail": "تحقق",
+      "verifyAndChangeEmail": "تأكيد",
+      "default": "الحساب"
+    },
+    "subtitles": {
+      "resetPassword": "اختر كلمة مرور جديدة لحسابك.",
+      "default": "أكمل الإجراء المطلوب."
+    },
+    "emailVerifiedSuccess": "تم التحقق من البريد الإلكتروني بنجاح.",
+    "emailUpdatedSuccess": "تم تحديث البريد الإلكتروني بنجاح.",
+    "genericError": "حدث خطأ ما.",
+    "genericSuccess": "تم.",
+    "resettingPasswordFor": "جارٍ إعادة تعيين كلمة المرور لـ <email></email>",
+    "newPasswordPlaceholder": "كلمة المرور الجديدة",
+    "updatePassword": "تحديث كلمة المرور",
+    "updating": "جارٍ التحديث…",
+    "passwordUpdatedSuccess": "تم تحديث كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.",
+    "backToSignIn": "العودة إلى تسجيل الدخول",
+    "working": "جارٍ المعالجة…",
+    "continue": "متابعة",
+    "errors": {
+      "expiredActionCode": "انتهت صلاحية هذا الرابط. يرجى طلب بريد إلكتروني جديد.",
+      "invalidActionCode": "هذا الرابط غير صالح أو تم استخدامه بالفعل.",
+      "userDisabled": "تم تعطيل هذا الحساب.",
+      "weakPassword": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+      "default": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "oauthComplete": {
+    "title": "جارٍ إتمام الاتصال",
+    "subtitle": "جارٍ استعادة جلستك وإعادتك إلى التطبيق."
+  }
+}

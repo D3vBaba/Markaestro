@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "features": "功能",
+    "channels": "渠道",
+    "aiAgents": "AI 代理",
+    "api": "API",
+    "pricing": "价格",
+    "contact": "联系我们",
+    "dashboard": "控制台",
+    "signIn": "登录",
+    "getStarted": "开始使用"
+  },
+  "footer": {
+    "tagline": "为你运营的每一个品牌打造的营销平台 —— 无论是你的企业、你的客户，还是你自己。",
+    "productHeading": "产品",
+    "developersHeading": "开发者",
+    "companyHeading": "公司",
+    "getStartedHeading": "开始使用",
+    "features": "功能",
+    "channels": "渠道",
+    "pricing": "价格",
+    "aiAgents": "AI 代理",
+    "apiReference": "API 参考",
+    "agentBrief": "代理简介（llms.txt）",
+    "contact": "联系我们",
+    "termsOfService": "服务条款",
+    "privacyPolicy": "隐私政策",
+    "signIn": "登录",
+    "createAccount": "创建账户",
+    "copyright": "© {year} Markaestro. 保留所有权利。",
+    "terms": "条款",
+    "privacy": "隐私"
+  },
+  "copyBlock": {
+    "copy": "复制",
+    "copied": "已复制",
+    "copyAriaLabel": "复制到剪贴板",
+    "copiedAriaLabel": "已复制"
+  },
+  "localeSwitcher": {
+    "label": "语言"
+  },
+  "legalDisclaimer": {
+    "text": "本页面为机器辅助翻译。英文版本为具有法律效力的正式文本。",
+    "viewEnglish": "查看英文版本"
+  }
+}

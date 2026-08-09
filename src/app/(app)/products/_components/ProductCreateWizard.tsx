@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Globe, Loader2, ArrowRight, Check, Wand2, Pencil } from "lucide-react";
 import {
@@ -27,6 +28,7 @@ export default function ProductCreateWizard({
   onOpenChange: (open: boolean) => void;
   onCreated: (productId: string) => void;
 }) {
+  const t = useTranslations("products.createWizard");
   const [mode, setMode] = useState<Mode>("start");
   const [scanUrl, setScanUrl] = useState("");
   const {
@@ -76,7 +78,7 @@ export default function ProductCreateWizard({
   const handleScan = async () => {
     const raw = scanUrl.trim();
     if (!raw) {
-      toast.error("Enter a URL first");
+      toast.error(t("toasts.enterUrl"));
       return;
     }
     const full = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
@@ -103,7 +105,7 @@ export default function ProductCreateWizard({
 
   const create = async () => {
     if (!name.trim()) {
-      toast.error("Name is required");
+      toast.error(t("toasts.nameRequired"));
       return;
     }
     setSaving(true);
@@ -116,7 +118,7 @@ export default function ProductCreateWizard({
       });
       if (!res.ok) {
         const err = res.data as { error?: string; issues?: { message: string }[] };
-        toast.error(err.issues?.[0]?.message || err.error || "Failed to create brand");
+        toast.error(err.issues?.[0]?.message || err.error || t("toasts.createFailed"));
         return;
       }
       const created = res.data;
@@ -140,12 +142,12 @@ export default function ProductCreateWizard({
           },
         }).catch(() => {});
       }
-      toast.success("Brand added");
+      toast.success(t("toasts.brandAdded"));
       reset();
       onOpenChange(false);
       onCreated(created.id);
     } catch {
-      toast.error("Failed to create brand");
+      toast.error(t("toasts.createFailed"));
     } finally {
       setSaving(false);
     }
@@ -172,21 +174,21 @@ export default function ProductCreateWizard({
           className="px-4 sm:px-6 pt-6 pb-4 border-b"
           style={{ borderColor: "var(--mk-rule)" }}
         >
-          <p className="mk-eyebrow">New brand</p>
+          <p className="mk-eyebrow">{t("eyebrow")}</p>
           <SheetTitle
             className="text-[22px] font-semibold m-0"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
           >
-            Add brand
+            {t("title")}
           </SheetTitle>
           <SheetDescription
             className="text-[13px]"
             style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
           >
-            {mode === "start" && "Start by scanning your website, or enter details manually."}
-            {mode === "scan" && "Researching your brand…"}
-            {mode === "manual" && "Fill out the essentials — you can add more later."}
-            {mode === "review" && "Review what we found, tweak anything, then save."}
+            {mode === "start" && t("descriptions.start")}
+            {mode === "scan" && t("descriptions.scan")}
+            {mode === "manual" && t("descriptions.manual")}
+            {mode === "review" && t("descriptions.review")}
           </SheetDescription>
         </SheetHeader>
 
@@ -223,22 +225,22 @@ export default function ProductCreateWizard({
                         className="text-[14px] font-semibold"
                         style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
                       >
-                        Scan your website
+                        {t("scanCard.title")}
                       </p>
                       <p
                         className="text-[12.5px] mt-0.5"
                         style={{ color: "var(--mk-ink-60)" }}
                       >
-                        We&apos;ll extract your name, description, brand colours, logo and tone so you can start with 90% done.
+                        {t("scanCard.body")}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <div className="relative flex-1">
-                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                      <Globe className="absolute start-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                       <Input
-                        className="pl-9"
-                        placeholder="https://yourbrand.com"
+                        className="ps-9"
+                        placeholder={t("scanCard.urlPlaceholder")}
                         value={scanUrl}
                         onChange={(e) => setScanUrl(e.target.value)}
                         onKeyDown={(e) => {
@@ -253,7 +255,7 @@ export default function ProductCreateWizard({
                       ) : (
                         <Sparkles className="h-4 w-4" />
                       )}
-                      <span className="ml-1.5">Scan</span>
+                      <span className="ms-1.5">{t("scanCard.scan")}</span>
                     </Button>
                   </div>
                 </div>
@@ -263,7 +265,7 @@ export default function ProductCreateWizard({
                     className="flex-1 h-px"
                     style={{ background: "var(--mk-rule)" }}
                   />
-                  <span className="mk-eyebrow">Or</span>
+                  <span className="mk-eyebrow">{t("or")}</span>
                   <span
                     className="flex-1 h-px"
                     style={{ background: "var(--mk-rule)" }}
@@ -272,7 +274,7 @@ export default function ProductCreateWizard({
 
                 <button
                   onClick={startManual}
-                  className="w-full group rounded-xl transition-colors p-5 text-left"
+                  className="w-full group rounded-xl transition-colors p-5 text-start"
                   style={{
                     background: "var(--mk-paper)",
                     border: "1px solid var(--mk-rule)",
@@ -297,7 +299,7 @@ export default function ProductCreateWizard({
                           className="text-[14px] font-semibold"
                           style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
                         >
-                          Enter manually
+                          {t("manualCard.title")}
                         </p>
                         <ArrowRight
                           className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
@@ -308,7 +310,7 @@ export default function ProductCreateWizard({
                         className="text-[12.5px] mt-0.5"
                         style={{ color: "var(--mk-ink-60)" }}
                       >
-                        Skip the scan and fill the form yourself.
+                        {t("manualCard.body")}
                       </p>
                     </div>
                   </div>
@@ -337,7 +339,7 @@ export default function ProductCreateWizard({
                       className="h-10 sm:h-9 text-[13px]"
                       style={{ color: "var(--mk-ink-60)" }}
                     >
-                      Cancel scan
+                      {t("cancelScan")}
                     </Button>
                   </div>
                 )}
@@ -347,11 +349,7 @@ export default function ProductCreateWizard({
                       className="text-[12.5px]"
                       style={{ color: "var(--mk-ink-60)" }}
                     >
-                      We couldn&apos;t scan{" "}
-                      <span className="font-mono break-all" style={{ color: "var(--mk-ink-80)" }}>
-                        {scanUrl}
-                      </span>
-                      . Retry the scan, or enter your details manually.
+                      {t("scanError.body", { url: scanUrl })}
                     </p>
                     <div className="flex flex-wrap justify-end gap-2">
                       <Button
@@ -360,12 +358,12 @@ export default function ProductCreateWizard({
                         className="h-10 sm:h-9 text-[13px]"
                         style={{ color: "var(--mk-ink-60)" }}
                       >
-                        Edit URL
+                        {t("scanError.editUrl")}
                       </Button>
                       <Button variant="outline" onClick={handleScan} className="h-10 sm:h-9">
-                        Retry scan
+                        {t("scanError.retry")}
                       </Button>
-                      <Button onClick={() => setMode("manual")} className="h-10 sm:h-9">Enter manually</Button>
+                      <Button onClick={() => setMode("manual")} className="h-10 sm:h-9">{t("scanError.enterManually")}</Button>
                     </div>
                   </div>
                 )}
@@ -399,40 +397,40 @@ export default function ProductCreateWizard({
                       className="text-[12px]"
                       style={{ color: "color-mix(in oklch, var(--mk-pos) 70%, var(--mk-ink))" }}
                     >
-                      Scan complete — review and edit anything below.
+                      {t("scanComplete")}
                     </p>
                   </div>
                 )}
 
-                <FormField label="Brand name">
+                <FormField label={t("fields.brandName")}>
                   <Input
-                    placeholder="DripCheckr"
+                    placeholder={t("fields.brandNamePlaceholder")}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     autoFocus={mode === "manual"}
                   />
                 </FormField>
-                <FormField label="Description">
+                <FormField label={t("fields.description")}>
                   <Textarea
                     rows={3}
-                    placeholder="What is this brand about?"
+                    placeholder={t("fields.descriptionPlaceholder")}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
                 </FormField>
-                <FormField label="Website">
+                <FormField label={t("fields.website")}>
                   <div className="relative">
-                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Globe className="absolute start-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                     <Input
-                      className="pl-9"
-                      placeholder="https://yourbrand.com"
+                      className="ps-9"
+                      placeholder={t("fields.websitePlaceholder")}
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
                     />
                   </div>
                 </FormField>
 
-                <FormField label="Category">
+                <FormField label={t("fields.category")}>
                   <CategorySelect
                     value={categories[0] || ""}
                     onChange={(v) => setCategories([v])}
@@ -447,7 +445,7 @@ export default function ProductCreateWizard({
                       border: "1px solid var(--mk-rule)",
                     }}
                   >
-                    <p className="mk-eyebrow">Brand intelligence</p>
+                    <p className="mk-eyebrow">{t("brandIntelligence")}</p>
                     {logoUrl && (
                       <div className="flex items-center gap-3">
                         <img
@@ -455,7 +453,7 @@ export default function ProductCreateWizard({
                           alt="Logo"
                           className="h-12 w-12 rounded-lg object-contain border border-border/40 bg-white"
                         />
-                        <p className="text-xs text-muted-foreground">Logo detected from site</p>
+                        <p className="text-xs text-muted-foreground">{t("logoDetected")}</p>
                       </div>
                     )}
                     {(primaryColor || secondaryColor || accentColor) && (
@@ -474,7 +472,7 @@ export default function ProductCreateWizard({
                       </div>
                     )}
                     {targetAudience && (
-                      <FormField label="Target audience">
+                      <FormField label={t("targetAudience")}>
                         <Input
                           value={targetAudience}
                           onChange={(e) => setTargetAudience(e.target.value)}
@@ -482,12 +480,12 @@ export default function ProductCreateWizard({
                       </FormField>
                     )}
                     {tone && (
-                      <FormField label="Brand tone">
+                      <FormField label={t("brandTone")}>
                         <Input value={tone} onChange={(e) => setTone(e.target.value)} />
                       </FormField>
                     )}
                     <p className="text-[10px] text-muted-foreground/70">
-                      You can fine-tune all of this after creating the brand.
+                      {t("fineTuneNote")}
                     </p>
                   </div>
                 )}
@@ -511,15 +509,15 @@ export default function ProductCreateWizard({
               className="h-10 sm:h-9 text-[13px]"
               style={{ color: "var(--mk-ink-60)" }}
             >
-              Start over
+              {t("startOver")}
             </Button>
             <Button
               onClick={create}
               disabled={saving || !name.trim()}
               className="rounded-lg h-10 sm:h-9 text-[13px]"
             >
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
-              {saving ? "Creating…" : "Create brand"}
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin me-1.5" /> : null}
+              {saving ? t("creating") : t("createBrand")}
             </Button>
           </div>
         )}

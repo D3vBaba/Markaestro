@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "groups": {
+      "overview": "Aperçu",
+      "marketing": "Marketing",
+      "help": "Aide"
+    },
+    "items": {
+      "dashboard": "Tableau de bord",
+      "analytics": "Analyses",
+      "brands": "Marques",
+      "posts": "Publications",
+      "calendar": "Calendrier",
+      "connectChannels": "Connecter des canaux",
+      "settings": "Paramètres"
+    },
+    "signOut": "Se déconnecter",
+    "workspaceSwitcher": {
+      "yourWorkspaces": "Vos workspaces",
+      "manageWorkspaces": "Gérer les workspaces"
+    },
+    "toggleMenu": "Afficher/masquer le menu de navigation",
+    "navigationMenu": "Menu de navigation",
+    "navigationMenuDescription": "Liens de navigation principaux"
+  },
+  "mobileTabBar": {
+    "home": "Accueil",
+    "analytics": "Analyses",
+    "brands": "Marques",
+    "posts": "Publications",
+    "calendar": "Calendrier"
+  },
+  "header": {
+    "searchPlaceholder": "Rechercher...",
+    "search": "Rechercher"
+  },
+  "commandPalette": {
+    "title": "Palette de commandes",
+    "description": "Rechercher des pages et des actions rapides",
+    "searchPlaceholder": "Rechercher des pages et des actions...",
+    "noResults": "Aucun résultat trouvé.",
+    "groupNavigation": "Navigation",
+    "groupQuickActions": "Actions rapides",
+    "channels": "Canaux",
+    "actions": {
+      "createPost": "Créer une publication",
+      "addBrand": "Ajouter une marque",
+      "connectChannel": "Connecter un canal",
+      "billing": "Facturation"
+    }
+  },
+  "trialBanner": {
+    "endsToday": "Votre essai se termine aujourd'hui",
+    "daysLeft": "{days, plural, one {Il reste # jour d'essai} other {Il reste # jours d'essai}}",
+    "planSuffix": " · Forfait {tier}",
+    "manageBilling": "Gérer la Facturation",
+    "loading": "Chargement...",
+    "openingPortal": "Ouverture du portail de facturation…",
+    "portalError": "Impossible d'ouvrir le portail de facturation. Veuillez réessayer."
+  },
+  "verifyEmailBanner": {
+    "prompt": "Vérifiez votre e-mail pour publier",
+    "promptWithCode": " — saisissez le code que nous avons envoyé à <emailTag>{email}</emailTag>",
+    "sendCode": "Envoyer le code",
+    "resendCode": "Renvoyer le code",
+    "resendCountdown": "Renvoyer ({seconds}s)",
+    "sending": "Envoi…",
+    "verify": "Vérifier",
+    "verifying": "Vérification…",
+    "codeSent": "Code envoyé — vérifiez votre boîte de réception et vos spams.",
+    "sendError": "Impossible d'envoyer pour le moment. Réessayez dans une minute.",
+    "verified": "E-mail vérifié — tout est en ordre."
+  },
+  "localeSwitcher": {
+    "label": "Langue",
+    "description": "Choisissez la langue utilisée par Markaestro dans toute l'application.",
+    "error": "Impossible de mettre à jour votre langue. Veuillez réessayer."
+  },
+  "logout": {
+    "title": "Se déconnecter de Markaestro ?",
+    "description": "Vous aurez besoin d'un nouveau code par e-mail pour vous reconnecter, et tout travail non enregistré dans l'éditeur sera perdu.",
+    "cancel": "Rester connecté",
+    "confirm": "Se déconnecter",
+    "confirming": "Déconnexion…"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "login": {
+    "hero": {
+      "eyebrow": "おかえりなさい",
+      "titleLine1": "すべてのソーシャル運用を",
+      "titleLine2Prefix": "ひとつの",
+      "titleLine2Accent": "ログインで。",
+      "subtitle": "一度投稿するために5つのアプリにログインするのはもうやめましょう。サインインしてどこにでも公開し、数週間先まで予約し、時間を取り戻しましょう。",
+      "points": {
+        "publish": { "title": "一度にどこへでも公開", "desc": "Facebook、Instagram、TikTokなど — 一つのエディターから。" },
+        "schedule": { "title": "数週間先まで予約", "desc": "ペースを一度設定すれば、投稿が途切れることはありません。" },
+        "hours": { "title": "毎週何時間も時間を取り戻す", "desc": "コピー＆ペーストとログインの面倒な作業がなくなります。" }
+      },
+      "newHere": {
+        "title": "Markaestroは初めてですか？",
+        "body": "10個の簡単な質問に答えるだけで、あなたの投稿プランを作成します — 無料でどれだけ時間を取り戻せるか確認できます。",
+        "cta": "プランを作成する — 無料 →"
+      }
+    },
+    "form": {
+      "eyebrowEmail": "サインイン / 新規登録",
+      "eyebrowCode": "受信トレイを確認",
+      "titleEmail": "メールで続ける",
+      "titleCode": "コードを入力",
+      "subtitleEmail": "パスワードは不要です — ワンタイムコードをメールでお送りします。初めての方も同じコードでアカウントを作成できます。",
+      "subtitleCode": "6桁のコードを<email></email>に送信しました。",
+      "emailPlaceholder": "name@company.com",
+      "codePlaceholder": "123456",
+      "sendCode": "コードをメールで受け取る",
+      "sendingCode": "コードを送信中…",
+      "signIn": "サインイン",
+      "verifying": "確認中…",
+      "useDifferentEmail": "← 別のメールアドレスを使う",
+      "resendCode": "コードを再送信",
+      "resendIn": "{seconds}秒後に再送信",
+      "orContinueWith": "または次で続ける",
+      "continueWithGoogle": "Googleで続ける",
+      "legal": "続行することで、<terms>利用規約</terms>および<privacy>プライバシーポリシー</privacy>に同意したものとみなされます。"
+    },
+    "errors": {
+      "enterEmail": "メールアドレスを入力してください。",
+      "enterCode": "メールに記載された6桁のコードを入力してください。"
+    }
+  },
+  "authAction": {
+    "unsupportedAction": "サポートされていない操作です。",
+    "canceledFallback": {
+      "eyebrow": "アカウント",
+      "title": "アカウント操作",
+      "subtitle": "このリンクを処理できませんでした。",
+      "message": "操作パラメーターが不足しているか無効です。",
+      "backToSignIn": "サインインに戻る"
+    },
+    "titles": {
+      "resetPassword": "新しいパスワードを設定",
+      "verifyEmail": "メールアドレスを確認",
+      "verifyAndChangeEmail": "メールアドレスの変更を確認",
+      "default": "アカウント操作"
+    },
+    "eyebrows": {
+      "resetPassword": "リセット",
+      "verifyEmail": "確認",
+      "verifyAndChangeEmail": "確認",
+      "default": "アカウント"
+    },
+    "subtitles": {
+      "resetPassword": "アカウントの新しいパスワードを選択してください。",
+      "default": "リクエストされた操作を完了してください。"
+    },
+    "emailVerifiedSuccess": "メールアドレスが正常に確認されました。",
+    "emailUpdatedSuccess": "メールアドレスが正常に更新されました。",
+    "genericError": "問題が発生しました。",
+    "genericSuccess": "完了しました。",
+    "resettingPasswordFor": "<email></email>のパスワードをリセット中",
+    "newPasswordPlaceholder": "新しいパスワード",
+    "updatePassword": "パスワードを更新",
+    "updating": "更新中…",
+    "passwordUpdatedSuccess": "パスワードが正常に更新されました。サインインできます。",
+    "backToSignIn": "サインインに戻る",
+    "working": "処理中…",
+    "continue": "続ける",
+    "errors": {
+      "expiredActionCode": "このリンクの有効期限が切れています。新しいメールをリクエストしてください。",
+      "invalidActionCode": "このリンクは無効か、すでに使用されています。",
+      "userDisabled": "このアカウントは無効化されています。",
+      "weakPassword": "パスワードは6文字以上にしてください。",
+      "default": "問題が発生しました。もう一度お試しください。"
+    }
+  },
+  "oauthComplete": {
+    "title": "接続を完了しています",
+    "subtitle": "セッションを復元し、アプリに戻っています。"
+  }
+}

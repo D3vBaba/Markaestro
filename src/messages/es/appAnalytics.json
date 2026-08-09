@@ -1,0 +1,120 @@
+{
+  "page": {
+    "title": "Analítica",
+    "subtitle": "Lo que ganaron tus publicaciones — medido con los datos de cada plataforma.",
+    "refresh": {
+      "idle": "Actualizar",
+      "refreshing": "Actualizando…",
+      "pulling": "Obteniendo datos en vivo…",
+      "title": "Obtener las cifras más recientes de cada plataforma conectada"
+    },
+    "export": {
+      "idle": "Exportar CSV",
+      "exporting": "Exportando…",
+      "lockedTitle": "La exportación a CSV está incluida en el plan Business"
+    },
+    "filters": {
+      "allPlatforms": "Todas las plataformas",
+      "platformTitle": "Filtrar por plataforma",
+      "allBrands": "Todas las marcas",
+      "brandTitle": "Filtrar por marca",
+      "rangeTitle": "Últimos {label}",
+      "rangeLockedTitle": "El período de {label} requiere un plan superior",
+      "windowNote": "Mostrando {days} días — la ventana de analítica de tu plan."
+    },
+    "error": {
+      "message": "No se pudo cargar la analítica.",
+      "retry": "Reintentar"
+    },
+    "emptyState": {
+      "eyebrow": "Aún no hay datos",
+      "title": "Publica tu primera publicación para empezar a medir",
+      "body": "En cuanto se publique una publicación, Markaestro obtiene sus vistas, alcance e interacción de la plataforma en aproximadamente una hora, y sigue midiendo durante 30 días. El número de seguidores se registra a diario en cada canal conectado.",
+      "createPost": "Crear una publicación"
+    },
+    "warmingUp": "Recopilando métricas — las primeras capturas llegan aproximadamente una hora después de publicar y luego se actualizan con una frecuencia decreciente durante 30 días.",
+    "kpis": {
+      "views": { "label": "Vistas", "sub": "vs. período anterior" },
+      "reach": { "label": "Alcance", "sub": "cuentas únicas alcanzadas" },
+      "engagement": { "label": "Interacción", "sub": "me gusta + comentarios + veces compartido + guardados" },
+      "engagementRate": { "label": "Tasa de interacción", "sub": "interacción ÷ alcance" },
+      "followers": { "label": "Seguidores", "sub": "todos los canales conectados" }
+    },
+    "insights": {
+      "basedOn": "BASADO EN {count} PUBLICACIONES"
+    },
+    "trend": {
+      "eyebrow": "Rendimiento · {days}d",
+      "metrics": { "views": "Vistas", "reach": "Alcance", "engagements": "Interacción", "posts": "Publicaciones" }
+    },
+    "audience": {
+      "eyebrow": "Audiencia",
+      "title": "Seguidores",
+      "titleWithCount": "{count} seguidores"
+    },
+    "timing": { "eyebrow": "Momento", "title": "Cuándo rinden más tus publicaciones" },
+    "format": { "eyebrow": "Formato", "title": "Qué genera más interacción" },
+    "channels": { "eyebrow": "Canales", "title": "Rendimiento por canal" },
+    "posts": { "eyebrow": "Publicaciones", "title": "Publicaciones destacadas" },
+    "provenance": {
+      "base": "Las métricas usan las definiciones de la API de cada plataforma y pueden retrasarse hasta 48 horas respecto a las estadísticas nativas. Un «—» indica que la plataforma no proporciona esa métrica (por ejemplo, Threads y TikTok no informan el alcance). La tasa de interacción es interacción ÷ alcance.",
+      "truncated": " Las vistas a nivel de publicación se basan en las {count} publicaciones más recientes de este período.",
+      "lastUpdate": " Última actualización de métricas: {date}."
+    },
+    "toasts": {
+      "updated": "{count, plural, one {Se actualizó # publicación desde la fuente} other {Se actualizaron # publicaciones desde la fuente}}",
+      "noNewMetrics": "No hay nuevas métricas de la plataforma disponibles",
+      "tooManyRefreshes": "Demasiadas actualizaciones — inténtalo de nuevo en un minuto.",
+      "pullFailed": "No se pudieron obtener datos en vivo. Mostrando las últimas cifras guardadas.",
+      "exportFailed": "Error al exportar. Inténtalo de nuevo."
+    }
+  },
+  "contentTypeBars": {
+    "types": { "image": "Imágenes", "video": "Videos", "carousel": "Carruseles", "text": "Publicaciones de texto" },
+    "notEnoughVariety": "Aún no hay suficiente variedad",
+    "publishAtLeastTwo": "Publica al menos dos formatos de contenido (imágenes, videos, carruseles, texto) para compararlos.",
+    "postsCount": "{count, plural, one {# publicación} other {# publicaciones}}",
+    "avgEng": "interacción prom."
+  },
+  "trendChart": {
+    "noData": "Aún no hay datos para este período.",
+    "followerHistoryBuilds": "El historial de seguidores se construye a partir de capturas diarias — la tendencia aparece después de un par de días de datos.",
+    "followersSeriesName": "Seguidores"
+  },
+  "channelTable": {
+    "columns": {
+      "channel": "Canal",
+      "posts": "Publicaciones",
+      "views": "Vistas",
+      "reach": "Alcance",
+      "engagement": "Interacción",
+      "erReach": "TI (alcance)",
+      "followers": "Seguidores"
+    },
+    "empty": "Conecta un canal y publica para ver el rendimiento por canal.",
+    "clearFilter": "Quitar filtro de canal",
+    "filterTo": "Filtrar por {channel}"
+  },
+  "bestTimeHeatmap": {
+    "notEnoughData": "Aún no hay suficientes datos",
+    "unlocksAt": "El mapa de calor de horarios se desbloquea cuando {min} publicaciones tengan datos de interacción ({sampleSize} hasta ahora).",
+    "footer": "INTERACCIÓN PROM. POR PUBLICACIÓN · TU HORA LOCAL · {count} PUBLICACIONES"
+  },
+  "leaderboardTable": {
+    "post": "Publicación",
+    "columns": {
+      "views": "Vistas",
+      "reach": "Alcance",
+      "engagement": "Interacción",
+      "erReach": "TI (alcance)",
+      "published": "Publicado"
+    },
+    "empty": "Aún no hay publicaciones con métricas en este período. Las métricas llegan aproximadamente una hora después de publicar.",
+    "untitledPost": "Publicación sin título",
+    "sortBy": "Ordenar por {label}",
+    "openOnPlatform": "Abrir en la plataforma"
+  },
+  "stackedArea": {
+    "noData": "Aún no hay datos."
+  }
+}

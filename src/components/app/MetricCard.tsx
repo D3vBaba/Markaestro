@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { pillStyle } from "@/components/mk/pills";
 
@@ -10,6 +13,7 @@ export default function MetricCard({
   value: string;
   delta?: number;
 }) {
+  const t = useTranslations("appCommon.metricCard");
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-2">
@@ -33,7 +37,7 @@ export default function MetricCard({
             >
               {delta >= 0 ? "+" : ""}{Math.abs(delta)}%
             </span>
-            vs last period
+            {t("vsLastPeriod")}
           </p>
         ) : null}
       </CardContent>

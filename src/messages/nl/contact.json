@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "eyebrow": "Contact",
+    "titleLead": "We horen",
+    "titleHighlight": "graag van je",
+    "subtitle": "Of je nu een vraag hebt over functies, hulp nodig hebt bij een integratie, of een samenwerking wilt verkennen — ons team staat klaar om te helpen."
+  },
+  "channels": [
+    {
+      "title": "Algemene Vragen",
+      "description": "Vragen over Markaestro, prijzen of samenwerkingen.",
+      "email": "hello@markaestro.com",
+      "response": "1-2 werkdagen"
+    },
+    {
+      "title": "Technische Ondersteuning",
+      "description": "Hulp bij integraties, publicatieproblemen of accounttoegang.",
+      "email": "support@markaestro.com",
+      "response": "Binnen 24 uur"
+    },
+    {
+      "title": "Privacy en Juridisch",
+      "description": "Verzoeken over gegevens, nalevingsvragen of juridische kwesties.",
+      "email": "legal@markaestro.com",
+      "response": "2-3 werkdagen"
+    }
+  ],
+  "form": {
+    "eyebrow": "Stuur een Bericht",
+    "title": "Neem rechtstreeks contact op",
+    "description": "Vul het formulier in en we nemen zo snel mogelijk contact met je op. Vermeld bij dringende technische problemen \"URGENT\" in het onderwerp.",
+    "officeHoursTitle": "Openingstijden",
+    "officeHoursWeekday": "Maandag - Vrijdag: 9:00 - 18:00 EST",
+    "officeHoursWeekend": "Zaterdag - Zondag: Gesloten",
+    "enterpriseTitle": "Enterprise en Samenwerkingen",
+    "enterpriseDescription": "Voor enterprise-prijzen, aangepaste integraties of samenwerkingsmogelijkheden, bereik ons via",
+    "enterpriseEmail": "partnerships@markaestro.com",
+    "sentTitle": "Bericht Klaar",
+    "sentDescription": "Je e-mailprogramma zou geopend moeten zijn met het bericht al ingevuld. Zo niet, mail ons dan rechtstreeks op",
+    "supportEmail": "support@markaestro.com",
+    "sendAnother": "Stuur Nog een Bericht",
+    "nameLabel": "Naam",
+    "namePlaceholder": "Je naam",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "jij@bedrijf.com",
+    "subjectLabel": "Onderwerp",
+    "subjectPlaceholder": "Hoe kunnen we helpen?",
+    "messageLabel": "Bericht",
+    "messagePlaceholder": "Vertel ons meer over je vraag of probleem...",
+    "submit": "Verstuur Bericht",
+    "privacyNotice": "Door een bericht te versturen, ga je akkoord met ons",
+    "privacyLink": "Privacybeleid"
+  },
+  "faqEyebrow": "FAQ",
+  "faqTitle": "Veelgestelde vragen",
+  "faqs": [
+    {
+      "q": "Hoe verbind ik mijn socialmedia-accounts?",
+      "a": "Open een merk in je dashboard en verbind de kanalen waarnaar je publiceert (Meta voor Facebook en Instagram, TikTok, Threads of Pinterest). Elke verbinding gebruikt OAuth en duurt meestal minder dan een minuut."
+    },
+    {
+      "q": "Is er een gratis proefperiode?",
+      "a": "Ja. Elk betaald abonnement bevat een gratis proefperiode met volledige toegang. Je kaart wordt geregistreerd bij aanmelding, maar er worden geen kosten in rekening gebracht totdat de proefperiode eindigt. Zeg op tijdens de proefperiode en betaal niets."
+    },
+    {
+      "q": "Wat voor media kan ik uploaden?",
+      "a": "Afbeeldingen (JPG, PNG, WebP, tot 10 MB elk) en video's (MP4, MOV, WebM, tot 250 MB elk). Bestanden worden opgeslagen per workspace en gekoppeld aan posts via de editor."
+    },
+    {
+      "q": "Kan ik Markaestro gebruiken voor meerdere merken of klanten?",
+      "a": "Absoluut. Met workspaces kun je merken, klanten of bedrijfsonderdelen van elkaar isoleren. Elke workspace heeft zijn eigen merken, materiaal, kanaalverbindingen en teamleden."
+    },
+    {
+      "q": "Hoe worden mijn gegevens beschermd?",
+      "a": "OAuth-tokens worden versleuteld opgeslagen. Alle API-communicatie gebruikt TLS. We volgen het principe van minimale toegangsrechten voor gegevenstoegang. Zie ons Privacybeleid voor alle details."
+    },
+    {
+      "q": "Bieden jullie een API aan?",
+      "a": "De API van Markaestro is beschikbaar voor alle betaalde abonnementen. Deze omvat contentbeheer, media-uploads, publicatie en poststatus. Documentatie is beschikbaar in je dashboard."
+    }
+  ],
+  "cta": {
+    "title": "Klaar om te beginnen?",
+    "subtitle": "Maak je gratis account aan en begin binnen enkele minuten met publiceren. Geen creditcard nodig.",
+    "button": "Gratis aan de slag"
+  }
+}

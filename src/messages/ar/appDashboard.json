@@ -1,0 +1,37 @@
+{
+  "title": "لوحة التحكم",
+  "subtitle": "محرك التسويق الخاص بك في لمحة واحدة.",
+  "refresh": "تحديث",
+  "refreshing": "جارٍ التحديث…",
+  "newPost": "منشور جديد",
+  "errorTitle": "تعذّر تحميل لوحة التحكم",
+  "errorBody": "تعذّر تحميل بيانات لوحة التحكم الخاصة بك.",
+  "retry": "إعادة المحاولة",
+  "kpis": {
+    "brands": "العلامات التجارية",
+    "brandsActive": "{count} نشطة",
+    "posts": "المنشورات",
+    "postsSub": "{published} منشورة · {scheduled} مجدولة",
+    "publishedWeek": "منشورة · آخر 7 أيام",
+    "acrossDays": "على مدى {count} أيام"
+  },
+  "chart": {
+    "eyebrow": "نشاط النشر · آخر 7 أيام",
+    "publishedThisWeek": "تم نشر {count} هذا الأسبوع",
+    "show": "إظهار {label}",
+    "hide": "إخفاء {label}",
+    "noActivity": "لا يوجد نشاط نشر بعد."
+  },
+  "distribution": {
+    "eyebrow": "التوزيع",
+    "title": "المنشورات حسب القناة",
+    "viewInCalendar": "عرض منشورات {channel} في التقويم"
+  },
+  "recentPosts": {
+    "eyebrow": "القادم",
+    "title": "المنشورات الأخيرة",
+    "viewAll": "عرض الكل ←",
+    "untitled": "منشور بلا عنوان",
+    "empty": "لا توجد منشورات بعد. أنشئ أول منشور لك لرؤية النشاط هنا."
+  }
+}

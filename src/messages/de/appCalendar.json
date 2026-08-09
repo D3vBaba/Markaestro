@@ -1,0 +1,68 @@
+{
+  "statusLabels": {
+    "published": "Veröffentlicht",
+    "scheduled": "Geplant",
+    "draft": "Entwurf",
+    "failed": "Fehlgeschlagen",
+    "partial_failed": "Teilweise fehlgeschlagen",
+    "publishing": "Wird veröffentlicht"
+  },
+  "mockups": {
+    "sponsored": "Gesponsert",
+    "like": "Gefällt mir",
+    "comment": "Kommentieren",
+    "share": "Teilen",
+    "save": "Speichern",
+    "justNow": "Gerade eben",
+    "likeAction": "👍 Gefällt mir",
+    "commentAction": "💬 Kommentieren",
+    "shareAction": "↗ Teilen"
+  },
+  "detailPanel": {
+    "backToDay": "Zurück zum Tag",
+    "close": "Schließen",
+    "published": "Veröffentlicht",
+    "scheduled": "Geplant",
+    "preview": "Vorschau",
+    "viewLivePost": "Live-Beitrag ansehen",
+    "untitledPost": "Unbenannter Beitrag",
+    "failedToPublish": "Veröffentlichung fehlgeschlagen"
+  },
+  "dayPanel": {
+    "today": "Heute",
+    "postCount": "{count, plural, one {# Beitrag} other {# Beiträge}} · zur Vorschau einen auswählen",
+    "noPosts": "Keine Beiträge an diesem Tag."
+  },
+  "agenda": {
+    "today": "Heute",
+    "itemCount": "{count, plural, one {# Eintrag} other {# Einträge}}"
+  },
+  "deletedNotice": "Dieser Beitrag wurde gelöscht und ist nicht mehr verfügbar.",
+  "dismiss": "Verwerfen",
+  "truncatedNotice": "Dieser Monat hat mehr Beiträge, als der Kalender auf einmal laden kann — einige werden nicht angezeigt.",
+  "postsThisMonth": "{count, plural, one {# Beitrag} other {# Beiträge}} in diesem Monat",
+  "dropToReschedule": "· Auf einen Tag ziehen, um umzuplanen",
+  "newPost": "Neuer Beitrag",
+  "today": "Heute",
+  "filters": {
+    "brand": "Marke",
+    "all": "Alle",
+    "noBrand": "Keine Marke",
+    "unknownBrand": "Unbekannte Marke",
+    "dragToReschedule": "Zum Umplanen ziehen"
+  },
+  "loadError": "Kalenderdaten konnten nicht geladen werden",
+  "retry": "Erneut versuchen",
+  "noPostsMatchingFilters": "Keine Beiträge entsprechen deinen Filtern",
+  "noPostsThisMonth": "Keine Beiträge in diesem Monat",
+  "noPostsThisMonthPeriod": "Keine Beiträge in diesem Monat.",
+  "clearFilters": "Filter zurücksetzen",
+  "createPost": "Beitrag erstellen",
+  "createPostCaps": "Beitrag erstellen",
+  "postMovedToast": "Beitrag verschoben auf {date}",
+  "rescheduleFailedToast": "Umplanen des Beitrags fehlgeschlagen",
+  "postNotFoundToast": "Dieser Beitrag konnte nicht geöffnet werden. Bitte erneut versuchen.",
+  "viewAllPostsOnDay": "Alle {count, plural, one {# Beitrag} other {# Beiträge}} dieses Tages ansehen",
+  "viewAllPostsOnDate": "Alle {count, plural, one {# Beitrag} other {# Beiträge}} vom {date} ansehen",
+  "moreCount": "+{count} weitere"
+}

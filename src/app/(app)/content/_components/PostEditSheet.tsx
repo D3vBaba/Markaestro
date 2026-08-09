@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
 } from "@/components/ui/sheet";
@@ -30,8 +31,8 @@ export default function PostEditSheet({
   onOpenChange,
   onSave,
   onSchedule,
-  scheduleLabel = "Schedule",
-  title = "Edit Post",
+  scheduleLabel,
+  title,
 }: {
   post: Post | null;
   open: boolean;
@@ -41,6 +42,9 @@ export default function PostEditSheet({
   scheduleLabel?: string;
   title?: string;
 }) {
+  const t = useTranslations("content.postEditSheet");
+  const resolvedScheduleLabel = scheduleLabel ?? t("defaultScheduleLabel");
+  const resolvedTitle = title ?? t("defaultTitle");
   const [content, setContent] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -61,12 +65,12 @@ export default function PostEditSheet({
   const handleUpload = async (file: File) => {
     const isVideo = file.type.startsWith("video/");
     if (isVideo && !allowVideo) {
-      toast.error("Videos are available for TikTok posts only");
+      toast.error(t("toasts.videoTikTokOnly"));
       return;
     }
     const maxSize = isVideo ? 250 * 1024 * 1024 : 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      toast.error(isVideo ? "Video must be under 250 MB" : "Image must be under 10 MB");
+      toast.error(isVideo ? t("toasts.videoTooLarge") : t("toasts.imageTooLarge"));
       return;
     }
     setUploading(true);
@@ -76,12 +80,12 @@ export default function PostEditSheet({
       const res = await apiUpload<{ ok: boolean; url: string }>("/api/media/upload", fd);
       if (res.ok) {
         setMediaUrls([res.data.url]);
-        toast.success(isVideo ? "Video uploaded" : "Image uploaded");
+        toast.success(isVideo ? t("toasts.videoUploaded") : t("toasts.imageUploaded"));
       } else {
-        toast.error("Upload failed");
+        toast.error(t("toasts.uploadFailed"));
       }
     } catch {
-      toast.error("Upload failed");
+      toast.error(t("toasts.uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -119,25 +123,25 @@ export default function PostEditSheet({
             className="text-[22px] font-semibold m-0"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
           >
-            {title}
+            {resolvedTitle}
           </SheetTitle>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
           <div className="space-y-2">
-            <p className="mk-eyebrow">Caption</p>
+            <p className="mk-eyebrow">{t("caption")}</p>
             <ContentEditor content={content} onChange={setContent} channel={channel} />
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="mk-eyebrow">{allowVideo ? "Media" : "Image"}</p>
+              <p className="mk-eyebrow">{allowVideo ? t("media") : t("image")}</p>
               {currentMedia && (
                 <button
                   onClick={() => setMediaUrls([])}
                   className="text-[11px] text-muted-foreground hover:text-destructive transition-colors"
                 >
-                  Remove
+                  {t("remove")}
                 </button>
               )}
             </div>
@@ -154,7 +158,7 @@ export default function PostEditSheet({
                     onClick={() => fileInputRef.current?.click()}
                     className="text-white text-[12px] font-medium bg-white/20 hover:bg-white/30 px-3.5 py-1.5 rounded-lg transition-colors"
                   >
-                    Replace
+                    {t("replace")}
                   </button>
                 </div>
               </div>
@@ -164,8 +168,8 @@ export default function PostEditSheet({
                 onClick={() => fileInputRef.current?.click()}
               >
                 <ImagePlus className="w-7 h-7 text-muted-foreground/40 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">{allowVideo ? "Drop media or click to upload" : "Drop an image or click to upload"}</p>
-                <p className="text-[11px] text-muted-foreground/50 mt-1">{allowVideo ? "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB" : "JPG, PNG, WebP · up to 10 MB"}</p>
+                <p className="text-sm text-muted-foreground">{allowVideo ? t("dropMedia") : t("dropImage")}</p>
+                <p className="text-[11px] text-muted-foreground/50 mt-1">{allowVideo ? t("mediaHintVideo") : t("mediaHintImage")}</p>
               </div>
             )}
 
@@ -184,12 +188,12 @@ export default function PostEditSheet({
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
             >
-              {uploading ? "Uploading…" : "Upload"}
+              {uploading ? t("uploading") : t("upload")}
             </Button>
           </div>
 
           <div className="space-y-2">
-            <p className="mk-eyebrow">Preview</p>
+            <p className="mk-eyebrow">{t("preview")}</p>
             <PlatformPreview
               content={content}
               channel={channel}
@@ -208,7 +212,7 @@ export default function PostEditSheet({
             className="flex-1 h-9 rounded-lg text-[13px]"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           {onSchedule && (
             <Button
@@ -217,7 +221,7 @@ export default function PostEditSheet({
               className="flex-1 h-9 rounded-lg text-[13px]"
               onClick={() => onSchedule(content, mediaUrls.length > 0 ? mediaUrls : undefined)}
             >
-              {scheduleLabel}
+              {resolvedScheduleLabel}
             </Button>
           )}
           <Button
@@ -226,7 +230,7 @@ export default function PostEditSheet({
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? "Saving…" : "Save"}
+            {saving ? t("saving") : t("save")}
           </Button>
         </SheetFooter>
       </SheetContent>

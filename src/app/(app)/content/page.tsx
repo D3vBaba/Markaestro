@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,13 +17,7 @@ const STORAGE_KEY = "markaestro_default_product";
 
 type Product = { id: string; name: string };
 
-const tabs = [
-  { value: "create", label: "Create" },
-  { value: "drafts", label: "Drafts" },
-  { value: "scheduled", label: "Scheduled" },
-  { value: "published", label: "Published" },
-  { value: "on-platform", label: "On Platform" },
-] as const;
+const TAB_IDS = ["create", "drafts", "scheduled", "published", "on-platform"] as const;
 
 // ── Persistent product context bar ───────────────────────────────────────────
 
@@ -35,6 +30,7 @@ function ProductContextBar({
   productId: string;
   onChange: (id: string) => void;
 }) {
+  const t = useTranslations("content.page.productBar");
   const [editing, setEditing] = useState(false);
   const selected = products.find((p) => p.id === productId);
 
@@ -56,7 +52,7 @@ function ProductContextBar({
         className="font-mono text-[9.5px] uppercase shrink-0"
         style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
       >
-        Brand
+        {t("brand")}
       </span>
 
       {editing ? (
@@ -83,14 +79,14 @@ function ProductContextBar({
             className="flex-1 text-[13px] font-medium truncate min-w-0"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
           >
-            {selected?.name ?? "No brand selected"}
+            {selected?.name ?? t("noBrandSelected")}
           </span>
           <button
             onClick={() => setEditing(true)}
             className="shrink-0 text-[11px] px-2.5 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded transition-colors"
             style={{ color: "var(--mk-ink-60)" }}
           >
-            Change
+            {t("change")}
           </button>
         </>
       )}
@@ -101,11 +97,17 @@ function ProductContextBar({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function PostsPage() {
+  const t = useTranslations("content.page");
+  const tTabs = useTranslations("content.page.tabs");
+  const tabs = TAB_IDS.map((value) => ({
+    value,
+    label: t(`tabs.${value === "on-platform" ? "onPlatform" : value}`),
+  }));
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window === "undefined") return "create";
     const requested = new URLSearchParams(window.location.search).get("tab");
-    return tabs.some((tab) => tab.value === requested) ? requested! : "create";
+    return TAB_IDS.includes(requested as (typeof TAB_IDS)[number]) ? requested! : "create";
   });
   const [products, setProducts] = useState<Product[]>([]);
   const [productId, setProductId] = useState("");
@@ -145,8 +147,8 @@ export default function PostsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Posts"
-        subtitle="Create, schedule, and publish organic content across your social channels."
+        title={t("title")}
+        subtitle={t("subtitle")}
       />
 
       {/* Persistent product context — always visible above tabs */}

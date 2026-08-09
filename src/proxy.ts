@@ -1,41 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
 import { verifySessionCookieAsync } from '@/lib/session-cookie';
+import { routing } from '@/i18n/routing';
+import {
+  stripLocale,
+  isPublicPath,
+  isMarketingPath,
+  isLocaleRoutedPath,
+} from '@/lib/proxy-paths';
 
-/** Routes that don't require authentication. */
-const PUBLIC_PATHS = [
-  '/login',
-  '/terms',
-  '/privacy',
-  '/contact',
-  '/features',
-  '/channels',
-  '/pricing',
-  '/api/health',
-  '/onboarding',
-  '/onboarding/success',
-  '/oauth/complete',
-  '/auth/action',
-  '/site.webmanifest',
-  // Crawler and agent entry points. Served from the marketing apex (see
-  // MARKETING_PATHS) and readable without a session.
-  '/robots.txt',
-  '/sitemap.xml',
-  '/llms.txt',
-];
-
-/**
- * Prefixes that are always public (static assets, auth callbacks, and the
- * whole developer documentation surface — `/developers/*` mirrors
- * MARKETING_PREFIXES so a new docs page is public the moment it exists).
- */
-const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/developers', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding'];
-
-function isPublicPath(pathname: string): boolean {
-  if (pathname === '/') return true;
-  if (PUBLIC_PATHS.includes(pathname)) return true;
-  return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-}
+const intlMiddleware = createMiddleware(routing);
 
 // ---------------------------------------------------------------------------
 // Domain split (marketing vs. app)
@@ -55,22 +30,6 @@ function isPublicPath(pathname: string): boolean {
 // subdomain. Both must keep working on both hosts.
 // ---------------------------------------------------------------------------
 
-/** Exact marketing routes that belong on the apex (markaestro.com). */
-const MARKETING_PATHS = new Set<string>([
-  '/',
-  '/features',
-  '/pricing',
-  '/contact',
-  '/privacy',
-  '/terms',
-  '/channels',
-  // Crawler + agent entry points. The canonical copy lives on the apex, so the
-  // app host redirects here. NOTE: /robots.txt is deliberately absent — see
-  // NEVER_RELOCATED_PATHS below.
-  '/sitemap.xml',
-  '/llms.txt',
-]);
-
 /**
  * Paths that must never be host-redirected, because each host has to answer
  * them with its OWN content.
@@ -83,16 +42,6 @@ const MARKETING_PATHS = new Set<string>([
  * the app host to the apex hands the private app an "Allow: /".
  */
 const NEVER_RELOCATED_PATHS = new Set<string>(['/robots.txt']);
-
-/** Prefixes that belong on the marketing apex. */
-const MARKETING_PREFIXES = ['/developers'];
-
-function isMarketingPath(pathname: string): boolean {
-  if (MARKETING_PATHS.has(pathname)) return true;
-  return MARKETING_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-  );
-}
 
 function splitEnabled(): boolean {
   const v = process.env.APP_DOMAIN_SPLIT_ENABLED;
@@ -140,6 +89,11 @@ function isMarketingHost(host: string): boolean {
  * wrong for the path, otherwise null. Only active when the split flag is on
  * and both host envs are configured (so local dev is unaffected). Uses 307
  * (temporary) redirects so a rollback is never cached permanently by browsers.
+ *
+ * Classifies by the locale-stripped path (`stripLocale(pathname).rest`) so a
+ * prefixed URL like `/es/pricing` is recognized as the same marketing path as
+ * `/pricing`, but always redirects using the ORIGINAL pathname so the locale
+ * prefix survives the cross-host hop.
  */
 function hostRedirect(req: NextRequest): NextResponse | null {
   if (!splitEnabled()) return null;
@@ -152,26 +106,29 @@ function hostRedirect(req: NextRequest): NextResponse | null {
   if (pathname.startsWith('/api/') || pathname.startsWith('/_next')) return null;
   if (NEVER_RELOCATED_PATHS.has(pathname)) return null;
 
+  const { rest } = stripLocale(pathname);
+
   const host = requestHostname(req);
   // Unknown hosts (preview channels, *.run.app, health checks) are left alone.
   if (host !== APP_HOSTNAME && !isMarketingHost(host)) return null;
 
   // On the app host: send the bare root to the dashboard (the auth guard will
   // bounce to /login if needed); push any other marketing route to the apex.
+  // The app itself isn't locale-scoped yet, so its bare root is never prefixed.
   if (host === APP_HOSTNAME) {
     if (pathname === '/') {
       const url = req.nextUrl.clone();
       url.pathname = '/dashboard';
       return NextResponse.redirect(url, 307);
     }
-    if (isMarketingPath(pathname)) {
+    if (isMarketingPath(rest)) {
       return NextResponse.redirect(`${MARKETING_URL}${pathname}${search}`, 307);
     }
     return null;
   }
 
   // On a marketing host: push app routes to the subdomain.
-  if (isMarketingHost(host) && !isMarketingPath(pathname)) {
+  if (isMarketingHost(host) && !isMarketingPath(rest)) {
     return NextResponse.redirect(`${APP_URL}${pathname}${search}`, 307);
   }
 
@@ -183,6 +140,22 @@ function corsAllowList(): string[] {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+/**
+ * Forwards the request pathname to the React tree via a request header, so
+ * the root layout (src/app/layout.tsx, shared by both the [locale] marketing
+ * tree and the (app) group) can tell which one it's rendering. next-intl's
+ * getLocale() only resolves correctly inside [locale]; outside it, it always
+ * returns the default locale with no way to distinguish "genuinely en" from
+ * "no locale segment at all" — the root layout needs the real pathname to
+ * fall back to resolveAppLocale() only for the latter case. See
+ * src/app/layout.tsx's resolveRootLocale().
+ */
+function nextWithPathname(req: NextRequest): NextResponse {
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('x-pathname', req.nextUrl.pathname);
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 function attachCors(req: NextRequest, res: NextResponse): NextResponse {
@@ -234,14 +207,21 @@ export default async function proxy(req: NextRequest) {
   const relocated = hostRedirect(req);
   if (relocated) return relocated;
 
+  const { rest } = stripLocale(pathname);
+
   // Authenticated users visiting the public root should land in the product,
-  // not the marketing CTA loop. Keep other marketing pages readable.
-  if (pathname === '/' && await hasValidSession(req)) {
+  // not the marketing CTA loop. Keep other marketing pages readable. Checked
+  // against the locale-stripped path so /es, /fr, etc. behave like /.
+  if (rest === '/' && await hasValidSession(req)) {
     return NextResponse.redirect(dashboardRedirectUrl(req), 307);
   }
 
   // --- Auth guard for protected pages ---
-  if (!isPublicPath(pathname) && !pathname.startsWith('/api/')) {
+  // isPublicPath runs against the locale-stripped path so /es/pricing is
+  // recognized as public the same as /pricing; (app) routes never carry a
+  // locale prefix today, so they're completely unaffected (rest === pathname
+  // for anything that doesn't start with a real locale segment).
+  if (!isPublicPath(rest) && !pathname.startsWith('/api/')) {
     if (!(await hasValidSession(req))) {
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = '/login';
@@ -252,19 +232,33 @@ export default async function proxy(req: NextRequest) {
     // Defense-in-depth: every authenticated page gets X-Robots-Tag: noindex.
     // robots.txt tells well-behaved crawlers to skip these paths; this header
     // catches the rest (internal crawls, cache scraping, etc.).
-    const res = NextResponse.next();
+    const res = nextWithPathname(req);
     res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
     return res;
   }
 
-  // Redirect authenticated users away from /login
+  // Redirect authenticated users away from /login. /login is never
+  // locale-prefixed (it's an (app) route, outside src/app/[locale]).
   if (pathname === '/login') {
     if (await hasValidSession(req)) {
       return NextResponse.redirect(dashboardRedirectUrl(req));
     }
   }
 
-  return NextResponse.next();
+  // --- Locale resolution for the marketing surface ---
+  // Delegated to next-intl: for the unprefixed default locale (en) it
+  // rewrites internally to the /en/... segment so src/app/[locale] resolves;
+  // for other locales it validates the prefix and negotiates
+  // Accept-Language/cookie-based auto-redirects for unprefixed visits. Gated
+  // on isLocaleRoutedPath (not isMarketingPath) so robots.txt/sitemap.xml/
+  // llms.txt — real marketing-apex paths that live OUTSIDE the [locale]
+  // segment — are never rewritten and keep falling through to plain
+  // NextResponse.next() below, exactly as before this feature existed.
+  if (isLocaleRoutedPath(rest)) {
+    return intlMiddleware(req);
+  }
+
+  return nextWithPathname(req);
 }
 
 export const config = {

@@ -1,0 +1,115 @@
+{
+  "hero": {
+    "eyebrow": "Kanalen",
+    "titleLead": "Bereik je doelgroep",
+    "titleHighlight": "overal",
+    "subtitle": "Verbind één keer en publiceer naar elk groot platform. Markaestro regelt de API-verschillen, tekenlimieten en mediavereisten, zodat jij je kunt richten op de boodschap."
+  },
+  "stats": [
+    { "value": "6", "label": "Sociale Kanalen", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
+    { "value": "1", "label": "Dashboard", "sub": "Gecombineerde publicatieworkflow" },
+    { "value": "0", "label": "Handmatige Tokens", "sub": "Volledig OAuth, volledig geautomatiseerd" }
+  ],
+  "channels": [
+    {
+      "name": "Facebook",
+      "category": "Sociaal",
+      "description": "Bereik miljarden mensen op 's werelds grootste sociale netwerk. Publiceer naar Pagina's en beheer feedposts met volledige creatieve controle.",
+      "capabilities": [
+        "Pagina-feedposts met rijke media",
+        "Linkposts met voorbeeldkaarten",
+        "Foto- en videopublicatie",
+        "Carrousel- en meerdere-afbeeldingenposts",
+        "Plannen voor optimale betrokkenheid",
+        "Targeting per pagina, per merk"
+      ],
+      "connection": "OAuth via Meta Business Suite"
+    },
+    {
+      "name": "Instagram",
+      "category": "Sociaal",
+      "description": "Publiceer rechtstreeks vanuit Markaestro naar zakelijke Instagram-accounts. Feedposts, carrousels en Verhalen met automatisch geformatteerde media voor elke plaatsing.",
+      "capabilities": [
+        "Feedposts met enkele afbeelding of video",
+        "Carrouselposts (tot 10 dia's)",
+        "Automatisch bijsnijden naar 1:1- en 4:5-verhoudingen",
+        "Onderschrift met hashtagoptimalisatie",
+        "Plannen op de beste momenten voor betrokkenheid",
+        "Instagram-login voor zelfstandige zakelijke accounts"
+      ],
+      "connection": "OAuth via Instagram Login or Meta Login"
+    },
+    {
+      "name": "TikTok",
+      "category": "Sociaal",
+      "description": "Bereik Gen Z en meer op het snelst groeiende kortevideoplatform. Markaestro stuurt foto's en video's door naar de TikTok-inbox van de maker en houdt bij wanneer ze klaar zijn voor definitieve afronding op TikTok.",
+      "capabilities": [
+        "Overdracht van video's en foto's naar de inbox",
+        "Afronding door de maker binnen TikTok",
+        "Geplande levering naar de TikTok-inbox",
+        "Snelle statuscontrole na overdracht",
+        "Statusbewaking binnen Markaestro"
+      ],
+      "connection": "OAuth via TikTok for Developers"
+    },
+    {
+      "name": "LinkedIn",
+      "category": "Zakelijk",
+      "description": "Publiceer naar je eigen LinkedIn-profiel of een Pagina die je beheert. Tekst-, afbeeldings-, video- en organische meerdere-afbeeldingenposts gaan via de officiële LinkedIn-API.",
+      "capabilities": [
+        "Posts met alleen tekst",
+        "Posts met enkele afbeelding of enkele video",
+        "Meerdere-afbeeldingenposts tot 20 afbeeldingen",
+        "Richt je op een Profiel of een beheerde Pagina",
+        "Programmatische publicatie, geen handmatige stap",
+        "Plannen vanuit de gedeelde kalender"
+      ],
+      "connection": "OAuth via LinkedIn"
+    },
+    {
+      "name": "Threads",
+      "category": "Sociaal",
+      "description": "Meta's tekstgerichte netwerk. Markaestro maakt de mediacontainer aan, wacht tot de verwerking is voltooid en publiceert dan pas — zodat trage video-uploads nooit stilletjes mislukken.",
+      "capabilities": [
+        "Posts met alleen tekst",
+        "Posts met enkele afbeelding of enkele video",
+        "Carrousels tot 20 items",
+        "Statuscontrole van de container vóór publicatie",
+        "Programmatische publicatie, geen handmatige stap",
+        "Plannen vanuit de gedeelde kalender"
+      ],
+      "connection": "OAuth via Threads"
+    },
+    {
+      "name": "Pinterest",
+      "category": "Ontdekking",
+      "description": "Pin je afbeeldingen en video's op een bord dat je kiest bij het verbinden. Je onderschrift wordt de pinbeschrijving, en alles wordt gepubliceerd via de officiële Pinterest-API.",
+      "capabilities": [
+        "Afbeeldingspins",
+        "Videopins met uploadstatuscontrole",
+        "Bord gekozen op moment van verbinding",
+        "Onderschrift wordt de pinbeschrijving",
+        "Programmatische publicatie, geen handmatige stap",
+        "Plannen vanuit de gedeelde kalender"
+      ],
+      "connection": "OAuth via Pinterest"
+    }
+  ],
+  "capabilitiesLabel": "Mogelijkheden",
+  "howItWorks": {
+    "eyebrow": "Hoe Het Werkt",
+    "titleLead": "Verbonden in",
+    "titleHighlight": "drie stappen",
+    "steps": [
+      { "step": "01", "title": "Verbinden", "desc": "Klik op 'Verbinden' bij elk kanaal. Autoriseer via OAuth. Markaestro slaat je tokens veilig op en vernieuwt ze automatisch." },
+      { "step": "02", "title": "Aanmaken", "desc": "Schrijf je content in de gecombineerde editor. Bekijk het voorbeeld op elk platform voordat je publiceert." },
+      { "step": "03", "title": "Publiceren", "desc": "Klik op publiceren of plan het voor later in. Markaestro regelt opmaak, mediaspecificaties en API-aanroepen voor elk kanaal." }
+    ]
+  },
+  "cta": {
+    "title": "Verbind je eerste kanaal in minder dan twee minuten",
+    "subtitle": "Klik, autoriseer en begin met publiceren — geen ontwikkelaarsinstellingen nodig. Zodra een kanaal is verbonden, publiceert je team vanuit het dashboard en kan je AI-agent naar hetzelfde kanaal publiceren via de API.",
+    "primaryButton": "Gratis aan de slag",
+    "secondaryButton": "Automatiseer het met een agent"
+  }
+}

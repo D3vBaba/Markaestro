@@ -9,7 +9,16 @@
  *   dark-mode transforms keep text/background contrast coherent.
  * - The logo ships as an image with a baked-in white tile: mail clients never
  *   recolor images, so the banner brand stays bright in light AND dark mode.
+ *
+ * i18n: every builder takes a `locale` and renders via a next-intl
+ * `createTranslator` instance (see getEmailTranslator) rather than a React
+ * component — these run in API routes and background jobs with no request/
+ * component tree for next-intl's usual hooks to attach to. `<html lang dir>`
+ * follows the same locale so RTL locales (Arabic) render mirrored.
  */
+
+import { createTranslator } from 'next-intl';
+import { isRtlLocale, type AppLocale } from '@/i18n/routing';
 
 export const BRAND = {
   bgPage: '#eef2f7',
@@ -44,6 +53,22 @@ export function getBaseUrl(): string {
   return base.replace(/\/+$/, '');
 }
 
+/** A next-intl translator for the `emails` message catalog, outside of any request/component tree. */
+export async function getEmailTranslator(locale: AppLocale) {
+  const messages = (await import(`../messages/${locale}/emails.json`)).default;
+  return createTranslator({ locale, messages });
+}
+
+/**
+ * Messages with embedded `<strong>` tags must go through `t.markup()`, not
+ * plain `t()` — next-intl treats ANY `<tag>` syntax as a rich-text
+ * placeholder requiring a callback, and plain `t()` silently falls back to
+ * returning the message key when one isn't supplied. `t.markup()` is the
+ * non-React counterpart of `t.rich()`: same tag-callback API, returns a
+ * plain string instead of JSX — exactly what building an HTML email needs.
+ */
+export const strongTag = { strong: (chunks: string) => `<strong>${chunks}</strong>` };
+
 /**
  * Big, copy-friendly one-time code. Saturated accent on a light panel: mail
  * clients keep saturated colors through dark-mode transforms, and if the
@@ -65,14 +90,22 @@ function footerLegal(note: string) {
   </p>`;
 }
 
-export function brandWrap(params: { title: string; preheader?: string; bodyHtml: string; footerNote?: string }) {
+export function brandWrap(params: {
+  locale: AppLocale;
+  title: string;
+  preheader?: string;
+  bodyHtml: string;
+  footerNote: string;
+  copyrightText: string;
+}) {
+  const dir = isRtlLocale(params.locale) ? 'rtl' : 'ltr';
   const preheader = params.preheader
     ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(params.preheader)}</div>`
     : '';
   const logoUrl = `${getBaseUrl()}/email/logo.png`;
 
   return `<!doctype html>
-<html lang="en">
+<html lang="${params.locale}" dir="${dir}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -80,7 +113,7 @@ export function brandWrap(params: { title: string; preheader?: string; bodyHtml:
     <meta name="supported-color-schemes" content="light dark" />
     <title>${escapeHtml(params.title)}</title>
   </head>
-  <body style="margin:0;padding:0;background-color:${BRAND.bgPage};-webkit-font-smoothing:antialiased;">
+  <body style="margin:0;padding:0;background-color:${BRAND.bgPage};-webkit-font-smoothing:antialiased;" dir="${dir}">
     ${preheader}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${BRAND.bgPage}" style="background-color:${BRAND.bgPage};padding:40px 16px;">
       <tr>
@@ -91,12 +124,12 @@ export function brandWrap(params: { title: string; preheader?: string; bodyHtml:
             </tr>
             <tr>
               <td bgcolor="${BRAND.cardBg}" style="background-color:${BRAND.cardBg};padding:26px 32px 24px 32px;border-bottom:1px solid ${BRAND.border};">
-                <table role="presentation" cellpadding="0" cellspacing="0">
+                <table role="presentation" cellpadding="0" cellspacing="0" dir="${dir}">
                   <tr>
                     <td style="vertical-align:middle;">
                       <img src="${logoUrl}" width="36" height="36" alt="Markaestro" style="display:block;width:36px;height:36px;border-radius:9px;border:1px solid ${BRAND.border};" />
                     </td>
-                    <td style="vertical-align:middle;padding-left:12px;">
+                    <td style="vertical-align:middle;padding-${dir === 'rtl' ? 'right' : 'left'}:12px;">
                       <span style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.02em;color:${BRAND.ink};">Markaestro</span>
                     </td>
                   </tr>
@@ -109,12 +142,12 @@ export function brandWrap(params: { title: string; preheader?: string; bodyHtml:
                   ${escapeHtml(params.title)}
                 </h1>
                 ${params.bodyHtml}
-                ${footerLegal(params.footerNote || 'If you did not request this email, you can ignore it. Your account will stay unchanged.')}
+                ${footerLegal(params.footerNote)}
               </td>
             </tr>
           </table>
           <p style="margin:20px 0 0 0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:12px;color:#94a3b8;text-align:center;line-height:1.5;">
-            © ${new Date().getFullYear()} Markaestro · Growth workflows, one place
+            ${escapeHtml(params.copyrightText)}
           </p>
         </td>
       </tr>
@@ -124,82 +157,90 @@ export function brandWrap(params: { title: string; preheader?: string; bodyHtml:
 }
 
 /** One-time code for signing in (also serves as email verification). */
-export function signInCodeEmail(params: { code: string; email?: string | null }): AuthEmailPayload {
-  const title = 'Your sign-in code';
+export async function signInCodeEmail(params: { code: string; email?: string | null; locale: AppLocale }): Promise<AuthEmailPayload> {
+  const t = await getEmailTranslator(params.locale);
+  const email = params.email || t('signInCode.fallbackAccount');
+  const title = t('signInCode.title');
   const html = brandWrap({
+    locale: params.locale,
     title,
-    preheader: `${params.code} is your Markaestro sign-in code.`,
+    preheader: t('signInCode.preheader', { code: params.code }),
     bodyHtml: `
-      <p style="margin:0 0 16px 0;">Use this code to sign in as <strong>${escapeHtml(params.email || 'your account')}</strong>:</p>
+      <p style="margin:0 0 16px 0;">${t.markup('signInCode.bodyIntro', { email: escapeHtml(email), ...strongTag })}</p>
       ${codeBlock(params.code)}
-      <p style="margin:18px 0 0 0;color:${BRAND.muted};font-size:13px;">The code expires in 10 minutes. Never share it with anyone — Markaestro will never ask you for it.</p>
+      <p style="margin:18px 0 0 0;color:${BRAND.muted};font-size:13px;">${escapeHtml(t('signInCode.expiryNote'))}</p>
     `,
-    footerNote: 'If you did not try to sign in, you can ignore this email. Without the code, no one can access your account.',
+    footerNote: t('signInCode.footerNote'),
+    copyrightText: t('shared.copyright', { year: new Date().getFullYear() }),
   });
   const text = [
-    'Your Markaestro sign-in code',
+    t('signInCode.plain.heading'),
     '',
-    `Code: ${params.code}`,
+    t('signInCode.plain.codeLabel', { code: params.code }),
     '',
-    'The code expires in 10 minutes. Never share it with anyone.',
-    'If you did not try to sign in, you can ignore this email.',
+    t('signInCode.plain.expiry'),
+    t('signInCode.plain.footer'),
   ].join('\n');
-  return { subject: `${params.code} is your Markaestro sign-in code`, html, text };
+  return { subject: t('signInCode.subject', { code: params.code }), html, text };
 }
 
 /** One-time code sent to the NEW address to confirm an email change. */
-export function emailChangeCodeEmail(params: { code: string; newEmail: string }): AuthEmailPayload {
-  const title = 'Confirm your new email';
+export async function emailChangeCodeEmail(params: { code: string; newEmail: string; locale: AppLocale }): Promise<AuthEmailPayload> {
+  const t = await getEmailTranslator(params.locale);
+  const title = t('emailChangeCode.title');
   const html = brandWrap({
+    locale: params.locale,
     title,
-    preheader: `${params.code} is your code to confirm this email change.`,
+    preheader: t('emailChangeCode.preheader', { code: params.code }),
     bodyHtml: `
-      <p style="margin:0 0 16px 0;">You requested to change your Markaestro email to <strong>${escapeHtml(params.newEmail)}</strong>. Enter this code in the app to confirm:</p>
+      <p style="margin:0 0 16px 0;">${t.markup('emailChangeCode.bodyIntro', { newEmail: escapeHtml(params.newEmail), ...strongTag })}</p>
       ${codeBlock(params.code)}
-      <p style="margin:18px 0 0 0;color:${BRAND.muted};font-size:13px;">The code expires in 10 minutes. Never share it with anyone.</p>
+      <p style="margin:18px 0 0 0;color:${BRAND.muted};font-size:13px;">${escapeHtml(t('emailChangeCode.expiryNote'))}</p>
     `,
-    footerNote: 'If you did not request this change, you can ignore this email and your address will stay the same.',
+    footerNote: t('emailChangeCode.footerNote'),
+    copyrightText: t('shared.copyright', { year: new Date().getFullYear() }),
   });
   const text = [
-    'Confirm your new Markaestro email',
+    t('emailChangeCode.plain.heading'),
     '',
-    `New email: ${params.newEmail}`,
-    `Code: ${params.code}`,
+    t('emailChangeCode.plain.newEmailLabel', { newEmail: params.newEmail }),
+    t('emailChangeCode.plain.codeLabel', { code: params.code }),
     '',
-    'The code expires in 10 minutes.',
-    'If you did not request this change, you can ignore this email.',
+    t('emailChangeCode.plain.expiry'),
+    t('emailChangeCode.plain.footer'),
   ].join('\n');
-  return { subject: `${params.code} is your code to confirm your new Markaestro email`, html, text };
+  return { subject: t('emailChangeCode.subject', { code: params.code }), html, text };
 }
 
 /** Heads-up to the OLD address when an email change is requested. */
-export function emailChangeNotice(params: { oldEmail: string; newEmail: string }): AuthEmailPayload {
-  const title = 'Email change requested';
+export async function emailChangeNotice(params: { oldEmail: string; newEmail: string; locale: AppLocale }): Promise<AuthEmailPayload> {
+  const t = await getEmailTranslator(params.locale);
+  const title = t('emailChangeNotice.title');
   const html = brandWrap({
+    locale: params.locale,
     title,
-    preheader: 'A Markaestro email change was requested.',
+    preheader: t('emailChangeNotice.preheader'),
     bodyHtml: `
-      <p style="margin:0 0 16px 0;">Someone requested to change the email on this Markaestro account:</p>
+      <p style="margin:0 0 16px 0;">${escapeHtml(t('emailChangeNotice.bodyIntro'))}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td bgcolor="${BRAND.panelBg}" style="background-color:${BRAND.panelBg};border:1px solid ${BRAND.border};border-radius:12px;padding:16px 18px;font-size:14px;color:${BRAND.ink};">
-            <span style="color:${BRAND.muted};font-size:12px;display:block;margin-bottom:6px;">From &rarr; To</span>
-            <strong>${escapeHtml(params.oldEmail)}</strong>
-            <span style="color:${BRAND.muted};"> &rarr; </span>
-            <strong>${escapeHtml(params.newEmail)}</strong>
+            <span style="color:${BRAND.muted};font-size:12px;display:block;margin-bottom:6px;">${escapeHtml(t('emailChangeNotice.fromToLabel'))}</span>
+            ${t.markup('emailChangeNotice.changeSummary', { oldEmail: escapeHtml(params.oldEmail), newEmail: escapeHtml(params.newEmail), ...strongTag })}
           </td>
         </tr>
       </table>
-      <p style="margin:22px 0 0 0;color:${BRAND.muted};font-size:14px;">If this was you, complete the confirmation with the code we sent to the <strong>new address</strong>. If this was not you, your email has not changed — but please contact support right away.</p>
+      <p style="margin:22px 0 0 0;color:${BRAND.muted};font-size:14px;">${t.markup('emailChangeNotice.bodyOutro', strongTag)}</p>
     `,
-    footerNote: 'This notice was sent because a change was requested for your account.',
+    footerNote: t('emailChangeNotice.footerNote'),
+    copyrightText: t('shared.copyright', { year: new Date().getFullYear() }),
   });
   const text = [
-    'Email change requested on Markaestro',
+    t('emailChangeNotice.plain.heading'),
     '',
-    `${params.oldEmail} -> ${params.newEmail}`,
+    t('emailChangeNotice.plain.changeSummary', { oldEmail: params.oldEmail, newEmail: params.newEmail }),
     '',
-    'If this was not you, your email has not changed — contact support right away.',
+    t('emailChangeNotice.plain.warning'),
   ].join('\n');
-  return { subject: 'Email change requested · Markaestro', html, text };
+  return { subject: t('emailChangeNotice.subject'), html, text };
 }

@@ -1,0 +1,264 @@
+{
+  "page": {
+    "title": "Beiträge",
+    "subtitle": "Erstelle, plane und veröffentliche organische Inhalte auf deinen Social-Media-Kanälen.",
+    "tabs": {
+      "create": "Erstellen",
+      "drafts": "Entwürfe",
+      "scheduled": "Geplant",
+      "published": "Veröffentlicht",
+      "onPlatform": "Auf der Plattform"
+    },
+    "productBar": {
+      "brand": "Marke",
+      "noBrandSelected": "Keine Marke ausgewählt",
+      "change": "Ändern"
+    }
+  },
+  "editor": {
+    "placeholder": "Generierter Inhalt wird hier angezeigt...",
+    "limitSuffix": "Limit"
+  },
+  "productPicker": {
+    "brand": "Marke",
+    "selectBrand": "Marke auswählen...",
+    "tone": "Ton:",
+    "style": "Stil:",
+    "audience": "Zielgruppe:"
+  },
+  "markPostedDialog": {
+    "title": "Als gepostet markieren",
+    "description": "Bestätige, dass du diesen Beitrag selbst auf {channel} veröffentlicht hast. Füge den Link zum Live-Beitrag ein, falls vorhanden — so wird der Beitrag später mit seinen Analysedaten verknüpft.",
+    "urlPlaceholder": "https://www.{channel}.com/… (optional)",
+    "cancel": "Abbrechen",
+    "confirm": "Als gepostet markieren",
+    "toasts": {
+      "marked": "Als gepostet markiert",
+      "failed": "Als gepostet markieren fehlgeschlagen"
+    }
+  },
+  "publishedTab": {
+    "empty": "Noch keine veröffentlichten Beiträge.",
+    "createPost": "Beitrag erstellen",
+    "toasts": {
+      "deleted": "Beitrag gelöscht",
+      "deleteFailed": "Beitrag konnte nicht gelöscht werden",
+      "loadFailed": "Veröffentlichte Beiträge konnten nicht geladen werden"
+    }
+  },
+  "scheduledTab": {
+    "empty": "Noch nichts geplant.",
+    "scheduleFirst": "Plane deinen ersten Beitrag",
+    "editTitle": "Geplanten Beitrag bearbeiten",
+    "saveAndReschedule": "Speichern & umplanen",
+    "toasts": {
+      "loadFailed": "Geplante Beiträge konnten nicht geladen werden",
+      "movedToDrafts": "Zurück zu den Entwürfen verschoben",
+      "cancelFailed": "Planung konnte nicht abgebrochen werden",
+      "deleted": "Beitrag gelöscht",
+      "deleteFailed": "Beitrag konnte nicht gelöscht werden",
+      "pushingTikTok": "Wird an TikTok-Postfach gesendet…",
+      "publishingPost": "Beitrag wird veröffentlicht…",
+      "tiktokInboxConfirmed": "TikTok hat die Zustellung ins Postfach bestätigt. Öffne die TikTok-App, um fertigzustellen und zu posten.",
+      "tiktokProcessing": "TikTok hat den Upload akzeptiert und verarbeitet ihn noch.",
+      "stillProcessing": "Beitrag übermittelt und wird noch verarbeitet.",
+      "posted": "Gepostet!",
+      "publishFailed": "Veröffentlichung fehlgeschlagen",
+      "updated": "Beitrag aktualisiert",
+      "updateFailed": "Aktualisierung fehlgeschlagen",
+      "rescheduled": "Beitrag umgeplant",
+      "rescheduleFailed": "Umplanen fehlgeschlagen"
+    }
+  },
+  "draftsTab": {
+    "empty": "Noch keine Entwürfe.",
+    "createFirst": "Erstelle deinen ersten Beitrag",
+    "editTitle": "Entwurf bearbeiten",
+    "toPostHeading": "Zu posten",
+    "waitingInTikTokHeading": "Wartet in TikTok",
+    "draftsHeading": "Entwürfe",
+    "toasts": {
+      "loadFailed": "Entwürfe konnten nicht geladen werden",
+      "deleted": "Entwurf gelöscht",
+      "deleteFailed": "Löschen fehlgeschlagen",
+      "addingToQueue": "Wird zu deiner Warteschlange „Zu posten“ hinzugefügt…",
+      "pushingTikTok": "Wird an TikTok-Postfach gesendet…",
+      "publishingPost": "Beitrag wird veröffentlicht…",
+      "addedToQueue": "Zu deiner Warteschlange „Zu posten“ hinzugefügt. Poste ihn nativ und markiere ihn dann als gepostet.",
+      "tiktokInboxConfirmed": "TikTok hat die Zustellung ins Postfach bestätigt. Öffne die TikTok-App, um fertigzustellen und zu posten.",
+      "tiktokProcessing": "TikTok hat den Upload akzeptiert und verarbeitet ihn noch.",
+      "stillProcessing": "Beitrag übermittelt und wird noch verarbeitet.",
+      "posted": "Gepostet!",
+      "publishFailed": "Veröffentlichung fehlgeschlagen",
+      "updated": "Entwurf aktualisiert",
+      "updateFailed": "Aktualisierung fehlgeschlagen",
+      "scheduled": "Beitrag geplant",
+      "scheduleFailed": "Planung fehlgeschlagen"
+    }
+  },
+  "channelSelector": {
+    "channels": "Kanäle",
+    "selectedCount": "{count} ausgewählt",
+    "postTo": "Posten auf",
+    "defaultReason": "Verbinde diesen Kanal in den Markeneinstellungen.",
+    "productSettings": "Produkteinstellungen"
+  },
+  "scheduleSheet": {
+    "eyebrow": "Planen",
+    "title": "Beitrag planen",
+    "description": "Wähle Datum und Uhrzeit oder nutze KI-vorgeschlagene optimale Zeitfenster.",
+    "tiktokNoteLabel": "TikTok wird in der TikTok-App abgeschlossen.",
+    "tiktokNoteBody": "Zur geplanten Zeit sendet Markaestro die Medien an dein TikTok-Postfach und markiert sie als bereit, sobald du TikTok öffnen kannst, um Bildunterschrift, Datenschutz und Veröffentlichung abzuschließen.",
+    "smartSchedule": "Smarte Planung",
+    "aiSuggested": "KI-Vorschlag",
+    "hide": "Ausblenden",
+    "show": "Anzeigen",
+    "basedOnData": "Basierend auf Branchen-Engagement-Daten für {channel}",
+    "thisChannel": "diesen Kanal",
+    "orPickManually": "oder manuell auswählen",
+    "timeLabel": "Uhrzeit",
+    "timezoneNote": "Planungen verwenden deine lokale Zeitzone ({timezone}) und werden in UTC gespeichert.",
+    "headsUp": "Hinweis:",
+    "collisionNote": "ein anderer Beitrag ist bereits für etwa diese Zeit geplant ({date}{channel}). Du kannst trotzdem beide planen.",
+    "onChannel": " auf {channel}",
+    "scheduleFor": "Planen für {date} um {time}",
+    "selectDate": "Datum auswählen"
+  },
+  "postEditSheet": {
+    "caption": "Beschriftung",
+    "media": "Medien",
+    "image": "Bild",
+    "remove": "Entfernen",
+    "replace": "Ersetzen",
+    "dropMedia": "Medien hier ablegen oder klicken zum Hochladen",
+    "dropImage": "Bild hier ablegen oder klicken zum Hochladen",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · bis zu 10 MB",
+    "uploading": "Wird hochgeladen…",
+    "upload": "Hochladen",
+    "preview": "Vorschau",
+    "cancel": "Abbrechen",
+    "saving": "Wird gespeichert…",
+    "save": "Speichern",
+    "defaultTitle": "Beitrag bearbeiten",
+    "defaultScheduleLabel": "Planen",
+    "toasts": {
+      "videoTikTokOnly": "Videos sind nur für TikTok-Beiträge verfügbar",
+      "videoTooLarge": "Das Video muss unter 250 MB groß sein",
+      "imageTooLarge": "Das Bild muss unter 10 MB groß sein",
+      "videoUploaded": "Video hochgeladen",
+      "imageUploaded": "Bild hochgeladen",
+      "uploadFailed": "Upload fehlgeschlagen"
+    }
+  },
+  "postCard": {
+    "readyToPost": "Bereit zum Posten",
+    "readyInTikTok": "Bereit in TikTok",
+    "partiallyFailed": "Teilweise fehlgeschlagen",
+    "text": "Text",
+    "preview": "Vorschau",
+    "view": "Ansehen",
+    "copyCaption": "Beschriftung kopieren",
+    "downloadMedia": "Medien herunterladen",
+    "downloading": "Wird heruntergeladen…",
+    "markAsPosted": "Als gepostet markieren",
+    "edit": "Bearbeiten",
+    "publish": "Veröffentlichen",
+    "publishing": "Wird veröffentlicht…",
+    "reschedule": "Umplanen",
+    "unschedule": "Planung aufheben",
+    "delete": "Löschen",
+    "readyToPostOn": "Bereit zum Posten auf {channel}",
+    "manualInstructions": "Lade die Medien herunter, kopiere die Beschriftung, poste wie gewohnt über die {channel}-App und markiere den Beitrag anschließend hier als gepostet.",
+    "openChannel": "{channel} öffnen",
+    "readyInTikTokInbox": "Bereit in deinem TikTok-Postfach",
+    "tiktokInboxInstructions": "Öffne die TikTok-App → Postfach → tippe auf die Upload-Benachrichtigung, um die Bildunterschrift fertigzustellen und zu posten. Entwürfe laufen nach ~7 Tagen ab.",
+    "openTikTok": "TikTok öffnen",
+    "publishingTo": "Wird auf {channel} veröffentlicht...",
+    "toasts": {
+      "captionCopied": "Beschriftung kopiert",
+      "copyFailed": "Beschriftung konnte nicht kopiert werden"
+    }
+  },
+  "platformPostsTab": {
+    "refresh": "Aktualisieren",
+    "liveFrom": "Live-Beiträge von deinem verbundenen {channel}-Konto — einschließlich außerhalb von Markaestro veröffentlichter Beiträge.",
+    "loadMore": "Mehr laden",
+    "loading": "Wird geladen…",
+    "noCaption": "Keine Beschriftung",
+    "view": "Ansehen",
+    "deleting": "Wird gelöscht…",
+    "delete": "Löschen",
+    "noDeleteHints": {
+      "instagram": "Instagram erlaubt Apps nicht, Beiträge zu löschen — entferne sie in der Instagram-App.",
+      "tiktok": "TikTok erlaubt Apps nicht, Videos zu löschen — entferne sie in der TikTok-App."
+    },
+    "noDeleteDefault": "Das Löschen wird für diesen Beitrag nicht unterstützt.",
+    "deleteWarning": "Dies entfernt den Beitrag dauerhaft von {channel}.",
+    "states": {
+      "notConnectedTitle": "{channel} ist noch nicht verbunden",
+      "notConnectedBody": "Verbinde {channel} mit dieser Marke, dann erscheinen ihre Live-Beiträge hier — einschließlich außerhalb von Markaestro veröffentlichter Beiträge.",
+      "connect": "{channel} verbinden",
+      "authTitle": "{channel} muss erneut verbunden werden",
+      "authBody": "Die Verbindung zu {channel} ist abgelaufen, sodass wir ihre Beiträge gerade nicht durchsuchen können. Verbinde sie in den Markeneinstellungen erneut, um dort weiterzumachen, wo du aufgehört hast.",
+      "reconnect": "{channel} erneut verbinden",
+      "checkAgain": "Erneut prüfen",
+      "unsupportedTitle": "Durchsuchen von {channel}-Beiträgen nicht verfügbar",
+      "linkedinPartnerBody": "LinkedIn erlaubt nur zugelassenen Partner-Apps, Kontobeiträge zu durchsuchen. Alles, was du über Markaestro veröffentlichst, erscheint weiterhin in deinem Tab „Veröffentlicht“.",
+      "unsupportedBody": "{channel} erlaubt Apps nicht, Kontobeiträge zu durchsuchen. Alles, was du über Markaestro veröffentlichst, erscheint weiterhin in deinem Tab „Veröffentlicht“.",
+      "errorTitle": "{channel}-Beiträge konnten nicht geladen werden",
+      "errorBody": "{channel} hat nicht wie erwartet reagiert. Das ist normalerweise vorübergehend — versuche es gleich noch einmal.",
+      "tryAgain": "Erneut versuchen",
+      "emptyTitle": "Noch keine Beiträge auf {channel}",
+      "emptyBody": "Sobald dieses Konto veröffentlicht — über Markaestro oder direkt auf {channel} — erscheinen die Beiträge hier."
+    },
+    "toasts": {
+      "loadMoreFailed": "Weitere Beiträge konnten nicht geladen werden",
+      "deleted": "Beitrag von {channel} gelöscht",
+      "deleteFailed": "Der Beitrag konnte auf der Plattform nicht gelöscht werden"
+    }
+  },
+  "createTab": {
+    "restoredDraft": "Dein nicht gespeicherter Entwurf wurde wiederhergestellt",
+    "discard": "Verwerfen",
+    "caption": "Beschriftung",
+    "media": "Medien",
+    "removeMedia": "Entfernen",
+    "addMedia": "+ Hinzufügen",
+    "dropImagesOrVideos": "Bilder oder Videos hier ablegen",
+    "dropImages": "Bilder hier ablegen oder klicken zum Hochladen",
+    "mediaCountHint": "Bis zu {count, plural, one {# Element} other {# Elemente}} · {hint}",
+    "mediaHintVideo": "MP4/MOV/WebM ≤250 MB · JPG/PNG/WebP ≤10 MB",
+    "mediaHintImage": "JPG, PNG, WebP · bis zu 10 MB",
+    "uploading": "Wird hochgeladen…",
+    "upload": "Hochladen",
+    "saveDraft": "Entwurf speichern",
+    "schedule": "Planen",
+    "postNow": "Jetzt posten",
+    "posting": "Wird gepostet…",
+    "preview": "Vorschau",
+    "previewPlaceholder": "Die Vorschau deines Beitrags wird hier angezeigt.",
+    "previewHint": "Schreibe eine Beschriftung und lade deine Medien hoch, um loszulegen.",
+    "toasts": {
+      "selectChannel": "Wähle mindestens einen bereiten Veröffentlichungskanal aus.",
+      "videoNotSupported": "Ein oder mehrere ausgewählte Kanäle unterstützen keine Video-Uploads",
+      "videoAlone": "Videos müssen einzeln hochgeladen werden",
+      "maxMedia": "Maximal {count, plural, one {# Medienelement} other {# Medienelemente}} für die ausgewählten Kanäle",
+      "fileTooLarge": "{file}: muss unter {size} MB liegen",
+      "fileUploadFailed": "{file}: Upload fehlgeschlagen",
+      "filesUploaded": "{count, plural, one {# Datei hochgeladen} other {# Dateien hochgeladen}}",
+      "uploadFailed": "Upload fehlgeschlagen",
+      "createFailed": "Beitrag konnte nicht erstellt werden",
+      "draftSaved": "Entwurf gespeichert",
+      "draftSaveFailed": "Entwurf konnte nicht gespeichert werden",
+      "scheduled": "Beitrag geplant",
+      "scheduleFailed": "Beitrag konnte nicht geplant werden",
+      "tiktokSending": "Wird an TikTok gesendet. Markaestro wartet auf die Bestätigung der Postfach-Zustellung durch TikTok.",
+      "stillProcessing": "Beitrag übermittelt und wird noch verarbeitet.",
+      "tiktokInboxConfirmed": "TikTok hat die Zustellung ins Postfach bestätigt. Öffne das TikTok-Postfach, vervollständige die Beschriftung und tippe auf Posten.",
+      "postedToMultiple": "Auf {channels} gepostet!",
+      "postedSuccess": "Erfolgreich gepostet!",
+      "publishFailed": "Veröffentlichung fehlgeschlagen"
+    }
+  }
+}

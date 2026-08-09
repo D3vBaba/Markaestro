@@ -1,0 +1,107 @@
+{
+  "status": {
+    "published": "Veröffentlicht",
+    "scheduled": "Geplant",
+    "draft": "Entwurf",
+    "failed": "Fehlgeschlagen",
+    "active": "Aktiv",
+    "paused": "Pausiert",
+    "ended": "Beendet",
+    "live": "Live",
+    "completed": "Abgeschlossen",
+    "cancelled": "Storniert"
+  },
+  "authErrors": {
+    "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein.",
+    "userDisabled": "Dieses Konto wurde deaktiviert. Wende dich an den Support.",
+    "otpInvalid": "Dieser Code ist falsch. Prüfe die letzte E-Mail und versuche es erneut.",
+    "otpExpired": "Dieser Code ist abgelaufen. Fordere einen neuen an.",
+    "otpTooManyAttempts": "Zu viele falsche Versuche. Fordere einen neuen Code an.",
+    "otpCooldown": "Ein Code wurde soeben gesendet. Prüfe dein Postfach oder versuche es in einer Minute erneut.",
+    "emailInUse": "Für diese E-Mail-Adresse existiert bereits ein Konto.",
+    "rateLimited": "Zu viele Versuche. Bitte versuche es später erneut.",
+    "popupClosed": "Die Anmeldung wurde abgebrochen.",
+    "popupBlocked": "Das Pop-up wurde von deinem Browser blockiert. Erlaube Pop-ups und versuche es erneut.",
+    "accountExistsDifferentCredential": "Für diese E-Mail-Adresse existiert bereits ein Konto mit einer anderen Anmeldemethode.",
+    "networkError": "Netzwerkfehler. Überprüfe deine Verbindung und versuche es erneut.",
+    "default": "Anmeldung fehlgeschlagen. Bitte versuche es erneut."
+  },
+  "confirmDeleteDialog": {
+    "entities": {
+      "brand": "Marke",
+      "connection": "Verbindung",
+      "teamMember": "Teammitglied",
+      "integration": "Integration",
+      "post": "Beitrag"
+    },
+    "titleGeneric": "{entity} löschen",
+    "titleNamed": "{entity} löschen?",
+    "descriptionNamed": "Möchtest du <name></name> wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "descriptionGeneric": "Möchtest du dieses {entity} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "typeToConfirm": "Gib <name></name> ein, um zu bestätigen.",
+    "cancel": "Abbrechen",
+    "deleteDefault": "Löschen"
+  },
+  "featureGate": {
+    "openingPortal": "Abrechnungsportal wird geöffnet…",
+    "portalError": "Das Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut.",
+    "upgradeTo": "Auf {plan} upgraden",
+    "requiresPlan": "Diese Funktion erfordert mindestens den Plan {plan}. Schalte sie ab ${price}/Monat frei.",
+    "loading": "Wird geladen..."
+  },
+  "metricCard": {
+    "vsLastPeriod": "vs. vorheriger Zeitraum"
+  },
+  "pagination": {
+    "firstPage": "Erste Seite",
+    "previousPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite",
+    "lastPage": "Letzte Seite"
+  },
+  "tagInput": {
+    "defaultPlaceholder": "Eingeben und Enter drücken…"
+  },
+  "scanProgressStepper": {
+    "steps": {
+      "connecting": { "label": "Mit Website verbinden", "activeLabel": "Verbindung zur Website wird hergestellt…" },
+      "reading": { "label": "Website-Inhalt lesen", "activeLabel": "Website-Inhalt wird gelesen…" },
+      "extracting": { "label": "Markenfarben extrahieren", "activeLabel": "Markenfarben & Logo werden extrahiert…" },
+      "analyzing": { "label": "Markensignale analysieren", "activeLabel": "Markensignale werden analysiert…" },
+      "finalizing": { "label": "Markenprofil erstellen", "activeLabel": "Dein Markenprofil wird erstellt…" }
+    },
+    "scanComplete": "Scan abgeschlossen — unten prüfen und bestätigen",
+    "scanFailed": "Scan fehlgeschlagen — bitte manuell ausfüllen",
+    "researching": "Deine Marke wird recherchiert…"
+  },
+  "platformPreview": {
+    "sponsored": "Gesponsert",
+    "justNow": "gerade eben",
+    "now": "jetzt",
+    "zeroLikes": "0 Likes",
+    "zeroComments": "0 Kommentare",
+    "like": "Gefällt mir",
+    "comment": "Kommentieren",
+    "share": "Teilen",
+    "repost": "Repost",
+    "send": "Senden",
+    "following": "Folge ich",
+    "forYou": "Für dich",
+    "originalSound": "Originalton",
+    "originalSoundWithBrand": "Originalton · yourbrand",
+    "save": "Speichern",
+    "untitledPin": "Pin ohne Titel",
+    "viewLive": "Live ansehen",
+    "previewSuffix": "Vorschau",
+    "companyPageNow": "Unternehmensseite · jetzt",
+    "cta": {
+      "LEARN_MORE": "Mehr erfahren",
+      "SHOP_NOW": "Jetzt einkaufen",
+      "SIGN_UP": "Registrieren",
+      "DOWNLOAD": "Herunterladen",
+      "GET_QUOTE": "Angebot einholen",
+      "CONTACT_US": "Kontaktiere uns"
+    },
+    "facebookInstagramAd": "Facebook-/Instagram-Anzeige",
+    "tiktokAd": "TikTok-Anzeige"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "statusLabels": {
+    "published": "منشور",
+    "scheduled": "مجدوَل",
+    "draft": "مسودة",
+    "failed": "فشل",
+    "partial_failed": "فشل جزئي",
+    "publishing": "جارٍ النشر"
+  },
+  "mockups": {
+    "sponsored": "منشور برعاية",
+    "like": "إعجاب",
+    "comment": "تعليق",
+    "share": "مشاركة",
+    "save": "حفظ",
+    "justNow": "الآن",
+    "likeAction": "👍 إعجاب",
+    "commentAction": "💬 تعليق",
+    "shareAction": "↗ مشاركة"
+  },
+  "detailPanel": {
+    "backToDay": "الرجوع إلى اليوم",
+    "close": "إغلاق",
+    "published": "نُشر",
+    "scheduled": "مجدوَل",
+    "preview": "معاينة",
+    "viewLivePost": "عرض المنشور المباشر",
+    "untitledPost": "منشور بلا عنوان",
+    "failedToPublish": "فشل النشر"
+  },
+  "dayPanel": {
+    "today": "اليوم",
+    "postCount": "{count, plural, zero {لا منشورات} one {منشور واحد} two {منشوران} few {# منشورات} many {# منشورًا} other {# منشور}} · اختر واحدًا للمعاينة",
+    "noPosts": "لا توجد منشورات في هذا اليوم."
+  },
+  "agenda": {
+    "today": "اليوم",
+    "itemCount": "{count, plural, zero {لا عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}}"
+  },
+  "deletedNotice": "تم حذف هذا المنشور ولم يعد متاحًا.",
+  "dismiss": "إغلاق",
+  "truncatedNotice": "يحتوي هذا الشهر على منشورات أكثر مما يمكن للتقويم تحميله دفعة واحدة — بعضها غير معروض.",
+  "postsThisMonth": "{count, plural, zero {لا منشورات} one {منشور واحد} two {منشوران} few {# منشورات} many {# منشورًا} other {# منشور}} هذا الشهر",
+  "dropToReschedule": "· أفلت على يوم لإعادة الجدولة",
+  "newPost": "منشور جديد",
+  "today": "اليوم",
+  "filters": {
+    "brand": "العلامة التجارية",
+    "all": "الكل",
+    "noBrand": "بلا علامة تجارية",
+    "unknownBrand": "علامة تجارية غير معروفة",
+    "dragToReschedule": "اسحب لإعادة الجدولة"
+  },
+  "loadError": "تعذّر تحميل بيانات التقويم",
+  "retry": "إعادة المحاولة",
+  "noPostsMatchingFilters": "لا توجد منشورات تطابق عوامل التصفية لديك",
+  "noPostsThisMonth": "لا توجد منشورات هذا الشهر",
+  "noPostsThisMonthPeriod": "لا توجد منشورات هذا الشهر.",
+  "clearFilters": "مسح عوامل التصفية",
+  "createPost": "إنشاء منشور",
+  "createPostCaps": "إنشاء منشور",
+  "postMovedToast": "تم نقل المنشور إلى {date}",
+  "rescheduleFailedToast": "تعذّرت إعادة جدولة المنشور",
+  "postNotFoundToast": "تعذّر فتح هذا المنشور. يُرجى المحاولة مرة أخرى.",
+  "viewAllPostsOnDay": "عرض جميع منشورات هذا اليوم ({count})",
+  "viewAllPostsOnDate": "عرض جميع منشورات {date} ({count})",
+  "moreCount": "+{count} إضافية"
+}

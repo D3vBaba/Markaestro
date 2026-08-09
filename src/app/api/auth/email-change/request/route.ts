@@ -6,6 +6,8 @@ import { createOtp } from '@/lib/auth-otp';
 import { emailChangeCodeEmail, emailChangeNotice } from '@/lib/auth-emails';
 import { sendResendEmail } from '@/lib/resend';
 import { getBearerFromRequest } from '@/lib/bearer';
+import { resolveMemberLocale } from '@/lib/resolve-app-locale';
+import { pickLocaleFromAcceptLanguage, routing } from '@/i18n/routing';
 
 export const runtime = 'nodejs';
 
@@ -37,13 +39,17 @@ export async function POST(req: Request) {
     if (taken) throw new Error('EMAIL_IN_USE');
 
     const code = await createOtp(`email-change:${uid}`, newEmail);
-    const tpl = emailChangeCodeEmail({ code, newEmail });
+    const locale =
+      (await resolveMemberLocale(uid)) ??
+      pickLocaleFromAcceptLanguage(req.headers.get('accept-language')) ??
+      routing.defaultLocale;
+    const tpl = await emailChangeCodeEmail({ code, newEmail, locale });
     await sendResendEmail({ to: newEmail, subject: tpl.subject, html: tpl.html, text: tpl.text });
 
     const user = await adminAuth.getUser(uid);
     const oldEmail = (user.email || '').trim().toLowerCase();
     if (oldEmail && oldEmail !== newEmail) {
-      const notice = emailChangeNotice({ oldEmail, newEmail });
+      const notice = await emailChangeNotice({ oldEmail, newEmail, locale });
       await sendResendEmail({ to: oldEmail, subject: notice.subject, html: notice.html, text: notice.text }).catch((err) => {
         console.warn('[auth/email-change/request] failed sending notice to old email:', err);
       });

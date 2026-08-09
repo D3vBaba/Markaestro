@@ -1,0 +1,107 @@
+{
+  "status": {
+    "published": "발행됨",
+    "scheduled": "예약됨",
+    "draft": "초안",
+    "failed": "실패",
+    "active": "활성",
+    "paused": "일시중지",
+    "ended": "종료됨",
+    "live": "라이브",
+    "completed": "완료됨",
+    "cancelled": "취소됨"
+  },
+  "authErrors": {
+    "invalidEmail": "유효한 이메일 주소를 입력하세요.",
+    "userDisabled": "이 계정은 비활성화되었습니다. 지원팀에 문의하세요.",
+    "otpInvalid": "코드가 올바르지 않습니다. 최신 이메일을 확인한 후 다시 시도하세요.",
+    "otpExpired": "코드가 만료되었습니다. 새 코드를 요청하세요.",
+    "otpTooManyAttempts": "잘못된 시도가 너무 많습니다. 새 코드를 요청하세요.",
+    "otpCooldown": "방금 코드를 전송했습니다. 받은편지함을 확인하거나 1분 후 다시 시도하세요.",
+    "emailInUse": "이 이메일로 가입된 계정이 이미 있습니다.",
+    "rateLimited": "시도 횟수가 너무 많습니다. 나중에 다시 시도하세요.",
+    "popupClosed": "로그인이 취소되었습니다.",
+    "popupBlocked": "브라우저에서 팝업이 차단되었습니다. 팝업을 허용한 후 다시 시도하세요.",
+    "accountExistsDifferentCredential": "이 이메일에는 다른 로그인 방식의 계정이 이미 존재합니다.",
+    "networkError": "네트워크 오류입니다. 연결을 확인한 후 다시 시도하세요.",
+    "default": "인증에 실패했습니다. 다시 시도하세요."
+  },
+  "confirmDeleteDialog": {
+    "entities": {
+      "brand": "브랜드",
+      "connection": "연결",
+      "teamMember": "팀원",
+      "integration": "연동",
+      "post": "게시물"
+    },
+    "titleGeneric": "{entity} 삭제",
+    "titleNamed": "{entity}을(를) 삭제할까요?",
+    "descriptionNamed": "<name></name>을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+    "descriptionGeneric": "이 {entity}을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+    "typeToConfirm": "확인하려면 <name></name>을(를) 입력하세요.",
+    "cancel": "취소",
+    "deleteDefault": "삭제"
+  },
+  "featureGate": {
+    "openingPortal": "결제 포털을 여는 중…",
+    "portalError": "결제 포털을 열 수 없습니다. 다시 시도하세요.",
+    "upgradeTo": "{plan}(으)로 업그레이드",
+    "requiresPlan": "이 기능을 사용하려면 {plan} 요금제 이상이 필요합니다. 월 ${price}부터 업그레이드하여 이용하세요.",
+    "loading": "로딩 중..."
+  },
+  "metricCard": {
+    "vsLastPeriod": "이전 기간 대비"
+  },
+  "pagination": {
+    "firstPage": "첫 페이지",
+    "previousPage": "이전 페이지",
+    "nextPage": "다음 페이지",
+    "lastPage": "마지막 페이지"
+  },
+  "tagInput": {
+    "defaultPlaceholder": "입력 후 Enter를 누르세요…"
+  },
+  "scanProgressStepper": {
+    "steps": {
+      "connecting": { "label": "사이트에 연결", "activeLabel": "사이트에 연결하는 중…" },
+      "reading": { "label": "웹사이트 콘텐츠 읽기", "activeLabel": "웹사이트 콘텐츠를 읽는 중…" },
+      "extracting": { "label": "브랜드 색상 추출", "activeLabel": "브랜드 색상 및 로고를 추출하는 중…" },
+      "analyzing": { "label": "브랜드 신호 분석", "activeLabel": "브랜드 신호를 분석하는 중…" },
+      "finalizing": { "label": "브랜드 프로필 생성", "activeLabel": "브랜드 프로필을 생성하는 중…" }
+    },
+    "scanComplete": "스캔 완료 — 아래에서 확인 후 확정하세요",
+    "scanFailed": "스캔 실패 — 수동으로 입력해 주세요",
+    "researching": "브랜드를 조사하는 중…"
+  },
+  "platformPreview": {
+    "sponsored": "광고",
+    "justNow": "방금 전",
+    "now": "지금",
+    "zeroLikes": "좋아요 0개",
+    "zeroComments": "댓글 0개",
+    "like": "좋아요",
+    "comment": "댓글",
+    "share": "공유",
+    "repost": "리포스트",
+    "send": "보내기",
+    "following": "팔로잉",
+    "forYou": "추천",
+    "originalSound": "원본 오디오",
+    "originalSoundWithBrand": "원본 오디오 · yourbrand",
+    "save": "저장",
+    "untitledPin": "제목 없는 핀",
+    "viewLive": "실제 게시물 보기",
+    "previewSuffix": "미리보기",
+    "companyPageNow": "회사 페이지 · 지금",
+    "cta": {
+      "LEARN_MORE": "자세히 알아보기",
+      "SHOP_NOW": "지금 쇼핑하기",
+      "SIGN_UP": "가입하기",
+      "DOWNLOAD": "다운로드",
+      "GET_QUOTE": "견적 요청",
+      "CONTACT_US": "문의하기"
+    },
+    "facebookInstagramAd": "Facebook / Instagram 광고",
+    "tiktokAd": "TikTok 광고"
+  }
+}

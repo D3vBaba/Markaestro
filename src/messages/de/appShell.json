@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "groups": {
+      "overview": "Übersicht",
+      "marketing": "Marketing",
+      "help": "Hilfe"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "analytics": "Analysen",
+      "brands": "Marken",
+      "posts": "Beiträge",
+      "calendar": "Kalender",
+      "connectChannels": "Kanäle verbinden",
+      "settings": "Einstellungen"
+    },
+    "signOut": "Abmelden",
+    "workspaceSwitcher": {
+      "yourWorkspaces": "Deine Workspaces",
+      "manageWorkspaces": "Workspaces verwalten"
+    },
+    "toggleMenu": "Navigationsmenü umschalten",
+    "navigationMenu": "Navigationsmenü",
+    "navigationMenuDescription": "Wichtigste Navigationslinks"
+  },
+  "mobileTabBar": {
+    "home": "Start",
+    "analytics": "Analysen",
+    "brands": "Marken",
+    "posts": "Beiträge",
+    "calendar": "Kalender"
+  },
+  "header": {
+    "searchPlaceholder": "Alles durchsuchen...",
+    "search": "Suchen"
+  },
+  "commandPalette": {
+    "title": "Befehlspalette",
+    "description": "Seiten und Schnellaktionen durchsuchen",
+    "searchPlaceholder": "Seiten und Aktionen durchsuchen...",
+    "noResults": "Keine Ergebnisse gefunden.",
+    "groupNavigation": "Navigation",
+    "groupQuickActions": "Schnellaktionen",
+    "channels": "Kanäle",
+    "actions": {
+      "createPost": "Beitrag erstellen",
+      "addBrand": "Marke hinzufügen",
+      "connectChannel": "Kanal verbinden",
+      "billing": "Abrechnung"
+    }
+  },
+  "trialBanner": {
+    "endsToday": "Deine Testphase endet heute",
+    "daysLeft": "{days, plural, one {Noch # Tag Testphase} other {Noch # Tage Testphase}}",
+    "planSuffix": " · {tier}-Plan",
+    "manageBilling": "Abrechnung Verwalten",
+    "loading": "Wird geladen...",
+    "openingPortal": "Abrechnungsportal wird geöffnet…",
+    "portalError": "Das Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut."
+  },
+  "verifyEmailBanner": {
+    "prompt": "Bestätige deine E-Mail-Adresse, um zu veröffentlichen",
+    "promptWithCode": " — gib den Code ein, den wir an <emailTag>{email}</emailTag> gesendet haben",
+    "sendCode": "Code senden",
+    "resendCode": "Code erneut senden",
+    "resendCountdown": "Erneut senden ({seconds}s)",
+    "sending": "Wird gesendet…",
+    "verify": "Bestätigen",
+    "verifying": "Wird bestätigt…",
+    "codeSent": "Code gesendet — überprüfe deinen Posteingang und Spam-Ordner.",
+    "sendError": "Konnte gerade nicht gesendet werden. Versuche es in einer Minute erneut.",
+    "verified": "E-Mail bestätigt — alles bereit."
+  },
+  "localeSwitcher": {
+    "label": "Sprache",
+    "description": "Wähle die Sprache, die Markaestro in der gesamten App verwendet.",
+    "error": "Deine Sprache konnte nicht aktualisiert werden. Bitte versuche es erneut."
+  },
+  "logout": {
+    "title": "Von Markaestro abmelden?",
+    "description": "Zum erneuten Anmelden benötigst du einen neuen E-Mail-Code, und nicht gespeicherte Änderungen im Editor gehen verloren.",
+    "cancel": "Angemeldet bleiben",
+    "confirm": "Abmelden",
+    "confirming": "Wird abgemeldet…"
+  }
+}

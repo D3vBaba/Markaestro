@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "groups": {
+      "overview": "نظرة عامة",
+      "marketing": "التسويق",
+      "help": "المساعدة"
+    },
+    "items": {
+      "dashboard": "لوحة التحكم",
+      "analytics": "التحليلات",
+      "brands": "العلامات التجارية",
+      "posts": "المنشورات",
+      "calendar": "التقويم",
+      "connectChannels": "ربط القنوات",
+      "settings": "الإعدادات"
+    },
+    "signOut": "تسجيل الخروج",
+    "workspaceSwitcher": {
+      "yourWorkspaces": "مساحات عملك",
+      "manageWorkspaces": "إدارة مساحات العمل"
+    },
+    "toggleMenu": "تبديل قائمة التنقل",
+    "navigationMenu": "قائمة التنقل",
+    "navigationMenuDescription": "روابط التنقل الرئيسية"
+  },
+  "mobileTabBar": {
+    "home": "الرئيسية",
+    "analytics": "التحليلات",
+    "brands": "العلامات التجارية",
+    "posts": "المنشورات",
+    "calendar": "التقويم"
+  },
+  "header": {
+    "searchPlaceholder": "ابحث عن أي شيء...",
+    "search": "بحث"
+  },
+  "commandPalette": {
+    "title": "لوحة الأوامر",
+    "description": "ابحث عن الصفحات والإجراءات السريعة",
+    "searchPlaceholder": "ابحث عن الصفحات والإجراءات...",
+    "noResults": "لم يتم العثور على نتائج.",
+    "groupNavigation": "التنقل",
+    "groupQuickActions": "إجراءات سريعة",
+    "channels": "القنوات",
+    "actions": {
+      "createPost": "إنشاء منشور",
+      "addBrand": "إضافة علامة تجارية",
+      "connectChannel": "ربط قناة",
+      "billing": "الفوترة"
+    }
+  },
+  "trialBanner": {
+    "endsToday": "تنتهي تجربتك اليوم",
+    "daysLeft": "{days, plural, one {يتبقى يوم # من التجربة} two {يتبقى يومان من التجربة} few {يتبقى # أيام من التجربة} many {يتبقى # يومًا من التجربة} other {يتبقى # يوم من التجربة}}",
+    "planSuffix": " · خطة {tier}",
+    "manageBilling": "إدارة الفوترة",
+    "loading": "جارٍ التحميل...",
+    "openingPortal": "جارٍ فتح بوابة الفوترة…",
+    "portalError": "تعذّر فتح بوابة الفوترة. يُرجى المحاولة مرة أخرى."
+  },
+  "verifyEmailBanner": {
+    "prompt": "تحقق من بريدك الإلكتروني للنشر",
+    "promptWithCode": " — أدخل الرمز الذي أرسلناه إلى <emailTag>{email}</emailTag>",
+    "sendCode": "إرسال الرمز",
+    "resendCode": "إعادة إرسال الرمز",
+    "resendCountdown": "إعادة الإرسال ({seconds} ثانية)",
+    "sending": "جارٍ الإرسال…",
+    "verify": "تحقق",
+    "verifying": "جارٍ التحقق…",
+    "codeSent": "تم إرسال الرمز — تحقق من صندوق الوارد ومجلد الرسائل غير المرغوب فيها.",
+    "sendError": "تعذّر الإرسال الآن. يُرجى المحاولة مرة أخرى بعد دقيقة.",
+    "verified": "تم التحقق من البريد الإلكتروني — كل شيء جاهز."
+  },
+  "localeSwitcher": {
+    "label": "اللغة",
+    "description": "اختر اللغة التي يستخدمها Markaestro في التطبيق بأكمله.",
+    "error": "تعذّر تحديث لغتك. يُرجى المحاولة مرة أخرى."
+  },
+  "logout": {
+    "title": "تسجيل الخروج من Markaestro؟",
+    "description": "ستحتاج إلى رمز جديد عبر البريد الإلكتروني لتسجيل الدخول مرة أخرى، وسيُفقد أي عمل غير محفوظ في المحرّر.",
+    "cancel": "البقاء مسجّلاً للدخول",
+    "confirm": "تسجيل الخروج",
+    "confirming": "جارٍ تسجيل الخروج…"
+  }
+}

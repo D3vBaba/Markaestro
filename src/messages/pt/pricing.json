@@ -1,0 +1,173 @@
+{
+  "hero": {
+    "eyebrow": "Preços",
+    "titleLead": "Todo o seu motor de marketing,",
+    "titleHighlight": "um preço simples",
+    "subtitle": "Sem taxas ocultas, sem surpresas por usuário. Todo plano inclui um teste grátis de {trialDays} dias. Cancele quando quiser.",
+    "monthlyToggle": "Mensal",
+    "annualToggle": "Anual",
+    "annualSaveBadge": "ECONOMIZE 18%",
+    "trialLine": "Teste grátis de {trialDays} dias em todos os planos — sem cobrança até o dia {trialEndDay}",
+    "annualSavingsSuffix": " · A cobrança anual economiza 18%"
+  },
+  "planNames": {
+    "starter": "Starter",
+    "pro": "Pro",
+    "business": "Business"
+  },
+  "mostPopularBadge": "Mais Popular",
+  "plans": {
+    "starter": {
+      "description": "Para profissionais de marketing individuais que publicam no Meta e no TikTok.",
+      "features": [
+        "5 canais sociais",
+        "Posts ilimitados",
+        "500 uploads de mídia / mês",
+        "1 membro da equipe",
+        "Calendário de conteúdo",
+        "1 workspace",
+        "Voz da marca (1 perfil)",
+        "Análises (janela de 7 dias)"
+      ]
+    },
+    "pro": {
+      "description": "Para equipes em crescimento que precisam de colaboração e agendamento.",
+      "features": [
+        "15 canais sociais",
+        "Posts ilimitados",
+        "5.000 uploads de mídia / mês",
+        "5 membros da equipe",
+        "5 workspaces",
+        "Voz da marca + identidade da marca",
+        "Agendamento inteligente",
+        "Análises (janela de 90 dias)",
+        "Suporte prioritário"
+      ]
+    },
+    "business": {
+      "description": "Para agências que gerenciam múltiplas marcas em escala.",
+      "features": [
+        "50 canais sociais",
+        "Posts ilimitados",
+        "Uploads de mídia ilimitados",
+        "Membros de equipe ilimitados",
+        "Tudo do plano Pro",
+        "Workspaces ilimitados",
+        "Histórico de análises ilimitado + exportação CSV",
+        "Suporte prioritário"
+      ]
+    }
+  },
+  "planCard": {
+    "perMonth": "/mês",
+    "billedAnnually": "· Cobrado anualmente (US$ {annualTotal}/ano)",
+    "justPerDay": "Isso é apenas US$ {dailyCost}/dia",
+    "billedMonthly": "Cobrado mensalmente · Mude para anual e economize 17%",
+    "startTrialButton": "Iniciar Teste Grátis de {trialDays} Dias",
+    "noChargeLine": "Sem cobrança por {trialDays} dias · Cancele quando quiser",
+    "everythingIncluded": "Tudo incluso"
+  },
+  "comparison": {
+    "titleLead": "Compare",
+    "titleHighlight": "cada recurso",
+    "subtitle": "Veja exatamente o que está incluso em cada plano.",
+    "categories": [
+      {
+        "name": "Publicação",
+        "features": [
+          { "name": "Canais sociais" },
+          { "name": "Posts por mês" },
+          { "name": "Calendário de conteúdo" },
+          { "name": "Agendamento em massa" },
+          { "name": "Agendamento inteligente" }
+        ]
+      },
+      {
+        "name": "Biblioteca de Mídia",
+        "features": [
+          { "name": "Uploads de mídia" },
+          { "name": "Perfis de voz da marca" },
+          { "name": "Identidade da marca (logo e cores)" }
+        ]
+      },
+      {
+        "name": "Análises",
+        "features": [
+          { "name": "Análises de posts e seguidores" },
+          { "name": "Janela de histórico" },
+          { "name": "Exportação CSV" }
+        ]
+      },
+      {
+        "name": "Equipe e Workspace",
+        "features": [
+          { "name": "Membros da equipe" },
+          { "name": "Workspaces" },
+          { "name": "Controle de acesso baseado em função" }
+        ]
+      },
+      {
+        "name": "Desenvolvedores e Agentes de IA",
+        "features": [
+          { "name": "Chaves de API do workspace" },
+          { "name": "API de Publicação (Connect + v1 completa)" },
+          { "name": "Webhooks assinados" },
+          { "name": "Escopo e expiração de chave por marca" }
+        ]
+      },
+      {
+        "name": "Suporte",
+        "features": [
+          { "name": "Suporte por e-mail" },
+          { "name": "Suporte prioritário" }
+        ]
+      }
+    ]
+  },
+  "faqTitleLead": "Perguntas sobre",
+  "faqTitleHighlight": "Preços",
+  "faqs": [
+    {
+      "q": "Posso mudar de plano a qualquer momento?",
+      "a": "Sim. Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. Ao fazer upgrade, será cobrada a diferença proporcional. Ao fazer downgrade, a nova tarifa entra em vigor no próximo ciclo de cobrança."
+    },
+    {
+      "q": "O que conta como um 'canal social'?",
+      "a": "Cada conta social conectada conta como um canal. Por exemplo, uma Página do Facebook, uma conta comercial do Instagram e uma conta do TikTok seriam 3 canais."
+    },
+    {
+      "q": "O que conta como um upload de mídia?",
+      "a": "Cada arquivo de imagem ou vídeo enviado a um workspace conta como um upload de mídia na sua cota mensal. Reutilizar um arquivo já enviado em vários posts não conta novamente. Veja a tabela de comparação para os limites mensais de cada plano."
+    },
+    {
+      "q": "O que acontece quando atinjo meu limite de upload de mídia?",
+      "a": "Você pode continuar publicando posts que usam mídia já presente no seu workspace — apenas novos uploads são bloqueados. Sua cota de upload de mídia é reiniciada no começo de cada ciclo de cobrança, e você pode fazer upgrade do seu plano a qualquer momento para uma cota maior."
+    },
+    {
+      "q": "Como funciona o teste grátis?",
+      "a": "Todo plano — mensal e anual — inclui um teste grátis de {trialDays} dias. Seu cartão é coletado no cadastro, mas não será cobrado até o fim do teste. Cancele quando quiser durante o teste e não pague nada."
+    },
+    {
+      "q": "Quais planos incluem o teste grátis?",
+      "a": "Todos os planos (Starter, Pro, Business) na cobrança mensal e anual incluem o teste grátis de {trialDays} dias. A cobrança anual também economiza 18% em comparação à mensal."
+    },
+    {
+      "q": "Meu agente de IA ou meu próprio software pode usar o Markaestro?",
+      "a": "Sim, em qualquer plano sem custo extra. Qualquer administrador do workspace pode gerar chaves de API em Configurações → API e entregar uma a um agente de IA, um script ou uma ferramenta de agendamento pronta. Cada chave é vinculada a uma única marca, carrega apenas os escopos que você marcar e pode ter uma expiração definida. Veja o guia do agente de IA para as definições de ferramentas e um guia rápido funcional de quatro comandos."
+    },
+    {
+      "q": "Vocês oferecem descontos para organizações sem fins lucrativos ou startups?",
+      "a": "Sim. Oferecemos 50% de desconto para organizações sem fins lucrativos verificadas e startups em estágio inicial (com receita abaixo de US$ 1 milhão). Entre em contato conosco para solicitar."
+    },
+    {
+      "q": "Quais formas de pagamento vocês aceitam?",
+      "a": "Aceitamos os principais cartões de crédito e débito (Visa, Mastercard, Amex). Planos empresariais podem pagar por fatura."
+    }
+  ],
+  "cta": {
+    "title": "Experimente o Markaestro grátis por {trialDays} dias",
+    "subtitle": "Acesso completo em qualquer plano anual. Sem cobrança até o dia {trialEndDay}. Cancele quando quiser.",
+    "primaryButton": "Iniciar Teste Grátis",
+    "secondaryButton": "Falar com Vendas"
+  }
+}

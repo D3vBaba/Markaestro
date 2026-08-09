@@ -1,0 +1,37 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Dein Marketing-Motor auf einen Blick.",
+  "refresh": "Aktualisieren",
+  "refreshing": "Wird aktualisiert…",
+  "newPost": "Neuer Beitrag",
+  "errorTitle": "Dein Dashboard konnte nicht geladen werden",
+  "errorBody": "Wir konnten deine Dashboard-Daten nicht laden.",
+  "retry": "Erneut versuchen",
+  "kpis": {
+    "brands": "Marken",
+    "brandsActive": "{count} aktiv",
+    "posts": "Beiträge",
+    "postsSub": "{published} veröffentlicht · {scheduled} geplant",
+    "publishedWeek": "Veröffentlicht · 7T",
+    "acrossDays": "über {count} Tage"
+  },
+  "chart": {
+    "eyebrow": "Veröffentlichungsaktivität · 7T",
+    "publishedThisWeek": "{count} diese Woche veröffentlicht",
+    "show": "{label} anzeigen",
+    "hide": "{label} ausblenden",
+    "noActivity": "Noch keine Beitragsaktivität."
+  },
+  "distribution": {
+    "eyebrow": "Verteilung",
+    "title": "Beiträge nach Kanal",
+    "viewInCalendar": "{channel}-Beiträge im Kalender ansehen"
+  },
+  "recentPosts": {
+    "eyebrow": "Als Nächstes",
+    "title": "Neueste Beiträge",
+    "viewAll": "Alle ansehen →",
+    "untitled": "Unbenannter Beitrag",
+    "empty": "Noch keine Beiträge. Erstelle deinen ersten, um hier Aktivität zu sehen."
+  }
+}

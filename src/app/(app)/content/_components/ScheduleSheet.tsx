@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -75,6 +76,8 @@ export default function ScheduleSheet({
   /** Post to ignore when checking for scheduling conflicts (the post being rescheduled). */
   excludePostId?: string;
 }) {
+  const t = useTranslations("content.scheduleSheet");
+  const locale = useLocale();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState("12:00");
   const [selectedSuggestionIso, setSelectedSuggestionIso] = useState<string | null>(null);
@@ -190,18 +193,18 @@ export default function ScheduleSheet({
           className="px-6 pt-6 pb-4 border-b"
           style={{ borderColor: "var(--mk-rule)" }}
         >
-          <p className="mk-eyebrow">Schedule</p>
+          <p className="mk-eyebrow">{t("eyebrow")}</p>
           <SheetTitle
             className="text-[22px] font-semibold m-0"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
           >
-            Schedule post
+            {t("title")}
           </SheetTitle>
           <SheetDescription
             className="text-[13px]"
             style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
           >
-            Pick a date and time, or use AI-suggested optimal slots.
+            {t("description")}
           </SheetDescription>
         </SheetHeader>
 
@@ -214,8 +217,8 @@ export default function ScheduleSheet({
               color: "color-mix(in oklch, var(--mk-warn) 70%, var(--mk-ink))",
             }}
           >
-            <span className="font-medium">TikTok finishes in the TikTok app.</span>{" "}
-            At the scheduled time, Markaestro pushes the media to your TikTok inbox, then marks it ready once you can open TikTok to finish caption, privacy, and posting.
+            <span className="font-medium">{t("tiktokNoteLabel")}</span>{" "}
+            {t("tiktokNoteBody")}
           </div>
         )}
 
@@ -225,14 +228,14 @@ export default function ScheduleSheet({
             <div>
               <button
                 onClick={() => setShowSmart(!showSmart)}
-                className="flex items-center gap-2 w-full text-left mb-3"
+                className="flex items-center gap-2 w-full text-start mb-3"
               >
-                <span className="text-sm font-semibold text-foreground">Smart Schedule</span>
+                <span className="text-sm font-semibold text-foreground">{t("smartSchedule")}</span>
                 <span className="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium">
-                  AI Suggested
+                  {t("aiSuggested")}
                 </span>
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {showSmart ? "Hide" : "Show"}
+                <span className="ms-auto text-xs text-muted-foreground">
+                  {showSmart ? t("hide") : t("show")}
                 </span>
               </button>
 
@@ -261,12 +264,12 @@ export default function ScheduleSheet({
                         <button
                           key={i}
                           onClick={() => handleSmartPick(slot)}
-                          className="w-full flex items-center gap-3 rounded-xl border border-border/40 bg-background p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-all text-left group"
+                          className="w-full flex items-center gap-3 rounded-xl border border-border/40 bg-background p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-all text-start group"
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-medium text-foreground">
-                                {new Date(slot.suggestedDate).toLocaleString([], {
+                                {new Date(slot.suggestedDate).toLocaleString(locale, {
                                   weekday: "long",
                                   hour: "numeric",
                                   minute: "2-digit",
@@ -279,7 +282,7 @@ export default function ScheduleSheet({
                         </button>
                       ))}
                       <p className="text-[10px] text-muted-foreground text-center pt-1">
-                        Based on industry engagement data for {channel || "this channel"}
+                        {t("basedOnData", { channel: channel || t("thisChannel") })}
                       </p>
                     </>
                   )}
@@ -289,7 +292,7 @@ export default function ScheduleSheet({
               <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="bg-background px-3 text-muted-foreground">or pick manually</span>
+                  <span className="bg-background px-3 text-muted-foreground">{t("orPickManually")}</span>
                 </div>
               </div>
             </div>
@@ -305,7 +308,7 @@ export default function ScheduleSheet({
             }}
             disabled={{ before: new Date() }}
           />
-          <FormField label="Time">
+          <FormField label={t("timeLabel")}>
             <Input
               type="time"
               value={time}
@@ -315,7 +318,7 @@ export default function ScheduleSheet({
               }}
             />
             <p className="mt-1 text-[11px] text-muted-foreground">
-              Schedules use your local timezone ({timezone}) and are stored in UTC.
+              {t("timezoneNote", { timezone })}
             </p>
           </FormField>
 
@@ -328,13 +331,15 @@ export default function ScheduleSheet({
                 color: "color-mix(in oklch, var(--mk-warn) 70%, var(--mk-ink))",
               }}
             >
-              <span className="font-medium">Heads up:</span> another post is already scheduled around this time
-              ({new Date(collision.scheduledAt).toLocaleString([], {
-                month: "short",
-                day: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-              })}{collision.channel ? ` on ${collision.channel}` : ""}). You can still schedule both.
+              <span className="font-medium">{t("headsUp")}</span> {t("collisionNote", {
+                date: new Date(collision.scheduledAt).toLocaleString(locale, {
+                  month: "short",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                }),
+                channel: collision.channel ? t("onChannel", { channel: collision.channel }) : "",
+              })}
             </div>
           )}
         </div>
@@ -342,8 +347,8 @@ export default function ScheduleSheet({
         <SheetFooter>
           <Button onClick={handleSchedule} disabled={!selectedDate} className="w-full">
             {selectedDate
-              ? `Schedule for ${selectedDate.toLocaleDateString([], { month: "short", day: "numeric" })} at ${time}`
-              : "Select a date"}
+              ? t("scheduleFor", { date: selectedDate.toLocaleDateString(locale, { month: "short", day: "numeric" }), time })
+              : t("selectDate")}
           </Button>
         </SheetFooter>
       </SheetContent>

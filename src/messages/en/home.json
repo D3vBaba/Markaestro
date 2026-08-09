@@ -1,0 +1,89 @@
+{
+  "hero": {
+    "badge": "The social publishing hub for every brand you run",
+    "titleLead": "Your entire marketing engine",
+    "titleHighlight": "in one platform",
+    "subtitle": "Upload your media, write your captions, and publish every brand you market — your business, your clients, or yourself — to every social channel from one dashboard. Or hand an API key to your AI agent and let it run the whole thing.",
+    "primaryButton": "Start for free",
+    "secondaryButton": "See features",
+    "stats": [
+      { "value": "10hrs", "label": "Saved per week" },
+      { "value": "6", "label": "Channels, one click" },
+      { "value": "1", "label": "Composer for every channel" }
+    ],
+    "trustedBy": "Trusted by founders"
+  },
+  "featuresPreview": {
+    "eyebrow": "Platform",
+    "titleLead": "Everything you need to",
+    "titleHighlight": "grow",
+    "subtitle": "From draft caption to published post, Markaestro handles every step of your social workflow.",
+    "items": [
+      { "title": "Multi-channel publishing", "desc": "Publish to Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest from a single composer. Schedule posts or publish instantly." },
+      { "title": "Centralized media uploads", "desc": "Bring your own images and videos. Upload once per post and ship to every connected channel." },
+      { "title": "Multi-channel previews", "desc": "See how every post will render on each platform before you publish — captions, aspect ratios, character limits." },
+      { "title": "Scheduling & calendar", "desc": "Queue posts on a unified calendar with per-channel timing. Reschedule, pause, or duplicate in a click." },
+      { "title": "Publishing dashboard", "desc": "Track drafts, scheduled posts, and publish status across every channel." },
+      { "title": "OAuth integrations", "desc": "One-click connect to Meta, TikTok, LinkedIn, Threads, and Pinterest via secure OAuth. No manual token management required." }
+    ],
+    "exploreButton": "Explore all features"
+  },
+  "channelsPreview": {
+    "eyebrow": "Channels",
+    "titleLead": "Reach your audience",
+    "titleHighlight": "everywhere",
+    "subtitle": "Connect once and publish to every major platform. Markaestro handles the API differences, character limits, and media requirements for each channel.",
+    "channels": [
+      { "name": "Facebook & Instagram", "desc": "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing." },
+      { "name": "TikTok", "desc": "Photo and video content handed off to the creator's TikTok inbox for final completion and posting." },
+      { "name": "LinkedIn", "desc": "Your profile or a Page you manage. Text, image, video, and multi-image posts up to 20 images." },
+      { "name": "Threads & Pinterest", "desc": "Threads carousels up to 20 items; Pinterest image and video pins to the board you pick." }
+    ],
+    "seeAllButton": "See all channels",
+    "stats": [
+      { "label": "Social channels", "value": "6", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
+      { "label": "Composer", "value": "1", "sub": "Caption + media in one screen" },
+      { "label": "Dashboard", "value": "1", "sub": "Unified publishing workflow" },
+      { "label": "API", "value": "1", "sub": "One key, agent-ready" }
+    ]
+  },
+  "composerPreview": {
+    "panelLabel": "One composer, every channel",
+    "rows": [
+      { "label": "Media", "value": "Upload images or video — JPG, PNG, WebP, MP4" },
+      { "label": "Caption", "value": "Write once, preview per channel before publishing" },
+      { "label": "Output", "value": "Scheduled or instant posts to all six connected channels" }
+    ],
+    "eyebrow": "Composer",
+    "titleLead": "Your media,",
+    "titleHighlight": "your content",
+    "subtitle": "Upload the photos or videos you already have. Write the caption you want. Markaestro handles publishing and scheduling so you can stay focused on the creative work.",
+    "bullets": [
+      "Upload images and video directly from your device or library",
+      "Channel-aware previews: hashtags, char limits, media specs",
+      "Schedule, publish instantly, or save to drafts in one click"
+    ],
+    "seeFeaturesButton": "See all features"
+  },
+  "agentSection": {
+    "eyebrow": "AI agents",
+    "titleLead": "Or let your agent",
+    "titleHighlight": "run it",
+    "subtitle": "Every workspace can mint API keys. Give one to your AI agent and it can discover which accounts it's allowed to post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped — without touching a single platform API itself.",
+    "bullets": [
+      "One key is scoped to one brand — an agent can't wander into another",
+      "Facebook, Instagram, and TikTok stay manual-first: a human posts, always",
+      "Idempotent writes, async publish runs, and signed webhooks built in"
+    ],
+    "primaryButton": "Read the agent guide",
+    "secondaryButton": "API reference",
+    "codeLabel": "your agent, on day one"
+  },
+  "cta": {
+    "eyebrow": "Get started",
+    "title": "Ready to streamline your social publishing?",
+    "subtitle": "Set up in minutes. Connect your channels, upload your media, and start publishing.",
+    "primaryButton": "Get started free",
+    "secondaryButton": "Contact sales"
+  }
+}

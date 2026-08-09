@@ -1,0 +1,115 @@
+{
+  "hero": {
+    "eyebrow": "渠道",
+    "titleLead": "触达你的受众，",
+    "titleHighlight": "无处不达",
+    "subtitle": "只需连接一次，即可发布到所有主流平台。API 差异、字数限制和素材要求，全部由 Markaestro 处理，你只需专注于内容本身。"
+  },
+  "stats": [
+    { "value": "6", "label": "社交渠道", "sub": "Meta、TikTok、LinkedIn、Threads、Pinterest" },
+    { "value": "1", "label": "控制台", "sub": "统一的发布工作流" },
+    { "value": "0", "label": "手动令牌", "sub": "全程 OAuth，全程自动化" }
+  ],
+  "channels": [
+    {
+      "name": "Facebook",
+      "category": "社交",
+      "description": "触达全球最大社交网络上的数十亿用户。发布到主页，并以完整的创作自由管理动态内容。",
+      "capabilities": [
+        "支持富媒体的主页动态发布",
+        "带预览卡片的链接发布",
+        "图片和视频发布",
+        "轮播及多图发布",
+        "按最佳互动时间排期",
+        "按品牌设置主页级定向"
+      ],
+      "connection": "OAuth via Meta Business Suite"
+    },
+    {
+      "name": "Instagram",
+      "category": "社交",
+      "description": "直接从 Markaestro 发布到 Instagram 商业账号。动态发布、轮播和快拍均支持针对各展示位自动格式化素材。",
+      "capabilities": [
+        "单图与单视频动态发布",
+        "轮播发布（最多 10 张）",
+        "自动裁剪至 1:1 和 4:5 比例",
+        "支持话题标签优化的文案",
+        "按最佳互动时段排期",
+        "支持 Instagram 登录，适用于独立专业账号"
+      ],
+      "connection": "OAuth via Instagram Login or Meta Login"
+    },
+    {
+      "name": "TikTok",
+      "category": "社交",
+      "description": "在增长最快的短视频平台上触达 Z 世代及更广泛的用户群体。Markaestro 会将图片和视频推送至创作者的 TikTok 收件箱，并跟踪其准备完成最终发布的状态。",
+      "capabilities": [
+        "视频和图片收件箱转交",
+        "由创作者在 TikTok 内完成最终确认",
+        "定时投递至 TikTok 收件箱",
+        "转交后的快速状态查询",
+        "在 Markaestro 内跟踪状态"
+      ],
+      "connection": "OAuth via TikTok for Developers"
+    },
+    {
+      "name": "LinkedIn",
+      "category": "职场",
+      "description": "发布到你自己的 LinkedIn 个人资料，或你管理的主页。文字、图片、视频以及原生多图内容均通过 LinkedIn 官方 API 发布。",
+      "capabilities": [
+        "纯文字内容",
+        "单图或单视频内容",
+        "最多 20 张图片的多图内容",
+        "定向发布到个人资料或已管理的主页",
+        "程序化发布，无需手动操作",
+        "从共享日历中排期"
+      ],
+      "connection": "OAuth via LinkedIn"
+    },
+    {
+      "name": "Threads",
+      "category": "社交",
+      "description": "Meta 旗下以文字为主的社交网络。Markaestro 会创建素材容器，等待处理完成后再发布 —— 因此上传较慢的视频不会静默失败。",
+      "capabilities": [
+        "纯文字内容",
+        "单图或单视频内容",
+        "最多 20 项内容的轮播",
+        "发布前进行容器状态查询",
+        "程序化发布，无需手动操作",
+        "从共享日历中排期"
+      ],
+      "connection": "OAuth via Threads"
+    },
+    {
+      "name": "Pinterest",
+      "category": "发现",
+      "description": "在连接时选定的图板上钉选你的图片和视频。你的文案将作为图钉描述，全部内容均通过 Pinterest 官方 API 发布。",
+      "capabilities": [
+        "图片图钉",
+        "带上传状态查询的视频图钉",
+        "连接时即可选定图板",
+        "文案自动成为图钉描述",
+        "程序化发布，无需手动操作",
+        "从共享日历中排期"
+      ],
+      "connection": "OAuth via Pinterest"
+    }
+  ],
+  "capabilitiesLabel": "支持能力",
+  "howItWorks": {
+    "eyebrow": "工作原理",
+    "titleLead": "三步即可",
+    "titleHighlight": "完成连接",
+    "steps": [
+      { "step": "01", "title": "连接", "desc": "在任意渠道点击「连接」，通过 OAuth 授权。Markaestro 会安全存储并自动刷新你的令牌。" },
+      { "step": "02", "title": "创作", "desc": "在统一编辑器中撰写内容，发布前预览其在各平台上的呈现效果。" },
+      { "step": "03", "title": "发布", "desc": "点击发布，或安排稍后发布。格式化、素材规格以及每个渠道的 API 调用都由 Markaestro 处理。" }
+    ]
+  },
+  "cta": {
+    "title": "两分钟内连接你的第一个渠道",
+    "subtitle": "点击、授权，即可开始发布 —— 无需开发者配置。渠道连接后，你的团队可从控制台发布内容，你的 AI 代理也可以通过 API 发布到同一渠道。",
+    "primaryButton": "免费开始",
+    "secondaryButton": "用代理实现自动化"
+  }
+}

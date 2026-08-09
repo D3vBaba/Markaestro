@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Copy } from "lucide-react";
 
 type CopyBlockProps = {
@@ -19,6 +20,7 @@ type CopyBlockProps = {
 };
 
 export default function CopyBlock({ code, label, className }: CopyBlockProps) {
+  const t = useTranslations("common.copyBlock");
   const [copied, setCopied] = useState(false);
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -51,8 +53,8 @@ export default function CopyBlock({ code, label, className }: CopyBlockProps) {
         <button
           type="button"
           onClick={copy}
-          aria-label={copied ? "Copied" : "Copy to clipboard"}
-          className="absolute right-2.5 top-2.5 z-10 inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11px] font-medium transition-opacity"
+          aria-label={copied ? t("copiedAriaLabel") : t("copyAriaLabel")}
+          className="absolute end-2.5 top-2.5 z-10 inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11px] font-medium transition-opacity"
           style={{
             background: "color-mix(in oklch, var(--mk-paper) 14%, transparent)",
             color: "color-mix(in oklch, var(--mk-paper) 85%, transparent)",
@@ -60,10 +62,10 @@ export default function CopyBlock({ code, label, className }: CopyBlockProps) {
           }}
         >
           {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-          {copied ? "Copied" : "Copy"}
+          {copied ? t("copied") : t("copy")}
         </button>
         <pre
-          className="overflow-x-auto rounded-lg p-4 pr-20 text-[12px] leading-6"
+          className="overflow-x-auto rounded-lg p-4 pe-20 text-[12px] leading-6"
           style={{ background: "var(--mk-ink)", color: "var(--mk-paper)" }}
         >
           <code>{code}</code>

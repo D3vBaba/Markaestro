@@ -1,0 +1,89 @@
+{
+  "hero": {
+    "badge": "L'hub di pubblicazione social per ogni brand che gestisci",
+    "titleLead": "Tutto il tuo motore di marketing",
+    "titleHighlight": "in un'unica piattaforma",
+    "subtitle": "Carica i tuoi contenuti, scrivi le tue didascalie e pubblica ogni brand che promuovi — la tua attività, i tuoi clienti, o te stesso — su ogni canale social da un'unica dashboard. Oppure consegna una chiave API al tuo agente IA e lascia che gestisca tutto.",
+    "primaryButton": "Inizia gratis",
+    "secondaryButton": "Scopri le funzionalità",
+    "stats": [
+      { "value": "10h", "label": "Risparmiate a settimana" },
+      { "value": "6", "label": "Canali, un clic" },
+      { "value": "1", "label": "Editor per ogni canale" }
+    ],
+    "trustedBy": "Scelto dai founder"
+  },
+  "featuresPreview": {
+    "eyebrow": "Piattaforma",
+    "titleLead": "Tutto ciò che ti serve per",
+    "titleHighlight": "crescere",
+    "subtitle": "Dalla bozza della didascalia al post pubblicato, Markaestro gestisce ogni fase del tuo workflow social.",
+    "items": [
+      { "title": "Pubblicazione multicanale", "desc": "Pubblica su Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest da un unico editor. Programma i post o pubblica istantaneamente." },
+      { "title": "Caricamento centralizzato dei contenuti", "desc": "Utilizza le tue immagini e i tuoi video. Carica una volta per post e distribuisci a ogni canale connesso." },
+      { "title": "Anteprime multicanale", "desc": "Vedi come apparirà ogni post su ciascuna piattaforma prima di pubblicare — didascalie, proporzioni, limiti di caratteri." },
+      { "title": "Programmazione e calendario", "desc": "Metti in coda i post su un calendario unificato con tempistiche per canale. Riprogramma, metti in pausa o duplica in un clic." },
+      { "title": "Dashboard di pubblicazione", "desc": "Tieni traccia di bozze, post programmati e stato di pubblicazione su ogni canale." },
+      { "title": "Integrazioni OAuth", "desc": "Connettiti con un clic a Meta, TikTok, LinkedIn, Threads e Pinterest tramite OAuth sicuro. Nessuna gestione manuale dei token richiesta." }
+    ],
+    "exploreButton": "Esplora tutte le funzionalità"
+  },
+  "channelsPreview": {
+    "eyebrow": "Canali",
+    "titleLead": "Raggiungi il tuo pubblico",
+    "titleHighlight": "ovunque",
+    "subtitle": "Connettiti una volta e pubblica su ogni piattaforma principale. Markaestro gestisce le differenze tra le API, i limiti di caratteri e i requisiti dei contenuti per ogni canale.",
+    "channels": [
+      { "name": "Facebook e Instagram", "desc": "Connesso tramite OAuth via Meta. Pagine, post del feed, storie e pubblicazione business su IG." },
+      { "name": "TikTok", "desc": "Contenuti foto e video trasferiti alla casella in arrivo TikTok del creator per il completamento finale e la pubblicazione." },
+      { "name": "LinkedIn", "desc": "Il tuo profilo o una Pagina che gestisci. Post di testo, immagine, video e con più immagini fino a 20 immagini." },
+      { "name": "Threads e Pinterest", "desc": "Carousel Threads fino a 20 elementi; pin di immagini e video Pinterest sulla bacheca che scegli." }
+    ],
+    "seeAllButton": "Vedi tutti i canali",
+    "stats": [
+      { "label": "Canali social", "value": "6", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
+      { "label": "Editor", "value": "1", "sub": "Didascalia + contenuti in un'unica schermata" },
+      { "label": "Dashboard", "value": "1", "sub": "Workflow di pubblicazione unificato" },
+      { "label": "API", "value": "1", "sub": "Una chiave, pronta per gli agenti" }
+    ]
+  },
+  "composerPreview": {
+    "panelLabel": "Un editor, ogni canale",
+    "rows": [
+      { "label": "Contenuti", "value": "Carica immagini o video — JPG, PNG, WebP, MP4" },
+      { "label": "Didascalia", "value": "Scrivi una volta, visualizza l'anteprima per canale prima di pubblicare" },
+      { "label": "Risultato", "value": "Post programmati o istantanei su tutti e sei i canali connessi" }
+    ],
+    "eyebrow": "Editor",
+    "titleLead": "I tuoi contenuti,",
+    "titleHighlight": "il tuo materiale",
+    "subtitle": "Carica le foto o i video che già possiedi. Scrivi la didascalia che desideri. Markaestro gestisce la pubblicazione e la programmazione così puoi concentrarti sul lavoro creativo.",
+    "bullets": [
+      "Carica immagini e video direttamente dal tuo dispositivo o dalla tua libreria",
+      "Anteprime consapevoli del canale: hashtag, limiti di caratteri, specifiche dei contenuti",
+      "Programma, pubblica istantaneamente o salva come bozza in un clic"
+    ],
+    "seeFeaturesButton": "Vedi tutte le funzionalità"
+  },
+  "agentSection": {
+    "eyebrow": "Agenti IA",
+    "titleLead": "Oppure lascia che il tuo agente",
+    "titleHighlight": "se ne occupi",
+    "subtitle": "Ogni workspace può generare chiavi API. Consegnane una al tuo agente IA e potrà scoprire su quali account è autorizzato a pubblicare, caricare contenuti, creare bozze e programmare post, pubblicarli e riferire su cosa è stato effettivamente pubblicato — senza toccare direttamente nessuna API di piattaforma.",
+    "bullets": [
+      "Una chiave è limitata a un solo brand — un agente non può finire su un altro",
+      "Facebook, Instagram e TikTok rimangono sempre manuali per prima cosa: è sempre una persona a pubblicare",
+      "Scritture idempotenti, esecuzioni di pubblicazione asincrone e webhook firmati integrati"
+    ],
+    "primaryButton": "Leggi la guida per agenti",
+    "secondaryButton": "Riferimento API",
+    "codeLabel": "il tuo agente, dal primo giorno"
+  },
+  "cta": {
+    "eyebrow": "Inizia ora",
+    "title": "Pronto a semplificare la tua pubblicazione social?",
+    "subtitle": "Configurazione in pochi minuti. Connetti i tuoi canali, carica i tuoi contenuti e inizia a pubblicare.",
+    "primaryButton": "Inizia gratis",
+    "secondaryButton": "Contatta il team commerciale"
+  }
+}

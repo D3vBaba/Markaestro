@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Upload, X, Loader2, Check, Dot, Globe, Palette, Link2, Pencil,
   Package, Trash2, Image as ImageIcon,
@@ -134,6 +135,8 @@ const SOCIAL_PROVIDERS = [
   "pinterest",
   "linkedin",
 ] as const;
+// Channel names are platform brand names — proper nouns that stay in English
+// across every locale, same as elsewhere in the app.
 const providerLabels: Record<string, string> = {
   meta: "Facebook",
   instagram: "Instagram",
@@ -253,11 +256,12 @@ function hasChanges(a: Form, b: Form) {
 
 type SectionKey = "foundation" | "identity" | "channels";
 
-const sections: { key: SectionKey; label: string; icon: typeof Package }[] = [
-  { key: "foundation", label: "Foundation", icon: Package },
-  { key: "identity", label: "Identity", icon: Palette },
-  { key: "channels", label: "Channels", icon: Link2 },
-];
+const SECTION_ICONS: Record<SectionKey, typeof Package> = {
+  foundation: Package,
+  identity: Palette,
+  channels: Link2,
+};
+const SECTION_KEYS: SectionKey[] = ["foundation", "identity", "channels"];
 
 // ---------- inline color picker ----------
 
@@ -272,6 +276,7 @@ function ColorField({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const t = useTranslations("products.detailSheet.identity");
   const nativeRef = useRef<HTMLInputElement>(null);
   const isValid = value && /^#[0-9A-Fa-f]{6}$/i.test(value);
   return (
@@ -285,7 +290,7 @@ function ColorField({
             <button
               key={c}
               type="button"
-              aria-label={`Set ${label} to ${c}`}
+              aria-label={t("setColorTo", { label, color: c })}
               className={cn(
                 "aspect-square sm:aspect-auto sm:h-6 w-full rounded-md border transition-all",
                 value === c
@@ -301,7 +306,7 @@ function ColorField({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            aria-label="Open color picker"
+            aria-label={t("openColorPicker")}
             className="h-9 w-9 shrink-0 rounded-md border border-border cursor-pointer"
             style={{ backgroundColor: isValid ? value : "#ffffff" }}
             onClick={() => nativeRef.current?.click()}
@@ -325,7 +330,7 @@ function ColorField({
               size="icon"
               className="h-9 w-9 shrink-0"
               onClick={() => onChange("")}
-              aria-label="Clear color"
+              aria-label={t("clearColor")}
             >
               <X className="h-3.5 w-3.5" />
             </Button>
@@ -353,6 +358,8 @@ export default function ProductDetailSheet({
   onDeleted: () => void;
   initialSection?: SectionKey;
 }) {
+  const t = useTranslations("products.detailSheet");
+  const tSections = useTranslations("products.detailSheet.sections");
   const [loading, setLoading] = useState(false);
   const [baseline, setBaseline] = useState<Form | null>(null);
   const [form, setForm] = useState<Form | null>(null);
@@ -405,7 +412,7 @@ export default function ProductDetailSheet({
           setIntegrations(getScopedSocialIntegrations(intRes.data.integrations || []));
         }
       } catch {
-        toast.error("Failed to load brand");
+        toast.error(t("toasts.loadFailed"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -413,6 +420,7 @@ export default function ProductDetailSheet({
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, productId, initialSection]);
 
   const dirty = !!(baseline && form && hasChanges(baseline, form));
@@ -424,7 +432,7 @@ export default function ProductDetailSheet({
   const save = async () => {
     if (!productId || !form) return;
     if (!form.name.trim()) {
-      toast.error("Brand name is required");
+      toast.error(t("toasts.nameRequired"));
       return;
     }
     setSaving(true);
@@ -449,11 +457,11 @@ export default function ProductDetailSheet({
 
       if (!detailsRes.ok) {
         const err = detailsRes.data as { error?: string; issues?: { message: string }[] };
-        toast.error(err.issues?.[0]?.message || err.error || "Failed to save brand details");
+        toast.error(err.issues?.[0]?.message || err.error || t("toasts.saveDetailsFailed"));
         return;
       }
       if (!voiceRes.ok) {
-        toast.error("Saved brand details, but failed to save brand identity");
+        toast.error(t("toasts.saveIdentityFailed"));
         return;
       }
 
@@ -461,10 +469,10 @@ export default function ProductDetailSheet({
       setBaseline(form);
       setLastSavedAt(saved);
       setEditing(false);
-      toast.success("Saved");
+      toast.success(t("toasts.saved"));
       onSaved();
     } catch {
-      toast.error("Failed to save");
+      toast.error(t("toasts.saveDetailsFailed"));
     } finally {
       setSaving(false);
     }
@@ -474,11 +482,11 @@ export default function ProductDetailSheet({
     if (!productId) return;
     const res = await apiDelete(`/api/products/${productId}`);
     if (res.ok) {
-      toast.success("Brand deleted");
+      toast.success(t("toasts.deleted"));
       onOpenChange(false);
       onDeleted();
     } else {
-      toast.error("Failed to delete brand");
+      toast.error(t("toasts.deleteFailed"));
     }
   };
 
@@ -487,7 +495,7 @@ export default function ProductDetailSheet({
     const file = e.target.files?.[0];
     if (!file || !productId || !form) return;
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Logo must be under 2 MB");
+      toast.error(t("toasts.logoTooLarge"));
       return;
     }
     setLogoUploading(true);
@@ -500,12 +508,12 @@ export default function ProductDetailSheet({
       );
       if (res.ok && res.data.logoUrl) {
         setForm({ ...form, identity: { ...form.identity, logoUrl: res.data.logoUrl } });
-        toast.success("Logo uploaded");
+        toast.success(t("toasts.logoUploaded"));
       } else {
-        toast.error("Failed to upload logo");
+        toast.error(t("toasts.logoUploadFailed"));
       }
     } catch {
-      toast.error("Failed to upload logo");
+      toast.error(t("toasts.logoUploadFailed"));
     } finally {
       setLogoUploading(false);
       if (logoInputRef.current) logoInputRef.current.value = "";
@@ -548,13 +556,13 @@ export default function ProductDetailSheet({
         ...(linkedinMode ? { linkedinMode } : {}),
       });
       if (res.ok) {
-        toast.success(`${label || providerLabels[provider] || provider} disconnected`);
+        toast.success(t("toasts.disconnected", { label: label || providerLabels[provider] || provider }));
         await refreshIntegrations();
       } else {
-        toast.error(`Failed to disconnect ${provider}`);
+        toast.error(t("toasts.disconnectFailed", { provider }));
       }
     } catch {
-      toast.error(`Failed to disconnect ${provider}`);
+      toast.error(t("toasts.disconnectFailed", { provider }));
     } finally {
       setDisconnecting(null);
       setDisconnectTarget(null);
@@ -571,10 +579,10 @@ export default function ProductDetailSheet({
       if (res.ok) {
         setMetaPages(res.data.pages || []);
         setMetaLinkedPageIds(res.data.linkedIds || []);
-        if (res.data.pages?.length === 0) toast.error("No Facebook pages found.");
+        if (res.data.pages?.length === 0) toast.error(t("toasts.noFacebookPages"));
       }
     } catch {
-      toast.error("Failed to load pages");
+      toast.error(t("toasts.loadPagesFailed"));
     } finally {
       setLoadingPages(false);
     }
@@ -595,15 +603,15 @@ export default function ProductDetailSheet({
       );
       if (res.ok && res.data.ok) {
         const count = res.data.linked?.length ?? pageIds.length;
-        toast.success(`${count} Facebook Page${count === 1 ? "" : "s"} linked`);
+        toast.success(t("toasts.pagesLinked", { count }));
         setMetaPages([]);
         setMetaLinkedPageIds([]);
         await refreshIntegrations();
       } else {
-        toast.error("Failed to link Pages");
+        toast.error(t("toasts.linkPagesFailed"));
       }
     } catch {
-      toast.error("Failed to link Pages");
+      toast.error(t("toasts.linkPagesFailed"));
     } finally {
       setSelectingPage(false);
     }
@@ -612,7 +620,7 @@ export default function ProductDetailSheet({
   // ---------- handle close with dirty check ----------
   const handleOpenChange = (next: boolean) => {
     if (!next && dirty) {
-      const ok = window.confirm("You have unsaved changes. Close without saving?");
+      const ok = window.confirm(t("unsavedConfirm"));
       if (!ok) return;
     }
     onOpenChange(next);
@@ -669,7 +677,7 @@ export default function ProductDetailSheet({
                 )}
                 <div className="min-w-0">
                   <SheetTitle className="text-base truncate">
-                    {form?.name || "Brand"}
+                    {form?.name || t("brandFallback")}
                   </SheetTitle>
                   <SheetDescription className="text-xs mt-0.5">
                     <SaveIndicator dirty={dirty} saving={saving} lastSavedAt={lastSavedAt} />
@@ -681,13 +689,13 @@ export default function ProductDetailSheet({
             {/* Section nav + edit controls (same row) */}
             <div className="mt-4 -mb-0.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
               <nav className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide max-w-full">
-              {sections.map((s) => {
-                const active = section === s.key;
-                const Icon = s.icon;
+              {SECTION_KEYS.map((key) => {
+                const active = section === key;
+                const Icon = SECTION_ICONS[key];
                 return (
                   <button
-                    key={s.key}
-                    onClick={() => setSection(s.key)}
+                    key={key}
+                    onClick={() => setSection(key)}
                     className={cn(
                       "relative flex items-center gap-1.5 px-2.5 py-2 sm:py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0",
                       active
@@ -696,7 +704,7 @@ export default function ProductDetailSheet({
                     )}
                   >
                     <Icon className="h-3.5 w-3.5" />
-                    {s.label}
+                    {tSections(key)}
                     {active && (
                       <motion.span
                         layoutId="product-section-underline"
@@ -720,7 +728,7 @@ export default function ProductDetailSheet({
                       disabled={saving}
                       className="rounded-lg text-muted-foreground"
                     >
-                      Cancel
+                      {t("cancel")}
                     </Button>
                     <Button
                       size="sm"
@@ -733,7 +741,7 @@ export default function ProductDetailSheet({
                       ) : (
                         <Check className="h-3.5 w-3.5" />
                       )}
-                      {saving ? "Saving…" : "Save"}
+                      {saving ? t("saveIndicator.saving") : t("save")}
                     </Button>
                   </>
                 ) : (
@@ -745,7 +753,7 @@ export default function ProductDetailSheet({
                     className="rounded-lg gap-1.5"
                   >
                     <Pencil className="h-3.5 w-3.5" />
-                    Edit
+                    {t("edit")}
                   </Button>
                 )}
               </div>
@@ -818,7 +826,7 @@ export default function ProductDetailSheet({
                 onClick={() => setDeleteOpen(true)}
                 className="text-xs text-muted-foreground hover:text-destructive transition-colors inline-flex items-center gap-1 py-2 -my-2 px-1 -mx-1"
               >
-                <Trash2 className="h-3 w-3" /> Delete brand
+                <Trash2 className="h-3 w-3" /> {t("deleteBrand")}
               </button>
               <SaveIndicator
                 dirty={dirty}
@@ -836,7 +844,7 @@ export default function ProductDetailSheet({
         onOpenChange={setDeleteOpen}
         entity="brand"
         name={form?.name}
-        warning="All settings and channel connections for this brand will also be removed."
+        warning={t("deleteWarning")}
         onConfirm={confirmDelete}
       />
 
@@ -847,10 +855,10 @@ export default function ProductDetailSheet({
         }}
         entity="integration"
         name={disconnectTarget?.label}
-        confirmLabel="Disconnect"
+        confirmLabel={t("disconnect")}
         warning={
           disconnectTarget
-            ? `This removes every ${disconnectTarget.label} account linked to this brand. Other brands keep their own connections. To swap a single account, use Unlink next to it instead — and to refresh access, use Reconnect rather than disconnecting.`
+            ? t("disconnectWarning", { label: disconnectTarget.label })
             : undefined
         }
         onConfirm={confirmDisconnect}
@@ -872,11 +880,13 @@ function SaveIndicator({
   lastSavedAt: string | null;
   compact?: boolean;
 }) {
+  const t = useTranslations("products.detailSheet.saveIndicator");
+  const locale = useLocale();
   if (saving) {
     return (
       <span className="inline-flex items-center gap-1 text-muted-foreground">
         <Loader2 className="h-3 w-3 animate-spin" />
-        Saving…
+        {t("saving")}
       </span>
     );
   }
@@ -887,12 +897,12 @@ function SaveIndicator({
         style={{ color: "var(--mk-warn)" }}
       >
         <Dot className="h-3.5 w-3.5 -mx-1" strokeWidth={6} />
-        Unsaved changes
+        {t("unsavedChanges")}
       </span>
     );
   }
   if (lastSavedAt) {
-    const time = new Date(lastSavedAt).toLocaleTimeString([], {
+    const time = new Date(lastSavedAt).toLocaleTimeString(locale, {
       hour: "numeric",
       minute: "2-digit",
     });
@@ -902,14 +912,14 @@ function SaveIndicator({
         style={{ color: "var(--mk-pos)" }}
       >
         <Check className="h-3 w-3" />
-        Saved · {time}
+        {t("savedAt", { time })}
       </span>
     );
   }
   return (
     <span className={cn("inline-flex items-center gap-1 text-muted-foreground", compact && "text-[11px]")}>
       <Check className="h-3 w-3" />
-      All changes saved
+      {t("allSaved")}
     </span>
   );
 }
@@ -939,14 +949,6 @@ function SectionCard({
     </div>
   );
 }
-
-const STATUS_LABELS: Record<string, string> = {
-  active: "Active",
-  beta: "Beta",
-  development: "Development",
-  sunset: "Sunset",
-  archived: "Archived",
-};
 
 // A labeled read-only row used in the locked (view) state.
 function ReadRow({
@@ -993,13 +995,16 @@ function FoundationSection({
   patch: <K extends keyof Form>(k: K, v: Form[K]) => void;
   readOnly: boolean;
 }) {
+  const t = useTranslations("products.detailSheet.foundation");
+  const tCategories = useTranslations("products.categories");
+  const tStatus = useTranslations("products.productStatus");
   if (readOnly) {
     return (
       <>
-        <SectionCard title="Basics">
-          <ReadRow label="Brand name" value={form.name} emphasis />
-          <ReadRow label="Description" value={form.description} multiline />
-          <ReadRow label="Website">
+        <SectionCard title={t("basicsTitle")}>
+          <ReadRow label={t("brandName")} value={form.name} emphasis />
+          <ReadRow label={t("description")} value={form.description} multiline />
+          <ReadRow label={t("website")}>
             {form.url ? (
               <a
                 href={form.url}
@@ -1016,8 +1021,8 @@ function FoundationSection({
           </ReadRow>
         </SectionCard>
 
-        <SectionCard title="Positioning">
-          <ReadRow label="Category">
+        <SectionCard title={t("positioningTitle")}>
+          <ReadRow label={t("category")}>
             {form.categories.length ? (
               <div className="flex flex-wrap gap-1.5">
                 {form.categories.map((c) => (
@@ -1026,7 +1031,7 @@ function FoundationSection({
                     className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/30 px-2 py-0.5 text-[11px] text-foreground"
                   >
                     <span className="h-2 w-2 rounded-full" style={{ background: categoryColor(c) }} />
-                    {categoryLabel(c)}
+                    {categoryLabel(c, tCategories)}
                   </span>
                 ))}
               </div>
@@ -1034,9 +1039,9 @@ function FoundationSection({
               <span className="text-sm text-muted-foreground">—</span>
             )}
           </ReadRow>
-          <ReadRow label="Status">
+          <ReadRow label={t("status")}>
             <Badge className="border-0" style={pillStyle(form.status === "active" ? "pos" : "neutral")}>
-              {STATUS_LABELS[form.status] || form.status}
+              {tStatus.has(form.status) ? tStatus(form.status) : form.status}
             </Badge>
           </ReadRow>
         </SectionCard>
@@ -1046,22 +1051,22 @@ function FoundationSection({
 
   return (
     <>
-      <SectionCard title="Basics" description="How your brand is identified across Markaestro.">
-        <FormField label="Brand name">
+      <SectionCard title={t("basicsTitle")} description={t("basicsDescription")}>
+        <FormField label={t("brandName")}>
           <Input value={form.name} onChange={(e) => patch("name", e.target.value)} />
         </FormField>
-        <FormField label="Description">
+        <FormField label={t("description")}>
           <Textarea
             value={form.description}
             onChange={(e) => patch("description", e.target.value)}
             rows={3}
           />
         </FormField>
-        <FormField label="Website">
+        <FormField label={t("website")}>
           <div className="relative">
-            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Globe className="absolute start-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
-              className="pl-9"
+              className="ps-9"
               placeholder="https://yourbrand.com"
               value={form.url}
               onChange={(e) => patch("url", e.target.value)}
@@ -1070,21 +1075,21 @@ function FoundationSection({
         </FormField>
       </SectionCard>
 
-      <SectionCard title="Positioning">
+      <SectionCard title={t("positioningTitle")}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <FormField label="Category">
+          <FormField label={t("category")}>
             <CategorySelect
               value={form.categories[0] || ""}
               onChange={(v) => patch("categories", [v])}
             />
           </FormField>
-          <FormField label="Status">
+          <FormField label={t("status")}>
             <Select value={form.status} onChange={(e) => patch("status", e.target.value)}>
-              <option value="active">Active</option>
-              <option value="beta">Beta</option>
-              <option value="development">Development</option>
-              <option value="sunset">Sunset</option>
-              <option value="archived">Archived</option>
+              <option value="active">{tStatus("active")}</option>
+              <option value="beta">{tStatus("beta")}</option>
+              <option value="development">{tStatus("development")}</option>
+              <option value="sunset">{tStatus("sunset")}</option>
+              <option value="archived">{tStatus("archived")}</option>
             </Select>
           </FormField>
         </div>
@@ -1108,15 +1113,16 @@ function IdentitySection({
   onLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readOnly: boolean;
 }) {
+  const t = useTranslations("products.detailSheet.identity");
   if (readOnly) {
     const swatches: { label: string; color: string }[] = [
-      { label: "Primary", color: form.identity.primaryColor },
-      { label: "Secondary", color: form.identity.secondaryColor },
-      { label: "Accent", color: form.identity.accentColor },
+      { label: t("primary"), color: form.identity.primaryColor },
+      { label: t("secondary"), color: form.identity.secondaryColor },
+      { label: t("accent"), color: form.identity.accentColor },
     ];
     return (
       <>
-        <SectionCard title="Logo">
+        <SectionCard title={t("logoTitle")}>
           {form.identity.logoUrl ? (
             <img
               src={form.identity.logoUrl}
@@ -1130,7 +1136,7 @@ function IdentitySection({
           )}
         </SectionCard>
 
-        <SectionCard title="Brand colors">
+        <SectionCard title={t("colorsTitle")}>
           <div className="flex flex-wrap gap-4">
             {swatches.map((s) => (
               <div key={s.label} className="flex items-center gap-2.5">
@@ -1156,7 +1162,7 @@ function IdentitySection({
 
   return (
     <>
-      <SectionCard title="Logo" description="Used on cards, generated media, and previews.">
+      <SectionCard title={t("logoTitle")} description={t("logoDescription")}>
         <div className="flex items-center gap-4">
           <div className="relative">
             {form.identity.logoUrl ? (
@@ -1187,11 +1193,11 @@ function IdentitySection({
                 disabled={logoUploading}
               >
                 {logoUploading ? (
-                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
                 ) : (
-                  <Upload className="mr-1.5 h-3.5 w-3.5" />
+                  <Upload className="me-1.5 h-3.5 w-3.5" />
                 )}
-                {logoUploading ? "Uploading…" : form.identity.logoUrl ? "Replace" : "Upload"}
+                {logoUploading ? t("uploading") : form.identity.logoUrl ? t("replace") : t("upload")}
               </Button>
               {form.identity.logoUrl && (
                 <Button
@@ -1200,33 +1206,33 @@ function IdentitySection({
                   className="text-muted-foreground"
                   onClick={() => patchIdentity("logoUrl", "")}
                 >
-                  Remove
+                  {t("remove")}
                 </Button>
               )}
             </div>
             <p className="text-[11px] text-muted-foreground">
-              PNG, JPG, WebP, or SVG. Max 2 MB.
+              {t("fileHint")}
             </p>
           </div>
         </div>
       </SectionCard>
 
-      <SectionCard title="Brand colors" description="Set once, reflected across cards and generated media.">
+      <SectionCard title={t("colorsTitle")} description={t("colorsDescription")}>
         <ColorField
-          label="Primary"
-          description="Main brand color"
+          label={t("primary")}
+          description={t("primaryDescription")}
           value={form.identity.primaryColor}
           onChange={(v) => patchIdentity("primaryColor", v)}
         />
         <ColorField
-          label="Secondary"
-          description="Supporting color"
+          label={t("secondary")}
+          description={t("secondaryDescription")}
           value={form.identity.secondaryColor}
           onChange={(v) => patchIdentity("secondaryColor", v)}
         />
         <ColorField
-          label="Accent"
-          description="Highlights & CTAs"
+          label={t("accent")}
+          description={t("accentDescription")}
           value={form.identity.accentColor}
           onChange={(v) => patchIdentity("accentColor", v)}
         />
@@ -1264,6 +1270,8 @@ function ChannelsSection({
   onRefreshIntegrations: () => void | Promise<void>;
   productId: string | null;
 }) {
+  const t = useTranslations("products.detailSheet.channels");
+  const locale = useLocale();
   void integrations; // used via getIntegration
   const meta = getIntegration("meta");
   const metaAccounts = (meta?.accounts ?? []).filter((account) => account.destinationId);
@@ -1278,8 +1286,8 @@ function ChannelsSection({
   return (
     <>
       <SectionCard
-        title="Connected channels"
-        description="Connect social accounts so you can schedule from this brand."
+        title={t("title")}
+        description={t("description")}
       >
         {/* Facebook (Meta) — its own per-product Facebook login */}
         <ChannelCard
@@ -1287,27 +1295,27 @@ function ChannelsSection({
           label={providerLabels.meta}
           connected={!!metaHasPage}
           warn={!!metaConnected && !metaHasPage}
-          warnLabel="Pick a Page"
+          warnLabel={t("pickAPage")}
           detail={
             metaHasPage
               ? metaAccounts.length > 1
-                ? `${metaAccounts.length} Facebook Pages linked`
-                : meta?.pageName || "Facebook Page linked"
+                ? t("metaPagesLinkedCount", { count: metaAccounts.length })
+                : meta?.pageName || t("facebookPageLinked")
               : metaConnected
-              ? "Choose which Facebook Pages this brand posts to"
-              : "Link this brand's Facebook Pages"
+              ? t("chooseWhichPages")
+              : t("linkPages")
           }
         >
           {metaConnected ? (
             <>
               <Button variant="outline" size="sm" onClick={onLoadPages} disabled={loadingPages}>
-                {loadingPages ? "Loading…" : metaHasPage ? "Add Pages" : "Choose Pages"}
+                {loadingPages ? t("loading") : metaHasPage ? t("addPages") : t("choosePages")}
               </Button>
               {/* Re-running Facebook login adds a credential rather than
                   replacing one, so this both refreshes the current account and
                   connects an additional one. Unlinking first is never needed. */}
               <Button variant="outline" size="sm" onClick={() => onStartOAuth("meta")}>
-                Reconnect / add account
+                {t("reconnectAddAccount")}
               </Button>
               <Button
                 variant="destructive"
@@ -1318,8 +1326,8 @@ function ChannelsSection({
                 {disconnecting === "meta"
                   ? "…"
                   : metaAccounts.length > 1
-                  ? `Unlink all ${metaAccounts.length}`
-                  : "Unlink"}
+                  ? t("unlinkAllCount", { count: metaAccounts.length })
+                  : t("unlink")}
               </Button>
               <LinkedAccountsList
                 accounts={metaAccounts}
@@ -1330,14 +1338,14 @@ function ChannelsSection({
               <DestinationPicker
                 destinations={metaPages}
                 linkedIds={metaLinkedPageIds}
-                destinationLabel="Page"
+                destinationLabel={t("pickAPage")}
                 busy={selectingPage}
                 onLink={onSelectPages}
               />
             </>
           ) : (
             <Button size="sm" onClick={() => onStartOAuth("meta")}>
-              Connect
+              {t("connect")}
             </Button>
           )}
         </ChannelCard>
@@ -1348,18 +1356,18 @@ function ChannelsSection({
           label={providerLabels.instagram}
           connected={instagramConnected}
           warn={!!instagram?.lastRefreshError}
-          warnLabel="Reconnect"
+          warnLabel={t("reconnectBadge")}
           detail={
             instagramConnected
               ? [
                   instagram?.username ? `@${instagram.username}` : null,
                   instagram?.tokenExpiresAt
-                    ? `Expires ${new Date(instagram.tokenExpiresAt).toLocaleDateString()}`
+                    ? t("expires", { date: new Date(instagram.tokenExpiresAt).toLocaleDateString(locale) })
                     : null,
                 ]
                   .filter(Boolean)
                   .join(" · ") || undefined
-              : "For professional accounts not linked to a Facebook page."
+              : t("instagramNote")
           }
         >
           {instagram?.status === "connected" ? (
@@ -1369,11 +1377,11 @@ function ChannelsSection({
               onClick={() => onDisconnect("instagram", providerLabels.instagram)}
               disabled={disconnecting === "instagram"}
             >
-              {disconnecting === "instagram" ? "…" : "Disconnect"}
+              {disconnecting === "instagram" ? "…" : t("disconnect")}
             </Button>
           ) : (
             <Button size="sm" onClick={() => onStartOAuth("instagram")}>
-              Connect
+              {t("connect")}
             </Button>
           )}
         </ChannelCard>
@@ -1384,12 +1392,12 @@ function ChannelsSection({
           label={providerLabels.tiktok}
           connected={tiktok?.status === "connected"}
           warn={!!tiktok?.lastRefreshError}
-          warnLabel="Reconnect"
+          warnLabel={t("reconnectBadge")}
           detail={
             [
               tiktok?.username ? `@${tiktok.username}` : null,
               tiktok?.lastRefreshError && tiktok?.tokenExpiresAt
-                ? `Expires ${new Date(tiktok.tokenExpiresAt).toLocaleDateString()}`
+                ? t("expires", { date: new Date(tiktok.tokenExpiresAt).toLocaleDateString(locale) })
                 : null,
             ]
               .filter(Boolean)
@@ -1403,11 +1411,11 @@ function ChannelsSection({
               onClick={() => onDisconnect("tiktok", providerLabels.tiktok)}
               disabled={disconnecting === "tiktok"}
             >
-              {disconnecting === "tiktok" ? "…" : "Disconnect"}
+              {disconnecting === "tiktok" ? "…" : t("disconnect")}
             </Button>
           ) : (
             <Button size="sm" onClick={() => onStartOAuth("tiktok")}>
-              Connect
+              {t("connect")}
             </Button>
           )}
         </ChannelCard>
@@ -1431,17 +1439,17 @@ function ChannelsSection({
           onDisconnect={onDisconnect}
           detail={(integ) =>
             integ?.boardName
-              ? `Pinning to: ${integ.boardName}`
+              ? t("pinningTo", { board: integ.boardName })
               : integ?.status === "connected"
-              ? "Select a board to enable publishing"
+              ? t("selectBoardToEnable")
               : undefined
           }
           warnWhen={(integ) => !!integ && integ.status === "connected" && !integ.boardId}
-          warnLabel="Select board"
+          warnLabel={t("selectBoard")}
           pickerWhen={(integ) => !!integ && integ.status === "connected"}
-          pickerLabel={(integ) => (integ?.boardId ? "Change board" : "Select board")}
+          pickerLabel={(integ) => (integ?.boardId ? t("changeBoard") : t("selectBoard"))}
           pickerProvider="pinterest"
-          pickerDestinationLabel="board"
+          pickerDestinationLabel={t("selectBoard")}
           onPickerSelected={onRefreshIntegrations}
           productId={productId}
         />
@@ -1478,6 +1486,8 @@ function LinkedInConnectCard({
   onPickerSelected?: () => void | Promise<void>;
   productId?: string | null;
 }) {
+  const t = useTranslations("products.detailSheet.channels");
+  const tToasts = useTranslations("products.detailSheet.channels.toasts");
   const profileConnected =
     integration?.linkedinProfileConnected === true ||
     (integration?.status === "connected" && integration.linkedinDestinationType === "profile");
@@ -1506,13 +1516,13 @@ function LinkedInConnectCard({
       if (res.ok) {
         setDestinations(res.data.pages || []);
         if ((res.data.pages || []).length === 0) {
-          toast.error("No LinkedIn targets found.");
+          toast.error(tToasts("noLinkedInTargets"));
         }
       } else {
-        toast.error("Failed to load LinkedIn targets");
+        toast.error(tToasts("loadLinkedInFailed"));
       }
     } catch {
-      toast.error("Failed to load LinkedIn targets");
+      toast.error(tToasts("loadLinkedInFailed"));
     } finally {
       setLoadingDestinations(false);
     }
@@ -1532,15 +1542,15 @@ function LinkedInConnectCard({
         },
       );
       if (res.ok && res.data.ok) {
-        toast.success(`LinkedIn target "${picked?.name || ""}" selected`);
+        toast.success(tToasts("linkedInSelected", { name: picked?.name || "" }));
         setDestinations([]);
         setSelectedDestinationId("");
         if (onPickerSelected) await onPickerSelected();
       } else {
-        toast.error("Failed to select LinkedIn target");
+        toast.error(tToasts("selectLinkedInFailed"));
       }
     } catch {
-      toast.error("Failed to select LinkedIn target");
+      toast.error(tToasts("selectLinkedInFailed"));
     } finally {
       setSelecting(false);
     }
@@ -1552,12 +1562,12 @@ function LinkedInConnectCard({
       label={providerLabels.linkedin}
       connected={connected && !needsTarget && !needsReconnect}
       warn={needsReconnect || needsTarget}
-      warnLabel={needsReconnect ? "Reconnect" : "Select target"}
+      warnLabel={needsReconnect ? t("reconnectBadge") : t("selectTarget")}
       detail={
         integration?.linkedinDestinationName
-          ? `Posting to: ${integration.linkedinDestinationName}`
+          ? t("postingTo", { target: integration.linkedinDestinationName })
           : connected
-          ? "Select a Profile or Page to enable publishing"
+          ? t("selectProfileOrPage")
           : undefined
       }
     >
@@ -1569,11 +1579,11 @@ function LinkedInConnectCard({
             onClick={() => onDisconnect("linkedin", providerLabels.linkedin_profile, "profile")}
             disabled={disconnecting === "linkedin:profile"}
           >
-            {disconnecting === "linkedin:profile" ? "…" : "Unlink Profile"}
+            {disconnecting === "linkedin:profile" ? "…" : t("unlinkProfile")}
           </Button>
         ) : (
           <Button size="sm" onClick={() => onStartOAuth("linkedin", "profile")}>
-            Link Profile
+            {t("linkProfile")}
           </Button>
         )}
         {communityConnected ? (
@@ -1583,11 +1593,11 @@ function LinkedInConnectCard({
             onClick={() => onDisconnect("linkedin", providerLabels.linkedin_community, "community")}
             disabled={disconnecting === "linkedin:community"}
           >
-            {disconnecting === "linkedin:community" ? "…" : "Unlink Pages"}
+            {disconnecting === "linkedin:community" ? "…" : t("unlinkPagesBtn")}
           </Button>
         ) : (
           <Button size="sm" onClick={() => onStartOAuth("linkedin", "community")}>
-            Link Pages
+            {t("linkPagesBtn")}
           </Button>
         )}
         {connected && (
@@ -1597,7 +1607,7 @@ function LinkedInConnectCard({
             onClick={loadDestinations}
             disabled={loadingDestinations}
           >
-            {loadingDestinations ? "Loading…" : integration?.linkedinDestinationUrn ? "Change target" : "Select target"}
+            {loadingDestinations ? t("loading") : integration?.linkedinDestinationUrn ? t("changeTarget") : t("selectTarget")}
           </Button>
         )}
       </div>
@@ -1608,7 +1618,7 @@ function LinkedInConnectCard({
             onChange={(e) => setSelectedDestinationId(e.target.value)}
             className="flex-1"
           >
-            <option value="">Select a target…</option>
+            <option value="">{t("selectTargetPlaceholder")}</option>
             {destinations.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
@@ -1620,7 +1630,7 @@ function LinkedInConnectCard({
             onClick={selectDestination}
             disabled={selecting || !selectedDestinationId}
           >
-            {selecting ? "…" : "Select"}
+            {selecting ? "…" : t("select")}
           </Button>
         </div>
       )}
@@ -1659,6 +1669,8 @@ function SimpleConnectCard({
   onPickerSelected?: () => void | Promise<void>;
   productId?: string | null;
 }) {
+  const t = useTranslations("products.detailSheet.channels");
+  const tToasts = useTranslations("products.detailSheet.channels.toasts");
   const provider = (() => {
     const entry = Object.entries(providerLabels).find(([, l]) => l === label);
     return entry ? entry[0] : "";
@@ -1673,7 +1685,7 @@ function SimpleConnectCard({
   const [linkedIds, setLinkedIds] = useState<string[]>([]);
   const [loadingDestinations, setLoadingDestinations] = useState(false);
   const [selecting, setSelecting] = useState(false);
-  const destinationLabel = pickerDestinationLabel || "destination";
+  const destinationLabel = pickerDestinationLabel || t("warning");
   const accounts = integration?.accounts ?? [];
 
   async function loadDestinations() {
@@ -1687,13 +1699,13 @@ function SimpleConnectCard({
         setDestinations(res.data.pages || []);
         setLinkedIds(res.data.linkedIds || []);
         if ((res.data.pages || []).length === 0) {
-          toast.error(`No ${destinationLabel}s found.`);
+          toast.error(tToasts("noDestinationsFound", { destination: destinationLabel }));
         }
       } else {
-        toast.error(`Failed to load ${destinationLabel}s`);
+        toast.error(tToasts("loadDestinationsFailed", { destination: destinationLabel }));
       }
     } catch {
-      toast.error(`Failed to load ${destinationLabel}s`);
+      toast.error(tToasts("loadDestinationsFailed", { destination: destinationLabel }));
     } finally {
       setLoadingDestinations(false);
     }
@@ -1712,15 +1724,15 @@ function SimpleConnectCard({
       );
       if (res.ok && res.data.ok) {
         const count = res.data.linked?.length ?? ids.length;
-        toast.success(`${count} ${destinationLabel}${count === 1 ? "" : "s"} linked`);
+        toast.success(t("linkedCount", { count, destination: destinationLabel }));
         setDestinations([]);
         setLinkedIds([]);
         if (onPickerSelected) await onPickerSelected();
       } else {
-        toast.error(`Failed to link ${destinationLabel}s`);
+        toast.error(tToasts("linkDestinationsFailed", { destination: destinationLabel }));
       }
     } catch {
-      toast.error(`Failed to link ${destinationLabel}s`);
+      toast.error(tToasts("linkDestinationsFailed", { destination: destinationLabel }));
     } finally {
       setSelecting(false);
     }
@@ -1732,7 +1744,7 @@ function SimpleConnectCard({
       label={label}
       connected={!!connected}
       warn={needsReconnect || (warnWhen ? warnWhen(integration) : false)}
-      warnLabel={needsReconnect ? "Reconnect" : warnLabel || "Warning"}
+      warnLabel={needsReconnect ? t("reconnectBadge") : warnLabel || t("warning")}
       detail={detail ? detail(integration) : undefined}
     >
       {connected ? (
@@ -1744,11 +1756,11 @@ function SimpleConnectCard({
               onClick={loadDestinations}
               disabled={loadingDestinations}
             >
-              {loadingDestinations ? "Loading…" : pickerLabel(integration)}
+              {loadingDestinations ? t("loading") : pickerLabel(integration)}
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={() => onStartOAuth(provider)}>
-            Reconnect
+            {t("reconnect")}
           </Button>
           <Button
             variant="destructive"
@@ -1759,8 +1771,8 @@ function SimpleConnectCard({
             {disconnecting === provider
               ? "…"
               : accounts.length > 1
-              ? `Disconnect all ${accounts.length}`
-              : "Disconnect"}
+              ? t("disconnectAllCount", { count: accounts.length })
+              : t("disconnect")}
           </Button>
           <LinkedAccountsList
             accounts={accounts}
@@ -1780,14 +1792,14 @@ function SimpleConnectCard({
         </>
       ) : (
         <Button size="sm" onClick={() => onStartOAuth(provider)}>
-          {needsReconnect ? "Reconnect" : "Connect"}
+          {needsReconnect ? t("reconnect") : t("connect")}
         </Button>
       )}
     </ChannelCard>
   );
 }
 
-function accountName(account: LinkedAccount): string {
+function accountName(account: LinkedAccount, fallback: string): string {
   return (
     account.label ||
     account.pageName ||
@@ -1795,7 +1807,7 @@ function accountName(account: LinkedAccount): string {
     account.linkedinDestinationName ||
     (account.username ? `@${account.username}` : null) ||
     account.destinationId ||
-    "Linked account"
+    fallback
   );
 }
 
@@ -1816,12 +1828,15 @@ function LinkedAccountsList({
   linkedinMode?: "profile" | "community";
   onChanged: () => void | Promise<void>;
 }) {
+  const t = useTranslations("products.detailSheet.channels");
+  const tToasts = useTranslations("products.detailSheet.channels.toasts");
   const [unlinking, setUnlinking] = useState<string | null>(null);
 
   if (accounts.length === 0) return null;
 
   async function unlink(account: LinkedAccount) {
     if (!productId || !account.destinationId) return;
+    const name = accountName(account, t("linkedAccountFallback"));
     setUnlinking(account.destinationId);
     try {
       const res = await apiPost(`/api/oauth/disconnect/${provider}`, {
@@ -1830,13 +1845,13 @@ function LinkedAccountsList({
         ...(linkedinMode ? { linkedinMode } : {}),
       });
       if (res.ok) {
-        toast.success(`${accountName(account)} unlinked`);
+        toast.success(tToasts("accountUnlinked", { account: name }));
         await onChanged();
       } else {
-        toast.error(`Failed to unlink ${accountName(account)}`);
+        toast.error(tToasts("unlinkFailed", { account: name }));
       }
     } catch {
-      toast.error(`Failed to unlink ${accountName(account)}`);
+      toast.error(tToasts("unlinkFailed", { account: name }));
     } finally {
       setUnlinking(null);
     }
@@ -1850,11 +1865,11 @@ function LinkedAccountsList({
           className="flex items-center gap-2 rounded-lg border border-border/40 px-2.5 py-1.5"
         >
           <span className="min-w-0 flex-1 truncate text-[12px] text-foreground">
-            {accountName(account)}
+            {accountName(account, t("linkedAccountFallback"))}
           </span>
           {!account.enabled && (
             <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
-              {account.status === "revoked" ? "Reconnect" : account.status}
+              {account.status === "revoked" ? t("reconnectBadge") : account.status}
             </Badge>
           )}
           {account.destinationId && (
@@ -1865,7 +1880,7 @@ function LinkedAccountsList({
               onClick={() => unlink(account)}
               disabled={unlinking === account.destinationId}
             >
-              {unlinking === account.destinationId ? "…" : "Unlink"}
+              {unlinking === account.destinationId ? "…" : t("unlink")}
             </Button>
           )}
         </div>
@@ -1891,6 +1906,7 @@ function DestinationPicker({
   busy: boolean;
   onLink: (ids: string[]) => void | Promise<void>;
 }) {
+  const t = useTranslations("products.detailSheet.channels");
   const [selected, setSelected] = useState<string[]>([]);
   const linked = new Set(linkedIds);
   const selectable = destinations.filter((item) => !linked.has(item.id));
@@ -1900,7 +1916,7 @@ function DestinationPicker({
   if (selectable.length === 0) {
     return (
       <p className="w-full pt-1 text-[11.5px] text-muted-foreground">
-        Every available {destinationLabel} is already linked to this brand.
+        {t("everyDestinationLinked", { destination: destinationLabel })}
       </p>
     );
   }
@@ -1926,7 +1942,7 @@ function DestinationPicker({
           <div key={key || "default"} className="space-y-1">
             {showAccountHeadings && (
               <p className="px-2 pt-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                {group.label || "Connected account"}
+                {group.label || t("connectedAccount")}
               </p>
             )}
             {group.items.map((item) => (
@@ -1953,7 +1969,7 @@ function DestinationPicker({
       >
         {busy
           ? "…"
-          : `Link ${selected.length || ""} ${destinationLabel}${selected.length === 1 ? "" : "s"}`.replace(/\s+/g, " ")}
+          : t("linkedCount", { count: selected.length || 0, destination: destinationLabel }).replace(/\s+/g, " ")}
       </Button>
     </div>
   );
@@ -1976,6 +1992,7 @@ function ChannelCard({
   detail?: string;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("products.detailSheet.channels");
   const brand = provider ? CHANNEL_BRAND[provider] : undefined;
   return (
     <div
@@ -1996,19 +2013,19 @@ function ChannelCard({
             <p className="text-sm font-semibold text-foreground truncate">{label}</p>
             {connected && (
               <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("pos")}>
-                Linked
+                {t("linked")}
               </Badge>
             )}
             {warn && (
               <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
-                {warnLabel || "Warning"}
+                {warnLabel || t("warning")}
               </Badge>
             )}
           </div>
           {detail && <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">{detail}</p>}
         </div>
       </div>
-      <div className="mt-2.5 flex flex-wrap items-center gap-2 pl-0 sm:pl-12">{children}</div>
+      <div className="mt-2.5 flex flex-wrap items-center gap-2 ps-0 sm:ps-12">{children}</div>
     </div>
   );
 }

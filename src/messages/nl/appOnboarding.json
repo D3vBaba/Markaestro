@@ -1,0 +1,316 @@
+{
+  "questionCounter": "Vraag {current} / {total}",
+  "signOut": "Afmelden",
+  "signIn": "Aanmelden",
+  "back": "← Terug",
+  "continue": "Doorgaan",
+  "skipForNow": "Voorlopig overslaan",
+  "takes2Minutes": "Duurt 2 minuten · Geen kaart nodig",
+  "quiz": {
+    "marketing": {
+      "eyebrow": "Laten we je motor bouwen",
+      "title": "Wat promoot je?",
+      "subtitle": "Markaestro past zich aan wat je ook aan het laten groeien bent.",
+      "options": {
+        "product": { "label": "Een app of product", "desc": "Software, e-commerce, of iets dat je hebt gebouwd" },
+        "business": { "label": "Een bedrijf", "desc": "Een onderneming, winkel of lokale dienst" },
+        "personal": { "label": "Mezelf", "desc": "Een persoonlijk merk of publiek dat alleen jij bent" },
+        "clients": { "label": "Klanten", "desc": "Merken die je voor anderen beheert" }
+      }
+    },
+    "role": {
+      "eyebrow": "Jouw functie",
+      "title": "Wat is jouw rol?",
+      "subtitle": "We stemmen alles af op hoe je daadwerkelijk werkt.",
+      "options": {
+        "founder": { "label": "Oprichter / CEO", "desc": "Draagt elke pet — ook die van marketing" },
+        "marketer": { "label": "Marketeer", "desc": "Verantwoordelijk voor content op elk kanaal" },
+        "agency": { "label": "Bureau / Freelancer", "desc": "Jongleert met posts voor meerdere klanten" },
+        "creator": { "label": "Content Creator", "desc": "Laat een publiek groeien dat alleen jij bent" }
+      }
+    },
+    "teamSize": {
+      "eyebrow": "Jouw team",
+      "title": "Wie zit er achter het plaatsen van content?",
+      "options": {
+        "solo": { "label": "Alleen ik", "desc": "En eerlijk gezegd is het veel" },
+        "small": { "label": "2–5 personen", "desc": "Klein team, veel petten" },
+        "medium": { "label": "6–20 personen", "desc": "Coördinatie wordt rommelig" },
+        "large": { "label": "20+ personen", "desc": "Iedereen consistent houden is lastig" }
+      }
+    },
+    "goal": {
+      "eyebrow": "De missie",
+      "title": "Wat wil je eigenlijk bereiken?",
+      "subtitle": "Dit bepaalt je instellingen en het pakket dat we aanbevelen.",
+      "options": {
+        "social": { "label": "Mijn volgers laten groeien", "desc": "Meer bereik, meer betrokkenheid" },
+        "sales": { "label": "Meer verkopen genereren", "desc": "Posts omzetten in pipeline" },
+        "time": { "label": "Mijn tijd terugwinnen", "desc": "Stoppen met verdrinken in content" }
+      }
+    },
+    "channels": {
+      "eyebrow": "Jouw fase",
+      "title": "Waar bevindt jouw publiek zich?",
+      "subtitle": "Kies alles wat van toepassing is — je publiceert naar elk kanaal met één klik.",
+      "options": {
+        "instagram": { "label": "Instagram" },
+        "facebook": { "label": "Facebook" },
+        "tiktok": { "label": "TikTok" },
+        "threads": { "label": "Threads" },
+        "pinterest": { "label": "Pinterest" },
+        "linkedin": { "label": "LinkedIn" }
+      }
+    },
+    "postingToday": {
+      "eyebrow": "Wees eerlijk",
+      "title": "Hoe plaats je vandaag content?",
+      "subtitle": "De meeste teams vertellen ons dat dit het pijnlijke deel is.",
+      "options": {
+        "manual": { "label": "Handmatig in elke app", "desc": "Overal apart inloggen" },
+        "spreadsheet": { "label": "Spreadsheets & herinneringen", "desc": "Post-its en hoop" },
+        "tool": { "label": "Een andere planningstool", "desc": "Een die ik in stilte ben ontgroeid" },
+        "starting": { "label": "Nauwelijks aan het plaatsen", "desc": "Nog geen echt systeem" }
+      }
+    },
+    "frequency": {
+      "eyebrow": "Het tempo dat je wilt",
+      "title": "Hoe vaak wil je zichtbaar zijn?",
+      "subtitle": "We houden je automatisch op schema.",
+      "options": {
+        "daily": { "label": "Elke dag", "desc": "Blijf top of mind" },
+        "few": { "label": "Een paar keer per week", "desc": "Consistentie wint de race" },
+        "weekly": { "label": "Ongeveer eens per week", "desc": "Kwaliteit boven ruis" },
+        "unsure": { "label": "Nog niet zeker", "desc": "Vertel me wat écht werkt" }
+      }
+    },
+    "challenge": {
+      "eyebrow": "Het echte probleem",
+      "title": "Wat blijft je parten spelen?",
+      "subtitle": "Dit is precies wat we voor je gaan oplossen.",
+      "options": {
+        "consistency": { "label": "Consistent blijven", "desc": "Ik begin sterk en val dan stil" },
+        "time": { "label": "De tijd vinden", "desc": "Er is nooit genoeg van" },
+        "ideas": { "label": "Content bedenken", "desc": "Mijn ideeën raken steeds op" },
+        "juggling": { "label": "Jongleren met kanalen", "desc": "Te veel platforms om bij te houden" }
+      }
+    },
+    "contentTypes": {
+      "eyebrow": "Jouw stem",
+      "title": "Wat wil je plaatsen?",
+      "subtitle": "Kies alles wat van toepassing is — we helpen je de kalender te vullen.",
+      "options": {
+        "product": { "label": "Product & promoties" },
+        "educational": { "label": "Tips & educatie" },
+        "bts": { "label": "Achter de schermen" },
+        "news": { "label": "Nieuws & updates" }
+      }
+    },
+    "hoursPerWeek": {
+      "eyebrow": "De verborgen kosten",
+      "title": "Hoeveel uur per week verdwijnt hierin?",
+      "subtitle": "Wees eerlijk — het is bijna altijd meer dan het voelt.",
+      "options": {
+        "lt2": { "label": "Minder dan 2 uur" },
+        "2to5": { "label": "2–5 uur" },
+        "5to10": { "label": "5–10 uur" },
+        "gt10": { "label": "Meer dan 10 uur" }
+      }
+    },
+    "success": {
+      "eyebrow": "Over 90 dagen",
+      "title": "Wat zou dit de moeite waard maken?",
+      "subtitle": "We richten je hele instelling op dit resultaat.",
+      "options": {
+        "followers": { "label": "Een groter, betrokken publiek", "desc": "Bereik dat zich opstapelt" },
+        "sales": { "label": "Content die omzet genereert", "desc": "Posts die daadwerkelijk converteren" },
+        "timeback": { "label": "Mijn avonden & weekenden terug", "desc": "Elke week teruggewonnen uren" },
+        "consistency": { "label": "Nooit meer stilvallen", "desc": "Een aanwezigheid waarop ik kan rekenen" }
+      }
+    }
+  },
+  "challengeCopy": {
+    "consistency": {
+      "short": "consistent blijven",
+      "headline": "Je zult nooit meer stilvallen",
+      "line": "Plan weken aan posts in één keer in — Markaestro publiceert elke keer op tijd, zodat de stilte stopt."
+    },
+    "time": {
+      "short": "de tijd vinden",
+      "headline": "Laten we die uren terugwinnen",
+      "line": "Schrijf één keer, publiceer overal en plan vooruit. Het kopiëren, plakken en inloggen verdwijnt gewoon."
+    },
+    "ideas": {
+      "short": "content bedenken",
+      "headline": "Je kalender raakt nooit leeg",
+      "line": "Verander één idee in een week aan posts op elk kanaal — zodat je nooit meer naar een leeg scherm staart."
+    },
+    "juggling": {
+      "short": "jongleren met kanalen",
+      "headline": "Eén plek voor elk kanaal",
+      "line": "Stel één keer op en publiceer op al je platforms vanaf één scherm — geen tabbladen meer jongleren of gemiste posts."
+    }
+  },
+  "marketingCopy": {
+    "product": {
+      "eyebrow": "Jouw product",
+      "title": "Voeg het product toe dat je promoot",
+      "sub": "Scan je website om de details automatisch in te vullen, voeg ze handmatig toe, of sla dit voorlopig over — je kunt het altijd later doen."
+    },
+    "business": {
+      "eyebrow": "Jouw bedrijf",
+      "title": "Voeg het bedrijf toe dat je promoot",
+      "sub": "Scan je website om de details automatisch in te vullen, voeg ze handmatig toe, of sla dit voorlopig over — je kunt het altijd later doen."
+    },
+    "personal": {
+      "eyebrow": "Jouw merk",
+      "title": "Stel je persoonlijke merk in",
+      "sub": "Heb je een website of portfolio? Scan deze voor automatisch invullen. Geen site? Voer je gegevens handmatig in — het duurt een minuutje."
+    },
+    "clients": {
+      "eyebrow": "Jouw eerste klant",
+      "title": "Voeg het merk van je eerste klant toe",
+      "sub": "Begin met één klant — scan hun website voor automatisch invullen, of voer de details handmatig in. Je kunt op elk moment meer merken toevoegen."
+    },
+    "fallback": {
+      "eyebrow": "Jouw merk",
+      "title": "Voeg het merk toe dat je promoot",
+      "sub": "Scan je website om de details automatisch in te vullen, voeg ze handmatig toe, of sla dit voorlopig over — je kunt het altijd later doen."
+    }
+  },
+  "socialProviders": {
+    "meta": {
+      "label": "Meta",
+      "fullLabel": "Meta (Facebook + Instagram)",
+      "description": "Verbind Facebook en Instagram",
+      "note": "Pagina's, Reels, feedberichten, Stories"
+    }
+  },
+  "footer": {
+    "tagline": "Het premium marketingautomatiseringsplatform voor moderne teams.",
+    "product": "Product",
+    "features": "Functies",
+    "channels": "Kanalen",
+    "pricing": "Prijzen",
+    "company": "Bedrijf",
+    "contact": "Contact",
+    "termsOfService": "Servicevoorwaarden",
+    "privacyPolicy": "Privacybeleid",
+    "getStarted": "Aan de slag",
+    "signIn": "Aanmelden",
+    "createAccount": "Account aanmaken",
+    "copyright": "© {year} Markaestro. Alle rechten voorbehouden.",
+    "terms": "Voorwaarden",
+    "privacy": "Privacy"
+  },
+  "register": {
+    "yourPlanIsReady": "Je pakket is klaar",
+    "titleEmail": "Bewaar je pakket & win je tijd terug",
+    "titleCode": "Controleer je inbox",
+    "subtitleEmail": "Geen wachtwoord nodig — voer je e-mailadres in en we sturen een eenmalige code. Heb je al een account? Dezelfde code meldt je aan.",
+    "subtitleCode": "We hebben een 6-cijferige code gestuurd naar {email}.",
+    "waitingInWorkspace": "Wacht in je werkruimte",
+    "recap": {
+      "channelsReady": "{count, plural, one {# kanaal klaar om met één klik te publiceren} other {# kanalen klaar om met één klik te publiceren}}",
+      "everyChannel": "Elk kanaal, gepubliceerd vanuit één plek",
+      "postsScheduled": "Posts {frequency} gepland — automatisch",
+      "hoursBack": "~{hours} uur per week terug in je agenda",
+      "onSteadyCadence": "in een gestaag tempo"
+    },
+    "emailPlaceholder": "naam@bedrijf.com",
+    "codePlaceholder": "123456",
+    "sendingCode": "Code wordt verzonden…",
+    "claimPlan": "Claim mijn pakket — het is gratis",
+    "verifying": "Bezig met verifiëren…",
+    "continueBtn": "Doorgaan",
+    "useDifferentEmail": "← Ander e-mailadres gebruiken",
+    "resendIn": "Opnieuw versturen over {seconds}s",
+    "resendCode": "Code opnieuw versturen",
+    "freeTrialNote": "Gratis om te starten · 14 dagen proefperiode · Altijd opzegbaar",
+    "orContinueWith": "Of ga verder met",
+    "continueWithGoogle": "Doorgaan met Google",
+    "agreeTermsPrefix": "Door door te gaan ga je akkoord met onze",
+    "and": "en",
+    "terms": "Voorwaarden",
+    "privacyPolicy": "Privacybeleid",
+    "errors": {
+      "enterEmail": "Voer je e-mailadres in om door te gaan.",
+      "enterCode": "Voer de 6-cijferige code uit je e-mail in."
+    }
+  },
+  "product": {
+    "scanWebsite": "Website scannen",
+    "enterManually": "Handmatig invoeren",
+    "websiteUrl": "Website-URL",
+    "urlPlaceholder": "jouwmerk.com",
+    "scanning": "Bezig met scannen…",
+    "rescan": "Opnieuw scannen",
+    "scan": "Scannen",
+    "scanHelp": "We lezen je site en vullen naam, beschrijving, logo en merkkleuren in.",
+    "autoDetected": "Automatisch gedetecteerd",
+    "brandName": "Merknaam",
+    "description": "Beschrijving",
+    "targetAudience": "Doelgroep",
+    "targetAudiencePlaceholder": "bijv. B2B SaaS-oprichters",
+    "brandTone": "Merktoon",
+    "brandTonePlaceholder": "bijv. gedurfd, direct",
+    "brandColorDetected": "Merkkleur gedetecteerd:",
+    "manualBrandNamePlaceholder": "bijv. Acme CRM",
+    "whatDoesItDo": "Wat doet het?",
+    "optional": "(optioneel)",
+    "manualDescPlaceholder": "Beschrijf dit merk en voor wie het is...",
+    "saving": "Bezig met opslaan…",
+    "couldntSaveBrand": "Je merk kon niet worden opgeslagen — je kunt het later toevoegen vanuit het dashboard."
+  },
+  "socials": {
+    "connectYourAccounts": "Verbind je accounts",
+    "addSocialAccounts": "Voeg je social media-accounts toe",
+    "subtitle": "Verbind de platforms waarop je wilt plaatsen. Je kunt dit later altijd toevoegen of wijzigen via je instellingen.",
+    "connected": "Verbonden",
+    "connect": "Verbinden",
+    "redirecting": "Bezig met doorverwijzen…",
+    "otherChannelsNote": "TikTok, Threads en Pinterest kunnen per merk worden verbonden vanuit je dashboard.",
+    "skipAndContinue": "Overslaan en doorgaan",
+    "couldNotInitiate": "Kon de verbinding niet starten. Probeer het opnieuw.",
+    "connectedToast": "{label} verbonden",
+    "connectFailedToast": "Verbinden met {provider} mislukt"
+  },
+  "generating": {
+    "title": "Je workflow wordt gebouwd",
+    "subtitle": "We stellen je kanalen en een plaatsingsplan in rond {challenge} — het probleem waarvoor je hier bent.",
+    "takesAMoment": "Dit duurt maar even"
+  },
+  "paywall": {
+    "youllGetBackPrefix": "Je krijgt ongeveer",
+    "hoursAWeek": "uur per week terug",
+    "startTrialSuffix": "Start je gratis proefperiode van {days} dagen om te publiceren — en al het andere dat je maakt.",
+    "firstPostReady": "Je eerste post staat klaar in je dashboard.",
+    "subscribeToPublish": "Abonneer je om te publiceren",
+    "postReadyOneStepAway": "Je post is klaar — nog één stap te gaan",
+    "justNow": "Zojuist",
+    "like": "Vind ik leuk",
+    "comment": "Reageren",
+    "share": "Delen",
+    "recommendedForYou": "Aanbevolen voor jou",
+    "basedOnAnswers": "Gebaseerd op je antwoorden",
+    "monthly": "Maandelijks",
+    "annual": "Jaarlijks",
+    "saveAnnual": "— bespaar 17%",
+    "saveAnnualShort": "· −17%",
+    "selected": "Geselecteerd",
+    "perMonth": "/maand",
+    "perMonthShort": "/maand",
+    "trialAllPlans": "{days} dagen gratis proefperiode op alle pakketten · Geen kosten tot dag {dayAfter}",
+    "trialEndsOn": "Je proefperiode eindigt op {date}, waarna je kaart wordt belast met ${price}/maand{billedAnnually}. Zeg op elk moment daarvoor op en er worden geen kosten in rekening gebracht.",
+    "billedAnnually": ", jaarlijks gefactureerd",
+    "annualSavingsNote": "Jaarlijkse facturering bespaart je 17% ten opzichte van maandelijks",
+    "settingUp": "Bezig met instellen…",
+    "startTrialButton": "Start gratis proefperiode van {days} dagen — {plan}",
+    "cardRequired": "Kaart vereist · Altijd opzegbaar voordat de proefperiode eindigt"
+  },
+  "success": {
+    "allSet": "Helemaal klaar",
+    "readyToLaunch": "Je bent klaar om te lanceren.",
+    "settingUpAccount": "Je account is ingesteld. Je wordt naar je dashboard gebracht…"
+  }
+}

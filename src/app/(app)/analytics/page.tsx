@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -29,12 +30,7 @@ const RANGE_PRESETS = [
   { days: 365, label: "12m" },
 ];
 
-const TREND_METRICS = [
-  { key: "views", label: "Views" },
-  { key: "reach", label: "Reach" },
-  { key: "engagements", label: "Engagement" },
-  { key: "posts", label: "Posts" },
-] as const;
+const TREND_METRIC_KEYS = ["views", "reach", "engagements", "posts"] as const;
 
 function pctChange(current: number | null, prior: number | null | undefined): number | null {
   if (current === null || prior === null || prior === undefined || prior === 0) return null;
@@ -77,10 +73,12 @@ function Card({
 }
 
 export default function AnalyticsPage() {
+  const t = useTranslations("analytics.page");
+  const locale = useLocale();
   const [days, setDays] = useState(28);
   const [channel, setChannel] = useState<SocialChannel | undefined>(undefined);
   const [productId, setProductId] = useState<string>("");
-  const [trendMetric, setTrendMetric] = useState<(typeof TREND_METRICS)[number]["key"]>("views");
+  const [trendMetric, setTrendMetric] = useState<(typeof TREND_METRIC_KEYS)[number]>("views");
   const [exporting, setExporting] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
@@ -133,17 +131,17 @@ export default function AnalyticsPage() {
       });
       if (res.ok) {
         if (res.data.updated > 0) {
-          toast.success(`Updated ${res.data.updated} post${res.data.updated === 1 ? "" : "s"} from source`);
+          toast.success(t("toasts.updated", { count: res.data.updated }));
         } else {
-          toast.message("No new platform metrics available");
+          toast.message(t("toasts.noNewMetrics"));
         }
       } else if (res.status === 429) {
-        toast.error("Too many refreshes — try again in a minute.");
+        toast.error(t("toasts.tooManyRefreshes"));
       } else {
-        toast.error("Couldn't pull live data. Showing the latest stored numbers.");
+        toast.error(t("toasts.pullFailed"));
       }
     } catch {
-      toast.error("Couldn't pull live data. Showing the latest stored numbers.");
+      toast.error(t("toasts.pullFailed"));
     } finally {
       await refresh();
       setSyncing(false);
@@ -155,7 +153,7 @@ export default function AnalyticsPage() {
     try {
       const res = await apiDownload(`/api/analytics/export?days=${Math.min(days, 730)}${filterParams}`);
       if (!res.ok || !res.blob) {
-        toast.error("Export failed. Please try again.");
+        toast.error(t("toasts.exportFailed"));
         return;
       }
       const url = URL.createObjectURL(res.blob);
@@ -172,8 +170,8 @@ export default function AnalyticsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Analytics"
-        subtitle="What your posts earned — measured from each platform's own data."
+        title={t("title")}
+        subtitle={t("subtitle")}
         action={
           <div className="flex items-center gap-2 flex-wrap">
             <Button
@@ -181,10 +179,10 @@ export default function AnalyticsPage() {
               className="rounded-lg h-9 text-[13px] gap-1.5"
               onClick={handleRefresh}
               disabled={loading || refreshing || syncing}
-              title="Pull the latest numbers from each connected platform"
+              title={t("refresh.title")}
             >
               <RefreshCw className={`h-3.5 w-3.5 ${syncing || refreshing ? "animate-spin" : ""}`} />
-              {syncing ? "Pulling live data…" : refreshing ? "Refreshing…" : "Refresh"}
+              {syncing ? t("refresh.pulling") : refreshing ? t("refresh.refreshing") : t("refresh.idle")}
             </Button>
             {canExport ? (
               <Button
@@ -194,17 +192,17 @@ export default function AnalyticsPage() {
                 disabled={exporting || loading}
               >
                 <Download className="h-3.5 w-3.5" />
-                {exporting ? "Exporting…" : "Export CSV"}
+                {exporting ? t("export.exporting") : t("export.idle")}
               </Button>
             ) : (
               <Button
                 variant="outline"
                 className="rounded-lg h-9 text-[13px] gap-1.5 opacity-60"
                 disabled
-                title="CSV export is included in the Business plan"
+                title={t("export.lockedTitle")}
               >
                 <Lock className="h-3.5 w-3.5" />
-                Export CSV
+                {t("export.idle")}
               </Button>
             )}
           </div>
@@ -228,7 +226,11 @@ export default function AnalyticsPage() {
                 type="button"
                 disabled={locked}
                 onClick={() => setDays(preset.days)}
-                title={locked ? `The ${preset.label} window requires a higher plan` : `Last ${preset.label}`}
+                title={
+                  locked
+                    ? t("filters.rangeLockedTitle", { label: preset.label })
+                    : t("filters.rangeTitle", { label: preset.label })
+                }
                 className="px-3.5 sm:px-3 h-10 sm:h-8 text-[12px] font-medium inline-flex items-center gap-1 transition-colors disabled:cursor-not-allowed"
                 style={{
                   background: active ? "var(--mk-ink)" : "var(--mk-paper)",
@@ -251,9 +253,9 @@ export default function AnalyticsPage() {
             background: "var(--mk-paper)",
             color: channel ? "var(--mk-ink)" : "var(--mk-ink-60)",
           }}
-          title="Filter by platform"
+          title={t("filters.platformTitle")}
         >
-          <option value="">All platforms</option>
+          <option value="">{t("filters.allPlatforms")}</option>
           {socialChannels.map((ch) => (
             <option key={ch} value={ch}>
               {channelLabel(ch)}
@@ -270,9 +272,9 @@ export default function AnalyticsPage() {
               background: "var(--mk-paper)",
               color: productId ? "var(--mk-ink)" : "var(--mk-ink-60)",
             }}
-            title="Filter by brand"
+            title={t("filters.brandTitle")}
           >
-            <option value="">All brands</option>
+            <option value="">{t("filters.allBrands")}</option>
             {products.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -282,7 +284,7 @@ export default function AnalyticsPage() {
         )}
         {clamped && (
           <span className="text-[11.5px]" style={{ color: "var(--mk-ink-60)" }}>
-            Showing {data.window.days} days — your plan&apos;s analytics window.
+            {t("filters.windowNote", { days: data.window.days })}
           </span>
         )}
       </div>
@@ -297,10 +299,10 @@ export default function AnalyticsPage() {
         >
           <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--mk-neg)" }} />
           <p className="flex-1 text-[13px] m-0" style={{ color: "var(--mk-ink)" }}>
-            Couldn&apos;t load analytics.
+            {t("error.message")}
           </p>
           <Button variant="outline" size="sm" className="rounded-lg text-[12px]" onClick={() => refresh()}>
-            Retry
+            {t("error.retry")}
           </Button>
         </div>
       )}
@@ -310,22 +312,20 @@ export default function AnalyticsPage() {
           className="rounded-xl p-10 flex flex-col items-center text-center"
           style={{ background: "var(--mk-paper)", border: "1px solid var(--mk-rule)" }}
         >
-          <div className="mk-eyebrow">No data yet</div>
+          <div className="mk-eyebrow">{t("emptyState.eyebrow")}</div>
           <h3
             className="mt-2 text-[18px] font-semibold m-0"
             style={{ color: "var(--mk-ink)", letterSpacing: "-0.02em" }}
           >
-            Publish your first post to start measuring
+            {t("emptyState.title")}
           </h3>
           <p className="mt-2 text-[13px] max-w-md" style={{ color: "var(--mk-ink-60)" }}>
-            Once a post goes out, Markaestro pulls its views, reach, and engagement from the
-            platform within about an hour — and keeps tracking for 30 days. Follower counts are
-            snapshotted daily for every connected channel.
+            {t("emptyState.body")}
           </p>
           <Link href="/content" className="mt-5">
             <Button className="rounded-lg h-9 text-[13px] gap-1.5">
               <Plus className="h-3.5 w-3.5" />
-              Create a post
+              {t("emptyState.createPost")}
             </Button>
           </Link>
         </div>
@@ -340,54 +340,53 @@ export default function AnalyticsPage() {
                 color: "var(--mk-ink)",
               }}
             >
-              Collecting metrics — the first snapshots arrive about an hour after publishing, then
-              refresh on a decaying schedule for 30 days.
+              {t("warmingUp")}
             </div>
           )}
 
           {/* KPI row */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 mb-4 sm:mb-5">
             <KpiCard
-              label="Views"
+              label={t("kpis.views.label")}
               value={data?.totals.views ?? null}
               deltaPct={pctChange(data?.totals.views ?? null, data?.totals.prior?.views)}
               spark={data?.daily.map((d) => d.views)}
-              sub="vs prior period"
+              sub={t("kpis.views.sub")}
               loading={loading}
             />
             <KpiCard
-              label="Reach"
+              label={t("kpis.reach.label")}
               value={data?.totals.reach ?? null}
               deltaPct={pctChange(data?.totals.reach ?? null, data?.totals.prior?.reach)}
               spark={data?.daily.map((d) => d.reach)}
-              sub="unique accounts reached"
+              sub={t("kpis.reach.sub")}
               loading={loading}
             />
             <KpiCard
-              label="Engagement"
+              label={t("kpis.engagement.label")}
               value={data?.totals.engagements ?? null}
               deltaPct={pctChange(data?.totals.engagements ?? null, data?.totals.prior?.engagements)}
               spark={data?.daily.map((d) => d.engagements)}
-              sub="likes + comments + shares + saves"
+              sub={t("kpis.engagement.sub")}
               loading={loading}
             />
             <KpiCard
-              label="Engagement rate"
+              label={t("kpis.engagementRate.label")}
               value={data?.totals.engagementRateByReach ?? null}
               format="percent"
               deltaPct={pctChange(
                 data?.totals.engagementRateByReach ?? null,
                 data?.totals.prior?.engagementRateByReach,
               )}
-              sub="engagements ÷ reach"
+              sub={t("kpis.engagementRate.sub")}
               loading={loading}
             />
             <KpiCard
-              label="Followers"
+              label={t("kpis.followers.label")}
               value={data?.totals.followers ?? null}
               deltaAbsolute={data?.totals.followerDelta}
               spark={followerSpark}
-              sub="all connected channels"
+              sub={t("kpis.followers.sub")}
               loading={loading}
             />
           </div>
@@ -410,7 +409,7 @@ export default function AnalyticsPage() {
                       className="mt-1 mb-0 font-mono text-[10px]"
                       style={{ color: "var(--mk-ink-40)", letterSpacing: "0.06em" }}
                     >
-                      BASED ON {insight.sampleSize} POSTS
+                      {t("insights.basedOn", { count: insight.sampleSize })}
                     </p>
                   </div>
                 </div>
@@ -421,26 +420,26 @@ export default function AnalyticsPage() {
           {/* Trend + followers */}
           <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] mb-4 sm:mb-5">
             <Card
-              eyebrow={`Performance · ${data?.window.days ?? days}d`}
+              eyebrow={t("trend.eyebrow", { days: data?.window.days ?? days })}
               title={
                 data
-                  ? `${fmtCount(Math.round((data.totals[trendMetric === "posts" ? "posts" : trendMetric] as number | null) ?? 0))} ${TREND_METRICS.find((m) => m.key === trendMetric)?.label.toLowerCase()}`
+                  ? `${fmtCount(Math.round((data.totals[trendMetric === "posts" ? "posts" : trendMetric] as number | null) ?? 0), locale)} ${t(`trend.metrics.${trendMetric}`)}`
                   : undefined
               }
               action={
                 <div className="flex items-center gap-1 flex-wrap">
-                  {TREND_METRICS.map((m) => (
+                  {TREND_METRIC_KEYS.map((key) => (
                     <button
-                      key={m.key}
+                      key={key}
                       type="button"
-                      onClick={() => setTrendMetric(m.key)}
+                      onClick={() => setTrendMetric(key)}
                       className="px-3 sm:px-2 h-9 sm:h-7 rounded-md text-[11.5px] cursor-pointer transition-colors"
                       style={{
-                        background: trendMetric === m.key ? "var(--mk-ink)" : "transparent",
-                        color: trendMetric === m.key ? "var(--mk-paper)" : "var(--mk-ink-60)",
+                        background: trendMetric === key ? "var(--mk-ink)" : "transparent",
+                        color: trendMetric === key ? "var(--mk-paper)" : "var(--mk-ink-60)",
                       }}
                     >
-                      {m.label}
+                      {t(`trend.metrics.${key}`)}
                     </button>
                   ))}
                 </div>
@@ -452,27 +451,28 @@ export default function AnalyticsPage() {
                 <TrendChart
                   data={data?.daily ?? []}
                   dataKey={trendMetric}
-                  name={TREND_METRICS.find((m) => m.key === trendMetric)?.label ?? ""}
+                  name={t(`trend.metrics.${trendMetric}`)}
+                  locale={locale}
                 />
               )}
             </Card>
             <Card
-              eyebrow="Audience"
+              eyebrow={t("audience.eyebrow")}
               title={data?.totals.followers !== null && data?.totals.followers !== undefined
-                ? `${fmtCount(data.totals.followers)} followers`
-                : "Followers"}
+                ? t("audience.titleWithCount", { count: fmtCount(data.totals.followers, locale) })
+                : t("audience.title")}
             >
               {loading ? (
                 <Skeleton className="w-full rounded-lg" style={{ height: 200 }} />
               ) : (
-                <FollowerTrendChart data={data?.followerTrend ?? []} />
+                <FollowerTrendChart data={data?.followerTrend ?? []} locale={locale} />
               )}
             </Card>
           </div>
 
           {/* Best time + content types */}
           <div className="grid gap-4 sm:gap-5 lg:grid-cols-2 mb-4 sm:mb-5">
-            <Card eyebrow="Timing" title="When your posts perform">
+            <Card eyebrow={t("timing.eyebrow")} title={t("timing.title")}>
               {loading ? (
                 <Skeleton className="w-full rounded-lg" style={{ height: 170 }} />
               ) : (
@@ -483,7 +483,7 @@ export default function AnalyticsPage() {
                 />
               )}
             </Card>
-            <Card eyebrow="Format" title="What earns engagement">
+            <Card eyebrow={t("format.eyebrow")} title={t("format.title")}>
               {loading ? (
                 <Skeleton className="w-full rounded-lg" style={{ height: 170 }} />
               ) : (
@@ -494,7 +494,7 @@ export default function AnalyticsPage() {
 
           {/* Channels */}
           <div className="mb-4 sm:mb-5">
-            <Card eyebrow="Channels" title="Performance by channel">
+            <Card eyebrow={t("channels.eyebrow")} title={t("channels.title")}>
               {loading ? (
                 <Skeleton className="w-full rounded-lg" style={{ height: 160 }} />
               ) : (
@@ -508,7 +508,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Leaderboard */}
-          <Card eyebrow="Posts" title="Top posts">
+          <Card eyebrow={t("posts.eyebrow")} title={t("posts.title")}>
             {loading ? (
               <Skeleton className="w-full rounded-lg" style={{ height: 240 }} />
             ) : (
@@ -519,14 +519,13 @@ export default function AnalyticsPage() {
           {/* Data provenance */}
           {data && (
             <p className="mt-4 text-[11px] leading-relaxed" style={{ color: "var(--mk-ink-40)" }}>
-              Metrics use each platform&apos;s API definitions and can lag native insights by up to
-              48 hours. A &ldquo;—&rdquo; means the platform doesn&apos;t provide that metric (for
-              example, Threads and TikTok don&apos;t report reach). Engagement rate is engagements ÷
-              reach.
+              {t("provenance.base")}
               {data.coverage.truncated &&
-                ` Post-level views are based on the ${data.coverage.postsAnalyzed} most recent posts in this window.`}
+                t("provenance.truncated", { count: data.coverage.postsAnalyzed })}
               {data.coverage.lastMetricsAt &&
-                ` Last metrics update ${new Date(data.coverage.lastMetricsAt).toLocaleString()}.`}
+                t("provenance.lastUpdate", {
+                  date: new Date(data.coverage.lastMetricsAt).toLocaleString(locale),
+                })}
             </p>
           )}
         </>

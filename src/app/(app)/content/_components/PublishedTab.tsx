@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ export default function PublishedTab({
   productId?: string;
   onCreatePost?: () => void;
 }) {
+  const t = useTranslations("content.publishedTab");
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -50,7 +52,7 @@ export default function PublishedTab({
     setPosts((cur) => cur.filter((p) => p.id !== id));
     const res = await apiDelete(`/api/posts/${id}`);
     if (res.ok) {
-      toast.success("Post deleted");
+      toast.success(t("toasts.deleted"));
     } else {
       if (removed) {
         setPosts((cur) => {
@@ -59,7 +61,7 @@ export default function PublishedTab({
           return next;
         });
       }
-      toast.error("Failed to delete post");
+      toast.error(t("toasts.deleteFailed"));
     }
   };
 
@@ -70,10 +72,11 @@ export default function PublishedTab({
       );
       if (res.ok) setPosts(res.data.posts || []);
     } catch {
-      toast.error("Failed to load published posts");
+      toast.error(t("toasts.loadFailed"));
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
   useEffect(() => {
@@ -87,10 +90,10 @@ export default function PublishedTab({
   if (posts.length === 0) {
     return (
       <div className="text-center py-20">
-        <p className="text-sm text-muted-foreground">No published posts yet.</p>
+        <p className="text-sm text-muted-foreground">{t("empty")}</p>
         {onCreatePost && (
           <Button variant="outline" size="sm" className="mt-4" onClick={onCreatePost}>
-            Create a post
+            {t("createPost")}
           </Button>
         )}
       </div>

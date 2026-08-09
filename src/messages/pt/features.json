@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "eyebrow": "Plataforma",
+    "titleLead": "Tudo o que você precisa para",
+    "titleHighlight": "crescer",
+    "subtitle": "Do primeiro rascunho à publicação, o Markaestro cuida de cada etapa do seu fluxo de trabalho social. Uma plataforma, zero troca de contexto."
+  },
+  "coreFeatures": [
+    {
+      "title": "Publicação Multicanal",
+      "description": "Escreva uma vez, publique em todo lugar. Crie um único post e adapte-o para Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest com um clique. Agende para o horário ideal ou publique instantaneamente.",
+      "details": [
+        "Editor unificado com pré-visualização por canal",
+        "Gerenciamento de mídia por arrastar e soltar",
+        "Agendamento em massa para calendários de conteúdo",
+        "Redimensionamento automático de imagens para as especificações da plataforma"
+      ]
+    },
+    {
+      "title": "Upload e Biblioteca de Mídia",
+      "description": "Traga suas próprias fotos, vídeos e ativos de marca. O Markaestro os armazena por workspace e os anexa a posts com um único arraste.",
+      "details": [
+        "Suporte a JPG, PNG, WebP, MP4, MOV e WebM",
+        "Até 250 MB por vídeo, 10 MB por imagem",
+        "Verificações de formato por canal antes de publicar",
+        "Reutilize mídia enviada em vários posts"
+      ]
+    },
+    {
+      "title": "Pré-visualizações Multicanal",
+      "description": "Veja como cada post vai ficar em cada rede antes de publicar — Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest têm sua própria pré-visualização. Legendas, proporções, limites de caracteres e especificações de mídia são renderizados em tempo real.",
+      "details": [
+        "Pré-visualizações precisas por plataforma",
+        "Contagem de caracteres da legenda em tempo real",
+        "Orientação de proporção por canal",
+        "Detecte problemas de formatação antes de publicar"
+      ]
+    },
+    {
+      "title": "Painel de Publicação",
+      "description": "Veja cada rascunho, post agendado e estado de publicação em uma única visão do workspace, sem alternar entre plataformas.",
+      "details": [
+        "Filas de rascunho, agendado e publicado",
+        "Status de publicação por canal",
+        "Fluxo de nova tentativa para posts com falha",
+        "Visão geral de conteúdo em nível de workspace"
+      ]
+    },
+    {
+      "title": "Integrações OAuth",
+      "description": "Conecte suas contas com um clique usando OAuth, o padrão do setor. Sem chaves de API manuais, sem malabarismo de tokens. O Markaestro armazena e renova suas credenciais de forma segura.",
+      "details": [
+        "Conexão com um clique para Meta, TikTok, LinkedIn, Threads e Pinterest",
+        "Armazenamento de tokens criptografado em repouso",
+        "Renovação automática de tokens",
+        "Desconexão granular por plataforma"
+      ]
+    },
+    {
+      "title": "API e Agentes de IA",
+      "description": "Tudo o que o painel faz, seu software também pode fazer. Gere uma chave de API, entregue-a a um agente de IA ou a um script, e deixe que ele descubra contas, envie mídia, agende posts, publique e reporte de volta — em qualquer plano, sem custo extra.",
+      "details": [
+        "Chaves vinculadas a uma única marca, com expiração opcional",
+        "Gravações idempotentes para que uma nova tentativa nunca publique em duplicidade",
+        "Execuções de publicação assíncronas mais webhooks assinados com HMAC",
+        "Manual-first no Meta e no TikTok — um humano ainda publica"
+      ],
+      "codeLabel": "agende um post a partir de qualquer coisa que fale HTTP",
+      "agentGuideLink": "Leia o guia do agente de IA →"
+    }
+  ],
+  "platformFeatures": [
+    {
+      "title": "Gerenciamento de Workspace",
+      "description": "Organize as marcas que você promove — clientes, unidades de negócio ou seus próprios empreendimentos — em workspaces isolados. Cada workspace tem suas próprias marcas, integrações e membros de equipe."
+    },
+    {
+      "title": "Agendamento e Calendário",
+      "description": "Organize posts em um calendário unificado em todos os seus canais. Reagende com um arraste, duplique posts com um clique e mantenha uma visão clara do que será publicado e quando."
+    },
+    {
+      "title": "Acesso Baseado em Função",
+      "description": "Controle quem pode publicar, editar ou visualizar com funções em três níveis: Proprietário, Administrador e Membro. Mantenha configurações sensíveis protegidas enquanto sua equipe trabalha com agilidade."
+    }
+  ],
+  "platformSection": {
+    "eyebrow": "Plataforma",
+    "titleLead": "Feito para todos que",
+    "titleHighlight": "publicam",
+    "subtitle": "Além das ferramentas essenciais, o Markaestro oferece a infraestrutura para escalar — de uma única marca a uma carteira completa de clientes."
+  },
+  "cta": {
+    "title": "Pronto para ver na prática?",
+    "subtitle": "Comece grátis. Sem cartão de crédito necessário. Conecte seu primeiro canal em menos de dois minutos.",
+    "primaryButton": "Comece grátis",
+    "secondaryButton": "Fale com vendas"
+  }
+}
