@@ -21,6 +21,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from 
 import { navigationGroups, settingsItem } from "@/lib/nav";
 import { CommandPalette } from "@/components/app/CommandPalette";
 import LogoutConfirmDialog from "@/components/app/LogoutConfirmDialog";
+import AppLocaleSwitcher from "@/components/app/AppLocaleSwitcher";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
@@ -307,6 +308,7 @@ export function Header() {
                     <Search className="h-5 w-5" />
                     <span className="sr-only">{tHeader("search")}</span>
                 </Button>
+                <AppLocaleSwitcher variant="compact" />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <button
