@@ -98,12 +98,26 @@ function parseTikTokError(data: Record<string, unknown>): string | undefined {
 
 type TikTokPublishStatusResult = {
   status?: TikTokPublishStatus | string;
-  publiclyAvailablePostId?: string | string[];
+  publiclyAvailablePostId?: string;
   failReason?: string;
   uploadedBytes?: number;
   downloadedBytes?: number;
   error?: string;
 };
+
+/**
+ * TikTok's video/post IDs are 19-digit snowflake integers — well past
+ * Number.MAX_SAFE_INTEGER (~16 digits). TikTok sends them as bare JSON
+ * numbers, so `res.json()` silently rounds the low digits (confirmed
+ * against real accounts: the status-fetch response's id consistently
+ * diverges from the same video's id in video/list, always in the last
+ * 3-4 digits — classic float64 rounding). Pull the exact digit string
+ * out of the raw response body before JSON parsing gets anywhere near it.
+ */
+function extractRawTikTokPostId(rawText: string): string | undefined {
+  const match = rawText.match(/"(?:publicaly_available_post_id|publicly_available_post_id)"\s*:\s*\[?\s*"?(\d+)"?\s*\]?/);
+  return match?.[1];
+}
 
 export async function fetchTikTokPublishStatus(
   accessToken: string,
@@ -118,13 +132,14 @@ export async function fetchTikTokPublishStatus(
     body: JSON.stringify({ publish_id: publishId }),
   });
 
-  const data = await res.json();
+  const rawText = await res.text();
+  const data = JSON.parse(rawText || '{}');
   const error = parseTikTokError(data);
   if (error) return { error };
 
   return {
     status: data.data?.status as string | undefined,
-    publiclyAvailablePostId: (data.data?.publicaly_available_post_id || data.data?.publicly_available_post_id) as string | string[] | undefined,
+    publiclyAvailablePostId: extractRawTikTokPostId(rawText),
     failReason: data.data?.fail_reason as string | undefined,
     uploadedBytes: typeof data.data?.uploaded_bytes === 'number' ? data.data.uploaded_bytes : undefined,
     downloadedBytes: typeof data.data?.downloaded_bytes === 'number' ? data.data.downloaded_bytes : undefined,
@@ -329,9 +344,12 @@ async function fetchTikTokMetrics(
     return { ok: false, error: error || `TikTok video query failed (HTTP ${res.status})`, reason };
   }
 
-  const video = (data.data?.videos as Array<Record<string, unknown>> | undefined)?.find(
-    (v) => String(v.id) === String(videoId),
-  );
+  // Trust the server-side video_ids filter rather than re-matching `v.id`
+  // ourselves: TikTok's ids are 19-digit integers that res.json() silently
+  // rounds (past Number.MAX_SAFE_INTEGER), so a same-value string
+  // comparison against our precisely-stored videoId would spuriously fail
+  // even when TikTok correctly returned the requested video.
+  const video = (data.data?.videos as Array<Record<string, unknown>> | undefined)?.[0];
   if (!video) {
     // The stored ID may still be an inbox publish_id (user never finalized the
     // post in TikTok) or the video was deleted — either way, nothing to poll.
@@ -388,7 +406,8 @@ async function listTikTokVideos(
     },
     { maxRetries: 1 },
   );
-  const data = await res.json().catch(() => ({}));
+  const rawText = await res.text();
+  const data = JSON.parse(rawText || '{}');
   const error = parseTikTokError(data);
   if (error || !res.ok) {
     const code = (data.error?.code as string | undefined) || '';
@@ -399,16 +418,21 @@ async function listTikTokVideos(
     };
   }
 
+  // Same precision-loss risk as fetchTikTokPublishStatus: pull each video's
+  // exact id from the raw body rather than the JSON.parse'd (float-rounded)
+  // value. Order is preserved by both the filter and the regex scan, so
+  // zipping by index lines them back up.
+  const rawIds = Array.from(rawText.matchAll(/"id"\s*:\s*"?(\d+)"?/g), (m) => m[1]);
   const videos = (data.data?.videos as Array<Record<string, unknown>> | undefined) ?? [];
   const posts: PlatformPostSummary[] = videos
     .filter((video) => video.id !== undefined && video.id !== null)
-    .map((video) => {
+    .map((video, index) => {
       const createTime = metricNum(video.create_time);
       const description = typeof video.video_description === 'string' && video.video_description
         ? video.video_description
         : typeof video.title === 'string' ? video.title : null;
       return {
-        externalId: String(video.id),
+        externalId: rawIds[index] ?? String(video.id),
         channel: 'tiktok' as const,
         content: description,
         mediaType: 'video' as const,

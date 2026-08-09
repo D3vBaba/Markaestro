@@ -9,9 +9,13 @@ vi.mock('@/lib/fetch-retry', () => ({
   fetchWithRetry: fetchWithRetryMock,
 }));
 
-vi.mock('@/lib/platform/base-adapter', () => ({
-  getAccessToken: getAccessTokenMock,
-}));
+vi.mock('@/lib/platform/base-adapter', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../platform/base-adapter')>();
+  return {
+    ...actual,
+    getAccessToken: getAccessTokenMock,
+  };
+});
 
 // Skip the real ffmpeg pipeline in unit tests — return the buffer unchanged
 // so we can assert FILE_UPLOAD wiring without a transcode binary.
@@ -171,6 +175,73 @@ describe('tiktokPublishingAdapter', () => {
     expect(result).toEqual({
       success: false,
       error: 'TikTok does not support mixing video and image assets in one post.',
+    });
+  });
+
+  // TikTok's video/post ids are 19-digit integers past Number.MAX_SAFE_INTEGER
+  // (2^53-1). JSON.parse silently rounds them to the nearest representable
+  // double, so any code path that round-trips one through res.json() instead
+  // of reading it off the raw response text corrupts the last few digits.
+  describe('big-integer id precision', () => {
+    function textResponse(rawText: string, status = 200) {
+      return { ok: status < 400, status, text: vi.fn().mockResolvedValue(rawText) };
+    }
+
+    it('fetchTikTokPublishStatus preserves full precision of the public post id', async () => {
+      const rawText = '{"data":{"status":"SEND_TO_USER_INBOX","publicaly_available_post_id":[7671932290360020237]},"error":{"code":"ok","message":"","log_id":"log_1"}}';
+      fetchWithRetryMock.mockResolvedValueOnce(textResponse(rawText));
+
+      const { fetchTikTokPublishStatus } = await import('../platform/adapters/tiktok-publishing');
+      const result = await fetchTikTokPublishStatus('token_123', 'publish_123');
+
+      // JSON.parse on this same text would silently round the id to
+      // ...020240 or similar -- assert the exact source digits survive.
+      expect(result.publiclyAvailablePostId).toBe('7671932290360020237');
+      expect(result.status).toBe('SEND_TO_USER_INBOX');
+    });
+
+    it('fetchMetrics trusts the server-side video_ids filter instead of re-matching a corrupted id', async () => {
+      // TikTok's own response for a single-id-filtered query -- its `id`
+      // field itself would be float-rounded once JSON.parse touches it, so
+      // the fix must not compare it back against our stored id string.
+      fetchWithRetryMock.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({
+          data: {
+            videos: [{ id: 7671932290360020237, like_count: 10, comment_count: 2, share_count: 1, view_count: 100 }],
+          },
+          error: { code: 'ok', message: '', log_id: 'log_1' },
+        }),
+      });
+
+      const { tiktokPublishingAdapter } = await import('../platform/adapters/tiktok-publishing');
+      const result = await tiktokPublishingAdapter.fetchMetrics!(connection, {
+        channel: 'tiktok',
+        externalId: '7671932290360020237',
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.metrics.likes).toBe(10);
+        expect(result.metrics.views).toBe(100);
+      }
+    });
+
+    it('listPosts preserves full precision for every video id in a page', async () => {
+      const rawText = '{"data":{"videos":[{"id":7671932290360020237,"title":"a"},{"id":7671893795729902861,"title":"b"}],"has_more":false,"cursor":0},"error":{"code":"ok","message":"","log_id":"log_1"}}';
+      fetchWithRetryMock.mockResolvedValueOnce(textResponse(rawText));
+
+      const { tiktokPublishingAdapter } = await import('../platform/adapters/tiktok-publishing');
+      const result = await tiktokPublishingAdapter.listPosts!(connection, { channel: 'tiktok' });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.posts.map((p) => p.externalId)).toEqual([
+          '7671932290360020237',
+          '7671893795729902861',
+        ]);
+      }
     });
   });
 });

@@ -192,6 +192,37 @@ describe('pollTikTokPublishWithRetries', () => {
     }));
   });
 
+  it('treats a live public post id as published even while status still reports SEND_TO_USER_INBOX', async () => {
+    // Confirmed against real accounts: TikTok's status never flips to
+    // PUBLISH_COMPLETE for content the creator finishes posting natively
+    // from their inbox -- publiclyAvailablePostId showing up is the only
+    // reliable "it's live" signal for that flow.
+    const postRef = buildPostRef(buildPendingTikTokPost({
+      status: 'platform_action_required',
+      nextAction: 'open_tiktok_inbox_and_complete_posting',
+      actionRequiredAt: '2026-08-01T00:00:00.000Z',
+      publishResults: [{ channel: 'tiktok', success: true, pending: false }],
+    }));
+    adminDocMock.mockReturnValue(postRef);
+    fetchTikTokPublishStatusMock.mockResolvedValueOnce({
+      status: 'SEND_TO_USER_INBOX',
+      publiclyAvailablePostId: '7671932290360020237',
+    });
+
+    const { pollTikTokPublishWithRetries } = await import('../social/tiktok-publish-poll-worker');
+    const outcome = await pollTikTokPublishWithRetries('ws_123', 'post_123', {
+      attempts: 1,
+      intervalMs: 0,
+    });
+
+    expect(outcome).toEqual({ status: 'published' });
+    expect(postRef.update).toHaveBeenLastCalledWith(expect.objectContaining({
+      status: 'published',
+      externalId: '7671932290360020237',
+      tiktokPublicPostId: '7671932290360020237',
+    }));
+  });
+
   it('keeps the original actionRequiredAt when re-polling a still-stuck inbox post', async () => {
     const originalActionRequiredAt = '2026-08-01T00:00:00.000Z';
     const postRef = buildPostRef(buildPendingTikTokPost({

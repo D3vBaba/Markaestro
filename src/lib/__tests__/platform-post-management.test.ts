@@ -31,6 +31,7 @@ function jsonResponse(status: number, body: unknown): Response {
     statusText: `HTTP ${status}`,
     headers: new Headers(),
     json: async () => body,
+    text: async () => JSON.stringify(body),
   } as unknown as Response;
 }
 

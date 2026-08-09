@@ -277,8 +277,20 @@ export async function pollTikTokPublishForPost(
     ...(liveStatus.status === 'FAILED' && liveStatus.failReason ? { failReason: liveStatus.failReason } : {}),
   });
 
-  if (liveStatus.status === 'PUBLISH_COMPLETE') {
-    const publicPostId = firstTikTokPublicPostId(liveStatus.publiclyAvailablePostId);
+  // TikTok's `status` field never seems to transition away from
+  // SEND_TO_USER_INBOX for content the creator finishes posting natively
+  // from their TikTok app inbox (confirmed against real accounts: posts the
+  // creator says they've already posted still report SEND_TO_USER_INBOX
+  // indefinitely) — PUBLISH_COMPLETE appears to be reserved for TikTok's
+  // own API-driven Direct Post flow. The reliable "it's actually live"
+  // signal for the inbox hand-off is publiclyAvailablePostId showing up at
+  // all (verified against video/list, which only lists truly-public
+  // videos), so treat that as equivalent to PUBLISH_COMPLETE regardless of
+  // what `status` still says.
+  const publicPostId = firstTikTokPublicPostId(liveStatus.publiclyAvailablePostId);
+  const inboxPostWentLive = liveStatus.status === 'SEND_TO_USER_INBOX' && Boolean(publicPostId);
+
+  if (liveStatus.status === 'PUBLISH_COMPLETE' || inboxPostWentLive) {
     const analyticsExternalId = publicPostId || publishId;
     const nextPublishResults = withUpdatedTikTokResult(
       post.publishResults,
@@ -330,8 +342,10 @@ export async function pollTikTokPublishForPost(
   }
 
   // MEDIA_UPLOAD mode always terminates at SEND_TO_USER_INBOX: the creator
-  // finalizes caption/privacy and posts from the TikTok app.
-  if (liveStatus.status === 'SEND_TO_USER_INBOX') {
+  // finalizes caption/privacy and posts from the TikTok app. Only handled
+  // here while genuinely still pending — inboxPostWentLive above already
+  // routed the "creator finished it" case into the PUBLISH_COMPLETE branch.
+  if (liveStatus.status === 'SEND_TO_USER_INBOX' && !inboxPostWentLive) {
     const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
     const summary = summarizePublishResults(nextPublishResults);
     const nextStatus = summary.allSucceeded ? PLATFORM_ACTION_REQUIRED_STATUS : summary.anyPending ? 'publishing' : summary.partialFailed ? 'partial_failed' : 'failed';
