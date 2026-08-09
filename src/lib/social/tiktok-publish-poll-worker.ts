@@ -335,11 +335,18 @@ export async function pollTikTokPublishForPost(
     const nextPublishResults = withUpdatedTikTokResult(post.publishResults, 'success');
     const summary = summarizePublishResults(nextPublishResults);
     const nextStatus = summary.allSucceeded ? PLATFORM_ACTION_REQUIRED_STATUS : summary.anyPending ? 'publishing' : summary.partialFailed ? 'partial_failed' : 'failed';
+    // Posts already sitting in platform_action_required get re-polled (see
+    // pollPendingTikTokPublishes) so a creator who finishes posting from
+    // their TikTok inbox is still detected. Keep actionRequiredAt fixed at
+    // the original hand-off time on those re-polls — the re-poll window is
+    // bounded by this field's age, so refreshing it on every poll would
+    // keep a stuck post eligible forever instead of aging out.
+    const alreadyActionRequired = post.status === PLATFORM_ACTION_REQUIRED_STATUS;
     await postDocRef.update({
       status: nextStatus,
       ...(nextStatus === PLATFORM_ACTION_REQUIRED_STATUS ? {
         nextAction: TIKTOK_MANUAL_PUBLISH_ACTION,
-        actionRequiredAt: now,
+        ...(alreadyActionRequired ? {} : { actionRequiredAt: now }),
       } : {}),
       tiktokPublishId: publishId,
       ...(summary.partialFailed ? { retryFailedChannelsOnly: true } : { retryFailedChannelsOnly: null }),
@@ -548,20 +555,41 @@ export async function findPostByTikTokPublishId(publishId: string): Promise<{
   return null;
 }
 
+// TikTok's inbox hand-off (SEND_TO_USER_INBOX) has no webhook back to us —
+// the creator must open the TikTok app and finish posting themselves.
+// Without a re-poll, a post that's actually been finished on TikTok's side
+// stays stuck at platform_action_required forever: its externalId is never
+// swapped for the real numeric video ID, so it's excluded from analytics
+// (status must be 'published') and metrics can never be fetched for it.
+// Re-poll recently-handed-off posts for a window past TikTok's own ~7-day
+// inbox draft expiry, then let them age out — actionRequiredAt is held
+// fixed across re-polls (see pollTikTokPublishForPost) so this bound holds.
+const TIKTOK_INBOX_REPOLL_WINDOW_MS = 10 * 24 * 60 * 60 * 1000;
+
 export async function pollPendingTikTokPublishes(): Promise<TikTokPublishPollResult> {
   const result: TikTokPublishPollResult = { polled: 0, completed: 0, failed: 0, pending: 0, errors: [] };
   const wsDocs = await getAllDocs('workspaces');
+  const repollCutoffIso = new Date(Date.now() - TIKTOK_INBOX_REPOLL_WINDOW_MS).toISOString();
 
   for (const ws of wsDocs) {
     const workspaceId = ws.id;
-    const postsDocs = await getAllMatchingDocs(
-      adminDb
-        .collection(`workspaces/${workspaceId}/posts`)
-        .where('status', '==', 'publishing')
-        .orderBy('updatedAt', 'asc'),
-    );
+    const [publishingDocs, actionRequiredDocs] = await Promise.all([
+      getAllMatchingDocs(
+        adminDb
+          .collection(`workspaces/${workspaceId}/posts`)
+          .where('status', '==', 'publishing')
+          .orderBy('updatedAt', 'asc'),
+      ),
+      getAllMatchingDocs(
+        adminDb
+          .collection(`workspaces/${workspaceId}/posts`)
+          .where('status', '==', PLATFORM_ACTION_REQUIRED_STATUS)
+          .where('actionRequiredAt', '>=', repollCutoffIso)
+          .orderBy('actionRequiredAt', 'asc'),
+      ),
+    ]);
 
-    for (const doc of postsDocs) {
+    for (const doc of [...publishingDocs, ...actionRequiredDocs]) {
       const post = doc.data();
       if (!postTargetsTikTok(post)) continue;
       if (!getTikTokPublishId(post)) continue;

@@ -192,6 +192,32 @@ describe('pollTikTokPublishWithRetries', () => {
     }));
   });
 
+  it('keeps the original actionRequiredAt when re-polling a still-stuck inbox post', async () => {
+    const originalActionRequiredAt = '2026-08-01T00:00:00.000Z';
+    const postRef = buildPostRef(buildPendingTikTokPost({
+      status: 'platform_action_required',
+      nextAction: 'open_tiktok_inbox_and_complete_posting',
+      actionRequiredAt: originalActionRequiredAt,
+      publishResults: [{ channel: 'tiktok', success: true, pending: false }],
+    }));
+    adminDocMock.mockReturnValue(postRef);
+    fetchTikTokPublishStatusMock.mockResolvedValueOnce({ status: 'SEND_TO_USER_INBOX' });
+
+    const { pollTikTokPublishWithRetries } = await import('../social/tiktok-publish-poll-worker');
+    const outcome = await pollTikTokPublishWithRetries('ws_123', 'post_123', {
+      attempts: 1,
+      intervalMs: 0,
+    });
+
+    expect(outcome).toEqual({ status: 'platform_action_required' });
+    const lastUpdate = postRef.update.mock.calls.at(-1)?.[0];
+    expect(lastUpdate).not.toHaveProperty('actionRequiredAt');
+    expect(lastUpdate).toEqual(expect.objectContaining({
+      status: 'platform_action_required',
+      nextAction: 'open_tiktok_inbox_and_complete_posting',
+    }));
+  });
+
   it('resolves webhook publish ids through the durable TikTok mapping', async () => {
     const mappingRef = {
       get: vi.fn().mockResolvedValue({
