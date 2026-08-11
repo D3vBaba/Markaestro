@@ -190,11 +190,18 @@ export default function CreateTab({
   };
 
   const buildPostPayload = (urls?: string[]) => {
-    const targetChannels = getPostTargets();
+    // Use the typed/filtered target list, not getPostTargets(): selectedChannels
+    // can carry a channel key that no longer exists (e.g. restored from an old
+    // local draft after a channel was removed from the catalog). Sending that
+    // raw value trips the server's targetChannels enum and fails the request
+    // with no useful message, even though client-side validation — which
+    // already filters through getTypedPostTargets() — reported no problem.
+    const targetChannels = getTypedPostTargets();
     const primaryChannel = targetChannels[0] || channel;
     // Only send destinations for channels this post actually targets.
+    const targetChannelSet: Set<string> = new Set(targetChannels);
     const destinations = Object.fromEntries(
-      Object.entries(channelDestinations).filter(([ch]) => targetChannels.includes(ch)),
+      Object.entries(channelDestinations).filter(([ch]) => targetChannelSet.has(ch)),
     );
     return {
       content,
