@@ -9,6 +9,7 @@ import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 import { getManualPublishChannels, resolveInAppDeliveryMode } from '@/lib/manual-publish-settings';
 import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
 import { logger } from '@/lib/logger';
+import { ZodError } from 'zod';
 
 export const runtime = 'nodejs';
 
@@ -125,7 +126,26 @@ export async function POST(req: Request) {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'posts.write');
     const body = await req.json();
-    const data = createPostSchema.parse(body);
+    let data;
+    try {
+      data = createPostSchema.parse(body);
+    } catch (err) {
+      // Zod v4 issues carry no `received` type tag, so the generic apiError
+      // logger can't say what shape a bad value actually had. channelDestinations
+      // is a plain object of primitives — logging each entry's typeof (never
+      // its value) is enough to tell "object"/"number"/etc. apart from "string"
+      // without ever echoing request content.
+      if (err instanceof ZodError && err.issues.some((i) => i.path[0] === 'channelDestinations')) {
+        const raw = (body as { channelDestinations?: unknown })?.channelDestinations;
+        logger.warn('post create channelDestinations shape', {
+          event: 'posts.create.bad_channel_destinations',
+          shape: raw && typeof raw === 'object'
+            ? Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, Array.isArray(v) ? 'array' : typeof v]))
+            : typeof raw,
+        });
+      }
+      throw err;
+    }
 
     // Scheduling queues an outbound publish, so it requires a verified email.
     // Creating drafts (or any other status) stays open to unverified users.
