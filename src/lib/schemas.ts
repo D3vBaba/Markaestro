@@ -229,8 +229,13 @@ export const postWindowSchema = z.object({
  * Which linked account each channel publishes to, keyed by channel. A brand can
  * link several Facebook Pages (or Instagram accounts, LinkedIn Pages, …), so a
  * post names the one it means rather than relying on a single per-channel slot.
+ *
+ * partialRecord, not record: with an enum key, Zod v4's z.record() is
+ * exhaustive and demands an entry for every channel, so a post naming just the
+ * one channel it targets failed with invalid_type on all the others. A post
+ * only ever names the channels it publishes to.
  */
-export const channelDestinationsSchema = z.record(
+export const channelDestinationsSchema = z.partialRecord(
   z.enum(socialChannels),
   z.string().trim().max(2000),
 );

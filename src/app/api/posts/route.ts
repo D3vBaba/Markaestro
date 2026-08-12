@@ -2,14 +2,13 @@ import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
-import { createPostSchema, paginationSchema, postWindowSchema, socialChannels } from '@/lib/schemas';
+import { createPostSchema, paginationSchema, postWindowSchema } from '@/lib/schemas';
 import type { CollectionReference } from 'firebase-admin/firestore';
 import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 import { getManualPublishChannels, resolveInAppDeliveryMode } from '@/lib/manual-publish-settings';
 import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
 import { logger } from '@/lib/logger';
-import { ZodError } from 'zod';
 
 export const runtime = 'nodejs';
 
@@ -126,44 +125,7 @@ export async function POST(req: Request) {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'posts.write');
     const body = await req.json();
-    let data;
-    try {
-      data = createPostSchema.parse(body);
-    } catch (err) {
-      // Zod v4 issues carry no `received` type tag, so the generic apiError
-      // logger can't say what shape a bad value actually had. Log each known
-      // channel's value typeof (never the value) to tell "object"/"number"
-      // apart from "string" — but this field is the one that just failed
-      // validation, so its keys are not guaranteed to be real channel names;
-      // only report keys we recognize, and just a count for anything else, so
-      // an unexpected key can never carry request content into the logs.
-      if (err instanceof ZodError && err.issues.some((i) => i.path[0] === 'channelDestinations')) {
-        const raw = (body as { channelDestinations?: unknown })?.channelDestinations;
-        if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-          const entries = Object.entries(raw as Record<string, unknown>);
-          const shape: Record<string, string> = {};
-          let unrecognizedKeys = 0;
-          for (const [k, v] of entries) {
-            if ((socialChannels as readonly string[]).includes(k)) {
-              shape[k] = Array.isArray(v) ? 'array' : typeof v;
-            } else {
-              unrecognizedKeys += 1;
-            }
-          }
-          logger.warn('post create channelDestinations shape', {
-            event: 'posts.create.bad_channel_destinations',
-            shape,
-            unrecognizedKeys,
-          });
-        } else {
-          logger.warn('post create channelDestinations shape', {
-            event: 'posts.create.bad_channel_destinations',
-            shape: Array.isArray(raw) ? 'array' : typeof raw,
-          });
-        }
-      }
-      throw err;
-    }
+    const data = createPostSchema.parse(body);
 
     // Scheduling queues an outbound publish, so it requires a verified email.
     // Creating drafts (or any other status) stays open to unverified users.
