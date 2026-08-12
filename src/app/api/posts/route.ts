@@ -8,6 +8,7 @@ import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 import { getManualPublishChannels, resolveInAppDeliveryMode } from '@/lib/manual-publish-settings';
 import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -160,6 +161,12 @@ export async function POST(req: Request) {
         },
       );
       if (issues.length > 0) {
+        logger.warn('post schedule preflight rejected', {
+          event: 'posts.create.preflight_rejected',
+          workspaceId: ctx.workspaceId,
+          codes: issues.map((i) => i.code),
+          channels: issues.map((i) => i.channel).filter(Boolean),
+        });
         return apiOk({ error: 'VALIDATION_ERROR', issues }, 400);
       }
     }

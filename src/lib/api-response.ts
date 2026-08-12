@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import * as Sentry from '@sentry/nextjs';
 import crypto from 'crypto';
+import { logger } from '@/lib/logger';
 
 /**
  * Centralized API error → HTTP response mapper.
@@ -16,6 +17,17 @@ export function apiError(error: unknown): NextResponse {
       field: i.path.join('.'),
       message: i.message,
     }));
+    // Field paths and Zod issue codes only — never the free-text message,
+    // which can echo back arbitrary request content. This is what let a
+    // stale-channel 400 go unexplained: the field it failed on wasn't
+    // visible anywhere without asking the reporting user to inspect the
+    // network tab themselves.
+    logger.warn('request failed schema validation', {
+      event: 'api.validation_error',
+      requestId,
+      fields: error.issues.map((i) => i.path.join('.')),
+      codes: error.issues.map((i) => i.code),
+    });
     return NextResponse.json(
       { error: 'VALIDATION_ERROR', issues, requestId },
       { status: 400 },
