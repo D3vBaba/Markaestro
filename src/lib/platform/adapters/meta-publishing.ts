@@ -43,6 +43,15 @@ function isVideoUrl(url: string): boolean {
 
 // ── Instagram helpers ───────────────────────────────────────────────
 
+/**
+ * First re-check delay. An image container is usually FINISHED almost
+ * immediately, so the old flat 2s sleep spent most of a publish waiting on a
+ * container that was already done. Ramp from here up to the caller's interval
+ * instead, which keeps the polite polling rate for genuinely slow (video)
+ * containers while returning fast ones in a fraction of a second.
+ */
+const CONTAINER_POLL_FIRST_DELAY_MS = 300;
+
 async function waitForContainer(
   graphApi: string,
   containerId: string,
@@ -51,7 +60,12 @@ async function waitForContainer(
 ): Promise<{ ready: boolean; error?: string }> {
   const pollInterval = options?.intervalMs ?? CONTAINER_POLL_INTERVAL_MS;
   const pollMax = options?.maxAttempts ?? CONTAINER_POLL_MAX_ATTEMPTS;
-  for (let i = 0; i < pollMax; i++) {
+  // Budget the same total wait the flat interval used to allow, so a slow video
+  // still gets its full window — only the distribution of checks changes.
+  const deadline = Date.now() + pollInterval * pollMax;
+  let delay = Math.min(CONTAINER_POLL_FIRST_DELAY_MS, pollInterval);
+
+  for (;;) {
     const url = graphApi === INSTAGRAM_GRAPH_API
       ? `${graphApi}/${containerId}?${new URLSearchParams({
         fields: 'status_code,status',
@@ -71,9 +85,12 @@ async function waitForContainer(
     if (data.status_code === 'ERROR') {
       return { ready: false, error: data.status || 'Container processing failed' };
     }
-    await new Promise((r) => setTimeout(r, pollInterval));
+    if (Date.now() + delay >= deadline) {
+      return { ready: false, error: 'Container processing timed out' };
+    }
+    await new Promise((r) => setTimeout(r, delay));
+    delay = Math.min(delay * 2, pollInterval);
   }
-  return { ready: false, error: 'Container processing timed out' };
 }
 
 async function getPermalink(graphApi: string, mediaId: string, accessToken: string): Promise<string | undefined> {

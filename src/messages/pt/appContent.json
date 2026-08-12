@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}: falha no envio",
       "filesUploaded": "{count, plural, one {# arquivo enviado} other {# arquivos enviados}}",
       "uploadFailed": "Falha no envio",
+      "posting": "Publicando…",
       "createFailed": "Falha ao criar a publicação",
       "draftSaved": "Rascunho salvo",
       "draftSaveFailed": "Falha ao salvar o rascunho",

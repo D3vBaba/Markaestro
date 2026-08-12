@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}: error al subir",
       "filesUploaded": "{count, plural, one {# archivo subido} other {# archivos subidos}}",
       "uploadFailed": "Error al subir",
+      "posting": "Publicando…",
       "createFailed": "No se pudo crear la publicación",
       "draftSaved": "Borrador guardado",
       "draftSaveFailed": "No se pudo guardar el borrador",

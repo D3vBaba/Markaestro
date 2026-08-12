@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}: 업로드에 실패했습니다",
       "filesUploaded": "{count}개의 파일이 업로드되었습니다",
       "uploadFailed": "업로드에 실패했습니다",
+      "posting": "게시 중…",
       "createFailed": "게시물 생성에 실패했습니다",
       "draftSaved": "임시 저장되었습니다",
       "draftSaveFailed": "임시 저장에 실패했습니다",

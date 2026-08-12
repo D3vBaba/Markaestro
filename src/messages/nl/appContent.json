@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}: uploaden mislukt",
       "filesUploaded": "{count, plural, one {# bestand geüpload} other {# bestanden geüpload}}",
       "uploadFailed": "Uploaden mislukt",
+      "posting": "Bezig met posten…",
       "createFailed": "Bericht aanmaken mislukt",
       "draftSaved": "Concept opgeslagen",
       "draftSaveFailed": "Concept opslaan mislukt",

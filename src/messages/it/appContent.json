@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}: caricamento non riuscito",
       "filesUploaded": "{count, plural, one {# file caricato} other {# file caricati}}",
       "uploadFailed": "Caricamento non riuscito",
+      "posting": "Pubblicazione in corso…",
       "createFailed": "Impossibile creare il post",
       "draftSaved": "Bozza salvata",
       "draftSaveFailed": "Impossibile salvare la bozza",

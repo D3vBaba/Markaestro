@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file} : échec de l'importation",
       "filesUploaded": "{count, plural, one {# fichier importé} other {# fichiers importés}}",
       "uploadFailed": "Échec de l'importation",
+      "posting": "Publication en cours…",
       "createFailed": "Échec de la création de la publication",
       "draftSaved": "Brouillon enregistré",
       "draftSaveFailed": "Échec de l'enregistrement du brouillon",

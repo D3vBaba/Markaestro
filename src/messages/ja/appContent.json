@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}：アップロードに失敗しました",
       "filesUploaded": "{count}件のファイルをアップロードしました",
       "uploadFailed": "アップロードに失敗しました",
+      "posting": "投稿中…",
       "createFailed": "投稿の作成に失敗しました",
       "draftSaved": "下書きを保存しました",
       "draftSaveFailed": "下書きの保存に失敗しました",

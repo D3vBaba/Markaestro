@@ -321,9 +321,28 @@ export default function CreateTab({
     if (!validateCurrentPost()) return;
     setPublishing(true);
     const urls = mediaUrls.length > 0 ? mediaUrls : undefined;
-    const id = postId ?? await ensurePostId();
+    const existingPostId = postId;
+    const id = existingPostId ?? await ensurePostId();
     if (!id) { setPublishing(false); return; }
-    await apiPut(`/api/posts/${id}`, buildPostPayload(urls));
+    // A post we just created already holds this exact payload — only an
+    // existing draft needs its edits written back before publishing.
+    if (existingPostId) {
+      await apiPut(`/api/posts/${existingPostId}`, buildPostPayload(urls));
+    }
+
+    // The post is persisted now, so the composer can reset while the platform
+    // call is still in flight rather than holding the user on a spinner for as
+    // long as the platform takes. The outcome arrives as a toast, and the post
+    // shows its own state (publishing → published/failed) in the list either
+    // way, so nothing is lost if this leg fails.
+    const postingToastId = toast.loading(t("toasts.posting"));
+    setContent("");
+    setPostId(null);
+    setMediaUrls([]);
+    clearStoredDraft();
+    onPostCreated?.();
+    setPublishing(false);
+
     const res = await apiPost<{
       ok: boolean;
       status?: string;
@@ -332,6 +351,7 @@ export default function CreateTab({
       externalUrl?: string;
       channels?: Array<{ channel: string; success: boolean; externalUrl?: string; error?: string }>;
     }>(`/api/posts/${id}/publish`, {});
+    toast.dismiss(postingToastId);
     if (res.ok && res.data.ok) {
       const channels = res.data.channels || [];
       const successful = channels.filter((c) => c.success);
@@ -339,29 +359,13 @@ export default function CreateTab({
       const hasTikTok = channels.some((c) => c.channel === "tiktok");
 
       if (res.data.status === "publishing" || res.data.pending) {
-        if (hasTikTok) {
-          toast.success(t("toasts.tiktokSending"));
-        } else {
-          toast.success(t("toasts.stillProcessing"));
-        }
-        setContent("");
-        setPostId(null);
-        setMediaUrls([]);
-        clearStoredDraft();
-        onPostCreated?.();
+        toast.success(hasTikTok ? t("toasts.tiktokSending") : t("toasts.stillProcessing"));
         startStatusPolling(id);
-        setPublishing(false);
         return;
       }
 
       if (isPlatformActionRequiredStatus(res.data.status)) {
         toast.success(t("toasts.tiktokInboxConfirmed"));
-        setContent("");
-        setPostId(null);
-        setMediaUrls([]);
-        clearStoredDraft();
-        onPostCreated?.();
-        setPublishing(false);
         return;
       }
 
@@ -379,16 +383,11 @@ export default function CreateTab({
       for (const ch of failed) {
         toast.error(`${ch.channel}: ${ch.error}`);
       }
-
-      setContent("");
-      setPostId(null);
-      setMediaUrls([]);
-      clearStoredDraft();
-      onPostCreated?.();
     } else {
       toast.error(res.data.error || t("toasts.publishFailed"));
     }
-    setPublishing(false);
+    // The list reflects the post's final state (published/failed) either way.
+    onPostCreated?.();
   };
 
   // Cmd/Ctrl+Enter: Post Now when ready, otherwise save a draft.

@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}: upload failed",
       "filesUploaded": "{count, plural, one {# file uploaded} other {# files uploaded}}",
       "uploadFailed": "Upload failed",
+      "posting": "Posting…",
       "createFailed": "Failed to create post",
       "draftSaved": "Draft saved",
       "draftSaveFailed": "Failed to save draft",

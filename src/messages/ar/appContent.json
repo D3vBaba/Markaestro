@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}: فشل الرفع",
       "filesUploaded": "{count, plural, zero {تم رفع لا شيء} one {تم رفع ملف واحد} two {تم رفع ملفين} few {تم رفع # ملفات} many {تم رفع # ملفًا} other {تم رفع # ملف}}",
       "uploadFailed": "فشل الرفع",
+      "posting": "جارٍ النشر…",
       "createFailed": "تعذّر إنشاء المنشور",
       "draftSaved": "تم حفظ المسودة",
       "draftSaveFailed": "تعذّر حفظ المسودة",

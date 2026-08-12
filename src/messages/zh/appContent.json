@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}：上传失败",
       "filesUploaded": "已上传 {count} 个文件",
       "uploadFailed": "上传失败",
+      "posting": "发布中…",
       "createFailed": "创建帖子失败",
       "draftSaved": "草稿已保存",
       "draftSaveFailed": "保存草稿失败",

@@ -248,6 +248,7 @@
       "fileUploadFailed": "{file}: Upload fehlgeschlagen",
       "filesUploaded": "{count, plural, one {# Datei hochgeladen} other {# Dateien hochgeladen}}",
       "uploadFailed": "Upload fehlgeschlagen",
+      "posting": "Wird gepostet…",
       "createFailed": "Beitrag konnte nicht erstellt werden",
       "draftSaved": "Entwurf gespeichert",
       "draftSaveFailed": "Entwurf konnte nicht gespeichert werden",
