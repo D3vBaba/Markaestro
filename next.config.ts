@@ -58,6 +58,16 @@ const FFMPEG_TRACE_FILES = [
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  // Dev-only: when the app is reached through a tunnel (e.g. ngrok, so TikTok
+  // can hit the OAuth callback and PULL_FROM_URL a public media URL), the
+  // request Host is not localhost and Next blocks its own dev asset/HMR
+  // requests as cross-origin. Follows whatever NEXT_PUBLIC_APP_URL points at.
+  // Next only reads this in dev, but it is gated on NODE_ENV anyway so the
+  // production config never carries a host list it has no use for.
+  allowedDevOrigins:
+    process.env.NODE_ENV !== 'production' && APP_URL && !APP_URL.includes('localhost')
+      ? [new URL(APP_URL).host]
+      : [],
   transpilePackages: ['firebase-admin'],
   output: 'standalone',
   outputFileTracingRoot: __dirname,

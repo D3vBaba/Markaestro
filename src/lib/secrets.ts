@@ -67,9 +67,21 @@ export async function getSecret(name: string, version = 'latest'): Promise<strin
 /**
  * Load all application secrets into process.env from Secret Manager.
  * Called once at server startup via src/instrumentation.ts.
- * Existing env vars are NOT overwritten (Secret Manager values take precedence).
+ *
+ * Precedence differs by environment, deliberately:
+ * - production: Secret Manager wins, overwriting whatever is already set.
+ *   Deployed instances get these same values injected from apphosting.yaml,
+ *   so in practice the two agree and this is a no-op re-assignment.
+ * - development: an existing value (i.e. one from .env.local) wins. Local
+ *   overrides are the whole point of .env.local, and a developer editing it
+ *   and seeing no effect is a silent, expensive surprise — FIREBASE_SERVICE_ACCOUNT_JSON
+ *   is stored in Secret Manager as the literal string "placeholder" (deployed
+ *   instances authenticate via ADC and never read it), so overwriting locally
+ *   replaced a working service-account key with a placeholder and broke
+ *   createCustomToken. Secrets absent from .env.local are still fetched.
  */
 export async function loadSecretsToEnv(): Promise<void> {
+  const preferExistingEnv = process.env.NODE_ENV !== 'production';
   const secretNames = [
     'ENCRYPTION_KEY',
     'WORKER_SECRET',
@@ -103,6 +115,7 @@ export async function loadSecretsToEnv(): Promise<void> {
 
   await Promise.all(
     secretNames.map(async (name) => {
+      if (preferExistingEnv && process.env[name]) return;
       try {
         const value = await getSecret(name);
         if (value) {
