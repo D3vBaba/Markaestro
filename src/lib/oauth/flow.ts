@@ -477,7 +477,14 @@ export async function refreshAccessToken(
 
   const data = await res.json();
 
-  if (!res.ok && !data.access_token) {
+  // A missing access_token is fatal regardless of HTTP status: TikTok reports
+  // refresh failures as 200 with an error body, so gating this on `!res.ok`
+  // let `undefined` through to encrypt() downstream, which threw the useless
+  // `The "data" argument must be of type string ... Received undefined` and
+  // recorded that as the connection's lastRefreshError instead of TikTok's
+  // actual reason. Keep accepting a token that arrives with a non-2xx status —
+  // that leniency predates this and some providers rely on it.
+  if (!data.access_token) {
     throw new Error(`Token refresh failed for ${provider}: ${describeTokenError(data)}`);
   }
 
