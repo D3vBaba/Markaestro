@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { postSettingsSchema } from '@/lib/public-api/post-settings';
 
 // ── Shared primitives ──────────────────────────────────────────────
 
@@ -252,6 +253,7 @@ export const createPostSchema = z.object({
   destinationProvider: z.string().trim().max(100).optional(),
   channelDestinations: channelDestinationsSchema.optional(),
   deliveryMode: z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']).optional(),
+  settings: postSettingsSchema.optional(),
 });
 
 export const updatePostSchema = z.object({
@@ -269,6 +271,7 @@ export const updatePostSchema = z.object({
   destinationProvider: z.string().trim().max(100).optional(),
   channelDestinations: channelDestinationsSchema.optional(),
   deliveryMode: z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']).optional(),
+  settings: postSettingsSchema.optional(),
 });
 
 // ── Pagination ─────────────────────────────────────────────────────

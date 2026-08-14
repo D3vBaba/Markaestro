@@ -261,5 +261,58 @@
       "postedSuccess": "Publicado com sucesso!",
       "publishFailed": "Falha ao publicar"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "Publicando nesta conta do TikTok",
+    "unknownCreator": "Conta do TikTok",
+    "retry": "Tentar novamente",
+    "errors": {
+      "generic": "Não foi possível carregar os dados da sua conta do TikTok. Tente novamente."
+    },
+    "privacy": {
+      "label": "Quem pode ver esta publicação",
+      "placeholder": "Selecione quem pode ver esta publicação",
+      "brandedContentPrivateHint": "A visibilidade de conteúdo de marca não pode ser privada",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "Todos",
+        "MUTUAL_FOLLOW_FRIENDS": "Amigos",
+        "FOLLOWER_OF_CREATOR": "Seguidores",
+        "SELF_ONLY": "Só eu"
+      }
+    },
+    "interactions": {
+      "label": "Permitir que os usuários",
+      "allowComment": "Comentem",
+      "allowDuet": "Façam Dueto",
+      "allowStitch": "Façam Stitch",
+      "disabledByAccount": "Desativado nas configurações da sua conta do TikTok"
+    },
+    "disclosure": {
+      "label": "Declarar o conteúdo da publicação",
+      "description": "Ative para declarar que esta publicação promove uma marca, produto ou serviço.",
+      "yourBrand": "Sua marca",
+      "yourBrandNotice": "Sua foto/vídeo será identificado como “Conteúdo promocional”. Não pode ser alterado após a publicação.",
+      "brandedContent": "Conteúdo de marca",
+      "brandedContentNotice": "Sua foto/vídeo será identificado como “Parceria paga”. Não pode ser alterado após a publicação.",
+      "selectionRequired": "Você precisa indicar se o seu conteúdo promove você, um terceiro ou ambos."
+    },
+    "consent": {
+      "default": "Ao publicar, você concorda com a <music>Confirmação de Uso de Música</music> do TikTok.",
+      "brandedContent": "Ao publicar, você concorda com a <branded>Política de Conteúdo de Marca</branded> e a <music>Confirmação de Uso de Música</music> do TikTok."
+    },
+    "processingNotice": "Depois de publicar, o TikTok pode levar alguns minutos para processar o conteúdo antes que ele apareça no seu perfil.",
+    "maxDuration": "Duração máxima de vídeo para esta conta: {seconds} segundos.",
+    "modeLabel": "Como isto é publicado no TikTok",
+    "modeInbox": "Enviar para a caixa de entrada do TikTok",
+    "modeInboxHint": "Você finaliza a legenda e publica pelo app do TikTok.",
+    "modeDirect": "Publicar diretamente no TikTok",
+    "modeDirectHint": "O Markaestro publica no seu perfil com as configurações abaixo.",
+    "blockers": {
+      "privacyNotSelected": "Selecione quem pode ver esta publicação antes de publicar.",
+      "disclosureWithoutSelection": "Você precisa indicar se o seu conteúdo promove você, um terceiro ou ambos.",
+      "brandedContentPrivate": "A visibilidade de conteúdo de marca não pode ser privada.",
+      "videoTooLong": "Este vídeo excede o limite de {maxSeconds} segundos desta conta.",
+      "creatorInfoUnavailable": "Não foi possível carregar os dados da sua conta do TikTok, então esta publicação não pode ser publicada diretamente."
+    }
   }
 }

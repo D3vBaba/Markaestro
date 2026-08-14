@@ -261,5 +261,58 @@
       "postedSuccess": "Erfolgreich gepostet!",
       "publishFailed": "Veröffentlichung fehlgeschlagen"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "Veröffentlichung in diesem TikTok-Konto",
+    "unknownCreator": "TikTok-Konto",
+    "retry": "Erneut versuchen",
+    "errors": {
+      "generic": "Die Daten deines TikTok-Kontos konnten nicht geladen werden. Versuche es erneut."
+    },
+    "privacy": {
+      "label": "Wer diesen Beitrag sehen kann",
+      "placeholder": "Wähle aus, wer diesen Beitrag sehen kann",
+      "brandedContentPrivateHint": "Die Sichtbarkeit von Branded Content kann nicht auf privat gesetzt werden",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "Alle",
+        "MUTUAL_FOLLOW_FRIENDS": "Freunde",
+        "FOLLOWER_OF_CREATOR": "Follower",
+        "SELF_ONLY": "Nur ich"
+      }
+    },
+    "interactions": {
+      "label": "Nutzern erlauben zu",
+      "allowComment": "Kommentieren",
+      "allowDuet": "Duett",
+      "allowStitch": "Stitch",
+      "disabledByAccount": "In deinen TikTok-Kontoeinstellungen deaktiviert"
+    },
+    "disclosure": {
+      "label": "Beitragsinhalt offenlegen",
+      "description": "Aktiviere dies, um anzugeben, dass dieser Beitrag eine Marke, ein Produkt oder eine Dienstleistung bewirbt.",
+      "yourBrand": "Deine Marke",
+      "yourBrandNotice": "Dein Foto/Video wird als „Werbeinhalt“ gekennzeichnet. Das lässt sich nach der Veröffentlichung nicht mehr ändern.",
+      "brandedContent": "Branded Content",
+      "brandedContentNotice": "Dein Foto/Video wird als „Bezahlte Partnerschaft“ gekennzeichnet. Das lässt sich nach der Veröffentlichung nicht mehr ändern.",
+      "selectionRequired": "Du musst angeben, ob dein Inhalt dich selbst, Dritte oder beides bewirbt."
+    },
+    "consent": {
+      "default": "Mit dem Veröffentlichen stimmst du TikToks <music>Bestätigung zur Musiknutzung</music> zu.",
+      "brandedContent": "Mit dem Veröffentlichen stimmst du TikToks <branded>Richtlinie für Branded Content</branded> und der <music>Bestätigung zur Musiknutzung</music> zu."
+    },
+    "processingNotice": "Nach dem Veröffentlichen kann es einige Minuten dauern, bis TikTok den Inhalt verarbeitet hat und er in deinem Profil erscheint.",
+    "maxDuration": "Maximale Videolänge für dieses Konto: {seconds} Sekunden.",
+    "modeLabel": "Wie dies auf TikTok veröffentlicht wird",
+    "modeInbox": "An TikTok-Posteingang senden",
+    "modeInboxHint": "Du vervollständigst die Beschreibung und veröffentlichst in der TikTok-App.",
+    "modeDirect": "Direkt auf TikTok veröffentlichen",
+    "modeDirectHint": "Markaestro veröffentlicht mit den Einstellungen unten in deinem Profil.",
+    "blockers": {
+      "privacyNotSelected": "Wähle vor dem Veröffentlichen aus, wer diesen Beitrag sehen kann.",
+      "disclosureWithoutSelection": "Du musst angeben, ob dein Inhalt dich selbst, Dritte oder beides bewirbt.",
+      "brandedContentPrivate": "Die Sichtbarkeit von Branded Content kann nicht auf privat gesetzt werden.",
+      "videoTooLong": "Dieses Video überschreitet das Limit von {maxSeconds} Sekunden für dieses Konto.",
+      "creatorInfoUnavailable": "Die Daten deines TikTok-Kontos konnten nicht geladen werden, daher kann dieser Beitrag nicht direkt veröffentlicht werden."
+    }
   }
 }

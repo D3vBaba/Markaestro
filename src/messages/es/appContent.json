@@ -261,5 +261,58 @@
       "postedSuccess": "¡Publicado con éxito!",
       "publishFailed": "Error al publicar"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "Publicando en esta cuenta de TikTok",
+    "unknownCreator": "Cuenta de TikTok",
+    "retry": "Reintentar",
+    "errors": {
+      "generic": "No se pudieron cargar los datos de tu cuenta de TikTok. Inténtalo de nuevo."
+    },
+    "privacy": {
+      "label": "Quién puede ver esta publicación",
+      "placeholder": "Selecciona quién puede ver esta publicación",
+      "brandedContentPrivateHint": "La visibilidad del contenido de marca no puede ser privada",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "Todos",
+        "MUTUAL_FOLLOW_FRIENDS": "Amigos",
+        "FOLLOWER_OF_CREATOR": "Seguidores",
+        "SELF_ONLY": "Solo yo"
+      }
+    },
+    "interactions": {
+      "label": "Permitir a los usuarios",
+      "allowComment": "Comentar",
+      "allowDuet": "Dúo",
+      "allowStitch": "Stitch",
+      "disabledByAccount": "Desactivado en los ajustes de tu cuenta de TikTok"
+    },
+    "disclosure": {
+      "label": "Declarar el contenido de la publicación",
+      "description": "Actívalo para declarar que esta publicación promociona una marca, un producto o un servicio.",
+      "yourBrand": "Tu marca",
+      "yourBrandNotice": "Tu foto o vídeo se etiquetará como «Contenido promocional». No se puede cambiar una vez publicado.",
+      "brandedContent": "Contenido de marca",
+      "brandedContentNotice": "Tu foto o vídeo se etiquetará como «Colaboración pagada». No se puede cambiar una vez publicado.",
+      "selectionRequired": "Debes indicar si tu contenido te promociona a ti, a un tercero o a ambos."
+    },
+    "consent": {
+      "default": "Al publicar, aceptas la <music>Confirmación de uso de música</music> de TikTok.",
+      "brandedContent": "Al publicar, aceptas la <branded>Política de contenido de marca</branded> y la <music>Confirmación de uso de música</music> de TikTok."
+    },
+    "processingNotice": "Después de publicar, TikTok puede tardar unos minutos en procesar el contenido antes de que aparezca en tu perfil.",
+    "maxDuration": "Duración máxima del vídeo para esta cuenta: {seconds} segundos.",
+    "modeLabel": "Cómo se publica en TikTok",
+    "modeInbox": "Enviar a la bandeja de TikTok",
+    "modeInboxHint": "Tú terminas la descripción y publicas desde la app de TikTok.",
+    "modeDirect": "Publicar directamente en TikTok",
+    "modeDirectHint": "Markaestro publica en tu perfil con los ajustes de abajo.",
+    "blockers": {
+      "privacyNotSelected": "Selecciona quién puede ver esta publicación antes de publicarla.",
+      "disclosureWithoutSelection": "Debes indicar si tu contenido te promociona a ti, a un tercero o a ambos.",
+      "brandedContentPrivate": "La visibilidad del contenido de marca no puede ser privada.",
+      "videoTooLong": "Este vídeo supera el límite de {maxSeconds} segundos de esta cuenta.",
+      "creatorInfoUnavailable": "No se pudieron cargar los datos de tu cuenta de TikTok, así que esta publicación no se puede publicar directamente."
+    }
   }
 }

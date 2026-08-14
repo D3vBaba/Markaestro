@@ -28,7 +28,7 @@ through the public publish endpoint.
 
 - Facebook: text-only, image, or video posts; max 10 images; 1 video per post
 - Instagram: requires at least 1 media item (image or video); max 10 items; single video publishes as a Reel; carousels support mixed image/video
-- TikTok: requires at least 1 media item; either 1 video or up to 10 images. API create always stores a draft. Explicit publish uses TikTok's inbox handoff (`platform_inbox`) and never public Direct Post; the creator still finalizes and posts inside TikTok.
+- TikTok: requires at least 1 media item; either 1 video or up to 10 images. API create always stores a draft. Explicit publish defaults to TikTok's inbox handoff (`platform_inbox`), where the creator finalizes and posts inside TikTok. Direct Post — publishing straight to the creator's profile — is opt-in per post via `settings.postMode: "direct_post"` and requires an explicit `privacyLevel`; see [Platform-specific settings](#platform-specific-settings).
 
 ## Media upload
 
@@ -155,8 +155,9 @@ TikTok (draft-first; manual reminder by default, inbox handoff on opt-in):
 - the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents the connected TikTok account
 - TikTok destinations use `deliveryMode: "platform_inbox"` to make the inbox handoff explicit
 - Public API creates remain **draft-first**. Connect clients can explicitly schedule by sending `is_draft=false` with `scheduled_at`; TikTok schedules the creator-inbox handoff, while supported direct channels use their official publishing path.
-- `POST /api/public/v1/posts/:id/publish` queues the same TikTok inbox handoff used by the app, never public Direct Post
+- `POST /api/public/v1/posts/:id/publish` queues the same TikTok publish path the app uses — the inbox handoff unless the post carries `settings.postMode: "direct_post"`
 - once TikTok confirms `SEND_TO_USER_INBOX`, the post becomes `platform_action_required`; the creator opens TikTok to finalize caption/privacy and post
+- a Direct Post skips that step: it goes to `published` when TikTok reports `PUBLISH_COMPLETE`, with no action left for the creator
 
 ## Example flow
 
@@ -225,15 +226,32 @@ Settings carried on a post are persisted verbatim and read by the adapter at
 publish time. Unrecognized fields are rejected by validation.
 
 **TikTok** (`__type: "tiktok"`)
+- `postMode`: `"inbox"` (default) · `"direct_post"`
 - `privacyLevel`: `"PUBLIC_TO_EVERYONE"` · `"MUTUAL_FOLLOW_FRIENDS"` · `"FOLLOWER_OF_CREATOR"` · `"SELF_ONLY"`
 - `disableComment`, `disableDuet`, `disableStitch`: boolean
+- `commercialContentDisclosure`, `brandOrganicToggle`, `brandContentToggle`: boolean
 - `photoCoverIndex`: integer 0–9 (photo carousels)
 
-> Privacy and comment/duet/stitch toggles take effect once Direct Post access is
-> enabled for the workspace. Markaestro publishes via MEDIA_UPLOAD inbox
-> handoff today, so these fields are accepted at the API boundary and
-> available to the publisher but the creator finalizes them inside TikTok.
-> `photoCoverIndex` is honored today.
+`postMode` selects the publishing flow. Omitting it keeps the inbox handoff.
+
+> **`"inbox"`** — content lands in the creator's TikTok inbox and they finalize
+> it in the TikTok app. `privacyLevel` and the `disable*` / disclosure fields
+> are accepted but not honored, because TikTok ignores them in this mode and
+> the creator sets them itself. `photoCoverIndex` is honored.
+
+> **`"direct_post"`** — publishes straight to the creator's profile, so every
+> field above is honored and validated against a live `creator_info` query at
+> publish time. `privacyLevel` is **required** and must be one of the levels
+> the account currently offers. Rules TikTok enforces, rejected before
+> anything is uploaded:
+> - `brandContentToggle: true` cannot be combined with `privacyLevel: "SELF_ONLY"`
+> - `commercialContentDisclosure: true` requires `brandOrganicToggle` or `brandContentToggle`
+> - `disable*: false` is rejected when the account itself has that ability turned off
+>
+> Direct Post is gated on TikTok's Content Posting API audit. Until it passes,
+> TikTok forces every post from the client to `SELF_ONLY` regardless of the
+> `privacyLevel` sent.
+> See [TikTok's Content Sharing Guidelines](https://developers.tiktok.com/doc/content-sharing-guidelines).
 
 **Instagram** (`__type: "instagram"`)
 - `postType`: `"feed"` · `"reel"` · `"story"` (stories: single image/video only, no carousels)

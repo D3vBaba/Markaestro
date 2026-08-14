@@ -261,5 +261,58 @@
       "postedSuccess": "تم النشر بنجاح!",
       "publishFailed": "فشل النشر"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "النشر إلى حساب TikTok هذا",
+    "unknownCreator": "حساب TikTok",
+    "retry": "إعادة المحاولة",
+    "errors": {
+      "generic": "تعذر تحميل بيانات حساب TikTok الخاص بك. حاول مرة أخرى."
+    },
+    "privacy": {
+      "label": "من يمكنه مشاهدة هذا المنشور",
+      "placeholder": "اختر من يمكنه مشاهدة هذا المنشور",
+      "brandedContentPrivateHint": "لا يمكن جعل محتوى العلامة التجارية خاصًا",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "الجميع",
+        "MUTUAL_FOLLOW_FRIENDS": "الأصدقاء",
+        "FOLLOWER_OF_CREATOR": "المتابعون",
+        "SELF_ONLY": "أنا فقط"
+      }
+    },
+    "interactions": {
+      "label": "السماح للمستخدمين بـ",
+      "allowComment": "التعليق",
+      "allowDuet": "الدويتو",
+      "allowStitch": "الدمج",
+      "disabledByAccount": "معطل في إعدادات حساب TikTok الخاص بك"
+    },
+    "disclosure": {
+      "label": "الإفصاح عن محتوى المنشور",
+      "description": "فعّل هذا للإقرار بأن هذا المنشور يروّج لعلامة تجارية أو منتج أو خدمة.",
+      "yourBrand": "علامتك التجارية",
+      "yourBrandNotice": "سيتم وسم صورتك/فيديوك بـ«محتوى ترويجي». لا يمكن تغيير ذلك بعد النشر.",
+      "brandedContent": "محتوى العلامة التجارية",
+      "brandedContentNotice": "سيتم وسم صورتك/فيديوك بـ«شراكة مدفوعة». لا يمكن تغيير ذلك بعد النشر.",
+      "selectionRequired": "يجب أن توضح ما إذا كان محتواك يروّج لنفسك أو لطرف ثالث أو لكليهما."
+    },
+    "consent": {
+      "default": "بالنشر، أنت توافق على <music>تأكيد استخدام الموسيقى</music> الخاص بـ TikTok.",
+      "brandedContent": "بالنشر، أنت توافق على <branded>سياسة محتوى العلامة التجارية</branded> و<music>تأكيد استخدام الموسيقى</music> الخاصين بـ TikTok."
+    },
+    "processingNotice": "بعد النشر، قد يستغرق TikTok بضع دقائق لمعالجة المحتوى قبل ظهوره على ملفك الشخصي.",
+    "maxDuration": "الحد الأقصى لمدة الفيديو لهذا الحساب: {seconds} ثانية.",
+    "modeLabel": "طريقة النشر على TikTok",
+    "modeInbox": "الإرسال إلى صندوق وارد TikTok",
+    "modeInboxHint": "أنت تكمل الوصف وتنشر من تطبيق TikTok.",
+    "modeDirect": "النشر مباشرة على TikTok",
+    "modeDirectHint": "ينشر Markaestro على ملفك الشخصي بالإعدادات أدناه.",
+    "blockers": {
+      "privacyNotSelected": "اختر من يمكنه مشاهدة هذا المنشور قبل النشر.",
+      "disclosureWithoutSelection": "يجب أن توضح ما إذا كان محتواك يروّج لنفسك أو لطرف ثالث أو لكليهما.",
+      "brandedContentPrivate": "لا يمكن جعل محتوى العلامة التجارية خاصًا.",
+      "videoTooLong": "هذا الفيديو يتجاوز حد الـ {maxSeconds} ثانية لهذا الحساب.",
+      "creatorInfoUnavailable": "تعذر تحميل بيانات حساب TikTok الخاص بك، لذا لا يمكن نشر هذا المنشور مباشرة."
+    }
   }
 }

@@ -261,5 +261,58 @@
       "postedSuccess": "Posted successfully!",
       "publishFailed": "Publishing failed"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "Posting to this TikTok account",
+    "unknownCreator": "TikTok account",
+    "retry": "Try again",
+    "errors": {
+      "generic": "Could not load your TikTok account details. Try again."
+    },
+    "privacy": {
+      "label": "Who can view this post",
+      "placeholder": "Select who can view this post",
+      "brandedContentPrivateHint": "Branded content visibility cannot be set to private",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "Everyone",
+        "MUTUAL_FOLLOW_FRIENDS": "Friends",
+        "FOLLOWER_OF_CREATOR": "Followers",
+        "SELF_ONLY": "Only me"
+      }
+    },
+    "interactions": {
+      "label": "Allow users to",
+      "allowComment": "Comment",
+      "allowDuet": "Duet",
+      "allowStitch": "Stitch",
+      "disabledByAccount": "Turned off in your TikTok account settings"
+    },
+    "disclosure": {
+      "label": "Disclose post content",
+      "description": "Turn on to declare that this post promotes a brand, product, or service.",
+      "yourBrand": "Your brand",
+      "yourBrandNotice": "Your photo/video will be labeled as “Promotional content”. This cannot be changed once posted.",
+      "brandedContent": "Branded content",
+      "brandedContentNotice": "Your photo/video will be labeled as “Paid partnership”. This cannot be changed once posted.",
+      "selectionRequired": "You need to indicate if your content promotes yourself, a third party, or both."
+    },
+    "consent": {
+      "default": "By posting, you agree to TikTok's <music>Music Usage Confirmation</music>.",
+      "brandedContent": "By posting, you agree to TikTok's <branded>Branded Content Policy</branded> and <music>Music Usage Confirmation</music>."
+    },
+    "processingNotice": "After you post, it may take a few minutes for TikTok to process the content before it appears on your profile.",
+    "maxDuration": "Maximum video length for this account: {seconds} seconds.",
+    "modeLabel": "How this posts to TikTok",
+    "modeInbox": "Send to TikTok inbox",
+    "modeInboxHint": "You finish the caption and post from the TikTok app.",
+    "modeDirect": "Post directly to TikTok",
+    "modeDirectHint": "Markaestro publishes to your profile using the settings below.",
+    "blockers": {
+      "privacyNotSelected": "Select who can view this post before publishing.",
+      "disclosureWithoutSelection": "You need to indicate if your content promotes yourself, a third party, or both.",
+      "brandedContentPrivate": "Branded content visibility cannot be set to private.",
+      "videoTooLong": "This video is longer than the {maxSeconds}-second limit for this account.",
+      "creatorInfoUnavailable": "Your TikTok account details could not be loaded, so this post cannot be published directly."
+    }
   }
 }

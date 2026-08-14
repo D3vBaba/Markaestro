@@ -66,6 +66,7 @@ export default function ScheduleSheet({
   channel,
   initialDate,
   excludePostId,
+  tiktokDirectPost = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -75,6 +76,12 @@ export default function ScheduleSheet({
   initialDate?: string | null;
   /** Post to ignore when checking for scheduling conflicts (the post being rescheduled). */
   excludePostId?: string;
+  /**
+   * Whether this TikTok post publishes via Direct Post. The inbox hand-off
+   * note below would be wrong for it — a Direct Post goes live at the
+   * scheduled time with no step left for the creator.
+   */
+  tiktokDirectPost?: boolean;
 }) {
   const t = useTranslations("content.scheduleSheet");
   const locale = useLocale();
@@ -208,7 +215,7 @@ export default function ScheduleSheet({
           </SheetDescription>
         </SheetHeader>
 
-        {channel === "tiktok" && (
+        {channel === "tiktok" && !tiktokDirectPost && (
           <div
             className="mx-6 mt-2 rounded-lg px-3 py-2 text-[12px]"
             style={{

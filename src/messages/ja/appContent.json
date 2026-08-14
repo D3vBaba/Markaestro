@@ -261,5 +261,58 @@
       "postedSuccess": "投稿に成功しました！",
       "publishFailed": "公開に失敗しました"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "このTikTokアカウントに投稿します",
+    "unknownCreator": "TikTokアカウント",
+    "retry": "再試行",
+    "errors": {
+      "generic": "TikTokアカウントの情報を読み込めませんでした。もう一度お試しください。"
+    },
+    "privacy": {
+      "label": "この投稿を見られる人",
+      "placeholder": "この投稿を見られる人を選択",
+      "brandedContentPrivateHint": "ブランドコンテンツの公開範囲は非公開に設定できません",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "全員",
+        "MUTUAL_FOLLOW_FRIENDS": "友達",
+        "FOLLOWER_OF_CREATOR": "フォロワー",
+        "SELF_ONLY": "自分のみ"
+      }
+    },
+    "interactions": {
+      "label": "ユーザーに許可する操作",
+      "allowComment": "コメント",
+      "allowDuet": "デュエット",
+      "allowStitch": "スティッチ",
+      "disabledByAccount": "TikTokアカウント設定でオフになっています"
+    },
+    "disclosure": {
+      "label": "投稿内容を開示する",
+      "description": "この投稿がブランド、商品、またはサービスを宣伝することを宣言する場合はオンにしてください。",
+      "yourBrand": "自社ブランド",
+      "yourBrandNotice": "写真・動画に「プロモーションコンテンツ」と表示されます。投稿後は変更できません。",
+      "brandedContent": "ブランドコンテンツ",
+      "brandedContentNotice": "写真・動画に「PR」と表示されます。投稿後は変更できません。",
+      "selectionRequired": "コンテンツが自分自身、第三者、またはその両方を宣伝するかを示す必要があります。"
+    },
+    "consent": {
+      "default": "投稿することで、TikTokの<music>楽曲使用の確認</music>に同意したものとみなされます。",
+      "brandedContent": "投稿することで、TikTokの<branded>ブランドコンテンツポリシー</branded>および<music>楽曲使用の確認</music>に同意したものとみなされます。"
+    },
+    "processingNotice": "投稿後、TikTokがコンテンツを処理してプロフィールに表示されるまで数分かかることがあります。",
+    "maxDuration": "このアカウントの最大動画長: {seconds}秒。",
+    "modeLabel": "TikTokへの投稿方法",
+    "modeInbox": "TikTokの受信ボックスに送る",
+    "modeInboxHint": "キャプションを仕上げてTikTokアプリから投稿します。",
+    "modeDirect": "TikTokに直接投稿する",
+    "modeDirectHint": "Markaestroが以下の設定でプロフィールに投稿します。",
+    "blockers": {
+      "privacyNotSelected": "投稿する前に、この投稿を見られる人を選択してください。",
+      "disclosureWithoutSelection": "コンテンツが自分自身、第三者、またはその両方を宣伝するかを示す必要があります。",
+      "brandedContentPrivate": "ブランドコンテンツの公開範囲は非公開に設定できません。",
+      "videoTooLong": "この動画はこのアカウントの上限{maxSeconds}秒を超えています。",
+      "creatorInfoUnavailable": "TikTokアカウントの情報を読み込めなかったため、この投稿を直接公開できません。"
+    }
   }
 }

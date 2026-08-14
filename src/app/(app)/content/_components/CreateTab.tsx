@@ -9,11 +9,19 @@ import { toast } from "sonner";
 import ChannelSelector from "./ChannelSelector";
 import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
+import TikTokDirectPostPanel, { type TikTokCreatorInfoState } from "./TikTokDirectPostPanel";
 import PlatformPreview from "@/components/app/PlatformPreview";
+import { Label } from "@/components/ui/label";
 import { getSocialChannelConfig, getSocialChannelLabel } from "@/lib/social/channel-catalog";
 import { getSharedMediaLimit, validateSocialPost } from "@/lib/social/post-validation";
 import type { SocialChannel } from "@/lib/schemas";
 import { isPlatformActionRequiredStatus, LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from "@/lib/tiktok-draft-flow";
+import {
+  emptyTikTokDirectPostForm,
+  getTikTokDirectPostBlocker,
+  toTikTokDirectPostSettings,
+  type TikTokDirectPostFormState,
+} from "@/lib/social/tiktok-direct-post-form";
 
 const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
 const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
@@ -34,6 +42,7 @@ export default function CreateTab({
   onPostCreated?: () => void;
 }) {
   const t = useTranslations("content.createTab");
+  const tTikTok = useTranslations("content.tiktokDirectPost");
   const [channel, setChannel] = useState("facebook");
   const [content, setContent] = useState("");
   const [postId, setPostId] = useState<string | null>(null);
@@ -46,6 +55,50 @@ export default function CreateTab({
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [previewChannel, setPreviewChannel] = useState("facebook");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── TikTok publishing mode ────────────────────────────────────────────────
+  // Defaults to the inbox hand-off. Direct Post is opt-in per post and only
+  // then does the compliance panel below render or contribute settings.
+  const [tiktokPostMode, setTiktokPostMode] = useState<"inbox" | "direct_post">("inbox");
+  const [tiktokForm, setTiktokForm] = useState<TikTokDirectPostFormState>(emptyTikTokDirectPostForm);
+  const [tiktokCreatorInfo, setTiktokCreatorInfo] = useState<TikTokCreatorInfoState>({ status: "loading" });
+  // Keyed by URL so a stale measurement can never be attributed to a video the
+  // creator has since swapped out.
+  const [measuredVideo, setMeasuredVideo] = useState<{ url: string; seconds: number | null } | null>(null);
+
+  const tiktokSelected = selectedChannels.includes("tiktok");
+  const tiktokVideoUrl = mediaUrls.find(isVideoUrl) ?? null;
+  const tiktokMediaKind: "video" | "photo" = tiktokVideoUrl ? "video" : "photo";
+  const directPostActive = tiktokSelected && tiktokPostMode === "direct_post";
+  const videoDurationSec = tiktokVideoUrl && measuredVideo?.url === tiktokVideoUrl
+    ? measuredVideo.seconds
+    : null;
+
+  // TikTok caps video length per account (max_video_post_duration_sec), so the
+  // duration has to be known before the post button can be trusted. Read it
+  // from the uploaded file's metadata rather than trusting the creator.
+  useEffect(() => {
+    if (!tiktokVideoUrl || typeof document === "undefined") return;
+    let cancelled = false;
+    const probe = document.createElement("video");
+    probe.preload = "metadata";
+    probe.onloadedmetadata = () => {
+      if (cancelled) return;
+      setMeasuredVideo({
+        url: tiktokVideoUrl,
+        seconds: Number.isFinite(probe.duration) ? probe.duration : null,
+      });
+    };
+    probe.onerror = () => {
+      if (!cancelled) setMeasuredVideo({ url: tiktokVideoUrl, seconds: null });
+    };
+    probe.src = tiktokVideoUrl;
+    return () => { cancelled = true; probe.src = ""; };
+  }, [tiktokVideoUrl]);
+
+  const tiktokBlocker = directPostActive && tiktokCreatorInfo.status === "ready"
+    ? getTikTokDirectPostBlocker(tiktokForm, videoDurationSec, tiktokCreatorInfo.info)
+    : null;
 
   // ── Draft safety (autosave-lite) ──────────────────────────────────────────
   // Persist the in-progress draft locally so a reload/crash doesn't lose work.
@@ -186,7 +239,37 @@ export default function CreateTab({
       toast.error(issues[0].message);
       return false;
     }
+
+    const tiktokError = getTikTokDirectPostError();
+    if (tiktokError) {
+      toast.error(tiktokError);
+      return false;
+    }
+
     return true;
+  };
+
+  /**
+   * TikTok Direct Post publishes on the creator's behalf, so the post cannot
+   * leave the composer until every required choice is made. Mirrors the
+   * server-side checks in `validateTikTokDirectPostSettings`.
+   */
+  const getTikTokDirectPostError = (): string | null => {
+    if (!directPostActive) return null;
+    if (tiktokCreatorInfo.status !== "ready") {
+      return tTikTok("blockers.creatorInfoUnavailable");
+    }
+    if (!tiktokBlocker) return null;
+    switch (tiktokBlocker.kind) {
+      case "privacy_not_selected":
+        return tTikTok("blockers.privacyNotSelected");
+      case "disclosure_without_selection":
+        return tTikTok("blockers.disclosureWithoutSelection");
+      case "branded_content_private":
+        return tTikTok("blockers.brandedContentPrivate");
+      case "video_too_long":
+        return tTikTok("blockers.videoTooLong", { maxSeconds: tiktokBlocker.maxSeconds });
+    }
   };
 
   const buildPostPayload = (urls?: string[]) => {
@@ -203,6 +286,12 @@ export default function CreateTab({
     const destinations = Object.fromEntries(
       Object.entries(channelDestinations).filter(([ch]) => targetChannelSet.has(ch)),
     );
+    // Only a Direct Post carries TikTok settings. Inbox posts send none, so
+    // they keep behaving exactly as they did before Direct Post existed.
+    const tiktokSettings = directPostActive && tiktokCreatorInfo.status === "ready"
+      ? toTikTokDirectPostSettings(tiktokForm, tiktokCreatorInfo.info, tiktokMediaKind)
+      : null;
+
     return {
       content,
       channel: primaryChannel,
@@ -210,6 +299,7 @@ export default function CreateTab({
       targetChannels,
       mediaUrls: urls,
       ...(Object.keys(destinations).length > 0 ? { channelDestinations: destinations } : {}),
+      ...(tiktokSettings ? { settings: tiktokSettings } : {}),
     };
   };
 
@@ -265,6 +355,16 @@ export default function CreateTab({
     }
   };
 
+  /**
+   * Clear the Direct Post choices once a post leaves the composer. TikTok
+   * requires the privacy level to have no default value, and a level carried
+   * over from the previous post is exactly that — so the next post starts
+   * from an unselected form.
+   */
+  const resetTikTokDirectPostForm = () => {
+    setTiktokForm(emptyTikTokDirectPostForm());
+  };
+
   const ensurePostId = async (): Promise<string | null> => {
     if (postId) return postId;
     const urls = mediaUrls.length > 0 ? mediaUrls : undefined;
@@ -309,6 +409,7 @@ export default function CreateTab({
       setContent("");
       setPostId(null);
       setMediaUrls([]);
+      resetTikTokDirectPostForm();
       clearStoredDraft();
       onPostCreated?.();
     } else {
@@ -339,6 +440,7 @@ export default function CreateTab({
     setContent("");
     setPostId(null);
     setMediaUrls([]);
+    resetTikTokDirectPostForm();
     clearStoredDraft();
     onPostCreated?.();
     setPublishing(false);
@@ -407,6 +509,7 @@ export default function CreateTab({
   const activePreviewChannel = selectedChannels.includes(previewChannel) ? previewChannel : channel;
   const mediaLimit = getMediaLimit();
   const allowVideo = selectedChannelsAllowVideo();
+  const directPostBlockedReason = getTikTokDirectPostError();
 
   return (
     <div className="grid gap-8 lg:grid-cols-2" onKeyDown={handleKeyDown}>
@@ -485,6 +588,37 @@ export default function CreateTab({
           </Button>
         </div>
 
+        {tiktokSelected && (
+          <div className="space-y-3">
+            <Label>{tTikTok("modeLabel")}</Label>
+            <div className="grid gap-2">
+              <TikTokModeOption
+                selected={tiktokPostMode === "inbox"}
+                title={tTikTok("modeInbox")}
+                hint={tTikTok("modeInboxHint")}
+                onSelect={() => setTiktokPostMode("inbox")}
+              />
+              <TikTokModeOption
+                selected={tiktokPostMode === "direct_post"}
+                title={tTikTok("modeDirect")}
+                hint={tTikTok("modeDirectHint")}
+                onSelect={() => setTiktokPostMode("direct_post")}
+              />
+            </div>
+
+            {directPostActive && (
+              <TikTokDirectPostPanel
+                productId={productId}
+                mediaKind={tiktokMediaKind}
+                state={tiktokForm}
+                onStateChange={setTiktokForm}
+                creatorInfo={tiktokCreatorInfo}
+                onCreatorInfoChange={setTiktokCreatorInfo}
+              />
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-3 gap-2 pt-2">
           <Button variant="outline" onClick={handleSaveDraft} disabled={!content} className="h-11 sm:h-9 text-xs sm:text-sm">
             {t("saveDraft")}
@@ -492,10 +626,24 @@ export default function CreateTab({
           <Button variant="outline" onClick={() => setScheduleOpen(true)} disabled={!content} className="h-11 sm:h-9 text-xs sm:text-sm">
             {t("schedule")}
           </Button>
-          <Button onClick={handlePostNow} disabled={publishing || !content} className="h-11 sm:h-9 text-xs sm:text-sm">
+          {/* Direct Post keeps the button disabled until every required choice
+              is made — TikTok specifies the button itself must be blocked,
+              not just validated on submit. */}
+          <Button
+            onClick={handlePostNow}
+            disabled={publishing || !content || Boolean(directPostBlockedReason)}
+            title={directPostBlockedReason || undefined}
+            className="h-11 sm:h-9 text-xs sm:text-sm"
+          >
             {publishing ? t("posting") : t("postNow")}
           </Button>
         </div>
+
+        {directPostBlockedReason && (
+          <p className="text-[11px]" style={{ color: "var(--mk-warn)" }}>
+            {directPostBlockedReason}
+          </p>
+        )}
       </div>
 
       {/* Right column — preview */}
@@ -528,7 +676,41 @@ export default function CreateTab({
         )}
       </div>
 
-      <ScheduleSheet open={scheduleOpen} onOpenChange={setScheduleOpen} onSchedule={handleSchedule} channel={channel} />
+      <ScheduleSheet
+        open={scheduleOpen}
+        onOpenChange={setScheduleOpen}
+        onSchedule={handleSchedule}
+        channel={channel}
+        tiktokDirectPost={directPostActive}
+      />
     </div>
+  );
+}
+
+function TikTokModeOption({
+  selected,
+  title,
+  hint,
+  onSelect,
+}: {
+  selected: boolean;
+  title: string;
+  hint: string;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={`w-full text-start rounded-xl border p-3 transition-colors ${
+        selected
+          ? "border-foreground bg-foreground/3"
+          : "border-border/40 hover:border-foreground/30"
+      }`}
+    >
+      <p className="text-[13px] font-medium text-foreground">{title}</p>
+      <p className="text-[11px] text-muted-foreground mt-0.5">{hint}</p>
+    </button>
   );
 }

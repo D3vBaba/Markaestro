@@ -261,5 +261,58 @@
       "postedSuccess": "发布成功！",
       "publishFailed": "发布失败"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "发布到此 TikTok 账号",
+    "unknownCreator": "TikTok 账号",
+    "retry": "重试",
+    "errors": {
+      "generic": "无法加载你的 TikTok 账号信息。请重试。"
+    },
+    "privacy": {
+      "label": "谁可以查看此帖子",
+      "placeholder": "选择谁可以查看此帖子",
+      "brandedContentPrivateHint": "品牌内容的可见范围不能设为仅自己可见",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "所有人",
+        "MUTUAL_FOLLOW_FRIENDS": "好友",
+        "FOLLOWER_OF_CREATOR": "粉丝",
+        "SELF_ONLY": "仅自己"
+      }
+    },
+    "interactions": {
+      "label": "允许用户",
+      "allowComment": "评论",
+      "allowDuet": "合拍",
+      "allowStitch": "拼接",
+      "disabledByAccount": "已在你的 TikTok 账号设置中关闭"
+    },
+    "disclosure": {
+      "label": "声明帖子内容",
+      "description": "开启以声明此帖子推广某个品牌、产品或服务。",
+      "yourBrand": "你的品牌",
+      "yourBrandNotice": "你的照片/视频将被标记为“推广内容”。发布后无法更改。",
+      "brandedContent": "品牌内容",
+      "brandedContentNotice": "你的照片/视频将被标记为“付费合作”。发布后无法更改。",
+      "selectionRequired": "你需要说明内容是推广自己、第三方还是两者兼有。"
+    },
+    "consent": {
+      "default": "发布即表示你同意 TikTok 的<music>音乐使用确认</music>。",
+      "brandedContent": "发布即表示你同意 TikTok 的<branded>品牌内容政策</branded>和<music>音乐使用确认</music>。"
+    },
+    "processingNotice": "发布后，TikTok 可能需要几分钟处理内容，之后才会出现在你的主页上。",
+    "maxDuration": "此账号的最大视频时长：{seconds} 秒。",
+    "modeLabel": "发布到 TikTok 的方式",
+    "modeInbox": "发送到 TikTok 收件箱",
+    "modeInboxHint": "你在 TikTok 应用中完成文案并发布。",
+    "modeDirect": "直接发布到 TikTok",
+    "modeDirectHint": "Markaestro 使用下方设置发布到你的主页。",
+    "blockers": {
+      "privacyNotSelected": "发布前请先选择谁可以查看此帖子。",
+      "disclosureWithoutSelection": "你需要说明内容是推广自己、第三方还是两者兼有。",
+      "brandedContentPrivate": "品牌内容的可见范围不能设为仅自己可见。",
+      "videoTooLong": "此视频超过了该账号 {maxSeconds} 秒的限制。",
+      "creatorInfoUnavailable": "无法加载你的 TikTok 账号信息，因此无法直接发布此帖子。"
+    }
   }
 }

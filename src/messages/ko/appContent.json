@@ -261,5 +261,58 @@
       "postedSuccess": "성공적으로 게시되었습니다!",
       "publishFailed": "게시에 실패했습니다"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "이 TikTok 계정에 게시합니다",
+    "unknownCreator": "TikTok 계정",
+    "retry": "다시 시도",
+    "errors": {
+      "generic": "TikTok 계정 정보를 불러오지 못했습니다. 다시 시도해 주세요."
+    },
+    "privacy": {
+      "label": "이 게시물을 볼 수 있는 사람",
+      "placeholder": "이 게시물을 볼 수 있는 사람을 선택하세요",
+      "brandedContentPrivateHint": "브랜디드 콘텐츠의 공개 범위는 비공개로 설정할 수 없습니다",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "모두",
+        "MUTUAL_FOLLOW_FRIENDS": "친구",
+        "FOLLOWER_OF_CREATOR": "팔로워",
+        "SELF_ONLY": "나만 보기"
+      }
+    },
+    "interactions": {
+      "label": "사용자에게 허용",
+      "allowComment": "댓글",
+      "allowDuet": "듀엣",
+      "allowStitch": "이어찍기",
+      "disabledByAccount": "TikTok 계정 설정에서 꺼져 있습니다"
+    },
+    "disclosure": {
+      "label": "게시물 내용 공개",
+      "description": "이 게시물이 브랜드, 제품 또는 서비스를 홍보한다고 선언하려면 켜세요.",
+      "yourBrand": "내 브랜드",
+      "yourBrandNotice": "사진/동영상에 ‘프로모션 콘텐츠’로 표시됩니다. 게시 후에는 변경할 수 없습니다.",
+      "brandedContent": "브랜디드 콘텐츠",
+      "brandedContentNotice": "사진/동영상에 ‘유료 파트너십’으로 표시됩니다. 게시 후에는 변경할 수 없습니다.",
+      "selectionRequired": "콘텐츠가 본인, 제3자 또는 둘 다를 홍보하는지 표시해야 합니다."
+    },
+    "consent": {
+      "default": "게시하면 TikTok의 <music>음악 사용 확인</music>에 동의하게 됩니다.",
+      "brandedContent": "게시하면 TikTok의 <branded>브랜디드 콘텐츠 정책</branded> 및 <music>음악 사용 확인</music>에 동의하게 됩니다."
+    },
+    "processingNotice": "게시 후 TikTok이 콘텐츠를 처리하여 프로필에 표시되기까지 몇 분 정도 걸릴 수 있습니다.",
+    "maxDuration": "이 계정의 최대 동영상 길이: {seconds}초.",
+    "modeLabel": "TikTok에 게시하는 방식",
+    "modeInbox": "TikTok 받은 편지함으로 보내기",
+    "modeInboxHint": "캡션을 마무리하고 TikTok 앱에서 게시합니다.",
+    "modeDirect": "TikTok에 바로 게시하기",
+    "modeDirectHint": "Markaestro가 아래 설정으로 프로필에 게시합니다.",
+    "blockers": {
+      "privacyNotSelected": "게시하기 전에 이 게시물을 볼 수 있는 사람을 선택하세요.",
+      "disclosureWithoutSelection": "콘텐츠가 본인, 제3자 또는 둘 다를 홍보하는지 표시해야 합니다.",
+      "brandedContentPrivate": "브랜디드 콘텐츠의 공개 범위는 비공개로 설정할 수 없습니다.",
+      "videoTooLong": "이 동영상은 이 계정의 {maxSeconds}초 제한을 초과합니다.",
+      "creatorInfoUnavailable": "TikTok 계정 정보를 불러오지 못해 이 게시물을 바로 게시할 수 없습니다."
+    }
   }
 }

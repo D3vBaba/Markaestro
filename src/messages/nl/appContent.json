@@ -261,5 +261,58 @@
       "postedSuccess": "Succesvol geplaatst!",
       "publishFailed": "Publiceren mislukt"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "Plaatsen op dit TikTok-account",
+    "unknownCreator": "TikTok-account",
+    "retry": "Opnieuw proberen",
+    "errors": {
+      "generic": "De gegevens van je TikTok-account konden niet worden geladen. Probeer het opnieuw."
+    },
+    "privacy": {
+      "label": "Wie deze post kan zien",
+      "placeholder": "Selecteer wie deze post kan zien",
+      "brandedContentPrivateHint": "De zichtbaarheid van merkcontent kan niet op privé worden gezet",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "Iedereen",
+        "MUTUAL_FOLLOW_FRIENDS": "Vrienden",
+        "FOLLOWER_OF_CREATOR": "Volgers",
+        "SELF_ONLY": "Alleen ik"
+      }
+    },
+    "interactions": {
+      "label": "Sta gebruikers toe om te",
+      "allowComment": "Reageren",
+      "allowDuet": "Duetten",
+      "allowStitch": "Stitchen",
+      "disabledByAccount": "Uitgeschakeld in je TikTok-accountinstellingen"
+    },
+    "disclosure": {
+      "label": "Postinhoud openbaar maken",
+      "description": "Zet dit aan om te verklaren dat deze post een merk, product of dienst promoot.",
+      "yourBrand": "Je merk",
+      "yourBrandNotice": "Je foto/video wordt gelabeld als “Promotionele content”. Dit kan na het plaatsen niet worden gewijzigd.",
+      "brandedContent": "Merkcontent",
+      "brandedContentNotice": "Je foto/video wordt gelabeld als “Betaalde samenwerking”. Dit kan na het plaatsen niet worden gewijzigd.",
+      "selectionRequired": "Je moet aangeven of je content jezelf, een derde partij of beide promoot."
+    },
+    "consent": {
+      "default": "Door te plaatsen ga je akkoord met TikToks <music>Bevestiging muziekgebruik</music>.",
+      "brandedContent": "Door te plaatsen ga je akkoord met TikToks <branded>Beleid voor merkcontent</branded> en <music>Bevestiging muziekgebruik</music>."
+    },
+    "processingNotice": "Na het plaatsen kan het enkele minuten duren voordat TikTok de content heeft verwerkt en deze op je profiel verschijnt.",
+    "maxDuration": "Maximale videolengte voor dit account: {seconds} seconden.",
+    "modeLabel": "Hoe dit op TikTok wordt geplaatst",
+    "modeInbox": "Naar TikTok-inbox sturen",
+    "modeInboxHint": "Jij maakt het bijschrift af en plaatst het vanuit de TikTok-app.",
+    "modeDirect": "Rechtstreeks op TikTok plaatsen",
+    "modeDirectHint": "Markaestro plaatst op je profiel met de instellingen hieronder.",
+    "blockers": {
+      "privacyNotSelected": "Selecteer wie deze post kan zien voordat je plaatst.",
+      "disclosureWithoutSelection": "Je moet aangeven of je content jezelf, een derde partij of beide promoot.",
+      "brandedContentPrivate": "De zichtbaarheid van merkcontent kan niet op privé worden gezet.",
+      "videoTooLong": "Deze video is langer dan de limiet van {maxSeconds} seconden voor dit account.",
+      "creatorInfoUnavailable": "De gegevens van je TikTok-account konden niet worden geladen, dus deze post kan niet rechtstreeks worden geplaatst."
+    }
   }
 }

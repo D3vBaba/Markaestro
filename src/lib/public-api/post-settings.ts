@@ -10,12 +10,22 @@ import { z } from 'zod';
 
 // ── TikTok ────────────────────────────────────────────────────────
 //
-// privacy / disable_comment / disable_duet / disable_stitch are only
-// honored by TikTok's Direct Post mode. Markaestro currently publishes
-// via MEDIA_UPLOAD (creator finishes in the TikTok inbox), so these
-// fields are accepted for forward-compat if Direct Post access is enabled.
-// `photo_cover_index` IS honored today for photo
-// carousels.
+// TikTok has two publishing flows and `postMode` picks between them:
+//
+//   'inbox' (default)  — MEDIA_UPLOAD / inbox hand-off. The creator finishes
+//                        caption, privacy, and posting inside the TikTok app.
+//                        privacy / disable_* are accepted but not honored,
+//                        because TikTok ignores them in this mode.
+//   'direct_post'      — Direct Post. Publishes straight to the creator's
+//                        profile, so privacy / disable_* / the commercial
+//                        disclosure fields are all honored and required.
+//
+// Omitting `postMode` keeps the inbox behavior, so posts written before
+// Direct Post existed are unaffected.
+//
+// `photoCoverIndex` is honored in both modes for photo carousels.
+export const tiktokPostModes = ['inbox', 'direct_post'] as const;
+
 export const tiktokPrivacyLevels = [
   'PUBLIC_TO_EVERYONE',
   'MUTUAL_FOLLOW_FRIENDS',
@@ -25,11 +35,22 @@ export const tiktokPrivacyLevels = [
 
 export const tiktokSettingsSchema = z.object({
   __type: z.literal('tiktok'),
+  postMode: z.enum(tiktokPostModes).optional(),
   privacyLevel: z.enum(tiktokPrivacyLevels).optional(),
   disableComment: z.boolean().optional(),
   disableDuet: z.boolean().optional(),
   disableStitch: z.boolean().optional(),
   photoCoverIndex: z.number().int().min(0).max(9).optional(),
+  /**
+   * TikTok's commercial content disclosure. `commercialContentDisclosure` is
+   * the parent toggle; at least one of the two labels below must be set when
+   * it is on. Maps to TikTok's `brand_organic_toggle` ("Your brand" —
+   * "Promotional content") and `brand_content_toggle` ("Branded content" —
+   * "Paid partnership"). Direct Post only.
+   */
+  commercialContentDisclosure: z.boolean().optional(),
+  brandOrganicToggle: z.boolean().optional(),
+  brandContentToggle: z.boolean().optional(),
 });
 
 // ── Instagram ─────────────────────────────────────────────────────

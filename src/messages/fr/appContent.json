@@ -261,5 +261,58 @@
       "postedSuccess": "Publié avec succès !",
       "publishFailed": "Échec de la publication"
     }
+  },
+  "tiktokDirectPost": {
+    "postingTo": "Publication sur ce compte TikTok",
+    "unknownCreator": "Compte TikTok",
+    "retry": "Réessayer",
+    "errors": {
+      "generic": "Impossible de charger les informations de votre compte TikTok. Réessayez."
+    },
+    "privacy": {
+      "label": "Qui peut voir cette publication",
+      "placeholder": "Sélectionnez qui peut voir cette publication",
+      "brandedContentPrivateHint": "La visibilité du contenu de marque ne peut pas être privée",
+      "options": {
+        "PUBLIC_TO_EVERYONE": "Tout le monde",
+        "MUTUAL_FOLLOW_FRIENDS": "Amis",
+        "FOLLOWER_OF_CREATOR": "Abonnés",
+        "SELF_ONLY": "Moi uniquement"
+      }
+    },
+    "interactions": {
+      "label": "Autoriser les utilisateurs à",
+      "allowComment": "Commenter",
+      "allowDuet": "Duo",
+      "allowStitch": "Stitch",
+      "disabledByAccount": "Désactivé dans les paramètres de votre compte TikTok"
+    },
+    "disclosure": {
+      "label": "Déclarer le contenu de la publication",
+      "description": "Activez cette option pour déclarer que cette publication fait la promotion d'une marque, d'un produit ou d'un service.",
+      "yourBrand": "Votre marque",
+      "yourBrandNotice": "Votre photo/vidéo sera identifiée comme « Contenu promotionnel ». Ce choix est définitif une fois publié.",
+      "brandedContent": "Contenu de marque",
+      "brandedContentNotice": "Votre photo/vidéo sera identifiée comme « Partenariat rémunéré ». Ce choix est définitif une fois publié.",
+      "selectionRequired": "Vous devez indiquer si votre contenu fait la promotion de vous-même, d'un tiers, ou des deux."
+    },
+    "consent": {
+      "default": "En publiant, vous acceptez la <music>Confirmation d'utilisation de la musique</music> de TikTok.",
+      "brandedContent": "En publiant, vous acceptez la <branded>Politique relative au contenu de marque</branded> et la <music>Confirmation d'utilisation de la musique</music> de TikTok."
+    },
+    "processingNotice": "Après la publication, TikTok peut mettre quelques minutes à traiter le contenu avant qu'il n'apparaisse sur votre profil.",
+    "maxDuration": "Durée maximale de vidéo pour ce compte : {seconds} secondes.",
+    "modeLabel": "Mode de publication sur TikTok",
+    "modeInbox": "Envoyer vers la boîte de réception TikTok",
+    "modeInboxHint": "Vous finalisez la légende et publiez depuis l'application TikTok.",
+    "modeDirect": "Publier directement sur TikTok",
+    "modeDirectHint": "Markaestro publie sur votre profil avec les paramètres ci-dessous.",
+    "blockers": {
+      "privacyNotSelected": "Sélectionnez qui peut voir cette publication avant de publier.",
+      "disclosureWithoutSelection": "Vous devez indiquer si votre contenu fait la promotion de vous-même, d'un tiers, ou des deux.",
+      "brandedContentPrivate": "La visibilité du contenu de marque ne peut pas être privée.",
+      "videoTooLong": "Cette vidéo dépasse la limite de {maxSeconds} secondes de ce compte.",
+      "creatorInfoUnavailable": "Les informations de votre compte TikTok n'ont pas pu être chargées, cette publication ne peut donc pas être publiée directement."
+    }
   }
 }
