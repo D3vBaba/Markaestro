@@ -102,6 +102,11 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
     clientIdEnv: 'TIKTOK_CLIENT_KEY',
     clientSecretEnv: 'TIKTOK_CLIENT_SECRET',
     clientIdParam: 'client_key',
+    // TikTok's web authorization requires PKCE. Without code_challenge the
+    // authorize page refuses the request outright ("Something went wrong …
+    // correct the following: code_challenge") before it ever validates the
+    // redirect URI, so this is not optional for any environment.
+    usePKCE: true,
     extraAuthParams: {},
   },
   threads: {
