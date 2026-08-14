@@ -26,6 +26,17 @@ import {
 const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
 const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
 
+/**
+ * TikTok Direct Post is gated until the Content Posting API audit passes.
+ * Until then TikTok forces every post from this client to SELF_ONLY, so
+ * shipping the option would just offer creators a public post that silently
+ * lands as private. Off unless explicitly enabled, so production — which sets
+ * nothing — never renders it, while local testing opts in via .env.local.
+ * Only the composer UI is gated; the publish path stays intact for the
+ * documented `settings.postMode` public API field.
+ */
+const TIKTOK_DIRECT_POST_ENABLED = process.env.NEXT_PUBLIC_TIKTOK_DIRECT_POST === "1";
+
 type StoredDraft = {
   content: string;
   selectedChannels: string[];
@@ -69,7 +80,10 @@ export default function CreateTab({
   const tiktokSelected = selectedChannels.includes("tiktok");
   const tiktokVideoUrl = mediaUrls.find(isVideoUrl) ?? null;
   const tiktokMediaKind: "video" | "photo" = tiktokVideoUrl ? "video" : "photo";
-  const directPostActive = tiktokSelected && tiktokPostMode === "direct_post";
+  const showTikTokModePicker = tiktokSelected && TIKTOK_DIRECT_POST_ENABLED;
+  // Gated off, this is always false, so no TikTok settings are attached and
+  // every post takes the inbox hand-off exactly as before.
+  const directPostActive = showTikTokModePicker && tiktokPostMode === "direct_post";
   const videoDurationSec = tiktokVideoUrl && measuredVideo?.url === tiktokVideoUrl
     ? measuredVideo.seconds
     : null;
@@ -588,7 +602,7 @@ export default function CreateTab({
           </Button>
         </div>
 
-        {tiktokSelected && (
+        {showTikTokModePicker && (
           <div className="space-y-3">
             <Label>{tTikTok("modeLabel")}</Label>
             <div className="grid gap-2">
