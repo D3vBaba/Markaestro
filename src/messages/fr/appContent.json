@@ -307,9 +307,9 @@
     "maxDuration": "Durée maximale de vidéo pour ce compte : {seconds} secondes.",
     "modeLabel": "Mode de publication sur TikTok",
     "modeInbox": "Envoyer vers la boîte de réception TikTok",
-    "modeInboxHint": "Vous finalisez la légende et publiez depuis l'application TikTok.",
+    "modeInboxHint": "Vous finalisez la légende et publiez depuis l’application TikTok, où vous pouvez ajouter des sons de la bibliothèque TikTok.",
     "modeDirect": "Publier directement sur TikTok",
-    "modeDirectHint": "Markaestro publie sur votre profil avec les paramètres ci-dessous.",
+    "modeDirectHint": "Markaestro publie sur votre profil avec les réglages ci-dessous. Le post conserve l’audio de votre vidéo — les sons de la bibliothèque TikTok ne peuvent être ajoutés que dans l’application.",
     "blockers": {
       "privacyNotSelected": "Sélectionnez qui peut voir cette publication avant de publier.",
       "disclosureWithoutSelection": "Vous devez indiquer si votre contenu fait la promotion de vous-même, d'un tiers, ou des deux.",

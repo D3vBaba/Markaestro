@@ -307,9 +307,9 @@
     "maxDuration": "此账号的最大视频时长：{seconds} 秒。",
     "modeLabel": "发布到 TikTok 的方式",
     "modeInbox": "发送到 TikTok 收件箱",
-    "modeInboxHint": "你在 TikTok 应用中完成文案并发布。",
+    "modeInboxHint": "你在 TikTok 应用中完成文案并发布，可以在那里添加 TikTok 曲库中的声音。",
     "modeDirect": "直接发布到 TikTok",
-    "modeDirectHint": "Markaestro 使用下方设置发布到你的主页。",
+    "modeDirectHint": "Markaestro 会按以下设置直接发布到你的主页。帖子使用视频自带的音频——TikTok 曲库中的声音只能在应用内添加。",
     "blockers": {
       "privacyNotSelected": "发布前请先选择谁可以查看此帖子。",
       "disclosureWithoutSelection": "你需要说明内容是推广自己、第三方还是两者兼有。",

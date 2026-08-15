@@ -307,9 +307,9 @@
     "maxDuration": "Duración máxima del vídeo para esta cuenta: {seconds} segundos.",
     "modeLabel": "Cómo se publica en TikTok",
     "modeInbox": "Enviar a la bandeja de TikTok",
-    "modeInboxHint": "Tú terminas la descripción y publicas desde la app de TikTok.",
+    "modeInboxHint": "Terminas el texto y publicas desde la app de TikTok, donde puedes añadir sonidos de la biblioteca de TikTok.",
     "modeDirect": "Publicar directamente en TikTok",
-    "modeDirectHint": "Markaestro publica en tu perfil con los ajustes de abajo.",
+    "modeDirectHint": "Markaestro publica en tu perfil con la configuración de abajo. La publicación usa el audio propio de tu video; los sonidos de la biblioteca de TikTok solo se pueden añadir en la app.",
     "blockers": {
       "privacyNotSelected": "Selecciona quién puede ver esta publicación antes de publicarla.",
       "disclosureWithoutSelection": "Debes indicar si tu contenido te promociona a ti, a un tercero o a ambos.",

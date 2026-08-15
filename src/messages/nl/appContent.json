@@ -307,9 +307,9 @@
     "maxDuration": "Maximale videolengte voor dit account: {seconds} seconden.",
     "modeLabel": "Hoe dit op TikTok wordt geplaatst",
     "modeInbox": "Naar TikTok-inbox sturen",
-    "modeInboxHint": "Jij maakt het bijschrift af en plaatst het vanuit de TikTok-app.",
+    "modeInboxHint": "Je maakt het bijschrift af en plaatst vanuit de TikTok-app, waar je geluiden uit de TikTok-bibliotheek kunt toevoegen.",
     "modeDirect": "Rechtstreeks op TikTok plaatsen",
-    "modeDirectHint": "Markaestro plaatst op je profiel met de instellingen hieronder.",
+    "modeDirectHint": "Markaestro publiceert naar je profiel met de onderstaande instellingen. De post gebruikt de eigen audio van je video — geluiden uit de TikTok-bibliotheek kun je alleen in de app toevoegen.",
     "blockers": {
       "privacyNotSelected": "Selecteer wie deze post kan zien voordat je plaatst.",
       "disclosureWithoutSelection": "Je moet aangeven of je content jezelf, een derde partij of beide promoot.",

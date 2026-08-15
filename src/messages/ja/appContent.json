@@ -307,9 +307,9 @@
     "maxDuration": "このアカウントの最大動画長: {seconds}秒。",
     "modeLabel": "TikTokへの投稿方法",
     "modeInbox": "TikTokの受信ボックスに送る",
-    "modeInboxHint": "キャプションを仕上げてTikTokアプリから投稿します。",
+    "modeInboxHint": "キャプションの仕上げと投稿は TikTok アプリで行い、TikTok の楽曲ライブラリからサウンドを追加できます。",
     "modeDirect": "TikTokに直接投稿する",
-    "modeDirectHint": "Markaestroが以下の設定でプロフィールに投稿します。",
+    "modeDirectHint": "Markaestro は以下の設定でプロフィールに直接公開します。投稿には動画自体の音声が使われます。TikTok ライブラリの楽曲はアプリ内でのみ追加できます。",
     "blockers": {
       "privacyNotSelected": "投稿する前に、この投稿を見られる人を選択してください。",
       "disclosureWithoutSelection": "コンテンツが自分自身、第三者、またはその両方を宣伝するかを示す必要があります。",

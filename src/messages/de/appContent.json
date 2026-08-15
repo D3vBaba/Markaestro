@@ -307,9 +307,9 @@
     "maxDuration": "Maximale Videolänge für dieses Konto: {seconds} Sekunden.",
     "modeLabel": "Wie dies auf TikTok veröffentlicht wird",
     "modeInbox": "An TikTok-Posteingang senden",
-    "modeInboxHint": "Du vervollständigst die Beschreibung und veröffentlichst in der TikTok-App.",
+    "modeInboxHint": "Du stellst Untertitel und Beitrag in der TikTok-App fertig, wo du Sounds aus der TikTok-Bibliothek hinzufügen kannst.",
     "modeDirect": "Direkt auf TikTok veröffentlichen",
-    "modeDirectHint": "Markaestro veröffentlicht mit den Einstellungen unten in deinem Profil.",
+    "modeDirectHint": "Markaestro veröffentlicht mit den unten stehenden Einstellungen in deinem Profil. Der Beitrag verwendet den eigenen Ton deines Videos — Sounds aus der TikTok-Bibliothek lassen sich nur in der App hinzufügen.",
     "blockers": {
       "privacyNotSelected": "Wähle vor dem Veröffentlichen aus, wer diesen Beitrag sehen kann.",
       "disclosureWithoutSelection": "Du musst angeben, ob dein Inhalt dich selbst, Dritte oder beides bewirbt.",

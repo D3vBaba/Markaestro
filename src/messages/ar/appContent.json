@@ -307,9 +307,9 @@
     "maxDuration": "الحد الأقصى لمدة الفيديو لهذا الحساب: {seconds} ثانية.",
     "modeLabel": "طريقة النشر على TikTok",
     "modeInbox": "الإرسال إلى صندوق وارد TikTok",
-    "modeInboxHint": "أنت تكمل الوصف وتنشر من تطبيق TikTok.",
+    "modeInboxHint": "تُكمل التعليق وتنشر من تطبيق TikTok، حيث يمكنك إضافة أصوات من مكتبة TikTok.",
     "modeDirect": "النشر مباشرة على TikTok",
-    "modeDirectHint": "ينشر Markaestro على ملفك الشخصي بالإعدادات أدناه.",
+    "modeDirectHint": "ينشر Markaestro على ملفك الشخصي بالإعدادات أدناه. يستخدم المنشور الصوت الأصلي للفيديو — لا يمكن إضافة أصوات مكتبة TikTok إلا داخل التطبيق.",
     "blockers": {
       "privacyNotSelected": "اختر من يمكنه مشاهدة هذا المنشور قبل النشر.",
       "disclosureWithoutSelection": "يجب أن توضح ما إذا كان محتواك يروّج لنفسك أو لطرف ثالث أو لكليهما.",

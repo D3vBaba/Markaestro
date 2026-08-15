@@ -307,9 +307,9 @@
     "maxDuration": "Maximum video length for this account: {seconds} seconds.",
     "modeLabel": "How this posts to TikTok",
     "modeInbox": "Send to TikTok inbox",
-    "modeInboxHint": "You finish the caption and post from the TikTok app.",
+    "modeInboxHint": "You finish the caption and post from the TikTok app, where you can add sounds from TikTok's library.",
     "modeDirect": "Post directly to TikTok",
-    "modeDirectHint": "Markaestro publishes to your profile using the settings below.",
+    "modeDirectHint": "Markaestro publishes to your profile using the settings below. The post uses your video's own audio — TikTok library sounds can only be added in the app.",
     "blockers": {
       "privacyNotSelected": "Select who can view this post before publishing.",
       "disclosureWithoutSelection": "You need to indicate if your content promotes yourself, a third party, or both.",
