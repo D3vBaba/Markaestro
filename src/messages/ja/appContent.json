@@ -255,8 +255,10 @@
       "scheduled": "投稿を予約しました",
       "scheduleFailed": "投稿の予約に失敗しました",
       "tiktokSending": "TikTokに送信中です。Markaestroは受信箱への配信確認をTikTokから待っています。",
+      "tiktokDirectSending": "TikTok に公開しています。TikTok の処理が完了するのを待っています。",
       "stillProcessing": "投稿を送信しました。まだ処理中です。",
       "tiktokInboxConfirmed": "TikTokが受信箱への配信を確認しました。TikTok受信箱を開いてキャプションを仕上げ、「投稿」をタップしてください。",
+      "tiktokDirectPosted": "TikTok に投稿しました。プロフィールに表示されるまで数分かかる場合があります。",
       "postedToMultiple": "{channels}に投稿しました！",
       "postedSuccess": "投稿に成功しました！",
       "publishFailed": "公開に失敗しました"
@@ -267,7 +269,8 @@
     "unknownCreator": "TikTokアカウント",
     "retry": "再試行",
     "errors": {
-      "generic": "TikTokアカウントの情報を読み込めませんでした。もう一度お試しください。"
+      "generic": "TikTokアカウントの情報を読み込めませんでした。もう一度お試しください。",
+      "postingBlockedHint": "この投稿は TikTok の受信トレイに送信し、TikTok アプリで仕上げることもできます。"
     },
     "privacy": {
       "label": "この投稿を見られる人",

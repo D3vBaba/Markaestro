@@ -60,9 +60,22 @@ describe('public post validation', () => {
     expect(resolveRequestedDeliveryMode('instagram')).toBe('manual_reminder');
     expect(resolveRequestedDeliveryMode('instagram', 'direct_publish')).toBe('direct_publish');
     expect(resolveRequestedDeliveryMode('linkedin', 'manual_reminder')).toBe('manual_reminder');
-    // TikTok's only API-publishing path is the inbox handoff.
+    // Without Direct Post settings, TikTok's only API-publishing path is the
+    // inbox handoff, so a direct-publish opt-in maps onto it.
     expect(resolveRequestedDeliveryMode('tiktok', 'direct_publish')).toBe('platform_inbox');
     expect(resolveRequestedDeliveryMode('tiktok', 'platform_inbox')).toBe('platform_inbox');
+  });
+
+  it('reports a TikTok Direct Post as direct publishing', () => {
+    // Direct Post lands on the creator's profile, so it is not an inbox
+    // hand-off and must not be reported as one.
+    const directPost = { __type: 'tiktok', postMode: 'direct_post' } as const;
+    expect(resolveRequestedDeliveryMode('tiktok', 'direct_publish', directPost)).toBe('direct_publish');
+
+    const inbox = { __type: 'tiktok', postMode: 'inbox' } as const;
+    expect(resolveRequestedDeliveryMode('tiktok', 'direct_publish', inbox)).toBe('platform_inbox');
+    // An explicit inbox request wins regardless of the settings attached.
+    expect(resolveRequestedDeliveryMode('tiktok', 'platform_inbox', directPost)).toBe('platform_inbox');
   });
 
   it('rejects the platform inbox mode on channels without an inbox handoff', () => {

@@ -106,6 +106,54 @@ describe('queryTikTokCreatorInfo', () => {
 
     expect(result).toMatchObject({ ok: false, reason: 'auth' });
   });
+
+  // Posting caps and bans are terminal for this attempt — retrying only burns
+  // what is left of the creator's quota, so they must not read as transient.
+  it.each([
+    'spam_risk_too_many_posts',
+    'spam_risk_user_banned_from_posting',
+    'reached_active_user_cap',
+  ])('classifies %s as a posting block rather than a transient failure', async (code) => {
+    fetchWithRetry.mockResolvedValueOnce(
+      jsonResponse({ error: { code, message: 'blocked' } }, 200),
+    );
+    const { queryTikTokCreatorInfo } = await import('../platform/adapters/tiktok-direct-post');
+
+    const result = await queryTikTokCreatorInfo('token');
+
+    expect(result).toMatchObject({ ok: false, reason: 'posting_blocked' });
+  });
+
+  it('explains a posting cap instead of surfacing TikTok’s bare message', async () => {
+    fetchWithRetry.mockResolvedValueOnce(
+      jsonResponse({
+        error: { code: 'spam_risk_too_many_posts', message: 'blocked', log_id: 'log_9' },
+      }, 200),
+    );
+    const { queryTikTokCreatorInfo } = await import('../platform/adapters/tiktok-direct-post');
+
+    const result = await queryTikTokCreatorInfo('token');
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toContain('daily limit');
+    // The raw code and log_id stay attached so a failure is still traceable.
+    expect(result.error).toContain('spam_risk_too_many_posts');
+    expect(result.error).toContain('log_9');
+  });
+
+  it('leaves an unrecognised error code untouched', async () => {
+    fetchWithRetry.mockResolvedValueOnce(
+      jsonResponse({ error: { code: 'something_new', message: 'unexpected' } }, 200),
+    );
+    const { queryTikTokCreatorInfo } = await import('../platform/adapters/tiktok-direct-post');
+
+    const result = await queryTikTokCreatorInfo('token');
+
+    expect(result).toMatchObject({ ok: false, reason: 'transient' });
+    if (result.ok) return;
+    expect(result.error).toContain('unexpected');
+  });
 });
 
 describe('validateTikTokDirectPostSettings', () => {

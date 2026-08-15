@@ -7,6 +7,7 @@ const fetchTikTokPublishStatusMock = vi.fn();
 const incrementApiClientStatMock = vi.fn();
 const enqueueWebhookEventMock = vi.fn();
 const refreshConnectionTokenMock = vi.fn();
+const sendTikTokInboxEmailMock = vi.fn();
 
 vi.mock('@/lib/firebase-admin', () => ({
   adminDb: {
@@ -36,6 +37,10 @@ vi.mock('@/lib/public-api/usage', () => ({
 
 vi.mock('@/lib/public-api/webhooks', () => ({
   enqueueWebhookEvent: enqueueWebhookEventMock,
+}));
+
+vi.mock('@/lib/tiktok-inbox-emails', () => ({
+  sendTikTokInboxEmail: sendTikTokInboxEmailMock,
 }));
 
 vi.mock('@/lib/logger', () => ({
@@ -247,6 +252,44 @@ describe('pollTikTokPublishWithRetries', () => {
       status: 'platform_action_required',
       nextAction: 'open_tiktok_inbox_and_complete_posting',
     }));
+  });
+
+  it('never routes a Direct Post into the inbox hand-off', async () => {
+    // A Direct Post publishes to the profile, so it is never waiting on the
+    // creator. Reporting it as action-required would send them into the TikTok
+    // app looking for a draft that does not exist.
+    const postRef = buildPostRef(buildPendingTikTokPost({
+      settings: { __type: 'tiktok', postMode: 'direct_post', privacyLevel: 'PUBLIC_TO_EVERYONE' },
+    }));
+    adminDocMock.mockReturnValue(postRef);
+    fetchTikTokPublishStatusMock.mockResolvedValue({ status: 'SEND_TO_USER_INBOX' });
+
+    const { pollTikTokPublishWithRetries } = await import('../social/tiktok-publish-poll-worker');
+    const outcome = await pollTikTokPublishWithRetries('ws_123', 'post_123', {
+      attempts: 1,
+      intervalMs: 0,
+    });
+
+    expect(outcome).toEqual({ status: 'still_processing' });
+    expect(sendTikTokInboxEmailMock).not.toHaveBeenCalled();
+    expect(postRef.update).toHaveBeenLastCalledWith(expect.not.objectContaining({
+      status: 'platform_action_required',
+    }));
+  });
+
+  it('still hands an inbox-mode post off to the creator', async () => {
+    const postRef = buildPostRef(buildPendingTikTokPost());
+    adminDocMock.mockReturnValue(postRef);
+    fetchTikTokPublishStatusMock.mockResolvedValue({ status: 'SEND_TO_USER_INBOX' });
+
+    const { pollTikTokPublishWithRetries } = await import('../social/tiktok-publish-poll-worker');
+    const outcome = await pollTikTokPublishWithRetries('ws_123', 'post_123', {
+      attempts: 1,
+      intervalMs: 0,
+    });
+
+    expect(outcome).toEqual({ status: 'platform_action_required' });
+    expect(sendTikTokInboxEmailMock).toHaveBeenCalledTimes(1);
   });
 
   it('resolves webhook publish ids through the durable TikTok mapping', async () => {

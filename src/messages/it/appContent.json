@@ -255,8 +255,10 @@
       "scheduled": "Post pianificato",
       "scheduleFailed": "Impossibile pianificare il post",
       "tiktokSending": "Invio a TikTok in corso. Markaestro è in attesa che TikTok confermi la consegna in posta in arrivo.",
+      "tiktokDirectSending": "Pubblicazione su TikTok. Markaestro sta aspettando che TikTok completi l’elaborazione.",
       "stillProcessing": "Post inviato e ancora in elaborazione.",
       "tiktokInboxConfirmed": "TikTok ha confermato la consegna in posta in arrivo. Apri la Posta in arrivo di TikTok, completa la didascalia e tocca Pubblica.",
+      "tiktokDirectPosted": "Pubblicato su TikTok. Potrebbero volerci alcuni minuti prima che appaia sul tuo profilo.",
       "postedToMultiple": "Pubblicato su {channels}!",
       "postedSuccess": "Pubblicato con successo!",
       "publishFailed": "Pubblicazione non riuscita"
@@ -267,7 +269,8 @@
     "unknownCreator": "Account TikTok",
     "retry": "Riprova",
     "errors": {
-      "generic": "Impossibile caricare i dati del tuo account TikTok. Riprova."
+      "generic": "Impossibile caricare i dati del tuo account TikTok. Riprova.",
+      "postingBlockedHint": "Puoi comunque inviare questo post alla tua posta in arrivo di TikTok e completarlo dall’app TikTok."
     },
     "privacy": {
       "label": "Chi può vedere questo post",

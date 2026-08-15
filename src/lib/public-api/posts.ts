@@ -4,7 +4,7 @@ import type { PublicApiContext } from './auth';
 import { resolveMediaAssetUrls, type ResolvedPublicMediaAsset } from './media';
 import type { PublicDeliveryMode } from './scopes';
 import { resolvePublicPostDestination, type ResolvedPublicDestination } from './products';
-import { assertSettingsMatchesChannel, type PostSettings } from './post-settings';
+import { assertSettingsMatchesChannel, isTikTokDirectPostSettings, type PostSettings } from './post-settings';
 import { getSocialChannelConfig } from '@/lib/social/channel-catalog';
 import { isManualReminderDeliveryMode, MANUAL_REMINDER_DELIVERY_MODE } from '@/lib/manual-publish-flow';
 
@@ -32,14 +32,19 @@ export function getDeliveryModeForChannel(channel: SocialChannel): PublicDeliver
 export function resolveRequestedDeliveryMode(
   channel: SocialChannel,
   requested?: PublicDeliveryMode,
+  settings?: PostSettings,
 ): PublicDeliveryMode {
   if (!requested) return getDeliveryModeForChannel(channel);
   if (requested === 'platform_inbox' && channel !== 'tiktok') {
     throw new Error('VALIDATION_DELIVERY_MODE_NOT_SUPPORTED_FOR_CHANNEL');
   }
-  // TikTok's only API-publishing path is the inbox handoff, so an explicit
-  // direct-publish opt-in maps onto it.
-  if (requested === 'direct_publish' && channel === 'tiktok') return 'platform_inbox';
+  // TikTok has two API-publishing paths. Direct Post (`settings.postMode`)
+  // genuinely publishes to the profile, so it keeps `direct_publish`; without
+  // it the only path is the inbox hand-off, which an explicit direct-publish
+  // opt-in maps onto.
+  if (requested === 'direct_publish' && channel === 'tiktok') {
+    return isTikTokDirectPostSettings(settings) ? 'direct_publish' : 'platform_inbox';
+  }
   return requested;
 }
 
@@ -121,7 +126,7 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
 
   const mediaAssets = await resolveMediaAssetUrls(ctx.workspaceId, input.mediaAssetIds);
   validateResolvedPublicPostInput(input, mediaAssets);
-  const deliveryMode = resolveRequestedDeliveryMode(input.channel, input.deliveryMode);
+  const deliveryMode = resolveRequestedDeliveryMode(input.channel, input.deliveryMode, input.settings);
 
   // Manual reminder posts don't need a connected platform account — nothing is
   // ever sent to the platform. Resolve the destination best-effort so posts

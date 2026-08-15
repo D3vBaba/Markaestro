@@ -11,6 +11,16 @@ describe('public API queued publish flow', () => {
     expect(requiresConnectedPublishDestination(post)).toBe(true);
   });
 
+  it('uses the direct publish path for a TikTok Direct Post', () => {
+    const post = {
+      channel: 'tiktok',
+      settings: { __type: 'tiktok', postMode: 'direct_post' },
+    };
+
+    expect(resolveQueuedPublishDeliveryMode(post)).toBe('direct_publish');
+    expect(requiresConnectedPublishDestination(post)).toBe(true);
+  });
+
   it('ignores legacy review delivery mode and still requires a connected destination', () => {
     const post = {
       channel: 'facebook',

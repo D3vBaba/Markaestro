@@ -8,7 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiGet } from "@/lib/api-client";
-import type { TikTokCreatorInfo } from "@/lib/platform/adapters/tiktok-direct-post";
+import type {
+  TikTokCreatorInfo,
+  TikTokCreatorInfoFailureReason,
+} from "@/lib/platform/adapters/tiktok-direct-post";
 import {
   getTikTokConsentVariant,
   isPrivacyOptionDisabled,
@@ -25,7 +28,7 @@ const BRANDED_CONTENT_POLICY_URL =
 export type TikTokCreatorInfoState =
   | { status: "loading" }
   | { status: "ready"; info: TikTokCreatorInfo }
-  | { status: "error"; message: string };
+  | { status: "error"; message: string; reason?: TikTokCreatorInfoFailureReason };
 
 /**
  * The TikTok Direct Post form.
@@ -64,15 +67,22 @@ export default function TikTokDirectPostPanel({
     onCreatorInfoChange({ status: "loading" });
 
     const query = productId ? `?productId=${encodeURIComponent(productId)}` : "";
-    apiGet<{ ok: boolean; creatorInfo?: TikTokCreatorInfo; error?: string }>(
-      `/api/social/tiktok/creator-info${query}`,
-    )
+    apiGet<{
+      ok: boolean;
+      creatorInfo?: TikTokCreatorInfo;
+      error?: string;
+      reason?: TikTokCreatorInfoFailureReason;
+    }>(`/api/social/tiktok/creator-info${query}`)
       .then((res) => {
         if (cancelled) return;
         if (res.ok && res.data.ok && res.data.creatorInfo) {
           onCreatorInfoChange({ status: "ready", info: res.data.creatorInfo });
         } else {
-          onCreatorInfoChange({ status: "error", message: res.data?.error || t("errors.generic") });
+          onCreatorInfoChange({
+            status: "error",
+            message: res.data?.error || t("errors.generic"),
+            reason: res.data?.reason,
+          });
         }
       })
       .catch(() => {
@@ -98,6 +108,10 @@ export default function TikTokDirectPostPanel({
   }
 
   if (creatorInfo.status === "error") {
+    // A posting cap or ban does not clear by asking again, so the retry
+    // affordance is withheld rather than inviting the creator to burn what is
+    // left of their quota. Everything else is worth another attempt.
+    const retryable = creatorInfo.reason !== "posting_blocked";
     return (
       <div
         className="rounded-xl px-4 py-3 text-[13px] space-y-2"
@@ -108,13 +122,17 @@ export default function TikTokDirectPostPanel({
         }}
       >
         <p>{creatorInfo.message}</p>
-        <button
-          type="button"
-          onClick={() => setReloadToken((n) => n + 1)}
-          className="underline underline-offset-2 font-medium"
-        >
-          {t("retry")}
-        </button>
+        {retryable ? (
+          <button
+            type="button"
+            onClick={() => setReloadToken((n) => n + 1)}
+            className="underline underline-offset-2 font-medium"
+          >
+            {t("retry")}
+          </button>
+        ) : (
+          <p className="opacity-80">{t("errors.postingBlockedHint")}</p>
+        )}
       </div>
     );
   }

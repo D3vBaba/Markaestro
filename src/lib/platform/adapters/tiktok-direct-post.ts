@@ -43,17 +43,86 @@ export type TikTokCreatorInfo = {
   maxVideoPostDurationSec: number | null;
 };
 
-export type TikTokCreatorInfoFailureReason = 'auth' | 'rate_limited' | 'unsupported' | 'transient';
+export type TikTokCreatorInfoFailureReason =
+  | 'auth'
+  | 'rate_limited'
+  | 'unsupported'
+  | 'posting_blocked'
+  | 'transient';
 
 export type TikTokCreatorInfoResult =
   | { ok: true; info: TikTokCreatorInfo }
   | { ok: false; error: string; reason: TikTokCreatorInfoFailureReason };
 
+/**
+ * TikTok's posting-limit and anti-spam codes. These are terminal for the
+ * current attempt: the creator has hit a cap or been blocked from posting, so
+ * retrying the same request just burns quota. They are reported separately
+ * from `transient` so the UI can drop the retry affordance and explain the
+ * actual cause.
+ *
+ * @see https://developers.tiktok.com/doc/content-posting-api-reference-query-creator-info
+ */
+const TIKTOK_POSTING_BLOCKED_CODES = new Set([
+  // The creator hit their own daily API-post cap.
+  'spam_risk_too_many_posts',
+  // The creator is banned from making new posts.
+  'spam_risk_user_banned_from_posting',
+  // Our client hit its daily cap on distinct publishing users.
+  'reached_active_user_cap',
+]);
+
+function isPostingBlockedCode(code: string): boolean {
+  // `spam_risk` on its own is the generic anti-spam flag; the enumerated
+  // codes above are its specific forms. Match the prefix so a code TikTok
+  // adds later still lands in the right bucket.
+  return TIKTOK_POSTING_BLOCKED_CODES.has(code) || code.startsWith('spam_risk');
+}
+
 function classifyCreatorInfoError(status: number, code: string): TikTokCreatorInfoFailureReason {
   if (status === 401 || code === 'access_token_invalid' || code === 'token_expired') return 'auth';
+  if (isPostingBlockedCode(code)) return 'posting_blocked';
   if (status === 429 || code === 'rate_limit_exceeded') return 'rate_limited';
   if (code === 'scope_not_authorized' || code === 'scope_permission_missed') return 'unsupported';
   return 'transient';
+}
+
+/**
+ * Human-readable replacements for the TikTok codes whose own `message` text is
+ * too vague to act on. Anything not listed keeps TikTok's message, which
+ * already carries the code and log_id from `parseTikTokError`.
+ */
+const TIKTOK_ERROR_EXPLANATIONS: Record<string, string> = {
+  spam_risk_too_many_posts: 'This TikTok account has reached its daily limit for posts published through apps. Try again tomorrow.',
+  spam_risk_user_banned_from_posting: 'This TikTok account is currently banned from posting.',
+  reached_active_user_cap: 'TikTok’s daily publishing quota for Markaestro has been reached. Try again tomorrow.',
+  privacy_level_option_mismatch: 'The selected audience is no longer available for this TikTok account. Reopen the post and pick one again.',
+  url_ownership_unverified: 'TikTok could not verify the media URL’s domain. This is a Markaestro configuration issue — contact support.',
+  file_format_check_failed: 'TikTok rejected the media format. Use an MP4 video or JPEG/WebP images.',
+  duration_check_failed: 'This video is longer than the maximum length TikTok allows for this account.',
+  frame_rate_check_failed: 'TikTok rejected the video frame rate. Re-export the video at 23–60 fps.',
+  picture_size_check_failed: 'TikTok rejected the image dimensions. Images must be at least 360px on their shortest side.',
+  video_pull_failed: 'TikTok could not download the video. Try uploading it again.',
+  photo_pull_failed: 'TikTok could not download one of the images. Try uploading them again.',
+};
+
+/**
+ * Prefix TikTok's raw error with an explanation when we have one. The raw
+ * text is kept on the end because it carries the code and log_id needed to
+ * trace a specific failure with TikTok support.
+ */
+function explainTikTokError(rawError: string, code: string): string {
+  const explanation = TIKTOK_ERROR_EXPLANATIONS[code];
+  if (!explanation) return rawError;
+  return `${explanation} (${rawError})`;
+}
+
+/** `parseTikTokError` with the error code applied to the message. */
+function parseExplainedTikTokError(data: Record<string, unknown>): string | undefined {
+  const raw = parseTikTokError(data);
+  if (!raw) return undefined;
+  const code = ((data.error as Record<string, unknown> | undefined)?.code as string | undefined) || '';
+  return explainTikTokError(raw, code);
 }
 
 /**
@@ -92,7 +161,7 @@ export async function queryTikTokCreatorInfo(accessToken: string): Promise<TikTo
     const code = (data.error?.code as string | undefined) || '';
     return {
       ok: false,
-      error: error || `TikTok creator info failed (HTTP ${res.status})`,
+      error: explainTikTokError(error || `TikTok creator info failed (HTTP ${res.status})`, code),
       reason: classifyCreatorInfoError(res.status, code),
     };
   }
@@ -236,7 +305,7 @@ async function directPostVideo(
   });
 
   const initData = await initRes.json().catch(() => ({}));
-  const initError = parseTikTokError(initData);
+  const initError = parseExplainedTikTokError(initData);
   if (initError) return { error: initError };
 
   const publishId = initData.data?.publish_id as string | undefined;
@@ -293,7 +362,7 @@ async function directPostPhotos(
   });
 
   const data = await res.json().catch(() => ({}));
-  const error = parseTikTokError(data);
+  const error = parseExplainedTikTokError(data);
   if (error) return { error };
 
   const publishId = data.data?.publish_id as string | undefined;

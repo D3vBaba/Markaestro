@@ -255,8 +255,10 @@
       "scheduled": "Post scheduled",
       "scheduleFailed": "Failed to schedule post",
       "tiktokSending": "Sending to TikTok. Markaestro is waiting for TikTok to confirm inbox delivery.",
+      "tiktokDirectSending": "Publishing to TikTok. Markaestro is waiting for TikTok to finish processing.",
       "stillProcessing": "Post submitted and still processing.",
       "tiktokInboxConfirmed": "TikTok confirmed inbox delivery. Open TikTok Inbox, finish the caption, and tap Post.",
+      "tiktokDirectPosted": "Posted to TikTok. It may take a few minutes to appear on your profile.",
       "postedToMultiple": "Posted to {channels}!",
       "postedSuccess": "Posted successfully!",
       "publishFailed": "Publishing failed"
@@ -267,7 +269,8 @@
     "unknownCreator": "TikTok account",
     "retry": "Try again",
     "errors": {
-      "generic": "Could not load your TikTok account details. Try again."
+      "generic": "Could not load your TikTok account details. Try again.",
+      "postingBlockedHint": "You can still send this post to your TikTok inbox and finish it from the TikTok app."
     },
     "privacy": {
       "label": "Who can view this post",

@@ -92,6 +92,23 @@ export function asInstagramSettings(settings: unknown): InstagramSettings | unde
 }
 
 /**
+ * Does this settings object opt into TikTok Direct Post?
+ *
+ * The two TikTok flows end in different places — Direct Post lands on the
+ * creator's profile, the inbox hand-off lands in their TikTok app waiting for
+ * them to finish it — so status reporting, notifications, and delivery mode
+ * all have to branch on this rather than on the channel alone.
+ */
+export function isTikTokDirectPostSettings(settings: unknown): boolean {
+  return asTikTokSettings(settings)?.postMode === 'direct_post';
+}
+
+/** `isTikTokDirectPostSettings` for a persisted post document. */
+export function isTikTokDirectPost(post: { settings?: unknown } | Record<string, unknown>): boolean {
+  return isTikTokDirectPostSettings((post as { settings?: unknown }).settings);
+}
+
+/**
  * Validate that a settings object's `__type` matches the post's channel.
  * Throws VALIDATION_SETTINGS_CHANNEL_MISMATCH otherwise.
  */

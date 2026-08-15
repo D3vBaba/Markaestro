@@ -255,8 +255,10 @@
       "scheduled": "Publicación programada",
       "scheduleFailed": "No se pudo programar la publicación",
       "tiktokSending": "Enviando a TikTok. Markaestro está esperando que TikTok confirme la entrega en la bandeja.",
+      "tiktokDirectSending": "Publicando en TikTok. Markaestro está esperando a que TikTok termine de procesarlo.",
       "stillProcessing": "Publicación enviada y aún en proceso.",
       "tiktokInboxConfirmed": "TikTok confirmó la entrega en la bandeja. Abre la Bandeja de TikTok, termina la descripción y toca Publicar.",
+      "tiktokDirectPosted": "Publicado en TikTok. Puede tardar unos minutos en aparecer en tu perfil.",
       "postedToMultiple": "¡Publicado en {channels}!",
       "postedSuccess": "¡Publicado con éxito!",
       "publishFailed": "Error al publicar"
@@ -267,7 +269,8 @@
     "unknownCreator": "Cuenta de TikTok",
     "retry": "Reintentar",
     "errors": {
-      "generic": "No se pudieron cargar los datos de tu cuenta de TikTok. Inténtalo de nuevo."
+      "generic": "No se pudieron cargar los datos de tu cuenta de TikTok. Inténtalo de nuevo.",
+      "postingBlockedHint": "Aún puedes enviar esta publicación a tu bandeja de entrada de TikTok y terminarla desde la app de TikTok."
     },
     "privacy": {
       "label": "Quién puede ver esta publicación",

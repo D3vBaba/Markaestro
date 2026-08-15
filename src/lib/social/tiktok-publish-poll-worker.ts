@@ -15,6 +15,7 @@ import {
   TIKTOK_MANUAL_PUBLISH_ACTION,
 } from '@/lib/tiktok-draft-flow';
 import { getTikTokPublishMappingRef } from '@/lib/social/tiktok-publish-mapping';
+import { isTikTokDirectPost } from '@/lib/public-api/post-settings';
 
 type TikTokPublishPollResult = {
   polled: number;
@@ -340,6 +341,27 @@ export async function pollTikTokPublishForPost(
         : nextStatus === 'failed'
         ? { status: 'failed', error: summary.firstError || 'One or more channels failed' }
         : { status: 'still_processing' };
+  }
+
+  // A Direct Post terminates at PUBLISH_COMPLETE, never in the creator's
+  // inbox. If TikTok reports SEND_TO_USER_INBOX for one anyway, the post is
+  // not waiting on the creator and must not be labelled as such — telling
+  // them to "finish posting in the TikTok app" would send them looking for a
+  // draft that isn't there. Keep polling instead and record the anomaly.
+  if (liveStatus.status === 'SEND_TO_USER_INBOX' && !inboxPostWentLive && isTikTokDirectPost(post)) {
+    logger.warn('tiktok direct post reported inbox delivery', {
+      event: 'tiktok.publish.direct_post_inbox_status',
+      workspaceId,
+      postId: postDocRef.id,
+      publishId,
+    });
+    await postDocRef.update({
+      publishResults: withUpdatedTikTokResult(post.publishResults, 'pending'),
+      tiktokLastStatus: liveStatus.status,
+      tiktokPublishId: publishId,
+      updatedAt: now,
+    });
+    return { status: 'still_processing' };
   }
 
   // MEDIA_UPLOAD mode always terminates at SEND_TO_USER_INBOX: the creator

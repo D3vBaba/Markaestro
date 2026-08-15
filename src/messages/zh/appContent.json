@@ -255,8 +255,10 @@
       "scheduled": "帖子已排期",
       "scheduleFailed": "排期帖子失败",
       "tiktokSending": "正在发送到 TikTok。Markaestro 正在等待 TikTok 确认收件箱送达。",
+      "tiktokDirectSending": "正在发布到 TikTok。Markaestro 正在等待 TikTok 完成处理。",
       "stillProcessing": "帖子已提交，仍在处理中。",
       "tiktokInboxConfirmed": "TikTok 已确认送达收件箱。请打开 TikTok 收件箱，完成文案后点击“发布”。",
+      "tiktokDirectPosted": "已发布到 TikTok。可能需要几分钟才会显示在你的主页上。",
       "postedToMultiple": "已发布到{channels}！",
       "postedSuccess": "发布成功！",
       "publishFailed": "发布失败"
@@ -267,7 +269,8 @@
     "unknownCreator": "TikTok 账号",
     "retry": "重试",
     "errors": {
-      "generic": "无法加载你的 TikTok 账号信息。请重试。"
+      "generic": "无法加载你的 TikTok 账号信息。请重试。",
+      "postingBlockedHint": "你仍然可以将这篇内容发送到 TikTok 收件箱，并在 TikTok 应用中完成发布。"
     },
     "privacy": {
       "label": "谁可以查看此帖子",

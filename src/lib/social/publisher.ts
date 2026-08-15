@@ -24,6 +24,7 @@ import {
 import { sendManualPostReminderEmail } from '@/lib/manual-publish-emails';
 import { firstSocialPostValidationError } from '@/lib/social/post-validation';
 import { getTikTokPublishMappingRef } from '@/lib/social/tiktok-publish-mapping';
+import { isTikTokDirectPostSettings } from '@/lib/public-api/post-settings';
 import { logger } from '@/lib/logger';
 
 export type { PublishRequest, PublishResult };
@@ -308,8 +309,18 @@ export function getPostChannelDestinations(
   return map;
 }
 
-function getEffectiveDeliveryMode(channel: SocialChannel): PublishRequest['deliveryMode'] {
-  return channel === 'tiktok' ? 'platform_inbox' : 'direct_publish';
+/**
+ * TikTok is the only channel whose delivery mode depends on the post rather
+ * than the channel: the inbox hand-off leaves the post waiting on the creator
+ * (`platform_inbox`), while Direct Post publishes straight to their profile
+ * like every other channel (`direct_publish`).
+ */
+function getEffectiveDeliveryMode(
+  channel: SocialChannel,
+  settings: unknown,
+): PublishRequest['deliveryMode'] {
+  if (channel !== 'tiktok') return 'direct_publish';
+  return isTikTokDirectPostSettings(settings) ? 'direct_publish' : 'platform_inbox';
 }
 
 function getPhotoCoverIndex(value: unknown): number | undefined {
@@ -1068,7 +1079,7 @@ export async function publishStoredPost(
   const request = {
     content: String(post.content || ''),
     mediaUrls,
-    deliveryMode: getEffectiveDeliveryMode(primaryChannel),
+    deliveryMode: getEffectiveDeliveryMode(primaryChannel, settings),
     destinationProvider: getDestinationProvider(post.destinationProvider),
     destinationId: getDestinationId(post.destinationId),
     photoCoverIndex: settingsPhotoCoverIndex ?? getPhotoCoverIndex(post.slideshowCoverIndex),

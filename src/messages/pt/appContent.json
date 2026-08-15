@@ -255,8 +255,10 @@
       "scheduled": "Publicação agendada",
       "scheduleFailed": "Falha ao agendar a publicação",
       "tiktokSending": "Enviando para o TikTok. O Markaestro está aguardando a confirmação de entrega na caixa de entrada pelo TikTok.",
+      "tiktokDirectSending": "Publicando no TikTok. O Markaestro está aguardando o TikTok concluir o processamento.",
       "stillProcessing": "Publicação enviada e ainda em processamento.",
       "tiktokInboxConfirmed": "O TikTok confirmou a entrega na caixa de entrada. Abra a Caixa de entrada do TikTok, finalize a legenda e toque em Publicar.",
+      "tiktokDirectPosted": "Publicado no TikTok. Pode levar alguns minutos para aparecer no seu perfil.",
       "postedToMultiple": "Publicado em {channels}!",
       "postedSuccess": "Publicado com sucesso!",
       "publishFailed": "Falha ao publicar"
@@ -267,7 +269,8 @@
     "unknownCreator": "Conta do TikTok",
     "retry": "Tentar novamente",
     "errors": {
-      "generic": "Não foi possível carregar os dados da sua conta do TikTok. Tente novamente."
+      "generic": "Não foi possível carregar os dados da sua conta do TikTok. Tente novamente.",
+      "postingBlockedHint": "Você ainda pode enviar esta publicação para a sua caixa de entrada do TikTok e concluí-la no app do TikTok."
     },
     "privacy": {
       "label": "Quem pode ver esta publicação",

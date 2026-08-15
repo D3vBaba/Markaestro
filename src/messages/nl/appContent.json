@@ -255,8 +255,10 @@
       "scheduled": "Bericht gepland",
       "scheduleFailed": "Bericht plannen mislukt",
       "tiktokSending": "Wordt verzonden naar TikTok. Markaestro wacht tot TikTok de bezorging in het postvak bevestigt.",
+      "tiktokDirectSending": "Bezig met publiceren op TikTok. Markaestro wacht tot TikTok klaar is met verwerken.",
       "stillProcessing": "Bericht verzonden en wordt nog verwerkt.",
       "tiktokInboxConfirmed": "TikTok heeft de bezorging in het postvak bevestigd. Open het TikTok-postvak, rond het bijschrift af en tik op Plaatsen.",
+      "tiktokDirectPosted": "Geplaatst op TikTok. Het kan enkele minuten duren voordat het op je profiel verschijnt.",
       "postedToMultiple": "Geplaatst op {channels}!",
       "postedSuccess": "Succesvol geplaatst!",
       "publishFailed": "Publiceren mislukt"
@@ -267,7 +269,8 @@
     "unknownCreator": "TikTok-account",
     "retry": "Opnieuw proberen",
     "errors": {
-      "generic": "De gegevens van je TikTok-account konden niet worden geladen. Probeer het opnieuw."
+      "generic": "De gegevens van je TikTok-account konden niet worden geladen. Probeer het opnieuw.",
+      "postingBlockedHint": "Je kunt dit bericht nog steeds naar je TikTok-inbox sturen en het in de TikTok-app afmaken."
     },
     "privacy": {
       "label": "Wie deze post kan zien",

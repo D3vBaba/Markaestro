@@ -255,8 +255,10 @@
       "scheduled": "تمت جدولة المنشور",
       "scheduleFailed": "تعذّرت جدولة المنشور",
       "tiktokSending": "جارٍ الإرسال إلى TikTok. ينتظر Markaestro تأكيد TikTok لتسليم صندوق الوارد.",
+      "tiktokDirectSending": "جارٍ النشر على TikTok. ينتظر Markaestro حتى ينتهي TikTok من المعالجة.",
       "stillProcessing": "تم إرسال المنشور وهو لا يزال قيد المعالجة.",
       "tiktokInboxConfirmed": "أكّد TikTok التسليم إلى صندوق الوارد. افتح صندوق وارد TikTok، وأنهِ التسمية التوضيحية، واضغط على نشر.",
+      "tiktokDirectPosted": "تم النشر على TikTok. قد يستغرق ظهوره على ملفك الشخصي بضع دقائق.",
       "postedToMultiple": "تم النشر على {channels}!",
       "postedSuccess": "تم النشر بنجاح!",
       "publishFailed": "فشل النشر"
@@ -267,7 +269,8 @@
     "unknownCreator": "حساب TikTok",
     "retry": "إعادة المحاولة",
     "errors": {
-      "generic": "تعذر تحميل بيانات حساب TikTok الخاص بك. حاول مرة أخرى."
+      "generic": "تعذر تحميل بيانات حساب TikTok الخاص بك. حاول مرة أخرى.",
+      "postingBlockedHint": "لا يزال بإمكانك إرسال هذا المنشور إلى صندوق وارد TikTok وإكماله من تطبيق TikTok."
     },
     "privacy": {
       "label": "من يمكنه مشاهدة هذا المنشور",

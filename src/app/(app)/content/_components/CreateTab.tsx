@@ -22,20 +22,11 @@ import {
   toTikTokDirectPostSettings,
   type TikTokDirectPostFormState,
 } from "@/lib/social/tiktok-direct-post-form";
+import { canUseTikTokDirectPost } from "@/lib/social/tiktok-direct-post-access";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
 const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
-
-/**
- * TikTok Direct Post is gated until the Content Posting API audit passes.
- * Until then TikTok forces every post from this client to SELF_ONLY, so
- * shipping the option would just offer creators a public post that silently
- * lands as private. Off unless explicitly enabled, so production — which sets
- * nothing — never renders it, while local testing opts in via .env.local.
- * Only the composer UI is gated; the publish path stays intact for the
- * documented `settings.postMode` public API field.
- */
-const TIKTOK_DIRECT_POST_ENABLED = process.env.NEXT_PUBLIC_TIKTOK_DIRECT_POST === "1";
 
 type StoredDraft = {
   content: string;
@@ -54,6 +45,7 @@ export default function CreateTab({
 }) {
   const t = useTranslations("content.createTab");
   const tTikTok = useTranslations("content.tiktokDirectPost");
+  const { user } = useAuth();
   const [channel, setChannel] = useState("facebook");
   const [content, setContent] = useState("");
   const [postId, setPostId] = useState<string | null>(null);
@@ -80,7 +72,9 @@ export default function CreateTab({
   const tiktokSelected = selectedChannels.includes("tiktok");
   const tiktokVideoUrl = mediaUrls.find(isVideoUrl) ?? null;
   const tiktokMediaKind: "video" | "photo" = tiktokVideoUrl ? "video" : "photo";
-  const showTikTokModePicker = tiktokSelected && TIKTOK_DIRECT_POST_ENABLED;
+  // Gated per account until TikTok's audit passes — see the access module for
+  // why an unaudited client must not offer this broadly.
+  const showTikTokModePicker = tiktokSelected && canUseTikTokDirectPost(user?.email);
   // Gated off, this is always false, so no TikTok settings are attached and
   // every post takes the inbox hand-off exactly as before.
   const directPostActive = showTikTokModePicker && tiktokPostMode === "direct_post";
@@ -445,6 +439,11 @@ export default function CreateTab({
       await apiPut(`/api/posts/${existingPostId}`, buildPostPayload(urls));
     }
 
+    // Captured before the reset below clears it: the outcome toasts have to
+    // know which TikTok flow this post took, and a Direct Post ends up live on
+    // the creator's profile rather than waiting in their TikTok inbox.
+    const wasDirectPost = directPostActive;
+
     // The post is persisted now, so the composer can reset while the platform
     // call is still in flight rather than holding the user on a spinner for as
     // long as the platform takes. The outcome arrives as a toast, and the post
@@ -475,7 +474,13 @@ export default function CreateTab({
       const hasTikTok = channels.some((c) => c.channel === "tiktok");
 
       if (res.data.status === "publishing" || res.data.pending) {
-        toast.success(hasTikTok ? t("toasts.tiktokSending") : t("toasts.stillProcessing"));
+        toast.success(
+          wasDirectPost
+            ? t("toasts.tiktokDirectSending")
+            : hasTikTok
+              ? t("toasts.tiktokSending")
+              : t("toasts.stillProcessing"),
+        );
         startStatusPolling(id);
         return;
       }
@@ -487,6 +492,10 @@ export default function CreateTab({
 
       if (successful.length > 1) {
         toast.success(t("toasts.postedToMultiple", { channels: successful.map((c) => c.channel).join(" & ") }));
+      } else if (wasDirectPost) {
+        // Direct Post publishes to the profile — never tell the creator to go
+        // finish it in their TikTok inbox.
+        toast.success(t("toasts.tiktokDirectPosted"));
       } else if (hasTikTok) {
         toast.success(t("toasts.tiktokInboxConfirmed"));
       } else {

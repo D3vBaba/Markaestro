@@ -13,6 +13,7 @@ import {
 } from '@/lib/manual-publish-flow';
 import { sendManualPostReminderEmail } from '@/lib/manual-publish-emails';
 import { logger } from '@/lib/logger';
+import { isTikTokDirectPost } from './post-settings';
 import { acquirePublishLock, assertPublishRateLimit, getPublishDestinationKey, releasePublishLock } from './publish-throttle';
 import { enqueueWebhookEvent } from './webhooks';
 import { incrementApiClientStat } from './usage';
@@ -21,7 +22,10 @@ const MAX_PUBLIC_RUNS_PER_WORKSPACE = 20;
 
 export function resolveQueuedPublishDeliveryMode(post: Record<string, unknown>) {
   if (isManualReminderDeliveryMode(post.deliveryMode)) return MANUAL_REMINDER_DELIVERY_MODE;
-  if (String(post.channel) === 'tiktok') return 'platform_inbox';
+  // A TikTok Direct Post publishes to the profile, so it reports the same
+  // delivery mode as every other directly-published channel. Only the inbox
+  // hand-off leaves the post waiting on the creator.
+  if (String(post.channel) === 'tiktok' && !isTikTokDirectPost(post)) return 'platform_inbox';
   return 'direct_publish';
 }
 
