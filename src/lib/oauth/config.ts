@@ -93,8 +93,8 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       'video.publish',
       'video.upload',
       // Needed by the On Platform tab (video/list) and post metrics
-      // (video/query). Must be enabled on the TikTok app before it can be
-      // requested; existing connections must reconnect to grant it.
+      // (video/query). Approved on the TikTok app; connections made before
+      // this scope was added must reconnect to grant it.
       'video.list',
       // Audience snapshots request follower_count from /user/info/.
       'user.info.stats',

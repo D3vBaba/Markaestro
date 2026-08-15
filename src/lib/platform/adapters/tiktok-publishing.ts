@@ -191,11 +191,13 @@ async function fetchTikTokMetrics(
   const error = parseTikTokError(data);
   if (error || !res.ok) {
     const code = (data.error?.code as string | undefined) || '';
+    // video.list is an approved scope on our TikTok app; scope_not_authorized
+    // here means this specific connection predates it and needs a reconnect
+    // to pick it up, not that TikTok categorically disallows it.
     const reason = res.status === 401 || code === 'access_token_invalid' || code === 'token_expired'
+      || code === 'scope_not_authorized' || code === 'scope_permission_missed'
       ? 'auth'
-      : code === 'scope_not_authorized' || code === 'scope_permission_missed'
-        ? 'unsupported'
-        : 'transient';
+      : 'transient';
     return { ok: false, error: error || `TikTok video query failed (HTTP ${res.status})`, reason };
   }
 
@@ -232,8 +234,16 @@ const DEFAULT_LIST_LIMIT = 20;
 const MAX_LIST_LIMIT = 20;
 
 function classifyTikTokListError(status: number, code: string): 'auth' | 'unsupported' | 'transient' {
-  if (status === 401 || code === 'access_token_invalid' || code === 'token_expired') return 'auth';
-  if (code === 'scope_not_authorized' || code === 'scope_permission_missed') return 'unsupported';
+  // video.list is an approved scope on our TikTok app; scope_not_authorized
+  // here means this specific connection predates it and needs a reconnect
+  // to pick it up, not that TikTok categorically disallows it.
+  if (
+    status === 401
+    || code === 'access_token_invalid'
+    || code === 'token_expired'
+    || code === 'scope_not_authorized'
+    || code === 'scope_permission_missed'
+  ) return 'auth';
   return 'transient';
 }
 

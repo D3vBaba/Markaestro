@@ -540,7 +540,7 @@ describe('tiktokPublishingAdapter list/delete', () => {
     expect(JSON.parse(init.body)).toEqual({ max_count: 20, cursor: 1749990000 });
   });
 
-  it('classifies a missing video.list scope as unsupported', async () => {
+  it('classifies a missing video.list scope as auth (needs reconnect)', async () => {
     const { tiktokPublishingAdapter } = await import('@/lib/platform/adapters/tiktok-publishing');
     fetchWithRetryMock.mockResolvedValueOnce(jsonResponse(200, {
       error: { code: 'scope_not_authorized', message: 'scope missing' },
@@ -549,7 +549,7 @@ describe('tiktokPublishingAdapter list/delete', () => {
     const result = await tiktokPublishingAdapter.listPosts!(tiktokConnection, { channel: 'tiktok' });
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.reason).toBe('unsupported');
+    expect(result.reason).toBe('auth');
   });
 
   it('refuses deletes as unsupported without calling the API', async () => {
