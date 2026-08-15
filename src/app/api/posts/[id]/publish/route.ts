@@ -1,3 +1,4 @@
+import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
@@ -21,6 +22,37 @@ export const maxDuration = 300;
 
 const TIKTOK_INLINE_POLL_ATTEMPTS = 10;
 const TIKTOK_INLINE_POLL_INTERVAL_MS = 5_000;
+
+type ChannelResults = Array<Record<string, unknown>>;
+
+/**
+ * The inline TikTok poll updates the post's `publishResults` in Firestore, so
+ * the snapshot captured before the poll can still show TikTok as
+ * `success: false, pending: true` after the post has actually published. The
+ * response must carry the post-poll results — a stale `success: false` with no
+ * `error` renders as "tiktok: undefined" in the composer.
+ */
+async function getFreshChannelResults(
+  workspaceId: string,
+  postId: string,
+  fallback: ChannelResults,
+): Promise<ChannelResults> {
+  try {
+    const snap = await adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`).get();
+    const publishResults = snap.data()?.publishResults;
+    if (Array.isArray(publishResults) && publishResults.length > 0) {
+      return publishResults as ChannelResults;
+    }
+  } catch (error) {
+    logger.warn('post-poll channel result refresh failed', {
+      event: 'posts.publish.channel_refresh_failed',
+      workspaceId,
+      postId,
+      err: error,
+    });
+  }
+  return fallback;
+}
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -178,6 +210,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         });
       }
 
+      // The inline poll may have moved TikTok past the pre-poll snapshot in
+      // `result.channels`; only a terminal outcome makes re-reading worth it.
+      const channels = finalStatus === 'publishing'
+        ? result.channels
+        : await getFreshChannelResults(ctx.workspaceId, id, result.channels as ChannelResults);
+
       return apiOk({
         ok: finalStatus !== 'failed' && finalStatus !== 'partial_failed',
         id,
@@ -187,7 +225,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         externalUrl: result.externalUrl,
         nextAction: finalStatus === PLATFORM_ACTION_REQUIRED_STATUS ? TIKTOK_MANUAL_PUBLISH_ACTION : undefined,
         error: inlineError,
-        channels: result.channels,
+        channels,
       });
     }
 

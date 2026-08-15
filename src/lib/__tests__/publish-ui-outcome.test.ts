@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getPublishUiOutcome } from '../social/publish-ui-outcome';
+import { getFailedChannelResults, getPublishUiOutcome } from '../social/publish-ui-outcome';
 import { TIKTOK_MANUAL_PUBLISH_ACTION } from '../tiktok-draft-flow';
 
 describe('getPublishUiOutcome', () => {
@@ -39,5 +39,33 @@ describe('getPublishUiOutcome', () => {
       platformActionRequired: false,
       processing: false,
     });
+  });
+});
+
+describe('getFailedChannelResults', () => {
+  it('keeps only channels that failed with an error worth showing', () => {
+    expect(getFailedChannelResults([
+      { channel: 'linkedin', success: false, error: 'LinkedIn rejected the media' },
+      { channel: 'facebook', success: true },
+    ])).toEqual([
+      { channel: 'linkedin', success: false, error: 'LinkedIn rejected the media' },
+    ]);
+  });
+
+  it('never reports a pending or error-less channel as failed', () => {
+    // A TikTok Direct Post that completed during the route's inline poll can
+    // come back as the pre-poll snapshot: success false, pending true, no
+    // error. That rendered as "tiktok: undefined" — it must not toast at all.
+    expect(getFailedChannelResults([
+      { channel: 'tiktok', success: false, pending: true },
+      { channel: 'tiktok', success: false },
+    ])).toEqual([]);
+  });
+
+  it('drops intentionally skipped channels and handles a missing list', () => {
+    expect(getFailedChannelResults([
+      { channel: 'instagram', success: false, error: 'Skipped: already published' },
+    ])).toEqual([]);
+    expect(getFailedChannelResults(undefined)).toEqual([]);
   });
 });

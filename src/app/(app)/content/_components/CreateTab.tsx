@@ -23,6 +23,7 @@ import {
   type TikTokDirectPostFormState,
 } from "@/lib/social/tiktok-direct-post-form";
 import { canUseTikTokDirectPost } from "@/lib/social/tiktok-direct-post-access";
+import { getFailedChannelResults } from "@/lib/social/publish-ui-outcome";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
@@ -464,13 +465,13 @@ export default function CreateTab({
       pending?: boolean;
       error?: string;
       externalUrl?: string;
-      channels?: Array<{ channel: string; success: boolean; externalUrl?: string; error?: string }>;
+      channels?: Array<{ channel: string; success: boolean; pending?: boolean; externalUrl?: string; error?: string }>;
     }>(`/api/posts/${id}/publish`, {});
     toast.dismiss(postingToastId);
     if (res.ok && res.data.ok) {
       const channels = res.data.channels || [];
       const successful = channels.filter((c) => c.success);
-      const failed = channels.filter((c) => !c.success && !c.error?.startsWith("Skipped"));
+      const failed = getFailedChannelResults(channels);
       const hasTikTok = channels.some((c) => c.channel === "tiktok");
 
       if (res.data.status === "publishing" || res.data.pending) {

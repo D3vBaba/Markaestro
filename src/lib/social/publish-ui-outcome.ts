@@ -8,6 +8,7 @@ type PublishChannelResult = {
   channel: string;
   success: boolean;
   pending?: boolean;
+  error?: string;
 };
 
 export type PublishUiResponse = {
@@ -16,6 +17,21 @@ export type PublishUiResponse = {
   nextAction?: string;
   channels?: PublishChannelResult[];
 };
+
+/**
+ * The channel results worth a failure toast. A pending channel is still
+ * reconciling in the background, not failed; an entry with no error text has
+ * nothing useful to display ("tiktok: undefined"); and a "Skipped …" result
+ * is an intentional non-attempt.
+ */
+export function getFailedChannelResults<T extends PublishChannelResult>(
+  channels: T[] | undefined,
+): Array<T & { error: string }> {
+  return (channels || []).filter(
+    (c): c is T & { error: string } =>
+      !c.success && !c.pending && typeof c.error === 'string' && c.error.length > 0 && !c.error.startsWith('Skipped'),
+  );
+}
 
 export function getPublishUiOutcome(response: PublishUiResponse) {
   const status = response.status || (response.pending ? 'publishing' : 'published');
