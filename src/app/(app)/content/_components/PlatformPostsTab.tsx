@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { AlertCircle } from "lucide-react";
@@ -353,8 +353,10 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
     deferFromEffect(fetchPosts);
   }, [fetchPosts]);
 
-  const loadMore = async () => {
-    if (!nextCursor) return;
+  const loadingMoreRef = useRef(false);
+  const loadMore = useCallback(async () => {
+    if (!nextCursor || loadingMoreRef.current) return;
+    loadingMoreRef.current = true;
     setLoadingMore(true);
     try {
       const res = await apiGet<ListResponse>(buildPath(nextCursor));
@@ -369,9 +371,27 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
         toast.error(res.data.message || t("toasts.loadMoreFailed"));
       }
     } finally {
+      loadingMoreRef.current = false;
       setLoadingMore(false);
     }
-  };
+  }, [nextCursor, buildPath, t]);
+
+  // Infinite scroll: fetch the next page as soon as the sentinel below the
+  // grid enters view, instead of waiting for a manual "load more" click.
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!nextCursor) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
+      { rootMargin: "400px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [nextCursor, loadMore]);
 
   const handleDelete = async (post: PlatformPost) => {
     setDeletingId(post.externalId);
@@ -444,10 +464,10 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
             ))}
           </div>
           {nextCursor && (
-            <div className="flex justify-center">
-              <Button variant="outline" size="sm" onClick={loadMore} disabled={loadingMore}>
-                {loadingMore ? t("loading") : t("loadMore")}
-              </Button>
+            <div ref={sentinelRef} className="flex justify-center py-2 h-8">
+              {loadingMore && (
+                <span className="text-[12px] text-muted-foreground">{t("loading")}</span>
+              )}
             </div>
           )}
         </>
