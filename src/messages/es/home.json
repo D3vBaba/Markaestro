@@ -6,6 +6,8 @@
     "subtitle": "Sube tu contenido, escribe tus textos y publica cada marca que gestionas — tu negocio, tus clientes o tú mismo — en cada canal social desde un único panel. O entrega una clave de API a tu agente de IA y deja que él lo haga todo.",
     "primaryButton": "Empieza gratis",
     "secondaryButton": "Ver funciones",
+    "signInPrompt": "¿Ya tienes una cuenta?",
+    "signInLink": "Iniciar sesión",
     "stats": [
       { "value": "10h", "label": "Ahorradas por semana" },
       { "value": "6", "label": "Canales, con un clic" },

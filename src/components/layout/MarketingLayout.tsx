@@ -173,6 +173,20 @@ export default function MarketingLayout({
                 </Link>
               );
             })}
+            {/* Sign in lives here on mobile — the header button is sm+ only */}
+            {!user && (
+              <NextLink
+                href="/login"
+                className="block py-3 text-[14px] transition-colors sm:hidden"
+                style={{
+                  color: "var(--mk-ink-60)",
+                  letterSpacing: "-0.005em",
+                }}
+                onClick={() => setMobileOpen(false)}
+              >
+                {t("nav.signIn")}
+              </NextLink>
+            )}
           </div>
         )}
       </header>

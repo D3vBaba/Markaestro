@@ -6,6 +6,8 @@
     "subtitle": "Importez vos contenus, rédigez vos textes et publiez chaque marque que vous gérez — votre entreprise, vos clients ou vous-même — sur tous les réseaux sociaux depuis un seul tableau de bord. Ou confiez une clé API à votre agent IA et laissez-le tout gérer.",
     "primaryButton": "Commencer gratuitement",
     "secondaryButton": "Voir les fonctionnalités",
+    "signInPrompt": "Vous avez déjà un compte ?",
+    "signInLink": "Se connecter",
     "stats": [
       { "value": "10h", "label": "Économisées par semaine" },
       { "value": "6", "label": "Canaux, en un clic" },

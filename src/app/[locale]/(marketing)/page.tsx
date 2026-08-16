@@ -4,6 +4,7 @@ import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import MarketingLayout from "@/components/layout/MarketingLayout";
+import { useOptionalAuth } from "@/components/providers/AuthProvider";
 import CopyBlock from "@/components/marketing/CopyBlock";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -36,6 +37,7 @@ type ComposerRow = { label: string; value: string };
 
 export default function LandingPage() {
   const t = useTranslations("home");
+  const { user } = useOptionalAuth();
   const heroStats = t.raw("hero.stats") as Stat[];
   const featureItems = t.raw("featuresPreview.items") as FeatureItem[];
   const channelItems = t.raw("channelsPreview.channels") as ChannelItem[];
@@ -95,6 +97,21 @@ export default function LandingPage() {
                 </Button>
               </Link>
             </div>
+            {!user && (
+              <p
+                className="mt-5 text-[13px]"
+                style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+              >
+                {t("hero.signInPrompt")}{" "}
+                <NextLink
+                  href="/login"
+                  className="font-medium underline underline-offset-4 transition-colors"
+                  style={{ color: "var(--mk-ink)" }}
+                >
+                  {t("hero.signInLink")}
+                </NextLink>
+              </p>
+            )}
           </motion.div>
 
           {/* Hero stats */}

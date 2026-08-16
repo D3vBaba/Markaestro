@@ -6,6 +6,8 @@
     "subtitle": "上传素材、撰写文案，将你负责营销的每一个品牌 —— 你的企业、你的客户，或是你自己 —— 从一个控制台一键发布到每一个社交渠道。或者把 API 密钥交给你的 AI 代理，让它全权负责。",
     "primaryButton": "免费开始",
     "secondaryButton": "查看功能",
+    "signInPrompt": "已有账号？",
+    "signInLink": "登录",
     "stats": [
       { "value": "10小时", "label": "每周节省时间" },
       { "value": "6", "label": "渠道，一键搞定" },

@@ -6,6 +6,8 @@
     "subtitle": "Lade deine Inhalte hoch, schreibe deine Texte und veröffentliche jede Marke, die du betreust — dein Unternehmen, deine Kunden oder dich selbst — auf jedem sozialen Kanal von einem Dashboard aus. Oder gib deinem KI-Agenten einen API-Schlüssel und lass ihn die Arbeit machen.",
     "primaryButton": "Kostenlos starten",
     "secondaryButton": "Funktionen ansehen",
+    "signInPrompt": "Du hast schon ein Konto?",
+    "signInLink": "Anmelden",
     "stats": [
       { "value": "10 Std.", "label": "Gespart pro Woche" },
       { "value": "6", "label": "Kanäle, ein Klick" },

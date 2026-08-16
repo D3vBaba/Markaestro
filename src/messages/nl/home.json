@@ -6,6 +6,8 @@
     "subtitle": "Upload je media, schrijf je onderschriften en publiceer elk merk dat je promoot — je eigen bedrijf, je klanten, of jezelf — naar elk sociaal kanaal vanuit één dashboard. Of geef een API-sleutel aan je AI-agent en laat die alles regelen.",
     "primaryButton": "Start gratis",
     "secondaryButton": "Bekijk functies",
+    "signInPrompt": "Heb je al een account?",
+    "signInLink": "Inloggen",
     "stats": [
       { "value": "10u", "label": "Bespaard per week" },
       { "value": "6", "label": "Kanalen, één klik" },

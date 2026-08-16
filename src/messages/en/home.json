@@ -6,6 +6,8 @@
     "subtitle": "Upload your media, write your captions, and publish every brand you market — your business, your clients, or yourself — to every social channel from one dashboard. Or hand an API key to your AI agent and let it run the whole thing.",
     "primaryButton": "Start for free",
     "secondaryButton": "See features",
+    "signInPrompt": "Already have an account?",
+    "signInLink": "Sign in",
     "stats": [
       { "value": "10hrs", "label": "Saved per week" },
       { "value": "6", "label": "Channels, one click" },

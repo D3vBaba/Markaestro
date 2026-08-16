@@ -6,6 +6,8 @@
     "subtitle": "Carica i tuoi contenuti, scrivi le tue didascalie e pubblica ogni brand che promuovi — la tua attività, i tuoi clienti, o te stesso — su ogni canale social da un'unica dashboard. Oppure consegna una chiave API al tuo agente IA e lascia che gestisca tutto.",
     "primaryButton": "Inizia gratis",
     "secondaryButton": "Scopri le funzionalità",
+    "signInPrompt": "Hai già un account?",
+    "signInLink": "Accedi",
     "stats": [
       { "value": "10h", "label": "Risparmiate a settimana" },
       { "value": "6", "label": "Canali, un clic" },

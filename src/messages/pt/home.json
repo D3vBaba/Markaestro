@@ -6,6 +6,8 @@
     "subtitle": "Envie sua mídia, escreva suas legendas e publique cada marca que você promove — seu negócio, seus clientes ou você mesmo — em todos os canais sociais a partir de um único painel. Ou entregue uma chave de API ao seu agente de IA e deixe que ele cuide de tudo.",
     "primaryButton": "Comece grátis",
     "secondaryButton": "Ver recursos",
+    "signInPrompt": "Já tem uma conta?",
+    "signInLink": "Entrar",
     "stats": [
       { "value": "10h", "label": "Economizadas por semana" },
       { "value": "6", "label": "Canais, um clique" },
