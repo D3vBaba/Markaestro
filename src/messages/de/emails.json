@@ -87,8 +87,8 @@
     "greeting": "Hallo,",
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> hat dich eingeladen, dem Workspace <strong>{workspaceName}</strong> auf Markaestro {roleLabel} beizutreten.",
     "bodyIntroNoInviter": "Ein Teammitglied hat dich eingeladen, dem Workspace <strong>{workspaceName}</strong> auf Markaestro {roleLabel} beizutreten.",
-    "signInInstructions": "Melde dich mit dieser E-Mail-Adresse an (oder erstelle ein Konto) — die Einladung wird automatisch angewendet:",
-    "declineNote": "Wenn du nicht beitreten möchtest, ignoriere einfach diese E-Mail — die Einladung läuft nach 30 Tagen ab.",
+    "signInInstructions": "Melde dich mit dieser E-Mail-Adresse an (oder erstelle ein Konto) und nimm die Einladung dann über das Banner in der App an:",
+    "declineNote": "Du möchtest nicht beitreten? Lehne die Einladung in der App ab oder unternimm einfach nichts — sie läuft nach 30 Tagen ab.",
     "roleLabels": {
       "admin": "als Administrator",
       "member": "als Mitglied",

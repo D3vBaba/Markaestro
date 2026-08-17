@@ -87,8 +87,8 @@
     "greeting": "Ciao,",
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> ti ha invitato a unirti al workspace <strong>{workspaceName}</strong> su Markaestro {roleLabel}.",
     "bodyIntroNoInviter": "Un collega ti ha invitato a unirti al workspace <strong>{workspaceName}</strong> su Markaestro {roleLabel}.",
-    "signInInstructions": "Accedi (o crea un account) usando questo indirizzo email e l'invito verrà applicato automaticamente:",
-    "declineNote": "Se non vuoi unirti, ignora semplicemente questa email — l'invito scadrà dopo 30 giorni.",
+    "signInInstructions": "Accedi (o crea un account) con questo indirizzo email, poi accetta l'invito dal banner nell'app:",
+    "declineNote": "Non vuoi unirti? Rifiuta l'invito nell'app, oppure semplicemente non fare nulla — l'invito scadrà dopo 30 giorni.",
     "roleLabels": {
       "admin": "come amministratore",
       "member": "come membro",

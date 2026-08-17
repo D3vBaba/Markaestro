@@ -21,7 +21,7 @@ import PageHeader from "@/components/app/PageHeader";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import AppLocaleSwitcher from "@/components/app/AppLocaleSwitcher";
-import { apiDelete, apiGet, apiPost, apiPut, apiFetch } from "@/lib/api-client";
+import { apiDelete, apiGet, apiPost, apiPut, apiFetch, getApiWorkspaceId } from "@/lib/api-client";
 import { deferFromEffect } from "@/lib/defer-from-effect";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
@@ -48,6 +48,16 @@ type Member = {
   role: 'owner' | 'admin' | 'member' | 'analyst';
   joinedAt?: string;
 };
+
+type PendingInviteInfo = {
+  id: string;
+  email: string;
+  role: 'admin' | 'member' | 'analyst';
+  invitedByEmail?: string;
+  invitedAt?: string;
+};
+
+type WorkspaceRow = { id: string; name: string; role: 'owner' | 'admin' | 'member' | 'analyst' };
 
 type UsageMetric = { current: number; limit: number };
 
@@ -918,6 +928,7 @@ function IntegrationsTab() {
 
   function connect(provider: string, productId: string, linkedinMode?: "profile" | "community") {
     const qs = new URLSearchParams({
+      workspaceId: getApiWorkspaceId(),
       productId,
       returnTo: "/settings?tab=integrations",
     });
@@ -1220,54 +1231,124 @@ function IntegrationsTab() {
 function TeamTab() {
   const t = useTranslations("settings.team");
   const { status } = useSubscription();
-  const { current: workspace } = useWorkspace();
+  const { user } = useAuth();
+  const { current: workspace, refresh: refreshWorkspaces } = useWorkspace();
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteEmailError, setInviteEmailError] = useState<string | null>(null);
   const [inviteRole, setInviteRole] = useState<'admin' | 'member' | 'analyst'>('member');
   const [inviting, setInviting] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<{ uid: string; email: string } | null>(null);
+  const [roleSaving, setRoleSaving] = useState<string | null>(null);
+  const [transferTarget, setTransferTarget] = useState<{ uid: string; email: string } | null>(null);
+  const [transferring, setTransferring] = useState(false);
+  const [inviteBusyEmail, setInviteBusyEmail] = useState<string | null>(null);
 
   const wsId = workspace?.id ?? 'default';
   const tier = (status?.tier ?? 'starter') as PlanTier;
   const plan = PLANS[tier];
   const limit = plan.limits.teamMembers;
   const canInvite = workspace?.role === 'owner' || workspace?.role === 'admin';
+  const isOwner = workspace?.role === 'owner';
 
   const {
     data: membersData,
     loading: membersLoading,
     refresh: fetchMembers,
-  } = useApiQuery<{ members: Member[] }>('/api/team', { wsId });
+  } = useApiQuery<{ members: Member[]; pendingInvites: PendingInviteInfo[] }>('/api/team', { wsId });
   const members = membersData?.members ?? [];
+  const pendingInvites = membersData?.pendingInvites ?? [];
+  // Pending invites hold a seat: the server counts them toward the plan
+  // limit, so the form must too or invites fail with a surprise error.
+  const seatsUsed = members.length + pendingInvites.length;
 
-  async function invite() {
-    const candidate = inviteEmail.trim();
+  async function invite(emailOverride?: string, roleOverride?: 'admin' | 'member' | 'analyst') {
+    const candidate = (emailOverride ?? inviteEmail).trim();
+    const role = roleOverride ?? inviteRole;
     if (!candidate) return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate)) {
       setInviteEmailError(t("toasts.invalidEmail"));
       return;
     }
     setInviteEmailError(null);
-    setInviting(true);
+    if (emailOverride) setInviteBusyEmail(candidate);
+    else setInviting(true);
     try {
-      const res = await apiPost<{ status: string; email: string }>('/api/team', { email: candidate, role: inviteRole }, wsId);
+      const res = await apiPost<{ status: string; email: string }>('/api/team', { email: candidate, role }, wsId);
       if (res.ok) {
-        const s = res.data.status;
-        if (s === 'pending') toast.success(t("toasts.inviteSent", { email: res.data.email }));
-        else if (s === 'already_owner') toast.info(t("toasts.alreadyOwner", { email: inviteEmail }));
-        else toast.success(t("toasts.addedAs", { email: inviteEmail, role: t(`roleLabels.${inviteRole}`) }));
-        setInviteEmail('');
+        // The server never adds the user directly — it records an invite the
+        // person accepts on their own account.
+        toast.success(t("toasts.inviteSent", { email: res.data.email }));
+        if (!emailOverride) setInviteEmail('');
         fetchMembers();
       } else {
         const err = (res.data as { error?: string }).error;
         if (err === 'TEAM_LIMIT_REACHED') toast.error(t("toasts.limitReached", { plan: plan.name, limit }));
+        else if (err === 'FORBIDDEN') toast.error(t("toasts.adminInviteOwnerOnly"));
         else toast.error(t("toasts.inviteFailed"));
       }
     } catch {
       toast.error(t("toasts.somethingWrong"));
     } finally {
       setInviting(false);
+      setInviteBusyEmail(null);
+    }
+  }
+
+  async function revokeInvite(email: string) {
+    setInviteBusyEmail(email);
+    try {
+      const res = await apiFetch(`/api/team/invites?email=${encodeURIComponent(email)}&workspaceId=${wsId}`, { method: 'DELETE' });
+      if (res.ok) {
+        toast.success(t("toasts.inviteRevoked", { email }));
+        fetchMembers();
+      } else {
+        toast.error(t("toasts.revokeFailed"));
+      }
+    } catch {
+      toast.error(t("toasts.somethingWrong"));
+    } finally {
+      setInviteBusyEmail(null);
+    }
+  }
+
+  async function changeRole(uid: string, role: 'admin' | 'member' | 'analyst') {
+    setRoleSaving(uid);
+    try {
+      const res = await apiFetch(`/api/team/${uid}?workspaceId=${wsId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ role }),
+      });
+      if (res.ok) {
+        toast.success(t("toasts.roleChanged", { role: t(`roleLabels.${role}`) }));
+        fetchMembers();
+      } else {
+        toast.error(t("toasts.roleChangeFailed"));
+      }
+    } catch {
+      toast.error(t("toasts.somethingWrong"));
+    } finally {
+      setRoleSaving(null);
+    }
+  }
+
+  async function confirmTransferOwnership() {
+    if (!transferTarget) return;
+    setTransferring(true);
+    try {
+      const res = await apiFetch(`/api/team/${transferTarget.uid}/transfer-ownership?workspaceId=${wsId}`, { method: 'POST' });
+      if (res.ok) {
+        toast.success(t("toasts.ownershipTransferred", { email: transferTarget.email }));
+        setTransferTarget(null);
+        fetchMembers();
+        await refreshWorkspaces();
+      } else {
+        toast.error(t("toasts.transferFailed"));
+      }
+    } catch {
+      toast.error(t("toasts.somethingWrong"));
+    } finally {
+      setTransferring(false);
     }
   }
 
@@ -1304,7 +1385,7 @@ function TeamTab() {
           <CardDescription>
             {limit === -1
               ? t("unlimitedMembers", { plan: plan.name })
-              : t("memberCount", { count: membersLoading ? "…" : members.length, limit, plan: plan.name })}
+              : t("memberCount", { count: membersLoading ? "…" : seatsUsed, limit, plan: plan.name })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -1326,39 +1407,114 @@ function TeamTab() {
             {!membersLoading && members.length === 0 && (
               <p className="text-sm text-muted-foreground px-4 py-3">{t("noMembers")}</p>
             )}
-            {members.map((m) => (
-              <div key={m.uid} className="flex items-center justify-between px-4 py-3 gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                    <span className="text-xs font-semibold text-muted-foreground">
-                      {m.email.slice(0, 2).toUpperCase()}
-                    </span>
+            {members.map((m) => {
+              const isSelf = m.uid === user?.uid;
+              const canManageThisRole = isOwner && !isSelf && m.role !== 'owner';
+              return (
+                <div key={m.uid} className="flex items-center justify-between px-4 py-3 gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        {m.email.slice(0, 2).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {m.email}
+                        {isSelf && (
+                          <Badge className="ml-2 bg-primary/10 text-primary border-0 align-middle">{t("youBadge")}</Badge>
+                        )}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t(`roleLabels.${m.role}`)}
+                        {roleDescriptions[m.role] ? ` — ${roleDescriptions[m.role]}` : ""}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{m.email}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {t(`roleLabels.${m.role}`)}
-                      {roleDescriptions[m.role] ? ` — ${roleDescriptions[m.role]}` : ""}
-                    </p>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {canManageThisRole && (
+                      <div className="w-28 hidden sm:block">
+                        <Select
+                          value={m.role}
+                          disabled={roleSaving === m.uid}
+                          onChange={(e) => changeRole(m.uid, e.target.value as 'admin' | 'member' | 'analyst')}
+                        >
+                          <option value="member">{t("roleLabels.member")}</option>
+                          <option value="analyst">{t("roleLabels.analyst")}</option>
+                          <option value="admin">{t("roleLabels.admin")}</option>
+                        </Select>
+                      </div>
+                    )}
+                    {canManageThisRole && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-muted-foreground shrink-0"
+                        onClick={() => setTransferTarget({ uid: m.uid, email: m.email })}
+                      >
+                        {t("makeOwner")}
+                      </Button>
+                    )}
+                    {canInvite && m.role !== 'owner' && !isSelf && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-muted-foreground hover:text-mk-neg shrink-0"
+                        onClick={() => setRemoveTarget({ uid: m.uid, email: m.email })}
+                        disabled={removing === m.uid}
+                      >
+                        {removing === m.uid ? t("removing") : t("remove")}
+                      </Button>
+                    )}
                   </div>
                 </div>
-                {canInvite && m.role !== 'owner' && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-muted-foreground hover:text-mk-neg shrink-0"
-                    onClick={() => setRemoveTarget({ uid: m.uid, email: m.email })}
-                    disabled={removing === m.uid}
-                  >
-                    {removing === m.uid ? t("removing") : t("remove")}
-                  </Button>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
 
+          {/* Pending invitations */}
+          {pendingInvites.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">{t("pendingTitle")}</p>
+              <div className="rounded-xl border divide-y divide-border/40">
+                {pendingInvites.map((inv) => (
+                  <div key={inv.id} className="flex items-center justify-between px-4 py-3 gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{inv.email}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t(`roleLabels.${inv.role}`)} · <Badge variant="outline" className="align-middle text-[10px]">{t("pendingBadge")}</Badge>
+                      </p>
+                    </div>
+                    {canInvite && (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs text-muted-foreground shrink-0"
+                          disabled={inviteBusyEmail === inv.email}
+                          onClick={() => invite(inv.email, inv.role)}
+                        >
+                          {t("resend")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs text-muted-foreground hover:text-mk-neg shrink-0"
+                          disabled={inviteBusyEmail === inv.email}
+                          onClick={() => revokeInvite(inv.email)}
+                        >
+                          {t("revoke")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Invite form */}
-          {canInvite && (limit === -1 || members.length < limit) && (
+          {canInvite && (limit === -1 || seatsUsed < limit) && (
             <div className="space-y-2">
               <p className="text-xs font-medium text-muted-foreground">{t("inviteLabel")}</p>
               <div className="flex flex-col sm:flex-row gap-2">
@@ -1377,10 +1533,10 @@ function TeamTab() {
                   >
                     <option value="member">{t("roleLabels.member")}</option>
                     <option value="analyst">{t("roleLabels.analyst")}</option>
-                    <option value="admin">{t("roleLabels.admin")}</option>
+                    {isOwner && <option value="admin">{t("roleLabels.admin")}</option>}
                   </Select>
                 </div>
-                <Button onClick={invite} disabled={inviting || !inviteEmail.trim()}>
+                <Button onClick={() => invite()} disabled={inviting || !inviteEmail.trim()}>
                   {inviting ? t("inviting") : t("invite")}
                 </Button>
               </div>
@@ -1390,7 +1546,7 @@ function TeamTab() {
             </div>
           )}
 
-          {canInvite && limit !== -1 && members.length >= limit && (
+          {canInvite && limit !== -1 && seatsUsed >= limit && (
             <p className="text-xs text-muted-foreground pt-1">
               {t("limitReached")}{' '}
               <Link href="/settings?tab=billing" className="text-primary hover:underline">{t("upgradePlan")}</Link> {t("toInviteMore")}
@@ -1426,6 +1582,26 @@ function TeamTab() {
         warning={t("removeDialog.warning")}
         onConfirm={confirmRemoveMember}
       />
+
+      {/* Transfer ownership */}
+      <Dialog open={!!transferTarget} onOpenChange={(open) => { if (!open) setTransferTarget(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("transferDialog.title")}</DialogTitle>
+            <DialogDescription className="pt-1 leading-relaxed">
+              {t("transferDialog.description", { email: transferTarget?.email ?? '' })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTransferTarget(null)} disabled={transferring}>
+              {t("transferDialog.cancel")}
+            </Button>
+            <Button onClick={confirmTransferOwnership} disabled={transferring}>
+              {transferring ? <Loader2 className="h-4 w-4 animate-spin" /> : t("transferDialog.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -1441,6 +1617,9 @@ function WorkspacesTab() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [leaveTarget, setLeaveTarget] = useState<WorkspaceRow | null>(null);
+  const [leaving, setLeaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<WorkspaceRow | null>(null);
 
   const tier = (status?.tier ?? 'starter') as PlanTier;
   const plan = PLANS[tier];
@@ -1492,6 +1671,44 @@ function WorkspacesTab() {
       toast.error(t("toasts.somethingWrong"));
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function confirmLeaveWorkspace() {
+    if (!leaveTarget) return;
+    setLeaving(true);
+    try {
+      const res = await apiFetch(`/api/team/leave?workspaceId=${leaveTarget.id}`, { method: 'POST' });
+      if (res.ok) {
+        toast.success(t("toasts.left", { name: leaveTarget.name }));
+        setLeaveTarget(null);
+        await refresh();
+        invalidateQueries();
+      } else {
+        toast.error(t("toasts.leaveFailed"));
+      }
+    } catch {
+      toast.error(t("toasts.somethingWrong"));
+    } finally {
+      setLeaving(false);
+    }
+  }
+
+  async function confirmDeleteWorkspace() {
+    if (!deleteTarget) return;
+    try {
+      const res = await apiFetch(`/api/workspaces/${deleteTarget.id}?workspaceId=${deleteTarget.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        toast.success(t("toasts.deleted", { name: deleteTarget.name }));
+        await refresh();
+        invalidateQueries();
+      } else {
+        toast.error(t("toasts.deleteFailed"));
+      }
+    } catch {
+      toast.error(t("toasts.somethingWrong"));
+    } finally {
+      setDeleteTarget(null);
     }
   }
 
@@ -1562,13 +1779,36 @@ function WorkspacesTab() {
                     </>
                   )}
                 </div>
-                {ws.id === current?.id ? (
-                  <Badge className="bg-primary/10 text-primary border-0 shrink-0">{t("active")}</Badge>
-                ) : (
-                  <Button variant="outline" size="sm" className="shrink-0" onClick={() => switchWorkspace(ws.id)}>
-                    {t("switch")}
-                  </Button>
-                )}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {ws.id === current?.id ? (
+                    <Badge className="bg-primary/10 text-primary border-0 shrink-0">{t("active")}</Badge>
+                  ) : (
+                    <Button variant="outline" size="sm" className="shrink-0" onClick={() => switchWorkspace(ws.id)}>
+                      {t("switch")}
+                    </Button>
+                  )}
+                  {ws.role !== 'owner' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-muted-foreground hover:text-mk-neg shrink-0"
+                      onClick={() => setLeaveTarget(ws)}
+                    >
+                      {t("leave")}
+                    </Button>
+                  )}
+                  {ws.role === 'owner' && workspaces.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-mk-neg shrink-0"
+                      onClick={() => setDeleteTarget(ws)}
+                      aria-label={t("deleteAria", { name: ws.name })}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -1600,6 +1840,37 @@ function WorkspacesTab() {
           )}
         </CardContent>
       </Card>
+
+      {/* Leave workspace */}
+      <Dialog open={!!leaveTarget} onOpenChange={(open) => { if (!open) setLeaveTarget(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("leaveDialog.title")}</DialogTitle>
+            <DialogDescription className="pt-1 leading-relaxed">
+              {t("leaveDialog.description", { name: leaveTarget?.name ?? '' })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLeaveTarget(null)} disabled={leaving}>
+              {t("leaveDialog.cancel")}
+            </Button>
+            <Button variant="destructive" onClick={confirmLeaveWorkspace} disabled={leaving}>
+              {leaving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("leaveDialog.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete workspace — typed confirmation, it removes everything */}
+      <ConfirmDeleteDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        entity="workspace"
+        name={deleteTarget?.name}
+        requireTypedConfirmation
+        warning={t("deleteDialog.warning")}
+        onConfirm={confirmDeleteWorkspace}
+      />
     </div>
   );
 }

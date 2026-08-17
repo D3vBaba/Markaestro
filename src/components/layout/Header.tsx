@@ -52,7 +52,7 @@ export function Header() {
     const tHeader = useTranslations("shell.header");
     const isRtl = isRtlLocale(useLocale());
     const [logoutOpen, setLogoutOpen] = useState(false);
-    const { current: workspace } = useWorkspace();
+    const { current: workspace, workspaces, switchWorkspace } = useWorkspace();
     const [paletteOpen, setPaletteOpen] = useState(false);
 
     const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
@@ -111,42 +111,54 @@ export function Header() {
                         </span>
                     </div>
 
-                    {/* Workspace chip */}
+                    {/* Workspace switcher — tap another workspace to switch */}
                     {workspace && (
                         <div
                             className="px-3 pb-3.5 border-b"
                             style={{ borderColor: "var(--mk-rule)" }}
                         >
-                            <div
-                                className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2"
-                                style={{
-                                    border: "1px solid var(--mk-rule)",
-                                    background: "var(--mk-paper)",
-                                }}
-                            >
-                                <div
-                                    className="h-6 w-6 rounded-[5px] grid place-items-center shrink-0 font-mono text-[11px] font-semibold"
-                                    style={{
-                                        background: "var(--mk-accent)",
-                                        color: "var(--mk-accent-ink)",
-                                    }}
-                                >
-                                    {workspace.name.slice(0, 2).toUpperCase()}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p
-                                        className="text-[12.5px] font-medium leading-tight truncate"
-                                        style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
-                                    >
-                                        {workspace.name}
-                                    </p>
-                                    <p
-                                        className="text-[10px] mt-0.5 capitalize"
-                                        style={{ color: "var(--mk-ink-40)" }}
-                                    >
-                                        {workspace.role}
-                                    </p>
-                                </div>
+                            <div className="grid gap-1.5">
+                                {(workspaces.length > 0 ? workspaces : [workspace]).map((ws) => {
+                                    const active = ws.id === workspace.id;
+                                    return (
+                                        <button
+                                            key={ws.id}
+                                            type="button"
+                                            onClick={() => { if (!active) switchWorkspace(ws.id); }}
+                                            aria-current={active ? "true" : undefined}
+                                            className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left"
+                                            style={{
+                                                border: "1px solid var(--mk-rule)",
+                                                background: active ? "var(--mk-paper)" : "transparent",
+                                                opacity: active ? 1 : 0.75,
+                                            }}
+                                        >
+                                            <div
+                                                className="h-6 w-6 rounded-[5px] grid place-items-center shrink-0 font-mono text-[11px] font-semibold"
+                                                style={{
+                                                    background: "var(--mk-accent)",
+                                                    color: "var(--mk-accent-ink)",
+                                                }}
+                                            >
+                                                {ws.name.slice(0, 2).toUpperCase()}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p
+                                                    className="text-[12.5px] font-medium leading-tight truncate"
+                                                    style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+                                                >
+                                                    {ws.name}
+                                                </p>
+                                                <p
+                                                    className="text-[10px] mt-0.5 capitalize"
+                                                    style={{ color: "var(--mk-ink-40)" }}
+                                                >
+                                                    {ws.role}
+                                                </p>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}

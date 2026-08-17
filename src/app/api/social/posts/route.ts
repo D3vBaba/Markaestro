@@ -156,7 +156,7 @@ export async function GET(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const ctx = await requireContext(req);
-    requirePermission(ctx, 'posts.write');
+    requirePermission(ctx, 'posts.publish');
     const url = new URL(req.url);
     const query = deleteQuerySchema.parse(Object.fromEntries(url.searchParams));
 

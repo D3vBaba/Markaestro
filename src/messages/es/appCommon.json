@@ -32,7 +32,8 @@
       "connection": "conexión",
       "teamMember": "miembro del equipo",
       "integration": "integración",
-      "post": "publicación"
+      "post": "publicación",
+      "workspace": "espacio de trabajo"
     },
     "titleGeneric": "Eliminar {entity}",
     "titleNamed": "¿Eliminar {entity}?",
@@ -63,11 +64,26 @@
   },
   "scanProgressStepper": {
     "steps": {
-      "connecting": { "label": "Conectar con el sitio", "activeLabel": "Conectando con el sitio…" },
-      "reading": { "label": "Leer el contenido del sitio", "activeLabel": "Leyendo el contenido del sitio…" },
-      "extracting": { "label": "Extraer colores de marca", "activeLabel": "Extrayendo colores de marca y logo…" },
-      "analyzing": { "label": "Analizar señales de marca", "activeLabel": "Analizando señales de marca…" },
-      "finalizing": { "label": "Crear perfil de marca", "activeLabel": "Creando tu perfil de marca…" }
+      "connecting": {
+        "label": "Conectar con el sitio",
+        "activeLabel": "Conectando con el sitio…"
+      },
+      "reading": {
+        "label": "Leer el contenido del sitio",
+        "activeLabel": "Leyendo el contenido del sitio…"
+      },
+      "extracting": {
+        "label": "Extraer colores de marca",
+        "activeLabel": "Extrayendo colores de marca y logo…"
+      },
+      "analyzing": {
+        "label": "Analizar señales de marca",
+        "activeLabel": "Analizando señales de marca…"
+      },
+      "finalizing": {
+        "label": "Crear perfil de marca",
+        "activeLabel": "Creando tu perfil de marca…"
+      }
     },
     "scanComplete": "Análisis completado — revisa y confirma a continuación",
     "scanFailed": "Error en el análisis — completa manualmente",

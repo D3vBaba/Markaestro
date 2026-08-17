@@ -82,5 +82,15 @@
     "cancel": "البقاء مسجّلاً للدخول",
     "confirm": "تسجيل الخروج",
     "confirming": "جارٍ تسجيل الخروج…"
+  },
+  "invitesBanner": {
+    "invitedBy": "دعاك {inviterEmail} للانضمام إلى {workspaceName}",
+    "invited": "تمت دعوتك للانضمام إلى {workspaceName}",
+    "accept": "قبول",
+    "decline": "رفض",
+    "joined": "لقد انضممت إلى {workspaceName}",
+    "declined": "تم رفض الدعوة إلى {workspaceName}",
+    "acceptError": "تعذّر قبول الدعوة. يُرجى المحاولة مرة أخرى.",
+    "declineError": "تعذّر رفض الدعوة. يُرجى المحاولة مرة أخرى."
   }
 }

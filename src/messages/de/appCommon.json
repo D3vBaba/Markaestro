@@ -32,7 +32,8 @@
       "connection": "Verbindung",
       "teamMember": "Teammitglied",
       "integration": "Integration",
-      "post": "Beitrag"
+      "post": "Beitrag",
+      "workspace": "Arbeitsbereich"
     },
     "titleGeneric": "{entity} löschen",
     "titleNamed": "{entity} löschen?",
@@ -63,11 +64,26 @@
   },
   "scanProgressStepper": {
     "steps": {
-      "connecting": { "label": "Mit Website verbinden", "activeLabel": "Verbindung zur Website wird hergestellt…" },
-      "reading": { "label": "Website-Inhalt lesen", "activeLabel": "Website-Inhalt wird gelesen…" },
-      "extracting": { "label": "Markenfarben extrahieren", "activeLabel": "Markenfarben & Logo werden extrahiert…" },
-      "analyzing": { "label": "Markensignale analysieren", "activeLabel": "Markensignale werden analysiert…" },
-      "finalizing": { "label": "Markenprofil erstellen", "activeLabel": "Dein Markenprofil wird erstellt…" }
+      "connecting": {
+        "label": "Mit Website verbinden",
+        "activeLabel": "Verbindung zur Website wird hergestellt…"
+      },
+      "reading": {
+        "label": "Website-Inhalt lesen",
+        "activeLabel": "Website-Inhalt wird gelesen…"
+      },
+      "extracting": {
+        "label": "Markenfarben extrahieren",
+        "activeLabel": "Markenfarben & Logo werden extrahiert…"
+      },
+      "analyzing": {
+        "label": "Markensignale analysieren",
+        "activeLabel": "Markensignale werden analysiert…"
+      },
+      "finalizing": {
+        "label": "Markenprofil erstellen",
+        "activeLabel": "Dein Markenprofil wird erstellt…"
+      }
     },
     "scanComplete": "Scan abgeschlossen — unten prüfen und bestätigen",
     "scanFailed": "Scan fehlgeschlagen — bitte manuell ausfüllen",

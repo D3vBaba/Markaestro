@@ -32,7 +32,8 @@
       "connection": "verbinding",
       "teamMember": "teamlid",
       "integration": "integratie",
-      "post": "bericht"
+      "post": "bericht",
+      "workspace": "werkruimte"
     },
     "titleGeneric": "{entity} verwijderen",
     "titleNamed": "{entity} verwijderen?",
@@ -63,11 +64,26 @@
   },
   "scanProgressStepper": {
     "steps": {
-      "connecting": { "label": "Verbinden met site", "activeLabel": "Verbinden met site…" },
-      "reading": { "label": "Websitecontent lezen", "activeLabel": "Websitecontent wordt gelezen…" },
-      "extracting": { "label": "Merkkleuren extraheren", "activeLabel": "Merkkleuren & logo worden geëxtraheerd…" },
-      "analyzing": { "label": "Merksignalen analyseren", "activeLabel": "Merksignalen worden geanalyseerd…" },
-      "finalizing": { "label": "Merkprofiel opbouwen", "activeLabel": "Je merkprofiel wordt opgebouwd…" }
+      "connecting": {
+        "label": "Verbinden met site",
+        "activeLabel": "Verbinden met site…"
+      },
+      "reading": {
+        "label": "Websitecontent lezen",
+        "activeLabel": "Websitecontent wordt gelezen…"
+      },
+      "extracting": {
+        "label": "Merkkleuren extraheren",
+        "activeLabel": "Merkkleuren & logo worden geëxtraheerd…"
+      },
+      "analyzing": {
+        "label": "Merksignalen analyseren",
+        "activeLabel": "Merksignalen worden geanalyseerd…"
+      },
+      "finalizing": {
+        "label": "Merkprofiel opbouwen",
+        "activeLabel": "Je merkprofiel wordt opgebouwd…"
+      }
     },
     "scanComplete": "Scan voltooid — controleer en bevestig hieronder",
     "scanFailed": "Scan mislukt — vul handmatig in",

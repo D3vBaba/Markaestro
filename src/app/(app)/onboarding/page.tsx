@@ -9,7 +9,7 @@ import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider"
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { apiFetch } from "@/lib/api-client";
+import { apiFetch, apiPost, getApiWorkspaceId } from "@/lib/api-client";
 import { deferFromEffect } from "@/lib/defer-from-effect";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { useProductScan } from "@/hooks/useProductScan";
@@ -639,9 +639,7 @@ export default function OnboardingPage() {
     const normalizedUrl = productUrl.trim()
       ? (/^https?:\/\//i.test(productUrl.trim()) ? productUrl.trim() : `https://${productUrl.trim()}`)
       : "";
-    const res = await apiFetch<{ id: string }>("/api/products", {
-      method: "POST",
-      body: JSON.stringify({
+    const res = await apiPost<{ id: string }>("/api/products", {
         name: productName.trim() || "My brand",
         description: productDesc.trim(),
         url: normalizedUrl,
@@ -657,7 +655,6 @@ export default function OnboardingPage() {
           secondaryColor,
           accentColor,
         },
-      }),
     });
 
     if (!res.ok || !res.data.id) {
@@ -700,7 +697,7 @@ export default function OnboardingPage() {
       const ensuredProductId = await ensureOnboardingProduct();
       const returnTo = "/onboarding";
       const qs = new URLSearchParams({
-        workspaceId: "default",
+        workspaceId: getApiWorkspaceId(),
         productId: ensuredProductId,
         returnTo,
       });

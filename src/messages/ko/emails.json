@@ -87,8 +87,8 @@
     "greeting": "안녕하세요,",
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong>님이 Markaestro의 <strong>{workspaceName}</strong> 워크스페이스에 {roleLabel}(으)로 참여하도록 초대했습니다.",
     "bodyIntroNoInviter": "팀원이 Markaestro의 <strong>{workspaceName}</strong> 워크스페이스에 {roleLabel}(으)로 참여하도록 초대했습니다.",
-    "signInInstructions": "이 이메일 주소로 로그인(또는 계정 생성)하면 초대가 자동으로 적용됩니다:",
-    "declineNote": "참여하고 싶지 않으시면 이 이메일을 무시하시면 됩니다 — 초대는 30일 후 만료됩니다.",
+    "signInInstructions": "이 이메일 주소로 로그인(또는 계정 생성)한 다음, 앱의 배너에서 초대를 수락하세요:",
+    "declineNote": "참여하고 싶지 않으신가요? 앱에서 초대를 거절하거나 그냥 두시면 됩니다 — 초대는 30일 후 만료됩니다.",
     "roleLabels": {
       "admin": "관리자",
       "member": "멤버",

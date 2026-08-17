@@ -1,16 +1,15 @@
 import { adminDb } from '@/lib/firebase-admin';
 import type { SubscriptionRecord } from './server';
-import type { PlanTier } from './plans';
+import { PLANS, type PlanTier } from './plans';
 
 /**
  * Subscriptions are keyed by workspaceId. The Stripe customer + subscription
  * live on the workspace, not on a single Firebase user, so that ownership
  * transfers and multi-owner teams don't lose billing state.
  *
- * Legacy data (`subscriptions/{uid}`) is handled by reading both keys in
- * `getEffectiveSubscription`. A one-shot migration
- * (`scripts/backfill-workspace-subscriptions.mjs`) copies any uid-keyed
- * records onto the corresponding workspaceId.
+ * Legacy uid-keyed data (`subscriptions/{uid}`) was migrated by
+ * `scripts/backfill-workspace-subscriptions.mjs`; the resolver no longer
+ * consults uid-keyed docs.
  */
 const COLLECTION = 'subscriptions';
 /**
@@ -98,71 +97,81 @@ export async function findUidByCustomerId(customerId: string): Promise<string | 
   return snap.docs[0].id;
 }
 
+/** True when the record grants entitlements right now (active or trialing). */
+export function isActiveSubscription(sub: SubscriptionRecord | null | undefined): sub is SubscriptionRecord {
+  return Boolean(sub && ACTIVE_STATUSES.has(sub.status));
+}
+
+function tierRank(tier: string | undefined): number {
+  if (tier === 'business') return 2;
+  if (tier === 'pro') return 1;
+  // 'starter' and any unrecognized tier (e.g. 'unknown' from an unmapped
+  // Stripe price) rank lowest.
+  return 0;
+}
+
 /**
- * Resolve the subscription in effect for a workspace. During the migration
- * window this also checks legacy uid-keyed docs for any workspace member
- * so in-flight users don't lose their plan.
+ * The plan tier a record actually entitles its holder to. Inactive records
+ * (canceled, past_due, incomplete, …) and unrecognized tiers resolve to
+ * 'starter' so a lapsed subscription never keeps premium limits.
+ */
+export function effectiveTier(sub: SubscriptionRecord | null | undefined): PlanTier {
+  if (!isActiveSubscription(sub)) return 'starter';
+  const tier = sub.tier as PlanTier;
+  return PLANS[tier] ? tier : 'starter';
+}
+
+/**
+ * Merge an account-level entitlement with a workspace subscription.
+ *
+ * Entitlements are additive: among ACTIVE records the higher tier wins
+ * (workspace wins ties), so a personal comp can never downgrade a member
+ * inside a premium workspace, and a comped user keeps their plan in their
+ * own free workspace. With nothing active, the workspace record (then the
+ * account record) is surfaced so billing history and status still resolve —
+ * callers must gate entitlements via `effectiveTier`/`isActiveSubscription`,
+ * never by reading `tier` directly.
+ *
+ * Pure — exported for tests.
+ */
+export function pickEffectiveSubscription(
+  account: SubscriptionRecord | null,
+  workspace: SubscriptionRecord | null,
+): SubscriptionRecord | null {
+  const activeAccount = isActiveSubscription(account) ? account : null;
+  const activeWorkspace = isActiveSubscription(workspace) ? workspace : null;
+
+  if (activeAccount && activeWorkspace) {
+    return tierRank(activeAccount.tier) > tierRank(activeWorkspace.tier)
+      ? activeAccount
+      : activeWorkspace;
+  }
+  if (activeWorkspace) return activeWorkspace;
+  if (activeAccount) return activeAccount;
+  return workspace ?? account;
+}
+
+/**
+ * Resolve the subscription in effect for a user acting inside a workspace:
+ * the workspace's own subscription merged with the user's account-level
+ * entitlement (higher active tier wins).
  */
 export async function getEffectiveSubscription(
   opts: { uid?: string; workspaceId?: string } | string,
   legacyWorkspaceId?: string,
 ): Promise<SubscriptionRecord | null> {
-  // Support both the new object form and the legacy
-  // `getEffectiveSubscription(uid, workspaceId)` positional form.
+  // Support both the object form and the positional
+  // `getEffectiveSubscription(uid, workspaceId)` form.
   const uid = typeof opts === 'string' ? opts : opts.uid;
   const workspaceId =
     typeof opts === 'string' ? legacyWorkspaceId : opts.workspaceId;
 
-  // Account-level entitlement (manual comps / per-user plans) is granted to the
-  // user, not a workspace, so an active one takes precedence and applies no
-  // matter which workspace the request is scoped to.
-  const account = uid ? await getAccountEntitlement(uid) : null;
-  if (account && ACTIVE_STATUSES.has(account.status)) return account;
+  const [account, workspace] = await Promise.all([
+    uid ? getAccountEntitlement(uid) : Promise.resolve(null),
+    workspaceId ? getSubscriptionForWorkspace(workspaceId) : Promise.resolve(null),
+  ]);
 
-  if (workspaceId) {
-    const primary = await getSubscriptionForWorkspace(workspaceId);
-    if (primary) return primary;
-
-    // Legacy fallback: any member of the workspace had a uid-keyed sub.
-    const membersSnap = await adminDb.collection(`workspaces/${workspaceId}/members`).get();
-    const candidates: SubscriptionRecord[] = [];
-    for (const member of membersSnap.docs) {
-      const legacy = await adminDb.collection(COLLECTION).doc(member.id).get();
-      if (legacy.exists) candidates.push(legacy.data() as SubscriptionRecord);
-    }
-    if (candidates.length > 0) {
-      candidates.sort((a, b) => {
-        const priority = (s: SubscriptionRecord) => (ACTIVE_STATUSES.has(s.status) ? 2 : s.status === 'past_due' ? 1 : 0);
-        const diff = priority(b) - priority(a);
-        if (diff !== 0) return diff;
-        return (b.updatedAt || '').localeCompare(a.updatedAt || '');
-      });
-      return candidates[0];
-    }
-  }
-
-  // Nothing active at the workspace level — surface any (possibly inactive)
-  // account record so billing history / past comps still resolve.
-  return account;
-}
-
-/** @deprecated use getSubscriptionForWorkspace */
-export async function getSubscription(uid: string): Promise<SubscriptionRecord | null> {
-  const doc = await adminDb.collection(COLLECTION).doc(uid).get();
-  if (!doc.exists) return null;
-  return doc.data() as SubscriptionRecord;
-}
-
-/** @deprecated use upsertSubscriptionForWorkspace */
-export async function upsertSubscription(uid: string, data: Partial<SubscriptionRecord>): Promise<void> {
-  await adminDb.collection(COLLECTION).doc(uid).set(
-    { ...data, updatedAt: new Date().toISOString() },
-    { merge: true },
-  );
-}
-
-export async function getWorkspaceSubscription(workspaceId: string): Promise<SubscriptionRecord | null> {
-  return getEffectiveSubscription({ workspaceId });
+  return pickEffectiveSubscription(account, workspace);
 }
 
 export type SubscriptionStatus = {

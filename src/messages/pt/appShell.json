@@ -82,5 +82,15 @@
     "cancel": "Continuar conectado",
     "confirm": "Sair",
     "confirming": "Saindo…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail} convidou você para entrar em {workspaceName}",
+    "invited": "Você foi convidado(a) para entrar em {workspaceName}",
+    "accept": "Aceitar",
+    "decline": "Recusar",
+    "joined": "Você entrou em {workspaceName}",
+    "declined": "Convite para {workspaceName} recusado",
+    "acceptError": "Não foi possível aceitar o convite. Tente novamente.",
+    "declineError": "Não foi possível recusar o convite. Tente novamente."
   }
 }

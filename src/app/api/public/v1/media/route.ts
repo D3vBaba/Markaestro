@@ -17,13 +17,14 @@ export async function POST(req: Request) {
       rateLimit: MEDIA_RATE_LIMIT,
     });
 
-    if (ctx.ownerUid) {
-      const quota = await checkAndIncrementUsage(ctx.ownerUid, 'mediaUploads', ctx.workspaceId);
-      if (!quota.allowed) {
-        return Response.json({
-          error: 'QUOTA_EXCEEDED_MEDIA_UPLOADS',
-        }, { status: 402, headers: ctx.rateLimitHeaders });
-      }
+    // Quota always applies — it's the workspace's counter and plan, so a
+    // legacy key without an ownerUid must not bypass it. The uid only feeds
+    // the account-entitlement merge and may be empty.
+    const quota = await checkAndIncrementUsage(ctx.ownerUid ?? '', 'mediaUploads', ctx.workspaceId);
+    if (!quota.allowed) {
+      return Response.json({
+        error: 'QUOTA_EXCEEDED_MEDIA_UPLOADS',
+      }, { status: 402, headers: ctx.rateLimitHeaders });
     }
 
     const formData = await req.formData();

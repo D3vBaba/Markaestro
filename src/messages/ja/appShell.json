@@ -82,5 +82,15 @@
     "cancel": "ログインしたままにする",
     "confirm": "ログアウト",
     "confirming": "ログアウトしています…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail}さんがあなたを{workspaceName}に招待しました",
+    "invited": "{workspaceName}に招待されています",
+    "accept": "承諾",
+    "decline": "辞退",
+    "joined": "{workspaceName}に参加しました",
+    "declined": "{workspaceName}への招待を辞退しました",
+    "acceptError": "招待を承諾できませんでした。もう一度お試しください。",
+    "declineError": "招待を辞退できませんでした。もう一度お試しください。"
   }
 }

@@ -16,6 +16,7 @@ const updatePublishingSettingsSchema = z.object({
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'dashboard.read');
     const manualPublishChannels = await getManualPublishChannels(ctx.workspaceId);
     return apiOk({ manualPublishChannels });
   } catch (error) {

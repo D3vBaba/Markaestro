@@ -2,6 +2,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission, requireOwner } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
+import { removeMemberWithCleanup } from '@/lib/team-members';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -58,8 +59,8 @@ export async function DELETE(
     if (snap.data()?.role === 'admin') requireOwner(ctx);
     if (snap.data()?.role === 'owner') return apiError(new Error('FORBIDDEN'));
 
-    await memberRef.delete();
-    return apiOk({ removed: uid });
+    const { revokedApiClients } = await removeMemberWithCleanup(ctx.workspaceId, uid, 'member_removed');
+    return apiOk({ removed: uid, revokedApiClients });
   } catch (error) {
     return apiError(error);
   }

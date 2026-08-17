@@ -61,9 +61,12 @@ export default async function AppGroupLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <AuthProvider>
-        <SubscriptionProvider>
-          <WorkspaceProvider>{children}</WorkspaceProvider>
-        </SubscriptionProvider>
+        {/* Workspace outside Subscription: the plan shown is a property of
+            the selected workspace, so subscription state re-fetches when the
+            user switches. */}
+        <WorkspaceProvider>
+          <SubscriptionProvider>{children}</SubscriptionProvider>
+        </WorkspaceProvider>
       </AuthProvider>
     </NextIntlClientProvider>
   );

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { apiError, apiOk } from '@/lib/api-response';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
-import { adminAuth } from '@/lib/firebase-admin';
+import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { verifyOtp } from '@/lib/auth-otp';
 import { getBearerFromRequest } from '@/lib/bearer';
 
@@ -31,6 +31,21 @@ export async function POST(req: Request) {
 
     await verifyOtp(`email-change:${uid}`, newEmail, body.code);
     await adminAuth.updateUser(uid, { email: newEmail, emailVerified: true });
+
+    // Member docs denormalize the email for team rosters and invite
+    // matching — update them everywhere so lists don't go stale.
+    try {
+      const membersSnap = await adminDb.collectionGroup('members').where('uid', '==', uid).get();
+      if (!membersSnap.empty) {
+        const batch = adminDb.batch();
+        for (const doc of membersSnap.docs) batch.update(doc.ref, { email: newEmail });
+        await batch.commit();
+      }
+    } catch (err) {
+      // Non-fatal: auth email is the source of truth; rosters self-heal on
+      // the next membership write.
+      console.warn('[email-change] member doc email sync failed:', err);
+    }
 
     const resp = apiOk({ ok: true });
     for (const [k, v] of Object.entries(rl.headers)) resp.headers.set(k, v);

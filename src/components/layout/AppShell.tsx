@@ -9,12 +9,26 @@ import { TrialBanner } from "./TrialBanner";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus";
 import { VerifyEmailBanner } from "./VerifyEmailBanner";
+import { InvitesBanner } from "./InvitesBanner";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  const { completed, error: onboardingError, loading: onboardingLoading } = useOnboardingStatus();
+  const {
+    completed,
+    pendingInvites,
+    anyWorkspaceActivity,
+    error: onboardingError,
+    loading: onboardingLoading,
+  } = useOnboardingStatus();
   const router = useRouter();
   const pathname = usePathname();
+
+  // The onboarding funnel (quiz + paywall) is for genuinely new accounts
+  // only. Users with a pending workspace invite accept it from the banner
+  // here instead, and established users switching into an empty workspace
+  // stay where they are.
+  const needsOnboarding =
+    completed === false && !onboardingError && pendingInvites === 0 && !anyWorkspaceActivity;
 
   useEffect(() => {
     if (!loading && !user && pathname !== '/login' && pathname !== '/') {
@@ -24,10 +38,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (loading || onboardingLoading || !user) return;
-    if (completed === false && !onboardingError) {
+    if (needsOnboarding) {
       router.replace('/onboarding');
     }
-  }, [loading, onboardingLoading, user, completed, onboardingError, router]);
+  }, [loading, onboardingLoading, user, needsOnboarding, router]);
 
   if (loading || onboardingLoading) {
     return (
@@ -44,7 +58,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) return null;
-  if (completed === false && !onboardingError) return null;
+  if (needsOnboarding) return null;
 
   return (
     <div className="grid h-dvh w-full max-w-full overflow-hidden lg:grid-cols-[232px_1fr]">
@@ -55,6 +69,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       >
         <TrialBanner />
         <VerifyEmailBanner />
+        <InvitesBanner />
         <Header />
         <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-5 pb-8 sm:px-6 sm:py-7 lg:px-10 lg:py-7">
           {children}

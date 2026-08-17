@@ -1,6 +1,7 @@
 "use client";
 
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
+import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
@@ -10,10 +11,15 @@ import { useTranslations } from "next-intl";
 
 export function TrialBanner() {
   const { status, trialDaysLeft } = useSubscription();
+  const { current: workspace } = useWorkspace();
   const [busy, setBusy] = useState(false);
   const t = useTranslations("shell.trialBanner");
 
   if (!status?.trialing || trialDaysLeft === null) return null;
+
+  // Billing is owner-only (the server enforces billing.manage); everyone
+  // else sees the countdown without a dead button.
+  const canManageBilling = workspace?.role === "owner";
 
   const urgent = trialDaysLeft <= 2;
 
@@ -60,15 +66,17 @@ export function TrialBanner() {
           </span>
         )}
       </div>
-      <Button
-        size="sm"
-        variant={urgent ? "default" : "outline"}
-        className="h-9 sm:h-7 text-xs rounded-lg shrink-0"
-        onClick={handleUpgrade}
-        disabled={busy}
-      >
-        {busy ? t("loading") : t("manageBilling")}
-      </Button>
+      {canManageBilling && (
+        <Button
+          size="sm"
+          variant={urgent ? "default" : "outline"}
+          className="h-9 sm:h-7 text-xs rounded-lg shrink-0"
+          onClick={handleUpgrade}
+          disabled={busy}
+        >
+          {busy ? t("loading") : t("manageBilling")}
+        </Button>
+      )}
     </div>
   );
 }

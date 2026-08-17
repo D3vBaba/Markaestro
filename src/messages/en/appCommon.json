@@ -32,7 +32,8 @@
       "connection": "connection",
       "teamMember": "team member",
       "integration": "integration",
-      "post": "post"
+      "post": "post",
+      "workspace": "workspace"
     },
     "titleGeneric": "Delete {entity}",
     "titleNamed": "Delete {entity}?",
@@ -63,11 +64,26 @@
   },
   "scanProgressStepper": {
     "steps": {
-      "connecting": { "label": "Connect to site", "activeLabel": "Connecting to site…" },
-      "reading": { "label": "Read website content", "activeLabel": "Reading website content…" },
-      "extracting": { "label": "Extract brand colours", "activeLabel": "Extracting brand colours & logo…" },
-      "analyzing": { "label": "Analyse brand signals", "activeLabel": "Analysing brand signals…" },
-      "finalizing": { "label": "Build brand profile", "activeLabel": "Building your brand profile…" }
+      "connecting": {
+        "label": "Connect to site",
+        "activeLabel": "Connecting to site…"
+      },
+      "reading": {
+        "label": "Read website content",
+        "activeLabel": "Reading website content…"
+      },
+      "extracting": {
+        "label": "Extract brand colours",
+        "activeLabel": "Extracting brand colours & logo…"
+      },
+      "analyzing": {
+        "label": "Analyse brand signals",
+        "activeLabel": "Analysing brand signals…"
+      },
+      "finalizing": {
+        "label": "Build brand profile",
+        "activeLabel": "Building your brand profile…"
+      }
     },
     "scanComplete": "Scan complete — review and confirm below",
     "scanFailed": "Scan failed — please fill in manually",

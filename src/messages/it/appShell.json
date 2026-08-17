@@ -82,5 +82,15 @@
     "cancel": "Rimani connesso",
     "confirm": "Esci",
     "confirming": "Disconnessione…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail} ti ha invitato a unirti a {workspaceName}",
+    "invited": "Sei stato invitato a unirti a {workspaceName}",
+    "accept": "Accetta",
+    "decline": "Rifiuta",
+    "joined": "Ti sei unito a {workspaceName}",
+    "declined": "Invito a {workspaceName} rifiutato",
+    "acceptError": "Impossibile accettare l'invito. Riprova.",
+    "declineError": "Impossibile rifiutare l'invito. Riprova."
   }
 }

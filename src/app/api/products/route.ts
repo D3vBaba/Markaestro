@@ -12,6 +12,7 @@ export const runtime = 'nodejs';
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'dashboard.read');
     const url = new URL(req.url);
     const { limit, status } = paginationSchema.parse({
       limit: url.searchParams.get('limit') ?? 50,

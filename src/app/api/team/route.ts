@@ -2,9 +2,8 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
-import { getEffectiveSubscription } from '@/lib/stripe/subscription';
+import { getEffectiveSubscription, effectiveTier } from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
-import type { PlanTier } from '@/lib/stripe/plans';
 import { sendResendEmail } from '@/lib/resend';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { brandWrap, escapeHtml, getEmailTranslator, strongTag, type AuthEmailPayload } from '@/lib/auth-emails';
@@ -27,6 +26,7 @@ function normalizeEmail(email: string): string {
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'dashboard.read');
 
     const [membersSnap, invitesSnap] = await Promise.all([
       adminDb.collection(`workspaces/${ctx.workspaceId}/members`).get(),
@@ -131,9 +131,16 @@ export async function POST(req: Request) {
     const { email, role } = inviteSchema.parse(body);
     const normalizedEmail = normalizeEmail(email);
 
+    // Inviting at admin level is a role grant, so it takes the same
+    // owner-only permission as promoting an existing member — otherwise an
+    // admin could mint peer admins that only the owner should create.
+    if (role === 'admin') {
+      requirePermission(ctx, 'team.roles.manage');
+    }
+
     const sub = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
-    const tier = (sub?.tier ?? 'starter') as PlanTier;
-    const limit = PLANS[tier]?.limits.teamMembers ?? 1;
+    const tier = effectiveTier(sub);
+    const limit = PLANS[tier].limits.teamMembers;
 
     const inviteRef = adminDb
       .collection(`workspaces/${ctx.workspaceId}/pendingInvites`)

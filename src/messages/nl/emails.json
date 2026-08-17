@@ -87,8 +87,8 @@
     "greeting": "Hallo,",
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> heeft je uitgenodigd om lid te worden van de werkruimte <strong>{workspaceName}</strong> op Markaestro {roleLabel}.",
     "bodyIntroNoInviter": "Een teamgenoot heeft je uitgenodigd om lid te worden van de werkruimte <strong>{workspaceName}</strong> op Markaestro {roleLabel}.",
-    "signInInstructions": "Log in (of maak een account aan) met dit e-mailadres en de uitnodiging wordt automatisch toegepast:",
-    "declineNote": "Als je niet wilt deelnemen, negeer dan gewoon deze e-mail — de uitnodiging verloopt na 30 dagen.",
+    "signInInstructions": "Log in (of maak een account aan) met dit e-mailadres en accepteer de uitnodiging vervolgens via de banner in de app:",
+    "declineNote": "Wil je niet deelnemen? Wijs de uitnodiging af in de app, of doe gewoon niets — de uitnodiging verloopt na 30 dagen.",
     "roleLabels": {
       "admin": "als beheerder",
       "member": "als lid",

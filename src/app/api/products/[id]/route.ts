@@ -12,6 +12,7 @@ export const runtime = 'nodejs';
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'dashboard.read');
     const { id } = await params;
     const ref = adminDb.doc(`${workspaceCollection(ctx.workspaceId, 'products')}/${id}`);
     const snap = await ref.get();

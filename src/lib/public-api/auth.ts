@@ -106,6 +106,19 @@ export async function requirePublicApiContext(
     }
   }
 
+  // A key's authority derives from its creator's membership. If that person
+  // left or was removed, the key dies with the membership — removal also
+  // revokes keys eagerly (lib/team-members), but this re-check covers keys
+  // that predate that cleanup or slipped past it.
+  if (data.ownerUid) {
+    const memberSnap = await adminDb
+      .doc(`workspaces/${parsed.workspaceId}/members/${data.ownerUid}`)
+      .get();
+    if (!memberSnap.exists) {
+      throw new Error('UNAUTHENTICATED');
+    }
+  }
+
   const scopes = (data.scopes || []) as PublicApiScope[];
   if (options.scope && !hasPublicApiScope(scopes, options.scope)) {
     throw new Error('FORBIDDEN');

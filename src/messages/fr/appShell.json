@@ -82,5 +82,15 @@
     "cancel": "Rester connecté",
     "confirm": "Se déconnecter",
     "confirming": "Déconnexion…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail} vous a invité(e) à rejoindre {workspaceName}",
+    "invited": "Vous avez été invité(e) à rejoindre {workspaceName}",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "joined": "Vous avez rejoint {workspaceName}",
+    "declined": "Invitation à rejoindre {workspaceName} refusée",
+    "acceptError": "Impossible d'accepter l'invitation. Veuillez réessayer.",
+    "declineError": "Impossible de refuser l'invitation. Veuillez réessayer."
   }
 }

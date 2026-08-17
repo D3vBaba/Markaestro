@@ -11,8 +11,8 @@
  * that change data other pages have cached.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { apiGet } from "@/lib/api-client";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { apiGet, getApiWorkspaceId, subscribeApiWorkspaceId } from "@/lib/api-client";
 
 const DEFAULT_STALE_MS = 30_000;
 
@@ -100,7 +100,16 @@ export function useApiQuery<T = unknown>(
   opts?: { staleMs?: number; wsId?: string },
 ): UseApiQueryReturn<T> {
   const staleMs = opts?.staleMs ?? DEFAULT_STALE_MS;
-  const wsId = opts?.wsId ?? "default";
+  // Default to the workspace selected in the UI, reactively: when the user
+  // switches workspaces, every mounted query re-keys and refetches. The old
+  // literal "default" fallback froze all reads on an arbitrary
+  // server-resolved workspace while writes followed the switcher.
+  const activeWsId = useSyncExternalStore(
+    subscribeApiWorkspaceId,
+    getApiWorkspaceId,
+    () => "default",
+  );
+  const wsId = opts?.wsId ?? activeWsId;
   const key = path ? `${wsId}:${path}` : null;
 
   const [data, setData] = useState<T | null>(() =>

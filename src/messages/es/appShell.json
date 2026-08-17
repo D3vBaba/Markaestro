@@ -82,5 +82,15 @@
     "cancel": "Seguir con la sesión iniciada",
     "confirm": "Cerrar sesión",
     "confirming": "Cerrando sesión…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail} te ha invitado a unirte a {workspaceName}",
+    "invited": "Te han invitado a unirte a {workspaceName}",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "joined": "Te has unido a {workspaceName}",
+    "declined": "Invitación a {workspaceName} rechazada",
+    "acceptError": "No se pudo aceptar la invitación. Inténtalo de nuevo.",
+    "declineError": "No se pudo rechazar la invitación. Inténtalo de nuevo."
   }
 }

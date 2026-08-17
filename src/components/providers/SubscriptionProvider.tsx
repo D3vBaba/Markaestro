@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { deferFromEffect } from "@/lib/defer-from-effect";
 import { useAuth } from '@/components/providers/AuthProvider';
+import { useWorkspace } from '@/components/providers/WorkspaceProvider';
 import { apiFetch } from '@/lib/api-client';
 import type { PlanTier } from '@/lib/stripe/plans';
 import { PLANS } from '@/lib/stripe/plans';
@@ -42,6 +43,10 @@ const Ctx = createContext<SubscriptionCtx | null>(null);
 
 export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
+  // The plan belongs to the WORKSPACE: scope the status call to the selected
+  // workspace and re-fetch whenever the user switches.
+  const { current: currentWorkspace } = useWorkspace();
+  const workspaceId = currentWorkspace?.id ?? null;
   const [status, setStatus] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,7 +57,10 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       return;
     }
     try {
-      const res = await apiFetch<SubscriptionStatus>('/api/stripe/status');
+      const path = workspaceId
+        ? `/api/stripe/status?workspaceId=${encodeURIComponent(workspaceId)}`
+        : '/api/stripe/status';
+      const res = await apiFetch<SubscriptionStatus>(path);
       if (res.ok) {
         setStatus(res.data);
       } else {
@@ -63,7 +71,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, workspaceId]);
 
   useEffect(() => {
     if (authLoading) return;

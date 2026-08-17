@@ -82,5 +82,15 @@
     "cancel": "Angemeldet bleiben",
     "confirm": "Abmelden",
     "confirming": "Wird abgemeldet…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail} hat dich eingeladen, {workspaceName} beizutreten",
+    "invited": "Du wurdest eingeladen, {workspaceName} beizutreten",
+    "accept": "Annehmen",
+    "decline": "Ablehnen",
+    "joined": "Du bist {workspaceName} beigetreten",
+    "declined": "Einladung zu {workspaceName} abgelehnt",
+    "acceptError": "Einladung konnte nicht angenommen werden. Bitte erneut versuchen.",
+    "declineError": "Einladung konnte nicht abgelehnt werden. Bitte erneut versuchen."
   }
 }

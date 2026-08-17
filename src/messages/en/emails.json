@@ -87,8 +87,8 @@
     "greeting": "Hi,",
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> has invited you to join the <strong>{workspaceName}</strong> workspace on Markaestro {roleLabel}.",
     "bodyIntroNoInviter": "A teammate has invited you to join the <strong>{workspaceName}</strong> workspace on Markaestro {roleLabel}.",
-    "signInInstructions": "Sign in (or create an account) using this email address and the invitation will be applied automatically:",
-    "declineNote": "If you don't want to join, simply ignore this email — the invitation will expire after 30 days.",
+    "signInInstructions": "Sign in (or create an account) with this email address, then accept the invitation from the banner in the app:",
+    "declineNote": "Don't want to join? Decline the invitation in the app, or simply do nothing — it expires after 30 days.",
     "roleLabels": {
       "admin": "as an admin",
       "member": "as a member",

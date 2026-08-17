@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError } from '@/lib/api-response';
-import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-import { PLANS, type PlanTier } from '@/lib/stripe/plans';
+import { getEffectiveSubscription, effectiveTier } from '@/lib/stripe/subscription';
+import { PLANS } from '@/lib/stripe/plans';
 import { fetchPostRowsForExport, type AnalyticsPostRow } from '@/lib/analytics/query';
 import { socialChannels, type SocialChannel } from '@/lib/schemas';
 
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
     requirePermission(ctx, 'dashboard.read');
 
     const sub = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
-    const tier = (sub?.tier ?? 'starter') as PlanTier;
+    const tier = effectiveTier(sub);
     if (!PLANS[tier].gated.analyticsCsvExport) {
       return NextResponse.json({ error: 'PLAN_UPGRADE_REQUIRED' }, { status: 402 });
     }

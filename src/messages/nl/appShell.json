@@ -82,5 +82,15 @@
     "cancel": "Ingelogd blijven",
     "confirm": "Uitloggen",
     "confirming": "Bezig met uitloggen…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail} heeft je uitgenodigd voor {workspaceName}",
+    "invited": "Je bent uitgenodigd voor {workspaceName}",
+    "accept": "Accepteren",
+    "decline": "Afwijzen",
+    "joined": "Je bent nu lid van {workspaceName}",
+    "declined": "Uitnodiging voor {workspaceName} afgewezen",
+    "acceptError": "Kon de uitnodiging niet accepteren. Probeer het opnieuw.",
+    "declineError": "Kon de uitnodiging niet afwijzen. Probeer het opnieuw."
   }
 }

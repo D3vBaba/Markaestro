@@ -87,8 +87,8 @@
     "greeting": "Olá,",
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> convidou você para entrar no workspace <strong>{workspaceName}</strong> no Markaestro {roleLabel}.",
     "bodyIntroNoInviter": "Um colega de equipe convidou você para entrar no workspace <strong>{workspaceName}</strong> no Markaestro {roleLabel}.",
-    "signInInstructions": "Entre (ou crie uma conta) usando este endereço de e-mail e o convite será aplicado automaticamente:",
-    "declineNote": "Se você não quiser entrar, basta ignorar este e-mail — o convite expirará em 30 dias.",
+    "signInInstructions": "Entre (ou crie uma conta) usando este endereço de e-mail e depois aceite o convite no banner do aplicativo:",
+    "declineNote": "Não quer entrar? Recuse o convite no aplicativo, ou simplesmente não faça nada — o convite expira em 30 dias.",
     "roleLabels": {
       "admin": "como administrador",
       "member": "como membro",

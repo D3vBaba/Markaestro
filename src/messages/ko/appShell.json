@@ -82,5 +82,15 @@
     "cancel": "로그인 유지",
     "confirm": "로그아웃",
     "confirming": "로그아웃 중…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail}님이 {workspaceName}에 초대했습니다",
+    "invited": "{workspaceName}에 초대되었습니다",
+    "accept": "수락",
+    "decline": "거절",
+    "joined": "{workspaceName}에 참여했습니다",
+    "declined": "{workspaceName} 초대를 거절했습니다",
+    "acceptError": "초대를 수락하지 못했습니다. 다시 시도해 주세요.",
+    "declineError": "초대를 거절하지 못했습니다. 다시 시도해 주세요."
   }
 }

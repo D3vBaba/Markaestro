@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import sharp from 'sharp';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import {
   assertSafeOutboundUrl,
@@ -207,7 +208,8 @@ async function quantizeLogoColors(buffer: Buffer): Promise<WeightedColor[]> {
 
 export async function POST(req: Request) {
   try {
-    await requireContext(req);
+    const ctx = await requireContext(req);
+    requirePermission(ctx, 'products.write');
     const body = await req.json();
     const { url } = scanRequestSchema.parse(body);
 

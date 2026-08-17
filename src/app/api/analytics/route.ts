@@ -1,8 +1,8 @@
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
-import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-import { PLANS, type PlanTier } from '@/lib/stripe/plans';
+import { getEffectiveSubscription, effectiveTier } from '@/lib/stripe/subscription';
+import { PLANS } from '@/lib/stripe/plans';
 import { buildAnalyticsResponse } from '@/lib/analytics/query';
 import { socialChannels, type SocialChannel } from '@/lib/schemas';
 
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
     ));
 
     const sub = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
-    const tier = (sub?.tier ?? 'starter') as PlanTier;
+    const tier = effectiveTier(sub);
     const maxDays = PLANS[tier].limits.analyticsWindowDays;
     const days = maxDays === -1 ? requestedDays : Math.min(requestedDays, maxDays);
 

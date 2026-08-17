@@ -4,6 +4,7 @@ import { getSubscriptionForWorkspace } from '@/lib/stripe/subscription';
 import { TRIAL_DAYS } from '@/lib/stripe/plans';
 import type { PlanTier, BillingInterval } from '@/lib/stripe/plans';
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 
 export const runtime = 'nodejs';
 
@@ -38,6 +39,8 @@ async function findCustomerForWorkspace(
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
+    // Billing is owner-only: checkout changes the workspace's paid plan.
+    requirePermission(ctx, 'billing.manage');
     const uid = ctx.uid;
     const workspaceId = ctx.workspaceId;
     const email = ctx.email || null;
@@ -98,6 +101,12 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
+    if (err instanceof Error && err.message === 'UNAUTHENTICATED') {
+      return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 });
+    }
+    if (err instanceof Error && (err.message === 'FORBIDDEN' || err.message === 'FORBIDDEN_WORKSPACE')) {
+      return NextResponse.json({ error: err.message }, { status: 403 });
+    }
     console.error('[stripe/checkout]', err);
     return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
   }

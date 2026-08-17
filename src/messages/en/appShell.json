@@ -82,5 +82,15 @@
     "cancel": "Stay signed in",
     "confirm": "Sign out",
     "confirming": "Signing out…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail} invited you to join {workspaceName}",
+    "invited": "You've been invited to join {workspaceName}",
+    "accept": "Accept",
+    "decline": "Decline",
+    "joined": "You've joined {workspaceName}",
+    "declined": "Invitation to {workspaceName} declined",
+    "acceptError": "Couldn't accept the invitation. Please try again.",
+    "declineError": "Couldn't decline the invitation. Please try again."
   }
 }

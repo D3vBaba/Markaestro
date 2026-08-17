@@ -1,6 +1,6 @@
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { createHash } from 'node:crypto';
-import { DEFAULT_WORKSPACE_ID, getWorkspaceId, isValidWorkspaceId } from '@/lib/workspace';
+import { DEFAULT_WORKSPACE_ID, WORKSPACE_COOKIE, getWorkspaceId, isValidWorkspaceId } from '@/lib/workspace';
 import { decodeSessionCookie } from '@/lib/session-cookie';
 import { parseBearerToken } from '@/lib/bearer';
 import { pickLocaleFromAcceptLanguage } from '@/i18n/routing';
@@ -29,19 +29,23 @@ function getBearerToken(req: Request): string | null {
   return parseBearerToken(req.headers.get('authorization'));
 }
 
-function getSessionCookie(req: Request): string | null {
+function getCookie(req: Request, cookieName: string): string | null {
   const cookieHeader = req.headers.get('cookie') || '';
   if (!cookieHeader) return null;
 
   for (const part of cookieHeader.split(';')) {
     const [name, ...valueParts] = part.trim().split('=');
-    if (name === '__session') {
+    if (name === cookieName) {
       const value = valueParts.join('=').trim();
       return value || null;
     }
   }
 
   return null;
+}
+
+function getSessionCookie(req: Request): string | null {
+  return getCookie(req, '__session');
 }
 
 function personalWorkspaceId(uid: string): string {
@@ -102,75 +106,47 @@ async function bootstrapPersonalWorkspace(
   return { uid, email, workspaceId, role: 'owner' };
 }
 
+/**
+ * The workspace a user lands in when they haven't picked one. Deterministic:
+ * owned workspaces first (your own workspace beats one you were invited to),
+ * then earliest joined, then workspaceId as a stable tiebreak. The old
+ * unordered limit(1) query made a multi-workspace user's default an index
+ * coin flip.
+ */
 async function findUserMembership(uid: string): Promise<{ workspaceId: string; role: RequestContext['role'] } | null> {
   const snap = await adminDb
     .collectionGroup('members')
     .where('uid', '==', uid)
-    .limit(1)
     .get();
 
   if (snap.empty) {
     return null;
   }
 
-  const doc = snap.docs[0];
-  const parts = doc.ref.path.split('/');
-  const workspaceId = parts[1];
-  const role = (doc.data().role || 'member') as RequestContext['role'];
-  return { workspaceId, role };
-}
+  const memberships = snap.docs
+    .map((doc) => {
+      const workspaceId = doc.ref.path.split('/')[1];
+      const data = doc.data();
+      return {
+        workspaceId,
+        role: (data.role || 'member') as RequestContext['role'],
+        joinedAt: (data.joinedAt as string) || '',
+      };
+    })
+    .filter((m) => Boolean(m.workspaceId));
 
-async function acceptPendingInvites(uid: string, email?: string, acceptLanguage?: string | null): Promise<void> {
-  const normalizedEmail = normalizeEmail(email);
-  if (!normalizedEmail) return;
+  if (memberships.length === 0) return null;
 
-  const candidates = Array.from(new Set([email, normalizedEmail].filter(Boolean) as string[]));
-  const inviteSnaps = await Promise.all(
-    candidates.map((candidate) => adminDb.collectionGroup('pendingInvites').where('email', '==', candidate).get()),
-  );
+  memberships.sort((a, b) => {
+    const ownerDiff = Number(b.role === 'owner') - Number(a.role === 'owner');
+    if (ownerDiff !== 0) return ownerDiff;
+    const joinedDiff = a.joinedAt.localeCompare(b.joinedAt);
+    if (joinedDiff !== 0) return joinedDiff;
+    return a.workspaceId.localeCompare(b.workspaceId);
+  });
 
-  const inviteDocs = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
-  for (const snap of inviteSnaps) {
-    for (const doc of snap.docs) {
-      inviteDocs.set(doc.ref.path, doc);
-    }
-  }
-
-  if (inviteDocs.size === 0) return;
-
-  const now = new Date().toISOString();
-  const batch = adminDb.batch();
-
-  for (const inviteDoc of inviteDocs.values()) {
-    const parts = inviteDoc.ref.path.split('/');
-    const workspaceId = parts[1];
-    if (!workspaceId) continue;
-
-    const data = inviteDoc.data();
-    // Skip expired invites (TTL cleanup is eventually consistent; enforce at read time).
-    const expiresAt = data.expiresAt?.toDate?.() || (typeof data.expiresAt === 'string' ? new Date(data.expiresAt) : null);
-    if (expiresAt && expiresAt.getTime() < Date.now()) {
-      batch.delete(inviteDoc.ref);
-      continue;
-    }
-
-    const memberRef = adminDb.doc(`workspaces/${workspaceId}/members/${uid}`);
-    const memberSnap = await memberRef.get();
-
-    if (!memberSnap.exists) {
-      batch.set(memberRef, {
-        uid,
-        email: normalizedEmail,
-        role: data.role || 'member',
-        joinedAt: now,
-        locale: pickLocaleFromAcceptLanguage(acceptLanguage),
-      }, { merge: true });
-    }
-
-    batch.delete(inviteDoc.ref);
-  }
-
-  await batch.commit();
+  const chosen = memberships[0];
+  return { workspaceId: chosen.workspaceId, role: chosen.role };
 }
 
 export async function requireContext(req: Request): Promise<RequestContext> {
@@ -238,14 +214,6 @@ export async function requireContext(req: Request): Promise<RequestContext> {
 
   const acceptLanguage = req.headers.get('accept-language');
 
-  try {
-    await acceptPendingInvites(uid, email, acceptLanguage);
-  } catch (err) {
-    // Non-fatal — pending invite resolution should not block auth. Typically
-    // caused by a missing Firestore collection-group index on pendingInvites.email.
-    console.warn('[requireContext] acceptPendingInvites failed (non-fatal):', err);
-  }
-
   const url = new URL(req.url);
   const requestedWs = getWorkspaceId(
     url.searchParams.get('workspaceId') || req.headers.get('x-workspace-id'),
@@ -255,7 +223,9 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     throw new Error('VALIDATION_INVALID_WORKSPACE_ID');
   }
 
-  const resolved = await resolveContextForUser(uid, email, requestedWs, acceptLanguage);
+  const cookieWs = getCookie(req, WORKSPACE_COOKIE);
+
+  const resolved = await resolveContextForUser(uid, email, requestedWs, cookieWs, acceptLanguage);
 
   return { ...resolved, emailVerified };
 }
@@ -264,15 +234,28 @@ async function resolveContextForUser(
   uid: string,
   email: string | undefined,
   requestedWs: string,
+  cookieWs: string | null,
   acceptLanguage?: string | null,
 ): Promise<ResolvedWorkspaceContext> {
-  const requestedMembership = await getWorkspaceMembership(uid, requestedWs);
-  if (requestedMembership) {
-    return { uid, email, workspaceId: requestedMembership.workspaceId, role: requestedMembership.role };
+  // An explicit selection (query param / header) is strict: requesting a
+  // workspace you're not a member of is an authorization failure, never a
+  // silent redirect to a different workspace.
+  if (requestedWs !== DEFAULT_WORKSPACE_ID) {
+    const requestedMembership = await getWorkspaceMembership(uid, requestedWs);
+    if (requestedMembership) {
+      return { uid, email, workspaceId: requestedMembership.workspaceId, role: requestedMembership.role };
+    }
+    throw new Error('FORBIDDEN_WORKSPACE');
   }
 
-  if (requestedWs !== DEFAULT_WORKSPACE_ID) {
-    throw new Error('FORBIDDEN_WORKSPACE');
+  // The cookie is the persisted UI selection. It is advisory: if it points
+  // at a workspace the user has since left or was removed from, fall through
+  // to the deterministic default instead of bricking every request.
+  if (cookieWs && cookieWs !== DEFAULT_WORKSPACE_ID && isValidWorkspaceId(cookieWs)) {
+    const cookieMembership = await getWorkspaceMembership(uid, cookieWs);
+    if (cookieMembership) {
+      return { uid, email, workspaceId: cookieMembership.workspaceId, role: cookieMembership.role };
+    }
   }
 
   const membership = await findUserMembership(uid);

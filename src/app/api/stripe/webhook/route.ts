@@ -266,6 +266,14 @@ async function syncSubscription(workspaceId: string, subscription: Subscription)
   const priceId = subscription.items.data[0]?.price?.id;
   const tierInfo = priceId ? tierFromPriceId(priceId) : null;
 
+  if (priceId && !tierInfo) {
+    // Unmapped price (missing/mismatched STRIPE_PRICE_* env). Keep whatever
+    // tier the doc already has instead of clobbering it with 'unknown' —
+    // readers treat unrecognized tiers as starter, so writing it would
+    // silently downgrade the workspace.
+    console.error(`[stripe/webhook] no tier mapping for price ${priceId} (workspace ${workspaceId})`);
+  }
+
   const currentPeriodEnd =
     toIso(subscription.current_period_end) ||
     toIso(subscription.billing_cycle_anchor) ||
@@ -275,8 +283,7 @@ async function syncSubscription(workspaceId: string, subscription: Subscription)
     stripeCustomerId: subscription.customer as string,
     stripeSubscriptionId: subscription.id,
     stripePriceId: priceId || '',
-    tier: tierInfo?.tier || 'unknown',
-    interval: tierInfo?.interval || 'unknown',
+    ...(tierInfo ? { tier: tierInfo.tier, interval: tierInfo.interval } : {}),
     status: subscription.status,
     trialEnd: toIso(subscription.trial_end),
     currentPeriodEnd,

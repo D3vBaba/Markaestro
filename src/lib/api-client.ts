@@ -11,10 +11,45 @@ let _getIdToken: (() => Promise<string | null>) | null = null;
 let _authReady: Promise<void> | null = null;
 let _resolveAuthReady: (() => void) | null = null;
 let _workspaceId = 'default';
+const _workspaceListeners = new Set<() => void>();
 
-/** Keep generic API helpers aligned with the workspace selected in the UI. */
+/**
+ * Keep generic API helpers aligned with the workspace selected in the UI.
+ * Subscribers (useApiQuery) re-render on change so every cached read
+ * re-keys to the new workspace.
+ */
 export function setApiWorkspaceId(workspaceId: string | null | undefined) {
-  _workspaceId = workspaceId?.trim() || 'default';
+  const next = workspaceId?.trim() || 'default';
+  if (next === _workspaceId) return;
+  _workspaceId = next;
+  for (const fn of _workspaceListeners) fn();
+}
+
+export function getApiWorkspaceId(): string {
+  return _workspaceId;
+}
+
+/** Subscribe to active-workspace changes (useSyncExternalStore contract). */
+export function subscribeApiWorkspaceId(fn: () => void): () => void {
+  _workspaceListeners.add(fn);
+  return () => {
+    _workspaceListeners.delete(fn);
+  };
+}
+
+/**
+ * Fired when the server rejects a request because the user is no longer a
+ * member of the selected workspace (removed mid-session, workspace deleted).
+ * WorkspaceProvider listens and resets the selection.
+ */
+export const WORKSPACE_FORBIDDEN_EVENT = 'markaestro:workspace-forbidden';
+
+function notifyIfWorkspaceForbidden(status: number, data: unknown) {
+  if (status !== 403 || typeof window === 'undefined') return;
+  const error = (data as { error?: string } | null)?.error;
+  if (error === 'FORBIDDEN_WORKSPACE') {
+    window.dispatchEvent(new CustomEvent(WORKSPACE_FORBIDDEN_EVENT));
+  }
 }
 
 function activeWorkspaceId(workspaceId?: string) {
@@ -83,6 +118,7 @@ export async function apiFetch<T = unknown>(
     });
 
     const data = await res.json();
+    notifyIfWorkspaceForbidden(res.status, data);
     return { ok: res.ok, status: res.status, data };
   } catch (err) {
     if (isAbortError(err)) return timeoutResult<T>();
@@ -173,6 +209,7 @@ export async function apiUpload<T = unknown>(
       signal: controller.signal,
     });
     const data = await res.json();
+    notifyIfWorkspaceForbidden(res.status, data);
     return { ok: res.ok, status: res.status, data };
   } catch (err) {
     if (isAbortError(err)) return timeoutResult<T>();

@@ -87,8 +87,8 @@
     "greeting": "مرحبًا،",
     "bodyIntroWithInviter": "دعاك <strong>{inviterEmail}</strong> للانضمام إلى مساحة عمل <strong>{workspaceName}</strong> على Markaestro {roleLabel}.",
     "bodyIntroNoInviter": "دعاك أحد أعضاء الفريق للانضمام إلى مساحة عمل <strong>{workspaceName}</strong> على Markaestro {roleLabel}.",
-    "signInInstructions": "سجّل الدخول (أو أنشئ حسابًا) باستخدام عنوان البريد الإلكتروني هذا، وسيتم تطبيق الدعوة تلقائيًا:",
-    "declineNote": "إذا كنت لا ترغب في الانضمام، تجاهل هذا البريد الإلكتروني فحسب — ستنتهي صلاحية الدعوة بعد 30 يومًا.",
+    "signInInstructions": "سجّل الدخول (أو أنشئ حسابًا) باستخدام عنوان البريد الإلكتروني هذا، ثم اقبل الدعوة من الشريط الظاهر في التطبيق:",
+    "declineNote": "لا ترغب في الانضمام؟ ارفض الدعوة من داخل التطبيق، أو تجاهل الأمر ببساطة — ستنتهي صلاحية الدعوة بعد 30 يومًا.",
     "roleLabels": {
       "admin": "كمسؤول",
       "member": "كعضو",

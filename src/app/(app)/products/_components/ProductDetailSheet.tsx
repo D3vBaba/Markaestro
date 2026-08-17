@@ -19,7 +19,7 @@ import Select from "@/components/app/Select";
 import CategorySelect from "./CategorySelect";
 import { categoryLabel, categoryColor } from "./categories";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
-import { apiGet, apiPut, apiPost, apiDelete, apiUpload } from "@/lib/api-client";
+import { apiGet, apiPut, apiPost, apiDelete, apiUpload, getApiWorkspaceId } from "@/lib/api-client";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -535,7 +535,7 @@ export default function ProductDetailSheet({
   function startOAuth(provider: string, linkedinMode?: "profile" | "community") {
     if (!productId) return;
     const qs = new URLSearchParams({
-      workspaceId: "default",
+      workspaceId: getApiWorkspaceId(),
       productId,
       returnTo: "/products",
     });

@@ -32,7 +32,8 @@
       "connection": "connexion",
       "teamMember": "membre de l'équipe",
       "integration": "intégration",
-      "post": "post"
+      "post": "post",
+      "workspace": "espace de travail"
     },
     "titleGeneric": "Supprimer {entity}",
     "titleNamed": "Supprimer {entity} ?",
@@ -63,11 +64,26 @@
   },
   "scanProgressStepper": {
     "steps": {
-      "connecting": { "label": "Connexion au site", "activeLabel": "Connexion au site…" },
-      "reading": { "label": "Lecture du contenu du site", "activeLabel": "Lecture du contenu du site…" },
-      "extracting": { "label": "Extraction des couleurs de marque", "activeLabel": "Extraction des couleurs de marque et du logo…" },
-      "analyzing": { "label": "Analyse des signaux de marque", "activeLabel": "Analyse des signaux de marque…" },
-      "finalizing": { "label": "Création du profil de marque", "activeLabel": "Création de votre profil de marque…" }
+      "connecting": {
+        "label": "Connexion au site",
+        "activeLabel": "Connexion au site…"
+      },
+      "reading": {
+        "label": "Lecture du contenu du site",
+        "activeLabel": "Lecture du contenu du site…"
+      },
+      "extracting": {
+        "label": "Extraction des couleurs de marque",
+        "activeLabel": "Extraction des couleurs de marque et du logo…"
+      },
+      "analyzing": {
+        "label": "Analyse des signaux de marque",
+        "activeLabel": "Analyse des signaux de marque…"
+      },
+      "finalizing": {
+        "label": "Création du profil de marque",
+        "activeLabel": "Création de votre profil de marque…"
+      }
     },
     "scanComplete": "Analyse terminée — vérifiez et confirmez ci-dessous",
     "scanFailed": "Échec de l'analyse — veuillez remplir manuellement",

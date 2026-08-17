@@ -87,8 +87,8 @@
     "greeting": "こんにちは。",
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong>さんが、Markaestroの<strong>{workspaceName}</strong>ワークスペースに{roleLabel}としてあなたを招待しました。",
     "bodyIntroNoInviter": "チームメンバーが、Markaestroの<strong>{workspaceName}</strong>ワークスペースに{roleLabel}としてあなたを招待しました。",
-    "signInInstructions": "このメールアドレスでサインイン（またはアカウントを作成）すると、招待が自動的に適用されます：",
-    "declineNote": "参加を希望しない場合は、このメールを無視してください — 招待は30日後に無効になります。",
+    "signInInstructions": "このメールアドレスでサインイン（またはアカウントを作成）し、アプリ内のバナーから招待を承諾してください：",
+    "declineNote": "参加を希望しない場合は、アプリ内で招待を辞退するか、そのまま何もしないでください — 招待は30日後に無効になります。",
     "roleLabels": {
       "admin": "管理者",
       "member": "メンバー",

@@ -1,4 +1,5 @@
 import { requireContext } from '@/lib/server-auth';
+import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { z } from 'zod';
@@ -77,6 +78,7 @@ function getNextDateForDay(dayOfWeek: number, hour: number): Date {
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'dashboard.read');
     const url = new URL(req.url);
     const { channel } = querySchema.parse({ channel: url.searchParams.get('channel') || undefined });
 

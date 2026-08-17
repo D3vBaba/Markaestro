@@ -1,9 +1,8 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiOk, apiError } from '@/lib/api-response';
 import { getUsage } from '@/lib/usage';
-import { getEffectiveSubscription } from '@/lib/stripe/subscription';
+import { getEffectiveSubscription, effectiveTier } from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
-import type { PlanTier } from '@/lib/stripe/plans';
 import { adminDb } from '@/lib/firebase-admin';
 
 export const runtime = 'nodejs';
@@ -19,24 +18,28 @@ export async function GET(req: Request) {
       getEffectiveSubscription(ctx.uid, ctx.workspaceId),
     ]);
 
-    const tier = (sub?.tier ?? 'starter') as PlanTier;
+    const tier = effectiveTier(sub);
     const plan = PLANS[tier];
 
-    // Count products and channels in this workspace
     let productCount = 0;
     let channelCount = 0;
+    let memberCount = 0;
+    let ownedWorkspaceCount = 0;
     try {
-      const productsSnap = await adminDb
-        .collection(`workspaces/${ctx.workspaceId}/products`)
-        .count()
-        .get();
+      const [productsSnap, connectionsSnap, membersSnap, ownedSnap] = await Promise.all([
+        adminDb.collection(`workspaces/${ctx.workspaceId}/products`).count().get(),
+        adminDb.collection(`workspaces/${ctx.workspaceId}/platformConnections`).count().get(),
+        adminDb.collection(`workspaces/${ctx.workspaceId}/members`).count().get(),
+        adminDb.collectionGroup('members')
+          .where('uid', '==', ctx.uid)
+          .where('role', '==', 'owner')
+          .count()
+          .get(),
+      ]);
       productCount = productsSnap.data().count;
-
-      // Count connected integrations as channels
-      const integrationsSnap = await adminDb
-        .collection(`workspaces/${ctx.workspaceId}/connections`)
-        .get();
-      channelCount = integrationsSnap.size;
+      channelCount = connectionsSnap.data().count;
+      memberCount = membersSnap.data().count;
+      ownedWorkspaceCount = ownedSnap.data().count;
     } catch { /* non-fatal */ }
 
     return apiOk({
@@ -44,11 +47,11 @@ export async function GET(req: Request) {
         mediaUploads: { current: usage.mediaUploads, limit: plan.limits.mediaUploads },
         channels: { current: channelCount, limit: plan.limits.channels },
         teamMembers: {
-          current: 0, // filled below
+          current: memberCount,
           limit: plan.limits.teamMembers,
         },
         workspaces: {
-          current: 0, // filled below
+          current: ownedWorkspaceCount,
           limit: plan.limits.workspaces,
         },
         products: { current: productCount },

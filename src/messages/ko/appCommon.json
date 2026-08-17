@@ -32,7 +32,8 @@
       "connection": "연결",
       "teamMember": "팀원",
       "integration": "연동",
-      "post": "게시물"
+      "post": "게시물",
+      "workspace": "워크스페이스"
     },
     "titleGeneric": "{entity} 삭제",
     "titleNamed": "{entity}을(를) 삭제할까요?",
@@ -63,11 +64,26 @@
   },
   "scanProgressStepper": {
     "steps": {
-      "connecting": { "label": "사이트에 연결", "activeLabel": "사이트에 연결하는 중…" },
-      "reading": { "label": "웹사이트 콘텐츠 읽기", "activeLabel": "웹사이트 콘텐츠를 읽는 중…" },
-      "extracting": { "label": "브랜드 색상 추출", "activeLabel": "브랜드 색상 및 로고를 추출하는 중…" },
-      "analyzing": { "label": "브랜드 신호 분석", "activeLabel": "브랜드 신호를 분석하는 중…" },
-      "finalizing": { "label": "브랜드 프로필 생성", "activeLabel": "브랜드 프로필을 생성하는 중…" }
+      "connecting": {
+        "label": "사이트에 연결",
+        "activeLabel": "사이트에 연결하는 중…"
+      },
+      "reading": {
+        "label": "웹사이트 콘텐츠 읽기",
+        "activeLabel": "웹사이트 콘텐츠를 읽는 중…"
+      },
+      "extracting": {
+        "label": "브랜드 색상 추출",
+        "activeLabel": "브랜드 색상 및 로고를 추출하는 중…"
+      },
+      "analyzing": {
+        "label": "브랜드 신호 분석",
+        "activeLabel": "브랜드 신호를 분석하는 중…"
+      },
+      "finalizing": {
+        "label": "브랜드 프로필 생성",
+        "activeLabel": "브랜드 프로필을 생성하는 중…"
+      }
     },
     "scanComplete": "스캔 완료 — 아래에서 확인 후 확정하세요",
     "scanFailed": "스캔 실패 — 수동으로 입력해 주세요",

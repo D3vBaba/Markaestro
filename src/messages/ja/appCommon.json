@@ -32,7 +32,8 @@
       "connection": "接続",
       "teamMember": "チームメンバー",
       "integration": "連携",
-      "post": "投稿"
+      "post": "投稿",
+      "workspace": "ワークスペース"
     },
     "titleGeneric": "{entity}を削除",
     "titleNamed": "{entity}を削除しますか？",
@@ -63,11 +64,26 @@
   },
   "scanProgressStepper": {
     "steps": {
-      "connecting": { "label": "サイトに接続", "activeLabel": "サイトに接続しています…" },
-      "reading": { "label": "ウェブサイトのコンテンツを読み取り", "activeLabel": "ウェブサイトのコンテンツを読み取っています…" },
-      "extracting": { "label": "ブランドカラーを抽出", "activeLabel": "ブランドカラーとロゴを抽出しています…" },
-      "analyzing": { "label": "ブランドシグナルを分析", "activeLabel": "ブランドシグナルを分析しています…" },
-      "finalizing": { "label": "ブランドプロフィールを作成", "activeLabel": "ブランドプロフィールを作成しています…" }
+      "connecting": {
+        "label": "サイトに接続",
+        "activeLabel": "サイトに接続しています…"
+      },
+      "reading": {
+        "label": "ウェブサイトのコンテンツを読み取り",
+        "activeLabel": "ウェブサイトのコンテンツを読み取っています…"
+      },
+      "extracting": {
+        "label": "ブランドカラーを抽出",
+        "activeLabel": "ブランドカラーとロゴを抽出しています…"
+      },
+      "analyzing": {
+        "label": "ブランドシグナルを分析",
+        "activeLabel": "ブランドシグナルを分析しています…"
+      },
+      "finalizing": {
+        "label": "ブランドプロフィールを作成",
+        "activeLabel": "ブランドプロフィールを作成しています…"
+      }
     },
     "scanComplete": "スキャンが完了しました — 以下を確認して確定してください",
     "scanFailed": "スキャンに失敗しました — 手動で入力してください",

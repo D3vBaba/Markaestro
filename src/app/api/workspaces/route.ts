@@ -1,9 +1,13 @@
 import { requireContext } from '@/lib/server-auth';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
-import { getEffectiveSubscription } from '@/lib/stripe/subscription';
+import {
+  getAccountEntitlement,
+  getSubscriptionForWorkspace,
+  effectiveTier,
+} from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
-import type { PlanTier } from '@/lib/stripe/plans';
+import { isValidWorkspaceId, workspaceSlugFromName } from '@/lib/workspace';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -59,44 +63,55 @@ export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
 
-    const sub = await getEffectiveSubscription({ uid: ctx.uid, workspaceId: ctx.workspaceId });
-    const tier = (sub?.tier ?? 'starter') as PlanTier;
-    const limit = PLANS[tier]?.limits.workspaces ?? 1;
+    // The limit basis is the user's OWN entitlements: their account
+    // entitlement plus the subscriptions of workspaces they own. Being a
+    // member of someone else's premium workspace must not raise how many
+    // personal workspaces they can create.
+    const ownedSnap = await adminDb
+      .collectionGroup('members')
+      .where('uid', '==', ctx.uid)
+      .where('role', '==', 'owner')
+      .get();
+    const ownedWorkspaceIds = ownedSnap.docs
+      .map((d) => d.ref.path.split('/')[1])
+      .filter(Boolean);
 
-    if (limit !== -1) {
-      let ownedWorkspaceCount = ctx.role === 'owner' ? 1 : 0;
+    const [account, ownedSubs] = await Promise.all([
+      getAccountEntitlement(ctx.uid),
+      Promise.all(ownedWorkspaceIds.map((id) => getSubscriptionForWorkspace(id))),
+    ]);
 
-      try {
-        const snap = await adminDb
-          .collectionGroup('members')
-          .where('uid', '==', ctx.uid)
-          .where('role', '==', 'owner')
-          .get();
-        ownedWorkspaceCount = snap.size;
-      } catch {
-        // Fall back to the current workspace when collection group queries are unavailable.
-      }
+    let limit = PLANS[effectiveTier(account)].limits.workspaces;
+    for (const ownedSub of ownedSubs) {
+      const ownedLimit = PLANS[effectiveTier(ownedSub)].limits.workspaces;
+      if (ownedLimit === -1) limit = -1;
+      else if (limit !== -1) limit = Math.max(limit, ownedLimit);
+    }
 
-      if (ownedWorkspaceCount >= limit) {
-        return apiError(new Error('WORKSPACE_LIMIT_REACHED'));
-      }
+    if (limit !== -1 && ownedWorkspaceIds.length >= limit) {
+      return apiError(new Error('WORKSPACE_LIMIT_REACHED'));
     }
 
     const body = await req.json();
     const { name } = createSchema.parse(body);
 
-    // Generate a slug from the name
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-      + '-' + Date.now().toString(36);
+    const slug = workspaceSlugFromName(name);
+    if (!isValidWorkspaceId(slug)) {
+      // Defensive: the generator only emits [a-z0-9-] starting alphanumeric,
+      // so this indicates a generator bug rather than bad input.
+      throw new Error('VALIDATION_INVALID_WORKSPACE_ID');
+    }
 
     const now = new Date().toISOString();
     const wsRef = adminDb.doc(`workspaces/${slug}`);
     const memberRef = adminDb.doc(`workspaces/${slug}/members/${ctx.uid}`);
 
-    // Atomic: workspace doc and owner membership are written together
+    // Atomic: workspace doc and owner membership are written together.
+    // create() (not set) fails on the improbable id collision instead of
+    // silently overwriting an existing workspace.
     const batch = adminDb.batch();
-    batch.set(wsRef, { name, slug, createdAt: now, createdBy: ctx.uid });
-    batch.set(memberRef, { uid: ctx.uid, email: ctx.email ?? '', role: 'owner', joinedAt: now });
+    batch.create(wsRef, { name, slug, createdAt: now, createdBy: ctx.uid });
+    batch.create(memberRef, { uid: ctx.uid, email: ctx.email ?? '', role: 'owner', joinedAt: now });
     await batch.commit();
 
     return apiOk({ id: slug, name, role: 'owner' }, 201);
