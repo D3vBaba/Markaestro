@@ -1,4 +1,3 @@
-import { pollPendingTikTokPublishes } from '@/lib/social/tiktok-publish-poll-worker';
 import { processTokenRefresh, cleanupExpiredOAuthStates } from '@/lib/oauth/token-refresh';
 import { safeCompare } from '@/lib/crypto';
 import { apiError, apiOk } from '@/lib/api-response';
@@ -45,12 +44,7 @@ export async function POST(req: Request) {
       logger.error('oauth state cleanup failed', { event: 'worker.oauth_state_cleanup', requestId, err: e });
     }
 
-    let tiktokPublishPollResult = { polled: 0, completed: 0, failed: 0, pending: 0, errors: [] as Array<{ workspaceId: string; postId: string; error: string }> };
-    try {
-      tiktokPublishPollResult = await pollPendingTikTokPublishes();
-    } catch (e) {
-      logger.error('tiktok publish polling failed', { event: 'worker.tiktok_publish_poll', requestId, err: e });
-    }
+    // TikTok polling is /api/worker/tiktok-poll, not this tick.
 
     // --- Per-workspace fan-out ---
     // TODO: replace in-process fan-out with Cloud Tasks enqueue to the
@@ -97,7 +91,6 @@ export async function POST(req: Request) {
       fanoutFailures,
       tokenRefresh: tokenRefreshResult,
       oauthStatesCleanedUp: statesCleanedUp,
-      tiktokPublishes: tiktokPublishPollResult,
       publicPublishRuns: publicPublishResults,
       webhookDeliveries: webhookResults,
     });

@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 # Setup Google Cloud Scheduler jobs that drive Markaestro's background work:
 #   1. markaestro-worker-tick   — every 1 min, runs the full worker tick
-#      (token refresh, scheduled posts, job runs, webhooks, and the default
-#      TikTok publish poll).
-#   2. markaestro-tiktok-poll   — every 1 min, runs a dedicated fast poll
-#      for TikTok posts stuck in `publishing`. The endpoint itself polls
-#      twice per invocation with a 30s gap, giving an effective ~30s
-#      cadence for pending TikTok drafts without overloading the main tick.
+#      (token refresh, scheduled posts, job runs, webhooks).
+#   2. markaestro-tiktok-poll   — every 1 min, polls TikTok posts stuck in
+#      `publishing` / inbox hand-off. One poll per invocation; do not point
+#      these jobs at markaestro.com (that front-door proxies through
+#      markaestro-proxy and bills Cloud Run CPU twice).
 #
 # Prerequisites:
 #   - gcloud CLI installed and authenticated
@@ -16,7 +15,7 @@
 # Usage:
 #   ./scripts/setup-cloud-scheduler.sh <APP_URL> <WORKER_SECRET>
 #
-# Example:
+# Example (App Hosting backend URL — not the apex proxy):
 #   ./scripts/setup-cloud-scheduler.sh https://markaestro--markaestro-0226220726.us-central1.hosted.app "your-worker-secret"
 
 set -euo pipefail

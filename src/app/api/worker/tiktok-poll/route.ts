@@ -5,18 +5,7 @@ import { logger, requestIdFromHeaders } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 120;
-
-// Cloud Scheduler's minimum cadence is 1 minute, but TikTok inbox
-// transcoding usually finishes in 15–45s. Each invocation polls twice,
-// spaced 30s apart, so a publish lingers in `publishing` for ~30s at
-// most once TikTok is ready — without changing the main worker tick.
-const POLL_ITERATIONS = 2;
-const POLL_SPACING_MS = 30_000;
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   const requestId = requestIdFromHeaders(req.headers);
@@ -28,56 +17,32 @@ export async function POST(req: Request) {
     }
 
     const started = Date.now();
-    const iterations: Array<{
-      polled: number;
-      completed: number;
-      failed: number;
-      pending: number;
-      errors: number;
-    }> = [];
+    const result = await pollPendingTikTokPublishes();
+    const summary = {
+      polled: result.polled,
+      completed: result.completed,
+      failed: result.failed,
+      pending: result.pending,
+      errors: result.errors.length,
+    };
 
-    for (let i = 0; i < POLL_ITERATIONS; i++) {
-      if (i > 0) await sleep(POLL_SPACING_MS);
-      try {
-        const result = await pollPendingTikTokPublishes();
-        iterations.push({
-          polled: result.polled,
-          completed: result.completed,
-          failed: result.failed,
-          pending: result.pending,
-          errors: result.errors.length,
-        });
-        if (result.errors.length > 0) {
-          logger.warn('tiktok fast poll iteration errors', {
-            event: 'worker.tiktok_fast_poll_iteration',
-            requestId,
-            iteration: i,
-            errors: result.errors,
-          });
-        }
-      } catch (e) {
-        logger.error('tiktok fast poll iteration failed', {
-          event: 'worker.tiktok_fast_poll_iteration',
-          requestId,
-          iteration: i,
-          err: e,
-        });
-      }
-
-      // Bail early if nothing was pending on this pass — saves the
-      // 30s sleep and the redundant Firestore scan.
-      const last = iterations[iterations.length - 1];
-      if (last && last.polled === 0) break;
+    if (result.errors.length > 0) {
+      logger.warn('tiktok poll errors', {
+        event: 'worker.tiktok_fast_poll_iteration',
+        requestId,
+        iteration: 0,
+        errors: result.errors,
+      });
     }
 
-    logger.info('tiktok fast poll completed', {
+    logger.info('tiktok poll completed', {
       event: 'worker.tiktok_fast_poll',
       requestId,
-      iterations: iterations.length,
+      iterations: 1,
       durationMs: Date.now() - started,
     });
 
-    return apiOk({ ok: true, iterations });
+    return apiOk({ ok: true, iterations: [summary] });
   } catch (error) {
     return apiError(error);
   }
