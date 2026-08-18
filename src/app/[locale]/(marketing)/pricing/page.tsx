@@ -88,8 +88,49 @@ export default function PricingPage() {
 
       {/* Pricing Cards */}
       <section className="border-t" style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}>
-        <div className="mx-auto max-w-5xl px-6 py-20">
-          <div className="grid gap-6 lg:grid-cols-3">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {/* Free tier — rendered explicitly: PLAN_TIERS deliberately only
+                lists the purchasable tiers, and the Free card is the on-ramp,
+                not a recommendation (Pro keeps the highlight). */}
+            <motion.div
+              className="rounded-xl border border-border/40 bg-card p-7 flex flex-col"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, ease }}
+            >
+              <div>
+                <h3 className="text-lg font-semibold">{t("planNames.free")}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{t("plans.free.description")}</p>
+              </div>
+              <div className="mt-6">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold tracking-tight">$0</span>
+                  <span className="text-sm text-muted-foreground">{t("planCard.perMonth")}</span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{t("planCard.freeForever")}</p>
+              </div>
+              <NextLink href="/onboarding" className="mt-6 block">
+                <Button variant="outline" className="w-full rounded-lg h-11 text-[13.5px]">
+                  {t("planCard.startFreeButton")}
+                </Button>
+              </NextLink>
+              <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                {t("planCard.noCardLine")}
+              </p>
+              <div className="mt-8 flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-4">{t("planCard.everythingIncluded")}</p>
+                <ul className="space-y-3">
+                  {(t.raw("plans.free.features") as string[]).map((feature) => (
+                    <li key={feature} className="flex items-start gap-2.5">
+                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
             {PLAN_TIERS.map((tierKey, i) => {
               const tier = PLANS[tierKey];
               const price = annual ? tier.price.annual : tier.price.monthly;
@@ -111,7 +152,7 @@ export default function PricingPage() {
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.08, duration: 0.4, ease }}
+                  transition={{ delay: (i + 1) * 0.08, duration: 0.4, ease }}
                 >
                   {tier.highlighted && tier.badge && (
                     <div className="absolute -top-3 start-1/2 -translate-x-1/2">
@@ -191,6 +232,12 @@ export default function PricingPage() {
             </h2>
             <p className="mt-4 text-muted-foreground">
               {t("comparison.subtitle")}
+            </p>
+            {/* The comparison values come from plans.ts and cover the paid
+                tiers only — the Free plan is summarized in one line instead
+                of a fourth column. */}
+            <p className="mt-3 text-sm text-muted-foreground/80">
+              {t("comparison.freeNote")}
             </p>
           </div>
 

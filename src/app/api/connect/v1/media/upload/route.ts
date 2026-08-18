@@ -10,6 +10,8 @@ import { uploadToStorage } from '@/lib/storage';
 import { publicApiError } from '@/lib/public-api/response';
 import { verifyUploadToken } from '@/lib/public-api/connect-compat';
 import { PUBLIC_ALLOWED_IMAGE_TYPES, PUBLIC_MAX_IMAGE_SIZE, type PublicMediaAsset } from '@/lib/public-api/media';
+import { reserveStorage, refundStorage } from '@/lib/usage';
+import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 
 export const runtime = 'nodejs';
 
@@ -23,6 +25,7 @@ const EXT_BY_MIME: Record<string, string> = {
 export async function PUT(req: Request) {
   let claimedSessionRef: DocumentReference | null = null;
   let sessionCompleted = false;
+  let reservedDelta: { workspaceId: string; bytes: number } | null = null;
   try {
     const url = new URL(req.url);
     const payload = verifyUploadToken(url.searchParams.get('token'));
@@ -42,31 +45,46 @@ export async function PUT(req: Request) {
     // Version 2 upload URLs are genuinely single-use. Legacy tokens minted by
     // an older instance remain valid through their 15-minute expiry so rolling
     // deployments do not interrupt uploads already in flight.
+    let sessionReservedBytes = 0;
     if (payload.v === 2) {
       const sessionRef = adminDb.doc(`workspaces/${payload.ws}/connect_upload_sessions/${payload.assetId}`);
       const now = Date.now();
       const claimed = await adminDb.runTransaction(async (tx) => {
         const snap = await tx.get(sessionRef);
-        if (!snap.exists) return false;
+        if (!snap.exists) return null;
         const data = snap.data() as {
           clientId?: string;
           mime?: string;
+          reservedBytes?: number;
           status?: string;
           uploadLeaseExpiresAt?: string;
         };
-        if (data.clientId !== payload.clientId || data.mime !== payload.mime) return false;
-        if (data.status === 'consumed') return false;
+        if (data.clientId !== payload.clientId || data.mime !== payload.mime) return null;
+        if (data.status === 'consumed') return null;
         if (data.status === 'uploading' && data.uploadLeaseExpiresAt && data.uploadLeaseExpiresAt > new Date(now).toISOString()) {
-          return false;
+          return null;
         }
         tx.set(sessionRef, {
           status: 'uploading',
           uploadLeaseExpiresAt: new Date(now + 2 * 60_000).toISOString(),
         }, { merge: true });
-        return true;
+        return { reservedBytes: typeof data.reservedBytes === 'number' ? data.reservedBytes : 0 };
       });
       if (!claimed) throw new Error('VALIDATION_UPLOAD_URL_ALREADY_USED');
       claimedSessionRef = sessionRef;
+      sessionReservedBytes = claimed.reservedBytes;
+    }
+
+    // Meter the actual bytes received, treating whatever create-upload-url
+    // already reserved from the declared size as a down payment: charge the
+    // shortfall, or release the excess once the asset is stored. Legacy
+    // tokens/sessions without a reservation are charged in full here.
+    const storageDeltaBytes = buffer.length - sessionReservedBytes;
+    if (storageDeltaBytes > 0) {
+      const limits = await getEffectiveLimits(undefined, payload.ws);
+      const quota = await reserveStorage(payload.ws, storageDeltaBytes, limits);
+      if (!quota.allowed) throw new Error('QUOTA_EXCEEDED_STORAGE');
+      reservedDelta = { workspaceId: payload.ws, bytes: storageDeltaBytes };
     }
 
     let width: number | null = null;
@@ -111,12 +129,21 @@ export async function PUT(req: Request) {
         status: 'consumed',
         consumedAt: createdAt,
         uploadLeaseExpiresAt: FieldValue.delete(),
+        // The stored asset now accounts for the full reservation.
+        reservedBytes: buffer.length,
       }, { merge: true });
       sessionCompleted = true;
+    }
+    if (storageDeltaBytes < 0) {
+      // Declared size exceeded the actual upload — release the difference.
+      await refundStorage(payload.ws, -storageDeltaBytes).catch(() => undefined);
     }
 
     return Response.json({ media_id: payload.assetId, url: downloadUrl });
   } catch (error) {
+    if (reservedDelta) {
+      await refundStorage(reservedDelta.workspaceId, reservedDelta.bytes).catch(() => undefined);
+    }
     if (claimedSessionRef && !sessionCompleted) {
       await claimedSessionRef.set({
         status: 'pending',

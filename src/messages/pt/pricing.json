@@ -3,26 +3,38 @@
     "eyebrow": "Preços",
     "titleLead": "Todo o seu motor de marketing,",
     "titleHighlight": "um preço simples",
-    "subtitle": "Sem taxas ocultas, sem surpresas por usuário. Todo plano inclui um teste grátis de {trialDays} dias. Cancele quando quiser.",
+    "subtitle": "Sem taxas ocultas, sem surpresas por usuário. Comece grátis — todo plano pago inclui um teste grátis de {trialDays} dias. Cancele quando quiser.",
     "monthlyToggle": "Mensal",
     "annualToggle": "Anual",
     "annualSaveBadge": "ECONOMIZE 18%",
-    "trialLine": "Teste grátis de {trialDays} dias em todos os planos — sem cobrança até o dia {trialEndDay}",
+    "trialLine": "Teste grátis de {trialDays} dias em todos os planos pagos — sem cobrança até o dia {trialEndDay}",
     "annualSavingsSuffix": " · A cobrança anual economiza 18%"
   },
   "planNames": {
+    "free": "Grátis",
     "starter": "Starter",
     "pro": "Pro",
     "business": "Business"
   },
   "mostPopularBadge": "Mais Popular",
   "plans": {
+    "free": {
+      "description": "Experimente o Markaestro com uma marca — grátis para sempre.",
+      "features": [
+        "1 marca",
+        "2 canais sociais",
+        "15 posts / mês",
+        "1 GB de armazenamento",
+        "1 membro da equipe, 1 workspace",
+        "Análises (janela de 7 dias)"
+      ]
+    },
     "starter": {
       "description": "Para profissionais de marketing individuais que publicam no Meta e no TikTok.",
       "features": [
         "5 canais sociais",
         "Posts ilimitados",
-        "500 uploads de mídia / mês",
+        "10 GB de armazenamento",
         "1 membro da equipe",
         "Calendário de conteúdo",
         "1 workspace",
@@ -35,7 +47,7 @@
       "features": [
         "15 canais sociais",
         "Posts ilimitados",
-        "5.000 uploads de mídia / mês",
+        "100 GB de armazenamento",
         "5 membros da equipe",
         "5 workspaces",
         "Voz da marca + identidade da marca",
@@ -49,7 +61,7 @@
       "features": [
         "50 canais sociais",
         "Posts ilimitados",
-        "Uploads de mídia ilimitados",
+        "Armazenamento ilimitado",
         "Membros de equipe ilimitados",
         "Tudo do plano Pro",
         "Workspaces ilimitados",
@@ -65,12 +77,16 @@
     "billedMonthly": "Cobrado mensalmente · Mude para anual e economize 17%",
     "startTrialButton": "Iniciar Teste Grátis de {trialDays} Dias",
     "noChargeLine": "Sem cobrança por {trialDays} dias · Cancele quando quiser",
-    "everythingIncluded": "Tudo incluso"
+    "everythingIncluded": "Tudo incluso",
+    "freeForever": "Grátis para sempre",
+    "startFreeButton": "Começar grátis",
+    "noCardLine": "Sem cartão · Faça upgrade quando quiser"
   },
   "comparison": {
     "titleLead": "Compare",
     "titleHighlight": "cada recurso",
     "subtitle": "Veja exatamente o que está incluso em cada plano.",
+    "freeNote": "O plano Grátis inclui 1 marca, 2 canais, 15 posts por mês, 1 GB de armazenamento e análises de 7 dias — sem acesso à API.",
     "categories": [
       {
         "name": "Publicação",
@@ -85,7 +101,7 @@
       {
         "name": "Biblioteca de Mídia",
         "features": [
-          { "name": "Uploads de mídia" },
+          { "name": "Armazenamento" },
           { "name": "Perfis de voz da marca" },
           { "name": "Identidade da marca (logo e cores)" }
         ]
@@ -128,6 +144,10 @@
   "faqTitleHighlight": "Preços",
   "faqs": [
     {
+      "q": "Existe um plano gratuito?",
+      "a": "Sim. O plano Grátis custa US$ 0 para sempre — sem cartão. Você tem 1 marca, 2 canais sociais, 15 posts por mês, 1 GB de armazenamento e uma janela de análises de 7 dias, com 1 membro da equipe em 1 workspace. O acesso à API exige um plano pago. Faça upgrade quando estiver pronto."
+    },
+    {
       "q": "Posso mudar de plano a qualquer momento?",
       "a": "Sim. Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. Ao fazer upgrade, será cobrada a diferença proporcional. Ao fazer downgrade, a nova tarifa entra em vigor no próximo ciclo de cobrança."
     },
@@ -136,12 +156,12 @@
       "a": "Cada conta social conectada conta como um canal. Por exemplo, uma Página do Facebook, uma conta comercial do Instagram e uma conta do TikTok seriam 3 canais."
     },
     {
-      "q": "O que conta como um upload de mídia?",
-      "a": "Cada arquivo de imagem ou vídeo enviado a um workspace conta como um upload de mídia na sua cota mensal. Reutilizar um arquivo já enviado em vários posts não conta novamente. Veja a tabela de comparação para os limites mensais de cada plano."
+      "q": "Como funciona o armazenamento?",
+      "a": "O armazenamento é o tamanho total das imagens e vídeos na biblioteca de mídia do seu workspace. O plano Grátis inclui 1 GB, o Starter 10 GB, o Pro 100 GB e o Business tem armazenamento ilimitado. Reutilizar um arquivo já enviado em vários posts não consome armazenamento adicional."
     },
     {
-      "q": "O que acontece quando atinjo meu limite de upload de mídia?",
-      "a": "Você pode continuar publicando posts que usam mídia já presente no seu workspace — apenas novos uploads são bloqueados. Sua cota de upload de mídia é reiniciada no começo de cada ciclo de cobrança, e você pode fazer upgrade do seu plano a qualquer momento para uma cota maior."
+      "q": "O que acontece quando atinjo meu limite de armazenamento?",
+      "a": "Você pode continuar publicando posts que usam mídia já presente no seu workspace — apenas novos uploads são bloqueados. Libere espaço excluindo mídias de que não precisa mais, ou faça upgrade do seu plano a qualquer momento para mais armazenamento."
     },
     {
       "q": "Como funciona o teste grátis?",

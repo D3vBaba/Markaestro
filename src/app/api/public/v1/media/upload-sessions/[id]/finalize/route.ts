@@ -10,6 +10,7 @@ import {
 import { publicApiError } from '@/lib/public-api/response';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 import { buildDownloadUrl } from '@/lib/storage';
+import { refundStorage } from '@/lib/usage';
 
 export const runtime = 'nodejs';
 
@@ -25,6 +26,7 @@ type PublicUploadSession = {
   expectedName?: string;
   expectedType?: string;
   expectedSize?: number;
+  reservedBytes?: number;
   mediaType?: 'image' | 'video';
   createdByType?: string;
   createdById?: string;
@@ -144,6 +146,12 @@ export async function POST(
         finalizeLeaseUntil: FieldValue.delete(),
       }, { merge: true });
       sessionRejected = true;
+      // Rejection is terminal (rejected sessions can never be finalized), so
+      // the bytes reserved at session creation are released exactly once.
+      // Sessions from before storage metering carry no reservedBytes.
+      if (typeof session.reservedBytes === 'number') {
+        await refundStorage(ctx.workspaceId, session.reservedBytes).catch(() => undefined);
+      }
       throw error;
     }
 

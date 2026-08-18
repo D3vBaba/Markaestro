@@ -3,26 +3,38 @@
     "eyebrow": "Tarifs",
     "titleLead": "Tout votre moteur marketing,",
     "titleHighlight": "un prix simple",
-    "subtitle": "Pas de frais cachés, pas de surprise par utilisateur. Tous les forfaits incluent un essai gratuit de {trialDays} jours. Annulez à tout moment.",
+    "subtitle": "Pas de frais cachés, pas de surprise par utilisateur. Commencez gratuitement — tous les forfaits payants incluent un essai gratuit de {trialDays} jours. Annulez à tout moment.",
     "monthlyToggle": "Mensuel",
     "annualToggle": "Annuel",
     "annualSaveBadge": "ÉCONOMISEZ 18 %",
-    "trialLine": "Essai gratuit de {trialDays} jours sur tous les forfaits — aucun paiement avant le jour {trialEndDay}",
+    "trialLine": "Essai gratuit de {trialDays} jours sur tous les forfaits payants — aucun paiement avant le jour {trialEndDay}",
     "annualSavingsSuffix": " · La facturation annuelle permet d'économiser 18 %"
   },
   "planNames": {
+    "free": "Gratuit",
     "starter": "Starter",
     "pro": "Pro",
     "business": "Business"
   },
   "mostPopularBadge": "Le plus populaire",
   "plans": {
+    "free": {
+      "description": "Essayez Markaestro avec une marque — gratuit pour toujours.",
+      "features": [
+        "1 marque",
+        "2 canaux sociaux",
+        "15 publications par mois",
+        "1 Go de stockage",
+        "1 membre d'équipe, 1 espace de travail",
+        "Analyses (fenêtre de 7 jours)"
+      ]
+    },
     "starter": {
       "description": "Pour les indépendants du marketing qui publient sur Meta et TikTok.",
       "features": [
         "5 canaux sociaux",
         "Publications illimitées",
-        "500 imports de contenu par mois",
+        "10 Go de stockage",
         "1 membre d'équipe",
         "Calendrier de contenu",
         "1 espace de travail",
@@ -35,7 +47,7 @@
       "features": [
         "15 canaux sociaux",
         "Publications illimitées",
-        "5 000 imports de contenu par mois",
+        "100 Go de stockage",
         "5 membres d'équipe",
         "5 espaces de travail",
         "Voix de marque + identité de marque",
@@ -49,7 +61,7 @@
       "features": [
         "50 canaux sociaux",
         "Publications illimitées",
-        "Imports de contenu illimités",
+        "Stockage illimité",
         "Membres d'équipe illimités",
         "Tout ce qui est inclus dans Pro",
         "Espaces de travail illimités",
@@ -65,12 +77,16 @@
     "billedMonthly": "Facturé mensuellement · Passez à l'annuel et économisez 17 %",
     "startTrialButton": "Démarrer l'essai gratuit de {trialDays} jours",
     "noChargeLine": "Aucun paiement pendant {trialDays} jours · Annulez à tout moment",
-    "everythingIncluded": "Tout est inclus"
+    "everythingIncluded": "Tout est inclus",
+    "freeForever": "Gratuit pour toujours",
+    "startFreeButton": "Commencer gratuitement",
+    "noCardLine": "Aucune carte requise · Passez au niveau supérieur à tout moment"
   },
   "comparison": {
     "titleLead": "Comparez",
     "titleHighlight": "chaque fonctionnalité",
     "subtitle": "Voyez exactement ce qui est inclus dans chaque forfait.",
+    "freeNote": "Le forfait Gratuit inclut 1 marque, 2 canaux, 15 publications par mois, 1 Go de stockage et des analyses sur 7 jours — sans accès à l'API.",
     "categories": [
       {
         "name": "Publication",
@@ -85,7 +101,7 @@
       {
         "name": "Bibliothèque de contenu",
         "features": [
-          { "name": "Imports de contenu" },
+          { "name": "Stockage" },
           { "name": "Profils de voix de marque" },
           { "name": "Identité de marque (logo et couleurs)" }
         ]
@@ -128,6 +144,10 @@
   "faqTitleHighlight": "sur les tarifs",
   "faqs": [
     {
+      "q": "Existe-t-il un forfait gratuit ?",
+      "a": "Oui. Le forfait Gratuit est à 0 $ pour toujours — aucune carte requise. Vous disposez de 1 marque, 2 canaux sociaux, 15 publications par mois, 1 Go de stockage et d'une fenêtre d'analyses de 7 jours, avec 1 membre d'équipe dans 1 espace de travail. L'accès à l'API nécessite un forfait payant. Passez à un forfait supérieur quand vous êtes prêt."
+    },
+    {
       "q": "Puis-je changer de forfait à tout moment ?",
       "a": "Oui. Vous pouvez passer à un forfait supérieur ou inférieur à tout moment. En cas de passage à un forfait supérieur, la différence au prorata vous sera facturée. En cas de passage à un forfait inférieur, le nouveau tarif prend effet à votre prochain cycle de facturation."
     },
@@ -136,12 +156,12 @@
       "a": "Chaque compte social connecté compte comme un canal. Par exemple, une page Facebook, un compte professionnel Instagram et un compte TikTok représenteraient 3 canaux."
     },
     {
-      "q": "Qu'est-ce qui compte comme import de contenu ?",
-      "a": "Chaque image ou vidéo importée dans un espace de travail compte comme un import de contenu dans votre quota mensuel. Réutiliser un fichier déjà importé dans plusieurs publications ne compte pas une seconde fois. Consultez le tableau comparatif pour les limites mensuelles de chaque forfait."
+      "q": "Comment fonctionne le stockage ?",
+      "a": "Le stockage correspond à la taille totale des images et vidéos de la bibliothèque de contenu de votre espace de travail. Le forfait Gratuit inclut 1 Go, Starter 10 Go, Pro 100 Go et Business un stockage illimité. Réutiliser un fichier déjà importé dans plusieurs publications ne consomme pas de stockage supplémentaire."
     },
     {
-      "q": "Que se passe-t-il quand j'atteins ma limite d'imports de contenu ?",
-      "a": "Vous pouvez continuer à publier des publications utilisant du contenu déjà présent dans votre espace de travail — seuls les nouveaux imports sont bloqués. Votre quota d'imports se réinitialise au début de chaque cycle de facturation, et vous pouvez passer à un forfait supérieur à tout moment pour un quota plus élevé."
+      "q": "Que se passe-t-il quand j'atteins ma limite de stockage ?",
+      "a": "Vous pouvez continuer à publier des publications utilisant du contenu déjà présent dans votre espace de travail — seuls les nouveaux imports sont bloqués. Libérez de l'espace en supprimant le contenu dont vous n'avez plus besoin, ou passez à un forfait supérieur à tout moment pour plus de stockage."
     },
     {
       "q": "Comment fonctionne l'essai gratuit ?",

@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const requirePublicApiContextMock = vi.fn();
 const signedUrlMock = vi.fn();
 const sessionSetMock = vi.fn();
-const checkAndIncrementUsageMock = vi.fn();
-const refundUsageMock = vi.fn();
+const getEffectiveLimitsMock = vi.fn();
+const reserveStorageMock = vi.fn();
+const refundStorageMock = vi.fn();
 
 vi.mock('@/lib/public-api/auth', () => ({
   requirePublicApiContext: requirePublicApiContextMock,
@@ -24,9 +25,13 @@ vi.mock('firebase-admin', () => ({
   }),
 }));
 
+vi.mock('@/lib/stripe/entitlements', () => ({
+  getEffectiveLimits: getEffectiveLimitsMock,
+}));
+
 vi.mock('@/lib/usage', () => ({
-  checkAndIncrementUsage: checkAndIncrementUsageMock,
-  refundUsage: refundUsageMock,
+  reserveStorage: reserveStorageMock,
+  refundStorage: refundStorageMock,
 }));
 
 function request() {
@@ -51,49 +56,59 @@ describe('POST /api/public/v1/media/upload-sessions', () => {
       principalType: 'api_client',
       rateLimitHeaders: { 'X-RateLimit-Limit': '20' },
     });
-    checkAndIncrementUsageMock.mockResolvedValue({ allowed: true, current: 1, limit: 100 });
+    getEffectiveLimitsMock.mockResolvedValue({ tier: 'starter', storageGb: 10 });
+    reserveStorageMock.mockResolvedValue({
+      allowed: true,
+      currentBytes: 1_024,
+      limitBytes: 10 * 1024 ** 3,
+    });
     signedUrlMock.mockResolvedValue(['https://storage.example/upload']);
     sessionSetMock.mockResolvedValue(undefined);
-    refundUsageMock.mockResolvedValue(undefined);
+    refundStorageMock.mockResolvedValue(undefined);
   });
 
-  it('reserves quota before returning a signed direct-upload URL', async () => {
+  it('reserves the declared bytes before returning a signed direct-upload URL', async () => {
     const { POST } = await import('./route');
     const response = await POST(request());
     const body = await response.json();
 
     expect(response.status).toBe(201);
-    expect(checkAndIncrementUsageMock).toHaveBeenCalledWith('user_1', 'mediaUploads', 'ws_1');
+    expect(getEffectiveLimitsMock).toHaveBeenCalledWith('user_1', 'ws_1');
+    expect(reserveStorageMock).toHaveBeenCalledWith('ws_1', 1_024, { tier: 'starter', storageGb: 10 });
     expect(body.uploadSession).toMatchObject({
       uploadUrl: 'https://storage.example/upload',
       uploadMethod: 'PUT',
       uploadHeaders: { 'Content-Type': 'image/jpeg' },
     });
-    expect(sessionSetMock).toHaveBeenCalledWith(expect.objectContaining({ quotaReserved: true }));
-    expect(refundUsageMock).not.toHaveBeenCalled();
+    expect(sessionSetMock).toHaveBeenCalledWith(
+      expect.objectContaining({ quotaReserved: true, reservedBytes: 1_024 }),
+    );
+    expect(refundStorageMock).not.toHaveBeenCalled();
   });
 
-  it('does not issue a URL when the monthly media quota is exhausted', async () => {
-    checkAndIncrementUsageMock.mockResolvedValue({
+  it('does not issue a URL when the storage cap is exhausted', async () => {
+    reserveStorageMock.mockResolvedValue({
       allowed: false,
-      current: 100,
-      limit: 100,
+      currentBytes: 10 * 1024 ** 3,
+      limitBytes: 10 * 1024 ** 3,
       reason: 'quota_exceeded',
     });
     const { POST } = await import('./route');
     const response = await POST(request());
+    const body = await response.json();
 
     expect(response.status).toBe(402);
+    expect(body.error).toBe('QUOTA_EXCEEDED_STORAGE');
     expect(signedUrlMock).not.toHaveBeenCalled();
     expect(sessionSetMock).not.toHaveBeenCalled();
   });
 
-  it('refunds the reservation if URL or session creation fails', async () => {
+  it('refunds the reserved bytes if URL or session creation fails', async () => {
     sessionSetMock.mockRejectedValue(new Error('firestore unavailable'));
     const { POST } = await import('./route');
     const response = await POST(request());
 
     expect(response.status).toBe(500);
-    expect(refundUsageMock).toHaveBeenCalledWith('user_1', 'mediaUploads', 1, 'ws_1');
+    expect(refundStorageMock).toHaveBeenCalledWith('ws_1', 1_024);
   });
 });

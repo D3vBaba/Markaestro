@@ -1,6 +1,6 @@
 import { requireContext } from '@/lib/server-auth';
 import { apiOk, apiError } from '@/lib/api-response';
-import { getUsage } from '@/lib/usage';
+import { getUsage, storageLimitBytes } from '@/lib/usage';
 import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 import { PLANS } from '@/lib/stripe/plans';
 import { adminDb } from '@/lib/firebase-admin';
@@ -37,9 +37,15 @@ export async function GET(req: Request) {
       ownedWorkspaceCount = ownedSnap.data().count;
     } catch { /* non-fatal */ }
 
+    const storageLimit = storageLimitBytes(limits);
+
     return apiOk({
       usage: {
-        mediaUploads: { current: usage.mediaUploads, limit: limits.mediaUploads },
+        // Storage is cumulative (bytes currently stored), not monthly.
+        storage: {
+          current: usage.storageBytes,
+          limit: storageLimit === -1 ? null : storageLimit,
+        },
         posts: { current: usage.posts, limit: limits.postsPerMonth },
         // Brands are stored as products; the channel cap is per brand, so a
         // single workspace-wide channel count is no longer reported.

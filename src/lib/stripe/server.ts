@@ -31,6 +31,17 @@ export type SubscriptionRecord = {
 };
 
 /**
+ * True when the record points at a real Stripe customer. Manual grants and
+ * comps store placeholder ids (`manual_grant_<uid>`); passing those to the
+ * billing portal or checkout APIs fails with "No such customer".
+ */
+export function hasStripeCustomer<T extends Pick<SubscriptionRecord, 'stripeCustomerId'>>(
+  sub: T | null | undefined,
+): sub is T {
+  return Boolean(sub?.stripeCustomerId?.startsWith('cus_'));
+}
+
+/**
  * Maps a Stripe Price ID to our plan tier.
  * Price IDs are stored in env vars as STRIPE_PRICE_{TIER}_{INTERVAL}.
  */

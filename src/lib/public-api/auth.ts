@@ -1,7 +1,8 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { safeCompare } from '@/lib/crypto';
 import { RATE_LIMITS, checkRateLimits, type RateLimitConfig, type RateLimitResult } from '@/lib/rate-limit';
-import { getEffectiveSubscription, isActiveSubscription } from '@/lib/stripe/subscription';
+import { PLANS } from '@/lib/stripe/plans';
+import { effectiveTier, getEffectiveSubscription, isActiveSubscription } from '@/lib/stripe/subscription';
 import { parseApiKey, hashSecret } from './keys';
 import type { PublicApiScope } from './scopes';
 import { incrementApiClientStat } from './usage';
@@ -99,6 +100,33 @@ function headersFromResult(result: RateLimitResult) {
   };
 }
 
+/**
+ * Scale a route's rate-limit config by the plan's API throughput.
+ * `apiRequestsPerMinute` is defined against the Starter baseline of 60, so
+ * Starter runs every route at 1x, Pro at 2x, and Business at 5x — custom
+ * per-route configs and the global per-client ceiling included. A resolved
+ * tier without API throughput (an active subscription whose tier fell back
+ * to 'free', e.g. an unmapped Stripe price) keeps the 1x baseline rather
+ * than locking the key out. Pure — exported for tests.
+ */
+export function tierScaledRateLimits(
+  config: RateLimitConfig,
+  apiRequestsPerMinute: number,
+): { route: RateLimitConfig; global: RateLimitConfig } {
+  const multiplier = apiRequestsPerMinute > 0 ? apiRequestsPerMinute / 60 : 1;
+  const route: RateLimitConfig = {
+    limit: Math.max(1, Math.round(config.limit * multiplier)),
+    windowMs: config.windowMs,
+  };
+  return {
+    route,
+    global: {
+      limit: Math.max(route.limit * 4, Math.round(240 * multiplier)),
+      windowMs: config.windowMs,
+    },
+  };
+}
+
 export function hasPublicApiScope(
   grantedScopes: readonly PublicApiScope[],
   requiredScope: PublicApiScope,
@@ -189,7 +217,6 @@ export async function requirePublicApiContext(
     }), { status: 403, headers: { 'Content-Type': 'application/json' } });
   }
 
-  const rateLimitConfig = options.rateLimit || RATE_LIMITS.api;
   const pathname = new URL(req.url).pathname;
 
   // Two-layer rate limit:
@@ -198,10 +225,12 @@ export async function requirePublicApiContext(
   //      many endpoints in parallel (path-scoped limits don't stack).
   //   2. Per-path budget: the sensitive/expensive routes (AI, publish)
   //      pick their own via `options.rateLimit`.
-  const globalConfig: RateLimitConfig = {
-    limit: Math.max(rateLimitConfig.limit * 4, 240),
-    windowMs: rateLimitConfig.windowMs,
-  };
+  // Both budgets scale with the plan tier, reusing the subscription already
+  // resolved for the entitlement check above.
+  const { route: rateLimitConfig, global: globalConfig } = tierScaledRateLimits(
+    options.rateLimit || RATE_LIMITS.api,
+    PLANS[effectiveTier(subscription)].limits.apiRequestsPerMinute,
+  );
   const [globalResult, pathResult] = await checkRateLimits([
     { key: `public-api:${parsed.clientId}`, config: globalConfig },
     { key: `public-api:${parsed.clientId}:${pathname}`, config: rateLimitConfig },

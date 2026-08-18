@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getStripe } from '@/lib/stripe/server';
+import { getStripe, hasStripeCustomer } from '@/lib/stripe/server';
 import { getSubscriptionForWorkspace } from '@/lib/stripe/subscription';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
@@ -17,8 +17,11 @@ export async function POST(req: Request) {
     // subscription directly — an account-level comp has no Stripe customer
     // and must not shadow it.
     const sub = await getSubscriptionForWorkspace(ctx.workspaceId);
-    if (!sub?.stripeCustomerId) {
-      return NextResponse.json({ error: 'No subscription found' }, { status: 404 });
+    // Manual grants store a placeholder customer id — Stripe rejects it with
+    // "No such customer", which surfaced as an opaque 500. Comped workspaces
+    // have no billing to manage; tell the client so it can say that.
+    if (!hasStripeCustomer(sub)) {
+      return NextResponse.json({ error: 'NO_BILLING_ACCOUNT' }, { status: 404 });
     }
 
     const stripe = getStripe();

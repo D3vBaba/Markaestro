@@ -3,7 +3,8 @@ import { publicApiError } from '@/lib/public-api/response';
 import { createMediaAsset, validatePublicMediaFile } from '@/lib/public-api/media';
 import { createRequestHashParts, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
-import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
+import { reserveStorage, refundStorage } from '@/lib/usage';
+import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 
 export const runtime = 'nodejs';
 
@@ -11,7 +12,7 @@ export const runtime = 'nodejs';
 const MEDIA_RATE_LIMIT = { limit: 20, windowMs: 60_000 };
 
 export async function POST(req: Request) {
-  let reservedQuota: { uid: string; workspaceId: string } | null = null;
+  let reservedStorage: { workspaceId: string; bytes: number } | null = null;
   try {
     const ctx = await requirePublicApiContext(req, {
       scope: 'media.write',
@@ -37,19 +38,17 @@ export async function POST(req: Request) {
       }
     }
 
-    const quotaUid = ctx.ownerUid ?? '';
-    const quota = await checkAndIncrementUsage(quotaUid, 'mediaUploads', ctx.workspaceId);
+    const limits = await getEffectiveLimits(ctx.ownerUid, ctx.workspaceId);
+    const quota = await reserveStorage(ctx.workspaceId, file.size, limits);
     if (!quota.allowed) {
       return Response.json({
-        error: quota.reason === 'subscription_required'
-          ? 'SUBSCRIPTION_REQUIRED'
-          : 'QUOTA_EXCEEDED_MEDIA_UPLOADS',
+        error: 'QUOTA_EXCEEDED_STORAGE',
       }, { status: 402, headers: ctx.rateLimitHeaders });
     }
-    reservedQuota = { uid: quotaUid, workspaceId: ctx.workspaceId };
+    reservedStorage = { workspaceId: ctx.workspaceId, bytes: file.size };
 
     const asset = await createMediaAsset(ctx, file, buffer);
-    reservedQuota = null;
+    reservedStorage = null;
     await incrementApiClientStat(ctx.workspaceId, ctx.clientId, 'media_upload');
     const body = { asset: {
       id: asset.id,
@@ -68,8 +67,8 @@ export async function POST(req: Request) {
 
     return Response.json(body, { status: 201, headers: ctx.rateLimitHeaders });
   } catch (error) {
-    if (reservedQuota) {
-      await refundUsage(reservedQuota.uid, 'mediaUploads', 1, reservedQuota.workspaceId);
+    if (reservedStorage) {
+      await refundStorage(reservedStorage.workspaceId, reservedStorage.bytes);
     }
     return publicApiError(error);
   }

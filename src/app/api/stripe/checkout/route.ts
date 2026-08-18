@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getStripe, priceIdForPlan } from '@/lib/stripe/server';
+import { getStripe, hasStripeCustomer, priceIdForPlan } from '@/lib/stripe/server';
 import { getSubscriptionForWorkspace } from '@/lib/stripe/subscription';
 import { TRIAL_DAYS } from '@/lib/stripe/plans';
 import type { PlanTier, BillingInterval } from '@/lib/stripe/plans';
@@ -69,8 +69,9 @@ export async function POST(req: Request) {
     // The workspace already has a live subscription: never stack a second
     // Stripe subscription on top of it. Send the owner to the billing portal
     // instead (mirrors /api/stripe/portal), where plan changes go through
-    // Stripe with correct proration.
-    if (existing && ['active', 'trialing'].includes(existing.status) && existing.stripeCustomerId) {
+    // Stripe with correct proration. Manual grants carry a placeholder
+    // customer id the portal rejects — those fall through to a real checkout.
+    if (existing && ['active', 'trialing'].includes(existing.status) && hasStripeCustomer(existing)) {
       const portal = await stripe.billingPortal.sessions.create({
         customer: existing.stripeCustomerId,
         return_url: `${appUrl}/settings`,
@@ -78,7 +79,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: portal.url });
     }
 
-    let customerId = existing?.stripeCustomerId;
+    let customerId = hasStripeCustomer(existing) ? existing.stripeCustomerId : undefined;
 
     if (!customerId) {
       customerId = (await findCustomerForWorkspace(stripe, { email, workspaceId, firebaseUid: uid })) || undefined;

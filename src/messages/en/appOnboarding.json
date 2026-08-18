@@ -306,7 +306,14 @@
     "annualSavingsNote": "Annual billing saves you 17% compared to monthly",
     "settingUp": "Setting up…",
     "startTrialButton": "Start {days}-Day Free Trial — {plan}",
-    "cardRequired": "Card required · Cancel anytime before the trial ends"
+    "cardRequired": "Card required · Cancel anytime before the trial ends",
+    "freeOption": {
+      "title": "Not ready to start a trial?",
+      "limits": "The Free plan includes 1 brand, 2 channels, 15 posts a month, 1 GB storage, and 7-day analytics.",
+      "continueButton": "Continue on Free",
+      "noCard": "$0 forever · No card required · Upgrade anytime",
+      "failed": "Couldn't set up your free workspace. Please try again."
+    }
   },
   "success": {
     "allSet": "All set",

@@ -3,26 +3,38 @@
     "eyebrow": "Preise",
     "titleLead": "Deine gesamte Marketing-Engine,",
     "titleHighlight": "ein einfacher Preis",
-    "subtitle": "Keine versteckten Gebühren, keine Überraschungen pro Nutzer. Jeder Tarif enthält eine kostenlose {trialDays}-tägige Testphase. Jederzeit kündbar.",
+    "subtitle": "Keine versteckten Gebühren, keine Überraschungen pro Nutzer. Starte kostenlos — jeder Bezahltarif enthält eine kostenlose {trialDays}-tägige Testphase. Jederzeit kündbar.",
     "monthlyToggle": "Monatlich",
     "annualToggle": "Jährlich",
     "annualSaveBadge": "18 % SPAREN",
-    "trialLine": "{trialDays}-tägige kostenlose Testphase bei allen Tarifen — keine Kosten bis Tag {trialEndDay}",
+    "trialLine": "{trialDays}-tägige kostenlose Testphase bei allen Bezahltarifen — keine Kosten bis Tag {trialEndDay}",
     "annualSavingsSuffix": " · Jährliche Abrechnung spart 18 %"
   },
   "planNames": {
+    "free": "Kostenlos",
     "starter": "Starter",
     "pro": "Pro",
     "business": "Business"
   },
   "mostPopularBadge": "Am beliebtesten",
   "plans": {
+    "free": {
+      "description": "Teste Markaestro mit einer Marke — dauerhaft kostenlos.",
+      "features": [
+        "1 Marke",
+        "2 soziale Kanäle",
+        "15 Beiträge / Monat",
+        "1 GB Speicher",
+        "1 Teammitglied, 1 Arbeitsbereich",
+        "Analysen (7-Tage-Fenster)"
+      ]
+    },
     "starter": {
       "description": "Für Einzelmarketer, die auf Meta und TikTok veröffentlichen.",
       "features": [
         "5 soziale Kanäle",
         "Unbegrenzte Beiträge",
-        "500 Medien-Uploads / Monat",
+        "10 GB Speicher",
         "1 Teammitglied",
         "Content-Kalender",
         "1 Arbeitsbereich",
@@ -35,7 +47,7 @@
       "features": [
         "15 soziale Kanäle",
         "Unbegrenzte Beiträge",
-        "5.000 Medien-Uploads / Monat",
+        "100 GB Speicher",
         "5 Teammitglieder",
         "5 Arbeitsbereiche",
         "Markenstimme + Markenidentität",
@@ -49,7 +61,7 @@
       "features": [
         "50 soziale Kanäle",
         "Unbegrenzte Beiträge",
-        "Unbegrenzte Medien-Uploads",
+        "Unbegrenzter Speicher",
         "Unbegrenzte Teammitglieder",
         "Alles aus Pro",
         "Unbegrenzte Arbeitsbereiche",
@@ -65,12 +77,16 @@
     "billedMonthly": "Monatlich abgerechnet · Zu jährlich wechseln und 17 % sparen",
     "startTrialButton": "{trialDays}-tägige kostenlose Testphase starten",
     "noChargeLine": "Keine Kosten für {trialDays} Tage · Jederzeit kündbar",
-    "everythingIncluded": "Alles enthalten"
+    "everythingIncluded": "Alles enthalten",
+    "freeForever": "Dauerhaft kostenlos",
+    "startFreeButton": "Kostenlos starten",
+    "noCardLine": "Keine Karte erforderlich · Upgrade jederzeit"
   },
   "comparison": {
     "titleLead": "Vergleiche",
     "titleHighlight": "jede Funktion",
     "subtitle": "Sieh genau, was in jedem Tarif enthalten ist.",
+    "freeNote": "Der Kostenlos-Tarif enthält 1 Marke, 2 Kanäle, 15 Beiträge/Monat, 1 GB Speicher und 7-Tage-Analysen — kein API-Zugriff.",
     "categories": [
       {
         "name": "Veröffentlichung",
@@ -85,7 +101,7 @@
       {
         "name": "Medienbibliothek",
         "features": [
-          { "name": "Medien-Uploads" },
+          { "name": "Speicher" },
           { "name": "Markenstimme-Profile" },
           { "name": "Markenidentität (Logo & Farben)" }
         ]
@@ -128,6 +144,10 @@
   "faqTitleHighlight": "zu Preisen",
   "faqs": [
     {
+      "q": "Gibt es einen kostenlosen Tarif?",
+      "a": "Ja. Der Kostenlos-Tarif kostet dauerhaft 0 $ — keine Karte erforderlich. Du erhältst 1 Marke, 2 soziale Kanäle, 15 Beiträge pro Monat, 1 GB Speicher und ein 7-Tage-Analysefenster, mit 1 Teammitglied in 1 Arbeitsbereich. API-Zugriff erfordert einen Bezahltarif. Führe jederzeit ein Upgrade durch, wenn du bereit bist."
+    },
+    {
       "q": "Kann ich jederzeit den Tarif wechseln?",
       "a": "Ja. Du kannst deinen Tarif jederzeit upgraden oder downgraden. Bei einem Upgrade wird dir die anteilige Differenz berechnet. Bei einem Downgrade tritt der neue Tarif zu deinem nächsten Abrechnungszyklus in Kraft."
     },
@@ -136,12 +156,12 @@
       "a": "Jedes verbundene soziale Konto zählt als ein Kanal. Zum Beispiel wären eine Facebook-Seite, ein geschäftliches Instagram-Konto und ein TikTok-Konto 3 Kanäle."
     },
     {
-      "q": "Was zählt als Medien-Upload?",
-      "a": "Jede Bild- oder Videodatei, die in einen Arbeitsbereich hochgeladen wird, zählt als ein Medien-Upload gegen dein monatliches Kontingent. Die Wiederverwendung einer bereits hochgeladenen Datei in mehreren Beiträgen zählt nicht erneut. Die monatlichen Limits pro Tarif findest du in der Vergleichstabelle."
+      "q": "Wie funktioniert der Speicher?",
+      "a": "Der Speicher ist die Gesamtgröße der Bilder und Videos in der Medienbibliothek deines Arbeitsbereichs. Der Kostenlos-Tarif enthält 1 GB, Starter 10 GB, Pro 100 GB und Business unbegrenzten Speicher. Die Wiederverwendung einer bereits hochgeladenen Datei in mehreren Beiträgen verbraucht keinen zusätzlichen Speicher."
     },
     {
-      "q": "Was passiert, wenn ich mein Medien-Upload-Limit erreiche?",
-      "a": "Du kannst weiterhin Beiträge veröffentlichen, die bereits vorhandene Inhalte in deinem Arbeitsbereich verwenden — nur neue Uploads werden blockiert. Dein Medien-Upload-Kontingent wird zu Beginn jedes Abrechnungszyklus zurückgesetzt, und du kannst dein Abo jederzeit für ein höheres Kontingent upgraden."
+      "q": "Was passiert, wenn ich mein Speicherlimit erreiche?",
+      "a": "Du kannst weiterhin Beiträge veröffentlichen, die bereits vorhandene Medien in deinem Arbeitsbereich verwenden — nur neue Uploads werden blockiert. Schaffe Platz, indem du nicht mehr benötigte Medien löschst, oder upgrade dein Abo jederzeit für mehr Speicher."
     },
     {
       "q": "Wie funktioniert die kostenlose Testphase?",

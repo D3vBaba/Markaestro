@@ -306,7 +306,14 @@
     "annualSavingsNote": "Jaarlijkse facturering bespaart je 17% ten opzichte van maandelijks",
     "settingUp": "Bezig met instellen…",
     "startTrialButton": "Start gratis proefperiode van {days} dagen — {plan}",
-    "cardRequired": "Kaart vereist · Altijd opzegbaar voordat de proefperiode eindigt"
+    "cardRequired": "Kaart vereist · Altijd opzegbaar voordat de proefperiode eindigt",
+    "freeOption": {
+      "title": "Nog niet klaar voor een proefperiode?",
+      "limits": "Het Gratis-pakket bevat 1 merk, 2 kanalen, 15 posts per maand, 1 GB opslag en 7-daagse analyse.",
+      "continueButton": "Doorgaan met Gratis",
+      "noCard": "$ 0 voor altijd · Geen kaart vereist · Altijd te upgraden",
+      "failed": "Je gratis workspace kon niet worden ingesteld. Probeer het opnieuw."
+    }
   },
   "success": {
     "allSet": "Helemaal klaar",

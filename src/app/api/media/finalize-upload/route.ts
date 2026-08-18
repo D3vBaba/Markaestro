@@ -4,7 +4,8 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { adminDb } from '@/lib/firebase-admin';
-import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
+import { reserveStorage, refundStorage } from '@/lib/usage';
+import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 import { buildDownloadUrl } from '@/lib/storage';
 import { validateMediaUpload } from '@/lib/media-upload-policy';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
@@ -40,7 +41,7 @@ function isStorageNotFound(error: unknown): boolean {
 }
 
 export async function POST(req: Request) {
-  let reservedQuota: { uid: string; workspaceId: string } | null = null;
+  let reservedStorage: { workspaceId: string; bytes: number } | null = null;
   let claimedSessionRef: FirebaseFirestore.DocumentReference | null = null;
   let sessionRejected = false;
   try {
@@ -119,18 +120,19 @@ export async function POST(req: Request) {
       throw error;
     }
 
-    const quota = await checkAndIncrementUsage(ctx.uid, 'mediaUploads', ctx.workspaceId);
+    // The staged object's verified byte size is what gets reserved — the
+    // declared size from create-upload-url is never trusted for metering.
+    const limits = await getEffectiveLimits(ctx.uid, ctx.workspaceId);
+    const quota = await reserveStorage(ctx.workspaceId, actualSize, limits);
     if (!quota.allowed) {
       await sessionRef.set({
         status: 'pending',
         finalizeLeaseUntil: FieldValue.delete(),
       }, { merge: true });
       claimedSessionRef = null;
-      return apiOk({
-        error: quota.reason === 'subscription_required' ? 'SUBSCRIPTION_REQUIRED' : 'QUOTA_EXCEEDED_MEDIA_UPLOADS',
-      }, 402);
+      return apiOk({ error: 'QUOTA_EXCEEDED_STORAGE' }, 402);
     }
-    reservedQuota = { uid: ctx.uid, workspaceId: ctx.workspaceId };
+    reservedStorage = { workspaceId: ctx.workspaceId, bytes: actualSize };
 
     if (isStaged) {
       await stagedFile.move(session.finalStoragePath);
@@ -156,12 +158,12 @@ export async function POST(req: Request) {
       finalizeLeaseUntil: FieldValue.delete(),
       expiresAt: Timestamp.fromMillis(Date.now() + SESSION_RETENTION_MS),
     }, { merge: true });
-    reservedQuota = null;
+    reservedStorage = null;
     claimedSessionRef = null;
     return apiOk({ ok: true, url, contentType: actualType });
   } catch (error) {
-    if (reservedQuota) {
-      await refundUsage(reservedQuota.uid, 'mediaUploads', 1, reservedQuota.workspaceId);
+    if (reservedStorage) {
+      await refundStorage(reservedStorage.workspaceId, reservedStorage.bytes);
     }
     if (claimedSessionRef && !sessionRejected) {
       await claimedSessionRef.set({

@@ -30,7 +30,7 @@ import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider"
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { PLANS } from "@/lib/stripe/plans";
-import type { PlanTier } from "@/lib/stripe/plans";
+import type { BillingInterval, PlanTier } from "@/lib/stripe/plans";
 import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
 import { resolveChannelStatus, type ChannelStatus } from "@/lib/integrations/channel-status";
@@ -593,13 +593,84 @@ function UsageMeter({
   );
 }
 
+/** Bytes → GB display value, one decimal max ("2.4", "10"). */
+function formatGb(bytes: number, locale: string) {
+  return (bytes / 1024 ** 3).toLocaleString(locale, { maximumFractionDigits: 1 });
+}
+
+/**
+ * Storage usage in GB with the same bar treatment as UsageMeter.
+ * `limit` null (or -1) means unlimited.
+ */
+function StorageMeter({
+  current,
+  limit,
+  locale,
+}: {
+  current: number;
+  limit: number | null;
+  locale: string;
+}) {
+  const t = useTranslations("settings.usage");
+  const unlimited = limit === null || limit === -1;
+  const pct = unlimited || limit <= 0 ? 0 : Math.min((current / limit) * 100, 100);
+  const isHigh = pct >= 80;
+  const isFull = pct >= 100;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium">{t("storage")}</p>
+        <p
+          className="text-sm tabular-nums"
+          style={{
+            color: isFull
+              ? "var(--mk-neg)"
+              : isHigh
+              ? "var(--mk-warn)"
+              : "var(--mk-ink-60)",
+            fontWeight: isFull ? 500 : 400,
+          }}
+        >
+          {unlimited
+            ? t("storageUsed", { current: formatGb(current, locale) })
+            : t("storageUsedOf", {
+                current: formatGb(current, locale),
+                limit: formatGb(limit, locale),
+              })}
+        </p>
+      </div>
+      {unlimited ? (
+        <div className="h-2 rounded-full bg-muted overflow-hidden">
+          <div className="h-full rounded-full w-[15%]" style={{ background: "var(--mk-pos)" }} />
+        </div>
+      ) : (
+        <div className="h-2 rounded-full bg-muted overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${pct}%`,
+              background: isFull
+                ? "var(--mk-neg)"
+                : isHigh
+                ? "var(--mk-warn)"
+                : "var(--mk-accent)",
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
   const t = useTranslations("settings.usage");
   const locale = useLocale();
   const { status } = useSubscription();
   const { data: usageData, loading } = useApiQuery<{
     usage: {
-      mediaUploads: UsageMetric;
+      /** Absent on older servers (deploy skew) — hide the card then. */
+      storage?: { current: number; limit: number | null };
       posts: UsageMetric;
       brands: UsageMetric;
       teamMembers: UsageMetric;
@@ -668,13 +739,14 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
             locale={locale}
           />
 
-          {/* Media uploads */}
-          <UsageMeter
-            label={t("mediaUploads")}
-            current={usage?.mediaUploads.current ?? 0}
-            limit={usage?.mediaUploads.limit ?? plan.limits.mediaUploads}
-            locale={locale}
-          />
+          {/* Storage (bytes from the server; hidden entirely on deploy skew) */}
+          {usage?.storage && (
+            <StorageMeter
+              current={usage.storage.current}
+              limit={usage.storage.limit}
+              locale={locale}
+            />
+          )}
 
           {/* Posts — metered on the free tier only; paid tiers are unlimited */}
           {(usage?.posts.limit ?? plan.limits.postsPerMonth) !== -1 && (
@@ -2883,18 +2955,63 @@ function AddonsCard({ interval, tier }: { interval: string | null; tier: PlanTie
   );
 }
 
+/** /api/stripe/status payload (SubscriptionStatus + `billable`). */
+type BillingStatusInfo = {
+  active: boolean;
+  tier: PlanTier | null;
+  interval: string | null;
+  /** True only when the workspace subscription has a real Stripe customer. */
+  billable: boolean;
+};
+
+const PLAN_RANK: Record<string, number> = { starter: 1, pro: 2, business: 3 };
+
+type PlanChangeKind = "upgrade" | "downgrade" | "interval";
+
 function BillingTab() {
   const t = useTranslations("settings.billing");
   const locale = useLocale();
-  const { status, trialDaysLeft } = useSubscription();
+  const { status, trialDaysLeft, refresh } = useSubscription();
   const { current: workspace } = useWorkspace();
   const [busy, setBusy] = useState(false);
+  // Live billing status straight from the API — the provider's bootstrap copy
+  // lacks `billable`, which decides portal access vs. the checkout fallback.
+  const [billing, setBilling] = useState<BillingStatusInfo | null>(null);
+  const [pageInterval, setPageInterval] = useState<BillingInterval>("annual");
+  const [confirmTarget, setConfirmTarget] = useState<{ tier: PlanTier; kind: PlanChangeKind } | null>(null);
+  const [confirmBusy, setConfirmBusy] = useState(false);
+  const [confirmError, setConfirmError] = useState<string[] | null>(null);
+  const [checkoutTier, setCheckoutTier] = useState<PlanTier | null>(null);
+  // Bumped to remount AddonsCard after a plan change (availability is per tier).
+  const [addonsRefreshKey, setAddonsRefreshKey] = useState(0);
+
+  const loadBilling = useCallback(async () => {
+    const res = await apiFetch<BillingStatusInfo>("/api/stripe/status");
+    if (res.ok) setBilling(res.data);
+  }, []);
+
+  useEffect(() => {
+    deferFromEffect(loadBilling);
+  }, [loadBilling]);
+
+  // Seed the interval toggle from the live subscription. Render-time sync
+  // (not an effect) so a late status fetch or a completed interval switch
+  // re-aligns the toggle in a single pass.
+  const liveInterval = billing?.interval ?? status?.interval ?? null;
+  const [seededInterval, setSeededInterval] = useState<string | null>(null);
+  if (liveInterval !== seededInterval) {
+    setSeededInterval(liveInterval);
+    if (liveInterval === "monthly" || liveInterval === "annual") setPageInterval(liveInterval);
+  }
 
   if (!status) return null;
 
   const tier = (status.tier ?? 'free') as PlanTier;
   const plan = PLANS[tier];
   const canManageBilling = workspace?.role === 'owner';
+  // A real, chargeable subscription that /api/stripe/change-plan can switch
+  // in place; anything else (free, comped, lapsed) goes through checkout.
+  const billableActive = Boolean(billing?.active && billing.billable);
 
   async function openPortal() {
     setBusy(true);
@@ -2912,6 +3029,114 @@ function BillingTab() {
       setBusy(false);
     }
   }
+
+  // No live Stripe subscription to modify (free tier, comped, lapsed):
+  // start a checkout session instead — same flow onboarding uses.
+  async function startCheckout(target: PlanTier, interval: BillingInterval) {
+    setCheckoutTier(target);
+    try {
+      const res = await apiFetch<{ url: string }>("/api/stripe/checkout", {
+        method: "POST",
+        body: JSON.stringify({ tier: target, interval }),
+      });
+      if (res.ok && res.data.url) {
+        window.location.assign(res.data.url);
+        return;
+      }
+      toast.error(t("changePlan.toastFailed"));
+    } catch {
+      toast.error(t("changePlan.toastFailed"));
+    }
+    setCheckoutTier(null);
+  }
+
+  function openConfirm(target: PlanTier, kind: PlanChangeKind) {
+    setConfirmError(null);
+    setConfirmTarget({ tier: target, kind });
+  }
+
+  function closeConfirm() {
+    setConfirmTarget(null);
+    setConfirmError(null);
+  }
+
+  async function applyPlanChange() {
+    if (!confirmTarget) return;
+    const targetPlan = PLANS[confirmTarget.tier];
+    setConfirmBusy(true);
+    setConfirmError(null);
+    try {
+      const res = await apiFetch<{ ok?: boolean }>("/api/stripe/change-plan", {
+        method: "POST",
+        body: JSON.stringify({ tier: confirmTarget.tier, interval: pageInterval }),
+      });
+      if (res.ok) {
+        toast.success(t("changePlan.toastChanged", { plan: targetPlan.name }));
+        closeConfirm();
+        setAddonsRefreshKey((k) => k + 1);
+        await Promise.all([loadBilling(), refresh()]);
+        return;
+      }
+      const data = res.data as {
+        error?: string;
+        addons?: ("brand" | "seat")[];
+        details?: Partial<Record<"brands" | "teamMembers" | "workspaces", { current: number; allowed: number }>>;
+      } | null;
+      if (res.status === 404 && data?.error === "NO_BILLING_ACCOUNT") {
+        // Server says there's nothing to switch in place — fall back to checkout.
+        const target = confirmTarget.tier;
+        closeConfirm();
+        await startCheckout(target, pageInterval);
+        return;
+      }
+      if (res.status === 409 && data?.error === "ADDONS_NOT_AVAILABLE_ON_TIER") {
+        const addons = data.addons ?? [];
+        setConfirmError([
+          t("changePlan.addonsBlocked", {
+            plan: targetPlan.name,
+            count: addons.length,
+            addons: addons.map((key) => t(`addons.names.${key}`)).join(", "),
+          }),
+        ]);
+        return;
+      }
+      if (res.status === 409 && data?.error === "PLAN_DOWNGRADE_BLOCKED") {
+        const d = data.details ?? {};
+        setConfirmError([
+          t("changePlan.downgradeBlocked", { plan: targetPlan.name }),
+          ...(d.brands ? [t("changePlan.blockedBrands", d.brands)] : []),
+          ...(d.teamMembers ? [t("changePlan.blockedTeamMembers", d.teamMembers)] : []),
+          ...(d.workspaces ? [t("changePlan.blockedWorkspaces", d.workspaces)] : []),
+        ]);
+        return;
+      }
+      setConfirmError([t("changePlan.toastFailed")]);
+    } catch {
+      setConfirmError([t("changePlan.toastFailed")]);
+    } finally {
+      setConfirmBusy(false);
+    }
+  }
+
+  const confirmPlanName = confirmTarget ? PLANS[confirmTarget.tier].name : "";
+  const confirmTitle = !confirmTarget
+    ? ""
+    : confirmTarget.kind === "upgrade"
+    ? t("changePlan.confirmTitleUpgrade", { plan: confirmPlanName })
+    : confirmTarget.kind === "downgrade"
+    ? t("changePlan.confirmTitleDowngrade", { plan: confirmPlanName })
+    : pageInterval === "annual"
+    ? t("changePlan.confirmTitleAnnual")
+    : t("changePlan.confirmTitleMonthly");
+  const confirmBody = !confirmTarget
+    ? ""
+    : confirmTarget.kind === "upgrade"
+    ? t("changePlan.confirmBodyUpgrade", { plan: confirmPlanName })
+    : confirmTarget.kind === "downgrade"
+    ? t("changePlan.confirmBodyDowngrade", { plan: confirmPlanName })
+    : pageInterval === "annual"
+    ? t("changePlan.confirmBodyAnnual", { plan: confirmPlanName })
+    : t("changePlan.confirmBodyMonthly", { plan: confirmPlanName });
 
   return (
     <div className="grid gap-5">
@@ -2960,9 +3185,17 @@ function BillingTab() {
                 )}
               </div>
               {canManageBilling ? (
-                <Button variant="outline" size="sm" className="shrink-0" onClick={openPortal} disabled={busy}>
-                  {busy ? t("opening") : t("manageBilling")}
-                </Button>
+                billing?.billable ? (
+                  <Button variant="outline" size="sm" className="shrink-0" onClick={openPortal} disabled={busy}>
+                    {busy ? t("opening") : t("manageBilling")}
+                  </Button>
+                ) : billing?.active ? (
+                  // Comped workspace: no Stripe customer, so the portal has
+                  // nothing to manage — say so instead of erroring.
+                  <p className="text-xs text-muted-foreground sm:text-end">
+                    {t("complimentaryPlan")}
+                  </p>
+                ) : null
               ) : (
                 <p className="text-xs text-muted-foreground sm:text-end">
                   {t("managedByOwner")}
@@ -2974,14 +3207,35 @@ function BillingTab() {
       </Card>
 
       {canManageBilling && status.active && (
-        <AddonsCard interval={status.interval} tier={tier} />
+        <AddonsCard key={addonsRefreshKey} interval={status.interval} tier={tier} />
       )}
 
-      {/* Plan comparison */}
+      {/* Plan comparison + direct switching */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle>{t("comparePlansTitle")}</CardTitle>
-          <CardDescription>{t("comparePlansDescription")}</CardDescription>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <CardTitle>{t("comparePlansTitle")}</CardTitle>
+              <CardDescription>{t("comparePlansDescription")}</CardDescription>
+            </div>
+            <div className="inline-flex self-start sm:self-auto rounded-lg border p-0.5 shrink-0">
+              {(["monthly", "annual"] as const).map((iv) => (
+                <button
+                  key={iv}
+                  type="button"
+                  onClick={() => setPageInterval(iv)}
+                  className={cn(
+                    "px-3 py-1 text-xs rounded-md transition-colors",
+                    pageInterval === iv
+                      ? "bg-primary text-primary-foreground font-medium"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {iv === "monthly" ? t("changePlan.intervalMonthly") : t("changePlan.intervalAnnual")}
+                </button>
+              ))}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -2992,22 +3246,25 @@ function BillingTab() {
                 <div
                   key={tKey}
                   className={cn(
-                    "rounded-xl border p-4 space-y-3 transition-colors",
-                    isCurrent && "border-primary/30 bg-primary/5",
+                    "rounded-xl border p-4 space-y-3 transition-colors flex flex-col",
+                    isCurrent && "border-primary/50 bg-primary/5",
                   )}
                 >
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-semibold">{p.name}</p>
-                      {isCurrent && <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{t("currentBadge")}</Badge>}
+                      {isCurrent && <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{t("changePlan.currentPlanBadge")}</Badge>}
                       {p.badge && !isCurrent && <Badge variant="outline" className="text-[10px]">{p.badge}</Badge>}
                     </div>
                     <p className="text-lg font-bold mt-1">
-                      {t("priceMonthly", { price: p.price.monthly })}<span className="text-xs font-normal text-muted-foreground">{t("perMonth")}</span>
+                      {t("priceMonthly", { price: pageInterval === "annual" ? p.price.annual : p.price.monthly })}<span className="text-xs font-normal text-muted-foreground">{t("perMonth")}</span>
                     </p>
+                    {pageInterval === "annual" && (
+                      <p className="text-[11px] text-muted-foreground">{t("changePlan.billedAnnually")}</p>
+                    )}
                     <p className="text-xs text-muted-foreground">{p.description}</p>
                   </div>
-                  <div className="space-y-1.5 pt-2 border-t">
+                  <div className="space-y-1.5 pt-2 border-t flex-1">
                     {p.features.slice(0, 6).map((f) => (
                       <div key={f} className="flex items-start gap-1.5">
                         <Check className="h-3 w-3 text-mk-pos shrink-0 mt-0.5" />
@@ -3020,12 +3277,78 @@ function BillingTab() {
                       </p>
                     )}
                   </div>
+                  {canManageBilling && billing && (
+                    <div className="pt-1">
+                      {billableActive ? (
+                        billing.tier === tKey && billing.interval === pageInterval ? (
+                          <Button variant="outline" size="sm" className="w-full" disabled>
+                            {t("changePlan.currentPlanCta")}
+                          </Button>
+                        ) : billing.tier === tKey ? (
+                          <Button size="sm" className="w-full" onClick={() => openConfirm(tKey, "interval")}>
+                            {pageInterval === "annual" ? t("changePlan.switchToAnnual") : t("changePlan.switchToMonthly")}
+                          </Button>
+                        ) : (PLAN_RANK[tKey] ?? 0) > (PLAN_RANK[billing.tier ?? ""] ?? 0) ? (
+                          <Button size="sm" className="w-full" onClick={() => openConfirm(tKey, "upgrade")}>
+                            {t("changePlan.upgradeTo", { plan: p.name })}
+                          </Button>
+                        ) : (
+                          <Button variant="outline" size="sm" className="w-full" onClick={() => openConfirm(tKey, "downgrade")}>
+                            {t("changePlan.downgradeTo", { plan: p.name })}
+                          </Button>
+                        )
+                      ) : (
+                        // Free, comped, or lapsed: no in-place switch — go
+                        // through Stripe Checkout for a fresh subscription.
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          disabled={checkoutTier !== null}
+                          onClick={() => startCheckout(tKey, pageInterval)}
+                        >
+                          {checkoutTier === tKey ? t("changePlan.redirecting") : t("changePlan.choosePlan", { plan: p.name })}
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </CardContent>
       </Card>
+
+      {/* Plan-change confirmation */}
+      <Dialog
+        open={confirmTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !confirmBusy) closeConfirm();
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{confirmTitle}</DialogTitle>
+            <DialogDescription>{confirmBody}</DialogDescription>
+          </DialogHeader>
+          {confirmError && (
+            <div className="space-y-1">
+              {confirmError.map((line) => (
+                <p key={line} className="text-sm" style={{ color: "var(--mk-neg)" }}>
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={closeConfirm} disabled={confirmBusy}>
+              {t("changePlan.cancel")}
+            </Button>
+            <Button onClick={applyPlanChange} disabled={confirmBusy}>
+              {confirmBusy ? t("changePlan.confirmWorking") : t("changePlan.confirmCta")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

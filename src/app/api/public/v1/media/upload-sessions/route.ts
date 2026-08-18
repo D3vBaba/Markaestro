@@ -5,7 +5,8 @@ import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicMediaExtension, validatePublicMediaUpload } from '@/lib/public-api/media';
 import { publicApiError } from '@/lib/public-api/response';
 import { createPublicMediaUploadSessionSchema } from '@/lib/public-api/schemas';
-import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
+import { reserveStorage, refundStorage } from '@/lib/usage';
+import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 
 export const runtime = 'nodejs';
 
@@ -13,7 +14,7 @@ const MEDIA_RATE_LIMIT = { limit: 20, windowMs: 60_000 };
 const UPLOAD_URL_TTL_MS = 15 * 60 * 1000;
 
 export async function POST(req: Request) {
-  let reservedQuota: { uid: string; workspaceId: string } | null = null;
+  let reservedStorage: { workspaceId: string; bytes: number } | null = null;
   try {
     const ctx = await requirePublicApiContext(req, {
       scope: 'media.write',
@@ -21,19 +22,18 @@ export async function POST(req: Request) {
     });
     const input = createPublicMediaUploadSessionSchema.parse(await req.json());
     const mediaType = validatePublicMediaUpload(input.contentType, input.sizeBytes);
-    // Public upload sessions reserve quota before issuing a signed URL. This
-    // prevents an authenticated client from filling staging storage with
-    // abandoned 250 MB objects while bypassing the monthly media limit.
-    const quotaUid = ctx.ownerUid ?? '';
-    const quota = await checkAndIncrementUsage(quotaUid, 'mediaUploads', ctx.workspaceId);
+    // Public upload sessions reserve the declared bytes before issuing a
+    // signed URL. This prevents an authenticated client from filling staging
+    // storage with abandoned 250 MB objects while bypassing the storage cap;
+    // finalize rejects any object whose actual size differs and refunds.
+    const limits = await getEffectiveLimits(ctx.ownerUid, ctx.workspaceId);
+    const quota = await reserveStorage(ctx.workspaceId, input.sizeBytes, limits);
     if (!quota.allowed) {
       return Response.json({
-        error: quota.reason === 'subscription_required'
-          ? 'SUBSCRIPTION_REQUIRED'
-          : 'QUOTA_EXCEEDED_MEDIA_UPLOADS',
+        error: 'QUOTA_EXCEEDED_STORAGE',
       }, { status: 402, headers: ctx.rateLimitHeaders });
     }
-    reservedQuota = { uid: quotaUid, workspaceId: ctx.workspaceId };
+    reservedStorage = { workspaceId: ctx.workspaceId, bytes: input.sizeBytes };
 
     const assetId = `ast_${crypto.randomUUID()}`;
     const extension = publicMediaExtension(input.contentType);
@@ -64,11 +64,15 @@ export async function POST(req: Request) {
       createdByType: ctx.principalType,
       createdById: ctx.clientId,
       quotaReserved: true,
+      // Bytes reserved against the storage cap, so finalize can refund
+      // exactly this amount if the session is rejected. Sessions created
+      // before storage metering lack the field and refund nothing.
+      reservedBytes: input.sizeBytes,
       status: 'pending',
       createdAt: new Date().toISOString(),
       expiresAt: Timestamp.fromMillis(expiresAtMs),
     });
-    reservedQuota = null;
+    reservedStorage = null;
 
     return Response.json({
       uploadSession: {
@@ -81,8 +85,8 @@ export async function POST(req: Request) {
       },
     }, { status: 201, headers: ctx.rateLimitHeaders });
   } catch (error) {
-    if (reservedQuota) {
-      await refundUsage(reservedQuota.uid, 'mediaUploads', 1, reservedQuota.workspaceId);
+    if (reservedStorage) {
+      await refundStorage(reservedStorage.workspaceId, reservedStorage.bytes);
     }
     return publicApiError(error);
   }

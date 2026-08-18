@@ -306,7 +306,14 @@
     "annualSavingsNote": "La facturación anual te ahorra un 17% respecto a la mensual",
     "settingUp": "Configurando…",
     "startTrialButton": "Iniciar prueba gratuita de {days} días — {plan}",
-    "cardRequired": "Se requiere tarjeta · Cancela cuando quieras antes de que termine la prueba"
+    "cardRequired": "Se requiere tarjeta · Cancela cuando quieras antes de que termine la prueba",
+    "freeOption": {
+      "title": "¿Aún no quieres iniciar una prueba?",
+      "limits": "El plan Gratis incluye 1 marca, 2 canales, 15 publicaciones al mes, 1 GB de almacenamiento y analíticas de 7 días.",
+      "continueButton": "Continuar con Gratis",
+      "noCard": "0 $ para siempre · Sin tarjeta · Mejora cuando quieras",
+      "failed": "No se pudo configurar tu espacio de trabajo gratuito. Inténtalo de nuevo."
+    }
   },
   "success": {
     "allSet": "Todo listo",

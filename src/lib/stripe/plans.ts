@@ -6,8 +6,9 @@ export type PlanLimits = {
   brands: number;
   /** Channel connections per brand (one per platform, plus slack for the FB page + IG account pairing). */
   channelsPerBrand: number;
-  mediaUploads: number; // per month, -1 = unlimited
+  storageGb: number; // cumulative media storage cap, -1 = unlimited
   postsPerMonth: number; // -1 = unlimited (all paid tiers)
+  apiRequestsPerMinute: number; // public API per-route throughput; 60 is the Starter baseline, 0 = no API access
   teamMembers: number; // -1 = unlimited
   workspaces: number; // -1 = unlimited
   analyticsWindowDays: number; // -1 = unlimited history
@@ -46,17 +47,18 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       '1 brand, 2 channels',
       '15 posts / month',
       'Content calendar',
-      '20 media uploads / month',
+      '1 GB storage',
       'Analytics (7-day window)',
     ],
     limits: {
       brands: 1,
       channelsPerBrand: 2,
-      mediaUploads: 20,
+      storageGb: 1,
       postsPerMonth: 15,
       teamMembers: 1,
       workspaces: 1,
       analyticsWindowDays: 7,
+      apiRequestsPerMinute: 0,
     },
     gated: {
       smartScheduling: false,
@@ -77,18 +79,19 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       'Unlimited scheduled posts',
       'Content calendar',
       'Brand voice per brand',
-      '500 media uploads / month',
+      '10 GB storage',
       'Full publishing API',
       'Analytics (30-day window)',
     ],
     limits: {
       brands: 2,
       channelsPerBrand: 8,
-      mediaUploads: 500,
+      storageGb: 10,
       postsPerMonth: -1,
       teamMembers: 1,
       workspaces: 1,
       analyticsWindowDays: 30,
+      apiRequestsPerMinute: 60,
     },
     gated: {
       smartScheduling: false,
@@ -110,18 +113,19 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       '5 workspaces',
       'Best-time posting recommendations',
       'Brand voice + brand identity (logo & colors)',
-      '5,000 media uploads / month',
+      '100 GB storage',
       'Analytics (1-year window)',
       'Priority support',
     ],
     limits: {
       brands: 6,
       channelsPerBrand: 8,
-      mediaUploads: 5000,
+      storageGb: 100,
       postsPerMonth: -1,
       teamMembers: 5,
       workspaces: 5,
       analyticsWindowDays: 365,
+      apiRequestsPerMinute: 120,
     },
     gated: {
       smartScheduling: true,
@@ -139,18 +143,19 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     features: [
       '20 brands',
       'Unlimited team members & workspaces',
-      'Unlimited media uploads',
+      'Unlimited storage',
       'Unlimited analytics history + CSV export',
       'Priority support',
     ],
     limits: {
       brands: 20,
       channelsPerBrand: 8,
-      mediaUploads: -1,
+      storageGb: -1,
       postsPerMonth: -1,
       teamMembers: -1,
       workspaces: -1,
       analyticsWindowDays: -1,
+      apiRequestsPerMinute: 300,
     },
     gated: {
       smartScheduling: true,
@@ -206,7 +211,7 @@ export const COMPARISON_CATEGORIES = [
   {
     name: 'Media Library',
     features: [
-      { name: 'Media uploads', starter: '500/mo', pro: '5,000/mo', business: 'Unlimited' },
+      { name: 'Storage', starter: '10 GB', pro: '100 GB', business: 'Unlimited' },
       { name: 'Brand voice', starter: 'Per brand', pro: 'Per brand', business: 'Per brand' },
       { name: 'Brand identity (logo & colors)', starter: false, pro: true, business: true },
     ],
@@ -228,14 +233,17 @@ export const COMPARISON_CATEGORIES = [
     ],
   },
   {
-    // API access is not plan-gated among paid tiers: key creation checks
+    // API access is not feature-gated among paid tiers: key creation checks
     // role, verified email, and an active subscription — never the tier.
+    // Throughput is the tier difference: request budgets scale with
+    // limits.apiRequestsPerMinute.
     name: 'Developers & AI Agents',
     features: [
       { name: 'Workspace API keys', starter: true, pro: true, business: true },
       { name: 'Publishing API (Connect + full v1)', starter: true, pro: true, business: true },
       { name: 'Signed webhooks', starter: true, pro: true, business: true },
       { name: 'Per-brand key scoping & expiry', starter: true, pro: true, business: true },
+      { name: 'API rate limit', starter: '60 req/min', pro: '120 req/min', business: '300 req/min' },
     ],
   },
   {

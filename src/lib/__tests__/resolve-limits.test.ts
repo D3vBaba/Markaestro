@@ -57,8 +57,18 @@ describe('resolveLimits', () => {
     const business = resolveLimits(record({ tier: 'business', addonSeats: 7, addonBrands: 0 }));
     expect(business.teamMembers).toBe(-1);
     expect(business.workspaces).toBe(-1);
-    expect(business.mediaUploads).toBe(-1);
+    expect(business.storageGb).toBe(-1);
     expect(business.brands).toBe(PLANS.business.limits.brands);
+  });
+
+  it('carries storage and API throughput through untouched — no add-on affects them', () => {
+    const starter = resolveLimits(record({ tier: 'starter', addonBrands: 3, addonSeats: 2 }));
+    expect(starter.storageGb).toBe(PLANS.starter.limits.storageGb);
+    expect(starter.apiRequestsPerMinute).toBe(PLANS.starter.limits.apiRequestsPerMinute);
+
+    // Free (no subscription) meters 1 GB and has no API access.
+    expect(resolveLimits(null).storageGb).toBe(1);
+    expect(resolveLimits(null).apiRequestsPerMinute).toBe(0);
   });
 
   it('ignores negative or missing add-on quantities', () => {

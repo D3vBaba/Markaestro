@@ -64,7 +64,7 @@ export function apiError(error: unknown): NextResponse {
   if (msg === 'VIDEO_QUOTA_EXCEEDED') {
     return NextResponse.json({ error: msg, requestId }, { status: 402 });
   }
-  if (msg === 'QUOTA_EXCEEDED_MEDIA_UPLOADS') {
+  if (msg === 'QUOTA_EXCEEDED_STORAGE') {
     return NextResponse.json({ error: msg, requestId }, { status: 402 });
   }
   if (msg === 'QUOTA_EXCEEDED_POSTS') {

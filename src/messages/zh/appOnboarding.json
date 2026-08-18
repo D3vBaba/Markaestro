@@ -306,7 +306,14 @@
     "annualSavingsNote": "按年计费比按月计费节省17%",
     "settingUp": "正在设置…",
     "startTrialButton": "开始{days}天免费试用 — {plan}",
-    "cardRequired": "需要绑定银行卡 · 试用结束前可随时取消"
+    "cardRequired": "需要绑定银行卡 · 试用结束前可随时取消",
+    "freeOption": {
+      "title": "还没准备好开始试用？",
+      "limits": "免费套餐包含 1 个品牌、2 个渠道、每月 15 篇内容、1 GB 存储空间和 7 天数据分析。",
+      "continueButton": "以免费套餐继续",
+      "noCard": "永久 0 美元 · 无需绑卡 · 随时可升级",
+      "failed": "无法设置你的免费工作区，请重试。"
+    }
   },
   "success": {
     "allSet": "一切就绪",

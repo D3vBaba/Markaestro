@@ -306,7 +306,14 @@
     "annualSavingsNote": "La facturation annuelle vous fait économiser 17 % par rapport au mensuel",
     "settingUp": "Configuration…",
     "startTrialButton": "Démarrer l'essai gratuit de {days} jours — {plan}",
-    "cardRequired": "Carte requise · Annulez à tout moment avant la fin de l'essai"
+    "cardRequired": "Carte requise · Annulez à tout moment avant la fin de l'essai",
+    "freeOption": {
+      "title": "Pas encore prêt à démarrer un essai ?",
+      "limits": "Le forfait Gratuit inclut 1 marque, 2 canaux, 15 publications par mois, 1 Go de stockage et des analyses sur 7 jours.",
+      "continueButton": "Continuer avec Gratuit",
+      "noCard": "0 $ pour toujours · Aucune carte requise · Passez au niveau supérieur à tout moment",
+      "failed": "Impossible de configurer votre espace de travail gratuit. Veuillez réessayer."
+    }
   },
   "success": {
     "allSet": "Tout est prêt",

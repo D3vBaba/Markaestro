@@ -17,6 +17,14 @@ describe('publicValidationIssueMessage', () => {
 });
 
 describe('apiError', () => {
+  it('maps quota codes to 402', async () => {
+    for (const code of ['QUOTA_EXCEEDED_STORAGE', 'QUOTA_EXCEEDED_POSTS']) {
+      const response = apiError(new Error(code));
+      expect(response.status).toBe(402);
+      expect(await response.json()).toMatchObject({ error: code });
+    }
+  });
+
   it('preserves intentional HTTP responses such as rate limits', async () => {
     const response = new Response(JSON.stringify({ error: 'RATE_LIMITED' }), {
       status: 429,

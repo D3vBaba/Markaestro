@@ -306,7 +306,14 @@
     "annualSavingsNote": "Die jährliche Abrechnung spart dir 17 % gegenüber monatlich",
     "settingUp": "Wird eingerichtet…",
     "startTrialButton": "{days}-tägige kostenlose Testphase starten — {plan}",
-    "cardRequired": "Karte erforderlich · Jederzeit vor Ende der Testphase kündbar"
+    "cardRequired": "Karte erforderlich · Jederzeit vor Ende der Testphase kündbar",
+    "freeOption": {
+      "title": "Noch nicht bereit für eine Testphase?",
+      "limits": "Der Kostenlos-Plan enthält 1 Marke, 2 Kanäle, 15 Beiträge pro Monat, 1 GB Speicher und 7-Tage-Analysen.",
+      "continueButton": "Kostenlos fortfahren",
+      "noCard": "0 $ für immer · Keine Karte erforderlich · Upgrade jederzeit",
+      "failed": "Dein kostenloser Arbeitsbereich konnte nicht eingerichtet werden. Bitte versuche es erneut."
+    }
   },
   "success": {
     "allSet": "Alles bereit",

@@ -4,14 +4,15 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { uploadToStorage } from '@/lib/storage';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
-import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
+import { reserveStorage, refundStorage } from '@/lib/usage';
+import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 import { MEDIA_UPLOAD_TYPES, validateMediaUpload } from '@/lib/media-upload-policy';
 import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
-  let reservedQuota: { uid: string; workspaceId: string } | null = null;
+  let reservedStorage: { workspaceId: string; bytes: number } | null = null;
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'posts.write');
@@ -24,21 +25,19 @@ export async function POST(req: Request) {
     const { extension: ext } = validateMediaUpload(file.type, file.size);
 
     // Invalid files should not create a usage transaction only to refund it.
-    const quota = await checkAndIncrementUsage(ctx.uid, 'mediaUploads', ctx.workspaceId);
+    const limits = await getEffectiveLimits(ctx.uid, ctx.workspaceId);
+    const quota = await reserveStorage(ctx.workspaceId, file.size, limits);
     if (!quota.allowed) {
-      const code = quota.reason === 'subscription_required'
-        ? 'SUBSCRIPTION_REQUIRED'
-        : 'QUOTA_EXCEEDED_MEDIA_UPLOADS';
       logger.warn('media upload blocked', {
         event: 'media.upload.blocked',
         workspaceId: ctx.workspaceId,
         reason: quota.reason ?? 'quota_exceeded',
-        current: quota.current,
-        limit: quota.limit,
+        currentBytes: quota.currentBytes,
+        limitBytes: quota.limitBytes,
       });
-      return apiError(new Error(code));
+      return apiError(new Error('QUOTA_EXCEEDED_STORAGE'));
     }
-    reservedQuota = { uid: ctx.uid, workspaceId: ctx.workspaceId };
+    reservedStorage = { workspaceId: ctx.workspaceId, bytes: file.size };
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -51,11 +50,11 @@ export async function POST(req: Request) {
       uploadedAt: new Date().toISOString(),
     });
 
-    reservedQuota = null;
+    reservedStorage = null;
     return apiOk({ ok: true, url, contentType: file.type });
   } catch (error) {
-    if (reservedQuota) {
-      await refundUsage(reservedQuota.uid, 'mediaUploads', 1, reservedQuota.workspaceId);
+    if (reservedStorage) {
+      await refundStorage(reservedStorage.workspaceId, reservedStorage.bytes);
     }
     return apiError(error);
   }

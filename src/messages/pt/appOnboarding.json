@@ -306,7 +306,14 @@
     "annualSavingsNote": "A cobrança anual economiza 17% em comparação com a mensal",
     "settingUp": "Configurando…",
     "startTrialButton": "Iniciar teste gratuito de {days} dias — {plan}",
-    "cardRequired": "Cartão obrigatório · Cancele a qualquer momento antes do fim do teste"
+    "cardRequired": "Cartão obrigatório · Cancele a qualquer momento antes do fim do teste",
+    "freeOption": {
+      "title": "Ainda não quer iniciar um teste?",
+      "limits": "O plano Grátis inclui 1 marca, 2 canais, 15 posts por mês, 1 GB de armazenamento e análises de 7 dias.",
+      "continueButton": "Continuar no Grátis",
+      "noCard": "US$ 0 para sempre · Sem cartão · Faça upgrade quando quiser",
+      "failed": "Não foi possível configurar seu workspace gratuito. Tente novamente."
+    }
   },
   "success": {
     "allSet": "Tudo pronto",

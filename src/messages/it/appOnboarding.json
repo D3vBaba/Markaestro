@@ -306,7 +306,14 @@
     "annualSavingsNote": "La fatturazione annuale ti fa risparmiare il 17% rispetto a quella mensile",
     "settingUp": "Configurazione…",
     "startTrialButton": "Avvia la prova gratuita di {days} giorni — {plan}",
-    "cardRequired": "Carta richiesta · Annulla in qualsiasi momento prima della fine della prova"
+    "cardRequired": "Carta richiesta · Annulla in qualsiasi momento prima della fine della prova",
+    "freeOption": {
+      "title": "Non sei ancora pronto per la prova?",
+      "limits": "Il piano Gratis include 1 brand, 2 canali, 15 post al mese, 1 GB di archiviazione e analisi di 7 giorni.",
+      "continueButton": "Continua con Gratis",
+      "noCard": "0 $ per sempre · Nessuna carta richiesta · Upgrade in qualsiasi momento",
+      "failed": "Impossibile configurare il tuo workspace gratuito. Riprova."
+    }
   },
   "success": {
     "allSet": "Tutto pronto",

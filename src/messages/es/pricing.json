@@ -3,26 +3,38 @@
     "eyebrow": "Precios",
     "titleLead": "Todo tu motor de marketing,",
     "titleHighlight": "un precio simple",
-    "subtitle": "Sin comisiones ocultas, sin sorpresas por usuario. Todos los planes incluyen una prueba gratuita de {trialDays} días. Cancela cuando quieras.",
+    "subtitle": "Sin comisiones ocultas, sin sorpresas por usuario. Empieza gratis — todos los planes de pago incluyen una prueba gratuita de {trialDays} días. Cancela cuando quieras.",
     "monthlyToggle": "Mensual",
     "annualToggle": "Anual",
     "annualSaveBadge": "AHORRA 18%",
-    "trialLine": "Prueba gratuita de {trialDays} días en todos los planes — sin cargo hasta el día {trialEndDay}",
+    "trialLine": "Prueba gratuita de {trialDays} días en todos los planes de pago — sin cargo hasta el día {trialEndDay}",
     "annualSavingsSuffix": " · La facturación anual ahorra un 18%"
   },
   "planNames": {
+    "free": "Gratis",
     "starter": "Starter",
     "pro": "Pro",
     "business": "Business"
   },
   "mostPopularBadge": "Más popular",
   "plans": {
+    "free": {
+      "description": "Prueba Markaestro con una marca — gratis para siempre.",
+      "features": [
+        "1 marca",
+        "2 canales sociales",
+        "15 publicaciones al mes",
+        "1 GB de almacenamiento",
+        "1 miembro del equipo, 1 espacio de trabajo",
+        "Analíticas (ventana de 7 días)"
+      ]
+    },
     "starter": {
       "description": "Para profesionales del marketing que publican en Meta y TikTok en solitario.",
       "features": [
         "5 canales sociales",
         "Publicaciones ilimitadas",
-        "500 subidas de contenido al mes",
+        "10 GB de almacenamiento",
         "1 miembro del equipo",
         "Calendario de contenido",
         "1 espacio de trabajo",
@@ -35,7 +47,7 @@
       "features": [
         "15 canales sociales",
         "Publicaciones ilimitadas",
-        "5.000 subidas de contenido al mes",
+        "100 GB de almacenamiento",
         "5 miembros del equipo",
         "5 espacios de trabajo",
         "Voz de marca + identidad de marca",
@@ -49,7 +61,7 @@
       "features": [
         "50 canales sociales",
         "Publicaciones ilimitadas",
-        "Subidas de contenido ilimitadas",
+        "Almacenamiento ilimitado",
         "Miembros del equipo ilimitados",
         "Todo lo del plan Pro",
         "Espacios de trabajo ilimitados",
@@ -65,12 +77,16 @@
     "billedMonthly": "Facturado mensualmente · Cambia a anual y ahorra un 17%",
     "startTrialButton": "Iniciar prueba gratuita de {trialDays} días",
     "noChargeLine": "Sin cargo durante {trialDays} días · Cancela cuando quieras",
-    "everythingIncluded": "Todo incluido"
+    "everythingIncluded": "Todo incluido",
+    "freeForever": "Gratis para siempre",
+    "startFreeButton": "Empezar gratis",
+    "noCardLine": "No se requiere tarjeta · Mejora cuando quieras"
   },
   "comparison": {
     "titleLead": "Compara",
     "titleHighlight": "cada función",
     "subtitle": "Ve exactamente qué incluye cada plan.",
+    "freeNote": "El plan Gratis incluye 1 marca, 2 canales, 15 publicaciones al mes, 1 GB de almacenamiento y analíticas de 7 días — sin acceso a la API.",
     "categories": [
       {
         "name": "Publicación",
@@ -85,7 +101,7 @@
       {
         "name": "Biblioteca de contenido",
         "features": [
-          { "name": "Subidas de contenido" },
+          { "name": "Almacenamiento" },
           { "name": "Perfiles de voz de marca" },
           { "name": "Identidad de marca (logo y colores)" }
         ]
@@ -128,6 +144,10 @@
   "faqTitleHighlight": "sobre precios",
   "faqs": [
     {
+      "q": "¿Hay un plan gratuito?",
+      "a": "Sí. El plan Gratis cuesta 0 $ para siempre — sin tarjeta. Obtienes 1 marca, 2 canales sociales, 15 publicaciones al mes, 1 GB de almacenamiento y una ventana de analíticas de 7 días, con 1 miembro del equipo en 1 espacio de trabajo. El acceso a la API requiere un plan de pago. Mejora tu plan cuando estés listo."
+    },
+    {
       "q": "¿Puedo cambiar de plan en cualquier momento?",
       "a": "Sí. Puedes mejorar o reducir tu plan en cualquier momento. Al mejorar, se te cobrará la diferencia prorrateada. Al reducir, la nueva tarifa entra en vigor en tu siguiente ciclo de facturación."
     },
@@ -136,12 +156,12 @@
       "a": "Cada cuenta social conectada cuenta como un canal. Por ejemplo, una página de Facebook, una cuenta empresarial de Instagram y una cuenta de TikTok serían 3 canales."
     },
     {
-      "q": "¿Qué cuenta como subida de contenido?",
-      "a": "Cada imagen o vídeo subido a un espacio de trabajo cuenta como una subida de contenido dentro de tu cuota mensual. Reutilizar un archivo ya subido en varias publicaciones no cuenta de nuevo. Consulta la tabla comparativa para ver los límites mensuales de cada plan."
+      "q": "¿Cómo funciona el almacenamiento?",
+      "a": "El almacenamiento es el tamaño total de las imágenes y vídeos de la biblioteca de contenido de tu espacio de trabajo. El plan Gratis incluye 1 GB, Starter 10 GB, Pro 100 GB y Business almacenamiento ilimitado. Reutilizar un archivo ya subido en varias publicaciones no consume almacenamiento adicional."
     },
     {
-      "q": "¿Qué ocurre cuando alcanzo mi límite de subidas de contenido?",
-      "a": "Puedes seguir publicando publicaciones que usen contenido ya presente en tu espacio de trabajo — solo se bloquean las subidas nuevas. Tu cuota de subidas se reinicia al comienzo de cada ciclo de facturación, y puedes mejorar tu plan en cualquier momento para obtener una cuota mayor."
+      "q": "¿Qué ocurre cuando alcanzo mi límite de almacenamiento?",
+      "a": "Puedes seguir publicando publicaciones que usen contenido ya presente en tu espacio de trabajo — solo se bloquean las subidas nuevas. Libera espacio eliminando contenido que ya no necesites, o mejora tu plan en cualquier momento para obtener más almacenamiento."
     },
     {
       "q": "¿Cómo funciona la prueba gratuita?",

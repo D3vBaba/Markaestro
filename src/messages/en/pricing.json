@@ -3,26 +3,38 @@
     "eyebrow": "Pricing",
     "titleLead": "Your entire marketing engine,",
     "titleHighlight": "one simple price",
-    "subtitle": "No hidden fees, no per-user surprises. Every plan includes a {trialDays}-day free trial. Cancel anytime.",
+    "subtitle": "No hidden fees, no per-user surprises. Start free — every paid plan includes a {trialDays}-day free trial. Cancel anytime.",
     "monthlyToggle": "Monthly",
     "annualToggle": "Annual",
     "annualSaveBadge": "SAVE 18%",
-    "trialLine": "{trialDays}-day free trial on all plans — no charge until day {trialEndDay}",
+    "trialLine": "{trialDays}-day free trial on all paid plans — no charge until day {trialEndDay}",
     "annualSavingsSuffix": " · Annual billing saves 18%"
   },
   "planNames": {
+    "free": "Free",
     "starter": "Starter",
     "pro": "Pro",
     "business": "Business"
   },
   "mostPopularBadge": "Most Popular",
   "plans": {
+    "free": {
+      "description": "Try Markaestro with one brand — free forever.",
+      "features": [
+        "1 brand",
+        "2 social channels",
+        "15 posts / month",
+        "1 GB storage",
+        "1 team member, 1 workspace",
+        "Analytics (7-day window)"
+      ]
+    },
     "starter": {
       "description": "For solo marketers publishing across Meta and TikTok.",
       "features": [
         "5 social channels",
         "Unlimited posts",
-        "500 media uploads / month",
+        "10 GB storage",
         "1 team member",
         "Content calendar",
         "1 workspace",
@@ -35,7 +47,7 @@
       "features": [
         "15 social channels",
         "Unlimited posts",
-        "5,000 media uploads / month",
+        "100 GB storage",
         "5 team members",
         "5 workspaces",
         "Brand voice + brand identity",
@@ -49,7 +61,7 @@
       "features": [
         "50 social channels",
         "Unlimited posts",
-        "Unlimited media uploads",
+        "Unlimited storage",
         "Unlimited team members",
         "Everything in Pro",
         "Unlimited workspaces",
@@ -65,12 +77,16 @@
     "billedMonthly": "Billed monthly · Switch to annual and save 17%",
     "startTrialButton": "Start {trialDays}-Day Free Trial",
     "noChargeLine": "No charge for {trialDays} days · Cancel anytime",
-    "everythingIncluded": "Everything included"
+    "everythingIncluded": "Everything included",
+    "freeForever": "Free forever",
+    "startFreeButton": "Start free",
+    "noCardLine": "No card required · Upgrade anytime"
   },
   "comparison": {
     "titleLead": "Compare",
     "titleHighlight": "every feature",
     "subtitle": "See exactly what's included in each plan.",
+    "freeNote": "The Free plan includes 1 brand, 2 channels, 15 posts/month, 1 GB storage, and 7-day analytics — no API access.",
     "categories": [
       {
         "name": "Publishing",
@@ -85,7 +101,7 @@
       {
         "name": "Media Library",
         "features": [
-          { "name": "Media uploads" },
+          { "name": "Storage" },
           { "name": "Brand voice profiles" },
           { "name": "Brand identity (logo & colors)" }
         ]
@@ -128,6 +144,10 @@
   "faqTitleHighlight": "FAQ",
   "faqs": [
     {
+      "q": "Is there a free plan?",
+      "a": "Yes. The Free plan is $0 forever — no card required. You get 1 brand, 2 social channels, 15 posts per month, 1 GB of storage, and a 7-day analytics window, with 1 team member in 1 workspace. API access requires a paid plan. Upgrade whenever you're ready."
+    },
+    {
       "q": "Can I switch plans at any time?",
       "a": "Yes. You can upgrade or downgrade your plan at any time. When upgrading, you'll be charged the prorated difference. When downgrading, the new rate takes effect at your next billing cycle."
     },
@@ -136,12 +156,12 @@
       "a": "Each connected social account counts as one channel. For example, one Facebook Page, one Instagram Business account, and one TikTok account would be 3 channels."
     },
     {
-      "q": "What counts as a media upload?",
-      "a": "Each image or video file uploaded to a workspace counts as one media upload against your monthly quota. Reusing an already-uploaded file across multiple posts does not count again. See the comparison table for monthly limits per plan."
+      "q": "How does storage work?",
+      "a": "Storage is the total size of the images and videos in your workspace's media library. The Free plan includes 1 GB, Starter 10 GB, Pro 100 GB, and Business has unlimited storage. Reusing an already-uploaded file across multiple posts doesn't use extra storage."
     },
     {
-      "q": "What happens when I hit my media upload limit?",
-      "a": "You can continue publishing posts that use media already in your workspace — only new uploads are blocked. Your media upload quota resets at the start of each billing cycle, and you can upgrade your plan at any time for a higher quota."
+      "q": "What happens when I reach my storage limit?",
+      "a": "You can keep publishing posts that use media already in your workspace — only new uploads are blocked. Free up space by deleting media you no longer need, or upgrade your plan at any time for more storage."
     },
     {
       "q": "How does the free trial work?",

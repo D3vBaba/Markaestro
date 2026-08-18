@@ -3,26 +3,38 @@
     "eyebrow": "Prijzen",
     "titleLead": "Je volledige marketingmotor,",
     "titleHighlight": "één simpele prijs",
-    "subtitle": "Geen verborgen kosten, geen verrassingen per gebruiker. Elk abonnement bevat een gratis proefperiode van {trialDays} dagen. Op elk moment op te zeggen.",
+    "subtitle": "Geen verborgen kosten, geen verrassingen per gebruiker. Begin gratis — elk betaald abonnement bevat een gratis proefperiode van {trialDays} dagen. Op elk moment op te zeggen.",
     "monthlyToggle": "Maandelijks",
     "annualToggle": "Jaarlijks",
     "annualSaveBadge": "BESPAAR 18%",
-    "trialLine": "Gratis proefperiode van {trialDays} dagen op alle abonnementen — geen kosten tot dag {trialEndDay}",
+    "trialLine": "Gratis proefperiode van {trialDays} dagen op alle betaalde abonnementen — geen kosten tot dag {trialEndDay}",
     "annualSavingsSuffix": " · Jaarlijkse facturering bespaart 18%"
   },
   "planNames": {
+    "free": "Gratis",
     "starter": "Starter",
     "pro": "Pro",
     "business": "Business"
   },
   "mostPopularBadge": "Meest Populair",
   "plans": {
+    "free": {
+      "description": "Probeer Markaestro met één merk — voor altijd gratis.",
+      "features": [
+        "1 merk",
+        "2 sociale kanalen",
+        "15 posts / maand",
+        "1 GB opslag",
+        "1 teamlid, 1 workspace",
+        "Analyse (7-daags venster)"
+      ]
+    },
     "starter": {
       "description": "Voor zelfstandige marketeers die publiceren op Meta en TikTok.",
       "features": [
         "5 sociale kanalen",
         "Onbeperkt aantal posts",
-        "500 media-uploads / maand",
+        "10 GB opslag",
         "1 teamlid",
         "Contentkalender",
         "1 workspace",
@@ -35,7 +47,7 @@
       "features": [
         "15 sociale kanalen",
         "Onbeperkt aantal posts",
-        "5.000 media-uploads / maand",
+        "100 GB opslag",
         "5 teamleden",
         "5 workspaces",
         "Merkstem + merkidentiteit",
@@ -49,7 +61,7 @@
       "features": [
         "50 sociale kanalen",
         "Onbeperkt aantal posts",
-        "Onbeperkte media-uploads",
+        "Onbeperkte opslag",
         "Onbeperkt aantal teamleden",
         "Alles uit Pro",
         "Onbeperkt aantal workspaces",
@@ -65,12 +77,16 @@
     "billedMonthly": "Maandelijks gefactureerd · Schakel over naar jaarlijks en bespaar 17%",
     "startTrialButton": "Start Gratis Proefperiode van {trialDays} Dagen",
     "noChargeLine": "Geen kosten voor {trialDays} dagen · Op elk moment op te zeggen",
-    "everythingIncluded": "Alles inbegrepen"
+    "everythingIncluded": "Alles inbegrepen",
+    "freeForever": "Voor altijd gratis",
+    "startFreeButton": "Gratis beginnen",
+    "noCardLine": "Geen kaart vereist · Altijd te upgraden"
   },
   "comparison": {
     "titleLead": "Vergelijk",
     "titleHighlight": "elke functie",
     "subtitle": "Zie precies wat er in elk abonnement is inbegrepen.",
+    "freeNote": "Het Gratis-abonnement bevat 1 merk, 2 kanalen, 15 posts per maand, 1 GB opslag en 7-daagse analyse — geen API-toegang.",
     "categories": [
       {
         "name": "Publiceren",
@@ -85,7 +101,7 @@
       {
         "name": "Mediabibliotheek",
         "features": [
-          { "name": "Media-uploads" },
+          { "name": "Opslag" },
           { "name": "Merkstemprofielen" },
           { "name": "Merkidentiteit (logo en kleuren)" }
         ]
@@ -128,6 +144,10 @@
   "faqTitleHighlight": "Prijzen",
   "faqs": [
     {
+      "q": "Is er een gratis abonnement?",
+      "a": "Ja. Het Gratis-abonnement kost voor altijd $ 0 — geen kaart vereist. Je krijgt 1 merk, 2 sociale kanalen, 15 posts per maand, 1 GB opslag en een 7-daags analysevenster, met 1 teamlid in 1 workspace. API-toegang vereist een betaald abonnement. Upgrade wanneer je er klaar voor bent."
+    },
+    {
       "q": "Kan ik op elk moment van abonnement wisselen?",
       "a": "Ja. Je kunt je abonnement op elk moment upgraden of downgraden. Bij een upgrade wordt het naar rato berekende verschil in rekening gebracht. Bij een downgrade gaat het nieuwe tarief in bij je volgende factureringscyclus."
     },
@@ -136,12 +156,12 @@
       "a": "Elk verbonden sociaal account telt als één kanaal. Bijvoorbeeld: één Facebook-pagina, één zakelijk Instagram-account en één TikTok-account zouden 3 kanalen zijn."
     },
     {
-      "q": "Wat telt als een media-upload?",
-      "a": "Elk afbeeldings- of videobestand dat naar een workspace wordt geüpload, telt als één media-upload voor je maandelijkse quotum. Het hergebruiken van een reeds geüpload bestand in meerdere posts telt niet opnieuw. Zie de vergelijkingstabel voor maandelijkse limieten per abonnement."
+      "q": "Hoe werkt opslag?",
+      "a": "Opslag is de totale grootte van de afbeeldingen en video's in de mediabibliotheek van je workspace. Het Gratis-abonnement bevat 1 GB, Starter 10 GB, Pro 100 GB en Business heeft onbeperkte opslag. Het hergebruiken van een reeds geüpload bestand in meerdere posts kost geen extra opslag."
     },
     {
-      "q": "Wat gebeurt er als ik mijn media-uploadlimiet bereik?",
-      "a": "Je kunt posts blijven publiceren die media gebruiken die al in je workspace staan — alleen nieuwe uploads worden geblokkeerd. Je media-uploadquotum wordt gereset bij het begin van elke factureringscyclus, en je kunt je abonnement op elk moment upgraden voor een hoger quotum."
+      "q": "Wat gebeurt er als ik mijn opslaglimiet bereik?",
+      "a": "Je kunt posts blijven publiceren die media gebruiken die al in je workspace staan — alleen nieuwe uploads worden geblokkeerd. Maak ruimte vrij door media te verwijderen die je niet meer nodig hebt, of upgrade je abonnement op elk moment voor meer opslag."
     },
     {
       "q": "Hoe werkt de gratis proefperiode?",
