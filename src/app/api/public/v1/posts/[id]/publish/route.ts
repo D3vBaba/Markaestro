@@ -8,6 +8,8 @@ import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 import { LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
 import { getPublishRunSkipReason } from '@/lib/public-api/publish-runs';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -135,6 +137,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const run = queued.run;
     if (queued.created) {
       await incrementApiClientStat(ctx.workspaceId, ctx.clientId, 'publish_queued');
+      await markWorkspaceDue(ctx.workspaceId, Date.now(), 'publish_run').catch((error) => {
+        logger.warn('public publish due marker failed; compatibility sweep will recover it', {
+          event: 'worker.mark_due_failed',
+          workspaceId: ctx.workspaceId,
+          runId: run.id,
+          err: error,
+        });
+      });
     }
 
     const body = {

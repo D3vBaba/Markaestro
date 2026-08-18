@@ -3,6 +3,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
+import { getEffectiveSubscription, isActiveSubscription } from '@/lib/stripe/subscription';
 import { buildApiKey } from '@/lib/public-api/keys';
 import { createApiClientSchema } from '@/lib/public-api/schemas';
 
@@ -46,6 +47,16 @@ export async function POST(req: Request) {
       return apiOk(
         { error: 'EMAIL_NOT_VERIFIED', message: 'Verify your email to create API keys.' },
         403,
+      );
+    }
+    // API keys unlock the metered public API, so minting one requires the
+    // workspace (or an account-level entitlement) to hold an active or
+    // trialing subscription — free workspaces can't create keys.
+    const subscription = await getEffectiveSubscription({ uid: ctx.uid, workspaceId: ctx.workspaceId });
+    if (!isActiveSubscription(subscription)) {
+      return apiOk(
+        { error: 'SUBSCRIPTION_REQUIRED', message: 'An active subscription is required to create API keys.' },
+        402,
       );
     }
     const body = await req.json();

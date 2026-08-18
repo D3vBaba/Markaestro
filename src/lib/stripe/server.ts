@@ -23,6 +23,10 @@ export type SubscriptionRecord = {
   trialEnd: string | null;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  /** Quantity of the 'Extra brand' add-on subscription item. */
+  addonBrands?: number;
+  /** Quantity of the 'Extra seat' add-on subscription item. */
+  addonSeats?: number;
   updatedAt: string;
 };
 
@@ -49,4 +53,23 @@ export function tierFromPriceId(priceId: string): { tier: string; interval: stri
 export function priceIdForPlan(tier: string, interval: string): string | null {
   const envKey = `STRIPE_PRICE_${tier.toUpperCase()}_${interval.toUpperCase()}`;
   return process.env[envKey] ?? null;
+}
+
+/**
+ * Add-on prices live in env as STRIPE_PRICE_ADDON_{BRAND|SEAT}_{INTERVAL}.
+ * Unset env (add-ons not yet provisioned in Stripe) resolves to null and the
+ * add-ons API reports them unavailable rather than failing checkout paths.
+ */
+export function addonPriceId(addon: 'brand' | 'seat', interval: string): string | null {
+  const envKey = `STRIPE_PRICE_ADDON_${addon.toUpperCase()}_${interval.toUpperCase()}`;
+  return process.env[envKey] ?? null;
+}
+
+export function addonFromPriceId(priceId: string): 'brand' | 'seat' | null {
+  for (const addon of ['brand', 'seat'] as const) {
+    for (const interval of ['monthly', 'annual'] as const) {
+      if (addonPriceId(addon, interval) === priceId) return addon;
+    }
+  }
+  return null;
 }

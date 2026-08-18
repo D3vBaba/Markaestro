@@ -8,7 +8,9 @@ import { executeListQuery, executeListQueryPage, type FieldFilter } from '@/lib/
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 import { getManualPublishChannels, resolveInAppDeliveryMode } from '@/lib/manual-publish-settings';
 import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
+import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
 import { logger } from '@/lib/logger';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 
 export const runtime = 'nodejs';
 
@@ -122,6 +124,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  // Reserve/refund pattern (mirrors media upload): the monthly post quota is
+  // reserved once validation passes and refunded if creation then fails.
+  let reservedQuota: { uid: string; workspaceId: string } | null = null;
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'posts.write');
@@ -172,6 +177,22 @@ export async function POST(req: Request) {
       }
     }
 
+    // Paid tiers have unlimited posts (fast-path inside checkAndIncrementUsage);
+    // free workspaces meter against postsPerMonth.
+    const quota = await checkAndIncrementUsage(ctx.uid, 'posts', ctx.workspaceId);
+    if (!quota.allowed) {
+      logger.warn('post creation blocked by quota', {
+        event: 'posts.create.quota_exceeded',
+        workspaceId: ctx.workspaceId,
+        current: quota.current,
+        limit: quota.limit,
+      });
+      return apiError(new Error('QUOTA_EXCEEDED_POSTS'));
+    }
+    if (quota.limit !== -1) {
+      reservedQuota = { uid: ctx.uid, workspaceId: ctx.workspaceId };
+    }
+
     const now = new Date().toISOString();
 
     const payload = {
@@ -186,9 +207,28 @@ export async function POST(req: Request) {
     const ref = await adminDb
       .collection(`workspaces/${ctx.workspaceId}/posts`)
       .add(payload);
+    reservedQuota = null;
+
+    if (data.status === 'scheduled') {
+      await markWorkspaceDue(
+        ctx.workspaceId,
+        data.scheduledAt || Date.now(),
+        'scheduled_post',
+      ).catch((error) => {
+        logger.warn('scheduled post due marker failed; compatibility sweep will recover it', {
+          event: 'worker.mark_due_failed',
+          workspaceId: ctx.workspaceId,
+          postId: ref.id,
+          err: error,
+        });
+      });
+    }
 
     return apiCreated({ id: ref.id, ...payload });
   } catch (error) {
+    if (reservedQuota) {
+      await refundUsage(reservedQuota.uid, 'posts', 1, reservedQuota.workspaceId);
+    }
     return apiError(error);
   }
 }

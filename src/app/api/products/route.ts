@@ -5,6 +5,7 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { createProductSchema, paginationSchema } from '@/lib/schemas';
 import { executeListQueryPage } from '@/lib/firestore-list-query';
+import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 
 export const runtime = 'nodejs';
 
@@ -44,6 +45,20 @@ export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'products.write');
+
+    // A product IS a brand: enforce the plan's brand cap (base plan plus any
+    // purchased brand-pack add-ons) before creating another one.
+    const limits = await getEffectiveLimits(ctx.uid, ctx.workspaceId);
+    if (limits.brands !== -1) {
+      const countSnap = await adminDb
+        .collection(workspaceCollection(ctx.workspaceId, 'products'))
+        .count()
+        .get();
+      if (countSnap.data().count >= limits.brands) {
+        return apiError(new Error('BRAND_LIMIT_REACHED'));
+      }
+    }
+
     const body = await req.json();
     const data = createProductSchema.parse(body);
     const now = new Date().toISOString();

@@ -5,16 +5,13 @@
  * work that used to all run inside the dispatcher. Pulling it into a
  * standalone module lets us:
  *
- *   1. Run multiple workspaces with bounded concurrency in the
- *      dispatcher (see mapWithConcurrency below) so one slow workspace
- *      can't starve the rest.
- *   2. Expose it as a dedicated endpoint (POST /api/worker/workspace/[id])
- *      that Cloud Tasks can hit once per workspace, turning the tick
- *      into a true distributed job queue.
+ *   1. Preserve bounded in-process execution as an operational fallback.
+ *   2. Expose a dedicated endpoint (POST /api/worker/workspace/[id]) that
+ *      Cloud Tasks can hit once per due workspace.
  *
- * The dispatcher (/api/worker/tick) currently enumerates workspaces and calls
- * this module with bounded concurrency. The dedicated endpoint is the stable
- * execution target for a future Cloud Tasks dispatcher.
+ * The dispatcher normally reads the top-level due-workspace queue and sends
+ * this unit to Cloud Tasks. A periodic legacy sweep remains as a compatibility
+ * net for old records and any writer that has not marked its workspace yet.
  */
 
 import { adminDb } from '@/lib/firebase-admin';
@@ -25,6 +22,7 @@ import { processQueuedPublicPublishRuns } from '@/lib/public-api/publish-runs';
 import { processPendingWebhookDeliveries } from '@/lib/public-api/webhook-delivery';
 import { processAnalyticsTick, type AnalyticsTickResult } from '@/lib/analytics/worker';
 import { logger } from '@/lib/logger';
+import { markWorkspaceDue, type WorkspaceWorkReason } from './due-workspaces';
 
 export type WorkspaceTickResult = {
   workspaceId: string;
@@ -46,6 +44,76 @@ export type WorkspaceTickResult = {
   analytics?: AnalyticsTickResult;
   errors: Array<{ kind: string; postId?: string; error: string }>;
 };
+
+type NextWork = { dueAt: string; reason: WorkspaceWorkReason };
+
+async function firstDueAt(
+  query: FirebaseFirestore.Query,
+  field: string,
+  reason: WorkspaceWorkReason,
+): Promise<NextWork | null> {
+  try {
+    const snap = await query.limit(1).get();
+    const value = snap.docs[0]?.data()?.[field];
+    return typeof value === 'string' && Number.isFinite(Date.parse(value))
+      ? { dueAt: value, reason }
+      : null;
+  } catch (error) {
+    logger.warn('next workspace due query failed; compatibility sweep will retry', {
+      event: 'worker.next_due_query_failed',
+      reason,
+      err: error,
+    });
+    return null;
+  }
+}
+
+async function scheduleNextWorkspaceWork(workspaceId: string): Promise<void> {
+  const [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob] = await Promise.all([
+    firstDueAt(
+      adminDb.collection(`workspaces/${workspaceId}/posts`)
+        .where('status', '==', 'scheduled')
+        .orderBy('scheduledAt', 'asc'),
+      'scheduledAt',
+      'scheduled_post',
+    ),
+    firstDueAt(
+      adminDb.collection(`workspaces/${workspaceId}/job_runs`)
+        .where('type', '==', 'publish_post')
+        .where('status', '==', 'queued')
+        .orderBy('nextAttemptAt', 'asc'),
+      'nextAttemptAt',
+      'publish_run',
+    ),
+    firstDueAt(
+      adminDb.collection(`workspaces/${workspaceId}/webhook_deliveries`)
+        .where('status', 'in', ['pending', 'retrying'])
+        .orderBy('nextAttemptAt', 'asc'),
+      'nextAttemptAt',
+      'webhook_delivery',
+    ),
+    firstDueAt(
+      adminDb.collection(`workspaces/${workspaceId}/posts`)
+        .where('status', '==', 'published')
+        .orderBy('metricsNextPollAt', 'asc'),
+      'metricsNextPollAt',
+      'analytics',
+    ),
+    firstDueAt(
+      adminDb.collection(`workspaces/${workspaceId}/jobs`)
+        .where('enabled', '==', true)
+        .where('schedule', '==', 'daily')
+        .orderBy('nextRunAt', 'asc'),
+      'nextRunAt',
+      'daily_job',
+    ),
+  ]);
+
+  const next = [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob]
+    .filter((candidate): candidate is NextWork => candidate !== null)
+    .sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt))[0];
+  if (next) await markWorkspaceDue(workspaceId, next.dueAt, next.reason);
+}
 
 export async function processWorkspaceTick(workspaceId: string): Promise<WorkspaceTickResult> {
   const startedAt = Date.now();
@@ -116,6 +184,12 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     }
   } catch (err) {
     errors.push({ kind: 'jobs', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
+    await scheduleNextWorkspaceWork(workspaceId);
+  } catch (err) {
+    errors.push({ kind: 'next-work', error: err instanceof Error ? err.message : 'unknown' });
   }
 
   const durationMs = Date.now() - startedAt;

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getStripe, tierFromPriceId } from '@/lib/stripe/server';
+import { getStripe, tierFromPriceId, addonFromPriceId } from '@/lib/stripe/server';
 import {
   upsertSubscriptionForWorkspace,
   getSubscriptionForWorkspace,
@@ -263,13 +263,32 @@ async function resolveWorkspaceIdFromCheckout(session: Stripe.Checkout.Session):
 }
 
 async function syncSubscription(workspaceId: string, subscription: Subscription) {
-  const priceId = subscription.items.data[0]?.price?.id;
+  // A subscription can carry multiple items: one base plan item plus add-on
+  // items (extra brands / extra seats). Resolve the tier from the item that
+  // maps to a plan price and tally add-on quantities from the rest.
+  let priceId: string | undefined;
+  let addonBrands = 0;
+  let addonSeats = 0;
+  for (const item of subscription.items.data) {
+    const itemPriceId = item.price?.id;
+    if (!itemPriceId) continue;
+    if (tierFromPriceId(itemPriceId)) {
+      priceId = itemPriceId;
+      continue;
+    }
+    const addon = addonFromPriceId(itemPriceId);
+    if (addon === 'brand') addonBrands += item.quantity ?? 0;
+    else if (addon === 'seat') addonSeats += item.quantity ?? 0;
+  }
+  // Fall back to the first item so legacy single-item subs on unmapped
+  // prices keep their existing error-logging behavior below.
+  priceId = priceId ?? subscription.items.data[0]?.price?.id;
   const tierInfo = priceId ? tierFromPriceId(priceId) : null;
 
   if (priceId && !tierInfo) {
     // Unmapped price (missing/mismatched STRIPE_PRICE_* env). Keep whatever
     // tier the doc already has instead of clobbering it with 'unknown' —
-    // readers treat unrecognized tiers as starter, so writing it would
+    // readers treat unrecognized tiers as free, so writing it would
     // silently downgrade the workspace.
     console.error(`[stripe/webhook] no tier mapping for price ${priceId} (workspace ${workspaceId})`);
   }
@@ -288,5 +307,8 @@ async function syncSubscription(workspaceId: string, subscription: Subscription)
     trialEnd: toIso(subscription.trial_end),
     currentPeriodEnd,
     cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    // Always written (0 when absent) so removing an add-on syncs down.
+    addonBrands,
+    addonSeats,
   });
 }

@@ -4,9 +4,8 @@ import { apiOk, apiError } from '@/lib/api-response';
 import {
   getAccountEntitlement,
   getSubscriptionForWorkspace,
-  effectiveTier,
 } from '@/lib/stripe/subscription';
-import { PLANS } from '@/lib/stripe/plans';
+import { resolveLimits } from '@/lib/stripe/entitlements';
 import { isValidWorkspaceId, workspaceSlugFromName } from '@/lib/workspace';
 import { z } from 'zod';
 
@@ -81,9 +80,10 @@ export async function POST(req: Request) {
       Promise.all(ownedWorkspaceIds.map((id) => getSubscriptionForWorkspace(id))),
     ]);
 
-    let limit = PLANS[effectiveTier(account)].limits.workspaces;
+    // No sub at all resolves to the free tier's single workspace.
+    let limit = resolveLimits(account).workspaces;
     for (const ownedSub of ownedSubs) {
-      const ownedLimit = PLANS[effectiveTier(ownedSub)].limits.workspaces;
+      const ownedLimit = resolveLimits(ownedSub).workspaces;
       if (ownedLimit === -1) limit = -1;
       else if (limit !== -1) limit = Math.max(limit, ownedLimit);
     }

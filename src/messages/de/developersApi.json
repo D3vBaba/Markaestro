@@ -4,7 +4,7 @@
     "title": "Öffentliche Veröffentlichungs-API",
     "intro1": "Lade Medien hoch, erstelle Beiträge und veröffentliche auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest, jeweils auf ein Produkt beschränkt über einen Arbeitsbereichs-API-Schlüssel. Der empfohlene Weg zur Integration ist die <connectLink>Connect-API</connectLink> — eine kleine, flache<code>/api/connect/v1</code>-Oberfläche, die die meisten Planungstools direkt verwenden können.",
     "intro2": "Brauchst du volle Kontrolle — explizite Veröffentlichung, Abfrage von Job-Läufen, signierte Webhooks, Batch-Verarbeitung, kanalspezifische Einstellungen? Die erweiterte <code>/api/public/v1</code>-API weiter unten stellt all das bereit. Beide teilen sich Authentifizierung, Produkte und Veröffentlichungspipeline; verwende ausschließlich diese versionierten öffentlichen Routen (interne App-Routen erfordern Firebase-Nutzerauthentifizierung und sind nicht Teil des öffentlichen Vertrags).",
-    "intro3": "<strong>Facebook, Instagram und TikTok sind über die API grundsätzlich manuell.</strong> Beiträge für diese Kanäle nutzen standardmäßig die <code>manual_reminder</code>-Zustellung: Markaestro ruft niemals die API der Plattform für sie auf. Das Veröffentlichen verschiebt den Beitrag in die „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs, wo der Inhaber die Medien herunterlädt, nativ postet und bestätigt — sodass Beiträge genau so erscheinen, als wären sie von Hand erstellt worden. Übergib <code>deliveryMode: \"direct_publish\"</code> beim Erstellen, um einen Beitrag stattdessen für die offizielle API-Veröffentlichung zu aktivieren (bei TikTok bedeutet das die Posteingangsübergabe, niemals den öffentlichen Direct Post). LinkedIn, Threads und Pinterest veröffentlichen standardmäßig programmatisch.",
+    "intro3": "<strong>Facebook, Instagram und TikTok sind über die API grundsätzlich manuell.</strong> Beiträge für diese Kanäle nutzen standardmäßig die <code>manual_reminder</code>-Zustellung: Markaestro ruft niemals die API der Plattform für sie auf. Das Veröffentlichen verschiebt den Beitrag in die „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs. Übergib <code>deliveryMode: \"direct_publish\"</code>, um die offizielle API-Veröffentlichung zu aktivieren. Bei TikTok wird standardmäßig die Posteingangsübergabe genutzt, außer <code>settings.postMode</code> ist <code>direct_post</code>. LinkedIn, Threads und Pinterest veröffentlichen standardmäßig programmatisch.",
     "intro4": "Arbeitsbereiche können mehrere Produkte haben. Jeder API-Schlüssel ist bei der Erstellung an ein Produkt gebunden, sodass Aufrufe automatisch dieses Produkt ansteuern und Anfragen für jedes andere Produkt abgelehnt werden.",
     "agentCallout": {
       "title": "Baust du einen KI-Agenten?",
@@ -35,7 +35,7 @@
   "highlightCards": [
     { "title": "Meta & TikTok sind grundsätzlich manuell", "description": "Facebook-, Instagram- und TikTok-Beiträge nutzen standardmäßig die manuelle „Zu veröffentlichen“-Warteschlange — kein Plattform-API-Aufruf, der Arbeitsbereichsinhaber postet nativ und bestätigt. Aktiviere die API-Veröffentlichung pro Beitrag mit deliveryMode." },
     { "title": "Instagram Login unterstützt", "description": "Marken können eigenständige professionelle Instagram-Konten anbieten, auch wenn keine Facebook-Seite verknüpft ist." },
-    { "title": "TikTok nutzt bei Aktivierung die Posteingangsübergabe", "description": "Ein TikTok-Beitrag mit aktivierter API-Veröffentlichung wird zur finalen Text-, Datenschutz- und Veröffentlichungsbearbeitung an den Posteingang des Creators auf TikTok gesendet — niemals als öffentlicher Direct Post." },
+    { "title": "TikTok unterstützt zwei Opt-in-Wege", "description": "API-Veröffentlichung nutzt standardmäßig die Posteingangsübergabe. Setze settings.postMode mit Datenschutzstufe auf direct_post, wenn deine TikTok-App dafür freigegeben ist." },
     { "title": "Asynchron per Design", "description": "Jede Veröffentlichung gibt eine Lauf-ID zurück. Frage Läufe ab oder abonniere signierte Webhooks, statt einen synchronen Abschluss anzunehmen." }
   ],
   "endpointGroups": [
@@ -51,7 +51,10 @@
       "title": "Medien",
       "description": "Lade Bilder oder Videos in den von Markaestro verwalteten Speicher hoch, bevor du Beiträge erstellst.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media", "note": "Multipart-Upload. Gibt eine Asset-ID und gehostete URL zurück." }
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Erstellt aus Dateiname, Inhaltstyp und exakter Größe eine 15-minütige direkte Upload-Sitzung." },
+        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Lädt Rohdaten mit dem zurückgegebenen Content-Type direkt in den Speicher; keinen API-Schlüssel senden." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Prüft Typ und Größe, rechnet das Kontingent ab und gibt das Medien-Asset zurück." },
+        { "method": "POST", "path": "/api/public/v1/media", "note": "Kompatibler Multipart-Upload. Gibt eine Asset-ID und gehostete URL zurück." }
       ]
     },
     {
@@ -70,7 +73,7 @@
       "description": "Verfolge asynchrone Arbeit durch Abfrage oder signierte Webhook-Zustellung.",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "Gibt queued, running, succeeded oder failed zurück." },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registriert ein Webhook-Ziel mit einem API-Schlüssel." },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registriert ein Webhook-Ziel; maximal 25 aktive Endpunkte pro Arbeitsbereich." },
         { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "Listet registrierte Webhook-Ziele für den Geltungsbereich dieses API-Schlüssels auf." },
         { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Deaktiviert ein Webhook-Ziel." }
       ]

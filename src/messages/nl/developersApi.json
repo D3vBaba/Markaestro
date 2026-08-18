@@ -4,7 +4,7 @@
     "title": "Publieke publicatie-API",
     "intro1": "Upload media, maak posts aan en publiceer naar Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest, alles beperkt tot één product via een workspace-API-sleutel. De aanbevolen manier om te integreren is de <connectLink>Connect API</connectLink> — een kleine, platte <code>/api/connect/v1</code>-interface die de meeste planningstools zo kunnen gebruiken.",
     "intro2": "Heb je volledige controle nodig — expliciete publicatie, job-run polling, ondertekende webhooks, batch, instellingen per kanaal? De geavanceerde <code>/api/public/v1</code>-API verderop biedt dit allemaal. Beide delen dezelfde authenticatie, producten en publicatiepijplijn; gebruik alleen deze geversieerde publieke routes (interne app-routes vereisen Firebase-gebruikersauthenticatie en maken geen deel uit van het publieke contract).",
-    "intro3": "<strong>Facebook, Instagram en TikTok zijn manual-first, ook via de API.</strong> Posts voor deze kanalen gebruiken standaard <code>manual_reminder</code>-levering: Markaestro roept nooit de API van het platform voor hen aan. Publicatie verplaatst de post naar de 'Te Plaatsen'-wachtrij van de workspace, waar de eigenaar de media downloadt, native plaatst en bevestigt — zodat posts er precies uitzien alsof ze met de hand zijn gemaakt. Geef <code>deliveryMode: \"direct_publish\"</code> mee bij het aanmaken om in plaats daarvan te kiezen voor publicatie via de officiële API (bij TikTok betekent dit overdracht naar de inbox, nooit een openbare Direct Post). LinkedIn, Threads en Pinterest publiceren standaard programmatisch.",
+    "intro3": "<strong>Facebook, Instagram en TikTok zijn manual-first, ook via de API.</strong> Deze kanalen gebruiken standaard <code>manual_reminder</code>: Markaestro roept de platform-API niet aan en zet de post in de 'Te Plaatsen'-wachtrij. Geef <code>deliveryMode: \"direct_publish\"</code> mee voor officiële API-publicatie. TikTok gebruikt standaard overdracht naar de inbox, behalve wanneer <code>settings.postMode</code> <code>direct_post</code> is. LinkedIn, Threads en Pinterest publiceren standaard programmatisch.",
     "intro4": "Workspaces kunnen meerdere producten hebben. Elke API-sleutel wordt bij het aanmaken gekoppeld aan één product, zodat aanroepen automatisch dat product als doel hebben en verzoeken voor een ander product worden geweigerd.",
     "agentCallout": {
       "title": "Bouw je een AI-agent?",
@@ -35,7 +35,7 @@
   "highlightCards": [
     { "title": "Meta en TikTok zijn manual-first", "description": "Posts op Facebook, Instagram en TikTok gaan standaard naar de handmatige 'Te Plaatsen'-wachtrij — geen platform-API-aanroep, de workspace-eigenaar plaatst native en bevestigt. Kies per post voor API-publicatie met deliveryMode." },
     { "title": "Instagram-login ondersteund", "description": "Merken kunnen zelfstandige zakelijke Instagram-accounts weergeven, zelfs als er geen Facebook-pagina is gekoppeld." },
-    { "title": "TikTok-opt-in gebruikt overdracht naar inbox", "description": "Een TikTok-post die is aangemeld voor API-publicatie wordt naar de inbox van de maker gestuurd voor definitief onderschrift, privacy en plaatsing — nooit een openbare Direct Post." },
+    { "title": "TikTok ondersteunt twee opt-inpaden", "description": "API-publicatie gebruikt standaard de inbox. Stel settings.postMode in op direct_post met een privacyniveau om Direct Post te vragen wanneer je TikTok-app is goedgekeurd." },
     { "title": "Asynchroon van opzet", "description": "Elke publicatie retourneert een run-id. Peil de runs of abonneer je op ondertekende webhooks in plaats van synchrone voltooiing aan te nemen." }
   ],
   "endpointGroups": [
@@ -51,7 +51,10 @@
       "title": "Media",
       "description": "Upload afbeeldingen of video's naar door Markaestro beheerde opslag voordat je posts aanmaakt.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media", "note": "Multipart-upload. Retourneert een asset-id en gehoste URL." }
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Maakt een directe uploadsessie van 15 minuten met bestandsnaam, contenttype en exacte grootte." },
+        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Uploadt bytes rechtstreeks naar opslag met het teruggegeven Content-Type; stuur geen API-sleutel." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Controleert type en grootte, past het quotum toe en retourneert het media-asset." },
+        { "method": "POST", "path": "/api/public/v1/media", "note": "Compatibele multipart-upload. Retourneert een asset-id en gehoste URL." }
       ]
     },
     {
@@ -70,7 +73,7 @@
       "description": "Volg asynchroon werk via polling of ondertekende webhook-levering.",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "Retourneert queued, running, succeeded of failed." },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registreert een webhook-bestemming met een API-sleutel." },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registreert een webhook-bestemming, tot 25 actieve endpoints per workspace." },
         { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "Toont geregistreerde webhook-bestemmingen voor die API-sleutelscope." },
         { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Schakelt een webhook-bestemming uit." }
       ]

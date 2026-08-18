@@ -44,13 +44,21 @@ export type ResolvedPublicMediaAsset = {
   type: PublicMediaAsset['type'];
 };
 
-export function validatePublicMediaFile(file: Pick<File, 'type' | 'size'>): 'image' | 'video' {
-  const isImage = PUBLIC_ALLOWED_IMAGE_TYPES.has(file.type);
-  const isVideo = PUBLIC_ALLOWED_VIDEO_TYPES.has(file.type);
+export function validatePublicMediaUpload(
+  mimeType: string,
+  sizeBytes: number,
+): 'image' | 'video' {
+  const isImage = PUBLIC_ALLOWED_IMAGE_TYPES.has(mimeType);
+  const isVideo = PUBLIC_ALLOWED_VIDEO_TYPES.has(mimeType);
   if (!isImage && !isVideo) throw new Error('VALIDATION_INVALID_FILE_TYPE');
-  if (isImage && file.size > PUBLIC_MAX_IMAGE_SIZE) throw new Error('VALIDATION_FILE_TOO_LARGE_10MB');
-  if (isVideo && file.size > PUBLIC_MAX_VIDEO_SIZE) throw new Error('VALIDATION_FILE_TOO_LARGE_250MB');
+  if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) throw new Error('VALIDATION_NO_FILE_PROVIDED');
+  if (isImage && sizeBytes > PUBLIC_MAX_IMAGE_SIZE) throw new Error('VALIDATION_FILE_TOO_LARGE_10MB');
+  if (isVideo && sizeBytes > PUBLIC_MAX_VIDEO_SIZE) throw new Error('VALIDATION_FILE_TOO_LARGE_250MB');
   return isVideo ? 'video' : 'image';
+}
+
+export function validatePublicMediaFile(file: Pick<File, 'type' | 'size'>): 'image' | 'video' {
+  return validatePublicMediaUpload(file.type, file.size);
 }
 
 const VIDEO_EXT_MAP: Record<string, string> = {
@@ -60,6 +68,14 @@ const VIDEO_EXT_MAP: Record<string, string> = {
   'video/x-msvideo': 'avi',
   'video/x-matroska': 'mkv',
 };
+
+export function publicMediaExtension(mimeType: string): string {
+  if (PUBLIC_ALLOWED_VIDEO_TYPES.has(mimeType)) return VIDEO_EXT_MAP[mimeType] || 'mp4';
+  if (mimeType === 'image/png') return 'png';
+  if (mimeType === 'image/webp') return 'webp';
+  if (mimeType === 'image/gif') return 'gif';
+  return 'jpg';
+}
 
 export async function createMediaAsset(
   ctx: PublicApiContext,
@@ -80,15 +96,7 @@ export async function createMediaAsset(
   }
 
   const assetId = `ast_${crypto.randomUUID()}`;
-  const ext = isVideo
-    ? (VIDEO_EXT_MAP[file.type] || 'mp4')
-    : file.type === 'image/png'
-      ? 'png'
-      : file.type === 'image/webp'
-        ? 'webp'
-        : file.type === 'image/gif'
-          ? 'gif'
-          : 'jpg';
+  const ext = publicMediaExtension(file.type);
   const subdir = isVideo ? 'videos' : 'public-media';
   const storagePath = `workspaces/${ctx.workspaceId}/${subdir}/${assetId}.${ext}`;
   const createdAt = new Date().toISOString();

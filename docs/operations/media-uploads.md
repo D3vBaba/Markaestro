@@ -1,13 +1,21 @@
 # Direct media upload rollout
 
-Large browser uploads can bypass the Next.js/Cloud Run process and go directly
-to Cloud Storage. This prevents a 250 MB video from occupying hundreds of MB of
-runtime memory and a request slot. The existing multipart endpoint remains the
-default and the client falls back to it during a rolling deployment.
+Large browser and Public API uploads can bypass the Next.js/Cloud Run process
+and go directly to Cloud Storage. This prevents a 250 MB video from occupying
+hundreds of MB of runtime memory and a request slot. The established multipart
+endpoints remain available as compatibility and rollback paths.
 
 Production status (2026-08-18): bucket CORS, staging lifecycle, and blob-signing
 IAM are configured, and the direct-upload feature flag is enabled. The steps
 below remain the reference for a new environment or rollback/re-activation.
+
+The browser uses `/api/media/create-upload-url` and
+`/api/media/finalize-upload`. New Public API clients use
+`/api/public/v1/media/upload-sessions` and
+`/api/public/v1/media/upload-sessions/:id/finalize`. Public API multipart
+`POST /api/public/v1/media` remains supported for existing clients. External
+integrations should perform the signed `PUT` server-to-server; the production
+bucket CORS policy intentionally allows only Markaestro browser origins.
 
 ## Production activation
 

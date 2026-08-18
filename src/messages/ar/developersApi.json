@@ -4,7 +4,7 @@
     "title": "واجهة النشر العامة (API)",
     "intro1": "ارفع الوسائط، وأنشئ منشورات، وانشر إلى Facebook وInstagram وTikTok وLinkedIn وThreads وPinterest، وكل ذلك مقتصر على منتج عبر مفتاح API لمساحة العمل. الطريقة الموصى بها للتكامل هي <connectLink>Connect API</connectLink> — واجهة صغيرة ومسطّحة على <code>/api/connect/v1</code> يمكن لمعظم أدوات الجدولة استهدافها كما هي.",
     "intro2": "هل تحتاج إلى تحكم كامل — نشر صريح، واستعلام عن حالة المهام، وويب هوكس موقّعة، ودفعات، وإعدادات لكل قناة؟ توفر واجهة <code>/api/public/v1</code> المتقدمة أدناه كل ذلك. تشترك كلتاهما في المصادقة نفسها والمنتجات نفسها وخط أنابيب النشر نفسه؛ استخدم فقط هذه المسارات العامة المُصدَّرة (مسارات التطبيق الداخلية تتطلب مصادقة مستخدم Firebase وليست جزءًا من العقد العام).",
-    "intro3": "<strong>Facebook وInstagram وTikTok يدوية أولًا حتى عبر API.</strong> تستخدم منشورات هذه القنوات افتراضيًا تسليم <code>manual_reminder</code>: لا تستدعي Markaestro واجهة المنصة أبدًا نيابة عنها. يُنقل النشر المنشور إلى قائمة انتظار 'للنشر' الخاصة بمساحة العمل، حيث يقوم المالك بتنزيل الوسائط والنشر بشكل أصلي والتأكيد — بحيث تظهر المنشورات تمامًا كما لو أُنشئت يدويًا. مرّر <code>deliveryMode: \"direct_publish\"</code> عند الإنشاء لاختيار النشر عبر API الرسمية بدلًا من ذلك (على TikTok يعني ذلك التسليم إلى صندوق الوارد، وليس أبدًا Direct Post علنيًا). تنشر LinkedIn وThreads وPinterest برمجيًا افتراضيًا.",
+    "intro3": "<strong>Facebook وInstagram وTikTok يدوية أولًا حتى عبر API.</strong> تستخدم منشورات هذه القنوات افتراضيًا تسليم <code>manual_reminder</code>: لا تستدعي Markaestro واجهة المنصة أبدًا نيابة عنها. يُنقل النشر المنشور إلى قائمة انتظار 'للنشر' الخاصة بمساحة العمل، حيث يقوم المالك بتنزيل الوسائط والنشر بشكل أصلي والتأكيد. مرّر <code>deliveryMode: \"direct_publish\"</code> عند الإنشاء لاختيار النشر عبر API الرسمية. على TikTok يُستخدم التسليم إلى صندوق الوارد افتراضيًا، إلا عند ضبط <code>settings.postMode</code> على <code>direct_post</code>. تنشر LinkedIn وThreads وPinterest برمجيًا افتراضيًا.",
     "intro4": "يمكن أن تحتوي مساحات العمل على منتجات متعددة. يُربط كل مفتاح API بمنتج واحد عند إنشائه، بحيث تستهدف الاستدعاءات ذلك المنتج تلقائيًا وتُرفض الطلبات لأي منتج آخر.",
     "agentCallout": {
       "title": "هل تبني وكيل ذكاء اصطناعي؟",
@@ -35,7 +35,7 @@
   "highlightCards": [
     { "title": "Meta وTikTok يدوية أولًا", "description": "تذهب منشورات Facebook وInstagram وTikTok افتراضيًا إلى قائمة انتظار 'للنشر' اليدوية — بلا استدعاء API للمنصة، ينشر مالك مساحة العمل بشكل أصلي ويؤكد. اختر النشر عبر API لكل منشور باستخدام deliveryMode." },
     { "title": "دعم تسجيل دخول Instagram", "description": "يمكن للعلامات التجارية عرض حسابات Instagram المهنية المستقلة حتى عند عدم ربط صفحة Facebook." },
-    { "title": "اختيار TikTok يستخدم التسليم إلى صندوق الوارد", "description": "يُرسل منشور TikTok الذي اختار النشر عبر API إلى صندوق وارد المنشئ على TikTok للتعليق النهائي والخصوصية والنشر — وليس أبدًا Direct Post علنيًا." },
+    { "title": "يدعم TikTok مسارين اختياريين", "description": "يستخدم النشر عبر API التسليم إلى صندوق وارد المنشئ افتراضيًا. اضبط settings.postMode على direct_post مع مستوى الخصوصية لطلب Direct Post عندما يكون تطبيق TikTok معتمدًا." },
     { "title": "غير متزامن بالتصميم", "description": "يُرجع كل نشر معرّف مهمة. استعلم عن المهام أو اشترك في ويب هوكس موقّعة بدلًا من افتراض الإتمام المتزامن." }
   ],
   "endpointGroups": [
@@ -51,7 +51,10 @@
       "title": "الوسائط",
       "description": "ارفع الصور أو مقاطع الفيديو إلى التخزين المُدار من Markaestro قبل إنشاء المنشورات.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media", "note": "رفع متعدد الأجزاء. يُرجع معرّف أصل وعنوان URL مستضاف." }
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "ينشئ جلسة رفع مباشر مدتها 15 دقيقة باستخدام اسم الملف ونوع المحتوى والحجم الدقيق." },
+        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "يرفع البايتات مباشرة إلى التخزين باستخدام ترويسة Content-Type المُعادة، دون مفتاح API." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "يتحقق من النوع والحجم ويطبق الحصة ويُرجع أصل الوسائط." },
+        { "method": "POST", "path": "/api/public/v1/media", "note": "رفع متعدد الأجزاء للتوافق. يُرجع معرّف أصل وعنوان URL مستضاف." }
       ]
     },
     {
@@ -70,7 +73,7 @@
       "description": "تتبّع العمل غير المتزامن عبر الاستعلام أو تسليم ويب هوك موقّع.",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "يُرجع queued أو running أو succeeded أو failed." },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "يسجّل وجهة ويب هوك باستخدام مفتاح API." },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "يسجّل وجهة ويب هوك، بحد أقصى 25 نقطة نهاية نشطة لكل مساحة عمل." },
         { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "يسرد وجهات الويب هوك المسجّلة لنطاق مفتاح API ذلك." },
         { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "يعطّل وجهة ويب هوك." }
       ]

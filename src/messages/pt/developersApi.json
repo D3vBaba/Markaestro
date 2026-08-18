@@ -4,7 +4,7 @@
     "title": "API pública de publicação",
     "intro1": "Envie mídia, crie posts e publique no Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest, tudo vinculado a um produto por meio de uma chave de API do workspace. A forma recomendada de integrar é a <connectLink>Connect API</connectLink> — uma superfície pequena e simples em <code>/api/connect/v1</code> que a maioria das ferramentas de agendamento pode usar como está.",
     "intro2": "Precisa de controle total — publicação explícita, verificação de execução de tarefas, webhooks assinados, lote, configurações por canal? A API avançada <code>/api/public/v1</code> mais abaixo expõe tudo isso. Ambas compartilham a mesma autenticação, produtos e pipeline de publicação; use apenas essas rotas públicas versionadas (as rotas internas do app exigem autenticação de usuário do Firebase e não fazem parte do contrato público).",
-    "intro3": "<strong>Facebook, Instagram e TikTok são manual-first via API.</strong> Posts para esses canais usam por padrão a entrega <code>manual_reminder</code>: o Markaestro nunca chama a API da plataforma para eles. A publicação move o post para a fila 'Para Publicar' do workspace, onde o proprietário baixa a mídia, publica nativamente e confirma — de modo que os posts aparecem exatamente como se tivessem sido criados manualmente. Passe <code>deliveryMode: \"direct_publish\"</code> na criação para optar por publicação via API oficial (no TikTok isso significa o envio para a caixa de entrada, nunca Direct Post público). LinkedIn, Threads e Pinterest publicam programaticamente por padrão.",
+    "intro3": "<strong>Facebook, Instagram e TikTok são manual-first via API.</strong> Esses canais usam <code>manual_reminder</code> por padrão: o Markaestro não chama a API da plataforma e move o post para a fila 'Para Publicar'. Passe <code>deliveryMode: \"direct_publish\"</code> para usar a API oficial. No TikTok, o padrão é a caixa de entrada, exceto quando <code>settings.postMode</code> é <code>direct_post</code>. LinkedIn, Threads e Pinterest publicam programaticamente por padrão.",
     "intro4": "Workspaces podem ter múltiplos produtos. Cada chave de API é vinculada a um produto no momento da criação, então as chamadas atingem esse produto automaticamente e solicitações para qualquer outro produto são rejeitadas.",
     "agentCallout": {
       "title": "Construindo um agente de IA?",
@@ -35,7 +35,7 @@
   "highlightCards": [
     { "title": "Meta e TikTok são manual-first", "description": "Posts do Facebook, Instagram e TikTok usam por padrão a fila manual 'Para Publicar' — sem chamada à API da plataforma, o proprietário do workspace publica nativamente e confirma. Opte por publicação via API por post com deliveryMode." },
     { "title": "Login do Instagram compatível", "description": "As marcas podem expor contas profissionais independentes do Instagram mesmo sem uma Página do Facebook vinculada." },
-    { "title": "Opção do TikTok usa envio para caixa de entrada", "description": "Um post do TikTok que optar por publicação via API é enviado para a caixa de entrada do criador para legenda final, privacidade e publicação — nunca Direct Post público." },
+    { "title": "TikTok oferece dois caminhos opcionais", "description": "A publicação via API usa a caixa de entrada por padrão. Defina settings.postMode como direct_post com um nível de privacidade para solicitar Direct Post quando seu app TikTok estiver aprovado." },
     { "title": "Assíncrono por design", "description": "Toda publicação retorna um id de execução. Verifique as execuções ou inscreva-se em webhooks assinados em vez de assumir conclusão síncrona." }
   ],
   "endpointGroups": [
@@ -51,7 +51,10 @@
       "title": "Mídia",
       "description": "Envie imagens ou vídeos para o armazenamento gerenciado do Markaestro antes de criar posts.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media", "note": "Upload multipart. Retorna um id de ativo e a URL hospedada." }
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Cria uma sessão de upload direto de 15 minutos com nome, tipo e tamanho exato." },
+        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Envia os bytes diretamente ao armazenamento com o Content-Type retornado, sem a chave de API." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifica tipo e tamanho, aplica a cota e retorna o ativo de mídia." },
+        { "method": "POST", "path": "/api/public/v1/media", "note": "Upload multipart de compatibilidade. Retorna um id de ativo e a URL hospedada." }
       ]
     },
     {
@@ -70,7 +73,7 @@
       "description": "Acompanhe trabalho assíncrono por verificação ou entrega de webhook assinado.",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "Retorna queued, running, succeeded ou failed." },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registra um destino de webhook usando uma chave de API." },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registra um destino de webhook, até 25 endpoints ativos por workspace." },
         { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "Lista os destinos de webhook registrados para o escopo dessa chave de API." },
         { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Desativa um destino de webhook." }
       ]

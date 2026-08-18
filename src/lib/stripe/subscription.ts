@@ -139,22 +139,24 @@ export function isActiveSubscription(sub: SubscriptionRecord | null | undefined)
 }
 
 function tierRank(tier: string | undefined): number {
-  if (tier === 'business') return 2;
-  if (tier === 'pro') return 1;
-  // 'starter' and any unrecognized tier (e.g. 'unknown' from an unmapped
+  if (tier === 'business') return 3;
+  if (tier === 'pro') return 2;
+  if (tier === 'starter') return 1;
+  // 'free' and any unrecognized tier (e.g. 'unknown' from an unmapped
   // Stripe price) rank lowest.
   return 0;
 }
 
 /**
  * The plan tier a record actually entitles its holder to. Inactive records
- * (canceled, past_due, incomplete, …) and unrecognized tiers resolve to
- * 'starter' so a lapsed subscription never keeps premium limits.
+ * (canceled, past_due, incomplete, …), unrecognized tiers, and missing
+ * records all resolve to 'free' — the not-purchasable tier every workspace
+ * without an active subscription lives on.
  */
 export function effectiveTier(sub: SubscriptionRecord | null | undefined): PlanTier {
-  if (!isActiveSubscription(sub)) return 'starter';
+  if (!isActiveSubscription(sub)) return 'free';
   const tier = sub.tier as PlanTier;
-  return PLANS[tier] ? tier : 'starter';
+  return PLANS[tier] && tier !== 'free' ? tier : 'free';
 }
 
 /**

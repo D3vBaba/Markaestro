@@ -17,6 +17,7 @@ import { isTikTokDirectPost } from './post-settings';
 import { acquirePublishLock, assertPublishRateLimit, getPublishDestinationKey, releasePublishLock } from './publish-throttle';
 import { enqueueWebhookEvent } from './webhooks';
 import { incrementApiClientStat } from './usage';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 
 const MAX_PUBLIC_RUNS_PER_WORKSPACE = 20;
 const PUBLIC_RUN_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
@@ -77,12 +78,21 @@ async function deferRun(
   const ref = adminDb.doc(`workspaces/${workspaceId}/job_runs/${runId}`);
   const snap = await ref.get();
   const attemptCount = ((snap.data()?.attemptCount as number) || 0) + 1;
+  const nextAttemptAt = nextRetryIso(retryAfterSeconds);
   await ref.set({
     status: 'queued',
     message: reason,
     attemptCount,
-    nextAttemptAt: nextRetryIso(retryAfterSeconds),
+    nextAttemptAt,
   }, { merge: true });
+  await markWorkspaceDue(workspaceId, nextAttemptAt, 'publish_run').catch((error) => {
+    logger.warn('deferred publish due marker failed; compatibility sweep will recover it', {
+      event: 'worker.mark_due_failed',
+      workspaceId,
+      runId,
+      err: error,
+    });
+  });
 }
 
 async function markRunFinished(

@@ -19,7 +19,7 @@ through the public publish endpoint.
 
 ## Scope
 
-- Image and video upload to Markaestro storage
+- Image and video upload to Markaestro storage (direct or compatibility multipart)
 - Post creation in the workspace's canonical `posts` collection
 - Async publish runs
 - Signed webhook delivery
@@ -39,6 +39,11 @@ Accepted video types: `video/mp4`, `video/quicktime`, `video/webm`, `video/x-msv
 Each upload counts against the workspace's monthly `mediaUploads`
 quota (shared with in-app uploads). When the quota is exhausted, the
 endpoint returns `402` with `error: "QUOTA_EXCEEDED_MEDIA_UPLOADS"`.
+
+For new integrations, use the three-step direct upload flow: create an upload
+session, `PUT` the bytes straight to the returned Cloud Storage URL, then
+finalize the session. This keeps large files out of the application runtime.
+The multipart endpoint remains supported for existing clients.
 
 ## Auth
 
@@ -86,7 +91,10 @@ several products, create one key per product.
 
 - `GET /api/public/v1/products`
 - `GET /api/public/v1/products/:id/destinations`
-- `POST /api/public/v1/media`
+- `POST /api/public/v1/media/upload-sessions` — create a direct upload session
+- `PUT <uploadUrl>` — upload bytes directly to storage
+- `POST /api/public/v1/media/upload-sessions/:id/finalize` — verify and create the asset
+- `POST /api/public/v1/media` — compatibility multipart upload
 - `POST /api/public/v1/posts`
 - `GET /api/public/v1/posts` — `?status=`, `?productId=`, `?limit=` (max 100)
 - `GET /api/public/v1/posts/:id`
@@ -140,7 +148,7 @@ Instagram Login (with explicit `deliveryMode: "direct_publish"`):
 Meta account selection:
 - Use `GET /api/public/v1/products` to discover product ids
 - Use `GET /api/public/v1/products/:id/destinations` to inspect linked Facebook, Instagram, and TikTok destinations for that product
-- Include `productId` when your workspace has more than one eligible product for the chosen channel
+- Omit `productId` to use the API key's bound product, or send that same id explicitly; another product id is rejected
 - Include `destinationId` when the chosen product has more than one eligible destination for the chosen channel
 - Facebook-only products work
 - Products with both Facebook and Instagram connections expose separate destinations
@@ -178,17 +186,55 @@ curl "$MARKAESTRO_URL/api/public/v1/products/prod_123/destinations" \
 3. Upload media (image or video)
 
 ```bash
-# Image upload
-curl -X POST "$MARKAESTRO_URL/api/public/v1/media" \
+# 3a. Create a direct upload session. The declared type and size must exactly
+# match the file sent in the next step.
+UPLOAD=$(curl -s -X POST "$MARKAESTRO_URL/api/public/v1/media/upload-sessions" \
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \
-  -H "Idempotency-Key: upload-001" \
-  -F "file=@launch-1.jpg"
+  -H "Content-Type: application/json" \
+  -d '{
+    "fileName": "launch-1.jpg",
+    "contentType": "image/jpeg",
+    "sizeBytes": 184320
+  }')
+UPLOAD_URL=$(printf '%s' "$UPLOAD" | jq -r '.uploadSession.uploadUrl')
+UPLOAD_SESSION_ID=$(printf '%s' "$UPLOAD" | jq -r '.uploadSession.id')
 
-# Video upload
+# 3b. PUT the raw bytes to uploadSession.uploadUrl. Do not send the API key to
+# the storage URL. The signed URL expires after 15 minutes.
+curl -X PUT "$UPLOAD_URL" \
+  -H "Content-Type: image/jpeg" \
+  --data-binary @launch-1.jpg
+
+# 3c. Finalize with uploadSession.id. Returns { "asset": { "id": "ast_…", … } }.
+curl -X POST "$MARKAESTRO_URL/api/public/v1/media/upload-sessions/$UPLOAD_SESSION_ID/finalize" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+```
+
+`POST /media/upload-sessions` returns:
+
+```json
+{
+  "uploadSession": {
+    "id": "ast_123",
+    "assetId": "ast_123",
+    "uploadUrl": "https://storage.googleapis.com/…",
+    "uploadMethod": "PUT",
+    "uploadHeaders": { "Content-Type": "image/jpeg" },
+    "expiresAt": "2026-08-18T12:15:00.000Z"
+  }
+}
+```
+
+Finalization is retry-safe: a completed session returns the same asset. A
+concurrent finalization returns `409 UPLOAD_FINALIZATION_IN_PROGRESS`. New
+clients should retry that response with backoff. If direct upload is not
+practical, the compatibility multipart endpoint is still available:
+
+```bash
 curl -X POST "$MARKAESTRO_URL/api/public/v1/media" \
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \
-  -H "Idempotency-Key: upload-002" \
-  -F "file=@product-demo.mp4"
+  -H "Idempotency-Key: upload-legacy-001" \
+  -F "file=@launch-1.jpg"
 ```
 
 4. Create post
@@ -329,7 +375,7 @@ curl -X DELETE "$MARKAESTRO_URL/api/public/v1/posts/pst_123" \
 
 `status` matches one value — use `scheduled` for the queue, `draft`,
 `published`, `failed`, and so on for the rest. Every post carries `productId`,
-so a workspace-wide key can group results by brand without a second call.
+  and a product-bound key only returns posts for its own brand.
 
 Deleting removes the post from Markaestro only:
 
@@ -360,6 +406,8 @@ Headers:
 - `X-Markaestro-Signature`
 
 Webhook secrets are shown once at creation time and stored hashed at rest.
+Each workspace may have up to 25 active webhook endpoints. Creating another
+returns `409 WEBHOOK_ENDPOINT_LIMIT_REACHED`; disable an old endpoint first.
 
 ---
 
@@ -397,7 +445,7 @@ short-lived signature in the URL and carries no `Authorization` header.
 | `POST /api/connect/v1/media/create-upload-url` | `{ mime_type, size_bytes, name }` | `{ media_id, upload_url }` |
 | `PUT <upload_url>` | raw image bytes, `Content-Type` header | `{ media_id, url }` |
 | `POST /api/connect/v1/posts` | `{ caption, media: [media_id…], social_accounts: [id…], scheduled_at, is_draft }` | `{ id, created[], errors[] }` |
-| `GET /api/connect/v1/posts` | `?limit=` | `{ data: [ post… ] }` |
+| `GET /api/connect/v1/posts` | `?limit=`, `?cursor=` | `{ data: [ post… ], next_cursor }` |
 | `GET /api/connect/v1/media` | — | `{ data: [] }` (thumbnails are embedded on posts; best-effort) |
 
 ## Accounts & targeting
@@ -438,9 +486,11 @@ resulting `media_id` is a normal Markaestro media asset usable in `POST /posts`.
 `status` on a returned post is one of `draft` · `processing` · `posted` ·
 `failed` (mapped from native statuses). Create is draft-first:
 
-- Every `POST /api/connect/v1/posts` call creates **drafts**.
-- `scheduled_at` and `is_draft` are accepted for compatibility with scheduling
-  clients, but Markaestro ignores them during create.
+- `POST /api/connect/v1/posts` is draft-first by default.
+- When `is_draft=false` and a valid ISO `scheduled_at` are both supplied, the
+  created posts are scheduled for that time. Any other combination remains a
+  draft. Scheduled TikTok posts use the creator-inbox handoff; other supported
+  channels use their direct-publish delivery mode.
 - Publish from the Markaestro app or a supported explicit publish endpoint.
 - **Facebook, Instagram, and TikTok posts default to manual publishing**
   (`manual_reminder`) — publishing moves them to an action-required state and
@@ -484,6 +534,5 @@ curl "$MARKAESTRO_URL/api/connect/v1/posts?limit=20" \
 - **Publishing-only surface** — the Connect API exposes account discovery,
   media upload, post creation, and post status. It does not expose engagement
   metrics or provider insights.
-- **Threads / Pinterest are not exposed** through this surface.
 - For richer control (per-channel `settings`, batch create, explicit publish,
   job-run polling, webhooks), use the native `/api/public/v1` endpoints.

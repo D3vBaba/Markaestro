@@ -15,10 +15,18 @@ const examplesCode = {
   -H "Authorization: Bearer $MARKAESTRO_API_KEY"`,
   listDestinations: `curl "$MARKAESTRO_URL/api/public/v1/products/prod_123/destinations" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY"`,
-  upload: `curl -X POST "$MARKAESTRO_URL/api/public/v1/media" \\
+  upload: `# 1. Create a 15-minute upload session
+UPLOAD=$(curl -s -X POST "$MARKAESTRO_URL/api/public/v1/media/upload-sessions" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
-  -H "Idempotency-Key: upload-001" \\
-  -F "file=@launch-1.jpg"`,
+  -H "Content-Type: application/json" \\
+  -d '{"fileName":"launch-1.jpg","contentType":"image/jpeg","sizeBytes":184320}')
+
+# 2. PUT bytes directly to uploadSession.uploadUrl with its returned headers
+curl -X PUT "<upload_url>" -H "Content-Type: image/jpeg" --data-binary @launch-1.jpg
+
+# 3. Finalize; the response contains asset.id for mediaAssetIds
+curl -X POST "$MARKAESTRO_URL/api/public/v1/media/upload-sessions/<session_id>/finalize" \\
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"`,
   createPost: `curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
   -H "Content-Type: application/json" \\
@@ -33,12 +41,8 @@ const examplesCode = {
   publish: `curl -X POST "$MARKAESTRO_URL/api/public/v1/posts/pst_123/publish" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\
   -H "Idempotency-Key: publish-001"`,
-  listScheduled: `# What is scheduled for one brand
-curl "$MARKAESTRO_URL/api/public/v1/posts?status=scheduled&productId=prod_123&limit=100" \\
-  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
-
-# Omit productId to see every brand the key can reach
-curl "$MARKAESTRO_URL/api/public/v1/posts?status=scheduled" \\
+  listScheduled: `# The key is already bound to one brand
+curl "$MARKAESTRO_URL/api/public/v1/posts?status=scheduled&limit=100" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY"
 
 # Cancel one

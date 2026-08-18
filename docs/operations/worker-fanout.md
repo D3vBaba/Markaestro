@@ -1,79 +1,81 @@
-# Worker fan-out
+# Due-workspace worker dispatch
 
-## Current state (default)
+`POST /api/worker/tick` is invoked every minute by Cloud Scheduler. With the
+due queue enabled it claims at most 50 records from the top-level
+`worker_due_workspaces` collection and sends one Cloud Task per workspace to
+`POST /api/worker/workspace/:workspaceId`. The expensive work therefore runs
+independently and can scale across App Hosting instances.
 
-`POST /api/worker/tick` is invoked every ~2 min by Cloud Scheduler.
-It runs global work (OAuth refresh and OAuth-state cleanup) once per tick,
-then fans out per-workspace work in-process with
-`mapWithConcurrency` at `WORKER_WS_CONCURRENCY` (default 8) parallel
-workers. TikTok polling has a separate due-queue endpoint.
+Writers add or advance a due marker when they create scheduled posts, queued
+publish runs, webhook deliveries, retry work, or daily jobs. A workspace tick
+also records the earliest future work it finds. Queue writes are best-effort:
+the user-facing write still succeeds if queue maintenance temporarily fails.
 
-The dispatcher still performs work proportional to total workspace count,
-including for idle workspaces. Treat a few hundred workspaces as the planning
-boundary, validate it with production duration/read metrics, and switch before
-the dispatcher approaches the Cloud Run request timeout.
+## Compatibility and failure behavior
 
-## Cloud Tasks fan-out (recommended above ~500 workspaces)
+- Every five minutes, one dispatcher performs the former all-workspace scan.
+  This catches legacy data and any missed due marker. It is intentionally a
+  temporary safety net and means idle-workspace scans are reduced by about 80%
+  immediately, not eliminated yet.
+- If Cloud Tasks is disabled or enqueueing fails, the dispatcher processes the
+  claimed workspace in-process using the established code path.
+- Due records use an expiring dispatch lease and version. Work created while a
+  task is running increments the version, so task completion cannot delete the
+  newly scheduled work.
+- The target endpoint also has a per-workspace lease, preventing overlapping
+  execution. Worker operations remain idempotent because Cloud Tasks can
+  deliver a task more than once.
+- OAuth token refresh and expired-state cleanup run every 15 minutes instead of
+  on every scheduler tick. TikTok polling continues to use its separate
+  due-queue endpoint.
 
-1. Create a Cloud Tasks queue:
+Disable `WORKER_DUE_QUEUE_ENABLED` to restore the previous all-workspace,
+in-process behavior without changing the scheduler or worker target.
 
-   ```bash
-   gcloud tasks queues create markaestro-workspace-ticks \
-     --location=us-central1 \
-     --max-concurrent-dispatches=50 \
-     --max-dispatches-per-second=10 \
-     --max-attempts=3
-   ```
+## Production configuration
 
-2. Grant the service account that runs the dispatcher tick
-   `roles/cloudtasks.enqueuer` on the queue.
+Create the queue in the same region as App Hosting:
 
-3. Add a lightweight enqueue helper (requires the `@google-cloud/tasks`
-   dependency):
+```bash
+gcloud tasks queues create markaestro-workspace-ticks \
+  --location=us-central1 \
+  --max-concurrent-dispatches=50 \
+  --max-dispatches-per-second=10 \
+  --max-attempts=3 \
+  --min-backoff=10s \
+  --max-backoff=60s
+```
 
-   ```ts
-   import { CloudTasksClient } from '@google-cloud/tasks';
-   const client = new CloudTasksClient();
+Grant the App Hosting runtime service account `roles/cloudtasks.enqueuer`, then
+configure:
 
-   export async function enqueueWorkspaceTick(workspaceId: string) {
-     const project = process.env.GCLOUD_PROJECT!;
-     const location = 'us-central1';
-     const queue = 'markaestro-workspace-ticks';
-     await client.createTask({
-       parent: client.queuePath(project, location, queue),
-       task: {
-         httpRequest: {
-           httpMethod: 'POST',
-           url: `${process.env.NEXT_PUBLIC_APP_URL}/api/worker/workspace/${workspaceId}`,
-           headers: { 'x-worker-secret': process.env.WORKER_SECRET! },
-         },
-         dispatchDeadline: { seconds: 300 },
-       },
-     });
-   }
-   ```
+```text
+WORKER_DUE_QUEUE_ENABLED=1
+WORKER_CLOUD_TASKS_ENABLED=1
+WORKER_TASKS_QUEUE=markaestro-workspace-ticks
+WORKER_TASKS_LOCATION=us-central1
+WORKER_TASKS_TARGET_ORIGIN=https://markaestro--markaestro-0226220726.us-central1.hosted.app
+WORKER_LEGACY_SWEEP_INTERVAL_MS=300000
+WORKER_GLOBAL_PHASE_INTERVAL_MS=900000
+```
 
-4. In the dispatcher tick, replace the `mapWithConcurrency` block with
-   bounded-concurrency calls to `enqueueWorkspaceTick`. Dispatch duration and
-   task cost still grow with workspace count, but the expensive execution is
-   horizontally distributed and independently retryable.
+`WORKER_TASKS_TARGET_ORIGIN` deliberately uses the direct App Hosting URL. The
+custom-domain proxy is not needed for an internal task and would add another
+runtime hop. Tasks authenticate with the existing `x-worker-secret` header.
 
-The `/api/worker/workspace/[workspaceId]` endpoint is already live and
-accepts the same `x-worker-secret` header, so no API change is needed
-on the execution side.
+## Tuning and monitoring
 
-Cloud Tasks solves the single-instance timeout boundary; it does not eliminate
-the idle-workspace scan. At larger scale, have writers maintain a top-level
-`worker_due_workspaces` queue (or workload-specific due queues) and dispatch
-only due workspace IDs. Roll that out with a temporary legacy scan, as used by
-the TikTok publish mapping queue.
+- `WORKER_DUE_BATCH_SIZE` (default 50): due workspaces claimed per scheduler
+  tick.
+- `WORKER_WS_CONCURRENCY` (default 8): bounded parallelism for enqueue calls or
+  in-process fallback.
+- `WORKER_LEGACY_SWEEP_INTERVAL_MS` (default five minutes): compatibility scan
+  interval. Do not lengthen it until due-marker coverage has been observed in
+  production.
+- `WORKER_GLOBAL_PHASE_INTERVAL_MS` (default 15 minutes): OAuth maintenance
+  interval.
 
-## Tuning knobs
-
-- `WORKER_WS_CONCURRENCY` — parallelism inside the dispatcher tick.
-  Raise when instance CPU/RAM grows; lower if Firestore contention
-  shows up as `ABORTED` transaction retries.
-- `runConfig.timeoutSeconds` in `apphosting.yaml` — hard upper bound on
-  any single dispatcher tick.
-- Cloud Scheduler frequency — the current 2 minute cadence matches the
-  publisher's freshness target; rarely worth changing.
+Watch Cloud Tasks queue depth/oldest-task age, worker 5xx responses, fallback
+log event `worker.cloud_tasks_enqueue_fallback`, and the duration of legacy
+sweeps. Once no missed due work is observed through a full scheduling cycle,
+the compatibility interval can be lengthened and eventually removed.

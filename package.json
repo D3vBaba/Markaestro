@@ -19,6 +19,7 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google-cloud/secret-manager": "^6.1.1",
+    "@google-cloud/tasks": "^6.3.0",
     "@sentry/nextjs": "^10.42.0",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.7.0",

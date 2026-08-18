@@ -4,7 +4,7 @@
     "title": "公开发布 API",
     "intro1": "上传素材、创建内容，并发布到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest，全部通过工作区 API 密钥限定到某个产品范围内。推荐的集成方式是 <connectLink>Connect API</connectLink> —— 一个精简、扁平的 <code>/api/connect/v1</code> 接口，绝大多数排期工具都能直接对接。",
     "intro2": "需要更完整的控制能力 —— 显式发布、任务执行状态轮询、已签名 Webhook、批量操作、按渠道配置？下方更高级的 <code>/api/public/v1</code> API 提供了这一切功能。两者共享相同的认证方式、产品体系和发布流水线；请仅使用这些带版本号的公开路由（内部应用路由需要 Firebase 用户认证，不属于公开接口约定的一部分）。",
-    "intro3": "<strong>Facebook、Instagram 和 TikTok 在 API 层面同样以人工优先。</strong> 这些渠道的内容默认使用 <code>manual_reminder</code> 投递方式：Markaestro 不会调用这些平台的 API。发布操作会将内容移入工作区的「待发布」队列，由所有者下载素材、原生发布并确认 —— 因此这些内容看起来与手动创建的完全一致。在创建时传入 <code>deliveryMode: \"direct_publish\"</code>，可以选择改用官方 API 发布（在 TikTok 上，这意味着转交至收件箱，绝不会成为公开的 Direct Post）。LinkedIn、Threads 和 Pinterest 默认以程序化方式发布。",
+    "intro3": "<strong>Facebook、Instagram 和 TikTok 在 API 层面同样以人工优先。</strong> 这些渠道默认使用 <code>manual_reminder</code>：Markaestro 不调用平台 API，而是将内容移入「待发布」队列。传入 <code>deliveryMode: \"direct_publish\"</code> 可选择官方 API 发布。TikTok 默认转交至收件箱；当 <code>settings.postMode</code> 为 <code>direct_post</code> 时则请求 Direct Post。LinkedIn、Threads 和 Pinterest 默认以程序化方式发布。",
     "intro4": "一个工作区可以拥有多个产品。每个 API 密钥在创建时都会绑定到一个产品，因此调用会自动定向到该产品，针对其他产品的请求将被拒绝。",
     "agentCallout": {
       "title": "正在构建 AI 代理？",
@@ -35,7 +35,7 @@
   "highlightCards": [
     { "title": "Meta 与 TikTok 以人工优先", "description": "Facebook、Instagram 和 TikTok 的内容默认进入手动「待发布」队列 —— 不会调用平台 API，由工作区所有者原生发布并确认。可通过 deliveryMode 按内容选择改用 API 发布。" },
     { "title": "支持 Instagram 登录", "description": "即使未连接 Facebook 主页，品牌也可以开放独立的 Instagram 专业账号。" },
-    { "title": "TikTok 选用 API 发布时使用收件箱转交", "description": "选择使用 API 发布的 TikTok 内容会被发送到创作者的 TikTok 收件箱，由创作者完成最终文案、隐私设置和发布 —— 绝不会成为公开的 Direct Post。" },
+    { "title": "TikTok 支持两种可选路径", "description": "API 发布默认使用收件箱转交。如果 TikTok 应用已获批准，可同时设置隐私级别并将 settings.postMode 设为 direct_post 来请求 Direct Post。" },
     { "title": "设计上即为异步", "description": "每次发布都会返回一个任务 ID。请轮询任务状态或订阅已签名的 Webhook，而不是假定发布会同步完成。" }
   ],
   "endpointGroups": [
@@ -51,7 +51,10 @@
       "title": "素材",
       "description": "在创建内容之前，先将图片或视频上传至 Markaestro 托管的存储空间。",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media", "note": "多部分上传（multipart upload）。返回素材 ID 和托管 URL。" }
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "使用文件名、内容类型和精确大小创建一个有效期为 15 分钟的直传会话。" },
+        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "使用返回的 Content-Type 将字节直接上传到存储；不要发送 API 密钥。" },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "验证类型和大小、计入配额并返回媒体素材。" },
+        { "method": "POST", "path": "/api/public/v1/media", "note": "兼容用多部分上传。返回素材 ID 和托管 URL。" }
       ]
     },
     {
@@ -70,7 +73,7 @@
       "description": "通过轮询或已签名的 Webhook 投递方式跟踪异步任务。",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "返回 queued、running、succeeded 或 failed。" },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "使用 API 密钥注册一个 Webhook 目标。" },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "注册一个 Webhook 目标；每个工作区最多可有 25 个活跃端点。" },
         { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "列出该 API 密钥权限范围下已注册的 Webhook 目标。" },
         { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "停用某个 Webhook 目标。" }
       ]

@@ -67,6 +67,29 @@ export function apiError(error: unknown): NextResponse {
   if (msg === 'QUOTA_EXCEEDED_MEDIA_UPLOADS') {
     return NextResponse.json({ error: msg, requestId }, { status: 402 });
   }
+  if (msg === 'QUOTA_EXCEEDED_POSTS') {
+    return NextResponse.json({ error: msg, requestId }, { status: 402 });
+  }
+  if (msg === 'BRAND_LIMIT_REACHED') {
+    return NextResponse.json(
+      {
+        error: msg,
+        message: 'Your plan has reached its brand limit. Upgrade your plan or add a brand pack to create another brand.',
+        requestId,
+      },
+      { status: 402 },
+    );
+  }
+  if (msg === 'CHANNEL_LIMIT_REACHED') {
+    return NextResponse.json(
+      {
+        error: msg,
+        message: 'Your plan limits how many channels each brand can connect. Upgrade your plan or disconnect a channel to add another.',
+        requestId,
+      },
+      { status: 402 },
+    );
+  }
   if (msg === 'SUBSCRIPTION_REQUIRED') {
     return NextResponse.json({ error: msg, requestId }, { status: 402 });
   }
@@ -95,6 +118,9 @@ export function apiError(error: unknown): NextResponse {
     return NextResponse.json({ error: msg, requestId }, { status: 400 });
   }
   if (msg === 'EMAIL_IN_USE') {
+    return NextResponse.json({ error: msg, requestId }, { status: 409 });
+  }
+  if (msg === 'WEBHOOK_ENDPOINT_LIMIT_REACHED') {
     return NextResponse.json({ error: msg, requestId }, { status: 409 });
   }
   if (msg === 'USER_DISABLED') {

@@ -26,6 +26,7 @@ import {
 import { getPinterestApiUrl } from '@/lib/pinterest-api';
 import { fetchMetaManagedPages } from '@/lib/meta-pages';
 import { setMetaProductPageSelections } from '@/lib/oauth/meta-connection-sync';
+import { assertChannelCapacity } from '@/lib/platform/channel-limits';
 
 export const runtime = 'nodejs';
 
@@ -143,6 +144,17 @@ async function selectMetaPages(
   const credentials = await listWorkspaceCredentials(workspaceId, 'meta');
   if (credentials.length === 0) throw new Error('NOT_FOUND');
 
+  // Net-new Pages count against the brand's channel cap; re-linking an
+  // already-linked Page always passes. In replace mode the cleared Pages are
+  // unlinked below, so they don't count against the final total.
+  await assertChannelCapacity({
+    uid: userId,
+    workspaceId,
+    productId,
+    additions: selection.ids.map((pageId) => ({ provider: 'meta', accountKey: pageId })),
+    replaceProviders: selection.exclusive ? ['meta'] : undefined,
+  });
+
   // Each connected Facebook account reaches only its own Pages. Resolve the
   // grant per account so every Page is linked with the credential that owns it
   // — mixing them would hand one account's token to the other's Pages.
@@ -210,6 +222,16 @@ async function selectPinterestBoards(
 ) {
   const credentials = await resolveCredentials(workspaceId, 'pinterest', productId);
   if (credentials.length === 0) throw new Error('NOT_FOUND');
+
+  // Net-new boards count against the brand's channel cap; re-linking an
+  // already-linked board always passes.
+  await assertChannelCapacity({
+    uid: userId,
+    workspaceId,
+    productId,
+    additions: selection.ids.map((boardId) => ({ provider: 'pinterest', accountKey: boardId })),
+    replaceProviders: selection.exclusive ? ['pinterest'] : undefined,
+  });
 
   // Each Pinterest login reaches its own boards, so resolve every grant and
   // link each board with the token that can actually publish to it.
@@ -355,10 +377,10 @@ async function selectLinkedInDestinations(
 ) {
   const candidates = await loadLinkedInCandidates(workspaceId, productId);
 
-  const linked: Array<{ id: string; name: string; type: LinkedInDestination['type'] }> = [];
-  const linkedByProvider = new Map<string, string[]>();
-
-  for (const requestedId of selection.ids) {
+  // Resolve every requested destination before linking anything, so the
+  // channel cap is checked against the complete request and a partial link
+  // never happens.
+  const resolved = selection.ids.map((requestedId) => {
     const match = candidates
       .map((candidate) => ({
         candidate,
@@ -371,13 +393,34 @@ async function selectLinkedInDestinations(
       .find((entry) => entry.destination);
 
     if (!match?.destination) throw new Error('NOT_FOUND');
+    return { requestedId, candidate: match.candidate, destination: match.destination };
+  });
 
-    const destination = match.destination;
+  // Net-new destinations count against the brand's channel cap; re-linking an
+  // already-linked profile or Page always passes. In replace mode every
+  // LinkedIn storage provider's cleared destinations are unlinked below.
+  await assertChannelCapacity({
+    uid: userId,
+    workspaceId,
+    productId,
+    additions: resolved.map(({ candidate, destination }) => ({
+      provider: candidate.connection.provider,
+      accountKey: destination.urn,
+    })),
+    replaceProviders: selection.exclusive
+      ? [...new Set(candidates.map((candidate) => candidate.connection.provider))]
+      : undefined,
+  });
+
+  const linked: Array<{ id: string; name: string; type: LinkedInDestination['type'] }> = [];
+  const linkedByProvider = new Map<string, string[]>();
+
+  for (const { requestedId, candidate, destination } of resolved) {
     const name = selection.names[requestedId] || destination.name;
-    const provider = match.candidate.connection.provider;
+    const provider = candidate.connection.provider;
 
     await linkDestinationConnection({
-      credential: match.candidate.connection,
+      credential: candidate.connection,
       workspaceId,
       productId,
       userId,

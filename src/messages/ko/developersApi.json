@@ -4,7 +4,7 @@
     "title": "퍼블릭 발행 API",
     "intro1": "미디어를 업로드하고, 게시물을 생성하고, Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest에 발행하세요. 모든 요청은 워크스페이스 API 키를 통해 특정 제품 범위로 한정됩니다. 권장하는 연동 방식은 <connectLink>Connect API</connectLink>입니다 — 대부분의 예약 도구가 그대로 사용할 수 있는, 작고 평면적인 <code>/api/connect/v1</code> 인터페이스입니다.",
     "intro2": "명시적 발행, 작업 실행 폴링, 서명된 웹훅, 일괄 처리, 채널별 설정 등 완전한 제어가 필요하신가요? 아래쪽의 고급 <code>/api/public/v1</code> API가 이 모든 것을 제공합니다. 두 API 모두 동일한 인증, 제품, 발행 파이프라인을 공유합니다. 반드시 버전이 명시된 이 퍼블릭 라우트만 사용하세요(내부 앱 라우트는 Firebase 사용자 인증이 필요하며 퍼블릭 계약의 일부가 아닙니다).",
-    "intro3": "<strong>Facebook, Instagram, TikTok은 API를 통해서도 수동 우선 방식을 유지합니다.</strong> 이러한 채널의 게시물은 기본적으로 <code>manual_reminder</code> 방식으로 전달됩니다: Markaestro는 이 채널들에 대해 플랫폼 API를 절대 호출하지 않습니다. 발행 처리는 게시물을 워크스페이스의 '발행 대기' 큐로 이동시키고, 그곳에서 소유자가 미디어를 다운로드해 직접 게시하고 확인합니다 — 그 결과 게시물은 마치 수동으로 작성된 것처럼 나타납니다. 생성 시 <code>deliveryMode: \"direct_publish\"</code>를 전달하면 대신 공식 API를 통한 발행을 선택할 수 있습니다(TikTok의 경우 이는 받은함 전달을 의미하며, 공개적인 Direct Post가 되는 일은 절대 없습니다). LinkedIn, Threads, Pinterest는 기본적으로 프로그래매틱 방식으로 발행됩니다.",
+    "intro3": "<strong>Facebook, Instagram, TikTok은 API에서도 수동 우선 방식입니다.</strong> 기본값은 <code>manual_reminder</code>이며, 플랫폼 API를 호출하지 않고 게시물을 '발행 대기' 큐로 이동합니다. 공식 API 발행을 선택하려면 <code>deliveryMode: \"direct_publish\"</code>를 전달합니다. TikTok은 기본적으로 받은함 전달을 사용하지만 <code>settings.postMode</code>가 <code>direct_post</code>이면 Direct Post를 요청합니다. LinkedIn, Threads, Pinterest는 기본적으로 프로그래매틱 방식으로 발행됩니다.",
     "intro4": "하나의 워크스페이스는 여러 개의 제품을 가질 수 있습니다. 각 API 키는 생성 시 하나의 제품에 바인딩되므로, 호출은 자동으로 해당 제품을 대상으로 하며 다른 제품에 대한 요청은 거부됩니다.",
     "agentCallout": {
       "title": "AI 에이전트를 구축 중이신가요?",
@@ -35,7 +35,7 @@
   "highlightCards": [
     { "title": "Meta와 TikTok은 수동 우선 방식", "description": "Facebook, Instagram, TikTok 게시물은 기본적으로 수동 '발행 대기' 큐로 들어갑니다 — 플랫폼 API 호출 없이 워크스페이스 소유자가 직접 게시하고 확인합니다. deliveryMode로 게시물별 API 발행 여부를 선택할 수 있습니다." },
     { "title": "Instagram 로그인 지원", "description": "Facebook 페이지가 연결되어 있지 않아도 브랜드는 독립된 Instagram 전문 계정을 노출할 수 있습니다." },
-    { "title": "TikTok 옵트인은 받은함 전달 방식을 사용", "description": "API 발행을 선택한 TikTok 게시물은 최종 캡션, 프라이버시, 게시를 위해 크리에이터의 TikTok 받은함으로 전송됩니다 — 공개적인 Direct Post가 되는 일은 절대 없습니다." },
+    { "title": "TikTok은 두 가지 옵트인 경로 지원", "description": "API 발행은 기본적으로 받은함 전달을 사용합니다. TikTok 앱이 승인된 경우 개인정보 수준과 함께 settings.postMode를 direct_post로 설정해 Direct Post를 요청할 수 있습니다." },
     { "title": "설계상 비동기", "description": "모든 발행 요청은 실행 ID를 반환합니다. 동기적으로 완료되었다고 가정하지 말고, 실행 상태를 폴링하거나 서명된 웹훅을 구독하세요." }
   ],
   "endpointGroups": [
@@ -51,7 +51,10 @@
       "title": "미디어",
       "description": "게시물을 생성하기 전에 Markaestro가 관리하는 저장소에 이미지나 동영상을 업로드합니다.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media", "note": "멀티파트 업로드입니다. 자산 ID와 호스팅 URL을 반환합니다." }
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "파일명, 콘텐츠 유형, 정확한 크기로 15분짜리 직접 업로드 세션을 만듭니다." },
+        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "반환된 Content-Type으로 스토리지에 직접 업로드합니다. API 키는 보내지 않습니다." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "유형과 크기를 검증하고 할당량을 적용한 뒤 미디어 자산을 반환합니다." },
+        { "method": "POST", "path": "/api/public/v1/media", "note": "호환용 멀티파트 업로드입니다. 자산 ID와 호스팅 URL을 반환합니다." }
       ]
     },
     {
@@ -70,7 +73,7 @@
       "description": "폴링 또는 서명된 웹훅 전달로 비동기 작업을 추적합니다.",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "queued, running, succeeded, failed 중 하나를 반환합니다." },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "API 키를 사용해 웹훅 대상을 등록합니다." },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "웹훅 대상을 등록합니다. 워크스페이스당 활성 엔드포인트는 최대 25개입니다." },
         { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "해당 API 키 권한 범위 내에 등록된 웹훅 대상을 나열합니다." },
         { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "웹훅 대상을 비활성화합니다." }
       ]

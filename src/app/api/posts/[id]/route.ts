@@ -4,6 +4,8 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { updatePostSchema } from '@/lib/schemas';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
+import { logger } from '@/lib/logger';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 
 export const runtime = 'nodejs';
 
@@ -97,6 +99,20 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       updatedBy: ctx.uid,
     };
     await ref.update(patch);
+    if (nextPost.status === 'scheduled') {
+      await markWorkspaceDue(
+        ctx.workspaceId,
+        typeof nextPost.scheduledAt === 'string' ? nextPost.scheduledAt : Date.now(),
+        'scheduled_post',
+      ).catch((error) => {
+        logger.warn('updated scheduled post due marker failed; compatibility sweep will recover it', {
+          event: 'worker.mark_due_failed',
+          workspaceId: ctx.workspaceId,
+          postId: id,
+          err: error,
+        });
+      });
+    }
     return apiOk({ id, ...snap.data(), ...patch });
   } catch (error) {
     return apiError(error);

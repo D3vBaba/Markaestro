@@ -3,6 +3,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { logger } from '@/lib/logger';
 import { getWebhookEndpointDeliveryConfig } from './webhooks';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 
 const MAX_WEBHOOK_DELIVERIES_PER_WORKSPACE = 25;
 const WEBHOOK_DELIVERY_CONCURRENCY = 5;
@@ -172,16 +173,25 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
         return;
       }
 
+      const nextAttemptAt = computeNextAttempt(attemptCount);
       await doc.ref.set({
         status: 'retrying',
         responseCode: response.status,
         attemptCount,
         lastAttemptAt: nowIso,
         lastError: `Webhook responded ${response.status}`,
-        nextAttemptAt: computeNextAttempt(attemptCount),
+        nextAttemptAt,
         deliveryLeaseId: FieldValue.delete(),
         deliveryLeaseExpiresAt: FieldValue.delete(),
       }, { merge: true });
+      await markWorkspaceDue(workspaceId, nextAttemptAt, 'webhook_delivery').catch((error) => {
+        logger.warn('webhook retry due marker failed; compatibility sweep will recover it', {
+          event: 'worker.mark_due_failed',
+          workspaceId,
+          deliveryId: doc.id,
+          err: error,
+        });
+      });
       results.push({ deliveryId: doc.id, status: 'retrying' });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Webhook delivery failed';
@@ -199,15 +209,24 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
         return;
       }
 
+      const nextAttemptAt = computeNextAttempt(attemptCount);
       await doc.ref.set({
         status: 'retrying',
         attemptCount,
         lastAttemptAt: nowIso,
         lastError: message,
-        nextAttemptAt: computeNextAttempt(attemptCount),
+        nextAttemptAt,
         deliveryLeaseId: FieldValue.delete(),
         deliveryLeaseExpiresAt: FieldValue.delete(),
       }, { merge: true });
+      await markWorkspaceDue(workspaceId, nextAttemptAt, 'webhook_delivery').catch((markError) => {
+        logger.warn('webhook retry due marker failed; compatibility sweep will recover it', {
+          event: 'worker.mark_due_failed',
+          workspaceId,
+          deliveryId: doc.id,
+          err: markError,
+        });
+      });
       results.push({ deliveryId: doc.id, status: 'retrying' });
     } finally {
       clearTimeout(timeout);

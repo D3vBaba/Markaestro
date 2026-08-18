@@ -72,6 +72,12 @@ export const createPublicPostsBatchSchema = z.object({
   posts: z.array(createPublicPostSchema).min(1).max(25),
 });
 
+export const createPublicMediaUploadSessionSchema = z.object({
+  fileName: z.string().trim().min(1).max(500),
+  contentType: z.string().trim().min(1).max(200),
+  sizeBytes: z.number().int().positive(),
+});
+
 export const listPublicPostsSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(25),
   cursor: z.string().trim().max(2000).optional(),

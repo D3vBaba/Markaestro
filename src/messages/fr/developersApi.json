@@ -4,7 +4,7 @@
     "title": "API publique de publication",
     "intro1": "Importez des contenus, créez des publications et publiez sur Facebook, Instagram, TikTok, LinkedIn, Threads et Pinterest, le tout limité à un produit via une clé API d'espace de travail. La façon recommandée de s'intégrer est l'<connectLink>API Connect</connectLink> — une surface plate sur<code>/api/connect/v1</code> que la plupart des outils de programmation peuvent utiliser telle quelle.",
     "intro2": "Besoin d'un contrôle total — publication explicite, consultation des exécutions, webhooks signés, traitement par lots, paramètres par canal ? L'API avancée <code>/api/public/v1</code>, plus bas, expose tout cela. Les deux partagent la même authentification, les mêmes produits et le même pipeline de publication ; utilisez uniquement ces routes publiques versionnées (les routes internes de l'application nécessitent une authentification utilisateur Firebase et ne font pas partie du contrat public).",
-    "intro3": "<strong>Facebook, Instagram et TikTok sont en publication manuelle par défaut via l'API.</strong> Les publications pour ces canaux utilisent par défaut la livraison <code>manual_reminder</code> : Markaestro n'appelle jamais l'API de la plateforme pour elles. Publier déplace la publication vers la file « À publier » de l'espace de travail, où le propriétaire télécharge le contenu, publie de façon native et confirme — ainsi les publications apparaissent exactement comme si elles avaient été créées manuellement. Envoyez <code>deliveryMode: \"direct_publish\"</code> à la création pour que la publication utilise l'API officielle (sur TikTok, cela signifie la transmission vers la boîte de réception, jamais la Publication Directe publique). LinkedIn, Threads et Pinterest publient de façon programmatique par défaut.",
+    "intro3": "<strong>Facebook, Instagram et TikTok sont en publication manuelle par défaut via l'API.</strong> Ces canaux utilisent par défaut <code>manual_reminder</code> : Markaestro n'appelle pas l'API de la plateforme et place la publication dans la file « À publier ». Envoyez <code>deliveryMode: \"direct_publish\"</code> pour utiliser l'API officielle. Sur TikTok, la boîte de réception est utilisée par défaut, sauf si <code>settings.postMode</code> vaut <code>direct_post</code>. LinkedIn, Threads et Pinterest publient de façon programmatique par défaut.",
     "intro4": "Les espaces de travail peuvent avoir plusieurs produits. Chaque clé API est limitée à un produit à sa création, donc les appels ciblent automatiquement ce produit et les demandes pour tout autre produit sont rejetées.",
     "agentCallout": {
       "title": "Vous créez un agent IA ?",
@@ -35,7 +35,7 @@
   "highlightCards": [
     { "title": "Meta et TikTok sont en publication manuelle", "description": "Les publications Facebook, Instagram et TikTok utilisent par défaut la file manuelle « À publier » — aucun appel à l'API de la plateforme, le propriétaire de l'espace de travail publie de façon native et confirme. Vous pouvez activer la publication via API par publication avec deliveryMode." },
     { "title": "Instagram Login pris en charge", "description": "Les marques peuvent exposer des comptes professionnels Instagram indépendants même sans page Facebook liée." },
-    { "title": "TikTok utilise la transmission vers la boîte de réception en cas d'activation", "description": "Une publication TikTok qui active la publication via API est envoyée dans la boîte de réception du créateur sur TikTok pour la finalisation du texte, de la confidentialité et de la publication — jamais la Publication Directe publique." },
+    { "title": "TikTok propose deux parcours optionnels", "description": "La publication via API utilise la boîte de réception par défaut. Définissez settings.postMode sur direct_post avec un niveau de confidentialité pour demander Direct Post si votre application TikTok est approuvée." },
     { "title": "Asynchrone par conception", "description": "Chaque publication renvoie un id d'exécution. Consultez les exécutions ou abonnez-vous à des webhooks signés plutôt que de supposer une réussite synchrone." }
   ],
   "endpointGroups": [
@@ -51,7 +51,10 @@
       "title": "Contenu",
       "description": "Importez des images ou des vidéos vers le stockage géré par Markaestro avant de créer des publications.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media", "note": "Import multipart. Renvoie un id d'actif et une URL hébergée." }
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Crée une session d'envoi direct de 15 minutes avec le nom, le type et la taille exacte." },
+        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Envoie les octets directement au stockage avec le Content-Type renvoyé, sans clé API." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Vérifie le type et la taille, applique le quota et renvoie l'actif média." },
+        { "method": "POST", "path": "/api/public/v1/media", "note": "Import multipart de compatibilité. Renvoie un id d'actif et une URL hébergée." }
       ]
     },
     {
@@ -70,7 +73,7 @@
       "description": "Suivez le travail asynchrone par consultation périodique ou livraison de webhooks signés.",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "Renvoie queued, running, succeeded ou failed." },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Enregistre une destination de webhook à l'aide d'une clé API." },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Enregistre une destination de webhook, avec un maximum de 25 endpoints actifs par espace." },
         { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "Liste les destinations de webhook enregistrées pour la portée de cette clé API." },
         { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Désactive une destination de webhook." }
       ]

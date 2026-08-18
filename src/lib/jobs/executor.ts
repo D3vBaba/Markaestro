@@ -5,6 +5,7 @@ import { PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
 import { isManualReminderPost, MANUAL_REMINDER_NEXT_ACTION } from '@/lib/manual-publish-flow';
 import { logger } from '@/lib/logger';
 import { JobDoc } from './types';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 
 const JOB_RUN_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -149,6 +150,16 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
         : {}),
       updatedAt: finishedAt,
     });
+    if (next && !shouldDisableRecurringPublishJob(job)) {
+      await markWorkspaceDue(workspaceId, next, 'daily_job').catch((error) => {
+        logger.warn('daily job due marker failed; compatibility sweep will recover it', {
+          event: 'worker.mark_due_failed',
+          workspaceId,
+          jobId,
+          err: error,
+        });
+      });
+    }
 
     return { ok: true, message, details, runId: runRef.id };
   } catch (e: unknown) {

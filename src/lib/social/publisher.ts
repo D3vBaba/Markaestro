@@ -27,12 +27,24 @@ import { firstSocialPostValidationError } from '@/lib/social/post-validation';
 import { getTikTokPublishMappingRef } from '@/lib/social/tiktok-publish-mapping';
 import { isTikTokDirectPostSettings } from '@/lib/public-api/post-settings';
 import { logger } from '@/lib/logger';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 
 export type { PublishRequest, PublishResult };
 
 const MAX_DUE_POSTS_PER_RUN = 50;
 const MAX_RECOVERIES_PER_RUN = 50;
 const PUBLISH_LEASE_MS = 10 * 60 * 1000;
+
+async function markScheduledRetryDue(workspaceId: string, postId: string, retryAt: string) {
+  await markWorkspaceDue(workspaceId, retryAt, 'scheduled_post').catch((error) => {
+    logger.warn('publish retry due marker failed; compatibility sweep will recover it', {
+      event: 'worker.mark_due_failed',
+      workspaceId,
+      postId,
+      err: error,
+    });
+  });
+}
 const MAX_RETRY_ATTEMPTS = 4;
 const RETRY_DELAYS_MS = [2 * 60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000, 30 * 60 * 1000];
 
@@ -847,6 +859,7 @@ export async function finalizeFailedPublish(
       publishLeaseExpiresAt: null,
       updatedAt: nowIso,
     });
+    await markScheduledRetryDue(workspaceId, claimed.postId, retryAt);
     return 'retried';
   }
 
@@ -906,6 +919,7 @@ async function recoverSingleStalePublish(
       publishLeaseExpiresAt: null,
       updatedAt: nowIso,
     });
+    await markScheduledRetryDue(workspaceId, postId, retryAt);
     return 'recovered';
   }
 
@@ -1224,6 +1238,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
             publishLeaseExpiresAt: null,
             updatedAt: nowIso,
           });
+          await markScheduledRetryDue(workspaceId, claimed.postId, retryAt);
           summary.retried++;
           summary.results.push({ postId: claimed.postId, outcome: 'retried', error: message });
         } else {

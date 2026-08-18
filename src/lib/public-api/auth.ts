@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { safeCompare } from '@/lib/crypto';
 import { RATE_LIMITS, checkRateLimits, type RateLimitConfig, type RateLimitResult } from '@/lib/rate-limit';
+import { getEffectiveSubscription, isActiveSubscription } from '@/lib/stripe/subscription';
 import { parseApiKey, hashSecret } from './keys';
 import type { PublicApiScope } from './scopes';
 import { incrementApiClientStat } from './usage';
@@ -169,6 +170,24 @@ export async function requirePublicApiContext(
   }
 
   const productId = requireApiClientProduct(data.productId);
+
+  // The key's workspace must actually be entitled to the public API.
+  // Key revocation only fires on Stripe cancellation events, which a
+  // never-subscribed workspace never receives — so without this check its
+  // keys would keep working forever. Resolved through the key owner's
+  // effective subscription so comped accounts (accountEntitlements) keep
+  // API access, and placed before the rate-limit/stat side effects so
+  // refused calls leave none.
+  const subscription = await getEffectiveSubscription({
+    uid: data.ownerUid || undefined,
+    workspaceId: parsed.workspaceId,
+  });
+  if (!isActiveSubscription(subscription)) {
+    throw new Response(JSON.stringify({
+      error: 'SUBSCRIPTION_REQUIRED',
+      message: 'This workspace has no active subscription. The public API requires an active plan.',
+    }), { status: 403, headers: { 'Content-Type': 'application/json' } });
+  }
 
   const rateLimitConfig = options.rateLimit || RATE_LIMITS.api;
   const pathname = new URL(req.url).pathname;

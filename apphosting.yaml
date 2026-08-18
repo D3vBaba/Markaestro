@@ -129,29 +129,66 @@ env:
     value: "202606"
     availability:
       - RUNTIME
+
+  # Dispatch only workspaces with due background work. Cloud Tasks provides
+  # independent retries; the five-minute legacy sweep and in-process fallback
+  # preserve compatibility during rollout.
+  - variable: WORKER_DUE_QUEUE_ENABLED
+    value: "1"
+    availability:
+      - RUNTIME
+  - variable: WORKER_CLOUD_TASKS_ENABLED
+    value: "1"
+    availability:
+      - RUNTIME
+  - variable: WORKER_TASKS_QUEUE
+    value: markaestro-workspace-ticks
+    availability:
+      - RUNTIME
+  - variable: WORKER_TASKS_LOCATION
+    value: us-central1
+    availability:
+      - RUNTIME
+  - variable: WORKER_TASKS_TARGET_ORIGIN
+    value: https://markaestro--markaestro-0226220726.us-central1.hosted.app
+    availability:
+      - RUNTIME
+  - variable: WORKER_LEGACY_SWEEP_INTERVAL_MS
+    value: "300000"
+    availability:
+      - RUNTIME
+  - variable: WORKER_GLOBAL_PHASE_INTERVAL_MS
+    value: "900000"
+    availability:
+      - RUNTIME
+  - variable: MAX_WEBHOOK_ENDPOINTS_PER_WORKSPACE
+    value: "25"
+    availability:
+      - RUNTIME
+
   # Stripe — price IDs are public identifiers (same as .env.local)
   - variable: STRIPE_PRICE_STARTER_MONTHLY
-    value: price_1TG1vdJUPkOCaFhqr4b27fQi
+    value: price_1TFpVrJUPkOCaFhqipVPE5Yj
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_STARTER_ANNUAL
-    value: price_1TG1veJUPkOCaFhqbxBRDHbM
+    value: price_1TFpVsJUPkOCaFhqwKHHhVxV
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_PRO_MONTHLY
-    value: price_1TG1veJUPkOCaFhqJ9daSoBl
+    value: price_1TKF0dJUPkOCaFhqF0Tx9L4h
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_PRO_ANNUAL
-    value: price_1TG1veJUPkOCaFhqOj9zP9g8
+    value: price_1TKF0eJUPkOCaFhquNkrVZ9x
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_BUSINESS_MONTHLY
-    value: price_1TG1vfJUPkOCaFhqoFXzBe2C
+    value: price_1TFpVtJUPkOCaFhqLRfEpTWH
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_BUSINESS_ANNUAL
-    value: price_1TG1vfJUPkOCaFhqdLdh15m8
+    value: price_1TKF0fJUPkOCaFhqfUPfC8n4
     availability:
       - RUNTIME
 

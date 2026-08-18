@@ -1,7 +1,10 @@
+import { NextResponse } from 'next/server';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
+import { getEffectiveSubscription } from '@/lib/stripe/subscription';
+import { hasFeature } from '@/lib/stripe/entitlements';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -79,6 +82,14 @@ export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'dashboard.read');
+
+    // Best-time recommendations are a Pro+ feature (mirrors the CSV-export
+    // gate in /api/analytics/export).
+    const sub = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
+    if (!hasFeature(sub, 'smartScheduling')) {
+      return NextResponse.json({ error: 'PLAN_UPGRADE_REQUIRED' }, { status: 402 });
+    }
+
     const url = new URL(req.url);
     const { channel } = querySchema.parse({ channel: url.searchParams.get('channel') || undefined });
 

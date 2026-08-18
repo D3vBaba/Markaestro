@@ -15,6 +15,8 @@ import {
   resolveConnectSchedule,
   validateConnectPostFanout,
 } from '@/lib/public-api/connect-compat';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -100,6 +102,16 @@ export async function POST(req: Request) {
     if (created.length === 0) {
       // Every destination failed — surface the first error with a 400.
       throw new Error(errors[0]?.error || 'VALIDATION_POST_CREATE_FAILED');
+    }
+
+    if (scheduledAt) {
+      await markWorkspaceDue(ctx.workspaceId, scheduledAt, 'scheduled_post').catch((error) => {
+        logger.warn('Connect scheduled post due marker failed; compatibility sweep will recover it', {
+          event: 'worker.mark_due_failed',
+          workspaceId: ctx.workspaceId,
+          err: error,
+        });
+      });
     }
 
     await incrementApiClientStat(ctx.workspaceId, ctx.clientId, 'post_create');

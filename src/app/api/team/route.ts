@@ -2,8 +2,8 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
-import { getEffectiveSubscription, effectiveTier } from '@/lib/stripe/subscription';
-import { PLANS } from '@/lib/stripe/plans';
+import { getEffectiveSubscription } from '@/lib/stripe/subscription';
+import { resolveLimits } from '@/lib/stripe/entitlements';
 import { sendResendEmail } from '@/lib/resend';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { brandWrap, escapeHtml, getEmailTranslator, strongTag, type AuthEmailPayload } from '@/lib/auth-emails';
@@ -138,9 +138,9 @@ export async function POST(req: Request) {
       requirePermission(ctx, 'team.roles.manage');
     }
 
+    // resolveLimits applies purchased seat add-ons on top of the base plan.
     const sub = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
-    const tier = effectiveTier(sub);
-    const limit = PLANS[tier].limits.teamMembers;
+    const limit = resolveLimits(sub).teamMembers;
 
     const inviteRef = adminDb
       .collection(`workspaces/${ctx.workspaceId}/pendingInvites`)

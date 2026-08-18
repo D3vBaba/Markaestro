@@ -18,6 +18,7 @@ import {
   saveMetaProductPageSelection,
   syncGrantedMetaProductConnections,
 } from '@/lib/oauth/meta-connection-sync';
+import { assertChannelCapacity, channelAdditionForGrant } from '@/lib/platform/channel-limits';
 
 export const runtime = 'nodejs';
 
@@ -522,6 +523,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       delete workspaceMetaData.pageName;
       delete workspaceMetaData.pageAccessTokenEncrypted;
       delete workspaceMetaData.pageSelectionRequired;
+      // Workspace-scoped credentials are their own bucket under the per-brand
+      // channel cap. Reauthorizing the same Facebook account rewrites its
+      // existing document, so it always passes.
+      await assertChannelCapacity({
+        uid: userId,
+        workspaceId,
+        additions: [channelAdditionForGrant('meta', workspaceMetaData)],
+      });
       await storeTokens(
         workspaceId,
         'meta',
@@ -554,6 +563,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       metaUngrantedPageNames = syncResult.ungrantedPageNames;
 
       if (productId && metaPages.length === 1 && metaPages[0].accessToken) {
+        // Linking a NEW Page to this brand counts against its channel cap;
+        // re-linking the already-connected Page passes untouched.
+        await assertChannelCapacity({
+          uid: userId,
+          workspaceId,
+          productId,
+          additions: [{ provider: 'meta', accountKey: metaPages[0].id }],
+        });
         await saveMetaProductPageSelection({
           workspaceId,
           productId,
@@ -570,6 +587,17 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         // product-level selection is necessary.
         metaNeedsPageSelection = false;
       } else if (productId && metaPages.length > 0) {
+        // The pending "pick a Page" document occupies a channel slot until a
+        // Page is chosen, so a brand already at its cap is told now rather
+        // than after walking through the Page picker. The pending document is
+        // bare (no destination), so it is identified by the authorizing
+        // account, never by any pageId the grant may have surfaced.
+        await assertChannelCapacity({
+          uid: userId,
+          workspaceId,
+          productId,
+          additions: [{ provider: 'meta', credentialKey: metaCredentialKey ?? null }],
+        });
         await markMetaProductPageSelectionRequired({
           workspaceId,
           productId,
@@ -582,6 +610,17 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         metaNeedsPageSelection = true;
       }
     } else {
+      // Enforce the per-brand channel cap before persisting the grant. The
+      // addition mirrors the document storeTokens will write (destination for
+      // Instagram/TikTok/Threads, authorizing credential for Pinterest and
+      // LinkedIn), so reauthorizing an existing connection is never blocked.
+      const connectionProvider = storageProvider || provider;
+      await assertChannelCapacity({
+        uid: userId,
+        workspaceId,
+        productId,
+        additions: [channelAdditionForGrant(connectionProvider, extraData)],
+      });
       await storeTokens(
         workspaceId,
         provider as OAuthProvider,
@@ -629,7 +668,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     return redirectThroughBridge(appUrl, '/settings', {
       oauth: 'error',
       provider: providerParam,
-      reason: /access_denied/i.test(msg) ? 'access_denied' : 'connection_failed',
+      reason: msg === 'CHANNEL_LIMIT_REACHED'
+        ? 'channel_limit'
+        : /access_denied/i.test(msg)
+          ? 'access_denied'
+          : 'connection_failed',
     });
   }
 }

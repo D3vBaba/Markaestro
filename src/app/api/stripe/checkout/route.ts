@@ -65,6 +65,19 @@ export async function POST(req: Request) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
     const existing = await getSubscriptionForWorkspace(workspaceId);
+
+    // The workspace already has a live subscription: never stack a second
+    // Stripe subscription on top of it. Send the owner to the billing portal
+    // instead (mirrors /api/stripe/portal), where plan changes go through
+    // Stripe with correct proration.
+    if (existing && ['active', 'trialing'].includes(existing.status) && existing.stripeCustomerId) {
+      const portal = await stripe.billingPortal.sessions.create({
+        customer: existing.stripeCustomerId,
+        return_url: `${appUrl}/settings`,
+      });
+      return NextResponse.json({ url: portal.url });
+    }
+
     let customerId = existing?.stripeCustomerId;
 
     if (!customerId) {
@@ -79,13 +92,29 @@ export async function POST(req: Request) {
       customerId = customer.id;
     }
 
+    // One trial per customer, ever. A trial is granted only when the
+    // workspace has never had a subscription document (any status — a
+    // canceled record still counts as history) AND the Stripe customer has
+    // no subscription history either. The second check matters because
+    // customers are reused across re-signups by email, so a fresh workspace
+    // can still be attached to a customer that already burned its trial.
+    let trialEligible = !existing;
+    if (trialEligible) {
+      const priorSubscriptions = await stripe.subscriptions.list({
+        customer: customerId,
+        status: 'all',
+        limit: 1,
+      });
+      trialEligible = priorSubscriptions.data.length === 0;
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       subscription_data: {
-        trial_period_days: TRIAL_DAYS,
+        ...(trialEligible ? { trial_period_days: TRIAL_DAYS } : {}),
         // workspaceId is the primary billing key — the webhook resolves
         // subscriptions back to Firestore via this field first, falling
         // back to the customer mapping if absent.

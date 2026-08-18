@@ -4,7 +4,7 @@
     "title": "パブリック投稿API",
     "intro1": "メディアをアップロードし、投稿を作成して、Facebook、Instagram、TikTok、LinkedIn、Threads、Pinterestに公開できます。すべてワークスペースAPIキーを通じて特定のプロダクトに紐付けられます。統合には<connectLink>Connect API</connectLink>を推奨します — ほとんどのスケジューリングツールがそのまま利用できる、小規模でフラットな<code>/api/connect/v1</code>のサーフェスです。",
     "intro2": "明示的な公開、ジョブ実行のポーリング、署名付きWebhook、バッチ処理、チャネルごとの設定など、より高度な制御が必要な場合は？下部にある高度な<code>/api/public/v1</code> APIがすべてを公開しています。どちらも同じ認証、プロダクト、投稿パイプラインを共有します。バージョン管理されたこれらのパブリックルートのみを使用してください（内部アプリのルートはFirebaseユーザー認証が必要で、パブリックな契約の対象ではありません）。",
-    "intro3": "<strong>Facebook、Instagram、TikTokは、API経由でもマニュアルファーストです。</strong> これらのチャネルの投稿は、デフォルトで<code>manual_reminder</code>配信になります：Markaestroはこれらに対してプラットフォームのAPIを呼び出すことはありません。公開処理により投稿はワークスペースの「投稿待ち」キューに移動し、そこでオーナーがメディアをダウンロードし、ネイティブに投稿して確認します — そのため、投稿はまるで手作業で作成されたかのように表示されます。作成時に<code>deliveryMode: \"direct_publish\"</code>を渡すことで、代わりに公式API経由での公開を選択できます（TikTokの場合、これは受信箱への引き渡しを意味し、パブリックなDirect Postになることは決してありません）。LinkedIn、Threads、Pinterestはデフォルトでプログラムによる公開が行われます。",
+    "intro3": "<strong>Facebook、Instagram、TikTokは、API経由でもマニュアルファーストです。</strong> これらのチャネルはデフォルトで<code>manual_reminder</code>を使い、MarkaestroはプラットフォームAPIを呼ばず「投稿待ち」キューへ移動します。公式API公開を選ぶには<code>deliveryMode: \"direct_publish\"</code>を渡します。TikTokは通常受信箱への引き渡しを使いますが、<code>settings.postMode</code>が<code>direct_post</code>の場合はDirect Postを要求します。LinkedIn、Threads、Pinterestはデフォルトでプログラムによる公開が行われます。",
     "intro4": "ワークスペースは複数のプロダクトを持つことができます。各APIキーは作成時に1つのプロダクトに紐付けられるため、呼び出しは自動的にそのプロダクトを対象とし、他のプロダクトへのリクエストは拒否されます。",
     "agentCallout": {
       "title": "AIエージェントを構築していますか？",
@@ -35,7 +35,7 @@
   "highlightCards": [
     { "title": "MetaとTikTokはマニュアルファースト", "description": "Facebook、Instagram、TikTokの投稿はデフォルトで手動の「投稿待ち」キューに入ります — プラットフォームAPIの呼び出しはなく、ワークスペースのオーナーがネイティブに投稿して確認します。deliveryModeで投稿ごとにAPI公開を選択できます。" },
     { "title": "Instagramログインに対応", "description": "Facebookページが連携されていない場合でも、ブランドは独立したInstagramプロフェッショナルアカウントを利用できます。" },
-    { "title": "TikTokのオプトインは受信箱への引き渡しを使用", "description": "API公開を選択したTikTok投稿は、最終的なキャプション、プライバシー設定、投稿のためにクリエイターのTikTok受信箱に送信されます — パブリックなDirect Postになることは決してありません。" },
+    { "title": "TikTokは2つのオプトイン経路に対応", "description": "API公開はデフォルトで受信箱への引き渡しを使います。TikTokアプリが承認済みなら、プライバシーレベルとともにsettings.postModeをdirect_postに設定してDirect Postを要求できます。" },
     { "title": "設計上、非同期", "description": "すべての公開処理は実行IDを返します。同期的な完了を前提とせず、実行状況をポーリングするか、署名付きWebhookを購読してください。" }
   ],
   "endpointGroups": [
@@ -51,7 +51,10 @@
       "title": "メディア",
       "description": "投稿を作成する前に、画像や動画をMarkaestro管理下のストレージにアップロードします。",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media", "note": "マルチパートアップロード。アセットIDとホスト先URLを返します。" }
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "ファイル名、Content-Type、正確なサイズから15分間有効な直接アップロードセッションを作成します。" },
+        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "返されたContent-Typeでストレージへ直接アップロードします。APIキーは送信しません。" },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "種類とサイズを検証し、クォータを適用してメディアアセットを返します。" },
+        { "method": "POST", "path": "/api/public/v1/media", "note": "互換用マルチパートアップロード。アセットIDとホスト先URLを返します。" }
       ]
     },
     {
@@ -70,7 +73,7 @@
       "description": "ポーリングまたは署名付きWebhook配信で非同期処理を追跡します。",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "queued、running、succeeded、failedのいずれかを返します。" },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "APIキーを使用してWebhook配信先を登録します。" },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Webhook配信先を登録します。ワークスペースごとに有効なエンドポイントは最大25件です。" },
         { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "そのAPIキーのスコープで登録済みのWebhook配信先を一覧表示します。" },
         { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Webhook配信先を無効化します。" }
       ]

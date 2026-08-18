@@ -29,14 +29,17 @@ changes are deliberately documented but not applied by this code audit.
 | TikTok polling | Each fast tick enumerated all workspaces and searched their posts | Top-level due queue, at most 50 polls/tick with concurrency 5 and 1m→15m / 15m→24h backoff. A ten-slot legacy migration scan ends 2026-08-25; query failure retains the fallback |
 | Public publish/webhook queues | Broad status scans and no claim lease for deliveries | Due-time indexes, limits of 20 publish runs/25 deliveries per workspace, delivery claim leases, concurrency 5, and a 10-second outbound webhook timeout |
 | Worker overlap | Scheduler overlap could execute the same global tick twice | Transactional expiring worker leases on both worker endpoints |
-| Browser media upload | Up to 250 MB buffered inside a 1 GiB, concurrency-80 application instance | Direct-to-Storage create/finalize flow implemented behind a disabled flag; exact type/size verification, quota refund, retry recovery, staging lifecycle, and TTL sessions. Existing multipart remains the default |
+| Browser media upload | Up to 250 MB buffered inside a 1 GiB, concurrency-80 application instance | Direct-to-Storage create/finalize flow is enabled; exact type/size verification, quota refund, retry recovery, staging lifecycle, and TTL sessions. Existing multipart remains a fallback |
+| Public API media upload | Multipart requests could buffer up to 250 MB in the application runtime | Direct-to-Storage upload sessions are the recommended path; exact metadata validation and retry-safe finalization. Multipart remains available for existing integrations |
+| Main background worker | Every minute performed work proportional to all workspaces, even when idle | Writers maintain a due-workspace queue; Cloud Tasks executes due work independently. A five-minute legacy scan and in-process fallback protect compatibility |
+| Webhook endpoints | An account could create an unbounded fan-out for every event | New endpoint creation is capped at 25 active endpoints per workspace; existing endpoints are unaffected |
 | Ephemeral data | Several retry/lease/session collections could grow indefinitely | Writers use Firestore timestamps and the required TTL collection groups are documented |
 
 ## Compatibility protections
 
 - Existing JSON fields and endpoints remain; cursor fields are additive.
-- The established multipart upload endpoint is still enabled and remains the
-  default while direct upload CORS/IAM is prepared.
+- The established multipart upload endpoints remain enabled. New browser and
+  Public API integrations use direct upload sessions.
 - List queries fall back to the previous compatible read/sort path when a new
   composite index is not yet available. Deploy indexes before application code
   so this fallback is brief on large collections.
@@ -57,33 +60,27 @@ serving propagation; the validator now reports **43 passing and 0 missing**.
 Future index changes should follow the same order: deploy indexes, wait for
 `npm run validate:queries` to pass, then deploy application code.
 
-### P1 — add direct uploads to the public API
+### P1 — add direct uploads to the public API (completed)
 
 Browser direct uploads are enabled in the follow-up release after applying
 `storage.cors.json`, `storage.lifecycle.json`, and verifying the runtime service
 account's blob-signing permission. The multipart route remains available to old
 clients and as an operational rollback path.
 
-The public `/api/public/v1/media` route still accepts a compatibility multipart
-upload up to 250 MB and buffers it in memory. Add a public-API upload-session
-surface using the same Storage staging/finalize design, retain multipart for
-old clients, and encourage SDKs to migrate. Until then, concurrent large public
-uploads remain the clearest memory-exhaustion risk under the current 1 GiB /
-concurrency-80 runtime configuration.
+The public API now provides upload-session create/finalize routes using the
+same staging, exact metadata verification, quota, retry recovery, Storage
+lifecycle, and Firestore TTL controls as the browser. The old multipart route
+remains available so existing integrations do not break.
 
-### P1/P2 — replace the all-workspace dispatcher
+### P1/P2 — replace the all-workspace dispatcher (completed with safety sweep)
 
-`/api/worker/tick` and OAuth refresh still enumerate every workspace; each
-workspace tick also performs several empty due queries. TikTok polling no
-longer does this in steady state, but the main worker's cost remains
-`O(workspaces + products + connections)` even when most tenants are idle.
-
-Use the existing `/api/worker/workspace/[workspaceId]` endpoint as a Cloud Tasks
-target before the dispatcher approaches its request deadline. Cloud Tasks
-provides isolated retries and horizontal execution. At the next scale stage,
-have writers maintain a `worker_due_workspaces` or workload-specific due queue
-so the dispatcher stops scanning idle workspaces entirely. The detailed rollout
-is in `docs/operations/worker-fanout.md`.
+The main worker now claims `worker_due_workspaces` records and dispatches them
+to the existing per-workspace endpoint through Cloud Tasks. Writers cover
+scheduled posts, publish runs, webhook deliveries/retries, analytics polling,
+and daily jobs. Cloud Tasks failure falls back to the old in-process execution.
+A five-minute all-workspace sweep remains temporarily to recover legacy or
+missed markers; extend and eventually remove it only after production evidence
+shows no missed work. OAuth maintenance runs every 15 minutes.
 
 ### P2 — move high-rate limiting and counters out of single Firestore hot docs
 
@@ -102,14 +99,13 @@ safe for current data growth, not the cheapest endpoint at high request volume.
 Maintain a workspace/day/channel rollup on post transitions when dashboard
 traffic justifies replacing those aggregation RPCs.
 
-### P2 — cap webhook endpoint count and paginate administration lists
+### P2 — cap webhook endpoint count (completed); paginate administration lists later
 
-Delivery processing is bounded, but one event still reads all active webhook
-endpoints and creates one delivery per matching endpoint. Define a plan-based
-endpoint maximum before customers can create hundreds. Settings-only API-client,
-team, invite, and webhook administration lists are also unpaginated; they are
-not hot paths today but should receive cursor pagination before enterprise-size
-workspaces.
+New webhook endpoint creation is capped at 25 active endpoints per workspace,
+bounding per-event delivery fan-out without removing any existing endpoint.
+Settings-only API-client, team, invite, and webhook administration lists remain
+unpaginated by design for now: they are cold, naturally small paths and do not
+justify added reads or UI complexity before enterprise-size workspaces.
 
 ## Deployment sequence
 
@@ -119,8 +115,8 @@ workspaces.
 3. Apply Storage CORS/lifecycle, verify signing IAM, then enable direct browser
    uploads. **Completed in this release.**
 4. Deploy and smoke-test existing app and public API flows.
-5. Monitor and size the main worker, then introduce Cloud Tasks/due-workspace
-   dispatch before its duration becomes a user-facing publish delay.
+5. Monitor Cloud Tasks queue age and due-marker coverage. Keep the five-minute
+   compatibility sweep until a full production scheduling cycle is clean.
 
 ## Verification performed
 

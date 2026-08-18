@@ -69,6 +69,9 @@ const nextConfig: NextConfig = {
       ? [new URL(APP_URL).host]
       : [],
   transpilePackages: ['firebase-admin'],
+  // gRPC transport (google-gax) uses dynamic requires Turbopack can't
+  // statically bundle; keep it a runtime dependency of the standalone output.
+  serverExternalPackages: ['@google-cloud/tasks'],
   output: 'standalone',
   outputFileTracingRoot: __dirname,
   outputFileTracingIncludes: {

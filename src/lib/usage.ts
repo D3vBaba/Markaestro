@@ -1,9 +1,14 @@
 import { adminDb } from '@/lib/firebase-admin';
-import { getEffectiveSubscription } from '@/lib/stripe/subscription';
+import { getEffectiveSubscription, effectiveTier } from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
-import type { PlanTier } from '@/lib/stripe/plans';
+import type { PlanLimits } from '@/lib/stripe/plans';
 
-export type UsageType = 'mediaUploads';
+export type UsageType = 'mediaUploads' | 'posts';
+
+const LIMIT_KEY: Record<UsageType, keyof PlanLimits> = {
+  mediaUploads: 'mediaUploads',
+  posts: 'postsPerMonth',
+};
 
 export type UsageCheckResult = {
   allowed: boolean;
@@ -25,17 +30,12 @@ export async function checkAndIncrementUsage(
   type: UsageType,
   workspaceId?: string,
 ): Promise<UsageCheckResult> {
+  // Workspaces without an active subscription resolve to the 'free' tier and
+  // meter against its limits rather than being blocked outright.
   const sub = await getEffectiveSubscription(uid, workspaceId);
+  const plan = PLANS[effectiveTier(sub)];
 
-  if (!sub || !['active', 'trialing'].includes(sub.status)) {
-    return { allowed: false, current: 0, limit: 0, reason: 'subscription_required' };
-  }
-
-  const tier = sub.tier as PlanTier;
-  const plan = PLANS[tier];
-  if (!plan) return { allowed: false, current: 0, limit: 0, reason: 'subscription_required' };
-
-  const limit = plan.limits[type];
+  const limit = plan.limits[LIMIT_KEY[type]];
 
   if (limit === 0) {
     return { allowed: false, current: 0, limit: 0, reason: 'quota_exceeded' };
@@ -99,11 +99,12 @@ export async function refundUsage(
 export async function getUsage(
   uid: string,
   workspaceId?: string,
-): Promise<{ mediaUploads: number }> {
+): Promise<{ mediaUploads: number; posts: number }> {
   const month = currentMonth();
   const snap = await adminDb.collection('usage').doc(usageScopeId(uid, workspaceId)).get();
   const data = snap.data() ?? {};
   return {
     mediaUploads: (data[`${month}_mediaUploads`] as number) ?? 0,
+    posts: (data[`${month}_posts`] as number) ?? 0,
   };
 }

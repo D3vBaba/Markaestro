@@ -44,19 +44,25 @@ describe('effectiveTier', () => {
     expect(effectiveTier(record({ tier: 'pro', status: 'trialing' }))).toBe('pro');
   });
 
-  it('downgrades lapsed subscriptions to starter regardless of stored tier', () => {
-    expect(effectiveTier(record({ tier: 'business', status: 'canceled' }))).toBe('starter');
-    expect(effectiveTier(record({ tier: 'pro', status: 'past_due' }))).toBe('starter');
+  it('downgrades lapsed subscriptions to free regardless of stored tier', () => {
+    expect(effectiveTier(record({ tier: 'business', status: 'canceled' }))).toBe('free');
+    expect(effectiveTier(record({ tier: 'pro', status: 'past_due' }))).toBe('free');
   });
 
-  it('treats unrecognized tiers as starter', () => {
-    expect(effectiveTier(record({ tier: 'unknown' }))).toBe('starter');
-    expect(effectiveTier(record({ tier: '' }))).toBe('starter');
+  it('treats unrecognized tiers as free', () => {
+    expect(effectiveTier(record({ tier: 'unknown' }))).toBe('free');
+    expect(effectiveTier(record({ tier: '' }))).toBe('free');
   });
 
-  it('returns starter when there is no record', () => {
-    expect(effectiveTier(null)).toBe('starter');
-    expect(effectiveTier(undefined)).toBe('starter');
+  it('returns free when there is no record', () => {
+    expect(effectiveTier(null)).toBe('free');
+    expect(effectiveTier(undefined)).toBe('free');
+  });
+
+  it('never entitles the free tier through an active record claiming it', () => {
+    // 'free' is not purchasable; a record that somehow stores it still
+    // resolves to free rather than crashing or granting anything higher.
+    expect(effectiveTier(record({ tier: 'free' }))).toBe('free');
   });
 });
 
@@ -70,6 +76,19 @@ describe('pickEffectiveSubscription', () => {
     const bizAccount = record({ tier: 'business' });
     const starterWs = record({ tier: 'starter' });
     expect(pickEffectiveSubscription(bizAccount, starterWs)).toBe(bizAccount);
+  });
+
+  it('ranks every paid tier above free/unrecognized records', () => {
+    // tierRank ordering: business > pro > starter > (free / unknown).
+    const starter = record({ tier: 'starter' });
+    const freeish = record({ tier: 'free' });
+    const unknown = record({ tier: 'unknown' });
+    expect(pickEffectiveSubscription(freeish, starter)).toBe(starter);
+    expect(pickEffectiveSubscription(starter, unknown)).toBe(starter);
+    const pro = record({ tier: 'pro' });
+    const business = record({ tier: 'business' });
+    expect(pickEffectiveSubscription(starter, pro)).toBe(pro);
+    expect(pickEffectiveSubscription(business, pro)).toBe(business);
   });
 
   it('workspace wins ties between equal active tiers', () => {
@@ -101,7 +120,7 @@ describe('pickEffectiveSubscription', () => {
   it('lapsed records surface for history but entitle nothing', () => {
     const surfaced = pickEffectiveSubscription(record({ tier: 'business', status: 'canceled' }), null);
     expect(surfaced).not.toBeNull();
-    expect(effectiveTier(surfaced)).toBe('starter');
+    expect(effectiveTier(surfaced)).toBe('free');
   });
 });
 

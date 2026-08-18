@@ -4,7 +4,7 @@
     "title": "API pública de publicación",
     "intro1": "Sube contenido, crea publicaciones y publica en Facebook, Instagram, TikTok, LinkedIn, Threads y Pinterest, todo limitado a un producto mediante una clave de API del espacio de trabajo. La forma recomendada de integrarse es la <connectLink>API Connect</connectLink> — una superficie plana en<code>/api/connect/v1</code> que la mayoría de herramientas de programación pueden usar tal cual.",
     "intro2": "¿Necesitas control total — publicación explícita, consulta de ejecuciones, webhooks firmados, procesamiento por lotes, configuración por canal? La API avanzada <code>/api/public/v1</code>, más abajo, expone todo eso. Ambas comparten la misma autenticación, productos y flujo de publicación; usa únicamente estas rutas públicas versionadas (las rutas internas de la aplicación requieren autenticación de usuario de Firebase y no forman parte del contrato público).",
-    "intro3": "<strong>Facebook, Instagram y TikTok son de publicación manual en la API por defecto.</strong> Las publicaciones para esos canales usan por defecto la entrega <code>manual_reminder</code>: Markaestro nunca llama a la API de la plataforma para ellas. Publicar mueve la publicación a la cola «Por publicar» del espacio de trabajo, donde el propietario descarga el contenido, lo publica de forma nativa y lo confirma — así las publicaciones aparecen exactamente como si se hubieran creado a mano. Envía <code>deliveryMode: \"direct_publish\"</code> al crearla para que la publicación use la API oficial (en TikTok eso significa el traspaso a la bandeja de entrada, nunca la Publicación Directa pública). LinkedIn, Threads y Pinterest publican de forma programática por defecto.",
+    "intro3": "<strong>Facebook, Instagram y TikTok son de publicación manual en la API por defecto.</strong> Las publicaciones para esos canales usan por defecto <code>manual_reminder</code>: Markaestro no llama a la API de la plataforma y mueve la publicación a la cola «Por publicar». Envía <code>deliveryMode: \"direct_publish\"</code> para usar la API oficial. En TikTok se usa por defecto el traspaso a la bandeja de entrada, salvo que <code>settings.postMode</code> sea <code>direct_post</code>. LinkedIn, Threads y Pinterest publican de forma programática por defecto.",
     "intro4": "Los espacios de trabajo pueden tener varios productos. Cada clave de API está limitada a un producto al crearla, así que las llamadas apuntan automáticamente a ese producto y las solicitudes para cualquier otro producto son rechazadas.",
     "agentCallout": {
       "title": "¿Estás creando un agente de IA?",
@@ -35,7 +35,7 @@
   "highlightCards": [
     { "title": "Meta y TikTok son de publicación manual", "description": "Las publicaciones de Facebook, Instagram y TikTok usan por defecto la cola manual «Por publicar» — sin llamada a la API de la plataforma, el propietario del espacio de trabajo publica de forma nativa y confirma. Puedes optar por la publicación vía API en cada publicación con deliveryMode." },
     { "title": "Compatible con Instagram Login", "description": "Las marcas pueden exponer cuentas profesionales de Instagram independientes incluso sin tener una página de Facebook vinculada." },
-    { "title": "TikTok usa el traspaso a la bandeja de entrada al optar por la API", "description": "Una publicación de TikTok que opta por la publicación vía API se envía a la bandeja de entrada del creador en TikTok para el texto final, la privacidad y la publicación — nunca Publicación Directa pública." },
+    { "title": "TikTok admite dos rutas opcionales", "description": "La publicación vía API usa la bandeja de entrada por defecto. Define settings.postMode como direct_post con un nivel de privacidad para solicitar Publicación Directa si tu app de TikTok está aprobada." },
     { "title": "Asíncrona por diseño", "description": "Cada publicación devuelve un id de ejecución. Consulta las ejecuciones o suscríbete a webhooks firmados en lugar de asumir una finalización síncrona." }
   ],
   "endpointGroups": [
@@ -51,7 +51,10 @@
       "title": "Contenido",
       "description": "Sube imágenes o vídeos al almacenamiento gestionado por Markaestro antes de crear publicaciones.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media", "note": "Subida multipart. Devuelve un id de activo y una URL alojada." }
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Crea una sesión de subida directa de 15 minutos con nombre, tipo y tamaño exacto." },
+        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Sube los bytes directamente al almacenamiento con el Content-Type devuelto; no envíes la clave API." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifica tipo y tamaño, aplica la cuota y devuelve el activo multimedia." },
+        { "method": "POST", "path": "/api/public/v1/media", "note": "Subida multipart de compatibilidad. Devuelve un id de activo y una URL alojada." }
       ]
     },
     {
@@ -70,7 +73,7 @@
       "description": "Haz seguimiento del trabajo asíncrono mediante consultas periódicas o entrega de webhooks firmados.",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "Devuelve queued, running, succeeded o failed." },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registra un destino de webhook usando una clave de API." },
+        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registra un destino de webhook, hasta 25 endpoints activos por espacio de trabajo." },
         { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "Lista los destinos de webhook registrados para el alcance de esa clave de API." },
         { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Desactiva un destino de webhook." }
       ]

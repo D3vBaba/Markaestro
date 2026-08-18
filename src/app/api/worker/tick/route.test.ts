@@ -7,10 +7,25 @@ const getAllDocsMock = vi.fn();
 const processWorkspaceTickMock = vi.fn();
 const acquireWorkerLeaseMock = vi.fn();
 const releaseWorkerLeaseMock = vi.fn();
+const claimDueWorkspacesMock = vi.fn();
+const claimPeriodicWorkerPhaseMock = vi.fn();
+const cloudTasksDispatchEnabledMock = vi.fn();
+const completeWorkspaceDueMock = vi.fn();
+const enqueueWorkspaceTaskMock = vi.fn();
+const releaseWorkspaceDueClaimMock = vi.fn();
 
 vi.mock('@/lib/workers/lease', () => ({
   acquireWorkerLease: acquireWorkerLeaseMock,
   releaseWorkerLease: releaseWorkerLeaseMock,
+}));
+
+vi.mock('@/lib/workers/due-workspaces', () => ({
+  claimDueWorkspaces: claimDueWorkspacesMock,
+  claimPeriodicWorkerPhase: claimPeriodicWorkerPhaseMock,
+  cloudTasksDispatchEnabled: cloudTasksDispatchEnabledMock,
+  completeWorkspaceDue: completeWorkspaceDueMock,
+  enqueueWorkspaceTask: enqueueWorkspaceTaskMock,
+  releaseWorkspaceDueClaim: releaseWorkspaceDueClaimMock,
 }));
 
 vi.mock('@/lib/social/tiktok-publish-poll-worker', () => ({
@@ -68,6 +83,7 @@ describe('POST /api/worker/tick', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv('WORKER_SECRET', 'test-worker-secret');
+    vi.stubEnv('WORKER_DUE_QUEUE_ENABLED', '0');
     processTokenRefreshMock.mockResolvedValue({
       refreshed: 0,
       failed: 0,
@@ -88,6 +104,12 @@ describe('POST /api/worker/tick', () => {
     });
     acquireWorkerLeaseMock.mockResolvedValue('lease_1');
     releaseWorkerLeaseMock.mockResolvedValue(undefined);
+    claimDueWorkspacesMock.mockResolvedValue([]);
+    claimPeriodicWorkerPhaseMock.mockResolvedValue(false);
+    cloudTasksDispatchEnabledMock.mockReturnValue(false);
+    completeWorkspaceDueMock.mockResolvedValue(undefined);
+    enqueueWorkspaceTaskMock.mockResolvedValue('task_1');
+    releaseWorkspaceDueClaimMock.mockResolvedValue(undefined);
   });
 
   it('does not run the TikTok publish poller (owned by /api/worker/tiktok-poll)', async () => {
@@ -100,5 +122,65 @@ describe('POST /api/worker/tick', () => {
     expect(body.tiktokPublishes).toBeUndefined();
     expect(processWorkspaceTickMock).toHaveBeenCalledWith('ws_1');
     expect(releaseWorkerLeaseMock).toHaveBeenCalledWith('tick', 'lease_1');
+  });
+
+  it('claims only due workspaces between compatibility sweeps', async () => {
+    vi.stubEnv('WORKER_DUE_QUEUE_ENABLED', '1');
+    const dueClaim = {
+      workspaceId: 'ws_due',
+      version: 4,
+      leaseId: 'due_lease',
+      source: 'due' as const,
+    };
+    claimDueWorkspacesMock.mockResolvedValue([dueClaim]);
+    claimPeriodicWorkerPhaseMock.mockImplementation(async (name: string) => name === 'global');
+    processWorkspaceTickMock.mockResolvedValue({
+      workspaceId: 'ws_due',
+      durationMs: 10,
+      publicPublishRuns: [],
+      webhookDeliveries: [],
+      jobsScanned: 0,
+      jobsProcessed: 0,
+      jobResults: [],
+      errors: [],
+    });
+
+    const { POST } = await import('./route');
+    const response = await POST(tickRequest('test-worker-secret'));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(getAllDocsMock).not.toHaveBeenCalled();
+    expect(processWorkspaceTickMock).toHaveBeenCalledWith('ws_due');
+    expect(completeWorkspaceDueMock).toHaveBeenCalledWith(dueClaim);
+    expect(body).toMatchObject({
+      dueWorkspaces: 1,
+      legacySweep: false,
+      dispatched: 0,
+      processedInProcess: 1,
+    });
+  });
+
+  it('dispatches due work through Cloud Tasks when configured', async () => {
+    vi.stubEnv('WORKER_DUE_QUEUE_ENABLED', '1');
+    const dueClaim = {
+      workspaceId: 'ws_due',
+      version: 1,
+      leaseId: 'due_lease',
+      source: 'due' as const,
+    };
+    claimDueWorkspacesMock.mockResolvedValue([dueClaim]);
+    claimPeriodicWorkerPhaseMock.mockResolvedValue(false);
+    cloudTasksDispatchEnabledMock.mockReturnValue(true);
+
+    const { POST } = await import('./route');
+    const response = await POST(tickRequest('test-worker-secret'));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(enqueueWorkspaceTaskMock).toHaveBeenCalledWith(dueClaim);
+    expect(processWorkspaceTickMock).not.toHaveBeenCalled();
+    expect(completeWorkspaceDueMock).not.toHaveBeenCalled();
+    expect(body).toMatchObject({ dispatched: 1, processedInProcess: 0 });
   });
 });

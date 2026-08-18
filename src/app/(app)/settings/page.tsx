@@ -600,15 +600,19 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
   const { data: usageData, loading } = useApiQuery<{
     usage: {
       mediaUploads: UsageMetric;
-      channels: UsageMetric;
-      products: { current: number };
+      posts: UsageMetric;
+      brands: UsageMetric;
+      teamMembers: UsageMetric;
+      workspaces: UsageMetric;
     };
-    tier: string;
+    tier: PlanTier;
     plan: string;
   }>("/api/usage");
   const usage = usageData?.usage ?? null;
 
-  const tier = (status?.tier ?? 'starter') as PlanTier;
+  // The server's tier is the effective one (workspace sub + account
+  // entitlement, lapsed subs resolved to free); prefer it over client state.
+  const tier = (usageData?.tier ?? status?.tier ?? 'free') as PlanTier;
   const plan = PLANS[tier];
 
   if (loading) {
@@ -656,6 +660,14 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
+          {/* Brands (products vs plan limit, add-on packs included) */}
+          <UsageMeter
+            label={t("brandsRegistered")}
+            current={usage?.brands.current ?? 0}
+            limit={usage?.brands.limit ?? plan.limits.brands}
+            locale={locale}
+          />
+
           {/* Media uploads */}
           <UsageMeter
             label={t("mediaUploads")}
@@ -664,21 +676,15 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
             locale={locale}
           />
 
-          {/* Channels */}
-          <UsageMeter
-            label={t("connectedChannels")}
-            current={usage?.channels.current ?? 0}
-            limit={usage?.channels.limit ?? plan.limits.channels}
-            locale={locale}
-          />
-
-          {/* Products */}
-          <div className="flex items-center justify-between pt-1">
-            <p className="text-sm font-medium">{t("brandsRegistered")}</p>
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {usage?.products.current ?? 0}
-            </p>
-          </div>
+          {/* Posts — metered on the free tier only; paid tiers are unlimited */}
+          {(usage?.posts.limit ?? plan.limits.postsPerMonth) !== -1 && (
+            <UsageMeter
+              label={t("posts")}
+              current={usage?.posts.current ?? 0}
+              limit={usage?.posts.limit ?? plan.limits.postsPerMonth}
+              locale={locale}
+            />
+          )}
         </CardContent>
       </Card>
 
