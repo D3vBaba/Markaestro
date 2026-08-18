@@ -70,7 +70,7 @@
     "toasts": {
       "connected": "{provider} verbonden",
       "declinedPermission": "{provider}: je hebt het toestemmingsverzoek geweigerd — tik op Verbinden om het opnieuw te proberen.",
-      "connectionFailed": "Verbinding met {provider} mislukt: {message}",
+      "connectionFailed": "Verbinding met {provider} mislukt. Probeer het opnieuw.",
       "unknownError": "Onbekende fout",
       "almostDone": "Bijna klaar — kies een Facebook-pagina in Kanalen om de Meta-instelling af te ronden",
       "deleteFailed": "Merk verwijderen mislukt",

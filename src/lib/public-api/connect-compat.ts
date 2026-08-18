@@ -20,13 +20,38 @@
 import crypto from 'crypto';
 import type { SocialChannel } from '@/lib/schemas';
 import {
-  listPublicProducts,
-  listPublicProductDestinations,
+  listPublicProductCatalog,
   resolvePublicPostDestination,
 } from './products';
 
 // Only these channels have working publish destinations in Markaestro today.
 const CONNECT_CHANNELS: SocialChannel[] = ['facebook', 'instagram', 'tiktok', 'linkedin'];
+export const CONNECT_MAX_DESTINATIONS_PER_REQUEST = 25;
+export const CONNECT_MAX_MEDIA_ASSETS_PER_POST = 35;
+const CONNECT_MAX_CAPTION_LENGTH = 4_000;
+const CONNECT_MAX_IDENTIFIER_LENGTH = 2_000;
+
+export function validateConnectPostFanout(input: {
+  caption: string;
+  mediaAssetIds: string[];
+  accounts: string[];
+}): void {
+  if (input.caption.length > CONNECT_MAX_CAPTION_LENGTH) {
+    throw new Error('VALIDATION_CAPTION_TOO_LONG');
+  }
+  if (input.mediaAssetIds.length > CONNECT_MAX_MEDIA_ASSETS_PER_POST) {
+    throw new Error('VALIDATION_TOO_MANY_MEDIA_ASSETS');
+  }
+  if (input.accounts.length > CONNECT_MAX_DESTINATIONS_PER_REQUEST) {
+    throw new Error('VALIDATION_TOO_MANY_DESTINATIONS');
+  }
+  if (
+    input.mediaAssetIds.some((id) => id.length > CONNECT_MAX_IDENTIFIER_LENGTH) ||
+    input.accounts.some((account) => account.length > CONNECT_MAX_IDENTIFIER_LENGTH)
+  ) {
+    throw new Error('VALIDATION_IDENTIFIER_TOO_LONG');
+  }
+}
 
 export type ConnectAccount = {
   // Opaque id a client round-trips as a "social account". Encodes the
@@ -96,10 +121,8 @@ export async function listConnectedAccounts(
   const byToken = new Map<string, ConnectAccount>();
 
   // Product-scoped destinations (the primary Markaestro model).
-  const products = await listPublicProducts(workspaceId);
-  for (const product of products) {
-    if (boundProductId && product.id !== boundProductId) continue;
-    const destinations = await listPublicProductDestinations(workspaceId, product.id);
+  const catalog = await listPublicProductCatalog(workspaceId, boundProductId);
+  for (const { product, destinations } of catalog) {
     for (const d of destinations) {
       const token = encodeAccountId(product.id, d.id);
       byToken.set(token, {
@@ -143,16 +166,19 @@ export async function listConnectProducts(
   workspaceId: string,
   boundProductId?: string,
 ): Promise<ConnectProduct[]> {
-  const accounts = await listConnectedAccounts(workspaceId, boundProductId);
-  const products = await listPublicProducts(workspaceId);
-  return products
-    .filter((p) => !boundProductId || p.id === boundProductId)
-    .map((p) => ({
-      id: p.id,
-      name: p.name,
-      channels: p.availableChannels,
-      accounts: accounts.filter((a) => a.product_id === p.id),
-    }));
+  const catalog = await listPublicProductCatalog(workspaceId, boundProductId);
+  return catalog.map(({ product, destinations }) => ({
+    id: product.id,
+    name: product.name,
+    channels: product.availableChannels,
+    accounts: destinations.map((destination) => ({
+      id: encodeAccountId(product.id, destination.id),
+      product_id: product.id,
+      product: product.name,
+      platform: destination.channel,
+      username: destination.username || destination.displayName || destination.channel,
+    })),
+  }));
 }
 
 // ── Post status mapping ──────────────────────────────────────────────────────
@@ -181,9 +207,11 @@ export function mapPostStatus(status: unknown): string {
 // The PUT handler verifies it — no API key travels with the raw byte upload,
 // exactly like an S3-style presigned URL.
 type UploadTokenPayload = {
+  v?: 2;
   ws: string;
   assetId: string;
   mime: string;
+  clientId?: string;
   exp: number; // epoch ms
 };
 
@@ -211,10 +239,10 @@ function hmac(data: string): string {
   return b64url(crypto.createHmac('sha256', signingSecret()).update(data).digest());
 }
 
-const UPLOAD_TTL_MS = 15 * 60 * 1000;
+export const CONNECT_UPLOAD_TTL_MS = 15 * 60 * 1000;
 
 export function signUploadToken(p: Omit<UploadTokenPayload, 'exp'>): string {
-  const payload: UploadTokenPayload = { ...p, exp: Date.now() + UPLOAD_TTL_MS };
+  const payload: UploadTokenPayload = { ...p, exp: Date.now() + CONNECT_UPLOAD_TTL_MS };
   const body = b64url(JSON.stringify(payload));
   return `${body}.${hmac(body)}`;
 }
@@ -239,7 +267,9 @@ export function verifyUploadToken(token: string | null): UploadTokenPayload {
   } catch {
     throw new Error('UNAUTHENTICATED');
   }
-  if (!payload?.exp || payload.exp < Date.now()) throw new Error('UNAUTHENTICATED');
+  if (!payload?.ws || !payload.assetId || !payload.mime || !payload.exp || payload.exp < Date.now()) {
+    throw new Error('UNAUTHENTICATED');
+  }
   return payload;
 }
 

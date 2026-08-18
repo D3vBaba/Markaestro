@@ -5,7 +5,8 @@
 /** Default timeout applied to every API request. */
 const REQUEST_TIMEOUT_MS = 15_000;
 /** Uploads get longer since large files legitimately take a while. */
-const UPLOAD_TIMEOUT_MS = 60_000;
+const UPLOAD_TIMEOUT_MS = 300_000;
+const DIRECT_MEDIA_UPLOADS_ENABLED = process.env.NEXT_PUBLIC_DIRECT_MEDIA_UPLOADS_ENABLED === '1';
 
 let _getIdToken: (() => Promise<string | null>) | null = null;
 let _authReady: Promise<void> | null = null;
@@ -194,6 +195,70 @@ export async function apiUpload<T = unknown>(
   formData: FormData,
   wsId?: string,
 ): Promise<{ ok: boolean; status: number; data: T }> {
+  if (DIRECT_MEDIA_UPLOADS_ENABLED && path === '/api/media/upload') {
+    const file = (formData.get('image') || formData.get('video') || formData.get('file')) as File | null;
+    if (file) {
+      const session = await apiPost<{
+        ok?: boolean;
+        assetId?: string;
+        uploadUrl?: string;
+        contentType?: string;
+        error?: string;
+      }>('/api/media/create-upload-url', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      }, wsId);
+
+      // A rolling deployment can briefly put the new client in front of an
+      // old server. Keep the established multipart route as a compatibility
+      // fallback only when the new route is genuinely unavailable.
+      if (session.status !== 404 && session.status !== 405) {
+        if (!session.ok || !session.data.assetId || !session.data.uploadUrl) {
+          return session as { ok: boolean; status: number; data: T };
+        }
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+        try {
+          const uploaded = await fetch(session.data.uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': session.data.contentType || file.type },
+            body: file,
+            signal: controller.signal,
+          });
+          if (!uploaded.ok) {
+            return {
+              ok: false,
+              status: uploaded.status,
+              data: { error: 'DIRECT_UPLOAD_FAILED' } as T,
+            };
+          }
+        } catch (error) {
+          if (isAbortError(error)) return timeoutResult<T>();
+          return { ok: false, status: 0, data: { error: 'DIRECT_UPLOAD_FAILED' } as T };
+        } finally {
+          clearTimeout(timeout);
+        }
+
+        const finalizeController = new AbortController();
+        const finalizeTimeout = setTimeout(() => finalizeController.abort(), UPLOAD_TIMEOUT_MS);
+        try {
+          return await apiFetch<T>(
+            `/api/media/finalize-upload?workspaceId=${activeWorkspaceId(wsId)}`,
+            {
+              method: 'POST',
+              body: JSON.stringify({ assetId: session.data.assetId }),
+              signal: finalizeController.signal,
+            },
+          );
+        } finally {
+          clearTimeout(finalizeTimeout);
+        }
+      }
+    }
+  }
+
   if (_authReady) await _authReady;
   const token = _getIdToken ? await _getIdToken() : null;
   const sep = path.includes('?') ? '&' : '?';

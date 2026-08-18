@@ -19,6 +19,8 @@ import { enqueueWebhookEvent } from './webhooks';
 import { incrementApiClientStat } from './usage';
 
 const MAX_PUBLIC_RUNS_PER_WORKSPACE = 20;
+const PUBLIC_RUN_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+const LEGACY_PUBLISH_RUN_DISCOVERY_UNTIL_MS = Date.parse('2026-08-25T00:00:00.000Z');
 
 export function resolveQueuedPublishDeliveryMode(post: Record<string, unknown>) {
   if (isManualReminderDeliveryMode(post.deliveryMode)) return MANUAL_REMINDER_DELIVERY_MODE;
@@ -95,6 +97,7 @@ async function markRunFinished(
     message,
     details,
     finishedAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + PUBLIC_RUN_RETENTION_MS),
   }, { merge: true });
 }
 
@@ -313,19 +316,52 @@ async function processSingleRun(workspaceId: string, runId: string) {
 
 export async function processQueuedPublicPublishRuns(workspaceId: string) {
   const nowIso = new Date().toISOString();
-  const snap = await adminDb
-    .collection(`workspaces/${workspaceId}/job_runs`)
-    .where('type', '==', 'publish_post')
-    .where('status', '==', 'queued')
-    .limit(MAX_PUBLIC_RUNS_PER_WORKSPACE)
-    .get();
+  const collection = adminDb.collection(`workspaces/${workspaceId}/job_runs`);
+  const [dueSnap, initialLegacySnap] = await Promise.all([
+    collection
+      .where('type', '==', 'publish_post')
+      .where('status', '==', 'queued')
+      .where('nextAttemptAt', '<=', nowIso)
+      .orderBy('nextAttemptAt', 'asc')
+      .limit(MAX_PUBLIC_RUNS_PER_WORKSPACE)
+      .get()
+      .catch((error) => {
+        logger.warn('publish-run due query unavailable; using bounded fallback', {
+          event: 'public_api.publish_run.due_query_fallback',
+          workspaceId,
+          err: error,
+        });
+        return null;
+      }),
+    Date.now() < LEGACY_PUBLISH_RUN_DISCOVERY_UNTIL_MS
+      ? collection
+          .where('type', '==', 'publish_post')
+          .where('status', '==', 'queued')
+          .limit(MAX_PUBLIC_RUNS_PER_WORKSPACE)
+          .get()
+      : Promise.resolve(null),
+  ]);
+  let legacySnap = initialLegacySnap;
+  // Keep old jobs discoverable during rollout, but do not permanently pay for
+  // a second queue query once all writers provide nextAttemptAt.
+  if (!dueSnap && !legacySnap) {
+    legacySnap = await collection
+      .where('type', '==', 'publish_post')
+      .where('status', '==', 'queued')
+      .limit(MAX_PUBLIC_RUNS_PER_WORKSPACE)
+      .get();
+  }
+  const byId = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
+  for (const doc of dueSnap?.docs ?? []) byId.set(doc.id, doc);
+  for (const doc of legacySnap?.docs ?? []) {
+    const nextAttemptAt = doc.data()?.nextAttemptAt as string | undefined;
+    if (!nextAttemptAt || nextAttemptAt <= nowIso) byId.set(doc.id, doc);
+  }
+  const queuedDocs = [...byId.values()].slice(0, MAX_PUBLIC_RUNS_PER_WORKSPACE);
 
   const results: Array<{ runId: string; status: string }> = [];
 
-  for (const doc of snap.docs) {
-    const nextAttemptAt = doc.data()?.nextAttemptAt as string | undefined;
-    if (nextAttemptAt && nextAttemptAt > nowIso) continue;
-
+  for (const doc of queuedDocs) {
     const claimed = await claimQueuedRun(workspaceId, doc.id);
     if (!claimed) continue;
     const result = await processSingleRun(workspaceId, doc.id);

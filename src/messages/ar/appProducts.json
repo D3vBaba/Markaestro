@@ -70,7 +70,7 @@
     "toasts": {
       "connected": "تم الاتصال بـ {provider}",
       "declinedPermission": "{provider}: لقد رفضت طلب الإذن — اضغط على \"اتصال\" للمحاولة مرة أخرى.",
-      "connectionFailed": "فشل الاتصال بـ {provider}: {message}",
+      "connectionFailed": "تعذّر الاتصال بـ {provider}. يُرجى المحاولة مرة أخرى.",
       "unknownError": "خطأ غير معروف",
       "almostDone": "أوشكنا على الانتهاء — اختر صفحة فيسبوك في القنوات لإكمال إعداد Meta",
       "deleteFailed": "فشل حذف العلامة التجارية",

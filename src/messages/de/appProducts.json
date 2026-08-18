@@ -70,7 +70,7 @@
     "toasts": {
       "connected": "{provider} verbunden",
       "declinedPermission": "{provider}: Du hast die Berechtigungsanfrage abgelehnt — tippe auf Verbinden, um es erneut zu versuchen.",
-      "connectionFailed": "Verbindung zu {provider} fehlgeschlagen: {message}",
+      "connectionFailed": "Verbindung zu {provider} fehlgeschlagen. Bitte versuche es erneut.",
       "unknownError": "Unbekannter Fehler",
       "almostDone": "Fast fertig — wähle eine Facebook-Seite unter Kanäle, um die Meta-Einrichtung abzuschließen",
       "deleteFailed": "Marke konnte nicht gelöscht werden",

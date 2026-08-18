@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
 import { resolveChannelStatus } from "@/lib/integrations/channel-status";
+import { userFacingError } from "@/lib/user-facing-errors";
 
 // ---------- types ----------
 
@@ -456,8 +457,7 @@ export default function ProductDetailSheet({
       ]);
 
       if (!detailsRes.ok) {
-        const err = detailsRes.data as { error?: string; issues?: { message: string }[] };
-        toast.error(err.issues?.[0]?.message || err.error || t("toasts.saveDetailsFailed"));
+        toast.error(userFacingError(detailsRes.data, t("toasts.saveDetailsFailed")));
         return;
       }
       if (!voiceRes.ok) {

@@ -1,9 +1,9 @@
 import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
-import { createMediaAsset } from '@/lib/public-api/media';
-import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
+import { createMediaAsset, validatePublicMediaFile } from '@/lib/public-api/media';
+import { createRequestHashParts, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
-import { checkAndIncrementUsage } from '@/lib/usage';
+import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
 
 export const runtime = 'nodejs';
 
@@ -11,35 +11,22 @@ export const runtime = 'nodejs';
 const MEDIA_RATE_LIMIT = { limit: 20, windowMs: 60_000 };
 
 export async function POST(req: Request) {
+  let reservedQuota: { uid: string; workspaceId: string } | null = null;
   try {
     const ctx = await requirePublicApiContext(req, {
       scope: 'media.write',
       rateLimit: MEDIA_RATE_LIMIT,
     });
 
-    // Quota always applies — it's the workspace's counter and plan, so a
-    // legacy key without an ownerUid must not bypass it. The uid only feeds
-    // the account-entitlement merge and may be empty.
-    const quota = await checkAndIncrementUsage(ctx.ownerUid ?? '', 'mediaUploads', ctx.workspaceId);
-    if (!quota.allowed) {
-      return Response.json({
-        error: 'QUOTA_EXCEEDED_MEDIA_UPLOADS',
-      }, { status: 402, headers: ctx.rateLimitHeaders });
-    }
-
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
     if (!file) throw new Error('VALIDATION_NO_FILE_PROVIDED');
+    validatePublicMediaFile(file);
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const idempotencyKey = getIdempotencyKey(req);
     const requestHash = idempotencyKey
-      ? createRequestHash(Buffer.concat([
-          Buffer.from(file.name),
-          Buffer.from(file.type),
-          Buffer.from(String(file.size)),
-          buffer,
-        ]))
+      ? createRequestHashParts([file.name, file.type, String(file.size), buffer])
       : null;
 
     if (idempotencyKey && requestHash) {
@@ -50,7 +37,19 @@ export async function POST(req: Request) {
       }
     }
 
+    const quotaUid = ctx.ownerUid ?? '';
+    const quota = await checkAndIncrementUsage(quotaUid, 'mediaUploads', ctx.workspaceId);
+    if (!quota.allowed) {
+      return Response.json({
+        error: quota.reason === 'subscription_required'
+          ? 'SUBSCRIPTION_REQUIRED'
+          : 'QUOTA_EXCEEDED_MEDIA_UPLOADS',
+      }, { status: 402, headers: ctx.rateLimitHeaders });
+    }
+    reservedQuota = { uid: quotaUid, workspaceId: ctx.workspaceId };
+
     const asset = await createMediaAsset(ctx, file, buffer);
+    reservedQuota = null;
     await incrementApiClientStat(ctx.workspaceId, ctx.clientId, 'media_upload');
     const body = { asset: {
       id: asset.id,
@@ -69,6 +68,9 @@ export async function POST(req: Request) {
 
     return Response.json(body, { status: 201, headers: ctx.rateLimitHeaders });
   } catch (error) {
+    if (reservedQuota) {
+      await refundUsage(reservedQuota.uid, 'mediaUploads', 1, reservedQuota.workspaceId);
+    }
     return publicApiError(error);
   }
 }

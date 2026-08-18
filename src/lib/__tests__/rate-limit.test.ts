@@ -11,6 +11,10 @@ const { mockDoc, mockCollection, mockRunTransaction, firestoreState } = vi.hoist
         const data = store[ref];
         return { exists: !!data, data: () => data ?? null };
       }),
+      getAll: vi.fn(async (...refs: string[]) => refs.map((ref) => {
+        const data = store[ref];
+        return { exists: !!data, data: () => data ?? null };
+      })),
       set: vi.fn((ref: string, data: { count: number; expiresAt: Date }) => {
         store[ref] = data;
       }),
@@ -35,7 +39,7 @@ vi.mock('@/lib/firebase-admin', () => ({
   },
 }));
 
-import { checkRateLimit, RATE_LIMITS, applyRateLimit } from '../rate-limit';
+import { checkRateLimit, checkRateLimits, RATE_LIMITS, applyRateLimit } from '../rate-limit';
 import type { RateLimitConfig } from '../rate-limit';
 
 beforeEach(() => {
@@ -106,6 +110,17 @@ describe('checkRateLimit', () => {
     // Different key should be allowed (separate counter)
     const result2 = await checkRateLimit('other-key', config);
     expect(result2.allowed).toBe(true);
+  });
+
+  it('checks multiple budgets in one transaction', async () => {
+    const results = await checkRateLimits([
+      { key: 'client-global', config },
+      { key: 'client-path', config: { limit: 1, windowMs: 60_000 } },
+    ]);
+
+    expect(results).toHaveLength(2);
+    expect(results.every((result) => result.allowed)).toBe(true);
+    expect(mockRunTransaction).toHaveBeenCalledOnce();
   });
 });
 

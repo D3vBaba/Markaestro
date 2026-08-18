@@ -70,7 +70,7 @@
     "toasts": {
       "connected": "{provider} connected",
       "declinedPermission": "{provider}: You declined the permission request — tap Connect to try again.",
-      "connectionFailed": "{provider} connection failed: {message}",
+      "connectionFailed": "Failed to connect {provider}. Please try again.",
       "unknownError": "Unknown error",
       "almostDone": "Almost done — choose a Facebook page in Channels to finish Meta setup",
       "deleteFailed": "Failed to delete brand",

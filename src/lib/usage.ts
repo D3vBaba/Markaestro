@@ -9,6 +9,7 @@ export type UsageCheckResult = {
   allowed: boolean;
   current: number;
   limit: number;
+  reason?: 'subscription_required' | 'quota_exceeded';
 };
 
 function currentMonth(): string {
@@ -27,17 +28,17 @@ export async function checkAndIncrementUsage(
   const sub = await getEffectiveSubscription(uid, workspaceId);
 
   if (!sub || !['active', 'trialing'].includes(sub.status)) {
-    return { allowed: false, current: 0, limit: 0 };
+    return { allowed: false, current: 0, limit: 0, reason: 'subscription_required' };
   }
 
   const tier = sub.tier as PlanTier;
   const plan = PLANS[tier];
-  if (!plan) return { allowed: false, current: 0, limit: 0 };
+  if (!plan) return { allowed: false, current: 0, limit: 0, reason: 'subscription_required' };
 
   const limit = plan.limits[type];
 
   if (limit === 0) {
-    return { allowed: false, current: 0, limit: 0 };
+    return { allowed: false, current: 0, limit: 0, reason: 'quota_exceeded' };
   }
 
   if (limit === -1) {
@@ -53,7 +54,7 @@ export async function checkAndIncrementUsage(
     const current = (snap.data()?.[field] as number) ?? 0;
 
     if (current >= limit) {
-      return { allowed: false, current, limit };
+      return { allowed: false, current, limit, reason: 'quota_exceeded' };
     }
 
     tx.set(docRef, { [field]: current + 1 }, { merge: true });

@@ -113,6 +113,13 @@ async function runChecks() {
       .limit(1)
       .get(),
   );
+  await check('posts.where(status==scheduled).orderBy(scheduledAt desc) [dashboard recent]', (db) =>
+    db.collection(`workspaces/${WS}/posts`)
+      .where('status', '==', 'scheduled')
+      .orderBy('scheduledAt', 'desc')
+      .limit(1)
+      .get(),
+  );
   await check('posts.where(status==publishing).orderBy(updatedAt) [publisher recovery]', (db) =>
     db.collection(`workspaces/${WS}/posts`)
       .where('status', '==', 'publishing')
@@ -137,6 +144,58 @@ async function runChecks() {
       .limit(1)
       .get(),
   );
+  await check('collectionGroup(posts).where(tiktokPublishId) [tiktok webhook fallback]', (db) =>
+    db.collectionGroup('posts').where('tiktokPublishId', '==', 'sentinel').limit(1).get(),
+  );
+  await check('collectionGroup(posts).where(externalId) [tiktok legacy webhook fallback]', (db) =>
+    db.collectionGroup('posts').where('externalId', '==', 'sentinel').limit(1).get(),
+  );
+  await check('posts.where(status).orderBy(createdAt desc) [list]', (db) =>
+    db.collection(`workspaces/${WS}/posts`).where('status', '==', 'draft').orderBy('createdAt', 'desc').limit(1).get(),
+  );
+  await check('posts.where(status IN [...]).where(productId).orderBy(createdAt desc) [content list]', (db) =>
+    db.collection(`workspaces/${WS}/posts`)
+      .where('status', 'in', ['draft', 'failed'])
+      .where('productId', '==', 'sentinel')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('posts.where(channel).where(productId).orderBy(createdAt desc) [list]', (db) =>
+    db.collection(`workspaces/${WS}/posts`)
+      .where('channel', '==', 'facebook')
+      .where('productId', '==', 'sentinel')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+
+  console.log('\nDelivery queues:');
+  await check('webhook_deliveries.where(status IN [...]).where(nextAttemptAt<=).orderBy(nextAttemptAt)', (db) =>
+    db.collection(`workspaces/${WS}/webhook_deliveries`)
+      .where('status', 'in', ['pending', 'retrying'])
+      .where('nextAttemptAt', '<=', new Date().toISOString())
+      .orderBy('nextAttemptAt', 'asc')
+      .limit(1)
+      .get(),
+  );
+  await check('job_runs.where(type).where(status).where(nextAttemptAt<=).orderBy(nextAttemptAt)', (db) =>
+    db.collection(`workspaces/${WS}/job_runs`)
+      .where('type', '==', 'publish_post')
+      .where('status', '==', 'queued')
+      .where('nextAttemptAt', '<=', new Date().toISOString())
+      .orderBy('nextAttemptAt', 'asc')
+      .limit(1)
+      .get(),
+  );
+  await check('tiktok_publish_mappings.where(pollStatus).where(nextPollAt<=).orderBy(nextPollAt)', (db) =>
+    db.collection('tiktok_publish_mappings')
+      .where('pollStatus', '==', 'active')
+      .where('nextPollAt', '<=', new Date().toISOString())
+      .orderBy('nextPollAt', 'asc')
+      .limit(1)
+      .get(),
+  );
 
   // ── Campaigns ─────────────────────────────────────────────────────────────
   console.log('\nCampaigns:');
@@ -156,6 +215,9 @@ async function runChecks() {
   );
   await check('products.where(status) — no orderBy', (db) =>
     db.collection(`workspaces/${WS}/products`).where('status', '==', 'active').limit(1).get(),
+  );
+  await check('products.where(status).orderBy(createdAt desc) [list]', (db) =>
+    db.collection(`workspaces/${WS}/products`).where('status', '==', 'active').orderBy('createdAt', 'desc').limit(1).get(),
   );
 
   // ── Ad campaigns ──────────────────────────────────────────────────────────
@@ -185,6 +247,20 @@ async function runChecks() {
   );
   await check('events.where(contactId) — no orderBy', (db) =>
     db.collection(`workspaces/${WS}/events`).where('contactId', '==', 'sentinel').limit(1).get(),
+  );
+  await check('events.where(type).orderBy(timestamp desc) [list]', (db) =>
+    db.collection(`workspaces/${WS}/events`).where('type', '==', 'page_view').orderBy('timestamp', 'desc').limit(1).get(),
+  );
+  await check('events.where(contactId).orderBy(timestamp desc) [list]', (db) =>
+    db.collection(`workspaces/${WS}/events`).where('contactId', '==', 'sentinel').orderBy('timestamp', 'desc').limit(1).get(),
+  );
+  await check('events.where(type).where(contactId).orderBy(timestamp desc) [list]', (db) =>
+    db.collection(`workspaces/${WS}/events`)
+      .where('type', '==', 'page_view')
+      .where('contactId', '==', 'sentinel')
+      .orderBy('timestamp', 'desc')
+      .limit(1)
+      .get(),
   );
 
   // ── Jobs ──────────────────────────────────────────────────────────────────

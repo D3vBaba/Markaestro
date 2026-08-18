@@ -13,6 +13,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { apiGet, getApiWorkspaceId, subscribeApiWorkspaceId } from "@/lib/api-client";
+import { userFacingError } from "@/lib/user-facing-errors";
 
 const DEFAULT_STALE_MS = 30_000;
 
@@ -135,8 +136,7 @@ export function useApiQuery<T = unknown>(
           setData(res.data as T);
           setError(null);
         } else {
-          const body = res.data as { message?: string; error?: string } | null;
-          setError(body?.message || body?.error || "Request failed");
+          setError(userFacingError(res.data, "Request failed"));
         }
       } catch {
         if (generation !== generationRef.current) return;

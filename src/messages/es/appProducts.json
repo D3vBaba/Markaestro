@@ -70,7 +70,7 @@
     "toasts": {
       "connected": "{provider} conectado",
       "declinedPermission": "{provider}: rechazaste la solicitud de permiso — toca Conectar para intentarlo de nuevo.",
-      "connectionFailed": "Falló la conexión con {provider}: {message}",
+      "connectionFailed": "No se pudo conectar con {provider}. Inténtalo de nuevo.",
       "unknownError": "Error desconocido",
       "almostDone": "Casi listo — elige una página de Facebook en Canales para terminar la configuración de Meta",
       "deleteFailed": "No se pudo eliminar la marca",

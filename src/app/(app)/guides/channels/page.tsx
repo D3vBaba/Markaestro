@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +54,7 @@ export default function ConnectChannelsGuidePage() {
   const t = useTranslations("guidesChannels");
 
   return (
-    <AppShell>
+    <>
       <PageHeader
         title={t("page.title")}
         subtitle={t("page.subtitle")}
@@ -177,6 +176,6 @@ export default function ConnectChannelsGuidePage() {
           </p>
         </SectionCard>
       </div>
-    </AppShell>
+    </>
   );
 }

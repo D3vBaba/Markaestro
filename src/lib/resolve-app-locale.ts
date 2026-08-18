@@ -1,4 +1,5 @@
 import { cookies, headers } from "next/headers";
+import { cache } from "react";
 import { decodeSessionCookie } from "@/lib/session-cookie";
 import { adminDb } from "@/lib/firebase-admin";
 import { isAppLocale, pickLocaleFromAcceptLanguage, type AppLocale } from "@/i18n/routing";
@@ -39,7 +40,7 @@ export async function resolveMemberLocale(uid: string): Promise<AppLocale | null
  * Shared by (app)/layout.tsx (message loading) and the root layout
  * (html lang/dir) — both need the same resolved locale for the same request.
  */
-export async function resolveAppLocale(): Promise<AppLocale> {
+export const resolveAppLocale = cache(async (): Promise<AppLocale> => {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("__session")?.value;
 
@@ -53,4 +54,4 @@ export async function resolveAppLocale(): Promise<AppLocale> {
 
   const headerList = await headers();
   return pickLocaleFromAcceptLanguage(headerList.get("accept-language"));
-}
+});

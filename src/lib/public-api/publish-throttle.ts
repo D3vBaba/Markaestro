@@ -1,4 +1,5 @@
 import { adminDb } from '@/lib/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { checkRateLimit, type RateLimitConfig } from '@/lib/rate-limit';
 import type { PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
@@ -56,14 +57,22 @@ export async function assertPublishRateLimit(destinationKey: string, channel: So
 export async function acquirePublishLock(destinationKey: string, runId: string): Promise<boolean> {
   const ref = adminDb.doc(`_publishLocks/${encodeKey(destinationKey)}`);
   const nowIso = new Date().toISOString();
-  const expiresAt = new Date(Date.now() + LOCK_LEASE_MS).toISOString();
+  const now = Date.now();
+  const expiresAt = Timestamp.fromMillis(now + LOCK_LEASE_MS);
 
   return adminDb.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const currentRunId = snap.data()?.runId as string | undefined;
-    const currentExpiresAt = snap.data()?.expiresAt as string | undefined;
+    const rawExpiresAt = snap.data()?.expiresAt as Timestamp | Date | string | undefined;
+    const currentExpiresAt = rawExpiresAt instanceof Timestamp
+      ? rawExpiresAt.toMillis()
+      : rawExpiresAt instanceof Date
+        ? rawExpiresAt.getTime()
+        : typeof rawExpiresAt === 'string'
+          ? Date.parse(rawExpiresAt)
+          : 0;
 
-    if (snap.exists && currentRunId !== runId && currentExpiresAt && currentExpiresAt > nowIso) {
+    if (snap.exists && currentRunId !== runId && currentExpiresAt > now) {
       return false;
     }
 

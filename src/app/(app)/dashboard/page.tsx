@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { DashboardOverviewChart } from "@/components/dashboard/OverviewChart";
 import { Button } from "@/components/ui/button";
@@ -93,7 +92,7 @@ export default function Home() {
   ];
 
   return (
-    <AppShell>
+    <>
       <PageHeader
         title={t("title")}
         subtitle={t("subtitle")}
@@ -431,6 +430,6 @@ export default function Home() {
         </div>
       </div>
       )}
-    </AppShell>
+    </>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Select from "@/components/app/Select";
@@ -144,7 +143,7 @@ export default function PostsPage() {
   };
 
   return (
-    <AppShell>
+    <>
       <PageHeader
         title={t("title")}
         subtitle={t("subtitle")}
@@ -218,6 +217,6 @@ export default function PostsPage() {
           <PlatformPostsTab productId={productId} />
         </TabsContent>
       </Tabs>
-    </AppShell>
+    </>
   );
 }

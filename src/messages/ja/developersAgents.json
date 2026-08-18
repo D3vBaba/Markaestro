@@ -98,6 +98,7 @@
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "同じIdempotency-Keyが異なるボディで送信されました。区別されたリクエストごとに新しいキーを発行してください。" },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "公開実行が進行中に投稿を削除しようとしました。実行が落ち着くのを待ってから削除してください。" },
       { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "この投稿の公開実行はすでにキューに入っています。再度公開せず、既存の実行をポーリングしてください。" },
+      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "このワークスペースに有効なプランが関連付けられていません。ワークスペースのオーナーに設定で請求情報を確認するよう依頼してください。" },
       { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "ワークスペースが月間アップロードクォータに達しました。アップロードを停止して表示してください — 既存のメディアは引き続き公開されます。" },
       { "status": "404", "code": "NOT_FOUND", "action": "IDがこのキーのブランドの範囲外です。キーが所有していないIDを探索できないよう、403ではなく404として応答されます。" },
       { "status": "429", "code": "RATE_LIMITED", "action": "Retry-Afterの秒数だけ待機し、同じIdempotency-Keyで同じリクエストをリトライしてください。" }

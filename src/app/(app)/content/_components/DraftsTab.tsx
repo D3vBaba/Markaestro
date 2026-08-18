@@ -14,10 +14,10 @@ import Pagination from "@/components/app/Pagination";
 import { isPlatformActionRequiredStatus, LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from "@/lib/tiktok-draft-flow";
 import { getPublishUiOutcome } from "@/lib/social/publish-ui-outcome";
 import { sortPostsByNewestDate } from "@/lib/post-ordering";
+import { userFacingError } from "@/lib/user-facing-errors";
 
 const POSTS_PER_PAGE = 6;
-/** Load the whole set so pagination walks every post, not just the first page. */
-const POSTS_FETCH_LIMIT = 1000;
+const POSTS_FETCH_LIMIT = 60;
 
 type Post = {
   id: string;
@@ -53,6 +53,7 @@ export default function DraftsTab({
   const [page, setPage] = useState(1);
   const [schedulePending, setSchedulePending] = useState<{ content: string; mediaUrls?: string[]; channel?: string } | null>(null);
   const [publishingIds, setPublishingIds] = useState<Set<string>>(new Set());
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   // A different brand means a different result set — start from page 1.
   // Adjusted during render rather than in an effect so the new brand's first
@@ -63,24 +64,47 @@ export default function DraftsTab({
     setPage(1);
   }
 
-  const fetchDrafts = useCallback(async () => {
-    const scope = `&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`;
+  const fetchDraftsPage = useCallback(async (cursor?: string, append = false) => {
+    const scope = `&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
     try {
-      const [draftsRes, reviewRes, failedRes] = await Promise.all([
-        apiGet<{ posts: Post[] }>(`/api/posts?status=draft${scope}`),
-        apiGet<{ posts: Post[] }>(`/api/posts?status=${PLATFORM_ACTION_REQUIRED_STATUS},${LEGACY_EXPORTED_FOR_REVIEW_STATUS}${scope}`),
-        apiGet<{ posts: Post[] }>(`/api/posts?status=failed,partial_failed${scope}`),
-      ]);
-      const drafts = draftsRes.ok ? (draftsRes.data.posts || []) : [];
-      const reviewReady = reviewRes.ok ? (reviewRes.data.posts || []) : [];
-      setPosts([...reviewReady, ...(failedRes.ok ? (failedRes.data.posts || []) : []), ...drafts]);
+      const statuses = [
+        "draft",
+        PLATFORM_ACTION_REQUIRED_STATUS,
+        LEGACY_EXPORTED_FOR_REVIEW_STATUS,
+        "failed",
+        "partial_failed",
+      ].join(",");
+      const response = await apiGet<{ posts: Post[]; nextCursor?: string | null }>(`/api/posts?status=${statuses}${scope}`);
+      if (response.ok) {
+        const received = response.data.posts || [];
+        setPosts((current) => append
+          ? [...new Map([...current, ...received].map((post) => [post.id, post])).values()]
+          : received);
+        setNextCursor(response.data.nextCursor || null);
+        return received;
+      }
     } catch {
       toast.error(t("toasts.loadFailed"));
     } finally {
       setLoading(false);
     }
+    return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
+
+  const fetchDrafts = useCallback(async () => {
+    setPage(1);
+    await fetchDraftsPage();
+  }, [fetchDraftsPage]);
+
+  const loadMoreDrafts = useCallback(async () => {
+    if (!nextCursor) return false;
+    const currentVisible = posts.filter((post) => !isPlatformActionRequiredStatus(post.status)).length;
+    const received = await fetchDraftsPage(nextCursor, true);
+    const receivedVisible = received.filter((post) => !isPlatformActionRequiredStatus(post.status)).length;
+    return currentVisible >= page * POSTS_PER_PAGE &&
+      currentVisible + receivedVisible > page * POSTS_PER_PAGE;
+  }, [fetchDraftsPage, nextCursor, page, posts]);
 
   useEffect(() => {
     deferFromEffect(fetchDrafts);
@@ -179,13 +203,10 @@ export default function DraftsTab({
         // Background refetch keeps server-computed fields fresh without blocking the UI
         fetchDrafts();
       } else {
-        toast.error(res.data.error || t("toasts.publishFailed"), { id: toastId });
+        toast.error(userFacingError(res.data, t("toasts.publishFailed")), { id: toastId });
       }
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t("toasts.publishFailed"),
-        { id: toastId },
-      );
+    } catch {
+      toast.error(t("toasts.publishFailed"), { id: toastId });
     } finally {
       setPublishingIds((prev) => {
         const next = new Set(prev);
@@ -328,8 +349,24 @@ export default function DraftsTab({
             ))}
           </div>
 
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          <Pagination
+            page={page}
+            totalPages={Math.max(1, totalPages)}
+            onPageChange={setPage}
+            hasMore={Boolean(nextCursor)}
+            onLoadMore={loadMoreDrafts}
+          />
         </>
+      )}
+
+      {draftPosts.length === 0 && nextCursor && (
+        <Pagination
+          page={1}
+          totalPages={1}
+          onPageChange={setPage}
+          hasMore
+          onLoadMore={loadMoreDrafts}
+        />
       )}
 
       <PostEditSheet

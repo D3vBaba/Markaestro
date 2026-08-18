@@ -1,4 +1,5 @@
 import { adminDb } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export const PUBLIC_API_STAT_EVENTS = [
   'request',
@@ -32,40 +33,27 @@ export async function incrementApiClientStat(
   const clientRef = adminDb.doc(`workspaces/${workspaceId}/api_clients/${clientId}`);
   const dailyRef = adminDb.doc(`workspaces/${workspaceId}/api_clients/${clientId}/daily_stats/${dayKey}`);
 
-  await adminDb.runTransaction(async (tx) => {
-    const [clientSnap, dailySnap] = await Promise.all([tx.get(clientRef), tx.get(dailyRef)]);
-
-    const currentUsage = (clientSnap.data()?.usage || {}) as Record<string, unknown>;
-    const currentMonthly = (currentUsage.currentMonthCounts || {}) as Record<string, number>;
-    const nextMonthly = {
-      ...currentMonthly,
-      [event]: (currentMonthly[event] || 0) + amount,
-    };
-
-    tx.set(clientRef, {
+  // These are telemetry counters, not a read-modify-write business invariant.
+  // Atomic transforms avoid two reads plus a contention-prone transaction on
+  // every API request while preserving the existing document/response shape.
+  const batch = adminDb.batch();
+  batch.set(clientRef, {
       usage: {
-        totalRequests: event === 'request'
-          ? ((currentUsage.totalRequests as number) || 0) + amount
-          : ((currentUsage.totalRequests as number) || 0),
+        ...(event === 'request' ? { totalRequests: FieldValue.increment(amount) } : {}),
         currentMonth: monthKey,
-        currentMonthCounts: nextMonthly,
-        lastRequestAt: event === 'request' ? now : (currentUsage.lastRequestAt || null),
+        currentMonthCounts: { [event]: FieldValue.increment(amount) },
+        ...(event === 'request' ? { lastRequestAt: now } : {}),
         lastActivityAt: now,
       },
+      ...(event === 'request' ? { lastUsedAt: now } : {}),
       updatedAt: now,
     }, { merge: true });
-
-    const dailyData = (dailySnap.data() || {}) as Record<string, unknown>;
-    const currentCounts = (dailyData.counts || {}) as Record<string, number>;
-    tx.set(dailyRef, {
+  batch.set(dailyRef, {
       date: dayKey,
-      counts: {
-        ...currentCounts,
-        [event]: (currentCounts[event] || 0) + amount,
-      },
+      counts: { [event]: FieldValue.increment(amount) },
       updatedAt: now,
     }, { merge: true });
-  });
+  await batch.commit();
 }
 
 export async function getApiClientUsage(workspaceId: string, days = 14) {

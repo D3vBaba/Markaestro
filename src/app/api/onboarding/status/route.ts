@@ -1,7 +1,7 @@
 import { adminDb } from "@/lib/firebase-admin";
 import { apiError, apiOk } from "@/lib/api-response";
 import { requireContext } from "@/lib/server-auth";
-import { getEffectiveSubscription } from "@/lib/stripe/subscription";
+import { getEffectiveSubscription, resolveStatus } from "@/lib/stripe/subscription";
 import { countPendingInvitesForEmail } from "@/lib/team-invites";
 
 export const runtime = 'nodejs';
@@ -60,6 +60,7 @@ export async function GET(req: Request) {
       completed,
       hasProducts,
       hasSubscriptionHistory,
+      subscriptionStatus: resolveStatus(effectiveSubscription),
       pendingInvites,
       anyWorkspaceActivity,
     });

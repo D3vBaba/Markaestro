@@ -98,6 +98,7 @@
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "同一个 Idempotency-Key 被用于不同的请求体发送。请为每个不同的请求生成一个新密钥。" },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "在发布任务进行中时尝试删除该内容。请等待任务完成后再删除。" },
       { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "该内容的发布任务已在队列中。请勿再次发布 —— 请轮询现有任务的状态。" },
+      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "此工作区未关联有效套餐。请让工作区所有者在“设置”中检查账单。" },
       { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "工作区已达到月度上传配额。请停止上传并展示该状态 —— 已有素材仍会正常发布。" },
       { "status": "404", "code": "NOT_FOUND", "action": "该 ID 不属于此密钥所在的品牌范围。为防止密钥探测其不拥有的 ID，此处返回 404 而非 403。" },
       { "status": "429", "code": "RATE_LIMITED", "action": "等待 Retry-After 指定的秒数，然后使用相同的 Idempotency-Key 重试同一请求。" }

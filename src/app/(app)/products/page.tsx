@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, Plus } from "lucide-react";
-import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/app/PageHeader";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
@@ -47,7 +46,7 @@ type OauthCallback = {
   needsPageSelect: boolean;
   /** Pages this authorization dropped out of the Facebook grant. */
   ungrantedPages: string[];
-  message: string | null;
+  reason: string | null;
 };
 
 /** Read the OAuth redirect params once on mount (null during SSR / no callback). */
@@ -62,7 +61,7 @@ function readOauthCallback(): OauthCallback | null {
     productId: params.get("productId"),
     needsPageSelect: params.get("needsPageSelect") === "1",
     ungrantedPages: (params.get("ungrantedPages") || "").split("|").filter(Boolean),
-    message: params.get("message"),
+    reason: params.get("reason"),
   };
 }
 
@@ -155,7 +154,7 @@ export default function ProductsPage() {
   useEffect(() => {
     // OAuth callback side effects: toasts, URL cleanup, cache invalidation
     if (!oauthCallback) return;
-    const { result, provider, productId, needsPageSelect, message } = oauthCallback;
+    const { result, provider, productId, needsPageSelect, reason } = oauthCallback;
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     if (result === "success" && provider) {
@@ -165,10 +164,10 @@ export default function ProductsPage() {
       invalidateQueries("/api/integrations");
     } else if (result === "error" && provider) {
       const label = providerLabels[provider] || provider;
-      if (message && message.includes("access_denied")) {
+      if (reason === "access_denied") {
         toast.error(t("toasts.declinedPermission", { provider: label }));
       } else {
-        toast.error(t("toasts.connectionFailed", { provider: label, message: message || t("toasts.unknownError") }));
+        toast.error(t("toasts.connectionFailed", { provider: label }));
       }
       window.history.replaceState({}, "", "/products");
     }
@@ -237,7 +236,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <AppShell>
+    <>
       <PageHeader
         title={t("title")}
         subtitle={t("subtitle")}
@@ -389,7 +388,7 @@ export default function ProductsPage() {
         warning={t("deleteWarning")}
         onConfirm={confirmDelete}
       />
-    </AppShell>
+    </>
   );
 }
 

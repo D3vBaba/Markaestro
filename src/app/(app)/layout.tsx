@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { SubscriptionProvider } from "@/components/providers/SubscriptionProvider";
 import { WorkspaceProvider } from "@/components/providers/WorkspaceProvider";
+import AppRouteShell from "@/components/layout/AppRouteShell";
 import { resolveAppLocale } from "@/lib/resolve-app-locale";
 
 /**
@@ -65,7 +66,9 @@ export default async function AppGroupLayout({
             the selected workspace, so subscription state re-fetches when the
             user switches. */}
         <WorkspaceProvider>
-          <SubscriptionProvider>{children}</SubscriptionProvider>
+          <SubscriptionProvider>
+            <AppRouteShell>{children}</AppRouteShell>
+          </SubscriptionProvider>
         </WorkspaceProvider>
       </AuthProvider>
     </NextIntlClientProvider>

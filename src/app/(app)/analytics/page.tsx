@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/app/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -169,7 +168,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <AppShell>
+    <>
       <PageHeader
         title={t("title")}
         subtitle={t("subtitle")}
@@ -531,6 +530,6 @@ export default function AnalyticsPage() {
           )}
         </>
       )}
-    </AppShell>
+    </>
   );
 }

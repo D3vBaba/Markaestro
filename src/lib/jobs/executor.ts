@@ -1,9 +1,12 @@
 import { adminDb } from '@/lib/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { getPostTargetChannels, publishStoredPost } from '@/lib/social/publisher';
 import { PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
 import { isManualReminderPost, MANUAL_REMINDER_NEXT_ACTION } from '@/lib/manual-publish-flow';
 import { logger } from '@/lib/logger';
 import { JobDoc } from './types';
+
+const JOB_RUN_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 export function shouldDisableRecurringPublishJob(job: Pick<JobDoc, 'type' | 'schedule'>): boolean {
   return job.type === 'publish_post' && job.schedule !== 'manual';
@@ -25,6 +28,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
     status: 'started',
     message: 'Job execution started',
     startedAt,
+    expiresAt: Timestamp.fromMillis(Date.now() + JOB_RUN_RETENTION_MS),
   });
 
   try {

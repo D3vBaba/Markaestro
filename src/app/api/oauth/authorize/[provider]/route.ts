@@ -136,11 +136,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     return NextResponse.redirect(authUrl);
   } catch (error) {
     const appUrl = getAppUrl();
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('OAuth authorization error:', error);
     return redirectWithParams(appUrl, fallbackPath, {
       oauth: 'error',
       provider: provider || 'unknown',
-      message,
+      reason: 'connection_failed',
     });
   }
 }

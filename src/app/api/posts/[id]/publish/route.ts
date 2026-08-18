@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import {
   claimPostForImmediatePublish,
+  classifyPublishError,
   finalizeFailedPublish,
   finalizeManualReminderPublish,
   finalizeSuccessfulPublish,
@@ -24,6 +25,24 @@ const TIKTOK_INLINE_POLL_ATTEMPTS = 10;
 const TIKTOK_INLINE_POLL_INTERVAL_MS = 5_000;
 
 type ChannelResults = Array<Record<string, unknown>>;
+
+function publicPublishError(error: unknown): string | undefined {
+  return typeof error === 'string' && error
+    ? classifyPublishError(error).code
+    : undefined;
+}
+
+function publicChannelResults(results: ChannelResults): ChannelResults {
+  return results.map((result) => {
+    const code = publicPublishError(result.error);
+    if (!code) {
+      const safeResult = { ...result };
+      delete safeResult.error;
+      return safeResult;
+    }
+    return { ...result, error: code };
+  });
+}
 
 /**
  * The inline TikTok poll updates the post's `publishResults` in Firestore, so
@@ -153,7 +172,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         postId: id,
         err: publishError,
       });
-      return apiOk({ ok: false, id, status: 'failed', error: msg });
+      return apiOk({ ok: false, id, status: 'failed', error: 'INTERNAL_PUBLISH_ERROR' });
     }
 
     logger.info('publish finished', {
@@ -171,7 +190,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         id,
         status: PLATFORM_ACTION_REQUIRED_STATUS,
         nextAction: result.nextAction,
-        channels: result.channels,
+        channels: publicChannelResults(result.channels as ChannelResults),
       });
     }
 
@@ -224,8 +243,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         externalId: result.externalId,
         externalUrl: result.externalUrl,
         nextAction: finalStatus === PLATFORM_ACTION_REQUIRED_STATUS ? TIKTOK_MANUAL_PUBLISH_ACTION : undefined,
-        error: inlineError,
-        channels,
+        error: publicPublishError(inlineError),
+        channels: publicChannelResults(channels),
       });
     }
 
@@ -238,7 +257,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         externalId: result.externalId,
         externalUrl: result.externalUrl,
         nextAction: result.nextAction,
-        channels: result.channels,
+        channels: publicChannelResults(result.channels as ChannelResults),
       });
     } else {
       const nextStatus = await finalizeFailedPublish(ctx.workspaceId, claim.claimed, result, { retryOnFailure: false });
@@ -246,8 +265,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         ok: false,
         id,
         status: nextStatus,
-        error: result.error,
-        channels: result.channels,
+        error: publicPublishError(result.error) ?? 'UNKNOWN_PUBLISH_ERROR',
+        channels: publicChannelResults(result.channels as ChannelResults),
       });
     }
   } catch (error) {

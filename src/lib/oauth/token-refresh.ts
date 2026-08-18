@@ -330,22 +330,31 @@ function refreshableProvider(storageProvider: string): OAuthProvider | null {
  * Clean up expired OAuth state documents.
  */
 export async function cleanupExpiredOAuthStates(): Promise<number> {
-  const cutoff = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-
-  const snap = await adminDb
-    .collection('oauth_states')
-    .where('expiresAt', '<', cutoff)
-    .limit(100)
-    .get();
+  const cutoffDate = new Date(Date.now() - 15 * 60 * 1000);
+  const { Timestamp } = await import('firebase-admin/firestore');
+  // Read both representations for one rolling-deploy window. New state docs
+  // use Timestamp so Firestore TTL can remove them automatically; the string
+  // query drains states written by older instances.
+  const [timestampSnap, legacySnap] = await Promise.all([
+    adminDb.collection('oauth_states')
+      .where('expiresAt', '<', Timestamp.fromDate(cutoffDate))
+      .limit(100)
+      .get(),
+    adminDb.collection('oauth_states')
+      .where('expiresAt', '<', cutoffDate.toISOString())
+      .limit(100)
+      .get(),
+  ]);
+  const docs = new Map([...timestampSnap.docs, ...legacySnap.docs].map((doc) => [doc.id, doc]));
 
   const batch = adminDb.batch();
-  for (const doc of snap.docs) {
+  for (const doc of docs.values()) {
     batch.delete(doc.ref);
   }
 
-  if (snap.size > 0) {
+  if (docs.size > 0) {
     await batch.commit();
   }
 
-  return snap.size;
+  return docs.size;
 }

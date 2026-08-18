@@ -4,18 +4,36 @@ import * as Sentry from '@sentry/nextjs';
 import crypto from 'crypto';
 import { logger } from '@/lib/logger';
 
+export function publicValidationIssueMessage(code: string): string {
+  switch (code) {
+    case 'too_small':
+      return 'This value is required or below the minimum.';
+    case 'too_big':
+      return 'This value exceeds the allowed maximum.';
+    case 'unrecognized_keys':
+      return 'One or more fields are not supported.';
+    default:
+      return 'This value is invalid.';
+  }
+}
+
 /**
  * Centralized API error → HTTP response mapper.
  * Handles Zod validation errors, known error codes, and unknown errors.
  */
 export function apiError(error: unknown): NextResponse {
+  // Helpers such as applyRateLimit intentionally throw a fully-formed 429.
+  // Preserve it instead of converting it into a generic 500 response.
+  if (error instanceof Response) return error as NextResponse;
+
   const requestId = crypto.randomUUID();
 
   // Zod validation errors → 400 with field-level details
   if (error instanceof ZodError) {
     const issues = error.issues.map((i) => ({
       field: i.path.join('.'),
-      message: i.message,
+      code: i.code,
+      message: publicValidationIssueMessage(i.code),
     }));
     // Field paths and Zod issue codes only — never the free-text message,
     // which can echo back arbitrary request content. This is what let a
@@ -47,6 +65,9 @@ export function apiError(error: unknown): NextResponse {
     return NextResponse.json({ error: msg, requestId }, { status: 402 });
   }
   if (msg === 'QUOTA_EXCEEDED_MEDIA_UPLOADS') {
+    return NextResponse.json({ error: msg, requestId }, { status: 402 });
+  }
+  if (msg === 'SUBSCRIPTION_REQUIRED') {
     return NextResponse.json({ error: msg, requestId }, { status: 402 });
   }
   if (msg === 'TEAM_LIMIT_REACHED') {

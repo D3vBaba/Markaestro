@@ -4,6 +4,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { getAllDocs } from '@/lib/firestore-pagination';
 import { processWorkspaceTick, mapWithConcurrency } from '@/lib/workers/workspace-tick';
 import { logger, requestIdFromHeaders } from '@/lib/logger';
+import { acquireWorkerLease, releaseWorkerLease } from '@/lib/workers/lease';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -21,12 +22,18 @@ const PER_WORKSPACE_CONCURRENCY = Number(process.env.WORKER_WS_CONCURRENCY || 8)
 
 export async function POST(req: Request) {
   const requestId = requestIdFromHeaders(req.headers);
+  let leaseId: string | null = null;
   try {
     const secret = process.env.WORKER_SECRET || '';
     const token = req.headers.get('x-worker-secret') || '';
 
     if (!secret || !safeCompare(token, secret)) {
       throw new Error('UNAUTHENTICATED');
+    }
+
+    leaseId = await acquireWorkerLease('tick', 5 * 60_000);
+    if (!leaseId) {
+      return apiOk({ ok: true, skipped: 'already_running', workspaces: 0 });
     }
 
     // --- Global phases: cheap, run once per tick ---
@@ -96,5 +103,15 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     return apiError(error);
+  } finally {
+    if (leaseId) {
+      await releaseWorkerLease('tick', leaseId).catch((error) => {
+        logger.warn('worker tick lease release failed', {
+          event: 'worker.tick_lease_release_failed',
+          requestId,
+          err: error,
+        });
+      });
+    }
   }
 }

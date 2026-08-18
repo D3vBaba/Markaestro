@@ -92,6 +92,7 @@ export default function PostCard({
   onMarkedPosted?: () => void;
 }) {
   const t = useTranslations("content.postCard");
+  const tScheduledToasts = useTranslations("content.scheduledTab.toasts");
   const locale = useLocale();
   const statusLabels: Record<string, string> = {
     [PLATFORM_ACTION_REQUIRED_STATUS]: t("readyInTikTok"),
@@ -222,7 +223,7 @@ export default function PostCard({
 
         {post.errorMessage && (
           <p className="mt-2 text-xs text-destructive bg-destructive/5 rounded-lg px-3 py-2">
-            {post.errorMessage}
+            {tScheduledToasts("publishFailed")}
           </p>
         )}
       </div>

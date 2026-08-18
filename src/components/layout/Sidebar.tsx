@@ -144,7 +144,7 @@ export function Sidebar({ className }: { className?: string }) {
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/settings?tab=workspaces" className="cursor-pointer text-sm">
+                <Link href="/settings?tab=workspaces" prefetch={false} className="cursor-pointer text-sm">
                   {t("workspaceSwitcher.manageWorkspaces")}
                 </Link>
               </DropdownMenuItem>
@@ -174,6 +174,7 @@ export function Sidebar({ className }: { className?: string }) {
                   <Link
                     key={item.id}
                     href={item.href}
+                    prefetch={false}
                     className={cn(
                       "flex items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-[13px] transition-colors",
                       isActive ? "font-medium" : "font-normal",
@@ -204,6 +205,7 @@ export function Sidebar({ className }: { className?: string }) {
       >
         <Link
           href={settingsItem.href}
+          prefetch={false}
           className={cn(
             "flex items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-[13px] transition-colors",
             pathname === settingsItem.href ? "font-medium" : "font-normal",

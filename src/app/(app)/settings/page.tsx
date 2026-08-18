@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic';
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +34,7 @@ import type { PlanTier } from "@/lib/stripe/plans";
 import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
 import { resolveChannelStatus, type ChannelStatus } from "@/lib/integrations/channel-status";
+import { userFacingError } from "@/lib/user-facing-errors";
 import {
   User, Shield, Zap, Link2, Users, Building2, CreditCard,
   Pencil, Check, X, Loader2, KeyRound, Mail, BarChart3,
@@ -107,8 +107,7 @@ function formatShortDate(iso: string, locale: string) {
 }
 
 function apiErrorMessage(data: unknown, fallback: string) {
-  const err = data as { message?: string; error?: string } | null | undefined;
-  return err?.message || err?.error || fallback;
+  return userFacingError(data, fallback);
 }
 
 function formatMonthKey(monthKey: string, locale: string) {
@@ -201,7 +200,7 @@ function SettingsPageContent() {
   }
 
   return (
-    <AppShell>
+    <>
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* Tab bar */}
@@ -242,7 +241,7 @@ function SettingsPageContent() {
       {activeTab === 'workspaces' && <WorkspacesTab />}
       {activeTab === 'api' && <ApiAccessTab />}
       {activeTab === 'billing' && <BillingTab />}
-    </AppShell>
+    </>
   );
 }
 
@@ -891,12 +890,7 @@ function IntegrationsTab() {
       return () => clearTimeout(timer);
     }
     if (oauth === "error" && provider) {
-      const message = params.get("message");
-      toast.error(
-        message
-          ? t("toasts.connectFailedWithMessage", { provider: providerDisplayName(provider), message })
-          : t("toasts.connectFailed", { provider: providerDisplayName(provider) }),
-      );
+      toast.error(t("toasts.connectFailed", { provider: providerDisplayName(provider) }));
       window.history.replaceState({}, "", "/settings?tab=integrations");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -916,12 +910,12 @@ function IntegrationsTab() {
       if (cancelled) return;
       if (!res.ok) {
         setPages([]);
-        setPagesError(res.data?.error || t("pagePicker.noneFound"));
+        setPagesError(t("pagePicker.noneFound"));
         return;
       }
       setPages(res.data.pages || []);
       setLinkedPageIds(res.data.linkedIds || []);
-      if (res.data.error) setPagesError(res.data.error);
+      if (res.data.error) setPagesError(t("pagePicker.noneFound"));
     })();
     return () => { cancelled = true; };
   }, [pagePickerProduct, wsId, t]);

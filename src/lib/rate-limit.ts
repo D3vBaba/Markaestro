@@ -21,40 +21,58 @@ export type RateLimitResult = {
   resetAt: number;
 };
 
+export type RateLimitCheck = {
+  key: string;
+  config: RateLimitConfig;
+};
+
 /**
  * Check if a request is within rate limits using Firestore atomic increment.
  * Returns { allowed, limit, remaining, resetAt }.
  */
 export async function checkRateLimit(key: string, config: RateLimitConfig): Promise<RateLimitResult> {
-  const windowId = Math.floor(Date.now() / config.windowMs);
-  const resetAt = (windowId + 1) * config.windowMs;
+  return (await checkRateLimits([{ key, config }]))[0];
+}
 
-  // Encode key to be a valid Firestore doc ID (no slashes, reasonable length)
-  const docId = Buffer.from(`${key}:${windowId}`).toString('base64url');
-  const docRef = adminDb.collection('_rateLimits').doc(docId);
-
-  const result = await adminDb.runTransaction(async (tx) => {
-    const snap = await tx.get(docRef);
-
-    if (!snap.exists) {
-      tx.set(docRef, {
-        count: 1,
-        expiresAt: new Date(resetAt + config.windowMs), // TTL: one extra window for safety
-      });
-      return { allowed: true, limit: config.limit, remaining: config.limit - 1, resetAt };
-    }
-
-    const count = ((snap.data()?.count as number) || 0) + 1;
-
-    if (count > config.limit) {
-      return { allowed: false, limit: config.limit, remaining: 0, resetAt };
-    }
-
-    tx.update(docRef, { count });
-    return { allowed: true, limit: config.limit, remaining: config.limit - count, resetAt };
+/**
+ * Evaluate several independent limits in one Firestore transaction. Public API
+ * authentication needs both a global client limit and a per-route limit; one
+ * transaction halves transaction round trips without weakening either rule.
+ */
+export async function checkRateLimits(checks: RateLimitCheck[]): Promise<RateLimitResult[]> {
+  if (checks.length === 0) return [];
+  const windows = checks.map(({ key, config }) => {
+    const windowId = Math.floor(Date.now() / config.windowMs);
+    const resetAt = (windowId + 1) * config.windowMs;
+    const docId = Buffer.from(`${key}:${windowId}`).toString('base64url');
+    return {
+      config,
+      resetAt,
+      ref: adminDb.collection('_rateLimits').doc(docId),
+    };
   });
 
-  return result;
+  return adminDb.runTransaction(async (tx) => {
+    // Firestore requires all transaction reads to finish before writes begin.
+    const snapshots = await tx.getAll(...windows.map(({ ref }) => ref));
+    return windows.map(({ config, resetAt, ref }, index) => {
+      const snap = snapshots[index];
+      if (!snap.exists) {
+        tx.set(ref, {
+          count: 1,
+          expiresAt: new Date(resetAt + config.windowMs),
+        });
+        return { allowed: true, limit: config.limit, remaining: config.limit - 1, resetAt };
+      }
+
+      const count = ((snap.data()?.count as number) || 0) + 1;
+      if (count > config.limit) {
+        return { allowed: false, limit: config.limit, remaining: 0, resetAt };
+      }
+      tx.update(ref, { count });
+      return { allowed: true, limit: config.limit, remaining: config.limit - count, resetAt };
+    });
+  });
 }
 
 /** Pre-built rate limit tiers */

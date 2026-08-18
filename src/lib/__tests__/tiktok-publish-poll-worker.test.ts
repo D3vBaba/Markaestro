@@ -317,3 +317,29 @@ describe('pollTikTokPublishWithRetries', () => {
     expect(adminDocMock).toHaveBeenCalledWith('workspaces/ws_123/posts/post_123');
   });
 });
+
+describe('TikTok scheduled polling backoff', () => {
+  it('does not poll a post before its next scheduled check', async () => {
+    const { isTikTokPollDue } = await import('../social/tiktok-publish-poll-worker');
+    expect(isTikTokPollDue({ tiktokNextPollAt: '2026-08-18T12:01:00.000Z' }, Date.parse('2026-08-18T12:00:00.000Z'))).toBe(false);
+    expect(isTikTokPollDue({ tiktokNextPollAt: '2026-08-18T11:59:00.000Z' }, Date.parse('2026-08-18T12:00:00.000Z'))).toBe(true);
+    expect(isTikTokPollDue({}, Date.parse('2026-08-18T12:00:00.000Z'))).toBe(true);
+  });
+
+  it('backs inbox hand-offs off much more aggressively than active publishes', async () => {
+    const { getTikTokPollDelayMs } = await import('../social/tiktok-publish-poll-worker');
+    expect(getTikTokPollDelayMs({ status: 'publishing' }, { status: 'still_processing' })).toBe(60_000);
+    expect(getTikTokPollDelayMs(
+      { status: 'platform_action_required', tiktokPollAttemptCount: 3 },
+      { status: 'platform_action_required' },
+    )).toBe(24 * 60 * 60_000);
+    expect(getTikTokPollDelayMs(
+      {
+        status: 'platform_action_required',
+        tiktokPollStartedAt: new Date(Date.now() - 11 * 24 * 60 * 60_000).toISOString(),
+      },
+      { status: 'platform_action_required' },
+    )).toBeNull();
+    expect(getTikTokPollDelayMs({ status: 'publishing' }, { status: 'published' })).toBeNull();
+  });
+});

@@ -4,13 +4,14 @@ import { publicApiError } from '@/lib/public-api/response';
 import { createPublicPost, resolvePublicPostBrandScope, serializePublicPost } from '@/lib/public-api/posts';
 import { createPublicPostSchema, createPublicPostsBatchSchema, listPublicPostsSchema } from '@/lib/public-api/schemas';
 import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
-import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
+import { executeListQueryPage, type FieldFilter } from '@/lib/firestore-list-query';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 
 export const runtime = 'nodejs';
 
 
 const POSTS_RATE_LIMIT = { limit: 30, windowMs: 60_000 };
+const BATCH_CREATE_CONCURRENCY = 4;
 
 export async function GET(req: Request) {
   try {
@@ -21,6 +22,7 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const params = listPublicPostsSchema.parse({
       limit: url.searchParams.get('limit') ?? 25,
+      cursor: url.searchParams.get('cursor') ?? undefined,
       status: url.searchParams.get('status') ?? undefined,
       productId: url.searchParams.get('productId') ?? undefined,
     });
@@ -34,14 +36,15 @@ export async function GET(req: Request) {
     if (params.status) filters.push({ field: 'status', op: '==', value: params.status });
     if (brandId) filters.push({ field: 'productId', op: '==', value: brandId });
 
-    const posts = await executeListQuery(
+    const page = await executeListQueryPage(
       adminDb.collection(`workspaces/${ctx.workspaceId}/posts`),
-      { filters, orderByField: 'createdAt', limit: params.limit },
+      { filters, orderByField: 'createdAt', limit: params.limit, cursor: params.cursor },
     );
 
     return Response.json({
-      posts: posts.map((post) => serializePublicPost(post as Record<string, unknown>)),
-      count: posts.length,
+      posts: page.items.map((post) => serializePublicPost(post as Record<string, unknown>)),
+      count: page.items.length,
+      nextCursor: page.nextCursor,
     }, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);
@@ -70,24 +73,26 @@ export async function POST(req: Request) {
         }
       }
 
-      // Create posts sequentially so a failure on item N doesn't race quota
-      // accounting or destination resolution with item N+1. Per-item errors
-      // are surfaced in the response — the HTTP call itself stays 2xx as
-      // long as the request was authenticated and well-formed.
       const results: Array<
         | { ok: true; post: ReturnType<typeof serializePublicPost> }
         | { ok: false; error: string }
-      > = [];
-      let createdCount = 0;
-      for (const item of items) {
-        try {
-          const post = await createPublicPost(ctx, item);
-          results.push({ ok: true, post: serializePublicPost(post as Record<string, unknown>) });
-          createdCount += 1;
-        } catch (e) {
-          results.push({ ok: false, error: e instanceof Error ? e.message : 'UNKNOWN_ERROR' });
+      > = new Array(items.length);
+      let cursor = 0;
+      const worker = async () => {
+        while (cursor < items.length) {
+          const index = cursor++;
+          try {
+            const post = await createPublicPost(ctx, items[index]);
+            results[index] = { ok: true, post: serializePublicPost(post as Record<string, unknown>) };
+          } catch (e) {
+            results[index] = { ok: false, error: e instanceof Error ? e.message : 'UNKNOWN_ERROR' };
+          }
         }
-      }
+      };
+      await Promise.all(
+        Array.from({ length: Math.min(BATCH_CREATE_CONCURRENCY, items.length) }, () => worker()),
+      );
+      const createdCount = results.filter((result) => result.ok).length;
       if (createdCount > 0) {
         await incrementApiClientStat(ctx.workspaceId, ctx.clientId, 'post_create');
       }

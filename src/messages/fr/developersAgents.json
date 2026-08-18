@@ -98,6 +98,7 @@
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "La même Idempotency-Key a été envoyée avec un corps différent. Générez une nouvelle clé pour chaque requête distincte." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Tentative de suppression d'une publication pendant qu'une exécution de publication était en cours. Attendez qu'elle se termine, puis supprimez." },
       { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Une exécution de publication pour cette publication est déjà en file. Ne republiez pas — consultez l'exécution existante." },
+      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "Aucune offre active n'est associée à cet espace de travail. Demandez à un propriétaire de vérifier la facturation dans les paramètres." },
       { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "L'espace de travail a atteint son quota mensuel d'imports. Arrêtez d'importer et signalez-le — le contenu existant continue de se publier." },
       { "status": "404", "code": "NOT_FOUND", "action": "L'id est en dehors de la marque de cette clé. Renvoyé en 404 plutôt qu'en 403 pour que les clés ne puissent pas sonder des ids qu'elles ne possèdent pas." },
       { "status": "429", "code": "RATE_LIMITED", "action": "Attendez le nombre de secondes indiqué dans Retry-After, puis réessayez la même requête avec la même Idempotency-Key." }

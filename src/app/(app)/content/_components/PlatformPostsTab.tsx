@@ -171,7 +171,6 @@ function ChannelStates({
         icon={<AlertCircle className="h-5 w-5" style={{ color: "var(--mk-ink-60)" }} />}
         title={t("states.errorTitle", { channel: label })}
         body={t("states.errorBody", { channel: label })}
-        detail={failure.message ?? undefined}
       >
         <Button size="sm" variant="outline" className="rounded-lg" onClick={onRetry}>
           {t("states.tryAgain")}
@@ -368,7 +367,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
         });
         setNextCursor(res.data.nextCursor ?? null);
       } else {
-        toast.error(res.data.message || t("toasts.loadMoreFailed"));
+        toast.error(t("toasts.loadMoreFailed"));
       }
     } finally {
       loadingMoreRef.current = false;
@@ -405,7 +404,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
         setPosts((cur) => cur.filter((p) => p.externalId !== post.externalId));
         toast.success(t("toasts.deleted", { channel: getSocialChannelLabel(post.channel) }));
       } else {
-        toast.error(res.data.message || t("toasts.deleteFailed"));
+        toast.error(t("toasts.deleteFailed"));
       }
     } finally {
       setDeletingId(null);

@@ -70,7 +70,7 @@
     "toasts": {
       "connected": "{provider}を接続しました",
       "declinedPermission": "{provider}：権限リクエストを拒否しました — もう一度試すには「接続」をタップしてください。",
-      "connectionFailed": "{provider}の接続に失敗しました：{message}",
+      "connectionFailed": "{provider} に接続できませんでした。もう一度お試しください。",
       "unknownError": "不明なエラー",
       "almostDone": "もう少しです — チャンネルでFacebookページを選択してMetaの設定を完了してください",
       "deleteFailed": "ブランドの削除に失敗しました",

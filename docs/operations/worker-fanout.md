@@ -3,14 +3,15 @@
 ## Current state (default)
 
 `POST /api/worker/tick` is invoked every ~2 min by Cloud Scheduler.
-It runs global work (OAuth refresh, OAuth-state cleanup, TikTok publish
-poll) once per tick, then fans out per-workspace work in-process with
+It runs global work (OAuth refresh and OAuth-state cleanup) once per tick,
+then fans out per-workspace work in-process with
 `mapWithConcurrency` at `WORKER_WS_CONCURRENCY` (default 8) parallel
-workers.
+workers. TikTok polling has a separate due-queue endpoint.
 
-This scales cleanly to a few hundred workspaces per instance with
-1 vCPU / 1 GiB. Beyond that — or when per-workspace jobs start touching
-the Cloud Run per-request timeout — switch to Cloud Tasks fan-out.
+The dispatcher still performs work proportional to total workspace count,
+including for idle workspaces. Treat a few hundred workspaces as the planning
+boundary, validate it with production duration/read metrics, and switch before
+the dispatcher approaches the Cloud Run request timeout.
 
 ## Cloud Tasks fan-out (recommended above ~500 workspaces)
 
@@ -52,13 +53,20 @@ the Cloud Run per-request timeout — switch to Cloud Tasks fan-out.
    }
    ```
 
-4. In the dispatcher tick, replace the `mapWithConcurrency` block with a
-   simple `for (const ws of wsDocs) await enqueueWorkspaceTick(ws.id)`
-   loop. The dispatcher completes in ~1s regardless of workspace count.
+4. In the dispatcher tick, replace the `mapWithConcurrency` block with
+   bounded-concurrency calls to `enqueueWorkspaceTick`. Dispatch duration and
+   task cost still grow with workspace count, but the expensive execution is
+   horizontally distributed and independently retryable.
 
 The `/api/worker/workspace/[workspaceId]` endpoint is already live and
 accepts the same `x-worker-secret` header, so no API change is needed
 on the execution side.
+
+Cloud Tasks solves the single-instance timeout boundary; it does not eliminate
+the idle-workspace scan. At larger scale, have writers maintain a top-level
+`worker_due_workspaces` queue (or workload-specific due queues) and dispatch
+only due workspace IDs. Roll that out with a temporary legacy scan, as used by
+the TikTok publish mapping queue.
 
 ## Tuning knobs
 

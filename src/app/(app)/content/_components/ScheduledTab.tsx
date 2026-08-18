@@ -13,10 +13,10 @@ import PostGridSkeleton from "./PostGridSkeleton";
 import Pagination from "@/components/app/Pagination";
 import { getPublishUiOutcome } from "@/lib/social/publish-ui-outcome";
 import { sortPostsByNewestDate } from "@/lib/post-ordering";
+import { userFacingError } from "@/lib/user-facing-errors";
 
 const POSTS_PER_PAGE = 6;
-/** Load the whole set so pagination walks every post, not just the first page. */
-const POSTS_FETCH_LIMIT = 1000;
+const POSTS_FETCH_LIMIT = 60;
 
 type Post = {
   id: string;
@@ -52,6 +52,7 @@ export default function ScheduledTab({
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [publishingIds, setPublishingIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   // A different brand means a different result set — start from page 1.
   // Adjusted during render rather than in an effect so the new brand's first
@@ -62,19 +63,39 @@ export default function ScheduledTab({
     setPage(1);
   }
 
-  const fetchScheduled = useCallback(async () => {
+  const fetchScheduledPage = useCallback(async (cursor?: string, append = false) => {
     try {
-      const res = await apiGet<{ posts: Post[] }>(
-        `/api/posts?status=scheduled&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`
+      const res = await apiGet<{ posts: Post[]; nextCursor?: string | null }>(
+        `/api/posts?status=scheduled&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`
       );
-      if (res.ok) setPosts(res.data.posts || []);
+      if (res.ok) {
+        const received = res.data.posts || [];
+        setPosts((current) => append
+          ? [...new Map([...current, ...received].map((post) => [post.id, post])).values()]
+          : received);
+        setNextCursor(res.data.nextCursor || null);
+        return received.length > 0;
+      }
     } catch {
       toast.error(t("toasts.loadFailed"));
     } finally {
       setLoading(false);
     }
+    return false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
+
+  const fetchScheduled = useCallback(async () => {
+    setPage(1);
+    await fetchScheduledPage();
+  }, [fetchScheduledPage]);
+
+  const loadMoreScheduled = useCallback(async () => {
+    if (!nextCursor) return false;
+    const currentPageIsFull = posts.length >= page * POSTS_PER_PAGE;
+    const loaded = await fetchScheduledPage(nextCursor, true);
+    return currentPageIsFull && loaded;
+  }, [fetchScheduledPage, nextCursor, page, posts.length]);
 
   useEffect(() => {
     deferFromEffect(fetchScheduled);
@@ -160,13 +181,10 @@ export default function ScheduledTab({
         setPosts((cur) => cur.filter((p) => p.id !== id));
         fetchScheduled();
       } else {
-        toast.error(res.data.error || t("toasts.publishFailed"), { id: toastId });
+        toast.error(userFacingError(res.data, t("toasts.publishFailed")), { id: toastId });
       }
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t("toasts.publishFailed"),
-        { id: toastId },
-      );
+    } catch {
+      toast.error(t("toasts.publishFailed"), { id: toastId });
     } finally {
       setPublishingIds((prev) => {
         const next = new Set(prev);
@@ -279,7 +297,13 @@ export default function ScheduledTab({
         ))}
       </div>
 
-      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        hasMore={Boolean(nextCursor)}
+        onLoadMore={loadMoreScheduled}
+      />
 
       <PostEditSheet
         post={editPost}

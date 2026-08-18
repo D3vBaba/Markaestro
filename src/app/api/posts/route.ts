@@ -4,7 +4,7 @@ import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { createPostSchema, paginationSchema, postWindowSchema } from '@/lib/schemas';
 import type { CollectionReference } from 'firebase-admin/firestore';
-import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
+import { executeListQuery, executeListQueryPage, type FieldFilter } from '@/lib/firestore-list-query';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 import { getManualPublishChannels, resolveInAppDeliveryMode } from '@/lib/manual-publish-settings';
 import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
@@ -58,9 +58,10 @@ export async function GET(req: Request) {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'dashboard.read');
     const url = new URL(req.url);
-    const { limit, status } = paginationSchema.parse({
+    const { limit, status, cursor } = paginationSchema.parse({
       limit: url.searchParams.get('limit') ?? 50,
       status: url.searchParams.get('status') ?? undefined,
+      cursor: url.searchParams.get('cursor') ?? undefined,
     });
     const channel = url.searchParams.get('channel') ?? undefined;
     // Brands are stored as `products`; posts link to one via productId.
@@ -104,17 +105,16 @@ export async function GET(req: Request) {
     if (channel) filters.push({ field: 'channel', op: '==', value: channel });
     if (productId) filters.push({ field: 'productId', op: '==', value: productId });
 
-    const posts = await executeListQuery(
+    const page = await executeListQueryPage(
       collection,
-      { filters, orderByField: 'createdAt', limit },
+      { filters, orderByField: 'createdAt', limit, cursor },
     );
     return apiOk({
       workspaceId: ctx.workspaceId,
-      posts,
-      count: posts.length,
-      // Filling the limit exactly may mean more exist; callers that present a
-      // list as complete need to know rather than assume.
-      truncated: posts.length >= limit,
+      posts: page.items,
+      count: page.items.length,
+      nextCursor: page.nextCursor,
+      truncated: Boolean(page.nextCursor),
     });
   } catch (error) {
     return apiError(error);

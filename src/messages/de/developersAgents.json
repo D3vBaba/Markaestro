@@ -98,6 +98,7 @@
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "Derselbe Idempotency-Key wurde mit einem anderen Body gesendet. Erstelle einen neuen Schlüssel für jede eigenständige Anfrage." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Es wurde versucht, einen Beitrag zu löschen, während ein Veröffentlichungslauf lief. Warte, bis er sich erledigt hat, und lösche dann." },
       { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Für diesen Beitrag ist bereits ein Veröffentlichungslauf eingereiht. Veröffentliche nicht erneut — frage den bestehenden Lauf ab." },
+      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "Diesem Workspace ist kein aktiver Tarif zugeordnet. Bitte einen Workspace-Inhaber, die Abrechnung in den Einstellungen zu prüfen." },
       { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "Der Arbeitsbereich hat sein monatliches Upload-Kontingent erreicht. Stoppe das Hochladen und weise darauf hin — vorhandene Medien werden weiterhin veröffentlicht." },
       { "status": "404", "code": "NOT_FOUND", "action": "Die ID liegt außerhalb der Marke dieses Schlüssels. Wird als 404 statt 403 beantwortet, damit Schlüssel nicht nach IDs suchen können, die ihnen nicht gehören." },
       { "status": "429", "code": "RATE_LIMITED", "action": "Warte die in Retry-After angegebene Anzahl Sekunden und wiederhole dieselbe Anfrage mit demselben Idempotency-Key." }

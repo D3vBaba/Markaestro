@@ -38,7 +38,7 @@ function runFfmpeg(args: string[]): Promise<void> {
   }
 
   return new Promise((resolve, reject) => {
-    const child = spawn(binary, args);
+    const child = spawn(/*turbopackIgnore: true*/ binary, args);
     const stderr: Buffer[] = [];
 
     child.stderr.on('data', (chunk: Buffer) => {

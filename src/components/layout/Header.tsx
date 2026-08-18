@@ -181,6 +181,7 @@ export function Header() {
                                             <Link
                                                 key={item.id}
                                                 href={item.href}
+                                                prefetch={false}
                                                 className={cn(
                                                     "flex items-center gap-2.5 rounded-[7px] px-2.5 py-2.5 text-[14px]",
                                                     isActive ? "font-medium" : "font-normal",
@@ -211,6 +212,7 @@ export function Header() {
                     >
                         <Link
                             href={settingsItem.href}
+                            prefetch={false}
                             className="flex items-center gap-2.5 rounded-[7px] px-2.5 py-2.5 text-[14px]"
                             style={{
                                 background: pathname === settingsItem.href ? "var(--mk-panel)" : "transparent",

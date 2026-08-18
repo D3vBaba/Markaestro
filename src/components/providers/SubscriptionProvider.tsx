@@ -4,9 +4,9 @@ import { createContext, useContext, useEffect, useState, useCallback, useMemo } 
 import { deferFromEffect } from "@/lib/defer-from-effect";
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useWorkspace } from '@/components/providers/WorkspaceProvider';
-import { apiFetch } from '@/lib/api-client';
 import type { PlanTier } from '@/lib/stripe/plans';
 import { PLANS } from '@/lib/stripe/plans';
+import { fetchAppBootstrap } from '@/lib/app-bootstrap-client';
 
 type SubscriptionStatus = {
   active: boolean;
@@ -45,24 +45,21 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   const { user, loading: authLoading } = useAuth();
   // The plan belongs to the WORKSPACE: scope the status call to the selected
   // workspace and re-fetch whenever the user switches.
-  const { current: currentWorkspace } = useWorkspace();
+  const { current: currentWorkspace, loading: workspaceLoading } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? null;
   const [status, setStatus] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchStatus = useCallback(async () => {
+  const fetchStatus = useCallback(async (force = false) => {
     if (!user) {
       setStatus(null);
       setLoading(false);
       return;
     }
     try {
-      const path = workspaceId
-        ? `/api/stripe/status?workspaceId=${encodeURIComponent(workspaceId)}`
-        : '/api/stripe/status';
-      const res = await apiFetch<SubscriptionStatus>(path);
+      const res = await fetchAppBootstrap(workspaceId, force);
       if (res.ok) {
-        setStatus(res.data);
+        setStatus(res.data.subscriptionStatus);
       } else {
         setStatus(defaultStatus);
       }
@@ -73,10 +70,14 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
   }, [user, workspaceId]);
 
+  const refresh = useCallback(async () => {
+    await fetchStatus(true);
+  }, [fetchStatus]);
+
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || workspaceLoading) return;
     deferFromEffect(fetchStatus);
-  }, [authLoading, fetchStatus]);
+  }, [authLoading, workspaceLoading, fetchStatus]);
 
   // Sampled once per mount: reading the clock during render makes the output
   // depend on when React happened to re-render. A day counter does not need to
@@ -111,8 +112,8 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   );
 
   const value = useMemo<SubscriptionCtx>(
-    () => ({ status, loading, refresh: fetchStatus, trialDaysLeft, canAccess, getLimit }),
-    [status, loading, fetchStatus, trialDaysLeft, canAccess, getLimit],
+    () => ({ status, loading, refresh, trialDaysLeft, canAccess, getLimit }),
+    [status, loading, refresh, trialDaysLeft, canAccess, getLimit],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

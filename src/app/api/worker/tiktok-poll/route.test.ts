@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const pollPendingTikTokPublishesMock = vi.fn();
+const acquireWorkerLeaseMock = vi.fn();
+const releaseWorkerLeaseMock = vi.fn();
+
+vi.mock('@/lib/workers/lease', () => ({
+  acquireWorkerLease: acquireWorkerLeaseMock,
+  releaseWorkerLease: releaseWorkerLeaseMock,
+}));
 
 vi.mock('@/lib/social/tiktok-publish-poll-worker', () => ({
   pollPendingTikTokPublishes: pollPendingTikTokPublishesMock,
@@ -36,6 +43,8 @@ describe('POST /api/worker/tiktok-poll', () => {
       pending: 1,
       errors: [],
     });
+    acquireWorkerLeaseMock.mockResolvedValue('lease_1');
+    releaseWorkerLeaseMock.mockResolvedValue(undefined);
   });
 
   it('rejects missing worker secret', async () => {
@@ -58,5 +67,6 @@ describe('POST /api/worker/tiktok-poll', () => {
     expect(body.iterations).toEqual([
       { polled: 2, completed: 1, failed: 0, pending: 1, errors: 0 },
     ]);
+    expect(releaseWorkerLeaseMock).toHaveBeenCalledWith('tiktok-poll', 'lease_1');
   });
 });

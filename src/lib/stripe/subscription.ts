@@ -28,6 +28,42 @@ export async function getSubscriptionForWorkspace(workspaceId: string): Promise<
   return doc.data() as SubscriptionRecord;
 }
 
+/**
+ * Older subscriptions were keyed by Firebase uid and had no workspaceId.
+ * They belong only to the personal workspace created by that same user; they
+ * must never grant paid access inside an unrelated team workspace.
+ */
+export function legacySubscriptionAppliesToWorkspace(
+  legacy: SubscriptionRecord | null,
+  uid: string,
+  workspaceId: string,
+  workspaceCreatedBy: unknown,
+): legacy is SubscriptionRecord {
+  if (!legacy || workspaceCreatedBy !== uid) return false;
+  return !legacy.workspaceId || legacy.workspaceId === workspaceId;
+}
+
+async function getLegacySubscriptionForOwnedWorkspace(
+  uid: string,
+  workspaceId: string,
+): Promise<SubscriptionRecord | null> {
+  const [legacySnap, workspaceSnap] = await adminDb.getAll(
+    adminDb.collection(COLLECTION).doc(uid),
+    adminDb.collection('workspaces').doc(workspaceId),
+  );
+  if (!legacySnap.exists || !workspaceSnap.exists) return null;
+
+  const legacy = legacySnap.data() as SubscriptionRecord;
+  return legacySubscriptionAppliesToWorkspace(
+    legacy,
+    uid,
+    workspaceId,
+    workspaceSnap.data()?.createdBy,
+  )
+    ? legacy
+    : null;
+}
+
 /** Read the account-level entitlement for a user (applies across all workspaces). */
 export async function getAccountEntitlement(uid: string): Promise<SubscriptionRecord | null> {
   const doc = await adminDb.collection(ACCOUNT_COLLECTION).doc(uid).get();
@@ -166,12 +202,21 @@ export async function getEffectiveSubscription(
   const workspaceId =
     typeof opts === 'string' ? legacyWorkspaceId : opts.workspaceId;
 
-  const [account, workspace] = await Promise.all([
+  const [account, workspaceSubscription] = await Promise.all([
     uid ? getAccountEntitlement(uid) : Promise.resolve(null),
     workspaceId ? getSubscriptionForWorkspace(workspaceId) : Promise.resolve(null),
   ]);
 
-  return pickEffectiveSubscription(account, workspace);
+  // Most workspaces use workspace-keyed subscription records. A small number
+  // of paid accounts predate that migration; if their record was missed, use
+  // it only for the workspace they own instead of silently treating them as
+  // unsubscribed.
+  const legacySubscription =
+    !workspaceSubscription && uid && workspaceId
+      ? await getLegacySubscriptionForOwnedWorkspace(uid, workspaceId)
+      : null;
+
+  return pickEffectiveSubscription(account, workspaceSubscription ?? legacySubscription);
 }
 
 export type SubscriptionStatus = {

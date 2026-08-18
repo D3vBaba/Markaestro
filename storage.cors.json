@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://markaestro.com", "https://app.markaestro.com"],
+    "method": ["PUT", "OPTIONS"],
+    "responseHeader": ["Content-Type", "ETag", "x-goog-generation"],
+    "maxAgeSeconds": 3600
+  }
+]

@@ -1,8 +1,11 @@
 import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { decrypt } from '@/lib/crypto';
 import { buildWebhookSecret } from './keys';
 import type { PublicWebhookEvent } from './scopes';
+
+const WEBHOOK_DELIVERY_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 type WebhookActor = {
   workspaceId: string;
@@ -101,6 +104,7 @@ export async function enqueueWebhookEvent(
       nextAttemptAt: now,
       createdAt: now,
       lastAttemptAt: null,
+      expiresAt: Timestamp.fromMillis(Date.now() + WEBHOOK_DELIVERY_RETENTION_MS),
     });
   }
 
@@ -108,9 +112,17 @@ export async function enqueueWebhookEvent(
 }
 
 export async function getWebhookEndpointSecret(workspaceId: string, endpointId: string) {
+  const config = await getWebhookEndpointDeliveryConfig(workspaceId, endpointId);
+  return config.secret;
+}
+
+export async function getWebhookEndpointDeliveryConfig(workspaceId: string, endpointId: string) {
   const snap = await adminDb.doc(`workspaces/${workspaceId}/webhook_endpoints/${endpointId}`).get();
   if (!snap.exists) throw new Error('NOT_FOUND');
+  if (snap.data()?.status !== 'active') throw new Error('WEBHOOK_ENDPOINT_DISABLED');
   const secretEncrypted = snap.data()?.secretEncrypted as string | undefined;
   if (!secretEncrypted) throw new Error('NOT_FOUND');
-  return decrypt(secretEncrypted);
+  const url = snap.data()?.url as string | undefined;
+  if (!url) throw new Error('NOT_FOUND');
+  return { url, secret: decrypt(secretEncrypted) };
 }

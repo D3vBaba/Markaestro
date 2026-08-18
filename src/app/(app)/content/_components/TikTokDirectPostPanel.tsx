@@ -80,7 +80,7 @@ export default function TikTokDirectPostPanel({
         } else {
           onCreatorInfoChange({
             status: "error",
-            message: res.data?.error || t("errors.generic"),
+            message: t("errors.generic"),
             reason: res.data?.reason,
           });
         }

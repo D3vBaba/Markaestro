@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 import { apiGet, apiPut } from "@/lib/api-client";
@@ -296,7 +295,7 @@ function PostDetailPanel({ post, onClose, onBack, brandName }: {
         </div>
         {post.errorMessage && (
           <div className="rounded-lg border border-destructive/20 bg-destructive/8 px-3 py-2 text-[12px] text-destructive">
-            {post.errorMessage}
+            {t("failedToPublish")}
           </div>
         )}
         {post.externalUrl && (
@@ -348,7 +347,7 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = 
       onClick={onClick}
       draggable={draggable}
       onDragStart={onDragStart}
-      title={isFailed ? p.errorMessage || t("failedToPublish") : undefined}
+      title={isFailed ? t("failedToPublish") : undefined}
       className="w-full rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98] cursor-grab active:cursor-grabbing"
       style={{ background: isSelected ? accent + "20" : bg, borderLeft: `3px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
     >
@@ -821,7 +820,7 @@ function CalendarPageContent() {
   }).length;
 
   return (
-    <AppShell>
+    <>
       <style>{`
         @keyframes slideInRight {
           from { opacity: 0; transform: translateX(12px); }
@@ -1260,7 +1259,7 @@ function CalendarPageContent() {
           </div>
         )}
       </div>
-    </AppShell>
+    </>
   );
 }
 

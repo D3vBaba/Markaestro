@@ -18,6 +18,11 @@ export type PublicProductSummary = {
   destinationsCount: number;
 };
 
+export type PublicProductCatalogEntry = {
+  product: PublicProductSummary;
+  destinations: PublicProductDestination[];
+};
+
 export type PublicProductDestination = {
   id: string;
   provider: 'meta' | 'instagram' | 'tiktok' | 'threads' | 'linkedin';
@@ -209,18 +214,20 @@ async function listWorkspaceLevelDestinations(
 async function listAllProductDestinations(
   workspaceId: string,
 ): Promise<WorkspaceDestination[]> {
-  const products = await listWorkspaceProducts(workspaceId);
-  const items: WorkspaceDestination[] = [];
-
-  for (const product of products) {
-    const destinations = await listPublicProductDestinations(workspaceId, product.id);
-    items.push(...destinations.map((destination) => ({
-      productId: product.id,
-      destination,
-    })));
-  }
-
-  return items;
+  const [products, metaCredential] = await Promise.all([
+    listWorkspaceProducts(workspaceId),
+    getConnection(workspaceId, 'meta'),
+  ]);
+  const groups = await Promise.all(products.map(async (product) => {
+    const destinations = await listPublicProductDestinations(
+      workspaceId,
+      product.id,
+      product,
+      metaCredential,
+    );
+    return destinations.map((destination) => ({ productId: product.id, destination }));
+  }));
+  return groups.flat();
 }
 
 async function listWorkspaceDestinationsForChannel(
@@ -246,11 +253,15 @@ function findDestinationById(
 export async function listPublicProductDestinations(
   workspaceId: string,
   productId: string,
+  knownProduct?: ProductRecord,
+  knownWorkspaceMetaCredential?: PlatformConnection | null,
 ): Promise<PublicProductDestination[]> {
-  const productSnap = await adminDb.doc(`${workspaceCollection(workspaceId, 'products')}/${productId}`).get();
-  if (!productSnap.exists) throw new Error('NOT_FOUND');
-
-  const product = productSnap.data() as ProductRecord;
+  let product = knownProduct;
+  if (!product) {
+    const productSnap = await adminDb.doc(`${workspaceCollection(workspaceId, 'products')}/${productId}`).get();
+    if (!productSnap.exists) throw new Error('NOT_FOUND');
+    product = { id: productId, ...(productSnap.data() as Record<string, unknown>) } as ProductRecord;
+  }
   const fallbackName = product.name || productId;
   // A brand can link several accounts per provider (ten Facebook Pages, two
   // Instagram accounts, …) — every one of them is a publishable destination.
@@ -264,7 +275,9 @@ export async function listPublicProductDestinations(
     listProviderConnections(workspaceId, 'linkedin', productId),
   ]);
 
-  const metaCredential = await getConnection(workspaceId, 'meta');
+  const metaCredential = knownWorkspaceMetaCredential === undefined
+    ? await getConnection(workspaceId, 'meta')
+    : knownWorkspaceMetaCredential;
   const mergedMetaConns = metaConns.map((conn) => (metaCredential
     ? { ...conn, metadata: { ...metaCredential.metadata, ...conn.metadata } }
     : conn));
@@ -282,28 +295,51 @@ export async function listPublicProductDestinations(
   ];
 }
 
-export async function listPublicProducts(workspaceId: string): Promise<PublicProductSummary[]> {
-  const products = await listWorkspaceProducts(workspaceId);
+export async function listPublicProductCatalog(
+  workspaceId: string,
+  boundProductId?: string,
+): Promise<PublicProductCatalogEntry[]> {
+  let products: ProductRecord[];
+  if (boundProductId) {
+    const snap = await adminDb.doc(`${workspaceCollection(workspaceId, 'products')}/${boundProductId}`).get();
+    products = snap.exists
+      ? [{ id: snap.id, ...(snap.data() as Record<string, unknown>) } as ProductRecord]
+      : [];
+  } else {
+    products = await listWorkspaceProducts(workspaceId);
+  }
 
-  const summaries = await Promise.all(products.map(async (product) => {
-    const destinations = await listPublicProductDestinations(workspaceId, product.id);
+  const metaCredential = await getConnection(workspaceId, 'meta');
+  return Promise.all(products.map(async (product) => {
+    const destinations = await listPublicProductDestinations(
+      workspaceId,
+      product.id,
+      product,
+      metaCredential,
+    );
     const availableChannels = Array.from(
       new Set(destinations.map((destination) => destination.channel)),
     ) as SocialChannel[];
 
     return {
-      id: product.id,
-      name: product.name || product.id,
-      status: product.status || 'active',
-      categories: Array.isArray(product.categories)
-        ? product.categories.filter((category): category is string => typeof category === 'string')
-        : [],
-      availableChannels,
-      destinationsCount: destinations.length,
-    } satisfies PublicProductSummary;
+      product: {
+        id: product.id,
+        name: product.name || product.id,
+        status: product.status || 'active',
+        categories: Array.isArray(product.categories)
+          ? product.categories.filter((category): category is string => typeof category === 'string')
+          : [],
+        availableChannels,
+        destinationsCount: destinations.length,
+      },
+      destinations,
+    } satisfies PublicProductCatalogEntry;
   }));
+}
 
-  return summaries;
+export async function listPublicProducts(workspaceId: string): Promise<PublicProductSummary[]> {
+  const catalog = await listPublicProductCatalog(workspaceId);
+  return catalog.map((entry) => entry.product);
 }
 
 export async function resolvePublicPostDestination(

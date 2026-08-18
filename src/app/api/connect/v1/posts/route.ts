@@ -6,18 +6,20 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
 import { createPublicPost } from '@/lib/public-api/posts';
-import { executeListQuery, type FieldFilter } from '@/lib/firestore-list-query';
+import { executeListQueryPage, type FieldFilter } from '@/lib/firestore-list-query';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 import {
   getConnectScheduledDeliveryMode,
   mapPostStatus,
   parseAccountId,
   resolveConnectSchedule,
+  validateConnectPostFanout,
 } from '@/lib/public-api/connect-compat';
 
 export const runtime = 'nodejs';
 
 const POSTS_RATE_LIMIT = { limit: 60, windowMs: 60_000 };
+const DESTINATION_CREATE_CONCURRENCY = 4;
 
 export async function POST(req: Request) {
   try {
@@ -38,47 +40,62 @@ export async function POST(req: Request) {
     const mediaAssetIds = Array.isArray(body.media) ? body.media.map(String) : [];
     const accounts = Array.isArray(body.social_accounts) ? body.social_accounts.map(String) : [];
     if (accounts.length === 0) throw new Error('VALIDATION_NO_DESTINATION');
+    validateConnectPostFanout({ caption, mediaAssetIds, accounts });
     // Stay draft-first unless the scheduling client explicitly requests a
     // non-draft post with a timestamp. TikTok schedules an inbox handoff, never
     // an unattended public Direct Post.
     const scheduledAt = resolveConnectSchedule(body.scheduled_at, body.is_draft);
 
-    const created: Array<{ id: string; channel: string; status: string }> = [];
-    const errors: Array<{ account: string; error: string }> = [];
-
-    for (const account of accounts) {
-      const { productId, destinationId, channel } = parseAccountId(account);
-      try {
-        const post = await createPublicPost(ctx, {
-          channel,
-          caption,
-          mediaAssetIds,
-          // createPublicPost is deliberately draft-first. Connect promotes the
-          // stored post to scheduled immediately below when scheduling was
-          // explicitly requested.
-          scheduledAt: null,
-          productId,
-          destinationId,
-          ...(scheduledAt ? { deliveryMode: getConnectScheduledDeliveryMode(channel) } : {}),
-        });
-        if (scheduledAt) {
-          const now = new Date().toISOString();
-          await adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${post.id}`).set({
-            status: 'scheduled',
-            scheduledAt,
-            originalScheduledAt: scheduledAt,
-            updatedAt: now,
-          }, { merge: true });
+    const outcomes: Array<
+      | { ok: true; value: { id: string; channel: string; status: string } }
+      | { ok: false; value: { account: string; error: string } }
+    > = new Array(accounts.length);
+    let cursor = 0;
+    const worker = async () => {
+      while (cursor < accounts.length) {
+        const index = cursor++;
+        const account = accounts[index];
+        const { productId, destinationId, channel } = parseAccountId(account);
+        try {
+          const post = await createPublicPost(ctx, {
+            channel,
+            caption,
+            mediaAssetIds,
+            scheduledAt: null,
+            productId,
+            destinationId,
+            ...(scheduledAt ? { deliveryMode: getConnectScheduledDeliveryMode(channel) } : {}),
+          });
+          if (scheduledAt) {
+            const now = new Date().toISOString();
+            await adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${post.id}`).set({
+              status: 'scheduled',
+              scheduledAt,
+              originalScheduledAt: scheduledAt,
+              updatedAt: now,
+            }, { merge: true });
+          }
+          outcomes[index] = {
+            ok: true,
+            value: {
+              id: post.id,
+              channel: post.channel,
+              status: scheduledAt ? 'scheduled' : post.status,
+            },
+          };
+        } catch (e) {
+          outcomes[index] = {
+            ok: false,
+            value: { account, error: e instanceof Error ? e.message : 'UNKNOWN_ERROR' },
+          };
         }
-        created.push({
-          id: post.id,
-          channel: post.channel,
-          status: scheduledAt ? 'scheduled' : post.status,
-        });
-      } catch (e) {
-        errors.push({ account, error: e instanceof Error ? e.message : 'UNKNOWN_ERROR' });
       }
-    }
+    };
+    await Promise.all(
+      Array.from({ length: Math.min(DESTINATION_CREATE_CONCURRENCY, accounts.length) }, () => worker()),
+    );
+    const created = outcomes.filter((outcome): outcome is Extract<(typeof outcomes)[number], { ok: true }> => outcome.ok).map((outcome) => outcome.value);
+    const errors = outcomes.filter((outcome): outcome is Extract<(typeof outcomes)[number], { ok: false }> => !outcome.ok).map((outcome) => outcome.value);
 
     if (created.length === 0) {
       // Every destination failed — surface the first error with a 400.
@@ -101,6 +118,7 @@ export async function GET(req: Request) {
     const ctx = await requirePublicApiContext(req, { scope: 'posts.read' });
     const url = new URL(req.url);
     const limit = Math.min(Math.max(Number(url.searchParams.get('limit')) || 100, 1), 100);
+    const cursor = url.searchParams.get('cursor') || undefined;
 
     // A product-bound key only sees its own product's posts. Applied as a query
     // filter rather than in memory so `limit` counts matching posts — filtering
@@ -108,12 +126,12 @@ export async function GET(req: Request) {
     const filters: FieldFilter[] = [];
     if (ctx.productId) filters.push({ field: 'productId', op: '==', value: ctx.productId });
 
-    const posts = await executeListQuery(
+    const page = await executeListQueryPage(
       adminDb.collection(workspaceCollection(ctx.workspaceId, 'posts')),
-      { filters, orderByField: 'createdAt', limit },
+      { filters, orderByField: 'createdAt', limit, cursor },
     );
 
-    const data = posts.map((p) => {
+    const data = page.items.map((p) => {
       const mediaUrls = Array.isArray(p.mediaUrls) ? (p.mediaUrls as unknown[]).map(String) : [];
       const status = mapPostStatus(p.status);
       return {
@@ -129,7 +147,7 @@ export async function GET(req: Request) {
       };
     });
 
-    return Response.json({ data }, { headers: ctx.rateLimitHeaders });
+    return Response.json({ data, next_cursor: page.nextCursor }, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);
   }

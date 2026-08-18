@@ -16,6 +16,7 @@ import ScanProgressStepper from "@/components/app/ScanProgressStepper";
 import { useProductScan } from "@/hooks/useProductScan";
 import { apiPost, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
+import { userFacingError } from "@/lib/user-facing-errors";
 
 type Mode = "start" | "scan" | "manual" | "review";
 
@@ -117,8 +118,7 @@ export default function ProductCreateWizard({
         categories,
       });
       if (!res.ok) {
-        const err = res.data as { error?: string; issues?: { message: string }[] };
-        toast.error(err.issues?.[0]?.message || err.error || t("toasts.createFailed"));
+        toast.error(userFacingError(res.data, t("toasts.createFailed")));
         return;
       }
       const created = res.data;

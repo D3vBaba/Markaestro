@@ -12,8 +12,7 @@ import Pagination from "@/components/app/Pagination";
 import { sortPostsByNewestDate } from "@/lib/post-ordering";
 
 const POSTS_PER_PAGE = 6;
-/** Load the whole set so pagination walks every post, not just the first page. */
-const POSTS_FETCH_LIMIT = 1000;
+const POSTS_FETCH_LIMIT = 60;
 
 type Post = {
   id: string;
@@ -42,6 +41,7 @@ export default function PublishedTab({
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   // A different brand means a different result set — start from page 1.
   // Adjusted during render rather than in an effect so the new brand's first
@@ -72,19 +72,39 @@ export default function PublishedTab({
     }
   };
 
-  const fetchPublished = useCallback(async () => {
+  const fetchPublishedPage = useCallback(async (cursor?: string, append = false) => {
     try {
-      const res = await apiGet<{ posts: Post[] }>(
-        `/api/posts?status=published&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}`
+      const res = await apiGet<{ posts: Post[]; nextCursor?: string | null }>(
+        `/api/posts?status=published&limit=${POSTS_FETCH_LIMIT}${productId ? `&productId=${encodeURIComponent(productId)}` : ""}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`
       );
-      if (res.ok) setPosts(res.data.posts || []);
+      if (res.ok) {
+        const received = res.data.posts || [];
+        setPosts((current) => append
+          ? [...new Map([...current, ...received].map((post) => [post.id, post])).values()]
+          : received);
+        setNextCursor(res.data.nextCursor || null);
+        return received.length > 0;
+      }
     } catch {
       toast.error(t("toasts.loadFailed"));
     } finally {
       setLoading(false);
     }
+    return false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
+
+  const fetchPublished = useCallback(async () => {
+    setPage(1);
+    await fetchPublishedPage();
+  }, [fetchPublishedPage]);
+
+  const loadMorePublished = useCallback(async () => {
+    if (!nextCursor) return false;
+    const currentPageIsFull = posts.length >= page * POSTS_PER_PAGE;
+    const loaded = await fetchPublishedPage(nextCursor, true);
+    return currentPageIsFull && loaded;
+  }, [fetchPublishedPage, nextCursor, page, posts.length]);
 
   useEffect(() => {
     deferFromEffect(fetchPublished);
@@ -119,7 +139,13 @@ export default function PublishedTab({
           <PostCard key={post.id} post={post} onDelete={() => handleDelete(post.id)} />
         ))}
       </div>
-      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        hasMore={Boolean(nextCursor)}
+        onLoadMore={loadMorePublished}
+      />
     </>
   );
 }

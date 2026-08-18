@@ -47,6 +47,15 @@ env:
       - BUILD
       - RUNTIME
 
+  # Direct browser-to-Storage uploads remove large request bodies from the
+  # Next.js runtime. Keep disabled until storage.cors.json and the staging
+  # object lifecycle policy have been applied to the production bucket.
+  - variable: NEXT_PUBLIC_DIRECT_MEDIA_UPLOADS_ENABLED
+    value: "0"
+    availability:
+      - BUILD
+      - RUNTIME
+
   # App URL for OAuth callbacks. Intentionally kept on the apex (markaestro.com)
   # so /api/* helpers — OAuth callbacks, the Stripe webhook, and the TikTok
   # media proxy that TikTok's servers fetch at publish time — never depend on

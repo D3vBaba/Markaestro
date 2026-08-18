@@ -98,6 +98,7 @@
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "Dezelfde Idempotency-Key is met een andere body verzonden. Genereer een nieuwe sleutel per afzonderlijk verzoek." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Probeerde een post te verwijderen terwijl een publicatierun bezig is. Wacht tot de run is afgerond en verwijder dan." },
       { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Een publicatierun voor deze post staat al in de wachtrij. Publiceer niet opnieuw — peil in plaats daarvan de bestaande run." },
+      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "Er is geen actief abonnement aan deze werkruimte gekoppeld. Vraag een eigenaar om de facturering in Instellingen te controleren." },
       { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "De workspace heeft het maandelijkse uploadquotum bereikt. Stop met uploaden en breng dit onder de aandacht — bestaande media wordt nog steeds gepubliceerd." },
       { "status": "404", "code": "NOT_FOUND", "action": "De id valt buiten het merk van deze sleutel. Beantwoord als 404 in plaats van 403, zodat sleutels geen id's kunnen aftasten die ze niet bezitten." },
       { "status": "429", "code": "RATE_LIMITED", "action": "Wacht het aantal seconden dat Retry-After aangeeft, en probeer dan hetzelfde verzoek opnieuw met dezelfde Idempotency-Key." }

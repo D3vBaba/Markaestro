@@ -98,6 +98,7 @@
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "أُرسل نفس Idempotency-Key بنص مختلف. أصدر مفتاحًا جديدًا لكل طلب مميز." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "حاول حذف منشور بينما مهمة نشر قيد التنفيذ. انتظر حتى تستقر المهمة، ثم احذف." },
       { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "مهمة نشر لهذا المنشور موجودة بالفعل في قائمة الانتظار. لا تنشر مرة أخرى — استعلم بدلًا من ذلك عن المهمة الحالية." },
+      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "لا توجد خطة نشطة مرتبطة بمساحة العمل. اطلب من مالك مساحة العمل مراجعة الفوترة في الإعدادات." },
       { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "وصلت مساحة العمل إلى حصتها الشهرية للرفع. توقف عن الرفع وأبرز ذلك — لا تزال الوسائط الحالية تُنشر." },
       { "status": "404", "code": "NOT_FOUND", "action": "المعرّف خارج علامة هذا المفتاح التجارية. تمت الإجابة بـ404 بدلًا من 403 بحيث لا يمكن للمفاتيح استكشاف معرّفات لا تملكها." },
       { "status": "429", "code": "RATE_LIMITED", "action": "انتظر عدد الثواني المحدد في Retry-After، ثم أعد نفس الطلب بنفس Idempotency-Key." }

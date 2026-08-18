@@ -25,6 +25,7 @@ import {
 import { canUseTikTokDirectPost } from "@/lib/social/tiktok-direct-post-access";
 import { getFailedChannelResults } from "@/lib/social/publish-ui-outcome";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { userFacingError } from "@/lib/user-facing-errors";
 
 const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
 const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
@@ -339,14 +340,18 @@ export default function CreateTab({
           const isVideo = file.type.startsWith("video/");
           const maxSize = isVideo ? 250 * 1024 * 1024 : 10 * 1024 * 1024;
           if (file.size > maxSize) {
-            toast.error(t("toasts.fileTooLarge", { file: file.name, size: isVideo ? "250" : "10" }));
+            toast.error(t("toasts.fileTooLarge", { size: isVideo ? "250" : "10" }));
             return null;
           }
           const fd = new FormData();
           fd.append(isVideo ? "video" : "image", file);
           const res = await apiUpload<{ ok: boolean; url: string }>("/api/media/upload", fd);
           if (!res.ok) {
-            toast.error(t("toasts.fileUploadFailed", { file: file.name }));
+            toast.error(userFacingError(res.data, t("toasts.fileUploadFailed"), {
+              SUBSCRIPTION_REQUIRED: t("toasts.subscriptionRequired"),
+              QUOTA_EXCEEDED_MEDIA_UPLOADS: t("toasts.uploadQuotaExceeded"),
+              REQUEST_TIMEOUT: t("toasts.uploadTimedOut"),
+            }));
             return null;
           }
           return res.data.url;
@@ -506,11 +511,9 @@ export default function CreateTab({
       for (const ch of successful) {
         if (ch.externalUrl) toast.info(`${ch.channel}: ${ch.externalUrl}`);
       }
-      for (const ch of failed) {
-        toast.error(`${ch.channel}: ${ch.error}`);
-      }
+      if (failed.length > 0) toast.error(t("toasts.publishFailed"));
     } else {
-      toast.error(res.data.error || t("toasts.publishFailed"));
+      toast.error(userFacingError(res.data, t("toasts.publishFailed")));
     }
     // The list reflects the post's final state (published/failed) either way.
     onPostCreated?.();

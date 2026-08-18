@@ -98,6 +98,7 @@
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "The same Idempotency-Key was sent with a different body. Mint a new key per distinct request." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Tried to delete a post while a publish run is in flight. Wait for the run to settle, then delete." },
       { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "A publish run for this post is already queued. Do not publish again — poll the existing run instead." },
+      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "No active plan is attached to this workspace. Ask a workspace owner to review billing in Settings." },
       { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "The workspace hit its monthly upload quota. Stop uploading and surface it — existing media still publishes." },
       { "status": "404", "code": "NOT_FOUND", "action": "The id is outside this key's brand. Answered as 404 rather than 403 so keys cannot probe for ids they do not own." },
       { "status": "429", "code": "RATE_LIMITED", "action": "Sleep for Retry-After seconds, then retry the same request with the same Idempotency-Key." }

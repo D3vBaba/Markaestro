@@ -98,6 +98,7 @@
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "동일한 Idempotency-Key가 다른 요청 본문과 함께 전송되었습니다. 서로 다른 요청마다 새 키를 발급하세요." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "발행 실행이 진행 중인 상태에서 게시물을 삭제하려 했습니다. 실행이 완료될 때까지 기다린 후 삭제하세요." },
       { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "이 게시물에 대한 발행 실행이 이미 큐에 있습니다. 다시 발행하지 말고, 기존 실행 상태를 폴링하세요." },
+      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "이 워크스페이스에 활성 요금제가 연결되어 있지 않습니다. 워크스페이스 소유자에게 설정에서 결제를 확인하도록 요청하세요." },
       { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "워크스페이스가 월간 업로드 할당량에 도달했습니다. 업로드를 중단하고 이를 알리세요 — 기존 미디어는 계속 발행됩니다." },
       { "status": "404", "code": "NOT_FOUND", "action": "해당 ID는 이 키의 브랜드 범위 밖에 있습니다. 키가 소유하지 않은 ID를 탐색할 수 없도록 403 대신 404로 응답됩니다." },
       { "status": "429", "code": "RATE_LIMITED", "action": "Retry-After에 명시된 초만큼 대기한 후, 동일한 Idempotency-Key로 같은 요청을 재시도하세요." }

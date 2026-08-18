@@ -5,6 +5,13 @@ const processTokenRefreshMock = vi.fn();
 const cleanupExpiredOAuthStatesMock = vi.fn();
 const getAllDocsMock = vi.fn();
 const processWorkspaceTickMock = vi.fn();
+const acquireWorkerLeaseMock = vi.fn();
+const releaseWorkerLeaseMock = vi.fn();
+
+vi.mock('@/lib/workers/lease', () => ({
+  acquireWorkerLease: acquireWorkerLeaseMock,
+  releaseWorkerLease: releaseWorkerLeaseMock,
+}));
 
 vi.mock('@/lib/social/tiktok-publish-poll-worker', () => ({
   pollPendingTikTokPublishes: pollPendingTikTokPublishesMock,
@@ -79,6 +86,8 @@ describe('POST /api/worker/tick', () => {
       jobResults: [],
       errors: [],
     });
+    acquireWorkerLeaseMock.mockResolvedValue('lease_1');
+    releaseWorkerLeaseMock.mockResolvedValue(undefined);
   });
 
   it('does not run the TikTok publish poller (owned by /api/worker/tiktok-poll)', async () => {
@@ -90,5 +99,6 @@ describe('POST /api/worker/tick', () => {
     expect(pollPendingTikTokPublishesMock).not.toHaveBeenCalled();
     expect(body.tiktokPublishes).toBeUndefined();
     expect(processWorkspaceTickMock).toHaveBeenCalledWith('ws_1');
+    expect(releaseWorkerLeaseMock).toHaveBeenCalledWith('tick', 'lease_1');
   });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   isActiveSubscription,
   effectiveTier,
+  legacySubscriptionAppliesToWorkspace,
   pickEffectiveSubscription,
 } from '../stripe/subscription';
 import type { SubscriptionRecord } from '../stripe/server';
@@ -101,5 +102,23 @@ describe('pickEffectiveSubscription', () => {
     const surfaced = pickEffectiveSubscription(record({ tier: 'business', status: 'canceled' }), null);
     expect(surfaced).not.toBeNull();
     expect(effectiveTier(surfaced)).toBe('starter');
+  });
+});
+
+describe('legacySubscriptionAppliesToWorkspace', () => {
+  it('keeps an unmigrated paid subscription active in its owner workspace', () => {
+    const legacy = record({ tier: 'pro', workspaceId: undefined });
+    expect(legacySubscriptionAppliesToWorkspace(legacy, 'user-1', 'default', 'user-1')).toBe(true);
+  });
+
+  it('never carries a legacy subscription into another user or team workspace', () => {
+    const legacy = record({ tier: 'pro', workspaceId: undefined });
+    expect(legacySubscriptionAppliesToWorkspace(legacy, 'user-1', 'team-1', 'user-2')).toBe(false);
+    expect(legacySubscriptionAppliesToWorkspace(
+      record({ workspaceId: 'personal-1' }),
+      'user-1',
+      'team-1',
+      'user-1',
+    )).toBe(false);
   });
 });

@@ -12,9 +12,9 @@
  *      that Cloud Tasks can hit once per workspace, turning the tick
  *      into a true distributed job queue.
  *
- * The dispatcher (/api/worker/tick) enumerates active workspaces and,
- * depending on the WORKER_FANOUT_MODE env var, either calls this module
- * directly with p-limit concurrency or enqueues per-workspace tasks.
+ * The dispatcher (/api/worker/tick) currently enumerates workspaces and calls
+ * this module with bounded concurrency. The dedicated endpoint is the stable
+ * execution target for a future Cloud Tasks dispatcher.
  */
 
 import { adminDb } from '@/lib/firebase-admin';

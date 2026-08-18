@@ -629,7 +629,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     return redirectThroughBridge(appUrl, '/settings', {
       oauth: 'error',
       provider: providerParam,
-      message: msg,
+      reason: /access_denied/i.test(msg) ? 'access_denied' : 'connection_failed',
     });
   }
 }

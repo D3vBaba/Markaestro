@@ -2,6 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
+import { socialChannels } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
 
@@ -21,48 +22,64 @@ export async function GET(req: Request) {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'dashboard.read');
     const ws = ctx.workspaceId;
+    const productsRef = adminDb.collection(`workspaces/${ws}/products`);
+    const postsRef = adminDb.collection(`workspaces/${ws}/posts`);
+    const count = async (query: FirebaseFirestore.Query) => (
+      await query.count().get()
+    ).data().count;
 
-    const [productsSnap, postsSnap] =
-      await Promise.all([
-        adminDb.collection(`workspaces/${ws}/products`).get(),
-        adminDb.collection(`workspaces/${ws}/posts`).get(),
-      ]);
-
-    const products = productsSnap.docs.map((d) => d.data());
-    const posts = postsSnap.docs.map((d) => d.data());
-
-    // Post stats
-    const publishedPosts = posts.filter((p) => p.status === 'published').length;
-    const scheduledPosts = posts.filter((p) => p.status === 'scheduled').length;
-
-    // Posts by channel
-    const postsByChannel: Record<string, number> = {};
-    for (const p of posts) {
-      const channel = p.channel || 'unknown';
-      postsByChannel[channel] = (postsByChannel[channel] || 0) + 1;
-    }
-
-    // Posts published per day (last 7 days)
     const now = new Date();
-    const dailyPosts: { date: string; label: string; published: number; scheduled: number }[] = [];
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayWindows: Array<{ date: string; label: string; start: string; end: string }> = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
-      const published = posts.filter(
-        (p) => p.status === 'published' && p.publishedAt && p.publishedAt.startsWith(dateStr),
-      ).length;
-      const scheduled = posts.filter(
-        (p) => p.status === 'scheduled' && p.scheduledAt && p.scheduledAt.startsWith(dateStr),
-      ).length;
-      dailyPosts.push({ date: dateStr, label: dayNames[d.getDay()], published, scheduled });
+      const start = `${dateStr}T00:00:00.000Z`;
+      dayWindows.push({
+        date: dateStr,
+        label: dayNames[d.getDay()],
+        start,
+        end: new Date(Date.parse(start) + 24 * 60 * 60 * 1000).toISOString(),
+      });
     }
 
-    // Recent posts (latest 5 published or scheduled)
-    const recentPosts = postsSnap.docs
+    const [
+      totalProducts,
+      activeProducts,
+      totalPosts,
+      publishedPosts,
+      scheduledPosts,
+      channelCounts,
+      dayCounts,
+      recentPublishedSnap,
+      recentScheduledSnap,
+    ] = await Promise.all([
+      count(productsRef),
+      count(productsRef.where('status', '==', 'active')),
+      count(postsRef),
+      count(postsRef.where('status', '==', 'published')),
+      count(postsRef.where('status', '==', 'scheduled')),
+      Promise.all(socialChannels.map((channel) => count(postsRef.where('channel', '==', channel)))),
+      Promise.all(dayWindows.map(async ({ start, end }) => Promise.all([
+        count(postsRef.where('status', '==', 'published').where('publishedAt', '>=', start).where('publishedAt', '<', end)),
+        count(postsRef.where('status', '==', 'scheduled').where('scheduledAt', '>=', start).where('scheduledAt', '<', end)),
+      ]))),
+      postsRef.where('status', '==', 'published').orderBy('publishedAt', 'desc').limit(5).get(),
+      postsRef.where('status', '==', 'scheduled').orderBy('scheduledAt', 'desc').limit(5).get(),
+    ]);
+
+    const postsByChannel = Object.fromEntries(
+      socialChannels.map((channel, index) => [channel, channelCounts[index]]),
+    );
+    const dailyPosts = dayWindows.map((day, index) => ({
+      date: day.date,
+      label: day.label,
+      published: dayCounts[index][0],
+      scheduled: dayCounts[index][1],
+    }));
+    const recentPosts = [...recentPublishedSnap.docs, ...recentScheduledSnap.docs]
       .map((d) => ({ id: d.id, ...d.data() } as RecentPost))
-      .filter((p) => p.status === 'published' || p.status === 'scheduled')
       .sort((a, b) => {
         const aDate = a.publishedAt || a.scheduledAt || a.createdAt || '';
         const bDate = b.publishedAt || b.scheduledAt || b.createdAt || '';
@@ -80,9 +97,9 @@ export async function GET(req: Request) {
     return apiOk({
       workspaceId: ws,
       metrics: {
-        totalProducts: products.length,
-        activeProducts: products.filter((p) => p.status === 'active').length,
-        totalPosts: posts.length,
+        totalProducts,
+        activeProducts,
+        totalPosts,
         publishedPosts,
         scheduledPosts,
         postsByChannel,

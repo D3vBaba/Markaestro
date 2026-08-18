@@ -42,6 +42,7 @@ export function MobileTabBar() {
             <Link
               key={tab.href}
               href={tab.href}
+              prefetch={false}
               className="flex flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 min-h-[52px] select-none"
               style={{
                 color: isActive ? "var(--mk-accent)" : "var(--mk-ink-60)",

@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { encrypt } from '@/lib/crypto';
 import { logger } from '@/lib/logger';
 import { getProviderConfig, getRedirectUri, getClientCredentials } from './config';
@@ -51,7 +52,7 @@ type OAuthState = {
   workspaceId: string;
   userId: string;
   createdAt: string;
-  expiresAt: string;
+  expiresAt: string | Timestamp;
   codeVerifier?: string;
   productId?: string;
   returnTo?: string;
@@ -89,7 +90,7 @@ export async function generateAuthUrl(
     workspaceId,
     userId,
     createdAt: now.toISOString(),
-    expiresAt: expiresAt.toISOString(),
+    expiresAt: Timestamp.fromDate(expiresAt),
     ...(productId ? { productId } : {}),
     ...(returnTo ? { returnTo } : {}),
     ...(linkedinCredentialKind ? { linkedinCredentialKind } : {}),
@@ -255,7 +256,10 @@ export async function exchangeCode(
 
   const state = stateSnap.data() as OAuthState;
 
-  if (new Date(state.expiresAt) < new Date()) {
+  const stateExpiresAt = state.expiresAt instanceof Timestamp
+    ? state.expiresAt.toMillis()
+    : Date.parse(state.expiresAt);
+  if (!Number.isFinite(stateExpiresAt) || stateExpiresAt < Date.now()) {
     await stateRef.delete();
     throw new Error('STATE_EXPIRED');
   }

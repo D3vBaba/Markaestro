@@ -1,68 +1,63 @@
 # Firestore TTL policies
 
-Several Firestore collections are ephemeral and grow unbounded without
-active cleanup. We use Firestore's built-in **TTL policy** feature
-(expiry based on a timestamp field) rather than scheduler-driven
-deletes because it is free, consistent, and drops load off the worker.
+Ephemeral Firestore documents must use the platform TTL service so retry,
+rate-limit, lease, and upload-session collections do not grow forever. The
+application still rejects expired records because TTL deletion is eventual.
 
-## Required TTL policies
+## Required policies
 
-Configure one policy per collection via the Cloud Console
-(Firestore → Indexes → TTL tab) or via gcloud:
+Apply one policy for every collection group below:
 
 ```bash
 PROJECT_ID=markaestro-0226220726
-DB=(default)
+DATABASE='(default)'
 
-declare -a TTL_SPECS=(
-  "_rateLimits:expiresAt"
-  "stripeWebhookEvents:expiresAt"
-  "_oauthStates:expiresAt"
-  "_publishThrottle:expiresAt"
-  "_idempotency:expiresAt"
-  "_researchCache:expiresAt"
-  "_sceneCache:expiresAt"
+declare -a TTL_COLLECTIONS=(
+  '_rateLimits'
+  '_authOtps'
+  'stripeWebhookEvents'
+  'oauth_states'
+  '_publishLocks'
+  '_workerLeases'
+  'idempotency_keys'
+  'connect_upload_sessions'
+  'upload_sessions'
+  'webhook_deliveries'
+  'job_runs'
+  'tiktok_publish_mappings'
+  'pendingInvites'
 )
 
-for spec in "${TTL_SPECS[@]}"; do
-  IFS=':' read -r collection field <<< "$spec"
-  gcloud firestore fields ttls update "$field" \
+for collection in "${TTL_COLLECTIONS[@]}"; do
+  gcloud firestore fields ttls update expiresAt \
     --collection-group="$collection" \
     --enable-ttl \
-    --database="$DB" \
+    --database="$DATABASE" \
     --project="$PROJECT_ID"
 done
-
-# Per-workspace pending invites live in a subcollection, so configure
-# the TTL on the subcollection group:
-gcloud firestore fields ttls update expiresAt \
-  --collection-group=pendingInvites \
-  --enable-ttl \
-  --database="$DB" \
-  --project="$PROJECT_ID"
 ```
-
-## Notes
-
-- Firestore TTL deletes documents *eventually* — up to 24h after
-  expiry. Code that reads these collections must treat expired
-  documents as invalid even if still present (see
-  `server-auth.acceptPendingInvites` for the reference pattern).
-- TTL is charged as a single delete per document (same as a normal
-  delete), but without invoking any listeners.
-- The field must be a Firestore `Timestamp` (not a string). The code
-  in this repo writes `new Date(...)` which the SDK serializes to
-  a Timestamp correctly.
 
 ## Collection reference
 
-| Collection              | Field       | Typical retention | Writer                                  |
-| ----------------------- | ----------- | ----------------- | --------------------------------------- |
-| `_rateLimits`           | `expiresAt` | 1–2 windows       | `src/lib/rate-limit.ts`                 |
-| `stripeWebhookEvents`   | `expiresAt` | 90d               | `src/app/api/stripe/webhook/route.ts`   |
-| `_oauthStates`          | `expiresAt` | 10 min            | `src/lib/oauth/flow.ts`                 |
-| `_publishThrottle`      | `expiresAt` | per provider rate | `src/lib/public-api/publish-throttle.ts`|
-| `_idempotency`          | `expiresAt` | 24h               | `src/lib/public-api/idempotency.ts`     |
-| `_researchCache`        | `expiresAt` | 7d                | `src/lib/ai/research-cache.ts`          |
-| `_sceneCache`           | `expiresAt` | 7d                | `src/lib/ai/image-scene-interpreter.ts` |
-| `pendingInvites` (CG)   | `expiresAt` | 30d               | `src/app/api/team/route.ts`             |
+| Collection group | Typical retention | Purpose |
+| --- | ---: | --- |
+| `_rateLimits` | 1–2 rate windows | Request and publish rate-limit buckets |
+| `_authOtps` | 10 minutes | One-time sign-in and email-change codes |
+| `stripeWebhookEvents` | 90 days | Stripe webhook replay protection |
+| `oauth_states` | 10 minutes | OAuth state and PKCE verifier |
+| `_publishLocks` | 5 minutes | Per-destination publish exclusion |
+| `_workerLeases` | 2–5 minutes | Worker overlap protection |
+| `idempotency_keys` | 24 hours | Public API replay records |
+| `connect_upload_sessions` | 15 minutes | Single-use Connect upload URLs |
+| `upload_sessions` | 15 minutes pending; 24 hours completed | Browser direct-upload sessions |
+| `webhook_deliveries` | 30 days | Public webhook attempts and results |
+| `job_runs` | 30 days | Publish and scheduled job history |
+| `tiktok_publish_mappings` | 17 days active; 7 days terminal | TikTok webhook lookup and due-poll queue |
+| `pendingInvites` | 30 days | Workspace invitations |
+
+All current writers use Firestore `Timestamp`/`Date` values for `expiresAt`.
+The OAuth reader also accepts the legacy ISO-string representation during a
+rolling deployment, and the cleanup worker drains those legacy records.
+
+Firestore can take up to roughly 24 hours to delete an expired document. Never
+use physical presence as proof that a lease, state, or upload URL remains valid.

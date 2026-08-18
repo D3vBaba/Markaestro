@@ -197,6 +197,8 @@ export async function getConnection(
   return hydrateConnection(snap, workspaceId, productId);
 }
 
+const inFlightConnectionLists = new Map<string, Promise<PlatformConnection[]>>();
+
 /**
  * List all connections for a workspace (optionally scoped to a product).
  */
@@ -204,7 +206,18 @@ export async function listConnections(
   workspaceId: string,
   productId?: string,
 ): Promise<PlatformConnection[]> {
-  return dedupeConnections(await listConnectionDocs(workspaceId, productId));
+  const key = `${workspaceId}:${productId || '__workspace__'}`;
+  const existing = inFlightConnectionLists.get(key);
+  if (existing) return existing;
+
+  // Destination discovery asks for several providers in parallel. Every
+  // provider lives in the same collection, so share that one collection read
+  // rather than re-reading it once per provider.
+  const pending = listConnectionDocs(workspaceId, productId)
+    .then(dedupeConnections)
+    .finally(() => inFlightConnectionLists.delete(key));
+  inFlightConnectionLists.set(key, pending);
+  return pending;
 }
 
 /**

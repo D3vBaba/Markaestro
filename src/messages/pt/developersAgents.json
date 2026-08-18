@@ -98,6 +98,7 @@
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "O mesmo Idempotency-Key foi enviado com um corpo diferente. Gere uma nova chave para cada solicitação distinta." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Tentativa de excluir um post enquanto uma execução de publicação está em andamento. Aguarde a execução se estabilizar, depois exclua." },
       { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Uma execução de publicação para esse post já está na fila. Não publique novamente — verifique a execução existente." },
+      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "Nenhum plano ativo está associado a este workspace. Peça a um proprietário para revisar o faturamento nas Configurações." },
       { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "O workspace atingiu sua cota mensal de upload. Pare de enviar e informe isso — a mídia existente continua sendo publicada." },
       { "status": "404", "code": "NOT_FOUND", "action": "O id está fora da marca dessa chave. Respondido como 404 em vez de 403 para que as chaves não possam sondar ids que não possuem." },
       { "status": "429", "code": "RATE_LIMITED", "action": "Aguarde os segundos de Retry-After, então tente novamente a mesma solicitação com o mesmo Idempotency-Key." }

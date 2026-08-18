@@ -4,7 +4,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk, apiCreated } from '@/lib/api-response';
 import { createProductSchema, paginationSchema } from '@/lib/schemas';
-import { executeListQuery } from '@/lib/firestore-list-query';
+import { executeListQueryPage } from '@/lib/firestore-list-query';
 
 export const runtime = 'nodejs';
 
@@ -14,20 +14,27 @@ export async function GET(req: Request) {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'dashboard.read');
     const url = new URL(req.url);
-    const { limit, status } = paginationSchema.parse({
+    const { limit, status, cursor } = paginationSchema.parse({
       limit: url.searchParams.get('limit') ?? 50,
       status: url.searchParams.get('status') ?? undefined,
+      cursor: url.searchParams.get('cursor') ?? undefined,
     });
 
-    const products = await executeListQuery(
+    const page = await executeListQueryPage(
       adminDb.collection(workspaceCollection(ctx.workspaceId, 'products')),
       {
         filters: status ? [{ field: 'status', op: '==', value: status }] : [],
         orderByField: 'createdAt',
         limit,
+        cursor,
       },
     );
-    return apiOk({ workspaceId: ctx.workspaceId, products, count: products.length });
+    return apiOk({
+      workspaceId: ctx.workspaceId,
+      products: page.items,
+      count: page.items.length,
+      nextCursor: page.nextCursor,
+    });
   } catch (error) {
     return apiError(error);
   }

@@ -1,6 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { safeCompare } from '@/lib/crypto';
-import { RATE_LIMITS, checkRateLimit, type RateLimitConfig } from '@/lib/rate-limit';
+import { RATE_LIMITS, checkRateLimits, type RateLimitConfig, type RateLimitResult } from '@/lib/rate-limit';
 import { parseApiKey, hashSecret } from './keys';
 import type { PublicApiScope } from './scopes';
 import { incrementApiClientStat } from './usage';
@@ -23,6 +23,62 @@ type RequirePublicApiContextOptions = {
   rateLimit?: RateLimitConfig;
 };
 
+type ApiClientAuthData = {
+  ownerUid?: string;
+  scopes?: string[];
+  status?: string;
+  secretHash?: string;
+  expiresAt?: string | null;
+  productId?: string | null;
+};
+
+const AUTH_CACHE_TTL_MS = Math.max(0, Number(process.env.PUBLIC_API_AUTH_CACHE_TTL_MS || 15_000));
+const AUTH_CACHE_MAX_ENTRIES = 1_000;
+const apiClientAuthCache = new Map<string, { data: ApiClientAuthData; expiresAt: number }>();
+const membershipCache = new Map<string, { exists: boolean; expiresAt: number }>();
+
+function cachedValue<T>(cache: Map<string, { data: T; expiresAt: number }>, key: string): T | null {
+  const entry = cache.get(key);
+  if (!entry) return null;
+  if (entry.expiresAt <= Date.now()) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function putCachedValue<T>(cache: Map<string, { data: T; expiresAt: number }>, key: string, data: T) {
+  if (AUTH_CACHE_TTL_MS === 0) return;
+  if (cache.size >= AUTH_CACHE_MAX_ENTRIES) cache.delete(cache.keys().next().value as string);
+  cache.set(key, { data, expiresAt: Date.now() + AUTH_CACHE_TTL_MS });
+}
+
+async function loadApiClientAuthData(path: string): Promise<ApiClientAuthData | null> {
+  const cached = cachedValue(apiClientAuthCache, path);
+  if (cached) return cached;
+  const snap = await adminDb.doc(path).get();
+  if (!snap.exists) return null;
+  const data = snap.data() as ApiClientAuthData;
+  putCachedValue(apiClientAuthCache, path, data);
+  return data;
+}
+
+async function membershipStillExists(workspaceId: string, uid: string): Promise<boolean> {
+  const key = `${workspaceId}:${uid}`;
+  const entry = membershipCache.get(key);
+  if (entry && entry.expiresAt > Date.now()) return entry.exists;
+  if (entry) membershipCache.delete(key);
+  const snap = await adminDb.doc(`workspaces/${workspaceId}/members/${uid}`).get();
+  const exists = snap.exists;
+  if (AUTH_CACHE_TTL_MS > 0) {
+    if (membershipCache.size >= AUTH_CACHE_MAX_ENTRIES) {
+      membershipCache.delete(membershipCache.keys().next().value as string);
+    }
+    membershipCache.set(key, { exists, expiresAt: Date.now() + AUTH_CACHE_TTL_MS });
+  }
+  return exists;
+}
+
 const impliedScopeGrants: Partial<Record<PublicApiScope, PublicApiScope[]>> = {
   'products.read': ['posts.write', 'posts.publish'],
 };
@@ -34,7 +90,7 @@ function getBearerToken(req: Request): string | null {
   return token.trim() || null;
 }
 
-function headersFromResult(result: Awaited<ReturnType<typeof checkRateLimit>>) {
+function headersFromResult(result: RateLimitResult) {
   return {
     'X-RateLimit-Limit': String(result.limit),
     'X-RateLimit-Remaining': String(result.remaining),
@@ -80,18 +136,9 @@ export async function requirePublicApiContext(
   const parsed = parseApiKey(token);
   if (!parsed) throw new Error('UNAUTHENTICATED');
 
-  const ref = adminDb.doc(`workspaces/${parsed.workspaceId}/api_clients/${parsed.clientId}`);
-  const snap = await ref.get();
-  if (!snap.exists) throw new Error('UNAUTHENTICATED');
-
-  const data = snap.data() as {
-    ownerUid?: string;
-    scopes?: string[];
-    status?: string;
-    secretHash?: string;
-    expiresAt?: string | null;
-    productId?: string | null;
-  };
+  const clientPath = `workspaces/${parsed.workspaceId}/api_clients/${parsed.clientId}`;
+  const data = await loadApiClientAuthData(clientPath);
+  if (!data) throw new Error('UNAUTHENTICATED');
 
   if (data.status !== 'active' || !data.secretHash || !safeCompare(data.secretHash, hashSecret(parsed.secret))) {
     throw new Error('UNAUTHENTICATED');
@@ -111,10 +158,7 @@ export async function requirePublicApiContext(
   // revokes keys eagerly (lib/team-members), but this re-check covers keys
   // that predate that cleanup or slipped past it.
   if (data.ownerUid) {
-    const memberSnap = await adminDb
-      .doc(`workspaces/${parsed.workspaceId}/members/${data.ownerUid}`)
-      .get();
-    if (!memberSnap.exists) {
+    if (!await membershipStillExists(parsed.workspaceId, data.ownerUid)) {
       throw new Error('UNAUTHENTICATED');
     }
   }
@@ -139,9 +183,9 @@ export async function requirePublicApiContext(
     limit: Math.max(rateLimitConfig.limit * 4, 240),
     windowMs: rateLimitConfig.windowMs,
   };
-  const [globalResult, pathResult] = await Promise.all([
-    checkRateLimit(`public-api:${parsed.clientId}`, globalConfig),
-    checkRateLimit(`public-api:${parsed.clientId}:${pathname}`, rateLimitConfig),
+  const [globalResult, pathResult] = await checkRateLimits([
+    { key: `public-api:${parsed.clientId}`, config: globalConfig },
+    { key: `public-api:${parsed.clientId}:${pathname}`, config: rateLimitConfig },
   ]);
 
   const effective = !globalResult.allowed ? globalResult : pathResult;
@@ -159,7 +203,6 @@ export async function requirePublicApiContext(
     });
   }
 
-  await ref.set({ lastUsedAt: new Date().toISOString() }, { merge: true });
   await incrementApiClientStat(parsed.workspaceId, parsed.clientId, 'request');
 
   return {

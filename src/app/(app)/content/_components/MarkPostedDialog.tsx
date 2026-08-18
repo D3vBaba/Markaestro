@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { apiPost } from "@/lib/api-client";
 import { toast } from "sonner";
+import { userFacingError } from "@/lib/user-facing-errors";
 
 export default function MarkPostedDialog({
   open,
@@ -47,10 +48,10 @@ export default function MarkPostedDialog({
         onOpenChange(false);
         onMarked?.();
       } else {
-        toast.error(res.data?.error || t("toasts.failed"));
+        toast.error(userFacingError(res.data, t("toasts.failed")));
       }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("toasts.failed"));
+    } catch {
+      toast.error(t("toasts.failed"));
     } finally {
       setSaving(false);
     }

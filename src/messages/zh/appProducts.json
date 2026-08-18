@@ -70,7 +70,7 @@
     "toasts": {
       "connected": "已连接{provider}",
       "declinedPermission": "{provider}：你拒绝了权限请求 — 点击“连接”重试。",
-      "connectionFailed": "连接{provider}失败：{message}",
+      "connectionFailed": "无法连接 {provider}，请重试。",
       "unknownError": "未知错误",
       "almostDone": "即将完成 — 在“渠道”中选择一个 Facebook 主页以完成 Meta 设置",
       "deleteFailed": "删除品牌失败",

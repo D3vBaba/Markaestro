@@ -44,6 +44,15 @@ export type ResolvedPublicMediaAsset = {
   type: PublicMediaAsset['type'];
 };
 
+export function validatePublicMediaFile(file: Pick<File, 'type' | 'size'>): 'image' | 'video' {
+  const isImage = PUBLIC_ALLOWED_IMAGE_TYPES.has(file.type);
+  const isVideo = PUBLIC_ALLOWED_VIDEO_TYPES.has(file.type);
+  if (!isImage && !isVideo) throw new Error('VALIDATION_INVALID_FILE_TYPE');
+  if (isImage && file.size > PUBLIC_MAX_IMAGE_SIZE) throw new Error('VALIDATION_FILE_TOO_LARGE_10MB');
+  if (isVideo && file.size > PUBLIC_MAX_VIDEO_SIZE) throw new Error('VALIDATION_FILE_TOO_LARGE_250MB');
+  return isVideo ? 'video' : 'image';
+}
+
 const VIDEO_EXT_MAP: Record<string, string> = {
   'video/mp4': 'mp4',
   'video/quicktime': 'mov',
@@ -57,18 +66,9 @@ export async function createMediaAsset(
   file: File,
   buffer: Buffer,
 ): Promise<PublicMediaAsset> {
-  const isImage = PUBLIC_ALLOWED_IMAGE_TYPES.has(file.type);
-  const isVideo = PUBLIC_ALLOWED_VIDEO_TYPES.has(file.type);
-
-  if (!isImage && !isVideo) {
-    throw new Error('VALIDATION_INVALID_FILE_TYPE');
-  }
-  if (isImage && file.size > PUBLIC_MAX_IMAGE_SIZE) {
-    throw new Error('VALIDATION_FILE_TOO_LARGE_10MB');
-  }
-  if (isVideo && file.size > PUBLIC_MAX_VIDEO_SIZE) {
-    throw new Error('VALIDATION_FILE_TOO_LARGE_250MB');
-  }
+  const mediaType = validatePublicMediaFile(file);
+  const isImage = mediaType === 'image';
+  const isVideo = mediaType === 'video';
 
   let width: number | null = null;
   let height: number | null = null;

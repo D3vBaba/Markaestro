@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { getAdapterForChannel } from '@/lib/platform/registry';
 import {
   getConnectionForChannel,
@@ -38,6 +39,7 @@ const RETRY_DELAYS_MS = [2 * 60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000, 30 * 60 *
 // Instagram/Meta rate-limit and quota errors need longer backoff to avoid triggering account restrictions.
 const META_MAX_RETRY_ATTEMPTS = 2;
 const META_RETRY_DELAYS_MS = [30 * 60 * 1000, 2 * 60 * 60 * 1000]; // 30min, 2hr
+const TIKTOK_MAPPING_RETENTION_MS = 17 * 24 * 60 * 60 * 1000;
 const socialChannelSet = new Set<string>(socialChannels);
 
 export type ChannelPublishResult = {
@@ -206,7 +208,7 @@ async function recordAuthFailure(
   ).catch(() => undefined);
 }
 
-function classifyPublishError(error: string): PublishErrorClassification {
+export function classifyPublishError(error: string): PublishErrorClassification {
   const normalized = error.toLowerCase();
 
   // Meta/Instagram-specific rate-limit and quota errors get longer backoff
@@ -463,7 +465,7 @@ export async function persistTikTokPendingPublish(
   if (result.channel !== 'tiktok' || !result.externalId) return;
 
   const nowIso = new Date().toISOString();
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const expiresAt = Timestamp.fromMillis(Date.now() + TIKTOK_MAPPING_RETENTION_MS);
   const postRef = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
   const mappingRef = getTikTokPublishMappingRef(result.externalId);
 
@@ -483,6 +485,8 @@ export async function persistTikTokPendingPublish(
     tx.update(postRef, {
       ...(shouldUseTikTokAsPrimary ? { externalId: result.externalId } : {}),
       tiktokPublishId: result.externalId,
+      tiktokNextPollAt: nowIso,
+      tiktokPollAttemptCount: 0,
       publishResults: mergedResults,
       updatedAt: nowIso,
     });
@@ -493,6 +497,10 @@ export async function persistTikTokPendingPublish(
       attemptId: claimed.attemptId,
       createdAt: nowIso,
       updatedAt: nowIso,
+      pollStatus: 'active',
+      pollMode: isTikTokDirectPostSettings(claimed.post.settings) ? 'active' : 'inbox',
+      pollAttemptCount: 0,
+      nextPollAt: nowIso,
       expiresAt,
     }, { merge: true });
   });
