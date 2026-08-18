@@ -56,6 +56,13 @@ const FFMPEG_TRACE_FILES = [
   './node_modules/@ffmpeg-installer/win32-x64/ffmpeg.exe',
 ];
 
+// @google-cloud/tasks loads this descriptor dynamically at runtime. Next's
+// standalone tracer cannot see that lookup, so include it explicitly for App
+// Hosting rather than allowing worker/API routes to fail after deployment.
+const GOOGLE_CLOUD_TASKS_TRACE_FILES = [
+  './node_modules/@google-cloud/tasks/build/protos/protos.json',
+];
+
 const nextConfig: NextConfig = {
   reactCompiler: true,
   // Dev-only: when the app is reached through a tunnel (e.g. ngrok, so TikTok
@@ -75,6 +82,7 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   outputFileTracingRoot: __dirname,
   outputFileTracingIncludes: {
+    '/*': GOOGLE_CLOUD_TASKS_TRACE_FILES,
     '/api/posts/[id]/publish': FFMPEG_TRACE_FILES,
     '/api/public/v1/posts/[id]/publish': FFMPEG_TRACE_FILES,
     '/api/worker/tick': FFMPEG_TRACE_FILES,
