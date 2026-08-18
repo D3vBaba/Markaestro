@@ -48,10 +48,10 @@ env:
       - RUNTIME
 
   # Direct browser-to-Storage uploads remove large request bodies from the
-  # Next.js runtime. Keep disabled until storage.cors.json and the staging
-  # object lifecycle policy have been applied to the production bucket.
+  # Next.js runtime. Production CORS, staging lifecycle, and blob-signing IAM
+  # were applied before this flag was enabled.
   - variable: NEXT_PUBLIC_DIRECT_MEDIA_UPLOADS_ENABLED
-    value: "0"
+    value: "1"
     availability:
       - BUILD
       - RUNTIME

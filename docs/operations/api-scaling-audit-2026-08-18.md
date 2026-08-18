@@ -48,23 +48,21 @@ changes are deliberately documented but not applied by this code audit.
 
 ## Re-audit findings still requiring work
 
-### P1 — deploy the declared Firestore indexes before the application
+### P1 — Firestore indexes (completed in the follow-up release)
 
-The read-only live validator currently reports **30 passing and 13 missing**
-query shapes. All 13 are declared in `firestore.indexes.json`; they are simply
-not deployed to the live project. Until they finish building, compatibility
-fallbacks preserve results but may read a complete matching collection.
+The initial read-only live validator reported **30 passing and 13 missing**
+query shapes. The follow-up release deployed those indexes and waited for query
+serving propagation; the validator now reports **43 passing and 0 missing**.
 
-Run `firebase deploy --only firestore:indexes`, wait for every index to become
-ready, and rerun `npm run validate:queries`. Do not deploy the list/queue code
-first on a large dataset.
+Future index changes should follow the same order: deploy indexes, wait for
+`npm run validate:queries` to pass, then deploy application code.
 
-### P1 — activate direct uploads, then add the same facility to the public API
+### P1 — add direct uploads to the public API
 
-The browser direct-upload implementation is intentionally disabled. Apply
-`storage.cors.json`, `storage.lifecycle.json`, and the runtime service account's
-blob-signing permission, smoke-test, then set
-`NEXT_PUBLIC_DIRECT_MEDIA_UPLOADS_ENABLED=1`.
+Browser direct uploads are enabled in the follow-up release after applying
+`storage.cors.json`, `storage.lifecycle.json`, and verifying the runtime service
+account's blob-signing permission. The multipart route remains available to old
+clients and as an operational rollback path.
 
 The public `/api/public/v1/media` route still accepts a compatibility multipart
 upload up to 250 MB and buffers it in memory. Add a public-API upload-session
@@ -116,12 +114,11 @@ workspaces.
 ## Deployment sequence
 
 1. Deploy `firestore.indexes.json`; wait until `npm run validate:queries` is
-   fully green.
-2. Apply the TTL policies in `docs/operations/firestore-ttl.md`.
-3. Deploy the application with direct media uploads still set to `0`; smoke-test
-   existing app and public API flows.
-4. Apply Storage CORS/lifecycle and signing IAM, test a preview revision, then
-   flip the direct-upload flag to `1`.
+   fully green. **Completed.**
+2. Apply the TTL policies in `docs/operations/firestore-ttl.md`. **Completed.**
+3. Apply Storage CORS/lifecycle, verify signing IAM, then enable direct browser
+   uploads. **Completed in this release.**
+4. Deploy and smoke-test existing app and public API flows.
 5. Monitor and size the main worker, then introduce Cloud Tasks/due-workspace
    dispatch before its duration becomes a user-facing publish delay.
 
@@ -135,7 +132,8 @@ workspaces.
   protected `/api/posts` request without credentials returned 401
 - JSON parsing for Firestore index and Storage policy files
 - `git diff --check`
-- Read-only live Firestore query validation (`30 passed`, `13 await deployment`)
+- Live Firestore query validation (`43 passed`, `0 failed` after deployment)
 
-No application revision, Firestore index/TTL policy, bucket CORS/lifecycle
-policy, or IAM change was deployed as part of this audit.
+The initial audit did not mutate production. Its follow-up release applied the
+reviewed index, TTL, CORS, and lifecycle configuration before rolling out the
+application revision.

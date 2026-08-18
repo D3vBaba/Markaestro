@@ -5,6 +5,10 @@ to Cloud Storage. This prevents a 250 MB video from occupying hundreds of MB of
 runtime memory and a request slot. The existing multipart endpoint remains the
 default and the client falls back to it during a rolling deployment.
 
+Production status (2026-08-18): bucket CORS, staging lifecycle, and blob-signing
+IAM are configured, and the direct-upload feature flag is enabled. The steps
+below remain the reference for a new environment or rollback/re-activation.
+
 ## Production activation
 
 1. Apply the bucket CORS policy:
