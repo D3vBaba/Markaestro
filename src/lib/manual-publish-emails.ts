@@ -12,7 +12,6 @@ import { logger } from '@/lib/logger';
 import { isAppLocale, routing, type AppLocale } from '@/i18n/routing';
 
 const MAX_REMINDER_RECIPIENTS = 5;
-const CAPTION_PREVIEW_LENGTH = 240;
 
 export async function manualPostReminderEmail(params: {
   channelLabel: string;
@@ -22,9 +21,6 @@ export async function manualPostReminderEmail(params: {
   const t = await getEmailTranslator(params.locale);
   const title = t('manualPostReminder.subject', { channelLabel: params.channelLabel });
   const queueUrl = `${getBaseUrl()}/content`;
-  const preview = params.caption.length > CAPTION_PREVIEW_LENGTH
-    ? `${params.caption.slice(0, CAPTION_PREVIEW_LENGTH)}…`
-    : params.caption;
 
   const html = brandWrap({
     locale: params.locale,
@@ -32,9 +28,9 @@ export async function manualPostReminderEmail(params: {
     preheader: t('manualPostReminder.preheader', { channelLabel: params.channelLabel }),
     bodyHtml: `
       <p style="margin:0 0 16px 0;">${escapeHtml(t('manualPostReminder.bodyIntro', { channelLabel: params.channelLabel }))}</p>
-      ${preview ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      ${params.caption ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
-          <td bgcolor="${BRAND.panelBg}" style="background-color:${BRAND.panelBg};border:1px solid ${BRAND.border};border-radius:12px;padding:16px 18px;font-size:14px;line-height:1.6;color:${BRAND.ink};white-space:pre-wrap;">${escapeHtml(preview)}</td>
+          <td bgcolor="${BRAND.panelBg}" style="background-color:${BRAND.panelBg};border:1px solid ${BRAND.border};border-radius:12px;padding:16px 18px;font-size:14px;line-height:1.6;color:${BRAND.ink};white-space:pre-wrap;">${escapeHtml(params.caption)}</td>
         </tr>
       </table>` : ''}
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0 0 0;">
@@ -52,7 +48,7 @@ export async function manualPostReminderEmail(params: {
   const text = [
     t('manualPostReminder.plain.heading', { channelLabel: params.channelLabel }),
     '',
-    preview ? `${t('manualPostReminder.plain.captionLabel')}\n${preview}\n` : '',
+    params.caption ? `${t('manualPostReminder.plain.captionLabel')}\n${params.caption}\n` : '',
     t('manualPostReminder.plain.queueLink', { url: queueUrl }),
   ].filter(Boolean).join('\n');
 

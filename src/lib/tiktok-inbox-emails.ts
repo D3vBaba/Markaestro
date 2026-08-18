@@ -14,7 +14,6 @@ import { logger } from '@/lib/logger';
 import { isAppLocale, routing, type AppLocale } from '@/i18n/routing';
 
 const MAX_RECIPIENTS = 5;
-const CAPTION_PREVIEW_LENGTH = 240;
 
 export async function tiktokInboxEmail(params: {
   brandName?: string | null;
@@ -26,9 +25,6 @@ export async function tiktokInboxEmail(params: {
     ? t('tiktokInbox.subjectWithBrand', { brandName: params.brandName })
     : t('tiktokInbox.subjectNoBrand');
   const queueUrl = `${getBaseUrl()}/content`;
-  const preview = params.caption.length > CAPTION_PREVIEW_LENGTH
-    ? `${params.caption.slice(0, CAPTION_PREVIEW_LENGTH)}…`
-    : params.caption;
 
   const html = brandWrap({
     locale: params.locale,
@@ -50,10 +46,10 @@ export async function tiktokInboxEmail(params: {
           </td>
         </tr>
       </table>
-      ${preview ? `<p style="margin:20px 0 8px 0;font-size:13px;color:${BRAND.muted};">${escapeHtml(t('tiktokInbox.captionLabel'))}</p>
+      ${params.caption ? `<p style="margin:20px 0 8px 0;font-size:13px;color:${BRAND.muted};">${escapeHtml(t('tiktokInbox.captionLabel'))}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
-          <td bgcolor="${BRAND.panelBg}" style="background-color:${BRAND.panelBg};border:1px solid ${BRAND.border};border-radius:12px;padding:16px 18px;font-size:14px;line-height:1.6;color:${BRAND.ink};white-space:pre-wrap;">${escapeHtml(preview)}</td>
+          <td bgcolor="${BRAND.panelBg}" style="background-color:${BRAND.panelBg};border:1px solid ${BRAND.border};border-radius:12px;padding:16px 18px;font-size:14px;line-height:1.6;color:${BRAND.ink};white-space:pre-wrap;">${escapeHtml(params.caption)}</td>
         </tr>
       </table>` : ''}
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0 0 0;">
@@ -79,7 +75,7 @@ export async function tiktokInboxEmail(params: {
     `2. ${t('tiktokInbox.step2')}`,
     `3. ${t('tiktokInbox.step3')}`,
     '',
-    preview ? `${t('tiktokInbox.plain.captionLabel')}\n${preview}\n` : '',
+    params.caption ? `${t('tiktokInbox.plain.captionLabel')}\n${params.caption}\n` : '',
     t('tiktokInbox.plain.queueLink', { url: queueUrl }),
   ].filter(Boolean).join('\n');
 

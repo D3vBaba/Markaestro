@@ -53,6 +53,18 @@ describe('TikTok inbox email', () => {
     expect(payload.html).toContain('Track every receipt');
   });
 
+  it('includes the full caption so it can be copied into TikTok', async () => {
+    const { tiktokInboxEmail } = await import('@/lib/tiktok-inbox-emails');
+    const caption = `${'Save every receipt with EyeCash. '.repeat(12)}#eyecash #receipts`;
+    const payload = await tiktokInboxEmail({ brandName: 'EyeCash', caption, locale: 'en' });
+
+    expect(caption.length).toBeGreaterThan(240);
+    expect(payload.html).toContain(caption);
+    expect(payload.text).toContain(caption);
+    expect(payload.html).not.toContain(`${caption.slice(0, 240)}…`);
+    expect(payload.text).not.toContain(`${caption.slice(0, 240)}…`);
+  });
+
   it('sends to workspace owners and records that it went out', async () => {
     const { sendTikTokInboxEmail } = await import('@/lib/tiktok-inbox-emails');
     await sendTikTokInboxEmail('ws_1', 'post_1', { productId: 'prod_1', content: 'Caption' });
