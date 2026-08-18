@@ -11,6 +11,11 @@ import {
   LINKEDIN_PROFILE_PROVIDER,
 } from '@/lib/platform/linkedin-providers';
 import type { LinkedInCredentialKind } from '@/lib/platform/linkedin-providers';
+import {
+  connectionStatusAfterRefreshFailure,
+  shouldAttemptScheduledTokenRefresh,
+  tokenRefreshRetryDelayMs,
+} from './token-refresh-policy';
 
 type RefreshResult = {
   refreshed: number;
@@ -18,8 +23,6 @@ type RefreshResult = {
   skipped: number;
   errors: Array<{ workspaceId: string; provider: string; error: string; productId?: string }>;
 };
-
-const MAX_REFRESH_FAILURES = 5;
 
 const PERMANENT_ERROR_PATTERNS = [
   'invalid_grant',
@@ -41,6 +44,34 @@ function isPermanentError(error: string): boolean {
   return PERMANENT_ERROR_PATTERNS.some((p) => lower.includes(p.toLowerCase()));
 }
 
+async function recordRefreshFailure(
+  connRef: FirebaseFirestore.DocumentReference,
+  data: PlatformConnection,
+  provider: OAuthProvider,
+  failureCount: number,
+  error: string,
+  now: Date,
+  result: RefreshResult,
+  errorContext: { workspaceId: string; productId?: string },
+  storageProvider?: string,
+): Promise<void> {
+  const newCount = failureCount + 1;
+  const permanent = isPermanentError(error);
+
+  await connRef.update({
+    status: connectionStatusAfterRefreshFailure(data.tokenExpiresAt, now, permanent),
+    'metadata.lastRefreshError': error,
+    'metadata.refreshFailureCount': newCount,
+    'metadata.nextRefreshAttemptAt': permanent
+      ? null
+      : new Date(now.getTime() + tokenRefreshRetryDelayMs(newCount)).toISOString(),
+    updatedAt: now.toISOString(),
+  });
+
+  result.failed++;
+  result.errors.push({ ...errorContext, provider: storageProvider || provider, error });
+}
+
 async function refreshConnectionDoc(
   connRef: FirebaseFirestore.DocumentReference,
   provider: OAuthProvider,
@@ -49,42 +80,20 @@ async function refreshConnectionDoc(
   options: { storageProvider?: string; linkedinCredentialKind?: LinkedInCredentialKind } = {},
 ): Promise<void> {
   const now = new Date();
-  const threshold = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
   const connSnap = await connRef.get();
 
   if (!connSnap.exists) return;
 
   const data = connSnap.data() as PlatformConnection;
-  // Skip only permanently revoked connections. Connections in 'error' status
-  // (from a transient refresh failure) should be retried — the
-  // MAX_REFRESH_FAILURES counter below bounds how many times we try.
-  if (data.status === 'revoked') return;
-
-  const failureCount = (data.metadata.refreshFailureCount as number) || 0;
-  if (failureCount >= MAX_REFRESH_FAILURES) {
-    result.skipped++;
-    return;
-  }
+  const failureCount = Number(data.metadata.refreshFailureCount) || 0;
 
   // Meta page tokens are long-lived; only refresh user tokens
   if (provider === 'meta' && data.metadata.pageAccessTokenEncrypted && !data.tokenExpiresAt) {
     return;
   }
 
-  if (!data.tokenExpiresAt) {
-    // Instagram Login connections whose long-lived exchange failed at connect
-    // time are stored WITHOUT tokenExpiresAt (short-lived ~1h token). Skipping
-    // them here left dead connections marked 'connected' forever — instead,
-    // health-check them via refresh_access_token once the token is old enough
-    // (Meta requires tokens to be ≥24h old before refresh). A hard refusal or
-    // expiry marks the connection revoked so the UI says "reconnect".
-    if (provider !== 'instagram') return;
-    const updatedAtMs = Date.parse(data.updatedAt || '');
-    if (Number.isFinite(updatedAtMs) && now.getTime() - updatedAtMs < 24 * 60 * 60 * 1000) {
-      result.skipped++;
-      return;
-    }
-  } else if (data.tokenExpiresAt > threshold) {
+  if (!shouldAttemptScheduledTokenRefresh(provider, data, now)) {
+    result.skipped++;
     return;
   }
 
@@ -107,6 +116,7 @@ async function refreshConnectionDoc(
         'metadata.lastRefreshAt': now.toISOString(),
         'metadata.lastRefreshError': null,
         'metadata.refreshFailureCount': 0,
+        'metadata.nextRefreshAttemptAt': null,
         status: 'connected',
         updatedAt: now.toISOString(),
       };
@@ -119,17 +129,17 @@ async function refreshConnectionDoc(
       result.refreshed++;
     } catch (e) {
       const error = e instanceof Error ? e.message : 'Unknown error';
-      const newCount = failureCount + 1;
-      const permanent = isPermanentError(error);
-
-      await connRef.update({
-        status: permanent ? 'revoked' : 'error',
-        'metadata.lastRefreshError': error,
-        'metadata.refreshFailureCount': newCount,
-        updatedAt: now.toISOString(),
-      });
-      result.failed++;
-      result.errors.push({ ...errorContext, provider: options.storageProvider || provider, error });
+      await recordRefreshFailure(
+        connRef,
+        data,
+        provider,
+        failureCount,
+        error,
+        now,
+        result,
+        errorContext,
+        options.storageProvider,
+      );
     }
     return;
   }
@@ -152,6 +162,7 @@ async function refreshConnectionDoc(
       'metadata.lastRefreshAt': now.toISOString(),
       'metadata.lastRefreshError': null,
       'metadata.refreshFailureCount': 0,
+      'metadata.nextRefreshAttemptAt': null,
       status: 'connected',
       updatedAt: now.toISOString(),
     };
@@ -167,17 +178,17 @@ async function refreshConnectionDoc(
     result.refreshed++;
   } catch (e) {
     const error = e instanceof Error ? e.message : 'Unknown error';
-    const newCount = failureCount + 1;
-    const permanent = isPermanentError(error);
-
-    await connRef.update({
-      status: permanent ? 'revoked' : 'error',
-      'metadata.lastRefreshError': error,
-      'metadata.refreshFailureCount': newCount,
-      updatedAt: now.toISOString(),
-    });
-    result.failed++;
-    result.errors.push({ ...errorContext, provider: options.storageProvider || provider, error });
+    await recordRefreshFailure(
+      connRef,
+      data,
+      provider,
+      failureCount,
+      error,
+      now,
+      result,
+      errorContext,
+      options.storageProvider,
+    );
   }
 }
 
@@ -217,6 +228,7 @@ export async function refreshConnectionToken(
     'metadata.lastRefreshAt': now.toISOString(),
     'metadata.lastRefreshError': null,
     'metadata.refreshFailureCount': 0,
+    'metadata.nextRefreshAttemptAt': null,
     status: 'connected',
     updatedAt: now.toISOString(),
   };
@@ -239,7 +251,8 @@ export async function refreshConnectionToken(
 }
 
 /**
- * Scan all workspaces for platform connections with tokens expiring within 24 hours.
+ * Scan all workspaces for platform connections that are inside their
+ * provider-specific refresh window or are due for transient-error recovery.
  */
 export async function processTokenRefresh(): Promise<RefreshResult> {
   const result: RefreshResult = { refreshed: 0, failed: 0, skipped: 0, errors: [] };

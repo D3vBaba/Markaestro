@@ -8,6 +8,7 @@ import { PlatformCapability, ConnectionStatus } from '@/lib/platform/types';
 import type { PlatformConnection } from '@/lib/platform/types';
 import { IG_LOGIN_UNSUPPORTED_MESSAGE, isInstagramGraphRefusal, isInstagramMethodTypeUnsupported } from '@/lib/oauth/instagram-errors';
 import { getConnectionRef } from '@/lib/platform/connections';
+import { fetchWithRetry } from '@/lib/fetch-retry';
 import {
   buildConnectionId,
   deriveAccountKey,
@@ -174,6 +175,44 @@ function optionalNumber(value: unknown): number | undefined {
     return Number.isFinite(parsed) ? parsed : undefined;
   }
   return undefined;
+}
+
+const TOKEN_REFRESH_RETRY_OPTIONS = {
+  maxRetries: 2,
+  baseDelayMs: 250,
+  maxDelayMs: 2_000,
+  timeoutMs: 15_000,
+} as const;
+
+async function readTokenRefreshResponse(
+  provider: OAuthProvider,
+  response: Response,
+): Promise<Record<string, unknown>> {
+  const raw = await response.text();
+  if (!raw.trim()) {
+    throw new Error(
+      `Token refresh failed for ${provider} (HTTP ${response.status}): provider returned an empty response`,
+    );
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    // Never include the response body here. Provider/proxy HTML can contain
+    // request details, and OAuth errors must not leak tokens or credentials.
+    throw new Error(
+      `Token refresh failed for ${provider} (HTTP ${response.status}): provider returned a non-JSON response`,
+    );
+  }
+
+  if (!isRecord(parsed)) {
+    throw new Error(
+      `Token refresh failed for ${provider} (HTTP ${response.status}): provider returned an invalid JSON payload`,
+    );
+  }
+
+  return parsed;
 }
 
 export function instagramExtraDataFromTokenResponse(
@@ -373,31 +412,37 @@ export async function refreshAccessToken(
   options: { linkedinCredentialKind?: LinkedInCredentialKind } = {},
 ): Promise<OAuthTokens> {
   if (provider === 'instagram') {
-    let res = await fetch(
+    let res = await fetchWithRetry(
       `https://graph.instagram.com/refresh_access_token?${new URLSearchParams({
         grant_type: 'ig_refresh_token',
         access_token: refreshToken,
       }).toString()}`,
       { method: 'GET' },
+      TOKEN_REFRESH_RETRY_OPTIONS,
     );
-    let data = await res.json();
+    let data = await readTokenRefreshResponse(provider, res);
 
     if (!res.ok && isInstagramMethodTypeUnsupported(data, 'get')) {
-      res = await fetch('https://graph.instagram.com/refresh_access_token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
+      res = await fetchWithRetry(
+        'https://graph.instagram.com/refresh_access_token',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: 'application/json',
+          },
+          body: new URLSearchParams({
+            grant_type: 'ig_refresh_token',
+            access_token: refreshToken,
+          }).toString(),
         },
-        body: new URLSearchParams({
-          grant_type: 'ig_refresh_token',
-          access_token: refreshToken,
-        }).toString(),
-      });
-      data = await res.json();
+        TOKEN_REFRESH_RETRY_OPTIONS,
+      );
+      data = await readTokenRefreshResponse(provider, res);
     }
 
-    if (!res.ok && !data.access_token) {
+    const accessToken = optionalString(data.access_token);
+    if (!accessToken) {
       // Blanket code-100 refusal: graph.instagram.com does not serve this
       // token at all (account not eligible for the Instagram API) — permanent.
       if (isInstagramGraphRefusal(data)) {
@@ -407,36 +452,38 @@ export async function refreshAccessToken(
     }
 
     return {
-      accessToken: data.access_token || refreshToken,
-      refreshToken: data.access_token || refreshToken,
-      expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
-      tokenType: data.token_type,
-      scope: data.scope,
+      accessToken,
+      refreshToken: accessToken,
+      expiresIn: optionalNumber(data.expires_in),
+      tokenType: optionalString(data.token_type),
+      scope: optionalString(data.scope),
     };
   }
 
   if (provider === 'threads') {
     // Threads long-lived tokens refresh in place (th_refresh_token), same
     // model as Instagram Login — there is no separate refresh token.
-    const res = await fetch(
+    const res = await fetchWithRetry(
       `https://graph.threads.net/refresh_access_token?${new URLSearchParams({
         grant_type: 'th_refresh_token',
         access_token: refreshToken,
       }).toString()}`,
       { method: 'GET' },
+      TOKEN_REFRESH_RETRY_OPTIONS,
     );
-    const data = await res.json();
+    const data = await readTokenRefreshResponse(provider, res);
 
-    if (!res.ok && !data.access_token) {
+    const accessToken = optionalString(data.access_token);
+    if (!accessToken) {
       throw new Error(`Token refresh failed for ${provider}: ${describeTokenError(data)}`);
     }
 
     return {
-      accessToken: data.access_token || refreshToken,
-      refreshToken: data.access_token || refreshToken,
-      expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
-      tokenType: data.token_type,
-      scope: data.scope,
+      accessToken,
+      refreshToken: accessToken,
+      expiresIn: optionalNumber(data.expires_in),
+      tokenType: optionalString(data.token_type),
+      scope: optionalString(data.scope),
     };
   }
 
@@ -469,13 +516,18 @@ export async function refreshAccessToken(
     body.client_secret = clientSecret;
   }
 
-  const res = await fetch(config.tokenUrl, {
-    method: 'POST',
-    headers,
-    body: new URLSearchParams(body).toString(),
-  });
+  const res = await fetchWithRetry(
+    config.tokenUrl,
+    {
+      method: 'POST',
+      headers,
+      body: new URLSearchParams(body).toString(),
+    },
+    TOKEN_REFRESH_RETRY_OPTIONS,
+  );
 
-  const data = await res.json();
+  const data = await readTokenRefreshResponse(provider, res);
+  const accessToken = optionalString(data.access_token);
 
   // A missing access_token is fatal regardless of HTTP status: TikTok reports
   // refresh failures as 200 with an error body, so gating this on `!res.ok`
@@ -484,18 +536,18 @@ export async function refreshAccessToken(
   // recorded that as the connection's lastRefreshError instead of TikTok's
   // actual reason. Keep accepting a token that arrives with a non-2xx status —
   // that leniency predates this and some providers rely on it.
-  if (!data.access_token) {
+  if (!accessToken) {
     throw new Error(`Token refresh failed for ${provider}: ${describeTokenError(data)}`);
   }
 
   return {
-    accessToken: data.access_token,
-    refreshToken: data.refresh_token || refreshToken,
-    expiresIn: data.expires_in ? Number(data.expires_in) : undefined,
-    refreshTokenExpiresIn: data.refresh_token_expires_in ? Number(data.refresh_token_expires_in) : undefined,
-    tokenType: data.token_type,
-    scope: data.scope,
-    idToken: data.id_token,
+    accessToken,
+    refreshToken: optionalString(data.refresh_token) || refreshToken,
+    expiresIn: optionalNumber(data.expires_in),
+    refreshTokenExpiresIn: optionalNumber(data.refresh_token_expires_in),
+    tokenType: optionalString(data.token_type),
+    scope: optionalString(data.scope),
+    idToken: optionalString(data.id_token),
   };
 }
 

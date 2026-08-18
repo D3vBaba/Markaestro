@@ -1,7 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { isInstagramGraphUnsupported, isInstagramMethodTypeUnsupported } from '../oauth/instagram-errors';
 import { getProviderConfig } from '../oauth/config';
-import { instagramExtraDataFromTokenResponse, normalizeOAuthTokenResponse } from '../oauth/flow';
+import {
+  instagramExtraDataFromTokenResponse,
+  normalizeOAuthTokenResponse,
+  refreshAccessToken,
+} from '../oauth/flow';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
 describe('oauth provider config', () => {
   it('requests publishing and insights scopes for Meta-family providers', () => {
@@ -105,5 +116,63 @@ describe('instagram graph error handling', () => {
 
     expect(isInstagramMethodTypeUnsupported(error, 'get')).toBe(true);
     expect(isInstagramGraphUnsupported(error)).toBe(false);
+  });
+});
+
+describe('OAuth token refresh resilience', () => {
+  function stubTikTokCredentials() {
+    vi.stubEnv('TIKTOK_CLIENT_KEY', 'test-client-key');
+    vi.stubEnv('TIKTOK_CLIENT_SECRET', 'test-client-secret');
+  }
+
+  it('retries a transient provider response before accepting a refreshed token', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    stubTikTokCredentials();
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response('<html>temporary upstream failure</html>', { status: 502 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        access_token: 'fresh-access-token',
+        refresh_token: 'fresh-refresh-token',
+        expires_in: 86_400,
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const refreshPromise = refreshAccessToken('tiktok', 'old-refresh-token');
+    await vi.runAllTimersAsync();
+
+    await expect(refreshPromise).resolves.toEqual(expect.objectContaining({
+      accessToken: 'fresh-access-token',
+      refreshToken: 'fresh-refresh-token',
+      expiresIn: 86_400,
+    }));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('reports an empty response without leaking or throwing a JSON parse error', async () => {
+    stubTikTokCredentials();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 200 })));
+
+    await expect(refreshAccessToken('tiktok', 'old-refresh-token')).rejects.toThrow(
+      'Token refresh failed for tiktok (HTTP 200): provider returned an empty response',
+    );
+  });
+
+  it('reports provider HTML safely without storing the response body', async () => {
+    stubTikTokCredentials();
+    const providerBody = '<html>proxy failure with internal details</html>';
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(providerBody, { status: 200 })));
+
+    const error = await refreshAccessToken('tiktok', 'old-refresh-token').catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toBe(
+      'Token refresh failed for tiktok (HTTP 200): provider returned a non-JSON response',
+    );
+    expect((error as Error).message).not.toContain(providerBody);
   });
 });
