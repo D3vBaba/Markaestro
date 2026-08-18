@@ -21,6 +21,7 @@
     "@google-cloud/secret-manager": "^6.1.1",
     "@google-cloud/tasks": "^6.3.0",
     "@sentry/nextjs": "^10.42.0",
+    "@swc/helpers": "^0.5.23",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.7.0",
     "next": "^16.2.1",
