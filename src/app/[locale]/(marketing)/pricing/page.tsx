@@ -258,12 +258,14 @@ export default function PricingPage() {
                   <Fragment key={cat.name}>
                     <tr>
                       <td colSpan={4} className="pt-8 pb-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-foreground">{comparisonLabels[catIndex].name}</p>
+                        {/* Labels pair with COMPARISON_CATEGORIES by index; fall back to the
+                            English name from plans.ts when a row lands before its translation. */}
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-foreground">{comparisonLabels[catIndex]?.name ?? cat.name}</p>
                       </td>
                     </tr>
                     {cat.features.map((feature, featureIndex) => (
                       <tr key={feature.name} className="border-b border-border/40">
-                        <td className="py-3 text-muted-foreground">{comparisonLabels[catIndex].features[featureIndex].name}</td>
+                        <td className="py-3 text-muted-foreground">{comparisonLabels[catIndex]?.features?.[featureIndex]?.name ?? feature.name}</td>
                         {(["starter", "pro", "business"] as const).map((plan) => (
                           <td key={plan} className="py-3 text-center">
                             {typeof feature[plan] === "boolean" ? (

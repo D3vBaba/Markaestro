@@ -128,7 +128,8 @@
           { "name": "Chaves de API do workspace" },
           { "name": "API de Publicação (Connect + v1 completa)" },
           { "name": "Webhooks assinados" },
-          { "name": "Escopo e expiração de chave por marca" }
+          { "name": "Escopo e expiração de chave por marca" },
+          { "name": "Limite de requisições da API" }
         ]
       },
       {

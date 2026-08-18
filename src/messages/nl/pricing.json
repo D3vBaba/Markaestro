@@ -128,7 +128,8 @@
           { "name": "Workspace-API-sleutels" },
           { "name": "Publicatie-API (Connect + volledige v1)" },
           { "name": "Ondertekende webhooks" },
-          { "name": "Sleutelbeperking en vervaldatum per merk" }
+          { "name": "Sleutelbeperking en vervaldatum per merk" },
+          { "name": "API-verzoeklimiet" }
         ]
       },
       {

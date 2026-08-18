@@ -128,7 +128,8 @@
           { "name": "Claves de API del espacio de trabajo" },
           { "name": "API de publicación (Connect + v1 completa)" },
           { "name": "Webhooks firmados" },
-          { "name": "Claves limitadas por marca y con vencimiento" }
+          { "name": "Claves limitadas por marca y con vencimiento" },
+          { "name": "Límite de peticiones de la API" }
         ]
       },
       {

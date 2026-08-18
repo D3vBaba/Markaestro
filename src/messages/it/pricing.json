@@ -128,7 +128,8 @@
           { "name": "Chiavi API del workspace" },
           { "name": "API di Pubblicazione (Connect + v1 completa)" },
           { "name": "Webhook firmati" },
-          { "name": "Limitazione e scadenza chiavi per brand" }
+          { "name": "Limitazione e scadenza chiavi per brand" },
+          { "name": "Limite di richieste API" }
         ]
       },
       {

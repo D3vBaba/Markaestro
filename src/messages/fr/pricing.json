@@ -128,7 +128,8 @@
           { "name": "Clés API de l'espace de travail" },
           { "name": "API de publication (Connect + v1 complète)" },
           { "name": "Webhooks signés" },
-          { "name": "Clés limitées par marque et avec expiration" }
+          { "name": "Clés limitées par marque et avec expiration" },
+          { "name": "Limite de requêtes API" }
         ]
       },
       {

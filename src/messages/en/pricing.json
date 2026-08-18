@@ -128,7 +128,8 @@
           { "name": "Workspace API keys" },
           { "name": "Publishing API (Connect + full v1)" },
           { "name": "Signed webhooks" },
-          { "name": "Per-brand key scoping & expiry" }
+          { "name": "Per-brand key scoping & expiry" },
+          { "name": "API rate limit" }
         ]
       },
       {

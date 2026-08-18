@@ -128,7 +128,8 @@
           { "name": "API-Schlüssel für Arbeitsbereiche" },
           { "name": "Veröffentlichungs-API (Connect + vollständige v1)" },
           { "name": "Signierte Webhooks" },
-          { "name": "Markengebundene Schlüssel mit Ablaufdatum" }
+          { "name": "Markengebundene Schlüssel mit Ablaufdatum" },
+          { "name": "API-Ratenlimit" }
         ]
       },
       {
