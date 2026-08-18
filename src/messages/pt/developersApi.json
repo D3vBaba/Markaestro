@@ -53,7 +53,7 @@
       "endpoints": [
         { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Cria uma sessão de upload direto de 15 minutos com nome, tipo e tamanho exato." },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Envia os bytes diretamente ao armazenamento com o Content-Type retornado, sem a chave de API." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifica tipo e tamanho, aplica a cota e retorna o ativo de mídia." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifica tipo e tamanho e retorna o ativo de mídia; sessões concluídas podem ser repetidas com segurança." },
         { "method": "POST", "path": "/api/public/v1/media", "note": "Upload multipart de compatibilidade. Retorna um id de ativo e a URL hospedada." }
       ]
     },

@@ -53,7 +53,7 @@
       "endpoints": [
         { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "ينشئ جلسة رفع مباشر مدتها 15 دقيقة باستخدام اسم الملف ونوع المحتوى والحجم الدقيق." },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "يرفع البايتات مباشرة إلى التخزين باستخدام ترويسة Content-Type المُعادة، دون مفتاح API." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "يتحقق من النوع والحجم ويطبق الحصة ويُرجع أصل الوسائط." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "يتحقق من النوع والحجم ويُرجع أصل الوسائط؛ ويمكن إعادة محاولة الجلسات المكتملة بأمان." },
         { "method": "POST", "path": "/api/public/v1/media", "note": "رفع متعدد الأجزاء للتوافق. يُرجع معرّف أصل وعنوان URL مستضاف." }
       ]
     },

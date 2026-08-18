@@ -53,7 +53,7 @@
       "endpoints": [
         { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "使用文件名、内容类型和精确大小创建一个有效期为 15 分钟的直传会话。" },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "使用返回的 Content-Type 将字节直接上传到存储；不要发送 API 密钥。" },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "验证类型和大小、计入配额并返回媒体素材。" },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "验证类型和大小并返回媒体素材；已完成的会话可安全重试。" },
         { "method": "POST", "path": "/api/public/v1/media", "note": "兼容用多部分上传。返回素材 ID 和托管 URL。" }
       ]
     },

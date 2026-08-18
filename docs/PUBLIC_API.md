@@ -44,6 +44,9 @@ For new integrations, use the three-step direct upload flow: create an upload
 session, `PUT` the bytes straight to the returned Cloud Storage URL, then
 finalize the session. This keeps large files out of the application runtime.
 The multipart endpoint remains supported for existing clients.
+Creating a public upload session reserves one monthly media-upload unit before
+the signed URL is issued. An abandoned session still consumes that unit; its
+staged object is removed by the Storage lifecycle policy.
 
 ## Auth
 
@@ -225,7 +228,7 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/media/upload-sessions/$UPLOAD_SESSIO
 }
 ```
 
-Finalization is retry-safe: a completed session returns the same asset. A
+Session creation reserves the media-upload quota. Finalization is retry-safe: a completed session returns the same asset. A
 concurrent finalization returns `409 UPLOAD_FINALIZATION_IN_PROGRESS`. New
 clients should retry that response with backoff. If direct upload is not
 practical, the compatibility multipart endpoint is still available:

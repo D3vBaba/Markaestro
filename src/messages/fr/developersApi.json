@@ -53,7 +53,7 @@
       "endpoints": [
         { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Crée une session d'envoi direct de 15 minutes avec le nom, le type et la taille exacte." },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Envoie les octets directement au stockage avec le Content-Type renvoyé, sans clé API." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Vérifie le type et la taille, applique le quota et renvoie l'actif média." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Vérifie le type et la taille et renvoie l'actif média ; les sessions terminées peuvent être réessayées." },
         { "method": "POST", "path": "/api/public/v1/media", "note": "Import multipart de compatibilité. Renvoie un id d'actif et une URL hébergée." }
       ]
     },

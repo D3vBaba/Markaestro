@@ -53,7 +53,7 @@
       "endpoints": [
         { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "ファイル名、Content-Type、正確なサイズから15分間有効な直接アップロードセッションを作成します。" },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "返されたContent-Typeでストレージへ直接アップロードします。APIキーは送信しません。" },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "種類とサイズを検証し、クォータを適用してメディアアセットを返します。" },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "種類とサイズを検証してメディアアセットを返します。完了済みセッションは安全に再試行できます。" },
         { "method": "POST", "path": "/api/public/v1/media", "note": "互換用マルチパートアップロード。アセットIDとホスト先URLを返します。" }
       ]
     },

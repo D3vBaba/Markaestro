@@ -53,7 +53,7 @@
       "endpoints": [
         { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Crea una sessione di caricamento diretto di 15 minuti con nome, tipo e dimensione esatta." },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Carica i byte direttamente nello storage con il Content-Type restituito, senza chiave API." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifica tipo e dimensione, applica la quota e restituisce l'asset multimediale." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifica tipo e dimensione e restituisce l'asset multimediale; le sessioni completate sono ritentabili." },
         { "method": "POST", "path": "/api/public/v1/media", "note": "Caricamento multipart di compatibilità. Restituisce un id dell'asset e l'URL ospitato." }
       ]
     },

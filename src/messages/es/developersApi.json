@@ -53,7 +53,7 @@
       "endpoints": [
         { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Crea una sesión de subida directa de 15 minutos con nombre, tipo y tamaño exacto." },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Sube los bytes directamente al almacenamiento con el Content-Type devuelto; no envíes la clave API." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifica tipo y tamaño, aplica la cuota y devuelve el activo multimedia." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifica tipo y tamaño y devuelve el activo multimedia; las sesiones completadas admiten reintentos seguros." },
         { "method": "POST", "path": "/api/public/v1/media", "note": "Subida multipart de compatibilidad. Devuelve un id de activo y una URL alojada." }
       ]
     },

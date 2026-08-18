@@ -51,9 +51,9 @@
       "title": "Media",
       "description": "Upload images or videos to Markaestro-managed storage before creating posts. New integrations should use direct upload sessions; multipart remains compatible.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Creates a 15-minute direct upload session from fileName, contentType, and exact sizeBytes." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Creates a 15-minute direct upload session from fileName, contentType, and exact sizeBytes, reserving one media-upload quota unit." },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Uploads raw bytes directly to storage using the returned Content-Type header; do not send the API key." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifies the stored type and size, applies quota, and returns the reusable media asset." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifies the stored type and size and returns the reusable media asset. Completed sessions are retry-safe." },
         { "method": "POST", "path": "/api/public/v1/media", "note": "Compatibility multipart upload. Returns an asset id and hosted URL." }
       ]
     },

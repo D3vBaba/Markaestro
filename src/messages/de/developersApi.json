@@ -53,7 +53,7 @@
       "endpoints": [
         { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Erstellt aus Dateiname, Inhaltstyp und exakter Größe eine 15-minütige direkte Upload-Sitzung." },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Lädt Rohdaten mit dem zurückgegebenen Content-Type direkt in den Speicher; keinen API-Schlüssel senden." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Prüft Typ und Größe, rechnet das Kontingent ab und gibt das Medien-Asset zurück." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Prüft Typ und Größe und gibt das Medien-Asset zurück; abgeschlossene Sitzungen sind wiederholbar." },
         { "method": "POST", "path": "/api/public/v1/media", "note": "Kompatibler Multipart-Upload. Gibt eine Asset-ID und gehostete URL zurück." }
       ]
     },

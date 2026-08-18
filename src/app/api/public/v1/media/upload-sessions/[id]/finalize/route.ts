@@ -10,7 +10,6 @@ import {
 import { publicApiError } from '@/lib/public-api/response';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 import { buildDownloadUrl } from '@/lib/storage';
-import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
 
 export const runtime = 'nodejs';
 
@@ -52,7 +51,6 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  let reservedQuota: { uid: string; workspaceId: string } | null = null;
   let claimedSessionRef: FirebaseFirestore.DocumentReference | null = null;
   let sessionRejected = false;
   try {
@@ -158,22 +156,6 @@ export async function POST(
       height = imageMetadata.height ?? null;
     }
 
-    const quotaUid = ctx.ownerUid ?? '';
-    const quota = await checkAndIncrementUsage(quotaUid, 'mediaUploads', ctx.workspaceId);
-    if (!quota.allowed) {
-      await sessionRef.set({
-        status: 'pending',
-        finalizeLeaseUntil: FieldValue.delete(),
-      }, { merge: true });
-      claimedSessionRef = null;
-      return Response.json({
-        error: quota.reason === 'subscription_required'
-          ? 'SUBSCRIPTION_REQUIRED'
-          : 'QUOTA_EXCEEDED_MEDIA_UPLOADS',
-      }, { status: 402, headers: ctx.rateLimitHeaders });
-    }
-    reservedQuota = { uid: quotaUid, workspaceId: ctx.workspaceId };
-
     if (isStaged) {
       await stagedFile.move(session.finalStoragePath!);
       file = finalFile;
@@ -218,15 +200,11 @@ export async function POST(
       expiresAt: Timestamp.fromMillis(Date.now() + SESSION_RETENTION_MS),
     }, { merge: true });
     await batch.commit();
-    reservedQuota = null;
     claimedSessionRef = null;
     await incrementApiClientStat(ctx.workspaceId, ctx.clientId, 'media_upload').catch(() => undefined);
 
     return Response.json({ asset }, { status: 201, headers: ctx.rateLimitHeaders });
   } catch (error) {
-    if (reservedQuota) {
-      await refundUsage(reservedQuota.uid, 'mediaUploads', 1, reservedQuota.workspaceId);
-    }
     if (claimedSessionRef && !sessionRejected) {
       await claimedSessionRef.set({
         status: 'pending',

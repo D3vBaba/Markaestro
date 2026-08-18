@@ -53,7 +53,7 @@
       "endpoints": [
         { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Maakt een directe uploadsessie van 15 minuten met bestandsnaam, contenttype en exacte grootte." },
         { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Uploadt bytes rechtstreeks naar opslag met het teruggegeven Content-Type; stuur geen API-sleutel." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Controleert type en grootte, past het quotum toe en retourneert het media-asset." },
+        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Controleert type en grootte en retourneert het media-asset; voltooide sessies kunnen veilig opnieuw worden geprobeerd." },
         { "method": "POST", "path": "/api/public/v1/media", "note": "Compatibele multipart-upload. Retourneert een asset-id en gehoste URL." }
       ]
     },
