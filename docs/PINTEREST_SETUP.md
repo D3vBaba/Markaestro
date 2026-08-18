@@ -12,8 +12,9 @@ Sandbox until Pinterest grants Standard access.
    `https://markaestro.com/api/oauth/callback/pinterest`
 3. Configure `PINTEREST_CLIENT_ID` and `PINTEREST_CLIENT_SECRET` with the app's
    ID and secret.
-4. Set `PINTEREST_API_ENVIRONMENT=sandbox`. The App Hosting configuration does
-   this already.
+4. Set `PINTEREST_API_ENVIRONMENT=sandbox` on the preview/demo environment.
+   The production App Hosting backend uses `production` and must not be used
+   for Trial-access demo tokens or boards.
 5. Deploy, then disconnect and reconnect Pinterest in Markaestro. This is
    required because Sandbox and production tokens are not interchangeable.
 6. Select a board owned by the connected account. Avoid group boards for a
@@ -37,8 +38,9 @@ Record one continuous screen capture showing:
 Submit the recording through the app's **Upgrade** flow in Pinterest My apps.
 After Pinterest grants Standard access:
 
-1. Change `PINTEREST_API_ENVIRONMENT` from `sandbox` to `production`.
-2. Deploy the change.
+1. Confirm `PINTEREST_API_ENVIRONMENT=production` in `apphosting.yaml`.
+   Markaestro's production deployment is configured this way.
+2. Deploy the configuration.
 3. Disconnect and reconnect each Pinterest account, then select its production
    board again. Sandbox tokens, boards, and Pins do not transfer to production.
 4. Publish a fresh production image Pin and verify its destination link and
