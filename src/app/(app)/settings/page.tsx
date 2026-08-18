@@ -39,7 +39,7 @@ import {
   User, Shield, Zap, Link2, Users, Building2, CreditCard,
   Pencil, Check, X, Loader2, KeyRound, Mail, BarChart3,
   Copy, Webhook, BookOpen, ExternalLink, Trash2, RefreshCw,
-  Archive, ArchiveRestore,
+  Archive, ArchiveRestore, Plus, Minus,
 } from "lucide-react";
 
 type Member = {
@@ -2770,6 +2770,119 @@ function ApiAccessTab() {
 
 /* ─── Billing Tab ──────────────────────────────────────────────────────── */
 
+type AddonInfo = {
+  key: "brand" | "seat";
+  name: string;
+  price: { monthly: number; annual: number };
+  quantity: number;
+  available: boolean;
+};
+
+function AddonsCard({ interval, tier }: { interval: string | null; tier: PlanTier }) {
+  const t = useTranslations("settings.billing.addons");
+  const [addons, setAddons] = useState<AddonInfo[] | null>(null);
+  const [pending, setPending] = useState<Record<string, number>>({});
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    const res = await apiFetch<{ addons: AddonInfo[] }>("/api/stripe/addons");
+    if (res.ok) {
+      setAddons(res.data.addons);
+      setPending({});
+    }
+  }, []);
+
+  useEffect(() => {
+    deferFromEffect(load);
+  }, [load]);
+
+  const available = (addons ?? []).filter((a) => a.available);
+  if (!addons || available.length === 0) return null;
+
+  const annual = interval === "annual";
+  const baseLimits = PLANS[tier].limits;
+
+  async function update(addon: AddonInfo, quantity: number) {
+    setBusyKey(addon.key);
+    try {
+      const res = await apiFetch<{ ok: boolean }>("/api/stripe/addons", {
+        method: "POST",
+        body: JSON.stringify({ addon: addon.key, quantity }),
+      });
+      if (res.ok) {
+        toast.success(t("toastUpdated"));
+        await load();
+      } else {
+        toast.error(t("toastFailed"));
+      }
+    } catch {
+      toast.error(t("toastFailed"));
+    } finally {
+      setBusyKey(null);
+    }
+  }
+
+  return (
+    <Card className="border-border/30">
+      <CardHeader>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {available.map((addon) => {
+          const qty = pending[addon.key] ?? addon.quantity;
+          const dirty = qty !== addon.quantity;
+          const total = addon.key === "brand" ? baseLimits.brands + qty : baseLimits.teamMembers + qty;
+          return (
+            <div
+              key={addon.key}
+              className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+            >
+              <div>
+                <p className="text-sm font-medium">{t(`names.${addon.key}`)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {annual
+                    ? t("pricePerYear", { price: addon.price.annual })
+                    : t("pricePerMonth", { price: addon.price.monthly })}
+                  {" · "}
+                  {addon.key === "brand" ? t("totalBrands", { total }) : t("totalSeats", { total })}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={qty <= 0 || busyKey !== null}
+                  onClick={() => setPending((p) => ({ ...p, [addon.key]: Math.max(0, qty - 1) }))}
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </Button>
+                <span className="w-8 text-center text-sm font-medium tabular-nums">{qty}</span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={qty >= 100 || busyKey !== null}
+                  onClick={() => setPending((p) => ({ ...p, [addon.key]: Math.min(100, qty + 1) }))}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+                {dirty && (
+                  <Button size="sm" className="ms-1" disabled={busyKey !== null} onClick={() => update(addon, qty)}>
+                    {busyKey === addon.key ? t("updating") : t("update")}
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        <p className="text-xs text-muted-foreground">{t("prorationNote")}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 function BillingTab() {
   const t = useTranslations("settings.billing");
   const locale = useLocale();
@@ -2779,7 +2892,7 @@ function BillingTab() {
 
   if (!status) return null;
 
-  const tier = (status.tier ?? 'starter') as PlanTier;
+  const tier = (status.tier ?? 'free') as PlanTier;
   const plan = PLANS[tier];
   const canManageBilling = workspace?.role === 'owner';
 
@@ -2859,6 +2972,10 @@ function BillingTab() {
           </div>
         </CardContent>
       </Card>
+
+      {canManageBilling && status.active && (
+        <AddonsCard interval={status.interval} tier={tier} />
+      )}
 
       {/* Plan comparison */}
       <Card className="border-border/30">
