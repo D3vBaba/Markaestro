@@ -25,7 +25,7 @@ type PendingInvite = {
  */
 export function InvitesBanner() {
   const { user } = useAuth();
-  const { switchWorkspace, refresh: refreshWorkspaces } = useWorkspace();
+  const { refresh: refreshWorkspaces } = useWorkspace();
   const t = useTranslations("shell.invitesBanner");
   const [invites, setInvites] = useState<PendingInvite[]>([]);
   const [busyWorkspaceId, setBusyWorkspaceId] = useState<string | null>(null);
@@ -52,15 +52,22 @@ export function InvitesBanner() {
   async function handleAccept(invite: PendingInvite) {
     setBusyWorkspaceId(invite.workspaceId);
     try {
-      const res = await apiFetch<{ joined: { workspaceId: string; workspaceName: string } }>(
+      const res = await apiFetch<{ joined: { workspaceId: string; workspaceName: string; role?: string } }>(
         "/api/team/invites/accept",
         { method: "POST", body: JSON.stringify({ workspaceId: invite.workspaceId }) },
       );
       if (res.ok) {
         toast.success(t("joined", { workspaceName: invite.workspaceName }));
         setInvites((prev) => prev.filter((i) => i.workspaceId !== invite.workspaceId));
-        await refreshWorkspaces();
-        switchWorkspace(invite.workspaceId);
+        await refreshWorkspaces({
+          select: res.data.joined.workspaceId,
+          hint: {
+            name: res.data.joined.workspaceName || invite.workspaceName,
+            role: res.data.joined.role === "admin" || res.data.joined.role === "analyst"
+              ? res.data.joined.role
+              : "member",
+          },
+        });
         invalidateQueries();
       } else {
         toast.error(t("acceptError"));
@@ -81,6 +88,7 @@ export function InvitesBanner() {
       if (res.ok) {
         toast(t("declined", { workspaceName: invite.workspaceName }));
         setInvites((prev) => prev.filter((i) => i.workspaceId !== invite.workspaceId));
+        await refreshWorkspaces();
       } else {
         toast.error(t("declineError"));
       }

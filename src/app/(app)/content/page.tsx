@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/app/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Select from "@/components/app/Select";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, getApiWorkspaceId, subscribeApiWorkspaceId } from "@/lib/api-client";
 import CreateTab from "./_components/CreateTab";
 import DraftsTab from "./_components/DraftsTab";
 import ScheduledTab from "./_components/ScheduledTab";
@@ -109,29 +109,40 @@ export default function PostsPage() {
   });
   const [products, setProducts] = useState<Product[]>([]);
   const [productId, setProductId] = useState("");
+  const workspaceId = useSyncExternalStore(
+    subscribeApiWorkspaceId,
+    getApiWorkspaceId,
+    () => "default",
+  );
 
-  // Load products and restore default product from localStorage
+  // Reload brands whenever the active workspace changes. The previous
+  // mount-only fetch left invitees staring at their empty personal
+  // workspace's product list after they joined a team.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const res = await apiGet<{ products: Product[] }>("/api/products");
+      const res = await apiGet<{ products: Product[] }>("/api/products", workspaceId);
       if (cancelled || !res.ok) return;
       const list: Product[] = res.data.products || [];
       setProducts(list);
-      if (list.length === 0) return;
+      if (list.length === 0) {
+        setProductId("");
+        return;
+      }
 
-      const saved = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+      const saved = typeof window !== "undefined"
+        ? localStorage.getItem(`${STORAGE_KEY}:${workspaceId}`)
+        : null;
       const savedExists = saved && list.some((p) => p.id === saved);
       setProductId(savedExists ? saved! : list[0].id);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [workspaceId]);
 
-  // Persist product selection
   const handleProductChange = (id: string) => {
     setProductId(id);
     if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, id);
+      localStorage.setItem(`${STORAGE_KEY}:${workspaceId}`, id);
     }
   };
 
@@ -190,6 +201,7 @@ export default function PostsPage() {
 
         <TabsContent value="create">
           <CreateTab
+            key={workspaceId}
             productId={productId}
             onProductChange={handleProductChange}
             onPostCreated={handlePostCreated}
@@ -197,11 +209,12 @@ export default function PostsPage() {
         </TabsContent>
 
         <TabsContent value="drafts">
-          <DraftsTab refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
+          <DraftsTab key={workspaceId} refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
         </TabsContent>
 
         <TabsContent value="scheduled">
           <ScheduledTab
+            key={workspaceId}
             refreshKey={refreshKey}
             productId={productId}
             onCreatePost={goToCreate}
@@ -210,11 +223,11 @@ export default function PostsPage() {
         </TabsContent>
 
         <TabsContent value="published">
-          <PublishedTab refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
+          <PublishedTab key={workspaceId} refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
         </TabsContent>
 
         <TabsContent value="on-platform">
-          <PlatformPostsTab productId={productId} />
+          <PlatformPostsTab key={workspaceId} productId={productId} />
         </TabsContent>
       </Tabs>
     </>

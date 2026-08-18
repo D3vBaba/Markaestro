@@ -8,6 +8,7 @@ import { MobileTabBar } from "./MobileTabBar";
 import { TrialBanner } from "./TrialBanner";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus";
+import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { VerifyEmailBanner } from "./VerifyEmailBanner";
 import { InvitesBanner } from "./InvitesBanner";
 
@@ -20,6 +21,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     error: onboardingError,
     loading: onboardingLoading,
   } = useOnboardingStatus();
+  const { current: currentWorkspace } = useWorkspace();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -59,6 +61,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (!user) return null;
   if (needsOnboarding) return null;
+
+  // Invitees with no membership yet must not land in the empty app (or
+  // write into the 'default' sentinel workspace). The banner is the
+  // only action until they accept or decline.
+  if (!currentWorkspace && pendingInvites > 0) {
+    return (
+      <div className="min-h-dvh flex flex-col" style={{ background: "var(--mk-surface)" }}>
+        <InvitesBanner />
+      </div>
+    );
+  }
 
   return (
     <div className="grid h-dvh w-full max-w-full overflow-hidden lg:grid-cols-[232px_1fr]">

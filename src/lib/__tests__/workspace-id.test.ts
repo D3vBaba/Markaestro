@@ -3,6 +3,9 @@ import {
   DEFAULT_WORKSPACE_ID,
   getWorkspaceId,
   isValidWorkspaceId,
+  mergeWorkspaceHint,
+  pickSelectedWorkspaceId,
+  shouldDeferPersonalWorkspace,
   workspaceSlugFromName,
 } from '../workspace';
 
@@ -43,5 +46,77 @@ describe('workspaceSlugFromName', () => {
     const slug = workspaceSlugFromName('x'.repeat(200), Date.now());
     expect(slug.length).toBeLessThanOrEqual(60);
     expect(isValidWorkspaceId(slug)).toBe(true);
+  });
+});
+
+describe('pickSelectedWorkspaceId', () => {
+  const personal = 'ws-personal';
+  const team = 'acme-team-1';
+
+  it('always honors an explicit preference, even if the list is stale', () => {
+    expect(pickSelectedWorkspaceId({
+      workspaceIds: [personal],
+      previousId: personal,
+      storedId: personal,
+      preferredId: team,
+    })).toBe(team);
+  });
+
+  it('keeps the live selection when it is still a member workspace', () => {
+    expect(pickSelectedWorkspaceId({
+      workspaceIds: [personal, team],
+      previousId: team,
+      storedId: personal,
+    })).toBe(team);
+  });
+
+  it('drops a live selection that is no longer in the list', () => {
+    expect(pickSelectedWorkspaceId({
+      workspaceIds: [personal],
+      previousId: team,
+      storedId: personal,
+    })).toBe(personal);
+  });
+
+  it('restores the persisted selection when the live id is the default sentinel', () => {
+    expect(pickSelectedWorkspaceId({
+      workspaceIds: [personal, team],
+      previousId: DEFAULT_WORKSPACE_ID,
+      storedId: team,
+    })).toBe(team);
+  });
+
+  it('falls back to the first listed workspace, then the default sentinel', () => {
+    expect(pickSelectedWorkspaceId({
+      workspaceIds: [personal, team],
+      previousId: DEFAULT_WORKSPACE_ID,
+      storedId: null,
+    })).toBe(personal);
+    expect(pickSelectedWorkspaceId({
+      workspaceIds: [],
+      previousId: DEFAULT_WORKSPACE_ID,
+      storedId: null,
+    })).toBe(DEFAULT_WORKSPACE_ID);
+  });
+});
+
+describe('mergeWorkspaceHint', () => {
+  it('prepends a missing just-joined workspace', () => {
+    const personal = { id: 'ws-personal', name: 'My Workspace' };
+    const team = { id: 'acme-team-1', name: 'Acme' };
+    expect(mergeWorkspaceHint([personal], team)).toEqual([team, personal]);
+  });
+
+  it('does not duplicate a workspace already in the list', () => {
+    const team = { id: 'acme-team-1', name: 'Acme' };
+    expect(mergeWorkspaceHint([team], { id: 'acme-team-1', name: 'Ignored' })).toEqual([team]);
+  });
+});
+
+describe('shouldDeferPersonalWorkspace', () => {
+  it('defers bootstrap only for verified users with a live invite', () => {
+    expect(shouldDeferPersonalWorkspace(true, 1)).toBe(true);
+    expect(shouldDeferPersonalWorkspace(true, 0)).toBe(false);
+    expect(shouldDeferPersonalWorkspace(false, 2)).toBe(false);
   });
 });

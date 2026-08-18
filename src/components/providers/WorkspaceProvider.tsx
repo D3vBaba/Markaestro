@@ -1,11 +1,16 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { deferFromEffect } from "@/lib/defer-from-effect";
 import { useAuth } from '@/components/providers/AuthProvider';
 import { apiFetch, setApiWorkspaceId, WORKSPACE_FORBIDDEN_EVENT } from '@/lib/api-client';
 import { invalidateQueries } from '@/hooks/useApiQuery';
-import { WORKSPACE_COOKIE } from '@/lib/workspace';
+import {
+  DEFAULT_WORKSPACE_ID,
+  WORKSPACE_COOKIE,
+  mergeWorkspaceHint,
+  pickSelectedWorkspaceId,
+} from '@/lib/workspace';
 
 export type WorkspaceInfo = {
   id: string;
@@ -13,12 +18,19 @@ export type WorkspaceInfo = {
   role: 'owner' | 'admin' | 'member' | 'analyst';
 };
 
+export type RefreshWorkspacesOptions = {
+  /** Force this workspace open after the refresh (invite accept / create). */
+  select?: string;
+  /** Shown in the switcher if the list has not caught up yet. */
+  hint?: Pick<WorkspaceInfo, 'name' | 'role'>;
+};
+
 type WorkspaceCtx = {
   workspaces: WorkspaceInfo[];
   current: WorkspaceInfo | null;
   loading: boolean;
   switchWorkspace: (id: string) => void;
-  refresh: () => Promise<void>;
+  refresh: (opts?: RefreshWorkspacesOptions) => Promise<void>;
 };
 
 const Ctx = createContext<WorkspaceCtx | null>(null);
@@ -49,17 +61,40 @@ function persistWorkspaceCookie(id: string | null) {
   }
 }
 
+function persistWorkspaceSelection(uid: string | undefined, id: string) {
+  setApiWorkspaceId(id);
+  if (id && id !== DEFAULT_WORKSPACE_ID) {
+    persistWorkspaceCookie(id);
+    if (uid && typeof window !== 'undefined') {
+      localStorage.setItem(storageKey(uid), id);
+    }
+  } else {
+    persistWorkspaceCookie(null);
+  }
+}
+
+function asWorkspaceRole(role: string | undefined): WorkspaceInfo['role'] {
+  if (role === 'owner' || role === 'admin' || role === 'member' || role === 'analyst') return role;
+  return 'member';
+}
+
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [workspaces, setWorkspaces] = useState<WorkspaceInfo[]>([]);
-  const [currentId, setCurrentId] = useState<string>('default');
+  const [currentId, setCurrentId] = useState<string>(DEFAULT_WORKSPACE_ID);
   const [loading, setLoading] = useState(true);
+  const currentIdRef = useRef(currentId);
+  currentIdRef.current = currentId;
 
-  const fetchWorkspaces = useCallback(async () => {
+  const applySelection = useCallback((id: string, uid = user?.uid) => {
+    setCurrentId(id);
+    persistWorkspaceSelection(uid, id);
+  }, [user?.uid]);
+
+  const fetchWorkspaces = useCallback(async (opts?: RefreshWorkspacesOptions) => {
     if (!user) {
       setWorkspaces([]);
-      setCurrentId('default');
-      persistWorkspaceCookie(null);
+      applySelection(DEFAULT_WORKSPACE_ID, undefined);
       setLoading(false);
       return;
     }
@@ -67,44 +102,59 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       const res = await apiFetch<{ workspaces: WorkspaceInfo[] }>(
         '/api/workspaces?workspaceId=default',
       );
-      if (res.ok) {
-        setWorkspaces(res.data.workspaces);
-        setCurrentId((prev) => {
-          // Keep the live selection if it still exists; otherwise restore the
-          // persisted one; otherwise fall back to the first workspace.
-          const candidates = [
-            prev !== 'default' ? prev : null,
-            readStoredWorkspace(user.uid),
-          ];
-          for (const candidate of candidates) {
-            if (candidate && res.data.workspaces.some((w) => w.id === candidate)) {
-              return candidate;
-            }
-          }
-          return res.data.workspaces[0]?.id ?? 'default';
-        });
+      if (!res.ok) {
+        if (opts?.select) {
+          const hint = {
+            id: opts.select,
+            name: opts.hint?.name || opts.select,
+            role: asWorkspaceRole(opts.hint?.role),
+          };
+          setWorkspaces((prev) => mergeWorkspaceHint(prev, hint));
+          applySelection(opts.select);
+        } else {
+          const stored = readStoredWorkspace(user.uid);
+          if (stored) applySelection(stored);
+        }
+        return;
       }
+      const hint = opts?.select
+        ? {
+            id: opts.select,
+            name: opts.hint?.name || opts.select,
+            role: asWorkspaceRole(opts.hint?.role),
+          }
+        : null;
+      const nextList = mergeWorkspaceHint(res.data.workspaces, hint);
+      const nextId = pickSelectedWorkspaceId({
+        workspaceIds: nextList.map((workspace) => workspace.id),
+        previousId: currentIdRef.current,
+        storedId: readStoredWorkspace(user.uid),
+        preferredId: opts?.select,
+      });
+      setWorkspaces(nextList);
+      applySelection(nextId);
     } catch {
-      // ignore — fall back to default
+      if (opts?.select) {
+        const hint = {
+          id: opts.select,
+          name: opts.hint?.name || opts.select,
+          role: asWorkspaceRole(opts.hint?.role),
+        };
+        setWorkspaces((prev) => mergeWorkspaceHint(prev, hint));
+        applySelection(opts.select);
+      } else {
+        const stored = readStoredWorkspace(user.uid);
+        if (stored) applySelection(stored);
+      }
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [applySelection, user]);
 
   useEffect(() => {
     if (authLoading) return;
-    deferFromEffect(fetchWorkspaces);
+    deferFromEffect(() => fetchWorkspaces());
   }, [authLoading, fetchWorkspaces]);
-
-  useEffect(() => {
-    setApiWorkspaceId(currentId);
-    if (user && currentId !== 'default') {
-      persistWorkspaceCookie(currentId);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(storageKey(user.uid), currentId);
-      }
-    }
-  }, [currentId, user]);
 
   // The server said the selected workspace is gone for us (removed
   // mid-session, workspace deleted): re-fetch the list, which drops the
@@ -120,13 +170,19 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, [fetchWorkspaces]);
 
   const switchWorkspace = useCallback((id: string) => {
-    setCurrentId(id);
-  }, []);
+    applySelection(id);
+  }, [applySelection]);
 
-  const current = useMemo(
-    () => workspaces.find((w) => w.id === currentId) ?? workspaces[0] ?? null,
-    [workspaces, currentId],
-  );
+  const current = useMemo(() => {
+    const found = workspaces.find((workspace) => workspace.id === currentId);
+    if (found) return found;
+    // Keep an explicit selection visible even if the membership list is stale
+    // (just accepted an invite; listing has not returned the new workspace).
+    if (currentId && currentId !== DEFAULT_WORKSPACE_ID) {
+      return { id: currentId, name: currentId, role: 'member' as const };
+    }
+    return workspaces[0] ?? null;
+  }, [workspaces, currentId]);
 
   const value = useMemo<WorkspaceCtx>(
     () => ({ workspaces, current, loading, switchWorkspace, refresh: fetchWorkspaces }),

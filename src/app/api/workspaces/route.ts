@@ -1,12 +1,13 @@
 import { requireContext } from '@/lib/server-auth';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
+import { logger } from '@/lib/logger';
 import {
   getAccountEntitlement,
   getSubscriptionForWorkspace,
 } from '@/lib/stripe/subscription';
 import { resolveLimits } from '@/lib/stripe/entitlements';
-import { isValidWorkspaceId, workspaceSlugFromName } from '@/lib/workspace';
+import { DEFAULT_WORKSPACE_ID, isValidWorkspaceId, workspaceSlugFromName } from '@/lib/workspace';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -32,12 +33,28 @@ export async function GET(req: Request) {
         const parts = d.ref.path.split('/');
         return { workspaceId: parts[1], role: d.data().role };
       });
-    } catch {
-      workspaceIds = [{ workspaceId: ctx.workspaceId, role: ctx.role }];
+    } catch (error) {
+      logger.warn('workspace membership listing failed', {
+        event: 'workspaces.list.collection_group_failed',
+        uid: ctx.uid,
+        workspaceId: ctx.workspaceId,
+        err: error,
+      });
+      workspaceIds = ctx.workspaceId !== DEFAULT_WORKSPACE_ID
+        ? [{ workspaceId: ctx.workspaceId, role: ctx.role }]
+        : [];
     }
 
     const uniqueWorkspaceIds = Array.from(
-      new Map(workspaceIds.map((entry) => [entry.workspaceId, entry])).values(),
+      new Map(
+        workspaceIds
+          .filter((entry) =>
+            Boolean(entry.workspaceId) &&
+            entry.workspaceId !== DEFAULT_WORKSPACE_ID &&
+            isValidWorkspaceId(entry.workspaceId),
+          )
+          .map((entry) => [entry.workspaceId, entry]),
+      ).values(),
     );
 
     const workspaces = await Promise.all(

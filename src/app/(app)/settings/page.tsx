@@ -1710,8 +1710,7 @@ function WorkspacesTab() {
       if (res.ok) {
         toast.success(t("toasts.created", { name: newName.trim() }));
         setNewName('');
-        await refresh();
-        switchWorkspace(res.data.id);
+        await refresh({ select: res.data.id, hint: { name: newName.trim(), role: 'owner' } });
       } else {
         const err = (res.data as { error?: string }).error;
         if (err === 'WORKSPACE_LIMIT_REACHED') {

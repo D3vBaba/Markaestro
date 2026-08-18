@@ -1,6 +1,7 @@
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { createHash } from 'node:crypto';
-import { DEFAULT_WORKSPACE_ID, WORKSPACE_COOKIE, getWorkspaceId, isValidWorkspaceId } from '@/lib/workspace';
+import { DEFAULT_WORKSPACE_ID, WORKSPACE_COOKIE, getWorkspaceId, isValidWorkspaceId, shouldDeferPersonalWorkspace } from '@/lib/workspace';
+import { countPendingInvitesForEmail } from '@/lib/team-invites';
 import { decodeSessionCookie } from '@/lib/session-cookie';
 import { parseBearerToken } from '@/lib/bearer';
 import { pickLocaleFromAcceptLanguage } from '@/i18n/routing';
@@ -133,7 +134,7 @@ async function findUserMembership(uid: string): Promise<{ workspaceId: string; r
         joinedAt: (data.joinedAt as string) || '',
       };
     })
-    .filter((m) => Boolean(m.workspaceId));
+    .filter((m) => Boolean(m.workspaceId) && m.workspaceId !== DEFAULT_WORKSPACE_ID);
 
   if (memberships.length === 0) return null;
 
@@ -225,7 +226,14 @@ export async function requireContext(req: Request): Promise<RequestContext> {
 
   const cookieWs = getCookie(req, WORKSPACE_COOKIE);
 
-  const resolved = await resolveContextForUser(uid, email, requestedWs, cookieWs, acceptLanguage);
+  const resolved = await resolveContextForUser(
+    uid,
+    email,
+    requestedWs,
+    cookieWs,
+    acceptLanguage,
+    emailVerified,
+  );
 
   return { ...resolved, emailVerified };
 }
@@ -236,6 +244,7 @@ async function resolveContextForUser(
   requestedWs: string,
   cookieWs: string | null,
   acceptLanguage?: string | null,
+  emailVerified = false,
 ): Promise<ResolvedWorkspaceContext> {
   // An explicit selection (query param / header) is strict: requesting a
   // workspace you're not a member of is an authorization failure, never a
@@ -261,6 +270,20 @@ async function resolveContextForUser(
   const membership = await findUserMembership(uid);
   if (membership) {
     return { uid, email, workspaceId: membership.workspaceId, role: membership.role };
+  }
+
+  // A first-time invitee has no memberships yet. Creating a personal
+  // workspace here would make them an owner, and owned-first defaulting
+  // would keep them in that empty workspace after they join the team.
+  if (email && emailVerified) {
+    try {
+      const pendingInviteCount = await countPendingInvitesForEmail(email);
+      if (shouldDeferPersonalWorkspace(emailVerified, pendingInviteCount)) {
+        return { uid, email, workspaceId: DEFAULT_WORKSPACE_ID, role: 'member' };
+      }
+    } catch {
+      // Invite lookup is advisory; fall through to a personal workspace.
+    }
   }
 
   return bootstrapPersonalWorkspace(uid, email, acceptLanguage);

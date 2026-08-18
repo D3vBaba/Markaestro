@@ -112,12 +112,11 @@ async function sendInviteEmail(params: {
 /**
  * POST /api/team — invite a user by email.
  *
- * Always creates a pendingInvite document; users are added to the workspace
- * only after they sign in with a matching email (server-auth.acceptPendingInvites
- * claims the invite on login). This prevents unauthenticated admins from
- * attaching arbitrary Firebase users to their workspace without the user's
- * knowledge, and produces a non-enumerating response (same shape whether the
- * target email exists or not).
+ * Always creates a pendingInvite document. The invitee is added to the
+ * workspace only after they accept in-app (POST /api/team/invites/accept).
+ * Matching on email at accept-time — and requiring a verified address —
+ * prevents attaching arbitrary Firebase users without their knowledge, and
+ * the response shape is the same whether the target email exists or not.
  */
 export async function POST(req: Request) {
   try {

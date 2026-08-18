@@ -57,6 +57,11 @@ function activeWorkspaceId(workspaceId?: string) {
   return workspaceId?.trim() || _workspaceId;
 }
 
+function withWorkspaceQuery(path: string, wsId?: string) {
+  const sep = path.includes('?') ? '&' : '?';
+  return `${path}${sep}workspaceId=${encodeURIComponent(activeWorkspaceId(wsId))}`;
+}
+
 // Create a promise that resolves when auth is ready
 function _initAuthGate() {
   if (!_authReady) {
@@ -131,14 +136,12 @@ export async function apiFetch<T = unknown>(
 
 /** GET shortcut with workspace ID. */
 export function apiGet<T = unknown>(path: string, wsId?: string) {
-  const sep = path.includes('?') ? '&' : '?';
-  return apiFetch<T>(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`);
+  return apiFetch<T>(withWorkspaceQuery(path, wsId));
 }
 
 /** POST shortcut with workspace ID. */
 export function apiPost<T = unknown>(path: string, body: unknown, wsId?: string) {
-  const sep = path.includes('?') ? '&' : '?';
-  return apiFetch<T>(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
+  return apiFetch<T>(withWorkspaceQuery(path, wsId), {
     method: 'POST',
     body: JSON.stringify(body),
   });
@@ -146,8 +149,7 @@ export function apiPost<T = unknown>(path: string, body: unknown, wsId?: string)
 
 /** PUT shortcut with workspace ID. */
 export function apiPut<T = unknown>(path: string, body: unknown, wsId?: string) {
-  const sep = path.includes('?') ? '&' : '?';
-  return apiFetch<T>(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
+  return apiFetch<T>(withWorkspaceQuery(path, wsId), {
     method: 'PUT',
     body: JSON.stringify(body),
   });
@@ -155,8 +157,7 @@ export function apiPut<T = unknown>(path: string, body: unknown, wsId?: string) 
 
 /** DELETE shortcut with workspace ID. Optionally accepts a JSON body. */
 export function apiDelete<T = unknown>(path: string, body?: unknown, wsId?: string) {
-  const sep = path.includes('?') ? '&' : '?';
-  return apiFetch<T>(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
+  return apiFetch<T>(withWorkspaceQuery(path, wsId), {
     method: 'DELETE',
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
@@ -169,13 +170,12 @@ export async function apiDownload(
 ): Promise<{ ok: boolean; status: number; blob: Blob | null }> {
   if (_authReady) await _authReady;
   const token = _getIdToken ? await _getIdToken() : null;
-  const sep = path.includes('?') ? '&' : '?';
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
 
   try {
-    const res = await fetch(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
+    const res = await fetch(withWorkspaceQuery(path, wsId), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       signal: controller.signal,
     });
@@ -245,7 +245,7 @@ export async function apiUpload<T = unknown>(
         const finalizeTimeout = setTimeout(() => finalizeController.abort(), UPLOAD_TIMEOUT_MS);
         try {
           return await apiFetch<T>(
-            `/api/media/finalize-upload?workspaceId=${activeWorkspaceId(wsId)}`,
+            withWorkspaceQuery('/api/media/finalize-upload', wsId),
             {
               method: 'POST',
               body: JSON.stringify({ assetId: session.data.assetId }),
@@ -261,13 +261,12 @@ export async function apiUpload<T = unknown>(
 
   if (_authReady) await _authReady;
   const token = _getIdToken ? await _getIdToken() : null;
-  const sep = path.includes('?') ? '&' : '?';
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
 
   try {
-    const res = await fetch(`${path}${sep}workspaceId=${activeWorkspaceId(wsId)}`, {
+    const res = await fetch(withWorkspaceQuery(path, wsId), {
       method: 'POST',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,

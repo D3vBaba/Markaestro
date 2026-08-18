@@ -29,3 +29,59 @@ export function workspaceSlugFromName(name: string, nowMs = Date.now()): string 
     .slice(0, 40).replace(/-+$/, '') || 'workspace';
   return `${base}-${nowMs.toString(36)}`;
 }
+
+function isSelectableWorkspaceId(id: string | null | undefined): id is string {
+  return Boolean(id && id !== DEFAULT_WORKSPACE_ID);
+}
+
+/**
+ * Choose which workspace the UI should have open after a list refresh.
+ *
+ * An explicit `preferredId` (invite accept, create, switch) always wins,
+ * even if the list has not caught up yet — data reads use a direct
+ * membership get, so a just-joined workspace is already addressable.
+ * Without a preference, keep the live selection if it still exists, then
+ * the persisted one, then the first listed workspace.
+ */
+export function pickSelectedWorkspaceId(opts: {
+  workspaceIds: string[];
+  previousId: string;
+  storedId: string | null;
+  preferredId?: string | null;
+}): string {
+  if (isSelectableWorkspaceId(opts.preferredId)) return opts.preferredId;
+  if (isSelectableWorkspaceId(opts.previousId) && opts.workspaceIds.includes(opts.previousId)) {
+    return opts.previousId;
+  }
+  if (isSelectableWorkspaceId(opts.storedId) && opts.workspaceIds.includes(opts.storedId)) {
+    return opts.storedId;
+  }
+  return opts.workspaceIds[0] ?? DEFAULT_WORKSPACE_ID;
+}
+
+/**
+ * Prepend a workspace the client knows about (just joined / created) when
+ * the list endpoint has not returned it yet, so the switcher can show it.
+ */
+export function mergeWorkspaceHint<T extends { id: string }>(
+  workspaces: T[],
+  hint: T | null | undefined,
+): T[] {
+  if (!isSelectableWorkspaceId(hint?.id)) return workspaces;
+  if (workspaces.some((workspace) => workspace.id === hint.id)) return workspaces;
+  return [hint, ...workspaces];
+}
+
+/**
+ * Brand-new invitees must not get an empty personal workspace on first
+ * request — that workspace becomes the owned-first default and hides the
+ * team they were invited to. Defer bootstrap until they accept or the
+ * invite is gone. Unverified emails cannot redeem invites, so they still
+ * get a personal workspace.
+ */
+export function shouldDeferPersonalWorkspace(
+  emailVerified: boolean,
+  pendingInviteCount: number,
+): boolean {
+  return emailVerified && pendingInviteCount > 0;
+}
