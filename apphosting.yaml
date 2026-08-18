@@ -191,6 +191,22 @@ env:
     value: price_1TKF0fJUPkOCaFhqfUPfC8n4
     availability:
       - RUNTIME
+  - variable: STRIPE_PRICE_ADDON_BRAND_MONTHLY
+    value: price_1U5keVJUPkOCaFhqlfPaerjV
+    availability:
+      - RUNTIME
+  - variable: STRIPE_PRICE_ADDON_BRAND_ANNUAL
+    value: price_1U5keWJUPkOCaFhqGRbqFH7S
+    availability:
+      - RUNTIME
+  - variable: STRIPE_PRICE_ADDON_SEAT_MONTHLY
+    value: price_1U5keWJUPkOCaFhqQcvWO7Ui
+    availability:
+      - RUNTIME
+  - variable: STRIPE_PRICE_ADDON_SEAT_ANNUAL
+    value: price_1U5keXJUPkOCaFhqE7XGiNY7
+    availability:
+      - RUNTIME
 
   # Stripe — create these secrets in Google Cloud Secret Manager (same names)
   - variable: STRIPE_SECRET_KEY
