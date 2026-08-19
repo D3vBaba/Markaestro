@@ -11,6 +11,7 @@ import ContentEditor from "./ContentEditor";
 import ScheduleSheet from "./ScheduleSheet";
 import TikTokDirectPostPanel, { type TikTokCreatorInfoState } from "./TikTokDirectPostPanel";
 import PlatformPreview from "@/components/app/PlatformPreview";
+import ImageCropDialog from "@/components/app/ImageCropDialog";
 import { Label } from "@/components/ui/label";
 import { getSocialChannelConfig, getSocialChannelLabel } from "@/lib/social/channel-catalog";
 import { getSharedMediaLimit, validateSocialPost } from "@/lib/social/post-validation";
@@ -57,6 +58,8 @@ export default function CreateTab({
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [uploading, setUploading] = useState(false);
+  /** Images waiting on the crop dialog; non-empty is what opens it. */
+  const [pendingCropFiles, setPendingCropFiles] = useState<File[]>([]);
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [previewChannel, setPreviewChannel] = useState("facebook");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -331,7 +334,23 @@ export default function CreateTab({
       toast.error(t("toasts.maxMedia", { count: maxMedia }));
       return;
     }
-    const filesToUpload = files.slice(0, available);
+    const selected = files.slice(0, available);
+
+    // Images go through the cropper first so the batch leaves here as one
+    // shape. Pinterest rejects a carousel of mixed ratios outright, and the
+    // other networks silently re-crop, so the framing is the user's to choose.
+    const images = selected.filter((file) => file.type.startsWith("image/"));
+    if (images.length > 0) {
+      setPendingCropFiles(images);
+      return;
+    }
+
+    await uploadFiles(selected);
+  };
+
+  const uploadFiles = async (filesToUpload: File[]) => {
+    if (filesToUpload.length === 0) return;
+    const maxMedia = getMediaLimit();
 
     setUploading(true);
     try {
@@ -709,6 +728,15 @@ export default function CreateTab({
         onSchedule={handleSchedule}
         channel={channel}
         tiktokDirectPost={directPostActive}
+      />
+      <ImageCropDialog
+        files={pendingCropFiles}
+        channels={getTypedPostTargets()}
+        onCancel={() => setPendingCropFiles([])}
+        onConfirm={(cropped) => {
+          setPendingCropFiles([]);
+          void uploadFiles(cropped);
+        }}
       />
     </div>
   );

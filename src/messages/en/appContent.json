@@ -267,6 +267,18 @@
       "publishFailed": "Publishing failed"
     }
   },
+  "crop": {
+    "title": "Crop images",
+    "descriptionSingle": "Choose the framing before this image is uploaded.",
+    "descriptionBatch": "All {count} images share one shape, so networks accept them as a set. Frame each one below.",
+    "zoom": "Zoom",
+    "reset": "Reset framing",
+    "previous": "Back",
+    "next": "Next",
+    "position": "{current} of {total}",
+    "cancel": "Cancel",
+    "confirm": "{count, plural, one {Use image} other {Use # images}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "Posting to this TikTok account",
     "unknownCreator": "TikTok account",

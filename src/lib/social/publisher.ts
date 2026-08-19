@@ -235,6 +235,16 @@ export function classifyPublishError(error: string): PublishErrorClassification 
     }
   }
 
+  // Checked ahead of the transient patterns on purpose: a geometry rejection is
+  // a property of the images, not the moment, and its wording ("…then publish
+  // again") would otherwise be caught by the generic retry phrases below and
+  // retried forever. The composer crops uploads to one ratio, but posts built
+  // before that landed — or through the public API — still reach here.
+  const ratioMismatch = /same width\/height ratio|aspect ratio|image ratio/;
+  if (ratioMismatch.test(normalized)) {
+    return { code: 'MEDIA_ASPECT_RATIO_MISMATCH', category: 'permanent', retryable: false };
+  }
+
   const transientPatterns: Array<{ pattern: RegExp; code: string }> = [
     { pattern: /\b429\b|rate limit|too many requests/, code: 'RATE_LIMITED' },
     { pattern: /\b500\b|\b502\b|\b503\b|\b504\b|server error|internal error/, code: 'REMOTE_SERVER_ERROR' },

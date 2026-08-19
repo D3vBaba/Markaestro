@@ -267,6 +267,18 @@
       "publishFailed": "公開に失敗しました"
     }
   },
+  "crop": {
+    "title": "画像をトリミング",
+    "descriptionSingle": "アップロードする前に構図を決めてください。",
+    "descriptionBatch": "{count}枚すべてを同じ比率にそろえると、各サービスがひとつのセットとして受け付けます。以下で1枚ずつ調整してください。",
+    "zoom": "ズーム",
+    "reset": "構図をリセット",
+    "previous": "戻る",
+    "next": "次へ",
+    "position": "{total}枚中{current}枚目",
+    "cancel": "キャンセル",
+    "confirm": "{count, plural, other {#枚の画像を使用}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "このTikTokアカウントに投稿します",
     "unknownCreator": "TikTokアカウント",

@@ -267,6 +267,18 @@
       "publishFailed": "发布失败"
     }
   },
+  "crop": {
+    "title": "裁剪图片",
+    "descriptionSingle": "上传前先确定构图。",
+    "descriptionBatch": "全部 {count} 张图片使用同一比例，各平台才会作为一组接受。请在下方逐张调整。",
+    "zoom": "缩放",
+    "reset": "重置构图",
+    "previous": "上一张",
+    "next": "下一张",
+    "position": "第 {current} 张，共 {total} 张",
+    "cancel": "取消",
+    "confirm": "{count, plural, other {使用 # 张图片}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "发布到此 TikTok 账号",
     "unknownCreator": "TikTok 账号",

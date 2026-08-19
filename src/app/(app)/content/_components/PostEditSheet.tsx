@@ -8,7 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 import ContentEditor from "./ContentEditor";
 import PlatformPreview from "@/components/app/PlatformPreview";
+import ImageCropDialog from "@/components/app/ImageCropDialog";
 import { apiUpload } from "@/lib/api-client";
+import { getSocialChannelConfig } from "@/lib/social/channel-catalog";
 import { toast } from "sonner";
 import { ImagePlus } from "lucide-react";
 
@@ -48,6 +50,8 @@ export default function PostEditSheet({
   const [content, setContent] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  /** Image waiting on the crop dialog; non-empty is what opens it. */
+  const [pendingCropFiles, setPendingCropFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,6 +77,17 @@ export default function PostEditSheet({
       toast.error(t("toasts.videoTikTokOnly"));
       return;
     }
+    // Let the user frame the image before it replaces the post's media, so a
+    // swapped-in picture lands in the shape the channel expects.
+    if (file.type.startsWith("image/")) {
+      setPendingCropFiles([file]);
+      return;
+    }
+    await uploadFile(file);
+  };
+
+  const uploadFile = async (file: File) => {
+    const isVideo = file.type.startsWith("video/");
     const maxSize = isVideo ? 250 * 1024 * 1024 : 10 * 1024 * 1024;
     if (file.size > maxSize) {
       toast.error(isVideo ? t("toasts.videoTooLarge") : t("toasts.imageTooLarge"));
@@ -239,6 +254,15 @@ export default function PostEditSheet({
           </Button>
         </SheetFooter>
       </SheetContent>
+      <ImageCropDialog
+        files={pendingCropFiles}
+        channels={getSocialChannelConfig(channel) ? [getSocialChannelConfig(channel)!.channel] : []}
+        onCancel={() => setPendingCropFiles([])}
+        onConfirm={(cropped) => {
+          setPendingCropFiles([]);
+          if (cropped[0]) void uploadFile(cropped[0]);
+        }}
+      />
     </Sheet>
   );
 }

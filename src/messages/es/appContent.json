@@ -267,6 +267,18 @@
       "publishFailed": "Error al publicar"
     }
   },
+  "crop": {
+    "title": "Recortar imágenes",
+    "descriptionSingle": "Elige el encuadre antes de subir esta imagen.",
+    "descriptionBatch": "Las {count} imágenes comparten una misma forma para que las redes las acepten como conjunto. Encuadra cada una abajo.",
+    "zoom": "Zoom",
+    "reset": "Restablecer encuadre",
+    "previous": "Atrás",
+    "next": "Siguiente",
+    "position": "{current} de {total}",
+    "cancel": "Cancelar",
+    "confirm": "{count, plural, one {Usar imagen} other {Usar # imágenes}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "Publicando en esta cuenta de TikTok",
     "unknownCreator": "Cuenta de TikTok",

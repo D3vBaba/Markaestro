@@ -267,6 +267,18 @@
       "publishFailed": "Publiceren mislukt"
     }
   },
+  "crop": {
+    "title": "Afbeeldingen bijsnijden",
+    "descriptionSingle": "Kies de uitsnede voordat deze afbeelding wordt geüpload.",
+    "descriptionBatch": "Alle {count} afbeeldingen krijgen dezelfde verhouding, zodat netwerken ze als set accepteren. Kadreer ze hieronder stuk voor stuk.",
+    "zoom": "Zoomen",
+    "reset": "Uitsnede herstellen",
+    "previous": "Terug",
+    "next": "Volgende",
+    "position": "{current} van {total}",
+    "cancel": "Annuleren",
+    "confirm": "{count, plural, one {Afbeelding gebruiken} other {# afbeeldingen gebruiken}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "Plaatsen op dit TikTok-account",
     "unknownCreator": "TikTok-account",

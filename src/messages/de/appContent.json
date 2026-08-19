@@ -267,6 +267,18 @@
       "publishFailed": "Veröffentlichung fehlgeschlagen"
     }
   },
+  "crop": {
+    "title": "Bilder zuschneiden",
+    "descriptionSingle": "Wähle den Bildausschnitt, bevor dieses Bild hochgeladen wird.",
+    "descriptionBatch": "Alle {count} Bilder haben dasselbe Format, damit die Netzwerke sie als Set akzeptieren. Schneide unten jedes einzeln zu.",
+    "zoom": "Zoom",
+    "reset": "Ausschnitt zurücksetzen",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "position": "{current} von {total}",
+    "cancel": "Abbrechen",
+    "confirm": "{count, plural, one {Bild verwenden} other {# Bilder verwenden}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "Veröffentlichung in diesem TikTok-Konto",
     "unknownCreator": "TikTok-Konto",

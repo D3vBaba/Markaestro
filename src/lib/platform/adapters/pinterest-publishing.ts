@@ -120,7 +120,15 @@ async function createPin(
   }, { maxRetries: 2 });
   const data = await res.json().catch(() => ({}));
   if (!res.ok || !data.id) {
-    throw new Error(`Pinterest pin create failed (${res.status}): ${data.message || res.statusText}`);
+    const message = String(data.message || res.statusText);
+    // Pinterest reports a mixed-ratio carousel as a bare 400 naming neither the
+    // offending image nor the fix. Say what to do instead of echoing it.
+    if (/same width\/height ratio/i.test(message)) {
+      throw new Error(
+        'Pinterest needs every image in a Pin to have the same width/height ratio. Re-crop the images to a single shape, then publish again.',
+      );
+    }
+    throw new Error(`Pinterest pin create failed (${res.status}): ${message}`);
   }
   return {
     pinId: String(data.id),

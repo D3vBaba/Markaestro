@@ -267,6 +267,18 @@
       "publishFailed": "Échec de la publication"
     }
   },
+  "crop": {
+    "title": "Recadrer les images",
+    "descriptionSingle": "Choisissez le cadrage avant l'envoi de cette image.",
+    "descriptionBatch": "Les {count} images partagent un même format, afin que les réseaux les acceptent comme un ensemble. Cadrez chacune ci-dessous.",
+    "zoom": "Zoom",
+    "reset": "Réinitialiser le cadrage",
+    "previous": "Retour",
+    "next": "Suivant",
+    "position": "{current} sur {total}",
+    "cancel": "Annuler",
+    "confirm": "{count, plural, one {Utiliser l'image} other {Utiliser # images}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "Publication sur ce compte TikTok",
     "unknownCreator": "Compte TikTok",

@@ -267,6 +267,18 @@
       "publishFailed": "فشل النشر"
     }
   },
+  "crop": {
+    "title": "اقتصاص الصور",
+    "descriptionSingle": "اختر الإطار قبل رفع هذه الصورة.",
+    "descriptionBatch": "تشترك الصور الـ {count} في نسبة واحدة حتى تقبلها المنصات كمجموعة. اضبط إطار كل صورة أدناه.",
+    "zoom": "تكبير",
+    "reset": "إعادة ضبط الإطار",
+    "previous": "السابق",
+    "next": "التالي",
+    "position": "{current} من {total}",
+    "cancel": "إلغاء",
+    "confirm": "{count, plural, one {استخدام الصورة} other {استخدام # صور}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "النشر إلى حساب TikTok هذا",
     "unknownCreator": "حساب TikTok",

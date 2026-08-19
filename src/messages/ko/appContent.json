@@ -265,6 +265,18 @@
       "publishFailed": "게시에 실패했습니다"
     }
   },
+  "crop": {
+    "title": "이미지 자르기",
+    "descriptionSingle": "업로드하기 전에 구도를 정하세요.",
+    "descriptionBatch": "{count}장 모두 같은 비율로 맞춰야 각 플랫폼이 하나의 세트로 인식합니다. 아래에서 한 장씩 조정하세요.",
+    "zoom": "확대",
+    "reset": "구도 초기화",
+    "previous": "이전",
+    "next": "다음",
+    "position": "{total}장 중 {current}장",
+    "cancel": "취소",
+    "confirm": "{count, plural, other {이미지 #장 사용}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "이 TikTok 계정에 게시합니다",
     "unknownCreator": "TikTok 계정",

@@ -267,6 +267,18 @@
       "publishFailed": "Pubblicazione non riuscita"
     }
   },
+  "crop": {
+    "title": "Ritaglia le immagini",
+    "descriptionSingle": "Scegli l'inquadratura prima di caricare questa immagine.",
+    "descriptionBatch": "Tutte le {count} immagini condividono lo stesso formato, così i social le accettano come gruppo. Inquadra ciascuna qui sotto.",
+    "zoom": "Zoom",
+    "reset": "Reimposta inquadratura",
+    "previous": "Indietro",
+    "next": "Avanti",
+    "position": "{current} di {total}",
+    "cancel": "Annulla",
+    "confirm": "{count, plural, one {Usa immagine} other {Usa # immagini}}"
+  },
   "tiktokDirectPost": {
     "postingTo": "Pubblicazione su questo account TikTok",
     "unknownCreator": "Account TikTok",
