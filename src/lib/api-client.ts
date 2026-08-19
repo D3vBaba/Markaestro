@@ -4,6 +4,8 @@
 
 /** Default timeout applied to every API request. */
 const REQUEST_TIMEOUT_MS = 15_000;
+/** Workspace/account deletes walk a large Firestore tree and can exceed 15s. */
+export const DESTRUCTIVE_REQUEST_TIMEOUT_MS = 120_000;
 /** Uploads get longer since large files legitimately take a while. */
 const UPLOAD_TIMEOUT_MS = 300_000;
 const DIRECT_MEDIA_UPLOADS_ENABLED = process.env.NEXT_PUBLIC_DIRECT_MEDIA_UPLOADS_ENABLED === '1';
@@ -97,28 +99,31 @@ function isAbortError(err: unknown): boolean {
   return err instanceof DOMException && err.name === 'AbortError';
 }
 
+type ApiFetchInit = RequestInit & { timeoutMs?: number };
+
 /** Make an authenticated JSON request to our API. */
 export async function apiFetch<T = unknown>(
   path: string,
-  init: RequestInit = {},
+  init: ApiFetchInit = {},
 ): Promise<{ ok: boolean; status: number; data: T }> {
   // Wait for auth to initialize before making any request
   if (_authReady) await _authReady;
 
   const token = _getIdToken ? await _getIdToken() : null;
+  const { timeoutMs = REQUEST_TIMEOUT_MS, ...fetchInit } = init;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const res = await fetch(path, {
-      ...init,
+      ...fetchInit,
       // Callers that pass their own signal keep it; everyone else gets the
       // default timeout.
-      signal: init.signal ?? controller.signal,
+      signal: fetchInit.signal ?? controller.signal,
       headers: {
         'Content-Type': 'application/json',
-        ...(init.headers || {}),
+        ...(fetchInit.headers || {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });

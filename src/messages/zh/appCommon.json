@@ -32,7 +32,9 @@
       "connection": "连接",
       "teamMember": "团队成员",
       "integration": "集成",
-      "post": "帖子"
+      "post": "帖子",
+      "workspace": "工作空间",
+      "account": "账户"
     },
     "titleGeneric": "删除{entity}",
     "titleNamed": "删除{entity}？",

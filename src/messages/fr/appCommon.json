@@ -33,7 +33,8 @@
       "teamMember": "membre de l'équipe",
       "integration": "intégration",
       "post": "post",
-      "workspace": "espace de travail"
+      "workspace": "espace de travail",
+      "account": "compte"
     },
     "titleGeneric": "Supprimer {entity}",
     "titleNamed": "Supprimer {entity} ?",

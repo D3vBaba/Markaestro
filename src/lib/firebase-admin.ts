@@ -33,10 +33,17 @@ function getApp(): App {
   return _app;
 }
 
+function bindIfFunction(target: object, value: unknown): unknown {
+  // Methods pulled off the instance (recursiveDelete, deleteUser, …) must
+  // keep that instance as `this`. Calling them through this Proxy otherwise
+  // leaves `this` as the empty dummy object and they throw / no-op.
+  return typeof value === 'function' ? (value as (...args: never[]) => unknown).bind(target) : value;
+}
+
 export const adminAuth: Auth = new Proxy({} as Auth, {
   get(_, prop) {
     if (!_auth) _auth = getAuth(getApp());
-    return (_auth as unknown as Record<string | symbol, unknown>)[prop];
+    return bindIfFunction(_auth, (_auth as unknown as Record<string | symbol, unknown>)[prop]);
   },
 });
 
@@ -46,6 +53,6 @@ export const adminDb: Firestore = new Proxy({} as Firestore, {
       _db = getFirestore(getApp());
       _db.settings({ ignoreUndefinedProperties: true });
     }
-    return (_db as unknown as Record<string | symbol, unknown>)[prop];
+    return bindIfFunction(_db, (_db as unknown as Record<string | symbol, unknown>)[prop]);
   },
 });

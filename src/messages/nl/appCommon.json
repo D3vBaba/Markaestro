@@ -33,7 +33,8 @@
       "teamMember": "teamlid",
       "integration": "integratie",
       "post": "bericht",
-      "workspace": "werkruimte"
+      "workspace": "werkruimte",
+      "account": "gebruikersaccount"
     },
     "titleGeneric": "{entity} verwijderen",
     "titleNamed": "{entity} verwijderen?",

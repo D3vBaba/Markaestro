@@ -33,7 +33,8 @@
       "teamMember": "عضو الفريق",
       "integration": "التكامل",
       "post": "المنشور",
-      "workspace": "مساحة العمل"
+      "workspace": "مساحة العمل",
+      "account": "الحساب"
     },
     "titleGeneric": "حذف {entity}",
     "titleNamed": "حذف {entity}؟",

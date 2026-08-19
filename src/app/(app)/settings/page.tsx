@@ -20,7 +20,7 @@ import PageHeader from "@/components/app/PageHeader";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import AppLocaleSwitcher from "@/components/app/AppLocaleSwitcher";
-import { apiDelete, apiGet, apiPost, apiPut, apiFetch, getApiWorkspaceId } from "@/lib/api-client";
+import { apiDelete, apiGet, apiPost, apiPut, apiFetch, getApiWorkspaceId, DESTRUCTIVE_REQUEST_TIMEOUT_MS } from "@/lib/api-client";
 import { deferFromEffect } from "@/lib/defer-from-effect";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
@@ -258,6 +258,7 @@ function AccountTab() {
   const [emailChangeCode, setEmailChangeCode] = useState('');
   const [confirmingEmailChange, setConfirmingEmailChange] = useState(false);
   const [resendingEmailChange, setResendingEmailChange] = useState(false);
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
 
   if (!user) return null;
 
@@ -326,6 +327,20 @@ function AccountTab() {
     } finally {
       setResendingEmailChange(false);
     }
+  }
+
+  async function confirmDeleteAccount() {
+    const res = await apiFetch('/api/account', {
+      method: 'DELETE',
+      body: JSON.stringify({ confirmation: email }),
+      timeoutMs: DESTRUCTIVE_REQUEST_TIMEOUT_MS,
+    });
+    if (!res.ok) {
+      toast.error(t("dangerZone.deleteFailed"));
+      return;
+    }
+    toast.success(t("dangerZone.deleted"));
+    await logout();
   }
 
   return (
@@ -503,17 +518,24 @@ function AccountTab() {
               <p className="text-xs text-muted-foreground">
                 {t("dangerZone.deleteDescription")}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {t("dangerZone.deleteHandledBy")}{" "}
-                <Link href="/contact" className="text-primary hover:underline">{t("dangerZone.contactUs")}</Link>.
-              </p>
             </div>
-            <Button variant="destructive" size="sm" className="shrink-0" disabled>
+            <Button variant="destructive" size="sm" className="shrink-0" onClick={() => setDeleteAccountOpen(true)}>
               {t("dangerZone.deleteAccount")}
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmDeleteDialog
+        open={deleteAccountOpen}
+        onOpenChange={setDeleteAccountOpen}
+        entity="account"
+        name={email}
+        requireTypedConfirmation
+        warning={t("dangerZone.deleteWarning")}
+        confirmLabel={t("dangerZone.deleteAccount")}
+        onConfirm={confirmDeleteAccount}
+      />
     </div>
   );
 }
@@ -1768,7 +1790,10 @@ function WorkspacesTab() {
   async function confirmDeleteWorkspace() {
     if (!deleteTarget) return;
     try {
-      const res = await apiFetch(`/api/workspaces/${deleteTarget.id}?workspaceId=${deleteTarget.id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/workspaces/${deleteTarget.id}?workspaceId=${deleteTarget.id}`, {
+        method: 'DELETE',
+        timeoutMs: DESTRUCTIVE_REQUEST_TIMEOUT_MS,
+      });
       if (res.ok) {
         toast.success(t("toasts.deleted", { name: deleteTarget.name }));
         await refresh();

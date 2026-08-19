@@ -33,7 +33,8 @@
       "teamMember": "チームメンバー",
       "integration": "連携",
       "post": "投稿",
-      "workspace": "ワークスペース"
+      "workspace": "ワークスペース",
+      "account": "アカウント"
     },
     "titleGeneric": "{entity}を削除",
     "titleNamed": "{entity}を削除しますか？",

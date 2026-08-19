@@ -35,6 +35,13 @@ export async function uploadToStorage(
   return buildDownloadUrl(bucket.name, filePath, downloadToken);
 }
 
+/** Best-effort prefix delete used when a workspace is purged. */
+export async function deleteStoragePrefix(prefix: string): Promise<void> {
+  const admin = await import('firebase-admin');
+  const bucket = admin.storage().bucket();
+  await bucket.deleteFiles({ prefix, force: true });
+}
+
 /**
  * Build a Firebase Storage download URL with an embedded access token.
  */

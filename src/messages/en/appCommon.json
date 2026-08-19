@@ -33,7 +33,8 @@
       "teamMember": "team member",
       "integration": "integration",
       "post": "post",
-      "workspace": "workspace"
+      "workspace": "workspace",
+      "account": "account"
     },
     "titleGeneric": "Delete {entity}",
     "titleNamed": "Delete {entity}?",

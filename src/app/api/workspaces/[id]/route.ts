@@ -2,12 +2,12 @@ import { requireContext } from '@/lib/server-auth';
 import { requireOwner } from '@/lib/rbac';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiOk, apiError } from '@/lib/api-response';
-import { getStripe } from '@/lib/stripe/server';
-import { getSubscriptionForWorkspace, deleteSubscriptionForWorkspace } from '@/lib/stripe/subscription';
+import { isValidWorkspaceId } from '@/lib/workspace';
+import { purgeWorkspace } from '@/lib/workspace-delete';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
-
+export const maxDuration = 120;
 
 const updateSchema = z.object({
   name: z.string().trim().min(1).max(80),
@@ -61,6 +61,9 @@ export async function DELETE(
   try {
     const ctx = await requireContext(req);
     const { id } = await params;
+    if (!isValidWorkspaceId(id)) {
+      throw new Error('VALIDATION_INVALID_WORKSPACE_ID');
+    }
 
     // Verify the user is owner of the TARGET workspace (which may not be
     // the one the request context is scoped to).
@@ -68,21 +71,7 @@ export async function DELETE(
     if (!memberSnap.exists) throw new Error('NOT_FOUND');
     requireOwner({ role: memberSnap.data()?.role });
 
-    const sub = await getSubscriptionForWorkspace(id);
-    if (sub?.stripeSubscriptionId && sub.status !== 'canceled') {
-      try {
-        await getStripe().subscriptions.cancel(sub.stripeSubscriptionId);
-      } catch (err) {
-        // Already-gone subscriptions are fine; anything else must abort the
-        // delete so we never orphan live billing.
-        const code = (err as { code?: string })?.code;
-        if (code !== 'resource_missing') throw err;
-      }
-    }
-
-    await deleteSubscriptionForWorkspace(id);
-    await adminDb.doc(`usage/workspace:${id}`).delete();
-    await adminDb.recursiveDelete(adminDb.doc(`workspaces/${id}`));
+    await purgeWorkspace(id);
 
     return apiOk({ deleted: id });
   } catch (error) {
