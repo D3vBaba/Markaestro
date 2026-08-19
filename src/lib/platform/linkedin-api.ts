@@ -95,7 +95,24 @@ function asRecord(value: unknown): Record<string, unknown> | null {
     : null;
 }
 
-function linkedinErrorMessage(data: unknown, fallback: string): { message: string; code?: string } {
+/**
+ * LinkedIn answers a malformed request body with a generic "Invalid param.
+ * Please see errorDetails for more information." — the field that actually
+ * failed is named only inside `errorDetails.inputErrors`. Without folding
+ * those descriptions into the message, a stored publish error says nothing
+ * about which parameter LinkedIn rejected.
+ */
+function linkedinInputErrorDetails(record: Record<string, unknown>): string {
+  const details = asRecord(record.errorDetails);
+  if (!details) return '';
+  const inputErrors = Array.isArray(details.inputErrors) ? details.inputErrors : [];
+  return inputErrors
+    .map((entry) => asString(asRecord(entry)?.description))
+    .filter(Boolean)
+    .join('; ');
+}
+
+export function linkedinErrorMessage(data: unknown, fallback: string): { message: string; code?: string } {
   const record = asRecord(data);
   if (!record) return { message: fallback };
   const message =
@@ -103,11 +120,15 @@ function linkedinErrorMessage(data: unknown, fallback: string): { message: strin
     asString(record.error_description) ||
     asString(record.error) ||
     fallback;
+  const inputErrors = linkedinInputErrorDetails(record);
   const code =
     asString(record.code) ||
     asString(record.serviceErrorCode) ||
     asString(record.error);
-  return { message, code: code || undefined };
+  return {
+    message: inputErrors ? `${message} [${inputErrors}]` : message,
+    code: code || undefined,
+  };
 }
 
 async function readJson(res: Response): Promise<unknown> {

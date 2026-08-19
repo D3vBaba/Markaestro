@@ -196,4 +196,78 @@ describe('linkedinPublishingAdapter', () => {
       },
     });
   });
+
+  // LinkedIn hands back an empty uploadToken for any single-part upload, and
+  // finalizeUpload is a required-fields payload: dropping the empty string
+  // fails the whole post with a generic "Invalid param".
+  it('echoes an empty uploadToken back on video finalize', async () => {
+    fetchWithRetryMock.mockImplementation(async (url: string) => {
+      if (url.includes('/videos?action=initializeUpload')) {
+        return new Response(JSON.stringify({
+          value: {
+            video: 'urn:li:video:vid1',
+            uploadToken: '',
+            uploadInstructions: [{ uploadUrl: 'https://upload.linkedin.test/video', firstByte: 0, lastByte: 2 }],
+          },
+        }), { status: 200 });
+      }
+      if (url.startsWith('https://cdn.example/')) {
+        return new Response(Buffer.from([1, 2, 3]), {
+          status: 200,
+          headers: { 'content-type': 'video/mp4' },
+        });
+      }
+      if (url === 'https://upload.linkedin.test/video') {
+        return new Response(null, { status: 200, headers: { etag: '"part-1"' } });
+      }
+      if (url.includes('/videos?action=finalizeUpload')) {
+        return new Response(null, { status: 200 });
+      }
+      if (url.includes('/rest/videos/')) {
+        return new Response(JSON.stringify({ status: 'AVAILABLE' }), { status: 200 });
+      }
+      if (url === 'https://api.linkedin.com/rest/posts') {
+        return new Response(JSON.stringify({}), {
+          status: 201,
+          headers: { 'x-restli-id': 'urn:li:share:video' },
+        });
+      }
+      throw new Error(`Unexpected URL ${url}`);
+    });
+
+    const { linkedinPublishingAdapter } = await import('../platform/adapters/linkedin-publishing');
+    const result = await linkedinPublishingAdapter.publish(baseProfileConnection, {
+      ...request,
+      mediaUrls: ['https://cdn.example/clip.mp4'],
+    });
+
+    expect(result.success).toBe(true);
+    const finalizeCall = fetchWithRetryMock.mock.calls
+      .find(([url]) => String(url).includes('/videos?action=finalizeUpload'));
+    expect(JSON.parse(finalizeCall?.[1].body).finalizeUploadRequest).toEqual({
+      video: 'urn:li:video:vid1',
+      uploadToken: '',
+      uploadedPartIds: ['part-1'],
+    });
+
+    const postCall = fetchWithRetryMock.mock.calls.find(([url]) => url === 'https://api.linkedin.com/rest/posts');
+    expect(JSON.parse(postCall?.[1].body).content).toEqual({ media: { id: 'urn:li:video:vid1' } });
+  });
+
+  it('surfaces the rejected field from errorDetails instead of "see errorDetails"', async () => {
+    fetchWithRetryMock.mockResolvedValueOnce(new Response(JSON.stringify({
+      message: 'Invalid param. Please see errorDetails for more information.',
+      errorDetails: {
+        inputErrors: [{
+          description: 'ERROR :: /uploadToken :: field is required but not found and has no default value',
+        }],
+      },
+    }), { status: 400 }));
+
+    const { linkedinPublishingAdapter } = await import('../platform/adapters/linkedin-publishing');
+    const result = await linkedinPublishingAdapter.publish(baseProfileConnection, request);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('/uploadToken');
+  });
 });

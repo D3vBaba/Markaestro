@@ -22,6 +22,7 @@ import {
   fetchLinkedInProfile,
   getSelectedLinkedInDestination,
   hasLinkedInScope,
+  linkedinErrorMessage,
   linkedinRestHeaders,
   matchLinkedInDestination,
   sanitizeLinkedInError,
@@ -92,7 +93,7 @@ async function initializeImageUpload(
   const data = await res.json().catch(() => ({}));
   const value = data.value || {};
   if (!res.ok || !value.uploadUrl || !value.image) {
-    throw new LinkedInApiError(res.status, data.message || data.error || 'LinkedIn image upload initialization failed');
+    throw new LinkedInApiError(res.status, linkedinErrorMessage(data, 'LinkedIn image upload initialization failed').message);
   }
   return {
     uploadUrl: String(value.uploadUrl),
@@ -131,7 +132,7 @@ async function initializeVideoUpload(
   accessToken: string,
   owner: string,
   fileSizeBytes: number,
-): Promise<{ video: string; uploadToken?: string; uploadInstructions: VideoUploadInstruction[] }> {
+): Promise<{ video: string; uploadToken: string; uploadInstructions: VideoUploadInstruction[] }> {
   const res = await fetchWithRetry(`${LINKEDIN_API}/videos?action=initializeUpload`, {
     method: 'POST',
     headers: linkedinRestHeaders(accessToken, 'application/json'),
@@ -148,11 +149,14 @@ async function initializeVideoUpload(
   const value = data.value || {};
   const instructions = Array.isArray(value.uploadInstructions) ? value.uploadInstructions : [];
   if (!res.ok || !value.video || instructions.length === 0) {
-    throw new LinkedInApiError(res.status, data.message || data.error || 'LinkedIn video upload initialization failed');
+    throw new LinkedInApiError(res.status, linkedinErrorMessage(data, 'LinkedIn video upload initialization failed').message);
   }
   return {
     video: String(value.video),
-    uploadToken: typeof value.uploadToken === 'string' && value.uploadToken ? value.uploadToken : undefined,
+    // LinkedIn returns an empty uploadToken for single-part uploads, and
+    // finalizeUpload rejects the whole request when the field is absent — so
+    // echo it back verbatim, empty string included.
+    uploadToken: typeof value.uploadToken === 'string' ? value.uploadToken : '',
     uploadInstructions: instructions.map((item: Record<string, unknown>) => ({
       uploadUrl: String(item.uploadUrl || ''),
       firstByte: Number(item.firstByte || 0),
@@ -187,24 +191,25 @@ async function uploadVideoParts(
   return uploadedPartIds;
 }
 
+/**
+ * All three fields are required by the API, so they are always sent — a
+ * missing one fails the call with a generic "Invalid param" rather than
+ * anything that points at the omission.
+ */
 async function finalizeVideoUpload(
   accessToken: string,
   video: string,
   uploadedPartIds: string[],
-  uploadToken?: string,
+  uploadToken: string,
 ): Promise<void> {
-  const finalizeUploadRequest: Record<string, unknown> = { video };
-  if (uploadToken) finalizeUploadRequest.uploadToken = uploadToken;
-  if (uploadedPartIds.length > 0) finalizeUploadRequest.uploadedPartIds = uploadedPartIds;
-
   const res = await fetchWithRetry(`${LINKEDIN_API}/videos?action=finalizeUpload`, {
     method: 'POST',
     headers: linkedinRestHeaders(accessToken, 'application/json'),
-    body: JSON.stringify({ finalizeUploadRequest }),
+    body: JSON.stringify({ finalizeUploadRequest: { video, uploadToken, uploadedPartIds } }),
   }, { maxRetries: 2 });
   if (!res.ok && res.status !== 204) {
     const data = await res.json().catch(() => ({}));
-    throw new LinkedInApiError(res.status, data.message || data.error || 'LinkedIn video finalize failed');
+    throw new LinkedInApiError(res.status, linkedinErrorMessage(data, 'LinkedIn video finalize failed').message);
   }
 }
 
@@ -221,7 +226,7 @@ async function waitForVideoReady(accessToken: string, video: string): Promise<vo
         await new Promise((r) => setTimeout(r, VIDEO_POLL_INTERVAL_MS));
         continue;
       }
-      throw new LinkedInApiError(res.status, data.message || data.error || 'LinkedIn video status failed');
+      throw new LinkedInApiError(res.status, linkedinErrorMessage(data, 'LinkedIn video status failed').message);
     }
     if (!status || status === 'AVAILABLE' || status === 'PROCESSING_SUCCEEDED') return;
     if (status.includes('FAILED')) throw new LinkedInApiError(422, 'LinkedIn video processing failed');
@@ -270,7 +275,7 @@ async function createLinkedInPost(
   const data = await res.json().catch(() => ({}));
   const id = res.headers.get('x-restli-id') || data.id || data.value?.id;
   if (!res.ok || !id) {
-    throw new LinkedInApiError(res.status, data.message || data.error || res.statusText || 'LinkedIn post create failed');
+    throw new LinkedInApiError(res.status, linkedinErrorMessage(data, res.statusText || 'LinkedIn post create failed').message);
   }
   const postId = String(id);
   return {
