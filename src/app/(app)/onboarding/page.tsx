@@ -10,6 +10,7 @@ import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiPost, getApiWorkspaceId } from "@/lib/api-client";
+import { ONBOARDING_STATE_KEY, allowedOnboardingStep } from "@/lib/onboarding-state";
 import { deferFromEffect } from "@/lib/defer-from-effect";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { useProductScan } from "@/hooks/useProductScan";
@@ -108,7 +109,7 @@ const HOURS_SAVED: Record<string, number> = { lt2: 3, "2to5": 6, "5to10": 9, gt1
 
 // v4: the "What are you marketing?" question shifted every step index, so
 // stale v3 sessions must not resume onto the wrong screen.
-const STORAGE_KEY = "onboarding_state_v4";
+const STORAGE_KEY = ONBOARDING_STATE_KEY;
 
 type PersistedState = {
   step: number;
@@ -480,6 +481,21 @@ export default function OnboardingPage() {
   if (user && step === REGISTER_STEP) {
     setRegBusy(false);
     setStep(PRODUCT_STEP);
+  }
+
+  // The mirror image: the quiz is public, but everything past the register
+  // step is not. sessionStorage resumes whatever step the tab was last on, so
+  // signing out and returning to /onboarding used to land straight back on the
+  // paywall — a signed-out visitor being asked for a card. Pull them back to
+  // register, which is where the flow gates on an account existing.
+  const gatedStep = allowedOnboardingStep({
+    step,
+    registerStep: REGISTER_STEP,
+    signedIn: Boolean(user),
+    authLoading,
+  });
+  if (gatedStep !== step) {
+    setStep(gatedStep);
   }
 
   // ─── OAuth return ───────────────────────────────────────────────────────────

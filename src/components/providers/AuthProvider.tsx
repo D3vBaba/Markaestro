@@ -14,6 +14,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
 import { setTokenGetter, markAuthReady } from '@/lib/api-client';
+import { clearOnboardingState } from '@/lib/onboarding-state';
 import { useRouter } from 'next/navigation';
 
 type AuthCtx = {
@@ -215,6 +216,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {});
         }
         await signOut(auth);
+        // The onboarding funnel resumes from sessionStorage, which outlives a
+        // sign-out within the same tab. Left in place, the next visitor here
+        // reopens /onboarding on the departing account's paywall, brand name,
+        // and colors.
+        clearOnboardingState();
         router.replace('/login');
       },
       requestEmailChangeCode: async (newEmail: string) => {
