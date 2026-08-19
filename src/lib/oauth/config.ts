@@ -134,8 +134,16 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       // when the target board already exists. Existing connections must
       // reconnect after this scope is added.
       'boards:write',
+      // Secret boards are invisible to boards:read — GET /v5/boards silently
+      // omits them, so a brand whose board is secret sees an empty picker and
+      // can never finish connecting. The _secret variants are additive: they
+      // widen the same board/pin permissions to cover secret boards.
+      'boards:read_secret',
+      'boards:write_secret',
       'pins:read',
       'pins:write',
+      'pins:read_secret',
+      'pins:write_secret',
       'user_accounts:read',
     ],
     clientIdEnv: 'PINTEREST_CLIENT_ID',

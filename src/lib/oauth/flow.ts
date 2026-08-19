@@ -31,6 +31,32 @@ function describeTokenError(data: Record<string, unknown>): string {
   }
   return String(data?.error_description || data?.error_message || error || data?.message || 'Unknown error');
 }
+
+/**
+ * Turn a Pinterest token-endpoint rejection into something the user can act on.
+ *
+ * Pinterest answers every failure with a 401/403 and a terse sentence, so the
+ * numeric `code` is the only reliable discriminator. Codes confirmed by probing
+ * api.pinterest.com/v5/oauth/token directly:
+ *
+ *   283 — authorization grant invalid: the code is expired, already redeemed,
+ *         or was issued for a different environment (Sandbox vs production).
+ *     2 — client_id/client_secret rejected.
+ *    29 — redirect_uri is not registered on the Pinterest app.
+ */
+function pinterestTokenExchangeMessage(data: Record<string, unknown>): string {
+  const code = typeof data?.code === 'number' ? data.code : null;
+  if (code === 283) {
+    return 'Pinterest rejected the sign-in: that authorization link had already been used or expired. Start the connection again from Markaestro and finish it in one go, without refreshing or going back.';
+  }
+  if (code === 2) {
+    return 'Pinterest rejected the app credentials. PINTEREST_CLIENT_ID / PINTEREST_CLIENT_SECRET no longer match the Pinterest app.';
+  }
+  if (code === 29) {
+    return 'Pinterest refused the redirect URI. Register the exact callback URL on the Pinterest app and try again.';
+  }
+  return `Pinterest sign-in failed: ${describeTokenError(data)}`;
+}
 import {
   linkedinStorageProviderForKind,
   type LinkedInCredentialKind,
@@ -403,7 +429,30 @@ export async function exchangeCode(
     });
   }
 
+  if (provider === 'pinterest') {
+    // Pinterest returns {code, message} and its numeric codes are the only way
+    // to tell the failure modes apart — they all surface as a 401/403 with
+    // prose. Verified against api.pinterest.com: 283 = the authorization code
+    // is stale, already redeemed, or issued for a different environment;
+    // 2 = client_id/secret rejected; 29 = redirect_uri not registered on the app.
+    logger.info('pinterest token exchange response', {
+      event: 'oauth.pinterest.token_exchange.response',
+      httpStatus: res.status,
+      pinterestCode: data?.code ?? null,
+      pinterestMessage: res.ok ? null : String(data?.message || ''),
+      hasAccessToken: Boolean(accessToken),
+      hasRefreshToken: Boolean(tokenData?.refresh_token),
+      scope: optionalString(tokenData.scope) || null,
+      redirectUri,
+      clientIdHash: shortHash(getClientCredentials(provider).clientId),
+      tokenUrl: getProviderConfig(provider).tokenUrl,
+    });
+  }
+
   if (!res.ok || !accessToken) {
+    if (provider === 'pinterest') {
+      throw new Error(pinterestTokenExchangeMessage(data));
+    }
     throw new Error(`OAuth token exchange failed: ${data.error_description || data.error || data.message || 'Unknown error'}`);
   }
 
