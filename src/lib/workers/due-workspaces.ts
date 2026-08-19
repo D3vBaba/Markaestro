@@ -65,10 +65,30 @@ export async function markWorkspaceDue(
     const snap = await tx.get(ref);
     const data = snap.data() || {};
     const existingMs = valueMillis(data.nextDueAt);
-    const nextDueMs = existingMs > 0 ? Math.min(existingMs, requestedMs) : requestedMs;
+    const pendingMs = valueMillis(data.pendingNextDueAt);
+    const claimIsActive = valueMillis(data.dispatchLeaseUntil) > Date.now();
+
+    // Do not merge work discovered during an active dispatch into the claimed
+    // timestamp. That timestamp has already been consumed and is commonly in
+    // the past. Keeping it as the minimum would make completion retain the old
+    // value and dispatch the same workspace on every scheduler tick forever.
+    // Instead, accumulate the earliest follow-up separately; completion
+    // promotes it after the current claim has finished.
+    const dueUpdate = claimIsActive
+      ? {
+          pendingNextDueAt: Timestamp.fromMillis(
+            pendingMs > 0 ? Math.min(pendingMs, requestedMs) : requestedMs,
+          ),
+        }
+      : {
+          nextDueAt: Timestamp.fromMillis(
+            existingMs > 0 ? Math.min(existingMs, requestedMs) : requestedMs,
+          ),
+        };
+
     tx.set(ref, {
       workspaceId,
-      nextDueAt: Timestamp.fromMillis(nextDueMs),
+      ...dueUpdate,
       version: (Number(data.version) || 0) + 1,
       reasons: FieldValue.arrayUnion(reason),
       updatedAt: new Date().toISOString(),
@@ -124,6 +144,18 @@ export async function completeWorkspaceDue(claim: DueWorkspaceClaim): Promise<vo
     if (!snap.exists) return;
     const data = snap.data() || {};
     if (data.dispatchLeaseId !== claim.leaseId) return;
+    const pendingMs = valueMillis(data.pendingNextDueAt);
+
+    if (pendingMs > 0) {
+      tx.set(ref, {
+        nextDueAt: Timestamp.fromMillis(pendingMs),
+        pendingNextDueAt: FieldValue.delete(),
+        dispatchLeaseId: FieldValue.delete(),
+        dispatchLeaseUntil: FieldValue.delete(),
+      }, { merge: true });
+      return;
+    }
+
     if ((Number(data.version) || 0) === claim.version) {
       tx.delete(ref);
       return;

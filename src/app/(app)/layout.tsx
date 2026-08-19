@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { SubscriptionProvider } from "@/components/providers/SubscriptionProvider";
 import { WorkspaceProvider } from "@/components/providers/WorkspaceProvider";
+import { PointerEventsGuard } from "@/components/providers/PointerEventsGuard";
 import AppRouteShell from "@/components/layout/AppRouteShell";
 import { resolveAppLocale } from "@/lib/resolve-app-locale";
 
@@ -61,6 +62,9 @@ export default async function AppGroupLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      {/* Outside the auth tree: a leaked pointer lock must be released even on
+          the screens that render before providers resolve. */}
+      <PointerEventsGuard />
       <AuthProvider>
         {/* Workspace outside Subscription: the plan shown is a property of
             the selected workspace, so subscription state re-fetches when the

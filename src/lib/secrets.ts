@@ -7,6 +7,7 @@
  */
 
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+import { PLAN_TIERS } from './stripe/plans';
 
 let _client: SecretManagerServiceClient | null = null;
 
@@ -105,12 +106,14 @@ export async function loadSecretsToEnv(): Promise<void> {
     // managed in one place and stays in sync with scripts/sync-stripe-prices.mjs.
     'STRIPE_SECRET_KEY',
     'STRIPE_WEBHOOK_SECRET',
-    'STRIPE_PRICE_STARTER_MONTHLY',
-    'STRIPE_PRICE_STARTER_ANNUAL',
-    'STRIPE_PRICE_PRO_MONTHLY',
-    'STRIPE_PRICE_PRO_ANNUAL',
-    'STRIPE_PRICE_BUSINESS_MONTHLY',
-    'STRIPE_PRICE_BUSINESS_ANNUAL',
+    ...PLAN_TIERS.flatMap((tier) => [
+      `STRIPE_PRICE_${tier.toUpperCase()}_MONTHLY`,
+      `STRIPE_PRICE_${tier.toUpperCase()}_ANNUAL`,
+    ]),
+    'STRIPE_PRICE_ADDON_BRAND_MONTHLY',
+    'STRIPE_PRICE_ADDON_BRAND_ANNUAL',
+    'STRIPE_PRICE_ADDON_SEAT_MONTHLY',
+    'STRIPE_PRICE_ADDON_SEAT_ANNUAL',
   ];
 
   await Promise.all(

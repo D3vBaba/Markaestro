@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import {
   getStripe,
   hasStripeCustomer,
-  priceIdForPlan,
+  resolvePlanPrice,
   tierFromPriceId,
   type SubscriptionRecord,
 } from '@/lib/stripe/server';
@@ -18,8 +18,10 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 
 export const runtime = 'nodejs';
 
-/** starter < pro < business; anything else ranks below all purchasable tiers. */
-const TIER_RANK: Record<string, number> = { starter: 1, pro: 2, business: 3 };
+/** Derived from PLAN_TIERS order; anything else ranks below all purchasable tiers. */
+const TIER_RANK: Record<string, number> = Object.fromEntries(
+  PLAN_TIERS.map((tier, idx) => [tier, idx + 1]),
+);
 
 /** Add-ons the workspace holds that the target tier cannot carry. */
 function blockedAddons(sub: SubscriptionRecord, target: PlanTier): AddonKey[] {
@@ -141,12 +143,29 @@ export async function POST(req: Request) {
       }
     }
 
-    const priceId = priceIdForPlan(tier, interval);
-    if (!priceId) {
-      return NextResponse.json({ error: 'Price not configured' }, { status: 500 });
-    }
-
     const stripe = getStripe();
+
+    // Same verification as checkout: an archived STRIPE_PRICE_* value would
+    // otherwise fail the subscription update with "The price specified is
+    // inactive" and leave the customer on their old plan with no explanation.
+    const resolved = await resolvePlanPrice(stripe, tier, interval);
+    if (!resolved.ok) {
+      console.error('[stripe/change-plan] no usable price', { tier, interval, reason: resolved.reason });
+      return NextResponse.json(
+        { error: resolved.reason === 'NOT_CONFIGURED' ? 'Price not configured' : 'Price unavailable' },
+        { status: 500 },
+      );
+    }
+    if (resolved.substituted) {
+      console.error('[stripe/change-plan] STRIPE_PRICE config is stale', {
+        tier,
+        interval,
+        using: resolved.priceId,
+        hint: 'update STRIPE_PRICE_* in apphosting.yaml to the active price id',
+      });
+    }
+    const priceId = resolved.priceId;
+
     const stripeSub = await stripe.subscriptions.retrieve(sub.stripeSubscriptionId);
     // The base plan item is the one whose price maps to a tier; add-on items
     // (extra brands/seats) map via addonFromPriceId and must be left alone.

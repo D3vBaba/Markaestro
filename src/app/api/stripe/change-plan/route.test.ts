@@ -4,7 +4,7 @@ import type { SubscriptionRecord } from '@/lib/stripe/server';
 const requireContextMock = vi.fn();
 const getSubscriptionMock = vi.fn();
 const upsertSubscriptionMock = vi.fn();
-const priceIdForPlanMock = vi.fn();
+const resolvePlanPriceMock = vi.fn();
 const tierFromPriceIdMock = vi.fn();
 const stripeRetrieveMock = vi.fn();
 const stripeUpdateMock = vi.fn();
@@ -26,7 +26,7 @@ vi.mock('@/lib/stripe/server', () => ({
   // Real behavior: only genuine `cus_` ids count (manual comps store placeholders).
   hasStripeCustomer: (sub: { stripeCustomerId?: string } | null | undefined) =>
     Boolean(sub?.stripeCustomerId?.startsWith('cus_')),
-  priceIdForPlan: priceIdForPlanMock,
+  resolvePlanPrice: resolvePlanPriceMock,
   tierFromPriceId: tierFromPriceIdMock,
 }));
 
@@ -99,7 +99,11 @@ beforeEach(() => {
   requireContextMock.mockResolvedValue(ctx);
   getSubscriptionMock.mockResolvedValue(makeSub());
   upsertSubscriptionMock.mockResolvedValue(undefined);
-  priceIdForPlanMock.mockImplementation((tier: string, interval: string) => `price_${tier}_${interval}`);
+  resolvePlanPriceMock.mockImplementation(async (_stripe: unknown, tier: string, interval: string) => ({
+      ok: true,
+      priceId: `price_${tier}_${interval}`,
+      substituted: false,
+    }));
   tierFromPriceIdMock.mockImplementation((id: string) => PRICE_MAP[id] ?? null);
   stripeRetrieveMock.mockResolvedValue({
     id: 'sub_123',
@@ -279,7 +283,7 @@ describe('POST /api/stripe/change-plan — Stripe update', () => {
   });
 
   it('returns 500 when the target price is not configured', async () => {
-    priceIdForPlanMock.mockReturnValue(null);
+    resolvePlanPriceMock.mockResolvedValue({ ok: false, reason: 'NOT_CONFIGURED' });
     const res = await post({ tier: 'business', interval: 'annual' });
     const body = await res.json();
     expect(res.status).toBe(500);

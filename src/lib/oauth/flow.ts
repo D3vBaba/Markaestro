@@ -231,6 +231,36 @@ export function instagramExtraDataFromTokenResponse(
 }
 
 /**
+ * Recover where an authorization should return to when it fails BEFORE the
+ * code exchange — the user cancelled, or the provider came back with
+ * `?error=access_denied`.
+ *
+ * `returnTo` only survives the provider round-trip inside the state document,
+ * so without this every failed connect lands on the same hard-coded page. That
+ * dumped users out of the onboarding funnel and into the app, skipping the
+ * paywall, because a cancelled Meta connect redirected to /settings.
+ *
+ * The state is dead either way, so it is deleted here too — leaving it would
+ * let a stale state id be replayed.
+ */
+export async function consumeFailedState(
+  stateId: string | null,
+): Promise<{ returnTo?: string; productId?: string }> {
+  if (!stateId) return {};
+  try {
+    const stateRef = adminDb.doc(`oauth_states/${stateId}`);
+    const snap = await stateRef.get();
+    if (!snap.exists) return {};
+    const state = snap.data() as OAuthState;
+    await stateRef.delete().catch(() => {});
+    return { returnTo: state.returnTo, productId: state.productId };
+  } catch {
+    // Best effort: a failed lookup must not turn a cancelled connect into a 500.
+    return {};
+  }
+}
+
+/**
  * Exchange an authorization code for tokens, verifying state from Firestore.
  */
 export async function exchangeCode(

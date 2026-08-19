@@ -36,6 +36,11 @@ export async function POST(req: Request) {
 
   const { event, content } = parsed;
   const publishId = content.publish_id;
+  logger.info('tiktok webhook received', {
+    event: 'tiktok.webhook.received',
+    type: event.event,
+    publishId: publishId || null,
+  });
   if (!publishId) {
     return NextResponse.json({ received: true, ignored: 'no_publish_id' });
   }

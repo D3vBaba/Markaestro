@@ -356,10 +356,12 @@ export function Header() {
                         <DropdownMenuItem
                             className="cursor-pointer gap-2"
                             style={{ color: "var(--mk-neg)" }}
-                            onSelect={(event) => {
-                                // Let the menu close first, then confirm.
-                                event.preventDefault();
-                                setLogoutOpen(true);
+                            onSelect={() => {
+                                // Let the menu close (no preventDefault), then mount the
+                                // dialog on the next tick. Stacking a modal dialog on a
+                                // still-open modal menu is what strands
+                                // `pointer-events: none` on <body> and kills every click.
+                                setTimeout(() => setLogoutOpen(true), 0);
                             }}
                         >
                             <LogOut className="h-3.5 w-3.5" />

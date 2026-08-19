@@ -56,6 +56,7 @@ function buildPostRef(post: Record<string, unknown>) {
     id: 'post_123',
     get: vi.fn().mockResolvedValue({
       exists: true,
+      id: 'post_123',
       data: () => post,
     }),
     update: vi.fn().mockResolvedValue(undefined),
@@ -290,6 +291,11 @@ describe('pollTikTokPublishWithRetries', () => {
 
     expect(outcome).toEqual({ status: 'platform_action_required' });
     expect(sendTikTokInboxEmailMock).toHaveBeenCalledTimes(1);
+    expect(sendTikTokInboxEmailMock).toHaveBeenCalledWith(
+      'ws_123',
+      'post_123',
+      expect.objectContaining({ actionRequiredAt: expect.any(String) }),
+    );
   });
 
   it('resolves webhook publish ids through the durable TikTok mapping', async () => {

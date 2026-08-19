@@ -1,6 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import type { SubscriptionRecord } from './server';
-import { PLANS, type PlanTier } from './plans';
+import { PLANS, PLAN_TIERS, type PlanTier } from './plans';
 
 /**
  * Subscriptions are keyed by workspaceId. The Stripe customer + subscription
@@ -139,12 +139,10 @@ export function isActiveSubscription(sub: SubscriptionRecord | null | undefined)
 }
 
 function tierRank(tier: string | undefined): number {
-  if (tier === 'business') return 3;
-  if (tier === 'pro') return 2;
-  if (tier === 'starter') return 1;
-  // 'free' and any unrecognized tier (e.g. 'unknown' from an unmapped
-  // Stripe price) rank lowest.
-  return 0;
+  if (!tier || tier === 'free') return 0;
+  const idx = PLAN_TIERS.indexOf(tier as PlanTier);
+  // PLAN_TIERS is ordered starter < pro < business < ..., so index + 1 ranks them in order
+  return idx >= 0 ? idx + 1 : 0;
 }
 
 /**

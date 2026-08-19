@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { exchangeCode, storeTokens } from '@/lib/oauth/flow';
+import { consumeFailedState, exchangeCode, storeTokens } from '@/lib/oauth/flow';
 import { encrypt } from '@/lib/crypto';
 import { oauthProviders, type OAuthProvider } from '@/lib/schemas';
 import { getAppUrl } from '@/lib/oauth/config';
@@ -276,7 +276,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     if (errorParam) {
       const desc = url.searchParams.get('error_description') || errorParam;
       const appUrl = getAppUrl();
-      return redirectThroughBridge(appUrl, '/settings', {
+      // Return the user where the connect started. A cancelled or denied
+      // authorization used to land on /settings unconditionally, which threw
+      // anyone connecting mid-onboarding straight into the app — past the
+      // remaining steps and past the paywall.
+      const { returnTo: failedReturnTo } = await consumeFailedState(state);
+      const errorBase = (failedReturnTo && sanitizeAppReturnTo(failedReturnTo, appUrl)) || '/settings';
+      return redirectThroughBridge(appUrl, errorBase, {
         oauth: 'error',
         provider,
         message: desc,
@@ -663,9 +669,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     const appUrl = getAppUrl();
     const msg = error instanceof Error ? error.message : 'Unknown error';
     const providerParam = (await params).provider;
-    // For social providers the error state doesn't carry productId (it was in the state doc),
-    // so redirect to settings as a safe fallback
-    return redirectThroughBridge(appUrl, '/settings', {
+    // Same as the pre-exchange failure above: honour where the connect started
+    // so a mid-onboarding failure doesn't relocate the user into the app.
+    // `state` is scoped to the try block, so re-read it off the URL here.
+    const { returnTo: failedReturnTo } = await consumeFailedState(
+      new URL(req.url).searchParams.get('state'),
+    );
+    const errorBase = (failedReturnTo && sanitizeAppReturnTo(failedReturnTo, appUrl)) || '/settings';
+    return redirectThroughBridge(appUrl, errorBase, {
       oauth: 'error',
       provider: providerParam,
       reason: msg === 'CHANNEL_LIMIT_REACHED'

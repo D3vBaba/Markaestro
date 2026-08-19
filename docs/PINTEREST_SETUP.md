@@ -1,9 +1,29 @@
 # Pinterest setup for Markaestro
 
 Markaestro uses Pinterest API v5 to connect a Pinterest business account,
-select one of its boards, and publish image Pins. Pinterest Trial apps cannot
-create Pins through the production API, so the entire integration must use API
-Sandbox until Pinterest grants Standard access.
+select one of its boards, and publish image Pins. The app now holds **Standard
+access**, so every deployed environment talks to `api.pinterest.com`.
+
+## Environment lock
+
+`PINTEREST_API_ENVIRONMENT` selects the API origin, but Sandbox is a
+local-development affordance only. `getPinterestApiEnvironment()` in
+`src/lib/pinterest-api.ts` refuses a `sandbox` value whenever
+`NODE_ENV=production` — which is how App Hosting builds and runs the server —
+and logs `pinterest.sandbox_override_refused` instead. A deployed backend
+therefore cannot reach `api-sandbox.pinterest.com` even if the variable is
+mis-set, because Sandbox Pins are visible only to their creator and a Sandbox
+token is rejected by the production API.
+
+Every Pinterest request in the app is built by `getPinterestApiUrl()` — Pin
+writes, media upload, analytics, board listing, the OAuth token exchange, and
+token refresh — so that one function is the only place an origin is chosen.
+
+Connections are stamped with the environment they were authorized against at
+OAuth time, and `validateConnection()` blocks a Sandbox-era connection from
+publishing to production with a message telling the user to reconnect.
+
+The historical Trial-access setup below is kept for reference.
 
 ## Trial setup and demo recording
 

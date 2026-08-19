@@ -34,4 +34,23 @@ describe('Pinterest API environment', () => {
       'PINTEREST_API_ENVIRONMENT must be "sandbox" or "production"',
     );
   });
+
+  it('refuses Sandbox on a deployed runtime so production never leaves api.pinterest.com', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('PINTEREST_API_ENVIRONMENT', 'sandbox');
+    expect(getPinterestApiEnvironment()).toBe('production');
+    expect(isPinterestSandbox()).toBe(false);
+    expect(getPinterestApiUrl('/pins')).toBe('https://api.pinterest.com/v5/pins');
+    expect(getProviderConfig('pinterest').tokenUrl).toBe(
+      'https://api.pinterest.com/v5/oauth/token',
+    );
+  });
+
+  it('still rejects a malformed environment on a deployed runtime', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('PINTEREST_API_ENVIRONMENT', 'trial');
+    expect(() => getPinterestApiEnvironment()).toThrow(
+      'PINTEREST_API_ENVIRONMENT must be "sandbox" or "production"',
+    );
+  });
 });

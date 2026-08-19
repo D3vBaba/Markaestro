@@ -3006,7 +3006,9 @@ function checkoutErrorMessage(
 ): string {
   if (status === 401) return t("changePlan.toastSignedOut");
   if (status === 403) return t("changePlan.toastNotOwner");
-  if (error === "Price not configured") return t("changePlan.toastPriceMissing");
+  if (error === "Price not configured" || error === "Price unavailable") {
+    return t("changePlan.toastPriceMissing");
+  }
   return t("changePlan.toastFailed");
 }
 

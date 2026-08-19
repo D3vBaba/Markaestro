@@ -114,14 +114,33 @@ async function getBrandName(workspaceId: string, productId: unknown): Promise<st
  * Best-effort: the post has already reached TikTok's inbox by the time this
  * runs, so a mail failure must never change the post's outcome. Sending is
  * guarded by `tiktokInboxEmailSentAt` so a repeated poll cannot mail twice.
+ *
+ * TikTok's status API reports SEND_TO_USER_INBOX as soon as it finishes
+ * pulling media, but the inbox notification in the TikTok app can lag ~15
+ * minutes (observed on photo PULL_FROM_URL: API + first webhook at T+0,
+ * app-visible item + second webhook at T+15). Hold the prompt until then.
  */
+export const TIKTOK_INBOX_EMAIL_DELAY_MS = 15 * 60_000;
+
+export function isTikTokInboxEmailDue(
+  post: Record<string, unknown>,
+  nowMs: number = Date.now(),
+): boolean {
+  if (post.tiktokInboxEmailSentAt) return false;
+  const actionRequiredAt = typeof post.actionRequiredAt === 'string'
+    ? Date.parse(post.actionRequiredAt)
+    : Number.NaN;
+  if (!Number.isFinite(actionRequiredAt)) return false;
+  return nowMs - actionRequiredAt >= TIKTOK_INBOX_EMAIL_DELAY_MS;
+}
+
 export async function sendTikTokInboxEmail(
   workspaceId: string,
   postId: string,
   post: Record<string, unknown>,
 ): Promise<void> {
   try {
-    if (post.tiktokInboxEmailSentAt) return;
+    if (!isTikTokInboxEmailDue(post)) return;
 
     const recipients = await getRecipients(workspaceId);
     if (recipients.length === 0) return;

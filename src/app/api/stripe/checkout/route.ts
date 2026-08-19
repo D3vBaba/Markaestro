@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getStripe, hasStripeCustomer, priceIdForPlan } from '@/lib/stripe/server';
+import { getStripe, hasStripeCustomer, resolvePlanPrice } from '@/lib/stripe/server';
 import { getSubscriptionForWorkspace } from '@/lib/stripe/subscription';
-import { TRIAL_DAYS } from '@/lib/stripe/plans';
-import type { PlanTier, BillingInterval } from '@/lib/stripe/plans';
+import { TRIAL_DAYS, PLAN_TIERS, type PlanTier, type BillingInterval } from '@/lib/stripe/plans';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 
@@ -49,19 +48,36 @@ export async function POST(req: Request) {
     const tier = body.tier as PlanTier;
     const interval = (body.interval || 'annual') as BillingInterval;
 
-    if (!['starter', 'pro', 'business'].includes(tier)) {
+    if (!PLAN_TIERS.includes(tier)) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });
     }
     if (!['monthly', 'annual'].includes(interval)) {
       return NextResponse.json({ error: 'Invalid interval' }, { status: 400 });
     }
 
-    const priceId = priceIdForPlan(tier, interval);
-    if (!priceId) {
-      return NextResponse.json({ error: 'Price not configured' }, { status: 500 });
-    }
-
     const stripe = getStripe();
+
+    // Verified against Stripe rather than trusted from env — an archived price
+    // in STRIPE_PRICE_* fails checkout with "The price specified is inactive",
+    // which surfaces as a 500 and reads as a broken payment integration.
+    const resolved = await resolvePlanPrice(stripe, tier, interval);
+    if (!resolved.ok) {
+      console.error('[stripe/checkout] no usable price', { tier, interval, reason: resolved.reason });
+      return NextResponse.json(
+        { error: resolved.reason === 'NOT_CONFIGURED' ? 'Price not configured' : 'Price unavailable' },
+        { status: 500 },
+      );
+    }
+    if (resolved.substituted) {
+      console.error('[stripe/checkout] STRIPE_PRICE config is stale', {
+        tier,
+        interval,
+        using: resolved.priceId,
+        hint: 'update STRIPE_PRICE_* in apphosting.yaml to the active price id',
+      });
+    }
+    const priceId = resolved.priceId;
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
     const existing = await getSubscriptionForWorkspace(workspaceId);

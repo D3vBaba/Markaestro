@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { logger } from '@/lib/logger';
 
 const findPostByTikTokPublishIdMock = vi.fn();
 const pollTikTokPublishForPostMock = vi.fn();
@@ -92,6 +93,14 @@ describe('POST /api/webhooks/tiktok', () => {
     expect(await res.json()).toEqual({ received: true, outcome: 'published' });
     expect(findPostByTikTokPublishIdMock).toHaveBeenCalledWith('pub_abc');
     expect(pollTikTokPublishForPostMock).toHaveBeenCalledWith('ws_1', fakeRef);
+    expect(logger.info).toHaveBeenCalledWith(
+      'tiktok webhook received',
+      expect.objectContaining({
+        event: 'tiktok.webhook.received',
+        type: 'post.publish.complete',
+        publishId: 'pub_abc',
+      }),
+    );
   });
 
   it('returns 500 so TikTok retries when the handler throws', async () => {

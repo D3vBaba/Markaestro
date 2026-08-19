@@ -495,10 +495,14 @@ export async function pollTikTokPublishForPost(
         : '',
       updatedAt: now,
     });
-    // The video is in the creator's TikTok inbox and cannot go live until they
-    // post it from the app. Nothing else tells them, so email the prompt.
+    // The creator still has to finish the post in TikTok. The API reports
+    // SEND_TO_USER_INBOX before the app notification is visible, so the
+    // prompt email waits until actionRequiredAt is old enough.
     if (nextStatus === PLATFORM_ACTION_REQUIRED_STATUS) {
-      await sendTikTokInboxEmail(workspaceId, snap.id, post);
+      await sendTikTokInboxEmail(workspaceId, snap.id, {
+        ...post,
+        actionRequiredAt: alreadyActionRequired ? post.actionRequiredAt : now,
+      });
     }
 
     if (clientId && nextStatus === PLATFORM_ACTION_REQUIRED_STATUS) {
