@@ -2,10 +2,11 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { getSafeInternalPath } from "@/lib/safe-internal-path";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
@@ -14,11 +15,18 @@ import Link from "next/link";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
-export default function OnboardingSuccessPage() {
+function OnboardingSuccessContent() {
   const t = useTranslations("onboarding.success");
   const { user, loading: authLoading } = useAuth();
   const { status, refresh } = useSubscription();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Checkout carries where to continue to: the dashboard when this finishes
+  // onboarding, the billing tab when it was an upgrade from Settings.
+  const nextPath = getSafeInternalPath(searchParams.get("next"), {
+    fallback: "/dashboard",
+    selfPrefix: "/onboarding/success",
+  });
   const [timedOut, setTimedOut] = useState(false);
 
   // Stop polling as soon as the subscription is confirmed.
@@ -58,10 +66,10 @@ export default function OnboardingSuccessPage() {
 
   useEffect(() => {
     if (ready) {
-      const timer = setTimeout(() => router.replace("/dashboard"), 3000);
+      const timer = setTimeout(() => router.replace(nextPath), 3000);
       return () => clearTimeout(timer);
     }
-  }, [ready, router]);
+  }, [ready, nextPath, router]);
 
   return (
     <div
@@ -164,5 +172,19 @@ export default function OnboardingSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * useSearchParams needs a Suspense boundary, even on a force-dynamic route.
+ * The fallback is deliberately blank: this page is only ever reached as a
+ * redirect from Stripe, and a flash of chrome before the real content lands
+ * would read as a second page.
+ */
+export default function OnboardingSuccessPage() {
+  return (
+    <Suspense fallback={null}>
+      <OnboardingSuccessContent />
+    </Suspense>
   );
 }

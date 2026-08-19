@@ -818,7 +818,11 @@ export default function OnboardingPage() {
     // Scoped to the selected workspace — billing is per-workspace, and the
     // server would otherwise resolve one from the cookie, which a freshly
     // bootstrapped onboarding account may not have yet.
-    apiPost<{ url: string }>("/api/stripe/checkout", { tier: selectedTier, interval })
+    apiPost<{ url: string }>("/api/stripe/checkout", {
+      tier: selectedTier,
+      interval,
+      returnTo: "/onboarding",
+    })
       .then((res) => {
         if (res.ok && res.data.url) {
           skipLeaveGuardRef.current = true;

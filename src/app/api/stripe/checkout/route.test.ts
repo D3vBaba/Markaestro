@@ -134,6 +134,55 @@ describe('POST /api/stripe/checkout', () => {
     );
   });
 
+  describe('return destination', () => {
+    function urlsFromLastSession() {
+      const [args] = stripeCheckoutCreateMock.mock.calls.at(-1)!;
+      return { success: args.success_url as string, cancel: args.cancel_url as string };
+    }
+
+    it('returns to the page checkout started from', async () => {
+      await post({ tier: 'pro', interval: 'annual', returnTo: '/settings?tab=billing' });
+      const { success, cancel } = urlsFromLastSession();
+      expect(cancel).toMatch(/\/settings\?tab=billing$/);
+      expect(success).toContain(`next=${encodeURIComponent('/settings?tab=billing')}`);
+    });
+
+    it('falls back to onboarding when no origin is named', async () => {
+      await post({ tier: 'pro', interval: 'annual' });
+      const { cancel } = urlsFromLastSession();
+      expect(cancel).toMatch(/\/onboarding$/);
+    });
+
+    // Cancelling mid-onboarding belongs back on the paywall; paying moves on.
+    it('sends a completed onboarding purchase to the dashboard, not back to the funnel', async () => {
+      await post({ tier: 'pro', interval: 'annual', returnTo: '/onboarding' });
+      const { success, cancel } = urlsFromLastSession();
+      expect(cancel).toMatch(/\/onboarding$/);
+      expect(success).toContain(`next=${encodeURIComponent('/dashboard')}`);
+    });
+
+    it('refuses an off-site return target', async () => {
+      await post({ tier: 'pro', interval: 'annual', returnTo: 'https://evil.example/steal' });
+      expect(urlsFromLastSession().cancel).toMatch(/\/onboarding$/);
+
+      await post({ tier: 'pro', interval: 'annual', returnTo: '//evil.example' });
+      expect(urlsFromLastSession().cancel).toMatch(/\/onboarding$/);
+    });
+
+    it('returns the billing portal to the originating page too', async () => {
+      getSubscriptionMock.mockResolvedValue({
+        stripeCustomerId: 'cus_existing',
+        stripeSubscriptionId: 'sub_existing',
+        status: 'active',
+      });
+      await post({ tier: 'business', interval: 'monthly', returnTo: '/settings?tab=billing' });
+      expect(stripePortalCreateMock).toHaveBeenCalledWith({
+        customer: 'cus_existing',
+        return_url: expect.stringContaining('/settings?tab=billing'),
+      });
+    });
+  });
+
   it('redirects existing active subscriber to billing portal', async () => {
     getSubscriptionMock.mockResolvedValue({
       stripeCustomerId: 'cus_existing',

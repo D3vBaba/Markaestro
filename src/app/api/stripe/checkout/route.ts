@@ -4,6 +4,7 @@ import { getSubscriptionForWorkspace } from '@/lib/stripe/subscription';
 import { TRIAL_DAYS, PLAN_TIERS, type PlanTier, type BillingInterval } from '@/lib/stripe/plans';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
+import { safeInternalPathOrNull } from '@/lib/safe-internal-path';
 
 export const runtime = 'nodejs';
 
@@ -47,6 +48,12 @@ export async function POST(req: Request) {
     const body = await req.json();
     const tier = body.tier as PlanTier;
     const interval = (body.interval || 'annual') as BillingInterval;
+    // Where the user pressed "upgrade". Untrusted input, so it is validated as
+    // an internal path; null means the caller named no origin.
+    const requestedReturnTo = safeInternalPathOrNull(
+      typeof body.returnTo === 'string' ? body.returnTo : null,
+      { selfPrefix: '/onboarding/success' },
+    );
 
     if (!PLAN_TIERS.includes(tier)) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });
@@ -80,6 +87,17 @@ export async function POST(req: Request) {
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
+    // Backing out returns exactly where the user was — without this, cancelling
+    // an upgrade started in Settings dropped them into the onboarding quiz.
+    // Paying continues forward instead, which only differs for onboarding:
+    // finishing the funnel lands in the app, not back on the paywall.
+    const cancelPath = requestedReturnTo ?? '/onboarding';
+    const portalReturn = requestedReturnTo ?? '/settings';
+    const successNext =
+      requestedReturnTo && !requestedReturnTo.startsWith('/onboarding')
+        ? requestedReturnTo
+        : '/dashboard';
+
     const existing = await getSubscriptionForWorkspace(workspaceId);
 
     // The workspace already has a live subscription: never stack a second
@@ -90,7 +108,7 @@ export async function POST(req: Request) {
     if (existing && ['active', 'trialing'].includes(existing.status) && hasStripeCustomer(existing)) {
       const portal = await stripe.billingPortal.sessions.create({
         customer: existing.stripeCustomerId,
-        return_url: `${appUrl}/settings`,
+        return_url: `${appUrl}${portalReturn}`,
       });
       return NextResponse.json({ url: portal.url });
     }
@@ -137,8 +155,9 @@ export async function POST(req: Request) {
         // back to the customer mapping if absent.
         metadata: { workspaceId, firebaseUid: uid, tier, interval },
       },
-      success_url: `${appUrl}/onboarding/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/onboarding`,
+      // The success page polls until the webhook lands, then follows `next`.
+      success_url: `${appUrl}/onboarding/success?session_id={CHECKOUT_SESSION_ID}&next=${encodeURIComponent(successNext)}`,
+      cancel_url: `${appUrl}${cancelPath}`,
       metadata: { workspaceId, firebaseUid: uid },
       allow_promotion_codes: true,
     }, {

@@ -3089,6 +3089,9 @@ function BillingTab() {
       const res = await apiPost<{ url: string; error?: string }>("/api/stripe/checkout", {
         tier: target,
         interval,
+        // Backing out of Stripe returns to the billing tab, not the onboarding
+        // quiz — which is where an unnamed origin defaults to.
+        returnTo: "/settings?tab=billing",
       }, workspaceId);
       if (res.ok && res.data.url) {
         window.location.assign(res.data.url);
