@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
-import { PLANS } from "@/lib/stripe/plans";
+import { PLANS, PLAN_TIERS } from "@/lib/stripe/plans";
 import type { BillingInterval, PlanTier } from "@/lib/stripe/plans";
 import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
@@ -2874,19 +2874,19 @@ type AddonInfo = {
   available: boolean;
 };
 
-function AddonsCard({ interval, tier }: { interval: string | null; tier: PlanTier }) {
+function AddonsCard({ interval, tier, workspaceId }: { interval: string | null; tier: PlanTier; workspaceId?: string }) {
   const t = useTranslations("settings.billing.addons");
   const [addons, setAddons] = useState<AddonInfo[] | null>(null);
   const [pending, setPending] = useState<Record<string, number>>({});
   const [busyKey, setBusyKey] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await apiFetch<{ addons: AddonInfo[] }>("/api/stripe/addons");
+    const res = await apiGet<{ addons: AddonInfo[] }>("/api/stripe/addons", workspaceId);
     if (res.ok) {
       setAddons(res.data.addons);
       setPending({});
     }
-  }, []);
+  }, [workspaceId]);
 
   useEffect(() => {
     deferFromEffect(load);
@@ -2901,10 +2901,10 @@ function AddonsCard({ interval, tier }: { interval: string | null; tier: PlanTie
   async function update(addon: AddonInfo, quantity: number) {
     setBusyKey(addon.key);
     try {
-      const res = await apiFetch<{ ok: boolean }>("/api/stripe/addons", {
-        method: "POST",
-        body: JSON.stringify({ addon: addon.key, quantity }),
-      });
+      const res = await apiPost<{ ok: boolean }>("/api/stripe/addons", {
+        addon: addon.key,
+        quantity,
+      }, workspaceId);
       if (res.ok) {
         toast.success(t("toastUpdated"));
         await load();
@@ -2988,15 +2988,34 @@ type BillingStatusInfo = {
   billable: boolean;
 };
 
-const PLAN_RANK: Record<string, number> = { starter: 1, pro: 2, business: 3 };
+const PLAN_RANK: Record<string, number> = Object.fromEntries(
+  PLAN_TIERS.map((tier, idx) => [tier, idx + 1]),
+);
 
 type PlanChangeKind = "upgrade" | "downgrade" | "interval";
+
+/**
+ * Checkout failures used to collapse into one generic toast, which made a 401
+ * (expired session) and a 403 (not the owner of the resolved workspace) look
+ * identical to "Stripe is broken". Name them instead.
+ */
+function checkoutErrorMessage(
+  status: number,
+  error: string | undefined,
+  t: (key: string) => string,
+): string {
+  if (status === 401) return t("changePlan.toastSignedOut");
+  if (status === 403) return t("changePlan.toastNotOwner");
+  if (error === "Price not configured") return t("changePlan.toastPriceMissing");
+  return t("changePlan.toastFailed");
+}
 
 function BillingTab() {
   const t = useTranslations("settings.billing");
   const locale = useLocale();
   const { status, trialDaysLeft, refresh } = useSubscription();
   const { current: workspace } = useWorkspace();
+  const workspaceId = workspace?.id;
   const [busy, setBusy] = useState(false);
   // Live billing status straight from the API — the provider's bootstrap copy
   // lacks `billable`, which decides portal access vs. the checkout fallback.
@@ -3009,11 +3028,17 @@ function BillingTab() {
   // Bumped to remount AddonsCard after a plan change (availability is per tier).
   const [addonsRefreshKey, setAddonsRefreshKey] = useState(0);
 
+  // Every billing call names the workspace explicitly: billing is per-workspace,
+  // and a workspace-blind request is resolved server-side from the cookie, which
+  // can lag the switcher (or be missing entirely on a fresh session). Reading or
+  // charging the wrong workspace is the failure mode this avoids.
   const loadBilling = useCallback(async () => {
-    const res = await apiFetch<BillingStatusInfo>("/api/stripe/status");
+    const res = await apiGet<BillingStatusInfo>("/api/stripe/status", workspaceId);
     if (res.ok) setBilling(res.data);
-  }, []);
+  }, [workspaceId]);
 
+  // Keyed on workspaceId so switching workspaces re-reads that workspace's
+  // plan instead of leaving the previous one's card on screen.
   useEffect(() => {
     deferFromEffect(loadBilling);
   }, [loadBilling]);
@@ -3040,7 +3065,7 @@ function BillingTab() {
   async function openPortal() {
     setBusy(true);
     try {
-      const res = await apiFetch<{ url: string }>("/api/stripe/portal", { method: "POST" });
+      const res = await apiPost<{ url: string }>("/api/stripe/portal", {}, workspaceId);
       if (res.ok && res.data.url) {
         window.open(res.data.url, "_blank", "noopener");
         toast.success(t("toasts.openingPortal"));
@@ -3059,15 +3084,15 @@ function BillingTab() {
   async function startCheckout(target: PlanTier, interval: BillingInterval) {
     setCheckoutTier(target);
     try {
-      const res = await apiFetch<{ url: string }>("/api/stripe/checkout", {
-        method: "POST",
-        body: JSON.stringify({ tier: target, interval }),
-      });
+      const res = await apiPost<{ url: string; error?: string }>("/api/stripe/checkout", {
+        tier: target,
+        interval,
+      }, workspaceId);
       if (res.ok && res.data.url) {
         window.location.assign(res.data.url);
         return;
       }
-      toast.error(t("changePlan.toastFailed"));
+      toast.error(checkoutErrorMessage(res.status, res.data?.error, t));
     } catch {
       toast.error(t("changePlan.toastFailed"));
     }
@@ -3090,10 +3115,10 @@ function BillingTab() {
     setConfirmBusy(true);
     setConfirmError(null);
     try {
-      const res = await apiFetch<{ ok?: boolean }>("/api/stripe/change-plan", {
-        method: "POST",
-        body: JSON.stringify({ tier: confirmTarget.tier, interval: pageInterval }),
-      });
+      const res = await apiPost<{ ok?: boolean }>("/api/stripe/change-plan", {
+        tier: confirmTarget.tier,
+        interval: pageInterval,
+      }, workspaceId);
       if (res.ok) {
         toast.success(t("changePlan.toastChanged", { plan: targetPlan.name }));
         closeConfirm();
@@ -3231,7 +3256,7 @@ function BillingTab() {
       </Card>
 
       {canManageBilling && status.active && (
-        <AddonsCard key={addonsRefreshKey} interval={status.interval} tier={tier} />
+        <AddonsCard key={addonsRefreshKey} interval={status.interval} tier={tier} workspaceId={workspaceId} />
       )}
 
       {/* Plan comparison + direct switching */}
@@ -3263,7 +3288,7 @@ function BillingTab() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {(["starter", "pro", "business"] as const).map((tKey) => {
+            {PLAN_TIERS.map((tKey) => {
               const p = PLANS[tKey];
               const isCurrent = tKey === tier;
               return (

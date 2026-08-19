@@ -306,7 +306,10 @@
     "annualSavingsNote": "按年计费比按月计费节省17%",
     "settingUp": "正在设置…",
     "startTrialButton": "开始{days}天免费试用 — {plan}",
-    "cardRequired": "需要绑定银行卡 · 试用结束前可随时取消",
+    "cardRequired": "需要绑定银行卡 · 试用期结束前可随时取消",
+    "checkoutFailed": "无法发起结账，请重试。",
+    "checkoutSignedOut": "登录状态已失效，请重新登录以开始试用。",
+    "checkoutNotOwner": "只有工作区所有者才能开通订阅。",
     "freeOption": {
       "title": "还没准备好开始试用？",
       "limits": "免费套餐包含 1 个品牌、2 个渠道、每月 15 篇内容、1 GB 存储空间和 7 天数据分析。",

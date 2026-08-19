@@ -306,7 +306,10 @@
     "annualSavingsNote": "Jaarlijkse facturering bespaart je 17% ten opzichte van maandelijks",
     "settingUp": "Bezig met instellen…",
     "startTrialButton": "Start gratis proefperiode van {days} dagen — {plan}",
-    "cardRequired": "Kaart vereist · Altijd opzegbaar voordat de proefperiode eindigt",
+    "cardRequired": "Creditcard vereist · Altijd opzegbaar voor het einde van de proefperiode",
+    "checkoutFailed": "Kan afrekenen niet starten. Probeer het opnieuw.",
+    "checkoutSignedOut": "Je sessie is verlopen. Log opnieuw in om je proefperiode te starten.",
+    "checkoutNotOwner": "Alleen de eigenaar van de werkruimte kan een abonnement starten.",
     "freeOption": {
       "title": "Nog niet klaar voor een proefperiode?",
       "limits": "Het Gratis-pakket bevat 1 merk, 2 kanalen, 15 posts per maand, 1 GB opslag en 7-daagse analyse.",

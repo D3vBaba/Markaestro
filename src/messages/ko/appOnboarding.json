@@ -306,7 +306,10 @@
     "annualSavingsNote": "연간 결제 시 월간 결제 대비 17% 절약됩니다",
     "settingUp": "설정 중…",
     "startTrialButton": "{days}일 무료 체험 시작 — {plan}",
-    "cardRequired": "카드 등록 필요 · 체험 종료 전 언제든지 취소 가능",
+    "cardRequired": "카드 정보 입력 필요 · 무료 체험 종료 전 언제든지 취소 가능",
+    "checkoutFailed": "결제를 시작하지 못했습니다. 다시 시도해 주세요.",
+    "checkoutSignedOut": "세션이 종료되었습니다. 다시 로그인하여 체험을 시작하세요.",
+    "checkoutNotOwner": "구독은 워크스페이스 소유자만 시작할 수 있습니다.",
     "freeOption": {
       "title": "아직 체험을 시작할 준비가 안 되셨나요?",
       "limits": "무료 요금제에는 브랜드 1개, 채널 2개, 월 15개 게시물, 저장 공간 1 GB, 7일 애널리틱스가 포함됩니다.",

@@ -306,7 +306,10 @@
     "annualSavingsNote": "A cobrança anual economiza 17% em comparação com a mensal",
     "settingUp": "Configurando…",
     "startTrialButton": "Iniciar teste gratuito de {days} dias — {plan}",
-    "cardRequired": "Cartão obrigatório · Cancele a qualquer momento antes do fim do teste",
+    "cardRequired": "Cartão necessário · Cancele a qualquer momento antes do fim do período de teste",
+    "checkoutFailed": "Não foi possível iniciar o checkout. Tente novamente.",
+    "checkoutSignedOut": "A tua sessão terminou. Inicia sessão novamente para começar o teste.",
+    "checkoutNotOwner": "Só quem é proprietário do espaço de trabalho pode iniciar uma subscrição.",
     "freeOption": {
       "title": "Ainda não quer iniciar um teste?",
       "limits": "O plano Grátis inclui 1 marca, 2 canais, 15 posts por mês, 1 GB de armazenamento e análises de 7 dias.",

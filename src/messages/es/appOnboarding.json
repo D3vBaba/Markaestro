@@ -306,7 +306,10 @@
     "annualSavingsNote": "La facturación anual te ahorra un 17% respecto a la mensual",
     "settingUp": "Configurando…",
     "startTrialButton": "Iniciar prueba gratuita de {days} días — {plan}",
-    "cardRequired": "Se requiere tarjeta · Cancela cuando quieras antes de que termine la prueba",
+    "cardRequired": "Se requiere tarjeta · Cancela en cualquier momento antes de que termine la prueba",
+    "checkoutFailed": "No se pudo iniciar el proceso de pago. Inténtalo de nuevo.",
+    "checkoutSignedOut": "Tu sesión ha terminado. Inicia sesión de nuevo para empezar tu prueba.",
+    "checkoutNotOwner": "Solo el propietario del espacio de trabajo puede iniciar una suscripción.",
     "freeOption": {
       "title": "¿Aún no quieres iniciar una prueba?",
       "limits": "El plan Gratis incluye 1 marca, 2 canales, 15 publicaciones al mes, 1 GB de almacenamiento y analíticas de 7 días.",

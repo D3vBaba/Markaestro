@@ -306,7 +306,10 @@
     "annualSavingsNote": "Die jährliche Abrechnung spart dir 17 % gegenüber monatlich",
     "settingUp": "Wird eingerichtet…",
     "startTrialButton": "{days}-tägige kostenlose Testphase starten — {plan}",
-    "cardRequired": "Karte erforderlich · Jederzeit vor Ende der Testphase kündbar",
+    "cardRequired": "Kreditkarte erforderlich · Jederzeit vor Ablauf des Testzeitraums kündbar",
+    "checkoutFailed": "Checkout konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+    "checkoutSignedOut": "Deine Sitzung ist abgelaufen. Melde dich erneut an, um deine Testphase zu starten.",
+    "checkoutNotOwner": "Nur die Inhaberin oder der Inhaber des Workspace kann ein Abo abschließen.",
     "freeOption": {
       "title": "Noch nicht bereit für eine Testphase?",
       "limits": "Der Kostenlos-Plan enthält 1 Marke, 2 Kanäle, 15 Beiträge pro Monat, 1 GB Speicher und 7-Tage-Analysen.",

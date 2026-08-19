@@ -307,6 +307,9 @@
     "settingUp": "Setting up…",
     "startTrialButton": "Start {days}-Day Free Trial — {plan}",
     "cardRequired": "Card required · Cancel anytime before the trial ends",
+    "checkoutFailed": "Failed to start checkout. Please try again.",
+    "checkoutSignedOut": "Your session ended. Sign in again to start your trial.",
+    "checkoutNotOwner": "Only the workspace owner can start a subscription.",
     "freeOption": {
       "title": "Not ready to start a trial?",
       "limits": "The Free plan includes 1 brand, 2 channels, 15 posts a month, 1 GB storage, and 7-day analytics.",

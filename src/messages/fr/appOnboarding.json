@@ -306,7 +306,10 @@
     "annualSavingsNote": "La facturation annuelle vous fait économiser 17 % par rapport au mensuel",
     "settingUp": "Configuration…",
     "startTrialButton": "Démarrer l'essai gratuit de {days} jours — {plan}",
-    "cardRequired": "Carte requise · Annulez à tout moment avant la fin de l'essai",
+    "cardRequired": "Carte bancaire requise · Annulez à tout moment avant la fin de l'essai",
+    "checkoutFailed": "Impossible de démarrer le paiement. Veuillez réessayer.",
+    "checkoutSignedOut": "Votre session a expiré. Reconnectez-vous pour démarrer votre essai.",
+    "checkoutNotOwner": "Seul le propriétaire de l'espace de travail peut souscrire un abonnement.",
     "freeOption": {
       "title": "Pas encore prêt à démarrer un essai ?",
       "limits": "Le forfait Gratuit inclut 1 marque, 2 canaux, 15 publications par mois, 1 Go de stockage et des analyses sur 7 jours.",

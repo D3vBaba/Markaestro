@@ -258,6 +258,21 @@ async function resolveContextForUser(
     throw new Error('FORBIDDEN_WORKSPACE');
   }
 
+  // The cookie is the persisted UI selection, written by WorkspaceProvider on
+  // every switch. It outranks the `default` fallback below: a user who belongs
+  // to BOTH `workspaces/default` and another workspace would otherwise have
+  // every workspace-blind request silently resolved to `default` while the UI
+  // shows the other one — which is how billing calls ended up 403-ing (no
+  // `billing.manage` in the resolved tenant) and reporting the wrong plan.
+  // It stays advisory: a stale cookie (left/removed workspace) falls through
+  // instead of bricking every request.
+  if (cookieWs && cookieWs !== DEFAULT_WORKSPACE_ID && isValidWorkspaceId(cookieWs)) {
+    const cookieMembership = await getWorkspaceMembership(uid, cookieWs);
+    if (cookieMembership) {
+      return { uid, email, workspaceId: cookieMembership.workspaceId, role: cookieMembership.role };
+    }
+  }
+
   // `workspaceId=default` is sent both as "use my current workspace" (legacy
   // clients / workspace-blind fetches) and as an explicit selection of the
   // real `workspaces/default` document, where production data for the first
@@ -266,16 +281,6 @@ async function resolveContextForUser(
   const defaultMembership = await getWorkspaceMembership(uid, DEFAULT_WORKSPACE_ID);
   if (defaultMembership) {
     return { uid, email, workspaceId: defaultMembership.workspaceId, role: defaultMembership.role };
-  }
-
-  // The cookie is the persisted UI selection. It is advisory: if it points
-  // at a workspace the user has since left or was removed from, fall through
-  // to the deterministic default instead of bricking every request.
-  if (cookieWs && cookieWs !== DEFAULT_WORKSPACE_ID && isValidWorkspaceId(cookieWs)) {
-    const cookieMembership = await getWorkspaceMembership(uid, cookieWs);
-    if (cookieMembership) {
-      return { uid, email, workspaceId: cookieMembership.workspaceId, role: cookieMembership.role };
-    }
   }
 
   const membership = await findUserMembership(uid);

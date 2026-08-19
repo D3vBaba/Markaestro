@@ -9,12 +9,12 @@ import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider"
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { apiFetch, apiPost, getApiWorkspaceId } from "@/lib/api-client";
+import { apiPost, getApiWorkspaceId } from "@/lib/api-client";
 import { deferFromEffect } from "@/lib/defer-from-effect";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { useProductScan } from "@/hooks/useProductScan";
 import ScanProgressStepper from "@/components/app/ScanProgressStepper";
-import { PLANS, TRIAL_DAYS } from "@/lib/stripe/plans";
+import { PLANS, PLAN_TIERS, TRIAL_DAYS } from "@/lib/stripe/plans";
 import type { PlanTier, BillingInterval } from "@/lib/stripe/plans";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -788,20 +788,40 @@ export default function OnboardingPage() {
   }
 
   function handleCheckout() {
+    // The quiz (and therefore the paywall, once sessionStorage restores the
+    // step) is reachable while signed out — after a logout, or on a back
+    // navigation into a restored flow. Posting checkout there always 401s and
+    // surfaced as "checkout failed", which reads as a broken Stripe
+    // integration. Send them to the register step instead: the account has to
+    // exist before there is a workspace to bill.
+    if (!user) {
+      setStep(REGISTER_STEP);
+      return;
+    }
     setBusy(true);
-    apiFetch<{ url: string }>("/api/stripe/checkout", {
-      method: "POST",
-      body: JSON.stringify({ tier: selectedTier, interval }),
-    })
+    // Scoped to the selected workspace — billing is per-workspace, and the
+    // server would otherwise resolve one from the cookie, which a freshly
+    // bootstrapped onboarding account may not have yet.
+    apiPost<{ url: string }>("/api/stripe/checkout", { tier: selectedTier, interval })
       .then((res) => {
         if (res.ok && res.data.url) {
           skipLeaveGuardRef.current = true;
           window.location.href = res.data.url;
-        } else {
-          setBusy(false);
+          return;
         }
+        toast.error(
+          res.status === 401
+            ? t("paywall.checkoutSignedOut")
+            : res.status === 403
+              ? t("paywall.checkoutNotOwner")
+              : t("paywall.checkoutFailed"),
+        );
+        setBusy(false);
       })
-      .catch(() => setBusy(false));
+      .catch(() => {
+        toast.error(t("paywall.checkoutFailed"));
+        setBusy(false);
+      });
   }
 
   // ─── Render ──────────────────────────────────────────────────────────────────
@@ -1584,7 +1604,7 @@ export default function OnboardingPage() {
 
                   {/* Plan cards */}
                   <div className="grid gap-4 sm:gap-3 sm:grid-cols-3">
-                    {(["starter", "pro", "business"] as PlanTier[]).map((tierKey) => {
+                    {PLAN_TIERS.map((tierKey) => {
                       const plan = PLANS[tierKey];
                       const price = interval === "annual" ? plan.price.annual : plan.price.monthly;
                       const isSelected = selectedTier === tierKey;
