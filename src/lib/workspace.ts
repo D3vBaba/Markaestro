@@ -2,6 +2,13 @@ export const DEFAULT_WORKSPACE_ID = 'default';
 export const WORKSPACE_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/;
 
 /**
+ * Placeholder context for a verified user who has a pending invite and no
+ * memberships yet. Must not collide with a real workspace id — early
+ * accounts store all their data in `workspaces/default`.
+ */
+export const PENDING_WORKSPACE_ID = '_pending';
+
+/**
  * Cookie carrying the user's selected workspace. Written by the client on
  * switch, read by the server whenever a request doesn't name a workspace
  * explicitly — so SSR and workspace-blind fetches still land in the
@@ -30,8 +37,12 @@ export function workspaceSlugFromName(name: string, nowMs = Date.now()): string 
   return `${base}-${nowMs.toString(36)}`;
 }
 
+/**
+ * `default` is a real workspace id (the original account's data lives
+ * there). Only the empty string is "no selection yet".
+ */
 function isSelectableWorkspaceId(id: string | null | undefined): id is string {
-  return Boolean(id && id !== DEFAULT_WORKSPACE_ID);
+  return Boolean(id) && id !== PENDING_WORKSPACE_ID;
 }
 
 /**
@@ -41,7 +52,10 @@ function isSelectableWorkspaceId(id: string | null | undefined): id is string {
  * even if the list has not caught up yet — data reads use a direct
  * membership get, so a just-joined workspace is already addressable.
  * Without a preference, keep the live selection if it still exists, then
- * the persisted one, then the first listed workspace.
+ * the persisted one. If neither applies, prefer the real `default`
+ * tenant when the user belongs to it — that is where early-account data
+ * lives — then the first listed workspace. An empty list means no
+ * selection yet (pending invitees), not `workspaces/default`.
  */
 export function pickSelectedWorkspaceId(opts: {
   workspaceIds: string[];
@@ -56,7 +70,18 @@ export function pickSelectedWorkspaceId(opts: {
   if (isSelectableWorkspaceId(opts.storedId) && opts.workspaceIds.includes(opts.storedId)) {
     return opts.storedId;
   }
-  return opts.workspaceIds[0] ?? DEFAULT_WORKSPACE_ID;
+  if (opts.workspaceIds.includes(DEFAULT_WORKSPACE_ID)) return DEFAULT_WORKSPACE_ID;
+  return opts.workspaceIds[0] ?? '';
+}
+
+/**
+ * Show the real `default` tenant first in the switcher so invitees land
+ * on the workspace that actually has the team's data.
+ */
+export function rankDefaultWorkspaceFirst<T extends { id: string }>(workspaces: T[]): T[] {
+  const preferred = workspaces.filter((workspace) => workspace.id === DEFAULT_WORKSPACE_ID);
+  const rest = workspaces.filter((workspace) => workspace.id !== DEFAULT_WORKSPACE_ID);
+  return [...preferred, ...rest];
 }
 
 /**

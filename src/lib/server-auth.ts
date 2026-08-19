@@ -1,6 +1,6 @@
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { createHash } from 'node:crypto';
-import { DEFAULT_WORKSPACE_ID, WORKSPACE_COOKIE, getWorkspaceId, isValidWorkspaceId, shouldDeferPersonalWorkspace } from '@/lib/workspace';
+import { DEFAULT_WORKSPACE_ID, PENDING_WORKSPACE_ID, WORKSPACE_COOKIE, getWorkspaceId, isValidWorkspaceId, shouldDeferPersonalWorkspace } from '@/lib/workspace';
 import { countPendingInvitesForEmail } from '@/lib/team-invites';
 import { decodeSessionCookie } from '@/lib/session-cookie';
 import { parseBearerToken } from '@/lib/bearer';
@@ -134,7 +134,7 @@ async function findUserMembership(uid: string): Promise<{ workspaceId: string; r
         joinedAt: (data.joinedAt as string) || '',
       };
     })
-    .filter((m) => Boolean(m.workspaceId) && m.workspaceId !== DEFAULT_WORKSPACE_ID);
+    .filter((m) => Boolean(m.workspaceId) && m.workspaceId !== PENDING_WORKSPACE_ID);
 
   if (memberships.length === 0) return null;
 
@@ -246,15 +246,26 @@ async function resolveContextForUser(
   acceptLanguage?: string | null,
   emailVerified = false,
 ): Promise<ResolvedWorkspaceContext> {
-  // An explicit selection (query param / header) is strict: requesting a
-  // workspace you're not a member of is an authorization failure, never a
-  // silent redirect to a different workspace.
+  // An explicit selection (query param / header) is strict, including the
+  // legacy workspace id `default`. Missing/empty input is normalized to
+  // `default` by getWorkspaceId — that value is ambiguous (sentinel vs the
+  // real early-account workspace), so it is handled below.
   if (requestedWs !== DEFAULT_WORKSPACE_ID) {
     const requestedMembership = await getWorkspaceMembership(uid, requestedWs);
     if (requestedMembership) {
       return { uid, email, workspaceId: requestedMembership.workspaceId, role: requestedMembership.role };
     }
     throw new Error('FORBIDDEN_WORKSPACE');
+  }
+
+  // `workspaceId=default` is sent both as "use my current workspace" (legacy
+  // clients / workspace-blind fetches) and as an explicit selection of the
+  // real `workspaces/default` document, where production data for the first
+  // accounts lives. If the user is a member, that real workspace wins —
+  // otherwise we would drop invitees into their empty personal workspace.
+  const defaultMembership = await getWorkspaceMembership(uid, DEFAULT_WORKSPACE_ID);
+  if (defaultMembership) {
+    return { uid, email, workspaceId: defaultMembership.workspaceId, role: defaultMembership.role };
   }
 
   // The cookie is the persisted UI selection. It is advisory: if it points
@@ -275,11 +286,12 @@ async function resolveContextForUser(
   // A first-time invitee has no memberships yet. Creating a personal
   // workspace here would make them an owner, and owned-first defaulting
   // would keep them in that empty workspace after they join the team.
+  // Do not resolve them to `default` — that id is a real tenant.
   if (email && emailVerified) {
     try {
       const pendingInviteCount = await countPendingInvitesForEmail(email);
       if (shouldDeferPersonalWorkspace(emailVerified, pendingInviteCount)) {
-        return { uid, email, workspaceId: DEFAULT_WORKSPACE_ID, role: 'member' };
+        return { uid, email, workspaceId: PENDING_WORKSPACE_ID, role: 'member' };
       }
     } catch {
       // Invite lookup is advisory; fall through to a personal workspace.

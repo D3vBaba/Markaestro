@@ -7,7 +7,7 @@ import {
   getSubscriptionForWorkspace,
 } from '@/lib/stripe/subscription';
 import { resolveLimits } from '@/lib/stripe/entitlements';
-import { DEFAULT_WORKSPACE_ID, isValidWorkspaceId, workspaceSlugFromName } from '@/lib/workspace';
+import { isValidWorkspaceId, rankDefaultWorkspaceFirst, workspaceSlugFromName } from '@/lib/workspace';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
         workspaceId: ctx.workspaceId,
         err: error,
       });
-      workspaceIds = ctx.workspaceId !== DEFAULT_WORKSPACE_ID
+      workspaceIds = ctx.workspaceId && isValidWorkspaceId(ctx.workspaceId)
         ? [{ workspaceId: ctx.workspaceId, role: ctx.role }]
         : [];
     }
@@ -49,23 +49,23 @@ export async function GET(req: Request) {
       new Map(
         workspaceIds
           .filter((entry) =>
-            Boolean(entry.workspaceId) &&
-            entry.workspaceId !== DEFAULT_WORKSPACE_ID &&
-            isValidWorkspaceId(entry.workspaceId),
+            Boolean(entry.workspaceId) && isValidWorkspaceId(entry.workspaceId),
           )
           .map((entry) => [entry.workspaceId, entry]),
       ).values(),
     );
 
-    const workspaces = await Promise.all(
-      uniqueWorkspaceIds.map(async ({ workspaceId, role }) => {
-        const wsSnap = await adminDb.doc(`workspaces/${workspaceId}`).get();
-        return {
-          id: workspaceId,
-          name: wsSnap.data()?.name ?? workspaceId,
-          role,
-        };
-      }),
+    const workspaces = rankDefaultWorkspaceFirst(
+      await Promise.all(
+        uniqueWorkspaceIds.map(async ({ workspaceId, role }) => {
+          const wsSnap = await adminDb.doc(`workspaces/${workspaceId}`).get();
+          return {
+            id: workspaceId,
+            name: wsSnap.data()?.name ?? workspaceId,
+            role,
+          };
+        }),
+      ),
     );
 
     return apiOk({ workspaces });

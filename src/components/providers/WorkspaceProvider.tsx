@@ -6,10 +6,11 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import { apiFetch, setApiWorkspaceId, WORKSPACE_FORBIDDEN_EVENT } from '@/lib/api-client';
 import { invalidateQueries } from '@/hooks/useApiQuery';
 import {
-  DEFAULT_WORKSPACE_ID,
+  PENDING_WORKSPACE_ID,
   WORKSPACE_COOKIE,
   mergeWorkspaceHint,
   pickSelectedWorkspaceId,
+  rankDefaultWorkspaceFirst,
 } from '@/lib/workspace';
 
 export type WorkspaceInfo = {
@@ -35,16 +36,21 @@ type WorkspaceCtx = {
 
 const Ctx = createContext<WorkspaceCtx | null>(null);
 
-const LEGACY_STORAGE_KEY = 'markaestro_workspace';
+/**
+ * v2 ignores selections persisted while `default` was treated as "no
+ * workspace" — those writes stored the invitee's empty personal workspace
+ * and hid the real `workspaces/default` tenant on every refresh.
+ */
+const STORAGE_KEY_PREFIX = 'markaestro_workspace_v2';
 
 /** Selection is per-account so a shared browser never leaks one user's pick into another's session. */
 function storageKey(uid: string): string {
-  return `${LEGACY_STORAGE_KEY}:${uid}`;
+  return `${STORAGE_KEY_PREFIX}:${uid}`;
 }
 
 function readStoredWorkspace(uid: string): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem(storageKey(uid)) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
+  return localStorage.getItem(storageKey(uid));
 }
 
 /**
@@ -63,13 +69,13 @@ function persistWorkspaceCookie(id: string | null) {
 
 function persistWorkspaceSelection(uid: string | undefined, id: string) {
   setApiWorkspaceId(id);
-  if (id && id !== DEFAULT_WORKSPACE_ID) {
-    persistWorkspaceCookie(id);
-    if (uid && typeof window !== 'undefined') {
-      localStorage.setItem(storageKey(uid), id);
-    }
-  } else {
+  if (!uid || !id || id === PENDING_WORKSPACE_ID) {
     persistWorkspaceCookie(null);
+    return;
+  }
+  persistWorkspaceCookie(id);
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(storageKey(uid), id);
   }
 }
 
@@ -81,7 +87,7 @@ function asWorkspaceRole(role: string | undefined): WorkspaceInfo['role'] {
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [workspaces, setWorkspaces] = useState<WorkspaceInfo[]>([]);
-  const [currentId, setCurrentId] = useState<string>(DEFAULT_WORKSPACE_ID);
+  const [currentId, setCurrentId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const currentIdRef = useRef(currentId);
   currentIdRef.current = currentId;
@@ -94,7 +100,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const fetchWorkspaces = useCallback(async (opts?: RefreshWorkspacesOptions) => {
     if (!user) {
       setWorkspaces([]);
-      applySelection(DEFAULT_WORKSPACE_ID, undefined);
+      applySelection('', undefined);
       setLoading(false);
       return;
     }
@@ -124,7 +130,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
             role: asWorkspaceRole(opts.hint?.role),
           }
         : null;
-      const nextList = mergeWorkspaceHint(res.data.workspaces, hint);
+      const nextList = rankDefaultWorkspaceFirst(mergeWorkspaceHint(res.data.workspaces, hint));
       const nextId = pickSelectedWorkspaceId({
         workspaceIds: nextList.map((workspace) => workspace.id),
         previousId: currentIdRef.current,
@@ -178,7 +184,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     if (found) return found;
     // Keep an explicit selection visible even if the membership list is stale
     // (just accepted an invite; listing has not returned the new workspace).
-    if (currentId && currentId !== DEFAULT_WORKSPACE_ID) {
+    // `default` is a real workspace id and must be kept here too.
+    if (currentId && currentId !== PENDING_WORKSPACE_ID) {
       return { id: currentId, name: currentId, role: 'member' as const };
     }
     return workspaces[0] ?? null;
