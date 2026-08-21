@@ -23,9 +23,7 @@ import {
   toTikTokDirectPostSettings,
   type TikTokDirectPostFormState,
 } from "@/lib/social/tiktok-direct-post-form";
-import { canUseTikTokDirectPost } from "@/lib/social/tiktok-direct-post-access";
 import { getFailedChannelResults } from "@/lib/social/publish-ui-outcome";
-import { useAuth } from "@/components/providers/AuthProvider";
 import { userFacingError } from "@/lib/user-facing-errors";
 
 const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
@@ -48,7 +46,6 @@ export default function CreateTab({
 }) {
   const t = useTranslations("content.createTab");
   const tTikTok = useTranslations("content.tiktokDirectPost");
-  const { user } = useAuth();
   const [channel, setChannel] = useState("facebook");
   const [content, setContent] = useState("");
   const [postId, setPostId] = useState<string | null>(null);
@@ -77,12 +74,7 @@ export default function CreateTab({
   const tiktokSelected = selectedChannels.includes("tiktok");
   const tiktokVideoUrl = mediaUrls.find(isVideoUrl) ?? null;
   const tiktokMediaKind: "video" | "photo" = tiktokVideoUrl ? "video" : "photo";
-  // Gated per account until TikTok's audit passes — see the access module for
-  // why an unaudited client must not offer this broadly.
-  const showTikTokModePicker = tiktokSelected && canUseTikTokDirectPost(user?.email);
-  // Gated off, this is always false, so no TikTok settings are attached and
-  // every post takes the inbox hand-off exactly as before.
-  const directPostActive = showTikTokModePicker && tiktokPostMode === "direct_post";
+  const directPostActive = tiktokSelected && tiktokPostMode === "direct_post";
   const videoDurationSec = tiktokVideoUrl && measuredVideo?.url === tiktokVideoUrl
     ? measuredVideo.seconds
     : null;
@@ -634,7 +626,7 @@ export default function CreateTab({
           </Button>
         </div>
 
-        {showTikTokModePicker && (
+        {tiktokSelected && (
           <div className="space-y-3">
             <Label>{tTikTok("modeLabel")}</Label>
             <div className="grid gap-2">

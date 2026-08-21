@@ -17,11 +17,6 @@ import {
  * the post explicitly carries `settings.postMode === 'direct_post'`. Posts
  * without TikTok settings keep the inbox behavior untouched.
  *
- * Direct Post is gated on TikTok's Content Posting API audit. Until the audit
- * passes, TikTok forces every post from an unaudited client to SELF_ONLY
- * regardless of what we send — that is TikTok's enforcement, not ours, and it
- * needs no special handling here.
- *
  * The UX requirements TikTok audits against (creator_info-driven controls, no
  * default privacy level, unchecked interaction toggles, commercial disclosure,
  * consent text) live in the composer UI. Everything this module enforces is
