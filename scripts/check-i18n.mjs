@@ -43,6 +43,7 @@ const EXEMPT_PATTERNS = [
   /^[\w.+-]+@[\w-]+\.[\w.-]+$/, // emails
   /^-?\$?\d+([.,]\d+)?%?$/, // bare numbers, currency, percentages
   /^\d{2,4}-\d{2}-\d{2}/, // ISO-ish dates
+  /^[\w-]+(\.[a-z]{2,})+$/i, // bare domain placeholders: yourbrand.com
 ];
 
 // Proper nouns / acronyms that legitimately never translate. Checked as
@@ -62,6 +63,28 @@ const KNOWN_TOKENS = new Set([
   // Loanwords carried into every locale in this set unchanged — translating
   // "Zoom" into de/es/fr/it/pt would read as worse UI, not better.
   'Zoom',
+  // Product, feature, format and integration names that never localize:
+  // DripCheckr (placeholder brand in wizards), Meta Business Suite,
+  // Instagram/Meta Login, TikTok for Developers, the Connect API, TikTok's
+  // Stitch, the WebM container in media-size hints.
+  'DripCheckr', 'Suite', 'Login', 'Developers', 'Connect', 'Stitch', 'WebM',
+  'WebP',
+  'Endpoint', 'SaaS', 'Fintech',
+  // Cognates and loanwords the de/es/fr/it/nl/pt locale set keeps unchanged —
+  // each verified against how those locale files already use the word rather
+  // than assumed. The CJK/ar locales translate these, so identical values
+  // never arise there and the exemption is inert for them.
+  'Account', 'Accent', 'Actions', 'Active', 'Analyst', 'Analytics',
+  'Audience', 'Beta', 'Brand', 'brand', 'Code', 'commerce', 'Compare',
+  'Contact', 'Content', 'Creator', 'Dashboard', 'Description', 'Disclaimers',
+  'Discovery', 'Email', 'Engagement', 'Feedback', 'Fitness', 'Format',
+  'Gaming', 'Hardware', 'Health', 'Help', 'Home', 'Image', 'Images',
+  'Infrastructure', 'intelligence', 'Live', 'Logo', 'Marketer', 'Marketing',
+  'Marketplace', 'Media', 'media', 'Message', 'Mobile', 'Name', 'Navigation',
+  'Open', 'optional', 'Pages', 'Platform', 'Post', 'post', 'Posts', 'posts',
+  'Privacy', 'Product', 'production', 'Professional', 'Question', 'Repost',
+  'Status', 'Support', 'Team', 'Tech', 'Text', 'Timing', 'Upload', 'Videos',
+  'Website', 'workflow', 'workspace', 'workspaces', 'Workspaces',
 ]);
 
 // Specific key paths that are intentionally identical in every locale — code/
@@ -81,15 +104,29 @@ function isExempt(value, keyPath) {
   return false;
 }
 
-// A value "looks like prose" if, after stripping known tokens/punctuation, it
-// still has a run of 4+ alphabetic characters — i.e. a real word that isn't
-// on the allowlist. Short labels ("Copy", "Pricing") are intentionally still
-// flagged: those DO need translation, they're just short.
+// ICU arguments and markup are never prose: "{current} / {limit}",
+// "${price}", "<strong>{oldEmail}</strong>" and "<uploadSession.uploadUrl>"
+// are format scaffolding that reads identically in every locale. Strip {…}
+// iteratively so nested ICU plural/select bodies unwrap too — their option
+// text goes with them, an accepted blind spot — then drop <…> tokens.
+function stripFormatting(value) {
+  let prev;
+  do {
+    prev = value;
+    value = value.replace(/\{[^{}]*\}/g, ' ');
+  } while (value !== prev);
+  return value.replace(/<[^<>]*>/g, ' ');
+}
+
+// A value "looks like prose" if, after stripping format scaffolding and known
+// tokens/punctuation, it still has a run of 4+ alphabetic characters — i.e. a
+// real word that isn't on the allowlist. Short labels ("Copy", "Pricing") are
+// intentionally still flagged: those DO need translation, they're just short.
 function isLikelyProse(value, keyPath) {
   if (typeof value !== 'string') return false;
   if (value.trim().length < 3) return false;
   if (isExempt(value.trim(), keyPath)) return false;
-  const words = value.match(/[A-Za-zÀ-ÖØ-öø-ÿ]{4,}/g) || [];
+  const words = stripFormatting(value).match(/[A-Za-zÀ-ÖØ-öø-ÿ]{4,}/g) || [];
   return words.some((w) => !KNOWN_TOKENS.has(w));
 }
 

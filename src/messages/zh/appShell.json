@@ -82,5 +82,15 @@
     "cancel": "保持登录",
     "confirm": "退出登录",
     "confirming": "正在退出…"
+  },
+  "invitesBanner": {
+    "invitedBy": "{inviterEmail} 邀请你加入 {workspaceName}",
+    "invited": "你已被邀请加入 {workspaceName}",
+    "accept": "接受",
+    "decline": "拒绝",
+    "joined": "你已加入 {workspaceName}",
+    "declined": "已拒绝加入 {workspaceName} 的邀请",
+    "acceptError": "无法接受邀请，请重试。",
+    "declineError": "无法拒绝邀请，请重试。"
   }
 }

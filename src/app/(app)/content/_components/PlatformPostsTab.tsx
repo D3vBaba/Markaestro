@@ -12,9 +12,14 @@ import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import PostGridSkeleton from "./PostGridSkeleton";
 import { getSocialChannelLabel } from "@/lib/social/channel-catalog";
 import { Channel as ChannelIcon } from "@/components/mk/Channel";
+import { copyText } from "@/lib/copy-text";
 
 const CHANNELS = ["facebook", "instagram", "threads", "linkedin", "tiktok", "pinterest"] as const;
 type Channel = (typeof CHANNELS)[number];
+
+// Shared pill button style — mirrors PostCard's footer actions.
+const pillBtn =
+  "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-accent bg-mk-paper";
 
 type PlatformPost = {
   externalId: string;
@@ -210,6 +215,15 @@ function PlatformPostCard({
   };
   const [confirmDelete, setConfirmDelete] = useState(false);
   const thumbnail = post.thumbnailUrl || post.mediaUrl;
+  const caption = post.content?.trim() ?? "";
+
+  const handleCopyCaption = async () => {
+    if (await copyText(caption)) {
+      toast.success(t("toasts.captionCopied"));
+    } else {
+      toast.error(t("toasts.copyFailed"));
+    }
+  };
 
   return (
     <div className="group border border-border/50 rounded-xl overflow-hidden bg-card hover:border-border/80 hover:shadow-sm transition-all flex flex-col">
@@ -271,10 +285,13 @@ function PlatformPostCard({
       <div className="px-4 pb-3 flex flex-wrap items-center gap-1.5">
         {post.permalink && (
           <a href={post.permalink} target="_blank" rel="noopener noreferrer">
-            <button className="inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-accent bg-mk-paper">
-              {t("view")}
-            </button>
+            <button className={pillBtn}>{t("view")}</button>
           </a>
+        )}
+        {caption.length > 0 && (
+          <button className={pillBtn} onClick={handleCopyCaption}>
+            {t("copyCaption")}
+          </button>
         )}
         {post.canDelete ? (
           <button

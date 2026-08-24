@@ -187,6 +187,7 @@
     "loading": "Bezig met laden…",
     "noCaption": "Geen bijschrift",
     "view": "Bekijken",
+    "copyCaption": "Bijschrift kopiëren",
     "deleting": "Bezig met verwijderen…",
     "delete": "Verwijderen",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "Meer berichten laden mislukt",
       "deleted": "Bericht verwijderd van {channel}",
-      "deleteFailed": "Bericht op het platform verwijderen mislukt"
+      "deleteFailed": "Bericht op het platform verwijderen mislukt",
+      "captionCopied": "Bijschrift gekopieerd",
+      "copyFailed": "Kon het bijschrift niet kopiëren"
     }
   },
   "createTab": {

@@ -187,6 +187,7 @@
     "loading": "Cargando…",
     "noCaption": "Sin descripción",
     "view": "Ver",
+    "copyCaption": "Copiar descripción",
     "deleting": "Eliminando…",
     "delete": "Eliminar",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "No se pudieron cargar más publicaciones",
       "deleted": "Publicación eliminada de {channel}",
-      "deleteFailed": "No se pudo eliminar la publicación en la plataforma"
+      "deleteFailed": "No se pudo eliminar la publicación en la plataforma",
+      "captionCopied": "Descripción copiada",
+      "copyFailed": "No se pudo copiar la descripción"
     }
   },
   "createTab": {

@@ -187,6 +187,7 @@
     "loading": "جارٍ التحميل…",
     "noCaption": "بلا تسمية توضيحية",
     "view": "عرض",
+    "copyCaption": "نسخ التسمية التوضيحية",
     "deleting": "جارٍ الحذف…",
     "delete": "حذف",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "تعذّر تحميل المزيد من المنشورات",
       "deleted": "تم حذف المنشور من {channel}",
-      "deleteFailed": "تعذّر حذف المنشور على المنصة"
+      "deleteFailed": "تعذّر حذف المنشور على المنصة",
+      "captionCopied": "تم نسخ التسمية التوضيحية",
+      "copyFailed": "تعذّر نسخ التسمية التوضيحية"
     }
   },
   "createTab": {

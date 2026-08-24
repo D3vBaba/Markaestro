@@ -89,10 +89,14 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [workspaces, setWorkspaces] = useState<WorkspaceInfo[]>([]);
   const [currentId, setCurrentId] = useState<string>('');
   const [loading, setLoading] = useState(true);
-  const currentIdRef = useRef(currentId);
-  currentIdRef.current = currentId;
+  // Latest selection for async callbacks (fetchWorkspaces reads it as
+  // `previousId` without depending on it). Written in applySelection — the
+  // single place that changes the selection — rather than during render,
+  // which react-hooks/refs forbids.
+  const currentIdRef = useRef('');
 
   const applySelection = useCallback((id: string, uid = user?.uid) => {
+    currentIdRef.current = id;
     setCurrentId(id);
     persistWorkspaceSelection(uid, id);
   }, [user?.uid]);

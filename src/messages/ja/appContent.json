@@ -187,6 +187,7 @@
     "loading": "読み込み中…",
     "noCaption": "キャプションなし",
     "view": "表示",
+    "copyCaption": "キャプションをコピー",
     "deleting": "削除中…",
     "delete": "削除",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "追加の投稿を読み込めませんでした",
       "deleted": "{channel}から投稿を削除しました",
-      "deleteFailed": "プラットフォーム上の投稿を削除できませんでした"
+      "deleteFailed": "プラットフォーム上の投稿を削除できませんでした",
+      "captionCopied": "キャプションをコピーしました",
+      "copyFailed": "キャプションをコピーできませんでした"
     }
   },
   "createTab": {

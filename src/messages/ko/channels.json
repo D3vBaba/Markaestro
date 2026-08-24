@@ -23,7 +23,7 @@
         "최적의 참여를 위한 예약 발행",
         "브랜드별 페이지 단위 타겟팅"
       ],
-      "connection": "OAuth via Meta Business Suite"
+      "connection": "Meta Business Suite를 통한 OAuth"
     },
     {
       "name": "Instagram",
@@ -37,7 +37,7 @@
         "최적의 참여 시간대에 예약",
         "독립 전문 계정을 위한 Instagram 로그인"
       ],
-      "connection": "OAuth via Instagram Login or Meta Login"
+      "connection": "Instagram Login 또는 Meta Login을 통한 OAuth"
     },
     {
       "name": "TikTok",
@@ -50,7 +50,7 @@
         "전달 후 빠른 상태 확인",
         "Markaestro 내 상태 추적"
       ],
-      "connection": "OAuth via TikTok for Developers"
+      "connection": "TikTok for Developers를 통한 OAuth"
     },
     {
       "name": "LinkedIn",

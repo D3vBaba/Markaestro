@@ -187,6 +187,7 @@
     "loading": "Caricamento…",
     "noCaption": "Nessuna didascalia",
     "view": "Visualizza",
+    "copyCaption": "Copia didascalia",
     "deleting": "Eliminazione…",
     "delete": "Elimina",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "Impossibile caricare altri post",
       "deleted": "Post eliminato da {channel}",
-      "deleteFailed": "Impossibile eliminare il post sulla piattaforma"
+      "deleteFailed": "Impossibile eliminare il post sulla piattaforma",
+      "captionCopied": "Didascalia copiata",
+      "copyFailed": "Impossibile copiare la didascalia"
     }
   },
   "createTab": {

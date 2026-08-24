@@ -23,7 +23,7 @@
         "按最佳互动时间排期",
         "按品牌设置主页级定向"
       ],
-      "connection": "OAuth via Meta Business Suite"
+      "connection": "通过 Meta Business Suite 进行 OAuth 授权"
     },
     {
       "name": "Instagram",
@@ -37,7 +37,7 @@
         "按最佳互动时段排期",
         "支持 Instagram 登录，适用于独立专业账号"
       ],
-      "connection": "OAuth via Instagram Login or Meta Login"
+      "connection": "通过 Instagram Login 或 Meta Login 进行 OAuth 授权"
     },
     {
       "name": "TikTok",
@@ -50,7 +50,7 @@
         "转交后的快速状态查询",
         "在 Markaestro 内跟踪状态"
       ],
-      "connection": "OAuth via TikTok for Developers"
+      "connection": "通过 TikTok for Developers 进行 OAuth 授权"
     },
     {
       "name": "LinkedIn",

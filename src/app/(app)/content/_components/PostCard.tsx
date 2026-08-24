@@ -9,6 +9,7 @@ import { getSocialChannelLabel } from "@/lib/social/channel-catalog";
 import { isPlatformActionRequiredStatus, LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from "@/lib/tiktok-draft-flow";
 import { MANUAL_REMINDER_DELIVERY_MODE, MANUAL_REMINDER_NEXT_ACTION } from "@/lib/manual-publish-flow";
 import { downloadMediaFiles } from "@/lib/download-media";
+import { copyText } from "@/lib/copy-text";
 import { toast } from "sonner";
 
 type Post = {
@@ -113,10 +114,9 @@ export default function PostCard({
   const primaryChannelLabel = getSocialChannelLabel(post.channel);
 
   const handleCopyCaption = async () => {
-    try {
-      await navigator.clipboard.writeText(post.content);
+    if (await copyText(post.content)) {
       toast.success(t("toasts.captionCopied"));
-    } catch {
+    } else {
       toast.error(t("toasts.copyFailed"));
     }
   };
@@ -344,11 +344,14 @@ export default function PostCard({
           </a>
         )}
 
+        {Boolean(post.content?.trim()) && (
+          <button className={pillBtn} onClick={handleCopyCaption}>
+            {t("copyCaption")}
+          </button>
+        )}
+
         {inManualQueue && (
           <>
-            <button className={pillBtn} onClick={handleCopyCaption}>
-              {t("copyCaption")}
-            </button>
             {(post.mediaUrls?.length ?? 0) > 0 && (
               <button
                 className={downloading ? pillBtnDisabled : pillBtn}

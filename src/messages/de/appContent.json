@@ -187,6 +187,7 @@
     "loading": "Wird geladen…",
     "noCaption": "Keine Beschriftung",
     "view": "Ansehen",
+    "copyCaption": "Beschriftung kopieren",
     "deleting": "Wird gelöscht…",
     "delete": "Löschen",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "Weitere Beiträge konnten nicht geladen werden",
       "deleted": "Beitrag von {channel} gelöscht",
-      "deleteFailed": "Der Beitrag konnte auf der Plattform nicht gelöscht werden"
+      "deleteFailed": "Der Beitrag konnte auf der Plattform nicht gelöscht werden",
+      "captionCopied": "Beschriftung kopiert",
+      "copyFailed": "Beschriftung konnte nicht kopiert werden"
     }
   },
   "createTab": {

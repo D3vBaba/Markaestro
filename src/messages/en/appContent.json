@@ -187,6 +187,7 @@
     "loading": "Loading…",
     "noCaption": "No caption",
     "view": "View",
+    "copyCaption": "Copy caption",
     "deleting": "Deleting…",
     "delete": "Delete",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "Failed to load more posts",
       "deleted": "Post deleted from {channel}",
-      "deleteFailed": "Failed to delete the post on the platform"
+      "deleteFailed": "Failed to delete the post on the platform",
+      "captionCopied": "Caption copied",
+      "copyFailed": "Couldn't copy the caption"
     }
   },
   "createTab": {

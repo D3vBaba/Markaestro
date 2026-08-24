@@ -187,6 +187,7 @@
     "loading": "Chargement…",
     "noCaption": "Pas de légende",
     "view": "Voir",
+    "copyCaption": "Copier la légende",
     "deleting": "Suppression…",
     "delete": "Supprimer",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "Échec du chargement de publications supplémentaires",
       "deleted": "Publication supprimée de {channel}",
-      "deleteFailed": "Échec de la suppression de la publication sur la plateforme"
+      "deleteFailed": "Échec de la suppression de la publication sur la plateforme",
+      "captionCopied": "Légende copiée",
+      "copyFailed": "Impossible de copier la légende"
     }
   },
   "createTab": {

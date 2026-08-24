@@ -187,6 +187,7 @@
     "loading": "Carregando…",
     "noCaption": "Sem legenda",
     "view": "Ver",
+    "copyCaption": "Copiar legenda",
     "deleting": "Excluindo…",
     "delete": "Excluir",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "Falha ao carregar mais publicações",
       "deleted": "Publicação excluída do {channel}",
-      "deleteFailed": "Falha ao excluir a publicação na plataforma"
+      "deleteFailed": "Falha ao excluir a publicação na plataforma",
+      "captionCopied": "Legenda copiada",
+      "copyFailed": "Não foi possível copiar a legenda"
     }
   },
   "createTab": {

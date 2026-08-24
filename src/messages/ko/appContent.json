@@ -187,6 +187,7 @@
     "loading": "불러오는 중…",
     "noCaption": "캡션 없음",
     "view": "보기",
+    "copyCaption": "캡션 복사",
     "deleting": "삭제 중…",
     "delete": "삭제",
     "noDeleteHints": {
@@ -215,7 +216,9 @@
     "toasts": {
       "loadMoreFailed": "추가 게시물을 불러오지 못했습니다",
       "deleted": "{channel}에서 게시물이 삭제되었습니다",
-      "deleteFailed": "플랫폼에서 게시물 삭제에 실패했습니다"
+      "deleteFailed": "플랫폼에서 게시물 삭제에 실패했습니다",
+      "captionCopied": "캡션이 복사되었습니다",
+      "copyFailed": "캡션을 복사하지 못했습니다"
     }
   },
   "createTab": {
@@ -258,8 +261,10 @@
       "scheduled": "게시물이 예약되었습니다",
       "scheduleFailed": "게시물 예약에 실패했습니다",
       "tiktokSending": "TikTok으로 전송 중입니다. Markaestro가 TikTok의 받은함 전달 확인을 기다리고 있습니다.",
+      "tiktokDirectSending": "TikTok에 게시하는 중입니다. Markaestro가 TikTok의 처리 완료를 기다리고 있습니다.",
       "stillProcessing": "게시물이 제출되었으며 아직 처리 중입니다.",
       "tiktokInboxConfirmed": "TikTok이 받은함 전달을 확인했습니다. TikTok 받은함을 열어 캡션을 마무리하고 게시를 탭하세요.",
+      "tiktokDirectPosted": "TikTok에 게시되었습니다. 프로필에 표시되기까지 몇 분 정도 걸릴 수 있습니다.",
       "postedToMultiple": "{channels}에 게시되었습니다!",
       "postedSuccess": "성공적으로 게시되었습니다!",
       "publishFailed": "게시에 실패했습니다"
@@ -282,7 +287,8 @@
     "unknownCreator": "TikTok 계정",
     "retry": "다시 시도",
     "errors": {
-      "generic": "TikTok 계정 정보를 불러오지 못했습니다. 다시 시도해 주세요."
+      "generic": "TikTok 계정 정보를 불러오지 못했습니다. 다시 시도해 주세요.",
+      "postingBlockedHint": "이 게시물을 TikTok 받은함으로 보낸 뒤 TikTok 앱에서 마무리할 수도 있습니다."
     },
     "privacy": {
       "label": "이 게시물을 볼 수 있는 사람",

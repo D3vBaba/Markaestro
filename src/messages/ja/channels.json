@@ -23,7 +23,7 @@
         "最適なエンゲージメントのためのスケジューリング",
         "ブランドごとのページ単位ターゲティング"
       ],
-      "connection": "OAuth via Meta Business Suite"
+      "connection": "Meta Business Suite 経由の OAuth"
     },
     {
       "name": "Instagram",
@@ -37,7 +37,7 @@
         "最適なエンゲージメント時間へのスケジューリング",
         "Facebookページ未連携でも使えるInstagramログイン"
       ],
-      "connection": "OAuth via Instagram Login or Meta Login"
+      "connection": "Instagram Login または Meta Login 経由の OAuth"
     },
     {
       "name": "TikTok",
@@ -50,7 +50,7 @@
         "引き渡し後の高速ステータス確認",
         "Markaestro内でのステータス追跡"
       ],
-      "connection": "OAuth via TikTok for Developers"
+      "connection": "TikTok for Developers 経由の OAuth"
     },
     {
       "name": "LinkedIn",

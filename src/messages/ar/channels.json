@@ -23,7 +23,7 @@
         "الجدولة لأقصى تفاعل",
         "الاستهداف لكل صفحة، لكل علامة تجارية"
       ],
-      "connection": "OAuth via Meta Business Suite"
+      "connection": "OAuth عبر Meta Business Suite"
     },
     {
       "name": "Instagram",
@@ -37,7 +37,7 @@
         "الجدولة لأفضل أوقات التفاعل",
         "تسجيل دخول Instagram للحسابات المهنية المستقلة"
       ],
-      "connection": "OAuth via Instagram Login or Meta Login"
+      "connection": "OAuth عبر Instagram Login أو Meta Login"
     },
     {
       "name": "TikTok",
@@ -50,7 +50,7 @@
         "استعلام سريع عن الحالة بعد التسليم",
         "تتبّع الحالة داخل Markaestro"
       ],
-      "connection": "OAuth via TikTok for Developers"
+      "connection": "OAuth عبر TikTok for Developers"
     },
     {
       "name": "LinkedIn",
