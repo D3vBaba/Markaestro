@@ -156,7 +156,7 @@ env:
     availability:
       - RUNTIME
   - variable: WORKER_LEGACY_SWEEP_INTERVAL_MS
-    value: "300000"
+    value: "3600000"
     availability:
       - RUNTIME
   - variable: WORKER_GLOBAL_PHASE_INTERVAL_MS

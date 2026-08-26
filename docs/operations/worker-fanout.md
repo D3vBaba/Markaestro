@@ -55,7 +55,7 @@ WORKER_CLOUD_TASKS_ENABLED=1
 WORKER_TASKS_QUEUE=markaestro-workspace-ticks
 WORKER_TASKS_LOCATION=us-central1
 WORKER_TASKS_TARGET_ORIGIN=https://markaestro--markaestro-0226220726.us-central1.hosted.app
-WORKER_LEGACY_SWEEP_INTERVAL_MS=300000
+WORKER_LEGACY_SWEEP_INTERVAL_MS=3600000
 WORKER_GLOBAL_PHASE_INTERVAL_MS=900000
 ```
 
@@ -69,9 +69,10 @@ runtime hop. Tasks authenticate with the existing `x-worker-secret` header.
   tick.
 - `WORKER_WS_CONCURRENCY` (default 8): bounded parallelism for enqueue calls or
   in-process fallback.
-- `WORKER_LEGACY_SWEEP_INTERVAL_MS` (default five minutes): compatibility scan
-  interval. Do not lengthen it until due-marker coverage has been observed in
-  production.
+- `WORKER_LEGACY_SWEEP_INTERVAL_MS` (code default five minutes, deployed value
+  one hour): compatibility scan interval. Every sweep runs a full tick for every
+  workspace that has no due marker, so a short interval dominates Firestore read
+  volume. Shorten it again only while investigating missed due work.
 - `WORKER_GLOBAL_PHASE_INTERVAL_MS` (default 15 minutes): OAuth maintenance
   interval.
 
