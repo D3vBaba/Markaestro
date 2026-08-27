@@ -38,6 +38,20 @@ export function topPostsByViews(rows: StrategistPostRow[], limit = 20) {
     .slice(0, limit);
 }
 
+function measuredCount(values: Array<number | null>): number {
+  return values.filter((value): value is number => value !== null).length;
+}
+
+function perPost(values: Array<number | null>): number | null {
+  const total = sumMeasured(values);
+  const count = measuredCount(values);
+  return total === null || count === 0 ? null : total / count;
+}
+
+/**
+ * Totals plus per-post averages so the strategist compares platforms on a
+ * like-for-like basis instead of rewarding volume.
+ */
 export function platformComparisons(rows: StrategistPostRow[]) {
   const grouped = new Map<string, { id: string; posts: number; views: Array<number | null>; engagements: Array<number | null> }>();
   for (const row of rows) {
@@ -52,6 +66,10 @@ export function platformComparisons(rows: StrategistPostRow[]) {
     posts: group.posts,
     views: sumMeasured(group.views),
     engagements: sumMeasured(group.engagements),
+    measuredViews: measuredCount(group.views),
+    measuredEngagements: measuredCount(group.engagements),
+    viewsPerPost: perPost(group.views),
+    engagementsPerPost: perPost(group.engagements),
   }));
 }
 
@@ -72,6 +90,8 @@ export function groupedPerformance(
     posts: items.length,
     views: sumMeasured(items.map((item) => item.views)),
     engagements: sumMeasured(items.map((item) => item.engagements)),
+    viewsPerPost: perPost(items.map((item) => item.views)),
+    engagementsPerPost: perPost(items.map((item) => item.engagements)),
   }));
 }
 

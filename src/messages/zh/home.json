@@ -9,9 +9,18 @@
     "signInPrompt": "已有账号？",
     "signInLink": "登录",
     "stats": [
-      { "value": "10小时", "label": "每周节省时间" },
-      { "value": "6", "label": "渠道，一键搞定" },
-      { "value": "1", "label": "所有渠道通用的编辑器" }
+      {
+        "value": "10小时",
+        "label": "每周节省时间"
+      },
+      {
+        "value": "6",
+        "label": "渠道，一键搞定"
+      },
+      {
+        "value": "1",
+        "label": "所有渠道通用的编辑器"
+      }
     ],
     "trustedBy": "深受创始人信赖"
   },
@@ -21,14 +30,53 @@
     "titleHighlight": "尽在这里",
     "subtitle": "从文案草稿到发布上线，Markaestro 覆盖你社交工作流的每一步。",
     "items": [
-      { "title": "多渠道发布", "desc": "通过单一编辑器发布到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。可定时发布，也可立即发布。" },
-      { "title": "集中式素材上传", "desc": "使用你自己的图片和视频。每篇内容只需上传一次，即可分发到所有已连接的渠道。" },
-      { "title": "多渠道预览", "desc": "发布前查看每篇内容在各平台上的呈现效果，文案、宽高比、字数限制，一目了然。" },
-      { "title": "排期与日历", "desc": "在统一日历中按渠道设置发布时间。重新排期、暂停或复制，一键完成。" },
-      { "title": "发布控制台", "desc": "在所有渠道跟踪草稿、已排期内容和发布状态。" },
-      { "title": "OAuth 集成", "desc": "通过安全的 OAuth 一键连接 Meta、TikTok、LinkedIn、Threads 和 Pinterest。无需手动管理令牌。" }
+      {
+        "title": "多渠道发布",
+        "desc": "通过单一编辑器发布到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。可定时发布，也可立即发布。"
+      },
+      {
+        "title": "集中式素材上传",
+        "desc": "使用你自己的图片和视频。每篇内容只需上传一次，即可分发到所有已连接的渠道。"
+      },
+      {
+        "title": "多渠道预览",
+        "desc": "发布前查看每篇内容在各平台上的呈现效果，文案、宽高比、字数限制，一目了然。"
+      },
+      {
+        "title": "排期与日历",
+        "desc": "在统一日历中按渠道设置发布时间。重新排期、暂停或复制，一键完成。"
+      },
+      {
+        "title": "发布控制台",
+        "desc": "在所有渠道跟踪草稿、已排期内容和发布状态。"
+      },
+      {
+        "title": "OAuth 集成",
+        "desc": "通过安全的 OAuth 一键连接 Meta、TikTok、LinkedIn、Threads 和 Pinterest。无需手动管理令牌。"
+      }
     ],
     "exploreButton": "探索全部功能"
+  },
+  "intelligencePreview": {
+    "eyebrow": "智能洞察",
+    "titleLead": "发布是输入。",
+    "titleHighlight": "增长是输出。",
+    "subtitle": "智能洞察从你已发布的帖子中学习，用通俗语言告诉你什么有效、何时发布、接下来试什么。然后替你起草。",
+    "items": [
+      {
+        "title": "只测量，不猜测",
+        "desc": "每个数字都与平台报告的完全一致。空白保持空白，每个结果都注明它是实测、计算、建议还是生成。"
+      },
+      {
+        "title": "有证据的模式",
+        "desc": "哪个平台、时段、开头或内容支柱的表现高于品牌其他帖子，并写明样本量和置信区间。"
+      },
+      {
+        "title": "由你掌控的草稿",
+        "desc": "把任何机会或成功帖子变成符合品牌语气的文案。它会作为草稿进入内容。编辑、添加媒体和排期由你完成。"
+      }
+    ],
+    "exploreButton": "探索智能洞察"
   },
   "channelsPreview": {
     "eyebrow": "渠道",
@@ -36,25 +84,62 @@
     "titleHighlight": "无处不达",
     "subtitle": "只需连接一次，即可发布到所有主流平台。API 差异、字数限制和素材要求，全部由 Markaestro 处理。",
     "channels": [
-      { "name": "Facebook 与 Instagram", "desc": "通过 Meta 进行 OAuth 连接。支持主页、动态发布、快拍和 IG 商业账号发布。" },
-      { "name": "TikTok", "desc": "图片和视频内容会转交至创作者的 TikTok 收件箱，由创作者完成最终确认并发布。" },
-      { "name": "LinkedIn", "desc": "发布到你的个人资料，或你管理的主页。支持文字、图片、视频，以及最多 20 张图片的多图发布。" },
-      { "name": "Threads 与 Pinterest", "desc": "Threads 轮播最多支持 20 项内容；Pinterest 的图片和视频图钉发布到你选定的图板。" }
+      {
+        "name": "Facebook 与 Instagram",
+        "desc": "通过 Meta 进行 OAuth 连接。支持主页、动态发布、快拍和 IG 商业账号发布。"
+      },
+      {
+        "name": "TikTok",
+        "desc": "图片和视频内容会转交至创作者的 TikTok 收件箱，由创作者完成最终确认并发布。"
+      },
+      {
+        "name": "LinkedIn",
+        "desc": "发布到你的个人资料，或你管理的主页。支持文字、图片、视频，以及最多 20 张图片的多图发布。"
+      },
+      {
+        "name": "Threads 与 Pinterest",
+        "desc": "Threads 轮播最多支持 20 项内容；Pinterest 的图片和视频图钉发布到你选定的图板。"
+      }
     ],
     "seeAllButton": "查看全部渠道",
     "stats": [
-      { "label": "社交渠道", "value": "6", "sub": "Meta、TikTok、LinkedIn、Threads、Pinterest" },
-      { "label": "编辑器", "value": "1", "sub": "一屏搞定文案与素材" },
-      { "label": "控制台", "value": "1", "sub": "统一的发布工作流" },
-      { "label": "API", "value": "1", "sub": "一个密钥，即可对接代理" }
+      {
+        "label": "社交渠道",
+        "value": "6",
+        "sub": "Meta、TikTok、LinkedIn、Threads、Pinterest"
+      },
+      {
+        "label": "编辑器",
+        "value": "1",
+        "sub": "一屏搞定文案与素材"
+      },
+      {
+        "label": "控制台",
+        "value": "1",
+        "sub": "统一的发布工作流"
+      },
+      {
+        "label": "API",
+        "value": "1",
+        "sub": "一个密钥，即可对接代理"
+      }
     ]
   },
   "composerPreview": {
     "panelLabel": "一个编辑器，覆盖所有渠道",
     "rows": [
-      { "label": "素材", "value": "上传图片或视频，支持 JPG、PNG、WebP、MP4" },
-      { "label": "文案", "value": "只需撰写一次，发布前按渠道预览" },
-      { "label": "输出", "value": "为全部六个已连接渠道排期发布或即时发布" }
+      {
+        "label": "素材",
+        "value": "上传图片或视频，支持 JPG、PNG、WebP、MP4"
+      },
+      {
+        "label": "文案",
+        "value": "只需撰写一次，发布前按渠道预览"
+      },
+      {
+        "label": "输出",
+        "value": "为全部六个已连接渠道排期发布或即时发布"
+      }
     ],
     "eyebrow": "编辑器",
     "titleLead": "你的素材，",

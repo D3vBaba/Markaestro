@@ -1,13 +1,28 @@
 {
   "title": "Veille sociale",
-  "subtitle": "Performance mesurée, recommandations fondées, rien ne se publie automatiquement.",
+  "subtitle": "Ce que vos propres publications ont mesuré, expliqué en langage clair, avec des brouillons que vous contrôlez. Rien ne se publie automatiquement.",
   "brand": "Marque",
   "coverage": "{value} % de couverture des données",
+  "productBar": {
+    "brand": "Marque",
+    "noBrandSelected": "Aucune marque sélectionnée",
+    "change": "Changer"
+  },
   "labels": {
     "measured": "Mesuré",
     "calculated": "Calculé",
     "predicted": "Prévu",
-    "recommended": "Recommandé"
+    "recommended": "Recommandé",
+    "declared": "Déclaré",
+    "generated": "Généré"
+  },
+  "labelHints": {
+    "measured": "Chiffres rapportés par les plateformes pour vos publications. Vide signifie que la plateforme ne l’a pas rapporté.",
+    "calculated": "Statistiques calculées à partir de vos chiffres mesurés. Aucune supposition, aucune moyenne sectorielle.",
+    "predicted": "Une estimation avec un niveau de confiance. À prendre comme un indice, pas comme un fait.",
+    "recommended": "Une suggestion construite à partir de vos preuves mesurées. Vous décidez d’agir ou non.",
+    "declared": "Informations que vous avez saisies sur cette marque. Intelligence compare les résultats avec elles.",
+    "generated": "Texte rédigé par l’IA à partir de vos propres preuves et de votre voix de marque. Toujours enregistré comme un brouillon modifiable."
   },
   "tabs": {
     "overview": "Vue d’ensemble",
@@ -17,20 +32,446 @@
     "playbook": "Guide",
     "advanced": "Expériences"
   },
+  "actions": {
+    "refresh": "Actualiser",
+    "refreshing": "Actualisation…",
+    "accept": "Accepter",
+    "dismiss": "Ignorer",
+    "pin": "Épingler",
+    "undo": "Annuler",
+    "saveFailed": "Impossible d’enregistrer votre décision",
+    "acceptedToast": "Marquée comme acceptée. Rédigez-la ici ou composez-la dans Content.",
+    "pinnedToast": "Épinglée pour suivi",
+    "dismissedToast": "Ignorée. Retrouvez-la sous le filtre Ignorées.",
+    "undoneToast": "Décision annulée",
+    "status": {
+      "proposed": "Nouvelle",
+      "accepted": "Acceptée",
+      "pinned": "Épinglée",
+      "dismissed": "Ignorée"
+    }
+  },
+  "decisions": {
+    "hint": "Ces boutons enregistrent seulement votre décision. Ils ne publient, ne planifient et ne modifient jamais de brouillons.",
+    "learningHint": "Indiquez si vous faites confiance à ce motif. Intelligence ne modifie jamais votre contenu de lui-même.",
+    "accept": "Accepter : je compte agir",
+    "pin": "Épingler, revoir plus tard",
+    "dismiss": "Ignorer, masquer cet élément"
+  },
+  "filter": {
+    "label": "Afficher",
+    "all": "Toutes",
+    "proposed": "Nouvelles",
+    "accepted": "Acceptées",
+    "pinned": "Épinglées",
+    "dismissed": "Ignorées",
+    "none": "Rien sous ce filtre pour l’instant."
+  },
+  "gate": {
+    "rolloutTitle": "Pas encore activé pour cet espace de travail",
+    "rolloutBody": "Votre offre inclut cette partie d’Intelligence. Le déploiement est progressif et elle apparaîtra ici sans aucune action de votre part."
+  },
+  "howItWorks": {
+    "button": "Comment ça marche",
+    "close": "Compris",
+    "stepsTitle": "Comment l’utiliser",
+    "inputsTitle": "Ce qui l’alimente",
+    "neverTitle": "Ce qu’il ne fait jamais",
+    "thresholdsTitle": "Quand ça s’active",
+    "page": {
+      "title": "Comment fonctionne Intelligence",
+      "intro": "Intelligence lit les publications que vous avez déjà publiées, conserve chaque chiffre exactement tel que les plateformes l’ont rapporté et transforme cet historique en réponses claires : ce qui a marché, quand publier, quoi essayer ensuite. Vous gardez le contrôle de chaque action.",
+      "steps": [
+        "Choisissez une marque. Tout sur cette page est limité à une marque et à ses canaux connectés.",
+        "Commencez par Vue d’ensemble pour voir ce qui a été mesuré jusqu’ici et quelles fonctionnalités ont assez de données pour s’activer.",
+        "Définissez votre objectif et votre audience dans Audience. C’est ce qui décide de la métrique que chaque recommandation optimise.",
+        "Consultez Contenu, Opportunités et Guide pour des réponses étayées par des preuves, puis utilisez Rédiger un brouillon pour transformer n’importe laquelle en brouillon de publication.",
+        "Chaque brouillon arrive dans Content comme un brouillon normal. Relisez-le, modifiez-le, planifiez-le ou supprimez-le comme n’importe quelle publication."
+      ],
+      "inputs": [
+        "Les publications publiées via Markaestro et celles importées depuis vos comptes connectés",
+        "Les métriques que chaque plateforme rapporte pour ces publications (vues, portée, j’aime, commentaires, partages, enregistrements, clics)",
+        "Votre objectif, vos marchés, votre fuseau horaire, vos piliers et votre voix de marque déclarés"
+      ],
+      "never": [
+        "Publier ou planifier quoi que ce soit de lui-même",
+        "Remplir un chiffre qu’une plateforme n’a pas rapporté",
+        "Utiliser les données d’autres marques ou des références sectorielles génériques"
+      ]
+    },
+    "overview": {
+      "title": "Vue d’ensemble",
+      "intro": "Un instantané de ce qui a été mesuré pour cette marque, plus une liste de préparation qui indique exactement quelles fonctionnalités sont actives et ce qui manque encore.",
+      "steps": [
+        "Vérifiez le bandeau d’objectif. Chaque classement et chaque recommandation utilisent cette métrique.",
+        "Lisez les tuiles KPI. Une tuile vide signifie qu’aucune plateforme connectée n’a rapporté cette métrique, jamais zéro.",
+        "Utilisez la liste de préparation pour voir à quel point chaque fonctionnalité est proche de s’activer et quoi faire pour y arriver.",
+        "Comparez les plateformes par publication, pas par total, pour qu’un canal avec moins de publications soit jugé équitablement."
+      ],
+      "inputs": [
+        "Toutes les publications synchronisées de cette marque et leurs dernières métriques rapportées",
+        "Votre objectif défini dans l’onglet Audience"
+      ],
+      "never": [
+        "Mélanger les chiffres de différentes marques",
+        "Estimer des métriques qu’une plateforme a laissées vides"
+      ]
+    },
+    "audience": {
+      "title": "Audience",
+      "intro": "Dites à Intelligence pour qui vous créez et ce que signifie réussir. Ce profil sert de référence à Audience Fit dans l’éditeur, aux créneaux et à chaque recommandation.",
+      "steps": [
+        "Choisissez un objectif. Il détermine la métrique qu’Intelligence optimise (par exemple Engagement utilise les j’aime, commentaires, partages et enregistrements).",
+        "Ajoutez votre marché principal, votre fuseau horaire, vos piliers de contenu et vos traits de voix. Les créneaux de publication sont calculés dans ce fuseau horaire.",
+        "Créez des liens suivis pour les URL que vous partagez. Chaque clic est compté ici sans stocker de données personnelles.",
+        "Enregistrez. Les changements s’appliquent à la prochaine actualisation."
+      ],
+      "inputs": [
+        "Ce que vous saisissez dans cet onglet",
+        "Les clics sur vos liens suivis et les conversions que vous envoyez à Markaestro"
+      ],
+      "never": [
+        "Stocker les adresses IP, les détails du navigateur ou les référents des liens suivis",
+        "Modifier votre profil automatiquement"
+      ]
+    },
+    "content": {
+      "title": "Contenu",
+      "intro": "Vos publications mesurées, classées selon la métrique choisie, avec les motifs qu’Intelligence a reconnus dans chacune et une explication claire de la raison de sa performance.",
+      "steps": [
+        "Triez par objectif, vues ou interactions. Filtrez sur une plateforme pour comparer ce qui est comparable.",
+        "Ouvrez Pourquoi ça a marché sur n’importe quelle publication pour une courte explication fondée sur ses chiffres par rapport à la moyenne de votre compte.",
+        "Utilisez Rédiger un post similaire pour obtenir une nouvelle légende qui réutilise ce qui a marché, enregistrée dans Content comme brouillon.",
+        "Regardez aussi les publications les moins performantes : ce qui leur manque est souvent la leçon la plus claire."
+      ],
+      "inputs": [
+        "La légende, la plateforme, l’heure de publication et les métriques rapportées de chaque publication",
+        "Les motifs de contenu (pilier, accroche, format) détectés dans la légende de chaque publication"
+      ],
+      "never": [
+        "Classer des publications sur des métriques non rapportées",
+        "Modifier ou republier quoi que ce soit sans vous"
+      ]
+    },
+    "opportunities": {
+      "title": "Opportunités",
+      "intro": "Des actions concrètes à essayer ensuite, chacune appuyée par vos propres chiffres : un créneau de publication qui dépasse votre moyenne, une plateforme plus performante par publication ou un motif qui mérite d’être répété.",
+      "steps": [
+        "Lisez la ligne de preuves sous chaque carte. Elle montre les chiffres exacts derrière la suggestion.",
+        "Acceptez si vous comptez essayer, épinglez pour y revenir ou ignorez si cela ne convient pas. Les trois actions sont réversibles.",
+        "Utilisez Rédiger un brouillon pour obtenir une légende écrite pour cette opportunité, enregistrée dans Content comme brouillon.",
+        "Publiez depuis Content ou Calendrier comme d’habitude. Accepter ne crée ni ne planifie jamais de publication."
+      ],
+      "inputs": [
+        "Meilleurs créneaux de publication, comparaison des plateformes par publication et apprentissages du guide",
+        "Votre objectif et votre plateforme prioritaire définis dans l’onglet Audience"
+      ],
+      "never": [
+        "Suggérer quelque chose avec moins de cinq publications mesurées derrière",
+        "Agir sur une opportunité acceptée sans vous"
+      ]
+    },
+    "playbook": {
+      "title": "Guide",
+      "intro": "Les motifs qui se répètent dans vos données avec assez de publications pour compter : quelle plateforme, accroche, pilier, format ou créneau performe au-dessus ou en dessous du reste de cette marque.",
+      "steps": [
+        "Chaque carte compare un groupe de publications à toutes les autres publications de cette marque sur votre métrique d’objectif.",
+        "L’effet est la différence en pourcentage par publication. L’intervalle à 95 % indique la fiabilité de l’estimation.",
+        "La solidité croît avec la taille de l’échantillon : indicative (5 à 14 publications), modérée (15 à 29), potentiellement forte (30 ou plus avec un intervalle net).",
+        "Acceptez les motifs que vous voulez répéter, puis utilisez Rédiger un brouillon pour écrire une publication dans ce motif."
+      ],
+      "inputs": [
+        "Les publications mesurées groupées par plateforme, pilier, accroche, format et jour/heure",
+        "Les motifs de contenu détectés dans chaque légende publiée"
+      ],
+      "never": [
+        "Signaler un motif avec moins de cinq publications dans le groupe et cinq en dehors",
+        "Affirmer une cause. Ce sont des associations dans vos propres données."
+      ]
+    },
+    "advanced": {
+      "title": "Expériences et Ask Markaestro",
+      "intro": "Testez une idée à la fois avec une publication A/B appariée et posez des questions auxquelles seuls les enregistrements mesurés de cette marque répondent.",
+      "steps": [
+        "Créez une expérience : une plateforme, deux variantes, une fenêtre. Les deux publications sont planifiées pour vous.",
+        "À la fin de la fenêtre, le gagnant est décidé par la métrique mesurée et arrive dans votre Boîte de réception.",
+        "Ask Markaestro choisit un outil de données approuvé par question et cite les enregistrements utilisés.",
+        "Les campagnes sont un aperçu : vous pouvez déjà les nommer, l’affectation des publications arrive bientôt."
+      ],
+      "inputs": [
+        "Les deux publications de l’expérience et leurs métriques rapportées",
+        "Les apprentissages, comparaisons, créneaux et meilleures publications stockés pour Ask Markaestro"
+      ],
+      "never": [
+        "Déclarer un gagnant sans la différence mesurée et l’échantillon derrière",
+        "Répondre avec des conseils génériques sur les réseaux sociaux"
+      ]
+    },
+    "drafts": {
+      "title": "Rédiger un brouillon",
+      "intro": "Transforme une opportunité, un motif ou une publication précise en une nouvelle légende écrite dans votre voix de marque à partir de vos propres preuves les plus performantes.",
+      "steps": [
+        "Intelligence rassemble jusqu’à cinq de vos publications mesurées les plus solides pour cette opportunité ou ce motif, plus votre profil d’audience et votre voix de marque.",
+        "Le brouillon est écrit pour la plateforme choisie, avec des hashtags et une accroche, et une courte note sur les preuves qui l’ont façonné.",
+        "Il est enregistré comme brouillon dans Content. Ouvrez-le, modifiez-le, ajoutez des médias et planifiez-le quand vous êtes prêt."
+      ],
+      "inputs": [
+        "Vos publications mesurées, le profil d’audience et la voix de marque que vous avez déclarés",
+        "Les preuves derrière l’opportunité ou le motif sur lequel vous avez cliqué"
+      ],
+      "never": [
+        "Publier ou planifier le brouillon",
+        "Inventer des affirmations, prix, offres ou liens absents de vos données de marque"
+      ]
+    },
+    "explain": {
+      "title": "Pourquoi ça a marché",
+      "intro": "Une courte explication du résultat d’une publication comparé au reste de votre compte : ce qui s’est démarqué dans la légende, le moment ou la moyenne de la plateforme.",
+      "steps": [
+        "Ouvrez-la sur n’importe quelle publication mesurée. L’explication est générée une fois et stockée avec la publication.",
+        "Les facteurs pointent vers des éléments réels : une métrique, la légende, un motif détecté ou le créneau horaire.",
+        "Utilisez la suggestion À essayer ensuite comme hypothèse pour votre prochaine publication ou une expérience."
+      ],
+      "inputs": [
+        "Les chiffres, la légende et les motifs détectés de cette publication",
+        "Vos moyennes par plateforme et votre meilleur créneau de publication"
+      ],
+      "never": [
+        "Affirmer une cause. Elle décrit des associations dans vos données.",
+        "Utiliser des métriques que la plateforme n’a pas rapportées"
+      ]
+    },
+    "links": {
+      "title": "Liens suivis",
+      "intro": "Des liens courts à coller dans vos légendes pour compter les clics et, avec l’API de conversion, les relier à des ventes ou des inscriptions.",
+      "steps": [
+        "Créez un lien avec un libellé et une destination. Copiez l’URL courte dans n’importe quelle légende.",
+        "Les clics apparaissent ici au fur et à mesure. Aucune adresse IP, navigateur ou référent n’est stocké.",
+        "Envoyez les événements de conversion à l’API avec l’identifiant du clic pour voir les conversions attribuées par lien."
+      ],
+      "inputs": [
+        "Les redirections via le lien court",
+        "Les événements de conversion que votre site ou serveur envoie à Markaestro"
+      ],
+      "never": [
+        "Suivre les visiteurs d’un site à l’autre",
+        "Stocker des données personnelles issues d’un clic"
+      ]
+    }
+  },
+  "quota": {
+    "title": "Actions IA",
+    "aiOps": "{used} sur {limit} actions IA utilisées ce mois-ci",
+    "aiOpsUnlimited": "{used} actions IA utilisées ce mois-ci",
+    "strategist": "{used} sur {limit} tours Ask utilisés",
+    "hint": "Rédiger un brouillon, Pourquoi ça a marché et Audience Fit consomment chacun une action. La détection de motifs en arrière-plan est gratuite.",
+    "exceeded": "Vous avez utilisé les actions IA de ce mois-ci sur l’offre {plan}. Elles se renouvellent le mois prochain, ou passez à une offre supérieure pour en avoir plus."
+  },
+  "readiness": {
+    "title": "Ce qui est activé",
+    "subtitle": "Chaque fonctionnalité a besoin d’un minimum de données mesurées avant d’apparaître. Voici où en est cette marque.",
+    "progress": "{current} sur {required}",
+    "met": "Active",
+    "pending": "Données insuffisantes",
+    "unavailable": "Pas encore disponible",
+    "computedAt": "Calculé {when}",
+    "checks": {
+      "history": {
+        "label": "Score historique Audience Fit",
+        "hint": "Nécessite 5 publications avec une valeur mesurée de {metric}."
+      },
+      "timing": {
+        "label": "Meilleurs créneaux de publication",
+        "hint": "Nécessite 20 publications avec une heure de publication."
+      },
+      "timingWindow": {
+        "label": "Un créneau avec assez de publications",
+        "hint": "Au moins 5 publications mesurées le même jour et à la même heure."
+      },
+      "platformComparison": {
+        "label": "Comparaison des plateformes",
+        "hint": "Deux plateformes avec 5 publications mesurées ou plus chacune."
+      },
+      "learnings": {
+        "label": "Motifs du guide",
+        "hint": "5 publications mesurées dans un groupe et 5 en dehors."
+      },
+      "contentPatterns": {
+        "label": "Détection des motifs de contenu",
+        "hint": "Les légendes sont analysées en arrière-plan après publication. 10 publications analysées débloquent les motifs de pilier, d’accroche et de format."
+      },
+      "alignment": {
+        "label": "Alignement d’audience",
+        "hint": "Nécessite les données démographiques d’audience d’une plateforme connectée. Aucune de vos plateformes connectées ne les rapporte encore."
+      }
+    }
+  },
+  "objective": {
+    "title": "Optimisé pour",
+    "body": "Chaque classement, créneau et recommandation de cette page utilise {metric} parce que votre objectif est {objective}.",
+    "change": "Modifier dans Audience",
+    "names": {
+      "awareness": "Notoriété",
+      "engagement": "Engagement",
+      "followers": "Abonnés",
+      "website_traffic": "Trafic web",
+      "leads": "Prospects",
+      "app_installs": "Installations d’app",
+      "purchases": "Achats",
+      "other": "un objectif personnalisé"
+    },
+    "metrics": {
+      "reach": "portée",
+      "views": "vues",
+      "engagements": "interactions (j’aime, commentaires, partages, enregistrements)",
+      "followers_gained": "abonnés gagnés",
+      "clicks": "clics",
+      "leads": "prospects",
+      "installs": "installations",
+      "purchases": "achats",
+      "conversions": "conversions",
+      "custom": "conversions"
+    },
+    "fallback": "Aucune de vos plateformes connectées ne rapporte encore un chiffre de {requested} par publication, cette page classe donc par {metric}. Changez l’objectif dans Audience, ou connectez un canal qui le rapporte."
+  },
   "metrics": {
     "posts": "Publications",
     "views": "Vues",
     "reach": "Portée",
-    "clicks": "Clics"
+    "clicks": "Clics",
+    "engagements": "Interactions",
+    "conversions": "Conversions",
+    "engagementRate": "Taux d’engagement",
+    "perPost": "par publication"
   },
   "platforms": {
     "title": "Performance par plateforme",
+    "subtitle": "Moyennes par publication pour qu’une plateforme avec moins de publications soit comparée équitablement.",
     "empty": "Les publications apparaîtront dès l’arrivée des mesures.",
-    "posts": "{value} publications",
-    "views": "{value} vues",
-    "engagements": "{value} interactions",
     "colPlatform": "Plateforme",
-    "colEngagements": "Interactions"
+    "colPosts": "Publications",
+    "colAvgViews": "Vues moy.",
+    "colAvgEngagements": "Interactions moy.",
+    "colEngRate": "Taux d’eng.",
+    "measuredNote": "{measured} sur {posts} mesurées",
+    "includesImported": "Inclut les publications importées depuis vos comptes connectés, pas seulement celles publiées via Markaestro. Les chiffres peuvent différer d’Analyses, qui couvre les publications Markaestro sur une plage de dates."
+  },
+  "content": {
+    "title": "Vos publications, classées",
+    "sortBy": "Classer par",
+    "sortObjective": "Objectif ({metric})",
+    "sortViews": "Vues",
+    "sortEngagements": "Interactions",
+    "allPlatforms": "Toutes les plateformes",
+    "mediaOnly": "Publication média",
+    "likes": "J’aime",
+    "comments": "Commentaires",
+    "shares": "Partages",
+    "viewLive": "Voir en direct",
+    "published": "Publié {date}",
+    "engagementRate": "{value} % d’engagement",
+    "patterns": {
+      "pillar": "Pilier",
+      "hook": "Accroche",
+      "format": "Format",
+      "pending": "Les motifs sont détectés en arrière-plan après publication."
+    },
+    "lowestTitle": "Les moins performantes",
+    "lowestBody": "Vos publications mesurées les plus faibles sur la même métrique. Ce qui leur manque est souvent la leçon la plus claire.",
+    "why": {
+      "button": "Pourquoi ça a marché",
+      "loading": "Lecture des chiffres de cette publication…",
+      "factors": "Ce qui s’est démarqué",
+      "tryNext": "À essayer ensuite",
+      "failed": "Impossible d’expliquer cette publication pour le moment.",
+      "notMeasured": "Cette publication n’a pas encore de métriques mesurées à expliquer."
+    },
+    "remix": "Rédiger un post similaire"
+  },
+  "timing": {
+    "title": "Meilleurs créneaux",
+    "subtitle": "Créneaux par jour et heure où vos publications mesurées dépassent la moyenne de votre compte en {metric}.",
+    "needs_dated_posts": "Les créneaux propres au compte nécessitent 20 publications avec une heure de publication et 5 avec une valeur mesurée de {metric}. Vous avez {dated} publications datées.",
+    "no_window_with_five": "Aucun jour et heure n’a encore 5 publications mesurées. Continuez à publier ; les créneaux apparaissent à mesure qu’ils se remplissent.",
+    "window": "{weekday} à {hour}",
+    "observations": "{count} publications",
+    "liftUp": "+{value} % vs votre moyenne",
+    "liftDown": "{value} % vs votre moyenne",
+    "estimate": "environ {value} {metric} par publication",
+    "timezone": "Heures affichées en {timeZone}",
+    "accountMean": "Votre moyenne : {value} {metric} par publication"
+  },
+  "opportunities": {
+    "kinds": {
+      "timing": "Créneau",
+      "platform": "Plateforme",
+      "learning": "Motif",
+      "alignment": "Audience"
+    },
+    "timing": {
+      "title": "Publiez le {weekday} vers {hour}",
+      "body": "Les publications de ce créneau font en moyenne {estimate} {metric}, {lift} pour cette marque.",
+      "evidence": "{count} publications mesurées dans ce créneau, heures en {timeZone}."
+    },
+    "platform": {
+      "title": "{leader} devance {trailing} par publication",
+      "body": "{leader} fait en moyenne {leaderPerPost} {metric} par publication contre {trailingPerPost} sur {trailing}. Réutilisez ce qui marche sur {leader} avant d’ajouter du volume sur {trailing}.",
+      "evidence": "{leaderPosts} publications mesurées sur {leader}, {trailingPosts} sur {trailing}. Comparées par publication, pas par total."
+    },
+    "learning": {
+      "title": "À répéter : {pattern}",
+      "body": "Les publications de ce groupe sont {effect} % au-dessus du reste de cette marque en {metric}.",
+      "evidence": "{count} publications mesurées dans le groupe. Voir le Guide pour la comparaison complète."
+    },
+    "alignment": {
+      "title": "Combler l’écart de {dimension}",
+      "body": "L’alignement {dimension} est de {score} sur 100. Privilégiez les sujets et destinations qui correspondent à votre profil d’audience enregistré.",
+      "evidence": "Association avec votre mix d’audience mesuré, pas une cause."
+    },
+    "evidenceLabel": "Preuves",
+    "composeInContent": "Composer dans Content",
+    "openCalendar": "Ouvrir le Calendrier"
+  },
+  "learnings": {
+    "dimensions": {
+      "platform": "Plateforme",
+      "pillar": "Pilier de contenu",
+      "hook": "Accroche",
+      "format": "Format",
+      "timing": "Créneau horaire"
+    },
+    "keys": {
+      "has_hook": "Publications avec accroche",
+      "no_hook": "Publications sans accroche"
+    },
+    "summaryUp": "{count} publications de ce groupe sont {effect} % au-dessus du reste de cette marque en {metric}.",
+    "summaryDown": "{count} publications de ce groupe sont {effect} % en dessous du reste de cette marque en {metric}.",
+    "groupVsRest": "{group} vs {rest} {metric} par publication",
+    "sample": "{group} dans le groupe, {rest} en dehors",
+    "ci": "Intervalle à 95 % : de {low} % à {high} %",
+    "ciMissing": "Intervalle pas encore disponible",
+    "strength": {
+      "directional": "Indicatif",
+      "moderate": "Modéré",
+      "potentially_strong": "Potentiellement fort"
+    },
+    "strengthHints": {
+      "directional": "5 à 14 publications. À surveiller, pas encore une preuve.",
+      "moderate": "15 à 29 publications, ou l’intervalle traverse encore zéro.",
+      "potentially_strong": "30 publications ou plus et un intervalle qui reste d’un seul côté de zéro."
+    },
+    "evidenceTitle": "Publications derrière ce motif",
+    "contentPatternsNote": "Les motifs de pilier, d’accroche et de format apparaissent une fois {required} légendes publiées analysées. {current} analysées jusqu’ici ; cela s’exécute en arrière-plan."
+  },
+  "drafts": {
+    "button": "Rédiger un brouillon",
+    "creating": "Rédaction du brouillon…",
+    "created": "Brouillon créé",
+    "open": "Ouvrir dans Content",
+    "rationale": "Pourquoi ce brouillon",
+    "failed": "Impossible de créer un brouillon pour le moment.",
+    "quota": "Vous avez utilisé les actions IA de ce mois-ci. Elles se renouvellent le mois prochain, ou passez à une offre supérieure pour en avoir plus.",
+    "postQuota": "Vous avez atteint la limite de publications de ce mois-ci."
   },
   "audience": {
     "title": "Audience cible",
@@ -38,38 +479,70 @@
     "markets": "Marchés",
     "pillars": "Piliers de contenu"
   },
-  "content": {
-    "title": "Meilleur contenu",
-    "mediaOnly": "Publication média",
-    "likes": "J’aime",
-    "comments": "Commentaires",
-    "shares": "Partages",
-    "viewLive": "Voir en direct"
+  "links": {
+    "title": "Liens suivis",
+    "subtitle": "Des liens courts à coller dans n’importe quelle légende. Les clics sont comptés ici sans données personnelles.",
+    "empty": "Créez un lien suivi pour compter les clics sans stocker d’adresse IP brute.",
+    "label": "Libellé",
+    "destination": "URL de destination",
+    "create": "Créer le lien",
+    "creating": "Création…",
+    "created": "Lien suivi créé",
+    "createFailed": "Impossible de créer le lien suivi",
+    "copy": "Copier",
+    "copied": "Lien court copié",
+    "clicks": "{count} clics",
+    "conversions": "{count} conversions attribuées",
+    "lastClick": "Dernier clic {when}",
+    "noClicks": "Aucun clic pour l’instant"
+  },
+  "campaigns": {
+    "title": "Campagnes",
+    "preview": "Aperçu",
+    "empty": "Nommez dès maintenant des campagnes pour grouper les publications à comparer. L’affectation des publications à une campagne arrive bientôt ; en créer une ici ne publie jamais rien.",
+    "name": "Nom de campagne",
+    "create": "Créer une campagne",
+    "created": "Campagne créée",
+    "createFailed": "Impossible de créer la campagne",
+    "status": {
+      "draft": "Brouillon",
+      "active": "Active",
+      "completed": "Terminée",
+      "archived": "Archivée"
+    }
   },
   "empty": {
     "overviewTitle": "En attente de publications",
-    "overviewBody": "Cette marque n’a pas encore de publications synchronisées. Les posts publiés depuis Markaestro et l’historique importé apparaissent ici une fois projetés dans Intelligence. Les mesures absentes restent vides, jamais à zéro.",
+    "overviewBody": "Cette marque n’a pas encore de publications synchronisées. Les publications publiées via Markaestro et l’historique importé depuis vos comptes connectés apparaissent ici une fois projetés dans Intelligence. Les mesures absentes restent vides, jamais à zéro.",
     "noBrandTitle": "Créez d’abord une marque",
     "noBrandBody": "L’intelligence est rattachée à une marque Markaestro.",
-    "profileTitle": "Configurez votre profil d’audience",
-    "profileBody": "Ajoutez un objectif, un marché, un fuseau horaire et les priorités de plateforme dans les paramètres de marque.",
+    "createBrand": "Créer une marque",
     "contentTitle": "Aucun contenu mesuré",
-    "contentBody": "Les publications publiées et importées apparaissent ici sans transformer les mesures absentes en zéro.",
+    "contentBody": "Les publications publiées et importées apparaissent ici dès qu’une plateforme rapporte leurs métriques.",
     "opportunitiesTitle": "Aucune opportunité étayée",
-    "opportunitiesBody": "Recommandations après assez de preuves mesurées.",
+    "opportunitiesBody": "Les suggestions apparaissent dès qu’il y a assez de preuves mesurées : deux plateformes à comparer, un créneau de publication avec 5 publications ou un motif répétable. La liste de préparation dans Vue d’ensemble montre où vous en êtes.",
     "playbookTitle": "Votre guide se prépare",
-    "playbookBody": "Motifs après assez de posts mesurés (souvent cinq+).",
-    "createBrand": "Créer une marque"
+    "playbookBody": "Les motifs nécessitent au moins 5 publications mesurées dans un groupe et 5 en dehors. Consultez la liste de préparation dans Vue d’ensemble, ou voyez Opportunités pour les premières suggestions actionnables."
+  },
+  "weekdays": {
+    "Mon": "Lundi",
+    "Tue": "Mardi",
+    "Wed": "Mercredi",
+    "Thu": "Jeudi",
+    "Fri": "Vendredi",
+    "Sat": "Samedi",
+    "Sun": "Dimanche"
   },
   "composer": {
-    "title": "Affinité d’audience",
+    "title": "Audience Fit",
     "recommended": "Recommandé",
-    "body": "Évalue le brouillon vs le profil audience. Suggestions après Appliquer seulement.",
+    "body": "Évalue ce brouillon par rapport à votre profil d’audience enregistré. Les suggestions ne modifient jamais votre brouillon tant que vous n’appuyez pas sur Appliquer.",
     "analyze": "Analyser le brouillon",
     "analyzing": "Analyse…",
     "retry": "Réessayer",
     "failed": "L’analyse n’a pas pu être terminée en toute sécurité.",
     "reanalyze": "Analyser à nouveau",
+    "timingHint": "Meilleure fenêtre mesurée : {bucket} ({count} publications).",
     "meta": "Couverture {coverage} % · confiance {confidence} · {sample} publications pertinentes",
     "coldStart": "Démarrage à froid : moins de cinq publications pertinentes.",
     "unavailable": "Indisponible",
@@ -80,8 +553,7 @@
       "low": "faible",
       "medium": "moyenne",
       "high": "élevée"
-    },
-    "timingHint": "Meilleure fenêtre mesurée : {bucket} ({count} publications)."
+    }
   },
   "profile": {
     "objective": "Objectif",
@@ -98,31 +570,6 @@
     "interests": "Centres d’intérêt",
     "voice": "Voix de marque",
     "listHint": "Choisissez dans la liste, chaque sélection ajoute une étiquette supprimable.",
-    "save": "Enregistrer le profil d’audience",
-    "saving": "Enregistrement…",
-    "saved": "Profil d’audience enregistré",
-    "saveFailed": "Impossible d’enregistrer le profil d’audience",
-    "loading": "Chargement du profil d’audience…",
-    "unavailable": "Le profil d’audience n’est pas activé pour cet espace.",
-    "objectives": {
-      "awareness": "Notoriété",
-      "engagement": "Engagement",
-      "followers": "Abonnés",
-      "website_traffic": "Trafic web",
-      "leads": "Prospects",
-      "app_installs": "Installations d’app",
-      "purchases": "Achats",
-      "other": "Autre"
-    },
-    "conversions": {
-      "none": "Aucune",
-      "website_visit": "Visite du site",
-      "lead": "Prospect",
-      "signup": "Inscription",
-      "app_install": "Installation d’app",
-      "purchase": "Achat",
-      "custom": "Personnalisée"
-    },
     "voiceHint": "Choisissez des traits de ton qui décrivent la voix de la marque.",
     "tagAdd": "Ajouter depuis la liste…",
     "tagEmpty": {
@@ -210,40 +657,42 @@
         "trustworthy": "Fiable",
         "innovative": "Innovant"
       }
-    }
-  },
-  "errors": {
-    "unavailableTitle": "L’intelligence est indisponible",
-    "unavailableBody": "Cette phase n’est pas activée pour cet espace ou n’a pas pu être chargée.",
-    "retry": "Réessayer"
-  },
-  "actions": {
-    "accept": "Accepter",
-    "dismiss": "Ignorer",
-    "pin": "Épingler",
-    "saveFailed": "Impossible d enregistrer votre décision",
-    "acceptedToast": "Accepté, exécutez dans Content/Calendrier",
-    "pinnedToast": "Épinglée pour suivi",
-    "dismissedToast": "Rejeté et masqué",
-    "status": {
-      "accepted": "Acceptée",
-      "pinned": "Épinglée",
-      "dismissed": "Ignorée"
+    },
+    "save": "Enregistrer le profil d’audience",
+    "saving": "Enregistrement…",
+    "saved": "Profil d’audience enregistré",
+    "saveFailed": "Impossible d’enregistrer le profil d’audience",
+    "loading": "Chargement du profil d’audience…",
+    "unavailable": "Le profil d’audience n’est pas activé pour cet espace.",
+    "objectives": {
+      "awareness": "Notoriété",
+      "engagement": "Engagement",
+      "followers": "Abonnés",
+      "website_traffic": "Trafic web",
+      "leads": "Prospects",
+      "app_installs": "Installations d’app",
+      "purchases": "Achats",
+      "other": "Autre"
+    },
+    "conversions": {
+      "none": "Aucune",
+      "website_visit": "Visite du site",
+      "lead": "Prospect",
+      "signup": "Inscription",
+      "app_install": "Installation d’app",
+      "purchase": "Achat",
+      "custom": "Personnalisée"
     }
   },
   "alignment": {
     "title": "Alignement d’audience",
-    "empty": "L’alignement apparaît lorsqu’un mix d’audience mesurable est capturé. Les dimensions manquantes restent vides."
-  },
-  "timing": {
-    "title": "Meilleurs créneaux",
-    "empty": "Un horaire propre au compte exige 20 publications datées et cinq observations dans l’heure citée."
-  },
-  "campaigns": {
-    "title": "Campagnes",
-    "empty": "Nommez une campagne pour comparer. Ne publie rien automatiquement.",
-    "name": "Nom de campagne",
-    "create": "Créer une campagne"
+    "empty": "L’alignement apparaît dès qu’une plateforme connectée rapporte votre mix d’audience. Les dimensions manquantes restent vides.",
+    "dimensions": {
+      "geography": "Géographie",
+      "age": "Âge",
+      "gender": "Genre",
+      "industryInterests": "Secteurs et centres d’intérêt"
+    }
   },
   "experiments": {
     "title": "Expériences",
@@ -256,6 +705,8 @@
     "createdPaired": "Expérience créée, les deux posts sont planifiés",
     "createFailed": "Impossible de créer l’expérience",
     "captionPlaceholder": "Légende et hashtags pour ce bras",
+    "mediaRequired": "Cette plateforme exige des médias sur les deux bras avant de créer l’expérience.",
+    "mediaRequiredHint": "Instagram, TikTok et Pinterest nécessitent au moins une image ou une vidéo sur chaque bras.",
     "armCompose": "Bras {arm}",
     "armLabel": "Bras {arm}",
     "scheduleA": "Planifier le bras A",
@@ -269,6 +720,11 @@
     "loadingDetail": "Chargement de l’expérience…",
     "detailFailed": "Impossible de charger cette expérience.",
     "untitledPost": "Publication sans titre",
+    "untitledExperiment": "Expérience sans titre",
+    "delete": "Supprimer",
+    "deleteWarning": "Cela retire l’expérience, ses posts A/B planifiés et les résultats associés dans la boîte de réception Markaestro. Les posts déjà en ligne sur la plateforme ne sont pas supprimés.",
+    "deleted": "Expérience supprimée",
+    "deleteFailed": "Impossible de supprimer l’expérience",
     "effect": "{value} % d’écart relatif (B vs A)",
     "status": {
       "draft": "Brouillon",
@@ -284,83 +740,37 @@
       "winner_a": "Le bras A mène sur la métrique mesurée.",
       "winner_b": "Le bras B mène sur la métrique mesurée.",
       "inconclusive": "Résultat inconclusif, il faut un plus grand échantillon ou un écart plus clair."
-    },
-    "mediaRequired": "Cette plateforme exige des médias sur les deux bras avant de créer l’expérience.",
-    "mediaRequiredHint": "Instagram, TikTok et Pinterest nécessitent au moins une image ou une vidéo sur chaque bras.",
-    "untitledExperiment": "Expérience sans titre",
-    "delete": "Supprimer",
-    "deleted": "Expérience supprimée",
-    "deleteFailed": "Impossible de supprimer l’expérience",
-    "deleteWarning": "Cela retire l’expérience, ses posts A/B planifiés et les résultats associés dans la boîte de réception Markaestro. Les posts déjà en ligne sur la plateforme ne sont pas supprimés."
+    }
   },
   "ask": {
     "title": "Demander à Markaestro",
+    "subtitle": "Les réponses proviennent uniquement des enregistrements mesurés de cette marque. Chaque réponse nomme les données utilisées.",
     "placeholder": "Posez une question sur la performance mesurée, le timing ou les apprentissages.",
     "submit": "Demander",
     "asking": "Sélection des preuves…",
-    "tool": "Outil utilisé : {tool}",
+    "tool": "Répondu à partir de : {tool}",
+    "evidence": "Enregistrements cités",
     "failed": "Impossible de répondre à cette question. Réessayez.",
     "timeout": "Trop long, essayez une question plus courte, ou réessayez dans un instant.",
     "quota": "Vous avez utilisé vos tours Ask Markaestro ce mois-ci. Réessayez le mois prochain ou passez à une offre supérieure.",
-    "unavailable": "Ask Markaestro n’est pas encore disponible pour cet espace de travail."
-  },
-  "links": {
-    "title": "Liens suivis",
-    "empty": "Créez un lien suivi pour attribuer les clics sans stocker d’adresse IP brute.",
-    "label": "Libellé",
-    "destination": "URL de destination",
-    "create": "Créer le lien"
-  },
-  "productBar": {
-    "brand": "Marque",
-    "noBrandSelected": "Aucune marque sélectionnée",
-    "change": "Changer"
-  },
-  "guide": {
-    "overview": {
-      "title": "Ce que cet onglet affiche",
-      "body": "KPI et plateformes depuis les publications synchronisées. Cellules vides = métrique non fournie, jamais zéro."
-    },
-    "audience": {
-      "title": "Périmètre de la marque",
-      "body": "Objectif, marchés, fuseau et piliers définissent pour qui vous créez."
-    },
-    "content": {
-      "title": "Apprendre des posts performants",
-      "body": "Top contenus par vues mesurées. Réutilisez dans Content."
-    },
-    "opportunities": {
-      "title": "Quoi essayer ensuite",
-      "body": "Recommandations depuis l'historique mesuré. Suggestions, exécution manuelle dans Content/Calendrier."
-    },
-    "playbook": {
-      "title": "Motifs récurrents",
-      "body": "Learnings statistiques avec échantillon suffisant."
-    },
-    "advanced": {
-      "title": "Tester avec preuves",
-      "body": "Créez une expérience A/B par plateforme, planifiez deux posts et comparez-les en live. À la fin de la fenêtre, le résultat arrive dans la boîte de réception."
+    "unavailable": "Ask Markaestro n’est pas encore disponible pour cet espace de travail.",
+    "tools": {
+      "audience_performance": "instantanés d’audience",
+      "audience_alignment": "alignement d’audience",
+      "top_posts": "meilleures publications par vues",
+      "pillar_performance": "performance par pilier de contenu",
+      "hook_performance": "performance par accroche",
+      "timing_performance": "performance par jour et heure",
+      "drift": "événements de dérive d’audience",
+      "learnings": "apprentissages du guide",
+      "campaigns": "campagnes",
+      "platform_comparisons": "comparaison par plateforme",
+      "experiments": "expériences"
     }
   },
-  "workflow": {
-    "opportunities": {
-      "title": "Utiliser les opportunités",
-      "step1": "Lire la recommandation et les preuves.",
-      "step2": "Accepter, épingler ou rejeter.",
-      "step3": "Publier/planifier dans Content/Calendrier. Accepter ne publie pas."
-    },
-    "playbook": {
-      "title": "Utiliser le playbook",
-      "step1": "Chaque carte = motif mesuré (n=).",
-      "step2": "Accepter, épingler ou rejeter les motifs.",
-      "step3": "Appliquer les motifs acceptés en composant."
-    }
-  },
-  "decisions": {
-    "hint": "Enregistre la décision seulement, ne publie pas.",
-    "learningHint": "Indique si vous faites confiance au motif.",
-    "accept": "Accepter, j'agirai",
-    "pin": "Épingler",
-    "dismiss": "Rejeter"
+  "errors": {
+    "unavailableTitle": "L’intelligence est indisponible",
+    "unavailableBody": "Cette phase n’est pas activée pour cet espace ou n’a pas pu être chargée.",
+    "retry": "Réessayer"
   }
 }

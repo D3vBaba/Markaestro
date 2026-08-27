@@ -14,6 +14,4 @@
 - Smart scheduling
 
 ## Out of scope
-- AI content / image generation (intentionally removed — Markaestro is
-  an upload-only publishing platform; users bring their own media and
-  captions).
+- Nothing standing. AI content / image generation returned to scope on 2026-08-27.

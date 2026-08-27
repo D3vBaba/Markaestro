@@ -94,5 +94,66 @@
     "subtitle": "Comece grátis. Sem cartão de crédito necessário. Conecte seu primeiro canal em menos de dois minutos.",
     "primaryButton": "Comece grátis",
     "secondaryButton": "Fale com vendas"
+  },
+  "intelligence": {
+    "eyebrow": "Inteligência",
+    "titleLead": "Saiba o que publicar em seguida,",
+    "titleHighlight": "a partir dos seus próprios números",
+    "subtitle": "A Inteligência lê as publicações que você já publicou, mantém cada métrica exatamente como as plataformas reportaram e transforma esse histórico em respostas claras e rascunhos prontos para editar. Nada é publicado automaticamente.",
+    "loopTitle": "Como funciona",
+    "loop": [
+      {
+        "title": "Medir",
+        "body": "As publicações feitas pelo Markaestro e o histórico importado das suas contas conectadas viram um registro por publicação com as métricas que cada plataforma reportou. Números ausentes ficam em branco, nunca em zero."
+      },
+      {
+        "title": "Aprender",
+        "body": "Estatísticas determinísticas comparam suas publicações por plataforma, faixa de horário, pilar de conteúdo, gancho e formato. Um padrão só aparece com pelo menos cinco publicações no grupo e cinco fora dele, com um intervalo de 95% sobre o efeito."
+      },
+      {
+        "title": "Recomendar",
+        "body": "As oportunidades transformam essas descobertas em próximos passos concretos com os números por trás: uma janela que supera a sua média, uma plataforma que vence por publicação, um padrão que vale repetir."
+      },
+      {
+        "title": "Rascunhar",
+        "body": "Criar rascunho escreve uma legenda na voz da sua marca a partir da sua própria evidência de melhor desempenho e salva em Conteúdo como um rascunho normal. Você edita, adiciona mídia e agenda."
+      }
+    ],
+    "tabsTitle": "O que você recebe, aba por aba",
+    "tabs": [
+      {
+        "title": "Visão geral",
+        "body": "Banner do objetivo, KPIs medidos, comparação de plataformas por publicação e uma lista de prontidão que mostra exatamente quais recursos estão ativos e quantos dados cada um ainda precisa."
+      },
+      {
+        "title": "Público",
+        "body": "Declare seu objetivo, mercados, fuso horário, pilares e voz. Links curtos rastreados contam cliques sem armazenar dados pessoais e ligam as conversões à publicação."
+      },
+      {
+        "title": "Conteúdo",
+        "body": "Suas publicações classificadas pela métrica que você escolheu, os padrões detectados em cada uma e uma explicação Por que funcionou baseada nos números daquela publicação em relação à média da sua conta."
+      },
+      {
+        "title": "Oportunidades",
+        "body": "Sugestões apoiadas em evidência que você pode aceitar, fixar ou dispensar, cada uma com um botão Criar rascunho. Aceitar nunca cria nem agenda uma publicação."
+      },
+      {
+        "title": "Guia",
+        "body": "Padrões que se repetem nos seus dados com o tamanho da amostra, o efeito e o intervalo de confiança explicados em palavras simples, mais as publicações por trás de cada um."
+      },
+      {
+        "title": "Experimentos e perguntas",
+        "body": "Publicações A/B pareadas com um vencedor medido, e perguntas respondidas apenas com os registros desta marca, citando os dados usados."
+      }
+    ],
+    "principlesTitle": "Regras que ela nunca quebra",
+    "principles": [
+      "Nunca publica nem agenda por conta própria. Cada ação é um rascunho ou uma decisão que você registra.",
+      "Nunca preenche um número que uma plataforma não reportou. Em branco significa em branco.",
+      "Nunca usa dados de outras marcas nem referências genéricas. Cada afirmação vem do seu próprio histórico.",
+      "Sempre diz o que alimentou um resultado: Medido, Calculado, Recomendado, Declarado ou Gerado."
+    ],
+    "plans": "O Audience Fit está em todos os planos. Guia, Oportunidades, links rastreados e Pergunte ao Markaestro começam no Pro; Experimentos no Business. Ações de IA como Criar rascunho têm limite mensal por plano.",
+    "cta": "Comece grátis e conecte um canal"
   }
 }

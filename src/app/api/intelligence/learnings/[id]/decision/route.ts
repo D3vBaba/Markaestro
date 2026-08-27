@@ -6,6 +6,7 @@ import { requirePermission } from '@/lib/rbac';
 import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 import { loadProductIntelligence } from '@/lib/intelligence/product-state';
 
+/** Records trust in a learning. `proposed` undoes an earlier decision. */
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
@@ -15,7 +16,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const { decision } = recommendationDecisionSchema.parse(await req.json());
     const productId = new URL(req.url).searchParams.get('productId') || '';
     if (!productId) throw new Error('VALIDATION_PRODUCT_REQUIRED');
-    const loaded = await loadProductIntelligence(ctx.workspaceId, productId);
+    const loaded = await loadProductIntelligence(ctx.workspaceId, productId, { allowCached: true });
     const record = loaded.insights.learnings.find((item) => item.id === id);
     if (!record) throw new Error('NOT_FOUND');
     const now = new Date().toISOString();

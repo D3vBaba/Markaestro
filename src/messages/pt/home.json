@@ -9,9 +9,18 @@
     "signInPrompt": "Já tem uma conta?",
     "signInLink": "Entrar",
     "stats": [
-      { "value": "10h", "label": "Economizadas por semana" },
-      { "value": "6", "label": "Canais, um clique" },
-      { "value": "1", "label": "Editor para todos os canais" }
+      {
+        "value": "10h",
+        "label": "Economizadas por semana"
+      },
+      {
+        "value": "6",
+        "label": "Canais, um clique"
+      },
+      {
+        "value": "1",
+        "label": "Editor para todos os canais"
+      }
     ],
     "trustedBy": "Aprovado por fundadores"
   },
@@ -21,14 +30,53 @@
     "titleHighlight": "crescer",
     "subtitle": "Do rascunho da legenda à publicação, o Markaestro cuida de cada etapa do seu fluxo de trabalho social.",
     "items": [
-      { "title": "Publicação multicanal", "desc": "Publique no Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest a partir de um único editor. Agende posts ou publique instantaneamente." },
-      { "title": "Uploads de mídia centralizados", "desc": "Traga suas próprias imagens e vídeos. Envie uma vez por post e distribua para todos os canais conectados." },
-      { "title": "Pré-visualizações multicanal", "desc": "Veja como cada post vai aparecer em cada plataforma antes de publicar, legendas, proporções, limites de caracteres." },
-      { "title": "Agendamento e calendário", "desc": "Organize posts em um calendário unificado com horários por canal. Reagende, pause ou duplique com um clique." },
-      { "title": "Painel de publicação", "desc": "Acompanhe rascunhos, posts agendados e status de publicação em todos os canais." },
-      { "title": "Integrações OAuth", "desc": "Conecte-se com um clique ao Meta, TikTok, LinkedIn, Threads e Pinterest via OAuth seguro. Sem gerenciamento manual de tokens." }
+      {
+        "title": "Publicação multicanal",
+        "desc": "Publique no Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest a partir de um único editor. Agende posts ou publique instantaneamente."
+      },
+      {
+        "title": "Uploads de mídia centralizados",
+        "desc": "Traga suas próprias imagens e vídeos. Envie uma vez por post e distribua para todos os canais conectados."
+      },
+      {
+        "title": "Pré-visualizações multicanal",
+        "desc": "Veja como cada post vai aparecer em cada plataforma antes de publicar, legendas, proporções, limites de caracteres."
+      },
+      {
+        "title": "Agendamento e calendário",
+        "desc": "Organize posts em um calendário unificado com horários por canal. Reagende, pause ou duplique com um clique."
+      },
+      {
+        "title": "Painel de publicação",
+        "desc": "Acompanhe rascunhos, posts agendados e status de publicação em todos os canais."
+      },
+      {
+        "title": "Integrações OAuth",
+        "desc": "Conecte-se com um clique ao Meta, TikTok, LinkedIn, Threads e Pinterest via OAuth seguro. Sem gerenciamento manual de tokens."
+      }
     ],
     "exploreButton": "Explorar todos os recursos"
+  },
+  "intelligencePreview": {
+    "eyebrow": "Inteligência",
+    "titleLead": "Publicar é a entrada.",
+    "titleHighlight": "Crescimento é o resultado.",
+    "subtitle": "A Inteligência aprende com as publicações que você já publicou e diz, em linguagem clara, o que funcionou, quando publicar e o que testar em seguida. Depois, ela rascunha para você.",
+    "items": [
+      {
+        "title": "Medido, nunca adivinhado",
+        "desc": "Cada número é exatamente o que a plataforma reportou. Um campo em branco fica em branco, e cada resultado diz se foi medido, calculado, recomendado ou gerado."
+      },
+      {
+        "title": "Padrões com prova",
+        "desc": "Qual plataforma, faixa de horário, gancho ou pilar de conteúdo rende acima do resto da sua marca, com o tamanho da amostra e o intervalo de confiança detalhados."
+      },
+      {
+        "title": "Rascunhos sob seu controle",
+        "desc": "Transforme qualquer oportunidade ou publicação vencedora em uma legenda na voz da sua marca. Ela chega em Conteúdo como rascunho. Você edita, adiciona mídia e agenda."
+      }
+    ],
+    "exploreButton": "Explorar a Inteligência"
   },
   "channelsPreview": {
     "eyebrow": "Canais",
@@ -36,25 +84,62 @@
     "titleHighlight": "em todo lugar",
     "subtitle": "Conecte uma vez e publique em todas as principais plataformas. O Markaestro cuida das diferenças de API, limites de caracteres e requisitos de mídia de cada canal.",
     "channels": [
-      { "name": "Facebook e Instagram", "desc": "Conectado via OAuth com o Meta. Páginas, posts de feed, stories e publicação comercial no IG." },
-      { "name": "TikTok", "desc": "Conteúdo de fotos e vídeos enviado para a caixa de entrada do criador no TikTok para conclusão e publicação finais." },
-      { "name": "LinkedIn", "desc": "Seu perfil ou uma Página que você gerencia. Posts de texto, imagem, vídeo e múltiplas imagens com até 20 imagens." },
-      { "name": "Threads e Pinterest", "desc": "Carrosséis do Threads com até 20 itens; pins de imagem e vídeo do Pinterest no board que você escolher." }
+      {
+        "name": "Facebook e Instagram",
+        "desc": "Conectado via OAuth com o Meta. Páginas, posts de feed, stories e publicação comercial no IG."
+      },
+      {
+        "name": "TikTok",
+        "desc": "Conteúdo de fotos e vídeos enviado para a caixa de entrada do criador no TikTok para conclusão e publicação finais."
+      },
+      {
+        "name": "LinkedIn",
+        "desc": "Seu perfil ou uma Página que você gerencia. Posts de texto, imagem, vídeo e múltiplas imagens com até 20 imagens."
+      },
+      {
+        "name": "Threads e Pinterest",
+        "desc": "Carrosséis do Threads com até 20 itens; pins de imagem e vídeo do Pinterest no board que você escolher."
+      }
     ],
     "seeAllButton": "Ver todos os canais",
     "stats": [
-      { "label": "Canais sociais", "value": "6", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
-      { "label": "Editor", "value": "1", "sub": "Legenda + mídia em uma única tela" },
-      { "label": "Painel", "value": "1", "sub": "Fluxo de publicação unificado" },
-      { "label": "API", "value": "1", "sub": "Uma chave, pronta para agentes" }
+      {
+        "label": "Canais sociais",
+        "value": "6",
+        "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest"
+      },
+      {
+        "label": "Editor",
+        "value": "1",
+        "sub": "Legenda + mídia em uma única tela"
+      },
+      {
+        "label": "Painel",
+        "value": "1",
+        "sub": "Fluxo de publicação unificado"
+      },
+      {
+        "label": "API",
+        "value": "1",
+        "sub": "Uma chave, pronta para agentes"
+      }
     ]
   },
   "composerPreview": {
     "panelLabel": "Um editor, todos os canais",
     "rows": [
-      { "label": "Mídia", "value": "Envie imagens ou vídeos: JPG, PNG, WebP, MP4" },
-      { "label": "Legenda", "value": "Escreva uma vez, pré-visualize por canal antes de publicar" },
-      { "label": "Resultado", "value": "Posts agendados ou instantâneos nos seis canais conectados" }
+      {
+        "label": "Mídia",
+        "value": "Envie imagens ou vídeos: JPG, PNG, WebP, MP4"
+      },
+      {
+        "label": "Legenda",
+        "value": "Escreva uma vez, pré-visualize por canal antes de publicar"
+      },
+      {
+        "label": "Resultado",
+        "value": "Posts agendados ou instantâneos nos seis canais conectados"
+      }
     ],
     "eyebrow": "Editor",
     "titleLead": "Sua mídia,",

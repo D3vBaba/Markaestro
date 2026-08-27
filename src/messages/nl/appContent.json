@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "Bijschrift gekopieerd",
       "copyFailed": "Kon het bijschrift niet kopiëren"
-    }
+    },
+    "fromIntelligence": "Concept opgesteld door Intelligentie"
   },
   "platformPostsTab": {
     "refresh": "Vernieuwen",

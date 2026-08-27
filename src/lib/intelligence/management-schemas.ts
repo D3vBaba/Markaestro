@@ -72,7 +72,8 @@ export const experimentEvaluationSchema = z.object({
 });
 
 export const recommendationDecisionSchema = z.object({
-  decision: z.enum(['accepted', 'dismissed', 'pinned']),
+  /** `proposed` reverts an earlier decision (undo). */
+  decision: z.enum(['proposed', 'accepted', 'dismissed', 'pinned']),
 });
 
 export type CreatePairedExperiment = z.infer<typeof createPairedExperimentSchema>;

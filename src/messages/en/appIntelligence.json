@@ -1,6 +1,6 @@
 {
   "title": "Intelligence",
-  "subtitle": "Measured performance, grounded recommendations, and a clear workflow, nothing posts automatically.",
+  "subtitle": "What your own posts measured, explained in plain language, with drafts you control. Nothing posts automatically.",
   "brand": "Brand",
   "coverage": "{value}% data coverage",
   "productBar": {
@@ -12,7 +12,17 @@
     "measured": "Measured",
     "calculated": "Calculated",
     "predicted": "Predicted",
-    "recommended": "Recommended"
+    "recommended": "Recommended",
+    "declared": "Declared",
+    "generated": "Generated"
+  },
+  "labelHints": {
+    "measured": "Numbers reported by the platforms for your posts. Blank means the platform did not report it.",
+    "calculated": "Statistics computed from your measured numbers. No guessing, no industry averages.",
+    "predicted": "An estimate with a confidence level. Treat as a hint, not a fact.",
+    "recommended": "A suggestion built from your measured evidence. You decide whether to act on it.",
+    "declared": "Information you entered about this brand. Intelligence compares results against it.",
+    "generated": "Text written by AI from your own evidence and brand voice. Always saved as a draft you can edit."
   },
   "tabs": {
     "overview": "Overview",
@@ -22,67 +32,446 @@
     "playbook": "Playbook",
     "advanced": "Experiments"
   },
-  "guide": {
-    "overview": {
-      "title": "What this tab shows",
-      "body": "KPIs and platform breakdown from synced posts. Blank cells mean the platform did not report that metric, never zero. Use this to see where measured performance is strongest."
-    },
-    "audience": {
-      "title": "Set your brand boundary",
-      "body": "Objective, markets, timezone, and pillars tell Intelligence who you create for. Audience Fit in Content and alignment scores compare drafts and results against this profile."
-    },
-    "content": {
-      "title": "Learn from posts that already worked",
-      "body": "Top content ranked by measured views. Reuse themes and formats here when writing in Content. Timing windows appear once you have enough dated posts with metrics."
-    },
-    "opportunities": {
-      "title": "What to try next",
-      "body": "Recommendations come from your measured history, timing, platform mix, learnings, and alignment gaps. They are suggestions only: you execute them manually in Content or Calendar."
-    },
-    "playbook": {
-      "title": "Patterns that repeat in your data",
-      "body": "Statistical learnings from posts with enough sample size (platform, timing, format, etc.). Accept when the pattern fits your strategy; dismiss when it does not."
-    },
-    "advanced": {
-      "title": "Test ideas with evidence",
-      "body": "Create an A/B experiment, assign measured posts to each arm, then Evaluate. Ask Markaestro answers from your workspace data only, not generic social-media advice."
-    }
-  },
-  "workflow": {
-    "opportunities": {
-      "title": "How to use opportunities",
-      "step1": "Read the recommendation and what evidence it used (timing, platforms, or alignment).",
-      "step2": "Accept if you plan to try it, Pin to revisit later, or Dismiss if it is not relevant.",
-      "step3": "Go to Content or Calendar to publish or schedule. Accept does not create posts or campaigns automatically."
-    },
-    "playbook": {
-      "title": "How to use the playbook",
-      "step1": "Each card is a measured pattern (sample size shown as n=). Stronger evidence means more posts behind the claim.",
-      "step2": "Accept patterns you want to repeat, Pin ones to revisit, or Dismiss patterns that do not fit this brand.",
-      "step3": "Apply accepted patterns yourself when composing, for example post more on a winning platform or in a strong time window."
+  "actions": {
+    "refresh": "Refresh",
+    "refreshing": "Refreshing…",
+    "accept": "Accept",
+    "dismiss": "Dismiss",
+    "pin": "Pin",
+    "undo": "Undo",
+    "saveFailed": "Could not save your decision",
+    "acceptedToast": "Marked as accepted. Draft it here or compose it in Content.",
+    "pinnedToast": "Pinned for follow-up",
+    "dismissedToast": "Dismissed. Find it again under the Dismissed filter.",
+    "undoneToast": "Decision cleared",
+    "status": {
+      "proposed": "New",
+      "accepted": "Accepted",
+      "pinned": "Pinned",
+      "dismissed": "Dismissed"
     }
   },
   "decisions": {
-    "hint": "These buttons record your decision only. They do not publish, schedule, or change drafts.",
-    "learningHint": "Record whether you trust this pattern. Intelligence will not change your content automatically.",
+    "hint": "These buttons only record your decision. They never publish, schedule, or change drafts.",
+    "learningHint": "Record whether you trust this pattern. Intelligence never changes your content on its own.",
     "accept": "Accept: I plan to act on this",
     "pin": "Pin, revisit later",
     "dismiss": "Dismiss, hide this item"
+  },
+  "filter": {
+    "label": "Show",
+    "all": "All",
+    "proposed": "New",
+    "accepted": "Accepted",
+    "pinned": "Pinned",
+    "dismissed": "Dismissed",
+    "none": "Nothing under this filter yet."
+  },
+  "gate": {
+    "rolloutTitle": "Not switched on for this workspace yet",
+    "rolloutBody": "Your plan includes this part of Intelligence. It is being rolled out gradually and will appear here without any action on your side."
+  },
+  "howItWorks": {
+    "button": "How it works",
+    "close": "Got it",
+    "stepsTitle": "How to use it",
+    "inputsTitle": "What feeds it",
+    "neverTitle": "What it never does",
+    "thresholdsTitle": "When it switches on",
+    "page": {
+      "title": "How Intelligence works",
+      "intro": "Intelligence reads the posts you have already published, keeps every number exactly as the platforms reported it, and turns that history into plain-language answers: what worked, when to post, what to try next. You stay in control of every action.",
+      "steps": [
+        "Pick a brand. Everything on this page is scoped to one brand and its connected channels.",
+        "Start on Overview to see what has been measured so far and which features have enough data to switch on.",
+        "Set your objective and audience under Audience. It decides which metric every recommendation optimizes for.",
+        "Read Content, Opportunities, and Playbook for evidence-backed answers, then use Draft this to turn any of them into a post draft.",
+        "Every draft lands in Content as a normal draft. Review, edit, schedule, or delete it like any other post."
+      ],
+      "inputs": [
+        "Posts published through Markaestro and posts imported from your connected accounts",
+        "The metrics each platform reports for those posts (views, reach, likes, comments, shares, saves, clicks)",
+        "Your declared objective, markets, timezone, pillars, and brand voice"
+      ],
+      "never": [
+        "Publish or schedule anything on its own",
+        "Fill in a number a platform did not report",
+        "Use other brands' data or generic industry benchmarks"
+      ]
+    },
+    "overview": {
+      "title": "Overview",
+      "intro": "A snapshot of what has been measured for this brand, plus a readiness list that tells you exactly which features are active and what is still missing.",
+      "steps": [
+        "Check the objective banner. Every ranking and recommendation uses that metric.",
+        "Read the KPI tiles. A blank tile means no connected platform reported that metric, never zero.",
+        "Use the readiness list to see how close each feature is to switching on and what to do about it.",
+        "Compare platforms per post, not by total, so a channel with fewer posts is judged fairly."
+      ],
+      "inputs": [
+        "All synced posts for this brand and their latest reported metrics",
+        "Your objective from the Audience tab"
+      ],
+      "never": [
+        "Mix numbers from different brands",
+        "Estimate metrics a platform left blank"
+      ]
+    },
+    "audience": {
+      "title": "Audience",
+      "intro": "Tell Intelligence who you create for and what success means. This profile is the yardstick for Audience Fit in the composer, for timing, and for every recommendation.",
+      "steps": [
+        "Choose an objective. It picks the metric Intelligence optimizes for (for example Engagement uses likes, comments, shares, and saves).",
+        "Add your primary market, timezone, content pillars, and voice traits. Posting windows are calculated in this timezone.",
+        "Create tracked links for the URLs you share. Each click is counted here without storing personal data.",
+        "Save. Changes apply on the next refresh."
+      ],
+      "inputs": [
+        "What you enter on this tab",
+        "Clicks on your tracked links and conversions you send to Markaestro"
+      ],
+      "never": [
+        "Store IP addresses, browser details, or referrers from tracked links",
+        "Change your profile automatically"
+      ]
+    },
+    "content": {
+      "title": "Content",
+      "intro": "Your measured posts ranked by the metric you chose, with the patterns Intelligence recognized in each one and a plain-language explanation of why it performed the way it did.",
+      "steps": [
+        "Sort by your objective, views, or engagements. Filter to one platform to compare like with like.",
+        "Open Why it worked on any post for a short explanation grounded in that post's numbers versus your account average.",
+        "Use Draft a post like this to get a new caption that reuses what worked, saved to Content as a draft.",
+        "Check the lowest measured posts too: what is missing there is often the clearest lesson."
+      ],
+      "inputs": [
+        "Each post's caption, platform, publish time, and reported metrics",
+        "Content patterns (pillar, hook, format) detected from the caption of each published post"
+      ],
+      "never": [
+        "Rank posts on metrics that were not reported",
+        "Edit or repost anything without you"
+      ]
+    },
+    "opportunities": {
+      "title": "Opportunities",
+      "intro": "Concrete things to try next, each backed by your own numbers: a posting window that outperforms your average, a platform that does better per post, or a pattern worth repeating.",
+      "steps": [
+        "Read the evidence line under each card. It shows the exact numbers behind the suggestion.",
+        "Accept if you plan to try it, Pin to revisit, or Dismiss if it does not fit. All three can be undone.",
+        "Use Draft this to get a caption written for that opportunity, saved to Content as a draft.",
+        "Publish from Content or Calendar as usual. Accepting never creates or schedules posts."
+      ],
+      "inputs": [
+        "Best posting windows, per-post platform comparison, and playbook learnings",
+        "Your objective and platform priority from the Audience tab"
+      ],
+      "never": [
+        "Suggest something with fewer than five measured posts behind it",
+        "Act on an accepted opportunity without you"
+      ]
+    },
+    "playbook": {
+      "title": "Playbook",
+      "intro": "Patterns that repeat in your data with enough posts to matter: which platform, hook, pillar, format, or time slot performs above or below the rest of this brand.",
+      "steps": [
+        "Each card compares a group of posts against every other post of this brand on your objective metric.",
+        "The effect is the percent difference per post. The 95% range tells you how sure the estimate is.",
+        "Strength grows with sample size: directional (5 to 14 posts), moderate (15 to 29), potentially strong (30 or more with a clear range).",
+        "Accept patterns you want to repeat, then use Draft this to write a post in that pattern."
+      ],
+      "inputs": [
+        "Measured posts grouped by platform, pillar, hook, format, and weekday/hour",
+        "Content patterns detected from each published caption"
+      ],
+      "never": [
+        "Report a pattern with fewer than five posts in the group and five outside it",
+        "Claim a cause. These are associations in your own data."
+      ]
+    },
+    "advanced": {
+      "title": "Experiments and Ask Markaestro",
+      "intro": "Test one idea at a time with a paired A/B post, and ask questions that are answered only from this brand's measured records.",
+      "steps": [
+        "Create an experiment: one platform, two variants, one window. Both posts are scheduled for you.",
+        "When the window ends, the winner is decided by the measured metric and lands in your Inbox.",
+        "Ask Markaestro picks one approved data tool per question and cites the records it used.",
+        "Campaigns are a preview: you can name them now, post assignment is coming."
+      ],
+      "inputs": [
+        "Both experiment posts and their reported metrics",
+        "Stored learnings, comparisons, timing, and top posts for Ask Markaestro"
+      ],
+      "never": [
+        "Declare a winner without the measured difference and sample behind it",
+        "Answer from generic social-media advice"
+      ]
+    },
+    "drafts": {
+      "title": "Draft this",
+      "intro": "Turns an opportunity, a pattern, or a specific post into a new caption written in your brand voice from your own best-performing evidence.",
+      "steps": [
+        "Intelligence gathers up to five of your strongest measured posts for that opportunity or pattern, plus your audience profile and brand voice.",
+        "The draft is written for the chosen platform, with hashtags and a hook, and a short note on which evidence shaped it.",
+        "It is saved as a draft in Content. Open it, edit it, add media, and schedule it when you are ready."
+      ],
+      "inputs": [
+        "Your measured posts, the audience profile, and the brand voice you declared",
+        "The evidence behind the opportunity or pattern you clicked"
+      ],
+      "never": [
+        "Publish or schedule the draft",
+        "Invent claims, prices, offers, or links that are not in your brand data"
+      ]
+    },
+    "explain": {
+      "title": "Why it worked",
+      "intro": "A short explanation of one post's result compared with the rest of your account: what stood out in the caption, the timing, or the platform average.",
+      "steps": [
+        "Open it on any measured post. The explanation is generated once and stored with the post.",
+        "Factors point at real things: a metric, the caption, a detected pattern, or the timing window.",
+        "Use the Try next suggestion as a hypothesis for your next post or an experiment."
+      ],
+      "inputs": [
+        "That post's numbers, caption, and detected patterns",
+        "Your platform averages and best posting window"
+      ],
+      "never": [
+        "Claim a cause. It describes associations in your data.",
+        "Use metrics the platform did not report"
+      ]
+    },
+    "links": {
+      "title": "Tracked links",
+      "intro": "Short links you paste into captions so clicks can be counted and, with the conversion API, tied back to sales or sign-ups.",
+      "steps": [
+        "Create a link with a label and destination. Copy the short URL into any caption.",
+        "Clicks appear here as they happen. No IP address, browser, or referrer is stored.",
+        "Send conversion events to the API with the click id to see attributed conversions per link."
+      ],
+      "inputs": [
+        "Redirects through the short link",
+        "Conversion events your site or server sends to Markaestro"
+      ],
+      "never": [
+        "Track visitors across sites",
+        "Store personal data from a click"
+      ]
+    }
+  },
+  "quota": {
+    "title": "AI actions",
+    "aiOps": "{used} of {limit} AI actions used this month",
+    "aiOpsUnlimited": "{used} AI actions used this month",
+    "strategist": "{used} of {limit} Ask turns used",
+    "hint": "Draft this, Why it worked, and Audience Fit each use one action. Background pattern detection is free.",
+    "exceeded": "You have used this month's AI actions on the {plan} plan. They reset next month, or upgrade for more."
+  },
+  "readiness": {
+    "title": "What is switched on",
+    "subtitle": "Each feature needs a minimum amount of measured data before it appears. Here is where this brand stands.",
+    "progress": "{current} of {required}",
+    "met": "Active",
+    "pending": "Needs more data",
+    "unavailable": "Not available yet",
+    "computedAt": "Computed {when}",
+    "checks": {
+      "history": {
+        "label": "Audience Fit history score",
+        "hint": "Needs 5 posts with a measured {metric} value."
+      },
+      "timing": {
+        "label": "Best posting windows",
+        "hint": "Needs 20 posts with a publish time and 5 with a measured {metric} value."
+      },
+      "timingWindow": {
+        "label": "A window with enough posts",
+        "hint": "At least 5 measured posts in the same weekday and hour."
+      },
+      "platformComparison": {
+        "label": "Platform comparison",
+        "hint": "Two platforms with 5 or more measured posts each."
+      },
+      "learnings": {
+        "label": "Playbook patterns",
+        "hint": "5 measured posts in a group and 5 outside it."
+      },
+      "contentPatterns": {
+        "label": "Content pattern detection",
+        "hint": "Captions are analyzed in the background after publishing. 10 analyzed posts unlock pillar, hook, and format patterns."
+      },
+      "alignment": {
+        "label": "Audience alignment",
+        "hint": "Needs audience demographics from a connected platform. None of your connected platforms reports them yet."
+      }
+    }
+  },
+  "objective": {
+    "title": "Optimizing for",
+    "body": "Every ranking, window, and recommendation on this page uses {metric} because your objective is {objective}.",
+    "change": "Change in Audience",
+    "names": {
+      "awareness": "Awareness",
+      "engagement": "Engagement",
+      "followers": "Followers",
+      "website_traffic": "Website traffic",
+      "leads": "Leads",
+      "app_installs": "App installs",
+      "purchases": "Purchases",
+      "other": "a custom objective"
+    },
+    "metrics": {
+      "reach": "reach",
+      "views": "views",
+      "engagements": "engagements (likes, comments, shares, saves)",
+      "followers_gained": "followers gained",
+      "clicks": "clicks",
+      "leads": "leads",
+      "installs": "installs",
+      "purchases": "purchases",
+      "conversions": "conversions",
+      "custom": "conversions"
+    },
+    "fallback": "None of your connected platforms reports a {requested} number per post yet, so this page ranks by {metric} instead. Change the objective in Audience, or connect a channel that reports it."
   },
   "metrics": {
     "posts": "Posts",
     "views": "Views",
     "reach": "Reach",
-    "clicks": "Clicks"
+    "clicks": "Clicks",
+    "engagements": "Engagements",
+    "conversions": "Conversions",
+    "engagementRate": "Engagement rate",
+    "perPost": "per post"
   },
   "platforms": {
     "title": "Platform performance",
+    "subtitle": "Per-post averages so a platform with fewer posts is compared fairly.",
     "empty": "Published posts will appear here as metrics arrive.",
-    "posts": "{value} posts",
-    "views": "{value} views",
-    "engagements": "{value} engagements",
     "colPlatform": "Platform",
-    "colEngagements": "Engagements"
+    "colPosts": "Posts",
+    "colAvgViews": "Avg views",
+    "colAvgEngagements": "Avg engagements",
+    "colEngRate": "Eng. rate",
+    "measuredNote": "{measured} of {posts} measured",
+    "includesImported": "Includes posts imported from your connected accounts, not only posts published through Markaestro. Numbers can differ from Analytics, which covers Markaestro posts over a date range."
+  },
+  "content": {
+    "title": "Your posts, ranked",
+    "sortBy": "Rank by",
+    "sortObjective": "Objective ({metric})",
+    "sortViews": "Views",
+    "sortEngagements": "Engagements",
+    "allPlatforms": "All platforms",
+    "mediaOnly": "Media post",
+    "likes": "Likes",
+    "comments": "Comments",
+    "shares": "Shares",
+    "viewLive": "View live",
+    "published": "Published {date}",
+    "engagementRate": "{value}% engagement",
+    "patterns": {
+      "pillar": "Pillar",
+      "hook": "Hook",
+      "format": "Format",
+      "pending": "Patterns are detected in the background after publishing."
+    },
+    "lowestTitle": "Lowest measured",
+    "lowestBody": "Your weakest measured posts on the same metric. What they lack is often the clearest lesson.",
+    "why": {
+      "button": "Why it worked",
+      "loading": "Reading this post's numbers…",
+      "factors": "What stood out",
+      "tryNext": "Try next",
+      "failed": "Could not explain this post right now.",
+      "notMeasured": "This post has no measured metrics to explain yet."
+    },
+    "remix": "Draft a post like this"
+  },
+  "timing": {
+    "title": "Best posting windows",
+    "subtitle": "Weekday and hour windows where your measured posts beat your account average on {metric}.",
+    "needs_dated_posts": "Account-specific timing needs 20 posts with a publish time and 5 with a measured {metric} value. You have {dated} dated posts.",
+    "no_window_with_five": "No weekday and hour has 5 measured posts yet. Keep posting; windows appear as they fill up.",
+    "window": "{weekday} at {hour}",
+    "observations": "{count} posts",
+    "liftUp": "+{value}% vs your average",
+    "liftDown": "{value}% vs your average",
+    "estimate": "about {value} {metric} per post",
+    "timezone": "Times shown in {timeZone}",
+    "accountMean": "Your average: {value} {metric} per post"
+  },
+  "opportunities": {
+    "kinds": {
+      "timing": "Timing",
+      "platform": "Platform",
+      "learning": "Pattern",
+      "alignment": "Audience"
+    },
+    "timing": {
+      "title": "Post on {weekday} around {hour}",
+      "body": "Posts published in this window average {estimate} {metric}, {lift} for this brand.",
+      "evidence": "{count} measured posts in this window, times in {timeZone}."
+    },
+    "platform": {
+      "title": "{leader} beats {trailing} per post",
+      "body": "{leader} averages {leaderPerPost} {metric} per post versus {trailingPerPost} on {trailing}. Reuse what works on {leader} before adding volume on {trailing}.",
+      "evidence": "{leaderPosts} measured posts on {leader}, {trailingPosts} on {trailing}. Compared per post, not by total."
+    },
+    "learning": {
+      "title": "Repeat: {pattern}",
+      "body": "Posts in this group are {effect}% above the rest of this brand on {metric}.",
+      "evidence": "{count} measured posts in the group. See the Playbook for the full comparison."
+    },
+    "alignment": {
+      "title": "Close the {dimension} gap",
+      "body": "{dimension} alignment is {score} out of 100. Prefer topics and destinations that match your saved audience profile.",
+      "evidence": "Association with your measured audience mix, not a cause."
+    },
+    "evidenceLabel": "Evidence",
+    "composeInContent": "Compose in Content",
+    "openCalendar": "Open Calendar"
+  },
+  "learnings": {
+    "dimensions": {
+      "platform": "Platform",
+      "pillar": "Content pillar",
+      "hook": "Hook",
+      "format": "Format",
+      "timing": "Time slot"
+    },
+    "keys": {
+      "has_hook": "Posts with a hook",
+      "no_hook": "Posts without a hook"
+    },
+    "summaryUp": "{count} posts in this group are {effect}% above the rest of this brand on {metric}.",
+    "summaryDown": "{count} posts in this group are {effect}% below the rest of this brand on {metric}.",
+    "groupVsRest": "{group} vs {rest} {metric} per post",
+    "sample": "{group} in the group, {rest} outside it",
+    "ci": "95% range: {low}% to {high}%",
+    "ciMissing": "Range not available yet",
+    "strength": {
+      "directional": "Directional",
+      "moderate": "Moderate",
+      "potentially_strong": "Potentially strong"
+    },
+    "strengthHints": {
+      "directional": "5 to 14 posts. Worth watching, not yet proof.",
+      "moderate": "15 to 29 posts, or the range still crosses zero.",
+      "potentially_strong": "30 or more posts and a range that stays on one side of zero."
+    },
+    "evidenceTitle": "Posts behind this pattern",
+    "contentPatternsNote": "Pillar, hook, and format patterns appear once {required} published captions have been analyzed. {current} analyzed so far; this runs in the background."
+  },
+  "drafts": {
+    "button": "Draft this",
+    "creating": "Writing draft…",
+    "created": "Draft created",
+    "open": "Open in Content",
+    "rationale": "Why this draft",
+    "failed": "Could not create a draft right now.",
+    "quota": "You have used this month's AI actions. They reset next month, or upgrade for more.",
+    "postQuota": "You have reached this month's post limit."
   },
   "audience": {
     "title": "Target audience",
@@ -90,28 +479,59 @@
     "markets": "Markets",
     "pillars": "Content pillars"
   },
-  "content": {
-    "title": "Top content",
-    "mediaOnly": "Media post",
-    "likes": "Likes",
-    "comments": "Comments",
-    "shares": "Shares",
-    "viewLive": "View live"
+  "links": {
+    "title": "Tracked links",
+    "subtitle": "Short links you can paste into any caption. Clicks are counted here without personal data.",
+    "empty": "Create a tracked link to count clicks without storing raw IP addresses.",
+    "label": "Label",
+    "destination": "Destination URL",
+    "create": "Create link",
+    "creating": "Creating…",
+    "created": "Tracked link created",
+    "createFailed": "Could not create the tracked link",
+    "copy": "Copy",
+    "copied": "Short link copied",
+    "clicks": "{count} clicks",
+    "conversions": "{count} attributed conversions",
+    "lastClick": "Last click {when}",
+    "noClicks": "No clicks yet"
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "preview": "Preview",
+    "empty": "Name campaigns now to group posts you want to compare. Assigning posts to a campaign is coming; creating one here never publishes anything.",
+    "name": "Campaign name",
+    "create": "Create campaign",
+    "created": "Campaign created",
+    "createFailed": "Could not create the campaign",
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "completed": "Completed",
+      "archived": "Archived"
+    }
   },
   "empty": {
     "overviewTitle": "Waiting on published posts",
-    "overviewBody": "This brand has no synced posts yet. Markaestro-published posts and imported platform history appear here after they are projected into Intelligence. Missing metrics stay blank, never zero.",
+    "overviewBody": "This brand has no synced posts yet. Posts published through Markaestro and history imported from your connected accounts appear here once they are projected into Intelligence. Missing metrics stay blank, never zero.",
     "noBrandTitle": "Create a brand first",
     "noBrandBody": "Intelligence is scoped to a Markaestro brand.",
     "createBrand": "Create a brand",
-    "profileTitle": "Set up your audience profile",
-    "profileBody": "Add an objective, target market, timezone, and platform priorities in brand settings.",
     "contentTitle": "No measured content yet",
-    "contentBody": "Published and imported platform posts appear here without turning missing metrics into zero.",
+    "contentBody": "Published and imported posts appear here as soon as a platform reports metrics for them.",
     "opportunitiesTitle": "No grounded opportunities yet",
-    "opportunitiesBody": "Recommendations appear when Intelligence has enough measured evidence, for example two platforms to compare, a strong posting window, or a repeatable learning. Keep publishing and syncing metrics.",
+    "opportunitiesBody": "Suggestions appear once there is enough measured evidence: two platforms to compare, a posting window with 5 posts, or a repeatable pattern. The readiness list on Overview shows how close you are.",
     "playbookTitle": "Your playbook is warming up",
-    "playbookBody": "Statistical patterns appear after enough measured posts in a group (typically five or more). Check back as more posts sync, or review Opportunities for action-oriented suggestions."
+    "playbookBody": "Patterns need at least 5 measured posts in a group and 5 outside it. Check the readiness list on Overview, or see Opportunities for the first actionable suggestions."
+  },
+  "weekdays": {
+    "Mon": "Monday",
+    "Tue": "Tuesday",
+    "Wed": "Wednesday",
+    "Thu": "Thursday",
+    "Fri": "Friday",
+    "Sat": "Saturday",
+    "Sun": "Sunday"
   },
   "composer": {
     "title": "Audience Fit",
@@ -264,33 +684,15 @@
       "custom": "Custom"
     }
   },
-  "actions": {
-    "accept": "Accept",
-    "dismiss": "Dismiss",
-    "pin": "Pin",
-    "saveFailed": "Could not save your decision",
-    "acceptedToast": "Marked as accepted, execute in Content or Calendar",
-    "pinnedToast": "Pinned for follow-up",
-    "dismissedToast": "Dismissed and hidden from this list",
-    "status": {
-      "accepted": "Accepted",
-      "pinned": "Pinned",
-      "dismissed": "Dismissed"
-    }
-  },
   "alignment": {
     "title": "Audience alignment",
-    "empty": "Alignment appears after a measurable audience mix is captured. Missing dimensions stay blank."
-  },
-  "timing": {
-    "title": "Best posting windows",
-    "empty": "Account-specific timing needs 20 dated posts and five observations in the cited hour."
-  },
-  "campaigns": {
-    "title": "Campaigns",
-    "empty": "Name a campaign to group posts you want to compare across platforms. Creating one here does not publish anything, assign posts as you publish from Content.",
-    "name": "Campaign name",
-    "create": "Create campaign"
+    "empty": "Alignment appears after a connected platform reports your audience mix. Missing dimensions stay blank.",
+    "dimensions": {
+      "geography": "Geography",
+      "age": "Age",
+      "gender": "Gender",
+      "industryInterests": "Industries and interests"
+    }
   },
   "experiments": {
     "title": "Experiments",
@@ -342,21 +744,29 @@
   },
   "ask": {
     "title": "Ask Markaestro",
+    "subtitle": "Answers come only from this brand's measured records. Each answer names the data it used.",
     "placeholder": "Ask about measured performance, timing, or learnings.",
     "submit": "Ask",
     "asking": "Selecting evidence…",
-    "tool": "Used {tool}",
+    "tool": "Answered from: {tool}",
+    "evidence": "Records cited",
     "failed": "Could not answer that question. Try again.",
     "timeout": "That took too long, try a shorter question, or ask again in a moment.",
     "quota": "You have used this month’s Ask Markaestro turns. Try again next month or upgrade.",
-    "unavailable": "Ask Markaestro is not available for this workspace yet."
-  },
-  "links": {
-    "title": "Tracked links",
-    "empty": "Create a tracked link to attribute clicks without storing raw IP addresses.",
-    "label": "Label",
-    "destination": "Destination URL",
-    "create": "Create link"
+    "unavailable": "Ask Markaestro is not available for this workspace yet.",
+    "tools": {
+      "audience_performance": "audience snapshots",
+      "audience_alignment": "audience alignment",
+      "top_posts": "top posts by views",
+      "pillar_performance": "performance by content pillar",
+      "hook_performance": "performance by hook",
+      "timing_performance": "performance by weekday and hour",
+      "drift": "audience drift events",
+      "learnings": "playbook learnings",
+      "campaigns": "campaigns",
+      "platform_comparisons": "per-platform comparison",
+      "experiments": "experiments"
+    }
   },
   "errors": {
     "unavailableTitle": "Intelligence is unavailable",

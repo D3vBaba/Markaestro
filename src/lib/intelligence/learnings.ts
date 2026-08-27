@@ -4,8 +4,11 @@ import {
   learningStrength,
   meanDifferencePercent,
 } from './statistics';
-import { hourBucket, measuredObjectiveValues, type HistoricalPost } from './historical-fit';
-import { mapObjective } from './historical-fit';
+import { hourBucket, measuredObjectiveValues, objectiveMetricFamily, type HistoricalPost } from './historical-fit';
+
+export const LEARNING_MIN_GROUP = 5;
+export const LEARNING_MIN_REST = 5;
+export const LEARNING_MIN_EFFECT_PERCENT = 15;
 
 export type LearningPost = HistoricalPost & {
   id: string;
@@ -13,15 +16,21 @@ export type LearningPost = HistoricalPost & {
   fingerprint?: { pillar?: string | null; hook?: string | null; kind?: string | null } | null;
 };
 
+export type LearningDimension = 'platform' | 'pillar' | 'hook' | 'format' | 'timing';
+
 export type BrandLearning = {
   id: string;
   productId: string;
-  dimension: 'platform' | 'pillar' | 'hook' | 'format' | 'timing';
+  dimension: LearningDimension;
   key: string;
   title: string;
   summary: string;
+  metric: string;
   strength: ReturnType<typeof learningStrength>;
   observations: number;
+  controlObservations: number;
+  groupMean: number;
+  restMean: number;
   effectPercent: number | null;
   confidenceInterval: [number, number] | null;
   evidencePostIds: string[];
@@ -48,19 +57,20 @@ function learningForGroup(input: {
   group: LearningPost[];
   rest: LearningPost[];
   objective?: string;
+  metric: string;
 }): BrandLearning | null {
   const treatment = measuredObjectiveValues(input.group, input.objective);
   const control = measuredObjectiveValues(input.rest, input.objective);
   const observations = treatment.length;
-  if (observations < 5 || control.length < 5) return null;
+  if (observations < LEARNING_MIN_GROUP || control.length < LEARNING_MIN_REST) return null;
   const effectPercent = meanDifferencePercent(treatment, control);
   const interval = bootstrapMeanDifferencePercent(treatment, control, 800, 20260825);
   const varianceSupportsClaim = Boolean(
-    interval && (interval[0] > 0 || interval[1] < 0) && Math.abs(effectPercent ?? 0) >= 15,
+    interval && (interval[0] > 0 || interval[1] < 0) && Math.abs(effectPercent ?? 0) >= LEARNING_MIN_EFFECT_PERCENT,
   );
   const strength = learningStrength(observations, varianceSupportsClaim);
   if (strength === 'insufficient') return null;
-  const metric = mapObjective(input.objective);
+  const metric = input.metric;
   const direction = (effectPercent ?? 0) >= 0 ? 'above' : 'below';
   return {
     id: intelligenceRecordId('learning', input.productId, input.dimension, input.key),
@@ -70,8 +80,12 @@ function learningForGroup(input: {
     title: `${input.dimension}: ${input.key}`,
     summary: `${observations} measured posts in ${input.key} are ${direction} the rest of this brand on ${metric}`
       + (effectPercent === null ? '.' : ` (${Math.round(effectPercent)}%).`),
+    metric,
     strength,
     observations,
+    controlObservations: control.length,
+    groupMean: mean(treatment),
+    restMean: mean(control),
     effectPercent,
     confidenceInterval: interval,
     evidencePostIds: input.group
@@ -90,6 +104,7 @@ export function generateBrandLearnings(input: {
   limit?: number;
 }): BrandLearning[] {
   const learnings: BrandLearning[] = [];
+  const metric = objectiveMetricFamily(input.objective, input.posts);
   const dimensions: BrandLearning['dimension'][] = ['platform', 'pillar', 'hook', 'format', 'timing'];
   for (const dimension of dimensions) {
     const grouped = new Map<string, LearningPost[]>();
@@ -101,7 +116,8 @@ export function generateBrandLearnings(input: {
       grouped.set(key, list);
     }
     for (const [key, group] of grouped) {
-      const rest = input.posts.filter((post) => !group.includes(post));
+      const members = new Set(group);
+      const rest = input.posts.filter((post) => !members.has(post));
       const learning = learningForGroup({
         productId: input.productId,
         dimension,
@@ -109,6 +125,7 @@ export function generateBrandLearnings(input: {
         group,
         rest,
         objective: input.objective,
+        metric,
       });
       if (learning) learnings.push(learning);
     }

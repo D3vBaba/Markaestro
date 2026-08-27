@@ -45,6 +45,7 @@ export default function LandingPage() {
   const composerRows = t.raw("composerPreview.rows") as ComposerRow[];
   const composerBullets = t.raw("composerPreview.bullets") as string[];
   const agentBullets = t.raw("agentSection.bullets") as string[];
+  const intelligenceItems = t.raw("intelligencePreview.items") as Array<{ title: string; desc: string }>;
 
   return (
     <MarketingLayout>
@@ -216,6 +217,56 @@ export default function LandingPage() {
             <Link href="/features">
               <Button variant="outline" className="rounded-lg h-9 text-[13px]">
                 {t("featuresPreview.exploreButton")}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Intelligence Preview ─── */}
+      <section
+        className="border-t"
+        style={{ borderColor: "var(--mk-rule)", background: "var(--mk-surface)" }}
+      >
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="mk-eyebrow">{t("intelligencePreview.eyebrow")}</p>
+            <h2
+              className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
+              style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
+            >
+              {t("intelligencePreview.titleLead")}{" "}
+              <span style={{ color: "var(--mk-accent)" }}>{t("intelligencePreview.titleHighlight")}</span>
+            </h2>
+            <p
+              className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
+              style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+            >
+              {t("intelligencePreview.subtitle")}
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-3 sm:grid-cols-3">
+            {intelligenceItems.map(({ title, desc }) => (
+              <div
+                key={title}
+                className="rounded-xl p-6"
+                style={{ background: "var(--mk-paper)", border: "1px solid var(--mk-rule)" }}
+              >
+                <h3 className="text-[14px] font-semibold" style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}>
+                  {title}
+                </h3>
+                <p className="mt-2.5 text-[13px] leading-relaxed" style={{ color: "var(--mk-ink-60)" }}>
+                  {desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Link href="/features#intelligence">
+              <Button variant="outline" className="rounded-lg h-9 text-[13px]">
+                {t("intelligencePreview.exploreButton")}
               </Button>
             </Link>
           </div>

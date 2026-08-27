@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "캡션이 복사되었습니다",
       "copyFailed": "캡션을 복사하지 못했습니다"
-    }
+    },
+    "fromIntelligence": "인텔리전스가 작성한 초안"
   },
   "platformPostsTab": {
     "refresh": "새로고침",

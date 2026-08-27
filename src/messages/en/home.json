@@ -9,9 +9,18 @@
     "signInPrompt": "Already have an account?",
     "signInLink": "Sign in",
     "stats": [
-      { "value": "10hrs", "label": "Saved per week" },
-      { "value": "6", "label": "Channels, one click" },
-      { "value": "1", "label": "Composer for every channel" }
+      {
+        "value": "10hrs",
+        "label": "Saved per week"
+      },
+      {
+        "value": "6",
+        "label": "Channels, one click"
+      },
+      {
+        "value": "1",
+        "label": "Composer for every channel"
+      }
     ],
     "trustedBy": "Trusted by founders"
   },
@@ -21,14 +30,53 @@
     "titleHighlight": "grow",
     "subtitle": "From draft caption to published post, Markaestro handles every step of your social workflow.",
     "items": [
-      { "title": "Multi-channel publishing", "desc": "Publish to Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest from a single composer. Schedule posts or publish instantly." },
-      { "title": "Centralized media uploads", "desc": "Bring your own images and videos. Upload once per post and ship to every connected channel." },
-      { "title": "Multi-channel previews", "desc": "See how every post will render on each platform before you publish: captions, aspect ratios, character limits." },
-      { "title": "Scheduling & calendar", "desc": "Queue posts on a unified calendar with per-channel timing. Reschedule, pause, or duplicate in a click." },
-      { "title": "Publishing dashboard", "desc": "Track drafts, scheduled posts, and publish status across every channel." },
-      { "title": "OAuth integrations", "desc": "One-click connect to Meta, TikTok, LinkedIn, Threads, and Pinterest via secure OAuth. No manual token management required." }
+      {
+        "title": "Multi-channel publishing",
+        "desc": "Publish to Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest from a single composer. Schedule posts or publish instantly."
+      },
+      {
+        "title": "Centralized media uploads",
+        "desc": "Bring your own images and videos. Upload once per post and ship to every connected channel."
+      },
+      {
+        "title": "Multi-channel previews",
+        "desc": "See how every post will render on each platform before you publish: captions, aspect ratios, character limits."
+      },
+      {
+        "title": "Scheduling & calendar",
+        "desc": "Queue posts on a unified calendar with per-channel timing. Reschedule, pause, or duplicate in a click."
+      },
+      {
+        "title": "Publishing dashboard",
+        "desc": "Track drafts, scheduled posts, and publish status across every channel."
+      },
+      {
+        "title": "OAuth integrations",
+        "desc": "One-click connect to Meta, TikTok, LinkedIn, Threads, and Pinterest via secure OAuth. No manual token management required."
+      }
     ],
     "exploreButton": "Explore all features"
+  },
+  "intelligencePreview": {
+    "eyebrow": "Intelligence",
+    "titleLead": "Publishing is the input.",
+    "titleHighlight": "Growth is the output.",
+    "subtitle": "Intelligence learns from the posts you already published and tells you, in plain language, what worked, when to post, and what to try next. Then it drafts it for you.",
+    "items": [
+      {
+        "title": "Measured, never guessed",
+        "desc": "Every number is exactly what the platform reported. A blank stays blank, and each result says whether it was measured, calculated, recommended, or generated."
+      },
+      {
+        "title": "Patterns with proof",
+        "desc": "Which platform, time slot, hook, or content pillar performs above the rest of your brand, with the sample size and confidence range spelled out."
+      },
+      {
+        "title": "Drafts you control",
+        "desc": "Turn any opportunity or winning post into a caption in your brand voice. It lands in Content as a draft. You edit, add media, and schedule."
+      }
+    ],
+    "exploreButton": "Explore Intelligence"
   },
   "channelsPreview": {
     "eyebrow": "Channels",
@@ -36,25 +84,62 @@
     "titleHighlight": "everywhere",
     "subtitle": "Connect once and publish to every major platform. Markaestro handles the API differences, character limits, and media requirements for each channel.",
     "channels": [
-      { "name": "Facebook & Instagram", "desc": "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing." },
-      { "name": "TikTok", "desc": "Photo and video content handed off to the creator's TikTok inbox for final completion and posting." },
-      { "name": "LinkedIn", "desc": "Your profile or a Page you manage. Text, image, video, and multi-image posts up to 20 images." },
-      { "name": "Threads & Pinterest", "desc": "Threads carousels up to 20 items; Pinterest image and video pins to the board you pick." }
+      {
+        "name": "Facebook & Instagram",
+        "desc": "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing."
+      },
+      {
+        "name": "TikTok",
+        "desc": "Photo and video content handed off to the creator's TikTok inbox for final completion and posting."
+      },
+      {
+        "name": "LinkedIn",
+        "desc": "Your profile or a Page you manage. Text, image, video, and multi-image posts up to 20 images."
+      },
+      {
+        "name": "Threads & Pinterest",
+        "desc": "Threads carousels up to 20 items; Pinterest image and video pins to the board you pick."
+      }
     ],
     "seeAllButton": "See all channels",
     "stats": [
-      { "label": "Social channels", "value": "6", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
-      { "label": "Composer", "value": "1", "sub": "Caption + media in one screen" },
-      { "label": "Dashboard", "value": "1", "sub": "Unified publishing workflow" },
-      { "label": "API", "value": "1", "sub": "One key, agent-ready" }
+      {
+        "label": "Social channels",
+        "value": "6",
+        "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest"
+      },
+      {
+        "label": "Composer",
+        "value": "1",
+        "sub": "Caption + media in one screen"
+      },
+      {
+        "label": "Dashboard",
+        "value": "1",
+        "sub": "Unified publishing workflow"
+      },
+      {
+        "label": "API",
+        "value": "1",
+        "sub": "One key, agent-ready"
+      }
     ]
   },
   "composerPreview": {
     "panelLabel": "One composer, every channel",
     "rows": [
-      { "label": "Media", "value": "Upload images or video: JPG, PNG, WebP, MP4" },
-      { "label": "Caption", "value": "Write once, preview per channel before publishing" },
-      { "label": "Output", "value": "Scheduled or instant posts to all six connected channels" }
+      {
+        "label": "Media",
+        "value": "Upload images or video: JPG, PNG, WebP, MP4"
+      },
+      {
+        "label": "Caption",
+        "value": "Write once, preview per channel before publishing"
+      },
+      {
+        "label": "Output",
+        "value": "Scheduled or instant posts to all six connected channels"
+      }
     ],
     "eyebrow": "Composer",
     "titleLead": "Your media,",

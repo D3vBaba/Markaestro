@@ -26,6 +26,8 @@ type Post = {
   nextAction?: string;
   deliveryMode?: string;
   targetChannels?: string[];
+  /** Present on drafts created by Intelligence ("Draft this"). */
+  intelligence?: { kind?: string; rationale?: string | null } | null;
 };
 
 const channelAppUrls: Record<string, string> = {
@@ -173,6 +175,14 @@ export default function PostCard({
 
         {/* Right: status badge */}
         <div className="flex items-center gap-1.5 shrink-0">
+          {post.intelligence?.kind === "generated_draft" && (
+            <span
+              title={post.intelligence.rationale || undefined}
+              className="inline-flex items-center rounded-full border border-violet-200/70 bg-violet-50 px-2 py-0.5 text-[10.5px] font-semibold text-violet-700 dark:border-violet-900/60 dark:bg-violet-950/40 dark:text-violet-300"
+            >
+              {t("fromIntelligence")}
+            </span>
+          )}
           {publishing && (
             <div className="w-3 h-3 rounded-full border-2 border-blue-400 border-t-blue-600 animate-spin" />
           )}

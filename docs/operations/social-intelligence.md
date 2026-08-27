@@ -20,6 +20,58 @@ workspace immediately.
 Deterministic services calculate scores, statistics, drift, and winners. Gemini
 classifies content and explains supplied evidence. Missing metrics stay null.
 
+## Read path, cache, and cost bounds
+
+- `products/{productId}/intelligence/insights` caches the full
+  `buildProductInsights` output (rollup, readiness, timing, learnings,
+  opportunities, alignment, drift) for `INSIGHTS_CACHE_TTL_MS` (one hour) and
+  is versioned by `INSIGHTS_CACHE_VERSION`. The overview, timing, decision,
+  draft, and explain endpoints read it with `allowCached: true`, so a page load
+  costs the cache document plus the two decision collections instead of the
+  whole post history and the bootstrap statistics. `?fresh=1` (the Refresh
+  button) and the hourly worker recompute write through the cache. Bump the
+  version whenever the insights shape changes.
+- `/api/intelligence/timing` serves the composer's Audience Fit panel from the
+  cache; the composer never re-reads posts.
+- Decision statuses are never stored in the cache; they are re-applied from
+  `brandLearnings` and `optimizationRecommendations` on every read, and
+  `decision: "proposed"` undoes an earlier decision.
+
+### Published-post fingerprints (content patterns)
+
+`src/lib/intelligence/published-post-fingerprints.ts` runs inside the
+analytics tick whenever the Learning phase is enabled (shadow included). It
+queues caption-only `content_fingerprint` jobs for `socialPosts` without a
+`fingerprint`, stamps `fingerprint` / `fingerprintId` / `fingerprintedAt` on
+the post when the job completes, and unlocks pillar, hook, and format
+learnings plus the strategist's pillar and hook tools. Bounds: last 90 days
+first, then older posts, then an hourly look at the newest 100 posts;
+`FINGERPRINT_ENQUEUE_PER_TICK` (20) and `FINGERPRINT_DAILY_CAP` (500) per
+workspace; media is never copied or sent. These jobs are system-owned
+(`system: true`) and are not charged to the workspace AI quota. Cursors and
+daily counters live on `analytics/meta` (`fingerprint*` fields).
+
+### Generated drafts and explanations
+
+- `POST /api/intelligence/drafts` ("Draft this") builds a brief from the
+  brand's own measured evidence, audience profile, and brand voice, generates a
+  caption with the fast model, and saves a normal Draft post in `posts` with an
+  `intelligence` block (source, rationale, evidence ids, artifact id). It
+  consumes one AI operation and one post-quota unit; it never schedules.
+- `POST /api/intelligence/posts/{id}/explain` ("Why it worked") generates a
+  short explanation once per post, cached on the post as `whyItWorked`; an AI
+  operation is charged only on a cache miss (re-generated when the fingerprint
+  or `EXPLANATION_VERSION` changes).
+- Generated copy is sanitized (no em or en dashes) and every surface labels it
+  as Generated.
+
+### Tracked links
+
+Click counters live on the tracked-link documents (`clicks`, `lastClickedAt`,
+`attributedConversions`, `lastConversionAt`), incremented from the redirect
+route and from conversion ingestion. Listing links therefore never scans
+`conversionClicks`.
+
 ## Rollout
 
 The global fallback is `SOCIAL_INTELLIGENCE_DEFAULT_STAGE=off`. Runtime config

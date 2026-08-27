@@ -9,9 +9,18 @@
     "signInPrompt": "Heb je al een account?",
     "signInLink": "Inloggen",
     "stats": [
-      { "value": "10u", "label": "Bespaard per week" },
-      { "value": "6", "label": "Kanalen, één klik" },
-      { "value": "1", "label": "Editor voor elk kanaal" }
+      {
+        "value": "10u",
+        "label": "Bespaard per week"
+      },
+      {
+        "value": "6",
+        "label": "Kanalen, één klik"
+      },
+      {
+        "value": "1",
+        "label": "Editor voor elk kanaal"
+      }
     ],
     "trustedBy": "Vertrouwd door oprichters"
   },
@@ -21,14 +30,53 @@
     "titleHighlight": "groeien",
     "subtitle": "Van conceptonderschrift tot gepubliceerde post: Markaestro regelt elke stap van je social workflow.",
     "items": [
-      { "title": "Publiceren op meerdere kanalen", "desc": "Publiceer naar Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest vanuit één editor. Plan posts in of publiceer direct." },
-      { "title": "Gecentraliseerd media-uploaden", "desc": "Gebruik je eigen afbeeldingen en video's. Upload één keer per post en verstuur naar elk verbonden kanaal." },
-      { "title": "Voorbeeldweergave voor meerdere kanalen", "desc": "Zie hoe elke post er op elk platform uitziet voordat je publiceert, onderschriften, beeldverhoudingen, tekenlimieten." },
-      { "title": "Planning en kalender", "desc": "Plaats posts in een gecombineerde kalender met tijdstippen per kanaal. Herplan, pauzeer of dupliceer met één klik." },
-      { "title": "Publicatiedashboard", "desc": "Volg concepten, geplande posts en publicatiestatus voor elk kanaal." },
-      { "title": "OAuth-integraties", "desc": "Verbind met één klik met Meta, TikTok, LinkedIn, Threads en Pinterest via veilige OAuth. Geen handmatig tokenbeheer nodig." }
+      {
+        "title": "Publiceren op meerdere kanalen",
+        "desc": "Publiceer naar Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest vanuit één editor. Plan posts in of publiceer direct."
+      },
+      {
+        "title": "Gecentraliseerd media-uploaden",
+        "desc": "Gebruik je eigen afbeeldingen en video's. Upload één keer per post en verstuur naar elk verbonden kanaal."
+      },
+      {
+        "title": "Voorbeeldweergave voor meerdere kanalen",
+        "desc": "Zie hoe elke post er op elk platform uitziet voordat je publiceert, onderschriften, beeldverhoudingen, tekenlimieten."
+      },
+      {
+        "title": "Planning en kalender",
+        "desc": "Plaats posts in een gecombineerde kalender met tijdstippen per kanaal. Herplan, pauzeer of dupliceer met één klik."
+      },
+      {
+        "title": "Publicatiedashboard",
+        "desc": "Volg concepten, geplande posts en publicatiestatus voor elk kanaal."
+      },
+      {
+        "title": "OAuth-integraties",
+        "desc": "Verbind met één klik met Meta, TikTok, LinkedIn, Threads en Pinterest via veilige OAuth. Geen handmatig tokenbeheer nodig."
+      }
     ],
     "exploreButton": "Ontdek alle functies"
+  },
+  "intelligencePreview": {
+    "eyebrow": "Intelligentie",
+    "titleLead": "Publiceren is de input.",
+    "titleHighlight": "Groei is de output.",
+    "subtitle": "Intelligentie leert van de posts die je al hebt gepubliceerd en vertelt je in gewone taal wat werkte, wanneer je moet posten en wat je hierna kunt proberen. Daarna schrijft het het concept voor je.",
+    "items": [
+      {
+        "title": "Gemeten, nooit gegokt",
+        "desc": "Elk cijfer is precies wat het platform rapporteerde. Leeg blijft leeg, en elk resultaat zegt of het gemeten, berekend, aanbevolen of gegenereerd is."
+      },
+      {
+        "title": "Patronen met bewijs",
+        "desc": "Welk platform, tijdslot, welke openingszin of contentpijler beter presteert dan de rest van je merk, met de steekproefgrootte en het betrouwbaarheidsbereik erbij."
+      },
+      {
+        "title": "Concepten die jij beheert",
+        "desc": "Maak van elke kans of winnende post een caption in je merkstem. Die komt als concept in Content terecht. Jij bewerkt, voegt media toe en plant in."
+      }
+    ],
+    "exploreButton": "Ontdek Intelligentie"
   },
   "channelsPreview": {
     "eyebrow": "Kanalen",
@@ -36,25 +84,62 @@
     "titleHighlight": "overal",
     "subtitle": "Verbind één keer en publiceer naar elk groot platform. Markaestro regelt de API-verschillen, tekenlimieten en mediavereisten per kanaal.",
     "channels": [
-      { "name": "Facebook en Instagram", "desc": "OAuth-verbonden via Meta. Pagina's, feedposts, verhalen en zakelijke IG-publicaties." },
-      { "name": "TikTok", "desc": "Foto- en video-inhoud wordt doorgestuurd naar de TikTok-inbox van de maker voor definitieve afronding en plaatsing." },
-      { "name": "LinkedIn", "desc": "Je profiel of een Pagina die je beheert. Tekst-, afbeeldings-, video- en meerdere-afbeeldingenposts tot 20 afbeeldingen." },
-      { "name": "Threads en Pinterest", "desc": "Threads-carrousels tot 20 items; Pinterest-afbeeldings- en videopins naar het bord dat je kiest." }
+      {
+        "name": "Facebook en Instagram",
+        "desc": "OAuth-verbonden via Meta. Pagina's, feedposts, verhalen en zakelijke IG-publicaties."
+      },
+      {
+        "name": "TikTok",
+        "desc": "Foto- en video-inhoud wordt doorgestuurd naar de TikTok-inbox van de maker voor definitieve afronding en plaatsing."
+      },
+      {
+        "name": "LinkedIn",
+        "desc": "Je profiel of een Pagina die je beheert. Tekst-, afbeeldings-, video- en meerdere-afbeeldingenposts tot 20 afbeeldingen."
+      },
+      {
+        "name": "Threads en Pinterest",
+        "desc": "Threads-carrousels tot 20 items; Pinterest-afbeeldings- en videopins naar het bord dat je kiest."
+      }
     ],
     "seeAllButton": "Bekijk alle kanalen",
     "stats": [
-      { "label": "Sociale kanalen", "value": "6", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
-      { "label": "Editor", "value": "1", "sub": "Onderschrift + media op één scherm" },
-      { "label": "Dashboard", "value": "1", "sub": "Gecombineerde publicatieworkflow" },
-      { "label": "API", "value": "1", "sub": "Eén sleutel, klaar voor agents" }
+      {
+        "label": "Sociale kanalen",
+        "value": "6",
+        "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest"
+      },
+      {
+        "label": "Editor",
+        "value": "1",
+        "sub": "Onderschrift + media op één scherm"
+      },
+      {
+        "label": "Dashboard",
+        "value": "1",
+        "sub": "Gecombineerde publicatieworkflow"
+      },
+      {
+        "label": "API",
+        "value": "1",
+        "sub": "Eén sleutel, klaar voor agents"
+      }
     ]
   },
   "composerPreview": {
     "panelLabel": "Eén editor, elk kanaal",
     "rows": [
-      { "label": "Media", "value": "Upload afbeeldingen of video's: JPG, PNG, WebP, MP4" },
-      { "label": "Onderschrift", "value": "Eén keer schrijven, voorbeeld per kanaal voor publicatie" },
-      { "label": "Resultaat", "value": "Geplande of directe posts naar alle zes verbonden kanalen" }
+      {
+        "label": "Media",
+        "value": "Upload afbeeldingen of video's: JPG, PNG, WebP, MP4"
+      },
+      {
+        "label": "Onderschrift",
+        "value": "Eén keer schrijven, voorbeeld per kanaal voor publicatie"
+      },
+      {
+        "label": "Resultaat",
+        "value": "Geplande of directe posts naar alle zes verbonden kanalen"
+      }
     ],
     "eyebrow": "Editor",
     "titleLead": "Jouw media,",

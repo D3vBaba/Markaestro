@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { socialChannels } from '@/lib/schemas';
+import { socialChannels, websiteUrlSchema } from '@/lib/schemas';
 
 export const businessObjectives = [
   'awareness',
@@ -62,7 +62,7 @@ export const audienceIntelligenceProfileSchema = z.object({
   businessDescription: z.string().trim().max(5000).default(''),
   conversionAction: z.enum(conversionActions).default('none'),
   customConversionAction: shortText.default(''),
-  conversionDestination: z.string().trim().url().or(z.literal('')).default(''),
+  conversionDestination: websiteUrlSchema.default(''),
   primaryTimezone: z.string().trim().min(1).max(100).default('UTC'),
   platformPriorities: z.preprocess((value) => {
     if (!Array.isArray(value)) return value;

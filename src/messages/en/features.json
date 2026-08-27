@@ -94,5 +94,66 @@
     "subtitle": "Start for free. No credit card required. Connect your first channel in under two minutes.",
     "primaryButton": "Get started free",
     "secondaryButton": "Contact sales"
+  },
+  "intelligence": {
+    "eyebrow": "Intelligence",
+    "titleLead": "Know what to post next,",
+    "titleHighlight": "from your own numbers",
+    "subtitle": "Intelligence reads the posts you already published, keeps every metric exactly as the platforms reported it, and turns that history into plain-language answers and ready-to-edit drafts. Nothing posts automatically.",
+    "loopTitle": "How it works",
+    "loop": [
+      {
+        "title": "Measure",
+        "body": "Posts published through Markaestro and history imported from your connected accounts become one record per post with the metrics each platform reported. Missing numbers stay blank, never zero."
+      },
+      {
+        "title": "Learn",
+        "body": "Deterministic statistics compare your posts by platform, time slot, content pillar, hook, and format. A pattern only appears with at least five posts in the group and five outside it, with a 95% range on the effect."
+      },
+      {
+        "title": "Recommend",
+        "body": "Opportunities turn those findings into concrete next steps with the numbers behind them: a window that beats your average, a platform that wins per post, a pattern worth repeating."
+      },
+      {
+        "title": "Draft",
+        "body": "Draft this writes a caption in your brand voice from your own best-performing evidence and saves it to Content as a normal draft. You edit, add media, and schedule."
+      }
+    ],
+    "tabsTitle": "What you get, tab by tab",
+    "tabs": [
+      {
+        "title": "Overview",
+        "body": "Objective banner, measured KPIs, per-post platform comparison, and a readiness list that shows exactly which features are active and how much data each one still needs."
+      },
+      {
+        "title": "Audience",
+        "body": "Declare your objective, markets, timezone, pillars, and voice. Tracked short links count clicks without storing personal data and tie conversions back to the post."
+      },
+      {
+        "title": "Content",
+        "body": "Your posts ranked by the metric you chose, the patterns detected in each one, and a Why it worked explanation grounded in that post's numbers against your account average."
+      },
+      {
+        "title": "Opportunities",
+        "body": "Evidence-backed suggestions you can accept, pin, or dismiss, each with a Draft this button. Accepting never creates or schedules a post."
+      },
+      {
+        "title": "Playbook",
+        "body": "Patterns that repeat in your data with the sample size, effect, and confidence range spelled out in plain words, plus the posts behind each one."
+      },
+      {
+        "title": "Experiments and Ask",
+        "body": "Paired A/B posts with a measured winner, and questions answered only from this brand's records, citing the data used."
+      }
+    ],
+    "principlesTitle": "Rules it never breaks",
+    "principles": [
+      "Never publishes or schedules on its own. Every action is a draft or a decision you record.",
+      "Never fills in a number a platform did not report. Blank means blank.",
+      "Never uses other brands' data or generic benchmarks. Every claim comes from your own history.",
+      "Always says what fed a result: Measured, Calculated, Recommended, Declared, or Generated."
+    ],
+    "plans": "Audience Fit is on every plan. Playbook, Opportunities, tracked links, and Ask Markaestro start on Pro; Experiments on Business. AI actions such as Draft this are metered per month by plan.",
+    "cta": "Start free and connect a channel"
   }
 }

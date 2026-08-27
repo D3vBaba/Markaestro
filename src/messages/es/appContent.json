@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "Descripción copiada",
       "copyFailed": "No se pudo copiar la descripción"
-    }
+    },
+    "fromIntelligence": "Borrador creado por Inteligencia"
   },
   "platformPostsTab": {
     "refresh": "Actualizar",

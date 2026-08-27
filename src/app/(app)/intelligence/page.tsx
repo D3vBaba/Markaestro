@@ -10,40 +10,40 @@ import BrandSwitcher from "@/components/app/BrandSwitcher";
 import Select from "@/components/app/Select";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
+import { apiGet } from "@/lib/api-client";
 import { KpiCard } from "@/components/analytics/KpiCard";
-import IntelligenceWorkspace, {
-  IntelligenceAdvancedTab,
-  IntelligenceAudienceTab,
-  IntelligenceContentTab,
-  IntelligenceOpportunitiesTab,
-  IntelligencePlaybookTab,
-  type IntelligenceOverview,
-} from "@/components/intelligence/IntelligenceWorkspace";
 import { cn } from "@/lib/utils";
 import { useIntelligencePreviewAccess } from "@/hooks/useIntelligencePreviewAccess";
+import { HowItWorksButton } from "@/components/intelligence/shared";
+import { OverviewTab } from "@/components/intelligence/OverviewTab";
+import { AudienceTab } from "@/components/intelligence/AudienceTab";
+import { ContentTab } from "@/components/intelligence/ContentTab";
+import { OpportunitiesTab } from "@/components/intelligence/OpportunitiesTab";
+import { PlaybookTab } from "@/components/intelligence/PlaybookTab";
+import { AdvancedTab } from "@/components/intelligence/AdvancedTab";
+import type { IntelligenceOverview } from "@/components/intelligence/types";
 
 const TAB_IDS = ["overview", "audience", "content", "opportunities", "playbook", "advanced"] as const;
 
-function ProductContextBar({
-  products,
-  productId,
-  onChange,
-}: {
-  products: Array<{ id: string; name: string }>;
-  productId: string;
-  onChange: (id: string) => void;
-}) {
-  const t = useTranslations("intelligence.productBar");
+function QuotaMeter({ quota }: { quota: NonNullable<IntelligenceOverview["quota"]> }) {
+  const t = useTranslations("intelligence.quota");
+  const unlimited = quota.aiOperationsLimit < 0;
+  const ratio = unlimited ? 0 : Math.min(1, quota.aiOperationsUsed / Math.max(1, quota.aiOperationsLimit));
   return (
-    <BrandSwitcher
-      label={t("brand")}
-      emptyLabel={t("noBrandSelected")}
-      products={products}
-      value={productId}
-      onChange={onChange}
-    />
+    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400" title={t("hint")}>
+      {!unlimited && (
+        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+          <div className={cn("h-full rounded-full", ratio >= 1 ? "bg-rose-500" : ratio >= 0.8 ? "bg-amber-400" : "bg-violet-500")} style={{ width: `${Math.round(ratio * 100)}%` }} />
+        </div>
+      )}
+      <span className="whitespace-nowrap">
+        {unlimited
+          ? t("aiOpsUnlimited", { used: quota.aiOperationsUsed })
+          : t("aiOps", { used: quota.aiOperationsUsed, limit: quota.aiOperationsLimit })}
+      </span>
+    </div>
   );
 }
 
@@ -53,8 +53,9 @@ export default function IntelligencePage() {
   const t = useTranslations("intelligence");
   const [productId, setProductId] = useState("");
   const [activeTab, setActiveTab] = useState<string>("overview");
+  const [recomputing, setRecomputing] = useState(false);
   const path = `/api/intelligence/overview${productId ? `?productId=${encodeURIComponent(productId)}` : ""}`;
-  const { data, loading, error, refresh } = useApiQuery<IntelligenceOverview>(canAccess ? path : null);
+  const { data, loading, refreshing, error, refresh } = useApiQuery<IntelligenceOverview>(canAccess ? path : null);
   const selectedId = productId || data?.productId || "";
 
   useEffect(() => {
@@ -64,8 +65,24 @@ export default function IntelligencePage() {
   if (!canAccess) return null;
 
   const tabs = TAB_IDS
-    .filter((value) => value !== "advanced" || data?.phases?.advanced)
+    .filter((value) => value !== "advanced" || data?.phases?.advanced || data?.phases?.growth)
     .map((value) => ({ value, label: t(`tabs.${value}`) }));
+
+  /** Refresh bypasses the hourly insights cache, then re-reads the cached result. */
+  async function recompute() {
+    setRecomputing(true);
+    try {
+      await apiGet(`${path}${path.includes("?") ? "&" : "?"}fresh=1`);
+      invalidateQueries("/api/intelligence/overview");
+      invalidateQueries("/api/intelligence/timing");
+      await refresh();
+    } finally {
+      setRecomputing(false);
+    }
+  }
+
+  const busy = loading || refreshing || recomputing;
+  const scoped = data && selectedId ? { ...data, productId: selectedId } : null;
 
   return (
     <>
@@ -73,25 +90,29 @@ export default function IntelligencePage() {
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {data?.quota && <QuotaMeter quota={data.quota} />}
+            <HowItWorksButton topic="page" />
             <Button
               variant="outline"
               size="sm"
-              className="rounded-xl h-9 text-xs font-medium gap-2 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800"
-              onClick={() => void refresh()}
-              disabled={loading}
+              className="rounded-xl h-8 text-xs font-medium gap-2 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800"
+              onClick={() => void recompute()}
+              disabled={busy}
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-              {t("errors.retry")}
+              <RefreshCw className={`h-3.5 w-3.5 ${busy ? "animate-spin" : ""}`} />
+              {recomputing ? t("actions.refreshing") : t("actions.refresh")}
             </Button>
           </div>
         }
       />
 
       {data && data.products.length > 0 && (
-        <ProductContextBar
+        <BrandSwitcher
+          label={t("productBar.brand")}
+          emptyLabel={t("productBar.noBrandSelected")}
           products={data.products}
-          productId={selectedId}
+          value={selectedId}
           onChange={setProductId}
         />
       )}
@@ -132,19 +153,15 @@ export default function IntelligencePage() {
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/50 dark:border-blue-800/50 text-blue-600 dark:text-blue-400 shadow-2xs">
             <Plus className="h-5 w-5" aria-hidden="true" />
           </div>
-          <h2 className="mt-4 text-base font-bold text-slate-900 dark:text-slate-100">
-            {t("empty.noBrandTitle")}
-          </h2>
-          <p className="mx-auto mt-1 max-w-md text-xs text-slate-500 dark:text-slate-400">
-            {t("empty.noBrandBody")}
-          </p>
+          <h2 className="mt-4 text-base font-bold text-slate-900 dark:text-slate-100">{t("empty.noBrandTitle")}</h2>
+          <p className="mx-auto mt-1 max-w-md text-xs text-slate-500 dark:text-slate-400">{t("empty.noBrandBody")}</p>
           <Button asChild className="mt-5 h-9 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
             <Link href="/products">{t("empty.createBrand")}</Link>
           </Button>
         </div>
       )}
 
-      {data?.productId && data.totals && selectedId && (
+      {scoped && scoped.totals && (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0 space-y-6">
           <div className="lg:hidden">
             <Select value={activeTab} onChange={(event) => setActiveTab(event.target.value)}>
@@ -176,28 +193,25 @@ export default function IntelligencePage() {
           </div>
 
           <TabsContent value="overview" className="mt-0">
-            <IntelligenceWorkspace data={{ ...data, productId: selectedId }} productId={selectedId} />
+            <OverviewTab data={scoped} onNavigate={setActiveTab} />
           </TabsContent>
           <TabsContent value="audience" className="mt-0">
-            <IntelligenceAudienceTab productId={selectedId} data={{ ...data, productId: selectedId }} />
+            <AudienceTab productId={selectedId} data={scoped} />
           </TabsContent>
           <TabsContent value="content" className="mt-0">
-            <IntelligenceContentTab data={{ ...data, productId: selectedId }} />
+            <ContentTab data={scoped} productId={selectedId} />
           </TabsContent>
           <TabsContent value="opportunities" className="mt-0">
-            <IntelligenceOpportunitiesTab data={{ ...data, productId: selectedId }} productId={selectedId} />
+            <OpportunitiesTab data={scoped} productId={selectedId} />
           </TabsContent>
           <TabsContent value="playbook" className="mt-0">
-            <IntelligencePlaybookTab data={{ ...data, productId: selectedId }} productId={selectedId} />
+            <PlaybookTab data={scoped} productId={selectedId} />
           </TabsContent>
-          {data.phases?.advanced && (
-            <TabsContent value="advanced" className="mt-0">
-              <IntelligenceAdvancedTab data={{ ...data, productId: selectedId }} productId={selectedId} />
-            </TabsContent>
-          )}
+          <TabsContent value="advanced" className="mt-0">
+            <AdvancedTab data={scoped} productId={selectedId} />
+          </TabsContent>
         </Tabs>
       )}
     </>
   );
 }
-

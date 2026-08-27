@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "تم نسخ التسمية التوضيحية",
       "copyFailed": "تعذّر نسخ التسمية التوضيحية"
-    }
+    },
+    "fromIntelligence": "مسودة أنشأها الذكاء"
   },
   "platformPostsTab": {
     "refresh": "تحديث",

@@ -94,5 +94,66 @@
     "subtitle": "Starte kostenlos. Keine Kreditkarte erforderlich. Verbinde deinen ersten Kanal in unter zwei Minuten.",
     "primaryButton": "Kostenlos loslegen",
     "secondaryButton": "Vertrieb kontaktieren"
+  },
+  "intelligence": {
+    "eyebrow": "Intelligenz",
+    "titleLead": "Wisse, was du als Nächstes posten solltest,",
+    "titleHighlight": "aus deinen eigenen Zahlen",
+    "subtitle": "Intelligence liest die Beiträge, die du bereits veröffentlicht hast, behält jede Kennzahl genau so, wie die Plattformen sie gemeldet haben, und macht aus dieser Historie verständliche Antworten und sofort bearbeitbare Entwürfe. Nichts wird automatisch veröffentlicht.",
+    "loopTitle": "So funktioniert es",
+    "loop": [
+      {
+        "title": "Messen",
+        "body": "Über Markaestro veröffentlichte Beiträge und aus deinen verbundenen Konten importierte Historie werden zu einem Datensatz pro Beitrag mit den Kennzahlen, die jede Plattform gemeldet hat. Fehlende Zahlen bleiben leer, nie null."
+      },
+      {
+        "title": "Lernen",
+        "body": "Deterministische Statistik vergleicht deine Beiträge nach Plattform, Zeitslot, Inhaltssäule, Aufhänger und Format. Ein Muster erscheint erst mit mindestens fünf Beiträgen in der Gruppe und fünf außerhalb, mit einem 95-%-Bereich für den Effekt."
+      },
+      {
+        "title": "Empfehlen",
+        "body": "Chancen machen aus diesen Erkenntnissen konkrete nächste Schritte mit den Zahlen dahinter: ein Zeitfenster über deinem Durchschnitt, eine Plattform, die pro Beitrag gewinnt, ein Muster, das sich zu wiederholen lohnt."
+      },
+      {
+        "title": "Entwerfen",
+        "body": "„Entwurf erstellen“ schreibt eine Caption in deiner Markenstimme aus deinen eigenen erfolgreichsten Belegen und speichert sie als normalen Entwurf in Content. Du bearbeitest, ergänzt Medien und planst."
+      }
+    ],
+    "tabsTitle": "Was du bekommst, Tab für Tab",
+    "tabs": [
+      {
+        "title": "Übersicht",
+        "body": "Zielbanner, gemessene KPIs, Plattformvergleich pro Beitrag und eine Bereitschaftsliste, die genau zeigt, welche Funktionen aktiv sind und wie viele Daten jede noch braucht."
+      },
+      {
+        "title": "Zielgruppe",
+        "body": "Gib Ziel, Märkte, Zeitzone, Säulen und Stimme an. Getrackte Kurzlinks zählen Klicks ohne personenbezogene Daten und führen Konversionen auf den Beitrag zurück."
+      },
+      {
+        "title": "Inhalte",
+        "body": "Deine Beiträge sortiert nach der Kennzahl deiner Wahl, die in jedem Beitrag erkannten Muster und eine Erklärung „Warum es funktioniert hat“, die auf den Zahlen dieses Beitrags im Vergleich zu deinem Kontodurchschnitt beruht."
+      },
+      {
+        "title": "Chancen",
+        "body": "Belegte Vorschläge, die du übernehmen, anheften oder verwerfen kannst, jeder mit einem Button „Entwurf erstellen“. Übernehmen erstellt oder plant nie einen Beitrag."
+      },
+      {
+        "title": "Leitfaden",
+        "body": "Muster, die sich in deinen Daten wiederholen, mit Stichprobe, Effekt und Konfidenzbereich in klaren Worten, plus die Beiträge hinter jedem Muster."
+      },
+      {
+        "title": "Experimente und Ask",
+        "body": "Gepaarte A/B-Beiträge mit gemessenem Sieger und Fragen, die nur aus den Daten dieser Marke beantwortet werden, mit Nennung der verwendeten Daten."
+      }
+    ],
+    "principlesTitle": "Regeln, die es nie bricht",
+    "principles": [
+      "Veröffentlicht oder plant nie von selbst. Jede Aktion ist ein Entwurf oder eine Entscheidung, die du festhältst.",
+      "Ergänzt nie eine Zahl, die eine Plattform nicht gemeldet hat. Leer bleibt leer.",
+      "Nutzt nie Daten anderer Marken oder allgemeine Benchmarks. Jede Aussage stammt aus deiner eigenen Historie.",
+      "Sagt immer, was ein Ergebnis gespeist hat: Gemessen, Berechnet, Empfohlen, Angegeben oder Generiert."
+    ],
+    "plans": "Audience Fit ist in jedem Plan enthalten. Leitfaden, Chancen, getrackte Links und Ask Markaestro starten mit Pro; Experimente mit Business. KI-Aktionen wie „Entwurf erstellen“ werden monatlich je nach Plan gezählt.",
+    "cta": "Kostenlos starten und einen Kanal verbinden"
   }
 }

@@ -1,4 +1,5 @@
 import { createHash, createHmac, randomBytes, randomUUID } from 'node:crypto';
+import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase-admin';
 import { safeCompare } from '@/lib/crypto';
 
@@ -28,6 +29,33 @@ export function verifyConversionSignature(rawBody: string, signature: string | n
   const secret = process.env.CONVERSION_INGEST_SECRET || '';
   if (!secret || !signature) return false;
   return safeCompare(conversionSignature(rawBody, secret), signature.replace(/^sha256=/, ''));
+}
+
+function trackedLinkRefs(workspaceId: string, code: string) {
+  return [
+    adminDb.doc(`trackedLinks/${code}`),
+    adminDb.doc(`workspaces/${workspaceId}/trackedLinks/${code}`),
+  ];
+}
+
+/**
+ * Counters live on the tracked-link documents themselves, so listing links
+ * never scans click events: two increments per click, zero reads to display.
+ */
+export async function recordTrackedLinkClick(input: {
+  workspaceId: string;
+  code: string;
+  clickedAt: string;
+}): Promise<void> {
+  const batch = adminDb.batch();
+  for (const ref of trackedLinkRefs(input.workspaceId, input.code)) {
+    batch.set(ref, {
+      clicks: FieldValue.increment(1),
+      lastClickedAt: input.clickedAt,
+      updatedAt: input.clickedAt,
+    }, { merge: true });
+  }
+  await batch.commit();
 }
 
 export async function recordConversionEvent(input: {
@@ -63,7 +91,8 @@ export async function recordConversionEvent(input: {
   const last = input.lastClickId ? byId.get(input.lastClickId) : first;
   const attributed = Boolean(first || last);
   const now = new Date().toISOString();
-  await ref.create({
+  const batch = adminDb.batch();
+  batch.create(ref, {
     id,
     workspaceId: input.workspaceId,
     idempotencyIdHash: createHash('sha256').update(input.idempotencyId).digest('hex'),
@@ -79,5 +108,17 @@ export async function recordConversionEvent(input: {
     attributionWindowDays: DEFAULT_ATTRIBUTION_WINDOW_DAYS,
     createdAt: now,
   });
+  // Last-click attribution is what the tracked-link list reports.
+  const attributedCode = typeof last?.trackedLinkCode === 'string' ? last.trackedLinkCode : null;
+  if (attributedCode) {
+    for (const linkRef of trackedLinkRefs(input.workspaceId, attributedCode)) {
+      batch.set(linkRef, {
+        attributedConversions: FieldValue.increment(1),
+        lastConversionAt: input.occurredAt,
+        updatedAt: now,
+      }, { merge: true });
+    }
+  }
+  await batch.commit();
   return { id, created: true, attributed };
 }

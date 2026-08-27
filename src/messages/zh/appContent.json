@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "文案已复制",
       "copyFailed": "无法复制文案"
-    }
+    },
+    "fromIntelligence": "由智能洞察生成的草稿"
   },
   "platformPostsTab": {
     "refresh": "刷新",

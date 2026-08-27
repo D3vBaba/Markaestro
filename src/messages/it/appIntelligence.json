@@ -1,13 +1,28 @@
 {
   "title": "Analisi intelligente",
-  "subtitle": "Performance misurata e raccomandazioni fondate, nulla si pubblica automaticamente.",
+  "subtitle": "Ciò che i tuoi post hanno misurato, spiegato in modo chiaro, con bozze che controlli tu. Nulla si pubblica automaticamente.",
   "brand": "Brand",
   "coverage": "Copertura dati {value}%",
+  "productBar": {
+    "brand": "Brand",
+    "noBrandSelected": "Nessun brand selezionato",
+    "change": "Cambia"
+  },
   "labels": {
     "measured": "Misurato",
     "calculated": "Calcolato",
     "predicted": "Previsto",
-    "recommended": "Consigliato"
+    "recommended": "Consigliato",
+    "declared": "Dichiarato",
+    "generated": "Generato"
+  },
+  "labelHints": {
+    "measured": "Numeri riportati dalle piattaforme per i tuoi post. Vuoto significa che la piattaforma non li ha riportati.",
+    "calculated": "Statistiche calcolate dai tuoi numeri misurati. Nessuna ipotesi, nessuna media di settore.",
+    "predicted": "Una stima con un livello di affidabilità. Prendila come un indizio, non come un fatto.",
+    "recommended": "Un suggerimento costruito sulle tue evidenze misurate. Decidi tu se agire.",
+    "declared": "Informazioni che hai inserito su questo brand. Intelligence confronta i risultati con queste.",
+    "generated": "Testo scritto dall’IA a partire dalle tue evidenze e dalla voce del brand. Sempre salvato come bozza che puoi modificare."
   },
   "tabs": {
     "overview": "Panoramica",
@@ -17,20 +32,446 @@
     "playbook": "Strategia",
     "advanced": "Esperimenti"
   },
+  "actions": {
+    "refresh": "Aggiorna",
+    "refreshing": "Aggiornamento…",
+    "accept": "Accetta",
+    "dismiss": "Ignora",
+    "pin": "Fissa",
+    "undo": "Annulla",
+    "saveFailed": "Impossibile salvare la decisione",
+    "acceptedToast": "Segnata come accettata. Crea la bozza qui o componila in Content.",
+    "pinnedToast": "Fissata per follow-up",
+    "dismissedToast": "Ignorata. La ritrovi nel filtro Ignorate.",
+    "undoneToast": "Decisione annullata",
+    "status": {
+      "proposed": "Nuova",
+      "accepted": "Accettata",
+      "pinned": "Fissata",
+      "dismissed": "Ignorata"
+    }
+  },
+  "decisions": {
+    "hint": "Questi pulsanti registrano solo la tua decisione. Non pubblicano, non programmano e non modificano mai le bozze.",
+    "learningHint": "Indica se ti fidi di questo pattern. Intelligence non modifica mai i tuoi contenuti da sola.",
+    "accept": "Accetta: intendo agire",
+    "pin": "Fissa, rivedi più tardi",
+    "dismiss": "Ignora, nascondi questo elemento"
+  },
+  "filter": {
+    "label": "Mostra",
+    "all": "Tutte",
+    "proposed": "Nuove",
+    "accepted": "Accettate",
+    "pinned": "Fissate",
+    "dismissed": "Ignorate",
+    "none": "Ancora nulla con questo filtro."
+  },
+  "gate": {
+    "rolloutTitle": "Non ancora attivo per questo workspace",
+    "rolloutBody": "Il tuo piano include questa parte di Intelligence. Il rilascio è graduale e comparirà qui senza che tu debba fare nulla."
+  },
+  "howItWorks": {
+    "button": "Come funziona",
+    "close": "Ho capito",
+    "stepsTitle": "Come usarla",
+    "inputsTitle": "Da cosa si alimenta",
+    "neverTitle": "Cosa non fa mai",
+    "thresholdsTitle": "Quando si attiva",
+    "page": {
+      "title": "Come funziona Intelligence",
+      "intro": "Intelligence legge i post che hai già pubblicato, conserva ogni numero esattamente come lo hanno riportato le piattaforme e trasforma quello storico in risposte chiare: cosa ha funzionato, quando pubblicare, cosa provare dopo. Il controllo di ogni azione resta a te.",
+      "steps": [
+        "Scegli un brand. Tutto in questa pagina è limitato a un brand e ai suoi canali collegati.",
+        "Parti da Panoramica per vedere cosa è stato misurato finora e quali funzioni hanno dati sufficienti per attivarsi.",
+        "Imposta obiettivo e pubblico in Pubblico. Decide quale metrica ottimizza ogni raccomandazione.",
+        "Leggi Contenuti, Opportunità e Strategia per risposte basate su evidenze, poi usa Crea bozza per trasformare ognuna in una bozza di post.",
+        "Ogni bozza arriva in Content come una bozza normale. Rivedila, modificala, programmala o eliminala come qualsiasi altro post."
+      ],
+      "inputs": [
+        "Post pubblicati tramite Markaestro e post importati dai tuoi account collegati",
+        "Le metriche che ogni piattaforma riporta per quei post (visualizzazioni, copertura, mi piace, commenti, condivisioni, salvataggi, clic)",
+        "Obiettivo, mercati, fuso orario, pilastri e voce del brand che hai dichiarato"
+      ],
+      "never": [
+        "Pubblicare o programmare qualcosa da sola",
+        "Inserire un numero che una piattaforma non ha riportato",
+        "Usare dati di altri brand o benchmark generici di settore"
+      ]
+    },
+    "overview": {
+      "title": "Panoramica",
+      "intro": "Un’istantanea di ciò che è stato misurato per questo brand, più un elenco di prontezza che dice esattamente quali funzioni sono attive e cosa manca ancora.",
+      "steps": [
+        "Controlla il banner dell’obiettivo. Ogni classifica e raccomandazione usa quella metrica.",
+        "Leggi i riquadri KPI. Un riquadro vuoto significa che nessuna piattaforma collegata ha riportato quella metrica, mai zero.",
+        "Usa l’elenco di prontezza per vedere quanto manca a ogni funzione per attivarsi e cosa fare.",
+        "Confronta le piattaforme per post, non per totale, così un canale con meno post viene valutato in modo equo."
+      ],
+      "inputs": [
+        "Tutti i post sincronizzati di questo brand e le ultime metriche riportate",
+        "Il tuo obiettivo dalla scheda Pubblico"
+      ],
+      "never": [
+        "Mescolare numeri di brand diversi",
+        "Stimare metriche che una piattaforma ha lasciato vuote"
+      ]
+    },
+    "audience": {
+      "title": "Pubblico",
+      "intro": "Di’ a Intelligence per chi crei e cosa significa successo. Questo profilo è il metro di Audience Fit nell’editor, del timing e di ogni raccomandazione.",
+      "steps": [
+        "Scegli un obiettivo. Determina la metrica che Intelligence ottimizza (per esempio Coinvolgimento usa mi piace, commenti, condivisioni e salvataggi).",
+        "Aggiungi mercato principale, fuso orario, pilastri dei contenuti e tratti della voce. Le finestre di pubblicazione sono calcolate in questo fuso orario.",
+        "Crea link tracciati per gli URL che condividi. Ogni clic viene contato qui senza salvare dati personali.",
+        "Salva. Le modifiche si applicano al prossimo aggiornamento."
+      ],
+      "inputs": [
+        "Ciò che inserisci in questa scheda",
+        "I clic sui tuoi link tracciati e le conversioni che invii a Markaestro"
+      ],
+      "never": [
+        "Salvare indirizzi IP, dettagli del browser o referrer dai link tracciati",
+        "Modificare il tuo profilo automaticamente"
+      ]
+    },
+    "content": {
+      "title": "Contenuti",
+      "intro": "I tuoi post misurati, ordinati per la metrica che hai scelto, con i pattern che Intelligence ha riconosciuto in ciascuno e una spiegazione chiara del perché ha reso così.",
+      "steps": [
+        "Ordina per obiettivo, visualizzazioni o interazioni. Filtra su una piattaforma per confrontare a parità di condizioni.",
+        "Apri Perché ha funzionato su qualsiasi post per una breve spiegazione basata sui numeri di quel post rispetto alla media del tuo account.",
+        "Usa Crea una bozza simile per ottenere una nuova caption che riutilizza ciò che ha funzionato, salvata in Content come bozza.",
+        "Guarda anche i post con i numeri più bassi: ciò che manca lì è spesso la lezione più chiara."
+      ],
+      "inputs": [
+        "Caption, piattaforma, orario di pubblicazione e metriche riportate di ogni post",
+        "Pattern di contenuto (pilastro, gancio, formato) rilevati dalla caption di ogni post pubblicato"
+      ],
+      "never": [
+        "Classificare i post su metriche non riportate",
+        "Modificare o ripubblicare qualcosa senza di te"
+      ]
+    },
+    "opportunities": {
+      "title": "Opportunità",
+      "intro": "Cose concrete da provare, ognuna sostenuta dai tuoi numeri: una finestra di pubblicazione che supera la tua media, una piattaforma che rende meglio per post o un pattern che vale la pena ripetere.",
+      "steps": [
+        "Leggi la riga delle evidenze sotto ogni scheda. Mostra i numeri esatti dietro il suggerimento.",
+        "Accetta se intendi provarla, fissa per rivederla o ignora se non è adatta. Tutte e tre le azioni si possono annullare.",
+        "Usa Crea bozza per ottenere una caption scritta per quell’opportunità, salvata in Content come bozza.",
+        "Pubblica da Content o Calendario come sempre. Accettare non crea né programma mai post."
+      ],
+      "inputs": [
+        "Migliori finestre di pubblicazione, confronto tra piattaforme per post e apprendimenti della strategia",
+        "Il tuo obiettivo e la piattaforma prioritaria dalla scheda Pubblico"
+      ],
+      "never": [
+        "Suggerire qualcosa con meno di cinque post misurati alle spalle",
+        "Agire su un’opportunità accettata senza di te"
+      ]
+    },
+    "playbook": {
+      "title": "Strategia",
+      "intro": "Pattern che si ripetono nei tuoi dati con abbastanza post da contare: quale piattaforma, gancio, pilastro, formato o fascia oraria rende sopra o sotto il resto di questo brand.",
+      "steps": [
+        "Ogni scheda confronta un gruppo di post con tutti gli altri post di questo brand sulla metrica del tuo obiettivo.",
+        "L’effetto è la differenza percentuale per post. L’intervallo al 95% ti dice quanto è sicura la stima.",
+        "La solidità cresce con il campione: indicativa (da 5 a 14 post), moderata (da 15 a 29), potenzialmente forte (30 o più con un intervallo netto).",
+        "Accetta i pattern che vuoi ripetere, poi usa Crea bozza per scrivere un post con quel pattern."
+      ],
+      "inputs": [
+        "Post misurati raggruppati per piattaforma, pilastro, gancio, formato e giorno/ora",
+        "Pattern di contenuto rilevati da ogni caption pubblicata"
+      ],
+      "never": [
+        "Riportare un pattern con meno di cinque post nel gruppo e cinque fuori",
+        "Affermare una causa. Sono associazioni nei tuoi dati."
+      ]
+    },
+    "advanced": {
+      "title": "Esperimenti e Ask Markaestro",
+      "intro": "Testa un’idea alla volta con un post A/B accoppiato e fai domande a cui rispondono solo i record misurati di questo brand.",
+      "steps": [
+        "Crea un esperimento: una piattaforma, due varianti, una finestra. Entrambi i post vengono programmati per te.",
+        "A fine finestra, il vincitore è deciso dalla metrica misurata e arriva nella tua Posta in arrivo.",
+        "Ask Markaestro sceglie uno strumento dati approvato per domanda e cita i record usati.",
+        "Le campagne sono un’anteprima: puoi già nominarle, l’assegnazione dei post è in arrivo."
+      ],
+      "inputs": [
+        "Entrambi i post dell’esperimento e le loro metriche riportate",
+        "Apprendimenti, confronti, timing e post migliori salvati per Ask Markaestro"
+      ],
+      "never": [
+        "Dichiarare un vincitore senza la differenza misurata e il campione a supporto",
+        "Rispondere con consigli generici sui social media"
+      ]
+    },
+    "drafts": {
+      "title": "Crea bozza",
+      "intro": "Trasforma un’opportunità, un pattern o un post specifico in una nuova caption scritta con la voce del tuo brand a partire dalle tue evidenze più performanti.",
+      "steps": [
+        "Intelligence raccoglie fino a cinque dei tuoi post misurati più forti per quell’opportunità o pattern, più il profilo del pubblico e la voce del brand.",
+        "La bozza è scritta per la piattaforma scelta, con hashtag e un gancio, e una breve nota su quali evidenze l’hanno guidata.",
+        "Viene salvata come bozza in Content. Aprila, modificala, aggiungi media e programmala quando sei pronto."
+      ],
+      "inputs": [
+        "I tuoi post misurati, il profilo del pubblico e la voce del brand che hai dichiarato",
+        "Le evidenze dietro l’opportunità o il pattern su cui hai cliccato"
+      ],
+      "never": [
+        "Pubblicare o programmare la bozza",
+        "Inventare affermazioni, prezzi, offerte o link che non sono nei dati del tuo brand"
+      ]
+    },
+    "explain": {
+      "title": "Perché ha funzionato",
+      "intro": "Una breve spiegazione del risultato di un post rispetto al resto del tuo account: cosa si è distinto nella caption, nel timing o rispetto alla media della piattaforma.",
+      "steps": [
+        "Aprila su qualsiasi post misurato. La spiegazione viene generata una volta e salvata con il post.",
+        "I fattori indicano cose reali: una metrica, la caption, un pattern rilevato o la finestra oraria.",
+        "Usa il suggerimento Da provare come ipotesi per il prossimo post o un esperimento."
+      ],
+      "inputs": [
+        "Numeri, caption e pattern rilevati di quel post",
+        "Le tue medie per piattaforma e la migliore finestra di pubblicazione"
+      ],
+      "never": [
+        "Affermare una causa. Descrive associazioni nei tuoi dati.",
+        "Usare metriche che la piattaforma non ha riportato"
+      ]
+    },
+    "links": {
+      "title": "Link tracciati",
+      "intro": "Link brevi da incollare nelle caption per contare i clic e, con l’API delle conversioni, collegarli a vendite o registrazioni.",
+      "steps": [
+        "Crea un link con un’etichetta e una destinazione. Copia l’URL breve in qualsiasi caption.",
+        "I clic compaiono qui man mano. Nessun indirizzo IP, browser o referrer viene salvato.",
+        "Invia gli eventi di conversione all’API con l’id del clic per vedere le conversioni attribuite per link."
+      ],
+      "inputs": [
+        "I reindirizzamenti tramite il link breve",
+        "Gli eventi di conversione che il tuo sito o server invia a Markaestro"
+      ],
+      "never": [
+        "Tracciare i visitatori tra siti",
+        "Salvare dati personali da un clic"
+      ]
+    }
+  },
+  "quota": {
+    "title": "Azioni IA",
+    "aiOps": "{used} di {limit} azioni IA usate questo mese",
+    "aiOpsUnlimited": "{used} azioni IA usate questo mese",
+    "strategist": "{used} di {limit} turni Ask usati",
+    "hint": "Crea bozza, Perché ha funzionato e Audience Fit usano un’azione ciascuno. Il rilevamento dei pattern in background è gratuito.",
+    "exceeded": "Hai usato le azioni IA di questo mese sul piano {plan}. Si rinnovano il mese prossimo, oppure fai upgrade per averne di più."
+  },
+  "readiness": {
+    "title": "Cosa è attivo",
+    "subtitle": "Ogni funzione richiede una quantità minima di dati misurati prima di comparire. Ecco a che punto è questo brand.",
+    "progress": "{current} di {required}",
+    "met": "Attiva",
+    "pending": "Servono più dati",
+    "unavailable": "Non ancora disponibile",
+    "computedAt": "Calcolato {when}",
+    "checks": {
+      "history": {
+        "label": "Punteggio storico Audience Fit",
+        "hint": "Richiede 5 post con un valore misurato di {metric}."
+      },
+      "timing": {
+        "label": "Fasce orarie migliori",
+        "hint": "Richiede 20 post con orario di pubblicazione."
+      },
+      "timingWindow": {
+        "label": "Una finestra con abbastanza post",
+        "hint": "Almeno 5 post misurati nello stesso giorno e ora."
+      },
+      "platformComparison": {
+        "label": "Confronto tra piattaforme",
+        "hint": "Due piattaforme con 5 o più post misurati ciascuna."
+      },
+      "learnings": {
+        "label": "Pattern della strategia",
+        "hint": "5 post misurati in un gruppo e 5 fuori."
+      },
+      "contentPatterns": {
+        "label": "Rilevamento dei pattern di contenuto",
+        "hint": "Le caption vengono analizzate in background dopo la pubblicazione. 10 post analizzati sbloccano i pattern di pilastro, gancio e formato."
+      },
+      "alignment": {
+        "label": "Allineamento del pubblico",
+        "hint": "Richiede dati demografici del pubblico da una piattaforma collegata. Nessuna delle tue piattaforme collegate li riporta ancora."
+      }
+    }
+  },
+  "objective": {
+    "title": "Ottimizzato per",
+    "body": "Ogni classifica, finestra e raccomandazione di questa pagina usa {metric} perché il tuo obiettivo è {objective}.",
+    "change": "Modifica in Pubblico",
+    "names": {
+      "awareness": "Notorietà",
+      "engagement": "Coinvolgimento",
+      "followers": "Follower",
+      "website_traffic": "Traffico del sito",
+      "leads": "Contatti",
+      "app_installs": "Installazioni app",
+      "purchases": "Acquisti",
+      "other": "un obiettivo personalizzato"
+    },
+    "metrics": {
+      "reach": "copertura",
+      "views": "visualizzazioni",
+      "engagements": "interazioni (mi piace, commenti, condivisioni, salvataggi)",
+      "followers_gained": "follower guadagnati",
+      "clicks": "clic",
+      "leads": "contatti",
+      "installs": "installazioni",
+      "purchases": "acquisti",
+      "conversions": "conversioni",
+      "custom": "conversioni"
+    },
+    "fallback": "Nessuna delle tue piattaforme collegate riporta ancora un numero di {requested} per post, quindi questa pagina ordina per {metric}. Cambia l’obiettivo in Pubblico, o collega un canale che lo riporta."
+  },
   "metrics": {
     "posts": "Post",
     "views": "Visualizzazioni",
     "reach": "Copertura",
-    "clicks": "Clic"
+    "clicks": "Clic",
+    "engagements": "Interazioni",
+    "conversions": "Conversioni",
+    "engagementRate": "Tasso di interazione",
+    "perPost": "per post"
   },
   "platforms": {
     "title": "Prestazioni per piattaforma",
+    "subtitle": "Medie per post, così una piattaforma con meno post viene confrontata in modo equo.",
     "empty": "I post pubblicati appariranno quando arriveranno le metriche.",
-    "posts": "{value} post",
-    "views": "{value} visualizzazioni",
-    "engagements": "{value} interazioni",
     "colPlatform": "Piattaforma",
-    "colEngagements": "Interazioni"
+    "colPosts": "Post",
+    "colAvgViews": "Visualizzazioni medie",
+    "colAvgEngagements": "Interazioni medie",
+    "colEngRate": "Tasso inter.",
+    "measuredNote": "{measured} di {posts} misurati",
+    "includesImported": "Include i post importati dai tuoi account collegati, non solo quelli pubblicati tramite Markaestro. I numeri possono differire da Analisi, che copre i post Markaestro in un intervallo di date."
+  },
+  "content": {
+    "title": "I tuoi post, in classifica",
+    "sortBy": "Ordina per",
+    "sortObjective": "Obiettivo ({metric})",
+    "sortViews": "Visualizzazioni",
+    "sortEngagements": "Interazioni",
+    "allPlatforms": "Tutte le piattaforme",
+    "mediaOnly": "Post multimediale",
+    "likes": "Mi piace",
+    "comments": "Commenti",
+    "shares": "Condivisioni",
+    "viewLive": "Vedi live",
+    "published": "Pubblicato {date}",
+    "engagementRate": "{value}% di interazione",
+    "patterns": {
+      "pillar": "Pilastro",
+      "hook": "Gancio",
+      "format": "Formato",
+      "pending": "I pattern vengono rilevati in background dopo la pubblicazione."
+    },
+    "lowestTitle": "Risultati più bassi",
+    "lowestBody": "I tuoi post misurati più deboli sulla stessa metrica. Ciò che manca loro è spesso la lezione più chiara.",
+    "why": {
+      "button": "Perché ha funzionato",
+      "loading": "Lettura dei numeri di questo post…",
+      "factors": "Cosa si è distinto",
+      "tryNext": "Da provare",
+      "failed": "Impossibile spiegare questo post al momento.",
+      "notMeasured": "Questo post non ha ancora metriche misurate da spiegare."
+    },
+    "remix": "Crea una bozza simile"
+  },
+  "timing": {
+    "title": "Fasce orarie migliori",
+    "subtitle": "Finestre per giorno e ora in cui i tuoi post misurati superano la media del tuo account su {metric}.",
+    "needs_dated_posts": "Il timing specifico dell’account richiede 20 post con orario di pubblicazione e 5 con un valore misurato di {metric}. Hai {dated} post datati.",
+    "no_window_with_five": "Nessun giorno e ora ha ancora 5 post misurati. Continua a pubblicare; le finestre compaiono man mano che si riempiono.",
+    "window": "{weekday} alle {hour}",
+    "observations": "{count} post",
+    "liftUp": "+{value}% rispetto alla tua media",
+    "liftDown": "{value}% rispetto alla tua media",
+    "estimate": "circa {value} {metric} per post",
+    "timezone": "Orari in {timeZone}",
+    "accountMean": "La tua media: {value} {metric} per post"
+  },
+  "opportunities": {
+    "kinds": {
+      "timing": "Orario",
+      "platform": "Piattaforma",
+      "learning": "Schema ricorrente",
+      "alignment": "Pubblico"
+    },
+    "timing": {
+      "title": "Pubblica {weekday} verso le {hour}",
+      "body": "I post pubblicati in questa finestra ottengono in media {estimate} {metric}, {lift} per questo brand.",
+      "evidence": "{count} post misurati in questa finestra, orari in {timeZone}."
+    },
+    "platform": {
+      "title": "{leader} batte {trailing} per post",
+      "body": "{leader} ottiene in media {leaderPerPost} {metric} per post contro {trailingPerPost} su {trailing}. Riutilizza ciò che funziona su {leader} prima di aggiungere volume su {trailing}.",
+      "evidence": "{leaderPosts} post misurati su {leader}, {trailingPosts} su {trailing}. Confrontati per post, non per totale."
+    },
+    "learning": {
+      "title": "Ripeti: {pattern}",
+      "body": "I post di questo gruppo sono il {effect}% sopra il resto di questo brand su {metric}.",
+      "evidence": "{count} post misurati nel gruppo. Vedi la Strategia per il confronto completo."
+    },
+    "alignment": {
+      "title": "Colma il divario su {dimension}",
+      "body": "L’allineamento su {dimension} è {score} su 100. Preferisci temi e destinazioni coerenti con il profilo del pubblico salvato.",
+      "evidence": "Associazione con il tuo mix di pubblico misurato, non una causa."
+    },
+    "evidenceLabel": "Evidenze",
+    "composeInContent": "Componi in Content",
+    "openCalendar": "Apri Calendario"
+  },
+  "learnings": {
+    "dimensions": {
+      "platform": "Piattaforma",
+      "pillar": "Pilastro dei contenuti",
+      "hook": "Gancio",
+      "format": "Formato",
+      "timing": "Fascia oraria"
+    },
+    "keys": {
+      "has_hook": "Post con gancio",
+      "no_hook": "Post senza gancio"
+    },
+    "summaryUp": "{count} post di questo gruppo sono il {effect}% sopra il resto di questo brand su {metric}.",
+    "summaryDown": "{count} post di questo gruppo sono il {effect}% sotto il resto di questo brand su {metric}.",
+    "groupVsRest": "{group} vs {rest} {metric} per post",
+    "sample": "{group} nel gruppo, {rest} fuori",
+    "ci": "Intervallo al 95%: da {low}% a {high}%",
+    "ciMissing": "Intervallo non ancora disponibile",
+    "strength": {
+      "directional": "Indicativo",
+      "moderate": "Moderato",
+      "potentially_strong": "Potenzialmente forte"
+    },
+    "strengthHints": {
+      "directional": "Da 5 a 14 post. Da tenere d’occhio, non ancora una prova.",
+      "moderate": "Da 15 a 29 post, oppure l’intervallo attraversa ancora lo zero.",
+      "potentially_strong": "30 o più post e un intervallo che resta da un solo lato dello zero."
+    },
+    "evidenceTitle": "Post dietro questo pattern",
+    "contentPatternsNote": "I pattern di pilastro, gancio e formato compaiono dopo l’analisi di {required} caption pubblicate. {current} analizzate finora; l’analisi avviene in background."
+  },
+  "drafts": {
+    "button": "Crea bozza",
+    "creating": "Scrittura della bozza…",
+    "created": "Bozza creata",
+    "open": "Apri in Content",
+    "rationale": "Perché questa bozza",
+    "failed": "Impossibile creare una bozza al momento.",
+    "quota": "Hai usato le azioni IA di questo mese. Si rinnovano il mese prossimo, oppure fai upgrade per averne di più.",
+    "postQuota": "Hai raggiunto il limite di post di questo mese."
   },
   "audience": {
     "title": "Pubblico target",
@@ -38,38 +479,70 @@
     "markets": "Mercati",
     "pillars": "Pilastri dei contenuti"
   },
-  "content": {
-    "title": "Contenuti top",
-    "mediaOnly": "Post multimediale",
-    "likes": "Mi piace",
-    "comments": "Commenti",
-    "shares": "Condivisioni",
-    "viewLive": "Vedi live"
+  "links": {
+    "title": "Link tracciati",
+    "subtitle": "Link brevi da incollare in qualsiasi caption. I clic vengono contati qui senza dati personali.",
+    "empty": "Crea un link tracciato per contare i clic senza salvare indirizzi IP grezzi.",
+    "label": "Etichetta",
+    "destination": "URL di destinazione",
+    "create": "Crea link",
+    "creating": "Creazione…",
+    "created": "Link tracciato creato",
+    "createFailed": "Impossibile creare il link tracciato",
+    "copy": "Copia",
+    "copied": "Link breve copiato",
+    "clicks": "{count} clic",
+    "conversions": "{count} conversioni attribuite",
+    "lastClick": "Ultimo clic {when}",
+    "noClicks": "Ancora nessun clic"
+  },
+  "campaigns": {
+    "title": "Campagne",
+    "preview": "Anteprima",
+    "empty": "Nomina ora le campagne per raggruppare i post da confrontare. L’assegnazione dei post a una campagna è in arrivo; crearne una qui non pubblica mai nulla.",
+    "name": "Nome campagna",
+    "create": "Crea campagna",
+    "created": "Campagna creata",
+    "createFailed": "Impossibile creare la campagna",
+    "status": {
+      "draft": "Bozza",
+      "active": "Attiva",
+      "completed": "Completata",
+      "archived": "Archiviata"
+    }
   },
   "empty": {
     "overviewTitle": "In attesa di post pubblicati",
-    "overviewBody": "Questo brand non ha ancora post sincronizzati. I post pubblicati da Markaestro e lo storico importato compaiono qui dopo la proiezione in Intelligence. Le metriche mancanti restano vuote, mai zero.",
+    "overviewBody": "Questo brand non ha ancora post sincronizzati. I post pubblicati tramite Markaestro e lo storico importato dai tuoi account collegati compaiono qui dopo la proiezione in Intelligence. Le metriche mancanti restano vuote, mai zero.",
     "noBrandTitle": "Crea prima un brand",
     "noBrandBody": "L’intelligence è associata a un brand Markaestro.",
-    "profileTitle": "Configura il profilo del pubblico",
-    "profileBody": "Aggiungi obiettivo, mercato, fuso orario e priorità delle piattaforme nelle impostazioni del brand.",
+    "createBrand": "Crea un brand",
     "contentTitle": "Nessun contenuto misurato",
-    "contentBody": "I post pubblicati e importati appaiono qui senza trasformare metriche mancanti in zero.",
+    "contentBody": "I post pubblicati e importati compaiono qui non appena una piattaforma riporta le loro metriche.",
     "opportunitiesTitle": "Nessuna opportunità fondata",
-    "opportunitiesBody": "Le raccomandazioni compaiono con evidenze misurate sufficienti.",
-    "playbookTitle": "Il playbook si sta preparando",
-    "playbookBody": "I pattern compaiono dopo abbastanza post misurati (spesso cinque+).",
-    "createBrand": "Crea un brand"
+    "opportunitiesBody": "I suggerimenti compaiono quando ci sono abbastanza evidenze misurate: due piattaforme da confrontare, una finestra di pubblicazione con 5 post o un pattern ripetibile. L’elenco di prontezza in Panoramica mostra quanto manca.",
+    "playbookTitle": "La strategia si sta preparando",
+    "playbookBody": "I pattern richiedono almeno 5 post misurati in un gruppo e 5 fuori. Controlla l’elenco di prontezza in Panoramica o vedi Opportunità per i primi suggerimenti pratici."
+  },
+  "weekdays": {
+    "Mon": "Lunedì",
+    "Tue": "Martedì",
+    "Wed": "Mercoledì",
+    "Thu": "Giovedì",
+    "Fri": "Venerdì",
+    "Sat": "Sabato",
+    "Sun": "Domenica"
   },
   "composer": {
-    "title": "Affinità del pubblico",
+    "title": "Audience Fit",
     "recommended": "Consigliato",
-    "body": "Valuta la bozza rispetto al profilo audience. Suggerimenti solo dopo Applica.",
+    "body": "Valuta questa bozza rispetto al profilo del pubblico salvato. I suggerimenti non modificano mai la bozza finché non tocchi Applica.",
     "analyze": "Analizza bozza",
     "analyzing": "Analisi…",
     "retry": "Riprova",
     "failed": "Non è stato possibile completare l’analisi in sicurezza.",
     "reanalyze": "Analizza di nuovo",
+    "timingHint": "Finestra misurata più forte: {bucket} ({count} post).",
     "meta": "Copertura {coverage}% · affidabilità {confidence} · {sample} post pertinenti",
     "coldStart": "Avvio a freddo: meno di cinque post pertinenti.",
     "unavailable": "Non disponibile",
@@ -80,8 +553,7 @@
       "low": "bassa",
       "medium": "media",
       "high": "alta"
-    },
-    "timingHint": "Finestra misurata più forte: {bucket} ({count} post)."
+    }
   },
   "profile": {
     "objective": "Obiettivo",
@@ -98,31 +570,6 @@
     "interests": "Interessi",
     "voice": "Voce del brand",
     "listHint": "Scegli dal menu, ogni selezione aggiunge un tag rimovibile.",
-    "save": "Salva profilo del pubblico",
-    "saving": "Salvataggio…",
-    "saved": "Profilo del pubblico salvato",
-    "saveFailed": "Impossibile salvare il profilo del pubblico",
-    "loading": "Caricamento del profilo del pubblico…",
-    "unavailable": "Il profilo del pubblico non è abilitato per questo spazio.",
-    "objectives": {
-      "awareness": "Notorietà",
-      "engagement": "Coinvolgimento",
-      "followers": "Follower",
-      "website_traffic": "Traffico del sito",
-      "leads": "contatti",
-      "app_installs": "Installazioni app",
-      "purchases": "Acquisti",
-      "other": "Altro"
-    },
-    "conversions": {
-      "none": "Nessuna",
-      "website_visit": "Visita al sito",
-      "lead": "contatto",
-      "signup": "Registrazione",
-      "app_install": "Installazione app",
-      "purchase": "Acquisto",
-      "custom": "Personalizzata"
-    },
     "voiceHint": "Scegli tratti di tono che descrivono come deve suonare il brand.",
     "tagAdd": "Aggiungi dalla lista…",
     "tagEmpty": {
@@ -210,40 +657,42 @@
         "trustworthy": "Affidabile",
         "innovative": "Innovativo"
       }
-    }
-  },
-  "errors": {
-    "unavailableTitle": "Intelligence non disponibile",
-    "unavailableBody": "Questa fase non è abilitata per lo spazio di lavoro o non è stato possibile caricarla.",
-    "retry": "Riprova"
-  },
-  "actions": {
-    "accept": "Accetta",
-    "dismiss": "Ignora",
-    "pin": "Fissa",
-    "saveFailed": "Impossibile salvare la decisione",
-    "acceptedToast": "Segnato come accettato, esegui in Content o Calendario",
-    "pinnedToast": "Fissata per follow-up",
-    "dismissedToast": "Ignorato e nascosto",
-    "status": {
-      "accepted": "Accettata",
-      "pinned": "Fissata",
-      "dismissed": "Ignorata"
+    },
+    "save": "Salva profilo del pubblico",
+    "saving": "Salvataggio…",
+    "saved": "Profilo del pubblico salvato",
+    "saveFailed": "Impossibile salvare il profilo del pubblico",
+    "loading": "Caricamento del profilo del pubblico…",
+    "unavailable": "Il profilo del pubblico non è abilitato per questo spazio.",
+    "objectives": {
+      "awareness": "Notorietà",
+      "engagement": "Coinvolgimento",
+      "followers": "Follower",
+      "website_traffic": "Traffico del sito",
+      "leads": "Contatti",
+      "app_installs": "Installazioni app",
+      "purchases": "Acquisti",
+      "other": "Altro"
+    },
+    "conversions": {
+      "none": "Nessuna",
+      "website_visit": "Visita al sito",
+      "lead": "Contatto",
+      "signup": "Registrazione",
+      "app_install": "Installazione app",
+      "purchase": "Acquisto",
+      "custom": "Personalizzata"
     }
   },
   "alignment": {
     "title": "Allineamento del pubblico",
-    "empty": "L’allineamento compare quando è disponibile un mix di pubblico misurabile. Le dimensioni mancanti restano vuote."
-  },
-  "timing": {
-    "title": "Fasce orarie migliori",
-    "empty": "Il timing specifico dell’account richiede 20 post datati e cinque osservazioni nell’ora citata."
-  },
-  "campaigns": {
-    "title": "Campagne",
-    "empty": "Nomina una campagna per confrontare. Non pubblica automaticamente.",
-    "name": "Nome campagna",
-    "create": "Crea campagna"
+    "empty": "L’allineamento compare quando una piattaforma collegata riporta il tuo mix di pubblico. Le dimensioni mancanti restano vuote.",
+    "dimensions": {
+      "geography": "Geografia",
+      "age": "Età",
+      "gender": "Genere",
+      "industryInterests": "Settori e interessi"
+    }
   },
   "experiments": {
     "title": "Esperimenti",
@@ -256,6 +705,8 @@
     "createdPaired": "Esperimento creato, entrambi i post sono programmati",
     "createFailed": "Impossibile creare l’esperimento",
     "captionPlaceholder": "Caption e hashtag per questo braccio",
+    "mediaRequired": "Questa piattaforma richiede media su entrambi i bracci prima di creare l’esperimento.",
+    "mediaRequiredHint": "Instagram, TikTok e Pinterest richiedono almeno un’immagine o un video su ciascun braccio.",
     "armCompose": "Braccio {arm}",
     "armLabel": "Braccio {arm}",
     "scheduleA": "Programma braccio A",
@@ -269,6 +720,11 @@
     "loadingDetail": "Caricamento esperimento…",
     "detailFailed": "Impossibile caricare l’esperimento.",
     "untitledPost": "Post senza titolo",
+    "untitledExperiment": "Esperimento senza titolo",
+    "delete": "Elimina",
+    "deleteWarning": "Rimuove l’esperimento, i post A/B programmati e i risultati correlati nella Posta in arrivo di Markaestro. I post già pubblicati sulla piattaforma non vengono rimossi.",
+    "deleted": "Esperimento eliminato",
+    "deleteFailed": "Impossibile eliminare l’esperimento",
     "effect": "{value}% differenza relativa (B vs A)",
     "status": {
       "draft": "Bozza",
@@ -284,83 +740,37 @@
       "winner_a": "Il braccio A è avanti sulla metrica misurata.",
       "winner_b": "Il braccio B è avanti sulla metrica misurata.",
       "inconclusive": "Risultato inconclusivo, serve un campione più grande o una differenza più chiara."
-    },
-    "mediaRequired": "Questa piattaforma richiede media su entrambi i bracci prima di creare l’esperimento.",
-    "mediaRequiredHint": "Instagram, TikTok e Pinterest richiedono almeno un’immagine o un video su ciascun braccio.",
-    "untitledExperiment": "Esperimento senza titolo",
-    "delete": "Elimina",
-    "deleted": "Esperimento eliminato",
-    "deleteFailed": "Impossibile eliminare l’esperimento",
-    "deleteWarning": "Rimuove l’esperimento, i post A/B programmati e i risultati correlati nella Posta in arrivo di Markaestro. I post già pubblicati sulla piattaforma non vengono rimossi."
+    }
   },
   "ask": {
     "title": "Chiedi a Markaestro",
+    "subtitle": "Le risposte arrivano solo dai record misurati di questo brand. Ogni risposta indica i dati usati.",
     "placeholder": "Chiedi prestazioni misurate, orari o apprendimenti.",
     "submit": "Chiedi",
     "asking": "Selezione delle prove…",
-    "tool": "Usato {tool}",
+    "tool": "Risposto da: {tool}",
+    "evidence": "Record citati",
     "failed": "Impossibile rispondere. Riprova.",
     "timeout": "Ci ha messo troppo, prova una domanda più breve o riprova tra poco.",
     "quota": "Hai esaurito i turni Ask Markaestro di questo mese. Riprova il mese prossimo o fai upgrade.",
-    "unavailable": "Ask Markaestro non è ancora disponibile per questo workspace."
-  },
-  "links": {
-    "title": "Link tracciati",
-    "empty": "Crea un link tracciato per attribuire i clic senza salvare l’IP grezzo.",
-    "label": "Etichetta",
-    "destination": "URL di destinazione",
-    "create": "Crea link"
-  },
-  "productBar": {
-    "brand": "Brand",
-    "noBrandSelected": "Nessun brand selezionato",
-    "change": "Cambia"
-  },
-  "guide": {
-    "overview": {
-      "title": "Cosa mostra questa scheda",
-      "body": "KPI e piattaforme dai post sincronizzati. Celle vuote = metrica non riportata, mai zero."
-    },
-    "audience": {
-      "title": "Definisci il perimetro del brand",
-      "body": "Obiettivo, mercati, fuso e pilastri definiscono per chi crei contenuti."
-    },
-    "content": {
-      "title": "Impara da ciò che ha funzionato",
-      "body": "Migliori contenuti per visualizzazioni misurate. Riutilizza in Content."
-    },
-    "opportunities": {
-      "title": "Cosa provare dopo",
-      "body": "Suggerimenti dalla cronologia misurata. Esegui manualmente in Content o Calendario."
-    },
-    "playbook": {
-      "title": "Pattern ricorrenti",
-      "body": "Apprendimenti statistici con campione sufficiente."
-    },
-    "advanced": {
-      "title": "Testa idee con evidenze",
-      "body": "Crea un esperimento A/B per piattaforma, programma due post e confrontali live. A fine finestra il risultato arriva in posta."
+    "unavailable": "Ask Markaestro non è ancora disponibile per questo workspace.",
+    "tools": {
+      "audience_performance": "istantanee del pubblico",
+      "audience_alignment": "allineamento del pubblico",
+      "top_posts": "post migliori per visualizzazioni",
+      "pillar_performance": "prestazioni per pilastro dei contenuti",
+      "hook_performance": "prestazioni per gancio",
+      "timing_performance": "prestazioni per giorno e ora",
+      "drift": "eventi di deriva del pubblico",
+      "learnings": "apprendimenti della strategia",
+      "campaigns": "campagne",
+      "platform_comparisons": "confronto per piattaforma",
+      "experiments": "esperimenti"
     }
   },
-  "workflow": {
-    "opportunities": {
-      "title": "Come usare le opportunità",
-      "step1": "Leggi la raccomandazione e le evidenze usate.",
-      "step2": "Accetta, fissa o ignora.",
-      "step3": "Pubblica o programma in Content/Calendario. Accetta non crea post."
-    },
-    "playbook": {
-      "title": "Come usare il playbook",
-      "step1": "Ogni scheda è un pattern misurato (n=).",
-      "step2": "Accetta, fissa o ignora i pattern.",
-      "step3": "Applica i pattern accettati componendo i post."
-    }
-  },
-  "decisions": {
-    "hint": "Salva solo la decisione, non pubblica né modifica bozze.",
-    "learningHint": "Indica se ti fidi di questo pattern.",
-    "accept": "Accetta, agirò",
-    "pin": "Fissa, dopo",
-    "dismiss": "Ignora, nascondi"
+  "errors": {
+    "unavailableTitle": "Intelligence non disponibile",
+    "unavailableBody": "Questa fase non è abilitata per lo spazio di lavoro o non è stato possibile caricarla.",
+    "retry": "Riprova"
   }
 }

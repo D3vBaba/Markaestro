@@ -9,9 +9,18 @@
     "signInPrompt": "이미 계정이 있으신가요?",
     "signInLink": "로그인",
     "stats": [
-      { "value": "10시간", "label": "매주 절약되는 시간" },
-      { "value": "6", "label": "채널, 클릭 한 번으로" },
-      { "value": "1", "label": "모든 채널을 위한 하나의 편집기" }
+      {
+        "value": "10시간",
+        "label": "매주 절약되는 시간"
+      },
+      {
+        "value": "6",
+        "label": "채널, 클릭 한 번으로"
+      },
+      {
+        "value": "1",
+        "label": "모든 채널을 위한 하나의 편집기"
+      }
     ],
     "trustedBy": "창업자들이 신뢰하는"
   },
@@ -21,14 +30,53 @@
     "titleHighlight": "한 곳에서",
     "subtitle": "캡션 초안 작성부터 게시물 발행까지, Markaestro가 소셜 워크플로우의 모든 단계를 처리합니다.",
     "items": [
-      { "title": "멀티 채널 발행", "desc": "하나의 편집기에서 Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest에 발행하세요. 예약 발행도, 즉시 발행도 가능합니다." },
-      { "title": "통합 미디어 업로드", "desc": "직접 촬영한 이미지와 동영상을 그대로 사용하세요. 게시물당 한 번만 업로드하면 연결된 모든 채널에 배포됩니다." },
-      { "title": "멀티 채널 미리보기", "desc": "발행 전 각 플랫폼에서 게시물이 어떻게 표시될지 확인하세요, 캡션, 화면 비율, 글자 수 제한까지." },
-      { "title": "예약 및 캘린더", "desc": "채널별 시간을 설정해 통합 캘린더에 게시물을 대기시키세요. 재예약, 일시중지, 복제까지 클릭 한 번이면 충분합니다." },
-      { "title": "발행 대시보드", "desc": "모든 채널에 걸쳐 초안, 예약된 게시물, 발행 상태를 한눈에 추적하세요." },
-      { "title": "OAuth 연동", "desc": "안전한 OAuth로 Meta, TikTok, LinkedIn, Threads, Pinterest에 원클릭으로 연결하세요. 수동 토큰 관리는 필요 없습니다." }
+      {
+        "title": "멀티 채널 발행",
+        "desc": "하나의 편집기에서 Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest에 발행하세요. 예약 발행도, 즉시 발행도 가능합니다."
+      },
+      {
+        "title": "통합 미디어 업로드",
+        "desc": "직접 촬영한 이미지와 동영상을 그대로 사용하세요. 게시물당 한 번만 업로드하면 연결된 모든 채널에 배포됩니다."
+      },
+      {
+        "title": "멀티 채널 미리보기",
+        "desc": "발행 전 각 플랫폼에서 게시물이 어떻게 표시될지 확인하세요, 캡션, 화면 비율, 글자 수 제한까지."
+      },
+      {
+        "title": "예약 및 캘린더",
+        "desc": "채널별 시간을 설정해 통합 캘린더에 게시물을 대기시키세요. 재예약, 일시중지, 복제까지 클릭 한 번이면 충분합니다."
+      },
+      {
+        "title": "발행 대시보드",
+        "desc": "모든 채널에 걸쳐 초안, 예약된 게시물, 발행 상태를 한눈에 추적하세요."
+      },
+      {
+        "title": "OAuth 연동",
+        "desc": "안전한 OAuth로 Meta, TikTok, LinkedIn, Threads, Pinterest에 원클릭으로 연결하세요. 수동 토큰 관리는 필요 없습니다."
+      }
     ],
     "exploreButton": "모든 기능 살펴보기"
+  },
+  "intelligencePreview": {
+    "eyebrow": "인텔리전스",
+    "titleLead": "게시는 입력입니다.",
+    "titleHighlight": "성장은 결과입니다.",
+    "subtitle": "인텔리전스는 이미 게시한 게시물에서 배우고, 무엇이 효과 있었는지, 언제 게시할지, 다음에 무엇을 시도할지 쉬운 말로 알려줍니다. 그리고 초안까지 작성해 줍니다.",
+    "items": [
+      {
+        "title": "추측 없이 측정만",
+        "desc": "모든 숫자는 플랫폼이 보고한 그대로입니다. 빈칸은 빈칸으로 남고, 각 결과는 측정, 계산, 추천, 생성 중 무엇인지 밝힙니다."
+      },
+      {
+        "title": "증거가 있는 패턴",
+        "desc": "어떤 플랫폼, 시간대, 훅, 콘텐츠 기둥이 브랜드의 나머지보다 성과가 좋은지, 표본 크기와 신뢰 범위까지 명시합니다."
+      },
+      {
+        "title": "직접 관리하는 초안",
+        "desc": "어떤 기회나 성공한 게시물이든 브랜드 보이스에 맞는 캡션으로 바꾸세요. 콘텐츠에 초안으로 저장됩니다. 편집, 미디어 추가, 예약은 직접 합니다."
+      }
+    ],
+    "exploreButton": "인텔리전스 살펴보기"
   },
   "channelsPreview": {
     "eyebrow": "채널",
@@ -36,25 +84,62 @@
     "titleHighlight": "어디서든 다가가세요",
     "subtitle": "한 번만 연결하면 모든 주요 플랫폼에 발행할 수 있습니다. API 차이, 글자 수 제한, 미디어 요구사항은 채널별로 Markaestro가 알아서 처리합니다.",
     "channels": [
-      { "name": "Facebook & Instagram", "desc": "Meta를 통해 OAuth로 연결됩니다. 페이지, 피드 게시물, 스토리, IG 비즈니스 발행을 지원합니다." },
-      { "name": "TikTok", "desc": "사진과 동영상 콘텐츠는 최종 마무리와 게시를 위해 크리에이터의 TikTok 받은함으로 전달됩니다." },
-      { "name": "LinkedIn", "desc": "본인 프로필 또는 관리 중인 페이지에 발행할 수 있습니다. 텍스트, 이미지, 동영상, 최대 20장까지의 다중 이미지 게시물을 지원합니다." },
-      { "name": "Threads & Pinterest", "desc": "Threads 캐러셀은 최대 20개 항목까지, Pinterest 이미지 및 동영상 핀은 선택한 보드에 게시됩니다." }
+      {
+        "name": "Facebook & Instagram",
+        "desc": "Meta를 통해 OAuth로 연결됩니다. 페이지, 피드 게시물, 스토리, IG 비즈니스 발행을 지원합니다."
+      },
+      {
+        "name": "TikTok",
+        "desc": "사진과 동영상 콘텐츠는 최종 마무리와 게시를 위해 크리에이터의 TikTok 받은함으로 전달됩니다."
+      },
+      {
+        "name": "LinkedIn",
+        "desc": "본인 프로필 또는 관리 중인 페이지에 발행할 수 있습니다. 텍스트, 이미지, 동영상, 최대 20장까지의 다중 이미지 게시물을 지원합니다."
+      },
+      {
+        "name": "Threads & Pinterest",
+        "desc": "Threads 캐러셀은 최대 20개 항목까지, Pinterest 이미지 및 동영상 핀은 선택한 보드에 게시됩니다."
+      }
     ],
     "seeAllButton": "모든 채널 보기",
     "stats": [
-      { "label": "소셜 채널", "value": "6", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
-      { "label": "편집기", "value": "1", "sub": "한 화면에서 캡션 + 미디어" },
-      { "label": "대시보드", "value": "1", "sub": "통합된 발행 워크플로우" },
-      { "label": "API", "value": "1", "sub": "하나의 키로 에이전트 대응 완료" }
+      {
+        "label": "소셜 채널",
+        "value": "6",
+        "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest"
+      },
+      {
+        "label": "편집기",
+        "value": "1",
+        "sub": "한 화면에서 캡션 + 미디어"
+      },
+      {
+        "label": "대시보드",
+        "value": "1",
+        "sub": "통합된 발행 워크플로우"
+      },
+      {
+        "label": "API",
+        "value": "1",
+        "sub": "하나의 키로 에이전트 대응 완료"
+      }
     ]
   },
   "composerPreview": {
     "panelLabel": "하나의 편집기, 모든 채널",
     "rows": [
-      { "label": "미디어", "value": "이미지 또는 동영상 업로드, JPG, PNG, WebP, MP4" },
-      { "label": "캡션", "value": "한 번만 작성하고, 발행 전 채널별로 미리보기" },
-      { "label": "출력", "value": "연결된 6개 채널 모두에 예약 발행 또는 즉시 발행" }
+      {
+        "label": "미디어",
+        "value": "이미지 또는 동영상 업로드, JPG, PNG, WebP, MP4"
+      },
+      {
+        "label": "캡션",
+        "value": "한 번만 작성하고, 발행 전 채널별로 미리보기"
+      },
+      {
+        "label": "출력",
+        "value": "연결된 6개 채널 모두에 예약 발행 또는 즉시 발행"
+      }
     ],
     "eyebrow": "편집기",
     "titleLead": "당신의 미디어,",

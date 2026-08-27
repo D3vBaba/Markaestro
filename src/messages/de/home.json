@@ -9,9 +9,18 @@
     "signInPrompt": "Du hast schon ein Konto?",
     "signInLink": "Anmelden",
     "stats": [
-      { "value": "10 Std.", "label": "Gespart pro Woche" },
-      { "value": "6", "label": "Kanäle, ein Klick" },
-      { "value": "1", "label": "Editor für alle Kanäle" }
+      {
+        "value": "10 Std.",
+        "label": "Gespart pro Woche"
+      },
+      {
+        "value": "6",
+        "label": "Kanäle, ein Klick"
+      },
+      {
+        "value": "1",
+        "label": "Editor für alle Kanäle"
+      }
     ],
     "trustedBy": "Vertraut von Gründern"
   },
@@ -21,14 +30,53 @@
     "titleHighlight": "wachsen",
     "subtitle": "Vom ersten Entwurf bis zum veröffentlichten Beitrag übernimmt Markaestro jeden Schritt deines Social-Workflows.",
     "items": [
-      { "title": "Multichannel-Veröffentlichung", "desc": "Veröffentliche auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest aus einem einzigen Editor. Plane Beiträge oder veröffentliche sofort." },
-      { "title": "Zentralisierter Upload von Inhalten", "desc": "Bring deine eigenen Bilder und Videos mit. Einmal hochladen pro Beitrag und an jeden verbundenen Kanal ausliefern." },
-      { "title": "Multichannel-Vorschauen", "desc": "Sieh dir an, wie jeder Beitrag auf jeder Plattform aussehen wird, bevor du veröffentlichst: Texte, Seitenverhältnisse, Zeichenlimits." },
-      { "title": "Planung & Kalender", "desc": "Reihe Beiträge in einem einheitlichen Kalender mit kanalspezifischer Zeitplanung ein. Verschiebe, pausiere oder dupliziere mit einem Klick." },
-      { "title": "Veröffentlichungs-Dashboard", "desc": "Behalte Entwürfe, geplante Beiträge und den Veröffentlichungsstatus über alle Kanäle im Blick." },
-      { "title": "OAuth-Integrationen", "desc": "Verbinde dich mit einem Klick über sicheres OAuth mit Meta, TikTok, LinkedIn, Threads und Pinterest. Keine manuelle Token-Verwaltung nötig." }
+      {
+        "title": "Multichannel-Veröffentlichung",
+        "desc": "Veröffentliche auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest aus einem einzigen Editor. Plane Beiträge oder veröffentliche sofort."
+      },
+      {
+        "title": "Zentralisierter Upload von Inhalten",
+        "desc": "Bring deine eigenen Bilder und Videos mit. Einmal hochladen pro Beitrag und an jeden verbundenen Kanal ausliefern."
+      },
+      {
+        "title": "Multichannel-Vorschauen",
+        "desc": "Sieh dir an, wie jeder Beitrag auf jeder Plattform aussehen wird, bevor du veröffentlichst: Texte, Seitenverhältnisse, Zeichenlimits."
+      },
+      {
+        "title": "Planung & Kalender",
+        "desc": "Reihe Beiträge in einem einheitlichen Kalender mit kanalspezifischer Zeitplanung ein. Verschiebe, pausiere oder dupliziere mit einem Klick."
+      },
+      {
+        "title": "Veröffentlichungs-Dashboard",
+        "desc": "Behalte Entwürfe, geplante Beiträge und den Veröffentlichungsstatus über alle Kanäle im Blick."
+      },
+      {
+        "title": "OAuth-Integrationen",
+        "desc": "Verbinde dich mit einem Klick über sicheres OAuth mit Meta, TikTok, LinkedIn, Threads und Pinterest. Keine manuelle Token-Verwaltung nötig."
+      }
     ],
     "exploreButton": "Alle Funktionen entdecken"
+  },
+  "intelligencePreview": {
+    "eyebrow": "Intelligenz",
+    "titleLead": "Veröffentlichen ist der Input.",
+    "titleHighlight": "Wachstum ist der Output.",
+    "subtitle": "Intelligence lernt aus den Beiträgen, die du bereits veröffentlicht hast, und sagt dir verständlich, was funktioniert hat, wann du posten solltest und was du als Nächstes testen kannst. Dann entwirft es den Beitrag für dich.",
+    "items": [
+      {
+        "title": "Gemessen, nie geraten",
+        "desc": "Jede Zahl ist genau das, was die Plattform gemeldet hat. Leer bleibt leer, und jedes Ergebnis sagt, ob es gemessen, berechnet, empfohlen oder generiert wurde."
+      },
+      {
+        "title": "Muster mit Beleg",
+        "desc": "Welche Plattform, welcher Zeitslot, welcher Aufhänger oder welche Inhaltssäule über dem Rest deiner Marke liegt, mit Stichprobe und Konfidenzbereich in klaren Worten."
+      },
+      {
+        "title": "Entwürfe, die du kontrollierst",
+        "desc": "Mach aus jeder Chance oder jedem erfolgreichen Beitrag eine Caption in deiner Markenstimme. Sie landet als Entwurf in Content. Du bearbeitest, ergänzt Medien und planst."
+      }
+    ],
+    "exploreButton": "Intelligence entdecken"
   },
   "channelsPreview": {
     "eyebrow": "Kanäle",
@@ -36,25 +84,62 @@
     "titleHighlight": "überall",
     "subtitle": "Einmal verbinden und auf allen wichtigen Plattformen veröffentlichen. Markaestro kümmert sich um API-Unterschiede, Zeichenlimits und Medienanforderungen für jeden Kanal.",
     "channels": [
-      { "name": "Facebook & Instagram", "desc": "Über Meta per OAuth verbunden. Seiten, Feed-Beiträge, Stories und geschäftliche Instagram-Veröffentlichung." },
-      { "name": "TikTok", "desc": "Foto- und Videoinhalte werden zur finalen Fertigstellung und Veröffentlichung an den TikTok-Posteingang des Creators übergeben." },
-      { "name": "LinkedIn", "desc": "Dein Profil oder eine von dir verwaltete Seite. Text-, Bild-, Video- und Multi-Bild-Beiträge mit bis zu 20 Bildern." },
-      { "name": "Threads & Pinterest", "desc": "Threads-Karussells mit bis zu 20 Elementen; Pinterest-Bild- und -Video-Pins auf das von dir gewählte Board." }
+      {
+        "name": "Facebook & Instagram",
+        "desc": "Über Meta per OAuth verbunden. Seiten, Feed-Beiträge, Stories und geschäftliche Instagram-Veröffentlichung."
+      },
+      {
+        "name": "TikTok",
+        "desc": "Foto- und Videoinhalte werden zur finalen Fertigstellung und Veröffentlichung an den TikTok-Posteingang des Creators übergeben."
+      },
+      {
+        "name": "LinkedIn",
+        "desc": "Dein Profil oder eine von dir verwaltete Seite. Text-, Bild-, Video- und Multi-Bild-Beiträge mit bis zu 20 Bildern."
+      },
+      {
+        "name": "Threads & Pinterest",
+        "desc": "Threads-Karussells mit bis zu 20 Elementen; Pinterest-Bild- und -Video-Pins auf das von dir gewählte Board."
+      }
     ],
     "seeAllButton": "Alle Kanäle ansehen",
     "stats": [
-      { "label": "Soziale Kanäle", "value": "6", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
-      { "label": "Editor", "value": "1", "sub": "Text und Inhalt auf einem Bildschirm" },
-      { "label": "Dashboard", "value": "1", "sub": "Einheitlicher Veröffentlichungsworkflow" },
-      { "label": "API", "value": "1", "sub": "Ein Schlüssel, agentenbereit" }
+      {
+        "label": "Soziale Kanäle",
+        "value": "6",
+        "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest"
+      },
+      {
+        "label": "Editor",
+        "value": "1",
+        "sub": "Text und Inhalt auf einem Bildschirm"
+      },
+      {
+        "label": "Dashboard",
+        "value": "1",
+        "sub": "Einheitlicher Veröffentlichungsworkflow"
+      },
+      {
+        "label": "API",
+        "value": "1",
+        "sub": "Ein Schlüssel, agentenbereit"
+      }
     ]
   },
   "composerPreview": {
     "panelLabel": "Ein Editor, alle Kanäle",
     "rows": [
-      { "label": "Inhalt", "value": "Bilder oder Videos hochladen: JPG, PNG, WebP, MP4" },
-      { "label": "Text", "value": "Einmal schreiben, pro Kanal vor der Veröffentlichung ansehen" },
-      { "label": "Ergebnis", "value": "Geplante oder sofortige Beiträge auf allen sechs verbundenen Kanälen" }
+      {
+        "label": "Inhalt",
+        "value": "Bilder oder Videos hochladen: JPG, PNG, WebP, MP4"
+      },
+      {
+        "label": "Text",
+        "value": "Einmal schreiben, pro Kanal vor der Veröffentlichung ansehen"
+      },
+      {
+        "label": "Ergebnis",
+        "value": "Geplante oder sofortige Beiträge auf allen sechs verbundenen Kanälen"
+      }
     ],
     "eyebrow": "Editor",
     "titleLead": "Deine Inhalte,",

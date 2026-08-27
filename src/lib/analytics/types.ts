@@ -105,6 +105,14 @@ export type AnalyticsMetaDoc = {
   lastLearningRecomputeAt?: string;
   socialPostsBackfillAt?: string;
   socialPostsBackfillAfterId?: string;
+  /** Published-post fingerprint backfill cursors and daily cap counters. */
+  fingerprintRecentCursor?: string | null;
+  fingerprintRecentDoneAt?: string;
+  fingerprintOlderCursor?: string | null;
+  fingerprintOlderDoneAt?: string;
+  fingerprintIncrementalAt?: string;
+  fingerprintDailyDate?: string;
+  fingerprintDailyCount?: number;
   updatedAt?: string;
 };
 

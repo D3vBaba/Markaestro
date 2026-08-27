@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "Caption copied",
       "copyFailed": "Couldn't copy the caption"
-    }
+    },
+    "fromIntelligence": "Drafted by Intelligence"
   },
   "platformPostsTab": {
     "refresh": "Refresh",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -329,20 +329,21 @@ export default function ExperimentBoard({
   const [armBWhen, setArmBWhen] = useState(defaultSchedule(6));
   const [creating, setCreating] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<ExperimentItem | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(experiments[0]?.id || null);
+  // `undefined` = nothing chosen yet (first experiment opens), `null` = collapsed by the user.
+  const [chosenExpandedId, setExpandedId] = useState<string | null | undefined>(undefined);
+  const expandedId = chosenExpandedId === undefined ? experiments[0]?.id ?? null : chosenExpandedId;
 
   const mediaRequired = Boolean(getSocialChannelConfig(platform)?.mediaRequired);
 
-  useEffect(() => {
-    if (!expandedId && experiments[0]?.id) setExpandedId(experiments[0].id);
-  }, [experiments, expandedId]);
-
-  useEffect(() => {
-    // Drop media that would exceed the new platform’s limit when the channel changes.
+  // Drop media that would exceed the new platform's limit when the channel
+  // changes. Adjusting during render keeps this to one pass (no effect).
+  const [mediaLimitPlatform, setMediaLimitPlatform] = useState(platform);
+  if (mediaLimitPlatform !== platform) {
     const limit = getSharedMediaLimit([platform]) || 1;
+    setMediaLimitPlatform(platform);
     setArmAMedia((prev) => prev.slice(0, limit));
     setArmBMedia((prev) => prev.slice(0, limit));
-  }, [platform]);
+  }
 
   const canCreate = useMemo(() => {
     const mediaOk = !mediaRequired || (armAMedia.length > 0 && armBMedia.length > 0);

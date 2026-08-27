@@ -1,13 +1,28 @@
 {
   "title": "智能洞察",
-  "subtitle": "实测表现与有据建议，不会自动发布。",
+  "subtitle": "用通俗语言解释你自己帖子的实测结果，草稿由你掌控。不会自动发布任何内容。",
   "brand": "品牌",
   "coverage": "数据覆盖率 {value}%",
+  "productBar": {
+    "brand": "品牌",
+    "noBrandSelected": "未选择品牌",
+    "change": "更改"
+  },
   "labels": {
     "measured": "实测",
     "calculated": "计算",
     "predicted": "预测",
-    "recommended": "建议"
+    "recommended": "建议",
+    "declared": "声明",
+    "generated": "生成"
+  },
+  "labelHints": {
+    "measured": "各平台为你的帖子报告的数字。空白表示平台未报告该项。",
+    "calculated": "根据你的实测数字计算出的统计结果。不猜测，不使用行业平均值。",
+    "predicted": "带置信度的估计值。请当作提示，而非事实。",
+    "recommended": "基于你的实测证据生成的建议。是否采纳由你决定。",
+    "declared": "你为该品牌填写的信息。智能洞察会将结果与之对照。",
+    "generated": "AI 根据你自己的证据和品牌语气撰写的文字。始终保存为可编辑的草稿。"
   },
   "tabs": {
     "overview": "概览",
@@ -17,20 +32,446 @@
     "playbook": "行动手册",
     "advanced": "实验"
   },
+  "actions": {
+    "refresh": "刷新",
+    "refreshing": "刷新中…",
+    "accept": "接受",
+    "dismiss": "忽略",
+    "pin": "置顶",
+    "undo": "撤销",
+    "saveFailed": "无法保存您的决定",
+    "acceptedToast": "已标记为接受。可在此生成草稿，或前往内容撰写。",
+    "pinnedToast": "已固定以便跟进",
+    "dismissedToast": "已忽略。可在“已忽略”筛选中再次找到。",
+    "undoneToast": "已清除决定",
+    "status": {
+      "proposed": "新",
+      "accepted": "已接受",
+      "pinned": "已固定",
+      "dismissed": "已忽略"
+    }
+  },
+  "decisions": {
+    "hint": "这些按钮仅记录你的决定，绝不会发布、排期或修改草稿。",
+    "learningHint": "记录你是否信任此模式。智能洞察绝不会擅自更改你的内容。",
+    "accept": "接受，计划执行",
+    "pin": "固定，稍后",
+    "dismiss": "忽略，隐藏"
+  },
+  "filter": {
+    "label": "显示",
+    "all": "全部",
+    "proposed": "新",
+    "accepted": "已接受",
+    "pinned": "已固定",
+    "dismissed": "已忽略",
+    "none": "此筛选下暂无内容。"
+  },
+  "gate": {
+    "rolloutTitle": "尚未为此工作区开启",
+    "rolloutBody": "你的套餐包含智能洞察的这一部分。它正在逐步推出，无需你做任何操作即会在此显示。"
+  },
+  "howItWorks": {
+    "button": "工作原理",
+    "close": "知道了",
+    "stepsTitle": "使用方法",
+    "inputsTitle": "数据来源",
+    "neverTitle": "绝不会做的事",
+    "thresholdsTitle": "开启条件",
+    "page": {
+      "title": "智能洞察的工作原理",
+      "intro": "智能洞察读取你已发布的帖子，将每个数字原样保留为平台报告的值，并把这段历史转化为通俗易懂的答案：什么有效、何时发布、接下来试什么。每一步操作都由你掌控。",
+      "steps": [
+        "选择一个品牌。本页所有内容都以单个品牌及其已连接渠道为范围。",
+        "从概览开始，查看目前已测量的内容，以及哪些功能已有足够数据可以开启。",
+        "在受众中设定你的目标和受众。它决定每条建议优化的指标。",
+        "阅读内容、机会和行动手册中有据可依的答案，然后用“生成草稿”把其中任意一项变成帖子草稿。",
+        "每份草稿都会作为普通草稿进入内容。像处理其他帖子一样审阅、编辑、排期或删除。"
+      ],
+      "inputs": [
+        "通过 Markaestro 发布的帖子，以及从已连接账号导入的帖子",
+        "各平台为这些帖子报告的指标（浏览量、触达、赞、评论、分享、收藏、点击）",
+        "你声明的目标、市场、时区、支柱和品牌语气"
+      ],
+      "never": [
+        "自行发布或排期任何内容",
+        "填补平台未报告的数字",
+        "使用其他品牌的数据或泛泛的行业基准"
+      ]
+    },
+    "overview": {
+      "title": "概览",
+      "intro": "该品牌已测量内容的快照，外加一份就绪清单，准确告诉你哪些功能已开启、还缺什么。",
+      "steps": [
+        "查看目标横幅。所有排名和建议都使用该指标。",
+        "阅读 KPI 卡片。空白表示没有已连接平台报告该指标，绝不是零。",
+        "利用就绪清单查看每项功能距离开启还差多少，以及该做什么。",
+        "平台按单篇帖子而非总量比较，因此帖子较少的渠道也能得到公平评判。"
+      ],
+      "inputs": [
+        "该品牌所有已同步帖子及其最新报告指标",
+        "受众标签页中的目标"
+      ],
+      "never": [
+        "混合不同品牌的数字",
+        "估算平台留空的指标"
+      ]
+    },
+    "audience": {
+      "title": "受众",
+      "intro": "告诉智能洞察你为谁创作、什么算成功。此档案是编辑器中 Audience Fit、时段和每条建议的衡量标准。",
+      "steps": [
+        "选择一个目标。它决定智能洞察优化的指标（例如“互动”使用赞、评论、分享和收藏）。",
+        "添加主要市场、时区、内容支柱和语气特征。发布时段按此时区计算。",
+        "为你分享的网址创建跟踪链接。每次点击都在此计数，不存储个人数据。",
+        "保存。更改会在下次刷新时生效。"
+      ],
+      "inputs": [
+        "你在此标签页填写的内容",
+        "跟踪链接的点击，以及你发送给 Markaestro 的转化"
+      ],
+      "never": [
+        "存储跟踪链接的 IP 地址、浏览器信息或来源页",
+        "自动更改你的档案"
+      ]
+    },
+    "content": {
+      "title": "内容",
+      "intro": "按你选择的指标排名的实测帖子，附带智能洞察在每篇中识别出的模式，以及用通俗语言解释它为何有此表现。",
+      "steps": [
+        "按目标、浏览量或互动排序。筛选到单一平台可做同类比较。",
+        "在任意帖子上打开“成效解析”，即可看到基于该帖数字与账号平均值对比的简短解释。",
+        "使用“生成类似草稿”获得一条复用有效要素的新文案，保存为内容中的草稿。",
+        "也看看实测最低的帖子：它们缺少的东西往往是最清晰的教训。"
+      ],
+      "inputs": [
+        "每篇帖子的文案、平台、发布时间和报告指标",
+        "从每篇已发布帖子的文案中检测出的内容模式（支柱、开头、形式）"
+      ],
+      "never": [
+        "按未报告的指标给帖子排名",
+        "未经你同意编辑或重新发布任何内容"
+      ]
+    },
+    "opportunities": {
+      "title": "机会",
+      "intro": "接下来可以尝试的具体事项，每一项都有你自己的数字支撑：表现优于平均的发布时段、单篇表现更好的平台，或值得重复的模式。",
+      "steps": [
+        "阅读每张卡片下方的证据行。它展示建议背后的确切数字。",
+        "打算尝试就接受，想稍后再看就固定，不合适就忽略。三者都可以撤销。",
+        "使用“生成草稿”获得为该机会撰写的文案，保存为内容中的草稿。",
+        "照常从内容或日历发布。接受绝不会创建或排期帖子。"
+      ],
+      "inputs": [
+        "最佳发布时段、单篇平台比较和行动手册中的模式",
+        "受众标签页中的目标和优先平台"
+      ],
+      "never": [
+        "在实测帖子少于五篇时给出建议",
+        "未经你同意执行已接受的机会"
+      ]
+    },
+    "playbook": {
+      "title": "行动手册",
+      "intro": "在你的数据中反复出现、且帖子数量足以说明问题的模式：哪个平台、开头、支柱、形式或时段的表现高于或低于该品牌的其他帖子。",
+      "steps": [
+        "每张卡片按你的目标指标，将一组帖子与该品牌的所有其他帖子进行比较。",
+        "效应是单篇的百分比差异。95% 区间告诉你该估计有多可靠。",
+        "强度随样本量增长：方向性（5 到 14 篇）、中等（15 到 29 篇）、可能较强（30 篇及以上且区间明确）。",
+        "接受你想重复的模式，然后用“生成草稿”按该模式撰写帖子。"
+      ],
+      "inputs": [
+        "按平台、支柱、开头、形式和星期/小时分组的实测帖子",
+        "从每条已发布文案中检测出的内容模式"
+      ],
+      "never": [
+        "报告组内不足五篇、组外不足五篇的模式",
+        "宣称因果关系。这些只是你自己数据中的关联。"
+      ]
+    },
+    "advanced": {
+      "title": "实验与 Ask Markaestro",
+      "intro": "用成对的 A/B 帖子一次测试一个想法，并提出仅从该品牌实测记录中作答的问题。",
+      "steps": [
+        "创建实验：一个平台、两个变体、一个窗口。两条帖子都会为你排期。",
+        "窗口结束后，由实测指标决定胜者，结果进入你的收件箱。",
+        "Ask Markaestro 每个问题只选用一个经批准的数据工具，并引用所用记录。",
+        "活动目前为预览：现在可以命名，帖子分配功能即将推出。"
+      ],
+      "inputs": [
+        "两条实验帖子及其报告指标",
+        "供 Ask Markaestro 使用的已存模式、比较、时段和热门帖子"
+      ],
+      "never": [
+        "在没有实测差异和样本支撑时宣布胜者",
+        "用泛泛的社交媒体建议作答"
+      ]
+    },
+    "drafts": {
+      "title": "生成草稿",
+      "intro": "把一个机会、一个模式或某篇帖子，变成一条以你的品牌语气、基于你自己表现最佳的证据撰写的新文案。",
+      "steps": [
+        "智能洞察为该机会或模式收集最多五篇你表现最强的实测帖子，再加上你的受众档案和品牌语气。",
+        "草稿针对所选平台撰写，包含话题标签和开头，并附上一条简短说明，指出哪些证据影响了它。",
+        "它会保存为内容中的草稿。打开、编辑、添加媒体，准备好后再排期。"
+      ],
+      "inputs": [
+        "你的实测帖子、受众档案和你声明的品牌语气",
+        "你点击的机会或模式背后的证据"
+      ],
+      "never": [
+        "发布或排期草稿",
+        "编造品牌数据中不存在的说法、价格、优惠或链接"
+      ]
+    },
+    "explain": {
+      "title": "成效解析",
+      "intro": "对单篇帖子结果与账号其余帖子对比的简短解释：文案、时段或平台平均值中哪一点突出。",
+      "steps": [
+        "在任意实测帖子上打开。解释只生成一次并随帖子保存。",
+        "因素指向真实事物：某个指标、文案、检测到的模式或发布时段。",
+        "把“下次尝试”建议当作下一篇帖子或实验的假设。"
+      ],
+      "inputs": [
+        "该帖子的数字、文案和检测到的模式",
+        "你的平台平均值和最佳发布时段"
+      ],
+      "never": [
+        "宣称因果关系。它描述的是你数据中的关联。",
+        "使用平台未报告的指标"
+      ]
+    },
+    "links": {
+      "title": "跟踪链接",
+      "intro": "粘贴到文案中的短链接，可统计点击，并通过转化 API 关联回销售或注册。",
+      "steps": [
+        "用标签和目标网址创建链接。把短链接复制到任意文案中。",
+        "点击会实时显示在这里。不存储 IP 地址、浏览器或来源页。",
+        "将转化事件连同点击 ID 发送到 API，即可查看每条链接的归因转化。"
+      ],
+      "inputs": [
+        "经短链接的跳转",
+        "你的网站或服务器发送给 Markaestro 的转化事件"
+      ],
+      "never": [
+        "跨站点追踪访客",
+        "从点击中存储个人数据"
+      ]
+    }
+  },
+  "quota": {
+    "title": "AI 操作",
+    "aiOps": "本月已使用 {used} / {limit} 次 AI 操作",
+    "aiOpsUnlimited": "本月已使用 {used} 次 AI 操作",
+    "strategist": "已使用 {used} / {limit} 次提问",
+    "hint": "生成草稿、成效解析和 Audience Fit 各消耗一次操作。后台模式检测免费。",
+    "exceeded": "你已用完 {plan} 套餐本月的 AI 操作。下月重置，或升级以获得更多。"
+  },
+  "readiness": {
+    "title": "已开启的功能",
+    "subtitle": "每项功能需要最低限度的实测数据才会显示。以下是该品牌的当前状态。",
+    "progress": "{current} / {required}",
+    "met": "已开启",
+    "pending": "需要更多数据",
+    "unavailable": "暂不可用",
+    "computedAt": "计算于 {when}",
+    "checks": {
+      "history": {
+        "label": "Audience Fit 历史评分",
+        "hint": "需要 5 篇带实测 {metric} 值的帖子。"
+      },
+      "timing": {
+        "label": "最佳发布时段",
+        "hint": "需要 20 篇带发布时间的帖子和 5 篇带实测 {metric} 值的帖子。"
+      },
+      "timingWindow": {
+        "label": "帖子足够的时段",
+        "hint": "同一星期几和小时内至少 5 篇实测帖子。"
+      },
+      "platformComparison": {
+        "label": "平台比较",
+        "hint": "两个平台各有 5 篇及以上实测帖子。"
+      },
+      "learnings": {
+        "label": "行动手册模式",
+        "hint": "组内 5 篇实测帖子，组外 5 篇。"
+      },
+      "contentPatterns": {
+        "label": "内容模式检测",
+        "hint": "发布后文案会在后台分析。10 篇已分析帖子即可解锁支柱、开头和形式模式。"
+      },
+      "alignment": {
+        "label": "受众对齐",
+        "hint": "需要已连接平台提供受众人口统计数据。你已连接的平台目前都未报告。"
+      }
+    }
+  },
+  "objective": {
+    "title": "优化目标",
+    "body": "由于你的目标是{objective}，本页所有排名、时段和建议都使用{metric}。",
+    "change": "在受众中更改",
+    "names": {
+      "awareness": "认知",
+      "engagement": "互动",
+      "followers": "粉丝",
+      "website_traffic": "网站流量",
+      "leads": "线索",
+      "app_installs": "应用安装",
+      "purchases": "购买",
+      "other": "自定义目标"
+    },
+    "metrics": {
+      "reach": "触达",
+      "views": "浏览量",
+      "engagements": "互动（赞、评论、分享、收藏）",
+      "followers_gained": "新增粉丝",
+      "clicks": "点击",
+      "leads": "线索",
+      "installs": "安装",
+      "purchases": "购买",
+      "conversions": "转化",
+      "custom": "转化"
+    },
+    "fallback": "你已连接的平台目前都未报告单篇 {requested} 数据，因此本页改按 {metric} 排名。请在受众中更改目标，或连接一个报告该数据的渠道。"
+  },
   "metrics": {
     "posts": "帖子",
     "views": "浏览量",
     "reach": "触达",
-    "clicks": "点击"
+    "clicks": "点击",
+    "engagements": "互动",
+    "conversions": "转化",
+    "engagementRate": "互动率",
+    "perPost": "每篇"
   },
   "platforms": {
     "title": "平台表现",
+    "subtitle": "采用单篇平均值，让帖子较少的平台也能得到公平比较。",
     "empty": "指标到达后，已发布帖子会显示在这里。",
-    "posts": "{value} 篇帖子",
-    "views": "{value} 次浏览",
-    "engagements": "{value} 次互动",
     "colPlatform": "平台",
-    "colEngagements": "互动"
+    "colPosts": "帖子",
+    "colAvgViews": "平均浏览量",
+    "colAvgEngagements": "平均互动",
+    "colEngRate": "互动率",
+    "measuredNote": "{posts} 篇中 {measured} 篇已测量",
+    "includesImported": "包含从已连接账号导入的帖子，而不只是通过 Markaestro 发布的帖子。数字可能与分析不同，后者只涵盖某个日期范围内的 Markaestro 帖子。"
+  },
+  "content": {
+    "title": "你的帖子排名",
+    "sortBy": "排名依据",
+    "sortObjective": "目标（{metric}）",
+    "sortViews": "浏览量",
+    "sortEngagements": "互动",
+    "allPlatforms": "所有平台",
+    "mediaOnly": "媒体帖子",
+    "likes": "赞",
+    "comments": "评论",
+    "shares": "分享",
+    "viewLive": "查看直播帖",
+    "published": "发布于 {date}",
+    "engagementRate": "互动率 {value}%",
+    "patterns": {
+      "pillar": "支柱",
+      "hook": "开头",
+      "format": "形式",
+      "pending": "发布后会在后台检测模式。"
+    },
+    "lowestTitle": "实测最低",
+    "lowestBody": "同一指标下表现最弱的实测帖子。它们缺少的东西往往是最清晰的教训。",
+    "why": {
+      "button": "成效解析",
+      "loading": "正在读取这篇帖子的数字…",
+      "factors": "突出之处",
+      "tryNext": "下次尝试",
+      "failed": "暂时无法解析这篇帖子。",
+      "notMeasured": "这篇帖子还没有可解析的实测指标。"
+    },
+    "remix": "生成类似草稿"
+  },
+  "timing": {
+    "title": "最佳发布时间",
+    "subtitle": "你的实测帖子在 {metric} 上超过账号平均值的星期与小时时段。",
+    "needs_dated_posts": "账号专属时段需要 20 篇带发布时间的帖子和 5 篇带实测 {metric} 值的帖子。你目前有 {dated} 篇带日期的帖子。",
+    "no_window_with_five": "还没有任何星期几和小时累积到 5 篇实测帖子。继续发布，时段会随数据填满而出现。",
+    "window": "{weekday} {hour}",
+    "observations": "{count} 篇帖子",
+    "liftUp": "较你的平均值 +{value}%",
+    "liftDown": "较你的平均值 {value}%",
+    "estimate": "每篇约 {value} {metric}",
+    "timezone": "时间以 {timeZone} 显示",
+    "accountMean": "你的平均值：每篇 {value} {metric}"
+  },
+  "opportunities": {
+    "kinds": {
+      "timing": "时段",
+      "platform": "平台",
+      "learning": "模式",
+      "alignment": "受众"
+    },
+    "timing": {
+      "title": "在{weekday} {hour} 左右发布",
+      "body": "在此时段发布的帖子平均获得 {estimate} {metric}，对该品牌而言{lift}。",
+      "evidence": "此时段有 {count} 篇实测帖子，时间以 {timeZone} 为准。"
+    },
+    "platform": {
+      "title": "{leader} 单篇表现优于 {trailing}",
+      "body": "{leader} 单篇平均 {leaderPerPost} {metric}，而 {trailing} 为 {trailingPerPost}。先复用 {leader} 上的有效做法，再在 {trailing} 上增加数量。",
+      "evidence": "{leader} 上 {leaderPosts} 篇实测帖子，{trailing} 上 {trailingPosts} 篇。按单篇比较，而非总量。"
+    },
+    "learning": {
+      "title": "重复：{pattern}",
+      "body": "该组帖子在 {metric} 上比该品牌其他帖子高 {effect}%。",
+      "evidence": "组内 {count} 篇实测帖子。完整比较见行动手册。"
+    },
+    "alignment": {
+      "title": "缩小{dimension}差距",
+      "body": "{dimension}对齐度为 {score}（满分 100）。优先选择与已保存受众档案匹配的主题和目标页面。",
+      "evidence": "这是与你实测受众构成的关联，而非因果。"
+    },
+    "evidenceLabel": "证据",
+    "composeInContent": "在内容中撰写",
+    "openCalendar": "打开日历"
+  },
+  "learnings": {
+    "dimensions": {
+      "platform": "平台",
+      "pillar": "内容支柱",
+      "hook": "开头",
+      "format": "形式",
+      "timing": "时段"
+    },
+    "keys": {
+      "has_hook": "带开头的帖子",
+      "no_hook": "不带开头的帖子"
+    },
+    "summaryUp": "该组 {count} 篇帖子在 {metric} 上比该品牌其他帖子高 {effect}%。",
+    "summaryDown": "该组 {count} 篇帖子在 {metric} 上比该品牌其他帖子低 {effect}%。",
+    "groupVsRest": "每篇 {metric}：{group} 对 {rest}",
+    "sample": "组内 {group} 篇，组外 {rest} 篇",
+    "ci": "95% 区间：{low}% 到 {high}%",
+    "ciMissing": "区间暂不可用",
+    "strength": {
+      "directional": "方向性",
+      "moderate": "中等",
+      "potentially_strong": "可能较强"
+    },
+    "strengthHints": {
+      "directional": "5 到 14 篇帖子。值得关注，尚非定论。",
+      "moderate": "15 到 29 篇帖子，或区间仍跨越零。",
+      "potentially_strong": "30 篇及以上帖子，且区间始终位于零的一侧。"
+    },
+    "evidenceTitle": "此模式背后的帖子",
+    "contentPatternsNote": "支柱、开头和形式模式会在 {required} 条已发布文案分析完成后出现。目前已分析 {current} 条，此过程在后台运行。"
+  },
+  "drafts": {
+    "button": "生成草稿",
+    "creating": "正在撰写草稿…",
+    "created": "草稿已创建",
+    "open": "在内容中打开",
+    "rationale": "草稿依据",
+    "failed": "暂时无法创建草稿。",
+    "quota": "你已用完本月的 AI 操作。下月重置，或升级以获得更多。",
+    "postQuota": "已达到本月帖子上限。"
   },
   "audience": {
     "title": "目标受众",
@@ -38,28 +479,59 @@
     "markets": "市场",
     "pillars": "内容支柱"
   },
-  "content": {
-    "title": "热门内容",
-    "mediaOnly": "媒体帖子",
-    "likes": "赞",
-    "comments": "评论",
-    "shares": "分享",
-    "viewLive": "查看直播帖"
+  "links": {
+    "title": "跟踪链接",
+    "subtitle": "可粘贴到任意文案中的短链接。点击在此计数，不涉及个人数据。",
+    "empty": "创建跟踪链接以统计点击，且不存储原始 IP 地址。",
+    "label": "标签",
+    "destination": "目标网址",
+    "create": "创建链接",
+    "creating": "创建中…",
+    "created": "跟踪链接已创建",
+    "createFailed": "无法创建跟踪链接",
+    "copy": "复制",
+    "copied": "短链接已复制",
+    "clicks": "{count} 次点击",
+    "conversions": "{count} 次归因转化",
+    "lastClick": "最近点击 {when}",
+    "noClicks": "暂无点击"
+  },
+  "campaigns": {
+    "title": "活动",
+    "preview": "预览",
+    "empty": "现在就为想要比较的帖子命名活动。将帖子分配到活动的功能即将推出；在此创建绝不会发布任何内容。",
+    "name": "活动名称",
+    "create": "创建活动",
+    "created": "活动已创建",
+    "createFailed": "无法创建活动",
+    "status": {
+      "draft": "草稿",
+      "active": "进行中",
+      "completed": "已完成",
+      "archived": "已归档"
+    }
   },
   "empty": {
     "overviewTitle": "正在等待已发布帖子",
-    "overviewBody": "该品牌尚未同步帖子。从 Markaestro 发布的帖子和导入的平台历史会在投影到智能洞察后显示。缺失指标保持空白，绝不会记为零。",
+    "overviewBody": "该品牌尚未同步帖子。通过 Markaestro 发布的帖子和从已连接账号导入的历史会在投影到智能洞察后显示在这里。缺失指标保持空白，绝不会记为零。",
     "noBrandTitle": "请先创建品牌",
     "noBrandBody": "智能洞察以 Markaestro 品牌为范围。",
-    "profileTitle": "设置受众档案",
-    "profileBody": "请在品牌设置中添加目标、市场、时区和平台优先级。",
+    "createBrand": "创建品牌",
     "contentTitle": "暂无已测量内容",
-    "contentBody": "已发布和导入的帖子会显示在这里，缺失指标不会被当作零。",
+    "contentBody": "已发布和导入的帖子会在平台报告其指标后立即显示在这里。",
     "opportunitiesTitle": "暂无有依据的机会",
-    "opportunitiesBody": "有足够实测证据后显示建议。",
+    "opportunitiesBody": "有足够实测证据后会显示建议：两个可比较的平台、一个有 5 篇帖子的发布时段，或一个可重复的模式。概览中的就绪清单会显示你还差多少。",
     "playbookTitle": "正在生成行动手册",
-    "playbookBody": "有足够实测帖子后显示模式（通常五条以上）。",
-    "createBrand": "创建品牌"
+    "playbookBody": "模式至少需要组内 5 篇实测帖子和组外 5 篇。请查看概览中的就绪清单，或前往机会查看首批可执行建议。"
+  },
+  "weekdays": {
+    "Mon": "星期一",
+    "Tue": "星期二",
+    "Wed": "星期三",
+    "Thu": "星期四",
+    "Fri": "星期五",
+    "Sat": "星期六",
+    "Sun": "星期日"
   },
   "composer": {
     "title": "受众契合度",
@@ -70,6 +542,7 @@
     "retry": "重试",
     "failed": "无法安全完成分析。",
     "reanalyze": "再次分析",
+    "timingHint": "最强实测时段：{bucket}（{count} 篇帖子）。",
     "meta": "覆盖率 {coverage}% · 置信度{confidence} · {sample} 篇相关帖子",
     "coldStart": "冷启动：相关帖子少于五篇。",
     "unavailable": "不可用",
@@ -80,8 +553,7 @@
       "low": "低",
       "medium": "中",
       "high": "高"
-    },
-    "timingHint": "最强实测时段：{bucket}（{count} 篇帖子）。"
+    }
   },
   "profile": {
     "objective": "目标",
@@ -98,31 +570,6 @@
     "interests": "兴趣",
     "voice": "品牌语气",
     "listHint": "从列表中选择，每次选择会添加可移除的标签。",
-    "save": "保存受众档案",
-    "saving": "保存中…",
-    "saved": "受众档案已保存",
-    "saveFailed": "无法保存受众档案",
-    "loading": "正在加载受众档案…",
-    "unavailable": "此工作区未启用受众档案。",
-    "objectives": {
-      "awareness": "认知",
-      "engagement": "互动",
-      "followers": "粉丝",
-      "website_traffic": "网站流量",
-      "leads": "线索",
-      "app_installs": "应用安装",
-      "purchases": "购买",
-      "other": "其他"
-    },
-    "conversions": {
-      "none": "无",
-      "website_visit": "访问网站",
-      "lead": "线索",
-      "signup": "注册",
-      "app_install": "应用安装",
-      "purchase": "购买",
-      "custom": "自定义"
-    },
     "voiceHint": "选择描述品牌语气的语调特征。",
     "tagAdd": "从列表添加…",
     "tagEmpty": {
@@ -210,40 +657,42 @@
         "trustworthy": "可信",
         "innovative": "创新"
       }
-    }
-  },
-  "errors": {
-    "unavailableTitle": "智能洞察不可用",
-    "unavailableBody": "此阶段尚未为该工作区启用，或加载失败。",
-    "retry": "重试"
-  },
-  "actions": {
-    "accept": "接受",
-    "dismiss": "忽略",
-    "pin": "置顶",
-    "saveFailed": "无法保存您的决定",
-    "acceptedToast": "已标记接受，请在 Content/日历 执行",
-    "pinnedToast": "已固定以便跟进",
-    "dismissedToast": "已忽略并隐藏",
-    "status": {
-      "accepted": "已接受",
-      "pinned": "已固定",
-      "dismissed": "已忽略"
+    },
+    "save": "保存受众档案",
+    "saving": "保存中…",
+    "saved": "受众档案已保存",
+    "saveFailed": "无法保存受众档案",
+    "loading": "正在加载受众档案…",
+    "unavailable": "此工作区未启用受众档案。",
+    "objectives": {
+      "awareness": "认知",
+      "engagement": "互动",
+      "followers": "粉丝",
+      "website_traffic": "网站流量",
+      "leads": "线索",
+      "app_installs": "应用安装",
+      "purchases": "购买",
+      "other": "其他"
+    },
+    "conversions": {
+      "none": "无",
+      "website_visit": "访问网站",
+      "lead": "线索",
+      "signup": "注册",
+      "app_install": "应用安装",
+      "purchase": "购买",
+      "custom": "自定义"
     }
   },
   "alignment": {
     "title": "受众对齐",
-    "empty": "捕获到可衡量的受众构成后才会显示对齐。缺失维度保持空白。"
-  },
-  "timing": {
-    "title": "最佳发布时间",
-    "empty": "账号专属时段需要 20 篇有日期的帖子，并在该小时内有 5 次观测。"
-  },
-  "campaigns": {
-    "title": "活动",
-    "empty": "命名活动以便比较。不会自动发布。",
-    "name": "活动名称",
-    "create": "创建活动"
+    "empty": "已连接平台报告你的受众构成后才会显示对齐。缺失维度保持空白。",
+    "dimensions": {
+      "geography": "地域",
+      "age": "年龄",
+      "gender": "性别",
+      "industryInterests": "行业与兴趣"
+    }
   },
   "experiments": {
     "title": "实验",
@@ -256,6 +705,8 @@
     "createdPaired": "实验已创建，两条帖子均已排期",
     "createFailed": "无法创建实验",
     "captionPlaceholder": "该组的文案与话题标签",
+    "mediaRequired": "该平台在创建实验前，两侧都必须附带媒体。",
+    "mediaRequiredHint": "Instagram、TikTok 和 Pinterest 每个臂至少需要一张图片或一段视频。",
     "armCompose": "组 {arm}",
     "armLabel": "组 {arm}",
     "scheduleA": "排期 A 组",
@@ -269,6 +720,11 @@
     "loadingDetail": "正在加载实验…",
     "detailFailed": "无法加载此实验。",
     "untitledPost": "无标题帖子",
+    "untitledExperiment": "未命名实验",
+    "delete": "删除",
+    "deleteWarning": "将从 Markaestro 移除该实验、其已排期的 A/B 帖以及相关收件箱结果。已在平台上线的帖子不会被删除。",
+    "deleted": "实验已删除",
+    "deleteFailed": "无法删除实验",
     "effect": "相对差异 {value}%（B 相对 A）",
     "status": {
       "draft": "草稿",
@@ -284,83 +740,37 @@
       "winner_a": "在已测量指标上，A 组领先。",
       "winner_b": "在已测量指标上，B 组领先。",
       "inconclusive": "结果尚无定论，需要更大样本或更明显差异。"
-    },
-    "mediaRequired": "该平台在创建实验前，两侧都必须附带媒体。",
-    "mediaRequiredHint": "Instagram、TikTok 和 Pinterest 每个臂至少需要一张图片或一段视频。",
-    "untitledExperiment": "未命名实验",
-    "delete": "删除",
-    "deleted": "实验已删除",
-    "deleteFailed": "无法删除实验",
-    "deleteWarning": "将从 Markaestro 移除该实验、其已排期的 A/B 帖以及相关收件箱结果。已在平台上线的帖子不会被删除。"
+    }
   },
   "ask": {
     "title": "询问 Markaestro",
+    "subtitle": "答案仅来自该品牌的实测记录。每个答案都会注明所用数据。",
     "placeholder": "询问已测量的表现、时段或洞察。",
     "submit": "提问",
     "asking": "正在选择证据…",
-    "tool": "使用了 {tool}",
+    "tool": "答案来源：{tool}",
+    "evidence": "引用的记录",
     "failed": "无法回答该问题。请重试。",
     "timeout": "用时过长，请换更短的问题，或稍后再试。",
     "quota": "本月 Ask Markaestro 次数已用完。请下月再试或升级套餐。",
-    "unavailable": "此工作区尚未开通 Ask Markaestro。"
-  },
-  "links": {
-    "title": "跟踪链接",
-    "empty": "创建跟踪链接以归因点击，且不存储原始 IP。",
-    "label": "标签",
-    "destination": "目标网址",
-    "create": "创建链接"
-  },
-  "productBar": {
-    "brand": "品牌",
-    "noBrandSelected": "未选择品牌",
-    "change": "更改"
-  },
-  "guide": {
-    "overview": {
-      "title": "此标签页内容",
-      "body": "已同步帖子的 KPI 与平台分布。空白表示平台未提供该指标，不是零。"
-    },
-    "audience": {
-      "title": "设定品牌边界",
-      "body": "目标、市场、时区和支柱定义为谁创作。"
-    },
-    "content": {
-      "title": "从有效帖子中学习",
-      "body": "按实测浏览量排序的顶部内容。在 Content 中复用。"
-    },
-    "opportunities": {
-      "title": "下一步尝试",
-      "body": "来自实测历史的建议。请在 Content/日历 中手动执行。"
-    },
-    "playbook": {
-      "title": "重复出现的模式",
-      "body": "样本量足够的统计学习。"
-    },
-    "advanced": {
-      "title": "用证据测试想法",
-      "body": "按平台创建 A/B 实验，排期两条帖子并实时对比。窗口结束后结果进入收件箱。"
+    "unavailable": "此工作区尚未开通 Ask Markaestro。",
+    "tools": {
+      "audience_performance": "受众快照",
+      "audience_alignment": "受众对齐",
+      "top_posts": "按浏览量排序的热门帖子",
+      "pillar_performance": "按内容支柱的表现",
+      "hook_performance": "按开头的表现",
+      "timing_performance": "按星期和小时的表现",
+      "drift": "受众漂移事件",
+      "learnings": "行动手册模式",
+      "campaigns": "活动",
+      "platform_comparisons": "按平台比较",
+      "experiments": "实验"
     }
   },
-  "workflow": {
-    "opportunities": {
-      "title": "如何使用机会",
-      "step1": "阅读建议及其证据。",
-      "step2": "接受、固定或忽略。",
-      "step3": "在 Content/日历 发布或排期。接受不会自动发帖。"
-    },
-    "playbook": {
-      "title": "如何使用 playbook",
-      "step1": "每张卡片是实测模式（n=）。",
-      "step2": "接受、固定或忽略模式。",
-      "step3": "创作时应用已接受的模式。"
-    }
-  },
-  "decisions": {
-    "hint": "仅记录决定，不会发布、排期或改草稿。",
-    "learningHint": "记录是否信任此模式。",
-    "accept": "接受，计划执行",
-    "pin": "固定，稍后",
-    "dismiss": "忽略，隐藏"
+  "errors": {
+    "unavailableTitle": "智能洞察不可用",
+    "unavailableBody": "此阶段尚未为该工作区启用，或加载失败。",
+    "retry": "重试"
   }
 }

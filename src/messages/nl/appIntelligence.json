@@ -1,13 +1,28 @@
 {
   "title": "Intelligentie",
-  "subtitle": "Gemeten prestaties en onderbouwde aanbevelingen, niets publiceert automatisch.",
+  "subtitle": "Wat je eigen posts hebben gemeten, in gewone taal uitgelegd, met concepten die jij beheert. Niets publiceert automatisch.",
   "brand": "Merk",
   "coverage": "{value}% gegevensdekking",
+  "productBar": {
+    "brand": "Merk",
+    "noBrandSelected": "Geen merk geselecteerd",
+    "change": "Wijzigen"
+  },
   "labels": {
     "measured": "Gemeten",
     "calculated": "Berekend",
     "predicted": "Voorspeld",
-    "recommended": "Aanbevolen"
+    "recommended": "Aanbevolen",
+    "declared": "Opgegeven",
+    "generated": "Gegenereerd"
+  },
+  "labelHints": {
+    "measured": "Cijfers die de platforms voor je posts hebben gerapporteerd. Leeg betekent dat het platform ze niet heeft doorgegeven.",
+    "calculated": "Statistieken berekend uit je gemeten cijfers. Geen gissen, geen branchegemiddelden.",
+    "predicted": "Een schatting met een betrouwbaarheidsniveau. Zie het als een hint, niet als een feit.",
+    "recommended": "Een suggestie op basis van je gemeten bewijs. Jij beslist of je ermee aan de slag gaat.",
+    "declared": "Informatie die je over dit merk hebt ingevoerd. Intelligentie vergelijkt resultaten hiermee.",
+    "generated": "Tekst die AI schrijft op basis van je eigen bewijs en merkstem. Altijd opgeslagen als concept dat je kunt bewerken."
   },
   "tabs": {
     "overview": "Overzicht",
@@ -17,20 +32,446 @@
     "playbook": "Draaiboek",
     "advanced": "Experimenten"
   },
+  "actions": {
+    "refresh": "Vernieuwen",
+    "refreshing": "Vernieuwen…",
+    "accept": "Accepteren",
+    "dismiss": "Afwijzen",
+    "pin": "Vastzetten",
+    "undo": "Ongedaan maken",
+    "saveFailed": "Beslissing kon niet worden opgeslagen",
+    "acceptedToast": "Gemarkeerd als geaccepteerd. Maak hier een concept of schrijf het in Content.",
+    "pinnedToast": "Vastgepind voor opvolging",
+    "dismissedToast": "Genegeerd. Je vindt het terug onder het filter Genegeerd.",
+    "undoneToast": "Beslissing gewist",
+    "status": {
+      "proposed": "Nieuw",
+      "accepted": "Geaccepteerd",
+      "pinned": "Vastgepind",
+      "dismissed": "Genegeerd"
+    }
+  },
+  "decisions": {
+    "hint": "Deze knoppen slaan alleen je beslissing op. Ze publiceren, plannen of wijzigen nooit concepten.",
+    "learningHint": "Leg vast of je dit patroon vertrouwt. Intelligentie wijzigt je content nooit uit zichzelf.",
+    "accept": "Accepteren, ik ga handelen",
+    "pin": "Pinnen, later",
+    "dismiss": "Negeren, verbergen"
+  },
+  "filter": {
+    "label": "Toon",
+    "all": "Alles",
+    "proposed": "Nieuw",
+    "accepted": "Geaccepteerd",
+    "pinned": "Vastgepind",
+    "dismissed": "Genegeerd",
+    "none": "Nog niets onder dit filter."
+  },
+  "gate": {
+    "rolloutTitle": "Nog niet ingeschakeld voor deze werkruimte",
+    "rolloutBody": "Je abonnement bevat dit onderdeel van Intelligentie. Het wordt stapsgewijs uitgerold en verschijnt hier vanzelf, zonder dat je iets hoeft te doen."
+  },
+  "howItWorks": {
+    "button": "Hoe het werkt",
+    "close": "Begrepen",
+    "stepsTitle": "Zo gebruik je het",
+    "inputsTitle": "Wat erin gaat",
+    "neverTitle": "Wat het nooit doet",
+    "thresholdsTitle": "Wanneer het inschakelt",
+    "page": {
+      "title": "Hoe Intelligentie werkt",
+      "intro": "Intelligentie leest de posts die je al hebt gepubliceerd, houdt elk cijfer precies zoals de platforms het rapporteerden en vertaalt die geschiedenis naar antwoorden in gewone taal: wat werkte, wanneer je moet posten, wat je hierna kunt proberen. Jij houdt de controle over elke actie.",
+      "steps": [
+        "Kies een merk. Alles op deze pagina geldt voor één merk en zijn gekoppelde kanalen.",
+        "Begin bij Overzicht om te zien wat er tot nu toe is gemeten en welke functies genoeg gegevens hebben om in te schakelen.",
+        "Stel je doel en doelgroep in onder Doelgroep. Dat bepaalt op welke metric elke aanbeveling optimaliseert.",
+        "Lees Content, Kansen en Draaiboek voor antwoorden met bewijs, en gebruik dan Maak concept om er een postconcept van te maken.",
+        "Elk concept komt als gewoon concept in Content terecht. Bekijk, bewerk, plan of verwijder het zoals elke andere post."
+      ],
+      "inputs": [
+        "Posts gepubliceerd via Markaestro en posts geïmporteerd uit je gekoppelde accounts",
+        "De statistieken die elk platform voor die posts rapporteert (weergaven, bereik, likes, reacties, delingen, opslagen, klikken)",
+        "Je opgegeven doel, markten, tijdzone, pijlers en merkstem"
+      ],
+      "never": [
+        "Uit zichzelf iets publiceren of plannen",
+        "Een cijfer invullen dat een platform niet heeft gerapporteerd",
+        "Gegevens van andere merken of generieke branchebenchmarks gebruiken"
+      ]
+    },
+    "overview": {
+      "title": "Overzicht",
+      "intro": "Een momentopname van wat er voor dit merk is gemeten, plus een gereedheidslijst die precies laat zien welke functies actief zijn en wat nog ontbreekt.",
+      "steps": [
+        "Bekijk de doelbanner. Elke ranking en aanbeveling gebruikt die metric.",
+        "Lees de KPI-tegels. Een lege tegel betekent dat geen gekoppeld platform die metric rapporteerde, nooit nul.",
+        "Gebruik de gereedheidslijst om te zien hoe dicht elke functie bij inschakelen is en wat je eraan kunt doen.",
+        "Vergelijk platforms per post, niet op totaal, zodat een kanaal met minder posts eerlijk wordt beoordeeld."
+      ],
+      "inputs": [
+        "Alle gesynchroniseerde posts van dit merk en hun laatst gerapporteerde statistieken",
+        "Je doel uit het tabblad Doelgroep"
+      ],
+      "never": [
+        "Cijfers van verschillende merken mengen",
+        "Statistieken schatten die een platform leeg liet"
+      ]
+    },
+    "audience": {
+      "title": "Doelgroep",
+      "intro": "Vertel Intelligentie voor wie je maakt en wat succes betekent. Dit profiel is de maatstaf voor Audience Fit in de editor, voor timing en voor elke aanbeveling.",
+      "steps": [
+        "Kies een doel. Dat bepaalt de metric waarop Intelligentie optimaliseert (Betrokkenheid gebruikt bijvoorbeeld likes, reacties, delingen en opslagen).",
+        "Voeg je primaire markt, tijdzone, contentpijlers en toonkenmerken toe. Posttijdvakken worden in deze tijdzone berekend.",
+        "Maak getraceerde links voor de URL's die je deelt. Elke klik wordt hier geteld zonder persoonsgegevens op te slaan.",
+        "Opslaan. Wijzigingen gelden bij de volgende vernieuwing."
+      ],
+      "inputs": [
+        "Wat je op dit tabblad invult",
+        "Klikken op je getraceerde links en conversies die je naar Markaestro stuurt"
+      ],
+      "never": [
+        "IP-adressen, browsergegevens of referrers van getraceerde links opslaan",
+        "Je profiel automatisch wijzigen"
+      ]
+    },
+    "content": {
+      "title": "Content",
+      "intro": "Je gemeten posts gerangschikt op de metric die je koos, met de patronen die Intelligentie in elke post herkende en een uitleg in gewone taal waarom hij presteerde zoals hij deed.",
+      "steps": [
+        "Sorteer op je doel, weergaven of interacties. Filter op één platform om gelijk met gelijk te vergelijken.",
+        "Open Waarom het werkte bij elke post voor een korte uitleg, gebaseerd op de cijfers van die post tegenover je accountgemiddelde.",
+        "Gebruik Maak een post zoals deze voor een nieuwe caption die hergebruikt wat werkte, opgeslagen als concept in Content.",
+        "Bekijk ook de laagst gemeten posts: wat daar ontbreekt is vaak de duidelijkste les."
+      ],
+      "inputs": [
+        "Caption, platform, publicatietijd en gerapporteerde statistieken van elke post",
+        "Contentpatronen (pijler, openingszin, format) herkend in de caption van elke gepubliceerde post"
+      ],
+      "never": [
+        "Posts rangschikken op statistieken die niet zijn gerapporteerd",
+        "Iets bewerken of opnieuw posten zonder jou"
+      ]
+    },
+    "opportunities": {
+      "title": "Kansen",
+      "intro": "Concrete dingen om hierna te proberen, elk onderbouwd met je eigen cijfers: een posttijdvak dat je gemiddelde overtreft, een platform dat per post beter doet, of een patroon dat het herhalen waard is.",
+      "steps": [
+        "Lees de bewijsregel onder elke kaart. Die toont de exacte cijfers achter de suggestie.",
+        "Accepteer als je het wilt proberen, pin om er later op terug te komen, of negeer als het niet past. Alle drie kun je ongedaan maken.",
+        "Gebruik Maak concept voor een caption die voor die kans is geschreven, opgeslagen als concept in Content.",
+        "Publiceer zoals gewoonlijk vanuit Content of Kalender. Accepteren maakt of plant nooit posts."
+      ],
+      "inputs": [
+        "Beste posttijdvakken, platformvergelijking per post en inzichten uit het draaiboek",
+        "Je doel en platformprioriteit uit het tabblad Doelgroep"
+      ],
+      "never": [
+        "Iets voorstellen met minder dan vijf gemeten posts erachter",
+        "Een geaccepteerde kans uitvoeren zonder jou"
+      ]
+    },
+    "playbook": {
+      "title": "Draaiboek",
+      "intro": "Patronen die zich in je gegevens herhalen met genoeg posts om ertoe te doen: welk platform, welke openingszin, pijler, format of welk tijdslot boven of onder de rest van dit merk presteert.",
+      "steps": [
+        "Elke kaart vergelijkt een groep posts met alle andere posts van dit merk op je doelmetric.",
+        "Het effect is het procentuele verschil per post. Het 95%-bereik laat zien hoe zeker de schatting is.",
+        "De sterkte groeit met de steekproef: richtinggevend (5 tot 14 posts), matig (15 tot 29), mogelijk sterk (30 of meer met een duidelijk bereik).",
+        "Accepteer patronen die je wilt herhalen en gebruik dan Maak concept om een post in dat patroon te schrijven."
+      ],
+      "inputs": [
+        "Gemeten posts gegroepeerd op platform, pijler, openingszin, format en weekdag/uur",
+        "Contentpatronen herkend in elke gepubliceerde caption"
+      ],
+      "never": [
+        "Een patroon rapporteren met minder dan vijf posts in de groep en vijf erbuiten",
+        "Een oorzaak claimen. Dit zijn verbanden in je eigen gegevens."
+      ]
+    },
+    "advanced": {
+      "title": "Experimenten en Ask Markaestro",
+      "intro": "Test één idee tegelijk met een gepaarde A/B-post en stel vragen die alleen worden beantwoord uit de gemeten gegevens van dit merk.",
+      "steps": [
+        "Maak een experiment: één platform, twee varianten, één venster. Beide posts worden voor je ingepland.",
+        "Als het venster eindigt, wordt de winnaar bepaald door de gemeten metric en komt het resultaat in je Inbox.",
+        "Ask Markaestro kiest per vraag één goedgekeurde gegevenstool en vermeldt de records die het gebruikte.",
+        "Campagnes zijn een preview: je kunt ze nu een naam geven, het toewijzen van posts komt eraan."
+      ],
+      "inputs": [
+        "Beide experimentposts en hun gerapporteerde statistieken",
+        "Opgeslagen inzichten, vergelijkingen, timing en topposts voor Ask Markaestro"
+      ],
+      "never": [
+        "Een winnaar uitroepen zonder het gemeten verschil en de steekproef erachter",
+        "Antwoorden met generiek socialmedia-advies"
+      ]
+    },
+    "drafts": {
+      "title": "Maak concept",
+      "intro": "Maakt van een kans, een patroon of een specifieke post een nieuwe caption in je merkstem, geschreven op basis van je eigen best presterende bewijs.",
+      "steps": [
+        "Intelligentie verzamelt tot vijf van je sterkste gemeten posts voor die kans of dat patroon, plus je doelgroep-profiel en merkstem.",
+        "Het concept wordt geschreven voor het gekozen platform, met hashtags en een openingszin, en een korte notitie over welk bewijs het heeft gevormd.",
+        "Het wordt opgeslagen als concept in Content. Open het, bewerk het, voeg media toe en plan het wanneer je er klaar voor bent."
+      ],
+      "inputs": [
+        "Je gemeten posts, het doelgroep-profiel en de merkstem die je hebt opgegeven",
+        "Het bewijs achter de kans of het patroon waarop je klikte"
+      ],
+      "never": [
+        "Het concept publiceren of plannen",
+        "Claims, prijzen, aanbiedingen of links verzinnen die niet in je merkgegevens staan"
+      ]
+    },
+    "explain": {
+      "title": "Waarom het werkte",
+      "intro": "Een korte uitleg van het resultaat van één post vergeleken met de rest van je account: wat opviel in de caption, de timing of het platformgemiddelde.",
+      "steps": [
+        "Open het bij elke gemeten post. De uitleg wordt één keer gegenereerd en bij de post opgeslagen.",
+        "Factoren wijzen naar echte dingen: een metric, de caption, een herkend patroon of het posttijdvak.",
+        "Gebruik de suggestie Probeer hierna als hypothese voor je volgende post of een experiment."
+      ],
+      "inputs": [
+        "De cijfers, caption en herkende patronen van die post",
+        "Je platformgemiddelden en beste posttijdvak"
+      ],
+      "never": [
+        "Een oorzaak claimen. Het beschrijft verbanden in je gegevens.",
+        "Statistieken gebruiken die het platform niet heeft gerapporteerd"
+      ]
+    },
+    "links": {
+      "title": "Getraceerde links",
+      "intro": "Korte links die je in captions plakt zodat klikken worden geteld en, via de conversie-API, gekoppeld kunnen worden aan verkopen of aanmeldingen.",
+      "steps": [
+        "Maak een link met een label en bestemming. Kopieer de korte URL in elke caption.",
+        "Klikken verschijnen hier zodra ze plaatsvinden. Er wordt geen IP-adres, browser of referrer opgeslagen.",
+        "Stuur conversie-events met de klik-id naar de API om toegewezen conversies per link te zien."
+      ],
+      "inputs": [
+        "Doorverwijzingen via de korte link",
+        "Conversie-events die je site of server naar Markaestro stuurt"
+      ],
+      "never": [
+        "Bezoekers volgen over sites heen",
+        "Persoonsgegevens uit een klik opslaan"
+      ]
+    }
+  },
+  "quota": {
+    "title": "AI-acties",
+    "aiOps": "{used} van {limit} AI-acties gebruikt deze maand",
+    "aiOpsUnlimited": "{used} AI-acties gebruikt deze maand",
+    "strategist": "{used} van {limit} Ask-beurten gebruikt",
+    "hint": "Maak concept, Waarom het werkte en Audience Fit gebruiken elk één actie. Patroonherkenning op de achtergrond is gratis.",
+    "exceeded": "Je hebt de AI-acties van deze maand op het {plan}-abonnement gebruikt. Ze worden volgende maand gereset, of upgrade voor meer."
+  },
+  "readiness": {
+    "title": "Wat is ingeschakeld",
+    "subtitle": "Elke functie heeft een minimum aan gemeten gegevens nodig voordat hij verschijnt. Hier staat dit merk nu.",
+    "progress": "{current} van {required}",
+    "met": "Actief",
+    "pending": "Meer gegevens nodig",
+    "unavailable": "Nog niet beschikbaar",
+    "computedAt": "Berekend {when}",
+    "checks": {
+      "history": {
+        "label": "Audience Fit-historiescore",
+        "hint": "Vereist 5 posts met een gemeten {metric}-waarde."
+      },
+      "timing": {
+        "label": "Beste tijdvakken",
+        "hint": "Vereist 20 posts met een publicatietijd en 5 met een gemeten {metric}-waarde."
+      },
+      "timingWindow": {
+        "label": "Een tijdvak met genoeg posts",
+        "hint": "Minstens 5 gemeten posts op dezelfde weekdag en hetzelfde uur."
+      },
+      "platformComparison": {
+        "label": "Platformvergelijking",
+        "hint": "Twee platforms met elk 5 of meer gemeten posts."
+      },
+      "learnings": {
+        "label": "Draaiboekpatronen",
+        "hint": "5 gemeten posts in een groep en 5 erbuiten."
+      },
+      "contentPatterns": {
+        "label": "Contentpatroonherkenning",
+        "hint": "Captions worden na publicatie op de achtergrond geanalyseerd. 10 geanalyseerde posts ontgrendelen pijler-, openingszin- en formatpatronen."
+      },
+      "alignment": {
+        "label": "Doelgroep-afstemming",
+        "hint": "Vereist doelgroepdemografie van een gekoppeld platform. Geen van je gekoppelde platforms rapporteert die nog."
+      }
+    }
+  },
+  "objective": {
+    "title": "Optimaliseert voor",
+    "body": "Elke ranking, elk tijdvak en elke aanbeveling op deze pagina gebruikt {metric} omdat je doel {objective} is.",
+    "change": "Wijzigen in Doelgroep",
+    "names": {
+      "awareness": "Bekendheid",
+      "engagement": "Betrokkenheid",
+      "followers": "Volgers",
+      "website_traffic": "Websiteverkeer",
+      "leads": "Potentiële klanten",
+      "app_installs": "App-installaties",
+      "purchases": "Aankopen",
+      "other": "een eigen doel"
+    },
+    "metrics": {
+      "reach": "bereik",
+      "views": "weergaven",
+      "engagements": "interacties (likes, reacties, delingen, opslagen)",
+      "followers_gained": "nieuwe volgers",
+      "clicks": "klikken",
+      "leads": "potentiële klanten",
+      "installs": "installaties",
+      "purchases": "aankopen",
+      "conversions": "conversies",
+      "custom": "conversies"
+    },
+    "fallback": "Geen van je gekoppelde platforms rapporteert nog een {requested}-cijfer per post, dus deze pagina rangschikt in plaats daarvan op {metric}. Wijzig het doel in Doelgroep of koppel een kanaal dat het wel rapporteert."
+  },
   "metrics": {
     "posts": "Berichten",
     "views": "Weergaven",
     "reach": "Bereik",
-    "clicks": "Klikken"
+    "clicks": "Klikken",
+    "engagements": "Interacties",
+    "conversions": "Conversies",
+    "engagementRate": "Betrokkenheidspercentage",
+    "perPost": "per post"
   },
   "platforms": {
     "title": "Platformprestaties",
+    "subtitle": "Gemiddelden per post, zodat een platform met minder posts eerlijk wordt vergeleken.",
     "empty": "Gepubliceerde berichten verschijnen zodra statistieken binnenkomen.",
-    "posts": "{value} berichten",
-    "views": "{value} weergaven",
-    "engagements": "{value} interacties",
     "colPlatform": "Platform",
-    "colEngagements": "Interacties"
+    "colPosts": "Posts",
+    "colAvgViews": "Gem. weergaven",
+    "colAvgEngagements": "Gem. interacties",
+    "colEngRate": "Betr. %",
+    "measuredNote": "{measured} van {posts} gemeten",
+    "includesImported": "Bevat posts die uit je gekoppelde accounts zijn geïmporteerd, niet alleen posts die via Markaestro zijn gepubliceerd. Cijfers kunnen afwijken van Analytics, dat Markaestro-posts over een datumbereik dekt."
+  },
+  "content": {
+    "title": "Je posts, gerangschikt",
+    "sortBy": "Rangschik op",
+    "sortObjective": "Doel ({metric})",
+    "sortViews": "Weergaven",
+    "sortEngagements": "Interacties",
+    "allPlatforms": "Alle platforms",
+    "mediaOnly": "Mediabericht",
+    "likes": "Vind-ik-leuks",
+    "comments": "Reacties",
+    "shares": "Delingen",
+    "viewLive": "Live bekijken",
+    "published": "Gepubliceerd {date}",
+    "engagementRate": "{value}% betrokkenheid",
+    "patterns": {
+      "pillar": "Pijler",
+      "hook": "Openingszin",
+      "format": "Format",
+      "pending": "Patronen worden na publicatie op de achtergrond herkend."
+    },
+    "lowestTitle": "Laagst gemeten",
+    "lowestBody": "Je zwakst gemeten posts op dezelfde metric. Wat daar ontbreekt is vaak de duidelijkste les.",
+    "why": {
+      "button": "Waarom het werkte",
+      "loading": "Cijfers van deze post lezen…",
+      "factors": "Wat opviel",
+      "tryNext": "Probeer hierna",
+      "failed": "Kon deze post nu niet verklaren.",
+      "notMeasured": "Deze post heeft nog geen gemeten statistieken om te verklaren."
+    },
+    "remix": "Maak een post zoals deze"
+  },
+  "timing": {
+    "title": "Beste tijdvakken",
+    "subtitle": "Weekdag- en uurvakken waarin je gemeten posts je accountgemiddelde op {metric} overtreffen.",
+    "needs_dated_posts": "Accountspecifieke timing vereist 20 posts met een publicatietijd en 5 met een gemeten {metric}-waarde. Je hebt {dated} gedateerde posts.",
+    "no_window_with_five": "Nog geen weekdag en uur heeft 5 gemeten posts. Blijf posten; tijdvakken verschijnen zodra ze vollopen.",
+    "window": "{weekday} om {hour}",
+    "observations": "{count} posts",
+    "liftUp": "+{value}% t.o.v. je gemiddelde",
+    "liftDown": "{value}% t.o.v. je gemiddelde",
+    "estimate": "ongeveer {value} {metric} per post",
+    "timezone": "Tijden in {timeZone}",
+    "accountMean": "Je gemiddelde: {value} {metric} per post"
+  },
+  "opportunities": {
+    "kinds": {
+      "timing": "Timing",
+      "platform": "Platform",
+      "learning": "Patroon",
+      "alignment": "Doelgroep"
+    },
+    "timing": {
+      "title": "Post op {weekday} rond {hour}",
+      "body": "Posts die in dit tijdvak zijn gepubliceerd halen gemiddeld {estimate} {metric}, {lift} voor dit merk.",
+      "evidence": "{count} gemeten posts in dit tijdvak, tijden in {timeZone}."
+    },
+    "platform": {
+      "title": "{leader} verslaat {trailing} per post",
+      "body": "{leader} haalt gemiddeld {leaderPerPost} {metric} per post tegenover {trailingPerPost} op {trailing}. Hergebruik wat werkt op {leader} voordat je volume toevoegt op {trailing}.",
+      "evidence": "{leaderPosts} gemeten posts op {leader}, {trailingPosts} op {trailing}. Vergeleken per post, niet op totaal."
+    },
+    "learning": {
+      "title": "Herhaal: {pattern}",
+      "body": "Posts in deze groep zitten {effect}% boven de rest van dit merk op {metric}.",
+      "evidence": "{count} gemeten posts in de groep. Zie het Draaiboek voor de volledige vergelijking."
+    },
+    "alignment": {
+      "title": "Dicht het gat bij {dimension}",
+      "body": "De afstemming op {dimension} is {score} van 100. Geef de voorkeur aan onderwerpen en bestemmingen die passen bij je opgeslagen doelgroep-profiel.",
+      "evidence": "Verband met je gemeten doelgroepmix, geen oorzaak."
+    },
+    "evidenceLabel": "Bewijs",
+    "composeInContent": "Schrijven in Content",
+    "openCalendar": "Kalender openen"
+  },
+  "learnings": {
+    "dimensions": {
+      "platform": "Platform",
+      "pillar": "Contentpijler",
+      "hook": "Openingszin",
+      "format": "Format",
+      "timing": "Tijdslot"
+    },
+    "keys": {
+      "has_hook": "Posts met een openingszin",
+      "no_hook": "Posts zonder openingszin"
+    },
+    "summaryUp": "{count} posts in deze groep zitten {effect}% boven de rest van dit merk op {metric}.",
+    "summaryDown": "{count} posts in deze groep zitten {effect}% onder de rest van dit merk op {metric}.",
+    "groupVsRest": "{group} vs {rest} {metric} per post",
+    "sample": "{group} in de groep, {rest} erbuiten",
+    "ci": "95%-bereik: {low}% tot {high}%",
+    "ciMissing": "Bereik nog niet beschikbaar",
+    "strength": {
+      "directional": "Richtinggevend",
+      "moderate": "Matig",
+      "potentially_strong": "Mogelijk sterk"
+    },
+    "strengthHints": {
+      "directional": "5 tot 14 posts. Het volgen waard, nog geen bewijs.",
+      "moderate": "15 tot 29 posts, of het bereik kruist nog nul.",
+      "potentially_strong": "30 of meer posts en een bereik dat aan één kant van nul blijft."
+    },
+    "evidenceTitle": "Posts achter dit patroon",
+    "contentPatternsNote": "Pijler-, openingszin- en formatpatronen verschijnen zodra {required} gepubliceerde captions zijn geanalyseerd. Tot nu toe {current} geanalyseerd; dit loopt op de achtergrond."
+  },
+  "drafts": {
+    "button": "Maak concept",
+    "creating": "Concept schrijven…",
+    "created": "Concept gemaakt",
+    "open": "Openen in Content",
+    "rationale": "Waarom dit concept",
+    "failed": "Kon nu geen concept maken.",
+    "quota": "Je hebt de AI-acties van deze maand gebruikt. Ze worden volgende maand gereset, of upgrade voor meer.",
+    "postQuota": "Je hebt de postlimiet van deze maand bereikt."
   },
   "audience": {
     "title": "Doelgroep",
@@ -38,28 +479,59 @@
     "markets": "Markten",
     "pillars": "Contentpijlers"
   },
-  "content": {
-    "title": "Topcontent",
-    "mediaOnly": "Mediabericht",
-    "likes": "Vind-ik-leuks",
-    "comments": "Reacties",
-    "shares": "Delingen",
-    "viewLive": "Live bekijken"
+  "links": {
+    "title": "Getraceerde links",
+    "subtitle": "Korte links die je in elke caption kunt plakken. Klikken worden hier geteld zonder persoonsgegevens.",
+    "empty": "Maak een getraceerde link om klikken te tellen zonder ruwe IP-adressen op te slaan.",
+    "label": "Linklabel",
+    "destination": "Bestemmings-URL",
+    "create": "Link maken",
+    "creating": "Maken…",
+    "created": "Getraceerde link gemaakt",
+    "createFailed": "Kon de getraceerde link niet maken",
+    "copy": "Kopiëren",
+    "copied": "Korte link gekopieerd",
+    "clicks": "{count} klikken",
+    "conversions": "{count} toegewezen conversies",
+    "lastClick": "Laatste klik {when}",
+    "noClicks": "Nog geen klikken"
+  },
+  "campaigns": {
+    "title": "Campagnes",
+    "preview": "Voorbeeld",
+    "empty": "Geef campagnes nu een naam om posts te groeperen die je wilt vergelijken. Posts toewijzen aan een campagne komt eraan; hier iets aanmaken publiceert nooit iets.",
+    "name": "Campagnenaam",
+    "create": "Campagne maken",
+    "created": "Campagne gemaakt",
+    "createFailed": "Kon de campagne niet maken",
+    "status": {
+      "draft": "Concept",
+      "active": "Actief",
+      "completed": "Voltooid",
+      "archived": "Gearchiveerd"
+    }
   },
   "empty": {
     "overviewTitle": "Wachten op gepubliceerde berichten",
-    "overviewBody": "Dit merk heeft nog geen gesynchroniseerde berichten. Via Markaestro gepubliceerde posts en geïmporteerde platformhistorie verschijnen hier na de projectie naar Intelligentie. Ontbrekende statistieken blijven leeg, nooit nul.",
+    "overviewBody": "Dit merk heeft nog geen gesynchroniseerde berichten. Posts die via Markaestro zijn gepubliceerd en historie uit je gekoppelde accounts verschijnen hier zodra ze in Intelligentie zijn verwerkt. Ontbrekende statistieken blijven leeg, nooit nul.",
     "noBrandTitle": "Maak eerst een merk",
     "noBrandBody": "Intelligentie is gekoppeld aan een Markaestro-merk.",
-    "profileTitle": "Stel je doelgroep-profiel in",
-    "profileBody": "Voeg doel, markt, tijdzone en platformprioriteiten toe in de merkinstellingen.",
+    "createBrand": "Merk maken",
     "contentTitle": "Nog geen gemeten content",
-    "contentBody": "Gepubliceerde en geïmporteerde berichten verschijnen hier zonder ontbrekende waarden als nul weer te geven.",
+    "contentBody": "Gepubliceerde en geïmporteerde posts verschijnen hier zodra een platform er statistieken voor rapporteert.",
     "opportunitiesTitle": "Nog geen onderbouwde kansen",
-    "opportunitiesBody": "Aanbevelingen na voldoende gemeten bewijs.",
+    "opportunitiesBody": "Suggesties verschijnen zodra er genoeg gemeten bewijs is: twee platforms om te vergelijken, een tijdvak met 5 posts of een herhaalbaar patroon. De gereedheidslijst op Overzicht laat zien hoe dichtbij je bent.",
     "playbookTitle": "Je draaiboek wordt opgebouwd",
-    "playbookBody": "Patronen na genoeg gemeten posts (vaak vijf+).",
-    "createBrand": "Merk maken"
+    "playbookBody": "Patronen hebben minstens 5 gemeten posts in een groep en 5 erbuiten nodig. Bekijk de gereedheidslijst op Overzicht, of zie Kansen voor de eerste bruikbare suggesties."
+  },
+  "weekdays": {
+    "Mon": "maandag",
+    "Tue": "dinsdag",
+    "Wed": "woensdag",
+    "Thu": "donderdag",
+    "Fri": "vrijdag",
+    "Sat": "zaterdag",
+    "Sun": "zondag"
   },
   "composer": {
     "title": "Doelgroepfit",
@@ -70,6 +542,7 @@
     "retry": "Opnieuw proberen",
     "failed": "De analyse kon niet veilig worden afgerond.",
     "reanalyze": "Opnieuw analyseren",
+    "timingHint": "Sterkste gemeten venster: {bucket} ({count} berichten).",
     "meta": "{coverage}% dekking · betrouwbaarheid {confidence} · {sample} relevante berichten",
     "coldStart": "Koude start: minder dan vijf relevante berichten.",
     "unavailable": "Niet beschikbaar",
@@ -80,8 +553,7 @@
       "low": "laag",
       "medium": "gemiddeld",
       "high": "hoog"
-    },
-    "timingHint": "Sterkste gemeten venster: {bucket} ({count} berichten)."
+    }
   },
   "profile": {
     "objective": "Doel",
@@ -98,31 +570,6 @@
     "interests": "Interesses",
     "voice": "Merkstem",
     "listHint": "Kies uit de lijst, elke selectie voegt een verwijderbaar tag toe.",
-    "save": "Doelgroep-profiel opslaan",
-    "saving": "Opslaan…",
-    "saved": "Doelgroep-profiel opgeslagen",
-    "saveFailed": "Het doelgroep-profiel kon niet worden opgeslagen",
-    "loading": "Doelgroep-profiel laden…",
-    "unavailable": "Het doelgroep-profiel is niet ingeschakeld voor deze werkruimte.",
-    "objectives": {
-      "awareness": "Bekendheid",
-      "engagement": "Betrokkenheid",
-      "followers": "Volgers",
-      "website_traffic": "Websiteverkeer",
-      "leads": "potentiële klanten",
-      "app_installs": "App-installaties",
-      "purchases": "Aankopen",
-      "other": "Overig"
-    },
-    "conversions": {
-      "none": "Geen",
-      "website_visit": "Websitebezoek",
-      "lead": "potentiële klant",
-      "signup": "Aanmelding",
-      "app_install": "App-installatie",
-      "purchase": "Aankoop",
-      "custom": "Aangepast"
-    },
     "voiceHint": "Kies toonkenmerken die beschrijven hoe dit merk moet klinken.",
     "tagAdd": "Toevoegen uit lijst…",
     "tagEmpty": {
@@ -210,40 +657,42 @@
         "trustworthy": "Betrouwbaar",
         "innovative": "Innovatief"
       }
-    }
-  },
-  "errors": {
-    "unavailableTitle": "Intelligentie is niet beschikbaar",
-    "unavailableBody": "Deze fase is niet ingeschakeld voor deze werkruimte of kon niet worden geladen.",
-    "retry": "Opnieuw proberen"
-  },
-  "actions": {
-    "accept": "Accepteren",
-    "dismiss": "Afwijzen",
-    "pin": "Vastzetten",
-    "saveFailed": "Beslissing kon niet worden opgeslagen",
-    "acceptedToast": "Geaccepteerd, voer uit in Content/Kalender",
-    "pinnedToast": "Vastgepind voor opvolging",
-    "dismissedToast": "Genegeerd en verborgen",
-    "status": {
-      "accepted": "Geaccepteerd",
-      "pinned": "Vastgepind",
-      "dismissed": "Genegeerd"
+    },
+    "save": "Doelgroep-profiel opslaan",
+    "saving": "Opslaan…",
+    "saved": "Doelgroep-profiel opgeslagen",
+    "saveFailed": "Het doelgroep-profiel kon niet worden opgeslagen",
+    "loading": "Doelgroep-profiel laden…",
+    "unavailable": "Het doelgroep-profiel is niet ingeschakeld voor deze werkruimte.",
+    "objectives": {
+      "awareness": "Bekendheid",
+      "engagement": "Betrokkenheid",
+      "followers": "Volgers",
+      "website_traffic": "Websiteverkeer",
+      "leads": "potentiële klanten",
+      "app_installs": "App-installaties",
+      "purchases": "Aankopen",
+      "other": "Overig"
+    },
+    "conversions": {
+      "none": "Geen",
+      "website_visit": "Websitebezoek",
+      "lead": "potentiële klant",
+      "signup": "Aanmelding",
+      "app_install": "App-installatie",
+      "purchase": "Aankoop",
+      "custom": "Aangepast"
     }
   },
   "alignment": {
     "title": "Doelgroep-afstemming",
-    "empty": "Afstemming verschijnt wanneer een meetbare doelgroepmix is vastgelegd. Ontbrekende dimensies blijven leeg."
-  },
-  "timing": {
-    "title": "Beste tijdvakken",
-    "empty": "Accountspecifieke timing vraagt 20 gedateerde berichten en vijf waarnemingen in het genoemde uur."
-  },
-  "campaigns": {
-    "title": "Campagnes",
-    "empty": "Noem een campagne om te vergelijken. Publiceert niets automatisch.",
-    "name": "Campagnenaam",
-    "create": "Campagne maken"
+    "empty": "Afstemming verschijnt zodra een gekoppeld platform je doelgroepmix rapporteert. Ontbrekende dimensies blijven leeg.",
+    "dimensions": {
+      "geography": "Geografie",
+      "age": "Leeftijd",
+      "gender": "Geslacht",
+      "industryInterests": "Sectoren en interesses"
+    }
   },
   "experiments": {
     "title": "Experimenten",
@@ -256,6 +705,8 @@
     "createdPaired": "Experiment gemaakt, beide posts zijn gepland",
     "createFailed": "Kon experiment niet maken",
     "captionPlaceholder": "Caption en hashtags voor deze arm",
+    "mediaRequired": "Dit platform heeft media op beide armen nodig voordat je het experiment kunt aanmaken.",
+    "mediaRequiredHint": "Instagram, TikTok en Pinterest vereisen minstens één afbeelding of video op elke arm.",
     "armCompose": "Arm {arm}",
     "armLabel": "Arm {arm}",
     "scheduleA": "Arm A plannen",
@@ -269,6 +720,11 @@
     "loadingDetail": "Experiment laden…",
     "detailFailed": "Kon experiment niet laden.",
     "untitledPost": "Bericht zonder titel",
+    "untitledExperiment": "Naamloos experiment",
+    "delete": "Verwijderen",
+    "deleteWarning": "Dit verwijdert het experiment, de geplande A/B-posts en gerelateerde inboxresultaten uit Markaestro. Posts die al live op het platform staan worden niet verwijderd.",
+    "deleted": "Experiment verwijderd",
+    "deleteFailed": "Kon het experiment niet verwijderen",
     "effect": "{value}% relatief verschil (B vs A)",
     "status": {
       "draft": "Concept",
@@ -284,83 +740,37 @@
       "winner_a": "Arm A leidt op de gemeten metric.",
       "winner_b": "Arm B leidt op de gemeten metric.",
       "inconclusive": "Resultaat inconclusief, grotere steekproef of duidelijker verschil nodig."
-    },
-    "mediaRequired": "Dit platform heeft media op beide armen nodig voordat je het experiment kunt aanmaken.",
-    "mediaRequiredHint": "Instagram, TikTok en Pinterest vereisen minstens één afbeelding of video op elke arm.",
-    "untitledExperiment": "Naamloos experiment",
-    "delete": "Verwijderen",
-    "deleted": "Experiment verwijderd",
-    "deleteFailed": "Kon het experiment niet verwijderen",
-    "deleteWarning": "Dit verwijdert het experiment, de geplande A/B-posts en gerelateerde inboxresultaten uit Markaestro. Posts die al live op het platform staan worden niet verwijderd."
+    }
   },
   "ask": {
     "title": "Vraag het Markaestro",
+    "subtitle": "Antwoorden komen alleen uit de gemeten gegevens van dit merk. Elk antwoord vermeldt welke gegevens het gebruikte.",
     "placeholder": "Vraag naar gemeten prestaties, timing of inzichten.",
     "submit": "Vragen",
     "asking": "Bewijs selecteren…",
-    "tool": "Gebruikt {tool}",
+    "tool": "Beantwoord uit: {tool}",
+    "evidence": "Aangehaalde records",
     "failed": "Kon die vraag niet beantwoorden. Probeer opnieuw.",
     "timeout": "Dat duurde te lang, stel een kortere vraag of probeer zo opnieuw.",
     "quota": "Je Ask Markaestro-beurten voor deze maand zijn op. Probeer volgende maand of upgrade.",
-    "unavailable": "Ask Markaestro is nog niet beschikbaar voor deze werkruimte."
-  },
-  "links": {
-    "title": "Getraceerde links",
-    "empty": "Maak een getraceerde link om klikken toe te wijzen zonder ruwe IP-adressen op te slaan.",
-    "label": "Linklabel",
-    "destination": "Bestemmings-URL",
-    "create": "Link maken"
-  },
-  "productBar": {
-    "brand": "Merk",
-    "noBrandSelected": "Geen merk geselecteerd",
-    "change": "Wijzigen"
-  },
-  "guide": {
-    "overview": {
-      "title": "Wat deze tab toont",
-      "body": "KPI's en platforms uit gesynchroniseerde posts. Leeg = geen metric, nooit nul."
-    },
-    "audience": {
-      "title": "Stel je merkgrens in",
-      "body": "Doel, markten, tijdzone en pijlers definiëren voor wie je maakt."
-    },
-    "content": {
-      "title": "Leer van wat werkte",
-      "body": "Topcontent op gemeten views. Hergebruik in Content."
-    },
-    "opportunities": {
-      "title": "Wat nu te proberen",
-      "body": "Aanbevelingen uit gemeten historie. Handmatig uitvoeren in Content/Kalender."
-    },
-    "playbook": {
-      "title": "Terugkerende patronen",
-      "body": "Statistische learnings met voldoende steekproef."
-    },
-    "advanced": {
-      "title": "Test ideeën met bewijs",
-      "body": "Maak een platform-specifiek A/B-experiment, plan twee posts en vergelijk ze live. Na het venster komt het resultaat in je inbox."
+    "unavailable": "Ask Markaestro is nog niet beschikbaar voor deze werkruimte.",
+    "tools": {
+      "audience_performance": "doelgroepmomentopnames",
+      "audience_alignment": "doelgroep-afstemming",
+      "top_posts": "topposts op weergaven",
+      "pillar_performance": "prestaties per contentpijler",
+      "hook_performance": "prestaties per openingszin",
+      "timing_performance": "prestaties per weekdag en uur",
+      "drift": "verschuivingen in de doelgroep",
+      "learnings": "inzichten uit het draaiboek",
+      "campaigns": "campagnes",
+      "platform_comparisons": "vergelijking per platform",
+      "experiments": "experimenten"
     }
   },
-  "workflow": {
-    "opportunities": {
-      "title": "Kansen gebruiken",
-      "step1": "Lees de aanbeveling en het bewijs.",
-      "step2": "Accepteer, pin of negeer.",
-      "step3": "Publiceer/plan in Content/Kalender. Accept maakt niets automatisch."
-    },
-    "playbook": {
-      "title": "Playbook gebruiken",
-      "step1": "Elke kaart is een gemeten patroon (n=).",
-      "step2": "Accepteer, pin of negeer patronen.",
-      "step3": "Pas geaccepteerde patronen toe bij het schrijven."
-    }
-  },
-  "decisions": {
-    "hint": "Slaat alleen je beslissing op, publiceert niet.",
-    "learningHint": "Geef aan of je dit patroon vertrouwt.",
-    "accept": "Accepteren, ik ga handelen",
-    "pin": "Pinnen, later",
-    "dismiss": "Negeren, verbergen"
+  "errors": {
+    "unavailableTitle": "Intelligentie is niet beschikbaar",
+    "unavailableBody": "Deze fase is niet ingeschakeld voor deze werkruimte of kon niet worden geladen.",
+    "retry": "Opnieuw proberen"
   }
 }

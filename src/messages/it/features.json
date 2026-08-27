@@ -94,5 +94,66 @@
     "subtitle": "Inizia gratis. Nessuna carta di credito richiesta. Connetti il tuo primo canale in meno di due minuti.",
     "primaryButton": "Inizia gratis",
     "secondaryButton": "Contatta il team commerciale"
+  },
+  "intelligence": {
+    "eyebrow": "Intelligence",
+    "titleLead": "Sai cosa pubblicare dopo,",
+    "titleHighlight": "dai tuoi stessi numeri",
+    "subtitle": "Intelligence legge i post che hai già pubblicato, conserva ogni metrica esattamente come riportata dalle piattaforme e trasforma quella cronologia in risposte chiare e bozze pronte da modificare. Nulla viene pubblicato in automatico.",
+    "loopTitle": "Come funziona",
+    "loop": [
+      {
+        "title": "Misurare",
+        "body": "I post pubblicati con Markaestro e la cronologia importata dagli account collegati diventano un record per post con le metriche riportate da ciascuna piattaforma. I numeri mancanti restano vuoti, mai a zero."
+      },
+      {
+        "title": "Imparare",
+        "body": "Statistiche deterministiche confrontano i tuoi post per piattaforma, fascia oraria, pilastro di contenuto, gancio e formato. Un pattern appare solo con almeno cinque post nel gruppo e cinque fuori, con un intervallo al 95% sull’effetto."
+      },
+      {
+        "title": "Consigliare",
+        "body": "Le opportunità trasformano quei risultati in passi concreti con i numeri alla mano: una finestra che batte la tua media, una piattaforma che vince per post, un pattern che vale la pena ripetere."
+      },
+      {
+        "title": "Scrivere",
+        "body": "Crea bozza scrive una caption con la voce del tuo brand a partire dalle tue evidenze più performanti e la salva in Contenuti come una bozza normale. Tu la modifichi, aggiungi media e la programmi."
+      }
+    ],
+    "tabsTitle": "Cosa ottieni, scheda per scheda",
+    "tabs": [
+      {
+        "title": "Panoramica",
+        "body": "Banner dell’obiettivo, KPI misurati, confronto tra piattaforme per post e una lista di preparazione che mostra esattamente quali funzioni sono attive e quanti dati servono ancora a ciascuna."
+      },
+      {
+        "title": "Pubblico",
+        "body": "Dichiara obiettivo, mercati, fuso orario, pilastri e voce. I link brevi tracciati contano i clic senza salvare dati personali e collegano le conversioni al post."
+      },
+      {
+        "title": "Contenuti",
+        "body": "I tuoi post ordinati per la metrica che hai scelto, i pattern rilevati in ciascuno e una spiegazione Perché ha funzionato basata sui numeri di quel post rispetto alla media del tuo account."
+      },
+      {
+        "title": "Opportunità",
+        "body": "Suggerimenti supportati da evidenze che puoi accettare, fissare o scartare, ognuno con un pulsante Crea bozza. Accettare non crea né programma mai un post."
+      },
+      {
+        "title": "Strategia",
+        "body": "I pattern che si ripetono nei tuoi dati con dimensione del campione, effetto e intervallo di confidenza spiegati con parole semplici, più i post dietro ciascuno."
+      },
+      {
+        "title": "Esperimenti e domande",
+        "body": "Post A/B accoppiati con un vincitore misurato, e domande a cui si risponde solo con i dati di questo brand, citando quelli usati."
+      }
+    ],
+    "principlesTitle": "Regole che non infrange mai",
+    "principles": [
+      "Non pubblica né programma mai da sola. Ogni azione è una bozza o una decisione che registri tu.",
+      "Non inserisce mai un numero che una piattaforma non ha riportato. Vuoto significa vuoto.",
+      "Non usa mai dati di altri brand né benchmark generici. Ogni affermazione viene dalla tua cronologia.",
+      "Dice sempre cosa ha alimentato un risultato: Misurato, Calcolato, Consigliato, Dichiarato o Generato."
+    ],
+    "plans": "Audience Fit è incluso in tutti i piani. Strategia, Opportunità, link tracciati e Chiedi a Markaestro partono da Pro; gli Esperimenti da Business. Le azioni IA come Crea bozza hanno un limite mensile in base al piano.",
+    "cta": "Inizia gratis e collega un canale"
   }
 }

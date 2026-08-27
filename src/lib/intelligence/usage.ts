@@ -24,6 +24,21 @@ export async function consumeAiOperation(input: {
   });
 }
 
+/** Give back an AI operation when the model call failed after the charge. */
+export async function refundAiOperation(input: {
+  workspaceId: string;
+  now?: Date;
+}): Promise<void> {
+  const now = input.now || new Date();
+  const month = now.toISOString().slice(0, 7);
+  const ref = adminDb.doc(`workspaces/${input.workspaceId}/aiUsageDaily/${month}`);
+  await adminDb.runTransaction(async (tx) => {
+    const snapshot = await tx.get(ref);
+    const count = Number(snapshot.data()?.aiOperations) || 0;
+    tx.set(ref, { month, aiOperations: Math.max(0, count - 1), updatedAt: now.toISOString() }, { merge: true });
+  });
+}
+
 export async function consumeStrategistTurn(input: {
   workspaceId: string;
   uid: string;

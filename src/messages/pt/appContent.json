@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "Legenda copiada",
       "copyFailed": "Não foi possível copiar a legenda"
-    }
+    },
+    "fromIntelligence": "Rascunho criado pela Inteligência"
   },
   "platformPostsTab": {
     "refresh": "Atualizar",

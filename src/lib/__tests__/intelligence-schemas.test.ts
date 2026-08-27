@@ -29,6 +29,13 @@ describe('audienceIntelligenceProfileSchema', () => {
     expect(profile.brandVoice).toEqual(['professional', 'friendly']);
   });
 
+  it('prepends https:// on a conversion destination typed without a scheme', () => {
+    const profile = audienceIntelligenceProfileSchema.parse({
+      conversionDestination: 'acme.com/signup',
+    });
+    expect(profile.conversionDestination).toBe('https://acme.com/signup');
+  });
+
   it('renumbers oversized platform priorities into the valid 1..n range', () => {
     const profile = audienceIntelligenceProfileSchema.parse({
       platformPriorities: [

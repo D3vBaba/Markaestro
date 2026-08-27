@@ -6,10 +6,27 @@ import { requirePermission } from '@/lib/rbac';
 import { requireIntelligencePhase } from '@/lib/intelligence/feature-flags';
 import { requireIntelligencePreviewUser } from '@/lib/intelligence/preview-access';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-import { hasFeature } from '@/lib/stripe/entitlements';
+import { hasFeature, resolveLimits } from '@/lib/stripe/entitlements';
 import { intelligencePhaseFlags, loadProductIntelligence } from '@/lib/intelligence/product-state';
 
-const querySchema = z.object({ productId: z.string().max(128).optional() });
+const querySchema = z.object({
+  productId: z.string().max(128).optional(),
+  /** Bypass the hourly insights cache (the Refresh button). */
+  fresh: z.enum(['1', 'true']).optional(),
+});
+
+async function aiQuota(workspaceId: string, limits: ReturnType<typeof resolveLimits>) {
+  const month = new Date().toISOString().slice(0, 7);
+  const usage = await adminDb.doc(`workspaces/${workspaceId}/aiUsageDaily/${month}`).get();
+  const data = usage.data() || {};
+  return {
+    tier: limits.tier,
+    aiOperationsUsed: Number(data.aiOperations) || 0,
+    aiOperationsLimit: limits.intelligenceAiOperationsPerMonth,
+    strategistTurnsUsed: Number(data.strategistTurns) || 0,
+    strategistTurnsLimit: limits.strategistTurnsPerMonth,
+  };
+}
 
 export async function GET(req: Request) {
   try {
@@ -24,10 +41,14 @@ export async function GET(req: Request) {
       entitled: hasFeature(subscription, 'audienceFit'),
     });
     const query = querySchema.parse(Object.fromEntries(new URL(req.url).searchParams));
-    const productsSnapshot = await adminDb.collection(`workspaces/${ctx.workspaceId}/products`).limit(100).get();
+    const limits = resolveLimits(subscription);
+    const [productsSnapshot, phases, quota] = await Promise.all([
+      adminDb.collection(`workspaces/${ctx.workspaceId}/products`).limit(100).get(),
+      intelligencePhaseFlags(ctx),
+      aiQuota(ctx.workspaceId, limits),
+    ]);
     const products = productsSnapshot.docs.map((doc) => ({ id: doc.id, name: String(doc.data().name || 'Untitled brand') }));
     const productId = query.productId || products[0]?.id || null;
-    const phases = await intelligencePhaseFlags(ctx);
     if (!productId || !products.some((product) => product.id === productId)) {
       return apiOk({
         products,
@@ -36,39 +57,41 @@ export async function GET(req: Request) {
         totals: null,
         channels: [],
         topContent: [],
+        measuredPosts: [],
         learnings: [],
         opportunities: [],
+        readiness: null,
+        objective: null,
         phases,
+        quota,
       });
     }
-    const loaded = await loadProductIntelligence(ctx.workspaceId, productId);
+    const loaded = await loadProductIntelligence(ctx.workspaceId, productId, { allowCached: !query.fresh });
     const { insights } = loaded;
     return apiOk({
       products,
       productId,
       profile: loaded.profile,
       phases,
+      quota,
       totals: {
-        posts: loaded.posts.length,
+        posts: loaded.postsCount,
         ...insights.rollup.totals,
         coverage: insights.rollup.coverage,
       },
       channels: insights.rollup.channels,
       topContent: insights.rollup.topContent,
-      measuredPosts: phases.experiments ? insights.rollup.measuredPosts : [],
+      measuredPosts: insights.rollup.measuredPosts,
       alignment: phases.learning ? insights.alignment : null,
       timing: phases.learning ? insights.timing : null,
       drift: phases.growth ? insights.drift : null,
-      learnings: phases.learning ? insights.learnings.filter((item) => item.status !== 'dismissed') : [],
-      opportunities: phases.growth ? insights.opportunities.filter((item) => item.status !== 'dismissed') : [],
-      labels: {
-        totals: 'measured',
-        coverage: 'calculated',
-        opportunities: 'recommended',
-        timing: 'calculated',
-        alignment: 'calculated',
-        drift: 'calculated',
-      },
+      // Dismissed items are included so the client can offer review and undo.
+      learnings: phases.learning ? insights.learnings : [],
+      opportunities: phases.growth ? insights.opportunities : [],
+      readiness: insights.readiness,
+      objective: insights.objective,
+      computedAt: loaded.computedAt,
+      cached: loaded.cached,
     });
   } catch (error) {
     return apiError(error);

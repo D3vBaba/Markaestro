@@ -24,6 +24,27 @@ export function mapObjective(objective: string | undefined): Parameters<typeof o
   return 'awareness';
 }
 
+/**
+ * Human-facing metric family an objective optimizes. Awareness reports reach
+ * when any post carries it (objectiveMetric prefers reach per post) and views
+ * otherwise; conversion-style objectives all resolve to conversions.
+ */
+export function objectiveMetricFamily(objective: string | undefined, posts: HistoricalPost[] = []): string {
+  const mapped = mapObjective(objective);
+  if (mapped === 'awareness') {
+    // objectiveMetric prefers reach per post; label by whichever is reported
+    // for more posts so the name matches what most of the ranking uses.
+    const reach = posts.filter((post) => typeof post.latestMetrics?.reach === 'number').length;
+    const views = posts.filter((post) => typeof post.latestMetrics?.views === 'number').length;
+    return reach > 0 && reach >= views ? 'reach' : 'views';
+  }
+  if (mapped === 'engagement') return 'engagements';
+  if (mapped === 'followers') return 'followers_gained';
+  if (mapped === 'traffic') return 'clicks';
+  if (mapped === 'custom') return 'conversions';
+  return mapped;
+}
+
 export function objectiveInput(metrics: Partial<NormalizedPostMetrics> | null | undefined): ObjectiveMetricInput {
   const likes = typeof metrics?.likes === 'number' ? metrics.likes : null;
   const comments = typeof metrics?.comments === 'number' ? metrics.comments : null;

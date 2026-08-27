@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "Didascalia copiata",
       "copyFailed": "Impossibile copiare la didascalia"
-    }
+    },
+    "fromIntelligence": "Bozza creata da Analisi intelligente"
   },
   "platformPostsTab": {
     "refresh": "Aggiorna",

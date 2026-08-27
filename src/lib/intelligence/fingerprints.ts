@@ -34,13 +34,71 @@ export async function getCachedFingerprint(
   return parsed.success ? { id, fingerprint: parsed.data } : null;
 }
 
+/**
+ * Compact projection stored on the canonical social post so learnings,
+ * strategist evidence, and the Content tab can read patterns without loading
+ * the full fingerprint document.
+ */
+export function fingerprintStorageSummary(fingerprint: ContentFingerprint): Record<string, unknown> {
+  const hook = 'hook' in fingerprint ? fingerprint.hook : null;
+  const openingStyle = 'openingStyle' in fingerprint ? fingerprint.openingStyle : null;
+  const hashtags = fingerprint.kind === 'caption' ? fingerprint.hashtags.slice(0, 15) : [];
+  return {
+    kind: fingerprint.kind,
+    pillar: fingerprint.pillar,
+    hook,
+    openingStyle,
+    topics: fingerprint.topics.slice(0, 8),
+    keywords: fingerprint.keywords.slice(0, 10),
+    cta: fingerprint.cta,
+    sentiment: fingerprint.sentiment,
+    structure: fingerprint.structure.slice(0, 6),
+    hashtags,
+    productPresence: fingerprint.productPresence,
+    humanPresence: fingerprint.humanPresence,
+    confidence: fingerprint.confidence,
+  };
+}
+
+export async function applyFingerprintToSocialPost(input: {
+  workspaceId: string;
+  socialPostId: string;
+  cacheId: string;
+  fingerprint: ContentFingerprint;
+  nowIso?: string;
+}): Promise<void> {
+  const now = input.nowIso || new Date().toISOString();
+  await adminDb.doc(`workspaces/${input.workspaceId}/socialPosts/${input.socialPostId}`).set({
+    fingerprint: fingerprintStorageSummary(input.fingerprint),
+    fingerprintId: input.cacheId,
+    fingerprintVersion: FINGERPRINT_ANALYSIS_VERSION,
+    fingerprintedAt: now,
+    fingerprintQueuedAt: FieldValue.delete(),
+    updatedAt: now,
+  }, { merge: true });
+}
+
 export async function createFingerprintJob(input: {
   workspaceId: string;
   uid: string;
   request: FingerprintRequest;
+  /** Canonical social post to stamp with the summary once analysis completes. */
+  applyToSocialPostId?: string;
+  /** System jobs come from the worker backfill and are never user-metered. */
+  system?: boolean;
 }): Promise<{ jobId: string; cached: boolean; fingerprint?: ContentFingerprint }> {
   const cached = await getCachedFingerprint(input.workspaceId, input.request);
-  if (cached) return { jobId: `cache:${cached.id}`, cached: true, fingerprint: cached.fingerprint };
+  if (cached) {
+    if (input.applyToSocialPostId) {
+      await applyFingerprintToSocialPost({
+        workspaceId: input.workspaceId,
+        socialPostId: input.applyToSocialPostId,
+        cacheId: cached.id,
+        fingerprint: cached.fingerprint,
+      });
+    }
+    return { jobId: `cache:${cached.id}`, cached: true, fingerprint: cached.fingerprint };
+  }
   const key = fingerprintCacheKey(input.workspaceId, input.request);
   const jobId = createHash('sha256')
     .update(`${input.workspaceId}\0${input.request.productId}\0${key}`)
@@ -59,11 +117,15 @@ export async function createFingerprintJob(input: {
       requestedBy: input.uid,
       request: input.request,
       idempotencyKey: key,
+      ...(input.applyToSocialPostId ? { applyToSocialPostId: input.applyToSocialPostId } : {}),
+      system: input.system === true,
       attempts: 0,
       nextAttemptAt: now,
       createdAt: snapshot.data()?.createdAt || now,
       updatedAt: now,
     }, { merge: true });
+  } else if (input.applyToSocialPostId && snapshot.data()?.applyToSocialPostId !== input.applyToSocialPostId) {
+    await ref.set({ applyToSocialPostId: input.applyToSocialPostId, updatedAt: new Date().toISOString() }, { merge: true });
   }
   return { jobId, cached: false };
 }
@@ -81,7 +143,7 @@ async function executeFingerprintJob(
   workspaceId: string,
   jobId: string,
   request: FingerprintRequest,
-): Promise<void> {
+): Promise<{ cacheId: string; fingerprint: ContentFingerprint }> {
   const startedAt = Date.now();
   const cacheId = fingerprintCacheKey(workspaceId, request);
   const existing = await getCachedFingerprint(workspaceId, request);
@@ -93,7 +155,7 @@ async function executeFingerprintJob(
       completedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }, { merge: true });
-    return;
+    return { cacheId: existing.id, fingerprint: existing.fingerprint };
   }
 
   const generated = await generateStructured({
@@ -153,6 +215,7 @@ async function executeFingerprintJob(
     latencyMs: Date.now() - startedAt,
     cacheHit: false,
   });
+  return { cacheId, fingerprint: generated.value };
 }
 
 export async function processIntelligenceJobs(
@@ -186,7 +249,16 @@ export async function processIntelligenceJobs(
     if (!claimed) continue;
     try {
       if (data.type === 'content_fingerprint') {
-        await executeFingerprintJob(workspaceId, doc.id, data.request as FingerprintRequest);
+        const result = await executeFingerprintJob(workspaceId, doc.id, data.request as FingerprintRequest);
+        const socialPostId = typeof data.applyToSocialPostId === 'string' ? data.applyToSocialPostId : null;
+        if (socialPostId) {
+          await applyFingerprintToSocialPost({
+            workspaceId,
+            socialPostId,
+            cacheId: result.cacheId,
+            fingerprint: result.fingerprint,
+          });
+        }
       } else if (data.type === 'audience_fit') {
         const result = await executeAudienceFitJob({ workspaceId, jobId: doc.id, request: data.request as AudienceFitRequest });
         const completedAt = new Date().toISOString();

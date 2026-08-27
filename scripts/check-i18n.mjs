@@ -85,6 +85,9 @@ const KNOWN_TOKENS = new Set([
   'Privacy', 'Product', 'production', 'Professional', 'Question', 'Repost',
   'Status', 'Support', 'Team', 'Tech', 'Text', 'Timing', 'Upload', 'Videos',
   'Website', 'workflow', 'workspace', 'workspaces', 'Workspaces',
+  // "Conversions" is spelled identically in French, and "Intelligence" is the
+  // feature's proper name kept as-is in fr/it marketing copy.
+  'Conversions', 'conversions', 'Intelligence',
 ]);
 
 // Specific key paths that are intentionally identical in every locale — code/

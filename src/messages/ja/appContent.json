@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "キャプションをコピーしました",
       "copyFailed": "キャプションをコピーできませんでした"
-    }
+    },
+    "fromIntelligence": "インテリジェンスが作成した下書き"
   },
   "platformPostsTab": {
     "refresh": "更新",

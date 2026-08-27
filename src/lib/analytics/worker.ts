@@ -10,9 +10,11 @@ import {
 } from './metrics-poller';
 import { ANALYTICS_META_PATH, utcDateOf, type AnalyticsMetaDoc } from './types';
 import { importRecentNativePosts, type NativeImportResult } from '@/lib/intelligence/native-import';
-import { persistComputedInsights, loadProductIntelligence, loadAudienceSnapshots } from '@/lib/intelligence/product-state';
+import { loadProductIntelligence, loadAudienceSnapshots } from '@/lib/intelligence/product-state';
 import { isIntelligencePhaseEnabled } from '@/lib/intelligence/feature-flags';
 import { backfillLegacySocialPosts, type LegacySocialPostBackfillResult } from '@/lib/intelligence/legacy-post-backfill';
+import { enqueuePublishedPostFingerprints, type FingerprintBackfillResult } from '@/lib/intelligence/published-post-fingerprints';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 
 /** How often the sweep for freshly published posts runs. */
 const SWEEP_INTERVAL_MS = 5 * 60_000;
@@ -36,6 +38,7 @@ export type AnalyticsTickResult = {
   deadRetried?: number;
   nativeImport?: NativeImportResult;
   legacySocialPosts?: LegacySocialPostBackfillResult;
+  fingerprints?: FingerprintBackfillResult;
   errors: Array<{ kind: string; error: string }>;
 };
 
@@ -148,23 +151,33 @@ export async function processAnalyticsTick(workspaceId: string): Promise<Analyti
         error: `${error.connectionId}: ${error.error}`,
       }));
     }
-    const learningDue = !meta.lastLearningRecomputeAt
-      || Date.parse(nowIso) - Date.parse(meta.lastLearningRecomputeAt) >= LEARNING_RECOMPUTE_INTERVAL_MS;
-    const learningEnabled = learningDue && await isIntelligencePhaseEnabled({
+    const learningPhase = await isIntelligencePhaseEnabled({
       phase: 'learning',
       workspaceId,
       uid: 'system',
       entitled: true,
       includeShadow: true,
     });
-    if (learningEnabled) {
+    if (learningPhase) {
+      // Caption fingerprints for published posts feed pattern learnings and
+      // "why it worked". Bounded per tick and per day; see the module header.
+      const fingerprints = await enqueuePublishedPostFingerprints(workspaceId, nowIso, meta);
+      result.fingerprints = fingerprints.result;
+      Object.assign(metaUpdate, fingerprints.metaUpdate);
+      if (fingerprints.result.queued > 0) {
+        await markWorkspaceDue(workspaceId, new Date(), 'intelligence_job').catch(() => undefined);
+      }
+    }
+    const learningDue = !meta.lastLearningRecomputeAt
+      || Date.parse(nowIso) - Date.parse(meta.lastLearningRecomputeAt) >= LEARNING_RECOMPUTE_INTERVAL_MS;
+    if (learningPhase && learningDue) {
       const products = await adminDb.collection(`workspaces/${workspaceId}/products`).select().limit(8).get();
       // One workspace-wide snapshot read shared by every product: the query has
       // no productId filter, so per-product reads would return the same docs.
       const snapshots = products.empty ? [] : await loadAudienceSnapshots(workspaceId);
       for (const product of products.docs) {
-        const loaded = await loadProductIntelligence(workspaceId, product.id, { audienceSnapshots: snapshots });
-        await persistComputedInsights(workspaceId, product.id, loaded.insights);
+        // Full recompute writes the cache, so the page read path stays cheap.
+        await loadProductIntelligence(workspaceId, product.id, { audienceSnapshots: snapshots, persist: true });
       }
       metaUpdate.lastLearningRecomputeAt = nowIso;
     }
@@ -177,7 +190,7 @@ export async function processAnalyticsTick(workspaceId: string): Promise<Analyti
     await metaRef.set(metaUpdate, { merge: true });
   }
 
-  if (result.polled > 0 || result.errors.length > 0 || result.backfilled || result.audienceCaptured || result.legacySocialPosts) {
+  if (result.polled > 0 || result.errors.length > 0 || result.backfilled || result.audienceCaptured || result.legacySocialPosts || result.fingerprints?.queued) {
     logger.info('analytics tick completed', {
       event: 'analytics.tick',
       workspaceId,

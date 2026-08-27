@@ -167,7 +167,7 @@ describe('GET /api/social/posts', () => {
 
     expect(res.status).toBe(409);
     expect(body.error).toBe('CONNECTION_AUTH_ERROR');
-    expect(body.message).toContain('reconnect');
+    expect(body.message.toLowerCase()).toContain('reconnect');
     expect(refreshConnectionTokenMock).not.toHaveBeenCalled();
   });
 

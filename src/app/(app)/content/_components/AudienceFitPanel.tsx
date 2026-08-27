@@ -45,8 +45,11 @@ export default function AudienceFitPanel({
   onApplyCaption?: (caption: string) => void;
 }) {
   const t = useTranslations("intelligence.composer");
-  const timing = useApiQuery<{ timing?: { windows: Array<{ bucket: string; observations: number }> } }>(
-    productId ? `/api/intelligence/overview?productId=${encodeURIComponent(productId)}` : null,
+  // Light endpoint served from the insights cache: opening the composer must
+  // not re-read the brand's whole post history.
+  const timing = useApiQuery<{ timing?: { windows: Array<{ bucket: string; observations: number }> } | null }>(
+    productId ? `/api/intelligence/timing?productId=${encodeURIComponent(productId)}` : null,
+    { staleMs: 5 * 60_000 },
   );
   const [result, setResult] = useState<FitResult | null>(null);
   const [status, setStatus] = useState<"idle" | "queued" | "failed">("idle");

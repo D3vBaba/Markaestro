@@ -1,0 +1,96 @@
+import type { OverviewChannelRow, OverviewPostRow } from "@/lib/intelligence/overview-metrics";
+import type { OptimizationOpportunity } from "@/lib/intelligence/opportunities";
+import type { BrandLearning } from "@/lib/intelligence/learnings";
+import type { TimingRecommendation } from "@/lib/intelligence/timing";
+import type { IntelligenceReadiness } from "@/lib/intelligence/readiness";
+import type { ObjectiveSummary } from "@/lib/intelligence/insights";
+import type { IntelligenceTrustKind } from "@/lib/intelligence/schemas";
+
+export type TrustKind = IntelligenceTrustKind | "declared" | "generated";
+
+export type PostRow = OverviewPostRow & { objectiveValue: number | null };
+export type ChannelRow = OverviewChannelRow;
+export type OpportunityRow = OptimizationOpportunity;
+export type LearningRow = BrandLearning;
+
+export type IntelligencePhases = {
+  foundation: boolean;
+  learning: boolean;
+  growth: boolean;
+  advanced: boolean;
+  experiments?: boolean;
+  strategist?: boolean;
+};
+
+export type IntelligenceQuota = {
+  tier: string;
+  aiOperationsUsed: number;
+  aiOperationsLimit: number;
+  strategistTurnsUsed: number;
+  strategistTurnsLimit: number;
+};
+
+export type IntelligenceOverview = {
+  products: Array<{ id: string; name: string }>;
+  productId: string | null;
+  profile: {
+    objective?: string;
+    primaryTimezone?: string;
+    targetMarkets?: Array<{ code: string; label?: string; weight: number }>;
+    contentPillars?: string[];
+  } | null;
+  phases?: IntelligencePhases;
+  quota?: IntelligenceQuota;
+  totals: null | {
+    posts: number;
+    views: number | null;
+    reach: number | null;
+    clicks: number | null;
+    conversions: number | null;
+    likes?: number | null;
+    comments?: number | null;
+    shares?: number | null;
+    saves?: number | null;
+    coverage: Record<string, number>;
+  };
+  channels: ChannelRow[];
+  topContent: PostRow[];
+  measuredPosts?: PostRow[];
+  alignment?: { score: number | null; coverage: number; dimensions: Record<string, number | null> } | null;
+  timing?: TimingRecommendation | null;
+  drift?: { title: string; summary: string } | null;
+  learnings: LearningRow[];
+  opportunities: OpportunityRow[];
+  readiness?: IntelligenceReadiness | null;
+  objective?: ObjectiveSummary | null;
+  computedAt?: string;
+  cached?: boolean;
+};
+
+export type DecisionStatus = "proposed" | "accepted" | "pinned" | "dismissed";
+
+export type TrackedLink = {
+  code: string;
+  label: string;
+  destination: string;
+  url: string;
+  clicks: number;
+  lastClickedAt: string | null;
+  attributedConversions: number;
+  createdAt: string | null;
+};
+
+export type PostExplanation = {
+  summary: string;
+  factors: Array<{ label: string; detail: string }>;
+  tryNext: string | null;
+  createdAt: string;
+};
+
+export type DraftResult = {
+  postId: string;
+  platform: string;
+  content: string;
+  rationale: string;
+  evidenceIds: string[];
+};

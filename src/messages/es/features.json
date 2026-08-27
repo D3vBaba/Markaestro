@@ -94,5 +94,66 @@
     "subtitle": "Empieza gratis. Sin tarjeta de crédito. Conecta tu primer canal en menos de dos minutos.",
     "primaryButton": "Comienza gratis",
     "secondaryButton": "Contactar con ventas"
+  },
+  "intelligence": {
+    "eyebrow": "Inteligencia",
+    "titleLead": "Sabe qué publicar después,",
+    "titleHighlight": "a partir de tus propios números",
+    "subtitle": "Inteligencia lee las publicaciones que ya publicaste, conserva cada métrica exactamente como la informaron las plataformas y convierte ese historial en respuestas claras y borradores listos para editar. Nada se publica automáticamente.",
+    "loopTitle": "Cómo funciona",
+    "loop": [
+      {
+        "title": "Medir",
+        "body": "Las publicaciones hechas con Markaestro y el historial importado de tus cuentas conectadas se convierten en un registro por publicación con las métricas que informó cada plataforma. Los números que faltan quedan en blanco, nunca en cero."
+      },
+      {
+        "title": "Aprender",
+        "body": "Estadísticas deterministas comparan tus publicaciones por plataforma, franja horaria, pilar de contenido, gancho y formato. Un patrón solo aparece con al menos cinco publicaciones en el grupo y cinco fuera, con un rango del 95% sobre el efecto."
+      },
+      {
+        "title": "Recomendar",
+        "body": "Las oportunidades convierten esos hallazgos en pasos concretos con los números detrás: una ventana que supera tu media, una plataforma que gana por publicación, un patrón que vale la pena repetir."
+      },
+      {
+        "title": "Redactar",
+        "body": "Crear borrador escribe un texto con tu voz de marca a partir de tu propia evidencia de mejor rendimiento y lo guarda en Contenido como un borrador normal. Tú lo editas, añades medios y lo programas."
+      }
+    ],
+    "tabsTitle": "Qué obtienes, pestaña por pestaña",
+    "tabs": [
+      {
+        "title": "Resumen",
+        "body": "Banner de objetivo, KPI medidos, comparación de plataformas por publicación y una lista de preparación que muestra exactamente qué funciones están activas y cuántos datos necesita cada una todavía."
+      },
+      {
+        "title": "Audiencia",
+        "body": "Declara tu objetivo, mercados, zona horaria, pilares y voz. Los enlaces cortos con seguimiento cuentan clics sin almacenar datos personales y vinculan las conversiones con la publicación."
+      },
+      {
+        "title": "Contenido",
+        "body": "Tus publicaciones ordenadas por la métrica que elegiste, los patrones detectados en cada una y una explicación de Por qué funcionó basada en los números de esa publicación frente a la media de tu cuenta."
+      },
+      {
+        "title": "Oportunidades",
+        "body": "Sugerencias respaldadas por evidencia que puedes aceptar, fijar o descartar, cada una con un botón de Crear borrador. Aceptar nunca crea ni programa una publicación."
+      },
+      {
+        "title": "Guía",
+        "body": "Patrones que se repiten en tus datos con el tamaño de muestra, el efecto y el rango de confianza explicados en palabras sencillas, más las publicaciones detrás de cada uno."
+      },
+      {
+        "title": "Experimentos y consultas",
+        "body": "Publicaciones A/B emparejadas con un ganador medido, y preguntas respondidas solo con los registros de esta marca, citando los datos usados."
+      }
+    ],
+    "principlesTitle": "Reglas que nunca rompe",
+    "principles": [
+      "Nunca publica ni programa por su cuenta. Cada acción es un borrador o una decisión que tú registras.",
+      "Nunca rellena un número que una plataforma no informó. En blanco significa en blanco.",
+      "Nunca usa datos de otras marcas ni referencias genéricas. Cada afirmación proviene de tu propio historial.",
+      "Siempre indica qué alimentó un resultado: Medido, Calculado, Recomendado, Declarado o Generado."
+    ],
+    "plans": "Audience Fit está en todos los planes. Guía, Oportunidades, enlaces con seguimiento y Pregunta a Markaestro empiezan en Pro; Experimentos en Business. Las acciones de IA como Crear borrador tienen un límite mensual según el plan.",
+    "cta": "Empieza gratis y conecta un canal"
   }
 }

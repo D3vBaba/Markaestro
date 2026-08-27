@@ -219,6 +219,23 @@ async function runChecks() {
       .limit(1)
       .get(),
   );
+  await check('socialPosts.where(publishedAt >=).orderBy(publishedAt desc) [fingerprint backfill, recent]', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`)
+      .where('publishedAt', '>=', '2026-01-01T00:00:00.000Z')
+      .orderBy('publishedAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('socialPosts.where(publishedAt <).orderBy(publishedAt desc) [fingerprint backfill, older]', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`)
+      .where('publishedAt', '<', '2026-01-01T00:00:00.000Z')
+      .orderBy('publishedAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('socialPosts.orderBy(publishedAt desc) [fingerprint incremental]', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`).orderBy('publishedAt', 'desc').limit(1).get(),
+  );
   await check('intelligenceJobs.where(status)', (db) =>
     db.collection(`workspaces/${WS}/intelligenceJobs`).where('status', '==', 'queued').limit(1).get(),
   );

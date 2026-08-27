@@ -1,13 +1,28 @@
 {
   "title": "인텔리전스",
-  "subtitle": "측정 성과와 근거 있는 추천, 자동 게시 없음.",
+  "subtitle": "내 게시물이 실제로 측정한 결과를 쉬운 말로 설명하고, 초안은 직접 관리합니다. 자동으로 게시되는 것은 없습니다.",
   "brand": "브랜드",
   "coverage": "데이터 커버리지 {value}%",
+  "productBar": {
+    "brand": "브랜드",
+    "noBrandSelected": "선택된 브랜드 없음",
+    "change": "변경"
+  },
   "labels": {
     "measured": "측정",
     "calculated": "계산",
     "predicted": "예측",
-    "recommended": "추천"
+    "recommended": "추천",
+    "declared": "선언",
+    "generated": "생성"
+  },
+  "labelHints": {
+    "measured": "플랫폼이 내 게시물에 대해 보고한 숫자입니다. 빈칸은 플랫폼이 보고하지 않았다는 뜻입니다.",
+    "calculated": "측정된 숫자로 계산한 통계입니다. 추측도, 업계 평균도 사용하지 않습니다.",
+    "predicted": "신뢰도가 포함된 추정치입니다. 사실이 아닌 힌트로 받아들이세요.",
+    "recommended": "측정된 근거로 만든 제안입니다. 실행 여부는 직접 결정합니다.",
+    "declared": "이 브랜드에 대해 직접 입력한 정보입니다. 인텔리전스는 결과를 이 정보와 비교합니다.",
+    "generated": "내 근거와 브랜드 보이스를 바탕으로 AI가 작성한 텍스트입니다. 항상 편집 가능한 초안으로 저장됩니다."
   },
   "tabs": {
     "overview": "개요",
@@ -17,20 +32,446 @@
     "playbook": "플레이북",
     "advanced": "실험"
   },
+  "actions": {
+    "refresh": "새로고침",
+    "refreshing": "새로고침 중…",
+    "accept": "수락",
+    "dismiss": "닫기",
+    "pin": "고정",
+    "undo": "실행 취소",
+    "saveFailed": "결정을 저장할 수 없습니다",
+    "acceptedToast": "수락으로 표시했습니다. 여기서 초안을 만들거나 콘텐츠에서 작성하세요.",
+    "pinnedToast": "후속 조치를 위해 고정했습니다",
+    "dismissedToast": "무시했습니다. 무시됨 필터에서 다시 찾을 수 있습니다.",
+    "undoneToast": "결정을 취소했습니다",
+    "status": {
+      "proposed": "신규",
+      "accepted": "수락됨",
+      "pinned": "고정됨",
+      "dismissed": "무시됨"
+    }
+  },
+  "decisions": {
+    "hint": "이 버튼은 결정만 기록합니다. 게시, 예약, 초안 변경은 절대 하지 않습니다.",
+    "learningHint": "이 패턴을 신뢰하는지 기록하세요. 인텔리전스가 콘텐츠를 임의로 변경하는 일은 없습니다.",
+    "accept": "수락, 실행 예정",
+    "pin": "고정, 나중에",
+    "dismiss": "무시, 숨김"
+  },
+  "filter": {
+    "label": "표시",
+    "all": "전체",
+    "proposed": "신규",
+    "accepted": "수락됨",
+    "pinned": "고정됨",
+    "dismissed": "무시됨",
+    "none": "이 필터에 해당하는 항목이 아직 없습니다."
+  },
+  "gate": {
+    "rolloutTitle": "이 워크스페이스에는 아직 활성화되지 않았습니다",
+    "rolloutBody": "사용 중인 플랜에 인텔리전스의 이 기능이 포함되어 있습니다. 단계적으로 배포 중이며, 별도의 조치 없이 여기에 나타납니다."
+  },
+  "howItWorks": {
+    "button": "작동 방식",
+    "close": "확인",
+    "stepsTitle": "사용 방법",
+    "inputsTitle": "입력 데이터",
+    "neverTitle": "하지 않는 일",
+    "thresholdsTitle": "활성화 조건",
+    "page": {
+      "title": "인텔리전스 작동 방식",
+      "intro": "인텔리전스는 이미 게시한 게시물을 읽고, 모든 숫자를 플랫폼이 보고한 그대로 유지하며, 그 기록을 쉬운 말로 된 답으로 바꿉니다: 무엇이 효과 있었는지, 언제 게시할지, 다음에 무엇을 시도할지. 모든 실행은 직접 결정합니다.",
+      "steps": [
+        "브랜드를 선택하세요. 이 페이지의 모든 내용은 하나의 브랜드와 연결된 채널을 기준으로 합니다.",
+        "개요에서 시작해 지금까지 측정된 내용과 데이터가 충분해 활성화된 기능을 확인하세요.",
+        "오디언스에서 목표와 오디언스를 설정하세요. 모든 추천이 최적화할 지표가 여기서 결정됩니다.",
+        "콘텐츠, 기회, 플레이북에서 근거 있는 답을 읽고, 초안 만들기로 그중 무엇이든 게시물 초안으로 바꾸세요.",
+        "모든 초안은 콘텐츠에 일반 초안으로 저장됩니다. 다른 게시물처럼 검토, 편집, 예약, 삭제하세요."
+      ],
+      "inputs": [
+        "Markaestro로 게시한 게시물과 연결된 계정에서 가져온 게시물",
+        "각 플랫폼이 해당 게시물에 대해 보고한 지표(조회수, 도달, 좋아요, 댓글, 공유, 저장, 클릭)",
+        "직접 선언한 목표, 시장, 시간대, 기둥, 브랜드 보이스"
+      ],
+      "never": [
+        "스스로 게시하거나 예약하기",
+        "플랫폼이 보고하지 않은 숫자 채워 넣기",
+        "다른 브랜드의 데이터나 일반적인 업계 벤치마크 사용하기"
+      ]
+    },
+    "overview": {
+      "title": "개요",
+      "intro": "이 브랜드에서 지금까지 측정된 내용의 요약과, 어떤 기능이 활성 상태이고 무엇이 아직 부족한지 정확히 알려주는 준비 상태 목록입니다.",
+      "steps": [
+        "목표 배너를 확인하세요. 모든 순위와 추천이 그 지표를 사용합니다.",
+        "KPI 타일을 읽으세요. 빈 타일은 연결된 플랫폼이 그 지표를 보고하지 않았다는 뜻이지, 0이 아닙니다.",
+        "준비 상태 목록에서 각 기능이 활성화까지 얼마나 남았는지, 무엇을 하면 되는지 확인하세요.",
+        "플랫폼은 합계가 아니라 게시물당 기준으로 비교하므로, 게시물이 적은 채널도 공정하게 평가됩니다."
+      ],
+      "inputs": [
+        "이 브랜드의 동기화된 모든 게시물과 최신 보고 지표",
+        "오디언스 탭에서 설정한 목표"
+      ],
+      "never": [
+        "여러 브랜드의 숫자 섞기",
+        "플랫폼이 비워 둔 지표 추정하기"
+      ]
+    },
+    "audience": {
+      "title": "오디언스",
+      "intro": "누구를 위해 만들고 무엇이 성공인지 인텔리전스에 알려주세요. 이 프로필은 작성기의 Audience Fit, 타이밍, 모든 추천의 기준이 됩니다.",
+      "steps": [
+        "목표를 선택하세요. 인텔리전스가 최적화할 지표가 정해집니다(예: 참여는 좋아요, 댓글, 공유, 저장을 사용).",
+        "주요 시장, 시간대, 콘텐츠 기둥, 보이스 특성을 추가하세요. 게시 시간대는 이 시간대 기준으로 계산됩니다.",
+        "공유하는 URL에 대해 추적 링크를 만드세요. 각 클릭은 개인 정보 저장 없이 여기서 집계됩니다.",
+        "저장하세요. 변경 사항은 다음 새로고침 때 적용됩니다."
+      ],
+      "inputs": [
+        "이 탭에 입력한 내용",
+        "추적 링크 클릭과 Markaestro로 전송한 전환"
+      ],
+      "never": [
+        "추적 링크의 IP 주소, 브라우저 정보, 리퍼러 저장하기",
+        "프로필을 자동으로 변경하기"
+      ]
+    },
+    "content": {
+      "title": "콘텐츠",
+      "intro": "선택한 지표로 순위를 매긴 측정 게시물과, 인텔리전스가 각 게시물에서 인식한 패턴, 그리고 왜 그런 성과가 났는지에 대한 쉬운 설명입니다.",
+      "steps": [
+        "목표, 조회수, 참여 기준으로 정렬하세요. 같은 조건끼리 비교하려면 플랫폼 하나로 필터링하세요.",
+        "게시물에서 성과 이유를 열면 계정 평균 대비 그 게시물의 숫자에 근거한 짧은 설명을 볼 수 있습니다.",
+        "이런 게시물 초안 만들기를 사용하면 효과 있던 요소를 재사용한 새 캡션이 콘텐츠에 초안으로 저장됩니다.",
+        "측정값이 가장 낮은 게시물도 확인하세요. 거기에 빠진 것이 가장 분명한 교훈인 경우가 많습니다."
+      ],
+      "inputs": [
+        "각 게시물의 캡션, 플랫폼, 게시 시각, 보고된 지표",
+        "게시된 각 게시물의 캡션에서 감지한 콘텐츠 패턴(기둥, 훅, 형식)"
+      ],
+      "never": [
+        "보고되지 않은 지표로 게시물 순위 매기기",
+        "사용자 없이 편집하거나 다시 게시하기"
+      ]
+    },
+    "opportunities": {
+      "title": "기회",
+      "intro": "다음에 시도할 구체적인 것들로, 각각 내 숫자가 뒷받침합니다: 평균을 웃도는 게시 시간대, 게시물당 성과가 더 좋은 플랫폼, 반복할 가치가 있는 패턴.",
+      "steps": [
+        "각 카드 아래의 근거 줄을 읽으세요. 제안 뒤에 있는 정확한 숫자를 보여줍니다.",
+        "시도할 계획이면 수락, 나중에 다시 보려면 고정, 맞지 않으면 무시하세요. 세 가지 모두 되돌릴 수 있습니다.",
+        "초안 만들기를 사용하면 그 기회에 맞춰 작성된 캡션이 콘텐츠에 초안으로 저장됩니다.",
+        "평소처럼 콘텐츠나 캘린더에서 게시하세요. 수락해도 게시물이 생성되거나 예약되지 않습니다."
+      ],
+      "inputs": [
+        "최적 게시 시간대, 게시물당 플랫폼 비교, 플레이북 학습 내용",
+        "오디언스 탭의 목표와 우선 플랫폼"
+      ],
+      "never": [
+        "측정 게시물이 5개 미만인 제안하기",
+        "수락한 기회를 사용자 없이 실행하기"
+      ]
+    },
+    "playbook": {
+      "title": "플레이북",
+      "intro": "의미 있을 만큼 충분한 게시물로 데이터에서 반복되는 패턴입니다: 어떤 플랫폼, 훅, 기둥, 형식, 시간대가 이 브랜드의 나머지보다 높거나 낮은 성과를 내는지.",
+      "steps": [
+        "각 카드는 게시물 그룹을 이 브랜드의 다른 모든 게시물과 목표 지표 기준으로 비교합니다.",
+        "효과는 게시물당 퍼센트 차이입니다. 95% 범위는 추정치가 얼마나 확실한지 알려줍니다.",
+        "강도는 표본 크기에 따라 커집니다: 방향성(5~14개), 보통(15~29개), 잠재적으로 강함(30개 이상이고 범위가 분명함).",
+        "반복하고 싶은 패턴을 수락한 뒤, 초안 만들기로 그 패턴의 게시물을 작성하세요."
+      ],
+      "inputs": [
+        "플랫폼, 기둥, 훅, 형식, 요일/시간별로 묶은 측정 게시물",
+        "게시된 각 캡션에서 감지한 콘텐츠 패턴"
+      ],
+      "never": [
+        "그룹 안 5개, 그룹 밖 5개 미만인 패턴 보고하기",
+        "인과관계 주장하기. 내 데이터 안의 연관성일 뿐입니다."
+      ]
+    },
+    "advanced": {
+      "title": "실험 및 Ask Markaestro",
+      "intro": "짝지은 A/B 게시물로 한 번에 하나의 아이디어를 테스트하고, 이 브랜드의 측정 기록만으로 답하는 질문을 하세요.",
+      "steps": [
+        "실험을 만드세요: 플랫폼 하나, 변형 두 개, 기간 하나. 두 게시물 모두 자동으로 예약됩니다.",
+        "기간이 끝나면 측정 지표로 승자가 결정되어 받은편지함에 도착합니다.",
+        "Ask Markaestro는 질문마다 승인된 데이터 도구 하나를 고르고 사용한 기록을 인용합니다.",
+        "캠페인은 미리보기입니다: 지금은 이름만 지정할 수 있고, 게시물 배정은 준비 중입니다."
+      ],
+      "inputs": [
+        "두 실험 게시물과 보고된 지표",
+        "Ask Markaestro를 위한 저장된 학습 내용, 비교, 타이밍, 상위 게시물"
+      ],
+      "never": [
+        "측정된 차이와 표본 없이 승자 선언하기",
+        "일반적인 소셜 미디어 조언으로 답하기"
+      ]
+    },
+    "drafts": {
+      "title": "초안 만들기",
+      "intro": "기회, 패턴, 특정 게시물을 내 브랜드 보이스로, 내 최고 성과 근거를 바탕으로 작성한 새 캡션으로 바꿉니다.",
+      "steps": [
+        "인텔리전스가 그 기회나 패턴에 해당하는 가장 강한 측정 게시물을 최대 5개 모으고, 오디언스 프로필과 브랜드 보이스를 더합니다.",
+        "선택한 플랫폼에 맞춰 해시태그와 훅이 포함된 초안이 작성되며, 어떤 근거가 반영됐는지 짧은 메모가 붙습니다.",
+        "콘텐츠에 초안으로 저장됩니다. 열어서 편집하고 미디어를 추가한 뒤 준비되면 예약하세요."
+      ],
+      "inputs": [
+        "측정 게시물, 오디언스 프로필, 선언한 브랜드 보이스",
+        "클릭한 기회나 패턴 뒤에 있는 근거"
+      ],
+      "never": [
+        "초안 게시하거나 예약하기",
+        "브랜드 데이터에 없는 주장, 가격, 혜택, 링크 지어내기"
+      ]
+    },
+    "explain": {
+      "title": "성과 이유",
+      "intro": "계정의 나머지와 비교한 게시물 하나의 결과에 대한 짧은 설명입니다: 캡션, 타이밍, 플랫폼 평균에서 무엇이 두드러졌는지.",
+      "steps": [
+        "측정된 게시물 어디서든 열 수 있습니다. 설명은 한 번 생성되어 게시물과 함께 저장됩니다.",
+        "요인은 실제 대상을 가리킵니다: 지표, 캡션, 감지된 패턴, 게시 시간대.",
+        "다음 시도 제안을 다음 게시물이나 실험의 가설로 활용하세요."
+      ],
+      "inputs": [
+        "그 게시물의 숫자, 캡션, 감지된 패턴",
+        "플랫폼 평균과 최적 게시 시간대"
+      ],
+      "never": [
+        "인과관계 주장하기. 데이터 안의 연관성을 설명할 뿐입니다.",
+        "플랫폼이 보고하지 않은 지표 사용하기"
+      ]
+    },
+    "links": {
+      "title": "추적 링크",
+      "intro": "캡션에 붙여 넣는 짧은 링크로, 클릭을 집계하고 전환 API를 통해 판매나 가입까지 연결할 수 있습니다.",
+      "steps": [
+        "라벨과 도착 URL로 링크를 만드세요. 짧은 URL을 아무 캡션에나 복사해 넣으세요.",
+        "클릭은 발생하는 대로 여기에 표시됩니다. IP 주소, 브라우저, 리퍼러는 저장되지 않습니다.",
+        "클릭 ID와 함께 전환 이벤트를 API로 보내면 링크별 귀속 전환을 볼 수 있습니다."
+      ],
+      "inputs": [
+        "짧은 링크를 통한 리디렉션",
+        "사이트나 서버가 Markaestro로 보내는 전환 이벤트"
+      ],
+      "never": [
+        "사이트 간 방문자 추적하기",
+        "클릭에서 개인 정보 저장하기"
+      ]
+    }
+  },
+  "quota": {
+    "title": "AI 작업",
+    "aiOps": "이번 달 AI 작업 {limit}회 중 {used}회 사용",
+    "aiOpsUnlimited": "이번 달 AI 작업 {used}회 사용",
+    "strategist": "Ask 질문 {limit}회 중 {used}회 사용",
+    "hint": "초안 만들기, 성과 이유, Audience Fit은 각각 작업 1회를 사용합니다. 백그라운드 패턴 감지는 무료입니다.",
+    "exceeded": "{plan} 플랜의 이번 달 AI 작업을 모두 사용했습니다. 다음 달에 초기화되며, 더 필요하면 업그레이드하세요."
+  },
+  "readiness": {
+    "title": "활성화된 기능",
+    "subtitle": "각 기능은 표시되기 전에 최소한의 측정 데이터가 필요합니다. 이 브랜드의 현재 상태입니다.",
+    "progress": "{required} 중 {current}",
+    "met": "활성",
+    "pending": "데이터 더 필요",
+    "unavailable": "아직 사용 불가",
+    "computedAt": "{when} 계산됨",
+    "checks": {
+      "history": {
+        "label": "Audience Fit 기록 점수",
+        "hint": "측정된 {metric} 값이 있는 게시물 5개가 필요합니다."
+      },
+      "timing": {
+        "label": "최적 게시 시간대",
+        "hint": "게시 시각이 있는 게시물 20개와 측정된 {metric} 값이 있는 게시물 5개가 필요합니다."
+      },
+      "timingWindow": {
+        "label": "게시물이 충분한 시간대",
+        "hint": "같은 요일과 시간에 측정 게시물 5개 이상."
+      },
+      "platformComparison": {
+        "label": "플랫폼 비교",
+        "hint": "각각 측정 게시물이 5개 이상인 플랫폼 두 개."
+      },
+      "learnings": {
+        "label": "플레이북 패턴",
+        "hint": "그룹 안 측정 게시물 5개와 그룹 밖 5개."
+      },
+      "contentPatterns": {
+        "label": "콘텐츠 패턴 감지",
+        "hint": "게시 후 캡션이 백그라운드에서 분석됩니다. 분석된 게시물이 10개가 되면 기둥, 훅, 형식 패턴이 열립니다."
+      },
+      "alignment": {
+        "label": "오디언스 정합",
+        "hint": "연결된 플랫폼의 오디언스 인구 통계가 필요합니다. 연결된 플랫폼 중 아직 이를 보고하는 곳이 없습니다."
+      }
+    }
+  },
+  "objective": {
+    "title": "최적화 대상",
+    "body": "목표가 {objective}이므로 이 페이지의 모든 순위, 시간대, 추천은 {metric}을(를) 사용합니다.",
+    "change": "오디언스에서 변경",
+    "names": {
+      "awareness": "인지도",
+      "engagement": "참여",
+      "followers": "팔로워",
+      "website_traffic": "웹사이트 트래픽",
+      "leads": "리드",
+      "app_installs": "앱 설치",
+      "purchases": "구매",
+      "other": "사용자 지정 목표"
+    },
+    "metrics": {
+      "reach": "도달",
+      "views": "조회수",
+      "engagements": "참여(좋아요, 댓글, 공유, 저장)",
+      "followers_gained": "팔로워 증가",
+      "clicks": "클릭",
+      "leads": "리드",
+      "installs": "설치",
+      "purchases": "구매",
+      "conversions": "전환",
+      "custom": "전환"
+    },
+    "fallback": "연결된 플랫폼 중 아직 게시물당 {requested} 수치를 보고하는 곳이 없어 이 페이지는 대신 {metric} 기준으로 순위를 매깁니다. 오디언스에서 목표를 변경하거나, 해당 수치를 보고하는 채널을 연결하세요."
+  },
   "metrics": {
     "posts": "게시물",
     "views": "조회수",
     "reach": "도달",
-    "clicks": "클릭"
+    "clicks": "클릭",
+    "engagements": "참여",
+    "conversions": "전환",
+    "engagementRate": "참여율",
+    "perPost": "게시물당"
   },
   "platforms": {
     "title": "플랫폼 성과",
+    "subtitle": "게시물이 적은 플랫폼도 공정하게 비교되도록 게시물당 평균을 사용합니다.",
     "empty": "지표가 수집되면 게시물이 여기에 표시됩니다.",
-    "posts": "게시물 {value}개",
-    "views": "조회 {value}회",
-    "engagements": "참여 {value}회",
     "colPlatform": "플랫폼",
-    "colEngagements": "참여"
+    "colPosts": "게시물",
+    "colAvgViews": "평균 조회수",
+    "colAvgEngagements": "평균 참여",
+    "colEngRate": "참여율",
+    "measuredNote": "{posts}개 중 {measured}개 측정됨",
+    "includesImported": "Markaestro로 게시한 게시물뿐 아니라 연결된 계정에서 가져온 게시물도 포함됩니다. 특정 기간의 Markaestro 게시물만 다루는 분석과는 숫자가 다를 수 있습니다."
+  },
+  "content": {
+    "title": "내 게시물 순위",
+    "sortBy": "정렬 기준",
+    "sortObjective": "목표({metric})",
+    "sortViews": "조회수",
+    "sortEngagements": "참여",
+    "allPlatforms": "모든 플랫폼",
+    "mediaOnly": "미디어 게시물",
+    "likes": "좋아요",
+    "comments": "댓글",
+    "shares": "공유",
+    "viewLive": "라이브 보기",
+    "published": "{date} 게시",
+    "engagementRate": "참여율 {value}%",
+    "patterns": {
+      "pillar": "기둥",
+      "hook": "훅",
+      "format": "형식",
+      "pending": "패턴은 게시 후 백그라운드에서 감지됩니다."
+    },
+    "lowestTitle": "최저 측정",
+    "lowestBody": "같은 지표에서 가장 약한 측정 게시물입니다. 거기에 부족한 것이 가장 분명한 교훈인 경우가 많습니다.",
+    "why": {
+      "button": "성과 이유",
+      "loading": "이 게시물의 숫자를 읽는 중…",
+      "factors": "두드러진 점",
+      "tryNext": "다음 시도",
+      "failed": "지금은 이 게시물을 설명할 수 없습니다.",
+      "notMeasured": "이 게시물에는 아직 설명할 측정 지표가 없습니다."
+    },
+    "remix": "이런 게시물 초안 만들기"
+  },
+  "timing": {
+    "title": "최적 게시 시간",
+    "subtitle": "측정 게시물이 {metric} 기준으로 계정 평균을 넘어선 요일 및 시간대입니다.",
+    "needs_dated_posts": "계정별 타이밍에는 게시 시각이 있는 게시물 20개와 측정된 {metric} 값이 있는 게시물 5개가 필요합니다. 현재 날짜가 있는 게시물은 {dated}개입니다.",
+    "no_window_with_five": "아직 측정 게시물 5개가 모인 요일과 시간이 없습니다. 계속 게시하면 채워지는 대로 시간대가 나타납니다.",
+    "window": "{weekday} {hour}",
+    "observations": "게시물 {count}개",
+    "liftUp": "평균 대비 +{value}%",
+    "liftDown": "평균 대비 {value}%",
+    "estimate": "게시물당 약 {value} {metric}",
+    "timezone": "{timeZone} 기준 시간",
+    "accountMean": "내 평균: 게시물당 {value} {metric}"
+  },
+  "opportunities": {
+    "kinds": {
+      "timing": "타이밍",
+      "platform": "플랫폼",
+      "learning": "패턴",
+      "alignment": "오디언스"
+    },
+    "timing": {
+      "title": "{weekday} {hour} 무렵에 게시",
+      "body": "이 시간대에 게시한 게시물은 평균 {estimate} {metric}로, 이 브랜드 기준 {lift}입니다.",
+      "evidence": "이 시간대의 측정 게시물 {count}개, 시간은 {timeZone} 기준."
+    },
+    "platform": {
+      "title": "{leader}이(가) 게시물당 {trailing}을(를) 앞섭니다",
+      "body": "{leader}은(는) 게시물당 평균 {leaderPerPost} {metric}, {trailing}은(는) {trailingPerPost}입니다. {trailing}에 물량을 늘리기 전에 {leader}에서 효과 있는 것을 재사용하세요.",
+      "evidence": "{leader} 측정 게시물 {leaderPosts}개, {trailing} {trailingPosts}개. 합계가 아닌 게시물당 비교."
+    },
+    "learning": {
+      "title": "반복: {pattern}",
+      "body": "이 그룹의 게시물은 {metric} 기준으로 이 브랜드의 나머지보다 {effect}% 높습니다.",
+      "evidence": "그룹 내 측정 게시물 {count}개. 전체 비교는 플레이북을 참고하세요."
+    },
+    "alignment": {
+      "title": "{dimension} 격차 줄이기",
+      "body": "{dimension} 정합도는 100점 만점에 {score}점입니다. 저장된 오디언스 프로필에 맞는 주제와 도착지를 우선하세요.",
+      "evidence": "측정된 오디언스 구성과의 연관성이며, 원인은 아닙니다."
+    },
+    "evidenceLabel": "근거",
+    "composeInContent": "콘텐츠에서 작성",
+    "openCalendar": "캘린더 열기"
+  },
+  "learnings": {
+    "dimensions": {
+      "platform": "플랫폼",
+      "pillar": "콘텐츠 기둥",
+      "hook": "훅",
+      "format": "형식",
+      "timing": "시간대"
+    },
+    "keys": {
+      "has_hook": "훅이 있는 게시물",
+      "no_hook": "훅이 없는 게시물"
+    },
+    "summaryUp": "이 그룹의 게시물 {count}개는 {metric} 기준으로 이 브랜드의 나머지보다 {effect}% 높습니다.",
+    "summaryDown": "이 그룹의 게시물 {count}개는 {metric} 기준으로 이 브랜드의 나머지보다 {effect}% 낮습니다.",
+    "groupVsRest": "게시물당 {metric}: {group} 대 {rest}",
+    "sample": "그룹 안 {group}개, 그룹 밖 {rest}개",
+    "ci": "95% 범위: {low}%에서 {high}%",
+    "ciMissing": "범위를 아직 계산할 수 없습니다",
+    "strength": {
+      "directional": "방향성",
+      "moderate": "보통",
+      "potentially_strong": "잠재적으로 강함"
+    },
+    "strengthHints": {
+      "directional": "게시물 5~14개. 지켜볼 만하지만 아직 증거는 아닙니다.",
+      "moderate": "게시물 15~29개, 또는 범위가 아직 0을 걸쳐 있습니다.",
+      "potentially_strong": "게시물 30개 이상이고 범위가 0의 한쪽에 머뭅니다."
+    },
+    "evidenceTitle": "이 패턴의 근거 게시물",
+    "contentPatternsNote": "기둥, 훅, 형식 패턴은 게시된 캡션 {required}개가 분석되면 나타납니다. 지금까지 {current}개 분석됨, 백그라운드에서 진행됩니다."
+  },
+  "drafts": {
+    "button": "초안 만들기",
+    "creating": "초안 작성 중…",
+    "created": "초안이 생성되었습니다",
+    "open": "콘텐츠에서 열기",
+    "rationale": "이 초안의 근거",
+    "failed": "지금은 초안을 만들 수 없습니다.",
+    "quota": "이번 달 AI 작업을 모두 사용했습니다. 다음 달에 초기화되며, 더 필요하면 업그레이드하세요.",
+    "postQuota": "이번 달 게시물 한도에 도달했습니다."
   },
   "audience": {
     "title": "타깃 오디언스",
@@ -38,28 +479,59 @@
     "markets": "시장",
     "pillars": "콘텐츠 기둥"
   },
-  "content": {
-    "title": "상위 콘텐츠",
-    "mediaOnly": "미디어 게시물",
-    "likes": "좋아요",
-    "comments": "댓글",
-    "shares": "공유",
-    "viewLive": "라이브 보기"
+  "links": {
+    "title": "추적 링크",
+    "subtitle": "아무 캡션에나 붙여 넣을 수 있는 짧은 링크입니다. 클릭은 개인 정보 없이 여기서 집계됩니다.",
+    "empty": "원본 IP 주소를 저장하지 않고 클릭을 집계할 추적 링크를 만드세요.",
+    "label": "라벨",
+    "destination": "도착 URL",
+    "create": "링크 만들기",
+    "creating": "생성 중…",
+    "created": "추적 링크가 생성되었습니다",
+    "createFailed": "추적 링크를 만들 수 없습니다",
+    "copy": "복사",
+    "copied": "짧은 링크가 복사되었습니다",
+    "clicks": "클릭 {count}회",
+    "conversions": "귀속 전환 {count}건",
+    "lastClick": "마지막 클릭 {when}",
+    "noClicks": "아직 클릭이 없습니다"
+  },
+  "campaigns": {
+    "title": "캠페인",
+    "preview": "미리보기",
+    "empty": "비교하고 싶은 게시물을 묶을 캠페인 이름을 지금 지정하세요. 캠페인에 게시물을 배정하는 기능은 준비 중이며, 여기서 만들어도 아무것도 게시되지 않습니다.",
+    "name": "캠페인 이름",
+    "create": "캠페인 만들기",
+    "created": "캠페인이 생성되었습니다",
+    "createFailed": "캠페인을 만들 수 없습니다",
+    "status": {
+      "draft": "초안",
+      "active": "진행 중",
+      "completed": "완료됨",
+      "archived": "보관됨"
+    }
   },
   "empty": {
     "overviewTitle": "게시된 게시물을 기다리는 중",
-    "overviewBody": "이 브랜드에는 아직 동기화된 게시물이 없습니다. Markaestro에서 게시한 게시물과 가져온 플랫폼 기록은 인텔리전스에 반영되면 여기에 나타납니다. 누락된 지표는 0이 아니라 빈 값으로 유지됩니다.",
+    "overviewBody": "이 브랜드에는 아직 동기화된 게시물이 없습니다. Markaestro로 게시한 게시물과 연결된 계정에서 가져온 기록은 인텔리전스에 반영되면 여기에 나타납니다. 누락된 지표는 0이 아니라 빈 값으로 유지됩니다.",
     "noBrandTitle": "먼저 브랜드를 만드세요",
     "noBrandBody": "인텔리전스는 Markaestro 브랜드 단위로 관리됩니다.",
-    "profileTitle": "오디언스 프로필 설정",
-    "profileBody": "브랜드 설정에서 목표, 시장, 시간대, 플랫폼 우선순위를 추가하세요.",
+    "createBrand": "브랜드 만들기",
     "contentTitle": "측정된 콘텐츠가 없습니다",
-    "contentBody": "게시 및 가져온 게시물이 누락 지표를 0으로 바꾸지 않고 표시됩니다.",
+    "contentBody": "게시 및 가져온 게시물은 플랫폼이 지표를 보고하는 즉시 여기에 표시됩니다.",
     "opportunitiesTitle": "근거 있는 기회가 아직 없습니다",
-    "opportunitiesBody": "충분한 측정 근거 후 추천 표시.",
+    "opportunitiesBody": "측정 근거가 충분해지면 제안이 나타납니다: 비교할 플랫폼 두 개, 게시물 5개가 있는 게시 시간대, 또는 반복 가능한 패턴. 개요의 준비 상태 목록에서 얼마나 남았는지 확인하세요.",
     "playbookTitle": "플레이북을 준비 중입니다",
-    "playbookBody": "충분한 측정 게시물 후 패턴 표시(보통 5개 이상).",
-    "createBrand": "브랜드 만들기"
+    "playbookBody": "패턴에는 그룹 안 측정 게시물 5개와 그룹 밖 5개 이상이 필요합니다. 개요의 준비 상태 목록을 확인하거나, 기회에서 첫 실행 가능한 제안을 보세요."
+  },
+  "weekdays": {
+    "Mon": "월요일",
+    "Tue": "화요일",
+    "Wed": "수요일",
+    "Thu": "목요일",
+    "Fri": "금요일",
+    "Sat": "토요일",
+    "Sun": "일요일"
   },
   "composer": {
     "title": "오디언스 적합도",
@@ -70,6 +542,7 @@
     "retry": "다시 시도",
     "failed": "분석을 안전하게 완료하지 못했습니다.",
     "reanalyze": "다시 분석",
+    "timingHint": "가장 강한 측정 구간: {bucket} (게시물 {count}개).",
     "meta": "커버리지 {coverage}% · 신뢰도 {confidence} · 관련 게시물 {sample}개",
     "coldStart": "콜드 스타트: 관련 게시물이 5개 미만입니다.",
     "unavailable": "사용 불가",
@@ -80,8 +553,7 @@
       "low": "낮음",
       "medium": "보통",
       "high": "높음"
-    },
-    "timingHint": "가장 강한 측정 구간: {bucket} (게시물 {count}개)."
+    }
   },
   "profile": {
     "objective": "목표",
@@ -98,31 +570,6 @@
     "interests": "관심사",
     "voice": "브랜드 보이스",
     "listHint": "목록에서 선택, 추가된 태그는 제거할 수 있습니다.",
-    "save": "오디언스 프로필 저장",
-    "saving": "저장 중…",
-    "saved": "오디언스 프로필이 저장되었습니다",
-    "saveFailed": "오디언스 프로필을 저장하지 못했습니다",
-    "loading": "오디언스 프로필 불러오는 중…",
-    "unavailable": "이 작업 공간에서는 오디언스 프로필이 활성화되지 않았습니다.",
-    "objectives": {
-      "awareness": "인지도",
-      "engagement": "참여",
-      "followers": "팔로워",
-      "website_traffic": "웹사이트 트래픽",
-      "leads": "리드",
-      "app_installs": "앱 설치",
-      "purchases": "구매",
-      "other": "기타"
-    },
-    "conversions": {
-      "none": "없음",
-      "website_visit": "웹사이트 방문",
-      "lead": "리드",
-      "signup": "가입",
-      "app_install": "앱 설치",
-      "purchase": "구매",
-      "custom": "사용자 지정"
-    },
     "voiceHint": "브랜드 톤을 설명하는 특성을 선택하세요.",
     "tagAdd": "목록에서 추가…",
     "tagEmpty": {
@@ -210,40 +657,42 @@
         "trustworthy": "신뢰감",
         "innovative": "혁신적"
       }
-    }
-  },
-  "errors": {
-    "unavailableTitle": "인텔리전스를 사용할 수 없습니다",
-    "unavailableBody": "이 단계가 작업 공간에 활성화되지 않았거나 불러오지 못했습니다.",
-    "retry": "다시 시도"
-  },
-  "actions": {
-    "accept": "수락",
-    "dismiss": "닫기",
-    "pin": "고정",
-    "saveFailed": "결정을 저장할 수 없습니다",
-    "acceptedToast": "수락됨, Content/캘린더에서 실행",
-    "pinnedToast": "후속 조치를 위해 고정했습니다",
-    "dismissedToast": "무시되어 목록에서 숨김",
-    "status": {
-      "accepted": "수락됨",
-      "pinned": "고정됨",
-      "dismissed": "무시됨"
+    },
+    "save": "오디언스 프로필 저장",
+    "saving": "저장 중…",
+    "saved": "오디언스 프로필이 저장되었습니다",
+    "saveFailed": "오디언스 프로필을 저장하지 못했습니다",
+    "loading": "오디언스 프로필 불러오는 중…",
+    "unavailable": "이 작업 공간에서는 오디언스 프로필이 활성화되지 않았습니다.",
+    "objectives": {
+      "awareness": "인지도",
+      "engagement": "참여",
+      "followers": "팔로워",
+      "website_traffic": "웹사이트 트래픽",
+      "leads": "리드",
+      "app_installs": "앱 설치",
+      "purchases": "구매",
+      "other": "기타"
+    },
+    "conversions": {
+      "none": "없음",
+      "website_visit": "웹사이트 방문",
+      "lead": "리드",
+      "signup": "가입",
+      "app_install": "앱 설치",
+      "purchase": "구매",
+      "custom": "사용자 지정"
     }
   },
   "alignment": {
     "title": "오디언스 정합",
-    "empty": "측정 가능한 오디언스 구성이 수집되면 정합이 표시됩니다. 없는 차원은 비워 둡니다."
-  },
-  "timing": {
-    "title": "최적 게시 시간",
-    "empty": "계정별 타이밍에는 날짜가 있는 게시물 20개와 해당 시간대의 관측 5회가 필요합니다."
-  },
-  "campaigns": {
-    "title": "캠페인",
-    "empty": "비교용 캠페인 이름. 자동 게시 없음.",
-    "name": "캠페인 이름",
-    "create": "캠페인 만들기"
+    "empty": "연결된 플랫폼이 오디언스 구성을 보고하면 정합이 표시됩니다. 없는 차원은 비워 둡니다.",
+    "dimensions": {
+      "geography": "지역",
+      "age": "연령",
+      "gender": "성별",
+      "industryInterests": "업종 및 관심사"
+    }
   },
   "experiments": {
     "title": "실험",
@@ -256,6 +705,8 @@
     "createdPaired": "실험 생성됨, 두 게시물이 예약됨",
     "createFailed": "실험을 만들 수 없습니다",
     "captionPlaceholder": "이 암의 캡션과 해시태그",
+    "mediaRequired": "이 플랫폼은 실험을 만들기 전에 두 암 모두에 미디어가 필요합니다.",
+    "mediaRequiredHint": "Instagram, TikTok, Pinterest는 각 암에 이미지 또는 동영상이 최소 하나 필요합니다.",
     "armCompose": "암 {arm}",
     "armLabel": "암 {arm}",
     "scheduleA": "A 암 예약",
@@ -269,6 +720,11 @@
     "loadingDetail": "실험 로딩 중…",
     "detailFailed": "이 실험을 불러올 수 없습니다.",
     "untitledPost": "제목 없는 게시물",
+    "untitledExperiment": "제목 없는 실험",
+    "delete": "삭제",
+    "deleteWarning": "실험, 예약된 A/B 게시물, 관련 받은편지함 결과가 Markaestro에서 제거됩니다. 플랫폼에 이미 게시된 글은 삭제되지 않습니다.",
+    "deleted": "실험이 삭제되었습니다",
+    "deleteFailed": "실험을 삭제할 수 없습니다",
     "effect": "상대 차이 {value}% (B 대 A)",
     "status": {
       "draft": "초안",
@@ -284,83 +740,37 @@
       "winner_a": "측정 지표에서 A 암이 앞섭니다.",
       "winner_b": "측정 지표에서 B 암이 앞섭니다.",
       "inconclusive": "결과가 판정 불가입니다, 더 큰 표본이나 더 분명한 차이가 필요합니다."
-    },
-    "mediaRequired": "이 플랫폼은 실험을 만들기 전에 두 암 모두에 미디어가 필요합니다.",
-    "mediaRequiredHint": "Instagram, TikTok, Pinterest는 각 암에 이미지 또는 동영상이 최소 하나 필요합니다.",
-    "untitledExperiment": "제목 없는 실험",
-    "delete": "삭제",
-    "deleted": "실험이 삭제되었습니다",
-    "deleteFailed": "실험을 삭제할 수 없습니다",
-    "deleteWarning": "실험, 예약된 A/B 게시물, 관련 받은편지함 결과가 Markaestro에서 제거됩니다. 플랫폼에 이미 게시된 글은 삭제되지 않습니다."
+    }
   },
   "ask": {
     "title": "Markaestro에게 묻기",
+    "subtitle": "답변은 이 브랜드의 측정 기록에서만 나옵니다. 각 답변은 사용한 데이터를 명시합니다.",
     "placeholder": "측정된 성과, 타이밍, 학습 내용을 물어보세요.",
     "submit": "질문",
     "asking": "근거 선택 중…",
-    "tool": "{tool} 사용",
+    "tool": "답변 출처: {tool}",
+    "evidence": "인용된 기록",
     "failed": "질문에 답할 수 없습니다. 다시 시도하세요.",
     "timeout": "시간이 너무 오래 걸렸습니다. 더 짧은 질문을 하거나 잠시 후 다시 시도하세요.",
     "quota": "이번 달 Ask Markaestro 횟수를 모두 사용했습니다. 다음 달에 다시 시도하거나 업그레이드하세요.",
-    "unavailable": "이 워크스페이스에서는 아직 Ask Markaestro를 사용할 수 없습니다."
-  },
-  "links": {
-    "title": "추적 링크",
-    "empty": "원본 IP를 저장하지 않고 클릭을 귀속할 추적 링크를 만드세요.",
-    "label": "라벨",
-    "destination": "도착 URL",
-    "create": "링크 만들기"
-  },
-  "productBar": {
-    "brand": "브랜드",
-    "noBrandSelected": "선택된 브랜드 없음",
-    "change": "변경"
-  },
-  "guide": {
-    "overview": {
-      "title": "이 탭 내용",
-      "body": "동기화된 게시물 KPI 및 플랫폼별 breakdown. 빈칸 = 미제공 지표, 0 아님."
-    },
-    "audience": {
-      "title": "브랜드 경계 설정",
-      "body": "목표, 시장, 시간대, 기둥이 Intelligence 기준."
-    },
-    "content": {
-      "title": "효과 있던 게시물에서 배우기",
-      "body": "측정 조회수 기준 상위 콘텐츠. Content에서 재사용."
-    },
-    "opportunities": {
-      "title": "다음에 시도할 것",
-      "body": "측정 기록 기반 추천. Content/캘린더에서 수동 실행."
-    },
-    "playbook": {
-      "title": "반복되는 패턴",
-      "body": "충분한 표본의 통계 학습."
-    },
-    "advanced": {
-      "title": "증거로 아이디어 테스트",
-      "body": "플랫폼별 A/B 실험을 만들고 두 게시물을 예약한 뒤 라이브로 비교하세요. 기간이 끝나면 결과가 받은편지함으로 갑니다."
+    "unavailable": "이 워크스페이스에서는 아직 Ask Markaestro를 사용할 수 없습니다.",
+    "tools": {
+      "audience_performance": "오디언스 스냅샷",
+      "audience_alignment": "오디언스 정합",
+      "top_posts": "조회수 기준 상위 게시물",
+      "pillar_performance": "콘텐츠 기둥별 성과",
+      "hook_performance": "훅별 성과",
+      "timing_performance": "요일 및 시간별 성과",
+      "drift": "오디언스 변동 이벤트",
+      "learnings": "플레이북 학습 내용",
+      "campaigns": "캠페인",
+      "platform_comparisons": "플랫폼별 비교",
+      "experiments": "실험"
     }
   },
-  "workflow": {
-    "opportunities": {
-      "title": "기회 사용법",
-      "step1": "추천과 근거 읽기.",
-      "step2": "수락, 고정 또는 무시.",
-      "step3": "Content/캘린더에서 게시·예약. 수락은 자동 생성 안 함."
-    },
-    "playbook": {
-      "title": "플레이북 사용법",
-      "step1": "각 카드는 측정 패턴(n=).",
-      "step2": "패턴 수락·고정·무시.",
-      "step3": "수락한 패턴을 작성 시 적용."
-    }
-  },
-  "decisions": {
-    "hint": "결정만 저장, 게시·예약·초안 변경 없음.",
-    "learningHint": "이 패턴을 신뢰하는지 기록.",
-    "accept": "수락, 실행 예정",
-    "pin": "고정, 나중에",
-    "dismiss": "무시, 숨김"
+  "errors": {
+    "unavailableTitle": "인텔리전스를 사용할 수 없습니다",
+    "unavailableBody": "이 단계가 작업 공간에 활성화되지 않았거나 불러오지 못했습니다.",
+    "retry": "다시 시도"
   }
 }

@@ -94,5 +94,66 @@
     "subtitle": "Commencez gratuitement. Aucune carte bancaire requise. Connectez votre premier canal en moins de deux minutes.",
     "primaryButton": "Commencer gratuitement",
     "secondaryButton": "Contacter les ventes"
+  },
+  "intelligence": {
+    "eyebrow": "Intelligence",
+    "titleLead": "Sachez quoi publier ensuite,",
+    "titleHighlight": "à partir de vos propres chiffres",
+    "subtitle": "Intelligence lit les publications que vous avez déjà publiées, conserve chaque métrique exactement comme les plateformes l’ont rapportée et transforme cet historique en réponses claires et en brouillons prêts à modifier. Rien n’est publié automatiquement.",
+    "loopTitle": "Comment ça marche",
+    "loop": [
+      {
+        "title": "Mesurer",
+        "body": "Les publications faites via Markaestro et l’historique importé de vos comptes connectés deviennent un enregistrement par publication avec les métriques rapportées par chaque plateforme. Les chiffres manquants restent vides, jamais à zéro."
+      },
+      {
+        "title": "Apprendre",
+        "body": "Des statistiques déterministes comparent vos publications par plateforme, créneau horaire, pilier de contenu, accroche et format. Un motif n’apparaît qu’avec au moins cinq publications dans le groupe et cinq en dehors, avec un intervalle à 95% sur l’effet."
+      },
+      {
+        "title": "Recommander",
+        "body": "Les opportunités transforment ces constats en étapes concrètes avec les chiffres à l’appui : un créneau qui bat votre moyenne, une plateforme qui gagne par publication, un motif qui mérite d’être répété."
+      },
+      {
+        "title": "Rédiger",
+        "body": "Rédiger un brouillon écrit une légende dans votre voix de marque à partir de vos propres preuves les plus performantes et l’enregistre dans Contenu comme un brouillon normal. Vous modifiez, ajoutez des médias et planifiez."
+      }
+    ],
+    "tabsTitle": "Ce que vous obtenez, onglet par onglet",
+    "tabs": [
+      {
+        "title": "Vue d’ensemble",
+        "body": "Bannière d’objectif, KPI mesurés, comparaison des plateformes par publication et une liste de préparation qui montre exactement quelles fonctions sont actives et combien de données il manque encore à chacune."
+      },
+      {
+        "title": "Audience",
+        "body": "Déclarez votre objectif, vos marchés, votre fuseau horaire, vos piliers et votre voix. Les liens courts suivis comptent les clics sans stocker de données personnelles et relient les conversions à la publication."
+      },
+      {
+        "title": "Contenu",
+        "body": "Vos publications classées selon la métrique choisie, les motifs détectés dans chacune et une explication Pourquoi ça a marché fondée sur les chiffres de cette publication comparés à la moyenne de votre compte."
+      },
+      {
+        "title": "Opportunités",
+        "body": "Des suggestions appuyées par des preuves que vous pouvez accepter, épingler ou écarter, chacune avec un bouton Rédiger un brouillon. Accepter ne crée ni ne planifie jamais de publication."
+      },
+      {
+        "title": "Guide",
+        "body": "Les motifs qui se répètent dans vos données avec la taille d’échantillon, l’effet et l’intervalle de confiance expliqués en mots simples, plus les publications derrière chacun."
+      },
+      {
+        "title": "Expériences et questions",
+        "body": "Des publications A/B appariées avec un gagnant mesuré, et des questions auxquelles répondent uniquement les enregistrements de cette marque, en citant les données utilisées."
+      }
+    ],
+    "principlesTitle": "Des règles qu’elle ne brise jamais",
+    "principles": [
+      "Ne publie ni ne planifie jamais seule. Chaque action est un brouillon ou une décision que vous enregistrez.",
+      "Ne remplit jamais un chiffre qu’une plateforme n’a pas rapporté. Vide veut dire vide.",
+      "N’utilise jamais les données d’autres marques ni des références génériques. Chaque affirmation vient de votre propre historique.",
+      "Dit toujours ce qui a nourri un résultat : Mesuré, Calculé, Recommandé, Déclaré ou Généré."
+    ],
+    "plans": "Audience Fit est inclus dans tous les plans. Guide, Opportunités, liens suivis et Demander à Markaestro commencent avec Pro; les Expériences avec Business. Les actions IA comme Rédiger un brouillon sont limitées par mois selon le plan.",
+    "cta": "Commencez gratuitement et connectez un canal"
   }
 }

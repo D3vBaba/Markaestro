@@ -178,7 +178,8 @@
     "toasts": {
       "captionCopied": "Légende copiée",
       "copyFailed": "Impossible de copier la légende"
-    }
+    },
+    "fromIntelligence": "Brouillon rédigé par la Veille sociale"
   },
   "platformPostsTab": {
     "refresh": "Actualiser",

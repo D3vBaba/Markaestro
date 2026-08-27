@@ -94,5 +94,66 @@
     "subtitle": "Start gratis. Geen creditcard nodig. Verbind je eerste kanaal in minder dan twee minuten.",
     "primaryButton": "Gratis aan de slag",
     "secondaryButton": "Contact met sales"
+  },
+  "intelligence": {
+    "eyebrow": "Intelligentie",
+    "titleLead": "Weet wat je hierna moet posten,",
+    "titleHighlight": "op basis van je eigen cijfers",
+    "subtitle": "Intelligentie leest de posts die je al hebt gepubliceerd, houdt elke metric precies zoals de platforms die rapporteerden en vertaalt die geschiedenis naar antwoorden in gewone taal en direct bewerkbare concepten. Niets publiceert automatisch.",
+    "loopTitle": "Hoe het werkt",
+    "loop": [
+      {
+        "title": "Meten",
+        "body": "Posts gepubliceerd via Markaestro en historie geïmporteerd uit je gekoppelde accounts worden één record per post met de statistieken die elk platform rapporteerde. Ontbrekende cijfers blijven leeg, nooit nul."
+      },
+      {
+        "title": "Leren",
+        "body": "Deterministische statistiek vergelijkt je posts per platform, tijdslot, contentpijler, openingszin en format. Een patroon verschijnt pas met minstens vijf posts in de groep en vijf erbuiten, met een 95%-bereik voor het effect."
+      },
+      {
+        "title": "Aanbevelen",
+        "body": "Kansen vertalen die bevindingen naar concrete volgende stappen met de cijfers erachter: een tijdvak dat je gemiddelde verslaat, een platform dat per post wint, een patroon dat het herhalen waard is."
+      },
+      {
+        "title": "Opstellen",
+        "body": "Maak concept schrijft een caption in je merkstem op basis van je eigen best presterende bewijs en slaat die op in Content als gewoon concept. Jij bewerkt, voegt media toe en plant in."
+      }
+    ],
+    "tabsTitle": "Wat je krijgt, tab voor tab",
+    "tabs": [
+      {
+        "title": "Overzicht",
+        "body": "Doelbanner, gemeten KPI's, platformvergelijking per post en een gereedheidslijst die precies laat zien welke functies actief zijn en hoeveel gegevens elke functie nog nodig heeft."
+      },
+      {
+        "title": "Doelgroep",
+        "body": "Geef je doel, markten, tijdzone, pijlers en stem op. Getraceerde korte links tellen klikken zonder persoonsgegevens op te slaan en koppelen conversies terug aan de post."
+      },
+      {
+        "title": "Content",
+        "body": "Je posts gerangschikt op de metric die je koos, de patronen die in elke post zijn herkend en een uitleg Waarom het werkte, gebaseerd op de cijfers van die post tegenover je accountgemiddelde."
+      },
+      {
+        "title": "Kansen",
+        "body": "Onderbouwde suggesties die je kunt accepteren, pinnen of negeren, elk met een knop Maak concept. Accepteren maakt of plant nooit een post."
+      },
+      {
+        "title": "Draaiboek",
+        "body": "Patronen die zich in je gegevens herhalen, met steekproefgrootte, effect en betrouwbaarheidsbereik in gewone woorden, plus de posts achter elk patroon."
+      },
+      {
+        "title": "Experimenten en Ask",
+        "body": "Gepaarde A/B-posts met een gemeten winnaar, en vragen die alleen uit de gegevens van dit merk worden beantwoord, met vermelding van de gebruikte data."
+      }
+    ],
+    "principlesTitle": "Regels die het nooit breekt",
+    "principles": [
+      "Publiceert of plant nooit uit zichzelf. Elke actie is een concept of een beslissing die jij vastlegt.",
+      "Vult nooit een cijfer in dat een platform niet heeft gerapporteerd. Leeg betekent leeg.",
+      "Gebruikt nooit gegevens van andere merken of generieke benchmarks. Elke claim komt uit je eigen geschiedenis.",
+      "Zegt altijd wat een resultaat heeft gevoed: Gemeten, Berekend, Aanbevolen, Opgegeven of Gegenereerd."
+    ],
+    "plans": "Audience Fit zit in elk abonnement. Draaiboek, Kansen, getraceerde links en Ask Markaestro beginnen bij Pro; Experimenten bij Business. AI-acties zoals Maak concept worden per maand geteld, afhankelijk van je abonnement.",
+    "cta": "Begin gratis en koppel een kanaal"
   }
 }

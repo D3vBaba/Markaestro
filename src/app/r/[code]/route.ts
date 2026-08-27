@@ -1,6 +1,6 @@
 import { after, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
-import { appendClickId, createClickId } from '@/lib/intelligence/conversions';
+import { appendClickId, createClickId, recordTrackedLinkClick } from '@/lib/intelligence/conversions';
 
 export const runtime = 'nodejs';
 
@@ -32,6 +32,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
       consentState: req.headers.get('sec-gpc') === '1' ? 'limited' : 'unknown',
       // Deliberately no raw IP, user-agent, or referrer.
     });
+    await recordTrackedLinkClick({ workspaceId: String(data.workspaceId), code, clickedAt }).catch(() => undefined);
   });
   return NextResponse.redirect(destination, 302);
 }
