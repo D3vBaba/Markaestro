@@ -226,7 +226,7 @@ function PlatformPostCard({
   };
 
   return (
-    <div className="group border border-border/50 rounded-xl overflow-hidden bg-card hover:border-border/80 hover:shadow-sm transition-all flex flex-col">
+    <div className="group border border-border/50 rounded-xl overflow-hidden bg-card hover:border-border/80 hover:shadow-xs transition-[border-color,box-shadow] flex flex-col">
       {/* Header row */}
       <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border/30">
         <div className="flex items-center gap-2 min-w-0">
@@ -469,7 +469,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
         />
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
               <PlatformPostCard
                 key={post.externalId}

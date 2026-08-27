@@ -10,28 +10,23 @@ export default function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-6 sm:mb-7 flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4">
+    <div className="mb-6 sm:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div className="min-w-0 flex-1">
-        <h1
-          className="text-[22px] sm:text-[26px] font-semibold m-0"
-          style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
-        >
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-balance text-slate-900 dark:text-slate-50 m-0">
           {title}
         </h1>
         {subtitle && (
-          <p
-            className="mt-1 text-[13px] sm:text-[13.5px]"
-            style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-          >
+          <p className="mt-1 text-sm text-pretty text-slate-500 dark:text-slate-400">
             {subtitle}
           </p>
         )}
       </div>
       {action ? (
-        <div className="flex items-center gap-2 flex-wrap md:flex-nowrap md:shrink-0">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
           {action}
         </div>
       ) : null}
     </div>
   );
 }
+

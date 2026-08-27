@@ -237,6 +237,7 @@ async function fetchThreadsMetrics(
 
   const metrics = emptyMetrics();
   metrics.views = metricNum(values.views);
+  metrics.impressions = metrics.views;
   metrics.likes = metricNum(values.likes);
   metrics.comments = metricNum(values.replies);
   // `reposts` is the reshare-equivalent; direct `shares` (sends) stay in raw.

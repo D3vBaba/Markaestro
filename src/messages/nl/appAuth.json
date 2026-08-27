@@ -7,14 +7,14 @@
       "titleLine2Accent": "één login.",
       "subtitle": "Stop met inloggen op vijf apps om één keer te posten. Log in om overal te publiceren, weken vooruit te plannen en je tijd terug te krijgen.",
       "points": {
-        "publish": { "title": "Publiceer overal tegelijk", "desc": "Facebook, Instagram, TikTok en meer — vanuit één editor." },
+        "publish": { "title": "Publiceer overal tegelijk", "desc": "Facebook, Instagram, TikTok en meer, vanuit één editor." },
         "schedule": { "title": "Plan weken vooruit", "desc": "Stel je ritme één keer in en blijf altijd actief." },
         "hours": { "title": "Elke week uren terugwinnen", "desc": "Het kopiëren, plakken en inloggen verdwijnt gewoon." }
       },
       "newHere": {
         "title": "Nieuw bij Markaestro?",
-        "body": "Beantwoord 10 korte vragen en we stellen je publicatieplan samen — ontdek gratis hoeveel uur je terugwint.",
-        "cta": "Mijn plan maken — gratis →"
+        "body": "Beantwoord 10 korte vragen en we stellen je publicatieplan samen, ontdek gratis hoeveel uur je terugwint.",
+        "cta": "Mijn plan maken, gratis →"
       }
     },
     "form": {
@@ -22,7 +22,7 @@
       "eyebrowCode": "Controleer je inbox",
       "titleEmail": "Doorgaan met je e-mail",
       "titleCode": "Voer je code in",
-      "subtitleEmail": "Geen wachtwoord nodig — we e-mailen je een eenmalige code. Nieuw hier? Dezelfde code maakt je account aan.",
+      "subtitleEmail": "Geen wachtwoord nodig, we e-mailen je een eenmalige code. Nieuw hier? Dezelfde code maakt je account aan.",
       "subtitleCode": "We hebben een 6-cijferige code gestuurd naar <email></email>.",
       "emailPlaceholder": "naam@bedrijf.com",
       "codePlaceholder": "123456",

@@ -8,6 +8,7 @@
     "items": {
       "dashboard": "Dashboard",
       "analytics": "Analysen",
+      "intelligence": "Inhaltsintelligenz",
       "brands": "Marken",
       "posts": "Beiträge",
       "calendar": "Kalender",
@@ -60,16 +61,16 @@
   },
   "verifyEmailBanner": {
     "prompt": "Bestätige deine E-Mail-Adresse, um zu veröffentlichen",
-    "promptWithCode": " — gib den Code ein, den wir an <emailTag>{email}</emailTag> gesendet haben",
+    "promptWithCode": ", gib den Code ein, den wir an <emailTag>{email}</emailTag> gesendet haben",
     "sendCode": "Code senden",
     "resendCode": "Code erneut senden",
     "resendCountdown": "Erneut senden ({seconds}s)",
     "sending": "Wird gesendet…",
     "verify": "Bestätigen",
     "verifying": "Wird bestätigt…",
-    "codeSent": "Code gesendet — überprüfe deinen Posteingang und Spam-Ordner.",
+    "codeSent": "Code gesendet, überprüfe deinen Posteingang und Spam-Ordner.",
     "sendError": "Konnte gerade nicht gesendet werden. Versuche es in einer Minute erneut.",
-    "verified": "E-Mail bestätigt — alles bereit."
+    "verified": "E-Mail bestätigt, alles bereit."
   },
   "localeSwitcher": {
     "label": "Sprache",
@@ -92,5 +93,9 @@
     "declined": "Einladung zu {workspaceName} abgelehnt",
     "acceptError": "Einladung konnte nicht angenommen werden. Bitte erneut versuchen.",
     "declineError": "Einladung konnte nicht abgelehnt werden. Bitte erneut versuchen."
+  },
+  "inbox": {
+    "title": "Posteingang",
+    "empty": "Noch keine Benachrichtigungen."
   }
 }

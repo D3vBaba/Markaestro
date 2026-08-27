@@ -34,7 +34,8 @@
       "integration": "Integration",
       "post": "Beitrag",
       "workspace": "Arbeitsbereich",
-      "account": "Konto"
+      "account": "Konto",
+      "experiment": "Experiment"
     },
     "titleGeneric": "{entity} löschen",
     "titleNamed": "{entity} löschen?",
@@ -86,8 +87,8 @@
         "activeLabel": "Dein Markenprofil wird erstellt…"
       }
     },
-    "scanComplete": "Scan abgeschlossen — unten prüfen und bestätigen",
-    "scanFailed": "Scan fehlgeschlagen — bitte manuell ausfüllen",
+    "scanComplete": "Scan abgeschlossen, unten prüfen und bestätigen",
+    "scanFailed": "Scan fehlgeschlagen, bitte manuell ausfüllen",
     "researching": "Deine Marke wird recherchiert…"
   },
   "platformPreview": {

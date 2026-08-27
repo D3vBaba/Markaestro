@@ -33,29 +33,23 @@ export function KpiCard({
 }) {
   const locale = useLocale();
   const display = value === null
-    ? "—"
+    ? "n/a"
     : format === "percent"
       ? `${(value * 100).toFixed(1)}%`
       : fmtCount(value, locale);
 
   return (
-    <div
-      className="rounded-xl p-3 sm:p-4 min-w-0"
-      style={{ background: "var(--mk-paper)", border: "1px solid var(--mk-rule)" }}
-    >
-      <div className="mk-eyebrow">{label}</div>
+    <div className="rounded-2xl p-4 sm:p-5 min-w-0 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+      <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{label}</div>
       {loading ? (
-        <>
-          <Skeleton className="mt-2 sm:mt-2.5 h-7 sm:h-8 w-16" />
-          <Skeleton className="mt-1.5 h-3 w-24" />
-        </>
+        <div className="mt-3 space-y-2">
+          <Skeleton className="h-8 w-20 rounded-lg" />
+          <Skeleton className="h-3 w-28 rounded-md" />
+        </div>
       ) : (
         <>
-          <div className="mt-1.5 sm:mt-2 flex items-baseline gap-2 flex-wrap">
-            <span
-              className="text-[22px] sm:text-[26px] font-semibold mk-figure"
-              style={{ color: "var(--mk-ink)" }}
-            >
+          <div className="mt-2 flex items-baseline gap-2 flex-wrap">
+            <span className="text-2xl sm:text-3xl font-semibold tracking-tight tabular-nums text-slate-900 dark:text-slate-50">
               {display}
             </span>
             {deltaPct !== undefined && deltaPct !== null && value !== null && (
@@ -63,26 +57,25 @@ export function KpiCard({
             )}
             {deltaAbsolute !== undefined && deltaAbsolute !== null && value !== null && (
               <span
-                className="font-mono text-[11px]"
-                style={{
-                  color: deltaAbsolute === 0
-                    ? "var(--mk-ink-40)"
-                    : deltaAbsolute > 0 ? "var(--mk-pos)" : "var(--mk-neg)",
-                }}
+                className={`tabular-nums text-xs font-semibold ${
+                  deltaAbsolute === 0
+                    ? "text-slate-400"
+                    : deltaAbsolute > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                }`}
               >
                 {deltaAbsolute > 0 ? "▲" : deltaAbsolute < 0 ? "▼" : "·"} {fmtCount(Math.abs(deltaAbsolute), locale)}
               </span>
             )}
           </div>
           {spark && spark.length > 1 && value !== null && (
-            <div className="mt-2">
-              <Spark data={spark} height={22} color="var(--mk-ink-40)" />
+            <div className="mt-3">
+              <Spark data={spark} height={24} color="#2563eb" />
             </div>
           )}
+
           {sub && (
             <div
-              className="mt-1 text-[10.5px] sm:text-[11px] font-mono truncate"
-              style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
+              className="mt-1.5 text-xs text-slate-400 font-medium truncate"
               title={sub}
             >
               {sub}
@@ -93,3 +86,4 @@ export function KpiCard({
     </div>
   );
 }
+

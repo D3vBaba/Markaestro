@@ -23,7 +23,7 @@
       "title": "你的角色是什么？",
       "subtitle": "我们会根据你实际的工作方式定制一切。",
       "options": {
-        "founder": { "label": "创始人 / CEO", "desc": "身兼数职 — 包括营销" },
+        "founder": { "label": "创始人 / CEO", "desc": "身兼数职，包括营销" },
         "marketer": { "label": "营销人员", "desc": "负责所有渠道的内容" },
         "agency": { "label": "代理机构 / 自由职业者", "desc": "同时兼顾多个客户的发布内容" },
         "creator": { "label": "内容创作者", "desc": "打造只属于你自己的受众" }
@@ -52,7 +52,7 @@
     "channels": {
       "eyebrow": "你所在的阶段",
       "title": "你的受众在哪里？",
-      "subtitle": "选择所有符合的选项 — 你可以一键发布到每一个渠道。",
+      "subtitle": "选择所有符合的选项，你可以一键发布到每一个渠道。",
       "options": {
         "instagram": { "label": "Instagram" },
         "facebook": { "label": "Facebook" },
@@ -98,7 +98,7 @@
     "contentTypes": {
       "eyebrow": "你的风格",
       "title": "你想发布什么内容？",
-      "subtitle": "选择所有符合的选项 — 我们会帮你填满内容日历。",
+      "subtitle": "选择所有符合的选项，我们会帮你填满内容日历。",
       "options": {
         "product": { "label": "产品与促销" },
         "educational": { "label": "小贴士与知识科普" },
@@ -109,7 +109,7 @@
     "hoursPerWeek": {
       "eyebrow": "隐藏的成本",
       "title": "每周有多少小时消耗在这上面？",
-      "subtitle": "请诚实回答 — 实际耗时几乎总是比感觉的更多。",
+      "subtitle": "请诚实回答，实际耗时几乎总是比感觉的更多。",
       "options": {
         "lt2": { "label": "不到2小时" },
         "2to5": { "label": "2–5小时" },
@@ -133,7 +133,7 @@
     "consistency": {
       "short": "保持持续更新",
       "headline": "你再也不会沉寂下去",
-      "line": "一次性排好几周的发布计划 — Markaestro 每次都准时发布，沉寂就此结束。"
+      "line": "一次性排好几周的发布计划，Markaestro 每次都准时发布，沉寂就此结束。"
     },
     "time": {
       "short": "挤出时间",
@@ -143,39 +143,39 @@
     "ideas": {
       "short": "构思内容",
       "headline": "你的内容日历不会再枯竭",
-      "line": "把一个灵感变成每个渠道整整一周的发布内容 — 再也不用对着空白屏幕发呆。"
+      "line": "把一个灵感变成每个渠道整整一周的发布内容，再也不用对着空白屏幕发呆。"
     },
     "juggling": {
       "short": "兼顾多个渠道",
       "headline": "所有渠道汇聚一处",
-      "line": "只需创作一次，即可从单一界面发布到你所有的平台 — 不再需要来回切换标签页，也不再有漏发的帖子。"
+      "line": "只需创作一次，即可从单一界面发布到你所有的平台，不再需要来回切换标签页，也不再有漏发的帖子。"
     }
   },
   "marketingCopy": {
     "product": {
       "eyebrow": "你的产品",
       "title": "添加你正在推广的产品",
-      "sub": "扫描你的网站以自动填充详情，或手动添加，或暂时跳过 — 你随时都可以稍后再完成。"
+      "sub": "扫描你的网站以自动填充详情，或手动添加，或暂时跳过，你随时都可以稍后再完成。"
     },
     "business": {
       "eyebrow": "你的业务",
       "title": "添加你正在推广的业务",
-      "sub": "扫描你的网站以自动填充详情，或手动添加，或暂时跳过 — 你随时都可以稍后再完成。"
+      "sub": "扫描你的网站以自动填充详情，或手动添加，或暂时跳过，你随时都可以稍后再完成。"
     },
     "personal": {
       "eyebrow": "你的品牌",
       "title": "设置你的个人品牌",
-      "sub": "有网站或作品集吗？扫描即可自动填充。没有网站？手动输入你的详情 — 只需一分钟。"
+      "sub": "有网站或作品集吗？扫描即可自动填充。没有网站？手动输入你的详情，只需一分钟。"
     },
     "clients": {
       "eyebrow": "你的第一位客户",
       "title": "添加你第一位客户的品牌",
-      "sub": "先从一位客户开始 — 扫描其网站自动填充，或手动输入详情。你可以随时添加更多品牌。"
+      "sub": "先从一位客户开始，扫描其网站自动填充，或手动输入详情。你可以随时添加更多品牌。"
     },
     "fallback": {
       "eyebrow": "你的品牌",
       "title": "添加你正在推广的品牌",
-      "sub": "扫描你的网站以自动填充详情，或手动添加，或暂时跳过 — 你随时都可以稍后再完成。"
+      "sub": "扫描你的网站以自动填充详情，或手动添加，或暂时跳过，你随时都可以稍后再完成。"
     }
   },
   "socialProviders": {
@@ -207,7 +207,7 @@
     "yourPlanIsReady": "你的套餐已准备就绪",
     "titleEmail": "保存你的套餐，找回你的时间",
     "titleCode": "请查看你的收件箱",
-    "subtitleEmail": "无需密码 — 输入你的邮箱，我们会发送一次性验证码。已有账户？同一个验证码即可登录。",
+    "subtitleEmail": "无需密码，输入你的邮箱，我们会发送一次性验证码。已有账户？同一个验证码即可登录。",
     "subtitleCode": "我们已向 {email} 发送了一个6位验证码。",
     "waitingInWorkspace": "正在你的工作区中等待",
     "recap": {
@@ -220,7 +220,7 @@
     "emailPlaceholder": "name@company.com",
     "codePlaceholder": "123456",
     "sendingCode": "正在发送验证码…",
-    "claimPlan": "领取我的套餐 — 完全免费",
+    "claimPlan": "领取我的套餐，完全免费",
     "verifying": "正在验证…",
     "continueBtn": "继续",
     "useDifferentEmail": "← 使用其他邮箱",
@@ -260,7 +260,7 @@
     "optional": "（可选）",
     "manualDescPlaceholder": "描述这个品牌以及它面向的人群……",
     "saving": "正在保存…",
-    "couldntSaveBrand": "未能保存你的品牌 — 你可以稍后从仪表盘中添加。"
+    "couldntSaveBrand": "未能保存你的品牌，你可以稍后从仪表盘中添加。"
   },
   "socials": {
     "connectYourAccounts": "连接你的账户",
@@ -283,10 +283,10 @@
   "paywall": {
     "youllGetBackPrefix": "你将大约找回",
     "hoursAWeek": "小时／周",
-    "startTrialSuffix": "开始你的{days}天免费试用，即可发布内容 — 以及你创建的其他一切。",
+    "startTrialSuffix": "开始你的{days}天免费试用，即可发布内容，以及你创建的其他一切。",
     "firstPostReady": "你的第一篇帖子已在仪表盘中准备就绪。",
     "subscribeToPublish": "订阅后即可发布",
-    "postReadyOneStepAway": "你的帖子已就绪 — 只差最后一步",
+    "postReadyOneStepAway": "你的帖子已就绪，只差最后一步",
     "justNow": "刚刚",
     "like": "赞",
     "comment": "评论",
@@ -295,7 +295,7 @@
     "basedOnAnswers": "基于你的回答",
     "monthly": "按月",
     "annual": "按年",
-    "saveAnnual": "— 节省17%",
+    "saveAnnual": "· 节省17%",
     "saveAnnualShort": "· −17%",
     "selected": "已选择",
     "perMonth": "/月",
@@ -305,7 +305,7 @@
     "billedAnnually": "，按年计费",
     "annualSavingsNote": "按年计费比按月计费节省17%",
     "settingUp": "正在设置…",
-    "startTrialButton": "开始{days}天免费试用 — {plan}",
+    "startTrialButton": "开始{days}天免费试用，{plan}",
     "cardRequired": "需要绑定银行卡 · 试用期结束前可随时取消",
     "checkoutFailed": "无法发起结账，请重试。",
     "checkoutSignedOut": "登录状态已失效，请重新登录以开始试用。",

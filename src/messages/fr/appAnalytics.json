@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Analytique",
-    "subtitle": "Ce que vos publications ont rapporté — mesuré à partir des données propres à chaque plateforme.",
+    "subtitle": "Ce que vos publications ont rapporté, mesuré à partir des données propres à chaque plateforme.",
     "refresh": {
       "idle": "Actualiser",
       "refreshing": "Actualisation…",
@@ -20,7 +20,7 @@
       "brandTitle": "Filtrer par marque",
       "rangeTitle": "{label} derniers",
       "rangeLockedTitle": "La période de {label} nécessite un forfait supérieur",
-      "windowNote": "Affichage de {days} jours — la fenêtre d'analyse de votre forfait."
+      "windowNote": "Affichage de {days} jours, la fenêtre d'analyse de votre forfait."
     },
     "error": {
       "message": "Impossible de charger l'analytique.",
@@ -29,10 +29,10 @@
     "emptyState": {
       "eyebrow": "Aucune donnée pour l'instant",
       "title": "Publiez votre premier post pour commencer à mesurer",
-      "body": "Une fois qu'un post est publié, Markaestro récupère ses vues, sa portée et son engagement depuis la plateforme en environ une heure — et continue le suivi pendant 30 jours. Le nombre d'abonnés est enregistré chaque jour pour chaque canal connecté.",
+      "body": "Une fois qu'un post est publié, Markaestro récupère ses vues, sa portée et son engagement depuis la plateforme en environ une heure, et continue le suivi pendant 30 jours. Le nombre d'abonnés est enregistré chaque jour pour chaque canal connecté.",
       "createPost": "Créer un post"
     },
-    "warmingUp": "Collecte des métriques en cours — les premiers relevés arrivent environ une heure après la publication, puis sont actualisés selon une fréquence décroissante pendant 30 jours.",
+    "warmingUp": "Collecte des métriques en cours, les premiers relevés arrivent environ une heure après la publication, puis sont actualisés selon une fréquence décroissante pendant 30 jours.",
     "kpis": {
       "views": { "label": "Vues", "sub": "vs période précédente" },
       "reach": { "label": "Portée", "sub": "comptes uniques atteints" },
@@ -57,14 +57,14 @@
     "channels": { "eyebrow": "Canaux", "title": "Performance par canal" },
     "posts": { "eyebrow": "Posts", "title": "Meilleurs posts" },
     "provenance": {
-      "base": "Les métriques utilisent les définitions de l'API de chaque plateforme et peuvent accuser jusqu'à 48 heures de retard par rapport aux statistiques natives. Un « — » signifie que la plateforme ne fournit pas cette métrique (par exemple, Threads et TikTok ne communiquent pas la portée). Le taux d'engagement correspond à l'engagement ÷ la portée.",
+      "base": "Les métriques utilisent les définitions de l'API de chaque plateforme et peuvent accuser jusqu'à 48 heures de retard par rapport aux statistiques natives. Un « : » signifie que la plateforme ne fournit pas cette métrique (par exemple, Threads et TikTok ne communiquent pas la portée). Le taux d'engagement correspond à l'engagement ÷ la portée.",
       "truncated": " Les vues par post se basent sur les {count} posts les plus récents de cette période.",
       "lastUpdate": " Dernière mise à jour des métriques : {date}."
     },
     "toasts": {
       "updated": "{count, plural, one {# post mis à jour depuis la source} other {# posts mis à jour depuis la source}}",
       "noNewMetrics": "Aucune nouvelle métrique disponible depuis la plateforme",
-      "tooManyRefreshes": "Trop d'actualisations — réessayez dans une minute.",
+      "tooManyRefreshes": "Trop d'actualisations, réessayez dans une minute.",
       "pullFailed": "Impossible de récupérer les données en direct. Affichage des derniers chiffres enregistrés.",
       "exportFailed": "Échec de l'export. Veuillez réessayer."
     }
@@ -78,7 +78,7 @@
   },
   "trendChart": {
     "noData": "Aucune donnée pour cette période pour l'instant.",
-    "followerHistoryBuilds": "L'historique des abonnés se construit à partir de relevés quotidiens — la tendance apparaît après quelques jours de données.",
+    "followerHistoryBuilds": "L'historique des abonnés se construit à partir de relevés quotidiens, la tendance apparaît après quelques jours de données.",
     "followersSeriesName": "Abonnés"
   },
   "channelTable": {

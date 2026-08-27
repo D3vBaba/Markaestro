@@ -42,12 +42,12 @@
   },
   "productCard": {
     "noChannelsConnected": "Geen kanalen verbonden",
-    "reconnectNeeded": "{label} — opnieuw verbinden nodig",
+    "reconnectNeeded": "{label}, opnieuw verbinden nodig",
     "deleteBrand": "Merk verwijderen"
   },
   "page": {
     "title": "Merken",
-    "subtitle": "Alles wat je promoot — producten, bedrijven, klanten of jezelf.",
+    "subtitle": "Alles wat je promoot, producten, bedrijven, klanten of jezelf.",
     "addBrand": "Merk toevoegen",
     "filters": {
       "all": "Alle",
@@ -69,10 +69,10 @@
     "deleteWarning": "Alle merkstem-instellingen voor dit merk worden ook verwijderd.",
     "toasts": {
       "connected": "{provider} verbonden",
-      "declinedPermission": "{provider}: je hebt het toestemmingsverzoek geweigerd — tik op Verbinden om het opnieuw te proberen.",
+      "declinedPermission": "{provider}: je hebt het toestemmingsverzoek geweigerd, tik op Verbinden om het opnieuw te proberen.",
       "connectionFailed": "Verbinding met {provider} mislukt. Probeer het opnieuw.",
       "unknownError": "Onbekende fout",
-      "almostDone": "Bijna klaar — kies een Facebook-pagina in Kanalen om de Meta-instelling af te ronden",
+      "almostDone": "Bijna klaar, kies een Facebook-pagina in Kanalen om de Meta-instelling af te ronden",
       "deleteFailed": "Merk verwijderen mislukt",
       "deleted": "Merk verwijderd"
     }
@@ -83,7 +83,7 @@
     "descriptions": {
       "start": "Begin met het scannen van je website of voer de gegevens handmatig in.",
       "scan": "Je merk wordt onderzocht…",
-      "manual": "Vul de essentiële gegevens in — je kunt later meer toevoegen.",
+      "manual": "Vul de essentiële gegevens in, je kunt later meer toevoegen.",
       "review": "Bekijk wat we gevonden hebben, pas alles aan en sla op."
     },
     "scanCard": {
@@ -104,7 +104,7 @@
       "retry": "Scan opnieuw proberen",
       "enterManually": "Handmatig invoeren"
     },
-    "scanComplete": "Scan voltooid — bekijk en bewerk hieronder wat je wilt.",
+    "scanComplete": "Scan voltooid, bekijk en bewerk hieronder wat je wilt.",
     "fields": {
       "brandName": "Merknaam",
       "brandNamePlaceholder": "DripCheckr",
@@ -127,13 +127,16 @@
       "nameRequired": "Naam is verplicht",
       "createFailed": "Merk aanmaken mislukt",
       "brandAdded": "Merk toegevoegd"
-    }
+    },
+    "audienceSetup": "Doelgroep-profiel",
+    "audienceSetupBody": "Stel doel, primaire markt, conversie-actie, tijdzone en platformprioriteit in. Geavanceerde velden staan in de merkinstellingen."
   },
   "detailSheet": {
     "sections": {
       "foundation": "Basis",
       "identity": "Identiteit",
-      "channels": "Kanalen"
+      "channels": "Kanalen",
+      "audience": "Doelgroep"
     },
     "brandFallback": "Merk",
     "saveIndicator": {
@@ -147,7 +150,7 @@
     "edit": "Bewerken",
     "deleteBrand": "Merk verwijderen",
     "deleteWarning": "Alle instellingen en kanaalverbindingen van dit merk worden ook verwijderd.",
-    "disconnectWarning": "Dit verwijdert elk {label}-account dat aan dit merk is gekoppeld. Andere merken behouden hun eigen verbindingen. Om slechts één account te wisselen, gebruik in plaats daarvan Ontkoppelen ernaast — en om de toegang te vernieuwen, gebruik Opnieuw verbinden in plaats van te verbreken.",
+    "disconnectWarning": "Dit verwijdert elk {label}-account dat aan dit merk is gekoppeld. Andere merken behouden hun eigen verbindingen. Om slechts één account te wisselen, gebruik in plaats daarvan Ontkoppelen ernaast, en om de toegang te vernieuwen, gebruik Opnieuw verbinden in plaats van te verbreken.",
     "disconnect": "Verbinding verbreken",
     "unsavedConfirm": "Je hebt niet-opgeslagen wijzigingen. Sluiten zonder op te slaan?",
     "toasts": {

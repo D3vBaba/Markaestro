@@ -10,7 +10,7 @@
     "title": "Votre code de connexion",
     "bodyIntro": "Utilisez ce code pour vous connecter en tant que <strong>{email}</strong> :",
     "fallbackAccount": "votre compte",
-    "expiryNote": "Le code expire dans 10 minutes. Ne le partagez avec personne — Markaestro ne vous le demandera jamais.",
+    "expiryNote": "Le code expire dans 10 minutes. Ne le partagez avec personne : Markaestro ne vous le demandera jamais.",
     "footerNote": "Si vous n'avez pas essayé de vous connecter, vous pouvez ignorer cet e-mail. Sans le code, personne ne peut accéder à votre compte.",
     "plain": {
       "heading": "Votre code de connexion Markaestro",
@@ -41,12 +41,12 @@
     "bodyIntro": "Quelqu'un a demandé à changer l'e-mail de ce compte Markaestro :",
     "fromToLabel": "De → À",
     "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
-    "bodyOutro": "Si c'était vous, finalisez la confirmation avec le code envoyé à la <strong>nouvelle adresse</strong>. Si ce n'était pas vous, votre e-mail n'a pas changé — mais contactez le support immédiatement.",
+    "bodyOutro": "Si c'était vous, finalisez la confirmation avec le code envoyé à la <strong>nouvelle adresse</strong>. Si ce n'était pas vous, votre e-mail n'a pas changé, mais contactez le support immédiatement.",
     "footerNote": "Cet avis a été envoyé car un changement a été demandé pour votre compte.",
     "plain": {
       "heading": "Changement d'e-mail demandé sur Markaestro",
       "changeSummary": "{oldEmail} -> {newEmail}",
-      "warning": "Si ce n'était pas vous, votre e-mail n'a pas changé — contactez le support immédiatement."
+      "warning": "Si ce n'était pas vous, votre e-mail n'a pas changé, contactez le support immédiatement."
     }
   },
   "manualPostReminder": {
@@ -63,7 +63,7 @@
   "tiktokInbox": {
     "subjectWithBrand": "Finalisez votre publication TikTok pour {brandName}",
     "subjectNoBrand": "Finalisez votre publication TikTok",
-    "preheader": "Votre vidéo attend dans l'application TikTok — ouvrez-la pour la publier.",
+    "preheader": "Votre vidéo attend dans l'application TikTok, ouvrez-la pour la publier.",
     "bodyIntroWithBrand": "Votre vidéo a été téléversée et attend dans votre boîte de réception TikTok pour <strong>{brandName}</strong>. TikTok exige que la publication finale se fasse depuis son application, elle n'est donc pas encore en ligne.",
     "bodyIntroNoBrand": "Votre vidéo a été téléversée et attend dans votre boîte de réception TikTok. TikTok exige que la publication finale se fasse depuis son application, elle n'est donc pas encore en ligne.",
     "toPublishLabel": "Pour la publier",
@@ -88,7 +88,7 @@
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> vous a invité(e) à rejoindre l'espace de travail <strong>{workspaceName}</strong> sur Markaestro {roleLabel}.",
     "bodyIntroNoInviter": "Un coéquipier vous a invité(e) à rejoindre l'espace de travail <strong>{workspaceName}</strong> sur Markaestro {roleLabel}.",
     "signInInstructions": "Connectez-vous (ou créez un compte) avec cette adresse e-mail, puis acceptez l'invitation depuis la bannière dans l'application :",
-    "declineNote": "Vous ne souhaitez pas rejoindre ? Refusez l'invitation dans l'application, ou ne faites simplement rien — l'invitation expirera après 30 jours.",
+    "declineNote": "Vous ne souhaitez pas rejoindre ? Refusez l'invitation dans l'application, ou ne faites simplement rien, l'invitation expirera après 30 jours.",
     "roleLabels": {
       "admin": "en tant qu'administrateur",
       "member": "en tant que membre",

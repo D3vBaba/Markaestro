@@ -145,10 +145,16 @@ export function apiGet<T = unknown>(path: string, wsId?: string) {
 }
 
 /** POST shortcut with workspace ID. */
-export function apiPost<T = unknown>(path: string, body: unknown, wsId?: string) {
+export function apiPost<T = unknown>(
+  path: string,
+  body: unknown,
+  wsId?: string,
+  options?: { timeoutMs?: number },
+) {
   return apiFetch<T>(withWorkspaceQuery(path, wsId), {
     method: 'POST',
     body: JSON.stringify(body),
+    timeoutMs: options?.timeoutMs,
   });
 }
 
@@ -156,6 +162,14 @@ export function apiPost<T = unknown>(path: string, body: unknown, wsId?: string)
 export function apiPut<T = unknown>(path: string, body: unknown, wsId?: string) {
   return apiFetch<T>(withWorkspaceQuery(path, wsId), {
     method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
+/** PATCH shortcut with workspace ID. */
+export function apiPatch<T = unknown>(path: string, body: unknown, wsId?: string) {
+  return apiFetch<T>(withWorkspaceQuery(path, wsId), {
+    method: 'PATCH',
     body: JSON.stringify(body),
   });
 }

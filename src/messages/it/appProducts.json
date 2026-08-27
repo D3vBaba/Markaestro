@@ -42,12 +42,12 @@
   },
   "productCard": {
     "noChannelsConnected": "Nessun canale collegato",
-    "reconnectNeeded": "{label} — riconnessione necessaria",
+    "reconnectNeeded": "{label}, riconnessione necessaria",
     "deleteBrand": "Elimina brand"
   },
   "page": {
     "title": "Brand",
-    "subtitle": "Tutto ciò che promuovi — prodotti, attività, clienti o te stesso.",
+    "subtitle": "Tutto ciò che promuovi, prodotti, attività, clienti o te stesso.",
     "addBrand": "Aggiungi brand",
     "filters": {
       "all": "Tutti",
@@ -69,10 +69,10 @@
     "deleteWarning": "Verranno rimosse anche tutte le impostazioni di voice del brand per questo brand.",
     "toasts": {
       "connected": "{provider} connesso",
-      "declinedPermission": "{provider}: hai rifiutato la richiesta di autorizzazione — tocca Connetti per riprovare.",
+      "declinedPermission": "{provider}: hai rifiutato la richiesta di autorizzazione, tocca Connetti per riprovare.",
       "connectionFailed": "Connessione a {provider} non riuscita. Riprova.",
       "unknownError": "Errore sconosciuto",
-      "almostDone": "Quasi fatto — scegli una pagina Facebook in Canali per completare la configurazione di Meta",
+      "almostDone": "Quasi fatto, scegli una pagina Facebook in Canali per completare la configurazione di Meta",
       "deleteFailed": "Impossibile eliminare il brand",
       "deleted": "Brand eliminato"
     }
@@ -83,7 +83,7 @@
     "descriptions": {
       "start": "Inizia scansionando il tuo sito web, oppure inserisci i dettagli manualmente.",
       "scan": "Ricerca del tuo brand in corso…",
-      "manual": "Compila gli elementi essenziali — potrai aggiungerne altri in seguito.",
+      "manual": "Compila gli elementi essenziali, potrai aggiungerne altri in seguito.",
       "review": "Rivedi ciò che abbiamo trovato, modifica ciò che vuoi, poi salva."
     },
     "scanCard": {
@@ -104,7 +104,7 @@
       "retry": "Riprova scansione",
       "enterManually": "Inserisci manualmente"
     },
-    "scanComplete": "Scansione completata — rivedi e modifica quanto necessario qui sotto.",
+    "scanComplete": "Scansione completata, rivedi e modifica quanto necessario qui sotto.",
     "fields": {
       "brandName": "Nome del brand",
       "brandNamePlaceholder": "DripCheckr",
@@ -127,13 +127,16 @@
       "nameRequired": "Il nome è obbligatorio",
       "createFailed": "Impossibile creare il brand",
       "brandAdded": "Brand aggiunto"
-    }
+    },
+    "audienceSetup": "Profilo del pubblico",
+    "audienceSetupBody": "Imposta obiettivo, mercato principale, azione di conversione, fuso orario e priorità della piattaforma. I campi avanzati sono nelle impostazioni del brand."
   },
   "detailSheet": {
     "sections": {
       "foundation": "Fondamenta",
       "identity": "Identità",
-      "channels": "Canali"
+      "channels": "Canali",
+      "audience": "Pubblico"
     },
     "brandFallback": "Brand",
     "saveIndicator": {
@@ -147,7 +150,7 @@
     "edit": "Modifica",
     "deleteBrand": "Elimina brand",
     "deleteWarning": "Verranno rimosse anche tutte le impostazioni e connessioni ai canali di questo brand.",
-    "disconnectWarning": "Questo rimuove ogni account {label} collegato a questo brand. Gli altri brand mantengono le proprie connessioni. Per sostituire un singolo account, usa invece Scollega accanto ad esso — e per rinnovare l'accesso usa Riconnetti invece di disconnettere.",
+    "disconnectWarning": "Questo rimuove ogni account {label} collegato a questo brand. Gli altri brand mantengono le proprie connessioni. Per sostituire un singolo account, usa invece Scollega accanto ad esso, e per rinnovare l'accesso usa Riconnetti invece di disconnettere.",
     "disconnect": "Disconnetti",
     "unsavedConfirm": "Hai modifiche non salvate. Chiudere senza salvare?",
     "toasts": {

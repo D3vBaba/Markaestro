@@ -8,6 +8,7 @@
     "items": {
       "dashboard": "Dashboard",
       "analytics": "Analyse",
+      "intelligence": "Intelligentie",
       "brands": "Merken",
       "posts": "Posts",
       "calendar": "Kalender",
@@ -60,16 +61,16 @@
   },
   "verifyEmailBanner": {
     "prompt": "Bevestig je e-mailadres om te publiceren",
-    "promptWithCode": " — voer de code in die we hebben gestuurd naar <emailTag>{email}</emailTag>",
+    "promptWithCode": ", voer de code in die we hebben gestuurd naar <emailTag>{email}</emailTag>",
     "sendCode": "Code versturen",
     "resendCode": "Code opnieuw versturen",
     "resendCountdown": "Opnieuw versturen ({seconds}s)",
     "sending": "Versturen…",
     "verify": "Bevestigen",
     "verifying": "Bevestigen…",
-    "codeSent": "Code verstuurd — controleer je inbox en spammap.",
+    "codeSent": "Code verstuurd, controleer je inbox en spammap.",
     "sendError": "Kon nu niet versturen. Probeer het over een minuut opnieuw.",
-    "verified": "E-mail bevestigd — je bent helemaal klaar."
+    "verified": "E-mail bevestigd, je bent helemaal klaar."
   },
   "localeSwitcher": {
     "label": "Taal",
@@ -92,5 +93,9 @@
     "declined": "Uitnodiging voor {workspaceName} afgewezen",
     "acceptError": "Kon de uitnodiging niet accepteren. Probeer het opnieuw.",
     "declineError": "Kon de uitnodiging niet afwijzen. Probeer het opnieuw."
+  },
+  "inbox": {
+    "title": "Postvak",
+    "empty": "Nog geen meldingen."
   }
 }

@@ -28,7 +28,7 @@
   },
   "markPostedDialog": {
     "title": "Marquer comme publié",
-    "description": "Confirmez que vous avez publié cette publication vous-même sur {channel}. Collez le lien vers la publication en ligne si vous l'avez — cela relie la publication à ses statistiques plus tard.",
+    "description": "Confirmez que vous avez publié cette publication vous-même sur {channel}. Collez le lien vers la publication en ligne si vous l'avez, cela relie la publication à ses statistiques plus tard.",
     "urlPlaceholder": "https://www.{channel}.com/… (facultatif)",
     "cancel": "Annuler",
     "confirm": "Marquer comme publié",
@@ -182,7 +182,7 @@
   },
   "platformPostsTab": {
     "refresh": "Actualiser",
-    "liveFrom": "Publications en direct de votre compte {channel} connecté — y compris celles publiées en dehors de Markaestro.",
+    "liveFrom": "Publications en direct de votre compte {channel} connecté, y compris celles publiées en dehors de Markaestro.",
     "loadMore": "Charger plus",
     "loading": "Chargement…",
     "noCaption": "Pas de légende",
@@ -191,14 +191,14 @@
     "deleting": "Suppression…",
     "delete": "Supprimer",
     "noDeleteHints": {
-      "instagram": "Instagram ne permet pas aux applications de supprimer des publications — supprimez-les dans l'application Instagram.",
-      "tiktok": "TikTok ne permet pas aux applications de supprimer des vidéos — supprimez-les dans l'application TikTok."
+      "instagram": "Instagram ne permet pas aux applications de supprimer des publications, supprimez-les dans l'application Instagram.",
+      "tiktok": "TikTok ne permet pas aux applications de supprimer des vidéos, supprimez-les dans l'application TikTok."
     },
     "noDeleteDefault": "La suppression n'est pas prise en charge pour cette publication.",
     "deleteWarning": "Cette action supprime définitivement la publication de {channel}.",
     "states": {
       "notConnectedTitle": "{channel} n'est pas encore connecté",
-      "notConnectedBody": "Connectez {channel} à cette marque et ses publications en direct apparaîtront ici — y compris celles publiées en dehors de Markaestro.",
+      "notConnectedBody": "Connectez {channel} à cette marque et ses publications en direct apparaîtront ici, y compris celles publiées en dehors de Markaestro.",
       "connect": "Connecter {channel}",
       "authTitle": "{channel} doit être reconnecté",
       "authBody": "La connexion à {channel} a expiré, nous ne pouvons donc pas parcourir ses publications pour le moment. Reconnectez-la depuis les paramètres de la marque pour reprendre là où vous en étiez.",
@@ -208,10 +208,10 @@
       "linkedinPartnerBody": "LinkedIn ne permet qu'aux applications partenaires approuvées de parcourir les publications du compte. Tout ce que vous publiez via Markaestro apparaît toujours dans votre onglet Publiées.",
       "unsupportedBody": "{channel} ne permet pas aux applications de parcourir les publications du compte. Tout ce que vous publiez via Markaestro apparaît toujours dans votre onglet Publiées.",
       "errorTitle": "Impossible de charger les publications {channel}",
-      "errorBody": "{channel} n'a pas répondu comme prévu. C'est généralement temporaire — réessayez dans un instant.",
+      "errorBody": "{channel} n'a pas répondu comme prévu. C'est généralement temporaire, réessayez dans un instant.",
       "tryAgain": "Réessayer",
       "emptyTitle": "Aucune publication sur {channel} pour l'instant",
-      "emptyBody": "Lorsque ce compte publiera — via Markaestro ou directement sur {channel} — ses publications apparaîtront ici."
+      "emptyBody": "Lorsque ce compte publiera, via Markaestro ou directement sur {channel}, ses publications apparaîtront ici."
     },
     "toasts": {
       "loadMoreFailed": "Échec du chargement de publications supplémentaires",
@@ -327,7 +327,7 @@
     "modeInbox": "Envoyer vers la boîte de réception TikTok",
     "modeInboxHint": "Vous finalisez la légende et publiez depuis l’application TikTok, où vous pouvez ajouter des sons de la bibliothèque TikTok.",
     "modeDirect": "Publier directement sur TikTok",
-    "modeDirectHint": "Markaestro publie sur votre profil avec les réglages ci-dessous. Le post conserve l’audio de votre vidéo — les sons de la bibliothèque TikTok ne peuvent être ajoutés que dans l’application.",
+    "modeDirectHint": "Markaestro publie sur votre profil avec les réglages ci-dessous. Le post conserve l’audio de votre vidéo, les sons de la bibliothèque TikTok ne peuvent être ajoutés que dans l’application.",
     "blockers": {
       "privacyNotSelected": "Sélectionnez qui peut voir cette publication avant de publier.",
       "disclosureWithoutSelection": "Vous devez indiquer si votre contenu fait la promotion de vous-même, d'un tiers, ou des deux.",

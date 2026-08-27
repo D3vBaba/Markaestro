@@ -1,14 +1,14 @@
 {
   "meta": {
     "title": "Markaestro for AI agents | Automate social publishing with an API key",
-    "description": "Give your AI agent a Markaestro API key and it can discover connected social accounts, upload media, draft, schedule, and publish posts across Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest — with brand-scoped keys, idempotent writes, and human-in-the-loop publishing.",
+    "description": "Give your AI agent a Markaestro API key and it can discover connected social accounts, upload media, draft, schedule, and publish posts across Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest, with brand-scoped keys, idempotent writes, and human-in-the-loop publishing.",
     "ogTitle": "Markaestro for AI agents",
     "ogDescription": "One API key turns Markaestro into a publishing tool your agent can call: discover accounts, upload media, draft, schedule, publish, and report back."
   },
   "hero": {
     "eyebrow": "For AI agents",
     "title": "Hand your agent an API key. It runs your social channels.",
-    "intro1": "Markaestro is built to be operated by software. One workspace API key gives an agent everything it needs to discover which accounts it can post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped — across Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest.",
+    "intro1": "Markaestro is built to be operated by software. One workspace API key gives an agent everything it needs to discover which accounts it can post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped, across Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest.",
     "intro2": "No SDK to install, no OAuth flow for the agent to survive, no platform-specific credentials to babysit. Your team connects the accounts once in the dashboard; the agent talks to one bearer-token API from then on.",
     "createKeyButton": "Create an API key",
     "apiReferenceButton": "Full API reference",
@@ -19,18 +19,18 @@
     "title": "Why an API key is the whole integration",
     "intro": "The hard part of letting an agent touch social media is not the HTTP. It is making sure a confused model cannot post to the wrong brand, double-post on a retry, or ship something nobody read. Those guarantees are in the API surface itself, not in your prompt.",
     "cards": [
-      { "title": "One key, one brand", "body": "Every API key is bound to a single brand when you create it. An agent holding that key can only ever see and post to that brand — cross-brand requests are rejected at authentication, not by convention." },
+      { "title": "One key, one brand", "body": "Every API key is bound to a single brand when you create it. An agent holding that key can only ever see and post to that brand, cross-brand requests are rejected at authentication, not by convention." },
       { "title": "Discovery, not hardcoded ids", "body": "The agent asks which accounts it can post to and gets back opaque ids to pass straight back. No Page ids, no Business Manager spelunking, no config file that rots when a connection is re-linked." },
-      { "title": "Idempotent writes", "body": "Send an Idempotency-Key on any create or publish. A retried call inside 24 hours replays the original response instead of creating a second post — the failure mode agents hit most." },
+      { "title": "Idempotent writes", "body": "Send an Idempotency-Key on any create or publish. A retried call inside 24 hours replays the original response instead of creating a second post, the failure mode agents hit most." },
       { "title": "A human stays in the loop", "body": "Facebook, Instagram, and TikTok posts are manual-first: your agent prepares them, a person posts them natively. Nothing goes out unattended unless you explicitly opt that post in." }
     ]
   },
   "loop": {
     "eyebrow": "The agent loop",
     "title": "Five calls, start to finish",
-    "intro": "Every Markaestro automation is a variation on this loop. Steps one through three are the <connectLink>Connect API</connectLink> — the flat surface most agents should target. Steps four and five reach into the full <code>/api/public/v1</code> API for explicit publishing and run tracking.",
+    "intro": "Every Markaestro automation is a variation on this loop. Steps one through three are the <connectLink>Connect API</connectLink>, the flat surface most agents should target. Steps four and five reach into the full <code>/api/public/v1</code> API for explicit publishing and run tracking.",
     "steps": [
-      { "step": "01", "title": "Discover", "body": "Returns every connected, publishable account for the key's brand, each with a platform, username, and an opaque id. Call it at the start of a run — connections change." },
+      { "step": "01", "title": "Discover", "body": "Returns every connected, publishable account for the key's brand, each with a platform, username, and an opaque id. Call it at the start of a run, connections change." },
       { "step": "02", "title": "Upload media", "body": "Mint a short-lived, single-use signed URL, then PUT the raw bytes to it. You get back a media id. Images up to 10 MB; the full API also takes video up to 250 MB." },
       { "step": "03", "title": "Draft or schedule", "body": "Pass the caption, the media ids, and the account ids verbatim. Leave it a draft for review, or send is_draft false with scheduled_at to put it on the calendar." },
       { "step": "04", "title": "Publish", "body": "Queues an async run. LinkedIn, Threads, and Pinterest go out over the official API. Facebook, Instagram, and TikTok land in the workspace's To Post queue for a human to post natively." },
@@ -40,7 +40,7 @@
   "quickstart": {
     "eyebrow": "Quickstart",
     "title": "A working integration in four commands",
-    "intro": "First, mint the key: open <settingsLink>Settings → API</settingsLink>, pick the brand it is allowed to touch, tick the scopes it needs, and optionally give it an expiry. The key is shown once — put it straight into your agent's secret store. Creating keys requires an admin or owner with a verified email.",
+    "intro": "First, mint the key: open <settingsLink>Settings → API</settingsLink>, pick the brand it is allowed to touch, tick the scopes it needs, and optionally give it an expiry. The key is shown once, put it straight into your agent's secret store. Creating keys requires an admin or owner with a verified email.",
     "step1": { "title": "1. Discover the accounts", "description": "The first call in every run. Connections change; ids should never be baked into a prompt." },
     "step2": { "title": "2. Upload the media", "description": "Two steps: mint a signed, single-use URL, then PUT the bytes. The URL expires after 15 minutes and needs no auth header of its own." },
     "step3": { "title": "3. Schedule it, then watch it", "description": "Creating is draft-first by default. Send <code>is_draft: false</code> with a <code>scheduled_at</code> timestamp to put the post on the calendar instead." },
@@ -50,14 +50,14 @@
   "toolDefs": {
     "eyebrow": "Drop-in",
     "title": "Tool definitions and an agent brief",
-    "intro": "Two things to copy. The first is a set of tool schemas covering the whole publishing loop — written in JSON Schema, so they work as Claude tool definitions, OpenAI functions, or the input shape for an MCP server you host. The second is the operating brief that keeps a model from doing something surprising with them.",
+    "intro": "Two things to copy. The first is a set of tool schemas covering the whole publishing loop, written in JSON Schema, so they work as Claude tool definitions, OpenAI functions, or the input shape for an MCP server you host. The second is the operating brief that keeps a model from doing something surprising with them.",
     "schemasTitle": "Tool schemas",
     "schemasDescription": "Six tools: list accounts, upload media, create, publish, list, delete. Wire each one to the matching endpoint above.",
     "schemasLabel": "tools.json",
     "briefTitle": "Agent brief",
     "briefDescription": "Paste into your system prompt. It encodes the behaviors that separate a reliable publishing agent from one that double-posts and declares victory early.",
     "briefLabel": "system prompt",
-    "briefFooter": "Your agent can also fetch this itself: <code>curl https://markaestro.com/llms.txt</code> returns a plain-text brief of the whole API — endpoints, rules, and error handling — small enough to sit in context."
+    "briefFooter": "Your agent can also fetch this itself: <code>curl https://markaestro.com/llms.txt</code> returns a plain-text brief of the whole API, endpoints, rules, and error handling, small enough to sit in context."
   },
   "recipes": {
     "eyebrow": "Recipes",
@@ -73,33 +73,33 @@
     "title": "What the agent can and cannot do",
     "intro": "Autonomy is only useful if the blast radius is small. Markaestro's defaults assume the caller is software that might be wrong.",
     "calloutTitle": "Facebook, Instagram, and TikTok are manual-first",
-    "calloutBody": "Posts your agent creates for those channels default to <code>manual_reminder</code>: Markaestro never calls the platform's API for them. Publishing moves the post into the workspace's To Post queue, where a person downloads the media, posts natively, and confirms — so the post looks exactly like it was made by hand, and a human sees every one before it exists publicly. An agent can opt a single post into official-API publishing with <code>deliveryMode: \"direct_publish\"</code>, and on TikTok that means the creator-inbox handoff, never an unattended public post. LinkedIn, Threads, and Pinterest publish programmatically once your agent explicitly asks.",
+    "calloutBody": "Posts your agent creates for those channels default to <code>manual_reminder</code>: Markaestro never calls the platform's API for them. Publishing moves the post into the workspace's To Post queue, where a person downloads the media, posts natively, and confirms, so the post looks exactly like it was made by hand, and a human sees every one before it exists publicly. An agent can opt a single post into official-API publishing with <code>deliveryMode: \"direct_publish\"</code>, and on TikTok that means the creator-inbox handoff, never an unattended public post. LinkedIn, Threads, and Pinterest publish programmatically once your agent explicitly asks.",
     "items": [
       { "title": "Scope the key down", "body": "Pick only the scopes the agent needs: products.read, media.write, posts.read, posts.write, posts.publish, job_runs.read, webhooks.manage. A research agent that only reads the calendar gets posts.read and nothing else." },
       { "title": "Give it an expiry", "body": "Keys can be created with an expiry. An expired key behaves exactly like a revoked one, so a key that leaks out of an agent's environment stops working on its own." },
-      { "title": "Rotate and revoke", "body": "Rotate a key in place or revoke it outright from Settings → API. Every key shows its last-used time and request volume, so an agent that goes quiet — or goes rogue — is visible." },
+      { "title": "Rotate and revoke", "body": "Rotate a key in place or revoke it outright from Settings → API. Every key shows its last-used time and request volume, so an agent that goes quiet, or goes rogue, is visible." },
       { "title": "Rate limits are enforced", "body": "60 requests per minute per endpoint and 240 per minute per key. Every response carries X-RateLimit-Limit, -Remaining, and -Reset; a 429 carries Retry-After. Honor it rather than hammering." },
       { "title": "Markaestro never writes for you", "body": "There is no generation step. The caption comes from your agent, the media comes from your library or your agent's pipeline. Markaestro is the hands, not the voice." },
-      { "title": "Deletes are Markaestro-side", "body": "Deleting a scheduled post cancels it before it ships. Deleting a published post only stops Markaestro tracking it — the live post stays up until someone removes it on the platform." }
+      { "title": "Deletes are Markaestro-side", "body": "Deleting a scheduled post cancels it before it ships. Deleting a published post only stops Markaestro tracking it, the live post stays up until someone removes it on the platform." }
     ]
   },
   "errors": {
     "eyebrow": "Failure handling",
     "title": "Teach it which errors are worth retrying",
-    "intro": "Every error response is JSON with a stable <code>error</code> code and a <code>requestId</code>. Have your agent quote the requestId when it reports a failure — it is what support needs to trace the call.",
+    "intro": "Every error response is JSON with a stable <code>error</code> code and a <code>requestId</code>. Have your agent quote the requestId when it reports a failure, it is what support needs to trace the call.",
     "statusHeader": "Status",
     "codeHeader": "Code",
     "actionHeader": "What the agent should do",
     "rows": [
-      { "status": "401", "code": "UNAUTHENTICATED", "action": "Key is missing, revoked, or expired. Stop and ask a human for a new one — retrying will not help." },
+      { "status": "401", "code": "UNAUTHENTICATED", "action": "Key is missing, revoked, or expired. Stop and ask a human for a new one. Retrying will not help." },
       { "status": "403", "code": "FORBIDDEN", "action": "The key lacks the scope for this call. Report which call failed; scopes are changed in Settings → API." },
       { "status": "403", "code": "API_KEY_NOT_BOUND_TO_PRODUCT", "action": "A key issued before brand binding. Ask for a replacement key." },
       { "status": "400", "code": "VALIDATION_*", "action": "The payload broke a channel rule (missing media, bad delivery mode, wrong scheduled_at). Fix the request; do not retry unchanged." },
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "The same Idempotency-Key was sent with a different body. Mint a new key per distinct request." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Tried to delete a post while a publish run is in flight. Wait for the run to settle, then delete." },
-      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "A publish run for this post is already queued. Do not publish again — poll the existing run instead." },
+      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "A publish run for this post is already queued. Do not publish again. Poll the existing run instead." },
       { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "No active plan is attached to this workspace. Ask a workspace owner to review billing in Settings." },
-      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "The workspace hit its monthly upload quota. Stop uploading and surface it — existing media still publishes." },
+      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "The workspace hit its monthly upload quota. Stop uploading and surface it. Existing media still publishes." },
       { "status": "404", "code": "NOT_FOUND", "action": "The id is outside this key's brand. Answered as 404 rather than 403 so keys cannot probe for ids they do not own." },
       { "status": "429", "code": "RATE_LIMITED", "action": "Sleep for Retry-After seconds, then retry the same request with the same Idempotency-Key." }
     ]
@@ -110,7 +110,7 @@
     "intro": "There is no Markaestro client library to adopt and no framework to standardize on. Bearer token, JSON in, JSON out.",
     "items": [
       { "name": "Claude & the Claude Agent SDK", "body": "Drop the tool definitions above into your tool list. The JSON Schema shapes are already in Claude tool-use format." },
-      { "name": "OpenAI function calling", "body": "The same schemas map one-to-one onto function definitions — rename input_schema to parameters." },
+      { "name": "OpenAI function calling", "body": "The same schemas map one-to-one onto function definitions. Rename input_schema to parameters." },
       { "name": "MCP servers", "body": "If your agent speaks MCP, wrap these six calls in a small server. There is nothing Markaestro-specific to install on either side." },
       { "name": "n8n, Make, Zapier", "body": "Every endpoint is a plain HTTP request with a bearer token. No SDK, no signing ceremony, no OAuth dance for the agent." },
       { "name": "LangChain & LlamaIndex", "body": "Standard REST tools. The two-step media upload is the only multi-call flow, and it is two lines." },

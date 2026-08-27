@@ -8,6 +8,7 @@
     "items": {
       "dashboard": "Dashboard",
       "analytics": "Analytics",
+      "intelligence": "Intelligence",
       "brands": "Brands",
       "posts": "Posts",
       "calendar": "Calendar",
@@ -33,6 +34,10 @@
   "header": {
     "searchPlaceholder": "Search anything...",
     "search": "Search"
+  },
+  "inbox": {
+    "title": "Inbox",
+    "empty": "No notifications yet."
   },
   "commandPalette": {
     "title": "Command palette",
@@ -60,16 +65,16 @@
   },
   "verifyEmailBanner": {
     "prompt": "Verify your email to publish",
-    "promptWithCode": " — enter the code we sent to <emailTag>{email}</emailTag>",
+    "promptWithCode": ". Enter the code we sent to <emailTag>{email}</emailTag>",
     "sendCode": "Send code",
     "resendCode": "Resend code",
     "resendCountdown": "Resend ({seconds}s)",
     "sending": "Sending…",
     "verify": "Verify",
     "verifying": "Verifying…",
-    "codeSent": "Code sent — check your inbox and spam folder.",
+    "codeSent": "Code sent. Check your inbox and spam folder.",
     "sendError": "Could not send right now. Try again in a minute.",
-    "verified": "Email verified — you're all set."
+    "verified": "Email verified. You're all set."
   },
   "localeSwitcher": {
     "label": "Language",

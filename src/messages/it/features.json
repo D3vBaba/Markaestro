@@ -28,7 +28,7 @@
     },
     {
       "title": "Anteprime Multicanale",
-      "description": "Vedi come apparirà ogni post su ciascun network prima di pubblicare — Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest hanno ognuna la propria anteprima dedicata. Didascalie, proporzioni, limiti di caratteri e specifiche dei contenuti vengono resi in tempo reale.",
+      "description": "Vedi come apparirà ogni post su ciascun network prima di pubblicare: Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest hanno ognuna la propria anteprima dedicata. Didascalie, proporzioni, limiti di caratteri e specifiche dei contenuti vengono resi in tempo reale.",
       "details": [
         "Anteprime precise al pixel per ogni piattaforma",
         "Conteggio caratteri della didascalia in tempo reale",
@@ -58,12 +58,12 @@
     },
     {
       "title": "API e Agenti IA",
-      "description": "Tutto ciò che fa la dashboard, può farlo anche il tuo software. Genera una chiave API, consegnala a un agente IA o a uno script, e lascia che scopra gli account, carichi contenuti, programmi post, pubblichi e riferisca — su ogni piano, senza costi aggiuntivi.",
+      "description": "Tutto ciò che fa la dashboard, può farlo anche il tuo software. Genera una chiave API, consegnala a un agente IA o a uno script, e lascia che scopra gli account, carichi contenuti, programmi post, pubblichi e riferisca, su ogni piano, senza costi aggiuntivi.",
       "details": [
         "Chiavi limitate a un singolo brand, con scadenza opzionale",
         "Scritture idempotenti così un tentativo ripetuto non pubblica mai due volte",
         "Esecuzioni di pubblicazione asincrone e webhook firmati con HMAC",
-        "Manuale per prima cosa su Meta e TikTok — è ancora una persona a pubblicare"
+        "Manuale per prima cosa su Meta e TikTok, è ancora una persona a pubblicare"
       ],
       "codeLabel": "programma un post da qualsiasi cosa parli HTTP",
       "agentGuideLink": "Leggi la guida per agenti IA →"
@@ -72,7 +72,7 @@
   "platformFeatures": [
     {
       "title": "Gestione Workspace",
-      "description": "Organizza i brand che promuovi — clienti, unità aziendali o le tue iniziative — in workspace isolati. Ogni workspace ha i propri brand, integrazioni e membri del team."
+      "description": "Organizza i brand che promuovi, clienti, unità aziendali o le tue iniziative, in workspace isolati. Ogni workspace ha i propri brand, integrazioni e membri del team."
     },
     {
       "title": "Programmazione e Calendario",
@@ -87,7 +87,7 @@
     "eyebrow": "Piattaforma",
     "titleLead": "Pensata per chiunque",
     "titleHighlight": "pubblichi",
-    "subtitle": "Oltre agli strumenti principali, Markaestro ti offre l'infrastruttura per crescere — da un singolo brand a un intero portafoglio clienti."
+    "subtitle": "Oltre agli strumenti principali, Markaestro ti offre l'infrastruttura per crescere, da un singolo brand a un intero portafoglio clienti."
   },
   "cta": {
     "title": "Pronto a vederlo in azione?",

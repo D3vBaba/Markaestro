@@ -15,7 +15,7 @@
  * which publishes via the Meta login instead.
  */
 export const IG_LOGIN_UNSUPPORTED_MESSAGE =
-  "Instagram couldn't authorize this account for publishing. Make sure it's a Professional (Business/Creator) account, or connect your Facebook Page instead — it includes Instagram.";
+  "Instagram couldn't authorize this account for publishing. Make sure it's a Professional (Business/Creator) account, or connect your Facebook Page instead. It includes Instagram.";
 
 export function isInstagramMethodTypeUnsupported(
   data: { error?: { message?: string } },

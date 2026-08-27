@@ -28,7 +28,7 @@
     },
     {
       "title": "Pré-visualizações Multicanal",
-      "description": "Veja como cada post vai ficar em cada rede antes de publicar — Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest têm sua própria pré-visualização. Legendas, proporções, limites de caracteres e especificações de mídia são renderizados em tempo real.",
+      "description": "Veja como cada post vai ficar em cada rede antes de publicar: Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest têm sua própria pré-visualização. Legendas, proporções, limites de caracteres e especificações de mídia são renderizados em tempo real.",
       "details": [
         "Pré-visualizações precisas por plataforma",
         "Contagem de caracteres da legenda em tempo real",
@@ -58,12 +58,12 @@
     },
     {
       "title": "API e Agentes de IA",
-      "description": "Tudo o que o painel faz, seu software também pode fazer. Gere uma chave de API, entregue-a a um agente de IA ou a um script, e deixe que ele descubra contas, envie mídia, agende posts, publique e reporte de volta — em qualquer plano, sem custo extra.",
+      "description": "Tudo o que o painel faz, seu software também pode fazer. Gere uma chave de API, entregue-a a um agente de IA ou a um script, e deixe que ele descubra contas, envie mídia, agende posts, publique e reporte de volta, em qualquer plano, sem custo extra.",
       "details": [
         "Chaves vinculadas a uma única marca, com expiração opcional",
         "Gravações idempotentes para que uma nova tentativa nunca publique em duplicidade",
         "Execuções de publicação assíncronas mais webhooks assinados com HMAC",
-        "Manual-first no Meta e no TikTok — um humano ainda publica"
+        "Manual-first no Meta e no TikTok, um humano ainda publica"
       ],
       "codeLabel": "agende um post a partir de qualquer coisa que fale HTTP",
       "agentGuideLink": "Leia o guia do agente de IA →"
@@ -72,7 +72,7 @@
   "platformFeatures": [
     {
       "title": "Gerenciamento de Workspace",
-      "description": "Organize as marcas que você promove — clientes, unidades de negócio ou seus próprios empreendimentos — em workspaces isolados. Cada workspace tem suas próprias marcas, integrações e membros de equipe."
+      "description": "Organize as marcas que você promove, clientes, unidades de negócio ou seus próprios empreendimentos, em workspaces isolados. Cada workspace tem suas próprias marcas, integrações e membros de equipe."
     },
     {
       "title": "Agendamento e Calendário",
@@ -87,7 +87,7 @@
     "eyebrow": "Plataforma",
     "titleLead": "Feito para todos que",
     "titleHighlight": "publicam",
-    "subtitle": "Além das ferramentas essenciais, o Markaestro oferece a infraestrutura para escalar — de uma única marca a uma carteira completa de clientes."
+    "subtitle": "Além das ferramentas essenciais, o Markaestro oferece a infraestrutura para escalar, de uma única marca a uma carteira completa de clientes."
   },
   "cta": {
     "title": "Pronto para ver na prática?",

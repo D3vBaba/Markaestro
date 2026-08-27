@@ -35,6 +35,22 @@ export async function uploadToStorage(
   return buildDownloadUrl(bucket.name, filePath, downloadToken);
 }
 
+/** Save a private object without creating a tokenized public download URL. */
+export async function uploadPrivateToStorage(
+  filePath: string,
+  buffer: Buffer,
+  contentType: string,
+  customMetadata?: Record<string, string>,
+): Promise<string> {
+  const admin = await import('firebase-admin');
+  const bucket = admin.storage().bucket();
+  await bucket.file(filePath).save(buffer, {
+    resumable: false,
+    metadata: { contentType, cacheControl: 'private, no-store', metadata: customMetadata },
+  });
+  return `gs://${bucket.name}/${filePath}`;
+}
+
 /** Best-effort prefix delete used when a workspace is purged. */
 export async function deleteStoragePrefix(prefix: string): Promise<void> {
   const admin = await import('firebase-admin');

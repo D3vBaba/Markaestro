@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Analyses",
-    "subtitle": "Wat je berichten hebben opgeleverd — gemeten met de eigen gegevens van elk platform.",
+    "subtitle": "Wat je berichten hebben opgeleverd, gemeten met de eigen gegevens van elk platform.",
     "refresh": {
       "idle": "Vernieuwen",
       "refreshing": "Bezig met vernieuwen…",
@@ -20,7 +20,7 @@
       "brandTitle": "Filteren op merk",
       "rangeTitle": "Laatste {label}",
       "rangeLockedTitle": "De periode van {label} vereist een hoger plan",
-      "windowNote": "{days} dagen weergegeven — het analysevenster van je plan."
+      "windowNote": "{days} dagen weergegeven, het analysevenster van je plan."
     },
     "error": {
       "message": "Analyses konden niet worden geladen.",
@@ -29,10 +29,10 @@
     "emptyState": {
       "eyebrow": "Nog geen gegevens",
       "title": "Publiceer je eerste bericht om te beginnen met meten",
-      "body": "Zodra een bericht is gepubliceerd, haalt Markaestro binnen ongeveer een uur de weergaven, bereik en betrokkenheid op van het platform — en blijft dit 30 dagen bijhouden. Het aantal volgers wordt dagelijks vastgelegd voor elk verbonden kanaal.",
+      "body": "Zodra een bericht is gepubliceerd, haalt Markaestro binnen ongeveer een uur de weergaven, bereik en betrokkenheid op van het platform, en blijft dit 30 dagen bijhouden. Het aantal volgers wordt dagelijks vastgelegd voor elk verbonden kanaal.",
       "createPost": "Bericht maken"
     },
-    "warmingUp": "Statistieken worden verzameld — de eerste gegevens komen ongeveer een uur na publicatie binnen en worden daarna 30 dagen lang met afnemende frequentie bijgewerkt.",
+    "warmingUp": "Statistieken worden verzameld, de eerste gegevens komen ongeveer een uur na publicatie binnen en worden daarna 30 dagen lang met afnemende frequentie bijgewerkt.",
     "kpis": {
       "views": { "label": "Weergaven", "sub": "t.o.v. vorige periode" },
       "reach": { "label": "Bereik", "sub": "unieke bereikte accounts" },
@@ -57,14 +57,14 @@
     "channels": { "eyebrow": "Kanalen", "title": "Prestaties per kanaal" },
     "posts": { "eyebrow": "Berichten", "title": "Best presterende berichten" },
     "provenance": {
-      "base": "Statistieken volgen de API-definities van elk platform en kunnen tot 48 uur achterlopen op de eigen inzichten van het platform. Een \"—\" betekent dat het platform die statistiek niet levert (Threads en TikTok rapporteren bijvoorbeeld geen bereik). Betrokkenheidspercentage is betrokkenheid ÷ bereik.",
+      "base": "Statistieken volgen de API-definities van elk platform en kunnen tot 48 uur achterlopen op de eigen inzichten van het platform. Een \"n/a\" betekent dat het platform die statistiek niet levert (Threads en TikTok rapporteren bijvoorbeeld geen bereik). Betrokkenheidspercentage is betrokkenheid ÷ bereik.",
       "truncated": " Weergaven per bericht zijn gebaseerd op de {count} meest recente berichten in deze periode.",
       "lastUpdate": " Laatste update van statistieken: {date}."
     },
     "toasts": {
       "updated": "{count, plural, one {# bericht bijgewerkt vanuit de bron} other {# berichten bijgewerkt vanuit de bron}}",
       "noNewMetrics": "Geen nieuwe platformstatistieken beschikbaar",
-      "tooManyRefreshes": "Te veel vernieuwingen — probeer het over een minuut opnieuw.",
+      "tooManyRefreshes": "Te veel vernieuwingen, probeer het over een minuut opnieuw.",
       "pullFailed": "Live gegevens konden niet worden opgehaald. De laatst opgeslagen cijfers worden weergegeven.",
       "exportFailed": "Exporteren mislukt. Probeer het opnieuw."
     }
@@ -78,7 +78,7 @@
   },
   "trendChart": {
     "noData": "Nog geen gegevens voor deze periode.",
-    "followerHistoryBuilds": "De volgersgeschiedenis wordt opgebouwd uit dagelijkse momentopnamen — de trend verschijnt na een paar dagen met gegevens.",
+    "followerHistoryBuilds": "De volgersgeschiedenis wordt opgebouwd uit dagelijkse momentopnamen, de trend verschijnt na een paar dagen met gegevens.",
     "followersSeriesName": "Volgers"
   },
   "channelTable": {

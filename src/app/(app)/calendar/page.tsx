@@ -41,21 +41,21 @@ type CalendarItem = { kind: "post"; date: string; post: Post };
 // Channel names are platform brand names (Instagram, TikTok, ...) — proper
 // nouns that stay in English across every locale, same as elsewhere in the app.
 const CHANNEL_ACCENT: Record<string, string> = {
-  instagram: "var(--mk-ch-instagram)",
-  facebook:  "var(--mk-ch-facebook)",
-  tiktok:    "var(--mk-ch-tiktok)",
-  threads:   "var(--mk-ink)",
+  instagram: "#E4405F",
+  facebook:  "#1877F2",
+  tiktok:    "#00F2FE",
+  threads:   "#000000",
   pinterest: "#E60023",
-  linkedin:  "var(--mk-ch-linkedin)",
+  linkedin:  "#0A66C2",
 };
 
 const CHANNEL_BG: Record<string, string> = {
-  instagram: "color-mix(in oklch, var(--mk-ch-instagram) 8%, transparent)",
-  facebook:  "color-mix(in oklch, var(--mk-ch-facebook) 8%, transparent)",
-  tiktok:    "color-mix(in oklch, var(--mk-ch-tiktok) 8%, transparent)",
-  threads:   "color-mix(in oklch, var(--mk-ink) 8%, transparent)",
-  pinterest: "color-mix(in oklch, #E60023 8%, transparent)",
-  linkedin:  "color-mix(in oklch, var(--mk-ch-linkedin) 8%, transparent)",
+  instagram: "color-mix(in srgb, #E4405F 10%, transparent)",
+  facebook:  "color-mix(in srgb, #1877F2 10%, transparent)",
+  tiktok:    "color-mix(in srgb, #00F2FE 10%, transparent)",
+  threads:   "color-mix(in srgb, #000000 10%, transparent)",
+  pinterest: "color-mix(in srgb, #E60023 10%, transparent)",
+  linkedin:  "color-mix(in srgb, #0A66C2 10%, transparent)",
 };
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -71,13 +71,15 @@ const CHANNEL_LABEL: Record<string, string> = {
 const UNASSIGNED_BRAND = "none";
 
 const STATUS_DOT: Record<string, string> = {
-  published:  "var(--mk-pos)",
-  scheduled:  "var(--mk-accent)",
-  draft:      "var(--mk-ink-40)",
-  failed:     "var(--mk-neg)",
-  partial_failed: "var(--mk-warn)",
-  publishing: "var(--mk-warn)",
+  published:  "#10b981",
+  scheduled:  "#2563eb",
+  draft:      "#94a3b8",
+  failed:     "#f43f5e",
+  partial_failed: "#f59e0b",
+  publishing: "#f59e0b",
 };
+
+
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -153,11 +155,12 @@ function InstagramMockup({ post }: { post: Post }) {
           ? <video src={img} className="w-full aspect-square object-cover" controls playsInline preload="metadata" />
           : <img src={img} alt="" className="w-full aspect-square object-cover" />
       ) : (
-        <div className="w-full aspect-square flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-600">
-          <svg className="w-10 h-10 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <div className="w-full aspect-square flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+          <svg className="w-10 h-10 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
           </svg>
         </div>
+
       )}
       <div className="px-3 pt-2.5 pb-3 space-y-1.5">
         <div className="flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
@@ -242,7 +245,8 @@ function PostDetailPanel({ post, onClose, onBack, brandName }: {
   const t = useTranslations("calendar.detailPanel");
   const tStatus = useTranslations("calendar.statusLabels");
   const locale = useLocale();
-  const accent = CHANNEL_ACCENT[post.channel] || "#6366f1";
+  const accent = CHANNEL_ACCENT[post.channel] || "#2563eb";
+
   const statusDate = post.publishedAt || post.scheduledAt;
   return (
     <div className="h-full min-h-0 flex flex-col">
@@ -334,8 +338,9 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = 
   const t = useTranslations("calendar.detailPanel");
   const locale = useLocale();
   const p = item.post;
-  const accent = CHANNEL_ACCENT[p.channel] || "#6366f1";
-  const bg = CHANNEL_BG[p.channel] || "rgba(99,102,241,0.08)";
+  const accent = CHANNEL_ACCENT[p.channel] || "#2563eb";
+  const bg = CHANNEL_BG[p.channel] || "rgba(37,99,235,0.08)";
+
   const thumb = p.mediaUrls?.[0];
   const draggable = p.status === "scheduled" || p.status === "draft";
 
@@ -348,7 +353,7 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = 
       draggable={draggable}
       onDragStart={onDragStart}
       title={isFailed ? t("failedToPublish") : undefined}
-      className="w-full rounded-lg overflow-hidden transition-all duration-150 hover:brightness-95 active:scale-[0.98] cursor-grab active:cursor-grabbing"
+      className="w-full rounded-lg overflow-hidden transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.98] cursor-grab active:cursor-grabbing"
       style={{ background: isSelected ? accent + "20" : bg, borderLeft: `3px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
     >
       <div className={`px-1.5 flex items-center gap-1.5 ${showDetail ? "py-2 min-h-[44px]" : "py-1"}`}>
@@ -872,30 +877,18 @@ function CalendarPageContent() {
           )}
 
           {/* Header row */}
-          <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
+          <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
             <div>
-              <h1
-                className="text-[26px] font-semibold m-0 capitalize"
-                style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
-              >
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 capitalize">
                 {monthLabel}{" "}
-                <span
-                  className="font-normal"
-                  style={{ color: "var(--mk-ink-60)" }}
-                >
+                <span className="font-light text-slate-400 dark:text-slate-500">
                   {year}
                 </span>
               </h1>
-              <p
-                className="text-[12px] mt-1 font-mono"
-                style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
-              >
+              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1">
                 {t("postsThisMonth", { count: totalPosts })}
                 {dragItem && (
-                  <span
-                    className="ms-2 font-medium"
-                    style={{ color: "var(--mk-accent)" }}
-                  >
+                  <span className="ms-2 font-bold text-blue-600 dark:text-blue-400">
                     {t("dropToReschedule")}
                   </span>
                 )}
@@ -903,34 +896,33 @@ function CalendarPageContent() {
             </div>
             <div className="flex items-center gap-2">
               <Link href="/content">
-                <Button size="sm" className="h-10 md:h-8 px-3 rounded-lg gap-1.5 text-[12px]">
-                  <Plus className="h-3.5 w-3.5" /> {t("newPost")}
+                <Button className="h-9 px-3.5 rounded-xl gap-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
+                  <Plus className="h-4 w-4" /> {t("newPost")}
                 </Button>
               </Link>
+
               <Button
-                variant="ghost" size="sm"
-                className="h-10 md:h-8 px-3 rounded-lg text-[12px]"
-                style={{ color: "var(--mk-ink-60)" }}
+                variant="outline"
+                size="sm"
+                className="h-9 px-3.5 rounded-xl text-xs font-semibold border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800"
                 disabled={month === today.getMonth() && year === today.getFullYear()}
                 onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); closeRail(); }}
               >
                 {t("today")}
               </Button>
-              <div
-                className="flex rounded-lg overflow-hidden"
-                style={{ border: "1px solid var(--mk-rule)" }}
-              >
+              <div className="flex rounded-xl overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs">
                 <Button
-                  variant="ghost" size="icon"
-                  className="h-10 w-10 md:h-8 md:w-8 rounded-none"
-                  style={{ borderRight: "1px solid var(--mk-rule)" }}
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-none border-r border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
                   onClick={prevMonth}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <Button
-                  variant="ghost" size="icon"
-                  className="h-10 w-10 md:h-8 md:w-8 rounded-none"
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-none hover:bg-slate-50 dark:hover:bg-slate-800"
                   onClick={nextMonth}
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -938,6 +930,7 @@ function CalendarPageContent() {
               </div>
             </div>
           </div>
+
 
           {/* Filters + Legend */}
           <div className="flex items-center gap-2 sm:gap-3 mb-4 flex-nowrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
@@ -952,7 +945,7 @@ function CalendarPageContent() {
                 <button
                   key={key}
                   onClick={() => applyFilters({ status: active ? null : key })}
-                  className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all ${
+                  className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-colors ${
                     active
                       ? "border-current bg-current/10"
                       : "border-transparent hover:bg-muted"
@@ -972,7 +965,7 @@ function CalendarPageContent() {
                 <button
                   key={key}
                   onClick={() => applyFilters({ channel: active ? null : key })}
-                  className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all ${
+                  className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-colors ${
                     active
                       ? "border-current bg-current/10"
                       : "border-transparent hover:bg-muted"
@@ -990,7 +983,7 @@ function CalendarPageContent() {
               <>
                 <div className="w-px h-3 bg-border/50 hidden sm:block" />
                 <label
-                  className={`flex items-center gap-1.5 ps-3 sm:ps-2.5 pe-1 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 ps-3 sm:ps-2.5 pe-1 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-colors cursor-pointer ${
                     brandFilter ? "bg-current/10" : "border-transparent hover:bg-muted"
                   }`}
                   style={

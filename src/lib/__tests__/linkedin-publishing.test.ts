@@ -98,7 +98,7 @@ describe('linkedinPublishingAdapter', () => {
         method: 'POST',
         headers: expect.objectContaining({
           Authorization: 'Bearer access_token_123',
-          'Linkedin-Version': '202606',
+          'Linkedin-Version': '202608',
           'X-Restli-Protocol-Version': '2.0.0',
           'Content-Type': 'application/json',
         }),

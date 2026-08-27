@@ -8,6 +8,7 @@
     "items": {
       "dashboard": "Dashboard",
       "analytics": "Analisi",
+      "intelligence": "Analisi intelligente",
       "brands": "Brand",
       "posts": "Post",
       "calendar": "Calendario",
@@ -60,16 +61,16 @@
   },
   "verifyEmailBanner": {
     "prompt": "Verifica la tua email per pubblicare",
-    "promptWithCode": " — inserisci il codice che abbiamo inviato a <emailTag>{email}</emailTag>",
+    "promptWithCode": ", inserisci il codice che abbiamo inviato a <emailTag>{email}</emailTag>",
     "sendCode": "Invia codice",
     "resendCode": "Reinvia codice",
     "resendCountdown": "Reinvia ({seconds}s)",
     "sending": "Invio…",
     "verify": "Verifica",
     "verifying": "Verifica in corso…",
-    "codeSent": "Codice inviato — controlla la posta in arrivo e lo spam.",
+    "codeSent": "Codice inviato, controlla la posta in arrivo e lo spam.",
     "sendError": "Impossibile inviare in questo momento. Riprova tra un minuto.",
-    "verified": "Email verificata — tutto pronto."
+    "verified": "Email verificata, tutto pronto."
   },
   "localeSwitcher": {
     "label": "Lingua",
@@ -92,5 +93,9 @@
     "declined": "Invito a {workspaceName} rifiutato",
     "acceptError": "Impossibile accettare l'invito. Riprova.",
     "declineError": "Impossibile rifiutare l'invito. Riprova."
+  },
+  "inbox": {
+    "title": "Posta in arrivo",
+    "empty": "Nessuna notifica ancora."
   }
 }

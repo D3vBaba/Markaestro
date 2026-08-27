@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "数据分析",
-    "subtitle": "你的帖子获得了什么成效 — 基于各平台自身的数据统计。",
+    "subtitle": "你的帖子获得了什么成效，基于各平台自身的数据统计。",
     "refresh": {
       "idle": "刷新",
       "refreshing": "正在刷新…",
@@ -20,7 +20,7 @@
       "brandTitle": "按品牌筛选",
       "rangeTitle": "最近{label}",
       "rangeLockedTitle": "{label}的时间范围需要更高级的套餐",
-      "windowNote": "显示{days}天 — 你的套餐允许的分析窗口。"
+      "windowNote": "显示{days}天，你的套餐允许的分析窗口。"
     },
     "error": {
       "message": "无法加载数据分析。",
@@ -32,7 +32,7 @@
       "body": "帖子发布后，Markaestro 会在大约一小时内从平台获取其观看量、覆盖人数和互动数据，并持续跟踪 30 天。每个已连接渠道的粉丝数每天都会记录一次。",
       "createPost": "创建帖子"
     },
-    "warmingUp": "正在收集数据 — 首批数据将在发布后约一小时到达，此后会按递减频率持续更新，为期 30 天。",
+    "warmingUp": "正在收集数据，首批数据将在发布后约一小时到达，此后会按递减频率持续更新，为期 30 天。",
     "kpis": {
       "views": { "label": "观看量", "sub": "较上一周期" },
       "reach": { "label": "覆盖人数", "sub": "触达的独立账户数" },
@@ -57,14 +57,14 @@
     "channels": { "eyebrow": "渠道", "title": "各渠道表现" },
     "posts": { "eyebrow": "帖子", "title": "热门帖子" },
     "provenance": {
-      "base": "数据指标采用各平台自身的 API 定义，可能比平台原生统计数据滞后最多 48 小时。「—」表示该平台未提供此项指标（例如 Threads 和 TikTok 不提供覆盖人数数据）。互动率 = 互动量 ÷ 覆盖人数。",
+      "base": "数据指标采用各平台自身的 API 定义，可能比平台原生统计数据滞后最多 48 小时。「，」表示该平台未提供此项指标（例如 Threads 和 TikTok 不提供覆盖人数数据）。互动率 = 互动量 ÷ 覆盖人数。",
       "truncated": " 帖子级观看量基于此时间段内最近的 {count} 篇帖子。",
       "lastUpdate": " 数据最近更新于 {date}。"
     },
     "toasts": {
       "updated": "已从数据源更新 {count} 篇帖子",
       "noNewMetrics": "暂无新的平台数据",
-      "tooManyRefreshes": "刷新次数过多 — 请一分钟后再试。",
+      "tooManyRefreshes": "刷新次数过多，请一分钟后再试。",
       "pullFailed": "无法获取实时数据，正在显示最新的已保存数据。",
       "exportFailed": "导出失败，请重试。"
     }
@@ -78,7 +78,7 @@
   },
   "trendChart": {
     "noData": "此时间段暂无数据。",
-    "followerHistoryBuilds": "粉丝历史数据基于每日快照构建 — 积累几天数据后即可看到趋势。",
+    "followerHistoryBuilds": "粉丝历史数据基于每日快照构建，积累几天数据后即可看到趋势。",
     "followersSeriesName": "粉丝数"
   },
   "channelTable": {

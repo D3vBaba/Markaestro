@@ -62,49 +62,36 @@ export default function MarketingLayout({
   ];
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: "var(--mk-surface)" }}
-    >
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       {/* ─── Navbar ─── */}
-      <header
-        className="sticky top-0 z-50 border-b backdrop-blur-md"
-        style={{
-          background: "color-mix(in oklch, var(--mk-paper) 92%, transparent)",
-          borderColor: "var(--mk-rule)",
-        }}
-      >
-        <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
-          <Link href="/" className="flex items-center gap-2.5">
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md bg-white/80 dark:bg-slate-900/80">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
+          <Link href="/" className="flex items-center gap-3.5 group">
             <Image
               src="/markaestro-logo-transparent.png"
               alt="Markaestro"
-              width={28}
-              height={28}
-              className="object-contain"
+              width={40}
+              height={40}
+              className="h-10 w-10 sm:h-11 sm:w-11 object-contain transition-transform group-hover:scale-105"
             />
-            <span
-              className="text-[15px] font-semibold"
-              style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
-            >
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
               Markaestro
             </span>
           </Link>
 
           {/* gap tightens at md so six links still clear the logo + CTAs */}
-          <nav className="hidden md:flex items-center gap-5 lg:gap-7">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
             {navLinks.map((link) => {
               const active = pathname === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-[13px] transition-colors"
-                  style={{
-                    color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
-                    fontWeight: active ? 500 : 400,
-                    letterSpacing: "-0.005em",
-                  }}
+                  className={`text-[13.5px] font-medium transition-colors ${
+                    active
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                  }`}
                 >
                   {link.label}
                 </Link>
@@ -112,23 +99,23 @@ export default function MarketingLayout({
             })}
           </nav>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             {!hideLocaleSwitcher && <LocaleSwitcher />}
             {user ? (
               <NextLink href="/dashboard">
-                <Button className="rounded-lg h-9 text-[13px]">
+                <Button className="rounded-xl h-9 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
                   {t("nav.dashboard")}
                 </Button>
               </NextLink>
             ) : (
               <>
                 <NextLink href="/login" className="hidden sm:block">
-                  <Button variant="ghost" className="h-9 rounded-lg text-[13px]">
+                  <Button variant="ghost" className="h-9 rounded-xl text-[13px] font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">
                     {t("nav.signIn")}
                   </Button>
                 </NextLink>
                 <NextLink href="/onboarding">
-                  <Button className="rounded-lg h-9 text-[13px]">
+                  <Button className="rounded-xl h-9 text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs shadow-blue-500/20">
                     {t("nav.getStarted")}
                   </Button>
                 </NextLink>
@@ -137,7 +124,7 @@ export default function MarketingLayout({
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden h-9 w-9 rounded-lg"
+              className="md:hidden h-9 w-9 rounded-xl text-slate-600 dark:text-slate-300"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -147,41 +134,28 @@ export default function MarketingLayout({
 
         {/* Mobile nav */}
         {mobileOpen && (
-          <div
-            className="md:hidden border-t px-5 pb-4 pt-2"
-            style={{
-              background: "var(--mk-paper)",
-              borderColor: "var(--mk-rule)",
-            }}
-          >
+          <div className="md:hidden border-t border-slate-200 dark:border-slate-800 px-5 pb-5 pt-3 bg-white dark:bg-slate-900">
             {navLinks.map((link) => {
               const active = pathname === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block py-3 text-[14px] transition-colors border-b last:border-0"
-                  style={{
-                    color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
-                    fontWeight: active ? 500 : 400,
-                    borderColor: "var(--mk-rule-soft)",
-                    letterSpacing: "-0.005em",
-                  }}
+                  className={`block py-3 text-[14px] font-medium transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 ${
+                    active
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-slate-600 dark:text-slate-400"
+                  }`}
                   onClick={() => setMobileOpen(false)}
                 >
                   {link.label}
                 </Link>
               );
             })}
-            {/* Sign in lives here on mobile — the header button is sm+ only */}
             {!user && (
               <NextLink
                 href="/login"
-                className="block py-3 text-[14px] transition-colors sm:hidden"
-                style={{
-                  color: "var(--mk-ink-60)",
-                  letterSpacing: "-0.005em",
-                }}
+                className="block py-3 text-[14px] font-medium text-slate-600 dark:text-slate-400 sm:hidden"
                 onClick={() => setMobileOpen(false)}
               >
                 {t("nav.signIn")}
@@ -195,48 +169,35 @@ export default function MarketingLayout({
       <main className="flex-1">{children}</main>
 
       {/* ─── Footer ─── */}
-      <footer
-        className="border-t"
-        style={{
-          background: "var(--mk-paper)",
-          borderColor: "var(--mk-rule)",
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-14">
+      <footer className="border-t border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 py-16">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
             <div>
-              <div className="flex items-center gap-2.5">
+              <Link href="/" className="flex items-center gap-3">
                 <Image
                   src="/markaestro-logo-transparent.png"
                   alt="Markaestro"
-                  width={24}
-                  height={24}
-                  className="object-contain"
+                  width={36}
+                  height={36}
+                  className="h-9 w-9 object-contain"
                 />
-                <span
-                  className="text-[14px] font-semibold"
-                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
-                >
+                <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
                   Markaestro
                 </span>
-              </div>
-              <p
-                className="mt-4 text-[12.5px] leading-relaxed"
-                style={{ color: "var(--mk-ink-60)" }}
-              >
+              </Link>
+              <p className="mt-4 text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">
                 {t("footer.tagline")}
               </p>
             </div>
 
             <div>
-              <p className="mk-eyebrow">{t("footer.productHeading")}</p>
-              <div className="mt-4 flex flex-col gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("footer.productHeading")}</p>
+              <div className="mt-4 flex flex-col gap-2.5">
                 {footerProductLinks.map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
-                    className="text-[13px] transition-colors"
-                    style={{ color: "var(--mk-ink-60)" }}
+                    className="text-[13px] text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     {l.label}
                   </Link>
@@ -245,24 +206,20 @@ export default function MarketingLayout({
             </div>
 
             <div>
-              <p className="mk-eyebrow">{t("footer.developersHeading")}</p>
-              <div className="mt-4 flex flex-col gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("footer.developersHeading")}</p>
+              <div className="mt-4 flex flex-col gap-2.5">
                 {footerDeveloperLinks.map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
-                    className="text-[13px] transition-colors"
-                    style={{ color: "var(--mk-ink-60)" }}
+                    className="text-[13px] text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     {l.label}
                   </Link>
                 ))}
-                {/* Static text brief for agents/crawlers — not a Next route,
-                    and not locale-routed (see task 14 notes on llms.txt). */}
                 <a
                   href="/llms.txt"
-                  className="text-[13px] transition-colors"
-                  style={{ color: "var(--mk-ink-60)" }}
+                  className="text-[13px] text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   {t("footer.agentBrief")}
                 </a>
@@ -270,14 +227,13 @@ export default function MarketingLayout({
             </div>
 
             <div>
-              <p className="mk-eyebrow">{t("footer.companyHeading")}</p>
-              <div className="mt-4 flex flex-col gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("footer.companyHeading")}</p>
+              <div className="mt-4 flex flex-col gap-2.5">
                 {footerCompanyLinks.map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
-                    className="text-[13px] transition-colors"
-                    style={{ color: "var(--mk-ink-60)" }}
+                    className="text-[13px] text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     {l.label}
                   </Link>
@@ -286,19 +242,17 @@ export default function MarketingLayout({
             </div>
 
             <div>
-              <p className="mk-eyebrow">{t("footer.getStartedHeading")}</p>
-              <div className="mt-4 flex flex-col gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("footer.getStartedHeading")}</p>
+              <div className="mt-4 flex flex-col gap-2.5">
                 <NextLink
                   href="/login"
-                  className="text-[13px]"
-                  style={{ color: "var(--mk-ink-60)" }}
+                  className="text-[13px] text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   {t("footer.signIn")}
                 </NextLink>
                 <NextLink
                   href="/onboarding"
-                  className="text-[13px]"
-                  style={{ color: "var(--mk-ink-60)" }}
+                  className="text-[13px] text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   {t("footer.createAccount")}
                 </NextLink>
@@ -306,14 +260,8 @@ export default function MarketingLayout({
             </div>
           </div>
 
-          <div
-            className="mt-14 flex flex-col items-center gap-4 border-t pt-7 sm:flex-row sm:justify-between"
-            style={{ borderColor: "var(--mk-rule)" }}
-          >
-            <p
-              className="text-[11.5px]"
-              style={{ color: "var(--mk-ink-40)" }}
-            >
+          <div className="mt-14 flex flex-col items-center gap-4 border-t border-slate-100 dark:border-slate-800 pt-8 sm:flex-row sm:justify-between">
+            <p className="text-xs text-slate-400">
               {t("footer.copyright", { year: new Date().getFullYear() })}
             </p>
             <div className="flex gap-6">
@@ -321,8 +269,7 @@ export default function MarketingLayout({
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="text-[11.5px]"
-                  style={{ color: "var(--mk-ink-40)" }}
+                  className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
                 >
                   {l.label}
                 </Link>
@@ -331,6 +278,8 @@ export default function MarketingLayout({
           </div>
         </div>
       </footer>
+
     </div>
   );
 }
+

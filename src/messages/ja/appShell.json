@@ -8,6 +8,7 @@
     "items": {
       "dashboard": "ダッシュボード",
       "analytics": "分析",
+      "intelligence": "インテリジェンス",
       "brands": "ブランド",
       "posts": "投稿",
       "calendar": "カレンダー",
@@ -60,16 +61,16 @@
   },
   "verifyEmailBanner": {
     "prompt": "投稿するにはメールアドレスの確認が必要です",
-    "promptWithCode": " — <emailTag>{email}</emailTag> に送信したコードを入力してください",
+    "promptWithCode": "、<emailTag>{email}</emailTag> に送信したコードを入力してください",
     "sendCode": "コードを送信",
     "resendCode": "コードを再送信",
     "resendCountdown": "再送信（{seconds}秒）",
     "sending": "送信中…",
     "verify": "確認",
     "verifying": "確認中…",
-    "codeSent": "コードを送信しました — 受信トレイと迷惑メールフォルダをご確認ください。",
+    "codeSent": "コードを送信しました、受信トレイと迷惑メールフォルダをご確認ください。",
     "sendError": "現在送信できませんでした。1分後にもう一度お試しください。",
-    "verified": "メールアドレスを確認しました — これで準備完了です。"
+    "verified": "メールアドレスを確認しました、これで準備完了です。"
   },
   "localeSwitcher": {
     "label": "言語",
@@ -92,5 +93,9 @@
     "declined": "{workspaceName}への招待を辞退しました",
     "acceptError": "招待を承諾できませんでした。もう一度お試しください。",
     "declineError": "招待を辞退できませんでした。もう一度お試しください。"
+  },
+  "inbox": {
+    "title": "受信トレイ",
+    "empty": "通知はまだありません。"
   }
 }

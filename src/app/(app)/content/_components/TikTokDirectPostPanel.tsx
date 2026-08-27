@@ -195,7 +195,7 @@ export default function TikTokDirectPostPanel({
             const label = isTikTokPrivacyLevel(option) ? t(`privacy.options.${option}`) : option;
             return (
               <option key={option} value={option} disabled={disabled}>
-                {disabled ? `${label} — ${t("privacy.brandedContentPrivateHint")}` : label}
+                {disabled ? `${label}: ${t("privacy.brandedContentPrivateHint")}` : label}
               </option>
             );
           })}

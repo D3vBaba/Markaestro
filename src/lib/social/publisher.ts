@@ -968,7 +968,7 @@ export async function publishPostMultiChannel(
       results.push({
         channel,
         success: false,
-        error: 'Skipped — Instagram requires media (image or video)',
+        error: 'Skipped: Instagram requires media (image or video)',
       });
       continue;
     }

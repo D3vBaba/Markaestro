@@ -101,6 +101,10 @@ export type AnalyticsMetaDoc = {
   lastAudienceAttemptAt?: string;
   lastSweepAt?: string;
   lastDeadRetryDate?: string;
+  /** Last intelligence insight recompute; gates the hourly recompute. */
+  lastLearningRecomputeAt?: string;
+  socialPostsBackfillAt?: string;
+  socialPostsBackfillAfterId?: string;
   updatedAt?: string;
 };
 

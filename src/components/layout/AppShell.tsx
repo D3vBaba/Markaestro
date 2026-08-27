@@ -74,17 +74,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="grid h-dvh w-full max-w-full overflow-hidden lg:grid-cols-[232px_1fr]">
+    <div className="grid h-dvh w-full max-w-full overflow-hidden lg:grid-cols-[240px_1fr]">
       <Sidebar />
       <div
-        className="flex flex-col h-dvh min-w-0 overflow-hidden"
-        style={{ background: "var(--mk-surface)" }}
+        className="flex flex-col h-dvh min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-950"
       >
         <TrialBanner />
         <VerifyEmailBanner />
         <InvitesBanner />
         <Header />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-5 pb-8 sm:px-6 sm:py-7 lg:px-10 lg:py-7">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-5 pb-8 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
           {children}
         </main>
         <MobileTabBar />
@@ -92,3 +91,4 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+

@@ -28,7 +28,7 @@
   },
   "markPostedDialog": {
     "title": "标记为已发布",
-    "description": "确认你已自行在{channel}上发布此内容。如果有已发布内容的链接，请粘贴在此 — 以便日后将该帖子与其数据分析关联起来。",
+    "description": "确认你已自行在{channel}上发布此内容。如果有已发布内容的链接，请粘贴在此，以便日后将该帖子与其数据分析关联起来。",
     "urlPlaceholder": "https://www.{channel}.com/…（可选）",
     "cancel": "取消",
     "confirm": "标记为已发布",
@@ -182,7 +182,7 @@
   },
   "platformPostsTab": {
     "refresh": "刷新",
-    "liveFrom": "来自你已连接的{channel}账户的已发布内容 — 包括在 Markaestro 之外发布的内容。",
+    "liveFrom": "来自你已连接的{channel}账户的已发布内容，包括在 Markaestro 之外发布的内容。",
     "loadMore": "加载更多",
     "loading": "正在加载…",
     "noCaption": "无文案",
@@ -191,14 +191,14 @@
     "deleting": "正在删除…",
     "delete": "删除",
     "noDeleteHints": {
-      "instagram": "Instagram 不允许应用删除帖子 — 请在 Instagram 应用中删除。",
-      "tiktok": "TikTok 不允许应用删除视频 — 请在 TikTok 应用中删除。"
+      "instagram": "Instagram 不允许应用删除帖子，请在 Instagram 应用中删除。",
+      "tiktok": "TikTok 不允许应用删除视频，请在 TikTok 应用中删除。"
     },
     "noDeleteDefault": "此帖子不支持删除。",
     "deleteWarning": "此操作将从{channel}永久删除该帖子。",
     "states": {
       "notConnectedTitle": "{channel}尚未连接",
-      "notConnectedBody": "将{channel}连接到此品牌后，其已发布内容将显示在此处 — 包括在 Markaestro 之外发布的内容。",
+      "notConnectedBody": "将{channel}连接到此品牌后，其已发布内容将显示在此处，包括在 Markaestro 之外发布的内容。",
       "connect": "连接{channel}",
       "authTitle": "{channel}需要重新连接",
       "authBody": "{channel}的连接已过期，目前无法浏览其帖子。请在品牌设置中重新连接，从中断处继续。",
@@ -208,10 +208,10 @@
       "linkedinPartnerBody": "LinkedIn 仅允许获批的合作伙伴应用浏览账户帖子。通过 Markaestro 发布的内容仍会显示在你的“已发布”标签页中。",
       "unsupportedBody": "{channel}不允许应用浏览账户帖子。通过 Markaestro 发布的内容仍会显示在你的“已发布”标签页中。",
       "errorTitle": "无法加载{channel}的帖子",
-      "errorBody": "{channel}未按预期响应。这通常是暂时性问题 — 请稍后再试一次。",
+      "errorBody": "{channel}未按预期响应。这通常是暂时性问题，请稍后再试一次。",
       "tryAgain": "重试",
       "emptyTitle": "{channel}上还没有帖子",
-      "emptyBody": "当此账户发布内容时 — 无论通过 Markaestro 还是直接在{channel}上 — 其帖子都会显示在此处。"
+      "emptyBody": "当此账户发布内容时，无论通过 Markaestro 还是直接在{channel}上， 其帖子都会显示在此处。"
     },
     "toasts": {
       "loadMoreFailed": "加载更多帖子失败",
@@ -327,7 +327,7 @@
     "modeInbox": "发送到 TikTok 收件箱",
     "modeInboxHint": "你在 TikTok 应用中完成文案并发布，可以在那里添加 TikTok 曲库中的声音。",
     "modeDirect": "直接发布到 TikTok",
-    "modeDirectHint": "Markaestro 会按以下设置直接发布到你的主页。帖子使用视频自带的音频——TikTok 曲库中的声音只能在应用内添加。",
+    "modeDirectHint": "Markaestro 会按以下设置直接发布到你的主页。帖子使用视频自带的音频，TikTok 曲库中的声音只能在应用内添加。",
     "blockers": {
       "privacyNotSelected": "发布前请先选择谁可以查看此帖子。",
       "disclosureWithoutSelection": "你需要说明内容是推广自己、第三方还是两者兼有。",

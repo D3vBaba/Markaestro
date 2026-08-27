@@ -34,7 +34,8 @@
       "integration": "integration",
       "post": "post",
       "workspace": "workspace",
-      "account": "account"
+      "account": "account",
+      "experiment": "experiment"
     },
     "titleGeneric": "Delete {entity}",
     "titleNamed": "Delete {entity}?",
@@ -86,8 +87,8 @@
         "activeLabel": "Building your brand profile…"
       }
     },
-    "scanComplete": "Scan complete — review and confirm below",
-    "scanFailed": "Scan failed — please fill in manually",
+    "scanComplete": "Scan complete. Review and confirm below",
+    "scanFailed": "Scan failed. Please fill in manually",
     "researching": "Researching your brand…"
   },
   "platformPreview": {

@@ -1,14 +1,14 @@
 {
   "meta": {
     "title": "Markaestro für KI-Agenten | Social-Media-Veröffentlichung mit einem API-Schlüssel automatisieren",
-    "description": "Gib deinem KI-Agenten einen Markaestro-API-Schlüssel, und er kann verbundene soziale Konten entdecken, Medien hochladen, Beiträge entwerfen, planen und auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest veröffentlichen — mit markengebundenen Schlüsseln, idempotenten Schreibvorgängen und von Menschen überwachter Veröffentlichung.",
+    "description": "Gib deinem KI-Agenten einen Markaestro-API-Schlüssel, und er kann verbundene soziale Konten entdecken, Medien hochladen, Beiträge entwerfen, planen und auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest veröffentlichen, mit markengebundenen Schlüsseln, idempotenten Schreibvorgängen und von Menschen überwachter Veröffentlichung.",
     "ogTitle": "Markaestro für KI-Agenten",
     "ogDescription": "Ein API-Schlüssel macht Markaestro zu einem Veröffentlichungswerkzeug, das dein Agent aufrufen kann: Konten entdecken, Medien hochladen, entwerfen, planen, veröffentlichen und zurückmelden."
   },
   "hero": {
     "eyebrow": "Für KI-Agenten",
     "title": "Gib deinem Agenten einen API-Schlüssel. Er verwaltet deine sozialen Kanäle.",
-    "intro1": "Markaestro ist dafür gebaut, von Software bedient zu werden. Ein einziger Arbeitsbereichs-API-Schlüssel gibt einem Agenten alles, was er braucht, um zu entdecken, auf welchen Konten er posten kann, Medien hochzuladen, Beiträge zu entwerfen und zu planen, sie zu veröffentlichen und zurückzumelden, was tatsächlich live gegangen ist — auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest.",
+    "intro1": "Markaestro ist dafür gebaut, von Software bedient zu werden. Ein einziger Arbeitsbereichs-API-Schlüssel gibt einem Agenten alles, was er braucht, um zu entdecken, auf welchen Konten er posten kann, Medien hochzuladen, Beiträge zu entwerfen und zu planen, sie zu veröffentlichen und zurückzumelden, was tatsächlich live gegangen ist, auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest.",
     "intro2": "Kein SDK zu installieren, kein OAuth-Flow, den der Agent überstehen muss, keine plattformspezifischen Zugangsdaten zu betreuen. Dein Team verbindet die Konten einmal im Dashboard; der Agent spricht danach mit einer einzigen Bearer-Token-API.",
     "createKeyButton": "API-Schlüssel erstellen",
     "apiReferenceButton": "Vollständige API-Referenz",
@@ -19,18 +19,18 @@
     "title": "Warum ein API-Schlüssel die gesamte Integration ist",
     "intro": "Das Schwierige daran, einen Agenten Social Media anfassen zu lassen, ist nicht das HTTP. Es geht darum sicherzustellen, dass ein verwirrtes Modell nicht auf der falschen Marke postet, bei einem Wiederholungsversuch doppelt postet oder etwas veröffentlicht, das niemand gelesen hat. Diese Garantien liegen in der API-Oberfläche selbst, nicht in deinem Prompt.",
     "cards": [
-      { "title": "Ein Schlüssel, eine Marke", "body": "Jeder API-Schlüssel ist bei der Erstellung an eine einzelne Marke gebunden. Ein Agent mit diesem Schlüssel kann nur diese Marke sehen und dort posten — markenübergreifende Anfragen werden bei der Authentifizierung abgelehnt, nicht nur per Konvention." },
+      { "title": "Ein Schlüssel, eine Marke", "body": "Jeder API-Schlüssel ist bei der Erstellung an eine einzelne Marke gebunden. Ein Agent mit diesem Schlüssel kann nur diese Marke sehen und dort posten, markenübergreifende Anfragen werden bei der Authentifizierung abgelehnt, nicht nur per Konvention." },
       { "title": "Entdeckung statt fest codierter IDs", "body": "Der Agent fragt, auf welche Konten er posten kann, und erhält undurchsichtige IDs zurück, die er unverändert weitergeben kann. Keine Seiten-IDs, kein Durchforsten des Business Manager, keine Konfigurationsdatei, die veraltet, wenn eine Verbindung neu verknüpft wird." },
-      { "title": "Idempotente Schreibvorgänge", "body": "Sende bei jeder Erstellung oder Veröffentlichung einen Idempotency-Key. Ein wiederholter Aufruf innerhalb von 24 Stunden gibt die ursprüngliche Antwort erneut zurück, statt einen zweiten Beitrag zu erstellen — der häufigste Fehlerfall bei Agenten." },
+      { "title": "Idempotente Schreibvorgänge", "body": "Sende bei jeder Erstellung oder Veröffentlichung einen Idempotency-Key. Ein wiederholter Aufruf innerhalb von 24 Stunden gibt die ursprüngliche Antwort erneut zurück, statt einen zweiten Beitrag zu erstellen, der häufigste Fehlerfall bei Agenten." },
       { "title": "Ein Mensch bleibt immer im Bilde", "body": "Facebook-, Instagram- und TikTok-Beiträge sind grundsätzlich manuell: Dein Agent bereitet sie vor, ein Mensch postet sie nativ. Nichts geht unbeaufsichtigt raus, es sei denn, du aktivierst das explizit für diesen Beitrag." }
     ]
   },
   "loop": {
     "eyebrow": "Der Agenten-Kreislauf",
     "title": "Fünf Aufrufe, von Anfang bis Ende",
-    "intro": "Jede Markaestro-Automatisierung ist eine Variation dieses Kreislaufs. Schritte eins bis drei sind die <connectLink>Connect-API</connectLink> — die flache Oberfläche, auf die die meisten Agenten abzielen sollten. Schritte vier und fünf greifen auf die vollständige <code>/api/public/v1</code>-API für explizite Veröffentlichung und Laufverfolgung zu.",
+    "intro": "Jede Markaestro-Automatisierung ist eine Variation dieses Kreislaufs. Schritte eins bis drei sind die <connectLink>Connect-API</connectLink>, die flache Oberfläche, auf die die meisten Agenten abzielen sollten. Schritte vier und fünf greifen auf die vollständige <code>/api/public/v1</code>-API für explizite Veröffentlichung und Laufverfolgung zu.",
     "steps": [
-      { "step": "01", "title": "Entdecken", "body": "Gibt jedes verbundene, veröffentlichungsfähige Konto für die Marke des Schlüssels zurück, jeweils mit Plattform, Nutzername und undurchsichtiger ID. Rufe es zu Beginn jedes Laufs auf — Verbindungen ändern sich." },
+      { "step": "01", "title": "Entdecken", "body": "Gibt jedes verbundene, veröffentlichungsfähige Konto für die Marke des Schlüssels zurück, jeweils mit Plattform, Nutzername und undurchsichtiger ID. Rufe es zu Beginn jedes Laufs auf: Verbindungen ändern sich." },
       { "step": "02", "title": "Medien hochladen", "body": "Erstelle eine kurzlebige, einmal verwendbare signierte URL und sende dann die rohen Bytes per PUT dorthin. Du erhältst eine Medien-ID zurück. Bilder bis zu 10 MB; die vollständige API nimmt auch Videos bis zu 250 MB." },
       { "step": "03", "title": "Entwerfen oder planen", "body": "Übergib den Text, die Medien-IDs und die Konto-IDs unverändert. Lass es als Entwurf zur Prüfung, oder sende is_draft false mit scheduled_at, um es in den Kalender einzutragen." },
       { "step": "04", "title": "Veröffentlichen", "body": "Reiht einen asynchronen Lauf ein. LinkedIn, Threads und Pinterest gehen über die offizielle API raus. Facebook, Instagram und TikTok landen in der „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs, damit ein Mensch nativ postet." },
@@ -40,7 +40,7 @@
   "quickstart": {
     "eyebrow": "Schnellstart",
     "title": "Eine funktionierende Integration in vier Befehlen",
-    "intro": "Erstelle zuerst den Schlüssel: Öffne <settingsLink>Einstellungen → API</settingsLink>, wähle die Marke aus, auf die er zugreifen darf, hake die benötigten Berechtigungen ab und gib optional ein Ablaufdatum an. Der Schlüssel wird einmalig angezeigt — leg ihn direkt in den Secret-Speicher deines Agenten. Das Erstellen von Schlüsseln erfordert einen Administrator oder Inhaber mit verifizierter E-Mail-Adresse.",
+    "intro": "Erstelle zuerst den Schlüssel: Öffne <settingsLink>Einstellungen → API</settingsLink>, wähle die Marke aus, auf die er zugreifen darf, hake die benötigten Berechtigungen ab und gib optional ein Ablaufdatum an. Der Schlüssel wird einmalig angezeigt, leg ihn direkt in den Secret-Speicher deines Agenten. Das Erstellen von Schlüsseln erfordert einen Administrator oder Inhaber mit verifizierter E-Mail-Adresse.",
     "step1": { "title": "1. Konten entdecken", "description": "Der erste Aufruf in jedem Lauf. Verbindungen ändern sich; IDs sollten nie fest in einen Prompt eingebacken werden." },
     "step2": { "title": "2. Medien hochladen", "description": "Zwei Schritte: Erstelle eine signierte, einmal verwendbare URL, sende dann die Bytes per PUT. Die URL läuft nach 15 Minuten ab und benötigt keinen eigenen Auth-Header." },
     "step3": { "title": "3. Planen, dann beobachten", "description": "Das Erstellen ist standardmäßig entwurfsbasiert. Sende <code>is_draft: false</code> mit einem <code>scheduled_at</code>-Zeitstempel, um den Beitrag stattdessen in den Kalender einzutragen." },
@@ -50,14 +50,14 @@
   "toolDefs": {
     "eyebrow": "Sofort einsatzbereit",
     "title": "Tool-Definitionen und eine Agenten-Kurzübersicht",
-    "intro": "Zwei Dinge zum Kopieren. Das erste ist eine Reihe von Tool-Schemas, die den gesamten Veröffentlichungskreislauf abdecken — geschrieben in JSON Schema, sodass sie als Claude-Tool-Definitionen, OpenAI-Funktionen oder als Eingabeform für einen selbst gehosteten MCP-Server funktionieren. Das zweite ist die Betriebs-Kurzübersicht, die verhindert, dass ein Modell damit etwas Unerwartetes tut.",
+    "intro": "Zwei Dinge zum Kopieren. Das erste ist eine Reihe von Tool-Schemas, die den gesamten Veröffentlichungskreislauf abdecken, geschrieben in JSON Schema, sodass sie als Claude-Tool-Definitionen, OpenAI-Funktionen oder als Eingabeform für einen selbst gehosteten MCP-Server funktionieren. Das zweite ist die Betriebs-Kurzübersicht, die verhindert, dass ein Modell damit etwas Unerwartetes tut.",
     "schemasTitle": "Tool-Schemas",
     "schemasDescription": "Sechs Tools: Konten auflisten, Medien hochladen, erstellen, veröffentlichen, auflisten, löschen. Verbinde jedes mit dem passenden Endpunkt oben.",
     "schemasLabel": "tools.json",
     "briefTitle": "Agenten-Kurzübersicht",
     "briefDescription": "In deinen System-Prompt einfügen. Sie kodiert die Verhaltensweisen, die einen zuverlässigen Veröffentlichungsagenten von einem unterscheiden, der doppelt postet und zu früh Erfolg meldet.",
     "briefLabel": "System-Prompt",
-    "briefFooter": "Dein Agent kann dies auch selbst abrufen: <code>curl https://markaestro.com/llms.txt</code> gibt eine Klartext-Kurzübersicht der gesamten API zurück — Endpunkte, Regeln und Fehlerbehandlung — kompakt genug, um in den Kontext zu passen."
+    "briefFooter": "Dein Agent kann dies auch selbst abrufen: <code>curl https://markaestro.com/llms.txt</code> gibt eine Klartext-Kurzübersicht der gesamten API zurück, Endpunkte, Regeln und Fehlerbehandlung, kompakt genug, um in den Kontext zu passen."
   },
   "recipes": {
     "eyebrow": "Rezepte",
@@ -73,33 +73,33 @@
     "title": "Was der Agent darf und nicht darf",
     "intro": "Autonomie ist nur nützlich, wenn der Wirkungsradius klein ist. Die Standardeinstellungen von Markaestro gehen davon aus, dass der Aufrufer Software ist, die sich irren könnte.",
     "calloutTitle": "Facebook, Instagram und TikTok sind grundsätzlich manuell",
-    "calloutBody": "Beiträge, die dein Agent für diese Kanäle erstellt, nutzen standardmäßig <code>manual_reminder</code>: Markaestro ruft niemals die API der Plattform für sie auf. Das Veröffentlichen verschiebt den Beitrag in die „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs, wo eine Person die Medien herunterlädt, nativ postet und bestätigt — sodass der Beitrag genau so aussieht, als wäre er von Hand erstellt worden, und ein Mensch jeden einzelnen sieht, bevor er öffentlich existiert. Ein Agent kann einen einzelnen Beitrag für die offizielle API-Veröffentlichung mit <code>deliveryMode: \"direct_publish\"</code> aktivieren, und bei TikTok bedeutet das die Posteingangsübergabe an den Creator, niemals einen unbeaufsichtigten öffentlichen Beitrag. LinkedIn, Threads und Pinterest veröffentlichen programmatisch, sobald dein Agent explizit danach fragt.",
+    "calloutBody": "Beiträge, die dein Agent für diese Kanäle erstellt, nutzen standardmäßig <code>manual_reminder</code>: Markaestro ruft niemals die API der Plattform für sie auf. Das Veröffentlichen verschiebt den Beitrag in die „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs, wo eine Person die Medien herunterlädt, nativ postet und bestätigt, sodass der Beitrag genau so aussieht, als wäre er von Hand erstellt worden, und ein Mensch jeden einzelnen sieht, bevor er öffentlich existiert. Ein Agent kann einen einzelnen Beitrag für die offizielle API-Veröffentlichung mit <code>deliveryMode: \"direct_publish\"</code> aktivieren, und bei TikTok bedeutet das die Posteingangsübergabe an den Creator, niemals einen unbeaufsichtigten öffentlichen Beitrag. LinkedIn, Threads und Pinterest veröffentlichen programmatisch, sobald dein Agent explizit danach fragt.",
     "items": [
       { "title": "Schlüsselberechtigungen einschränken", "body": "Wähle nur die Berechtigungen, die der Agent braucht: products.read, media.write, posts.read, posts.write, posts.publish, job_runs.read, webhooks.manage. Ein Recherche-Agent, der nur den Kalender liest, erhält posts.read und nichts weiter." },
       { "title": "Ein Ablaufdatum geben", "body": "Schlüssel können mit einem Ablaufdatum erstellt werden. Ein abgelaufener Schlüssel verhält sich genau wie ein widerrufener, sodass ein Schlüssel, der aus der Umgebung eines Agenten austritt, von selbst aufhört zu funktionieren." },
-      { "title": "Rotieren und widerrufen", "body": "Rotiere einen Schlüssel an Ort und Stelle oder widerrufe ihn direkt unter Einstellungen → API. Jeder Schlüssel zeigt seine letzte Nutzung und sein Anfragevolumen, sodass ein Agent, der still wird — oder außer Kontrolle gerät — sichtbar bleibt." },
+      { "title": "Rotieren und widerrufen", "body": "Rotiere einen Schlüssel an Ort und Stelle oder widerrufe ihn direkt unter Einstellungen → API. Jeder Schlüssel zeigt seine letzte Nutzung und sein Anfragevolumen, sodass ein Agent, der still wird, oder außer Kontrolle gerät, sichtbar bleibt." },
       { "title": "Ratenlimits werden durchgesetzt", "body": "60 Anfragen pro Minute pro Endpunkt und 240 pro Minute pro Schlüssel. Jede Antwort trägt X-RateLimit-Limit, -Remaining und -Reset; ein 429 trägt Retry-After. Beachte es, statt hartnäckig weiterzumachen." },
       { "title": "Markaestro schreibt niemals für dich", "body": "Es gibt keinen Generierungsschritt. Der Text kommt von deinem Agenten, die Medien kommen aus deiner Bibliothek oder der Pipeline deines Agenten. Markaestro liefert die Hände, nicht die Stimme." },
-      { "title": "Löschungen erfolgen auf Markaestro-Seite", "body": "Das Löschen eines geplanten Beitrags bricht ihn ab, bevor er live geht. Das Löschen eines bereits veröffentlichten Beitrags stoppt nur die Nachverfolgung durch Markaestro — der aktive Beitrag bleibt online, bis ihn jemand auf der Plattform entfernt." }
+      { "title": "Löschungen erfolgen auf Markaestro-Seite", "body": "Das Löschen eines geplanten Beitrags bricht ihn ab, bevor er live geht. Das Löschen eines bereits veröffentlichten Beitrags stoppt nur die Nachverfolgung durch Markaestro, der aktive Beitrag bleibt online, bis ihn jemand auf der Plattform entfernt." }
     ]
   },
   "errors": {
     "eyebrow": "Fehlerbehandlung",
     "title": "Bring ihm bei, welche Fehler eine Wiederholung wert sind",
-    "intro": "Jede Fehlerantwort ist JSON mit einem stabilen <code>error</code>-Code und einer <code>requestId</code>. Lass deinen Agenten die requestId zitieren, wenn er einen Fehler meldet — das braucht der Support, um den Aufruf nachzuverfolgen.",
+    "intro": "Jede Fehlerantwort ist JSON mit einem stabilen <code>error</code>-Code und einer <code>requestId</code>. Lass deinen Agenten die requestId zitieren, wenn er einen Fehler meldet, das braucht der Support, um den Aufruf nachzuverfolgen.",
     "statusHeader": "Status",
     "codeHeader": "Code",
     "actionHeader": "Was der Agent tun sollte",
     "rows": [
-      { "status": "401", "code": "UNAUTHENTICATED", "action": "Der Schlüssel fehlt, wurde widerrufen oder ist abgelaufen. Stoppe und bitte einen Menschen um einen neuen — ein Wiederholungsversuch hilft nicht." },
+      { "status": "401", "code": "UNAUTHENTICATED", "action": "Der Schlüssel fehlt, wurde widerrufen oder ist abgelaufen. Stoppe und bitte einen Menschen um einen neuen, ein Wiederholungsversuch hilft nicht." },
       { "status": "403", "code": "FORBIDDEN", "action": "Dem Schlüssel fehlt die Berechtigung für diesen Aufruf. Melde, welcher Aufruf fehlgeschlagen ist; Berechtigungen werden unter Einstellungen → API geändert." },
       { "status": "403", "code": "API_KEY_NOT_BOUND_TO_PRODUCT", "action": "Ein Schlüssel, der vor der Markenbindung ausgestellt wurde. Bitte um einen Ersatzschlüssel." },
       { "status": "400", "code": "VALIDATION_*", "action": "Die Nutzdaten haben eine Kanalregel verletzt (fehlende Medien, ungültiger Zustellmodus, falsches scheduled_at). Korrigiere die Anfrage; wiederhole sie nicht unverändert." },
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "Derselbe Idempotency-Key wurde mit einem anderen Body gesendet. Erstelle einen neuen Schlüssel für jede eigenständige Anfrage." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Es wurde versucht, einen Beitrag zu löschen, während ein Veröffentlichungslauf lief. Warte, bis er sich erledigt hat, und lösche dann." },
-      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Für diesen Beitrag ist bereits ein Veröffentlichungslauf eingereiht. Veröffentliche nicht erneut — frage den bestehenden Lauf ab." },
+      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Für diesen Beitrag ist bereits ein Veröffentlichungslauf eingereiht. Veröffentliche nicht erneut, frage den bestehenden Lauf ab." },
       { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "Diesem Workspace ist kein aktiver Tarif zugeordnet. Bitte einen Workspace-Inhaber, die Abrechnung in den Einstellungen zu prüfen." },
-      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "Der Arbeitsbereich hat sein monatliches Upload-Kontingent erreicht. Stoppe das Hochladen und weise darauf hin — vorhandene Medien werden weiterhin veröffentlicht." },
+      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "Der Arbeitsbereich hat sein monatliches Upload-Kontingent erreicht. Stoppe das Hochladen und weise darauf hin, vorhandene Medien werden weiterhin veröffentlicht." },
       { "status": "404", "code": "NOT_FOUND", "action": "Die ID liegt außerhalb der Marke dieses Schlüssels. Wird als 404 statt 403 beantwortet, damit Schlüssel nicht nach IDs suchen können, die ihnen nicht gehören." },
       { "status": "429", "code": "RATE_LIMITED", "action": "Warte die in Retry-After angegebene Anzahl Sekunden und wiederhole dieselbe Anfrage mit demselben Idempotency-Key." }
     ]
@@ -110,7 +110,7 @@
     "intro": "Es gibt keine Markaestro-Client-Bibliothek zu übernehmen und kein Framework, an das man sich halten müsste. Bearer-Token, JSON rein, JSON raus.",
     "items": [
       { "name": "Claude & das Claude Agent SDK", "body": "Füge die obigen Tool-Definitionen zu deiner Tool-Liste hinzu. Die JSON-Schema-Formen liegen bereits im Claude-Tool-Use-Format vor." },
-      { "name": "OpenAI Function Calling", "body": "Dieselben Schemas lassen sich eins zu eins auf Funktionsdefinitionen übertragen — input_schema wird einfach zu parameters umbenannt." },
+      { "name": "OpenAI Function Calling", "body": "Dieselben Schemas lassen sich eins zu eins auf Funktionsdefinitionen übertragen, input_schema wird einfach zu parameters umbenannt." },
       { "name": "MCP-Server", "body": "Wenn dein Agent MCP spricht, verpacke diese sechs Aufrufe in einem kleinen Server. Es gibt nichts Markaestro-Spezifisches, das auf beiden Seiten installiert werden müsste." },
       { "name": "n8n, Make, Zapier", "body": "Jeder Endpunkt ist eine einfache HTTP-Anfrage mit einem Bearer-Token. Kein SDK, keine Signierzeremonie, kein OAuth-Tanz für den Agenten." },
       { "name": "LangChain & LlamaIndex", "body": "Standard-REST-Tools. Der zweistufige Medien-Upload ist der einzige Ablauf mit mehreren Aufrufen, und er umfasst nur zwei Zeilen." },

@@ -116,7 +116,7 @@ export function useProductScan(): UseProductScanReturn {
       } else {
         clearPhaseTimers();
         setPhase("error");
-        toast.error("Scan failed — fill in your details manually");
+        toast.error("Scan failed. Fill in your details manually");
         return null;
       }
     } catch {
@@ -124,7 +124,7 @@ export function useProductScan(): UseProductScanReturn {
       if (controller.signal.aborted) return null;
       clearPhaseTimers();
       setPhase("error");
-      toast.error("Scan failed — fill in your details manually");
+      toast.error("Scan failed. Fill in your details manually");
       return null;
     } finally {
       if (abortRef.current === controller) abortRef.current = null;

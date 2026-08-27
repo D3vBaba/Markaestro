@@ -25,6 +25,7 @@ const APP_NAMESPACE_FILES = {
   content: "appContent",
   products: "appProducts",
   analytics: "appAnalytics",
+  intelligence: "appIntelligence",
   auth: "appAuth",
   guidesChannels: "appGuidesChannels",
 } as const;

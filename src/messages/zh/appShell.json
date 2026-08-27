@@ -8,6 +8,7 @@
     "items": {
       "dashboard": "控制台",
       "analytics": "数据分析",
+      "intelligence": "智能洞察",
       "brands": "品牌",
       "posts": "内容",
       "calendar": "日历",
@@ -60,16 +61,16 @@
   },
   "verifyEmailBanner": {
     "prompt": "验证邮箱后即可发布",
-    "promptWithCode": " — 请输入发送至 <emailTag>{email}</emailTag> 的验证码",
+    "promptWithCode": "，请输入发送至 <emailTag>{email}</emailTag> 的验证码",
     "sendCode": "发送验证码",
     "resendCode": "重新发送验证码",
     "resendCountdown": "重新发送（{seconds}秒）",
     "sending": "发送中…",
     "verify": "验证",
     "verifying": "验证中…",
-    "codeSent": "验证码已发送 — 请查看收件箱和垃圾邮件文件夹。",
+    "codeSent": "验证码已发送，请查看收件箱和垃圾邮件文件夹。",
     "sendError": "暂时无法发送，请一分钟后重试。",
-    "verified": "邮箱已验证 — 一切就绪。"
+    "verified": "邮箱已验证，一切就绪。"
   },
   "localeSwitcher": {
     "label": "语言",
@@ -92,5 +93,9 @@
     "declined": "已拒绝加入 {workspaceName} 的邀请",
     "acceptError": "无法接受邀请，请重试。",
     "declineError": "无法拒绝邀请，请重试。"
+  },
+  "inbox": {
+    "title": "收件箱",
+    "empty": "暂无通知。"
   }
 }

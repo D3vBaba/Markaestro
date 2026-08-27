@@ -249,6 +249,7 @@ async function fetchPinterestMetrics(
 
   const metrics = emptyMetrics();
   metrics.views = metricNum(values.IMPRESSION);
+  metrics.impressions = metrics.views;
   metrics.saves = metricNum(values.SAVE);
   metrics.clicks = metricNum(values.OUTBOUND_CLICK);
   metrics.comments = metricNum(values.TOTAL_COMMENTS);

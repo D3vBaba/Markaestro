@@ -28,7 +28,7 @@
     },
     {
       "title": "Voorbeeldweergave voor Meerdere Kanalen",
-      "description": "Zie hoe elke post op elk netwerk eruitziet voordat je publiceert — Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest krijgen elk hun eigen voorbeeldweergave. Onderschriften, beeldverhoudingen, tekenlimieten en mediaspecificaties worden allemaal live weergegeven.",
+      "description": "Zie hoe elke post op elk netwerk eruitziet voordat je publiceert: Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest krijgen elk hun eigen voorbeeldweergave. Onderschriften, beeldverhoudingen, tekenlimieten en mediaspecificaties worden allemaal live weergegeven.",
       "details": [
         "Pixelnauwkeurige voorbeeldweergaven per platform",
         "Live telling van onderschriftkarakters",
@@ -58,12 +58,12 @@
     },
     {
       "title": "API en AI-agents",
-      "description": "Alles wat het dashboard doet, kan jouw software ook. Genereer een API-sleutel, geef die aan een AI-agent of script, en laat die accounts ontdekken, media uploaden, posts plannen, publiceren en rapporteren — op elk abonnement, zonder extra kosten.",
+      "description": "Alles wat het dashboard doet, kan jouw software ook. Genereer een API-sleutel, geef die aan een AI-agent of script, en laat die accounts ontdekken, media uploaden, posts plannen, publiceren en rapporteren, op elk abonnement, zonder extra kosten.",
       "details": [
         "Sleutels beperkt tot één merk, met optionele vervaldatum",
         "Idempotente writes zodat een retry nooit dubbel post",
         "Asynchrone publicatieruns plus HMAC-ondertekende webhooks",
-        "Manual-first bij Meta en TikTok — een mens plaatst nog steeds"
+        "Manual-first bij Meta en TikTok, een mens plaatst nog steeds"
       ],
       "codeLabel": "plan een post vanuit alles wat HTTP spreekt",
       "agentGuideLink": "Lees de AI-agentgids →"
@@ -72,7 +72,7 @@
   "platformFeatures": [
     {
       "title": "Workspacebeheer",
-      "description": "Organiseer de merken die je promoot — klanten, bedrijfsonderdelen of je eigen ondernemingen — in geïsoleerde workspaces. Elke workspace heeft zijn eigen merken, integraties en teamleden."
+      "description": "Organiseer de merken die je promoot, klanten, bedrijfsonderdelen of je eigen ondernemingen, in geïsoleerde workspaces. Elke workspace heeft zijn eigen merken, integraties en teamleden."
     },
     {
       "title": "Planning en Kalender",
@@ -87,7 +87,7 @@
     "eyebrow": "Platform",
     "titleLead": "Gebouwd voor iedereen die",
     "titleHighlight": "publiceert",
-    "subtitle": "Naast de kerntools biedt Markaestro je de infrastructuur om te schalen — van één merk tot een volledig klantenbestand."
+    "subtitle": "Naast de kerntools biedt Markaestro je de infrastructuur om te schalen, van één merk tot een volledig klantenbestand."
   },
   "cta": {
     "title": "Klaar om het in actie te zien?",

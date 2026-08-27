@@ -39,7 +39,7 @@
   },
   "deletedNotice": "That post has been deleted and is no longer available.",
   "dismiss": "Dismiss",
-  "truncatedNotice": "This month has more posts than the calendar can load at once — some are not shown.",
+  "truncatedNotice": "This month has more posts than the calendar can load at once. Some are not shown.",
   "postsThisMonth": "{count, plural, one {# post} other {# posts}} this month",
   "dropToReschedule": "· Drop on a day to reschedule",
   "newPost": "New post",

@@ -127,7 +127,7 @@ export function extractJsonLdBrand(html: string): JsonLdBrand {
     brand name is almost always the shortest segment. */
 function brandSegment(text: string): string {
   const segments = text
-    .split(/\s*[|•·–—]\s*|\s+-\s+/)
+    .split(/\s*[|•·\u2013\u2014]\s*|\s+-\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
   if (segments.length === 0) return '';

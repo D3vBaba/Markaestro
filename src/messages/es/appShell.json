@@ -8,6 +8,7 @@
     "items": {
       "dashboard": "Panel",
       "analytics": "Analíticas",
+      "intelligence": "Inteligencia",
       "brands": "Marcas",
       "posts": "Publicaciones",
       "calendar": "Calendario",
@@ -60,16 +61,16 @@
   },
   "verifyEmailBanner": {
     "prompt": "Verifica tu correo para publicar",
-    "promptWithCode": " — introduce el código que enviamos a <emailTag>{email}</emailTag>",
+    "promptWithCode": ", introduce el código que enviamos a <emailTag>{email}</emailTag>",
     "sendCode": "Enviar código",
     "resendCode": "Reenviar código",
     "resendCountdown": "Reenviar ({seconds}s)",
     "sending": "Enviando…",
     "verify": "Verificar",
     "verifying": "Verificando…",
-    "codeSent": "Código enviado — revisa tu bandeja de entrada y spam.",
+    "codeSent": "Código enviado, revisa tu bandeja de entrada y spam.",
     "sendError": "No se pudo enviar en este momento. Inténtalo de nuevo en un minuto.",
-    "verified": "Correo verificado — todo listo."
+    "verified": "Correo verificado, todo listo."
   },
   "localeSwitcher": {
     "label": "Idioma",
@@ -92,5 +93,9 @@
     "declined": "Invitación a {workspaceName} rechazada",
     "acceptError": "No se pudo aceptar la invitación. Inténtalo de nuevo.",
     "declineError": "No se pudo rechazar la invitación. Inténtalo de nuevo."
+  },
+  "inbox": {
+    "title": "Bandeja",
+    "empty": "Aún no hay notificaciones."
   }
 }

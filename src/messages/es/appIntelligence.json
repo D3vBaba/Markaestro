@@ -1,0 +1,366 @@
+{
+  "title": "Inteligencia",
+  "subtitle": "Rendimiento medido, recomendaciones fundamentadas y un flujo claro, nada se publica automáticamente.",
+  "brand": "Marca",
+  "coverage": "{value}% de cobertura de datos",
+  "labels": {
+    "measured": "Medido",
+    "calculated": "Calculado",
+    "predicted": "Predicho",
+    "recommended": "Recomendado"
+  },
+  "tabs": {
+    "overview": "Resumen",
+    "audience": "Audiencia",
+    "content": "Contenido",
+    "opportunities": "Oportunidades",
+    "playbook": "Guía",
+    "advanced": "Experimentos"
+  },
+  "metrics": {
+    "posts": "Publicaciones",
+    "views": "Visualizaciones",
+    "reach": "Alcance",
+    "clicks": "Clics"
+  },
+  "platforms": {
+    "title": "Rendimiento por plataforma",
+    "empty": "Las publicaciones aparecerán cuando lleguen sus métricas.",
+    "posts": "{value} publicaciones",
+    "views": "{value} visualizaciones",
+    "engagements": "{value} interacciones",
+    "colPlatform": "Plataforma",
+    "colEngagements": "Interacciones"
+  },
+  "audience": {
+    "title": "Audiencia objetivo",
+    "objective": "Objetivo",
+    "markets": "Mercados",
+    "pillars": "Pilares de contenido"
+  },
+  "content": {
+    "title": "Mejor contenido",
+    "mediaOnly": "Publicación multimedia",
+    "likes": "Me gusta",
+    "comments": "Comentarios",
+    "shares": "Compartidos",
+    "viewLive": "Ver en vivo"
+  },
+  "empty": {
+    "overviewTitle": "Esperando publicaciones",
+    "overviewBody": "Esta marca aún no tiene publicaciones sincronizadas. Las publicadas desde Markaestro y el historial importado aparecen aquí cuando se proyectan en Inteligencia. Las métricas ausentes quedan en blanco, nunca en cero.",
+    "noBrandTitle": "Crea primero una marca",
+    "noBrandBody": "La inteligencia se organiza por marca de Markaestro.",
+    "profileTitle": "Configura tu perfil de audiencia",
+    "profileBody": "Añade objetivo, mercado, zona horaria y prioridades de plataforma en la configuración de marca.",
+    "contentTitle": "Aún no hay contenido medido",
+    "contentBody": "Las publicaciones publicadas e importadas aparecen aquí sin convertir métricas ausentes en cero.",
+    "opportunitiesTitle": "Aún no hay oportunidades fundamentadas",
+    "opportunitiesBody": "Las recomendaciones aparecen cuando hay evidencia medida suficiente. Sigue publicando y sincronizando métricas.",
+    "playbookTitle": "Tu guía se está preparando",
+    "playbookBody": "Los patrones estadísticos aparecen tras suficientes publicaciones medidas (típicamente cinco o más). Revisa Oportunidades mientras tanto.",
+    "createBrand": "Crear una marca"
+  },
+  "composer": {
+    "title": "Afinidad de audiencia",
+    "recommended": "Recomendado",
+    "body": "Evalúa este borrador contra tu perfil de audiencia. Las sugerencias no cambian el borrador hasta que pulses Aplicar.",
+    "analyze": "Analizar borrador",
+    "analyzing": "Analizando…",
+    "retry": "Reintentar",
+    "failed": "El análisis no pudo completarse de forma segura.",
+    "reanalyze": "Analizar de nuevo",
+    "meta": "{coverage}% de cobertura · confianza {confidence} · {sample} publicaciones relevantes",
+    "coldStart": "Inicio en frío: menos de cinco publicaciones relevantes.",
+    "unavailable": "No disponible",
+    "suggestion": "Redacción sugerida",
+    "apply": "Aplicar sugerencia",
+    "applied": "Aplicada al borrador",
+    "confidence": {
+      "low": "baja",
+      "medium": "media",
+      "high": "alta"
+    },
+    "timingHint": "Mejor ventana medida: {bucket} ({count} publicaciones)."
+  },
+  "profile": {
+    "objective": "Objetivo",
+    "objectiveHint": "Elige la métrica medida hacia la que optimizará la inteligencia.",
+    "primaryMarket": "Mercado principal",
+    "marketPlaceholder": "Selecciona un mercado",
+    "conversion": "Acción de conversión",
+    "timezone": "Zona horaria",
+    "platformPriority": "Plataforma prioritaria",
+    "platformHint": "Ordena las recomendaciones por plataforma. El resto de canales conectados siguen disponibles.",
+    "platformPlaceholder": "Sin prioridad",
+    "pillars": "Pilares de contenido",
+    "industries": "Sectores",
+    "interests": "Intereses",
+    "voice": "Voz de marca",
+    "listHint": "Elige del menú, cada selección añade una etiqueta que puedes quitar.",
+    "save": "Guardar perfil de audiencia",
+    "saving": "Guardando…",
+    "saved": "Perfil de audiencia guardado",
+    "saveFailed": "No se pudo guardar el perfil de audiencia",
+    "loading": "Cargando perfil de audiencia…",
+    "unavailable": "El perfil de audiencia no está habilitado para este espacio.",
+    "objectives": {
+      "awareness": "Notoriedad",
+      "engagement": "Interacción",
+      "followers": "Seguidores",
+      "website_traffic": "Tráfico web",
+      "leads": "Clientes potenciales",
+      "app_installs": "Instalaciones de app",
+      "purchases": "Compras",
+      "other": "Otro"
+    },
+    "conversions": {
+      "none": "Ninguna",
+      "website_visit": "Visita al sitio",
+      "lead": "Cliente potencial",
+      "signup": "Registro",
+      "app_install": "Instalación de app",
+      "purchase": "Compra",
+      "custom": "Personalizada"
+    },
+    "voiceHint": "Elige rasgos de tono que describan cómo debe sonar esta marca.",
+    "tagAdd": "Añadir de la lista…",
+    "tagEmpty": {
+      "pillars": "Sin pilares seleccionados",
+      "industries": "Sin sectores seleccionados",
+      "interests": "Sin intereses seleccionados",
+      "voice": "Sin rasgos de voz seleccionados"
+    },
+    "options": {
+      "pillars": {
+        "education": "Educación",
+        "entertainment": "Entretenimiento",
+        "inspiration": "Inspiración",
+        "product_updates": "Actualizaciones de producto",
+        "behind_the_scenes": "Detrás de cámaras",
+        "tutorials": "Tutoriales",
+        "thought_leadership": "Liderazgo de opinión",
+        "community": "Comunidad",
+        "promotions": "Promociones",
+        "user_stories": "Historias de usuarios",
+        "industry_news": "Noticias del sector",
+        "culture": "Cultura",
+        "events": "Eventos",
+        "testimonials": "Testimonios",
+        "how_to": "Cómo hacer"
+      },
+      "industries": {
+        "technology": "Tecnología",
+        "retail": "Comercio minorista",
+        "finance": "Finanzas",
+        "healthcare": "Salud",
+        "education": "Educación",
+        "food_beverage": "Alimentación y bebidas",
+        "fashion_beauty": "Moda y belleza",
+        "travel": "Viajes",
+        "real_estate": "Inmobiliaria",
+        "fitness": "Fitness",
+        "entertainment": "Entretenimiento",
+        "nonprofit": "Sin ánimo de lucro",
+        "b2b_services": "Servicios B2B",
+        "manufacturing": "Manufactura",
+        "automotive": "Automoción",
+        "gaming": "Videojuegos",
+        "media": "Medios",
+        "professional_services": "Servicios profesionales",
+        "home_garden": "Hogar y jardín",
+        "pets": "Mascotas"
+      },
+      "interests": {
+        "entrepreneurship": "Emprendimiento",
+        "marketing": "Marketing",
+        "design": "Diseño",
+        "productivity": "Productividad",
+        "wellness": "Bienestar",
+        "parenting": "Paternidad",
+        "sustainability": "Sostenibilidad",
+        "personal_finance": "Finanzas personales",
+        "cooking": "Cocina",
+        "photography": "Fotografía",
+        "music": "Música",
+        "sports": "Deportes",
+        "technology": "Tecnología",
+        "career_growth": "Crecimiento profesional",
+        "diy": "Bricolaje",
+        "gaming": "Videojuegos",
+        "fashion": "Moda",
+        "travel": "Viajes",
+        "fitness": "Fitness",
+        "reading": "Lectura"
+      },
+      "voice": {
+        "professional": "Profesional",
+        "friendly": "Amigable",
+        "bold": "Audaz",
+        "playful": "Divertido",
+        "authoritative": "Autoritario",
+        "empathetic": "Empático",
+        "witty": "Ingenioso",
+        "inspirational": "Inspirador",
+        "conversational": "Conversacional",
+        "technical": "Técnico",
+        "luxury": "Lujo",
+        "minimalist": "Minimalista",
+        "energetic": "Enérgico",
+        "trustworthy": "Confiable",
+        "innovative": "Innovador"
+      }
+    }
+  },
+  "errors": {
+    "unavailableTitle": "La inteligencia no está disponible",
+    "unavailableBody": "Esta fase no está habilitada para este espacio o no se pudo cargar.",
+    "retry": "Reintentar"
+  },
+  "actions": {
+    "accept": "Aceptar",
+    "dismiss": "Descartar",
+    "pin": "Fijar",
+    "saveFailed": "No se pudo guardar tu decisión",
+    "acceptedToast": "Marcado como aceptado, ejecuta en Content o Calendario",
+    "pinnedToast": "Fijada para seguimiento",
+    "dismissedToast": "Descartado y oculto de esta lista",
+    "status": {
+      "accepted": "Aceptada",
+      "pinned": "Fijada",
+      "dismissed": "Descartada"
+    }
+  },
+  "alignment": {
+    "title": "Alineación de audiencia",
+    "empty": "La alineación aparece cuando hay una mezcla de audiencia medible. Las dimensiones ausentes quedan en blanco."
+  },
+  "timing": {
+    "title": "Mejores horarios",
+    "empty": "El horario específico de la cuenta necesita 20 publicaciones con fecha y cinco observaciones en la hora citada."
+  },
+  "campaigns": {
+    "title": "Campañas",
+    "empty": "Nombra una campaña para comparar publicaciones entre plataformas. Crear aquí no publica nada, asigna posts al publicar desde Content.",
+    "name": "Nombre de campaña",
+    "create": "Crear campaña"
+  },
+  "experiments": {
+    "title": "Experimentos",
+    "emptyPaired": "Aún no hay experimentos. Crea una prueba A/B por plataforma con dos posts programados.",
+    "pairedWorkflow": "Elige una plataforma, escribe dos variantes (diferente caption, medios y/o hora), programa ambas y ejecútalas durante una ventana. Al terminar, los resultados llegan a tu Bandeja. La vista lado a lado muestra el post en vivo cuando hay permalink.",
+    "name": "Nombre del experimento",
+    "hypothesis": "Hipótesis (p. ej. hooks más cortos generan más vistas)",
+    "createPaired": "Crear y programar A/B",
+    "creating": "Creando…",
+    "createdPaired": "Experimento creado, ambos posts están programados",
+    "createFailed": "No se pudo crear el experimento",
+    "captionPlaceholder": "Caption y hashtags de este brazo",
+    "armCompose": "Brazo {arm}",
+    "armLabel": "Brazo {arm}",
+    "scheduleA": "Programar brazo A",
+    "scheduleB": "Programar brazo B",
+    "durationOption": "Ventana de {days} días",
+    "platformLabel": "Plataforma: {platform}",
+    "endsLabel": "Termina {when}",
+    "openLive": "Abrir post en vivo",
+    "liveEmbedTitle": "Vista del post en vivo del brazo {arm}",
+    "livePending": "El embed en vivo aparece cuando el post se publica y Markaestro guarda su permalink.",
+    "loadingDetail": "Cargando experimento…",
+    "detailFailed": "No se pudo cargar este experimento.",
+    "untitledPost": "Publicación sin título",
+    "effect": "{value}% de diferencia relativa (B vs A)",
+    "status": {
+      "draft": "Borrador",
+      "scheduled": "Programado",
+      "running": "En curso",
+      "complete": "Completado",
+      "archived": "Archivado",
+      "winner_a": "Ganador A",
+      "winner_b": "Ganador B",
+      "inconclusive": "No concluyente"
+    },
+    "result": {
+      "winner_a": "El brazo A lidera en la métrica medida.",
+      "winner_b": "El brazo B lidera en la métrica medida.",
+      "inconclusive": "Resultado no concluyente, hace falta más muestra o una diferencia más clara."
+    },
+    "mediaRequired": "Esta plataforma necesita medios en ambos brazos antes de crear el experimento.",
+    "mediaRequiredHint": "Instagram, TikTok y Pinterest necesitan al menos una imagen o vídeo en cada brazo.",
+    "untitledExperiment": "Experimento sin título",
+    "delete": "Eliminar",
+    "deleted": "Experimento eliminado",
+    "deleteFailed": "No se pudo eliminar el experimento",
+    "deleteWarning": "Se borran el experimento, sus posts A/B programados y los resultados relacionados en la bandeja de Markaestro. Los posts ya publicados en la plataforma no se eliminan."
+  },
+  "ask": {
+    "title": "Preguntar a Markaestro",
+    "placeholder": "Pregunta sobre rendimiento medido, horarios o aprendizajes.",
+    "submit": "Preguntar",
+    "asking": "Seleccionando evidencia…",
+    "tool": "Usó {tool}",
+    "failed": "No se pudo responder. Inténtalo de nuevo.",
+    "timeout": "Tardó demasiado, prueba una pregunta más corta o vuelve a intentar.",
+    "quota": "Has usado los turnos de Ask Markaestro de este mes. Prueba el mes que viene o mejora el plan.",
+    "unavailable": "Ask Markaestro aún no está disponible en este espacio de trabajo."
+  },
+  "links": {
+    "title": "Enlaces con seguimiento",
+    "empty": "Crea un enlace rastreado para atribuir clics sin guardar la IP en bruto.",
+    "label": "Etiqueta",
+    "destination": "URL de destino",
+    "create": "Crear enlace"
+  },
+  "productBar": {
+    "brand": "Marca",
+    "noBrandSelected": "Ninguna marca seleccionada",
+    "change": "Cambiar"
+  },
+  "guide": {
+    "overview": {
+      "title": "Qué muestra esta pestaña",
+      "body": "KPI y desglose por plataforma de publicaciones sincronizadas. Las celdas vacías significan que la plataforma no informó esa métrica, nunca cero."
+    },
+    "audience": {
+      "title": "Define el límite de tu marca",
+      "body": "Objetivo, mercados, zona horaria y pilares indican para quién creas. Audience Fit en Content y la alineación comparan borradores y resultados con este perfil."
+    },
+    "content": {
+      "title": "Aprende de lo que ya funcionó",
+      "body": "Mejor contenido por visualizaciones medidas. Reutiliza temas al escribir en Content. Los horarios aparecen con suficientes publicaciones datadas."
+    },
+    "opportunities": {
+      "title": "Qué probar a continuación",
+      "body": "Recomendaciones de tu historial medido, horarios, mix de plataformas, aprendizajes y brechas de alineación. Solo sugerencias: ejecutas manualmente en Content o Calendario."
+    },
+    "playbook": {
+      "title": "Patrones que se repiten",
+      "body": "Aprendizajes estadísticos con muestra suficiente. Acepta si encaja con tu estrategia; descarta si no."
+    },
+    "advanced": {
+      "title": "Prueba ideas con evidencia",
+      "body": "Crea un experimento A/B por plataforma, programa dos posts y compáralos en vivo. Al terminar la ventana, el resultado llega a tu bandeja."
+    }
+  },
+  "workflow": {
+    "opportunities": {
+      "title": "Cómo usar oportunidades",
+      "step1": "Lee la recomendación y las evidencias (horario, plataformas o alineación).",
+      "step2": "Acepta si lo probarás, fija para revisar después o descarta si no aplica.",
+      "step3": "Ve a Content o Calendario para publicar o programar. Aceptar no crea publicaciones automáticamente."
+    },
+    "playbook": {
+      "title": "Cómo usar la guía",
+      "step1": "Cada tarjeta es un patrón medido (muestra n=). Más evidencia = más publicaciones detrás.",
+      "step2": "Acepta patrones a repetir, fija para revisar o descarta los que no encajen.",
+      "step3": "Aplica patrones aceptados al componer, por ejemplo más posts en una plataforma ganadora."
+    }
+  },
+  "decisions": {
+    "hint": "Estos botones solo guardan tu decisión. No publican, programan ni cambian borradores.",
+    "learningHint": "Indica si confías en este patrón. Intelligence no cambia el contenido automáticamente.",
+    "accept": "Aceptar, planeo actuar",
+    "pin": "Fijar, revisar después",
+    "dismiss": "Descartar, ocultar"
+  }
+}

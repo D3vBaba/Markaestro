@@ -219,7 +219,7 @@ function SelectionTile({
         </div>
         <div
           className={cn(
-            "shrink-0 transition-all h-5 w-5 flex items-center justify-center",
+            "shrink-0 transition-colors h-5 w-5 flex items-center justify-center",
             multi ? "rounded" : "rounded-full",
           )}
           style={{
@@ -307,7 +307,7 @@ function OnboardingFooter() {
   return (
     <footer className="border-t bg-background">
       <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-3">
               <Image
@@ -409,7 +409,8 @@ export default function OnboardingPage() {
   const [productCategory, setProductCategory] = useState(saved.productCategory ?? "saas");
   const [productPricingTier, setProductPricingTier] = useState(saved.productPricingTier ?? "");
   const [productTags, setProductTags] = useState<string[]>(saved.productTags ?? []);
-  const [primaryColor, setPrimaryColor] = useState(saved.primaryColor ?? "#6366f1");
+  const [primaryColor, setPrimaryColor] = useState(saved.primaryColor ?? "#2563eb");
+
   const [secondaryColor, setSecondaryColor] = useState(saved.secondaryColor ?? "");
   const [accentColor, setAccentColor] = useState(saved.accentColor ?? "");
   const [logoUrl, setLogoUrl] = useState(saved.logoUrl ?? "");
@@ -1434,7 +1435,7 @@ export default function OnboardingPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.07, duration: 0.3, ease }}
                         className={cn(
-                          "rounded-xl border p-5 flex items-center justify-between gap-5 transition-all",
+                          "rounded-xl border p-5 flex items-center justify-between gap-5 transition-colors",
                           isConnected ? "border-primary bg-primary/3" : "border-border"
                         )}
                       >
@@ -1604,7 +1605,7 @@ export default function OnboardingPage() {
                         <button
                           key={iv}
                           className={cn(
-                            "px-6 py-2.5 text-sm font-medium transition-all",
+                            "px-6 py-2.5 text-sm font-medium transition-colors",
                             interval === iv
                               ? "bg-primary text-white"
                               : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -1632,7 +1633,7 @@ export default function OnboardingPage() {
                         <button
                           key={tierKey}
                           className={cn(
-                            "rounded-xl border p-5 text-start transition-all relative active:scale-[0.99]",
+                            "rounded-xl border p-5 text-start transition-[color,background-color,border-color,transform] duration-150 relative active:scale-[0.99]",
                             isSelected
                               ? "border-primary bg-primary/3 shadow-sm"
                               : "border-border/60 hover:border-foreground/30"

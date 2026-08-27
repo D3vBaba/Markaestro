@@ -11,7 +11,7 @@
     "layer1Body": "Ingesteld in het eigen dialoogvenster van het platform bij het inloggen. Op Facebook geldt dit voor je <bold>hele werkruimte</bold>, en elke nieuwe login <bold>vervangt</bold> de vorige selectie.",
     "layer2Badge": "Laag 2 · Routering",
     "layer2Title": "Op welk account dit merk publiceert",
-    "layer2Body": "Ingesteld binnen Markaestro, per merk. Hier leeft \"één pagina per merk\" — en een merk kan meerdere accounts hebben als je dat wilt.",
+    "layer2Body": "Ingesteld binnen Markaestro, per merk. Hier leeft \"één pagina per merk\", en een merk kan meerdere accounts hebben als je dat wilt.",
     "warning": "<bold>Geef alles toestemming en beperk daarna per merk.</bold> Vink in het dialoogvenster van het platform elk account aan waarop je ooit zou kunnen posten. Als je daar slechts één kiest, wordt de rest ingetrokken en beginnen hun geplande berichten te mislukken."
   },
   "guides": {
@@ -21,7 +21,7 @@
       "steps": {
         "0": { "title": "Open een merk en druk op Verbinden bij Facebook", "detail": "Merken → kies een merk → Kanalen. Het maakt niet uit met welk merk je begint; de login geldt voor alle merken." },
         "1": { "title": "Vink elke pagina aan die je door Markaestro wilt laten beheren", "detail": "Het dialoogvenster van Facebook is de rechtenlijst. Wat je aanvinkt, wordt de volledige set die Markaestro mag aanraken en vervangt de vorige set. Een pagina die je niet aanvinkt, verliest direct de toegang." },
-        "2": { "title": "Kies naar welke pagina dit merk post", "detail": "Terug in Markaestro gebruik je Pagina's kiezen. Dit is routering, geen toestemming — elk merk kan naar zijn eigen pagina verwijzen, en een merk kan er meerdere hebben." }
+        "2": { "title": "Kies naar welke pagina dit merk post", "detail": "Terug in Markaestro gebruik je Pagina's kiezen. Dit is routering, geen toestemming, elk merk kan naar zijn eigen pagina verwijzen, en een merk kan er meerdere hebben." }
       },
       "gotcha": "Als je in het Facebook-dialoogvenster slechts één pagina aanvinkt, wordt de pagina van elk ander merk losgekoppeld. Vink ze altijd allemaal aan en beperk daarna per merk binnen Markaestro."
     },
@@ -29,7 +29,7 @@
       "label": "Instagram",
       "scope": "Per merk verbonden, met de eigen login van Instagram in plaats van die van Facebook.",
       "steps": {
-        "0": { "title": "Druk op Verbinden bij Instagram in het tabblad Kanalen van het merk", "detail": "Dit staat los van Facebook — het koppelen van een Facebook-pagina koppelt niet het bijbehorende Instagram-account." },
+        "0": { "title": "Druk op Verbinden bij Instagram in het tabblad Kanalen van het merk", "detail": "Dit staat los van Facebook, het koppelen van een Facebook-pagina koppelt niet het bijbehorende Instagram-account." },
         "1": { "title": "Log in met het Instagram-account zelf", "detail": "Het account moet een zakelijk account zijn (Bedrijf of Creator). Persoonlijke accounts kunnen niet publiceren via de API." }
       },
       "gotcha": "Als Instagram de login weigert, is het account vrijwel zeker nog persoonlijk. Zet het om naar een zakelijk account in de Instagram-app en verbind opnieuw."
@@ -52,7 +52,7 @@
     },
     "pinterest": {
       "label": "Pinterest",
-      "scope": "Per merk verbonden. Borden werken zoals Facebook-pagina's — kies naar welk bord dit merk pint.",
+      "scope": "Per merk verbonden. Borden werken zoals Facebook-pagina's, kies naar welk bord dit merk pint.",
       "steps": {
         "0": { "title": "Druk op Verbinden bij Pinterest", "detail": "Autoriseer het zakelijke Pinterest-account." },
         "1": { "title": "Kies een bord", "detail": "Pins hebben een bestemmingsbord nodig. Je kunt meerdere borden aan één merk koppelen en er bij het samenstellen tussen kiezen." }
@@ -73,7 +73,7 @@
     "items": {
       "0": {
         "q": "Een merk zegt \"Verbind Facebook opnieuw en vink deze pagina aan\"",
-        "a": "De huidige rechten van Facebook bevatten die pagina niet meer — meestal omdat een latere login minder pagina's heeft aangevinkt. Verbind opnieuw vanuit elk merk en vink alle pagina's aan. Er gaat niets verloren; de paginakeuze van het merk wordt automatisch hersteld."
+        "a": "De huidige rechten van Facebook bevatten die pagina niet meer, meestal omdat een latere login minder pagina's heeft aangevinkt. Verbind opnieuw vanuit elk merk en vink alle pagina's aan. Er gaat niets verloren; de paginakeuze van het merk wordt automatisch hersteld."
       },
       "1": {
         "q": "Een merk zegt \"Selecteer opnieuw in merkinstellingen\"",
@@ -81,7 +81,7 @@
       },
       "2": {
         "q": "Geplande berichten mislukken",
-        "a": "Controleer eerst het tabblad Kanalen van het merk. Als alle kanalen verbonden lijken, verbind het platform opnieuw en vink alle accounts aan — een verkleinde rechtenset is de meest voorkomende oorzaak."
+        "a": "Controleer eerst het tabblad Kanalen van het merk. Als alle kanalen verbonden lijken, verbind het platform opnieuw en vink alle accounts aan, een verkleinde rechtenset is de meest voorkomende oorzaak."
       },
       "3": {
         "q": "Een TikTok-bericht is nooit live gegaan",

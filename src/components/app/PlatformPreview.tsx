@@ -3,12 +3,42 @@
 import { useTranslations } from "next-intl";
 import { Heart, MessageCircle, Bookmark, Share2, ExternalLink } from "lucide-react";
 
+export type PreviewMetrics = {
+  views?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  shares?: number | null;
+  saves?: number | null;
+};
+
 export type PlatformPreviewProps = {
   content: string;
   channel: string;
   mediaUrls?: string[];
   externalUrl?: string;
+  /** Platform handle without leading @ */
+  username?: string | null;
+  metrics?: PreviewMetrics;
+  /** Hide the "CHANNEL PREVIEW" chrome — useful inside dense grids. */
+  compact?: boolean;
 };
+
+function formatStat(value: number | null | undefined): string {
+  if (value === null || value === undefined) return "n/a";
+  if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1).replace(/\.0$/, "")}M`;
+  if (Math.abs(value) >= 1_000) return `${(value / 1_000).toFixed(value >= 10_000 ? 0 : 1).replace(/\.0$/, "")}K`;
+  return String(Math.round(value));
+}
+
+function displayHandle(username?: string | null): string {
+  const cleaned = (username || "").trim().replace(/^@/, "");
+  return cleaned || "account";
+}
+
+function displayBrand(username?: string | null): string {
+  const cleaned = (username || "").trim().replace(/^@/, "");
+  return cleaned || "Brand";
+}
 
 /** Check if a URL points to a video file */
 function isVideoUrl(url: string): boolean {
@@ -29,9 +59,10 @@ function MediaDisplay({ url, className, aspectClass }: { url: string; className?
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
 
-function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
+function InstagramPreview({ content, mediaUrls, username, metrics }: PlatformPreviewProps) {
   const t = useTranslations("appCommon.platformPreview");
   const img = mediaUrls?.[0];
+  const handle = displayHandle(username);
   return (
     <div className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-md">
       <div className="flex items-center justify-between px-3 py-2.5">
@@ -42,7 +73,7 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
             </div>
           </div>
           <div>
-            <p className="text-[12px] font-semibold text-zinc-900 dark:text-white leading-none">yourbrand</p>
+            <p className="text-[12px] font-semibold text-zinc-900 dark:text-white leading-none">{handle}</p>
             <p className="text-[10px] text-zinc-400 mt-0.5">{t("sponsored")}</p>
           </div>
         </div>
@@ -73,9 +104,11 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
           </div>
           <Bookmark className="w-5 h-5 text-zinc-800 dark:text-zinc-200" />
         </div>
-        <p className="text-[12px] font-semibold text-zinc-900 dark:text-white">{t("zeroLikes")}</p>
+        <p className="text-[12px] font-semibold text-zinc-900 dark:text-white">
+          {metrics?.likes == null ? t("zeroLikes") : `${formatStat(metrics.likes)} likes`}
+        </p>
         <p className="text-[12px] text-zinc-900 dark:text-white leading-snug">
-          <span className="font-semibold">yourbrand </span>
+          <span className="font-semibold">{handle} </span>
           {content.length > 120 ? content.slice(0, 120) + "… more" : content}
         </p>
         <p className="text-[10px] uppercase tracking-wide text-zinc-400">{t("justNow")}</p>
@@ -86,9 +119,10 @@ function InstagramPreview({ content, mediaUrls }: PlatformPreviewProps) {
 
 // ─── Facebook ─────────────────────────────────────────────────────────────────
 
-function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
+function FacebookPreview({ content, mediaUrls, username, metrics }: PlatformPreviewProps) {
   const t = useTranslations("appCommon.platformPreview");
   const img = mediaUrls?.[0];
+  const brand = displayBrand(username);
   const reactionButtons = [
     { key: "like", emoji: "👍", label: t("like") },
     { key: "comment", emoji: "💬", label: t("comment") },
@@ -102,7 +136,7 @@ function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
             <span className="text-white font-black text-xl leading-none">f</span>
           </div>
           <div>
-            <p className="text-[13px] font-semibold text-zinc-900 dark:text-[#e4e6ea] leading-none">Your Brand</p>
+            <p className="text-[13px] font-semibold text-zinc-900 dark:text-[#e4e6ea] leading-none">{brand}</p>
             <p className="text-[10px] text-zinc-500 mt-0.5">{t("justNow")} · 🌐</p>
           </div>
         </div>
@@ -117,8 +151,8 @@ function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
 
       <div className="px-3 py-2 border-t border-zinc-100 dark:border-zinc-700/50">
         <div className="flex items-center justify-between text-[11px] text-zinc-500 pb-1.5">
-          <span>👍 0</span>
-          <span>{t("zeroComments")}</span>
+          <span>👍 {formatStat(metrics?.likes)}</span>
+          <span>{metrics?.comments == null ? t("zeroComments") : `${formatStat(metrics.comments)} comments`}</span>
         </div>
         <div className="flex items-center justify-around border-t border-zinc-100 dark:border-zinc-700/50 pt-1.5">
           {reactionButtons.map((btn) => (
@@ -134,16 +168,26 @@ function FacebookPreview({ content, mediaUrls }: PlatformPreviewProps) {
 
 // ─── TikTok ───────────────────────────────────────────────────────────────────
 
-function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
+function TikTokPreview({ content, mediaUrls, username, metrics, compact }: PlatformPreviewProps) {
   const t = useTranslations("appCommon.platformPreview");
   const img = mediaUrls?.[0];
+  const handle = displayHandle(username);
+  const sideStats = [
+    { Icon: Heart, value: metrics?.likes },
+    { Icon: MessageCircle, value: metrics?.comments },
+    { Icon: Bookmark, value: metrics?.saves },
+    { Icon: Share2, value: metrics?.shares },
+  ] as const;
   return (
     <div className="flex justify-center">
-      <div className="relative rounded-[28px] overflow-hidden bg-zinc-950 border border-zinc-800 shadow-2xl" style={{ width: 200, aspectRatio: "9/16" }}>
+      <div
+        className="relative overflow-hidden rounded-[28px] border border-zinc-800 bg-zinc-950 shadow-2xl"
+        style={{ width: compact ? "100%" : 200, maxWidth: compact ? 240 : 200, aspectRatio: "9/16" }}
+      >
         {img ? (
           isVideoUrl(img)
-            ? <video src={img} className="absolute inset-0 w-full h-full object-cover opacity-75" controls playsInline preload="metadata" />
-            : <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-75" />
+            ? <video src={img} className="absolute inset-0 h-full w-full object-cover opacity-75" controls playsInline preload="metadata" />
+            : <img src={img} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75" />
         ) : (
           <div className="absolute inset-0 bg-linear-to-b from-zinc-800 to-zinc-950" />
         )}
@@ -151,26 +195,26 @@ function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
 
         <div className="absolute top-3 left-0 right-0 flex justify-center gap-5 text-[9px] text-white/70">
           <span>{t("following")}</span>
-          <span className="font-bold text-white border-b border-white pb-0.5">{t("forYou")}</span>
+          <span className="border-b border-white pb-0.5 font-bold text-white">{t("forYou")}</span>
         </div>
 
         <div className="absolute right-2 bottom-16 flex flex-col items-center gap-3.5">
-          <div className="w-7 h-7 rounded-full border-2 border-white overflow-hidden">
-            <div className="w-full h-full" style={{ background: "linear-gradient(135deg,#EE1D52,#69C9D0)" }} />
+          <div className="h-7 w-7 overflow-hidden rounded-full border-2 border-white">
+            <div className="h-full w-full" style={{ background: "linear-gradient(135deg,#EE1D52,#69C9D0)" }} />
           </div>
-          {([Heart, MessageCircle, Bookmark, Share2] as const).map((Icon, i) => (
+          {sideStats.map(({ Icon, value }, i) => (
             <div key={i} className="flex flex-col items-center gap-0.5">
-              <Icon className="w-5 h-5 text-white" />
-              <span className="text-[8px] text-white">0</span>
+              <Icon className="h-5 w-5 text-white" />
+              <span className="text-[8px] text-white">{formatStat(value)}</span>
             </div>
           ))}
         </div>
 
         <div className="absolute bottom-0 left-0 right-8 p-3">
-          <p className="text-[10px] font-bold text-white mb-0.5">@yourbrand</p>
-          <p className="text-[9px] text-white/80 leading-tight line-clamp-3">{content}</p>
-          <div className="flex items-center gap-1 mt-1.5">
-            <div className="w-3 h-3 rounded-full animate-spin" style={{ background: "linear-gradient(135deg,#EE1D52,#69C9D0)", animationDuration: "3s" }} />
+          <p className="mb-0.5 text-[10px] font-bold text-white">@{handle}</p>
+          <p className="line-clamp-3 text-[9px] leading-tight text-white/80">{content}</p>
+          <div className="mt-1.5 flex items-center gap-1">
+            <div className="h-3 w-3 animate-spin rounded-full" style={{ background: "linear-gradient(135deg,#EE1D52,#69C9D0)", animationDuration: "3s" }} />
             <p className="text-[7px] text-white/50">{t("originalSound")}</p>
           </div>
         </div>
@@ -181,21 +225,22 @@ function TikTokPreview({ content, mediaUrls }: PlatformPreviewProps) {
 
 // ─── Threads ─────────────────────────────────────────────────────────────────
 
-function ThreadsPreview({ content, mediaUrls }: PlatformPreviewProps) {
+function ThreadsPreview({ content, mediaUrls, username }: PlatformPreviewProps) {
   const t = useTranslations("appCommon.platformPreview");
   const media = mediaUrls?.[0];
+  const handle = displayHandle(username);
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-3 shadow-md dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex gap-3">
         <div className="flex flex-col items-center">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-950 text-sm font-semibold text-white dark:bg-white dark:text-zinc-950">
-            Y
+            {handle.charAt(0).toUpperCase()}
           </div>
           <div className="mt-2 w-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between">
-            <p className="text-[13px] font-semibold text-zinc-950 dark:text-white">yourbrand</p>
+            <p className="text-[13px] font-semibold text-zinc-950 dark:text-white">{handle}</p>
             <span className="text-[11px] text-zinc-400">{t("now")}</span>
           </div>
           <p className="mt-1 whitespace-pre-wrap break-words text-[13px] leading-snug text-zinc-900 dark:text-zinc-100">
@@ -219,9 +264,10 @@ function ThreadsPreview({ content, mediaUrls }: PlatformPreviewProps) {
 
 // ─── Pinterest ───────────────────────────────────────────────────────────────
 
-function PinterestPreview({ content, mediaUrls }: PlatformPreviewProps) {
+function PinterestPreview({ content, mediaUrls, username }: PlatformPreviewProps) {
   const t = useTranslations("appCommon.platformPreview");
   const media = mediaUrls?.[0];
+  const handle = displayHandle(username);
   return (
     <div className="mx-auto max-w-[280px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-950">
       {media ? (
@@ -243,7 +289,7 @@ function PinterestPreview({ content, mediaUrls }: PlatformPreviewProps) {
         <p className="line-clamp-3 whitespace-pre-wrap break-words text-[12px] leading-snug text-zinc-600 dark:text-zinc-300">
           {content}
         </p>
-        <p className="text-[10px] text-zinc-400">yourbrand.com</p>
+        <p className="text-[10px] text-zinc-400">@{handle}</p>
       </div>
     </div>
   );
@@ -251,9 +297,10 @@ function PinterestPreview({ content, mediaUrls }: PlatformPreviewProps) {
 
 // ─── LinkedIn ────────────────────────────────────────────────────────────────
 
-function LinkedInPreview({ content, mediaUrls }: PlatformPreviewProps) {
+function LinkedInPreview({ content, mediaUrls, username }: PlatformPreviewProps) {
   const t = useTranslations("appCommon.platformPreview");
   const media = mediaUrls?.[0];
+  const brand = displayBrand(username);
   return (
     <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-start justify-between p-3">
@@ -262,7 +309,7 @@ function LinkedInPreview({ content, mediaUrls }: PlatformPreviewProps) {
             in
           </div>
           <div>
-            <p className="text-[13px] font-semibold leading-none text-zinc-950 dark:text-white">Your Brand</p>
+            <p className="text-[13px] font-semibold leading-none text-zinc-950 dark:text-white">{brand}</p>
             <p className="mt-0.5 text-[10px] text-zinc-500">{t("companyPageNow")}</p>
           </div>
         </div>
@@ -535,33 +582,56 @@ export function TikTokAdPreview({ headline, primaryText, imageUrl, videoUrl, cta
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export default function PlatformPreview({ content, channel, mediaUrls, externalUrl }: PlatformPreviewProps) {
+export default function PlatformPreview({
+  content,
+  channel,
+  mediaUrls,
+  externalUrl,
+  username,
+  metrics,
+  compact = false,
+}: PlatformPreviewProps) {
   const t = useTranslations("appCommon.platformPreview");
   if (!content && !mediaUrls?.length) return null;
+  const previewProps: PlatformPreviewProps = {
+    content,
+    channel,
+    mediaUrls,
+    externalUrl,
+    username,
+    metrics,
+    compact,
+  };
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
-          {channel.charAt(0).toUpperCase() + channel.slice(1)} {t("previewSuffix")}
-        </p>
-        {externalUrl && (
-          <a href={externalUrl} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-            <ExternalLink className="w-3 h-3" /> {t("viewLive")}
-          </a>
-        )}
-      </div>
+    <div className={compact ? "space-y-0" : "space-y-3"}>
+      {!compact && (
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+            {channel.charAt(0).toUpperCase() + channel.slice(1)} {t("previewSuffix")}
+          </p>
+          {externalUrl && (
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ExternalLink className="h-3 w-3" /> {t("viewLive")}
+            </a>
+          )}
+        </div>
+      )}
 
-      {channel === "instagram" && <InstagramPreview content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {channel === "facebook"  && <FacebookPreview  content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {channel === "tiktok"    && <TikTokPreview    content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {channel === "threads"   && <ThreadsPreview   content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {channel === "pinterest" && <PinterestPreview content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {channel === "linkedin"  && <LinkedInPreview  content={content} channel={channel} mediaUrls={mediaUrls} />}
-      {!["instagram","facebook","tiktok","threads","pinterest","linkedin"].includes(channel) && (
+      {channel === "instagram" && <InstagramPreview {...previewProps} />}
+      {channel === "facebook" && <FacebookPreview {...previewProps} />}
+      {channel === "tiktok" && <TikTokPreview {...previewProps} />}
+      {channel === "threads" && <ThreadsPreview {...previewProps} />}
+      {channel === "pinterest" && <PinterestPreview {...previewProps} />}
+      {channel === "linkedin" && <LinkedInPreview {...previewProps} />}
+      {!["instagram", "facebook", "tiktok", "threads", "pinterest", "linkedin"].includes(channel) && (
         <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed">{content}</p>
         </div>
       )}
     </div>

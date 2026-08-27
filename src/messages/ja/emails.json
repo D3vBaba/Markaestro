@@ -10,7 +10,7 @@
     "title": "サインインコード",
     "bodyIntro": "<strong>{email}</strong>としてサインインするには、このコードを使用してください：",
     "fallbackAccount": "あなたのアカウント",
-    "expiryNote": "このコードの有効期限は10分です。誰にも共有しないでください — Markaestroがこのコードを尋ねることはありません。",
+    "expiryNote": "このコードの有効期限は10分です。誰にも共有しないでください、Markaestroがこのコードを尋ねることはありません。",
     "footerNote": "サインインを試みていない場合は、このメールを無視してください。コードがなければ誰もアカウントにアクセスできません。",
     "plain": {
       "heading": "Markaestroのサインインコード",
@@ -63,7 +63,7 @@
   "tiktokInbox": {
     "subjectWithBrand": "{brandName}のTikTok投稿を完了してください",
     "subjectNoBrand": "TikTok投稿を完了してください",
-    "preheader": "動画はTikTokアプリで待機しています — 開いて公開してください。",
+    "preheader": "動画はTikTokアプリで待機しています、開いて公開してください。",
     "bodyIntroWithBrand": "動画がアップロードされ、<strong>{brandName}</strong>のTikTok受信箱で待機しています。TikTokでは最終的な投稿をアプリから行う必要があるため、まだ公開されていません。",
     "bodyIntroNoBrand": "動画がアップロードされ、TikTok受信箱で待機しています。TikTokでは最終的な投稿をアプリから行う必要があるため、まだ公開されていません。",
     "toPublishLabel": "公開する方法",
@@ -88,7 +88,7 @@
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong>さんが、Markaestroの<strong>{workspaceName}</strong>ワークスペースに{roleLabel}としてあなたを招待しました。",
     "bodyIntroNoInviter": "チームメンバーが、Markaestroの<strong>{workspaceName}</strong>ワークスペースに{roleLabel}としてあなたを招待しました。",
     "signInInstructions": "このメールアドレスでサインイン（またはアカウントを作成）し、アプリ内のバナーから招待を承諾してください：",
-    "declineNote": "参加を希望しない場合は、アプリ内で招待を辞退するか、そのまま何もしないでください — 招待は30日後に無効になります。",
+    "declineNote": "参加を希望しない場合は、アプリ内で招待を辞退するか、そのまま何もしないでください、招待は30日後に無効になります。",
     "roleLabels": {
       "admin": "管理者",
       "member": "メンバー",

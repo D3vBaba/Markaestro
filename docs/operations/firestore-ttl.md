@@ -26,6 +26,9 @@ declare -a TTL_COLLECTIONS=(
   'job_runs'
   'tiktok_publish_mappings'
   'pendingInvites'
+  'rawPlatformMetrics'
+  'aiArtifacts'
+  'conversionClicks'
 )
 
 for collection in "${TTL_COLLECTIONS[@]}"; do
@@ -54,6 +57,15 @@ done
 | `job_runs` | 30 days | Publish and scheduled job history |
 | `tiktok_publish_mappings` | 17 days active; 7 days terminal | TikTok webhook lookup and due-poll queue |
 | `pendingInvites` | 30 days | Workspace invitations |
+| `rawPlatformMetrics` | 90 days | Metadata pointers and checksums for immutable compressed platform payloads |
+| `aiArtifacts` | 30 days | Validated AI response artifacts used for audit and repair diagnostics |
+| `conversionClicks` | 90 days | Opaque click identifiers retained beyond the default attribution window |
+
+Raw metric objects live under
+`workspaces/{workspaceId}/private-intelligence/raw-platform-metrics/`. Configure
+a Cloud Storage lifecycle rule that deletes this prefix after 90 days;
+Firestore TTL removes the pointer but does not delete its Storage object.
+Direct client reads remain denied by `storage.rules`.
 
 All current writers use Firestore `Timestamp`/`Date` values for `expiresAt`.
 The OAuth reader also accepts the legacy ISO-string representation during a

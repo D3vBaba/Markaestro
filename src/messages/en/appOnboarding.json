@@ -23,7 +23,7 @@
       "title": "What's your role?",
       "subtitle": "We'll tailor everything to how you actually work.",
       "options": {
-        "founder": { "label": "Founder / CEO", "desc": "Wearing every hat — including marketing" },
+        "founder": { "label": "Founder / CEO", "desc": "Wearing every hat, including marketing" },
         "marketer": { "label": "Marketer", "desc": "Owning content across every channel" },
         "agency": { "label": "Agency / Freelancer", "desc": "Juggling posts for multiple clients" },
         "creator": { "label": "Content Creator", "desc": "Growing an audience that's all you" }
@@ -52,7 +52,7 @@
     "channels": {
       "eyebrow": "Your stage",
       "title": "Where does your audience live?",
-      "subtitle": "Pick all that apply — you'll publish to each in one click.",
+      "subtitle": "Pick all that apply. You'll publish to each in one click.",
       "options": {
         "instagram": { "label": "Instagram" },
         "facebook": { "label": "Facebook" },
@@ -98,7 +98,7 @@
     "contentTypes": {
       "eyebrow": "Your voice",
       "title": "What do you want to post?",
-      "subtitle": "Pick all that apply — we'll help you fill the calendar.",
+      "subtitle": "Pick all that apply. We'll help you fill the calendar.",
       "options": {
         "product": { "label": "Product & promotions" },
         "educational": { "label": "Tips & education" },
@@ -109,7 +109,7 @@
     "hoursPerWeek": {
       "eyebrow": "The hidden cost",
       "title": "How many hours a week vanish into this?",
-      "subtitle": "Be honest — it's almost always more than it feels.",
+      "subtitle": "Be honest, it's almost always more than it feels.",
       "options": {
         "lt2": { "label": "Under 2 hours" },
         "2to5": { "label": "2–5 hours" },
@@ -133,7 +133,7 @@
     "consistency": {
       "short": "staying consistent",
       "headline": "You'll never go quiet again",
-      "line": "Schedule weeks of posts in one sitting — Markaestro publishes on time, every time, so the silence stops."
+      "line": "Schedule weeks of posts in one sitting: Markaestro publishes on time, every time, so the silence stops."
     },
     "time": {
       "short": "finding the time",
@@ -143,39 +143,39 @@
     "ideas": {
       "short": "coming up with content",
       "headline": "Your calendar won't run dry",
-      "line": "Turn one idea into a week of posts across every channel — so you're never staring at a blank screen."
+      "line": "Turn one idea into a week of posts across every channel, so you're never staring at a blank screen."
     },
     "juggling": {
       "short": "juggling channels",
       "headline": "One place for every channel",
-      "line": "Compose once and publish to all your platforms from a single screen — no more tab-juggling or dropped posts."
+      "line": "Compose once and publish to all your platforms from a single screen, no more tab-juggling or dropped posts."
     }
   },
   "marketingCopy": {
     "product": {
       "eyebrow": "Your product",
       "title": "Add the product you're marketing",
-      "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now — you can always do it later."
+      "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now. You can always do it later."
     },
     "business": {
       "eyebrow": "Your business",
       "title": "Add the business you're marketing",
-      "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now — you can always do it later."
+      "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now. You can always do it later."
     },
     "personal": {
       "eyebrow": "Your brand",
       "title": "Set up your personal brand",
-      "sub": "Have a website or portfolio? Scan it to auto-fill. No site? Enter your details manually — it takes a minute."
+      "sub": "Have a website or portfolio? Scan it to auto-fill. No site? Enter your details manually. It takes a minute."
     },
     "clients": {
       "eyebrow": "Your first client",
       "title": "Add your first client's brand",
-      "sub": "Start with one client — scan their website to auto-fill, or enter the details manually. You can add more brands anytime."
+      "sub": "Start with one client: scan their website to auto-fill, or enter the details manually. You can add more brands anytime."
     },
     "fallback": {
       "eyebrow": "Your brand",
       "title": "Add the brand you're marketing",
-      "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now — you can always do it later."
+      "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now. You can always do it later."
     }
   },
   "socialProviders": {
@@ -207,20 +207,20 @@
     "yourPlanIsReady": "Your plan is ready",
     "titleEmail": "Save your plan & claim your time back",
     "titleCode": "Check your inbox",
-    "subtitleEmail": "No password needed — enter your email and we'll send a one-time code. Already have an account? The same code signs you in.",
+    "subtitleEmail": "No password needed. Enter your email and we'll send a one-time code. Already have an account? The same code signs you in.",
     "subtitleCode": "We sent a 6-digit code to {email}.",
     "waitingInWorkspace": "Waiting in your workspace",
     "recap": {
       "channelsReady": "{count, plural, one {# channel ready to publish in one click} other {# channels ready to publish in one click}}",
       "everyChannel": "Every channel, published from one place",
-      "postsScheduled": "Posts scheduled {frequency} — automatically",
+      "postsScheduled": "Posts scheduled {frequency}, automatically",
       "hoursBack": "~{hours} hours a week back in your calendar",
       "onSteadyCadence": "on a steady cadence"
     },
     "emailPlaceholder": "name@company.com",
     "codePlaceholder": "123456",
     "sendingCode": "Sending code…",
-    "claimPlan": "Claim my plan — it's free",
+    "claimPlan": "Claim my free plan",
     "verifying": "Verifying…",
     "continueBtn": "Continue",
     "useDifferentEmail": "← Use a different email",
@@ -260,7 +260,7 @@
     "optional": "(optional)",
     "manualDescPlaceholder": "Describe this brand and who it's for...",
     "saving": "Saving…",
-    "couldntSaveBrand": "Couldn't save your brand — you can add it later from the dashboard."
+    "couldntSaveBrand": "Couldn't save your brand. You can add it later from the dashboard."
   },
   "socials": {
     "connectYourAccounts": "Connect your accounts",
@@ -277,16 +277,16 @@
   },
   "generating": {
     "title": "Building your workflow",
-    "subtitle": "Setting up your channels and a posting plan built around {challenge} — the problem you came here to solve.",
+    "subtitle": "Setting up your channels and a posting plan built around {challenge}, the problem you came here to solve.",
     "takesAMoment": "This takes just a moment"
   },
   "paywall": {
     "youllGetBackPrefix": "You'll get back about",
     "hoursAWeek": "hours a week",
-    "startTrialSuffix": "Start your {days}-day free trial to publish — and everything else you create.",
+    "startTrialSuffix": "Start your {days}-day free trial to publish, and everything else you create.",
     "firstPostReady": "Your first post is ready inside your dashboard.",
     "subscribeToPublish": "Subscribe to publish",
-    "postReadyOneStepAway": "Your post is ready — one step away",
+    "postReadyOneStepAway": "Your post is ready. One step away",
     "justNow": "Just now",
     "like": "Like",
     "comment": "Comment",
@@ -295,7 +295,7 @@
     "basedOnAnswers": "Based on your answers",
     "monthly": "Monthly",
     "annual": "Annual",
-    "saveAnnual": "— save 17%",
+    "saveAnnual": "· save 17%",
     "saveAnnualShort": "· −17%",
     "selected": "Selected",
     "perMonth": "/month",
@@ -305,7 +305,7 @@
     "billedAnnually": ", billed annually",
     "annualSavingsNote": "Annual billing saves you 17% compared to monthly",
     "settingUp": "Setting up…",
-    "startTrialButton": "Start {days}-Day Free Trial — {plan}",
+    "startTrialButton": "Start {days}-Day Free Trial: {plan}",
     "cardRequired": "Card required · Cancel anytime before the trial ends",
     "checkoutFailed": "Failed to start checkout. Please try again.",
     "checkoutSignedOut": "Your session ended. Sign in again to start your trial.",

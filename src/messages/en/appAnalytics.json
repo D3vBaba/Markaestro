@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Analytics",
-    "subtitle": "What your posts earned — measured from each platform's own data.",
+    "subtitle": "What your posts earned, measured from each platform's own data.",
     "refresh": {
       "idle": "Refresh",
       "refreshing": "Refreshing…",
@@ -20,7 +20,7 @@
       "brandTitle": "Filter by brand",
       "rangeTitle": "Last {label}",
       "rangeLockedTitle": "The {label} window requires a higher plan",
-      "windowNote": "Showing {days} days — your plan's analytics window."
+      "windowNote": "Showing {days} days (your plan's analytics window)."
     },
     "error": {
       "message": "Couldn't load analytics.",
@@ -29,10 +29,10 @@
     "emptyState": {
       "eyebrow": "No data yet",
       "title": "Publish your first post to start measuring",
-      "body": "Once a post goes out, Markaestro pulls its views, reach, and engagement from the platform within about an hour — and keeps tracking for 30 days. Follower counts are snapshotted daily for every connected channel.",
+      "body": "Once a post goes out, Markaestro pulls its views, reach, and engagement from the platform within about an hour, and keeps tracking for 30 days. Follower counts are snapshotted daily for every connected channel.",
       "createPost": "Create a post"
     },
-    "warmingUp": "Collecting metrics — the first snapshots arrive about an hour after publishing, then refresh on a decaying schedule for 30 days.",
+    "warmingUp": "Collecting metrics. The first snapshots arrive about an hour after publishing, then refresh on a decaying schedule for 30 days.",
     "kpis": {
       "views": { "label": "Views", "sub": "vs prior period" },
       "reach": { "label": "Reach", "sub": "unique accounts reached" },
@@ -57,14 +57,14 @@
     "channels": { "eyebrow": "Channels", "title": "Performance by channel" },
     "posts": { "eyebrow": "Posts", "title": "Top posts" },
     "provenance": {
-      "base": "Metrics use each platform's API definitions and can lag native insights by up to 48 hours. A \"—\" means the platform doesn't provide that metric (for example, Threads and TikTok don't report reach). Engagement rate is engagements ÷ reach.",
+      "base": "Metrics use each platform's API definitions and can lag native insights by up to 48 hours. A \"n/a\" means the platform doesn't provide that metric (for example, Threads and TikTok don't report reach). Engagement rate is engagements ÷ reach.",
       "truncated": " Post-level views are based on the {count} most recent posts in this window.",
       "lastUpdate": " Last metrics update {date}."
     },
     "toasts": {
       "updated": "{count, plural, one {Updated # post from source} other {Updated # posts from source}}",
       "noNewMetrics": "No new platform metrics available",
-      "tooManyRefreshes": "Too many refreshes — try again in a minute.",
+      "tooManyRefreshes": "Too many refreshes. Try again in a minute.",
       "pullFailed": "Couldn't pull live data. Showing the latest stored numbers.",
       "exportFailed": "Export failed. Please try again."
     }
@@ -78,7 +78,7 @@
   },
   "trendChart": {
     "noData": "No data for this period yet.",
-    "followerHistoryBuilds": "Follower history builds from daily snapshots — the trend appears after a couple of days of data.",
+    "followerHistoryBuilds": "Follower history builds from daily snapshots. The trend appears after a couple of days of data.",
     "followersSeriesName": "Followers"
   },
   "channelTable": {

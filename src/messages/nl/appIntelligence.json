@@ -1,0 +1,366 @@
+{
+  "title": "Intelligentie",
+  "subtitle": "Gemeten prestaties en onderbouwde aanbevelingen, niets publiceert automatisch.",
+  "brand": "Merk",
+  "coverage": "{value}% gegevensdekking",
+  "labels": {
+    "measured": "Gemeten",
+    "calculated": "Berekend",
+    "predicted": "Voorspeld",
+    "recommended": "Aanbevolen"
+  },
+  "tabs": {
+    "overview": "Overzicht",
+    "audience": "Doelgroep",
+    "content": "Content",
+    "opportunities": "Kansen",
+    "playbook": "Draaiboek",
+    "advanced": "Experimenten"
+  },
+  "metrics": {
+    "posts": "Berichten",
+    "views": "Weergaven",
+    "reach": "Bereik",
+    "clicks": "Klikken"
+  },
+  "platforms": {
+    "title": "Platformprestaties",
+    "empty": "Gepubliceerde berichten verschijnen zodra statistieken binnenkomen.",
+    "posts": "{value} berichten",
+    "views": "{value} weergaven",
+    "engagements": "{value} interacties",
+    "colPlatform": "Platform",
+    "colEngagements": "Interacties"
+  },
+  "audience": {
+    "title": "Doelgroep",
+    "objective": "Doel",
+    "markets": "Markten",
+    "pillars": "Contentpijlers"
+  },
+  "content": {
+    "title": "Topcontent",
+    "mediaOnly": "Mediabericht",
+    "likes": "Vind-ik-leuks",
+    "comments": "Reacties",
+    "shares": "Delingen",
+    "viewLive": "Live bekijken"
+  },
+  "empty": {
+    "overviewTitle": "Wachten op gepubliceerde berichten",
+    "overviewBody": "Dit merk heeft nog geen gesynchroniseerde berichten. Via Markaestro gepubliceerde posts en geïmporteerde platformhistorie verschijnen hier na de projectie naar Intelligentie. Ontbrekende statistieken blijven leeg, nooit nul.",
+    "noBrandTitle": "Maak eerst een merk",
+    "noBrandBody": "Intelligentie is gekoppeld aan een Markaestro-merk.",
+    "profileTitle": "Stel je doelgroep-profiel in",
+    "profileBody": "Voeg doel, markt, tijdzone en platformprioriteiten toe in de merkinstellingen.",
+    "contentTitle": "Nog geen gemeten content",
+    "contentBody": "Gepubliceerde en geïmporteerde berichten verschijnen hier zonder ontbrekende waarden als nul weer te geven.",
+    "opportunitiesTitle": "Nog geen onderbouwde kansen",
+    "opportunitiesBody": "Aanbevelingen na voldoende gemeten bewijs.",
+    "playbookTitle": "Je draaiboek wordt opgebouwd",
+    "playbookBody": "Patronen na genoeg gemeten posts (vaak vijf+).",
+    "createBrand": "Merk maken"
+  },
+  "composer": {
+    "title": "Doelgroepfit",
+    "recommended": "Aanbevolen",
+    "body": "Beoordeelt concept tegen audienceprofiel. Suggesties pas na Toepassen.",
+    "analyze": "Concept analyseren",
+    "analyzing": "Analyseren…",
+    "retry": "Opnieuw proberen",
+    "failed": "De analyse kon niet veilig worden afgerond.",
+    "reanalyze": "Opnieuw analyseren",
+    "meta": "{coverage}% dekking · betrouwbaarheid {confidence} · {sample} relevante berichten",
+    "coldStart": "Koude start: minder dan vijf relevante berichten.",
+    "unavailable": "Niet beschikbaar",
+    "suggestion": "Voorgestelde formulering",
+    "apply": "Suggestie toepassen",
+    "applied": "Toegepast op concept",
+    "confidence": {
+      "low": "laag",
+      "medium": "gemiddeld",
+      "high": "hoog"
+    },
+    "timingHint": "Sterkste gemeten venster: {bucket} ({count} berichten)."
+  },
+  "profile": {
+    "objective": "Doel",
+    "objectiveHint": "Kiest welke gemeten metric de intelligentie optimaliseert.",
+    "primaryMarket": "Primaire markt",
+    "marketPlaceholder": "Selecteer een markt",
+    "conversion": "Conversie-actie",
+    "timezone": "Tijdzone",
+    "platformPriority": "Prioriteitsplatform",
+    "platformHint": "Rangschikt aanbevelingen per platform. Andere gekoppelde kanalen blijven beschikbaar.",
+    "platformPlaceholder": "Geen prioriteit",
+    "pillars": "Contentpijlers",
+    "industries": "Sectoren",
+    "interests": "Interesses",
+    "voice": "Merkstem",
+    "listHint": "Kies uit de lijst, elke selectie voegt een verwijderbaar tag toe.",
+    "save": "Doelgroep-profiel opslaan",
+    "saving": "Opslaan…",
+    "saved": "Doelgroep-profiel opgeslagen",
+    "saveFailed": "Het doelgroep-profiel kon niet worden opgeslagen",
+    "loading": "Doelgroep-profiel laden…",
+    "unavailable": "Het doelgroep-profiel is niet ingeschakeld voor deze werkruimte.",
+    "objectives": {
+      "awareness": "Bekendheid",
+      "engagement": "Betrokkenheid",
+      "followers": "Volgers",
+      "website_traffic": "Websiteverkeer",
+      "leads": "potentiële klanten",
+      "app_installs": "App-installaties",
+      "purchases": "Aankopen",
+      "other": "Overig"
+    },
+    "conversions": {
+      "none": "Geen",
+      "website_visit": "Websitebezoek",
+      "lead": "potentiële klant",
+      "signup": "Aanmelding",
+      "app_install": "App-installatie",
+      "purchase": "Aankoop",
+      "custom": "Aangepast"
+    },
+    "voiceHint": "Kies toonkenmerken die beschrijven hoe dit merk moet klinken.",
+    "tagAdd": "Toevoegen uit lijst…",
+    "tagEmpty": {
+      "pillars": "Geen contentpijlers geselecteerd",
+      "industries": "Geen sectoren geselecteerd",
+      "interests": "Geen interesses geselecteerd",
+      "voice": "Geen stemkenmerken geselecteerd"
+    },
+    "options": {
+      "pillars": {
+        "education": "Educatie",
+        "entertainment": "Vermaak",
+        "inspiration": "Inspiratie",
+        "product_updates": "Productupdates",
+        "behind_the_scenes": "Achter de schermen",
+        "tutorials": "Handleidingen",
+        "thought_leadership": "Denkleiderschap",
+        "community": "Gemeenschap",
+        "promotions": "Acties",
+        "user_stories": "Gebruikersverhalen",
+        "industry_news": "Branchenieuws",
+        "culture": "Cultuur",
+        "events": "Evenementen",
+        "testimonials": "Getuigenissen",
+        "how_to": "How-to"
+      },
+      "industries": {
+        "technology": "Technologie",
+        "retail": "Detailhandel",
+        "finance": "Financiën",
+        "healthcare": "Gezondheidszorg",
+        "education": "Onderwijs",
+        "food_beverage": "Eten & drinken",
+        "fashion_beauty": "Mode & beauty",
+        "travel": "Reizen",
+        "real_estate": "Vastgoed",
+        "fitness": "Fitness",
+        "entertainment": "Vermaak",
+        "nonprofit": "Non-profit",
+        "b2b_services": "B2B-diensten",
+        "manufacturing": "Productie",
+        "automotive": "Auto-industrie",
+        "gaming": "Gaming",
+        "media": "Media",
+        "professional_services": "Professionele diensten",
+        "home_garden": "Huis & tuin",
+        "pets": "Huisdieren"
+      },
+      "interests": {
+        "entrepreneurship": "Ondernemerschap",
+        "marketing": "Marketing",
+        "design": "Vormgeving",
+        "productivity": "Productiviteit",
+        "wellness": "Welzijn",
+        "parenting": "Ouderschap",
+        "sustainability": "Duurzaamheid",
+        "personal_finance": "Persoonlijke financiën",
+        "cooking": "Koken",
+        "photography": "Fotografie",
+        "music": "Muziek",
+        "sports": "Sport",
+        "technology": "Technologie",
+        "career_growth": "Carrièregroei",
+        "diy": "Doe-het-zelf",
+        "gaming": "Gaming",
+        "fashion": "Mode",
+        "travel": "Reizen",
+        "fitness": "Fitness",
+        "reading": "Lezen"
+      },
+      "voice": {
+        "professional": "Professioneel",
+        "friendly": "Vriendelijk",
+        "bold": "Gedurfd",
+        "playful": "Speels",
+        "authoritative": "Autoritair",
+        "empathetic": "Empathisch",
+        "witty": "Geestig",
+        "inspirational": "Inspirerend",
+        "conversational": "Conversationeel",
+        "technical": "Technisch",
+        "luxury": "Luxe",
+        "minimalist": "Minimalistisch",
+        "energetic": "Energiek",
+        "trustworthy": "Betrouwbaar",
+        "innovative": "Innovatief"
+      }
+    }
+  },
+  "errors": {
+    "unavailableTitle": "Intelligentie is niet beschikbaar",
+    "unavailableBody": "Deze fase is niet ingeschakeld voor deze werkruimte of kon niet worden geladen.",
+    "retry": "Opnieuw proberen"
+  },
+  "actions": {
+    "accept": "Accepteren",
+    "dismiss": "Afwijzen",
+    "pin": "Vastzetten",
+    "saveFailed": "Beslissing kon niet worden opgeslagen",
+    "acceptedToast": "Geaccepteerd, voer uit in Content/Kalender",
+    "pinnedToast": "Vastgepind voor opvolging",
+    "dismissedToast": "Genegeerd en verborgen",
+    "status": {
+      "accepted": "Geaccepteerd",
+      "pinned": "Vastgepind",
+      "dismissed": "Genegeerd"
+    }
+  },
+  "alignment": {
+    "title": "Doelgroep-afstemming",
+    "empty": "Afstemming verschijnt wanneer een meetbare doelgroepmix is vastgelegd. Ontbrekende dimensies blijven leeg."
+  },
+  "timing": {
+    "title": "Beste tijdvakken",
+    "empty": "Accountspecifieke timing vraagt 20 gedateerde berichten en vijf waarnemingen in het genoemde uur."
+  },
+  "campaigns": {
+    "title": "Campagnes",
+    "empty": "Noem een campagne om te vergelijken. Publiceert niets automatisch.",
+    "name": "Campagnenaam",
+    "create": "Campagne maken"
+  },
+  "experiments": {
+    "title": "Experimenten",
+    "emptyPaired": "Nog geen experimenten. Maak een platform-specifieke A/B-test met twee geplande posts.",
+    "pairedWorkflow": "Kies één platform, schrijf twee varianten (andere caption, media en/of tijd), plan beide en laat ze een venster lopen. Aan het eind komen de resultaten in je Inbox. Side-by-side toont de live post wanneer er een permalink is.",
+    "name": "Experimentnaam",
+    "hypothesis": "Hypothese (bijv. kortere hooks krijgen meer views)",
+    "createPaired": "A/B maken & plannen",
+    "creating": "Maken…",
+    "createdPaired": "Experiment gemaakt, beide posts zijn gepland",
+    "createFailed": "Kon experiment niet maken",
+    "captionPlaceholder": "Caption en hashtags voor deze arm",
+    "armCompose": "Arm {arm}",
+    "armLabel": "Arm {arm}",
+    "scheduleA": "Arm A plannen",
+    "scheduleB": "Arm B plannen",
+    "durationOption": "{days}-dagenvenster",
+    "platformLabel": "Platform: {platform}",
+    "endsLabel": "Eindigt {when}",
+    "openLive": "Live post openen",
+    "liveEmbedTitle": "Live preview arm {arm}",
+    "livePending": "De live embed verschijnt nadat de post is gepubliceerd en Markaestro de permalink opslaat.",
+    "loadingDetail": "Experiment laden…",
+    "detailFailed": "Kon experiment niet laden.",
+    "untitledPost": "Bericht zonder titel",
+    "effect": "{value}% relatief verschil (B vs A)",
+    "status": {
+      "draft": "Concept",
+      "scheduled": "Gepland",
+      "running": "Actief",
+      "complete": "Voltooid",
+      "archived": "Gearchiveerd",
+      "winner_a": "Winnaar A",
+      "winner_b": "Winnaar B",
+      "inconclusive": "Inconclusief"
+    },
+    "result": {
+      "winner_a": "Arm A leidt op de gemeten metric.",
+      "winner_b": "Arm B leidt op de gemeten metric.",
+      "inconclusive": "Resultaat inconclusief, grotere steekproef of duidelijker verschil nodig."
+    },
+    "mediaRequired": "Dit platform heeft media op beide armen nodig voordat je het experiment kunt aanmaken.",
+    "mediaRequiredHint": "Instagram, TikTok en Pinterest vereisen minstens één afbeelding of video op elke arm.",
+    "untitledExperiment": "Naamloos experiment",
+    "delete": "Verwijderen",
+    "deleted": "Experiment verwijderd",
+    "deleteFailed": "Kon het experiment niet verwijderen",
+    "deleteWarning": "Dit verwijdert het experiment, de geplande A/B-posts en gerelateerde inboxresultaten uit Markaestro. Posts die al live op het platform staan worden niet verwijderd."
+  },
+  "ask": {
+    "title": "Vraag het Markaestro",
+    "placeholder": "Vraag naar gemeten prestaties, timing of inzichten.",
+    "submit": "Vragen",
+    "asking": "Bewijs selecteren…",
+    "tool": "Gebruikt {tool}",
+    "failed": "Kon die vraag niet beantwoorden. Probeer opnieuw.",
+    "timeout": "Dat duurde te lang, stel een kortere vraag of probeer zo opnieuw.",
+    "quota": "Je Ask Markaestro-beurten voor deze maand zijn op. Probeer volgende maand of upgrade.",
+    "unavailable": "Ask Markaestro is nog niet beschikbaar voor deze werkruimte."
+  },
+  "links": {
+    "title": "Getraceerde links",
+    "empty": "Maak een getraceerde link om klikken toe te wijzen zonder ruwe IP-adressen op te slaan.",
+    "label": "Linklabel",
+    "destination": "Bestemmings-URL",
+    "create": "Link maken"
+  },
+  "productBar": {
+    "brand": "Merk",
+    "noBrandSelected": "Geen merk geselecteerd",
+    "change": "Wijzigen"
+  },
+  "guide": {
+    "overview": {
+      "title": "Wat deze tab toont",
+      "body": "KPI's en platforms uit gesynchroniseerde posts. Leeg = geen metric, nooit nul."
+    },
+    "audience": {
+      "title": "Stel je merkgrens in",
+      "body": "Doel, markten, tijdzone en pijlers definiëren voor wie je maakt."
+    },
+    "content": {
+      "title": "Leer van wat werkte",
+      "body": "Topcontent op gemeten views. Hergebruik in Content."
+    },
+    "opportunities": {
+      "title": "Wat nu te proberen",
+      "body": "Aanbevelingen uit gemeten historie. Handmatig uitvoeren in Content/Kalender."
+    },
+    "playbook": {
+      "title": "Terugkerende patronen",
+      "body": "Statistische learnings met voldoende steekproef."
+    },
+    "advanced": {
+      "title": "Test ideeën met bewijs",
+      "body": "Maak een platform-specifiek A/B-experiment, plan twee posts en vergelijk ze live. Na het venster komt het resultaat in je inbox."
+    }
+  },
+  "workflow": {
+    "opportunities": {
+      "title": "Kansen gebruiken",
+      "step1": "Lees de aanbeveling en het bewijs.",
+      "step2": "Accepteer, pin of negeer.",
+      "step3": "Publiceer/plan in Content/Kalender. Accept maakt niets automatisch."
+    },
+    "playbook": {
+      "title": "Playbook gebruiken",
+      "step1": "Elke kaart is een gemeten patroon (n=).",
+      "step2": "Accepteer, pin of negeer patronen.",
+      "step3": "Pas geaccepteerde patronen toe bij het schrijven."
+    }
+  },
+  "decisions": {
+    "hint": "Slaat alleen je beslissing op, publiceert niet.",
+    "learningHint": "Geef aan of je dit patroon vertrouwt.",
+    "accept": "Accepteren, ik ga handelen",
+    "pin": "Pinnen, later",
+    "dismiss": "Negeren, verbergen"
+  }
+}

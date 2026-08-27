@@ -10,7 +10,7 @@
     "title": "Dein Anmeldecode",
     "bodyIntro": "Verwende diesen Code, um dich als <strong>{email}</strong> anzumelden:",
     "fallbackAccount": "dein Konto",
-    "expiryNote": "Der Code läuft in 10 Minuten ab. Teile ihn mit niemandem — Markaestro wird dich niemals danach fragen.",
+    "expiryNote": "Der Code läuft in 10 Minuten ab. Teile ihn mit niemandem: Markaestro wird dich niemals danach fragen.",
     "footerNote": "Wenn du dich nicht anmelden wolltest, kannst du diese E-Mail ignorieren. Ohne den Code kann niemand auf dein Konto zugreifen.",
     "plain": {
       "heading": "Dein Markaestro-Anmeldecode",
@@ -25,7 +25,7 @@
     "title": "Bestätige deine neue E-Mail",
     "bodyIntro": "Du hast beantragt, deine Markaestro-E-Mail zu <strong>{newEmail}</strong> zu ändern. Gib diesen Code in der App ein, um zu bestätigen:",
     "expiryNote": "Der Code läuft in 10 Minuten ab. Teile ihn mit niemandem.",
-    "footerNote": "Wenn du diese Änderung nicht angefordert hast, kannst du diese E-Mail ignorieren — deine Adresse bleibt unverändert.",
+    "footerNote": "Wenn du diese Änderung nicht angefordert hast, kannst du diese E-Mail ignorieren, deine Adresse bleibt unverändert.",
     "plain": {
       "heading": "Bestätige deine neue Markaestro-E-Mail",
       "newEmailLabel": "Neue E-Mail: {newEmail}",
@@ -41,12 +41,12 @@
     "bodyIntro": "Jemand hat beantragt, die E-Mail-Adresse dieses Markaestro-Kontos zu ändern:",
     "fromToLabel": "Von → Zu",
     "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
-    "bodyOutro": "Wenn du das warst, schließe die Bestätigung mit dem Code ab, den wir an die <strong>neue Adresse</strong> gesendet haben. Wenn du das nicht warst, wurde deine E-Mail nicht geändert — bitte wende dich sofort an den Support.",
+    "bodyOutro": "Wenn du das warst, schließe die Bestätigung mit dem Code ab, den wir an die <strong>neue Adresse</strong> gesendet haben. Wenn du das nicht warst, wurde deine E-Mail nicht geändert, bitte wende dich sofort an den Support.",
     "footerNote": "Dieser Hinweis wurde gesendet, weil eine Änderung für dein Konto angefordert wurde.",
     "plain": {
       "heading": "E-Mail-Änderung bei Markaestro angefordert",
       "changeSummary": "{oldEmail} -> {newEmail}",
-      "warning": "Wenn du das nicht warst, wurde deine E-Mail nicht geändert — wende dich sofort an den Support."
+      "warning": "Wenn du das nicht warst, wurde deine E-Mail nicht geändert, wende dich sofort an den Support."
     }
   },
   "manualPostReminder": {
@@ -63,7 +63,7 @@
   "tiktokInbox": {
     "subjectWithBrand": "Schließe deinen TikTok-Beitrag für {brandName} ab",
     "subjectNoBrand": "Schließe deinen TikTok-Beitrag ab",
-    "preheader": "Dein Video wartet in der TikTok-App — öffne sie, um es zu veröffentlichen.",
+    "preheader": "Dein Video wartet in der TikTok-App, öffne sie, um es zu veröffentlichen.",
     "bodyIntroWithBrand": "Dein Video wurde hochgeladen und wartet in deinem TikTok-Posteingang für <strong>{brandName}</strong>. TikTok erfordert, dass der endgültige Beitrag aus der App heraus erstellt wird, daher ist er noch nicht live.",
     "bodyIntroNoBrand": "Dein Video wurde hochgeladen und wartet in deinem TikTok-Posteingang. TikTok erfordert, dass der endgültige Beitrag aus der App heraus erstellt wird, daher ist er noch nicht live.",
     "toPublishLabel": "So veröffentlichst du ihn",
@@ -88,7 +88,7 @@
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> hat dich eingeladen, dem Workspace <strong>{workspaceName}</strong> auf Markaestro {roleLabel} beizutreten.",
     "bodyIntroNoInviter": "Ein Teammitglied hat dich eingeladen, dem Workspace <strong>{workspaceName}</strong> auf Markaestro {roleLabel} beizutreten.",
     "signInInstructions": "Melde dich mit dieser E-Mail-Adresse an (oder erstelle ein Konto) und nimm die Einladung dann über das Banner in der App an:",
-    "declineNote": "Du möchtest nicht beitreten? Lehne die Einladung in der App ab oder unternimm einfach nichts — sie läuft nach 30 Tagen ab.",
+    "declineNote": "Du möchtest nicht beitreten? Lehne die Einladung in der App ab oder unternimm einfach nichts, sie läuft nach 30 Tagen ab.",
     "roleLabels": {
       "admin": "als Administrator",
       "member": "als Mitglied",

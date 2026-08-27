@@ -34,7 +34,8 @@
       "integration": "연동",
       "post": "게시물",
       "workspace": "워크스페이스",
-      "account": "계정"
+      "account": "계정",
+      "experiment": "실험"
     },
     "titleGeneric": "{entity} 삭제",
     "titleNamed": "{entity}을(를) 삭제할까요?",
@@ -86,8 +87,8 @@
         "activeLabel": "브랜드 프로필을 생성하는 중…"
       }
     },
-    "scanComplete": "스캔 완료 — 아래에서 확인 후 확정하세요",
-    "scanFailed": "스캔 실패 — 수동으로 입력해 주세요",
+    "scanComplete": "스캔 완료, 아래에서 확인 후 확정하세요",
+    "scanFailed": "스캔 실패, 수동으로 입력해 주세요",
     "researching": "브랜드를 조사하는 중…"
   },
   "platformPreview": {

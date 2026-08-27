@@ -1,14 +1,14 @@
 {
   "meta": {
     "title": "面向 AI 代理的 Markaestro | 用一个 API 密钥实现社交发布自动化",
-    "description": "为你的 AI 代理提供一个 Markaestro API 密钥，它就能发现已连接的社交账号、上传素材、起草、排期并发布内容到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest —— 具备品牌限定密钥、幂等写入以及人工参与的发布流程。",
+    "description": "为你的 AI 代理提供一个 Markaestro API 密钥，它就能发现已连接的社交账号、上传素材、起草、排期并发布内容到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest，具备品牌限定密钥、幂等写入以及人工参与的发布流程。",
     "ogTitle": "面向 AI 代理的 Markaestro",
     "ogDescription": "一个 API 密钥即可将 Markaestro 变成你的代理可以调用的发布工具：发现账号、上传素材、起草、排期、发布，并回报结果。"
   },
   "hero": {
     "eyebrow": "面向 AI 代理",
     "title": "把 API 密钥交给你的代理，剩下的社交渠道运营交给它。",
-    "intro1": "Markaestro 从一开始就是为被软件操作而设计的。一个工作区 API 密钥就能让代理拥有发现可发布账号、上传素材、起草并排期内容、发布内容，以及回报实际发布结果所需的一切能力 —— 覆盖 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。",
+    "intro1": "Markaestro 从一开始就是为被软件操作而设计的。一个工作区 API 密钥就能让代理拥有发现可发布账号、上传素材、起草并排期内容、发布内容，以及回报实际发布结果所需的一切能力，覆盖 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。",
     "intro2": "无需安装 SDK，无需让代理应对 OAuth 流程，也无需照管各平台专属的凭证。你的团队只需在控制台连接一次账号，此后代理只需与一个基于持有者令牌（bearer token）的 API 交互。",
     "createKeyButton": "创建 API 密钥",
     "apiReferenceButton": "完整 API 参考",
@@ -19,18 +19,18 @@
     "title": "为什么一个 API 密钥就是整个集成",
     "intro": "让代理接触社交媒体的难点并不在于 HTTP 本身，而在于确保一个出错的模型不会发布到错误的品牌、不会因重试而重复发布，也不会发出一条无人审阅过的内容。这些保障机制内置于 API 接口本身，而不是依赖于你的提示词。",
     "cards": [
-      { "title": "一个密钥，一个品牌", "body": "每个 API 密钥在创建时都会绑定到单一品牌。持有该密钥的代理只能查看并发布到那一个品牌 —— 跨品牌请求会在认证阶段被直接拒绝，而不是仅靠约定来限制。" },
+      { "title": "一个密钥，一个品牌", "body": "每个 API 密钥在创建时都会绑定到单一品牌。持有该密钥的代理只能查看并发布到那一个品牌，跨品牌请求会在认证阶段被直接拒绝，而不是仅靠约定来限制。" },
       { "title": "动态发现，而非硬编码 ID", "body": "代理会查询自己可以发布到哪些账号，并获得可直接回传的不透明 ID。无需管理主页 ID，无需在 Business Manager 中翻找，也无需维护一份在连接重新关联后就会失效的配置文件。" },
-      { "title": "幂等写入", "body": "在任何创建或发布请求中附带 Idempotency-Key。24 小时内的重复调用会返回原始响应，而不会创建第二篇内容 —— 这是代理最常遇到的失败模式。" },
+      { "title": "幂等写入", "body": "在任何创建或发布请求中附带 Idempotency-Key。24 小时内的重复调用会返回原始响应，而不会创建第二篇内容，这是代理最常遇到的失败模式。" },
       { "title": "始终有人工参与其中", "body": "Facebook、Instagram 和 TikTok 的内容以人工优先：由你的代理负责准备，由真人完成原生发布。除非你明确为该内容选择直接发布，否则不会有任何内容在无人监督的情况下发出。" }
     ]
   },
   "loop": {
     "eyebrow": "代理循环",
     "title": "从头到尾，只需五次调用",
-    "intro": "Markaestro 的每一次自动化本质上都是这个循环的变体。第一到第三步是 <connectLink>Connect API</connectLink> —— 大多数代理应该对接的扁平接口。第四步和第五步则会调用完整的 <code>/api/public/v1</code> API，用于显式发布和任务跟踪。",
+    "intro": "Markaestro 的每一次自动化本质上都是这个循环的变体。第一到第三步是 <connectLink>Connect API</connectLink>，大多数代理应该对接的扁平接口。第四步和第五步则会调用完整的 <code>/api/public/v1</code> API，用于显式发布和任务跟踪。",
     "steps": [
-      { "step": "01", "title": "发现", "body": "返回该密钥所属品牌下所有已连接、可发布的账号，每个账号都包含平台、用户名和一个不透明 ID。请在每次运行开始时调用 —— 连接关系会发生变化。" },
+      { "step": "01", "title": "发现", "body": "返回该密钥所属品牌下所有已连接、可发布的账号，每个账号都包含平台、用户名和一个不透明 ID。请在每次运行开始时调用，连接关系会发生变化。" },
       { "step": "02", "title": "上传素材", "body": "生成一个短时有效、一次性使用的已签名 URL，然后向其 PUT 原始字节数据。你会获得一个素材 ID。图片最大支持 10MB；完整版 API 还支持最大 250MB 的视频。" },
       { "step": "03", "title": "起草或排期", "body": "原样传入文案、素材 ID 和账号 ID。可将其保留为草稿以供审阅，或发送 is_draft false 并附带 scheduled_at，将其加入日历。" },
       { "step": "04", "title": "发布", "body": "将一次异步任务加入队列。LinkedIn、Threads 和 Pinterest 会通过官方 API 发布出去。Facebook、Instagram 和 TikTok 则会进入工作区的「待发布」队列，等待真人完成原生发布。" },
@@ -40,7 +40,7 @@
   "quickstart": {
     "eyebrow": "快速入门",
     "title": "四条命令即可完成一次可运行的集成",
-    "intro": "首先生成密钥：打开 <settingsLink>设置 → API</settingsLink>，选择该密钥可以访问的品牌，勾选所需的权限范围，并可选择设置有效期。密钥只会显示一次 —— 请直接将其存入代理的密钥存储库中。生成密钥需要拥有已验证邮箱的管理员或所有者身份。",
+    "intro": "首先生成密钥：打开 <settingsLink>设置 → API</settingsLink>，选择该密钥可以访问的品牌，勾选所需的权限范围，并可选择设置有效期。密钥只会显示一次，请直接将其存入代理的密钥存储库中。生成密钥需要拥有已验证邮箱的管理员或所有者身份。",
     "step1": { "title": "1. 发现账号", "description": "每次运行的第一步调用。连接关系会发生变化，ID 不应被硬编码进提示词中。" },
     "step2": { "title": "2. 上传素材", "description": "分两步完成：先生成一个已签名的一次性 URL，再 PUT 字节数据。该 URL 会在 15 分钟后失效，且无需附带自己的认证头。" },
     "step3": { "title": "3. 排期，然后跟踪", "description": "创建操作默认以草稿优先。改为发送 <code>is_draft: false</code> 并附带 <code>scheduled_at</code> 时间戳，即可将内容排入日历。" },
@@ -50,14 +50,14 @@
   "toolDefs": {
     "eyebrow": "开箱即用",
     "title": "工具定义与代理简介",
-    "intro": "有两样东西可以直接复制使用。第一是一套覆盖整个发布循环的工具 Schema —— 以 JSON Schema 编写，因此可直接用作 Claude 工具定义、OpenAI 函数，或你自行托管的 MCP 服务器的输入格式。第二是一份运行简介，用于防止模型做出出人意料的操作。",
+    "intro": "有两样东西可以直接复制使用。第一是一套覆盖整个发布循环的工具 Schema，以 JSON Schema 编写，因此可直接用作 Claude 工具定义、OpenAI 函数，或你自行托管的 MCP 服务器的输入格式。第二是一份运行简介，用于防止模型做出出人意料的操作。",
     "schemasTitle": "工具 Schema",
     "schemasDescription": "六个工具：列出账号、上传素材、创建、发布、列出、删除。请将每个工具与上方对应的接口相连接。",
     "schemasLabel": "tools.json",
     "briefTitle": "代理简介",
     "briefDescription": "粘贴到你的系统提示词中。它编码了区分可靠发布代理与那种重复发布并过早宣布「完成」的代理之间的行为准则。",
     "briefLabel": "系统提示词",
-    "briefFooter": "你的代理也可以自行获取这份内容：<code>curl https://markaestro.com/llms.txt</code> 会返回整个 API 的纯文本简介 —— 涵盖接口、规则和错误处理 —— 体积足够小，可以放入上下文中。"
+    "briefFooter": "你的代理也可以自行获取这份内容：<code>curl https://markaestro.com/llms.txt</code> 会返回整个 API 的纯文本简介，涵盖接口、规则和错误处理，体积足够小，可以放入上下文中。"
   },
   "recipes": {
     "eyebrow": "示例场景",
@@ -73,33 +73,33 @@
     "title": "代理能做什么，不能做什么",
     "intro": "自主性只有在影响范围可控时才有价值。Markaestro 的默认设置假定调用方是可能出错的软件。",
     "calloutTitle": "Facebook、Instagram 和 TikTok 以人工优先",
-    "calloutBody": "你的代理为这些渠道创建的内容，默认使用 <code>manual_reminder</code>：Markaestro 不会调用这些平台的 API。发布操作会将内容移入工作区的「待发布」队列，由真人下载素材、原生发布并确认 —— 因此内容看起来与手动制作的完全一致，且在公开存在之前，每一条都会经过人工过目。代理可以通过 <code>deliveryMode: \"direct_publish\"</code> 为单篇内容选择官方 API 发布，在 TikTok 上这意味着转交至创作者收件箱，绝不会成为无人监督的公开发布。LinkedIn、Threads 和 Pinterest 会在你的代理明确请求后以程序化方式发布。",
+    "calloutBody": "你的代理为这些渠道创建的内容，默认使用 <code>manual_reminder</code>：Markaestro 不会调用这些平台的 API。发布操作会将内容移入工作区的「待发布」队列，由真人下载素材、原生发布并确认，因此内容看起来与手动制作的完全一致，且在公开存在之前，每一条都会经过人工过目。代理可以通过 <code>deliveryMode: \"direct_publish\"</code> 为单篇内容选择官方 API 发布，在 TikTok 上这意味着转交至创作者收件箱，绝不会成为无人监督的公开发布。LinkedIn、Threads 和 Pinterest 会在你的代理明确请求后以程序化方式发布。",
     "items": [
       { "title": "缩小密钥权限范围", "body": "只选择代理所需的权限范围：products.read、media.write、posts.read、posts.write、posts.publish、job_runs.read、webhooks.manage。一个只读取日历的研究型代理，只需拥有 posts.read 即可。" },
       { "title": "设置有效期", "body": "密钥可在创建时设置有效期。过期的密钥表现与被撤销的密钥完全相同，因此从代理环境中泄露的密钥会自行失效。" },
       { "title": "轮换与撤销", "body": "你可以在「设置 → API」中原地轮换密钥，或直接将其彻底撤销。每个密钥都会显示最近使用时间和请求量，因此无论代理沉寂下来还是行为失控，都能被及时发现。" },
       { "title": "速率限制会被强制执行", "body": "每个接口每分钟 60 次请求，每个密钥每分钟 240 次请求。每个响应都携带 X-RateLimit-Limit、-Remaining 和 -Reset；429 响应会携带 Retry-After。请遵守这些限制，而不是强行发起请求。" },
       { "title": "Markaestro 不会替你撰写内容", "body": "系统中不存在生成环节。文案来自你的代理，素材来自你的素材库或代理的处理流程。Markaestro 是执行的手，而不是发声的口。" },
-      { "title": "删除操作仅作用于 Markaestro 一侧", "body": "删除一篇已排期的内容会在其发布前取消该内容。删除一篇已发布的内容只会停止 Markaestro 对其进行跟踪 —— 该内容在平台上仍会保持发布状态，直到有人在平台上将其移除为止。" }
+      { "title": "删除操作仅作用于 Markaestro 一侧", "body": "删除一篇已排期的内容会在其发布前取消该内容。删除一篇已发布的内容只会停止 Markaestro 对其进行跟踪，该内容在平台上仍会保持发布状态，直到有人在平台上将其移除为止。" }
     ]
   },
   "errors": {
     "eyebrow": "错误处理",
     "title": "教会代理哪些错误值得重试",
-    "intro": "每个错误响应都是包含稳定 <code>error</code> 代码和 <code>requestId</code> 的 JSON。请让你的代理在报告失败时引用 requestId —— 这是支持团队追踪该次调用所需的信息。",
+    "intro": "每个错误响应都是包含稳定 <code>error</code> 代码和 <code>requestId</code> 的 JSON。请让你的代理在报告失败时引用 requestId，这是支持团队追踪该次调用所需的信息。",
     "statusHeader": "状态码",
     "codeHeader": "错误代码",
     "actionHeader": "代理应采取的操作",
     "rows": [
-      { "status": "401", "code": "UNAUTHENTICATED", "action": "密钥缺失、已被撤销或已过期。请停止操作并请求人工提供新密钥 —— 重试无济于事。" },
+      { "status": "401", "code": "UNAUTHENTICATED", "action": "密钥缺失、已被撤销或已过期。请停止操作并请求人工提供新密钥，重试无济于事。" },
       { "status": "403", "code": "FORBIDDEN", "action": "密钥缺少该调用所需的权限范围。请报告是哪次调用失败；权限范围可在「设置 → API」中修改。" },
       { "status": "403", "code": "API_KEY_NOT_BOUND_TO_PRODUCT", "action": "这是一个在品牌绑定机制启用之前签发的密钥。请申请一个替代密钥。" },
       { "status": "400", "code": "VALIDATION_*", "action": "请求负载违反了某个渠道规则（素材缺失、投递方式无效、scheduled_at 错误等）。请修正请求；不要在未做修改的情况下重试。" },
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "同一个 Idempotency-Key 被用于不同的请求体发送。请为每个不同的请求生成一个新密钥。" },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "在发布任务进行中时尝试删除该内容。请等待任务完成后再删除。" },
-      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "该内容的发布任务已在队列中。请勿再次发布 —— 请轮询现有任务的状态。" },
+      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "该内容的发布任务已在队列中。请勿再次发布，请轮询现有任务的状态。" },
       { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "此工作区未关联有效套餐。请让工作区所有者在“设置”中检查账单。" },
-      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "工作区已达到月度上传配额。请停止上传并展示该状态 —— 已有素材仍会正常发布。" },
+      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "工作区已达到月度上传配额。请停止上传并展示该状态，已有素材仍会正常发布。" },
       { "status": "404", "code": "NOT_FOUND", "action": "该 ID 不属于此密钥所在的品牌范围。为防止密钥探测其不拥有的 ID，此处返回 404 而非 403。" },
       { "status": "429", "code": "RATE_LIMITED", "action": "等待 Retry-After 指定的秒数，然后使用相同的 Idempotency-Key 重试同一请求。" }
     ]
@@ -110,7 +110,7 @@
     "intro": "没有需要引入的 Markaestro 专属客户端库，也没有需要遵循的特定框架。持有者令牌、传入 JSON、返回 JSON。",
     "items": [
       { "name": "Claude 与 Claude Agent SDK", "body": "将上方的工具定义直接添加到你的工具列表中。这些 JSON Schema 结构已经符合 Claude 的工具使用格式。" },
-      { "name": "OpenAI 的 function calling", "body": "相同的 Schema 可以一对一映射为函数定义 —— 只需将 input_schema 重命名为 parameters。" },
+      { "name": "OpenAI 的 function calling", "body": "相同的 Schema 可以一对一映射为函数定义，只需将 input_schema 重命名为 parameters。" },
       { "name": "MCP 服务器", "body": "如果你的代理支持 MCP，只需用一个小型服务器包装这六个调用即可。无论哪一侧都无需安装任何 Markaestro 专属组件。" },
       { "name": "n8n、Make、Zapier", "body": "每个接口都是携带持有者令牌的普通 HTTP 请求。无需 SDK，无需签名流程，代理也无需处理 OAuth 授权流程。" },
       { "name": "LangChain 与 LlamaIndex", "body": "标准的 REST 工具。两步式的素材上传是唯一需要多次调用的流程，且仅需两行代码。" },

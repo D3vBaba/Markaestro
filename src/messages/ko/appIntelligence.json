@@ -1,0 +1,366 @@
+{
+  "title": "인텔리전스",
+  "subtitle": "측정 성과와 근거 있는 추천, 자동 게시 없음.",
+  "brand": "브랜드",
+  "coverage": "데이터 커버리지 {value}%",
+  "labels": {
+    "measured": "측정",
+    "calculated": "계산",
+    "predicted": "예측",
+    "recommended": "추천"
+  },
+  "tabs": {
+    "overview": "개요",
+    "audience": "오디언스",
+    "content": "콘텐츠",
+    "opportunities": "기회",
+    "playbook": "플레이북",
+    "advanced": "실험"
+  },
+  "metrics": {
+    "posts": "게시물",
+    "views": "조회수",
+    "reach": "도달",
+    "clicks": "클릭"
+  },
+  "platforms": {
+    "title": "플랫폼 성과",
+    "empty": "지표가 수집되면 게시물이 여기에 표시됩니다.",
+    "posts": "게시물 {value}개",
+    "views": "조회 {value}회",
+    "engagements": "참여 {value}회",
+    "colPlatform": "플랫폼",
+    "colEngagements": "참여"
+  },
+  "audience": {
+    "title": "타깃 오디언스",
+    "objective": "목표",
+    "markets": "시장",
+    "pillars": "콘텐츠 기둥"
+  },
+  "content": {
+    "title": "상위 콘텐츠",
+    "mediaOnly": "미디어 게시물",
+    "likes": "좋아요",
+    "comments": "댓글",
+    "shares": "공유",
+    "viewLive": "라이브 보기"
+  },
+  "empty": {
+    "overviewTitle": "게시된 게시물을 기다리는 중",
+    "overviewBody": "이 브랜드에는 아직 동기화된 게시물이 없습니다. Markaestro에서 게시한 게시물과 가져온 플랫폼 기록은 인텔리전스에 반영되면 여기에 나타납니다. 누락된 지표는 0이 아니라 빈 값으로 유지됩니다.",
+    "noBrandTitle": "먼저 브랜드를 만드세요",
+    "noBrandBody": "인텔리전스는 Markaestro 브랜드 단위로 관리됩니다.",
+    "profileTitle": "오디언스 프로필 설정",
+    "profileBody": "브랜드 설정에서 목표, 시장, 시간대, 플랫폼 우선순위를 추가하세요.",
+    "contentTitle": "측정된 콘텐츠가 없습니다",
+    "contentBody": "게시 및 가져온 게시물이 누락 지표를 0으로 바꾸지 않고 표시됩니다.",
+    "opportunitiesTitle": "근거 있는 기회가 아직 없습니다",
+    "opportunitiesBody": "충분한 측정 근거 후 추천 표시.",
+    "playbookTitle": "플레이북을 준비 중입니다",
+    "playbookBody": "충분한 측정 게시물 후 패턴 표시(보통 5개 이상).",
+    "createBrand": "브랜드 만들기"
+  },
+  "composer": {
+    "title": "오디언스 적합도",
+    "recommended": "추천",
+    "body": "저장된 오디언스 프로필과 초안 비교. 적용 전 변경 없음.",
+    "analyze": "초안 분석",
+    "analyzing": "분석 중…",
+    "retry": "다시 시도",
+    "failed": "분석을 안전하게 완료하지 못했습니다.",
+    "reanalyze": "다시 분석",
+    "meta": "커버리지 {coverage}% · 신뢰도 {confidence} · 관련 게시물 {sample}개",
+    "coldStart": "콜드 스타트: 관련 게시물이 5개 미만입니다.",
+    "unavailable": "사용 불가",
+    "suggestion": "제안된 문구",
+    "apply": "제안 적용",
+    "applied": "초안에 적용됨",
+    "confidence": {
+      "low": "낮음",
+      "medium": "보통",
+      "high": "높음"
+    },
+    "timingHint": "가장 강한 측정 구간: {bucket} (게시물 {count}개)."
+  },
+  "profile": {
+    "objective": "목표",
+    "objectiveHint": "인텔리전스가 최적화할 측정 지표를 선택합니다.",
+    "primaryMarket": "주요 시장",
+    "marketPlaceholder": "시장 선택",
+    "conversion": "전환 액션",
+    "timezone": "시간대",
+    "platformPriority": "우선 플랫폼",
+    "platformHint": "플랫폼별 추천 순위에 사용됩니다. 다른 연결된 채널도 계속 사용할 수 있습니다.",
+    "platformPlaceholder": "우선순위 없음",
+    "pillars": "콘텐츠 기둥",
+    "industries": "업종",
+    "interests": "관심사",
+    "voice": "브랜드 보이스",
+    "listHint": "목록에서 선택, 추가된 태그는 제거할 수 있습니다.",
+    "save": "오디언스 프로필 저장",
+    "saving": "저장 중…",
+    "saved": "오디언스 프로필이 저장되었습니다",
+    "saveFailed": "오디언스 프로필을 저장하지 못했습니다",
+    "loading": "오디언스 프로필 불러오는 중…",
+    "unavailable": "이 작업 공간에서는 오디언스 프로필이 활성화되지 않았습니다.",
+    "objectives": {
+      "awareness": "인지도",
+      "engagement": "참여",
+      "followers": "팔로워",
+      "website_traffic": "웹사이트 트래픽",
+      "leads": "리드",
+      "app_installs": "앱 설치",
+      "purchases": "구매",
+      "other": "기타"
+    },
+    "conversions": {
+      "none": "없음",
+      "website_visit": "웹사이트 방문",
+      "lead": "리드",
+      "signup": "가입",
+      "app_install": "앱 설치",
+      "purchase": "구매",
+      "custom": "사용자 지정"
+    },
+    "voiceHint": "브랜드 톤을 설명하는 특성을 선택하세요.",
+    "tagAdd": "목록에서 추가…",
+    "tagEmpty": {
+      "pillars": "선택된 콘텐츠 기둥 없음",
+      "industries": "선택된 업종 없음",
+      "interests": "선택된 관심사 없음",
+      "voice": "선택된 보이스 특성 없음"
+    },
+    "options": {
+      "pillars": {
+        "education": "교육",
+        "entertainment": "엔터테인먼트",
+        "inspiration": "영감",
+        "product_updates": "제품 업데이트",
+        "behind_the_scenes": "비하인드",
+        "tutorials": "튜토리얼",
+        "thought_leadership": "사상 리더십",
+        "community": "커뮤니티",
+        "promotions": "프로모션",
+        "user_stories": "사용자 스토리",
+        "industry_news": "업계 뉴스",
+        "culture": "문화",
+        "events": "이벤트",
+        "testimonials": "고객 후기",
+        "how_to": "하우투"
+      },
+      "industries": {
+        "technology": "기술",
+        "retail": "리테일",
+        "finance": "금융",
+        "healthcare": "헬스케어",
+        "education": "교육",
+        "food_beverage": "식음료",
+        "fashion_beauty": "패션·뷰티",
+        "travel": "여행",
+        "real_estate": "부동산",
+        "fitness": "피트니스",
+        "entertainment": "엔터테인먼트",
+        "nonprofit": "비영리",
+        "b2b_services": "B2B 서비스",
+        "manufacturing": "제조",
+        "automotive": "자동차",
+        "gaming": "게임",
+        "media": "미디어",
+        "professional_services": "전문 서비스",
+        "home_garden": "홈·가든",
+        "pets": "반려동물"
+      },
+      "interests": {
+        "entrepreneurship": "창업",
+        "marketing": "마케팅",
+        "design": "디자인",
+        "productivity": "생산성",
+        "wellness": "웰니스",
+        "parenting": "육아",
+        "sustainability": "지속가능성",
+        "personal_finance": "개인 재정",
+        "cooking": "요리",
+        "photography": "사진",
+        "music": "음악",
+        "sports": "스포츠",
+        "technology": "기술",
+        "career_growth": "커리어 성장",
+        "diy": "DIY",
+        "gaming": "게임",
+        "fashion": "패션",
+        "travel": "여행",
+        "fitness": "피트니스",
+        "reading": "독서"
+      },
+      "voice": {
+        "professional": "전문적",
+        "friendly": "친근함",
+        "bold": "대담함",
+        "playful": "유쾌함",
+        "authoritative": "권위적",
+        "empathetic": "공감적",
+        "witty": "재치 있음",
+        "inspirational": "영감을 주는",
+        "conversational": "대화체",
+        "technical": "기술적",
+        "luxury": "럭셔리",
+        "minimalist": "미니멀",
+        "energetic": "에너지 넘침",
+        "trustworthy": "신뢰감",
+        "innovative": "혁신적"
+      }
+    }
+  },
+  "errors": {
+    "unavailableTitle": "인텔리전스를 사용할 수 없습니다",
+    "unavailableBody": "이 단계가 작업 공간에 활성화되지 않았거나 불러오지 못했습니다.",
+    "retry": "다시 시도"
+  },
+  "actions": {
+    "accept": "수락",
+    "dismiss": "닫기",
+    "pin": "고정",
+    "saveFailed": "결정을 저장할 수 없습니다",
+    "acceptedToast": "수락됨, Content/캘린더에서 실행",
+    "pinnedToast": "후속 조치를 위해 고정했습니다",
+    "dismissedToast": "무시되어 목록에서 숨김",
+    "status": {
+      "accepted": "수락됨",
+      "pinned": "고정됨",
+      "dismissed": "무시됨"
+    }
+  },
+  "alignment": {
+    "title": "오디언스 정합",
+    "empty": "측정 가능한 오디언스 구성이 수집되면 정합이 표시됩니다. 없는 차원은 비워 둡니다."
+  },
+  "timing": {
+    "title": "최적 게시 시간",
+    "empty": "계정별 타이밍에는 날짜가 있는 게시물 20개와 해당 시간대의 관측 5회가 필요합니다."
+  },
+  "campaigns": {
+    "title": "캠페인",
+    "empty": "비교용 캠페인 이름. 자동 게시 없음.",
+    "name": "캠페인 이름",
+    "create": "캠페인 만들기"
+  },
+  "experiments": {
+    "title": "실험",
+    "emptyPaired": "실험이 없습니다. 예약된 게시물 두 개로 플랫폼별 A/B 테스트를 만드세요.",
+    "pairedWorkflow": "플랫폼을 하나 고르고 두 가지 변형(캡션·미디어·시간 차이)을 작성해 예약하고 일정 기간 실행하세요. 종료되면 결과가 받은편지함에 도착합니다. 퍼머링크가 있으면 나란히 라이브 게시물을 보여줍니다.",
+    "name": "실험 이름",
+    "hypothesis": "가설(예: 짧은 훅이 더 많은 조회수를 얻음)",
+    "createPaired": "A/B 만들고 예약",
+    "creating": "생성 중…",
+    "createdPaired": "실험 생성됨, 두 게시물이 예약됨",
+    "createFailed": "실험을 만들 수 없습니다",
+    "captionPlaceholder": "이 암의 캡션과 해시태그",
+    "armCompose": "암 {arm}",
+    "armLabel": "암 {arm}",
+    "scheduleA": "A 암 예약",
+    "scheduleB": "B 암 예약",
+    "durationOption": "{days}일 기간",
+    "platformLabel": "플랫폼: {platform}",
+    "endsLabel": "종료 {when}",
+    "openLive": "라이브 게시물 열기",
+    "liveEmbedTitle": "암 {arm} 라이브 미리보기",
+    "livePending": "게시물이 게시되고 퍼머링크가 저장되면 라이브 임베드가 나타납니다.",
+    "loadingDetail": "실험 로딩 중…",
+    "detailFailed": "이 실험을 불러올 수 없습니다.",
+    "untitledPost": "제목 없는 게시물",
+    "effect": "상대 차이 {value}% (B 대 A)",
+    "status": {
+      "draft": "초안",
+      "scheduled": "예약됨",
+      "running": "진행 중",
+      "complete": "완료",
+      "archived": "보관됨",
+      "winner_a": "승자 A",
+      "winner_b": "승자 B",
+      "inconclusive": "판정 불가"
+    },
+    "result": {
+      "winner_a": "측정 지표에서 A 암이 앞섭니다.",
+      "winner_b": "측정 지표에서 B 암이 앞섭니다.",
+      "inconclusive": "결과가 판정 불가입니다, 더 큰 표본이나 더 분명한 차이가 필요합니다."
+    },
+    "mediaRequired": "이 플랫폼은 실험을 만들기 전에 두 암 모두에 미디어가 필요합니다.",
+    "mediaRequiredHint": "Instagram, TikTok, Pinterest는 각 암에 이미지 또는 동영상이 최소 하나 필요합니다.",
+    "untitledExperiment": "제목 없는 실험",
+    "delete": "삭제",
+    "deleted": "실험이 삭제되었습니다",
+    "deleteFailed": "실험을 삭제할 수 없습니다",
+    "deleteWarning": "실험, 예약된 A/B 게시물, 관련 받은편지함 결과가 Markaestro에서 제거됩니다. 플랫폼에 이미 게시된 글은 삭제되지 않습니다."
+  },
+  "ask": {
+    "title": "Markaestro에게 묻기",
+    "placeholder": "측정된 성과, 타이밍, 학습 내용을 물어보세요.",
+    "submit": "질문",
+    "asking": "근거 선택 중…",
+    "tool": "{tool} 사용",
+    "failed": "질문에 답할 수 없습니다. 다시 시도하세요.",
+    "timeout": "시간이 너무 오래 걸렸습니다. 더 짧은 질문을 하거나 잠시 후 다시 시도하세요.",
+    "quota": "이번 달 Ask Markaestro 횟수를 모두 사용했습니다. 다음 달에 다시 시도하거나 업그레이드하세요.",
+    "unavailable": "이 워크스페이스에서는 아직 Ask Markaestro를 사용할 수 없습니다."
+  },
+  "links": {
+    "title": "추적 링크",
+    "empty": "원본 IP를 저장하지 않고 클릭을 귀속할 추적 링크를 만드세요.",
+    "label": "라벨",
+    "destination": "도착 URL",
+    "create": "링크 만들기"
+  },
+  "productBar": {
+    "brand": "브랜드",
+    "noBrandSelected": "선택된 브랜드 없음",
+    "change": "변경"
+  },
+  "guide": {
+    "overview": {
+      "title": "이 탭 내용",
+      "body": "동기화된 게시물 KPI 및 플랫폼별 breakdown. 빈칸 = 미제공 지표, 0 아님."
+    },
+    "audience": {
+      "title": "브랜드 경계 설정",
+      "body": "목표, 시장, 시간대, 기둥이 Intelligence 기준."
+    },
+    "content": {
+      "title": "효과 있던 게시물에서 배우기",
+      "body": "측정 조회수 기준 상위 콘텐츠. Content에서 재사용."
+    },
+    "opportunities": {
+      "title": "다음에 시도할 것",
+      "body": "측정 기록 기반 추천. Content/캘린더에서 수동 실행."
+    },
+    "playbook": {
+      "title": "반복되는 패턴",
+      "body": "충분한 표본의 통계 학습."
+    },
+    "advanced": {
+      "title": "증거로 아이디어 테스트",
+      "body": "플랫폼별 A/B 실험을 만들고 두 게시물을 예약한 뒤 라이브로 비교하세요. 기간이 끝나면 결과가 받은편지함으로 갑니다."
+    }
+  },
+  "workflow": {
+    "opportunities": {
+      "title": "기회 사용법",
+      "step1": "추천과 근거 읽기.",
+      "step2": "수락, 고정 또는 무시.",
+      "step3": "Content/캘린더에서 게시·예약. 수락은 자동 생성 안 함."
+    },
+    "playbook": {
+      "title": "플레이북 사용법",
+      "step1": "각 카드는 측정 패턴(n=).",
+      "step2": "패턴 수락·고정·무시.",
+      "step3": "수락한 패턴을 작성 시 적용."
+    }
+  },
+  "decisions": {
+    "hint": "결정만 저장, 게시·예약·초안 변경 없음.",
+    "learningHint": "이 패턴을 신뢰하는지 기록.",
+    "accept": "수락, 실행 예정",
+    "pin": "고정, 나중에",
+    "dismiss": "무시, 숨김"
+  }
+}

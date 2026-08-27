@@ -34,7 +34,8 @@
       "integration": "integrazione",
       "post": "post",
       "workspace": "spazio di lavoro",
-      "account": "account utente"
+      "account": "account utente",
+      "experiment": "esperimento"
     },
     "titleGeneric": "Elimina {entity}",
     "titleNamed": "Eliminare {entity}?",
@@ -86,8 +87,8 @@
         "activeLabel": "Creazione del tuo profilo del brand…"
       }
     },
-    "scanComplete": "Scansione completata — rivedi e conferma qui sotto",
-    "scanFailed": "Scansione non riuscita — compila manualmente",
+    "scanComplete": "Scansione completata, rivedi e conferma qui sotto",
+    "scanFailed": "Scansione non riuscita, compila manualmente",
     "researching": "Ricerca del tuo brand in corso…"
   },
   "platformPreview": {

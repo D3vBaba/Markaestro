@@ -34,7 +34,8 @@
       "integration": "التكامل",
       "post": "المنشور",
       "workspace": "مساحة العمل",
-      "account": "الحساب"
+      "account": "الحساب",
+      "experiment": "تجربة"
     },
     "titleGeneric": "حذف {entity}",
     "titleNamed": "حذف {entity}؟",
@@ -86,8 +87,8 @@
         "activeLabel": "جارٍ بناء ملف علامتك التجارية…"
       }
     },
-    "scanComplete": "اكتمل المسح — راجع وأكّد أدناه",
-    "scanFailed": "فشل المسح — يرجى التعبئة يدويًا",
+    "scanComplete": "اكتمل المسح، راجع وأكّد أدناه",
+    "scanFailed": "فشل المسح، يرجى التعبئة يدويًا",
     "researching": "جارٍ البحث عن علامتك التجارية…"
   },
   "platformPreview": {

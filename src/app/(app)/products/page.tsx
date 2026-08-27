@@ -14,6 +14,8 @@ import ProductCreateWizard from "./_components/ProductCreateWizard";
 import { apiDelete } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
 
 type Product = ProductCardData;
 
@@ -241,36 +243,33 @@ export default function ProductsPage() {
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          <Button onClick={() => setCreateOpen(true)} className="rounded-lg h-9 text-[13px] gap-1.5">
-            <Plus className="h-3.5 w-3.5" /> {t("addBrand")}
+          <Button
+            onClick={() => setCreateOpen(true)}
+            className="rounded-xl h-9 text-xs font-semibold gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
+          >
+            <Plus className="h-4 w-4" /> {t("addBrand")}
           </Button>
         }
       />
 
       {ungrantedPages.length > 0 && (
-        <div
-          className="mb-5 flex gap-3 rounded-xl border p-4"
-          style={{
-            borderColor: "var(--mk-warn)",
-            background: "color-mix(in srgb, var(--mk-warn) 8%, transparent)",
-          }}
-        >
-          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--mk-warn)" }} />
+        <div className="mb-6 flex gap-3 rounded-2xl border p-4 bg-amber-50/80 dark:bg-amber-950/30 border-amber-200/80 dark:border-amber-900/50">
+          <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-medium">
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
               {t("ungrantedPages.title", { count: ungrantedPages.length })}
             </p>
-            <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+            <p className="mt-1 text-xs leading-relaxed text-amber-700 dark:text-amber-400">
               {t("ungrantedPages.body", { pages: ungrantedPages.join(", ") })}
             </p>
-            <div className="mt-2.5 flex flex-wrap items-center gap-3">
-              <Link href="/guides/channels" className="text-[12.5px] underline underline-offset-2">
+            <div className="mt-2.5 flex flex-wrap items-center gap-4">
+              <Link href="/guides/channels" className="text-xs font-medium text-amber-800 dark:text-amber-300 underline underline-offset-2">
                 {t("ungrantedPages.howItWorks")}
               </Link>
               <button
                 type="button"
                 onClick={() => setUngrantedPages([])}
-                className="text-[12.5px] text-muted-foreground underline underline-offset-2"
+                className="text-xs text-amber-600 dark:text-amber-400 underline underline-offset-2"
               >
                 {t("ungrantedPages.dismiss")}
               </button>
@@ -279,60 +278,50 @@ export default function ProductsPage() {
         </div>
       )}
 
-      <div
-        className="flex items-center gap-6 mb-5 border-b overflow-x-auto scrollbar-hide"
-        style={{ borderColor: "var(--mk-rule-soft)" }}
-      >
+      {/* Tabs */}
+      <div className="flex items-center gap-2 mb-6 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 w-fit">
         {(["all", "active", "development"] as FilterTab[]).map((tab) => {
           const active = filter === tab;
           return (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className="relative py-2.5 text-[13px] transition-colors whitespace-nowrap"
-              style={{
-                marginBottom: -1,
-                color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
-                fontWeight: active ? 600 : 400,
-                letterSpacing: "-0.005em",
-                borderBottom: `2px solid ${active ? "var(--mk-ink)" : "transparent"}`,
-              }}
-            >
-              <span className="flex items-center gap-1.5">
-                {filterLabels[tab]}
-                <span
-                  className="font-mono text-[11px]"
-                  style={{ color: "var(--mk-ink-40)" }}
-                >
-                  {counts[tab]}
-                </span>
-              </span>
-              {active && (
-                <motion.span
-                  layoutId="products-filter-underline"
-                  className="absolute left-0 right-0 -bottom-px h-px"
-                  style={{ background: "var(--mk-ink)" }}
-                />
+              className={cn(
+                "relative px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-2",
+                active
+                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200",
               )}
+            >
+              <span>{filterLabels[tab]}</span>
+              <span
+                className={cn(
+                  "tabular-nums text-[10.5px] px-1.5 py-0.5 rounded-md",
+                  active
+                    ? "bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold"
+                    : "bg-slate-200/60 dark:bg-slate-700/60 text-slate-500",
+                )}
+              >
+                {counts[tab]}
+              </span>
             </button>
           );
         })}
       </div>
 
       {loading && !productsData ? (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-44 rounded-xl animate-pulse"
-              style={{ background: "var(--mk-panel)" }}
+              className="h-56 rounded-2xl animate-pulse bg-slate-100 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800"
             />
           ))}
         </div>
       ) : visible.length === 0 ? (
         <EmptyState onCreate={() => setCreateOpen(true)} filter={filter} />
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence initial={false}>
             {visible.map((p, i) => (
               <ProductCard
@@ -406,33 +395,21 @@ function EmptyState({
     development: t("emptyState.development"),
   } as const;
   return (
-    <div
-      className="rounded-xl py-14 text-center"
-      style={{
-        background: "var(--mk-paper)",
-        border: "1px dashed var(--mk-rule)",
-      }}
-    >
-      <div
-        className="mx-auto h-11 w-11 rounded-xl grid place-items-center mb-3.5"
-        style={{ background: "var(--mk-panel)" }}
-      >
-        <Plus className="h-4 w-4" style={{ color: "var(--mk-ink-60)" }} />
+    <div className="rounded-2xl py-16 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800">
+      <div className="mx-auto h-12 w-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/50 dark:border-blue-800/50 flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400 shadow-2xs">
+        <Plus className="h-5 w-5" />
       </div>
-      <p
-        className="text-[14px] font-medium"
-        style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
-      >
+      <p className="text-base font-bold text-slate-900 dark:text-slate-100">
         {labels[filter]}
       </p>
-      <p
-        className="mt-1 text-[13px] max-w-sm mx-auto"
-        style={{ color: "var(--mk-ink-60)" }}
-      >
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
         {t("emptyState.body")}
       </p>
-      <Button onClick={onCreate} className="rounded-lg mt-4 h-9 text-[13px] gap-1.5">
-        <Plus className="h-3.5 w-3.5" /> {t("addBrand")}
+      <Button
+        onClick={onCreate}
+        className="rounded-xl mt-5 h-9 text-xs font-semibold gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
+      >
+        <Plus className="h-4 w-4" /> {t("addBrand")}
       </Button>
     </div>
   );

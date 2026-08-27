@@ -69,7 +69,7 @@
     {
       "name": "Threads",
       "category": "Social",
-      "description": "Meta's text-first network. Markaestro creates the media container, waits for it to finish processing, then publishes — so slow video uploads never silently fail.",
+      "description": "Meta's text-first network. Markaestro creates the media container, waits for it to finish processing, then publishes, so slow video uploads never silently fail.",
       "capabilities": [
         "Text-only posts",
         "Single image or single video posts",
@@ -108,7 +108,7 @@
   },
   "cta": {
     "title": "Connect your first channel in under two minutes",
-    "subtitle": "Click, authorize, and start publishing — no developer setup required. Once a channel is connected, your team publishes from the dashboard and your AI agent can publish to the same channel through the API.",
+    "subtitle": "Click, authorize, and start publishing, no developer setup required. Once a channel is connected, your team publishes from the dashboard and your AI agent can publish to the same channel through the API.",
     "primaryButton": "Get started free",
     "secondaryButton": "Automate it with an agent"
   }

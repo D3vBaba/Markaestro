@@ -23,6 +23,7 @@ export function getMeta<T>(connection: PlatformConnection, key: string, fallback
  */
 export function emptyMetrics(): NormalizedPostMetrics {
   return {
+    impressions: null,
     views: null,
     reach: null,
     likes: null,
@@ -30,6 +31,12 @@ export function emptyMetrics(): NormalizedPostMetrics {
     shares: null,
     saves: null,
     clicks: null,
+    profileVisits: null,
+    followersGained: null,
+    watchTimeSeconds: null,
+    averageWatchTimeSeconds: null,
+    completionRate: null,
+    conversions: null,
     videoViews: null,
     raw: {},
   };

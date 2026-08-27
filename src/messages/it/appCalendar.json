@@ -39,7 +39,7 @@
   },
   "deletedNotice": "Questo post è stato eliminato e non è più disponibile.",
   "dismiss": "Ignora",
-  "truncatedNotice": "Questo mese ha più post di quanti il calendario possa caricarne in una volta — alcuni non vengono mostrati.",
+  "truncatedNotice": "Questo mese ha più post di quanti il calendario possa caricarne in una volta, alcuni non vengono mostrati.",
   "postsThisMonth": "{count, plural, one {# post} other {# post}} questo mese",
   "dropToReschedule": "· Rilascia su un giorno per riprogrammare",
   "newPost": "Nuovo post",

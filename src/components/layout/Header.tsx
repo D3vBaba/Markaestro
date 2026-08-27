@@ -14,14 +14,17 @@ import {
   Settings as SettingsIcon,
   type LucideIcon,
   BookOpen,
+  BrainCircuit,
+  BarChart3,
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { navigationGroups, settingsItem } from "@/lib/nav";
+import { navigationGroupsForUser, settingsItem } from "@/lib/nav";
 import { CommandPalette } from "@/components/app/CommandPalette";
 import LogoutConfirmDialog from "@/components/app/LogoutConfirmDialog";
 import AppLocaleSwitcher from "@/components/app/AppLocaleSwitcher";
+import InboxMenu from "@/components/layout/InboxMenu";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
@@ -38,6 +41,8 @@ import {
 
 const NAV_ICONS: Record<string, LucideIcon> = {
   "/dashboard": Home,
+  "/analytics": BarChart3,
+  "/intelligence": BrainCircuit,
   "/products": Package,
   "/content": LayoutGrid,
   "/calendar": Calendar,
@@ -46,333 +51,259 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 };
 
 export function Header() {
-    const pathname = usePathname();
-    const { user, logout } = useAuth();
-    const t = useTranslations("shell.nav");
-    const tHeader = useTranslations("shell.header");
-    const isRtl = isRtlLocale(useLocale());
-    const [logoutOpen, setLogoutOpen] = useState(false);
-    const { current: workspace, workspaces, switchWorkspace } = useWorkspace();
-    const [paletteOpen, setPaletteOpen] = useState(false);
+  const pathname = usePathname();
+  const { user, logout } = useAuth();
+  const t = useTranslations("shell.nav");
+  const tHeader = useTranslations("shell.header");
+  const isRtl = isRtlLocale(useLocale());
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const { current: workspace, workspaces, switchWorkspace } = useWorkspace();
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
-    const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
-    const email = user?.email || "";
-    const handle = user?.email ? `@${user.email.split("@")[0]}` : "";
-    const initials = displayName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
+  const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
+  const email = user?.email || "";
+  const navGroups = navigationGroupsForUser(user?.email, user?.uid);
+  const handle = user?.email ? `@${user.email.split("@")[0]}` : "";
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
-    return (
-        <header
-            className="sticky top-0 z-30 flex items-center gap-3 border-b px-4 sm:px-6"
-            style={{
-                height: 60,
-                background: "var(--mk-paper)",
-                borderColor: "var(--mk-rule)",
-            }}
+  return (
+    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-8 h-15 backdrop-blur-md bg-white/80 dark:bg-slate-900/80">
+      {/* Mobile: logo + menu trigger (left) */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 lg:hidden rounded-xl h-9 w-9 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">{t("toggleMenu")}</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side={isRtl ? "right" : "left"}
+          className="w-[288px] sm:w-[308px] p-0 flex flex-col bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
         >
-            {/* Mobile: logo + menu trigger (left) */}
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="shrink-0 lg:hidden rounded-lg h-10 w-10"
-                    >
-                        <Menu className="h-5 w-5" />
-                        <span className="sr-only">{t("toggleMenu")}</span>
-                    </Button>
-                </SheetTrigger>
-                <SheetContent
-                    side={isRtl ? "right" : "left"}
-                    className="w-[288px] sm:w-[308px] p-0 flex flex-col"
-                    style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
-                >
-                    <SheetTitle className="sr-only">{t("navigationMenu")}</SheetTitle>
-                    <SheetDescription className="sr-only">{t("navigationMenuDescription")}</SheetDescription>
+          <SheetTitle className="sr-only">{t("navigationMenu")}</SheetTitle>
+          <SheetDescription className="sr-only">{t("navigationMenuDescription")}</SheetDescription>
 
-                    {/* Brand */}
-                    <div className="flex items-center gap-2.5 px-4 pt-5 pb-3">
-                        <Image
-                            src="/markaestro-logo-transparent.png"
-                            alt="Markaestro"
-                            width={26}
-                            height={26}
-                            className="object-contain"
+          {/* Brand */}
+          <div className="flex items-center gap-3 px-5 pt-5 pb-3">
+            <Image
+              src="/markaestro-logo-transparent.png"
+              alt="Markaestro"
+              width={28}
+              height={28}
+              className="h-7 w-7 object-contain"
+            />
+            <span className="font-bold text-[15px] tracking-tight text-slate-900 dark:text-slate-50">
+              Markaestro
+            </span>
+          </div>
+
+          {/* Workspace switcher */}
+          {workspace && (
+            <div className="px-3 pb-3 border-b border-slate-100 dark:border-slate-800/60">
+              <div className="grid gap-1">
+                {(workspaces.length > 0 ? workspaces : [workspace]).map((ws) => {
+                  const active = ws.id === workspace.id;
+                  return (
+                    <button
+                      key={ws.id}
+                      type="button"
+                      onClick={() => { if (!active) switchWorkspace(ws.id); }}
+                      aria-current={active ? "true" : undefined}
+                      className={cn(
+                        "w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors",
+                        active
+                          ? "bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/50 dark:border-blue-800/40"
+                          : "hover:bg-slate-100/60 dark:hover:bg-slate-800/40 border border-transparent opacity-75",
+                      )}
+                    >
+                      <div className="h-6 w-6 rounded-lg bg-blue-600 text-white font-bold font-mono text-[10px] flex items-center justify-center shrink-0">
+                        {ws.name.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12.5px] font-medium leading-tight truncate text-slate-900 dark:text-slate-100">
+                          {ws.name}
+                        </p>
+                        <p className="text-[10px] text-slate-400 capitalize mt-0.5">
+                          {ws.role}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Nav groups */}
+          <nav className="flex-1 overflow-y-auto px-3 py-3.5 flex flex-col gap-3.5">
+            {navGroups.map((group) => (
+              <div key={group.id}>
+                <p className="px-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  {t(`groups.${group.id}`)}
+                </p>
+                <div className="flex flex-col gap-0.5">
+                  {group.items.map((item) => {
+                    const Icon = NAV_ICONS[item.href] ?? Home;
+                    const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                    return (
+                      <Link
+                        key={item.id}
+                        href={item.href}
+                        prefetch={false}
+                        className={cn(
+                          "flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-[13.5px] font-medium transition-colors",
+                          isActive
+                            ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
+                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100",
+                        )}
+                      >
+                        <Icon
+                          className={cn(
+                            "h-4 w-4 shrink-0",
+                            isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500",
+                          )}
                         />
-                        <span
-                            className="font-semibold text-[15px]"
-                            style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
-                        >
-                            Markaestro
-                        </span>
-                    </div>
+                        <span className="flex-1">{t(`items.${item.id}`)}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
 
-                    {/* Workspace switcher — tap another workspace to switch */}
-                    {workspace && (
-                        <div
-                            className="px-3 pb-3.5 border-b"
-                            style={{ borderColor: "var(--mk-rule)" }}
-                        >
-                            <div className="grid gap-1.5">
-                                {(workspaces.length > 0 ? workspaces : [workspace]).map((ws) => {
-                                    const active = ws.id === workspace.id;
-                                    return (
-                                        <button
-                                            key={ws.id}
-                                            type="button"
-                                            onClick={() => { if (!active) switchWorkspace(ws.id); }}
-                                            aria-current={active ? "true" : undefined}
-                                            className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left"
-                                            style={{
-                                                border: "1px solid var(--mk-rule)",
-                                                background: active ? "var(--mk-paper)" : "transparent",
-                                                opacity: active ? 1 : 0.75,
-                                            }}
-                                        >
-                                            <div
-                                                className="h-6 w-6 rounded-[5px] grid place-items-center shrink-0 font-mono text-[11px] font-semibold"
-                                                style={{
-                                                    background: "var(--mk-accent)",
-                                                    color: "var(--mk-accent-ink)",
-                                                }}
-                                            >
-                                                {ws.name.slice(0, 2).toUpperCase()}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p
-                                                    className="text-[12.5px] font-medium leading-tight truncate"
-                                                    style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
-                                                >
-                                                    {ws.name}
-                                                </p>
-                                                <p
-                                                    className="text-[10px] mt-0.5 capitalize"
-                                                    style={{ color: "var(--mk-ink-40)" }}
-                                                >
-                                                    {ws.role}
-                                                </p>
-                                            </div>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Nav groups */}
-                    <nav className="flex-1 overflow-y-auto px-2.5 py-4 flex flex-col gap-3.5">
-                        {navigationGroups.map((group) => (
-                            <div key={group.id}>
-                                <p
-                                    className="px-2.5 pb-1.5 font-mono text-[9px] uppercase"
-                                    style={{ color: "var(--mk-ink-40)", letterSpacing: "0.2em" }}
-                                >
-                                    {t(`groups.${group.id}`)}
-                                </p>
-                                <div className="flex flex-col gap-px">
-                                    {group.items.map((item) => {
-                                        const Icon = NAV_ICONS[item.href] ?? Home;
-                                        const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-                                        return (
-                                            <Link
-                                                key={item.id}
-                                                href={item.href}
-                                                prefetch={false}
-                                                className={cn(
-                                                    "flex items-center gap-2.5 rounded-[7px] px-2.5 py-2.5 text-[14px]",
-                                                    isActive ? "font-medium" : "font-normal",
-                                                )}
-                                                style={{
-                                                    background: isActive ? "var(--mk-panel)" : "transparent",
-                                                    color: isActive ? "var(--mk-ink)" : "var(--mk-ink-80)",
-                                                    letterSpacing: "-0.005em",
-                                                }}
-                                            >
-                                                <Icon
-                                                    className="h-4 w-4 shrink-0"
-                                                    style={{ color: isActive ? "var(--mk-ink)" : "var(--mk-ink-60)" }}
-                                                />
-                                                <span>{t(`items.${item.id}`)}</span>
-                                            </Link>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        ))}
-                    </nav>
-
-                    {/* Footer: settings + user tile */}
-                    <div
-                        className="border-t px-2.5 py-3 flex flex-col gap-0.5"
-                        style={{ borderColor: "var(--mk-rule)" }}
-                    >
-                        <Link
-                            href={settingsItem.href}
-                            prefetch={false}
-                            className="flex items-center gap-2.5 rounded-[7px] px-2.5 py-2.5 text-[14px]"
-                            style={{
-                                background: pathname === settingsItem.href ? "var(--mk-panel)" : "transparent",
-                                color: "var(--mk-ink-80)",
-                                letterSpacing: "-0.005em",
-                            }}
-                        >
-                            <SettingsIcon className="h-4 w-4" style={{ color: "var(--mk-ink-60)" }} />
-                            <span>{t("items.settings")}</span>
-                        </Link>
-                        <div
-                            className="mt-2 flex items-center gap-2.5 px-2.5 pt-2.5 pb-1 border-t"
-                            style={{ borderColor: "var(--mk-rule-soft)" }}
-                        >
-                            <div
-                                className="h-8 w-8 rounded-full grid place-items-center font-mono text-[11px] font-semibold shrink-0"
-                                style={{
-                                    background: "var(--mk-accent)",
-                                    color: "var(--mk-accent-ink)",
-                                }}
-                            >
-                                {initials}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p
-                                    className="text-[13px] font-medium leading-tight truncate"
-                                    style={{ color: "var(--mk-ink)" }}
-                                >
-                                    {displayName}
-                                </p>
-                                <p
-                                    className="text-[10.5px] leading-tight truncate"
-                                    style={{ color: "var(--mk-ink-40)" }}
-                                >
-                                    {handle}
-                                </p>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setLogoutOpen(true)}
-                                aria-label={t("signOut")}
-                                className="shrink-0 inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] transition-colors hover:bg-[color:var(--mk-panel)] hover:text-mk-neg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mk-accent)]"
-                                style={{ color: "var(--mk-ink-60)" }}
-                            >
-                                <LogOut className="h-3.5 w-3.5" />
-                                {t("signOut")}
-                            </button>
-                        </div>
-                    </div>
-                </SheetContent>
-            </Sheet>
-
-            {/* Mobile: inline logo so header isn't empty on small screens */}
-            <div className="flex items-center gap-2 lg:hidden">
-                <Image
-                    src="/markaestro-logo-transparent.png"
-                    alt="Markaestro"
-                    width={22}
-                    height={22}
-                    className="object-contain"
-                />
-                <span
-                    className="font-semibold text-[14px]"
-                    style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
-                >
-                    Markaestro
-                </span>
+          {/* Footer: settings + user tile */}
+          <div className="border-t border-slate-100 dark:border-slate-800 p-3 flex flex-col gap-1">
+            <Link
+              href={settingsItem.href}
+              prefetch={false}
+              className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/50"
+            >
+              <SettingsIcon className="h-4 w-4 text-slate-400" />
+              <span>{t("items.settings")}</span>
+            </Link>
+            <div className="mt-1 flex items-center gap-2.5 px-2 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+              <div className="h-8 w-8 rounded-full bg-blue-600 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">
+                {initials}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold truncate text-slate-900 dark:text-slate-100">
+                  {displayName}
+                </p>
+                <p className="text-[10.5px] truncate text-slate-400">
+                  {handle}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLogoutOpen(true)}
+                aria-label={t("signOut")}
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-500 hover:text-rose-500 transition-colors"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                {t("signOut")}
+              </button>
             </div>
+          </div>
+        </SheetContent>
+      </Sheet>
 
-            <div className="flex-1" />
+      {/* Mobile: inline logo so header isn't empty on small screens */}
+      <div className="flex items-center gap-2.5 lg:hidden">
+        <Image
+          src="/markaestro-logo-transparent.png"
+          alt="Markaestro"
+          width={24}
+          height={24}
+          className="h-6 w-6 object-contain"
+        />
+        <span className="font-bold text-[14px] text-slate-900 dark:text-slate-50">
+          Markaestro
+        </span>
+      </div>
 
-            {/* Search + Avatar */}
-            <div className="flex items-center gap-2.5">
-                <button
-                    type="button"
-                    onClick={() => setPaletteOpen(true)}
-                    className="hidden md:flex items-center gap-2 px-3 h-[34px] rounded-lg w-full md:w-[260px] lg:w-[320px] cursor-pointer text-start"
-                    style={{
-                        border: "1px solid var(--mk-rule)",
-                        background: "var(--mk-surface)",
-                    }}
-                >
-                    <Search className="h-3.5 w-3.5" style={{ color: "var(--mk-ink-40)" }} />
-                    <span
-                        className="flex-1 text-[12.5px]"
-                        style={{ color: "var(--mk-ink-40)", letterSpacing: "-0.005em" }}
-                    >
-                        {tHeader("searchPlaceholder")}
-                    </span>
-                    <span
-                        className="font-mono text-[9.5px] px-1.5 py-px rounded"
-                        style={{
-                            color: "var(--mk-ink-40)",
-                            border: "1px solid var(--mk-rule)",
-                            letterSpacing: "0.04em",
-                        }}
-                    >
-                        {"⌘K"}
-                    </span>
-                </button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="md:hidden shrink-0 rounded-lg h-10 w-10"
-                    onClick={() => setPaletteOpen(true)}
-                >
-                    <Search className="h-5 w-5" />
-                    <span className="sr-only">{tHeader("search")}</span>
-                </Button>
-                <AppLocaleSwitcher variant="compact" />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <button
-                            type="button"
-                            className="h-9 w-9 md:h-8 md:w-8 rounded-full grid place-items-center font-mono text-[11px] font-semibold cursor-pointer"
-                            style={{
-                                background: "var(--mk-accent)",
-                                color: "var(--mk-accent-ink)",
-                                border: "none",
-                            }}
-                        >
-                            {initials}
-                        </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56 rounded-lg" align="end" forceMount>
-                        <DropdownMenuLabel className="font-normal">
-                            <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">{displayName}</p>
-                                {email && (
-                                    <p className="text-xs leading-none text-muted-foreground">{email}</p>
-                                )}
-                            </div>
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                            <Link href="/settings" className="cursor-pointer">
-                                {t("items.settings")}
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            className="cursor-pointer gap-2"
-                            style={{ color: "var(--mk-neg)" }}
-                            onSelect={() => {
-                                // Let the menu close (no preventDefault), then mount the
-                                // dialog on the next tick. Stacking a modal dialog on a
-                                // still-open modal menu is what strands
-                                // `pointer-events: none` on <body> and kills every click.
-                                setTimeout(() => setLogoutOpen(true), 0);
-                            }}
-                        >
-                            <LogOut className="h-3.5 w-3.5" />
-                            {t("signOut")}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
+      <div className="flex-1" />
 
-            <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
-            <LogoutConfirmDialog open={logoutOpen} onOpenChange={setLogoutOpen} onConfirm={logout} />
-        </header>
-    );
+      {/* Search + Locale Switcher + Avatar */}
+      <div className="flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => setPaletteOpen(true)}
+          className="hidden md:flex items-center gap-2.5 px-3 h-9 rounded-xl w-[240px] lg:w-[280px] cursor-pointer text-start bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-2xs group"
+        >
+          <Search className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
+          <span className="flex-1 text-[12.5px] text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
+            {tHeader("searchPlaceholder")}
+          </span>
+          <kbd className="inline-flex items-center gap-0.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 dark:text-slate-500 shadow-2xs">
+            ⌘K
+          </kbd>
+        </button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden shrink-0 rounded-xl h-9 w-9 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          onClick={() => setPaletteOpen(true)}
+        >
+          <Search className="h-4 w-4" />
+          <span className="sr-only">{tHeader("search")}</span>
+        </Button>
+
+        <InboxMenu />
+        <AppLocaleSwitcher variant="compact" />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="h-8 w-8 rounded-full bg-blue-600 text-white text-[11px] font-semibold flex items-center justify-center cursor-pointer ring-2 ring-transparent hover:ring-blue-200 dark:hover:ring-blue-900 transition-shadow"
+            >
+              {initials}
+            </button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal py-2">
+              <div className="flex flex-col space-y-1">
+                <p className="text-xs font-semibold leading-none text-slate-900 dark:text-slate-100">{displayName}</p>
+                {email && (
+                  <p className="text-[11px] leading-none text-slate-400 truncate">{email}</p>
+                )}
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/settings" className="cursor-pointer text-xs font-medium">
+                {t("items.settings")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer gap-2 text-xs font-medium text-rose-600 dark:text-rose-400 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/50"
+              onSelect={() => {
+                setTimeout(() => setLogoutOpen(true), 0);
+              }}
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              {t("signOut")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+      <LogoutConfirmDialog open={logoutOpen} onOpenChange={setLogoutOpen} onConfirm={logout} />
+    </header>
+  );
 }
+

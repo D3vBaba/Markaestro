@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Analytics",
-    "subtitle": "Was deine Beiträge gebracht haben — gemessen anhand der eigenen Daten jeder Plattform.",
+    "subtitle": "Was deine Beiträge gebracht haben, gemessen anhand der eigenen Daten jeder Plattform.",
     "refresh": {
       "idle": "Aktualisieren",
       "refreshing": "Wird aktualisiert…",
@@ -20,7 +20,7 @@
       "brandTitle": "Nach Marke filtern",
       "rangeTitle": "Letzte {label}",
       "rangeLockedTitle": "Der Zeitraum {label} erfordert einen höheren Plan",
-      "windowNote": "Zeigt {days} Tage — das Analytics-Fenster deines Plans."
+      "windowNote": "Zeigt {days} Tage, das Analytics-Fenster deines Plans."
     },
     "error": {
       "message": "Analytics konnten nicht geladen werden.",
@@ -29,10 +29,10 @@
     "emptyState": {
       "eyebrow": "Noch keine Daten",
       "title": "Veröffentliche deinen ersten Beitrag, um mit dem Messen zu beginnen",
-      "body": "Sobald ein Beitrag veröffentlicht ist, ruft Markaestro innerhalb von etwa einer Stunde die Aufrufe, die Reichweite und das Engagement von der Plattform ab — und verfolgt sie 30 Tage lang weiter. Follower-Zahlen werden für jeden verbundenen Kanal täglich erfasst.",
+      "body": "Sobald ein Beitrag veröffentlicht ist, ruft Markaestro innerhalb von etwa einer Stunde die Aufrufe, die Reichweite und das Engagement von der Plattform ab, und verfolgt sie 30 Tage lang weiter. Follower-Zahlen werden für jeden verbundenen Kanal täglich erfasst.",
       "createPost": "Beitrag erstellen"
     },
-    "warmingUp": "Metriken werden erfasst — die ersten Werte treffen etwa eine Stunde nach der Veröffentlichung ein und werden danach 30 Tage lang in abnehmender Frequenz aktualisiert.",
+    "warmingUp": "Metriken werden erfasst, die ersten Werte treffen etwa eine Stunde nach der Veröffentlichung ein und werden danach 30 Tage lang in abnehmender Frequenz aktualisiert.",
     "kpis": {
       "views": { "label": "Aufrufe", "sub": "vs. vorheriger Zeitraum" },
       "reach": { "label": "Reichweite", "sub": "erreichte einzelne Konten" },
@@ -57,14 +57,14 @@
     "channels": { "eyebrow": "Kanäle", "title": "Performance nach Kanal" },
     "posts": { "eyebrow": "Beiträge", "title": "Top-Beiträge" },
     "provenance": {
-      "base": "Die Metriken folgen den API-Definitionen der jeweiligen Plattform und können bis zu 48 Stunden hinter den nativen Statistiken zurückliegen. Ein „—“ bedeutet, dass die Plattform diese Metrik nicht bereitstellt (Threads und TikTok melden beispielsweise keine Reichweite). Die Engagement-Rate ist Engagement ÷ Reichweite.",
+      "base": "Die Metriken folgen den API-Definitionen der jeweiligen Plattform und können bis zu 48 Stunden hinter den nativen Statistiken zurückliegen. Ein „: “ bedeutet, dass die Plattform diese Metrik nicht bereitstellt (Threads und TikTok melden beispielsweise keine Reichweite). Die Engagement-Rate ist Engagement ÷ Reichweite.",
       "truncated": " Beitragsbezogene Aufrufe basieren auf den {count} neuesten Beiträgen in diesem Zeitraum.",
       "lastUpdate": " Letzte Aktualisierung der Metriken: {date}."
     },
     "toasts": {
       "updated": "{count, plural, one {# Beitrag von der Quelle aktualisiert} other {# Beiträge von der Quelle aktualisiert}}",
       "noNewMetrics": "Keine neuen Plattform-Metriken verfügbar",
-      "tooManyRefreshes": "Zu viele Aktualisierungen — versuche es in einer Minute erneut.",
+      "tooManyRefreshes": "Zu viele Aktualisierungen, versuche es in einer Minute erneut.",
       "pullFailed": "Live-Daten konnten nicht abgerufen werden. Die zuletzt gespeicherten Zahlen werden angezeigt.",
       "exportFailed": "Export fehlgeschlagen. Bitte erneut versuchen."
     }
@@ -78,7 +78,7 @@
   },
   "trendChart": {
     "noData": "Für diesen Zeitraum liegen noch keine Daten vor.",
-    "followerHistoryBuilds": "Der Follower-Verlauf entsteht aus täglichen Momentaufnahmen — der Trend erscheint nach ein paar Tagen mit Daten.",
+    "followerHistoryBuilds": "Der Follower-Verlauf entsteht aus täglichen Momentaufnahmen, der Trend erscheint nach ein paar Tagen mit Daten.",
     "followersSeriesName": "Follower"
   },
   "channelTable": {

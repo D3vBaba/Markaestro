@@ -28,7 +28,7 @@
     },
     {
       "title": "Vistas previas multicanal",
-      "description": "Comprueba cómo se verá cada publicación en cada red antes de publicar — Facebook, Instagram, TikTok, LinkedIn, Threads y Pinterest tienen su propia vista previa. Textos, proporciones de imagen, límites de caracteres y especificaciones de contenido se renderizan en tiempo real.",
+      "description": "Comprueba cómo se verá cada publicación en cada red antes de publicar: Facebook, Instagram, TikTok, LinkedIn, Threads y Pinterest tienen su propia vista previa. Textos, proporciones de imagen, límites de caracteres y especificaciones de contenido se renderizan en tiempo real.",
       "details": [
         "Vistas previas precisas al píxel por plataforma",
         "Recuento de caracteres en vivo para el texto",
@@ -58,7 +58,7 @@
     },
     {
       "title": "API y agentes de IA",
-      "description": "Todo lo que hace el panel, tu software también puede hacerlo. Genera una clave de API, entrégasela a un agente de IA o a un script, y deja que descubra cuentas, suba contenido, programe publicaciones, publique y reporte resultados — en todos los planes, sin coste adicional.",
+      "description": "Todo lo que hace el panel, tu software también puede hacerlo. Genera una clave de API, entrégasela a un agente de IA o a un script, y deja que descubra cuentas, suba contenido, programe publicaciones, publique y reporte resultados, en todos los planes, sin coste adicional.",
       "details": [
         "Claves limitadas a una sola marca, con vencimiento opcional",
         "Escrituras idempotentes: un reintento nunca duplica una publicación",
@@ -72,7 +72,7 @@
   "platformFeatures": [
     {
       "title": "Gestión de espacios de trabajo",
-      "description": "Organiza las marcas que gestionas — clientes, unidades de negocio o tus propios proyectos — en espacios de trabajo aislados. Cada espacio tiene sus propias marcas, integraciones y miembros del equipo."
+      "description": "Organiza las marcas que gestionas, clientes, unidades de negocio o tus propios proyectos, en espacios de trabajo aislados. Cada espacio tiene sus propias marcas, integraciones y miembros del equipo."
     },
     {
       "title": "Programación y calendario",
@@ -87,7 +87,7 @@
     "eyebrow": "Plataforma",
     "titleLead": "Diseñada para todos los que",
     "titleHighlight": "publican",
-    "subtitle": "Más allá de las herramientas principales, Markaestro te da la infraestructura para escalar — desde una sola marca hasta una cartera completa de clientes."
+    "subtitle": "Más allá de las herramientas principales, Markaestro te da la infraestructura para escalar, desde una sola marca hasta una cartera completa de clientes."
   },
   "cta": {
     "title": "¿Listo para verlo en acción?",

@@ -3,11 +3,11 @@
     "eyebrow": "Tarifs",
     "titleLead": "Tout votre moteur marketing,",
     "titleHighlight": "un prix simple",
-    "subtitle": "Pas de frais cachés, pas de surprise par utilisateur. Commencez gratuitement — tous les forfaits payants incluent un essai gratuit de {trialDays} jours. Annulez à tout moment.",
+    "subtitle": "Pas de frais cachés, pas de surprise par utilisateur. Commencez gratuitement, tous les forfaits payants incluent un essai gratuit de {trialDays} jours. Annulez à tout moment.",
     "monthlyToggle": "Mensuel",
     "annualToggle": "Annuel",
     "annualSaveBadge": "ÉCONOMISEZ 18 %",
-    "trialLine": "Essai gratuit de {trialDays} jours sur tous les forfaits payants — aucun paiement avant le jour {trialEndDay}",
+    "trialLine": "Essai gratuit de {trialDays} jours sur tous les forfaits payants, aucun paiement avant le jour {trialEndDay}",
     "annualSavingsSuffix": " · La facturation annuelle permet d'économiser 18 %"
   },
   "planNames": {
@@ -19,7 +19,7 @@
   "mostPopularBadge": "Le plus populaire",
   "plans": {
     "free": {
-      "description": "Essayez Markaestro avec une marque — gratuit pour toujours.",
+      "description": "Essayez Markaestro avec une marque, gratuit pour toujours.",
       "features": [
         "1 marque",
         "2 canaux sociaux",
@@ -86,7 +86,7 @@
     "titleLead": "Comparez",
     "titleHighlight": "chaque fonctionnalité",
     "subtitle": "Voyez exactement ce qui est inclus dans chaque forfait.",
-    "freeNote": "Le forfait Gratuit inclut 1 marque, 2 canaux, 15 publications par mois, 1 Go de stockage et des analyses sur 7 jours — sans accès à l'API.",
+    "freeNote": "Le forfait Gratuit inclut 1 marque, 2 canaux, 15 publications par mois, 1 Go de stockage et des analyses sur 7 jours, sans accès à l'API.",
     "categories": [
       {
         "name": "Publication",
@@ -146,7 +146,7 @@
   "faqs": [
     {
       "q": "Existe-t-il un forfait gratuit ?",
-      "a": "Oui. Le forfait Gratuit est à 0 $ pour toujours — aucune carte requise. Vous disposez de 1 marque, 2 canaux sociaux, 15 publications par mois, 1 Go de stockage et d'une fenêtre d'analyses de 7 jours, avec 1 membre d'équipe dans 1 espace de travail. L'accès à l'API nécessite un forfait payant. Passez à un forfait supérieur quand vous êtes prêt."
+      "a": "Oui. Le forfait Gratuit est à 0 $ pour toujours, aucune carte requise. Vous disposez de 1 marque, 2 canaux sociaux, 15 publications par mois, 1 Go de stockage et d'une fenêtre d'analyses de 7 jours, avec 1 membre d'équipe dans 1 espace de travail. L'accès à l'API nécessite un forfait payant. Passez à un forfait supérieur quand vous êtes prêt."
     },
     {
       "q": "Puis-je changer de forfait à tout moment ?",
@@ -162,11 +162,11 @@
     },
     {
       "q": "Que se passe-t-il quand j'atteins ma limite de stockage ?",
-      "a": "Vous pouvez continuer à publier des publications utilisant du contenu déjà présent dans votre espace de travail — seuls les nouveaux imports sont bloqués. Libérez de l'espace en supprimant le contenu dont vous n'avez plus besoin, ou passez à un forfait supérieur à tout moment pour plus de stockage."
+      "a": "Vous pouvez continuer à publier des publications utilisant du contenu déjà présent dans votre espace de travail, seuls les nouveaux imports sont bloqués. Libérez de l'espace en supprimant le contenu dont vous n'avez plus besoin, ou passez à un forfait supérieur à tout moment pour plus de stockage."
     },
     {
       "q": "Comment fonctionne l'essai gratuit ?",
-      "a": "Tous les forfaits — mensuels et annuels — incluent un essai gratuit de {trialDays} jours. Votre carte est enregistrée à l'inscription mais ne sera débitée qu'à la fin de l'essai. Annulez à tout moment pendant l'essai et ne payez rien."
+      "a": "Tous les forfaits, mensuels et annuels, incluent un essai gratuit de {trialDays} jours. Votre carte est enregistrée à l'inscription mais ne sera débitée qu'à la fin de l'essai. Annulez à tout moment pendant l'essai et ne payez rien."
     },
     {
       "q": "Quels forfaits incluent l'essai gratuit ?",

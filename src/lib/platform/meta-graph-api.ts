@@ -1,6 +1,6 @@
 import { fetchWithRetry, type FetchRetryOptions } from '@/lib/fetch-retry';
 
-const GRAPH_API = 'https://graph.facebook.com/v22.0';
+const GRAPH_API = 'https://graph.facebook.com/v25.0';
 const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
 
 // ── X-App-Usage tracking ───────────────────────────────────────────
@@ -122,7 +122,7 @@ export async function checkIgPublishingQuota(
   if (!res.ok) {
     // If the endpoint isn't available, return a permissive default
     // so publishing isn't blocked on older/limited API versions.
-    console.warn(`[meta-graph-api] content_publishing_limit check failed (${res.status}) — allowing publish`);
+    console.warn(`[meta-graph-api] content_publishing_limit check failed (${res.status}), allowing publish`);
     return { quotaUsage: 0, quotaTotal: 50, remaining: 50 };
   }
 

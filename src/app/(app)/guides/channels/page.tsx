@@ -5,8 +5,10 @@ import { useTranslations } from "next-intl";
 import PageHeader from "@/components/app/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { pillStyle } from "@/components/mk/pills";
 import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
+
 
 type ChannelGuideMeta = {
   id: string;
@@ -40,13 +42,13 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="border-border/40">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-[15px]">{title}</CardTitle>
-        {description && <CardDescription className="text-[13px]">{description}</CardDescription>}
-      </CardHeader>
-      <CardContent className="space-y-3">{children}</CardContent>
-    </Card>
+    <div className="rounded-2xl p-5 sm:p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+      <div className="pb-4 border-b border-slate-100 dark:border-slate-800/80 mb-4">
+        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 m-0">{title}</h3>
+        {description && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 m-0">{description}</p>}
+      </div>
+      <div className="space-y-4">{children}</div>
+    </div>
   );
 }
 
@@ -60,51 +62,47 @@ export default function ConnectChannelsGuidePage() {
         subtitle={t("page.subtitle")}
       />
 
-      <div className="grid gap-5">
-        <Card className="border-border/40">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Info className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-60)" }} />
-              <CardTitle className="text-[15px]">{t("intro.title")}</CardTitle>
+      <div className="grid gap-6">
+        <div className="rounded-2xl p-5 sm:p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/50 dark:border-blue-800/50 flex items-center justify-center shrink-0 text-blue-600 dark:text-blue-400">
+              <Info className="h-4 w-4" />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-[13.5px] leading-relaxed text-muted-foreground">
-              {t("intro.body")}
-            </p>
+            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 m-0">{t("intro.title")}</h3>
+          </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-border/50 p-3.5">
-                <Badge className="border-0 text-[10px]" style={pillStyle("warn")}>
-                  {t("intro.layer1Badge")}
-                </Badge>
-                <p className="mt-2 text-[13px] font-medium">{t("intro.layer1Title")}</p>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
-                  {t.rich("intro.layer1Body", { bold: (chunks) => <strong>{chunks}</strong> })}
-                </p>
-              </div>
-              <div className="rounded-xl border border-border/50 p-3.5">
-                <Badge className="border-0 text-[10px]" style={pillStyle("pos")}>
-                  {t("intro.layer2Badge")}
-                </Badge>
-                <p className="mt-2 text-[13px] font-medium">{t("intro.layer2Title")}</p>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
-                  {t("intro.layer2Body")}
-                </p>
-              </div>
-            </div>
+          <p className="text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+            {t("intro.body")}
+          </p>
 
-            <div
-              className="flex gap-2.5 rounded-xl border p-3.5"
-              style={{ borderColor: "var(--mk-warn)", background: "color-mix(in srgb, var(--mk-warn) 8%, transparent)" }}
-            >
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--mk-warn)" }} />
-              <p className="text-[12.5px] leading-relaxed">
-                {t.rich("intro.warning", { bold: (chunks) => <strong>{chunks}</strong> })}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-1">
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 bg-slate-50/50 dark:bg-slate-800/30">
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
+                {t("intro.layer1Badge")}
+              </span>
+              <p className="mt-2.5 text-xs font-bold text-slate-900 dark:text-slate-100">{t("intro.layer1Title")}</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                {t.rich("intro.layer1Body", { bold: (chunks) => <strong>{chunks}</strong> })}
               </p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 bg-slate-50/50 dark:bg-slate-800/30">
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
+                {t("intro.layer2Badge")}
+              </span>
+              <p className="mt-2.5 text-xs font-bold text-slate-900 dark:text-slate-100">{t("intro.layer2Title")}</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                {t("intro.layer2Body")}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 rounded-xl border p-3.5 bg-amber-50/80 dark:bg-amber-950/30 border-amber-200/80 dark:border-amber-900/50">
+            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+            <p className="text-xs leading-relaxed text-amber-900 dark:text-amber-200 m-0">
+              {t.rich("intro.warning", { bold: (chunks) => <strong>{chunks}</strong> })}
+            </p>
+          </div>
+        </div>
 
         {CHANNEL_GUIDES.map((guide) => (
           <SectionCard
@@ -112,20 +110,17 @@ export default function ConnectChannelsGuidePage() {
             title={t(`guides.${guide.id}.label`)}
             description={t(`guides.${guide.id}.scope`)}
           >
-            <ol className="space-y-2.5">
+            <ol className="space-y-3.5">
               {Array.from({ length: guide.stepCount }, (_, index) => (
-                <li key={index} className="flex gap-3">
-                  <span
-                    className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-semibold"
-                    style={{ background: "var(--mk-panel)", color: "var(--mk-ink)" }}
-                  >
+                <li key={index} className="flex items-start gap-3.5">
+                  <span className="h-6 w-6 shrink-0 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/50 dark:border-blue-800/50 text-blue-600 dark:text-blue-400 font-bold font-mono text-xs flex items-center justify-center shadow-2xs">
                     {index + 1}
                   </span>
-                  <span className="min-w-0">
-                    <span className="block text-[13px] font-medium">
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-bold text-slate-900 dark:text-slate-100">
                       {t(`guides.${guide.id}.steps.${index}.title`)}
                     </span>
-                    <span className="mt-0.5 block text-[12.5px] leading-relaxed text-muted-foreground">
+                    <span className="mt-0.5 block text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                       {t(`guides.${guide.id}.steps.${index}.detail`)}
                     </span>
                   </span>
@@ -133,9 +128,9 @@ export default function ConnectChannelsGuidePage() {
               ))}
             </ol>
             {guide.hasGotcha && (
-              <div className="flex gap-2.5 rounded-lg border border-border/50 p-3">
-                <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: "var(--mk-warn)" }} />
-                <p className="text-[12.5px] leading-relaxed text-muted-foreground">
+              <div className="flex items-start gap-2.5 rounded-xl border border-amber-200/60 dark:border-amber-800/40 bg-amber-50/50 dark:bg-amber-950/20 p-3 mt-2">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-300 m-0">
                   {t(`guides.${guide.id}.gotcha`)}
                 </p>
               </div>
@@ -143,39 +138,49 @@ export default function ConnectChannelsGuidePage() {
           </SectionCard>
         ))}
 
-        <SectionCard
-          title={t("troubleshooting.title")}
-          description={t("troubleshooting.subtitle")}
-        >
-          <dl className="space-y-3">
+        <SectionCard title={t("troubleshooting.title")}>
+          <div className="space-y-4">
             {Array.from({ length: TROUBLESHOOTING_COUNT }, (_, index) => (
-              <div key={index}>
-                <dt className="flex gap-2 text-[13px] font-medium">
-                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: "var(--mk-ink-60)" }} />
+              <div key={index} className="rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 bg-slate-50/50 dark:bg-slate-800/30">
+                <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
                   {t(`troubleshooting.items.${index}.q`)}
-                </dt>
-                <dd className="ms-5.5 mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+                </p>
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400 m-0">
                   {t(`troubleshooting.items.${index}.a`)}
-                </dd>
+                </p>
               </div>
             ))}
-          </dl>
-          <p className="text-[12.5px] text-muted-foreground">
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-4">
             {t.rich("troubleshooting.manageFrom", {
               brands: (chunks) => (
-                <Link href="/products" className="underline underline-offset-2">
+                <Link href="/products" className="underline underline-offset-2 text-blue-600 dark:text-blue-400 font-semibold">
                   {chunks}
                 </Link>
               ),
               settings: (chunks) => (
-                <Link href="/settings?tab=integrations" className="underline underline-offset-2">
+                <Link href="/settings?tab=integrations" className="underline underline-offset-2 text-blue-600 dark:text-blue-400 font-semibold">
                   {chunks}
                 </Link>
               ),
             })}
           </p>
         </SectionCard>
+
+        <div className="flex items-center justify-between gap-4 rounded-2xl p-5 bg-blue-50 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40">
+          <div>
+            <p className="text-xs font-bold text-blue-950 dark:text-blue-100">{t("footer.ready")}</p>
+            <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">{t("footer.goToProducts")}</p>
+          </div>
+          <Link href="/products">
+            <Button className="rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
+              {t("footer.action")}
+            </Button>
+          </Link>
+        </div>
       </div>
+
     </>
   );
 }
+

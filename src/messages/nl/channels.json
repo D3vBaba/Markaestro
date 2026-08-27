@@ -69,7 +69,7 @@
     {
       "name": "Threads",
       "category": "Sociaal",
-      "description": "Meta's tekstgerichte netwerk. Markaestro maakt de mediacontainer aan, wacht tot de verwerking is voltooid en publiceert dan pas — zodat trage video-uploads nooit stilletjes mislukken.",
+      "description": "Meta's tekstgerichte netwerk. Markaestro maakt de mediacontainer aan, wacht tot de verwerking is voltooid en publiceert dan pas, zodat trage video-uploads nooit stilletjes mislukken.",
       "capabilities": [
         "Posts met alleen tekst",
         "Posts met enkele afbeelding of enkele video",
@@ -108,7 +108,7 @@
   },
   "cta": {
     "title": "Verbind je eerste kanaal in minder dan twee minuten",
-    "subtitle": "Klik, autoriseer en begin met publiceren — geen ontwikkelaarsinstellingen nodig. Zodra een kanaal is verbonden, publiceert je team vanuit het dashboard en kan je AI-agent naar hetzelfde kanaal publiceren via de API.",
+    "subtitle": "Klik, autoriseer en begin met publiceren, geen ontwikkelaarsinstellingen nodig. Zodra een kanaal is verbonden, publiceert je team vanuit het dashboard en kan je AI-agent naar hetzelfde kanaal publiceren via de API.",
     "primaryButton": "Gratis aan de slag",
     "secondaryButton": "Automatiseer het met een agent"
   }

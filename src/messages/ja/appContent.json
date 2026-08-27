@@ -28,7 +28,7 @@
   },
   "markPostedDialog": {
     "title": "投稿済みとしてマーク",
-    "description": "この投稿をご自身で{channel}に公開したことを確認してください。公開済みの投稿へのリンクがあれば貼り付けてください — 後でアナリティクスと投稿を紐付けるのに使われます。",
+    "description": "この投稿をご自身で{channel}に公開したことを確認してください。公開済みの投稿へのリンクがあれば貼り付けてください、後でアナリティクスと投稿を紐付けるのに使われます。",
     "urlPlaceholder": "https://www.{channel}.com/…（任意）",
     "cancel": "キャンセル",
     "confirm": "投稿済みとしてマーク",
@@ -182,7 +182,7 @@
   },
   "platformPostsTab": {
     "refresh": "更新",
-    "liveFrom": "接続済みの{channel}アカウントの公開済み投稿です — Markaestro以外で公開されたものも含みます。",
+    "liveFrom": "接続済みの{channel}アカウントの公開済み投稿です、Markaestro以外で公開されたものも含みます。",
     "loadMore": "さらに読み込む",
     "loading": "読み込み中…",
     "noCaption": "キャプションなし",
@@ -191,8 +191,8 @@
     "deleting": "削除中…",
     "delete": "削除",
     "noDeleteHints": {
-      "instagram": "Instagramはアプリからの投稿削除を許可していません — Instagramアプリで削除してください。",
-      "tiktok": "TikTokはアプリからの動画削除を許可していません — TikTokアプリで削除してください。"
+      "instagram": "Instagramはアプリからの投稿削除を許可していません、Instagramアプリで削除してください。",
+      "tiktok": "TikTokはアプリからの動画削除を許可していません、TikTokアプリで削除してください。"
     },
     "noDeleteDefault": "この投稿の削除はサポートされていません。",
     "deleteWarning": "これにより投稿が{channel}から完全に削除されます。",
@@ -208,7 +208,7 @@
       "linkedinPartnerBody": "LinkedInは承認済みのパートナーアプリのみアカウントの投稿を閲覧できます。Markaestroを通じて公開したものは引き続き「公開済み」タブに表示されます。",
       "unsupportedBody": "{channel}はアプリによるアカウント投稿の閲覧を許可していません。Markaestroを通じて公開したものは引き続き「公開済み」タブに表示されます。",
       "errorTitle": "{channel}の投稿を読み込めませんでした",
-      "errorBody": "{channel}から想定通りの応答がありませんでした。通常は一時的な問題です — しばらくしてからもう一度お試しください。",
+      "errorBody": "{channel}から想定通りの応答がありませんでした。通常は一時的な問題です、しばらくしてからもう一度お試しください。",
       "tryAgain": "再試行",
       "emptyTitle": "{channel}にはまだ投稿がありません",
       "emptyBody": "このアカウントがMarkaestro経由または{channel}上で直接公開すると、投稿がここに表示されます。"

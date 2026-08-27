@@ -1,0 +1,366 @@
+{
+  "title": "インテリジェンス",
+  "subtitle": "測定パフォーマンスと根拠ある提案、自動投稿はしません。",
+  "brand": "ブランド",
+  "coverage": "データカバレッジ {value}%",
+  "labels": {
+    "measured": "測定値",
+    "calculated": "計算値",
+    "predicted": "予測",
+    "recommended": "推奨"
+  },
+  "tabs": {
+    "overview": "概要",
+    "audience": "オーディエンス",
+    "content": "コンテンツ",
+    "opportunities": "機会",
+    "playbook": "プレイブック",
+    "advanced": "実験"
+  },
+  "metrics": {
+    "posts": "投稿",
+    "views": "閲覧数",
+    "reach": "リーチ",
+    "clicks": "クリック"
+  },
+  "platforms": {
+    "title": "プラットフォーム別実績",
+    "empty": "指標が取得されると公開済み投稿が表示されます。",
+    "posts": "{value}件の投稿",
+    "views": "{value}回の閲覧",
+    "engagements": "{value}件の反応",
+    "colPlatform": "プラットフォーム",
+    "colEngagements": "エンゲージメント"
+  },
+  "audience": {
+    "title": "ターゲットオーディエンス",
+    "objective": "目的",
+    "markets": "市場",
+    "pillars": "コンテンツの柱"
+  },
+  "content": {
+    "title": "トップコンテンツ",
+    "mediaOnly": "メディア投稿",
+    "likes": "いいね",
+    "comments": "コメント",
+    "shares": "シェア",
+    "viewLive": "ライブで見る"
+  },
+  "empty": {
+    "overviewTitle": "公開済み投稿を待っています",
+    "overviewBody": "このブランドにはまだ同期された投稿がありません。Markaestroから公開した投稿とインポートした履歴は、Intelligenceに反映されると表示されます。未取得の指標はゼロではなく空白のままです。",
+    "noBrandTitle": "最初にブランドを作成してください",
+    "noBrandBody": "インテリジェンスはMarkaestroブランド単位で管理されます。",
+    "profileTitle": "オーディエンスプロフィールを設定",
+    "profileBody": "ブランド設定で目的、対象市場、タイムゾーン、プラットフォーム優先度を追加してください。",
+    "contentTitle": "測定済みコンテンツはまだありません",
+    "contentBody": "公開・インポートされた投稿が、未取得指標をゼロにせず表示されます。",
+    "opportunitiesTitle": "根拠のある機会はまだありません",
+    "opportunitiesBody": "十分な測定証拠があると提案が表示されます。",
+    "playbookTitle": "プレイブックを準備中です",
+    "playbookBody": "十分な測定投稿後にパターンが表示されます（通常5件以上）。",
+    "createBrand": "ブランドを作成"
+  },
+  "composer": {
+    "title": "オーディエンス適合度",
+    "recommended": "推奨",
+    "body": "保存済みオーディエンスプロファイルと下書きを比較。適用まで変更しません。",
+    "analyze": "下書きを分析",
+    "analyzing": "分析中…",
+    "retry": "再試行",
+    "failed": "分析を安全に完了できませんでした。",
+    "reanalyze": "再分析",
+    "meta": "カバレッジ {coverage}% · 信頼度 {confidence} · 関連投稿 {sample}件",
+    "coldStart": "コールドスタート：関連投稿が5件未満です。",
+    "unavailable": "利用不可",
+    "suggestion": "提案された文言",
+    "apply": "提案を適用",
+    "applied": "下書きに適用済み",
+    "confidence": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "timingHint": "最も強い測定ウィンドウ: {bucket}（{count}件の投稿）。"
+  },
+  "profile": {
+    "objective": "目的",
+    "objectiveHint": "インテリジェンスが最適化する測定指標を選びます。",
+    "primaryMarket": "主要市場",
+    "marketPlaceholder": "市場を選択",
+    "conversion": "コンバージョンアクション",
+    "timezone": "タイムゾーン",
+    "platformPriority": "優先プラットフォーム",
+    "platformHint": "プラットフォーム別の推奨順位に使います。他の接続チャネルも利用できます。",
+    "platformPlaceholder": "優先なし",
+    "pillars": "コンテンツの柱",
+    "industries": "業種",
+    "interests": "興味関心",
+    "voice": "ブランドボイス",
+    "listHint": "リストから選択、追加したタグは削除できます。",
+    "save": "オーディエンスプロフィールを保存",
+    "saving": "保存中…",
+    "saved": "オーディエンスプロフィールを保存しました",
+    "saveFailed": "オーディエンスプロフィールを保存できませんでした",
+    "loading": "オーディエンスプロフィールを読み込み中…",
+    "unavailable": "このワークスペースではオーディエンスプロフィールが有効ではありません。",
+    "objectives": {
+      "awareness": "認知",
+      "engagement": "エンゲージメント",
+      "followers": "フォロワー",
+      "website_traffic": "サイト流入",
+      "leads": "リード",
+      "app_installs": "アプリインストール",
+      "purchases": "購入",
+      "other": "その他"
+    },
+    "conversions": {
+      "none": "なし",
+      "website_visit": "サイト訪問",
+      "lead": "リード",
+      "signup": "登録",
+      "app_install": "アプリインストール",
+      "purchase": "購入",
+      "custom": "カスタム"
+    },
+    "voiceHint": "ブランドの声を表すトーン特性を選びます。",
+    "tagAdd": "リストから追加…",
+    "tagEmpty": {
+      "pillars": "コンテンツの柱が未選択",
+      "industries": "業種が未選択",
+      "interests": "興味関心が未選択",
+      "voice": "ボイストレイトが未選択"
+    },
+    "options": {
+      "pillars": {
+        "education": "教育",
+        "entertainment": "エンタメ",
+        "inspiration": "インスピレーション",
+        "product_updates": "製品アップデート",
+        "behind_the_scenes": "舞台裏",
+        "tutorials": "チュートリアル",
+        "thought_leadership": "思想リーダーシップ",
+        "community": "コミュニティ",
+        "promotions": "プロモーション",
+        "user_stories": "ユーザーストーリー",
+        "industry_news": "業界ニュース",
+        "culture": "カルチャー",
+        "events": "イベント",
+        "testimonials": "お客様の声",
+        "how_to": "ハウツー"
+      },
+      "industries": {
+        "technology": "テクノロジー",
+        "retail": "小売",
+        "finance": "金融",
+        "healthcare": "ヘルスケア",
+        "education": "教育",
+        "food_beverage": "食品・飲料",
+        "fashion_beauty": "ファッション・美容",
+        "travel": "旅行",
+        "real_estate": "不動産",
+        "fitness": "フィットネス",
+        "entertainment": "エンタメ",
+        "nonprofit": "非営利",
+        "b2b_services": "B2Bサービス",
+        "manufacturing": "製造",
+        "automotive": "自動車",
+        "gaming": "ゲーム",
+        "media": "メディア",
+        "professional_services": "プロフェッショナルサービス",
+        "home_garden": "ホーム・ガーデン",
+        "pets": "ペット"
+      },
+      "interests": {
+        "entrepreneurship": "起業",
+        "marketing": "マーケティング",
+        "design": "デザイン",
+        "productivity": "生産性",
+        "wellness": "ウェルネス",
+        "parenting": "子育て",
+        "sustainability": "サステナビリティ",
+        "personal_finance": "個人金融",
+        "cooking": "料理",
+        "photography": "写真",
+        "music": "音楽",
+        "sports": "スポーツ",
+        "technology": "テクノロジー",
+        "career_growth": "キャリア成長",
+        "diy": "DIY",
+        "gaming": "ゲーム",
+        "fashion": "ファッション",
+        "travel": "旅行",
+        "fitness": "フィットネス",
+        "reading": "読書"
+      },
+      "voice": {
+        "professional": "プロフェッショナル",
+        "friendly": "フレンドリー",
+        "bold": "大胆",
+        "playful": "遊び心",
+        "authoritative": "権威的",
+        "empathetic": "共感的",
+        "witty": "機知に富む",
+        "inspirational": "インスピレーショナル",
+        "conversational": "会話調",
+        "technical": "テクニカル",
+        "luxury": "ラグジュアリー",
+        "minimalist": "ミニマル",
+        "energetic": "エネルギッシュ",
+        "trustworthy": "信頼感",
+        "innovative": "革新的"
+      }
+    }
+  },
+  "errors": {
+    "unavailableTitle": "インテリジェンスを利用できません",
+    "unavailableBody": "このフェーズはワークスペースで有効になっていないか、読み込めませんでした。",
+    "retry": "再試行"
+  },
+  "actions": {
+    "accept": "採用する",
+    "dismiss": "却下",
+    "pin": "固定",
+    "saveFailed": "決定を保存できませんでした",
+    "acceptedToast": "承認済み、Content/カレンダーで実行",
+    "pinnedToast": "フォローアップ用にピン留めしました",
+    "dismissedToast": "却下してリストから非表示",
+    "status": {
+      "accepted": "承認済み",
+      "pinned": "ピン留め",
+      "dismissed": "却下"
+    }
+  },
+  "alignment": {
+    "title": "オーディエンス整合",
+    "empty": "測定可能なオーディエンス構成が取れると整合が表示されます。未取得の次元は空白のままです。"
+  },
+  "timing": {
+    "title": "最適な投稿時間",
+    "empty": "アカウント固有のタイミングには、日付付き投稿20件とその時間帯の5件の観測が必要です。"
+  },
+  "campaigns": {
+    "title": "キャンペーン",
+    "empty": "比較用キャンペーン名。自動公開はしません。",
+    "name": "キャンペーン名",
+    "create": "キャンペーンを作成"
+  },
+  "experiments": {
+    "title": "実験",
+    "emptyPaired": "実験はまだありません。2件の予約投稿でプラットフォーム別A/Bテストを作成してください。",
+    "pairedWorkflow": "プラットフォームを1つ選び、2つのバリアント（キャプション・メディア・時間の違い）を作成してスケジュールし、一定期間実行します。終了後、結果は受信トレイに届きます。パーマリンクがある場合は並びでライブ投稿を表示します。",
+    "name": "実験名",
+    "hypothesis": "仮説（例: 短いフックの方が閲覧が多い）",
+    "createPaired": "A/Bを作成して予約",
+    "creating": "作成中…",
+    "createdPaired": "実験を作成しました、両方の投稿を予約しました",
+    "createFailed": "実験を作成できませんでした",
+    "captionPlaceholder": "このアームのキャプションとハッシュタグ",
+    "armCompose": "アーム{arm}",
+    "armLabel": "アーム{arm}",
+    "scheduleA": "アームAを予約",
+    "scheduleB": "アームBを予約",
+    "durationOption": "{days}日間",
+    "platformLabel": "プラットフォーム: {platform}",
+    "endsLabel": "終了 {when}",
+    "openLive": "ライブ投稿を開く",
+    "liveEmbedTitle": "アーム{arm}のライブプレビュー",
+    "livePending": "投稿が公開されパーマリンクが保存されるとライブ埋め込みが表示されます。",
+    "loadingDetail": "実験を読み込み中…",
+    "detailFailed": "この実験を読み込めませんでした。",
+    "untitledPost": "無題の投稿",
+    "effect": "相対差 {value}%（B対A）",
+    "status": {
+      "draft": "下書き",
+      "scheduled": "予約済み",
+      "running": "実行中",
+      "complete": "完了",
+      "archived": "アーカイブ",
+      "winner_a": "勝者A",
+      "winner_b": "勝者B",
+      "inconclusive": "判定不能"
+    },
+    "result": {
+      "winner_a": "測定指標ではアームAが先行しています。",
+      "winner_b": "測定指標ではアームBが先行しています。",
+      "inconclusive": "結果は判定不能です、サンプルを増やすか差を明確にしてください。"
+    },
+    "mediaRequired": "このプラットフォームでは、実験を作成する前に両アームにメディアが必要です。",
+    "mediaRequiredHint": "Instagram、TikTok、Pinterestでは各アームに画像または動画が少なくとも1つ必要です。",
+    "untitledExperiment": "無題の実験",
+    "delete": "削除",
+    "deleted": "実験を削除しました",
+    "deleteFailed": "実験を削除できませんでした",
+    "deleteWarning": "実験、予約済みの A/B 投稿、関連する受信トレイ結果が Markaestro から削除されます。プラットフォーム上で公開済みの投稿は削除されません。"
+  },
+  "ask": {
+    "title": "Markaestroに質問",
+    "placeholder": "測定された実績、タイミング、学びについて質問してください。",
+    "submit": "質問する",
+    "asking": "根拠を選択中…",
+    "tool": "{tool} を使用",
+    "failed": "回答できませんでした。もう一度お試しください。",
+    "timeout": "時間がかかりすぎました。短い質問にするか、しばらくしてから再度お試しください。",
+    "quota": "今月の Ask Markaestro 回数を使い切りました。来月また試すか、プランをアップグレードしてください。",
+    "unavailable": "このワークスペースでは Ask Markaestro はまだ利用できません。"
+  },
+  "links": {
+    "title": "トラッキングリンク",
+    "empty": "生のIPを保存せずクリックを紐づけるトラッキングリンクを作成します。",
+    "label": "ラベル",
+    "destination": "遷移先URL",
+    "create": "リンクを作成"
+  },
+  "productBar": {
+    "brand": "ブランド",
+    "noBrandSelected": "ブランド未選択",
+    "change": "変更"
+  },
+  "guide": {
+    "overview": {
+      "title": "このタブの内容",
+      "body": "同期済み投稿のKPIとプラットフォーム別内訳。空欄は未取得メトリクス（ゼロではありません）。"
+    },
+    "audience": {
+      "title": "ブランドの境界を設定",
+      "body": "目的・市場・タイムゾーン・柱がIntelligenceの基準になります。"
+    },
+    "content": {
+      "title": "成果の出た投稿から学ぶ",
+      "body": "測定ビュー順のトップ投稿。Content作成時に再利用。"
+    },
+    "opportunities": {
+      "title": "次に試すこと",
+      "body": "測定履歴からの提案。Content/カレンダーで手動実行。"
+    },
+    "playbook": {
+      "title": "繰り返すパターン",
+      "body": "十分なサンプルがある統計的学習。"
+    },
+    "advanced": {
+      "title": "証拠に基づくテスト",
+      "body": "プラットフォーム別のA/B実験を作り、2投稿を予約してライブ比較します。期間終了後に結果が受信トレイへ届きます。"
+    }
+  },
+  "workflow": {
+    "opportunities": {
+      "title": "機会の使い方",
+      "step1": "提案と根拠を読む。",
+      "step2": "承認・ピン留め・却下。",
+      "step3": "Content/カレンダーで公開・予約。承認は自動投稿しません。"
+    },
+    "playbook": {
+      "title": "プレイブックの使い方",
+      "step1": "各カードは測定パターン（n=）。",
+      "step2": "パターンを承認・ピン留め・却下。",
+      "step3": "承認したパターンを投稿時に適用。"
+    }
+  },
+  "decisions": {
+    "hint": "決定を記録するだけ、投稿・予約・下書き変更はしません。",
+    "learningHint": "このパターンを信頼するか記録。",
+    "accept": "承認、実行予定",
+    "pin": "ピン留め、後で",
+    "dismiss": "却下、非表示"
+  }
+}

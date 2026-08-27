@@ -29,8 +29,9 @@ describe('workspace permission matrix', () => {
 
   it('analyst is read-only', () => {
     expect(hasPermissionForRole('analyst', 'dashboard.read')).toBe(true);
+    expect(hasPermissionForRole('analyst', 'intelligence.read')).toBe(true);
     for (const permission of workspacePermissions) {
-      if (permission === 'dashboard.read') continue;
+      if (permission === 'dashboard.read' || permission === 'intelligence.read') continue;
       expect(hasPermissionForRole('analyst', permission)).toBe(false);
     }
   });

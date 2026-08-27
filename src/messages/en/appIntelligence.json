@@ -1,0 +1,366 @@
+{
+  "title": "Intelligence",
+  "subtitle": "Measured performance, grounded recommendations, and a clear workflow, nothing posts automatically.",
+  "brand": "Brand",
+  "coverage": "{value}% data coverage",
+  "productBar": {
+    "brand": "Brand",
+    "noBrandSelected": "No brand selected",
+    "change": "Change"
+  },
+  "labels": {
+    "measured": "Measured",
+    "calculated": "Calculated",
+    "predicted": "Predicted",
+    "recommended": "Recommended"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "audience": "Audience",
+    "content": "Content",
+    "opportunities": "Opportunities",
+    "playbook": "Playbook",
+    "advanced": "Experiments"
+  },
+  "guide": {
+    "overview": {
+      "title": "What this tab shows",
+      "body": "KPIs and platform breakdown from synced posts. Blank cells mean the platform did not report that metric, never zero. Use this to see where measured performance is strongest."
+    },
+    "audience": {
+      "title": "Set your brand boundary",
+      "body": "Objective, markets, timezone, and pillars tell Intelligence who you create for. Audience Fit in Content and alignment scores compare drafts and results against this profile."
+    },
+    "content": {
+      "title": "Learn from posts that already worked",
+      "body": "Top content ranked by measured views. Reuse themes and formats here when writing in Content. Timing windows appear once you have enough dated posts with metrics."
+    },
+    "opportunities": {
+      "title": "What to try next",
+      "body": "Recommendations come from your measured history, timing, platform mix, learnings, and alignment gaps. They are suggestions only: you execute them manually in Content or Calendar."
+    },
+    "playbook": {
+      "title": "Patterns that repeat in your data",
+      "body": "Statistical learnings from posts with enough sample size (platform, timing, format, etc.). Accept when the pattern fits your strategy; dismiss when it does not."
+    },
+    "advanced": {
+      "title": "Test ideas with evidence",
+      "body": "Create an A/B experiment, assign measured posts to each arm, then Evaluate. Ask Markaestro answers from your workspace data only, not generic social-media advice."
+    }
+  },
+  "workflow": {
+    "opportunities": {
+      "title": "How to use opportunities",
+      "step1": "Read the recommendation and what evidence it used (timing, platforms, or alignment).",
+      "step2": "Accept if you plan to try it, Pin to revisit later, or Dismiss if it is not relevant.",
+      "step3": "Go to Content or Calendar to publish or schedule. Accept does not create posts or campaigns automatically."
+    },
+    "playbook": {
+      "title": "How to use the playbook",
+      "step1": "Each card is a measured pattern (sample size shown as n=). Stronger evidence means more posts behind the claim.",
+      "step2": "Accept patterns you want to repeat, Pin ones to revisit, or Dismiss patterns that do not fit this brand.",
+      "step3": "Apply accepted patterns yourself when composing, for example post more on a winning platform or in a strong time window."
+    }
+  },
+  "decisions": {
+    "hint": "These buttons record your decision only. They do not publish, schedule, or change drafts.",
+    "learningHint": "Record whether you trust this pattern. Intelligence will not change your content automatically.",
+    "accept": "Accept: I plan to act on this",
+    "pin": "Pin, revisit later",
+    "dismiss": "Dismiss, hide this item"
+  },
+  "metrics": {
+    "posts": "Posts",
+    "views": "Views",
+    "reach": "Reach",
+    "clicks": "Clicks"
+  },
+  "platforms": {
+    "title": "Platform performance",
+    "empty": "Published posts will appear here as metrics arrive.",
+    "posts": "{value} posts",
+    "views": "{value} views",
+    "engagements": "{value} engagements",
+    "colPlatform": "Platform",
+    "colEngagements": "Engagements"
+  },
+  "audience": {
+    "title": "Target audience",
+    "objective": "Objective",
+    "markets": "Markets",
+    "pillars": "Content pillars"
+  },
+  "content": {
+    "title": "Top content",
+    "mediaOnly": "Media post",
+    "likes": "Likes",
+    "comments": "Comments",
+    "shares": "Shares",
+    "viewLive": "View live"
+  },
+  "empty": {
+    "overviewTitle": "Waiting on published posts",
+    "overviewBody": "This brand has no synced posts yet. Markaestro-published posts and imported platform history appear here after they are projected into Intelligence. Missing metrics stay blank, never zero.",
+    "noBrandTitle": "Create a brand first",
+    "noBrandBody": "Intelligence is scoped to a Markaestro brand.",
+    "createBrand": "Create a brand",
+    "profileTitle": "Set up your audience profile",
+    "profileBody": "Add an objective, target market, timezone, and platform priorities in brand settings.",
+    "contentTitle": "No measured content yet",
+    "contentBody": "Published and imported platform posts appear here without turning missing metrics into zero.",
+    "opportunitiesTitle": "No grounded opportunities yet",
+    "opportunitiesBody": "Recommendations appear when Intelligence has enough measured evidence, for example two platforms to compare, a strong posting window, or a repeatable learning. Keep publishing and syncing metrics.",
+    "playbookTitle": "Your playbook is warming up",
+    "playbookBody": "Statistical patterns appear after enough measured posts in a group (typically five or more). Check back as more posts sync, or review Opportunities for action-oriented suggestions."
+  },
+  "composer": {
+    "title": "Audience Fit",
+    "recommended": "Recommended",
+    "body": "Scores this draft against your saved audience profile. Suggestions never change your draft until you tap Apply.",
+    "analyze": "Analyze draft",
+    "analyzing": "Analyzing…",
+    "retry": "Try again",
+    "failed": "The analysis could not be completed safely.",
+    "reanalyze": "Analyze again",
+    "timingHint": "Strongest measured window: {bucket} ({count} posts).",
+    "meta": "{coverage}% coverage · {confidence} confidence · {sample} relevant posts",
+    "coldStart": "Cold start: fewer than five relevant posts.",
+    "unavailable": "Unavailable",
+    "suggestion": "Suggested wording",
+    "apply": "Apply suggestion",
+    "applied": "Applied to draft",
+    "confidence": {
+      "low": "low",
+      "medium": "medium",
+      "high": "high"
+    }
+  },
+  "profile": {
+    "objective": "Objective",
+    "objectiveHint": "This selects which measured metric intelligence optimizes toward.",
+    "primaryMarket": "Primary market",
+    "marketPlaceholder": "Select a market",
+    "conversion": "Conversion action",
+    "timezone": "Timezone",
+    "platformPriority": "Priority platform",
+    "platformHint": "Used to rank platform-specific recommendations. Other connected channels stay available.",
+    "platformPlaceholder": "No priority",
+    "pillars": "Content pillars",
+    "industries": "Industries",
+    "interests": "Interests",
+    "voice": "Brand voice",
+    "listHint": "Pick from the dropdown, each selection adds a tag you can remove.",
+    "voiceHint": "Choose tone traits that describe how this brand should sound.",
+    "tagAdd": "Add from list…",
+    "tagEmpty": {
+      "pillars": "No content pillars selected",
+      "industries": "No industries selected",
+      "interests": "No interests selected",
+      "voice": "No voice traits selected"
+    },
+    "options": {
+      "pillars": {
+        "education": "Education",
+        "entertainment": "Entertainment",
+        "inspiration": "Inspiration",
+        "product_updates": "Product updates",
+        "behind_the_scenes": "Behind the scenes",
+        "tutorials": "Tutorials",
+        "thought_leadership": "Thought leadership",
+        "community": "Community",
+        "promotions": "Promotions",
+        "user_stories": "User stories",
+        "industry_news": "Industry news",
+        "culture": "Culture",
+        "events": "Events",
+        "testimonials": "Testimonials",
+        "how_to": "How-to"
+      },
+      "industries": {
+        "technology": "Technology",
+        "retail": "Retail",
+        "finance": "Finance",
+        "healthcare": "Healthcare",
+        "education": "Education",
+        "food_beverage": "Food & beverage",
+        "fashion_beauty": "Fashion & beauty",
+        "travel": "Travel",
+        "real_estate": "Real estate",
+        "fitness": "Fitness",
+        "entertainment": "Entertainment",
+        "nonprofit": "Nonprofit",
+        "b2b_services": "B2B services",
+        "manufacturing": "Manufacturing",
+        "automotive": "Automotive",
+        "gaming": "Gaming",
+        "media": "Media",
+        "professional_services": "Professional services",
+        "home_garden": "Home & garden",
+        "pets": "Pets"
+      },
+      "interests": {
+        "entrepreneurship": "Entrepreneurship",
+        "marketing": "Marketing",
+        "design": "Design",
+        "productivity": "Productivity",
+        "wellness": "Wellness",
+        "parenting": "Parenting",
+        "sustainability": "Sustainability",
+        "personal_finance": "Personal finance",
+        "cooking": "Cooking",
+        "photography": "Photography",
+        "music": "Music",
+        "sports": "Sports",
+        "technology": "Technology",
+        "career_growth": "Career growth",
+        "diy": "DIY",
+        "gaming": "Gaming",
+        "fashion": "Fashion",
+        "travel": "Travel",
+        "fitness": "Fitness",
+        "reading": "Reading"
+      },
+      "voice": {
+        "professional": "Professional",
+        "friendly": "Friendly",
+        "bold": "Bold",
+        "playful": "Playful",
+        "authoritative": "Authoritative",
+        "empathetic": "Empathetic",
+        "witty": "Witty",
+        "inspirational": "Inspirational",
+        "conversational": "Conversational",
+        "technical": "Technical",
+        "luxury": "Luxury",
+        "minimalist": "Minimalist",
+        "energetic": "Energetic",
+        "trustworthy": "Trustworthy",
+        "innovative": "Innovative"
+      }
+    },
+    "save": "Save audience profile",
+    "saving": "Saving…",
+    "saved": "Audience profile saved",
+    "saveFailed": "Could not save the audience profile",
+    "loading": "Loading audience profile…",
+    "unavailable": "Audience profile is not enabled for this workspace.",
+    "objectives": {
+      "awareness": "Awareness",
+      "engagement": "Engagement",
+      "followers": "Followers",
+      "website_traffic": "Website traffic",
+      "leads": "Leads",
+      "app_installs": "App installs",
+      "purchases": "Purchases",
+      "other": "Other"
+    },
+    "conversions": {
+      "none": "None",
+      "website_visit": "Website visit",
+      "lead": "Lead",
+      "signup": "Sign-up",
+      "app_install": "App install",
+      "purchase": "Purchase",
+      "custom": "Custom"
+    }
+  },
+  "actions": {
+    "accept": "Accept",
+    "dismiss": "Dismiss",
+    "pin": "Pin",
+    "saveFailed": "Could not save your decision",
+    "acceptedToast": "Marked as accepted, execute in Content or Calendar",
+    "pinnedToast": "Pinned for follow-up",
+    "dismissedToast": "Dismissed and hidden from this list",
+    "status": {
+      "accepted": "Accepted",
+      "pinned": "Pinned",
+      "dismissed": "Dismissed"
+    }
+  },
+  "alignment": {
+    "title": "Audience alignment",
+    "empty": "Alignment appears after a measurable audience mix is captured. Missing dimensions stay blank."
+  },
+  "timing": {
+    "title": "Best posting windows",
+    "empty": "Account-specific timing needs 20 dated posts and five observations in the cited hour."
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "empty": "Name a campaign to group posts you want to compare across platforms. Creating one here does not publish anything, assign posts as you publish from Content.",
+    "name": "Campaign name",
+    "create": "Create campaign"
+  },
+  "experiments": {
+    "title": "Experiments",
+    "emptyPaired": "No experiments yet. Create a per-platform A/B test with two scheduled posts below.",
+    "pairedWorkflow": "Pick one platform, write two variants (different caption, media, and/or time), schedule both, and run them for a set window. When the window ends, results land in your Inbox. Side-by-side shows the live post when a permalink exists.",
+    "name": "Experiment name",
+    "hypothesis": "Hypothesis (e.g. shorter hooks get more views)",
+    "createPaired": "Create & schedule A/B",
+    "creating": "Creating…",
+    "createdPaired": "Experiment created, both posts are scheduled",
+    "createFailed": "Could not create the experiment",
+    "captionPlaceholder": "Caption and hashtags for this arm",
+    "mediaRequired": "This platform needs media on both arms before you can create the experiment.",
+    "mediaRequiredHint": "Instagram, TikTok, and Pinterest need at least one image or video on each arm.",
+    "armCompose": "Arm {arm}",
+    "armLabel": "Arm {arm}",
+    "scheduleA": "Schedule arm A",
+    "scheduleB": "Schedule arm B",
+    "durationOption": "{days} day window",
+    "platformLabel": "Platform: {platform}",
+    "endsLabel": "Ends {when}",
+    "openLive": "Open live post",
+    "liveEmbedTitle": "Live post preview for arm {arm}",
+    "livePending": "Live embed appears after this post publishes and Markaestro stores its permalink.",
+    "loadingDetail": "Loading experiment…",
+    "detailFailed": "Could not load this experiment.",
+    "untitledPost": "Untitled post",
+    "untitledExperiment": "Untitled experiment",
+    "delete": "Delete",
+    "deleteWarning": "This removes the experiment, its scheduled A/B posts, and related inbox results from Markaestro. Posts already live on the platform are not removed.",
+    "deleted": "Experiment deleted",
+    "deleteFailed": "Could not delete the experiment",
+    "effect": "{value}% relative difference (B vs A)",
+    "status": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "running": "Running",
+      "complete": "Complete",
+      "archived": "Archived",
+      "winner_a": "Winner A",
+      "winner_b": "Winner B",
+      "inconclusive": "Inconclusive"
+    },
+    "result": {
+      "winner_a": "Arm A is ahead on the measured metric.",
+      "winner_b": "Arm B is ahead on the measured metric.",
+      "inconclusive": "Result is inconclusive, need a larger sample or a clearer difference."
+    }
+  },
+  "ask": {
+    "title": "Ask Markaestro",
+    "placeholder": "Ask about measured performance, timing, or learnings.",
+    "submit": "Ask",
+    "asking": "Selecting evidence…",
+    "tool": "Used {tool}",
+    "failed": "Could not answer that question. Try again.",
+    "timeout": "That took too long, try a shorter question, or ask again in a moment.",
+    "quota": "You have used this month’s Ask Markaestro turns. Try again next month or upgrade.",
+    "unavailable": "Ask Markaestro is not available for this workspace yet."
+  },
+  "links": {
+    "title": "Tracked links",
+    "empty": "Create a tracked link to attribute clicks without storing raw IP addresses.",
+    "label": "Label",
+    "destination": "Destination URL",
+    "create": "Create link"
+  },
+  "errors": {
+    "unavailableTitle": "Intelligence is unavailable",
+    "unavailableBody": "This phase is not enabled for this workspace or could not be loaded.",
+    "retry": "Retry"
+  }
+}

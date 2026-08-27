@@ -10,7 +10,7 @@
     "title": "Je inlogcode",
     "bodyIntro": "Gebruik deze code om in te loggen als <strong>{email}</strong>:",
     "fallbackAccount": "je account",
-    "expiryNote": "De code verloopt over 10 minuten. Deel hem met niemand — Markaestro zal er nooit naar vragen.",
+    "expiryNote": "De code verloopt over 10 minuten. Deel hem met niemand: Markaestro zal er nooit naar vragen.",
     "footerNote": "Als je niet probeerde in te loggen, kun je deze e-mail negeren. Zonder de code kan niemand toegang krijgen tot je account.",
     "plain": {
       "heading": "Je Markaestro-inlogcode",
@@ -41,12 +41,12 @@
     "bodyIntro": "Iemand heeft gevraagd om het e-mailadres van dit Markaestro-account te wijzigen:",
     "fromToLabel": "Van → Naar",
     "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
-    "bodyOutro": "Als jij dit was, rond de bevestiging dan af met de code die we naar het <strong>nieuwe adres</strong> hebben gestuurd. Als jij dit niet was, is je e-mailadres niet gewijzigd — neem dan direct contact op met support.",
+    "bodyOutro": "Als jij dit was, rond de bevestiging dan af met de code die we naar het <strong>nieuwe adres</strong> hebben gestuurd. Als jij dit niet was, is je e-mailadres niet gewijzigd, neem dan direct contact op met support.",
     "footerNote": "Dit bericht is verzonden omdat er een wijziging voor je account is aangevraagd.",
     "plain": {
       "heading": "E-mailwijziging aangevraagd op Markaestro",
       "changeSummary": "{oldEmail} -> {newEmail}",
-      "warning": "Als jij dit niet was, is je e-mailadres niet gewijzigd — neem direct contact op met support."
+      "warning": "Als jij dit niet was, is je e-mailadres niet gewijzigd, neem direct contact op met support."
     }
   },
   "manualPostReminder": {
@@ -63,7 +63,7 @@
   "tiktokInbox": {
     "subjectWithBrand": "Rond je TikTok-bericht voor {brandName} af",
     "subjectNoBrand": "Rond je TikTok-bericht af",
-    "preheader": "Je video wacht in de TikTok-app — open deze om te publiceren.",
+    "preheader": "Je video wacht in de TikTok-app, open deze om te publiceren.",
     "bodyIntroWithBrand": "Je video is geüpload en wacht in je TikTok-inbox voor <strong>{brandName}</strong>. TikTok vereist dat de definitieve publicatie vanuit hun app gebeurt, dus deze is nog niet live.",
     "bodyIntroNoBrand": "Je video is geüpload en wacht in je TikTok-inbox. TikTok vereist dat de definitieve publicatie vanuit hun app gebeurt, dus deze is nog niet live.",
     "toPublishLabel": "Zo publiceer je het",
@@ -88,7 +88,7 @@
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> heeft je uitgenodigd om lid te worden van de werkruimte <strong>{workspaceName}</strong> op Markaestro {roleLabel}.",
     "bodyIntroNoInviter": "Een teamgenoot heeft je uitgenodigd om lid te worden van de werkruimte <strong>{workspaceName}</strong> op Markaestro {roleLabel}.",
     "signInInstructions": "Log in (of maak een account aan) met dit e-mailadres en accepteer de uitnodiging vervolgens via de banner in de app:",
-    "declineNote": "Wil je niet deelnemen? Wijs de uitnodiging af in de app, of doe gewoon niets — de uitnodiging verloopt na 30 dagen.",
+    "declineNote": "Wil je niet deelnemen? Wijs de uitnodiging af in de app, of doe gewoon niets, de uitnodiging verloopt na 30 dagen.",
     "roleLabels": {
       "admin": "als beheerder",
       "member": "als lid",

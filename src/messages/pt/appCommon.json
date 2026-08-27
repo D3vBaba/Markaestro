@@ -34,7 +34,8 @@
       "integration": "integração",
       "post": "postagem",
       "workspace": "espaço de trabalho",
-      "account": "conta"
+      "account": "conta",
+      "experiment": "experimento"
     },
     "titleGeneric": "Excluir {entity}",
     "titleNamed": "Excluir {entity}?",
@@ -86,8 +87,8 @@
         "activeLabel": "Criando seu perfil de marca…"
       }
     },
-    "scanComplete": "Análise concluída — revise e confirme abaixo",
-    "scanFailed": "Falha na análise — preencha manualmente",
+    "scanComplete": "Análise concluída, revise e confirme abaixo",
+    "scanFailed": "Falha na análise, preencha manualmente",
     "researching": "Pesquisando sua marca…"
   },
   "platformPreview": {

@@ -1,0 +1,366 @@
+{
+  "title": "الذكاء",
+  "subtitle": "أداء مقاس وتوصيات مبنية على الأدلة، لا نشر تلقائي.",
+  "brand": "العلامة التجارية",
+  "coverage": "تغطية البيانات {value}%",
+  "labels": {
+    "measured": "مقاس",
+    "calculated": "محسوب",
+    "predicted": "متوقّع",
+    "recommended": "موصى به"
+  },
+  "tabs": {
+    "overview": "نظرة عامة",
+    "audience": "الجمهور",
+    "content": "المحتوى",
+    "opportunities": "الفرص",
+    "playbook": "دليل العمل",
+    "advanced": "التجارب"
+  },
+  "metrics": {
+    "posts": "المنشورات",
+    "views": "المشاهدات",
+    "reach": "الوصول",
+    "clicks": "النقرات"
+  },
+  "platforms": {
+    "title": "أداء المنصات",
+    "empty": "ستظهر المنشورات المنشورة هنا عند وصول المقاييس.",
+    "posts": "{value} منشورات",
+    "views": "{value} مشاهدات",
+    "engagements": "{value} تفاعلات",
+    "colPlatform": "المنصة",
+    "colEngagements": "التفاعلات"
+  },
+  "audience": {
+    "title": "الجمهور المستهدف",
+    "objective": "الهدف",
+    "markets": "الأسواق",
+    "pillars": "ركائز المحتوى"
+  },
+  "content": {
+    "title": "أفضل المحتوى",
+    "mediaOnly": "منشور وسائط",
+    "likes": "إعجابات",
+    "comments": "تعليقات",
+    "shares": "مشاركات",
+    "viewLive": "عرض مباشرة"
+  },
+  "empty": {
+    "overviewTitle": "بانتظار المنشورات المنشورة",
+    "overviewBody": "لا توجد منشورات متزامنة لهذه العلامة بعد. تظهر المنشورات المنشورة من Markaestro والسجل المستورد هنا بعد إسقاطها في الذكاء. تبقى المقاييس المفقودة فارغة وليس صفرًا.",
+    "noBrandTitle": "أنشئ علامة تجارية أولاً",
+    "noBrandBody": "يرتبط الذكاء بعلامة تجارية في Markaestro.",
+    "profileTitle": "أعدّ ملف جمهورك",
+    "profileBody": "أضف الهدف والسوق والمنطقة الزمنية وأولويات المنصات في إعدادات العلامة.",
+    "contentTitle": "لا يوجد محتوى مقاس بعد",
+    "contentBody": "تظهر المنشورات المنشورة والمستوردة هنا دون تحويل المقاييس المفقودة إلى صفر.",
+    "opportunitiesTitle": "لا توجد فرص مدعومة بعد",
+    "opportunitiesBody": "التوصيات تظهر بعد أدلة مقاسة كافية.",
+    "playbookTitle": "يتم إعداد دليل عملك",
+    "playbookBody": "الأنماط تظهر بعد منشورات مقاسة كافية (غالبًا 5+).",
+    "createBrand": "إنشاء علامة تجارية"
+  },
+  "composer": {
+    "title": "ملاءمة الجمهور",
+    "recommended": "موصى به",
+    "body": "يقيّم المسودة مقابل ملف الجمهور. الاقتراحات بعد تطبيق فقط.",
+    "analyze": "تحليل المسودة",
+    "analyzing": "جارٍ التحليل…",
+    "retry": "إعادة المحاولة",
+    "failed": "تعذّر إكمال التحليل بأمان.",
+    "reanalyze": "التحليل مرة أخرى",
+    "meta": "تغطية {coverage}% · ثقة {confidence} · {sample} منشورات ذات صلة",
+    "coldStart": "بداية باردة: أقل من خمسة منشورات ذات صلة.",
+    "unavailable": "غير متاح",
+    "suggestion": "صياغة مقترحة",
+    "apply": "تطبيق الاقتراح",
+    "applied": "طُبّق على المسودة",
+    "confidence": {
+      "low": "منخفضة",
+      "medium": "متوسطة",
+      "high": "عالية"
+    },
+    "timingHint": "أقوى نافذة مقيسة: {bucket} ({count} منشورات)."
+  },
+  "profile": {
+    "objective": "الهدف",
+    "objectiveHint": "يحدد المقياس المقاس الذي يحسّنه الذكاء.",
+    "primaryMarket": "السوق الأساسي",
+    "marketPlaceholder": "اختر سوقًا",
+    "conversion": "إجراء التحويل",
+    "timezone": "المنطقة الزمنية",
+    "platformPriority": "المنصة ذات الأولوية",
+    "platformHint": "يُستخدم لترتيب التوصيات حسب المنصة. تبقى القنوات المتصلة الأخرى متاحة.",
+    "platformPlaceholder": "بدون أولوية",
+    "pillars": "ركائز المحتوى",
+    "industries": "القطاعات",
+    "interests": "الاهتمامات",
+    "voice": "صوت العلامة",
+    "listHint": "اختر من القائمة، كل اختيار يضيف وسمًا قابلًا للإزالة.",
+    "save": "حفظ ملف الجمهور",
+    "saving": "جارٍ الحفظ…",
+    "saved": "تم حفظ ملف الجمهور",
+    "saveFailed": "تعذّر حفظ ملف الجمهور",
+    "loading": "جارٍ تحميل ملف الجمهور…",
+    "unavailable": "ملف الجمهور غير مفعّل لمساحة العمل هذه.",
+    "objectives": {
+      "awareness": "الوعي",
+      "engagement": "التفاعل",
+      "followers": "المتابعون",
+      "website_traffic": "زيارات الموقع",
+      "leads": "العملاء المحتملون",
+      "app_installs": "تثبيتات التطبيق",
+      "purchases": "المشتريات",
+      "other": "أخرى"
+    },
+    "conversions": {
+      "none": "بدون",
+      "website_visit": "زيارة الموقع",
+      "lead": "عميل محتمل",
+      "signup": "تسجيل",
+      "app_install": "تثبيت التطبيق",
+      "purchase": "شراء",
+      "custom": "مخصص"
+    },
+    "voiceHint": "اختر سمات نبرة تصف كيف يجب أن يبدو صوت العلامة.",
+    "tagAdd": "إضافة من القائمة…",
+    "tagEmpty": {
+      "pillars": "لم يتم اختيار ركائز",
+      "industries": "لم يتم اختيار قطاعات",
+      "interests": "لم يتم اختيار اهتمامات",
+      "voice": "لم يتم اختيار سمات الصوت"
+    },
+    "options": {
+      "pillars": {
+        "education": "تعليم",
+        "entertainment": "ترفيه",
+        "inspiration": "إلهام",
+        "product_updates": "تحديثات المنتج",
+        "behind_the_scenes": "كواليس",
+        "tutorials": "دروس",
+        "thought_leadership": "قيادة فكرية",
+        "community": "مجتمع",
+        "promotions": "عروض",
+        "user_stories": "قصص المستخدمين",
+        "industry_news": "أخبار القطاع",
+        "culture": "ثقافة",
+        "events": "فعاليات",
+        "testimonials": "شهادات",
+        "how_to": "إرشادات"
+      },
+      "industries": {
+        "technology": "تقنية",
+        "retail": "تجزئة",
+        "finance": "مالية",
+        "healthcare": "رعاية صحية",
+        "education": "تعليم",
+        "food_beverage": "طعام ومشروبات",
+        "fashion_beauty": "أزياء وجمال",
+        "travel": "سفر",
+        "real_estate": "عقارات",
+        "fitness": "لياقة",
+        "entertainment": "ترفيه",
+        "nonprofit": "غير ربحي",
+        "b2b_services": "خدمات B2B",
+        "manufacturing": "تصنيع",
+        "automotive": "سيارات",
+        "gaming": "ألعاب",
+        "media": "إعلام",
+        "professional_services": "خدمات مهنية",
+        "home_garden": "منزل وحديقة",
+        "pets": "حيوانات أليفة"
+      },
+      "interests": {
+        "entrepreneurship": "ريادة أعمال",
+        "marketing": "تسويق",
+        "design": "تصميم",
+        "productivity": "إنتاجية",
+        "wellness": "عافية",
+        "parenting": "تربية",
+        "sustainability": "استدامة",
+        "personal_finance": "مالية شخصية",
+        "cooking": "طبخ",
+        "photography": "تصوير",
+        "music": "موسيقى",
+        "sports": "رياضة",
+        "technology": "تقنية",
+        "career_growth": "نمو مهني",
+        "diy": "اصنع بنفسك",
+        "gaming": "ألعاب",
+        "fashion": "أزياء",
+        "travel": "سفر",
+        "fitness": "لياقة",
+        "reading": "قراءة"
+      },
+      "voice": {
+        "professional": "احترافي",
+        "friendly": "ودود",
+        "bold": "جريء",
+        "playful": "مرح",
+        "authoritative": "موثوق",
+        "empathetic": "متعاطف",
+        "witty": "ذكي",
+        "inspirational": "ملهم",
+        "conversational": "حواري",
+        "technical": "تقني",
+        "luxury": "فاخر",
+        "minimalist": "بسيط",
+        "energetic": "نشيط",
+        "trustworthy": "جدير بالثقة",
+        "innovative": "مبتكر"
+      }
+    }
+  },
+  "errors": {
+    "unavailableTitle": "الذكاء غير متاح",
+    "unavailableBody": "هذه المرحلة غير مفعّلة لمساحة العمل أو تعذّر تحميلها.",
+    "retry": "إعادة المحاولة"
+  },
+  "actions": {
+    "accept": "قبول",
+    "dismiss": "تجاهل",
+    "pin": "تثبيت",
+    "saveFailed": "تعذر حفظ قرارك",
+    "acceptedToast": "مقبول، نفّذ في Content/التقويم",
+    "pinnedToast": "تم التثبيت للمتابعة",
+    "dismissedToast": "تم التجاهل والإخفاء",
+    "status": {
+      "accepted": "مقبولة",
+      "pinned": "مثبتة",
+      "dismissed": "مرفوضة"
+    }
+  },
+  "alignment": {
+    "title": "مواءمة الجمهور",
+    "empty": "تظهر المواءمة بعد التقاط مزيج جمهور قابل للقياس. تبقى الأبعاد الناقصة فارغة."
+  },
+  "timing": {
+    "title": "أفضل أوقات النشر",
+    "empty": "يتطلب التوقيت الخاص بالحساب 20 منشورًا مؤرخًا وخمس ملاحظات في الساعة المذكورة."
+  },
+  "campaigns": {
+    "title": "الحملات",
+    "empty": "سمّ حملة للمقارنة. لا ينشر تلقائيًا.",
+    "name": "اسم الحملة",
+    "create": "إنشاء حملة"
+  },
+  "experiments": {
+    "title": "التجارب",
+    "emptyPaired": "لا تجارب بعد. أنشئ اختبار A/B لكل منصة بمنشورين مجدولين.",
+    "pairedWorkflow": "اختر منصة واحدةًا، واكتب نسختين (تعليق أو وسائط أو وقت مختلف)، ثم اجدولهما وشغّلهما لفترة محددة. عند انتهائها تصل النتائج إلى صندوق الوارد. العرض جنبًا إلى جنب يظهر المنشور الحي عند وجود رابط دائم.",
+    "name": "اسم التجربة",
+    "hypothesis": "الفرضية (مثلًا: المقدمات الأقصر تحقق مشاهدات أكثر)",
+    "createPaired": "إنشاء وجدول A/B",
+    "creating": "جارٍ الإنشاء…",
+    "createdPaired": "تم إنشاء التجربة، تم جدولة المنشورين",
+    "createFailed": "تعذّر إنشاء التجربة",
+    "captionPlaceholder": "التعليق والهاشتاجات لهذا الذراع",
+    "armCompose": "الذراع {arm}",
+    "armLabel": "الذراع {arm}",
+    "scheduleA": "جدولة الذراع A",
+    "scheduleB": "جدولة الذراع B",
+    "durationOption": "نافذة {days} يومًا",
+    "platformLabel": "المنصة: {platform}",
+    "endsLabel": "ينتهي {when}",
+    "openLive": "فتح المنشور الحي",
+    "liveEmbedTitle": "معاينة حية للذراع {arm}",
+    "livePending": "يظهر التضمين الحي بعد النشر وحفظ الرابط الدائم في Markaestro.",
+    "loadingDetail": "جارٍ تحميل التجربة…",
+    "detailFailed": "تعذّر تحميل هذه التجربة.",
+    "untitledPost": "منشور بلا عنوان",
+    "effect": "{value}% فرق نسبي (B مقابل A)",
+    "status": {
+      "draft": "مسودة",
+      "scheduled": "مجدول",
+      "running": "قيد التشغيل",
+      "complete": "مكتمل",
+      "archived": "مؤرشف",
+      "winner_a": "الفائز A",
+      "winner_b": "الفائز B",
+      "inconclusive": "غير حاسم"
+    },
+    "result": {
+      "winner_a": "الذراع A متقدم على المقياس المقاس.",
+      "winner_b": "الذراع B متقدم على المقياس المقاس.",
+      "inconclusive": "النتيجة غير حاسمة، يلزم عيّنة أكبر أو فرق أوضح."
+    },
+    "mediaRequired": "تحتاج هذه المنصة إلى وسائط على كلا الذراعين قبل إنشاء التجربة.",
+    "mediaRequiredHint": "يتطلب Instagram وTikTok وPinterest صورة أو فيديو واحدًا على الأقل لكل ذراع.",
+    "untitledExperiment": "تجربة بلا عنوان",
+    "delete": "حذف",
+    "deleted": "تم حذف التجربة",
+    "deleteFailed": "تعذّر حذف التجربة",
+    "deleteWarning": "سيُزال التجربة ومنشورات A/B المجدولة ونتائج صندوق الوارد المرتبطة من Markaestro. المنشورات المنشورة فعليًا على المنصة لن تُحذف."
+  },
+  "ask": {
+    "title": "اسأل Markaestro",
+    "placeholder": "اسأل عن الأداء المقيس أو التوقيت أو الدروس.",
+    "submit": "اسأل",
+    "asking": "جارٍ اختيار الأدلة…",
+    "tool": "استخدم {tool}",
+    "failed": "تعذّر الرد على السؤال. حاول مرة أخرى.",
+    "timeout": "استغرق الأمر وقتًا طويلاً، جرّب سؤالاً أقصر أو أعد المحاولة بعد لحظة.",
+    "quota": "استخدمت حصص Ask Markaestro لهذا الشهر. حاول الشهر القادم أو قم بالترقية.",
+    "unavailable": "Ask Markaestro غير متاح بعد لمساحة العمل هذه."
+  },
+  "links": {
+    "title": "روابط التتبع",
+    "empty": "أنشئ رابط تتبع لنسب النقرات دون تخزين عنوان IP الخام.",
+    "label": "التسمية",
+    "destination": "رابط الوجهة",
+    "create": "إنشاء رابط"
+  },
+  "productBar": {
+    "brand": "العلامة التجارية",
+    "noBrandSelected": "لم يتم اختيار علامة",
+    "change": "تغيير"
+  },
+  "guide": {
+    "overview": {
+      "title": "ما يعرضه هذا التبويب",
+      "body": "مؤشرات وأداء المنصات من المنشورات المتزامنة. الفراغ = مقياس غير متوفر، وليس صفرًا."
+    },
+    "audience": {
+      "title": "حدود العلامة التجارية",
+      "body": "الهدف والأسواق والمنطقة الزمنية والركائز تحدد لمن تنشئ."
+    },
+    "content": {
+      "title": "تعلّم مما نجح",
+      "body": "أفضل المحتوى حسب المشاهدات المقاسة. أعد الاستخدام في Content."
+    },
+    "opportunities": {
+      "title": "ما يمكن تجربته",
+      "body": "توصيات من السجل المقاس. نفّذ يدويًا في Content/التقويم."
+    },
+    "playbook": {
+      "title": "أنماط متكررة",
+      "body": "تعلّمات إحصائية بعينة كافية."
+    },
+    "advanced": {
+      "title": "اختبر الأفكار بأدلة",
+      "body": "أنشئ تجربة A/B لكل منصة، وجدول منشورين وقارنهما مباشرة. بعد انتهاء النافذة تصل النتيجة إلى الوارد."
+    }
+  },
+  "workflow": {
+    "opportunities": {
+      "title": "كيفية استخدام الفرص",
+      "step1": "اقرأ التوصية والأدلة.",
+      "step2": "اقبل أو ثبّت أو تجاهل.",
+      "step3": "انشر/جدول في Content/التقويم. القبول لا ينشئ منشورات."
+    },
+    "playbook": {
+      "title": "كيفية استخدام دليل التشغيل",
+      "step1": "كل بطاقة نمط مقاس (n=).",
+      "step2": "اقبل أو ثبّت أو تجاهل الأنماط.",
+      "step3": "طبّق الأنماط المقبولة عند الإنشاء."
+    }
+  },
+  "decisions": {
+    "hint": "يسجل قرارك فقط، لا ينشر ولا يعدّل المسودات.",
+    "learningHint": "سجّل إن كنت تثق بهذا النمط.",
+    "accept": "قبول، سأتصرّف",
+    "pin": "تثبيت، لاحقًا",
+    "dismiss": "تجاهل، إخفاء"
+  }
+}

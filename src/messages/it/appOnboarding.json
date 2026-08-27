@@ -23,7 +23,7 @@
       "title": "Qual è il tuo ruolo?",
       "subtitle": "Adatteremo tutto al modo in cui lavori davvero.",
       "options": {
-        "founder": { "label": "Fondatore / CEO", "desc": "Indossi ogni cappello — incluso il marketing" },
+        "founder": { "label": "Fondatore / CEO", "desc": "Indossi ogni cappello, incluso il marketing" },
         "marketer": { "label": "Marketer", "desc": "Responsabile dei contenuti su ogni canale" },
         "agency": { "label": "Agenzia / Freelance", "desc": "Gestisci contenuti per più clienti" },
         "creator": { "label": "Content Creator", "desc": "Fai crescere un pubblico che sei solo tu" }
@@ -52,7 +52,7 @@
     "channels": {
       "eyebrow": "La tua fase",
       "title": "Dove si trova il tuo pubblico?",
-      "subtitle": "Seleziona tutto ciò che si applica — pubblicherai su ciascuno con un clic.",
+      "subtitle": "Seleziona tutto ciò che si applica, pubblicherai su ciascuno con un clic.",
       "options": {
         "instagram": { "label": "Instagram" },
         "facebook": { "label": "Facebook" },
@@ -98,7 +98,7 @@
     "contentTypes": {
       "eyebrow": "La tua voce",
       "title": "Cosa vuoi pubblicare?",
-      "subtitle": "Seleziona tutto ciò che si applica — ti aiuteremo a riempire il calendario.",
+      "subtitle": "Seleziona tutto ciò che si applica, ti aiuteremo a riempire il calendario.",
       "options": {
         "product": { "label": "Prodotto e promozioni" },
         "educational": { "label": "Consigli e formazione" },
@@ -109,7 +109,7 @@
     "hoursPerWeek": {
       "eyebrow": "Il costo nascosto",
       "title": "Quante ore a settimana svaniscono in questo?",
-      "subtitle": "Sii sincero — è quasi sempre di più di quanto sembri.",
+      "subtitle": "Sii sincero, è quasi sempre di più di quanto sembri.",
       "options": {
         "lt2": { "label": "Meno di 2 ore" },
         "2to5": { "label": "2–5 ore" },
@@ -133,7 +133,7 @@
     "consistency": {
       "short": "restare costante",
       "headline": "Non ti fermerai mai più",
-      "line": "Pianifica settimane di post in un'unica sessione — Markaestro pubblica puntualmente, ogni volta, così il silenzio finisce."
+      "line": "Pianifica settimane di post in un'unica sessione: Markaestro pubblica puntualmente, ogni volta, così il silenzio finisce."
     },
     "time": {
       "short": "trovare il tempo",
@@ -143,39 +143,39 @@
     "ideas": {
       "short": "trovare idee per i contenuti",
       "headline": "Il tuo calendario non resterà mai a secco",
-      "line": "Trasforma un'idea in una settimana di post su ogni canale — così non fisserai mai più uno schermo vuoto."
+      "line": "Trasforma un'idea in una settimana di post su ogni canale, così non fisserai mai più uno schermo vuoto."
     },
     "juggling": {
       "short": "gestire più canali",
       "headline": "Un unico posto per ogni canale",
-      "line": "Componi una volta e pubblica su tutte le tue piattaforme da un'unica schermata — basta passare da una scheda all'altra o perdere post."
+      "line": "Componi una volta e pubblica su tutte le tue piattaforme da un'unica schermata, basta passare da una scheda all'altra o perdere post."
     }
   },
   "marketingCopy": {
     "product": {
       "eyebrow": "Il tuo prodotto",
       "title": "Aggiungi il prodotto che stai promuovendo",
-      "sub": "Scansiona il tuo sito per compilare automaticamente i dettagli, aggiungili manualmente, oppure salta questo passaggio per ora — puoi sempre farlo più tardi."
+      "sub": "Scansiona il tuo sito per compilare automaticamente i dettagli, aggiungili manualmente, oppure salta questo passaggio per ora, puoi sempre farlo più tardi."
     },
     "business": {
       "eyebrow": "La tua attività",
       "title": "Aggiungi l'attività che stai promuovendo",
-      "sub": "Scansiona il tuo sito per compilare automaticamente i dettagli, aggiungili manualmente, oppure salta questo passaggio per ora — puoi sempre farlo più tardi."
+      "sub": "Scansiona il tuo sito per compilare automaticamente i dettagli, aggiungili manualmente, oppure salta questo passaggio per ora, puoi sempre farlo più tardi."
     },
     "personal": {
       "eyebrow": "Il tuo brand",
       "title": "Configura il tuo brand personale",
-      "sub": "Hai un sito o un portfolio? Scansionalo per la compilazione automatica. Nessun sito? Inserisci i tuoi dati manualmente — richiede un minuto."
+      "sub": "Hai un sito o un portfolio? Scansionalo per la compilazione automatica. Nessun sito? Inserisci i tuoi dati manualmente, richiede un minuto."
     },
     "clients": {
       "eyebrow": "Il tuo primo cliente",
       "title": "Aggiungi il brand del tuo primo cliente",
-      "sub": "Inizia con un cliente — scansiona il suo sito per la compilazione automatica, oppure inserisci i dettagli manualmente. Puoi aggiungere altri brand in qualsiasi momento."
+      "sub": "Inizia con un cliente, scansiona il suo sito per la compilazione automatica, oppure inserisci i dettagli manualmente. Puoi aggiungere altri brand in qualsiasi momento."
     },
     "fallback": {
       "eyebrow": "Il tuo brand",
       "title": "Aggiungi il brand che stai promuovendo",
-      "sub": "Scansiona il tuo sito per compilare automaticamente i dettagli, aggiungili manualmente, oppure salta questo passaggio per ora — puoi sempre farlo più tardi."
+      "sub": "Scansiona il tuo sito per compilare automaticamente i dettagli, aggiungili manualmente, oppure salta questo passaggio per ora, puoi sempre farlo più tardi."
     }
   },
   "socialProviders": {
@@ -207,20 +207,20 @@
     "yourPlanIsReady": "Il tuo piano è pronto",
     "titleEmail": "Salva il tuo piano e riprenditi il tuo tempo",
     "titleCode": "Controlla la tua casella di posta",
-    "subtitleEmail": "Nessuna password necessaria — inserisci la tua email e ti invieremo un codice monouso. Hai già un account? Lo stesso codice ti farà accedere.",
+    "subtitleEmail": "Nessuna password necessaria, inserisci la tua email e ti invieremo un codice monouso. Hai già un account? Lo stesso codice ti farà accedere.",
     "subtitleCode": "Abbiamo inviato un codice a 6 cifre a {email}.",
     "waitingInWorkspace": "In attesa nel tuo spazio di lavoro",
     "recap": {
       "channelsReady": "{count, plural, one {# canale pronto per pubblicare con un clic} other {# canali pronti per pubblicare con un clic}}",
       "everyChannel": "Ogni canale, pubblicato da un unico posto",
-      "postsScheduled": "Post pianificati {frequency} — automaticamente",
+      "postsScheduled": "Post pianificati {frequency}, automaticamente",
       "hoursBack": "~{hours} ore a settimana recuperate nel tuo calendario",
       "onSteadyCadence": "a un ritmo costante"
     },
     "emailPlaceholder": "nome@azienda.com",
     "codePlaceholder": "123456",
     "sendingCode": "Invio del codice…",
-    "claimPlan": "Riscatta il mio piano — è gratis",
+    "claimPlan": "Riscatta il mio piano, è gratis",
     "verifying": "Verifica in corso…",
     "continueBtn": "Continua",
     "useDifferentEmail": "← Usa un'altra email",
@@ -260,7 +260,7 @@
     "optional": "(facoltativo)",
     "manualDescPlaceholder": "Descrivi questo brand e a chi è rivolto...",
     "saving": "Salvataggio…",
-    "couldntSaveBrand": "Non è stato possibile salvare il tuo brand — potrai aggiungerlo più tardi dalla dashboard."
+    "couldntSaveBrand": "Non è stato possibile salvare il tuo brand, potrai aggiungerlo più tardi dalla dashboard."
   },
   "socials": {
     "connectYourAccounts": "Collega i tuoi account",
@@ -277,16 +277,16 @@
   },
   "generating": {
     "title": "Creazione del tuo flusso di lavoro",
-    "subtitle": "Stiamo configurando i tuoi canali e un piano di pubblicazione costruito attorno a {challenge} — il problema che sei venuto a risolvere.",
+    "subtitle": "Stiamo configurando i tuoi canali e un piano di pubblicazione costruito attorno a {challenge}, il problema che sei venuto a risolvere.",
     "takesAMoment": "Ci vorrà solo un momento"
   },
   "paywall": {
     "youllGetBackPrefix": "Ti riprenderai circa",
     "hoursAWeek": "ore a settimana",
-    "startTrialSuffix": "Avvia la tua prova gratuita di {days} giorni per pubblicare — e tutto il resto che crei.",
+    "startTrialSuffix": "Avvia la tua prova gratuita di {days} giorni per pubblicare, e tutto il resto che crei.",
     "firstPostReady": "Il tuo primo post è pronto nella tua dashboard.",
     "subscribeToPublish": "Abbonati per pubblicare",
-    "postReadyOneStepAway": "Il tuo post è pronto — a un passo dalla pubblicazione",
+    "postReadyOneStepAway": "Il tuo post è pronto, a un passo dalla pubblicazione",
     "justNow": "Proprio ora",
     "like": "Mi piace",
     "comment": "Commenta",
@@ -295,7 +295,7 @@
     "basedOnAnswers": "In base alle tue risposte",
     "monthly": "Mensile",
     "annual": "Annuale",
-    "saveAnnual": "— risparmia il 17%",
+    "saveAnnual": "· risparmia il 17%",
     "saveAnnualShort": "· −17%",
     "selected": "Selezionato",
     "perMonth": "/mese",
@@ -305,7 +305,7 @@
     "billedAnnually": ", fatturazione annuale",
     "annualSavingsNote": "La fatturazione annuale ti fa risparmiare il 17% rispetto a quella mensile",
     "settingUp": "Configurazione…",
-    "startTrialButton": "Avvia la prova gratuita di {days} giorni — {plan}",
+    "startTrialButton": "Avvia la prova gratuita di {days} giorni: {plan}",
     "cardRequired": "Carta richiesta · Annulla in qualsiasi momento prima della fine del periodo di prova",
     "checkoutFailed": "Impossibile avviare il checkout. Riprova.",
     "checkoutSignedOut": "La tua sessione è scaduta. Accedi di nuovo per iniziare la prova.",

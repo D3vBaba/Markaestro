@@ -3,11 +3,11 @@
     "eyebrow": "Preços",
     "titleLead": "Todo o seu motor de marketing,",
     "titleHighlight": "um preço simples",
-    "subtitle": "Sem taxas ocultas, sem surpresas por usuário. Comece grátis — todo plano pago inclui um teste grátis de {trialDays} dias. Cancele quando quiser.",
+    "subtitle": "Sem taxas ocultas, sem surpresas por usuário. Comece grátis, todo plano pago inclui um teste grátis de {trialDays} dias. Cancele quando quiser.",
     "monthlyToggle": "Mensal",
     "annualToggle": "Anual",
     "annualSaveBadge": "ECONOMIZE 18%",
-    "trialLine": "Teste grátis de {trialDays} dias em todos os planos pagos — sem cobrança até o dia {trialEndDay}",
+    "trialLine": "Teste grátis de {trialDays} dias em todos os planos pagos, sem cobrança até o dia {trialEndDay}",
     "annualSavingsSuffix": " · A cobrança anual economiza 18%"
   },
   "planNames": {
@@ -19,7 +19,7 @@
   "mostPopularBadge": "Mais Popular",
   "plans": {
     "free": {
-      "description": "Experimente o Markaestro com uma marca — grátis para sempre.",
+      "description": "Experimente o Markaestro com uma marca, grátis para sempre.",
       "features": [
         "1 marca",
         "2 canais sociais",
@@ -86,7 +86,7 @@
     "titleLead": "Compare",
     "titleHighlight": "cada recurso",
     "subtitle": "Veja exatamente o que está incluso em cada plano.",
-    "freeNote": "O plano Grátis inclui 1 marca, 2 canais, 15 posts por mês, 1 GB de armazenamento e análises de 7 dias — sem acesso à API.",
+    "freeNote": "O plano Grátis inclui 1 marca, 2 canais, 15 posts por mês, 1 GB de armazenamento e análises de 7 dias, sem acesso à API.",
     "categories": [
       {
         "name": "Publicação",
@@ -146,7 +146,7 @@
   "faqs": [
     {
       "q": "Existe um plano gratuito?",
-      "a": "Sim. O plano Grátis custa US$ 0 para sempre — sem cartão. Você tem 1 marca, 2 canais sociais, 15 posts por mês, 1 GB de armazenamento e uma janela de análises de 7 dias, com 1 membro da equipe em 1 workspace. O acesso à API exige um plano pago. Faça upgrade quando estiver pronto."
+      "a": "Sim. O plano Grátis custa US$ 0 para sempre, sem cartão. Você tem 1 marca, 2 canais sociais, 15 posts por mês, 1 GB de armazenamento e uma janela de análises de 7 dias, com 1 membro da equipe em 1 workspace. O acesso à API exige um plano pago. Faça upgrade quando estiver pronto."
     },
     {
       "q": "Posso mudar de plano a qualquer momento?",
@@ -162,11 +162,11 @@
     },
     {
       "q": "O que acontece quando atinjo meu limite de armazenamento?",
-      "a": "Você pode continuar publicando posts que usam mídia já presente no seu workspace — apenas novos uploads são bloqueados. Libere espaço excluindo mídias de que não precisa mais, ou faça upgrade do seu plano a qualquer momento para mais armazenamento."
+      "a": "Você pode continuar publicando posts que usam mídia já presente no seu workspace, apenas novos uploads são bloqueados. Libere espaço excluindo mídias de que não precisa mais, ou faça upgrade do seu plano a qualquer momento para mais armazenamento."
     },
     {
       "q": "Como funciona o teste grátis?",
-      "a": "Todo plano — mensal e anual — inclui um teste grátis de {trialDays} dias. Seu cartão é coletado no cadastro, mas não será cobrado até o fim do teste. Cancele quando quiser durante o teste e não pague nada."
+      "a": "Todo plano, mensal e anual, inclui um teste grátis de {trialDays} dias. Seu cartão é coletado no cadastro, mas não será cobrado até o fim do teste. Cancele quando quiser durante o teste e não pague nada."
     },
     {
       "q": "Quais planos incluem o teste grátis?",

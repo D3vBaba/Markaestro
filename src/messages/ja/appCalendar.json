@@ -39,7 +39,7 @@
   },
   "deletedNotice": "この投稿は削除されており、現在ご利用いただけません。",
   "dismiss": "閉じる",
-  "truncatedNotice": "この月にはカレンダーが一度に読み込める上限を超える投稿があります — 一部は表示されていません。",
+  "truncatedNotice": "この月にはカレンダーが一度に読み込める上限を超える投稿があります、一部は表示されていません。",
   "postsThisMonth": "今月は{count}件の投稿",
   "dropToReschedule": "· 日付にドロップして再スケジュール",
   "newPost": "新規投稿",

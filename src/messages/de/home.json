@@ -3,7 +3,7 @@
     "badge": "Die Social-Publishing-Zentrale für jede Marke, die du betreust",
     "titleLead": "Deine gesamte Marketing-Engine",
     "titleHighlight": "auf einer Plattform",
-    "subtitle": "Lade deine Inhalte hoch, schreibe deine Texte und veröffentliche jede Marke, die du betreust — dein Unternehmen, deine Kunden oder dich selbst — auf jedem sozialen Kanal von einem Dashboard aus. Oder gib deinem KI-Agenten einen API-Schlüssel und lass ihn die Arbeit machen.",
+    "subtitle": "Lade deine Inhalte hoch, schreibe deine Texte und veröffentliche jede Marke, die du betreust, dein Unternehmen, deine Kunden oder dich selbst, auf jedem sozialen Kanal von einem Dashboard aus. Oder gib deinem KI-Agenten einen API-Schlüssel und lass ihn die Arbeit machen.",
     "primaryButton": "Kostenlos starten",
     "secondaryButton": "Funktionen ansehen",
     "signInPrompt": "Du hast schon ein Konto?",
@@ -23,7 +23,7 @@
     "items": [
       { "title": "Multichannel-Veröffentlichung", "desc": "Veröffentliche auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest aus einem einzigen Editor. Plane Beiträge oder veröffentliche sofort." },
       { "title": "Zentralisierter Upload von Inhalten", "desc": "Bring deine eigenen Bilder und Videos mit. Einmal hochladen pro Beitrag und an jeden verbundenen Kanal ausliefern." },
-      { "title": "Multichannel-Vorschauen", "desc": "Sieh dir an, wie jeder Beitrag auf jeder Plattform aussehen wird, bevor du veröffentlichst — Texte, Seitenverhältnisse, Zeichenlimits." },
+      { "title": "Multichannel-Vorschauen", "desc": "Sieh dir an, wie jeder Beitrag auf jeder Plattform aussehen wird, bevor du veröffentlichst: Texte, Seitenverhältnisse, Zeichenlimits." },
       { "title": "Planung & Kalender", "desc": "Reihe Beiträge in einem einheitlichen Kalender mit kanalspezifischer Zeitplanung ein. Verschiebe, pausiere oder dupliziere mit einem Klick." },
       { "title": "Veröffentlichungs-Dashboard", "desc": "Behalte Entwürfe, geplante Beiträge und den Veröffentlichungsstatus über alle Kanäle im Blick." },
       { "title": "OAuth-Integrationen", "desc": "Verbinde dich mit einem Klick über sicheres OAuth mit Meta, TikTok, LinkedIn, Threads und Pinterest. Keine manuelle Token-Verwaltung nötig." }
@@ -52,7 +52,7 @@
   "composerPreview": {
     "panelLabel": "Ein Editor, alle Kanäle",
     "rows": [
-      { "label": "Inhalt", "value": "Bilder oder Videos hochladen — JPG, PNG, WebP, MP4" },
+      { "label": "Inhalt", "value": "Bilder oder Videos hochladen: JPG, PNG, WebP, MP4" },
       { "label": "Text", "value": "Einmal schreiben, pro Kanal vor der Veröffentlichung ansehen" },
       { "label": "Ergebnis", "value": "Geplante oder sofortige Beiträge auf allen sechs verbundenen Kanälen" }
     ],
@@ -71,9 +71,9 @@
     "eyebrow": "KI-Agenten",
     "titleLead": "Oder lass deinen Agenten",
     "titleHighlight": "übernehmen",
-    "subtitle": "Jeder Arbeitsbereich kann API-Schlüssel erstellen. Gib einen an deinen KI-Agenten weiter, und er kann herausfinden, auf welchen Konten er posten darf, Inhalte hochladen, Beiträge entwerfen und planen, sie veröffentlichen und zurückmelden, was tatsächlich live gegangen ist — ohne jemals selbst eine Plattform-API zu berühren.",
+    "subtitle": "Jeder Arbeitsbereich kann API-Schlüssel erstellen. Gib einen an deinen KI-Agenten weiter, und er kann herausfinden, auf welchen Konten er posten darf, Inhalte hochladen, Beiträge entwerfen und planen, sie veröffentlichen und zurückmelden, was tatsächlich live gegangen ist, ohne jemals selbst eine Plattform-API zu berühren.",
     "bullets": [
-      "Ein Schlüssel ist auf eine Marke beschränkt — ein Agent kann nicht zu einer anderen abschweifen",
+      "Ein Schlüssel ist auf eine Marke beschränkt, ein Agent kann nicht zu einer anderen abschweifen",
       "Facebook, Instagram und TikTok bleiben grundsätzlich manuell: Ein Mensch postet, immer",
       "Idempotente Schreibvorgänge, asynchrone Veröffentlichungsläufe und signierte Webhooks integriert"
     ],

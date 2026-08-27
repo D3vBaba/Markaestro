@@ -42,12 +42,12 @@
   },
   "productCard": {
     "noChannelsConnected": "未连接任何渠道",
-    "reconnectNeeded": "{label} — 需要重新连接",
+    "reconnectNeeded": "{label}，需要重新连接",
     "deleteBrand": "删除品牌"
   },
   "page": {
     "title": "品牌",
-    "subtitle": "你所推广的一切 — 产品、企业、客户或你自己。",
+    "subtitle": "你所推广的一切，产品、企业、客户或你自己。",
     "addBrand": "添加品牌",
     "filters": {
       "all": "全部",
@@ -69,10 +69,10 @@
     "deleteWarning": "此品牌的所有品牌语气设置也将被删除。",
     "toasts": {
       "connected": "已连接{provider}",
-      "declinedPermission": "{provider}：你拒绝了权限请求 — 点击“连接”重试。",
+      "declinedPermission": "{provider}：你拒绝了权限请求，点击“连接”重试。",
       "connectionFailed": "无法连接 {provider}，请重试。",
       "unknownError": "未知错误",
-      "almostDone": "即将完成 — 在“渠道”中选择一个 Facebook 主页以完成 Meta 设置",
+      "almostDone": "即将完成，在“渠道”中选择一个 Facebook 主页以完成 Meta 设置",
       "deleteFailed": "删除品牌失败",
       "deleted": "品牌已删除"
     }
@@ -83,7 +83,7 @@
     "descriptions": {
       "start": "先扫描你的网站，或手动输入详细信息。",
       "scan": "正在研究你的品牌…",
-      "manual": "填写必要信息 — 之后可以添加更多内容。",
+      "manual": "填写必要信息，之后可以添加更多内容。",
       "review": "查看我们找到的信息，进行任何调整，然后保存。"
     },
     "scanCard": {
@@ -104,7 +104,7 @@
       "retry": "重新扫描",
       "enterManually": "手动输入"
     },
-    "scanComplete": "扫描完成 — 请查看并编辑以下任意内容。",
+    "scanComplete": "扫描完成，请查看并编辑以下任意内容。",
     "fields": {
       "brandName": "品牌名称",
       "brandNamePlaceholder": "DripCheckr",
@@ -127,13 +127,16 @@
       "nameRequired": "名称为必填项",
       "createFailed": "创建品牌失败",
       "brandAdded": "品牌已添加"
-    }
+    },
+    "audienceSetup": "受众档案",
+    "audienceSetupBody": "设置目标、主要市场、转化行为、时区和平台优先级。高级字段在品牌设置中。"
   },
   "detailSheet": {
     "sections": {
       "foundation": "基础信息",
       "identity": "品牌形象",
-      "channels": "渠道"
+      "channels": "渠道",
+      "audience": "受众"
     },
     "brandFallback": "品牌",
     "saveIndicator": {

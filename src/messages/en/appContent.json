@@ -28,7 +28,7 @@
   },
   "markPostedDialog": {
     "title": "Mark as posted",
-    "description": "Confirm you published this post on {channel} yourself. Paste the link to the live post if you have it — it connects the post to its analytics later.",
+    "description": "Confirm you published this post on {channel} yourself. Paste the link to the live post if you have it. It connects the post to its analytics later.",
     "urlPlaceholder": "https://www.{channel}.com/… (optional)",
     "cancel": "Cancel",
     "confirm": "Mark as posted",
@@ -182,7 +182,7 @@
   },
   "platformPostsTab": {
     "refresh": "Refresh",
-    "liveFrom": "Live posts from your connected {channel} account — including posts published outside Markaestro.",
+    "liveFrom": "Live posts from your connected {channel} account, including posts published outside Markaestro.",
     "loadMore": "Load more",
     "loading": "Loading…",
     "noCaption": "No caption",
@@ -191,14 +191,14 @@
     "deleting": "Deleting…",
     "delete": "Delete",
     "noDeleteHints": {
-      "instagram": "Instagram doesn't allow apps to delete posts — remove them in the Instagram app.",
-      "tiktok": "TikTok doesn't allow apps to delete videos — remove them in the TikTok app."
+      "instagram": "Instagram doesn't allow apps to delete posts. Remove them in the Instagram app.",
+      "tiktok": "TikTok doesn't allow apps to delete videos. Remove them in the TikTok app."
     },
     "noDeleteDefault": "Deleting isn't supported for this post.",
     "deleteWarning": "This permanently removes the post from {channel}.",
     "states": {
       "notConnectedTitle": "{channel} isn't connected yet",
-      "notConnectedBody": "Connect {channel} to this brand and its live posts will show up here — including ones published outside Markaestro.",
+      "notConnectedBody": "Connect {channel} to this brand and its live posts will show up here, including ones published outside Markaestro.",
       "connect": "Connect {channel}",
       "authTitle": "{channel} needs to be reconnected",
       "authBody": "The {channel} connection has expired, so we can't browse its posts right now. Reconnect it from brand settings to pick up where you left off.",
@@ -208,10 +208,10 @@
       "linkedinPartnerBody": "LinkedIn only lets approved partner apps browse account posts. Anything you publish through Markaestro still appears in your Published tab.",
       "unsupportedBody": "{channel} doesn't let apps browse account posts. Anything you publish through Markaestro still appears in your Published tab.",
       "errorTitle": "Couldn't load {channel} posts",
-      "errorBody": "{channel} didn't respond as expected. This is usually temporary — give it another try in a moment.",
+      "errorBody": "{channel} didn't respond as expected. This is usually temporary. Give it another try in a moment.",
       "tryAgain": "Try again",
       "emptyTitle": "No posts on {channel} yet",
-      "emptyBody": "When this account publishes — through Markaestro or directly on {channel} — its posts will appear here."
+      "emptyBody": "When this account publishes, through Markaestro or directly on {channel}, its posts will appear here."
     },
     "toasts": {
       "loadMoreFailed": "Failed to load more posts",
@@ -327,7 +327,7 @@
     "modeInbox": "Send to TikTok inbox",
     "modeInboxHint": "You finish the caption and post from the TikTok app, where you can add sounds from TikTok's library.",
     "modeDirect": "Post directly to TikTok",
-    "modeDirectHint": "Markaestro publishes to your profile using the settings below. The post uses your video's own audio — TikTok library sounds can only be added in the app.",
+    "modeDirectHint": "Markaestro publishes to your profile using the settings below. The post uses your video's own audio: TikTok library sounds can only be added in the app.",
     "blockers": {
       "privacyNotSelected": "Select who can view this post before publishing.",
       "disclosureWithoutSelection": "You need to indicate if your content promotes yourself, a third party, or both.",

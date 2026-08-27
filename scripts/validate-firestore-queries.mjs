@@ -207,6 +207,28 @@ async function runChecks() {
     db.collection(`workspaces/${WS}/campaigns`).where('status', '==', 'scheduled').limit(1).get(),
   );
 
+  // ── Social intelligence ──────────────────────────────────────────────────
+  console.log('\nSocial intelligence:');
+  await check('socialPosts.where(productId)', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`).where('productId', '==', 'sentinel').limit(1).get(),
+  );
+  await check('socialPosts.where(productId).where(platform) [audience fit history]', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`)
+      .where('productId', '==', 'sentinel')
+      .where('platform', '==', 'instagram')
+      .limit(1)
+      .get(),
+  );
+  await check('intelligenceJobs.where(status)', (db) =>
+    db.collection(`workspaces/${WS}/intelligenceJobs`).where('status', '==', 'queued').limit(1).get(),
+  );
+  await check('brandLearnings.where(productId)', (db) =>
+    db.collection(`workspaces/${WS}/brandLearnings`).where('productId', '==', 'sentinel').limit(1).get(),
+  );
+  await check('optimizationRecommendations.where(productId)', (db) =>
+    db.collection(`workspaces/${WS}/optimizationRecommendations`).where('productId', '==', 'sentinel').limit(1).get(),
+  );
+
   // ── Products ──────────────────────────────────────────────────────────────
   console.log('\nProducts:');
 

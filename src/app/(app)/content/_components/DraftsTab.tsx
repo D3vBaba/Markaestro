@@ -299,7 +299,7 @@ export default function DraftsTab({
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
             {t("toPostHeading")}
           </h3>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {toPost.map((post) => (
               <PostCard
                 key={post.id}
@@ -317,7 +317,7 @@ export default function DraftsTab({
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
             {t("waitingInTikTokHeading")}
           </h3>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {waitingInTikTok.map((post) => (
               <PostCard
                 key={post.id}
@@ -336,7 +336,7 @@ export default function DraftsTab({
               {t("draftsHeading")}
             </h3>
           )}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {paginatedPosts.map((post) => (
               <PostCard
                 key={post.id}

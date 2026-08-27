@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   Home,
-  ChartNoAxesColumn,
+  BarChart3,
   Package,
   LayoutGrid,
   Calendar,
@@ -14,7 +14,7 @@ import {
 
 const TABS: { id: string; href: string; icon: LucideIcon }[] = [
   { id: "home", href: "/dashboard", icon: Home },
-  { id: "analytics", href: "/analytics", icon: ChartNoAxesColumn },
+  { id: "analytics", href: "/analytics", icon: BarChart3 },
   { id: "brands", href: "/products", icon: Package },
   { id: "posts", href: "/content", icon: LayoutGrid },
   { id: "calendar", href: "/calendar", icon: Calendar },
@@ -26,46 +26,43 @@ export function MobileTabBar() {
 
   return (
     <nav
-      className="lg:hidden shrink-0 border-t"
+      className="lg:hidden shrink-0 border-t border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 z-20"
       style={{
-        background: "var(--mk-paper)",
-        borderColor: "var(--mk-rule)",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
-      <div className="grid grid-cols-5">
+      <div className="grid grid-cols-5 py-1">
         {TABS.map((tab) => {
           const isActive =
-            pathname === tab.href || pathname.startsWith(tab.href + "/");
+            pathname === tab.href || (tab.href !== "/dashboard" && pathname.startsWith(tab.href + "/"));
           const Icon = tab.icon;
           return (
             <Link
               key={tab.href}
               href={tab.href}
               prefetch={false}
-              className="flex flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 min-h-[52px] select-none"
-              style={{
-                color: isActive ? "var(--mk-accent)" : "var(--mk-ink-60)",
-                WebkitTapHighlightColor: "transparent",
-              }}
+              className={`flex flex-col items-center justify-center gap-1 py-1.5 min-h-[50px] select-none transition-colors relative ${
+                isActive
+                  ? "text-blue-600 dark:text-blue-400 font-semibold"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+              }`}
             >
               <Icon
-                className="h-[21px] w-[21px]"
-                strokeWidth={isActive ? 2.2 : 1.8}
+                className="h-5 w-5"
+                strokeWidth={isActive ? 2.2 : 1.75}
               />
-              <span
-                className="text-[10px] leading-tight"
-                style={{
-                  fontWeight: isActive ? 600 : 400,
-                  letterSpacing: "-0.005em",
-                }}
-              >
+              <span className="text-[10px] tracking-tight">
                 {t(tab.id)}
               </span>
+              {isActive && (
+                <span className="absolute bottom-1 h-1 w-1 rounded-full bg-blue-600 dark:bg-blue-400" />
+              )}
             </Link>
+
           );
         })}
       </div>
     </nav>
   );
 }
+

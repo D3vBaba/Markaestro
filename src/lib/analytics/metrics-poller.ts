@@ -7,6 +7,12 @@ import type { NormalizedPostMetrics, PlatformConnection } from '@/lib/platform/t
 import type { SocialChannel } from '@/lib/schemas';
 import { logger } from '@/lib/logger';
 import { getPostChannelDestinations } from '@/lib/social/publisher';
+import { publishedChannelTargets } from '@/lib/intelligence/publish-targets';
+import { annotateMetricAvailability } from './metric-availability';
+import { persistRawPlatformMetrics } from '@/lib/intelligence/raw-platform-metrics';
+import { canonicalSocialPostId } from '@/lib/intelligence/canonical-social-posts';
+import { assertMetricsSupported, PLATFORM_CAPABILITY_REGISTRY } from '@/lib/platform/capabilities';
+import { upsertMarkaestroSocialPost } from '@/lib/intelligence/canonical-social-posts';
 import {
   MAX_METRIC_POLLS_PER_TICK,
   MAX_TRANSIENT_ATTEMPTS,
@@ -34,6 +40,9 @@ type PostDocData = {
   targetChannels?: string[];
   externalId?: string;
   productId?: string;
+  campaignId?: string;
+  content?: string;
+  mediaUrls?: string[];
   destinationId?: string;
   destinationProvider?: string;
   channelDestinations?: Record<string, string>;
@@ -45,20 +54,6 @@ type PostDocData = {
   metricsStatus?: string;
   metricsNextPollAt?: string;
 };
-
-/** The published channel targets (channel + platform post ID) of a post. */
-function publishTargets(post: PostDocData): Array<{ channel: SocialChannel; externalId: string }> {
-  const targets = new Map<string, { channel: SocialChannel; externalId: string }>();
-  for (const entry of post.publishResults ?? []) {
-    if (entry.success && entry.channel && entry.externalId) {
-      targets.set(entry.channel, { channel: entry.channel as SocialChannel, externalId: entry.externalId });
-    }
-  }
-  if (targets.size === 0 && post.channel && post.externalId) {
-    targets.set(post.channel, { channel: post.channel as SocialChannel, externalId: post.externalId });
-  }
-  return [...targets.values()];
-}
 
 /**
  * Initial poll state for a post published at `publishedAtIso`: the first
@@ -132,6 +127,7 @@ async function fetchPostChannelMetrics(
   targets: Array<{ channel: SocialChannel; externalId: string }>,
   publishedAt: string,
   workspaceId: string,
+  legacyPostId: string,
   connectionCache: Map<string, PlatformConnection | null>,
   authFlagged: Set<string>,
 ): Promise<{
@@ -183,7 +179,56 @@ async function fetchPostChannelMetrics(
     });
 
     if (result.ok) {
-      byChannel[target.channel] = result.metrics;
+      assertMetricsSupported(target.channel, result.metrics);
+      const capturedAt = new Date().toISOString();
+      const canonicalId = canonicalSocialPostId(target.channel, connection.accountKey || connection.provider, target.externalId);
+      try {
+        await persistRawPlatformMetrics({
+          workspaceId,
+          socialPostId: canonicalId,
+          channel: target.channel,
+          provider: connection.provider,
+          apiVersion: PLATFORM_CAPABILITY_REGISTRY[target.channel].apiVersion,
+          externalId: target.externalId,
+          capturedAt,
+          payload: result.metrics,
+        });
+      } catch (error) {
+        // Raw retention is additive and must not interrupt the legacy analytics
+        // write path during rollout or a Storage incident.
+        logger.warn('raw platform metrics persistence failed', {
+          event: 'intelligence.raw_metrics_failed',
+          workspaceId,
+          channel: target.channel,
+          err: error,
+        });
+      }
+      const annotated = annotateMetricAvailability(target.channel, result.metrics, connection, capturedAt);
+      byChannel[target.channel] = annotated;
+      try {
+        await upsertMarkaestroSocialPost({
+          workspaceId,
+          legacyPostId,
+          productId: post.productId,
+          campaignId: post.campaignId,
+          channel: target.channel,
+          externalId: target.externalId,
+          publishedAt,
+          content: post.content,
+          mediaUrls: post.mediaUrls,
+          connection,
+          metrics: annotated,
+          capturedAt,
+          stageKey: 'latest',
+        });
+      } catch (error) {
+        logger.warn('canonical social post dual-write failed', {
+          event: 'intelligence.dual_write_failed',
+          workspaceId,
+          channel: target.channel,
+          err: error,
+        });
+      }
       outcomes.push('ok');
     } else {
       outcomes.push(result.reason);
@@ -220,7 +265,7 @@ async function pollOnePost(
   const publishedAt = post.publishedAt || nowIso;
   const stage = Math.min(post.metricsPollStage ?? 0, METRIC_POLL_STAGES.length - 1);
   const stageKey = METRIC_POLL_STAGES[stage].key;
-  const targets = publishTargets(post);
+  const targets = publishedChannelTargets(post);
 
   if (targets.length === 0) {
     await postRef.update({
@@ -237,6 +282,7 @@ async function pollOnePost(
     targets,
     publishedAt,
     workspaceId,
+    doc.id,
     connectionCache,
     authFlagged,
   );
@@ -351,7 +397,7 @@ export async function refreshPostsNow(
   const refreshOne = async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
     const post = doc.data() as PostDocData;
     const publishedAt = post.publishedAt || nowIso;
-    let targets = publishTargets(post);
+    let targets = publishedChannelTargets(post);
     if (opts.channel) targets = targets.filter((t) => t.channel === opts.channel);
     if (targets.length === 0) return;
 
@@ -360,6 +406,7 @@ export async function refreshPostsNow(
       targets,
       publishedAt,
       workspaceId,
+      doc.id,
       connectionCache,
       authFlagged,
     );

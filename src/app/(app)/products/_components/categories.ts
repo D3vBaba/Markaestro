@@ -39,7 +39,8 @@ export const PRODUCT_CATEGORY_LABELS: Record<ProductCategory, string> = {
 
 // A stable accent color per category, used as the dot in the premium dropdown.
 const CATEGORY_PALETTE = [
-  "#6366F1", "#0EA5E9", "#22C55E", "#F59E0B", "#EC4899",
+  "#2563EB", "#0EA5E9", "#22C55E", "#F59E0B", "#EC4899",
+
   "#14B8A6", "#8B5CF6", "#EF4444", "#10B981", "#3B82F6",
   "#F97316", "#A855F7", "#06B6D4", "#84CC16", "#E11D48",
   "#0D9488", "#7C3AED", "#DB2777", "#65A30D", "#475569",

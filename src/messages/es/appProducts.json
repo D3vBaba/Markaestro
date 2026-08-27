@@ -42,12 +42,12 @@
   },
   "productCard": {
     "noChannelsConnected": "Ningún canal conectado",
-    "reconnectNeeded": "{label} — necesita reconexión",
+    "reconnectNeeded": "{label}, necesita reconexión",
     "deleteBrand": "Eliminar marca"
   },
   "page": {
     "title": "Marcas",
-    "subtitle": "Todo lo que promocionas — productos, negocios, clientes o tú mismo/a.",
+    "subtitle": "Todo lo que promocionas, productos, negocios, clientes o tú mismo/a.",
     "addBrand": "Añadir marca",
     "filters": {
       "all": "Todas",
@@ -69,10 +69,10 @@
     "deleteWarning": "También se eliminará toda la configuración de voz de marca de esta marca.",
     "toasts": {
       "connected": "{provider} conectado",
-      "declinedPermission": "{provider}: rechazaste la solicitud de permiso — toca Conectar para intentarlo de nuevo.",
+      "declinedPermission": "{provider}: rechazaste la solicitud de permiso, toca Conectar para intentarlo de nuevo.",
       "connectionFailed": "No se pudo conectar con {provider}. Inténtalo de nuevo.",
       "unknownError": "Error desconocido",
-      "almostDone": "Casi listo — elige una página de Facebook en Canales para terminar la configuración de Meta",
+      "almostDone": "Casi listo, elige una página de Facebook en Canales para terminar la configuración de Meta",
       "deleteFailed": "No se pudo eliminar la marca",
       "deleted": "Marca eliminada"
     }
@@ -83,7 +83,7 @@
     "descriptions": {
       "start": "Empieza escaneando tu sitio web, o introduce los detalles manualmente.",
       "scan": "Investigando tu marca…",
-      "manual": "Completa lo esencial — puedes añadir más después.",
+      "manual": "Completa lo esencial, puedes añadir más después.",
       "review": "Revisa lo que encontramos, ajusta lo que quieras y guarda."
     },
     "scanCard": {
@@ -104,7 +104,7 @@
       "retry": "Reintentar escaneo",
       "enterManually": "Introducir manualmente"
     },
-    "scanComplete": "Escaneo completo — revisa y edita lo que necesites a continuación.",
+    "scanComplete": "Escaneo completo, revisa y edita lo que necesites a continuación.",
     "fields": {
       "brandName": "Nombre de la marca",
       "brandNamePlaceholder": "DripCheckr",
@@ -127,13 +127,16 @@
       "nameRequired": "El nombre es obligatorio",
       "createFailed": "No se pudo crear la marca",
       "brandAdded": "Marca añadida"
-    }
+    },
+    "audienceSetup": "Perfil de audiencia",
+    "audienceSetupBody": "Define el objetivo, mercado principal, acción de conversión, zona horaria y prioridad de plataforma. Los campos avanzados están en la configuración de marca."
   },
   "detailSheet": {
     "sections": {
       "foundation": "Fundamentos",
       "identity": "Identidad",
-      "channels": "Canales"
+      "channels": "Canales",
+      "audience": "Audiencia"
     },
     "brandFallback": "Marca",
     "saveIndicator": {
@@ -147,7 +150,7 @@
     "edit": "Editar",
     "deleteBrand": "Eliminar marca",
     "deleteWarning": "También se eliminarán todos los ajustes y conexiones de canales de esta marca.",
-    "disconnectWarning": "Esto elimina todas las cuentas de {label} vinculadas a esta marca. Otras marcas conservan sus propias conexiones. Para cambiar una sola cuenta, usa Desvincular junto a ella en su lugar — y para renovar el acceso, usa Reconectar en lugar de desconectar.",
+    "disconnectWarning": "Esto elimina todas las cuentas de {label} vinculadas a esta marca. Otras marcas conservan sus propias conexiones. Para cambiar una sola cuenta, usa Desvincular junto a ella en su lugar, y para renovar el acceso, usa Reconectar en lugar de desconectar.",
     "disconnect": "Desconectar",
     "unsavedConfirm": "Tienes cambios sin guardar. ¿Cerrar sin guardar?",
     "toasts": {

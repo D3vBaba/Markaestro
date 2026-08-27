@@ -9,6 +9,10 @@ import {
   retryDeadMetricsPosts,
 } from './metrics-poller';
 import { ANALYTICS_META_PATH, utcDateOf, type AnalyticsMetaDoc } from './types';
+import { importRecentNativePosts, type NativeImportResult } from '@/lib/intelligence/native-import';
+import { persistComputedInsights, loadProductIntelligence, loadAudienceSnapshots } from '@/lib/intelligence/product-state';
+import { isIntelligencePhaseEnabled } from '@/lib/intelligence/feature-flags';
+import { backfillLegacySocialPosts, type LegacySocialPostBackfillResult } from '@/lib/intelligence/legacy-post-backfill';
 
 /** How often the sweep for freshly published posts runs. */
 const SWEEP_INTERVAL_MS = 5 * 60_000;
@@ -16,6 +20,12 @@ const SWEEP_INTERVAL_MS = 5 * 60_000;
 const SWEEP_WINDOW_MS = 48 * 3600_000;
 /** How long to wait before retrying a day's audience capture that had errors. */
 const AUDIENCE_RETRY_MS = 3600_000;
+/**
+ * Insights are derived from a workspace's whole post/snapshot history, so the
+ * recompute costs thousands of reads per workspace. The inputs move on the
+ * order of a publish or a daily snapshot, not a tick — recompute hourly.
+ */
+const LEARNING_RECOMPUTE_INTERVAL_MS = 3600_000;
 
 export type AnalyticsTickResult = {
   backfilled?: number;
@@ -24,6 +34,8 @@ export type AnalyticsTickResult = {
   aggregatedDates: number;
   audienceCaptured?: number;
   deadRetried?: number;
+  nativeImport?: NativeImportResult;
+  legacySocialPosts?: LegacySocialPostBackfillResult;
   errors: Array<{ kind: string; error: string }>;
 };
 
@@ -110,12 +122,62 @@ export async function processAnalyticsTick(workspaceId: string): Promise<Analyti
     result.errors.push({ kind: 'metrics-retry', error: err instanceof Error ? err.message : 'unknown' });
   }
 
+  try {
+    const nativeImportEnabled = await isIntelligencePhaseEnabled({
+      phase: 'foundation',
+      workspaceId,
+      uid: 'system',
+      entitled: true,
+      includeShadow: true,
+    });
+    if (nativeImportEnabled && !meta.socialPostsBackfillAt) {
+      const page = await backfillLegacySocialPosts(workspaceId, nowIso, {
+        afterId: meta.socialPostsBackfillAfterId,
+      });
+      result.legacySocialPosts = page;
+      if (page.done) {
+        metaUpdate.socialPostsBackfillAt = nowIso;
+      } else if (page.lastId) {
+        metaUpdate.socialPostsBackfillAfterId = page.lastId;
+      }
+    }
+    if (nativeImportEnabled) {
+      result.nativeImport = await importRecentNativePosts(workspaceId, nowIso);
+      result.nativeImport.errors.forEach((error) => result.errors.push({
+        kind: 'native-import',
+        error: `${error.connectionId}: ${error.error}`,
+      }));
+    }
+    const learningDue = !meta.lastLearningRecomputeAt
+      || Date.parse(nowIso) - Date.parse(meta.lastLearningRecomputeAt) >= LEARNING_RECOMPUTE_INTERVAL_MS;
+    const learningEnabled = learningDue && await isIntelligencePhaseEnabled({
+      phase: 'learning',
+      workspaceId,
+      uid: 'system',
+      entitled: true,
+      includeShadow: true,
+    });
+    if (learningEnabled) {
+      const products = await adminDb.collection(`workspaces/${workspaceId}/products`).select().limit(8).get();
+      // One workspace-wide snapshot read shared by every product: the query has
+      // no productId filter, so per-product reads would return the same docs.
+      const snapshots = products.empty ? [] : await loadAudienceSnapshots(workspaceId);
+      for (const product of products.docs) {
+        const loaded = await loadProductIntelligence(workspaceId, product.id, { audienceSnapshots: snapshots });
+        await persistComputedInsights(workspaceId, product.id, loaded.insights);
+      }
+      metaUpdate.lastLearningRecomputeAt = nowIso;
+    }
+  } catch (err) {
+    result.errors.push({ kind: 'intelligence-ingest', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
   if (Object.keys(metaUpdate).length > 0) {
     metaUpdate.updatedAt = nowIso;
     await metaRef.set(metaUpdate, { merge: true });
   }
 
-  if (result.polled > 0 || result.errors.length > 0 || result.backfilled || result.audienceCaptured) {
+  if (result.polled > 0 || result.errors.length > 0 || result.backfilled || result.audienceCaptured || result.legacySocialPosts) {
     logger.info('analytics tick completed', {
       event: 'analytics.tick',
       workspaceId,

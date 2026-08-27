@@ -108,6 +108,9 @@ export function apiError(error: unknown): NextResponse {
   if (msg === 'NOT_FOUND') {
     return NextResponse.json({ error: msg, requestId }, { status: 404 });
   }
+  if (msg === 'FEATURE_NOT_AVAILABLE') {
+    return NextResponse.json({ error: msg, requestId }, { status: 404 });
+  }
   if (msg === 'INVALID_PROVIDER') {
     return NextResponse.json({ error: msg, requestId }, { status: 400 });
   }

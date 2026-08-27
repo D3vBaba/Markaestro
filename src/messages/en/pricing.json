@@ -3,11 +3,11 @@
     "eyebrow": "Pricing",
     "titleLead": "Your entire marketing engine,",
     "titleHighlight": "one simple price",
-    "subtitle": "No hidden fees, no per-user surprises. Start free — every paid plan includes a {trialDays}-day free trial. Cancel anytime.",
+    "subtitle": "No hidden fees, no per-user surprises. Start free. Every paid plan includes a {trialDays}-day free trial. Cancel anytime.",
     "monthlyToggle": "Monthly",
     "annualToggle": "Annual",
     "annualSaveBadge": "SAVE 18%",
-    "trialLine": "{trialDays}-day free trial on all paid plans — no charge until day {trialEndDay}",
+    "trialLine": "{trialDays}-day free trial on all paid plans, no charge until day {trialEndDay}",
     "annualSavingsSuffix": " · Annual billing saves 18%"
   },
   "planNames": {
@@ -19,7 +19,7 @@
   "mostPopularBadge": "Most Popular",
   "plans": {
     "free": {
-      "description": "Try Markaestro with one brand — free forever.",
+      "description": "Try Markaestro with one brand, free forever.",
       "features": [
         "1 brand",
         "2 social channels",
@@ -86,7 +86,7 @@
     "titleLead": "Compare",
     "titleHighlight": "every feature",
     "subtitle": "See exactly what's included in each plan.",
-    "freeNote": "The Free plan includes 1 brand, 2 channels, 15 posts/month, 1 GB storage, and 7-day analytics — no API access.",
+    "freeNote": "The Free plan includes 1 brand, 2 channels, 15 posts/month, 1 GB storage, and 7-day analytics, no API access.",
     "categories": [
       {
         "name": "Publishing",
@@ -146,7 +146,7 @@
   "faqs": [
     {
       "q": "Is there a free plan?",
-      "a": "Yes. The Free plan is $0 forever — no card required. You get 1 brand, 2 social channels, 15 posts per month, 1 GB of storage, and a 7-day analytics window, with 1 team member in 1 workspace. API access requires a paid plan. Upgrade whenever you're ready."
+      "a": "Yes. The Free plan is $0 forever, no card required. You get 1 brand, 2 social channels, 15 posts per month, 1 GB of storage, and a 7-day analytics window, with 1 team member in 1 workspace. API access requires a paid plan. Upgrade whenever you're ready."
     },
     {
       "q": "Can I switch plans at any time?",
@@ -162,11 +162,11 @@
     },
     {
       "q": "What happens when I reach my storage limit?",
-      "a": "You can keep publishing posts that use media already in your workspace — only new uploads are blocked. Free up space by deleting media you no longer need, or upgrade your plan at any time for more storage."
+      "a": "You can keep publishing posts that use media already in your workspace. Only new uploads are blocked. Free up space by deleting media you no longer need, or upgrade your plan at any time for more storage."
     },
     {
       "q": "How does the free trial work?",
-      "a": "Every plan — monthly and annual — includes a {trialDays}-day free trial. Your card is collected at signup but won't be charged until the trial ends. Cancel anytime during the trial and pay nothing."
+      "a": "Every plan, monthly and annual, includes a {trialDays}-day free trial. Your card is collected at signup but won't be charged until the trial ends. Cancel anytime during the trial and pay nothing."
     },
     {
       "q": "Which plans include the free trial?",

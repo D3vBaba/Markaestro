@@ -3,7 +3,7 @@
     "badge": "Het social-publishing-hub voor elk merk dat je runt",
     "titleLead": "Je volledige marketingmotor",
     "titleHighlight": "in één platform",
-    "subtitle": "Upload je media, schrijf je onderschriften en publiceer elk merk dat je promoot — je eigen bedrijf, je klanten, of jezelf — naar elk sociaal kanaal vanuit één dashboard. Of geef een API-sleutel aan je AI-agent en laat die alles regelen.",
+    "subtitle": "Upload je media, schrijf je onderschriften en publiceer elk merk dat je promoot, je eigen bedrijf, je klanten, of jezelf, naar elk sociaal kanaal vanuit één dashboard. Of geef een API-sleutel aan je AI-agent en laat die alles regelen.",
     "primaryButton": "Start gratis",
     "secondaryButton": "Bekijk functies",
     "signInPrompt": "Heb je al een account?",
@@ -23,7 +23,7 @@
     "items": [
       { "title": "Publiceren op meerdere kanalen", "desc": "Publiceer naar Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest vanuit één editor. Plan posts in of publiceer direct." },
       { "title": "Gecentraliseerd media-uploaden", "desc": "Gebruik je eigen afbeeldingen en video's. Upload één keer per post en verstuur naar elk verbonden kanaal." },
-      { "title": "Voorbeeldweergave voor meerdere kanalen", "desc": "Zie hoe elke post er op elk platform uitziet voordat je publiceert — onderschriften, beeldverhoudingen, tekenlimieten." },
+      { "title": "Voorbeeldweergave voor meerdere kanalen", "desc": "Zie hoe elke post er op elk platform uitziet voordat je publiceert, onderschriften, beeldverhoudingen, tekenlimieten." },
       { "title": "Planning en kalender", "desc": "Plaats posts in een gecombineerde kalender met tijdstippen per kanaal. Herplan, pauzeer of dupliceer met één klik." },
       { "title": "Publicatiedashboard", "desc": "Volg concepten, geplande posts en publicatiestatus voor elk kanaal." },
       { "title": "OAuth-integraties", "desc": "Verbind met één klik met Meta, TikTok, LinkedIn, Threads en Pinterest via veilige OAuth. Geen handmatig tokenbeheer nodig." }
@@ -52,7 +52,7 @@
   "composerPreview": {
     "panelLabel": "Eén editor, elk kanaal",
     "rows": [
-      { "label": "Media", "value": "Upload afbeeldingen of video's — JPG, PNG, WebP, MP4" },
+      { "label": "Media", "value": "Upload afbeeldingen of video's: JPG, PNG, WebP, MP4" },
       { "label": "Onderschrift", "value": "Eén keer schrijven, voorbeeld per kanaal voor publicatie" },
       { "label": "Resultaat", "value": "Geplande of directe posts naar alle zes verbonden kanalen" }
     ],
@@ -71,9 +71,9 @@
     "eyebrow": "AI-agents",
     "titleLead": "Of laat je agent",
     "titleHighlight": "het regelen",
-    "subtitle": "Elke workspace kan API-sleutels genereren. Geef er een aan je AI-agent, en die ontdekt naar welke accounts hij mag posten, uploadt media, stelt posts op en plant ze in, publiceert ze en rapporteert wat er daadwerkelijk is geplaatst — zonder ook maar één platform-API direct aan te raken.",
+    "subtitle": "Elke workspace kan API-sleutels genereren. Geef er een aan je AI-agent, en die ontdekt naar welke accounts hij mag posten, uploadt media, stelt posts op en plant ze in, publiceert ze en rapporteert wat er daadwerkelijk is geplaatst, zonder ook maar één platform-API direct aan te raken.",
     "bullets": [
-      "Eén sleutel is beperkt tot één merk — een agent kan niet naar een ander merk afdwalen",
+      "Eén sleutel is beperkt tot één merk, een agent kan niet naar een ander merk afdwalen",
       "Facebook, Instagram en TikTok blijven altijd manual-first: een mens plaatst, altijd",
       "Idempotente writes, asynchrone publicatieruns en ondertekende webhooks ingebouwd"
     ],

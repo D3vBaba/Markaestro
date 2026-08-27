@@ -3,7 +3,7 @@
     "badge": "Le centre de publication social pour chaque marque que vous gérez",
     "titleLead": "Tout votre moteur marketing",
     "titleHighlight": "sur une seule plateforme",
-    "subtitle": "Importez vos contenus, rédigez vos textes et publiez chaque marque que vous gérez — votre entreprise, vos clients ou vous-même — sur tous les réseaux sociaux depuis un seul tableau de bord. Ou confiez une clé API à votre agent IA et laissez-le tout gérer.",
+    "subtitle": "Importez vos contenus, rédigez vos textes et publiez chaque marque que vous gérez, votre entreprise, vos clients ou vous-même, sur tous les réseaux sociaux depuis un seul tableau de bord. Ou confiez une clé API à votre agent IA et laissez-le tout gérer.",
     "primaryButton": "Commencer gratuitement",
     "secondaryButton": "Voir les fonctionnalités",
     "signInPrompt": "Vous avez déjà un compte ?",
@@ -23,7 +23,7 @@
     "items": [
       { "title": "Publication multicanal", "desc": "Publiez sur Facebook, Instagram, TikTok, LinkedIn, Threads et Pinterest depuis un seul éditeur. Programmez ou publiez instantanément." },
       { "title": "Import centralisé des contenus", "desc": "Apportez vos propres images et vidéos. Importez-les une fois par publication et diffusez-les sur tous les canaux connectés." },
-      { "title": "Aperçus multicanaux", "desc": "Vérifiez le rendu de chaque publication sur chaque plateforme avant de publier — textes, formats, limites de caractères." },
+      { "title": "Aperçus multicanaux", "desc": "Vérifiez le rendu de chaque publication sur chaque plateforme avant de publier, textes, formats, limites de caractères." },
       { "title": "Programmation et calendrier", "desc": "Organisez vos publications sur un calendrier unifié avec des horaires par canal. Reprogrammez, mettez en pause ou dupliquez en un clic." },
       { "title": "Tableau de bord de publication", "desc": "Suivez les brouillons, les publications programmées et leur statut sur tous les canaux." },
       { "title": "Intégrations OAuth", "desc": "Connexion en un clic à Meta, TikTok, LinkedIn, Threads et Pinterest via OAuth sécurisé. Aucune gestion manuelle de jetons." }
@@ -52,7 +52,7 @@
   "composerPreview": {
     "panelLabel": "Un éditeur, tous les canaux",
     "rows": [
-      { "label": "Contenu", "value": "Importez images ou vidéos — JPG, PNG, WebP, MP4" },
+      { "label": "Contenu", "value": "Importez images ou vidéos : JPG, PNG, WebP, MP4" },
       { "label": "Texte", "value": "Rédigez une fois, prévisualisez par canal avant publication" },
       { "label": "Résultat", "value": "Publications programmées ou instantanées sur les six canaux connectés" }
     ],
@@ -71,9 +71,9 @@
     "eyebrow": "Agents IA",
     "titleLead": "Ou laissez votre agent",
     "titleHighlight": "s'en charger",
-    "subtitle": "Chaque espace de travail peut générer des clés API. Confiez-en une à votre agent IA et il pourra découvrir les comptes sur lesquels il est autorisé à publier, importer du contenu, rédiger et programmer des publications, les publier et rendre compte de ce qui a réellement été publié — sans jamais toucher directement à une API de plateforme.",
+    "subtitle": "Chaque espace de travail peut générer des clés API. Confiez-en une à votre agent IA et il pourra découvrir les comptes sur lesquels il est autorisé à publier, importer du contenu, rédiger et programmer des publications, les publier et rendre compte de ce qui a réellement été publié, sans jamais toucher directement à une API de plateforme.",
     "bullets": [
-      "Chaque clé est limitée à une seule marque — un agent ne peut pas déborder sur une autre",
+      "Chaque clé est limitée à une seule marque, un agent ne peut pas déborder sur une autre",
       "Facebook, Instagram et TikTok restent en publication manuelle : c'est toujours une personne qui publie",
       "Écritures idempotentes, publications asynchrones et webhooks signés inclus"
     ],

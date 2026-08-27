@@ -23,6 +23,9 @@ import { processPendingWebhookDeliveries } from '@/lib/public-api/webhook-delive
 import { processAnalyticsTick, type AnalyticsTickResult } from '@/lib/analytics/worker';
 import { logger } from '@/lib/logger';
 import { markWorkspaceDue, type WorkspaceWorkReason } from './due-workspaces';
+import { processIntelligenceJobs } from '@/lib/intelligence/fingerprints';
+import { processDueExperiments } from '@/lib/intelligence/experiment-lifecycle';
+import { runQuarterlyCapabilityAuditIfDue } from '@/lib/platform/capability-audit';
 
 export type WorkspaceTickResult = {
   workspaceId: string;
@@ -40,6 +43,8 @@ export type WorkspaceTickResult = {
   webhookDeliveries: Array<{ deliveryId: string; status: string }>;
   jobsScanned: number;
   jobsProcessed: number;
+  intelligenceJobs?: { processed: number; failed: number };
+  experiments?: { scanned: number; closed: number };
   jobResults: Array<{ jobId: string } & Record<string, unknown>>;
   analytics?: AnalyticsTickResult;
   errors: Array<{ kind: string; postId?: string; error: string }>;
@@ -69,7 +74,7 @@ async function firstDueAt(
 }
 
 async function scheduleNextWorkspaceWork(workspaceId: string): Promise<void> {
-  const [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob] = await Promise.all([
+  const [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob, experimentClose] = await Promise.all([
     firstDueAt(
       adminDb.collection(`workspaces/${workspaceId}/posts`)
         .where('status', '==', 'scheduled')
@@ -107,9 +112,16 @@ async function scheduleNextWorkspaceWork(workspaceId: string): Promise<void> {
       'nextRunAt',
       'daily_job',
     ),
+    firstDueAt(
+      adminDb.collection(`workspaces/${workspaceId}/experiments`)
+        .where('status', 'in', ['scheduled', 'running'])
+        .orderBy('endsAt', 'asc'),
+      'endsAt',
+      'experiment_close',
+    ),
   ]);
 
-  const next = [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob]
+  const next = [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob, experimentClose]
     .filter((candidate): candidate is NextWork => candidate !== null)
     .sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt))[0];
   if (next) await markWorkspaceDue(workspaceId, next.dueAt, next.reason);
@@ -124,6 +136,7 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
   const jobResults: WorkspaceTickResult['jobResults'] = [];
   let scheduledPosts: WorkspaceTickResult['scheduledPosts'];
   let jobsScanned = 0;
+  let intelligenceJobs: WorkspaceTickResult['intelligenceJobs'];
 
   try {
     const staleRecovery = await recoverStalePublishingPosts(workspaceId);
@@ -187,6 +200,28 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
   }
 
   try {
+    intelligenceJobs = await processIntelligenceJobs(workspaceId, nowIso);
+    if (intelligenceJobs.failed) {
+      errors.push({ kind: 'intelligence-jobs', error: `${intelligenceJobs.failed} job(s) deferred` });
+    }
+  } catch (err) {
+    errors.push({ kind: 'intelligence-jobs', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  let experiments: WorkspaceTickResult['experiments'];
+  try {
+    experiments = await processDueExperiments(workspaceId, new Date(nowIso));
+  } catch (err) {
+    errors.push({ kind: 'experiments', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
+    await runQuarterlyCapabilityAuditIfDue(new Date(nowIso));
+  } catch (err) {
+    errors.push({ kind: 'capability-audit', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
     await scheduleNextWorkspaceWork(workspaceId);
   } catch (err) {
     errors.push({ kind: 'next-work', error: err instanceof Error ? err.message : 'unknown' });
@@ -199,6 +234,7 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     durationMs,
     errors: errors.length,
     jobsProcessed: jobResults.length,
+    intelligenceJobs,
   });
 
   return {
@@ -211,6 +247,8 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     jobsProcessed: jobResults.length,
     jobResults,
     analytics,
+    intelligenceJobs,
+    experiments,
     errors,
   };
 }

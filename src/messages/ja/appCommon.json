@@ -34,7 +34,8 @@
       "integration": "連携",
       "post": "投稿",
       "workspace": "ワークスペース",
-      "account": "アカウント"
+      "account": "アカウント",
+      "experiment": "実験"
     },
     "titleGeneric": "{entity}を削除",
     "titleNamed": "{entity}を削除しますか？",
@@ -86,8 +87,8 @@
         "activeLabel": "ブランドプロフィールを作成しています…"
       }
     },
-    "scanComplete": "スキャンが完了しました — 以下を確認して確定してください",
-    "scanFailed": "スキャンに失敗しました — 手動で入力してください",
+    "scanComplete": "スキャンが完了しました、以下を確認して確定してください",
+    "scanFailed": "スキャンに失敗しました、手動で入力してください",
     "researching": "ブランドを調査しています…"
   },
   "platformPreview": {

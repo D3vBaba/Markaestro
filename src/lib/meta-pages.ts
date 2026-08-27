@@ -1,4 +1,4 @@
-const META_GRAPH_API = 'https://graph.facebook.com/v22.0';
+const META_GRAPH_API = 'https://graph.facebook.com/v25.0';
 
 /** Bound the /me/accounts cursor walk so a paging loop can never run away. */
 const MAX_ACCOUNT_PAGES = 20;

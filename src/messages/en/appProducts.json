@@ -42,12 +42,12 @@
   },
   "productCard": {
     "noChannelsConnected": "No channels connected",
-    "reconnectNeeded": "{label} — reconnect needed",
+    "reconnectNeeded": "{label}: reconnect needed",
     "deleteBrand": "Delete brand"
   },
   "page": {
     "title": "Brands",
-    "subtitle": "Everything you market — products, businesses, clients, or yourself.",
+    "subtitle": "Everything you market: products, businesses, clients, or yourself.",
     "addBrand": "Add brand",
     "filters": {
       "all": "All",
@@ -69,10 +69,10 @@
     "deleteWarning": "All brand voice settings for this brand will also be removed.",
     "toasts": {
       "connected": "{provider} connected",
-      "declinedPermission": "{provider}: You declined the permission request — tap Connect to try again.",
+      "declinedPermission": "{provider}: You declined the permission request. Tap Connect to try again.",
       "connectionFailed": "Failed to connect {provider}. Please try again.",
       "unknownError": "Unknown error",
-      "almostDone": "Almost done — choose a Facebook page in Channels to finish Meta setup",
+      "almostDone": "Almost done. Choose a Facebook page in Channels to finish Meta setup",
       "deleteFailed": "Failed to delete brand",
       "deleted": "Brand deleted"
     }
@@ -83,7 +83,7 @@
     "descriptions": {
       "start": "Start by scanning your website, or enter details manually.",
       "scan": "Researching your brand…",
-      "manual": "Fill out the essentials — you can add more later.",
+      "manual": "Fill out the essentials. You can add more later.",
       "review": "Review what we found, tweak anything, then save."
     },
     "scanCard": {
@@ -104,7 +104,7 @@
       "retry": "Retry scan",
       "enterManually": "Enter manually"
     },
-    "scanComplete": "Scan complete — review and edit anything below.",
+    "scanComplete": "Scan complete. Review and edit anything below.",
     "fields": {
       "brandName": "Brand name",
       "brandNamePlaceholder": "DripCheckr",
@@ -119,6 +119,8 @@
     "targetAudience": "Target audience",
     "brandTone": "Brand tone",
     "fineTuneNote": "You can fine-tune all of this after creating the brand.",
+    "audienceSetup": "Audience profile",
+    "audienceSetupBody": "Set the objective, primary market, conversion action, timezone, and platform priority. Advanced fields live in brand settings.",
     "startOver": "Start over",
     "createBrand": "Create brand",
     "creating": "Creating…",
@@ -133,6 +135,7 @@
     "sections": {
       "foundation": "Foundation",
       "identity": "Identity",
+      "audience": "Audience",
       "channels": "Channels"
     },
     "brandFallback": "Brand",
@@ -147,7 +150,7 @@
     "edit": "Edit",
     "deleteBrand": "Delete brand",
     "deleteWarning": "All settings and channel connections for this brand will also be removed.",
-    "disconnectWarning": "This removes every {label} account linked to this brand. Other brands keep their own connections. To swap a single account, use Unlink next to it instead — and to refresh access, use Reconnect rather than disconnecting.",
+    "disconnectWarning": "This removes every {label} account linked to this brand. Other brands keep their own connections. To swap a single account, use Unlink next to it instead, and to refresh access, use Reconnect rather than disconnecting.",
     "disconnect": "Disconnect",
     "unsavedConfirm": "You have unsaved changes. Close without saving?",
     "toasts": {

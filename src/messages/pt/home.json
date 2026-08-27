@@ -3,7 +3,7 @@
     "badge": "O hub de publicação social para cada marca que você gerencia",
     "titleLead": "Todo o seu motor de marketing",
     "titleHighlight": "em uma única plataforma",
-    "subtitle": "Envie sua mídia, escreva suas legendas e publique cada marca que você promove — seu negócio, seus clientes ou você mesmo — em todos os canais sociais a partir de um único painel. Ou entregue uma chave de API ao seu agente de IA e deixe que ele cuide de tudo.",
+    "subtitle": "Envie sua mídia, escreva suas legendas e publique cada marca que você promove, seu negócio, seus clientes ou você mesmo, em todos os canais sociais a partir de um único painel. Ou entregue uma chave de API ao seu agente de IA e deixe que ele cuide de tudo.",
     "primaryButton": "Comece grátis",
     "secondaryButton": "Ver recursos",
     "signInPrompt": "Já tem uma conta?",
@@ -23,7 +23,7 @@
     "items": [
       { "title": "Publicação multicanal", "desc": "Publique no Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest a partir de um único editor. Agende posts ou publique instantaneamente." },
       { "title": "Uploads de mídia centralizados", "desc": "Traga suas próprias imagens e vídeos. Envie uma vez por post e distribua para todos os canais conectados." },
-      { "title": "Pré-visualizações multicanal", "desc": "Veja como cada post vai aparecer em cada plataforma antes de publicar — legendas, proporções, limites de caracteres." },
+      { "title": "Pré-visualizações multicanal", "desc": "Veja como cada post vai aparecer em cada plataforma antes de publicar, legendas, proporções, limites de caracteres." },
       { "title": "Agendamento e calendário", "desc": "Organize posts em um calendário unificado com horários por canal. Reagende, pause ou duplique com um clique." },
       { "title": "Painel de publicação", "desc": "Acompanhe rascunhos, posts agendados e status de publicação em todos os canais." },
       { "title": "Integrações OAuth", "desc": "Conecte-se com um clique ao Meta, TikTok, LinkedIn, Threads e Pinterest via OAuth seguro. Sem gerenciamento manual de tokens." }
@@ -52,7 +52,7 @@
   "composerPreview": {
     "panelLabel": "Um editor, todos os canais",
     "rows": [
-      { "label": "Mídia", "value": "Envie imagens ou vídeos — JPG, PNG, WebP, MP4" },
+      { "label": "Mídia", "value": "Envie imagens ou vídeos: JPG, PNG, WebP, MP4" },
       { "label": "Legenda", "value": "Escreva uma vez, pré-visualize por canal antes de publicar" },
       { "label": "Resultado", "value": "Posts agendados ou instantâneos nos seis canais conectados" }
     ],
@@ -71,9 +71,9 @@
     "eyebrow": "Agentes de IA",
     "titleLead": "Ou deixe seu agente",
     "titleHighlight": "cuidar disso",
-    "subtitle": "Todo workspace pode gerar chaves de API. Entregue uma ao seu agente de IA e ele poderá descobrir em quais contas tem permissão para publicar, enviar mídia, criar e agendar posts, publicá-los e informar o que realmente foi ao ar — sem tocar em nenhuma API de plataforma diretamente.",
+    "subtitle": "Todo workspace pode gerar chaves de API. Entregue uma ao seu agente de IA e ele poderá descobrir em quais contas tem permissão para publicar, enviar mídia, criar e agendar posts, publicá-los e informar o que realmente foi ao ar, sem tocar em nenhuma API de plataforma diretamente.",
     "bullets": [
-      "Uma chave é vinculada a uma única marca — um agente não pode acessar outra",
+      "Uma chave é vinculada a uma única marca, um agente não pode acessar outra",
       "Facebook, Instagram e TikTok permanecem manual-first: um humano sempre publica",
       "Gravações idempotentes, execuções de publicação assíncronas e webhooks assinados já inclusos"
     ],

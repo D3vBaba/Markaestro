@@ -8,7 +8,7 @@ import type { AnalyticsResponse } from "@/lib/analytics/api-shape";
 import type { SocialChannel } from "@/lib/schemas";
 
 function cell(value: number | null, locale?: string): string {
-  return value === null ? "—" : fmtCount(Math.round(value), locale);
+  return value === null ? "n/a" : fmtCount(Math.round(value), locale);
 }
 
 /** Per-channel breakdown; clicking a row toggles the page-level channel filter. */
@@ -80,7 +80,7 @@ export function ChannelTable({
                 </td>
                 <td className="text-right px-2 font-mono" style={{ color: "var(--mk-ink-60)" }}>
                   {row.engagementRateByReach === null
-                    ? "—"
+                    ? "n/a"
                     : `${(row.engagementRateByReach * 100).toFixed(1)}%`}
                 </td>
                 <td className="text-right pl-2 font-mono mk-figure whitespace-nowrap" style={{ color: "var(--mk-ink)" }}>

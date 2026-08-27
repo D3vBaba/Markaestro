@@ -28,7 +28,7 @@
   },
   "markPostedDialog": {
     "title": "Marcar como publicado",
-    "description": "Confirma que publicaste esta publicación en {channel} tú mismo/a. Pega el enlace a la publicación en vivo si lo tienes — así se conecta la publicación con sus analíticas más adelante.",
+    "description": "Confirma que publicaste esta publicación en {channel} tú mismo/a. Pega el enlace a la publicación en vivo si lo tienes, así se conecta la publicación con sus analíticas más adelante.",
     "urlPlaceholder": "https://www.{channel}.com/… (opcional)",
     "cancel": "Cancelar",
     "confirm": "Marcar como publicado",
@@ -182,7 +182,7 @@
   },
   "platformPostsTab": {
     "refresh": "Actualizar",
-    "liveFrom": "Publicaciones en vivo de tu cuenta de {channel} conectada — incluidas las publicadas fuera de Markaestro.",
+    "liveFrom": "Publicaciones en vivo de tu cuenta de {channel} conectada, incluidas las publicadas fuera de Markaestro.",
     "loadMore": "Cargar más",
     "loading": "Cargando…",
     "noCaption": "Sin descripción",
@@ -191,14 +191,14 @@
     "deleting": "Eliminando…",
     "delete": "Eliminar",
     "noDeleteHints": {
-      "instagram": "Instagram no permite que las apps eliminen publicaciones — elimínalas en la app de Instagram.",
-      "tiktok": "TikTok no permite que las apps eliminen videos — elimínalos en la app de TikTok."
+      "instagram": "Instagram no permite que las apps eliminen publicaciones, elimínalas en la app de Instagram.",
+      "tiktok": "TikTok no permite que las apps eliminen videos, elimínalos en la app de TikTok."
     },
     "noDeleteDefault": "No se admite la eliminación de esta publicación.",
     "deleteWarning": "Esto elimina permanentemente la publicación de {channel}.",
     "states": {
       "notConnectedTitle": "{channel} aún no está conectado",
-      "notConnectedBody": "Conecta {channel} a esta marca y sus publicaciones en vivo aparecerán aquí — incluidas las publicadas fuera de Markaestro.",
+      "notConnectedBody": "Conecta {channel} a esta marca y sus publicaciones en vivo aparecerán aquí, incluidas las publicadas fuera de Markaestro.",
       "connect": "Conectar {channel}",
       "authTitle": "{channel} necesita reconectarse",
       "authBody": "La conexión con {channel} ha caducado, así que no podemos explorar sus publicaciones ahora mismo. Reconéctala desde la configuración de la marca para retomar donde lo dejaste.",
@@ -208,10 +208,10 @@
       "linkedinPartnerBody": "LinkedIn solo permite a apps socias aprobadas explorar las publicaciones de la cuenta. Todo lo que publiques a través de Markaestro sigue apareciendo en tu pestaña de Publicadas.",
       "unsupportedBody": "{channel} no permite que las apps exploren las publicaciones de la cuenta. Todo lo que publiques a través de Markaestro sigue apareciendo en tu pestaña de Publicadas.",
       "errorTitle": "No se pudieron cargar las publicaciones de {channel}",
-      "errorBody": "{channel} no respondió como se esperaba. Esto suele ser temporal — inténtalo de nuevo en un momento.",
+      "errorBody": "{channel} no respondió como se esperaba. Esto suele ser temporal, inténtalo de nuevo en un momento.",
       "tryAgain": "Intentar de nuevo",
       "emptyTitle": "Aún no hay publicaciones en {channel}",
-      "emptyBody": "Cuando esta cuenta publique — a través de Markaestro o directamente en {channel} — sus publicaciones aparecerán aquí."
+      "emptyBody": "Cuando esta cuenta publique, a través de Markaestro o directamente en {channel}, sus publicaciones aparecerán aquí."
     },
     "toasts": {
       "loadMoreFailed": "No se pudieron cargar más publicaciones",

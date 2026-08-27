@@ -7,14 +7,14 @@
       "titleLine2Accent": "une seule connexion.",
       "subtitle": "Arrêtez de vous connecter à cinq applications pour publier une fois. Connectez-vous pour publier partout, planifier des semaines à l'avance et récupérer votre temps.",
       "points": {
-        "publish": { "title": "Publiez partout en une fois", "desc": "Facebook, Instagram, TikTok et plus — depuis un seul éditeur." },
+        "publish": { "title": "Publiez partout en une fois", "desc": "Facebook, Instagram, TikTok et plus, depuis un seul éditeur." },
         "schedule": { "title": "Planifiez des semaines à l'avance", "desc": "Définissez votre rythme une fois et ne restez plus jamais silencieux." },
         "hours": { "title": "Récupérez des heures chaque semaine", "desc": "Les tâches fastidieuses de copier-coller et de connexion disparaissent tout simplement." }
       },
       "newHere": {
         "title": "Nouveau sur Markaestro ?",
-        "body": "Répondez à 10 questions rapides et nous créerons votre plan de publication — découvrez combien d'heures vous récupérerez, gratuitement.",
-        "cta": "Créer mon plan — c'est gratuit →"
+        "body": "Répondez à 10 questions rapides et nous créerons votre plan de publication, découvrez combien d'heures vous récupérerez, gratuitement.",
+        "cta": "Créer mon plan, c'est gratuit →"
       }
     },
     "form": {
@@ -22,7 +22,7 @@
       "eyebrowCode": "Consultez votre boîte de réception",
       "titleEmail": "Continuer avec votre e-mail",
       "titleCode": "Saisissez votre code",
-      "subtitleEmail": "Aucun mot de passe requis — nous vous enverrons un code à usage unique par e-mail. Nouveau ici ? Le même code crée votre compte.",
+      "subtitleEmail": "Aucun mot de passe requis, nous vous enverrons un code à usage unique par e-mail. Nouveau ici ? Le même code crée votre compte.",
       "subtitleCode": "Nous avons envoyé un code à 6 chiffres à <email></email>.",
       "emailPlaceholder": "nom@entreprise.com",
       "codePlaceholder": "123456",

@@ -92,7 +92,7 @@ const TIKTOK_ERROR_EXPLANATIONS: Record<string, string> = {
   spam_risk_user_banned_from_posting: 'This TikTok account is currently banned from posting.',
   reached_active_user_cap: 'TikTok’s daily publishing quota for Markaestro has been reached. Try again tomorrow.',
   privacy_level_option_mismatch: 'The selected audience is no longer available for this TikTok account. Reopen the post and pick one again.',
-  url_ownership_unverified: 'TikTok could not verify the media URL’s domain. This is a Markaestro configuration issue — contact support.',
+  url_ownership_unverified: 'TikTok could not verify the media URL’s domain. This is a Markaestro configuration issue. Contact support.',
   file_format_check_failed: 'TikTok rejected the media format. Use an MP4 video or JPEG/WebP images.',
   duration_check_failed: 'This video is longer than the maximum length TikTok allows for this account.',
   frame_rate_check_failed: 'TikTok rejected the video frame rate. Re-export the video at 23–60 fps.',

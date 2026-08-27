@@ -28,10 +28,10 @@ const COLUMN_LABEL_KEYS: Record<SortKey, string> = {
 const TABLE_MIN_W = "min-w-[640px]";
 
 function cell(value: number | null, locale?: string): string {
-  return value === null ? "—" : fmtCount(Math.round(value), locale);
+  return value === null ? "n/a" : fmtCount(Math.round(value), locale);
 }
 
-/** Top posts, sortable by any metric. Unavailable metrics render as "—". */
+/** Top posts, sortable by any metric. Unavailable metrics render as "n/a". */
 export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
   const t = useTranslations("analytics.leaderboardTable");
   const locale = useLocale();
@@ -131,13 +131,13 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
                   {cell(row.engagements, locale)}
                 </td>
                 <td className="text-right px-2 font-mono" style={{ color: "var(--mk-ink-60)" }}>
-                  {row.erByReach === null ? "—" : `${(row.erByReach * 100).toFixed(1)}%`}
+                  {row.erByReach === null ? "n/a" : `${(row.erByReach * 100).toFixed(1)}%`}
                 </td>
                 <td
                   className="text-right px-2 font-mono text-[11px] whitespace-nowrap"
                   style={{ color: "var(--mk-ink-40)" }}
                 >
-                  {row.publishedAt ? new Date(row.publishedAt).toLocaleDateString(locale) : "—"}
+                  {row.publishedAt ? new Date(row.publishedAt).toLocaleDateString(locale) : "n/a"}
                 </td>
                 <td className="text-right pl-1">
                   {row.externalUrl && (

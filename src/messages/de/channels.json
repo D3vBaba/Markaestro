@@ -69,7 +69,7 @@
     {
       "name": "Threads",
       "category": "Social",
-      "description": "Metas textzentriertes Netzwerk. Markaestro erstellt den Medien-Container, wartet den Abschluss der Verarbeitung ab und veröffentlicht dann — so scheitern langsame Video-Uploads nie lautlos.",
+      "description": "Metas textzentriertes Netzwerk. Markaestro erstellt den Medien-Container, wartet den Abschluss der Verarbeitung ab und veröffentlicht dann, so scheitern langsame Video-Uploads nie lautlos.",
       "capabilities": [
         "Reine Text-Beiträge",
         "Einzelne Bild- oder Video-Beiträge",
@@ -108,7 +108,7 @@
   },
   "cta": {
     "title": "Verbinde deinen ersten Kanal in unter zwei Minuten",
-    "subtitle": "Klicken, autorisieren und mit dem Veröffentlichen beginnen — keine technische Einrichtung nötig. Sobald ein Kanal verbunden ist, veröffentlicht dein Team über das Dashboard und dein KI-Agent kann über die API auf demselben Kanal veröffentlichen.",
+    "subtitle": "Klicken, autorisieren und mit dem Veröffentlichen beginnen, keine technische Einrichtung nötig. Sobald ein Kanal verbunden ist, veröffentlicht dein Team über das Dashboard und dein KI-Agent kann über die API auf demselben Kanal veröffentlichen.",
     "primaryButton": "Kostenlos loslegen",
     "secondaryButton": "Mit einem Agenten automatisieren"
   }

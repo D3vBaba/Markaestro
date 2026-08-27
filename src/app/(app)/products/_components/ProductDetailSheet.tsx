@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Upload, X, Loader2, Check, Dot, Globe, Palette, Link2, Pencil,
-  Package, Trash2, Image as ImageIcon,
+  Package, Trash2, Image as ImageIcon, Target,
 } from "lucide-react";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
@@ -26,6 +26,8 @@ import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
 import { resolveChannelStatus } from "@/lib/integrations/channel-status";
 import { userFacingError } from "@/lib/user-facing-errors";
+import AudienceProfileEditor from "@/components/intelligence/AudienceProfileEditor";
+import { useIntelligencePreviewAccess } from "@/hooks/useIntelligencePreviewAccess";
 
 // ---------- types ----------
 
@@ -255,14 +257,15 @@ function hasChanges(a: Form, b: Form) {
 
 // ---------- section nav ----------
 
-type SectionKey = "foundation" | "identity" | "channels";
+type SectionKey = "foundation" | "identity" | "audience" | "channels";
 
 const SECTION_ICONS: Record<SectionKey, typeof Package> = {
   foundation: Package,
   identity: Palette,
+  audience: Target,
   channels: Link2,
 };
-const SECTION_KEYS: SectionKey[] = ["foundation", "identity", "channels"];
+const SECTION_KEYS: SectionKey[] = ["foundation", "identity", "audience", "channels"];
 
 // ---------- inline color picker ----------
 
@@ -293,7 +296,7 @@ function ColorField({
               type="button"
               aria-label={t("setColorTo", { label, color: c })}
               className={cn(
-                "aspect-square sm:aspect-auto sm:h-6 w-full rounded-md border transition-all",
+                "aspect-square sm:aspect-auto sm:h-6 w-full rounded-md border transition-[border-color,transform]",
                 value === c
                   ? "ring-2 ring-foreground ring-offset-1 ring-offset-background scale-105"
                   : "hover:scale-110",
@@ -320,11 +323,12 @@ function ColorField({
             className="sr-only"
           />
           <Input
-            placeholder="#4F46E5"
+            placeholder="#2563EB"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             className="flex-1 font-mono text-sm h-9"
           />
+
           {value && (
             <Button
               variant="ghost"
@@ -361,12 +365,17 @@ export default function ProductDetailSheet({
 }) {
   const t = useTranslations("products.detailSheet");
   const tSections = useTranslations("products.detailSheet.sections");
+  const canAccessIntelligence = useIntelligencePreviewAccess();
+  const sectionKeys = canAccessIntelligence ? SECTION_KEYS : SECTION_KEYS.filter((key) => key !== "audience");
   const [loading, setLoading] = useState(false);
   const [baseline, setBaseline] = useState<Form | null>(null);
   const [form, setForm] = useState<Form | null>(null);
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [section, setSection] = useState<SectionKey>(initialSection);
+  useEffect(() => {
+    if (!canAccessIntelligence && section === "audience") setSection("foundation");
+  }, [canAccessIntelligence, section]);
   // The product opens read-only; "Edit" unlocks the form, saving re-locks it.
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -689,7 +698,7 @@ export default function ProductDetailSheet({
             {/* Section nav + edit controls (same row) */}
             <div className="mt-4 -mb-0.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
               <nav className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide max-w-full">
-              {SECTION_KEYS.map((key) => {
+              {sectionKeys.map((key) => {
                 const active = section === key;
                 const Icon = SECTION_ICONS[key];
                 return (
@@ -716,7 +725,7 @@ export default function ProductDetailSheet({
               })}
               </nav>
               <div className="flex items-center gap-2 shrink-0">
-                {editing ? (
+                {section !== "audience" && (editing ? (
                   <>
                     <Button
                       size="sm"
@@ -755,7 +764,7 @@ export default function ProductDetailSheet({
                     <Pencil className="h-3.5 w-3.5" />
                     {t("edit")}
                   </Button>
-                )}
+                ))}
               </div>
             </div>
           </SheetHeader>
@@ -794,6 +803,9 @@ export default function ProductDetailSheet({
                       onLogoUpload={handleLogoUpload}
                       readOnly={!editing}
                     />
+                  )}
+                  {section === "audience" && productId && (
+                    <AudienceProfileEditor productId={productId} variant="advanced" />
                   )}
                   {section === "channels" && (
                     <ChannelsSection
@@ -978,7 +990,7 @@ function ReadRow({
             !value && "text-muted-foreground",
           )}
         >
-          {value || "—"}
+          {value || "n/a"}
         </p>
       )}
     </div>
@@ -1016,7 +1028,7 @@ function FoundationSection({
                 {form.url.replace(/^https?:\/\//, "")}
               </a>
             ) : (
-              <p className="text-sm text-muted-foreground">—</p>
+              <p className="text-sm text-muted-foreground">n/a</p>
             )}
           </ReadRow>
         </SectionCard>
@@ -1036,7 +1048,7 @@ function FoundationSection({
                 ))}
               </div>
             ) : (
-              <span className="text-sm text-muted-foreground">—</span>
+              <span className="text-sm text-muted-foreground">n/a</span>
             )}
           </ReadRow>
           <ReadRow label={t("status")}>
@@ -1149,7 +1161,7 @@ function IdentitySection({
                 <div className="leading-tight">
                   <p className="text-[11px] font-medium text-foreground">{s.label}</p>
                   <p className="font-mono text-[11px] uppercase text-muted-foreground">
-                    {s.color || "—"}
+                    {s.color || "n/a"}
                   </p>
                 </div>
               </div>

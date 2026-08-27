@@ -28,7 +28,7 @@
   },
   "markPostedDialog": {
     "title": "Als gepostet markieren",
-    "description": "Bestätige, dass du diesen Beitrag selbst auf {channel} veröffentlicht hast. Füge den Link zum Live-Beitrag ein, falls vorhanden — so wird der Beitrag später mit seinen Analysedaten verknüpft.",
+    "description": "Bestätige, dass du diesen Beitrag selbst auf {channel} veröffentlicht hast. Füge den Link zum Live-Beitrag ein, falls vorhanden, so wird der Beitrag später mit seinen Analysedaten verknüpft.",
     "urlPlaceholder": "https://www.{channel}.com/… (optional)",
     "cancel": "Abbrechen",
     "confirm": "Als gepostet markieren",
@@ -182,7 +182,7 @@
   },
   "platformPostsTab": {
     "refresh": "Aktualisieren",
-    "liveFrom": "Live-Beiträge von deinem verbundenen {channel}-Konto — einschließlich außerhalb von Markaestro veröffentlichter Beiträge.",
+    "liveFrom": "Live-Beiträge von deinem verbundenen {channel}-Konto, einschließlich außerhalb von Markaestro veröffentlichter Beiträge.",
     "loadMore": "Mehr laden",
     "loading": "Wird geladen…",
     "noCaption": "Keine Beschriftung",
@@ -191,14 +191,14 @@
     "deleting": "Wird gelöscht…",
     "delete": "Löschen",
     "noDeleteHints": {
-      "instagram": "Instagram erlaubt Apps nicht, Beiträge zu löschen — entferne sie in der Instagram-App.",
-      "tiktok": "TikTok erlaubt Apps nicht, Videos zu löschen — entferne sie in der TikTok-App."
+      "instagram": "Instagram erlaubt Apps nicht, Beiträge zu löschen, entferne sie in der Instagram-App.",
+      "tiktok": "TikTok erlaubt Apps nicht, Videos zu löschen, entferne sie in der TikTok-App."
     },
     "noDeleteDefault": "Das Löschen wird für diesen Beitrag nicht unterstützt.",
     "deleteWarning": "Dies entfernt den Beitrag dauerhaft von {channel}.",
     "states": {
       "notConnectedTitle": "{channel} ist noch nicht verbunden",
-      "notConnectedBody": "Verbinde {channel} mit dieser Marke, dann erscheinen ihre Live-Beiträge hier — einschließlich außerhalb von Markaestro veröffentlichter Beiträge.",
+      "notConnectedBody": "Verbinde {channel} mit dieser Marke, dann erscheinen ihre Live-Beiträge hier, einschließlich außerhalb von Markaestro veröffentlichter Beiträge.",
       "connect": "{channel} verbinden",
       "authTitle": "{channel} muss erneut verbunden werden",
       "authBody": "Die Verbindung zu {channel} ist abgelaufen, sodass wir ihre Beiträge gerade nicht durchsuchen können. Verbinde sie in den Markeneinstellungen erneut, um dort weiterzumachen, wo du aufgehört hast.",
@@ -208,10 +208,10 @@
       "linkedinPartnerBody": "LinkedIn erlaubt nur zugelassenen Partner-Apps, Kontobeiträge zu durchsuchen. Alles, was du über Markaestro veröffentlichst, erscheint weiterhin in deinem Tab „Veröffentlicht“.",
       "unsupportedBody": "{channel} erlaubt Apps nicht, Kontobeiträge zu durchsuchen. Alles, was du über Markaestro veröffentlichst, erscheint weiterhin in deinem Tab „Veröffentlicht“.",
       "errorTitle": "{channel}-Beiträge konnten nicht geladen werden",
-      "errorBody": "{channel} hat nicht wie erwartet reagiert. Das ist normalerweise vorübergehend — versuche es gleich noch einmal.",
+      "errorBody": "{channel} hat nicht wie erwartet reagiert. Das ist normalerweise vorübergehend, versuche es gleich noch einmal.",
       "tryAgain": "Erneut versuchen",
       "emptyTitle": "Noch keine Beiträge auf {channel}",
-      "emptyBody": "Sobald dieses Konto veröffentlicht — über Markaestro oder direkt auf {channel} — erscheinen die Beiträge hier."
+      "emptyBody": "Sobald dieses Konto veröffentlicht, über Markaestro oder direkt auf {channel}, erscheinen die Beiträge hier."
     },
     "toasts": {
       "loadMoreFailed": "Weitere Beiträge konnten nicht geladen werden",
@@ -327,7 +327,7 @@
     "modeInbox": "An TikTok-Posteingang senden",
     "modeInboxHint": "Du stellst Untertitel und Beitrag in der TikTok-App fertig, wo du Sounds aus der TikTok-Bibliothek hinzufügen kannst.",
     "modeDirect": "Direkt auf TikTok veröffentlichen",
-    "modeDirectHint": "Markaestro veröffentlicht mit den unten stehenden Einstellungen in deinem Profil. Der Beitrag verwendet den eigenen Ton deines Videos — Sounds aus der TikTok-Bibliothek lassen sich nur in der App hinzufügen.",
+    "modeDirectHint": "Markaestro veröffentlicht mit den unten stehenden Einstellungen in deinem Profil. Der Beitrag verwendet den eigenen Ton deines Videos: Sounds aus der TikTok-Bibliothek lassen sich nur in der App hinzufügen.",
     "blockers": {
       "privacyNotSelected": "Wähle vor dem Veröffentlichen aus, wer diesen Beitrag sehen kann.",
       "disclosureWithoutSelection": "Du musst angeben, ob dein Inhalt dich selbst, Dritte oder beides bewirbt.",

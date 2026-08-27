@@ -48,6 +48,11 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
+  /* Motion — strong curves so UI feels responsive (built-ins are too soft) */
+  --ease-out-quart: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
   /* Markaestro design tokens */
   --color-mk-paper: var(--mk-paper);
   --color-mk-surface: var(--mk-surface);
@@ -75,35 +80,35 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
-  /* Markaestro design tokens — LIGHT */
-  --mk-paper:     oklch(0.995 0 0);
-  --mk-surface:   oklch(0.985 0.003 95);
-  --mk-panel:     oklch(0.975 0.004 95);
-  --mk-rule:      oklch(0.90 0.004 95);
-  --mk-rule-soft: oklch(0.94 0.004 95);
-  --mk-ink:       oklch(0.18 0.01 260);
-  --mk-ink-80:    oklch(0.30 0.01 260);
-  --mk-ink-60:    oklch(0.48 0.008 260);
-  --mk-ink-40:    oklch(0.62 0.006 260);
-  --mk-ink-20:    oklch(0.80 0.004 260);
-  --mk-accent:      oklch(0.58 0.22 255);
-  --mk-accent-ink:  oklch(0.99 0 0);
-  --mk-accent-soft: oklch(0.94 0.05 255);
-  --mk-pos:  oklch(0.62 0.15 150);
-  --mk-neg:  oklch(0.60 0.20 25);
-  --mk-warn: oklch(0.75 0.14 70);
+  /* Markaestro design tokens — Crisp Modern Slate / Zinc LIGHT */
+  --mk-paper:     #ffffff;
+  --mk-surface:   #f8fafc;
+  --mk-panel:     #f1f5f9;
+  --mk-rule:      #e2e8f0;
+  --mk-rule-soft: #f1f5f9;
+  --mk-ink:       #0f172a;
+  --mk-ink-80:    #334155;
+  --mk-ink-60:    #64748b;
+  --mk-ink-40:    #94a3b8;
+  --mk-ink-20:    #cbd5e1;
+  --mk-accent:      #2563eb;
+  --mk-accent-ink:  #ffffff;
+  --mk-accent-soft: #eff6ff;
+  --mk-pos:  #10b981;
+  --mk-neg:  #f43f5e;
+  --mk-warn: #f59e0b;
 
   --mk-ch-instagram: #E1306C;
-  --mk-ch-tiktok:    #111111;
+  --mk-ch-tiktok:    #0f172a;
   --mk-ch-facebook:  #1877F2;
   --mk-ch-youtube:   #FF0033;
   --mk-ch-linkedin:  #0A66C2;
   --mk-ch-pinterest: #E60023;
-  --mk-ch-threads:   #111111;
+  --mk-ch-threads:   #0f172a;
 
-  /* Shadcn tokens — mapped to Markaestro palette */
+  /* Shadcn tokens — mapped to clean modern palette */
   --background: var(--mk-surface);
   --foreground: var(--mk-ink);
 
@@ -124,22 +129,22 @@
 
   --accent: var(--mk-panel);
   --accent-foreground: var(--mk-ink);
-  --accent-soft: var(--mk-rule-soft);
+  --accent-soft: var(--mk-accent-soft);
 
   --destructive: var(--mk-neg);
 
   --border: var(--mk-rule);
   --input: var(--mk-rule);
-  --ring: var(--mk-ink-40);
+  --ring: var(--mk-accent);
 
-  /* Chart palette — solid channel colors */
-  --chart-1: var(--mk-ch-instagram);
-  --chart-2: var(--mk-ch-tiktok);
-  --chart-3: var(--mk-ch-facebook);
-  --chart-4: var(--mk-ch-youtube);
-  --chart-5: var(--mk-ch-linkedin);
+  /* Chart palette */
+  --chart-1: #2563eb;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #f43f5e;
+  --chart-5: #0A66C2;
 
-  /* Sidebar — LIGHT paper per redesign */
+  /* Sidebar */
   --sidebar: var(--mk-paper);
   --sidebar-foreground: var(--mk-ink-80);
   --sidebar-primary: var(--mk-accent);
@@ -151,25 +156,27 @@
 }
 
 .dark {
-  --mk-paper:     oklch(0.16 0.008 260);
-  --mk-surface:   oklch(0.19 0.008 260);
-  --mk-panel:     oklch(0.22 0.009 260);
-  --mk-rule:      oklch(0.28 0.010 260);
-  --mk-rule-soft: oklch(0.24 0.008 260);
-  --mk-ink:       oklch(0.98 0.003 95);
-  --mk-ink-80:    oklch(0.86 0.004 95);
-  --mk-ink-60:    oklch(0.68 0.006 260);
-  --mk-ink-40:    oklch(0.52 0.006 260);
-  --mk-ink-20:    oklch(0.36 0.008 260);
-  --mk-accent:      oklch(0.70 0.20 255);
-  --mk-accent-ink:  oklch(0.18 0.04 255);
-  --mk-accent-soft: oklch(0.28 0.08 255);
-  --mk-pos:  oklch(0.78 0.18 150);
-  --mk-neg:  oklch(0.72 0.20 25);
-  --mk-warn: oklch(0.80 0.15 70);
+  /* Markaestro design tokens — Deep Obsidian / Slate DARK */
+  --mk-paper:     #0b0f19;
+  --mk-surface:   #030712;
+  --mk-panel:     #111827;
+  --mk-rule:      #1f2937;
+  --mk-rule-soft: #111827;
+  --mk-ink:       #f9fafb;
+  --mk-ink-80:    #e5e7eb;
+  --mk-ink-60:    #9ca3af;
+  --mk-ink-40:    #6b7280;
+  --mk-ink-20:    #374151;
+  --mk-accent:      #3b82f6;
+  --mk-accent-ink:  #ffffff;
+  --mk-accent-soft: rgba(59, 130, 246, 0.15);
+  --mk-pos:  #34d399;
+  --mk-neg:  #fb7185;
+  --mk-warn: #fbbf24;
 
-  --mk-ch-tiktok:  #F1F1F1;
-  --mk-ch-threads: #F1F1F1;
+
+  --mk-ch-tiktok:  #f9fafb;
+  --mk-ch-threads: #f9fafb;
 
   --background: var(--mk-surface);
   --foreground: var(--mk-ink);
@@ -185,7 +192,7 @@
   --muted-foreground: var(--mk-ink-60);
   --accent: var(--mk-panel);
   --accent-foreground: var(--mk-ink);
-  --accent-soft: var(--mk-rule-soft);
+  --accent-soft: var(--mk-accent-soft);
   --destructive: var(--mk-neg);
   --border: var(--mk-rule);
   --input: var(--mk-rule);
@@ -217,13 +224,33 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Pressable things look pressable; disabled ones don't. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
 }
 
-/* iOS Safari zooms the page when a focused input's font-size is < 16px.
-   Force 16px on touch devices so forms never trigger the zoom. !important
-   is required to beat Tailwind text-size utilities (utilities layer wins
-   over @layer base otherwise). Scoped to coarse pointers so desktop
-   windows keep their compact form text. */
+/* Reduced motion: keep state changes, drop the movement. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* iOS Safari auto-zoom prevention on mobile */
 @media (hover: none) and (pointer: coarse) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
@@ -232,7 +259,7 @@
   }
 }
 
-/* Hide scrollbar for horizontal-scroll tab lists on mobile */
+/* Hide scrollbar for horizontal-scroll lists */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -241,16 +268,47 @@
   display: none;
 }
 
-/* Markaestro utility classes — mono eyebrow labels and figure styling */
+/* Clean, slim custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--mk-ink-20);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mk-ink-40);
+}
+
+/* Modern typography & layout utilities */
 .mk-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--mk-ink-60);
 }
 
 .mk-figure {
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
 }
+
+.mk-glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--mk-paper) 80%, transparent);
+}
+
+.mk-card {
+  background: var(--mk-paper);
+  border: 1px solid var(--mk-rule);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+

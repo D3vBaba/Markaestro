@@ -48,18 +48,12 @@ function Card({
   action?: React.ReactNode;
 }) {
   return (
-    <div
-      className="rounded-xl p-4 sm:p-5 min-w-0"
-      style={{ background: "var(--mk-paper)", border: "1px solid var(--mk-rule)" }}
-    >
-      <div className="flex items-start justify-between gap-3 mb-3.5 flex-wrap">
+    <div className="rounded-2xl p-5 sm:p-6 min-w-0 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+      <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
         <div>
-          <div className="mk-eyebrow">{eyebrow}</div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{eyebrow}</div>
           {title && (
-            <div
-              className="mt-1 text-[16px] font-semibold"
-              style={{ color: "var(--mk-ink)", letterSpacing: "-0.02em" }}
-            >
+            <div className="mt-1 text-base font-bold text-slate-900 dark:text-slate-100">
               {title}
             </div>
           )}
@@ -90,14 +84,6 @@ export default function AnalyticsPage() {
   const maxDays = getLimit("analyticsWindowDays");
   const canExport = canAccess("analyticsCsvExport");
 
-  // Land on the widest range the plan allows instead of a locked preset.
-  // getLimit() returns 0 until the subscription status loads; clamping against
-  // that would force the window to 0 and — since this clamp only ever shrinks
-  // `days` — leave it stuck there even after the real limit arrives. So wait
-  // for a real, positive (or unlimited) limit before touching `days`, and
-  // never fall back to 0.
-  // Clamp the selected range to what the plan allows. Adjusted during render so
-  // the chart never draws once with a range the plan does not permit.
   const [clampedForMaxDays, setClampedForMaxDays] = useState(maxDays);
   if (maxDays !== clampedForMaxDays) setClampedForMaxDays(maxDays);
   if (!subLoading && maxDays !== -1 && maxDays > 0 && days > maxDays) {
@@ -119,8 +105,6 @@ export default function AnalyticsPage() {
 
   const followerSpark = data?.followerTrend.map((p) => p.total) ?? [];
 
-  // Pull fresh numbers straight from each platform (bypassing the background
-  // poller's schedule), then re-read the analytics so the page reflects them.
   async function handleRefresh() {
     if (syncing || refreshing) return;
     setSyncing(true);
@@ -176,7 +160,7 @@ export default function AnalyticsPage() {
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="outline"
-              className="rounded-lg h-9 text-[13px] gap-1.5"
+              className="rounded-xl h-9 text-xs font-medium gap-2 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800"
               onClick={handleRefresh}
               disabled={loading || refreshing || syncing}
               title={t("refresh.title")}
@@ -187,7 +171,7 @@ export default function AnalyticsPage() {
             {canExport ? (
               <Button
                 variant="outline"
-                className="rounded-lg h-9 text-[13px] gap-1.5"
+                className="rounded-xl h-9 text-xs font-medium gap-2 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={handleExport}
                 disabled={exporting || loading}
               >
@@ -197,7 +181,7 @@ export default function AnalyticsPage() {
             ) : (
               <Button
                 variant="outline"
-                className="rounded-lg h-9 text-[13px] gap-1.5 opacity-60"
+                className="rounded-xl h-9 text-xs font-medium gap-2 opacity-60 border-slate-200 dark:border-slate-800"
                 disabled
                 title={t("export.lockedTitle")}
               >
@@ -210,14 +194,9 @@ export default function AnalyticsPage() {
       />
 
       {/* Filters */}
-      <div className="flex items-center gap-2 flex-wrap mb-4 sm:mb-5">
-        <div
-          className="inline-flex rounded-lg overflow-hidden"
-          style={{ border: "1px solid var(--mk-rule)" }}
-        >
+      <div className="flex items-center gap-2.5 flex-wrap mb-6">
+        <div className="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-slate-800/80">
           {RANGE_PRESETS.map((preset) => {
-            // maxDays is 0 until the subscription loads — don't flash every
-            // preset as locked during that window.
             const locked = maxDays !== -1 && maxDays > 0 && preset.days > maxDays;
             const active = days === preset.days;
             return (
@@ -231,12 +210,13 @@ export default function AnalyticsPage() {
                     ? t("filters.rangeLockedTitle", { label: preset.label })
                     : t("filters.rangeTitle", { label: preset.label })
                 }
-                className="px-3.5 sm:px-3 h-10 sm:h-8 text-[12px] font-medium inline-flex items-center gap-1 transition-colors disabled:cursor-not-allowed"
-                style={{
-                  background: active ? "var(--mk-ink)" : "var(--mk-paper)",
-                  color: active ? "var(--mk-paper)" : locked ? "var(--mk-ink-40)" : "var(--mk-ink)",
-                  borderLeft: preset.days !== RANGE_PRESETS[0].days ? "1px solid var(--mk-rule)" : "none",
-                }}
+                className={`px-3 py-1 text-xs font-semibold rounded-lg inline-flex items-center gap-1 transition-colors cursor-pointer ${
+                  active
+                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs"
+                    : locked
+                    ? "text-slate-400 opacity-50 cursor-not-allowed"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
               >
                 {locked && <Lock className="h-3 w-3" />}
                 {preset.label}
@@ -244,15 +224,11 @@ export default function AnalyticsPage() {
             );
           })}
         </div>
+
         <select
           value={channel ?? ""}
           onChange={(e) => setChannel((e.target.value || undefined) as SocialChannel | undefined)}
-          className="h-10 sm:h-8 px-2.5 rounded-lg text-[12px] cursor-pointer focus:outline-none max-w-full"
-          style={{
-            border: "1px solid var(--mk-rule)",
-            background: "var(--mk-paper)",
-            color: channel ? "var(--mk-ink)" : "var(--mk-ink-60)",
-          }}
+          className="h-9 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 outline-none cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
           title={t("filters.platformTitle")}
         >
           <option value="">{t("filters.allPlatforms")}</option>
@@ -262,16 +238,12 @@ export default function AnalyticsPage() {
             </option>
           ))}
         </select>
+
         {products.length > 0 && (
           <select
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
-            className="h-10 sm:h-8 px-2.5 rounded-lg text-[12px] cursor-pointer focus:outline-none max-w-full sm:max-w-[240px]"
-            style={{
-              border: "1px solid var(--mk-rule)",
-              background: "var(--mk-paper)",
-              color: productId ? "var(--mk-ink)" : "var(--mk-ink-60)",
-            }}
+            className="h-9 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 outline-none cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
             title={t("filters.brandTitle")}
           >
             <option value="">{t("filters.allBrands")}</option>
@@ -282,14 +254,16 @@ export default function AnalyticsPage() {
             ))}
           </select>
         )}
+
         {clamped && (
-          <span className="text-[11.5px]" style={{ color: "var(--mk-ink-60)" }}>
+          <span className="text-xs text-slate-400 font-medium">
             {t("filters.windowNote", { days: data.window.days })}
           </span>
         )}
       </div>
 
       {error && !loading && (
+
         <div
           className="flex items-start gap-3 rounded-xl p-4 mb-4"
           style={{
@@ -345,7 +319,7 @@ export default function AnalyticsPage() {
           )}
 
           {/* KPI row */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 mb-4 sm:mb-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
             <KpiCard
               label={t("kpis.views.label")}
               value={data?.totals.views ?? null}
@@ -393,22 +367,21 @@ export default function AnalyticsPage() {
 
           {/* Insights */}
           {data && data.insights.length > 0 && (
-            <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2 lg:grid-cols-3 mb-4 sm:mb-5">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
               {data.insights.map((insight) => (
                 <div
                   key={insight.id}
-                  className="rounded-xl p-3.5 flex items-start gap-2.5"
-                  style={{ background: "var(--mk-paper)", border: "1px solid var(--mk-rule)" }}
+                  className="rounded-2xl p-4 flex items-start gap-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs"
                 >
-                  <Lightbulb className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--mk-accent)" }} />
-                  <div className="min-w-0">
-                    <p className="text-[12.5px] m-0" style={{ color: "var(--mk-ink)" }}>
+                  <div className="h-8 w-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/50 dark:border-blue-800/50 flex items-center justify-center shrink-0 text-blue-600 dark:text-blue-400">
+                    <Lightbulb className="h-4 w-4" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs leading-relaxed font-medium text-slate-700 dark:text-slate-300 m-0">
                       {insight.text}
                     </p>
-                    <p
-                      className="mt-1 mb-0 font-mono text-[10px]"
-                      style={{ color: "var(--mk-ink-40)", letterSpacing: "0.06em" }}
-                    >
+                    <p className="mt-1.5 mb-0 text-[10.5px] font-semibold text-slate-400">
                       {t("insights.basedOn", { count: insight.sampleSize })}
                     </p>
                   </div>
@@ -418,7 +391,7 @@ export default function AnalyticsPage() {
           )}
 
           {/* Trend + followers */}
-          <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] mb-4 sm:mb-5">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] mb-6">
             <Card
               eyebrow={t("trend.eyebrow", { days: data?.window.days ?? days })}
               title={
@@ -427,17 +400,17 @@ export default function AnalyticsPage() {
                   : undefined
               }
               action={
-                <div className="flex items-center gap-1 flex-wrap">
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 flex-wrap">
                   {TREND_METRIC_KEYS.map((key) => (
                     <button
                       key={key}
                       type="button"
                       onClick={() => setTrendMetric(key)}
-                      className="px-3 sm:px-2 h-9 sm:h-7 rounded-md text-[11.5px] cursor-pointer transition-colors"
-                      style={{
-                        background: trendMetric === key ? "var(--mk-ink)" : "transparent",
-                        color: trendMetric === key ? "var(--mk-paper)" : "var(--mk-ink-60)",
-                      }}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                        trendMetric === key
+                          ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                      }`}
                     >
                       {t(`trend.metrics.${key}`)}
                     </button>
@@ -446,7 +419,7 @@ export default function AnalyticsPage() {
               }
             >
               {loading ? (
-                <Skeleton className="w-full rounded-lg" style={{ height: 220 }} />
+                <Skeleton className="w-full rounded-xl" style={{ height: 220 }} />
               ) : (
                 <TrendChart
                   data={data?.daily ?? []}
@@ -463,12 +436,13 @@ export default function AnalyticsPage() {
                 : t("audience.title")}
             >
               {loading ? (
-                <Skeleton className="w-full rounded-lg" style={{ height: 200 }} />
+                <Skeleton className="w-full rounded-xl" style={{ height: 200 }} />
               ) : (
                 <FollowerTrendChart data={data?.followerTrend ?? []} locale={locale} />
               )}
             </Card>
           </div>
+
 
           {/* Best time + content types */}
           <div className="grid gap-4 sm:gap-5 lg:grid-cols-2 mb-4 sm:mb-5">

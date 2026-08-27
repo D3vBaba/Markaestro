@@ -11,7 +11,7 @@
     "layer1Body": "Definida na própria caixa de diálogo da plataforma ao fazer login. No Facebook, isso abrange todo o seu <bold>espaço de trabalho</bold>, e cada novo login <bold>substitui</bold> a seleção anterior.",
     "layer2Badge": "Camada 2 · Roteamento",
     "layer2Title": "Em qual conta esta marca publica",
-    "layer2Body": "Definido dentro do Markaestro, por marca. É aqui que vive a regra de \"uma Página por marca\" — e uma marca pode ter várias contas, se quiser.",
+    "layer2Body": "Definido dentro do Markaestro, por marca. É aqui que vive a regra de \"uma Página por marca\", e uma marca pode ter várias contas, se quiser.",
     "warning": "<bold>Conceda tudo, depois refine por marca.</bold> Na caixa de diálogo da plataforma, marque todas as contas em que você possa vir a publicar. Escolher apenas uma ali revoga as demais, e suas publicações agendadas começam a falhar."
   },
   "guides": {
@@ -21,7 +21,7 @@
       "steps": {
         "0": { "title": "Abra uma marca e clique em Conectar no Facebook", "detail": "Marcas → escolha uma marca → Canais. Não importa com qual marca você comece; o login se aplica a todas as marcas." },
         "1": { "title": "Marque todas as Páginas que deseja que o Markaestro gerencie", "detail": "A caixa de diálogo do Facebook é a lista de permissões. Tudo o que você marcar se torna o conjunto completo que o Markaestro pode acessar, substituindo o conjunto anterior. Uma Página deixada desmarcada perde o acesso imediatamente." },
-        "2": { "title": "Escolha em qual Página esta marca publica", "detail": "De volta ao Markaestro, use Escolher Páginas. Isso é roteamento, não permissão — cada marca pode apontar para sua própria Página, e uma marca pode ter várias." }
+        "2": { "title": "Escolha em qual Página esta marca publica", "detail": "De volta ao Markaestro, use Escolher Páginas. Isso é roteamento, não permissão, cada marca pode apontar para sua própria Página, e uma marca pode ter várias." }
       },
       "gotcha": "Marcar apenas uma Página na caixa de diálogo do Facebook desconectará a Página de todas as outras marcas. Marque sempre todas e depois refine por marca dentro do Markaestro."
     },
@@ -29,7 +29,7 @@
       "label": "Instagram",
       "scope": "Conectado por marca, usando o próprio login do Instagram em vez do Facebook.",
       "steps": {
-        "0": { "title": "Clique em Conectar no Instagram na aba Canais da marca", "detail": "Isso é separado do Facebook — vincular uma Página do Facebook não vincula a conta do Instagram correspondente." },
+        "0": { "title": "Clique em Conectar no Instagram na aba Canais da marca", "detail": "Isso é separado do Facebook, vincular uma Página do Facebook não vincula a conta do Instagram correspondente." },
         "1": { "title": "Faça login com a própria conta do Instagram", "detail": "A conta deve ser Profissional (Empresa ou Criador de conteúdo). Contas pessoais não podem publicar pela API." }
       },
       "gotcha": "Se o Instagram recusar o login, a conta quase certamente ainda é pessoal. Mude-a para Profissional no aplicativo do Instagram e reconecte."
@@ -52,7 +52,7 @@
     },
     "pinterest": {
       "label": "Pinterest",
-      "scope": "Conectado por marca. Os murais funcionam como Páginas do Facebook — escolha em qual esta marca fixa pins.",
+      "scope": "Conectado por marca. Os murais funcionam como Páginas do Facebook, escolha em qual esta marca fixa pins.",
       "steps": {
         "0": { "title": "Clique em Conectar no Pinterest", "detail": "Autorize a conta empresarial do Pinterest." },
         "1": { "title": "Escolha um mural", "detail": "Os pins precisam de um mural de destino. Você pode vincular vários murais a uma marca e escolher entre eles ao criar." }
@@ -73,7 +73,7 @@
     "items": {
       "0": {
         "q": "Uma marca diz \"Reconecte o Facebook e marque esta Página\"",
-        "a": "As permissões atuais do Facebook não incluem mais essa Página — geralmente porque um login posterior marcou menos Páginas. Reconecte a partir de qualquer marca e marque todas as Páginas. Nada é perdido; a Página escolhida pela marca é restaurada automaticamente."
+        "a": "As permissões atuais do Facebook não incluem mais essa Página, geralmente porque um login posterior marcou menos Páginas. Reconecte a partir de qualquer marca e marque todas as Páginas. Nada é perdido; a Página escolhida pela marca é restaurada automaticamente."
       },
       "1": {
         "q": "Uma marca diz \"Selecione novamente nas configurações da marca\"",
@@ -81,7 +81,7 @@
       },
       "2": {
         "q": "Publicações agendadas estão falhando",
-        "a": "Verifique primeiro a aba Canais da marca. Se todos os canais parecerem conectados, reconecte a plataforma e marque todas as contas — um conjunto de permissões reduzido é a causa mais comum."
+        "a": "Verifique primeiro a aba Canais da marca. Se todos os canais parecerem conectados, reconecte a plataforma e marque todas as contas, um conjunto de permissões reduzido é a causa mais comum."
       },
       "3": {
         "q": "Uma publicação do TikTok nunca foi ao ar",

@@ -271,7 +271,7 @@ export default function ScheduleSheet({
                         <button
                           key={i}
                           onClick={() => handleSmartPick(slot)}
-                          className="w-full flex items-center gap-3 rounded-xl border border-border/40 bg-background p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-all text-start group"
+                          className="w-full flex items-center gap-3 rounded-xl border border-border/40 bg-background p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors text-start group"
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">

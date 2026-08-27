@@ -10,30 +10,33 @@ export type PillTone =
 
 /**
  * Inline style for a semantic pill/chip.
- * Uses color-mix to keep all shades derived from Markaestro tokens so pills
- * automatically track light/dark mode and accent changes.
+ * Uses modern color-mix with srgb for crisp contrast across light & dark themes.
  */
 export function pillStyle(tone: PillTone): CSSProperties {
   switch (tone) {
     case "pos":
       return {
-        background: "color-mix(in oklch, var(--mk-pos) 14%, var(--mk-paper))",
-        color: "color-mix(in oklch, var(--mk-pos) 60%, var(--mk-ink))",
+        background: "color-mix(in srgb, var(--mk-pos) 12%, var(--mk-paper))",
+        color: "var(--mk-pos)",
+        border: "1px solid color-mix(in srgb, var(--mk-pos) 25%, transparent)",
       };
     case "neg":
       return {
-        background: "color-mix(in oklch, var(--mk-neg) 12%, var(--mk-paper))",
+        background: "color-mix(in srgb, var(--mk-neg) 10%, var(--mk-paper))",
         color: "var(--mk-neg)",
+        border: "1px solid color-mix(in srgb, var(--mk-neg) 25%, transparent)",
       };
     case "warn":
       return {
-        background: "color-mix(in oklch, var(--mk-warn) 18%, var(--mk-paper))",
-        color: "color-mix(in oklch, var(--mk-warn) 60%, var(--mk-ink))",
+        background: "color-mix(in srgb, var(--mk-warn) 12%, var(--mk-paper))",
+        color: "var(--mk-warn)",
+        border: "1px solid color-mix(in srgb, var(--mk-warn) 25%, transparent)",
       };
     case "accent":
       return {
         background: "var(--mk-accent-soft)",
         color: "var(--mk-accent)",
+        border: "1px solid color-mix(in srgb, var(--mk-accent) 25%, transparent)",
       };
     case "ink":
       return {
@@ -45,6 +48,8 @@ export function pillStyle(tone: PillTone): CSSProperties {
       return {
         background: "var(--mk-panel)",
         color: "var(--mk-ink-60)",
+        border: "1px solid var(--mk-rule)",
       };
   }
 }
+

@@ -34,7 +34,8 @@
       "integration": "integratie",
       "post": "bericht",
       "workspace": "werkruimte",
-      "account": "gebruikersaccount"
+      "account": "gebruikersaccount",
+      "experiment": "A/B-test"
     },
     "titleGeneric": "{entity} verwijderen",
     "titleNamed": "{entity} verwijderen?",
@@ -86,8 +87,8 @@
         "activeLabel": "Je merkprofiel wordt opgebouwd…"
       }
     },
-    "scanComplete": "Scan voltooid — controleer en bevestig hieronder",
-    "scanFailed": "Scan mislukt — vul handmatig in",
+    "scanComplete": "Scan voltooid, controleer en bevestig hieronder",
+    "scanFailed": "Scan mislukt, vul handmatig in",
     "researching": "Je merk wordt onderzocht…"
   },
   "platformPreview": {

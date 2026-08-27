@@ -25,6 +25,8 @@ import {
 } from "@/lib/social/tiktok-direct-post-form";
 import { getFailedChannelResults } from "@/lib/social/publish-ui-outcome";
 import { userFacingError } from "@/lib/user-facing-errors";
+import AudienceFitPanel from "./AudienceFitPanel";
+import { useIntelligencePreviewAccess } from "@/hooks/useIntelligencePreviewAccess";
 
 const DRAFT_STORAGE_PREFIX = "markaestro_post_draft";
 const isVideoUrl = (url: string) => /\.(mp4|mov|webm)(?:[?&]|$)/i.test(url);
@@ -45,6 +47,7 @@ export default function CreateTab({
   onPostCreated?: () => void;
 }) {
   const t = useTranslations("content.createTab");
+  const canAccessIntelligence = useIntelligencePreviewAccess();
   const tTikTok = useTranslations("content.tiktokDirectPost");
   const [channel, setChannel] = useState("facebook");
   const [content, setContent] = useState("");
@@ -550,7 +553,7 @@ export default function CreateTab({
   const directPostBlockedReason = getTikTokDirectPostError();
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2" onKeyDown={handleKeyDown}>
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2" onKeyDown={handleKeyDown}>
       {/* Left column — inputs */}
       <div className="space-y-6">
         <ChannelSelector
@@ -711,6 +714,14 @@ export default function CreateTab({
             <p className="text-sm text-muted-foreground">{t("previewPlaceholder")}</p>
             <p className="text-xs text-muted-foreground/60 mt-2">{t("previewHint")}</p>
           </div>
+        )}
+        {canAccessIntelligence && (
+          <AudienceFitPanel
+            productId={productId}
+            content={content}
+            platform={(getSocialChannelConfig(activePreviewChannel) ? activePreviewChannel : "facebook") as SocialChannel}
+            onApplyCaption={setContent}
+          />
         )}
       </div>
 

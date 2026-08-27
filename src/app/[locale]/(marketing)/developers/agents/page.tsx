@@ -96,7 +96,7 @@ curl -s "$MARKAESTRO_URL/api/connect/v1/posts?limit=20" \\
 const toolDefinitions = `[
   {
     "name": "markaestro_list_accounts",
-    "description": "List the social accounts this Markaestro key can publish to. Call this first in every run — never hardcode account ids. Returns id, platform, and username.",
+    "description": "List the social accounts this Markaestro key can publish to. Call this first in every run. Never hardcode account ids. Returns id, platform, and username.",
     "input_schema": { "type": "object", "properties": {}, "required": [] }
   },
   {
@@ -142,7 +142,7 @@ const toolDefinitions = `[
   },
   {
     "name": "markaestro_publish_post",
-    "description": "Queue an async publish run for an existing post. Returns a run id — poll it, do not assume the post is live.",
+    "description": "Queue an async publish run for an existing post. Returns a run id. Poll it, do not assume the post is live.",
     "input_schema": {
       "type": "object",
       "properties": { "post_id": { "type": "string" } },
@@ -184,12 +184,12 @@ Rules:
   account ids back verbatim. Never invent or cache an id across runs.
 - Upload media before creating a post; posts reference media ids, not files.
 - Facebook, Instagram, and TikTok are manual-first. Creating and publishing
-  them queues a reminder for a human — that is the intended behavior. Only
+  them queues a reminder for a human. That is the intended behavior. Only
   send deliveryMode "direct_publish" if the operator explicitly asked for it.
 - Send a unique Idempotency-Key on every POST. Reuse the SAME key when
   retrying the SAME request; never reuse it for a different one.
 - On 429, wait the number of seconds in Retry-After, then retry. On 4xx other
-  than 429, do not retry — report the error code and requestId and stop.
+  than 429, do not retry. Report the error code and requestId and stop.
 - Publishing is async. POST /publish returns a run id; poll
   GET /api/public/v1/job-runs/<id> until succeeded or failed.
 - To cancel, list with ?status=scheduled and DELETE the post id. Deleting a
@@ -197,7 +197,7 @@ Rules:
 - Never claim a post is live until a run reports succeeded or a post reports
   published.`;
 
-const publishRecipe = `# Full control: draft → publish → poll. No productId needed —
+const publishRecipe = `# Full control: draft → publish → poll. No productId needed:
 # the key is already bound to one brand.
 
 POST_ID=$(curl -s -X POST "$MARKAESTRO_URL/api/public/v1/posts" \\
@@ -241,7 +241,7 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/webhook-endpoints" \\
 #   X-Markaestro-Signature  HMAC of the body with your webhook secret
 # The secret is shown once at creation and stored hashed. Verify before acting.`;
 
-const batchRecipe = `# One call, up to 25 posts. Per-item results — one bad item
+const batchRecipe = `# One call, up to 25 posts. Per-item results: one bad item
 # does not fail the batch.
 curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \\
   -H "Authorization: Bearer $MARKAESTRO_API_KEY" \\

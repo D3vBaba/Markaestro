@@ -1,0 +1,86 @@
+export const contentPillarOptions = [
+  'education',
+  'entertainment',
+  'inspiration',
+  'product_updates',
+  'behind_the_scenes',
+  'tutorials',
+  'thought_leadership',
+  'community',
+  'promotions',
+  'user_stories',
+  'industry_news',
+  'culture',
+  'events',
+  'testimonials',
+  'how_to',
+] as const;
+
+export const industryOptions = [
+  'technology',
+  'retail',
+  'finance',
+  'healthcare',
+  'education',
+  'food_beverage',
+  'fashion_beauty',
+  'travel',
+  'real_estate',
+  'fitness',
+  'entertainment',
+  'nonprofit',
+  'b2b_services',
+  'manufacturing',
+  'automotive',
+  'gaming',
+  'media',
+  'professional_services',
+  'home_garden',
+  'pets',
+] as const;
+
+export const interestOptions = [
+  'entrepreneurship',
+  'marketing',
+  'design',
+  'productivity',
+  'wellness',
+  'parenting',
+  'sustainability',
+  'personal_finance',
+  'cooking',
+  'photography',
+  'music',
+  'sports',
+  'technology',
+  'career_growth',
+  'diy',
+  'gaming',
+  'fashion',
+  'travel',
+  'fitness',
+  'reading',
+] as const;
+
+export const brandVoiceOptions = [
+  'professional',
+  'friendly',
+  'bold',
+  'playful',
+  'authoritative',
+  'empathetic',
+  'witty',
+  'inspirational',
+  'conversational',
+  'technical',
+  'luxury',
+  'minimalist',
+  'energetic',
+  'trustworthy',
+  'innovative',
+] as const;
+
+export type ContentPillarOption = (typeof contentPillarOptions)[number];
+export type IndustryOption = (typeof industryOptions)[number];
+export type InterestOption = (typeof interestOptions)[number];
+export type BrandVoiceOption = (typeof brandVoiceOptions)[number];

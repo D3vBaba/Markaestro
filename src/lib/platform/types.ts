@@ -121,6 +121,7 @@ export type PublishResult = {
  * and every other platform reports a views-like counter.
  */
 export type NormalizedPostMetrics = {
+  impressions: number | null;
   views: number | null;
   reach: number | null;
   likes: number | null;
@@ -128,8 +129,37 @@ export type NormalizedPostMetrics = {
   shares: number | null;
   saves: number | null;
   clicks: number | null;
+  profileVisits: number | null;
+  followersGained: number | null;
+  watchTimeSeconds: number | null;
+  averageWatchTimeSeconds: number | null;
+  completionRate: number | null;
+  conversions: number | null;
   videoViews: number | null;
+  /** Per-field availability accompanies nullable values without breaking existing consumers. */
+  availability?: Partial<Record<NormalizedMetricKey, MetricAvailability>>;
+  source?: MetricSource;
   raw: Record<string, number>;
+};
+
+export const normalizedMetricKeys = [
+  'impressions', 'views', 'reach', 'likes', 'comments', 'shares', 'saves', 'clicks',
+  'profileVisits', 'followersGained', 'watchTimeSeconds', 'averageWatchTimeSeconds',
+  'completionRate', 'conversions', 'videoViews',
+] as const;
+
+export type NormalizedMetricKey = (typeof normalizedMetricKeys)[number];
+
+export type MetricAvailability = {
+  state: 'available' | 'unsupported' | 'missing_scope' | 'account_ineligible' | 'delayed' | 'unknown_api_error';
+  reason?: string;
+  requiredScopes?: string[];
+};
+
+export type MetricSource = {
+  provider: string;
+  apiVersion: string;
+  measuredAt?: string;
 };
 
 export type MetricsFetchInput = {

@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Globe, FileSearch, Palette, Sparkles, PackageCheck, Check, AlertCircle } from "lucide-react";
+import { Globe, FileSearch, Palette, ScanSearch, PackageCheck, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isRtlLocale } from "@/i18n/routing";
 import type { ScanPhase } from "@/hooks/useProductScan";
@@ -16,7 +16,7 @@ const STEPS: Step[] = [
   { phase: "connecting", icon: Globe },
   { phase: "reading", icon: FileSearch },
   { phase: "extracting", icon: Palette },
-  { phase: "analyzing", icon: Sparkles },
+  { phase: "analyzing", icon: ScanSearch },
   { phase: "finalizing", icon: PackageCheck },
 ];
 
@@ -128,7 +128,7 @@ export default function ScanProgressStepper({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.2, delay: i * 0.06 }}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-colors duration-300",
+                  "flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-colors duration-200",
                   state === "active" && "bg-primary/5",
                   state === "done" && "opacity-60",
                   state === "pending" && "opacity-30",

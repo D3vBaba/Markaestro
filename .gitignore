@@ -42,3 +42,6 @@ firebase-debug.log*
 next-env.d.ts
 .firebase/
 .claude/
+
+# local review artifacts
+output/

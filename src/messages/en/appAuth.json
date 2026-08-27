@@ -7,14 +7,14 @@
       "titleLine2Accent": "one login.",
       "subtitle": "Stop logging into five apps to post once. Sign in to publish everywhere, schedule weeks ahead, and get your time back.",
       "points": {
-        "publish": { "title": "Publish everywhere at once", "desc": "Facebook, Instagram, TikTok and more — from a single composer." },
+        "publish": { "title": "Publish everywhere at once", "desc": "Facebook, Instagram, TikTok and more, from a single composer." },
         "schedule": { "title": "Schedule weeks ahead", "desc": "Set your cadence once and never go quiet again." },
         "hours": { "title": "Hours back every week", "desc": "The copy-paste-and-log-in busywork simply disappears." }
       },
       "newHere": {
         "title": "New to Markaestro?",
-        "body": "Answer 10 quick questions and we'll build your posting plan — see how many hours you'll get back, free.",
-        "cta": "Build my plan — it's free →"
+        "body": "Answer 10 quick questions and we'll build your posting plan. See how many hours you'll get back, free.",
+        "cta": "Build my plan. It's free →"
       }
     },
     "form": {
@@ -22,7 +22,7 @@
       "eyebrowCode": "Check your inbox",
       "titleEmail": "Continue with your email",
       "titleCode": "Enter your code",
-      "subtitleEmail": "No password needed — we'll email you a one-time code. New here? The same code creates your account.",
+      "subtitleEmail": "No password needed. We'll email you a one-time code. New here? The same code creates your account.",
       "subtitleCode": "We sent a 6-digit code to <email></email>.",
       "emailPlaceholder": "name@company.com",
       "codePlaceholder": "123456",

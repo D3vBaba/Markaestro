@@ -48,7 +48,7 @@ export class LinkedInApiError extends Error {
 }
 
 export function linkedinApiVersion(): string {
-  return process.env.LINKEDIN_API_VERSION?.trim() || '202606';
+  return process.env.LINKEDIN_API_VERSION?.trim() || '202608';
 }
 
 export function linkedinRestHeaders(accessToken: string, contentType?: string): Record<string, string> {

@@ -10,7 +10,7 @@
     "title": "Seu código de acesso",
     "bodyIntro": "Use este código para entrar como <strong>{email}</strong>:",
     "fallbackAccount": "sua conta",
-    "expiryNote": "O código expira em 10 minutos. Nunca compartilhe com ninguém — o Markaestro nunca vai pedi-lo.",
+    "expiryNote": "O código expira em 10 minutos. Nunca compartilhe com ninguém, o Markaestro nunca vai pedi-lo.",
     "footerNote": "Se você não tentou entrar, pode ignorar este e-mail. Sem o código, ninguém pode acessar sua conta.",
     "plain": {
       "heading": "Seu código de acesso do Markaestro",
@@ -41,12 +41,12 @@
     "bodyIntro": "Alguém solicitou alterar o e-mail desta conta do Markaestro:",
     "fromToLabel": "De → Para",
     "changeSummary": "<strong>{oldEmail}</strong> → <strong>{newEmail}</strong>",
-    "bodyOutro": "Se foi você, conclua a confirmação com o código que enviamos para o <strong>novo endereço</strong>. Se não foi você, seu e-mail não foi alterado — mas entre em contato com o suporte imediatamente.",
+    "bodyOutro": "Se foi você, conclua a confirmação com o código que enviamos para o <strong>novo endereço</strong>. Se não foi você, seu e-mail não foi alterado, mas entre em contato com o suporte imediatamente.",
     "footerNote": "Este aviso foi enviado porque uma alteração foi solicitada para sua conta.",
     "plain": {
       "heading": "Alteração de e-mail solicitada no Markaestro",
       "changeSummary": "{oldEmail} -> {newEmail}",
-      "warning": "Se não foi você, seu e-mail não foi alterado — entre em contato com o suporte imediatamente."
+      "warning": "Se não foi você, seu e-mail não foi alterado, entre em contato com o suporte imediatamente."
     }
   },
   "manualPostReminder": {
@@ -63,7 +63,7 @@
   "tiktokInbox": {
     "subjectWithBrand": "Finalize sua publicação do TikTok para {brandName}",
     "subjectNoBrand": "Finalize sua publicação do TikTok",
-    "preheader": "Seu vídeo está aguardando no app do TikTok — abra-o para publicar.",
+    "preheader": "Seu vídeo está aguardando no app do TikTok, abra-o para publicar.",
     "bodyIntroWithBrand": "Seu vídeo foi enviado e está aguardando na sua caixa de entrada do TikTok para <strong>{brandName}</strong>. O TikTok exige que a publicação final seja feita pelo aplicativo, então ela ainda não está no ar.",
     "bodyIntroNoBrand": "Seu vídeo foi enviado e está aguardando na sua caixa de entrada do TikTok. O TikTok exige que a publicação final seja feita pelo aplicativo, então ela ainda não está no ar.",
     "toPublishLabel": "Para publicá-la",
@@ -88,7 +88,7 @@
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong> convidou você para entrar no workspace <strong>{workspaceName}</strong> no Markaestro {roleLabel}.",
     "bodyIntroNoInviter": "Um colega de equipe convidou você para entrar no workspace <strong>{workspaceName}</strong> no Markaestro {roleLabel}.",
     "signInInstructions": "Entre (ou crie uma conta) usando este endereço de e-mail e depois aceite o convite no banner do aplicativo:",
-    "declineNote": "Não quer entrar? Recuse o convite no aplicativo, ou simplesmente não faça nada — o convite expira em 30 dias.",
+    "declineNote": "Não quer entrar? Recuse o convite no aplicativo, ou simplesmente não faça nada, o convite expira em 30 dias.",
     "roleLabels": {
       "admin": "como administrador",
       "member": "como membro",

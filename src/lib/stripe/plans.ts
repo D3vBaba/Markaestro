@@ -12,6 +12,8 @@ export type PlanLimits = {
   teamMembers: number; // -1 = unlimited
   workspaces: number; // -1 = unlimited
   analyticsWindowDays: number; // -1 = unlimited history
+  intelligenceAiOperationsPerMonth: number;
+  strategistTurnsPerMonth: number;
 };
 
 export type PlanConfig = {
@@ -28,6 +30,10 @@ export type PlanConfig = {
     brandIdentity: boolean;
     prioritySupport: boolean;
     analyticsCsvExport: boolean;
+    audienceFit: boolean;
+    intelligenceOptimization: boolean;
+    intelligenceStrategist: boolean;
+    intelligenceExperiments: boolean;
   };
 };
 
@@ -59,12 +65,18 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: 1,
       analyticsWindowDays: 7,
       apiRequestsPerMinute: 0,
+      intelligenceAiOperationsPerMonth: 5,
+      strategistTurnsPerMonth: 0,
     },
     gated: {
       smartScheduling: false,
       brandIdentity: false,
       prioritySupport: false,
       analyticsCsvExport: false,
+      audienceFit: true,
+      intelligenceOptimization: false,
+      intelligenceStrategist: false,
+      intelligenceExperiments: false,
     },
   },
   starter: {
@@ -92,12 +104,18 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: 1,
       analyticsWindowDays: 30,
       apiRequestsPerMinute: 60,
+      intelligenceAiOperationsPerMonth: 30,
+      strategistTurnsPerMonth: 0,
     },
     gated: {
       smartScheduling: false,
       brandIdentity: false,
       prioritySupport: false,
       analyticsCsvExport: false,
+      audienceFit: true,
+      intelligenceOptimization: false,
+      intelligenceStrategist: false,
+      intelligenceExperiments: false,
     },
   },
   pro: {
@@ -126,12 +144,18 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: 5,
       analyticsWindowDays: 365,
       apiRequestsPerMinute: 120,
+      intelligenceAiOperationsPerMonth: 300,
+      strategistTurnsPerMonth: 30,
     },
     gated: {
       smartScheduling: true,
       brandIdentity: true,
       prioritySupport: true,
       analyticsCsvExport: false,
+      audienceFit: true,
+      intelligenceOptimization: true,
+      intelligenceStrategist: true,
+      intelligenceExperiments: false,
     },
   },
   business: {
@@ -156,12 +180,18 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       workspaces: -1,
       analyticsWindowDays: -1,
       apiRequestsPerMinute: 300,
+      intelligenceAiOperationsPerMonth: 2000,
+      strategistTurnsPerMonth: 300,
     },
     gated: {
       smartScheduling: true,
       brandIdentity: true,
       prioritySupport: true,
       analyticsCsvExport: true,
+      audienceFit: true,
+      intelligenceOptimization: true,
+      intelligenceStrategist: true,
+      intelligenceExperiments: true,
     },
   },
 };

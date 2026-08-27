@@ -3,11 +3,11 @@
     "eyebrow": "Prezzi",
     "titleLead": "Tutto il tuo motore di marketing,",
     "titleHighlight": "un prezzo semplice",
-    "subtitle": "Nessuna commissione nascosta, nessuna sorpresa per utente. Inizia gratis — ogni piano a pagamento include una prova gratuita di {trialDays} giorni. Annulla in qualsiasi momento.",
+    "subtitle": "Nessuna commissione nascosta, nessuna sorpresa per utente. Inizia gratis, ogni piano a pagamento include una prova gratuita di {trialDays} giorni. Annulla in qualsiasi momento.",
     "monthlyToggle": "Mensile",
     "annualToggle": "Annuale",
     "annualSaveBadge": "RISPARMIA IL 18%",
-    "trialLine": "Prova gratuita di {trialDays} giorni su tutti i piani a pagamento — nessun addebito fino al giorno {trialEndDay}",
+    "trialLine": "Prova gratuita di {trialDays} giorni su tutti i piani a pagamento, nessun addebito fino al giorno {trialEndDay}",
     "annualSavingsSuffix": " · La fatturazione annuale fa risparmiare il 18%"
   },
   "planNames": {
@@ -19,7 +19,7 @@
   "mostPopularBadge": "Più Popolare",
   "plans": {
     "free": {
-      "description": "Prova Markaestro con un brand — gratis per sempre.",
+      "description": "Prova Markaestro con un brand, gratis per sempre.",
       "features": [
         "Un brand",
         "2 canali social",
@@ -86,7 +86,7 @@
     "titleLead": "Confronta",
     "titleHighlight": "ogni funzionalità",
     "subtitle": "Scopri esattamente cosa è incluso in ogni piano.",
-    "freeNote": "Il piano Gratis include 1 brand, 2 canali, 15 post al mese, 1 GB di archiviazione e analisi di 7 giorni — senza accesso API.",
+    "freeNote": "Il piano Gratis include 1 brand, 2 canali, 15 post al mese, 1 GB di archiviazione e analisi di 7 giorni, senza accesso API.",
     "categories": [
       {
         "name": "Pubblicazione",
@@ -146,7 +146,7 @@
   "faqs": [
     {
       "q": "Esiste un piano gratuito?",
-      "a": "Sì. Il piano Gratis costa 0 $ per sempre — nessuna carta richiesta. Ottieni 1 brand, 2 canali social, 15 post al mese, 1 GB di archiviazione e una finestra di analisi di 7 giorni, con 1 membro del team in 1 workspace. L'accesso API richiede un piano a pagamento. Fai l'upgrade quando sei pronto."
+      "a": "Sì. Il piano Gratis costa 0 $ per sempre, nessuna carta richiesta. Ottieni 1 brand, 2 canali social, 15 post al mese, 1 GB di archiviazione e una finestra di analisi di 7 giorni, con 1 membro del team in 1 workspace. L'accesso API richiede un piano a pagamento. Fai l'upgrade quando sei pronto."
     },
     {
       "q": "Posso cambiare piano in qualsiasi momento?",
@@ -162,11 +162,11 @@
     },
     {
       "q": "Cosa succede quando raggiungo il limite di archiviazione?",
-      "a": "Puoi continuare a pubblicare post che usano contenuti già presenti nel tuo workspace — solo i nuovi caricamenti vengono bloccati. Libera spazio eliminando i contenuti che non ti servono più, oppure effettua l'upgrade del piano in qualsiasi momento per più archiviazione."
+      "a": "Puoi continuare a pubblicare post che usano contenuti già presenti nel tuo workspace, solo i nuovi caricamenti vengono bloccati. Libera spazio eliminando i contenuti che non ti servono più, oppure effettua l'upgrade del piano in qualsiasi momento per più archiviazione."
     },
     {
       "q": "Come funziona la prova gratuita?",
-      "a": "Ogni piano — mensile e annuale — include una prova gratuita di {trialDays} giorni. La tua carta viene registrata alla registrazione ma non ti verrà addebitato nulla fino alla fine della prova. Annulla in qualsiasi momento durante la prova e non pagherai nulla."
+      "a": "Ogni piano, mensile e annuale, include una prova gratuita di {trialDays} giorni. La tua carta viene registrata alla registrazione ma non ti verrà addebitato nulla fino alla fine della prova. Annulla in qualsiasi momento durante la prova e non pagherai nulla."
     },
     {
       "q": "Quali piani includono la prova gratuita?",

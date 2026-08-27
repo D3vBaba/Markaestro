@@ -28,7 +28,7 @@
   },
   "markPostedDialog": {
     "title": "Segna come pubblicato",
-    "description": "Conferma di aver pubblicato tu stesso questo post su {channel}. Incolla il link al post live se ce l'hai — collegherà il post alle sue statistiche in seguito.",
+    "description": "Conferma di aver pubblicato tu stesso questo post su {channel}. Incolla il link al post live se ce l'hai, collegherà il post alle sue statistiche in seguito.",
     "urlPlaceholder": "https://www.{channel}.com/… (facoltativo)",
     "cancel": "Annulla",
     "confirm": "Segna come pubblicato",
@@ -182,7 +182,7 @@
   },
   "platformPostsTab": {
     "refresh": "Aggiorna",
-    "liveFrom": "Post live dal tuo account {channel} collegato — inclusi quelli pubblicati fuori da Markaestro.",
+    "liveFrom": "Post live dal tuo account {channel} collegato, inclusi quelli pubblicati fuori da Markaestro.",
     "loadMore": "Carica altri",
     "loading": "Caricamento…",
     "noCaption": "Nessuna didascalia",
@@ -191,14 +191,14 @@
     "deleting": "Eliminazione…",
     "delete": "Elimina",
     "noDeleteHints": {
-      "instagram": "Instagram non consente alle app di eliminare i post — rimuovili nell'app Instagram.",
-      "tiktok": "TikTok non consente alle app di eliminare i video — rimuovili nell'app TikTok."
+      "instagram": "Instagram non consente alle app di eliminare i post, rimuovili nell'app Instagram.",
+      "tiktok": "TikTok non consente alle app di eliminare i video, rimuovili nell'app TikTok."
     },
     "noDeleteDefault": "L'eliminazione non è supportata per questo post.",
     "deleteWarning": "Questo rimuove definitivamente il post da {channel}.",
     "states": {
       "notConnectedTitle": "{channel} non è ancora collegato",
-      "notConnectedBody": "Collega {channel} a questo brand e i suoi post live appariranno qui — inclusi quelli pubblicati fuori da Markaestro.",
+      "notConnectedBody": "Collega {channel} a questo brand e i suoi post live appariranno qui, inclusi quelli pubblicati fuori da Markaestro.",
       "connect": "Collega {channel}",
       "authTitle": "{channel} deve essere ricollegato",
       "authBody": "La connessione a {channel} è scaduta, quindi al momento non possiamo sfogliare i suoi post. Ricollegala dalle impostazioni del brand per riprendere da dove avevi lasciato.",
@@ -208,10 +208,10 @@
       "linkedinPartnerBody": "LinkedIn consente solo alle app partner approvate di sfogliare i post dell'account. Tutto ciò che pubblichi tramite Markaestro appare comunque nella tua scheda Pubblicati.",
       "unsupportedBody": "{channel} non consente alle app di sfogliare i post dell'account. Tutto ciò che pubblichi tramite Markaestro appare comunque nella tua scheda Pubblicati.",
       "errorTitle": "Impossibile caricare i post {channel}",
-      "errorBody": "{channel} non ha risposto come previsto. Di solito è temporaneo — riprova tra un momento.",
+      "errorBody": "{channel} non ha risposto come previsto. Di solito è temporaneo, riprova tra un momento.",
       "tryAgain": "Riprova",
       "emptyTitle": "Ancora nessun post su {channel}",
-      "emptyBody": "Quando questo account pubblica — tramite Markaestro o direttamente su {channel} — i suoi post appariranno qui."
+      "emptyBody": "Quando questo account pubblica, tramite Markaestro o direttamente su {channel}, i suoi post appariranno qui."
     },
     "toasts": {
       "loadMoreFailed": "Impossibile caricare altri post",
@@ -327,7 +327,7 @@
     "modeInbox": "Invia alla posta in arrivo di TikTok",
     "modeInboxHint": "Completi la didascalia e pubblichi dall’app TikTok, dove puoi aggiungere suoni dalla libreria di TikTok.",
     "modeDirect": "Pubblica direttamente su TikTok",
-    "modeDirectHint": "Markaestro pubblica sul tuo profilo con le impostazioni qui sotto. Il post usa l’audio originale del tuo video — i suoni della libreria TikTok si possono aggiungere solo nell’app.",
+    "modeDirectHint": "Markaestro pubblica sul tuo profilo con le impostazioni qui sotto. Il post usa l’audio originale del tuo video, i suoni della libreria TikTok si possono aggiungere solo nell’app.",
     "blockers": {
       "privacyNotSelected": "Seleziona chi può vedere questo post prima di pubblicare.",
       "disclosureWithoutSelection": "Devi indicare se il tuo contenuto promuove te stesso, terze parti o entrambi.",

@@ -11,7 +11,9 @@ export type WorkspaceWorkReason =
   | 'publish_run'
   | 'webhook_delivery'
   | 'analytics'
+  | 'intelligence_job'
   | 'daily_job'
+  | 'experiment_close'
   | 'legacy_sweep';
 
 export type DueWorkspaceClaim = {

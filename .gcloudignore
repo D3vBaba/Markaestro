@@ -3,6 +3,7 @@
 npm-debug.log
 .next
 node_modules
+output
 firebase-debug.log
 firebase-debug.*.log
 *.tsbuildinfo

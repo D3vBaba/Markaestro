@@ -11,7 +11,7 @@
     "layer1Body": "Impostato nella finestra di dialogo della piattaforma stessa al momento dell'accesso. Su Facebook copre l'<bold>intero workspace</bold>, e ogni nuovo accesso <bold>sostituisce</bold> la selezione precedente.",
     "layer2Badge": "Livello 2 · Instradamento",
     "layer2Title": "Su quale account pubblica questo brand",
-    "layer2Body": "Impostato all'interno di Markaestro, per brand. È qui che vive la regola \"una Pagina per brand\" — e un brand può avere più account, se lo desideri.",
+    "layer2Body": "Impostato all'interno di Markaestro, per brand. È qui che vive la regola \"una Pagina per brand\", e un brand può avere più account, se lo desideri.",
     "warning": "<bold>Concedi tutto, poi restringi per brand.</bold> Nella finestra di dialogo della piattaforma, seleziona ogni account su cui potresti mai voler pubblicare. Sceglierne solo uno revoca gli altri, e i loro post programmati iniziano a fallire."
   },
   "guides": {
@@ -21,7 +21,7 @@
       "steps": {
         "0": { "title": "Apri un brand e premi Collega su Facebook", "detail": "Brand → scegli un brand → Canali. Non importa da quale brand parti; l'accesso si applica a tutti i brand." },
         "1": { "title": "Seleziona ogni Pagina che vuoi far gestire a Markaestro", "detail": "La finestra di dialogo di Facebook è l'elenco dei permessi. Ciò che selezioni diventa l'insieme completo che Markaestro può toccare, sostituendo quello precedente. Una Pagina lasciata deselezionata perde immediatamente l'accesso." },
-        "2": { "title": "Scegli su quale Pagina pubblica questo brand", "detail": "Torna in Markaestro e usa Scegli Pagine. Questo è instradamento, non permesso — ogni brand può puntare alla propria Pagina, e un brand può averne diverse." }
+        "2": { "title": "Scegli su quale Pagina pubblica questo brand", "detail": "Torna in Markaestro e usa Scegli Pagine. Questo è instradamento, non permesso, ogni brand può puntare alla propria Pagina, e un brand può averne diverse." }
       },
       "gotcha": "Selezionare solo una Pagina nella finestra di dialogo di Facebook disconnetterà la Pagina di tutti gli altri brand. Selezionale sempre tutte, poi restringi per brand all'interno di Markaestro."
     },
@@ -29,7 +29,7 @@
       "label": "Instagram",
       "scope": "Collegato per brand, usando l'accesso proprio di Instagram anziché quello di Facebook.",
       "steps": {
-        "0": { "title": "Premi Collega su Instagram nella scheda Canali del brand", "detail": "Questo è separato da Facebook — collegare una Pagina Facebook non collega il relativo account Instagram." },
+        "0": { "title": "Premi Collega su Instagram nella scheda Canali del brand", "detail": "Questo è separato da Facebook, collegare una Pagina Facebook non collega il relativo account Instagram." },
         "1": { "title": "Accedi con l'account Instagram stesso", "detail": "L'account deve essere Professionale (Business o Creator). Gli account personali non possono pubblicare tramite l'API." }
       },
       "gotcha": "Se Instagram rifiuta l'accesso, l'account è quasi certamente ancora personale. Passa a Professionale nell'app Instagram, poi riconnetti."
@@ -52,7 +52,7 @@
     },
     "pinterest": {
       "label": "Pinterest",
-      "scope": "Collegato per brand. Le bacheche funzionano come le Pagine Facebook — scegli su quale questo brand pinna.",
+      "scope": "Collegato per brand. Le bacheche funzionano come le Pagine Facebook, scegli su quale questo brand pinna.",
       "steps": {
         "0": { "title": "Premi Collega su Pinterest", "detail": "Autorizza l'account business di Pinterest." },
         "1": { "title": "Scegli una bacheca", "detail": "I Pin necessitano di una bacheca di destinazione. Puoi collegare più bacheche a un brand e scegliere tra loro durante la creazione." }
@@ -73,7 +73,7 @@
     "items": {
       "0": {
         "q": "Un brand dice \"Riconnetti Facebook e seleziona questa Pagina\"",
-        "a": "I permessi attuali di Facebook non includono più quella Pagina — di solito perché un accesso successivo ha selezionato meno Pagine. Riconnettiti da qualsiasi brand e seleziona tutte le Pagine. Non si perde nulla; la scelta della Pagina del brand viene ripristinata automaticamente."
+        "a": "I permessi attuali di Facebook non includono più quella Pagina, di solito perché un accesso successivo ha selezionato meno Pagine. Riconnettiti da qualsiasi brand e seleziona tutte le Pagine. Non si perde nulla; la scelta della Pagina del brand viene ripristinata automaticamente."
       },
       "1": {
         "q": "Un brand dice \"Selezionala di nuovo nelle impostazioni del brand\"",
@@ -81,7 +81,7 @@
       },
       "2": {
         "q": "I post programmati stanno fallendo",
-        "a": "Controlla prima la scheda Canali del brand. Se tutti i canali sembrano collegati, riconnetti la piattaforma e seleziona tutti gli account — un insieme di permessi ristretto è la causa più comune."
+        "a": "Controlla prima la scheda Canali del brand. Se tutti i canali sembrano collegati, riconnetti la piattaforma e seleziona tutti gli account, un insieme di permessi ristretto è la causa più comune."
       },
       "3": {
         "q": "Un post TikTok non è mai andato online",

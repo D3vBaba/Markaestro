@@ -3,7 +3,7 @@
     "badge": "El centro de publicación social para cada marca que gestionas",
     "titleLead": "Todo tu motor de marketing",
     "titleHighlight": "en una sola plataforma",
-    "subtitle": "Sube tu contenido, escribe tus textos y publica cada marca que gestionas — tu negocio, tus clientes o tú mismo — en cada canal social desde un único panel. O entrega una clave de API a tu agente de IA y deja que él lo haga todo.",
+    "subtitle": "Sube tu contenido, escribe tus textos y publica cada marca que gestionas, tu negocio, tus clientes o tú mismo, en cada canal social desde un único panel. O entrega una clave de API a tu agente de IA y deja que él lo haga todo.",
     "primaryButton": "Empieza gratis",
     "secondaryButton": "Ver funciones",
     "signInPrompt": "¿Ya tienes una cuenta?",
@@ -52,7 +52,7 @@
   "composerPreview": {
     "panelLabel": "Un editor, todos los canales",
     "rows": [
-      { "label": "Contenido", "value": "Sube imágenes o vídeo — JPG, PNG, WebP, MP4" },
+      { "label": "Contenido", "value": "Sube imágenes o vídeo: JPG, PNG, WebP, MP4" },
       { "label": "Texto", "value": "Escribe una vez, previsualiza por canal antes de publicar" },
       { "label": "Resultado", "value": "Publicaciones programadas o instantáneas en los seis canales conectados" }
     ],
@@ -71,7 +71,7 @@
     "eyebrow": "Agentes de IA",
     "titleLead": "O deja que tu agente",
     "titleHighlight": "lo gestione",
-    "subtitle": "Cada espacio de trabajo puede generar claves de API. Entrega una a tu agente de IA y podrá descubrir a qué cuentas tiene permiso para publicar, subir contenido, redactar y programar publicaciones, publicarlas y reportar lo que realmente se publicó — sin tocar directamente ninguna API de plataforma.",
+    "subtitle": "Cada espacio de trabajo puede generar claves de API. Entrega una a tu agente de IA y podrá descubrir a qué cuentas tiene permiso para publicar, subir contenido, redactar y programar publicaciones, publicarlas y reportar lo que realmente se publicó, sin tocar directamente ninguna API de plataforma.",
     "bullets": [
       "Cada clave está limitada a una sola marca: un agente no puede acceder a otra",
       "Facebook, Instagram y TikTok siguen siendo de publicación manual: siempre publica una persona",

@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Análises",
-    "subtitle": "O que suas publicações renderam — medido com os dados de cada plataforma.",
+    "subtitle": "O que suas publicações renderam, medido com os dados de cada plataforma.",
     "refresh": {
       "idle": "Atualizar",
       "refreshing": "Atualizando…",
@@ -20,7 +20,7 @@
       "brandTitle": "Filtrar por marca",
       "rangeTitle": "Últimos {label}",
       "rangeLockedTitle": "O período de {label} exige um plano superior",
-      "windowNote": "Mostrando {days} dias — a janela de análises do seu plano."
+      "windowNote": "Mostrando {days} dias, a janela de análises do seu plano."
     },
     "error": {
       "message": "Não foi possível carregar as análises.",
@@ -29,10 +29,10 @@
     "emptyState": {
       "eyebrow": "Ainda sem dados",
       "title": "Publique sua primeira postagem para começar a medir",
-      "body": "Assim que uma postagem for publicada, o Markaestro busca suas visualizações, alcance e engajamento na plataforma em cerca de uma hora — e continua acompanhando por 30 dias. O número de seguidores é registrado diariamente em cada canal conectado.",
+      "body": "Assim que uma postagem for publicada, o Markaestro busca suas visualizações, alcance e engajamento na plataforma em cerca de uma hora, e continua acompanhando por 30 dias. O número de seguidores é registrado diariamente em cada canal conectado.",
       "createPost": "Criar uma postagem"
     },
-    "warmingUp": "Coletando métricas — os primeiros dados chegam cerca de uma hora após a publicação e depois são atualizados em uma frequência decrescente por 30 dias.",
+    "warmingUp": "Coletando métricas, os primeiros dados chegam cerca de uma hora após a publicação e depois são atualizados em uma frequência decrescente por 30 dias.",
     "kpis": {
       "views": { "label": "Visualizações", "sub": "vs. período anterior" },
       "reach": { "label": "Alcance", "sub": "contas únicas alcançadas" },
@@ -57,14 +57,14 @@
     "channels": { "eyebrow": "Canais", "title": "Desempenho por canal" },
     "posts": { "eyebrow": "Postagens", "title": "Melhores postagens" },
     "provenance": {
-      "base": "As métricas seguem as definições de API de cada plataforma e podem ficar até 48 horas atrás das estatísticas nativas. Um \"—\" significa que a plataforma não fornece essa métrica (por exemplo, Threads e TikTok não informam alcance). A taxa de engajamento é engajamento ÷ alcance.",
+      "base": "As métricas seguem as definições de API de cada plataforma e podem ficar até 48 horas atrás das estatísticas nativas. Um \"n/a\" significa que a plataforma não fornece essa métrica (por exemplo, Threads e TikTok não informam alcance). A taxa de engajamento é engajamento ÷ alcance.",
       "truncated": " As visualizações por postagem se baseiam nas {count} postagens mais recentes deste período.",
       "lastUpdate": " Última atualização das métricas: {date}."
     },
     "toasts": {
       "updated": "{count, plural, one {# postagem atualizada a partir da origem} other {# postagens atualizadas a partir da origem}}",
       "noNewMetrics": "Nenhuma nova métrica da plataforma disponível",
-      "tooManyRefreshes": "Muitas atualizações — tente novamente em um minuto.",
+      "tooManyRefreshes": "Muitas atualizações, tente novamente em um minuto.",
       "pullFailed": "Não foi possível buscar dados em tempo real. Mostrando os últimos números salvos.",
       "exportFailed": "Falha na exportação. Tente novamente."
     }
@@ -78,7 +78,7 @@
   },
   "trendChart": {
     "noData": "Ainda não há dados para este período.",
-    "followerHistoryBuilds": "O histórico de seguidores é construído a partir de capturas diárias — a tendência aparece após alguns dias de dados.",
+    "followerHistoryBuilds": "O histórico de seguidores é construído a partir de capturas diárias, a tendência aparece após alguns dias de dados.",
     "followersSeriesName": "Seguidores"
   },
   "channelTable": {

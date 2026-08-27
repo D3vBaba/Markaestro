@@ -39,7 +39,7 @@
   },
   "deletedNotice": "Cette publication a été supprimée et n'est plus disponible.",
   "dismiss": "Ignorer",
-  "truncatedNotice": "Ce mois comporte plus de publications que le calendrier ne peut en charger à la fois — certaines ne sont pas affichées.",
+  "truncatedNotice": "Ce mois comporte plus de publications que le calendrier ne peut en charger à la fois, certaines ne sont pas affichées.",
   "postsThisMonth": "{count, plural, one {# publication} other {# publications}} ce mois-ci",
   "dropToReschedule": "· Déposez sur un jour pour replanifier",
   "newPost": "Nouvelle publication",

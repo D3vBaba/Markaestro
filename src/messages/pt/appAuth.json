@@ -7,14 +7,14 @@
       "titleLine2Accent": "um único login.",
       "subtitle": "Pare de fazer login em cinco apps para publicar uma vez. Faça login para publicar em todo lugar, agendar com semanas de antecedência e recuperar seu tempo.",
       "points": {
-        "publish": { "title": "Publique em todos os lugares de uma vez", "desc": "Facebook, Instagram, TikTok e mais — a partir de um único editor." },
+        "publish": { "title": "Publique em todos os lugares de uma vez", "desc": "Facebook, Instagram, TikTok e mais, a partir de um único editor." },
         "schedule": { "title": "Agende com semanas de antecedência", "desc": "Defina seu ritmo uma vez e nunca mais fique em silêncio." },
         "hours": { "title": "Recupere horas toda semana", "desc": "O trabalho repetitivo de copiar, colar e fazer login simplesmente desaparece." }
       },
       "newHere": {
         "title": "Novo no Markaestro?",
-        "body": "Responda 10 perguntas rápidas e criaremos seu plano de publicações — veja quantas horas você vai recuperar, de graça.",
-        "cta": "Criar meu plano — é grátis →"
+        "body": "Responda 10 perguntas rápidas e criaremos seu plano de publicações, veja quantas horas você vai recuperar, de graça.",
+        "cta": "Criar meu plano, é grátis →"
       }
     },
     "form": {
@@ -22,7 +22,7 @@
       "eyebrowCode": "Verifique sua caixa de entrada",
       "titleEmail": "Continuar com seu e-mail",
       "titleCode": "Digite seu código",
-      "subtitleEmail": "Sem necessidade de senha — enviaremos um código de uso único por e-mail. Novo por aqui? O mesmo código cria sua conta.",
+      "subtitleEmail": "Sem necessidade de senha, enviaremos um código de uso único por e-mail. Novo por aqui? O mesmo código cria sua conta.",
       "subtitleCode": "Enviamos um código de 6 dígitos para <email></email>.",
       "emailPlaceholder": "nome@empresa.com",
       "codePlaceholder": "123456",

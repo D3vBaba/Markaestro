@@ -69,7 +69,7 @@
     {
       "name": "Threads",
       "category": "Social",
-      "description": "La red de Meta centrada en el texto. Markaestro crea el contenedor de contenido, espera a que termine de procesarse y después publica — así las subidas de vídeo lentas nunca fallan en silencio.",
+      "description": "La red de Meta centrada en el texto. Markaestro crea el contenedor de contenido, espera a que termine de procesarse y después publica, así las subidas de vídeo lentas nunca fallan en silencio.",
       "capabilities": [
         "Publicaciones solo de texto",
         "Publicaciones de imagen o vídeo individuales",
@@ -108,7 +108,7 @@
   },
   "cta": {
     "title": "Conecta tu primer canal en menos de dos minutos",
-    "subtitle": "Haz clic, autoriza y empieza a publicar — sin configuración técnica. Una vez conectado un canal, tu equipo publica desde el panel y tu agente de IA puede publicar en el mismo canal a través de la API.",
+    "subtitle": "Haz clic, autoriza y empieza a publicar, sin configuración técnica. Una vez conectado un canal, tu equipo publica desde el panel y tu agente de IA puede publicar en el mismo canal a través de la API.",
     "primaryButton": "Comienza gratis",
     "secondaryButton": "Automatízalo con un agente"
   }

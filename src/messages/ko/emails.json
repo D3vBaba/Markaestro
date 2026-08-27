@@ -10,7 +10,7 @@
     "title": "로그인 코드",
     "bodyIntro": "<strong>{email}</strong>(으)로 로그인하려면 이 코드를 사용하세요:",
     "fallbackAccount": "회원님의 계정",
-    "expiryNote": "이 코드는 10분 후 만료됩니다. 누구와도 공유하지 마세요 — Markaestro는 이 코드를 절대 요청하지 않습니다.",
+    "expiryNote": "이 코드는 10분 후 만료됩니다. 누구와도 공유하지 마세요, Markaestro는 이 코드를 절대 요청하지 않습니다.",
     "footerNote": "로그인을 시도하지 않으셨다면 이 이메일을 무시하셔도 됩니다. 코드가 없으면 아무도 계정에 접근할 수 없습니다.",
     "plain": {
       "heading": "Markaestro 로그인 코드",
@@ -63,7 +63,7 @@
   "tiktokInbox": {
     "subjectWithBrand": "{brandName}의 TikTok 게시물을 완료하세요",
     "subjectNoBrand": "TikTok 게시물을 완료하세요",
-    "preheader": "동영상이 TikTok 앱에서 기다리고 있습니다 — 열어서 게시하세요.",
+    "preheader": "동영상이 TikTok 앱에서 기다리고 있습니다, 열어서 게시하세요.",
     "bodyIntroWithBrand": "동영상이 업로드되어 <strong>{brandName}</strong>의 TikTok 받은편지함에서 기다리고 있습니다. TikTok은 최종 게시를 앱에서 진행해야 하므로 아직 게시되지 않았습니다.",
     "bodyIntroNoBrand": "동영상이 업로드되어 TikTok 받은편지함에서 기다리고 있습니다. TikTok은 최종 게시를 앱에서 진행해야 하므로 아직 게시되지 않았습니다.",
     "toPublishLabel": "게시하는 방법",
@@ -88,7 +88,7 @@
     "bodyIntroWithInviter": "<strong>{inviterEmail}</strong>님이 Markaestro의 <strong>{workspaceName}</strong> 워크스페이스에 {roleLabel}(으)로 참여하도록 초대했습니다.",
     "bodyIntroNoInviter": "팀원이 Markaestro의 <strong>{workspaceName}</strong> 워크스페이스에 {roleLabel}(으)로 참여하도록 초대했습니다.",
     "signInInstructions": "이 이메일 주소로 로그인(또는 계정 생성)한 다음, 앱의 배너에서 초대를 수락하세요:",
-    "declineNote": "참여하고 싶지 않으신가요? 앱에서 초대를 거절하거나 그냥 두시면 됩니다 — 초대는 30일 후 만료됩니다.",
+    "declineNote": "참여하고 싶지 않으신가요? 앱에서 초대를 거절하거나 그냥 두시면 됩니다, 초대는 30일 후 만료됩니다.",
     "roleLabels": {
       "admin": "관리자",
       "member": "멤버",

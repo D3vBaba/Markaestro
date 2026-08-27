@@ -1,14 +1,14 @@
 {
   "meta": {
     "title": "Markaestro pour agents IA | Automatisez la publication sociale avec une clé API",
-    "description": "Donnez à votre agent IA une clé API Markaestro et il pourra découvrir les comptes sociaux connectés, importer des contenus, rédiger, programmer et publier sur Facebook, Instagram, TikTok, LinkedIn, Threads et Pinterest — avec des clés limitées par marque, des écritures idempotentes et une publication supervisée par un humain.",
+    "description": "Donnez à votre agent IA une clé API Markaestro et il pourra découvrir les comptes sociaux connectés, importer des contenus, rédiger, programmer et publier sur Facebook, Instagram, TikTok, LinkedIn, Threads et Pinterest, avec des clés limitées par marque, des écritures idempotentes et une publication supervisée par un humain.",
     "ogTitle": "Markaestro pour agents IA",
     "ogDescription": "Une clé API transforme Markaestro en outil de publication que votre agent peut utiliser : découvrir des comptes, importer des contenus, rédiger, programmer, publier et rendre compte."
   },
   "hero": {
     "eyebrow": "Pour les agents IA",
     "title": "Donnez à votre agent une clé API. Il gère vos canaux sociaux.",
-    "intro1": "Markaestro est conçu pour être piloté par des logiciels. Une seule clé API d'espace de travail donne à un agent tout ce dont il a besoin pour découvrir sur quels comptes il peut publier, importer des contenus, rédiger et programmer des publications, les publier et rendre compte de ce qui a réellement été diffusé — sur Facebook, Instagram, TikTok, LinkedIn, Threads et Pinterest.",
+    "intro1": "Markaestro est conçu pour être piloté par des logiciels. Une seule clé API d'espace de travail donne à un agent tout ce dont il a besoin pour découvrir sur quels comptes il peut publier, importer des contenus, rédiger et programmer des publications, les publier et rendre compte de ce qui a réellement été diffusé, sur Facebook, Instagram, TikTok, LinkedIn, Threads et Pinterest.",
     "intro2": "Aucun SDK à installer, aucun flux OAuth que l'agent doit surmonter, aucune identifiant spécifique à une plateforme à gérer. Votre équipe connecte les comptes une seule fois depuis le tableau de bord ; l'agent communique ensuite avec une seule API par jeton porteur.",
     "createKeyButton": "Créer une clé API",
     "apiReferenceButton": "Référence complète de l'API",
@@ -19,18 +19,18 @@
     "title": "Pourquoi une clé API constitue toute l'intégration",
     "intro": "La difficulté de laisser un agent toucher aux réseaux sociaux n'est pas le HTTP. C'est de s'assurer qu'un modèle en confusion ne puisse pas publier sur la mauvaise marque, publier en double lors d'une nouvelle tentative, ou envoyer quelque chose que personne n'a relu. Ces garanties se trouvent dans la surface de l'API elle-même, pas dans votre prompt.",
     "cards": [
-      { "title": "Une clé, une marque", "body": "Chaque clé API est limitée à une seule marque à sa création. Un agent disposant de cette clé ne peut voir et publier que sur cette marque — les demandes inter-marques sont rejetées à l'authentification, pas par convention." },
+      { "title": "Une clé, une marque", "body": "Chaque clé API est limitée à une seule marque à sa création. Un agent disposant de cette clé ne peut voir et publier que sur cette marque, les demandes inter-marques sont rejetées à l'authentification, pas par convention." },
       { "title": "Découverte, pas d'ids figés", "body": "L'agent demande sur quels comptes il peut publier et reçoit des ids opaques qu'il peut renvoyer tels quels. Pas d'ids de Page, pas d'exploration du Business Manager, pas de fichier de configuration qui devient obsolète quand une connexion est relinkée." },
-      { "title": "Écritures idempotentes", "body": "Envoyez une Idempotency-Key à chaque création ou publication. Un appel répété en moins de 24 heures reproduit la réponse d'origine au lieu de créer une seconde publication — l'échec le plus courant chez les agents." },
+      { "title": "Écritures idempotentes", "body": "Envoyez une Idempotency-Key à chaque création ou publication. Un appel répété en moins de 24 heures reproduit la réponse d'origine au lieu de créer une seconde publication, l'échec le plus courant chez les agents." },
       { "title": "Une personne reste toujours dans la boucle", "body": "Les publications Facebook, Instagram et TikTok sont en publication manuelle : votre agent les prépare, une personne les publie de façon native. Rien ne sort sans supervision, sauf si vous activez explicitement cette option pour cette publication." }
     ]
   },
   "loop": {
     "eyebrow": "Le cycle de l'agent",
     "title": "Cinq appels, du début à la fin",
-    "intro": "Chaque automatisation Markaestro est une variation de ce cycle. Les étapes une à trois relèvent de l'<connectLink>API Connect</connectLink> — la surface plate que la plupart des agents devraient viser. Les étapes quatre et cinq accèdent à l'API complète <code>/api/public/v1</code> pour la publication explicite et le suivi des exécutions.",
+    "intro": "Chaque automatisation Markaestro est une variation de ce cycle. Les étapes une à trois relèvent de l'<connectLink>API Connect</connectLink>, la surface plate que la plupart des agents devraient viser. Les étapes quatre et cinq accèdent à l'API complète <code>/api/public/v1</code> pour la publication explicite et le suivi des exécutions.",
     "steps": [
-      { "step": "01", "title": "Découvrir", "body": "Renvoie chaque compte connecté et publiable pour la marque de la clé, chacun avec plateforme, nom d'utilisateur et id opaque. Appelez-le au début de chaque exécution — les connexions changent." },
+      { "step": "01", "title": "Découvrir", "body": "Renvoie chaque compte connecté et publiable pour la marque de la clé, chacun avec plateforme, nom d'utilisateur et id opaque. Appelez-le au début de chaque exécution, les connexions changent." },
       { "step": "02", "title": "Importer un contenu", "body": "Générez une URL signée, à usage unique et de courte durée, puis envoyez les octets bruts via PUT. Vous recevez un id de contenu. Images jusqu'à 10 Mo ; l'API complète accepte aussi la vidéo jusqu'à 250 Mo." },
       { "step": "03", "title": "Rédiger ou programmer", "body": "Envoyez le texte, les ids de contenu et les ids de compte tels quels. Laissez en brouillon pour révision, ou envoyez is_draft false avec scheduled_at pour le placer sur le calendrier." },
       { "step": "04", "title": "Publier", "body": "Met en file une exécution asynchrone. LinkedIn, Threads et Pinterest se publient via l'API officielle. Facebook, Instagram et TikTok arrivent dans la file « À publier » de l'espace de travail pour qu'une personne les publie de façon native." },
@@ -40,7 +40,7 @@
   "quickstart": {
     "eyebrow": "Démarrage rapide",
     "title": "Une intégration fonctionnelle en quatre commandes",
-    "intro": "D'abord, générez la clé : ouvrez <settingsLink>Paramètres → API</settingsLink>, choisissez la marque à laquelle elle aura accès, cochez les permissions nécessaires et, éventuellement, définissez une date d'expiration. La clé s'affiche une seule fois — placez-la directement dans le coffre à secrets de votre agent. Créer des clés nécessite un administrateur ou propriétaire avec un e-mail vérifié.",
+    "intro": "D'abord, générez la clé : ouvrez <settingsLink>Paramètres → API</settingsLink>, choisissez la marque à laquelle elle aura accès, cochez les permissions nécessaires et, éventuellement, définissez une date d'expiration. La clé s'affiche une seule fois, placez-la directement dans le coffre à secrets de votre agent. Créer des clés nécessite un administrateur ou propriétaire avec un e-mail vérifié.",
     "step1": { "title": "1. Découvrir les comptes", "description": "Le premier appel de chaque exécution. Les connexions changent ; les ids ne devraient jamais rester figés dans un prompt." },
     "step2": { "title": "2. Importer le contenu", "description": "Deux étapes : générez une URL signée à usage unique, puis envoyez les octets via PUT. L'URL expire après 15 minutes et ne nécessite pas d'en-tête d'authentification propre." },
     "step3": { "title": "3. Programmez-le, puis observez-le", "description": "La création est en mode brouillon par défaut. Envoyez <code>is_draft: false</code> avec un horodatage <code>scheduled_at</code> pour le placer sur le calendrier à la place." },
@@ -50,14 +50,14 @@
   "toolDefs": {
     "eyebrow": "Prêt à l'emploi",
     "title": "Définitions d'outils et résumé pour l'agent",
-    "intro": "Deux choses à copier. La première est un ensemble de schémas d'outils couvrant tout le cycle de publication — écrits en JSON Schema, ils fonctionnent donc comme des définitions d'outils Claude, des fonctions OpenAI, ou la forme d'entrée pour un serveur MCP que vous hébergez. La seconde est le résumé opérationnel qui empêche un modèle de faire quelque chose d'inattendu avec eux.",
+    "intro": "Deux choses à copier. La première est un ensemble de schémas d'outils couvrant tout le cycle de publication, écrits en JSON Schema, ils fonctionnent donc comme des définitions d'outils Claude, des fonctions OpenAI, ou la forme d'entrée pour un serveur MCP que vous hébergez. La seconde est le résumé opérationnel qui empêche un modèle de faire quelque chose d'inattendu avec eux.",
     "schemasTitle": "Schémas d'outils",
     "schemasDescription": "Six outils : lister les comptes, importer un contenu, créer, publier, lister, supprimer. Connectez chacun à l'endpoint correspondant ci-dessus.",
     "schemasLabel": "tools.json",
     "briefTitle": "Résumé pour l'agent",
     "briefDescription": "Collez-le dans votre system prompt. Il encode les comportements qui distinguent un agent de publication fiable d'un agent qui publie en double et déclare la victoire trop tôt.",
     "briefLabel": "system prompt",
-    "briefFooter": "Votre agent peut aussi récupérer ceci lui-même : <code>curl https://markaestro.com/llms.txt</code> renvoie un résumé en texte brut de toute l'API — endpoints, règles et gestion des erreurs — assez compact pour tenir dans le contexte."
+    "briefFooter": "Votre agent peut aussi récupérer ceci lui-même : <code>curl https://markaestro.com/llms.txt</code> renvoie un résumé en texte brut de toute l'API, endpoints, règles et gestion des erreurs, assez compact pour tenir dans le contexte."
   },
   "recipes": {
     "eyebrow": "Recettes",
@@ -73,33 +73,33 @@
     "title": "Ce que l'agent peut et ne peut pas faire",
     "intro": "L'autonomie n'est utile que si le rayon d'impact reste faible. Les valeurs par défaut de Markaestro supposent que l'appelant est un logiciel qui pourrait se tromper.",
     "calloutTitle": "Facebook, Instagram et TikTok sont en publication manuelle",
-    "calloutBody": "Les publications que votre agent crée pour ces canaux utilisent par défaut <code>manual_reminder</code> : Markaestro n'appelle jamais l'API de la plateforme pour elles. Publier déplace la publication vers la file « À publier » de l'espace de travail, où une personne télécharge le contenu, publie de façon native et confirme — ainsi la publication a l'air d'avoir été faite à la main, et une personne voit chacune d'elles avant qu'elle n'existe publiquement. Un agent peut activer la publication via API officielle pour une publication donnée avec <code>deliveryMode: \"direct_publish\"</code>, et sur TikTok cela signifie la transmission vers la boîte de réception du créateur, jamais une publication publique sans supervision. LinkedIn, Threads et Pinterest publient de façon programmatique dès que votre agent le demande explicitement.",
+    "calloutBody": "Les publications que votre agent crée pour ces canaux utilisent par défaut <code>manual_reminder</code> : Markaestro n'appelle jamais l'API de la plateforme pour elles. Publier déplace la publication vers la file « À publier » de l'espace de travail, où une personne télécharge le contenu, publie de façon native et confirme, ainsi la publication a l'air d'avoir été faite à la main, et une personne voit chacune d'elles avant qu'elle n'existe publiquement. Un agent peut activer la publication via API officielle pour une publication donnée avec <code>deliveryMode: \"direct_publish\"</code>, et sur TikTok cela signifie la transmission vers la boîte de réception du créateur, jamais une publication publique sans supervision. LinkedIn, Threads et Pinterest publient de façon programmatique dès que votre agent le demande explicitement.",
     "items": [
       { "title": "Limitez la portée de la clé", "body": "Choisissez uniquement les permissions dont l'agent a besoin : products.read, media.write, posts.read, posts.write, posts.publish, job_runs.read, webhooks.manage. Un agent de recherche qui ne fait que lire le calendrier reçoit posts.read et rien d'autre." },
       { "title": "Donnez-lui une date d'expiration", "body": "Les clés peuvent être créées avec une expiration. Une clé expirée se comporte exactement comme une clé révoquée, si bien qu'une clé qui fuit hors de l'environnement d'un agent cesse de fonctionner d'elle-même." },
-      { "title": "Faites tourner et révoquez", "body": "Faites tourner une clé sans changer son id, ou révoquez-la directement depuis Paramètres → API. Chaque clé affiche sa dernière heure d'utilisation et son volume de requêtes, si bien qu'un agent qui se tait — ou qui dérape — reste visible." },
+      { "title": "Faites tourner et révoquez", "body": "Faites tourner une clé sans changer son id, ou révoquez-la directement depuis Paramètres → API. Chaque clé affiche sa dernière heure d'utilisation et son volume de requêtes, si bien qu'un agent qui se tait, ou qui dérape, reste visible." },
       { "title": "Les limites de débit s'appliquent", "body": "60 requêtes par minute par endpoint et 240 par minute par clé. Chaque réponse porte X-RateLimit-Limit, -Remaining et -Reset ; un 429 porte Retry-After. Respectez-le plutôt que d'insister." },
       { "title": "Markaestro n'écrit jamais à votre place", "body": "Il n'y a aucune étape de génération. Le texte vient de votre agent, le contenu vient de votre bibliothèque ou du pipeline de votre agent. Markaestro fournit les mains, pas la voix." },
-      { "title": "Les suppressions sont côté Markaestro", "body": "Supprimer une publication programmée l'annule avant sa sortie. Supprimer une publication déjà publiée fait seulement cesser le suivi par Markaestro — la publication active reste en ligne jusqu'à ce que quelqu'un la supprime sur la plateforme." }
+      { "title": "Les suppressions sont côté Markaestro", "body": "Supprimer une publication programmée l'annule avant sa sortie. Supprimer une publication déjà publiée fait seulement cesser le suivi par Markaestro, la publication active reste en ligne jusqu'à ce que quelqu'un la supprime sur la plateforme." }
     ]
   },
   "errors": {
     "eyebrow": "Gestion des échecs",
     "title": "Apprenez-lui quelles erreurs méritent une nouvelle tentative",
-    "intro": "Chaque réponse d'erreur est du JSON avec un code <code>error</code> stable et un <code>requestId</code>. Faites en sorte que votre agent cite le requestId lorsqu'il signale un échec — c'est ce dont le support a besoin pour retrouver l'appel.",
+    "intro": "Chaque réponse d'erreur est du JSON avec un code <code>error</code> stable et un <code>requestId</code>. Faites en sorte que votre agent cite le requestId lorsqu'il signale un échec, c'est ce dont le support a besoin pour retrouver l'appel.",
     "statusHeader": "Statut",
     "codeHeader": "Code",
     "actionHeader": "Ce que l'agent devrait faire",
     "rows": [
-      { "status": "401", "code": "UNAUTHENTICATED", "action": "La clé est manquante, révoquée ou expirée. Arrêtez et demandez-en une nouvelle à une personne — réessayer ne servira à rien." },
+      { "status": "401", "code": "UNAUTHENTICATED", "action": "La clé est manquante, révoquée ou expirée. Arrêtez et demandez-en une nouvelle à une personne, réessayer ne servira à rien." },
       { "status": "403", "code": "FORBIDDEN", "action": "La clé n'a pas la permission nécessaire pour cet appel. Signalez quel appel a échoué ; les permissions se modifient dans Paramètres → API." },
       { "status": "403", "code": "API_KEY_NOT_BOUND_TO_PRODUCT", "action": "Une clé créée avant la limitation par marque. Demandez une clé de remplacement." },
       { "status": "400", "code": "VALIDATION_*", "action": "Le payload a enfreint une règle du canal (contenu manquant, mode de livraison invalide, scheduled_at incorrect). Corrigez la requête ; ne réessayez pas sans modification." },
       { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "La même Idempotency-Key a été envoyée avec un corps différent. Générez une nouvelle clé pour chaque requête distincte." },
       { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Tentative de suppression d'une publication pendant qu'une exécution de publication était en cours. Attendez qu'elle se termine, puis supprimez." },
-      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Une exécution de publication pour cette publication est déjà en file. Ne republiez pas — consultez l'exécution existante." },
+      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Une exécution de publication pour cette publication est déjà en file. Ne republiez pas, consultez l'exécution existante." },
       { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "Aucune offre active n'est associée à cet espace de travail. Demandez à un propriétaire de vérifier la facturation dans les paramètres." },
-      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "L'espace de travail a atteint son quota mensuel d'imports. Arrêtez d'importer et signalez-le — le contenu existant continue de se publier." },
+      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "L'espace de travail a atteint son quota mensuel d'imports. Arrêtez d'importer et signalez-le, le contenu existant continue de se publier." },
       { "status": "404", "code": "NOT_FOUND", "action": "L'id est en dehors de la marque de cette clé. Renvoyé en 404 plutôt qu'en 403 pour que les clés ne puissent pas sonder des ids qu'elles ne possèdent pas." },
       { "status": "429", "code": "RATE_LIMITED", "action": "Attendez le nombre de secondes indiqué dans Retry-After, puis réessayez la même requête avec la même Idempotency-Key." }
     ]
@@ -110,7 +110,7 @@
     "intro": "Il n'y a aucune bibliothèque cliente Markaestro à adopter, ni aucun framework à respecter. Jeton porteur, JSON en entrée, JSON en sortie.",
     "items": [
       { "name": "Claude et le Claude Agent SDK", "body": "Ajoutez les définitions d'outils ci-dessus à votre liste d'outils. Les formes JSON Schema sont déjà au format d'utilisation d'outils de Claude." },
-      { "name": "Appels de fonctions OpenAI", "body": "Les mêmes schémas correspondent un à un aux définitions de fonctions — il suffit de renommer input_schema en parameters." },
+      { "name": "Appels de fonctions OpenAI", "body": "Les mêmes schémas correspondent un à un aux définitions de fonctions, il suffit de renommer input_schema en parameters." },
       { "name": "Serveurs MCP", "body": "Si votre agent parle MCP, enveloppez ces six appels dans un petit serveur. Il n'y a rien de spécifique à Markaestro à installer d'un côté comme de l'autre." },
       { "name": "n8n, Make, Zapier", "body": "Chaque endpoint est une simple requête HTTP avec un jeton porteur. Pas de SDK, pas de cérémonie de signature, pas de danse OAuth pour l'agent." },
       { "name": "LangChain et LlamaIndex", "body": "Outils REST standards. L'import de contenu en deux étapes est le seul flux à plusieurs appels, et cela tient en deux lignes." },

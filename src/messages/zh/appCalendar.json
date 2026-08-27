@@ -39,7 +39,7 @@
   },
   "deletedNotice": "该帖子已被删除，不再可用。",
   "dismiss": "关闭",
-  "truncatedNotice": "本月的帖子数量超过了日历一次可加载的上限 — 部分帖子未显示。",
+  "truncatedNotice": "本月的帖子数量超过了日历一次可加载的上限，部分帖子未显示。",
   "postsThisMonth": "本月共{count}篇帖子",
   "dropToReschedule": "· 拖放到某一天以重新排期",
   "newPost": "新建帖子",

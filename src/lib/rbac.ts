@@ -11,6 +11,11 @@ export const workspacePermissions = [
   'team.roles.manage',
   'billing.manage',
   'events.write',
+  'intelligence.read',
+  'intelligence.analyze',
+  'intelligence.manage',
+  'experiments.manage',
+  'conversions.manage',
 ] as const;
 
 export type WorkspacePermission = (typeof workspacePermissions)[number];
@@ -37,6 +42,11 @@ const PERMISSIONS_BY_ROLE: Record<WorkspaceRole, readonly WorkspacePermission[]>
     'integrations.manage',
     'team.manage',
     'events.write',
+    'intelligence.read',
+    'intelligence.analyze',
+    'intelligence.manage',
+    'experiments.manage',
+    'conversions.manage',
   ],
   member: [
     'dashboard.read',
@@ -44,9 +54,12 @@ const PERMISSIONS_BY_ROLE: Record<WorkspaceRole, readonly WorkspacePermission[]>
     'posts.write',
     'posts.publish',
     'events.write',
+    'intelligence.read',
+    'intelligence.analyze',
   ],
   analyst: [
     'dashboard.read',
+    'intelligence.read',
   ],
 };
 

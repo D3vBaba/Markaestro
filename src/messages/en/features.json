@@ -28,7 +28,7 @@
     },
     {
       "title": "Multi-Channel Previews",
-      "description": "See how every post will look on each network before you publish — Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest each get their own preview. Captions, aspect ratios, character limits, and media specs are all rendered live.",
+      "description": "See how every post will look on each network before you publish: Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest each get their own preview. Captions, aspect ratios, character limits, and media specs are all rendered live.",
       "details": [
         "Pixel-accurate previews per platform",
         "Live caption character-count tracking",
@@ -58,12 +58,12 @@
     },
     {
       "title": "API & AI Agents",
-      "description": "Everything the dashboard does, your software can do too. Mint an API key, hand it to an AI agent or a script, and let it discover accounts, upload media, schedule posts, publish, and report back — on every plan, at no extra cost.",
+      "description": "Everything the dashboard does, your software can do too. Mint an API key, hand it to an AI agent or a script, and let it discover accounts, upload media, schedule posts, publish, and report back, on every plan, at no extra cost.",
       "details": [
         "Keys scoped to a single brand, with optional expiry",
         "Idempotent writes so a retry never double-posts",
         "Async publish runs plus HMAC-signed webhooks",
-        "Manual-first on Meta and TikTok — a human still posts"
+        "Manual-first on Meta and TikTok: a human still posts"
       ],
       "codeLabel": "schedule a post from anything that speaks HTTP",
       "agentGuideLink": "Read the AI agent guide →"
@@ -72,7 +72,7 @@
   "platformFeatures": [
     {
       "title": "Workspace Management",
-      "description": "Organize the brands you market — clients, business units, or your own ventures — into isolated workspaces. Each workspace has its own brands, integrations, and team members."
+      "description": "Organize the brands you market, clients, business units, or your own ventures, into isolated workspaces. Each workspace has its own brands, integrations, and team members."
     },
     {
       "title": "Scheduling & Calendar",
@@ -87,7 +87,7 @@
     "eyebrow": "Platform",
     "titleLead": "Built for everyone who",
     "titleHighlight": "publishes",
-    "subtitle": "Beyond the core tools, Markaestro gives you the infrastructure to scale — from a single brand to a full client roster."
+    "subtitle": "Beyond the core tools, Markaestro gives you the infrastructure to scale, from a single brand to a full client roster."
   },
   "cta": {
     "title": "Ready to see it in action?",

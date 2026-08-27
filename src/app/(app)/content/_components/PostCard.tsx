@@ -45,33 +45,37 @@ export function isManualQueuePost(post: Pick<Post, "nextAction" | "deliveryMode"
 }
 
 const statusDotColors: Record<string, string> = {
-  draft: "bg-mk-ink-20",
-  scheduled: "bg-mk-accent",
-  published: "bg-mk-pos",
-  failed: "bg-mk-neg",
-  partial_failed: "bg-mk-warn",
-  publishing: "bg-mk-warn",
-  [PLATFORM_ACTION_REQUIRED_STATUS]: "bg-mk-accent",
-  [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: "bg-mk-accent",
+  draft: "bg-slate-400",
+  scheduled: "bg-blue-500",
+  published: "bg-emerald-500",
+  failed: "bg-rose-500",
+  partial_failed: "bg-amber-500",
+  publishing: "bg-amber-500",
+  [PLATFORM_ACTION_REQUIRED_STATUS]: "bg-blue-500",
+  [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: "bg-blue-500",
 };
 
-const statusTextColors: Record<string, string> = {
-  failed: "text-mk-neg",
-  partial_failed: "text-mk-warn",
-  published: "text-mk-pos",
-  scheduled: "text-mk-ink-60",
-  publishing: "text-mk-warn",
-  [PLATFORM_ACTION_REQUIRED_STATUS]: "text-mk-accent",
-  [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: "text-mk-accent",
+const statusBadgeStyles: Record<string, string> = {
+  failed: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40",
+  partial_failed: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/40",
+  published: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/40",
+  scheduled: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/40",
+  draft: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700",
+  publishing: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/40",
+  [PLATFORM_ACTION_REQUIRED_STATUS]: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/40",
+  [LEGACY_EXPORTED_FOR_REVIEW_STATUS]: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/40",
 };
 
-// Shared pill button style — taller on touch viewports, compact from sm up
+// Modern action button styles
 const pillBtn =
-  "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-accent bg-mk-paper";
+  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-[color,background-color,border-color,transform] duration-150 active:scale-[0.98] whitespace-nowrap bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs cursor-pointer";
+const pillBtnPrimary =
+  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-[color,background-color,transform] duration-150 active:scale-[0.98] whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer";
 const pillBtnDestructive =
-  "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-neg bg-mk-paper";
+  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-[color,background-color,border-color,transform] duration-150 active:scale-[0.98] whitespace-nowrap bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:border-rose-200 dark:hover:border-rose-900/40 shadow-2xs cursor-pointer";
 const pillBtnDisabled =
-  "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium cursor-not-allowed whitespace-nowrap border-mk-rule-soft text-mk-ink-40 bg-mk-paper";
+  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold whitespace-nowrap border-slate-200 dark:border-slate-800 text-slate-400 bg-slate-50 dark:bg-slate-850 cursor-not-allowed opacity-60";
+
 
 export default function PostCard({
   post,
@@ -132,12 +136,13 @@ export default function PostCard({
   };
 
   return (
-    <div className="group border border-border/50 rounded-xl overflow-hidden bg-card hover:border-border/80 hover:shadow-sm transition-all">
+    <div className="group rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
       {/* Header row */}
-      <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border/30">
+      <div className="flex items-center justify-between gap-2 px-5 py-3.5 border-b border-slate-100 dark:border-slate-800/60">
         {/* Left: channel + scheduled date */}
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/70 truncate min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 truncate min-w-0">
+
             {channelLabel}
           </span>
           {post.scheduledAt && post.status === "scheduled" && (
@@ -169,14 +174,16 @@ export default function PostCard({
         {/* Right: status badge */}
         <div className="flex items-center gap-1.5 shrink-0">
           {publishing && (
-            <div className="w-3 h-3 rounded-full border-2 border-blue-300 border-t-blue-500 animate-spin" />
+            <div className="w-3 h-3 rounded-full border-2 border-blue-400 border-t-blue-600 animate-spin" />
           )}
           <span
-            className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[displayStatus] || "bg-zinc-300"} ${publishing ? "hidden" : ""}`}
-          />
-          <span
-            className={`text-[10px] uppercase tracking-wider font-medium ${statusTextColors[displayStatus] || "text-muted-foreground"}`}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border capitalize ${
+              statusBadgeStyles[displayStatus] || statusBadgeStyles.draft
+            }`}
           >
+            <span
+              className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColors[displayStatus] || "bg-slate-400"}`}
+            />
             {inManualQueue && !publishing ? t("readyToPost") : statusLabels[displayStatus] || displayStatus}
           </span>
         </div>
@@ -184,7 +191,7 @@ export default function PostCard({
 
       {/* Media thumbnail */}
       {post.mediaUrls?.[0] && (
-        <div className="border-b border-border/30">
+        <div className="border-b border-slate-100 dark:border-slate-800">
           {post.mediaUrls[0].match(/\.(mp4|mov|webm)(\?|$)/i) ? (
             <video
               src={post.mediaUrls[0]}
@@ -207,7 +214,7 @@ export default function PostCard({
       )}
 
       {/* Content / preview */}
-      <div className="px-4 py-3">
+      <div className="px-5 py-4">
         {showPreview ? (
           <PlatformPreview
             content={post.content}
@@ -216,40 +223,27 @@ export default function PostCard({
             externalUrl={post.externalUrl}
           />
         ) : (
-          <p className="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word line-clamp-4 text-foreground/80">
+          <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap wrap-break-word line-clamp-4 text-slate-700 dark:text-slate-300">
             {post.content}
           </p>
         )}
 
         {post.errorMessage && (
-          <p className="mt-2 text-xs text-destructive bg-destructive/5 rounded-lg px-3 py-2">
+          <p className="mt-3 text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 rounded-xl px-3 py-2">
             {tScheduledToasts("publishFailed")}
           </p>
         )}
       </div>
 
-      {/* Manual posting banner: the post is waiting in the To Post queue —
-          the user publishes it natively themselves and confirms. */}
+      {/* Manual posting banner */}
       {!publishing && inManualQueue && (
-        <div
-          className="mx-4 mb-3 flex items-start gap-2 rounded-lg border px-3 py-2"
-          style={{
-            background: "var(--mk-accent-soft)",
-            borderColor: "color-mix(in oklch, var(--mk-accent) 30%, var(--mk-paper))",
-          }}
-        >
-          <div
-            className="mt-0.5 w-2 h-2 rounded-full shrink-0"
-            style={{ background: "var(--mk-accent)" }}
-          />
+        <div className="mx-5 mb-4 flex items-start gap-3 rounded-xl border p-3 bg-blue-50/70 dark:bg-blue-950/30 border-blue-200/60 dark:border-blue-800/40">
+          <div className="mt-1 w-2 h-2 rounded-full shrink-0 bg-blue-600 dark:bg-blue-400" />
           <div className="min-w-0 flex-1">
-            <p
-              className="text-[12px] font-medium"
-              style={{ color: "var(--mk-accent)" }}
-            >
+            <p className="text-xs font-semibold text-blue-900 dark:text-blue-200">
               {t("readyToPostOn", { channel: primaryChannelLabel })}
             </p>
-            <p className="text-[11px] text-mk-ink-60 mt-0.5">
+            <p className="text-xs text-blue-700 dark:text-blue-400 mt-0.5">
               {t("manualInstructions", { channel: primaryChannelLabel })}
             </p>
             {channelAppUrls[post.channel] && (
@@ -257,8 +251,7 @@ export default function PostCard({
                 href={channelAppUrls[post.channel]}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex mt-1.5 text-[11px] font-medium underline"
-                style={{ color: "var(--mk-accent)" }}
+                className="inline-flex mt-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 underline"
               >
                 {t("openChannel", { channel: primaryChannelLabel })}
               </a>
@@ -267,36 +260,22 @@ export default function PostCard({
         </div>
       )}
 
-      {/* TikTok inbox banner: post was pushed to the creator's inbox and
-          needs to be finalized from the TikTok app. */}
+      {/* TikTok inbox banner */}
       {!publishing && !inManualQueue && isPlatformActionRequiredStatus(post.status) && hasTikTokTarget && (
-        <div
-          className="mx-4 mb-3 flex items-start gap-2 rounded-lg border px-3 py-2"
-          style={{
-            background: "var(--mk-accent-soft)",
-            borderColor: "color-mix(in oklch, var(--mk-accent) 30%, var(--mk-paper))",
-          }}
-        >
-          <div
-            className="mt-0.5 w-2 h-2 rounded-full shrink-0"
-            style={{ background: "var(--mk-accent)" }}
-          />
+        <div className="mx-5 mb-4 flex items-start gap-3 rounded-xl border p-3 bg-blue-50/70 dark:bg-blue-950/30 border-blue-200/60 dark:border-blue-800/40">
+          <div className="mt-1 w-2 h-2 rounded-full shrink-0 bg-blue-600 dark:bg-blue-400" />
           <div className="min-w-0 flex-1">
-            <p
-              className="text-[12px] font-medium"
-              style={{ color: "var(--mk-accent)" }}
-            >
+            <p className="text-xs font-semibold text-blue-900 dark:text-blue-200">
               {t("readyInTikTokInbox")}
             </p>
-            <p className="text-[11px] text-mk-ink-60 mt-0.5">
+            <p className="text-xs text-blue-700 dark:text-blue-400 mt-0.5">
               {t("tiktokInboxInstructions")}
             </p>
             <a
               href="https://www.tiktok.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex mt-1.5 text-[11px] font-medium underline"
-              style={{ color: "var(--mk-accent)" }}
+              className="inline-flex mt-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 underline"
             >
               {t("openTikTok")}
             </a>
@@ -306,31 +285,16 @@ export default function PostCard({
 
       {/* Publishing overlay banner */}
       {publishing && (
-        <div
-          className="mx-4 mb-3 flex items-center gap-2 rounded-lg border px-3 py-2"
-          style={{
-            background: "var(--mk-accent-soft)",
-            borderColor: "color-mix(in oklch, var(--mk-accent) 30%, var(--mk-paper))",
-          }}
-        >
-          <div
-            className="w-3.5 h-3.5 rounded-full border-2 animate-spin shrink-0"
-            style={{
-              borderColor: "color-mix(in oklch, var(--mk-accent) 25%, var(--mk-paper))",
-              borderTopColor: "var(--mk-accent)",
-            }}
-          />
-          <p
-            className="text-[12px] font-medium"
-            style={{ color: "var(--mk-accent)" }}
-          >
+        <div className="mx-5 mb-4 flex items-center gap-2.5 rounded-xl border p-3 bg-blue-50/70 dark:bg-blue-950/30 border-blue-200/60 dark:border-blue-800/40">
+          <div className="w-3.5 h-3.5 rounded-full border-2 border-blue-400 border-t-blue-600 animate-spin shrink-0" />
+          <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">
             {t("publishingTo", { channel: channelLabel })}
           </p>
         </div>
       )}
 
       {/* Footer: action buttons */}
-      <div className="px-4 pb-3 flex flex-wrap items-center gap-1.5">
+      <div className="px-5 pb-4 flex flex-wrap items-center gap-2">
         <button
           className={pillBtn}
           onClick={() => setShowPreview((v) => !v)}
@@ -361,7 +325,7 @@ export default function PostCard({
                 {downloading ? t("downloading") : t("downloadMedia")}
               </button>
             )}
-            <button className={pillBtn} onClick={() => setMarkPostedOpen(true)}>
+            <button className={pillBtnPrimary} onClick={() => setMarkPostedOpen(true)}>
               {t("markAsPosted")}
             </button>
           </>
@@ -375,7 +339,7 @@ export default function PostCard({
 
         {onPublish && (
           <button
-            className={publishing ? pillBtnDisabled : pillBtn}
+            className={publishing ? pillBtnDisabled : pillBtnPrimary}
             onClick={publishing ? undefined : onPublish}
             disabled={publishing}
           >
@@ -401,6 +365,7 @@ export default function PostCard({
           </button>
         )}
       </div>
+
 
       {onDelete && (
         <ConfirmDeleteDialog

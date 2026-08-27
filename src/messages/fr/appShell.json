@@ -8,6 +8,7 @@
     "items": {
       "dashboard": "Tableau de bord",
       "analytics": "Analyses",
+      "intelligence": "Veille sociale",
       "brands": "Marques",
       "posts": "Publications",
       "calendar": "Calendrier",
@@ -60,16 +61,16 @@
   },
   "verifyEmailBanner": {
     "prompt": "Vérifiez votre e-mail pour publier",
-    "promptWithCode": " — saisissez le code que nous avons envoyé à <emailTag>{email}</emailTag>",
+    "promptWithCode": ", saisissez le code que nous avons envoyé à <emailTag>{email}</emailTag>",
     "sendCode": "Envoyer le code",
     "resendCode": "Renvoyer le code",
     "resendCountdown": "Renvoyer ({seconds}s)",
     "sending": "Envoi…",
     "verify": "Vérifier",
     "verifying": "Vérification…",
-    "codeSent": "Code envoyé — vérifiez votre boîte de réception et vos spams.",
+    "codeSent": "Code envoyé, vérifiez votre boîte de réception et vos spams.",
     "sendError": "Impossible d'envoyer pour le moment. Réessayez dans une minute.",
-    "verified": "E-mail vérifié — tout est en ordre."
+    "verified": "E-mail vérifié, tout est en ordre."
   },
   "localeSwitcher": {
     "label": "Langue",
@@ -92,5 +93,9 @@
     "declined": "Invitation à rejoindre {workspaceName} refusée",
     "acceptError": "Impossible d'accepter l'invitation. Veuillez réessayer.",
     "declineError": "Impossible de refuser l'invitation. Veuillez réessayer."
+  },
+  "inbox": {
+    "title": "Boîte de réception",
+    "empty": "Aucune notification pour le moment."
   }
 }

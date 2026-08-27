@@ -34,7 +34,8 @@
       "integration": "integración",
       "post": "publicación",
       "workspace": "espacio de trabajo",
-      "account": "cuenta"
+      "account": "cuenta",
+      "experiment": "experimento"
     },
     "titleGeneric": "Eliminar {entity}",
     "titleNamed": "¿Eliminar {entity}?",
@@ -86,8 +87,8 @@
         "activeLabel": "Creando tu perfil de marca…"
       }
     },
-    "scanComplete": "Análisis completado — revisa y confirma a continuación",
-    "scanFailed": "Error en el análisis — completa manualmente",
+    "scanComplete": "Análisis completado, revisa y confirma a continuación",
+    "scanFailed": "Error en el análisis, completa manualmente",
     "researching": "Investigando tu marca…"
   },
   "platformPreview": {

@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Globe, Loader2, ArrowRight, Check, Wand2, Pencil } from "lucide-react";
+import { Globe, Loader2, ArrowRight, Check, Wand2, Pencil } from "lucide-react";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
@@ -17,6 +17,12 @@ import { useProductScan } from "@/hooks/useProductScan";
 import { apiPost, apiPut } from "@/lib/api-client";
 import { toast } from "sonner";
 import { userFacingError } from "@/lib/user-facing-errors";
+import AudienceProfileFields, { browserTimezone } from "@/components/intelligence/AudienceProfileFields";
+import {
+  defaultAudienceProfile,
+  type AudienceIntelligenceProfile,
+} from "@/lib/intelligence/schemas";
+import { useIntelligencePreviewAccess } from "@/hooks/useIntelligencePreviewAccess";
 
 type Mode = "start" | "scan" | "manual" | "review";
 
@@ -30,6 +36,7 @@ export default function ProductCreateWizard({
   onCreated: (productId: string) => void;
 }) {
   const t = useTranslations("products.createWizard");
+  const canAccessIntelligence = useIntelligencePreviewAccess();
   const [mode, setMode] = useState<Mode>("start");
   const [scanUrl, setScanUrl] = useState("");
   const {
@@ -52,6 +59,9 @@ export default function ProductCreateWizard({
   const [logoUrl, setLogoUrl] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
   const [tone, setTone] = useState("");
+  const [audienceProfile, setAudienceProfile] = useState<AudienceIntelligenceProfile>(() => defaultAudienceProfile({
+    primaryTimezone: browserTimezone(),
+  }));
 
   const [saving, setSaving] = useState(false);
 
@@ -69,6 +79,7 @@ export default function ProductCreateWizard({
     setLogoUrl("");
     setTargetAudience("");
     setTone("");
+    setAudienceProfile(defaultAudienceProfile({ primaryTimezone: browserTimezone() }));
   };
 
   const handleClose = (next: boolean) => {
@@ -141,6 +152,9 @@ export default function ProductCreateWizard({
             accentColor,
           },
         }).catch(() => {});
+      }
+      if (canAccessIntelligence) {
+        apiPut(`/api/products/${created.id}/intelligence-profile`, audienceProfile).catch(() => {});
       }
       toast.success(t("toasts.brandAdded"));
       reset();
@@ -253,7 +267,7 @@ export default function ProductCreateWizard({
                       {scanning ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <Sparkles className="h-4 w-4" />
+                        <Wand2 className="h-4 w-4" />
                       )}
                       <span className="ms-1.5">{t("scanCard.scan")}</span>
                     </Button>
@@ -488,6 +502,24 @@ export default function ProductCreateWizard({
                       {t("fineTuneNote")}
                     </p>
                   </div>
+                )}
+
+                {canAccessIntelligence && (
+                <div
+                  className="rounded-xl p-4 space-y-3"
+                  style={{
+                    background: "var(--mk-surface)",
+                    border: "1px solid var(--mk-rule)",
+                  }}
+                >
+                  <p className="mk-eyebrow">{t("audienceSetup")}</p>
+                  <p className="text-[12px]" style={{ color: "var(--mk-ink-60)" }}>{t("audienceSetupBody")}</p>
+                  <AudienceProfileFields
+                    value={audienceProfile}
+                    onChange={setAudienceProfile}
+                    variant="setup"
+                  />
+                </div>
                 )}
               </motion.div>
             )}

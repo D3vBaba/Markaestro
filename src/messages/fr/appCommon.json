@@ -34,7 +34,8 @@
       "integration": "intégration",
       "post": "post",
       "workspace": "espace de travail",
-      "account": "compte"
+      "account": "compte",
+      "experiment": "expérience"
     },
     "titleGeneric": "Supprimer {entity}",
     "titleNamed": "Supprimer {entity} ?",
@@ -86,8 +87,8 @@
         "activeLabel": "Création de votre profil de marque…"
       }
     },
-    "scanComplete": "Analyse terminée — vérifiez et confirmez ci-dessous",
-    "scanFailed": "Échec de l'analyse — veuillez remplir manuellement",
+    "scanComplete": "Analyse terminée, vérifiez et confirmez ci-dessous",
+    "scanFailed": "Échec de l'analyse, veuillez remplir manuellement",
     "researching": "Recherche sur votre marque…"
   },
   "platformPreview": {

@@ -3,7 +3,7 @@
     "badge": "The social publishing hub for every brand you run",
     "titleLead": "Your entire marketing engine",
     "titleHighlight": "in one platform",
-    "subtitle": "Upload your media, write your captions, and publish every brand you market — your business, your clients, or yourself — to every social channel from one dashboard. Or hand an API key to your AI agent and let it run the whole thing.",
+    "subtitle": "Upload your media, write your captions, and publish every brand you market, your business, your clients, or yourself, to every social channel from one dashboard. Or hand an API key to your AI agent and let it run the whole thing.",
     "primaryButton": "Start for free",
     "secondaryButton": "See features",
     "signInPrompt": "Already have an account?",
@@ -23,7 +23,7 @@
     "items": [
       { "title": "Multi-channel publishing", "desc": "Publish to Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest from a single composer. Schedule posts or publish instantly." },
       { "title": "Centralized media uploads", "desc": "Bring your own images and videos. Upload once per post and ship to every connected channel." },
-      { "title": "Multi-channel previews", "desc": "See how every post will render on each platform before you publish — captions, aspect ratios, character limits." },
+      { "title": "Multi-channel previews", "desc": "See how every post will render on each platform before you publish: captions, aspect ratios, character limits." },
       { "title": "Scheduling & calendar", "desc": "Queue posts on a unified calendar with per-channel timing. Reschedule, pause, or duplicate in a click." },
       { "title": "Publishing dashboard", "desc": "Track drafts, scheduled posts, and publish status across every channel." },
       { "title": "OAuth integrations", "desc": "One-click connect to Meta, TikTok, LinkedIn, Threads, and Pinterest via secure OAuth. No manual token management required." }
@@ -52,7 +52,7 @@
   "composerPreview": {
     "panelLabel": "One composer, every channel",
     "rows": [
-      { "label": "Media", "value": "Upload images or video — JPG, PNG, WebP, MP4" },
+      { "label": "Media", "value": "Upload images or video: JPG, PNG, WebP, MP4" },
       { "label": "Caption", "value": "Write once, preview per channel before publishing" },
       { "label": "Output", "value": "Scheduled or instant posts to all six connected channels" }
     ],
@@ -71,9 +71,9 @@
     "eyebrow": "AI agents",
     "titleLead": "Or let your agent",
     "titleHighlight": "run it",
-    "subtitle": "Every workspace can mint API keys. Give one to your AI agent and it can discover which accounts it's allowed to post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped — without touching a single platform API itself.",
+    "subtitle": "Every workspace can mint API keys. Give one to your AI agent and it can discover which accounts it's allowed to post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped, without touching a single platform API itself.",
     "bullets": [
-      "One key is scoped to one brand — an agent can't wander into another",
+      "One key is scoped to one brand. An agent can't wander into another",
       "Facebook, Instagram, and TikTok stay manual-first: a human posts, always",
       "Idempotent writes, async publish runs, and signed webhooks built in"
     ],

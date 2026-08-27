@@ -34,7 +34,8 @@
       "integration": "集成",
       "post": "帖子",
       "workspace": "工作空间",
-      "account": "账户"
+      "account": "账户",
+      "experiment": "实验"
     },
     "titleGeneric": "删除{entity}",
     "titleNamed": "删除{entity}？",
@@ -65,14 +66,29 @@
   },
   "scanProgressStepper": {
     "steps": {
-      "connecting": { "label": "连接网站", "activeLabel": "正在连接网站…" },
-      "reading": { "label": "读取网站内容", "activeLabel": "正在读取网站内容…" },
-      "extracting": { "label": "提取品牌色", "activeLabel": "正在提取品牌色与 Logo…" },
-      "analyzing": { "label": "分析品牌信号", "activeLabel": "正在分析品牌信号…" },
-      "finalizing": { "label": "构建品牌档案", "activeLabel": "正在构建你的品牌档案…" }
+      "connecting": {
+        "label": "连接网站",
+        "activeLabel": "正在连接网站…"
+      },
+      "reading": {
+        "label": "读取网站内容",
+        "activeLabel": "正在读取网站内容…"
+      },
+      "extracting": {
+        "label": "提取品牌色",
+        "activeLabel": "正在提取品牌色与 Logo…"
+      },
+      "analyzing": {
+        "label": "分析品牌信号",
+        "activeLabel": "正在分析品牌信号…"
+      },
+      "finalizing": {
+        "label": "构建品牌档案",
+        "activeLabel": "正在构建你的品牌档案…"
+      }
     },
-    "scanComplete": "扫描完成 — 请在下方查看并确认",
-    "scanFailed": "扫描失败 — 请手动填写",
+    "scanComplete": "扫描完成，请在下方查看并确认",
+    "scanFailed": "扫描失败，请手动填写",
     "researching": "正在研究你的品牌…"
   },
   "platformPreview": {

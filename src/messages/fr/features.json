@@ -28,7 +28,7 @@
     },
     {
       "title": "Aperçus multicanaux",
-      "description": "Vérifiez le rendu de chaque publication sur chaque réseau avant de publier — Facebook, Instagram, TikTok, LinkedIn, Threads et Pinterest ont chacun leur propre aperçu. Textes, formats, limites de caractères et spécifications de contenu s'affichent en temps réel.",
+      "description": "Vérifiez le rendu de chaque publication sur chaque réseau avant de publier : Facebook, Instagram, TikTok, LinkedIn, Threads et Pinterest ont chacun leur propre aperçu. Textes, formats, limites de caractères et spécifications de contenu s'affichent en temps réel.",
       "details": [
         "Aperçus précis au pixel près pour chaque plateforme",
         "Compteur de caractères en direct pour le texte",
@@ -58,12 +58,12 @@
     },
     {
       "title": "API et agents IA",
-      "description": "Tout ce que fait le tableau de bord, votre logiciel peut aussi le faire. Générez une clé API, confiez-la à un agent IA ou à un script, et laissez-le découvrir des comptes, importer des contenus, programmer des publications, publier et rendre compte — sur tous les forfaits, sans coût supplémentaire.",
+      "description": "Tout ce que fait le tableau de bord, votre logiciel peut aussi le faire. Générez une clé API, confiez-la à un agent IA ou à un script, et laissez-le découvrir des comptes, importer des contenus, programmer des publications, publier et rendre compte, sur tous les forfaits, sans coût supplémentaire.",
       "details": [
         "Clés limitées à une seule marque, avec expiration facultative",
         "Écritures idempotentes : une nouvelle tentative ne publie jamais en double",
         "Publications asynchrones et webhooks signés HMAC",
-        "Publication manuelle par défaut sur Meta et TikTok — c'est toujours une personne qui publie"
+        "Publication manuelle par défaut sur Meta et TikTok, c'est toujours une personne qui publie"
       ],
       "codeLabel": "programmez une publication depuis tout ce qui parle HTTP",
       "agentGuideLink": "Lire le guide pour agents IA →"
@@ -72,7 +72,7 @@
   "platformFeatures": [
     {
       "title": "Gestion des espaces de travail",
-      "description": "Organisez les marques que vous gérez — clients, unités commerciales ou vos propres projets — en espaces de travail isolés. Chaque espace a ses propres marques, intégrations et membres d'équipe."
+      "description": "Organisez les marques que vous gérez, clients, unités commerciales ou vos propres projets, en espaces de travail isolés. Chaque espace a ses propres marques, intégrations et membres d'équipe."
     },
     {
       "title": "Programmation et calendrier",
@@ -87,7 +87,7 @@
     "eyebrow": "Plateforme",
     "titleLead": "Conçue pour tous ceux qui",
     "titleHighlight": "publient",
-    "subtitle": "Au-delà des outils essentiels, Markaestro vous donne l'infrastructure pour évoluer — d'une seule marque à un portefeuille client complet."
+    "subtitle": "Au-delà des outils essentiels, Markaestro vous donne l'infrastructure pour évoluer, d'une seule marque à un portefeuille client complet."
   },
   "cta": {
     "title": "Prêt à le voir en action ?",

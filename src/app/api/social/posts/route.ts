@@ -52,7 +52,7 @@ function failureResponse(reason: FailureReason, message: string) {
       error: FAILURE_CODE[reason],
       reason,
       message: reason === 'auth'
-        ? `${message} — reconnect the account from brand settings.`
+        ? `${message}. Reconnect the account from brand settings.`
         : message,
     },
     FAILURE_STATUS[reason],

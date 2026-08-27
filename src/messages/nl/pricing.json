@@ -3,11 +3,11 @@
     "eyebrow": "Prijzen",
     "titleLead": "Je volledige marketingmotor,",
     "titleHighlight": "één simpele prijs",
-    "subtitle": "Geen verborgen kosten, geen verrassingen per gebruiker. Begin gratis — elk betaald abonnement bevat een gratis proefperiode van {trialDays} dagen. Op elk moment op te zeggen.",
+    "subtitle": "Geen verborgen kosten, geen verrassingen per gebruiker. Begin gratis, elk betaald abonnement bevat een gratis proefperiode van {trialDays} dagen. Op elk moment op te zeggen.",
     "monthlyToggle": "Maandelijks",
     "annualToggle": "Jaarlijks",
     "annualSaveBadge": "BESPAAR 18%",
-    "trialLine": "Gratis proefperiode van {trialDays} dagen op alle betaalde abonnementen — geen kosten tot dag {trialEndDay}",
+    "trialLine": "Gratis proefperiode van {trialDays} dagen op alle betaalde abonnementen, geen kosten tot dag {trialEndDay}",
     "annualSavingsSuffix": " · Jaarlijkse facturering bespaart 18%"
   },
   "planNames": {
@@ -19,7 +19,7 @@
   "mostPopularBadge": "Meest Populair",
   "plans": {
     "free": {
-      "description": "Probeer Markaestro met één merk — voor altijd gratis.",
+      "description": "Probeer Markaestro met één merk, voor altijd gratis.",
       "features": [
         "1 merk",
         "2 sociale kanalen",
@@ -86,7 +86,7 @@
     "titleLead": "Vergelijk",
     "titleHighlight": "elke functie",
     "subtitle": "Zie precies wat er in elk abonnement is inbegrepen.",
-    "freeNote": "Het Gratis-abonnement bevat 1 merk, 2 kanalen, 15 posts per maand, 1 GB opslag en 7-daagse analyse — geen API-toegang.",
+    "freeNote": "Het Gratis-abonnement bevat 1 merk, 2 kanalen, 15 posts per maand, 1 GB opslag en 7-daagse analyse, geen API-toegang.",
     "categories": [
       {
         "name": "Publiceren",
@@ -146,7 +146,7 @@
   "faqs": [
     {
       "q": "Is er een gratis abonnement?",
-      "a": "Ja. Het Gratis-abonnement kost voor altijd $ 0 — geen kaart vereist. Je krijgt 1 merk, 2 sociale kanalen, 15 posts per maand, 1 GB opslag en een 7-daags analysevenster, met 1 teamlid in 1 workspace. API-toegang vereist een betaald abonnement. Upgrade wanneer je er klaar voor bent."
+      "a": "Ja. Het Gratis-abonnement kost voor altijd $ 0, geen kaart vereist. Je krijgt 1 merk, 2 sociale kanalen, 15 posts per maand, 1 GB opslag en een 7-daags analysevenster, met 1 teamlid in 1 workspace. API-toegang vereist een betaald abonnement. Upgrade wanneer je er klaar voor bent."
     },
     {
       "q": "Kan ik op elk moment van abonnement wisselen?",
@@ -162,11 +162,11 @@
     },
     {
       "q": "Wat gebeurt er als ik mijn opslaglimiet bereik?",
-      "a": "Je kunt posts blijven publiceren die media gebruiken die al in je workspace staan — alleen nieuwe uploads worden geblokkeerd. Maak ruimte vrij door media te verwijderen die je niet meer nodig hebt, of upgrade je abonnement op elk moment voor meer opslag."
+      "a": "Je kunt posts blijven publiceren die media gebruiken die al in je workspace staan, alleen nieuwe uploads worden geblokkeerd. Maak ruimte vrij door media te verwijderen die je niet meer nodig hebt, of upgrade je abonnement op elk moment voor meer opslag."
     },
     {
       "q": "Hoe werkt de gratis proefperiode?",
-      "a": "Elk abonnement — maandelijks en jaarlijks — bevat een gratis proefperiode van {trialDays} dagen. Je kaart wordt geregistreerd bij aanmelding, maar er worden geen kosten in rekening gebracht totdat de proefperiode eindigt. Zeg op elk moment tijdens de proefperiode op en betaal niets."
+      "a": "Elk abonnement, maandelijks en jaarlijks, bevat een gratis proefperiode van {trialDays} dagen. Je kaart wordt geregistreerd bij aanmelding, maar er worden geen kosten in rekening gebracht totdat de proefperiode eindigt. Zeg op elk moment tijdens de proefperiode op en betaal niets."
     },
     {
       "q": "Welke abonnementen bevatten de gratis proefperiode?",

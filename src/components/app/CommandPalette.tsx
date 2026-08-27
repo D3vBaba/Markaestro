@@ -104,9 +104,9 @@ export function CommandPalette({
     return (
         <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
             <DialogPrimitive.Portal>
-                <DialogPrimitive.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50" />
+                <DialogPrimitive.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-100 fixed inset-0 z-50 bg-black/40 dark:bg-black/60" />
                 <DialogPrimitive.Content
-                    className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[10%] sm:top-[20%] left-[50%] z-50 w-[calc(100%-2rem)] max-w-[560px] translate-x-[-50%] rounded-xl border shadow-xl overflow-hidden p-0 duration-200"
+                    className="fixed top-[10%] sm:top-[20%] left-[50%] z-50 w-[calc(100%-2rem)] max-w-[560px] translate-x-[-50%] rounded-2xl border shadow-lg overflow-hidden p-0"
                     style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
                 >
                     <DialogPrimitive.Title className="sr-only">{t("title")}</DialogPrimitive.Title>
@@ -145,7 +145,7 @@ export function CommandPalette({
                             </Command.Empty>
                             <Command.Group
                                 heading={t("groupNavigation")}
-                                className="[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[9px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.2em] [&_[cmdk-group-heading]]:text-[var(--mk-ink-40)]"
+                                className="[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:text-[10.5px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--mk-ink-40)]"
                             >
                                 {navigationItems.map((item) => {
                                     const Icon = item.icon;
@@ -154,7 +154,7 @@ export function CommandPalette({
                                             key={`nav-${item.href}`}
                                             value={`${item.label} ${item.keywords?.join(" ") ?? ""}`}
                                             onSelect={() => go(item.href)}
-                                            className="flex items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-[13px] cursor-pointer data-[selected=true]:bg-[var(--mk-panel)]"
+                                            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] cursor-pointer data-[selected=true]:bg-[var(--mk-panel)]"
                                             style={{ color: "var(--mk-ink-80)", letterSpacing: "-0.005em" }}
                                         >
                                             <Icon className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-60)" }} />
@@ -165,7 +165,7 @@ export function CommandPalette({
                             </Command.Group>
                             <Command.Group
                                 heading={t("groupQuickActions")}
-                                className="mt-1.5 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[9px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.2em] [&_[cmdk-group-heading]]:text-[var(--mk-ink-40)]"
+                                className="mt-1.5 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:text-[10.5px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--mk-ink-40)]"
                             >
                                 {quickActions.map((item) => {
                                     const Icon = item.icon;
@@ -174,7 +174,7 @@ export function CommandPalette({
                                             key={`action-${item.id}`}
                                             value={`${item.label} ${item.keywords?.join(" ") ?? ""}`}
                                             onSelect={() => go(item.href)}
-                                            className="flex items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-[13px] cursor-pointer data-[selected=true]:bg-[var(--mk-panel)]"
+                                            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] cursor-pointer data-[selected=true]:bg-[var(--mk-panel)]"
                                             style={{ color: "var(--mk-ink-80)", letterSpacing: "-0.005em" }}
                                         >
                                             <Icon className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-60)" }} />

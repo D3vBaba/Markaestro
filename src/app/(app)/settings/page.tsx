@@ -124,7 +124,7 @@ function ApiTrendBars({ points, requestsLabel }: { points: ApiClientTrendPoint[]
       {points.map((point) => (
         <div key={point.date} className="flex-1">
           <div
-            className="w-full rounded-t-sm bg-primary/60 transition-all"
+            className="w-full rounded-t-sm bg-primary/60 transition-colors"
             style={{ height: `${Math.max((point.requests / max) * 100, point.requests > 0 ? 10 : 2)}%` }}
             title={`${point.label}: ${point.requests} ${requestsLabel}`}
           />
@@ -204,10 +204,7 @@ function SettingsPageContent() {
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* Tab bar */}
-      <div
-        className="flex gap-5 sm:gap-6 border-b mb-6 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
-        style={{ borderColor: "var(--mk-rule-soft)" }}
-      >
+      <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 mb-6 overflow-x-auto scrollbar-hide w-fit max-w-full">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
@@ -216,23 +213,22 @@ function SettingsPageContent() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               data-tab={tab.id}
-              className="flex items-center gap-1.5 py-3 sm:py-2.5 text-[13px] transition-colors -mb-px whitespace-nowrap shrink-0"
-              style={{
-                color: active ? "var(--mk-ink)" : "var(--mk-ink-60)",
-                fontWeight: active ? 600 : 400,
-                letterSpacing: "-0.005em",
-                borderBottom: `2px solid ${active ? "var(--mk-ink)" : "transparent"}`,
-              }}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                active
+                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+              }`}
             >
               <Icon
-                className="h-3.5 w-3.5"
-                style={{ color: active ? "var(--mk-ink)" : "var(--mk-ink-60)" }}
+                className={`h-3.5 w-3.5 ${active ? "text-blue-600 dark:text-blue-400" : "text-slate-400"}`}
               />
+
               {t(`tabs.${tab.id}`)}
             </button>
           );
         })}
       </div>
+
 
       {activeTab === 'account' && <AccountTab />}
       {activeTab === 'usage' && <UsageTab onUpgrade={() => setActiveTab('billing')} />}
@@ -591,9 +587,9 @@ function UsageMeter({
       {!unavailable && !unlimited && (
         <div className="h-2 rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full rounded-full transition-all duration-500"
+            className="h-full w-full rounded-full origin-left rtl:origin-right transition-transform duration-300 ease-out-quart"
             style={{
-              width: `${pct}%`,
+              transform: `scaleX(${pct / 100})`,
               background: isFull
                 ? "var(--mk-neg)"
                 : isHigh
@@ -669,9 +665,9 @@ function StorageMeter({
       ) : (
         <div className="h-2 rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full rounded-full transition-all duration-500"
+            className="h-full w-full rounded-full origin-left rtl:origin-right transition-transform duration-300 ease-out-quart"
             style={{
-              width: `${pct}%`,
+              transform: `scaleX(${pct / 100})`,
               background: isFull
                 ? "var(--mk-neg)"
                 : isHigh
@@ -1521,7 +1517,7 @@ function TeamTab() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {t(`roleLabels.${m.role}`)}
-                        {roleDescriptions[m.role] ? ` — ${roleDescriptions[m.role]}` : ""}
+                        {roleDescriptions[m.role] ? `: ${roleDescriptions[m.role]}` : ""}
                       </p>
                     </div>
                   </div>
@@ -2282,7 +2278,7 @@ function ApiAccessTab() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
             <div className="rounded-xl border p-4">
               <p className="text-sm font-medium">{t("infoCards.videoSupportTitle")}</p>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -2303,7 +2299,7 @@ function ApiAccessTab() {
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-xl border p-4">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("stats.requestsThisMonth")}</p>
               {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
@@ -2592,7 +2588,7 @@ function ApiAccessTab() {
           <CardTitle>{t("operationalNotes.title")}</CardTitle>
           <CardDescription>{t("operationalNotes.description")}</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
+        <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="rounded-xl border p-4">
             <p className="text-sm font-medium">{t("operationalNotes.rateLimitTitle")}</p>
             <p className="mt-1 text-xs text-muted-foreground">

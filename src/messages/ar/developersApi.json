@@ -2,8 +2,8 @@
   "hero": {
     "eyebrow": "المطورون",
     "title": "واجهة النشر العامة (API)",
-    "intro1": "ارفع الوسائط، وأنشئ منشورات، وانشر إلى Facebook وInstagram وTikTok وLinkedIn وThreads وPinterest، وكل ذلك مقتصر على منتج عبر مفتاح API لمساحة العمل. الطريقة الموصى بها للتكامل هي <connectLink>Connect API</connectLink> — واجهة صغيرة ومسطّحة على <code>/api/connect/v1</code> يمكن لمعظم أدوات الجدولة استهدافها كما هي.",
-    "intro2": "هل تحتاج إلى تحكم كامل — نشر صريح، واستعلام عن حالة المهام، وويب هوكس موقّعة، ودفعات، وإعدادات لكل قناة؟ توفر واجهة <code>/api/public/v1</code> المتقدمة أدناه كل ذلك. تشترك كلتاهما في المصادقة نفسها والمنتجات نفسها وخط أنابيب النشر نفسه؛ استخدم فقط هذه المسارات العامة المُصدَّرة (مسارات التطبيق الداخلية تتطلب مصادقة مستخدم Firebase وليست جزءًا من العقد العام).",
+    "intro1": "ارفع الوسائط، وأنشئ منشورات، وانشر إلى Facebook وInstagram وTikTok وLinkedIn وThreads وPinterest، وكل ذلك مقتصر على منتج عبر مفتاح API لمساحة العمل. الطريقة الموصى بها للتكامل هي <connectLink>Connect API</connectLink>، واجهة صغيرة ومسطّحة على <code>/api/connect/v1</code> يمكن لمعظم أدوات الجدولة استهدافها كما هي.",
+    "intro2": "هل تحتاج إلى تحكم كامل، نشر صريح، واستعلام عن حالة المهام، وويب هوكس موقّعة، ودفعات، وإعدادات لكل قناة؟ توفر واجهة <code>/api/public/v1</code> المتقدمة أدناه كل ذلك. تشترك كلتاهما في المصادقة نفسها والمنتجات نفسها وخط أنابيب النشر نفسه؛ استخدم فقط هذه المسارات العامة المُصدَّرة (مسارات التطبيق الداخلية تتطلب مصادقة مستخدم Firebase وليست جزءًا من العقد العام).",
     "intro3": "<strong>Facebook وInstagram وTikTok يدوية أولًا حتى عبر API.</strong> تستخدم منشورات هذه القنوات افتراضيًا تسليم <code>manual_reminder</code>: لا تستدعي Markaestro واجهة المنصة أبدًا نيابة عنها. يُنقل النشر المنشور إلى قائمة انتظار 'للنشر' الخاصة بمساحة العمل، حيث يقوم المالك بتنزيل الوسائط والنشر بشكل أصلي والتأكيد. مرّر <code>deliveryMode: \"direct_publish\"</code> عند الإنشاء لاختيار النشر عبر API الرسمية. على TikTok يُستخدم التسليم إلى صندوق الوارد افتراضيًا، إلا عند ضبط <code>settings.postMode</code> على <code>direct_post</code>. تنشر LinkedIn وThreads وPinterest برمجيًا افتراضيًا.",
     "intro4": "يمكن أن تحتوي مساحات العمل على منتجات متعددة. يُربط كل مفتاح API بمنتج واحد عند إنشائه، بحيث تستهدف الاستدعاءات ذلك المنتج تلقائيًا وتُرفض الطلبات لأي منتج آخر.",
     "agentCallout": {
@@ -19,21 +19,21 @@
     "recommendedBadge": "موصى به",
     "description": "الطريقة الافتراضية للتكامل: واجهة مسطّحة بتنسيق snake_case على <code>/api/connect/v1</code> يمكن لمعظم أدوات الجدولة استهدافها كما هي. تربط اصطلاح <code>create-upload-url → PUT → post</code> الشائع بمساحة العمل والمصادقة والمنتجات وخط أنابيب النشر نفسها كما في واجهة API الكاملة أدناه. اضبط عنوان URL الأساسي للعميل على <code>/api/connect</code> وصادق باستخدام مفتاح API لمساحة عمل مقتصر على منتج (النطاقات <code>posts.read</code> و<code>posts.write</code> و<code>media.write</code>).",
     "endpoints": [
-      { "method": "GET", "path": "/api/connect/v1/social-accounts", "note": "يسرد وجهات Facebook وInstagram وTikTok وLinkedIn وThreads المتصلة كحسابات مسطّحة، كل منها موسوم بمنتجه بحيث يمكن للعملاء التجميع والتمييز. لكل قناة مسارها المخصص الخاص — بلا توزيع بين القنوات." },
-      { "method": "GET", "path": "/api/connect/v1/products", "note": "يسرد العلامات التجارية (الاسم في التنسيق: products) مع حساباتها المتصلة متداخلة — منتقٍ يقدّم العلامة التجارية أولًا." },
+      { "method": "GET", "path": "/api/connect/v1/social-accounts", "note": "يسرد وجهات Facebook وInstagram وTikTok وLinkedIn وThreads المتصلة كحسابات مسطّحة، كل منها موسوم بمنتجه بحيث يمكن للعملاء التجميع والتمييز. لكل قناة مسارها المخصص الخاص، بلا توزيع بين القنوات." },
+      { "method": "GET", "path": "/api/connect/v1/products", "note": "يسرد العلامات التجارية (الاسم في التنسيق: products) مع حساباتها المتصلة متداخلة، منتقٍ يقدّم العلامة التجارية أولًا." },
       { "method": "POST", "path": "/api/connect/v1/media/create-upload-url", "note": "يُرجع عنوان URL موقّعًا قصير الأمد وأحادي الاستخدام لـPUT مع معرّف وسائط." },
-      { "method": "PUT", "path": "<upload_url>", "note": "ارفع بايتات الصورة الخام إلى عنوان URL الموقّع. لا حاجة إلى مفتاح API — يُصرِّح التوقيع بذلك." },
+      { "method": "PUT", "path": "<upload_url>", "note": "ارفع بايتات الصورة الخام إلى عنوان URL الموقّع. لا حاجة إلى مفتاح API، يُصرِّح التوقيع بذلك." },
       { "method": "POST", "path": "/api/connect/v1/posts", "note": "ينشئ مسودة لكل حساب مُحدد. اضبط is_draft=false مع scheduled_at لجدولة التسليم؛ تستخدم TikTok التسليم إلى صندوق وارد المنشئ." },
       { "method": "GET", "path": "/api/connect/v1/posts", "note": "يسرد منشورات مساحة العمل بحالة مسطّحة وتعليق وعناوين URL للوسائط." }
     ],
-    "footnote": "كل حساب من <code>/social-accounts</code> موسوم بـ<code>product</code> الخاص به — الاسم بتنسيق النقل لعلامة تجارية (يمكن أن يظهر الحساب نفسه ضمن عدة علامات تجارية) — ويشفّر <code>id</code> الخاص به <code>productId#destinationId</code> — أعده حرفيًا في <code>social_accounts</code>، وسيتوزع الطلب إلى منشور واحد لكل حساب. يُربط كل مفتاح بعلامة تجارية واحدة، بحيث يرى وينشر فقط إلى تلك العلامة. <strong>منشورات Facebook وInstagram وTikTok يدوية أولًا</strong> — تُنشأ كمسودات وتُنشر بشكل أصلي بواسطة مالك مساحة العمل من قائمة انتظار 'للنشر' في Markaestro، وليس أبدًا عبر واجهة المنصة. تنشر LinkedIn وThreads وPinterest برمجيًا بعد إجراء نشر صريح. تكون حالة المنشور واحدة من <code>draft</code> أو <code>processing</code> أو <code>posted</code> أو <code>failed</code>. تُعد Facebook وInstagram وLinkedIn وTikTok وThreads كل منها وجهتها المخصصة الخاصة — النشر إلى واحدة لا يتوزع أبدًا إلى أخرى. تتبّع حالة النشر عبر <code>GET /api/connect/v1/posts</code>."
+    "footnote": "كل حساب من <code>/social-accounts</code> موسوم بـ<code>product</code> الخاص به، الاسم بتنسيق النقل لعلامة تجارية (يمكن أن يظهر الحساب نفسه ضمن عدة علامات تجارية)، ويشفّر <code>id</code> الخاص به <code>productId#destinationId</code>، أعده حرفيًا في <code>social_accounts</code>، وسيتوزع الطلب إلى منشور واحد لكل حساب. يُربط كل مفتاح بعلامة تجارية واحدة، بحيث يرى وينشر فقط إلى تلك العلامة. <strong>منشورات Facebook وInstagram وTikTok يدوية أولًا</strong>، تُنشأ كمسودات وتُنشر بشكل أصلي بواسطة مالك مساحة العمل من قائمة انتظار 'للنشر' في Markaestro، وليس أبدًا عبر واجهة المنصة. تنشر LinkedIn وThreads وPinterest برمجيًا بعد إجراء نشر صريح. تكون حالة المنشور واحدة من <code>draft</code> أو <code>processing</code> أو <code>posted</code> أو <code>failed</code>. تُعد Facebook وInstagram وLinkedIn وTikTok وThreads كل منها وجهتها المخصصة الخاصة، النشر إلى واحدة لا يتوزع أبدًا إلى أخرى. تتبّع حالة النشر عبر <code>GET /api/connect/v1/posts</code>."
   },
   "advancedSection": {
     "title": "متقدم: واجهة API العامة الكاملة",
-    "description": "الواجهة الكاملة <code>/api/public/v1</code> — نشر صريح، ومهام غير متزامنة، وويب هوكس موقّعة، وإنشاء دفعات، وإعدادات لكل قناة. استخدمها عندما لا تكون Connect API كافية."
+    "description": "الواجهة الكاملة <code>/api/public/v1</code>، نشر صريح، ومهام غير متزامنة، وويب هوكس موقّعة، وإنشاء دفعات، وإعدادات لكل قناة. استخدمها عندما لا تكون Connect API كافية."
   },
   "highlightCards": [
-    { "title": "Meta وTikTok يدوية أولًا", "description": "تذهب منشورات Facebook وInstagram وTikTok افتراضيًا إلى قائمة انتظار 'للنشر' اليدوية — بلا استدعاء API للمنصة، ينشر مالك مساحة العمل بشكل أصلي ويؤكد. اختر النشر عبر API لكل منشور باستخدام deliveryMode." },
+    { "title": "Meta وTikTok يدوية أولًا", "description": "تذهب منشورات Facebook وInstagram وTikTok افتراضيًا إلى قائمة انتظار 'للنشر' اليدوية، بلا استدعاء API للمنصة، ينشر مالك مساحة العمل بشكل أصلي ويؤكد. اختر النشر عبر API لكل منشور باستخدام deliveryMode." },
     { "title": "دعم تسجيل دخول Instagram", "description": "يمكن للعلامات التجارية عرض حسابات Instagram المهنية المستقلة حتى عند عدم ربط صفحة Facebook." },
     { "title": "يدعم TikTok مسارين اختياريين", "description": "يستخدم النشر عبر API التسليم إلى صندوق وارد المنشئ افتراضيًا. اضبط settings.postMode على direct_post مع مستوى الخصوصية لطلب Direct Post عندما يكون تطبيق TikTok معتمدًا." },
     { "title": "غير متزامن بالتصميم", "description": "يُرجع كل نشر معرّف مهمة. استعلم عن المهام أو اشترك في ويب هوكس موقّعة بدلًا من افتراض الإتمام المتزامن." }
@@ -41,7 +41,7 @@
   "endpointGroups": [
     {
       "title": "العلامات التجارية والوجهات",
-      "description": "اكتشف العلامات التجارية ووجهات النشر المتاحة لمفتاح API. تُسمى العلامات التجارية products في تنسيق النقل — تستخدم المسارات والحمولات products/productId للتوافق مع الإصدارات السابقة، وتقبل نصوص POST أيضًا brandId كاسم بديل.",
+      "description": "اكتشف العلامات التجارية ووجهات النشر المتاحة لمفتاح API. تُسمى العلامات التجارية products في تنسيق النقل، تستخدم المسارات والحمولات products/productId للتوافق مع الإصدارات السابقة، وتقبل نصوص POST أيضًا brandId كاسم بديل.",
       "endpoints": [
         { "method": "GET", "path": "/api/public/v1/products", "note": "يسرد العلامات التجارية للمفتاح إضافة إلى القنوات المتاحة حاليًا لكل واحدة." },
         { "method": "GET", "path": "/api/public/v1/products/:id/destinations", "note": "يسرد وجهات النشر لتلك العلامة التجارية، بما في ذلك تسجيل دخول Instagram المستقل وصفحة Facebook وThreads وملف/صفحة LinkedIn ووجهات TikTok المتصلة." }
@@ -86,7 +86,7 @@
     "createPost": { "title": "4. إنشاء منشور", "description": "أنشئ مسودة باستخدام معرّفات الأصول تلك. تعتمد Instagram افتراضيًا على النشر اليدوي؛ أضف <code>\"deliveryMode\": \"direct_publish\"</code> لاختيار هذا المنشور للنشر عبر API الرسمية." },
     "tiktokCreatePost": { "title": "مثال TikTok", "description": "تصل منشورات TikTok كمسودات Markaestro وتعتمد افتراضيًا على النشر اليدوي من قائمة انتظار 'للنشر'. باستخدام <code>deliveryMode: \"platform_inbox\"</code> (أو <code>direct_publish</code>)، يرسل النشر الصريح المسودة بدلًا من ذلك إلى صندوق وارد المنشئ على TikTok." },
     "publish": { "title": "5. جدولة النشر", "description": "ينشئ النشر مهمة غير متزامنة. تنتقل المنشورات اليدوية (الوضع الافتراضي لـFacebook/Instagram/TikTok) إلى قائمة انتظار 'للنشر' وتُطلق <code>post.action_required</code>؛ تنشر LinkedIn وThreads وPinterest ومنشورات Meta المختارة مباشرة؛ وتضع منشورات TikTok المختارة التسليم إلى صندوق الوارد في قائمة الانتظار." },
-    "listScheduled": { "title": "6. مراجعة الجدول والإلغاء", "description": "اسرد ما هو في قائمة الانتظار لعلامة تجارية، ثم احذف أي شيء لم تعد ترغب في نشره. يستخدم كلاهما نطاقات تحملها المفاتيح الحالية بالفعل — <code>posts.read</code> و<code>posts.write</code>." },
+    "listScheduled": { "title": "6. مراجعة الجدول والإلغاء", "description": "اسرد ما هو في قائمة الانتظار لعلامة تجارية، ثم احذف أي شيء لم تعد ترغب في نشره. يستخدم كلاهما نطاقات تحملها المفاتيح الحالية بالفعل، <code>posts.read</code> و<code>posts.write</code>." },
     "webhook": { "title": "مثال حمولة ويب هوك", "description": "تُوقَّع التسليمات بـHMAC باستخدام سر الويب هوك الخاص بك." }
   },
   "channelBehavior": {

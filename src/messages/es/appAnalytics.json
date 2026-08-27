@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Analítica",
-    "subtitle": "Lo que ganaron tus publicaciones — medido con los datos de cada plataforma.",
+    "subtitle": "Lo que ganaron tus publicaciones, medido con los datos de cada plataforma.",
     "refresh": {
       "idle": "Actualizar",
       "refreshing": "Actualizando…",
@@ -20,7 +20,7 @@
       "brandTitle": "Filtrar por marca",
       "rangeTitle": "Últimos {label}",
       "rangeLockedTitle": "El período de {label} requiere un plan superior",
-      "windowNote": "Mostrando {days} días — la ventana de analítica de tu plan."
+      "windowNote": "Mostrando {days} días, la ventana de analítica de tu plan."
     },
     "error": {
       "message": "No se pudo cargar la analítica.",
@@ -32,7 +32,7 @@
       "body": "En cuanto se publique una publicación, Markaestro obtiene sus vistas, alcance e interacción de la plataforma en aproximadamente una hora, y sigue midiendo durante 30 días. El número de seguidores se registra a diario en cada canal conectado.",
       "createPost": "Crear una publicación"
     },
-    "warmingUp": "Recopilando métricas — las primeras capturas llegan aproximadamente una hora después de publicar y luego se actualizan con una frecuencia decreciente durante 30 días.",
+    "warmingUp": "Recopilando métricas, las primeras capturas llegan aproximadamente una hora después de publicar y luego se actualizan con una frecuencia decreciente durante 30 días.",
     "kpis": {
       "views": { "label": "Vistas", "sub": "vs. período anterior" },
       "reach": { "label": "Alcance", "sub": "cuentas únicas alcanzadas" },
@@ -57,14 +57,14 @@
     "channels": { "eyebrow": "Canales", "title": "Rendimiento por canal" },
     "posts": { "eyebrow": "Publicaciones", "title": "Publicaciones destacadas" },
     "provenance": {
-      "base": "Las métricas usan las definiciones de la API de cada plataforma y pueden retrasarse hasta 48 horas respecto a las estadísticas nativas. Un «—» indica que la plataforma no proporciona esa métrica (por ejemplo, Threads y TikTok no informan el alcance). La tasa de interacción es interacción ÷ alcance.",
+      "base": "Las métricas usan las definiciones de la API de cada plataforma y pueden retrasarse hasta 48 horas respecto a las estadísticas nativas. Un «: » indica que la plataforma no proporciona esa métrica (por ejemplo, Threads y TikTok no informan el alcance). La tasa de interacción es interacción ÷ alcance.",
       "truncated": " Las vistas a nivel de publicación se basan en las {count} publicaciones más recientes de este período.",
       "lastUpdate": " Última actualización de métricas: {date}."
     },
     "toasts": {
       "updated": "{count, plural, one {Se actualizó # publicación desde la fuente} other {Se actualizaron # publicaciones desde la fuente}}",
       "noNewMetrics": "No hay nuevas métricas de la plataforma disponibles",
-      "tooManyRefreshes": "Demasiadas actualizaciones — inténtalo de nuevo en un minuto.",
+      "tooManyRefreshes": "Demasiadas actualizaciones, inténtalo de nuevo en un minuto.",
       "pullFailed": "No se pudieron obtener datos en vivo. Mostrando las últimas cifras guardadas.",
       "exportFailed": "Error al exportar. Inténtalo de nuevo."
     }
@@ -78,7 +78,7 @@
   },
   "trendChart": {
     "noData": "Aún no hay datos para este período.",
-    "followerHistoryBuilds": "El historial de seguidores se construye a partir de capturas diarias — la tendencia aparece después de un par de días de datos.",
+    "followerHistoryBuilds": "El historial de seguidores se construye a partir de capturas diarias, la tendencia aparece después de un par de días de datos.",
     "followersSeriesName": "Seguidores"
   },
   "channelTable": {

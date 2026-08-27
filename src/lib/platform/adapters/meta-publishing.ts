@@ -24,7 +24,7 @@ import {
   isInstagramMethodTypeUnsupported,
 } from '@/lib/oauth/instagram-errors';
 
-const GRAPH_API = 'https://graph.facebook.com/v22.0';
+const GRAPH_API = 'https://graph.facebook.com/v25.0';
 const INSTAGRAM_GRAPH_API = 'https://graph.instagram.com/v25.0';
 const CONTAINER_POLL_INTERVAL_MS = 2000;
 const CONTAINER_POLL_MAX_ATTEMPTS = 15;
@@ -657,6 +657,7 @@ async function fetchInstagramMetrics(
   const v = call.values;
   const metrics = emptyMetrics();
   metrics.views = metricNum(v.views);
+  metrics.impressions = metrics.views;
   metrics.reach = metricNum(v.reach);
   metrics.likes = metricNum(v.likes);
   metrics.comments = metricNum(v.comments);
@@ -687,7 +688,7 @@ async function fetchFacebookMetrics(
   if (fieldsRes.ok) {
     metrics.likes = metricNum(fieldsData.reactions?.summary?.total_count);
     metrics.comments = metricNum(fieldsData.comments?.summary?.total_count);
-    metrics.shares = metricNum(fieldsData.shares?.count) ?? (fieldsData.shares === undefined ? 0 : null);
+    metrics.shares = metricNum(fieldsData.shares?.count);
   }
 
   let call = await fetchInsightsCall(GRAPH_API, postId, FB_POST_METRICS, accessToken);
@@ -697,6 +698,7 @@ async function fetchFacebookMetrics(
   if (call.ok) {
     const v = call.values;
     metrics.views = metricNum(v.post_media_view);
+    metrics.impressions = metrics.views;
     metrics.reach = metricNum(v.post_total_media_view_unique);
     metrics.clicks = metricNum(v.post_clicks);
     metrics.videoViews = metricNum(v.post_video_views);

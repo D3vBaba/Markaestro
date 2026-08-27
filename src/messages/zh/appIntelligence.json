@@ -1,0 +1,366 @@
+{
+  "title": "智能洞察",
+  "subtitle": "实测表现与有据建议，不会自动发布。",
+  "brand": "品牌",
+  "coverage": "数据覆盖率 {value}%",
+  "labels": {
+    "measured": "实测",
+    "calculated": "计算",
+    "predicted": "预测",
+    "recommended": "建议"
+  },
+  "tabs": {
+    "overview": "概览",
+    "audience": "受众",
+    "content": "内容",
+    "opportunities": "机会",
+    "playbook": "行动手册",
+    "advanced": "实验"
+  },
+  "metrics": {
+    "posts": "帖子",
+    "views": "浏览量",
+    "reach": "触达",
+    "clicks": "点击"
+  },
+  "platforms": {
+    "title": "平台表现",
+    "empty": "指标到达后，已发布帖子会显示在这里。",
+    "posts": "{value} 篇帖子",
+    "views": "{value} 次浏览",
+    "engagements": "{value} 次互动",
+    "colPlatform": "平台",
+    "colEngagements": "互动"
+  },
+  "audience": {
+    "title": "目标受众",
+    "objective": "目标",
+    "markets": "市场",
+    "pillars": "内容支柱"
+  },
+  "content": {
+    "title": "热门内容",
+    "mediaOnly": "媒体帖子",
+    "likes": "赞",
+    "comments": "评论",
+    "shares": "分享",
+    "viewLive": "查看直播帖"
+  },
+  "empty": {
+    "overviewTitle": "正在等待已发布帖子",
+    "overviewBody": "该品牌尚未同步帖子。从 Markaestro 发布的帖子和导入的平台历史会在投影到智能洞察后显示。缺失指标保持空白，绝不会记为零。",
+    "noBrandTitle": "请先创建品牌",
+    "noBrandBody": "智能洞察以 Markaestro 品牌为范围。",
+    "profileTitle": "设置受众档案",
+    "profileBody": "请在品牌设置中添加目标、市场、时区和平台优先级。",
+    "contentTitle": "暂无已测量内容",
+    "contentBody": "已发布和导入的帖子会显示在这里，缺失指标不会被当作零。",
+    "opportunitiesTitle": "暂无有依据的机会",
+    "opportunitiesBody": "有足够实测证据后显示建议。",
+    "playbookTitle": "正在生成行动手册",
+    "playbookBody": "有足够实测帖子后显示模式（通常五条以上）。",
+    "createBrand": "创建品牌"
+  },
+  "composer": {
+    "title": "受众契合度",
+    "recommended": "建议",
+    "body": "对照已保存受众档案评估草稿。应用前不会修改。",
+    "analyze": "分析草稿",
+    "analyzing": "分析中…",
+    "retry": "重试",
+    "failed": "无法安全完成分析。",
+    "reanalyze": "再次分析",
+    "meta": "覆盖率 {coverage}% · 置信度{confidence} · {sample} 篇相关帖子",
+    "coldStart": "冷启动：相关帖子少于五篇。",
+    "unavailable": "不可用",
+    "suggestion": "建议文案",
+    "apply": "应用建议",
+    "applied": "已应用到草稿",
+    "confidence": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "timingHint": "最强实测时段：{bucket}（{count} 篇帖子）。"
+  },
+  "profile": {
+    "objective": "目标",
+    "objectiveHint": "选择智能洞察要优化的实测指标。",
+    "primaryMarket": "主要市场",
+    "marketPlaceholder": "选择市场",
+    "conversion": "转化行为",
+    "timezone": "时区",
+    "platformPriority": "优先平台",
+    "platformHint": "用于平台建议排序。其他已连接渠道仍可使用。",
+    "platformPlaceholder": "无优先级",
+    "pillars": "内容支柱",
+    "industries": "行业",
+    "interests": "兴趣",
+    "voice": "品牌语气",
+    "listHint": "从列表中选择，每次选择会添加可移除的标签。",
+    "save": "保存受众档案",
+    "saving": "保存中…",
+    "saved": "受众档案已保存",
+    "saveFailed": "无法保存受众档案",
+    "loading": "正在加载受众档案…",
+    "unavailable": "此工作区未启用受众档案。",
+    "objectives": {
+      "awareness": "认知",
+      "engagement": "互动",
+      "followers": "粉丝",
+      "website_traffic": "网站流量",
+      "leads": "线索",
+      "app_installs": "应用安装",
+      "purchases": "购买",
+      "other": "其他"
+    },
+    "conversions": {
+      "none": "无",
+      "website_visit": "访问网站",
+      "lead": "线索",
+      "signup": "注册",
+      "app_install": "应用安装",
+      "purchase": "购买",
+      "custom": "自定义"
+    },
+    "voiceHint": "选择描述品牌语气的语调特征。",
+    "tagAdd": "从列表添加…",
+    "tagEmpty": {
+      "pillars": "未选择内容支柱",
+      "industries": "未选择行业",
+      "interests": "未选择兴趣",
+      "voice": "未选择品牌语调"
+    },
+    "options": {
+      "pillars": {
+        "education": "教育",
+        "entertainment": "娱乐",
+        "inspiration": "灵感",
+        "product_updates": "产品更新",
+        "behind_the_scenes": "幕后花絮",
+        "tutorials": "教程",
+        "thought_leadership": "思想领导力",
+        "community": "社区",
+        "promotions": "促销",
+        "user_stories": "用户故事",
+        "industry_news": "行业新闻",
+        "culture": "文化",
+        "events": "活动",
+        "testimonials": "客户证言",
+        "how_to": "操作指南"
+      },
+      "industries": {
+        "technology": "科技",
+        "retail": "零售",
+        "finance": "金融",
+        "healthcare": "医疗",
+        "education": "教育",
+        "food_beverage": "餐饮",
+        "fashion_beauty": "时尚美妆",
+        "travel": "旅游",
+        "real_estate": "房地产",
+        "fitness": "健身",
+        "entertainment": "娱乐",
+        "nonprofit": "非营利",
+        "b2b_services": "B2B 服务",
+        "manufacturing": "制造业",
+        "automotive": "汽车",
+        "gaming": "游戏",
+        "media": "媒体",
+        "professional_services": "专业服务",
+        "home_garden": "家居园艺",
+        "pets": "宠物"
+      },
+      "interests": {
+        "entrepreneurship": "创业",
+        "marketing": "营销",
+        "design": "设计",
+        "productivity": "效率",
+        "wellness": "健康",
+        "parenting": "育儿",
+        "sustainability": "可持续",
+        "personal_finance": "个人理财",
+        "cooking": "烹饪",
+        "photography": "摄影",
+        "music": "音乐",
+        "sports": "体育",
+        "technology": "科技",
+        "career_growth": "职业成长",
+        "diy": "手工 DIY",
+        "gaming": "游戏",
+        "fashion": "时尚",
+        "travel": "旅行",
+        "fitness": "健身",
+        "reading": "阅读"
+      },
+      "voice": {
+        "professional": "专业",
+        "friendly": "友好",
+        "bold": "大胆",
+        "playful": "活泼",
+        "authoritative": "权威",
+        "empathetic": "共情",
+        "witty": "机智",
+        "inspirational": "励志",
+        "conversational": "对话式",
+        "technical": "技术向",
+        "luxury": "奢华",
+        "minimalist": "极简",
+        "energetic": "活力",
+        "trustworthy": "可信",
+        "innovative": "创新"
+      }
+    }
+  },
+  "errors": {
+    "unavailableTitle": "智能洞察不可用",
+    "unavailableBody": "此阶段尚未为该工作区启用，或加载失败。",
+    "retry": "重试"
+  },
+  "actions": {
+    "accept": "接受",
+    "dismiss": "忽略",
+    "pin": "置顶",
+    "saveFailed": "无法保存您的决定",
+    "acceptedToast": "已标记接受，请在 Content/日历 执行",
+    "pinnedToast": "已固定以便跟进",
+    "dismissedToast": "已忽略并隐藏",
+    "status": {
+      "accepted": "已接受",
+      "pinned": "已固定",
+      "dismissed": "已忽略"
+    }
+  },
+  "alignment": {
+    "title": "受众对齐",
+    "empty": "捕获到可衡量的受众构成后才会显示对齐。缺失维度保持空白。"
+  },
+  "timing": {
+    "title": "最佳发布时间",
+    "empty": "账号专属时段需要 20 篇有日期的帖子，并在该小时内有 5 次观测。"
+  },
+  "campaigns": {
+    "title": "活动",
+    "empty": "命名活动以便比较。不会自动发布。",
+    "name": "活动名称",
+    "create": "创建活动"
+  },
+  "experiments": {
+    "title": "实验",
+    "emptyPaired": "暂无实验。请用两条排期帖创建按平台的 A/B 测试。",
+    "pairedWorkflow": "选择一个平台，撰写两个变体（不同文案、媒体和/或时间），都安排排期并在设定窗口内运行。结束后结果会进入收件箱。有永久链接时，并排视图会显示直播帖。",
+    "name": "实验名称",
+    "hypothesis": "假设（例如更短的开头能获得更多浏览）",
+    "createPaired": "创建并排期 A/B",
+    "creating": "创建中…",
+    "createdPaired": "实验已创建，两条帖子均已排期",
+    "createFailed": "无法创建实验",
+    "captionPlaceholder": "该组的文案与话题标签",
+    "armCompose": "组 {arm}",
+    "armLabel": "组 {arm}",
+    "scheduleA": "排期 A 组",
+    "scheduleB": "排期 B 组",
+    "durationOption": "{days} 天窗口",
+    "platformLabel": "平台：{platform}",
+    "endsLabel": "结束于 {when}",
+    "openLive": "打开真实帖子",
+    "liveEmbedTitle": "组 {arm} 实时预览",
+    "livePending": "帖子发布且 Markaestro 保存永久链接后会显示实时嵌入。",
+    "loadingDetail": "正在加载实验…",
+    "detailFailed": "无法加载此实验。",
+    "untitledPost": "无标题帖子",
+    "effect": "相对差异 {value}%（B 相对 A）",
+    "status": {
+      "draft": "草稿",
+      "scheduled": "已排期",
+      "running": "进行中",
+      "complete": "已完成",
+      "archived": "已归档",
+      "winner_a": "胜者 A",
+      "winner_b": "胜者 B",
+      "inconclusive": "尚无定论"
+    },
+    "result": {
+      "winner_a": "在已测量指标上，A 组领先。",
+      "winner_b": "在已测量指标上，B 组领先。",
+      "inconclusive": "结果尚无定论，需要更大样本或更明显差异。"
+    },
+    "mediaRequired": "该平台在创建实验前，两侧都必须附带媒体。",
+    "mediaRequiredHint": "Instagram、TikTok 和 Pinterest 每个臂至少需要一张图片或一段视频。",
+    "untitledExperiment": "未命名实验",
+    "delete": "删除",
+    "deleted": "实验已删除",
+    "deleteFailed": "无法删除实验",
+    "deleteWarning": "将从 Markaestro 移除该实验、其已排期的 A/B 帖以及相关收件箱结果。已在平台上线的帖子不会被删除。"
+  },
+  "ask": {
+    "title": "询问 Markaestro",
+    "placeholder": "询问已测量的表现、时段或洞察。",
+    "submit": "提问",
+    "asking": "正在选择证据…",
+    "tool": "使用了 {tool}",
+    "failed": "无法回答该问题。请重试。",
+    "timeout": "用时过长，请换更短的问题，或稍后再试。",
+    "quota": "本月 Ask Markaestro 次数已用完。请下月再试或升级套餐。",
+    "unavailable": "此工作区尚未开通 Ask Markaestro。"
+  },
+  "links": {
+    "title": "跟踪链接",
+    "empty": "创建跟踪链接以归因点击，且不存储原始 IP。",
+    "label": "标签",
+    "destination": "目标网址",
+    "create": "创建链接"
+  },
+  "productBar": {
+    "brand": "品牌",
+    "noBrandSelected": "未选择品牌",
+    "change": "更改"
+  },
+  "guide": {
+    "overview": {
+      "title": "此标签页内容",
+      "body": "已同步帖子的 KPI 与平台分布。空白表示平台未提供该指标，不是零。"
+    },
+    "audience": {
+      "title": "设定品牌边界",
+      "body": "目标、市场、时区和支柱定义为谁创作。"
+    },
+    "content": {
+      "title": "从有效帖子中学习",
+      "body": "按实测浏览量排序的顶部内容。在 Content 中复用。"
+    },
+    "opportunities": {
+      "title": "下一步尝试",
+      "body": "来自实测历史的建议。请在 Content/日历 中手动执行。"
+    },
+    "playbook": {
+      "title": "重复出现的模式",
+      "body": "样本量足够的统计学习。"
+    },
+    "advanced": {
+      "title": "用证据测试想法",
+      "body": "按平台创建 A/B 实验，排期两条帖子并实时对比。窗口结束后结果进入收件箱。"
+    }
+  },
+  "workflow": {
+    "opportunities": {
+      "title": "如何使用机会",
+      "step1": "阅读建议及其证据。",
+      "step2": "接受、固定或忽略。",
+      "step3": "在 Content/日历 发布或排期。接受不会自动发帖。"
+    },
+    "playbook": {
+      "title": "如何使用 playbook",
+      "step1": "每张卡片是实测模式（n=）。",
+      "step2": "接受、固定或忽略模式。",
+      "step3": "创作时应用已接受的模式。"
+    }
+  },
+  "decisions": {
+    "hint": "仅记录决定，不会发布、排期或改草稿。",
+    "learningHint": "记录是否信任此模式。",
+    "accept": "接受，计划执行",
+    "pin": "固定，稍后",
+    "dismiss": "忽略，隐藏"
+  }
+}

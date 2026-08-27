@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Minus } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import NextLink from "next/link";
 import { motion } from "framer-motion";
@@ -272,7 +272,7 @@ export default function PricingPage() {
                               feature[plan] ? (
                                 <Check className="h-4 w-4 text-primary mx-auto" />
                               ) : (
-                                <span className="text-muted-foreground/30">—</span>
+                                <Minus className="h-4 w-4 text-muted-foreground/40 mx-auto" aria-hidden="true" />
                               )
                             ) : (
                               <span className={cn("text-sm", plan === "pro" ? "font-medium text-primary" : "text-muted-foreground")}>

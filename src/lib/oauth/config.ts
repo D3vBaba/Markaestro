@@ -23,6 +23,9 @@ const linkedinProfileConfig: OAuthProviderConfig = {
     'openid',
     'profile',
     'w_member_social',
+    ...(process.env.LINKEDIN_MEMBER_ANALYTICS_ENABLED === '1'
+      ? ['r_member_postAnalytics', 'r_member_profileAnalytics']
+      : []),
   ],
   clientIdEnv: 'LINKEDIN_PROFILE_CLIENT_ID',
   clientSecretEnv: 'LINKEDIN_PROFILE_CLIENT_SECRET',
@@ -48,9 +51,9 @@ const linkedinCommunityConfig: OAuthProviderConfig = {
 
 const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
   meta: {
-    authUrl: 'https://www.facebook.com/v22.0/dialog/oauth',
-    tokenUrl: 'https://graph.facebook.com/v22.0/oauth/access_token',
-    revokeUrl: 'https://graph.facebook.com/v22.0/me/permissions',
+    authUrl: 'https://www.facebook.com/v25.0/dialog/oauth',
+    tokenUrl: 'https://graph.facebook.com/v25.0/oauth/access_token',
+    revokeUrl: 'https://graph.facebook.com/v25.0/me/permissions',
     scopes: [
       'pages_show_list',
       'pages_read_engagement',
@@ -58,6 +61,9 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
       // Analytics: Facebook Page/post insights. Instagram analytics uses the
       // standalone Instagram Login provider below.
       'read_insights',
+      ...(process.env.META_READ_USER_CONTENT_ENABLED === '1'
+        ? ['pages_read_user_content']
+        : []),
     ],
     clientIdEnv: 'META_APP_ID',
     clientSecretEnv: 'META_APP_SECRET',

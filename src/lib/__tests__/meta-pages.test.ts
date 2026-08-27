@@ -90,7 +90,7 @@ describe('fetchMetaManagedPages', () => {
         ? jsonResponse({ data: [{ id: 'page-2', name: 'Two', access_token: 't2' }] })
         : jsonResponse({
           data: [{ id: 'page-1', name: 'One', access_token: 't1' }],
-          paging: { next: 'https://graph.facebook.com/v22.0/me/accounts?after=cursor2' },
+          paging: { next: 'https://graph.facebook.com/v25.0/me/accounts?after=cursor2' },
         })),
     });
 

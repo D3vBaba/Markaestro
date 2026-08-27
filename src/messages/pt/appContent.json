@@ -28,7 +28,7 @@
   },
   "markPostedDialog": {
     "title": "Marcar como publicado",
-    "description": "Confirme que você mesmo publicou esta postagem em {channel}. Cole o link da postagem ao vivo, se tiver — isso conecta a postagem às suas análises mais tarde.",
+    "description": "Confirme que você mesmo publicou esta postagem em {channel}. Cole o link da postagem ao vivo, se tiver, isso conecta a postagem às suas análises mais tarde.",
     "urlPlaceholder": "https://www.{channel}.com/… (opcional)",
     "cancel": "Cancelar",
     "confirm": "Marcar como publicado",
@@ -182,7 +182,7 @@
   },
   "platformPostsTab": {
     "refresh": "Atualizar",
-    "liveFrom": "Publicações ao vivo da sua conta {channel} conectada — incluindo publicações feitas fora do Markaestro.",
+    "liveFrom": "Publicações ao vivo da sua conta {channel} conectada, incluindo publicações feitas fora do Markaestro.",
     "loadMore": "Carregar mais",
     "loading": "Carregando…",
     "noCaption": "Sem legenda",
@@ -191,14 +191,14 @@
     "deleting": "Excluindo…",
     "delete": "Excluir",
     "noDeleteHints": {
-      "instagram": "O Instagram não permite que aplicativos excluam publicações — remova-as no app do Instagram.",
-      "tiktok": "O TikTok não permite que aplicativos excluam vídeos — remova-os no app do TikTok."
+      "instagram": "O Instagram não permite que aplicativos excluam publicações, remova-as no app do Instagram.",
+      "tiktok": "O TikTok não permite que aplicativos excluam vídeos, remova-os no app do TikTok."
     },
     "noDeleteDefault": "A exclusão não é suportada para esta publicação.",
     "deleteWarning": "Isso remove permanentemente a publicação do {channel}.",
     "states": {
       "notConnectedTitle": "{channel} ainda não está conectado",
-      "notConnectedBody": "Conecte {channel} a esta marca e suas publicações ao vivo aparecerão aqui — incluindo as feitas fora do Markaestro.",
+      "notConnectedBody": "Conecte {channel} a esta marca e suas publicações ao vivo aparecerão aqui, incluindo as feitas fora do Markaestro.",
       "connect": "Conectar {channel}",
       "authTitle": "{channel} precisa ser reconectado",
       "authBody": "A conexão com {channel} expirou, então não podemos navegar pelas publicações agora. Reconecte nas configurações da marca para continuar de onde parou.",
@@ -208,10 +208,10 @@
       "linkedinPartnerBody": "O LinkedIn só permite que aplicativos parceiros aprovados naveguem pelas publicações da conta. Tudo o que você publicar pelo Markaestro ainda aparece na sua aba Publicadas.",
       "unsupportedBody": "O {channel} não permite que aplicativos naveguem pelas publicações da conta. Tudo o que você publicar pelo Markaestro ainda aparece na sua aba Publicadas.",
       "errorTitle": "Não foi possível carregar as publicações do {channel}",
-      "errorBody": "O {channel} não respondeu como esperado. Isso costuma ser temporário — tente novamente em instantes.",
+      "errorBody": "O {channel} não respondeu como esperado. Isso costuma ser temporário, tente novamente em instantes.",
       "tryAgain": "Tentar novamente",
       "emptyTitle": "Ainda não há publicações no {channel}",
-      "emptyBody": "Quando esta conta publicar — pelo Markaestro ou diretamente no {channel} — as publicações aparecerão aqui."
+      "emptyBody": "Quando esta conta publicar, pelo Markaestro ou diretamente no {channel}, as publicações aparecerão aqui."
     },
     "toasts": {
       "loadMoreFailed": "Falha ao carregar mais publicações",
@@ -327,7 +327,7 @@
     "modeInbox": "Enviar para a caixa de entrada do TikTok",
     "modeInboxHint": "Você finaliza a legenda e publica no app do TikTok, onde pode adicionar sons da biblioteca do TikTok.",
     "modeDirect": "Publicar diretamente no TikTok",
-    "modeDirectHint": "O Markaestro publica no seu perfil com as configurações abaixo. A publicação usa o áudio do próprio vídeo — sons da biblioteca do TikTok só podem ser adicionados no app.",
+    "modeDirectHint": "O Markaestro publica no seu perfil com as configurações abaixo. A publicação usa o áudio do próprio vídeo, sons da biblioteca do TikTok só podem ser adicionados no app.",
     "blockers": {
       "privacyNotSelected": "Selecione quem pode ver esta publicação antes de publicar.",
       "disclosureWithoutSelection": "Você precisa indicar se o seu conteúdo promove você, um terceiro ou ambos.",

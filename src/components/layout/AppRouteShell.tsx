@@ -9,6 +9,7 @@ const SHELL_ROUTES = [
   "/content",
   "/calendar",
   "/analytics",
+  "/intelligence",
   "/settings",
   "/guides",
 ];

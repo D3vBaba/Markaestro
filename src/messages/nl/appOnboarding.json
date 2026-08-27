@@ -23,7 +23,7 @@
       "title": "Wat is jouw rol?",
       "subtitle": "We stemmen alles af op hoe je daadwerkelijk werkt.",
       "options": {
-        "founder": { "label": "Oprichter / CEO", "desc": "Draagt elke pet — ook die van marketing" },
+        "founder": { "label": "Oprichter / CEO", "desc": "Draagt elke pet, ook die van marketing" },
         "marketer": { "label": "Marketeer", "desc": "Verantwoordelijk voor content op elk kanaal" },
         "agency": { "label": "Bureau / Freelancer", "desc": "Jongleert met posts voor meerdere klanten" },
         "creator": { "label": "Content Creator", "desc": "Laat een publiek groeien dat alleen jij bent" }
@@ -52,7 +52,7 @@
     "channels": {
       "eyebrow": "Jouw fase",
       "title": "Waar bevindt jouw publiek zich?",
-      "subtitle": "Kies alles wat van toepassing is — je publiceert naar elk kanaal met één klik.",
+      "subtitle": "Kies alles wat van toepassing is, je publiceert naar elk kanaal met één klik.",
       "options": {
         "instagram": { "label": "Instagram" },
         "facebook": { "label": "Facebook" },
@@ -98,7 +98,7 @@
     "contentTypes": {
       "eyebrow": "Jouw stem",
       "title": "Wat wil je plaatsen?",
-      "subtitle": "Kies alles wat van toepassing is — we helpen je de kalender te vullen.",
+      "subtitle": "Kies alles wat van toepassing is, we helpen je de kalender te vullen.",
       "options": {
         "product": { "label": "Product & promoties" },
         "educational": { "label": "Tips & educatie" },
@@ -109,7 +109,7 @@
     "hoursPerWeek": {
       "eyebrow": "De verborgen kosten",
       "title": "Hoeveel uur per week verdwijnt hierin?",
-      "subtitle": "Wees eerlijk — het is bijna altijd meer dan het voelt.",
+      "subtitle": "Wees eerlijk, het is bijna altijd meer dan het voelt.",
       "options": {
         "lt2": { "label": "Minder dan 2 uur" },
         "2to5": { "label": "2–5 uur" },
@@ -133,7 +133,7 @@
     "consistency": {
       "short": "consistent blijven",
       "headline": "Je zult nooit meer stilvallen",
-      "line": "Plan weken aan posts in één keer in — Markaestro publiceert elke keer op tijd, zodat de stilte stopt."
+      "line": "Plan weken aan posts in één keer in: Markaestro publiceert elke keer op tijd, zodat de stilte stopt."
     },
     "time": {
       "short": "de tijd vinden",
@@ -143,39 +143,39 @@
     "ideas": {
       "short": "content bedenken",
       "headline": "Je kalender raakt nooit leeg",
-      "line": "Verander één idee in een week aan posts op elk kanaal — zodat je nooit meer naar een leeg scherm staart."
+      "line": "Verander één idee in een week aan posts op elk kanaal, zodat je nooit meer naar een leeg scherm staart."
     },
     "juggling": {
       "short": "jongleren met kanalen",
       "headline": "Eén plek voor elk kanaal",
-      "line": "Stel één keer op en publiceer op al je platforms vanaf één scherm — geen tabbladen meer jongleren of gemiste posts."
+      "line": "Stel één keer op en publiceer op al je platforms vanaf één scherm, geen tabbladen meer jongleren of gemiste posts."
     }
   },
   "marketingCopy": {
     "product": {
       "eyebrow": "Jouw product",
       "title": "Voeg het product toe dat je promoot",
-      "sub": "Scan je website om de details automatisch in te vullen, voeg ze handmatig toe, of sla dit voorlopig over — je kunt het altijd later doen."
+      "sub": "Scan je website om de details automatisch in te vullen, voeg ze handmatig toe, of sla dit voorlopig over, je kunt het altijd later doen."
     },
     "business": {
       "eyebrow": "Jouw bedrijf",
       "title": "Voeg het bedrijf toe dat je promoot",
-      "sub": "Scan je website om de details automatisch in te vullen, voeg ze handmatig toe, of sla dit voorlopig over — je kunt het altijd later doen."
+      "sub": "Scan je website om de details automatisch in te vullen, voeg ze handmatig toe, of sla dit voorlopig over, je kunt het altijd later doen."
     },
     "personal": {
       "eyebrow": "Jouw merk",
       "title": "Stel je persoonlijke merk in",
-      "sub": "Heb je een website of portfolio? Scan deze voor automatisch invullen. Geen site? Voer je gegevens handmatig in — het duurt een minuutje."
+      "sub": "Heb je een website of portfolio? Scan deze voor automatisch invullen. Geen site? Voer je gegevens handmatig in, het duurt een minuutje."
     },
     "clients": {
       "eyebrow": "Jouw eerste klant",
       "title": "Voeg het merk van je eerste klant toe",
-      "sub": "Begin met één klant — scan hun website voor automatisch invullen, of voer de details handmatig in. Je kunt op elk moment meer merken toevoegen."
+      "sub": "Begin met één klant, scan hun website voor automatisch invullen, of voer de details handmatig in. Je kunt op elk moment meer merken toevoegen."
     },
     "fallback": {
       "eyebrow": "Jouw merk",
       "title": "Voeg het merk toe dat je promoot",
-      "sub": "Scan je website om de details automatisch in te vullen, voeg ze handmatig toe, of sla dit voorlopig over — je kunt het altijd later doen."
+      "sub": "Scan je website om de details automatisch in te vullen, voeg ze handmatig toe, of sla dit voorlopig over, je kunt het altijd later doen."
     }
   },
   "socialProviders": {
@@ -207,20 +207,20 @@
     "yourPlanIsReady": "Je pakket is klaar",
     "titleEmail": "Bewaar je pakket & win je tijd terug",
     "titleCode": "Controleer je inbox",
-    "subtitleEmail": "Geen wachtwoord nodig — voer je e-mailadres in en we sturen een eenmalige code. Heb je al een account? Dezelfde code meldt je aan.",
+    "subtitleEmail": "Geen wachtwoord nodig, voer je e-mailadres in en we sturen een eenmalige code. Heb je al een account? Dezelfde code meldt je aan.",
     "subtitleCode": "We hebben een 6-cijferige code gestuurd naar {email}.",
     "waitingInWorkspace": "Wacht in je werkruimte",
     "recap": {
       "channelsReady": "{count, plural, one {# kanaal klaar om met één klik te publiceren} other {# kanalen klaar om met één klik te publiceren}}",
       "everyChannel": "Elk kanaal, gepubliceerd vanuit één plek",
-      "postsScheduled": "Posts {frequency} gepland — automatisch",
+      "postsScheduled": "Posts {frequency} gepland, automatisch",
       "hoursBack": "~{hours} uur per week terug in je agenda",
       "onSteadyCadence": "in een gestaag tempo"
     },
     "emailPlaceholder": "naam@bedrijf.com",
     "codePlaceholder": "123456",
     "sendingCode": "Code wordt verzonden…",
-    "claimPlan": "Claim mijn pakket — het is gratis",
+    "claimPlan": "Claim mijn pakket, het is gratis",
     "verifying": "Bezig met verifiëren…",
     "continueBtn": "Doorgaan",
     "useDifferentEmail": "← Ander e-mailadres gebruiken",
@@ -260,7 +260,7 @@
     "optional": "(optioneel)",
     "manualDescPlaceholder": "Beschrijf dit merk en voor wie het is...",
     "saving": "Bezig met opslaan…",
-    "couldntSaveBrand": "Je merk kon niet worden opgeslagen — je kunt het later toevoegen vanuit het dashboard."
+    "couldntSaveBrand": "Je merk kon niet worden opgeslagen, je kunt het later toevoegen vanuit het dashboard."
   },
   "socials": {
     "connectYourAccounts": "Verbind je accounts",
@@ -277,16 +277,16 @@
   },
   "generating": {
     "title": "Je workflow wordt gebouwd",
-    "subtitle": "We stellen je kanalen en een plaatsingsplan in rond {challenge} — het probleem waarvoor je hier bent.",
+    "subtitle": "We stellen je kanalen en een plaatsingsplan in rond {challenge}, het probleem waarvoor je hier bent.",
     "takesAMoment": "Dit duurt maar even"
   },
   "paywall": {
     "youllGetBackPrefix": "Je krijgt ongeveer",
     "hoursAWeek": "uur per week terug",
-    "startTrialSuffix": "Start je gratis proefperiode van {days} dagen om te publiceren — en al het andere dat je maakt.",
+    "startTrialSuffix": "Start je gratis proefperiode van {days} dagen om te publiceren, en al het andere dat je maakt.",
     "firstPostReady": "Je eerste post staat klaar in je dashboard.",
     "subscribeToPublish": "Abonneer je om te publiceren",
-    "postReadyOneStepAway": "Je post is klaar — nog één stap te gaan",
+    "postReadyOneStepAway": "Je post is klaar, nog één stap te gaan",
     "justNow": "Zojuist",
     "like": "Vind ik leuk",
     "comment": "Reageren",
@@ -295,7 +295,7 @@
     "basedOnAnswers": "Gebaseerd op je antwoorden",
     "monthly": "Maandelijks",
     "annual": "Jaarlijks",
-    "saveAnnual": "— bespaar 17%",
+    "saveAnnual": "· bespaar 17%",
     "saveAnnualShort": "· −17%",
     "selected": "Geselecteerd",
     "perMonth": "/maand",
@@ -305,7 +305,7 @@
     "billedAnnually": ", jaarlijks gefactureerd",
     "annualSavingsNote": "Jaarlijkse facturering bespaart je 17% ten opzichte van maandelijks",
     "settingUp": "Bezig met instellen…",
-    "startTrialButton": "Start gratis proefperiode van {days} dagen — {plan}",
+    "startTrialButton": "Start gratis proefperiode van {days} dagen: {plan}",
     "cardRequired": "Creditcard vereist · Altijd opzegbaar voor het einde van de proefperiode",
     "checkoutFailed": "Kan afrekenen niet starten. Probeer het opnieuw.",
     "checkoutSignedOut": "Je sessie is verlopen. Log opnieuw in om je proefperiode te starten.",

@@ -57,7 +57,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
     } else if (job.type === 'publish_post') {
       const postId = job.payload?.postId as string;
       if (!postId) {
-        message = 'No postId in job payload — skipped';
+        message = 'No postId in job payload, skipped';
       } else {
         const postSnap = await adminDb
           .doc(`workspaces/${workspaceId}/posts/${postId}`)
@@ -81,7 +81,7 @@ export async function executeJob(workspaceId: string, jobId: string, job: JobDoc
               reason: skipReason,
             });
           } else if (!productId && !isManualReminderPost(post) && targetChannels.some((channel) => channel !== 'tiktok')) {
-            message = `Post ${postId} has no associated product — skipped`;
+            message = `Post ${postId} has no associated product, skipped`;
           } else {
             const result = await publishStoredPost(workspaceId, productId, post);
             const successfulChannels = result.channels.filter((c) => c.success);

@@ -415,14 +415,16 @@ async function fetchOrganizationPostMetrics(
       metrics.comments = counts.comments;
       return { ok: true, metrics };
     }
-    // The element exists, so unreported fields within it are real zeros.
+    // Preserve missing fields as null. Only an explicit numeric zero from
+    // LinkedIn is a measured zero.
     const metrics = emptyMetrics();
-    metrics.views = metricNum(stats.impressionCount) ?? 0;
-    metrics.reach = metricNum(stats.uniqueImpressionsCount) ?? 0;
-    metrics.clicks = metricNum(stats.clickCount) ?? 0;
-    metrics.likes = metricNum(stats.likeCount) ?? 0;
-    metrics.comments = metricNum(stats.commentCount) ?? 0;
-    metrics.shares = metricNum(stats.shareCount) ?? 0;
+    metrics.views = metricNum(stats.impressionCount);
+    metrics.impressions = metrics.views;
+    metrics.reach = metricNum(stats.uniqueImpressionsCount);
+    metrics.clicks = metricNum(stats.clickCount);
+    metrics.likes = metricNum(stats.likeCount);
+    metrics.comments = metricNum(stats.commentCount);
+    metrics.shares = metricNum(stats.shareCount);
     for (const [key, value] of Object.entries(stats)) {
       const num = metricNum(value);
       if (num !== null) metrics.raw[key] = num;
@@ -472,6 +474,7 @@ async function fetchMemberPostMetrics(
       if (!type || count === null) continue;
       metrics.raw[type] = count;
       if (type === 'IMPRESSION') metrics.views = count;
+      if (type === 'IMPRESSION') metrics.impressions = count;
       if (type === 'MEMBERS_REACHED') metrics.reach = count;
       if (type === 'REACTION') metrics.likes = count;
       if (type === 'COMMENT') metrics.comments = count;

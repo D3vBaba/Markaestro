@@ -86,14 +86,14 @@ export async function GET(req: Request) {
     if (!post.externalId) {
       response.tiktok = null;
       response.interpretation =
-        'No externalId (publish_id) stored. The init call likely failed before TikTok returned one — check errorMessage and publishResults.';
+        'No externalId (publish_id) stored. The init call likely failed before TikTok returned one. Check errorMessage and publishResults.';
       return apiOk(response);
     }
 
     const connection = await getConnectionForChannel(ctx.workspaceId, 'tiktok', post.productId);
     if (!connection) {
       response.tiktok = null;
-      response.interpretation = 'No TikTok connection found — cannot query live status.';
+      response.interpretation = 'No TikTok connection found, cannot query live status.';
       return apiOk(response);
     }
 

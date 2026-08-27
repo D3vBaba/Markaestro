@@ -28,7 +28,7 @@
     },
     {
       "title": "Multichannel-Vorschauen",
-      "description": "Sieh dir an, wie jeder Beitrag auf jedem Netzwerk aussehen wird, bevor du veröffentlichst — Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest haben jeweils eine eigene Vorschau. Texte, Seitenverhältnisse, Zeichenlimits und Medienspezifikationen werden live dargestellt.",
+      "description": "Sieh dir an, wie jeder Beitrag auf jedem Netzwerk aussehen wird, bevor du veröffentlichst: Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest haben jeweils eine eigene Vorschau. Texte, Seitenverhältnisse, Zeichenlimits und Medienspezifikationen werden live dargestellt.",
       "details": [
         "Pixelgenaue Vorschauen pro Plattform",
         "Live-Zeichenzähler für Texte",
@@ -58,12 +58,12 @@
     },
     {
       "title": "API & KI-Agenten",
-      "description": "Alles, was das Dashboard kann, kann deine Software auch. Erstelle einen API-Schlüssel, gib ihn an einen KI-Agenten oder ein Skript weiter und lass ihn Konten entdecken, Inhalte hochladen, Beiträge planen, veröffentlichen und zurückmelden — in jedem Tarif, ohne Aufpreis.",
+      "description": "Alles, was das Dashboard kann, kann deine Software auch. Erstelle einen API-Schlüssel, gib ihn an einen KI-Agenten oder ein Skript weiter und lass ihn Konten entdecken, Inhalte hochladen, Beiträge planen, veröffentlichen und zurückmelden, in jedem Tarif, ohne Aufpreis.",
       "details": [
         "Schlüssel auf eine einzelne Marke beschränkt, mit optionalem Ablaufdatum",
         "Idempotente Schreibvorgänge, sodass ein Wiederholungsversuch nie doppelt postet",
         "Asynchrone Veröffentlichungsläufe plus HMAC-signierte Webhooks",
-        "Grundsätzlich manuell bei Meta und TikTok — ein Mensch postet weiterhin"
+        "Grundsätzlich manuell bei Meta und TikTok, ein Mensch postet weiterhin"
       ],
       "codeLabel": "plane einen Beitrag von allem, was HTTP spricht",
       "agentGuideLink": "KI-Agenten-Leitfaden lesen →"
@@ -72,7 +72,7 @@
   "platformFeatures": [
     {
       "title": "Arbeitsbereichsverwaltung",
-      "description": "Organisiere die Marken, die du betreust — Kunden, Geschäftsbereiche oder eigene Projekte — in isolierten Arbeitsbereichen. Jeder Arbeitsbereich hat eigene Marken, Integrationen und Teammitglieder."
+      "description": "Organisiere die Marken, die du betreust, Kunden, Geschäftsbereiche oder eigene Projekte, in isolierten Arbeitsbereichen. Jeder Arbeitsbereich hat eigene Marken, Integrationen und Teammitglieder."
     },
     {
       "title": "Planung & Kalender",
@@ -87,7 +87,7 @@
     "eyebrow": "Plattform",
     "titleLead": "Entwickelt für alle, die",
     "titleHighlight": "veröffentlichen",
-    "subtitle": "Über die Kernwerkzeuge hinaus bietet dir Markaestro die Infrastruktur zum Skalieren — von einer einzelnen Marke bis zu einem vollständigen Kundenportfolio."
+    "subtitle": "Über die Kernwerkzeuge hinaus bietet dir Markaestro die Infrastruktur zum Skalieren, von einer einzelnen Marke bis zu einem vollständigen Kundenportfolio."
   },
   "cta": {
     "title": "Bereit, es in Aktion zu sehen?",

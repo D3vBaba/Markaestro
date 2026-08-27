@@ -1,0 +1,203 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { AlertCircle, Plus, RefreshCw } from "lucide-react";
+import PageHeader from "@/components/app/PageHeader";
+import BrandSwitcher from "@/components/app/BrandSwitcher";
+import Select from "@/components/app/Select";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { KpiCard } from "@/components/analytics/KpiCard";
+import IntelligenceWorkspace, {
+  IntelligenceAdvancedTab,
+  IntelligenceAudienceTab,
+  IntelligenceContentTab,
+  IntelligenceOpportunitiesTab,
+  IntelligencePlaybookTab,
+  type IntelligenceOverview,
+} from "@/components/intelligence/IntelligenceWorkspace";
+import { cn } from "@/lib/utils";
+import { useIntelligencePreviewAccess } from "@/hooks/useIntelligencePreviewAccess";
+
+const TAB_IDS = ["overview", "audience", "content", "opportunities", "playbook", "advanced"] as const;
+
+function ProductContextBar({
+  products,
+  productId,
+  onChange,
+}: {
+  products: Array<{ id: string; name: string }>;
+  productId: string;
+  onChange: (id: string) => void;
+}) {
+  const t = useTranslations("intelligence.productBar");
+  return (
+    <BrandSwitcher
+      label={t("brand")}
+      emptyLabel={t("noBrandSelected")}
+      products={products}
+      value={productId}
+      onChange={onChange}
+    />
+  );
+}
+
+export default function IntelligencePage() {
+  const router = useRouter();
+  const canAccess = useIntelligencePreviewAccess();
+  const t = useTranslations("intelligence");
+  const [productId, setProductId] = useState("");
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  const path = `/api/intelligence/overview${productId ? `?productId=${encodeURIComponent(productId)}` : ""}`;
+  const { data, loading, error, refresh } = useApiQuery<IntelligenceOverview>(canAccess ? path : null);
+  const selectedId = productId || data?.productId || "";
+
+  useEffect(() => {
+    if (!canAccess) router.replace("/dashboard");
+  }, [canAccess, router]);
+
+  if (!canAccess) return null;
+
+  const tabs = TAB_IDS
+    .filter((value) => value !== "advanced" || data?.phases?.advanced)
+    .map((value) => ({ value, label: t(`tabs.${value}`) }));
+
+  return (
+    <>
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        action={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl h-9 text-xs font-medium gap-2 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800"
+              onClick={() => void refresh()}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+              {t("errors.retry")}
+            </Button>
+          </div>
+        }
+      />
+
+      {data && data.products.length > 0 && (
+        <ProductContextBar
+          products={data.products}
+          productId={selectedId}
+          onChange={setProductId}
+        />
+      )}
+
+      {loading && !data && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <KpiCard key={index} label="…" value={null} loading />
+            ))}
+          </div>
+          <Skeleton className="h-48 rounded-2xl" />
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-6 flex items-start gap-3 rounded-2xl p-4 bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200/80 dark:border-rose-900/50">
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600 dark:text-rose-400" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-rose-900 dark:text-rose-200">{t("errors.unavailableTitle")}</p>
+            <p className="mt-0.5 text-xs text-rose-600 dark:text-rose-400">{t("errors.unavailableBody")}</p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-xl text-xs shrink-0 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100/50"
+            onClick={() => void refresh()}
+          >
+            <RefreshCw className="h-3.5 w-3.5 mr-1" />
+            {t("errors.retry")}
+          </Button>
+        </div>
+      )}
+
+      {data && !data.productId && (
+        <div className="rounded-2xl px-6 py-16 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/50 dark:border-blue-800/50 text-blue-600 dark:text-blue-400 shadow-2xs">
+            <Plus className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h2 className="mt-4 text-base font-bold text-slate-900 dark:text-slate-100">
+            {t("empty.noBrandTitle")}
+          </h2>
+          <p className="mx-auto mt-1 max-w-md text-xs text-slate-500 dark:text-slate-400">
+            {t("empty.noBrandBody")}
+          </p>
+          <Button asChild className="mt-5 h-9 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
+            <Link href="/products">{t("empty.createBrand")}</Link>
+          </Button>
+        </div>
+      )}
+
+      {data?.productId && data.totals && selectedId && (
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0 space-y-6">
+          <div className="lg:hidden">
+            <Select value={activeTab} onChange={(event) => setActiveTab(event.target.value)}>
+              {tabs.map((tab) => (
+                <option key={tab.value} value={tab.value}>{tab.label}</option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="hidden lg:flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 w-fit">
+            {tabs.map((tab) => {
+              const active = activeTab === tab.value;
+              return (
+                <button
+                  key={tab.value}
+                  type="button"
+                  onClick={() => setActiveTab(tab.value)}
+                  className={cn(
+                    "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer",
+                    active
+                      ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200",
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <TabsContent value="overview" className="mt-0">
+            <IntelligenceWorkspace data={{ ...data, productId: selectedId }} productId={selectedId} />
+          </TabsContent>
+          <TabsContent value="audience" className="mt-0">
+            <IntelligenceAudienceTab productId={selectedId} data={{ ...data, productId: selectedId }} />
+          </TabsContent>
+          <TabsContent value="content" className="mt-0">
+            <IntelligenceContentTab data={{ ...data, productId: selectedId }} />
+          </TabsContent>
+          <TabsContent value="opportunities" className="mt-0">
+            <IntelligenceOpportunitiesTab data={{ ...data, productId: selectedId }} productId={selectedId} />
+          </TabsContent>
+          <TabsContent value="playbook" className="mt-0">
+            <IntelligencePlaybookTab data={{ ...data, productId: selectedId }} productId={selectedId} />
+          </TabsContent>
+          {data.phases?.advanced && (
+            <TabsContent value="advanced" className="mt-0">
+              <IntelligenceAdvancedTab data={{ ...data, productId: selectedId }} productId={selectedId} />
+            </TabsContent>
+          )}
+        </Tabs>
+      )}
+    </>
+  );
+}
+

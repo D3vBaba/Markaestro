@@ -39,7 +39,7 @@
   },
   "deletedNotice": "Die post is verwijderd en niet meer beschikbaar.",
   "dismiss": "Sluiten",
-  "truncatedNotice": "Deze maand heeft meer posts dan de kalender in één keer kan laden — sommige worden niet weergegeven.",
+  "truncatedNotice": "Deze maand heeft meer posts dan de kalender in één keer kan laden, sommige worden niet weergegeven.",
   "postsThisMonth": "{count, plural, one {# post} other {# posts}} deze maand",
   "dropToReschedule": "· Zet op een dag neer om opnieuw te plannen",
   "newPost": "Nieuwe post",

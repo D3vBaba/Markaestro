@@ -3,11 +3,11 @@
     "eyebrow": "Preise",
     "titleLead": "Deine gesamte Marketing-Engine,",
     "titleHighlight": "ein einfacher Preis",
-    "subtitle": "Keine versteckten Gebühren, keine Überraschungen pro Nutzer. Starte kostenlos — jeder Bezahltarif enthält eine kostenlose {trialDays}-tägige Testphase. Jederzeit kündbar.",
+    "subtitle": "Keine versteckten Gebühren, keine Überraschungen pro Nutzer. Starte kostenlos, jeder Bezahltarif enthält eine kostenlose {trialDays}-tägige Testphase. Jederzeit kündbar.",
     "monthlyToggle": "Monatlich",
     "annualToggle": "Jährlich",
     "annualSaveBadge": "18 % SPAREN",
-    "trialLine": "{trialDays}-tägige kostenlose Testphase bei allen Bezahltarifen — keine Kosten bis Tag {trialEndDay}",
+    "trialLine": "{trialDays}-tägige kostenlose Testphase bei allen Bezahltarifen, keine Kosten bis Tag {trialEndDay}",
     "annualSavingsSuffix": " · Jährliche Abrechnung spart 18 %"
   },
   "planNames": {
@@ -19,7 +19,7 @@
   "mostPopularBadge": "Am beliebtesten",
   "plans": {
     "free": {
-      "description": "Teste Markaestro mit einer Marke — dauerhaft kostenlos.",
+      "description": "Teste Markaestro mit einer Marke, dauerhaft kostenlos.",
       "features": [
         "1 Marke",
         "2 soziale Kanäle",
@@ -86,7 +86,7 @@
     "titleLead": "Vergleiche",
     "titleHighlight": "jede Funktion",
     "subtitle": "Sieh genau, was in jedem Tarif enthalten ist.",
-    "freeNote": "Der Kostenlos-Tarif enthält 1 Marke, 2 Kanäle, 15 Beiträge/Monat, 1 GB Speicher und 7-Tage-Analysen — kein API-Zugriff.",
+    "freeNote": "Der Kostenlos-Tarif enthält 1 Marke, 2 Kanäle, 15 Beiträge/Monat, 1 GB Speicher und 7-Tage-Analysen, kein API-Zugriff.",
     "categories": [
       {
         "name": "Veröffentlichung",
@@ -146,7 +146,7 @@
   "faqs": [
     {
       "q": "Gibt es einen kostenlosen Tarif?",
-      "a": "Ja. Der Kostenlos-Tarif kostet dauerhaft 0 $ — keine Karte erforderlich. Du erhältst 1 Marke, 2 soziale Kanäle, 15 Beiträge pro Monat, 1 GB Speicher und ein 7-Tage-Analysefenster, mit 1 Teammitglied in 1 Arbeitsbereich. API-Zugriff erfordert einen Bezahltarif. Führe jederzeit ein Upgrade durch, wenn du bereit bist."
+      "a": "Ja. Der Kostenlos-Tarif kostet dauerhaft 0 $, keine Karte erforderlich. Du erhältst 1 Marke, 2 soziale Kanäle, 15 Beiträge pro Monat, 1 GB Speicher und ein 7-Tage-Analysefenster, mit 1 Teammitglied in 1 Arbeitsbereich. API-Zugriff erfordert einen Bezahltarif. Führe jederzeit ein Upgrade durch, wenn du bereit bist."
     },
     {
       "q": "Kann ich jederzeit den Tarif wechseln?",
@@ -162,15 +162,15 @@
     },
     {
       "q": "Was passiert, wenn ich mein Speicherlimit erreiche?",
-      "a": "Du kannst weiterhin Beiträge veröffentlichen, die bereits vorhandene Medien in deinem Arbeitsbereich verwenden — nur neue Uploads werden blockiert. Schaffe Platz, indem du nicht mehr benötigte Medien löschst, oder upgrade dein Abo jederzeit für mehr Speicher."
+      "a": "Du kannst weiterhin Beiträge veröffentlichen, die bereits vorhandene Medien in deinem Arbeitsbereich verwenden, nur neue Uploads werden blockiert. Schaffe Platz, indem du nicht mehr benötigte Medien löschst, oder upgrade dein Abo jederzeit für mehr Speicher."
     },
     {
       "q": "Wie funktioniert die kostenlose Testphase?",
-      "a": "Jeder Tarif — monatlich und jährlich — enthält eine kostenlose {trialDays}-tägige Testphase. Deine Karte wird bei der Anmeldung erfasst, aber erst nach Ablauf der Testphase belastet. Kündige jederzeit während der Testphase und zahle nichts."
+      "a": "Jeder Tarif, monatlich und jährlich, enthält eine kostenlose {trialDays}-tägige Testphase. Deine Karte wird bei der Anmeldung erfasst, aber erst nach Ablauf der Testphase belastet. Kündige jederzeit während der Testphase und zahle nichts."
     },
     {
       "q": "Welche Tarife enthalten die kostenlose Testphase?",
-      "a": "Alle Tarife (Starter, Pro, Business) — sowohl monatlich als auch jährlich abgerechnet — enthalten die kostenlose {trialDays}-tägige Testphase. Die jährliche Abrechnung spart dir zudem 18 % gegenüber der monatlichen."
+      "a": "Alle Tarife (Starter, Pro, Business), sowohl monatlich als auch jährlich abgerechnet, enthalten die kostenlose {trialDays}-tägige Testphase. Die jährliche Abrechnung spart dir zudem 18 % gegenüber der monatlichen."
     },
     {
       "q": "Kann mein KI-Agent oder meine eigene Software Markaestro nutzen?",

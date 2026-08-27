@@ -42,12 +42,12 @@
   },
   "productCard": {
     "noChannelsConnected": "接続されているチャンネルはありません",
-    "reconnectNeeded": "{label} — 再接続が必要です",
+    "reconnectNeeded": "{label}、再接続が必要です",
     "deleteBrand": "ブランドを削除"
   },
   "page": {
     "title": "ブランド",
-    "subtitle": "マーケティングするすべてのもの — プロダクト、ビジネス、クライアント、またはあなた自身。",
+    "subtitle": "マーケティングするすべてのもの、プロダクト、ビジネス、クライアント、またはあなた自身。",
     "addBrand": "ブランドを追加",
     "filters": {
       "all": "すべて",
@@ -69,10 +69,10 @@
     "deleteWarning": "このブランドのブランドボイス設定もすべて削除されます。",
     "toasts": {
       "connected": "{provider}を接続しました",
-      "declinedPermission": "{provider}：権限リクエストを拒否しました — もう一度試すには「接続」をタップしてください。",
+      "declinedPermission": "{provider}：権限リクエストを拒否しました、もう一度試すには「接続」をタップしてください。",
       "connectionFailed": "{provider} に接続できませんでした。もう一度お試しください。",
       "unknownError": "不明なエラー",
-      "almostDone": "もう少しです — チャンネルでFacebookページを選択してMetaの設定を完了してください",
+      "almostDone": "もう少しです、チャンネルでFacebookページを選択してMetaの設定を完了してください",
       "deleteFailed": "ブランドの削除に失敗しました",
       "deleted": "ブランドを削除しました"
     }
@@ -83,7 +83,7 @@
     "descriptions": {
       "start": "ウェブサイトをスキャンするか、詳細を手動で入力してください。",
       "scan": "ブランドを調査しています…",
-      "manual": "必須項目を入力してください — 詳細は後で追加できます。",
+      "manual": "必須項目を入力してください、詳細は後で追加できます。",
       "review": "見つかった内容を確認し、必要に応じて調整してから保存してください。"
     },
     "scanCard": {
@@ -104,7 +104,7 @@
       "retry": "スキャンを再試行",
       "enterManually": "手動で入力"
     },
-    "scanComplete": "スキャンが完了しました — 以下を確認し、必要に応じて編集してください。",
+    "scanComplete": "スキャンが完了しました、以下を確認し、必要に応じて編集してください。",
     "fields": {
       "brandName": "ブランド名",
       "brandNamePlaceholder": "DripCheckr",
@@ -127,13 +127,16 @@
       "nameRequired": "名前は必須です",
       "createFailed": "ブランドの作成に失敗しました",
       "brandAdded": "ブランドを追加しました"
-    }
+    },
+    "audienceSetup": "オーディエンスプロフィール",
+    "audienceSetupBody": "目的、主要市場、コンバージョン、タイムゾーン、優先プラットフォームを設定します。詳細項目はブランド設定にあります。"
   },
   "detailSheet": {
     "sections": {
       "foundation": "基本情報",
       "identity": "アイデンティティ",
-      "channels": "チャンネル"
+      "channels": "チャンネル",
+      "audience": "オーディエンス"
     },
     "brandFallback": "ブランド",
     "saveIndicator": {
@@ -147,7 +150,7 @@
     "edit": "編集",
     "deleteBrand": "ブランドを削除",
     "deleteWarning": "このブランドの設定とチャンネル接続もすべて削除されます。",
-    "disconnectWarning": "これにより、このブランドにリンクされているすべての{label}アカウントが削除されます。他のブランドは独自の接続を維持します。1つのアカウントだけを切り替えるには、代わりに横にある「連携解除」を使用してください — アクセスを更新するには、切断ではなく「再接続」を使用してください。",
+    "disconnectWarning": "これにより、このブランドにリンクされているすべての{label}アカウントが削除されます。他のブランドは独自の接続を維持します。1つのアカウントだけを切り替えるには、代わりに横にある「連携解除」を使用してください、アクセスを更新するには、切断ではなく「再接続」を使用してください。",
     "disconnect": "切断",
     "unsavedConfirm": "未保存の変更があります。保存せずに閉じますか？",
     "toasts": {

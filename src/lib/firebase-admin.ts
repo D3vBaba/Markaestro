@@ -33,6 +33,15 @@ function getApp(): App {
   return _app;
 }
 
+/** Short-lived Google access token for server-to-server APIs such as Vertex AI. */
+export async function getGoogleAccessToken(): Promise<string> {
+  const credential = getApp().options.credential;
+  if (!credential) throw new Error('GOOGLE_APPLICATION_CREDENTIALS_UNAVAILABLE');
+  const token = await credential.getAccessToken();
+  if (!token.access_token) throw new Error('GOOGLE_APPLICATION_CREDENTIALS_UNAVAILABLE');
+  return token.access_token;
+}
+
 function bindIfFunction(target: object, value: unknown): unknown {
   // Methods pulled off the instance (recursiveDelete, deleteUser, …) must
   // keep that instance as `this`. Calling them through this Proxy otherwise

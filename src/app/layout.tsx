@@ -72,14 +72,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fcfcfb" },
-    { media: "(prefers-color-scheme: dark)", color: "#1c1d22" },
+    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
+    { media: "(prefers-color-scheme: dark)", color: "#030712" },
   ],
 };
 
 export const metadata: Metadata = {
   title: "Markaestro | Premium Brand Marketing",
-  description: "Publish, schedule, and measure every brand you market — products, businesses, clients, or yourself — with Markaestro, the ethical and premium marketing engine.",
+  description: "Publish, schedule, and measure every brand you market (products, businesses, clients, or yourself) with Markaestro, the ethical and premium marketing engine.",
   manifest: '/site.webmanifest',
   icons: {
     icon: [

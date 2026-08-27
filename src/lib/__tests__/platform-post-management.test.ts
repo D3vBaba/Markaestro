@@ -162,7 +162,7 @@ describe('metaPublishingAdapter.deletePost', () => {
 
     expect(result).toEqual({ ok: true });
     const [url, init] = graphApiFetchMock.mock.calls[0];
-    expect(url).toBe('https://graph.facebook.com/v22.0/page_1_post_9');
+    expect(url).toBe('https://graph.facebook.com/v25.0/page_1_post_9');
     expect(init.method).toBe('DELETE');
     expect(init.headers.Authorization).toBe('Bearer decrypted:page_enc');
   });
@@ -228,7 +228,7 @@ describe('metaPublishingAdapter.listPosts — instagram', () => {
       canDelete: false,
     });
     const [url] = graphApiFetchMock.mock.calls[0];
-    expect(url).toContain('https://graph.facebook.com/v22.0/ig_55/media?');
+    expect(url).toContain('https://graph.facebook.com/v25.0/ig_55/media?');
   });
 
   it('lists IG media via /me/media with a query token for Instagram-login connections', async () => {

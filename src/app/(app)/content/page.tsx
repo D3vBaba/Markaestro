@@ -3,6 +3,7 @@
 import { useState, useEffect, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/app/PageHeader";
+import BrandSwitcher from "@/components/app/BrandSwitcher";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Select from "@/components/app/Select";
 import { apiGet, getApiWorkspaceId, subscribeApiWorkspaceId } from "@/lib/api-client";
@@ -25,71 +26,19 @@ function ProductContextBar({
   productId,
   onChange,
 }: {
-  products: Product[];
+  products: Array<{ id: string; name: string }>;
   productId: string;
   onChange: (id: string) => void;
 }) {
   const t = useTranslations("content.page.productBar");
-  const [editing, setEditing] = useState(false);
-  const selected = products.find((p) => p.id === productId);
-
-  if (products.length === 0) return null;
-
   return (
-    <div
-      className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg mb-5"
-      style={{
-        background: "var(--mk-paper)",
-        border: "1px solid var(--mk-rule)",
-      }}
-    >
-      <span
-        className="inline-block rounded-full shrink-0"
-        style={{ width: 6, height: 6, background: "var(--mk-accent)" }}
-      />
-      <span
-        className="font-mono text-[9.5px] uppercase shrink-0"
-        style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
-      >
-        {t("brand")}
-      </span>
-
-      {editing ? (
-        <select
-          autoFocus
-          value={productId}
-          onChange={(e) => {
-            onChange(e.target.value);
-            setEditing(false);
-          }}
-          onBlur={() => setEditing(false)}
-          className="flex-1 min-w-0 bg-transparent border-none outline-none cursor-pointer text-[13px] font-medium"
-          style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
-        >
-          {products.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <>
-          <span
-            className="flex-1 text-[13px] font-medium truncate min-w-0"
-            style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
-          >
-            {selected?.name ?? t("noBrandSelected")}
-          </span>
-          <button
-            onClick={() => setEditing(true)}
-            className="shrink-0 text-[11px] px-2.5 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded transition-colors"
-            style={{ color: "var(--mk-ink-60)" }}
-          >
-            {t("change")}
-          </button>
-        </>
-      )}
-    </div>
+    <BrandSwitcher
+      label={t("brand")}
+      emptyLabel={t("noBrandSelected")}
+      products={products}
+      value={productId}
+      onChange={onChange}
+    />
   );
 }
 
@@ -115,9 +64,6 @@ export default function PostsPage() {
     () => "default",
   );
 
-  // Reload brands whenever the active workspace changes. The previous
-  // mount-only fetch left invitees staring at their empty personal
-  // workspace's product list after they joined a team.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -160,14 +106,14 @@ export default function PostsPage() {
         subtitle={t("subtitle")}
       />
 
-      {/* Persistent product context — always visible above tabs */}
+      {/* Persistent product context */}
       <ProductContextBar
         products={products}
         productId={productId}
         onChange={handleProductChange}
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5 sm:space-y-6 min-w-0 w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 min-w-0 w-full">
         {/* Mobile + Tablet: dropdown select */}
         <div className="lg:hidden">
           <Select value={activeTab} onChange={(e) => setActiveTab(e.target.value)}>
@@ -180,26 +126,27 @@ export default function PostsPage() {
         </div>
 
         {/* Desktop: tab bar */}
-        <TabsList
-          className="hidden lg:flex bg-transparent rounded-none p-0 h-auto gap-6 w-full overflow-x-auto border-b"
-          style={{ borderColor: "var(--mk-rule-soft)" }}
-        >
-          {tabs.map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2.5 text-[13px] font-normal data-[state=active]:font-semibold data-[state=active]:text-foreground transition-colors whitespace-nowrap"
-              style={{
-                color: "var(--mk-ink-60)",
-                letterSpacing: "-0.005em",
-              }}
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="hidden lg:flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 w-fit">
+          {tabs.map((tab) => {
+            const active = activeTab === tab.value;
+            return (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => setActiveTab(tab.value)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                  active
+                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
 
-        <TabsContent value="create">
+        <TabsContent value="create" className="mt-0">
           <CreateTab
             key={workspaceId}
             productId={productId}
@@ -208,11 +155,11 @@ export default function PostsPage() {
           />
         </TabsContent>
 
-        <TabsContent value="drafts">
+        <TabsContent value="drafts" className="mt-0">
           <DraftsTab key={workspaceId} refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
         </TabsContent>
 
-        <TabsContent value="scheduled">
+        <TabsContent value="scheduled" className="mt-0">
           <ScheduledTab
             key={workspaceId}
             refreshKey={refreshKey}
@@ -222,14 +169,15 @@ export default function PostsPage() {
           />
         </TabsContent>
 
-        <TabsContent value="published">
+        <TabsContent value="published" className="mt-0">
           <PublishedTab key={workspaceId} refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
         </TabsContent>
 
-        <TabsContent value="on-platform">
+        <TabsContent value="on-platform" className="mt-0">
           <PlatformPostsTab key={workspaceId} productId={productId} />
         </TabsContent>
       </Tabs>
     </>
   );
 }
+

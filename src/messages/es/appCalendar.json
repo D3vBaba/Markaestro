@@ -39,7 +39,7 @@
   },
   "deletedNotice": "Esa publicación se ha eliminado y ya no está disponible.",
   "dismiss": "Descartar",
-  "truncatedNotice": "Este mes tiene más publicaciones de las que el calendario puede cargar a la vez — algunas no se muestran.",
+  "truncatedNotice": "Este mes tiene más publicaciones de las que el calendario puede cargar a la vez, algunas no se muestran.",
   "postsThisMonth": "{count, plural, one {# publicación} other {# publicaciones}} este mes",
   "dropToReschedule": "· Suelta en un día para reprogramar",
   "newPost": "Nueva publicación",

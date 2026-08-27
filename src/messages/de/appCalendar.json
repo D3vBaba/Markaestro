@@ -39,7 +39,7 @@
   },
   "deletedNotice": "Dieser Beitrag wurde gelöscht und ist nicht mehr verfügbar.",
   "dismiss": "Verwerfen",
-  "truncatedNotice": "Dieser Monat hat mehr Beiträge, als der Kalender auf einmal laden kann — einige werden nicht angezeigt.",
+  "truncatedNotice": "Dieser Monat hat mehr Beiträge, als der Kalender auf einmal laden kann, einige werden nicht angezeigt.",
   "postsThisMonth": "{count, plural, one {# Beitrag} other {# Beiträge}} in diesem Monat",
   "dropToReschedule": "· Auf einen Tag ziehen, um umzuplanen",
   "newPost": "Neuer Beitrag",

@@ -11,7 +11,7 @@
     "layer1Body": "Défini dans la boîte de dialogue propre à la plateforme lors de la connexion. Sur Facebook, cela couvre <bold>tout votre espace de travail</bold>, et chaque nouvelle connexion <bold>remplace</bold> la sélection précédente.",
     "layer2Badge": "Niveau 2 · Routage",
     "layer2Title": "Sur quel compte cette marque publie",
-    "layer2Body": "Défini dans Markaestro, par marque. C'est là que vit la règle « une Page par marque » — et une marque peut détenir plusieurs comptes si vous le souhaitez.",
+    "layer2Body": "Défini dans Markaestro, par marque. C'est là que vit la règle « une Page par marque », et une marque peut détenir plusieurs comptes si vous le souhaitez.",
     "warning": "<bold>Accordez tout, puis affinez par marque.</bold> Dans la boîte de dialogue de la plateforme, cochez tous les comptes sur lesquels vous pourriez un jour publier. N'en choisir qu'un seul révoque les autres, et leurs publications programmées commencent à échouer."
   },
   "guides": {
@@ -21,7 +21,7 @@
       "steps": {
         "0": { "title": "Ouvrez une marque et appuyez sur Connecter sur Facebook", "detail": "Marques → choisissez une marque → Canaux. Peu importe la marque de départ ; la connexion s'applique à toutes les marques." },
         "1": { "title": "Cochez toutes les Pages que vous souhaitez confier à Markaestro", "detail": "La boîte de dialogue de Facebook est la liste des autorisations. Tout ce que vous cochez devient l'ensemble complet que Markaestro peut toucher, et remplace la sélection précédente. Une Page laissée décochée perd immédiatement son accès." },
-        "2": { "title": "Choisissez sur quelle Page cette marque publie", "detail": "De retour dans Markaestro, utilisez Choisir les Pages. C'est du routage, pas une autorisation — chaque marque peut pointer vers sa propre Page, et une marque peut en détenir plusieurs." }
+        "2": { "title": "Choisissez sur quelle Page cette marque publie", "detail": "De retour dans Markaestro, utilisez Choisir les Pages. C'est du routage, pas une autorisation, chaque marque peut pointer vers sa propre Page, et une marque peut en détenir plusieurs." }
       },
       "gotcha": "Ne cocher qu'une seule Page dans la boîte de dialogue Facebook déconnectera la Page de toutes les autres marques. Cochez-les toujours toutes, puis affinez par marque dans Markaestro."
     },
@@ -29,7 +29,7 @@
       "label": "Instagram",
       "scope": "Connecté par marque, en utilisant la propre connexion d'Instagram plutôt que celle de Facebook.",
       "steps": {
-        "0": { "title": "Appuyez sur Connecter sur Instagram dans l'onglet Canaux de la marque", "detail": "Ceci est distinct de Facebook — lier une Page Facebook ne lie pas son compte Instagram." },
+        "0": { "title": "Appuyez sur Connecter sur Instagram dans l'onglet Canaux de la marque", "detail": "Ceci est distinct de Facebook, lier une Page Facebook ne lie pas son compte Instagram." },
         "1": { "title": "Connectez-vous avec le compte Instagram lui-même", "detail": "Le compte doit être un compte Professionnel (Entreprise ou Créateur). Les comptes personnels ne peuvent pas publier via l'API." }
       },
       "gotcha": "Si Instagram refuse la connexion, le compte est presque certainement encore personnel. Passez-le en Professionnel dans l'application Instagram, puis reconnectez-vous."
@@ -52,7 +52,7 @@
     },
     "pinterest": {
       "label": "Pinterest",
-      "scope": "Connecté par marque. Les tableaux fonctionnent comme les Pages Facebook — choisissez celui sur lequel cette marque épingle.",
+      "scope": "Connecté par marque. Les tableaux fonctionnent comme les Pages Facebook, choisissez celui sur lequel cette marque épingle.",
       "steps": {
         "0": { "title": "Appuyez sur Connecter sur Pinterest", "detail": "Autorisez le compte professionnel Pinterest." },
         "1": { "title": "Choisissez un tableau", "detail": "Les épingles nécessitent un tableau de destination. Vous pouvez lier plusieurs tableaux à une marque et choisir entre eux lors de la rédaction." }
@@ -73,7 +73,7 @@
     "items": {
       "0": {
         "q": "Une marque affiche « Reconnectez Facebook et cochez cette Page »",
-        "a": "Les autorisations Facebook actuelles n'incluent plus cette Page — généralement parce qu'une connexion ultérieure a coché moins de Pages. Reconnectez-vous depuis n'importe quelle marque et cochez toutes les Pages. Rien n'est perdu ; le choix de Page de la marque est restauré automatiquement."
+        "a": "Les autorisations Facebook actuelles n'incluent plus cette Page, généralement parce qu'une connexion ultérieure a coché moins de Pages. Reconnectez-vous depuis n'importe quelle marque et cochez toutes les Pages. Rien n'est perdu ; le choix de Page de la marque est restauré automatiquement."
       },
       "1": {
         "q": "Une marque affiche « Sélectionnez-la à nouveau dans les paramètres de la marque »",
@@ -81,7 +81,7 @@
       },
       "2": {
         "q": "Des publications programmées échouent",
-        "a": "Vérifiez d'abord l'onglet Canaux de la marque. Si tous les canaux semblent connectés, reconnectez la plateforme et cochez tous les comptes — un ensemble d'autorisations réduit est la cause la plus fréquente."
+        "a": "Vérifiez d'abord l'onglet Canaux de la marque. Si tous les canaux semblent connectés, reconnectez la plateforme et cochez tous les comptes, un ensemble d'autorisations réduit est la cause la plus fréquente."
       },
       "3": {
         "q": "Une publication TikTok n'a jamais été mise en ligne",

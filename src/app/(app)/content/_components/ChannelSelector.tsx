@@ -273,7 +273,7 @@ export default function ChannelSelector({
               onClick={() => toggleChannel(ch.channel)}
               disabled={disabled}
               title={state !== "ready" ? channelReason(ch.channel) : ch.destinationLabel ?? undefined}
-              className={`relative flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm transition-all ${
+              className={`relative flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm transition-colors ${
                 isSelected && !disabled
                   ? (colors?.active ?? "border-foreground bg-foreground text-background") + " font-medium shadow-sm"
                   : disabled
