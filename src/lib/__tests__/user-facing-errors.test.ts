@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getErrorCode, userFacingError } from '../user-facing-errors';
+import { getErrorCode, getValidationIssueFields, userFacingError } from '../user-facing-errors';
 
 describe('getErrorCode', () => {
   it('extracts stable application error codes', () => {
@@ -33,5 +33,18 @@ describe('userFacingError', () => {
     expect(userFacingError({ error: 'INTERNAL_ERROR' }, 'Please try again.')).toBe(
       'Please try again.',
     );
+  });
+});
+
+describe('getValidationIssueFields', () => {
+  it('returns field paths from a VALIDATION_ERROR payload', () => {
+    expect(getValidationIssueFields({
+      error: 'VALIDATION_ERROR',
+      issues: [{ field: 'url', code: 'invalid_format' }, { field: 'description', code: 'too_big' }],
+    })).toEqual(['url', 'description']);
+  });
+
+  it('ignores non-validation payloads', () => {
+    expect(getValidationIssueFields({ error: 'INTERNAL_ERROR', issues: [{ field: 'url' }] })).toEqual([]);
   });
 });

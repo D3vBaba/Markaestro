@@ -10,6 +10,7 @@
 type ErrorPayload = {
   code?: unknown;
   error?: unknown;
+  issues?: unknown;
 };
 
 const ERROR_CODE_PATTERN = /^[A-Z][A-Z0-9_]{2,79}$/;
@@ -30,6 +31,21 @@ export function getErrorCode(error: unknown): string | null {
   if (!error || typeof error !== 'object') return null;
   const payload = error as ErrorPayload;
   return asErrorCode(payload.code) ?? asErrorCode(payload.error);
+}
+
+function validationIssueField(issue: unknown): string {
+  if (!issue || typeof issue !== 'object') return '';
+  const field = (issue as { field?: unknown }).field;
+  return typeof field === 'string' ? field : '';
+}
+
+/** Field paths from a VALIDATION_ERROR payload. Empty when the payload is not one. */
+export function getValidationIssueFields(error: unknown): string[] {
+  if (!error || typeof error !== 'object') return [];
+  if (getErrorCode(error) !== 'VALIDATION_ERROR') return [];
+  const { issues } = error as ErrorPayload;
+  if (!Array.isArray(issues)) return [];
+  return issues.map(validationIssueField).filter(Boolean);
 }
 
 /**

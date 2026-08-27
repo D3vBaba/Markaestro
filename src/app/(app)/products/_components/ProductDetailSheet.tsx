@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { pillStyle } from "@/components/mk/pills";
 import { resolveChannelStatus } from "@/lib/integrations/channel-status";
-import { userFacingError } from "@/lib/user-facing-errors";
+import { getValidationIssueFields, userFacingError } from "@/lib/user-facing-errors";
 import AudienceProfileEditor from "@/components/intelligence/AudienceProfileEditor";
 import { useIntelligencePreviewAccess } from "@/hooks/useIntelligencePreviewAccess";
 
@@ -373,9 +373,8 @@ export default function ProductDetailSheet({
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [section, setSection] = useState<SectionKey>(initialSection);
-  useEffect(() => {
-    if (!canAccessIntelligence && section === "audience") setSection("foundation");
-  }, [canAccessIntelligence, section]);
+  // Adjust during render (no effect): the audience section is preview-only.
+  if (!canAccessIntelligence && section === "audience") setSection("foundation");
   // The product opens read-only; "Edit" unlocks the form, saving re-locks it.
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -466,11 +465,20 @@ export default function ProductDetailSheet({
       ]);
 
       if (!detailsRes.ok) {
-        toast.error(userFacingError(detailsRes.data, t("toasts.saveDetailsFailed")));
+        const fields = getValidationIssueFields(detailsRes.data);
+        if (fields.includes("url")) {
+          toast.error(t("toasts.invalidWebsite"));
+        } else if (fields.includes("description")) {
+          toast.error(t("toasts.descriptionTooLong"));
+        } else {
+          toast.error(userFacingError(detailsRes.data, t("toasts.saveDetailsFailed")));
+        }
         return;
       }
       if (!voiceRes.ok) {
-        toast.error(t("toasts.saveIdentityFailed"));
+        const fields = getValidationIssueFields(voiceRes.data);
+        const invalidColor = fields.some((field) => field.toLowerCase().includes("color"));
+        toast.error(invalidColor ? t("toasts.invalidColor") : t("toasts.saveIdentityFailed"));
         return;
       }
 
@@ -1065,12 +1073,13 @@ function FoundationSection({
     <>
       <SectionCard title={t("basicsTitle")} description={t("basicsDescription")}>
         <FormField label={t("brandName")}>
-          <Input value={form.name} onChange={(e) => patch("name", e.target.value)} />
+          <Input value={form.name} maxLength={200} onChange={(e) => patch("name", e.target.value)} />
         </FormField>
         <FormField label={t("description")}>
           <Textarea
             value={form.description}
             onChange={(e) => patch("description", e.target.value)}
+            maxLength={2000}
             rows={3}
           />
         </FormField>

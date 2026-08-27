@@ -18,6 +18,58 @@ export const nameSchema = z
 
 export const optionalString = z.string().trim().max(2000).default('');
 
+/** Empty, or an http(s) URL. Bare hostnames like `acme.com` get https://. */
+function withHttpScheme(value: string): string | null {
+  if (/^https?:\/\//i.test(value)) return value;
+  if (/^[a-z][a-z0-9+-]*:/i.test(value)) return null;
+  if (value.startsWith('//')) return `https:${value}`;
+  return `https://${value}`;
+}
+
+export function normalizeWebsiteUrl(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return '';
+  const withScheme = withHttpScheme(trimmed);
+  if (withScheme === null) return null;
+  try {
+    const parsed = new URL(withScheme);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    if (!parsed.hostname) return null;
+    return withScheme;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeHexColor(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return '';
+  const match = trimmed.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  const digits = match?.[1];
+  if (!digits) return null;
+  const expanded = digits.length === 3
+    ? digits.split('').map((ch) => ch + ch).join('')
+    : digits;
+  return `#${expanded.toUpperCase()}`;
+}
+
+function normalizedStringSchema(
+  normalize: (raw: string) => string | null,
+  message: string,
+) {
+  return z.string().transform((raw, ctx) => {
+    const normalized = normalize(raw);
+    if (normalized === null) {
+      ctx.addIssue({ code: 'custom', message });
+      return z.NEVER;
+    }
+    return normalized;
+  });
+}
+
+export const websiteUrlSchema = normalizedStringSchema(normalizeWebsiteUrl, 'Invalid URL');
+const hexColorSchema = normalizedStringSchema(normalizeHexColor, 'Invalid hex color');
+
 export const tagsSchema = z
   .array(z.string().trim().min(1).max(100))
   .max(50, 'Too many tags')
@@ -155,10 +207,10 @@ export const brandVoiceSchema = z.object({
 // ── Brand Identity Schema ─────────────────────────────────────────
 
 export const brandIdentitySchema = z.object({
-  logoUrl: z.string().trim().max(2000).default(''),
-  primaryColor: z.string().trim().regex(/^$|^#[0-9A-Fa-f]{6}$/, 'Invalid hex color').default(''),
-  secondaryColor: z.string().trim().regex(/^$|^#[0-9A-Fa-f]{6}$/, 'Invalid hex color').default(''),
-  accentColor: z.string().trim().regex(/^$|^#[0-9A-Fa-f]{6}$/, 'Invalid hex color').default(''),
+  logoUrl: z.string().trim().max(4096).default(''),
+  primaryColor: hexColorSchema.default(''),
+  secondaryColor: hexColorSchema.default(''),
+  accentColor: hexColorSchema.default(''),
 });
 
 // ── Product Schemas ────────────────────────────────────────────────
@@ -178,15 +230,31 @@ export const productCategories = [
 ] as const;
 
 const categoryEnum = z.enum(productCategories);
-const categoriesSchema = z
-  .array(categoryEnum)
-  .min(1, 'Select at least one category')
-  .default(['saas']);
+const PRODUCT_CATEGORY_SET: ReadonlySet<string> = new Set(productCategories);
+const categoryListSchema = z.array(categoryEnum).min(1, 'Select at least one category');
+
+function asCategoryItems(value: unknown): unknown[] {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string' && value.trim()) return [value];
+  return [];
+}
+
+function coerceCategories(value: unknown): string[] {
+  const raw = asCategoryItems(value);
+  const cleaned = raw
+    .map((item) => (typeof item === 'string' ? item.trim() : ''))
+    .filter((item) => PRODUCT_CATEGORY_SET.has(item));
+  if (cleaned.length > 0) return cleaned;
+  if (raw.length > 0) return ['other'];
+  return ['saas'];
+}
+
+const categoriesSchema = z.preprocess(coerceCategories, categoryListSchema);
 
 export const createProductSchema = z.object({
   name: nameSchema,
   description: optionalString,
-  url: z.string().trim().url('Invalid URL').or(z.literal('')).default(''),
+  url: websiteUrlSchema.default(''),
   categories: categoriesSchema,
   status: z.enum(productStatuses).default('active'),
   brandVoice: brandVoiceSchema.optional(),
@@ -197,8 +265,11 @@ export const createProductSchema = z.object({
 export const updateProductSchema = z.object({
   name: nameSchema.optional(),
   description: optionalString.optional(),
-  url: z.string().trim().url('Invalid URL').or(z.literal('')).optional(),
-  categories: categoriesSchema.optional(),
+  url: websiteUrlSchema.optional(),
+  categories: z.preprocess(
+    (value) => (value === undefined ? undefined : coerceCategories(value)),
+    categoryListSchema.optional(),
+  ),
   status: z.enum(productStatuses).optional(),
   brandVoice: brandVoiceSchema.optional(),
   brandIdentity: brandIdentitySchema.optional(),
