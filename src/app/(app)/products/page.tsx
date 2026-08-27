@@ -10,6 +10,7 @@ import PageHeader from "@/components/app/PageHeader";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import ProductCard, { type ConnectionChip, type ProductCardData } from "./_components/ProductCard";
 import ProductDetailSheet, { type IntegrationInfo } from "./_components/ProductDetailSheet";
+import { resolveConnectionChipTone } from "@/lib/integrations/channel-status";
 import ProductCreateWizard from "./_components/ProductCreateWizard";
 import { apiDelete } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
@@ -25,9 +26,19 @@ function getScopedSocialIntegrations(integrations: IntegrationInfo[]) {
   return integrations.filter(
     (integration) =>
       SOCIAL_PROVIDERS.includes(integration.provider as typeof SOCIAL_PROVIDERS[number]) &&
-      (integration.scope === "product" ||
-        (integration.provider === "meta" && integration.scope === "workspace")),
+      integration.scope === "product",
   );
+}
+
+function toConnectionChip(integ: IntegrationInfo): ConnectionChip {
+  return {
+    provider: integ.provider,
+    status: integ.status,
+    lastRefreshError: integ.lastRefreshError,
+    pageName: integ.pageName,
+    username: integ.username,
+    tone: resolveConnectionChipTone(integ.provider, integ),
+  };
 }
 
 type FilterTab = "all" | "active" | "development";
@@ -110,13 +121,7 @@ export default function ProductsPage() {
     const cache: Record<string, ConnectionChip[]> = {};
     for (const [pid, integrations] of Object.entries(connectionsData?.products ?? {})) {
       const scoped = getScopedSocialIntegrations(integrations || []);
-      cache[pid] = scoped.map((integ) => ({
-        provider: integ.provider,
-        status: integ.status,
-        lastRefreshError: integ.lastRefreshError,
-        pageName: integ.pageName,
-        username: integ.username,
-      }));
+      cache[pid] = scoped.map(toConnectionChip);
     }
     return cache;
   }, [connectionsData]);

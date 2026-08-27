@@ -9,6 +9,7 @@ import {
   LINKEDIN_PROFILE_PROVIDER,
   LINKEDIN_PUBLIC_PROVIDER,
 } from '@/lib/platform/linkedin-providers';
+import { pickRepresentativeConnection } from '@/lib/integrations/channel-status';
 
 export const runtime = 'nodejs';
 
@@ -158,9 +159,10 @@ function maskConnections(
   }
 
   const entries = [...byProvider.values()].map((group) => {
-    // The healthiest destination represents the provider so one broken account
-    // cannot make the whole channel read as disconnected.
-    const primary = group.find((conn) => conn.status === 'connected') || group[0];
+    // A leftover pending-grant document is also `connected`, but it has no
+    // destination. Prefer a linked Page/board so the aggregated entry cannot
+    // look like the channel still needs setup.
+    const primary = pickRepresentativeConnection(group) ?? group[0];
     return {
       ...maskConnection(primary, scope),
       accounts: group.map((conn) => maskAccount(conn, scope)),

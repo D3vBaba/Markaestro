@@ -183,3 +183,13 @@ describe('syncGrantedMetaProductConnections', () => {
     expect(updateFor('meta:page_a')).not.toHaveProperty('metadata.availablePages');
   });
 });
+
+describe('shouldWritePendingMetaPageSelection', () => {
+  it('is true only when the brand has no connected Page yet', async () => {
+    const { shouldWritePendingMetaPageSelection } = await import('@/lib/oauth/meta-connection-sync');
+    expect(shouldWritePendingMetaPageSelection([])).toBe(true);
+    expect(shouldWritePendingMetaPageSelection([{ accountKey: null, status: 'connected' }])).toBe(true);
+    expect(shouldWritePendingMetaPageSelection([{ accountKey: 'page_1', status: 'error' }])).toBe(true);
+    expect(shouldWritePendingMetaPageSelection([{ accountKey: 'page_1', status: 'connected' }])).toBe(false);
+  });
+});

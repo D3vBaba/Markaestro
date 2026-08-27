@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { ChevronRight, Globe, Trash2, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { categoryLabel } from "./categories";
+import type { ConnectionChipTone } from "@/lib/integrations/channel-status";
 
 export type ProductCardData = {
   id: string;
@@ -18,12 +19,16 @@ export type ProductCardData = {
   createdAt?: string;
 };
 
+export type { ConnectionChipTone };
+
 export type ConnectionChip = {
   provider: string;
   status: string;
   lastRefreshError?: string | null;
   pageName?: string | null;
   username?: string | null;
+  /** Precomputed by resolveConnectionChipTone. Falls back conservatively. */
+  tone?: ConnectionChipTone;
 };
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
@@ -75,6 +80,31 @@ function getDominantColor(p: ProductCardData): string | null {
 }
 
 const MAX_VISIBLE_CONNECTIONS = 3;
+
+const CHIP_DOT_CLASS: Record<ConnectionChipTone, string> = {
+  ready: "bg-emerald-500 shadow-2xs",
+  warning: "bg-amber-500",
+  offline: "bg-rose-500",
+};
+
+function connectionChipTone(chip: ConnectionChip): ConnectionChipTone {
+  if (chip.tone) return chip.tone;
+  if (chip.lastRefreshError) return "warning";
+  if (chip.status === "connected") return "ready";
+  return "offline";
+}
+
+function connectionChipTitle(
+  chip: ConnectionChip,
+  tone: ConnectionChipTone,
+  label: string,
+  reconnectLabel: string,
+): string {
+  if (tone === "warning") return reconnectLabel;
+  if (chip.pageName) return `${label} · ${chip.pageName}`;
+  if (chip.username) return `${label} · @${chip.username}`;
+  return label;
+}
 
 export default function ProductCard({
   product,
@@ -215,16 +245,14 @@ export default function ProductCard({
               {connections.length > 0 ? (
                 <div className="flex items-center gap-2 flex-wrap">
                   {visibleConnections.map((c) => {
-                    const isConnected = c.status === "connected";
-                    const hasError = !c.lastRefreshError;
+                    const tone = connectionChipTone(c);
                     const label = providerShortLabels[c.provider] || c.provider;
-                    const title = hasError
-                      ? t("reconnectNeeded", { label })
-                      : c.pageName
-                      ? `${label} · ${c.pageName}`
-                      : c.username
-                      ? `${label} · @${c.username}`
-                      : label;
+                    const title = connectionChipTitle(
+                      c,
+                      tone,
+                      label,
+                      t("reconnectNeeded", { label }),
+                    );
                     return (
                       <span
                         key={c.provider}
@@ -232,13 +260,7 @@ export default function ProductCard({
                         className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300 rounded-md px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800"
                       >
                         <span
-                          className={`inline-block h-1.5 w-1.5 rounded-full ${
-                            isConnected && !hasError
-                              ? "bg-emerald-500 shadow-2xs"
-                              : hasError
-                              ? "bg-amber-500"
-                              : "bg-rose-500"
-                          }`}
+                          className={`inline-block h-1.5 w-1.5 rounded-full ${CHIP_DOT_CLASS[tone]}`}
                         />
                         {label}
                       </span>

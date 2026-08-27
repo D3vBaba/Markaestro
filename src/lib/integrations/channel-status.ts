@@ -37,6 +37,44 @@ export type ChannelStatus = {
   label?: string;
 };
 
+/** Color of the connection dots on a brand card. */
+export type ConnectionChipTone = "ready" | "warning" | "offline";
+
+const DESTINATION_PROVIDERS = new Set(["meta", "pinterest", "linkedin"]);
+
+type ChannelAccount = NonNullable<ChannelStatusEntry["accounts"]>[number];
+
+type ConnectionIdentity = {
+  status?: string;
+  accountKey?: string | null;
+  destinationId?: string | null;
+};
+
+function readyDestinations(entry: ChannelStatusEntry): ChannelAccount[] {
+  return (entry.accounts ?? []).filter(
+    (account) => Boolean(account.destinationId) && account.enabled !== false,
+  );
+}
+
+function connectedLabel(
+  provider: string,
+  entry: ChannelStatusEntry,
+  ready: ChannelAccount[],
+): string | undefined {
+  if (ready.length > 1) return `${ready.length} accounts linked`;
+  const accountLabel = ready[0]?.label;
+  switch (provider) {
+    case "meta":
+      return accountLabel || entry.pageName || "Facebook Page";
+    case "pinterest":
+      return accountLabel || entry.boardName || "Pinterest board";
+    case "linkedin":
+      return accountLabel || entry.linkedinDestinationName || "LinkedIn destination";
+    default:
+      return entry.username ? `@${entry.username}` : accountLabel || undefined;
+  }
+}
+
 /**
  * Resolve the canonical status for a provider's connection on a product.
  *
@@ -52,13 +90,17 @@ export function resolveChannelStatus(
   // Per-product model: workspace-scoped leftovers never count as linked.
   if (entry.scope === "workspace") return { state: "disconnected" };
 
-  // Several accounts can be linked per channel; name them collectively rather
-  // than showing only whichever one happens to sort first.
-  const linkedAccounts = (entry.accounts ?? []).filter((account) => account.destinationId);
-  if (linkedAccounts.length > 1 && entry.status === "connected") {
+  // Linked destinations are the source of truth. A leftover pending-grant
+  // document (no pageId, pageSelectionRequired) used to win when only one
+  // Page was linked, painting healthy brands yellow. Any ready destination
+  // means the channel is connected, including a single Facebook Page.
+  const ready = readyDestinations(entry);
+  const treatReadyAsConnected =
+    DESTINATION_PROVIDERS.has(provider) || entry.status === "connected";
+  if (ready.length > 0 && treatReadyAsConnected) {
     return {
       state: "connected",
-      label: `${linkedAccounts.length} accounts linked`,
+      label: connectedLabel(provider, entry, ready),
     };
   }
 
@@ -102,4 +144,37 @@ export function resolveChannelStatus(
     };
   }
   return { state: "disconnected" };
+}
+
+function isConnectedDestination(item: ConnectionIdentity): boolean {
+  return item.status === "connected" && Boolean(item.accountKey || item.destinationId);
+}
+
+/**
+ * Prefer a connected destination over a leftover credential / "pick a page"
+ * document so aggregated channel status cannot be represented by the grant.
+ */
+export function pickRepresentativeConnection<T extends ConnectionIdentity>(
+  group: T[],
+): T | undefined {
+  if (group.length === 0) return undefined;
+  return (
+    group.find(isConnectedDestination)
+    || group.find((item) => item.status === "connected")
+    || group[0]
+  );
+}
+
+/**
+ * Brand-card indicator color. Healthy linked channels are green; a missing
+ * Page/board/target or a refresh error is amber; anything else is red.
+ */
+export function resolveConnectionChipTone(
+  provider: string,
+  entry: (ChannelStatusEntry & { lastRefreshError?: string | null }) | undefined,
+): ConnectionChipTone {
+  const { state } = resolveChannelStatus(provider, entry);
+  if (state === "needs-page" || entry?.lastRefreshError) return "warning";
+  if (state === "connected") return "ready";
+  return "offline";
 }

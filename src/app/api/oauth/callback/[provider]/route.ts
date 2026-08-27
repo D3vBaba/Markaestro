@@ -16,8 +16,10 @@ import { fetchMetaManagedPages, type MetaManagedPage } from '@/lib/meta-pages';
 import {
   markMetaProductPageSelectionRequired,
   saveMetaProductPageSelection,
+  shouldWritePendingMetaPageSelection,
   syncGrantedMetaProductConnections,
 } from '@/lib/oauth/meta-connection-sync';
+import { listProviderConnections } from '@/lib/platform/connections';
 import { assertChannelCapacity, channelAdditionForGrant } from '@/lib/platform/channel-limits';
 
 export const runtime = 'nodejs';
@@ -593,27 +595,34 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         // product-level selection is necessary.
         metaNeedsPageSelection = false;
       } else if (productId && metaPages.length > 0) {
-        // The pending "pick a Page" document occupies a channel slot until a
-        // Page is chosen, so a brand already at its cap is told now rather
-        // than after walking through the Page picker. The pending document is
-        // bare (no destination), so it is identified by the authorizing
-        // account, never by any pageId the grant may have surfaced.
-        await assertChannelCapacity({
-          uid: userId,
-          workspaceId,
-          productId,
-          additions: [{ provider: 'meta', credentialKey: metaCredentialKey ?? null }],
-        });
-        await markMetaProductPageSelectionRequired({
-          workspaceId,
-          productId,
-          userId,
-          userAccessToken: tokens.accessToken,
-          tokenExpiresAt,
-          credentialKey: metaCredentialKey,
-          availablePages: metaPages,
-        });
-        metaNeedsPageSelection = true;
+        const existingMeta = await listProviderConnections(workspaceId, 'meta', productId);
+        if (!shouldWritePendingMetaPageSelection(existingMeta)) {
+          // Pages are already linked on this brand. Do not overlay a pending
+          // grant document: it would make the channel indicator go yellow.
+          metaNeedsPageSelection = false;
+        } else {
+          // The pending "pick a Page" document occupies a channel slot until a
+          // Page is chosen, so a brand already at its cap is told now rather
+          // than after walking through the Page picker. The pending document is
+          // bare (no destination), so it is identified by the authorizing
+          // account, never by any pageId the grant may have surfaced.
+          await assertChannelCapacity({
+            uid: userId,
+            workspaceId,
+            productId,
+            additions: [{ provider: 'meta', credentialKey: metaCredentialKey ?? null }],
+          });
+          await markMetaProductPageSelectionRequired({
+            workspaceId,
+            productId,
+            userId,
+            userAccessToken: tokens.accessToken,
+            tokenExpiresAt,
+            credentialKey: metaCredentialKey,
+            availablePages: metaPages,
+          });
+          metaNeedsPageSelection = true;
+        }
       }
     } else {
       // Enforce the per-brand channel cap before persisting the grant. The

@@ -91,6 +91,17 @@ export async function saveMetaProductPageSelection(
 }
 
 /**
+ * A pending "pick a Page" document is only for brands that have no Page yet.
+ * Writing one on top of linked Pages used to make a healthy channel look
+ * yellow (the leftover grant sorted first and had no destination).
+ */
+export function shouldWritePendingMetaPageSelection(
+  existing: Array<{ accountKey?: string | null; status?: string }>,
+): boolean {
+  return !existing.some((conn) => Boolean(conn.accountKey) && conn.status === 'connected');
+}
+
+/**
  * Link several Pages to a brand in one call and, when `exclusive` is set, unlink
  * any Page the user cleared in the picker.
  */
