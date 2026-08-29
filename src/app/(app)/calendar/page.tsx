@@ -5,11 +5,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
-import { apiGet, apiPut } from "@/lib/api-client";
+import { apiGet, apiPost, apiPut } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { toast } from "sonner";
 import { toastApiError } from "@/lib/error-toast";
 import Link from "next/link";
+import ScheduleSheet from "@/app/(app)/content/_components/ScheduleSheet";
+import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -395,18 +397,89 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = 
 // A month cell only has room for a few chips. This lists every post on a single
 // day so busy days stay fully reviewable.
 
-function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart }: {
+function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart, onBulkChanged }: {
   dateStr: string;
   items: CalendarItem[];
   onSelect: (item: CalendarItem) => void;
   onClose: () => void;
   /** Lets rows be dragged onto the grid to reschedule, same as cell chips. */
   onDragStart: (post: Post) => (e: React.DragEvent) => void;
+  /** Refetch after a bulk operation lands. */
+  onBulkChanged: () => Promise<void> | void;
 }) {
   const t = useTranslations("calendar.dayPanel");
   const locale = useLocale();
   const date = parseIsoDate(dateStr);
   const isToday = dateStr === isoDate(new Date());
+
+  // Multi-select lives here, in the day list, and deliberately NOT on the
+  // month grid: the grid chips already carry click-to-open and
+  // drag-to-reschedule, and a third gesture on a 20px chip would fight both.
+  // While selecting, chips toggle instead of opening and dragging is off, so
+  // the two modes can never race.
+  const [selecting, setSelecting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkPending, setBulkPending] = useState(false);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
+  const [rescheduleOpen, setRescheduleOpen] = useState(false);
+
+  // A different day means a different list; stale selections must not carry
+  // an invisible post id into a bulk delete. Adjusted during render rather
+  // than in an effect (same pattern as ScheduledTab's brand reset) so the
+  // new day's first render is already deselected.
+  const [panelDate, setPanelDate] = useState(dateStr);
+  if (panelDate !== dateStr) {
+    setPanelDate(dateStr);
+    setSelecting(false);
+    setSelectedIds(new Set());
+  }
+
+  const toggleSelected = (id: string) => {
+    setSelectedIds((cur) => {
+      const next = new Set(cur);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const exitSelection = () => {
+    setSelecting(false);
+    setSelectedIds(new Set());
+  };
+
+  const allSelected = items.length > 0 && items.every((item) => selectedIds.has(item.post.id));
+
+  /** Same honest partial-success reporting as the scheduled list. */
+  const runBulk = async (
+    body: Record<string, unknown>,
+    successKey: "rescheduled" | "movedToDrafts" | "deleted",
+  ) => {
+    const ids = [...selectedIds];
+    if (ids.length === 0 || bulkPending) return;
+    setBulkPending(true);
+    try {
+      const res = await apiPost<{
+        succeeded?: string[];
+        failed?: Array<{ id: string; error: string }>;
+      }>("/api/posts/bulk", { ids, ...body });
+      const succeeded = res.data?.succeeded?.length ?? 0;
+      const failed = res.data?.failed?.length ?? 0;
+      if (!res.ok && succeeded === 0) {
+        toast.error(t("bulkToasts.failed"));
+        return;
+      }
+      if (failed > 0) {
+        toast.warning(t("bulkToasts.partial", { succeeded, total: ids.length, failed }));
+      } else {
+        toast.success(t(`bulkToasts.${successKey}`, { count: succeeded }));
+      }
+      exitSelection();
+      await onBulkChanged();
+    } finally {
+      setBulkPending(false);
+    }
+  };
 
   return (
     <div className="h-full min-h-0 flex flex-col">
@@ -421,12 +494,24 @@ function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart }: {
             )}
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5 m-0">
-            {t("postCount", { count: items.length })}
+            {selecting
+              ? t("selection.count", { count: selectedIds.size })
+              : t("postCount", { count: items.length })}
           </p>
         </div>
-        <button onClick={onClose} aria-label="Close" className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
-          <X className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          {items.length > 0 && (
+            <button
+              onClick={() => (selecting ? exitSelection() : setSelecting(true))}
+              className="px-2.5 h-7 rounded-full text-[11px] font-medium border border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              {selecting ? t("selection.cancelSelection") : t("selection.selectMode")}
+            </button>
+          )}
+          <button onClick={onClose} aria-label="Close" className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5">
         {items.length === 0 ? (
@@ -435,17 +520,102 @@ function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart }: {
           </p>
         ) : (
           items.map((item) => (
-            <VisualEventChip
-              key={item.post.id}
-              item={item}
-              isSelected={false}
-              showDetail
-              onClick={() => onSelect(item)}
-              onDragStart={onDragStart(item.post)}
-            />
+            selecting ? (
+              <div key={item.post.id} className="relative">
+                <span className="absolute start-2 top-1/2 -translate-y-1/2 z-10 flex h-5 w-5 items-center justify-center rounded-md border border-border/60 bg-card">
+                  <input
+                    type="checkbox"
+                    className="h-3.5 w-3.5 cursor-pointer accent-current"
+                    checked={selectedIds.has(item.post.id)}
+                    onChange={() => toggleSelected(item.post.id)}
+                    aria-label={item.post.content?.slice(0, 80) || item.post.id}
+                  />
+                </span>
+                <div className="ps-8">
+                  <VisualEventChip
+                    item={item}
+                    isSelected={selectedIds.has(item.post.id)}
+                    showDetail
+                    onClick={() => toggleSelected(item.post.id)}
+                  />
+                </div>
+              </div>
+            ) : (
+              <VisualEventChip
+                key={item.post.id}
+                item={item}
+                isSelected={false}
+                showDetail
+                onClick={() => onSelect(item)}
+                onDragStart={onDragStart(item.post)}
+              />
+            )
           ))
         )}
       </div>
+      {selecting && (
+        <div className="shrink-0 border-t border-border/40 px-3 py-2.5 flex flex-wrap items-center gap-1.5">
+          <button
+            onClick={() =>
+              setSelectedIds(allSelected ? new Set() : new Set(items.map((item) => item.post.id)))
+            }
+            className="px-2.5 h-7 rounded-full text-[11px] font-medium border border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            {allSelected ? t("selection.clear") : t("selection.selectAll")}
+          </button>
+          <div className="ms-auto flex items-center gap-1.5">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 rounded-full text-[11px]"
+              disabled={selectedIds.size === 0 || bulkPending}
+              onClick={() => setRescheduleOpen(true)}
+            >
+              {t("selection.reschedule")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 rounded-full text-[11px]"
+              disabled={selectedIds.size === 0 || bulkPending}
+              onClick={() => runBulk({ action: "status", status: "draft" }, "movedToDrafts")}
+            >
+              {t("selection.moveToDrafts")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 rounded-full text-[11px] text-mk-neg hover:text-mk-neg"
+              disabled={selectedIds.size === 0 || bulkPending}
+              onClick={() => setConfirmBulkDelete(true)}
+            >
+              {t("selection.delete")}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <ScheduleSheet
+        open={rescheduleOpen}
+        onOpenChange={setRescheduleOpen}
+        onSchedule={(when) => {
+          setRescheduleOpen(false);
+          void runBulk({ action: "reschedule", scheduledAt: when }, "rescheduled");
+        }}
+        initialDate={`${dateStr}T12:00:00.000Z`}
+      />
+
+      <ConfirmDeleteDialog
+        open={confirmBulkDelete}
+        onOpenChange={setConfirmBulkDelete}
+        entity="post"
+        name={t("selection.count", { count: selectedIds.size })}
+        warning={t("selection.confirmDeleteBody")}
+        onConfirm={async () => {
+          setConfirmBulkDelete(false);
+          await runBulk({ action: "delete" }, "deleted");
+        }}
+      />
     </div>
   );
 }
@@ -791,6 +961,10 @@ function CalendarPageContent() {
           onSelect={(item) => openPost(item, true)}
           onClose={closeRail}
           onDragStart={handleDragStart}
+          onBulkChanged={async () => {
+            invalidateQueries("/api/posts");
+            await refresh();
+          }}
         />
       );
     }

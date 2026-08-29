@@ -10,12 +10,15 @@ publishing pipeline:
   publish, async job runs, signed webhooks, batch create, per-channel settings.
   Documented below.
 
-Both support Facebook, Instagram, TikTok, and Threads. **Each channel is its own
-dedicated destination** — publishing to one never fans out to another (linking a
-Meta connection no longer co-publishes Facebook + Instagram). **API create is
-draft-first** on either surface: `POST /posts` stores drafts for the selected
-product destination. Publish explicitly later from Markaestro or, where allowed,
-through the public publish endpoint.
+Both support every channel Markaestro publishes to: Facebook, Instagram,
+TikTok, Threads, Pinterest, and LinkedIn. **Each channel is its own dedicated
+destination** — publishing to one never fans out to another (linking a Meta
+connection no longer co-publishes Facebook + Instagram). **API create is
+draft-first unless you schedule**: `POST /posts` stores a draft for the
+selected product destination, and a post carrying `scheduledAt` is created
+`scheduled` and published by the worker at its time (see
+[Scheduling](#scheduling)). Drafts publish explicitly later from Markaestro
+or, where allowed, through the public publish endpoint.
 
 ## Scope
 
@@ -28,7 +31,15 @@ through the public publish endpoint.
 
 - Facebook: text-only, image, or video posts; max 10 images; 1 video per post
 - Instagram: requires at least 1 media item (image or video); max 10 items; single video publishes as a Reel; carousels support mixed image/video
-- TikTok: requires at least 1 media item; either 1 video or up to 10 images. API create always stores a draft. Explicit publish defaults to TikTok's inbox handoff (`platform_inbox`), where the creator finalizes and posts inside TikTok. Direct Post — publishing straight to the creator's profile — is opt-in per post via `settings.postMode: "direct_post"` and requires an explicit `privacyLevel`; see [Platform-specific settings](#platform-specific-settings).
+- TikTok: requires at least 1 media item; either 1 video or up to 35 images (photo posts). Explicit publish defaults to TikTok's inbox handoff (`platform_inbox`), where the creator finalizes and posts inside TikTok. Direct Post — publishing straight to the creator's profile — is opt-in per post via `settings.postMode: "direct_post"` and requires an explicit `privacyLevel`; see [Platform-specific settings](#platform-specific-settings).
+- Threads: text, image, or video; carousels up to 20 items
+- Pinterest: requires media; up to 5 images per pin, or exactly 1 video (a video pin cannot carry other media)
+- LinkedIn: requires text; images or video, up to 20 items, and a video must be the only media item
+
+Caption ceilings are per channel (Facebook 63,206 up to Threads' 500) and are
+enforced per target; the request schema itself only bounds payloads at the
+widest channel's ceiling. The authoritative numbers, per channel and per
+field, are in the [OpenAPI description](/api/public/v1/openapi.json).
 
 ## Media upload
 
@@ -200,6 +211,65 @@ Requires the `webhooks.manage` scope.
 > surface over these same endpoints (point the client's base at
 > `<host>/api/connect`).
 
+## Scheduling
+
+Send `scheduledAt` (ISO 8601) on `POST /api/public/v1/posts` and the post is
+created with `status: "scheduled"` and published by the worker at that time.
+Three things happen at create rather than at publish time, because a
+scheduled post is a promise the worker keeps unattended:
+
+- **Preflight runs immediately.** A channel whose connection is expired,
+  revoked, or missing rejects the create with `VALIDATION_ERROR` and a
+  per-channel `issues` array, instead of failing silently after the window
+  has passed. Manual-reminder targets are exempt from the readiness half:
+  nothing is ever sent to a platform for them.
+- **Facebook, Instagram, and TikTok require an explicit `deliveryMode`**
+  when scheduled (`VALIDATION_SCHEDULED_DELIVERY_MODE_REQUIRED` otherwise).
+  Those channels default to `manual_reminder` on this surface, and a
+  scheduled manual reminder — a timed nudge in the To Post queue — is
+  coherent but probably not what a client sending `scheduledAt` means. Say
+  which you want: `direct_publish` to publish at the scheduled time, or
+  `manual_reminder` for the timed reminder.
+- The response echoes the normalized `scheduledAt`, and
+  `originalScheduledAt` is preserved across later reschedules.
+
+Before 2026-08-29 this surface accepted `scheduledAt` and silently discarded
+it (the post stayed a draft). See `docs/API_CHANGELOG.md` if you built
+around that behaviour.
+
+## Multi-channel targets
+
+One post can target several channels. Send `targets` instead of `channel`:
+
+```json
+{
+  "caption": "Launch day.",
+  "mediaAssetIds": ["ast_123"],
+  "scheduledAt": "2026-09-01T10:00:00Z",
+  "targets": [
+    { "channel": "linkedin" },
+    { "channel": "threads" },
+    { "channel": "instagram", "deliveryMode": "direct_publish" }
+  ]
+}
+```
+
+- `channel` and `targets` are mutually exclusive, and a channel may appear
+  at most once. Each target takes its own `destinationId`, `deliveryMode`,
+  and `settings`.
+- Validation reports **every** failing target at once: `VALIDATION_ERROR`
+  with `issues: [{ channel, code, message }]`. Single-`channel` requests
+  keep their original single-code errors, so existing clients are
+  unaffected.
+- Publishing is per channel: channels that validate publish, channels that
+  do not land as per-channel failures (`partial_failed`), and `targets[]`
+  on every post response reads the result back uniformly — including for
+  posts created in the app.
+- One limitation, refused loudly rather than silently mishandled: platform
+  `settings` may ride on at most one target per post
+  (`VALIDATION_MULTIPLE_TARGET_SETTINGS_UNSUPPORTED`). Create one post per
+  channel that needs its own settings.
+
 ## Idempotency
 
 Send `Idempotency-Key` (any string up to 500 characters, no control bytes)
@@ -271,7 +341,7 @@ TikTok (draft-first; manual reminder by default, inbox handoff on opt-in):
 - products expose TikTok destinations only when a TikTok publishing connection is configured
 - the TikTok destination returned by `GET /api/public/v1/products/:id/destinations` represents the connected TikTok account
 - TikTok destinations use `deliveryMode: "platform_inbox"` to make the inbox handoff explicit
-- Public API creates remain **draft-first**. Connect clients can explicitly schedule by sending `is_draft=false` with `scheduled_at`; TikTok schedules the creator-inbox handoff, while supported direct channels use their official publishing path.
+- Both surfaces schedule: the public API via `scheduledAt` (with an explicit `deliveryMode`, see [Scheduling](#scheduling)), Connect via `is_draft=false` with `scheduled_at`. A scheduled TikTok post schedules the creator-inbox handoff (or a Direct Post when opted in), while other channels use their official publishing path.
 - `POST /api/public/v1/posts/:id/publish` queues the same TikTok publish path the app uses — the inbox handoff unless the post carries `settings.postMode: "direct_post"`
 - once TikTok confirms `SEND_TO_USER_INBOX`, the post becomes `platform_action_required`; the creator opens TikTok to finalize caption/privacy and post
 - a Direct Post skips that step: it goes to `published` when TikTok reports `PUBLISH_COMPLETE`, with no action left for the creator

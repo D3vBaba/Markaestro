@@ -31,7 +31,25 @@
   "dayPanel": {
     "today": "오늘",
     "postCount": "게시물 {count}개 · 미리 볼 항목을 선택하세요",
-    "noPosts": "이 날짜에는 게시물이 없습니다."
+    "noPosts": "이 날짜에는 게시물이 없습니다.",
+    "selection": {
+      "selectMode": "선택",
+      "cancelSelection": "취소",
+      "count": "{count}개 선택됨",
+      "selectAll": "전체 선택",
+      "clear": "해제",
+      "reschedule": "일정 변경",
+      "moveToDrafts": "초안으로",
+      "delete": "삭제",
+      "confirmDeleteBody": "되돌릴 수 없습니다. 이미 게시된 게시물은 영향을 받지 않습니다."
+    },
+    "bulkToasts": {
+      "rescheduled": "게시물 {count}개의 일정을 변경했습니다",
+      "movedToDrafts": "게시물 {count}개를 초안으로 옮겼습니다",
+      "deleted": "게시물 {count}개를 삭제했습니다",
+      "partial": "{total}개 중 {succeeded}개를 업데이트했습니다. {failed}개는 변경하지 못했습니다.",
+      "failed": "아무것도 변경하지 못했습니다. 다시 시도하거나 게시물을 하나씩 변경해 주세요."
+    }
   },
   "agenda": {
     "today": "오늘",

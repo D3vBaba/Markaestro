@@ -31,7 +31,25 @@
   "dayPanel": {
     "today": "Heute",
     "postCount": "{count, plural, one {# Beitrag} other {# Beiträge}} · zur Vorschau einen auswählen",
-    "noPosts": "Keine Beiträge an diesem Tag."
+    "noPosts": "Keine Beiträge an diesem Tag.",
+    "selection": {
+      "selectMode": "Auswählen",
+      "cancelSelection": "Abbrechen",
+      "count": "{count} ausgewählt",
+      "selectAll": "Alle auswählen",
+      "clear": "Aufheben",
+      "reschedule": "Neu planen",
+      "moveToDrafts": "Zu Entwürfen",
+      "delete": "Löschen",
+      "confirmDeleteBody": "Das lässt sich nicht rückgängig machen. Bereits veröffentlichte Beiträge sind nicht betroffen."
+    },
+    "bulkToasts": {
+      "rescheduled": "{count} Beiträge neu geplant",
+      "movedToDrafts": "{count} Beiträge zu Entwürfen verschoben",
+      "deleted": "{count} Beiträge gelöscht",
+      "partial": "{succeeded} von {total} Beiträgen aktualisiert. {failed} konnten nicht geändert werden.",
+      "failed": "Es konnte nichts geändert werden. Versuche es erneut oder ändere die Beiträge einzeln."
+    }
   },
   "agenda": {
     "today": "Heute",

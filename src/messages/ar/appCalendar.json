@@ -31,7 +31,25 @@
   "dayPanel": {
     "today": "اليوم",
     "postCount": "{count, plural, zero {لا منشورات} one {منشور واحد} two {منشوران} few {# منشورات} many {# منشورًا} other {# منشور}} · اختر واحدًا للمعاينة",
-    "noPosts": "لا توجد منشورات في هذا اليوم."
+    "noPosts": "لا توجد منشورات في هذا اليوم.",
+    "selection": {
+      "selectMode": "تحديد",
+      "cancelSelection": "إلغاء",
+      "count": "{count} محدد",
+      "selectAll": "تحديد الكل",
+      "clear": "مسح",
+      "reschedule": "إعادة الجدولة",
+      "moveToDrafts": "إلى المسودات",
+      "delete": "حذف",
+      "confirmDeleteBody": "لا يمكن التراجع عن هذا. المنشورات المنشورة بالفعل لن تتأثر."
+    },
+    "bulkToasts": {
+      "rescheduled": "تمت إعادة جدولة {count} منشورات",
+      "movedToDrafts": "تم نقل {count} منشورات إلى المسودات",
+      "deleted": "تم حذف {count} منشورات",
+      "partial": "تم تحديث {succeeded} من {total} منشورات. تعذّر تغيير {failed}.",
+      "failed": "تعذّر تغيير أي شيء. حاول مرة أخرى، أو غيّر المنشورات واحدًا تلو الآخر."
+    }
   },
   "agenda": {
     "today": "اليوم",

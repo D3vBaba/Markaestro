@@ -31,7 +31,25 @@
   "dayPanel": {
     "today": "今日",
     "postCount": "{count}件の投稿 · プレビューする投稿を選択してください",
-    "noPosts": "この日には投稿がありません。"
+    "noPosts": "この日には投稿がありません。",
+    "selection": {
+      "selectMode": "選択",
+      "cancelSelection": "キャンセル",
+      "count": "{count}件を選択中",
+      "selectAll": "すべて選択",
+      "clear": "解除",
+      "reschedule": "再スケジュール",
+      "moveToDrafts": "下書きへ",
+      "delete": "削除",
+      "confirmDeleteBody": "この操作は取り消せません。公開済みの投稿には影響しません。"
+    },
+    "bulkToasts": {
+      "rescheduled": "{count}件の投稿を再スケジュールしました",
+      "movedToDrafts": "{count}件の投稿を下書きに移動しました",
+      "deleted": "{count}件の投稿を削除しました",
+      "partial": "{total}件中{succeeded}件を更新しました。{failed}件は変更できませんでした。",
+      "failed": "何も変更できませんでした。もう一度試すか、投稿を1件ずつ変更してください。"
+    }
   },
   "agenda": {
     "today": "今日",

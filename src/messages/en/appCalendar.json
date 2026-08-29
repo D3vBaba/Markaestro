@@ -31,7 +31,25 @@
   "dayPanel": {
     "today": "Today",
     "postCount": "{count, plural, one {# post} other {# posts}} · select one to preview",
-    "noPosts": "No posts on this day."
+    "noPosts": "No posts on this day.",
+    "selection": {
+      "selectMode": "Select",
+      "cancelSelection": "Cancel",
+      "count": "{count} selected",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "reschedule": "Reschedule",
+      "moveToDrafts": "Move to drafts",
+      "delete": "Delete",
+      "confirmDeleteBody": "This cannot be undone. Posts already published are not affected."
+    },
+    "bulkToasts": {
+      "rescheduled": "{count} posts rescheduled",
+      "movedToDrafts": "{count} posts moved to drafts",
+      "deleted": "{count} posts deleted",
+      "partial": "{succeeded} of {total} posts updated. {failed} could not be changed.",
+      "failed": "Nothing could be changed. Try again, or change the posts one at a time."
+    }
   },
   "agenda": {
     "today": "Today",

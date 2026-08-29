@@ -31,7 +31,25 @@
   "dayPanel": {
     "today": "今天",
     "postCount": "{count}篇帖子 · 选择一篇进行预览",
-    "noPosts": "当天没有帖子。"
+    "noPosts": "当天没有帖子。",
+    "selection": {
+      "selectMode": "选择",
+      "cancelSelection": "取消",
+      "count": "已选 {count} 条",
+      "selectAll": "全选",
+      "clear": "清除",
+      "reschedule": "重新排期",
+      "moveToDrafts": "移到草稿",
+      "delete": "删除",
+      "confirmDeleteBody": "此操作无法撤销。已发布的帖子不受影响。"
+    },
+    "bulkToasts": {
+      "rescheduled": "已重新排期 {count} 条帖子",
+      "movedToDrafts": "已将 {count} 条帖子移到草稿",
+      "deleted": "已删除 {count} 条帖子",
+      "partial": "已更新 {total} 条中的 {succeeded} 条。{failed} 条未能更改。",
+      "failed": "没有任何内容被更改。请重试，或逐条修改帖子。"
+    }
   },
   "agenda": {
     "today": "今天",

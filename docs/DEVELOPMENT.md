@@ -59,6 +59,18 @@ Point the app at them with the standard Firebase environment variables
 (`FIRESTORE_EMULATOR_HOST=localhost:8080`, `FIREBASE_AUTH_EMULATOR_HOST=localhost:9099`,
 `FIREBASE_STORAGE_EMULATOR_HOST=localhost:9199`) before `npm run dev`.
 
+With the emulator up, the security-rules suite stops being skipped and runs
+against the real rules engine:
+
+```bash
+FIRESTORE_EMULATOR_HOST=localhost:8080 npm test -- firestore-rules.emulator
+```
+
+It asserts deny-all holds for anonymous and signed-in users across every
+sensitive path in the access matrix (`docs/operations/data-access.md`).
+Allowlisting a collection someday means changing `firestore.rules`, that
+suite, and the matrix together, deliberately.
+
 One deliberate exception: `npm run validate:queries` runs against **real**
 Firestore, by design. Its whole job is to prove that the composite indexes a
 query needs exist in the project it will actually run in, and an emulator

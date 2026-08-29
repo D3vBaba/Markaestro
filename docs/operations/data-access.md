@@ -19,6 +19,9 @@ keys (`requirePublicApiContext`), worker shared secrets, and the RBAC helpers.
 initialized on the client for Authentication only, and no browser code reads
 or writes Firestore directly. `firestore-client-isolation.test.ts` enforces
 that premise in CI, because the deny-all rules are only sound while it holds.
+`firestore-rules.emulator.test.ts` exercises the rules themselves against the
+emulator (anonymous and signed-in denials on every path below); it runs
+whenever `FIRESTORE_EMULATOR_HOST` is set and skips otherwise.
 
 `storage.rules` follows the same posture.
 

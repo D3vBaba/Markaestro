@@ -31,7 +31,25 @@
   "dayPanel": {
     "today": "Hoy",
     "postCount": "{count, plural, one {# publicación} other {# publicaciones}} · selecciona una para ver la vista previa",
-    "noPosts": "No hay publicaciones este día."
+    "noPosts": "No hay publicaciones este día.",
+    "selection": {
+      "selectMode": "Seleccionar",
+      "cancelSelection": "Cancelar",
+      "count": "{count} seleccionadas",
+      "selectAll": "Seleccionar todo",
+      "clear": "Borrar",
+      "reschedule": "Reprogramar",
+      "moveToDrafts": "A borradores",
+      "delete": "Eliminar",
+      "confirmDeleteBody": "Esto no se puede deshacer. Las publicaciones ya publicadas no se ven afectadas."
+    },
+    "bulkToasts": {
+      "rescheduled": "{count} publicaciones reprogramadas",
+      "movedToDrafts": "{count} publicaciones movidas a borradores",
+      "deleted": "{count} publicaciones eliminadas",
+      "partial": "{succeeded} de {total} publicaciones actualizadas. {failed} no se pudieron cambiar.",
+      "failed": "No se pudo cambiar nada. Inténtalo de nuevo o cambia las publicaciones una a una."
+    }
   },
   "agenda": {
     "today": "Hoy",

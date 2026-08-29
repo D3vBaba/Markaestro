@@ -31,7 +31,25 @@
   "dayPanel": {
     "today": "Oggi",
     "postCount": "{count, plural, one {# post} other {# post}} · selezionane uno per l'anteprima",
-    "noPosts": "Nessun post in questo giorno."
+    "noPosts": "Nessun post in questo giorno.",
+    "selection": {
+      "selectMode": "Seleziona",
+      "cancelSelection": "Annulla",
+      "count": "{count} selezionati",
+      "selectAll": "Seleziona tutto",
+      "clear": "Cancella",
+      "reschedule": "Riprogramma",
+      "moveToDrafts": "Nelle bozze",
+      "delete": "Elimina",
+      "confirmDeleteBody": "Questa azione non è reversibile. I post già pubblicati non vengono toccati."
+    },
+    "bulkToasts": {
+      "rescheduled": "{count} post riprogrammati",
+      "movedToDrafts": "{count} post spostati nelle bozze",
+      "deleted": "{count} post eliminati",
+      "partial": "{succeeded} post su {total} aggiornati. {failed} non sono stati modificati.",
+      "failed": "Non è stato possibile modificare nulla. Riprova, oppure modifica i post uno alla volta."
+    }
   },
   "agenda": {
     "today": "Oggi",
