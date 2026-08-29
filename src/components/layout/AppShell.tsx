@@ -11,6 +11,7 @@ import { useOnboardingStatus } from "@/components/providers/useOnboardingStatus"
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { VerifyEmailBanner } from "./VerifyEmailBanner";
 import { InvitesBanner } from "./InvitesBanner";
+import { ChannelHealthBanner } from "./ChannelHealthBanner";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -82,6 +83,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <TrialBanner />
         <VerifyEmailBanner />
         <InvitesBanner />
+        {/* A dead token used to announce itself as a failed publish, days
+            later. Below the account-level banners: those block work, this
+            one warns about it. */}
+        <ChannelHealthBanner />
         <Header />
         <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-5 pb-8 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
           {children}

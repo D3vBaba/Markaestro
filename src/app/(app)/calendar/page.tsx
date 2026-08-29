@@ -8,6 +8,7 @@ import { AlertCircle, ArrowLeft, ChevronLeft, ChevronRight, X, Plus } from "luci
 import { apiGet, apiPut } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { toast } from "sonner";
+import { toastApiError } from "@/lib/error-toast";
 import Link from "next/link";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -719,7 +720,11 @@ function CalendarPageContent() {
         clearOverride(post.id);
       } else {
         clearOverride(post.id);
-        toast.error(t("rescheduleFailedToast"));
+        // A reschedule is refused for specific, statable reasons (the post is
+        // mid-publish, the time is in the past, the channel is not ready).
+        // The chip snapping back with a generic toast told the user none of
+        // them.
+        toastApiError(res.data, t("rescheduleFailedToast"));
       }
     } catch {
       clearOverride(post.id);

@@ -37,6 +37,13 @@ export type ManagedSocialChannelStatus = ManagedSocialChannel & {
   destinations: ManagedSocialChannelDestination[];
   capabilities: string[];
   lastRefreshError?: string | null;
+  /**
+   * The long-lived token exchange failed at connect time and this connection
+   * is running on a short-lived token (see EH-07). It works right now and dies
+   * in about an hour instead of about sixty days, which is why it needs
+   * surfacing before a publish discovers it.
+   */
+  tokenExchangeDegraded?: boolean;
 };
 
 type ScopedConnection = { connection: PlatformConnection; scope: 'workspace' | 'product' };
@@ -211,6 +218,7 @@ function buildStatus(
       destinations: [],
       capabilities: [],
       lastRefreshError: null,
+      tokenExchangeDegraded: false,
     };
   }
 
@@ -228,6 +236,7 @@ function buildStatus(
       destinations: [],
       capabilities: [...adapter.capabilities],
       lastRefreshError: null,
+      tokenExchangeDegraded: false,
     };
   }
 
@@ -245,6 +254,12 @@ function buildStatus(
     destinations,
     capabilities: [...adapter.capabilities],
     lastRefreshError: primary.lastRefreshError,
+    // Any connection serving this channel running on a short-lived token is
+    // enough to flag it: the channel is only as durable as the credential the
+    // next publish happens to pick.
+    tokenExchangeDegraded: matches.some(
+      (match) => match.connection.metadata?.tokenExchangeDegraded === true,
+    ),
   };
 }
 

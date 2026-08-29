@@ -26,6 +26,12 @@
     "networkError": "Error de red. Comprueba tu conexión e inténtalo de nuevo.",
     "default": "Error de autenticación. Inténtalo de nuevo."
   },
+  "requestErrors": {
+    "malformedResponse": "El servidor envió una respuesta que no pudimos leer. Inténtalo de nuevo.",
+    "internalError": "Algo salió mal por nuestra parte. Inténtalo de nuevo.",
+    "timeout": "La solicitud tardó demasiado. Inténtalo de nuevo.",
+    "reference": "Referencia: {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "marca",
@@ -35,7 +41,8 @@
       "post": "publicación",
       "workspace": "espacio de trabajo",
       "account": "cuenta",
-      "experiment": "experimento"
+      "experiment": "experimento",
+      "mediaAsset": "archivo multimedia"
     },
     "titleGeneric": "Eliminar {entity}",
     "titleNamed": "¿Eliminar {entity}?",

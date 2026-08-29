@@ -3,6 +3,7 @@ import { ZodError } from 'zod';
 import * as Sentry from '@sentry/nextjs';
 import crypto from 'crypto';
 import { logger } from '@/lib/logger';
+import { getRequestId } from '@/lib/request-context';
 
 export function publicValidationIssueMessage(code: string): string {
   switch (code) {
@@ -18,6 +19,66 @@ export function publicValidationIssueMessage(code: string): string {
 }
 
 /**
+ * A validation failure that carries a human-readable explanation and the
+ * machine-readable facts behind it (which field, which channel, what limit).
+ *
+ * A bare `throw new Error('VALIDATION_TOO_MANY_MEDIA_ASSETS')` maps to a 400
+ * whose body is the code and nothing else, which leaves the caller guessing
+ * at the actual ceiling. Throw this instead whenever the limit is dynamic
+ * (per channel, per plan, per surface) so the response can state it.
+ */
+export class ApiValidationError extends Error {
+  readonly userMessage: string;
+  readonly details: Record<string, unknown>;
+
+  constructor(code: string, userMessage: string, details: Record<string, unknown> = {}) {
+    super(code);
+    this.name = 'ApiValidationError';
+    this.userMessage = userMessage;
+    this.details = details;
+  }
+}
+
+/**
+ * Copy the application authored, safe to render verbatim in the UI.
+ *
+ * `error` is a machine code, `message` is legacy and shared with routes that
+ * proxy provider payloads, and neither is a safe render target on its own.
+ * `userMessage` is set ONLY here and only from strings in this repository, so
+ * `userFacingError()` on the client can render it without the risk that made
+ * it discard `message` in the first place: provider text, filenames, opaque
+ * ids, and raw HTTP bodies can never reach this field. The unknown-error
+ * branch at the bottom of `apiError` deliberately never sets it.
+ */
+export function authoredError(
+  code: string,
+  userMessage: string,
+  init: { status: number; details?: Record<string, unknown> },
+): NextResponse {
+  return NextResponse.json(
+    {
+      error: code,
+      // `message` is kept for existing API consumers; `userMessage` is the
+      // field the UI reads.
+      message: userMessage,
+      userMessage,
+      ...(init.details || {}),
+      requestId: currentRequestId(),
+    },
+    { status: init.status },
+  );
+}
+
+/**
+ * The id the edge minted for this request, so the value in a user's error
+ * toast matches every log line the request emitted. Falls back to a fresh id
+ * only outside a request (direct unit-test calls, background work).
+ */
+function currentRequestId(): string {
+  return getRequestId() ?? crypto.randomUUID();
+}
+
+/**
  * Centralized API error → HTTP response mapper.
  * Handles Zod validation errors, known error codes, and unknown errors.
  */
@@ -26,7 +87,7 @@ export function apiError(error: unknown): NextResponse {
   // Preserve it instead of converting it into a generic 500 response.
   if (error instanceof Response) return error as NextResponse;
 
-  const requestId = crypto.randomUUID();
+  const requestId = currentRequestId();
 
   // Zod validation errors → 400 with field-level details
   if (error instanceof ZodError) {
@@ -52,6 +113,14 @@ export function apiError(error: unknown): NextResponse {
     );
   }
 
+  // Structured validation errors carry their own message and details.
+  if (error instanceof ApiValidationError) {
+    return authoredError(error.message, error.userMessage, {
+      status: 400,
+      details: error.details,
+    });
+  }
+
   const msg = error instanceof Error ? error.message : String(error);
 
   // Known error codes
@@ -71,22 +140,16 @@ export function apiError(error: unknown): NextResponse {
     return NextResponse.json({ error: msg, requestId }, { status: 402 });
   }
   if (msg === 'BRAND_LIMIT_REACHED') {
-    return NextResponse.json(
-      {
-        error: msg,
-        message: 'Your plan has reached its brand limit. Upgrade your plan or add a brand pack to create another brand.',
-        requestId,
-      },
+    return authoredError(
+      msg,
+      'Your plan has reached its brand limit. Upgrade your plan or add a brand pack to create another brand.',
       { status: 402 },
     );
   }
   if (msg === 'CHANNEL_LIMIT_REACHED') {
-    return NextResponse.json(
-      {
-        error: msg,
-        message: 'Your plan limits how many channels each brand can connect. Upgrade your plan or disconnect a channel to add another.',
-        requestId,
-      },
+    return authoredError(
+      msg,
+      'Your plan limits how many channels each brand can connect. Upgrade your plan or disconnect a channel to add another.',
       { status: 402 },
     );
   }
@@ -136,8 +199,9 @@ export function apiError(error: unknown): NextResponse {
     return NextResponse.json({ error: msg, requestId }, { status: 400 });
   }
 
-  // Unknown errors — don't leak internals
-  console.error(`[${requestId}] Unhandled API error:`, error);
+  // Unknown errors — don't leak internals. No `userMessage`: whatever this
+  // was, nobody wrote copy for it, so the client renders its own fallback.
+  logger.error('unhandled API error', { event: 'api.unhandled_error', requestId, err: error });
   Sentry.captureException(error, { tags: { requestId } });
   return NextResponse.json(
     { error: 'INTERNAL_ERROR', requestId },

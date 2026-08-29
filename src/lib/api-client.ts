@@ -91,8 +91,61 @@ function timeoutResult<T>(): { ok: boolean; status: number; data: T } {
   return {
     ok: false,
     status: 408,
-    data: { error: 'REQUEST_TIMEOUT', message: 'The request timed out. Please try again.' } as T,
+    data: {
+      error: 'REQUEST_TIMEOUT',
+      message: 'The request timed out. Please try again.',
+      userMessage: 'The request timed out. Please try again.',
+    } as T,
   };
+}
+
+/** Header carrying the id that ties a client failure to the server's logs. */
+const REQUEST_ID_HEADER = 'x-request-id';
+
+/**
+ * Client-minted request id, sent up so a user reporting "it failed at 3pm"
+ * can be traced from a screenshot. The edge adopts it when it matches the
+ * shape it validates (`[A-Za-z0-9_-]{8,128}`) and mints its own otherwise, so
+ * a browser without `crypto.randomUUID` simply loses the correlation rather
+ * than breaking the request.
+ */
+function newClientRequestId(): string | null {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+  } catch {
+    // Non-secure contexts throw rather than returning undefined.
+  }
+  return null;
+}
+
+/**
+ * Parse a JSON body without letting a non-JSON response escape as a thrown
+ * SyntaxError.
+ *
+ * Cloud Run 502s, load-balancer error pages, and Next's own HTML 500 page are
+ * all bodies that `res.json()` rejects on. Every call site destructures
+ * `{ ok, data }` without a try, so that rejection used to surface as an
+ * unhandled error inside React instead of a failed request. The `ok`/`status`
+ * contract now always holds.
+ */
+async function parseJsonBody<T>(res: Response, requestId: string | null): Promise<T> {
+  const data = await res.json().catch(() => null);
+  if (data && typeof data === 'object') {
+    // Prefer the server's own id; fall back to what we sent so a failure with
+    // no parseable body is still traceable.
+    const record = data as Record<string, unknown>;
+    if (typeof record.requestId !== 'string') {
+      const serverId = res.headers.get(REQUEST_ID_HEADER) || requestId;
+      if (serverId) record.requestId = serverId;
+    }
+    return data as T;
+  }
+  return {
+    error: res.ok ? 'MALFORMED_RESPONSE' : 'INTERNAL_ERROR',
+    requestId: res.headers.get(REQUEST_ID_HEADER) || requestId || undefined,
+  } as T;
 }
 
 function isAbortError(err: unknown): boolean {
@@ -114,6 +167,7 @@ export async function apiFetch<T = unknown>(
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const requestId = newClientRequestId();
 
   try {
     const res = await fetch(path, {
@@ -123,12 +177,13 @@ export async function apiFetch<T = unknown>(
       signal: fetchInit.signal ?? controller.signal,
       headers: {
         'Content-Type': 'application/json',
+        ...(requestId ? { [REQUEST_ID_HEADER]: requestId } : {}),
         ...(fetchInit.headers || {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
 
-    const data = await res.json();
+    const data = await parseJsonBody<T>(res, requestId);
     notifyIfWorkspaceForbidden(res.status, data);
     return { ok: res.ok, status: res.status, data };
   } catch (err) {
@@ -283,15 +338,19 @@ export async function apiUpload<T = unknown>(
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+  const requestId = newClientRequestId();
 
   try {
     const res = await fetch(withWorkspaceQuery(path, wsId), {
       method: 'POST',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,
       signal: controller.signal,
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(requestId ? { [REQUEST_ID_HEADER]: requestId } : {}),
+      },
     });
-    const data = await res.json();
+    const data = await parseJsonBody<T>(res, requestId);
     notifyIfWorkspaceForbidden(res.status, data);
     return { ok: res.ok, status: res.status, data };
   } catch (err) {

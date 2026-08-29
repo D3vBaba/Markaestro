@@ -60,6 +60,17 @@
       "queueLink": "فتح قائمة الانتظار للنشر: {url}"
     }
   },
+  "channelHealth": {
+    "subject": "أعد ربط {channelLabel} قبل منشورك المجدول التالي",
+    "preheader": "لا يمكن لـ {channelLabel} النشر في الوقت الحالي.",
+    "bodyIntro": "لديك {count} منشورات مجدولة خلال الـ 24 ساعة القادمة تحتاج إلى {channelLabel}، ولا يمكن لـ {channelLabel} النشر في الوقت الحالي. أعد ربطه وسيعمل الجدول كما هو مخطط.",
+    "cta": "إعادة ربط القناة",
+    "footerNote": "تصلك هذه الرسالة لأن منشورًا مجدولًا في مساحة عمل Markaestro يستخدم قناة غير جاهزة.",
+    "plain": {
+      "heading": "أعد ربط {channelLabel} قبل منشورك المجدول التالي",
+      "reconnectLink": "إعادة ربط القناة: {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "أكمل منشور TikTok الخاص بـ {brandName}",
     "subjectNoBrand": "أكمل منشور TikTok الخاص بك",

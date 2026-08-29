@@ -4,6 +4,7 @@ import {
   assertSafeOutboundUrl,
   readResponseBufferWithLimit,
 } from '@/lib/network-security';
+import { apiError } from '@/lib/api-response';
 
 export const runtime = 'nodejs';
 
@@ -42,8 +43,22 @@ function isAllowedStorageUrl(url: URL): boolean {
  * a safe JPEG payload so TikTok's size checks pass consistently.
  *
  * GET /api/media/proxy?url=<encoded-url>
+ *
+ * The body below used to run outside any `try`. An upstream fetch rejection, a
+ * `readResponseBufferWithLimit` overflow, or a `sharp` decode failure on a
+ * corrupt image escaped as a framework 500: no requestId, no apiError shape,
+ * and a body the client could not parse. A failed proxy is a failed image, so
+ * there is no better degradation than saying so in the standard shape.
  */
 export async function GET(req: NextRequest) {
+  try {
+    return await proxyImage(req);
+  } catch (error) {
+    return apiError(error);
+  }
+}
+
+async function proxyImage(req: NextRequest) {
   const rawUrl = req.nextUrl.searchParams.get('url');
   if (!rawUrl) {
     return NextResponse.json({ error: 'Missing url parameter' }, { status: 400 });

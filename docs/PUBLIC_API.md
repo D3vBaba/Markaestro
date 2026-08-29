@@ -107,6 +107,39 @@ several products, create one key per product.
 - `POST /api/public/v1/webhook-endpoints`
 - `GET /api/public/v1/webhook-endpoints`
 - `DELETE /api/public/v1/webhook-endpoints/:id`
+- `GET /api/public/v1/webhook-endpoints/:id/deliveries` — `?cursor=`, `?limit=` (max 100)
+
+### Webhook delivery history
+
+`GET /api/public/v1/webhook-endpoints/:id/deliveries` returns the attempts made
+against one endpoint, newest first, so an integration can see for itself
+whether its receiver has been rejecting events:
+
+```json
+{
+  "data": [
+    {
+      "id": "del_...",
+      "eventType": "post.published",
+      "status": "failed",
+      "attemptCount": 5,
+      "responseCode": 500,
+      "lastError": "Webhook responded 500",
+      "createdAt": "2026-08-29T10:00:00.000Z",
+      "lastAttemptAt": "2026-08-29T11:04:00.000Z",
+      "nextAttemptAt": null
+    }
+  ],
+  "nextCursor": null
+}
+```
+
+`status` is `pending`, `retrying`, `delivered`, or `failed`. A `failed`
+delivery is terminal: retries are exhausted and it will not be attempted
+again. `lastError` is truncated, and the delivered payload is deliberately not
+echoed back (your endpoint already received it).
+
+Requires the `webhooks.manage` scope.
 
 > **Connecting an off-the-shelf scheduling client** that speaks the common
 > snake_case `create-upload-url → PUT → post` convention? See the
@@ -115,6 +148,10 @@ several products, create one key per product.
 > `<host>/api/connect`).
 
 ## Publish behavior
+
+> These defaults apply to the native `/api/public/v1` surface. Posts created
+> through the [Connect API](#connect-api-compatibility-surface) always opt into
+> API publishing instead.
 
 Delivery modes (`deliveryMode` on create, optional):
 - `manual_reminder` — **default for `facebook`, `instagram`, and `tiktok`.** The
@@ -492,13 +529,17 @@ resulting `media_id` is a normal Markaestro media asset usable in `POST /posts`.
 - `POST /api/connect/v1/posts` is draft-first by default.
 - When `is_draft=false` and a valid ISO `scheduled_at` are both supplied, the
   created posts are scheduled for that time. Any other combination remains a
-  draft. Scheduled TikTok posts use the creator-inbox handoff; other supported
-  channels use their direct-publish delivery mode.
+  draft.
 - Publish from the Markaestro app or a supported explicit publish endpoint.
-- **Facebook, Instagram, and TikTok posts default to manual publishing**
-  (`manual_reminder`) — publishing moves them to an action-required state and
-  the workspace user posts natively from the Markaestro reminder queue. No
-  platform API is called for these posts.
+- **Connect posts always use API publishing**, whether scheduled up front or
+  saved as a draft and published later: `direct_publish` on Facebook,
+  Instagram, and LinkedIn, and `platform_inbox` (the creator-inbox handoff) on
+  TikTok. This differs from the native public API, where Meta and TikTok
+  channels default to `manual_reminder` and the client opts in per post. A
+  Connect client is an explicit publishing integration, so it opts in for
+  every post it creates.
+- Publishing a Connect post therefore requires a connected destination for
+  that channel.
 
 ## Example flow
 

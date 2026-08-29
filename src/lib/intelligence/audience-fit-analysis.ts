@@ -62,6 +62,10 @@ export async function createAudienceFitJob(input: {
     requestedBy: input.uid,
     request: input.request,
     idempotencyKey,
+    // The AI operation is charged by the route before this job is enqueued.
+    // The worker reads this to know it owes a refund if the job ultimately
+    // fails, which a bare counter could never tell it.
+    aiOperationCharged: true,
     attempts: 0,
     nextAttemptAt: now,
     createdAt: existing.data()?.createdAt || now,

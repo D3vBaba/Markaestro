@@ -123,3 +123,164 @@ describe('metaPublishingAdapter — Instagram Login publishing', () => {
     expect(result.error).toContain(IG_LOGIN_UNSUPPORTED_MESSAGE);
   });
 });
+
+describe('metaPublishingAdapter — Instagram carousels', () => {
+  beforeEach(() => {
+    graphApiFetchMock.mockReset();
+  });
+
+  function images(count: number): string[] {
+    return Array.from({ length: count }, (_, i) => `https://cdn.example.com/img-${i}.jpg`);
+  }
+
+  /**
+   * Serves a full carousel publish and records how the child containers were
+   * created: the order they were requested in, and the highest number of
+   * simultaneously in-flight `/media` POSTs.
+   */
+  function mockCarouselPublish() {
+    const childBodies: Array<Record<string, unknown>> = [];
+    let inFlight = 0;
+    let peakInFlight = 0;
+    let childSeq = 0;
+
+    graphApiFetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+      if (url.includes('/me?')) return jsonResponse(200, { user_id: 'ig-user' });
+      if (url.includes('/media_publish')) return jsonResponse(200, { id: 'media-final' });
+      if (url.includes('/ig-user/media')) {
+        const body = JSON.parse(String(init?.body ?? '{}')) as Record<string, unknown>;
+        if (body.media_type === 'CAROUSEL') return jsonResponse(200, { id: 'parent-1' });
+        childBodies.push(body);
+        inFlight += 1;
+        peakInFlight = Math.max(peakInFlight, inFlight);
+        // Yield so concurrent calls overlap; a sequential loop never will.
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        inFlight -= 1;
+        return jsonResponse(200, { id: `child-${childSeq++}` });
+      }
+      if (/\/(child-\d+|parent-1)\?/.test(url)) return jsonResponse(200, { status_code: 'FINISHED' });
+      if (url.includes('/media-final?')) return jsonResponse(200, { permalink: 'https://instagram.com/p/c' });
+      throw new Error(`Unexpected URL: ${url}`);
+    });
+
+    return { childBodies, peak: () => peakInFlight };
+  }
+
+  it('publishes a 10-image carousel through child containers and a CAROUSEL parent', async () => {
+    const { metaPublishingAdapter } = await import('@/lib/platform/adapters/meta-publishing');
+    const { childBodies } = mockCarouselPublish();
+
+    const result = await metaPublishingAdapter.publish(igConnection(), {
+      channel: 'instagram',
+      content: 'launch week',
+      mediaUrls: images(10),
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.externalId).toBe('media-final');
+    expect(childBodies).toHaveLength(10);
+    expect(childBodies.every((body) => body.is_carousel_item === true)).toBe(true);
+    // The caption belongs on the parent only; children carry none.
+    expect(childBodies.every((body) => body.caption === undefined)).toBe(true);
+
+    const parentCall = graphApiFetchMock.mock.calls.find(([, init]) => {
+      const body = JSON.parse(String((init as RequestInit | undefined)?.body ?? '{}'));
+      return body.media_type === 'CAROUSEL';
+    });
+    const parentBody = JSON.parse(String((parentCall?.[1] as RequestInit).body));
+    expect(parentBody.caption).toBe('launch week');
+    expect(String(parentBody.children).split(',')).toHaveLength(10);
+  });
+
+  it('creates child containers in small batches instead of one 10-wide burst', async () => {
+    const { metaPublishingAdapter } = await import('@/lib/platform/adapters/meta-publishing');
+    const { peak } = mockCarouselPublish();
+
+    await metaPublishingAdapter.publish(igConnection(), {
+      channel: 'instagram',
+      content: 'launch week',
+      mediaUrls: images(10),
+    });
+
+    expect(peak()).toBeLessThanOrEqual(3);
+  });
+
+  it('applies per-child alt text by index', async () => {
+    const { metaPublishingAdapter } = await import('@/lib/platform/adapters/meta-publishing');
+    const { childBodies } = mockCarouselPublish();
+
+    await metaPublishingAdapter.publish(igConnection(), {
+      channel: 'instagram',
+      content: 'launch week',
+      mediaUrls: images(4),
+      settings: { __type: 'instagram', altText: ['first', 'second', 'third', 'fourth'] },
+    } as never);
+
+    expect(childBodies.map((body) => body.alt_text)).toEqual(['first', 'second', 'third', 'fourth']);
+  });
+
+  it('stops creating children after a failing batch and reports the child error', async () => {
+    const { metaPublishingAdapter } = await import('@/lib/platform/adapters/meta-publishing');
+
+    let childCalls = 0;
+    graphApiFetchMock.mockImplementation(async (url: string) => {
+      if (url.includes('/me?')) return jsonResponse(200, { user_id: 'ig-user' });
+      if (url.includes('/ig-user/media')) {
+        childCalls += 1;
+        if (childCalls === 2) {
+          return jsonResponse(400, { error: { code: 4, message: 'Application request limit reached' } });
+        }
+        return jsonResponse(200, { id: `child-${childCalls}` });
+      }
+      throw new Error(`Unexpected URL: ${url}`);
+    });
+
+    const result = await metaPublishingAdapter.publish(igConnection(), {
+      channel: 'instagram',
+      content: 'launch week',
+      mediaUrls: images(9),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Application request limit reached');
+    // Only the first batch ran; the remaining six were never attempted.
+    expect(childCalls).toBe(3);
+  });
+
+  it('refuses more media than the carousel limit rather than dropping the extras', async () => {
+    const { metaPublishingAdapter } = await import('@/lib/platform/adapters/meta-publishing');
+    graphApiFetchMock.mockImplementation(async (url: string) => {
+      throw new Error(`Unexpected URL: ${url}`);
+    });
+
+    const result = await metaPublishingAdapter.publish(igConnection(), {
+      channel: 'instagram',
+      content: 'too many',
+      mediaUrls: images(11),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('maximum of 10 media items');
+    expect(result.error).toContain('11');
+    expect(graphApiFetchMock).not.toHaveBeenCalled();
+  });
+
+  it('explains how to resolve a story that carries carousel media', async () => {
+    const { metaPublishingAdapter } = await import('@/lib/platform/adapters/meta-publishing');
+    graphApiFetchMock.mockImplementation(async (url: string) => {
+      if (url.includes('/me?')) return jsonResponse(200, { user_id: 'ig-user' });
+      throw new Error(`Unexpected URL: ${url}`);
+    });
+
+    const result = await metaPublishingAdapter.publish(igConnection(), {
+      channel: 'instagram',
+      content: 'story',
+      mediaUrls: images(3),
+      settings: { __type: 'instagram', postType: 'story' },
+    } as never);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('single image or video');
+    expect(result.error).toContain('feed');
+  });
+});

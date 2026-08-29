@@ -1,4 +1,5 @@
 import { decrypt } from '@/lib/crypto';
+import { logger } from '@/lib/logger';
 import { emptyMetrics, getAccessToken, getMeta, metricNum } from '../base-adapter';
 import { graphApiFetch, checkIgPublishingQuota, checkPagePublishingAccess } from '../meta-graph-api';
 import { PlatformCapability } from '../types';
@@ -35,6 +36,22 @@ const IG_QUOTA_MIN_REMAINING = 3;
 /** Video containers take longer to process than images. */
 const VIDEO_POLL_INTERVAL_MS = 5000;
 const VIDEO_POLL_MAX_ATTEMPTS = 60; // ~5 minutes
+
+/** Instagram's carousel ceiling. Mirrors the `instagram` channel catalog entry. */
+const IG_MAX_CAROUSEL_ITEMS = 10;
+
+/**
+ * Carousel children are created a few at a time rather than all at once.
+ * Ten simultaneous POSTs to /media are a burst against a per-app rate limit
+ * that the rest of the workspace shares, and a throttled child fails the whole
+ * publish while leaving the containers already created to expire unused.
+ */
+const IG_CHILD_CREATE_BATCH_SIZE = 3;
+const IG_CHILD_CREATE_BATCH_DELAY_MS = 250;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function isVideoUrl(url: string): boolean {
   const lower = url.toLowerCase();
@@ -433,9 +450,14 @@ async function publishToInstagram(
     return { success: false, error: 'Instagram requires media (image or video). Text-only posts are not supported.' };
   }
 
-  // Instagram carousel limit: 10
-  if (mediaUrls.length > 10) {
-    mediaUrls = mediaUrls.slice(0, 10);
+  // Publishing 10 of 12 images and reporting success would leave the caller
+  // believing a post went out that never existed. Refuse instead, and name the
+  // limit so the caller knows what to remove.
+  if (mediaUrls.length > IG_MAX_CAROUSEL_ITEMS) {
+    return {
+      success: false,
+      error: `Instagram allows a maximum of ${IG_MAX_CAROUSEL_ITEMS} media items per carousel. This post has ${mediaUrls.length}. Remove the extra items and publish again.`,
+    };
   }
 
   const accessToken = resolveAccessToken(connection);
@@ -465,7 +487,10 @@ async function publishToInstagram(
 
   const isStory = settings?.postType === 'story';
   if (isStory && mediaUrls.length > 1) {
-    return { success: false, error: 'Instagram stories support a single image or video, not carousels.' };
+    return {
+      success: false,
+      error: `Instagram stories accept a single image or video, and this post has ${mediaUrls.length} media items. Publish it as a feed carousel (settings.postType "feed"), or reduce it to one item to post it as a story.`,
+    };
   }
   const altTexts = settings?.altText ?? [];
   const collaborators = settings?.collaborators;
@@ -489,16 +514,34 @@ async function publishToInstagram(
     } else {
       // Carousel: create one child container per media item (image or video).
       // alt_text is set per child where provided; collaborators are set on the parent only.
-      const children = await Promise.all(
-        mediaUrls.map((url, idx) => {
-          const childParams = isVideoUrl(url)
-            ? { videoUrl: url, isCarouselItem: true as const }
-            : { imageUrl: url, isCarouselItem: true as const, altText: altTexts[idx] };
-          return createIgMediaContainer(graphApi, igAccountId, accessToken, childParams);
-        }),
-      );
+      const children: Array<{ id?: string; error?: string }> = [];
+      for (let start = 0; start < mediaUrls.length; start += IG_CHILD_CREATE_BATCH_SIZE) {
+        if (start > 0) await sleep(IG_CHILD_CREATE_BATCH_DELAY_MS);
+        const batch = mediaUrls.slice(start, start + IG_CHILD_CREATE_BATCH_SIZE);
+        const created = await Promise.all(
+          batch.map((url, offset) => {
+            const idx = start + offset;
+            const childParams = isVideoUrl(url)
+              ? { videoUrl: url, isCarouselItem: true as const }
+              : { imageUrl: url, isCarouselItem: true as const, altText: altTexts[idx] };
+            return createIgMediaContainer(graphApi, igAccountId, accessToken, childParams);
+          }),
+        );
+        children.push(...created);
+        // Stop at the first failing batch. Later children would only add more
+        // containers to the ones already stranded by this publish.
+        if (created.some((c) => c.error)) break;
+      }
       const childFail = children.find((c) => c.error);
       if (childFail) {
+        const stranded = children.filter((c) => c.id).length;
+        logger.warn('Instagram carousel child container failed; earlier containers expire unused', {
+          event: 'publish.instagram.carousel_child_failed',
+          mediaCount: mediaUrls.length,
+          attempted: children.length,
+          strandedContainers: stranded,
+          err: childFail.error,
+        });
         return { success: false, error: `Instagram carousel child error: ${childFail.error}` };
       }
       const childIds = children.map((c) => c.id).filter((id): id is string => !!id);

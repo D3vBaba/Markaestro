@@ -60,6 +60,17 @@
       "queueLink": "게시 대기열 열기: {url}"
     }
   },
+  "channelHealth": {
+    "subject": "다음 예약 게시물 전에 {channelLabel}을(를) 다시 연결하세요",
+    "preheader": "{channelLabel}이(가) 지금은 게시할 수 없습니다.",
+    "bodyIntro": "앞으로 24시간 안에 {channelLabel}이(가) 필요한 예약 게시물이 {count}건 있습니다. 지금은 {channelLabel}이(가) 게시할 수 없습니다. 다시 연결하면 예약대로 진행됩니다.",
+    "cta": "채널 다시 연결",
+    "footerNote": "Markaestro 워크스페이스의 예약 게시물이 준비되지 않은 채널을 사용하고 있어 이 메일을 보냅니다.",
+    "plain": {
+      "heading": "다음 예약 게시물 전에 {channelLabel}을(를) 다시 연결하세요",
+      "reconnectLink": "채널 다시 연결: {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "{brandName}의 TikTok 게시물을 완료하세요",
     "subjectNoBrand": "TikTok 게시물을 완료하세요",

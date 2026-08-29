@@ -4,6 +4,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { logger } from '@/lib/logger';
 import { getWebhookEndpointDeliveryConfig } from './webhooks';
 import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
+import { assertSafeWebhookUrl } from './webhook-url';
 
 const MAX_WEBHOOK_DELIVERIES_PER_WORKSPACE = 25;
 const WEBHOOK_DELIVERY_CONCURRENCY = 5;
@@ -131,6 +132,13 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
     const timeout = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
 
     try {
+      // Re-check the destination on every attempt, not just at registration:
+      // a hostname that resolved publicly when the endpoint was created can
+      // resolve to a private address later (DNS rebinding). A throw here lands
+      // in the catch below and is recorded as a retryable failure, which is
+      // the correct fail-closed behaviour.
+      await assertSafeWebhookUrl(config.url);
+
       const response = await fetch(config.url, {
         method: 'POST',
         headers: {
@@ -140,6 +148,9 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
           'X-Markaestro-Signature': signature,
         },
         body,
+        // Following a redirect would let a public URL bounce the request into
+        // the private network, defeating the check above. Matches media/proxy.
+        redirect: 'error',
         signal: controller.signal,
       });
 

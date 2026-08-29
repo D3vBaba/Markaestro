@@ -1,13 +1,11 @@
 // Public API: DELETE /api/public/v1/media/{id}
-// Removes a media asset (doc + storage object) and releases its bytes from
-// the workspace's cumulative storage usage. Posts that already embedded the
-// asset's URL keep the dangling reference — deleting in-use media is the
-// caller's responsibility.
-import { adminDb } from '@/lib/firebase-admin';
+// Removes a media asset (doc + storage object) and releases its bytes from the
+// workspace's cumulative storage usage. Assets held by a scheduled or
+// publishing post are refused; assets held only by published posts are deleted
+// with a warning, since the platform keeps its own copy.
 import { requirePublicApiContext } from '@/lib/public-api/auth';
-import type { PublicMediaAsset } from '@/lib/public-api/media';
 import { publicApiError } from '@/lib/public-api/response';
-import { refundStorage } from '@/lib/usage';
+import { deleteMediaAsset } from '@/lib/media/asset-store';
 
 export const runtime = 'nodejs';
 
@@ -25,21 +23,12 @@ export async function DELETE(
     const { id } = await params;
     if (!/^ast_[a-f0-9-]{36}$/.test(id)) throw new Error('NOT_FOUND');
 
-    const assetRef = adminDb.doc(`workspaces/${ctx.workspaceId}/media_assets/${id}`);
-    const snap = await assetRef.get();
-    if (!snap.exists) throw new Error('NOT_FOUND');
-    const asset = snap.data() as PublicMediaAsset;
+    // Shared with the app's DELETE /api/media/[id]: same ordering (object, then
+    // doc, then refund) and the same in-use check, so the two surfaces cannot
+    // disagree about whether an asset is safe to remove.
+    const result = await deleteMediaAsset(ctx.workspaceId, id);
 
-    if (asset.storagePath) {
-      const admin = await import('firebase-admin');
-      await admin.storage().bucket().file(asset.storagePath).delete({ ignoreNotFound: true });
-    }
-    await assetRef.delete();
-    // Release the bytes only after doc + object are gone, so a failed delete
-    // never under-counts. Legacy assets without a recorded size release 0.
-    await refundStorage(ctx.workspaceId, Number(asset.sizeBytes) || 0);
-
-    return Response.json({ deleted: true, id }, { headers: ctx.rateLimitHeaders });
+    return Response.json(result, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);
   }

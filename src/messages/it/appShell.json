@@ -96,6 +96,14 @@
   },
   "inbox": {
     "title": "Posta in arrivo",
-    "empty": "Nessuna notifica ancora."
+    "empty": "Nessuna notifica ancora.",
+    "markReadFailed": "Impossibile segnare come letto. Riprova."
+  },
+  "channelHealthBanner": {
+    "single": "{channel} non può pubblicare in questo momento. {reason}",
+    "multiple": "Questi canali non possono pubblicare in questo momento: {channels}",
+    "degraded": "La connessione di {channels} scadrà presto. Riconnettila per continuare a pubblicare.",
+    "genericReason": "Riconnettilo per continuare a pubblicare.",
+    "reconnect": "Riconnetti"
   }
 }

@@ -1,4 +1,5 @@
 import type { SocialChannel } from '@/lib/schemas';
+import { getSocialChannelConfig } from '@/lib/social/channel-catalog';
 import { normalizedMetricKeys, type NormalizedMetricKey, type NormalizedPostMetrics } from './types';
 
 export type MetricCapabilityState =
@@ -258,7 +259,10 @@ export const PLATFORM_CAPABILITY_REGISTRY: Readonly<Record<SocialChannel, Platfo
     rateLimitCategory: 'org_analytics',
     requiredScopes: ['boards:read', 'pins:read', 'user_accounts:read'],
     approval: { status: 'review_required', reconnectRequired: true, reviewRequirements: 'Pinterest app approval and eligible business context are required for analytics.', rateLimitNotes: 'Batch eligible Pins and honor endpoint rate-limit headers.', docsUrl: 'https://developers.pinterest.com/docs/analytics-and-reports/organic-reporting/', lastAuditedAt: '2026-08-25', sunsetAt: null },
-    publishing: { text: false, image: true, video: true, carousel: false, markaestroScheduling: true, nativeScheduling: false },
+    // carousel: true. The catalog allows 5 media items with `carousel` in
+    // mediaKinds and the adapter builds a real multiple_image_urls pin source,
+    // so the `false` that stood here was the only wrong copy of three.
+    publishing: { text: false, image: true, video: true, carousel: true, markaestroScheduling: true, nativeScheduling: false },
     history: { nativePostImport: true, lookbackDays: 90 },
     metrics: metrics({
       impressions: available(pinterestReadScopes),
@@ -330,4 +334,93 @@ export function assertMetricsSupported(channel: SocialChannel, metrics: Normaliz
       throw new Error(`PLATFORM_CAPABILITY_CONTRACT:${channel}:${key}`);
     }
   }
+}
+
+export type PublishingCapabilities = PlatformCapabilityContract['publishing'];
+
+/**
+ * Channels whose own platform scheduler we hand posts to.
+ *
+ * Empty today: every channel is scheduled by Markaestro's worker. Kept as an
+ * explicit set rather than a comment so `publishingCapabilitiesFor` has one
+ * source for the fact, and so adding a channel here is the whole change.
+ */
+const NATIVE_SCHEDULING = new Set<SocialChannel>();
+
+/**
+ * What a channel can actually publish, derived from the channel catalog.
+ *
+ * The registry's `publishing` block and the catalog's `mediaKinds` are two
+ * statements of one fact, and having two copies is how Pinterest ended up
+ * declaring `carousel: false` while the catalog allowed 5 media items and the
+ * adapter built a real `multiple_image_urls` pin source. The catalog is the
+ * better base: it carries the numeric limits the validator needs, and the
+ * registry only carries booleans.
+ *
+ * `nativeScheduling` stays hand-maintained on the registry. It is a fact about
+ * the platform's own scheduler, not about what we can send, so nothing in the
+ * catalog can derive it.
+ */
+export function publishingCapabilitiesFor(channel: SocialChannel): PublishingCapabilities {
+  const config = getSocialChannelConfig(channel);
+  if (!config) throw new Error(`PLATFORM_CAPABILITY_UNKNOWN_CHANNEL:${channel}`);
+  return {
+    text: config.mediaKinds.includes('text'),
+    image: config.mediaKinds.includes('image'),
+    video: config.mediaKinds.includes('video'),
+    carousel: config.mediaKinds.includes('carousel') && config.maxMediaItems > 1,
+    markaestroScheduling: true,
+    nativeScheduling: NATIVE_SCHEDULING.has(channel),
+  };
+}
+
+/** The shape of one outbound publish, in the terms the contract is written in. */
+export type PublishPayloadShape = {
+  hasText: boolean;
+  imageCount: number;
+  videoCount: number;
+};
+
+/**
+ * Runtime publishing contract, the counterpart to `assertMetricsSupported`.
+ *
+ * The metrics half of this registry has policed every adapter response since
+ * it was written. The publishing half had no enforcement at all, so a drifted
+ * declaration cost nothing until a user hit it. Returns a user-facing reason
+ * rather than throwing, because every caller is already in the business of
+ * turning a refusal into a per-channel message.
+ */
+export function publishingContractViolation(
+  channel: SocialChannel,
+  payload: PublishPayloadShape,
+): string | null {
+  const capabilities = publishingCapabilitiesFor(channel);
+  const config = getSocialChannelConfig(channel);
+  const label = config?.label ?? channel;
+  const mediaCount = payload.imageCount + payload.videoCount;
+
+  if (payload.videoCount > 0 && !capabilities.video) {
+    return `${label} does not support video posts.`;
+  }
+  if (payload.imageCount > 0 && !capabilities.image) {
+    return `${label} does not support image posts.`;
+  }
+  if (mediaCount === 0 && !capabilities.text) {
+    return `${label} requires at least one image or video. Text-only posts are not supported.`;
+  }
+  // The numeric limit, not the `carousel` flag. TikTok photo posts carry up to
+  // 35 images and are not a carousel in the platform's own vocabulary, so
+  // gating multi-image on `carousel` would refuse a post the product has
+  // always supported. `carousel` describes the format a platform exposes;
+  // `maxMediaItems` is the constraint a payload has to satisfy.
+  if (config && mediaCount > 1 && config.maxMediaItems <= 1) {
+    return `${label} allows one media item per post. This post has ${mediaCount}.`;
+  }
+  if (config && mediaCount > config.maxMediaItems) {
+    return `${label} allows a maximum of ${config.maxMediaItems} media items per post. This post has ${mediaCount}.`;
+  }
+  if (!payload.hasText && mediaCount === 0) {
+    return `${label} posts need a caption, an image, or a video.`;
+  }
+  return null;
 }

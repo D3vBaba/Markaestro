@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PlatformConnection } from '@/lib/platform/types';
 
 const requireContextMock = vi.fn();
+const requirePermissionMock = vi.fn();
 const getAdapterForChannelMock = vi.fn();
 const getConnectionForChannelMock = vi.fn();
 const getLinkedInConnectionForDestinationMock = vi.fn();
@@ -12,6 +13,13 @@ const firestoreUpdateMock = vi.fn();
 vi.mock('@/lib/server-auth', () => ({
   requireContext: requireContextMock,
 }));
+
+// Wraps the real implementation so existing role-based assertions keep working
+// while the permission call itself can be observed.
+vi.mock('@/lib/rbac', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/rbac')>();
+  return { ...actual, requirePermission: requirePermissionMock };
+});
 
 vi.mock('@/lib/platform/registry', () => ({
   getAdapterForChannel: getAdapterForChannelMock,
@@ -83,10 +91,14 @@ function deleteRequest(params: Record<string, string>) {
   return new Request(`http://localhost/api/social/posts?${qs.toString()}`, { method: 'DELETE' });
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   vi.clearAllMocks();
   requireContextMock.mockResolvedValue(ctx);
   firestoreGetMock.mockResolvedValue({ docs: [] });
+  // Default to real RBAC so role-based assertions still exercise the matrix;
+  // individual tests override when they want to force a refusal.
+  const rbac = await vi.importActual<typeof import('@/lib/rbac')>('@/lib/rbac');
+  requirePermissionMock.mockImplementation(rbac.requirePermission);
 });
 
 describe('GET /api/social/posts', () => {
@@ -182,6 +194,37 @@ describe('GET /api/social/posts', () => {
     const { GET } = await import('./route');
     const res = await GET(listRequest({ channel: 'facebook' }));
     expect(res.status).toBe(401);
+  });
+
+  it('requires dashboard.read, like every comparable read route', async () => {
+    // This route was the one handler out of 112 that called requireContext and
+    // then skipped the permission layer entirely. No role is locked out by the
+    // omission today (analyst holds dashboard.read), so the check is asserted
+    // directly rather than through a role that happens to fail.
+    const listPosts = vi.fn();
+    getAdapterForChannelMock.mockReturnValue({ listPosts });
+    getConnectionForChannelMock.mockResolvedValue(makeConnection());
+    requireContextMock.mockResolvedValue({ ...ctx, role: 'analyst' });
+
+    const { GET } = await import('./route');
+    await GET(listRequest({ channel: 'facebook' }));
+
+    expect(requirePermissionMock).toHaveBeenCalledWith(
+      expect.objectContaining({ workspaceId: 'ws_1' }),
+      'dashboard.read',
+    );
+  });
+
+  it('refuses a role without dashboard.read before touching the platform', async () => {
+    const listPosts = vi.fn();
+    getAdapterForChannelMock.mockReturnValue({ listPosts });
+    requirePermissionMock.mockImplementationOnce(() => { throw new Error('FORBIDDEN'); });
+
+    const { GET } = await import('./route');
+    const res = await GET(listRequest({ channel: 'facebook' }));
+
+    expect(res.status).toBe(403);
+    expect(listPosts).not.toHaveBeenCalled();
   });
 });
 

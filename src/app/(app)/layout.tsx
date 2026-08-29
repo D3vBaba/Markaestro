@@ -3,6 +3,7 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { SubscriptionProvider } from "@/components/providers/SubscriptionProvider";
 import { WorkspaceProvider } from "@/components/providers/WorkspaceProvider";
 import { PointerEventsGuard } from "@/components/providers/PointerEventsGuard";
+import { RequestErrorCopy } from "@/components/providers/RequestErrorCopy";
 import AppRouteShell from "@/components/layout/AppRouteShell";
 import { resolveAppLocale } from "@/lib/resolve-app-locale";
 
@@ -66,6 +67,8 @@ export default async function AppGroupLayout({
       {/* Outside the auth tree: a leaked pointer lock must be released even on
           the screens that render before providers resolve. */}
       <PointerEventsGuard />
+      {/* Localizes the transport-level error codes apiFetch synthesises. */}
+      <RequestErrorCopy />
       <AuthProvider>
         {/* Workspace outside Subscription: the plan shown is a property of
             the selected workspace, so subscription state re-fetches when the

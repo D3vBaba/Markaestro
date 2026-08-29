@@ -60,6 +60,17 @@
       "queueLink": "Ouvrir votre file de publication : {url}"
     }
   },
+  "channelHealth": {
+    "subject": "Reconnectez {channelLabel} avant votre prochaine publication programmée",
+    "preheader": "{channelLabel} ne peut pas publier pour le moment.",
+    "bodyIntro": "Vous avez {count} publications programmées dans les 24 prochaines heures qui nécessitent {channelLabel}, et {channelLabel} ne peut pas publier pour le moment. Reconnectez le canal et la programmation se déroulera comme prévu.",
+    "cta": "Reconnecter le canal",
+    "footerNote": "Vous recevez cet e-mail parce qu'une publication programmée dans votre espace Markaestro utilise un canal qui n'est pas prêt.",
+    "plain": {
+      "heading": "Reconnectez {channelLabel} avant votre prochaine publication programmée",
+      "reconnectLink": "Reconnecter le canal : {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "Finalisez votre publication TikTok pour {brandName}",
     "subjectNoBrand": "Finalisez votre publication TikTok",

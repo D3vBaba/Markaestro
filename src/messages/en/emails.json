@@ -60,6 +60,17 @@
       "queueLink": "Open your To Post queue: {url}"
     }
   },
+  "channelHealth": {
+    "subject": "Reconnect {channelLabel} before your next scheduled post",
+    "preheader": "{channelLabel} cannot publish right now.",
+    "bodyIntro": "You have {count} post(s) scheduled in the next 24 hours that need {channelLabel}, and {channelLabel} cannot publish right now. Reconnect it and the schedule will run as planned.",
+    "cta": "Reconnect the channel",
+    "footerNote": "You are receiving this because a scheduled post in your Markaestro workspace targets a channel that is not ready.",
+    "plain": {
+      "heading": "Reconnect {channelLabel} before your next scheduled post",
+      "reconnectLink": "Reconnect the channel: {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "Finish your TikTok post for {brandName}",
     "subjectNoBrand": "Finish your TikTok post",

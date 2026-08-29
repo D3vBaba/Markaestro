@@ -26,6 +26,12 @@
     "networkError": "Netzwerkfehler. Überprüfe deine Verbindung und versuche es erneut.",
     "default": "Anmeldung fehlgeschlagen. Bitte versuche es erneut."
   },
+  "requestErrors": {
+    "malformedResponse": "Der Server hat eine Antwort gesendet, die wir nicht lesen konnten. Bitte versuche es erneut.",
+    "internalError": "Auf unserer Seite ist etwas schiefgelaufen. Bitte versuche es erneut.",
+    "timeout": "Zeitüberschreitung der Anfrage. Bitte versuche es erneut.",
+    "reference": "Referenz: {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "Marke",
@@ -35,7 +41,8 @@
       "post": "Beitrag",
       "workspace": "Arbeitsbereich",
       "account": "Konto",
-      "experiment": "Experiment"
+      "experiment": "Experiment",
+      "mediaAsset": "Mediendatei"
     },
     "titleGeneric": "{entity} löschen",
     "titleNamed": "{entity} löschen?",

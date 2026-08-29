@@ -27,7 +27,7 @@ vi.mock('@/lib/workers/due-workspaces', () => ({
 }));
 
 vi.mock('@/lib/logger', () => ({
-  logger: { warn: vi.fn() },
+  logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn(), critical: vi.fn() },
 }));
 
 describe('public API webhook endpoint limits', () => {

@@ -60,6 +60,17 @@
       "queueLink": "Je publicatiewachtrij openen: {url}"
     }
   },
+  "channelHealth": {
+    "subject": "Verbind {channelLabel} opnieuw voor je volgende geplande post",
+    "preheader": "{channelLabel} kan op dit moment niet publiceren.",
+    "bodyIntro": "Je hebt {count} posts gepland in de komende 24 uur die {channelLabel} nodig hebben, en {channelLabel} kan op dit moment niet publiceren. Verbind het kanaal opnieuw en de planning loopt zoals bedoeld.",
+    "cta": "Kanaal opnieuw verbinden",
+    "footerNote": "Je ontvangt deze e-mail omdat een geplande post in je Markaestro-workspace een kanaal gebruikt dat niet gereed is.",
+    "plain": {
+      "heading": "Verbind {channelLabel} opnieuw voor je volgende geplande post",
+      "reconnectLink": "Kanaal opnieuw verbinden: {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "Rond je TikTok-bericht voor {brandName} af",
     "subjectNoBrand": "Rond je TikTok-bericht af",

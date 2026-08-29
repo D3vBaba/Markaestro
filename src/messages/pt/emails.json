@@ -60,6 +60,17 @@
       "queueLink": "Abrir sua fila de publicação: {url}"
     }
   },
+  "channelHealth": {
+    "subject": "Volte a ligar {channelLabel} antes da sua próxima publicação agendada",
+    "preheader": "{channelLabel} não consegue publicar neste momento.",
+    "bodyIntro": "Tem {count} publicações agendadas nas próximas 24 horas que precisam de {channelLabel}, e {channelLabel} não consegue publicar neste momento. Volte a ligá-lo e o agendamento seguirá como previsto.",
+    "cta": "Voltar a ligar o canal",
+    "footerNote": "Recebe este email porque uma publicação agendada no seu espaço Markaestro usa um canal que não está pronto.",
+    "plain": {
+      "heading": "Volte a ligar {channelLabel} antes da sua próxima publicação agendada",
+      "reconnectLink": "Voltar a ligar o canal: {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "Finalize sua publicação do TikTok para {brandName}",
     "subjectNoBrand": "Finalize sua publicação do TikTok",

@@ -37,7 +37,8 @@
   },
   "inbox": {
     "title": "Inbox",
-    "empty": "No notifications yet."
+    "empty": "No notifications yet.",
+    "markReadFailed": "Could not mark that as read. Please try again."
   },
   "commandPalette": {
     "title": "Command palette",
@@ -97,5 +98,12 @@
     "declined": "Invitation to {workspaceName} declined",
     "acceptError": "Couldn't accept the invitation. Please try again.",
     "declineError": "Couldn't decline the invitation. Please try again."
+  },
+  "channelHealthBanner": {
+    "single": "{channel} cannot publish right now. {reason}",
+    "multiple": "These channels cannot publish right now: {channels}",
+    "degraded": "The connection for {channels} will expire soon. Reconnect it to keep publishing.",
+    "genericReason": "Reconnect it to keep publishing.",
+    "reconnect": "Reconnect"
   }
 }

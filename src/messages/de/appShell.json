@@ -96,6 +96,14 @@
   },
   "inbox": {
     "title": "Posteingang",
-    "empty": "Noch keine Benachrichtigungen."
+    "empty": "Noch keine Benachrichtigungen.",
+    "markReadFailed": "Konnte nicht als gelesen markiert werden. Bitte versuche es erneut."
+  },
+  "channelHealthBanner": {
+    "single": "{channel} kann derzeit nicht veröffentlichen. {reason}",
+    "multiple": "Diese Kanäle können derzeit nicht veröffentlichen: {channels}",
+    "degraded": "Die Verbindung für {channels} läuft bald ab. Verbinde sie neu, damit weiter veröffentlicht wird.",
+    "genericReason": "Verbinde ihn neu, damit weiter veröffentlicht wird.",
+    "reconnect": "Neu verbinden"
   }
 }

@@ -19,6 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import PageHeader from "@/components/app/PageHeader";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
+import MediaLibrary from "@/components/app/MediaLibrary";
 import AppLocaleSwitcher from "@/components/app/AppLocaleSwitcher";
 import { apiDelete, apiGet, apiPost, apiPut, apiFetch, getApiWorkspaceId, DESTRUCTIVE_REQUEST_TIMEOUT_MS } from "@/lib/api-client";
 import { deferFromEffect } from "@/lib/defer-from-effect";
@@ -134,6 +135,15 @@ function ApiTrendBars({ points, requestsLabel }: { points: ApiClientTrendPoint[]
   );
 }
 
+type WebhookEndpointHealth = {
+  endpointId: string;
+  delivered24h: number;
+  failed24h: number;
+  pending: number;
+  lastSuccessAt: string | null;
+  lastFailureAt: string | null;
+};
+
 type WebhookEndpointInfo = {
   id: string;
   url: string;
@@ -141,6 +151,20 @@ type WebhookEndpointInfo = {
   status: 'active' | 'disabled';
   createdAt: string;
   updatedAt?: string;
+  /** Rolling 24-hour delivery counts, so a broken endpoint shows in the list. */
+  health?: WebhookEndpointHealth | null;
+};
+
+type WebhookDeliveryInfo = {
+  id: string;
+  eventType: string;
+  status: string;
+  attemptCount: number;
+  responseCode: number | null;
+  lastError: string;
+  createdAt: string | null;
+  lastAttemptAt: string | null;
+  nextAttemptAt: string | null;
 };
 
 const API_SCOPE_OPTIONS = [
@@ -764,6 +788,15 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
               limit={usage.storage.limit}
               locale={locale}
             />
+          )}
+
+          {/* The media library sits directly under the storage meter: the
+              meter says how full you are, this is how you do something
+              about it. */}
+          {usage?.storage && (
+            <div className="border-t border-border/30 pt-5">
+              <MediaLibrary />
+            </div>
           )}
 
           {/* Posts — metered on the free tier only; paid tiers are unlimited */}
@@ -2041,6 +2074,16 @@ function ApiAccessTab() {
   const [showArchived, setShowArchived] = useState(false);
   const [disablingWebhook, setDisablingWebhook] = useState<string | null>(null);
 
+  // Delivery history for one endpoint, loaded on demand. Attempts, response
+  // codes, and retry state have always been recorded and never shown, so an
+  // endpoint that has been 500-ing for a week looked identical to a healthy
+  // one.
+  const [deliveriesEndpoint, setDeliveriesEndpoint] = useState<WebhookEndpointInfo | null>(null);
+  const [deliveries, setDeliveries] = useState<WebhookDeliveryInfo[]>([]);
+  const [deliveriesCursor, setDeliveriesCursor] = useState<string | null>(null);
+  const [deliveriesLoading, setDeliveriesLoading] = useState(false);
+  const [deliveriesError, setDeliveriesError] = useState<string | null>(null);
+
   // Refetch both queries after mutations. The hooks fetch on mount and serve
   // cached data on revisits, so the tab never blanks while refetching.
   const fetchApiAccess = useCallback(async () => {
@@ -2211,6 +2254,36 @@ function ApiAccessTab() {
     } finally {
       setCreatingWebhook(false);
     }
+  }
+
+  async function loadDeliveries(endpoint: WebhookEndpointInfo, cursor?: string) {
+    setDeliveriesLoading(true);
+    setDeliveriesError(null);
+    try {
+      const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+      const res = await apiGet<{ deliveries: WebhookDeliveryInfo[]; nextCursor: string | null }>(
+        `/api/settings/webhook-endpoints/${endpoint.id}/deliveries${query}`,
+        wsId,
+      );
+      if (!res.ok) {
+        setDeliveriesError(userFacingError(res.data, t("webhooksSection.deliveriesDialog.loadFailed")));
+        return;
+      }
+      setDeliveries((prev) => (cursor ? [...prev, ...res.data.deliveries] : res.data.deliveries));
+      setDeliveriesCursor(res.data.nextCursor);
+    } catch {
+      setDeliveriesError(t("webhooksSection.deliveriesDialog.loadFailed"));
+    } finally {
+      setDeliveriesLoading(false);
+    }
+  }
+
+  function openDeliveries(endpoint: WebhookEndpointInfo) {
+    setDeliveriesEndpoint(endpoint);
+    setDeliveries([]);
+    setDeliveriesCursor(null);
+    setDeliveriesError(null);
+    void loadDeliveries(endpoint);
   }
 
   async function disableWebhook(id: string) {
@@ -2554,23 +2627,54 @@ function ApiAccessTab() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge
-                              className="border-0"
-                              style={pillStyle(endpoint.status === 'active' ? "pos" : "neutral")}
-                            >
-                              {t(`webhooksSection.statusLabels.${endpoint.status}`)}
-                            </Badge>
+                            <div className="space-y-1.5">
+                              <Badge
+                                className="border-0"
+                                style={pillStyle(endpoint.status === 'active' ? "pos" : "neutral")}
+                              >
+                                {t(`webhooksSection.statusLabels.${endpoint.status}`)}
+                              </Badge>
+                              {endpoint.health && (
+                                <div className="text-xs text-muted-foreground">
+                                  {endpoint.health.delivered24h === 0 && endpoint.health.failed24h === 0 ? (
+                                    <p>{t("webhooksSection.health.quiet")}</p>
+                                  ) : (
+                                    <p className="flex flex-wrap items-center gap-x-2">
+                                      <span>{t("webhooksSection.health.delivered", { count: endpoint.health.delivered24h })}</span>
+                                      <span className={endpoint.health.failed24h > 0 ? "text-mk-neg" : undefined}>
+                                        {t("webhooksSection.health.failed", { count: endpoint.health.failed24h })}
+                                      </span>
+                                      <span>{t("webhooksSection.health.window")}</span>
+                                    </p>
+                                  )}
+                                  <p>
+                                    {endpoint.health.lastSuccessAt
+                                      ? t("webhooksSection.health.lastSuccess", { date: new Date(endpoint.health.lastSuccessAt).toLocaleString(locale) })
+                                      : t("webhooksSection.health.lastSuccessNever")}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="text-end">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-mk-neg hover:text-mk-neg"
-                              onClick={() => disableWebhook(endpoint.id)}
-                              disabled={endpoint.status !== 'active' || disablingWebhook === endpoint.id}
-                            >
-                              {disablingWebhook === endpoint.id ? t("webhooksSection.disabling") : t("webhooksSection.disable")}
-                            </Button>
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openDeliveries(endpoint)}
+                              >
+                                {t("webhooksSection.deliveries")}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-mk-neg hover:text-mk-neg"
+                                onClick={() => disableWebhook(endpoint.id)}
+                                disabled={endpoint.status !== 'active' || disablingWebhook === endpoint.id}
+                              >
+                                {disablingWebhook === endpoint.id ? t("webhooksSection.disabling") : t("webhooksSection.disable")}
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))
@@ -2696,6 +2800,95 @@ function ApiAccessTab() {
             <Button variant="outline" onClick={() => setCreateKeyOpen(false)}>{t("createKeyDialog.cancel")}</Button>
             <Button onClick={createClient} disabled={creatingClient || !clientName.trim() || selectedScopes.length === 0 || !selectedProductId}>
               {creatingClient ? t("createKeyDialog.creating") : t("createKeyDialog.create")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(deliveriesEndpoint)}
+        onOpenChange={(open) => { if (!open) setDeliveriesEndpoint(null); }}
+      >
+        <DialogContent className="sm:max-w-[720px]">
+          <DialogHeader>
+            <DialogTitle>{t("webhooksSection.deliveriesDialog.title")}</DialogTitle>
+            <DialogDescription>
+              {t("webhooksSection.deliveriesDialog.description")}
+            </DialogDescription>
+          </DialogHeader>
+          {deliveriesEndpoint && (
+            <p className="text-xs text-muted-foreground break-all">{deliveriesEndpoint.url}</p>
+          )}
+          <div className="max-h-[420px] overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.event")}</TableHead>
+                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.status")}</TableHead>
+                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.attempts")}</TableHead>
+                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.response")}</TableHead>
+                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.when")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {deliveries.length === 0 && !deliveriesLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="py-6 text-center text-muted-foreground">
+                      {deliveriesError || t("webhooksSection.deliveriesDialog.empty")}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  deliveries.map((delivery) => (
+                    <TableRow key={delivery.id}>
+                      <TableCell className="whitespace-nowrap">{delivery.eventType}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className="border-0"
+                          style={pillStyle(
+                            delivery.status === 'delivered' ? "pos"
+                              : delivery.status === 'failed' ? "neg"
+                                : "neutral",
+                          )}
+                        >
+                          {delivery.status}
+                        </Badge>
+                        {/* Truncated server-side; provider response bodies are
+                            never rendered in full. */}
+                        {delivery.lastError && (
+                          <p className="mt-1 max-w-[220px] text-xs text-muted-foreground break-words">
+                            {delivery.lastError}
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell>{delivery.attemptCount}</TableCell>
+                      <TableCell>{delivery.responseCode ?? "n/a"}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {delivery.lastAttemptAt
+                          ? new Date(delivery.lastAttemptAt).toLocaleString(locale)
+                          : delivery.createdAt
+                            ? new Date(delivery.createdAt).toLocaleString(locale)
+                            : "n/a"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <DialogFooter>
+            {deliveriesCursor && deliveriesEndpoint && (
+              <Button
+                variant="outline"
+                onClick={() => loadDeliveries(deliveriesEndpoint, deliveriesCursor)}
+                disabled={deliveriesLoading}
+              >
+                {deliveriesLoading
+                  ? t("webhooksSection.deliveriesDialog.loading")
+                  : t("webhooksSection.deliveriesDialog.loadMore")}
+              </Button>
+            )}
+            <Button onClick={() => setDeliveriesEndpoint(null)}>
+              {t("webhooksSection.deliveriesDialog.close")}
             </Button>
           </DialogFooter>
         </DialogContent>

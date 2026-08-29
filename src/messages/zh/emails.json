@@ -60,6 +60,17 @@
       "queueLink": "打开待发布队列：{url}"
     }
   },
+  "channelHealth": {
+    "subject": "请在下一条定时发布前重新连接 {channelLabel}",
+    "preheader": "{channelLabel} 目前无法发布。",
+    "bodyIntro": "未来 24 小时内有 {count} 条定时发布需要 {channelLabel}，而 {channelLabel} 目前无法发布。重新连接后，计划将按原定安排执行。",
+    "cta": "重新连接渠道",
+    "footerNote": "您收到此邮件是因为 Markaestro 工作区中的定时发布使用了尚未就绪的渠道。",
+    "plain": {
+      "heading": "请在下一条定时发布前重新连接 {channelLabel}",
+      "reconnectLink": "重新连接渠道：{url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "完成 {brandName} 的 TikTok 发布",
     "subjectNoBrand": "完成你的 TikTok 发布",

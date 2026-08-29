@@ -26,6 +26,12 @@
     "networkError": "خطأ في الشبكة. تحقق من اتصالك وأعد المحاولة.",
     "default": "فشلت المصادقة. حاول مرة أخرى."
   },
+  "requestErrors": {
+    "malformedResponse": "أرسل الخادم استجابة تعذّرت قراءتها. يرجى المحاولة مرة أخرى.",
+    "internalError": "حدث خطأ من جانبنا. يرجى المحاولة مرة أخرى.",
+    "timeout": "انتهت مهلة الطلب. يرجى المحاولة مرة أخرى.",
+    "reference": "المرجع: {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "العلامة التجارية",
@@ -35,7 +41,8 @@
       "post": "المنشور",
       "workspace": "مساحة العمل",
       "account": "الحساب",
-      "experiment": "تجربة"
+      "experiment": "تجربة",
+      "mediaAsset": "ملف وسائط"
     },
     "titleGeneric": "حذف {entity}",
     "titleNamed": "حذف {entity}؟",

@@ -19,6 +19,7 @@
 //   GET  /v1/posts                   → workspace posts in Connect shape
 import crypto from 'crypto';
 import type { SocialChannel } from '@/lib/schemas';
+import { ApiValidationError } from '@/lib/api-response';
 import {
   listPublicProductCatalog,
   resolvePublicPostDestination,
@@ -40,7 +41,14 @@ export function validateConnectPostFanout(input: {
     throw new Error('VALIDATION_CAPTION_TOO_LONG');
   }
   if (input.mediaAssetIds.length > CONNECT_MAX_MEDIA_ASSETS_PER_POST) {
-    throw new Error('VALIDATION_TOO_MANY_MEDIA_ASSETS');
+    // The request-level ceiling, checked before fan-out. Each destination's
+    // channel then applies its own, narrower limit (Instagram allows 10), and
+    // reports it by name from validatePublicPostInput.
+    throw new ApiValidationError(
+      'VALIDATION_TOO_MANY_MEDIA_ASSETS',
+      `A post accepts a maximum of ${CONNECT_MAX_MEDIA_ASSETS_PER_POST} media items. This request has ${input.mediaAssetIds.length}. Individual channels may allow fewer.`,
+      { field: 'media', limit: CONNECT_MAX_MEDIA_ASSETS_PER_POST, received: input.mediaAssetIds.length },
+    );
   }
   if (input.accounts.length > CONNECT_MAX_DESTINATIONS_PER_REQUEST) {
     throw new Error('VALIDATION_TOO_MANY_DESTINATIONS');
@@ -75,8 +83,8 @@ export type ConnectProduct = {
 
 // Connect clients commonly send both `scheduled_at` and `is_draft`. Preserve
 // draft-first behavior unless the client explicitly sets is_draft=false and
-// supplies an ISO timestamp. A scheduled TikTok post uses the creator-inbox
-// handoff; other channels opt into their official direct-publish path.
+// supplies an ISO timestamp. Scheduling is independent of delivery mode: see
+// getConnectDeliveryMode for how Connect posts reach their platform.
 export function resolveConnectSchedule(
   scheduledAt: string | null | undefined,
   isDraft: boolean | undefined,
@@ -87,7 +95,17 @@ export function resolveConnectSchedule(
   return new Date(timestamp).toISOString();
 }
 
-export function getConnectScheduledDeliveryMode(channel: SocialChannel) {
+/**
+ * Connect is an explicit publishing integration: a client that sends a post
+ * here is asking Markaestro to deliver it, whether it schedules the post now
+ * or saves a draft and calls publish later. So every Connect create opts into
+ * API publishing, rather than inheriting the public API's manual-reminder
+ * default for Meta channels, which left draft-then-publish flows silently
+ * parked in the manual queue and never sent to Instagram.
+ *
+ * TikTok's only API-publishing path is the creator-inbox handoff.
+ */
+export function getConnectDeliveryMode(channel: SocialChannel) {
   return channel === 'tiktok' ? 'platform_inbox' as const : 'direct_publish' as const;
 }
 

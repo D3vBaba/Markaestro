@@ -170,12 +170,68 @@ async function runChecks() {
       .get(),
   );
 
+  console.log('\nMedia assets:');
+  await check('media_assets.orderBy(createdAt desc) [media library]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('media_assets.where(createdByType).orderBy(createdAt desc) [media library]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`)
+      .where('createdByType', '==', 'user')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('media_assets.where(type).orderBy(createdAt desc) [media library filter]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`)
+      .where('type', '==', 'image')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('media_assets.where(orphanedAt<=) [orphan sweep]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`)
+      .where('orphanedAt', '<=', new Date().toISOString())
+      .limit(1)
+      .get(),
+  );
+  await check('media_assets.where(downloadUrl IN [...]) [reference lookup]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`)
+      .where('downloadUrl', 'in', ['https://sentinel.example/a.jpg'])
+      .limit(1)
+      .get(),
+  );
+  await check('posts.where(mediaUrls array-contains) [media usage]', (db) =>
+    db.collection(`workspaces/${WS}/posts`)
+      .where('mediaUrls', 'array-contains', 'https://sentinel.example/a.jpg')
+      .limit(1)
+      .get(),
+  );
+
+  await check('posts.where(status=published).where(metricsNextPollAt<=).orderBy(metricsNextPollAt) [SLO staleness]', (db) =>
+    db.collection(`workspaces/${WS}/posts`)
+      .where('status', '==', 'published')
+      .where('metricsNextPollAt', '<=', new Date().toISOString())
+      .orderBy('metricsNextPollAt', 'asc')
+      .limit(1)
+      .get(),
+  );
+
   console.log('\nDelivery queues:');
   await check('webhook_deliveries.where(status IN [...]).where(nextAttemptAt<=).orderBy(nextAttemptAt)', (db) =>
     db.collection(`workspaces/${WS}/webhook_deliveries`)
       .where('status', 'in', ['pending', 'retrying'])
       .where('nextAttemptAt', '<=', new Date().toISOString())
       .orderBy('nextAttemptAt', 'asc')
+      .limit(1)
+      .get(),
+  );
+  await check('webhook_deliveries.where(endpointId).orderBy(createdAt desc) [delivery history]', (db) =>
+    db.collection(`workspaces/${WS}/webhook_deliveries`)
+      .where('endpointId', '==', 'sentinel')
+      .orderBy('createdAt', 'desc')
       .limit(1)
       .get(),
   );

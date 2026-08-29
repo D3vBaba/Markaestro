@@ -9,6 +9,8 @@ import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 import { buildDownloadUrl } from '@/lib/storage';
 import { validateMediaUpload } from '@/lib/media-upload-policy';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { createMediaAssetRecord } from '@/lib/media/asset-store';
+import { mediaAssetTypeForMimeType } from '@/lib/media/asset-metadata';
 
 export const runtime = 'nodejs';
 
@@ -151,6 +153,24 @@ export async function POST(req: Request) {
       },
     });
     const url = buildDownloadUrl(bucket.name, session.finalStoragePath, downloadToken);
+    // Same reason as the direct upload path: without an asset record the bytes
+    // reserved above can never be released. Dimensions are left null here
+    // because the buffer was never in this process (the client uploaded
+    // straight to storage) and re-downloading it to measure is not worth it.
+    await createMediaAssetRecord(ctx.workspaceId, {
+      id: `ast_${assetId}`,
+      type: mediaAssetTypeForMimeType(actualType),
+      storagePath: session.finalStoragePath,
+      downloadUrl: url,
+      mimeType: actualType,
+      sizeBytes: actualSize,
+      width: null,
+      height: null,
+      originalFileName: session.expectedName || assetId,
+      createdByType: 'user',
+      createdById: ctx.uid,
+      createdAt: new Date().toISOString(),
+    });
     await sessionRef.set({
       status: 'completed',
       completedAt: new Date().toISOString(),

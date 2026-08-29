@@ -132,4 +132,33 @@ describe('publish error classification', () => {
     );
     expect(classification.category).toBe('permanent');
   });
+
+  it('stops retrying a post that carries more media than the channel allows', () => {
+    const classification = classifyPublishError(
+      'Instagram allows a maximum of 10 media items per carousel. This post has 12. Remove the extra items and publish again.',
+    );
+    expect(classification.code).toBe('MEDIA_COUNT_EXCEEDED');
+    expect(classification.category).toBe('permanent');
+    expect(classification.retryable).toBe(false);
+  });
+
+  it('stops retrying a story that carries carousel media', () => {
+    const classification = classifyPublishError(
+      'Instagram stories accept a single image or video, and this post has 3 media items.',
+    );
+    expect(classification.category).toBe('permanent');
+  });
+
+  it('treats a Graph request-limit refusal as a Meta throttle, not a generic blip', () => {
+    for (const message of [
+      'Instagram carousel child error: (#4) Application request limit reached',
+      'Instagram carousel child error: (#17) User request limit reached',
+      'Facebook publish error: Calls to this api have exceeded the rate limit',
+    ]) {
+      const classification = classifyPublishError(message);
+      expect(classification.code).toBe('META_REQUEST_LIMIT_REACHED');
+      expect(classification.metaRateLimited).toBe(true);
+      expect(classification.retryable).toBe(true);
+    }
+  });
 });

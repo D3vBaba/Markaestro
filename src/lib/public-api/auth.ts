@@ -5,6 +5,7 @@ import { PLANS } from '@/lib/stripe/plans';
 import { effectiveTier, getEffectiveSubscription, isActiveSubscription } from '@/lib/stripe/subscription';
 import { parseApiKey, hashSecret } from './keys';
 import type { PublicApiScope } from './scopes';
+import { annotateRequestContext, enterRequestContext } from '@/lib/request-context';
 import { incrementApiClientStat } from './usage';
 
 export type PublicApiContext = {
@@ -159,6 +160,10 @@ export async function requirePublicApiContext(
   req: Request,
   options: RequirePublicApiContextOptions = {},
 ): Promise<PublicApiContext> {
+  // Same reason as requireContext: adopt the edge's id before the first
+  // possible throw so an UNAUTHENTICATED 401 is traceable too.
+  enterRequestContext({ headers: req.headers });
+
   const token = getBearerToken(req);
   if (!token) throw new Error('UNAUTHENTICATED');
 
@@ -252,6 +257,8 @@ export async function requirePublicApiContext(
   }
 
   await incrementApiClientStat(parsed.workspaceId, parsed.clientId, 'request');
+
+  annotateRequestContext({ uid: data.ownerUid, workspaceId: parsed.workspaceId });
 
   return {
     principalType: 'api_client',

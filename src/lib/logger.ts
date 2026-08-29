@@ -10,6 +10,8 @@
  * request bodies. Prefer uid + workspaceId + event shape.
  */
 
+import { getRequestContext, requestIdFromHeaders as ambientRequestIdFromHeaders } from '@/lib/request-context';
+
 type Severity = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
 type LogFields = Record<string, unknown> & {
@@ -22,10 +24,22 @@ type LogFields = Record<string, unknown> & {
 
 function emit(severity: Severity, message: string, fields: LogFields = {}): void {
   // Cloud Logging maps `severity` automatically when the JSON has that key.
+  // The ambient request context supplies requestId/uid/workspaceId so every
+  // line in one request shares the id the user is shown on failure. Explicit
+  // fields always win: a worker logging about another workspace must not have
+  // its own request's workspaceId silently substituted.
+  const ambient = getRequestContext();
   const record: Record<string, unknown> = {
     severity,
     message,
     time: new Date().toISOString(),
+    ...(ambient
+      ? {
+          requestId: ambient.requestId,
+          ...(ambient.uid ? { uid: ambient.uid } : {}),
+          ...(ambient.workspaceId ? { workspaceId: ambient.workspaceId } : {}),
+        }
+      : {}),
     ...fields,
   };
 
@@ -58,14 +72,11 @@ export const logger = {
 };
 
 /**
- * Derive a lightweight request id from the current request. Cloud Run
- * injects `x-cloud-trace-context` so we prefer that when present; fall
- * back to a random id for local development.
+ * Derive a lightweight request id from the current request, falling back to a
+ * random id for local development. Prefers the `x-request-id` our edge mints
+ * (and the browser client sends) over Cloud Run's trace id, so one id spans
+ * client, edge, and handler.
  */
 export function requestIdFromHeaders(headers: Headers): string {
-  const trace = headers.get('x-cloud-trace-context');
-  if (trace) return trace.split('/')[0] || trace;
-  const forwarded = headers.get('x-request-id');
-  if (forwarded) return forwarded;
-  return Math.random().toString(36).slice(2, 10);
+  return ambientRequestIdFromHeaders(headers) ?? Math.random().toString(36).slice(2, 10);
 }

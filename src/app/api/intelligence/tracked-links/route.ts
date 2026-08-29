@@ -2,9 +2,14 @@ import { z } from 'zod';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiCreated, apiError, apiOk } from '@/lib/api-response';
 import { requireContext } from '@/lib/server-auth';
-import { requirePermission } from '@/lib/rbac';
-import { createTrackingCode } from '@/lib/intelligence/conversions';
+import { hasPermission, requirePermission } from '@/lib/rbac';
+import {
+  createTrackingCode,
+  workspaceIngestKeyId,
+  workspaceIngestSecret,
+} from '@/lib/intelligence/conversions';
 import { requireIntelligenceAccess } from '@/lib/intelligence/access';
+import type { WorkspaceRole } from '@/lib/schemas';
 
 const createSchema = z.object({
   productId: z.string().min(1).max(128),
@@ -40,6 +45,25 @@ function linkRow(data: Record<string, unknown>, origin: string) {
   };
 }
 
+/**
+ * Credentials for the server-side conversion ingest snippet.
+ *
+ * `keyId` is public (it is just the workspace id, prefixed) and identifies
+ * which workspace's derived secret the server should verify against. The
+ * secret itself is withheld from principals that cannot record conversions.
+ */
+function ingestCredentials(ctx: { workspaceId: string; role: WorkspaceRole }) {
+  const keyId = workspaceIngestKeyId(ctx.workspaceId);
+  if (!hasPermission(ctx, 'conversions.manage')) return { keyId, secret: null };
+  try {
+    return { keyId, secret: workspaceIngestSecret(ctx.workspaceId) };
+  } catch {
+    // The root secret is not configured in this environment. The links list is
+    // still useful, so report the snippet as unavailable rather than failing.
+    return { keyId, secret: null };
+  }
+}
+
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
@@ -52,7 +76,11 @@ export async function GET(req: Request) {
     const links = snapshot.docs
       .map((doc) => linkRow(doc.data(), origin))
       .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-    return apiOk({ links });
+    // Anyone installing the server-side conversion snippet is already on this
+    // screen, so the credentials it needs are returned alongside the links.
+    // The key id names the workspace and is not secret; the signing secret is
+    // only returned to a principal that could create conversions anyway.
+    return apiOk({ links, ingest: ingestCredentials(ctx) });
   } catch (error) {
     return apiError(error);
   }

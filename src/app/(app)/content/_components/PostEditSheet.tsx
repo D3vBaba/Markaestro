@@ -12,6 +12,7 @@ import ImageCropDialog from "@/components/app/ImageCropDialog";
 import { apiUpload } from "@/lib/api-client";
 import { getSocialChannelConfig } from "@/lib/social/channel-catalog";
 import { toast } from "sonner";
+import { toastApiError } from "@/lib/error-toast";
 import { ImagePlus } from "lucide-react";
 
 type Post = {
@@ -102,7 +103,9 @@ export default function PostEditSheet({
         setMediaUrls([res.data.url]);
         toast.success(isVideo ? t("toasts.videoUploaded") : t("toasts.imageUploaded"));
       } else {
-        toast.error(t("toasts.uploadFailed"));
+        // Storage quota and subscription rejections both land here, and both
+        // are things the user can act on once they are told which it was.
+        toastApiError(res.data, t("toasts.uploadFailed"));
       }
     } catch {
       toast.error(t("toasts.uploadFailed"));

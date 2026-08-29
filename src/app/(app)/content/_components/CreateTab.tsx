@@ -25,6 +25,7 @@ import {
 } from "@/lib/social/tiktok-direct-post-form";
 import { getFailedChannelResults } from "@/lib/social/publish-ui-outcome";
 import { userFacingError } from "@/lib/user-facing-errors";
+import { toastApiError } from "@/lib/error-toast";
 import AudienceFitPanel from "./AudienceFitPanel";
 import { useIntelligencePreviewAccess } from "@/hooks/useIntelligencePreviewAccess";
 
@@ -404,7 +405,7 @@ export default function CreateTab({
       setPostId(res.data.id);
       return res.data.id;
     }
-    toast.error(t("toasts.createFailed"));
+    toastApiError(res.data, t("toasts.createFailed"));
     return null;
   };
 
@@ -414,7 +415,7 @@ export default function CreateTab({
     if (postId) {
       const res = await apiPut(`/api/posts/${postId}`, buildPostPayload(urls));
       if (res.ok) { toast.success(t("toasts.draftSaved")); clearStoredDraft(); onPostCreated?.(); }
-      else toast.error(t("toasts.draftSaveFailed"));
+      else toastApiError(res.data, t("toasts.draftSaveFailed"));
     } else {
       const id = await ensurePostId();
       if (id) { toast.success(t("toasts.draftSaved")); clearStoredDraft(); onPostCreated?.(); }
@@ -441,7 +442,10 @@ export default function CreateTab({
       clearStoredDraft();
       onPostCreated?.();
     } else {
-      toast.error(t("toasts.scheduleFailed"));
+      // A preflight rejection names the channel and the reason ("Instagram is
+      // not ready: token expired"). Showing only "Failed to schedule" here is
+      // what made a fixable problem look like an outage.
+      toastApiError(res.data, t("toasts.scheduleFailed"));
     }
   };
 
@@ -455,8 +459,18 @@ export default function CreateTab({
     if (!id) { setPublishing(false); return; }
     // A post we just created already holds this exact payload — only an
     // existing draft needs its edits written back before publishing.
+    //
+    // Checked, not fire-and-forget: an unchecked failure here published the
+    // stored version of the post while the user watched their edits go out as
+    // the un-edited text, under a success toast. Abort instead; the draft is
+    // still in the composer, so nothing is lost by stopping.
     if (existingPostId) {
-      await apiPut(`/api/posts/${existingPostId}`, buildPostPayload(urls));
+      const saved = await apiPut(`/api/posts/${existingPostId}`, buildPostPayload(urls));
+      if (!saved.ok) {
+        setPublishing(false);
+        toastApiError(saved.data, t("toasts.publishFailed"));
+        return;
+      }
     }
 
     // Captured before the reset below clears it: the outcome toasts have to
@@ -527,7 +541,7 @@ export default function CreateTab({
       }
       if (failed.length > 0) toast.error(t("toasts.publishFailed"));
     } else {
-      toast.error(userFacingError(res.data, t("toasts.publishFailed")));
+      toastApiError(res.data, t("toasts.publishFailed"));
     }
     // The list reflects the post's final state (published/failed) either way.
     onPostCreated?.();

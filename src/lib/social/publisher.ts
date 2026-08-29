@@ -23,8 +23,14 @@ import {
   MANUAL_REMINDER_NEXT_ACTION,
 } from '@/lib/manual-publish-flow';
 import { sendManualPostReminderEmail } from '@/lib/manual-publish-emails';
-import { firstSocialPostValidationError } from '@/lib/social/post-validation';
+import { firstSocialPostValidationError, isVideoMediaUrl } from '@/lib/social/post-validation';
+import { publishingContractViolation } from '@/lib/platform/capabilities';
 import { getTikTokPublishMappingRef } from '@/lib/social/tiktok-publish-mapping';
+import {
+  recordPublishAttempt,
+  type PublishAttemptOutcome,
+  type PublishAttemptRecord,
+} from '@/lib/social/publish-attempts';
 import { isTikTokDirectPostSettings } from '@/lib/public-api/post-settings';
 import { logger } from '@/lib/logger';
 import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
@@ -160,6 +166,20 @@ export async function publishPost(
     return { success: false, error: `Unsupported channel: ${request.channel}` };
   }
 
+  // The publishing half of the capability registry had no runtime contract,
+  // unlike the metrics half (assertMetricsSupported), so a drifted
+  // declaration cost nothing until a user hit it. Checked here rather than in
+  // the composer's validator because every surface reaches this function:
+  // the app, the public API, the connect API, and the scheduler.
+  const contractViolation = publishingContractViolation(request.channel, {
+    hasText: Boolean(request.content?.trim()),
+    imageCount: (request.mediaUrls ?? []).filter((url) => !isVideoMediaUrl(url)).length,
+    videoCount: (request.mediaUrls ?? []).filter(isVideoMediaUrl).length,
+  });
+  if (contractViolation) {
+    return { success: false, error: contractViolation };
+  }
+
   const connection = await getConnectionForChannel(
     workspaceId,
     request.channel,
@@ -227,6 +247,11 @@ export function classifyPublishError(error: string): PublishErrorClassification 
   const metaRateLimitPatterns: Array<{ pattern: RegExp; code: string }> = [
     { pattern: /publishing limit reached|quota_usage/, code: 'IG_PUBLISH_QUOTA_EXCEEDED' },
     { pattern: /meta api rate limit approaching|backing off to avoid/, code: 'META_APP_USAGE_THROTTLED' },
+    // Graph's own throttle wording. None of it says "429" or "rate limit", so
+    // without this it fell through to UNKNOWN_PUBLISH_ERROR (or, for the
+    // "temporarily unavailable" variants, TEMPORARY_PLATFORM_STATE) and got
+    // the short generic backoff, which retries straight back into the throttle.
+    { pattern: /request limit reached|exceeded the rate limit|too many calls|reduce the amount of data/, code: 'META_REQUEST_LIMIT_REACHED' },
     { pattern: /page publishing authorization|ppa/, code: 'PPA_REQUIRED' },
   ];
   for (const { pattern, code } of metaRateLimitPatterns) {
@@ -243,6 +268,14 @@ export function classifyPublishError(error: string): PublishErrorClassification 
   const ratioMismatch = /same width\/height ratio|aspect ratio|image ratio/;
   if (ratioMismatch.test(normalized)) {
     return { code: 'MEDIA_ASPECT_RATIO_MISMATCH', category: 'permanent', retryable: false };
+  }
+
+  // Same reasoning: too many images is a property of the post, not the moment.
+  // Its "publish again" phrasing sits close enough to the generic retry
+  // patterns below that it belongs ahead of them.
+  const mediaCountExceeded = /maximum of \d+ media items|accept a single image or video/;
+  if (mediaCountExceeded.test(normalized)) {
+    return { code: 'MEDIA_COUNT_EXCEEDED', category: 'permanent', retryable: false };
   }
 
   const transientPatterns: Array<{ pattern: RegExp; code: string }> = [
@@ -765,6 +798,12 @@ export async function finalizeManualReminderPublish(
     });
   }
 
+  await recordPublishAttempt(
+    workspaceId,
+    claimed.postId,
+    attemptRecordsFor(claimed, result, nowIso, 'action_required'),
+  );
+
   // The email nudge is for transitions the user isn't watching (scheduler,
   // API-queued publishes) — in-app publishes skip it. Never fatal.
   if (options.notify) {
@@ -772,6 +811,51 @@ export async function finalizeManualReminderPublish(
   }
 
   return 'action_required';
+}
+
+/**
+ * Turn one finished publish into per-channel attempt rows.
+ *
+ * The outcome is derived per channel rather than taken from the aggregate
+ * result: a partial failure is exactly the case where "did Instagram work"
+ * and "did the post work" have different answers, and that is the question
+ * the trail exists to answer.
+ */
+function attemptRecordsFor(
+  claimed: ClaimedPublishPost,
+  result: MultiChannelPublishResult,
+  finishedAt: string,
+  fallbackOutcome: PublishAttemptOutcome,
+): PublishAttemptRecord[] {
+  const startedAt = typeof claimed.post.publishStartedAt === 'string'
+    ? claimed.post.publishStartedAt
+    : finishedAt;
+
+  return result.channels.map((channel) => {
+    const outcome: PublishAttemptOutcome = channel.success
+      ? 'published'
+      : channel.pending
+        ? 'pending'
+        : channel.actionRequired
+          ? 'action_required'
+          : fallbackOutcome === 'published' || fallbackOutcome === 'pending'
+            ? 'failed'
+            : fallbackOutcome;
+    const classification = channel.error ? classifyPublishError(channel.error) : null;
+    return {
+      attemptId: claimed.attemptId,
+      attemptNumber: claimed.attemptCount,
+      channel: channel.channel,
+      outcome,
+      startedAt,
+      finishedAt,
+      externalId: channel.externalId ?? null,
+      externalUrl: channel.externalUrl ?? null,
+      errorCode: classification?.code ?? null,
+      errorCategory: classification?.category ?? null,
+      rawError: channel.error ?? null,
+    };
+  });
 }
 
 export async function finalizeSuccessfulPublish(
@@ -799,6 +883,11 @@ export async function finalizeSuccessfulPublish(
       retryFailedChannelsOnly: result.partialFailure ? true : null,
       updatedAt: nowIso,
     });
+    await recordPublishAttempt(
+      workspaceId,
+      claimed.postId,
+      attemptRecordsFor(claimed, { ...result, channels: mergedChannels }, nowIso, 'pending'),
+    );
     return 'pending';
   }
 
@@ -818,6 +907,11 @@ export async function finalizeSuccessfulPublish(
     retryFailedChannelsOnly: null,
     updatedAt: nowIso,
   });
+  await recordPublishAttempt(
+    workspaceId,
+    claimed.postId,
+    attemptRecordsFor(claimed, result, nowIso, 'published'),
+  );
   if (claimed.post.createdByType === 'api_client') {
     await enqueueWebhookEvent(workspaceId, 'post.published', {
       postId: claimed.postId,
@@ -869,6 +963,11 @@ export async function finalizeFailedPublish(
       publishLeaseExpiresAt: null,
       updatedAt: nowIso,
     });
+    await recordPublishAttempt(
+      workspaceId,
+      claimed.postId,
+      attemptRecordsFor(claimed, result, nowIso, 'retry_scheduled'),
+    );
     await markScheduledRetryDue(workspaceId, claimed.postId, retryAt);
     return 'retried';
   }
@@ -885,6 +984,11 @@ export async function finalizeFailedPublish(
     publishLeaseExpiresAt: null,
     updatedAt: nowIso,
   });
+  await recordPublishAttempt(
+    workspaceId,
+    claimed.postId,
+    attemptRecordsFor(claimed, result, nowIso, 'failed'),
+  );
   if (claimed.post.createdByType === 'api_client') {
     await enqueueWebhookEvent(workspaceId, 'post.failed', {
       postId: claimed.postId,

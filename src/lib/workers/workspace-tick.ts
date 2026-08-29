@@ -22,10 +22,24 @@ import { processQueuedPublicPublishRuns } from '@/lib/public-api/publish-runs';
 import { processPendingWebhookDeliveries } from '@/lib/public-api/webhook-delivery';
 import { processAnalyticsTick, type AnalyticsTickResult } from '@/lib/analytics/worker';
 import { logger } from '@/lib/logger';
+import { sweepOrphanedMediaAssets } from '@/lib/media/asset-store';
 import { markWorkspaceDue, type WorkspaceWorkReason } from './due-workspaces';
 import { processIntelligenceJobs } from '@/lib/intelligence/fingerprints';
 import { processDueExperiments } from '@/lib/intelligence/experiment-lifecycle';
 import { runQuarterlyCapabilityAuditIfDue } from '@/lib/platform/capability-audit';
+import { notifyUnreadyChannelsForUpcomingPosts, type ChannelHealthNoticeResult } from '@/lib/channel-health-emails';
+import {
+  emitAiBurnSlo,
+  emitChannelHealthSlo,
+  emitPublishSlo,
+  emitMetricsStalenessSlo,
+  emitWebhookDeliverySlo,
+} from '@/lib/observability/slo-metrics';
+import {
+  countOverdueMetricsPolls,
+  readAiOperationBurn,
+  sampleChannelHealth,
+} from '@/lib/observability/slo-inputs';
 
 export type WorkspaceTickResult = {
   workspaceId: string;
@@ -45,6 +59,8 @@ export type WorkspaceTickResult = {
   jobsProcessed: number;
   intelligenceJobs?: { processed: number; failed: number };
   experiments?: { scanned: number; closed: number };
+  mediaSweep?: { scanned: number; deleted: number; bytesReleased: number; skipped: number };
+  channelHealth?: ChannelHealthNoticeResult;
   jobResults: Array<{ jobId: string } & Record<string, unknown>>;
   analytics?: AnalyticsTickResult;
   errors: Array<{ kind: string; postId?: string; error: string }>;
@@ -137,6 +153,7 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
   let scheduledPosts: WorkspaceTickResult['scheduledPosts'];
   let jobsScanned = 0;
   let intelligenceJobs: WorkspaceTickResult['intelligenceJobs'];
+  let mediaSweep: WorkspaceTickResult['mediaSweep'];
 
   try {
     const staleRecovery = await recoverStalePublishingPosts(workspaceId);
@@ -154,6 +171,13 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
         recovered: staleRecovery.recovered,
       };
     }
+    emitPublishSlo({
+      workspaceId,
+      attempted: postResult.processed,
+      failed: postResult.failed + staleRecovery.failed,
+      published: postResult.published,
+      retried: postResult.retried,
+    });
   } catch (err) {
     errors.push({ kind: 'scheduled-post', error: err instanceof Error ? err.message : 'unknown' });
   }
@@ -168,8 +192,27 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
   try {
     const deliveries = await processPendingWebhookDeliveries(workspaceId);
     for (const d of deliveries) webhookDeliveries.push({ deliveryId: d.deliveryId, status: d.status });
+    emitWebhookDeliverySlo({
+      workspaceId,
+      attempted: deliveries.length,
+      delivered: deliveries.filter((d) => d.status === 'delivered').length,
+      // A `failed` result is terminal: either MAX_WEBHOOK_ATTEMPTS was
+      // reached or the endpoint is gone. Retrying deliveries are not counted,
+      // since they may still succeed.
+      deadLettered: deliveries.filter((d) => d.status === 'failed').length,
+    });
   } catch (err) {
     errors.push({ kind: 'webhook-delivery', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
+    // Collect media that lost its last reference more than the grace window
+    // ago. Without this, deleting a post only marks its assets orphaned and
+    // the storage is never actually returned to the workspace.
+    const sweep = await sweepOrphanedMediaAssets(workspaceId);
+    if (sweep.scanned > 0) mediaSweep = sweep;
+  } catch (err) {
+    errors.push({ kind: 'media-sweep', error: err instanceof Error ? err.message : 'unknown' });
   }
 
   let analytics: WorkspaceTickResult['analytics'];
@@ -221,6 +264,44 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     errors.push({ kind: 'capability-audit', error: err instanceof Error ? err.message : 'unknown' });
   }
 
+  // Warn about channels that posts scheduled in the next 24 hours depend on
+  // and cannot use. Own try/catch: the notifier already swallows its own
+  // failures, and a warning must never cost the tick its remaining work.
+  let channelHealth: WorkspaceTickResult['channelHealth'];
+  try {
+    channelHealth = await notifyUnreadyChannelsForUpcomingPosts(workspaceId, new Date(nowIso));
+  } catch (err) {
+    errors.push({ kind: 'channel-health', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  // Domain SLO counters. These are the alerts that fire when the product is
+  // failing while the infrastructure stays green, which is what every Phase 1
+  // bug looked like from the outside. See docs/operations/alerting.md.
+  try {
+    const [staleness, aiBurn, channels] = await Promise.all([
+      countOverdueMetricsPolls(workspaceId, new Date(nowIso)),
+      readAiOperationBurn(workspaceId, new Date(nowIso)),
+      sampleChannelHealth(workspaceId),
+    ]);
+    emitMetricsStalenessSlo({
+      workspaceId,
+      overdue: staleness.overdue,
+      graceHours: staleness.graceHours,
+    });
+    emitAiBurnSlo({
+      workspaceId,
+      operationsThisMonth: aiBurn.operationsThisMonth,
+      monthlyLimit: aiBurn.monthlyLimit,
+    });
+    emitChannelHealthSlo({
+      workspaceId,
+      unhealthy: channels.unhealthy,
+      degradedTokens: channels.degradedTokens,
+    });
+  } catch (err) {
+    errors.push({ kind: 'slo-counters', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
   try {
     await scheduleNextWorkspaceWork(workspaceId);
   } catch (err) {
@@ -249,6 +330,8 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     analytics,
     intelligenceJobs,
     experiments,
+    mediaSweep,
+    channelHealth,
     errors,
   };
 }

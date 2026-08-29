@@ -5,6 +5,7 @@ const assetGetMock = vi.fn();
 const assetDeleteMock = vi.fn();
 const storageDeleteMock = vi.fn();
 const refundStorageMock = vi.fn();
+const postsGetMock = vi.fn();
 
 vi.mock('@/lib/public-api/auth', () => ({
   requirePublicApiContext: requirePublicApiContextMock,
@@ -13,6 +14,8 @@ vi.mock('@/lib/public-api/auth', () => ({
 vi.mock('@/lib/firebase-admin', () => ({
   adminDb: {
     doc: () => ({ get: assetGetMock, delete: assetDeleteMock }),
+    // The shared delete now checks whether any post still needs the asset.
+    collection: () => ({ where: () => ({ get: postsGetMock }) }),
   },
 }));
 
@@ -29,12 +32,21 @@ vi.mock('@/lib/usage', () => ({
 }));
 
 const ASSET_ID = 'ast_2f9b6c1e-4d7a-4b6e-9c3d-1a2b3c4d5e6f';
+const ASSET_URL = 'https://storage.example.com/o/asset.png';
 
 function call(id: string) {
   return import('./route').then(({ DELETE }) => DELETE(
     new Request(`http://localhost/api/public/v1/media/${id}`, { method: 'DELETE' }),
     { params: Promise.resolve({ id }) },
   ));
+}
+
+function postsMatching(...statuses: string[]) {
+  const docs = statuses.map((status, index) => ({
+    id: `post_${index}`,
+    data: () => ({ status, mediaUrls: [ASSET_URL] }),
+  }));
+  return { docs, size: docs.length, empty: docs.length === 0 };
 }
 
 describe('DELETE /api/public/v1/media/[id]', () => {
@@ -48,22 +60,29 @@ describe('DELETE /api/public/v1/media/[id]', () => {
     });
     assetGetMock.mockResolvedValue({
       exists: true,
+      id: ASSET_ID,
       data: () => ({
         id: ASSET_ID,
         storagePath: `workspaces/ws_1/public-media/${ASSET_ID}.png`,
+        downloadUrl: ASSET_URL,
         sizeBytes: 4_096,
       }),
     });
     assetDeleteMock.mockResolvedValue(undefined);
     storageDeleteMock.mockResolvedValue(undefined);
     refundStorageMock.mockResolvedValue(undefined);
+    postsGetMock.mockResolvedValue(postsMatching());
   });
 
   it('deletes the object and doc, then releases the stored bytes', async () => {
     const response = await call(ASSET_ID);
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ deleted: true, id: ASSET_ID });
+    await expect(response.json()).resolves.toEqual({
+      deleted: true,
+      id: ASSET_ID,
+      bytesReleased: 4_096,
+    });
     expect(storageDeleteMock).toHaveBeenCalledWith({ ignoreNotFound: true });
     expect(assetDeleteMock).toHaveBeenCalled();
     expect(refundStorageMock).toHaveBeenCalledWith('ws_1', 4_096);
@@ -72,13 +91,41 @@ describe('DELETE /api/public/v1/media/[id]', () => {
   it('decrements nothing for legacy assets without a recorded size', async () => {
     assetGetMock.mockResolvedValue({
       exists: true,
-      data: () => ({ id: ASSET_ID, storagePath: `workspaces/ws_1/public-media/${ASSET_ID}.png` }),
+      id: ASSET_ID,
+      data: () => ({
+        id: ASSET_ID,
+        storagePath: `workspaces/ws_1/public-media/${ASSET_ID}.png`,
+        downloadUrl: ASSET_URL,
+      }),
     });
 
     const response = await call(ASSET_ID);
 
     expect(response.status).toBe(200);
     expect(refundStorageMock).toHaveBeenCalledWith('ws_1', 0);
+  });
+
+  it('refuses to delete media a scheduled post still needs', async () => {
+    postsGetMock.mockResolvedValue(postsMatching('scheduled'));
+
+    const response = await call(ASSET_ID);
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({ error: 'VALIDATION_MEDIA_IN_USE' });
+    expect(storageDeleteMock).not.toHaveBeenCalled();
+    expect(refundStorageMock).not.toHaveBeenCalled();
+  });
+
+  it('deletes media held only by published posts, with a warning', async () => {
+    postsGetMock.mockResolvedValue(postsMatching('published'));
+
+    const response = await call(ASSET_ID);
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.deleted).toBe(true);
+    expect(body.warning).toContain('published post');
+    expect(refundStorageMock).toHaveBeenCalledWith('ws_1', 4_096);
   });
 
   it('404s unknown and malformed asset ids without touching storage', async () => {

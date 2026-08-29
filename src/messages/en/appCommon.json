@@ -26,6 +26,12 @@
     "networkError": "Network error. Check your connection and try again.",
     "default": "Authentication failed. Please try again."
   },
+  "requestErrors": {
+    "malformedResponse": "The server sent a response we could not read. Please try again.",
+    "internalError": "Something went wrong on our side. Please try again.",
+    "timeout": "The request timed out. Please try again.",
+    "reference": "Reference: {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "brand",
@@ -35,7 +41,8 @@
       "post": "post",
       "workspace": "workspace",
       "account": "account",
-      "experiment": "experiment"
+      "experiment": "experiment",
+      "mediaAsset": "media file"
     },
     "titleGeneric": "Delete {entity}",
     "titleNamed": "Delete {entity}?",

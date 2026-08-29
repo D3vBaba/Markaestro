@@ -26,6 +26,12 @@
     "networkError": "Erreur réseau. Vérifiez votre connexion et réessayez.",
     "default": "Échec de l'authentification. Veuillez réessayer."
   },
+  "requestErrors": {
+    "malformedResponse": "Le serveur a renvoyé une réponse illisible. Veuillez réessayer.",
+    "internalError": "Un problème est survenu de notre côté. Veuillez réessayer.",
+    "timeout": "La requête a expiré. Veuillez réessayer.",
+    "reference": "Référence : {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "marque",
@@ -35,7 +41,8 @@
       "post": "post",
       "workspace": "espace de travail",
       "account": "compte",
-      "experiment": "expérience"
+      "experiment": "expérience",
+      "mediaAsset": "fichier multimédia"
     },
     "titleGeneric": "Supprimer {entity}",
     "titleNamed": "Supprimer {entity} ?",

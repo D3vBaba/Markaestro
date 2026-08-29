@@ -26,6 +26,12 @@
     "networkError": "Netwerkfout. Controleer je verbinding en probeer het opnieuw.",
     "default": "Authenticatie mislukt. Probeer het opnieuw."
   },
+  "requestErrors": {
+    "malformedResponse": "De server stuurde een antwoord dat we niet konden lezen. Probeer het opnieuw.",
+    "internalError": "Er ging iets mis aan onze kant. Probeer het opnieuw.",
+    "timeout": "De aanvraag is verlopen. Probeer het opnieuw.",
+    "reference": "Referentie: {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "merk",
@@ -35,7 +41,8 @@
       "post": "bericht",
       "workspace": "werkruimte",
       "account": "gebruikersaccount",
-      "experiment": "A/B-test"
+      "experiment": "A/B-test",
+      "mediaAsset": "mediabestand"
     },
     "titleGeneric": "{entity} verwijderen",
     "titleNamed": "{entity} verwijderen?",

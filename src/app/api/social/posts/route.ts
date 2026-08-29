@@ -12,6 +12,7 @@ import {
 import { refreshConnectionToken } from '@/lib/oauth/token-refresh';
 import { getSocialChannelLabel } from '@/lib/social/channel-catalog';
 import type { PlatformConnection } from '@/lib/platform/types';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -110,6 +111,7 @@ async function runWithAuthRefresh<T extends { ok: boolean } | { ok: false; reaso
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
+    requirePermission(ctx, 'dashboard.read');
     const url = new URL(req.url);
     const query = listQuerySchema.parse(Object.fromEntries(url.searchParams));
 
@@ -210,7 +212,17 @@ export async function DELETE(req: Request) {
         ),
       );
     } catch (reconcileError) {
-      console.warn('[social/posts] post reconciliation after platform delete failed:', reconcileError);
+      // Was a bare console.warn, which produced neither a structured Cloud
+      // Logging entry nor a Sentry breadcrumb, unlike every other warning
+      // path here. A silent miss leaves the metrics poller chasing a post
+      // that no longer exists on the platform.
+      logger.warn('post reconciliation after platform delete failed', {
+        event: 'social.post_delete_reconcile_failed',
+        workspaceId: ctx.workspaceId,
+        channel: query.channel,
+        externalId: query.externalId,
+        err: reconcileError,
+      });
     }
 
     return apiOk({ ok: true, channel: query.channel, externalId: query.externalId });

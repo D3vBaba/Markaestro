@@ -49,6 +49,18 @@ describe('isPublicPath — fed the locale-stripped path', () => {
     expect(isPublicPath(stripLocale('/fr/developers/agents').rest)).toBe(true);
   });
 
+  it('keeps the link shortener reachable without a session', () => {
+    // /r/{code} is the public link-shortener hop: a visitor arriving from a
+    // customer's post has no session, and bouncing them to /login makes every
+    // tracked link a dead end for exactly the audience it was made for.
+    expect(isPublicPath('/r/abc123')).toBe(true);
+    expect(isPublicPath('/link-unavailable')).toBe(true);
+  });
+
+  it('does not make an unrelated route public just because it starts with r', () => {
+    expect(isPublicPath('/reports')).toBe(false);
+  });
+
   it('leaves (app) routes protected regardless of a bogus locale-shaped prefix', () => {
     expect(isPublicPath(stripLocale('/dashboard').rest)).toBe(false);
     expect(isPublicPath(stripLocale('/settings').rest)).toBe(false);

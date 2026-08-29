@@ -2,7 +2,9 @@ import crypto from 'crypto';
 import sharp from 'sharp';
 import { adminDb } from '@/lib/firebase-admin';
 import { uploadToStorage } from '@/lib/storage';
+import { ApiValidationError } from '@/lib/api-response';
 import type { PublicApiContext } from './auth';
+import { createMediaAssetRecord } from '@/lib/media/asset-store';
 
 export const PUBLIC_ALLOWED_IMAGE_TYPES = new Set([
   'image/png',
@@ -44,13 +46,31 @@ export type ResolvedPublicMediaAsset = {
   type: PublicMediaAsset['type'];
 };
 
+/**
+ * HEIC/HEIF is the iPhone camera default, so it is the single most common
+ * rejected upload and the one worth naming. No platform Markaestro publishes
+ * to accepts it, so the answer is always to convert rather than to retry.
+ */
+const HEIF_TYPES = new Set(['image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']);
+
+function invalidFileTypeError(mimeType: string): ApiValidationError {
+  const supported = [...PUBLIC_ALLOWED_IMAGE_TYPES, ...PUBLIC_ALLOWED_VIDEO_TYPES].join(', ');
+  const message = HEIF_TYPES.has(mimeType)
+    ? `HEIC and HEIF images are not supported by the social platforms Markaestro publishes to. Convert the file to JPEG or PNG and upload it again. Supported types: ${supported}.`
+    : `${mimeType || 'This file type'} is not a supported upload type. Supported types: ${supported}.`;
+  return new ApiValidationError('VALIDATION_INVALID_FILE_TYPE', message, {
+    field: 'contentType',
+    contentType: mimeType,
+  });
+}
+
 export function validatePublicMediaUpload(
   mimeType: string,
   sizeBytes: number,
 ): 'image' | 'video' {
   const isImage = PUBLIC_ALLOWED_IMAGE_TYPES.has(mimeType);
   const isVideo = PUBLIC_ALLOWED_VIDEO_TYPES.has(mimeType);
-  if (!isImage && !isVideo) throw new Error('VALIDATION_INVALID_FILE_TYPE');
+  if (!isImage && !isVideo) throw invalidFileTypeError(mimeType);
   if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) throw new Error('VALIDATION_NO_FILE_PROVIDED');
   if (isImage && sizeBytes > PUBLIC_MAX_IMAGE_SIZE) throw new Error('VALIDATION_FILE_TOO_LARGE_10MB');
   if (isVideo && sizeBytes > PUBLIC_MAX_VIDEO_SIZE) throw new Error('VALIDATION_FILE_TOO_LARGE_250MB');
@@ -123,7 +143,9 @@ export async function createMediaAsset(
     createdAt,
   };
 
-  await adminDb.doc(`workspaces/${ctx.workspaceId}/media_assets/${assetId}`).set(asset);
+  // Written through the shared store so API-created and app-created assets have
+  // the same shape (including refCount/orphanedAt) and list together.
+  await createMediaAssetRecord(ctx.workspaceId, asset);
   return asset;
 }
 

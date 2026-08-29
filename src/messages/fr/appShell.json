@@ -96,6 +96,14 @@
   },
   "inbox": {
     "title": "Boîte de réception",
-    "empty": "Aucune notification pour le moment."
+    "empty": "Aucune notification pour le moment.",
+    "markReadFailed": "Impossible de marquer comme lu. Veuillez réessayer."
+  },
+  "channelHealthBanner": {
+    "single": "{channel} ne peut pas publier pour le moment. {reason}",
+    "multiple": "Ces canaux ne peuvent pas publier pour le moment : {channels}",
+    "degraded": "La connexion de {channels} expirera bientôt. Reconnectez-la pour continuer à publier.",
+    "genericReason": "Reconnectez-le pour continuer à publier.",
+    "reconnect": "Reconnecter"
   }
 }

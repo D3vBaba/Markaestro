@@ -7,6 +7,8 @@ import { resolvePublicPostDestination, type ResolvedPublicDestination } from './
 import { assertSettingsMatchesChannel, isTikTokDirectPostSettings, type PostSettings } from './post-settings';
 import { getSocialChannelConfig } from '@/lib/social/channel-catalog';
 import { isManualReminderDeliveryMode, MANUAL_REMINDER_DELIVERY_MODE } from '@/lib/manual-publish-flow';
+import { ApiValidationError } from '@/lib/api-response';
+import { assertPostMutable } from '@/lib/social/post-mutation-guards';
 
 type CreatePublicPostInput = {
   channel: SocialChannel;
@@ -53,12 +55,32 @@ export function getPublicPostInitialState(scheduledAt?: string | null) {
   return { status: 'draft' as const, scheduledAt: null };
 }
 
+/**
+ * The per-channel media ceiling is the narrowest of several limits a request
+ * passes through (the schema allows 35, Connect allows 35, Instagram allows
+ * 10), so a caller that trips it needs to be told which channel objected and
+ * to what number. Shared with the Connect surface so both report it the same
+ * way.
+ */
+export function tooManyMediaAssetsError(
+  channel: string,
+  channelLabel: string,
+  limit: number,
+  received: number,
+): ApiValidationError {
+  return new ApiValidationError(
+    'VALIDATION_TOO_MANY_MEDIA_ASSETS',
+    `${channelLabel} allows a maximum of ${limit} media items per post. This post has ${received}.`,
+    { field: 'mediaAssetIds', channel, limit, received },
+  );
+}
+
 export function validatePublicPostInput(input: CreatePublicPostInput) {
   const count = input.mediaAssetIds.length;
   const config = getSocialChannelConfig(input.channel);
 
   if (config && count > config.maxMediaItems) {
-    throw new Error('VALIDATION_TOO_MANY_MEDIA_ASSETS');
+    throw tooManyMediaAssetsError(input.channel, config.label, config.maxMediaItems, count);
   }
 
   if (config?.mediaRequired && count < 1) {
@@ -232,11 +254,14 @@ export function assertPublicPostInBrandScope(
 
 /**
  * A post already handed to the publisher must not be deleted out from under
- * it — the run would keep going and could publish, leaving a live post with
+ * it: the run would keep going and could publish, leaving a live post with
  * no record. Callers should cancel or wait for it to settle first.
+ *
+ * Delegates to the shared guard so this surface and `/api/posts/[id]` apply
+ * the same rule, including honouring an expired publish lease.
  */
 export function assertPublicPostDeletable(post: Record<string, unknown>) {
-  if (post.status === 'publishing') throw new Error('VALIDATION_POST_IS_PUBLISHING');
+  assertPostMutable(post, 'delete');
 }
 
 export async function deletePublicPost(workspaceId: string, postId: string) {

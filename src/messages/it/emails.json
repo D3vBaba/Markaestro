@@ -60,6 +60,17 @@
       "queueLink": "Apri la coda di pubblicazione: {url}"
     }
   },
+  "channelHealth": {
+    "subject": "Riconnetti {channelLabel} prima del prossimo post programmato",
+    "preheader": "{channelLabel} non può pubblicare in questo momento.",
+    "bodyIntro": "Hai {count} post programmati nelle prossime 24 ore che richiedono {channelLabel}, e {channelLabel} non può pubblicare in questo momento. Riconnettilo e la programmazione procederà come previsto.",
+    "cta": "Riconnetti il canale",
+    "footerNote": "Ricevi questa email perché un post programmato nel tuo spazio Markaestro usa un canale che non è pronto.",
+    "plain": {
+      "heading": "Riconnetti {channelLabel} prima del prossimo post programmato",
+      "reconnectLink": "Riconnetti il canale: {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "Completa il tuo post TikTok per {brandName}",
     "subjectNoBrand": "Completa il tuo post TikTok",

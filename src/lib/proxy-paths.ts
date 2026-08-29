@@ -44,6 +44,10 @@ export const PUBLIC_PATHS = [
   '/oauth/complete',
   '/auth/action',
   '/site.webmanifest',
+  // The link shortener's failure page. `/r/*` itself is public (see
+  // PUBLIC_PREFIXES); a visitor bounced here from a broken redirect has no
+  // session and must not be sent to /login.
+  '/link-unavailable',
   // Crawler and agent entry points. Served from the marketing apex (see
   // MARKETING_PATHS) and readable without a session.
   '/robots.txt',
@@ -56,7 +60,7 @@ export const PUBLIC_PATHS = [
  * whole developer documentation surface — `/developers/*` mirrors
  * MARKETING_PREFIXES so a new docs page is public the moment it exists).
  */
-export const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/developers', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding'];
+export const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/developers', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding', '/r/'];
 
 export function isPublicPath(pathname: string): boolean {
   if (pathname === '/') return true;

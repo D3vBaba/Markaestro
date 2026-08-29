@@ -96,6 +96,14 @@
   },
   "inbox": {
     "title": "收件箱",
-    "empty": "暂无通知。"
+    "empty": "暂无通知。",
+    "markReadFailed": "无法标记为已读。请重试。"
+  },
+  "channelHealthBanner": {
+    "single": "{channel} 目前无法发布。{reason}",
+    "multiple": "以下渠道目前无法发布：{channels}",
+    "degraded": "{channels} 的连接即将过期。请重新连接以继续发布。",
+    "genericReason": "请重新连接以继续发布。",
+    "reconnect": "重新连接"
   }
 }

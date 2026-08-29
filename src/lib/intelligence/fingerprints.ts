@@ -9,6 +9,7 @@ import {
   type FingerprintRequest,
 } from './fingerprint-schemas';
 import { executeAudienceFitJob, type AudienceFitRequest } from './audience-fit-analysis';
+import { refundAiOperation } from './usage';
 
 export const FINGERPRINT_ANALYSIS_VERSION = 'fingerprint-v1';
 const MAX_ATTEMPTS = 5;
@@ -119,6 +120,12 @@ export async function createFingerprintJob(input: {
       idempotencyKey: key,
       ...(input.applyToSocialPostId ? { applyToSocialPostId: input.applyToSocialPostId } : {}),
       system: input.system === true,
+      // System-initiated fingerprints are not billed to the workspace, so
+      // there is nothing to give back if they fail. User-initiated ones are
+      // charged by the route before this call, and the worker refunds them on
+      // a terminal failure.
+      aiOperationCharged: input.system !== true,
+      aiOperationRefundedAt: null,
       attempts: 0,
       nextAttemptAt: now,
       createdAt: snapshot.data()?.createdAt || now,
@@ -279,10 +286,45 @@ export async function processIntelligenceJobs(
       const attempts = (Number(data.attempts) || 0) + 1;
       const dead = attempts >= MAX_ATTEMPTS;
       const delayMs = Math.min(6 * 60 * 60_000, 30_000 * (2 ** Math.max(0, attempts - 1)));
+
+      // The operation was charged when the job was enqueued, so a job that
+      // finally gives up owes the workspace its charge back. Only on the
+      // terminal attempt: a retry that later succeeds still consumed exactly
+      // one operation. `aiOperationRefundedAt` makes the refund idempotent if
+      // this branch is somehow reached twice for the same job.
+      const owesRefund =
+        dead && data.aiOperationCharged === true && !data.aiOperationRefundedAt;
+      let refundedAt: string | null = null;
+      if (owesRefund) {
+        try {
+          await refundAiOperation({ workspaceId });
+          refundedAt = new Date().toISOString();
+        } catch (refundError) {
+          logger.error('intelligence job AI operation refund failed', {
+            event: 'intelligence.job_refund_failed',
+            workspaceId,
+            jobId: doc.id,
+            err: refundError,
+          });
+        }
+      }
+
+      logger.warn('intelligence job attempt failed', {
+        event: 'intelligence.job_failed',
+        workspaceId,
+        jobId: doc.id,
+        jobType: typeof data.type === 'string' ? data.type : 'unknown',
+        attempts,
+        dead,
+        refunded: Boolean(refundedAt),
+        err: error,
+      });
+
       await doc.ref.set({
         status: dead ? 'dead_letter' : 'queued',
         lastErrorCode: error instanceof Error ? error.message.slice(0, 160) : 'unknown',
         nextAttemptAt: dead ? null : new Date(Date.parse(nowIso) + delayMs).toISOString(),
+        ...(refundedAt ? { aiOperationRefundedAt: refundedAt } : {}),
         leaseId: FieldValue.delete(),
         leaseUntil: FieldValue.delete(),
         updatedAt: new Date().toISOString(),

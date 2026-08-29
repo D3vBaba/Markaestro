@@ -5,6 +5,7 @@ import { countPendingInvitesForEmail } from '@/lib/team-invites';
 import { decodeSessionCookie } from '@/lib/session-cookie';
 import { parseBearerToken } from '@/lib/bearer';
 import { pickLocaleFromAcceptLanguage } from '@/i18n/routing';
+import { annotateRequestContext, enterRequestContext } from '@/lib/request-context';
 import type { WorkspaceRole } from '@/lib/schemas';
 
 export type RequestContext = {
@@ -151,6 +152,11 @@ async function findUserMembership(uid: string): Promise<{ workspaceId: string; r
 }
 
 export async function requireContext(req: Request): Promise<RequestContext> {
+  // Adopt the id the edge minted (or mint one for direct/server-to-server
+  // calls) before anything can fail, so an UNAUTHENTICATED throw two lines
+  // down still logs and reports under the same id.
+  enterRequestContext({ headers: req.headers });
+
   const token = getBearerToken(req);
   const sessionCookie = getSessionCookie(req);
 
@@ -234,6 +240,8 @@ export async function requireContext(req: Request): Promise<RequestContext> {
     acceptLanguage,
     emailVerified,
   );
+
+  annotateRequestContext({ uid: resolved.uid, workspaceId: resolved.workspaceId });
 
   return { ...resolved, emailVerified };
 }

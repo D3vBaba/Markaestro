@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError } from '@/lib/api-response';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -140,10 +141,25 @@ async function proxyVideo(req: NextRequest, method: 'GET' | 'HEAD') {
   });
 }
 
+/**
+ * Guarded for the same reason as the image proxy: an upstream rejection or a
+ * stream error used to escape as an unshaped framework 500. TikTok's
+ * PULL_FROM_URL fetch is the main caller, and it reads the status code.
+ */
 export async function GET(req: NextRequest) {
-  return proxyVideo(req, 'GET');
+  try {
+    return await proxyVideo(req, 'GET');
+  } catch (error) {
+    return apiError(error);
+  }
 }
 
 export async function HEAD(req: NextRequest) {
-  return proxyVideo(req, 'HEAD');
+  try {
+    return await proxyVideo(req, 'HEAD');
+  } catch (error) {
+    // A HEAD response must not carry a body; apiError's status is the part
+    // that matters to the caller.
+    return new NextResponse(null, { status: apiError(error).status });
+  }
 }

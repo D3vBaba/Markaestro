@@ -26,6 +26,12 @@
     "networkError": "Erro de rede. Verifique sua conexão e tente novamente.",
     "default": "Falha na autenticação. Tente novamente."
   },
+  "requestErrors": {
+    "malformedResponse": "O servidor enviou uma resposta que não conseguimos ler. Tente novamente.",
+    "internalError": "Algo deu errado do nosso lado. Tente novamente.",
+    "timeout": "A solicitação expirou. Tente novamente.",
+    "reference": "Referência: {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "marca",
@@ -35,7 +41,8 @@
       "post": "postagem",
       "workspace": "espaço de trabalho",
       "account": "conta",
-      "experiment": "experimento"
+      "experiment": "experimento",
+      "mediaAsset": "arquivo de mídia"
     },
     "titleGeneric": "Excluir {entity}",
     "titleNamed": "Excluir {entity}?",

@@ -3,6 +3,7 @@ import { workspaceCollection } from '@/lib/firestore-paths';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
+import { releaseProductMedia } from '@/lib/media/asset-store';
 import { updateProductSchema } from '@/lib/schemas';
 import { getAllMatchingDocs } from '@/lib/firestore-pagination';
 
@@ -85,7 +86,11 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       await batch.commit();
     }
 
+    const product = snap.data() as Record<string, unknown>;
     await adminDb.recursiveDelete(ref);
+    // Detached posts keep their own media, so only the product's brand assets
+    // lose a reference here.
+    await releaseProductMedia(ctx.workspaceId, product);
     return apiOk({ ok: true, id, detachedPosts: referencingPosts.length });
   } catch (error) {
     return apiError(error);

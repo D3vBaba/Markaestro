@@ -21,7 +21,9 @@ vi.mock('@/lib/workers/due-workspaces', () => ({
 }));
 
 vi.mock('@/lib/logger', () => ({
-  logger: { info: vi.fn() },
+  // Every level, not just the ones this route calls directly: apiError now
+  // routes its unhandled-error branch through logger.error.
+  logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn(), critical: vi.fn() },
   requestIdFromHeaders: () => 'test-request-id',
 }));
 

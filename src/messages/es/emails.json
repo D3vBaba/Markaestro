@@ -60,6 +60,17 @@
       "queueLink": "Abrir tu cola de publicación: {url}"
     }
   },
+  "channelHealth": {
+    "subject": "Vuelve a conectar {channelLabel} antes de tu próxima publicación programada",
+    "preheader": "{channelLabel} no puede publicar ahora mismo.",
+    "bodyIntro": "Tienes {count} publicaciones programadas en las próximas 24 horas que necesitan {channelLabel}, y {channelLabel} no puede publicar ahora mismo. Vuelve a conectarlo y la programación seguirá según lo previsto.",
+    "cta": "Volver a conectar el canal",
+    "footerNote": "Recibes este correo porque una publicación programada en tu espacio de Markaestro usa un canal que no está listo.",
+    "plain": {
+      "heading": "Vuelve a conectar {channelLabel} antes de tu próxima publicación programada",
+      "reconnectLink": "Volver a conectar el canal: {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "Termina tu publicación de TikTok para {brandName}",
     "subjectNoBrand": "Termina tu publicación de TikTok",

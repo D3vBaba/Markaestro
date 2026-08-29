@@ -43,6 +43,31 @@ const intlMiddleware = createMiddleware(routing);
  */
 const NEVER_RELOCATED_PATHS = new Set<string>(['/robots.txt']);
 
+/**
+ * Request id, minted here so every log line, every Sentry event, and the id
+ * shown in a user's error toast are the same string.
+ *
+ * Deliberately duplicated from `src/lib/request-context.ts` rather than
+ * imported: this file runs in the Edge runtime, and that module depends on
+ * `node:async_hooks`. The header name and the accepted shape are the contract
+ * between them, and `request-context.test.ts` pins both.
+ */
+const REQUEST_ID_HEADER = 'x-request-id';
+const REQUEST_ID_PATTERN = /^[A-Za-z0-9_-]{8,128}$/;
+
+/**
+ * Adopt the caller's id when it is well-formed, otherwise mint one. Callers
+ * (our own browser client) supply an id so a screenshot of a failure can be
+ * traced; validating the shape keeps arbitrary caller text out of the logs.
+ */
+function ensureRequestId(headers: Headers): string {
+  const supplied = headers.get(REQUEST_ID_HEADER);
+  if (supplied && REQUEST_ID_PATTERN.test(supplied)) return supplied;
+  const minted = crypto.randomUUID();
+  headers.set(REQUEST_ID_HEADER, minted);
+  return minted;
+}
+
 function splitEnabled(): boolean {
   const v = process.env.APP_DOMAIN_SPLIT_ENABLED;
   return v === '1' || v === 'true';
@@ -155,7 +180,10 @@ function corsAllowList(): string[] {
 function nextWithPathname(req: NextRequest): NextResponse {
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-pathname', req.nextUrl.pathname);
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  const requestId = ensureRequestId(requestHeaders);
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
+  res.headers.set(REQUEST_ID_HEADER, requestId);
+  return res;
 }
 
 function attachCors(req: NextRequest, res: NextResponse): NextResponse {
@@ -167,7 +195,10 @@ function attachCors(req: NextRequest, res: NextResponse): NextResponse {
   res.headers.append('Vary', 'Origin');
   res.headers.set('Access-Control-Allow-Credentials', 'false');
   res.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-  res.headers.set('Access-Control-Allow-Headers', 'Authorization,Content-Type,Idempotency-Key');
+  res.headers.set('Access-Control-Allow-Headers', 'Authorization,Content-Type,Idempotency-Key,X-Request-Id');
+  // Without this the browser hides the id from the very clients most likely
+  // to need it when reporting a failed call.
+  res.headers.set('Access-Control-Expose-Headers', 'X-Request-Id');
   res.headers.set('Access-Control-Max-Age', '86400');
   return res;
 }
@@ -198,7 +229,11 @@ export default async function proxy(req: NextRequest) {
     if (req.method === 'OPTIONS') {
       return attachCors(req, new NextResponse(null, { status: 204 }));
     }
-    return attachCors(req, NextResponse.next());
+    const requestHeaders = new Headers(req.headers);
+    const requestId = ensureRequestId(requestHeaders);
+    const res = attachCors(req, NextResponse.next({ request: { headers: requestHeaders } }));
+    res.headers.set(REQUEST_ID_HEADER, requestId);
+    return res;
   }
 
   // --- Host-based split (marketing apex vs. app subdomain) ---

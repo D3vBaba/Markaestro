@@ -322,6 +322,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     // Provider-specific post-processing
     if (provider === 'meta') {
       extraData.pageSelectionRequired = false;
+      // Written on every Meta callback so a successful reconnect clears a
+      // previous degraded exchange rather than leaving the flag latched true.
+      extraData.tokenExchangeDegraded = false;
       // Exchange short-lived token for long-lived token (60 days)
       // This is critical — without it the token expires in ~1-2 hours
       try {
@@ -339,9 +342,30 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
           tokens.accessToken = llData.access_token;
           // Long-lived tokens last ~60 days
           tokens.expiresIn = llData.expires_in ? Number(llData.expires_in) : 60 * 24 * 60 * 60;
+        } else {
+          // A 200 with no access_token is the common shape here (an app
+          // secret rotation, a disabled app), and it used to be indistinguishable
+          // from success.
+          throw new Error(
+            typeof llData?.error?.message === 'string'
+              ? 'LONG_LIVED_EXCHANGE_REJECTED'
+              : 'LONG_LIVED_EXCHANGE_EMPTY',
+          );
         }
-      } catch {
-        // Continue with short-lived token if exchange fails
+      } catch (error) {
+        // Keep the short-lived token: a connection that works for an hour
+        // beats refusing the connection outright. But make the degradation
+        // visible, because the alternative is a connection that looks healthy,
+        // expires in about an hour instead of about sixty days, and first
+        // announces itself as a failed publish days later.
+        extraData.tokenExchangeDegraded = true;
+        extraData.tokenExchangeDegradedAt = new Date().toISOString();
+        logger.warn('long-lived token exchange failed; continuing with the short-lived token', {
+          event: 'oauth.long_lived_exchange_failed',
+          provider,
+          workspaceId,
+          err: error,
+        });
       }
 
       // Persist the app-scoped user id so the deauthorize / data-deletion
@@ -405,6 +429,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       // this, any hiccup in ig_exchange_token left Instagram "unlinking itself"
       // because storeTokens never ran.
       let exchangeRefused = false;
+      extraData.tokenExchangeDegraded = false;
       try {
         const longLivedTokens = await exchangeInstagramToken(tokens);
         tokens.accessToken = longLivedTokens.accessToken;
@@ -412,7 +437,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         tokens.expiresIn = longLivedTokens.expiresIn;
       } catch (e) {
         exchangeRefused = e instanceof Error && e.message === IG_LOGIN_UNSUPPORTED_MESSAGE;
-        console.warn('Instagram long-lived exchange failed:', e instanceof Error ? e.message : e);
+        extraData.tokenExchangeDegraded = true;
+        extraData.tokenExchangeDegradedAt = new Date().toISOString();
+        logger.warn('long-lived token exchange failed; continuing with the short-lived token', {
+          event: 'oauth.long_lived_exchange_failed',
+          provider: 'instagram',
+          workspaceId,
+          exchangeRefused,
+          err: e,
+        });
       }
 
       try {
@@ -471,12 +504,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       }
       // Exchange the short-lived token (~1h) for a long-lived token (~60d).
       // Without this, the connection expires before most scheduled posts land.
+      extraData.tokenExchangeDegraded = false;
       try {
         const longLived = await exchangeThreadsLongLivedToken(tokens.accessToken);
         tokens.accessToken = longLived.accessToken;
         if (longLived.expiresIn) tokens.expiresIn = longLived.expiresIn;
       } catch (e) {
-        console.warn('Threads long-lived exchange failed:', e instanceof Error ? e.message : e);
+        extraData.tokenExchangeDegraded = true;
+        extraData.tokenExchangeDegradedAt = new Date().toISOString();
+        logger.warn('long-lived token exchange failed; continuing with the short-lived token', {
+          event: 'oauth.long_lived_exchange_failed',
+          provider: 'threads',
+          workspaceId,
+          err: e,
+        });
       }
       const profile = await fetchThreadsProfile(tokens.accessToken);
       extraData.threadsUserId = profile.threadsUserId;

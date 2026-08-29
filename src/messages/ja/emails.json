@@ -60,6 +60,17 @@
       "queueLink": "投稿予定を開く：{url}"
     }
   },
+  "channelHealth": {
+    "subject": "次の予約投稿の前に {channelLabel} を再接続してください",
+    "preheader": "{channelLabel} は現在公開できません。",
+    "bodyIntro": "今後24時間以内に {channelLabel} を使う予約投稿が {count} 件あります。{channelLabel} は現在公開できません。再接続すれば予定どおりに実行されます。",
+    "cta": "チャネルを再接続",
+    "footerNote": "Markaestro ワークスペースの予約投稿が、公開できないチャネルを使っているため、このメールをお送りしています。",
+    "plain": {
+      "heading": "次の予約投稿の前に {channelLabel} を再接続してください",
+      "reconnectLink": "チャネルを再接続: {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "{brandName}のTikTok投稿を完了してください",
     "subjectNoBrand": "TikTok投稿を完了してください",

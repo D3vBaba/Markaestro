@@ -26,6 +26,12 @@
     "networkError": "네트워크 오류입니다. 연결을 확인한 후 다시 시도하세요.",
     "default": "인증에 실패했습니다. 다시 시도하세요."
   },
+  "requestErrors": {
+    "malformedResponse": "서버가 읽을 수 없는 응답을 보냈습니다. 다시 시도해 주세요.",
+    "internalError": "서버 쪽에서 문제가 발생했습니다. 다시 시도해 주세요.",
+    "timeout": "요청 시간이 초과되었습니다. 다시 시도해 주세요.",
+    "reference": "참조: {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "브랜드",
@@ -35,7 +41,8 @@
       "post": "게시물",
       "workspace": "워크스페이스",
       "account": "계정",
-      "experiment": "실험"
+      "experiment": "실험",
+      "mediaAsset": "미디어 파일"
     },
     "titleGeneric": "{entity} 삭제",
     "titleNamed": "{entity}을(를) 삭제할까요?",

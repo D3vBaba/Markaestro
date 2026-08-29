@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { apiPatch } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
+import { toastApiError } from "@/lib/error-toast";
 
 type InboxItem = {
   id: string;
@@ -31,7 +32,13 @@ export default function InboxMenu() {
   const unread = query.data?.unread || 0;
 
   async function markRead(id: string) {
-    await apiPatch("/api/inbox", { id, read: true });
+    // Checked, not fire-and-forget: invalidating on a failed write refetches
+    // the same unread item and silently undoes what the user just did.
+    const res = await apiPatch("/api/inbox", { id, read: true });
+    if (!res.ok) {
+      toastApiError(res.data, t("markReadFailed"));
+      return;
+    }
     invalidateQueries("/api/inbox");
   }
 

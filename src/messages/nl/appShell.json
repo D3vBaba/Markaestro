@@ -96,6 +96,14 @@
   },
   "inbox": {
     "title": "Postvak",
-    "empty": "Nog geen meldingen."
+    "empty": "Nog geen meldingen.",
+    "markReadFailed": "Kon dit niet als gelezen markeren. Probeer het opnieuw."
+  },
+  "channelHealthBanner": {
+    "single": "{channel} kan op dit moment niet publiceren. {reason}",
+    "multiple": "Deze kanalen kunnen op dit moment niet publiceren: {channels}",
+    "degraded": "De verbinding voor {channels} verloopt binnenkort. Verbind opnieuw om te blijven publiceren.",
+    "genericReason": "Verbind opnieuw om te blijven publiceren.",
+    "reconnect": "Opnieuw verbinden"
   }
 }

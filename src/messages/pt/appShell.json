@@ -96,6 +96,14 @@
   },
   "inbox": {
     "title": "Caixa de entrada",
-    "empty": "Ainda sem notificações."
+    "empty": "Ainda sem notificações.",
+    "markReadFailed": "Não foi possível marcar como lido. Tente novamente."
+  },
+  "channelHealthBanner": {
+    "single": "{channel} não consegue publicar neste momento. {reason}",
+    "multiple": "Estes canais não conseguem publicar neste momento: {channels}",
+    "degraded": "A ligação de {channels} vai expirar em breve. Volte a ligá-la para continuar a publicar.",
+    "genericReason": "Volte a ligá-lo para continuar a publicar.",
+    "reconnect": "Voltar a ligar"
   }
 }

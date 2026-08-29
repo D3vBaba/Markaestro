@@ -26,6 +26,12 @@
     "networkError": "ネットワークエラーです。接続を確認して再試行してください。",
     "default": "認証に失敗しました。もう一度お試しください。"
   },
+  "requestErrors": {
+    "malformedResponse": "サーバーから読み取れない応答が返されました。もう一度お試しください。",
+    "internalError": "こちら側で問題が発生しました。もう一度お試しください。",
+    "timeout": "リクエストがタイムアウトしました。もう一度お試しください。",
+    "reference": "参照: {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "ブランド",
@@ -35,7 +41,8 @@
       "post": "投稿",
       "workspace": "ワークスペース",
       "account": "アカウント",
-      "experiment": "実験"
+      "experiment": "実験",
+      "mediaAsset": "メディアファイル"
     },
     "titleGeneric": "{entity}を削除",
     "titleNamed": "{entity}を削除しますか？",

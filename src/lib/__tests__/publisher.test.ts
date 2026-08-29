@@ -44,6 +44,69 @@ describe('publishPost', () => {
     expect(getAdapterForChannelMock).not.toHaveBeenCalled();
   });
 
+  it('refuses a payload the channel contract does not allow, before the adapter', async () => {
+    // The metrics half of PLATFORM_CAPABILITY_REGISTRY has policed adapter
+    // responses since it was written; the publishing half had no runtime
+    // contract at all, so a drifted declaration cost nothing until a user hit
+    // it. Instagram requires media, so a text-only post must never reach the
+    // platform.
+    getAdapterForChannelMock.mockReturnValue({
+      publish: vi.fn(),
+      validateConnection: () => null,
+    });
+
+    const { publishPost } = await import('../social/publisher');
+
+    const result = await publishPost('ws_123', 'brand1', {
+      channel: 'instagram',
+      content: 'Caption only',
+      mediaUrls: [],
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/requires at least one image or video/);
+    expect(getConnectionForChannelMock).not.toHaveBeenCalled();
+  });
+
+  it('states the real ceiling when a post exceeds a channel media limit', async () => {
+    getAdapterForChannelMock.mockReturnValue({
+      publish: vi.fn(),
+      validateConnection: () => null,
+    });
+
+    const { publishPost } = await import('../social/publisher');
+
+    const result = await publishPost('ws_123', 'brand1', {
+      channel: 'pinterest',
+      content: 'Six images',
+      mediaUrls: Array.from({ length: 6 }, (_, i) => `https://cdn.example.com/${i}.jpg`),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('5');
+    expect(result.error).toContain('6');
+  });
+
+  it('lets a payload the contract allows through to the adapter', async () => {
+    const publishMock = vi.fn().mockResolvedValue({ success: true, externalId: 'ig_1' });
+    getAdapterForChannelMock.mockReturnValue({
+      publish: publishMock,
+      validateConnection: () => null,
+    });
+    getConnectionForChannelMock.mockResolvedValue({ status: 'connected' });
+
+    const { publishPost } = await import('../social/publisher');
+
+    const result = await publishPost('ws_123', 'brand1', {
+      channel: 'instagram',
+      content: 'With an image',
+      mediaUrls: ['https://cdn.example.com/a.jpg'],
+    });
+
+    expect(result.success).toBe(true);
+    expect(publishMock).toHaveBeenCalled();
+  });
+
   it('pushes TikTok posts to the adapter using the platform inbox handoff', async () => {
     const publishMock = vi.fn().mockResolvedValue({
       success: false,

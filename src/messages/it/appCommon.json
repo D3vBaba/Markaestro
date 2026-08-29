@@ -26,6 +26,12 @@
     "networkError": "Errore di rete. Controlla la connessione e riprova.",
     "default": "Autenticazione non riuscita. Riprova."
   },
+  "requestErrors": {
+    "malformedResponse": "Il server ha inviato una risposta illeggibile. Riprova.",
+    "internalError": "Si è verificato un problema da parte nostra. Riprova.",
+    "timeout": "La richiesta è scaduta. Riprova.",
+    "reference": "Riferimento: {requestId}"
+  },
   "confirmDeleteDialog": {
     "entities": {
       "brand": "brand",
@@ -35,7 +41,8 @@
       "post": "post",
       "workspace": "spazio di lavoro",
       "account": "account utente",
-      "experiment": "esperimento"
+      "experiment": "esperimento",
+      "mediaAsset": "file multimediale"
     },
     "titleGeneric": "Elimina {entity}",
     "titleNamed": "Eliminare {entity}?",

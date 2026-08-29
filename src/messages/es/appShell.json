@@ -96,6 +96,14 @@
   },
   "inbox": {
     "title": "Bandeja",
-    "empty": "Aún no hay notificaciones."
+    "empty": "Aún no hay notificaciones.",
+    "markReadFailed": "No se pudo marcar como leído. Inténtalo de nuevo."
+  },
+  "channelHealthBanner": {
+    "single": "{channel} no puede publicar ahora mismo. {reason}",
+    "multiple": "Estos canales no pueden publicar ahora mismo: {channels}",
+    "degraded": "La conexión de {channels} caducará pronto. Vuelve a conectarla para seguir publicando.",
+    "genericReason": "Vuelve a conectarlo para seguir publicando.",
+    "reconnect": "Volver a conectar"
   }
 }

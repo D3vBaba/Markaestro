@@ -8,6 +8,8 @@ import { reserveStorage, refundStorage } from '@/lib/usage';
 import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 import { MEDIA_UPLOAD_TYPES, validateMediaUpload } from '@/lib/media-upload-policy';
 import { logger } from '@/lib/logger';
+import { createMediaAssetRecord, serializeMediaAsset } from '@/lib/media/asset-store';
+import { mediaAssetTypeForMimeType, readImageDimensions } from '@/lib/media/asset-metadata';
 
 export const runtime = 'nodejs';
 
@@ -44,14 +46,34 @@ export async function POST(req: Request) {
     const fileId = crypto.randomUUID();
     const filePath = `workspaces/${ctx.workspaceId}/uploads/${fileId}.${ext}`;
 
+    const uploadedAt = new Date().toISOString();
     const url = await uploadToStorage(filePath, buffer, file.type, {
       workspaceId: ctx.workspaceId,
       uploadedBy: ctx.uid,
-      uploadedAt: new Date().toISOString(),
+      uploadedAt,
+    });
+
+    // Record the asset so it can be listed and, crucially, deleted. Without
+    // this document the bytes reserved above could never be released, and the
+    // workspace's storage counter only ever grew.
+    const dimensions = await readImageDimensions(buffer, file.type);
+    const asset = await createMediaAssetRecord(ctx.workspaceId, {
+      id: `ast_${fileId}`,
+      type: mediaAssetTypeForMimeType(file.type),
+      storagePath: filePath,
+      downloadUrl: url,
+      mimeType: file.type,
+      sizeBytes: file.size,
+      width: dimensions.width,
+      height: dimensions.height,
+      originalFileName: file.name || `${fileId}.${ext}`,
+      createdByType: 'user',
+      createdById: ctx.uid,
+      createdAt: uploadedAt,
     });
 
     reservedStorage = null;
-    return apiOk({ ok: true, url, contentType: file.type });
+    return apiOk({ ok: true, url, contentType: file.type, asset: serializeMediaAsset({ ...asset, id: asset.id }) });
   } catch (error) {
     if (reservedStorage) {
       await refundStorage(reservedStorage.workspaceId, reservedStorage.bytes);

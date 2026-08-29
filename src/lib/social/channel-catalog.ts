@@ -3,6 +3,13 @@ import type { SocialChannel } from '@/lib/schemas';
 export type SocialEditorMode = 'normal' | 'markdown' | 'html' | 'none';
 export type SocialMediaKind = 'text' | 'image' | 'video' | 'carousel';
 
+/**
+ * The catalog is the source of truth for what a channel accepts.
+ * `PLATFORM_CAPABILITY_REGISTRY[channel].publishing` restates the same facts
+ * as booleans and is checked against this file by
+ * `platform-capabilities.test.ts`. Change `mediaKinds` or `maxMediaItems`
+ * here, not there.
+ */
 export type ManagedSocialChannel = {
   channel: SocialChannel;
   label: string;
@@ -55,7 +62,10 @@ export const socialChannelCatalog = [
     mediaKinds: ['image', 'video'],
     mediaRequired: true,
     maxMediaItems: 35,
-    supportsDirectPublish: false,
+    // Direct Post is live for every connected account, so `false` here was
+    // stale. Nothing reads this field yet; the capability parity test is what
+    // now keeps it and the registry from drifting again.
+    supportsDirectPublish: true,
     supportsScheduling: true,
     setupHint: 'Connect TikTok in brand settings.',
   },

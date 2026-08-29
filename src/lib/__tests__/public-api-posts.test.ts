@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { assertPublicPostDeletable, assertPublicPostInBrandScope, getDeliveryModeForChannel, getPublicPostInitialState, resolvePublicPostBrandScope, resolveRequestedDeliveryMode, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
-import { getConnectScheduledDeliveryMode, resolveConnectSchedule } from '../public-api/connect-compat';
+import { getConnectDeliveryMode, resolveConnectSchedule } from '../public-api/connect-compat';
+import { ApiValidationError } from '../api-response';
 
 describe('public post validation', () => {
   it('allows facebook text-only posts', () => {
@@ -94,8 +95,40 @@ describe('public post validation', () => {
     expect(resolveConnectSchedule(null, false)).toBeNull();
     expect(resolveConnectSchedule('2026-07-12T21:15:00Z', false)).toBe('2026-07-12T21:15:00.000Z');
     expect(() => resolveConnectSchedule('not-a-date', false)).toThrow('VALIDATION_INVALID_SCHEDULED_AT');
-    expect(getConnectScheduledDeliveryMode('tiktok')).toBe('platform_inbox');
-    expect(getConnectScheduledDeliveryMode('instagram')).toBe('direct_publish');
+    expect(getConnectDeliveryMode('tiktok')).toBe('platform_inbox');
+    expect(getConnectDeliveryMode('instagram')).toBe('direct_publish');
+    expect(getConnectDeliveryMode('facebook')).toBe('direct_publish');
+  });
+
+  it('names the channel and its limit when a post carries too much media', () => {
+    let thrown: unknown;
+    try {
+      validatePublicPostInput({
+        channel: 'instagram',
+        caption: 'Carousel',
+        mediaAssetIds: Array.from({ length: 12 }, (_, i) => `ast_${i}`),
+      });
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(ApiValidationError);
+    const error = thrown as ApiValidationError;
+    expect(error.message).toBe('VALIDATION_TOO_MANY_MEDIA_ASSETS');
+    expect(error.userMessage).toBe('Instagram allows a maximum of 10 media items per post. This post has 12.');
+    expect(error.details).toEqual({
+      field: 'mediaAssetIds',
+      channel: 'instagram',
+      limit: 10,
+      received: 12,
+    });
+  });
+
+  it('accepts a full 10-image Instagram carousel', () => {
+    expect(() => validatePublicPostInput({
+      channel: 'instagram',
+      caption: 'Carousel',
+      mediaAssetIds: Array.from({ length: 10 }, (_, i) => `ast_${i}`),
+    })).not.toThrow();
   });
 
   it('rejects TikTok posts with multiple videos', () => {

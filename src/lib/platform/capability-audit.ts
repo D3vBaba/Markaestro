@@ -36,6 +36,10 @@ export async function runQuarterlyCapabilityAuditIfDue(now = new Date()): Promis
     docsUrl: contract.approval.docsUrl,
     previousAuditAt: contract.approval.lastAuditedAt,
     sunsetAt: contract.approval.sunsetAt,
+    // The audit record used to omit the publishing block entirely, so an
+    // operator reviewing platform contracts saw the approval and metrics
+    // halves and had no way to notice that the publishing half had drifted.
+    publishing: contract.publishing,
   }));
   await adminDb.doc(`_platformCapabilityAudits/${id}`).set({
     id,

@@ -96,6 +96,14 @@
   },
   "inbox": {
     "title": "받은편지함",
-    "empty": "아직 알림이 없습니다."
+    "empty": "아직 알림이 없습니다.",
+    "markReadFailed": "읽음으로 표시하지 못했습니다. 다시 시도해 주세요."
+  },
+  "channelHealthBanner": {
+    "single": "{channel}이(가) 지금은 게시할 수 없습니다. {reason}",
+    "multiple": "다음 채널은 지금 게시할 수 없습니다: {channels}",
+    "degraded": "{channels}의 연결이 곧 만료됩니다. 계속 게시하려면 다시 연결하세요.",
+    "genericReason": "계속 게시하려면 다시 연결하세요.",
+    "reconnect": "다시 연결"
   }
 }

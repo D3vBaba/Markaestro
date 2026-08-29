@@ -9,7 +9,7 @@ import { createPublicPost } from '@/lib/public-api/posts';
 import { executeListQueryPage, type FieldFilter } from '@/lib/firestore-list-query';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
 import {
-  getConnectScheduledDeliveryMode,
+  getConnectDeliveryMode,
   mapPostStatus,
   parseAccountId,
   resolveConnectSchedule,
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
     const outcomes: Array<
       | { ok: true; value: { id: string; channel: string; status: string } }
-      | { ok: false; value: { account: string; error: string } }
+      | { ok: false; value: { account: string; error: string }; cause: unknown }
     > = new Array(accounts.length);
     let cursor = 0;
     const worker = async () => {
@@ -66,7 +66,12 @@ export async function POST(req: Request) {
             scheduledAt: null,
             productId,
             destinationId,
-            ...(scheduledAt ? { deliveryMode: getConnectScheduledDeliveryMode(channel) } : {}),
+            // Every Connect create opts into API publishing, scheduled or not.
+            // Draft-then-publish is the standard flow for off-the-shelf
+            // scheduling clients, and it used to inherit the public API's
+            // manual-reminder default for Meta channels, so the later publish
+            // call parked the post in the manual queue instead of sending it.
+            deliveryMode: getConnectDeliveryMode(channel),
           });
           if (scheduledAt) {
             const now = new Date().toISOString();
@@ -86,9 +91,13 @@ export async function POST(req: Request) {
             },
           };
         } catch (e) {
+          // `cause` keeps the original error so an all-destinations failure can
+          // rethrow it intact: re-wrapping in a bare Error would drop the
+          // message and details a structured validation error carries.
           outcomes[index] = {
             ok: false,
             value: { account, error: e instanceof Error ? e.message : 'UNKNOWN_ERROR' },
+            cause: e,
           };
         }
       }
@@ -97,11 +106,14 @@ export async function POST(req: Request) {
       Array.from({ length: Math.min(DESTINATION_CREATE_CONCURRENCY, accounts.length) }, () => worker()),
     );
     const created = outcomes.filter((outcome): outcome is Extract<(typeof outcomes)[number], { ok: true }> => outcome.ok).map((outcome) => outcome.value);
-    const errors = outcomes.filter((outcome): outcome is Extract<(typeof outcomes)[number], { ok: false }> => !outcome.ok).map((outcome) => outcome.value);
+    const failures = outcomes.filter((outcome): outcome is Extract<(typeof outcomes)[number], { ok: false }> => !outcome.ok);
+    const errors = failures.map((outcome) => outcome.value);
 
     if (created.length === 0) {
-      // Every destination failed — surface the first error with a 400.
-      throw new Error(errors[0]?.error || 'VALIDATION_POST_CREATE_FAILED');
+      // Every destination failed. Surface the first error as-is so a channel
+      // limit reaches the caller with its message and details attached.
+      if (failures[0]) throw failures[0].cause;
+      throw new Error('VALIDATION_POST_CREATE_FAILED');
     }
 
     if (scheduledAt) {

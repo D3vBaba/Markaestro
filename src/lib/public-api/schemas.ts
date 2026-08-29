@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { socialChannels } from '@/lib/schemas';
 import { publicApiScopes, publicDeliveryModes, publicWebhookEvents } from './scopes';
 import { postSettingsSchema } from './post-settings';
+import { webhookUrlProtocolIsAllowed } from './webhook-url';
 
 // Serialized post shape returned by the public API (matches serializePublicPost).
 // Legacy slideshow-exported posts may include optional slideshow metadata fields.
@@ -87,6 +88,14 @@ export const listPublicPostsSchema = z.object({
 });
 
 export const registerWebhookEndpointSchema = z.object({
-  url: z.string().trim().url().max(2000),
+  // The scheme check is the cheap half of the SSRF guard; the host and DNS
+  // half runs in `createWebhookEndpoint` (and again at delivery time) because
+  // it needs a network round trip. See `webhook-url.ts`.
+  url: z
+    .string()
+    .trim()
+    .url()
+    .max(2000)
+    .refine(webhookUrlProtocolIsAllowed, 'Webhook URL must use https'),
   events: z.array(z.enum(publicWebhookEvents)).min(1).max(publicWebhookEvents.length),
 });

@@ -60,6 +60,17 @@
       "queueLink": "Warteschlange öffnen: {url}"
     }
   },
+  "channelHealth": {
+    "subject": "Verbinde {channelLabel} vor deinem nächsten geplanten Beitrag neu",
+    "preheader": "{channelLabel} kann derzeit nicht veröffentlichen.",
+    "bodyIntro": "In den nächsten 24 Stunden sind {count} Beiträge geplant, die {channelLabel} benötigen, und {channelLabel} kann derzeit nicht veröffentlichen. Verbinde den Kanal neu, damit der Zeitplan wie geplant läuft.",
+    "cta": "Kanal neu verbinden",
+    "footerNote": "Du erhältst diese E-Mail, weil ein geplanter Beitrag in deinem Markaestro-Workspace einen Kanal nutzt, der nicht bereit ist.",
+    "plain": {
+      "heading": "Verbinde {channelLabel} vor deinem nächsten geplanten Beitrag neu",
+      "reconnectLink": "Kanal neu verbinden: {url}"
+    }
+  },
   "tiktokInbox": {
     "subjectWithBrand": "Schließe deinen TikTok-Beitrag für {brandName} ab",
     "subjectNoBrand": "Schließe deinen TikTok-Beitrag ab",

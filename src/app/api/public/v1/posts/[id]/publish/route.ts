@@ -6,7 +6,7 @@ import { assertPublicPostInBrandScope, getPublicPost } from '@/lib/public-api/po
 import { createRequestHash, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import { incrementApiClientStat } from '@/lib/public-api/usage';
-import { LEGACY_EXPORTED_FOR_REVIEW_STATUS, PLATFORM_ACTION_REQUIRED_STATUS } from '@/lib/tiktok-draft-flow';
+import { isResettablePublishState } from '@/lib/schemas';
 import { getPublishRunSkipReason } from '@/lib/public-api/publish-runs';
 import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 import { logger } from '@/lib/logger';
@@ -52,7 +52,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     const status = String(post.status || '');
-    if (!['draft', 'scheduled', 'failed', 'partial_failed', PLATFORM_ACTION_REQUIRED_STATUS, LEGACY_EXPORTED_FOR_REVIEW_STATUS].includes(status)) {
+    if (!isResettablePublishState(status)) {
       return Response.json({
         error: 'VALIDATION_POST_NOT_PUBLISHABLE',
       }, { status: 400, headers: ctx.rateLimitHeaders });
@@ -102,7 +102,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const latestSkipReason = getPublishRunSkipReason(latestPost);
       if (latestSkipReason) throw new Error('VALIDATION_POST_ALREADY_PUBLISHING');
       const latestStatus = String(latestPost.status || '');
-      if (!['draft', 'scheduled', 'failed', 'partial_failed', PLATFORM_ACTION_REQUIRED_STATUS, LEGACY_EXPORTED_FOR_REVIEW_STATUS].includes(latestStatus)) {
+      if (!isResettablePublishState(latestStatus)) {
         throw new Error('VALIDATION_POST_NOT_PUBLISHABLE');
       }
 

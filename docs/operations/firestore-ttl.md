@@ -29,6 +29,7 @@ declare -a TTL_COLLECTIONS=(
   'rawPlatformMetrics'
   'aiArtifacts'
   'conversionClicks'
+  'publishAttempts'
 )
 
 for collection in "${TTL_COLLECTIONS[@]}"; do
@@ -60,6 +61,7 @@ done
 | `rawPlatformMetrics` | 90 days | Metadata pointers and checksums for immutable compressed platform payloads |
 | `aiArtifacts` | 30 days | Validated AI response artifacts used for audit and repair diagnostics |
 | `conversionClicks` | 90 days | Opaque click identifiers retained beyond the default attribution window |
+| `publishAttempts` | 90 days | Per-channel, per-attempt publish outcomes behind the coarser `job_runs` summary |
 
 Raw metric objects live under
 `workspaces/{workspaceId}/private-intelligence/raw-platform-metrics/`. Configure

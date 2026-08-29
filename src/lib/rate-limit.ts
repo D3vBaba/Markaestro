@@ -85,6 +85,17 @@ export const RATE_LIMITS = {
   ai: { limit: 10, windowMs: 60_000 } as RateLimitConfig,
   /** Worker tick: 5 requests per minute */
   worker: { limit: 5, windowMs: 60_000 } as RateLimitConfig,
+  /**
+   * Conversion ingest: 300 events per minute per workspace. A real store sends
+   * single-digit conversions per minute, so this is generous while still
+   * bounding what a leaked ingest key can write.
+   */
+  ingest: { limit: 300, windowMs: 60_000 } as RateLimitConfig,
+  /**
+   * Link-shortener click recording: 60 per minute per IP per code. Limits only
+   * the analytics write, never the redirect itself.
+   */
+  redirect: { limit: 60, windowMs: 60_000 } as RateLimitConfig,
 } as const;
 
 export type ApplyRateLimitOptions = {

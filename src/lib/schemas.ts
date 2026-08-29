@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import { postSettingsSchema } from '@/lib/public-api/post-settings';
+import {
+  LEGACY_EXPORTED_FOR_REVIEW_STATUS,
+  PLATFORM_ACTION_REQUIRED_STATUS,
+} from '@/lib/manual-publish-flow';
 
 // ── Shared primitives ──────────────────────────────────────────────
 
@@ -79,6 +83,31 @@ export const tagsSchema = z
 
 export const socialChannels = ['facebook', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin'] as const;
 export const postStatuses = ['draft', 'scheduled', 'publishing', 'published', 'platform_action_required', 'failed', 'partial_failed'] as const;
+
+/**
+ * Statuses whose publish state (externalId, publishResults, retry markers) may
+ * be cleared when a post's content changes.
+ *
+ * A `published` post is deliberately absent: its externalId is the only handle
+ * the metrics poller has on the live platform post, so blanking it silently
+ * drops the post out of analytics forever. `publishing` is absent because the
+ * publisher is mid-flight and owns those fields.
+ *
+ * `POST /api/public/v1/posts/[id]/publish` gates on this same list, so the two
+ * surfaces cannot drift.
+ */
+export const RESETTABLE_PUBLISH_STATES = [
+  'draft',
+  'scheduled',
+  'failed',
+  'partial_failed',
+  PLATFORM_ACTION_REQUIRED_STATUS,
+  LEGACY_EXPORTED_FOR_REVIEW_STATUS,
+] as const;
+
+export function isResettablePublishState(status: unknown): boolean {
+  return RESETTABLE_PUBLISH_STATES.includes(status as (typeof RESETTABLE_PUBLISH_STATES)[number]);
+}
 export const contactStatuses = ['active', 'pending', 'bounced', 'unsubscribed'] as const;
 export const contactLifecycleStages = ['lead', 'trial', 'customer', 'churned', 'advocate'] as const;
 export const contactSources = ['organic', 'paid', 'referral', 'social', 'email', 'direct', 'other'] as const;
