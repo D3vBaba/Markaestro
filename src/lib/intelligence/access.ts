@@ -4,7 +4,7 @@ import type { SubscriptionRecord } from '@/lib/stripe/server';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 import { hasFeature } from '@/lib/stripe/entitlements';
 import { requireIntelligencePhase, type IntelligencePhase } from './feature-flags';
-import { requireIntelligencePreviewUser } from './preview-access';
+import { requireIntelligencePreviewUser } from './preview-access-server';
 
 /**
  * The one gate every Intelligence surface goes through.

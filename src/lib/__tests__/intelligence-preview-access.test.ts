@@ -21,7 +21,10 @@ vi.mock('@/lib/logger', () => ({
 }));
 
 async function load() {
-  const mod = await import('@/lib/intelligence/preview-access');
+  const mod = {
+    ...(await import('@/lib/intelligence/preview-access')),
+    ...(await import('@/lib/intelligence/preview-access-server')),
+  };
   mod.resetIntelligencePreviewCache();
   return mod;
 }
@@ -34,7 +37,7 @@ beforeEach(() => {
 });
 
 afterEach(async () => {
-  (await import('@/lib/intelligence/preview-access')).resetIntelligencePreviewCache();
+  (await import('@/lib/intelligence/preview-access-server')).resetIntelligencePreviewCache();
 });
 
 describe('intelligence preview access', () => {
