@@ -53,8 +53,17 @@ const VERBOSE = process.argv.includes('--verbose');
 const WORKSPACE_ARG = process.argv.find((arg) => arg.startsWith('--workspace='));
 const ONLY_WORKSPACE = WORKSPACE_ARG ? WORKSPACE_ARG.split('=')[1] : null;
 
+// The bucket name must be stated at init or `storage().bucket()` throws
+// before the dry-run prints a single line. Same source of truth as the app:
+// NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET (run with `node --env-file=.env.local`).
+const STORAGE_BUCKET = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+  || `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'markaestro-0226220726'}.firebasestorage.app`;
+
 if (!admin.apps.length) {
-  admin.initializeApp({ credential: admin.credential.applicationDefault() });
+  admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+    storageBucket: STORAGE_BUCKET,
+  });
 }
 
 const db = admin.firestore();
