@@ -16,7 +16,7 @@ import type {
   PublishResult,
 } from '../types';
 import type { SocialChannel } from '@/lib/schemas';
-import { getPinterestApiEnvironment, getPinterestApiUrl, isPinterestSandbox } from '@/lib/pinterest-api';
+import { getPinterestApiUrl, isPinterestSandbox, pinterestEnvironmentMismatch } from '@/lib/pinterest-api';
 
 // Pinterest API v5. Pins must be attached to a board — the board is selected
 // post-OAuth via /api/oauth/pages/pinterest/select and stored on the connection.
@@ -451,11 +451,10 @@ export const pinterestPublishingAdapter: PlatformAdapter = {
 
   validateConnection(connection, _channel: SocialChannel): string | null {
     void _channel;
-    const connectionEnvironment = getMeta<string>(connection, 'pinterestApiEnvironment', '');
-    const configuredEnvironment = getPinterestApiEnvironment();
-    if (connectionEnvironment && connectionEnvironment !== configuredEnvironment) {
-      return `Pinterest is connected to ${connectionEnvironment}, but Markaestro is configured for ${configuredEnvironment}. Reconnect Pinterest.`;
-    }
+    const environmentMismatch = pinterestEnvironmentMismatch(
+      getMeta<string>(connection, 'pinterestApiEnvironment', ''),
+    );
+    if (environmentMismatch) return environmentMismatch;
     if (!getBoardId(connection)) {
       return 'Pinterest board not selected. Pick a board from brand settings.';
     }

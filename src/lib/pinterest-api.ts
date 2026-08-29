@@ -56,3 +56,19 @@ export function getPinterestApiUrl(path = ''): string {
   const normalizedPath = path && !path.startsWith('/') ? `/${path}` : path;
   return `${PINTEREST_API_ORIGINS[getPinterestApiEnvironment()]}/v5${normalizedPath}`;
 }
+
+/**
+ * Sandbox and production tokens are not interchangeable. A connection minted
+ * against one origin is rejected by the other (401 / "authorization grant is
+ * invalid"), and Sandbox Pins are invisible to anyone but their creator.
+ *
+ * Returns a reconnect message when the stored environment disagrees with the
+ * runtime, or null when the connection can be used as-is.
+ */
+export function pinterestEnvironmentMismatch(
+  connectionEnvironment: string | undefined | null,
+): string | null {
+  const configuredEnvironment = getPinterestApiEnvironment();
+  if (!connectionEnvironment || connectionEnvironment === configuredEnvironment) return null;
+  return `Pinterest is connected to ${connectionEnvironment}, but Markaestro is configured for ${configuredEnvironment}. Reconnect Pinterest.`;
+}

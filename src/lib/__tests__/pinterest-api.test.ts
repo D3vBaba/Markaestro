@@ -4,6 +4,7 @@ import {
   getPinterestApiEnvironment,
   getPinterestApiUrl,
   isPinterestSandbox,
+  pinterestEnvironmentMismatch,
 } from '@/lib/pinterest-api';
 
 afterEach(() => {
@@ -44,6 +45,13 @@ describe('Pinterest API environment', () => {
     expect(getProviderConfig('pinterest').tokenUrl).toBe(
       'https://api.pinterest.com/v5/oauth/token',
     );
+  });
+
+  it('reports no mismatch when the connection matches the runtime', () => {
+    vi.stubEnv('PINTEREST_API_ENVIRONMENT', 'production');
+    expect(pinterestEnvironmentMismatch('production')).toBeNull();
+    expect(pinterestEnvironmentMismatch('')).toBeNull();
+    expect(pinterestEnvironmentMismatch(null)).toBeNull();
   });
 
   it('still rejects a malformed environment on a deployed runtime', () => {

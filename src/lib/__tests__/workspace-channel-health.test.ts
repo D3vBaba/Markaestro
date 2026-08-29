@@ -119,6 +119,57 @@ describe('listWorkspaceChannelHealth', () => {
     expect(facebook.destinations).toHaveLength(2);
   });
 
+  it('does not report a boardless Pinterest leftover as a broken destination', async () => {
+    // Same shape as the Facebook page-less credential: after a board is
+    // picked, the pending grant document stays behind with no boardId.
+    // Workspace health used worst-state, so that leftover marked Pinterest
+    // "not ready" while Settings still showed Linked for the real board.
+    setProducts([{ id: 'drip', name: 'DripCheckr' }]);
+    listConnectionsMock.mockImplementation(async (_ws: string, productId?: string) => {
+      if (!productId) return [];
+      return [
+        connection({
+          provider: 'pinterest',
+          connectionId: 'pinterest:1134555468535481313',
+          metadata: {},
+        }),
+        connection({
+          provider: 'pinterest',
+          connectionId: 'pinterest:1134555399818043261',
+          metadata: { boardId: '1134555399818043261', boardName: 'DripCheckr Brand' },
+        }),
+      ];
+    });
+
+    const { listWorkspaceChannelHealth } = await import('../social/channel-status');
+    const pinterest = (await listWorkspaceChannelHealth('ws1'))
+      .find((status) => status.channel === 'pinterest')!;
+
+    expect(pinterest.state).toBe('ready');
+    expect(pinterest.reason).toBeNull();
+    expect(pinterest.destinations).toHaveLength(1);
+    expect(pinterest.destinations[0].label).toBe('DripCheckr Brand');
+  });
+
+  it('treats Pinterest with only a leftover grant as having no destinations', async () => {
+    setProducts([{ id: 'drip', name: 'DripCheckr' }]);
+    listConnectionsMock.mockImplementation(async (_ws: string, productId?: string) => {
+      if (!productId) return [];
+      return [connection({
+        provider: 'pinterest',
+        connectionId: 'pinterest:cred',
+        metadata: {},
+      })];
+    });
+
+    const { listWorkspaceChannelHealth } = await import('../social/channel-status');
+    const pinterest = (await listWorkspaceChannelHealth('ws1'))
+      .find((status) => status.channel === 'pinterest')!;
+
+    expect(pinterest.destinations).toHaveLength(0);
+    expect(pinterest.state).toBe('disconnected');
+  });
+
   it('reports a channel with no real accounts anywhere as having no destinations', async () => {
     // The banner filter is destinations.length > 0 && state !== ready; a
     // never-connected channel must stay invisible to it.

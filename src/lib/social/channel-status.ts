@@ -284,6 +284,18 @@ export async function listManagedSocialChannelStatuses(
 const HEALTH_SWEEP_MAX_PRODUCTS = 50;
 
 /**
+ * Pending grants are not publish targets. Meta without a Page and Pinterest
+ * without a board are the credential leftover that board/Page selection
+ * writes beside the destination document; counting them as broken
+ * destinations is how a healthy linked channel still trips the banner.
+ */
+function isWorkspaceHealthDestination(connection: PlatformConnection): boolean {
+  if (connection.provider === 'meta') return Boolean(connection.metadata?.pageId);
+  if (connection.provider === 'pinterest') return Boolean(connection.metadata?.boardId);
+  return true;
+}
+
+/**
  * Workspace-wide channel health: the union of every REAL linked account
  * across every brand, worst state per channel.
  *
@@ -327,10 +339,12 @@ export async function listWorkspaceChannelHealth(
     const collect = (bundle: ConnectionBundle, productId: string | undefined, productName: string | null) => {
       if (!adapter) return;
       for (const match of findConnectionsForChannel(bundle, config.channel, productId)) {
-        // Real publish targets only: a Meta connection without a selected
-        // Page is a credential, and reporting it as a broken destination is
-        // exactly the false positive this function exists to end.
-        if (match.connection.provider === 'meta' && !match.connection.metadata?.pageId) continue;
+        // Real publish targets only. A Meta connection without a Page, or a
+        // Pinterest connection without a board, is a pending credential, and
+        // reporting it as a broken destination is the false positive this
+        // function exists to end (Facebook historically, Pinterest the same
+        // leftover-grant shape).
+        if (!isWorkspaceHealthDestination(match.connection)) continue;
         const destination = buildDestination(match, config, adapter);
         destinations.push({
           ...destination,

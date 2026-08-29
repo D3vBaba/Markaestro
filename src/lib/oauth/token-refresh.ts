@@ -16,6 +16,7 @@ import {
   shouldAttemptScheduledTokenRefresh,
   tokenRefreshRetryDelayMs,
 } from './token-refresh-policy';
+import { pinterestEnvironmentMismatch } from '@/lib/pinterest-api';
 
 type RefreshResult = {
   refreshed: number;
@@ -90,6 +91,28 @@ async function refreshConnectionDoc(
   // Meta page tokens are long-lived; only refresh user tokens
   if (provider === 'meta' && data.metadata.pageAccessTokenEncrypted && !data.tokenExpiresAt) {
     return;
+  }
+
+  // A Pinterest grant minted against a different API origin than this
+  // runtime cannot be refreshed here. Retrying just writes lastRefreshError
+  // onto a connection Settings already shows as Linked. Skip the provider
+  // call and clear the stale error so the tile stays linked.
+  if (provider === 'pinterest') {
+    const storedEnvironment = typeof data.metadata?.pinterestApiEnvironment === 'string'
+      ? data.metadata.pinterestApiEnvironment
+      : '';
+    if (pinterestEnvironmentMismatch(storedEnvironment)) {
+      if (data.metadata.lastRefreshError || data.metadata.nextRefreshAttemptAt) {
+        await connRef.update({
+          'metadata.lastRefreshError': null,
+          'metadata.refreshFailureCount': 0,
+          'metadata.nextRefreshAttemptAt': null,
+          updatedAt: now.toISOString(),
+        });
+      }
+      result.skipped++;
+      return;
+    }
   }
 
   if (!shouldAttemptScheduledTokenRefresh(provider, data, now)) {
