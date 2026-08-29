@@ -12,6 +12,9 @@ const listQuerySchema = z.object({
   cursor: z.string().max(500).optional(),
   limit: z.coerce.number().int().min(1).max(100).optional(),
   type: z.enum(['image', 'video']).optional(),
+  sort: z.enum(['newest', 'largest']).optional(),
+  // Spelled as an enum, not z.coerce.boolean(), which reads "false" as true.
+  unused: z.enum(['1']).optional(),
 });
 
 /**
@@ -33,6 +36,8 @@ export async function GET(req: Request) {
       cursor: query.cursor,
       limit: query.limit,
       type: query.type,
+      sort: query.sort,
+      unusedOnly: query.unused === '1',
     });
 
     // The storage meter ships with the list because it is what turns an opaque

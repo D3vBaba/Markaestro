@@ -104,6 +104,16 @@ export type ListMediaAssetsOptions = {
   limit?: number;
   createdByType?: MediaCreatedByType;
   type?: MediaAssetType;
+  /**
+   * `largest` is the space-reclaim ordering: when the meter is full, the
+   * question is never "what did I upload last", it is "what costs the most".
+   */
+  sort?: 'newest' | 'largest';
+  /**
+   * Only assets no post references. The gallery's cleanup filter: everything
+   * it lists can be deleted without any in-app preview going gray.
+   */
+  unusedOnly?: boolean;
 };
 
 /**
@@ -118,9 +128,12 @@ export async function listMediaAssets(workspaceId: string, options: ListMediaAss
   if (options.type) {
     filters.push({ field: 'type', op: '==', value: options.type });
   }
+  if (options.unusedOnly) {
+    filters.push({ field: 'refCount', op: '==', value: 0 });
+  }
   return executeListQueryPage<MediaAsset>(mediaAssetsCollection(workspaceId), {
     filters,
-    orderByField: 'createdAt',
+    orderByField: options.sort === 'largest' ? 'sizeBytes' : 'createdAt',
     orderByDirection: 'desc',
     limit: options.limit ?? 50,
     cursor: options.cursor,

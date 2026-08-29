@@ -191,6 +191,30 @@ async function runChecks() {
       .limit(1)
       .get(),
   );
+  await check('media_assets.orderBy(sizeBytes desc) [gallery, largest first]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`).orderBy('sizeBytes', 'desc').limit(1).get(),
+  );
+  await check('media_assets.where(type).orderBy(sizeBytes desc) [gallery filter, largest]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`)
+      .where('type', '==', 'image')
+      .orderBy('sizeBytes', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('media_assets.where(refCount==0).orderBy(sizeBytes desc) [gallery unused, largest]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`)
+      .where('refCount', '==', 0)
+      .orderBy('sizeBytes', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('media_assets.where(refCount==0).orderBy(createdAt desc) [gallery unused, newest]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`)
+      .where('refCount', '==', 0)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
   await check('media_assets.where(processingState==pending) [derivation pipeline]', (db) =>
     db.collection(`workspaces/${WS}/media_assets`)
       .where('processingState', '==', 'pending')

@@ -1,3 +1,4 @@
+import { adminDb } from '@/lib/firebase-admin';
 import { getAdapterForChannel } from '@/lib/platform/registry';
 import { listConnections } from '@/lib/platform/connections';
 import type { PlatformAdapter, PlatformConnection } from '@/lib/platform/types';
@@ -273,6 +274,98 @@ export async function listManagedSocialChannelStatuses(
   ]);
 
   return socialChannelCatalog.map((config) => buildStatus(config, { workspace, product }, productId));
+}
+
+/**
+ * How many brands the workspace-wide health sweep will walk. A workspace past
+ * this is far beyond every current plan's brand limit; the sweep still runs,
+ * it just stops adding reads.
+ */
+const HEALTH_SWEEP_MAX_PRODUCTS = 50;
+
+/**
+ * Workspace-wide channel health: the union of every REAL linked account
+ * across every brand, worst state per channel.
+ *
+ * Exists because the health banner used to call
+ * `listManagedSocialChannelStatuses(workspaceId)` with no product, which can
+ * only see workspace-scoped connections. Publishing connections live on
+ * brands, so the only thing that call ever saw for Facebook was the
+ * workspace-level Meta *credential*, which by design has no Page selected.
+ * The adapter dutifully reported "No Facebook page selected", and every
+ * workspace with perfectly healthy brand-level Pages showed a permanent
+ * "Facebook is not connected" banner.
+ *
+ * Two deliberate choices:
+ * - Meta rows count only when they carry a Page (`metadata.pageId`). The
+ *   page-less credential is an auth artifact, not a publish target, and a
+ *   brand that authorized Meta but never picked a Page is a choice to finish
+ *   setup, not breakage.
+ * - The row's reason is prefixed with the brand name, because "Facebook is
+ *   not ready" is not actionable in a workspace with six brands on Facebook.
+ */
+export async function listWorkspaceChannelHealth(
+  workspaceId: string,
+): Promise<ManagedSocialChannelStatus[]> {
+  const productsSnap = await adminDb
+    .collection(`workspaces/${workspaceId}/products`)
+    .limit(HEALTH_SWEEP_MAX_PRODUCTS)
+    .get();
+
+  const workspace = await listConnections(workspaceId);
+  const productScopes = await Promise.all(productsSnap.docs.map(async (doc) => ({
+    productId: doc.id,
+    productName: typeof doc.data().name === 'string' ? doc.data().name : doc.id,
+    connections: await listConnections(workspaceId, doc.id),
+  })));
+
+  return socialChannelCatalog.map((config) => {
+    const adapter = getAdapterForChannel(config.channel);
+    const destinations: ManagedSocialChannelDestination[] = [];
+    let tokenExchangeDegraded = false;
+
+    const collect = (bundle: ConnectionBundle, productId: string | undefined, productName: string | null) => {
+      if (!adapter) return;
+      for (const match of findConnectionsForChannel(bundle, config.channel, productId)) {
+        // Real publish targets only: a Meta connection without a selected
+        // Page is a credential, and reporting it as a broken destination is
+        // exactly the false positive this function exists to end.
+        if (match.connection.provider === 'meta' && !match.connection.metadata?.pageId) continue;
+        const destination = buildDestination(match, config, adapter);
+        destinations.push({
+          ...destination,
+          reason: destination.reason && productName
+            ? `${productName}: ${destination.reason}`
+            : destination.reason,
+        });
+        if (match.connection.metadata?.tokenExchangeDegraded === true) tokenExchangeDegraded = true;
+      }
+    };
+
+    // Workspace-scoped real accounts first, then every brand's.
+    collect({ workspace, product: [] }, undefined, null);
+    for (const scope of productScopes) {
+      collect({ workspace: [], product: scope.connections }, scope.productId, scope.productName);
+    }
+
+    const worst = destinations.reduce<ManagedSocialChannelDestination | null>(
+      (acc, dest) => (!acc || STATE_RANK[dest.state] > STATE_RANK[acc.state] ? dest : acc),
+      null,
+    );
+
+    return {
+      ...config,
+      state: worst?.state ?? 'disconnected',
+      reason: worst?.state !== 'ready' ? worst?.reason ?? null : null,
+      provider: worst?.provider ?? null,
+      connectionScope: worst?.scope ?? null,
+      destinationLabel: worst?.label ?? null,
+      destinations,
+      capabilities: [],
+      lastRefreshError: worst?.lastRefreshError ?? null,
+      tokenExchangeDegraded,
+    };
+  });
 }
 
 /**

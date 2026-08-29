@@ -37,8 +37,12 @@ type ChannelStatusRow = {
 export function ChannelHealthBanner() {
   const t = useTranslations("shell.channelHealthBanner");
   const { current: currentWorkspace } = useWorkspace();
+  // health=1 aggregates across every brand's real linked accounts. The bare
+  // endpoint sees only workspace-scoped connections, which for Meta is a
+  // page-less credential and produced a permanent false "Facebook is not
+  // connected" here while every brand's Page was healthy.
   const { data } = useApiQuery<{ channels: ChannelStatusRow[] }>(
-    currentWorkspace ? "/api/social/channels" : null,
+    currentWorkspace ? "/api/social/channels?health=1" : null,
     { wsId: currentWorkspace?.id },
   );
 
