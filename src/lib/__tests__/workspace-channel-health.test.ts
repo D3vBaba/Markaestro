@@ -88,7 +88,7 @@ describe('listWorkspaceChannelHealth', () => {
     expect(facebook.destinations[0].label).toBe('Skyyn Page');
   });
 
-  it('still surfaces a genuinely broken brand-level Page, naming the brand', async () => {
+  it('still names a genuinely broken brand-level Page in destinations, without flipping a healthy workspace to not-ready', async () => {
     setProducts([
       { id: 'p1', name: 'Skyyn' },
       { id: 'p2', name: 'EyeCash' },
@@ -112,11 +112,13 @@ describe('listWorkspaceChannelHealth', () => {
     const facebook = (await listWorkspaceChannelHealth('ws1'))
       .find((status) => status.channel === 'facebook')!;
 
-    // Worst destination represents the channel, and the reason says which
-    // brand, because "Facebook is not ready" is not actionable across six.
-    expect(facebook.state).toBe('disconnected');
-    expect(facebook.reason).toContain('EyeCash:');
+    // Settings shows Linked when any Page is ready. The workspace banner
+    // used to use worst-state, so EyeCash's expired Page painted "Facebook
+    // is not connected" over Skyyn's healthy one.
+    expect(facebook.state).toBe('ready');
+    expect(facebook.reason).toBeNull();
     expect(facebook.destinations).toHaveLength(2);
+    expect(facebook.destinations.some((dest) => dest.state === 'disconnected')).toBe(true);
   });
 
   it('does not report a boardless Pinterest leftover as a broken destination', async () => {
@@ -168,6 +170,91 @@ describe('listWorkspaceChannelHealth', () => {
 
     expect(pinterest.destinations).toHaveLength(0);
     expect(pinterest.state).toBe('disconnected');
+  });
+
+  it('does not let one brand\'s broken Pinterest override another brand\'s Linked board', async () => {
+    // Production shape after the leftover skip: DripCheckr has a healthy
+    // board (Settings: Linked) and Markaestro has a board whose grant is
+    // in error. Worst-state still painted the workspace banner.
+    setProducts([
+      { id: 'drip', name: 'DripCheckr' },
+      { id: 'mk', name: 'Markaestro' },
+    ]);
+    listConnectionsMock.mockImplementation(async (_ws: string, productId?: string) => {
+      if (productId === 'drip') {
+        return [connection({
+          provider: 'pinterest',
+          connectionId: 'pinterest:board',
+          metadata: { boardId: 'board-drip', boardName: 'DripCheckr Brand' },
+        })];
+      }
+      if (productId === 'mk') {
+        return [connection({
+          provider: 'pinterest',
+          connectionId: 'pinterest',
+          status: 'error',
+          metadata: { boardId: 'board-mk', boardName: 'Markaestro API Test' },
+        })];
+      }
+      return [];
+    });
+
+    const { listWorkspaceChannelHealth } = await import('../social/channel-status');
+    const pinterest = (await listWorkspaceChannelHealth('ws1'))
+      .find((status) => status.channel === 'pinterest')!;
+
+    expect(pinterest.state).toBe('ready');
+    expect(pinterest.reason).toBeNull();
+    expect(pinterest.destinationLabel).toBe('DripCheckr Brand');
+  });
+
+  it('still banners Pinterest when every real board is unusable', async () => {
+    setProducts([{ id: 'mk', name: 'Markaestro' }]);
+    listConnectionsMock.mockImplementation(async (_ws: string, productId?: string) => {
+      if (!productId) return [];
+      return [connection({
+        provider: 'pinterest',
+        connectionId: 'pinterest',
+        status: 'error',
+        metadata: { boardId: 'board-mk', boardName: 'Markaestro API Test' },
+      })];
+    });
+
+    const { listWorkspaceChannelHealth } = await import('../social/channel-status');
+    const pinterest = (await listWorkspaceChannelHealth('ws1'))
+      .find((status) => status.channel === 'pinterest')!;
+
+    expect(pinterest.state).toBe('disconnected');
+    expect(pinterest.destinations).toHaveLength(1);
+  });
+
+  it('does not report a LinkedIn leftover without a destination as a broken channel', async () => {
+    setProducts([{ id: 'aethos', name: 'Aethos Solutions' }]);
+    listConnectionsMock.mockImplementation(async (_ws: string, productId?: string) => {
+      if (!productId) return [];
+      return [
+        connection({
+          provider: 'linkedin_community',
+          connectionId: 'linkedin_community:EJvBa9HTWE',
+          metadata: {},
+        }),
+        connection({
+          provider: 'linkedin_community',
+          connectionId: 'linkedin_community:urn:li:organization:114364478',
+          metadata: {
+            linkedinDestinationUrn: 'urn:li:organization:114364478',
+            linkedinDestinationName: 'Aethos Solutions',
+          },
+        }),
+      ];
+    });
+
+    const { listWorkspaceChannelHealth } = await import('../social/channel-status');
+    const linkedin = (await listWorkspaceChannelHealth('ws1'))
+      .find((status) => status.channel === 'linkedin')!;
+
+    expect(linkedin.state).toBe('ready');
+    expect(linkedin.destinations).toHaveLength(1);
   });
 
   it('reports a channel with no real accounts anywhere as having no destinations', async () => {

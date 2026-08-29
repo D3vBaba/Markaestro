@@ -284,14 +284,22 @@ export async function listManagedSocialChannelStatuses(
 const HEALTH_SWEEP_MAX_PRODUCTS = 50;
 
 /**
- * Pending grants are not publish targets. Meta without a Page and Pinterest
- * without a board are the credential leftover that board/Page selection
- * writes beside the destination document; counting them as broken
- * destinations is how a healthy linked channel still trips the banner.
+ * Pending grants are not publish targets. Meta without a Page, Pinterest
+ * without a board, and LinkedIn without a destination are leftover
+ * credentials that destination selection writes beside the real document.
+ * Counting them as broken destinations is how a healthy linked channel
+ * still trips the banner.
  */
 function isWorkspaceHealthDestination(connection: PlatformConnection): boolean {
   if (connection.provider === 'meta') return Boolean(connection.metadata?.pageId);
   if (connection.provider === 'pinterest') return Boolean(connection.metadata?.boardId);
+  if (
+    connection.provider === 'linkedin' ||
+    connection.provider === 'linkedin_profile' ||
+    connection.provider === 'linkedin_community'
+  ) {
+    return Boolean(connection.metadata?.linkedinDestinationUrn);
+  }
   return true;
 }
 
@@ -309,12 +317,15 @@ function isWorkspaceHealthDestination(connection: PlatformConnection): boolean {
  * "Facebook is not connected" banner.
  *
  * Two deliberate choices:
- * - Meta rows count only when they carry a Page (`metadata.pageId`). The
- *   page-less credential is an auth artifact, not a publish target, and a
- *   brand that authorized Meta but never picked a Page is a choice to finish
- *   setup, not breakage.
- * - The row's reason is prefixed with the brand name, because "Facebook is
- *   not ready" is not actionable in a workspace with six brands on Facebook.
+ * - Meta / Pinterest / LinkedIn rows count only when they carry a real
+ *   destination (Page, board, Profile/Page URN). The leftover grant is an
+ *   auth artifact, not a publish target.
+ * - The channel is as healthy as its best destination, same as the
+ *   per-brand status used by Settings. Worst-state made one brand's broken
+ *   grant paint the workspace banner while another brand on the same
+ *   channel still showed Linked. Per-brand breakage stays on the brand
+ *   card; this banner means this workspace cannot publish to this channel
+ *   at all.
  */
 export async function listWorkspaceChannelHealth(
   workspaceId: string,
@@ -362,21 +373,22 @@ export async function listWorkspaceChannelHealth(
       collect({ workspace: [], product: scope.connections }, scope.productId, scope.productName);
     }
 
-    const worst = destinations.reduce<ManagedSocialChannelDestination | null>(
-      (acc, dest) => (!acc || STATE_RANK[dest.state] > STATE_RANK[acc.state] ? dest : acc),
-      null,
-    );
+    // Healthiest destination represents the channel: one broken grant must
+    // not blank out a board/Page that Settings already shows as Linked.
+    const primary = destinations.length === 0
+      ? null
+      : [...destinations].sort((a, b) => STATE_RANK[a.state] - STATE_RANK[b.state])[0];
 
     return {
       ...config,
-      state: worst?.state ?? 'disconnected',
-      reason: worst?.state !== 'ready' ? worst?.reason ?? null : null,
-      provider: worst?.provider ?? null,
-      connectionScope: worst?.scope ?? null,
-      destinationLabel: worst?.label ?? null,
+      state: primary?.state ?? 'disconnected',
+      reason: primary?.state !== 'ready' ? primary?.reason ?? null : null,
+      provider: primary?.provider ?? null,
+      connectionScope: primary?.scope ?? null,
+      destinationLabel: primary?.label ?? null,
       destinations,
       capabilities: [],
-      lastRefreshError: worst?.lastRefreshError ?? null,
+      lastRefreshError: primary?.lastRefreshError ?? null,
       tokenExchangeDegraded,
     };
   });
