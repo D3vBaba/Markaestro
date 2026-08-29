@@ -49,7 +49,8 @@
       "accepted": "Angenommen",
       "pinned": "Angepinnt",
       "dismissed": "Verworfen"
-    }
+    },
+    "refreshFailed": "Die Analyse konnte nicht aktualisiert werden. Angezeigt werden die zuletzt berechneten Werte."
   },
   "decisions": {
     "hint": "Diese Buttons speichern nur deine Entscheidung. Sie veröffentlichen, planen oder ändern nie Entwürfe.",
@@ -494,7 +495,17 @@
     "clicks": "{count} Klicks",
     "conversions": "{count} zugeordnete Konversionen",
     "lastClick": "Letzter Klick {when}",
-    "noClicks": "Noch keine Klicks"
+    "noClicks": "Noch keine Klicks",
+    "retire": "Stilllegen",
+    "retiring": "Wird stillgelegt…",
+    "retired": "Link stillgelegt",
+    "retireFailed": "Der Link konnte nicht stillgelegt werden",
+    "reactivate": "Reaktivieren",
+    "reactivated": "Link reaktiviert",
+    "inactive": "Stillgelegt",
+    "showRetired": "Stillgelegte Links anzeigen",
+    "hideRetired": "Stillgelegte Links ausblenden",
+    "confirmRetire": "Diesen Link stilllegen? Wer ihm folgt, sieht eine Seite mit dem Hinweis, dass er nicht mehr aktiv ist. Bereits gezählte Klicks bleiben erhalten."
   },
   "campaigns": {
     "title": "Kampagnen",

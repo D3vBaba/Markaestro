@@ -1,12 +1,25 @@
 import type { SocialChannel } from '@/lib/schemas';
 import { getSocialChannelConfig, getSocialChannelLabel } from '@/lib/social/channel-catalog';
-import { isTikTokVideoUrl, validateTikTokMediaUrls } from '@/lib/tiktok-draft-flow';
+import { TIKTOK_MAX_IMAGE_COUNT, isTikTokVideoUrl, validateTikTokMediaUrls } from '@/lib/tiktok-draft-flow';
 
 export type SocialPostValidationInput = {
   content?: string | null;
   channel?: SocialChannel | string | null;
   targetChannels?: Array<SocialChannel | string> | null;
   mediaUrls?: string[] | null;
+  /**
+   * Resolved media kinds, index-aligned with `mediaUrls`. When present it is
+   * authoritative; when absent the URL-extension heuristic decides.
+   *
+   * This is the third divergence 4.6 closed: the app inferred video from a
+   * filename regex while the API read the stored asset's type, so the same
+   * media could validate differently on the two surfaces and a URL with no
+   * recognisable extension was silently treated as an image, routing it down
+   * the wrong publish path. The app's URLs come from `uploadToStorage`, which
+   * controls the path, so the regex is reliable there today; the API passes
+   * real types and never guesses.
+   */
+  mediaTypes?: Array<'image' | 'video'> | null;
 };
 
 export type SocialPostValidationIssue = {
@@ -49,8 +62,11 @@ export function validateSocialPost(input: SocialPostValidationInput): SocialPost
   const channels = normalizeTargetChannels(input);
   const mediaUrls = input.mediaUrls ?? [];
   const content = input.content?.trim() ?? '';
-  const hasVideo = mediaUrls.some(isVideoMediaUrl);
-  const hasImages = mediaUrls.some((url) => !isVideoMediaUrl(url));
+  // Authoritative types when the caller has them, the URL heuristic otherwise.
+  const mediaKinds = mediaUrls.map((url, index) =>
+    input.mediaTypes?.[index] ?? (isVideoMediaUrl(url) ? 'video' : 'image'));
+  const hasVideo = mediaKinds.includes('video');
+  const hasImages = mediaKinds.includes('image');
 
   if (channels.length === 0) {
     issues.push({
@@ -106,15 +122,55 @@ export function validateSocialPost(input: SocialPostValidationInput): SocialPost
     }
   }
 
-  if (channels.includes('tiktok')) {
-    const tiktokError = validateTikTokMediaUrls(mediaUrls);
-    if (tiktokError) {
-      issues.push({
-        channel: 'tiktok',
-        code: 'VALIDATION_TIKTOK_MEDIA_INVALID',
-        message: tiktokError,
-      });
+  if (channels.includes('tiktok') && mediaUrls.length > 0) {
+    if (input.mediaTypes) {
+      // Resolved types are available, so classify by them rather than by URL
+      // shape. Distinct codes per rule, matching what the public API has
+      // always returned, because clients branch on the exact code.
+      const videoCount = mediaKinds.filter((kind) => kind === 'video').length;
+      const imageCount = mediaKinds.length - videoCount;
+      if (videoCount > 1) {
+        issues.push({
+          channel: 'tiktok',
+          code: 'VALIDATION_TIKTOK_MAX_ONE_VIDEO',
+          message: 'TikTok supports only one video per post.',
+        });
+      } else if (videoCount === 1 && imageCount > 0) {
+        issues.push({
+          channel: 'tiktok',
+          code: 'VALIDATION_TIKTOK_VIDEO_CANNOT_BE_COMBINED',
+          message: 'TikTok does not support mixing video and image assets in one post.',
+        });
+      } else if (imageCount > TIKTOK_MAX_IMAGE_COUNT) {
+        issues.push({
+          channel: 'tiktok',
+          code: 'VALIDATION_TIKTOK_MEDIA_INVALID',
+          message: `TikTok supports up to ${TIKTOK_MAX_IMAGE_COUNT} images per post.`,
+        });
+      }
+    } else {
+      const tiktokError = validateTikTokMediaUrls(mediaUrls);
+      if (tiktokError) {
+        issues.push({
+          channel: 'tiktok',
+          code: 'VALIDATION_TIKTOK_MEDIA_INVALID',
+          message: tiktokError,
+        });
+      }
     }
+  }
+
+  // The API always enforced this and the app never did, so an empty Facebook
+  // post could be scheduled from the composer and failed later with a raw
+  // Graph API error. Facebook's catalog entry is right that media is optional
+  // and there is no caption minimum; what it cannot express is that at least
+  // one of the two must exist.
+  if (channels.includes('facebook') && !content && mediaUrls.length === 0) {
+    issues.push({
+      channel: 'facebook',
+      code: 'VALIDATION_FACEBOOK_POST_REQUIRES_CONTENT_OR_MEDIA',
+      message: 'A Facebook post needs a caption, media, or both.',
+    });
   }
 
   if (channels.includes('pinterest') && hasVideo && mediaUrls.length > 1) {

@@ -68,6 +68,24 @@
       "updateFailed": "Bijwerken mislukt",
       "rescheduled": "Bericht opnieuw gepland",
       "rescheduleFailed": "Opnieuw plannen mislukt"
+    },
+    "selection": {
+      "selectMode": "Posts selecteren",
+      "cancelSelection": "Annuleren",
+      "selectAll": "Alles op deze pagina selecteren",
+      "clear": "Selectie wissen",
+      "count": "{count} geselecteerd",
+      "reschedule": "Opnieuw inplannen",
+      "moveToDrafts": "Naar concepten verplaatsen",
+      "delete": "Verwijderen",
+      "confirmDeleteBody": "Dit kan niet ongedaan worden gemaakt. Al gepubliceerde posts blijven ongemoeid."
+    },
+    "bulkToasts": {
+      "rescheduled": "{count} posts opnieuw ingepland",
+      "movedToDrafts": "{count} posts naar concepten verplaatst",
+      "deleted": "{count} posts verwijderd",
+      "partial": "{succeeded} van {total} posts bijgewerkt. {failed} konden niet worden gewijzigd.",
+      "failed": "Er kon niets worden gewijzigd. Probeer het opnieuw, of pas de posts één voor één aan."
     }
   },
   "draftsTab": {

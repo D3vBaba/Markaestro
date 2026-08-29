@@ -68,6 +68,24 @@
       "updateFailed": "Failed to update",
       "rescheduled": "Post rescheduled",
       "rescheduleFailed": "Failed to reschedule"
+    },
+    "selection": {
+      "selectMode": "Select posts",
+      "cancelSelection": "Cancel",
+      "selectAll": "Select all on this page",
+      "clear": "Clear selection",
+      "count": "{count} selected",
+      "reschedule": "Reschedule",
+      "moveToDrafts": "Move to drafts",
+      "delete": "Delete",
+      "confirmDeleteBody": "This cannot be undone. Posts already published are not affected."
+    },
+    "bulkToasts": {
+      "rescheduled": "{count} posts rescheduled",
+      "movedToDrafts": "{count} posts moved to drafts",
+      "deleted": "{count} posts deleted",
+      "partial": "{succeeded} of {total} posts updated. {failed} could not be changed.",
+      "failed": "Nothing could be changed. Try again, or change the posts one at a time."
     }
   },
   "draftsTab": {

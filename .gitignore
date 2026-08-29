@@ -33,6 +33,12 @@ firebase-debug.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...except the generated template, which is the whole point of having one.
+!.env.local.example
+# Timestamped backups the deploy tooling leaves behind. They hold real
+# secrets, so they must never be committed even by an explicit `git add -f`
+# on the directory.
+.env.local.bak.*
 
 # vercel
 .vercel
@@ -45,3 +51,10 @@ next-env.d.ts
 
 # local review artifacts
 output/
+
+# SDK build output (published from sdk/, never committed)
+sdk/typescript/dist/
+sdk/typescript/node_modules/
+sdk/python/dist/
+sdk/python/*.egg-info/
+__pycache__/

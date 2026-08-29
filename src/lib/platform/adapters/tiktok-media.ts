@@ -2,6 +2,7 @@ import { fetchWithRetry } from '@/lib/fetch-retry';
 import { detectMp4Audio } from '@/lib/media/mp4-audio-detect';
 import { transcodeForTikTok } from '@/lib/media/tiktok-transcode';
 import { readResponseBufferWithLimit } from '@/lib/network-security';
+import { mintMediaProxyToken } from '@/lib/media/proxy-tokens';
 
 /**
  * Low-level TikTok primitives shared by both publishing flows:
@@ -159,11 +160,18 @@ export function buildTikTokMediaProxyUrl(mediaUrl: string, kind: 'image' | 'vide
     // client we tested. Its fetcher is known to normalize nested URLs in query
     // strings and to expect an image extension on the path, so images go
     // through the opaque, extension-terminated route instead.
+    // Deliberately left unsigned. The signed-token rollout in
+    // lib/media/proxy-tokens.ts covers the query-parameter proxies, where an
+    // extra parameter is inert. Adding a signature here would change the one
+    // path shape TikTok's photo puller is known to accept, so it stays as it
+    // is until the change can be verified against the puller directly.
     const token = Buffer.from(mediaUrl, 'utf8').toString('base64url');
     return new URL(`/api/media/tiktok/${token}.jpg`, appUrl).toString();
   }
 
   const proxyUrl = new URL('/api/media/video-proxy', appUrl);
   proxyUrl.searchParams.set('url', mediaUrl);
+  const signature = mintMediaProxyToken(mediaUrl, 'video');
+  if (signature) proxyUrl.searchParams.set('t', signature);
   return proxyUrl.toString();
 }

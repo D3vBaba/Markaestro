@@ -255,7 +255,12 @@
         "linkDestinationsFailed": "No se pudieron vincular los {destination}s",
         "accountUnlinked": "{account} desvinculado",
         "unlinkFailed": "No se pudo desvincular {account}"
-      }
+      },
+      "testConnection": "Probar conexión",
+      "testing": "Probando…",
+      "testOk": "Conectado como {label}",
+      "testOkPlain": "La conexión funciona",
+      "testFailed": "La prueba de conexión falló"
     }
   }
 }

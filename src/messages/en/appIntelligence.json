@@ -49,7 +49,8 @@
       "accepted": "Accepted",
       "pinned": "Pinned",
       "dismissed": "Dismissed"
-    }
+    },
+    "refreshFailed": "Could not refresh the analysis. The figures shown are the last ones we calculated."
   },
   "decisions": {
     "hint": "These buttons only record your decision. They never publish, schedule, or change drafts.",
@@ -494,7 +495,17 @@
     "clicks": "{count} clicks",
     "conversions": "{count} attributed conversions",
     "lastClick": "Last click {when}",
-    "noClicks": "No clicks yet"
+    "noClicks": "No clicks yet",
+    "retire": "Retire",
+    "retiring": "Retiring…",
+    "retired": "Link retired",
+    "retireFailed": "Could not retire the link",
+    "reactivate": "Reactivate",
+    "reactivated": "Link reactivated",
+    "inactive": "Retired",
+    "showRetired": "Show retired links",
+    "hideRetired": "Hide retired links",
+    "confirmRetire": "Retire this link? Anyone who follows it will see a page saying it is no longer in service. Clicks already counted are kept."
   },
   "campaigns": {
     "title": "Campaigns",

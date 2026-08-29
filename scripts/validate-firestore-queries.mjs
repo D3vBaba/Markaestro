@@ -191,6 +191,12 @@ async function runChecks() {
       .limit(1)
       .get(),
   );
+  await check('media_assets.where(processingState==pending) [derivation pipeline]', (db) =>
+    db.collection(`workspaces/${WS}/media_assets`)
+      .where('processingState', '==', 'pending')
+      .limit(1)
+      .get(),
+  );
   await check('media_assets.where(orphanedAt<=) [orphan sweep]', (db) =>
     db.collection(`workspaces/${WS}/media_assets`)
       .where('orphanedAt', '<=', new Date().toISOString())
@@ -206,6 +212,71 @@ async function runChecks() {
   await check('posts.where(mediaUrls array-contains) [media usage]', (db) =>
     db.collection(`workspaces/${WS}/posts`)
       .where('mediaUrls', 'array-contains', 'https://sentinel.example/a.jpg')
+      .limit(1)
+      .get(),
+  );
+
+  console.log('\nToken refresh queue:');
+  await check('_tokenRefreshQueue.where(nextDueAt<=) [due workspaces]', (db) =>
+    db.collection('_tokenRefreshQueue')
+      .where('nextDueAt', '<=', new Date().toISOString())
+      .limit(1)
+      .get(),
+  );
+
+  console.log('\nJob runs:');
+  await check('job_runs.orderBy(createdAt desc) [public API list]', (db) =>
+    db.collection(`workspaces/${WS}/job_runs`).orderBy('createdAt', 'desc').limit(1).get(),
+  );
+  await check('job_runs.where(status).orderBy(createdAt desc) [public API list]', (db) =>
+    db.collection(`workspaces/${WS}/job_runs`)
+      .where('status', '==', 'queued')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('job_runs.where(resourceId).orderBy(createdAt desc) [runs for one post]', (db) =>
+    db.collection(`workspaces/${WS}/job_runs`)
+      .where('resourceId', '==', 'sentinel')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('job_runs.where(status).where(resourceId).orderBy(createdAt desc) [runs for one post, filtered]', (db) =>
+    db.collection(`workspaces/${WS}/job_runs`)
+      .where('status', '==', 'failed')
+      .where('resourceId', '==', 'sentinel')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+
+  console.log('\nTracked links:');
+  await check('trackedLinks.orderBy(createdAt desc) [link list, includeInactive]', (db) =>
+    db.collection(`workspaces/${WS}/trackedLinks`)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('trackedLinks.where(active).orderBy(createdAt desc) [link list default]', (db) =>
+    db.collection(`workspaces/${WS}/trackedLinks`)
+      .where('active', '==', true)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('trackedLinks.where(productId).orderBy(createdAt desc) [link list by brand]', (db) =>
+    db.collection(`workspaces/${WS}/trackedLinks`)
+      .where('productId', '==', 'sentinel')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('trackedLinks.where(productId).where(active).orderBy(createdAt desc) [link list by brand, active]', (db) =>
+    db.collection(`workspaces/${WS}/trackedLinks`)
+      .where('productId', '==', 'sentinel')
+      .where('active', '==', true)
+      .orderBy('createdAt', 'desc')
       .limit(1)
       .get(),
   );
@@ -329,36 +400,6 @@ async function runChecks() {
   );
 
   // ── Events ────────────────────────────────────────────────────────────────
-  console.log('\nEvents:');
-
-  await check('events.orderBy(timestamp) — no filters', (db) =>
-    db.collection(`workspaces/${WS}/events`).orderBy('timestamp', 'desc').limit(1).get(),
-  );
-  await check('events.where(type) — no orderBy', (db) =>
-    db.collection(`workspaces/${WS}/events`).where('type', '==', 'page_view').limit(1).get(),
-  );
-  await check('events.where(campaignId) — no orderBy', (db) =>
-    db.collection(`workspaces/${WS}/events`).where('campaignId', '==', 'sentinel').limit(1).get(),
-  );
-  await check('events.where(contactId) — no orderBy', (db) =>
-    db.collection(`workspaces/${WS}/events`).where('contactId', '==', 'sentinel').limit(1).get(),
-  );
-  await check('events.where(type).orderBy(timestamp desc) [list]', (db) =>
-    db.collection(`workspaces/${WS}/events`).where('type', '==', 'page_view').orderBy('timestamp', 'desc').limit(1).get(),
-  );
-  await check('events.where(contactId).orderBy(timestamp desc) [list]', (db) =>
-    db.collection(`workspaces/${WS}/events`).where('contactId', '==', 'sentinel').orderBy('timestamp', 'desc').limit(1).get(),
-  );
-  await check('events.where(type).where(contactId).orderBy(timestamp desc) [list]', (db) =>
-    db.collection(`workspaces/${WS}/events`)
-      .where('type', '==', 'page_view')
-      .where('contactId', '==', 'sentinel')
-      .orderBy('timestamp', 'desc')
-      .limit(1)
-      .get(),
-  );
-
-  // ── Jobs ──────────────────────────────────────────────────────────────────
   console.log('\nJobs:');
 
   await check('jobs.where(enabled).where(schedule).orderBy(nextRunAt)', (db) =>

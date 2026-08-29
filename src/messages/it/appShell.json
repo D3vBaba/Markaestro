@@ -105,5 +105,8 @@
     "degraded": "La connessione di {channels} scadrà presto. Riconnettila per continuare a pubblicare.",
     "genericReason": "Riconnettilo per continuare a pubblicare.",
     "reconnect": "Riconnetti"
+  },
+  "offlineBanner": {
+    "message": "Sembri essere offline. Le modifiche non possono essere salvate finché la connessione non torna."
   }
 }

@@ -68,6 +68,24 @@
       "updateFailed": "تعذّر التحديث",
       "rescheduled": "تمت إعادة جدولة المنشور",
       "rescheduleFailed": "تعذّرت إعادة الجدولة"
+    },
+    "selection": {
+      "selectMode": "تحديد المنشورات",
+      "cancelSelection": "إلغاء",
+      "selectAll": "تحديد الكل في هذه الصفحة",
+      "clear": "مسح التحديد",
+      "count": "{count} محدد",
+      "reschedule": "إعادة الجدولة",
+      "moveToDrafts": "نقل إلى المسودات",
+      "delete": "حذف",
+      "confirmDeleteBody": "لا يمكن التراجع عن هذا. المنشورات المنشورة بالفعل لن تتأثر."
+    },
+    "bulkToasts": {
+      "rescheduled": "تمت إعادة جدولة {count} منشورات",
+      "movedToDrafts": "تم نقل {count} منشورات إلى المسودات",
+      "deleted": "تم حذف {count} منشورات",
+      "partial": "تم تحديث {succeeded} من {total} منشورات. تعذّر تغيير {failed}.",
+      "failed": "تعذّر تغيير أي شيء. حاول مرة أخرى، أو غيّر المنشورات واحدًا تلو الآخر."
     }
   },
   "draftsTab": {

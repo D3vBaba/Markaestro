@@ -8,12 +8,16 @@ import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 import { askStrategist } from '@/lib/intelligence/strategist';
 import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 import { withAiOperation } from '@/lib/intelligence/usage';
+import { RATE_LIMITS, applyRateLimit } from '@/lib/rate-limit';
 
 const schema = z.object({ productId: z.string().min(1).max(128), question: z.string().min(1).max(4000) });
 
 export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req); requirePermission(ctx, 'intelligence.analyze');
+    // Tighter than the shared `ai` tier: this handler holds a worker open for
+    // the whole model call, so a burst costs concurrency as well as spend.
+    await applyRateLimit(req, RATE_LIMITS.strategist, { key: `strategist:${ctx.uid}` });
     await requireIntelligenceAccess(ctx, 'advanced', 'intelligenceStrategist');
     const input = schema.parse(await req.json());
     if (!(await adminDb.doc(`workspaces/${ctx.workspaceId}/products/${input.productId}`).get()).exists) throw new Error('NOT_FOUND');

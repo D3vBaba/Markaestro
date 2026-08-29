@@ -33,6 +33,8 @@ type MediaAssetRow = {
   createdByType: "user" | "api_client";
   createdAt: string;
   refCount: number;
+  /** Derived 320px thumbnail; null until the worker produces it. */
+  thumbnailUrl?: string | null;
 };
 
 type MediaListResponse = {
@@ -119,7 +121,10 @@ export default function MediaLibrary() {
               <div className="flex aspect-square items-center justify-center bg-muted/40">
                 {asset.type === "image" ? (
                   <img
-                    src={asset.url}
+                    // ~20 KB per cell instead of the multi-MB original (5.9);
+                    // freshly uploaded assets fall back to the original until
+                    // the worker derives their thumbnail.
+                    src={asset.thumbnailUrl || asset.url}
                     alt={asset.originalFileName || t("untitled")}
                     loading="lazy"
                     className="h-full w-full object-cover"

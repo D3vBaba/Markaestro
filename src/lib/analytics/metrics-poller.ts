@@ -36,6 +36,7 @@ type PublishResultEntry = {
 };
 
 type PostDocData = {
+  testMode?: boolean;
   channel?: string;
   targetChannels?: string[];
   externalId?: string;
@@ -262,6 +263,20 @@ async function pollOnePost(
 ): Promise<void> {
   const post = doc.data() as PostDocData;
   const postRef = doc.ref;
+
+  // Sandbox posts carry a fake external id (mk_test_...). Polling one would
+  // hand that id to a real platform API, which at best 404s per tick forever.
+  // Marked unsupported once so the post drops out of the due queue.
+  if (post.testMode === true) {
+    await postRef.update({
+      metricsStatus: 'unsupported',
+      metricsLastError: 'Test-mode post: no platform metrics exist',
+      metricsNextPollAt: FieldValue.delete(),
+      metricsUpdatedAt: nowIso,
+    });
+    return;
+  }
+
   const publishedAt = post.publishedAt || nowIso;
   const stage = Math.min(post.metricsPollStage ?? 0, METRIC_POLL_STAGES.length - 1);
   const stageKey = METRIC_POLL_STAGES[stage].key;

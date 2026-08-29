@@ -154,6 +154,54 @@ function isAbortError(err: unknown): boolean {
 
 type ApiFetchInit = RequestInit & { timeoutMs?: number };
 
+/**
+ * Retry policy (4.12). Reads only, and only failures that a cold start or a
+ * momentary network drop produces: transport errors and 502/503/504. Never
+ * mutations: retrying a POST safely needs the Idempotency-Key machinery,
+ * which the public API has and the app deliberately does not.
+ */
+const RETRYABLE_METHODS = new Set(['GET', 'HEAD']);
+const RETRYABLE_STATUSES = new Set([502, 503, 504]);
+const MAX_READ_RETRIES = 2;
+const RETRY_BASE_DELAY_MS = 300;
+
+function retryDelayMs(attempt: number): number {
+  // Exponential with full jitter, so a page of widgets that all failed
+  // together does not retry together.
+  return Math.round(RETRY_BASE_DELAY_MS * 2 ** attempt * (0.5 + Math.random() * 0.5));
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+type OfflineListener = (offline: boolean) => void;
+const offlineListeners = new Set<OfflineListener>();
+let lastKnownOffline = false;
+
+function reportConnectivity(offline: boolean) {
+  if (offline === lastKnownOffline) return;
+  lastKnownOffline = offline;
+  for (const listener of offlineListeners) listener(offline);
+}
+
+/**
+ * Subscribe to the client's own view of connectivity: `navigator.onLine`
+ * plus the failed-request heuristic (a transport-level fetch failure while
+ * the browser claims to be online still means requests are not landing).
+ * The banner component uses this; per-action toasts stay for real errors.
+ */
+export function onOfflineChange(listener: OfflineListener): () => void {
+  offlineListeners.add(listener);
+  listener(lastKnownOffline);
+  return () => offlineListeners.delete(listener);
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => reportConnectivity(false));
+  window.addEventListener('offline', () => reportConnectivity(true));
+}
+
 /** Make an authenticated JSON request to our API. */
 export async function apiFetch<T = unknown>(
   path: string,
@@ -164,34 +212,60 @@ export async function apiFetch<T = unknown>(
 
   const token = _getIdToken ? await _getIdToken() : null;
   const { timeoutMs = REQUEST_TIMEOUT_MS, ...fetchInit } = init;
+  const method = (fetchInit.method || 'GET').toUpperCase();
+  const maxAttempts = RETRYABLE_METHODS.has(method) && !fetchInit.signal ? MAX_READ_RETRIES + 1 : 1;
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  const requestId = newClientRequestId();
+  let lastTransportError: unknown = null;
 
-  try {
-    const res = await fetch(path, {
-      ...fetchInit,
-      // Callers that pass their own signal keep it; everyone else gets the
-      // default timeout.
-      signal: fetchInit.signal ?? controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(requestId ? { [REQUEST_ID_HEADER]: requestId } : {}),
-        ...(fetchInit.headers || {}),
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    const requestId = newClientRequestId();
 
-    const data = await parseJsonBody<T>(res, requestId);
-    notifyIfWorkspaceForbidden(res.status, data);
-    return { ok: res.ok, status: res.status, data };
-  } catch (err) {
-    if (isAbortError(err)) return timeoutResult<T>();
-    throw err;
-  } finally {
-    clearTimeout(timeout);
+    try {
+      const res = await fetch(path, {
+        ...fetchInit,
+        // Callers that pass their own signal keep it; everyone else gets the
+        // default timeout.
+        signal: fetchInit.signal ?? controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(requestId ? { [REQUEST_ID_HEADER]: requestId } : {}),
+          ...(fetchInit.headers || {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      reportConnectivity(false);
+
+      if (RETRYABLE_STATUSES.has(res.status) && attempt < maxAttempts - 1) {
+        // Drain so the connection can be reused, then back off and go again.
+        await res.text().catch(() => undefined);
+        await sleep(retryDelayMs(attempt));
+        continue;
+      }
+
+      const data = await parseJsonBody<T>(res, requestId);
+      notifyIfWorkspaceForbidden(res.status, data);
+      return { ok: res.ok, status: res.status, data };
+    } catch (err) {
+      if (isAbortError(err)) return timeoutResult<T>();
+      lastTransportError = err;
+      // A transport failure while navigator claims online still means our
+      // requests are not landing.
+      reportConnectivity(true);
+      if (attempt < maxAttempts - 1) {
+        await sleep(retryDelayMs(attempt));
+        continue;
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeout);
+    }
   }
+
+  // Unreachable: the loop either returns or throws. Kept for the compiler.
+  throw lastTransportError ?? new Error('REQUEST_FAILED');
 }
 
 /** GET shortcut with workspace ID. */

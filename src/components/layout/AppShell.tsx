@@ -12,6 +12,7 @@ import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { VerifyEmailBanner } from "./VerifyEmailBanner";
 import { InvitesBanner } from "./InvitesBanner";
 import { ChannelHealthBanner } from "./ChannelHealthBanner";
+import { OfflineBanner } from "./OfflineBanner";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -80,6 +81,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div
         className="flex flex-col h-dvh min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-950"
       >
+        <OfflineBanner />
         <TrialBanner />
         <VerifyEmailBanner />
         <InvitesBanner />

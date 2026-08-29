@@ -8,6 +8,7 @@ import {
   clientIpFromHeaders,
 } from '@/lib/intelligence/bot-filter';
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { retiredLinkHtml } from './retired-link-page';
 import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
@@ -56,12 +57,14 @@ async function shouldRecordClick(req: Request, code: string): Promise<boolean> {
 /**
  * Resolved links, cached in memory for a minute.
  *
- * A tracked link's destination is effectively immutable once created (edits
- * go through a deactivate-and-recreate), so a short cache is safe and turns a
- * Firestore blip into a non-event for any link that has been used recently.
- * Per-instance and deliberately unbounded in nothing but time: Cloud Run
- * recycles instances often enough that the map cannot grow without limit, and
- * a stale entry costs at most 60 seconds of a deactivated link still working.
+ * Tracked links change rarely: a PATCH can repoint or retire one, but that is
+ * a deliberate act by the owner, not traffic. A short cache turns a Firestore
+ * blip into a non-event for any link that has been used recently, and bounds
+ * the cost of a mutation to at most 60 seconds of a retired link still
+ * redirecting (the cache is per instance, so a mutation cannot invalidate
+ * every instance anyway). Per-instance and unbounded in nothing but time:
+ * Cloud Run recycles instances often enough that the map cannot grow without
+ * limit.
  */
 type ResolvedLink = { data: FirebaseFirestore.DocumentData | null };
 const LINK_CACHE_TTL_MS = 60_000;
@@ -101,8 +104,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
   // unparseable body.
   try {
     const { data } = await resolveLink(code);
-    if (!data || data.active === false) {
+    if (!data) {
       return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
+    }
+    // A retired link is a different answer from an unknown one: the code was
+    // real and its owner withdrew it. 410 says that precisely, and a person
+    // following it from a post gets a page rather than a JSON error.
+    if (data.active === false) {
+      return new NextResponse(retiredLinkHtml(), {
+        status: 410,
+        headers: {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'private, no-store',
+        },
+      });
     }
     let destination: string;
     const clickId = createClickId();

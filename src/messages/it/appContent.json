@@ -68,6 +68,24 @@
       "updateFailed": "Aggiornamento non riuscito",
       "rescheduled": "Post ripianificato",
       "rescheduleFailed": "Ripianificazione non riuscita"
+    },
+    "selection": {
+      "selectMode": "Seleziona post",
+      "cancelSelection": "Annulla",
+      "selectAll": "Seleziona tutto in questa pagina",
+      "clear": "Cancella selezione",
+      "count": "{count} selezionati",
+      "reschedule": "Riprogramma",
+      "moveToDrafts": "Sposta nelle bozze",
+      "delete": "Elimina",
+      "confirmDeleteBody": "Questa azione non è reversibile. I post già pubblicati non vengono toccati."
+    },
+    "bulkToasts": {
+      "rescheduled": "{count} post riprogrammati",
+      "movedToDrafts": "{count} post spostati nelle bozze",
+      "deleted": "{count} post eliminati",
+      "partial": "{succeeded} post su {total} aggiornati. {failed} non sono stati modificati.",
+      "failed": "Non è stato possibile modificare nulla. Riprova, oppure modifica i post uno alla volta."
     }
   },
   "draftsTab": {

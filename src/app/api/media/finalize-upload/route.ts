@@ -10,6 +10,7 @@ import { buildDownloadUrl } from '@/lib/storage';
 import { validateMediaUpload } from '@/lib/media-upload-policy';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { createMediaAssetRecord } from '@/lib/media/asset-store';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 import { mediaAssetTypeForMimeType } from '@/lib/media/asset-metadata';
 
 export const runtime = 'nodejs';
@@ -180,6 +181,11 @@ export async function POST(req: Request) {
     }, { merge: true });
     reservedStorage = null;
     claimedSessionRef = null;
+
+    // The derivation pipeline is what measures this asset (the bytes were
+    // never in this process), so wake the worker rather than waiting a tick.
+    await markWorkspaceDue(ctx.workspaceId, new Date(), 'daily_job').catch(() => undefined);
+
     return apiOk({ ok: true, url, contentType: actualType });
   } catch (error) {
     if (reservedStorage) {

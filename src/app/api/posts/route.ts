@@ -6,7 +6,7 @@ import { createPostSchema, paginationSchema, postWindowSchema } from '@/lib/sche
 import type { CollectionReference } from 'firebase-admin/firestore';
 import { executeListQuery, executeListQueryPage, type FieldFilter } from '@/lib/firestore-list-query';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
-import { getManualPublishChannels, resolveInAppDeliveryMode } from '@/lib/manual-publish-settings';
+import { getManualPublishChannels, resolveChannelDeliveryModes, resolveInAppDeliveryMode } from '@/lib/manual-publish-settings';
 import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
 import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
 import { logger } from '@/lib/logger';
@@ -145,12 +145,25 @@ export async function POST(req: Request) {
     // Workspace publishing defaults: channels set to manual posting make the
     // post a manual reminder unless the request picked a mode explicitly.
     const manualChannels = await getManualPublishChannels(ctx.workspaceId);
-    const deliveryMode = resolveInAppDeliveryMode(
-      data.targetChannels?.length ? data.targetChannels : [data.channel],
+    const requestedChannels = data.targetChannels?.length ? data.targetChannels : [data.channel];
+    // Delivery mode is resolved per target: one manual channel no longer drags
+    // its automatic siblings into the To Post queue. The post-level mode below
+    // stays as the fallback, and is manual only when every target is manual.
+    const channelDeliveryModes = resolveChannelDeliveryModes(
+      requestedChannels,
       data.deliveryMode,
       manualChannels,
     );
-    const isManualReminder = isManualReminderDeliveryMode(deliveryMode);
+    const deliveryMode = resolveInAppDeliveryMode(
+      requestedChannels,
+      data.deliveryMode,
+      manualChannels,
+    );
+    // A channel that will actually be published to still needs a ready
+    // connection at schedule time, even when a sibling channel is manual.
+    const autoChannels = requestedChannels.filter(
+      (channel) => !isManualReminderDeliveryMode(channelDeliveryModes[channel]),
+    );
 
     if (data.status === 'scheduled') {
       const issues = await getSocialPostPreflightIssues(
@@ -160,7 +173,10 @@ export async function POST(req: Request) {
         {
           // Manual posts never contact the platform, so a connected/ready
           // channel isn't required to schedule their reminder.
-          requireReadyChannels: !isManualReminder,
+          requireReadyChannels: autoChannels.length > 0,
+          manualChannels: requestedChannels.filter((channel) =>
+            isManualReminderDeliveryMode(channelDeliveryModes[channel]),
+          ),
           // Validate the specific linked account the post names, not just that
           // the channel has something connected.
           channelDestinations: data.channelDestinations,
@@ -198,6 +214,7 @@ export async function POST(req: Request) {
     const payload = {
       ...data,
       ...(deliveryMode ? { deliveryMode } : {}),
+      channelDeliveryModes,
       workspaceId: ctx.workspaceId,
       createdBy: ctx.uid,
       createdAt: now,

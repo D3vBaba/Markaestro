@@ -255,7 +255,12 @@
         "linkDestinationsFailed": "关联{destination}失败",
         "accountUnlinked": "已取消关联{account}",
         "unlinkFailed": "取消关联{account}失败"
-      }
+      },
+      "testConnection": "测试连接",
+      "testing": "正在测试…",
+      "testOk": "已以 {label} 身份连接",
+      "testOkPlain": "连接正常",
+      "testFailed": "连接测试失败"
     }
   }
 }

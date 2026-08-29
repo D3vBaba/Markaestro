@@ -49,3 +49,15 @@ bucket CORS policy intentionally allows only Markaestro browser origins.
 Do not enable the flag before CORS is active. Signed uploads are limited to a
 single object path and content type; finalization independently checks the
 stored type and exact byte size before moving the object into permanent media.
+
+## Delivery and caching (5.9)
+
+- Uploaded objects are token-gated and now carry `Cache-Control: private,
+  max-age=3600`: the one browser holding the URL caches for a session, shared
+  caches stay out. Repeat grid loads stop being origin reads.
+- The worker derives a 320px thumbnail per image (`workspaces/{ws}/thumbs/`),
+  and grids load that instead of the original.
+- Cloud CDN, if enabled later, should front the `thumbs/` prefix only:
+  thumbnails are downscaled and non-sensitive, originals stay private. This
+  is a console/terraform change, not a code change; nothing in the app needs
+  to know whether the CDN exists.

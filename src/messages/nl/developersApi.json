@@ -19,12 +19,36 @@
     "recommendedBadge": "Aanbevolen",
     "description": "De standaardmanier om te integreren: een platte, snake_case-interface op <code>/api/connect/v1</code> die de meeste planningstools zo kunnen gebruiken. Het mapt de gangbare <code>create-upload-url → PUT → post</code>-conventie op dezelfde workspace, authenticatie, producten en publicatiepijplijn als de volledige API hieronder. Stel de basis-URL van de client in op <code>/api/connect</code> en authenticeer met een productgebonden workspace-API-sleutel (scopes <code>posts.read</code>, <code>posts.write</code>, <code>media.write</code>).",
     "endpoints": [
-      { "method": "GET", "path": "/api/connect/v1/social-accounts", "note": "Toont verbonden Facebook-, Instagram-, TikTok-, LinkedIn- en Threads-bestemmingen als platte accounts, elk gelabeld met het bijbehorende product zodat clients kunnen groeperen en onderscheiden. Elk kanaal heeft zijn eigen toegewijde pad, geen doorstroom tussen kanalen." },
-      { "method": "GET", "path": "/api/connect/v1/products", "note": "Toont merken (interfacenaam: products) met hun verbonden accounts genest, een selector die merken voorop stelt." },
-      { "method": "POST", "path": "/api/connect/v1/media/create-upload-url", "note": "Retourneert een kortstondige, eenmalig bruikbare ondertekende PUT-URL plus een media-id." },
-      { "method": "PUT", "path": "<upload_url>", "note": "Upload de ruwe afbeeldingsbytes naar de ondertekende URL. Geen API-sleutel nodig, de handtekening autoriseert dit." },
-      { "method": "POST", "path": "/api/connect/v1/posts", "note": "Maakt een concept aan per geselecteerd account. Stel is_draft=false in samen met scheduled_at om levering in te plannen; TikTok gebruikt de overdracht naar de inbox van de maker." },
-      { "method": "GET", "path": "/api/connect/v1/posts", "note": "Toont workspaceposts met platte status, onderschrift en media-URL's." }
+      {
+        "method": "GET",
+        "path": "/api/connect/v1/social-accounts",
+        "note": "Toont verbonden Facebook-, Instagram-, TikTok-, LinkedIn- en Threads-bestemmingen als platte accounts, elk gelabeld met het bijbehorende product zodat clients kunnen groeperen en onderscheiden. Elk kanaal heeft zijn eigen toegewijde pad, geen doorstroom tussen kanalen."
+      },
+      {
+        "method": "GET",
+        "path": "/api/connect/v1/products",
+        "note": "Toont merken (interfacenaam: products) met hun verbonden accounts genest, een selector die merken voorop stelt."
+      },
+      {
+        "method": "POST",
+        "path": "/api/connect/v1/media/create-upload-url",
+        "note": "Retourneert een kortstondige, eenmalig bruikbare ondertekende PUT-URL plus een media-id."
+      },
+      {
+        "method": "PUT",
+        "path": "<upload_url>",
+        "note": "Upload de ruwe afbeeldingsbytes naar de ondertekende URL. Geen API-sleutel nodig, de handtekening autoriseert dit."
+      },
+      {
+        "method": "POST",
+        "path": "/api/connect/v1/posts",
+        "note": "Maakt een concept aan per geselecteerd account. Stel is_draft=false in samen met scheduled_at om levering in te plannen; TikTok gebruikt de overdracht naar de inbox van de maker."
+      },
+      {
+        "method": "GET",
+        "path": "/api/connect/v1/posts",
+        "note": "Toont workspaceposts met platte status, onderschrift en media-URL's."
+      }
     ],
     "footnote": "Elk account uit <code>/social-accounts</code> is gelabeld met zijn <code>product</code>, de interfacenaam voor een merk (hetzelfde account kan onder meerdere merken voorkomen), en de <code>id</code> codeert <code>productId#destinationId</code>, geef deze letterlijk terug in <code>social_accounts</code>, en het verzoek waaiert uit naar één post per account. Elke sleutel is aan één merk gebonden, dus ziet en post alleen naar dat merk. <strong>Posts op Facebook, Instagram en TikTok zijn manual-first</strong>, aangemaakt als concept en native gepubliceerd door de workspace-eigenaar vanuit de 'Te Plaatsen'-wachtrij van Markaestro, nooit via de API van het platform. LinkedIn, Threads en Pinterest publiceren programmatisch na een expliciete publicatiehandeling. Poststatus is één van <code>draft</code>, <code>processing</code>, <code>posted</code> of <code>failed</code>. Facebook, Instagram, LinkedIn, TikTok en Threads zijn elk hun eigen toegewijde bestemming, publiceren naar één kanaal waaiert nooit uit naar een ander. Volg de publicatiestatus via <code>GET /api/connect/v1/posts</code>."
   },
@@ -33,70 +57,183 @@
     "description": "De volledige <code>/api/public/v1</code>-interface, expliciete publicatie, asynchrone jobruns, ondertekende webhooks, batchaanmaak en instellingen per kanaal. Gebruik dit wanneer de Connect API niet volstaat."
   },
   "highlightCards": [
-    { "title": "Meta en TikTok zijn manual-first", "description": "Posts op Facebook, Instagram en TikTok gaan standaard naar de handmatige 'Te Plaatsen'-wachtrij, geen platform-API-aanroep, de workspace-eigenaar plaatst native en bevestigt. Kies per post voor API-publicatie met deliveryMode." },
-    { "title": "Instagram-login ondersteund", "description": "Merken kunnen zelfstandige zakelijke Instagram-accounts weergeven, zelfs als er geen Facebook-pagina is gekoppeld." },
-    { "title": "TikTok ondersteunt twee opt-inpaden", "description": "API-publicatie gebruikt standaard de inbox. Stel settings.postMode in op direct_post met een privacyniveau om Direct Post te vragen wanneer je TikTok-app is goedgekeurd." },
-    { "title": "Asynchroon van opzet", "description": "Elke publicatie retourneert een run-id. Peil de runs of abonneer je op ondertekende webhooks in plaats van synchrone voltooiing aan te nemen." }
+    {
+      "title": "Meta en TikTok zijn manual-first",
+      "description": "Posts op Facebook, Instagram en TikTok gaan standaard naar de handmatige 'Te Plaatsen'-wachtrij, geen platform-API-aanroep, de workspace-eigenaar plaatst native en bevestigt. Kies per post voor API-publicatie met deliveryMode."
+    },
+    {
+      "title": "Instagram-login ondersteund",
+      "description": "Merken kunnen zelfstandige zakelijke Instagram-accounts weergeven, zelfs als er geen Facebook-pagina is gekoppeld."
+    },
+    {
+      "title": "TikTok ondersteunt twee opt-inpaden",
+      "description": "API-publicatie gebruikt standaard de inbox. Stel settings.postMode in op direct_post met een privacyniveau om Direct Post te vragen wanneer je TikTok-app is goedgekeurd."
+    },
+    {
+      "title": "Asynchroon van opzet",
+      "description": "Elke publicatie retourneert een run-id. Peil de runs of abonneer je op ondertekende webhooks in plaats van synchrone voltooiing aan te nemen."
+    }
   ],
   "endpointGroups": [
     {
       "title": "Merken en bestemmingen",
       "description": "Ontdek de merken en publicatiebestemmingen die beschikbaar zijn voor de API-sleutel. Merken heten products in de interfacenaamgeving, paden en payloads gebruiken products/productId voor achterwaartse compatibiliteit, en POST-berichten accepteren ook brandId als alias.",
       "endpoints": [
-        { "method": "GET", "path": "/api/public/v1/products", "note": "Toont de merken van de sleutel plus de kanalen die momenteel voor elk beschikbaar zijn." },
-        { "method": "GET", "path": "/api/public/v1/products/:id/destinations", "note": "Toont de publicatiebestemmingen voor dat merk, inclusief zelfstandige Instagram-login, Facebook-pagina, Threads, LinkedIn-profiel/pagina en verbonden TikTok-bestemmingen." }
+        {
+          "method": "GET",
+          "path": "/api/public/v1/products",
+          "note": "Toont de merken van de sleutel plus de kanalen die momenteel voor elk beschikbaar zijn."
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/products/:id/destinations",
+          "note": "Toont de publicatiebestemmingen voor dat merk, inclusief zelfstandige Instagram-login, Facebook-pagina, Threads, LinkedIn-profiel/pagina en verbonden TikTok-bestemmingen."
+        }
       ]
     },
     {
       "title": "Media",
       "description": "Upload afbeeldingen of video's naar door Markaestro beheerde opslag voordat je posts aanmaakt.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Maakt een directe uploadsessie van 15 minuten met bestandsnaam, contenttype en exacte grootte." },
-        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Uploadt bytes rechtstreeks naar opslag met het teruggegeven Content-Type; stuur geen API-sleutel." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Controleert type en grootte en retourneert het media-asset; voltooide sessies kunnen veilig opnieuw worden geprobeerd." },
-        { "method": "POST", "path": "/api/public/v1/media", "note": "Compatibele multipart-upload. Retourneert een asset-id en gehoste URL." }
+        {
+          "method": "POST",
+          "path": "/api/public/v1/media/upload-sessions",
+          "note": "Maakt een directe uploadsessie van 15 minuten met bestandsnaam, contenttype en exacte grootte."
+        },
+        {
+          "method": "PUT",
+          "path": "<uploadSession.uploadUrl>",
+          "note": "Uploadt bytes rechtstreeks naar opslag met het teruggegeven Content-Type; stuur geen API-sleutel."
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/media/upload-sessions/:id/finalize",
+          "note": "Controleert type en grootte en retourneert het media-asset; voltooide sessies kunnen veilig opnieuw worden geprobeerd."
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/media",
+          "note": "Compatibele multipart-upload. Retourneert een asset-id en gehoste URL."
+        }
       ]
     },
     {
       "title": "Posts",
       "description": "Maak posts aan, toon ze, inspecteer ze, publiceer en verwijder ze voor Facebook, Instagram, LinkedIn, Threads, Pinterest en TikTok.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/posts", "note": "Maakt een concept aan in de workspace. Facebook, Instagram en TikTok gebruiken standaard handmatig plaatsen (deliveryMode manual_reminder); geef deliveryMode direct_publish mee om te kiezen voor API-publicatie voor een post." },
-        { "method": "GET", "path": "/api/public/v1/posts", "note": "Toont posts, nieuwste eerst. Filter met ?status=scheduled om te zien wat in de wachtrij staat, en ?productId= om te beperken tot één merk. Een merkgebonden sleutel is altijd beperkt tot zijn eigen merk en kan productId weglaten." },
-        { "method": "GET", "path": "/api/public/v1/posts/:id", "note": "Retourneert de huidige poststatus, leveringsmodus en publicatieresultaten." },
-        { "method": "POST", "path": "/api/public/v1/posts/:id/publish", "note": "Plaatst een asynchrone publicatierun in de wachtrij. Handmatige posts komen in de 'Te Plaatsen'-wachtrij van de workspace terecht voor native plaatsing; LinkedIn, Threads en Pinterest publiceren direct; aangemelde Meta-posts publiceren via de officiële API, en aangemelde TikTok-posts gebruiken de overdracht naar de inbox." },
-        { "method": "DELETE", "path": "/api/public/v1/posts/:id", "note": "Verwijdert de post uit Markaestro. Gebruikt de bestaande posts.write-scope. Retourneert 400 VALIDATION_POST_IS_PUBLISHING terwijl een publicatierun bezig is. Het verwijderen van een gepubliceerde post trekt de live kopie op het platform niet terug." }
+        {
+          "method": "POST",
+          "path": "/api/public/v1/posts",
+          "note": "Maakt een concept aan in de workspace. Facebook, Instagram en TikTok gebruiken standaard handmatig plaatsen (deliveryMode manual_reminder); geef deliveryMode direct_publish mee om te kiezen voor API-publicatie voor een post."
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/posts",
+          "note": "Toont posts, nieuwste eerst. Filter met ?status=scheduled om te zien wat in de wachtrij staat, en ?productId= om te beperken tot één merk. Een merkgebonden sleutel is altijd beperkt tot zijn eigen merk en kan productId weglaten."
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/posts/:id",
+          "note": "Retourneert de huidige poststatus, leveringsmodus en publicatieresultaten."
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/posts/:id/publish",
+          "note": "Plaatst een asynchrone publicatierun in de wachtrij. Handmatige posts komen in de 'Te Plaatsen'-wachtrij van de workspace terecht voor native plaatsing; LinkedIn, Threads en Pinterest publiceren direct; aangemelde Meta-posts publiceren via de officiële API, en aangemelde TikTok-posts gebruiken de overdracht naar de inbox."
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/public/v1/posts/:id",
+          "note": "Verwijdert de post uit Markaestro. Gebruikt de bestaande posts.write-scope. Retourneert 400 VALIDATION_POST_IS_PUBLISHING terwijl een publicatierun bezig is. Het verwijderen van een gepubliceerde post trekt de live kopie op het platform niet terug."
+        }
       ]
     },
     {
       "title": "Runs en Webhooks",
       "description": "Volg asynchroon werk via polling of ondertekende webhook-levering.",
       "endpoints": [
-        { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "Retourneert queued, running, succeeded of failed." },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registreert een webhook-bestemming, tot 25 actieve endpoints per workspace." },
-        { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "Toont geregistreerde webhook-bestemmingen voor die API-sleutelscope." },
-        { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Schakelt een webhook-bestemming uit." }
+        {
+          "method": "GET",
+          "path": "/api/public/v1/job-runs/:id",
+          "note": "Retourneert queued, running, succeeded of failed."
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/webhook-endpoints",
+          "note": "Registreert een webhook-bestemming, tot 25 actieve endpoints per workspace."
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/webhook-endpoints",
+          "note": "Toont geregistreerde webhook-bestemmingen voor die API-sleutelscope."
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/public/v1/webhook-endpoints/:id",
+          "note": "Schakelt een webhook-bestemming uit."
+        }
       ]
     }
   ],
   "examples": {
-    "listProducts": { "title": "1. Toon producten", "description": "Ontdek welke producten deze API-sleutel als doel kan hebben." },
-    "listDestinations": { "title": "2. Inspecteer bestemmingen", "description": "Bekijk de gekoppelde pagina's en accounts voor een product voordat je de post aanmaakt. Gebruik de geretourneerde <code>destinationId</code> wanneer een product meerdere bestemmingen heeft, zoals een LinkedIn-profiel plus pagina's." },
-    "upload": { "title": "3. Upload media", "description": "Elke post verwijst naar eerder geüploade media-assets." },
-    "createPost": { "title": "4. Maak een post aan", "description": "Maak een concept aan met die asset-id's. Instagram gebruikt standaard handmatig plaatsen; voeg <code>\"deliveryMode\": \"direct_publish\"</code> toe om deze post te laten kiezen voor publicatie via de officiële API." },
-    "tiktokCreatePost": { "title": "TikTok-voorbeeld", "description": "TikTok-posts komen aan als Markaestro-concepten en gebruiken standaard handmatig plaatsen vanuit de 'Te Plaatsen'-wachtrij. Met <code>deliveryMode: \"platform_inbox\"</code> (of <code>direct_publish</code>) stuurt een expliciete publicatie het concept in plaats daarvan naar de inbox van de maker." },
-    "publish": { "title": "5. Plaats publicatie in wachtrij", "description": "Publicatie creëert een asynchrone run. Handmatige posts (de standaard voor Facebook/Instagram/TikTok) gaan naar de 'Te Plaatsen'-wachtrij en activeren <code>post.action_required</code>; LinkedIn, Threads, Pinterest en aangemelde Meta-posts publiceren direct; aangemelde TikTok-posts plaatsen de overdracht naar de inbox in de wachtrij." },
-    "listScheduled": { "title": "6. Bekijk de planning en annuleer", "description": "Toon wat er in de wachtrij staat voor een merk, verwijder vervolgens alles wat je niet meer wilt publiceren. Beide gebruiken scopes die bestaande sleutels al hebben: <code>posts.read</code> en <code>posts.write</code>." },
-    "webhook": { "title": "Voorbeeld van webhook-payload", "description": "Leveringen worden ondertekend met HMAC met je webhook-geheim." }
+    "listProducts": {
+      "title": "1. Toon producten",
+      "description": "Ontdek welke producten deze API-sleutel als doel kan hebben."
+    },
+    "listDestinations": {
+      "title": "2. Inspecteer bestemmingen",
+      "description": "Bekijk de gekoppelde pagina's en accounts voor een product voordat je de post aanmaakt. Gebruik de geretourneerde <code>destinationId</code> wanneer een product meerdere bestemmingen heeft, zoals een LinkedIn-profiel plus pagina's."
+    },
+    "upload": {
+      "title": "3. Upload media",
+      "description": "Elke post verwijst naar eerder geüploade media-assets."
+    },
+    "createPost": {
+      "title": "4. Maak een post aan",
+      "description": "Maak een concept aan met die asset-id's. Instagram gebruikt standaard handmatig plaatsen; voeg <code>\"deliveryMode\": \"direct_publish\"</code> toe om deze post te laten kiezen voor publicatie via de officiële API."
+    },
+    "tiktokCreatePost": {
+      "title": "TikTok-voorbeeld",
+      "description": "TikTok-posts komen aan als Markaestro-concepten en gebruiken standaard handmatig plaatsen vanuit de 'Te Plaatsen'-wachtrij. Met <code>deliveryMode: \"platform_inbox\"</code> (of <code>direct_publish</code>) stuurt een expliciete publicatie het concept in plaats daarvan naar de inbox van de maker."
+    },
+    "publish": {
+      "title": "5. Plaats publicatie in wachtrij",
+      "description": "Publicatie creëert een asynchrone run. Handmatige posts (de standaard voor Facebook/Instagram/TikTok) gaan naar de 'Te Plaatsen'-wachtrij en activeren <code>post.action_required</code>; LinkedIn, Threads, Pinterest en aangemelde Meta-posts publiceren direct; aangemelde TikTok-posts plaatsen de overdracht naar de inbox in de wachtrij."
+    },
+    "listScheduled": {
+      "title": "6. Bekijk de planning en annuleer",
+      "description": "Toon wat er in de wachtrij staat voor een merk, verwijder vervolgens alles wat je niet meer wilt publiceren. Beide gebruiken scopes die bestaande sleutels al hebben: <code>posts.read</code> en <code>posts.write</code>."
+    },
+    "webhook": {
+      "title": "Voorbeeld van webhook-payload",
+      "description": "Leveringen worden ondertekend met HMAC met je webhook-geheim."
+    }
   },
   "channelBehavior": {
     "title": "Kanaalgedrag",
     "description": "Validatie- en leveringsregels die door de publieke API worden afgedwongen.",
     "channels": [
-      { "name": "Facebook", "rule": "Posts met alleen tekst, afbeelding of video. Tot 10 afbeeldingen of 1 video per post. Standaard handmatig plaatsen; directe publicatie bij aanmelding." },
-      { "name": "Instagram", "rule": "Minstens één afbeelding of video, tot 10 items. Een enkele video wordt gepubliceerd als Reel. Standaard handmatig plaatsen; directe publicatie bij aanmelding." },
-      { "name": "TikTok", "rule": "Minstens één afbeelding of video. Tot 10 afbeeldingen of 1 video. Standaard handmatig plaatsen; aangemelde posts gaan naar de inbox van de maker, nooit een openbare Direct Post." },
-      { "name": "LinkedIn", "rule": "Tekst, enkele afbeelding, enkele video, of organische posts met meerdere afbeeldingen tot 20 afbeeldingen. Richt je op het verbonden Profiel of een beheerde Pagina." }
+      {
+        "name": "Facebook",
+        "rule": "Posts met alleen tekst, afbeelding of video. Tot 10 afbeeldingen of 1 video per post. Standaard handmatig plaatsen; directe publicatie bij aanmelding."
+      },
+      {
+        "name": "Instagram",
+        "rule": "Minstens één afbeelding of video, tot 10 items. Een enkele video wordt gepubliceerd als Reel. Standaard handmatig plaatsen; directe publicatie bij aanmelding."
+      },
+      {
+        "name": "TikTok",
+        "rule": "Minstens één afbeelding of video. Tot 10 afbeeldingen of 1 video. Standaard handmatig plaatsen; aangemelde posts gaan naar de inbox van de maker, nooit een openbare Direct Post."
+      },
+      {
+        "name": "LinkedIn",
+        "rule": "Tekst, enkele afbeelding, enkele video, of organische posts met meerdere afbeeldingen tot 20 afbeeldingen. Richt je op het verbonden Profiel of een beheerde Pagina."
+      }
     ]
+  },
+  "specCallout": {
+    "title": "Machineleesbare specificatie",
+    "body": "Elk endpoint, elke request- en responsvorm en elke foutcode, als OpenAPI 3.1. Gegenereerd uit dezelfde schema's waartegen de API valideert, dus hij kan geen API beschrijven die we niet aanbieden.",
+    "button": "OpenAPI 3.1-specificatie"
   }
 }

@@ -19,12 +19,36 @@
     "recommendedBadge": "Recommended",
     "description": "The default way to integrate: a flat, snake_case surface at <code>/api/connect/v1</code> that most scheduling tools can target as-is. It maps the common <code>create-upload-url → PUT → post</code> convention onto the same workspace, auth, products, and publishing pipeline as the full API below. Set the client base URL to <code>/api/connect</code> and authenticate with a product-scoped workspace API key (scopes <code>posts.read</code>, <code>posts.write</code>, <code>media.write</code>).",
     "endpoints": [
-      { "method": "GET", "path": "/api/connect/v1/social-accounts", "note": "Lists connected Facebook, Instagram, TikTok, LinkedIn, and Threads destinations as flat accounts, each labeled with its product so clients can group and disambiguate. Each channel is its own dedicated path, no cross-channel fan-out." },
-      { "method": "GET", "path": "/api/connect/v1/products", "note": "Lists brands (wire name: products) with their connected accounts nested, a brand-first picker." },
-      { "method": "POST", "path": "/api/connect/v1/media/create-upload-url", "note": "Returns a short-lived, single-use signed PUT url plus a media id." },
-      { "method": "PUT", "path": "<upload_url>", "note": "Upload the raw image bytes to the signed url. No API key needed. The signature authorizes it." },
-      { "method": "POST", "path": "/api/connect/v1/posts", "note": "Creates a draft per selected account. Set is_draft=false with scheduled_at to schedule delivery; TikTok uses the creator-inbox handoff." },
-      { "method": "GET", "path": "/api/connect/v1/posts", "note": "Lists workspace posts with flat status, caption, and media urls." }
+      {
+        "method": "GET",
+        "path": "/api/connect/v1/social-accounts",
+        "note": "Lists connected Facebook, Instagram, TikTok, LinkedIn, and Threads destinations as flat accounts, each labeled with its product so clients can group and disambiguate. Each channel is its own dedicated path, no cross-channel fan-out."
+      },
+      {
+        "method": "GET",
+        "path": "/api/connect/v1/products",
+        "note": "Lists brands (wire name: products) with their connected accounts nested, a brand-first picker."
+      },
+      {
+        "method": "POST",
+        "path": "/api/connect/v1/media/create-upload-url",
+        "note": "Returns a short-lived, single-use signed PUT url plus a media id."
+      },
+      {
+        "method": "PUT",
+        "path": "<upload_url>",
+        "note": "Upload the raw image bytes to the signed url. No API key needed. The signature authorizes it."
+      },
+      {
+        "method": "POST",
+        "path": "/api/connect/v1/posts",
+        "note": "Creates a draft per selected account. Set is_draft=false with scheduled_at to schedule delivery; TikTok uses the creator-inbox handoff."
+      },
+      {
+        "method": "GET",
+        "path": "/api/connect/v1/posts",
+        "note": "Lists workspace posts with flat status, caption, and media urls."
+      }
     ],
     "footnote": "Each account from <code>/social-accounts</code> is labeled with its <code>product</code>, the wire-format name for a brand (the same account can appear under multiple brands), and its <code>id</code> encodes <code>productId#destinationId</code>, pass it back verbatim in <code>social_accounts</code>, and the request fans out one post per account. Each key is bound to one brand, so it only sees and posts to that brand. <strong>Facebook, Instagram, and TikTok posts are manual-first</strong>, created as drafts and published natively by the workspace owner from the Markaestro To Post queue, never via the platform's API. LinkedIn, Threads, and Pinterest publish programmatically after an explicit publish action. Post status is one of <code>draft</code>, <code>processing</code>, <code>posted</code>, or <code>failed</code>. Facebook, Instagram, LinkedIn, TikTok, and Threads are each their own dedicated destination, publishing to one never fans out to another. Track publishing state through <code>GET /api/connect/v1/posts</code>."
   },
@@ -33,70 +57,183 @@
     "description": "The complete <code>/api/public/v1</code> surface: explicit publish, async job runs, signed webhooks, batch create, and per-channel settings. Use it when the Connect API is not enough."
   },
   "highlightCards": [
-    { "title": "Meta & TikTok are manual-first", "description": "Facebook, Instagram, and TikTok posts default to the manual To Post queue, no platform API call, the workspace owner posts natively and confirms. Opt into API publishing per post with deliveryMode." },
-    { "title": "Instagram Login supported", "description": "Brands can expose standalone Instagram professional accounts even when no Facebook Page is linked." },
-    { "title": "TikTok supports two opt-in paths", "description": "API publishing uses the creator-inbox handoff by default. Set settings.postMode to direct_post with a privacy level to request Direct Post when your TikTok app is approved for it." },
-    { "title": "Async by design", "description": "Every publish returns a run id. Poll runs or subscribe to signed webhooks instead of assuming synchronous completion." }
+    {
+      "title": "Meta & TikTok are manual-first",
+      "description": "Facebook, Instagram, and TikTok posts default to the manual To Post queue, no platform API call, the workspace owner posts natively and confirms. Opt into API publishing per post with deliveryMode."
+    },
+    {
+      "title": "Instagram Login supported",
+      "description": "Brands can expose standalone Instagram professional accounts even when no Facebook Page is linked."
+    },
+    {
+      "title": "TikTok supports two opt-in paths",
+      "description": "API publishing uses the creator-inbox handoff by default. Set settings.postMode to direct_post with a privacy level to request Direct Post when your TikTok app is approved for it."
+    },
+    {
+      "title": "Async by design",
+      "description": "Every publish returns a run id. Poll runs or subscribe to signed webhooks instead of assuming synchronous completion."
+    }
   ],
   "endpointGroups": [
     {
       "title": "Brands and destinations",
       "description": "Discover the brands and publish destinations available to the API key. Brands are called products in the wire format, paths and payloads use products/productId for backwards compatibility, and POST bodies also accept brandId as an alias.",
       "endpoints": [
-        { "method": "GET", "path": "/api/public/v1/products", "note": "Lists the key's brands plus the channels currently available for each one." },
-        { "method": "GET", "path": "/api/public/v1/products/:id/destinations", "note": "Lists the publish destinations for that brand, including standalone Instagram Login, Facebook Page, Threads, LinkedIn Profile/Page, and connected TikTok destinations." }
+        {
+          "method": "GET",
+          "path": "/api/public/v1/products",
+          "note": "Lists the key's brands plus the channels currently available for each one."
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/products/:id/destinations",
+          "note": "Lists the publish destinations for that brand, including standalone Instagram Login, Facebook Page, Threads, LinkedIn Profile/Page, and connected TikTok destinations."
+        }
       ]
     },
     {
       "title": "Media",
       "description": "Upload images or videos to Markaestro-managed storage before creating posts. New integrations should use direct upload sessions; multipart remains compatible.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "Creates a 15-minute direct upload session from fileName, contentType, and exact sizeBytes, reserving one media-upload quota unit." },
-        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "Uploads raw bytes directly to storage using the returned Content-Type header; do not send the API key." },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "Verifies the stored type and size and returns the reusable media asset. Completed sessions are retry-safe." },
-        { "method": "POST", "path": "/api/public/v1/media", "note": "Compatibility multipart upload. Returns an asset id and hosted URL." }
+        {
+          "method": "POST",
+          "path": "/api/public/v1/media/upload-sessions",
+          "note": "Creates a 15-minute direct upload session from fileName, contentType, and exact sizeBytes, reserving one media-upload quota unit."
+        },
+        {
+          "method": "PUT",
+          "path": "<uploadSession.uploadUrl>",
+          "note": "Uploads raw bytes directly to storage using the returned Content-Type header; do not send the API key."
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/media/upload-sessions/:id/finalize",
+          "note": "Verifies the stored type and size and returns the reusable media asset. Completed sessions are retry-safe."
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/media",
+          "note": "Compatibility multipart upload. Returns an asset id and hosted URL."
+        }
       ]
     },
     {
       "title": "Posts",
       "description": "Create, list, inspect, publish, and delete posts for Facebook, Instagram, LinkedIn, Threads, Pinterest, and TikTok.",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/posts", "note": "Creates a draft in the workspace. Facebook, Instagram, and TikTok default to manual posting (deliveryMode manual_reminder); pass deliveryMode direct_publish to opt a post into API publishing." },
-        { "method": "GET", "path": "/api/public/v1/posts", "note": "Lists posts, newest first. Filter with ?status=scheduled to see what is queued, and ?productId= to scope to one brand. A brand-bound key is always limited to its own brand and may omit productId." },
-        { "method": "GET", "path": "/api/public/v1/posts/:id", "note": "Returns current post status, delivery mode, and publish results." },
-        { "method": "POST", "path": "/api/public/v1/posts/:id/publish", "note": "Queues an async publish run. Manual posts land in the workspace's To Post queue for native posting; LinkedIn, Threads, and Pinterest publish directly; opted-in Meta posts publish via the official API, and opted-in TikTok posts use the inbox handoff." },
-        { "method": "DELETE", "path": "/api/public/v1/posts/:id", "note": "Deletes the post from Markaestro. Uses the existing posts.write scope. Returns 400 VALIDATION_POST_IS_PUBLISHING while a publish run is in flight. Deleting a published post does not retract the live platform copy." }
+        {
+          "method": "POST",
+          "path": "/api/public/v1/posts",
+          "note": "Creates a draft in the workspace. Facebook, Instagram, and TikTok default to manual posting (deliveryMode manual_reminder); pass deliveryMode direct_publish to opt a post into API publishing."
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/posts",
+          "note": "Lists posts, newest first. Filter with ?status=scheduled to see what is queued, and ?productId= to scope to one brand. A brand-bound key is always limited to its own brand and may omit productId."
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/posts/:id",
+          "note": "Returns current post status, delivery mode, and publish results."
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/posts/:id/publish",
+          "note": "Queues an async publish run. Manual posts land in the workspace's To Post queue for native posting; LinkedIn, Threads, and Pinterest publish directly; opted-in Meta posts publish via the official API, and opted-in TikTok posts use the inbox handoff."
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/public/v1/posts/:id",
+          "note": "Deletes the post from Markaestro. Uses the existing posts.write scope. Returns 400 VALIDATION_POST_IS_PUBLISHING while a publish run is in flight. Deleting a published post does not retract the live platform copy."
+        }
       ]
     },
     {
       "title": "Runs and Webhooks",
       "description": "Track async work with polling or signed webhook delivery.",
       "endpoints": [
-        { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "Returns queued, running, succeeded, or failed." },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "Registers a webhook destination using an API key, up to 25 active endpoints per workspace." },
-        { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "Lists registered webhook destinations for that API key scope." },
-        { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "Disables a webhook destination." }
+        {
+          "method": "GET",
+          "path": "/api/public/v1/job-runs/:id",
+          "note": "Returns queued, running, succeeded, or failed."
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/webhook-endpoints",
+          "note": "Registers a webhook destination using an API key, up to 25 active endpoints per workspace."
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/webhook-endpoints",
+          "note": "Lists registered webhook destinations for that API key scope."
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/public/v1/webhook-endpoints/:id",
+          "note": "Disables a webhook destination."
+        }
       ]
     }
   ],
   "examples": {
-    "listProducts": { "title": "1. List products", "description": "Discover which products this API key can target." },
-    "listDestinations": { "title": "2. Inspect destinations", "description": "See the linked pages and accounts for a product before creating the post. Use the returned <code>destinationId</code> when a product has multiple destinations, such as a LinkedIn Profile plus Pages." },
-    "upload": { "title": "3. Upload media", "description": "Each post references previously uploaded media assets. Prefer create-session → direct PUT → finalize for new integrations; multipart remains supported." },
-    "createPost": { "title": "4. Create a post", "description": "Create a draft using those asset ids. Instagram defaults to manual posting; add <code>\"deliveryMode\": \"direct_publish\"</code> to opt this post into official-API publishing." },
-    "tiktokCreatePost": { "title": "TikTok example", "description": "TikTok posts land as Markaestro drafts and default to manual posting from the To Post queue. With <code>deliveryMode: \"platform_inbox\"</code> (or <code>direct_publish</code>), an explicit publish sends the draft to the creator's TikTok inbox instead." },
-    "publish": { "title": "5. Queue publish", "description": "Publishing creates an async run. Manual posts (the Facebook/Instagram/TikTok default) move to the To Post queue and fire <code>post.action_required</code>; LinkedIn, Threads, Pinterest, and opted-in Meta posts publish directly; opted-in TikTok posts queue the inbox handoff." },
-    "listScheduled": { "title": "6. Review the schedule and cancel", "description": "List what is queued for a brand, then delete anything you no longer want to go out. Both use scopes existing keys already carry: <code>posts.read</code> and <code>posts.write</code>." },
-    "webhook": { "title": "Webhook payload example", "description": "Deliveries are signed with HMAC using your webhook secret." }
+    "listProducts": {
+      "title": "1. List products",
+      "description": "Discover which products this API key can target."
+    },
+    "listDestinations": {
+      "title": "2. Inspect destinations",
+      "description": "See the linked pages and accounts for a product before creating the post. Use the returned <code>destinationId</code> when a product has multiple destinations, such as a LinkedIn Profile plus Pages."
+    },
+    "upload": {
+      "title": "3. Upload media",
+      "description": "Each post references previously uploaded media assets. Prefer create-session → direct PUT → finalize for new integrations; multipart remains supported."
+    },
+    "createPost": {
+      "title": "4. Create a post",
+      "description": "Create a draft using those asset ids. Instagram defaults to manual posting; add <code>\"deliveryMode\": \"direct_publish\"</code> to opt this post into official-API publishing."
+    },
+    "tiktokCreatePost": {
+      "title": "TikTok example",
+      "description": "TikTok posts land as Markaestro drafts and default to manual posting from the To Post queue. With <code>deliveryMode: \"platform_inbox\"</code> (or <code>direct_publish</code>), an explicit publish sends the draft to the creator's TikTok inbox instead."
+    },
+    "publish": {
+      "title": "5. Queue publish",
+      "description": "Publishing creates an async run. Manual posts (the Facebook/Instagram/TikTok default) move to the To Post queue and fire <code>post.action_required</code>; LinkedIn, Threads, Pinterest, and opted-in Meta posts publish directly; opted-in TikTok posts queue the inbox handoff."
+    },
+    "listScheduled": {
+      "title": "6. Review the schedule and cancel",
+      "description": "List what is queued for a brand, then delete anything you no longer want to go out. Both use scopes existing keys already carry: <code>posts.read</code> and <code>posts.write</code>."
+    },
+    "webhook": {
+      "title": "Webhook payload example",
+      "description": "Deliveries are signed with HMAC using your webhook secret."
+    }
   },
   "channelBehavior": {
     "title": "Channel behavior",
     "description": "Validation and delivery rules enforced by the public API.",
     "channels": [
-      { "name": "Facebook", "rule": "Text-only, image, or video posts. Up to 10 images or 1 video per post. Manual posting by default; direct publish on opt-in." },
-      { "name": "Instagram", "rule": "At least one image or video, up to 10 items. Single video publishes as a Reel. Manual posting by default; direct publish on opt-in." },
-      { "name": "TikTok", "rule": "At least one image or video. Up to 10 images or 1 video. Manual posting by default; opted-in posts go to the creator's TikTok inbox, never public Direct Post." },
-      { "name": "LinkedIn", "rule": "Text, single image, single video, or organic multi-image posts up to 20 images. Target either the connected Profile or a managed Page." }
+      {
+        "name": "Facebook",
+        "rule": "Text-only, image, or video posts. Up to 10 images or 1 video per post. Manual posting by default; direct publish on opt-in."
+      },
+      {
+        "name": "Instagram",
+        "rule": "At least one image or video, up to 10 items. Single video publishes as a Reel. Manual posting by default; direct publish on opt-in."
+      },
+      {
+        "name": "TikTok",
+        "rule": "At least one image or video. Up to 10 images or 1 video. Manual posting by default; opted-in posts go to the creator's TikTok inbox, never public Direct Post."
+      },
+      {
+        "name": "LinkedIn",
+        "rule": "Text, single image, single video, or organic multi-image posts up to 20 images. Target either the connected Profile or a managed Page."
+      }
     ]
+  },
+  "specCallout": {
+    "title": "Machine-readable spec",
+    "body": "Every endpoint, request shape, response shape, and error code, as OpenAPI 3.1. Generated from the same schemas the API validates against, so it cannot describe an API we do not serve.",
+    "button": "OpenAPI 3.1 spec"
   }
 }

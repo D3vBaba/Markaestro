@@ -130,12 +130,17 @@ describe('GET /r/[code]', () => {
     expect(response.status).toBe(404);
   });
 
-  it('honours a deactivated link', async () => {
+  it('answers a retired link with 410 and a readable page, not a 404', async () => {
+    // A retired code is a different fact from an unknown one: it was real and
+    // its owner withdrew it. 410 says that, and crawlers drop it promptly,
+    // which is what retiring a link is for.
     docGetMock.mockResolvedValue(linkDoc({ ...LINK, active: false }));
     const { GET } = await import('@/app/r/[code]/route');
 
     const response = await GET(request('off'), params('off'));
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(410);
+    expect(response.headers.get('content-type')).toContain('text/html');
+    await expect(response.text()).resolves.toContain('retired');
   });
 
   it('does not let a failed click write become an unhandled rejection', async () => {

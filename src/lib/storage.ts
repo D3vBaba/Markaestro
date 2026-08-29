@@ -25,6 +25,12 @@ export async function uploadToStorage(
   await file.save(buffer, {
     metadata: {
       contentType,
+      // Private but browser-cacheable for an hour (5.9). The object is
+      // token-gated, so `private` keeps shared caches out while letting the
+      // one browser that legitimately fetched it stop re-fetching: a grid of
+      // 50 posts was 50 origin reads on every page load. `no-store` here
+      // would be paying for privacy the token already provides.
+      cacheControl: 'private, max-age=3600',
       metadata: {
         ...customMetadata,
         firebaseStorageDownloadTokens: downloadToken,

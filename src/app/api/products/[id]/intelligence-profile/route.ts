@@ -4,22 +4,9 @@ import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { audienceIntelligenceProfileSchema } from '@/lib/intelligence/schemas';
-import { requireIntelligencePhase } from '@/lib/intelligence/feature-flags';
-import { requireIntelligencePreviewUser } from '@/lib/intelligence/preview-access';
-import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-import { hasFeature } from '@/lib/stripe/entitlements';
+import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 
 export const runtime = 'nodejs';
-
-async function requireFoundation(uid: string, workspaceId: string) {
-  const subscription = await getEffectiveSubscription(uid, workspaceId);
-  await requireIntelligencePhase({
-    phase: 'foundation',
-    uid,
-    workspaceId,
-    entitled: hasFeature(subscription, 'audienceFit'),
-  });
-}
 
 function refs(workspaceId: string, productId: string) {
   const product = adminDb.doc(`${workspaceCollection(workspaceId, 'products')}/${productId}`);
@@ -29,9 +16,8 @@ function refs(workspaceId: string, productId: string) {
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
-    requireIntelligencePreviewUser(ctx);
     requirePermission(ctx, 'intelligence.read');
-    await requireFoundation(ctx.uid, ctx.workspaceId);
+    await requireIntelligenceAccess(ctx, 'foundation', 'audienceFit');
     const { id } = await params;
     const { product, profile } = refs(ctx.workspaceId, id);
     const [productSnapshot, profileSnapshot] = await Promise.all([product.get(), profile.get()]);
@@ -48,9 +34,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
-    requireIntelligencePreviewUser(ctx);
     requirePermission(ctx, 'intelligence.manage');
-    await requireFoundation(ctx.uid, ctx.workspaceId);
+    await requireIntelligenceAccess(ctx, 'foundation', 'audienceFit');
     const { id } = await params;
     const parsed = audienceIntelligenceProfileSchema.parse(await req.json());
     const { product, profile } = refs(ctx.workspaceId, id);

@@ -112,7 +112,12 @@ export async function POST(req: Request) {
       || await claimPeriodicWorkerPhase('global', GLOBAL_PHASE_INTERVAL_MS);
     if (runGlobalPhases) {
       try {
-        tokenRefreshResult = await processTokenRefresh();
+        // Steady state reads only due workspaces from the refresh queue; the
+        // daily full sweep seeds and repairs the queue (4.11). Both behind
+        // the same global phase so at most one instance runs either.
+        const fullSweep = !dueQueueEnabled
+          || await claimPeriodicWorkerPhase('token-refresh-full-sweep', 24 * 60 * 60_000);
+        tokenRefreshResult = await processTokenRefresh({ fullSweep });
       } catch (error) {
         logger.error('token refresh failed', { event: 'worker.token_refresh', requestId, err: error });
       }

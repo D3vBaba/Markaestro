@@ -39,6 +39,10 @@ const VIDEO_POLL_MAX_ATTEMPTS = 60; // ~5 minutes
 
 /** Instagram's carousel ceiling. Mirrors the `instagram` channel catalog entry. */
 const IG_MAX_CAROUSEL_ITEMS = 10;
+// IG Graph accepts at most 3 collaborators by username. Dropping the extras
+// silently would publish a post crediting fewer people than the caller asked
+// for, so the publish paths refuse above this instead of slicing.
+const IG_MAX_COLLABORATORS = 3;
 
 /**
  * Carousel children are created a few at a time rather than all at once.
@@ -413,8 +417,8 @@ async function createIgMediaContainer(
   if (params.isCarouselItem) body.is_carousel_item = true;
   if (params.altText) body.alt_text = params.altText;
   if (params.collaborators && params.collaborators.length > 0) {
-    // IG Graph accepts up to 3 collaborators by username, JSON-encoded.
-    body.collaborators = JSON.stringify(params.collaborators.slice(0, 3));
+    // Callers are pre-checked against IG_MAX_COLLABORATORS in publishToInstagram.
+    body.collaborators = JSON.stringify(params.collaborators);
   }
 
   const res = await graphApiFetch(`${graphApi}/${igAccountId}/media`, {
@@ -494,6 +498,12 @@ async function publishToInstagram(
   }
   const altTexts = settings?.altText ?? [];
   const collaborators = settings?.collaborators;
+  if (collaborators && collaborators.length > IG_MAX_COLLABORATORS) {
+    return {
+      success: false,
+      error: `Instagram allows a maximum of ${IG_MAX_COLLABORATORS} collaborators per post. This post has ${collaborators.length}.`,
+    };
+  }
 
   try {
     let containerId: string | undefined;
@@ -562,7 +572,7 @@ async function publishToInstagram(
         access_token: accessToken,
       };
       if (collaborators && collaborators.length > 0) {
-        carouselBody.collaborators = JSON.stringify(collaborators.slice(0, 3));
+        carouselBody.collaborators = JSON.stringify(collaborators);
       }
       const parentRes = await graphApiFetch(`${graphApi}/${igAccountId}/media`, {
         method: 'POST',

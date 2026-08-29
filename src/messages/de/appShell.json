@@ -105,5 +105,8 @@
     "degraded": "Die Verbindung für {channels} läuft bald ab. Verbinde sie neu, damit weiter veröffentlicht wird.",
     "genericReason": "Verbinde ihn neu, damit weiter veröffentlicht wird.",
     "reconnect": "Neu verbinden"
+  },
+  "offlineBanner": {
+    "message": "Du scheinst offline zu sein. Änderungen können erst gespeichert werden, wenn die Verbindung wieder besteht."
   }
 }

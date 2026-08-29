@@ -7,6 +7,12 @@ import {
   serializePublicPost,
 } from '@/lib/public-api/posts';
 import { publicApiError } from '@/lib/public-api/response';
+import {
+  createRequestHash,
+  getIdempotencyKey,
+  loadIdempotentResponse,
+  persistIdempotentResponse,
+} from '@/lib/public-api/idempotency';
 
 export const runtime = 'nodejs';
 
@@ -40,13 +46,31 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       rateLimit: POSTS_RATE_LIMIT,
     });
     const { id } = await params;
+
+    // A delete raced by its own retry answers NOT_FOUND on the second try,
+    // which reads as a failure to a client that cannot tell "already gone"
+    // from "never existed". With a key, the retry replays the original 200.
+    const idempotencyKey = getIdempotencyKey(req);
+    const requestHash = idempotencyKey ? createRequestHash(`DELETE:posts:${id}`) : null;
+    if (idempotencyKey && requestHash) {
+      const replay = await loadIdempotentResponse(ctx.workspaceId, idempotencyKey, requestHash);
+      if (replay) {
+        Object.entries(ctx.rateLimitHeaders).forEach(([key, value]) => replay.headers.set(key, value));
+        return replay;
+      }
+    }
+
     const post = await getPublicPost(ctx.workspaceId, id);
     assertPublicPostInBrandScope(post, ctx.productId);
     assertPublicPostDeletable(post);
 
     await deletePublicPost(ctx.workspaceId, id);
 
-    return Response.json({ deleted: true, id }, { headers: ctx.rateLimitHeaders });
+    const responseBody = { deleted: true, id };
+    if (idempotencyKey && requestHash) {
+      await persistIdempotentResponse(ctx.workspaceId, idempotencyKey, requestHash, 200, responseBody);
+    }
+    return Response.json(responseBody, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);
   }

@@ -14,15 +14,24 @@ This repository now includes a functional front-end scaffold for:
 ## Run locally
 ```bash
 npm install
+npm run env:example && cp .env.local.example .env.local
+gcloud auth application-default login
 npm run dev
 ```
 Open http://localhost:3000
 
+`docs/DEVELOPMENT.md` covers what each environment variable is for, which
+subset you actually need (you can work on the composer without registering any
+OAuth apps), the Firebase emulators, and what every check in `npm run ci`
+protects.
+
 ## Project structure
 - `src/app/*` route pages
 - `src/components/*` shared UI and layout
+- `docs/DEVELOPMENT.md` local setup, the emulators, and what each CI check protects
+- `docs/PUBLIC_API.md` the public and Connect API surfaces
+- `openapi/markaestro-v1.json` the generated OpenAPI 3.1 description
 - `docs/MVP_PLAN.md` execution plan
-- `db/schema.sql` starter database schema
 
 ## Integrations & API
 - `docs/PUBLIC_API.md` — the **Public API v1** (`/api/public/v1`) for publishing
@@ -38,9 +47,13 @@ Open http://localhost:3000
 
 
 ## Firebase setup
-1. Copy `.env.example` to `.env.local` and fill Firebase web keys.
-2. Add server credentials via `FIREBASE_SERVICE_ACCOUNT_JSON` (or set `GOOGLE_APPLICATION_CREDENTIALS`).
-3. API endpoint available: `GET/POST /api/campaigns` (Firestore collection: `campaigns`).
+1. `npm run env:example`, then copy `.env.local.example` to `.env.local`. It is
+   generated from `apphosting.yaml`, so it lists every variable the deployment
+   declares and marks which are needed just to boot.
+2. Add server credentials with `gcloud auth application-default login`, or set
+   `FIREBASE_SERVICE_ACCOUNT_JSON` if you need a specific service account.
+
+See `docs/DEVELOPMENT.md` for the rest.
 
 
 ## Backend Phase 1 (implemented)

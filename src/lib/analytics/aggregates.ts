@@ -23,9 +23,28 @@ function emptyChannelAggregate(): ChannelDayAggregate {
 
 type PostDocData = {
   channel?: string;
+  testMode?: boolean;
+  productId?: string;
   publishedChannels?: string[];
   metricsByChannel?: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
 };
+
+function accumulateChannelMetrics(
+  agg: ChannelDayAggregate,
+  metrics: NormalizedPostMetrics | undefined,
+): void {
+  agg.posts++;
+  if (!metrics) return;
+  if (metrics.views !== null) { agg.views += metrics.views; agg.postsWithViews++; }
+  if (metrics.reach !== null) { agg.reach += metrics.reach; agg.postsWithReach++; }
+  if (metrics.likes !== null) agg.likes += metrics.likes;
+  if (metrics.comments !== null) agg.comments += metrics.comments;
+  if (metrics.shares !== null) agg.shares += metrics.shares;
+  if (metrics.saves !== null) agg.saves += metrics.saves;
+  if (metrics.clicks !== null) agg.clicks += metrics.clicks;
+  const engagements = engagementTotal(metrics);
+  if (engagements !== null) { agg.engagements += engagements; agg.postsWithEngagements++; }
+}
 
 /**
  * Recompute the per-day rollup docs (workspaces/{ws}/analyticsDaily/{date})
@@ -50,34 +69,44 @@ export async function recomputeDailyAggregates(workspaceId: string, dates: strin
     );
 
     const channels: Partial<Record<SocialChannel, ChannelDayAggregate>> = {};
+    const byProduct: NonNullable<DailyAggregateDoc['byProduct']> = {};
     let totalPosts = 0;
 
     for (const doc of docs) {
       const post = doc.data() as PostDocData;
+      // Sandbox posts (mk_test_ keys) never reached a platform; counting them
+      // would inflate every rollup an integrator's test run touches.
+      if (post.testMode === true) continue;
       totalPosts++;
       const postChannels = (post.publishedChannels?.length ? post.publishedChannels : [post.channel])
         .filter((c): c is string => Boolean(c));
 
+      // Per-brand bucket alongside the workspace-wide one (5.10). The worker
+      // already reads every post for the day, so the extra dimension costs
+      // arithmetic, not reads.
+      const productId = typeof post.productId === 'string' && post.productId ? post.productId : null;
+      const productBucket = productId
+        ? (byProduct[productId] ?? (byProduct[productId] = { posts: 0, channels: {} }))
+        : null;
+      if (productBucket) productBucket.posts++;
+
       for (const channelName of new Set(postChannels)) {
         const channel = channelName as SocialChannel;
-        const agg = channels[channel] ?? (channels[channel] = emptyChannelAggregate());
-        agg.posts++;
-
         const metrics = post.metricsByChannel?.[channel];
-        if (!metrics) continue;
-        if (metrics.views !== null) { agg.views += metrics.views; agg.postsWithViews++; }
-        if (metrics.reach !== null) { agg.reach += metrics.reach; agg.postsWithReach++; }
-        if (metrics.likes !== null) agg.likes += metrics.likes;
-        if (metrics.comments !== null) agg.comments += metrics.comments;
-        if (metrics.shares !== null) agg.shares += metrics.shares;
-        if (metrics.saves !== null) agg.saves += metrics.saves;
-        if (metrics.clicks !== null) agg.clicks += metrics.clicks;
-        const engagements = engagementTotal(metrics);
-        if (engagements !== null) { agg.engagements += engagements; agg.postsWithEngagements++; }
+        accumulateChannelMetrics(
+          channels[channel] ?? (channels[channel] = emptyChannelAggregate()),
+          metrics,
+        );
+        if (productBucket) {
+          accumulateChannelMetrics(
+            productBucket.channels[channel] ?? (productBucket.channels[channel] = emptyChannelAggregate()),
+            metrics,
+          );
+        }
       }
     }
 
-    const doc: DailyAggregateDoc = { date, channels, posts: totalPosts, updatedAt: nowIso };
+    const doc: DailyAggregateDoc = { date, channels, byProduct, posts: totalPosts, updatedAt: nowIso };
     await adminDb.doc(`workspaces/${workspaceId}/analyticsDaily/${date}`).set(doc);
     written++;
   }

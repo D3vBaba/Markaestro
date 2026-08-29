@@ -4,6 +4,8 @@ import {
   assertSafeOutboundUrl,
   readResponseBufferWithLimit,
 } from '@/lib/network-security';
+import { RATE_LIMITS, applyRateLimit } from '@/lib/rate-limit';
+import { readProxyCache, writeProxyCache } from '@/lib/media/proxy-cache';
 
 export const runtime = 'nodejs';
 
@@ -53,7 +55,16 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> },
 ) {
-  const { token } = await params;
+  try {
+    return await proxyTikTokImage(req, await params);
+  } catch (error) {
+    // applyRateLimit signals a 429 by throwing the Response it wants returned.
+    if (error instanceof Response) return error;
+    throw error;
+  }
+}
+
+async function proxyTikTokImage(req: NextRequest, { token }: { token: string }) {
   const encoded = token.endsWith('.jpg') ? token.slice(0, -4) : token;
 
   let rawUrl: string;
@@ -62,6 +73,11 @@ export async function GET(
   } catch {
     return NextResponse.json({ error: 'Invalid token' }, { status: 400 });
   }
+
+  // Metered before any work: the decode-resize-encode below is the expensive
+  // part and this route needs no credentials to reach. TikTok's puller fetches
+  // each image once or twice, so 60 per minute per IP leaves it untouched.
+  await applyRateLimit(req, RATE_LIMITS.mediaProxy);
 
   let parsed: URL;
   try {
@@ -72,6 +88,27 @@ export async function GET(
 
   if (!isAllowedStorageUrl(parsed)) {
     return NextResponse.json({ error: 'URL host not allowed' }, { status: 403 });
+  }
+
+  // Cached bytes are served inline rather than as a redirect. The whole reason
+  // this route exists is that TikTok's photo puller mishandled the ordinary
+  // proxy URL shape, so it does not get to find out how it handles a 302
+  // either. Skipping the sharp pipeline is where the saving is.
+  const cached = await readProxyCache(rawUrl);
+  if (cached) {
+    try {
+      const bytes = await cached.download();
+      return new NextResponse(new Uint8Array(bytes), {
+        status: 200,
+        headers: {
+          'Content-Type': 'image/jpeg',
+          'Content-Length': String(bytes.length),
+          'Cache-Control': 'public, max-age=3600',
+        },
+      });
+    } catch {
+      // Fall through and re-encode: a cache miss must never be a failed image.
+    }
   }
 
   const upstream = await fetch(parsed.toString(), {
@@ -103,6 +140,13 @@ export async function GET(
       mozjpeg: true,
     })
     .toBuffer();
+
+  // Populate the cache the read above checks. This was the missing half: the
+  // route read the cache and never wrote it, so it never hit, and every
+  // repeat fetch from TikTok's puller re-ran the whole sharp pipeline.
+  // Best effort; the caller that paid for the transform gets the bytes
+  // either way.
+  await writeProxyCache(rawUrl, jpegBuffer);
 
   return new NextResponse(new Uint8Array(jpegBuffer), {
     status: 200,

@@ -68,6 +68,24 @@
       "updateFailed": "Aktualisierung fehlgeschlagen",
       "rescheduled": "Beitrag umgeplant",
       "rescheduleFailed": "Umplanen fehlgeschlagen"
+    },
+    "selection": {
+      "selectMode": "Beiträge auswählen",
+      "cancelSelection": "Abbrechen",
+      "selectAll": "Alle auf dieser Seite auswählen",
+      "clear": "Auswahl aufheben",
+      "count": "{count} ausgewählt",
+      "reschedule": "Neu planen",
+      "moveToDrafts": "Zu Entwürfen verschieben",
+      "delete": "Löschen",
+      "confirmDeleteBody": "Das lässt sich nicht rückgängig machen. Bereits veröffentlichte Beiträge sind nicht betroffen."
+    },
+    "bulkToasts": {
+      "rescheduled": "{count} Beiträge neu geplant",
+      "movedToDrafts": "{count} Beiträge zu Entwürfen verschoben",
+      "deleted": "{count} Beiträge gelöscht",
+      "partial": "{succeeded} von {total} Beiträgen aktualisiert. {failed} konnten nicht geändert werden.",
+      "failed": "Es konnte nichts geändert werden. Versuche es erneut oder ändere die Beiträge einzeln."
     }
   },
   "draftsTab": {

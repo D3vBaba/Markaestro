@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiError } from '@/lib/api-response';
+import { RATE_LIMITS, applyRateLimit } from '@/lib/rate-limit';
+import { enforceMediaProxyToken } from '@/lib/media/proxy-tokens';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -101,6 +103,20 @@ async function proxyVideo(req: NextRequest, method: 'GET' | 'HEAD') {
     return NextResponse.json({ error: 'Invalid url' }, { status: 400 });
   }
 
+  // Metered before the upstream fetch. This route streams up to the video cap
+  // with a 295-second timeout and no credentials, so it is the bandwidth
+  // equivalent of the image proxy's CPU amplification. A platform fetcher
+  // issues a HEAD and a small number of ranged GETs, well inside 60 a minute.
+  await applyRateLimit(req, RATE_LIMITS.mediaProxy);
+
+  const refusal = enforceMediaProxyToken({
+    token: req.nextUrl.searchParams.get('t'),
+    mediaUrl: rawUrl,
+    kind: 'video',
+    route: '/api/media/video-proxy',
+  });
+  if (refusal) return refusal;
+
   // The bucket allowlist below is the real authorization. assertSafeOutboundUrl
   // does a DNS lookup on every request for SSRF protection, but our allowed
   // hosts are all Google-managed public domains, so the lookup is redundant
@@ -150,6 +166,8 @@ export async function GET(req: NextRequest) {
   try {
     return await proxyVideo(req, 'GET');
   } catch (error) {
+    // applyRateLimit signals a 429 by throwing the Response it wants returned.
+    if (error instanceof Response) return error;
     return apiError(error);
   }
 }
@@ -158,8 +176,9 @@ export async function HEAD(req: NextRequest) {
   try {
     return await proxyVideo(req, 'HEAD');
   } catch (error) {
-    // A HEAD response must not carry a body; apiError's status is the part
-    // that matters to the caller.
+    // A HEAD response must not carry a body; the status is the part that
+    // matters to the caller, whether it came from the limiter or apiError.
+    if (error instanceof Response) return new NextResponse(null, { status: error.status });
     return new NextResponse(null, { status: apiError(error).status });
   }
 }

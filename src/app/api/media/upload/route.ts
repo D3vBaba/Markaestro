@@ -8,6 +8,7 @@ import { reserveStorage, refundStorage } from '@/lib/usage';
 import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 import { MEDIA_UPLOAD_TYPES, validateMediaUpload } from '@/lib/media-upload-policy';
 import { logger } from '@/lib/logger';
+import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 import { createMediaAssetRecord, serializeMediaAsset } from '@/lib/media/asset-store';
 import { mediaAssetTypeForMimeType, readImageDimensions } from '@/lib/media/asset-metadata';
 
@@ -73,6 +74,11 @@ export async function POST(req: Request) {
     });
 
     reservedStorage = null;
+
+    // Wake the worker so the thumbnail exists before the user scrolls back to
+    // the grid, rather than at the next scheduled tick.
+    await markWorkspaceDue(ctx.workspaceId, new Date(), 'daily_job').catch(() => undefined);
+
     return apiOk({ ok: true, url, contentType: file.type, asset: serializeMediaAsset({ ...asset, id: asset.id }) });
   } catch (error) {
     if (reservedStorage) {

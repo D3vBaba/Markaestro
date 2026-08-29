@@ -68,6 +68,24 @@
       "updateFailed": "更新に失敗しました",
       "rescheduled": "投稿を再スケジュールしました",
       "rescheduleFailed": "再スケジュールに失敗しました"
+    },
+    "selection": {
+      "selectMode": "投稿を選択",
+      "cancelSelection": "キャンセル",
+      "selectAll": "このページのすべてを選択",
+      "clear": "選択を解除",
+      "count": "{count}件を選択中",
+      "reschedule": "再スケジュール",
+      "moveToDrafts": "下書きに移動",
+      "delete": "削除",
+      "confirmDeleteBody": "この操作は取り消せません。公開済みの投稿には影響しません。"
+    },
+    "bulkToasts": {
+      "rescheduled": "{count}件の投稿を再スケジュールしました",
+      "movedToDrafts": "{count}件の投稿を下書きに移動しました",
+      "deleted": "{count}件の投稿を削除しました",
+      "partial": "{total}件中{succeeded}件を更新しました。{failed}件は変更できませんでした。",
+      "failed": "何も変更できませんでした。もう一度試すか、投稿を1件ずつ変更してください。"
     }
   },
   "draftsTab": {

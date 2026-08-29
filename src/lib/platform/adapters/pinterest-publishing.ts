@@ -25,6 +25,9 @@ import { getPinterestApiEnvironment, getPinterestApiUrl, isPinterestSandbox } fr
 // polling until `status === succeeded`.
 const VIDEO_POLL_INTERVAL_MS = 3000;
 const VIDEO_POLL_MAX_ATTEMPTS = 60;
+// Matches the pinterest entry's `maxMediaItems` in the channel catalog, which
+// is what validation rejects against before a publish ever reaches here.
+const MAX_PIN_IMAGES = 5;
 
 function isVideoUrl(url: string): boolean {
   const lower = url.toLowerCase();
@@ -175,10 +178,24 @@ async function publishToPinterest(
     } else if (mediaUrls.length === 1) {
       mediaSource = { source_type: 'image_url', url: first };
     } else {
-      const limited = mediaUrls.slice(0, 5).filter((u) => !isVideoUrl(u));
+      // A mixed image/video set would otherwise drop the videos without a
+      // word, and anything past MAX_PIN_IMAGES would vanish the same way.
+      const videoUrls = mediaUrls.filter(isVideoUrl);
+      if (videoUrls.length > 0) {
+        return {
+          success: false,
+          error: 'Pinterest video pins must be a single video. Remove the other media items and publish again.',
+        };
+      }
+      if (mediaUrls.length > MAX_PIN_IMAGES) {
+        return {
+          success: false,
+          error: `Pinterest allows a maximum of ${MAX_PIN_IMAGES} images per pin. This pin has ${mediaUrls.length}.`,
+        };
+      }
       mediaSource = {
         source_type: 'multiple_image_urls',
-        items: limited.map((url) => ({ url })),
+        items: mediaUrls.map((url) => ({ url })),
       };
     }
 

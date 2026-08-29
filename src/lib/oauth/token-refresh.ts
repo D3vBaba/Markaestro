@@ -251,22 +251,93 @@ export async function refreshConnectionToken(
 }
 
 /**
- * Scan all workspaces for platform connections that are inside their
- * provider-specific refresh window or are due for transient-error recovery.
+ * Where each workspace's next token-refresh due time lives.
+ *
+ * Root-level rather than under the workspace so one indexed query finds
+ * every due workspace: `where('nextDueAt', '<=', now)` on a single field,
+ * which Firestore indexes automatically.
  */
-export async function processTokenRefresh(): Promise<RefreshResult> {
+const TOKEN_REFRESH_QUEUE = '_tokenRefreshQueue';
+
+/**
+ * How far ahead of the earliest refresh window a workspace is marked due.
+ * Generous on purpose: arriving early costs one cheap re-check, arriving
+ * late costs a customer an expired token.
+ */
+const TOKEN_REFRESH_DUE_MARGIN_MS = 60 * 60_000;
+
+/**
+ * The fallback cadence when a workspace has no computable expiry (a
+ * connection with no `tokenExpiresAt`, or an error state that wants
+ * periodic recovery attempts).
+ */
+const TOKEN_REFRESH_DEFAULT_INTERVAL_MS = 6 * 60 * 60_000;
+
+/** Recompute and store when this workspace next needs a refresh pass. */
+async function markWorkspaceTokenRefreshDue(workspaceId: string, connections: Array<Record<string, unknown>>) {
+  let earliestExpiryMs = Number.POSITIVE_INFINITY;
+  for (const connection of connections) {
+    const expiresAt = typeof connection.tokenExpiresAt === 'string' ? Date.parse(connection.tokenExpiresAt) : NaN;
+    if (Number.isFinite(expiresAt)) earliestExpiryMs = Math.min(earliestExpiryMs, expiresAt);
+  }
+  const dueAtMs = Number.isFinite(earliestExpiryMs)
+    ? Math.max(Date.now() + 60_000, earliestExpiryMs - TOKEN_REFRESH_DUE_MARGIN_MS)
+    : Date.now() + TOKEN_REFRESH_DEFAULT_INTERVAL_MS;
+  await adminDb.doc(`${TOKEN_REFRESH_QUEUE}/${workspaceId}`).set({
+    workspaceId,
+    nextDueAt: new Date(dueAtMs).toISOString(),
+    updatedAt: new Date().toISOString(),
+  }).catch(() => undefined);
+}
+
+/**
+ * Refresh platform connections that are inside their provider-specific
+ * refresh window or due for transient-error recovery.
+ *
+ * Two modes (4.11). The steady-state pass reads only the workspaces whose
+ * `_tokenRefreshQueue` marker says they are due, which replaces a
+ * full-workspace scan per run with an indexed query over a small set. The
+ * periodic `fullSweep` still walks everything: it is what seeds markers for
+ * workspaces that predate the queue, repairs a marker a crashed run lost,
+ * and picks up connections created since the last sweep. At 10,000
+ * workspaces the old shape read 10,000 documents before doing any work, on
+ * every run, forever.
+ */
+export async function processTokenRefresh(
+  options: { fullSweep?: boolean } = {},
+): Promise<RefreshResult> {
   const result: RefreshResult = { refreshed: 0, failed: 0, skipped: 0, errors: [] };
 
-  const wsDocs = await getAllDocs('workspaces');
+  let wsDocs: Array<{ id: string }>;
+  if (options.fullSweep) {
+    wsDocs = await getAllDocs('workspaces');
+  } else {
+    const nowIso = new Date().toISOString();
+    const dueSnap = await adminDb
+      .collection(TOKEN_REFRESH_QUEUE)
+      .where('nextDueAt', '<=', nowIso)
+      .limit(200)
+      .get()
+      .catch(() => null);
+    if (!dueSnap) {
+      // The queue itself failed to read; fall back to the sweep rather than
+      // silently refreshing nothing.
+      wsDocs = await getAllDocs('workspaces');
+    } else {
+      wsDocs = dueSnap.docs.map((doc) => ({ id: doc.id }));
+    }
+  }
 
   for (const ws of wsDocs) {
     const workspaceId = ws.id;
+    const seenConnections: Array<Record<string, unknown>> = [];
 
     // Meta's app-user credential is workspace-scoped. Product Meta documents
     // only own Page selections and Page tokens; refreshing copied product user
     // tokens can incorrectly mark otherwise-healthy Page connections revoked.
     for (const connection of await listAllConnectionDocs(workspaceId)) {
       if (connection.provider !== 'meta') continue;
+      seenConnections.push(connection as unknown as Record<string, unknown>);
       await refreshConnectionDoc(refForConnection(connection), 'meta', result, { workspaceId });
     }
 
@@ -283,6 +354,7 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
       for (const connection of await listAllConnectionDocs(workspaceId, productId)) {
         const provider = refreshableProvider(connection.provider);
         if (!provider) continue;
+        seenConnections.push(connection as unknown as Record<string, unknown>);
 
         await refreshConnectionDoc(
           refForConnection({ ...connection, workspaceId, productId }),
@@ -296,6 +368,11 @@ export async function processTokenRefresh(): Promise<RefreshResult> {
         );
       }
     }
+
+    // Reschedule this workspace from what its connections actually say, so
+    // the next steady-state pass reads it only when a token can be near its
+    // window.
+    await markWorkspaceTokenRefreshDue(workspaceId, seenConnections);
   }
 
   return result;

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { apiCreated, apiError, ApiValidationError } from '@/lib/api-response';
 import { requireContext } from '@/lib/server-auth';
+import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 import { requirePermission } from '@/lib/rbac';
 import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
@@ -55,6 +56,16 @@ export async function POST(req: Request) {
     } else {
       const ctx = await requireContext(new Request(req.url, { method: 'POST', headers: req.headers }));
       requirePermission(ctx, 'conversions.manage');
+      // This route had no intelligence gate at all, alone among the
+      // subsystem, because it was the one that never adopted the shared
+      // helper. Conversions feed the same attribution model as tracked links,
+      // so they gate the same way.
+      //
+      // Only the browser branch can be gated: a server-to-server call signed
+      // with a workspace ingest key has no user to check a preview allowlist
+      // against, and the signature plus the derived per-workspace secret is
+      // what authorizes it.
+      await requireIntelligenceAccess(ctx, 'learning', 'intelligenceOptimization');
       workspaceId = ctx.workspaceId;
       source = 'browser';
     }

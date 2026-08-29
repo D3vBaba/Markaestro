@@ -48,6 +48,18 @@ export type MediaAsset = {
    * post deletion fast.
    */
   orphanedAt?: string | null;
+  /**
+   * Derivation pipeline state (5.8). `pending` on create; the worker produces
+   * the thumbnail and any missing dimensions and marks the asset `ready`.
+   * Absent on assets that predate the pipeline, which readers treat as
+   * `ready` with no thumbnail: nothing was ever pending for them.
+   */
+  processingState?: 'pending' | 'ready';
+  /**
+   * Token-gated URL of the derived thumbnail (longest edge 320px). What a
+   * grid should load: ~20 KB per cell instead of the multi-MB original.
+   */
+  thumbnailUrl?: string | null;
 };
 
 export function mediaAssetsCollection(workspaceId: string) {
@@ -68,7 +80,15 @@ export async function createMediaAssetRecord(
   workspaceId: string,
   asset: MediaAsset,
 ): Promise<MediaAsset> {
-  const record: MediaAsset = { ...asset, refCount: asset.refCount ?? 0, orphanedAt: asset.orphanedAt ?? null };
+  const record: MediaAsset = {
+    ...asset,
+    refCount: asset.refCount ?? 0,
+    orphanedAt: asset.orphanedAt ?? null,
+    // Every new asset enters the derivation pipeline; the worker marks it
+    // ready once the thumbnail exists (5.8).
+    processingState: asset.processingState ?? 'pending',
+    thumbnailUrl: asset.thumbnailUrl ?? null,
+  };
   await mediaAssetRef(workspaceId, asset.id).set(record);
   return record;
 }
@@ -425,5 +445,8 @@ export function serializeMediaAsset(asset: MediaAsset & { id: string }) {
     createdByType: asset.createdByType,
     createdAt: asset.createdAt,
     refCount: Number(asset.refCount) || 0,
+    // Absent on pre-pipeline assets; they were never pending.
+    processingState: asset.processingState ?? 'ready',
+    thumbnailUrl: asset.thumbnailUrl ?? null,
   };
 }

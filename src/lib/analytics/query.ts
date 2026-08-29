@@ -38,6 +38,7 @@ export type AnalyticsQueryOptions = {
 type PostDocData = {
   content?: string;
   channel?: string;
+  testMode?: boolean;
   publishedChannels?: string[];
   publishedAt?: string;
   externalUrl?: string;
@@ -78,14 +79,19 @@ function ratio(numerator: number | null, denominator: number | null): number | n
 function pickChannelAgg(
   doc: DailyAggregateDoc,
   channel?: SocialChannel,
+  productId?: string,
 ): ChannelDayAggregate[] {
-  const entries = Object.entries(doc.channels ?? {}) as Array<[SocialChannel, ChannelDayAggregate]>;
+  // Product-filtered reads take the per-brand dimension of the same doc
+  // (5.10); the caller has already verified every doc in range carries it.
+  const source = productId ? doc.byProduct?.[productId]?.channels : doc.channels;
+  const entries = Object.entries(source ?? {}) as Array<[SocialChannel, ChannelDayAggregate]>;
   return entries.filter(([ch]) => !channel || ch === channel).map(([, agg]) => agg);
 }
 
 function totalsFromAggregates(
   docs: DailyAggregateDoc[],
   channel?: SocialChannel,
+  productId?: string,
 ): AnalyticsTotals {
   let posts = 0;
   let views: number | null = null;
@@ -96,7 +102,7 @@ function totalsFromAggregates(
   let hasRate = false;
 
   for (const doc of docs) {
-    for (const agg of pickChannelAgg(doc, channel)) {
+    for (const agg of pickChannelAgg(doc, channel, productId)) {
       posts += agg.posts;
       if (agg.postsWithViews > 0) views = (views ?? 0) + agg.views;
       if (agg.postsWithReach > 0) reach = (reach ?? 0) + agg.reach;
@@ -281,6 +287,9 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
   let lastMetricsAt: string | null = null;
   for (const doc of postsSnap.docs.slice(0, MAX_POSTS_ANALYZED)) {
     const post = doc.data() as PostDocData;
+    // Sandbox posts never reached a platform; they must not appear in any
+    // leaderboard or total an integrator's test run touches.
+    if (post.testMode === true) continue;
     if (productId && post.productId !== productId) continue;
     const row = postToRow(doc.id, post, channel);
     if (channel && !row.channels.includes(channel)) continue;
@@ -300,7 +309,17 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
   const currentAggs = aggDocs.filter((d) => d.date >= sinceDate);
   const priorAggs = aggDocs.filter((d) => d.date >= priorSinceDate && d.date <= priorUntilDate);
 
-  const useAggregates = !productId;
+  // The per-brand view was the slow path: workspace-wide totals read the
+  // precomputed rollups while a product filter re-derived everything from
+  // post rows on each request. Rollup docs now carry a `byProduct` dimension;
+  // it is used only when every doc in range has one, so a window that spans
+  // the rollout boundary stays correct rather than silently under-counting
+  // the older days.
+  const productAggsUsable = Boolean(productId)
+    && currentAggs.length > 0
+    && currentAggs.every((doc) => doc.byProduct !== undefined)
+    && priorAggs.every((doc) => doc.byProduct !== undefined);
+  const useAggregates = !productId || productAggsUsable;
   const totalsFromRows = (list: AnalyticsPostRow[]): AnalyticsTotals => {
     const views = list.reduce<number | null>((a, r) => (r.views === null ? a : (a ?? 0) + r.views), null);
     const reach = list.reduce<number | null>((a, r) => (r.reach === null ? a : (a ?? 0) + r.reach), null);
@@ -308,11 +327,11 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
     return { posts: list.length, views, reach, engagements, engagementRateByReach: ratio(engagements, reach) };
   };
 
-  const currentTotals = useAggregates ? totalsFromAggregates(currentAggs, channel) : totalsFromRows(rows);
+  const currentTotals = useAggregates ? totalsFromAggregates(currentAggs, channel, productId) : totalsFromRows(rows);
   // When the bounded fetch truncated, the prior window is incomplete — drop
   // the comparison rather than showing a delta against partial data.
   const priorTotals = useAggregates
-    ? totalsFromAggregates(priorAggs, channel)
+    ? totalsFromAggregates(priorAggs, channel, productId)
     : truncated ? null : totalsFromRows(priorRows);
 
   const daily: AnalyticsResponse['daily'] = [];
@@ -322,7 +341,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
     if (useAggregates) {
       const doc = currentAggs.find((d) => d.date === date);
       if (doc) {
-        for (const agg of pickChannelAgg(doc, channel)) {
+        for (const agg of pickChannelAgg(doc, channel, productId)) {
           views += agg.views;
           reach += agg.reach;
           engagements += agg.engagements;
@@ -409,7 +428,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
     .filter((ch) => !channel || ch === channel)
     .map((ch) => {
       const totals = useAggregates
-        ? totalsFromAggregates(currentAggs, ch)
+        ? totalsFromAggregates(currentAggs, ch, productId)
         : totalsFromRows(rows.filter((r) => r.channels.includes(ch)));
       const latest = channelLatest.get(ch) ?? null;
       const atStart = channelAtWindowStart.get(ch) ?? null;
@@ -521,6 +540,9 @@ export async function fetchPostRowsForExport(
   const rows: AnalyticsPostRow[] = [];
   for (const doc of snap.docs) {
     const post = doc.data() as PostDocData;
+    // Sandbox posts never reached a platform; they must not appear in any
+    // leaderboard or total an integrator's test run touches.
+    if (post.testMode === true) continue;
     if (productId && post.productId !== productId) continue;
     const row = postToRow(doc.id, post, channel);
     if (channel && !row.channels.includes(channel)) continue;

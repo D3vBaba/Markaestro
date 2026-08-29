@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { assertPublicPostDeletable, assertPublicPostInBrandScope, getDeliveryModeForChannel, getPublicPostInitialState, resolvePublicPostBrandScope, resolveRequestedDeliveryMode, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
+import { assertPublicPostDeletable, assertSchedulableDeliveryMode, collectPublicPostTargetIssues, normalizePublicPostTargets, raisePublicPostTargetIssues, assertPublicPostInBrandScope, getDeliveryModeForChannel, getPublicPostInitialState, resolvePublicPostBrandScope, resolveRequestedDeliveryMode, serializePublicPost, validatePublicPostInput, validateResolvedPublicPostInput } from '../public-api/posts';
 import { getConnectDeliveryMode, resolveConnectSchedule } from '../public-api/connect-compat';
 import { ApiValidationError } from '../api-response';
+import { createPublicPostSchema } from '../public-api/schemas';
 
 describe('public post validation', () => {
   it('allows facebook text-only posts', () => {
@@ -84,9 +85,29 @@ describe('public post validation', () => {
       .toThrow('VALIDATION_DELIVERY_MODE_NOT_SUPPORTED_FOR_CHANNEL');
   });
 
-  it('creates public API posts as drafts even when a schedule is supplied', () => {
+  it('creates public API posts as drafts when no schedule is supplied', () => {
     expect(getPublicPostInitialState()).toEqual({ status: 'draft', scheduledAt: null });
-    expect(getPublicPostInitialState('2026-06-20T17:00:00.000Z')).toEqual({ status: 'draft', scheduledAt: null });
+    expect(getPublicPostInitialState(null)).toEqual({ status: 'draft', scheduledAt: null });
+  });
+
+  it('honours a supplied schedule instead of silently discarding it', () => {
+    // The schema validated `scheduledAt`, the create dropped it, and the
+    // response echoed `scheduledAt: null` with no warning. Accepting a field
+    // and discarding it is the one behaviour that cannot be debugged from
+    // outside the server.
+    expect(getPublicPostInitialState('2026-06-20T17:00:00.000Z')).toEqual({
+      status: 'scheduled',
+      scheduledAt: '2026-06-20T17:00:00.000Z',
+    });
+  });
+
+  it('normalizes a schedule to ISO 8601, matching what Connect stores', () => {
+    expect(getPublicPostInitialState('2026-06-20T17:00:00Z').scheduledAt)
+      .toBe('2026-06-20T17:00:00.000Z');
+  });
+
+  it('rejects an unparseable schedule rather than storing garbage', () => {
+    expect(() => getPublicPostInitialState('next tuesday')).toThrow('VALIDATION_INVALID_SCHEDULED_AT');
   });
 
   it('honors explicit Connect schedules while keeping ordinary creates draft-first', () => {
@@ -235,5 +256,185 @@ describe('post deletion guards', () => {
     for (const status of ['draft', 'scheduled', 'published', 'failed', 'partial_failed']) {
       expect(() => assertPublicPostDeletable({ status })).not.toThrow();
     }
+  });
+});
+
+describe('scheduling through the public API', () => {
+  it('requires an explicit delivery mode when scheduling a manual-default channel', () => {
+    // Meta and TikTok default to manual_reminder on this surface. A scheduled
+    // manual reminder is coherent but is almost certainly not what a client
+    // sending scheduledAt expects, and guessing is silent either way.
+    for (const channel of ['facebook', 'instagram', 'tiktok'] as const) {
+      expect(() => assertSchedulableDeliveryMode({
+        channel,
+        scheduledAt: '2026-06-20T17:00:00.000Z',
+      })).toThrow('VALIDATION_SCHEDULED_DELIVERY_MODE_REQUIRED');
+    }
+  });
+
+  it('accepts a scheduled manual-default channel once the client says which it means', () => {
+    for (const deliveryMode of ['direct_publish', 'manual_reminder'] as const) {
+      expect(() => assertSchedulableDeliveryMode({
+        channel: 'instagram',
+        scheduledAt: '2026-06-20T17:00:00.000Z',
+        deliveryMode,
+      })).not.toThrow();
+    }
+  });
+
+  it('leaves channels that already default to direct publish alone', () => {
+    for (const channel of ['linkedin', 'threads', 'pinterest'] as const) {
+      expect(() => assertSchedulableDeliveryMode({
+        channel,
+        scheduledAt: '2026-06-20T17:00:00.000Z',
+      })).not.toThrow();
+    }
+  });
+
+  it('asks nothing extra of a draft', () => {
+    expect(() => assertSchedulableDeliveryMode({ channel: 'instagram' })).not.toThrow();
+    expect(() => assertSchedulableDeliveryMode({ channel: 'instagram', scheduledAt: null })).not.toThrow();
+  });
+});
+
+describe('multi-channel targets', () => {
+  it('treats `channel` as the one-target shorthand', () => {
+    expect(normalizePublicPostTargets({
+      channel: 'instagram',
+      caption: 'hi',
+      mediaAssetIds: [],
+      destinationId: 'dest_1',
+      deliveryMode: 'direct_publish',
+    })).toEqual([{
+      channel: 'instagram',
+      destinationId: 'dest_1',
+      deliveryMode: 'direct_publish',
+      settings: undefined,
+    }]);
+  });
+
+  it('passes `targets` through unchanged', () => {
+    const targets = [
+      { channel: 'instagram' as const, destinationId: 'a' },
+      { channel: 'linkedin' as const },
+    ];
+    expect(normalizePublicPostTargets({ targets, caption: 'hi', mediaAssetIds: [] }))
+      .toEqual(targets);
+  });
+
+  it('reports every failing target at once, not just the first', () => {
+    // A caller posting to two channels wants both objections in one response.
+    // Stopping at the first made it a two-round-trip conversation.
+    const issues = [
+      ...collectPublicPostTargetIssues({ channel: 'pinterest', caption: 'x', mediaAssetIds: [] }),
+      ...collectPublicPostTargetIssues({ channel: 'linkedin', caption: '', mediaAssetIds: [] }),
+    ];
+    expect(issues.map((i) => i.channel)).toEqual(['pinterest', 'linkedin']);
+    expect(issues.map((i) => i.code)).toEqual([
+      'VALIDATION_PINTEREST_REQUIRES_MEDIA',
+      'VALIDATION_LINKEDIN_POST_REQUIRES_CONTENT',
+    ]);
+  });
+
+  it('names both numbers when a target exceeds its media ceiling', () => {
+    const [only] = collectPublicPostTargetIssues({
+      channel: 'instagram',
+      caption: 'x',
+      mediaAssetIds: Array.from({ length: 12 }, (_, i) => `m${i}`),
+    });
+    expect(only.code).toBe('VALIDATION_TOO_MANY_MEDIA_ASSETS');
+    expect(only.message).toContain('10');
+    expect(only.message).toContain('12');
+    expect(only.details).toMatchObject({ limit: 10, received: 12 });
+  });
+
+  it('keeps the single-code error shape for a one-target request', () => {
+    // A generation of clients branches on `error` being exactly the channel
+    // code. Turning that into VALIDATION_ERROR would break them for no gain.
+    try {
+      raisePublicPostTargetIssues(
+        collectPublicPostTargetIssues({ channel: 'linkedin', caption: '', mediaAssetIds: [] }),
+        true,
+      );
+      throw new Error('expected a throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiValidationError);
+      expect((error as ApiValidationError).message).toBe('VALIDATION_LINKEDIN_POST_REQUIRES_CONTENT');
+    }
+  });
+
+  it('uses the issue list for a multi-target request', () => {
+    // There is no single code that can describe two channels failing for two
+    // different reasons.
+    try {
+      raisePublicPostTargetIssues(
+        [
+          ...collectPublicPostTargetIssues({ channel: 'pinterest', caption: 'x', mediaAssetIds: [] }),
+          ...collectPublicPostTargetIssues({ channel: 'linkedin', caption: '', mediaAssetIds: [] }),
+        ],
+        false,
+      );
+      throw new Error('expected a throw');
+    } catch (error) {
+      expect((error as ApiValidationError).message).toBe('VALIDATION_ERROR');
+      const issues = (error as ApiValidationError).details.issues as Array<{ channel: string }>;
+      expect(issues.map((i) => i.channel)).toEqual(['pinterest', 'linkedin']);
+    }
+  });
+
+  it('reads back a legacy single-channel post as a one-entry target list', () => {
+    // Posts written before `targetChannels` existed must not read back with
+    // an empty target list.
+    expect(serializePublicPost({
+      id: 'p1',
+      channel: 'instagram',
+      destinationId: 'dest_1',
+      deliveryMode: 'manual_reminder',
+    }).targets).toEqual([
+      { channel: 'instagram', destinationId: 'dest_1', deliveryMode: 'manual_reminder' },
+    ]);
+  });
+
+  it('reads back a multi-channel post from the per-channel maps', () => {
+    expect(serializePublicPost({
+      id: 'p1',
+      channel: 'instagram',
+      targetChannels: ['instagram', 'linkedin'],
+      channelDestinations: { instagram: 'ig_1', linkedin: 'li_1' },
+      channelDeliveryModes: { instagram: 'manual_reminder', linkedin: 'direct_publish' },
+    }).targets).toEqual([
+      { channel: 'instagram', destinationId: 'ig_1', deliveryMode: 'manual_reminder' },
+      { channel: 'linkedin', destinationId: 'li_1', deliveryMode: 'direct_publish' },
+    ]);
+  });
+});
+
+describe('createPublicPostSchema target shapes', () => {
+  it('rejects a request that names neither a channel nor targets', () => {
+    expect(() => createPublicPostSchema.parse({ caption: 'hi' })).toThrow();
+  });
+
+  it('rejects sending both, rather than silently picking one', () => {
+    expect(() => createPublicPostSchema.parse({
+      channel: 'instagram',
+      targets: [{ channel: 'linkedin' }],
+      caption: 'hi',
+    })).toThrow();
+  });
+
+  it('rejects the same channel twice in targets', () => {
+    expect(() => createPublicPostSchema.parse({
+      targets: [{ channel: 'linkedin' }, { channel: 'linkedin' }],
+      caption: 'hi',
+    })).toThrow();
+  });
+
+  it('accepts a well-formed multi-target request', () => {
+    const parsed = createPublicPostSchema.parse({
+      targets: [{ channel: 'linkedin' }, { channel: 'threads' }],
+      caption: 'hi',
+    });
+    expect(parsed.targets?.map((t) => t.channel)).toEqual(['linkedin', 'threads']);
+    expect(parsed.channel).toBeUndefined();
   });
 });

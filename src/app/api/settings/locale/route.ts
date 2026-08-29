@@ -23,7 +23,14 @@ export async function PUT(req: Request) {
     const ctx = await requireContext(req);
     const { locale } = updateLocaleSchema.parse(await req.json());
 
-    const memberDocs = await adminDb.collectionGroup('members').where('uid', '==', ctx.uid).get();
+    // Bounded like findUserMembership: the write fans out to every membership
+    // the user holds, and a Firestore batch caps at 500 writes anyway, so an
+    // unbounded scan was one pathological account away from a crash.
+    const memberDocs = await adminDb
+      .collectionGroup('members')
+      .where('uid', '==', ctx.uid)
+      .limit(100)
+      .get();
     const batch = adminDb.batch();
     for (const doc of memberDocs.docs) {
       batch.set(doc.ref, { locale }, { merge: true });

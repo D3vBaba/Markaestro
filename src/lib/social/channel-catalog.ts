@@ -1,6 +1,5 @@
 import type { SocialChannel } from '@/lib/schemas';
 
-export type SocialEditorMode = 'normal' | 'markdown' | 'html' | 'none';
 export type SocialMediaKind = 'text' | 'image' | 'video' | 'carousel';
 
 /**
@@ -14,13 +13,11 @@ export type ManagedSocialChannel = {
   channel: SocialChannel;
   label: string;
   providerKeys: readonly string[];
-  editor: SocialEditorMode;
   maxLength: number;
   mediaKinds: readonly SocialMediaKind[];
   mediaRequired: boolean;
   maxMediaItems: number;
   supportsDirectPublish: boolean;
-  supportsScheduling: boolean;
   setupHint: string;
 };
 
@@ -29,13 +26,11 @@ export const socialChannelCatalog = [
     channel: 'facebook',
     label: 'Facebook',
     providerKeys: ['meta'],
-    editor: 'normal',
     maxLength: 63206,
     mediaKinds: ['text', 'image', 'video', 'carousel'],
     mediaRequired: false,
     maxMediaItems: 10,
     supportsDirectPublish: true,
-    supportsScheduling: true,
     setupHint: 'Connect Meta and select a Facebook page in brand settings.',
   },
   {
@@ -44,20 +39,17 @@ export const socialChannelCatalog = [
     // Instagram is linked through standalone Instagram Login. Facebook Page
     // connections are intentionally Facebook-only.
     providerKeys: ['instagram'],
-    editor: 'normal',
     maxLength: 2200,
     mediaKinds: ['image', 'video', 'carousel'],
     mediaRequired: true,
     maxMediaItems: 10,
     supportsDirectPublish: true,
-    supportsScheduling: true,
     setupHint: 'Connect Instagram in brand settings.',
   },
   {
     channel: 'tiktok',
     label: 'TikTok',
     providerKeys: ['tiktok'],
-    editor: 'normal',
     maxLength: 2200,
     mediaKinds: ['image', 'video'],
     mediaRequired: true,
@@ -66,46 +58,41 @@ export const socialChannelCatalog = [
     // stale. Nothing reads this field yet; the capability parity test is what
     // now keeps it and the registry from drifting again.
     supportsDirectPublish: true,
-    supportsScheduling: true,
     setupHint: 'Connect TikTok in brand settings.',
   },
   {
     channel: 'threads',
     label: 'Threads',
     providerKeys: ['threads'],
-    editor: 'normal',
     maxLength: 500,
     mediaKinds: ['text', 'image', 'video', 'carousel'],
     mediaRequired: false,
-    maxMediaItems: 10,
+    // Threads carousels accept 20 items. `threads-publishing.ts` rejects
+    // anything above this rather than truncating, so the two must agree.
+    maxMediaItems: 20,
     supportsDirectPublish: true,
-    supportsScheduling: true,
     setupHint: 'Connect Threads in brand settings.',
   },
   {
     channel: 'pinterest',
     label: 'Pinterest',
     providerKeys: ['pinterest'],
-    editor: 'normal',
     maxLength: 500,
     mediaKinds: ['image', 'video', 'carousel'],
     mediaRequired: true,
     maxMediaItems: 5,
     supportsDirectPublish: true,
-    supportsScheduling: true,
     setupHint: 'Connect Pinterest and select a board in brand settings.',
   },
   {
     channel: 'linkedin',
     label: 'LinkedIn',
     providerKeys: ['linkedin_profile', 'linkedin_community', 'linkedin'],
-    editor: 'normal',
     maxLength: 3000,
     mediaKinds: ['text', 'image', 'video', 'carousel'],
     mediaRequired: false,
     maxMediaItems: 20,
     supportsDirectPublish: true,
-    supportsScheduling: true,
     setupHint: 'Connect LinkedIn and select a Profile or Page in brand settings.',
   },
 ] as const satisfies readonly ManagedSocialChannel[];
@@ -125,3 +112,19 @@ export function getSocialChannelMaxLength(channel: string): number {
 export function getSocialChannelProviderKeys(channel: SocialChannel): string[] {
   return [...(getSocialChannelConfig(channel)?.providerKeys ?? [channel])];
 }
+
+/**
+ * The widest caption any channel accepts (Facebook, at 63,206). Payload-size
+ * guards on API schemas bound against this rather than a literal, so adding a
+ * longer-caption channel cannot make the API stricter than the composer.
+ */
+export const MAX_CAPTION_LENGTH: number = socialChannelCatalog.reduce(
+  (max, item) => Math.max(max, item.maxLength),
+  0,
+);
+
+/** The widest media count any channel accepts. Same reasoning as above. */
+export const MAX_MEDIA_ITEMS: number = socialChannelCatalog.reduce(
+  (max, item) => Math.max(max, item.maxMediaItems),
+  0,
+);

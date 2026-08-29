@@ -1,12 +1,12 @@
 import { apiCreated, apiError } from '@/lib/api-response';
 import { requireContext } from '@/lib/server-auth';
+import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 import { requirePermission } from '@/lib/rbac';
-import { requireIntelligencePhase } from '@/lib/intelligence/feature-flags';
-import { requireIntelligencePreviewUser } from '@/lib/intelligence/preview-access';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 import { hasFeature, resolveLimits } from '@/lib/stripe/entitlements';
 import { consumeAiOperation, refundAiOperation } from '@/lib/intelligence/usage';
 import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
+import { RATE_LIMITS, applyRateLimit } from '@/lib/rate-limit';
 import { loadProductIntelligence } from '@/lib/intelligence/product-state';
 import {
   buildDraftBrief,
@@ -28,17 +28,14 @@ export async function POST(req: Request) {
   let chargedAiOperation: string | null = null;
   try {
     const ctx = await requireContext(req);
-    requireIntelligencePreviewUser(ctx);
     requirePermission(ctx, 'posts.write');
     requirePermission(ctx, 'intelligence.analyze');
+    // After auth so the key is uid-scoped, before any AI operation or post
+    // quota is charged so a rate-limited request costs the customer nothing.
+    await applyRateLimit(req, RATE_LIMITS.ai, { key: `ai:${ctx.uid}` });
     const request = draftRequestSchema.parse(await req.json());
     const subscription = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
-    await requireIntelligencePhase({
-      phase: 'foundation',
-      workspaceId: ctx.workspaceId,
-      uid: ctx.uid,
-      entitled: hasFeature(subscription, 'audienceFit'),
-    });
+    await requireIntelligenceAccess(ctx, 'foundation', 'audienceFit', { subscription });
     const [brand, loaded] = await Promise.all([
       loadDraftBrandContext(ctx.workspaceId, request.productId),
       loadProductIntelligence(ctx.workspaceId, request.productId, { allowCached: true }),

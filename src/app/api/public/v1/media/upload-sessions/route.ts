@@ -7,6 +7,12 @@ import { publicApiError } from '@/lib/public-api/response';
 import { createPublicMediaUploadSessionSchema } from '@/lib/public-api/schemas';
 import { reserveStorage, refundStorage } from '@/lib/usage';
 import { getEffectiveLimits } from '@/lib/stripe/entitlements';
+import {
+  createRequestHash,
+  getIdempotencyKey,
+  loadIdempotentResponse,
+  persistIdempotentResponse,
+} from '@/lib/public-api/idempotency';
 
 export const runtime = 'nodejs';
 
@@ -20,8 +26,23 @@ export async function POST(req: Request) {
       scope: 'media.write',
       rateLimit: MEDIA_RATE_LIMIT,
     });
-    const input = createPublicMediaUploadSessionSchema.parse(await req.json());
+    const raw = await req.text();
+    const input = createPublicMediaUploadSessionSchema.parse(raw ? JSON.parse(raw) : {});
     const mediaType = validatePublicMediaUpload(input.contentType, input.sizeBytes);
+
+    // A retried session create used to reserve the declared bytes a second
+    // time: the storage counter charged for an upload that never happened,
+    // and only the finalize path could give it back. The replay returns the
+    // original signed URL and session id with no second reservation.
+    const idempotencyKey = getIdempotencyKey(req);
+    const requestHash = idempotencyKey ? createRequestHash(raw) : null;
+    if (idempotencyKey && requestHash) {
+      const replay = await loadIdempotentResponse(ctx.workspaceId, idempotencyKey, requestHash);
+      if (replay) {
+        Object.entries(ctx.rateLimitHeaders).forEach(([key, value]) => replay.headers.set(key, value));
+        return replay;
+      }
+    }
     // Public upload sessions reserve the declared bytes before issuing a
     // signed URL. This prevents an authenticated client from filling staging
     // storage with abandoned 250 MB objects while bypassing the storage cap;
@@ -74,7 +95,7 @@ export async function POST(req: Request) {
     });
     reservedStorage = null;
 
-    return Response.json({
+    const responseBody = {
       uploadSession: {
         id: assetId,
         assetId,
@@ -83,7 +104,11 @@ export async function POST(req: Request) {
         uploadHeaders: { 'Content-Type': input.contentType },
         expiresAt,
       },
-    }, { status: 201, headers: ctx.rateLimitHeaders });
+    };
+    if (idempotencyKey && requestHash) {
+      await persistIdempotentResponse(ctx.workspaceId, idempotencyKey, requestHash, 201, responseBody);
+    }
+    return Response.json(responseBody, { status: 201, headers: ctx.rateLimitHeaders });
   } catch (error) {
     if (reservedStorage) {
       await refundStorage(reservedStorage.workspaceId, reservedStorage.bytes);

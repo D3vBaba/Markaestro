@@ -105,5 +105,8 @@
     "degraded": "A ligação de {channels} vai expirar em breve. Volte a ligá-la para continuar a publicar.",
     "genericReason": "Volte a ligá-lo para continuar a publicar.",
     "reconnect": "Voltar a ligar"
+  },
+  "offlineBanner": {
+    "message": "Você parece estar offline. As alterações não podem ser salvas até a conexão voltar."
   }
 }

@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import { apiError, apiOk } from '@/lib/api-response';
 import { requireContext } from '@/lib/server-auth';
+import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 import { requirePermission } from '@/lib/rbac';
-import { requireIntelligencePhase } from '@/lib/intelligence/feature-flags';
-import { requireIntelligencePreviewUser } from '@/lib/intelligence/preview-access';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-import { hasFeature, resolveLimits } from '@/lib/stripe/entitlements';
+import { resolveLimits } from '@/lib/stripe/entitlements';
 import { consumeAiOperation, refundAiOperation } from '@/lib/intelligence/usage';
 import { loadProductIntelligence } from '@/lib/intelligence/product-state';
 import { explainPostPerformance } from '@/lib/intelligence/explanations';
+import { RATE_LIMITS, applyRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -25,17 +25,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   let chargedAiOperation: string | null = null;
   try {
     const ctx = await requireContext(req);
-    requireIntelligencePreviewUser(ctx);
     requirePermission(ctx, 'intelligence.analyze');
+    // After auth so the key is uid-scoped, before any AI operation is charged
+    // so a rate-limited request costs the customer nothing.
+    await applyRateLimit(req, RATE_LIMITS.ai, { key: `ai:${ctx.uid}` });
     const { id } = await params;
     const body = bodySchema.parse(await req.json());
     const subscription = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
-    await requireIntelligencePhase({
-      phase: 'foundation',
-      workspaceId: ctx.workspaceId,
-      uid: ctx.uid,
-      entitled: hasFeature(subscription, 'audienceFit'),
-    });
+    await requireIntelligenceAccess(ctx, 'foundation', 'audienceFit', { subscription });
     const loaded = await loadProductIntelligence(ctx.workspaceId, body.productId, { allowCached: true });
     const limits = resolveLimits(subscription);
     const result = await explainPostPerformance({

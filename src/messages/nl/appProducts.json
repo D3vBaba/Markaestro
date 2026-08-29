@@ -255,7 +255,12 @@
         "linkDestinationsFailed": "{destination} koppelen mislukt",
         "accountUnlinked": "{account} ontkoppeld",
         "unlinkFailed": "{account} ontkoppelen mislukt"
-      }
+      },
+      "testConnection": "Verbinding testen",
+      "testing": "Bezig met testen…",
+      "testOk": "Verbonden als {label}",
+      "testOkPlain": "De verbinding werkt",
+      "testFailed": "Verbindingstest mislukt"
     }
   }
 }

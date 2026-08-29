@@ -255,7 +255,12 @@
         "linkDestinationsFailed": "Échec de la liaison des {destination}",
         "accountUnlinked": "{account} dissocié",
         "unlinkFailed": "Échec de la dissociation de {account}"
-      }
+      },
+      "testConnection": "Tester la connexion",
+      "testing": "Test en cours…",
+      "testOk": "Connecté en tant que {label}",
+      "testOkPlain": "La connexion fonctionne",
+      "testFailed": "Échec du test de connexion"
     }
   }
 }

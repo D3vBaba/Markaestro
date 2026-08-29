@@ -3,30 +3,10 @@ import { socialChannels } from '@/lib/schemas';
 import { publicApiScopes, publicDeliveryModes, publicWebhookEvents } from './scopes';
 import { postSettingsSchema } from './post-settings';
 import { webhookUrlProtocolIsAllowed } from './webhook-url';
+import { apiKeyModes } from './keys';
+import { MAX_CAPTION_LENGTH, MAX_MEDIA_ITEMS } from '@/lib/social/channel-catalog';
 
-// Serialized post shape returned by the public API (matches serializePublicPost).
-// Legacy slideshow-exported posts may include optional slideshow metadata fields.
-export type PublicPostResponse = {
-  id: string;
-  channel: string;
-  caption: string;
-  status: string;
-  mediaUrls: string[];
-  scheduledAt: string | null;
-  publishedAt: string | null;
-  externalUrl: string | null;
-  productId: string;
-  destinationId: string;
-  deliveryMode: string;
-  settings: unknown;
-  sourceType: string;
-  slideshowId: string;
-  slideshowTitle: string;
-  slideshowSlideCount: number | null;
-  slideshowCoverIndex: number | null;
-  createdAt: string;
-  updatedAt: string;
-};
+export type { PublicPostResponse } from './posts';
 
 export const createApiClientSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -36,6 +16,11 @@ export const createApiClientSchema = z.object({
   // Required product binding: every key is scoped to exactly one product. All
   // calls auto-target it and requests for any other product are rejected.
   productId: z.string().trim().min(1).max(200),
+  // `test` mints an `mk_test_` key: real posts and real media in a real
+  // workspace, but publishing routes to the sandbox adapter and nothing
+  // reaches a platform. Omitted = `live`, so no existing caller changes mode
+  // by accident.
+  mode: z.enum(apiKeyModes).default('live'),
 });
 
 export const updateApiClientScopesSchema = z.object({
@@ -46,11 +31,36 @@ export const setApiClientArchivedSchema = z.object({
   archived: z.boolean(),
 });
 
+/**
+ * One destination for a post.
+ *
+ * The app's post model has always carried `targetChannels`, per-channel
+ * destinations, and per-channel publish results, and the publisher fans out
+ * across them. The public API accepted one `channel`, so the Connect layer
+ * worked around it by fanning out into separate posts and returning only the
+ * first id: two data shapes for one user intent.
+ */
+export const publicPostTargetSchema = z.object({
+  channel: z.enum(socialChannels),
+  destinationId: z.string().trim().max(2000).optional(),
+  deliveryMode: z.enum(publicDeliveryModes).optional(),
+  settings: postSettingsSchema.optional(),
+});
+
 export const createPublicPostSchema = z
   .object({
-    channel: z.enum(socialChannels),
-    caption: z.string().trim().max(4000).default(''),
-    mediaAssetIds: z.array(z.string().trim().min(1)).max(35).default([]),
+    /**
+     * Single-target shorthand, and still the only required field for the
+     * overwhelming majority of callers. Kept so no existing client breaks.
+     */
+    channel: z.enum(socialChannels).optional(),
+    /** Multi-target form. Mutually exclusive with `channel`. */
+    targets: z.array(publicPostTargetSchema).min(1).max(socialChannels.length).optional(),
+    // A payload-size guard, not a channel rule: per-channel caption limits
+    // are enforced by `validatePublicPostInput`. Bounding it below the widest
+    // channel would make the API stricter than the composer.
+    caption: z.string().trim().max(MAX_CAPTION_LENGTH).default(''),
+    mediaAssetIds: z.array(z.string().trim().min(1)).max(MAX_MEDIA_ITEMS).default([]),
     scheduledAt: z.string().datetime().nullable().optional(),
     productId: z.string().trim().max(2000).optional(),
     // Accepted alias for `productId`. The dashboard calls the entity a
@@ -62,6 +72,32 @@ export const createPublicPostSchema = z
     // direct_publish everywhere else. Clients opt into API publishing per post.
     deliveryMode: z.enum(publicDeliveryModes).optional(),
     settings: postSettingsSchema.optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (!value.channel && !value.targets) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Send either `channel` for a single destination or `targets` for several.',
+        path: ['channel'],
+      });
+    }
+    if (value.channel && value.targets) {
+      // Accepting both and picking one silently is how a caller ends up
+      // publishing somewhere they did not ask for.
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Send `channel` or `targets`, not both.',
+        path: ['targets'],
+      });
+    }
+    const channels = value.targets?.map((target) => target.channel) ?? [];
+    if (new Set(channels).size !== channels.length) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Each channel may appear at most once in `targets`.',
+        path: ['targets'],
+      });
+    }
   })
   .transform(({ brandId, ...rest }) => ({
     ...rest,
@@ -86,6 +122,29 @@ export const listPublicPostsSchema = z.object({
   /** Brand to scope the listing to; brands are stored as `products`. */
   productId: z.string().trim().max(2000).optional(),
 });
+
+/**
+ * Partial update. At least one field must be present, or the request is a
+ * no-op the caller almost certainly did not intend. `status` is how a soft
+ * deleted (disabled) endpoint is brought back, which is what makes the
+ * tombstones in the list actionable.
+ */
+export const updateWebhookEndpointSchema = z
+  .object({
+    url: z
+      .string()
+      .trim()
+      .url()
+      .max(2000)
+      .refine(webhookUrlProtocolIsAllowed, 'Webhook URL must use https')
+      .optional(),
+    events: z.array(z.enum(publicWebhookEvents)).min(1).max(publicWebhookEvents.length).optional(),
+    status: z.enum(['active', 'disabled']).optional(),
+  })
+  .refine(
+    (value) => value.url !== undefined || value.events !== undefined || value.status !== undefined,
+    'Provide at least one of url, events, or status.',
+  );
 
 export const registerWebhookEndpointSchema = z.object({
   // The scheme check is the cheap half of the SSRF guard; the host and DNS

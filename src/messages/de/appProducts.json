@@ -255,7 +255,12 @@
         "linkDestinationsFailed": "{destination} konnten nicht verknüpft werden",
         "accountUnlinked": "{account} getrennt",
         "unlinkFailed": "{account} konnte nicht getrennt werden"
-      }
+      },
+      "testConnection": "Verbindung testen",
+      "testing": "Wird getestet…",
+      "testOk": "Verbunden als {label}",
+      "testOkPlain": "Die Verbindung funktioniert",
+      "testFailed": "Verbindungstest fehlgeschlagen"
     }
   }
 }

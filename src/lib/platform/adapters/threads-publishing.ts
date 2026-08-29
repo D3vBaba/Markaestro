@@ -25,6 +25,8 @@ const CONTAINER_POLL_INTERVAL_MS = 2000;
 const CONTAINER_POLL_MAX_ATTEMPTS = 30;
 const VIDEO_POLL_INTERVAL_MS = 5000;
 const VIDEO_POLL_MAX_ATTEMPTS = 60;
+// Threads carousels accept up to 20 items. Kept in step with the catalog's
+// `maxMediaItems` for threads, which is what validation rejects against first.
 const MAX_CAROUSEL_ITEMS = 20;
 
 function isVideoUrl(url: string): boolean {
@@ -123,6 +125,12 @@ async function publishToThreads(
   if (!userId) {
     return { success: false, error: 'Threads user ID missing. Reconnect Threads from brand settings.' };
   }
+  if (mediaUrls.length > MAX_CAROUSEL_ITEMS) {
+    return {
+      success: false,
+      error: `Threads allows a maximum of ${MAX_CAROUSEL_ITEMS} media items per post. This post has ${mediaUrls.length}.`,
+    };
+  }
   const accessToken = getAccessToken(connection);
 
   try {
@@ -148,8 +156,7 @@ async function publishToThreads(
       });
     } else {
       // Carousel: create item containers first, then wrap in a CAROUSEL container.
-      const limited = mediaUrls.slice(0, MAX_CAROUSEL_ITEMS);
-      const childIds = await Promise.all(limited.map(async (url) => {
+      const childIds = await Promise.all(mediaUrls.map(async (url) => {
         const video = isVideoUrl(url);
         const id = await createContainer(accessToken, userId, {
           media_type: video ? 'VIDEO' : 'IMAGE',

@@ -10,12 +10,16 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import PostGridSkeleton from "./PostGridSkeleton";
-import { getSocialChannelLabel } from "@/lib/social/channel-catalog";
+import { getSocialChannelLabel, socialChannelCatalog } from "@/lib/social/channel-catalog";
+import type { SocialChannel } from "@/lib/schemas";
+import type { PlatformRestriction } from "@/lib/platform/types";
 import { Channel as ChannelIcon } from "@/components/mk/Channel";
 import { copyText } from "@/lib/copy-text";
 
-const CHANNELS = ["facebook", "instagram", "threads", "linkedin", "tiktok", "pinterest"] as const;
-type Channel = (typeof CHANNELS)[number];
+// Derived from the catalog so a seventh channel appears here without anyone
+// having to remember this file.
+const CHANNELS = socialChannelCatalog.map((entry) => entry.channel);
+type Channel = SocialChannel;
 
 // Shared pill button style — mirrors PostCard's footer actions.
 const pillBtn =
@@ -38,10 +42,15 @@ type ListResponse = {
   nextCursor?: string | null;
   error?: string;
   reason?: string;
+  restriction?: PlatformRestriction;
   message?: string;
 };
 
-type Failure = { reason: string | null; message: string | null };
+type Failure = {
+  reason: string | null;
+  message: string | null;
+  restriction?: PlatformRestriction | null;
+};
 
 /** Deliberate, uniform empty/error state for the On Platform grid. */
 function StateCard({
@@ -100,15 +109,6 @@ function StateCard({
   );
 }
 
-/** LinkedIn gates its list-posts API behind its partner program — retrying can't help. */
-function isLinkedInPartnerRestriction(channel: Channel, failure: Failure) {
-  return (
-    channel === "linkedin" &&
-    !!failure.message &&
-    /not enough permissions|partnerApiPostsExternal/i.test(failure.message)
-  );
-}
-
 function ChannelStates({
   channel,
   failure,
@@ -155,13 +155,16 @@ function ChannelStates({
     );
   }
 
-  if (failure.reason === "unsupported" || isLinkedInPartnerRestriction(channel, failure)) {
+  if (failure.reason === "unsupported") {
     return (
       <StateCard
         icon={<ChannelIcon channel={channel} size={22} />}
         title={t("states.unsupportedTitle", { channel: label })}
         body={
-          isLinkedInPartnerRestriction(channel, failure)
+          // The adapter names the restriction; this only picks the copy for
+          // it. Matching on the platform's own wording here was how a
+          // reworded LinkedIn error would have become retryable again.
+          failure.restriction === "linkedin_partner_program"
             ? t("states.linkedinPartnerBody")
             : t("states.unsupportedBody", { channel: label })
         }
@@ -356,6 +359,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
         setFailure({
           reason: res.data.reason ?? null,
           message: res.data.message ?? null,
+          restriction: res.data.restriction ?? null,
         });
       }
     } catch {
@@ -463,7 +467,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
       ) : failure || posts.length === 0 ? (
         <ChannelStates
           channel={channel}
-          failure={failure ?? { reason: null, message: null }}
+          failure={failure ?? { reason: null, message: null, restriction: null }}
           productId={productId}
           onRetry={fetchPosts}
         />

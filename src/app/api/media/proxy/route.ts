@@ -5,6 +5,9 @@ import {
   readResponseBufferWithLimit,
 } from '@/lib/network-security';
 import { apiError } from '@/lib/api-response';
+import { RATE_LIMITS, applyRateLimit } from '@/lib/rate-limit';
+import { readProxyCache, writeProxyCache } from '@/lib/media/proxy-cache';
+import { enforceMediaProxyToken } from '@/lib/media/proxy-tokens';
 
 export const runtime = 'nodejs';
 
@@ -54,6 +57,8 @@ export async function GET(req: NextRequest) {
   try {
     return await proxyImage(req);
   } catch (error) {
+    // applyRateLimit signals a 429 by throwing the Response it wants returned.
+    if (error instanceof Response) return error;
     return apiError(error);
   }
 }
@@ -63,6 +68,10 @@ async function proxyImage(req: NextRequest) {
   if (!rawUrl) {
     return NextResponse.json({ error: 'Missing url parameter' }, { status: 400 });
   }
+
+  // Metered before any work: the decode-resize-encode below is the expensive
+  // part and this route needs no credentials to reach.
+  await applyRateLimit(req, RATE_LIMITS.mediaProxy);
 
   let parsed: URL;
   try {
@@ -74,6 +83,20 @@ async function proxyImage(req: NextRequest) {
   if (!isAllowedStorageUrl(parsed)) {
     return NextResponse.json({ error: 'URL host not allowed' }, { status: 403 });
   }
+
+  const refusal = enforceMediaProxyToken({
+    token: req.nextUrl.searchParams.get('t'),
+    mediaUrl: rawUrl,
+    kind: 'image',
+    route: '/api/media/proxy',
+  });
+  if (refusal) return refusal;
+
+  // The transform is a pure function of the source URL, so a repeat hit costs
+  // a redirect instead of a sharp pipeline. Unlike the TikTok-facing route
+  // below, this one has no fetcher known to mishandle a 302.
+  const cached = await readProxyCache(rawUrl);
+  if (cached) return NextResponse.redirect(cached.url, 302);
 
   const upstream = await fetch(parsed.toString(), {
     redirect: 'error',
@@ -104,6 +127,10 @@ async function proxyImage(req: NextRequest) {
       mozjpeg: true,
     })
     .toBuffer();
+
+  // Best effort, and deliberately not awaited for its URL: the caller that
+  // paid for the transform gets the bytes either way.
+  await writeProxyCache(rawUrl, jpegBuffer);
 
   return new NextResponse(new Uint8Array(jpegBuffer), {
     status: 200,

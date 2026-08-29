@@ -2073,6 +2073,7 @@ function ApiAccessTab() {
   const [archivingClient, setArchivingClient] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [disablingWebhook, setDisablingWebhook] = useState<string | null>(null);
+  const [sendingTestWebhook, setSendingTestWebhook] = useState<string | null>(null);
 
   // Delivery history for one endpoint, loaded on demand. Attempts, response
   // codes, and retry state have always been recorded and never shown, so an
@@ -2284,6 +2285,25 @@ function ApiAccessTab() {
     setDeliveriesCursor(null);
     setDeliveriesError(null);
     void loadDeliveries(endpoint);
+  }
+
+  async function sendWebhookTest(id: string) {
+    setSendingTestWebhook(id);
+    try {
+      // Queues one signed delivery through the real pipeline (5.11): the
+      // fastest way to confirm signature verification works is to receive an
+      // actual delivery on demand.
+      const res = await apiPost(`/api/settings/webhook-endpoints/${id}/test`, {}, wsId);
+      if (res.ok) {
+        toast.success(t("webhooksSection.testSent"));
+      } else {
+        toast.error(userFacingError(res.data, t("webhooksSection.testFailed")));
+      }
+    } catch {
+      toast.error(t("webhooksSection.testFailed"));
+    } finally {
+      setSendingTestWebhook(null);
+    }
   }
 
   async function disableWebhook(id: string) {
@@ -2658,6 +2678,16 @@ function ApiAccessTab() {
                           </TableCell>
                           <TableCell className="text-end">
                             <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => sendWebhookTest(endpoint.id)}
+                                disabled={endpoint.status !== 'active' || sendingTestWebhook === endpoint.id}
+                              >
+                                {sendingTestWebhook === endpoint.id
+                                  ? t("webhooksSection.sendingTest")
+                                  : t("webhooksSection.sendTest")}
+                              </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"

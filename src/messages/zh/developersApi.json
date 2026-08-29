@@ -19,12 +19,36 @@
     "recommendedBadge": "推荐",
     "description": "默认的集成方式：一个位于 <code>/api/connect/v1</code>、扁平且采用 snake_case 命名的接口，绝大多数排期工具都能直接对接。它将常见的 <code>create-upload-url → PUT → post</code> 流程，映射到与下方完整 API 相同的工作区、认证、产品体系和发布流水线上。请将客户端的基础 URL 设置为 <code>/api/connect</code>，并使用限定产品范围的工作区 API 密钥进行认证（权限范围：<code>posts.read</code>、<code>posts.write</code>、<code>media.write</code>）。",
     "endpoints": [
-      { "method": "GET", "path": "/api/connect/v1/social-accounts", "note": "以扁平账号列表的形式列出已连接的 Facebook、Instagram、TikTok、LinkedIn 和 Threads 发布目标，每个账号都会标注所属产品，方便客户端分组和区分。每个渠道都拥有各自独立的路径，不会产生跨渠道扩散。" },
-      { "method": "GET", "path": "/api/connect/v1/products", "note": "列出品牌（接口命名为 products），并嵌套显示各自已连接的账号，以品牌为优先的选择器。" },
-      { "method": "POST", "path": "/api/connect/v1/media/create-upload-url", "note": "返回一个短时有效、一次性使用的已签名 PUT URL，以及一个素材 ID。" },
-      { "method": "PUT", "path": "<upload_url>", "note": "将图片的原始字节数据上传至该已签名 URL。无需 API 密钥，签名本身即完成授权。" },
-      { "method": "POST", "path": "/api/connect/v1/posts", "note": "为每个选定账号创建一份草稿。设置 is_draft=false 并附带 scheduled_at 即可排期投递；TikTok 使用创作者收件箱转交方式。" },
-      { "method": "GET", "path": "/api/connect/v1/posts", "note": "以扁平化的状态、文案和素材 URL 列出工作区内容。" }
+      {
+        "method": "GET",
+        "path": "/api/connect/v1/social-accounts",
+        "note": "以扁平账号列表的形式列出已连接的 Facebook、Instagram、TikTok、LinkedIn 和 Threads 发布目标，每个账号都会标注所属产品，方便客户端分组和区分。每个渠道都拥有各自独立的路径，不会产生跨渠道扩散。"
+      },
+      {
+        "method": "GET",
+        "path": "/api/connect/v1/products",
+        "note": "列出品牌（接口命名为 products），并嵌套显示各自已连接的账号，以品牌为优先的选择器。"
+      },
+      {
+        "method": "POST",
+        "path": "/api/connect/v1/media/create-upload-url",
+        "note": "返回一个短时有效、一次性使用的已签名 PUT URL，以及一个素材 ID。"
+      },
+      {
+        "method": "PUT",
+        "path": "<upload_url>",
+        "note": "将图片的原始字节数据上传至该已签名 URL。无需 API 密钥，签名本身即完成授权。"
+      },
+      {
+        "method": "POST",
+        "path": "/api/connect/v1/posts",
+        "note": "为每个选定账号创建一份草稿。设置 is_draft=false 并附带 scheduled_at 即可排期投递；TikTok 使用创作者收件箱转交方式。"
+      },
+      {
+        "method": "GET",
+        "path": "/api/connect/v1/posts",
+        "note": "以扁平化的状态、文案和素材 URL 列出工作区内容。"
+      }
     ],
     "footnote": "<code>/social-accounts</code> 返回的每个账号都会标注其 <code>product</code>，表示品牌的接口命名（同一账号可能出现在多个品牌下），其 <code>id</code> 编码了 <code>productId#destinationId</code>，你可以将其原样传回 <code>social_accounts</code>，此时请求会按账号数量扩散为多篇内容。每个密钥仅绑定一个品牌，因此只能查看并发布到该品牌。<strong>Facebook、Instagram 和 TikTok 的内容以人工优先</strong>，均以草稿形式创建，由工作区所有者从 Markaestro 的「待发布」队列中原生发布，绝不通过平台 API 直接发布。LinkedIn、Threads 和 Pinterest 会在明确的发布操作后以程序化方式发布。内容状态为 <code>draft</code>、<code>processing</code>、<code>posted</code> 或 <code>failed</code> 之一。Facebook、Instagram、LinkedIn、TikTok 和 Threads 各自拥有独立的专属发布目标，发布到其中一个渠道不会扩散到其他渠道。可通过 <code>GET /api/connect/v1/posts</code> 跟踪发布状态。"
   },
@@ -33,70 +57,183 @@
     "description": "完整的 <code>/api/public/v1</code> 接口，显式发布、异步任务执行、已签名 Webhook、批量创建，以及按渠道配置。当 Connect API 无法满足需求时可使用此接口。"
   },
   "highlightCards": [
-    { "title": "Meta 与 TikTok 以人工优先", "description": "Facebook、Instagram 和 TikTok 的内容默认进入手动「待发布」队列，不会调用平台 API，由工作区所有者原生发布并确认。可通过 deliveryMode 按内容选择改用 API 发布。" },
-    { "title": "支持 Instagram 登录", "description": "即使未连接 Facebook 主页，品牌也可以开放独立的 Instagram 专业账号。" },
-    { "title": "TikTok 支持两种可选路径", "description": "API 发布默认使用收件箱转交。如果 TikTok 应用已获批准，可同时设置隐私级别并将 settings.postMode 设为 direct_post 来请求 Direct Post。" },
-    { "title": "设计上即为异步", "description": "每次发布都会返回一个任务 ID。请轮询任务状态或订阅已签名的 Webhook，而不是假定发布会同步完成。" }
+    {
+      "title": "Meta 与 TikTok 以人工优先",
+      "description": "Facebook、Instagram 和 TikTok 的内容默认进入手动「待发布」队列，不会调用平台 API，由工作区所有者原生发布并确认。可通过 deliveryMode 按内容选择改用 API 发布。"
+    },
+    {
+      "title": "支持 Instagram 登录",
+      "description": "即使未连接 Facebook 主页，品牌也可以开放独立的 Instagram 专业账号。"
+    },
+    {
+      "title": "TikTok 支持两种可选路径",
+      "description": "API 发布默认使用收件箱转交。如果 TikTok 应用已获批准，可同时设置隐私级别并将 settings.postMode 设为 direct_post 来请求 Direct Post。"
+    },
+    {
+      "title": "设计上即为异步",
+      "description": "每次发布都会返回一个任务 ID。请轮询任务状态或订阅已签名的 Webhook，而不是假定发布会同步完成。"
+    }
   ],
   "endpointGroups": [
     {
       "title": "品牌与发布目标",
       "description": "查询该 API 密钥可用的品牌与发布目标。品牌在接口层面被称为 products，为保持向后兼容，路径和请求体均使用 products/productId，POST 请求体也接受 brandId 作为别名。",
       "endpoints": [
-        { "method": "GET", "path": "/api/public/v1/products", "note": "列出该密钥所拥有的品牌，以及每个品牌当前可用的渠道。" },
-        { "method": "GET", "path": "/api/public/v1/products/:id/destinations", "note": "列出该品牌的发布目标，包括独立的 Instagram 登录、Facebook 主页、Threads、LinkedIn 个人资料/主页，以及已连接的 TikTok 发布目标。" }
+        {
+          "method": "GET",
+          "path": "/api/public/v1/products",
+          "note": "列出该密钥所拥有的品牌，以及每个品牌当前可用的渠道。"
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/products/:id/destinations",
+          "note": "列出该品牌的发布目标，包括独立的 Instagram 登录、Facebook 主页、Threads、LinkedIn 个人资料/主页，以及已连接的 TikTok 发布目标。"
+        }
       ]
     },
     {
       "title": "素材",
       "description": "在创建内容之前，先将图片或视频上传至 Markaestro 托管的存储空间。",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions", "note": "使用文件名、内容类型和精确大小创建一个有效期为 15 分钟的直传会话。" },
-        { "method": "PUT", "path": "<uploadSession.uploadUrl>", "note": "使用返回的 Content-Type 将字节直接上传到存储；不要发送 API 密钥。" },
-        { "method": "POST", "path": "/api/public/v1/media/upload-sessions/:id/finalize", "note": "验证类型和大小并返回媒体素材；已完成的会话可安全重试。" },
-        { "method": "POST", "path": "/api/public/v1/media", "note": "兼容用多部分上传。返回素材 ID 和托管 URL。" }
+        {
+          "method": "POST",
+          "path": "/api/public/v1/media/upload-sessions",
+          "note": "使用文件名、内容类型和精确大小创建一个有效期为 15 分钟的直传会话。"
+        },
+        {
+          "method": "PUT",
+          "path": "<uploadSession.uploadUrl>",
+          "note": "使用返回的 Content-Type 将字节直接上传到存储；不要发送 API 密钥。"
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/media/upload-sessions/:id/finalize",
+          "note": "验证类型和大小并返回媒体素材；已完成的会话可安全重试。"
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/media",
+          "note": "兼容用多部分上传。返回素材 ID 和托管 URL。"
+        }
       ]
     },
     {
       "title": "内容",
       "description": "为 Facebook、Instagram、LinkedIn、Threads、Pinterest 和 TikTok 创建、列出、查看、发布及删除内容。",
       "endpoints": [
-        { "method": "POST", "path": "/api/public/v1/posts", "note": "在工作区中创建草稿。Facebook、Instagram 和 TikTok 默认使用手动发布（deliveryMode manual_reminder）；传入 deliveryMode direct_publish 可选择改用 API 发布。" },
-        { "method": "GET", "path": "/api/public/v1/posts", "note": "按最新优先列出内容。使用 ?status=scheduled 筛选出排期中的内容，使用 ?productId= 限定到某个品牌。品牌绑定的密钥始终只限于其自身品牌，可省略 productId。" },
-        { "method": "GET", "path": "/api/public/v1/posts/:id", "note": "返回当前内容状态、投递方式和发布结果。" },
-        { "method": "POST", "path": "/api/public/v1/posts/:id/publish", "note": "将一次异步发布任务加入队列。手动内容会进入工作区的「待发布」队列以供原生发布；LinkedIn、Threads 和 Pinterest 直接发布；已选用 API 的 Meta 内容通过官方 API 发布，已选用 API 的 TikTok 内容使用收件箱转交方式。" },
-        { "method": "DELETE", "path": "/api/public/v1/posts/:id", "note": "从 Markaestro 中删除该内容。使用现有的 posts.write 权限范围。如果发布任务正在进行中，将返回 400 VALIDATION_POST_IS_PUBLISHING。删除已发布的内容不会撤回平台上已发布的副本。" }
+        {
+          "method": "POST",
+          "path": "/api/public/v1/posts",
+          "note": "在工作区中创建草稿。Facebook、Instagram 和 TikTok 默认使用手动发布（deliveryMode manual_reminder）；传入 deliveryMode direct_publish 可选择改用 API 发布。"
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/posts",
+          "note": "按最新优先列出内容。使用 ?status=scheduled 筛选出排期中的内容，使用 ?productId= 限定到某个品牌。品牌绑定的密钥始终只限于其自身品牌，可省略 productId。"
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/posts/:id",
+          "note": "返回当前内容状态、投递方式和发布结果。"
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/posts/:id/publish",
+          "note": "将一次异步发布任务加入队列。手动内容会进入工作区的「待发布」队列以供原生发布；LinkedIn、Threads 和 Pinterest 直接发布；已选用 API 的 Meta 内容通过官方 API 发布，已选用 API 的 TikTok 内容使用收件箱转交方式。"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/public/v1/posts/:id",
+          "note": "从 Markaestro 中删除该内容。使用现有的 posts.write 权限范围。如果发布任务正在进行中，将返回 400 VALIDATION_POST_IS_PUBLISHING。删除已发布的内容不会撤回平台上已发布的副本。"
+        }
       ]
     },
     {
       "title": "任务与 Webhook",
       "description": "通过轮询或已签名的 Webhook 投递方式跟踪异步任务。",
       "endpoints": [
-        { "method": "GET", "path": "/api/public/v1/job-runs/:id", "note": "返回 queued、running、succeeded 或 failed。" },
-        { "method": "POST", "path": "/api/public/v1/webhook-endpoints", "note": "注册一个 Webhook 目标；每个工作区最多可有 25 个活跃端点。" },
-        { "method": "GET", "path": "/api/public/v1/webhook-endpoints", "note": "列出该 API 密钥权限范围下已注册的 Webhook 目标。" },
-        { "method": "DELETE", "path": "/api/public/v1/webhook-endpoints/:id", "note": "停用某个 Webhook 目标。" }
+        {
+          "method": "GET",
+          "path": "/api/public/v1/job-runs/:id",
+          "note": "返回 queued、running、succeeded 或 failed。"
+        },
+        {
+          "method": "POST",
+          "path": "/api/public/v1/webhook-endpoints",
+          "note": "注册一个 Webhook 目标；每个工作区最多可有 25 个活跃端点。"
+        },
+        {
+          "method": "GET",
+          "path": "/api/public/v1/webhook-endpoints",
+          "note": "列出该 API 密钥权限范围下已注册的 Webhook 目标。"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/public/v1/webhook-endpoints/:id",
+          "note": "停用某个 Webhook 目标。"
+        }
       ]
     }
   ],
   "examples": {
-    "listProducts": { "title": "1. 列出产品", "description": "查询该 API 密钥可以定向到哪些产品。" },
-    "listDestinations": { "title": "2. 查看发布目标", "description": "在创建内容之前，查看某个产品下已关联的主页和账号。当某个产品拥有多个发布目标时（例如一个 LinkedIn 个人资料加多个主页），请使用返回的 <code>destinationId</code>。" },
-    "upload": { "title": "3. 上传素材", "description": "每篇内容都会引用先前已上传的素材资源。" },
-    "createPost": { "title": "4. 创建内容", "description": "使用这些素材 ID 创建草稿。Instagram 默认使用手动发布；添加 <code>\"deliveryMode\": \"direct_publish\"</code> 即可为该内容选用官方 API 发布。" },
-    "tiktokCreatePost": { "title": "TikTok 示例", "description": "TikTok 内容会以 Markaestro 草稿的形式到达，并默认从「待发布」队列中手动发布。使用 <code>deliveryMode: \"platform_inbox\"</code>（或 <code>direct_publish</code>），一次显式发布会将草稿改为发送至创作者的 TikTok 收件箱。" },
-    "publish": { "title": "5. 排队发布", "description": "发布操作会创建一个异步任务。手动内容（Facebook/Instagram/TikTok 的默认方式）会移入「待发布」队列并触发 <code>post.action_required</code>；LinkedIn、Threads、Pinterest 以及已选用 API 的 Meta 内容直接发布；已选用 API 的 TikTok 内容将排队进行收件箱转交。" },
-    "listScheduled": { "title": "6. 查看排期并取消", "description": "列出某个品牌当前排期中的内容，删除任何你不再想要发布的内容。这两个操作均使用现有密钥已具备的权限范围，<code>posts.read</code> 和 <code>posts.write</code>。" },
-    "webhook": { "title": "Webhook 负载示例", "description": "投递内容使用你的 Webhook 密钥进行 HMAC 签名。" }
+    "listProducts": {
+      "title": "1. 列出产品",
+      "description": "查询该 API 密钥可以定向到哪些产品。"
+    },
+    "listDestinations": {
+      "title": "2. 查看发布目标",
+      "description": "在创建内容之前，查看某个产品下已关联的主页和账号。当某个产品拥有多个发布目标时（例如一个 LinkedIn 个人资料加多个主页），请使用返回的 <code>destinationId</code>。"
+    },
+    "upload": {
+      "title": "3. 上传素材",
+      "description": "每篇内容都会引用先前已上传的素材资源。"
+    },
+    "createPost": {
+      "title": "4. 创建内容",
+      "description": "使用这些素材 ID 创建草稿。Instagram 默认使用手动发布；添加 <code>\"deliveryMode\": \"direct_publish\"</code> 即可为该内容选用官方 API 发布。"
+    },
+    "tiktokCreatePost": {
+      "title": "TikTok 示例",
+      "description": "TikTok 内容会以 Markaestro 草稿的形式到达，并默认从「待发布」队列中手动发布。使用 <code>deliveryMode: \"platform_inbox\"</code>（或 <code>direct_publish</code>），一次显式发布会将草稿改为发送至创作者的 TikTok 收件箱。"
+    },
+    "publish": {
+      "title": "5. 排队发布",
+      "description": "发布操作会创建一个异步任务。手动内容（Facebook/Instagram/TikTok 的默认方式）会移入「待发布」队列并触发 <code>post.action_required</code>；LinkedIn、Threads、Pinterest 以及已选用 API 的 Meta 内容直接发布；已选用 API 的 TikTok 内容将排队进行收件箱转交。"
+    },
+    "listScheduled": {
+      "title": "6. 查看排期并取消",
+      "description": "列出某个品牌当前排期中的内容，删除任何你不再想要发布的内容。这两个操作均使用现有密钥已具备的权限范围，<code>posts.read</code> 和 <code>posts.write</code>。"
+    },
+    "webhook": {
+      "title": "Webhook 负载示例",
+      "description": "投递内容使用你的 Webhook 密钥进行 HMAC 签名。"
+    }
   },
   "channelBehavior": {
     "title": "渠道行为",
     "description": "由公开 API 强制执行的校验与投递规则。",
     "channels": [
-      { "name": "Facebook", "rule": "支持纯文字、图片或视频内容。每篇内容最多 10 张图片或 1 个视频。默认为手动发布；选用 API 后可直接发布。" },
-      { "name": "Instagram", "rule": "至少需要一张图片或一个视频，最多 10 项内容。单个视频将以 Reel 形式发布。默认为手动发布；选用 API 后可直接发布。" },
-      { "name": "TikTok", "rule": "至少需要一张图片或一个视频。最多 10 张图片或 1 个视频。默认为手动发布；选用 API 后的内容将发送至创作者的 TikTok 收件箱，绝不会成为公开的 Direct Post。" },
-      { "name": "LinkedIn", "rule": "支持文字、单图、单视频，或最多 20 张图片的原生多图内容。可定向到已连接的个人资料，或已管理的主页。" }
+      {
+        "name": "Facebook",
+        "rule": "支持纯文字、图片或视频内容。每篇内容最多 10 张图片或 1 个视频。默认为手动发布；选用 API 后可直接发布。"
+      },
+      {
+        "name": "Instagram",
+        "rule": "至少需要一张图片或一个视频，最多 10 项内容。单个视频将以 Reel 形式发布。默认为手动发布；选用 API 后可直接发布。"
+      },
+      {
+        "name": "TikTok",
+        "rule": "至少需要一张图片或一个视频。最多 10 张图片或 1 个视频。默认为手动发布；选用 API 后的内容将发送至创作者的 TikTok 收件箱，绝不会成为公开的 Direct Post。"
+      },
+      {
+        "name": "LinkedIn",
+        "rule": "支持文字、单图、单视频，或最多 20 张图片的原生多图内容。可定向到已连接的个人资料，或已管理的主页。"
+      }
     ]
+  },
+  "specCallout": {
+    "title": "机器可读规范",
+    "body": "以 OpenAPI 3.1 提供每个端点、请求与响应结构以及错误码。它由 API 校验所用的同一套 schema 生成，因此不会描述我们并未提供的接口。",
+    "button": "OpenAPI 3.1 规范"
   }
 }

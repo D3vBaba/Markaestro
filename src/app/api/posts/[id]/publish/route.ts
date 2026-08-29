@@ -8,15 +8,19 @@ import {
   finalizeFailedPublish,
   finalizeManualReminderPublish,
   finalizeSuccessfulPublish,
+  getPostChannelDeliveryMode,
   getPostTargetChannels,
+  isFullyManualReminderPost,
   persistTikTokPendingPublish,
   publishStoredPost,
 } from '@/lib/social/publisher';
 import { pollTikTokPublishWithRetries } from '@/lib/social/tiktok-publish-poll-worker';
 import { PLATFORM_ACTION_REQUIRED_STATUS, TIKTOK_MANUAL_PUBLISH_ACTION } from '@/lib/tiktok-draft-flow';
-import { isManualReminderPost } from '@/lib/manual-publish-flow';
+import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
 import { logger } from '@/lib/logger';
 import { formatPreflightIssues, getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
+import { finishPublishRun, startPublishRun } from '@/lib/social/publish-run-records';
+import { RATE_LIMITS, applyRateLimit, checkRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -89,6 +93,46 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const { id } = await params;
 
+    // Workspace-scoped rather than uid-scoped, so a team cannot multiply the
+    // ceiling by adding seats. This handler declares maxDuration 300, makes
+    // outbound platform calls, uploads media, and can inline-poll TikTok for
+    // ~50s, so it is the most expensive request a signed-in user can send.
+    // The public API's equivalent, which only enqueues a job, was already
+    // limited to 20/min while this did real work unmetered.
+    await applyRateLimit(req, RATE_LIMITS.publish, { key: `publish:${ctx.workspaceId}` });
+
+    // Longer-window ceiling per channel: 30 publishes per hour per channel per
+    // workspace, which is the limit the platforms themselves care about, since
+    // sustained bursts are what get app credentials restricted. Checked BEFORE
+    // the claim below on purpose: the claim moves the post into `publishing`
+    // and clears `scheduledAt`, so refusing after it would strand the post
+    // until the lease expired. The plain read here can race an edit to the
+    // channel list, which at worst lets one request past the hourly ceiling.
+    {
+      const preClaimSnap = await adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${id}`).get();
+      if (preClaimSnap.exists) {
+        const preClaim = preClaimSnap.data() as Record<string, unknown>;
+        const channels = getPostTargetChannels(preClaim);
+        for (const channel of channels) {
+          const mode = getPostChannelDeliveryMode(preClaim, channel, preClaim.settings);
+          // Manual channels never call a platform API, so they are exempt.
+          if (isManualReminderDeliveryMode(mode)) continue;
+          const account = await checkRateLimit(
+            `publish-account:${ctx.workspaceId}:${channel}`,
+            RATE_LIMITS.publishPerAccount,
+          );
+          if (!account.allowed) {
+            return apiOk({
+              ok: false,
+              error: 'RATE_LIMITED_CHANNEL',
+              channel,
+              retryAfterSeconds: Math.max(1, Math.ceil((account.resetAt - Date.now()) / 1000)),
+            }, 429);
+          }
+        }
+      }
+    }
+
     const claim = await claimPostForImmediatePublish(ctx.workspaceId, id);
     if (!claim.ok) {
       return apiOk({ ok: false, error: claim.error }, claim.status);
@@ -102,7 +146,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       error: message,
     }));
 
-    const manualReminder = isManualReminderPost(post);
+    // Per-target: a post can be manual on one channel and automatic on
+    // another, so `manualReminder` here means "every channel is manual".
+    const manualChannels = targetChannels.filter((channel) =>
+      isManualReminderDeliveryMode(getPostChannelDeliveryMode(post, channel, post.settings)),
+    );
+    const manualReminder = isFullyManualReminderPost(post, targetChannels);
 
     // productId is optional for TikTok-only posts (UGC pipeline creates posts without a product link)
     // and for manual reminder posts (no platform API call means no connection metadata is needed).
@@ -126,9 +175,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         targetChannels,
         mediaUrls,
       },
-      // Manual reminder posts don't need a connected/ready channel — nothing
-      // is sent to the platform, so only content validation applies.
-      { requireReadyChannels: !manualReminder },
+      // Manual reminder channels don't need a connected/ready account —
+      // nothing is sent to the platform, so only content validation applies.
+      { requireReadyChannels: !manualReminder, manualChannels },
     );
     if (preflightIssues.length > 0) {
       const message = formatPreflightIssues(preflightIssues);
@@ -147,6 +196,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       channels: targetChannels,
       productId: productId ?? null,
       mediaCount: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 0,
+    });
+
+    // Every publish path now leaves a job_runs record, so the run history and
+    // the webhook event stream do not depend on which surface started it.
+    const runId = await startPublishRun({
+      workspaceId: ctx.workspaceId,
+      postId: id,
+      source: 'app_immediate',
+      channel: post.channel,
+      createdByType: post.createdByType,
+      createdById: ctx.uid,
     });
 
     let result;
@@ -172,6 +232,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         postId: id,
         err: publishError,
       });
+      await finishPublishRun(ctx.workspaceId, runId, 'failed', msg);
       return apiOk({ ok: false, id, status: 'failed', error: 'INTERNAL_PUBLISH_ERROR' });
     }
 
@@ -183,13 +244,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       channelResults: result.channels.map((c) => ({ channel: c.channel, success: c.success })),
     });
 
-    if (result.actionRequired) {
+    // `actionRequired` means every channel is waiting on the user;
+    // `partialActionRequired` means some published and some are waiting. Both
+    // leave the post in the To Post queue, and the per-channel results tell
+    // the composer which half is which. A split post that is also still
+    // pending falls through to the pending branch, which the poll worker
+    // finishes.
+    if (result.actionRequired || (result.partialActionRequired && !result.pending)) {
       await finalizeManualReminderPublish(ctx.workspaceId, claim.claimed, result);
+      await finishPublishRun(ctx.workspaceId, runId, 'action_required');
       return apiOk({
         ok: true,
         id,
         status: PLATFORM_ACTION_REQUIRED_STATUS,
         nextAction: result.nextAction,
+        externalId: result.externalId,
+        externalUrl: result.externalUrl,
         channels: publicChannelResults(result.channels as ChannelResults),
       });
     }
@@ -235,6 +305,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         ? result.channels
         : await getFreshChannelResults(ctx.workspaceId, id, result.channels as ChannelResults);
 
+      // `publishing` means the poll worker still owns it, so the run stays
+      // open; anything terminal closes it here.
+      await finishPublishRun(
+        ctx.workspaceId,
+        runId,
+        finalStatus === 'publishing' ? 'pending'
+          : finalStatus === 'published' ? 'succeeded'
+          : finalStatus === 'partial_failed' ? 'partial_failed'
+          : finalStatus === PLATFORM_ACTION_REQUIRED_STATUS ? 'action_required'
+          : 'failed',
+        inlineError ?? '',
+      );
+
       return apiOk({
         ok: finalStatus !== 'failed' && finalStatus !== 'partial_failed',
         id,
@@ -250,6 +333,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     if (result.success) {
       const nextStatus = await finalizeSuccessfulPublish(ctx.workspaceId, claim.claimed, result);
+      await finishPublishRun(ctx.workspaceId, runId, 'succeeded');
       return apiOk({
         ok: true,
         id,
@@ -261,6 +345,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       });
     } else {
       const nextStatus = await finalizeFailedPublish(ctx.workspaceId, claim.claimed, result, { retryOnFailure: false });
+      await finishPublishRun(
+        ctx.workspaceId,
+        runId,
+        nextStatus === 'partial_failed' ? 'partial_failed' : 'failed',
+        result.error ?? '',
+      );
       return apiOk({
         ok: false,
         id,

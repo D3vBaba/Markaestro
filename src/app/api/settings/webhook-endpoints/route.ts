@@ -15,7 +15,11 @@ export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
     requireAdmin(ctx);
-    const endpoints = await listWebhookEndpoints(ctx.workspaceId);
+    // Disabled endpoints are tombstones from the soft delete. Hidden by
+    // default so the common view stays clean; `?includeDisabled=1` is what the
+    // "show disabled" affordance passes so they can be found and re-enabled.
+    const includeDisabled = new URL(req.url).searchParams.get('includeDisabled') === '1';
+    const endpoints = await listWebhookEndpoints(ctx.workspaceId, { includeDisabled });
     // Rolling 24-hour health on the row itself, so a red endpoint is visible
     // in the list without opening it. This is the whole point of the item: a
     // receiver that has been 500-ing for a week should not look identical to

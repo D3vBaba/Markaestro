@@ -1,4 +1,6 @@
+import { z } from 'zod';
 import { requirePublicApiContext } from '@/lib/public-api/auth';
+import { listMediaAssets, serializeMediaAsset } from '@/lib/media/asset-store';
 import { publicApiError } from '@/lib/public-api/response';
 import { createMediaAsset, validatePublicMediaFile } from '@/lib/public-api/media';
 import { createRequestHashParts, getIdempotencyKey, loadIdempotentResponse, persistIdempotentResponse } from '@/lib/public-api/idempotency';
@@ -10,6 +12,40 @@ export const runtime = 'nodejs';
 
 
 const MEDIA_RATE_LIMIT = { limit: 20, windowMs: 60_000 };
+
+const listSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+  cursor: z.string().trim().max(2000).optional(),
+  type: z.enum(['image', 'video']).optional(),
+});
+
+/**
+ * The surface had create and delete but no list, so a client that lost an
+ * asset id could neither use the asset nor free the storage it was billed
+ * for. Assets uploaded in the app appear here too, which is what makes the
+ * listing honest rather than a view of one client's own uploads.
+ */
+export async function GET(req: Request) {
+  try {
+    // `media.write` rather than a new `media.read`: the media resource has
+    // only ever had one scope, `/media/[id]` GET already uses it, and minting
+    // a new scope would leave every existing key unable to call this endpoint
+    // until it was rotated.
+    const ctx = await requirePublicApiContext(req, {
+      scope: 'media.write',
+      rateLimit: MEDIA_RATE_LIMIT,
+    });
+    const query = listSchema.parse(Object.fromEntries(new URL(req.url).searchParams));
+    const page = await listMediaAssets(ctx.workspaceId, query);
+    return Response.json({
+      assets: page.items.map((asset) => serializeMediaAsset(asset)),
+      count: page.items.length,
+      nextCursor: page.nextCursor,
+    }, { headers: ctx.rateLimitHeaders });
+  } catch (error) {
+    return publicApiError(error);
+  }
+}
 
 export async function POST(req: Request) {
   let reservedStorage: { workspaceId: string; bytes: number } | null = null;

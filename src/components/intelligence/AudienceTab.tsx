@@ -6,7 +6,7 @@ import { Copy, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { apiPost } from "@/lib/api-client";
+import { apiDelete, apiPatch, apiPost } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { userFacingError } from "@/lib/user-facing-errors";
 import AudienceProfileEditor from "@/components/intelligence/AudienceProfileEditor";
@@ -20,7 +20,13 @@ function TrackedLinks({ productId }: { productId: string }) {
   const [label, setLabel] = useState("");
   const [destination, setDestination] = useState("");
   const [creating, setCreating] = useState(false);
-  const links = useApiQuery<{ links: TrackedLink[] }>(`/api/intelligence/tracked-links?productId=${encodeURIComponent(productId)}`);
+  const [pendingCode, setPendingCode] = useState<string | null>(null);
+  // Retired links are hidden by default so the common view stays clean, but
+  // they stay reachable: a retired link still holds click history inside the
+  // 90 day attribution window, and reactivating one is a normal thing to want.
+  const [showRetired, setShowRetired] = useState(false);
+  const listPath = `/api/intelligence/tracked-links?productId=${encodeURIComponent(productId)}${showRetired ? "&includeInactive=1" : ""}`;
+  const links = useApiQuery<{ links: TrackedLink[] }>(listPath);
 
   async function create() {
     setCreating(true);
@@ -38,6 +44,28 @@ function TrackedLinks({ productId }: { productId: string }) {
       toast.error(t("createFailed"));
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function setActive(link: TrackedLink, active: boolean) {
+    setPendingCode(link.code);
+    try {
+      const path = `/api/intelligence/tracked-links/${encodeURIComponent(link.code)}`;
+      // Retiring is a soft delete on the server: click and conversion rows
+      // reference the code for 90 days, so the row never actually goes away.
+      const response = active
+        ? await apiPatch(path, { active: true })
+        : await apiDelete(path);
+      if (!response.ok) {
+        toast.error(userFacingError(response.data, t("retireFailed")));
+        return;
+      }
+      toast.success(active ? t("reactivated") : t("retired"));
+      invalidateQueries("/api/intelligence/tracked-links");
+    } catch {
+      toast.error(t("retireFailed"));
+    } finally {
+      setPendingCode(null);
     }
   }
 
@@ -79,6 +107,13 @@ function TrackedLinks({ productId }: { productId: string }) {
           {creating ? t("creating") : t("create")}
         </Button>
       </form>
+      <button
+        type="button"
+        onClick={() => setShowRetired((current) => !current)}
+        className="mt-3 text-[11px] font-semibold text-slate-500 hover:underline dark:text-slate-400"
+      >
+        {showRetired ? t("hideRetired") : t("showRetired")}
+      </button>
       {(links.data?.links.length ?? 0) > 0 && (
         <div className="mt-4 divide-y divide-slate-100 dark:divide-slate-800/80">
           {links.data?.links.map((link) => {
@@ -102,6 +137,11 @@ function TrackedLinks({ productId }: { productId: string }) {
                     </button>
                   </div>
                   <p className="truncate text-[11px] text-slate-400 dark:text-slate-500">{link.destination}</p>
+                  {!link.active && (
+                    <span className="mt-1 inline-block rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                      {t("inactive")}
+                    </span>
+                  )}
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400 sm:text-end">
                   <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{t("clicks", { count: link.clicks })}</span>
@@ -109,6 +149,19 @@ function TrackedLinks({ productId }: { productId: string }) {
                     <span className="font-mono font-semibold text-emerald-700 dark:text-emerald-300">{t("conversions", { count: link.attributedConversions })}</span>
                   )}
                   <span>{lastClick ? t("lastClick", { when: lastClick }) : t("noClicks")}</span>
+                  <button
+                    type="button"
+                    disabled={pendingCode === link.code}
+                    onClick={() => {
+                      if (link.active && !window.confirm(t("confirmRetire"))) return;
+                      void setActive(link, !link.active);
+                    }}
+                    className="shrink-0 text-[11px] font-semibold text-slate-500 hover:underline disabled:opacity-60 dark:text-slate-400"
+                  >
+                    {pendingCode === link.code
+                      ? t("retiring")
+                      : link.active ? t("retire") : t("reactivate")}
+                  </button>
                 </div>
               </div>
             );

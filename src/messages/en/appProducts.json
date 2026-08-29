@@ -255,7 +255,12 @@
         "linkDestinationsFailed": "Failed to link {destination}s",
         "accountUnlinked": "{account} unlinked",
         "unlinkFailed": "Failed to unlink {account}"
-      }
+      },
+      "testConnection": "Test connection",
+      "testing": "Testing…",
+      "testOk": "Connected as {label}",
+      "testOkPlain": "Connection is working",
+      "testFailed": "Connection test failed"
     }
   }
 }

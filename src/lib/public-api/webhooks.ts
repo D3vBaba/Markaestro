@@ -10,6 +10,18 @@ import { assertSafeWebhookUrl } from './webhook-url';
 import { executeListQueryPage } from '@/lib/firestore-list-query';
 
 const WEBHOOK_DELIVERY_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
+/**
+ * How long a rotated webhook secret keeps signing alongside its replacement.
+ *
+ * A rotate that invalidates the old secret the instant it is issued breaks
+ * every delivery until the customer has redeployed their receiver, which makes
+ * rotation something people avoid doing. During the window both signatures are
+ * sent (`X-Markaestro-Signature` carries the new one, and the previous one is
+ * appended), so a receiver that still holds the old secret keeps verifying
+ * while it rolls out the new one.
+ */
+export const WEBHOOK_SECRET_GRACE_MS = 24 * 60 * 60 * 1000;
 export const MAX_WEBHOOK_ENDPOINTS_PER_WORKSPACE = Math.max(
   1,
   Number(process.env.MAX_WEBHOOK_ENDPOINTS_PER_WORKSPACE || 25),
@@ -69,19 +81,138 @@ export async function createWebhookEndpoint(
   };
 }
 
-export async function listWebhookEndpoints(workspaceId: string) {
+/**
+ * Endpoints for the settings list.
+ *
+ * "Delete" is a soft disable, so an unfiltered listing accumulates tombstones
+ * the customer cannot act on. Active-only is the useful default;
+ * `includeDisabled` is what the "show disabled" affordance passes so a
+ * disabled endpoint can be found and re-enabled.
+ */
+export async function listWebhookEndpoints(
+  workspaceId: string,
+  options: { includeDisabled?: boolean } = {},
+) {
   const snap = await adminDb.collection(`workspaces/${workspaceId}/webhook_endpoints`).get();
-  return snap.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      url: data.url,
-      events: data.events || [],
-      status: data.status || 'disabled',
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    };
-  });
+  return snap.docs
+    .map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        url: data.url,
+        events: data.events || [],
+        status: data.status || 'disabled',
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+        rotatedAt: data.rotatedAt ?? null,
+        // Surfaced so the UI can tell the customer how long their old secret
+        // keeps working, rather than leaving them to guess.
+        previousSecretExpiresAt: data.previousSecretExpiresAt ?? null,
+      };
+    })
+    .filter((endpoint) => options.includeDisabled || endpoint.status === 'active');
+}
+
+export type UpdateWebhookEndpointInput = {
+  url?: string;
+  events?: PublicWebhookEvent[];
+  status?: 'active' | 'disabled';
+};
+
+/**
+ * Update a webhook endpoint in place.
+ *
+ * Before this existed, changing a URL or an event list meant delete-then-
+ * recreate, which minted a new signing secret as a side effect: an edit that
+ * silently invalidated the customer's receiver. The secret is untouched here.
+ * A changed URL re-runs the SSRF guard, because an endpoint edited to point at
+ * a private address is exactly as dangerous as one created that way.
+ */
+export async function updateWebhookEndpoint(
+  workspaceId: string,
+  endpointId: string,
+  input: UpdateWebhookEndpointInput,
+) {
+  const ref = adminDb.doc(`workspaces/${workspaceId}/webhook_endpoints/${endpointId}`);
+  const snap = await ref.get();
+  if (!snap.exists) throw new Error('NOT_FOUND');
+  const current = snap.data() as Record<string, unknown>;
+
+  if (input.url && input.url !== current.url) {
+    await assertSafeWebhookUrl(input.url);
+  }
+
+  // Re-enabling has to respect the same cap as creating, or the limit is
+  // trivially bypassed by disabling and re-enabling in a loop.
+  if (input.status === 'active' && current.status !== 'active') {
+    const active = await adminDb
+      .collection(`workspaces/${workspaceId}/webhook_endpoints`)
+      .where('status', '==', 'active')
+      .limit(MAX_WEBHOOK_ENDPOINTS_PER_WORKSPACE)
+      .get();
+    if (active.size >= MAX_WEBHOOK_ENDPOINTS_PER_WORKSPACE) {
+      throw new Error('WEBHOOK_ENDPOINT_LIMIT_REACHED');
+    }
+  }
+
+  const now = new Date().toISOString();
+  const patch: Record<string, unknown> = { updatedAt: now };
+  if (input.url !== undefined) patch.url = input.url;
+  if (input.events !== undefined) patch.events = input.events;
+  if (input.status !== undefined) patch.status = input.status;
+
+  await ref.set(patch, { merge: true });
+
+  return {
+    id: endpointId,
+    url: (patch.url ?? current.url) as string,
+    events: (patch.events ?? current.events ?? []) as PublicWebhookEvent[],
+    status: (patch.status ?? current.status ?? 'disabled') as string,
+    createdAt: (current.createdAt ?? null) as string | null,
+    updatedAt: now,
+  };
+}
+
+/**
+ * Mint a new signing secret, returned once and never again.
+ *
+ * The outgoing secret keeps signing for {@link WEBHOOK_SECRET_GRACE_MS} so the
+ * customer can roll their receiver over without dropping deliveries. Mirrors
+ * `api-clients/[id]/rotate` in shape; that route has no grace window and
+ * should get one (see the plan's note on backporting).
+ */
+export async function rotateWebhookEndpointSecret(workspaceId: string, endpointId: string) {
+  const ref = adminDb.doc(`workspaces/${workspaceId}/webhook_endpoints/${endpointId}`);
+  const snap = await ref.get();
+  if (!snap.exists) throw new Error('NOT_FOUND');
+  const current = snap.data() as Record<string, unknown>;
+  if (current.status !== 'active') throw new Error('WEBHOOK_ENDPOINT_DISABLED');
+
+  const secret = buildWebhookSecret();
+  const now = new Date().toISOString();
+  const previousSecretExpiresAt = new Date(Date.now() + WEBHOOK_SECRET_GRACE_MS).toISOString();
+
+  await ref.set({
+    secretHash: secret.secretHash,
+    secretEncrypted: secret.secretEncrypted,
+    // Carrying the *encrypted* previous secret, not the plaintext: the grace
+    // window must not turn the endpoint document into a place where a
+    // readable secret sits for a day.
+    previousSecretEncrypted: current.secretEncrypted ?? null,
+    previousSecretExpiresAt: current.secretEncrypted ? previousSecretExpiresAt : null,
+    rotatedAt: now,
+    updatedAt: now,
+  }, { merge: true });
+
+  return {
+    id: endpointId,
+    url: (current.url ?? '') as string,
+    events: (current.events ?? []) as PublicWebhookEvent[],
+    status: 'active',
+    secret: secret.secret,
+    rotatedAt: now,
+    previousSecretExpiresAt: current.secretEncrypted ? previousSecretExpiresAt : null,
+  };
 }
 
 /**
@@ -219,7 +350,7 @@ export async function summarizeWebhookEndpointHealth(
           if (at && at >= since) summary.delivered24h += 1;
           if (at && (!summary.lastSuccessAt || at > summary.lastSuccessAt)) summary.lastSuccessAt = at;
         }
-        if (status === 'failed') {
+        if (status === 'failed' || status === 'dead_letter') {
           if (at && at >= since) summary.failed24h += 1;
           if (at && (!summary.lastFailureAt || at > summary.lastFailureAt)) summary.lastFailureAt = at;
         }
@@ -311,10 +442,25 @@ export async function getWebhookEndpointSecret(workspaceId: string, endpointId: 
 export async function getWebhookEndpointDeliveryConfig(workspaceId: string, endpointId: string) {
   const snap = await adminDb.doc(`workspaces/${workspaceId}/webhook_endpoints/${endpointId}`).get();
   if (!snap.exists) throw new Error('NOT_FOUND');
-  if (snap.data()?.status !== 'active') throw new Error('WEBHOOK_ENDPOINT_DISABLED');
-  const secretEncrypted = snap.data()?.secretEncrypted as string | undefined;
+  const data = snap.data() ?? {};
+  if (data.status !== 'active') throw new Error('WEBHOOK_ENDPOINT_DISABLED');
+  const secretEncrypted = data.secretEncrypted as string | undefined;
   if (!secretEncrypted) throw new Error('NOT_FOUND');
-  const url = snap.data()?.url as string | undefined;
+  const url = data.url as string | undefined;
   if (!url) throw new Error('NOT_FOUND');
-  return { url, secret: decrypt(secretEncrypted) };
+
+  // Inside the rotation grace window the previous secret still signs, so a
+  // receiver mid-rollout can verify with either. Expired or absent, it is
+  // simply not returned and only the current secret is used.
+  const previousEncrypted = data.previousSecretEncrypted as string | undefined;
+  const previousExpiresAt = data.previousSecretExpiresAt as string | undefined;
+  const previousStillValid = Boolean(
+    previousEncrypted && previousExpiresAt && Date.parse(previousExpiresAt) > Date.now(),
+  );
+
+  return {
+    url,
+    secret: decrypt(secretEncrypted),
+    previousSecret: previousStillValid ? decrypt(previousEncrypted as string) : undefined,
+  };
 }

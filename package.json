@@ -12,10 +12,18 @@
     "test:watch": "vitest",
     "validate:queries": "node scripts/validate-firestore-queries.mjs",
     "copy:check": "node scripts/check-copy.mjs",
-    "ci": "npm run lint && npm run typecheck && npm run validate:queries && npm run copy:check && npm run test",
+    "ci": "npm run lint && npm run typecheck && npm run validate:queries && npm run copy:check && npm run check:routes && npm run check:capabilities && npm run env:check && npm run openapi:check && npm run docs:check && npm run test",
     "stripe:sync-prices": "node scripts/sync-stripe-prices.mjs",
     "stripe:sync-prices:dry": "node scripts/sync-stripe-prices.mjs --dry-run",
-    "slidesmith:schedule": "node --env-file=.env.local scripts/schedule-slidesmith-handoffs.mjs --apply"
+    "slidesmith:schedule": "node --env-file=.env.local scripts/schedule-slidesmith-handoffs.mjs --apply",
+    "openapi:generate": "node --import ./scripts/lib/ts-alias-loader.mjs scripts/generate-openapi.mjs",
+    "openapi:check": "node --import ./scripts/lib/ts-alias-loader.mjs scripts/generate-openapi.mjs --check",
+    "check:routes": "node scripts/check-route-contracts.mjs",
+    "check:capabilities": "node --import ./scripts/lib/ts-alias-loader.mjs scripts/check-capability-parity.mjs",
+    "env:example": "node scripts/generate-env-example.mjs",
+    "env:check": "node scripts/generate-env-example.mjs --check",
+    "docs:api": "node --import ./scripts/lib/ts-alias-loader.mjs scripts/generate-api-docs.mjs",
+    "docs:check": "node --import ./scripts/lib/ts-alias-loader.mjs scripts/generate-api-docs.mjs --check"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",

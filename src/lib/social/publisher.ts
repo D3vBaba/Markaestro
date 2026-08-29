@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getAdapterForChannel } from '@/lib/platform/registry';
+import { sandboxPublishingAdapter } from '@/lib/platform/adapters/sandbox-publishing';
+import { finishPublishRun, startPublishRun } from '@/lib/social/publish-run-records';
 import {
   getConnectionForChannel,
   markConnectionAuthError,
@@ -20,10 +22,11 @@ import {
 import {
   isManualReminderDeliveryMode,
   isManualReminderPost,
+  MANUAL_REMINDER_DELIVERY_MODE,
   MANUAL_REMINDER_NEXT_ACTION,
 } from '@/lib/manual-publish-flow';
 import { sendManualPostReminderEmail } from '@/lib/manual-publish-emails';
-import { firstSocialPostValidationError, isVideoMediaUrl } from '@/lib/social/post-validation';
+import { isVideoMediaUrl, validateSocialPost } from '@/lib/social/post-validation';
 import { publishingContractViolation } from '@/lib/platform/capabilities';
 import { getTikTokPublishMappingRef } from '@/lib/social/tiktok-publish-mapping';
 import {
@@ -79,8 +82,15 @@ export type MultiChannelPublishResult = {
   partialFailure?: boolean;
   /** True when one or more channels are still processing asynchronously */
   pending?: boolean;
-  /** True when the post is waiting for the user to publish it manually */
+  /** True when every unfinished channel is waiting for the user to publish it manually */
   actionRequired?: boolean;
+  /**
+   * True when the post is split: at least one channel published (or is still
+   * publishing) and at least one is waiting on the user. Folding this into
+   * `actionRequired` would report a partly-live post as if nothing had gone
+   * out, so callers branch on it separately.
+   */
+  partialActionRequired?: boolean;
   /** Results for each channel that was attempted */
   channels: ChannelPublishResult[];
   /** Primary channel external ID (for backwards compat) */
@@ -161,16 +171,13 @@ export async function publishPost(
     // adapter so the server waits for TikTok to confirm SEND_TO_USER_INBOX.
   }
 
-  const adapter = getAdapterForChannel(request.channel);
-  if (!adapter) {
-    return { success: false, error: `Unsupported channel: ${request.channel}` };
-  }
-
   // The publishing half of the capability registry had no runtime contract,
   // unlike the metrics half (assertMetricsSupported), so a drifted
   // declaration cost nothing until a user hit it. Checked here rather than in
   // the composer's validator because every surface reaches this function:
-  // the app, the public API, the connect API, and the scheduler.
+  // the app, the public API, the connect API, and the scheduler. Before the
+  // registry lookup on purpose: the contract belongs to the channel, not to
+  // whichever adapter serves it, and test-mode requests must hit it too.
   const contractViolation = publishingContractViolation(request.channel, {
     hasText: Boolean(request.content?.trim()),
     imageCount: (request.mediaUrls ?? []).filter((url) => !isVideoMediaUrl(url)).length,
@@ -178,6 +185,25 @@ export async function publishPost(
   });
   if (contractViolation) {
     return { success: false, error: contractViolation };
+  }
+
+  // Test-mode posts publish through the sandbox (5.7): same request and
+  // response shapes as the real adapters, deterministic ids, no sockets, and
+  // no connection requirement, because a test key must work before any real
+  // account is connected. The branch sits AFTER the channel-contract check so
+  // an integrator's invalid payload fails in test mode exactly as it would in
+  // production, and BEFORE the registry so `getAdapterForChannel` can never
+  // hand the sandbox to a live post.
+  if (request.testMode) {
+    return sandboxPublishingAdapter.publish(
+      { provider: 'sandbox', accessTokenEncrypted: '' } as unknown as PlatformConnection,
+      request,
+    );
+  }
+
+  const adapter = getAdapterForChannel(request.channel);
+  if (!adapter) {
+    return { success: false, error: `Unsupported channel: ${request.channel}` };
   }
 
   const connection = await getConnectionForChannel(
@@ -378,6 +404,40 @@ function getEffectiveDeliveryMode(
 ): PublishRequest['deliveryMode'] {
   if (channel !== 'tiktok') return 'direct_publish';
   return isTikTokDirectPostSettings(settings) ? 'direct_publish' : 'platform_inbox';
+}
+
+/**
+ * Delivery mode for one target of a stored post.
+ *
+ * `channelDeliveryModes` is the per-target map written at create time; posts
+ * written before it existed fall back to the post-level `deliveryMode`, which
+ * is why the fallback has to stay. A manual target short-circuits in
+ * `publishPost` before any adapter runs; everything else resolves the normal
+ * way.
+ */
+export function getPostChannelDeliveryMode(
+  post: Record<string, unknown>,
+  channel: SocialChannel,
+  settings: unknown,
+): PublishRequest['deliveryMode'] {
+  const raw = post.channelDeliveryModes;
+  const perChannel = raw && typeof raw === 'object' && !Array.isArray(raw)
+    ? (raw as Record<string, unknown>)[channel]
+    : undefined;
+  const mode = typeof perChannel === 'string' && perChannel ? perChannel : post.deliveryMode;
+  if (isManualReminderDeliveryMode(mode)) return MANUAL_REMINDER_DELIVERY_MODE;
+  return getEffectiveDeliveryMode(channel, settings);
+}
+
+/** True when every target of the post resolves to a manual reminder. */
+export function isFullyManualReminderPost(
+  post: Record<string, unknown>,
+  targetChannels: SocialChannel[],
+): boolean {
+  if (targetChannels.length === 0) return isManualReminderPost(post);
+  return targetChannels.every((channel) =>
+    isManualReminderDeliveryMode(getPostChannelDeliveryMode(post, channel, post.settings)),
+  );
 }
 
 function getPhotoCoverIndex(value: unknown): number | undefined {
@@ -588,11 +648,17 @@ function aggregateChannelResults(
   const firstFailure = channelResults.find((result) => !result.success && !result.pending && !result.actionRequired);
   const anyFailure = Boolean(firstFailure);
 
+  // A post with a published channel and a manual one is neither "published"
+  // nor "waiting on the user"; it is both, and the two states have different
+  // finalizers.
+  const splitActionRequired = anyActionRequired && (anySucceeded || anyPending);
+
   return {
     success: allSucceeded,
     partialFailure: anySucceeded && anyFailure ? true : undefined,
     pending: anyPending || undefined,
-    actionRequired: anyActionRequired || undefined,
+    actionRequired: (anyActionRequired && !splitActionRequired) || undefined,
+    partialActionRequired: splitActionRequired || undefined,
     channels: channelResults,
     externalId: primaryResult?.externalId,
     externalUrl: primaryResult?.externalUrl,
@@ -775,10 +841,18 @@ export async function finalizeManualReminderPublish(
   const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);
   const nowIso = new Date().toISOString();
 
+  // A split post (some channels published, some awaiting the user) still ends
+  // here, because the user still has work to do. Its successful channels keep
+  // their platform ids so the post does not read as if nothing went out.
+  const publishedChannels = result.channels.filter((channel) => channel.success);
+
   await ref.update({
     status: PLATFORM_ACTION_REQUIRED_STATUS,
     nextAction: MANUAL_REMINDER_NEXT_ACTION,
     publishResults: result.channels,
+    publishedChannels: publishedChannels.map((channel) => channel.channel),
+    ...(result.externalId ? { externalId: result.externalId } : {}),
+    ...(result.externalUrl ? { externalUrl: result.externalUrl } : {}),
     manualReminderReadyAt: nowIso,
     errorMessage: '',
     lastErrorCode: '',
@@ -1108,6 +1182,7 @@ async function publishExplicitChannels(
   request: Omit<PublishRequest, 'channel'>,
   options: PublishStoredPostOptions = {},
   destinationsByChannel: Partial<Record<SocialChannel, string>> = {},
+  deliveryModesByChannel: Partial<Record<SocialChannel, PublishRequest['deliveryMode']>> = {},
 ): Promise<MultiChannelPublishResult> {
   const results: ChannelPublishResult[] = [];
 
@@ -1127,6 +1202,9 @@ async function publishExplicitChannels(
       // Each channel resolves its own linked account; a Page id from one
       // channel must never leak into another.
       destinationId: destinationsByChannel[channel],
+      // …and its own delivery mode, so a manual channel short-circuits without
+      // taking its automatic siblings with it.
+      deliveryMode: deliveryModesByChannel[channel] ?? request.deliveryMode,
     });
 
     const channelResult: ChannelPublishResult = {
@@ -1167,7 +1245,7 @@ export async function publishStoredPost(
   // Manual reminder posts skip the entire adapter pipeline (and the product /
   // connection requirements that only exist to serve platform API calls).
   // Callers move the post into the manual publishing queue instead.
-  if (isManualReminderPost(post)) {
+  if (isFullyManualReminderPost(post, targetChannels)) {
     const channels = targetChannels.map((channel) => ({
       channel,
       success: false,
@@ -1191,17 +1269,46 @@ export async function publishStoredPost(
     };
   }
 
-  const validationError = firstSocialPostValidationError({
+  // Per channel, not all-or-nothing (4.7). A post with 8 images targeting
+  // Facebook (limit 10) and Pinterest (limit 5) used to fail entirely on the
+  // first issue: Facebook was never attempted even though it would have
+  // accepted the post. The publisher already models per-channel outcomes
+  // (`publishResults[]`, `partial_failed`), so validation failures become
+  // failed channel results and the valid channels still publish.
+  const validationIssues = validateSocialPost({
     content: String(post.content || ''),
     channel: primaryChannel,
     targetChannels,
     mediaUrls,
   });
-  if (validationError) {
+  // Issues with no channel are whole-post problems (no target channel at
+  // all); those still fail the post outright, since there is nothing to
+  // partially publish.
+  const globalIssue = validationIssues.find((issue) => !issue.channel);
+  if (globalIssue) {
+    return { success: false, channels: [], error: globalIssue.message };
+  }
+  const issuesByChannel = new Map<SocialChannel, string>();
+  for (const issue of validationIssues) {
+    if (issue.channel && !issuesByChannel.has(issue.channel)) {
+      issuesByChannel.set(issue.channel, issue.message);
+    }
+  }
+  const invalidChannelResults: ChannelPublishResult[] = targetChannels
+    .filter((channel) => issuesByChannel.has(channel))
+    .map((channel) => ({
+      channel,
+      success: false,
+      error: issuesByChannel.get(channel)!,
+    }));
+  const validTargetChannels = targetChannels.filter((channel) => !issuesByChannel.has(channel));
+  if (validTargetChannels.length === 0) {
+    // Every channel objected. The first message keeps the old single-error
+    // contract for callers that only read `error`.
     return {
       success: false,
-      channels: [],
-      error: validationError,
+      channels: invalidChannelResults,
+      error: invalidChannelResults[0]?.error || 'Validation failed',
     };
   }
 
@@ -1212,35 +1319,43 @@ export async function publishStoredPost(
     ? settings.photoCoverIndex
     : undefined;
 
+  const deliveryModesByChannel: Partial<Record<SocialChannel, PublishRequest['deliveryMode']>> = {};
+  for (const channel of targetChannels) {
+    deliveryModesByChannel[channel] = getPostChannelDeliveryMode(post, channel, settings);
+  }
+
   const request = {
     content: String(post.content || ''),
     mediaUrls,
-    deliveryMode: getEffectiveDeliveryMode(primaryChannel, settings),
+    deliveryMode: deliveryModesByChannel[primaryChannel] ?? getEffectiveDeliveryMode(primaryChannel, settings),
     destinationProvider: getDestinationProvider(post.destinationProvider),
     destinationId: getDestinationId(post.destinationId),
     photoCoverIndex: settingsPhotoCoverIndex ?? getPhotoCoverIndex(post.slideshowCoverIndex),
     settings,
+    // Stamped at create by test-mode API keys; routes the publish to the
+    // sandbox adapter on every path, the scheduler included.
+    testMode: post.testMode === true,
   } satisfies Omit<PublishRequest, 'channel'>;
 
-  const reusableResults = getReusableSuccessfulChannelResults(post, targetChannels);
-  const remainingChannels = getRemainingTargetChannels(targetChannels, reusableResults);
+  const reusableResults = getReusableSuccessfulChannelResults(post, validTargetChannels);
+  const remainingChannels = getRemainingTargetChannels(validTargetChannels, reusableResults);
 
   if (remainingChannels.length === 0 && reusableResults.length > 0) {
-    return aggregateChannelResults(reusableResults, primaryChannel);
+    return aggregateChannelResults([...reusableResults, ...invalidChannelResults], primaryChannel);
   }
 
   const channelDestinations = getPostChannelDestinations(post);
 
   if (targetChannels.length > 1 || asStringArray(post.targetChannels)?.length) {
-    const result = await publishExplicitChannels(workspaceId, productId, primaryChannel, remainingChannels, request, options, channelDestinations);
-    return aggregateChannelResults([...reusableResults, ...result.channels], primaryChannel);
+    const result = await publishExplicitChannels(workspaceId, productId, primaryChannel, remainingChannels, request, options, channelDestinations, deliveryModesByChannel);
+    return aggregateChannelResults([...reusableResults, ...result.channels, ...invalidChannelResults], primaryChannel);
   }
 
   const result = await publishPostMultiChannel(workspaceId, productId, {
     ...request,
     channel: remainingChannels[0] ?? primaryChannel,
   }, options, channelDestinations);
-  return aggregateChannelResults([...reusableResults, ...result.channels], primaryChannel);
+  return aggregateChannelResults([...reusableResults, ...result.channels, ...invalidChannelResults], primaryChannel);
 }
 
 export async function recoverStalePublishingPosts(workspaceId: string): Promise<{ recovered: number; failed: number; errors: Array<{ postId: string; error: string }> }> {
@@ -1300,6 +1415,17 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
   };
 
   for (const claimed of claimedPosts) {
+    // Scheduled publishes leave the same job_runs trail as API and in-app
+    // ones, so run history and webhook events do not depend on the surface
+    // that started the work.
+    const runId = await startPublishRun({
+      workspaceId,
+      postId: claimed.postId,
+      source: 'scheduler',
+      channel: claimed.post.channel,
+      createdByType: claimed.post.createdByType,
+      createdById: claimed.post.createdBy,
+    });
     try {
       const targetChannels = getPostTargetChannels(claimed.post);
       const result = await publishStoredPost(workspaceId, claimed.productId, claimed.post, {
@@ -1311,11 +1437,23 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
         ),
       });
 
-      const outcome = result.actionRequired
+      const outcome = result.actionRequired || result.partialActionRequired
         ? await finalizeManualReminderPublish(workspaceId, claimed, result, { notify: true })
         : result.success || result.pending
           ? await finalizeSuccessfulPublish(workspaceId, claimed, result)
           : await finalizeFailedPublish(workspaceId, claimed, result);
+
+      await finishPublishRun(
+        workspaceId,
+        runId,
+        outcome === 'published' ? 'succeeded'
+          : outcome === 'pending' ? 'pending'
+          : outcome === 'action_required' ? 'action_required'
+          : outcome === 'partial_failed' ? 'partial_failed'
+          : outcome === 'retried' ? 'pending'
+          : 'failed',
+        result.error ?? '',
+      );
 
       summary.processed++;
       summary.results.push({ postId: claimed.postId, outcome, error: result.error });
@@ -1327,6 +1465,7 @@ export async function processScheduledPosts(workspaceId: string): Promise<Schedu
       if (outcome === 'partial_failed') summary.partialFailed++;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown publishing error';
+      await finishPublishRun(workspaceId, runId, 'failed', message);
       const classification = classifyPublishError(message);
       const nowIso = new Date().toISOString();
       const ref = adminDb.doc(`workspaces/${workspaceId}/posts/${claimed.postId}`);

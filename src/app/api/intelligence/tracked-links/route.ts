@@ -9,7 +9,19 @@ import {
   workspaceIngestSecret,
 } from '@/lib/intelligence/conversions';
 import { requireIntelligenceAccess } from '@/lib/intelligence/access';
+import { appOrigin, trackedLinkRow, type TrackedLinkRow } from '@/lib/intelligence/tracked-link-rows';
+import { executeListQueryPage } from '@/lib/firestore-list-query';
 import type { WorkspaceRole } from '@/lib/schemas';
+
+const listQuerySchema = z.object({
+  productId: z.string().max(128).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  cursor: z.string().max(2000).optional(),
+  // Retired links are hidden by default; the common view stays clean.
+  // Spelled out rather than z.coerce.boolean(), which reads the string
+  // "false" as true and would make ?includeInactive=false do the opposite.
+  includeInactive: z.enum(['0', '1', 'true', 'false']).optional(),
+});
 
 const createSchema = z.object({
   productId: z.string().min(1).max(128),
@@ -18,32 +30,6 @@ const createSchema = z.object({
   campaignId: z.string().max(128).optional(),
   socialPostId: z.string().max(128).optional(),
 });
-
-function appOrigin(req: Request): string {
-  const configured = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (configured) return configured.replace(/\/+$/, '');
-  return new URL(req.url).origin;
-}
-
-/** Counters live on the link document (see recordTrackedLinkClick): no click scan. */
-function linkRow(data: Record<string, unknown>, origin: string) {
-  const code = String(data.code || '');
-  return {
-    code,
-    label: String(data.label || ''),
-    destination: String(data.destination || ''),
-    productId: String(data.productId || ''),
-    campaignId: typeof data.campaignId === 'string' ? data.campaignId : null,
-    socialPostId: typeof data.socialPostId === 'string' ? data.socialPostId : null,
-    active: data.active !== false,
-    url: `${origin}/r/${code}`,
-    clicks: Number(data.clicks) || 0,
-    lastClickedAt: typeof data.lastClickedAt === 'string' ? data.lastClickedAt : null,
-    attributedConversions: Number(data.attributedConversions) || 0,
-    lastConversionAt: typeof data.lastConversionAt === 'string' ? data.lastConversionAt : null,
-    createdAt: typeof data.createdAt === 'string' ? data.createdAt : null,
-  };
-}
 
 /**
  * Credentials for the server-side conversion ingest snippet.
@@ -69,18 +55,31 @@ export async function GET(req: Request) {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'intelligence.read');
     await requireIntelligenceAccess(ctx, 'learning', 'intelligenceOptimization');
-    const productId = new URL(req.url).searchParams.get('productId');
-    const collection = adminDb.collection(`workspaces/${ctx.workspaceId}/trackedLinks`);
-    const snapshot = await (productId ? collection.where('productId', '==', productId) : collection).limit(200).get();
+    const query = listQuerySchema.parse(Object.fromEntries(new URL(req.url).searchParams));
+    // Was a bare .limit(200) with an in-memory sort, which made a heavy user's
+    // oldest links unreachable: invisible, and until 3.3 also undeletable.
+    const page = await executeListQueryPage<Record<string, unknown>>(
+      adminDb.collection(`workspaces/${ctx.workspaceId}/trackedLinks`),
+      {
+        filters: [
+          ...(query.productId ? [{ field: 'productId', op: '==' as const, value: query.productId }] : []),
+          ...(query.includeInactive === '1' || query.includeInactive === 'true'
+            ? []
+            : [{ field: 'active', op: '==' as const, value: true }]),
+        ],
+        orderByField: 'createdAt',
+        orderByDirection: 'desc',
+        limit: query.limit,
+        cursor: query.cursor,
+      },
+    );
     const origin = appOrigin(req);
-    const links = snapshot.docs
-      .map((doc) => linkRow(doc.data(), origin))
-      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    const links: TrackedLinkRow[] = page.items.map((item) => trackedLinkRow(item, origin));
     // Anyone installing the server-side conversion snippet is already on this
     // screen, so the credentials it needs are returned alongside the links.
     // The key id names the workspace and is not secret; the signing secret is
     // only returned to a principal that could create conversions anyway.
-    return apiOk({ links, ingest: ingestCredentials(ctx) });
+    return apiOk({ links, nextCursor: page.nextCursor, ingest: ingestCredentials(ctx) });
   } catch (error) {
     return apiError(error);
   }
@@ -111,7 +110,7 @@ export async function POST(req: Request) {
     batch.create(adminDb.doc(`trackedLinks/${code}`), data);
     batch.create(adminDb.doc(`workspaces/${ctx.workspaceId}/trackedLinks/${code}`), data);
     await batch.commit();
-    return apiCreated({ link: linkRow(data, appOrigin(req)), path: `/r/${code}` });
+    return apiCreated({ link: trackedLinkRow(data, appOrigin(req)), path: `/r/${code}` });
   } catch (error) {
     return apiError(error);
   }

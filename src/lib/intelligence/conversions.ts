@@ -129,6 +129,55 @@ function trackedLinkRefs(workspaceId: string, code: string) {
   ];
 }
 
+export type TrackedLinkUpdate = {
+  label?: string;
+  destination?: string;
+  active?: boolean;
+  deletedAt?: string | null;
+};
+
+/**
+ * A tracked link is stored twice: once at the root, where the unauthenticated
+ * redirect can read it by code alone, and once under its workspace, where the
+ * app lists it. Every mutation has to touch both or the redirect and the
+ * dashboard start telling different stories, so all of them come through here
+ * rather than repeating the batch per handler.
+ */
+export async function updateTrackedLink(
+  workspaceId: string,
+  code: string,
+  update: TrackedLinkUpdate,
+  updatedBy: string,
+): Promise<void> {
+  const now = new Date().toISOString();
+  const batch = adminDb.batch();
+  for (const ref of trackedLinkRefs(workspaceId, code)) {
+    batch.set(ref, { ...update, updatedAt: now, updatedBy }, { merge: true });
+  }
+  await batch.commit();
+}
+
+/**
+ * Retiring a link is a soft delete, always.
+ *
+ * Click and conversion records reference the code, and the attribution window
+ * runs 90 days, so a hard delete would strand attribution data that still has
+ * two and a half months of work left to do. `active: false` is the state the
+ * redirect already honours.
+ */
+export async function retireTrackedLink(
+  workspaceId: string,
+  code: string,
+  deletedBy: string,
+): Promise<void> {
+  await updateTrackedLink(
+    workspaceId,
+    code,
+    { active: false, deletedAt: new Date().toISOString() },
+    deletedBy,
+  );
+}
+
 /**
  * Counters live on the tracked-link documents themselves, so listing links
  * never scans click events: two increments per click, zero reads to display.

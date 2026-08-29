@@ -92,6 +92,13 @@ export type PublishRequest = {
    * with its own type guard from `@/lib/public-api/post-settings`.
    */
   settings?: Record<string, unknown>;
+  /**
+   * True for posts created with an `mk_test_` key. The publisher routes these
+   * to the sandbox adapter and never opens a socket to a platform; analytics
+   * exclude them. Carried on the request (from the post document) so every
+   * publish path honours it, including the scheduler.
+   */
+  testMode?: boolean;
 };
 
 export type PublishResult = {
@@ -223,9 +230,22 @@ export type ListPostsInput = {
   destinationId?: string;
 };
 
+/**
+ * A named platform restriction, for the cases where `reason: 'unsupported'`
+ * alone loses information the UI needs to explain itself. Classified by the
+ * adapter that made the call, never by matching on message text in a
+ * component: the wording belongs to the platform and changes without notice.
+ */
+export type PlatformRestriction = 'linkedin_partner_program';
+
 export type ListPostsResult =
   | { ok: true; posts: PlatformPostSummary[]; nextCursor?: string }
-  | { ok: false; error: string; reason: 'auth' | 'unsupported' | 'transient' };
+  | {
+      ok: false;
+      error: string;
+      reason: 'auth' | 'unsupported' | 'transient';
+      restriction?: PlatformRestriction;
+    };
 
 export type DeletePostInput = {
   channel: SocialChannel;

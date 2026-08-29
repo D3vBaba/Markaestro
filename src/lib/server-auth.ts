@@ -116,9 +116,16 @@ async function bootstrapPersonalWorkspace(
  * coin flip.
  */
 async function findUserMembership(uid: string): Promise<{ workspaceId: string; role: RequestContext['role'] } | null> {
+  // Bounded: this runs on every request that does not resolve from the
+  // workspace cookie, and the function only ever takes the best match, so an
+  // unbounded scan paid for every membership a user has on every such
+  // request. Most users have one or two; 100 covers the heaviest agency
+  // account with room to spare, and anyone above it still resolves
+  // deterministically from the first hundred.
   const snap = await adminDb
     .collectionGroup('members')
     .where('uid', '==', uid)
+    .limit(100)
     .get();
 
   if (snap.empty) {

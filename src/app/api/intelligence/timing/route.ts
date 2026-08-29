@@ -1,11 +1,9 @@
 import { z } from 'zod';
 import { apiError, apiOk } from '@/lib/api-response';
 import { requireContext } from '@/lib/server-auth';
+import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 import { requirePermission } from '@/lib/rbac';
-import { requireIntelligencePhase } from '@/lib/intelligence/feature-flags';
-import { requireIntelligencePreviewUser } from '@/lib/intelligence/preview-access';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-import { hasFeature } from '@/lib/stripe/entitlements';
 import { intelligencePhaseFlags, loadProductIntelligence } from '@/lib/intelligence/product-state';
 
 const querySchema = z.object({ productId: z.string().min(1).max(128) });
@@ -17,15 +15,9 @@ const querySchema = z.object({ productId: z.string().min(1).max(128) });
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
-    requireIntelligencePreviewUser(ctx);
     requirePermission(ctx, 'intelligence.read');
     const subscription = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
-    await requireIntelligencePhase({
-      phase: 'foundation',
-      workspaceId: ctx.workspaceId,
-      uid: ctx.uid,
-      entitled: hasFeature(subscription, 'audienceFit'),
-    });
+    await requireIntelligenceAccess(ctx, 'foundation', 'audienceFit', { subscription });
     const query = querySchema.parse(Object.fromEntries(new URL(req.url).searchParams));
     const [phases, loaded] = await Promise.all([
       intelligencePhaseFlags(ctx),

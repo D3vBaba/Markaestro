@@ -181,6 +181,66 @@ describe('publishStoredPost', () => {
     expect(publishByChannel.threads).toHaveBeenCalledTimes(1);
   });
 
+  it('publishes the channels that validate and fails only the ones that do not (4.7)', async () => {
+    // 8 images targeting Facebook (limit 10) and Pinterest (limit 5) used to
+    // fail entirely on the first issue: Facebook was never attempted even
+    // though it would have accepted the post. Now Facebook publishes and
+    // Pinterest lands as a per-channel failure with a precise reason.
+    const publishByChannel = {
+      facebook: vi.fn().mockResolvedValue({
+        success: true,
+        externalId: 'fb_1',
+        externalUrl: 'https://facebook.example/fb_1',
+      }),
+      pinterest: vi.fn(),
+    };
+    getAdapterForChannelMock.mockImplementation((channel: keyof typeof publishByChannel) => ({
+      publish: publishByChannel[channel],
+      validateConnection: () => null,
+    }));
+    getConnectionForChannelMock.mockResolvedValue({ status: 'connected' });
+
+    const { publishStoredPost } = await import('../social/publisher');
+
+    const result = await publishStoredPost('ws_123', 'prod_123', {
+      content: 'Gallery',
+      channel: 'facebook',
+      targetChannels: ['facebook', 'pinterest'],
+      mediaUrls: Array.from({ length: 8 }, (_, i) => `https://example.com/${i}.jpg`),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.partialFailure).toBe(true);
+    expect(publishByChannel.facebook).toHaveBeenCalledTimes(1);
+    // Pinterest never reaches its adapter: validation failed it up front.
+    expect(publishByChannel.pinterest).not.toHaveBeenCalled();
+    const pinterest = result.channels.find((entry) => entry.channel === 'pinterest');
+    expect(pinterest?.success).toBe(false);
+    expect(pinterest?.error).toMatch(/up to 5 media items/);
+    const facebook = result.channels.find((entry) => entry.channel === 'facebook');
+    expect(facebook?.success).toBe(true);
+  });
+
+  it('still fails the whole post when every channel objects', async () => {
+    getAdapterForChannelMock.mockReturnValue({ publish: vi.fn(), validateConnection: () => null });
+
+    const { publishStoredPost } = await import('../social/publisher');
+
+    const result = await publishStoredPost('ws_123', 'prod_123', {
+      content: '',
+      channel: 'instagram',
+      targetChannels: ['instagram', 'pinterest'],
+      mediaUrls: [],
+    });
+
+    expect(result.success).toBe(false);
+    // The single-error contract survives for callers that only read `error`.
+    expect(result.error).toMatch(/requires at least one image or video/);
+    expect(result.channels.map((entry) => entry.channel).sort()).toEqual(['instagram', 'pinterest']);
+    expect(result.channels.every((entry) => !entry.success)).toBe(true);
+    expect(getConnectionForChannelMock).not.toHaveBeenCalled();
+  });
+
   it('reports a TikTok pending publish id before later channels finish', async () => {
     const onChannelResult = vi.fn().mockResolvedValue(undefined);
     const publishByChannel = {

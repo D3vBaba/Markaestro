@@ -169,6 +169,25 @@ export default function DevelopersApiPage() {
             </p>
           </div>
 
+          <div
+            className="mt-4 rounded-xl border p-5"
+            style={{ borderColor: "var(--mk-rule)" }}
+          >
+            <p className="text-sm font-semibold">{t("specCallout.title")}</p>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              {t("specCallout.body")}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {/* The spec is served by an API route, outside the [locale]
+                  segment, so a plain <a> is intentional. */}
+              <a href="/api/public/v1/openapi.json">
+                <Button variant="outline" className="rounded-lg h-9 text-[13px]">
+                  {t("specCallout.button")}
+                </Button>
+              </a>
+            </div>
+          </div>
+
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/developers/agents">
               <Button className="rounded-lg h-9 text-[13px]">{t("hero.agentGuideButton")}</Button>

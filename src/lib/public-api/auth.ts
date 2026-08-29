@@ -3,8 +3,9 @@ import { safeCompare } from '@/lib/crypto';
 import { RATE_LIMITS, checkRateLimits, type RateLimitConfig, type RateLimitResult } from '@/lib/rate-limit';
 import { PLANS } from '@/lib/stripe/plans';
 import { effectiveTier, getEffectiveSubscription, isActiveSubscription } from '@/lib/stripe/subscription';
-import { parseApiKey, hashSecret } from './keys';
+import { parseApiKey, hashSecret, type ApiKeyMode } from './keys';
 import type { PublicApiScope } from './scopes';
+import { API_VERSION_RESPONSE_HEADER, resolveApiVersion, type ApiVersion } from './version';
 import { annotateRequestContext, enterRequestContext } from '@/lib/request-context';
 import { incrementApiClientStat } from './usage';
 
@@ -18,6 +19,30 @@ export type PublicApiContext = {
   // it and requests for any other product are rejected. Unbound keys are
   // refused at authentication, so this is always set.
   productId: string;
+  /**
+   * `test` keys route publishing to the sandbox adapter and tag everything
+   * they create, so nothing reaches a platform and nothing lands in analytics.
+   * Keys minted before test mode existed carry no `mode` field and are `live`,
+   * which is the safe direction for that default to fall.
+   */
+  mode: ApiKeyMode;
+  /**
+   * The dated version this request runs under: the `Markaestro-Version`
+   * header if the caller sent one, otherwise the version current when the key
+   * was created. See `version.ts` for why the key's creation date is the
+   * default rather than the newest version.
+   */
+  apiVersion: ApiVersion;
+  /**
+   * Headers every response on this surface carries: the rate-limit budget and
+   * the dated version the request actually ran under.
+   *
+   * Named for the rate-limit headers it originally held, and kept under that
+   * name because every route on both surfaces already spreads it. Adding the
+   * version header here rather than at each route is what guarantees no
+   * response can answer without saying which version produced it, which is
+   * the part of the versioning policy a client can actually check.
+   */
   rateLimitHeaders: Record<string, string>;
 };
 
@@ -33,6 +58,8 @@ type ApiClientAuthData = {
   secretHash?: string;
   expiresAt?: string | null;
   productId?: string | null;
+  createdAt?: string | null;
+  mode?: string | null;
 };
 
 const AUTH_CACHE_TTL_MS = Math.max(0, Number(process.env.PUBLIC_API_AUTH_CACHE_TTL_MS || 15_000));
@@ -178,6 +205,16 @@ export async function requirePublicApiContext(
     throw new Error('UNAUTHENTICATED');
   }
 
+  // The prefix declares the mode and the stored document records it. They can
+  // only disagree if someone re-prefixed a token, so treat a mismatch as an
+  // invalid credential rather than honouring either half: silently accepting
+  // `mk_test_` on a live key would be a downgrade nobody asked for, and
+  // accepting `mk_live_` on a test key would publish for real.
+  const storedMode: ApiKeyMode = data.mode === 'test' ? 'test' : 'live';
+  if (storedMode !== parsed.mode) {
+    throw new Error('UNAUTHENTICATED');
+  }
+
   // Expired keys behave exactly like revoked ones (legacy docs without
   // expiresAt never expire). An unparseable expiresAt fails closed.
   if (data.expiresAt) {
@@ -242,7 +279,13 @@ export async function requirePublicApiContext(
   ]);
 
   const effective = !globalResult.allowed ? globalResult : pathResult;
-  const rateLimitHeaders = headersFromResult(effective);
+  // Resolved before the rate-limit rejection below so even a 429 names the
+  // version it was decided under.
+  const apiVersion = resolveApiVersion(req.headers, data.createdAt);
+  const rateLimitHeaders: Record<string, string> = {
+    ...headersFromResult(effective),
+    [API_VERSION_RESPONSE_HEADER]: apiVersion,
+  };
 
   if (!effective.allowed) {
     const retryAfter = Math.max(1, Math.ceil((effective.resetAt - Date.now()) / 1000));
@@ -267,6 +310,8 @@ export async function requirePublicApiContext(
     ownerUid: data.ownerUid,
     scopes,
     productId,
+    mode: storedMode,
+    apiVersion,
     rateLimitHeaders,
   };
 }

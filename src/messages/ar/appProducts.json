@@ -255,7 +255,12 @@
         "linkDestinationsFailed": "فشل ربط {destination}",
         "accountUnlinked": "تم إلغاء ربط {account}",
         "unlinkFailed": "فشل إلغاء ربط {account}"
-      }
+      },
+      "testConnection": "اختبار الاتصال",
+      "testing": "جارٍ الاختبار…",
+      "testOk": "متصل باسم {label}",
+      "testOkPlain": "الاتصال يعمل",
+      "testFailed": "فشل اختبار الاتصال"
     }
   }
 }

@@ -105,5 +105,8 @@
     "degraded": "De verbinding voor {channels} verloopt binnenkort. Verbind opnieuw om te blijven publiceren.",
     "genericReason": "Verbind opnieuw om te blijven publiceren.",
     "reconnect": "Opnieuw verbinden"
+  },
+  "offlineBanner": {
+    "message": "Je lijkt offline te zijn. Wijzigingen kunnen pas worden opgeslagen zodra de verbinding terug is."
   }
 }

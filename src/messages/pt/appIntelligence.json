@@ -49,7 +49,8 @@
       "accepted": "Aceita",
       "pinned": "Fixada",
       "dismissed": "Descartada"
-    }
+    },
+    "refreshFailed": "Não foi possível atualizar a análise. Os números exibidos são os últimos calculados."
   },
   "decisions": {
     "hint": "Estes botões só registram a sua decisão. Eles nunca publicam, agendam ou alteram rascunhos.",
@@ -494,7 +495,17 @@
     "clicks": "{count} cliques",
     "conversions": "{count} conversões atribuídas",
     "lastClick": "Último clique {when}",
-    "noClicks": "Nenhum clique ainda"
+    "noClicks": "Nenhum clique ainda",
+    "retire": "Retirar",
+    "retiring": "Retirando…",
+    "retired": "Link retirado",
+    "retireFailed": "Não foi possível retirar o link",
+    "reactivate": "Reativar",
+    "reactivated": "Link reativado",
+    "inactive": "Retirado",
+    "showRetired": "Mostrar links retirados",
+    "hideRetired": "Ocultar links retirados",
+    "confirmRetire": "Retirar este link? Quem o seguir verá uma página informando que ele não está mais em serviço. Os cliques já contados são mantidos."
   },
   "campaigns": {
     "title": "Campanhas",

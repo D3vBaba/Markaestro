@@ -30,6 +30,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       status?: 'active' | 'revoked';
       createdAt?: string;
       expiresAt?: string | null;
+      mode?: string | null;
     };
     if (current.status !== 'active') {
       return apiOk(
@@ -41,13 +42,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // Reuse the existing clientId: the token format embeds it, so the new
     // key parses identically — only the secret (and its hash) changes,
     // which kills the old secret immediately.
-    const apiKey = buildApiKey(ctx.workspaceId, id);
+    // Rotation must not change the mode: a test key that came back live would
+    // start publishing to real accounts on the next call, which is the one
+    // surprise this feature exists to prevent.
+    const mode = current.mode === 'test' ? 'test' : 'live';
+    const apiKey = buildApiKey(ctx.workspaceId, id, mode);
     const rotatedAt = new Date().toISOString();
 
     await ref.set({
       keyPrefix: apiKey.keyPrefix,
       secretHash: apiKey.secretHash,
       rotatedAt,
+      mode,
       // The rotator is the new effective issuer of the credential.
       ownerUid: ctx.uid,
       createdEmailVerified: true,
@@ -63,6 +69,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         createdAt: current.createdAt || rotatedAt,
         expiresAt: current.expiresAt ?? null,
         rotatedAt,
+        mode,
       },
       apiKey: apiKey.token,
     });

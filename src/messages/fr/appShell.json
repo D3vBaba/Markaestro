@@ -105,5 +105,8 @@
     "degraded": "La connexion de {channels} expirera bientôt. Reconnectez-la pour continuer à publier.",
     "genericReason": "Reconnectez-le pour continuer à publier.",
     "reconnect": "Reconnecter"
+  },
+  "offlineBanner": {
+    "message": "Vous semblez être hors ligne. Les modifications ne pourront être enregistrées qu'au retour de la connexion."
   }
 }

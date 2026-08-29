@@ -1315,6 +1315,8 @@ function ChannelsSection({
           provider="meta"
           label={providerLabels.meta}
           connected={!!metaHasPage}
+          testChannel="facebook"
+          testProductId={productId}
           warn={!!metaConnected && !metaHasPage}
           warnLabel={t("pickAPage")}
           detail={
@@ -1376,6 +1378,8 @@ function ChannelsSection({
           provider="instagram"
           label={providerLabels.instagram}
           connected={instagramConnected}
+          testChannel="instagram"
+          testProductId={productId}
           warn={!!instagram?.lastRefreshError}
           warnLabel={t("reconnectBadge")}
           detail={
@@ -1412,6 +1416,8 @@ function ChannelsSection({
           provider="tiktok"
           label={providerLabels.tiktok}
           connected={tiktok?.status === "connected"}
+          testChannel="tiktok"
+          testProductId={productId}
           warn={!!tiktok?.lastRefreshError}
           warnLabel={t("reconnectBadge")}
           detail={
@@ -1582,6 +1588,8 @@ function LinkedInConnectCard({
       provider="linkedin"
       label={providerLabels.linkedin}
       connected={connected && !needsTarget && !needsReconnect}
+      testChannel="linkedin"
+      testProductId={productId}
       warn={needsReconnect || needsTarget}
       warnLabel={needsReconnect ? t("reconnectBadge") : t("selectTarget")}
       detail={
@@ -1764,6 +1772,8 @@ function SimpleConnectCard({
       provider={provider}
       label={label}
       connected={!!connected}
+      testChannel={provider}
+      testProductId={productId}
       warn={needsReconnect || (warnWhen ? warnWhen(integration) : false)}
       warnLabel={needsReconnect ? t("reconnectBadge") : warnLabel || t("warning")}
       detail={detail ? detail(integration) : undefined}
@@ -1996,6 +2006,49 @@ function DestinationPicker({
   );
 }
 
+/**
+ * "Test connection" on a channel row (3.9). Calls the unified
+ * `/api/integrations/[channel]/test`, which runs the adapter's own
+ * `testConnection()` against every linked account and, on failure, writes the
+ * same status annotation a failed publish does, so testing also repairs what
+ * the rest of the UI reports. The success toast names the platform's own
+ * account label: the question is never just "is something connected" but
+ * "WHICH account is connected".
+ */
+function TestConnectionButton({ channel, productId }: { channel: string; productId?: string | null }) {
+  const t = useTranslations("products.detailSheet.channels");
+  const [testing, setTesting] = useState(false);
+
+  if (!productId) return null;
+
+  async function run() {
+    setTesting(true);
+    try {
+      const res = await apiPost<{ ok: boolean; label?: string; error?: string }>(
+        `/api/integrations/${channel}/test`,
+        { productId },
+      );
+      if (res.ok && res.data.ok) {
+        toast.success(res.data.label ? t("testOk", { label: res.data.label }) : t("testOkPlain"));
+      } else {
+        // Never the raw error field: adapter test failures can carry provider
+        // text. `userFacingError` renders only application-authored copy.
+        toast.error(userFacingError(res.data, t("testFailed")));
+      }
+    } catch {
+      toast.error(t("testFailed"));
+    } finally {
+      setTesting(false);
+    }
+  }
+
+  return (
+    <Button variant="outline" size="sm" onClick={run} disabled={testing}>
+      {testing ? t("testing") : t("testConnection")}
+    </Button>
+  );
+}
+
 function ChannelCard({
   provider,
   label,
@@ -2004,6 +2057,8 @@ function ChannelCard({
   warnLabel,
   detail,
   children,
+  testChannel,
+  testProductId,
 }: {
   provider?: string;
   label: string;
@@ -2012,6 +2067,9 @@ function ChannelCard({
   warnLabel?: string;
   detail?: string;
   children: React.ReactNode;
+  /** Social channel to test when connected; renders the test button. */
+  testChannel?: string;
+  testProductId?: string | null;
 }) {
   const t = useTranslations("products.detailSheet.channels");
   const brand = provider ? CHANNEL_BRAND[provider] : undefined;
@@ -2046,7 +2104,12 @@ function ChannelCard({
           {detail && <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">{detail}</p>}
         </div>
       </div>
-      <div className="mt-2.5 flex flex-wrap items-center gap-2 ps-0 sm:ps-12">{children}</div>
+      <div className="mt-2.5 flex flex-wrap items-center gap-2 ps-0 sm:ps-12">
+        {connected && testChannel && (
+          <TestConnectionButton channel={testChannel} productId={testProductId} />
+        )}
+        {children}
+      </div>
     </div>
   );
 }

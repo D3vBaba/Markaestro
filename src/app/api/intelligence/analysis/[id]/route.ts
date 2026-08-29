@@ -2,15 +2,18 @@ import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
-import { requireIntelligencePreviewUser } from '@/lib/intelligence/preview-access';
+import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 
 export const runtime = 'nodejs';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
-    requireIntelligencePreviewUser(ctx);
     requirePermission(ctx, 'intelligence.read');
+    // Was preview-gated but not phase-gated, unlike every other read in this
+    // subsystem: a preview user without the foundation phase could poll a job
+    // they could not have started.
+    await requireIntelligenceAccess(ctx, 'foundation', 'audienceFit');
     const { id } = await params;
     const job = await adminDb.doc(`workspaces/${ctx.workspaceId}/intelligenceJobs/${id}`).get();
     if (!job.exists) throw new Error('NOT_FOUND');

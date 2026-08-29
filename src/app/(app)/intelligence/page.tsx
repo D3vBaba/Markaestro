@@ -13,6 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { apiGet } from "@/lib/api-client";
+import { toast } from "sonner";
+import { userFacingError } from "@/lib/user-facing-errors";
 import { KpiCard } from "@/components/analytics/KpiCard";
 import { cn } from "@/lib/utils";
 import { useIntelligencePreviewAccess } from "@/hooks/useIntelligencePreviewAccess";
@@ -72,7 +74,15 @@ export default function IntelligencePage() {
   async function recompute() {
     setRecomputing(true);
     try {
-      await apiGet(`${path}${path.includes("?") ? "&" : "?"}fresh=1`);
+      // Checked rather than awaited-and-forgotten: when the recompute fails,
+      // invalidating and re-reading shows the same cached figures back with a
+      // finished spinner, which reads as a successful refresh that changed
+      // nothing.
+      const res = await apiGet(`${path}${path.includes("?") ? "&" : "?"}fresh=1`);
+      if (!res.ok) {
+        toast.error(userFacingError(res.data, t("actions.refreshFailed")));
+        return;
+      }
       invalidateQueries("/api/intelligence/overview");
       invalidateQueries("/api/intelligence/timing");
       await refresh();

@@ -255,7 +255,12 @@
         "linkDestinationsFailed": "Impossibile collegare le {destination}",
         "accountUnlinked": "{account} scollegato",
         "unlinkFailed": "Impossibile scollegare {account}"
-      }
+      },
+      "testConnection": "Prova la connessione",
+      "testing": "Test in corso…",
+      "testOk": "Connesso come {label}",
+      "testOkPlain": "La connessione funziona",
+      "testFailed": "Test di connessione non riuscito"
     }
   }
 }

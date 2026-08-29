@@ -15,6 +15,12 @@ export async function getSocialPostPreflightIssues(
   options: {
     requireReadyChannels?: boolean;
     channelDestinations?: Partial<Record<SocialChannel, string>>;
+    /**
+     * Channels the post will never send to a platform API (manual reminders).
+     * They still get content validation, but demanding a ready connection for
+     * a channel nothing will ever call would block posts that are fine.
+     */
+    manualChannels?: readonly SocialChannel[];
   } = {},
 ): Promise<SocialPostValidationIssue[]> {
   const issues = validateSocialPost(input);
@@ -23,7 +29,8 @@ export async function getSocialPostPreflightIssues(
     return issues;
   }
 
-  const channels = normalizeTargetChannels(input);
+  const manual = new Set<string>(options.manualChannels ?? []);
+  const channels = normalizeTargetChannels(input).filter((channel) => !manual.has(channel));
   if (channels.length === 0) return issues;
 
   const unavailable = await getUnavailableSocialChannels(

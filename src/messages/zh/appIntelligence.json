@@ -49,7 +49,8 @@
       "accepted": "已接受",
       "pinned": "已固定",
       "dismissed": "已忽略"
-    }
+    },
+    "refreshFailed": "无法刷新分析。显示的是上次计算的数据。"
   },
   "decisions": {
     "hint": "这些按钮仅记录你的决定，绝不会发布、排期或修改草稿。",
@@ -494,7 +495,17 @@
     "clicks": "{count} 次点击",
     "conversions": "{count} 次归因转化",
     "lastClick": "最近点击 {when}",
-    "noClicks": "暂无点击"
+    "noClicks": "暂无点击",
+    "retire": "停用",
+    "retiring": "正在停用…",
+    "retired": "链接已停用",
+    "retireFailed": "无法停用该链接",
+    "reactivate": "重新启用",
+    "reactivated": "链接已重新启用",
+    "inactive": "已停用",
+    "showRetired": "显示已停用的链接",
+    "hideRetired": "隐藏已停用的链接",
+    "confirmRetire": "停用此链接？访问的人会看到一个说明该链接已不再使用的页面。已统计的点击会保留。"
   },
   "campaigns": {
     "title": "活动",

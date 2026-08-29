@@ -74,6 +74,9 @@ export type TrackedLink = {
   label: string;
   destination: string;
   url: string;
+  /** False once retired. The redirect answers 410 for a retired code. */
+  active: boolean;
+  deletedAt: string | null;
   clicks: number;
   lastClickedAt: string | null;
   attributedConversions: number;

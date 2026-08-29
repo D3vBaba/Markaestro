@@ -11,8 +11,31 @@ const WEBHOOK_DELIVERY_CONCURRENCY = 5;
 const WEBHOOK_TIMEOUT_MS = 10_000;
 const WEBHOOK_LEASE_MS = 60_000;
 const WEBHOOK_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
-const MAX_WEBHOOK_ATTEMPTS = 5;
-const WEBHOOK_RETRY_DELAYS_MS = [60_000, 5 * 60_000, 15 * 60_000, 60 * 60_000];
+// Six attempts spread over roughly a day: 1m, 5m, 25m, 2h, 6h, 24h. The old
+// table (1m, 5m, 15m, 60m, five attempts) covered a one-hour outage; a
+// customer whose receiver was down overnight lost every event permanently.
+const MAX_WEBHOOK_ATTEMPTS = 6;
+const WEBHOOK_RETRY_DELAYS_MS = [
+  60_000,
+  5 * 60_000,
+  25 * 60_000,
+  2 * 60 * 60_000,
+  6 * 60 * 60_000,
+  24 * 60 * 60_000,
+];
+// Exhausted deliveries keep a replayable dead-letter window before the normal
+// retention TTL removes them: long enough to notice an outage after a weekend,
+// short enough that a replay cannot resurrect ancient events.
+export const WEBHOOK_DEAD_LETTER_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+/**
+ * Endpoint circuit breaker: after this many consecutive failed attempts the
+ * endpoint is marked degraded and its queued deliveries back off to one slow
+ * probe instead of each retrying on its own clock. Protects our worker as
+ * much as their server: the 25-per-tick budget was otherwise entirely
+ * consumed by a dead endpoint.
+ */
+export const WEBHOOK_BREAKER_THRESHOLD = 10;
+const WEBHOOK_BREAKER_PROBE_DELAY_MS = 15 * 60_000;
 const LEGACY_WEBHOOK_DISCOVERY_UNTIL_MS = Date.parse('2026-08-25T00:00:00.000Z');
 
 function signPayload(secret: string, timestamp: string, body: string) {
@@ -21,7 +44,64 @@ function signPayload(secret: string, timestamp: string, body: string) {
 
 function computeNextAttempt(attemptCount: number) {
   const idx = Math.min(Math.max(attemptCount - 1, 0), WEBHOOK_RETRY_DELAYS_MS.length - 1);
-  return new Date(Date.now() + WEBHOOK_RETRY_DELAYS_MS[idx]).toISOString();
+  // Jittered over a 50% band so an endpoint that went down under load does
+  // not get every queued delivery back at the same instant when it recovers,
+  // which is how it goes down a second time.
+  const jittered = WEBHOOK_RETRY_DELAYS_MS[idx] * (0.75 + Math.random() * 0.5);
+  return new Date(Date.now() + Math.round(jittered)).toISOString();
+}
+
+/**
+ * Track endpoint-level failure so 500 consecutive failures stop looking like
+ * 500 independent ones. Returns true when the endpoint has just tripped or
+ * remains tripped. Best-effort: breaker bookkeeping must never fail a
+ * delivery write.
+ */
+async function recordEndpointOutcome(
+  workspaceId: string,
+  endpointId: string,
+  outcome: 'success' | 'failure',
+): Promise<void> {
+  const ref = adminDb.doc(`workspaces/${workspaceId}/webhook_endpoints/${endpointId}`);
+  try {
+    if (outcome === 'success') {
+      // First success restores the endpoint fully.
+      await ref.set({
+        consecutiveFailures: 0,
+        degradedUntil: FieldValue.delete(),
+        lastDeliveredAt: new Date().toISOString(),
+      }, { merge: true });
+      return;
+    }
+    await adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) return;
+      const failures = (Number(snap.data()?.consecutiveFailures) || 0) + 1;
+      tx.set(ref, {
+        consecutiveFailures: failures,
+        ...(failures >= WEBHOOK_BREAKER_THRESHOLD
+          ? { degradedUntil: new Date(Date.now() + WEBHOOK_BREAKER_PROBE_DELAY_MS).toISOString() }
+          : {}),
+      }, { merge: true });
+    });
+  } catch (error) {
+    logger.warn('webhook endpoint breaker bookkeeping failed', {
+      event: 'webhook.breaker_update_failed',
+      workspaceId,
+      endpointId,
+      err: error,
+    });
+  }
+}
+
+async function endpointDegradedUntil(workspaceId: string, endpointId: string): Promise<string | null> {
+  try {
+    const snap = await adminDb.doc(`workspaces/${workspaceId}/webhook_endpoints/${endpointId}`).get();
+    const value = snap.data()?.degradedUntil;
+    return typeof value === 'string' && value > new Date().toISOString() ? value : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function processPendingWebhookDeliveries(workspaceId: string) {
@@ -108,6 +188,22 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
     });
     if (!claimed?.endpointId || !claimed.payload) return;
 
+    // A tripped breaker defers the whole queue to one slow probe: the first
+    // delivery past `degradedUntil` becomes the probe, and its success resets
+    // the breaker for the rest. Deferral burns no attempt, so a long outage
+    // does not exhaust the retry budget by itself.
+    const degradedUntil = await endpointDegradedUntil(workspaceId, claimed.endpointId);
+    if (degradedUntil) {
+      await doc.ref.set({
+        nextAttemptAt: degradedUntil,
+        deliveryLeaseId: FieldValue.delete(),
+        deliveryLeaseExpiresAt: FieldValue.delete(),
+      }, { merge: true });
+      await markWorkspaceDue(workspaceId, degradedUntil, 'webhook_delivery').catch(() => undefined);
+      results.push({ deliveryId: doc.id, status: 'deferred' });
+      return;
+    }
+
     let config: Awaited<ReturnType<typeof getWebhookEndpointDeliveryConfig>>;
     try {
       config = await endpointConfig(claimed.endpointId);
@@ -128,6 +224,13 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
     const body = JSON.stringify(claimed.payload);
     const timestamp = new Date().toISOString();
     const signature = signPayload(config.secret, timestamp, body);
+    // During a rotation grace window both secrets sign the same payload, so a
+    // receiver that has not yet redeployed keeps verifying. Sent as a separate
+    // header rather than appended to the primary one, so a receiver that only
+    // reads `X-Markaestro-Signature` is unaffected by the extra value.
+    const previousSignature = config.previousSecret
+      ? signPayload(config.previousSecret, timestamp, body)
+      : undefined;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
 
@@ -146,6 +249,9 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
           'X-Markaestro-Event': String(claimed.payload.type || ''),
           'X-Markaestro-Timestamp': timestamp,
           'X-Markaestro-Signature': signature,
+          ...(previousSignature
+            ? { 'X-Markaestro-Signature-Previous': previousSignature }
+            : {}),
         },
         body,
         // Following a redirect would let a public URL bounce the request into
@@ -165,22 +271,28 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
           deliveryLeaseId: FieldValue.delete(),
           deliveryLeaseExpiresAt: FieldValue.delete(),
         }, { merge: true });
+        await recordEndpointOutcome(workspaceId, claimed.endpointId, 'success');
         results.push({ deliveryId: doc.id, status: 'delivered' });
         return;
       }
 
       if (attemptCount >= MAX_WEBHOOK_ATTEMPTS) {
+        // Dead-lettered, not just failed: the payload stays replayable for a
+        // week via POST .../replay, because a customer whose endpoint was down
+        // for two hours used to lose those events permanently.
         await doc.ref.set({
-          status: 'failed',
+          status: 'dead_letter',
           responseCode: response.status,
           attemptCount,
           lastAttemptAt: nowIso,
           lastError: `Webhook responded ${response.status}`,
-          expiresAt: new Date(Date.now() + WEBHOOK_RETENTION_MS),
+          deadLetteredAt: nowIso,
+          expiresAt: new Date(Date.now() + WEBHOOK_RETENTION_MS + WEBHOOK_DEAD_LETTER_RETENTION_MS),
           deliveryLeaseId: FieldValue.delete(),
           deliveryLeaseExpiresAt: FieldValue.delete(),
         }, { merge: true });
-        results.push({ deliveryId: doc.id, status: 'failed' });
+        await recordEndpointOutcome(workspaceId, claimed.endpointId, 'failure');
+        results.push({ deliveryId: doc.id, status: 'dead_letter' });
         return;
       }
 
@@ -203,20 +315,23 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
           err: error,
         });
       });
+      await recordEndpointOutcome(workspaceId, claimed.endpointId, 'failure');
       results.push({ deliveryId: doc.id, status: 'retrying' });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Webhook delivery failed';
       if (attemptCount >= MAX_WEBHOOK_ATTEMPTS) {
         await doc.ref.set({
-          status: 'failed',
+          status: 'dead_letter',
           attemptCount,
           lastAttemptAt: nowIso,
           lastError: message,
-          expiresAt: new Date(Date.now() + WEBHOOK_RETENTION_MS),
+          deadLetteredAt: nowIso,
+          expiresAt: new Date(Date.now() + WEBHOOK_RETENTION_MS + WEBHOOK_DEAD_LETTER_RETENTION_MS),
           deliveryLeaseId: FieldValue.delete(),
           deliveryLeaseExpiresAt: FieldValue.delete(),
         }, { merge: true });
-        results.push({ deliveryId: doc.id, status: 'failed' });
+        await recordEndpointOutcome(workspaceId, claimed.endpointId, 'failure');
+        results.push({ deliveryId: doc.id, status: 'dead_letter' });
         return;
       }
 
@@ -238,6 +353,7 @@ export async function processPendingWebhookDeliveries(workspaceId: string) {
           err: markError,
         });
       });
+      await recordEndpointOutcome(workspaceId, claimed.endpointId, 'failure');
       results.push({ deliveryId: doc.id, status: 'retrying' });
     } finally {
       clearTimeout(timeout);

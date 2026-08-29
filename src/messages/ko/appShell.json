@@ -105,5 +105,8 @@
     "degraded": "{channels}의 연결이 곧 만료됩니다. 계속 게시하려면 다시 연결하세요.",
     "genericReason": "계속 게시하려면 다시 연결하세요.",
     "reconnect": "다시 연결"
+  },
+  "offlineBanner": {
+    "message": "오프라인 상태인 것 같습니다. 연결이 복구될 때까지 변경 사항을 저장할 수 없습니다."
   }
 }

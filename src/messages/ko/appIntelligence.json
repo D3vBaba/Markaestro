@@ -49,7 +49,8 @@
       "accepted": "수락됨",
       "pinned": "고정됨",
       "dismissed": "무시됨"
-    }
+    },
+    "refreshFailed": "분석을 새로 고치지 못했습니다. 표시된 수치는 마지막으로 계산한 값입니다."
   },
   "decisions": {
     "hint": "이 버튼은 결정만 기록합니다. 게시, 예약, 초안 변경은 절대 하지 않습니다.",
@@ -494,7 +495,17 @@
     "clicks": "클릭 {count}회",
     "conversions": "귀속 전환 {count}건",
     "lastClick": "마지막 클릭 {when}",
-    "noClicks": "아직 클릭이 없습니다"
+    "noClicks": "아직 클릭이 없습니다",
+    "retire": "중지",
+    "retiring": "중지하는 중…",
+    "retired": "링크를 중지했습니다",
+    "retireFailed": "링크를 중지하지 못했습니다",
+    "reactivate": "다시 사용",
+    "reactivated": "링크를 다시 사용합니다",
+    "inactive": "중지됨",
+    "showRetired": "중지된 링크 보기",
+    "hideRetired": "중지된 링크 숨기기",
+    "confirmRetire": "이 링크를 중지할까요? 링크를 여는 사람에게는 더 이상 사용하지 않는다는 안내 페이지가 표시됩니다. 이미 집계된 클릭은 그대로 유지됩니다."
   },
   "campaigns": {
     "title": "캠페인",

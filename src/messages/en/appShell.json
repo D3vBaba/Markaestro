@@ -105,5 +105,8 @@
     "degraded": "The connection for {channels} will expire soon. Reconnect it to keep publishing.",
     "genericReason": "Reconnect it to keep publishing.",
     "reconnect": "Reconnect"
+  },
+  "offlineBanner": {
+    "message": "You appear to be offline. Changes cannot be saved until the connection returns."
   }
 }

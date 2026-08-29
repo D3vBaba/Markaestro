@@ -92,6 +92,22 @@ export type DailyAggregateDoc = {
   channels: Partial<Record<SocialChannel, ChannelDayAggregate>>;
   posts: number;
   updatedAt: string;
+  /**
+   * The same rollup, one dimension deeper: per brand, per channel (5.10).
+   * The per-brand view is the one an agency uses most, and without this it
+   * was the slow path, derived from post rows on every request while the
+   * workspace-wide view read precomputed docs. At Firestore's 1 MiB document
+   * ceiling this holds hundreds of brands; a workspace approaching that
+   * should move to a sibling per-product collection, which the shape below
+   * makes a mechanical change.
+   *
+   * Absent on docs written before the field existed; the query layer falls
+   * back to post rows for exactly those days.
+   */
+  byProduct?: Record<string, {
+    posts: number;
+    channels: Partial<Record<SocialChannel, ChannelDayAggregate>>;
+  }>;
 };
 
 /** workspaces/{ws}/analytics/meta — cursor/marker state for the analytics worker. */

@@ -14,6 +14,7 @@ import Pagination from "@/components/app/Pagination";
 import { getPublishUiOutcome } from "@/lib/social/publish-ui-outcome";
 import { sortPostsByNewestDate } from "@/lib/post-ordering";
 import { userFacingError } from "@/lib/user-facing-errors";
+import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 
 const POSTS_PER_PAGE = 6;
 const POSTS_FETCH_LIMIT = 60;
@@ -53,6 +54,12 @@ export default function ScheduledTab({
   const [publishingIds, setPublishingIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
+  // Multi-select is opt-in rather than always-on: the common case is acting on
+  // one post, and a permanent row of checkboxes makes that case noisier.
+  const [selecting, setSelecting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkPending, setBulkPending] = useState(false);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
 
   // A different brand means a different result set — start from page 1.
   // Adjusted during render rather than in an effect so the new brand's first
@@ -257,6 +264,58 @@ export default function ScheduledTab({
     }
   };
 
+  const toggleSelected = (id: string) => {
+    setSelectedIds((cur) => {
+      const next = new Set(cur);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const exitSelection = () => {
+    setSelecting(false);
+    setSelectedIds(new Set());
+  };
+
+  /**
+   * Report a bulk result honestly. A batch of 25 heterogeneous posts can
+   * legitimately be part-applied (one is mid-publish, another was deleted in
+   * another tab), and a blanket success toast over three silent failures is
+   * the same lie as a silent truncation.
+   */
+  const runBulk = async (
+    body: Record<string, unknown>,
+    successKey: "rescheduled" | "movedToDrafts" | "deleted",
+  ) => {
+    const ids = [...selectedIds];
+    if (ids.length === 0 || bulkPending) return;
+    setBulkPending(true);
+    try {
+      const res = await apiPost<{
+        succeeded?: string[];
+        failed?: Array<{ id: string; error: string }>;
+        error?: string;
+      }>("/api/posts/bulk", { ids, ...body });
+      const succeeded = res.data?.succeeded?.length ?? 0;
+      const failed = res.data?.failed?.length ?? 0;
+
+      if (!res.ok && succeeded === 0) {
+        toast.error(t("bulkToasts.failed"));
+        return;
+      }
+      if (failed > 0) {
+        toast.warning(t("bulkToasts.partial", { succeeded, total: ids.length, failed }));
+      } else {
+        toast.success(t(`bulkToasts.${successKey}`, { count: succeeded }));
+      }
+      exitSelection();
+      fetchScheduled();
+    } finally {
+      setBulkPending(false);
+    }
+  };
+
   if (loading) {
     return <PostGridSkeleton />;
   }
@@ -280,22 +339,97 @@ export default function ScheduledTab({
   const totalPages = Math.ceil(ordered.length / POSTS_PER_PAGE);
   const paginatedPosts = ordered.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
 
+  const pageIds = paginatedPosts.map((post) => post.id);
+  const allOnPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+
   return (
     <>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        {selecting ? (
+          <>
+            <span className="text-[12px] text-muted-foreground">
+              {t("selection.count", { count: selectedIds.size })}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-lg"
+              onClick={() => setSelectedIds(allOnPageSelected ? new Set() : new Set(pageIds))}
+            >
+              {allOnPageSelected ? t("selection.clear") : t("selection.selectAll")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-lg"
+              disabled={selectedIds.size === 0 || bulkPending}
+              onClick={() => runBulk({ action: "status", status: "draft" }, "movedToDrafts")}
+            >
+              {t("selection.moveToDrafts")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-lg"
+              disabled={selectedIds.size === 0 || bulkPending}
+              onClick={() => setConfirmBulkDelete(true)}
+            >
+              {t("selection.delete")}
+            </Button>
+            <Button size="sm" variant="ghost" className="rounded-lg" onClick={exitSelection}>
+              {t("selection.cancelSelection")}
+            </Button>
+          </>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            className="rounded-lg"
+            onClick={() => setSelecting(true)}
+          >
+            {t("selection.selectMode")}
+          </Button>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {paginatedPosts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            publishing={publishingIds.has(post.id)}
-            onEdit={() => setEditPost(post)}
-            onCancel={() => handleCancel(post.id)}
-            onDelete={() => handleDelete(post.id)}
-            onPublish={() => handlePublishNow(post.id, post.channel)}
-            onReschedule={() => openReschedule(post)}
-          />
+          <div key={post.id} className="relative">
+            {selecting && (
+              <label className="absolute left-3 top-3 z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-md border border-mk-rule bg-mk-paper">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 cursor-pointer accent-current"
+                  checked={selectedIds.has(post.id)}
+                  onChange={() => toggleSelected(post.id)}
+                  aria-label={post.content.slice(0, 80) || post.id}
+                />
+              </label>
+            )}
+            <PostCard
+              post={post}
+              publishing={publishingIds.has(post.id)}
+              onEdit={() => setEditPost(post)}
+              onCancel={() => handleCancel(post.id)}
+              onDelete={() => handleDelete(post.id)}
+              onPublish={() => handlePublishNow(post.id, post.channel)}
+              onReschedule={() => openReschedule(post)}
+            />
+          </div>
         ))}
       </div>
+
+      <ConfirmDeleteDialog
+        open={confirmBulkDelete}
+        onOpenChange={setConfirmBulkDelete}
+        entity="post"
+        name={t("selection.count", { count: selectedIds.size })}
+        warning={t("selection.confirmDeleteBody")}
+        onConfirm={async () => {
+          setConfirmBulkDelete(false);
+          await runBulk({ action: "delete" }, "deleted");
+        }}
+      />
 
       <Pagination
         page={page}

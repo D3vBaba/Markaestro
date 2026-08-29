@@ -341,6 +341,15 @@ export const channelDestinationsSchema = z.partialRecord(
   z.string().trim().max(2000),
 );
 
+/**
+ * Per-target delivery mode. Partial for the same reason as
+ * `channelDestinationsSchema`: a post only names the channels it targets.
+ */
+export const channelDeliveryModesSchema = z.partialRecord(
+  z.enum(socialChannels),
+  z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']),
+);
+
 export const createPostSchema = z.object({
   content: z.string().trim().min(1, 'Content is required').max(65000),
   channel: z.enum(socialChannels),
@@ -353,6 +362,12 @@ export const createPostSchema = z.object({
   destinationProvider: z.string().trim().max(100).optional(),
   channelDestinations: channelDestinationsSchema.optional(),
   deliveryMode: z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']).optional(),
+  /**
+   * Per-target delivery mode. Server-resolved on create from the workspace's
+   * manual-publish settings; the post-level `deliveryMode` above stays as the
+   * fallback for documents written before this map existed.
+   */
+  channelDeliveryModes: channelDeliveryModesSchema.optional(),
   settings: postSettingsSchema.optional(),
 });
 
@@ -371,6 +386,12 @@ export const updatePostSchema = z.object({
   destinationProvider: z.string().trim().max(100).optional(),
   channelDestinations: channelDestinationsSchema.optional(),
   deliveryMode: z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']).optional(),
+  /**
+   * Per-target delivery mode. Server-resolved on create from the workspace's
+   * manual-publish settings; the post-level `deliveryMode` above stays as the
+   * fallback for documents written before this map existed.
+   */
+  channelDeliveryModes: channelDeliveryModesSchema.optional(),
   settings: postSettingsSchema.optional(),
 });
 

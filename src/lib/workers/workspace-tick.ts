@@ -20,6 +20,7 @@ import { processScheduledPosts, recoverStalePublishingPosts } from '@/lib/social
 import { getAllMatchingDocs } from '@/lib/firestore-pagination';
 import { processQueuedPublicPublishRuns } from '@/lib/public-api/publish-runs';
 import { processPendingWebhookDeliveries } from '@/lib/public-api/webhook-delivery';
+import { processPendingMediaAssets } from '@/lib/media/pipeline';
 import { processAnalyticsTick, type AnalyticsTickResult } from '@/lib/analytics/worker';
 import { logger } from '@/lib/logger';
 import { sweepOrphanedMediaAssets } from '@/lib/media/asset-store';
@@ -196,10 +197,10 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
       workspaceId,
       attempted: deliveries.length,
       delivered: deliveries.filter((d) => d.status === 'delivered').length,
-      // A `failed` result is terminal: either MAX_WEBHOOK_ATTEMPTS was
-      // reached or the endpoint is gone. Retrying deliveries are not counted,
-      // since they may still succeed.
-      deadLettered: deliveries.filter((d) => d.status === 'failed').length,
+      // Terminal outcomes only. `dead_letter` is the exhausted-retries state
+      // (replayable for a week); `failed` remains for the endpoint-gone case.
+      // Retrying deliveries are not counted, since they may still succeed.
+      deadLettered: deliveries.filter((d) => d.status === 'dead_letter' || d.status === 'failed').length,
     });
   } catch (err) {
     errors.push({ kind: 'webhook-delivery', error: err instanceof Error ? err.message : 'unknown' });
@@ -213,6 +214,15 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     if (sweep.scanned > 0) mediaSweep = sweep;
   } catch (err) {
     errors.push({ kind: 'media-sweep', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
+    // Derive thumbnails and dimensions for freshly uploaded assets (5.8),
+    // outside any request path.
+    const pipeline = await processPendingMediaAssets(workspaceId);
+    pipeline.errors.forEach((e) => errors.push({ kind: 'media-pipeline', error: e.error }));
+  } catch (err) {
+    errors.push({ kind: 'media-pipeline', error: err instanceof Error ? err.message : 'unknown' });
   }
 
   let analytics: WorkspaceTickResult['analytics'];

@@ -255,7 +255,12 @@
         "linkDestinationsFailed": "{destination}の連携に失敗しました",
         "accountUnlinked": "{account}の連携を解除しました",
         "unlinkFailed": "{account}の連携解除に失敗しました"
-      }
+      },
+      "testConnection": "接続をテスト",
+      "testing": "テスト中…",
+      "testOk": "{label} として接続中",
+      "testOkPlain": "接続は正常です",
+      "testFailed": "接続テストに失敗しました"
     }
   }
 }

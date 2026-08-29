@@ -29,6 +29,9 @@ export async function GET(req: Request) {
           expiresAt: data.expiresAt || null,
           lastUsedAt: data.lastUsedAt || null,
           productId: data.productId || null,
+          // Keys minted before test mode existed have no `mode` field; they
+          // are live, which is what they have always been.
+          mode: data.mode === 'test' ? 'test' : 'live',
         };
       }),
     });
@@ -71,7 +74,7 @@ export async function POST(req: Request) {
     }
 
     const clientId = `cli_${crypto.randomUUID()}`;
-    const apiKey = buildApiKey(ctx.workspaceId, clientId);
+    const apiKey = buildApiKey(ctx.workspaceId, clientId, data.mode);
     const createdAt = new Date().toISOString();
     const expiresAt = data.expiresInDays
       ? new Date(Date.now() + data.expiresInDays * 24 * 60 * 60 * 1000).toISOString()
@@ -92,6 +95,9 @@ export async function POST(req: Request) {
       // never be minted workspace-wide. Keys predating this requirement have
       // no productId field and are refused at authentication.
       productId: data.productId,
+      // Authoritative copy of the mode the prefix advertises. Authentication
+      // refuses a token whose prefix disagrees with this field.
+      mode: data.mode,
       // Provenance snapshot: the issuer's email was verified at issuance time.
       createdEmailVerified: true,
       revokedAt: null,
@@ -108,6 +114,7 @@ export async function POST(req: Request) {
         createdAt,
         expiresAt,
         productId: data.productId || null,
+        mode: data.mode,
       },
       apiKey: apiKey.token,
     }, 201);

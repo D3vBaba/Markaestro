@@ -2,9 +2,8 @@ import { z } from 'zod';
 import { adminDb } from '@/lib/firebase-admin';
 import { apiError, apiOk } from '@/lib/api-response';
 import { requireContext } from '@/lib/server-auth';
+import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 import { requirePermission } from '@/lib/rbac';
-import { requireIntelligencePhase } from '@/lib/intelligence/feature-flags';
-import { requireIntelligencePreviewUser } from '@/lib/intelligence/preview-access';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 import { hasFeature, resolveLimits } from '@/lib/stripe/entitlements';
 import { intelligencePhaseFlags, loadProductIntelligence } from '@/lib/intelligence/product-state';
@@ -31,15 +30,9 @@ async function aiQuota(workspaceId: string, limits: ReturnType<typeof resolveLim
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);
-    requireIntelligencePreviewUser(ctx);
     requirePermission(ctx, 'intelligence.read');
     const subscription = await getEffectiveSubscription(ctx.uid, ctx.workspaceId);
-    await requireIntelligencePhase({
-      phase: 'foundation',
-      workspaceId: ctx.workspaceId,
-      uid: ctx.uid,
-      entitled: hasFeature(subscription, 'audienceFit'),
-    });
+    await requireIntelligenceAccess(ctx, 'foundation', 'audienceFit', { subscription });
     const query = querySchema.parse(Object.fromEntries(new URL(req.url).searchParams));
     const limits = resolveLimits(subscription);
     const [productsSnapshot, phases, quota] = await Promise.all([

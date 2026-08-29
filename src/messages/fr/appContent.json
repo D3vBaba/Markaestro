@@ -68,6 +68,24 @@
       "updateFailed": "Échec de la mise à jour",
       "rescheduled": "Publication replanifiée",
       "rescheduleFailed": "Échec de la replanification"
+    },
+    "selection": {
+      "selectMode": "Sélectionner des publications",
+      "cancelSelection": "Annuler",
+      "selectAll": "Tout sélectionner sur cette page",
+      "clear": "Effacer la sélection",
+      "count": "{count} sélectionnées",
+      "reschedule": "Replanifier",
+      "moveToDrafts": "Déplacer vers les brouillons",
+      "delete": "Supprimer",
+      "confirmDeleteBody": "Cette action est irréversible. Les publications déjà publiées ne sont pas concernées."
+    },
+    "bulkToasts": {
+      "rescheduled": "{count} publications replanifiées",
+      "movedToDrafts": "{count} publications déplacées vers les brouillons",
+      "deleted": "{count} publications supprimées",
+      "partial": "{succeeded} publications sur {total} mises à jour. {failed} n'ont pas pu être modifiées.",
+      "failed": "Rien n'a pu être modifié. Réessayez, ou modifiez les publications une par une."
     }
   },
   "draftsTab": {

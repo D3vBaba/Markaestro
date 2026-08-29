@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/nextjs';
 import crypto from 'crypto';
 import { logger } from '@/lib/logger';
 import { getRequestId } from '@/lib/request-context';
+import { resolveErrorCode } from '@/lib/error-codes';
 
 export function publicValidationIssueMessage(code: string): string {
   switch (code) {
@@ -123,78 +124,19 @@ export function apiError(error: unknown): NextResponse {
 
   const msg = error instanceof Error ? error.message : String(error);
 
-  // Known error codes
-  if (msg === 'UNAUTHENTICATED') {
-    return NextResponse.json({ error: msg, requestId }, { status: 401 });
+  // Catalogued codes carry their own status, and the handful that have copy
+  // we wrote carry that too. This replaced a 70-line if-chain whose entries
+  // could not be enumerated from anywhere else; see `lib/error-codes.ts`.
+  const spec = resolveErrorCode(msg);
+  if (spec) {
+    if (spec.userMessage) {
+      return authoredError(msg, spec.userMessage, { status: spec.status });
+    }
+    return NextResponse.json({ error: msg, requestId }, { status: spec.status });
   }
-  if (msg === 'QUOTA_EXCEEDED') {
-    return NextResponse.json({ error: msg, requestId }, { status: 402 });
-  }
-  if (msg === 'VIDEO_QUOTA_EXCEEDED') {
-    return NextResponse.json({ error: msg, requestId }, { status: 402 });
-  }
-  if (msg === 'QUOTA_EXCEEDED_STORAGE') {
-    return NextResponse.json({ error: msg, requestId }, { status: 402 });
-  }
-  if (msg === 'QUOTA_EXCEEDED_POSTS') {
-    return NextResponse.json({ error: msg, requestId }, { status: 402 });
-  }
-  if (msg === 'BRAND_LIMIT_REACHED') {
-    return authoredError(
-      msg,
-      'Your plan has reached its brand limit. Upgrade your plan or add a brand pack to create another brand.',
-      { status: 402 },
-    );
-  }
-  if (msg === 'CHANNEL_LIMIT_REACHED') {
-    return authoredError(
-      msg,
-      'Your plan limits how many channels each brand can connect. Upgrade your plan or disconnect a channel to add another.',
-      { status: 402 },
-    );
-  }
-  if (msg === 'SUBSCRIPTION_REQUIRED') {
-    return NextResponse.json({ error: msg, requestId }, { status: 402 });
-  }
-  if (msg === 'TEAM_LIMIT_REACHED') {
-    return NextResponse.json({ error: msg, requestId }, { status: 402 });
-  }
-  if (msg === 'WORKSPACE_LIMIT_REACHED') {
-    return NextResponse.json({ error: msg, requestId }, { status: 402 });
-  }
-  if (msg === 'FORBIDDEN_WORKSPACE' || msg === 'FORBIDDEN') {
-    return NextResponse.json({ error: msg, requestId }, { status: 403 });
-  }
-  if (msg === 'EMAIL_VERIFICATION_REQUIRED') {
-    return NextResponse.json({ error: msg, requestId }, { status: 403 });
-  }
-  if (msg === 'NOT_FOUND') {
-    return NextResponse.json({ error: msg, requestId }, { status: 404 });
-  }
-  if (msg === 'FEATURE_NOT_AVAILABLE') {
-    return NextResponse.json({ error: msg, requestId }, { status: 404 });
-  }
-  if (msg === 'INVALID_PROVIDER') {
-    return NextResponse.json({ error: msg, requestId }, { status: 400 });
-  }
-  if (msg === 'OTP_COOLDOWN') {
-    return NextResponse.json({ error: msg, requestId }, { status: 429 });
-  }
-  if (msg === 'OTP_INVALID' || msg === 'OTP_EXPIRED' || msg === 'OTP_TOO_MANY_ATTEMPTS') {
-    return NextResponse.json({ error: msg, requestId }, { status: 400 });
-  }
-  if (msg === 'EMAIL_IN_USE') {
-    return NextResponse.json({ error: msg, requestId }, { status: 409 });
-  }
-  if (msg === 'WEBHOOK_ENDPOINT_LIMIT_REACHED') {
-    return NextResponse.json({ error: msg, requestId }, { status: 409 });
-  }
-  if (msg === 'USER_DISABLED') {
-    return NextResponse.json({ error: msg, requestId }, { status: 403 });
-  }
-  if (msg === 'INVALID_STATE' || msg === 'STATE_EXPIRED' || msg === 'STATE_MISMATCH') {
-    return NextResponse.json({ error: msg, requestId }, { status: 400 });
-  }
+
+  // Uncatalogued validation codes still answer 400 rather than 500. They are
+  // invisible to the docs, which is the argument for adding them above.
   if (msg.startsWith('VALIDATION_')) {
     return NextResponse.json({ error: msg, requestId }, { status: 400 });
   }

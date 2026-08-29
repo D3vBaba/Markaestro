@@ -11,7 +11,7 @@ import {
 } from '@/lib/platform/connections';
 import { refreshConnectionToken } from '@/lib/oauth/token-refresh';
 import { getSocialChannelLabel } from '@/lib/social/channel-catalog';
-import type { PlatformConnection } from '@/lib/platform/types';
+import type { PlatformConnection, PlatformRestriction } from '@/lib/platform/types';
 import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
@@ -47,11 +47,14 @@ const FAILURE_CODE: Record<FailureReason, string> = {
   transient: 'PLATFORM_ERROR',
 };
 
-function failureResponse(reason: FailureReason, message: string) {
+function failureResponse(reason: FailureReason, message: string, restriction?: PlatformRestriction) {
   return apiOk(
     {
       error: FAILURE_CODE[reason],
       reason,
+      // Named platform restrictions travel as their own field so the UI can
+      // explain a permanent refusal without re-parsing the platform's prose.
+      ...(restriction ? { restriction } : {}),
       message: reason === 'auth'
         ? `${message}. Reconnect the account from brand settings.`
         : message,
@@ -142,7 +145,7 @@ export async function GET(req: Request) {
     );
 
     if (!result.ok) {
-      return failureResponse(result.reason, result.error);
+      return failureResponse(result.reason, result.error, result.restriction);
     }
 
     return apiOk({

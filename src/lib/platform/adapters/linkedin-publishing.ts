@@ -12,6 +12,7 @@ import type {
   PlatformAdapter,
   PlatformConnection,
   PlatformPostSummary,
+  PlatformRestriction,
   PublishRequest,
   PublishResult,
 } from '../types';
@@ -324,7 +325,9 @@ async function publishToLinkedIn(
       payload.content = { media: { id: image } };
     } else if (imageUrls.length > 1) {
       const images = await Promise.all(
-        imageUrls.slice(0, MAX_LINKEDIN_IMAGES).map((url) => uploadImage(accessToken, destination.urn, url)),
+        // The >MAX_LINKEDIN_IMAGES case is refused above, so upload them all
+        // rather than silently dropping any past the limit.
+        imageUrls.map((url) => uploadImage(accessToken, destination.urn, url)),
       );
       payload.content = {
         multiImage: {
@@ -347,6 +350,25 @@ async function publishToLinkedIn(
 }
 
 // ── Metrics ─────────────────────────────────────────────────────────
+
+/**
+ * LinkedIn gates its list-posts API behind the partner program. It reports
+ * that as a 403 whose body names `partnerApiPostsExternal` or says the token
+ * has "not enough permissions", which reads like a scope problem but is not:
+ * no reconnect can grant it, so retrying never helps.
+ *
+ * This used to be matched in the React component that rendered the message.
+ * Classifying it here means a reworded LinkedIn response turns an
+ * unrecognised permanent restriction into a visible failure, rather than
+ * quietly converting it back into an infinitely retryable transient error.
+ */
+export function linkedInPartnerRestriction(error: unknown): PlatformRestriction | undefined {
+  const message = error instanceof Error ? error.message : '';
+  if (!message) return undefined;
+  return /not enough permissions|partnerApiPostsExternal/i.test(message)
+    ? 'linkedin_partner_program'
+    : undefined;
+}
 
 function classifyLinkedInError(error: unknown): 'auth' | 'not_found' | 'unsupported' | 'transient' {
   if (error instanceof LinkedInApiError) {
@@ -680,10 +702,14 @@ export const linkedinPublishingAdapter: PlatformAdapter = {
       return await listLinkedInPosts(connection, input);
     } catch (e) {
       const reason = classifyLinkedInError(e);
+      const restriction = linkedInPartnerRestriction(e);
       return {
         ok: false,
         error: sanitizeLinkedInError(e),
-        reason: reason === 'not_found' ? 'unsupported' : reason,
+        // A partner-program refusal is permanent, so it must not present as a
+        // retryable transient error whatever status LinkedIn attached to it.
+        reason: restriction ? 'unsupported' : reason === 'not_found' ? 'unsupported' : reason,
+        ...(restriction ? { restriction } : {}),
       };
     }
   },

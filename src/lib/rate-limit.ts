@@ -83,8 +83,36 @@ export const RATE_LIMITS = {
   api: { limit: 60, windowMs: 60_000 } as RateLimitConfig,
   /** AI generation endpoints: 10 requests per minute */
   ai: { limit: 10, windowMs: 60_000 } as RateLimitConfig,
+  /**
+   * Strategist: 5 requests per minute. Lower than `ai` because the handler
+   * holds a Cloud Run worker open for the whole model call, so the cost of a
+   * burst is a busy instance as well as Vertex spend.
+   */
+  strategist: { limit: 5, windowMs: 60_000 } as RateLimitConfig,
   /** Worker tick: 5 requests per minute */
   worker: { limit: 5, windowMs: 60_000 } as RateLimitConfig,
+  /**
+   * In-app publishing: 10 per minute per workspace. Workspace-scoped, not
+   * uid-scoped, so a team cannot multiply the limit by adding seats.
+   */
+  publish: { limit: 10, windowMs: 60_000 } as RateLimitConfig,
+  /**
+   * Per connected account per channel: 30 publishes per hour. Platform-abuse
+   * insurance; the platforms restrict app credentials on sustained bursts long
+   * before our own per-minute ceiling would notice.
+   */
+  publishPerAccount: { limit: 30, windowMs: 3_600_000 } as RateLimitConfig,
+  /**
+   * Media proxies: 60 per minute per IP. Generous enough for a platform
+   * fetcher (TikTok pulls the URL itself) and tight enough to bound the CPU
+   * and bandwidth amplification these unauthenticated routes otherwise offer.
+   */
+  mediaProxy: { limit: 60, windowMs: 60_000 } as RateLimitConfig,
+  /**
+   * Deep health probe: 10 per minute even when authenticated. An uptime
+   * monitor polls once a minute; anything faster is not a monitor.
+   */
+  health: { limit: 10, windowMs: 60_000 } as RateLimitConfig,
   /**
    * Conversion ingest: 300 events per minute per workspace. A real store sends
    * single-digit conversions per minute, so this is generous while still

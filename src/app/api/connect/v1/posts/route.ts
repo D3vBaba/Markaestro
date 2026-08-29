@@ -15,8 +15,12 @@ import {
   resolveConnectSchedule,
   validateConnectPostFanout,
 } from '@/lib/public-api/connect-compat';
-import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
-import { logger } from '@/lib/logger';
+import {
+  createRequestHash,
+  getIdempotencyKey,
+  loadIdempotentResponse,
+  persistIdempotentResponse,
+} from '@/lib/public-api/idempotency';
 
 export const runtime = 'nodejs';
 
@@ -30,13 +34,27 @@ export async function POST(req: Request) {
       rateLimit: POSTS_RATE_LIMIT,
     });
 
-    const body = (await req.json().catch(() => ({}))) as {
+    const raw = await req.text();
+    const body = (raw ? JSON.parse(raw) : {}) as {
       caption?: string;
       media?: string[]; // Markaestro media_asset ids (from the upload layer)
       social_accounts?: string[]; // encoded destination tokens
       scheduled_at?: string | null;
       is_draft?: boolean;
     };
+
+    // This is the route third-party scheduling clients actually call, and the
+    // one that fans out across up to four destinations concurrently, so a
+    // retried request used to create duplicates on every destination.
+    const idempotencyKey = getIdempotencyKey(req);
+    const requestHash = idempotencyKey ? createRequestHash(raw) : null;
+    if (idempotencyKey && requestHash) {
+      const replay = await loadIdempotentResponse(ctx.workspaceId, idempotencyKey, requestHash);
+      if (replay) {
+        Object.entries(ctx.rateLimitHeaders).forEach(([key, value]) => replay.headers.set(key, value));
+        return replay;
+      }
+    }
 
     const caption = body.caption || '';
     const mediaAssetIds = Array.isArray(body.media) ? body.media.map(String) : [];
@@ -63,7 +81,10 @@ export async function POST(req: Request) {
             channel,
             caption,
             mediaAssetIds,
-            scheduledAt: null,
+            // Scheduling is handled inside createPublicPost now, so this
+            // surface and the public API run one code path: same preflight,
+            // same originalScheduledAt, same due marker.
+            scheduledAt,
             productId,
             destinationId,
             // Every Connect create opts into API publishing, scheduled or not.
@@ -73,22 +94,9 @@ export async function POST(req: Request) {
             // call parked the post in the manual queue instead of sending it.
             deliveryMode: getConnectDeliveryMode(channel),
           });
-          if (scheduledAt) {
-            const now = new Date().toISOString();
-            await adminDb.doc(`workspaces/${ctx.workspaceId}/posts/${post.id}`).set({
-              status: 'scheduled',
-              scheduledAt,
-              originalScheduledAt: scheduledAt,
-              updatedAt: now,
-            }, { merge: true });
-          }
           outcomes[index] = {
             ok: true,
-            value: {
-              id: post.id,
-              channel: post.channel,
-              status: scheduledAt ? 'scheduled' : post.status,
-            },
+            value: { id: post.id, channel: post.channel, status: post.status },
           };
         } catch (e) {
           // `cause` keeps the original error so an all-destinations failure can
@@ -116,22 +124,18 @@ export async function POST(req: Request) {
       throw new Error('VALIDATION_POST_CREATE_FAILED');
     }
 
-    if (scheduledAt) {
-      await markWorkspaceDue(ctx.workspaceId, scheduledAt, 'scheduled_post').catch((error) => {
-        logger.warn('Connect scheduled post due marker failed; compatibility sweep will recover it', {
-          event: 'worker.mark_due_failed',
-          workspaceId: ctx.workspaceId,
-          err: error,
-        });
-      });
-    }
-
     await incrementApiClientStat(ctx.workspaceId, ctx.clientId, 'post_create');
     // Connect returns a single post object; the client only needs an id.
-    return Response.json(
-      { id: created[0].id, created, errors },
-      { status: 201, headers: ctx.rateLimitHeaders },
-    );
+    const responseBody = { id: created[0].id, created, errors };
+
+    // Persist the whole body, partial failures included. A replay has to be
+    // byte-identical, and a client retrying after a partial failure must not
+    // double-create the destinations that already succeeded.
+    if (idempotencyKey && requestHash) {
+      await persistIdempotentResponse(ctx.workspaceId, idempotencyKey, requestHash, 201, responseBody);
+    }
+
+    return Response.json(responseBody, { status: 201, headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);
   }

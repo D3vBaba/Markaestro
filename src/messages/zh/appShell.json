@@ -105,5 +105,8 @@
     "degraded": "{channels} 的连接即将过期。请重新连接以继续发布。",
     "genericReason": "请重新连接以继续发布。",
     "reconnect": "重新连接"
+  },
+  "offlineBanner": {
+    "message": "您似乎处于离线状态。在连接恢复之前无法保存更改。"
   }
 }
