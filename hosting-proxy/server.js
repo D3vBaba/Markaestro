@@ -57,6 +57,11 @@ const RESPONSE_HEADER_ALLOWLIST = new Set([
   'cross-origin-opener-policy',
   'cross-origin-embedder-policy',
   'cross-origin-resource-policy',
+  // SEO: next-intl and generateMetadata emit hreflang Link headers; the app
+  // layout and auth guard emit X-Robots-Tag: noindex. Dropping these made
+  // every public response look untagged to crawlers behind this proxy.
+  'link',
+  'x-robots-tag',
 ]);
 
 /** Baseline security headers injected if the upstream doesn't send them. */
@@ -68,7 +73,22 @@ const DEFAULT_SECURITY_HEADERS = {
   'permissions-policy': 'camera=(), microphone=(), geolocation=()',
 };
 
-const HTML_SHELL_CACHE_CONTROL = 'private, no-cache, no-store, max-age=0, must-revalidate';
+const APP_HTML_CACHE_CONTROL = 'private, no-cache, no-store, max-age=0, must-revalidate';
+const MARKETING_HTML_CACHE_CONTROL = 'public, max-age=60, s-maxage=300, stale-while-revalidate=600';
+
+function hostnameOf(host) {
+  return (host || '').split(':')[0].trim().toLowerCase();
+}
+
+function isAppPublicHost(host) {
+  const h = hostnameOf(host);
+  return h === 'app.markaestro.com' || h.startsWith('app.');
+}
+
+function isMarketingPublicHost(host) {
+  const h = hostnameOf(host);
+  return h === 'markaestro.com' || h === 'www.markaestro.com';
+}
 
 function cloneRequestHeaders(headers) {
   const result = new Headers();
@@ -176,9 +196,13 @@ http
       });
 
       if (htmlShellResponse) {
-        res.setHeader('cache-control', HTML_SHELL_CACHE_CONTROL);
-        res.setHeader('pragma', 'no-cache');
-        res.setHeader('expires', '0');
+        if (isMarketingPublicHost(publicHost) && !isAppPublicHost(publicHost)) {
+          res.setHeader('cache-control', MARKETING_HTML_CACHE_CONTROL);
+        } else {
+          res.setHeader('cache-control', APP_HTML_CACHE_CONTROL);
+          res.setHeader('pragma', 'no-cache');
+          res.setHeader('expires', '0');
+        }
       }
 
       // Inject baseline security headers if upstream didn't send them

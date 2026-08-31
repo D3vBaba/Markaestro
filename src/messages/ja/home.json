@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Markaestro | 担当するすべてのブランドを投稿、予約、計測",
+    "description": "メディアをアップロードし、キャプションを書いて、担当するすべてのブランド（商品、事業、クライアント、あなた自身）を、1つのダッシュボードから Facebook、Instagram、TikTok、LinkedIn、Threads、Pinterest に投稿します。"
+  },
   "hero": {
     "badge": "あなたが運営するすべてのブランドのためのソーシャル投稿ハブ",
     "titleLead": "マーケティングのすべてを",

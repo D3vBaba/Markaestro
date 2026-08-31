@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "API pública de publicação | Desenvolvedores Markaestro",
+    "description": "Envie mídia, crie publicações e publique no Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest com uma chave de API do workspace. API Connect e referência completa da v1."
+  },
   "hero": {
     "eyebrow": "Desenvolvedores",
     "title": "API pública de publicação",

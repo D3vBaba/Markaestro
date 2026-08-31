@@ -1,4 +1,5 @@
 import { NextIntlClientProvider } from "next-intl";
+import type { Metadata } from "next";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { SubscriptionProvider } from "@/components/providers/SubscriptionProvider";
 import { WorkspaceProvider } from "@/components/providers/WorkspaceProvider";
@@ -38,7 +39,15 @@ const APP_NAMESPACE_FILES = {
  * that only authenticated app routes initialise the Firebase client SDK and
  * its auth listener. Marketing pages in the (marketing) group are
  * intentionally provider-free.
+ *
+ * Login and every other app HTML document are noindex: the app host robots.txt
+ * already Disallow: /, but a crawler that ignores that file must not index
+ * login HTML under the marketing title.
  */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false, nocache: true, noarchive: true },
+};
+
 export default async function AppGroupLayout({
   children,
 }: Readonly<{

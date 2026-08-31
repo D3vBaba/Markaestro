@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Publieke publishing-API | Markaestro voor developers",
+    "description": "Upload media, maak berichten en publiceer naar Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest met een workspace-API-sleutel. Connect API en volledige v1-referentie."
+  },
   "hero": {
     "eyebrow": "Ontwikkelaars",
     "title": "Publieke publicatie-API",

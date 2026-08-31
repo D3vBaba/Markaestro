@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "واجهة برمجة النشر العامة | مطورو Markaestro",
+    "description": "ارفع الوسائط وأنشئ المنشورات وانشرها على Facebook وInstagram وTikTok وLinkedIn وThreads وPinterest بمفتاح API لمساحة العمل. واجهة Connect والمرجع الكامل للإصدار v1."
+  },
   "hero": {
     "eyebrow": "المطورون",
     "title": "واجهة النشر العامة (API)",

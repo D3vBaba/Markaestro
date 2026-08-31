@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Contacter Markaestro",
+    "description": "Des questions sur les fonctionnalités, les intégrations, les tarifs ou un partenariat ? Contactez l’équipe Markaestro à hello@markaestro.com ou envoyez un message."
+  },
   "hero": {
     "eyebrow": "Contact",
     "titleLead": "Nous serions ravis de",

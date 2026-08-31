@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "공개 퍼블리싱 API | Markaestro 개발자",
+    "description": "워크스페이스 API 키로 미디어를 업로드하고 게시물을 만든 뒤 Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest에 발행하세요. Connect API와 전체 v1 레퍼런스."
+  },
   "hero": {
     "eyebrow": "개발자",
     "title": "퍼블릭 발행 API",

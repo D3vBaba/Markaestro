@@ -41,8 +41,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'https://markaestro.com'
   ).replace(/\/$/, '');
 
-  const lastModified = new Date();
-
   const localePath = (locale: string, path: string) => {
     if (locale === routing.defaultLocale) return path;
     return path === '/' ? `/${locale}` : `/${locale}${path}`;
@@ -52,8 +50,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const url = `${marketingUrl}${localePath(routing.defaultLocale, path)}`;
 
     // hreflang alternates for every locale variant, plus x-default pointing
-    // at the unprefixed English page — mirrors what next-intl's own
-    // middleware already emits as an HTTP Link header per request.
+    // at the unprefixed English page — mirrors the HTML alternates each
+    // marketing page now emits. lastmod is omitted: a build-time `new Date()`
+    // is not a real content date and would change on every deploy.
     const languages: Record<string, string> = { 'x-default': url };
     for (const locale of routing.locales) {
       languages[locale] = `${marketingUrl}${localePath(locale, path)}`;
@@ -61,7 +60,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     return {
       url,
-      lastModified,
       changeFrequency,
       priority,
       alternates: { languages },

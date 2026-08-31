@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Social channels | Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest",
+    "description": "Connect once and publish to Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest. Markaestro handles API differences, character limits, and media requirements."
+  },
   "hero": {
     "eyebrow": "Channels",
     "titleLead": "Reach your audience",

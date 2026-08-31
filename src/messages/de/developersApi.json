@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Öffentliche Publishing-API | Markaestro für Entwickler",
+    "description": "Lade Medien hoch, erstelle Beiträge und veröffentliche auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest mit einem Workspace-API-Schlüssel. Connect API und vollständige v1-Referenz."
+  },
   "hero": {
     "eyebrow": "Entwickler",
     "title": "Öffentliche Veröffentlichungs-API",

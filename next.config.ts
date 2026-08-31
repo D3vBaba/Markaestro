@@ -121,6 +121,8 @@ const nextConfig: NextConfig = {
         source: '/__/auth/:path*',
         destination: `https://${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com/__/auth/:path*`,
       },
+      // Common crawler alias for the existing public/llms.txt brief.
+      { source: '/ai.txt', destination: '/llms.txt' },
     ];
   },
 };

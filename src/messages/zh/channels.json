@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "社交渠道 | Facebook、Instagram、TikTok、LinkedIn、Threads、Pinterest",
+    "description": "连接一次，即可发布到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。API 差异、字数限制和素材要求由 Markaestro 处理。"
+  },
   "hero": {
     "eyebrow": "渠道",
     "titleLead": "触达你的受众，",

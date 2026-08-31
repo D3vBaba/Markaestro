@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "ソーシャルチャネル | Facebook、Instagram、TikTok、LinkedIn、Threads、Pinterest",
+    "description": "一度接続すれば、Facebook、Instagram、TikTok、LinkedIn、Threads、Pinterest に投稿できます。API の違い、文字数制限、メディア要件は Markaestro が処理します。"
+  },
   "hero": {
     "eyebrow": "チャネル",
     "titleLead": "あなたのオーディエンスに",

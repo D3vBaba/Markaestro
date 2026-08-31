@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Soziale Kanäle | Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest",
+    "description": "Einmal verbinden und auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest veröffentlichen. Markaestro übernimmt API-Unterschiede, Zeichenlimits und Medienanforderungen."
+  },
   "hero": {
     "eyebrow": "Kanäle",
     "titleLead": "Erreiche dein Publikum",
