@@ -81,7 +81,6 @@ const QUIZ_COUNT = QUIZ_QUESTIONS_META.length;
 const REGISTER_STEP = QUIZ_COUNT;
 const PRODUCT_STEP = QUIZ_COUNT + 1;
 const SOCIALS_STEP = QUIZ_COUNT + 2;
-const GENERATING_STEP = QUIZ_COUNT + 3;
 const PAYWALL_STEP = QUIZ_COUNT + 4;
 
 // Ordered list of user-facing screens (the transient generating loader excluded)
@@ -144,7 +143,6 @@ function loadState(): Partial<PersistedState> {
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
 function ProgressBar({ step }: { step: number }) {
-  if (step === GENERATING_STEP) return null;
   const idx = FLOW_STEPS.indexOf(step);
   const pct = idx === -1 ? 0 : Math.round(((idx + 1) / FLOW_STEPS.length) * 100);
   return (
@@ -523,14 +521,6 @@ export default function OnboardingPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // ─── Generating → paywall ─────────────────────────────────────────────────
-
-  useEffect(() => {
-    if (step !== GENERATING_STEP) return;
-    const timer = setTimeout(() => setStep(PAYWALL_STEP), 2200);
-    return () => clearTimeout(timer);
-  }, [step]);
 
   // ─── Leave protection ───────────────────────────────────────────────────────
   // Warn before leaving mid-flow (after the first answer, up to the socials step,
@@ -1473,7 +1463,7 @@ export default function OnboardingPage() {
                   <Button
                     size="lg"
                     className="w-full h-12 rounded-xl text-base"
-                    onClick={() => setStep(GENERATING_STEP)}
+                    onClick={() => setStep(PAYWALL_STEP)}
                   >
                     {Object.keys(connected).length > 0
                       ? t("continue")
@@ -1485,49 +1475,6 @@ export default function OnboardingPage() {
                   >
                     {t("back")}
                   </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ── Generating ──────────────────────────────────────────────── */}
-            {step === GENERATING_STEP && (
-              <motion.div
-                key="generating"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="flex flex-col items-center text-center py-24">
-                  <motion.div
-                    className="flex gap-2 mb-10"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    {[0, 1, 2].map((i) => (
-                      <motion.div
-                        key={i}
-                        className="h-3 w-3 rounded-full bg-primary"
-                        animate={{ y: [0, -10, 0], opacity: [0.5, 1, 0.5] }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 1.2,
-                          delay: i * 0.2,
-                          ease: "easeInOut",
-                        }}
-                      />
-                    ))}
-                  </motion.div>
-                  <h2 className="text-[24px] sm:text-[28px] font-semibold tracking-[-0.025em] mb-4">
-                    {t("generating.title")}
-                  </h2>
-                  <p className="text-base text-muted-foreground max-w-sm leading-relaxed">
-                    {t("generating.subtitle", { challenge: challenge.short })}
-                  </p>
-                  <p className="mt-8 text-sm text-muted-foreground">
-                    {t("generating.takesAMoment")}
-                  </p>
                 </div>
               </motion.div>
             )}

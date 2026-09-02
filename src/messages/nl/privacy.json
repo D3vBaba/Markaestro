@@ -1,11 +1,15 @@
 {
   "eyebrow": "Juridisch",
   "title": "Privacybeleid",
-  "lastUpdated": "Laatst bijgewerkt · 10 maart 2026",
+  "lastUpdated": "Laatst bijgewerkt · 2 september 2026",
   "sections": [
     {
       "heading": "1. Reikwijdte en Rollen",
       "blocks": [
+        {
+          "type": "p",
+          "text": "De Diensten worden geëxploiteerd door Aethos Solutions LLC (\"Aethos Solutions\"), handelend onder de naam Markaestro. Verwijzingen naar \"Markaestro\", \"wij\", \"ons\" of \"onze\" betekenen Aethos Solutions LLC."
+        },
         {
           "type": "p",
           "text": "Dit Privacybeleid legt uit hoe Markaestro (\"Markaestro\", \"wij\" of \"ons\") persoonlijke informatie verzamelt, gebruikt, openbaar maakt en beschermt wanneer je toegang hebt tot ons marketingautomatiseringsplatform, website, applicaties, API's en gerelateerde diensten (samen de \"Diensten\")."

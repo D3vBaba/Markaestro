@@ -1,146 +1,234 @@
 {
   "eyebrow": "Juridisch",
   "title": "Gebruiksvoorwaarden",
-  "lastUpdated": "Laatst bijgewerkt · 10 maart 2026",
+  "lastUpdated": "Laatst bijgewerkt · 2 september 2026",
   "sections": [
     {
       "heading": "1. Aanvaarding van de Voorwaarden",
       "blocks": [
-        { "type": "p", "text": "Deze Gebruiksvoorwaarden (\"Voorwaarden\") regelen je toegang tot en gebruik van de website, applicatie, API's en gerelateerde diensten van Markaestro (samen de \"Diensten\"). Door de Diensten te openen of te gebruiken, ga je ermee akkoord gebonden te zijn aan deze Voorwaarden. Als je niet akkoord gaat, gebruik de Diensten dan niet." },
-        { "type": "p", "text": "Als je de Diensten namens een bedrijf, organisatie of andere rechtspersoon gebruikt, verklaar je dat je bevoegd bent om die entiteit te binden, en omvat \"jij\" die entiteit." }
+        {
+          "type": "p",
+          "text": "De Diensten worden geëxploiteerd door Aethos Solutions LLC (\"Aethos Solutions\"), handelend onder de naam Markaestro. Verwijzingen naar \"Markaestro\", \"wij\", \"ons\" of \"onze\" betekenen Aethos Solutions LLC."
+        },
+        {
+          "type": "p",
+          "text": "Deze Gebruiksvoorwaarden (\"Voorwaarden\") regelen je toegang tot en gebruik van de website, applicatie, API's en gerelateerde diensten van Markaestro (samen de \"Diensten\"). Door de Diensten te openen of te gebruiken, ga je ermee akkoord gebonden te zijn aan deze Voorwaarden. Als je niet akkoord gaat, gebruik de Diensten dan niet."
+        },
+        {
+          "type": "p",
+          "text": "Als je de Diensten namens een bedrijf, organisatie of andere rechtspersoon gebruikt, verklaar je dat je bevoegd bent om die entiteit te binden, en omvat \"jij\" die entiteit."
+        }
       ]
     },
     {
       "heading": "2. Beschrijving van de Dienst",
       "blocks": [
-        { "type": "p", "text": "Markaestro is een social-publishing-platform voor het beheren van producten, merkmateriaal, geüploade media en social-publishing-workflows. De Diensten kunnen integreren met platformen van derden, waaronder TikTok, Meta, Firebase en andere diensten die Markaestro van tijd tot tijd beschikbaar stelt." }
+        {
+          "type": "p",
+          "text": "Markaestro is een social-publishing-platform voor het beheren van producten, merkmateriaal, geüploade media en social-publishing-workflows. De Diensten kunnen integreren met platformen van derden, waaronder TikTok, Meta, Firebase en andere diensten die Markaestro van tijd tot tijd beschikbaar stelt."
+        }
       ]
     },
     {
       "heading": "3. Geschiktheid en Accounts",
       "blocks": [
-        { "type": "p", "text": "Je moet minstens 18 jaar oud zijn en in staat om een bindend contract aan te gaan om de Diensten te gebruiken. Je stemt ermee in accurate, actuele en volledige informatie te verstrekken en deze bij te werken." },
-        { "type": "ul", "items": [
-          "Je bent verantwoordelijk voor het beschermen van je accountgegevens en alle authenticatiemethoden die aan je account zijn gekoppeld.",
-          "Je bent verantwoordelijk voor alle activiteit die plaatsvindt onder je account en binnen je workspace, ongeacht of deze door jou is geautoriseerd, tenzij veroorzaakt door onze schending van deze Voorwaarden of toepasselijk recht.",
-          "Je moet ons onmiddellijk op de hoogte stellen als je vermoedt dat er sprake is van ongeautoriseerde toegang, gecompromitteerde gegevens of ander misbruik van het account."
-        ] },
-        { "type": "p", "text": "Accounts die zijn geregistreerd via bots, misleidende identiteiten of ongeautoriseerde geautomatiseerde methoden zijn verboden." }
+        {
+          "type": "p",
+          "text": "Je moet minstens 18 jaar oud zijn en in staat om een bindend contract aan te gaan om de Diensten te gebruiken. Je stemt ermee in accurate, actuele en volledige informatie te verstrekken en deze bij te werken."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Je bent verantwoordelijk voor het beschermen van je accountgegevens en alle authenticatiemethoden die aan je account zijn gekoppeld.",
+            "Je bent verantwoordelijk voor alle activiteit die plaatsvindt onder je account en binnen je workspace, ongeacht of deze door jou is geautoriseerd, tenzij veroorzaakt door onze schending van deze Voorwaarden of toepasselijk recht.",
+            "Je moet ons onmiddellijk op de hoogte stellen als je vermoedt dat er sprake is van ongeautoriseerde toegang, gecompromitteerde gegevens of ander misbruik van het account."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Accounts die zijn geregistreerd via bots, misleidende identiteiten of ongeautoriseerde geautomatiseerde methoden zijn verboden."
+        }
       ]
     },
     {
       "heading": "4. Workspaces en Teamtoegang",
       "blocks": [
-        { "type": "p", "text": "Markaestro is georganiseerd rond workspaces. Workspace-eigenaren en beheerders kunnen leden toevoegen of verwijderen en rollen toewijzen. De workspace-eigenaar is verantwoordelijk voor het autoriseren van toegang, het handhaven van rechtmatige instructies, en ervoor zorgen dat alle workspacegebruikers deze Voorwaarden naleven. Het verwijderen van een gebruiker verwijdert niet automatisch content, logs of records die eerder in de workspace zijn gemaakt." }
+        {
+          "type": "p",
+          "text": "Markaestro is georganiseerd rond workspaces. Workspace-eigenaren en beheerders kunnen leden toevoegen of verwijderen en rollen toewijzen. De workspace-eigenaar is verantwoordelijk voor het autoriseren van toegang, het handhaven van rechtmatige instructies, en ervoor zorgen dat alle workspacegebruikers deze Voorwaarden naleven. Het verwijderen van een gebruiker verwijdert niet automatisch content, logs of records die eerder in de workspace zijn gemaakt."
+        }
       ]
     },
     {
       "heading": "5. Klantgegevens en Nalevingsverantwoordelijkheden",
       "blocks": [
-        { "type": "p", "text": "Je blijft verantwoordelijk voor de rechtmatigheid, nauwkeurigheid en het gebruik van alle gegevens of content die je bij Markaestro indient, waaronder contactlijsten, merkmateriaal, geüploade media en berichten die via de Diensten worden verzonden." },
-        { "type": "ul", "items": [
-          "Je moet over alle rechten, toestemmingen, licenties en juridische grondslagen beschikken die nodig zijn om die gegevens of content te uploaden, verwerken, publiceren of verzenden.",
-          "Je bent verantwoordelijk voor naleving van toepasselijke privacy-, antispam-, consumentenbeschermings- en platformspecifieke regels, waaronder toestemmings-, kennisgevings-, uitschrijvings- en onderdrukkingsverplichtingen.",
-          "Je mag Markaestro niet gebruiken om bijzondere categorieën gegevens of andere zwaar gereguleerde gegevens te verwerken, tenzij wij daar uitdrukkelijk schriftelijk mee instemmen."
-        ] }
+        {
+          "type": "p",
+          "text": "Je blijft verantwoordelijk voor de rechtmatigheid, nauwkeurigheid en het gebruik van alle gegevens of content die je bij Markaestro indient, waaronder contactlijsten, merkmateriaal, geüploade media en berichten die via de Diensten worden verzonden."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Je moet over alle rechten, toestemmingen, licenties en juridische grondslagen beschikken die nodig zijn om die gegevens of content te uploaden, verwerken, publiceren of verzenden.",
+            "Je bent verantwoordelijk voor naleving van toepasselijke privacy-, antispam-, consumentenbeschermings- en platformspecifieke regels, waaronder toestemmings-, kennisgevings-, uitschrijvings- en onderdrukkingsverplichtingen.",
+            "Je mag Markaestro niet gebruiken om bijzondere categorieën gegevens of andere zwaar gereguleerde gegevens te verwerken, tenzij wij daar uitdrukkelijk schriftelijk mee instemmen."
+          ]
+        }
       ]
     },
     {
       "heading": "6. Aanvaardbaar Gebruik",
       "blocks": [
-        { "type": "p", "text": "Je mag de Diensten niet gebruiken om:" },
-        { "type": "ul", "items": [
-          "wet, regelgeving, gerechtelijk bevel of rechten van derden te schenden;",
-          "spam, onwettige marketing, phishing, of misleidende of manipulatieve content te versturen;",
-          "inbreukmakend, lasterlijk, obsceen, frauduleus, haatdragend of anderszins onwettig materiaal te publiceren of verspreiden;",
-          "ongeautoriseerde toegang te verkrijgen tot een account, workspace, systeem of netwerk;",
-          "de Diensten te reverse-engineeren, scrapen, of misbruiken behalve zoals toegestaan door toepasselijk recht;",
-          "de werking, integriteit of beveiliging van de Diensten te verstoren;",
-          "snelheidslimieten, quota, toegangsbeperkingen of beveiligingscontroles te omzeilen; of",
-          "de Diensten te gebruiken op een manier die ervoor zorgt dat Markaestro of zijn leveranciers platformvoorwaarden of contractuele verplichtingen schenden."
-        ] }
+        {
+          "type": "p",
+          "text": "Je mag de Diensten niet gebruiken om:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "wet, regelgeving, gerechtelijk bevel of rechten van derden te schenden;",
+            "spam, onwettige marketing, phishing, of misleidende of manipulatieve content te versturen;",
+            "inbreukmakend, lasterlijk, obsceen, frauduleus, haatdragend of anderszins onwettig materiaal te publiceren of verspreiden;",
+            "ongeautoriseerde toegang te verkrijgen tot een account, workspace, systeem of netwerk;",
+            "de Diensten te reverse-engineeren, scrapen, of misbruiken behalve zoals toegestaan door toepasselijk recht;",
+            "de werking, integriteit of beveiliging van de Diensten te verstoren;",
+            "snelheidslimieten, quota, toegangsbeperkingen of beveiligingscontroles te omzeilen; of",
+            "de Diensten te gebruiken op een manier die ervoor zorgt dat Markaestro of zijn leveranciers platformvoorwaarden of contractuele verplichtingen schenden."
+          ]
+        }
       ]
     },
     {
       "heading": "7. Diensten en Integraties van Derden",
       "blocks": [
-        { "type": "p", "text": "Markaestro kan verbinding maken met publicatieplatformen en workflowtools van derden. Door een dienst van een derde te verbinden, machtig je Markaestro om toegang te verkrijgen tot, op te slaan, te vernieuwen en gerelateerde gegevens te gebruiken zoals nodig is om de gevraagde functionaliteit te bieden binnen de rechten die je verleent." },
-        { "type": "p", "text": "Je blijft verantwoordelijk voor naleving van de voorwaarden, beleidsregels, technische vereisten, publicatieregels en accountbeperkingen van de derde partij. Markaestro is niet verantwoordelijk voor API-wijzigingen, dienstonderbrekingen, accountopschortingen, contentmoderatiebeslissingen, geweigerde posts, ingetrokken tokens of acties van platformen van derden." }
+        {
+          "type": "p",
+          "text": "Markaestro kan verbinding maken met publicatieplatformen en workflowtools van derden. Door een dienst van een derde te verbinden, machtig je Markaestro om toegang te verkrijgen tot, op te slaan, te vernieuwen en gerelateerde gegevens te gebruiken zoals nodig is om de gevraagde functionaliteit te bieden binnen de rechten die je verleent."
+        },
+        {
+          "type": "p",
+          "text": "Je blijft verantwoordelijk voor naleving van de voorwaarden, beleidsregels, technische vereisten, publicatieregels en accountbeperkingen van de derde partij. Markaestro is niet verantwoordelijk voor API-wijzigingen, dienstonderbrekingen, accountopschortingen, contentmoderatiebeslissingen, geweigerde posts, ingetrokken tokens of acties van platformen van derden."
+        }
       ]
     },
     {
       "heading": "8. Uploads en Openbare Content",
       "blocks": [
-        { "type": "p", "text": "Bestanden die via Markaestro worden geüpload, kunnen worden opgeslagen met publiek bereikbare cloud-URL's, zodat ze kunnen worden gebruikt in socialmediaposts. Je mag geen bestand of content uploaden tenzij je gemachtigd bent om deze op die manier beschikbaar te stellen en alle vereiste rechten bezit. Je erkent dat content die via platformen van derden wordt gepubliceerd, publiek kan worden en onderworpen kan zijn aan de voorwaarden en zichtbaarheidsinstellingen van die platformen." }
+        {
+          "type": "p",
+          "text": "Bestanden die via Markaestro worden geüpload, kunnen worden opgeslagen met publiek bereikbare cloud-URL's, zodat ze kunnen worden gebruikt in socialmediaposts. Je mag geen bestand of content uploaden tenzij je gemachtigd bent om deze op die manier beschikbaar te stellen en alle vereiste rechten bezit. Je erkent dat content die via platformen van derden wordt gepubliceerd, publiek kan worden en onderworpen kan zijn aan de voorwaarden en zichtbaarheidsinstellingen van die platformen."
+        }
       ]
     },
     {
       "heading": "9. Intellectueel Eigendom en Licenties",
       "blocks": [
-        { "type": "p", "text": "Tussen de partijen behoud jij het eigendom van je content, klantgegevens, geüploade materialen en workspacemateriaal. Je verleent Markaestro een niet-exclusieve, wereldwijde, beperkte licentie om die content te hosten, op te slaan, te kopiëren, om te zetten, weer te geven, te verzenden en anderszins te verwerken, uitsluitend voor zover nodig om je de Diensten te bieden, te beveiligen en te verbeteren." },
-        { "type": "p", "text": "Markaestro en zijn licentiegevers behouden alle rechten, titel en belang in de Diensten, waaronder software, interfaces, documentatie, branding en gerelateerd intellectueel eigendom. Er worden geen rechten verleend, behalve zoals uitdrukkelijk in deze Voorwaarden vermeld." }
+        {
+          "type": "p",
+          "text": "Tussen de partijen behoud jij het eigendom van je content, klantgegevens, geüploade materialen en workspacemateriaal. Je verleent Markaestro een niet-exclusieve, wereldwijde, beperkte licentie om die content te hosten, op te slaan, te kopiëren, om te zetten, weer te geven, te verzenden en anderszins te verwerken, uitsluitend voor zover nodig om je de Diensten te bieden, te beveiligen en te verbeteren."
+        },
+        {
+          "type": "p",
+          "text": "Markaestro en zijn licentiegevers behouden alle rechten, titel en belang in de Diensten, waaronder software, interfaces, documentatie, branding en gerelateerd intellectueel eigendom. Er worden geen rechten verleend, behalve zoals uitdrukkelijk in deze Voorwaarden vermeld."
+        }
       ]
     },
     {
       "heading": "10. Feedback",
       "blocks": [
-        { "type": "p", "text": "Als je ideeën, suggesties, feedback of verbeteringsverzoeken verstrekt, verleen je Markaestro een eeuwigdurend, onherroepelijk, wereldwijd, sublicentieerbaar, royaltyvrij recht om deze te gebruiken zonder beperking of vergoeding aan jou." }
+        {
+          "type": "p",
+          "text": "Als je ideeën, suggesties, feedback of verbeteringsverzoeken verstrekt, verleen je Markaestro een eeuwigdurend, onherroepelijk, wereldwijd, sublicentieerbaar, royaltyvrij recht om deze te gebruiken zonder beperking of vergoeding aan jou."
+        }
       ]
     },
     {
       "heading": "11. Privacy",
       "blocks": [
-        { "type": "p", "text": "Je gebruik van de Diensten is ook onderworpen aan ons <privacyLink>Privacybeleid</privacyLink>, dat uitlegt hoe wij informatie verzamelen, gebruiken en openbaar maken. Wanneer wij klantgegevens namens jou verwerken, geef je ons de instructie om dit te doen in overeenstemming met deze Voorwaarden, de toepasselijke productinstellingen en je rechtmatige gebruik van de Diensten." }
+        {
+          "type": "p",
+          "text": "Je gebruik van de Diensten is ook onderworpen aan ons <privacyLink>Privacybeleid</privacyLink>, dat uitlegt hoe wij informatie verzamelen, gebruiken en openbaar maken. Wanneer wij klantgegevens namens jou verwerken, geef je ons de instructie om dit te doen in overeenstemming met deze Voorwaarden, de toepasselijke productinstellingen en je rechtmatige gebruik van de Diensten."
+        }
       ]
     },
     {
       "heading": "12. Wijzigingen in de Dienst, Bèta-functies en Beschikbaarheid",
       "blocks": [
-        { "type": "p", "text": "We kunnen op elk moment functies toevoegen, wijzigen, opschorten of verwijderen. Sommige functies kunnen worden gelabeld als bèta, preview, experimenteel of vergelijkbaar. Die functies worden geleverd op basis van beschikbaarheid en kunnen bugs, onvolledige functionaliteit of veranderende vereisten bevatten. We garanderen niet dat een functie, integratie of leveranciersverbinding beschikbaar blijft of zonder onderbreking werkt." }
+        {
+          "type": "p",
+          "text": "We kunnen op elk moment functies toevoegen, wijzigen, opschorten of verwijderen. Sommige functies kunnen worden gelabeld als bèta, preview, experimenteel of vergelijkbaar. Die functies worden geleverd op basis van beschikbaarheid en kunnen bugs, onvolledige functionaliteit of veranderende vereisten bevatten. We garanderen niet dat een functie, integratie of leveranciersverbinding beschikbaar blijft of zonder onderbreking werkt."
+        }
       ]
     },
     {
       "heading": "13. Opschorting en Beëindiging",
       "blocks": [
-        { "type": "p", "text": "Je kunt op elk moment stoppen met het gebruik van de Diensten. We kunnen je toegang opschorten of beëindigen, content verwijderen, integraties uitschakelen, of andere beschermende maatregelen nemen als we redelijkerwijs geloven dat je deze Voorwaarden hebt geschonden, juridisch of beveiligingsrisico hebt gecreëerd, platformverplichtingen niet bent nagekomen, of de Diensten hebt gebruikt op een manier die Markaestro, zijn gebruikers of derden kan schaden." },
-        { "type": "p", "text": "Na beëindiging eindigt je recht om de Diensten te gebruiken onmiddellijk, maar secties die naar hun aard moeten voortduren, blijven van kracht, waaronder die met betrekking tot intellectueel eigendom, disclaimers, aansprakelijkheidsbeperkingen, vrijwaring en geschilbeslechting." }
+        {
+          "type": "p",
+          "text": "Je kunt op elk moment stoppen met het gebruik van de Diensten. We kunnen je toegang opschorten of beëindigen, content verwijderen, integraties uitschakelen, of andere beschermende maatregelen nemen als we redelijkerwijs geloven dat je deze Voorwaarden hebt geschonden, juridisch of beveiligingsrisico hebt gecreëerd, platformverplichtingen niet bent nagekomen, of de Diensten hebt gebruikt op een manier die Markaestro, zijn gebruikers of derden kan schaden."
+        },
+        {
+          "type": "p",
+          "text": "Na beëindiging eindigt je recht om de Diensten te gebruiken onmiddellijk, maar secties die naar hun aard moeten voortduren, blijven van kracht, waaronder die met betrekking tot intellectueel eigendom, disclaimers, aansprakelijkheidsbeperkingen, vrijwaring en geschilbeslechting."
+        }
       ]
     },
     {
       "heading": "14. Disclaimers",
       "blocks": [
-        { "type": "p", "text": "Voor zover maximaal toegestaan door de wet, worden de Diensten geleverd \"zoals ze zijn\" en \"zoals beschikbaar\". Markaestro wijst alle garanties af, hetzij uitdrukkelijk, impliciet, wettelijk of anderszins, waaronder garanties van verkoopbaarheid, geschiktheid voor een bepaald doel, niet-inbreuk, nauwkeurigheid, betrouwbaarheid, beschikbaarheid, of dat de Diensten ononderbroken, veilig, foutloos zullen zijn of aan je verwachtingen zullen voldoen." }
+        {
+          "type": "p",
+          "text": "Voor zover maximaal toegestaan door de wet, worden de Diensten geleverd \"zoals ze zijn\" en \"zoals beschikbaar\". Markaestro wijst alle garanties af, hetzij uitdrukkelijk, impliciet, wettelijk of anderszins, waaronder garanties van verkoopbaarheid, geschiktheid voor een bepaald doel, niet-inbreuk, nauwkeurigheid, betrouwbaarheid, beschikbaarheid, of dat de Diensten ononderbroken, veilig, foutloos zullen zijn of aan je verwachtingen zullen voldoen."
+        }
       ]
     },
     {
       "heading": "15. Beperking van Aansprakelijkheid",
       "blocks": [
-        { "type": "p", "text": "Voor zover maximaal toegestaan door de wet, zijn Markaestro en zijn gelieerde ondernemingen, functionarissen, werknemers, aannemers en licentiegevers niet aansprakelijk voor indirecte, incidentele, speciale, gevolg-, exemplaire of punitieve schade, of voor verlies van winst, inkomsten, goodwill, gebruik of gegevens, zelfs als gewaarschuwd voor de mogelijkheid van dergelijke schade." },
-        { "type": "p", "text": "Voor zover maximaal toegestaan door de wet, zal de totale aansprakelijkheid van Markaestro voortvloeiend uit of gerelateerd aan de Diensten of deze Voorwaarden niet hoger zijn dan het grootste bedrag van het bedrag dat je ons voor de Diensten hebt betaald in de 12 maanden voorafgaand aan de gebeurtenis die aanleiding gaf tot de claim, of honderd Amerikaanse dollar (US$100)." }
+        {
+          "type": "p",
+          "text": "Voor zover maximaal toegestaan door de wet, zijn Markaestro en zijn gelieerde ondernemingen, functionarissen, werknemers, aannemers en licentiegevers niet aansprakelijk voor indirecte, incidentele, speciale, gevolg-, exemplaire of punitieve schade, of voor verlies van winst, inkomsten, goodwill, gebruik of gegevens, zelfs als gewaarschuwd voor de mogelijkheid van dergelijke schade."
+        },
+        {
+          "type": "p",
+          "text": "Voor zover maximaal toegestaan door de wet, zal de totale aansprakelijkheid van Markaestro voortvloeiend uit of gerelateerd aan de Diensten of deze Voorwaarden niet hoger zijn dan het grootste bedrag van het bedrag dat je ons voor de Diensten hebt betaald in de 12 maanden voorafgaand aan de gebeurtenis die aanleiding gaf tot de claim, of honderd Amerikaanse dollar (US$100)."
+        }
       ]
     },
     {
       "heading": "16. Vrijwaring",
       "blocks": [
-        { "type": "p", "text": "Je zult Markaestro en zijn gelieerde ondernemingen, functionarissen, werknemers, aannemers en licentiegevers verdedigen, vrijwaren en schadeloos stellen tegen alle claims, aansprakelijkheden, schade, vonnissen, verliezen, kosten en uitgaven, waaronder redelijke juridische kosten, voortvloeiend uit of gerelateerd aan je content, je gegevens, je gebruik van de Diensten, je gebruik van integraties van derden, of je schending van deze Voorwaarden of toepasselijk recht." }
+        {
+          "type": "p",
+          "text": "Je zult Markaestro en zijn gelieerde ondernemingen, functionarissen, werknemers, aannemers en licentiegevers verdedigen, vrijwaren en schadeloos stellen tegen alle claims, aansprakelijkheden, schade, vonnissen, verliezen, kosten en uitgaven, waaronder redelijke juridische kosten, voortvloeiend uit of gerelateerd aan je content, je gegevens, je gebruik van de Diensten, je gebruik van integraties van derden, of je schending van deze Voorwaarden of toepasselijk recht."
+        }
       ]
     },
     {
       "heading": "17. Toepasselijk Recht",
       "blocks": [
-        { "type": "p", "text": "Deze Voorwaarden worden beheerst door de wetten van de staat Delaware, Verenigde Staten, zonder rekening te houden met beginselen van conflictenrecht, behalve voor zover niet-afdwingbare wetgeving in jouw rechtsgebied anders vereist." }
+        {
+          "type": "p",
+          "text": "Deze Voorwaarden worden beheerst door de wetten van de staat Delaware, Verenigde Staten, zonder rekening te houden met beginselen van conflictenrecht, behalve voor zover niet-afdwingbare wetgeving in jouw rechtsgebied anders vereist."
+        }
       ]
     },
     {
       "heading": "18. Wijzigingen in Deze Voorwaarden",
       "blocks": [
-        { "type": "p", "text": "We kunnen deze Voorwaarden van tijd tot tijd bijwerken. Als we materiële wijzigingen aanbrengen, plaatsen we de bijgewerkte versie en kunnen we aanvullende kennisgeving geven. Je voortgezet gebruik van de Diensten na de ingangsdatum van herziene Voorwaarden vormt aanvaarding van de herziene Voorwaarden." }
+        {
+          "type": "p",
+          "text": "We kunnen deze Voorwaarden van tijd tot tijd bijwerken. Als we materiële wijzigingen aanbrengen, plaatsen we de bijgewerkte versie en kunnen we aanvullende kennisgeving geven. Je voortgezet gebruik van de Diensten na de ingangsdatum van herziene Voorwaarden vormt aanvaarding van de herziene Voorwaarden."
+        }
       ]
     },
     {
       "heading": "19. Contact",
       "blocks": [
-        { "type": "p", "text": "Als je vragen hebt over deze Voorwaarden, neem dan contact met ons op via <contactLink>onze contactpagina</contactLink> of mail <mailLink>legal@markaestro.com</mailLink>." }
+        {
+          "type": "p",
+          "text": "Als je vragen hebt over deze Voorwaarden, neem dan contact met ons op via <contactLink>onze contactpagina</contactLink> of mail <mailLink>legal@markaestro.com</mailLink>."
+        }
       ]
     }
   ]

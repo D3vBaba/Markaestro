@@ -203,7 +203,7 @@ function computeInsights(rows: AnalyticsPostRow[], tzOffsetMinutes = 0): Array<{
     }
     const overallAvg = overallTotal / withEngagements.length;
     const best = [...buckets.entries()]
-      .filter(([, b]) => b.count >= 3)
+      .filter(([, b]) => b.count >= 10)
       .map(([key, b]) => ({ key, avg: b.total / b.count, count: b.count }))
       .sort((a, b) => b.avg - a.avg)[0];
     if (best && overallAvg > 0 && best.avg / overallAvg >= 1.3) {

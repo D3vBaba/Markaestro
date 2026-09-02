@@ -1,11 +1,15 @@
 {
   "eyebrow": "法律信息",
   "title": "隐私政策",
-  "lastUpdated": "最后更新日期 · 2026 年 3 月 10 日",
+  "lastUpdated": "最后更新 · 2026年9月2日",
   "sections": [
     {
       "heading": "1. 适用范围与角色",
       "blocks": [
+        {
+          "type": "p",
+          "text": "本服务由以 Markaestro 名义开展业务的 Aethos Solutions LLC（“Aethos Solutions”）运营。“Markaestro”“我们”或“我们的”均指 Aethos Solutions LLC。"
+        },
         {
           "type": "p",
           "text": "本隐私政策说明了当你访问我们的营销自动化平台、网站、应用程序、API 及相关服务（统称「本服务」）时，Markaestro（「Markaestro」「我们」）如何收集、使用、披露和保护个人信息。"

@@ -1,146 +1,234 @@
 {
   "eyebrow": "Legale",
   "title": "Termini di Servizio",
-  "lastUpdated": "Ultimo aggiornamento · 10 marzo 2026",
+  "lastUpdated": "Ultimo aggiornamento · 2 settembre 2026",
   "sections": [
     {
       "heading": "1. Accettazione dei Termini",
       "blocks": [
-        { "type": "p", "text": "Questi Termini di Servizio (\"Termini\") regolano il tuo accesso e utilizzo del sito web, dell'applicazione, delle API e dei servizi correlati di Markaestro (collettivamente, i \"Servizi\"). Accedendo o utilizzando i Servizi, accetti di essere vincolato da questi Termini. Se non accetti, non utilizzare i Servizi." },
-        { "type": "p", "text": "Se utilizzi i Servizi per conto di un'azienda, organizzazione o altra entità giuridica, dichiari di avere l'autorità per vincolare tale entità, e \"tu\" include tale entità." }
+        {
+          "type": "p",
+          "text": "I Servizi sono gestiti da Aethos Solutions LLC (\"Aethos Solutions\"), che opera con il nome Markaestro. I riferimenti a \"Markaestro\", \"noi\" o \"nostro\" indicano Aethos Solutions LLC."
+        },
+        {
+          "type": "p",
+          "text": "Questi Termini di Servizio (\"Termini\") regolano il tuo accesso e utilizzo del sito web, dell'applicazione, delle API e dei servizi correlati di Markaestro (collettivamente, i \"Servizi\"). Accedendo o utilizzando i Servizi, accetti di essere vincolato da questi Termini. Se non accetti, non utilizzare i Servizi."
+        },
+        {
+          "type": "p",
+          "text": "Se utilizzi i Servizi per conto di un'azienda, organizzazione o altra entità giuridica, dichiari di avere l'autorità per vincolare tale entità, e \"tu\" include tale entità."
+        }
       ]
     },
     {
       "heading": "2. Descrizione del Servizio",
       "blocks": [
-        { "type": "p", "text": "Markaestro è una piattaforma di pubblicazione social per la gestione di prodotti, materiali del brand, contenuti caricati e workflow di pubblicazione social. I Servizi possono integrarsi con piattaforme di terze parti tra cui TikTok, Meta, Firebase e altri servizi resi disponibili da Markaestro di volta in volta." }
+        {
+          "type": "p",
+          "text": "Markaestro è una piattaforma di pubblicazione social per la gestione di prodotti, materiali del brand, contenuti caricati e workflow di pubblicazione social. I Servizi possono integrarsi con piattaforme di terze parti tra cui TikTok, Meta, Firebase e altri servizi resi disponibili da Markaestro di volta in volta."
+        }
       ]
     },
     {
       "heading": "3. Idoneità e Account",
       "blocks": [
-        { "type": "p", "text": "Devi avere almeno 18 anni ed essere in grado di stipulare un contratto vincolante per utilizzare i Servizi. Accetti di fornire informazioni accurate, aggiornate e complete e di mantenerle aggiornate." },
-        { "type": "ul", "items": [
-          "Sei responsabile della protezione delle credenziali del tuo account e di qualsiasi metodo di autenticazione collegato al tuo account.",
-          "Sei responsabile di tutta l'attività che si verifica nel tuo account e all'interno del tuo workspace, autorizzata o meno da te, salvo il caso in cui sia causata da una violazione di questi Termini o della legge applicabile da parte nostra.",
-          "Devi notificarci prontamente se sospetti un accesso non autorizzato, una compromissione delle credenziali o altro uso improprio dell'account."
-        ] },
-        { "type": "p", "text": "Gli account registrati tramite bot, identità ingannevoli o metodi automatizzati non autorizzati sono vietati." }
+        {
+          "type": "p",
+          "text": "Devi avere almeno 18 anni ed essere in grado di stipulare un contratto vincolante per utilizzare i Servizi. Accetti di fornire informazioni accurate, aggiornate e complete e di mantenerle aggiornate."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Sei responsabile della protezione delle credenziali del tuo account e di qualsiasi metodo di autenticazione collegato al tuo account.",
+            "Sei responsabile di tutta l'attività che si verifica nel tuo account e all'interno del tuo workspace, autorizzata o meno da te, salvo il caso in cui sia causata da una violazione di questi Termini o della legge applicabile da parte nostra.",
+            "Devi notificarci prontamente se sospetti un accesso non autorizzato, una compromissione delle credenziali o altro uso improprio dell'account."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Gli account registrati tramite bot, identità ingannevoli o metodi automatizzati non autorizzati sono vietati."
+        }
       ]
     },
     {
       "heading": "4. Workspace e Accesso del Team",
       "blocks": [
-        { "type": "p", "text": "Markaestro è organizzato attorno ai workspace. I proprietari e gli amministratori del workspace possono aggiungere o rimuovere membri e assegnare ruoli. Il proprietario del workspace è responsabile dell'autorizzazione dell'accesso, del mantenimento di istruzioni lecite e di garantire che tutti gli utenti del workspace rispettino questi Termini. Eliminare o rimuovere un utente non rimuove automaticamente contenuti, log o record precedentemente creati nel workspace." }
+        {
+          "type": "p",
+          "text": "Markaestro è organizzato attorno ai workspace. I proprietari e gli amministratori del workspace possono aggiungere o rimuovere membri e assegnare ruoli. Il proprietario del workspace è responsabile dell'autorizzazione dell'accesso, del mantenimento di istruzioni lecite e di garantire che tutti gli utenti del workspace rispettino questi Termini. Eliminare o rimuovere un utente non rimuove automaticamente contenuti, log o record precedentemente creati nel workspace."
+        }
       ]
     },
     {
       "heading": "5. Dati del Cliente e Responsabilità di Conformità",
       "blocks": [
-        { "type": "p", "text": "Mantieni la responsabilità della legalità, dell'accuratezza e dell'utilizzo di qualsiasi dato o contenuto che invii a Markaestro, comprese liste di contatti, materiali del brand, contenuti caricati e messaggi inviati tramite i Servizi." },
-        { "type": "ul", "items": [
-          "Devi possedere tutti i diritti, i permessi, le licenze e le basi giuridiche necessarie per caricare, elaborare, pubblicare o inviare tali dati o contenuti.",
-          "Sei responsabile del rispetto delle norme applicabili in materia di privacy, anti-spam, tutela dei consumatori e regole specifiche della piattaforma, inclusi gli obblighi di consenso, notifica, cancellazione dell'iscrizione e soppressione.",
-          "Non devi utilizzare Markaestro per elaborare dati di categoria speciale o altri dati altamente regolamentati a meno che non acconsentiamo espressamente per iscritto a supportare tale uso."
-        ] }
+        {
+          "type": "p",
+          "text": "Mantieni la responsabilità della legalità, dell'accuratezza e dell'utilizzo di qualsiasi dato o contenuto che invii a Markaestro, comprese liste di contatti, materiali del brand, contenuti caricati e messaggi inviati tramite i Servizi."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Devi possedere tutti i diritti, i permessi, le licenze e le basi giuridiche necessarie per caricare, elaborare, pubblicare o inviare tali dati o contenuti.",
+            "Sei responsabile del rispetto delle norme applicabili in materia di privacy, anti-spam, tutela dei consumatori e regole specifiche della piattaforma, inclusi gli obblighi di consenso, notifica, cancellazione dell'iscrizione e soppressione.",
+            "Non devi utilizzare Markaestro per elaborare dati di categoria speciale o altri dati altamente regolamentati a meno che non acconsentiamo espressamente per iscritto a supportare tale uso."
+          ]
+        }
       ]
     },
     {
       "heading": "6. Uso Accettabile",
       "blocks": [
-        { "type": "p", "text": "Non puoi utilizzare i Servizi per:" },
-        { "type": "ul", "items": [
-          "violare qualsiasi legge, regolamento, ordine del tribunale o diritto di terzi;",
-          "inviare spam, marketing illecito, phishing o contenuti ingannevoli o manipolativi;",
-          "pubblicare o distribuire materiale che violi diritti, sia diffamatorio, osceno, fraudolento, di odio o altrimenti illecito;",
-          "tentare di ottenere accesso non autorizzato a qualsiasi account, workspace, sistema o rete;",
-          "decompilare, effettuare scraping o abusare dei Servizi eccetto quanto consentito dalla legge applicabile;",
-          "interferire con il funzionamento, l'integrità o la sicurezza dei Servizi;",
-          "eludere limiti di frequenza, quote, restrizioni di accesso o controlli di sicurezza; o",
-          "utilizzare i Servizi in un modo che faccia sì che Markaestro o i suoi fornitori violino i termini della piattaforma o obblighi contrattuali."
-        ] }
+        {
+          "type": "p",
+          "text": "Non puoi utilizzare i Servizi per:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "violare qualsiasi legge, regolamento, ordine del tribunale o diritto di terzi;",
+            "inviare spam, marketing illecito, phishing o contenuti ingannevoli o manipolativi;",
+            "pubblicare o distribuire materiale che violi diritti, sia diffamatorio, osceno, fraudolento, di odio o altrimenti illecito;",
+            "tentare di ottenere accesso non autorizzato a qualsiasi account, workspace, sistema o rete;",
+            "decompilare, effettuare scraping o abusare dei Servizi eccetto quanto consentito dalla legge applicabile;",
+            "interferire con il funzionamento, l'integrità o la sicurezza dei Servizi;",
+            "eludere limiti di frequenza, quote, restrizioni di accesso o controlli di sicurezza; o",
+            "utilizzare i Servizi in un modo che faccia sì che Markaestro o i suoi fornitori violino i termini della piattaforma o obblighi contrattuali."
+          ]
+        }
       ]
     },
     {
       "heading": "7. Servizi e Integrazioni di Terze Parti",
       "blocks": [
-        { "type": "p", "text": "Markaestro può connettersi a piattaforme di pubblicazione e strumenti di workflow di terze parti. Connettendo un servizio di terze parti, autorizzi Markaestro ad accedere, archiviare, rinnovare e utilizzare le credenziali e i dati correlati secondo necessità per fornire la funzionalità richiesta entro i permessi che concedi." },
-        { "type": "p", "text": "Rimani responsabile del rispetto dei termini, delle politiche, dei requisiti tecnici, delle regole di pubblicazione e delle restrizioni dell'account della terza parte. Markaestro non è responsabile per modifiche alle API, interruzioni del servizio, sospensioni dell'account, decisioni di moderazione dei contenuti, post rifiutati, token revocati o azioni delle piattaforme di terze parti." }
+        {
+          "type": "p",
+          "text": "Markaestro può connettersi a piattaforme di pubblicazione e strumenti di workflow di terze parti. Connettendo un servizio di terze parti, autorizzi Markaestro ad accedere, archiviare, rinnovare e utilizzare le credenziali e i dati correlati secondo necessità per fornire la funzionalità richiesta entro i permessi che concedi."
+        },
+        {
+          "type": "p",
+          "text": "Rimani responsabile del rispetto dei termini, delle politiche, dei requisiti tecnici, delle regole di pubblicazione e delle restrizioni dell'account della terza parte. Markaestro non è responsabile per modifiche alle API, interruzioni del servizio, sospensioni dell'account, decisioni di moderazione dei contenuti, post rifiutati, token revocati o azioni delle piattaforme di terze parti."
+        }
       ]
     },
     {
       "heading": "8. Caricamenti e Contenuti Pubblici",
       "blocks": [
-        { "type": "p", "text": "I file caricati tramite Markaestro possono essere archiviati usando URL cloud pubblicamente accessibili così da poter essere utilizzati nei post social. Non devi caricare alcun file o contenuto a meno che tu non sia autorizzato a renderlo disponibile in tale modo e non possieda tutti i diritti richiesti. Riconosci che i contenuti pubblicati tramite piattaforme di terze parti potrebbero diventare pubblici e soggetti ai termini e alle impostazioni di visibilità di tali piattaforme." }
+        {
+          "type": "p",
+          "text": "I file caricati tramite Markaestro possono essere archiviati usando URL cloud pubblicamente accessibili così da poter essere utilizzati nei post social. Non devi caricare alcun file o contenuto a meno che tu non sia autorizzato a renderlo disponibile in tale modo e non possieda tutti i diritti richiesti. Riconosci che i contenuti pubblicati tramite piattaforme di terze parti potrebbero diventare pubblici e soggetti ai termini e alle impostazioni di visibilità di tali piattaforme."
+        }
       ]
     },
     {
       "heading": "9. Proprietà Intellettuale e Licenze",
       "blocks": [
-        { "type": "p", "text": "Tra le parti, mantieni la proprietà dei tuoi contenuti, dei dati del cliente, degli asset caricati e dei materiali del workspace. Concedi a Markaestro una licenza non esclusiva, mondiale e limitata per ospitare, archiviare, copiare, trasformare, visualizzare, trasmettere e altrimenti elaborare tali contenuti solo nella misura necessaria per gestire, proteggere, migliorare e fornirti i Servizi." },
-        { "type": "p", "text": "Markaestro e i suoi licenzianti mantengono tutti i diritti, i titoli e gli interessi sui Servizi, incluso il software, le interfacce, la documentazione, il branding e la proprietà intellettuale correlata. Nessun diritto viene concesso salvo quanto espressamente dichiarato in questi Termini." }
+        {
+          "type": "p",
+          "text": "Tra le parti, mantieni la proprietà dei tuoi contenuti, dei dati del cliente, degli asset caricati e dei materiali del workspace. Concedi a Markaestro una licenza non esclusiva, mondiale e limitata per ospitare, archiviare, copiare, trasformare, visualizzare, trasmettere e altrimenti elaborare tali contenuti solo nella misura necessaria per gestire, proteggere, migliorare e fornirti i Servizi."
+        },
+        {
+          "type": "p",
+          "text": "Markaestro e i suoi licenzianti mantengono tutti i diritti, i titoli e gli interessi sui Servizi, incluso il software, le interfacce, la documentazione, il branding e la proprietà intellettuale correlata. Nessun diritto viene concesso salvo quanto espressamente dichiarato in questi Termini."
+        }
       ]
     },
     {
       "heading": "10. Feedback",
       "blocks": [
-        { "type": "p", "text": "Se fornisci idee, suggerimenti, feedback o richieste di miglioramento, concedi a Markaestro un diritto perpetuo, irrevocabile, mondiale, sublicenziabile e privo di royalty di utilizzarli senza restrizioni o compensi nei tuoi confronti." }
+        {
+          "type": "p",
+          "text": "Se fornisci idee, suggerimenti, feedback o richieste di miglioramento, concedi a Markaestro un diritto perpetuo, irrevocabile, mondiale, sublicenziabile e privo di royalty di utilizzarli senza restrizioni o compensi nei tuoi confronti."
+        }
       ]
     },
     {
       "heading": "11. Privacy",
       "blocks": [
-        { "type": "p", "text": "Il tuo utilizzo dei Servizi è anche soggetto alla nostra <privacyLink>Informativa sulla Privacy</privacyLink>, che spiega come raccogliamo, utilizziamo e divulghiamo le informazioni. Quando elaboriamo dati del cliente per tuo conto, ci istruisci a farlo in conformità con questi Termini, le impostazioni del prodotto applicabili e il tuo uso lecito dei Servizi." }
+        {
+          "type": "p",
+          "text": "Il tuo utilizzo dei Servizi è anche soggetto alla nostra <privacyLink>Informativa sulla Privacy</privacyLink>, che spiega come raccogliamo, utilizziamo e divulghiamo le informazioni. Quando elaboriamo dati del cliente per tuo conto, ci istruisci a farlo in conformità con questi Termini, le impostazioni del prodotto applicabili e il tuo uso lecito dei Servizi."
+        }
       ]
     },
     {
       "heading": "12. Modifiche al Servizio, Funzionalità Beta e Disponibilità",
       "blocks": [
-        { "type": "p", "text": "Possiamo aggiungere, modificare, sospendere o rimuovere funzionalità in qualsiasi momento. Alcune funzionalità potrebbero essere etichettate come beta, anteprima, sperimentali o simili. Tali funzionalità sono fornite su base non garantita e potrebbero contenere bug, funzionalità incomplete o requisiti in evoluzione. Non garantiamo che qualsiasi funzionalità, integrazione o connessione con un fornitore rimarrà disponibile o funzionerà senza interruzioni." }
+        {
+          "type": "p",
+          "text": "Possiamo aggiungere, modificare, sospendere o rimuovere funzionalità in qualsiasi momento. Alcune funzionalità potrebbero essere etichettate come beta, anteprima, sperimentali o simili. Tali funzionalità sono fornite su base non garantita e potrebbero contenere bug, funzionalità incomplete o requisiti in evoluzione. Non garantiamo che qualsiasi funzionalità, integrazione o connessione con un fornitore rimarrà disponibile o funzionerà senza interruzioni."
+        }
       ]
     },
     {
       "heading": "13. Sospensione e Cessazione",
       "blocks": [
-        { "type": "p", "text": "Puoi interrompere l'utilizzo dei Servizi in qualsiasi momento. Possiamo sospendere o terminare il tuo accesso, rimuovere contenuti, disabilitare integrazioni o adottare altre azioni protettive se riteniamo ragionevolmente che tu abbia violato questi Termini, creato un rischio legale o di sicurezza, non abbia rispettato gli obblighi della piattaforma, o abbia utilizzato i Servizi in un modo che potrebbe danneggiare Markaestro, i suoi utenti o terze parti." },
-        { "type": "p", "text": "Al momento della cessazione, il tuo diritto di utilizzare i Servizi termina immediatamente, ma le sezioni che per loro natura dovrebbero sopravvivere sopravviveranno, comprese quelle relative a proprietà intellettuale, esclusioni di responsabilità, limitazioni di responsabilità, indennizzo e termini di controversia." }
+        {
+          "type": "p",
+          "text": "Puoi interrompere l'utilizzo dei Servizi in qualsiasi momento. Possiamo sospendere o terminare il tuo accesso, rimuovere contenuti, disabilitare integrazioni o adottare altre azioni protettive se riteniamo ragionevolmente che tu abbia violato questi Termini, creato un rischio legale o di sicurezza, non abbia rispettato gli obblighi della piattaforma, o abbia utilizzato i Servizi in un modo che potrebbe danneggiare Markaestro, i suoi utenti o terze parti."
+        },
+        {
+          "type": "p",
+          "text": "Al momento della cessazione, il tuo diritto di utilizzare i Servizi termina immediatamente, ma le sezioni che per loro natura dovrebbero sopravvivere sopravviveranno, comprese quelle relative a proprietà intellettuale, esclusioni di responsabilità, limitazioni di responsabilità, indennizzo e termini di controversia."
+        }
       ]
     },
     {
       "heading": "14. Esclusioni di Responsabilità",
       "blocks": [
-        { "type": "p", "text": "Nella misura massima consentita dalla legge, i Servizi sono forniti \"così come sono\" e \"come disponibili\". Markaestro declina tutte le garanzie, sia espresse, implicite, di legge o altro, comprese le garanzie di commerciabilità, idoneità a uno scopo particolare, non violazione, accuratezza, affidabilità, disponibilità, o che i Servizi saranno ininterrotti, sicuri, privi di errori o soddisferanno le tue aspettative." }
+        {
+          "type": "p",
+          "text": "Nella misura massima consentita dalla legge, i Servizi sono forniti \"così come sono\" e \"come disponibili\". Markaestro declina tutte le garanzie, sia espresse, implicite, di legge o altro, comprese le garanzie di commerciabilità, idoneità a uno scopo particolare, non violazione, accuratezza, affidabilità, disponibilità, o che i Servizi saranno ininterrotti, sicuri, privi di errori o soddisferanno le tue aspettative."
+        }
       ]
     },
     {
       "heading": "15. Limitazione di Responsabilità",
       "blocks": [
-        { "type": "p", "text": "Nella misura massima consentita dalla legge, Markaestro e le sue affiliate, dirigenti, dipendenti, appaltatori e licenzianti non saranno responsabili per alcun danno indiretto, incidentale, speciale, consequenziale, esemplare o punitivo, o per qualsiasi perdita di profitti, ricavi, avviamento, uso o dati, anche se informati della possibilità di tali danni." },
-        { "type": "p", "text": "Nella misura massima consentita dalla legge, la responsabilità aggregata totale di Markaestro derivante da o correlata ai Servizi o a questi Termini non supererà il maggiore tra l'importo che ci hai pagato per i Servizi nei 12 mesi precedenti l'evento che ha dato origine alla richiesta o cento dollari statunitensi (US$100)." }
+        {
+          "type": "p",
+          "text": "Nella misura massima consentita dalla legge, Markaestro e le sue affiliate, dirigenti, dipendenti, appaltatori e licenzianti non saranno responsabili per alcun danno indiretto, incidentale, speciale, consequenziale, esemplare o punitivo, o per qualsiasi perdita di profitti, ricavi, avviamento, uso o dati, anche se informati della possibilità di tali danni."
+        },
+        {
+          "type": "p",
+          "text": "Nella misura massima consentita dalla legge, la responsabilità aggregata totale di Markaestro derivante da o correlata ai Servizi o a questi Termini non supererà il maggiore tra l'importo che ci hai pagato per i Servizi nei 12 mesi precedenti l'evento che ha dato origine alla richiesta o cento dollari statunitensi (US$100)."
+        }
       ]
     },
     {
       "heading": "16. Indennizzo",
       "blocks": [
-        { "type": "p", "text": "Difenderai, indennizzerai e terrai indenne Markaestro e le sue affiliate, dirigenti, dipendenti, appaltatori e licenzianti da e contro qualsiasi reclamo, responsabilità, danno, sentenza, perdita, costo e spesa, incluse ragionevoli spese legali, derivanti da o correlati ai tuoi contenuti, i tuoi dati, il tuo utilizzo dei Servizi, il tuo utilizzo di integrazioni di terze parti, o la tua violazione di questi Termini o della legge applicabile." }
+        {
+          "type": "p",
+          "text": "Difenderai, indennizzerai e terrai indenne Markaestro e le sue affiliate, dirigenti, dipendenti, appaltatori e licenzianti da e contro qualsiasi reclamo, responsabilità, danno, sentenza, perdita, costo e spesa, incluse ragionevoli spese legali, derivanti da o correlati ai tuoi contenuti, i tuoi dati, il tuo utilizzo dei Servizi, il tuo utilizzo di integrazioni di terze parti, o la tua violazione di questi Termini o della legge applicabile."
+        }
       ]
     },
     {
       "heading": "17. Legge Applicabile",
       "blocks": [
-        { "type": "p", "text": "Questi Termini sono regolati dalle leggi dello Stato del Delaware, Stati Uniti, senza riguardo ai principi di conflitto di leggi, salvo nella misura in cui la legge non derogabile nella tua giurisdizione richieda diversamente." }
+        {
+          "type": "p",
+          "text": "Questi Termini sono regolati dalle leggi dello Stato del Delaware, Stati Uniti, senza riguardo ai principi di conflitto di leggi, salvo nella misura in cui la legge non derogabile nella tua giurisdizione richieda diversamente."
+        }
       ]
     },
     {
       "heading": "18. Modifiche a Questi Termini",
       "blocks": [
-        { "type": "p", "text": "Potremmo aggiornare questi Termini di volta in volta. Se apportiamo modifiche sostanziali, pubblicheremo la versione aggiornata e potremmo fornire un avviso aggiuntivo. Il tuo utilizzo continuato dei Servizi dopo la data di entrata in vigore dei Termini rivisti costituisce accettazione dei Termini rivisti." }
+        {
+          "type": "p",
+          "text": "Potremmo aggiornare questi Termini di volta in volta. Se apportiamo modifiche sostanziali, pubblicheremo la versione aggiornata e potremmo fornire un avviso aggiuntivo. Il tuo utilizzo continuato dei Servizi dopo la data di entrata in vigore dei Termini rivisti costituisce accettazione dei Termini rivisti."
+        }
       ]
     },
     {
       "heading": "19. Contatti",
       "blocks": [
-        { "type": "p", "text": "Se hai domande su questi Termini, contattaci tramite la <contactLink>nostra pagina contatti</contactLink> o scrivi a <mailLink>legal@markaestro.com</mailLink>." }
+        {
+          "type": "p",
+          "text": "Se hai domande su questi Termini, contattaci tramite la <contactLink>nostra pagina contatti</contactLink> o scrivi a <mailLink>legal@markaestro.com</mailLink>."
+        }
       ]
     }
   ]

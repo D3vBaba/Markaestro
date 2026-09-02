@@ -19,6 +19,10 @@ const STRATEGIST_TOOLS = [
   "platform_comparisons", "experiments",
 ] as const;
 
+// Campaigns can be created but posts cannot be assigned to them yet. Keep the
+// preview off until assignment ships so no customer sees a "coming soon" stub.
+const CAMPAIGNS_PREVIEW_ENABLED = false;
+
 function CampaignsPreview({ productId, objective }: { productId: string; objective: string }) {
   const t = useTranslations("intelligence.campaigns");
   const [name, setName] = useState("");
@@ -179,9 +183,11 @@ export function AdvancedTab({ data, productId }: { data: IntelligenceOverview; p
       <PhaseGate enabled={phases.strategist !== false && phases.advanced} feature="intelligenceStrategist">
         <AskMarkaestro productId={productId} />
       </PhaseGate>
-      <PhaseGate enabled={phases.growth} feature="intelligenceOptimization">
-        <CampaignsPreview productId={productId} objective={data.profile?.objective || "awareness"} />
-      </PhaseGate>
+      {CAMPAIGNS_PREVIEW_ENABLED && (
+        <PhaseGate enabled={phases.growth} feature="intelligenceOptimization">
+          <CampaignsPreview productId={productId} objective={data.profile?.objective || "awareness"} />
+        </PhaseGate>
+      )}
     </div>
   );
 }

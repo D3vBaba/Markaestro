@@ -1,11 +1,15 @@
 {
   "eyebrow": "Jurídico",
   "title": "Política de Privacidade",
-  "lastUpdated": "Última atualização · 10 de março de 2026",
+  "lastUpdated": "Última atualização · 2 de setembro de 2026",
   "sections": [
     {
       "heading": "1. Escopo e Papéis",
       "blocks": [
+        {
+          "type": "p",
+          "text": "Os Serviços são operados pela Aethos Solutions LLC (\"Aethos Solutions\"), que opera sob o nome Markaestro. As referências a \"Markaestro\", \"nós\" ou \"nosso\" significam Aethos Solutions LLC."
+        },
         {
           "type": "p",
           "text": "Esta Política de Privacidade explica como o Markaestro (\"Markaestro\", \"nós\" ou \"nosso\") coleta, usa, divulga e protege informações pessoais quando você acessa nossa plataforma de automação de marketing, site, aplicativos, APIs e serviços relacionados (coletivamente, os \"Serviços\")."

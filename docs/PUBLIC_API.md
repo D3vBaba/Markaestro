@@ -20,6 +20,33 @@ selected product destination, and a post carrying `scheduledAt` is created
 [Scheduling](#scheduling)). Drafts publish explicitly later from Markaestro
 or, where allowed, through the public publish endpoint.
 
+## Quickstart
+
+Every request is authenticated with a workspace API key, created in the app
+under Settings > API Access (`/settings?tab=api`). The secret is shown once.
+
+```bash
+export MARKAESTRO_URL="https://app.markaestro.com"
+export MARKAESTRO_API_KEY="mk_live_<workspaceId>.<clientId>.<secret>"
+
+# 1. Which accounts can this key post to?
+curl "$MARKAESTRO_URL/api/connect/v1/social-accounts" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+
+# 2. Create a scheduled post for one of them
+curl -X POST "$MARKAESTRO_URL/api/connect/v1/posts" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"caption":"Hello from the API","social_accounts":["<id from step 1>"],"scheduled_at":"2026-09-10T14:00:00Z"}'
+
+# 3. See what shipped
+curl "$MARKAESTRO_URL/api/connect/v1/posts?limit=10" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+```
+
+Every error is a JSON object with a stable `code` and a readable `error`;
+the same key works on `/api/public/v1` for async publish runs and webhooks.
+
 ## Scope
 
 - Image and video upload to Markaestro storage (direct or compatibility multipart)

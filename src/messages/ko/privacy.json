@@ -1,11 +1,15 @@
 {
   "eyebrow": "법적 정보",
   "title": "개인정보 처리방침",
-  "lastUpdated": "최종 업데이트 · 2026년 3월 10일",
+  "lastUpdated": "최종 업데이트 · 2026년 9월 2일",
   "sections": [
     {
       "heading": "1. 적용 범위 및 역할",
       "blocks": [
+        {
+          "type": "p",
+          "text": "본 서비스는 Markaestro라는 이름으로 사업을 운영하는 Aethos Solutions LLC(\"Aethos Solutions\")가 운영합니다. \"Markaestro\", \"당사\", \"우리\"는 Aethos Solutions LLC를 의미합니다."
+        },
         {
           "type": "p",
           "text": "본 개인정보 처리방침은 귀하가 당사의 마케팅 자동화 플랫폼, 웹사이트, 애플리케이션, API 및 관련 서비스(이하 통칭 \"본 서비스\")에 접근할 때 Markaestro(\"Markaestro\", \"당사\")가 개인정보를 어떻게 수집, 사용, 공개, 보호하는지 설명합니다."

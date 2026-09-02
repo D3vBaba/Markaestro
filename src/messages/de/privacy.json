@@ -1,11 +1,15 @@
 {
   "eyebrow": "Rechtliches",
   "title": "Datenschutzerklärung",
-  "lastUpdated": "Zuletzt aktualisiert · 10. März 2026",
+  "lastUpdated": "Zuletzt aktualisiert · 2. September 2026",
   "sections": [
     {
       "heading": "1. Geltungsbereich und Rollen",
       "blocks": [
+        {
+          "type": "p",
+          "text": "Die Dienste werden von Aethos Solutions LLC (\"Aethos Solutions\") betrieben, die unter dem Namen Markaestro auftritt. Bezeichnungen wie \"Markaestro\", \"wir\", \"uns\" oder \"unser\" beziehen sich auf Aethos Solutions LLC."
+        },
         {
           "type": "p",
           "text": "Diese Datenschutzerklärung erläutert, wie Markaestro („Markaestro“, „wir“ oder „unser“) personenbezogene Daten erhebt, nutzt, offenlegt und schützt, wenn du auf unsere Marketing-Automatisierungsplattform, Website, Anwendungen, APIs und zugehörigen Dienste (zusammen die „Dienste“) zugreifst."

@@ -1,11 +1,15 @@
 {
   "eyebrow": "Legale",
   "title": "Informativa sulla Privacy",
-  "lastUpdated": "Ultimo aggiornamento · 10 marzo 2026",
+  "lastUpdated": "Ultimo aggiornamento · 2 settembre 2026",
   "sections": [
     {
       "heading": "1. Ambito e Ruoli",
       "blocks": [
+        {
+          "type": "p",
+          "text": "I Servizi sono gestiti da Aethos Solutions LLC (\"Aethos Solutions\"), che opera con il nome Markaestro. I riferimenti a \"Markaestro\", \"noi\" o \"nostro\" indicano Aethos Solutions LLC."
+        },
         {
           "type": "p",
           "text": "Questa Informativa sulla Privacy spiega come Markaestro (\"Markaestro\", \"noi\" o \"nostro\") raccoglie, utilizza, divulga e protegge le informazioni personali quando accedi alla nostra piattaforma di automazione del marketing, sito web, applicazioni, API e servizi correlati (collettivamente, i \"Servizi\")."
