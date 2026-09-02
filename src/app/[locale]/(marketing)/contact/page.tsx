@@ -27,13 +27,31 @@ export default function ContactPage() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendFailed, setSendFailed] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const mailto = `mailto:${t("form.supportEmail")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`From: ${name} (${email})\n\n${message}`)}`;
-    window.location.href = mailto;
-    setSent(true);
+    setSending(true);
+    setSendFailed(false);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, subject, message }),
+      });
+      if (!res.ok) throw new Error(`contact ${res.status}`);
+      setSent(true);
+      setName(""); setEmail(""); setSubject(""); setMessage("");
+    } catch {
+      // Delivery failed: hand the message to the visitor's mail client instead.
+      setSendFailed(true);
+      const mailto = `mailto:${t("form.supportEmail")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`From: ${name} (${email})\n\n${message}`)}`;
+      window.location.href = mailto;
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -151,6 +169,9 @@ export default function ContactPage() {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-5">
+                    {sendFailed && (
+                      <p className="text-sm text-destructive">{t("form.sendFailed")}</p>
+                    )}
                     <div className="grid gap-5 sm:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="name">{t("form.nameLabel")}</Label>
@@ -202,8 +223,8 @@ export default function ContactPage() {
                       />
                     </div>
 
-                    <Button type="submit" className="h-11 w-full rounded-xl">
-                      {t("form.submit")}
+                    <Button type="submit" disabled={sending} className="h-11 w-full rounded-xl">
+                      {sending ? t("form.sending") : t("form.submit")}
                     </Button>
 
                     <p className="text-center text-xs text-muted-foreground">

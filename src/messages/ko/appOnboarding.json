@@ -12,10 +12,22 @@
       "title": "무엇을 마케팅하고 있나요?",
       "subtitle": "Markaestro는 당신이 키우고 있는 무엇이든 맞춰 드립니다.",
       "options": {
-        "product": { "label": "앱 또는 제품", "desc": "소프트웨어, 이커머스, 또는 직접 만든 무언가" },
-        "business": { "label": "비즈니스", "desc": "회사, 매장, 또는 지역 서비스" },
-        "personal": { "label": "나 자신", "desc": "오직 나만의 퍼스널 브랜드나 오디언스" },
-        "clients": { "label": "클라이언트", "desc": "다른 사람을 위해 관리하는 브랜드" }
+        "product": {
+          "label": "앱 또는 제품",
+          "desc": "소프트웨어, 이커머스, 또는 직접 만든 무언가"
+        },
+        "business": {
+          "label": "비즈니스",
+          "desc": "회사, 매장, 또는 지역 서비스"
+        },
+        "personal": {
+          "label": "나 자신",
+          "desc": "오직 나만의 퍼스널 브랜드나 오디언스"
+        },
+        "clients": {
+          "label": "클라이언트",
+          "desc": "다른 사람을 위해 관리하는 브랜드"
+        }
       }
     },
     "role": {
@@ -23,20 +35,44 @@
       "title": "당신의 역할은 무엇인가요?",
       "subtitle": "실제 업무 방식에 맞게 모든 것을 조정해 드립니다.",
       "options": {
-        "founder": { "label": "창업자 / CEO", "desc": "마케팅을 포함해 모든 역할을 도맡고 있음" },
-        "marketer": { "label": "마케터", "desc": "모든 채널의 콘텐츠를 담당" },
-        "agency": { "label": "에이전시 / 프리랜서", "desc": "여러 클라이언트의 게시물을 동시에 처리" },
-        "creator": { "label": "콘텐츠 크리에이터", "desc": "오직 나만의 오디언스를 키우는 중" }
+        "founder": {
+          "label": "창업자 / CEO",
+          "desc": "마케팅을 포함해 모든 역할을 도맡고 있음"
+        },
+        "marketer": {
+          "label": "마케터",
+          "desc": "모든 채널의 콘텐츠를 담당"
+        },
+        "agency": {
+          "label": "에이전시 / 프리랜서",
+          "desc": "여러 클라이언트의 게시물을 동시에 처리"
+        },
+        "creator": {
+          "label": "콘텐츠 크리에이터",
+          "desc": "오직 나만의 오디언스를 키우는 중"
+        }
       }
     },
     "teamSize": {
       "eyebrow": "당신의 팀",
       "title": "게시물은 누가 담당하고 있나요?",
       "options": {
-        "solo": { "label": "저 혼자", "desc": "솔직히 말하면, 일이 정말 많아요" },
-        "small": { "label": "2~5명", "desc": "소규모 팀, 여러 역할 겸임" },
-        "medium": { "label": "6~20명", "desc": "협업이 점점 복잡해지고 있음" },
-        "large": { "label": "20명 이상", "desc": "모두를 일관되게 유지하기 어려움" }
+        "solo": {
+          "label": "저 혼자",
+          "desc": "솔직히 말하면, 일이 정말 많아요"
+        },
+        "small": {
+          "label": "2~5명",
+          "desc": "소규모 팀, 여러 역할 겸임"
+        },
+        "medium": {
+          "label": "6~20명",
+          "desc": "협업이 점점 복잡해지고 있음"
+        },
+        "large": {
+          "label": "20명 이상",
+          "desc": "모두를 일관되게 유지하기 어려움"
+        }
       }
     },
     "goal": {
@@ -44,9 +80,18 @@
       "title": "진짜로 원하는 것은 무엇인가요?",
       "subtitle": "이 답변이 당신의 설정과 추천 요금제를 결정합니다.",
       "options": {
-        "social": { "label": "팔로워 늘리기", "desc": "더 넓은 도달, 더 많은 참여" },
-        "sales": { "label": "매출 늘리기", "desc": "게시물을 매출 파이프라인으로" },
-        "time": { "label": "시간 되찾기", "desc": "콘텐츠에 파묻히는 걸 멈추기" }
+        "social": {
+          "label": "팔로워 늘리기",
+          "desc": "더 넓은 도달, 더 많은 참여"
+        },
+        "sales": {
+          "label": "매출 늘리기",
+          "desc": "게시물을 매출 파이프라인으로"
+        },
+        "time": {
+          "label": "시간 되찾기",
+          "desc": "콘텐츠에 파묻히는 걸 멈추기"
+        }
       }
     },
     "channels": {
@@ -54,12 +99,24 @@
       "title": "당신의 오디언스는 어디에 있나요?",
       "subtitle": "해당하는 모든 항목을 선택하세요, 클릭 한 번으로 각 채널에 게시할 수 있습니다.",
       "options": {
-        "instagram": { "label": "Instagram" },
-        "facebook": { "label": "Facebook" },
-        "tiktok": { "label": "TikTok" },
-        "threads": { "label": "Threads" },
-        "pinterest": { "label": "Pinterest" },
-        "linkedin": { "label": "LinkedIn" }
+        "instagram": {
+          "label": "Instagram"
+        },
+        "facebook": {
+          "label": "Facebook"
+        },
+        "tiktok": {
+          "label": "TikTok"
+        },
+        "threads": {
+          "label": "Threads"
+        },
+        "pinterest": {
+          "label": "Pinterest"
+        },
+        "linkedin": {
+          "label": "LinkedIn"
+        }
       }
     },
     "postingToday": {
@@ -67,10 +124,22 @@
       "title": "지금은 어떻게 게시하고 있나요?",
       "subtitle": "많은 팀이 이 부분이 가장 힘들다고 말합니다.",
       "options": {
-        "manual": { "label": "각 앱에서 수동으로", "desc": "여기저기 하나씩 로그인" },
-        "spreadsheet": { "label": "스프레드시트와 리마인더", "desc": "포스트잇과 희망" },
-        "tool": { "label": "다른 예약 게시 도구", "desc": "조용히 감당이 안 되기 시작한 도구" },
-        "starting": { "label": "거의 게시하지 않음", "desc": "아직 제대로 된 체계가 없음" }
+        "manual": {
+          "label": "각 앱에서 수동으로",
+          "desc": "여기저기 하나씩 로그인"
+        },
+        "spreadsheet": {
+          "label": "스프레드시트와 리마인더",
+          "desc": "포스트잇과 희망"
+        },
+        "tool": {
+          "label": "다른 예약 게시 도구",
+          "desc": "조용히 감당이 안 되기 시작한 도구"
+        },
+        "starting": {
+          "label": "거의 게시하지 않음",
+          "desc": "아직 제대로 된 체계가 없음"
+        }
       }
     },
     "frequency": {
@@ -78,10 +147,22 @@
       "title": "얼마나 자주 노출되고 싶나요?",
       "subtitle": "자동으로 일정에 맞춰 유지해 드립니다.",
       "options": {
-        "daily": { "label": "매일", "desc": "꾸준히 존재감 유지" },
-        "few": { "label": "주 몇 회", "desc": "꾸준함이 결국 이깁니다" },
-        "weekly": { "label": "주 1회 정도", "desc": "소음보다 품질" },
-        "unsure": { "label": "아직 잘 모르겠음", "desc": "실제로 효과적인 방법을 알려주세요" }
+        "daily": {
+          "label": "매일",
+          "desc": "꾸준히 존재감 유지"
+        },
+        "few": {
+          "label": "주 몇 회",
+          "desc": "꾸준함이 결국 이깁니다"
+        },
+        "weekly": {
+          "label": "주 1회 정도",
+          "desc": "소음보다 품질"
+        },
+        "unsure": {
+          "label": "아직 잘 모르겠음",
+          "desc": "실제로 효과적인 방법을 알려주세요"
+        }
       }
     },
     "challenge": {
@@ -89,10 +170,22 @@
       "title": "무엇이 계속 발목을 잡나요?",
       "subtitle": "이것이 바로 저희가 해결해 드릴 부분입니다.",
       "options": {
-        "consistency": { "label": "꾸준함 유지하기", "desc": "처음엔 열심히 하다가 금세 조용해짐" },
-        "time": { "label": "시간 확보하기", "desc": "시간은 늘 부족함" },
-        "ideas": { "label": "콘텐츠 아이디어 떠올리기", "desc": "아이디어가 계속 바닥남" },
-        "juggling": { "label": "여러 채널 동시에 관리하기", "desc": "따라가기엔 플랫폼이 너무 많음" }
+        "consistency": {
+          "label": "꾸준함 유지하기",
+          "desc": "처음엔 열심히 하다가 금세 조용해짐"
+        },
+        "time": {
+          "label": "시간 확보하기",
+          "desc": "시간은 늘 부족함"
+        },
+        "ideas": {
+          "label": "콘텐츠 아이디어 떠올리기",
+          "desc": "아이디어가 계속 바닥남"
+        },
+        "juggling": {
+          "label": "여러 채널 동시에 관리하기",
+          "desc": "따라가기엔 플랫폼이 너무 많음"
+        }
       }
     },
     "contentTypes": {
@@ -100,10 +193,18 @@
       "title": "무엇을 게시하고 싶나요?",
       "subtitle": "해당하는 모든 항목을 선택하세요, 캘린더 채우는 것을 도와드릴게요.",
       "options": {
-        "product": { "label": "제품 및 프로모션" },
-        "educational": { "label": "팁 및 정보" },
-        "bts": { "label": "비하인드 스토리" },
-        "news": { "label": "소식 및 업데이트" }
+        "product": {
+          "label": "제품 및 프로모션"
+        },
+        "educational": {
+          "label": "팁 및 정보"
+        },
+        "bts": {
+          "label": "비하인드 스토리"
+        },
+        "news": {
+          "label": "소식 및 업데이트"
+        }
       }
     },
     "hoursPerWeek": {
@@ -111,10 +212,18 @@
       "title": "일주일에 몇 시간이 여기에 사라지나요?",
       "subtitle": "솔직하게, 체감보다 거의 항상 더 많습니다.",
       "options": {
-        "lt2": { "label": "2시간 미만" },
-        "2to5": { "label": "2~5시간" },
-        "5to10": { "label": "5~10시간" },
-        "gt10": { "label": "10시간 이상" }
+        "lt2": {
+          "label": "2시간 미만"
+        },
+        "2to5": {
+          "label": "2~5시간"
+        },
+        "5to10": {
+          "label": "5~10시간"
+        },
+        "gt10": {
+          "label": "10시간 이상"
+        }
       }
     },
     "success": {
@@ -122,10 +231,22 @@
       "title": "무엇이 이루어지면 가치가 있다고 느낄까요?",
       "subtitle": "당신의 전체 설정을 이 결과에 맞춰 드립니다.",
       "options": {
-        "followers": { "label": "더 크고 활발한 오디언스", "desc": "누적되는 도달력" },
-        "sales": { "label": "매출로 이어지는 콘텐츠", "desc": "실제로 전환되는 게시물" },
-        "timeback": { "label": "저녁과 주말 되찾기", "desc": "매주 돌려받는 시간" },
-        "consistency": { "label": "다시는 잠잠해지지 않기", "desc": "믿고 의지할 수 있는 존재감" }
+        "followers": {
+          "label": "더 크고 활발한 오디언스",
+          "desc": "누적되는 도달력"
+        },
+        "sales": {
+          "label": "매출로 이어지는 콘텐츠",
+          "desc": "실제로 전환되는 게시물"
+        },
+        "timeback": {
+          "label": "저녁과 주말 되찾기",
+          "desc": "매주 돌려받는 시간"
+        },
+        "consistency": {
+          "label": "다시는 잠잠해지지 않기",
+          "desc": "믿고 의지할 수 있는 존재감"
+        }
       }
     }
   },
@@ -284,9 +405,9 @@
     "youllGetBackPrefix": "약",
     "hoursAWeek": "시간／주를 되찾게 됩니다",
     "startTrialSuffix": "{days}일 무료 체험을 시작하고 게시 기능과 그 밖에 만드는 모든 것을 이용해 보세요.",
-    "firstPostReady": "첫 게시물이 대시보드 안에 준비되어 있습니다.",
+    "firstPostReady": "워크스페이스가 대시보드에 준비되었습니다.",
     "subscribeToPublish": "구독하면 게시할 수 있습니다",
-    "postReadyOneStepAway": "게시물이 준비되었습니다, 한 단계만 남았습니다",
+    "postReadyOneStepAway": "워크스페이스가 준비되었습니다. 한 단계 남았습니다",
     "justNow": "방금 전",
     "like": "좋아요",
     "comment": "댓글",

@@ -7,13 +7,22 @@
       "titleLine2Accent": "één login.",
       "subtitle": "Stop met inloggen op vijf apps om één keer te posten. Log in om overal te publiceren, weken vooruit te plannen en je tijd terug te krijgen.",
       "points": {
-        "publish": { "title": "Publiceer overal tegelijk", "desc": "Facebook, Instagram, TikTok en meer, vanuit één editor." },
-        "schedule": { "title": "Plan weken vooruit", "desc": "Stel je ritme één keer in en blijf altijd actief." },
-        "hours": { "title": "Elke week uren terugwinnen", "desc": "Het kopiëren, plakken en inloggen verdwijnt gewoon." }
+        "publish": {
+          "title": "Publiceer overal tegelijk",
+          "desc": "Facebook, Instagram, TikTok en meer, vanuit één editor."
+        },
+        "schedule": {
+          "title": "Plan weken vooruit",
+          "desc": "Stel je ritme één keer in en blijf altijd actief."
+        },
+        "hours": {
+          "title": "Elke week uren terugwinnen",
+          "desc": "Het kopiëren, plakken en inloggen verdwijnt gewoon."
+        }
       },
       "newHere": {
         "title": "Nieuw bij Markaestro?",
-        "body": "Beantwoord 10 korte vragen en we stellen je publicatieplan samen, ontdek gratis hoeveel uur je terugwint.",
+        "body": "Beantwoord een paar korte vragen en we bouwen je publicatieplan. Zie hoeveel uur je terugkrijgt, gratis.",
         "cta": "Mijn plan maken, gratis →"
       }
     },

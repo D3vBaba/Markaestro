@@ -35,8 +35,8 @@
     "enterpriseTitle": "Enterprise & Partnerships",
     "enterpriseDescription": "For enterprise pricing, custom integrations, or partnership opportunities, reach us at",
     "enterpriseEmail": "partnerships@markaestro.com",
-    "sentTitle": "Message Ready",
-    "sentDescription": "Your email client should have opened with the message pre-filled. If it didn't, email us directly at",
+    "sentTitle": "Message sent",
+    "sentDescription": "Thanks. We reply to the email address you gave, usually within one business day. You can also reach us at",
     "supportEmail": "support@markaestro.com",
     "sendAnother": "Send Another Message",
     "nameLabel": "Name",
@@ -49,7 +49,9 @@
     "messagePlaceholder": "Tell us more about your question or issue...",
     "submit": "Send Message",
     "privacyNotice": "By sending a message, you agree to our",
-    "privacyLink": "Privacy Policy"
+    "privacyLink": "Privacy Policy",
+    "sending": "Sending...",
+    "sendFailed": "We couldn't send that. Your email client should now open with the message; otherwise write to us at the address below."
   },
   "faqEyebrow": "FAQ",
   "faqTitle": "Frequently asked questions",

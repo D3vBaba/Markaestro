@@ -6,9 +6,9 @@
     "subtitle": "Sin comisiones ocultas, sin sorpresas por usuario. Empieza gratis, todos los planes de pago incluyen una prueba gratuita de {trialDays} días. Cancela cuando quieras.",
     "monthlyToggle": "Mensual",
     "annualToggle": "Anual",
-    "annualSaveBadge": "AHORRA 18%",
+    "annualSaveBadge": "AHORRA 17%",
     "trialLine": "Prueba gratuita de {trialDays} días en todos los planes de pago, sin cargo hasta el día {trialEndDay}",
-    "annualSavingsSuffix": " · La facturación anual ahorra un 18%"
+    "annualSavingsSuffix": " · La facturación anual ahorra un 17%"
   },
   "planNames": {
     "free": "Gratis",
@@ -91,52 +91,94 @@
       {
         "name": "Publicación",
         "features": [
-          { "name": "Canales sociales" },
-          { "name": "Publicaciones al mes" },
-          { "name": "Calendario de contenido" },
-          { "name": "Programación masiva" },
-          { "name": "Programación inteligente" }
+          {
+            "name": "Canales sociales"
+          },
+          {
+            "name": "Publicaciones al mes"
+          },
+          {
+            "name": "Calendario de contenido"
+          },
+          {
+            "name": "Programación masiva"
+          },
+          {
+            "name": "Programación inteligente"
+          }
         ]
       },
       {
         "name": "Biblioteca de contenido",
         "features": [
-          { "name": "Almacenamiento" },
-          { "name": "Perfiles de voz de marca" },
-          { "name": "Identidad de marca (logo y colores)" }
+          {
+            "name": "Almacenamiento"
+          },
+          {
+            "name": "Perfiles de voz de marca"
+          },
+          {
+            "name": "Identidad de marca (logo y colores)"
+          }
         ]
       },
       {
         "name": "Analíticas",
         "features": [
-          { "name": "Analíticas de publicaciones y seguidores" },
-          { "name": "Ventana de historial" },
-          { "name": "Exportación CSV" }
+          {
+            "name": "Analíticas de publicaciones y seguidores"
+          },
+          {
+            "name": "Ventana de historial"
+          },
+          {
+            "name": "Exportación CSV"
+          }
         ]
       },
       {
         "name": "Equipo y espacio de trabajo",
         "features": [
-          { "name": "Miembros del equipo" },
-          { "name": "Espacios de trabajo" },
-          { "name": "Control de acceso basado en roles" }
+          {
+            "name": "Miembros del equipo"
+          },
+          {
+            "name": "Espacios de trabajo"
+          },
+          {
+            "name": "Control de acceso basado en roles"
+          }
         ]
       },
       {
         "name": "Desarrolladores y agentes de IA",
         "features": [
-          { "name": "Claves de API del espacio de trabajo" },
-          { "name": "API de publicación (Connect + v1 completa)" },
-          { "name": "Webhooks firmados" },
-          { "name": "Claves limitadas por marca y con vencimiento" },
-          { "name": "Límite de peticiones de la API" }
+          {
+            "name": "Claves de API del espacio de trabajo"
+          },
+          {
+            "name": "API de publicación (Connect + v1 completa)"
+          },
+          {
+            "name": "Webhooks firmados"
+          },
+          {
+            "name": "Claves limitadas por marca y con vencimiento"
+          },
+          {
+            "name": "Límite de peticiones de la API"
+          }
         ]
       },
       {
         "name": "Soporte",
         "features": [
-          { "name": "Soporte por correo electrónico" },
-          { "name": "Soporte prioritario" }
+          {
+            "name": "Soporte por correo electrónico"
+          },
+          {
+            "name": "Soporte prioritario"
+          }
         ]
       }
     ]
@@ -170,7 +212,7 @@
     },
     {
       "q": "¿Qué planes incluyen la prueba gratuita?",
-      "a": "Todos los planes (Starter, Pro, Business), tanto en facturación mensual como anual, incluyen la prueba gratuita de {trialDays} días. La facturación anual también te ahorra un 18% frente a la mensual."
+      "a": "Todos los planes (Starter, Pro, Business), tanto en facturación mensual como anual, incluyen la prueba gratuita de {trialDays} días. La facturación anual también te ahorra un 17% frente a la mensual."
     },
     {
       "q": "¿Puede mi agente de IA o mi propio software usar Markaestro?",

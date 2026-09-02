@@ -12,10 +12,22 @@
       "title": "何をマーケティングしていますか？",
       "subtitle": "Markaestroは、あなたが育てているものに合わせて対応します。",
       "options": {
-        "product": { "label": "アプリやプロダクト", "desc": "ソフトウェア、ECサイト、あなたが作ったもの" },
-        "business": { "label": "ビジネス", "desc": "会社、店舗、地域のサービス" },
-        "personal": { "label": "自分自身", "desc": "あなただけの個人ブランドやオーディエンス" },
-        "clients": { "label": "クライアント", "desc": "他の人のために管理しているブランド" }
+        "product": {
+          "label": "アプリやプロダクト",
+          "desc": "ソフトウェア、ECサイト、あなたが作ったもの"
+        },
+        "business": {
+          "label": "ビジネス",
+          "desc": "会社、店舗、地域のサービス"
+        },
+        "personal": {
+          "label": "自分自身",
+          "desc": "あなただけの個人ブランドやオーディエンス"
+        },
+        "clients": {
+          "label": "クライアント",
+          "desc": "他の人のために管理しているブランド"
+        }
       }
     },
     "role": {
@@ -23,20 +35,44 @@
       "title": "あなたの役割は？",
       "subtitle": "実際の働き方に合わせてすべてを調整します。",
       "options": {
-        "founder": { "label": "創業者 / CEO", "desc": "マーケティングを含め、あらゆる役割をこなす" },
-        "marketer": { "label": "マーケター", "desc": "あらゆるチャンネルのコンテンツを担当" },
-        "agency": { "label": "代理店 / フリーランス", "desc": "複数のクライアントの投稿を同時にこなす" },
-        "creator": { "label": "コンテンツクリエイター", "desc": "あなただけのオーディエンスを育てる" }
+        "founder": {
+          "label": "創業者 / CEO",
+          "desc": "マーケティングを含め、あらゆる役割をこなす"
+        },
+        "marketer": {
+          "label": "マーケター",
+          "desc": "あらゆるチャンネルのコンテンツを担当"
+        },
+        "agency": {
+          "label": "代理店 / フリーランス",
+          "desc": "複数のクライアントの投稿を同時にこなす"
+        },
+        "creator": {
+          "label": "コンテンツクリエイター",
+          "desc": "あなただけのオーディエンスを育てる"
+        }
       }
     },
     "teamSize": {
       "eyebrow": "あなたのチーム",
       "title": "投稿を担っているのは誰ですか？",
       "options": {
-        "solo": { "label": "自分だけ", "desc": "正直、かなり大変です" },
-        "small": { "label": "2〜5人", "desc": "少人数チーム、兼任だらけ" },
-        "medium": { "label": "6〜20人", "desc": "連携がだんだん煩雑に" },
-        "large": { "label": "20人以上", "desc": "全員の一貫性を保つのが難しい" }
+        "solo": {
+          "label": "自分だけ",
+          "desc": "正直、かなり大変です"
+        },
+        "small": {
+          "label": "2〜5人",
+          "desc": "少人数チーム、兼任だらけ"
+        },
+        "medium": {
+          "label": "6〜20人",
+          "desc": "連携がだんだん煩雑に"
+        },
+        "large": {
+          "label": "20人以上",
+          "desc": "全員の一貫性を保つのが難しい"
+        }
       }
     },
     "goal": {
@@ -44,9 +80,18 @@
       "title": "本当に求めているものは？",
       "subtitle": "これにより、あなたの設定とおすすめプランが決まります。",
       "options": {
-        "social": { "label": "フォロワーを増やす", "desc": "リーチとエンゲージメントを拡大" },
-        "sales": { "label": "売上をさらに伸ばす", "desc": "投稿をパイプラインに変える" },
-        "time": { "label": "時間を取り戻す", "desc": "コンテンツ作業に追われるのをやめる" }
+        "social": {
+          "label": "フォロワーを増やす",
+          "desc": "リーチとエンゲージメントを拡大"
+        },
+        "sales": {
+          "label": "売上をさらに伸ばす",
+          "desc": "投稿をパイプラインに変える"
+        },
+        "time": {
+          "label": "時間を取り戻す",
+          "desc": "コンテンツ作業に追われるのをやめる"
+        }
       }
     },
     "channels": {
@@ -54,12 +99,24 @@
       "title": "オーディエンスはどこにいますか？",
       "subtitle": "当てはまるものをすべて選んでください、ワンクリックでそれぞれに公開できます。",
       "options": {
-        "instagram": { "label": "Instagram" },
-        "facebook": { "label": "Facebook" },
-        "tiktok": { "label": "TikTok" },
-        "threads": { "label": "Threads" },
-        "pinterest": { "label": "Pinterest" },
-        "linkedin": { "label": "LinkedIn" }
+        "instagram": {
+          "label": "Instagram"
+        },
+        "facebook": {
+          "label": "Facebook"
+        },
+        "tiktok": {
+          "label": "TikTok"
+        },
+        "threads": {
+          "label": "Threads"
+        },
+        "pinterest": {
+          "label": "Pinterest"
+        },
+        "linkedin": {
+          "label": "LinkedIn"
+        }
       }
     },
     "postingToday": {
@@ -67,10 +124,22 @@
       "title": "今はどうやって投稿していますか？",
       "subtitle": "多くのチームがここを一番大変だと言います。",
       "options": {
-        "manual": { "label": "各アプリで手動", "desc": "あちこちに1つずつログインしている" },
-        "spreadsheet": { "label": "スプレッドシートとリマインダー", "desc": "付箋メモと願望頼み" },
-        "tool": { "label": "他の予約投稿ツール", "desc": "いつの間にか使いこなせなくなったもの" },
-        "starting": { "label": "ほとんど投稿していない", "desc": "まだきちんとした仕組みがない" }
+        "manual": {
+          "label": "各アプリで手動",
+          "desc": "あちこちに1つずつログインしている"
+        },
+        "spreadsheet": {
+          "label": "スプレッドシートとリマインダー",
+          "desc": "付箋メモと願望頼み"
+        },
+        "tool": {
+          "label": "他の予約投稿ツール",
+          "desc": "いつの間にか使いこなせなくなったもの"
+        },
+        "starting": {
+          "label": "ほとんど投稿していない",
+          "desc": "まだきちんとした仕組みがない"
+        }
       }
     },
     "frequency": {
@@ -78,10 +147,22 @@
       "title": "どのくらいの頻度で発信したいですか？",
       "subtitle": "自動的にスケジュール通りに進めます。",
       "options": {
-        "daily": { "label": "毎日", "desc": "常に印象に残り続ける" },
-        "few": { "label": "週に数回", "desc": "継続は力なり" },
-        "weekly": { "label": "週に1回程度", "desc": "量より質" },
-        "unsure": { "label": "まだわからない", "desc": "実際に効果的な方法を教えてほしい" }
+        "daily": {
+          "label": "毎日",
+          "desc": "常に印象に残り続ける"
+        },
+        "few": {
+          "label": "週に数回",
+          "desc": "継続は力なり"
+        },
+        "weekly": {
+          "label": "週に1回程度",
+          "desc": "量より質"
+        },
+        "unsure": {
+          "label": "まだわからない",
+          "desc": "実際に効果的な方法を教えてほしい"
+        }
       }
     },
     "challenge": {
@@ -89,10 +170,22 @@
       "title": "何につまずいていますか？",
       "subtitle": "これこそ、私たちが解決するポイントです。",
       "options": {
-        "consistency": { "label": "継続すること", "desc": "最初は頑張るが、すぐ止まってしまう" },
-        "time": { "label": "時間を見つけること", "desc": "いつも時間が足りない" },
-        "ideas": { "label": "コンテンツを考えること", "desc": "いつもアイデアが尽きてしまう" },
-        "juggling": { "label": "複数チャンネルの管理", "desc": "プラットフォームが多すぎて追いつけない" }
+        "consistency": {
+          "label": "継続すること",
+          "desc": "最初は頑張るが、すぐ止まってしまう"
+        },
+        "time": {
+          "label": "時間を見つけること",
+          "desc": "いつも時間が足りない"
+        },
+        "ideas": {
+          "label": "コンテンツを考えること",
+          "desc": "いつもアイデアが尽きてしまう"
+        },
+        "juggling": {
+          "label": "複数チャンネルの管理",
+          "desc": "プラットフォームが多すぎて追いつけない"
+        }
       }
     },
     "contentTypes": {
@@ -100,10 +193,18 @@
       "title": "何を投稿したいですか？",
       "subtitle": "当てはまるものをすべて選んでください、カレンダーの作成をお手伝いします。",
       "options": {
-        "product": { "label": "プロダクト＆プロモーション" },
-        "educational": { "label": "ヒント＆知識" },
-        "bts": { "label": "舞台裏" },
-        "news": { "label": "ニュース＆最新情報" }
+        "product": {
+          "label": "プロダクト＆プロモーション"
+        },
+        "educational": {
+          "label": "ヒント＆知識"
+        },
+        "bts": {
+          "label": "舞台裏"
+        },
+        "news": {
+          "label": "ニュース＆最新情報"
+        }
       }
     },
     "hoursPerWeek": {
@@ -111,10 +212,18 @@
       "title": "週に何時間がこれに消えていますか？",
       "subtitle": "正直に、実感より多いことがほとんどです。",
       "options": {
-        "lt2": { "label": "2時間未満" },
-        "2to5": { "label": "2〜5時間" },
-        "5to10": { "label": "5〜10時間" },
-        "gt10": { "label": "10時間以上" }
+        "lt2": {
+          "label": "2時間未満"
+        },
+        "2to5": {
+          "label": "2〜5時間"
+        },
+        "5to10": {
+          "label": "5〜10時間"
+        },
+        "gt10": {
+          "label": "10時間以上"
+        }
       }
     },
     "success": {
@@ -122,10 +231,22 @@
       "title": "何が達成できたら価値があると感じますか？",
       "subtitle": "セットアップ全体をこの結果に向けて調整します。",
       "options": {
-        "followers": { "label": "より大きく熱量の高いオーディエンス", "desc": "積み重なっていくリーチ" },
-        "sales": { "label": "収益につながるコンテンツ", "desc": "実際にコンバージョンする投稿" },
-        "timeback": { "label": "夜と週末を取り戻す", "desc": "毎週返ってくる時間" },
-        "consistency": { "label": "もう発信を止めない", "desc": "頼れる存在感" }
+        "followers": {
+          "label": "より大きく熱量の高いオーディエンス",
+          "desc": "積み重なっていくリーチ"
+        },
+        "sales": {
+          "label": "収益につながるコンテンツ",
+          "desc": "実際にコンバージョンする投稿"
+        },
+        "timeback": {
+          "label": "夜と週末を取り戻す",
+          "desc": "毎週返ってくる時間"
+        },
+        "consistency": {
+          "label": "もう発信を止めない",
+          "desc": "頼れる存在感"
+        }
       }
     }
   },
@@ -284,9 +405,9 @@
     "youllGetBackPrefix": "取り戻せる時間は約",
     "hoursAWeek": "時間／週",
     "startTrialSuffix": "{days}日間の無料トライアルを開始して、公開機能とその他すべての機能を利用しましょう。",
-    "firstPostReady": "最初の投稿はダッシュボード内で準備できています。",
+    "firstPostReady": "ワークスペースの準備がダッシュボードで整いました。",
     "subscribeToPublish": "公開するには登録が必要です",
-    "postReadyOneStepAway": "投稿の準備ができました、あと一歩です",
+    "postReadyOneStepAway": "ワークスペースの準備ができました。あと一歩です",
     "justNow": "たった今",
     "like": "いいね",
     "comment": "コメント",

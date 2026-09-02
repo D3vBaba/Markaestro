@@ -35,8 +35,8 @@
     "enterpriseTitle": "Enterprise en Samenwerkingen",
     "enterpriseDescription": "Voor enterprise-prijzen, aangepaste integraties of samenwerkingsmogelijkheden, bereik ons via",
     "enterpriseEmail": "partnerships@markaestro.com",
-    "sentTitle": "Bericht Klaar",
-    "sentDescription": "Je e-mailprogramma zou geopend moeten zijn met het bericht al ingevuld. Zo niet, mail ons dan rechtstreeks op",
+    "sentTitle": "Bericht verzonden",
+    "sentDescription": "Bedankt. We antwoorden op het opgegeven e-mailadres, meestal binnen één werkdag. Je kunt ons ook bereiken via",
     "supportEmail": "support@markaestro.com",
     "sendAnother": "Stuur Nog een Bericht",
     "nameLabel": "Naam",
@@ -49,7 +49,9 @@
     "messagePlaceholder": "Vertel ons meer over je vraag of probleem...",
     "submit": "Verstuur Bericht",
     "privacyNotice": "Door een bericht te versturen, ga je akkoord met ons",
-    "privacyLink": "Privacybeleid"
+    "privacyLink": "Privacybeleid",
+    "sending": "Verzenden...",
+    "sendFailed": "Verzenden is mislukt. Je e-mailprogramma zou nu moeten openen met het bericht; anders mail ons op het adres hieronder."
   },
   "faqEyebrow": "FAQ",
   "faqTitle": "Veelgestelde vragen",

@@ -7,13 +7,22 @@
       "titleLine2Accent": "ein Login.",
       "subtitle": "Schluss damit, dich in fünf Apps anzumelden, um einmal zu posten. Melde dich an, um überall zu veröffentlichen, Wochen im Voraus zu planen und deine Zeit zurückzugewinnen.",
       "points": {
-        "publish": { "title": "Überall gleichzeitig veröffentlichen", "desc": "Facebook, Instagram, TikTok und mehr, aus einem einzigen Editor." },
-        "schedule": { "title": "Wochen im Voraus planen", "desc": "Lege deinen Rhythmus einmal fest und werde nie wieder still." },
-        "hours": { "title": "Jede Woche Stunden zurückgewinnen", "desc": "Die lästige Kopier-, Einfüge- und Anmeldearbeit fällt einfach weg." }
+        "publish": {
+          "title": "Überall gleichzeitig veröffentlichen",
+          "desc": "Facebook, Instagram, TikTok und mehr, aus einem einzigen Editor."
+        },
+        "schedule": {
+          "title": "Wochen im Voraus planen",
+          "desc": "Lege deinen Rhythmus einmal fest und werde nie wieder still."
+        },
+        "hours": {
+          "title": "Jede Woche Stunden zurückgewinnen",
+          "desc": "Die lästige Kopier-, Einfüge- und Anmeldearbeit fällt einfach weg."
+        }
       },
       "newHere": {
         "title": "Neu bei Markaestro?",
-        "body": "Beantworte 10 kurze Fragen und wir erstellen deinen Posting-Plan, sieh kostenlos, wie viele Stunden du zurückgewinnst.",
+        "body": "Beantworte ein paar kurze Fragen und wir erstellen deinen Posting-Plan. Sieh, wie viele Stunden du zurückbekommst, kostenlos.",
         "cta": "Meinen Plan erstellen, kostenlos →"
       }
     },

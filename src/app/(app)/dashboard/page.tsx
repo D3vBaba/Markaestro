@@ -147,6 +147,20 @@ export default function Home() {
 
       {!(error && !loading) && (
         <div className="space-y-6">
+          {!loading && m !== null && m.totalProducts === 0 && (
+            <div className="flex flex-col gap-3 rounded-2xl p-5 sm:flex-row sm:items-center sm:justify-between bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/50">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 m-0">{t("firstRun.title")}</p>
+                <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5 m-0">{t("firstRun.body")}</p>
+              </div>
+              <Link href="/products" className="shrink-0">
+                <Button className="rounded-xl h-9 text-xs font-semibold gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
+                  <Plus className="h-4 w-4" />
+                  {t("firstRun.cta")}
+                </Button>
+              </Link>
+            </div>
+          )}
           {/* KPI Row */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {kpis.map((kpi) => {

@@ -6,9 +6,9 @@
     "subtitle": "没有隐藏费用，也不会因用户数量产生意外账单。免费开始使用，每个付费套餐均包含 {trialDays} 天免费试用，随时可取消。",
     "monthlyToggle": "按月付费",
     "annualToggle": "按年付费",
-    "annualSaveBadge": "立省 18%",
+    "annualSaveBadge": "立省 17%",
     "trialLine": "所有付费套餐均享 {trialDays} 天免费试用，第 {trialEndDay} 天前不产生任何费用",
-    "annualSavingsSuffix": " · 按年付费可节省 18%"
+    "annualSavingsSuffix": " · 按年付费可节省 17%"
   },
   "planNames": {
     "free": "免费",
@@ -91,52 +91,94 @@
       {
         "name": "发布",
         "features": [
-          { "name": "社交渠道" },
-          { "name": "每月发布数量" },
-          { "name": "内容日历" },
-          { "name": "批量排期" },
-          { "name": "智能排期" }
+          {
+            "name": "社交渠道"
+          },
+          {
+            "name": "每月发布数量"
+          },
+          {
+            "name": "内容日历"
+          },
+          {
+            "name": "批量排期"
+          },
+          {
+            "name": "智能排期"
+          }
         ]
       },
       {
         "name": "素材库",
         "features": [
-          { "name": "存储空间" },
-          { "name": "品牌语调档案" },
-          { "name": "品牌形象（Logo 与配色）" }
+          {
+            "name": "存储空间"
+          },
+          {
+            "name": "品牌语调档案"
+          },
+          {
+            "name": "品牌形象（Logo 与配色）"
+          }
         ]
       },
       {
         "name": "数据分析",
         "features": [
-          { "name": "内容与粉丝分析" },
-          { "name": "历史数据窗口" },
-          { "name": "CSV 导出" }
+          {
+            "name": "内容与粉丝分析"
+          },
+          {
+            "name": "历史数据窗口"
+          },
+          {
+            "name": "CSV 导出"
+          }
         ]
       },
       {
         "name": "团队与工作区",
         "features": [
-          { "name": "团队成员" },
-          { "name": "工作区" },
-          { "name": "基于角色的访问控制" }
+          {
+            "name": "团队成员"
+          },
+          {
+            "name": "工作区"
+          },
+          {
+            "name": "基于角色的访问控制"
+          }
         ]
       },
       {
         "name": "开发者与 AI 代理",
         "features": [
-          { "name": "工作区 API 密钥" },
-          { "name": "发布 API（Connect + 完整 v1）" },
-          { "name": "已签名 Webhook" },
-          { "name": "按品牌的密钥限定与有效期" },
-          { "name": "API 速率限制" }
+          {
+            "name": "工作区 API 密钥"
+          },
+          {
+            "name": "发布 API（Connect + 完整 v1）"
+          },
+          {
+            "name": "已签名 Webhook"
+          },
+          {
+            "name": "按品牌的密钥限定与有效期"
+          },
+          {
+            "name": "API 速率限制"
+          }
         ]
       },
       {
         "name": "支持",
         "features": [
-          { "name": "邮件支持" },
-          { "name": "优先支持" }
+          {
+            "name": "邮件支持"
+          },
+          {
+            "name": "优先支持"
+          }
         ]
       }
     ]
@@ -170,7 +212,7 @@
     },
     {
       "q": "哪些套餐包含免费试用？",
-      "a": "所有套餐（Starter、Pro、Business）无论按月还是按年付费，均包含 {trialDays} 天免费试用。相较于按月付费，按年付费还可额外节省 18%。"
+      "a": "所有套餐（Starter、Pro、Business）无论按月还是按年付费，均包含 {trialDays} 天免费试用。相较于按月付费，按年付费还可额外节省 17%。"
     },
     {
       "q": "我的 AI 代理或自有软件可以使用 Markaestro 吗？",

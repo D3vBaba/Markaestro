@@ -6,9 +6,9 @@
     "subtitle": "Nessuna commissione nascosta, nessuna sorpresa per utente. Inizia gratis, ogni piano a pagamento include una prova gratuita di {trialDays} giorni. Annulla in qualsiasi momento.",
     "monthlyToggle": "Mensile",
     "annualToggle": "Annuale",
-    "annualSaveBadge": "RISPARMIA IL 18%",
+    "annualSaveBadge": "RISPARMIA IL 17%",
     "trialLine": "Prova gratuita di {trialDays} giorni su tutti i piani a pagamento, nessun addebito fino al giorno {trialEndDay}",
-    "annualSavingsSuffix": " · La fatturazione annuale fa risparmiare il 18%"
+    "annualSavingsSuffix": " · La fatturazione annuale fa risparmiare il 17%"
   },
   "planNames": {
     "free": "Gratis",
@@ -91,52 +91,94 @@
       {
         "name": "Pubblicazione",
         "features": [
-          { "name": "Canali social" },
-          { "name": "Post al mese" },
-          { "name": "Calendario editoriale" },
-          { "name": "Programmazione in blocco" },
-          { "name": "Programmazione intelligente" }
+          {
+            "name": "Canali social"
+          },
+          {
+            "name": "Post al mese"
+          },
+          {
+            "name": "Calendario editoriale"
+          },
+          {
+            "name": "Programmazione in blocco"
+          },
+          {
+            "name": "Programmazione intelligente"
+          }
         ]
       },
       {
         "name": "Libreria Contenuti",
         "features": [
-          { "name": "Archiviazione" },
-          { "name": "Profili voce del brand" },
-          { "name": "Identità del brand (logo e colori)" }
+          {
+            "name": "Archiviazione"
+          },
+          {
+            "name": "Profili voce del brand"
+          },
+          {
+            "name": "Identità del brand (logo e colori)"
+          }
         ]
       },
       {
         "name": "Analisi",
         "features": [
-          { "name": "Analisi post e follower" },
-          { "name": "Finestra storica" },
-          { "name": "Esportazione CSV" }
+          {
+            "name": "Analisi post e follower"
+          },
+          {
+            "name": "Finestra storica"
+          },
+          {
+            "name": "Esportazione CSV"
+          }
         ]
       },
       {
         "name": "Team e Workspace",
         "features": [
-          { "name": "Membri del team" },
-          { "name": "Workspace" },
-          { "name": "Controllo degli accessi basato su ruoli" }
+          {
+            "name": "Membri del team"
+          },
+          {
+            "name": "Workspace"
+          },
+          {
+            "name": "Controllo degli accessi basato su ruoli"
+          }
         ]
       },
       {
         "name": "Sviluppatori e Agenti IA",
         "features": [
-          { "name": "Chiavi API del workspace" },
-          { "name": "API di Pubblicazione (Connect + v1 completa)" },
-          { "name": "Webhook firmati" },
-          { "name": "Limitazione e scadenza chiavi per brand" },
-          { "name": "Limite di richieste API" }
+          {
+            "name": "Chiavi API del workspace"
+          },
+          {
+            "name": "API di Pubblicazione (Connect + v1 completa)"
+          },
+          {
+            "name": "Webhook firmati"
+          },
+          {
+            "name": "Limitazione e scadenza chiavi per brand"
+          },
+          {
+            "name": "Limite di richieste API"
+          }
         ]
       },
       {
         "name": "Supporto",
         "features": [
-          { "name": "Supporto via email" },
-          { "name": "Supporto prioritario" }
+          {
+            "name": "Supporto via email"
+          },
+          {
+            "name": "Supporto prioritario"
+          }
         ]
       }
     ]
@@ -170,7 +212,7 @@
     },
     {
       "q": "Quali piani includono la prova gratuita?",
-      "a": "Tutti i piani (Starter, Pro, Business) sia con fatturazione mensile che annuale includono la prova gratuita di {trialDays} giorni. La fatturazione annuale ti fa anche risparmiare il 18% rispetto a quella mensile."
+      "a": "Tutti i piani (Starter, Pro, Business) sia con fatturazione mensile che annuale includono la prova gratuita di {trialDays} giorni. La fatturazione annuale ti fa anche risparmiare il 17% rispetto a quella mensile."
     },
     {
       "q": "Il mio agente IA o il mio software può usare Markaestro?",

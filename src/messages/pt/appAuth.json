@@ -7,13 +7,22 @@
       "titleLine2Accent": "um único login.",
       "subtitle": "Pare de fazer login em cinco apps para publicar uma vez. Faça login para publicar em todo lugar, agendar com semanas de antecedência e recuperar seu tempo.",
       "points": {
-        "publish": { "title": "Publique em todos os lugares de uma vez", "desc": "Facebook, Instagram, TikTok e mais, a partir de um único editor." },
-        "schedule": { "title": "Agende com semanas de antecedência", "desc": "Defina seu ritmo uma vez e nunca mais fique em silêncio." },
-        "hours": { "title": "Recupere horas toda semana", "desc": "O trabalho repetitivo de copiar, colar e fazer login simplesmente desaparece." }
+        "publish": {
+          "title": "Publique em todos os lugares de uma vez",
+          "desc": "Facebook, Instagram, TikTok e mais, a partir de um único editor."
+        },
+        "schedule": {
+          "title": "Agende com semanas de antecedência",
+          "desc": "Defina seu ritmo uma vez e nunca mais fique em silêncio."
+        },
+        "hours": {
+          "title": "Recupere horas toda semana",
+          "desc": "O trabalho repetitivo de copiar, colar e fazer login simplesmente desaparece."
+        }
       },
       "newHere": {
         "title": "Novo no Markaestro?",
-        "body": "Responda 10 perguntas rápidas e criaremos seu plano de publicações, veja quantas horas você vai recuperar, de graça.",
+        "body": "Responda a algumas perguntas rápidas e criaremos o seu plano de publicação. Veja quantas horas vai recuperar, grátis.",
         "cta": "Criar meu plano, é grátis →"
       }
     },

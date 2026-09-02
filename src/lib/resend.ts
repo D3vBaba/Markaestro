@@ -4,6 +4,7 @@ type ResendSendEmailRequest = {
   subject: string;
   html: string;
   text?: string;
+  reply_to?: string;
 };
 
 function getResendApiKey(): string {
@@ -14,7 +15,9 @@ function getDefaultFrom(): string {
   return (process.env.RESEND_FROM || '').trim() || 'Markaestro <no-reply@markaestro.com>';
 }
 
-export async function sendResendEmail(input: Omit<ResendSendEmailRequest, 'from'> & { from?: string }) {
+export async function sendResendEmail(
+  input: Omit<ResendSendEmailRequest, 'from' | 'reply_to'> & { from?: string; replyTo?: string },
+) {
   const apiKey = getResendApiKey();
   if (!apiKey) {
     throw new Error('RESEND_NOT_CONFIGURED');
@@ -26,6 +29,7 @@ export async function sendResendEmail(input: Omit<ResendSendEmailRequest, 'from'
     subject: input.subject,
     html: input.html,
     text: input.text,
+    ...(input.replyTo ? { reply_to: input.replyTo } : {}),
   };
 
   const resp = await fetch('https://api.resend.com/emails', {

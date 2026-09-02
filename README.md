@@ -2,14 +2,16 @@
 
 Marketing automation platform for multi-channel growth teams.
 
-## Current status
-This repository now includes a functional front-end scaffold for:
-- Dashboard
-- Contacts
-- Campaigns
-- Automations
-- Analytics
-- Settings
+## What it is
+Per-brand social publishing for Facebook, Instagram, TikTok, Threads,
+Pinterest and LinkedIn, with a calendar, analytics measured from each
+platform's own data, an "Intelligence" surface that explains what your own
+posts did, workspaces with roles and invites, per-brand Stripe billing, and a
+public API. Sign-in is passwordless (6-digit email code) or Google.
+
+App pages live under `src/app/(app)`: dashboard, products (brands), content
+(composer), calendar, analytics, intelligence, settings, guides. The marketing
+site and legal pages live under `src/app/[locale]` in 10 languages.
 
 ## Run locally
 ```bash
@@ -31,20 +33,13 @@ protects.
 - `docs/DEVELOPMENT.md` local setup, the emulators, and what each CI check protects
 - `docs/PUBLIC_API.md` the public and Connect API surfaces
 - `openapi/markaestro-v1.json` the generated OpenAPI 3.1 description
-- `docs/MVP_PLAN.md` execution plan
+- `docs/operations/*` runbooks, alerting, rate limits, worker fan-out
 
 ## Integrations & API
 - `docs/PUBLIC_API.md` — the **Public API v1** (`/api/public/v1`) for publishing
   automation, plus the **Connect API** (`/api/connect/v1`): a drop-in,
   snake_case compatibility surface for pointing off-the-shelf scheduling clients
   at Markaestro. Both use workspace API keys (Settings → API).
-
-## Next implementation steps
-1. Pick backend (Supabase or Firebase)
-2. Add auth + workspace isolation
-3. Implement Campaign CRUD APIs
-4. Add scheduler + channel integrations (X, TikTok, Resend)
-
 
 ## Firebase setup
 1. `npm run env:example`, then copy `.env.local.example` to `.env.local`. It is
@@ -56,9 +51,9 @@ protects.
 See `docs/DEVELOPMENT.md` for the rest.
 
 
-## Backend Phase 1 (implemented)
-- Firebase Auth integrated (email/password + Google UI)
-- Server-side ID token verification on API routes
+## Auth and workspaces
+- Firebase Auth: passwordless email one-time codes (`/api/auth/otp/*`) and Google
+- Server-side session cookie + ID token verification on API routes
 - Workspace membership model in Firestore:
   - `workspaces/{workspaceId}`
   - `workspaces/{workspaceId}/members/{uid}`

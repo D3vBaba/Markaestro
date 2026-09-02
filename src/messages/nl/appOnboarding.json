@@ -12,10 +12,22 @@
       "title": "Wat promoot je?",
       "subtitle": "Markaestro past zich aan wat je ook aan het laten groeien bent.",
       "options": {
-        "product": { "label": "Een app of product", "desc": "Software, e-commerce, of iets dat je hebt gebouwd" },
-        "business": { "label": "Een bedrijf", "desc": "Een onderneming, winkel of lokale dienst" },
-        "personal": { "label": "Mezelf", "desc": "Een persoonlijk merk of publiek dat alleen jij bent" },
-        "clients": { "label": "Klanten", "desc": "Merken die je voor anderen beheert" }
+        "product": {
+          "label": "Een app of product",
+          "desc": "Software, e-commerce, of iets dat je hebt gebouwd"
+        },
+        "business": {
+          "label": "Een bedrijf",
+          "desc": "Een onderneming, winkel of lokale dienst"
+        },
+        "personal": {
+          "label": "Mezelf",
+          "desc": "Een persoonlijk merk of publiek dat alleen jij bent"
+        },
+        "clients": {
+          "label": "Klanten",
+          "desc": "Merken die je voor anderen beheert"
+        }
       }
     },
     "role": {
@@ -23,20 +35,44 @@
       "title": "Wat is jouw rol?",
       "subtitle": "We stemmen alles af op hoe je daadwerkelijk werkt.",
       "options": {
-        "founder": { "label": "Oprichter / CEO", "desc": "Draagt elke pet, ook die van marketing" },
-        "marketer": { "label": "Marketeer", "desc": "Verantwoordelijk voor content op elk kanaal" },
-        "agency": { "label": "Bureau / Freelancer", "desc": "Jongleert met posts voor meerdere klanten" },
-        "creator": { "label": "Content Creator", "desc": "Laat een publiek groeien dat alleen jij bent" }
+        "founder": {
+          "label": "Oprichter / CEO",
+          "desc": "Draagt elke pet, ook die van marketing"
+        },
+        "marketer": {
+          "label": "Marketeer",
+          "desc": "Verantwoordelijk voor content op elk kanaal"
+        },
+        "agency": {
+          "label": "Bureau / Freelancer",
+          "desc": "Jongleert met posts voor meerdere klanten"
+        },
+        "creator": {
+          "label": "Content Creator",
+          "desc": "Laat een publiek groeien dat alleen jij bent"
+        }
       }
     },
     "teamSize": {
       "eyebrow": "Jouw team",
       "title": "Wie zit er achter het plaatsen van content?",
       "options": {
-        "solo": { "label": "Alleen ik", "desc": "En eerlijk gezegd is het veel" },
-        "small": { "label": "2–5 personen", "desc": "Klein team, veel petten" },
-        "medium": { "label": "6–20 personen", "desc": "Coördinatie wordt rommelig" },
-        "large": { "label": "20+ personen", "desc": "Iedereen consistent houden is lastig" }
+        "solo": {
+          "label": "Alleen ik",
+          "desc": "En eerlijk gezegd is het veel"
+        },
+        "small": {
+          "label": "2–5 personen",
+          "desc": "Klein team, veel petten"
+        },
+        "medium": {
+          "label": "6–20 personen",
+          "desc": "Coördinatie wordt rommelig"
+        },
+        "large": {
+          "label": "20+ personen",
+          "desc": "Iedereen consistent houden is lastig"
+        }
       }
     },
     "goal": {
@@ -44,9 +80,18 @@
       "title": "Wat wil je eigenlijk bereiken?",
       "subtitle": "Dit bepaalt je instellingen en het pakket dat we aanbevelen.",
       "options": {
-        "social": { "label": "Mijn volgers laten groeien", "desc": "Meer bereik, meer betrokkenheid" },
-        "sales": { "label": "Meer verkopen genereren", "desc": "Posts omzetten in pipeline" },
-        "time": { "label": "Mijn tijd terugwinnen", "desc": "Stoppen met verdrinken in content" }
+        "social": {
+          "label": "Mijn volgers laten groeien",
+          "desc": "Meer bereik, meer betrokkenheid"
+        },
+        "sales": {
+          "label": "Meer verkopen genereren",
+          "desc": "Posts omzetten in pipeline"
+        },
+        "time": {
+          "label": "Mijn tijd terugwinnen",
+          "desc": "Stoppen met verdrinken in content"
+        }
       }
     },
     "channels": {
@@ -54,12 +99,24 @@
       "title": "Waar bevindt jouw publiek zich?",
       "subtitle": "Kies alles wat van toepassing is, je publiceert naar elk kanaal met één klik.",
       "options": {
-        "instagram": { "label": "Instagram" },
-        "facebook": { "label": "Facebook" },
-        "tiktok": { "label": "TikTok" },
-        "threads": { "label": "Threads" },
-        "pinterest": { "label": "Pinterest" },
-        "linkedin": { "label": "LinkedIn" }
+        "instagram": {
+          "label": "Instagram"
+        },
+        "facebook": {
+          "label": "Facebook"
+        },
+        "tiktok": {
+          "label": "TikTok"
+        },
+        "threads": {
+          "label": "Threads"
+        },
+        "pinterest": {
+          "label": "Pinterest"
+        },
+        "linkedin": {
+          "label": "LinkedIn"
+        }
       }
     },
     "postingToday": {
@@ -67,10 +124,22 @@
       "title": "Hoe plaats je vandaag content?",
       "subtitle": "De meeste teams vertellen ons dat dit het pijnlijke deel is.",
       "options": {
-        "manual": { "label": "Handmatig in elke app", "desc": "Overal apart inloggen" },
-        "spreadsheet": { "label": "Spreadsheets & herinneringen", "desc": "Post-its en hoop" },
-        "tool": { "label": "Een andere planningstool", "desc": "Een die ik in stilte ben ontgroeid" },
-        "starting": { "label": "Nauwelijks aan het plaatsen", "desc": "Nog geen echt systeem" }
+        "manual": {
+          "label": "Handmatig in elke app",
+          "desc": "Overal apart inloggen"
+        },
+        "spreadsheet": {
+          "label": "Spreadsheets & herinneringen",
+          "desc": "Post-its en hoop"
+        },
+        "tool": {
+          "label": "Een andere planningstool",
+          "desc": "Een die ik in stilte ben ontgroeid"
+        },
+        "starting": {
+          "label": "Nauwelijks aan het plaatsen",
+          "desc": "Nog geen echt systeem"
+        }
       }
     },
     "frequency": {
@@ -78,10 +147,22 @@
       "title": "Hoe vaak wil je zichtbaar zijn?",
       "subtitle": "We houden je automatisch op schema.",
       "options": {
-        "daily": { "label": "Elke dag", "desc": "Blijf top of mind" },
-        "few": { "label": "Een paar keer per week", "desc": "Consistentie wint de race" },
-        "weekly": { "label": "Ongeveer eens per week", "desc": "Kwaliteit boven ruis" },
-        "unsure": { "label": "Nog niet zeker", "desc": "Vertel me wat écht werkt" }
+        "daily": {
+          "label": "Elke dag",
+          "desc": "Blijf top of mind"
+        },
+        "few": {
+          "label": "Een paar keer per week",
+          "desc": "Consistentie wint de race"
+        },
+        "weekly": {
+          "label": "Ongeveer eens per week",
+          "desc": "Kwaliteit boven ruis"
+        },
+        "unsure": {
+          "label": "Nog niet zeker",
+          "desc": "Vertel me wat écht werkt"
+        }
       }
     },
     "challenge": {
@@ -89,10 +170,22 @@
       "title": "Wat blijft je parten spelen?",
       "subtitle": "Dit is precies wat we voor je gaan oplossen.",
       "options": {
-        "consistency": { "label": "Consistent blijven", "desc": "Ik begin sterk en val dan stil" },
-        "time": { "label": "De tijd vinden", "desc": "Er is nooit genoeg van" },
-        "ideas": { "label": "Content bedenken", "desc": "Mijn ideeën raken steeds op" },
-        "juggling": { "label": "Jongleren met kanalen", "desc": "Te veel platforms om bij te houden" }
+        "consistency": {
+          "label": "Consistent blijven",
+          "desc": "Ik begin sterk en val dan stil"
+        },
+        "time": {
+          "label": "De tijd vinden",
+          "desc": "Er is nooit genoeg van"
+        },
+        "ideas": {
+          "label": "Content bedenken",
+          "desc": "Mijn ideeën raken steeds op"
+        },
+        "juggling": {
+          "label": "Jongleren met kanalen",
+          "desc": "Te veel platforms om bij te houden"
+        }
       }
     },
     "contentTypes": {
@@ -100,10 +193,18 @@
       "title": "Wat wil je plaatsen?",
       "subtitle": "Kies alles wat van toepassing is, we helpen je de kalender te vullen.",
       "options": {
-        "product": { "label": "Product & promoties" },
-        "educational": { "label": "Tips & educatie" },
-        "bts": { "label": "Achter de schermen" },
-        "news": { "label": "Nieuws & updates" }
+        "product": {
+          "label": "Product & promoties"
+        },
+        "educational": {
+          "label": "Tips & educatie"
+        },
+        "bts": {
+          "label": "Achter de schermen"
+        },
+        "news": {
+          "label": "Nieuws & updates"
+        }
       }
     },
     "hoursPerWeek": {
@@ -111,10 +212,18 @@
       "title": "Hoeveel uur per week verdwijnt hierin?",
       "subtitle": "Wees eerlijk, het is bijna altijd meer dan het voelt.",
       "options": {
-        "lt2": { "label": "Minder dan 2 uur" },
-        "2to5": { "label": "2–5 uur" },
-        "5to10": { "label": "5–10 uur" },
-        "gt10": { "label": "Meer dan 10 uur" }
+        "lt2": {
+          "label": "Minder dan 2 uur"
+        },
+        "2to5": {
+          "label": "2–5 uur"
+        },
+        "5to10": {
+          "label": "5–10 uur"
+        },
+        "gt10": {
+          "label": "Meer dan 10 uur"
+        }
       }
     },
     "success": {
@@ -122,10 +231,22 @@
       "title": "Wat zou dit de moeite waard maken?",
       "subtitle": "We richten je hele instelling op dit resultaat.",
       "options": {
-        "followers": { "label": "Een groter, betrokken publiek", "desc": "Bereik dat zich opstapelt" },
-        "sales": { "label": "Content die omzet genereert", "desc": "Posts die daadwerkelijk converteren" },
-        "timeback": { "label": "Mijn avonden & weekenden terug", "desc": "Elke week teruggewonnen uren" },
-        "consistency": { "label": "Nooit meer stilvallen", "desc": "Een aanwezigheid waarop ik kan rekenen" }
+        "followers": {
+          "label": "Een groter, betrokken publiek",
+          "desc": "Bereik dat zich opstapelt"
+        },
+        "sales": {
+          "label": "Content die omzet genereert",
+          "desc": "Posts die daadwerkelijk converteren"
+        },
+        "timeback": {
+          "label": "Mijn avonden & weekenden terug",
+          "desc": "Elke week teruggewonnen uren"
+        },
+        "consistency": {
+          "label": "Nooit meer stilvallen",
+          "desc": "Een aanwezigheid waarop ik kan rekenen"
+        }
       }
     }
   },
@@ -284,9 +405,9 @@
     "youllGetBackPrefix": "Je krijgt ongeveer",
     "hoursAWeek": "uur per week terug",
     "startTrialSuffix": "Start je gratis proefperiode van {days} dagen om te publiceren, en al het andere dat je maakt.",
-    "firstPostReady": "Je eerste post staat klaar in je dashboard.",
+    "firstPostReady": "Je werkruimte staat klaar in je dashboard.",
     "subscribeToPublish": "Abonneer je om te publiceren",
-    "postReadyOneStepAway": "Je post is klaar, nog één stap te gaan",
+    "postReadyOneStepAway": "Je werkruimte is klaar. Nog één stap",
     "justNow": "Zojuist",
     "like": "Vind ik leuk",
     "comment": "Reageren",

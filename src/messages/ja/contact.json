@@ -35,8 +35,8 @@
     "enterpriseTitle": "エンタープライズ＆パートナーシップ",
     "enterpriseDescription": "エンタープライズ向け料金、カスタム連携、パートナーシップのご相談は、こちらまでお問い合わせください：",
     "enterpriseEmail": "partnerships@markaestro.com",
-    "sentTitle": "メッセージの準備ができました",
-    "sentDescription": "メールクライアントにメッセージが自動入力された状態で開いているはずです。開かなかった場合は、以下まで直接メールをお送りください：",
+    "sentTitle": "メッセージを送信しました",
+    "sentDescription": "ありがとうございます。通常1営業日以内にご記入のメールアドレスへ返信します。次の宛先でも受け付けています:",
     "supportEmail": "support@markaestro.com",
     "sendAnother": "別のメッセージを送信",
     "nameLabel": "お名前",
@@ -49,7 +49,9 @@
     "messagePlaceholder": "ご質問やお困りごとについて詳しくお聞かせください...",
     "submit": "メッセージを送信",
     "privacyNotice": "メッセージを送信することで、以下に同意したものとみなされます：",
-    "privacyLink": "プライバシーポリシー"
+    "privacyLink": "プライバシーポリシー",
+    "sending": "送信中...",
+    "sendFailed": "送信できませんでした。メールクライアントがメッセージ付きで開くはずです。開かない場合は下記の宛先までご連絡ください。"
   },
   "faqEyebrow": "よくある質問",
   "faqTitle": "よくあるご質問",

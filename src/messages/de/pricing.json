@@ -6,9 +6,9 @@
     "subtitle": "Keine versteckten Gebühren, keine Überraschungen pro Nutzer. Starte kostenlos, jeder Bezahltarif enthält eine kostenlose {trialDays}-tägige Testphase. Jederzeit kündbar.",
     "monthlyToggle": "Monatlich",
     "annualToggle": "Jährlich",
-    "annualSaveBadge": "18 % SPAREN",
+    "annualSaveBadge": "17 % SPAREN",
     "trialLine": "{trialDays}-tägige kostenlose Testphase bei allen Bezahltarifen, keine Kosten bis Tag {trialEndDay}",
-    "annualSavingsSuffix": " · Jährliche Abrechnung spart 18 %"
+    "annualSavingsSuffix": " · Jährliche Abrechnung spart 17 %"
   },
   "planNames": {
     "free": "Kostenlos",
@@ -91,52 +91,94 @@
       {
         "name": "Veröffentlichung",
         "features": [
-          { "name": "Soziale Kanäle" },
-          { "name": "Beiträge pro Monat" },
-          { "name": "Content-Kalender" },
-          { "name": "Massenplanung" },
-          { "name": "Intelligente Planung" }
+          {
+            "name": "Soziale Kanäle"
+          },
+          {
+            "name": "Beiträge pro Monat"
+          },
+          {
+            "name": "Content-Kalender"
+          },
+          {
+            "name": "Massenplanung"
+          },
+          {
+            "name": "Intelligente Planung"
+          }
         ]
       },
       {
         "name": "Medienbibliothek",
         "features": [
-          { "name": "Speicher" },
-          { "name": "Markenstimme-Profile" },
-          { "name": "Markenidentität (Logo & Farben)" }
+          {
+            "name": "Speicher"
+          },
+          {
+            "name": "Markenstimme-Profile"
+          },
+          {
+            "name": "Markenidentität (Logo & Farben)"
+          }
         ]
       },
       {
         "name": "Analysen",
         "features": [
-          { "name": "Beitrags- und Follower-Analysen" },
-          { "name": "Verlaufsfenster" },
-          { "name": "CSV-Export" }
+          {
+            "name": "Beitrags- und Follower-Analysen"
+          },
+          {
+            "name": "Verlaufsfenster"
+          },
+          {
+            "name": "CSV-Export"
+          }
         ]
       },
       {
         "name": "Team & Arbeitsbereich",
         "features": [
-          { "name": "Teammitglieder" },
-          { "name": "Arbeitsbereiche" },
-          { "name": "Rollenbasierte Zugriffskontrolle" }
+          {
+            "name": "Teammitglieder"
+          },
+          {
+            "name": "Arbeitsbereiche"
+          },
+          {
+            "name": "Rollenbasierte Zugriffskontrolle"
+          }
         ]
       },
       {
         "name": "Entwickler & KI-Agenten",
         "features": [
-          { "name": "API-Schlüssel für Arbeitsbereiche" },
-          { "name": "Veröffentlichungs-API (Connect + vollständige v1)" },
-          { "name": "Signierte Webhooks" },
-          { "name": "Markengebundene Schlüssel mit Ablaufdatum" },
-          { "name": "API-Ratenlimit" }
+          {
+            "name": "API-Schlüssel für Arbeitsbereiche"
+          },
+          {
+            "name": "Veröffentlichungs-API (Connect + vollständige v1)"
+          },
+          {
+            "name": "Signierte Webhooks"
+          },
+          {
+            "name": "Markengebundene Schlüssel mit Ablaufdatum"
+          },
+          {
+            "name": "API-Ratenlimit"
+          }
         ]
       },
       {
         "name": "Support",
         "features": [
-          { "name": "E-Mail-Support" },
-          { "name": "Priorisierter Support" }
+          {
+            "name": "E-Mail-Support"
+          },
+          {
+            "name": "Priorisierter Support"
+          }
         ]
       }
     ]
@@ -170,7 +212,7 @@
     },
     {
       "q": "Welche Tarife enthalten die kostenlose Testphase?",
-      "a": "Alle Tarife (Starter, Pro, Business), sowohl monatlich als auch jährlich abgerechnet, enthalten die kostenlose {trialDays}-tägige Testphase. Die jährliche Abrechnung spart dir zudem 18 % gegenüber der monatlichen."
+      "a": "Alle Tarife (Starter, Pro, Business), sowohl monatlich als auch jährlich abgerechnet, enthalten die kostenlose {trialDays}-tägige Testphase. Die jährliche Abrechnung spart dir zudem 17 % gegenüber der monatlichen."
     },
     {
       "q": "Kann mein KI-Agent oder meine eigene Software Markaestro nutzen?",

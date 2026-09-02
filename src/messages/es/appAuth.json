@@ -7,13 +7,22 @@
       "titleLine2Accent": "un solo inicio de sesión.",
       "subtitle": "Deja de iniciar sesión en cinco apps para publicar una vez. Inicia sesión para publicar en todas partes, programar con semanas de antelación y recuperar tu tiempo.",
       "points": {
-        "publish": { "title": "Publica en todas partes a la vez", "desc": "Facebook, Instagram, TikTok y más, desde un único editor." },
-        "schedule": { "title": "Programa con semanas de antelación", "desc": "Define tu ritmo una vez y no vuelvas a quedarte en silencio." },
-        "hours": { "title": "Recupera horas cada semana", "desc": "El trabajo tedioso de copiar, pegar e iniciar sesión simplemente desaparece." }
+        "publish": {
+          "title": "Publica en todas partes a la vez",
+          "desc": "Facebook, Instagram, TikTok y más, desde un único editor."
+        },
+        "schedule": {
+          "title": "Programa con semanas de antelación",
+          "desc": "Define tu ritmo una vez y no vuelvas a quedarte en silencio."
+        },
+        "hours": {
+          "title": "Recupera horas cada semana",
+          "desc": "El trabajo tedioso de copiar, pegar e iniciar sesión simplemente desaparece."
+        }
       },
       "newHere": {
         "title": "¿Nuevo en Markaestro?",
-        "body": "Responde 10 preguntas rápidas y crearemos tu plan de publicaciones, descubre cuántas horas recuperarás, gratis.",
+        "body": "Responde unas preguntas rápidas y crearemos tu plan de publicación. Descubre cuántas horas recuperarás, gratis.",
         "cta": "Crear mi plan, es gratis →"
       }
     },

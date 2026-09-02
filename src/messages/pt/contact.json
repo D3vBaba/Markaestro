@@ -35,8 +35,8 @@
     "enterpriseTitle": "Empresas e Parcerias",
     "enterpriseDescription": "Para preços empresariais, integrações personalizadas ou oportunidades de parceria, fale conosco em",
     "enterpriseEmail": "partnerships@markaestro.com",
-    "sentTitle": "Mensagem Pronta",
-    "sentDescription": "Seu cliente de e-mail deve ter aberto com a mensagem pré-preenchida. Se isso não aconteceu, envie um e-mail diretamente para",
+    "sentTitle": "Mensagem enviada",
+    "sentDescription": "Obrigado. Respondemos para o e-mail indicado, normalmente em um dia útil. Também pode falar connosco em",
     "supportEmail": "support@markaestro.com",
     "sendAnother": "Enviar Outra Mensagem",
     "nameLabel": "Nome",
@@ -49,7 +49,9 @@
     "messagePlaceholder": "Conte mais sobre sua dúvida ou problema...",
     "submit": "Enviar Mensagem",
     "privacyNotice": "Ao enviar uma mensagem, você concorda com nossa",
-    "privacyLink": "Política de Privacidade"
+    "privacyLink": "Política de Privacidade",
+    "sending": "A enviar...",
+    "sendFailed": "Não foi possível enviar. O seu cliente de e-mail deverá abrir com a mensagem; caso contrário, escreva-nos para o endereço abaixo."
   },
   "faqEyebrow": "FAQ",
   "faqTitle": "Perguntas frequentes",

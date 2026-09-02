@@ -12,10 +12,22 @@
       "title": "Cosa stai promuovendo?",
       "subtitle": "Markaestro si adatta a qualsiasi cosa tu stia facendo crescere.",
       "options": {
-        "product": { "label": "Un'app o un prodotto", "desc": "Software, e-commerce, o qualcosa che hai creato" },
-        "business": { "label": "Un'attività", "desc": "Un'azienda, un negozio o un servizio locale" },
-        "personal": { "label": "Me stesso", "desc": "Un brand personale o un pubblico che sei solo tu" },
-        "clients": { "label": "Clienti", "desc": "Brand che gestisci per altre persone" }
+        "product": {
+          "label": "Un'app o un prodotto",
+          "desc": "Software, e-commerce, o qualcosa che hai creato"
+        },
+        "business": {
+          "label": "Un'attività",
+          "desc": "Un'azienda, un negozio o un servizio locale"
+        },
+        "personal": {
+          "label": "Me stesso",
+          "desc": "Un brand personale o un pubblico che sei solo tu"
+        },
+        "clients": {
+          "label": "Clienti",
+          "desc": "Brand che gestisci per altre persone"
+        }
       }
     },
     "role": {
@@ -23,20 +35,44 @@
       "title": "Qual è il tuo ruolo?",
       "subtitle": "Adatteremo tutto al modo in cui lavori davvero.",
       "options": {
-        "founder": { "label": "Fondatore / CEO", "desc": "Indossi ogni cappello, incluso il marketing" },
-        "marketer": { "label": "Marketer", "desc": "Responsabile dei contenuti su ogni canale" },
-        "agency": { "label": "Agenzia / Freelance", "desc": "Gestisci contenuti per più clienti" },
-        "creator": { "label": "Content Creator", "desc": "Fai crescere un pubblico che sei solo tu" }
+        "founder": {
+          "label": "Fondatore / CEO",
+          "desc": "Indossi ogni cappello, incluso il marketing"
+        },
+        "marketer": {
+          "label": "Marketer",
+          "desc": "Responsabile dei contenuti su ogni canale"
+        },
+        "agency": {
+          "label": "Agenzia / Freelance",
+          "desc": "Gestisci contenuti per più clienti"
+        },
+        "creator": {
+          "label": "Content Creator",
+          "desc": "Fai crescere un pubblico che sei solo tu"
+        }
       }
     },
     "teamSize": {
       "eyebrow": "Il tuo team",
       "title": "Chi c'è dietro le pubblicazioni?",
       "options": {
-        "solo": { "label": "Solo io", "desc": "E onestamente, è tanto lavoro" },
-        "small": { "label": "2–5 persone", "desc": "Team piccolo, tanti ruoli" },
-        "medium": { "label": "6–20 persone", "desc": "Il coordinamento sta diventando complicato" },
-        "large": { "label": "20+ persone", "desc": "Mantenere tutti coerenti è difficile" }
+        "solo": {
+          "label": "Solo io",
+          "desc": "E onestamente, è tanto lavoro"
+        },
+        "small": {
+          "label": "2–5 persone",
+          "desc": "Team piccolo, tanti ruoli"
+        },
+        "medium": {
+          "label": "6–20 persone",
+          "desc": "Il coordinamento sta diventando complicato"
+        },
+        "large": {
+          "label": "20+ persone",
+          "desc": "Mantenere tutti coerenti è difficile"
+        }
       }
     },
     "goal": {
@@ -44,9 +80,18 @@
       "title": "Cosa stai veramente cercando?",
       "subtitle": "Questo definisce la tua configurazione e il piano che ti consigliamo.",
       "options": {
-        "social": { "label": "Far crescere i miei follower", "desc": "Più copertura, più coinvolgimento" },
-        "sales": { "label": "Aumentare le vendite", "desc": "Trasformare i post in opportunità di vendita" },
-        "time": { "label": "Riprendermi il mio tempo", "desc": "Smettere di annegare nei contenuti" }
+        "social": {
+          "label": "Far crescere i miei follower",
+          "desc": "Più copertura, più coinvolgimento"
+        },
+        "sales": {
+          "label": "Aumentare le vendite",
+          "desc": "Trasformare i post in opportunità di vendita"
+        },
+        "time": {
+          "label": "Riprendermi il mio tempo",
+          "desc": "Smettere di annegare nei contenuti"
+        }
       }
     },
     "channels": {
@@ -54,12 +99,24 @@
       "title": "Dove si trova il tuo pubblico?",
       "subtitle": "Seleziona tutto ciò che si applica, pubblicherai su ciascuno con un clic.",
       "options": {
-        "instagram": { "label": "Instagram" },
-        "facebook": { "label": "Facebook" },
-        "tiktok": { "label": "TikTok" },
-        "threads": { "label": "Threads" },
-        "pinterest": { "label": "Pinterest" },
-        "linkedin": { "label": "LinkedIn" }
+        "instagram": {
+          "label": "Instagram"
+        },
+        "facebook": {
+          "label": "Facebook"
+        },
+        "tiktok": {
+          "label": "TikTok"
+        },
+        "threads": {
+          "label": "Threads"
+        },
+        "pinterest": {
+          "label": "Pinterest"
+        },
+        "linkedin": {
+          "label": "LinkedIn"
+        }
       }
     },
     "postingToday": {
@@ -67,10 +124,22 @@
       "title": "Come pubblichi oggi?",
       "subtitle": "La maggior parte dei team ci dice che questa è la parte più difficile.",
       "options": {
-        "manual": { "label": "Manualmente in ogni app", "desc": "Accedendo ovunque, uno alla volta" },
-        "spreadsheet": { "label": "Fogli di calcolo e promemoria", "desc": "Post-it e speranza" },
-        "tool": { "label": "Un altro strumento di pianificazione", "desc": "Uno che ho silenziosamente superato" },
-        "starting": { "label": "Pubblico quasi nulla", "desc": "Ancora nessun sistema reale" }
+        "manual": {
+          "label": "Manualmente in ogni app",
+          "desc": "Accedendo ovunque, uno alla volta"
+        },
+        "spreadsheet": {
+          "label": "Fogli di calcolo e promemoria",
+          "desc": "Post-it e speranza"
+        },
+        "tool": {
+          "label": "Un altro strumento di pianificazione",
+          "desc": "Uno che ho silenziosamente superato"
+        },
+        "starting": {
+          "label": "Pubblico quasi nulla",
+          "desc": "Ancora nessun sistema reale"
+        }
       }
     },
     "frequency": {
@@ -78,10 +147,22 @@
       "title": "Con quale frequenza vuoi farti vedere?",
       "subtitle": "Ti manterremo in programma automaticamente.",
       "options": {
-        "daily": { "label": "Ogni giorno", "desc": "Resta sempre presente" },
-        "few": { "label": "Qualche volta a settimana", "desc": "La costanza vince la gara" },
-        "weekly": { "label": "Circa una volta a settimana", "desc": "Qualità prima di tutto" },
-        "unsure": { "label": "Non ancora sicuro", "desc": "Dimmi cosa funziona davvero" }
+        "daily": {
+          "label": "Ogni giorno",
+          "desc": "Resta sempre presente"
+        },
+        "few": {
+          "label": "Qualche volta a settimana",
+          "desc": "La costanza vince la gara"
+        },
+        "weekly": {
+          "label": "Circa una volta a settimana",
+          "desc": "Qualità prima di tutto"
+        },
+        "unsure": {
+          "label": "Non ancora sicuro",
+          "desc": "Dimmi cosa funziona davvero"
+        }
       }
     },
     "challenge": {
@@ -89,10 +170,22 @@
       "title": "Cosa continua a farti inciampare?",
       "subtitle": "È proprio questo che risolveremo per te.",
       "options": {
-        "consistency": { "label": "Restare costante", "desc": "Inizio forte, poi mi fermo" },
-        "time": { "label": "Trovare il tempo", "desc": "Non ce n'è mai abbastanza" },
-        "ideas": { "label": "Trovare idee per i contenuti", "desc": "Le idee finiscono sempre" },
-        "juggling": { "label": "Gestire più canali", "desc": "Troppe piattaforme da seguire" }
+        "consistency": {
+          "label": "Restare costante",
+          "desc": "Inizio forte, poi mi fermo"
+        },
+        "time": {
+          "label": "Trovare il tempo",
+          "desc": "Non ce n'è mai abbastanza"
+        },
+        "ideas": {
+          "label": "Trovare idee per i contenuti",
+          "desc": "Le idee finiscono sempre"
+        },
+        "juggling": {
+          "label": "Gestire più canali",
+          "desc": "Troppe piattaforme da seguire"
+        }
       }
     },
     "contentTypes": {
@@ -100,10 +193,18 @@
       "title": "Cosa vuoi pubblicare?",
       "subtitle": "Seleziona tutto ciò che si applica, ti aiuteremo a riempire il calendario.",
       "options": {
-        "product": { "label": "Prodotto e promozioni" },
-        "educational": { "label": "Consigli e formazione" },
-        "bts": { "label": "Dietro le quinte" },
-        "news": { "label": "Notizie e aggiornamenti" }
+        "product": {
+          "label": "Prodotto e promozioni"
+        },
+        "educational": {
+          "label": "Consigli e formazione"
+        },
+        "bts": {
+          "label": "Dietro le quinte"
+        },
+        "news": {
+          "label": "Notizie e aggiornamenti"
+        }
       }
     },
     "hoursPerWeek": {
@@ -111,10 +212,18 @@
       "title": "Quante ore a settimana svaniscono in questo?",
       "subtitle": "Sii sincero, è quasi sempre di più di quanto sembri.",
       "options": {
-        "lt2": { "label": "Meno di 2 ore" },
-        "2to5": { "label": "2–5 ore" },
-        "5to10": { "label": "5–10 ore" },
-        "gt10": { "label": "Più di 10 ore" }
+        "lt2": {
+          "label": "Meno di 2 ore"
+        },
+        "2to5": {
+          "label": "2–5 ore"
+        },
+        "5to10": {
+          "label": "5–10 ore"
+        },
+        "gt10": {
+          "label": "Più di 10 ore"
+        }
       }
     },
     "success": {
@@ -122,10 +231,22 @@
       "title": "Cosa renderebbe tutto questo utile?",
       "subtitle": "Orienteremo l'intera configurazione verso questo risultato.",
       "options": {
-        "followers": { "label": "Un pubblico più grande e coinvolto", "desc": "Una copertura che si accumula" },
-        "sales": { "label": "Contenuti che generano ricavi", "desc": "Post che convertono davvero" },
-        "timeback": { "label": "Riprendermi sere e weekend", "desc": "Ore restituite ogni settimana" },
-        "consistency": { "label": "Non fermarmi mai più", "desc": "Una presenza su cui posso contare" }
+        "followers": {
+          "label": "Un pubblico più grande e coinvolto",
+          "desc": "Una copertura che si accumula"
+        },
+        "sales": {
+          "label": "Contenuti che generano ricavi",
+          "desc": "Post che convertono davvero"
+        },
+        "timeback": {
+          "label": "Riprendermi sere e weekend",
+          "desc": "Ore restituite ogni settimana"
+        },
+        "consistency": {
+          "label": "Non fermarmi mai più",
+          "desc": "Una presenza su cui posso contare"
+        }
       }
     }
   },
@@ -284,9 +405,9 @@
     "youllGetBackPrefix": "Ti riprenderai circa",
     "hoursAWeek": "ore a settimana",
     "startTrialSuffix": "Avvia la tua prova gratuita di {days} giorni per pubblicare, e tutto il resto che crei.",
-    "firstPostReady": "Il tuo primo post è pronto nella tua dashboard.",
+    "firstPostReady": "Il tuo spazio di lavoro è pronto nella dashboard.",
     "subscribeToPublish": "Abbonati per pubblicare",
-    "postReadyOneStepAway": "Il tuo post è pronto, a un passo dalla pubblicazione",
+    "postReadyOneStepAway": "Il tuo spazio di lavoro è pronto. Manca un passo",
     "justNow": "Proprio ora",
     "like": "Mi piace",
     "comment": "Commenta",

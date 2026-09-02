@@ -35,8 +35,8 @@
     "enterpriseTitle": "엔터프라이즈 및 파트너십",
     "enterpriseDescription": "엔터프라이즈 요금제, 맞춤형 연동, 파트너십 기회에 대해서는 다음으로 연락해 주세요:",
     "enterpriseEmail": "partnerships@markaestro.com",
-    "sentTitle": "메시지 준비 완료",
-    "sentDescription": "이메일 클라이언트가 메시지가 미리 입력된 상태로 열렸을 것입니다. 열리지 않았다면, 다음 주소로 직접 이메일을 보내주세요:",
+    "sentTitle": "메시지를 보냈습니다",
+    "sentDescription": "감사합니다. 보통 영업일 1일 이내에 입력하신 이메일로 답변드립니다. 다음 주소로도 연락하실 수 있습니다:",
     "supportEmail": "support@markaestro.com",
     "sendAnother": "다른 메시지 보내기",
     "nameLabel": "이름",
@@ -49,7 +49,9 @@
     "messagePlaceholder": "궁금한 점이나 문제에 대해 자세히 알려주세요...",
     "submit": "메시지 보내기",
     "privacyNotice": "메시지를 보내면 다음에 동의하는 것으로 간주됩니다:",
-    "privacyLink": "개인정보 처리방침"
+    "privacyLink": "개인정보 처리방침",
+    "sending": "보내는 중...",
+    "sendFailed": "전송에 실패했습니다. 메일 클라이언트가 메시지와 함께 열릴 것입니다. 열리지 않으면 아래 주소로 보내 주세요."
   },
   "faqEyebrow": "FAQ",
   "faqTitle": "자주 묻는 질문",

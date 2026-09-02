@@ -16,7 +16,7 @@
     }
   },
   "editor": {
-    "placeholder": "Generated content will appear here...",
+    "placeholder": "Write your caption...",
     "limitSuffix": "limit"
   },
   "productPicker": {

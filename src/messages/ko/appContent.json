@@ -16,7 +16,7 @@
     }
   },
   "editor": {
-    "placeholder": "생성된 콘텐츠가 여기에 표시됩니다...",
+    "placeholder": "캡션을 입력하세요...",
     "limitSuffix": "제한"
   },
   "productPicker": {

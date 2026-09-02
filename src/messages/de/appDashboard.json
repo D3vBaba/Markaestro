@@ -29,9 +29,14 @@
   },
   "recentPosts": {
     "eyebrow": "Als Nächstes",
-    "title": "Neueste Beiträge",
+    "title": "Als Nächstes und gerade veröffentlicht",
     "viewAll": "Alle ansehen →",
     "untitled": "Unbenannter Beitrag",
     "empty": "Noch keine Beiträge. Erstelle deinen ersten, um hier Aktivität zu sehen."
+  },
+  "firstRun": {
+    "title": "Beginne mit einer Marke",
+    "body": "Eine Marke ist alles, was du vermarktest. Füge eine hinzu, verbinde ihre Social-Konten und schreibe deinen ersten Beitrag.",
+    "cta": "Erste Marke hinzufügen"
   }
 }

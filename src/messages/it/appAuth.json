@@ -7,13 +7,22 @@
       "titleLine2Accent": "un solo accesso.",
       "subtitle": "Smetti di accedere a cinque app per pubblicare una volta. Accedi per pubblicare ovunque, programmare con settimane di anticipo e riprenderti il tuo tempo.",
       "points": {
-        "publish": { "title": "Pubblica ovunque in un colpo solo", "desc": "Facebook, Instagram, TikTok e altro, da un unico editor." },
-        "schedule": { "title": "Programma con settimane di anticipo", "desc": "Imposta il tuo ritmo una volta e non restare mai più in silenzio." },
-        "hours": { "title": "Recupera ore ogni settimana", "desc": "Il lavoro noioso di copia-incolla e accessi ripetuti semplicemente scompare." }
+        "publish": {
+          "title": "Pubblica ovunque in un colpo solo",
+          "desc": "Facebook, Instagram, TikTok e altro, da un unico editor."
+        },
+        "schedule": {
+          "title": "Programma con settimane di anticipo",
+          "desc": "Imposta il tuo ritmo una volta e non restare mai più in silenzio."
+        },
+        "hours": {
+          "title": "Recupera ore ogni settimana",
+          "desc": "Il lavoro noioso di copia-incolla e accessi ripetuti semplicemente scompare."
+        }
       },
       "newHere": {
         "title": "Nuovo su Markaestro?",
-        "body": "Rispondi a 10 domande veloci e creeremo il tuo piano di pubblicazione, scopri gratuitamente quante ore recupererai.",
+        "body": "Rispondi a poche domande veloci e creeremo il tuo piano di pubblicazione. Scopri quante ore recupererai, gratis.",
         "cta": "Crea il mio piano, è gratis →"
       }
     },

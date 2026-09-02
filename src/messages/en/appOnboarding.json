@@ -12,10 +12,22 @@
       "title": "What are you marketing?",
       "subtitle": "Markaestro adapts to whatever you're growing.",
       "options": {
-        "product": { "label": "An app or product", "desc": "Software, e-commerce, or something you've built" },
-        "business": { "label": "A business", "desc": "A company, shop, or local service" },
-        "personal": { "label": "Myself", "desc": "A personal brand or audience that's all you" },
-        "clients": { "label": "Clients", "desc": "Brands you manage for other people" }
+        "product": {
+          "label": "An app or product",
+          "desc": "Software, e-commerce, or something you've built"
+        },
+        "business": {
+          "label": "A business",
+          "desc": "A company, shop, or local service"
+        },
+        "personal": {
+          "label": "Myself",
+          "desc": "A personal brand or audience that's all you"
+        },
+        "clients": {
+          "label": "Clients",
+          "desc": "Brands you manage for other people"
+        }
       }
     },
     "role": {
@@ -23,20 +35,44 @@
       "title": "What's your role?",
       "subtitle": "We'll tailor everything to how you actually work.",
       "options": {
-        "founder": { "label": "Founder / CEO", "desc": "Wearing every hat, including marketing" },
-        "marketer": { "label": "Marketer", "desc": "Owning content across every channel" },
-        "agency": { "label": "Agency / Freelancer", "desc": "Juggling posts for multiple clients" },
-        "creator": { "label": "Content Creator", "desc": "Growing an audience that's all you" }
+        "founder": {
+          "label": "Founder / CEO",
+          "desc": "Wearing every hat, including marketing"
+        },
+        "marketer": {
+          "label": "Marketer",
+          "desc": "Owning content across every channel"
+        },
+        "agency": {
+          "label": "Agency / Freelancer",
+          "desc": "Juggling posts for multiple clients"
+        },
+        "creator": {
+          "label": "Content Creator",
+          "desc": "Growing an audience that's all you"
+        }
       }
     },
     "teamSize": {
       "eyebrow": "Your team",
       "title": "Who's behind the posting?",
       "options": {
-        "solo": { "label": "Just me", "desc": "And honestly, it's a lot" },
-        "small": { "label": "2–5 people", "desc": "Small team, many hats" },
-        "medium": { "label": "6–20 people", "desc": "Coordination is getting messy" },
-        "large": { "label": "20+ people", "desc": "Keeping everyone consistent is hard" }
+        "solo": {
+          "label": "Just me",
+          "desc": "And honestly, it's a lot"
+        },
+        "small": {
+          "label": "2–5 people",
+          "desc": "Small team, many hats"
+        },
+        "medium": {
+          "label": "6–20 people",
+          "desc": "Coordination is getting messy"
+        },
+        "large": {
+          "label": "20+ people",
+          "desc": "Keeping everyone consistent is hard"
+        }
       }
     },
     "goal": {
@@ -44,9 +80,18 @@
       "title": "What are you really after?",
       "subtitle": "It shapes your setup and the plan we recommend.",
       "options": {
-        "social": { "label": "Grow my following", "desc": "More reach, more engagement" },
-        "sales": { "label": "Drive more sales", "desc": "Turn posts into pipeline" },
-        "time": { "label": "Win back my time", "desc": "Stop drowning in content" }
+        "social": {
+          "label": "Grow my following",
+          "desc": "More reach, more engagement"
+        },
+        "sales": {
+          "label": "Drive more sales",
+          "desc": "Turn posts into pipeline"
+        },
+        "time": {
+          "label": "Win back my time",
+          "desc": "Stop drowning in content"
+        }
       }
     },
     "channels": {
@@ -54,12 +99,24 @@
       "title": "Where does your audience live?",
       "subtitle": "Pick all that apply. You'll publish to each in one click.",
       "options": {
-        "instagram": { "label": "Instagram" },
-        "facebook": { "label": "Facebook" },
-        "tiktok": { "label": "TikTok" },
-        "threads": { "label": "Threads" },
-        "pinterest": { "label": "Pinterest" },
-        "linkedin": { "label": "LinkedIn" }
+        "instagram": {
+          "label": "Instagram"
+        },
+        "facebook": {
+          "label": "Facebook"
+        },
+        "tiktok": {
+          "label": "TikTok"
+        },
+        "threads": {
+          "label": "Threads"
+        },
+        "pinterest": {
+          "label": "Pinterest"
+        },
+        "linkedin": {
+          "label": "LinkedIn"
+        }
       }
     },
     "postingToday": {
@@ -67,10 +124,22 @@
       "title": "How are you posting today?",
       "subtitle": "Most teams tell us this is the painful part.",
       "options": {
-        "manual": { "label": "Manually in each app", "desc": "Logging in everywhere, one by one" },
-        "spreadsheet": { "label": "Spreadsheets & reminders", "desc": "Sticky notes and hope" },
-        "tool": { "label": "Another scheduling tool", "desc": "One I've quietly outgrown" },
-        "starting": { "label": "Barely posting at all", "desc": "No real system yet" }
+        "manual": {
+          "label": "Manually in each app",
+          "desc": "Logging in everywhere, one by one"
+        },
+        "spreadsheet": {
+          "label": "Spreadsheets & reminders",
+          "desc": "Sticky notes and hope"
+        },
+        "tool": {
+          "label": "Another scheduling tool",
+          "desc": "One I've quietly outgrown"
+        },
+        "starting": {
+          "label": "Barely posting at all",
+          "desc": "No real system yet"
+        }
       }
     },
     "frequency": {
@@ -78,10 +147,22 @@
       "title": "How often do you want to show up?",
       "subtitle": "We'll keep you on schedule automatically.",
       "options": {
-        "daily": { "label": "Every day", "desc": "Stay top of mind" },
-        "few": { "label": "A few times a week", "desc": "Steady wins the race" },
-        "weekly": { "label": "About once a week", "desc": "Quality over noise" },
-        "unsure": { "label": "Not sure yet", "desc": "Tell me what actually works" }
+        "daily": {
+          "label": "Every day",
+          "desc": "Stay top of mind"
+        },
+        "few": {
+          "label": "A few times a week",
+          "desc": "Steady wins the race"
+        },
+        "weekly": {
+          "label": "About once a week",
+          "desc": "Quality over noise"
+        },
+        "unsure": {
+          "label": "Not sure yet",
+          "desc": "Tell me what actually works"
+        }
       }
     },
     "challenge": {
@@ -89,10 +170,22 @@
       "title": "What keeps tripping you up?",
       "subtitle": "This is the thing we're going to fix for you.",
       "options": {
-        "consistency": { "label": "Staying consistent", "desc": "I start strong, then go quiet" },
-        "time": { "label": "Finding the time", "desc": "There's never enough of it" },
-        "ideas": { "label": "Coming up with content", "desc": "I keep running dry on ideas" },
-        "juggling": { "label": "Juggling channels", "desc": "Too many platforms to keep up with" }
+        "consistency": {
+          "label": "Staying consistent",
+          "desc": "I start strong, then go quiet"
+        },
+        "time": {
+          "label": "Finding the time",
+          "desc": "There's never enough of it"
+        },
+        "ideas": {
+          "label": "Coming up with content",
+          "desc": "I keep running dry on ideas"
+        },
+        "juggling": {
+          "label": "Juggling channels",
+          "desc": "Too many platforms to keep up with"
+        }
       }
     },
     "contentTypes": {
@@ -100,10 +193,18 @@
       "title": "What do you want to post?",
       "subtitle": "Pick all that apply. We'll help you fill the calendar.",
       "options": {
-        "product": { "label": "Product & promotions" },
-        "educational": { "label": "Tips & education" },
-        "bts": { "label": "Behind the scenes" },
-        "news": { "label": "News & updates" }
+        "product": {
+          "label": "Product & promotions"
+        },
+        "educational": {
+          "label": "Tips & education"
+        },
+        "bts": {
+          "label": "Behind the scenes"
+        },
+        "news": {
+          "label": "News & updates"
+        }
       }
     },
     "hoursPerWeek": {
@@ -111,10 +212,18 @@
       "title": "How many hours a week vanish into this?",
       "subtitle": "Be honest, it's almost always more than it feels.",
       "options": {
-        "lt2": { "label": "Under 2 hours" },
-        "2to5": { "label": "2–5 hours" },
-        "5to10": { "label": "5–10 hours" },
-        "gt10": { "label": "10+ hours" }
+        "lt2": {
+          "label": "Under 2 hours"
+        },
+        "2to5": {
+          "label": "2–5 hours"
+        },
+        "5to10": {
+          "label": "5–10 hours"
+        },
+        "gt10": {
+          "label": "10+ hours"
+        }
       }
     },
     "success": {
@@ -122,10 +231,22 @@
       "title": "What would make this worth it?",
       "subtitle": "We'll point your whole setup at this outcome.",
       "options": {
-        "followers": { "label": "A bigger, engaged audience", "desc": "Reach that compounds" },
-        "sales": { "label": "Content that drives revenue", "desc": "Posts that actually convert" },
-        "timeback": { "label": "My evenings & weekends back", "desc": "Hours returned every week" },
-        "consistency": { "label": "Never going quiet again", "desc": "A presence I can rely on" }
+        "followers": {
+          "label": "A bigger, engaged audience",
+          "desc": "Reach that compounds"
+        },
+        "sales": {
+          "label": "Content that drives revenue",
+          "desc": "Posts that actually convert"
+        },
+        "timeback": {
+          "label": "My evenings & weekends back",
+          "desc": "Hours returned every week"
+        },
+        "consistency": {
+          "label": "Never going quiet again",
+          "desc": "A presence I can rely on"
+        }
       }
     }
   },
@@ -284,9 +405,9 @@
     "youllGetBackPrefix": "You'll get back about",
     "hoursAWeek": "hours a week",
     "startTrialSuffix": "Start your {days}-day free trial to publish, and everything else you create.",
-    "firstPostReady": "Your first post is ready inside your dashboard.",
+    "firstPostReady": "Your workspace is ready inside your dashboard.",
     "subscribeToPublish": "Subscribe to publish",
-    "postReadyOneStepAway": "Your post is ready. One step away",
+    "postReadyOneStepAway": "Your workspace is ready. One step away",
     "justNow": "Just now",
     "like": "Like",
     "comment": "Comment",

@@ -66,7 +66,7 @@ export async function GET(req: Request) {
         count(postsRef.where('status', '==', 'scheduled').where('scheduledAt', '>=', start).where('scheduledAt', '<', end)),
       ]))),
       postsRef.where('status', '==', 'published').orderBy('publishedAt', 'desc').limit(5).get(),
-      postsRef.where('status', '==', 'scheduled').orderBy('scheduledAt', 'desc').limit(5).get(),
+      postsRef.where('status', '==', 'scheduled').where('scheduledAt', '>=', now.toISOString()).orderBy('scheduledAt', 'asc').limit(5).get(),
     ]);
 
     const postsByChannel = Object.fromEntries(
@@ -78,13 +78,14 @@ export async function GET(req: Request) {
       published: dayCounts[index][0],
       scheduled: dayCounts[index][1],
     }));
-    const recentPosts = [...recentPublishedSnap.docs, ...recentScheduledSnap.docs]
+    // Soonest upcoming posts first, then the most recently published ones:
+    // both ordered by distance from now so the list reads as "up next".
+    const nowMs = now.getTime();
+    const distanceFromNow = (p: RecentPost) =>
+      Math.abs(Date.parse(p.publishedAt || p.scheduledAt || p.createdAt || '') - nowMs) || Number.MAX_SAFE_INTEGER;
+    const recentPosts = [...recentScheduledSnap.docs, ...recentPublishedSnap.docs]
       .map((d) => ({ id: d.id, ...d.data() } as RecentPost))
-      .sort((a, b) => {
-        const aDate = a.publishedAt || a.scheduledAt || a.createdAt || '';
-        const bDate = b.publishedAt || b.scheduledAt || b.createdAt || '';
-        return bDate.localeCompare(aDate);
-      })
+      .sort((a, b) => distanceFromNow(a) - distanceFromNow(b))
       .slice(0, 5)
       .map((p) => ({
         id: p.id,

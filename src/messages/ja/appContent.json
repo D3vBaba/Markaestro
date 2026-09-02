@@ -16,7 +16,7 @@
     }
   },
   "editor": {
-    "placeholder": "生成されたコンテンツがここに表示されます...",
+    "placeholder": "キャプションを入力...",
     "limitSuffix": "の上限"
   },
   "productPicker": {

@@ -46,6 +46,7 @@ const NO_AUTH = new Map([
   ['api/stripe/webhook/route.ts', 'Stripe calls this. Authenticated by Stripe signature.'],
   ['api/oauth/callback/[provider]/route.ts', 'The OAuth provider redirects the user here. Authenticated by the signed state parameter.'],
   ['api/auth/otp/request/route.ts', 'Sign-in. There is no session yet, by definition.'],
+  ['api/contact/route.ts', 'Public marketing-site contact form. IP rate limited; delivers to the support inbox only.'],
   ['api/auth/otp/verify/route.ts', 'Sign-in. There is no session yet, by definition.'],
   ['api/media/proxy/route.ts', 'TikTok fetches media through this. Restricted to our own storage bucket rather than by session.'],
   ['api/media/video-proxy/route.ts', 'TikTok fetches video through this. Restricted to our own storage bucket.'],
@@ -63,6 +64,7 @@ const NO_AUTH = new Map([
  */
 const NO_PERMISSION = new Map([
   ['api/account/route.ts', 'Acts on the caller\'s own account, not on a workspace resource.'],
+  ['api/contact/route.ts', 'Public contact form; touches no workspace resource.'],
   ['api/auth/logout-all/route.ts', 'Acts on the caller\'s own sessions.'],
   ['api/auth/email-change/request/route.ts', 'Acts on the caller\'s own email.'],
   ['api/auth/email-change/confirm/route.ts', 'Acts on the caller\'s own email.'],

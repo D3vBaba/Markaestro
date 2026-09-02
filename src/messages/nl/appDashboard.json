@@ -29,9 +29,14 @@
   },
   "recentPosts": {
     "eyebrow": "Binnenkort",
-    "title": "Recente posts",
+    "title": "Binnenkort en zojuist gepubliceerd",
     "viewAll": "Alles bekijken →",
     "untitled": "Naamloze post",
     "empty": "Nog geen posts. Maak je eerste post om hier activiteit te zien."
+  },
+  "firstRun": {
+    "title": "Begin met een merk",
+    "body": "Een merk is alles wat je promoot. Voeg er een toe, koppel de social-accounts en schrijf je eerste post.",
+    "cta": "Eerste merk toevoegen"
   }
 }

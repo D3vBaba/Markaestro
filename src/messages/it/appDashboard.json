@@ -29,9 +29,14 @@
   },
   "recentPosts": {
     "eyebrow": "In arrivo",
-    "title": "Post recenti",
+    "title": "In arrivo e appena pubblicati",
     "viewAll": "Vedi tutti →",
     "untitled": "Post senza titolo",
     "empty": "Ancora nessun post. Crea il primo per vedere qui l'attività."
+  },
+  "firstRun": {
+    "title": "Inizia aggiungendo un brand",
+    "body": "Un brand è qualsiasi cosa tu promuova. Aggiungine uno, collega i suoi account social e scrivi il primo post.",
+    "cta": "Aggiungi il primo brand"
   }
 }

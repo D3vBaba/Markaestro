@@ -35,8 +35,8 @@
     "enterpriseTitle": "Unternehmen & Partnerschaften",
     "enterpriseDescription": "Für Enterprise-Preise, individuelle Integrationen oder Partnerschaftsmöglichkeiten erreichst du uns unter",
     "enterpriseEmail": "partnerships@markaestro.com",
-    "sentTitle": "Nachricht bereit",
-    "sentDescription": "Dein E-Mail-Programm sollte sich mit der vorausgefüllten Nachricht geöffnet haben. Falls nicht, schreib uns direkt an",
+    "sentTitle": "Nachricht gesendet",
+    "sentDescription": "Danke. Wir antworten an die angegebene E-Mail-Adresse, meist innerhalb eines Werktags. Du erreichst uns auch unter",
     "supportEmail": "support@markaestro.com",
     "sendAnother": "Weitere Nachricht senden",
     "nameLabel": "Name",
@@ -49,7 +49,9 @@
     "messagePlaceholder": "Erzähl uns mehr über deine Frage oder dein Anliegen...",
     "submit": "Nachricht senden",
     "privacyNotice": "Mit dem Senden einer Nachricht stimmst du unserer",
-    "privacyLink": "Datenschutzerklärung zu"
+    "privacyLink": "Datenschutzerklärung zu",
+    "sending": "Wird gesendet...",
+    "sendFailed": "Senden fehlgeschlagen. Dein E-Mail-Programm sollte sich jetzt mit der Nachricht öffnen; andernfalls schreib uns an die Adresse unten."
   },
   "faqEyebrow": "Häufige Fragen",
   "faqTitle": "Häufig gestellte Fragen",

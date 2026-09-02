@@ -38,7 +38,7 @@ export function Delta({
       )}
       <span>
         {isPos ? "+" : "-"}
-        {Math.abs(value)}
+        {Math.abs(value) > 999 ? ">999" : Math.abs(value)}
         {suffix}
       </span>
     </span>

@@ -16,7 +16,7 @@
     }
   },
   "editor": {
-    "placeholder": "Le contenu généré apparaîtra ici...",
+    "placeholder": "Rédigez votre légende...",
     "limitSuffix": "limite"
   },
   "productPicker": {

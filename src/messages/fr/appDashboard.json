@@ -29,9 +29,14 @@
   },
   "recentPosts": {
     "eyebrow": "À venir",
-    "title": "Publications récentes",
+    "title": "À venir et tout juste publié",
     "viewAll": "Tout voir →",
     "untitled": "Publication sans titre",
     "empty": "Aucune publication pour le moment. Créez la première pour voir l'activité ici."
+  },
+  "firstRun": {
+    "title": "Commencez par ajouter une marque",
+    "body": "Une marque est tout ce que vous promouvez. Ajoutez-en une, connectez ses comptes sociaux, puis rédigez votre première publication.",
+    "cta": "Ajouter ma première marque"
   }
 }

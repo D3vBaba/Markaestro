@@ -7,13 +7,22 @@
       "titleLine2Accent": "one login.",
       "subtitle": "Stop logging into five apps to post once. Sign in to publish everywhere, schedule weeks ahead, and get your time back.",
       "points": {
-        "publish": { "title": "Publish everywhere at once", "desc": "Facebook, Instagram, TikTok and more, from a single composer." },
-        "schedule": { "title": "Schedule weeks ahead", "desc": "Set your cadence once and never go quiet again." },
-        "hours": { "title": "Hours back every week", "desc": "The copy-paste-and-log-in busywork simply disappears." }
+        "publish": {
+          "title": "Publish everywhere at once",
+          "desc": "Facebook, Instagram, TikTok and more, from a single composer."
+        },
+        "schedule": {
+          "title": "Schedule weeks ahead",
+          "desc": "Set your cadence once and never go quiet again."
+        },
+        "hours": {
+          "title": "Hours back every week",
+          "desc": "The copy-paste-and-log-in busywork simply disappears."
+        }
       },
       "newHere": {
         "title": "New to Markaestro?",
-        "body": "Answer 10 quick questions and we'll build your posting plan. See how many hours you'll get back, free.",
+        "body": "Answer a few quick questions and we'll build your posting plan. See how many hours you'll get back, free.",
         "cta": "Build my plan. It's free →"
       }
     },

@@ -7,13 +7,22 @@
       "titleLine2Accent": "一次登录。",
       "subtitle": "不用再为发一次帖登录五个应用。登录即可随处发布、提前数周排期，把时间还给自己。",
       "points": {
-        "publish": { "title": "一次性发布到所有渠道", "desc": "Facebook、Instagram、TikTok 等，只需一个编辑器。" },
-        "schedule": { "title": "提前数周排期", "desc": "设定一次发布节奏，再也不会断更。" },
-        "hours": { "title": "每周省下大量时间", "desc": "复制粘贴、来回登录的繁琐工作从此消失。" }
+        "publish": {
+          "title": "一次性发布到所有渠道",
+          "desc": "Facebook、Instagram、TikTok 等，只需一个编辑器。"
+        },
+        "schedule": {
+          "title": "提前数周排期",
+          "desc": "设定一次发布节奏，再也不会断更。"
+        },
+        "hours": {
+          "title": "每周省下大量时间",
+          "desc": "复制粘贴、来回登录的繁琐工作从此消失。"
+        }
       },
       "newHere": {
         "title": "第一次使用 Markaestro？",
-        "body": "回答 10 个简单问题，我们将为你制定发布计划，免费查看你能省下多少时间。",
+        "body": "回答几个简单问题，我们会为您制定发布计划。免费查看您能节省多少时间。",
         "cta": "制定我的计划，免费 →"
       }
     },

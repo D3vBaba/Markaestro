@@ -6,9 +6,9 @@
     "subtitle": "Sem taxas ocultas, sem surpresas por usuário. Comece grátis, todo plano pago inclui um teste grátis de {trialDays} dias. Cancele quando quiser.",
     "monthlyToggle": "Mensal",
     "annualToggle": "Anual",
-    "annualSaveBadge": "ECONOMIZE 18%",
+    "annualSaveBadge": "ECONOMIZE 17%",
     "trialLine": "Teste grátis de {trialDays} dias em todos os planos pagos, sem cobrança até o dia {trialEndDay}",
-    "annualSavingsSuffix": " · A cobrança anual economiza 18%"
+    "annualSavingsSuffix": " · A cobrança anual economiza 17%"
   },
   "planNames": {
     "free": "Grátis",
@@ -91,52 +91,94 @@
       {
         "name": "Publicação",
         "features": [
-          { "name": "Canais sociais" },
-          { "name": "Posts por mês" },
-          { "name": "Calendário de conteúdo" },
-          { "name": "Agendamento em massa" },
-          { "name": "Agendamento inteligente" }
+          {
+            "name": "Canais sociais"
+          },
+          {
+            "name": "Posts por mês"
+          },
+          {
+            "name": "Calendário de conteúdo"
+          },
+          {
+            "name": "Agendamento em massa"
+          },
+          {
+            "name": "Agendamento inteligente"
+          }
         ]
       },
       {
         "name": "Biblioteca de Mídia",
         "features": [
-          { "name": "Armazenamento" },
-          { "name": "Perfis de voz da marca" },
-          { "name": "Identidade da marca (logo e cores)" }
+          {
+            "name": "Armazenamento"
+          },
+          {
+            "name": "Perfis de voz da marca"
+          },
+          {
+            "name": "Identidade da marca (logo e cores)"
+          }
         ]
       },
       {
         "name": "Análises",
         "features": [
-          { "name": "Análises de posts e seguidores" },
-          { "name": "Janela de histórico" },
-          { "name": "Exportação CSV" }
+          {
+            "name": "Análises de posts e seguidores"
+          },
+          {
+            "name": "Janela de histórico"
+          },
+          {
+            "name": "Exportação CSV"
+          }
         ]
       },
       {
         "name": "Equipe e Workspace",
         "features": [
-          { "name": "Membros da equipe" },
-          { "name": "Workspaces" },
-          { "name": "Controle de acesso baseado em função" }
+          {
+            "name": "Membros da equipe"
+          },
+          {
+            "name": "Workspaces"
+          },
+          {
+            "name": "Controle de acesso baseado em função"
+          }
         ]
       },
       {
         "name": "Desenvolvedores e Agentes de IA",
         "features": [
-          { "name": "Chaves de API do workspace" },
-          { "name": "API de Publicação (Connect + v1 completa)" },
-          { "name": "Webhooks assinados" },
-          { "name": "Escopo e expiração de chave por marca" },
-          { "name": "Limite de requisições da API" }
+          {
+            "name": "Chaves de API do workspace"
+          },
+          {
+            "name": "API de Publicação (Connect + v1 completa)"
+          },
+          {
+            "name": "Webhooks assinados"
+          },
+          {
+            "name": "Escopo e expiração de chave por marca"
+          },
+          {
+            "name": "Limite de requisições da API"
+          }
         ]
       },
       {
         "name": "Suporte",
         "features": [
-          { "name": "Suporte por e-mail" },
-          { "name": "Suporte prioritário" }
+          {
+            "name": "Suporte por e-mail"
+          },
+          {
+            "name": "Suporte prioritário"
+          }
         ]
       }
     ]
@@ -170,7 +212,7 @@
     },
     {
       "q": "Quais planos incluem o teste grátis?",
-      "a": "Todos os planos (Starter, Pro, Business) na cobrança mensal e anual incluem o teste grátis de {trialDays} dias. A cobrança anual também economiza 18% em comparação à mensal."
+      "a": "Todos os planos (Starter, Pro, Business) na cobrança mensal e anual incluem o teste grátis de {trialDays} dias. A cobrança anual também economiza 17% em comparação à mensal."
     },
     {
       "q": "Meu agente de IA ou meu próprio software pode usar o Markaestro?",

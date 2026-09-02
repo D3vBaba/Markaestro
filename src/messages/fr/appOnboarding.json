@@ -12,10 +12,22 @@
       "title": "Que faites-vous la promotion ?",
       "subtitle": "Markaestro s'adapte à tout ce que vous développez.",
       "options": {
-        "product": { "label": "Une application ou un produit", "desc": "Logiciel, e-commerce, ou quelque chose que vous avez créé" },
-        "business": { "label": "Une entreprise", "desc": "Une société, une boutique ou un service local" },
-        "personal": { "label": "Moi-même", "desc": "Une marque personnelle ou une audience qui n'est que vous" },
-        "clients": { "label": "Des clients", "desc": "Des marques que vous gérez pour d'autres personnes" }
+        "product": {
+          "label": "Une application ou un produit",
+          "desc": "Logiciel, e-commerce, ou quelque chose que vous avez créé"
+        },
+        "business": {
+          "label": "Une entreprise",
+          "desc": "Une société, une boutique ou un service local"
+        },
+        "personal": {
+          "label": "Moi-même",
+          "desc": "Une marque personnelle ou une audience qui n'est que vous"
+        },
+        "clients": {
+          "label": "Des clients",
+          "desc": "Des marques que vous gérez pour d'autres personnes"
+        }
       }
     },
     "role": {
@@ -23,20 +35,44 @@
       "title": "Quel est votre rôle ?",
       "subtitle": "Nous adapterons tout à votre façon de travailler.",
       "options": {
-        "founder": { "label": "Fondateur / PDG", "desc": "Portant toutes les casquettes, y compris le marketing" },
-        "marketer": { "label": "Marketeur", "desc": "Responsable du contenu sur tous les canaux" },
-        "agency": { "label": "Agence / Freelance", "desc": "Jonglant avec les publications de plusieurs clients" },
-        "creator": { "label": "Créateur de contenu", "desc": "Développant une audience qui n'est que vous" }
+        "founder": {
+          "label": "Fondateur / PDG",
+          "desc": "Portant toutes les casquettes, y compris le marketing"
+        },
+        "marketer": {
+          "label": "Marketeur",
+          "desc": "Responsable du contenu sur tous les canaux"
+        },
+        "agency": {
+          "label": "Agence / Freelance",
+          "desc": "Jonglant avec les publications de plusieurs clients"
+        },
+        "creator": {
+          "label": "Créateur de contenu",
+          "desc": "Développant une audience qui n'est que vous"
+        }
       }
     },
     "teamSize": {
       "eyebrow": "Votre équipe",
       "title": "Qui se cache derrière les publications ?",
       "options": {
-        "solo": { "label": "Juste moi", "desc": "Et honnêtement, c'est beaucoup" },
-        "small": { "label": "2 à 5 personnes", "desc": "Petite équipe, plusieurs casquettes" },
-        "medium": { "label": "6 à 20 personnes", "desc": "La coordination devient compliquée" },
-        "large": { "label": "20+ personnes", "desc": "Garder tout le monde cohérent est difficile" }
+        "solo": {
+          "label": "Juste moi",
+          "desc": "Et honnêtement, c'est beaucoup"
+        },
+        "small": {
+          "label": "2 à 5 personnes",
+          "desc": "Petite équipe, plusieurs casquettes"
+        },
+        "medium": {
+          "label": "6 à 20 personnes",
+          "desc": "La coordination devient compliquée"
+        },
+        "large": {
+          "label": "20+ personnes",
+          "desc": "Garder tout le monde cohérent est difficile"
+        }
       }
     },
     "goal": {
@@ -44,9 +80,18 @@
       "title": "Qu'est-ce que vous recherchez vraiment ?",
       "subtitle": "Cela façonne votre configuration et le forfait que nous recommandons.",
       "options": {
-        "social": { "label": "Développer mon audience", "desc": "Plus de portée, plus d'engagement" },
-        "sales": { "label": "Générer plus de ventes", "desc": "Transformer les publications en opportunités" },
-        "time": { "label": "Récupérer mon temps", "desc": "Arrêter de se noyer dans le contenu" }
+        "social": {
+          "label": "Développer mon audience",
+          "desc": "Plus de portée, plus d'engagement"
+        },
+        "sales": {
+          "label": "Générer plus de ventes",
+          "desc": "Transformer les publications en opportunités"
+        },
+        "time": {
+          "label": "Récupérer mon temps",
+          "desc": "Arrêter de se noyer dans le contenu"
+        }
       }
     },
     "channels": {
@@ -54,12 +99,24 @@
       "title": "Où se trouve votre audience ?",
       "subtitle": "Sélectionnez tout ce qui s'applique, vous publierez sur chacun en un clic.",
       "options": {
-        "instagram": { "label": "Instagram" },
-        "facebook": { "label": "Facebook" },
-        "tiktok": { "label": "TikTok" },
-        "threads": { "label": "Threads" },
-        "pinterest": { "label": "Pinterest" },
-        "linkedin": { "label": "LinkedIn" }
+        "instagram": {
+          "label": "Instagram"
+        },
+        "facebook": {
+          "label": "Facebook"
+        },
+        "tiktok": {
+          "label": "TikTok"
+        },
+        "threads": {
+          "label": "Threads"
+        },
+        "pinterest": {
+          "label": "Pinterest"
+        },
+        "linkedin": {
+          "label": "LinkedIn"
+        }
       }
     },
     "postingToday": {
@@ -67,10 +124,22 @@
       "title": "Comment publiez-vous aujourd'hui ?",
       "subtitle": "La plupart des équipes nous disent que c'est la partie pénible.",
       "options": {
-        "manual": { "label": "Manuellement dans chaque application", "desc": "Se connecter partout, une par une" },
-        "spreadsheet": { "label": "Tableurs et rappels", "desc": "Post-its et espoir" },
-        "tool": { "label": "Un autre outil de planification", "desc": "Un que j'ai discrètement dépassé" },
-        "starting": { "label": "Je ne publie presque jamais", "desc": "Pas encore de vrai système" }
+        "manual": {
+          "label": "Manuellement dans chaque application",
+          "desc": "Se connecter partout, une par une"
+        },
+        "spreadsheet": {
+          "label": "Tableurs et rappels",
+          "desc": "Post-its et espoir"
+        },
+        "tool": {
+          "label": "Un autre outil de planification",
+          "desc": "Un que j'ai discrètement dépassé"
+        },
+        "starting": {
+          "label": "Je ne publie presque jamais",
+          "desc": "Pas encore de vrai système"
+        }
       }
     },
     "frequency": {
@@ -78,10 +147,22 @@
       "title": "À quelle fréquence voulez-vous être présent ?",
       "subtitle": "Nous vous garderons dans le planning automatiquement.",
       "options": {
-        "daily": { "label": "Tous les jours", "desc": "Rester présent à l'esprit" },
-        "few": { "label": "Plusieurs fois par semaine", "desc": "La régularité gagne la course" },
-        "weekly": { "label": "Environ une fois par semaine", "desc": "La qualité plutôt que le bruit" },
-        "unsure": { "label": "Pas encore sûr", "desc": "Dites-moi ce qui fonctionne vraiment" }
+        "daily": {
+          "label": "Tous les jours",
+          "desc": "Rester présent à l'esprit"
+        },
+        "few": {
+          "label": "Plusieurs fois par semaine",
+          "desc": "La régularité gagne la course"
+        },
+        "weekly": {
+          "label": "Environ une fois par semaine",
+          "desc": "La qualité plutôt que le bruit"
+        },
+        "unsure": {
+          "label": "Pas encore sûr",
+          "desc": "Dites-moi ce qui fonctionne vraiment"
+        }
       }
     },
     "challenge": {
@@ -89,10 +170,22 @@
       "title": "Qu'est-ce qui vous fait trébucher ?",
       "subtitle": "C'est exactement ce que nous allons résoudre pour vous.",
       "options": {
-        "consistency": { "label": "Rester régulier", "desc": "Je commence fort, puis je me tais" },
-        "time": { "label": "Trouver le temps", "desc": "Il n'y en a jamais assez" },
-        "ideas": { "label": "Trouver du contenu", "desc": "Je manque constamment d'idées" },
-        "juggling": { "label": "Jongler entre les canaux", "desc": "Trop de plateformes à suivre" }
+        "consistency": {
+          "label": "Rester régulier",
+          "desc": "Je commence fort, puis je me tais"
+        },
+        "time": {
+          "label": "Trouver le temps",
+          "desc": "Il n'y en a jamais assez"
+        },
+        "ideas": {
+          "label": "Trouver du contenu",
+          "desc": "Je manque constamment d'idées"
+        },
+        "juggling": {
+          "label": "Jongler entre les canaux",
+          "desc": "Trop de plateformes à suivre"
+        }
       }
     },
     "contentTypes": {
@@ -100,10 +193,18 @@
       "title": "Que voulez-vous publier ?",
       "subtitle": "Sélectionnez tout ce qui s'applique, nous vous aiderons à remplir le calendrier.",
       "options": {
-        "product": { "label": "Produit et promotions" },
-        "educational": { "label": "Conseils et éducation" },
-        "bts": { "label": "Dans les coulisses" },
-        "news": { "label": "Actualités et mises à jour" }
+        "product": {
+          "label": "Produit et promotions"
+        },
+        "educational": {
+          "label": "Conseils et éducation"
+        },
+        "bts": {
+          "label": "Dans les coulisses"
+        },
+        "news": {
+          "label": "Actualités et mises à jour"
+        }
       }
     },
     "hoursPerWeek": {
@@ -111,10 +212,18 @@
       "title": "Combien d'heures par semaine y consacrez-vous ?",
       "subtitle": "Soyez honnête, c'est presque toujours plus qu'il n'y paraît.",
       "options": {
-        "lt2": { "label": "Moins de 2 heures" },
-        "2to5": { "label": "2 à 5 heures" },
-        "5to10": { "label": "5 à 10 heures" },
-        "gt10": { "label": "Plus de 10 heures" }
+        "lt2": {
+          "label": "Moins de 2 heures"
+        },
+        "2to5": {
+          "label": "2 à 5 heures"
+        },
+        "5to10": {
+          "label": "5 à 10 heures"
+        },
+        "gt10": {
+          "label": "Plus de 10 heures"
+        }
       }
     },
     "success": {
@@ -122,10 +231,22 @@
       "title": "Qu'est-ce qui rendrait tout cela utile ?",
       "subtitle": "Nous orienterons toute votre configuration vers ce résultat.",
       "options": {
-        "followers": { "label": "Une audience plus grande et engagée", "desc": "Une portée qui s'accumule" },
-        "sales": { "label": "Du contenu qui génère des revenus", "desc": "Des publications qui convertissent vraiment" },
-        "timeback": { "label": "Récupérer mes soirées et week-ends", "desc": "Des heures rendues chaque semaine" },
-        "consistency": { "label": "Ne plus jamais me taire", "desc": "Une présence sur laquelle je peux compter" }
+        "followers": {
+          "label": "Une audience plus grande et engagée",
+          "desc": "Une portée qui s'accumule"
+        },
+        "sales": {
+          "label": "Du contenu qui génère des revenus",
+          "desc": "Des publications qui convertissent vraiment"
+        },
+        "timeback": {
+          "label": "Récupérer mes soirées et week-ends",
+          "desc": "Des heures rendues chaque semaine"
+        },
+        "consistency": {
+          "label": "Ne plus jamais me taire",
+          "desc": "Une présence sur laquelle je peux compter"
+        }
       }
     }
   },
@@ -284,9 +405,9 @@
     "youllGetBackPrefix": "Vous récupérerez environ",
     "hoursAWeek": "heures par semaine",
     "startTrialSuffix": "Démarrez votre essai gratuit de {days} jours pour publier, et tout ce que vous créez d'autre.",
-    "firstPostReady": "Votre première publication est prête dans votre tableau de bord.",
+    "firstPostReady": "Votre espace de travail est prêt dans votre tableau de bord.",
     "subscribeToPublish": "Abonnez-vous pour publier",
-    "postReadyOneStepAway": "Votre publication est prête, à une étape près",
+    "postReadyOneStepAway": "Votre espace de travail est prêt, à une étape près",
     "justNow": "À l'instant",
     "like": "J'aime",
     "comment": "Commenter",

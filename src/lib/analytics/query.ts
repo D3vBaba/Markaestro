@@ -155,7 +155,7 @@ function postToRow(id: string, post: PostDocData, channelFilter?: SocialChannel)
   };
 }
 
-function computeInsights(rows: AnalyticsPostRow[]): Array<{ id: string; text: string; sampleSize: number }> {
+function computeInsights(rows: AnalyticsPostRow[], tzOffsetMinutes = 0): Array<{ id: string; text: string; sampleSize: number }> {
   const insights: Array<{ id: string; text: string; sampleSize: number }> = [];
   const withEngagements = rows.filter((r) => r.engagements !== null);
 
@@ -191,7 +191,7 @@ function computeInsights(rows: AnalyticsPostRow[]): Array<{ id: string; text: st
     const buckets = new Map<string, { total: number; count: number }>();
     let overallTotal = 0;
     for (const row of withEngagements) {
-      const d = new Date(row.publishedAt);
+      const d = new Date(Date.parse(row.publishedAt) + tzOffsetMinutes * 60_000);
       const day = (d.getUTCDay() + 6) % 7;
       const band = Math.floor(d.getUTCHours() / 4);
       const key = `${day}:${band}`;
@@ -210,7 +210,7 @@ function computeInsights(rows: AnalyticsPostRow[]): Array<{ id: string; text: st
       const [day, band] = best.key.split(':').map(Number);
       insights.push({
         id: 'best-window',
-        text: `Posts published ${dayNames[day]} ${band * 4}:00–${band * 4 + 4}:00 UTC averaged ${(best.avg / overallAvg).toFixed(1)}× your overall engagement.`,
+        text: `Posts published ${dayNames[day]} ${band * 4}:00–${band * 4 + 4}:00 (your local time) averaged ${(best.avg / overallAvg).toFixed(1)}× your overall engagement.`,
         sampleSize: best.count,
       });
     }
@@ -509,7 +509,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       tzOffsetMinutes,
     },
     contentTypes,
-    insights: computeInsights(rows),
+    insights: computeInsights(rows, opts.tzOffsetMinutes ?? 0),
     coverage: {
       postsAnalyzed: rows.length,
       postsWithMetrics: rowsWithMetrics.length,

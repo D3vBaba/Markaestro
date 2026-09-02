@@ -29,9 +29,14 @@
   },
   "recentPosts": {
     "eyebrow": "Up next",
-    "title": "Recent posts",
+    "title": "Up next and just published",
     "viewAll": "View all →",
     "untitled": "Untitled post",
     "empty": "No posts yet. Create your first to see activity here."
+  },
+  "firstRun": {
+    "title": "Start by adding a brand",
+    "body": "A brand is anything you market. Add one, connect its social accounts, then write your first post.",
+    "cta": "Add your first brand"
   }
 }

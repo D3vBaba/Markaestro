@@ -2,13 +2,13 @@
   "hero": {
     "eyebrow": "Pricing",
     "titleLead": "Your entire marketing engine,",
-    "titleHighlight": "one simple price",
+    "titleHighlight": "one plan per workspace",
     "subtitle": "No hidden fees, no per-user surprises. Start free. Every paid plan includes a {trialDays}-day free trial. Cancel anytime.",
     "monthlyToggle": "Monthly",
     "annualToggle": "Annual",
-    "annualSaveBadge": "SAVE 18%",
+    "annualSaveBadge": "SAVE 17%",
     "trialLine": "{trialDays}-day free trial on all paid plans, no charge until day {trialEndDay}",
-    "annualSavingsSuffix": " · Annual billing saves 18%"
+    "annualSavingsSuffix": " · Annual billing saves 17%"
   },
   "planNames": {
     "free": "Free",
@@ -170,7 +170,7 @@
     },
     {
       "q": "Which plans include the free trial?",
-      "a": "All plans (Starter, Pro, Business) on both monthly and annual billing include the {trialDays}-day free trial. Annual billing also saves you 18% compared to monthly."
+      "a": "All plans (Starter, Pro, Business) on both monthly and annual billing include the {trialDays}-day free trial. Annual billing also saves you 17% compared to monthly."
     },
     {
       "q": "Can my AI agent or my own software use Markaestro?",

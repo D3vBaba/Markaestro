@@ -16,7 +16,7 @@
     }
   },
   "editor": {
-    "placeholder": "生成的内容将显示在此处...",
+    "placeholder": "输入文案...",
     "limitSuffix": "字数上限"
   },
   "productPicker": {

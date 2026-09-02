@@ -6,9 +6,9 @@
     "subtitle": "Pas de frais cachés, pas de surprise par utilisateur. Commencez gratuitement, tous les forfaits payants incluent un essai gratuit de {trialDays} jours. Annulez à tout moment.",
     "monthlyToggle": "Mensuel",
     "annualToggle": "Annuel",
-    "annualSaveBadge": "ÉCONOMISEZ 18 %",
+    "annualSaveBadge": "ÉCONOMISEZ 17 %",
     "trialLine": "Essai gratuit de {trialDays} jours sur tous les forfaits payants, aucun paiement avant le jour {trialEndDay}",
-    "annualSavingsSuffix": " · La facturation annuelle permet d'économiser 18 %"
+    "annualSavingsSuffix": " · La facturation annuelle permet d'économiser 17 %"
   },
   "planNames": {
     "free": "Gratuit",
@@ -91,52 +91,94 @@
       {
         "name": "Publication",
         "features": [
-          { "name": "Canaux sociaux" },
-          { "name": "Publications par mois" },
-          { "name": "Calendrier de contenu" },
-          { "name": "Programmation en masse" },
-          { "name": "Programmation intelligente" }
+          {
+            "name": "Canaux sociaux"
+          },
+          {
+            "name": "Publications par mois"
+          },
+          {
+            "name": "Calendrier de contenu"
+          },
+          {
+            "name": "Programmation en masse"
+          },
+          {
+            "name": "Programmation intelligente"
+          }
         ]
       },
       {
         "name": "Bibliothèque de contenu",
         "features": [
-          { "name": "Stockage" },
-          { "name": "Profils de voix de marque" },
-          { "name": "Identité de marque (logo et couleurs)" }
+          {
+            "name": "Stockage"
+          },
+          {
+            "name": "Profils de voix de marque"
+          },
+          {
+            "name": "Identité de marque (logo et couleurs)"
+          }
         ]
       },
       {
         "name": "Analyses",
         "features": [
-          { "name": "Analyses des publications et abonnés" },
-          { "name": "Fenêtre d'historique" },
-          { "name": "Export CSV" }
+          {
+            "name": "Analyses des publications et abonnés"
+          },
+          {
+            "name": "Fenêtre d'historique"
+          },
+          {
+            "name": "Export CSV"
+          }
         ]
       },
       {
         "name": "Équipe et espace de travail",
         "features": [
-          { "name": "Membres d'équipe" },
-          { "name": "Espaces de travail" },
-          { "name": "Contrôle d'accès basé sur les rôles" }
+          {
+            "name": "Membres d'équipe"
+          },
+          {
+            "name": "Espaces de travail"
+          },
+          {
+            "name": "Contrôle d'accès basé sur les rôles"
+          }
         ]
       },
       {
         "name": "Développeurs et agents IA",
         "features": [
-          { "name": "Clés API de l'espace de travail" },
-          { "name": "API de publication (Connect + v1 complète)" },
-          { "name": "Webhooks signés" },
-          { "name": "Clés limitées par marque et avec expiration" },
-          { "name": "Limite de requêtes API" }
+          {
+            "name": "Clés API de l'espace de travail"
+          },
+          {
+            "name": "API de publication (Connect + v1 complète)"
+          },
+          {
+            "name": "Webhooks signés"
+          },
+          {
+            "name": "Clés limitées par marque et avec expiration"
+          },
+          {
+            "name": "Limite de requêtes API"
+          }
         ]
       },
       {
         "name": "Support",
         "features": [
-          { "name": "Support par e-mail" },
-          { "name": "Support prioritaire" }
+          {
+            "name": "Support par e-mail"
+          },
+          {
+            "name": "Support prioritaire"
+          }
         ]
       }
     ]
@@ -170,7 +212,7 @@
     },
     {
       "q": "Quels forfaits incluent l'essai gratuit ?",
-      "a": "Tous les forfaits (Starter, Pro, Business), en facturation mensuelle comme annuelle, incluent l'essai gratuit de {trialDays} jours. La facturation annuelle vous fait aussi économiser 18 % par rapport au mensuel."
+      "a": "Tous les forfaits (Starter, Pro, Business), en facturation mensuelle comme annuelle, incluent l'essai gratuit de {trialDays} jours. La facturation annuelle vous fait aussi économiser 17 % par rapport au mensuel."
     },
     {
       "q": "Mon agent IA ou mon propre logiciel peut-il utiliser Markaestro ?",

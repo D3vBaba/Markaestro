@@ -6,9 +6,9 @@
     "subtitle": "Geen verborgen kosten, geen verrassingen per gebruiker. Begin gratis, elk betaald abonnement bevat een gratis proefperiode van {trialDays} dagen. Op elk moment op te zeggen.",
     "monthlyToggle": "Maandelijks",
     "annualToggle": "Jaarlijks",
-    "annualSaveBadge": "BESPAAR 18%",
+    "annualSaveBadge": "BESPAAR 17%",
     "trialLine": "Gratis proefperiode van {trialDays} dagen op alle betaalde abonnementen, geen kosten tot dag {trialEndDay}",
-    "annualSavingsSuffix": " · Jaarlijkse facturering bespaart 18%"
+    "annualSavingsSuffix": " · Jaarlijkse facturering bespaart 17%"
   },
   "planNames": {
     "free": "Gratis",
@@ -91,52 +91,94 @@
       {
         "name": "Publiceren",
         "features": [
-          { "name": "Sociale kanalen" },
-          { "name": "Posts per maand" },
-          { "name": "Contentkalender" },
-          { "name": "Bulk-inplannen" },
-          { "name": "Slim plannen" }
+          {
+            "name": "Sociale kanalen"
+          },
+          {
+            "name": "Posts per maand"
+          },
+          {
+            "name": "Contentkalender"
+          },
+          {
+            "name": "Bulk-inplannen"
+          },
+          {
+            "name": "Slim plannen"
+          }
         ]
       },
       {
         "name": "Mediabibliotheek",
         "features": [
-          { "name": "Opslag" },
-          { "name": "Merkstemprofielen" },
-          { "name": "Merkidentiteit (logo en kleuren)" }
+          {
+            "name": "Opslag"
+          },
+          {
+            "name": "Merkstemprofielen"
+          },
+          {
+            "name": "Merkidentiteit (logo en kleuren)"
+          }
         ]
       },
       {
         "name": "Analyse",
         "features": [
-          { "name": "Post- en volgeranalyse" },
-          { "name": "Geschiedenisvenster" },
-          { "name": "CSV-export" }
+          {
+            "name": "Post- en volgeranalyse"
+          },
+          {
+            "name": "Geschiedenisvenster"
+          },
+          {
+            "name": "CSV-export"
+          }
         ]
       },
       {
         "name": "Team en Workspace",
         "features": [
-          { "name": "Teamleden" },
-          { "name": "Workspaces" },
-          { "name": "Rolgebaseerde toegangscontrole" }
+          {
+            "name": "Teamleden"
+          },
+          {
+            "name": "Workspaces"
+          },
+          {
+            "name": "Rolgebaseerde toegangscontrole"
+          }
         ]
       },
       {
         "name": "Ontwikkelaars en AI-agents",
         "features": [
-          { "name": "Workspace-API-sleutels" },
-          { "name": "Publicatie-API (Connect + volledige v1)" },
-          { "name": "Ondertekende webhooks" },
-          { "name": "Sleutelbeperking en vervaldatum per merk" },
-          { "name": "API-verzoeklimiet" }
+          {
+            "name": "Workspace-API-sleutels"
+          },
+          {
+            "name": "Publicatie-API (Connect + volledige v1)"
+          },
+          {
+            "name": "Ondertekende webhooks"
+          },
+          {
+            "name": "Sleutelbeperking en vervaldatum per merk"
+          },
+          {
+            "name": "API-verzoeklimiet"
+          }
         ]
       },
       {
         "name": "Ondersteuning",
         "features": [
-          { "name": "E-mailondersteuning" },
-          { "name": "Prioriteitsondersteuning" }
+          {
+            "name": "E-mailondersteuning"
+          },
+          {
+            "name": "Prioriteitsondersteuning"
+          }
         ]
       }
     ]
@@ -170,7 +212,7 @@
     },
     {
       "q": "Welke abonnementen bevatten de gratis proefperiode?",
-      "a": "Alle abonnementen (Starter, Pro, Business) met zowel maandelijkse als jaarlijkse facturering bevatten de gratis proefperiode van {trialDays} dagen. Jaarlijkse facturering bespaart je bovendien 18% ten opzichte van maandelijks."
+      "a": "Alle abonnementen (Starter, Pro, Business) met zowel maandelijkse als jaarlijkse facturering bevatten de gratis proefperiode van {trialDays} dagen. Jaarlijkse facturering bespaart je bovendien 17% ten opzichte van maandelijks."
     },
     {
       "q": "Kan mijn AI-agent of mijn eigen software Markaestro gebruiken?",
