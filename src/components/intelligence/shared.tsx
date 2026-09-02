@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { Compass, ExternalLink, HelpCircle, Lightbulb, PenLine, Undo2 } from "lucide-react";
+import { Compass, ExternalLink, HelpCircle, Lightbulb, PenLine, Tags, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,12 +29,35 @@ export type HowItWorksTopic =
   | "content"
   | "opportunities"
   | "playbook"
-  | "advanced"
+  | "experiments"
   | "drafts"
   | "explain"
-  | "links";
+  | "links"
+  | "ask";
+
+/* ────────────────────────── type scale ──────────────────────────
+ * Five text sizes for the whole folder. Every tab composes from these so the
+ * page reads as one voice: 11px meta, 12px hint, 13px body, 14px card title,
+ * 16px section title. Figures are sans tabular numerals, never monospace.
+ */
+export const TYPE = {
+  meta: "text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500",
+  hint: "text-xs leading-relaxed text-slate-500 dark:text-slate-400",
+  body: "text-[13px] leading-relaxed text-slate-600 dark:text-slate-300",
+  strong: "text-[13px] font-semibold text-slate-900 dark:text-slate-100",
+  cardTitle: "text-sm font-semibold leading-snug text-slate-900 dark:text-slate-100",
+  sectionTitle: "text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100",
+  figure: "tabular-nums font-semibold tracking-tight text-slate-900 dark:text-slate-100",
+} as const;
+
+/** The panel surface. Inner items never repeat it; they use rows or insets. */
+export const SURFACE = "rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs";
+/** A quiet tinted block inside a panel (evidence, notes). */
+export const INSET = "rounded-xl bg-slate-50/80 dark:bg-slate-800/40";
 
 /* ────────────────────────── trust labels ────────────────────────── */
+
+const TRUST_ORDER: TrustKind[] = ["measured", "calculated", "predicted", "recommended", "declared", "generated"];
 
 const TRUST_STYLES: Record<TrustKind, string> = {
   measured: "bg-emerald-50 text-emerald-700 border-emerald-200/70 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/60",
@@ -51,7 +74,7 @@ export function TrustBadge({ kind, className }: { kind: TrustKind; className?: s
     <span
       title={t(`labelHints.${kind}`)}
       className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider cursor-help",
+        "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider",
         TRUST_STYLES[kind],
         className,
       )}
@@ -61,7 +84,42 @@ export function TrustBadge({ kind, className }: { kind: TrustKind; className?: s
   );
 }
 
+/** Tap-able legend for the six trust labels; hover titles do not exist on touch. */
+export function TrustLegendButton({ className }: { className?: string }) {
+  const t = useTranslations("intelligence");
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)} className={cn(toolbarButton, className)}>
+        <Tags className="h-3.5 w-3.5" aria-hidden="true" />
+        {t("legend.button")}
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base">{t("legend.title")}</DialogTitle>
+            <DialogDescription className="text-[13px] leading-relaxed">{t("legend.intro")}</DialogDescription>
+          </DialogHeader>
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800/80">
+            {TRUST_ORDER.map((kind) => (
+              <li key={kind} className="flex items-start gap-3 py-2.5">
+                <TrustBadge kind={kind} className="mt-0.5 shrink-0" />
+                <p className={TYPE.body}>{t(`labelHints.${kind}`)}</p>
+              </li>
+            ))}
+          </ul>
+          <DialogFooter>
+            <Button type="button" className="rounded-xl" onClick={() => setOpen(false)}>{t("howItWorks.close")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 /* ────────────────────────── how it works ────────────────────────── */
+
+const toolbarButton = "inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100";
 
 export function HowItWorksDialog({
   topic,
@@ -85,7 +143,7 @@ export function HowItWorksDialog({
         </DialogHeader>
         <div className="space-y-5 text-[13px]">
           <section>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("stepsTitle")}</p>
+            <p className={TYPE.meta}>{t("stepsTitle")}</p>
             <ol className="mt-2 space-y-2">
               {steps.map((step, index) => (
                 <li key={step} className="flex gap-3">
@@ -98,16 +156,16 @@ export function HowItWorksDialog({
             </ol>
           </section>
           <section className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/60">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("inputsTitle")}</p>
+            <div className={cn(INSET, "p-3")}>
+              <p className={TYPE.meta}>{t("inputsTitle")}</p>
               <ul className="mt-2 space-y-1.5 text-slate-700 dark:text-slate-300">
                 {inputs.map((item) => (
                   <li key={item} className="flex gap-2"><span className="text-emerald-600">•</span><span>{item}</span></li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/60">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("neverTitle")}</p>
+            <div className={cn(INSET, "p-3")}>
+              <p className={TYPE.meta}>{t("neverTitle")}</p>
               <ul className="mt-2 space-y-1.5 text-slate-700 dark:text-slate-300">
                 {never.map((item) => (
                   <li key={item} className="flex gap-2"><span className="text-rose-500">•</span><span>{item}</span></li>
@@ -140,11 +198,7 @@ export function HowItWorksButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100",
-          size === "sm" ? "h-8 px-2.5 text-xs" : "h-7 px-2 text-[11px]",
-          className,
-        )}
+        className={cn(toolbarButton, size === "xs" && "h-7 px-2 text-[11px]", className)}
       >
         <HelpCircle className={size === "sm" ? "h-3.5 w-3.5" : "h-3 w-3"} aria-hidden="true" />
         {t("button")}
@@ -165,6 +219,7 @@ export function Section({
   action,
   help,
   className,
+  as: Heading = "h2",
 }: {
   trust?: TrustKind;
   eyebrow?: string;
@@ -174,53 +229,44 @@ export function Section({
   action?: ReactNode;
   help?: HowItWorksTopic;
   className?: string;
+  as?: "h2" | "h3";
 }) {
   return (
-    <div className={cn("min-w-0 rounded-2xl p-5 sm:p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs", className)}>
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            {trust && <TrustBadge kind={trust} />}
-            {eyebrow && (
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{eyebrow}</span>
+    <section className={cn("min-w-0 p-5 sm:p-6", SURFACE, className)}>
+      {(trust || eyebrow || title || subtitle || action || help) && (
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            {(trust || eyebrow) && (
+              <div className="flex flex-wrap items-center gap-2">
+                {trust && <TrustBadge kind={trust} />}
+                {eyebrow && <span className={TYPE.meta}>{eyebrow}</span>}
+              </div>
             )}
+            {title && (
+              <Heading className={cn(trust || eyebrow ? "mt-1.5" : "", Heading === "h2" ? TYPE.sectionTitle : TYPE.cardTitle)}>{title}</Heading>
+            )}
+            {subtitle && <p className={cn("mt-1 max-w-2xl", TYPE.hint)}>{subtitle}</p>}
           </div>
-          {title && (
-            <div className="mt-1.5 text-base font-bold text-slate-900 dark:text-slate-100">{title}</div>
-          )}
-          {subtitle && (
-            <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-500 dark:text-slate-400">{subtitle}</p>
+          {(action || help) && (
+            <div className="flex shrink-0 items-center gap-2">
+              {action}
+              {help && <HowItWorksButton topic={help} size="xs" />}
+            </div>
           )}
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {action}
-          {help && <HowItWorksButton topic={help} size="xs" />}
-        </div>
-      </div>
+      )}
       {children}
-    </div>
+    </section>
   );
 }
 
-export function TabHeader({
-  topic,
-  title,
-  body,
-  children,
-}: {
-  topic: HowItWorksTopic;
-  title: string;
-  body: string;
-  children?: ReactNode;
-}) {
+/** A big number with a label, used in the Overview strip and briefing. */
+export function Figure({ label, value, sub, size = "md" }: { label: string; value: string; sub?: string; size?: "md" | "lg" }) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-blue-200/60 bg-blue-50/70 px-4 py-3.5 dark:border-blue-900/50 dark:bg-blue-950/25 sm:flex-row sm:items-start sm:justify-between">
-      <div className="min-w-0">
-        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</p>
-        <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{body}</p>
-        {children}
-      </div>
-      <HowItWorksButton topic={topic} className="shrink-0 self-start" />
+    <div className="min-w-0">
+      <p className={TYPE.meta}>{label}</p>
+      <p className={cn(TYPE.figure, "mt-1", size === "lg" ? "text-2xl sm:text-3xl" : "text-xl")}>{value}</p>
+      {sub && <p className={cn("mt-0.5 truncate", TYPE.hint)} title={sub}>{sub}</p>}
     </div>
   );
 }
@@ -228,23 +274,29 @@ export function TabHeader({
 export function EmptyState({
   title,
   body,
+  next,
   icon: Icon,
   action,
 }: {
   title: string;
   body: string;
+  /** The one concrete thing that unlocks this surface. */
+  next?: string;
   icon?: typeof Compass;
   action?: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl px-6 py-14 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800">
+    <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center dark:border-slate-800 dark:bg-slate-900">
       {Icon && (
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/50 dark:border-blue-800/50 text-blue-600 dark:text-blue-400 shadow-2xs">
+        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-blue-200/50 bg-blue-50 text-blue-600 shadow-2xs dark:border-blue-800/50 dark:bg-blue-950/60 dark:text-blue-400">
           <Icon className="h-5 w-5" aria-hidden="true" />
         </div>
       )}
-      <h2 className="mt-4 text-base font-bold text-slate-900 dark:text-slate-100">{title}</h2>
-      <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed text-slate-500 dark:text-slate-400">{body}</p>
+      <h2 className={cn("mt-4", TYPE.sectionTitle)}>{title}</h2>
+      <p className={cn("mx-auto mt-1 max-w-md", TYPE.body)}>{body}</p>
+      {next && (
+        <p className={cn("mx-auto mt-3 inline-block px-3 py-1.5", INSET, TYPE.strong)}>{next}</p>
+      )}
       {action && <div className="mt-5 flex justify-center">{action}</div>}
     </div>
   );
@@ -271,8 +323,8 @@ export function PhaseGate({
   return (
     <FeatureGate feature={feature}>
       <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center dark:border-slate-800 dark:bg-slate-900">
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t("rolloutTitle")}</h3>
-        <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed text-slate-500 dark:text-slate-400">{t("rolloutBody")}</p>
+        <h3 className={TYPE.cardTitle}>{t("rolloutTitle")}</h3>
+        <p className={cn("mx-auto mt-1 max-w-md", TYPE.hint)}>{t("rolloutBody")}</p>
       </div>
     </FeatureGate>
   );
@@ -284,22 +336,23 @@ export function phasesOf(data: { phases?: IntelligencePhases }): IntelligencePha
 
 export function ChannelDot({ platform, className }: { platform: string; className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2 min-w-0", className)}>
+    <span className={cn("inline-flex min-w-0 items-center gap-2", className)}>
       <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: channelColor(platform) }} />
-      <span className="truncate font-semibold text-xs text-slate-800 dark:text-slate-200">{channelLabel(platform)}</span>
+      <span className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">{channelLabel(platform)}</span>
     </span>
   );
 }
 
-export function KindBadge({ children, tone = "blue" }: { children: ReactNode; tone?: "blue" | "slate" | "emerald" | "amber" }) {
+export function KindBadge({ children, tone = "blue", title }: { children: ReactNode; tone?: "blue" | "slate" | "emerald" | "amber" | "rose"; title?: string }) {
   const tones = {
     blue: "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300",
     slate: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
     emerald: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
     amber: "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
+    rose: "bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300",
   };
   return (
-    <span className={cn("inline-flex items-center rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold", tones[tone])}>
+    <span title={title} className={cn("inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold", tones[tone])}>
       {children}
     </span>
   );
@@ -308,6 +361,23 @@ export function KindBadge({ children, tone = "blue" }: { children: ReactNode; to
 /* ────────────────────────── status filter ────────────────────────── */
 
 export type StatusFilter = "all" | DecisionStatus;
+
+export function countByStatus(items: Array<{ status?: string }>): Record<StatusFilter, number> {
+  const base: Record<StatusFilter, number> = { all: 0, proposed: 0, accepted: 0, pinned: 0, dismissed: 0 };
+  for (const item of items) {
+    const status = (item.status || "proposed") as DecisionStatus;
+    base[status] += 1;
+    if (status !== "dismissed") base.all += 1;
+  }
+  return base;
+}
+
+export function filterByStatus<T extends { status?: string }>(items: T[], filter: StatusFilter): T[] {
+  return items.filter((item) => {
+    const status = item.status || "proposed";
+    return filter === "all" ? status !== "dismissed" : status === filter;
+  });
+}
 
 export function StatusFilterBar({
   value,
@@ -322,7 +392,7 @@ export function StatusFilterBar({
   const options: StatusFilter[] = ["all", "proposed", "accepted", "pinned", "dismissed"];
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="me-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("label")}</span>
+      <span className={cn("me-1", TYPE.meta)}>{t("label")}</span>
       {options.map((option) => {
         const active = value === option;
         return (
@@ -338,7 +408,7 @@ export function StatusFilterBar({
             )}
           >
             {t(option)}
-            <span className={cn("rounded-full px-1.5 text-[10px] font-bold", active ? "bg-white/20" : "bg-white dark:bg-slate-900")}>{counts[option]}</span>
+            <span className={cn("rounded-full px-1.5 text-[11px] font-bold tabular-nums", active ? "bg-white/20" : "bg-white dark:bg-slate-900")}>{counts[option]}</span>
           </button>
         );
       })}
@@ -400,19 +470,8 @@ export function DecisionButtons({
 
   if (decided) {
     return (
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span
-          className={cn(
-            "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide",
-            status === "accepted"
-              ? "border-emerald-200/70 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
-              : status === "pinned"
-                ? "border-blue-200/70 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
-                : "border-slate-200/80 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400",
-          )}
-        >
-          {t(`status.${status}`)}
-        </span>
+      <div className="flex flex-wrap items-center gap-2">
+        <KindBadge tone={status === "accepted" ? "emerald" : status === "pinned" ? "blue" : "slate"}>{t(`status.${status}`)}</KindBadge>
         <button
           type="button"
           disabled={busy !== null}
@@ -427,41 +486,37 @@ export function DecisionButtons({
   }
 
   return (
-    <div className="mt-4 space-y-3">
-      <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
-        {kind === "learning" ? d("learningHint") : d("hint")}
-      </p>
-      <div className="flex flex-wrap gap-2.5">
-        <Button
-          type="button"
-          size="sm"
-          className="h-8 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
-          disabled={busy !== null}
-          onClick={() => void decide("accepted")}
-        >
-          {d("accept")}
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          className="h-8 rounded-xl text-xs font-semibold border-slate-200 dark:border-slate-700"
-          disabled={busy !== null}
-          onClick={() => void decide("pinned")}
-        >
-          {d("pin")}
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
-          className="h-8 rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
-          disabled={busy !== null}
-          onClick={() => void decide("dismissed")}
-        >
-          {d("dismiss")}
-        </Button>
-      </div>
+    <div className="flex flex-wrap items-center gap-1.5" title={kind === "learning" ? d("learningHint") : d("hint")}>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        className="h-8 rounded-xl border-slate-200 text-xs font-semibold dark:border-slate-700"
+        disabled={busy !== null}
+        onClick={() => void decide("accepted")}
+      >
+        {d("accept")}
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="ghost"
+        className="h-8 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300"
+        disabled={busy !== null}
+        onClick={() => void decide("pinned")}
+      >
+        {d("pin")}
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="ghost"
+        className="h-8 rounded-xl text-xs font-semibold text-slate-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 dark:hover:text-rose-400"
+        disabled={busy !== null}
+        onClick={() => void decide("dismissed")}
+      >
+        {d("dismiss")}
+      </Button>
     </div>
   );
 }
@@ -539,9 +594,9 @@ export function DraftButton({
       size="sm"
       variant={variant === "primary" ? "default" : "outline"}
       className={cn(
-        "h-8 rounded-xl text-xs font-semibold gap-1.5",
+        "h-8 gap-1.5 rounded-xl text-xs font-semibold",
         variant === "primary"
-          ? "bg-violet-600 hover:bg-violet-700 text-white shadow-xs"
+          ? "bg-violet-600 text-white shadow-xs hover:bg-violet-700"
           : "border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-900 dark:text-violet-300 dark:hover:bg-violet-950/40",
       )}
       disabled={busy}

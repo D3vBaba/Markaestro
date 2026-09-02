@@ -14,8 +14,10 @@ workspace immediately.
 
 - Foundation: capability registry, canonical posts, audience profile, Audience Fit.
 - Learning: tracked links/conversions, alignment, account-specific timing, playbook learnings.
-- Growth: drift alerts, campaigns, platform comparisons, opportunities.
-- Advanced: experiments and Ask Markaestro (approved analytical tools only).
+- Growth: platform comparisons, opportunities (shown as next moves on the Playbook tab). Drift alerts and campaigns are computed but not surfaced in the app.
+- Advanced: experiments (Experiments tab) and Ask Markaestro (Overview tab, approved analytical tools only).
+
+The page shows five tabs: Overview (briefing, Ask Markaestro, figures, readiness), Content, Playbook (next moves and patterns), Audience (profile and tracked links), Experiments. Audience alignment is not shown until a connected platform reports demographics.
 
 Deterministic services calculate scores, statistics, drift, and winners. Gemini
 classifies content and explains supplied evidence. Missing metrics stay null.

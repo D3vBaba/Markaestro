@@ -1,12 +1,10 @@
 {
   "title": "Inhaltsintelligenz",
   "subtitle": "Was deine eigenen Beiträge gemessen haben, verständlich erklärt, mit Entwürfen, die du kontrollierst. Nichts wird automatisch veröffentlicht.",
-  "brand": "Marke",
   "coverage": "{value} % Datenabdeckung",
   "productBar": {
     "brand": "Marke",
-    "noBrandSelected": "Keine Marke ausgewählt",
-    "change": "Ändern"
+    "noBrandSelected": "Keine Marke ausgewählt"
   },
   "labels": {
     "measured": "Gemessen",
@@ -26,11 +24,10 @@
   },
   "tabs": {
     "overview": "Übersicht",
-    "audience": "Zielgruppe",
     "content": "Inhalte",
-    "opportunities": "Chancen",
-    "playbook": "Leitfaden",
-    "advanced": "Experimente"
+    "playbook": "Playbook",
+    "audience": "Zielgruppe",
+    "experiments": "Experimente"
   },
   "actions": {
     "refresh": "Aktualisieren",
@@ -50,14 +47,15 @@
       "pinned": "Angepinnt",
       "dismissed": "Verworfen"
     },
-    "refreshFailed": "Die Analyse konnte nicht aktualisiert werden. Angezeigt werden die zuletzt berechneten Werte."
+    "refreshFailed": "Die Analyse konnte nicht aktualisiert werden. Angezeigt werden die zuletzt berechneten Werte.",
+    "computedAt": "Zuletzt berechnet {when}"
   },
   "decisions": {
     "hint": "Diese Buttons speichern nur deine Entscheidung. Sie veröffentlichen, planen oder ändern nie Entwürfe.",
     "learningHint": "Halte fest, ob du diesem Muster vertraust. Intelligence ändert deine Inhalte nie von selbst.",
-    "accept": "Annehmen, ich handle danach",
-    "pin": "Anheften, später",
-    "dismiss": "Verwerfen, ausblenden"
+    "accept": "Übernehmen",
+    "pin": "Merken",
+    "dismiss": "Verwerfen"
   },
   "filter": {
     "label": "Anzeigen",
@@ -78,16 +76,15 @@
     "stepsTitle": "So nutzt du es",
     "inputsTitle": "Was einfließt",
     "neverTitle": "Was es nie tut",
-    "thresholdsTitle": "Wann es aktiv wird",
     "page": {
       "title": "So funktioniert Intelligence",
       "intro": "Intelligence liest die Beiträge, die du bereits veröffentlicht hast, behält jede Zahl genau so, wie die Plattformen sie gemeldet haben, und macht aus dieser Historie verständliche Antworten: was funktioniert hat, wann du posten solltest, was du als Nächstes testen kannst. Jede Aktion bleibt in deiner Hand.",
       "steps": [
         "Wähle eine Marke. Alles auf dieser Seite bezieht sich auf eine Marke und ihre verbundenen Kanäle.",
-        "Starte in der Übersicht, um zu sehen, was bisher gemessen wurde und welche Funktionen genug Daten haben, um aktiv zu werden.",
-        "Lege unter Zielgruppe dein Ziel und deine Zielgruppe fest. Das bestimmt, auf welche Kennzahl jede Empfehlung optimiert.",
-        "Lies Inhalte, Chancen und Leitfaden für belegte Antworten und nutze dann „Entwurf erstellen“, um daraus einen Beitragsentwurf zu machen.",
-        "Jeder Entwurf landet als normaler Entwurf in Content. Prüfe, bearbeite, plane oder lösche ihn wie jeden anderen Beitrag."
+        "Beginne mit der Übersicht: stärkstes Muster, nächster Schritt und bestes Zeitfenster stehen oben, darunter Frag Markaestro.",
+        "Lege Ziel und Zielgruppe unter Zielgruppe fest. Das bestimmt, für welche Kennzahl jede Empfehlung optimiert.",
+        "Lies Inhalte und Playbook für belegte Antworten und nutze Entwurf erstellen, um daraus einen Beitragsentwurf zu machen.",
+        "Jeder Entwurf landet als normaler Entwurf in Inhalte. Prüfen, bearbeiten, planen oder löschen wie jeden anderen Beitrag."
       ],
       "inputs": [
         "Über Markaestro veröffentlichte Beiträge und Beiträge, die aus deinen verbundenen Konten importiert wurden",
@@ -102,12 +99,12 @@
     },
     "overview": {
       "title": "Übersicht",
-      "intro": "Ein Schnappschuss dessen, was für diese Marke gemessen wurde, plus eine Bereitschaftsliste, die dir genau zeigt, welche Funktionen aktiv sind und was noch fehlt.",
+      "intro": "Das Stärkste, was deine Daten gerade sagen, ein Fragefeld, das nur aus den Daten dieser Marke antwortet, und eine Bereitschaftsliste, die genau zeigt, was noch fehlt.",
       "steps": [
-        "Prüfe das Zielbanner. Jedes Ranking und jede Empfehlung nutzt diese Kennzahl.",
-        "Lies die KPI-Kacheln. Eine leere Kachel bedeutet, dass keine verbundene Plattform diese Kennzahl gemeldet hat, nie null.",
-        "Nutze die Bereitschaftsliste, um zu sehen, wie nah jede Funktion an der Aktivierung ist und was du dafür tun kannst.",
-        "Vergleiche Plattformen pro Beitrag, nicht nach Gesamtsumme, damit ein Kanal mit weniger Beiträgen fair beurteilt wird."
+        "Lies die drei Felder oben: stärkstes Muster, nächster Schritt, bestes Zeitfenster. Jedes verlinkt auf seine Belege.",
+        "Stelle Markaestro eine Frage. Es wählt ein freigegebenes Datenwerkzeug und nennt die verwendeten Datensätze.",
+        "Die Kennzahlenleiste zeigt, was gemessen wurde. Ein leeres Feld heißt, keine Plattform hat es gemeldet, niemals null.",
+        "Die Bereitschaftsliste zeigt, wie nah jede Antwort am Freischalten ist und was sie freischaltet."
       ],
       "inputs": [
         "Alle synchronisierten Beiträge dieser Marke und ihre zuletzt gemeldeten Kennzahlen",
@@ -155,13 +152,13 @@
       ]
     },
     "opportunities": {
-      "title": "Chancen",
+      "title": "Nächste Schritte",
       "intro": "Konkrete Dinge, die du als Nächstes testen kannst, jeweils belegt durch deine eigenen Zahlen: ein Zeitfenster über deinem Durchschnitt, eine Plattform, die pro Beitrag besser abschneidet, oder ein Muster, das sich zu wiederholen lohnt.",
       "steps": [
-        "Lies die Belegzeile unter jeder Karte. Sie zeigt die genauen Zahlen hinter dem Vorschlag.",
-        "Übernehmen, wenn du es testen willst, Anheften, um später darauf zurückzukommen, oder Verwerfen, wenn es nicht passt. Alle drei lassen sich rückgängig machen.",
-        "Nutze „Entwurf erstellen“, um eine Caption für diese Chance zu erhalten, gespeichert als Entwurf in Content.",
-        "Veröffentliche wie gewohnt aus Content oder dem Kalender. Übernehmen erstellt oder plant nie Beiträge."
+        "Lies die Belegzeile unter jedem Schritt. Sie zeigt die genauen Zahlen hinter dem Vorschlag.",
+        "Übernehmen, wenn du es ausprobieren willst, Merken zum späteren Ansehen, Verwerfen, wenn es nicht passt. Alles lässt sich rückgängig machen.",
+        "Nutze Entwurf erstellen für eine Bildunterschrift zu diesem Schritt, gespeichert als Entwurf in Inhalte.",
+        "Veröffentliche wie gewohnt aus Inhalte oder Kalender. Übernehmen erstellt oder plant nie Beiträge."
       ],
       "inputs": [
         "Beste Zeitfenster, Plattformvergleich pro Beitrag und Learnings aus dem Leitfaden",
@@ -173,13 +170,13 @@
       ]
     },
     "playbook": {
-      "title": "Leitfaden",
-      "intro": "Muster, die sich in deinen Daten mit genügend Beiträgen wiederholen: welche Plattform, welcher Aufhänger, welche Säule, welches Format oder welcher Zeitslot über oder unter dem Rest dieser Marke liegt.",
+      "title": "Playbook",
+      "intro": "Nächste Schritte sind konkrete Dinge zum Ausprobieren, jeweils mit deinen eigenen Zahlen belegt. Muster sind Gruppen von Beiträgen, die über oder unter dem Rest dieser Marke liegen.",
       "steps": [
-        "Jede Karte vergleicht eine Gruppe von Beiträgen mit allen anderen Beiträgen dieser Marke anhand deiner Zielkennzahl.",
-        "Der Effekt ist der prozentuale Unterschied pro Beitrag. Der 95-%-Bereich zeigt, wie sicher die Schätzung ist.",
+        "Jedes Muster vergleicht eine Gruppe von Beiträgen mit allen anderen Beiträgen dieser Marke auf deiner Zielkennzahl.",
+        "Der Effekt ist die prozentuale Differenz pro Beitrag. Der 95%-Bereich zeigt, wie sicher die Schätzung ist.",
         "Die Stärke wächst mit der Stichprobe: richtungsweisend (5 bis 14 Beiträge), moderat (15 bis 29), potenziell stark (30 oder mehr mit klarem Bereich).",
-        "Übernimm Muster, die du wiederholen willst, und nutze dann „Entwurf erstellen“, um einen Beitrag in diesem Muster zu schreiben."
+        "Übernimm Schritte und Muster, die du wiederholen willst, und nutze Entwurf erstellen für einen Beitrag in diese Richtung."
       ],
       "inputs": [
         "Gemessene Beiträge, gruppiert nach Plattform, Säule, Aufhänger, Format und Wochentag/Stunde",
@@ -188,24 +185,6 @@
       "never": [
         "Ein Muster mit weniger als fünf Beiträgen in der Gruppe und fünf außerhalb melden",
         "Eine Ursache behaupten. Das sind Zusammenhänge in deinen eigenen Daten."
-      ]
-    },
-    "advanced": {
-      "title": "Experimente und Ask Markaestro",
-      "intro": "Teste eine Idee nach der anderen mit einem gepaarten A/B-Beitrag und stelle Fragen, die nur aus den gemessenen Daten dieser Marke beantwortet werden.",
-      "steps": [
-        "Erstelle ein Experiment: eine Plattform, zwei Varianten, ein Zeitfenster. Beide Beiträge werden für dich geplant.",
-        "Wenn das Fenster endet, wird der Sieger anhand der gemessenen Kennzahl bestimmt und landet in deinem Posteingang.",
-        "Ask Markaestro wählt pro Frage ein freigegebenes Datenwerkzeug und nennt die verwendeten Datensätze.",
-        "Kampagnen sind eine Vorschau: Du kannst sie jetzt benennen, die Zuweisung von Beiträgen folgt."
-      ],
-      "inputs": [
-        "Beide Experiment-Beiträge und ihre gemeldeten Kennzahlen",
-        "Gespeicherte Learnings, Vergleiche, Timing und Top-Beiträge für Ask Markaestro"
-      ],
-      "never": [
-        "Einen Sieger ohne den gemessenen Unterschied und die Stichprobe dahinter erklären",
-        "Mit allgemeinen Social-Media-Tipps antworten"
       ]
     },
     "drafts": {
@@ -258,59 +237,92 @@
         "Besucher über Websites hinweg verfolgen",
         "Personenbezogene Daten aus einem Klick speichern"
       ]
+    },
+    "experiments": {
+      "title": "Experimente",
+      "intro": "Teste eine Idee nach der anderen mit einem A/B-Beitragspaar auf einer Plattform. Beide Beiträge werden für dich geplant und am Ende des Zeitfensters nach Aufrufen verglichen.",
+      "steps": [
+        "Benenne das Experiment und formuliere die Hypothese, die du testen willst.",
+        "Schreibe Arm A (Kontrolle) und Arm B (Variante). Ändere nur eine Sache: Hook, Medien oder Zeit.",
+        "Plane beide Arme in ähnlichen Zeitfenstern und wähle ein Fenster von 3, 7 oder 14 Tagen.",
+        "Am Ende des Fensters gilt der Arm mit 15% oder mehr Aufrufen als Gewinner, das Ergebnis landet im Posteingang. Ein Beitrag pro Arm ist ein Hinweis, kein Beweis: wiederhole den Test, bevor du dein Playbook änderst."
+      ],
+      "inputs": [
+        "Beide Experimentbeiträge und die von jeder Plattform gemeldeten Aufrufe",
+        "Das gewählte Zeitfenster"
+      ],
+      "never": [
+        "Einen Gewinner unter 15% gemessener Differenz erklären",
+        "Etwas außer den zwei geplanten Beiträgen veröffentlichen"
+      ]
+    },
+    "ask": {
+      "title": "Frag Markaestro",
+      "intro": "Stelle eine Frage in einfacher Sprache. Markaestro wählt ein freigegebenes Datenwerkzeug, antwortet nur aus den gemessenen Daten dieser Marke und nennt die verwendeten Datensätze.",
+      "steps": [
+        "Frage nach Leistung, Timing, Plattformen oder Mustern. Kurze, konkrete Fragen funktionieren am besten.",
+        "Lies, welches Werkzeug geantwortet hat. Es zeigt, auf welcher Art Beleg die Antwort beruht.",
+        "Zitierte Datensätze sind deine eigenen Beiträge. Braucht eine Frage Daten, die du noch nicht hast, sagt die Antwort das."
+      ],
+      "inputs": [
+        "Gespeicherte Muster, Vergleiche, Timing und Top-Beiträge dieser Marke",
+        "Dein Ziel und Zielgruppenprofil"
+      ],
+      "never": [
+        "Aus allgemeinen Social-Media-Ratschlägen antworten",
+        "Daten anderer Marken verwenden"
+      ]
     }
   },
   "quota": {
-    "title": "KI-Aktionen",
     "aiOps": "{used} von {limit} KI-Aktionen diesen Monat genutzt",
     "aiOpsUnlimited": "{used} KI-Aktionen diesen Monat genutzt",
-    "strategist": "{used} von {limit} Ask-Fragen genutzt",
-    "hint": "„Entwurf erstellen“, „Warum es funktioniert hat“ und Audience Fit verbrauchen je eine Aktion. Die Mustererkennung im Hintergrund ist kostenlos.",
-    "exceeded": "Du hast die KI-Aktionen dieses Monats im Plan {plan} aufgebraucht. Sie werden nächsten Monat zurückgesetzt, oder du upgradest für mehr."
+    "strategist": "{used} von {limit} Frage-Runden",
+    "hint": "„Entwurf erstellen“, „Warum es funktioniert hat“ und Audience Fit verbrauchen je eine Aktion. Die Mustererkennung im Hintergrund ist kostenlos."
   },
   "readiness": {
-    "title": "Was aktiv ist",
-    "subtitle": "Jede Funktion braucht eine Mindestmenge gemessener Daten, bevor sie erscheint. Hier steht diese Marke gerade.",
+    "title": "Was schon beantwortet werden kann",
+    "subtitle": "Jede Antwort braucht eine Mindestmenge gemessener Daten. Hier steht die Marke.",
+    "summary": "{met} von {total} bereit",
     "progress": "{current} von {required}",
-    "met": "Aktiv",
-    "pending": "Braucht mehr Daten",
-    "unavailable": "Noch nicht verfügbar",
-    "computedAt": "Berechnet {when}",
+    "met": "Bereit",
     "checks": {
       "history": {
-        "label": "Audience-Fit-Verlaufswert",
-        "hint": "Braucht 5 Beiträge mit gemessenem Wert für {metric}."
+        "label": "Audience-Fit-Bewertung im Editor",
+        "hint": "Braucht noch {missing} Beiträge mit gemessenem Wert für {metric}.",
+        "on": "Entwürfe werden an deiner eigenen Historie gemessen."
       },
-      "timing": {
-        "label": "Beste Zeitfenster",
-        "hint": "Braucht 20 Beiträge mit Veröffentlichungszeit und 5 mit gemessenem Wert für {metric}."
+      "contentPatterns": {
+        "label": "Muster für Säule, Hook und Format",
+        "hint": "Noch {missing} veröffentlichte Bildunterschriften müssen analysiert werden. Das läuft im Hintergrund.",
+        "on": "Bildunterschriften werden analysiert und zu Mustern gruppiert."
       },
-      "timingWindow": {
-        "label": "Ein Fenster mit genügend Beiträgen",
-        "hint": "Mindestens 5 gemessene Beiträge am selben Wochentag zur selben Stunde."
+      "learnings": {
+        "label": "Playbook-Muster",
+        "hint": "Braucht noch {missing} Beiträge mit gemessenem Wert für {metric}.",
+        "on": "Beitragsgruppen werden mit dem Rest der Marke verglichen."
       },
       "platformComparison": {
         "label": "Plattformvergleich",
-        "hint": "Zwei Plattformen mit je 5 oder mehr gemessenen Beiträgen."
+        "hint": "Braucht eine zweite Plattform mit 5 oder mehr gemessenen Beiträgen.",
+        "on": "Plattformen werden pro Beitrag verglichen."
       },
-      "learnings": {
-        "label": "Leitfaden-Muster",
-        "hint": "5 gemessene Beiträge in einer Gruppe und 5 außerhalb."
+      "timing": {
+        "label": "Beste Zeitfenster",
+        "hint": "Braucht noch {missing} Beiträge mit Veröffentlichungszeit und gemessenem Wert für {metric}.",
+        "on": "Zeitfenster werden am Kontodurchschnitt gemessen."
       },
-      "contentPatterns": {
-        "label": "Erkennung von Inhaltsmustern",
-        "hint": "Captions werden nach der Veröffentlichung im Hintergrund analysiert. 10 analysierte Beiträge schalten Säulen-, Aufhänger- und Formatmuster frei."
-      },
-      "alignment": {
-        "label": "Zielgruppen-Abgleich",
-        "hint": "Braucht Zielgruppendemografie von einer verbundenen Plattform. Noch keine deiner verbundenen Plattformen meldet sie."
+      "timingWindow": {
+        "label": "Ein Zeitfenster mit genug Beiträgen",
+        "hint": "Braucht noch {missing} gemessene Beiträge an einem Wochentag und einer Stunde.",
+        "on": "Mindestens ein Zeitfenster hat 5 gemessene Beiträge."
       }
     }
   },
   "objective": {
     "title": "Optimiert auf",
     "body": "Jedes Ranking, jedes Zeitfenster und jede Empfehlung auf dieser Seite nutzt {metric}, weil dein Ziel {objective} ist.",
-    "change": "Unter Zielgruppe ändern",
+    "change": "Ziel ändern",
     "names": {
       "awareness": "Bekanntheit",
       "engagement": "Interaktion",
@@ -387,7 +399,10 @@
       "failed": "Dieser Beitrag kann gerade nicht erklärt werden.",
       "notMeasured": "Dieser Beitrag hat noch keine gemessenen Kennzahlen, die sich erklären ließen."
     },
-    "remix": "Ähnlichen Beitrag entwerfen"
+    "remix": "Ähnlichen Beitrag entwerfen",
+    "subtitle": "Nach deinem Ziel sortiert. Öffne einen Beitrag, um zu sehen, was hervorstach.",
+    "showPreview": "Vorschau zeigen",
+    "hidePreview": "Vorschau ausblenden"
   },
   "timing": {
     "title": "Beste Zeitfenster",
@@ -430,8 +445,8 @@
       "evidence": "Zusammenhang mit deinem gemessenen Zielgruppenmix, keine Ursache."
     },
     "evidenceLabel": "Belege",
-    "composeInContent": "In Content verfassen",
-    "openCalendar": "Kalender öffnen"
+    "title": "Nächste Schritte",
+    "subtitle": "Konkrete Dinge zum Ausprobieren, jeweils mit deinen eigenen Zahlen belegt."
   },
   "learnings": {
     "dimensions": {
@@ -462,7 +477,9 @@
       "potentially_strong": "30 oder mehr Beiträge und ein Bereich, der auf einer Seite der Null bleibt."
     },
     "evidenceTitle": "Beiträge hinter diesem Muster",
-    "contentPatternsNote": "Säulen-, Aufhänger- und Formatmuster erscheinen, sobald {required} veröffentlichte Captions analysiert wurden. Bisher {current} analysiert; das läuft im Hintergrund."
+    "contentPatternsNote": "Säulen-, Aufhänger- und Formatmuster erscheinen, sobald {required} veröffentlichte Captions analysiert wurden. Bisher {current} analysiert; das läuft im Hintergrund.",
+    "title": "Muster",
+    "subtitle": "Beitragsgruppen, die über oder unter dem Rest dieser Marke liegen."
   },
   "drafts": {
     "button": "Entwurf erstellen",
@@ -478,7 +495,8 @@
     "title": "Zielgruppe",
     "objective": "Ziel",
     "markets": "Märkte",
-    "pillars": "Inhaltssäulen"
+    "pillars": "Inhaltssäulen",
+    "subtitle": "Für wen du erstellst und was Erfolg bedeutet. Jede Empfehlung wird daran gemessen."
   },
   "links": {
     "title": "Getrackte Links",
@@ -507,21 +525,6 @@
     "hideRetired": "Stillgelegte Links ausblenden",
     "confirmRetire": "Diesen Link stilllegen? Wer ihm folgt, sieht eine Seite mit dem Hinweis, dass er nicht mehr aktiv ist. Bereits gezählte Klicks bleiben erhalten."
   },
-  "campaigns": {
-    "title": "Kampagnen",
-    "preview": "Vorschau",
-    "empty": "Benenne Kampagnen jetzt, um Beiträge zu gruppieren, die du vergleichen willst. Die Zuweisung von Beiträgen zu einer Kampagne folgt; das Erstellen hier veröffentlicht nie etwas.",
-    "name": "Kampagnenname",
-    "create": "Kampagne erstellen",
-    "created": "Kampagne erstellt",
-    "createFailed": "Kampagne konnte nicht erstellt werden",
-    "status": {
-      "draft": "Entwurf",
-      "active": "Aktiv",
-      "completed": "Abgeschlossen",
-      "archived": "Archiviert"
-    }
-  },
   "empty": {
     "overviewTitle": "Noch keine veröffentlichten Beiträge",
     "overviewBody": "Für diese Marke sind noch keine Beiträge synchronisiert. Über Markaestro veröffentlichte Beiträge und aus deinen verbundenen Konten importierte Historie erscheinen hier, sobald sie in Intelligence übernommen wurden. Fehlende Kennzahlen bleiben leer, nie null.",
@@ -531,9 +534,12 @@
     "contentTitle": "Noch keine gemessenen Inhalte",
     "contentBody": "Veröffentlichte und importierte Beiträge erscheinen hier, sobald eine Plattform Kennzahlen dafür meldet.",
     "opportunitiesTitle": "Noch keine fundierten Chancen",
-    "opportunitiesBody": "Vorschläge erscheinen, sobald genügend gemessene Belege vorliegen: zwei Plattformen zum Vergleichen, ein Zeitfenster mit 5 Beiträgen oder ein wiederholbares Muster. Die Bereitschaftsliste in der Übersicht zeigt, wie nah du dran bist.",
+    "opportunitiesBody": "Schritte erscheinen, sobald genug gemessene Belege vorliegen: zwei Plattformen zum Vergleichen, ein Zeitfenster mit 5 Beiträgen oder ein wiederholbares Muster.",
     "playbookTitle": "Dein Playbook wird aufgebaut",
-    "playbookBody": "Muster brauchen mindestens 5 gemessene Beiträge in einer Gruppe und 5 außerhalb. Prüfe die Bereitschaftsliste in der Übersicht oder sieh dir unter Chancen die ersten umsetzbaren Vorschläge an."
+    "playbookBody": "Muster brauchen mindestens 5 gemessene Beiträge in einer Gruppe und 5 außerhalb. Die Bereitschaftsliste in der Übersicht zeigt, wie nah du dran bist.",
+    "overviewNext": "Veröffentliche oder importiere einen Beitrag, um zu starten.",
+    "contentNext": "Kennzahlen kommen innerhalb eines Tages nach der Veröffentlichung.",
+    "playbookNext": "Noch {missing} gemessene Beiträge."
   },
   "weekdays": {
     "Mon": "Montag",
@@ -696,8 +702,6 @@
     }
   },
   "alignment": {
-    "title": "Zielgruppen-Abgleich",
-    "empty": "Der Abgleich erscheint, sobald eine verbundene Plattform deinen Zielgruppenmix meldet. Fehlende Dimensionen bleiben leer.",
     "dimensions": {
       "geography": "Geografie",
       "age": "Alter",
@@ -707,10 +711,9 @@
   },
   "experiments": {
     "title": "Experimente",
-    "emptyPaired": "Noch keine Experimente. Erstelle einen plattformspezifischen A/B-Test mit zwei geplanten Posts.",
-    "pairedWorkflow": "Wähle eine Plattform, erstelle zwei Varianten (anderer Caption, Media und/oder Zeit), plane beide und führe sie für ein Zeitfenster. Am Ende landen die Ergebnisse im Posteingang. Die Nebeneinander-Ansicht zeigt den Live-Post, sobald ein Permalink vorliegt.",
-    "name": "Experimentname",
-    "hypothesis": "Hypothese (z. B. kürzere Hooks bringen mehr Views)",
+    "emptyPaired": "Erstelle einen A/B-Test: zwei geplante Beiträge auf einer Plattform, am Ende des Fensters nach Aufrufen verglichen.",
+    "name": "Name des Experiments",
+    "hypothesis": "Hypothese",
     "createPaired": "A/B erstellen & planen",
     "creating": "Wird erstellt…",
     "createdPaired": "Experiment erstellt, beide Posts sind geplant",
@@ -736,7 +739,6 @@
     "deleteWarning": "Entfernt das Experiment, die geplanten A/B-Beiträge und zugehörige Inbox-Ergebnisse in Markaestro. Bereits live auf der Plattform veröffentlichte Beiträge bleiben bestehen.",
     "deleted": "Experiment gelöscht",
     "deleteFailed": "Experiment konnte nicht gelöscht werden",
-    "effect": "{value}% relativer Unterschied (B vs A)",
     "status": {
       "draft": "Entwurf",
       "scheduled": "Geplant",
@@ -751,7 +753,27 @@
       "winner_a": "Arm A führt bei der gemessenen Metrik.",
       "winner_b": "Arm B führt bei der gemessenen Metrik.",
       "inconclusive": "Ergebnis unschlüssig, größere Stichprobe oder klarerer Unterschied nötig."
-    }
+    },
+    "subtitle": "Eine Plattform, zwei Beiträge, eine Änderung dazwischen. Am Ende des Fensters nach Aufrufen verglichen.",
+    "emptyTitle": "Noch keine Experimente",
+    "newExperiment": "Neues Experiment",
+    "closeComposer": "Schließen",
+    "namePlaceholder": "Kurzer Hook vs. langer Hook",
+    "platform": "Plattform",
+    "hypothesisPlaceholder": "Kürzere Hooks bringen mehr Aufrufe",
+    "window": "Zeitfenster",
+    "armControl": "Kontrolle",
+    "armVariant": "Variante",
+    "tipOneChange": "Ändere nur eine Sache zwischen den Armen: Hook, Medien oder Zeit. Zwei Änderungen lassen sich nicht auseinanderhalten.",
+    "tipSameSlot": "Plane beide Arme in ähnlichen Zeitfenstern, ein Tag Abstand passt gut, damit nicht das Timing entscheidet.",
+    "tipDecision": "Beide Beiträge werden für dich geplant. Am Ende des Fensters gilt ein Arm mit 15% oder mehr Aufrufen als Gewinner, sonst ist das Ergebnis unentschieden.",
+    "resultDetail": "Arm B erreichte {effect}% {metric} gegenüber Arm A.",
+    "resultMissing": "Ein Arm hat noch keinen gemessenen Wert für {metric}.",
+    "resultCaveat": "Ein Beitrag pro Arm: als Hinweis behandeln und den Test wiederholen, bevor du dein Playbook änderst.",
+    "runningUntil": "Läuft bis {when}. Der Gewinner wird nach {metric} bestimmt.",
+    "scheduledNote": "Beide Arme sind geplant. Der Gewinner wird am Ende des Fensters nach {metric} bestimmt.",
+    "collapse": "Einklappen",
+    "expand": "Ausklappen"
   },
   "ask": {
     "title": "Markaestro fragen",
@@ -777,11 +799,38 @@
       "campaigns": "Kampagnen",
       "platform_comparisons": "Vergleich pro Plattform",
       "experiments": "Experimente"
-    }
+    },
+    "examples": [
+      "Welche Plattform bringt die meisten Aufrufe pro Beitrag?",
+      "Wann laufen meine Beiträge am besten?",
+      "Welche Inhaltssäule funktioniert für Engagement?"
+    ],
+    "mediaOnly": "Medienbeitrag",
+    "otherRecords": "{count} weitere Datensätze"
   },
   "errors": {
     "unavailableTitle": "Intelligence ist nicht verfügbar",
-    "unavailableBody": "Diese Phase ist für diesen Arbeitsbereich nicht aktiviert oder konnte nicht geladen werden.",
+    "unavailableBody": "Die Analyse dieser Marke konnte nicht geladen werden. Deine Daten sind unverändert. Erneut versuchen oder in einer Minute wiederkommen.",
     "retry": "Erneut versuchen"
+  },
+  "legend": {
+    "button": "Labels",
+    "title": "Was jedes Label bedeutet",
+    "intro": "Jede Zahl und jeder Satz auf dieser Seite trägt eines dieser Labels, damit du immer weißt, woher es stammt."
+  },
+  "briefing": {
+    "title": "Heutige Lesart",
+    "subtitle": "Das Stärkste, was deine Daten gerade sagen, bewertet nach {metric}.",
+    "pattern": "Stärkstes Muster",
+    "move": "Nächster Schritt",
+    "window": "Bestes Zeitfenster",
+    "openPlaybook": "Playbook öffnen",
+    "openContent": "Inhalte öffnen",
+    "openReadiness": "Zeigen, was es freischaltet",
+    "noPattern": "Noch {missing} gemessene Beiträge auf {metric} schalten Muster frei.",
+    "noPatternYet": "Noch kein Muster sticht hervor.",
+    "noMove": "Noch nichts zu tun. Schritte erscheinen, wenn ein Zeitfenster, eine Plattform oder ein Muster deinen Durchschnitt schlägt.",
+    "noWindow": "Noch {missing} Beiträge schalten Zeitfenster frei.",
+    "noWindowYet": "Noch kein Zeitfenster hat genug Beiträge."
   }
 }

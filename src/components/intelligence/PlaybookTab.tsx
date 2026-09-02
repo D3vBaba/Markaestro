@@ -1,24 +1,64 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 import {
   ChannelDot,
+  CompassIcon,
   DecisionButtons,
   DraftButton,
   EmptyState,
+  INSET,
   KindBadge,
   LightbulbIcon,
   PhaseGate,
   Section,
   StatusFilterBar,
-  TabHeader,
+  TYPE,
+  countByStatus,
+  filterByStatus,
   phasesOf,
   type StatusFilter,
 } from "./shared";
 import { useIntelligenceCopy } from "./copy";
 import { useIntelligenceFormat } from "./format";
-import type { DecisionStatus, IntelligenceOverview, LearningRow, PostRow } from "./types";
+import type { DecisionStatus, IntelligenceOverview, LearningRow, OpportunityRow, PostRow } from "./types";
+
+function OpportunityItem({ item, productId }: { item: OpportunityRow; productId: string }) {
+  const t = useTranslations("intelligence");
+  const copy = useIntelligenceCopy();
+  const [status, setStatus] = useState<DecisionStatus>(item.status || "proposed");
+  const rendered = copy.opportunity(item);
+  const platform = item.params?.kind === "platform" ? item.params.leader : undefined;
+  return (
+    <li className="py-5 first:pt-0 last:pb-0">
+      <div className="flex flex-wrap items-center gap-2">
+        <KindBadge tone="blue">{rendered.kind}</KindBadge>
+      </div>
+      <h3 className={cn("mt-2", TYPE.cardTitle)}>{rendered.title}</h3>
+      <p className={cn("mt-1 max-w-3xl", TYPE.body)}>{rendered.body}</p>
+      {rendered.evidence && (
+        <p className={cn("mt-3 max-w-3xl px-3 py-2", INSET, TYPE.hint)}>
+          <span className="font-semibold text-slate-700 dark:text-slate-200">{t("opportunities.evidenceLabel")}: </span>
+          {rendered.evidence}
+        </p>
+      )}
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+        {status !== "dismissed" && (
+          <DraftButton productId={productId} source={{ type: "opportunity", id: item.id }} platform={platform} />
+        )}
+        <DecisionButtons
+          path={`/api/intelligence/recommendations/${item.id}/decision`}
+          productId={productId}
+          status={item.status}
+          kind="opportunity"
+          onChanged={setStatus}
+        />
+      </div>
+    </li>
+  );
+}
 
 function EvidencePosts({ ids, posts, metric }: { ids: string[]; posts: PostRow[]; metric: string }) {
   const t = useTranslations("intelligence");
@@ -27,63 +67,67 @@ function EvidencePosts({ ids, posts, metric }: { ids: string[]; posts: PostRow[]
   const rows = ids.map((id) => byId.get(id)).filter((post): post is PostRow => Boolean(post)).slice(0, 3);
   if (rows.length === 0) return null;
   return (
-    <div className="mt-3">
-      <p className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t("learnings.evidenceTitle")}</p>
-      <div className="mt-1.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+    <div className={cn("mt-3 max-w-3xl px-3 py-2.5", INSET)}>
+      <p className={TYPE.meta}>{t("learnings.evidenceTitle")}</p>
+      <ul className="mt-1.5 divide-y divide-slate-200/70 dark:divide-slate-700/60">
         {rows.map((post) => (
-          <div key={post.id} className="rounded-xl border border-slate-200/80 p-2.5 text-[11px] dark:border-slate-800/80">
-            <div className="flex items-center justify-between gap-2">
-              <ChannelDot platform={post.platform} />
-              <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{fmt.metric(post.objectiveValue ?? post.views)}</span>
-            </div>
-            <p className="mt-1 line-clamp-2 text-slate-600 dark:text-slate-400">{post.content || t("content.mediaOnly")}</p>
-            <p className="mt-1 text-[10px] text-slate-400">{fmt.metricName(metric)}</p>
-          </div>
+          <li key={post.id} className="flex items-center gap-3 py-1.5">
+            <ChannelDot platform={post.platform} className="w-24 shrink-0" />
+            <span className={cn("min-w-0 flex-1 truncate", TYPE.hint)}>{post.content || t("content.mediaOnly")}</span>
+            <span className={cn("shrink-0 text-xs", TYPE.figure)} title={fmt.metricName(metric)}>{fmt.metric(post.objectiveValue ?? post.views)}</span>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
 
-function LearningCard({ item, productId, posts }: { item: LearningRow; productId: string; posts: PostRow[] }) {
+function LearningItem({ item, productId, posts }: { item: LearningRow; productId: string; posts: PostRow[] }) {
   const copy = useIntelligenceCopy();
   const [status, setStatus] = useState<DecisionStatus>(item.status || "proposed");
   const rendered = copy.learning(item);
   const platform = item.dimension === "platform" ? item.key : undefined;
+  const up = (item.effectPercent ?? 0) >= 0;
   return (
-    <Section trust="calculated" eyebrow={rendered.dimension} title={rendered.key}>
+    <li className="py-5 first:pt-0 last:pb-0">
       <div className="flex flex-wrap items-center gap-2">
-        <KindBadge tone={item.strength === "potentially_strong" ? "emerald" : item.strength === "moderate" ? "blue" : "amber"}>
-          <span title={rendered.strengthHint}>{rendered.strength}</span>
+        <KindBadge tone="slate">{rendered.dimension}</KindBadge>
+        <KindBadge tone={item.strength === "potentially_strong" ? "emerald" : item.strength === "moderate" ? "blue" : "amber"} title={rendered.strengthHint}>
+          {rendered.strength}
         </KindBadge>
-        <span className="text-[11px] text-slate-400 dark:text-slate-500">{rendered.strengthHint}</span>
+        <span className={TYPE.hint}>{rendered.strengthHint}</span>
       </div>
-      <p className="mt-3 text-[13px] leading-relaxed text-slate-700 dark:text-slate-300">{rendered.summary}</p>
-      <dl className="mt-3 grid grid-cols-1 gap-2 text-[12px] sm:grid-cols-3">
-        <div className="rounded-xl bg-slate-50/80 px-3 py-2 dark:bg-slate-900/60">
-          <dd className="font-mono font-semibold text-slate-900 dark:text-slate-100">{rendered.comparison}</dd>
-        </div>
-        <div className="rounded-xl bg-slate-50/80 px-3 py-2 dark:bg-slate-900/60">
-          <dd className="font-mono text-slate-700 dark:text-slate-300">{rendered.sample}</dd>
-        </div>
-        <div className="rounded-xl bg-slate-50/80 px-3 py-2 dark:bg-slate-900/60">
-          <dd className="font-mono text-slate-700 dark:text-slate-300">{rendered.interval}</dd>
-        </div>
+      <h3 className={cn("mt-2 flex flex-wrap items-baseline gap-x-3", TYPE.cardTitle)}>
+        <span>{rendered.key}</span>
+        {item.effectPercent !== null && (
+          <span className={cn("text-lg", TYPE.figure, up ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")}>
+            {up ? "+" : ""}{Math.round(item.effectPercent)}%
+          </span>
+        )}
+      </h3>
+      <p className={cn("mt-1 max-w-3xl", TYPE.body)}>{rendered.summary}</p>
+      <dl className="mt-2 flex flex-wrap gap-x-5 gap-y-1">
+        {[rendered.comparison, rendered.sample, rendered.interval].map((value) => (
+          <div key={value} className="flex items-baseline gap-1.5">
+            <dt className="sr-only">{value}</dt>
+            <dd className={TYPE.hint}>{value}</dd>
+          </div>
+        ))}
       </dl>
       <EvidencePosts ids={item.evidencePostIds} posts={posts} metric={item.metric} />
-      {status !== "dismissed" && (
-        <div className="mt-4">
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+        {status !== "dismissed" && (
           <DraftButton productId={productId} source={{ type: "learning", id: item.id }} platform={platform} />
-        </div>
-      )}
-      <DecisionButtons
-        path={`/api/intelligence/learnings/${item.id}/decision`}
-        productId={productId}
-        status={item.status}
-        kind="learning"
-        onChanged={setStatus}
-      />
-    </Section>
+        )}
+        <DecisionButtons
+          path={`/api/intelligence/learnings/${item.id}/decision`}
+          productId={productId}
+          status={item.status}
+          kind="learning"
+          onChanged={setStatus}
+        />
+      </div>
+    </li>
   );
 }
 
@@ -92,42 +136,55 @@ export function PlaybookTab({ data, productId }: { data: IntelligenceOverview; p
   const phases = phasesOf(data);
   const [filter, setFilter] = useState<StatusFilter>("all");
   const posts = data.measuredPosts?.length ? data.measuredPosts : data.topContent;
-  const counts = useMemo(() => {
-    const base: Record<StatusFilter, number> = { all: 0, proposed: 0, accepted: 0, pinned: 0, dismissed: 0 };
-    for (const item of data.learnings) {
-      const status = (item.status || "proposed") as DecisionStatus;
-      base[status] += 1;
-      if (status !== "dismissed") base.all += 1;
-    }
-    return base;
-  }, [data.learnings]);
-  const visible = data.learnings.filter((item) => {
-    const status = item.status || "proposed";
-    return filter === "all" ? status !== "dismissed" : status === filter;
-  });
+  const counts = countByStatus([...data.opportunities, ...data.learnings]);
+  const moves = filterByStatus(data.opportunities, filter);
+  const patterns = filterByStatus(data.learnings, filter);
   const patternCheck = data.readiness?.checks.find((check) => check.id === "contentPatterns");
+  const learningsCheck = data.readiness?.checks.find((check) => check.id === "learnings");
+  const hasAnything = data.opportunities.length > 0 || data.learnings.length > 0;
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      <TabHeader topic="playbook" title={t("howItWorks.playbook.title")} body={t("howItWorks.playbook.intro")} />
       <PhaseGate enabled={phases.learning} feature="intelligenceOptimization">
-        {patternCheck && !patternCheck.met && (
-          <p className="rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2 text-[11px] leading-relaxed text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400">
-            {t("learnings.contentPatternsNote", { required: patternCheck.required, current: data.readiness?.fingerprinted ?? patternCheck.current })}
-          </p>
-        )}
-        {data.learnings.length === 0 ? (
-          <EmptyState icon={LightbulbIcon} title={t("empty.playbookTitle")} body={t("empty.playbookBody")} />
-        ) : (
-          <>
-            <StatusFilterBar value={filter} onChange={setFilter} counts={counts} />
-            {visible.length === 0 ? (
-              <p className="text-xs text-slate-500 dark:text-slate-400">{t("filter.none")}</p>
+        {hasAnything && <StatusFilterBar value={filter} onChange={setFilter} counts={counts} />}
+
+        {phases.growth && (
+          <Section trust="recommended" title={t("opportunities.title")} subtitle={t("opportunities.subtitle")} help="opportunities">
+            {data.opportunities.length === 0 ? (
+              <EmptyState icon={CompassIcon} title={t("empty.opportunitiesTitle")} body={t("empty.opportunitiesBody")} />
+            ) : moves.length === 0 ? (
+              <p className={TYPE.hint}>{t("filter.none")}</p>
             ) : (
-              visible.map((item) => <LearningCard key={item.id} item={item} productId={productId} posts={posts} />)
+              <ul className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                {moves.map((item) => <OpportunityItem key={item.id} item={item} productId={productId} />)}
+              </ul>
             )}
-          </>
+          </Section>
         )}
+
+        <Section trust="calculated" title={t("learnings.title")} subtitle={t("learnings.subtitle")} help="playbook">
+          {patternCheck && !patternCheck.met && (
+            <p className={cn("mb-4 px-3 py-2", INSET, TYPE.hint)}>
+              {t("learnings.contentPatternsNote", { required: patternCheck.required, current: data.readiness?.fingerprinted ?? patternCheck.current })}
+            </p>
+          )}
+          {data.learnings.length === 0 ? (
+            <EmptyState
+              icon={LightbulbIcon}
+              title={t("empty.playbookTitle")}
+              body={t("empty.playbookBody")}
+              next={learningsCheck && !learningsCheck.met
+                ? t("empty.playbookNext", { missing: Math.max(0, learningsCheck.required - learningsCheck.current) })
+                : undefined}
+            />
+          ) : patterns.length === 0 ? (
+            <p className={TYPE.hint}>{t("filter.none")}</p>
+          ) : (
+            <ul className="divide-y divide-slate-100 dark:divide-slate-800/80">
+              {patterns.map((item) => <LearningItem key={item.id} item={item} productId={productId} posts={posts} />)}
+            </ul>
+          )}
+        </Section>
       </PhaseGate>
     </div>
   );

@@ -1,12 +1,10 @@
 {
   "title": "Intelligence",
   "subtitle": "What your own posts measured, explained in plain language, with drafts you control. Nothing posts automatically.",
-  "brand": "Brand",
   "coverage": "{value}% data coverage",
   "productBar": {
     "brand": "Brand",
-    "noBrandSelected": "No brand selected",
-    "change": "Change"
+    "noBrandSelected": "No brand selected"
   },
   "labels": {
     "measured": "Measured",
@@ -26,11 +24,10 @@
   },
   "tabs": {
     "overview": "Overview",
-    "audience": "Audience",
     "content": "Content",
-    "opportunities": "Opportunities",
     "playbook": "Playbook",
-    "advanced": "Experiments"
+    "audience": "Audience",
+    "experiments": "Experiments"
   },
   "actions": {
     "refresh": "Refresh",
@@ -50,14 +47,15 @@
       "pinned": "Pinned",
       "dismissed": "Dismissed"
     },
-    "refreshFailed": "Could not refresh the analysis. The figures shown are the last ones we calculated."
+    "refreshFailed": "Could not refresh the analysis. The figures shown are the last ones we calculated.",
+    "computedAt": "Last computed {when}"
   },
   "decisions": {
     "hint": "These buttons only record your decision. They never publish, schedule, or change drafts.",
     "learningHint": "Record whether you trust this pattern. Intelligence never changes your content on its own.",
-    "accept": "Accept: I plan to act on this",
-    "pin": "Pin, revisit later",
-    "dismiss": "Dismiss, hide this item"
+    "accept": "Accept",
+    "pin": "Pin",
+    "dismiss": "Dismiss"
   },
   "filter": {
     "label": "Show",
@@ -78,15 +76,14 @@
     "stepsTitle": "How to use it",
     "inputsTitle": "What feeds it",
     "neverTitle": "What it never does",
-    "thresholdsTitle": "When it switches on",
     "page": {
       "title": "How Intelligence works",
       "intro": "Intelligence reads the posts you have already published, keeps every number exactly as the platforms reported it, and turns that history into plain-language answers: what worked, when to post, what to try next. You stay in control of every action.",
       "steps": [
         "Pick a brand. Everything on this page is scoped to one brand and its connected channels.",
-        "Start on Overview to see what has been measured so far and which features have enough data to switch on.",
+        "Start on Overview: the strongest pattern, the next move, and the best window sit at the top, with Ask Markaestro right below.",
         "Set your objective and audience under Audience. It decides which metric every recommendation optimizes for.",
-        "Read Content, Opportunities, and Playbook for evidence-backed answers, then use Draft this to turn any of them into a post draft.",
+        "Read Content and Playbook for evidence-backed answers, then use Draft this to turn any of them into a post draft.",
         "Every draft lands in Content as a normal draft. Review, edit, schedule, or delete it like any other post."
       ],
       "inputs": [
@@ -102,12 +99,12 @@
     },
     "overview": {
       "title": "Overview",
-      "intro": "A snapshot of what has been measured for this brand, plus a readiness list that tells you exactly which features are active and what is still missing.",
+      "intro": "The strongest thing your data says right now, a question box that answers only from this brand's records, and a readiness list that tells you exactly what is still missing.",
       "steps": [
-        "Check the objective banner. Every ranking and recommendation uses that metric.",
-        "Read the KPI tiles. A blank tile means no connected platform reported that metric, never zero.",
-        "Use the readiness list to see how close each feature is to switching on and what to do about it.",
-        "Compare platforms per post, not by total, so a channel with fewer posts is judged fairly."
+        "Read the three cells at the top: strongest pattern, next move, best window. Each links to its evidence.",
+        "Ask Markaestro a question. It picks one approved data tool and names the records it used.",
+        "The figures strip shows what has been measured. A blank figure means no platform reported it, never zero.",
+        "Use the readiness list to see how close each answer is to switching on and what unlocks it."
       ],
       "inputs": [
         "All synced posts for this brand and their latest reported metrics",
@@ -155,12 +152,12 @@
       ]
     },
     "opportunities": {
-      "title": "Opportunities",
+      "title": "Next moves",
       "intro": "Concrete things to try next, each backed by your own numbers: a posting window that outperforms your average, a platform that does better per post, or a pattern worth repeating.",
       "steps": [
-        "Read the evidence line under each card. It shows the exact numbers behind the suggestion.",
+        "Read the evidence line under each move. It shows the exact numbers behind the suggestion.",
         "Accept if you plan to try it, Pin to revisit, or Dismiss if it does not fit. All three can be undone.",
-        "Use Draft this to get a caption written for that opportunity, saved to Content as a draft.",
+        "Use Draft this to get a caption written for that move, saved to Content as a draft.",
         "Publish from Content or Calendar as usual. Accepting never creates or schedules posts."
       ],
       "inputs": [
@@ -174,12 +171,12 @@
     },
     "playbook": {
       "title": "Playbook",
-      "intro": "Patterns that repeat in your data with enough posts to matter: which platform, hook, pillar, format, or time slot performs above or below the rest of this brand.",
+      "intro": "Next moves are concrete things to try, each backed by your own numbers. Patterns are groups of posts that perform above or below the rest of this brand.",
       "steps": [
-        "Each card compares a group of posts against every other post of this brand on your objective metric.",
+        "Each pattern compares a group of posts against every other post of this brand on your objective metric.",
         "The effect is the percent difference per post. The 95% range tells you how sure the estimate is.",
         "Strength grows with sample size: directional (5 to 14 posts), moderate (15 to 29), potentially strong (30 or more with a clear range).",
-        "Accept patterns you want to repeat, then use Draft this to write a post in that pattern."
+        "Accept moves and patterns you want to repeat, then use Draft this to write a post in that direction."
       ],
       "inputs": [
         "Measured posts grouped by platform, pillar, hook, format, and weekday/hour",
@@ -188,24 +185,6 @@
       "never": [
         "Report a pattern with fewer than five posts in the group and five outside it",
         "Claim a cause. These are associations in your own data."
-      ]
-    },
-    "advanced": {
-      "title": "Experiments and Ask Markaestro",
-      "intro": "Test one idea at a time with a paired A/B post, and ask questions that are answered only from this brand's measured records.",
-      "steps": [
-        "Create an experiment: one platform, two variants, one window. Both posts are scheduled for you.",
-        "When the window ends, the winner is decided by the measured metric and lands in your Inbox.",
-        "Ask Markaestro picks one approved data tool per question and cites the records it used.",
-        "Campaigns are a preview: you can name them now, post assignment is coming."
-      ],
-      "inputs": [
-        "Both experiment posts and their reported metrics",
-        "Stored learnings, comparisons, timing, and top posts for Ask Markaestro"
-      ],
-      "never": [
-        "Declare a winner without the measured difference and sample behind it",
-        "Answer from generic social-media advice"
       ]
     },
     "drafts": {
@@ -258,59 +237,92 @@
         "Track visitors across sites",
         "Store personal data from a click"
       ]
+    },
+    "experiments": {
+      "title": "Experiments",
+      "intro": "Test one idea at a time with a paired A/B post on one platform. Both posts are scheduled for you and compared on views when the window ends.",
+      "steps": [
+        "Name the experiment and write the hypothesis you want to test.",
+        "Write arm A (the control) and arm B (the variant). Change one thing only: the hook, the media, or the time.",
+        "Schedule both arms in similar slots, then pick a 3, 7, or 14 day window.",
+        "When the window ends the arm with 15% or more views is called the winner and the result lands in your Inbox. One post per arm is a hint, not proof: repeat before changing your playbook."
+      ],
+      "inputs": [
+        "Both experiment posts and the views each platform reports for them",
+        "The window you chose"
+      ],
+      "never": [
+        "Declare a winner below a 15% measured difference",
+        "Publish anything beyond the two posts you scheduled"
+      ]
+    },
+    "ask": {
+      "title": "Ask Markaestro",
+      "intro": "Ask a question in plain language. Markaestro picks one approved data tool, answers only from this brand's measured records, and names the records it used.",
+      "steps": [
+        "Ask about performance, timing, platforms, or patterns. Short, specific questions work best.",
+        "Read which tool answered. It tells you what kind of evidence the answer rests on.",
+        "Records cited are your own posts. If a question needs data you do not have yet, the answer says so."
+      ],
+      "inputs": [
+        "Stored patterns, comparisons, timing, and top posts for this brand",
+        "Your objective and audience profile"
+      ],
+      "never": [
+        "Answer from generic social-media advice",
+        "Use other brands' data"
+      ]
     }
   },
   "quota": {
-    "title": "AI actions",
     "aiOps": "{used} of {limit} AI actions used this month",
     "aiOpsUnlimited": "{used} AI actions used this month",
-    "strategist": "{used} of {limit} Ask turns used",
-    "hint": "Draft this, Why it worked, and Audience Fit each use one action. Background pattern detection is free.",
-    "exceeded": "You have used this month's AI actions on the {plan} plan. They reset next month, or upgrade for more."
+    "strategist": "{used} of {limit} Ask turns",
+    "hint": "Draft this, Why it worked, and Audience Fit each use one action. Background pattern detection is free."
   },
   "readiness": {
-    "title": "What is switched on",
-    "subtitle": "Each feature needs a minimum amount of measured data before it appears. Here is where this brand stands.",
+    "title": "What can be answered yet",
+    "subtitle": "Each answer needs a minimum amount of measured data. This is where the brand stands.",
+    "summary": "{met} of {total} ready",
     "progress": "{current} of {required}",
-    "met": "Active",
-    "pending": "Needs more data",
-    "unavailable": "Not available yet",
-    "computedAt": "Computed {when}",
+    "met": "Ready",
     "checks": {
       "history": {
-        "label": "Audience Fit history score",
-        "hint": "Needs 5 posts with a measured {metric} value."
+        "label": "Audience Fit scores in the composer",
+        "hint": "Needs {missing} more posts with a measured {metric} value.",
+        "on": "Drafts are scored against your own history."
       },
-      "timing": {
-        "label": "Best posting windows",
-        "hint": "Needs 20 posts with a publish time and 5 with a measured {metric} value."
-      },
-      "timingWindow": {
-        "label": "A window with enough posts",
-        "hint": "At least 5 measured posts in the same weekday and hour."
-      },
-      "platformComparison": {
-        "label": "Platform comparison",
-        "hint": "Two platforms with 5 or more measured posts each."
+      "contentPatterns": {
+        "label": "Pillar, hook, and format patterns",
+        "hint": "{missing} more published captions need to be analyzed. This runs in the background.",
+        "on": "Captions are analyzed and grouped into patterns."
       },
       "learnings": {
         "label": "Playbook patterns",
-        "hint": "5 measured posts in a group and 5 outside it."
+        "hint": "Needs {missing} more posts with a measured {metric} value.",
+        "on": "Groups of posts are compared against the rest of the brand."
       },
-      "contentPatterns": {
-        "label": "Content pattern detection",
-        "hint": "Captions are analyzed in the background after publishing. 10 analyzed posts unlock pillar, hook, and format patterns."
+      "platformComparison": {
+        "label": "Platform comparison",
+        "hint": "Needs a second platform with 5 or more measured posts.",
+        "on": "Platforms are compared per post."
       },
-      "alignment": {
-        "label": "Audience alignment",
-        "hint": "Needs audience demographics from a connected platform. None of your connected platforms reports them yet."
+      "timing": {
+        "label": "Best posting windows",
+        "hint": "Needs {missing} more posts with a publish time and a measured {metric} value.",
+        "on": "Windows are ranked against your account average."
+      },
+      "timingWindow": {
+        "label": "A window with enough posts",
+        "hint": "Needs {missing} more measured posts in one weekday and hour.",
+        "on": "At least one window has 5 measured posts."
       }
     }
   },
   "objective": {
     "title": "Optimizing for",
     "body": "Every ranking, window, and recommendation on this page uses {metric} because your objective is {objective}.",
-    "change": "Change in Audience",
+    "change": "Change objective",
     "names": {
       "awareness": "Awareness",
       "engagement": "Engagement",
@@ -387,7 +399,10 @@
       "failed": "Could not explain this post right now.",
       "notMeasured": "This post has no measured metrics to explain yet."
     },
-    "remix": "Draft a post like this"
+    "remix": "Draft a post like this",
+    "subtitle": "Ranked on your objective. Open any post to see what stood out.",
+    "showPreview": "Show preview",
+    "hidePreview": "Hide preview"
   },
   "timing": {
     "title": "Best posting windows",
@@ -430,8 +445,8 @@
       "evidence": "Association with your measured audience mix, not a cause."
     },
     "evidenceLabel": "Evidence",
-    "composeInContent": "Compose in Content",
-    "openCalendar": "Open Calendar"
+    "title": "Next moves",
+    "subtitle": "Concrete things to try, each backed by your own numbers."
   },
   "learnings": {
     "dimensions": {
@@ -462,7 +477,9 @@
       "potentially_strong": "30 or more posts and a range that stays on one side of zero."
     },
     "evidenceTitle": "Posts behind this pattern",
-    "contentPatternsNote": "Pillar, hook, and format patterns appear once {required} published captions have been analyzed. {current} analyzed so far; this runs in the background."
+    "contentPatternsNote": "Pillar, hook, and format patterns appear once {required} published captions have been analyzed. {current} analyzed so far; this runs in the background.",
+    "title": "Patterns",
+    "subtitle": "Groups of posts that perform above or below the rest of this brand."
   },
   "drafts": {
     "button": "Draft this",
@@ -478,7 +495,8 @@
     "title": "Target audience",
     "objective": "Objective",
     "markets": "Markets",
-    "pillars": "Content pillars"
+    "pillars": "Content pillars",
+    "subtitle": "Who you create for and what success means. Every recommendation is measured against this."
   },
   "links": {
     "title": "Tracked links",
@@ -507,21 +525,6 @@
     "hideRetired": "Hide retired links",
     "confirmRetire": "Retire this link? Anyone who follows it will see a page saying it is no longer in service. Clicks already counted are kept."
   },
-  "campaigns": {
-    "title": "Campaigns",
-    "preview": "Preview",
-    "empty": "Name campaigns now to group posts you want to compare. Assigning posts to a campaign is coming; creating one here never publishes anything.",
-    "name": "Campaign name",
-    "create": "Create campaign",
-    "created": "Campaign created",
-    "createFailed": "Could not create the campaign",
-    "status": {
-      "draft": "Draft",
-      "active": "Active",
-      "completed": "Completed",
-      "archived": "Archived"
-    }
-  },
   "empty": {
     "overviewTitle": "Waiting on published posts",
     "overviewBody": "This brand has no synced posts yet. Posts published through Markaestro and history imported from your connected accounts appear here once they are projected into Intelligence. Missing metrics stay blank, never zero.",
@@ -531,9 +534,12 @@
     "contentTitle": "No measured content yet",
     "contentBody": "Published and imported posts appear here as soon as a platform reports metrics for them.",
     "opportunitiesTitle": "No grounded opportunities yet",
-    "opportunitiesBody": "Suggestions appear once there is enough measured evidence: two platforms to compare, a posting window with 5 posts, or a repeatable pattern. The readiness list on Overview shows how close you are.",
+    "opportunitiesBody": "Moves appear once there is enough measured evidence: two platforms to compare, a posting window with 5 posts, or a repeatable pattern.",
     "playbookTitle": "Your playbook is warming up",
-    "playbookBody": "Patterns need at least 5 measured posts in a group and 5 outside it. Check the readiness list on Overview, or see Opportunities for the first actionable suggestions."
+    "playbookBody": "Patterns need at least 5 measured posts in a group and 5 outside it. The readiness list on Overview shows how close you are.",
+    "overviewNext": "Publish or import one post to start.",
+    "contentNext": "Metrics arrive within a day of publishing.",
+    "playbookNext": "{missing} more measured posts."
   },
   "weekdays": {
     "Mon": "Monday",
@@ -696,8 +702,6 @@
     }
   },
   "alignment": {
-    "title": "Audience alignment",
-    "empty": "Alignment appears after a connected platform reports your audience mix. Missing dimensions stay blank.",
     "dimensions": {
       "geography": "Geography",
       "age": "Age",
@@ -707,10 +711,9 @@
   },
   "experiments": {
     "title": "Experiments",
-    "emptyPaired": "No experiments yet. Create a per-platform A/B test with two scheduled posts below.",
-    "pairedWorkflow": "Pick one platform, write two variants (different caption, media, and/or time), schedule both, and run them for a set window. When the window ends, results land in your Inbox. Side-by-side shows the live post when a permalink exists.",
+    "emptyPaired": "Create a paired A/B test: two scheduled posts on one platform, compared on views when the window ends.",
     "name": "Experiment name",
-    "hypothesis": "Hypothesis (e.g. shorter hooks get more views)",
+    "hypothesis": "Hypothesis",
     "createPaired": "Create & schedule A/B",
     "creating": "Creating…",
     "createdPaired": "Experiment created, both posts are scheduled",
@@ -736,7 +739,6 @@
     "deleteWarning": "This removes the experiment, its scheduled A/B posts, and related inbox results from Markaestro. Posts already live on the platform are not removed.",
     "deleted": "Experiment deleted",
     "deleteFailed": "Could not delete the experiment",
-    "effect": "{value}% relative difference (B vs A)",
     "status": {
       "draft": "Draft",
       "scheduled": "Scheduled",
@@ -751,7 +753,27 @@
       "winner_a": "Arm A is ahead on the measured metric.",
       "winner_b": "Arm B is ahead on the measured metric.",
       "inconclusive": "Result is inconclusive, need a larger sample or a clearer difference."
-    }
+    },
+    "subtitle": "One platform, two posts, one change between them. Compared on views when the window ends.",
+    "emptyTitle": "No experiments yet",
+    "newExperiment": "New experiment",
+    "closeComposer": "Close",
+    "namePlaceholder": "Short hook vs long hook",
+    "platform": "Platform",
+    "hypothesisPlaceholder": "Shorter hooks get more views",
+    "window": "Window",
+    "armControl": "Control",
+    "armVariant": "Variant",
+    "tipOneChange": "Change one thing between the arms: the hook, the media, or the time. Two changes cannot be told apart.",
+    "tipSameSlot": "Schedule both arms in similar slots, a day apart works well, so timing does not decide the result.",
+    "tipDecision": "Both posts are scheduled for you. When the window ends, an arm with 15% or more views is called the winner; otherwise the result is inconclusive.",
+    "resultDetail": "Arm B measured {effect}% {metric} versus arm A.",
+    "resultMissing": "One arm has no measured {metric} yet.",
+    "resultCaveat": "One post per arm: treat it as a hint, then repeat the test before changing your playbook.",
+    "runningUntil": "Runs until {when}. The winner is decided on {metric}.",
+    "scheduledNote": "Both arms are scheduled. The winner is decided on {metric} when the window ends.",
+    "collapse": "Collapse",
+    "expand": "Expand"
   },
   "ask": {
     "title": "Ask Markaestro",
@@ -777,11 +799,38 @@
       "campaigns": "campaigns",
       "platform_comparisons": "per-platform comparison",
       "experiments": "experiments"
-    }
+    },
+    "examples": [
+      "Which platform gets the most views per post?",
+      "When do my posts perform best?",
+      "Which content pillar works for engagement?"
+    ],
+    "mediaOnly": "Media post",
+    "otherRecords": "{count} other records"
   },
   "errors": {
     "unavailableTitle": "Intelligence is unavailable",
-    "unavailableBody": "This phase is not enabled for this workspace or could not be loaded.",
+    "unavailableBody": "We could not load this brand's analysis. Your data is unchanged. Retry, or come back in a minute.",
     "retry": "Retry"
+  },
+  "legend": {
+    "button": "Labels",
+    "title": "What each label means",
+    "intro": "Every number and sentence on this page carries one of these labels, so you always know where it came from."
+  },
+  "briefing": {
+    "title": "Today's read",
+    "subtitle": "The strongest thing your data says right now, ranked on {metric}.",
+    "pattern": "Strongest pattern",
+    "move": "Next move",
+    "window": "Best window",
+    "openPlaybook": "Open Playbook",
+    "openContent": "Open Content",
+    "openReadiness": "See what unlocks it",
+    "noPattern": "{missing} more measured posts on {metric} unlock patterns.",
+    "noPatternYet": "No pattern stands out yet.",
+    "noMove": "Nothing to act on yet. Moves appear when a window, platform, or pattern beats your average.",
+    "noWindow": "{missing} more posts unlock posting windows.",
+    "noWindowYet": "No window has enough posts yet."
   }
 }

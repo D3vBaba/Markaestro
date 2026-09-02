@@ -10,7 +10,8 @@ import { apiDelete, apiPatch, apiPost } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
 import { userFacingError } from "@/lib/user-facing-errors";
 import AudienceProfileEditor from "@/components/intelligence/AudienceProfileEditor";
-import { PhaseGate, Section, TabHeader, phasesOf } from "./shared";
+import { PhaseGate, Section, TYPE, phasesOf } from "./shared";
+import { cn } from "@/lib/utils";
 import { useIntelligenceFormat } from "./format";
 import type { IntelligenceOverview, TrackedLink } from "./types";
 
@@ -81,7 +82,7 @@ function TrackedLinks({ productId }: { productId: string }) {
   return (
     <Section trust="measured" title={t("title")} subtitle={t("subtitle")} help="links">
       {!links.data?.links.length && (
-        <p className="mb-4 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{t("empty")}</p>
+        <p className={cn("mb-4", TYPE.hint)}>{t("empty")}</p>
       )}
       <form
         className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1.4fr_auto]"
@@ -110,7 +111,7 @@ function TrackedLinks({ productId }: { productId: string }) {
       <button
         type="button"
         onClick={() => setShowRetired((current) => !current)}
-        className="mt-3 text-[11px] font-semibold text-slate-500 hover:underline dark:text-slate-400"
+        className="mt-3 text-xs font-semibold text-slate-500 hover:underline dark:text-slate-400"
       >
         {showRetired ? t("hideRetired") : t("showRetired")}
       </button>
@@ -126,27 +127,27 @@ function TrackedLinks({ productId }: { productId: string }) {
                     <span className="truncate font-semibold text-slate-800 dark:text-slate-200">{link.label}</span>
                   </div>
                   <div className="mt-0.5 flex items-center gap-2">
-                    <span className="truncate font-mono text-[11px] text-slate-500 dark:text-slate-400">{link.url}</span>
+                    <span className="truncate font-mono text-xs text-slate-500 dark:text-slate-400">{link.url}</span>
                     <button
                       type="button"
                       onClick={() => void copy(link.url)}
-                      className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                      className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
                     >
                       <Copy className="h-3 w-3" aria-hidden="true" />
                       {t("copy")}
                     </button>
                   </div>
-                  <p className="truncate text-[11px] text-slate-400 dark:text-slate-500">{link.destination}</p>
+                  <p className="truncate text-xs text-slate-400 dark:text-slate-500">{link.destination}</p>
                   {!link.active && (
-                    <span className="mt-1 inline-block rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                    <span className="mt-1 inline-block rounded-full border border-slate-200 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
                       {t("inactive")}
                     </span>
                   )}
                 </div>
-                <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400 sm:text-end">
-                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{t("clicks", { count: link.clicks })}</span>
+                <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400 sm:text-end">
+                  <span className={TYPE.strong}>{t("clicks", { count: link.clicks })}</span>
                   {link.attributedConversions > 0 && (
-                    <span className="font-mono font-semibold text-emerald-700 dark:text-emerald-300">{t("conversions", { count: link.attributedConversions })}</span>
+                    <span className="font-semibold tabular-nums text-emerald-700 dark:text-emerald-300">{t("conversions", { count: link.attributedConversions })}</span>
                   )}
                   <span>{lastClick ? t("lastClick", { when: lastClick }) : t("noClicks")}</span>
                   <button
@@ -156,7 +157,7 @@ function TrackedLinks({ productId }: { productId: string }) {
                       if (link.active && !window.confirm(t("confirmRetire"))) return;
                       void setActive(link, !link.active);
                     }}
-                    className="shrink-0 text-[11px] font-semibold text-slate-500 hover:underline disabled:opacity-60 dark:text-slate-400"
+                    className="shrink-0 text-xs font-semibold text-slate-500 hover:underline disabled:opacity-60 dark:text-slate-400"
                   >
                     {pendingCode === link.code
                       ? t("retiring")
@@ -177,16 +178,9 @@ export function AudienceTab({ productId, data }: { productId: string; data: Inte
   const phases = phasesOf(data);
   return (
     <div className="space-y-4 sm:space-y-5">
-      <TabHeader topic="audience" title={t("howItWorks.audience.title")} body={t("howItWorks.audience.intro")} />
-      <Section trust="declared" title={t("audience.title")}>
+      <Section trust="declared" title={t("audience.title")} subtitle={t("audience.subtitle")} help="audience">
         <AudienceProfileEditor productId={productId} variant="advanced" />
       </Section>
-
-      {phases.growth && data.drift && (
-        <Section trust="calculated" title={data.drift.title}>
-          <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">{data.drift.summary}</p>
-        </Section>
-      )}
 
       <PhaseGate enabled={phases.learning} feature="intelligenceOptimization">
         <TrackedLinks productId={productId} />

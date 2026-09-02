@@ -1,12 +1,10 @@
 {
   "title": "Veille sociale",
   "subtitle": "Ce que vos propres publications ont mesuré, expliqué en langage clair, avec des brouillons que vous contrôlez. Rien ne se publie automatiquement.",
-  "brand": "Marque",
   "coverage": "{value} % de couverture des données",
   "productBar": {
     "brand": "Marque",
-    "noBrandSelected": "Aucune marque sélectionnée",
-    "change": "Changer"
+    "noBrandSelected": "Aucune marque sélectionnée"
   },
   "labels": {
     "measured": "Mesuré",
@@ -25,12 +23,11 @@
     "generated": "Texte rédigé par l’IA à partir de vos propres preuves et de votre voix de marque. Toujours enregistré comme un brouillon modifiable."
   },
   "tabs": {
-    "overview": "Vue d’ensemble",
-    "audience": "Audience",
+    "overview": "Vue d'ensemble",
     "content": "Contenu",
-    "opportunities": "Opportunités",
-    "playbook": "Guide",
-    "advanced": "Expériences"
+    "playbook": "Playbook",
+    "audience": "Audience",
+    "experiments": "Expériences"
   },
   "actions": {
     "refresh": "Actualiser",
@@ -50,14 +47,15 @@
       "pinned": "Épinglée",
       "dismissed": "Ignorée"
     },
-    "refreshFailed": "Impossible d'actualiser l'analyse. Les chiffres affichés sont les derniers calculés."
+    "refreshFailed": "Impossible d'actualiser l'analyse. Les chiffres affichés sont les derniers calculés.",
+    "computedAt": "Dernier calcul {when}"
   },
   "decisions": {
     "hint": "Ces boutons enregistrent seulement votre décision. Ils ne publient, ne planifient et ne modifient jamais de brouillons.",
     "learningHint": "Indiquez si vous faites confiance à ce motif. Intelligence ne modifie jamais votre contenu de lui-même.",
-    "accept": "Accepter : je compte agir",
-    "pin": "Épingler, revoir plus tard",
-    "dismiss": "Ignorer, masquer cet élément"
+    "accept": "Accepter",
+    "pin": "Épingler",
+    "dismiss": "Ignorer"
   },
   "filter": {
     "label": "Afficher",
@@ -78,16 +76,15 @@
     "stepsTitle": "Comment l’utiliser",
     "inputsTitle": "Ce qui l’alimente",
     "neverTitle": "Ce qu’il ne fait jamais",
-    "thresholdsTitle": "Quand ça s’active",
     "page": {
       "title": "Comment fonctionne Intelligence",
       "intro": "Intelligence lit les publications que vous avez déjà publiées, conserve chaque chiffre exactement tel que les plateformes l’ont rapporté et transforme cet historique en réponses claires : ce qui a marché, quand publier, quoi essayer ensuite. Vous gardez le contrôle de chaque action.",
       "steps": [
-        "Choisissez une marque. Tout sur cette page est limité à une marque et à ses canaux connectés.",
-        "Commencez par Vue d’ensemble pour voir ce qui a été mesuré jusqu’ici et quelles fonctionnalités ont assez de données pour s’activer.",
-        "Définissez votre objectif et votre audience dans Audience. C’est ce qui décide de la métrique que chaque recommandation optimise.",
-        "Consultez Contenu, Opportunités et Guide pour des réponses étayées par des preuves, puis utilisez Rédiger un brouillon pour transformer n’importe laquelle en brouillon de publication.",
-        "Chaque brouillon arrive dans Content comme un brouillon normal. Relisez-le, modifiez-le, planifiez-le ou supprimez-le comme n’importe quelle publication."
+        "Choisissez une marque. Tout sur cette page concerne une marque et ses canaux connectés.",
+        "Commencez par la Vue d'ensemble : le schéma le plus fort, la prochaine action et le meilleur créneau sont en haut, avec Demander à Markaestro juste en dessous.",
+        "Définissez votre objectif et votre audience sous Audience. Cela décide de la métrique que chaque recommandation optimise.",
+        "Lisez Contenu et Playbook pour des réponses étayées, puis utilisez Rédiger pour transformer l'une d'elles en brouillon.",
+        "Chaque brouillon arrive dans Contenu comme un brouillon normal. Relisez, modifiez, planifiez ou supprimez-le comme n'importe quel post."
       ],
       "inputs": [
         "Les publications publiées via Markaestro et celles importées depuis vos comptes connectés",
@@ -102,12 +99,12 @@
     },
     "overview": {
       "title": "Vue d’ensemble",
-      "intro": "Un instantané de ce qui a été mesuré pour cette marque, plus une liste de préparation qui indique exactement quelles fonctionnalités sont actives et ce qui manque encore.",
+      "intro": "Ce que vos données disent de plus fort en ce moment, une zone de question qui répond uniquement à partir des données de cette marque, et une liste de préparation qui indique exactement ce qui manque.",
       "steps": [
-        "Vérifiez le bandeau d’objectif. Chaque classement et chaque recommandation utilisent cette métrique.",
-        "Lisez les tuiles KPI. Une tuile vide signifie qu’aucune plateforme connectée n’a rapporté cette métrique, jamais zéro.",
-        "Utilisez la liste de préparation pour voir à quel point chaque fonctionnalité est proche de s’activer et quoi faire pour y arriver.",
-        "Comparez les plateformes par publication, pas par total, pour qu’un canal avec moins de publications soit jugé équitablement."
+        "Lisez les trois cellules du haut : schéma le plus fort, prochaine action, meilleur créneau. Chacune renvoie à ses preuves.",
+        "Posez une question à Markaestro. Il choisit un outil de données approuvé et nomme les enregistrements utilisés.",
+        "La bande de chiffres montre ce qui a été mesuré. Un chiffre vide signifie qu'aucune plateforme ne l'a rapporté, jamais zéro.",
+        "Utilisez la liste de préparation pour voir à quel point chaque réponse est proche de s'activer et ce qui la débloque."
       ],
       "inputs": [
         "Toutes les publications synchronisées de cette marque et leurs dernières métriques rapportées",
@@ -155,13 +152,13 @@
       ]
     },
     "opportunities": {
-      "title": "Opportunités",
+      "title": "Prochaines actions",
       "intro": "Des actions concrètes à essayer ensuite, chacune appuyée par vos propres chiffres : un créneau de publication qui dépasse votre moyenne, une plateforme plus performante par publication ou un motif qui mérite d’être répété.",
       "steps": [
-        "Lisez la ligne de preuves sous chaque carte. Elle montre les chiffres exacts derrière la suggestion.",
-        "Acceptez si vous comptez essayer, épinglez pour y revenir ou ignorez si cela ne convient pas. Les trois actions sont réversibles.",
-        "Utilisez Rédiger un brouillon pour obtenir une légende écrite pour cette opportunité, enregistrée dans Content comme brouillon.",
-        "Publiez depuis Content ou Calendrier comme d’habitude. Accepter ne crée ni ne planifie jamais de publication."
+        "Lisez la ligne de preuve sous chaque action. Elle montre les chiffres exacts derrière la suggestion.",
+        "Acceptez si vous comptez essayer, Épinglez pour y revenir, Ignorez si cela ne convient pas. Les trois sont réversibles.",
+        "Utilisez Rédiger pour obtenir une légende écrite pour cette action, enregistrée dans Contenu comme brouillon.",
+        "Publiez depuis Contenu ou Calendrier comme d'habitude. Accepter ne crée ni ne planifie jamais de posts."
       ],
       "inputs": [
         "Meilleurs créneaux de publication, comparaison des plateformes par publication et apprentissages du guide",
@@ -173,13 +170,13 @@
       ]
     },
     "playbook": {
-      "title": "Guide",
-      "intro": "Les motifs qui se répètent dans vos données avec assez de publications pour compter : quelle plateforme, accroche, pilier, format ou créneau performe au-dessus ou en dessous du reste de cette marque.",
+      "title": "Playbook",
+      "intro": "Les prochaines actions sont des choses concrètes à essayer, chacune appuyée par vos propres chiffres. Les schémas sont des groupes de posts qui performent au-dessus ou en dessous du reste de cette marque.",
       "steps": [
-        "Chaque carte compare un groupe de publications à toutes les autres publications de cette marque sur votre métrique d’objectif.",
-        "L’effet est la différence en pourcentage par publication. L’intervalle à 95 % indique la fiabilité de l’estimation.",
-        "La solidité croît avec la taille de l’échantillon : indicative (5 à 14 publications), modérée (15 à 29), potentiellement forte (30 ou plus avec un intervalle net).",
-        "Acceptez les motifs que vous voulez répéter, puis utilisez Rédiger un brouillon pour écrire une publication dans ce motif."
+        "Chaque schéma compare un groupe de posts à tous les autres posts de cette marque sur votre métrique d'objectif.",
+        "L'effet est la différence en pourcentage par post. L'intervalle à 95 % indique la fiabilité de l'estimation.",
+        "La force grandit avec l'échantillon : directionnel (5 à 14 posts), modéré (15 à 29), potentiellement fort (30 ou plus avec un intervalle net).",
+        "Acceptez les actions et schémas à répéter, puis utilisez Rédiger pour écrire un post dans cette direction."
       ],
       "inputs": [
         "Les publications mesurées groupées par plateforme, pilier, accroche, format et jour/heure",
@@ -188,24 +185,6 @@
       "never": [
         "Signaler un motif avec moins de cinq publications dans le groupe et cinq en dehors",
         "Affirmer une cause. Ce sont des associations dans vos propres données."
-      ]
-    },
-    "advanced": {
-      "title": "Expériences et Ask Markaestro",
-      "intro": "Testez une idée à la fois avec une publication A/B appariée et posez des questions auxquelles seuls les enregistrements mesurés de cette marque répondent.",
-      "steps": [
-        "Créez une expérience : une plateforme, deux variantes, une fenêtre. Les deux publications sont planifiées pour vous.",
-        "À la fin de la fenêtre, le gagnant est décidé par la métrique mesurée et arrive dans votre Boîte de réception.",
-        "Ask Markaestro choisit un outil de données approuvé par question et cite les enregistrements utilisés.",
-        "Les campagnes sont un aperçu : vous pouvez déjà les nommer, l’affectation des publications arrive bientôt."
-      ],
-      "inputs": [
-        "Les deux publications de l’expérience et leurs métriques rapportées",
-        "Les apprentissages, comparaisons, créneaux et meilleures publications stockés pour Ask Markaestro"
-      ],
-      "never": [
-        "Déclarer un gagnant sans la différence mesurée et l’échantillon derrière",
-        "Répondre avec des conseils génériques sur les réseaux sociaux"
       ]
     },
     "drafts": {
@@ -258,59 +237,92 @@
         "Suivre les visiteurs d’un site à l’autre",
         "Stocker des données personnelles issues d’un clic"
       ]
+    },
+    "experiments": {
+      "title": "Expériences",
+      "intro": "Testez une idée à la fois avec une paire de posts A/B sur une plateforme. Les deux posts sont planifiés pour vous et comparés sur les vues à la fin de la fenêtre.",
+      "steps": [
+        "Nommez l'expérience et écrivez l'hypothèse à tester.",
+        "Rédigez le bras A (contrôle) et le bras B (variante). Ne changez qu'une chose : l'accroche, le média ou l'heure.",
+        "Planifiez les deux bras dans des créneaux similaires, puis choisissez une fenêtre de 3, 7 ou 14 jours.",
+        "À la fin de la fenêtre, le bras avec 15 % de vues ou plus est déclaré gagnant et le résultat arrive dans votre boîte de réception. Un post par bras est un indice, pas une preuve : répétez avant de changer votre playbook."
+      ],
+      "inputs": [
+        "Les deux posts de l'expérience et les vues rapportées par chaque plateforme",
+        "La fenêtre choisie"
+      ],
+      "never": [
+        "Déclarer un gagnant sous 15 % de différence mesurée",
+        "Publier autre chose que les deux posts planifiés"
+      ]
+    },
+    "ask": {
+      "title": "Demander à Markaestro",
+      "intro": "Posez une question en langage courant. Markaestro choisit un outil de données approuvé, répond uniquement à partir des données mesurées de cette marque et nomme les enregistrements utilisés.",
+      "steps": [
+        "Interrogez sur la performance, le timing, les plateformes ou les schémas. Les questions courtes et précises marchent le mieux.",
+        "Regardez quel outil a répondu. Il indique sur quel type de preuve repose la réponse.",
+        "Les enregistrements cités sont vos propres posts. Si une question demande des données que vous n'avez pas encore, la réponse le dit."
+      ],
+      "inputs": [
+        "Schémas, comparaisons, timing et meilleurs posts stockés pour cette marque",
+        "Votre objectif et votre profil d'audience"
+      ],
+      "never": [
+        "Répondre à partir de conseils génériques sur les réseaux sociaux",
+        "Utiliser les données d'autres marques"
+      ]
     }
   },
   "quota": {
-    "title": "Actions IA",
     "aiOps": "{used} sur {limit} actions IA utilisées ce mois-ci",
     "aiOpsUnlimited": "{used} actions IA utilisées ce mois-ci",
-    "strategist": "{used} sur {limit} tours Ask utilisés",
-    "hint": "Rédiger un brouillon, Pourquoi ça a marché et Audience Fit consomment chacun une action. La détection de motifs en arrière-plan est gratuite.",
-    "exceeded": "Vous avez utilisé les actions IA de ce mois-ci sur l’offre {plan}. Elles se renouvellent le mois prochain, ou passez à une offre supérieure pour en avoir plus."
+    "strategist": "{used} sur {limit} questions",
+    "hint": "Rédiger un brouillon, Pourquoi ça a marché et Audience Fit consomment chacun une action. La détection de motifs en arrière-plan est gratuite."
   },
   "readiness": {
-    "title": "Ce qui est activé",
-    "subtitle": "Chaque fonctionnalité a besoin d’un minimum de données mesurées avant d’apparaître. Voici où en est cette marque.",
+    "title": "Ce qui peut déjà être répondu",
+    "subtitle": "Chaque réponse demande un minimum de données mesurées. Voici où en est la marque.",
+    "summary": "{met} sur {total} prêts",
     "progress": "{current} sur {required}",
-    "met": "Active",
-    "pending": "Données insuffisantes",
-    "unavailable": "Pas encore disponible",
-    "computedAt": "Calculé {when}",
+    "met": "Prêt",
     "checks": {
       "history": {
-        "label": "Score historique Audience Fit",
-        "hint": "Nécessite 5 publications avec une valeur mesurée de {metric}."
+        "label": "Scores Audience Fit dans l'éditeur",
+        "hint": "Il manque {missing} posts avec une valeur mesurée de {metric}.",
+        "on": "Les brouillons sont notés par rapport à votre propre historique."
       },
-      "timing": {
-        "label": "Meilleurs créneaux de publication",
-        "hint": "Nécessite 20 publications avec une heure de publication."
+      "contentPatterns": {
+        "label": "Schémas de pilier, d'accroche et de format",
+        "hint": "{missing} légendes publiées doivent encore être analysées. Cela tourne en arrière-plan.",
+        "on": "Les légendes sont analysées et regroupées en schémas."
       },
-      "timingWindow": {
-        "label": "Un créneau avec assez de publications",
-        "hint": "Au moins 5 publications mesurées le même jour et à la même heure."
+      "learnings": {
+        "label": "Schémas du playbook",
+        "hint": "Il manque {missing} posts avec une valeur mesurée de {metric}.",
+        "on": "Les groupes de posts sont comparés au reste de la marque."
       },
       "platformComparison": {
         "label": "Comparaison des plateformes",
-        "hint": "Deux plateformes avec 5 publications mesurées ou plus chacune."
+        "hint": "Il faut une deuxième plateforme avec 5 posts mesurés ou plus.",
+        "on": "Les plateformes sont comparées par post."
       },
-      "learnings": {
-        "label": "Motifs du guide",
-        "hint": "5 publications mesurées dans un groupe et 5 en dehors."
+      "timing": {
+        "label": "Meilleurs créneaux de publication",
+        "hint": "Il manque {missing} posts avec une heure de publication et une valeur mesurée de {metric}.",
+        "on": "Les créneaux sont classés par rapport à la moyenne du compte."
       },
-      "contentPatterns": {
-        "label": "Détection des motifs de contenu",
-        "hint": "Les légendes sont analysées en arrière-plan après publication. 10 publications analysées débloquent les motifs de pilier, d’accroche et de format."
-      },
-      "alignment": {
-        "label": "Alignement d’audience",
-        "hint": "Nécessite les données démographiques d’audience d’une plateforme connectée. Aucune de vos plateformes connectées ne les rapporte encore."
+      "timingWindow": {
+        "label": "Un créneau avec assez de posts",
+        "hint": "Il manque {missing} posts mesurés dans un même jour et une même heure.",
+        "on": "Au moins un créneau compte 5 posts mesurés."
       }
     }
   },
   "objective": {
     "title": "Optimisé pour",
     "body": "Chaque classement, créneau et recommandation de cette page utilise {metric} parce que votre objectif est {objective}.",
-    "change": "Modifier dans Audience",
+    "change": "Changer d'objectif",
     "names": {
       "awareness": "Notoriété",
       "engagement": "Engagement",
@@ -387,7 +399,10 @@
       "failed": "Impossible d’expliquer cette publication pour le moment.",
       "notMeasured": "Cette publication n’a pas encore de métriques mesurées à expliquer."
     },
-    "remix": "Rédiger un post similaire"
+    "remix": "Rédiger un post similaire",
+    "subtitle": "Classés sur votre objectif. Ouvrez un post pour voir ce qui a ressorti.",
+    "showPreview": "Voir l'aperçu",
+    "hidePreview": "Masquer l'aperçu"
   },
   "timing": {
     "title": "Meilleurs créneaux",
@@ -430,8 +445,8 @@
       "evidence": "Association avec votre mix d’audience mesuré, pas une cause."
     },
     "evidenceLabel": "Preuves",
-    "composeInContent": "Composer dans Content",
-    "openCalendar": "Ouvrir le Calendrier"
+    "title": "Prochaines actions",
+    "subtitle": "Des choses concrètes à essayer, chacune appuyée par vos propres chiffres."
   },
   "learnings": {
     "dimensions": {
@@ -462,7 +477,9 @@
       "potentially_strong": "30 publications ou plus et un intervalle qui reste d’un seul côté de zéro."
     },
     "evidenceTitle": "Publications derrière ce motif",
-    "contentPatternsNote": "Les motifs de pilier, d’accroche et de format apparaissent une fois {required} légendes publiées analysées. {current} analysées jusqu’ici ; cela s’exécute en arrière-plan."
+    "contentPatternsNote": "Les motifs de pilier, d’accroche et de format apparaissent une fois {required} légendes publiées analysées. {current} analysées jusqu’ici ; cela s’exécute en arrière-plan.",
+    "title": "Schémas",
+    "subtitle": "Groupes de posts qui performent au-dessus ou en dessous du reste de cette marque."
   },
   "drafts": {
     "button": "Rédiger un brouillon",
@@ -478,7 +495,8 @@
     "title": "Audience cible",
     "objective": "Objectif",
     "markets": "Marchés",
-    "pillars": "Piliers de contenu"
+    "pillars": "Piliers de contenu",
+    "subtitle": "Pour qui vous créez et ce que signifie réussir. Chaque recommandation est mesurée par rapport à cela."
   },
   "links": {
     "title": "Liens suivis",
@@ -507,21 +525,6 @@
     "hideRetired": "Masquer les liens retirés",
     "confirmRetire": "Retirer ce lien ? Toute personne qui le suit verra une page indiquant qu'il n'est plus en service. Les clics déjà comptés sont conservés."
   },
-  "campaigns": {
-    "title": "Campagnes",
-    "preview": "Aperçu",
-    "empty": "Nommez dès maintenant des campagnes pour grouper les publications à comparer. L’affectation des publications à une campagne arrive bientôt ; en créer une ici ne publie jamais rien.",
-    "name": "Nom de campagne",
-    "create": "Créer une campagne",
-    "created": "Campagne créée",
-    "createFailed": "Impossible de créer la campagne",
-    "status": {
-      "draft": "Brouillon",
-      "active": "Active",
-      "completed": "Terminée",
-      "archived": "Archivée"
-    }
-  },
   "empty": {
     "overviewTitle": "En attente de publications",
     "overviewBody": "Cette marque n’a pas encore de publications synchronisées. Les publications publiées via Markaestro et l’historique importé depuis vos comptes connectés apparaissent ici une fois projetés dans Intelligence. Les mesures absentes restent vides, jamais à zéro.",
@@ -531,9 +534,12 @@
     "contentTitle": "Aucun contenu mesuré",
     "contentBody": "Les publications publiées et importées apparaissent ici dès qu’une plateforme rapporte leurs métriques.",
     "opportunitiesTitle": "Aucune opportunité étayée",
-    "opportunitiesBody": "Les suggestions apparaissent dès qu’il y a assez de preuves mesurées : deux plateformes à comparer, un créneau de publication avec 5 publications ou un motif répétable. La liste de préparation dans Vue d’ensemble montre où vous en êtes.",
+    "opportunitiesBody": "Les actions apparaissent dès qu'il y a assez de preuves mesurées : deux plateformes à comparer, un créneau avec 5 posts ou un schéma répétable.",
     "playbookTitle": "Votre guide se prépare",
-    "playbookBody": "Les motifs nécessitent au moins 5 publications mesurées dans un groupe et 5 en dehors. Consultez la liste de préparation dans Vue d’ensemble, ou voyez Opportunités pour les premières suggestions actionnables."
+    "playbookBody": "Les schémas demandent au moins 5 posts mesurés dans un groupe et 5 en dehors. La liste de préparation de la Vue d'ensemble montre où vous en êtes.",
+    "overviewNext": "Publiez ou importez un post pour commencer.",
+    "contentNext": "Les métriques arrivent dans la journée qui suit la publication.",
+    "playbookNext": "{missing} posts mesurés de plus."
   },
   "weekdays": {
     "Mon": "Lundi",
@@ -696,8 +702,6 @@
     }
   },
   "alignment": {
-    "title": "Alignement d’audience",
-    "empty": "L’alignement apparaît dès qu’une plateforme connectée rapporte votre mix d’audience. Les dimensions manquantes restent vides.",
     "dimensions": {
       "geography": "Géographie",
       "age": "Âge",
@@ -707,10 +711,9 @@
   },
   "experiments": {
     "title": "Expériences",
-    "emptyPaired": "Aucune expérience pour l’instant. Créez un test A/B par plateforme avec deux posts planifiés.",
-    "pairedWorkflow": "Choisissez une plateforme, rédigez deux variantes (légende, média et/ou horaire différents), planifiez-les et lancez-les pour une fenêtre donnée. À la fin, les résultats arrivent dans la Boîte de réception. La vue côte à côte montre le post en direct dès qu’un permalink existe.",
-    "name": "Nom de l’expérience",
-    "hypothesis": "Hypothèse (ex. des hooks plus courts génèrent plus de vues)",
+    "emptyPaired": "Créez un test A/B : deux posts planifiés sur une plateforme, comparés sur les vues à la fin de la fenêtre.",
+    "name": "Nom de l'expérience",
+    "hypothesis": "Hypothèse",
     "createPaired": "Créer et planifier A/B",
     "creating": "Création…",
     "createdPaired": "Expérience créée, les deux posts sont planifiés",
@@ -736,7 +739,6 @@
     "deleteWarning": "Cela retire l’expérience, ses posts A/B planifiés et les résultats associés dans la boîte de réception Markaestro. Les posts déjà en ligne sur la plateforme ne sont pas supprimés.",
     "deleted": "Expérience supprimée",
     "deleteFailed": "Impossible de supprimer l’expérience",
-    "effect": "{value} % d’écart relatif (B vs A)",
     "status": {
       "draft": "Brouillon",
       "scheduled": "Planifié",
@@ -751,7 +753,27 @@
       "winner_a": "Le bras A mène sur la métrique mesurée.",
       "winner_b": "Le bras B mène sur la métrique mesurée.",
       "inconclusive": "Résultat inconclusif, il faut un plus grand échantillon ou un écart plus clair."
-    }
+    },
+    "subtitle": "Une plateforme, deux posts, un seul changement entre eux. Comparés sur les vues à la fin de la fenêtre.",
+    "emptyTitle": "Aucune expérience pour l'instant",
+    "newExperiment": "Nouvelle expérience",
+    "closeComposer": "Fermer",
+    "namePlaceholder": "Accroche courte vs accroche longue",
+    "platform": "Plateforme",
+    "hypothesisPlaceholder": "Les accroches courtes font plus de vues",
+    "window": "Fenêtre",
+    "armControl": "Contrôle",
+    "armVariant": "Variante",
+    "tipOneChange": "Ne changez qu'une chose entre les bras : l'accroche, le média ou l'heure. Deux changements ne peuvent pas être distingués.",
+    "tipSameSlot": "Planifiez les deux bras dans des créneaux similaires, un jour d'écart convient bien, pour que le timing ne décide pas du résultat.",
+    "tipDecision": "Les deux posts sont planifiés pour vous. À la fin de la fenêtre, un bras avec 15 % de vues ou plus est déclaré gagnant ; sinon le résultat est non concluant.",
+    "resultDetail": "Le bras B a mesuré {effect} % de {metric} par rapport au bras A.",
+    "resultMissing": "Un bras n'a pas encore de {metric} mesurées.",
+    "resultCaveat": "Un post par bras : prenez-le comme un indice, puis répétez le test avant de changer votre playbook.",
+    "runningUntil": "En cours jusqu'au {when}. Le gagnant est décidé sur {metric}.",
+    "scheduledNote": "Les deux bras sont planifiés. Le gagnant est décidé sur {metric} à la fin de la fenêtre.",
+    "collapse": "Réduire",
+    "expand": "Développer"
   },
   "ask": {
     "title": "Demander à Markaestro",
@@ -777,11 +799,38 @@
       "campaigns": "campagnes",
       "platform_comparisons": "comparaison par plateforme",
       "experiments": "expériences"
-    }
+    },
+    "examples": [
+      "Quelle plateforme obtient le plus de vues par post ?",
+      "Quand mes posts performent-ils le mieux ?",
+      "Quel pilier de contenu marche pour l'engagement ?"
+    ],
+    "mediaOnly": "Post média",
+    "otherRecords": "{count} autres enregistrements"
   },
   "errors": {
     "unavailableTitle": "L’intelligence est indisponible",
-    "unavailableBody": "Cette phase n’est pas activée pour cet espace ou n’a pas pu être chargée.",
+    "unavailableBody": "Impossible de charger l'analyse de cette marque. Vos données sont intactes. Réessayez ou revenez dans une minute.",
     "retry": "Réessayer"
+  },
+  "legend": {
+    "button": "Étiquettes",
+    "title": "Ce que signifie chaque étiquette",
+    "intro": "Chaque chiffre et chaque phrase de cette page porte l'une de ces étiquettes, pour que vous sachiez toujours d'où il vient."
+  },
+  "briefing": {
+    "title": "Lecture du jour",
+    "subtitle": "Ce que vos données disent de plus fort en ce moment, classé sur {metric}.",
+    "pattern": "Schéma le plus fort",
+    "move": "Prochaine action",
+    "window": "Meilleur créneau",
+    "openPlaybook": "Ouvrir le Playbook",
+    "openContent": "Ouvrir Contenu",
+    "openReadiness": "Voir ce qui le débloque",
+    "noPattern": "{missing} posts mesurés de plus sur {metric} débloquent les schémas.",
+    "noPatternYet": "Aucun schéma ne ressort encore.",
+    "noMove": "Rien à faire pour l'instant. Les actions apparaissent quand un créneau, une plateforme ou un schéma dépasse votre moyenne.",
+    "noWindow": "{missing} posts de plus débloquent les créneaux.",
+    "noWindowYet": "Aucun créneau n'a encore assez de posts."
   }
 }

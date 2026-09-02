@@ -1,12 +1,10 @@
 {
   "title": "Intelligentie",
   "subtitle": "Wat je eigen posts hebben gemeten, in gewone taal uitgelegd, met concepten die jij beheert. Niets publiceert automatisch.",
-  "brand": "Merk",
   "coverage": "{value}% gegevensdekking",
   "productBar": {
     "brand": "Merk",
-    "noBrandSelected": "Geen merk geselecteerd",
-    "change": "Wijzigen"
+    "noBrandSelected": "Geen merk geselecteerd"
   },
   "labels": {
     "measured": "Gemeten",
@@ -26,11 +24,10 @@
   },
   "tabs": {
     "overview": "Overzicht",
-    "audience": "Doelgroep",
     "content": "Content",
-    "opportunities": "Kansen",
-    "playbook": "Draaiboek",
-    "advanced": "Experimenten"
+    "playbook": "Playbook",
+    "audience": "Doelgroep",
+    "experiments": "Experimenten"
   },
   "actions": {
     "refresh": "Vernieuwen",
@@ -50,14 +47,15 @@
       "pinned": "Vastgepind",
       "dismissed": "Genegeerd"
     },
-    "refreshFailed": "De analyse kon niet worden ververst. De getoonde cijfers zijn de laatst berekende."
+    "refreshFailed": "De analyse kon niet worden ververst. De getoonde cijfers zijn de laatst berekende.",
+    "computedAt": "Laatst berekend {when}"
   },
   "decisions": {
     "hint": "Deze knoppen slaan alleen je beslissing op. Ze publiceren, plannen of wijzigen nooit concepten.",
     "learningHint": "Leg vast of je dit patroon vertrouwt. Intelligentie wijzigt je content nooit uit zichzelf.",
-    "accept": "Accepteren, ik ga handelen",
-    "pin": "Pinnen, later",
-    "dismiss": "Negeren, verbergen"
+    "accept": "Accepteren",
+    "pin": "Vastzetten",
+    "dismiss": "Negeren"
   },
   "filter": {
     "label": "Toon",
@@ -78,16 +76,15 @@
     "stepsTitle": "Zo gebruik je het",
     "inputsTitle": "Wat erin gaat",
     "neverTitle": "Wat het nooit doet",
-    "thresholdsTitle": "Wanneer het inschakelt",
     "page": {
       "title": "Hoe Intelligentie werkt",
       "intro": "Intelligentie leest de posts die je al hebt gepubliceerd, houdt elk cijfer precies zoals de platforms het rapporteerden en vertaalt die geschiedenis naar antwoorden in gewone taal: wat werkte, wanneer je moet posten, wat je hierna kunt proberen. Jij houdt de controle over elke actie.",
       "steps": [
-        "Kies een merk. Alles op deze pagina geldt voor één merk en zijn gekoppelde kanalen.",
-        "Begin bij Overzicht om te zien wat er tot nu toe is gemeten en welke functies genoeg gegevens hebben om in te schakelen.",
-        "Stel je doel en doelgroep in onder Doelgroep. Dat bepaalt op welke metric elke aanbeveling optimaliseert.",
-        "Lees Content, Kansen en Draaiboek voor antwoorden met bewijs, en gebruik dan Maak concept om er een postconcept van te maken.",
-        "Elk concept komt als gewoon concept in Content terecht. Bekijk, bewerk, plan of verwijder het zoals elke andere post."
+        "Kies een merk. Alles op deze pagina gaat over één merk en zijn gekoppelde kanalen.",
+        "Begin bij Overzicht: het sterkste patroon, de volgende stap en het beste tijdvak staan bovenaan, met Vraag Markaestro eronder.",
+        "Stel je doel en doelgroep in onder Doelgroep. Dat bepaalt welke metriek elke aanbeveling optimaliseert.",
+        "Lees Content en Playbook voor onderbouwde antwoorden en gebruik Concept maken om er een postconcept van te maken.",
+        "Elk concept komt als gewoon concept in Content. Bekijk, bewerk, plan of verwijder het zoals elke andere post."
       ],
       "inputs": [
         "Posts gepubliceerd via Markaestro en posts geïmporteerd uit je gekoppelde accounts",
@@ -102,12 +99,12 @@
     },
     "overview": {
       "title": "Overzicht",
-      "intro": "Een momentopname van wat er voor dit merk is gemeten, plus een gereedheidslijst die precies laat zien welke functies actief zijn en wat nog ontbreekt.",
+      "intro": "Het sterkste wat je data nu zegt, een vraagvak dat alleen antwoordt uit de gegevens van dit merk en een gereedheidslijst die precies zegt wat er nog ontbreekt.",
       "steps": [
-        "Bekijk de doelbanner. Elke ranking en aanbeveling gebruikt die metric.",
-        "Lees de KPI-tegels. Een lege tegel betekent dat geen gekoppeld platform die metric rapporteerde, nooit nul.",
-        "Gebruik de gereedheidslijst om te zien hoe dicht elke functie bij inschakelen is en wat je eraan kunt doen.",
-        "Vergelijk platforms per post, niet op totaal, zodat een kanaal met minder posts eerlijk wordt beoordeeld."
+        "Lees de drie cellen bovenaan: sterkste patroon, volgende stap, beste tijdvak. Elk linkt naar zijn bewijs.",
+        "Stel Markaestro een vraag. Het kiest één goedgekeurde datatool en noemt de gebruikte records.",
+        "De cijferstrook toont wat gemeten is. Een leeg cijfer betekent dat geen platform het rapporteerde, nooit nul.",
+        "Gebruik de gereedheidslijst om te zien hoe dicht elk antwoord bij activeren is en wat het ontgrendelt."
       ],
       "inputs": [
         "Alle gesynchroniseerde posts van dit merk en hun laatst gerapporteerde statistieken",
@@ -155,12 +152,12 @@
       ]
     },
     "opportunities": {
-      "title": "Kansen",
+      "title": "Volgende stappen",
       "intro": "Concrete dingen om hierna te proberen, elk onderbouwd met je eigen cijfers: een posttijdvak dat je gemiddelde overtreft, een platform dat per post beter doet, of een patroon dat het herhalen waard is.",
       "steps": [
-        "Lees de bewijsregel onder elke kaart. Die toont de exacte cijfers achter de suggestie.",
-        "Accepteer als je het wilt proberen, pin om er later op terug te komen, of negeer als het niet past. Alle drie kun je ongedaan maken.",
-        "Gebruik Maak concept voor een caption die voor die kans is geschreven, opgeslagen als concept in Content.",
+        "Lees de bewijsregel onder elke stap. Die toont de exacte cijfers achter de suggestie.",
+        "Accepteer als je het wilt proberen, Zet vast om later terug te komen, Negeer als het niet past. Alle drie zijn terug te draaien.",
+        "Gebruik Concept maken voor een bijschrift bij die stap, opgeslagen in Content als concept.",
         "Publiceer zoals gewoonlijk vanuit Content of Kalender. Accepteren maakt of plant nooit posts."
       ],
       "inputs": [
@@ -173,13 +170,13 @@
       ]
     },
     "playbook": {
-      "title": "Draaiboek",
-      "intro": "Patronen die zich in je gegevens herhalen met genoeg posts om ertoe te doen: welk platform, welke openingszin, pijler, format of welk tijdslot boven of onder de rest van dit merk presteert.",
+      "title": "Playbook",
+      "intro": "Volgende stappen zijn concrete dingen om te proberen, elk onderbouwd met je eigen cijfers. Patronen zijn groepen posts die boven of onder de rest van dit merk presteren.",
       "steps": [
-        "Elke kaart vergelijkt een groep posts met alle andere posts van dit merk op je doelmetric.",
-        "Het effect is het procentuele verschil per post. Het 95%-bereik laat zien hoe zeker de schatting is.",
-        "De sterkte groeit met de steekproef: richtinggevend (5 tot 14 posts), matig (15 tot 29), mogelijk sterk (30 of meer met een duidelijk bereik).",
-        "Accepteer patronen die je wilt herhalen en gebruik dan Maak concept om een post in dat patroon te schrijven."
+        "Elk patroon vergelijkt een groep posts met alle andere posts van dit merk op je doelmetriek.",
+        "Het effect is het procentuele verschil per post. Het 95%-bereik zegt hoe zeker de schatting is.",
+        "De sterkte groeit met de steekproef: richtinggevend (5 tot 14 posts), gematigd (15 tot 29), mogelijk sterk (30 of meer met een duidelijk bereik).",
+        "Accepteer stappen en patronen die je wilt herhalen en gebruik Concept maken voor een post in die richting."
       ],
       "inputs": [
         "Gemeten posts gegroepeerd op platform, pijler, openingszin, format en weekdag/uur",
@@ -188,24 +185,6 @@
       "never": [
         "Een patroon rapporteren met minder dan vijf posts in de groep en vijf erbuiten",
         "Een oorzaak claimen. Dit zijn verbanden in je eigen gegevens."
-      ]
-    },
-    "advanced": {
-      "title": "Experimenten en Ask Markaestro",
-      "intro": "Test één idee tegelijk met een gepaarde A/B-post en stel vragen die alleen worden beantwoord uit de gemeten gegevens van dit merk.",
-      "steps": [
-        "Maak een experiment: één platform, twee varianten, één venster. Beide posts worden voor je ingepland.",
-        "Als het venster eindigt, wordt de winnaar bepaald door de gemeten metric en komt het resultaat in je Inbox.",
-        "Ask Markaestro kiest per vraag één goedgekeurde gegevenstool en vermeldt de records die het gebruikte.",
-        "Campagnes zijn een preview: je kunt ze nu een naam geven, het toewijzen van posts komt eraan."
-      ],
-      "inputs": [
-        "Beide experimentposts en hun gerapporteerde statistieken",
-        "Opgeslagen inzichten, vergelijkingen, timing en topposts voor Ask Markaestro"
-      ],
-      "never": [
-        "Een winnaar uitroepen zonder het gemeten verschil en de steekproef erachter",
-        "Antwoorden met generiek socialmedia-advies"
       ]
     },
     "drafts": {
@@ -258,59 +237,92 @@
         "Bezoekers volgen over sites heen",
         "Persoonsgegevens uit een klik opslaan"
       ]
+    },
+    "experiments": {
+      "title": "Experimenten",
+      "intro": "Test één idee tegelijk met een A/B-postpaar op één platform. Beide posts worden voor je ingepland en aan het einde van het venster vergeleken op weergaven.",
+      "steps": [
+        "Geef het experiment een naam en schrijf de hypothese die je wilt testen.",
+        "Schrijf arm A (controle) en arm B (variant). Verander één ding: de hook, de media of het tijdstip.",
+        "Plan beide armen in vergelijkbare tijdvakken en kies een venster van 3, 7 of 14 dagen.",
+        "Aan het einde van het venster wint de arm met 15% of meer weergaven en komt het resultaat in je Inbox. Eén post per arm is een hint, geen bewijs: herhaal voordat je je playbook aanpast."
+      ],
+      "inputs": [
+        "Beide experimentposts en de weergaven die elk platform rapporteert",
+        "Het gekozen venster"
+      ],
+      "never": [
+        "Een winnaar uitroepen onder 15% gemeten verschil",
+        "Iets publiceren buiten de twee ingeplande posts"
+      ]
+    },
+    "ask": {
+      "title": "Vraag Markaestro",
+      "intro": "Stel een vraag in gewone taal. Markaestro kiest één goedgekeurde datatool, antwoordt alleen uit de gemeten gegevens van dit merk en noemt de gebruikte records.",
+      "steps": [
+        "Vraag naar prestaties, timing, platforms of patronen. Korte, specifieke vragen werken het best.",
+        "Kijk welke tool antwoordde. Dat zegt op welk soort bewijs het antwoord rust.",
+        "Aangehaalde records zijn je eigen posts. Als een vraag data nodig heeft die je nog niet hebt, zegt het antwoord dat."
+      ],
+      "inputs": [
+        "Opgeslagen patronen, vergelijkingen, timing en topposts van dit merk",
+        "Je doel en doelgroepprofiel"
+      ],
+      "never": [
+        "Antwoorden uit algemeen socialmedia-advies",
+        "Data van andere merken gebruiken"
+      ]
     }
   },
   "quota": {
-    "title": "AI-acties",
     "aiOps": "{used} van {limit} AI-acties gebruikt deze maand",
     "aiOpsUnlimited": "{used} AI-acties gebruikt deze maand",
-    "strategist": "{used} van {limit} Ask-beurten gebruikt",
-    "hint": "Maak concept, Waarom het werkte en Audience Fit gebruiken elk één actie. Patroonherkenning op de achtergrond is gratis.",
-    "exceeded": "Je hebt de AI-acties van deze maand op het {plan}-abonnement gebruikt. Ze worden volgende maand gereset, of upgrade voor meer."
+    "strategist": "{used} van {limit} vragen",
+    "hint": "Maak concept, Waarom het werkte en Audience Fit gebruiken elk één actie. Patroonherkenning op de achtergrond is gratis."
   },
   "readiness": {
-    "title": "Wat is ingeschakeld",
-    "subtitle": "Elke functie heeft een minimum aan gemeten gegevens nodig voordat hij verschijnt. Hier staat dit merk nu.",
+    "title": "Wat al beantwoord kan worden",
+    "subtitle": "Elk antwoord heeft een minimum aan gemeten data nodig. Hier staat het merk.",
+    "summary": "{met} van {total} gereed",
     "progress": "{current} van {required}",
-    "met": "Actief",
-    "pending": "Meer gegevens nodig",
-    "unavailable": "Nog niet beschikbaar",
-    "computedAt": "Berekend {when}",
+    "met": "Gereed",
     "checks": {
       "history": {
-        "label": "Audience Fit-historiescore",
-        "hint": "Vereist 5 posts met een gemeten {metric}-waarde."
+        "label": "Audience Fit-scores in de editor",
+        "hint": "Nog {missing} posts met een gemeten waarde voor {metric} nodig.",
+        "on": "Concepten worden gescoord tegen je eigen geschiedenis."
       },
-      "timing": {
-        "label": "Beste tijdvakken",
-        "hint": "Vereist 20 posts met een publicatietijd en 5 met een gemeten {metric}-waarde."
+      "contentPatterns": {
+        "label": "Pijler-, hook- en formaatpatronen",
+        "hint": "Nog {missing} gepubliceerde bijschriften moeten geanalyseerd worden. Dit loopt op de achtergrond.",
+        "on": "Bijschriften worden geanalyseerd en in patronen gegroepeerd."
       },
-      "timingWindow": {
-        "label": "Een tijdvak met genoeg posts",
-        "hint": "Minstens 5 gemeten posts op dezelfde weekdag en hetzelfde uur."
+      "learnings": {
+        "label": "Playbook-patronen",
+        "hint": "Nog {missing} posts met een gemeten waarde voor {metric} nodig.",
+        "on": "Groepen posts worden vergeleken met de rest van het merk."
       },
       "platformComparison": {
         "label": "Platformvergelijking",
-        "hint": "Twee platforms met elk 5 of meer gemeten posts."
+        "hint": "Een tweede platform met 5 of meer gemeten posts nodig.",
+        "on": "Platforms worden per post vergeleken."
       },
-      "learnings": {
-        "label": "Draaiboekpatronen",
-        "hint": "5 gemeten posts in een groep en 5 erbuiten."
+      "timing": {
+        "label": "Beste tijdvakken om te posten",
+        "hint": "Nog {missing} posts met publicatietijd en een gemeten waarde voor {metric} nodig.",
+        "on": "Tijdvakken worden gerangschikt tegen je accountgemiddelde."
       },
-      "contentPatterns": {
-        "label": "Contentpatroonherkenning",
-        "hint": "Captions worden na publicatie op de achtergrond geanalyseerd. 10 geanalyseerde posts ontgrendelen pijler-, openingszin- en formatpatronen."
-      },
-      "alignment": {
-        "label": "Doelgroep-afstemming",
-        "hint": "Vereist doelgroepdemografie van een gekoppeld platform. Geen van je gekoppelde platforms rapporteert die nog."
+      "timingWindow": {
+        "label": "Een tijdvak met genoeg posts",
+        "hint": "Nog {missing} gemeten posts op dezelfde weekdag en hetzelfde uur nodig.",
+        "on": "Minstens één tijdvak heeft 5 gemeten posts."
       }
     }
   },
   "objective": {
     "title": "Optimaliseert voor",
     "body": "Elke ranking, elk tijdvak en elke aanbeveling op deze pagina gebruikt {metric} omdat je doel {objective} is.",
-    "change": "Wijzigen in Doelgroep",
+    "change": "Doel wijzigen",
     "names": {
       "awareness": "Bekendheid",
       "engagement": "Betrokkenheid",
@@ -387,7 +399,10 @@
       "failed": "Kon deze post nu niet verklaren.",
       "notMeasured": "Deze post heeft nog geen gemeten statistieken om te verklaren."
     },
-    "remix": "Maak een post zoals deze"
+    "remix": "Maak een post zoals deze",
+    "subtitle": "Gerangschikt op je doel. Open een post om te zien wat opviel.",
+    "showPreview": "Voorbeeld tonen",
+    "hidePreview": "Voorbeeld verbergen"
   },
   "timing": {
     "title": "Beste tijdvakken",
@@ -430,8 +445,8 @@
       "evidence": "Verband met je gemeten doelgroepmix, geen oorzaak."
     },
     "evidenceLabel": "Bewijs",
-    "composeInContent": "Schrijven in Content",
-    "openCalendar": "Kalender openen"
+    "title": "Volgende stappen",
+    "subtitle": "Concrete dingen om te proberen, elk onderbouwd met je eigen cijfers."
   },
   "learnings": {
     "dimensions": {
@@ -462,7 +477,9 @@
       "potentially_strong": "30 of meer posts en een bereik dat aan één kant van nul blijft."
     },
     "evidenceTitle": "Posts achter dit patroon",
-    "contentPatternsNote": "Pijler-, openingszin- en formatpatronen verschijnen zodra {required} gepubliceerde captions zijn geanalyseerd. Tot nu toe {current} geanalyseerd; dit loopt op de achtergrond."
+    "contentPatternsNote": "Pijler-, openingszin- en formatpatronen verschijnen zodra {required} gepubliceerde captions zijn geanalyseerd. Tot nu toe {current} geanalyseerd; dit loopt op de achtergrond.",
+    "title": "Patronen",
+    "subtitle": "Groepen posts die boven of onder de rest van dit merk presteren."
   },
   "drafts": {
     "button": "Maak concept",
@@ -478,7 +495,8 @@
     "title": "Doelgroep",
     "objective": "Doel",
     "markets": "Markten",
-    "pillars": "Contentpijlers"
+    "pillars": "Contentpijlers",
+    "subtitle": "Voor wie je maakt en wat succes betekent. Elke aanbeveling wordt hieraan afgemeten."
   },
   "links": {
     "title": "Getraceerde links",
@@ -507,21 +525,6 @@
     "hideRetired": "Ingetrokken links verbergen",
     "confirmRetire": "Deze link intrekken? Wie hem volgt, ziet een pagina die zegt dat hij niet meer in gebruik is. Reeds getelde kliks blijven bewaard."
   },
-  "campaigns": {
-    "title": "Campagnes",
-    "preview": "Voorbeeld",
-    "empty": "Geef campagnes nu een naam om posts te groeperen die je wilt vergelijken. Posts toewijzen aan een campagne komt eraan; hier iets aanmaken publiceert nooit iets.",
-    "name": "Campagnenaam",
-    "create": "Campagne maken",
-    "created": "Campagne gemaakt",
-    "createFailed": "Kon de campagne niet maken",
-    "status": {
-      "draft": "Concept",
-      "active": "Actief",
-      "completed": "Voltooid",
-      "archived": "Gearchiveerd"
-    }
-  },
   "empty": {
     "overviewTitle": "Wachten op gepubliceerde berichten",
     "overviewBody": "Dit merk heeft nog geen gesynchroniseerde berichten. Posts die via Markaestro zijn gepubliceerd en historie uit je gekoppelde accounts verschijnen hier zodra ze in Intelligentie zijn verwerkt. Ontbrekende statistieken blijven leeg, nooit nul.",
@@ -531,9 +534,12 @@
     "contentTitle": "Nog geen gemeten content",
     "contentBody": "Gepubliceerde en geïmporteerde posts verschijnen hier zodra een platform er statistieken voor rapporteert.",
     "opportunitiesTitle": "Nog geen onderbouwde kansen",
-    "opportunitiesBody": "Suggesties verschijnen zodra er genoeg gemeten bewijs is: twee platforms om te vergelijken, een tijdvak met 5 posts of een herhaalbaar patroon. De gereedheidslijst op Overzicht laat zien hoe dichtbij je bent.",
+    "opportunitiesBody": "Stappen verschijnen zodra er genoeg gemeten bewijs is: twee platforms om te vergelijken, een tijdvak met 5 posts of een herhaalbaar patroon.",
     "playbookTitle": "Je draaiboek wordt opgebouwd",
-    "playbookBody": "Patronen hebben minstens 5 gemeten posts in een groep en 5 erbuiten nodig. Bekijk de gereedheidslijst op Overzicht, of zie Kansen voor de eerste bruikbare suggesties."
+    "playbookBody": "Patronen hebben minstens 5 gemeten posts in een groep en 5 erbuiten nodig. De gereedheidslijst op Overzicht toont hoe dichtbij je bent.",
+    "overviewNext": "Publiceer of importeer één post om te beginnen.",
+    "contentNext": "Cijfers komen binnen een dag na publicatie.",
+    "playbookNext": "Nog {missing} gemeten posts."
   },
   "weekdays": {
     "Mon": "maandag",
@@ -696,8 +702,6 @@
     }
   },
   "alignment": {
-    "title": "Doelgroep-afstemming",
-    "empty": "Afstemming verschijnt zodra een gekoppeld platform je doelgroepmix rapporteert. Ontbrekende dimensies blijven leeg.",
     "dimensions": {
       "geography": "Geografie",
       "age": "Leeftijd",
@@ -707,10 +711,9 @@
   },
   "experiments": {
     "title": "Experimenten",
-    "emptyPaired": "Nog geen experimenten. Maak een platform-specifieke A/B-test met twee geplande posts.",
-    "pairedWorkflow": "Kies één platform, schrijf twee varianten (andere caption, media en/of tijd), plan beide en laat ze een venster lopen. Aan het eind komen de resultaten in je Inbox. Side-by-side toont de live post wanneer er een permalink is.",
-    "name": "Experimentnaam",
-    "hypothesis": "Hypothese (bijv. kortere hooks krijgen meer views)",
+    "emptyPaired": "Maak een A/B-test: twee ingeplande posts op één platform, vergeleken op weergaven aan het einde van het venster.",
+    "name": "Naam van het experiment",
+    "hypothesis": "Hypothese",
     "createPaired": "A/B maken & plannen",
     "creating": "Maken…",
     "createdPaired": "Experiment gemaakt, beide posts zijn gepland",
@@ -736,7 +739,6 @@
     "deleteWarning": "Dit verwijdert het experiment, de geplande A/B-posts en gerelateerde inboxresultaten uit Markaestro. Posts die al live op het platform staan worden niet verwijderd.",
     "deleted": "Experiment verwijderd",
     "deleteFailed": "Kon het experiment niet verwijderen",
-    "effect": "{value}% relatief verschil (B vs A)",
     "status": {
       "draft": "Concept",
       "scheduled": "Gepland",
@@ -751,7 +753,27 @@
       "winner_a": "Arm A leidt op de gemeten metric.",
       "winner_b": "Arm B leidt op de gemeten metric.",
       "inconclusive": "Resultaat inconclusief, grotere steekproef of duidelijker verschil nodig."
-    }
+    },
+    "subtitle": "Eén platform, twee posts, één verschil ertussen. Vergeleken op weergaven aan het einde van het venster.",
+    "emptyTitle": "Nog geen experimenten",
+    "newExperiment": "Nieuw experiment",
+    "closeComposer": "Sluiten",
+    "namePlaceholder": "Korte hook vs lange hook",
+    "platform": "Platform",
+    "hypothesisPlaceholder": "Kortere hooks krijgen meer weergaven",
+    "window": "Venster",
+    "armControl": "Controle",
+    "armVariant": "Variant",
+    "tipOneChange": "Verander één ding tussen de armen: de hook, de media of het tijdstip. Twee veranderingen zijn niet uit elkaar te houden.",
+    "tipSameSlot": "Plan beide armen in vergelijkbare tijdvakken, een dag ertussen werkt goed, zodat timing het resultaat niet bepaalt.",
+    "tipDecision": "Beide posts worden voor je ingepland. Aan het einde van het venster wint een arm met 15% of meer weergaven; anders is het resultaat onbeslist.",
+    "resultDetail": "Arm B mat {effect}% {metric} ten opzichte van arm A.",
+    "resultMissing": "Eén arm heeft nog geen gemeten {metric}.",
+    "resultCaveat": "Eén post per arm: zie het als hint en herhaal de test voordat je je playbook aanpast.",
+    "runningUntil": "Loopt tot {when}. De winnaar wordt bepaald op {metric}.",
+    "scheduledNote": "Beide armen zijn ingepland. De winnaar wordt aan het einde van het venster bepaald op {metric}.",
+    "collapse": "Inklappen",
+    "expand": "Uitklappen"
   },
   "ask": {
     "title": "Vraag het Markaestro",
@@ -777,11 +799,38 @@
       "campaigns": "campagnes",
       "platform_comparisons": "vergelijking per platform",
       "experiments": "experimenten"
-    }
+    },
+    "examples": [
+      "Welk platform krijgt de meeste weergaven per post?",
+      "Wanneer presteren mijn posts het best?",
+      "Welke contentpijler werkt voor betrokkenheid?"
+    ],
+    "mediaOnly": "Mediapost",
+    "otherRecords": "{count} andere records"
   },
   "errors": {
     "unavailableTitle": "Intelligentie is niet beschikbaar",
-    "unavailableBody": "Deze fase is niet ingeschakeld voor deze werkruimte of kon niet worden geladen.",
+    "unavailableBody": "De analyse van dit merk kon niet worden geladen. Je data is ongewijzigd. Probeer opnieuw of kom over een minuut terug.",
     "retry": "Opnieuw proberen"
+  },
+  "legend": {
+    "button": "Labels",
+    "title": "Wat elk label betekent",
+    "intro": "Elk getal en elke zin op deze pagina draagt een van deze labels, zodat je altijd weet waar het vandaan komt."
+  },
+  "briefing": {
+    "title": "Lezing van vandaag",
+    "subtitle": "Het sterkste wat je data nu zegt, gerangschikt op {metric}.",
+    "pattern": "Sterkste patroon",
+    "move": "Volgende stap",
+    "window": "Beste tijdvak",
+    "openPlaybook": "Playbook openen",
+    "openContent": "Content openen",
+    "openReadiness": "Bekijk wat het ontgrendelt",
+    "noPattern": "Nog {missing} gemeten posts op {metric} ontgrendelen patronen.",
+    "noPatternYet": "Nog geen patroon springt eruit.",
+    "noMove": "Nog niets te doen. Stappen verschijnen als een tijdvak, platform of patroon je gemiddelde verslaat.",
+    "noWindow": "Nog {missing} posts ontgrendelen tijdvakken.",
+    "noWindowYet": "Nog geen tijdvak heeft genoeg posts."
   }
 }

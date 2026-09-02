@@ -79,7 +79,7 @@ export default function AudienceProfileEditor({
     );
   }
   if (unavailable) {
-    return <p className="text-[13px]" style={{ color: "var(--mk-ink-60)" }}>{t("unavailable")}</p>;
+    return <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">{t("unavailable")}</p>;
   }
 
   return (

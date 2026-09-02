@@ -180,7 +180,7 @@ async function notifyExperimentComplete(
     type: 'experiment_complete',
     title,
     body,
-    href: `/intelligence?tab=advanced&experiment=${experiment.id}`,
+    href: `/intelligence?tab=experiments&experiment=${experiment.id}`,
     meta: {
       experimentId: experiment.id,
       productId: experiment.productId || null,
