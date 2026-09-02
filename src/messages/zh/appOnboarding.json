@@ -397,8 +397,8 @@
     "connectFailedToast": "连接 {provider} 失败"
   },
   "generating": {
-    "title": "正在搭建你的工作流",
-    "subtitle": "正在围绕“{challenge}”这个问题，为你设置渠道和发布计划。",
+    "title": "正在准备你的工作区",
+    "subtitle": "正在围绕你要解决的问题 {challenge} 设置仪表板。",
     "takesAMoment": "只需片刻"
   },
   "paywall": {

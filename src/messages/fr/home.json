@@ -90,7 +90,7 @@
       },
       {
         "name": "TikTok",
-        "desc": "Le contenu photo et vidéo est transmis à la boîte de réception du créateur sur TikTok pour finalisation et publication."
+        "desc": "Publications photo et vidéo. Par défaut, transfert vers la boîte de réception TikTok du créateur pour finaliser et publier ; la publication directe sur le profil est disponible par publication."
       },
       {
         "name": "LinkedIn",

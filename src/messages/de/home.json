@@ -90,7 +90,7 @@
       },
       {
         "name": "TikTok",
-        "desc": "Foto- und Videoinhalte werden zur finalen Fertigstellung und Veröffentlichung an den TikTok-Posteingang des Creators übergeben."
+        "desc": "Foto- und Videobeiträge. Standardmäßig Übergabe an den TikTok-Posteingang des Creators zum Fertigstellen und Posten; Direct Post ins Profil ist pro Beitrag verfügbar."
       },
       {
         "name": "LinkedIn",

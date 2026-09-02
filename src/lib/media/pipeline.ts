@@ -20,7 +20,6 @@
  * player's own first frame. The field stays null and the UI falls back.
  */
 
-import { adminDb } from '@/lib/firebase-admin';
 import sharp from 'sharp';
 import { logger } from '@/lib/logger';
 import { uploadToStorage } from '@/lib/storage';

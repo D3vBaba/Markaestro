@@ -6,148 +6,244 @@
     {
       "heading": "1. Reikwijdte en Rollen",
       "blocks": [
-        { "type": "p", "text": "Dit Privacybeleid legt uit hoe Markaestro (\"Markaestro\", \"wij\" of \"ons\") persoonlijke informatie verzamelt, gebruikt, openbaar maakt en beschermt wanneer je toegang hebt tot ons marketingautomatiseringsplatform, website, applicaties, API's en gerelateerde diensten (samen de \"Diensten\")." },
-        { "type": "p", "text": "Markaestro verwerkt verschillende categorieën gegevens in verschillende rollen. Voor account-, facturerings-, beveiligings-, ondersteunings- en websitebeheergegevens treden we over het algemeen op als verwerkingsverantwoordelijke of bedrijf. Voor contactlijsten, postcontent, merkmateriaal, geüploade media, activiteitsgebeurtenissen en soortgelijke gegevens ingediend door een workspace, treden we over het algemeen op als verwerker of dienstverlener namens die workspace. Als je een eindklant of contactpersoon bent binnen een Markaestro-klantworkspace, moet je privacyverzoeken eerst richten aan die workspace." }
+        {
+          "type": "p",
+          "text": "Dit Privacybeleid legt uit hoe Markaestro (\"Markaestro\", \"wij\" of \"ons\") persoonlijke informatie verzamelt, gebruikt, openbaar maakt en beschermt wanneer je toegang hebt tot ons marketingautomatiseringsplatform, website, applicaties, API's en gerelateerde diensten (samen de \"Diensten\")."
+        },
+        {
+          "type": "p",
+          "text": "Markaestro verwerkt verschillende categorieën gegevens in verschillende rollen. Voor account-, facturerings-, beveiligings-, ondersteunings- en websitebeheergegevens treden we over het algemeen op als verwerkingsverantwoordelijke of bedrijf. Voor contactlijsten, postcontent, merkmateriaal, geüploade media, activiteitsgebeurtenissen en soortgelijke gegevens ingediend door een workspace, treden we over het algemeen op als verwerker of dienstverlener namens die workspace. Als je een eindklant of contactpersoon bent binnen een Markaestro-klantworkspace, moet je privacyverzoeken eerst richten aan die workspace."
+        }
       ]
     },
     {
       "heading": "2. Informatie die We Verzamelen",
       "blocks": [
-        { "type": "h3", "text": "2.1 Informatie die je rechtstreeks verstrekt" },
-        { "type": "ul", "items": [
-          "<strong>Account- en identiteitsgegevens:</strong> e-mailadres, authenticatie-identificatoren, weergavenaam en inloggegevens verwerkt via Firebase Authentication.",
-          "<strong>Workspace- en teamgegevens:</strong> workspacenaam, lidmaatschapsrecords, gebruikersrollen en uitnodigings- of toegangsbeheerinformatie.",
-          "<strong>Product- en merkgegevens:</strong> productnamen, beschrijvingen, URL's, prijscategorieën, categorieën, merkstem-instellingen, voorbeeldtekst voor de stem, doelgroepbeschrijvingen, trefwoorden, lijsten met te vermijden woorden, logo's en merkkleurinstellingen.",
-          "<strong>Publicatiegegevens:</strong> posts, onderschriften, geplande tijden, media-URL's, doelgroepinstellingen, call-to-action-tekst en gerelateerde workflowconfiguratie.",
-          "<strong>Contact- en CRM-gegevens:</strong> namen, e-mailadressen, status, levenscyclusfase, bron, tags, notities, productkoppelingen en uitschrijfstatus voor contacten die je aanmaakt, importeert, synchroniseert of beheert.",
-          "<strong>Automatiserings- en taakconfiguratie:</strong> automatiseringsstappen, triggers, taakplanningen, taakpayloads en gerelateerde uitvoeringsinstellingen.",
-          "<strong>Ondersteunings- en communicatiegegevens:</strong> informatie die je ons stuurt via e-mail of contactformulieren, waaronder berichtinhoud en eventuele bijlagen die je verstrekt."
-        ] },
-        { "type": "h3", "text": "2.2 Informatie van verbonden diensten en integraties" },
-        { "type": "ul", "items": [
-          "<strong>OAuth- en integratiegegevens:</strong> toegangstokens, vernieuwingstokens, tokenvervalgegevens, accountidentificatoren van de aanbieder, gebruikersnamen, open-ID's, pagina- of accountselecties, en aanbiederspecifieke metadata nodig om een verbinding te onderhouden.",
-          "<strong>Social-connectiegegevens:</strong> paginalijsten, accountprofielinformatie, poststatus, publicatiebestemmingen en gerelateerde verbindingsmetadata opgehaald van aanbieders zoals TikTok, Meta en soortgelijke diensten die je verbindt."
-        ] },
-        { "type": "h3", "text": "2.3 Automatisch verzamelde informatie" },
-        { "type": "ul", "items": [
-          "<strong>Gebruiks- en activiteitsgegevens:</strong> bezochte pagina's, gebruikte functies, ondernomen acties, tijdstempels en aan de workspace gebonden activiteitsgebeurtenissen.",
-          "<strong>Technische gegevens:</strong> IP-adres, browsertype, apparaatinformatie, besturingssysteem, verzoekmetadata en geschatte locatie afgeleid van netwerkinformatie.",
-          "<strong>Diagnostiek en logs:</strong> API-foutdetails, verzoek-ID's, beveiligingsgebeurtenissen, audittrajecten, gegevens van achtergrondtaken en telemetrie verzameld voor betrouwbaarheid en misbruikpreventie, inclusief diagnostische verwerking via Sentry.",
-          "<strong>Cookie- en lokale opslaggegevens:</strong> essentiële sessie-, authenticatie- en voorkeursinformatie gebruikt om de Diensten te laten werken."
-        ] },
-        { "type": "h3", "text": "2.4 Bestanden en uploads" },
-        { "type": "ul", "items": [
-          "<strong>Media-uploads:</strong> logo's, afbeeldingen, video's en andere bestanden die je uploadt voor publicatie of merkidentiteit.",
-          "<strong>Publiekelijk toegankelijke asset-URL's:</strong> bepaalde geüploade assets kunnen worden opgeslagen met directe publieke cloud-URL's, zodat ze kunnen worden weergegeven in socialmediaposts en externe integraties. Je zou alleen bestanden moeten uploaden die je gemachtigd bent op deze manier te publiceren of delen."
-        ] }
+        {
+          "type": "h3",
+          "text": "2.1 Informatie die je rechtstreeks verstrekt"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "<strong>Account- en identiteitsgegevens:</strong> e-mailadres, authenticatie-identificatoren, weergavenaam en inloggegevens verwerkt via Firebase Authentication.",
+            "<strong>Workspace- en teamgegevens:</strong> workspacenaam, lidmaatschapsrecords, gebruikersrollen en uitnodigings- of toegangsbeheerinformatie.",
+            "<strong>Product- en merkgegevens:</strong> productnamen, beschrijvingen, URL's, prijscategorieën, categorieën, merkstem-instellingen, voorbeeldtekst voor de stem, doelgroepbeschrijvingen, trefwoorden, lijsten met te vermijden woorden, logo's en merkkleurinstellingen.",
+            "<strong>Publicatiegegevens:</strong> posts, onderschriften, geplande tijden, media-URL's, doelgroepinstellingen, call-to-action-tekst en gerelateerde workflowconfiguratie.",
+            "<strong>Contact- en CRM-gegevens:</strong> namen, e-mailadressen, status, levenscyclusfase, bron, tags, notities, productkoppelingen en uitschrijfstatus voor contacten die je aanmaakt, importeert, synchroniseert of beheert.",
+            "<strong>Automatiserings- en taakconfiguratie:</strong> automatiseringsstappen, triggers, taakplanningen, taakpayloads en gerelateerde uitvoeringsinstellingen.",
+            "<strong>Ondersteunings- en communicatiegegevens:</strong> informatie die je ons stuurt via e-mail of contactformulieren, waaronder berichtinhoud en eventuele bijlagen die je verstrekt."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "2.2 Informatie van verbonden diensten en integraties"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "<strong>OAuth- en integratiegegevens:</strong> toegangstokens, vernieuwingstokens, tokenvervalgegevens, accountidentificatoren van de aanbieder, gebruikersnamen, open-ID's, pagina- of accountselecties, en aanbiederspecifieke metadata nodig om een verbinding te onderhouden.",
+            "<strong>Social-connectiegegevens:</strong> paginalijsten, accountprofielinformatie, poststatus, publicatiebestemmingen en gerelateerde verbindingsmetadata opgehaald van aanbieders zoals TikTok, Meta en soortgelijke diensten die je verbindt."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "2.3 Automatisch verzamelde informatie"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "<strong>Gebruiks- en activiteitsgegevens:</strong> bezochte pagina's, gebruikte functies, ondernomen acties, tijdstempels en aan de workspace gebonden activiteitsgebeurtenissen.",
+            "<strong>Technische gegevens:</strong> IP-adres, browsertype, apparaatinformatie, besturingssysteem, verzoekmetadata en geschatte locatie afgeleid van netwerkinformatie.",
+            "<strong>Diagnostiek en logs:</strong> API-foutdetails, verzoek-ID's, beveiligingsgebeurtenissen, audittrajecten, gegevens van achtergrondtaken en telemetrie verzameld voor betrouwbaarheid en misbruikpreventie, inclusief diagnostische verwerking via Sentry.",
+            "<strong>Cookie- en lokale opslaggegevens:</strong> essentiële sessie-, authenticatie- en voorkeursinformatie gebruikt om de Diensten te laten werken."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "2.4 Bestanden en uploads"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "<strong>Media-uploads:</strong> logo's, afbeeldingen, video's en andere bestanden die je uploadt voor publicatie of merkidentiteit.",
+            "<strong>Publiekelijk toegankelijke asset-URL's:</strong> bepaalde geüploade assets kunnen worden opgeslagen met directe publieke cloud-URL's, zodat ze kunnen worden weergegeven in socialmediaposts en externe integraties. Je zou alleen bestanden moeten uploaden die je gemachtigd bent op deze manier te publiceren of delen."
+          ]
+        }
       ]
     },
     {
       "heading": "3. Hoe We Informatie Gebruiken",
       "blocks": [
-        { "type": "p", "text": "We gebruiken persoonlijke informatie en klantgegevens om:" },
-        { "type": "ul", "items": [
-          "de Diensten te leveren, te beveiligen, te onderhouden, problemen op te lossen en te verbeteren;",
-          "gebruikers te authenticeren en toegangscontroles voor de workspace af te dwingen;",
-          "producten, merkinstellingen, posts en geüploade media op te slaan en te beheren;",
-          "content te publiceren of in te plannen naar verbonden diensten van derden wanneer jij dat aangeeft;",
-          "dashboards, postwachtrijen, publicatiestatus en workspaceactiviteitssamenvattingen weer te geven;",
-          "fraude, misbruik, beveiligingsincidenten en ongeautoriseerde toegang te detecteren;",
-          "te reageren op ondersteuningsverzoeken, juridische verzoeken en handhavingskwesties; en",
-          "te voldoen aan wettelijke verplichtingen en onze rechten, gebruikers en platform te beschermen."
-        ] }
+        {
+          "type": "p",
+          "text": "We gebruiken persoonlijke informatie en klantgegevens om:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "de Diensten te leveren, te beveiligen, te onderhouden, problemen op te lossen en te verbeteren;",
+            "gebruikers te authenticeren en toegangscontroles voor de workspace af te dwingen;",
+            "producten, merkinstellingen, posts en geüploade media op te slaan en te beheren;",
+            "content te publiceren of in te plannen naar verbonden diensten van derden wanneer jij dat aangeeft;",
+            "dashboards, postwachtrijen, publicatiestatus en workspaceactiviteitssamenvattingen weer te geven;",
+            "fraude, misbruik, beveiligingsincidenten en ongeautoriseerde toegang te detecteren;",
+            "te reageren op ondersteuningsverzoeken, juridische verzoeken en handhavingskwesties; en",
+            "te voldoen aan wettelijke verplichtingen en onze rechten, gebruikers en platform te beschermen."
+          ]
+        }
       ]
     },
     {
       "heading": "4. Juridische Grondslagen voor Verwerking",
       "blocks": [
-        { "type": "p", "text": "Waar wettelijk vereist, baseren we ons op een of meer van de volgende juridische grondslagen: uitvoering van een overeenkomst, gerechtvaardigde belangen, toestemming en naleving van wettelijke verplichtingen. We verwerken bijvoorbeeld accountgegevens om de Diensten onder contract te leveren, gebruiken logs en beveiligingstelemetrie voor gerechtvaardigde belangen bij het beheren van een veilig platform, en kunnen ons baseren op toestemming waar vereist voor bepaalde communicatie- of integratietoestemmingen." }
+        {
+          "type": "p",
+          "text": "Waar wettelijk vereist, baseren we ons op een of meer van de volgende juridische grondslagen: uitvoering van een overeenkomst, gerechtvaardigde belangen, toestemming en naleving van wettelijke verplichtingen. We verwerken bijvoorbeeld accountgegevens om de Diensten onder contract te leveren, gebruiken logs en beveiligingstelemetrie voor gerechtvaardigde belangen bij het beheren van een veilig platform, en kunnen ons baseren op toestemming waar vereist voor bepaalde communicatie- of integratietoestemmingen."
+        }
       ]
     },
     {
       "heading": "5. Cookies en Vergelijkbare Technologieën",
       "blocks": [
-        { "type": "p", "text": "We gebruiken essentiële cookies, tokens en vergelijkbare opslagtechnologieën om je ingelogd te houden, sessie-integriteit te behouden, voorkeuren te onthouden en de Diensten te beveiligen. We kunnen ook technische telemetrie en diagnostische tools gebruiken om applicatiefouten en prestaties te monitoren. We verkopen geen persoonlijke informatie en gebruiken geen cross-context gedragsgerichte advertentiecookies via de geauthenticeerde applicatie-ervaring." }
+        {
+          "type": "p",
+          "text": "We gebruiken essentiële cookies, tokens en vergelijkbare opslagtechnologieën om je ingelogd te houden, sessie-integriteit te behouden, voorkeuren te onthouden en de Diensten te beveiligen. We kunnen ook technische telemetrie en diagnostische tools gebruiken om applicatiefouten en prestaties te monitoren. We verkopen geen persoonlijke informatie en gebruiken geen cross-context gedragsgerichte advertentiecookies via de geauthenticeerde applicatie-ervaring."
+        }
       ]
     },
     {
       "heading": "6. Hoe We Informatie Delen",
       "blocks": [
-        { "type": "p", "text": "We verkopen geen persoonlijke informatie. We delen informatie alleen zoals nodig voor de hierboven beschreven doeleinden, waaronder met:" },
-        { "type": "ul", "items": [
-          "<strong>Infrastructuuraanbieders:</strong> Google Cloud en Firebase voor hosting-, authenticatie-, database- en opslagdiensten.",
-          "<strong>Foutmonitoring- en diagnostiekaanbieders:</strong> aanbieders zoals Sentry om operationele en beveiligingsgerelateerde fouten vast te leggen.",
-          "<strong>Verbonden integratieaanbieders:</strong> TikTok, Meta, Google en andere diensten die je ons machtigt te verbinden of namens jou te gebruiken.",
-          "<strong>Andere workspacegebruikers:</strong> je gegevens kunnen zichtbaar zijn voor geautoriseerde leden van je workspace op basis van rol en rechten.",
-          "<strong>Professionele adviseurs en autoriteiten:</strong> wanneer redelijkerwijs noodzakelijk om onze voorwaarden te handhaven, misbruik te onderzoeken, te reageren op juridische procedures, of rechten, veiligheid en beveiliging te beschermen.",
-          "<strong>Tegenpartijen bij bedrijfstransacties:</strong> in verband met een fusie, overname, financiering, herstructurering, verkoop van activa of vergelijkbare gebeurtenis, onderworpen aan passende vertrouwelijkheidsbescherming."
-        ] }
+        {
+          "type": "p",
+          "text": "We verkopen geen persoonlijke informatie. We delen informatie alleen zoals nodig voor de hierboven beschreven doeleinden, waaronder met:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "<strong>Infrastructuuraanbieders:</strong> Google Cloud en Firebase voor hosting-, authenticatie-, database- en opslagdiensten.",
+            "<strong>Foutmonitoring- en diagnostiekaanbieders:</strong> aanbieders zoals Sentry om operationele en beveiligingsgerelateerde fouten vast te leggen.",
+            "<strong>Verbonden integratieaanbieders:</strong> TikTok, Meta, Google en andere diensten die je ons machtigt te verbinden of namens jou te gebruiken.",
+            "<strong>Andere workspacegebruikers:</strong> je gegevens kunnen zichtbaar zijn voor geautoriseerde leden van je workspace op basis van rol en rechten.",
+            "<strong>Professionele adviseurs en autoriteiten:</strong> wanneer redelijkerwijs noodzakelijk om onze voorwaarden te handhaven, misbruik te onderzoeken, te reageren op juridische procedures, of rechten, veiligheid en beveiliging te beschermen.",
+            "<strong>Tegenpartijen bij bedrijfstransacties:</strong> in verband met een fusie, overname, financiering, herstructurering, verkoop van activa of vergelijkbare gebeurtenis, onderworpen aan passende vertrouwelijkheidsbescherming."
+          ]
+        }
       ]
     },
     {
       "heading": "7. Opslag, Beveiliging en Integriteit",
       "blocks": [
-        { "type": "h3", "text": "7.1 Infrastructuur" },
-        { "type": "p", "text": "Markaestro draait op Google Cloud- en Firebase-infrastructuur, waaronder Firestore, Authentication en Cloud Storage. We gebruiken redelijke administratieve, technische en organisatorische maatregelen ontworpen om persoonlijke informatie te beschermen tegen ongeautoriseerde toegang, verlies, misbruik of wijziging." },
-        { "type": "h3", "text": "7.2 Omgang met geheimen" },
-        { "type": "p", "text": "We versleutelen gevoelige integratiegeheimen zoals OAuth-toegangstokens en API-sleutels vóór opslag met behulp van geauthenticeerde versleuteling. Wachtwoorden voor e-mail-wachtwoordauthenticatie worden beheerd door Firebase Authentication in plaats van direct door onze applicatie te worden opgeslagen." },
-        { "type": "h3", "text": "7.3 Belangrijke beperkingen" },
-        { "type": "p", "text": "Geen enkele internet- of opslagomgeving is volledig veilig. Bovendien kunnen bepaalde geüploade assets opzettelijk worden opgeslagen op publiek bereikbare URL's om publicatieworkflows te ondersteunen. Je zou geen zeer gevoelige persoonlijke informatie, overheidsidentificatiebewijzen, betaalkaartgegevens, beschermde gezondheidsinformatie of andere gereguleerde gegevens moeten uploaden, tenzij we dat gebruik uitdrukkelijk schriftelijk ondersteunen." }
+        {
+          "type": "h3",
+          "text": "7.1 Infrastructuur"
+        },
+        {
+          "type": "p",
+          "text": "Markaestro draait op Google Cloud- en Firebase-infrastructuur, waaronder Firestore, Authentication en Cloud Storage. We gebruiken redelijke administratieve, technische en organisatorische maatregelen ontworpen om persoonlijke informatie te beschermen tegen ongeautoriseerde toegang, verlies, misbruik of wijziging."
+        },
+        {
+          "type": "h3",
+          "text": "7.2 Omgang met geheimen"
+        },
+        {
+          "type": "p",
+          "text": "Gevoelige integratiegeheimen zoals OAuth-toegangstokens en API-sleutels versleutelen we vóór opslag met geauthenticeerde versleuteling. Inloggen gebeurt met eenmalige e-mailcodes of Google-aanmelding via Firebase Authentication; we slaan nooit wachtwoorden op."
+        },
+        {
+          "type": "h3",
+          "text": "7.3 Belangrijke beperkingen"
+        },
+        {
+          "type": "p",
+          "text": "Geen enkele internet- of opslagomgeving is volledig veilig. Bovendien kunnen bepaalde geüploade assets opzettelijk worden opgeslagen op publiek bereikbare URL's om publicatieworkflows te ondersteunen. Je zou geen zeer gevoelige persoonlijke informatie, overheidsidentificatiebewijzen, betaalkaartgegevens, beschermde gezondheidsinformatie of andere gereguleerde gegevens moeten uploaden, tenzij we dat gebruik uitdrukkelijk schriftelijk ondersteunen."
+        }
       ]
     },
     {
       "heading": "8. Internationale Overdrachten",
       "blocks": [
-        { "type": "p", "text": "Wij en onze dienstverleners kunnen informatie verwerken in de Verenigde Staten en andere landen die mogelijk andere gegevensbeschermingswetten hebben dan jouw rechtsgebied. Waar vereist, gebruiken we passende overdrachtsmechanismen en waarborgen voor internationale overdrachten." }
+        {
+          "type": "p",
+          "text": "Wij en onze dienstverleners kunnen informatie verwerken in de Verenigde Staten en andere landen die mogelijk andere gegevensbeschermingswetten hebben dan jouw rechtsgebied. Waar vereist, gebruiken we passende overdrachtsmechanismen en waarborgen voor internationale overdrachten."
+        }
       ]
     },
     {
       "heading": "9. Gegevensbewaring",
       "blocks": [
-        { "type": "p", "text": "We bewaren informatie zolang als redelijkerwijs nodig is om de Diensten te leveren, te voldoen aan wettelijke verplichtingen, geschillen op te lossen en overeenkomsten af te dwingen. Bewaartermijnen variëren per gegevenstype, bijvoorbeeld:" },
-        { "type": "ul", "items": [
-          "account- en workspacerecords worden bewaard zolang je account of workspace actief blijft;",
-          "integratiegeheimen worden bewaard tot ontkoppeling, overschrijving of verwijdering;",
-          "content, contacten, posts, producten, geüploade media, activiteitsrecords en gebeurtenislogs blijven in de workspace totdat ze worden verwijderd of totdat de workspace wordt verwijderd, onderworpen aan back-up- en wettelijke bewaartermijncycli;",
-          "kortstondige OAuth-status en gerelateerde tijdelijke autorisatiegegevens kunnen na een korte periode automatisch verlopen en worden verwijderd;",
-          "ondersteunings-, misbruikpreventie- en juridische records kunnen langer worden bewaard indien nodig voor gerechtvaardigde bedrijfsdoeleinden of wettelijke naleving."
-        ] }
+        {
+          "type": "p",
+          "text": "We bewaren informatie zolang als redelijkerwijs nodig is om de Diensten te leveren, te voldoen aan wettelijke verplichtingen, geschillen op te lossen en overeenkomsten af te dwingen. Bewaartermijnen variëren per gegevenstype, bijvoorbeeld:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "account- en workspacerecords worden bewaard zolang je account of workspace actief blijft;",
+            "integratiegeheimen worden bewaard tot ontkoppeling, overschrijving of verwijdering;",
+            "content, contacten, posts, producten, geüploade media, activiteitsrecords en gebeurtenislogs blijven in de workspace totdat ze worden verwijderd of totdat de workspace wordt verwijderd, onderworpen aan back-up- en wettelijke bewaartermijncycli;",
+            "kortstondige OAuth-status en gerelateerde tijdelijke autorisatiegegevens kunnen na een korte periode automatisch verlopen en worden verwijderd;",
+            "ondersteunings-, misbruikpreventie- en juridische records kunnen langer worden bewaard indien nodig voor gerechtvaardigde bedrijfsdoeleinden of wettelijke naleving."
+          ]
+        }
       ]
     },
     {
       "heading": "10. Jouw Privacyrechten",
       "blocks": [
-        { "type": "p", "text": "Afhankelijk van je rechtsgebied kun je rechten hebben om je persoonlijke informatie in te zien, te corrigeren, te verwijderen, te beperken, bezwaar te maken tegen, of te exporteren, en om toestemming in te trekken waar toestemming de basis is voor verwerking. Je kunt ook het recht hebben om geen discriminerende behandeling te ondervinden voor het uitoefenen van je rechten." },
-        { "type": "ul", "items": [
-          "<strong>EER, VK en vergelijkbare regio's:</strong> je kunt rechten hebben om bezwaar te maken, verwerking te beperken, overdraagbaarheid te vragen, of een klacht in te dienen bij je lokale toezichthoudende autoriteit.",
-          "<strong>Californië en vergelijkbare Amerikaanse deelstaatwetten:</strong> je kunt rechten hebben om persoonlijke informatie te kennen, in te zien, te verwijderen en te corrigeren, en om bepaalde gevoelige gegevensgebruiken te beperken waar van toepassing. Markaestro verkoopt geen persoonlijke informatie en deelt deze niet voor cross-context gedragsgerichte advertenties zoals die termen zijn gedefinieerd onder toepasselijke deelstaatwetgeving.",
-          "<strong>Eindcontacten van klanten:</strong> als je informatie wordt bewaard in een Markaestro-klantworkspace, moeten we je verzoek mogelijk doorsturen naar die klant, omdat die klant de doeleinden en middelen van verwerking van die gegevens bepaalt."
-        ] },
-        { "type": "p", "text": "Om rechten uit te oefenen met betrekking tot gegevens die wij controleren, neem contact met ons op via <mailLink>legal@markaestro.com</mailLink>. We moeten mogelijk je identiteit verifiëren voordat we een verzoek inwilligen." }
+        {
+          "type": "p",
+          "text": "Afhankelijk van je rechtsgebied kun je rechten hebben om je persoonlijke informatie in te zien, te corrigeren, te verwijderen, te beperken, bezwaar te maken tegen, of te exporteren, en om toestemming in te trekken waar toestemming de basis is voor verwerking. Je kunt ook het recht hebben om geen discriminerende behandeling te ondervinden voor het uitoefenen van je rechten."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "<strong>EER, VK en vergelijkbare regio's:</strong> je kunt rechten hebben om bezwaar te maken, verwerking te beperken, overdraagbaarheid te vragen, of een klacht in te dienen bij je lokale toezichthoudende autoriteit.",
+            "<strong>Californië en vergelijkbare Amerikaanse deelstaatwetten:</strong> je kunt rechten hebben om persoonlijke informatie te kennen, in te zien, te verwijderen en te corrigeren, en om bepaalde gevoelige gegevensgebruiken te beperken waar van toepassing. Markaestro verkoopt geen persoonlijke informatie en deelt deze niet voor cross-context gedragsgerichte advertenties zoals die termen zijn gedefinieerd onder toepasselijke deelstaatwetgeving.",
+            "<strong>Eindcontacten van klanten:</strong> als je informatie wordt bewaard in een Markaestro-klantworkspace, moeten we je verzoek mogelijk doorsturen naar die klant, omdat die klant de doeleinden en middelen van verwerking van die gegevens bepaalt."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Om rechten uit te oefenen met betrekking tot gegevens die wij controleren, neem contact met ons op via <mailLink>legal@markaestro.com</mailLink>. We moeten mogelijk je identiteit verifiëren voordat we een verzoek inwilligen."
+        }
       ]
     },
     {
       "heading": "11. Jouw Verantwoordelijkheden Bij het Gebruik van Markaestro",
       "blocks": [
-        { "type": "p", "text": "Als je contactinformatie, postcontent, mediabestanden of gegevens van platformen van derden uploadt naar Markaestro, ben je verantwoordelijk voor het waarborgen dat je een passende juridische grondslag hebt om dit te doen en voor het naleven van toepasselijke privacy-, antispam-, advertentie- en consumentenbeschermingswetten. Dit omvat het verkrijgen van eventuele vereiste toestemmingen en het respecteren van uitschrijvings- of onderdrukkingsverzoeken, en ervoor zorgen dat je de rechten bezit op alle media die je uploadt." }
+        {
+          "type": "p",
+          "text": "Als je contactinformatie, postcontent, mediabestanden of gegevens van platformen van derden uploadt naar Markaestro, ben je verantwoordelijk voor het waarborgen dat je een passende juridische grondslag hebt om dit te doen en voor het naleven van toepasselijke privacy-, antispam-, advertentie- en consumentenbeschermingswetten. Dit omvat het verkrijgen van eventuele vereiste toestemmingen en het respecteren van uitschrijvings- of onderdrukkingsverzoeken, en ervoor zorgen dat je de rechten bezit op alle media die je uploadt."
+        }
       ]
     },
     {
       "heading": "12. Privacy van Kinderen",
       "blocks": [
-        { "type": "p", "text": "De Diensten zijn niet gericht op kinderen, en je mag ze niet gebruiken als je jonger bent dan 18 jaar. We verzamelen niet bewust persoonlijke informatie van kinderen. Als je gelooft dat een kind ons persoonlijke informatie heeft verstrekt, neem dan contact met ons op en we zullen dit onderzoeken en passende maatregelen nemen." }
+        {
+          "type": "p",
+          "text": "De Diensten zijn niet gericht op kinderen, en je mag ze niet gebruiken als je jonger bent dan 18 jaar. We verzamelen niet bewust persoonlijke informatie van kinderen. Als je gelooft dat een kind ons persoonlijke informatie heeft verstrekt, neem dan contact met ons op en we zullen dit onderzoeken en passende maatregelen nemen."
+        }
       ]
     },
     {
       "heading": "13. Wijzigingen in Dit Beleid",
       "blocks": [
-        { "type": "p", "text": "We kunnen dit Privacybeleid van tijd tot tijd bijwerken. Als we materiële wijzigingen aanbrengen, plaatsen we de bijgewerkte versie hier en kunnen we aanvullende kennisgeving geven via de Diensten of per e-mail waar passend. Je voortgezet gebruik van de Diensten na de ingangsdatum van het bijgewerkte beleid betekent dat het bijgewerkte beleid van toepassing is op je toekomstig gebruik." }
+        {
+          "type": "p",
+          "text": "We kunnen dit Privacybeleid van tijd tot tijd bijwerken. Als we materiële wijzigingen aanbrengen, plaatsen we de bijgewerkte versie hier en kunnen we aanvullende kennisgeving geven via de Diensten of per e-mail waar passend. Je voortgezet gebruik van de Diensten na de ingangsdatum van het bijgewerkte beleid betekent dat het bijgewerkte beleid van toepassing is op je toekomstig gebruik."
+        }
       ]
     },
     {
       "heading": "14. Neem Contact Met Ons Op",
       "blocks": [
-        { "type": "p", "text": "Als je vragen hebt over dit Privacybeleid of de privacypraktijken van Markaestro, neem dan contact met ons op via <mailLink>legal@markaestro.com</mailLink> of via onze <contactLink>contactpagina</contactLink>." }
+        {
+          "type": "p",
+          "text": "Als je vragen hebt over dit Privacybeleid of de privacypraktijken van Markaestro, neem dan contact met ons op via <mailLink>legal@markaestro.com</mailLink> of via onze <contactLink>contactpagina</contactLink>."
+        }
       ]
     }
   ]

@@ -397,8 +397,8 @@
     "connectFailedToast": "Verbindung zu {provider} fehlgeschlagen"
   },
   "generating": {
-    "title": "Dein Workflow wird erstellt",
-    "subtitle": "Wir richten deine Kanäle und einen Veröffentlichungsplan rund um {challenge} ein, das Problem, das du hier lösen wolltest.",
+    "title": "Dein Workspace wird vorbereitet",
+    "subtitle": "Wir richten dein Dashboard rund um {challenge} ein, das Problem, das du hier lösen willst.",
     "takesAMoment": "Das dauert nur einen Moment"
   },
   "paywall": {

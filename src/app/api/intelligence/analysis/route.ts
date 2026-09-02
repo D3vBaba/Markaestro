@@ -6,7 +6,7 @@ import { requirePermission } from '@/lib/rbac';
 import { fingerprintRequestSchema } from '@/lib/intelligence/fingerprint-schemas';
 import { createFingerprintJob, getCachedFingerprint } from '@/lib/intelligence/fingerprints';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-import { hasFeature, resolveLimits } from '@/lib/stripe/entitlements';
+import { resolveLimits } from '@/lib/stripe/entitlements';
 import { withAiOperation } from '@/lib/intelligence/usage';
 import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 import { RATE_LIMITS, applyRateLimit } from '@/lib/rate-limit';

@@ -397,8 +397,8 @@
     "connectFailedToast": "Connessione a {provider} non riuscita"
   },
   "generating": {
-    "title": "Creazione del tuo flusso di lavoro",
-    "subtitle": "Stiamo configurando i tuoi canali e un piano di pubblicazione costruito attorno a {challenge}, il problema che sei venuto a risolvere.",
+    "title": "Preparazione dello spazio di lavoro",
+    "subtitle": "Stiamo configurando la dashboard attorno a {challenge}, il problema che sei venuto a risolvere.",
     "takesAMoment": "Ci vorrà solo un momento"
   },
   "paywall": {

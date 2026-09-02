@@ -397,8 +397,8 @@
     "connectFailedToast": "تعذّر الاتصال بـ {provider}"
   },
   "generating": {
-    "title": "جارٍ بناء سير عملك",
-    "subtitle": "نُعِدّ قنواتك وخطة نشر مبنية حول {challenge}، المشكلة التي أتيت لحلّها.",
+    "title": "جارٍ تجهيز مساحة العمل",
+    "subtitle": "نُعدّ لوحة التحكم حول {challenge}، المشكلة التي جئت لحلّها.",
     "takesAMoment": "يستغرق هذا لحظة فقط"
   },
   "paywall": {

@@ -90,7 +90,7 @@
       },
       {
         "name": "TikTok",
-        "desc": "Conteúdo de fotos e vídeos enviado para a caixa de entrada do criador no TikTok para conclusão e publicação finais."
+        "desc": "Publicações de foto e vídeo. Por defeito, passam para a caixa de entrada do TikTok do criador para concluir e publicar; a publicação direta no perfil está disponível por publicação."
       },
       {
         "name": "LinkedIn",

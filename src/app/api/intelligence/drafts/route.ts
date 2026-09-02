@@ -3,7 +3,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 import { requirePermission } from '@/lib/rbac';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-import { hasFeature, resolveLimits } from '@/lib/stripe/entitlements';
+import { resolveLimits } from '@/lib/stripe/entitlements';
 import { consumeAiOperation, refundAiOperation } from '@/lib/intelligence/usage';
 import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
 import { RATE_LIMITS, applyRateLimit } from '@/lib/rate-limit';

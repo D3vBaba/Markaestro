@@ -5,7 +5,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requireIntelligenceAccess } from '@/lib/intelligence/access';
 import { requirePermission } from '@/lib/rbac';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
-import { hasFeature, resolveLimits } from '@/lib/stripe/entitlements';
+import { resolveLimits } from '@/lib/stripe/entitlements';
 import { intelligencePhaseFlags, loadProductIntelligence } from '@/lib/intelligence/product-state';
 
 const querySchema = z.object({

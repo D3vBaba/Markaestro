@@ -397,8 +397,8 @@
     "connectFailedToast": "Failed to connect {provider}"
   },
   "generating": {
-    "title": "Building your workflow",
-    "subtitle": "Setting up your channels and a posting plan built around {challenge}, the problem you came here to solve.",
+    "title": "Preparing your workspace",
+    "subtitle": "Setting up your dashboard around {challenge}, the problem you came here to solve.",
     "takesAMoment": "This takes just a moment"
   },
   "paywall": {

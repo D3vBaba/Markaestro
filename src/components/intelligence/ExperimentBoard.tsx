@@ -167,7 +167,6 @@ function ArmMediaField({
               {isVideoMediaUrl(url) ? (
                 <video src={url} className="h-full w-full object-cover" />
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img src={url} alt="" className="h-full w-full object-cover" />
               )}
               <button

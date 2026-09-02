@@ -78,7 +78,6 @@ export default function LivePostEmbed({
             isVideoUrl(media) ? (
               <video src={media} controls playsInline preload="metadata" className="max-h-72 w-full rounded-xl object-cover" />
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
               <img src={media} alt="" className="max-h-72 w-full rounded-xl object-cover" loading="lazy" />
             )
           )}

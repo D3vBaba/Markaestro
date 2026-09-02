@@ -4,7 +4,7 @@ import { useState, useEffect, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/app/PageHeader";
 import BrandSwitcher from "@/components/app/BrandSwitcher";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import Select from "@/components/app/Select";
 import { apiGet, getApiWorkspaceId, subscribeApiWorkspaceId } from "@/lib/api-client";
 import CreateTab from "./_components/CreateTab";

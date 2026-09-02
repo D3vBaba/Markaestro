@@ -55,8 +55,10 @@ const noFloatingApiResult = {
   },
 };
 
-export default {
+const plugin = {
   rules: {
     'no-floating-api-result': noFloatingApiResult,
   },
 };
+
+export default plugin;

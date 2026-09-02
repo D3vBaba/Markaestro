@@ -90,7 +90,7 @@
       },
       {
         "name": "TikTok",
-        "desc": "Contenuti foto e video trasferiti alla casella in arrivo TikTok del creator per il completamento finale e la pubblicazione."
+        "desc": "Post foto e video. Per impostazione predefinita passano alla inbox TikTok del creator per completare e pubblicare; la pubblicazione diretta sul profilo è disponibile per singolo post."
       },
       {
         "name": "LinkedIn",

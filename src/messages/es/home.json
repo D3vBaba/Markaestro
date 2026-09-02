@@ -90,7 +90,7 @@
       },
       {
         "name": "TikTok",
-        "desc": "El contenido de foto y vídeo se entrega en la bandeja de entrada del creador en TikTok para su finalización y publicación."
+        "desc": "Publicaciones de foto y vídeo. Por defecto se envían a la bandeja de TikTok del creador para terminar y publicar; la publicación directa en el perfil está disponible por publicación."
       },
       {
         "name": "LinkedIn",

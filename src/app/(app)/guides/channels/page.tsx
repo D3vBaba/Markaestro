@@ -3,11 +3,8 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/app/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { pillStyle } from "@/components/mk/pills";
-import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
+import { AlertTriangle, Info } from "lucide-react";
 
 
 type ChannelGuideMeta = {

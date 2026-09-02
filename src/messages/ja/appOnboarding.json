@@ -397,8 +397,8 @@
     "connectFailedToast": "{provider}の接続に失敗しました"
   },
   "generating": {
-    "title": "ワークフローを構築中",
-    "subtitle": "あなたが解決したかった課題「{challenge}」を中心に、チャンネルと投稿プランを設定しています。",
+    "title": "ワークスペースを準備しています",
+    "subtitle": "解決したい課題「{challenge}」を中心にダッシュボードを設定しています。",
     "takesAMoment": "少々お待ちください"
   },
   "paywall": {

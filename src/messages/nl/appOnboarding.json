@@ -397,8 +397,8 @@
     "connectFailedToast": "Verbinden met {provider} mislukt"
   },
   "generating": {
-    "title": "Je workflow wordt gebouwd",
-    "subtitle": "We stellen je kanalen en een plaatsingsplan in rond {challenge}, het probleem waarvoor je hier bent.",
+    "title": "Je werkruimte wordt voorbereid",
+    "subtitle": "We richten je dashboard in rond {challenge}, het probleem dat je hier wilt oplossen.",
     "takesAMoment": "Dit duurt maar even"
   },
   "paywall": {
