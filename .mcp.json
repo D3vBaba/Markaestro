@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "markaestro": {
+      "command": "node",
+      "args": ["mcp/dist/index.js"],
+      "env": {
+        "MARKAESTRO_API_KEY": "${MARKAESTRO_API_KEY}",
+        "MARKAESTRO_BASE_URL": "${MARKAESTRO_BASE_URL:-https://markaestro.com}"
+      }
+    }
+  }
+}

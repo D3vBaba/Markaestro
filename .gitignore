@@ -59,3 +59,5 @@ sdk/typescript/node_modules/
 sdk/python/dist/
 sdk/python/*.egg-info/
 __pycache__/
+mcp/dist/
+mcp/node_modules/

@@ -13,6 +13,20 @@ file in the same change, not afterwards.
 
 ---
 
+## 2026-09-02
+
+### Additions
+
+**MCP server and agent skill.** `@markaestro/mcp` (in `mcp/`) exposes the
+public API to AI agents as MCP tools: brand and destination discovery, draft
+and scheduled post creation, publish with job-run polling, delete and bulk
+operations, direct media upload, webhook registration, and a channel-rules
+resource. Mutations carry an `Idempotency-Key` and retry on `Retry-After`.
+The `markaestro` skill (`skills/markaestro/SKILL.md`) documents the posting
+model for agents. No API behaviour changed.
+
+---
+
 ## 2026-08-29
 
 ### Behaviour change

@@ -47,6 +47,15 @@ curl "$MARKAESTRO_URL/api/connect/v1/posts?limit=10" \
 Every error is a JSON object with a stable `code` and a readable `error`;
 the same key works on `/api/public/v1` for async publish runs and webhooks.
 
+## AI agents
+
+Agents reach the same API through the MCP server in [`mcp/`](../mcp/README.md)
+(`npx -y @markaestro/mcp`, one tool per operation, draft-first, idempotent
+mutations, direct media upload) and the [`markaestro` skill](../skills/markaestro/SKILL.md),
+which teaches an agent the posting model, the delivery modes, and how to read
+error codes. Both use a normal workspace API key; a test key keeps evaluation
+away from live publishing.
+
 ## Scope
 
 - Image and video upload to Markaestro storage (direct or compatibility multipart)

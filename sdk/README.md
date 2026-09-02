@@ -10,6 +10,7 @@ the one-call publish flow, and webhook verification.
 | --- | --- | --- |
 | `@markaestro/sdk` (TypeScript) | `sdk/typescript` | `npm publish` (runs `tsc` via prepublishOnly) |
 | `markaestro` (Python) | `sdk/python` | `python -m build && twine upload dist/*` |
+| `@markaestro/mcp` (MCP server for AI agents) | `mcp` | `npm publish` (runs `tsc` via prepublishOnly) |
 
 Release checklist: bump the version, update `docs/API_CHANGELOG.md`, publish.
 This repo deploys by push-to-main with no CI runner, so publishing is a
