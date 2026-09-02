@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import PageHeader from "@/components/app/PageHeader";
@@ -29,6 +29,9 @@ const RANGE_PRESETS = [
   { days: 90, label: "90d" },
   { days: 365, label: "12m" },
 ];
+
+/** Focus refetches are skipped while the data on screen is younger than this. */
+const FOCUS_REFETCH_MIN_MS = 60_000;
 
 const TREND_METRIC_KEYS = ["views", "reach", "engagements", "posts"] as const;
 type TrendMetric = (typeof TREND_METRIC_KEYS)[number];
@@ -149,10 +152,17 @@ export default function AnalyticsPage() {
 
   // A dashboard someone leaves open should not drift: re-read the stored
   // numbers when the tab regains focus. This is a cache read, not a platform
-  // pull, so it costs nothing against the refresh rate limit.
+  // pull, so it costs nothing against the refresh rate limit, but each read
+  // is a few hundred Firestore documents, so tab-flipping is throttled.
+  const lastFetchedAtRef = useRef(0);
+  useEffect(() => {
+    if (data) lastFetchedAtRef.current = Date.now();
+  }, [data]);
   useEffect(() => {
     const onFocus = () => {
-      if (document.visibilityState === "visible") void refresh();
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastFetchedAtRef.current < FOCUS_REFETCH_MIN_MS) return;
+      void refresh();
     };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
