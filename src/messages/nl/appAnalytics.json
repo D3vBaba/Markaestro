@@ -22,7 +22,15 @@
       "brandTitle": "Filteren op merk",
       "rangeTitle": "Laatste {label}",
       "rangeLockedTitle": "De periode van {label} vereist een hoger plan",
-      "windowNote": "{days} dagen weergegeven, het analysevenster van je plan."
+      "windowNote": "{days} dagen weergegeven, het analysevenster van je plan.",
+      "custom": "Aangepast",
+      "customTitle": "Kies een begin- en einddatum",
+      "from": "Van",
+      "to": "tot",
+      "until": "Tot",
+      "apply": "Toepassen",
+      "invalidRange": "De begindatum moet op of voor de einddatum liggen.",
+      "showing": "Periode {since} tot {until}"
     },
     "error": {
       "message": "Analyses konden niet worden geladen.",
@@ -31,10 +39,10 @@
     "emptyState": {
       "eyebrow": "Nog geen gegevens",
       "title": "Publiceer je eerste bericht om te beginnen met meten",
-      "body": "Zodra een bericht is gepubliceerd, haalt Markaestro binnen ongeveer een uur de weergaven, bereik en betrokkenheid op van het platform, en blijft dit 30 dagen bijhouden. Het aantal volgers wordt dagelijks vastgelegd voor elk verbonden kanaal.",
+      "body": "Zodra een bericht is gepubliceerd, haalt Markaestro binnen ongeveer een uur de weergaven, bereik en betrokkenheid op van het platform, en blijft dit 90 dagen bijhouden. Het aantal volgers wordt dagelijks vastgelegd voor elk verbonden kanaal.",
       "createPost": "Bericht maken"
     },
-    "warmingUp": "Statistieken worden verzameld, de eerste gegevens komen ongeveer een uur na publicatie binnen en worden daarna 30 dagen lang met afnemende frequentie bijgewerkt.",
+    "warmingUp": "Statistieken worden verzameld, de eerste gegevens komen ongeveer een uur na publicatie binnen en worden daarna 90 dagen lang met afnemende frequentie bijgewerkt.",
     "kpis": {
       "views": {
         "label": "Weergaven",
@@ -69,7 +77,19 @@
         "engagements": "Betrokkenheid",
         "posts": "Berichten"
       },
-      "note": "Gegroepeerd op publicatiedatum (UTC). Cijfers worden bijgewerkt zodra de platforms ze rapporteren."
+      "note": "Gegroepeerd op publicatiedatum (UTC). Cijfers worden bijgewerkt zodra de platforms ze rapporteren.",
+      "modes": {
+        "publish": "Op publicatiedatum",
+        "activity": "Op activiteit"
+      },
+      "modeTitles": {
+        "publish": "Wat de per dag gepubliceerde posts tot nu toe hebben opgeleverd",
+        "activity": "Wat er per dag gebeurde, over alle posts"
+      },
+      "compare": "vs vorige periode",
+      "previous": "Vorige periode",
+      "noteActivity": "Gegroepeerd op de dag waarop de platforms de cijfers rapporteerden.",
+      "activityEmpty": "Activiteit bouwt op vanaf de volgende ophaalronde. Groepering op publicatie bevat de geschiedenis."
     },
     "audience": {
       "eyebrow": "Publiek",
@@ -105,6 +125,19 @@
       "updatedOf": "{updated} van {scanned} posts in deze periode vernieuwd",
       "updatedPartial": "{updated} van {scanned} posts vernieuwd voordat de tijd op was. Vernieuw opnieuw voor de rest.",
       "partial": "{count, plural, one {# vernieuwing mislukt} other {# vernieuwingen mislukt}}: {error}"
+    },
+    "breakdown": {
+      "eyebrow": "Betrokkenheid",
+      "title": "Wat mensen deden",
+      "empty": "Nog geen betrokkenheid gerapporteerd in deze periode.",
+      "share": "{pct}% van de betrokkenheid",
+      "types": {
+        "likes": "Likes",
+        "comments": "Reacties",
+        "shares": "Gedeeld",
+        "saves": "Opgeslagen",
+        "clicks": "Linkklikken"
+      }
     }
   },
   "contentTypeBars": {
@@ -122,7 +155,8 @@
   "trendChart": {
     "noData": "Nog geen gegevens voor deze periode.",
     "followerHistoryBuilds": "De volgersgeschiedenis wordt opgebouwd uit dagelijkse momentopnamen, de trend verschijnt na een paar dagen met gegevens.",
-    "followersSeriesName": "Volgers"
+    "followersSeriesName": "Volgers",
+    "previousPeriod": "Vorige periode"
   },
   "channelTable": {
     "columns": {
@@ -162,5 +196,23 @@
   },
   "stackedArea": {
     "noData": "Nog geen gegevens."
+  },
+  "history": {
+    "button": "Geschiedenis",
+    "title": "Metriekgeschiedenis",
+    "empty": "Nog geen metingen. De eerste komt ongeveer een uur na publicatie.",
+    "failed": "Kon de geschiedenis van deze post niet laden.",
+    "hoursAfter": "{hours} u na publicatie",
+    "daysAfter": "{days} d na publicatie",
+    "complete": "Volgen afgerond. De cijfers zijn definitief tenzij je vernieuwt.",
+    "nextPoll": "Volgende controle {when}.",
+    "tracking": "Wordt nog gevolgd.",
+    "columns": {
+      "stage": "Meting",
+      "views": "Weergaven",
+      "reach": "Bereik",
+      "engagements": "Betrokkenheid",
+      "captured": "Gemeten"
+    }
   }
 }

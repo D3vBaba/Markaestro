@@ -4,6 +4,8 @@ const collectionMock = vi.fn();
 const getAdapterForChannelMock = vi.fn();
 const getConnectionForChannelMock = vi.fn();
 const updateConnectionStatusMock = vi.fn();
+const recordActivityMock = vi.fn(async (_input: unknown) => 1);
+vi.mock('@/lib/analytics/activity', () => ({ recordActivity: (input: unknown) => recordActivityMock(input) }));
 
 vi.mock('@/lib/firebase-admin', () => ({
   adminDb: {
@@ -233,6 +235,32 @@ describe('refreshPostsNow', () => {
     expect(summary.polled).toBe(0);
     expect(summary.remaining).toBe(3);
     expect(fetchMetrics).not.toHaveBeenCalled();
+  });
+
+  it('books metric growth under the observation day when a refresh lands new numbers', async () => {
+    recordActivityMock.mockClear();
+    const post = makePostDoc({
+      status: 'published',
+      channel: 'facebook',
+      productId: 'prod_123',
+      publishedAt: '2026-03-10T00:00:00.000Z',
+      metricsByChannel: { facebook: makeMetrics({ views: 100 }) },
+      publishResults: [{ channel: 'facebook', success: true, externalId: 'fb_1' }],
+    });
+    collectionMock.mockReturnValue(makeQuery([post.doc]));
+    getAdapterForChannelMock.mockReturnValue({
+      fetchMetrics: vi.fn(async () => ({ ok: true, metrics: makeMetrics({ views: 250 }) })),
+    });
+    const { refreshPostsNow } = await import('../analytics/metrics-poller');
+    await refreshPostsNow('ws_123', '2026-03-15T12:00:00.000Z');
+    expect(recordActivityMock).toHaveBeenCalledTimes(1);
+    expect(recordActivityMock).toHaveBeenCalledWith(expect.objectContaining({
+      workspaceId: 'ws_123',
+      date: '2026-03-15',
+      productId: 'prod_123',
+      previous: { facebook: expect.objectContaining({ views: 100 }) },
+      next: { facebook: expect.objectContaining({ views: 250 }) },
+    }));
   });
 
   it('only fetches the requested channel when a channel filter is supplied', async () => {

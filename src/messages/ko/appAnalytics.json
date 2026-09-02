@@ -22,7 +22,15 @@
       "brandTitle": "브랜드로 필터링",
       "rangeTitle": "최근 {label}",
       "rangeLockedTitle": "{label} 기간을 보려면 상위 요금제가 필요합니다",
-      "windowNote": "{days}일을 표시 중, 요금제의 분석 기간입니다."
+      "windowNote": "{days}일을 표시 중, 요금제의 분석 기간입니다.",
+      "custom": "사용자 지정",
+      "customTitle": "시작일과 종료일을 선택",
+      "from": "시작",
+      "to": "~",
+      "until": "종료",
+      "apply": "적용",
+      "invalidRange": "시작일은 종료일과 같거나 이전이어야 합니다.",
+      "showing": "{since}부터 {until}까지 표시"
     },
     "error": {
       "message": "분석 데이터를 불러올 수 없습니다.",
@@ -31,10 +39,10 @@
     "emptyState": {
       "eyebrow": "아직 데이터 없음",
       "title": "첫 게시물을 게시하고 측정을 시작하세요",
-      "body": "게시물이 게시되면 Markaestro가 약 1시간 이내에 조회수, 도달수, 참여도를 플랫폼에서 가져오고 30일 동안 계속 추적합니다. 팔로워 수는 연결된 모든 채널에서 매일 기록됩니다.",
+      "body": "게시물이 게시되면 Markaestro가 약 1시간 이내에 조회수, 도달수, 참여도를 플랫폼에서 가져오고 90일 동안 계속 추적합니다. 팔로워 수는 연결된 모든 채널에서 매일 기록됩니다.",
       "createPost": "게시물 만들기"
     },
-    "warmingUp": "지표를 수집하는 중입니다, 첫 데이터는 게시 후 약 1시간 뒤에 도착하며, 이후 30일 동안 점점 낮아지는 빈도로 업데이트됩니다.",
+    "warmingUp": "지표를 수집하는 중입니다, 첫 데이터는 게시 후 약 1시간 뒤에 도착하며, 이후 90일 동안 점점 낮아지는 빈도로 업데이트됩니다.",
     "kpis": {
       "views": {
         "label": "조회수",
@@ -69,7 +77,19 @@
         "engagements": "참여도",
         "posts": "게시물 수"
       },
-      "note": "게시 날짜(UTC) 기준으로 묶임. 플랫폼이 보고하는 대로 수치가 갱신됩니다."
+      "note": "게시 날짜(UTC) 기준으로 묶임. 플랫폼이 보고하는 대로 수치가 갱신됩니다.",
+      "modes": {
+        "publish": "게시일 기준",
+        "activity": "활동 기준"
+      },
+      "modeTitles": {
+        "publish": "각 날짜에 게시된 게시물이 지금까지 얻은 수치",
+        "activity": "모든 게시물에서 각 날짜에 일어난 일"
+      },
+      "compare": "이전 기간과 비교",
+      "previous": "이전 기간",
+      "noteActivity": "플랫폼이 수치를 보고한 날짜 기준으로 묶음.",
+      "activityEmpty": "활동은 다음 지표 수집부터 쌓입니다. 게시일 기준에 이력이 있습니다."
     },
     "audience": {
       "eyebrow": "오디언스",
@@ -105,6 +125,19 @@
       "updatedOf": "이 기간의 게시물 {scanned}개 중 {updated}개를 새로 고쳤습니다",
       "updatedPartial": "시간 내에 게시물 {scanned}개 중 {updated}개를 새로 고쳤습니다. 나머지는 다시 새로 고치세요.",
       "partial": "새로 고침 {count}건 실패: {error}"
+    },
+    "breakdown": {
+      "eyebrow": "참여",
+      "title": "사람들이 한 행동",
+      "empty": "이 기간에 보고된 참여가 아직 없습니다.",
+      "share": "참여의 {pct}%",
+      "types": {
+        "likes": "좋아요",
+        "comments": "댓글",
+        "shares": "공유",
+        "saves": "저장",
+        "clicks": "링크 클릭"
+      }
     }
   },
   "contentTypeBars": {
@@ -122,7 +155,8 @@
   "trendChart": {
     "noData": "이 기간의 데이터가 아직 없습니다.",
     "followerHistoryBuilds": "팔로워 기록은 매일의 스냅샷으로 구축됩니다, 며칠간의 데이터가 쌓이면 추세가 나타납니다.",
-    "followersSeriesName": "팔로워"
+    "followersSeriesName": "팔로워",
+    "previousPeriod": "이전 기간"
   },
   "channelTable": {
     "columns": {
@@ -162,5 +196,23 @@
   },
   "stackedArea": {
     "noData": "아직 데이터가 없습니다."
+  },
+  "history": {
+    "button": "기록",
+    "title": "지표 기록",
+    "empty": "아직 스냅샷이 없습니다. 첫 스냅샷은 게시 약 1시간 후에 도착합니다.",
+    "failed": "이 게시물의 기록을 불러오지 못했습니다.",
+    "hoursAfter": "게시 {hours}시간 후",
+    "daysAfter": "게시 {days}일 후",
+    "complete": "추적 완료. 새로 고치지 않는 한 수치는 최종입니다.",
+    "nextPoll": "다음 확인 {when}.",
+    "tracking": "추적 중.",
+    "columns": {
+      "stage": "스냅샷",
+      "views": "조회수",
+      "reach": "도달",
+      "engagements": "참여",
+      "captured": "수집 시각"
+    }
   }
 }

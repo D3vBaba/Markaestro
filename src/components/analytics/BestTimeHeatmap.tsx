@@ -37,14 +37,11 @@ export function BestTimeHeatmap({
 
   if (sampleSize < MIN_SAMPLE) {
     return (
-      <div
-        className="flex flex-col items-center justify-center text-center py-10 px-6 gap-1"
-        style={{ color: "var(--mk-ink-60)" }}
-      >
-        <p className="text-[13px] font-medium m-0" style={{ color: "var(--mk-ink)" }}>
+      <div className="flex flex-col items-center justify-center gap-1 px-6 py-10 text-center text-slate-500 dark:text-slate-400">
+        <p className="m-0 text-[13px] font-medium text-slate-900 dark:text-slate-100">
           {t("notEnoughData")}
         </p>
-        <p className="text-[12px] m-0">
+        <p className="m-0 text-[12px]">
           {t("unlocksAt", { min: MIN_SAMPLE, sampleSize })}
         </p>
       </div>
@@ -64,10 +61,7 @@ export function BestTimeHeatmap({
           <Heatmap data={avg} days={days} hours={HOURS} max={max} height={170} />
         </div>
       </div>
-      <p
-        className="mt-2.5 mb-0 text-[10.5px] font-mono"
-        style={{ color: "var(--mk-ink-40)", letterSpacing: "0.04em" }}
-      >
+      <p className="mb-0 mt-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
         {t("footer", { count: sampleSize })}
       </p>
     </div>

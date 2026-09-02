@@ -22,7 +22,15 @@
       "brandTitle": "按品牌筛选",
       "rangeTitle": "最近{label}",
       "rangeLockedTitle": "{label}的时间范围需要更高级的套餐",
-      "windowNote": "显示{days}天，你的套餐允许的分析窗口。"
+      "windowNote": "显示{days}天，你的套餐允许的分析窗口。",
+      "custom": "自定义",
+      "customTitle": "选择任意开始和结束日期",
+      "from": "从",
+      "to": "至",
+      "until": "至",
+      "apply": "应用",
+      "invalidRange": "开始日期必须早于或等于结束日期。",
+      "showing": "显示 {since} 至 {until}"
     },
     "error": {
       "message": "无法加载数据分析。",
@@ -31,10 +39,10 @@
     "emptyState": {
       "eyebrow": "暂无数据",
       "title": "发布你的第一条帖子以开始统计",
-      "body": "帖子发布后，Markaestro 会在大约一小时内从平台获取其观看量、覆盖人数和互动数据，并持续跟踪 30 天。每个已连接渠道的粉丝数每天都会记录一次。",
+      "body": "帖子发布后，Markaestro 会在大约一小时内从平台获取其观看量、覆盖人数和互动数据，并持续跟踪 90 天。每个已连接渠道的粉丝数每天都会记录一次。",
       "createPost": "创建帖子"
     },
-    "warmingUp": "正在收集数据，首批数据将在发布后约一小时到达，此后会按递减频率持续更新，为期 30 天。",
+    "warmingUp": "正在收集数据，首批数据将在发布后约一小时到达，此后会按递减频率持续更新，为期 90 天。",
     "kpis": {
       "views": {
         "label": "观看量",
@@ -69,7 +77,19 @@
         "engagements": "互动量",
         "posts": "帖子数"
       },
-      "note": "按发布日期（UTC）分组。平台上报后数据会更新。"
+      "note": "按发布日期（UTC）分组。平台上报后数据会更新。",
+      "modes": {
+        "publish": "按发布日期",
+        "activity": "按活动"
+      },
+      "modeTitles": {
+        "publish": "每天发布的帖子至今获得的数据",
+        "activity": "所有帖子每天发生的情况"
+      },
+      "compare": "与上一周期比较",
+      "previous": "上一周期",
+      "noteActivity": "按平台上报数据的日期分组。",
+      "activityEmpty": "活动数据从下次拉取开始累积。按发布日期分组包含历史记录。"
     },
     "audience": {
       "eyebrow": "受众",
@@ -105,6 +125,19 @@
       "updatedOf": "已刷新此期间 {scanned} 篇帖子中的 {updated} 篇",
       "updatedPartial": "时间用尽前已刷新 {scanned} 篇帖子中的 {updated} 篇。再次刷新以获取其余部分。",
       "partial": "{count} 次刷新失败：{error}"
+    },
+    "breakdown": {
+      "eyebrow": "互动",
+      "title": "人们做了什么",
+      "empty": "此期间尚无互动上报。",
+      "share": "占互动的 {pct}%",
+      "types": {
+        "likes": "点赞",
+        "comments": "评论",
+        "shares": "分享",
+        "saves": "收藏",
+        "clicks": "链接点击"
+      }
     }
   },
   "contentTypeBars": {
@@ -122,7 +155,8 @@
   "trendChart": {
     "noData": "此时间段暂无数据。",
     "followerHistoryBuilds": "粉丝历史数据基于每日快照构建，积累几天数据后即可看到趋势。",
-    "followersSeriesName": "粉丝数"
+    "followersSeriesName": "粉丝数",
+    "previousPeriod": "上一周期"
   },
   "channelTable": {
     "columns": {
@@ -162,5 +196,23 @@
   },
   "stackedArea": {
     "noData": "暂无数据。"
+  },
+  "history": {
+    "button": "历史",
+    "title": "指标历史",
+    "empty": "尚无快照。首个快照约在发布一小时后到达。",
+    "failed": "无法加载此帖子的历史。",
+    "hoursAfter": "发布后 {hours} 小时",
+    "daysAfter": "发布后 {days} 天",
+    "complete": "追踪已结束。除非刷新，否则数据为最终值。",
+    "nextPoll": "下次检查 {when}。",
+    "tracking": "仍在追踪。",
+    "columns": {
+      "stage": "快照",
+      "views": "播放量",
+      "reach": "触达",
+      "engagements": "互动",
+      "captured": "采集时间"
+    }
   }
 }

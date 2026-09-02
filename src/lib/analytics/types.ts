@@ -16,6 +16,9 @@ export const METRIC_POLL_STAGES = [
   { key: '7d', offsetMs: 7 * 24 * 3600_000 },
   { key: '14d', offsetMs: 14 * 24 * 3600_000 },
   { key: '30d', offsetMs: 30 * 24 * 3600_000 },
+  // Long tail: evergreen posts keep earning; two slow catch-ups cover a quarter.
+  { key: '60d', offsetMs: 60 * 24 * 3600_000 },
+  { key: '90d', offsetMs: 90 * 24 * 3600_000 },
 ] as const;
 
 export type MetricPollStageKey = (typeof METRIC_POLL_STAGES)[number]['key'];

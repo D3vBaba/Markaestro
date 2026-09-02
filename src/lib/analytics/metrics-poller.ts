@@ -9,6 +9,7 @@ import { logger } from '@/lib/logger';
 import { getPostChannelDestinations } from '@/lib/social/publisher';
 import { publishedChannelTargets } from '@/lib/intelligence/publish-targets';
 import { annotateMetricAvailability } from './metric-availability';
+import { recordActivity } from './activity';
 import { persistRawPlatformMetrics } from '@/lib/intelligence/raw-platform-metrics';
 import { canonicalSocialPostId } from '@/lib/intelligence/canonical-social-posts';
 import { assertMetricsSupported, PLATFORM_CAPABILITY_REGISTRY } from '@/lib/platform/capabilities';
@@ -86,6 +87,35 @@ function nextPollAfter(stage: number, publishedAtIso: string, nowMs: number): { 
  * tick), write time-series snapshots, refresh the denormalized latest metrics
  * on each post, and advance the decaying poll schedule.
  */
+/**
+ * Book metric growth under today's activity rollup. Sandbox posts never reached
+ * a platform, and a failure here must not lose the poll itself.
+ */
+async function bookActivity(
+  workspaceId: string,
+  post: PostDocData,
+  byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>>,
+  nowIso: string,
+): Promise<void> {
+  if (post.testMode === true) return;
+  try {
+    await recordActivity({
+      workspaceId,
+      date: utcDateOf(nowIso),
+      productId: typeof post.productId === 'string' && post.productId ? post.productId : null,
+      previous: post.metricsByChannel,
+      next: byChannel,
+      nowIso,
+    });
+  } catch (error) {
+    logger.warn('activity rollup write failed', {
+      event: 'analytics.activity_write_failed',
+      workspaceId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
 export async function pollDueMetrics(workspaceId: string, nowIso: string): Promise<MetricsPollSummary> {
   const summary: MetricsPollSummary = { due: 0, polled: 0, channelFetches: 0, affectedDates: [], errors: [] };
   const now = Date.parse(nowIso);
@@ -317,6 +347,7 @@ async function pollOnePost(
       publishedAt: post.publishedAt ?? null,
       byChannel,
     });
+    await bookActivity(workspaceId, post, byChannel, nowIso);
     const next = nextPollAfter(stage, publishedAt, now);
     const attempts = hasRetryableError ? (post.metricsAttempts ?? 0) + 1 : 0;
     const retryMixed = hasRetryableError && attempts < MAX_TRANSIENT_ATTEMPTS;
@@ -457,6 +488,7 @@ export async function refreshPostsNow(
       publishedAt: post.publishedAt ?? null,
       byChannel,
     });
+    await bookActivity(workspaceId, post, byChannel, nowIso);
     // Only the denormalized latest-metrics fields are touched; the decaying
     // schedule (metricsPollStage / metricsNextPollAt / metricsStatus) is left
     // to the background poller so ad-hoc refreshes never rush the cadence.

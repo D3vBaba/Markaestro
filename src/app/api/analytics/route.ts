@@ -12,6 +12,7 @@ const MAX_WINDOW_DAYS = 365;
 
 /**
  * GET /api/analytics?days=28&channel=instagram&productId=...&tz=-120
+ * or ?since=2026-08-01&until=2026-08-31 for an explicit range (clamped to the plan window).
  *
  * The history window is clamped server-side to the workspace's plan
  * (Starter 7d / Pro 90d / Business unlimited) — the UI mirrors this but the
@@ -32,6 +33,8 @@ export async function GET(req: Request) {
       ? (channelParam as SocialChannel)
       : undefined;
     const productId = url.searchParams.get('productId') || undefined;
+    const since = url.searchParams.get('since') || undefined;
+    const until = url.searchParams.get('until') || undefined;
     const tzOffsetMinutes = Math.max(-840, Math.min(840,
       Number.parseInt(url.searchParams.get('tz') || '0', 10) || 0,
     ));
@@ -44,6 +47,8 @@ export async function GET(req: Request) {
     const response = await buildAnalyticsResponse({
       workspaceId: ctx.workspaceId,
       days,
+      since,
+      until,
       requestedDays,
       maxDays,
       tier,

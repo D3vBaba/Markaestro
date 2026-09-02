@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { isRtlLocale } from "@/i18n/routing";
 
 const TOOLTIP_STYLE = {
@@ -30,6 +30,8 @@ export function TrendChart({
   height = 220,
   color = "var(--mk-ink)",
   locale,
+  compare,
+  compareName,
 }: {
   data: Array<Record<string, number | string>>;
   dataKey: string;
@@ -37,8 +39,14 @@ export function TrendChart({
   height?: number;
   color?: string;
   locale?: string;
+  /** Previous-period values aligned by index; drawn as a dashed line when given. */
+  compare?: number[];
+  compareName?: string;
 }) {
   const t = useTranslations("analytics.trendChart");
+  const merged = compare && compare.length === data.length
+    ? data.map((point, index) => ({ ...point, __compare: compare[index] ?? 0 }))
+    : data;
   // Recharts has no built-in RTL support — reverse the x-axis explicitly for
   // RTL locales so the timeline progresses right-to-left, matching reading
   // direction.
@@ -57,7 +65,7 @@ export function TrendChart({
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <AreaChart data={data} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
+      <AreaChart data={merged} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
         <XAxis
           dataKey="date"
           reversed={isRtl}
@@ -97,6 +105,19 @@ export function TrendChart({
           fillOpacity={0.12}
           strokeWidth={1.6}
         />
+        {merged !== data && (
+          <Line
+            type="monotone"
+            dataKey="__compare"
+            name={compareName ?? t("previousPeriod")}
+            stroke="var(--mk-ink-40)"
+            strokeDasharray="4 4"
+            strokeWidth={1.2}
+            dot={false}
+            activeDot={false}
+          />
+        )}
+        {merged !== data && <Legend iconType="plainline" wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />}
       </AreaChart>
     </ResponsiveContainer>
   );

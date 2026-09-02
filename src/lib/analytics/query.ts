@@ -18,14 +18,59 @@ import type {
 } from './api-shape';
 
 export type { AnalyticsPostRow, AnalyticsResponse, AnalyticsTotals, PostContentType } from './api-shape';
+import type { DailyPoint, EngagementBreakdown } from './api-shape';
+import type { ActivityDayDoc } from './activity';
 
 /** Bounded post scan for leaderboard/heatmap/format analysis. */
 export const MAX_POSTS_ANALYZED = 500;
 const LEADERBOARD_LIMIT = 50;
 
+/** Resolve the reporting window from a preset (`days`) or an explicit range, clamped to the plan. Pure. */
+export function resolveWindow(input: {
+  days: number;
+  since?: string;
+  until?: string;
+  maxDays: number;
+  todayUtc: string;
+}): {
+  sinceDate: string;
+  untilDate: string;
+  days: number;
+  requestedDays: number;
+  priorSinceDate: string;
+  priorUntilDate: string;
+  custom: boolean;
+} {
+  const isDate = (value: string | undefined): value is string => Boolean(value && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(`${value}T00:00:00Z`)));
+  const cap = input.maxDays === -1 ? Number.POSITIVE_INFINITY : Math.max(1, input.maxDays);
+  let untilDate = input.todayUtc;
+  let requestedDays = Math.max(1, Math.floor(input.days) || 1);
+  let custom = false;
+  if (isDate(input.since) && isDate(input.until) && input.since <= input.until) {
+    custom = true;
+    untilDate = input.until < input.todayUtc ? input.until : input.todayUtc;
+    const span = Math.round((Date.parse(`${untilDate}T00:00:00Z`) - Date.parse(`${input.since}T00:00:00Z`)) / 86_400_000) + 1;
+    requestedDays = Math.max(1, span);
+  }
+  const days = Math.min(requestedDays, cap);
+  const sinceDate = dateNDaysAgo(untilDate, days - 1);
+  return {
+    sinceDate,
+    untilDate,
+    days,
+    requestedDays,
+    priorSinceDate: dateNDaysAgo(untilDate, 2 * days - 1),
+    priorUntilDate: dateNDaysAgo(untilDate, days),
+    custom,
+  };
+}
+
 export type AnalyticsQueryOptions = {
   workspaceId: string;
   days: number;
+  /** Explicit range (YYYY-MM-DD, UTC); wins over `days` when both are valid. */
+  since?: string;
+  until?: string;
   requestedDays: number;
   maxDays: number;
   tier: string;
@@ -259,14 +304,79 @@ export function computeInsights(rows: AnalyticsPostRow[], tzOffsetMinutes = 0): 
   return insights;
 }
 
+/** Sum one day's activity doc for the channel/product in scope. */
+export function activitySeries(
+  docs: ActivityDayDoc[],
+  dates: string[],
+  channel?: SocialChannel,
+  productId?: string,
+): DailyPoint[] {
+  const byDate = new Map(docs.map((doc) => [doc.date, doc]));
+  return dates.map((date) => {
+    const doc = byDate.get(date);
+    const point: DailyPoint = { date, views: 0, reach: 0, engagements: 0, posts: 0 };
+    if (!doc) return point;
+    const source = productId ? doc.byProduct?.[productId]?.channels : doc.channels;
+    for (const [ch, delta] of Object.entries(source ?? {})) {
+      if (channel && ch !== channel) continue;
+      point.views += delta?.views ?? 0;
+      point.reach += delta?.reach ?? 0;
+      point.engagements += delta?.engagements ?? 0;
+    }
+    return point;
+  });
+}
+
+export function breakdownFromAggregates(
+  docs: DailyAggregateDoc[],
+  channel?: SocialChannel,
+  productId?: string,
+): EngagementBreakdown {
+  const sums = { likes: 0, comments: 0, shares: 0, saves: 0, clicks: 0 };
+  let reported = 0;
+  for (const doc of docs) {
+    for (const agg of pickChannelAgg(doc, channel, productId)) {
+      if (agg.postsWithEngagements === 0) continue;
+      reported += agg.postsWithEngagements;
+      sums.likes += agg.likes;
+      sums.comments += agg.comments;
+      sums.shares += agg.shares;
+      sums.saves += agg.saves;
+      sums.clicks += agg.clicks;
+    }
+  }
+  if (reported === 0) return { likes: null, comments: null, shares: null, saves: null, clicks: null };
+  return sums;
+}
+
+export function breakdownFromRows(rowList: AnalyticsPostRow[]): EngagementBreakdown {
+  const sum = (pick: (row: AnalyticsPostRow) => number | null): number | null => rowList.reduce<number | null>(
+    (acc, row) => { const value = pick(row); return value === null ? acc : (acc ?? 0) + value; },
+    null,
+  );
+  return {
+    likes: sum((r) => r.likes),
+    comments: sum((r) => r.comments),
+    shares: sum((r) => r.shares),
+    saves: sum((r) => r.saves),
+    clicks: sum((r) => r.clicks),
+  };
+}
+
 export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promise<AnalyticsResponse> {
-  const { workspaceId, days, channel, productId } = opts;
+  const { workspaceId, channel, productId } = opts;
   const nowIso = new Date().toISOString();
-  const untilDate = utcDateOf(nowIso);
-  const sinceDate = dateNDaysAgo(untilDate, days - 1);
-  const priorSinceDate = dateNDaysAgo(untilDate, 2 * days - 1);
-  const priorUntilDate = dateNDaysAgo(untilDate, days);
+  const window = resolveWindow({
+    days: opts.days,
+    since: opts.since,
+    until: opts.until,
+    maxDays: opts.maxDays,
+    todayUtc: utcDateOf(nowIso),
+  });
+  const { days, sinceDate, untilDate, priorSinceDate, priorUntilDate } = window;
   const sinceIso = `${sinceDate}T00:00:00.000Z`;
+  // Custom ranges can end before today; posts after the window are not rows.
+  const untilIsoExclusive = new Date(Date.parse(`${untilDate}T00:00:00.000Z`) + 86_400_000).toISOString();
   // Product-filtered totals come from post rows (aggregates are workspace-
   // wide), so fetch back to the prior window to keep the comparison deltas.
   const fetchSinceIso = productId ? `${priorSinceDate}T00:00:00.000Z` : sinceIso;
@@ -280,7 +390,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       .limit(MAX_POSTS_ANALYZED + 1),
   );
 
-  const [aggSnap, audienceSnap, postsSnap] = await Promise.all([
+  const [aggSnap, audienceSnap, postsSnap, activitySnap] = await Promise.all([
     adminDb
       .collection(`workspaces/${workspaceId}/analyticsDaily`)
       .where('date', '>=', priorSinceDate)
@@ -291,6 +401,11 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       .where('date', '>=', priorSinceDate)
       .get(),
     postsQuery.get(),
+    adminDb
+      .collection(`workspaces/${workspaceId}/analyticsActivity`)
+      .where('date', '>=', sinceDate)
+      .where('date', '<=', untilDate)
+      .get(),
   ]);
 
   // ── Posts → rows (leaderboard, heatmap, content types, insights) ──
@@ -306,6 +421,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
     if (productId && post.productId !== productId) continue;
     const row = postToRow(doc.id, post, channel);
     if (channel && !row.channels.includes(channel)) continue;
+    if (row.publishedAt >= untilIsoExclusive) continue;
     if (row.publishedAt >= sinceIso) {
       rows.push(row);
     } else {
@@ -354,12 +470,10 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
     ? totalsFromAggregates(priorAggs, channel, productId)
     : truncated ? null : totalsFromRows(priorRows);
 
-  const daily: AnalyticsResponse['daily'] = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const date = dateNDaysAgo(untilDate, i);
+  const seriesFor = (dates: string[], aggs: DailyAggregateDoc[], rowList: AnalyticsPostRow[]): DailyPoint[] => dates.map((date) => {
     let views = 0, reach = 0, engagements = 0, posts = 0;
     if (useAggregates) {
-      const doc = currentAggs.find((d) => d.date === date);
+      const doc = aggs.find((d) => d.date === date);
       if (doc) {
         for (const agg of pickChannelAgg(doc, channel, productId)) {
           views += agg.views;
@@ -372,7 +486,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       // Product-filtered view: aggregates are workspace-wide, so derive the
       // series from the (product-scoped) post rows to keep chart and totals
       // describing the same population.
-      for (const row of rows) {
+      for (const row of rowList) {
         if (utcDateOf(row.publishedAt) !== date) continue;
         posts++;
         views += row.views ?? 0;
@@ -380,8 +494,28 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
         engagements += row.engagements ?? 0;
       }
     }
-    daily.push({ date, views, reach, engagements, posts });
-  }
+    return { date, views, reach, engagements, posts };
+  });
+  const windowDates: string[] = [];
+  for (let i = days - 1; i >= 0; i--) windowDates.push(dateNDaysAgo(untilDate, i));
+  const priorDates: string[] = [];
+  for (let i = 2 * days - 1; i >= days; i--) priorDates.push(dateNDaysAgo(untilDate, i));
+  const daily = seriesFor(windowDates, currentAggs, rows);
+  // The prior series is only as complete as the prior totals: a truncated
+  // product fetch would draw a comparison line against partial data.
+  const priorDaily = priorTotals ? seriesFor(priorDates, priorAggs, priorRows) : [];
+
+  // ── Activity series (what happened each day) ──────────────────────
+  const activityDocs = activitySnap.docs.map((d) => d.data() as ActivityDayDoc);
+  const dailyActivity = activitySeries(activityDocs, windowDates, channel, productId);
+
+  // ── Engagement breakdown ──────────────────────────────────────────
+  const breakdown = useAggregates
+    ? breakdownFromAggregates(currentAggs, channel, productId)
+    : breakdownFromRows(rows);
+  const priorBreakdown = useAggregates
+    ? breakdownFromAggregates(priorAggs, channel, productId)
+    : truncated ? null : breakdownFromRows(priorRows);
 
   // ── Audience snapshots → follower trend + deltas ──────────────────
   const audienceDocs = audienceSnap.docs.map((d) => d.data() as AudienceSnapshotDoc)
@@ -509,9 +643,12 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       days,
       since: sinceDate,
       until: untilDate,
-      requestedDays: opts.requestedDays,
+      requestedDays: window.custom ? window.requestedDays : opts.requestedDays,
       maxDays: opts.maxDays,
       tier: opts.tier,
+      custom: window.custom,
+      priorSince: priorSinceDate,
+      priorUntil: priorUntilDate,
     },
     totals: {
       ...currentTotals,
@@ -520,6 +657,9 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       prior: priorTotals ? { ...priorTotals, followerDelta: null } : null,
     },
     daily,
+    priorDaily,
+    dailyActivity,
+    breakdown: { ...breakdown, prior: priorBreakdown },
     followerTrend,
     channels,
     leaderboard,

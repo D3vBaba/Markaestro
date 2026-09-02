@@ -37,6 +37,16 @@ export type AnalyticsTotals = {
   engagementRateByViews: number | null;
 };
 
+export type EngagementBreakdown = {
+  likes: number | null;
+  comments: number | null;
+  shares: number | null;
+  saves: number | null;
+  clicks: number | null;
+};
+
+export type DailyPoint = { date: string; views: number; reach: number; engagements: number; posts: number };
+
 export type AnalyticsResponse = {
   window: {
     days: number;
@@ -45,13 +55,24 @@ export type AnalyticsResponse = {
     requestedDays: number;
     maxDays: number;
     tier: string;
+    /** True when the caller asked for an explicit since/until rather than a preset. */
+    custom: boolean;
+    priorSince: string;
+    priorUntil: string;
   };
   totals: AnalyticsTotals & {
     followers: number | null;
     followerDelta: number | null;
     prior: (AnalyticsTotals & { followerDelta: number | null }) | null;
   };
-  daily: Array<{ date: string; views: number; reach: number; engagements: number; posts: number }>;
+  /** Latest metrics of the posts published each day (what the day's posts earned). */
+  daily: DailyPoint[];
+  /** The same series for the period before the window, aligned by index, for comparison overlays. */
+  priorDaily: DailyPoint[];
+  /** Growth observed each day across all posts (what happened that day), booked at poll time. */
+  dailyActivity: DailyPoint[];
+  /** What people did, totalled over the window, with the prior window for deltas. */
+  breakdown: EngagementBreakdown & { prior: EngagementBreakdown | null };
   followerTrend: Array<{ date: string; total: number }>;
   channels: Array<{
     channel: SocialChannel;

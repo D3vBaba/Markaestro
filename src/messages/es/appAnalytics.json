@@ -22,7 +22,15 @@
       "brandTitle": "Filtrar por marca",
       "rangeTitle": "Últimos {label}",
       "rangeLockedTitle": "El período de {label} requiere un plan superior",
-      "windowNote": "Mostrando {days} días, la ventana de analítica de tu plan."
+      "windowNote": "Mostrando {days} días, la ventana de analítica de tu plan.",
+      "custom": "Personalizado",
+      "customTitle": "Elige cualquier fecha de inicio y fin",
+      "from": "Desde",
+      "to": "hasta",
+      "until": "Hasta",
+      "apply": "Aplicar",
+      "invalidRange": "La fecha de inicio debe ser igual o anterior a la de fin.",
+      "showing": "Mostrando del {since} al {until}"
     },
     "error": {
       "message": "No se pudo cargar la analítica.",
@@ -31,10 +39,10 @@
     "emptyState": {
       "eyebrow": "Aún no hay datos",
       "title": "Publica tu primera publicación para empezar a medir",
-      "body": "En cuanto se publique una publicación, Markaestro obtiene sus vistas, alcance e interacción de la plataforma en aproximadamente una hora, y sigue midiendo durante 30 días. El número de seguidores se registra a diario en cada canal conectado.",
+      "body": "En cuanto se publique una publicación, Markaestro obtiene sus vistas, alcance e interacción de la plataforma en aproximadamente una hora, y sigue midiendo durante 90 días. El número de seguidores se registra a diario en cada canal conectado.",
       "createPost": "Crear una publicación"
     },
-    "warmingUp": "Recopilando métricas, las primeras capturas llegan aproximadamente una hora después de publicar y luego se actualizan con una frecuencia decreciente durante 30 días.",
+    "warmingUp": "Recopilando métricas, las primeras capturas llegan aproximadamente una hora después de publicar y luego se actualizan con una frecuencia decreciente durante 90 días.",
     "kpis": {
       "views": {
         "label": "Vistas",
@@ -69,7 +77,19 @@
         "engagements": "Interacción",
         "posts": "Publicaciones"
       },
-      "note": "Agrupado por fecha de publicación (UTC). Las cifras se actualizan a medida que las plataformas las reportan."
+      "note": "Agrupado por fecha de publicación (UTC). Las cifras se actualizan a medida que las plataformas las reportan.",
+      "modes": {
+        "publish": "Por fecha de publicación",
+        "activity": "Por actividad"
+      },
+      "modeTitles": {
+        "publish": "Lo que han ganado hasta ahora las publicaciones de cada día",
+        "activity": "Lo que pasó cada día en todas las publicaciones"
+      },
+      "compare": "vs periodo anterior",
+      "previous": "Periodo anterior",
+      "noteActivity": "Agrupado por el día en que las plataformas reportaron las cifras.",
+      "activityEmpty": "La actividad se acumula a partir de la próxima obtención de métricas. La agrupación por publicación tiene el historial."
     },
     "audience": {
       "eyebrow": "Audiencia",
@@ -105,6 +125,19 @@
       "updatedOf": "{updated} de {scanned} publicaciones actualizadas en este periodo",
       "updatedPartial": "{updated} de {scanned} publicaciones actualizadas antes de agotar el tiempo. Actualiza de nuevo para el resto.",
       "partial": "{count, plural, one {# actualización falló} other {# actualizaciones fallaron}}: {error}"
+    },
+    "breakdown": {
+      "eyebrow": "Interacción",
+      "title": "Qué hizo la gente",
+      "empty": "Aún no hay interacciones reportadas en este periodo.",
+      "share": "{pct}% de la interacción",
+      "types": {
+        "likes": "Me gusta",
+        "comments": "Comentarios",
+        "shares": "Compartidos",
+        "saves": "Guardados",
+        "clicks": "Clics en enlaces"
+      }
     }
   },
   "contentTypeBars": {
@@ -122,7 +155,8 @@
   "trendChart": {
     "noData": "Aún no hay datos para este período.",
     "followerHistoryBuilds": "El historial de seguidores se construye a partir de capturas diarias, la tendencia aparece después de un par de días de datos.",
-    "followersSeriesName": "Seguidores"
+    "followersSeriesName": "Seguidores",
+    "previousPeriod": "Periodo anterior"
   },
   "channelTable": {
     "columns": {
@@ -162,5 +196,23 @@
   },
   "stackedArea": {
     "noData": "Aún no hay datos."
+  },
+  "history": {
+    "button": "Historial",
+    "title": "Historial de métricas",
+    "empty": "Aún no hay capturas. La primera llega una hora después de publicar.",
+    "failed": "No se pudo cargar el historial de esta publicación.",
+    "hoursAfter": "{hours} h tras publicar",
+    "daysAfter": "{days} d tras publicar",
+    "complete": "Seguimiento terminado. Las cifras son finales salvo que actualices.",
+    "nextPoll": "Próxima comprobación {when}.",
+    "tracking": "Seguimiento en curso.",
+    "columns": {
+      "stage": "Captura",
+      "views": "Vistas",
+      "reach": "Alcance",
+      "engagements": "Interacción",
+      "captured": "Capturado"
+    }
   }
 }
