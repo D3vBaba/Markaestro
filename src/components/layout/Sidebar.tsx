@@ -32,6 +32,7 @@ import {
   LogOut,
   type LucideIcon,
 } from "lucide-react";
+import { useSubscription } from "@/components/providers/SubscriptionProvider";
 
 const NAV_ICONS: Record<string, LucideIcon> = {
   "/dashboard": Home,
@@ -50,6 +51,9 @@ export function Sidebar({ className }: { className?: string }) {
   const t = useTranslations("shell.nav");
   const [logoutOpen, setLogoutOpen] = useState(false);
   const { workspaces, current, switchWorkspace } = useWorkspace();
+  const { status: subscriptionStatus } = useSubscription();
+  const tier = subscriptionStatus?.tier ?? null;
+  const planBadge = tier && tier !== "free" ? tier.toUpperCase() : null;
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
   const handle = user?.email ? `@${user.email.split("@")[0]}` : "";
@@ -81,9 +85,11 @@ export function Sidebar({ className }: { className?: string }) {
         <div className="flex flex-col">
           <span className="font-bold text-[15px] tracking-tight text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
             Markaestro
-            <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 text-[9.5px] font-semibold text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60">
-              PRO
-            </span>
+            {planBadge && (
+              <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 text-[9.5px] font-semibold text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60">
+                {planBadge}
+              </span>
+            )}
           </span>
         </div>
       </div>
