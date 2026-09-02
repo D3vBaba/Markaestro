@@ -201,6 +201,11 @@ export default function AnalyticsPage() {
         days: data?.window.days ?? days,
         ...(channel ? { channel } : {}),
         ...(productId ? { productId } : {}),
+      }, undefined, {
+        // The server pulls up to 60 posts within a 40 s budget and then
+        // captures followers; the default client timeout is shorter than
+        // that and reported a failure while the server was still succeeding.
+        timeoutMs: 60_000,
       });
       if (res.ok) {
         setLastRefreshedAt(res.data.refreshedAt);
