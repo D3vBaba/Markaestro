@@ -96,6 +96,7 @@ async function bookActivity(
   post: PostDocData,
   byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>>,
   nowIso: string,
+  snapshotRef?: FirebaseFirestore.DocumentReference,
 ): Promise<void> {
   if (post.testMode === true) return;
   try {
@@ -107,6 +108,9 @@ async function bookActivity(
       next: byChannel,
       nowIso,
     });
+    // The snapshot now carries the "already booked" marker the one-time
+    // rebuild from history relies on to never count an observation twice.
+    if (snapshotRef) await snapshotRef.update({ activityBooked: true });
   } catch (error) {
     logger.warn('activity rollup write failed', {
       event: 'analytics.activity_write_failed',
@@ -340,14 +344,15 @@ async function pollOnePost(
   const hasRetryableError = outcomes.some((o) => o === 'auth' || o === 'transient');
 
   if (anyOk) {
-    await postRef.collection('metrics').doc(stageKey).set({
+    const snapshotRef = postRef.collection('metrics').doc(stageKey);
+    await snapshotRef.set({
       postId: doc.id,
       stageKey,
       capturedAt: nowIso,
       publishedAt: post.publishedAt ?? null,
       byChannel,
     });
-    await bookActivity(workspaceId, post, byChannel, nowIso);
+    await bookActivity(workspaceId, post, byChannel, nowIso, snapshotRef);
     const next = nextPollAfter(stage, publishedAt, now);
     const attempts = hasRetryableError ? (post.metricsAttempts ?? 0) + 1 : 0;
     const retryMixed = hasRetryableError && attempts < MAX_TRANSIENT_ATTEMPTS;
@@ -481,14 +486,15 @@ export async function refreshPostsNow(
 
     const stage = Math.min(post.metricsPollStage ?? 0, METRIC_POLL_STAGES.length - 1);
     const stageKey = METRIC_POLL_STAGES[stage].key;
-    await doc.ref.collection('metrics').doc(stageKey).set({
+    const snapshotRef = doc.ref.collection('metrics').doc(stageKey);
+    await snapshotRef.set({
       postId: doc.id,
       stageKey,
       capturedAt: nowIso,
       publishedAt: post.publishedAt ?? null,
       byChannel,
     });
-    await bookActivity(workspaceId, post, byChannel, nowIso);
+    await bookActivity(workspaceId, post, byChannel, nowIso, snapshotRef);
     // Only the denormalized latest-metrics fields are touched; the decaying
     // schedule (metricsPollStage / metricsNextPollAt / metricsStatus) is left
     // to the background poller so ad-hoc refreshes never rush the cadence.

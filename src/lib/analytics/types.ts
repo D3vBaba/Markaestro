@@ -56,6 +56,8 @@ export type MetricSnapshotDoc = {
   capturedAt: string;
   publishedAt: string | null;
   byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
+  /** Set once the live path has booked this observation into the activity series. */
+  activityBooked?: boolean;
 };
 
 /** workspaces/{ws}/audienceSnapshots/{date_channel_accountKey} */
@@ -132,6 +134,9 @@ export type AnalyticsMetaDoc = {
   fingerprintIncrementalAt?: string;
   fingerprintDailyDate?: string;
   fingerprintDailyCount?: number;
+  /** One-time rebuild of the activity series from stored snapshots. */
+  activityBackfillAt?: string;
+  activityBackfillAfter?: string | null;
   updatedAt?: string;
 };
 

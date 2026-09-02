@@ -4,7 +4,7 @@ const collectionMock = vi.fn();
 const getAdapterForChannelMock = vi.fn();
 const getConnectionForChannelMock = vi.fn();
 const updateConnectionStatusMock = vi.fn();
-const recordActivityMock = vi.fn(async (_input: unknown) => 1);
+const recordActivityMock = vi.fn<(input: unknown) => Promise<number>>(async () => 1);
 vi.mock('@/lib/analytics/activity', () => ({ recordActivity: (input: unknown) => recordActivityMock(input) }));
 
 vi.mock('@/lib/firebase-admin', () => ({
@@ -61,8 +61,9 @@ function makeQuery(docs: unknown[]) {
 
 function makePostDoc(data: Record<string, unknown>) {
   const snapshotSet = vi.fn().mockResolvedValue(undefined);
+  const snapshotUpdate = vi.fn().mockResolvedValue(undefined);
   const metricsCollection = {
-    doc: vi.fn(() => ({ set: snapshotSet })),
+    doc: vi.fn(() => ({ set: snapshotSet, update: snapshotUpdate })),
   };
   const ref = {
     update: vi.fn().mockResolvedValue(undefined),
@@ -76,6 +77,7 @@ function makePostDoc(data: Record<string, unknown>) {
     },
     ref,
     snapshotSet,
+    snapshotUpdate,
   };
 }
 
@@ -254,6 +256,8 @@ describe('refreshPostsNow', () => {
     const { refreshPostsNow } = await import('../analytics/metrics-poller');
     await refreshPostsNow('ws_123', '2026-03-15T12:00:00.000Z');
     expect(recordActivityMock).toHaveBeenCalledTimes(1);
+    // The snapshot is stamped so the one-time rebuild never books it again.
+    expect(post.snapshotUpdate).toHaveBeenCalledWith({ activityBooked: true });
     expect(recordActivityMock).toHaveBeenCalledWith(expect.objectContaining({
       workspaceId: 'ws_123',
       date: '2026-03-15',

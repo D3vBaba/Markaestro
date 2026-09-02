@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { logger } from '@/lib/logger';
 import { captureAudienceSnapshots } from './audience';
+import { backfillActivityPage, type ActivityBackfillPage } from './activity';
 import { recomputeDailyAggregates } from './aggregates';
 import {
   backfillSinceIso,
@@ -37,6 +38,7 @@ export type AnalyticsTickResult = {
   audienceCaptured?: number;
   deadRetried?: number;
   nativeImport?: NativeImportResult;
+  activityBackfill?: ActivityBackfillPage;
   legacySocialPosts?: LegacySocialPostBackfillResult;
   fingerprints?: FingerprintBackfillResult;
   errors: Array<{ kind: string; error: string }>;
@@ -83,6 +85,23 @@ export async function processAnalyticsTick(workspaceId: string): Promise<Analyti
     }
   } catch (err) {
     result.errors.push({ kind: 'metrics-init', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  // One page per tick until every published post has had its snapshot
+  // history folded into the activity series; new observations are booked
+  // live, so the rebuild only ever runs once per workspace.
+  if (!meta.activityBackfillAt) {
+    try {
+      const page = await backfillActivityPage(workspaceId, nowIso, { afterPublishedAt: meta.activityBackfillAfter });
+      result.activityBackfill = page;
+      if (page.done) {
+        metaUpdate.activityBackfillAt = nowIso;
+      } else if (page.cursor) {
+        metaUpdate.activityBackfillAfter = page.cursor;
+      }
+    } catch (err) {
+      result.errors.push({ kind: 'activity-backfill', error: err instanceof Error ? err.message : 'unknown' });
+    }
   }
 
   try {

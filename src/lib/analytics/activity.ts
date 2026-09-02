@@ -110,3 +110,134 @@ export async function recordActivity(input: {
   await adminDb.doc(`workspaces/${input.workspaceId}/analyticsActivity/${input.date}`).set(update, { merge: true });
   return keys.length;
 }
+
+/* ── Backfill from stored snapshots ──────────────────────────────────
+ * The poller has always written a snapshot per stage under each post, so the
+ * activity series can be rebuilt for history: consecutive snapshots of a post
+ * give the same growth the live path books, filed under the day each was
+ * captured. Snapshots the live path already booked carry `activityBooked`,
+ * and a post that has been rebuilt carries `activityBackfilledAt`, so the
+ * rebuild is exactly-once per post and never double counts.
+ */
+
+export type ActivitySnapshotInput = {
+  capturedAt: string;
+  byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
+  activityBooked?: boolean;
+};
+
+/** Growth per observation day from one post's snapshot history. Pure. */
+export function activityFromSnapshots(
+  snapshots: ActivitySnapshotInput[],
+  productId: string | null,
+): Map<string, Record<string, number>> {
+  const byDate = new Map<string, Record<string, number>>();
+  const ordered = snapshots
+    .filter((snap) => typeof snap.capturedAt === 'string' && Number.isFinite(Date.parse(snap.capturedAt)))
+    .sort((a, b) => a.capturedAt.localeCompare(b.capturedAt));
+  let previous: Partial<Record<SocialChannel, NormalizedPostMetrics>> | undefined;
+  for (const snap of ordered) {
+    const next = snap.byChannel ?? {};
+    if (!snap.activityBooked) {
+      const increments = activityIncrements(activityDeltasByChannel(previous, next), productId);
+      if (Object.keys(increments).length > 0) {
+        const date = snap.capturedAt.slice(0, 10);
+        const bucket = byDate.get(date) ?? {};
+        for (const [key, value] of Object.entries(increments)) bucket[key] = (bucket[key] ?? 0) + value;
+        byDate.set(date, bucket);
+      }
+    }
+    previous = next;
+  }
+  return byDate;
+}
+
+export const ACTIVITY_BACKFILL_PAGE = 100;
+/** Firestore batches hold 500 writes; leave room for the meta cursor and markers. */
+const BATCH_WRITE_CEILING = 450;
+
+export type ActivityBackfillPage = {
+  /** Posts examined in this page. */
+  posts: number;
+  /** Posts that had unbooked snapshots. */
+  booked: number;
+  /** Distinct observation days written. */
+  days: number;
+  done: boolean;
+  /** `publishedAt` of the last post examined; pass back as `afterPublishedAt`. */
+  cursor: string | null;
+};
+
+/**
+ * Rebuild activity for one page of published posts, newest first, and mark
+ * each as done in the same atomic batch as its increments. Called by the
+ * worker tick until `done`; a crash between pages re-reads the same page and
+ * skips the posts already marked.
+ */
+export async function backfillActivityPage(
+  workspaceId: string,
+  nowIso: string,
+  opts: { afterPublishedAt?: string | null; limit?: number } = {},
+): Promise<ActivityBackfillPage> {
+  const limit = Math.min(Math.max(opts.limit ?? ACTIVITY_BACKFILL_PAGE, 1), ACTIVITY_BACKFILL_PAGE);
+  let query: FirebaseFirestore.Query = adminDb
+    .collection(`workspaces/${workspaceId}/posts`)
+    .where('status', '==', 'published')
+    .orderBy('publishedAt', 'desc');
+  if (opts.afterPublishedAt) query = query.startAfter(opts.afterPublishedAt);
+  const snap = await query.limit(limit).get();
+  const page: ActivityBackfillPage = { posts: snap.size, booked: 0, days: 0, done: snap.size < limit, cursor: null };
+  if (snap.empty) return page;
+
+  const totals = new Map<string, Record<string, number>>();
+  const markers: FirebaseFirestore.DocumentReference[] = [];
+  let writes = 0;
+
+  for (const doc of snap.docs) {
+    const post = doc.data() as {
+      testMode?: boolean;
+      productId?: string;
+      publishedAt?: string;
+      activityBackfilledAt?: string;
+    };
+    page.cursor = post.publishedAt ?? page.cursor;
+    if (post.activityBackfilledAt || post.testMode === true) continue;
+    const history = await doc.ref.collection('metrics').orderBy('capturedAt', 'asc').limit(50).get();
+    const perDate = activityFromSnapshots(
+      history.docs.map((entry) => entry.data() as ActivitySnapshotInput),
+      typeof post.productId === 'string' && post.productId ? post.productId : null,
+    );
+    let projected = writes + 1;
+    for (const date of perDate.keys()) if (!totals.has(date)) projected++;
+    // A page whose increments would overflow one atomic batch stops early;
+    // the cursor only advances past posts that are in the batch.
+    if (projected > BATCH_WRITE_CEILING && markers.length > 0) {
+      page.done = false;
+      break;
+    }
+    for (const [date, increments] of perDate) {
+      const bucket = totals.get(date) ?? {};
+      for (const [key, value] of Object.entries(increments)) bucket[key] = (bucket[key] ?? 0) + value;
+      totals.set(date, bucket);
+    }
+    if (perDate.size > 0) page.booked++;
+    markers.push(doc.ref);
+    writes = projected;
+  }
+
+  if (markers.length === 0) return page;
+  const batch = adminDb.batch();
+  for (const [date, increments] of totals) {
+    const update: Record<string, unknown> = { date, updatedAt: nowIso };
+    for (const [key, value] of Object.entries(increments)) update[key] = FieldValue.increment(value);
+    batch.set(adminDb.doc(`workspaces/${workspaceId}/analyticsActivity/${date}`), update, { merge: true });
+  }
+  for (const ref of markers) batch.update(ref, { activityBackfilledAt: nowIso });
+  await batch.commit();
+  page.days = totals.size;
+  // The cursor must not skip posts that were cut from this batch: it points
+  // at the last post actually committed.
+  const lastCommitted = snap.docs.find((doc) => doc.ref.path === markers[markers.length - 1]!.path);
+  page.cursor = (lastCommitted?.data() as { publishedAt?: string } | undefined)?.publishedAt ?? page.cursor;
+  return page;
+}
