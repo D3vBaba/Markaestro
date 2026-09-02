@@ -1,23 +1,31 @@
 ---
 name: markaestro
-description: Schedule, publish, and review social posts through Markaestro (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn) using its MCP server or public API. Use when a task mentions Markaestro, posting or scheduling to a connected social account, uploading media for a post, checking whether a post published, or wiring webhooks for post events.
+description: Schedule, publish, and review social posts through Markaestro (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn) using its MCP server or public API. Use when a task mentions Markaestro, posting or scheduling to a connected social account, uploading media for a post, checking whether a post published, batch-scheduling content, or wiring webhooks for post events.
 ---
 
 # Working with Markaestro
 
 Markaestro is a social publishing workspace. Agents reach it through the
-`@markaestro/mcp` server (preferred) or the public API at `/api/public/v1`.
-Both use one workspace API key that is bound to exactly one brand.
+Markaestro MCP server (preferred) or the public API at `/api/public/v1`.
+Both use one workspace API key, and every key is bound to exactly one brand.
+
+Tool-by-tool inputs and example outputs are in
+[references/tools.md](references/tools.md). Delivery modes, post statuses,
+and platform settings are in [references/settings.md](references/settings.md).
+Read those when you need an exact field name.
 
 ## Before anything else
 
 1. Confirm the MCP server is connected: a `list_products` tool should be
-   available. If not, set it up:
-   `claude mcp add markaestro -e MARKAESTRO_API_KEY=mk_... -- npx -y @markaestro/mcp`
-2. Call `get_channel_rules` once per session, then `list_products`. The brand
-   in the answer is the only one this key can act on. If the user names a
-   different brand, they need that brand's key.
-3. Keys starting with `mk_test_` are test keys. Say so when reporting results.
+   available. If it is not, set it up with one of:
+   - Remote, nothing to install:
+     `claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp --header "Authorization: Bearer mk_..."`
+   - Local package: `claude mcp add markaestro -e MARKAESTRO_API_KEY=mk_... -- npx -y @markaestro/mcp`
+2. Call `get_channel_rules` once per session. It returns the per-channel
+   rules and `keyMode`. If `keyMode` is `test`, say so when reporting
+   results: test keys never reach a real platform.
+3. Call `list_products`. The brand in the answer is the only one this key can
+   act on. If the user names a different brand, they need that brand's key.
 
 ## The posting model
 
@@ -36,6 +44,8 @@ Both use one workspace API key that is bound to exactly one brand.
 - One post, several channels: pass `targets` (one entry per channel) instead
   of `channel`. Each target can carry its own `destinationId` and
   `deliveryMode`. Platform `settings` may ride on one target only.
+- A week of content: `create_posts` takes up to 25 items in one call and
+  reports success or failure per item. Check every `ok` before summarizing.
 
 ## Media
 

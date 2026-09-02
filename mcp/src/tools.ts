@@ -4,7 +4,7 @@
  * them into the MCP server.
  */
 import { z } from "zod";
-import { MarkaestroApiError, type MarkaestroClient } from "./client.js";
+import { MarkaestroApiError, type MarkaestroClient } from "./client";
 
 export const CHANNELS = ["facebook", "instagram", "tiktok", "threads", "pinterest", "linkedin"] as const;
 export const DELIVERY_MODES = ["direct_publish", "platform_inbox", "manual_reminder"] as const;
@@ -158,6 +158,32 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
       },
     },
     {
+      name: "create_posts",
+      title: "Create several posts",
+      description: "Create up to 25 posts in one call, for example a week of scheduled content. Each item takes the same fields as create_post. Failures are per item: the response lists ok/error for each, and the successful ones are created even when others fail.",
+      inputSchema: {
+        posts: z.array(z.object({
+          caption: z.string().max(63206).default(""),
+          channel: channel.optional(),
+          targets: z.array(target).min(1).max(6).optional(),
+          mediaAssetIds: z.array(z.string()).max(35).optional(),
+          scheduledAt: isoDate.optional(),
+          destinationId: z.string().optional(),
+          deliveryMode: deliveryMode.optional(),
+          settings: z.record(z.string(), z.unknown()).optional(),
+        })).min(1).max(25),
+      },
+      readOnly: false,
+      handler: async ({ posts }) => {
+        const items = (posts as Array<Record<string, unknown>>).map((item) => {
+          const body: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(item)) if (value !== undefined) body[key] = value;
+          return body;
+        });
+        return client.request("POST", "/api/public/v1/posts", { posts: items });
+      },
+    },
+    {
       name: "upload_media",
       title: "Upload media",
       description: "Upload an image or video from a local file path, an http(s) URL, or a data: URL. Returns the media asset; pass its id in create_post mediaAssetIds. Counts against the workspace's monthly upload quota.",
@@ -188,6 +214,14 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
         limit: limit as number | undefined,
         cursor: cursor as string | undefined,
       }),
+    },
+    {
+      name: "get_media",
+      title: "Get a media asset",
+      description: "Fetch one media asset: type, dimensions, processing state, thumbnail, and how many posts reference it.",
+      inputSchema: { assetId: z.string() },
+      readOnly: true,
+      handler: ({ assetId }) => get(`/api/public/v1/media/${encodeURIComponent(String(assetId))}`),
     },
     {
       name: "get_job_run",

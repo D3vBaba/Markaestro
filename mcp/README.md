@@ -19,8 +19,9 @@ several.
 | `publish_post` | Queue an immediate publish; returns a job run |
 | `delete_post` | Delete a draft or cancel a scheduled post |
 | `bulk_posts` | Reschedule, delete, or restatus up to 25 posts |
+| `create_posts` | Up to 25 posts in one call, per-item results |
 | `upload_media` | Upload from a file path, URL, or data URL; returns the asset id |
-| `list_media` | Uploaded assets and their reference counts |
+| `list_media`, `get_media` | Uploaded assets, processing state, reference counts |
 | `get_job_run`, `list_job_runs` | Follow a publish to succeeded or failed |
 | `list_webhook_endpoints`, `create_webhook_endpoint` | Webhook registration |
 | `get_channel_rules` | Per-channel media, caption, and delivery-mode rules |
@@ -31,6 +32,35 @@ prompt that walks an agent through a safe scheduling flow.
 Posting is draft-first. `create_post` without `scheduledAt` never publishes;
 `publish_post` is the only tool that publishes now, and its description tells
 the agent to confirm with the user first.
+
+## Two ways to connect
+
+**Hosted (nothing to install).** Markaestro serves the same tools over
+Streamable HTTP at `https://markaestro.com/api/public/v1/mcp`, authenticated
+with the API key as a bearer header:
+
+```bash
+claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp \
+  --header "Authorization: Bearer mk_live_..."
+```
+
+```json
+{
+  "mcpServers": {
+    "markaestro": {
+      "type": "http",
+      "url": "https://markaestro.com/api/public/v1/mcp",
+      "headers": { "Authorization": "Bearer mk_live_..." }
+    }
+  }
+}
+```
+
+Send `x-markaestro-read-only: 1` as an extra header to get only the reading
+tools.
+
+**Local package.** Run the server on your machine over stdio, which also
+lets `upload_media` read local files:
 
 ## Setup
 
@@ -66,6 +96,7 @@ claude mcp add markaestro -e MARKAESTRO_API_KEY=mk_live_... -- npx -y @markaestr
 | --- | --- | --- |
 | `MARKAESTRO_API_KEY` | yes | n/a |
 | `MARKAESTRO_BASE_URL` | no | `https://markaestro.com` |
+| `MARKAESTRO_READ_ONLY` | no | unset; `1` registers only reading tools |
 
 ## What the server does for you
 
@@ -77,13 +108,31 @@ claude mcp add markaestro -e MARKAESTRO_API_KEY=mk_live_... -- npx -y @markaestr
 - Returns API failures as tool errors with the stable error `code`, any
   per-channel `issues`, and a hint about what to change.
 
+## Claude Code plugin
+
+The skill and the hosted server ship together as a plugin:
+
+```bash
+claude plugin marketplace add D3vBaba/Markaestro
+claude plugin install markaestro@markaestro
+```
+
+## Deploying
+
+| Surface | How it ships |
+| --- | --- |
+| Hosted MCP (`/api/public/v1/mcp`) | Part of the Next.js app; deploys on push to `main` like every route |
+| `@markaestro/mcp` on npm | `cd mcp && npm version <x.y.z> && npm publish` (public scoped package; `prepublishOnly` builds). Bump `src/version.ts` with it |
+| Plugin and skill | Read straight from this repository by `claude plugin marketplace add D3vBaba/Markaestro`; the skill alone can be copied to `~/.claude/skills/markaestro` |
+
 ## Development
 
 ```bash
 cd mcp
 npm install
 npm run build
-MARKAESTRO_API_KEY=mk_test_... MARKAESTRO_BASE_URL=http://localhost:3000 npm run smoke
+MARKAESTRO_API_KEY=mk_test_... MARKAESTRO_BASE_URL=http://localhost:3000 npm run smoke            # local stdio
+MARKAESTRO_API_KEY=mk_test_... MARKAESTRO_BASE_URL=http://localhost:3000 npm run smoke -- --remote # hosted endpoint
 ```
 
 Unit tests live in `src/__tests__` and run with the repository's `npm test`.

@@ -17,13 +17,24 @@ file in the same change, not afterwards.
 
 ### Additions
 
-**MCP server and agent skill.** `@markaestro/mcp` (in `mcp/`) exposes the
+**MCP server, hosted MCP endpoint, and agent skill.** `POST /api/public/v1/mcp`
+serves the Model Context Protocol over Streamable HTTP (stateless, bearer API
+key, same scopes and rate limits as the routes it calls). `@markaestro/mcp`
+(in `mcp/`) is the same server as a local stdio package. Both expose the
 public API to AI agents as MCP tools: brand and destination discovery, draft
 and scheduled post creation, publish with job-run polling, delete and bulk
 operations, direct media upload, webhook registration, and a channel-rules
 resource. Mutations carry an `Idempotency-Key` and retry on `Retry-After`.
 The `markaestro` skill (`skills/markaestro/SKILL.md`) documents the posting
-model for agents. No API behaviour changed.
+model for agents.
+
+### Fix
+
+**`GET /api/public/v1/media/{id}` now exists.** It was documented in the
+OpenAPI description and referenced by the list endpoint's comments, but the
+route only implemented `DELETE`, so a documented call answered `405`. It
+returns `{ asset }` in the list endpoint's shape and uses the `media.write`
+scope like the rest of the media resource.
 
 ---
 

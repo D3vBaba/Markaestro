@@ -1,4 +1,5 @@
-// Public API: DELETE /api/public/v1/media/{id}
+// Public API: GET and DELETE /api/public/v1/media/{id}
+// GET returns one asset in the same shape as the list endpoint.
 // Removes a media asset (doc + storage object) and releases its bytes from the
 // workspace's cumulative storage usage. Assets held by a scheduled or
 // publishing post are refused; assets held only by published posts are deleted
@@ -11,11 +12,33 @@ import {
   loadIdempotentResponse,
   persistIdempotentResponse,
 } from '@/lib/public-api/idempotency';
-import { deleteMediaAsset } from '@/lib/media/asset-store';
+import { deleteMediaAsset, getMediaAsset, serializeMediaAsset } from '@/lib/media/asset-store';
 
 export const runtime = 'nodejs';
 
 const MEDIA_RATE_LIMIT = { limit: 20, windowMs: 60_000 };
+const MEDIA_READ_RATE_LIMIT = { limit: 60, windowMs: 60_000 };
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    // `media.write` for the same reason as the list endpoint: the media
+    // resource has a single scope and a new read scope would lock out every
+    // existing key.
+    const ctx = await requirePublicApiContext(req, {
+      scope: 'media.write',
+      rateLimit: MEDIA_READ_RATE_LIMIT,
+    });
+    const { id } = await params;
+    if (!/^ast_[a-f0-9-]{36}$/.test(id)) throw new Error('NOT_FOUND');
+    const asset = await getMediaAsset(ctx.workspaceId, id);
+    return Response.json({ asset: serializeMediaAsset(asset) }, { headers: ctx.rateLimitHeaders });
+  } catch (error) {
+    return publicApiError(error);
+  }
+}
 
 export async function DELETE(
   req: Request,

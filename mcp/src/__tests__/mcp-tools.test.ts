@@ -3,7 +3,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { MarkaestroApiError, MarkaestroClient, contentTypeFor } from '../client';
 import { createTools, describeError } from '../tools';
-import { buildServer, clientFromEnv } from '../server';
+import { buildServer, clientFromEnv, serverOptionsFromEnv } from '../server';
 
 type Call = { url: string; init: RequestInit };
 
@@ -111,6 +111,14 @@ describe('tool handlers', () => {
     expect(result.note).toMatch(/draft/i);
   });
 
+  it('create_posts forwards a batch and strips undefined fields', async () => {
+    const { impl, calls } = fakeFetch([{ match: () => true, body: { results: [], created: 0, total: 2 } }]);
+    const client = new MarkaestroClient({ apiKey: KEY, fetch: impl });
+    const tool = createTools(client).find((item) => item.name === 'create_posts')!;
+    await tool.handler({ posts: [{ caption: 'a', channel: 'threads', scheduledAt: undefined }, { caption: 'b', targets: [{ channel: 'linkedin' }] }] });
+    expect(JSON.parse(String(calls[0]!.init.body))).toEqual({ posts: [{ caption: 'a', channel: 'threads' }, { caption: 'b', targets: [{ channel: 'linkedin' }] }] });
+  });
+
   it('bulk_posts only sends the field the action needs', async () => {
     const { impl, calls } = fakeFetch([{ match: () => true, body: { succeeded: ['a'], failed: [] } }]);
     const client = new MarkaestroClient({ apiKey: KEY, fetch: impl });
@@ -127,9 +135,25 @@ describe('tool handlers', () => {
     expect(byName.create_post!.readOnly).toBe(false);
     expect(tools.map((tool) => tool.name)).toEqual([
       'list_products', 'list_destinations', 'list_posts', 'get_post', 'create_post', 'publish_post', 'delete_post',
-      'bulk_posts', 'upload_media', 'list_media', 'get_job_run', 'list_job_runs', 'list_webhook_endpoints',
-      'create_webhook_endpoint', 'get_channel_rules',
+      'bulk_posts', 'create_posts', 'upload_media', 'list_media', 'get_media', 'get_job_run', 'list_job_runs',
+      'list_webhook_endpoints', 'create_webhook_endpoint', 'get_channel_rules',
     ]);
+  });
+});
+
+describe('read-only mode', () => {
+  it('reads the flag from the environment and drops every mutating tool', async () => {
+    expect(serverOptionsFromEnv({ MARKAESTRO_READ_ONLY: '1' }).readOnly).toBe(true);
+    expect(serverOptionsFromEnv({}).readOnly).toBe(false);
+    const server = buildServer(new MarkaestroClient({ apiKey: KEY, fetch: fakeFetch([]).impl }), { readOnly: true });
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+    await server.connect(serverTransport);
+    const client = new Client({ name: 'test', version: '0' });
+    await client.connect(clientTransport);
+    const { tools } = await client.listTools();
+    expect(tools.every((tool) => tool.annotations?.readOnlyHint)).toBe(true);
+    expect(tools.map((tool) => tool.name)).not.toContain('create_post');
+    expect(tools.length).toBe(10);
   });
 });
 
@@ -150,7 +174,7 @@ describe('MCP server over an in-memory transport', () => {
   it('lists every tool with annotations and serves the channel-rules resource', async () => {
     const { client } = await connect();
     const { tools } = await client.listTools();
-    expect(tools.length).toBe(15);
+    expect(tools.length).toBe(17);
     const del = tools.find((tool) => tool.name === 'delete_post')!;
     expect(del.annotations?.destructiveHint).toBe(true);
     expect(del.annotations?.readOnlyHint).toBe(false);

@@ -1,8 +1,18 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { MarkaestroClient, DEFAULT_BASE_URL } from "./client.js";
-import { CHANNEL_RULES, createTools, describeError } from "./tools.js";
+import { MarkaestroClient, DEFAULT_BASE_URL } from "./client";
+import { CHANNEL_RULES, createTools, describeError } from "./tools";
+import { VERSION } from "./version";
 
-export const SERVER_VERSION = "0.1.0";
+export const SERVER_VERSION = VERSION;
+
+export type ServerOptions = {
+  /** Register only read-only tools. Set MARKAESTRO_READ_ONLY=1 to get this from the environment. */
+  readOnly?: boolean;
+};
+
+export function serverOptionsFromEnv(env: Record<string, string | undefined> = process.env): ServerOptions {
+  return { readOnly: env.MARKAESTRO_READ_ONLY === "1" || env.MARKAESTRO_READ_ONLY === "true" };
+}
 
 export function clientFromEnv(env: Record<string, string | undefined> = process.env): MarkaestroClient {
   const apiKey = env.MARKAESTRO_API_KEY;
@@ -12,17 +22,19 @@ export function clientFromEnv(env: Record<string, string | undefined> = process.
   return new MarkaestroClient({ apiKey, baseUrl: env.MARKAESTRO_BASE_URL || DEFAULT_BASE_URL });
 }
 
-export function buildServer(client: MarkaestroClient): McpServer {
+export function buildServer(client: MarkaestroClient, options: ServerOptions = {}): McpServer {
   const server = new McpServer({ name: "markaestro", version: SERVER_VERSION }, {
     instructions: [
       "Markaestro schedules and publishes social posts for one brand per API key.",
       "Start with list_products, then list_destinations when a channel needs a destinationId.",
       "create_post saves a draft unless scheduledAt is set. publish_post publishes now; ask the user before publishing anything public.",
       "Upload media with upload_media before referencing it. Read get_channel_rules for per-channel limits.",
-    ].join(" "),
+      options.readOnly ? "This server is read-only: only listing and reading tools are available." : "",
+    ].filter(Boolean).join(" "),
   });
 
   for (const tool of createTools(client)) {
+    if (options.readOnly && !tool.readOnly) continue;
     server.registerTool(
       tool.name,
       {

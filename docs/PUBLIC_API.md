@@ -49,12 +49,19 @@ the same key works on `/api/public/v1` for async publish runs and webhooks.
 
 ## AI agents
 
-Agents reach the same API through the MCP server in [`mcp/`](../mcp/README.md)
-(`npx -y @markaestro/mcp`, one tool per operation, draft-first, idempotent
-mutations, direct media upload) and the [`markaestro` skill](../skills/markaestro/SKILL.md),
-which teaches an agent the posting model, the delivery modes, and how to read
-error codes. Both use a normal workspace API key; a test key keeps evaluation
-away from live publishing.
+Agents get the same API as MCP tools, three ways:
+
+- **Hosted MCP endpoint** at `POST /api/public/v1/mcp` (Streamable HTTP,
+  bearer API key, stateless): `claude mcp add --transport http markaestro
+  https://markaestro.com/api/public/v1/mcp --header "Authorization: Bearer mk_..."`.
+- **`@markaestro/mcp`** in [`mcp/`](../mcp/README.md) for a local stdio server
+  (`npx -y @markaestro/mcp`), which can also upload local files.
+- **Claude Code plugin** bundling the [`markaestro` skill](../skills/markaestro/SKILL.md)
+  and the hosted server: `claude plugin marketplace add D3vBaba/Markaestro`.
+
+All three are draft-first, send idempotency keys on every mutation, and use
+a normal workspace API key; a test key keeps evaluation away from live
+publishing.
 
 ## Scope
 

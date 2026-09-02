@@ -1,32 +1,44 @@
 #!/usr/bin/env node
 /**
- * Live smoke test: starts the built server over stdio, drives it with the
- * MCP client, and walks the read paths plus a draft create/get/delete cycle.
+ * Live smoke test. Two modes:
  *
+ *   # local stdio server (the npm package)
  *   MARKAESTRO_API_KEY=mk_test_... MARKAESTRO_BASE_URL=http://localhost:3000 npm run smoke
  *
- * Nothing is published. The draft it creates is deleted before exit.
+ *   # remote Streamable HTTP endpoint served by the app
+ *   MARKAESTRO_API_KEY=mk_test_... MARKAESTRO_BASE_URL=http://localhost:3000 npm run smoke -- --remote
+ *
+ * Walks the read paths plus a draft create/get/delete cycle. Nothing is
+ * published; the draft is deleted before exit.
  */
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const apiKey = process.env.MARKAESTRO_API_KEY;
+const baseUrl = (process.env.MARKAESTRO_BASE_URL || "https://markaestro.com").replace(/\/+$/, "");
+const remote = process.argv.includes("--remote");
 if (!apiKey) {
   console.error("Set MARKAESTRO_API_KEY (an mk_test_ key is safest).");
   process.exit(2);
 }
 
-const transport = new StdioClientTransport({
-  command: process.execPath,
-  args: [join(here, "..", "dist", "index.js")],
-  env: { ...process.env, MARKAESTRO_API_KEY: apiKey },
-  stderr: "pipe",
-});
+const transport = remote
+  ? new StreamableHTTPClientTransport(new URL(`${baseUrl}/api/public/v1/mcp`), {
+    requestInit: { headers: { Authorization: `Bearer ${apiKey}` } },
+  })
+  : new StdioClientTransport({
+    command: process.execPath,
+    args: [join(here, "..", "dist", "index.js")],
+    env: { ...process.env, MARKAESTRO_API_KEY: apiKey, MARKAESTRO_BASE_URL: baseUrl },
+    stderr: "pipe",
+  });
 const client = new Client({ name: "markaestro-mcp-smoke", version: "0.1.0" });
 await client.connect(transport);
+console.log(`mode: ${remote ? "remote http" : "local stdio"} against ${baseUrl}`);
 
 const text = (result) => result.content.map((item) => item.text).join("\n");
 const call = async (name, args = {}) => {
@@ -50,6 +62,10 @@ const posts = await call("list_posts", { limit: 3 });
 step("posts listed", posts.posts?.length ?? 0);
 const media = await call("list_media", { limit: 3 });
 step("media listed", media.assets?.length ?? 0);
+if (media.assets?.[0]) {
+  const asset = await call("get_media", { assetId: media.assets[0].id });
+  step("media fetched", `${asset.asset.id} ${asset.asset.type}`);
+}
 const runs = await call("list_job_runs", { limit: 3 });
 step("job runs listed", runs.runs?.length ?? 0);
 
@@ -60,6 +76,17 @@ const fetched = await call("get_post", { postId: created.post.id });
 step("draft fetched", fetched.post.caption.slice(0, 30));
 const deleted = await call("delete_post", { postId: created.post.id });
 step("draft deleted", deleted.deleted);
+
+const batch = await call("create_posts", { posts: [
+  { caption: `MCP smoke batch A ${Date.now()}`, channel: "threads" },
+  { caption: `MCP smoke batch B ${Date.now()}`, channel: "threads" },
+] });
+const batchIds = (batch.results || []).filter((item) => item.ok).map((item) => item.post.id);
+step("batch created", `${batch.created} of ${batch.total}`);
+if (batchIds.length) {
+  const bulk = await call("bulk_posts", { ids: batchIds, action: "delete" });
+  step("batch deleted", `${bulk.succeeded?.length ?? 0} deleted`);
+}
 
 const bad = await client.callTool({ name: "get_post", arguments: { postId: "does-not-exist" } });
 if (!bad.isError || !text(bad).includes("NOT_FOUND")) throw new Error("Expected a NOT_FOUND error result");

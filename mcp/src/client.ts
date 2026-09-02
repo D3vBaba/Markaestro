@@ -10,10 +10,14 @@
 import { readFile } from "node:fs/promises";
 import { basename, extname } from "node:path";
 import { randomBytes } from "node:crypto";
+import { VERSION } from "./version";
 
 export const DEFAULT_BASE_URL = "https://markaestro.com";
 
 const RETRYABLE_STATUSES = new Set([429, 502, 503, 504]);
+/** API calls are short; uploads to storage get longer. */
+export const REQUEST_TIMEOUT_MS = 60_000;
+export const UPLOAD_TIMEOUT_MS = 10 * 60_000;
 
 export class MarkaestroApiError extends Error {
   readonly status: number;
@@ -96,7 +100,7 @@ export class MarkaestroClient {
     const headers: Record<string, string> = {
       Authorization: `Bearer ${this.apiKey}`,
       Accept: "application/json",
-      "User-Agent": "markaestro-mcp/0.1.0",
+      "User-Agent": `markaestro-mcp/${VERSION}`,
     };
     if (body !== undefined) headers["Content-Type"] = "application/json";
     if (method !== "GET" && method !== "HEAD") {
@@ -106,6 +110,7 @@ export class MarkaestroClient {
       const response = await this.fetchImpl(url.toString(), {
         method,
         headers,
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       });
       if (RETRYABLE_STATUSES.has(response.status) && attempt < this.maxRetries) {
@@ -146,6 +151,7 @@ export class MarkaestroClient {
     const put = await this.fetchImpl(uploadUrl, {
       method: uploadMethod ?? "PUT",
       headers: { "Content-Type": contentType, ...(uploadHeaders ?? {}) },
+      signal: AbortSignal.timeout(UPLOAD_TIMEOUT_MS),
       // Node's fetch accepts a Uint8Array; the DOM lib typing lags behind.
       body: bytes as unknown as BodyInit,
     });
@@ -168,7 +174,7 @@ async function loadBytes(
   let bytes: Uint8Array;
   let fileName = input.fileName;
   if (/^https?:\/\//i.test(source)) {
-    const response = await fetchImpl(source);
+    const response = await fetchImpl(source, { signal: AbortSignal.timeout(UPLOAD_TIMEOUT_MS) });
     if (!response.ok) throw new Error(`Could not download ${source} (${response.status})`);
     bytes = new Uint8Array(await response.arrayBuffer());
     fileName ??= basename(new URL(source).pathname) || "upload";
