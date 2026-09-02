@@ -5,6 +5,11 @@ const getAdapterForChannelMock = vi.fn();
 const getConnectionForChannelMock = vi.fn();
 const updateConnectionStatusMock = vi.fn();
 const recordActivityMock = vi.fn<(input: unknown) => Promise<number>>(async () => 1);
+const refreshConnectionTokenMock = vi.fn<(...args: unknown[]) => Promise<unknown>>(async () => null);
+vi.mock('@/lib/oauth/token-refresh', () => ({
+  refreshConnectionToken: (...args: unknown[]) => refreshConnectionTokenMock(...args),
+  refreshableProvider: (provider: string) => (['tiktok', 'instagram', 'threads', 'pinterest'].includes(provider) ? provider : null),
+}));
 vi.mock('@/lib/analytics/activity', () => ({ recordActivity: (input: unknown) => recordActivityMock(input) }));
 
 vi.mock('@/lib/firebase-admin', () => ({
@@ -20,6 +25,7 @@ vi.mock('@/lib/platform/registry', () => ({
 vi.mock('@/lib/platform/connections', () => ({
   getConnectionForChannel: getConnectionForChannelMock,
   updateConnectionStatus: updateConnectionStatusMock,
+  setConnectionStatus: updateConnectionStatusMock,
 }));
 
 vi.mock('@/lib/logger', () => ({
@@ -265,6 +271,65 @@ describe('refreshPostsNow', () => {
       previous: { facebook: expect.objectContaining({ views: 100 }) },
       next: { facebook: expect.objectContaining({ views: 250 }) },
     }));
+  });
+
+  it('refreshes a rejected token once, retries, and keeps the connection connected when the retry succeeds', async () => {
+    refreshConnectionTokenMock.mockClear();
+    updateConnectionStatusMock.mockClear();
+    const post = makePostDoc({
+      status: 'published',
+      channel: 'tiktok',
+      productId: 'prod_tt',
+      publishedAt: '2026-09-01T00:00:00.000Z',
+      publishResults: [{ channel: 'tiktok', success: true, externalId: 'v1' }],
+    });
+    collectionMock.mockReturnValue(makeQuery([post.doc]));
+    const stale = { provider: 'tiktok', productId: 'prod_tt', accessTokenEncrypted: 'old', refreshTokenEncrypted: 'r', metadata: {} };
+    const fresh = { ...stale, accessTokenEncrypted: 'new' };
+    getConnectionForChannelMock.mockResolvedValue(stale);
+    refreshConnectionTokenMock.mockResolvedValue(fresh);
+    const fetchMetrics = vi.fn(async (connection: { accessTokenEncrypted: string }) => (
+      connection.accessTokenEncrypted === 'new'
+        ? { ok: true, metrics: makeMetrics({ views: 42 }) }
+        : { ok: false, error: 'access_token_invalid', reason: 'auth' }
+    ));
+    getAdapterForChannelMock.mockReturnValue({ fetchMetrics });
+
+    const { refreshPostsNow } = await import('../analytics/metrics-poller');
+    const summary = await refreshPostsNow('ws_123', '2026-09-02T12:00:00.000Z');
+
+    expect(refreshConnectionTokenMock).toHaveBeenCalledTimes(1);
+    expect(refreshConnectionTokenMock).toHaveBeenCalledWith('ws_123', 'tiktok', stale, 'prod_tt');
+    expect(fetchMetrics).toHaveBeenCalledTimes(2);
+    expect(summary.polled).toBe(1);
+    expect(summary.errors).toEqual([]);
+    expect(updateConnectionStatusMock).not.toHaveBeenCalled();
+  });
+
+  it('parks the connection only when the refresh does not rescue the token', async () => {
+    refreshConnectionTokenMock.mockClear();
+    updateConnectionStatusMock.mockClear();
+    const post = makePostDoc({
+      status: 'published',
+      channel: 'tiktok',
+      productId: 'prod_tt',
+      publishedAt: '2026-09-01T00:00:00.000Z',
+      publishResults: [{ channel: 'tiktok', success: true, externalId: 'v1' }],
+    });
+    collectionMock.mockReturnValue(makeQuery([post.doc]));
+    getConnectionForChannelMock.mockResolvedValue({ provider: 'tiktok', productId: 'prod_tt', accessTokenEncrypted: 'old', refreshTokenEncrypted: 'r', metadata: {} });
+    refreshConnectionTokenMock.mockResolvedValue(null);
+    getAdapterForChannelMock.mockReturnValue({
+      fetchMetrics: vi.fn(async () => ({ ok: false, error: 'access_token_invalid', reason: 'auth' })),
+    });
+
+    const { refreshPostsNow } = await import('../analytics/metrics-poller');
+    const summary = await refreshPostsNow('ws_123', '2026-09-02T12:00:00.000Z');
+
+    expect(refreshConnectionTokenMock).toHaveBeenCalledTimes(1);
+    expect(summary.polled).toBe(0);
+    expect(summary.errors[0]?.error).toBe('access_token_invalid');
+    expect(updateConnectionStatusMock).toHaveBeenCalledTimes(1);
   });
 
   it('only fetches the requested channel when a channel filter is supplied', async () => {

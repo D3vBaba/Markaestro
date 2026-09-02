@@ -413,7 +413,7 @@ const PRODUCT_REFRESH_PROVIDERS = new Set<string>([
 ]);
 
 /** Map a stored provider key to the OAuth provider whose refresh flow applies. */
-function refreshableProvider(storageProvider: string): OAuthProvider | null {
+export function refreshableProvider(storageProvider: string): OAuthProvider | null {
   if (
     storageProvider === LINKEDIN_PROFILE_PROVIDER ||
     storageProvider === LINKEDIN_COMMUNITY_PROVIDER ||

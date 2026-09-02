@@ -3,6 +3,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getAllMatchingDocs } from '@/lib/firestore-pagination';
 import { getAdapterForChannel } from '@/lib/platform/registry';
 import { getConnectionForChannel, setConnectionStatus } from '@/lib/platform/connections';
+import { refreshableProvider, refreshConnectionToken } from '@/lib/oauth/token-refresh';
 import type { NormalizedPostMetrics, PlatformConnection } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import { logger } from '@/lib/logger';
@@ -137,10 +138,11 @@ export async function pollDueMetrics(workspaceId: string, nowIso: string): Promi
   // Connections resolved once per (channel, productId) pair per tick.
   const connectionCache = new Map<string, PlatformConnection | null>();
   const authFlagged = new Set<string>();
+  const refreshAttempted = new Set<string>();
 
   for (const doc of dueSnap.docs) {
     try {
-      await pollOnePost(doc, workspaceId, nowIso, now, connectionCache, authFlagged, summary);
+      await pollOnePost(doc, workspaceId, nowIso, now, connectionCache, authFlagged, summary, refreshAttempted);
     } catch (err) {
       // One flaky post/write must not stall the rest of the batch; the post
       // stays due and is retried next tick.
@@ -167,6 +169,7 @@ async function fetchPostChannelMetrics(
   legacyPostId: string,
   connectionCache: Map<string, PlatformConnection | null>,
   authFlagged: Set<string>,
+  refreshAttempted: Set<string> = new Set(),
 ): Promise<{
   byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
   outcomes: ChannelFetchOutcome[];
@@ -208,12 +211,49 @@ async function fetchPostChannelMetrics(
     }
 
     channelFetches++;
-    const result = await adapter.fetchMetrics(connection, {
+    const fetchInput = {
       channel: target.channel,
       externalId: target.externalId,
       publishedAt,
       destinationId: destinationId ?? post.destinationId,
-    });
+    };
+    let result = await adapter.fetchMetrics(connection, fetchInput);
+
+    // A rejected token is not yet a dead connection: platforms rotate and
+    // revoke access tokens while the refresh token stays good (TikTok's
+    // 24-hour tokens especially). Refresh once and retry before flagging
+    // the connection, so one stale token never parks a brand's metrics
+    // until the next scheduled refresh pass.
+    if (!result.ok && result.reason === 'auth' && connection.refreshTokenEncrypted) {
+      const provider = refreshableProvider(connection.provider);
+      if (provider && !refreshAttempted.has(cacheKey)) {
+        refreshAttempted.add(cacheKey);
+        const refreshed = await refreshConnectionToken(workspaceId, provider, connection, post.productId || undefined)
+          .catch((error: unknown) => {
+            logger.warn('metrics token refresh failed', {
+              event: 'analytics.metrics_token_refresh_failed',
+              workspaceId,
+              channel: target.channel,
+              productId: post.productId ?? null,
+              err: error,
+            });
+            return null;
+          });
+        if (refreshed) {
+          connection = refreshed;
+          connectionCache.set(cacheKey, refreshed);
+          channelFetches++;
+          result = await adapter.fetchMetrics(refreshed, fetchInput);
+          logger.info('metrics token refreshed after auth failure', {
+            event: 'analytics.metrics_token_refreshed',
+            workspaceId,
+            channel: target.channel,
+            productId: post.productId ?? null,
+            recovered: result.ok,
+          });
+        }
+      }
+    }
 
     if (result.ok) {
       assertMetricsSupported(target.channel, result.metrics);
@@ -296,6 +336,7 @@ async function pollOnePost(
   connectionCache: Map<string, PlatformConnection | null>,
   authFlagged: Set<string>,
   summary: MetricsPollSummary,
+  refreshAttempted: Set<string> = new Set(),
 ): Promise<void> {
   const post = doc.data() as PostDocData;
   const postRef = doc.ref;
@@ -336,6 +377,7 @@ async function pollOnePost(
     doc.id,
     connectionCache,
     authFlagged,
+    refreshAttempted,
   );
   summary.channelFetches += channelFetches;
 
@@ -460,6 +502,7 @@ export async function refreshPostsNow(
 
   const connectionCache = new Map<string, PlatformConnection | null>();
   const authFlagged = new Set<string>();
+  const refreshAttempted = new Set<string>();
 
   const refreshOne = async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
     const post = doc.data() as PostDocData;
@@ -476,6 +519,7 @@ export async function refreshPostsNow(
       doc.id,
       connectionCache,
       authFlagged,
+      refreshAttempted,
     );
     summary.channelFetches += channelFetches;
 
