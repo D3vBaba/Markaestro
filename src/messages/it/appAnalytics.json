@@ -6,7 +6,9 @@
       "idle": "Aggiorna",
       "refreshing": "Aggiornamento…",
       "pulling": "Recupero dati in tempo reale…",
-      "title": "Recupera i numeri più recenti da ogni piattaforma collegata"
+      "title": "Recupera i numeri più recenti da ogni piattaforma collegata",
+      "lastUpdated": "Aggiornato {time}",
+      "lastUpdatedTitle": "Quando i numeri di questa pagina sono stati recuperati l'ultima volta dalle piattaforme"
     },
     "export": {
       "idle": "Esporta CSV",
@@ -34,43 +36,84 @@
     },
     "warmingUp": "Raccolta delle metriche in corso, i primi dati arrivano circa un'ora dopo la pubblicazione, poi si aggiornano con una frequenza decrescente per 30 giorni.",
     "kpis": {
-      "views": { "label": "Visualizzazioni", "sub": "vs periodo precedente" },
-      "reach": { "label": "Copertura", "sub": "account unici raggiunti" },
-      "engagement": { "label": "Engagement", "sub": "mi piace + commenti + condivisioni + salvataggi" },
-      "engagementRate": { "label": "Tasso di engagement", "sub": "engagement ÷ copertura" },
-      "followers": { "label": "Follower", "sub": "tutti i canali collegati" }
+      "views": {
+        "label": "Visualizzazioni",
+        "sub": "vs periodo precedente"
+      },
+      "reach": {
+        "label": "Copertura",
+        "sub": "account unici raggiunti"
+      },
+      "engagement": {
+        "label": "Engagement",
+        "sub": "mi piace + commenti + condivisioni + salvataggi"
+      },
+      "engagementRate": {
+        "label": "Tasso di engagement",
+        "sub": "engagement ÷ copertura",
+        "subViews": "interazioni ÷ visualizzazioni (copertura non riportata)"
+      },
+      "followers": {
+        "label": "Follower",
+        "sub": "tutti i canali collegati"
+      }
     },
     "insights": {
       "basedOn": "BASATO SU {count} POST"
     },
     "trend": {
       "eyebrow": "Andamento · {days}g",
-      "metrics": { "views": "Visualizzazioni", "reach": "Copertura", "engagements": "Engagement", "posts": "Post" }
+      "metrics": {
+        "views": "Visualizzazioni",
+        "reach": "Copertura",
+        "engagements": "Engagement",
+        "posts": "Post"
+      },
+      "note": "Raggruppato per data di pubblicazione (UTC). I numeri si aggiornano man mano che le piattaforme li riportano."
     },
     "audience": {
       "eyebrow": "Pubblico",
       "title": "Follower",
       "titleWithCount": "{count} follower"
     },
-    "timing": { "eyebrow": "Orari", "title": "Quando i tuoi post rendono di più" },
-    "format": { "eyebrow": "Formato", "title": "Cosa genera più engagement" },
-    "channels": { "eyebrow": "Canali", "title": "Andamento per canale" },
-    "posts": { "eyebrow": "Post", "title": "Post principali" },
+    "timing": {
+      "eyebrow": "Orari",
+      "title": "Quando i tuoi post rendono di più"
+    },
+    "format": {
+      "eyebrow": "Formato",
+      "title": "Cosa genera più engagement"
+    },
+    "channels": {
+      "eyebrow": "Canali",
+      "title": "Andamento per canale"
+    },
+    "posts": {
+      "eyebrow": "Post",
+      "title": "Post principali"
+    },
     "provenance": {
       "base": "Le metriche seguono le definizioni API di ciascuna piattaforma e possono essere in ritardo fino a 48 ore rispetto alle statistiche native. Un \"n/a\" significa che la piattaforma non fornisce quella metrica (ad esempio, Threads e TikTok non riportano la copertura). Il tasso di engagement è engagement ÷ copertura.",
       "truncated": " Le visualizzazioni per post si basano sui {count} post più recenti in questo periodo.",
       "lastUpdate": " Ultimo aggiornamento delle metriche: {date}."
     },
     "toasts": {
-      "updated": "{count, plural, one {Aggiornato # post dalla fonte} other {Aggiornati # post dalla fonte}}",
       "noNewMetrics": "Nessuna nuova metrica della piattaforma disponibile",
       "tooManyRefreshes": "Troppi aggiornamenti, riprova tra un minuto.",
       "pullFailed": "Impossibile recuperare i dati in tempo reale. Vengono mostrati gli ultimi numeri salvati.",
-      "exportFailed": "Esportazione non riuscita. Riprova."
+      "exportFailed": "Esportazione non riuscita. Riprova.",
+      "updatedOf": "{updated} post su {scanned} aggiornati in questo periodo",
+      "updatedPartial": "{updated} post su {scanned} aggiornati prima che finisse il tempo. Aggiorna di nuovo per il resto.",
+      "partial": "{count, plural, one {# aggiornamento non riuscito} other {# aggiornamenti non riusciti}}: {error}"
     }
   },
   "contentTypeBars": {
-    "types": { "image": "Immagini", "video": "Video", "carousel": "Caroselli", "text": "Post di testo" },
+    "types": {
+      "image": "Immagini",
+      "video": "Video",
+      "carousel": "Caroselli",
+      "text": "Post di testo"
+    },
     "notEnoughVariety": "Non c'è ancora abbastanza varietà",
     "publishAtLeastTwo": "Pubblica almeno due formati di contenuto (immagini, video, caroselli, testo) per confrontarli.",
     "postsCount": "{count, plural, one {# post} other {# post}}",
@@ -88,12 +131,14 @@
       "views": "Visualizzazioni",
       "reach": "Copertura",
       "engagement": "Engagement",
-      "erReach": "ER (copertura)",
-      "followers": "Follower"
+      "followers": "Follower",
+      "er": "Tasso int."
     },
     "empty": "Collega un canale e pubblica per vedere l'andamento per canale.",
     "clearFilter": "Rimuovi filtro canale",
-    "filterTo": "Filtra per {channel}"
+    "filterTo": "Filtra per {channel}",
+    "erBasis": "Per copertura quando la piattaforma la riporta, altrimenti per visualizzazioni (contrassegnato)",
+    "byViews": "(visual.)"
   },
   "bestTimeHeatmap": {
     "notEnoughData": "Non ci sono ancora abbastanza dati",
@@ -106,13 +151,14 @@
       "views": "Visualizzazioni",
       "reach": "Copertura",
       "engagement": "Engagement",
-      "erReach": "ER (copertura)",
-      "published": "Pubblicato"
+      "published": "Pubblicato",
+      "er": "Tasso int."
     },
     "empty": "Non ci sono ancora post con metriche in questo periodo. Le metriche arrivano circa un'ora dopo la pubblicazione.",
     "untitledPost": "Post senza titolo",
     "sortBy": "Ordina per {label}",
-    "openOnPlatform": "Apri sulla piattaforma"
+    "openOnPlatform": "Apri sulla piattaforma",
+    "byViews": "(visual.)"
   },
   "stackedArea": {
     "noData": "Ancora nessun dato."

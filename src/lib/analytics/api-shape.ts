@@ -24,6 +24,8 @@ export type AnalyticsPostRow = {
   engagements: number | null;
   /** Engagement rate by reach (engagements ÷ reach), null when reach is unavailable. */
   erByReach: number | null;
+  /** Engagement rate by views (engagements ÷ views); the fallback where a platform never reports reach. */
+  erByViews: number | null;
 };
 
 export type AnalyticsTotals = {
@@ -32,6 +34,7 @@ export type AnalyticsTotals = {
   reach: number | null;
   engagements: number | null;
   engagementRateByReach: number | null;
+  engagementRateByViews: number | null;
 };
 
 export type AnalyticsResponse = {
@@ -57,6 +60,7 @@ export type AnalyticsResponse = {
     reach: number | null;
     engagements: number | null;
     engagementRateByReach: number | null;
+    engagementRateByViews: number | null;
     followers: number | null;
     followerDelta: number | null;
   }>;

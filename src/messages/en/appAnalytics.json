@@ -6,7 +6,9 @@
       "idle": "Refresh",
       "refreshing": "Refreshing…",
       "pulling": "Pulling live data…",
-      "title": "Pull the latest numbers from each connected platform"
+      "title": "Pull the latest numbers from each connected platform",
+      "lastUpdated": "Updated {time}",
+      "lastUpdatedTitle": "When the numbers on this page were last pulled from the platforms"
     },
     "export": {
       "idle": "Export CSV",
@@ -34,43 +36,84 @@
     },
     "warmingUp": "Collecting metrics. The first snapshots arrive about an hour after publishing, then refresh on a decaying schedule for 30 days.",
     "kpis": {
-      "views": { "label": "Views", "sub": "vs prior period" },
-      "reach": { "label": "Reach", "sub": "unique accounts reached" },
-      "engagement": { "label": "Engagement", "sub": "likes + comments + shares + saves" },
-      "engagementRate": { "label": "Engagement rate", "sub": "engagements ÷ reach" },
-      "followers": { "label": "Followers", "sub": "all connected channels" }
+      "views": {
+        "label": "Views",
+        "sub": "vs prior period"
+      },
+      "reach": {
+        "label": "Reach",
+        "sub": "unique accounts reached"
+      },
+      "engagement": {
+        "label": "Engagement",
+        "sub": "likes + comments + shares + saves"
+      },
+      "engagementRate": {
+        "label": "Engagement rate",
+        "sub": "engagements ÷ reach",
+        "subViews": "engagements ÷ views (reach not reported)"
+      },
+      "followers": {
+        "label": "Followers",
+        "sub": "all connected channels"
+      }
     },
     "insights": {
       "basedOn": "BASED ON {count} POSTS"
     },
     "trend": {
       "eyebrow": "Performance · {days}d",
-      "metrics": { "views": "Views", "reach": "Reach", "engagements": "Engagement", "posts": "Posts" }
+      "metrics": {
+        "views": "Views",
+        "reach": "Reach",
+        "engagements": "Engagement",
+        "posts": "Posts"
+      },
+      "note": "Grouped by publish date (UTC). Numbers update as the platforms report them."
     },
     "audience": {
       "eyebrow": "Audience",
       "title": "Followers",
       "titleWithCount": "{count} followers"
     },
-    "timing": { "eyebrow": "Timing", "title": "When your posts perform" },
-    "format": { "eyebrow": "Format", "title": "What earns engagement" },
-    "channels": { "eyebrow": "Channels", "title": "Performance by channel" },
-    "posts": { "eyebrow": "Posts", "title": "Top posts" },
+    "timing": {
+      "eyebrow": "Timing",
+      "title": "When your posts perform"
+    },
+    "format": {
+      "eyebrow": "Format",
+      "title": "What earns engagement"
+    },
+    "channels": {
+      "eyebrow": "Channels",
+      "title": "Performance by channel"
+    },
+    "posts": {
+      "eyebrow": "Posts",
+      "title": "Top posts"
+    },
     "provenance": {
       "base": "Metrics use each platform's API definitions and can lag native insights by up to 48 hours. A \"n/a\" means the platform doesn't provide that metric (for example, Threads and TikTok don't report reach). Engagement rate is engagements ÷ reach.",
       "truncated": " Post-level views are based on the {count} most recent posts in this window.",
       "lastUpdate": " Last metrics update {date}."
     },
     "toasts": {
-      "updated": "{count, plural, one {Updated # post from source} other {Updated # posts from source}}",
       "noNewMetrics": "No new platform metrics available",
       "tooManyRefreshes": "Too many refreshes. Try again in a minute.",
       "pullFailed": "Couldn't pull live data. Showing the latest stored numbers.",
-      "exportFailed": "Export failed. Please try again."
+      "exportFailed": "Export failed. Please try again.",
+      "updatedOf": "Refreshed {updated} of {scanned} posts in this window",
+      "updatedPartial": "Refreshed {updated} of {scanned} posts before the time budget ran out. Refresh again for the rest.",
+      "partial": "{count, plural, one {# refresh failed} other {# refreshes failed}}: {error}"
     }
   },
   "contentTypeBars": {
-    "types": { "image": "Images", "video": "Videos", "carousel": "Carousels", "text": "Text posts" },
+    "types": {
+      "image": "Images",
+      "video": "Videos",
+      "carousel": "Carousels",
+      "text": "Text posts"
+    },
     "notEnoughVariety": "Not enough variety yet",
     "publishAtLeastTwo": "Publish at least two content formats (images, videos, carousels, text) to compare them.",
     "postsCount": "{count, plural, one {# post} other {# posts}}",
@@ -88,12 +131,14 @@
       "views": "Views",
       "reach": "Reach",
       "engagement": "Engagement",
-      "erReach": "ER (reach)",
-      "followers": "Followers"
+      "followers": "Followers",
+      "er": "Eng. rate"
     },
     "empty": "Connect a channel and publish to see per-channel performance.",
     "clearFilter": "Clear channel filter",
-    "filterTo": "Filter to {channel}"
+    "filterTo": "Filter to {channel}",
+    "erBasis": "By reach when the platform reports it, otherwise by views (marked)",
+    "byViews": "(views)"
   },
   "bestTimeHeatmap": {
     "notEnoughData": "Not enough data yet",
@@ -106,13 +151,14 @@
       "views": "Views",
       "reach": "Reach",
       "engagement": "Engagement",
-      "erReach": "ER (reach)",
-      "published": "Published"
+      "published": "Published",
+      "er": "Eng. rate"
     },
     "empty": "No posts with metrics in this period yet. Metrics arrive about an hour after publishing.",
     "untitledPost": "Untitled post",
     "sortBy": "Sort by {label}",
-    "openOnPlatform": "Open on platform"
+    "openOnPlatform": "Open on platform",
+    "byViews": "(views)"
   },
   "stackedArea": {
     "noData": "No data yet."

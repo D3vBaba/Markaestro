@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { Channel } from "@/components/mk/Channel";
 import { fmtCount } from "@/components/mk/format";
+import { rateCell } from "@/components/analytics/ChannelTable";
 import Pagination from "@/components/app/Pagination";
 import type { AnalyticsPostRow } from "@/lib/analytics/api-shape";
 
@@ -19,7 +19,7 @@ const COLUMN_LABEL_KEYS: Record<SortKey, string> = {
   views: "columns.views",
   reach: "columns.reach",
   engagements: "columns.engagement",
-  erByReach: "columns.erReach",
+  erByReach: "columns.er",
   publishedAt: "columns.published",
 };
 
@@ -42,8 +42,9 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
     const list = [...rows];
     list.sort((a, b) => {
       if (sortKey === "publishedAt") return b.publishedAt.localeCompare(a.publishedAt);
-      const av = a[sortKey] ?? -1;
-      const bv = b[sortKey] ?? -1;
+      const pick = (row: AnalyticsPostRow) => (sortKey === "erByReach" ? row.erByReach ?? row.erByViews : row[sortKey]);
+      const av = pick(a) ?? -1;
+      const bv = pick(b) ?? -1;
       return bv - av;
     });
     return list;
@@ -107,19 +108,37 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
                 style={{ borderBottom: "1px solid var(--mk-rule-soft)" }}
               >
                 <td className="py-2.5 pr-3">
-                  <Link href={`/content/${row.id}`} className="flex items-start gap-2.5 min-w-0">
-                    <div className="flex items-center gap-1 pt-0.5 shrink-0">
-                      {row.channels.map((ch) => (
-                        <Channel key={ch} channel={ch} size={15} />
-                      ))}
-                    </div>
-                    <span
-                      className="line-clamp-2 min-w-0"
-                      style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+                  {/* Published posts have no in-app detail page; the live
+                      post is the useful destination, so the caption opens it. */}
+                  {row.externalUrl ? (
+                    <a
+                      href={row.externalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-2.5 min-w-0 hover:underline"
+                      title={t("openOnPlatform")}
                     >
-                      {row.content || t("untitledPost")}
-                    </span>
-                  </Link>
+                      <div className="flex items-center gap-1 pt-0.5 shrink-0">
+                        {row.channels.map((ch) => (
+                          <Channel key={ch} channel={ch} size={15} />
+                        ))}
+                      </div>
+                      <span className="line-clamp-2 min-w-0" style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}>
+                        {row.content || t("untitledPost")}
+                      </span>
+                    </a>
+                  ) : (
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      <div className="flex items-center gap-1 pt-0.5 shrink-0">
+                        {row.channels.map((ch) => (
+                          <Channel key={ch} channel={ch} size={15} />
+                        ))}
+                      </div>
+                      <span className="line-clamp-2 min-w-0" style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}>
+                        {row.content || t("untitledPost")}
+                      </span>
+                    </div>
+                  )}
                 </td>
                 <td className="text-right px-2 font-mono mk-figure" style={{ color: "var(--mk-ink)" }}>
                   {cell(row.views, locale)}
@@ -130,8 +149,8 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
                 <td className="text-right px-2 font-mono mk-figure" style={{ color: "var(--mk-ink)" }}>
                   {cell(row.engagements, locale)}
                 </td>
-                <td className="text-right px-2 font-mono" style={{ color: "var(--mk-ink-60)" }}>
-                  {row.erByReach === null ? "n/a" : `${(row.erByReach * 100).toFixed(1)}%`}
+                <td className="text-right px-2 font-mono whitespace-nowrap" style={{ color: "var(--mk-ink-60)" }}>
+                  {rateCell(row.erByReach, row.erByViews, t("byViews"))}
                 </td>
                 <td
                   className="text-right px-2 font-mono text-[11px] whitespace-nowrap"

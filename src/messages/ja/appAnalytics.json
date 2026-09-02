@@ -6,7 +6,9 @@
       "idle": "更新",
       "refreshing": "更新中…",
       "pulling": "ライブデータを取得中…",
-      "title": "接続済みの各プラットフォームから最新の数値を取得"
+      "title": "接続済みの各プラットフォームから最新の数値を取得",
+      "lastUpdated": "{time} 更新",
+      "lastUpdatedTitle": "このページの数値を各プラットフォームから最後に取得した時刻"
     },
     "export": {
       "idle": "CSVをエクスポート",
@@ -34,43 +36,84 @@
     },
     "warmingUp": "メトリクスを収集中です、公開から約1時間後に最初のデータが届き、その後30日間、頻度を下げながら更新されます。",
     "kpis": {
-      "views": { "label": "ビュー数", "sub": "前期間比" },
-      "reach": { "label": "リーチ", "sub": "到達したユニークアカウント数" },
-      "engagement": { "label": "エンゲージメント", "sub": "いいね + コメント + シェア + 保存" },
-      "engagementRate": { "label": "エンゲージメント率", "sub": "エンゲージメント ÷ リーチ" },
-      "followers": { "label": "フォロワー", "sub": "接続済みのすべてのチャンネル" }
+      "views": {
+        "label": "ビュー数",
+        "sub": "前期間比"
+      },
+      "reach": {
+        "label": "リーチ",
+        "sub": "到達したユニークアカウント数"
+      },
+      "engagement": {
+        "label": "エンゲージメント",
+        "sub": "いいね + コメント + シェア + 保存"
+      },
+      "engagementRate": {
+        "label": "エンゲージメント率",
+        "sub": "エンゲージメント ÷ リーチ",
+        "subViews": "エンゲージメント ÷ 視聴数（リーチ未報告）"
+      },
+      "followers": {
+        "label": "フォロワー",
+        "sub": "接続済みのすべてのチャンネル"
+      }
     },
     "insights": {
       "basedOn": "{count}件の投稿に基づく"
     },
     "trend": {
       "eyebrow": "パフォーマンス · {days}日間",
-      "metrics": { "views": "ビュー数", "reach": "リーチ", "engagements": "エンゲージメント", "posts": "投稿数" }
+      "metrics": {
+        "views": "ビュー数",
+        "reach": "リーチ",
+        "engagements": "エンゲージメント",
+        "posts": "投稿数"
+      },
+      "note": "公開日（UTC）でグループ化。プラットフォームの報告に応じて数値が更新されます。"
     },
     "audience": {
       "eyebrow": "オーディエンス",
       "title": "フォロワー",
       "titleWithCount": "フォロワー{count}人"
     },
-    "timing": { "eyebrow": "タイミング", "title": "投稿が最も成果を出す時間帯" },
-    "format": { "eyebrow": "フォーマット", "title": "エンゲージメントを獲得する形式" },
-    "channels": { "eyebrow": "チャンネル", "title": "チャンネル別パフォーマンス" },
-    "posts": { "eyebrow": "投稿", "title": "上位の投稿" },
+    "timing": {
+      "eyebrow": "タイミング",
+      "title": "投稿が最も成果を出す時間帯"
+    },
+    "format": {
+      "eyebrow": "フォーマット",
+      "title": "エンゲージメントを獲得する形式"
+    },
+    "channels": {
+      "eyebrow": "チャンネル",
+      "title": "チャンネル別パフォーマンス"
+    },
+    "posts": {
+      "eyebrow": "投稿",
+      "title": "上位の投稿"
+    },
     "provenance": {
       "base": "メトリクスは各プラットフォームのAPI定義に基づいており、ネイティブのインサイトより最大48時間遅れることがあります。「、」はそのプラットフォームがそのメトリクスを提供していないことを示します（例：ThreadsとTikTokはリーチを報告しません）。エンゲージメント率はエンゲージメント ÷ リーチです。",
       "truncated": " 投稿単位のビュー数は、この期間内の直近{count}件の投稿に基づいています。",
       "lastUpdate": " メトリクスの最終更新：{date}。"
     },
     "toasts": {
-      "updated": "{count, plural, other {ソースから#件の投稿を更新しました}}",
       "noNewMetrics": "新しいプラットフォームメトリクスはありません",
       "tooManyRefreshes": "更新回数が多すぎます、1分後にもう一度お試しください。",
       "pullFailed": "ライブデータを取得できませんでした。保存されている最新の数値を表示しています。",
-      "exportFailed": "エクスポートに失敗しました。もう一度お試しください。"
+      "exportFailed": "エクスポートに失敗しました。もう一度お試しください。",
+      "updatedOf": "この期間の{scanned}件中{updated}件の投稿を更新しました",
+      "updatedPartial": "時間内に{scanned}件中{updated}件の投稿を更新しました。残りはもう一度更新してください。",
+      "partial": "{count}件の更新に失敗しました: {error}"
     }
   },
   "contentTypeBars": {
-    "types": { "image": "画像", "video": "動画", "carousel": "カルーセル", "text": "テキスト投稿" },
+    "types": {
+      "image": "画像",
+      "video": "動画",
+      "carousel": "カルーセル",
+      "text": "テキスト投稿"
+    },
     "notEnoughVariety": "まだ十分なバリエーションがありません",
     "publishAtLeastTwo": "少なくとも2つのコンテンツ形式（画像、動画、カルーセル、テキスト）を公開すると比較できます。",
     "postsCount": "{count, plural, other {#件の投稿}}",
@@ -88,12 +131,14 @@
       "views": "ビュー数",
       "reach": "リーチ",
       "engagement": "エンゲージメント",
-      "erReach": "ER（リーチ）",
-      "followers": "フォロワー"
+      "followers": "フォロワー",
+      "er": "エンゲ率"
     },
     "empty": "チャンネルを接続して投稿すると、チャンネル別のパフォーマンスが表示されます。",
     "clearFilter": "チャンネルフィルターを解除",
-    "filterTo": "{channel}で絞り込み"
+    "filterTo": "{channel}で絞り込み",
+    "erBasis": "プラットフォームがリーチを報告する場合はリーチ基準、それ以外は視聴数基準（表示あり）",
+    "byViews": "（視聴）"
   },
   "bestTimeHeatmap": {
     "notEnoughData": "まだ十分なデータがありません",
@@ -106,13 +151,14 @@
       "views": "ビュー数",
       "reach": "リーチ",
       "engagement": "エンゲージメント",
-      "erReach": "ER（リーチ）",
-      "published": "公開日"
+      "published": "公開日",
+      "er": "エンゲ率"
     },
     "empty": "この期間にメトリクスのある投稿はまだありません。メトリクスは公開から約1時間後に届きます。",
     "untitledPost": "無題の投稿",
     "sortBy": "{label}で並べ替え",
-    "openOnPlatform": "プラットフォームで開く"
+    "openOnPlatform": "プラットフォームで開く",
+    "byViews": "（視聴）"
   },
   "stackedArea": {
     "noData": "まだデータがありません。"

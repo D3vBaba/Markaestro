@@ -88,7 +88,7 @@ function pickChannelAgg(
   return entries.filter(([ch]) => !channel || ch === channel).map(([, agg]) => agg);
 }
 
-function totalsFromAggregates(
+export function totalsFromAggregates(
   docs: DailyAggregateDoc[],
   channel?: SocialChannel,
   productId?: string,
@@ -98,8 +98,11 @@ function totalsFromAggregates(
   let reach: number | null = null;
   let engagements: number | null = null;
   let reachForRate = 0;
-  let engagementsForRate = 0;
-  let hasRate = false;
+  let engagementsForReachRate = 0;
+  let hasReachRate = false;
+  let viewsForRate = 0;
+  let engagementsForViewsRate = 0;
+  let hasViewsRate = false;
 
   for (const doc of docs) {
     for (const agg of pickChannelAgg(doc, channel, productId)) {
@@ -107,10 +110,18 @@ function totalsFromAggregates(
       if (agg.postsWithViews > 0) views = (views ?? 0) + agg.views;
       if (agg.postsWithReach > 0) reach = (reach ?? 0) + agg.reach;
       if (agg.postsWithEngagements > 0) engagements = (engagements ?? 0) + agg.engagements;
+      // Each rate only ever pairs engagements with the denominator the same
+      // posts reported, so a channel without reach (TikTok, Threads) neither
+      // inflates the reach rate nor disappears from the views rate.
       if (agg.postsWithReach > 0 && agg.postsWithEngagements > 0) {
         reachForRate += agg.reach;
-        engagementsForRate += agg.engagements;
-        hasRate = true;
+        engagementsForReachRate += agg.engagements;
+        hasReachRate = true;
+      }
+      if (agg.postsWithViews > 0 && agg.postsWithEngagements > 0) {
+        viewsForRate += agg.views;
+        engagementsForViewsRate += agg.engagements;
+        hasViewsRate = true;
       }
     }
   }
@@ -120,11 +131,12 @@ function totalsFromAggregates(
     views,
     reach,
     engagements,
-    engagementRateByReach: hasRate && reachForRate > 0 ? engagementsForRate / reachForRate : null,
+    engagementRateByReach: hasReachRate && reachForRate > 0 ? engagementsForReachRate / reachForRate : null,
+    engagementRateByViews: hasViewsRate && viewsForRate > 0 ? engagementsForViewsRate / viewsForRate : null,
   };
 }
 
-function postToRow(id: string, post: PostDocData, channelFilter?: SocialChannel): AnalyticsPostRow {
+export function postToRow(id: string, post: PostDocData, channelFilter?: SocialChannel): AnalyticsPostRow {
   const byChannelAll = post.metricsByChannel ?? {};
   const byChannel: typeof byChannelAll = channelFilter
     ? (byChannelAll[channelFilter] ? { [channelFilter]: byChannelAll[channelFilter] } : {})
@@ -152,10 +164,11 @@ function postToRow(id: string, post: PostDocData, channelFilter?: SocialChannel)
     clicks: sumAcrossChannels(byChannel, (m) => m.clicks),
     engagements,
     erByReach: ratio(engagements, reach),
+    erByViews: ratio(engagements, views),
   };
 }
 
-function computeInsights(rows: AnalyticsPostRow[], tzOffsetMinutes = 0): Array<{ id: string; text: string; sampleSize: number }> {
+export function computeInsights(rows: AnalyticsPostRow[], tzOffsetMinutes = 0): Array<{ id: string; text: string; sampleSize: number }> {
   const insights: Array<{ id: string; text: string; sampleSize: number }> = [];
   const withEngagements = rows.filter((r) => r.engagements !== null);
 
@@ -324,7 +337,14 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
     const views = list.reduce<number | null>((a, r) => (r.views === null ? a : (a ?? 0) + r.views), null);
     const reach = list.reduce<number | null>((a, r) => (r.reach === null ? a : (a ?? 0) + r.reach), null);
     const engagements = list.reduce<number | null>((a, r) => (r.engagements === null ? a : (a ?? 0) + r.engagements), null);
-    return { posts: list.length, views, reach, engagements, engagementRateByReach: ratio(engagements, reach) };
+    return {
+      posts: list.length,
+      views,
+      reach,
+      engagements,
+      engagementRateByReach: ratio(engagements, reach),
+      engagementRateByViews: ratio(engagements, views),
+    };
   };
 
   const currentTotals = useAggregates ? totalsFromAggregates(currentAggs, channel, productId) : totalsFromRows(rows);
@@ -439,6 +459,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
         reach: totals.reach,
         engagements: totals.engagements,
         engagementRateByReach: totals.engagementRateByReach,
+        engagementRateByViews: totals.engagementRateByViews,
         followers: latest,
         followerDelta: latest !== null && atStart !== null ? latest - atStart : null,
       };

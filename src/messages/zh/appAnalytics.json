@@ -6,7 +6,9 @@
       "idle": "刷新",
       "refreshing": "正在刷新…",
       "pulling": "正在获取实时数据…",
-      "title": "从每个已连接的平台获取最新数据"
+      "title": "从每个已连接的平台获取最新数据",
+      "lastUpdated": "{time} 更新",
+      "lastUpdatedTitle": "本页数据最近一次从各平台拉取的时间"
     },
     "export": {
       "idle": "导出 CSV",
@@ -34,43 +36,84 @@
     },
     "warmingUp": "正在收集数据，首批数据将在发布后约一小时到达，此后会按递减频率持续更新，为期 30 天。",
     "kpis": {
-      "views": { "label": "观看量", "sub": "较上一周期" },
-      "reach": { "label": "覆盖人数", "sub": "触达的独立账户数" },
-      "engagement": { "label": "互动量", "sub": "点赞 + 评论 + 分享 + 收藏" },
-      "engagementRate": { "label": "互动率", "sub": "互动量 ÷ 覆盖人数" },
-      "followers": { "label": "粉丝数", "sub": "所有已连接渠道" }
+      "views": {
+        "label": "观看量",
+        "sub": "较上一周期"
+      },
+      "reach": {
+        "label": "覆盖人数",
+        "sub": "触达的独立账户数"
+      },
+      "engagement": {
+        "label": "互动量",
+        "sub": "点赞 + 评论 + 分享 + 收藏"
+      },
+      "engagementRate": {
+        "label": "互动率",
+        "sub": "互动量 ÷ 覆盖人数",
+        "subViews": "互动 ÷ 播放量（未上报触达）"
+      },
+      "followers": {
+        "label": "粉丝数",
+        "sub": "所有已连接渠道"
+      }
     },
     "insights": {
       "basedOn": "基于 {count} 篇帖子"
     },
     "trend": {
       "eyebrow": "表现 · {days}天",
-      "metrics": { "views": "观看量", "reach": "覆盖人数", "engagements": "互动量", "posts": "帖子数" }
+      "metrics": {
+        "views": "观看量",
+        "reach": "覆盖人数",
+        "engagements": "互动量",
+        "posts": "帖子数"
+      },
+      "note": "按发布日期（UTC）分组。平台上报后数据会更新。"
     },
     "audience": {
       "eyebrow": "受众",
       "title": "粉丝",
       "titleWithCount": "{count}位粉丝"
     },
-    "timing": { "eyebrow": "发布时机", "title": "你的帖子何时表现最佳" },
-    "format": { "eyebrow": "内容形式", "title": "哪种形式带来更多互动" },
-    "channels": { "eyebrow": "渠道", "title": "各渠道表现" },
-    "posts": { "eyebrow": "帖子", "title": "热门帖子" },
+    "timing": {
+      "eyebrow": "发布时机",
+      "title": "你的帖子何时表现最佳"
+    },
+    "format": {
+      "eyebrow": "内容形式",
+      "title": "哪种形式带来更多互动"
+    },
+    "channels": {
+      "eyebrow": "渠道",
+      "title": "各渠道表现"
+    },
+    "posts": {
+      "eyebrow": "帖子",
+      "title": "热门帖子"
+    },
     "provenance": {
       "base": "数据指标采用各平台自身的 API 定义，可能比平台原生统计数据滞后最多 48 小时。「，」表示该平台未提供此项指标（例如 Threads 和 TikTok 不提供覆盖人数数据）。互动率 = 互动量 ÷ 覆盖人数。",
       "truncated": " 帖子级观看量基于此时间段内最近的 {count} 篇帖子。",
       "lastUpdate": " 数据最近更新于 {date}。"
     },
     "toasts": {
-      "updated": "已从数据源更新 {count} 篇帖子",
       "noNewMetrics": "暂无新的平台数据",
       "tooManyRefreshes": "刷新次数过多，请一分钟后再试。",
       "pullFailed": "无法获取实时数据，正在显示最新的已保存数据。",
-      "exportFailed": "导出失败，请重试。"
+      "exportFailed": "导出失败，请重试。",
+      "updatedOf": "已刷新此期间 {scanned} 篇帖子中的 {updated} 篇",
+      "updatedPartial": "时间用尽前已刷新 {scanned} 篇帖子中的 {updated} 篇。再次刷新以获取其余部分。",
+      "partial": "{count} 次刷新失败：{error}"
     }
   },
   "contentTypeBars": {
-    "types": { "image": "图片", "video": "视频", "carousel": "轮播图", "text": "纯文本帖子" },
+    "types": {
+      "image": "图片",
+      "video": "视频",
+      "carousel": "轮播图",
+      "text": "纯文本帖子"
+    },
     "notEnoughVariety": "内容形式还不够多样",
     "publishAtLeastTwo": "发布至少两种内容形式（图片、视频、轮播图、纯文本）即可进行对比。",
     "postsCount": "{count} 篇帖子",
@@ -88,12 +131,14 @@
       "views": "观看量",
       "reach": "覆盖人数",
       "engagement": "互动量",
-      "erReach": "互动率（覆盖）",
-      "followers": "粉丝数"
+      "followers": "粉丝数",
+      "er": "互动率"
     },
     "empty": "连接一个渠道并发布内容，即可查看各渠道表现。",
     "clearFilter": "清除渠道筛选",
-    "filterTo": "按{channel}筛选"
+    "filterTo": "按{channel}筛选",
+    "erBasis": "平台上报触达时按触达计算，否则按播放量计算（有标记）",
+    "byViews": "（播放）"
   },
   "bestTimeHeatmap": {
     "notEnoughData": "数据还不够",
@@ -106,13 +151,14 @@
       "views": "观看量",
       "reach": "覆盖人数",
       "engagement": "互动量",
-      "erReach": "互动率（覆盖）",
-      "published": "发布时间"
+      "published": "发布时间",
+      "er": "互动率"
     },
     "empty": "此时间段内暂无带数据指标的帖子。数据通常在发布后约一小时到达。",
     "untitledPost": "无标题帖子",
     "sortBy": "按{label}排序",
-    "openOnPlatform": "在平台上打开"
+    "openOnPlatform": "在平台上打开",
+    "byViews": "（播放）"
   },
   "stackedArea": {
     "noData": "暂无数据。"

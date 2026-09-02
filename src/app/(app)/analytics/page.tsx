@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import PageHeader from "@/components/app/PageHeader";
@@ -104,18 +104,61 @@ export default function AnalyticsPage() {
     && data.coverage.postsAnalyzed > 0 && data.coverage.postsWithMetrics === 0;
 
   const followerSpark = data?.followerTrend.map((p) => p.total) ?? [];
+  // Engagement rate by reach when any channel in scope reports reach;
+  // otherwise by views, and the label says which, never a blank tile.
+  const engagementRate = useMemo(() => {
+    const byReach = data?.totals.engagementRateByReach ?? null;
+    if (byReach !== null) {
+      return { value: byReach, delta: pctChange(byReach, data?.totals.prior?.engagementRateByReach), byReach: true };
+    }
+    const byViews = data?.totals.engagementRateByViews ?? null;
+    return { value: byViews, delta: pctChange(byViews, data?.totals.prior?.engagementRateByViews), byReach: false };
+  }, [data]);
+
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null);
+
+  // A dashboard someone leaves open should not drift: re-read the stored
+  // numbers when the tab regains focus. This is a cache read, not a platform
+  // pull, so it costs nothing against the refresh rate limit.
+  useEffect(() => {
+    const onFocus = () => {
+      if (document.visibilityState === "visible") void refresh();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [refresh]);
 
   async function handleRefresh() {
     if (syncing || refreshing) return;
     setSyncing(true);
     try {
-      const res = await apiPost<{ updated: number; scanned: number }>("/api/analytics/refresh", {
+      const res = await apiPost<{
+        updated: number;
+        scanned: number;
+        remaining: number;
+        followersUpdated: number;
+        errorCount: number;
+        firstError: string | null;
+        refreshedAt: string;
+      }>("/api/analytics/refresh", {
+        days,
         ...(channel ? { channel } : {}),
         ...(productId ? { productId } : {}),
       });
       if (res.ok) {
-        if (res.data.updated > 0) {
-          toast.success(t("toasts.updated", { count: res.data.updated }));
+        setLastRefreshedAt(res.data.refreshedAt);
+        if (res.data.errorCount > 0) {
+          toast.warning(t("toasts.partial", { count: res.data.errorCount, error: res.data.firstError ?? "" }));
+        } else if (res.data.updated > 0) {
+          toast.success(
+            res.data.remaining > 0
+              ? t("toasts.updatedPartial", { updated: res.data.updated, scanned: res.data.scanned })
+              : t("toasts.updatedOf", { updated: res.data.updated, scanned: res.data.scanned }),
+          );
         } else {
           toast.message(t("toasts.noNewMetrics"));
         }
@@ -158,6 +201,13 @@ export default function AnalyticsPage() {
         subtitle={t("subtitle")}
         action={
           <div className="flex items-center gap-2 flex-wrap">
+            {(lastRefreshedAt || data?.coverage.lastMetricsAt) && (
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 tabular-nums" title={t("refresh.lastUpdatedTitle")}>
+                {t("refresh.lastUpdated", {
+                  time: new Date(lastRefreshedAt ?? data!.coverage.lastMetricsAt!).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" }),
+                })}
+              </span>
+            )}
             <Button
               variant="outline"
               className="rounded-xl h-9 text-xs font-medium gap-2 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -346,13 +396,10 @@ export default function AnalyticsPage() {
             />
             <KpiCard
               label={t("kpis.engagementRate.label")}
-              value={data?.totals.engagementRateByReach ?? null}
+              value={engagementRate.value}
               format="percent"
-              deltaPct={pctChange(
-                data?.totals.engagementRateByReach ?? null,
-                data?.totals.prior?.engagementRateByReach,
-              )}
-              sub={t("kpis.engagementRate.sub")}
+              deltaPct={engagementRate.delta}
+              sub={engagementRate.byReach ? t("kpis.engagementRate.sub") : t("kpis.engagementRate.subViews")}
               loading={loading}
             />
             <KpiCard
@@ -421,12 +468,15 @@ export default function AnalyticsPage() {
               {loading ? (
                 <Skeleton className="w-full rounded-xl" style={{ height: 220 }} />
               ) : (
-                <TrendChart
-                  data={data?.daily ?? []}
-                  dataKey={trendMetric}
-                  name={t(`trend.metrics.${trendMetric}`)}
-                  locale={locale}
-                />
+                <>
+                  <TrendChart
+                    data={data?.daily ?? []}
+                    dataKey={trendMetric}
+                    name={t(`trend.metrics.${trendMetric}`)}
+                    locale={locale}
+                  />
+                  <p className="mt-2 mb-0 text-[11px] text-slate-400 dark:text-slate-500">{t("trend.note")}</p>
+                </>
               )}
             </Card>
             <Card

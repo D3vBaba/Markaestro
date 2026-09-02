@@ -209,6 +209,32 @@ describe('refreshPostsNow', () => {
     expect(updateArg).not.toHaveProperty('metricsStatus');
   });
 
+  it('stops taking new posts once the deadline passes and reports the remainder', async () => {
+    const posts = ['a', 'b', 'c'].map((id) => {
+      const post = makePostDoc({
+        status: 'published',
+        channel: 'facebook',
+        publishedAt: '2026-03-10T00:00:00.000Z',
+        publishResults: [{ channel: 'facebook', success: true, externalId: `fb_${id}` }],
+      });
+      post.doc.id = `post_${id}`;
+      return post;
+    });
+    collectionMock.mockReturnValue(makeQuery(posts.map((post) => post.doc)));
+    const fetchMetrics = vi.fn(async () => ({ ok: true, metrics: makeMetrics({ views: 1 }) }));
+    getAdapterForChannelMock.mockReturnValue({ fetchMetrics });
+
+    const { refreshPostsNow } = await import('../analytics/metrics-poller');
+    const summary = await refreshPostsNow('ws_123', '2026-03-15T12:00:00.000Z', {
+      deadlineMs: Date.now() - 1,
+    });
+
+    expect(summary.due).toBe(3);
+    expect(summary.polled).toBe(0);
+    expect(summary.remaining).toBe(3);
+    expect(fetchMetrics).not.toHaveBeenCalled();
+  });
+
   it('only fetches the requested channel when a channel filter is supplied', async () => {
     const post = makePostDoc({
       productId: 'prod_123',

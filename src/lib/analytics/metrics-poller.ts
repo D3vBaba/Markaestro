@@ -27,6 +27,8 @@ export type MetricsPollSummary = {
   channelFetches: number;
   affectedDates: string[];
   errors: Array<{ postId: string; error: string }>;
+  /** On-demand refresh only: posts in scope that the time budget did not reach. */
+  remaining?: number;
 };
 
 type PublishResultEntry = {
@@ -387,14 +389,28 @@ async function pollOnePost(
  * user clicks Refresh. Bounded by `limit` and run with light concurrency to
  * stay within the request/client timeout while capping platform API load.
  */
+/** Upper bound on posts one on-demand refresh may touch; the deadline usually binds first. */
+export const MAX_REFRESH_POSTS = 60;
+
 export async function refreshPostsNow(
   workspaceId: string,
   nowIso: string,
-  opts: { productId?: string; channel?: SocialChannel; sinceIso?: string; limit?: number } = {},
+  opts: {
+    productId?: string;
+    channel?: SocialChannel;
+    sinceIso?: string;
+    limit?: number;
+    /** Wall-clock deadline (epoch ms). Posts not started by then are reported in `remaining`. */
+    deadlineMs?: number;
+  } = {},
 ): Promise<MetricsPollSummary> {
-  const summary: MetricsPollSummary = { due: 0, polled: 0, channelFetches: 0, affectedDates: [], errors: [] };
-  const limit = Math.min(Math.max(opts.limit ?? 15, 1), MAX_METRIC_POLLS_PER_TICK);
-  const sinceIso = opts.sinceIso ?? backfillSinceIso(nowIso);
+  const summary: MetricsPollSummary = { due: 0, polled: 0, channelFetches: 0, affectedDates: [], errors: [], remaining: 0 };
+  const limit = Math.min(Math.max(opts.limit ?? 15, 1), MAX_REFRESH_POSTS);
+  // Never reach past the backfill horizon: older posts have no poll state and
+  // most platforms stop serving insights for them anyway.
+  const floorIso = backfillSinceIso(nowIso);
+  const sinceIso = opts.sinceIso && opts.sinceIso > floorIso ? opts.sinceIso : floorIso;
+  const deadlineMs = opts.deadlineMs ?? Number.POSITIVE_INFINITY;
 
   let query: FirebaseFirestore.Query = adminDb
     .collection(`workspaces/${workspaceId}/posts`)
@@ -461,6 +477,9 @@ export async function refreshPostsNow(
   const REFRESH_CONCURRENCY = 5;
   const worker = async () => {
     while (cursor < docs.length) {
+      // Stop taking new posts once the budget is spent; in-flight fetches
+      // finish so a half-written post never lands.
+      if (Date.now() >= deadlineMs) return;
       const doc = docs[cursor++];
       try {
         await refreshOne(doc);
@@ -472,6 +491,7 @@ export async function refreshPostsNow(
   await Promise.all(
     Array.from({ length: Math.min(REFRESH_CONCURRENCY, docs.length) }, () => worker()),
   );
+  summary.remaining = Math.max(0, docs.length - cursor);
 
   return summary;
 }

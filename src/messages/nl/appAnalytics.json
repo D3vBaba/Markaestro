@@ -6,7 +6,9 @@
       "idle": "Vernieuwen",
       "refreshing": "Bezig met vernieuwen…",
       "pulling": "Live gegevens ophalen…",
-      "title": "Haal de nieuwste cijfers op van elk verbonden platform"
+      "title": "Haal de nieuwste cijfers op van elk verbonden platform",
+      "lastUpdated": "Bijgewerkt {time}",
+      "lastUpdatedTitle": "Wanneer de cijfers op deze pagina voor het laatst van de platforms zijn opgehaald"
     },
     "export": {
       "idle": "CSV exporteren",
@@ -34,43 +36,84 @@
     },
     "warmingUp": "Statistieken worden verzameld, de eerste gegevens komen ongeveer een uur na publicatie binnen en worden daarna 30 dagen lang met afnemende frequentie bijgewerkt.",
     "kpis": {
-      "views": { "label": "Weergaven", "sub": "t.o.v. vorige periode" },
-      "reach": { "label": "Bereik", "sub": "unieke bereikte accounts" },
-      "engagement": { "label": "Betrokkenheid", "sub": "likes + reacties + keer gedeeld + opgeslagen" },
-      "engagementRate": { "label": "Betrokkenheidspercentage", "sub": "betrokkenheid ÷ bereik" },
-      "followers": { "label": "Volgers", "sub": "alle verbonden kanalen" }
+      "views": {
+        "label": "Weergaven",
+        "sub": "t.o.v. vorige periode"
+      },
+      "reach": {
+        "label": "Bereik",
+        "sub": "unieke bereikte accounts"
+      },
+      "engagement": {
+        "label": "Betrokkenheid",
+        "sub": "likes + reacties + keer gedeeld + opgeslagen"
+      },
+      "engagementRate": {
+        "label": "Betrokkenheidspercentage",
+        "sub": "betrokkenheid ÷ bereik",
+        "subViews": "betrokkenheid ÷ weergaven (geen bereik gerapporteerd)"
+      },
+      "followers": {
+        "label": "Volgers",
+        "sub": "alle verbonden kanalen"
+      }
     },
     "insights": {
       "basedOn": "GEBASEERD OP {count} BERICHTEN"
     },
     "trend": {
       "eyebrow": "Prestaties · {days}d",
-      "metrics": { "views": "Weergaven", "reach": "Bereik", "engagements": "Betrokkenheid", "posts": "Berichten" }
+      "metrics": {
+        "views": "Weergaven",
+        "reach": "Bereik",
+        "engagements": "Betrokkenheid",
+        "posts": "Berichten"
+      },
+      "note": "Gegroepeerd op publicatiedatum (UTC). Cijfers worden bijgewerkt zodra de platforms ze rapporteren."
     },
     "audience": {
       "eyebrow": "Publiek",
       "title": "Volgers",
       "titleWithCount": "{count} volgers"
     },
-    "timing": { "eyebrow": "Timing", "title": "Wanneer je berichten het best presteren" },
-    "format": { "eyebrow": "Formaat", "title": "Wat de meeste betrokkenheid oplevert" },
-    "channels": { "eyebrow": "Kanalen", "title": "Prestaties per kanaal" },
-    "posts": { "eyebrow": "Berichten", "title": "Best presterende berichten" },
+    "timing": {
+      "eyebrow": "Timing",
+      "title": "Wanneer je berichten het best presteren"
+    },
+    "format": {
+      "eyebrow": "Formaat",
+      "title": "Wat de meeste betrokkenheid oplevert"
+    },
+    "channels": {
+      "eyebrow": "Kanalen",
+      "title": "Prestaties per kanaal"
+    },
+    "posts": {
+      "eyebrow": "Berichten",
+      "title": "Best presterende berichten"
+    },
     "provenance": {
       "base": "Statistieken volgen de API-definities van elk platform en kunnen tot 48 uur achterlopen op de eigen inzichten van het platform. Een \"n/a\" betekent dat het platform die statistiek niet levert (Threads en TikTok rapporteren bijvoorbeeld geen bereik). Betrokkenheidspercentage is betrokkenheid ÷ bereik.",
       "truncated": " Weergaven per bericht zijn gebaseerd op de {count} meest recente berichten in deze periode.",
       "lastUpdate": " Laatste update van statistieken: {date}."
     },
     "toasts": {
-      "updated": "{count, plural, one {# bericht bijgewerkt vanuit de bron} other {# berichten bijgewerkt vanuit de bron}}",
       "noNewMetrics": "Geen nieuwe platformstatistieken beschikbaar",
       "tooManyRefreshes": "Te veel vernieuwingen, probeer het over een minuut opnieuw.",
       "pullFailed": "Live gegevens konden niet worden opgehaald. De laatst opgeslagen cijfers worden weergegeven.",
-      "exportFailed": "Exporteren mislukt. Probeer het opnieuw."
+      "exportFailed": "Exporteren mislukt. Probeer het opnieuw.",
+      "updatedOf": "{updated} van {scanned} posts in deze periode vernieuwd",
+      "updatedPartial": "{updated} van {scanned} posts vernieuwd voordat de tijd op was. Vernieuw opnieuw voor de rest.",
+      "partial": "{count, plural, one {# vernieuwing mislukt} other {# vernieuwingen mislukt}}: {error}"
     }
   },
   "contentTypeBars": {
-    "types": { "image": "Afbeeldingen", "video": "Video's", "carousel": "Carrousels", "text": "Tekstberichten" },
+    "types": {
+      "image": "Afbeeldingen",
+      "video": "Video's",
+      "carousel": "Carrousels",
+      "text": "Tekstberichten"
+    },
     "notEnoughVariety": "Nog niet genoeg variatie",
     "publishAtLeastTwo": "Publiceer ten minste twee contentformaten (afbeeldingen, video's, carrousels, tekst) om ze te vergelijken.",
     "postsCount": "{count, plural, one {# bericht} other {# berichten}}",
@@ -88,12 +131,14 @@
       "views": "Weergaven",
       "reach": "Bereik",
       "engagement": "Betrokkenheid",
-      "erReach": "BP (bereik)",
-      "followers": "Volgers"
+      "followers": "Volgers",
+      "er": "Betr.-ratio"
     },
     "empty": "Verbind een kanaal en publiceer om de prestaties per kanaal te zien.",
     "clearFilter": "Kanaalfilter wissen",
-    "filterTo": "Filteren op {channel}"
+    "filterTo": "Filteren op {channel}",
+    "erBasis": "Op bereik als het platform dat rapporteert, anders op weergaven (gemarkeerd)",
+    "byViews": "(weergaven)"
   },
   "bestTimeHeatmap": {
     "notEnoughData": "Nog niet genoeg gegevens",
@@ -106,13 +151,14 @@
       "views": "Weergaven",
       "reach": "Bereik",
       "engagement": "Betrokkenheid",
-      "erReach": "BP (bereik)",
-      "published": "Gepubliceerd"
+      "published": "Gepubliceerd",
+      "er": "Betr.-ratio"
     },
     "empty": "Nog geen berichten met statistieken in deze periode. Statistieken komen ongeveer een uur na publicatie binnen.",
     "untitledPost": "Bericht zonder titel",
     "sortBy": "Sorteren op {label}",
-    "openOnPlatform": "Openen op platform"
+    "openOnPlatform": "Openen op platform",
+    "byViews": "(weergaven)"
   },
   "stackedArea": {
     "noData": "Nog geen gegevens."

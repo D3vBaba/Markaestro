@@ -6,7 +6,9 @@
       "idle": "Aktualisieren",
       "refreshing": "Wird aktualisiert…",
       "pulling": "Live-Daten werden abgerufen…",
-      "title": "Die aktuellsten Zahlen von jeder verbundenen Plattform abrufen"
+      "title": "Die aktuellsten Zahlen von jeder verbundenen Plattform abrufen",
+      "lastUpdated": "Aktualisiert {time}",
+      "lastUpdatedTitle": "Wann die Zahlen auf dieser Seite zuletzt von den Plattformen abgerufen wurden"
     },
     "export": {
       "idle": "CSV exportieren",
@@ -34,43 +36,84 @@
     },
     "warmingUp": "Metriken werden erfasst, die ersten Werte treffen etwa eine Stunde nach der Veröffentlichung ein und werden danach 30 Tage lang in abnehmender Frequenz aktualisiert.",
     "kpis": {
-      "views": { "label": "Aufrufe", "sub": "vs. vorheriger Zeitraum" },
-      "reach": { "label": "Reichweite", "sub": "erreichte einzelne Konten" },
-      "engagement": { "label": "Engagement", "sub": "Likes + Kommentare + Shares + Speicherungen" },
-      "engagementRate": { "label": "Engagement-Rate", "sub": "Engagement ÷ Reichweite" },
-      "followers": { "label": "Follower", "sub": "alle verbundenen Kanäle" }
+      "views": {
+        "label": "Aufrufe",
+        "sub": "vs. vorheriger Zeitraum"
+      },
+      "reach": {
+        "label": "Reichweite",
+        "sub": "erreichte einzelne Konten"
+      },
+      "engagement": {
+        "label": "Engagement",
+        "sub": "Likes + Kommentare + Shares + Speicherungen"
+      },
+      "engagementRate": {
+        "label": "Engagement-Rate",
+        "sub": "Engagement ÷ Reichweite",
+        "subViews": "Interaktionen ÷ Aufrufe (keine Reichweite gemeldet)"
+      },
+      "followers": {
+        "label": "Follower",
+        "sub": "alle verbundenen Kanäle"
+      }
     },
     "insights": {
       "basedOn": "BASIEREND AUF {count} BEITRÄGEN"
     },
     "trend": {
       "eyebrow": "Performance · {days}T",
-      "metrics": { "views": "Aufrufe", "reach": "Reichweite", "engagements": "Engagement", "posts": "Beiträge" }
+      "metrics": {
+        "views": "Aufrufe",
+        "reach": "Reichweite",
+        "engagements": "Engagement",
+        "posts": "Beiträge"
+      },
+      "note": "Nach Veröffentlichungsdatum (UTC) gruppiert. Die Zahlen aktualisieren sich, sobald die Plattformen sie melden."
     },
     "audience": {
       "eyebrow": "Zielgruppe",
       "title": "Follower",
       "titleWithCount": "{count} Follower"
     },
-    "timing": { "eyebrow": "Timing", "title": "Wann deine Beiträge am besten performen" },
-    "format": { "eyebrow": "Format", "title": "Was das meiste Engagement erzielt" },
-    "channels": { "eyebrow": "Kanäle", "title": "Performance nach Kanal" },
-    "posts": { "eyebrow": "Beiträge", "title": "Top-Beiträge" },
+    "timing": {
+      "eyebrow": "Timing",
+      "title": "Wann deine Beiträge am besten performen"
+    },
+    "format": {
+      "eyebrow": "Format",
+      "title": "Was das meiste Engagement erzielt"
+    },
+    "channels": {
+      "eyebrow": "Kanäle",
+      "title": "Performance nach Kanal"
+    },
+    "posts": {
+      "eyebrow": "Beiträge",
+      "title": "Top-Beiträge"
+    },
     "provenance": {
       "base": "Die Metriken folgen den API-Definitionen der jeweiligen Plattform und können bis zu 48 Stunden hinter den nativen Statistiken zurückliegen. Ein „: “ bedeutet, dass die Plattform diese Metrik nicht bereitstellt (Threads und TikTok melden beispielsweise keine Reichweite). Die Engagement-Rate ist Engagement ÷ Reichweite.",
       "truncated": " Beitragsbezogene Aufrufe basieren auf den {count} neuesten Beiträgen in diesem Zeitraum.",
       "lastUpdate": " Letzte Aktualisierung der Metriken: {date}."
     },
     "toasts": {
-      "updated": "{count, plural, one {# Beitrag von der Quelle aktualisiert} other {# Beiträge von der Quelle aktualisiert}}",
       "noNewMetrics": "Keine neuen Plattform-Metriken verfügbar",
       "tooManyRefreshes": "Zu viele Aktualisierungen, versuche es in einer Minute erneut.",
       "pullFailed": "Live-Daten konnten nicht abgerufen werden. Die zuletzt gespeicherten Zahlen werden angezeigt.",
-      "exportFailed": "Export fehlgeschlagen. Bitte erneut versuchen."
+      "exportFailed": "Export fehlgeschlagen. Bitte erneut versuchen.",
+      "updatedOf": "{updated} von {scanned} Beiträgen in diesem Zeitraum aktualisiert",
+      "updatedPartial": "{updated} von {scanned} Beiträgen aktualisiert, bevor das Zeitbudget aufgebraucht war. Für den Rest erneut aktualisieren.",
+      "partial": "{count, plural, one {# Aktualisierung fehlgeschlagen} other {# Aktualisierungen fehlgeschlagen}}: {error}"
     }
   },
   "contentTypeBars": {
-    "types": { "image": "Bilder", "video": "Videos", "carousel": "Karussells", "text": "Textbeiträge" },
+    "types": {
+      "image": "Bilder",
+      "video": "Videos",
+      "carousel": "Karussells",
+      "text": "Textbeiträge"
+    },
     "notEnoughVariety": "Noch nicht genug Vielfalt",
     "publishAtLeastTwo": "Veröffentliche mindestens zwei Content-Formate (Bilder, Videos, Karussells, Text), um sie zu vergleichen.",
     "postsCount": "{count, plural, one {# Beitrag} other {# Beiträge}}",
@@ -88,12 +131,14 @@
       "views": "Aufrufe",
       "reach": "Reichweite",
       "engagement": "Engagement",
-      "erReach": "ER (Reichweite)",
-      "followers": "Follower"
+      "followers": "Follower",
+      "er": "Int.-Rate"
     },
     "empty": "Verbinde einen Kanal und veröffentliche, um die Performance nach Kanal zu sehen.",
     "clearFilter": "Kanalfilter zurücksetzen",
-    "filterTo": "Nach {channel} filtern"
+    "filterTo": "Nach {channel} filtern",
+    "erBasis": "Nach Reichweite, wenn die Plattform sie meldet, sonst nach Aufrufen (markiert)",
+    "byViews": "(Aufrufe)"
   },
   "bestTimeHeatmap": {
     "notEnoughData": "Noch nicht genug Daten",
@@ -106,13 +151,14 @@
       "views": "Aufrufe",
       "reach": "Reichweite",
       "engagement": "Engagement",
-      "erReach": "ER (Reichweite)",
-      "published": "Veröffentlicht"
+      "published": "Veröffentlicht",
+      "er": "Int.-Rate"
     },
     "empty": "Für diesen Zeitraum liegen noch keine Beiträge mit Metriken vor. Metriken treffen etwa eine Stunde nach der Veröffentlichung ein.",
     "untitledPost": "Beitrag ohne Titel",
     "sortBy": "Sortieren nach {label}",
-    "openOnPlatform": "Auf der Plattform öffnen"
+    "openOnPlatform": "Auf der Plattform öffnen",
+    "byViews": "(Aufrufe)"
   },
   "stackedArea": {
     "noData": "Noch keine Daten."

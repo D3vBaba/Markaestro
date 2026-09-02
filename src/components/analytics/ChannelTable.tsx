@@ -11,6 +11,13 @@ function cell(value: number | null, locale?: string): string {
   return value === null ? "n/a" : fmtCount(Math.round(value), locale);
 }
 
+/** Reach-based rate when the platform reports reach, otherwise the views-based rate, marked. */
+export function rateCell(byReach: number | null, byViews: number | null, viewsMarker: string): string {
+  if (byReach !== null) return `${(byReach * 100).toFixed(1)}%`;
+  if (byViews !== null) return `${(byViews * 100).toFixed(1)}% ${viewsMarker}`;
+  return "n/a";
+}
+
 /** Per-channel breakdown; clicking a row toggles the page-level channel filter. */
 export function ChannelTable({
   channels,
@@ -42,7 +49,7 @@ export function ChannelTable({
             <th className="text-right font-normal py-2 px-2 mk-eyebrow">{t("columns.views")}</th>
             <th className="text-right font-normal py-2 px-2 mk-eyebrow">{t("columns.reach")}</th>
             <th className="text-right font-normal py-2 px-2 mk-eyebrow">{t("columns.engagement")}</th>
-            <th className="text-right font-normal py-2 px-2 mk-eyebrow whitespace-nowrap">{t("columns.erReach")}</th>
+            <th className="text-right font-normal py-2 px-2 mk-eyebrow whitespace-nowrap" title={t("erBasis")}>{t("columns.er")}</th>
             <th className="text-right font-normal py-2 pl-2 mk-eyebrow">{t("columns.followers")}</th>
           </tr>
         </thead>
@@ -78,10 +85,8 @@ export function ChannelTable({
                 <td className="text-right px-2 font-mono mk-figure" style={{ color: "var(--mk-ink)" }}>
                   {cell(row.engagements, locale)}
                 </td>
-                <td className="text-right px-2 font-mono" style={{ color: "var(--mk-ink-60)" }}>
-                  {row.engagementRateByReach === null
-                    ? "n/a"
-                    : `${(row.engagementRateByReach * 100).toFixed(1)}%`}
+                <td className="text-right px-2 font-mono whitespace-nowrap" style={{ color: "var(--mk-ink-60)" }}>
+                  {rateCell(row.engagementRateByReach, row.engagementRateByViews, t("byViews"))}
                 </td>
                 <td className="text-right pl-2 font-mono mk-figure whitespace-nowrap" style={{ color: "var(--mk-ink)" }}>
                   {cell(row.followers, locale)}
