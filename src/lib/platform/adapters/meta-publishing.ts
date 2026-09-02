@@ -720,9 +720,28 @@ async function fetchInstagramMetrics(
   return { ok: true, metrics };
 }
 
+/**
+ * Facebook video publishes return the Video object's id, and `/insights` is
+ * not a field on a Video node; the metrics live on the Page post that wraps
+ * it, whose id is `{pageId}_{videoId}`. Detect the exact Graph complaint so
+ * an unrelated error is never rewritten.
+ */
+function isNotAnInsightsNode(data: GraphError): boolean {
+  return data.error?.code === 100 && /nonexisting field \(insights\)/i.test(data.error?.message || '');
+}
+
+function facebookPageIdFor(connection: PlatformConnection, destinationId?: string): string | null {
+  const fromMeta = connection.metadata?.pageId;
+  if (typeof fromMeta === 'string' && fromMeta) return fromMeta;
+  // destination ids look like meta:facebook:{pageId}
+  const tail = destinationId?.split(':').pop();
+  return tail && /^\d+$/.test(tail) ? tail : null;
+}
+
 async function fetchFacebookMetrics(
   connection: PlatformConnection,
   postId: string,
+  destinationId?: string,
 ): Promise<MetricsFetchResult> {
   const accessToken = resolveAccessToken(connection);
 
@@ -745,6 +764,31 @@ async function fetchFacebookMetrics(
   }
 
   let call = await fetchInsightsCall(GRAPH_API, postId, FB_POST_METRICS, accessToken);
+  if (!call.ok && isNotAnInsightsNode(call.data) && !postId.includes('_')) {
+    const pageId = facebookPageIdFor(connection, destinationId);
+    if (pageId) {
+      // A video id: read the wrapping Page post instead, which also carries
+      // reactions, comments, and shares the Video node does not expose.
+      const pagePostId = `${pageId}_${postId}`;
+      call = await fetchInsightsCall(GRAPH_API, pagePostId, FB_POST_METRICS, accessToken);
+      if (call.ok || !isInvalidMetricError(call.data)) {
+        const postFields = await graphApiFetch(
+          `${GRAPH_API}/${pagePostId}?fields=reactions.summary(true).limit(0),comments.summary(true).limit(0),shares`,
+          { headers: { Authorization: `Bearer ${accessToken}` } },
+          { maxRetries: 1 },
+        );
+        const postFieldsData = await postFields.json().catch(() => ({}));
+        if (postFields.ok) {
+          metrics.likes = metricNum(postFieldsData.reactions?.summary?.total_count);
+          metrics.comments = metricNum(postFieldsData.comments?.summary?.total_count);
+          metrics.shares = metricNum(postFieldsData.shares?.count);
+        }
+      }
+      if (!call.ok && isInvalidMetricError(call.data)) {
+        call = await fetchInsightsCall(GRAPH_API, pagePostId, FB_POST_METRICS_FALLBACK, accessToken);
+      }
+    }
+  }
   if (!call.ok && isInvalidMetricError(call.data)) {
     call = await fetchInsightsCall(GRAPH_API, postId, FB_POST_METRICS_FALLBACK, accessToken);
   }
@@ -1020,7 +1064,7 @@ export const metaPublishingAdapter: PlatformAdapter = {
       if (input.channel === 'instagram') {
         return await fetchInstagramMetrics(connection, input.externalId);
       }
-      return await fetchFacebookMetrics(connection, input.externalId);
+      return await fetchFacebookMetrics(connection, input.externalId, input.destinationId);
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : 'Meta metrics fetch failed', reason: 'transient' };
     }

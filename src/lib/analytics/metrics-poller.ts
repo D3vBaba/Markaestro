@@ -31,6 +31,8 @@ export type MetricsPollSummary = {
   errors: Array<{ postId: string; error: string }>;
   /** On-demand refresh only: posts in scope that the time budget did not reach. */
   remaining?: number;
+  /** On-demand refresh only: parked posts (unsupported or failed) left alone. */
+  skippedDead?: number;
 };
 
 type PublishResultEntry = {
@@ -506,6 +508,13 @@ export async function refreshPostsNow(
 
   const refreshOne = async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
     const post = doc.data() as PostDocData;
+    // Posts the scheduler already parked (deleted on the platform, metrics
+    // not offered, retry budget spent) are not worth another platform call,
+    // and reporting them as failures on every press taught nobody anything.
+    if (post.metricsStatus === 'unsupported' || post.metricsStatus === 'failed') {
+      summary.skippedDead = (summary.skippedDead ?? 0) + 1;
+      return;
+    }
     const publishedAt = post.publishedAt || nowIso;
     let targets = publishedChannelTargets(post);
     if (opts.channel) targets = targets.filter((t) => t.channel === opts.channel);

@@ -77,7 +77,8 @@ export async function POST(req: Request) {
 
     const errors = [...summary.errors.map((e) => e.error), ...followerErrors];
     return apiOk({
-      scanned: summary.due,
+      scanned: summary.due - (summary.skippedDead ?? 0),
+      skipped: summary.skippedDead ?? 0,
       updated: summary.polled,
       remaining: summary.remaining ?? 0,
       followersUpdated,

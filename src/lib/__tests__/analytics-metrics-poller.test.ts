@@ -332,6 +332,28 @@ describe('refreshPostsNow', () => {
     expect(updateConnectionStatusMock).toHaveBeenCalledTimes(1);
   });
 
+  it('leaves parked posts alone and reports them separately', async () => {
+    const dead = makePostDoc({
+      status: 'published', channel: 'instagram', publishedAt: '2026-03-10T00:00:00.000Z',
+      metricsStatus: 'unsupported', publishResults: [{ channel: 'instagram', success: true, externalId: 'gone' }],
+    });
+    dead.doc.id = 'post_dead';
+    const live = makePostDoc({
+      status: 'published', channel: 'facebook', publishedAt: '2026-03-11T00:00:00.000Z',
+      publishResults: [{ channel: 'facebook', success: true, externalId: 'fb_1' }],
+    });
+    collectionMock.mockReturnValue(makeQuery([dead.doc, live.doc]));
+    const fetchMetrics = vi.fn(async () => ({ ok: true, metrics: makeMetrics({ views: 5 }) }));
+    getAdapterForChannelMock.mockReturnValue({ fetchMetrics });
+    const { refreshPostsNow } = await import('../analytics/metrics-poller');
+    const summary = await refreshPostsNow('ws_123', '2026-03-15T12:00:00.000Z');
+    expect(summary.due).toBe(2);
+    expect(summary.skippedDead).toBe(1);
+    expect(summary.polled).toBe(1);
+    expect(summary.errors).toEqual([]);
+    expect(fetchMetrics).toHaveBeenCalledTimes(1);
+  });
+
   it('only fetches the requested channel when a channel filter is supplied', async () => {
     const post = makePostDoc({
       productId: 'prod_123',
