@@ -3,6 +3,12 @@ import sharp from 'sharp';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
+import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import {
+  extractBrandWithCloudflare,
+  renderHtmlWithCloudflare,
+  screenshotWithCloudflare,
+} from '@/lib/products/cloudflare-scan';
 import {
   assertSafeOutboundUrl,
   readResponseBufferWithLimit,
@@ -72,9 +78,7 @@ function extractTags(html: string, title: string, description: string): string[]
   return Array.from(new Set(words)).slice(0, 5);
 }
 
-async function fetchHtml(rawUrl: string): Promise<{ html: string; finalUrl: URL }> {
-  let target = await assertSafeOutboundUrl(rawUrl);
-
+async function fetchHtml(target: URL): Promise<{ html: string; finalUrl: URL }> {
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     const res = await fetch(target.toString(), {
       redirect: 'manual',
@@ -170,6 +174,23 @@ async function validateLogo(candidates: { url: string }[]): Promise<ValidatedLog
   return null;
 }
 
+const PREVIEW_WIDTH = 640;
+
+/** Small JPEG data URL of the site for the review step. Best-effort. */
+async function buildPreviewImage(shot: Promise<Buffer | null>): Promise<string> {
+  try {
+    const buffer = await shot;
+    if (!buffer) return '';
+    const jpeg = await sharp(buffer)
+      .resize(PREVIEW_WIDTH, undefined, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 72 })
+      .toBuffer();
+    return `data:image/jpeg;base64,${jpeg.toString('base64')}`;
+  } catch {
+    return '';
+  }
+}
+
 /** Dominant non-neutral colors of the logo (coarse 32-step quantization). */
 async function quantizeLogoColors(buffer: Buffer): Promise<WeightedColor[]> {
   try {
@@ -210,18 +231,36 @@ export async function POST(req: Request) {
   try {
     const ctx = await requireContext(req);
     requirePermission(ctx, 'products.write');
+    // Each scan can spend Cloudflare browser time and a model call, so the
+    // limit follows the user rather than the IP.
+    await applyRateLimit(req, RATE_LIMITS.ai, { key: `product-scan:${ctx.uid}` });
     const body = await req.json();
     const { url } = scanRequestSchema.parse(body);
+    const target = await assertSafeOutboundUrl(url);
+
+    // Cloudflare renders the page in a real browser and reads the brand
+    // fields with a model. It runs alongside the plain fetch so a scan is
+    // never slower than the slower of the two, and a null result simply
+    // leaves the deterministic extraction in charge of that field.
+    const cloudflareBrand = extractBrandWithCloudflare(target.toString());
+    const previewImage = buildPreviewImage(screenshotWithCloudflare(target.toString()));
 
     let html: string;
     let finalUrl: URL;
     try {
-      ({ html, finalUrl } = await fetchHtml(url));
+      ({ html, finalUrl } = await fetchHtml(target));
     } catch (err) {
       const msg = err instanceof Error ? err.message : '';
-      // Network errors / timeouts / size limits all surface as a 4xx so the
-      // client hook falls back to manual entry instead of treating it as a crash.
-      throw new Error(msg.startsWith('VALIDATION_') ? msg : 'VALIDATION_SCAN_FETCH_FAILED');
+      // Sites that only render client-side, or that refuse plain fetches,
+      // still read fine through a real browser.
+      const rendered = await renderHtmlWithCloudflare(target.toString());
+      if (!rendered) {
+        // Network errors / timeouts / size limits all surface as a 4xx so the
+        // client hook falls back to manual entry instead of treating it as a crash.
+        throw new Error(msg.startsWith('VALIDATION_') ? msg : 'VALIDATION_SCAN_FETCH_FAILED');
+      }
+      html = rendered;
+      finalUrl = target;
     }
 
     const jsonLd = extractJsonLdBrand(html);
@@ -276,20 +315,22 @@ export async function POST(req: Request) {
     if (logo?.raster) colorCandidates.push(...(await quantizeLogoColors(logo.raster)));
 
     const palette = pickPalette(colorCandidates);
-    const description = pickDescription(html, jsonLd);
+    const brand = await cloudflareBrand;
+    const description = brand?.description || pickDescription(html, jsonLd);
 
     return apiOk({
-      name: pickName(html, jsonLd) || manifest?.name || '',
+      name: brand?.name || pickName(html, jsonLd) || manifest?.name || '',
       description,
-      category: '',
-      pricingTier: '',
-      tags: extractTags(html, title, description),
+      category: brand?.category ?? '',
+      pricingTier: brand?.pricingTier ?? '',
+      tags: brand?.tags.length ? brand.tags : extractTags(html, title, description),
       primaryColor: palette.primaryColor,
       secondaryColor: palette.secondaryColor,
       accentColor: palette.accentColor,
       logoUrl: logo?.url ?? '',
-      targetAudience: '',
-      tone: '',
+      targetAudience: brand?.targetAudience ?? '',
+      tone: brand?.tone ?? '',
+      previewImage: await previewImage,
     });
   } catch (error) {
     return apiError(error);

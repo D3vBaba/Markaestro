@@ -129,7 +129,8 @@
       "brandAdded": "品牌已添加"
     },
     "audienceSetup": "受众档案",
-    "audienceSetupBody": "设置目标、主要市场、转化行为、时区和平台优先级。高级字段在品牌设置中。"
+    "audienceSetupBody": "设置目标、主要市场、转化行为、时区和平台优先级。高级字段在品牌设置中。",
+    "sitePreview": "网站预览"
   },
   "detailSheet": {
     "sections": {
@@ -261,6 +262,30 @@
       "testOk": "已以 {label} 身份连接",
       "testOkPlain": "连接正常",
       "testFailed": "连接测试失败"
+    },
+    "knowledge": {
+      "title": "品牌知识",
+      "description": "内容生成所依据的功能、佐证和定位。",
+      "importButton": "从网站导入",
+      "reimportButton": "从网站刷新",
+      "importing": "正在读取网站",
+      "importedOn": "于 {date} 从网站导入",
+      "editedOn": "最后编辑于 {date}",
+      "empty": "这里还没有内容。读取网站以填充。",
+      "noUrl": "请先为品牌添加网站。",
+      "features": "功能",
+      "usps": "卖点",
+      "painPoints": "痛点",
+      "proofPoints": "佐证",
+      "competitors": "竞争对手",
+      "differentiators": "差异化",
+      "positioning": "定位",
+      "contentAngles": "内容角度",
+      "audience": "受众",
+      "toasts": {
+        "imported": "已导入品牌知识",
+        "importFailed": "无法读取网站"
+      }
     }
   }
 }

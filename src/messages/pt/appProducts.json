@@ -129,7 +129,8 @@
       "brandAdded": "Marca adicionada"
     },
     "audienceSetup": "Perfil de público",
-    "audienceSetupBody": "Defina objetivo, mercado principal, ação de conversão, fuso horário e prioridade de plataforma. Os campos avançados ficam nas configurações da marca."
+    "audienceSetupBody": "Defina objetivo, mercado principal, ação de conversão, fuso horário e prioridade de plataforma. Os campos avançados ficam nas configurações da marca.",
+    "sitePreview": "Pré-visualização do site"
   },
   "detailSheet": {
     "sections": {
@@ -261,6 +262,30 @@
       "testOk": "Conectado como {label}",
       "testOkPlain": "A conexão está funcionando",
       "testFailed": "O teste de conexão falhou"
+    },
+    "knowledge": {
+      "title": "Conhecimento da marca",
+      "description": "Funcionalidades, provas e posicionamento em que a geração de conteúdo se baseia.",
+      "importButton": "Importar do site",
+      "reimportButton": "Atualizar a partir do site",
+      "importing": "A ler o site",
+      "importedOn": "Importado do site em {date}",
+      "editedOn": "Última edição em {date}",
+      "empty": "Ainda não há nada aqui. Leia o site para preencher esta secção.",
+      "noUrl": "Adicione primeiro um site à marca.",
+      "features": "Funcionalidades",
+      "usps": "Argumentos de venda",
+      "painPoints": "Pontos de dor",
+      "proofPoints": "Provas",
+      "competitors": "Concorrentes",
+      "differentiators": "Diferenciadores",
+      "positioning": "Posicionamento",
+      "contentAngles": "Ângulos de conteúdo",
+      "audience": "Público",
+      "toasts": {
+        "imported": "Conhecimento da marca importado",
+        "importFailed": "Não foi possível ler o site"
+      }
     }
   }
 }

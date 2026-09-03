@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Upload, X, Loader2, Check, Dot, Globe, Palette, Link2, Pencil,
-  Package, Trash2, Image as ImageIcon, Target,
+  Package, Trash2, Image as ImageIcon, Target, BookOpen, RefreshCw,
 } from "lucide-react";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
@@ -53,6 +53,23 @@ export type BrandIdentity = {
   accentColor: string;
 };
 
+export type ProductKnowledge = {
+  features?: Array<{ title: string; description?: string; benefit?: string }>;
+  usps?: string[];
+  painPoints?: string[];
+  proofPoints?: Array<{ type: string; content: string; source?: string }>;
+  competitors?: string[];
+  differentiators?: string[];
+  positioning?: string;
+  targetAudienceDemographics?: string;
+  targetAudiencePsychographics?: string;
+  targetAudiencePainStatement?: string;
+  targetAudienceDesiredOutcome?: string;
+  contentAngles?: string[];
+  lastEnrichedAt?: string;
+  enrichmentSource?: "manual" | "url_import";
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -64,6 +81,7 @@ export type Product = {
   brandVoice?: BrandVoice;
   brandIdentity?: BrandIdentity;
   createdAt?: string;
+  knowledge?: ProductKnowledge | null;
 };
 
 /**
@@ -353,6 +371,7 @@ export default function ProductDetailSheet({
 
   // Integrations state
   const [integrations, setIntegrations] = useState<IntegrationInfo[]>([]);
+  const [knowledge, setKnowledge] = useState<ProductKnowledge | null>(null);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const [disconnectTarget, setDisconnectTarget] = useState<{ provider: string; label: string; linkedinMode?: "profile" | "community" } | null>(null);
   const [metaPages, setMetaPages] = useState<MetaPage[]>([]);
@@ -387,6 +406,7 @@ export default function ProductDetailSheet({
           const f = buildForm(prod, identity);
           setBaseline(f);
           setForm(f);
+          setKnowledge(prod.knowledge ?? null);
           setLastSavedAt(null);
           setEditing(false);
         }
@@ -781,11 +801,21 @@ export default function ProductDetailSheet({
                   className="space-y-5"
                 >
                   {section === "foundation" && (
-                    <FoundationSection
-                      form={form}
-                      patch={patch}
-                      readOnly={!editing}
-                    />
+                    <>
+                      <FoundationSection
+                        form={form}
+                        patch={patch}
+                        readOnly={!editing}
+                      />
+                      {productId && (
+                        <KnowledgeCard
+                          productId={productId}
+                          websiteUrl={form.url}
+                          knowledge={knowledge}
+                          onImported={setKnowledge}
+                        />
+                      )}
+                    </>
                   )}
                   {section === "identity" && (
                     <IdentitySection
@@ -1113,6 +1143,118 @@ function FoundationSection({
         </div>
       </SectionCard>
     </>
+  );
+}
+
+// ---------- brand knowledge ----------
+
+function KnowledgeCard({
+  productId,
+  websiteUrl,
+  knowledge,
+  onImported,
+}: {
+  productId: string;
+  websiteUrl: string;
+  knowledge: ProductKnowledge | null;
+  onImported: (knowledge: ProductKnowledge) => void;
+}) {
+  const t = useTranslations("products.detailSheet.knowledge");
+  const locale = useLocale();
+  const [importing, setImporting] = useState(false);
+
+  const lists: Array<{ key: string; items: string[] }> = [
+    { key: "features", items: (knowledge?.features ?? []).map((f) => f.title) },
+    { key: "usps", items: knowledge?.usps ?? [] },
+    { key: "painPoints", items: knowledge?.painPoints ?? [] },
+    { key: "proofPoints", items: (knowledge?.proofPoints ?? []).map((p) => p.content) },
+    { key: "differentiators", items: knowledge?.differentiators ?? [] },
+    { key: "competitors", items: knowledge?.competitors ?? [] },
+    { key: "contentAngles", items: knowledge?.contentAngles ?? [] },
+  ].filter((l) => l.items.length > 0);
+  const audience = [
+    knowledge?.targetAudienceDemographics,
+    knowledge?.targetAudiencePsychographics,
+    knowledge?.targetAudiencePainStatement,
+    knowledge?.targetAudienceDesiredOutcome,
+  ].filter((v): v is string => !!v && v.trim() !== "");
+  const hasContent = lists.length > 0 || audience.length > 0 || !!knowledge?.positioning;
+
+  const runImport = async () => {
+    if (!websiteUrl) {
+      toast.error(t("noUrl"));
+      return;
+    }
+    setImporting(true);
+    try {
+      const res = await apiPost<{ knowledge: ProductKnowledge }>(
+        `/api/products/${productId}/knowledge/import`,
+        { overwrite: hasContent },
+      );
+      if (!res.ok) {
+        toast.error(userFacingError(res.data, t("toasts.importFailed")));
+        return;
+      }
+      onImported(res.data.knowledge);
+      toast.success(t("toasts.imported"));
+    } catch {
+      toast.error(t("toasts.importFailed"));
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const stamp = knowledge?.lastEnrichedAt
+    ? t(knowledge.enrichmentSource === "url_import" ? "importedOn" : "editedOn", {
+        date: new Date(knowledge.lastEnrichedAt).toLocaleDateString(locale),
+      })
+    : null;
+
+  return (
+    <SectionCard title={t("title")} description={t("description")}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">
+          {stamp ?? (websiteUrl ? t("empty") : t("noUrl"))}
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={runImport}
+          disabled={importing || !websiteUrl}
+          className="h-8"
+        >
+          {importing ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : hasContent ? (
+            <RefreshCw className="h-3.5 w-3.5" />
+          ) : (
+            <BookOpen className="h-3.5 w-3.5" />
+          )}
+          <span className="ms-1.5">
+            {importing ? t("importing") : hasContent ? t("reimportButton") : t("importButton")}
+          </span>
+        </Button>
+      </div>
+
+      {knowledge?.positioning && (
+        <ReadRow label={t("positioning")} value={knowledge.positioning} multiline />
+      )}
+      {audience.length > 0 && (
+        <ReadRow label={t("audience")} value={audience.join(" ")} multiline />
+      )}
+      {lists.map((list) => (
+        <ReadRow key={list.key} label={t(list.key)}>
+          <ul className="space-y-1">
+            {list.items.map((item, i) => (
+              <li key={i} className="text-[13px] leading-relaxed text-muted-foreground">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </ReadRow>
+      ))}
+    </SectionCard>
   );
 }
 

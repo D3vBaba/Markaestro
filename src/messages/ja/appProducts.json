@@ -129,7 +129,8 @@
       "brandAdded": "ブランドを追加しました"
     },
     "audienceSetup": "オーディエンスプロフィール",
-    "audienceSetupBody": "目的、主要市場、コンバージョン、タイムゾーン、優先プラットフォームを設定します。詳細項目はブランド設定にあります。"
+    "audienceSetupBody": "目的、主要市場、コンバージョン、タイムゾーン、優先プラットフォームを設定します。詳細項目はブランド設定にあります。",
+    "sitePreview": "ウェブサイトのプレビュー"
   },
   "detailSheet": {
     "sections": {
@@ -261,6 +262,30 @@
       "testOk": "{label} として接続中",
       "testOkPlain": "接続は正常です",
       "testFailed": "接続テストに失敗しました"
+    },
+    "knowledge": {
+      "title": "ブランドナレッジ",
+      "description": "コンテンツ生成の基盤となる機能、実績、ポジショニング。",
+      "importButton": "ウェブサイトから取り込む",
+      "reimportButton": "ウェブサイトから更新",
+      "importing": "ウェブサイトを読み込み中",
+      "importedOn": "{date} にウェブサイトから取り込み",
+      "editedOn": "最終編集: {date}",
+      "empty": "まだ何もありません。ウェブサイトを読み込んで入力してください。",
+      "noUrl": "先にブランドにウェブサイトを追加してください。",
+      "features": "機能",
+      "usps": "セールスポイント",
+      "painPoints": "課題",
+      "proofPoints": "実績",
+      "competitors": "競合",
+      "differentiators": "差別化要素",
+      "positioning": "ポジショニング",
+      "contentAngles": "コンテンツの切り口",
+      "audience": "オーディエンス",
+      "toasts": {
+        "imported": "ブランドナレッジを取り込みました",
+        "importFailed": "ウェブサイトを読み込めませんでした"
+      }
     }
   }
 }

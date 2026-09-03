@@ -129,7 +129,8 @@
       "brandAdded": "Marque ajoutée"
     },
     "audienceSetup": "Profil d’audience",
-    "audienceSetupBody": "Définissez l’objectif, le marché principal, l’action de conversion, le fuseau horaire et la priorité de plateforme. Les champs avancés sont dans les paramètres de marque."
+    "audienceSetupBody": "Définissez l’objectif, le marché principal, l’action de conversion, le fuseau horaire et la priorité de plateforme. Les champs avancés sont dans les paramètres de marque.",
+    "sitePreview": "Aperçu du site web"
   },
   "detailSheet": {
     "sections": {
@@ -261,6 +262,30 @@
       "testOk": "Connecté en tant que {label}",
       "testOkPlain": "La connexion fonctionne",
       "testFailed": "Échec du test de connexion"
+    },
+    "knowledge": {
+      "title": "Connaissance de la marque",
+      "description": "Fonctionnalités, preuves et positionnement sur lesquels s'appuie la génération de contenu.",
+      "importButton": "Importer depuis le site web",
+      "reimportButton": "Actualiser depuis le site web",
+      "importing": "Lecture du site web",
+      "importedOn": "Importé depuis le site web le {date}",
+      "editedOn": "Dernière modification le {date}",
+      "empty": "Rien pour le moment. Lisez le site web pour compléter cette section.",
+      "noUrl": "Ajoutez d'abord un site web à la marque.",
+      "features": "Fonctionnalités",
+      "usps": "Arguments de vente",
+      "painPoints": "Points de douleur",
+      "proofPoints": "Preuves",
+      "competitors": "Concurrents",
+      "differentiators": "Différenciateurs",
+      "positioning": "Positionnement",
+      "contentAngles": "Angles de contenu",
+      "audience": "Audience",
+      "toasts": {
+        "imported": "Connaissance de la marque importée",
+        "importFailed": "Impossible de lire le site web"
+      }
     }
   }
 }

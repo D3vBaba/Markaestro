@@ -138,7 +138,6 @@ const KNOWN_UNLIMITED = new Set([
   'api/products/[id]/route.ts',
   'api/products/[id]/upload-logo/route.ts',
   'api/products/route.ts',
-  'api/products/scan/route.ts',
   'api/public/v1/openapi.json/route.ts',
   'api/settings/api-clients/[id]/archive/route.ts',
   'api/settings/api-clients/[id]/rotate/route.ts',

@@ -101,6 +101,10 @@ export async function loadSecretsToEnv(): Promise<void> {
     'LINKEDIN_COMMUNITY_CLIENT_ID',
     'LINKEDIN_COMMUNITY_CLIENT_SECRET',
     'FIREBASE_SERVICE_ACCOUNT_JSON',
+    // Cloudflare Browser Rendering: renders brand websites for the product scan.
+    'CLOUDFLARE_API_TOKEN',
+    // Optional: only set when the AI Gateway is created as an authenticated gateway.
+    'CLOUDFLARE_AI_GATEWAY_TOKEN',
     // Stripe — API key + webhook signing secret are true secrets; price IDs
     // are non-secret config but live here too so the whole Stripe env set is
     // managed in one place and stays in sync with scripts/sync-stripe-prices.mjs.

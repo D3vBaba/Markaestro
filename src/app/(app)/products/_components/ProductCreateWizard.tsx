@@ -59,6 +59,7 @@ export default function ProductCreateWizard({
   const [logoUrl, setLogoUrl] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
   const [tone, setTone] = useState("");
+  const [previewImage, setPreviewImage] = useState("");
   const [audienceProfile, setAudienceProfile] = useState<AudienceIntelligenceProfile>(() => defaultAudienceProfile({
     primaryTimezone: browserTimezone(),
   }));
@@ -79,6 +80,7 @@ export default function ProductCreateWizard({
     setLogoUrl("");
     setTargetAudience("");
     setTone("");
+    setPreviewImage("");
     setAudienceProfile(defaultAudienceProfile({ primaryTimezone: browserTimezone() }));
   };
 
@@ -107,6 +109,7 @@ export default function ProductCreateWizard({
       setLogoUrl(d.logoUrl || "");
       setTargetAudience(d.targetAudience || "");
       setTone(d.tone || "");
+      setPreviewImage(d.previewImage || "");
       setMode("review");
     }
   };
@@ -451,7 +454,7 @@ export default function ProductCreateWizard({
                   />
                 </FormField>
 
-                {(primaryColor || secondaryColor || accentColor || logoUrl || targetAudience || tone) && (
+                {(primaryColor || secondaryColor || accentColor || logoUrl || targetAudience || tone || previewImage) && (
                   <div
                     className="rounded-xl p-4 space-y-3"
                     style={{
@@ -460,6 +463,14 @@ export default function ProductCreateWizard({
                     }}
                   >
                     <p className="mk-eyebrow">{t("brandIntelligence")}</p>
+                    {previewImage && (
+                      <img
+                        src={previewImage}
+                        alt={t("sitePreview")}
+                        className="w-full rounded-lg border border-border/40 object-cover"
+                        style={{ aspectRatio: "16 / 10" }}
+                      />
+                    )}
                     {logoUrl && (
                       <div className="flex items-center gap-3">
                         <img

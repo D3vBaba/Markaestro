@@ -129,7 +129,8 @@
       "brandAdded": "Brand aggiunto"
     },
     "audienceSetup": "Profilo del pubblico",
-    "audienceSetupBody": "Imposta obiettivo, mercato principale, azione di conversione, fuso orario e priorità della piattaforma. I campi avanzati sono nelle impostazioni del brand."
+    "audienceSetupBody": "Imposta obiettivo, mercato principale, azione di conversione, fuso orario e priorità della piattaforma. I campi avanzati sono nelle impostazioni del brand.",
+    "sitePreview": "Anteprima del sito web"
   },
   "detailSheet": {
     "sections": {
@@ -261,6 +262,30 @@
       "testOk": "Connesso come {label}",
       "testOkPlain": "La connessione funziona",
       "testFailed": "Test di connessione non riuscito"
+    },
+    "knowledge": {
+      "title": "Conoscenza del brand",
+      "description": "Funzionalità, prove e posizionamento su cui si basa la generazione dei contenuti.",
+      "importButton": "Importa dal sito web",
+      "reimportButton": "Aggiorna dal sito web",
+      "importing": "Lettura del sito web",
+      "importedOn": "Importato dal sito web il {date}",
+      "editedOn": "Ultima modifica il {date}",
+      "empty": "Ancora niente qui. Leggi il sito web per compilare questa sezione.",
+      "noUrl": "Aggiungi prima un sito web al brand.",
+      "features": "Funzionalità",
+      "usps": "Punti di forza",
+      "painPoints": "Punti critici",
+      "proofPoints": "Prove",
+      "competitors": "Concorrenti",
+      "differentiators": "Elementi distintivi",
+      "positioning": "Posizionamento",
+      "contentAngles": "Angolazioni dei contenuti",
+      "audience": "Pubblico",
+      "toasts": {
+        "imported": "Conoscenza del brand importata",
+        "importFailed": "Impossibile leggere il sito web"
+      }
     }
   }
 }

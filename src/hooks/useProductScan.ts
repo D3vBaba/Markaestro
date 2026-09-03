@@ -16,6 +16,8 @@ export type ScanData = {
   logoUrl: string;
   targetAudience: string;
   tone: string;
+  /** JPEG data URL of the site's first screen, empty when unavailable. */
+  previewImage?: string;
 };
 
 export type ScanPhase =

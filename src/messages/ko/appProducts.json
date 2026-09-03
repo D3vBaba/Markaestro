@@ -129,7 +129,8 @@
       "brandAdded": "브랜드가 추가되었습니다"
     },
     "audienceSetup": "오디언스 프로필",
-    "audienceSetupBody": "목표, 주요 시장, 전환 액션, 시간대, 플랫폼 우선순위를 설정하세요. 고급 항목은 브랜드 설정에 있습니다."
+    "audienceSetupBody": "목표, 주요 시장, 전환 액션, 시간대, 플랫폼 우선순위를 설정하세요. 고급 항목은 브랜드 설정에 있습니다.",
+    "sitePreview": "웹사이트 미리보기"
   },
   "detailSheet": {
     "sections": {
@@ -261,6 +262,30 @@
       "testOk": "{label}(으)로 연결됨",
       "testOkPlain": "연결이 정상입니다",
       "testFailed": "연결 테스트에 실패했습니다"
+    },
+    "knowledge": {
+      "title": "브랜드 지식",
+      "description": "콘텐츠 생성의 바탕이 되는 기능, 근거, 포지셔닝입니다.",
+      "importButton": "웹사이트에서 가져오기",
+      "reimportButton": "웹사이트에서 새로 고침",
+      "importing": "웹사이트 읽는 중",
+      "importedOn": "{date}에 웹사이트에서 가져옴",
+      "editedOn": "마지막 수정: {date}",
+      "empty": "아직 내용이 없습니다. 웹사이트를 읽어 채워 보세요.",
+      "noUrl": "먼저 브랜드에 웹사이트를 추가하세요.",
+      "features": "기능",
+      "usps": "판매 포인트",
+      "painPoints": "고충",
+      "proofPoints": "근거",
+      "competitors": "경쟁사",
+      "differentiators": "차별점",
+      "positioning": "포지셔닝",
+      "contentAngles": "콘텐츠 관점",
+      "audience": "오디언스",
+      "toasts": {
+        "imported": "브랜드 지식을 가져왔습니다",
+        "importFailed": "웹사이트를 읽을 수 없습니다"
+      }
     }
   }
 }

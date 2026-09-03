@@ -623,6 +623,24 @@ export const ERROR_CODES: Record<string, ErrorCodeSpec> = {
     category: 'validation',
     description: 'The fetched page was not a content type the scanner reads.',
   },
+  VALIDATION_KNOWLEDGE_IMPORT_NO_URL: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'The brand has no website to import knowledge from. Pass a URL or set one on the brand first.',
+  },
+  KNOWLEDGE_IMPORT_UNAVAILABLE: {
+    status: 503,
+    retryable: false,
+    category: 'server',
+    description: 'Website import is not configured on this deployment (Cloudflare Browser Rendering credentials are missing).',
+  },
+  KNOWLEDGE_IMPORT_EMPTY: {
+    status: 400,
+    retryable: true,
+    category: 'validation',
+    description: 'None of the website pages could be read. The site may block automated browsers or be temporarily down.',
+  },
   VALIDATION_POST_NOT_MEASURED: {
     status: 400,
     retryable: false,

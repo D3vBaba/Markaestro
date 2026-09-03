@@ -129,7 +129,8 @@
       "nameRequired": "Name is required",
       "createFailed": "Failed to create brand",
       "brandAdded": "Brand added"
-    }
+    },
+    "sitePreview": "Website preview"
   },
   "detailSheet": {
     "sections": {
@@ -261,6 +262,30 @@
       "testOk": "Connected as {label}",
       "testOkPlain": "Connection is working",
       "testFailed": "Connection test failed"
+    },
+    "knowledge": {
+      "title": "Brand knowledge",
+      "description": "Features, proof points, and positioning that content generation draws on.",
+      "importButton": "Import from website",
+      "reimportButton": "Refresh from website",
+      "importing": "Reading website",
+      "importedOn": "Imported from the website on {date}",
+      "editedOn": "Last edited on {date}",
+      "empty": "Nothing here yet. Read the website to fill this in.",
+      "noUrl": "Add a website to the brand first.",
+      "features": "Features",
+      "usps": "Selling points",
+      "painPoints": "Pain points",
+      "proofPoints": "Proof points",
+      "competitors": "Competitors",
+      "differentiators": "Differentiators",
+      "positioning": "Positioning",
+      "contentAngles": "Content angles",
+      "audience": "Audience",
+      "toasts": {
+        "imported": "Brand knowledge imported",
+        "importFailed": "Could not read the website"
+      }
     }
   }
 }

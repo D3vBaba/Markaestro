@@ -129,7 +129,8 @@
       "brandAdded": "Marke hinzugefügt"
     },
     "audienceSetup": "Zielgruppenprofil",
-    "audienceSetupBody": "Lege Ziel, Hauptmarkt, Conversion-Aktion, Zeitzone und Plattformpriorität fest. Erweiterte Felder findest du in den Markeneinstellungen."
+    "audienceSetupBody": "Lege Ziel, Hauptmarkt, Conversion-Aktion, Zeitzone und Plattformpriorität fest. Erweiterte Felder findest du in den Markeneinstellungen.",
+    "sitePreview": "Website-Vorschau"
   },
   "detailSheet": {
     "sections": {
@@ -261,6 +262,30 @@
       "testOk": "Verbunden als {label}",
       "testOkPlain": "Die Verbindung funktioniert",
       "testFailed": "Verbindungstest fehlgeschlagen"
+    },
+    "knowledge": {
+      "title": "Markenwissen",
+      "description": "Funktionen, Belege und Positionierung, auf die die Inhaltserstellung zurückgreift.",
+      "importButton": "Von der Website importieren",
+      "reimportButton": "Von der Website aktualisieren",
+      "importing": "Website wird gelesen",
+      "importedOn": "Am {date} von der Website importiert",
+      "editedOn": "Zuletzt bearbeitet am {date}",
+      "empty": "Noch nichts vorhanden. Lies die Website ein, um dies auszufüllen.",
+      "noUrl": "Füge der Marke zuerst eine Website hinzu.",
+      "features": "Funktionen",
+      "usps": "Verkaufsargumente",
+      "painPoints": "Problempunkte",
+      "proofPoints": "Belege",
+      "competitors": "Wettbewerber",
+      "differentiators": "Unterscheidungsmerkmale",
+      "positioning": "Positionierung",
+      "contentAngles": "Content-Perspektiven",
+      "audience": "Zielgruppe",
+      "toasts": {
+        "imported": "Markenwissen importiert",
+        "importFailed": "Die Website konnte nicht gelesen werden"
+      }
     }
   }
 }

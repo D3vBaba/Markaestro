@@ -129,7 +129,8 @@
       "brandAdded": "Merk toegevoegd"
     },
     "audienceSetup": "Doelgroep-profiel",
-    "audienceSetupBody": "Stel doel, primaire markt, conversie-actie, tijdzone en platformprioriteit in. Geavanceerde velden staan in de merkinstellingen."
+    "audienceSetupBody": "Stel doel, primaire markt, conversie-actie, tijdzone en platformprioriteit in. Geavanceerde velden staan in de merkinstellingen.",
+    "sitePreview": "Websitevoorbeeld"
   },
   "detailSheet": {
     "sections": {
@@ -261,6 +262,30 @@
       "testOk": "Verbonden als {label}",
       "testOkPlain": "De verbinding werkt",
       "testFailed": "Verbindingstest mislukt"
+    },
+    "knowledge": {
+      "title": "Merkkennis",
+      "description": "Functies, bewijzen en positionering waar contentgeneratie op steunt.",
+      "importButton": "Importeren van website",
+      "reimportButton": "Vernieuwen van website",
+      "importing": "Website wordt gelezen",
+      "importedOn": "Geïmporteerd van de website op {date}",
+      "editedOn": "Laatst bewerkt op {date}",
+      "empty": "Nog niets hier. Lees de website om dit in te vullen.",
+      "noUrl": "Voeg eerst een website toe aan het merk.",
+      "features": "Functies",
+      "usps": "Verkoopargumenten",
+      "painPoints": "Pijnpunten",
+      "proofPoints": "Bewijzen",
+      "competitors": "Concurrenten",
+      "differentiators": "Onderscheidende kenmerken",
+      "positioning": "Positionering",
+      "contentAngles": "Contentinvalshoeken",
+      "audience": "Doelgroep",
+      "toasts": {
+        "imported": "Merkkennis geïmporteerd",
+        "importFailed": "De website kon niet worden gelezen"
+      }
     }
   }
 }

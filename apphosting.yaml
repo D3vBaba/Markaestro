@@ -164,6 +164,27 @@ env:
     availability:
       - RUNTIME
 
+  # Cloudflare Browser Rendering renders brand websites for the product scan
+  # and runs the /json extraction. Leave the account id empty to fall back to
+  # the plain HTML scan rather than to break it. The token needs the
+  # "Browser Rendering - Edit" permission and lives in Secret Manager.
+  - variable: CLOUDFLARE_ACCOUNT_ID
+    value: 7bfa67fae0d4c62d4982ae2b87241597
+    availability:
+      - RUNTIME
+  - variable: CLOUDFLARE_API_TOKEN
+    secret: CLOUDFLARE_API_TOKEN
+  # Cloudflare AI Gateway id. When set, Vertex calls route through
+  # gateway.ai.cloudflare.com for logging, cost metering, and caching. Leave
+  # empty to call Vertex directly.
+  - variable: CLOUDFLARE_AI_GATEWAY_ID
+    value: markaestro
+    availability:
+      - RUNTIME
+  # Authentication token for the gateway above (it is an authenticated gateway).
+  - variable: CLOUDFLARE_AI_GATEWAY_TOKEN
+    secret: CLOUDFLARE_AI_GATEWAY_TOKEN
+
   # Dispatch only workspaces with due background work. Cloud Tasks provides
   # independent retries; the five-minute legacy sweep and in-process fallback
   # preserve compatibility during rollout.
