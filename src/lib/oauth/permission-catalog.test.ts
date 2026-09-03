@@ -15,6 +15,7 @@ const CONFIG_BY_CATALOG: Record<CatalogProvider, () => string[]> = {
   meta: () => getProviderConfig('meta').scopes,
   threads: () => getProviderConfig('threads').scopes,
   tiktok: () => getProviderConfig('tiktok').scopes,
+  x: () => getProviderConfig('x').scopes,
   pinterest: () => getProviderConfig('pinterest').scopes,
   linkedin_profile: () => getProviderConfig('linkedin', 'profile').scopes,
   linkedin_community: () => getProviderConfig('linkedin', 'community').scopes,
@@ -64,6 +65,7 @@ describe('permission catalog', () => {
     expect(catalogProviderFor('linkedin')).toBe('linkedin_profile');
     expect(catalogProviderFor('linkedin', 'community')).toBe('linkedin_community');
     expect(catalogProviderFor('linkedin_community')).toBe('linkedin_community');
+    expect(catalogProviderFor('x')).toBe('x');
     expect(catalogProviderFor('youtube')).toBeNull();
   });
 

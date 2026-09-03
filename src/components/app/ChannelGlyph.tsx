@@ -45,6 +45,10 @@ export const CHANNEL_BRAND: Record<string, { bg: string; icon: ReactNode }> = {
     bg: "#0A66C2",
     icon: <span className="text-[12px] font-bold leading-none text-white">in</span>,
   },
+  x: {
+    bg: "#111111",
+    icon: <span className="text-[13px] font-semibold leading-none text-white">X</span>,
+  },
 };
 
 /** Normalise LinkedIn's two credential kinds onto the one LinkedIn glyph. */
@@ -70,7 +74,12 @@ export function ChannelGlyph({
       style={style}
       aria-hidden
     >
-      {brand.icon}
+      <span
+        className="grid place-items-center"
+        style={{ transform: `scale(${size / 36})` }}
+      >
+        {brand.icon}
+      </span>
     </span>
   );
 }

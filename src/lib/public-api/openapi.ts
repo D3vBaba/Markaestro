@@ -39,8 +39,91 @@ import {
   VERSION_COMPATIBILITY_POLICY,
 } from './version';
 import { publicApiScopes } from './scopes';
+import { createEvergreenQueueSchema, updateEvergreenQueueSchema } from '@/lib/evergreen/schemas';
 
 type JsonObject = Record<string, unknown>;
+
+const createPublicEvergreenQueueSchema = createEvergreenQueueSchema.omit({ productId: true });
+const previewPublicEvergreenQueueSchema = z.object({ sourcePostId: z.string().min(1).max(200) });
+const evergreenVariantResponseSchema = z.object({
+  id: z.string(),
+  queueId: z.string(),
+  caption: z.string(),
+  enabled: z.boolean(),
+  position: z.number().int(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+const evergreenQueueResponseSchema = z.looseObject({
+  id: z.string(),
+  productId: z.string(),
+  sourcePostId: z.string(),
+  name: z.string(),
+  status: z.enum(['draft', 'active', 'paused', 'archived']),
+  channels: z.array(z.string()),
+  intervalDays: z.number().int(),
+  timeZone: z.string(),
+  localHour: z.number().int(),
+  localMinute: z.number().int(),
+  scheduleMode: z.enum(['fixed', 'learned']),
+  reviewPolicy: z.enum(['approve_future_runs', 'review_each_run']),
+  expiresAt: z.string().nullable(),
+  nextRunAt: z.string().nullable(),
+  version: z.number().int(),
+  runCount: z.number().int(),
+  pauseReason: z.string().nullable(),
+  activationEvidence: z.looseObject({}).nullable(),
+  variants: z.array(evergreenVariantResponseSchema).optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+const evergreenQueueEnvelopeSchema = z.object({ queue: evergreenQueueResponseSchema });
+const evergreenQueueListSchema = z.object({ queues: z.array(evergreenQueueResponseSchema), count: z.number().int() });
+const evergreenRunSchema = z.looseObject({
+  id: z.string(),
+  queueId: z.string(),
+  occurrencePostId: z.string().nullable(),
+  plannedAt: z.string(),
+  status: z.string(),
+  performanceIndex: z.number().nullable(),
+  reason: z.string().nullable(),
+});
+const evergreenRunListSchema = z.object({ runs: z.array(evergreenRunSchema), count: z.number().int() });
+const evergreenMetricTotalsSchema = z.object({
+  views: z.number().nullable(),
+  reach: z.number().nullable(),
+  engagements: z.number().nullable(),
+  platformClicks: z.number().nullable(),
+});
+const evergreenAnalyticsEnvelopeSchema = z.object({
+  analytics: z.object({
+    queueId: z.string(),
+    source: evergreenMetricTotalsSchema,
+    lifetime: evergreenMetricTotalsSchema.extend({
+      trackedLinkClicks: z.number(),
+      attributedConversions: z.number(),
+      measuredOccurrences: z.number().int(),
+    }),
+    runs: z.object({
+      total: z.number().int(),
+      published: z.number().int(),
+      evaluated: z.number().int(),
+      underperforming: z.number().int(),
+      failed: z.number().int(),
+      skipped: z.number().int(),
+      needsReview: z.number().int(),
+    }),
+    recentRuns: z.array(evergreenRunSchema.omit({ id: true }).extend({ runId: z.string() })),
+  }),
+});
+const evergreenPreviewEnvelopeSchema = z.object({
+  preview: z.looseObject({
+    sourcePostId: z.string(),
+    productId: z.string(),
+    eligibility: z.looseObject({}),
+    recommendation: z.looseObject({}),
+  }),
+});
 
 /**
  * Zod 4 emits JSON Schema natively, which is already how `ai-gateway.ts`
@@ -178,6 +261,7 @@ export function buildOpenApiDocument(): JsonObject {
       { name: 'Media', description: 'Upload and list media assets.' },
       { name: 'Job runs', description: 'The record of what a publish request did.' },
       { name: 'Webhooks', description: 'Endpoints Markaestro delivers events to.' },
+      { name: 'Evergreen', description: 'Evidence-backed recurring queues and their generated runs.' },
     ],
     paths: {
       '/api/public/v1/posts': {
@@ -373,6 +457,87 @@ export function buildOpenApiDocument(): JsonObject {
           responses: { '201': errorResponse('The endpoint, with its signing secret returned once.'), ...COMMON_ERRORS },
         },
       },
+      '/api/public/v1/evergreen-queues': {
+        get: {
+          tags: ['Evergreen'],
+          summary: 'List Evergreen queues',
+          operationId: 'listEvergreenQueues',
+          responses: { '200': okResponse('The queues bound to this key’s brand.', 'EvergreenQueueList'), ...COMMON_ERRORS },
+        },
+        post: {
+          tags: ['Evergreen'],
+          summary: 'Create a draft Evergreen queue',
+          description: 'Creates a queue only. It schedules nothing until the separate activation call succeeds.',
+          operationId: 'createEvergreenQueue',
+          requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateEvergreenQueue' } } } },
+          responses: { '201': okResponse('The draft queue.', 'EvergreenQueue'), ...COMMON_ERRORS },
+        },
+      },
+      '/api/public/v1/evergreen-queues/preview': {
+        post: {
+          tags: ['Evergreen'],
+          summary: 'Preview eligibility and cadence',
+          operationId: 'previewEvergreenQueue',
+          requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/PreviewEvergreenQueue' } } } },
+          responses: { '200': okResponse('Eligibility evidence and a schedule recommendation.', 'EvergreenPreview'), ...COMMON_ERRORS },
+        },
+      },
+      '/api/public/v1/evergreen-queues/{id}': {
+        get: {
+          tags: ['Evergreen'],
+          summary: 'Get an Evergreen queue',
+          operationId: 'getEvergreenQueue',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '200': okResponse('The queue and its variants.', 'EvergreenQueue'), ...COMMON_ERRORS },
+        },
+        patch: {
+          tags: ['Evergreen'],
+          summary: 'Update an Evergreen queue',
+          description: 'Uses the required queue version for optimistic concurrency.',
+          operationId: 'updateEvergreenQueue',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateEvergreenQueue' } } } },
+          responses: { '200': okResponse('The updated queue.', 'EvergreenQueue'), '409': errorResponse('The supplied queue version is stale.'), ...COMMON_ERRORS },
+        },
+        delete: {
+          tags: ['Evergreen'],
+          summary: 'Archive an Evergreen queue',
+          operationId: 'archiveEvergreenQueue',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '200': okResponse('The archived queue.', 'EvergreenQueue'), ...COMMON_ERRORS },
+        },
+      },
+      ...Object.fromEntries(['activate', 'pause', 'resume'].map((action) => [
+        `/api/public/v1/evergreen-queues/{id}/${action}`,
+        {
+          post: {
+            tags: ['Evergreen'],
+            summary: `${action[0].toUpperCase()}${action.slice(1)} an Evergreen queue`,
+            operationId: `${action}EvergreenQueue`,
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { '200': okResponse('The transitioned queue.', 'EvergreenQueue'), ...COMMON_ERRORS },
+          },
+        },
+      ])),
+      '/api/public/v1/evergreen-queues/{id}/runs': {
+        get: {
+          tags: ['Evergreen'],
+          summary: 'List Evergreen runs',
+          operationId: 'listEvergreenRuns',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '200': okResponse('The queue’s generated occurrences and evaluation outcomes.', 'EvergreenRunList'), ...COMMON_ERRORS },
+        },
+      },
+      '/api/public/v1/evergreen-queues/{id}/analytics': {
+        get: {
+          tags: ['Evergreen'],
+          summary: 'Get Evergreen analytics',
+          description: 'Returns source and queue-lifetime metrics. Unsupported or unavailable provider values remain null.',
+          operationId: 'getEvergreenAnalytics',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '200': okResponse('The queue performance and attribution rollup.', 'EvergreenAnalytics'), ...COMMON_ERRORS },
+        },
+      },
     },
     components: {
       securitySchemes: {
@@ -410,6 +575,14 @@ export function buildOpenApiDocument(): JsonObject {
         JobRunList: jsonSchema(publicJobRunListResponseSchema, 'output'),
         BulkPostResult: jsonSchema(publicBulkPostResponseSchema, 'output'),
         Error: jsonSchema(publicErrorResponseSchema, 'output'),
+        CreateEvergreenQueue: jsonSchema(createPublicEvergreenQueueSchema, 'input'),
+        UpdateEvergreenQueue: jsonSchema(updateEvergreenQueueSchema, 'input'),
+        PreviewEvergreenQueue: jsonSchema(previewPublicEvergreenQueueSchema, 'input'),
+        EvergreenQueue: jsonSchema(evergreenQueueEnvelopeSchema, 'output'),
+        EvergreenQueueList: jsonSchema(evergreenQueueListSchema, 'output'),
+        EvergreenRunList: jsonSchema(evergreenRunListSchema, 'output'),
+        EvergreenAnalytics: jsonSchema(evergreenAnalyticsEnvelopeSchema, 'output'),
+        EvergreenPreview: jsonSchema(evergreenPreviewEnvelopeSchema, 'output'),
       },
     },
   };

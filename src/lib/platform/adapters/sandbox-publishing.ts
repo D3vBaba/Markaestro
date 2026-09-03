@@ -156,7 +156,7 @@ export const sandboxPublishingAdapter: PlatformAdapter = {
   name: 'Sandbox',
   // Every channel: a test key targets whichever channel the integrator is
   // building against, and refusing one would send them back to production.
-  channels: ['facebook', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin'],
+  channels: ['facebook', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin', 'x'],
   capabilities: [
     PlatformCapability.PUBLISH_TEXT,
     PlatformCapability.PUBLISH_IMAGE,

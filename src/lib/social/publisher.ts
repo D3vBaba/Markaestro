@@ -34,7 +34,7 @@ import {
   type PublishAttemptOutcome,
   type PublishAttemptRecord,
 } from '@/lib/social/publish-attempts';
-import { isTikTokDirectPostSettings } from '@/lib/public-api/post-settings';
+import { getPostSettingsForChannel, isTikTokDirectPostSettings } from '@/lib/public-api/post-settings';
 import { logger } from '@/lib/logger';
 import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 
@@ -426,7 +426,10 @@ export function getPostChannelDeliveryMode(
     : undefined;
   const mode = typeof perChannel === 'string' && perChannel ? perChannel : post.deliveryMode;
   if (isManualReminderDeliveryMode(mode)) return MANUAL_REMINDER_DELIVERY_MODE;
-  return getEffectiveDeliveryMode(channel, settings);
+  return getEffectiveDeliveryMode(
+    channel,
+    getPostSettingsForChannel(post, channel) ?? settings,
+  );
 }
 
 /** True when every target of the post resolves to a manual reminder. */
@@ -436,7 +439,7 @@ export function isFullyManualReminderPost(
 ): boolean {
   if (targetChannels.length === 0) return isManualReminderPost(post);
   return targetChannels.every((channel) =>
-    isManualReminderDeliveryMode(getPostChannelDeliveryMode(post, channel, post.settings)),
+    isManualReminderDeliveryMode(getPostChannelDeliveryMode(post, channel, undefined)),
   );
 }
 
@@ -613,7 +616,9 @@ export async function persistTikTokPendingPublish(
       createdAt: nowIso,
       updatedAt: nowIso,
       pollStatus: 'active',
-      pollMode: isTikTokDirectPostSettings(claimed.post.settings) ? 'active' : 'inbox',
+      pollMode: isTikTokDirectPostSettings(
+        getPostSettingsForChannel(claimed.post, 'tiktok'),
+      ) ? 'active' : 'inbox',
       pollAttemptCount: 0,
       nextPollAt: nowIso,
       expiresAt,
@@ -1183,6 +1188,7 @@ async function publishExplicitChannels(
   options: PublishStoredPostOptions = {},
   destinationsByChannel: Partial<Record<SocialChannel, string>> = {},
   deliveryModesByChannel: Partial<Record<SocialChannel, PublishRequest['deliveryMode']>> = {},
+  settingsByChannel: Partial<Record<SocialChannel, Record<string, unknown>>> = {},
 ): Promise<MultiChannelPublishResult> {
   const results: ChannelPublishResult[] = [];
 
@@ -1196,6 +1202,7 @@ async function publishExplicitChannels(
       continue;
     }
 
+    const channelSettings = settingsByChannel[channel];
     const result = await publishPost(workspaceId, productId, {
       ...request,
       channel,
@@ -1205,6 +1212,10 @@ async function publishExplicitChannels(
       // …and its own delivery mode, so a manual channel short-circuits without
       // taking its automatic siblings with it.
       deliveryMode: deliveryModesByChannel[channel] ?? request.deliveryMode,
+      settings: channelSettings,
+      photoCoverIndex: typeof channelSettings?.photoCoverIndex === 'number'
+        ? channelSettings.photoCoverIndex
+        : request.photoCoverIndex,
     });
 
     const channelResult: ChannelPublishResult = {
@@ -1312,9 +1323,12 @@ export async function publishStoredPost(
     };
   }
 
-  const settings = post.settings && typeof post.settings === 'object'
-    ? (post.settings as Record<string, unknown>)
-    : undefined;
+  const settingsByChannel: Partial<Record<SocialChannel, Record<string, unknown>>> = {};
+  for (const channel of targetChannels) {
+    const channelSettings = getPostSettingsForChannel(post, channel);
+    if (channelSettings) settingsByChannel[channel] = channelSettings;
+  }
+  const settings = settingsByChannel[primaryChannel];
   const settingsPhotoCoverIndex = settings && typeof settings.photoCoverIndex === 'number'
     ? settings.photoCoverIndex
     : undefined;
@@ -1347,7 +1361,17 @@ export async function publishStoredPost(
   const channelDestinations = getPostChannelDestinations(post);
 
   if (targetChannels.length > 1 || asStringArray(post.targetChannels)?.length) {
-    const result = await publishExplicitChannels(workspaceId, productId, primaryChannel, remainingChannels, request, options, channelDestinations, deliveryModesByChannel);
+    const result = await publishExplicitChannels(
+      workspaceId,
+      productId,
+      primaryChannel,
+      remainingChannels,
+      request,
+      options,
+      channelDestinations,
+      deliveryModesByChannel,
+      settingsByChannel,
+    );
     return aggregateChannelResults([...reusableResults, ...result.channels, ...invalidChannelResults], primaryChannel);
   }
 

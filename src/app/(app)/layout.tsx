@@ -31,6 +31,26 @@ const APP_NAMESPACE_FILES = {
   guidesChannels: "appGuidesChannels",
 } as const;
 
+function mergeMessageFallbacks(
+  fallback: Record<string, unknown>,
+  localized: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...fallback, ...localized };
+  for (const [key, fallbackValue] of Object.entries(fallback)) {
+    const localizedValue = localized[key];
+    if (
+      fallbackValue && typeof fallbackValue === "object" && !Array.isArray(fallbackValue) &&
+      localizedValue && typeof localizedValue === "object" && !Array.isArray(localizedValue)
+    ) {
+      merged[key] = mergeMessageFallbacks(
+        fallbackValue as Record<string, unknown>,
+        localizedValue as Record<string, unknown>,
+      );
+    }
+  }
+  return merged;
+}
+
 /**
  * Layout for the application surface (app.markaestro.com).
  *
@@ -45,7 +65,7 @@ export default async function AppGroupLayout({
   children: React.ReactNode;
 }>) {
   const locale = await resolveAppLocale();
-  const [messages, marketingCommon] = await Promise.all([
+  const [localizedMessages, englishMessages, marketingCommon] = await Promise.all([
     Object.fromEntries(
       await Promise.all(
         Object.entries(APP_NAMESPACE_FILES).map(async ([namespace, file]) => [
@@ -54,12 +74,25 @@ export default async function AppGroupLayout({
         ]),
       ),
     ),
+    locale === "en"
+      ? Promise.resolve(null)
+      : Object.fromEntries(
+          await Promise.all(
+            Object.entries(APP_NAMESPACE_FILES).map(async ([namespace, file]) => [
+              namespace,
+              (await import(`../../messages/en/${file}.json`)).default,
+            ]),
+          ),
+        ),
     // login/page.tsx and auth/action/page.tsx render <MarketingLayout>,
     // which needs the marketing common.json namespace (nav, footer,
     // localeSwitcher, copyBlock) even though these two routes live outside
     // the locale-prefixed [locale] tree.
     import(`../../messages/${locale}/common.json`).then((m) => m.default),
   ]);
+  const messages = englishMessages
+    ? mergeMessageFallbacks(englishMessages, localizedMessages)
+    : localizedMessages;
   messages.common = marketingCommon;
 
   return (

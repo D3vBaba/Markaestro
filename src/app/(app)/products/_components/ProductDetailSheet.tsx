@@ -164,6 +164,7 @@ const SOCIAL_PROVIDERS = [
   "threads",
   "pinterest",
   "linkedin",
+  "x",
 ] as const;
 // Channel names are platform brand names — proper nouns that stay in English
 // across every locale, same as elsewhere in the app.
@@ -176,6 +177,7 @@ const providerLabels: Record<string, string> = {
   linkedin: "LinkedIn",
   linkedin_profile: "LinkedIn Profile",
   linkedin_community: "LinkedIn Pages",
+  x: "X",
 };
 
 const COLOR_PALETTE = [
@@ -1642,6 +1644,16 @@ function ChannelsSection({
         <SimpleConnectCard
           label={providerLabels.threads}
           integration={getIntegration("threads")}
+          disconnecting={disconnecting}
+          onStartOAuth={onStartOAuth}
+          onDisconnect={onDisconnect}
+          detail={(integ) => (integ?.username ? `@${integ.username}` : undefined)}
+        />
+
+        {/* X */}
+        <SimpleConnectCard
+          label={providerLabels.x}
+          integration={getIntegration("x")}
           disconnecting={disconnecting}
           onStartOAuth={onStartOAuth}
           onDisconnect={onDisconnect}

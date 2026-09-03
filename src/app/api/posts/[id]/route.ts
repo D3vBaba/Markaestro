@@ -23,6 +23,8 @@ const CONTENT_FIELDS = [
   'productId',
   'destinationProvider',
   'destinationId',
+  'settings',
+  'settingsByChannel',
 ] as const;
 
 

@@ -1,14 +1,14 @@
 {
   "meta": {
     "title": "Markaestro for AI agents | Connect an MCP client or use an API key",
-    "description": "Connect Claude Code, claude.ai, Cursor, or any MCP client to Markaestro with a browser sign-in, or hand an agent a brand-scoped API key. Discover connected social accounts, upload media, draft, schedule, and publish across Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest.",
+    "description": "Connect Claude Code, claude.ai, Cursor, or any MCP client to Markaestro with a browser sign-in, or hand an agent a brand-scoped API key. Discover connected social accounts, upload media, draft, schedule, and publish across Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest, and X.",
     "ogTitle": "Markaestro for AI agents",
     "ogDescription": "One sign-in or one API key turns Markaestro into a publishing tool your agent can call: discover accounts, upload media, draft, schedule, publish, and report back."
   },
   "hero": {
     "eyebrow": "For AI agents",
     "title": "Connect your agent in one step. It runs your social channels.",
-    "intro1": "Markaestro is built to be operated by software. An MCP client such as Claude Code signs in through the browser and is handed a key bound to one brand; any other agent gets the same key from Settings. Either way the agent can discover which accounts it can post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped, across Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest.",
+    "intro1": "Markaestro is built to be operated by software. An MCP client such as Claude Code signs in through the browser and is handed a key bound to one brand; any other agent gets the same key from Settings. Either way the agent can discover which accounts it can post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped, across Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest, and X.",
     "intro2": "No SDK to install and no platform credentials to babysit. Your team connects the accounts once in the dashboard; the agent talks to one bearer-token API from then on.",
     "createKeyButton": "Create an API key",
     "apiReferenceButton": "Full API reference",
@@ -61,7 +61,7 @@
       {
         "step": "04",
         "title": "Publish",
-        "body": "Queues an async run. LinkedIn, Threads, and Pinterest go out over the official API. Facebook, Instagram, and TikTok land in the workspace's To Post queue for a human to post natively."
+        "body": "Queues an async run. LinkedIn, Threads, Pinterest, and X go out over the official API. Facebook, Instagram, and TikTok land in the workspace's To Post queue for a human to post natively."
       },
       {
         "step": "05",
@@ -94,7 +94,7 @@
     "title": "Tool definitions and an agent brief",
     "intro": "Two things to copy. The first is a set of tool schemas covering the whole publishing loop, written in JSON Schema, so they work as Claude tool definitions, OpenAI functions, or the input shape for an MCP server you host. The second is the operating brief that keeps a model from doing something surprising with them.",
     "schemasTitle": "Tool schemas",
-    "schemasDescription": "Six tools: list accounts, upload media, create, publish, list, delete. Wire each one to the matching endpoint above.",
+    "schemasDescription": "Core posting tools: list accounts, upload media, create, publish, list, and delete. The hosted MCP server also includes Intelligent Evergreen, run history, bulk operations, and webhooks.",
     "schemasLabel": "tools.json",
     "briefTitle": "Agent brief",
     "briefDescription": "Paste into your system prompt. It encodes the behaviors that separate a reliable publishing agent from one that double-posts and declares victory early.",
@@ -127,11 +127,11 @@
     "title": "What the agent can and cannot do",
     "intro": "Autonomy is only useful if the blast radius is small. Markaestro's defaults assume the caller is software that might be wrong.",
     "calloutTitle": "Facebook, Instagram, and TikTok are manual-first",
-    "calloutBody": "Posts your agent creates for those channels default to <code>manual_reminder</code>: Markaestro never calls the platform's API for them. Publishing moves the post into the workspace's To Post queue, where a person downloads the media, posts natively, and confirms, so the post looks exactly like it was made by hand, and a human sees every one before it exists publicly. An agent can opt a single post into official-API publishing with <code>deliveryMode: \"direct_publish\"</code>, and on TikTok that means the creator-inbox handoff, never an unattended public post. LinkedIn, Threads, and Pinterest publish programmatically once your agent explicitly asks.",
+    "calloutBody": "Posts your agent creates for those channels default to <code>manual_reminder</code>: Markaestro never calls the platform's API for them. Publishing moves the post into the workspace's To Post queue, where a person downloads the media, posts natively, and confirms, so the post looks exactly like it was made by hand, and a human sees every one before it exists publicly. An agent can opt a single post into official-API publishing with <code>deliveryMode: \"direct_publish\"</code>, and on TikTok that means the creator-inbox handoff, never an unattended public post. LinkedIn, Threads, Pinterest, and X publish programmatically once your agent explicitly asks.",
     "items": [
       {
         "title": "Scope the key down",
-        "body": "Pick only the scopes the agent needs: products.read, media.write, posts.read, posts.write, posts.publish, job_runs.read, webhooks.manage. A research agent that only reads the calendar gets posts.read and nothing else."
+        "body": "Pick only the scopes the agent needs: products.read, media.write, posts.read, posts.write, posts.publish, evergreen.read, evergreen.write, job_runs.read, webhooks.manage. A research agent that only reads the calendar gets posts.read and nothing else."
       },
       {
         "title": "Give it an expiry",
@@ -235,7 +235,7 @@
       },
       {
         "name": "MCP clients",
-        "body": "Claude Code, claude.ai, Cursor, ChatGPT: add the hosted server URL and sign in through the browser. For stdio-only clients, npx -y @markaestro/mcp runs the same seventeen tools locally."
+        "body": "Claude Code, claude.ai, Cursor, ChatGPT: add the hosted server URL and sign in through the browser. For stdio-only clients, npx -y @markaestro/mcp runs the same twenty-eight tools locally."
       },
       {
         "name": "n8n, Make, Zapier",
@@ -261,7 +261,7 @@
     "eyebrow": "MCP clients",
     "title": "Sign in from the client. Nothing to paste.",
     "intro1": "Claude Code, claude.ai, Cursor, ChatGPT, and every other client that speaks the Model Context Protocol can connect to Markaestro's hosted MCP server with no credentials configured. The first tool call opens your browser: sign in, choose the workspace and the brand the agent may act on, review the permissions, and click Allow. The client receives a key bound to that brand and refreshes it on its own.",
-    "intro2": "This is standard OAuth 2.1 with PKCE and dynamic client registration, the same mechanism behind other hosted MCP servers, so it works without a Markaestro-specific plugin. The server lives at <code>https://markaestro.com/api/public/v1/mcp</code> and exposes seventeen tools over the public API: brand and destination discovery, media upload, draft and scheduled posts, publishing with job-run polling, bulk operations, webhooks, and the per-channel rules.",
+    "intro2": "This is standard OAuth 2.1 with PKCE and dynamic client registration, the same mechanism behind other hosted MCP servers, so it works without a Markaestro-specific plugin. The server lives at <code>https://markaestro.com/api/public/v1/mcp</code> and exposes twenty-eight tools over the public API: brand and destination discovery, media upload, draft and scheduled posts, Intelligent Evergreen analytics, publishing with job-run polling, bulk operations, webhooks, and the per-channel rules.",
     "installTitle": "Install",
     "installDescription": "In Claude Code the plugin is the whole setup: it bundles the agent skill and the server entry. Any other MCP client takes the server URL in its usual configuration.",
     "headlessTitle": "Without a browser",

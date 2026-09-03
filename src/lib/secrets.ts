@@ -100,6 +100,8 @@ export async function loadSecretsToEnv(): Promise<void> {
     'LINKEDIN_PROFILE_CLIENT_SECRET',
     'LINKEDIN_COMMUNITY_CLIENT_ID',
     'LINKEDIN_COMMUNITY_CLIENT_SECRET',
+    'X_CLIENT_ID',
+    'X_CLIENT_SECRET',
     'FIREBASE_SERVICE_ACCOUNT_JSON',
     // Cloudflare Browser Rendering: renders brand websites for the product scan.
     'CLOUDFLARE_API_TOKEN',

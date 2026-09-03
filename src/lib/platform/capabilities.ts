@@ -46,6 +46,19 @@ export type PlatformCapabilityContract = {
     nativePostImport: boolean;
     lookbackDays: number | null;
   };
+  operations: {
+    asyncPublishing: boolean;
+    resumable: boolean;
+    destinationDiscovery: boolean;
+    costModel: 'included' | 'quota' | 'pay_per_use';
+    budgetKey: string | null;
+    retentionDays: number | null;
+    evergreen: {
+      allowed: boolean;
+      minimumGapDays: number;
+      reviewPolicy: 'approve_future_runs' | 'review_each_run';
+    };
+  };
   metrics: Record<NormalizedMetricKey, PlatformMetricCapability>;
   audienceDimensions: {
     country: PlatformMetricCapability;
@@ -114,6 +127,7 @@ export const PLATFORM_CAPABILITY_REGISTRY: Readonly<Record<SocialChannel, Platfo
     approval: { status: 'review_required', reconnectRequired: true, reviewRequirements: 'Meta App Review is required for Page publishing and insights scopes.', rateLimitNotes: 'Observe Graph API app and Page usage headers.', docsUrl: 'https://developers.facebook.com/docs/graph-api/', lastAuditedAt: '2026-08-25', sunsetAt: null },
     publishing: { text: true, image: true, video: true, carousel: true, markaestroScheduling: true, nativeScheduling: false },
     history: { nativePostImport: true, lookbackDays: 90 },
+    operations: { asyncPublishing: true, resumable: false, destinationDiscovery: true, costModel: 'included', budgetKey: null, retentionDays: null, evergreen: { allowed: true, minimumGapDays: 30, reviewPolicy: 'approve_future_runs' } },
     metrics: metrics({
       impressions: available(facebookScopes, { notes: 'Represented by post_media_view on current Pages APIs.' }),
       views: available(facebookScopes),
@@ -143,6 +157,7 @@ export const PLATFORM_CAPABILITY_REGISTRY: Readonly<Record<SocialChannel, Platfo
     approval: { status: 'review_required', reconnectRequired: true, reviewRequirements: 'Advanced Access and an eligible professional account are required.', rateLimitNotes: 'Observe Graph API usage headers and container limits.', docsUrl: 'https://developers.facebook.com/docs/instagram-platform/', lastAuditedAt: '2026-08-25', sunsetAt: null },
     publishing: { text: false, image: true, video: true, carousel: true, markaestroScheduling: true, nativeScheduling: false },
     history: { nativePostImport: true, lookbackDays: 90 },
+    operations: { asyncPublishing: true, resumable: false, destinationDiscovery: true, costModel: 'included', budgetKey: null, retentionDays: null, evergreen: { allowed: true, minimumGapDays: 30, reviewPolicy: 'approve_future_runs' } },
     metrics: metrics({
       impressions: available(instagramScopes, { notes: 'Normalized from views on API versions where impressions is retired.' }),
       views: available(instagramScopes),
@@ -175,6 +190,7 @@ export const PLATFORM_CAPABILITY_REGISTRY: Readonly<Record<SocialChannel, Platfo
     approval: { status: 'review_required', reconnectRequired: true, reviewRequirements: 'TikTok app review and Content Posting audit requirements apply.', rateLimitNotes: 'Respect endpoint-specific quotas and Retry-After.', docsUrl: 'https://developers.tiktok.com/doc/display-api-overview/', lastAuditedAt: '2026-08-25', sunsetAt: null },
     publishing: { text: false, image: true, video: true, carousel: false, markaestroScheduling: true, nativeScheduling: false },
     history: { nativePostImport: true, lookbackDays: 90 },
+    operations: { asyncPublishing: true, resumable: true, destinationDiscovery: false, costModel: 'quota', budgetKey: 'tiktok', retentionDays: null, evergreen: { allowed: true, minimumGapDays: 30, reviewPolicy: 'approve_future_runs' } },
     metrics: metrics({
       views: available(['video.list']),
       likes: available(['video.list']),
@@ -201,6 +217,7 @@ export const PLATFORM_CAPABILITY_REGISTRY: Readonly<Record<SocialChannel, Platfo
     approval: { status: 'review_required', reconnectRequired: true, reviewRequirements: 'Meta App Review is required for publishing and insights.', rateLimitNotes: 'Observe Threads/Graph usage headers.', docsUrl: 'https://developers.facebook.com/docs/threads/', lastAuditedAt: '2026-08-25', sunsetAt: null },
     publishing: { text: true, image: true, video: true, carousel: true, markaestroScheduling: true, nativeScheduling: false },
     history: { nativePostImport: true, lookbackDays: 90 },
+    operations: { asyncPublishing: true, resumable: false, destinationDiscovery: false, costModel: 'included', budgetKey: null, retentionDays: null, evergreen: { allowed: true, minimumGapDays: 30, reviewPolicy: 'approve_future_runs' } },
     metrics: metrics({
       impressions: available(threadsScopes, { notes: 'Normalized from views.' }),
       views: available(threadsScopes),
@@ -228,6 +245,7 @@ export const PLATFORM_CAPABILITY_REGISTRY: Readonly<Record<SocialChannel, Platfo
     approval: { status: 'restricted', reconnectRequired: true, reviewRequirements: 'Community Management and member analytics products require LinkedIn approval.', rateLimitNotes: 'Use LinkedIn rate-limit headers and daily application/member budgets.', docsUrl: 'https://learn.microsoft.com/en-us/linkedin/marketing/versioning', lastAuditedAt: '2026-08-25', sunsetAt: null },
     publishing: { text: true, image: true, video: true, carousel: true, markaestroScheduling: true, nativeScheduling: false },
     history: { nativePostImport: true, lookbackDays: 90 },
+    operations: { asyncPublishing: true, resumable: true, destinationDiscovery: true, costModel: 'quota', budgetKey: 'linkedin', retentionDays: null, evergreen: { allowed: true, minimumGapDays: 30, reviewPolicy: 'approve_future_runs' } },
     metrics: metrics({
       impressions: available(linkedInMemberAnalyticsScopes),
       views: available(linkedInMemberAnalyticsScopes),
@@ -264,6 +282,7 @@ export const PLATFORM_CAPABILITY_REGISTRY: Readonly<Record<SocialChannel, Platfo
     // so the `false` that stood here was the only wrong copy of three.
     publishing: { text: false, image: true, video: true, carousel: true, markaestroScheduling: true, nativeScheduling: false },
     history: { nativePostImport: true, lookbackDays: 90 },
+    operations: { asyncPublishing: true, resumable: false, destinationDiscovery: true, costModel: 'quota', budgetKey: 'pinterest', retentionDays: null, evergreen: { allowed: true, minimumGapDays: 30, reviewPolicy: 'approve_future_runs' } },
     metrics: metrics({
       impressions: available(pinterestReadScopes),
       views: available(pinterestReadScopes, { notes: 'Normalized from impressions.' }),
@@ -285,6 +304,36 @@ export const PLATFORM_CAPABILITY_REGISTRY: Readonly<Record<SocialChannel, Platfo
       gender: accountEligible(['ads:read'], 'Pinterest audience insights require an eligible business/ad account.'),
       industry: unsupported(),
       interests: accountEligible(['ads:read'], 'Pinterest audience insights require an eligible business/ad account.'),
+    },
+  },
+  x: {
+    platform: 'x',
+    apiProduct: 'X API',
+    apiHost: 'https://api.x.com',
+    apiVersion: 'v2',
+    rateLimitCategory: 'x-api',
+    requiredScopes: ['tweet.read', 'tweet.write', 'users.read', 'media.write', 'offline.access'],
+    approval: { status: 'standard', reconnectRequired: true, reviewRequirements: 'An X developer project with prepaid credits is required.', rateLimitNotes: 'Observe endpoint rate-limit reset headers and the prepaid-credit balance.', docsUrl: 'https://docs.x.com/x-api/', lastAuditedAt: '2026-09-03', sunsetAt: null },
+    publishing: { text: true, image: true, video: true, carousel: false, markaestroScheduling: true, nativeScheduling: false },
+    history: { nativePostImport: true, lookbackDays: 30 },
+    operations: { asyncPublishing: true, resumable: true, destinationDiscovery: false, costModel: 'pay_per_use', budgetKey: 'x', retentionDays: 30, evergreen: { allowed: true, minimumGapDays: 7, reviewPolicy: 'approve_future_runs' } },
+    metrics: metrics({
+      impressions: available(['tweet.read']),
+      views: available(['tweet.read'], { notes: 'Normalized from impressions.' }),
+      likes: available(['tweet.read']),
+      comments: available(['tweet.read'], { notes: 'Replies are normalized as comments.' }),
+      shares: available(['tweet.read'], { notes: 'Reposts and quotes are normalized as shares.' }),
+      clicks: accountEligible(['tweet.read'], 'User-context metrics are available only for recent posts owned by the connected account.'),
+      profileVisits: accountEligible(['tweet.read'], 'User-context metrics are available only for recent posts owned by the connected account.'),
+      videoViews: accountEligible(['tweet.read'], 'Available for eligible video posts.'),
+    }),
+    audienceDimensions: {
+      country: unsupported(),
+      city: unsupported(),
+      age: unsupported(),
+      gender: unsupported(),
+      industry: unsupported(),
+      interests: unsupported(),
     },
   },
 };

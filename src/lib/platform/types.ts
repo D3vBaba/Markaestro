@@ -116,6 +116,18 @@ export type PublishResult = {
   error?: string;
 };
 
+export type PlatformOperationKind = 'media_upload' | 'media_processing' | 'publish_processing';
+export type PlatformOperationState = 'pending' | 'processing' | 'succeeded' | 'retrying' | 'failed' | 'expired';
+
+export type PlatformOperationCheckpoint = {
+  kind: PlatformOperationKind;
+  providerOperationId: string;
+  state: PlatformOperationState;
+  nextPollAt?: string;
+  expiresAt?: string;
+  checkpoint?: Record<string, unknown>;
+};
+
 // ── Metrics types ───────────────────────────────────────────────────
 
 /**

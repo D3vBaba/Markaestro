@@ -20,10 +20,20 @@ const { post, run } = await client.posts.createAndPublish({
 // Or schedule for later. Scheduling runs preflight at create time, so a
 // broken connection is reported here, not silently at publish time.
 await client.posts.create({
-  targets: [{ channel: 'linkedin' }, { channel: 'threads' }],
+  targets: [{ channel: 'linkedin' }, { channel: 'x' }],
   caption: 'Multi-channel, scheduled',
   scheduledAt: '2026-09-01T10:00:00Z',
 });
+
+// Turn a proven post into a governed recurring queue, then read its measured
+// lifetime performance. Activation is deliberately a separate call.
+const queue = await client.evergreen.create({
+  sourcePostId: post.id,
+  name: 'Launch proof points',
+  variants: [{ caption: 'A measured update worth revisiting.' }],
+});
+await client.evergreen.activate(queue.id);
+const performance = await client.evergreen.analytics(queue.id);
 ```
 
 Every create carries an automatic `Idempotency-Key`, so a network retry can

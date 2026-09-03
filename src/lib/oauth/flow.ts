@@ -665,6 +665,20 @@ export async function revokeAccessToken(
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ client_key: clientId, client_secret: clientSecret, token: accessToken }).toString(),
       });
+    } else if (provider === 'x') {
+      const { clientId, clientSecret } = getClientCredentials(provider);
+      await fetch(config.revokeUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          token: accessToken,
+          client_id: clientId,
+          token_type_hint: 'access_token',
+        }).toString(),
+      });
     }
   } catch {
     // Revocation is best-effort
@@ -845,6 +859,15 @@ function providerChannelsAndCapabilities(provider: string): {
           PlatformCapability.PUBLISH_IMAGE,
           PlatformCapability.PUBLISH_VIDEO,
           PlatformCapability.PUBLISH_CAROUSEL,
+        ],
+      };
+    case 'x':
+      return {
+        channels: ['x'],
+        capabilities: [
+          PlatformCapability.PUBLISH_TEXT,
+          PlatformCapability.PUBLISH_IMAGE,
+          PlatformCapability.PUBLISH_VIDEO,
         ],
       };
     default:

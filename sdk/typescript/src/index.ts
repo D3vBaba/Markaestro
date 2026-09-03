@@ -17,7 +17,7 @@
  */
 
 export type SocialChannel =
-  | 'facebook' | 'instagram' | 'tiktok' | 'threads' | 'pinterest' | 'linkedin';
+  | 'facebook' | 'instagram' | 'tiktok' | 'threads' | 'pinterest' | 'linkedin' | 'x';
 
 export type DeliveryMode = 'direct_publish' | 'platform_inbox' | 'manual_reminder';
 
@@ -81,6 +81,68 @@ export type MediaAsset = {
   height: number | null;
   createdAt: string;
   [key: string]: unknown;
+};
+
+export type EvergreenVariantInput = { caption: string; enabled?: boolean };
+
+export type CreateEvergreenQueueInput = {
+  sourcePostId: string;
+  name: string;
+  channels?: SocialChannel[];
+  intervalDays?: number;
+  timeZone?: string;
+  localHour?: number;
+  localMinute?: number;
+  scheduleMode?: 'fixed' | 'learned';
+  reviewPolicy?: 'approve_future_runs' | 'review_each_run';
+  expiresAt?: string | null;
+  variants: EvergreenVariantInput[];
+};
+
+export type EvergreenQueue = {
+  id: string;
+  sourcePostId: string;
+  productId: string;
+  name: string;
+  status: 'draft' | 'active' | 'paused' | 'archived';
+  channels: SocialChannel[];
+  intervalDays: number;
+  nextRunAt: string | null;
+  reviewPolicy: 'approve_future_runs' | 'review_each_run';
+  version: number;
+  runCount: number;
+  pauseReason: string | null;
+  variants?: Array<EvergreenVariantInput & { id: string; position: number }>;
+  [key: string]: unknown;
+};
+
+export type UpdateEvergreenQueueInput = {
+  version: number;
+  name?: string;
+  intervalDays?: number;
+  timeZone?: string;
+  localHour?: number;
+  localMinute?: number;
+  scheduleMode?: 'fixed' | 'learned';
+  reviewPolicy?: 'approve_future_runs' | 'review_each_run';
+  expiresAt?: string | null;
+  variants?: EvergreenVariantInput[];
+};
+
+export type EvergreenQueueAnalytics = {
+  queueId: string;
+  source: { views: number | null; reach: number | null; engagements: number | null; platformClicks: number | null };
+  lifetime: {
+    views: number | null;
+    reach: number | null;
+    engagements: number | null;
+    platformClicks: number | null;
+    trackedLinkClicks: number;
+    attributedConversions: number;
+    measuredOccurrences: number;
+  };
+  runs: { total: number; published: number; evaluated: number; underperforming: number; failed: number; skipped: number; needsReview: number };
+  recentRuns: Array<Record<string, unknown>>;
 };
 
 export type Page<K extends string, T> = { [key in K]: T[] } & { nextCursor: string | null };
@@ -220,6 +282,31 @@ export class Markaestro {
       this.request<{ asset: MediaAsset }>('GET', `/api/public/v1/media/${encodeURIComponent(id)}`).then((r) => r.asset),
     delete: (id: string) =>
       this.request<Record<string, unknown>>('DELETE', `/api/public/v1/media/${encodeURIComponent(id)}`),
+  };
+
+  readonly evergreen = {
+    preview: (sourcePostId: string) =>
+      this.request<Record<string, unknown>>('POST', '/api/public/v1/evergreen-queues/preview', { sourcePostId }),
+    create: (input: CreateEvergreenQueueInput) =>
+      this.request<{ queue: EvergreenQueue }>('POST', '/api/public/v1/evergreen-queues', input).then((r) => r.queue),
+    list: () =>
+      this.request<{ queues: EvergreenQueue[]; count: number }>('GET', '/api/public/v1/evergreen-queues'),
+    get: (id: string) =>
+      this.request<{ queue: EvergreenQueue }>('GET', `/api/public/v1/evergreen-queues/${encodeURIComponent(id)}`).then((r) => r.queue),
+    update: (id: string, input: UpdateEvergreenQueueInput) =>
+      this.request<{ queue: EvergreenQueue }>('PATCH', `/api/public/v1/evergreen-queues/${encodeURIComponent(id)}`, input).then((r) => r.queue),
+    activate: (id: string) =>
+      this.request<{ queue: EvergreenQueue }>('POST', `/api/public/v1/evergreen-queues/${encodeURIComponent(id)}/activate`).then((r) => r.queue),
+    pause: (id: string) =>
+      this.request<{ queue: EvergreenQueue }>('POST', `/api/public/v1/evergreen-queues/${encodeURIComponent(id)}/pause`).then((r) => r.queue),
+    resume: (id: string) =>
+      this.request<{ queue: EvergreenQueue }>('POST', `/api/public/v1/evergreen-queues/${encodeURIComponent(id)}/resume`).then((r) => r.queue),
+    archive: (id: string) =>
+      this.request<{ queue: EvergreenQueue }>('DELETE', `/api/public/v1/evergreen-queues/${encodeURIComponent(id)}`).then((r) => r.queue),
+    runs: (id: string) =>
+      this.request<{ runs: Array<Record<string, unknown>>; count: number }>('GET', `/api/public/v1/evergreen-queues/${encodeURIComponent(id)}/runs`),
+    analytics: (id: string) =>
+      this.request<{ analytics: EvergreenQueueAnalytics }>('GET', `/api/public/v1/evergreen-queues/${encodeURIComponent(id)}/analytics`).then((r) => r.analytics),
   };
 
   readonly jobRuns = {

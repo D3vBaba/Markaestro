@@ -67,6 +67,27 @@ inferred from the extension when `contentType` is omitted.
 
 **`get_media`** `{ assetId }` → `{ asset }` with `processingState` and `refCount`.
 
+## Intelligent Evergreen
+
+**`preview_evergreen_queue`** `{ sourcePostId }` → eligibility evidence and a recommended cadence. Read-only.
+
+**`create_evergreen_queue`** `{ sourcePostId, name, variants, channels?, intervalDays?, timeZone?, localHour?, localMinute?, scheduleMode?, reviewPolicy?, expiresAt? }` → a draft queue.
+
+**`get_evergreen_queue`**, **`list_evergreen_queues`**, and
+**`list_evergreen_runs`** read policy and occurrence history.
+
+**`get_evergreen_analytics`** returns source metrics, queue-lifetime metrics,
+tracked clicks, conversions, and recent run outcomes. Unavailable provider
+metrics remain `null`.
+
+**`update_evergreen_queue`** requires the current `version`, preventing a stale
+client from overwriting someone else's edit.
+
+**`activate_evergreen_queue`** schedules future occurrences. Confirm with the
+user first. **`pause_evergreen_queue`** unschedules the pending occurrence,
+**`resume_evergreen_queue`** computes a fresh next run, and
+**`archive_evergreen_queue`** ends the queue permanently.
+
 ## Publish runs
 
 **`get_job_run`** `{ runId }` → `{ run: { status: queued | running | succeeded | failed, message, details } }`

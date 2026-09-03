@@ -141,6 +141,9 @@ describe('the unified rule set (4.6)', () => {
     ['pinterest', 'hi', ['v', 'i'], ['video', 'image'], ['VALIDATION_PINTEREST_VIDEO_MUST_BE_SINGLE_MEDIA']],
     ['tiktok', 'hi', ['v', 'v'], ['video', 'video'], ['VALIDATION_TIKTOK_MAX_ONE_VIDEO']],
     ['tiktok', 'hi', ['i'], ['image'], []],
+    ['x', 'hi', [], [], []],
+    ['x', 'hi', ['v', 'i'], ['video', 'image'], ['VALIDATION_X_VIDEO_CANNOT_BE_COMBINED']],
+    ['x', 'hi', ['v', 'v'], ['video', 'video'], ['VALIDATION_X_MAX_ONE_VIDEO']],
   ] as const)(
     '%s with caption %j and media types %j yields %j',
     (channel, content, urls, types, expectedCodes) => {

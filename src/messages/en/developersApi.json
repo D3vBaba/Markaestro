@@ -2,9 +2,9 @@
   "hero": {
     "eyebrow": "Developers",
     "title": "Public publishing API",
-    "intro1": "Upload media, create posts, and publish to Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest, all scoped to a product via a workspace API key. The recommended way to integrate is the <connectLink>Connect API</connectLink>, a small, flat<code>/api/connect/v1</code> surface that most scheduling tools can target as-is.",
+    "intro1": "Upload media, create posts, and publish to Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest, and X, all scoped to a product via a workspace API key. The recommended way to integrate is the <connectLink>Connect API</connectLink>, a small, flat<code>/api/connect/v1</code> surface that most scheduling tools can target as-is.",
     "intro2": "Need full control: explicit publish, job-run polling, signed webhooks, batch, per-channel settings? The advanced <code>/api/public/v1</code> API further down exposes all of it. Both share the same auth, products, and publishing pipeline; use only these versioned public routes (internal app routes require Firebase user auth and are not part of the public contract).",
-    "intro3": "<strong>Facebook, Instagram, and TikTok are manual-first over the API.</strong> Posts for those channels default to <code>manual_reminder</code> delivery: Markaestro never calls the platform's API for them. Publishing moves the post to the workspace's To Post queue, where the owner downloads the media, posts natively, and confirms, so posts appear exactly as if created by hand. Pass <code>deliveryMode: \"direct_publish\"</code> on create to opt a post into official-API publishing instead. On TikTok this uses the inbox handoff unless <code>settings.postMode</code> is <code>direct_post</code>. LinkedIn, Threads, and Pinterest publish programmatically by default.",
+    "intro3": "<strong>Facebook, Instagram, and TikTok are manual-first over the API.</strong> Posts for those channels default to <code>manual_reminder</code> delivery: Markaestro never calls the platform's API for them. Publishing moves the post to the workspace's To Post queue, where the owner downloads the media, posts natively, and confirms, so posts appear exactly as if created by hand. Pass <code>deliveryMode: \"direct_publish\"</code> on create to opt a post into official-API publishing instead. On TikTok this uses the inbox handoff unless <code>settings.postMode</code> is <code>direct_post</code>. LinkedIn, Threads, Pinterest, and X publish programmatically by default.",
     "intro4": "Workspaces can have multiple products. Every API key is bound to one product when you create it, so calls target that product automatically and requests for any other product are rejected.",
     "agentCallout": {
       "title": "Building an AI agent?",
@@ -50,7 +50,7 @@
         "note": "Lists workspace posts with flat status, caption, and media urls."
       }
     ],
-    "footnote": "Each account from <code>/social-accounts</code> is labeled with its <code>product</code>, the wire-format name for a brand (the same account can appear under multiple brands), and its <code>id</code> encodes <code>productId#destinationId</code>, pass it back verbatim in <code>social_accounts</code>, and the request fans out one post per account. Each key is bound to one brand, so it only sees and posts to that brand. <strong>Facebook, Instagram, and TikTok posts are manual-first</strong>, created as drafts and published natively by the workspace owner from the Markaestro To Post queue, never via the platform's API. LinkedIn, Threads, and Pinterest publish programmatically after an explicit publish action. Post status is one of <code>draft</code>, <code>processing</code>, <code>posted</code>, or <code>failed</code>. Facebook, Instagram, LinkedIn, TikTok, and Threads are each their own dedicated destination, publishing to one never fans out to another. Track publishing state through <code>GET /api/connect/v1/posts</code>."
+    "footnote": "Each account from <code>/social-accounts</code> is labeled with its <code>product</code>, the wire-format name for a brand (the same account can appear under multiple brands), and its <code>id</code> encodes <code>productId#destinationId</code>, pass it back verbatim in <code>social_accounts</code>, and the request fans out one post per account. Each key is bound to one brand, so it only sees and posts to that brand. <strong>Facebook, Instagram, and TikTok posts are manual-first</strong>, created as drafts and published natively by the workspace owner from the Markaestro To Post queue, never via the platform's API. LinkedIn, Threads, Pinterest, and X publish programmatically after an explicit publish action. Post status is one of <code>draft</code>, <code>processing</code>, <code>posted</code>, or <code>failed</code>. Every channel is a dedicated destination; publishing to one never fans out to another. Track publishing state through <code>GET /api/connect/v1/posts</code>."
   },
   "advancedSection": {
     "title": "Advanced: full Public API",
@@ -119,7 +119,7 @@
     },
     {
       "title": "Posts",
-      "description": "Create, list, inspect, publish, and delete posts for Facebook, Instagram, LinkedIn, Threads, Pinterest, and TikTok.",
+      "description": "Create, list, inspect, publish, and delete posts for Facebook, Instagram, LinkedIn, Threads, Pinterest, TikTok, and X.",
       "endpoints": [
         {
           "method": "POST",
@@ -139,7 +139,7 @@
         {
           "method": "POST",
           "path": "/api/public/v1/posts/:id/publish",
-          "note": "Queues an async publish run. Manual posts land in the workspace's To Post queue for native posting; LinkedIn, Threads, and Pinterest publish directly; opted-in Meta posts publish via the official API, and opted-in TikTok posts use the inbox handoff."
+          "note": "Queues an async publish run. Manual posts land in the workspace's To Post queue for native posting; LinkedIn, Threads, Pinterest, and X publish directly; opted-in Meta posts publish via the official API, and opted-in TikTok posts use the inbox handoff."
         },
         {
           "method": "DELETE",
@@ -198,7 +198,7 @@
     },
     "publish": {
       "title": "5. Queue publish",
-      "description": "Publishing creates an async run. Manual posts (the Facebook/Instagram/TikTok default) move to the To Post queue and fire <code>post.action_required</code>; LinkedIn, Threads, Pinterest, and opted-in Meta posts publish directly; opted-in TikTok posts queue the inbox handoff."
+      "description": "Publishing creates an async run. Manual posts (the Facebook/Instagram/TikTok default) move to the To Post queue and fire <code>post.action_required</code>; LinkedIn, Threads, Pinterest, X, and opted-in Meta posts publish directly; opted-in TikTok posts queue the inbox handoff."
     },
     "listScheduled": {
       "title": "6. Review the schedule and cancel",
@@ -228,6 +228,10 @@
       {
         "name": "LinkedIn",
         "rule": "Text, single image, single video, or organic multi-image posts up to 20 images. Target either the connected Profile or a managed Page."
+      },
+      {
+        "name": "X",
+        "rule": "Text, up to four images, one GIF, or one video. Reply controls are applied per post, and publishing is blocked when the workspace X cost budget is exhausted."
       }
     ]
   },

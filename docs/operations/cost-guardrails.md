@@ -36,6 +36,30 @@ concurrent dispatches, and three attempts using 10–60 second backoff. These ar
 cost and load controls as well as throughput settings. Increase them only when
 queue-age data shows real demand and the worker target remains healthy.
 
+## X API spend gate
+
+X uses pay-per-use pricing, so every X adapter read, create, and delete reserves
+an estimated cost in `workspaces/{workspaceId}/providerUsage/{month}_x` before
+opening a provider request. The budget check and reservation share one
+Firestore transaction, so concurrent workers cannot spend through the same
+remaining allowance. All paid X operations return
+`CHANNEL_BILLING_ACTION_REQUIRED` when the next reservation would exceed
+`X_API_WORKSPACE_HARD_BUDGET_USD`.
+
+Keep the unit-price variables aligned with the active X developer-console
+price sheet:
+
+- `X_API_BASIC_WRITE_COST_USD`, default `0.015`
+- `X_API_URL_WRITE_COST_USD`, default `0.20`
+- `X_API_READ_COST_USD`, default `0.005` per post resource
+- `X_API_USER_READ_COST_USD`, default `0.01` per user resource
+- `X_API_DELETE_COST_USD`, default `0.01`
+
+Pricing is operational configuration, not a compile-time promise. Confirm the
+[current X API pricing](https://docs.x.com/x-api/getting-started/pricing) before
+changing these values. The Firestore counter is a guardrail and usage estimate;
+the X developer console remains the billing source of truth.
+
 ## Verification commands
 
 ```bash

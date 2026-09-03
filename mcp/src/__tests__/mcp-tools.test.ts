@@ -135,7 +135,10 @@ describe('tool handlers', () => {
     expect(byName.create_post!.readOnly).toBe(false);
     expect(tools.map((tool) => tool.name)).toEqual([
       'list_products', 'list_destinations', 'list_posts', 'get_post', 'create_post', 'publish_post', 'delete_post',
-      'bulk_posts', 'create_posts', 'upload_media', 'list_media', 'get_media', 'get_job_run', 'list_job_runs',
+      'bulk_posts', 'create_posts', 'preview_evergreen_queue', 'list_evergreen_queues', 'get_evergreen_queue',
+      'create_evergreen_queue', 'update_evergreen_queue', 'activate_evergreen_queue', 'pause_evergreen_queue',
+      'resume_evergreen_queue', 'archive_evergreen_queue', 'list_evergreen_runs', 'get_evergreen_analytics',
+      'upload_media', 'list_media', 'get_media', 'get_job_run', 'list_job_runs',
       'list_webhook_endpoints', 'create_webhook_endpoint', 'get_channel_rules',
     ]);
   });
@@ -153,7 +156,7 @@ describe('read-only mode', () => {
     const { tools } = await client.listTools();
     expect(tools.every((tool) => tool.annotations?.readOnlyHint)).toBe(true);
     expect(tools.map((tool) => tool.name)).not.toContain('create_post');
-    expect(tools.length).toBe(10);
+    expect(tools.length).toBe(15);
   });
 });
 
@@ -174,7 +177,7 @@ describe('MCP server over an in-memory transport', () => {
   it('lists every tool with annotations and serves the channel-rules resource', async () => {
     const { client } = await connect();
     const { tools } = await client.listTools();
-    expect(tools.length).toBe(17);
+    expect(tools.length).toBe(28);
     const del = tools.find((tool) => tool.name === 'delete_post')!;
     expect(del.annotations?.destructiveHint).toBe(true);
     expect(del.annotations?.readOnlyHint).toBe(false);

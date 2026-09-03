@@ -3,6 +3,7 @@ from __future__ import annotations
 import secrets
 import time
 from typing import Any, Optional
+from urllib.parse import quote
 
 import httpx
 
@@ -79,6 +80,56 @@ class _JobRuns(_Resource):
         return self._client._request("GET", "/api/public/v1/job-runs", params=params)
 
 
+class _Evergreen(_Resource):
+    def preview(self, source_post_id: str) -> dict[str, Any]:
+        return self._client._request(
+            "POST", "/api/public/v1/evergreen-queues/preview", json={"sourcePostId": source_post_id}
+        )["preview"]
+
+    def create(self, **input: Any) -> dict[str, Any]:
+        return self._client._request("POST", "/api/public/v1/evergreen-queues", json=input)["queue"]
+
+    def list(self) -> dict[str, Any]:
+        return self._client._request("GET", "/api/public/v1/evergreen-queues")
+
+    def get(self, queue_id: str) -> dict[str, Any]:
+        return self._client._request("GET", f"/api/public/v1/evergreen-queues/{quote(queue_id, safe='')}")["queue"]
+
+    def update(self, queue_id: str, **input: Any) -> dict[str, Any]:
+        return self._client._request(
+            "PATCH", f"/api/public/v1/evergreen-queues/{quote(queue_id, safe='')}", json=input
+        )["queue"]
+
+    def activate(self, queue_id: str) -> dict[str, Any]:
+        return self._transition(queue_id, "activate")
+
+    def pause(self, queue_id: str) -> dict[str, Any]:
+        return self._transition(queue_id, "pause")
+
+    def resume(self, queue_id: str) -> dict[str, Any]:
+        return self._transition(queue_id, "resume")
+
+    def archive(self, queue_id: str) -> dict[str, Any]:
+        return self._client._request(
+            "DELETE", f"/api/public/v1/evergreen-queues/{quote(queue_id, safe='')}"
+        )["queue"]
+
+    def runs(self, queue_id: str) -> dict[str, Any]:
+        return self._client._request(
+            "GET", f"/api/public/v1/evergreen-queues/{quote(queue_id, safe='')}/runs"
+        )
+
+    def analytics(self, queue_id: str) -> dict[str, Any]:
+        return self._client._request(
+            "GET", f"/api/public/v1/evergreen-queues/{quote(queue_id, safe='')}/analytics"
+        )["analytics"]
+
+    def _transition(self, queue_id: str, action: str) -> dict[str, Any]:
+        return self._client._request(
+            "POST", f"/api/public/v1/evergreen-queues/{quote(queue_id, safe='')}/{action}"
+        )["queue"]
+
+
 class _WebhookEndpoints(_Resource):
     def list(self) -> dict[str, Any]:
         return self._client._request("GET", "/api/public/v1/webhook-endpoints")
@@ -119,6 +170,7 @@ class Markaestro:
         self.posts = _Posts(self)
         self.media = _Media(self)
         self.job_runs = _JobRuns(self)
+        self.evergreen = _Evergreen(self)
         self.webhook_endpoints = _WebhookEndpoints(self)
 
     def _request(

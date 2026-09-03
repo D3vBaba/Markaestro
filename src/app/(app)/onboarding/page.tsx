@@ -47,7 +47,7 @@ const QUIZ_QUESTIONS_META: QuizQuestionMeta[] = [
   { id: "role", type: "single", hasSubtitle: true, hasDesc: true, optionIds: ["founder", "marketer", "agency", "creator"] },
   { id: "teamSize", type: "single", hasSubtitle: false, hasDesc: true, optionIds: ["solo", "small", "medium", "large"] },
   { id: "goal", type: "single", hasSubtitle: true, hasDesc: true, optionIds: ["social", "sales", "time"] },
-  { id: "channels", type: "multi", hasSubtitle: true, hasDesc: false, columns: true, optionIds: ["instagram", "facebook", "tiktok", "threads", "pinterest", "linkedin"] },
+  { id: "channels", type: "multi", hasSubtitle: true, hasDesc: false, columns: true, optionIds: ["instagram", "facebook", "tiktok", "threads", "pinterest", "linkedin", "x"] },
   { id: "postingToday", type: "single", hasSubtitle: true, hasDesc: true, optionIds: ["manual", "spreadsheet", "tool", "starting"] },
   { id: "frequency", type: "single", hasSubtitle: true, hasDesc: true, optionIds: ["daily", "few", "weekly", "unsure"] },
   { id: "challenge", type: "single", hasSubtitle: true, hasDesc: true, optionIds: ["consistency", "time", "ideas", "juggling"] },

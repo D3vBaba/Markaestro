@@ -18,6 +18,7 @@ export type InboxItem = {
 };
 
 export async function createInboxItem(input: {
+  id?: string;
   workspaceId: string;
   uid: string;
   type: InboxItemType;
@@ -26,7 +27,7 @@ export async function createInboxItem(input: {
   href?: string;
   meta?: Record<string, unknown>;
 }): Promise<InboxItem> {
-  const id = randomUUID();
+  const id = input.id ?? randomUUID();
   const createdAt = new Date().toISOString();
   const experimentId = typeof input.meta?.experimentId === 'string' ? input.meta.experimentId : null;
   const item: InboxItem = {
@@ -42,7 +43,17 @@ export async function createInboxItem(input: {
     readAt: null,
     createdAt,
   };
-  await adminDb.doc(`workspaces/${input.workspaceId}/inbox/${id}`).set(item);
+  const ref = adminDb.doc(`workspaces/${input.workspaceId}/inbox/${id}`);
+  if (input.id) {
+    try {
+      await ref.create(item);
+    } catch (error) {
+      const code = (error as { code?: string | number } | null)?.code;
+      if (code !== 6 && code !== 'already-exists') throw error;
+    }
+  } else {
+    await ref.set(item);
+  }
   return item;
 }
 

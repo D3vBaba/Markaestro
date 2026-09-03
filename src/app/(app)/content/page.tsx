@@ -12,12 +12,13 @@ import DraftsTab from "./_components/DraftsTab";
 import ScheduledTab from "./_components/ScheduledTab";
 import PublishedTab from "./_components/PublishedTab";
 import PlatformPostsTab from "./_components/PlatformPostsTab";
+import EvergreenTab from "./_components/EvergreenTab";
 
 const STORAGE_KEY = "markaestro_default_product";
 
 type Product = { id: string; name: string };
 
-const TAB_IDS = ["create", "drafts", "scheduled", "published", "on-platform"] as const;
+const TAB_IDS = ["create", "drafts", "scheduled", "published", "evergreen", "on-platform"] as const;
 
 // ── Persistent product context bar ───────────────────────────────────────────
 
@@ -173,6 +174,10 @@ export default function PostsPage() {
           <PublishedTab key={workspaceId} refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
         </TabsContent>
 
+        <TabsContent value="evergreen" className="mt-0">
+          <EvergreenTab key={workspaceId} productId={productId} />
+        </TabsContent>
+
         <TabsContent value="on-platform" className="mt-0">
           <PlatformPostsTab key={workspaceId} productId={productId} />
         </TabsContent>
@@ -180,4 +185,3 @@ export default function PostsPage() {
     </>
   );
 }
-

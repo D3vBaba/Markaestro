@@ -14,6 +14,9 @@ export type WorkspaceWorkReason =
   | 'intelligence_job'
   | 'daily_job'
   | 'experiment_close'
+  | 'evergreen_queue'
+  | 'evergreen_evaluation'
+  | 'platform_operation'
   | 'legacy_sweep';
 
 export type DueWorkspaceClaim = {

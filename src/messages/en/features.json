@@ -8,7 +8,7 @@
   "coreFeatures": [
     {
       "title": "Multi-Channel Publishing",
-      "description": "Compose once, publish everywhere. Write a single post and adapt it for Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest in one click. Schedule for optimal timing or publish instantly.",
+      "description": "Compose once, publish everywhere. Write a single post and adapt it for Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest, and X in one click. Schedule for optimal timing or publish instantly.",
       "details": [
         "Unified composer with per-channel preview",
         "Drag-and-drop media management",
@@ -28,7 +28,7 @@
     },
     {
       "title": "Multi-Channel Previews",
-      "description": "See how every post will look on each network before you publish: Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest each get their own preview. Captions, aspect ratios, character limits, and media specs are all rendered live.",
+      "description": "See how every post will look on each network before you publish: Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest, and X each get their own preview. Captions, aspect ratios, character limits, and media specs are all rendered live.",
       "details": [
         "Pixel-accurate previews per platform",
         "Live caption character-count tracking",
@@ -50,10 +50,20 @@
       "title": "OAuth Integrations",
       "description": "Connect your accounts in one click with industry-standard OAuth. No manual API keys, no token juggling. Markaestro securely stores and refreshes credentials for you.",
       "details": [
-        "One-click connect for Meta, TikTok, LinkedIn, Threads, and Pinterest",
+        "One-click connect for Meta, TikTok, LinkedIn, Threads, Pinterest, and X",
         "Encrypted token storage at rest",
         "Automatic token refresh",
         "Granular disconnect per platform"
+      ]
+    },
+    {
+      "title": "Intelligent Evergreen",
+      "description": "Turn a mature, measured post into a recurring policy you control. Rotate approved captions, review every run or pre-approve the queue, and let Markaestro pause the sequence when comparable performance decays.",
+      "details": [
+        "Eligibility backed by the source post's measured results",
+        "Fixed or learned timing with DST-safe recurrence",
+        "Review-each-run and pre-approved scheduling modes",
+        "Seven-day evaluation with a conservative two-run decay pause"
       ]
     },
     {
@@ -99,7 +109,7 @@
     "eyebrow": "Intelligence",
     "titleLead": "Know what to post next,",
     "titleHighlight": "from your own numbers",
-    "subtitle": "Intelligence reads the posts you already published, keeps every metric exactly as the platforms reported it, and turns that history into plain-language answers and ready-to-edit drafts. Nothing posts automatically.",
+    "subtitle": "Intelligence reads the posts you already published, keeps every metric exactly as the platforms reported it, and turns that history into plain-language answers, ready-to-edit drafts, and evidence for governed Evergreen queues.",
     "loopTitle": "How it works",
     "loop": [
       {
@@ -148,12 +158,12 @@
     ],
     "principlesTitle": "Rules it never breaks",
     "principles": [
-      "Never publishes or schedules on its own. Every action is a draft or a decision you record.",
+      "Never publishes from a recommendation alone. Evergreen schedules only after you create and explicitly activate a queue.",
       "Never fills in a number a platform did not report. Blank means blank.",
       "Never uses other brands' data or generic benchmarks. Every claim comes from your own history.",
       "Always says what fed a result: Measured, Calculated, Recommended, Declared, or Generated."
     ],
-    "plans": "Audience Fit is on every plan. Playbook, Opportunities, tracked links, and Ask Markaestro start on Pro; Experiments on Business. AI actions such as Draft this are metered per month by plan.",
+    "plans": "Audience Fit is on every plan. Playbook, Opportunities, tracked links, Ask Markaestro, and up to 10 Intelligent Evergreen queues per brand start on Pro; Business adds unlimited Evergreen queues and Experiments. AI actions such as Draft this are metered per month by plan.",
     "cta": "Start free and connect a channel"
   }
 }

@@ -124,7 +124,7 @@ describe('scope parameter', () => {
   it('falls back to the agent default set when nothing is requested', () => {
     const { scopes, unknown } = parseScopeParam(undefined);
     expect(unknown).toEqual([]);
-    expect(scopes).toEqual(['products.read', 'media.write', 'posts.read', 'posts.write', 'posts.publish', 'job_runs.read']);
+    expect(scopes).toEqual(['products.read', 'media.write', 'posts.read', 'posts.write', 'posts.publish', 'evergreen.read', 'evergreen.write', 'job_runs.read']);
     expect(scopes).not.toContain('webhooks.manage');
   });
 

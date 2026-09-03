@@ -394,28 +394,16 @@ async function resolveTargetDestination(
   });
 }
 
-/**
- * Per-post settings are a discriminated union keyed by channel, and the post
- * document stores exactly one of them, which is what the publisher reads. A
- * multi-target post carrying settings for two channels therefore has nowhere
- * to put the second one.
- *
- * Refusing is the only honest answer: storing the first and dropping the rest
- * would publish a post whose TikTok privacy or Instagram collaborators the
- * caller asked for and never got, with nothing to indicate it. Lifting this
- * needs per-channel settings on the post document and in the publisher, which
- * is a change to the publish path, not to this surface.
- */
-function resolveTargetSettings(targets: PublicPostTarget[]): PostSettings | undefined {
-  const withSettings = targets.filter((target) => target.settings);
-  if (withSettings.length > 1) {
-    throw new ApiValidationError(
-      'VALIDATION_MULTIPLE_TARGET_SETTINGS_UNSUPPORTED',
-      `A post can carry platform settings for one channel at a time. This post has settings for ${withSettings.map((target) => target.channel).join(' and ')}. Create one post per channel that needs its own settings.`,
-      { channels: withSettings.map((target) => target.channel) },
-    );
+function resolveTargetSettings(targets: PublicPostTarget[]) {
+  const settingsByChannel: Partial<Record<SocialChannel, PostSettings>> = {};
+  for (const target of targets) {
+    if (target.settings) settingsByChannel[target.channel] = target.settings;
   }
-  return withSettings[0]?.settings;
+  return {
+    settingsByChannel,
+    // The primary target remains mirrored for older clients and records.
+    settings: targets[0]?.settings,
+  };
 }
 
 export async function createPublicPost(ctx: PublicApiContext, input: CreatePublicPostInput) {
@@ -439,7 +427,7 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
       deliveryMode: target.deliveryMode,
     });
   }
-  const settings = resolveTargetSettings(targets);
+  const { settings, settingsByChannel } = resolveTargetSettings(targets);
 
   // Product-bound keys force their own product: a missing productId defaults to
   // it, and an explicit productId for any other product is rejected.
@@ -542,6 +530,7 @@ export async function createPublicPost(ctx: PublicApiContext, input: CreatePubli
     deliveryMode: primary.deliveryMode,
     willAlsoPublishTo: primary.destination?.willAlsoPublishTo ?? [],
     settings: settings ?? null,
+    settingsByChannel,
     workspaceId: ctx.workspaceId,
     // Tagged so the publisher routes to the sandbox and analytics can drop it
     // (5.7). Absent on live posts rather than false, so the field is greppable
@@ -639,17 +628,23 @@ function serializePublicPostTargets(post: Record<string, unknown>) {
     .filter((channel): channel is string => typeof channel === 'string' && channel.length > 0);
   const destinations = (post.channelDestinations ?? {}) as Record<string, unknown>;
   const modes = (post.channelDeliveryModes ?? {}) as Record<string, unknown>;
-  return channels.map((channel, index) => ({
-    channel,
-    destinationId: typeof destinations[channel] === 'string'
-      ? destinations[channel]
-      // The primary target's destination lives in the top-level field on
-      // every post written before the per-channel map existed.
-      : index === 0 ? String(post.destinationId || '') : '',
-    deliveryMode: typeof modes[channel] === 'string'
-      ? modes[channel]
-      : index === 0 ? String(post.deliveryMode || '') : '',
-  }));
+  const settingsByChannel = (post.settingsByChannel ?? {}) as Record<string, unknown>;
+  return channels.map((channel, index) => {
+    const settings = settingsByChannel[channel]
+      ?? (index === 0 ? post.settings : undefined);
+    return {
+      channel,
+      destinationId: typeof destinations[channel] === 'string'
+        ? destinations[channel]
+        // The primary target's destination lives in the top-level field on
+        // every post written before the per-channel map existed.
+        : index === 0 ? String(post.destinationId || '') : '',
+      deliveryMode: typeof modes[channel] === 'string'
+        ? modes[channel]
+        : index === 0 ? String(post.deliveryMode || '') : '',
+      ...(settings != null ? { settings } : {}),
+    };
+  });
 }
 
 export function serializePublicPost(post: Record<string, unknown>) {
@@ -664,6 +659,7 @@ export function serializePublicPost(post: Record<string, unknown>) {
     destinationProvider: post.destinationProvider || '',
     deliveryMode: post.deliveryMode || '',
     settings: post.settings ?? null,
+    settingsByChannel: post.settingsByChannel ?? {},
     mediaAssetIds: Array.isArray(post.mediaAssetIds) ? post.mediaAssetIds : [],
     mediaUrls: Array.isArray(post.mediaUrls) ? post.mediaUrls : [],
     scheduledAt: post.scheduledAt ?? null,

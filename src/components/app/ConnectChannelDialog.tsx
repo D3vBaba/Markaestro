@@ -21,7 +21,7 @@ import {
 } from "@/lib/oauth/permission-catalog";
 
 export type ConnectDialogRequest = {
-  /** UI provider id: meta, instagram, tiktok, threads, pinterest, linkedin. */
+  /** UI provider id: meta, instagram, tiktok, threads, pinterest, linkedin, x. */
   provider: string;
   linkedinMode?: "profile" | "community";
   /** Reconnect re-runs the login for an account that is already linked. */
@@ -33,6 +33,7 @@ const REQUIREMENT_COUNT: Record<CatalogProvider, number> = {
   meta: 2,
   threads: 1,
   tiktok: 2,
+  x: 2,
   pinterest: 2,
   linkedin_profile: 1,
   linkedin_community: 1,

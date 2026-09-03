@@ -14,6 +14,8 @@ export type PlanLimits = {
   analyticsWindowDays: number; // -1 = unlimited history
   intelligenceAiOperationsPerMonth: number;
   strategistTurnsPerMonth: number;
+  /** Active Intelligent Evergreen queues per brand. -1 = unlimited. */
+  evergreenQueuesPerBrand: number;
 };
 
 export type PlanConfig = {
@@ -34,6 +36,7 @@ export type PlanConfig = {
     intelligenceOptimization: boolean;
     intelligenceStrategist: boolean;
     intelligenceExperiments: boolean;
+    evergreenOptimization: boolean;
   };
 };
 
@@ -67,6 +70,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       apiRequestsPerMinute: 0,
       intelligenceAiOperationsPerMonth: 5,
       strategistTurnsPerMonth: 0,
+      evergreenQueuesPerBrand: 0,
     },
     gated: {
       smartScheduling: false,
@@ -77,6 +81,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       intelligenceOptimization: false,
       intelligenceStrategist: false,
       intelligenceExperiments: false,
+      evergreenOptimization: false,
     },
   },
   starter: {
@@ -86,7 +91,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     price: { monthly: 29, annual: 24 },
     highlighted: false,
     features: [
-      '2 brands across all 6 platforms',
+      '2 brands across all 7 platforms',
       'Up to 8 channels per brand',
       'Unlimited scheduled posts',
       'Content calendar',
@@ -106,6 +111,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       apiRequestsPerMinute: 60,
       intelligenceAiOperationsPerMonth: 30,
       strategistTurnsPerMonth: 0,
+      evergreenQueuesPerBrand: 0,
     },
     gated: {
       smartScheduling: false,
@@ -116,6 +122,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       intelligenceOptimization: false,
       intelligenceStrategist: false,
       intelligenceExperiments: false,
+      evergreenOptimization: false,
     },
   },
   pro: {
@@ -134,6 +141,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       '100 GB storage',
       'Analytics (1-year window)',
       'Priority support',
+      '10 Intelligent Evergreen queues per brand',
     ],
     limits: {
       brands: 6,
@@ -146,6 +154,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       apiRequestsPerMinute: 120,
       intelligenceAiOperationsPerMonth: 300,
       strategistTurnsPerMonth: 30,
+      evergreenQueuesPerBrand: 10,
     },
     gated: {
       smartScheduling: true,
@@ -156,6 +165,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       intelligenceOptimization: true,
       intelligenceStrategist: true,
       intelligenceExperiments: false,
+      evergreenOptimization: true,
     },
   },
   business: {
@@ -170,6 +180,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       'Unlimited storage',
       'Unlimited analytics history + CSV export',
       'Priority support',
+      'Unlimited Intelligent Evergreen queues',
     ],
     limits: {
       brands: 20,
@@ -182,6 +193,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       apiRequestsPerMinute: 300,
       intelligenceAiOperationsPerMonth: 2000,
       strategistTurnsPerMonth: 300,
+      evergreenQueuesPerBrand: -1,
     },
     gated: {
       smartScheduling: true,
@@ -192,6 +204,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       intelligenceOptimization: true,
       intelligenceStrategist: true,
       intelligenceExperiments: true,
+      evergreenOptimization: true,
     },
   },
 };

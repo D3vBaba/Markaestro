@@ -64,16 +64,58 @@ export const instagramSettingsSchema = z.object({
   altText: z.array(z.string().trim().max(1000)).max(10).optional(),
 });
 
+// ── X ─────────────────────────────────────────────────────────────
+
+export const xSettingsSchema = z.object({
+  __type: z.literal('x'),
+  replySettings: z.enum(['mentionedUsers', 'following', 'subscribers', 'verified']).optional(),
+});
+
 // ── Discriminated union ───────────────────────────────────────────
 
 export const postSettingsSchema = z.discriminatedUnion('__type', [
   tiktokSettingsSchema,
   instagramSettingsSchema,
+  xSettingsSchema,
 ]);
 
 export type TikTokSettings = z.infer<typeof tiktokSettingsSchema>;
 export type InstagramSettings = z.infer<typeof instagramSettingsSchema>;
+export type XSettings = z.infer<typeof xSettingsSchema>;
 export type PostSettings = z.infer<typeof postSettingsSchema>;
+export type PostSettingsByChannel = Partial<Record<string, PostSettings>>;
+
+/**
+ * Read settings for one target from the new per-channel map, falling back to
+ * the legacy single settings object. Keeping the compatibility rule here
+ * prevents adapters, workers, and route handlers from implementing subtly
+ * different migrations.
+ */
+export function getPostSettingsForChannel(
+  post: { settingsByChannel?: unknown; settings?: unknown },
+  channel: string,
+): PostSettings | undefined {
+  const map = post.settingsByChannel;
+  if (map && typeof map === 'object' && !Array.isArray(map)) {
+    const candidate = (map as Record<string, unknown>)[channel];
+    const parsed = postSettingsSchema.safeParse(candidate);
+    if (parsed.success && parsed.data.__type === channel) return parsed.data;
+  }
+
+  const legacy = postSettingsSchema.safeParse(post.settings);
+  if (legacy.success && legacy.data.__type === channel) return legacy.data;
+  return undefined;
+}
+
+/** Validate a sparse persisted settings map at API boundaries. */
+export function assertSettingsMapMatchesChannels(
+  settingsByChannel: PostSettingsByChannel | undefined,
+): void {
+  if (!settingsByChannel) return;
+  for (const [channel, settings] of Object.entries(settingsByChannel)) {
+    assertSettingsMatchesChannel(channel, settings);
+  }
+}
 
 /**
  * Type guards for adapters: each adapter can narrow a generic settings
@@ -91,6 +133,12 @@ export function asInstagramSettings(settings: unknown): InstagramSettings | unde
   return s.__type === 'instagram' ? (settings as InstagramSettings) : undefined;
 }
 
+export function asXSettings(settings: unknown): XSettings | undefined {
+  if (!settings || typeof settings !== 'object') return undefined;
+  const parsed = xSettingsSchema.safeParse(settings);
+  return parsed.success ? parsed.data : undefined;
+}
+
 /**
  * Does this settings object opt into TikTok Direct Post?
  *
@@ -104,8 +152,10 @@ export function isTikTokDirectPostSettings(settings: unknown): boolean {
 }
 
 /** `isTikTokDirectPostSettings` for a persisted post document. */
-export function isTikTokDirectPost(post: { settings?: unknown } | Record<string, unknown>): boolean {
-  return isTikTokDirectPostSettings((post as { settings?: unknown }).settings);
+export function isTikTokDirectPost(
+  post: { settingsByChannel?: unknown; settings?: unknown } | Record<string, unknown>,
+): boolean {
+  return isTikTokDirectPostSettings(getPostSettingsForChannel(post, 'tiktok'));
 }
 
 /**

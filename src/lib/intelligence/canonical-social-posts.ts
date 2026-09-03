@@ -23,6 +23,7 @@ export function socialPostAccountKey(connection: PlatformConnection): string {
     || String(connection.metadata.igAccountId || '')
     || String(connection.metadata.threadsUserId || '')
     || String(connection.metadata.openId || '')
+    || String(connection.metadata.xUserId || '')
     || String(connection.metadata.username || '')
     || connection.provider;
 }

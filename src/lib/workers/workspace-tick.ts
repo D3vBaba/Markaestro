@@ -41,6 +41,8 @@ import {
   readAiOperationBurn,
   sampleChannelHealth,
 } from '@/lib/observability/slo-inputs';
+import { processDueEvergreenQueues } from '@/lib/evergreen/worker';
+import { processEvergreenEvaluations } from '@/lib/evergreen/evaluation';
 
 export type WorkspaceTickResult = {
   workspaceId: string;
@@ -64,6 +66,11 @@ export type WorkspaceTickResult = {
   channelHealth?: ChannelHealthNoticeResult;
   jobResults: Array<{ jobId: string } & Record<string, unknown>>;
   analytics?: AnalyticsTickResult;
+  evergreen?: {
+    generated: number;
+    paused: number;
+    evaluated: number;
+  };
   errors: Array<{ kind: string; postId?: string; error: string }>;
 };
 
@@ -91,7 +98,7 @@ async function firstDueAt(
 }
 
 async function scheduleNextWorkspaceWork(workspaceId: string): Promise<void> {
-  const [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob, experimentClose] = await Promise.all([
+  const [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob, experimentClose, evergreenQueue] = await Promise.all([
     firstDueAt(
       adminDb.collection(`workspaces/${workspaceId}/posts`)
         .where('status', '==', 'scheduled')
@@ -136,9 +143,25 @@ async function scheduleNextWorkspaceWork(workspaceId: string): Promise<void> {
       'endsAt',
       'experiment_close',
     ),
+    firstDueAt(
+      adminDb.collection(`workspaces/${workspaceId}/evergreenQueues`)
+        .where('status', '==', 'active')
+        .orderBy('nextRunAt', 'asc'),
+      'nextRunAt',
+      'evergreen_queue',
+    ),
   ]);
 
-  const next = [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob, experimentClose]
+  // Queue occurrences are materialized 48 hours before their publish time so
+  // users can see and edit them on the calendar.
+  const evergreenGeneration = evergreenQueue
+    ? {
+        ...evergreenQueue,
+        dueAt: new Date(Date.parse(evergreenQueue.dueAt) - 48 * 60 * 60 * 1000).toISOString(),
+      }
+    : null;
+
+  const next = [scheduledPost, publishRun, webhookDelivery, analytics, dailyJob, experimentClose, evergreenGeneration]
     .filter((candidate): candidate is NextWork => candidate !== null)
     .sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt))[0];
   if (next) await markWorkspaceDue(workspaceId, next.dueAt, next.reason);
@@ -155,6 +178,18 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
   let jobsScanned = 0;
   let intelligenceJobs: WorkspaceTickResult['intelligenceJobs'];
   let mediaSweep: WorkspaceTickResult['mediaSweep'];
+  let evergreen: WorkspaceTickResult['evergreen'];
+
+  try {
+    const generated = await processDueEvergreenQueues(workspaceId);
+    evergreen = {
+      generated: generated.filter((result) => result.status === 'generated').length,
+      paused: generated.filter((result) => result.status === 'paused').length,
+      evaluated: 0,
+    };
+  } catch (err) {
+    errors.push({ kind: 'evergreen-generation', error: err instanceof Error ? err.message : 'unknown' });
+  }
 
   try {
     const staleRecovery = await recoverStalePublishingPosts(workspaceId);
@@ -231,6 +266,17 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     analytics.errors.forEach((e) => errors.push({ kind: e.kind, error: e.error }));
   } catch (err) {
     errors.push({ kind: 'analytics', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
+    const evaluated = await processEvergreenEvaluations(workspaceId);
+    evergreen = {
+      generated: evergreen?.generated ?? 0,
+      paused: (evergreen?.paused ?? 0) + evaluated.filter((result) => result.status === 'paused').length,
+      evaluated: evaluated.filter((result) => result.status === 'evaluated').length,
+    };
+  } catch (err) {
+    errors.push({ kind: 'evergreen-evaluation', error: err instanceof Error ? err.message : 'unknown' });
   }
 
   try {
@@ -342,6 +388,7 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     experiments,
     mediaSweep,
     channelHealth,
+    evergreen,
     errors,
   };
 }

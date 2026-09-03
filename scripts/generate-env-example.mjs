@@ -31,7 +31,7 @@ const check = process.argv.includes('--check');
 /**
  * What a contributor needs before the app will boot at all, as opposed to what
  * unlocks a particular integration. Someone working on the composer should not
- * have to register six OAuth apps first.
+ * have to register every OAuth app first.
  */
 const REQUIRED_TO_BOOT = new Set([
   'NEXT_PUBLIC_FIREBASE_API_KEY',
@@ -118,7 +118,7 @@ function render(entries) {
     '#',
     '# You do NOT need every variable. The first section is what the app needs',
     '# to boot; everything after it unlocks one integration at a time, so you',
-    '# can work on the composer without registering six OAuth apps.',
+    '# can work on the composer without registering every OAuth app.',
     '',
     '# ── Required to boot ─────────────────────────────────────────────────────',
     '',

@@ -6,6 +6,10 @@ import { useTranslations } from "next-intl";
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { useOptionalAuth } from "@/components/providers/AuthProvider";
 import CopyBlock from "@/components/marketing/CopyBlock";
+import PlatformLogoRail from "@/components/marketing/PlatformLogoRail";
+import ProductShowcaseCarousel, {
+  type ShowcaseSlide,
+} from "@/components/marketing/ProductShowcaseCarousel";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
@@ -46,6 +50,29 @@ export default function LandingPage() {
   const composerBullets = t.raw("composerPreview.bullets") as string[];
   const agentBullets = t.raw("agentSection.bullets") as string[];
   const intelligenceItems = t.raw("intelligencePreview.items") as Array<{ title: string; desc: string }>;
+  const showcaseSlides: ShowcaseSlide[] = [
+    {
+      id: "composer",
+      kind: "composer",
+      eyebrow: t("composerPreview.eyebrow"),
+      title: `${t("composerPreview.titleLead")} ${t("composerPreview.titleHighlight")}`,
+      description: t("composerPreview.subtitle"),
+    },
+    {
+      id: "calendar",
+      kind: "calendar",
+      eyebrow: featureItems[3].title,
+      title: featureItems[3].title,
+      description: featureItems[3].desc,
+    },
+    {
+      id: "intelligence",
+      kind: "intelligence",
+      eyebrow: t("intelligencePreview.eyebrow"),
+      title: `${t("intelligencePreview.titleLead")} ${t("intelligencePreview.titleHighlight")}`,
+      description: t("intelligencePreview.subtitle"),
+    },
+  ];
 
   return (
     <MarketingLayout>
@@ -115,9 +142,30 @@ export default function LandingPage() {
             )}
           </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.24, duration: 0.5, ease }}
+          >
+            <PlatformLogoRail label={t("channelsPreview.eyebrow")} />
+          </motion.div>
+
+          <motion.div
+            className="mx-auto mt-12 max-w-6xl"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.34, duration: 0.6, ease }}
+          >
+            <ProductShowcaseCarousel
+              slides={showcaseSlides}
+              composerRows={composerRows}
+              intelligenceItems={intelligenceItems}
+            />
+          </motion.div>
+
           {/* Hero stats */}
           <motion.div
-            className="mx-auto mt-20 grid max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-xl"
+            className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-xl"
             style={{
               background: "var(--mk-rule)",
               border: "1px solid var(--mk-rule)",
@@ -143,21 +191,6 @@ export default function LandingPage() {
             ))}
           </motion.div>
 
-          {/* Social proof. Deliberately no company names or logos — we don't
-              put a brand here until it's a real customer who agreed to it. */}
-          <motion.div
-            className="mx-auto mt-14 max-w-3xl"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.6, ease }}
-          >
-            <p
-              className="text-center mk-eyebrow"
-              style={{ letterSpacing: "0.2em" }}
-            >
-              {t("hero.trustedBy")}
-            </p>
-          </motion.div>
         </div>
       </section>
 

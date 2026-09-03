@@ -4,7 +4,7 @@
 
 | Mode | Meaning | Default on |
 | --- | --- | --- |
-| `direct_publish` | Markaestro calls the platform API at publish time | threads, pinterest, linkedin |
+| `direct_publish` | Markaestro calls the platform API at publish time | threads, pinterest, linkedin, x |
 | `manual_reminder` | No platform call. The post becomes `platform_action_required` and a person posts it natively from the reminder queue | facebook, instagram, tiktok |
 | `platform_inbox` | TikTok only: the post is handed to the creator's TikTok inbox to finish inside the app | n/a |
 
@@ -33,6 +33,7 @@ otherwise `VALIDATION_SCHEDULED_DELIVERY_MODE_REQUIRED`.
 | threads | optional, up to 20 items | 500 | |
 | pinterest | required, up to 5 images or exactly 1 video | 500 | a video pin carries no other media |
 | linkedin | optional, up to 20 items; a video must be alone | 3,000 | text required |
+| x | optional, up to 4 images or exactly 1 video | 280 | images and video cannot be mixed |
 
 Accepted uploads: `image/png`, `image/jpeg`, `image/webp`, `image/gif` up to
 10 MB; `video/mp4`, `video/quicktime`, `video/webm` up to 250 MB.
@@ -60,8 +61,15 @@ settings.
 with `SELF_ONLY`; `commercialContentDisclosure` requires one of the brand
 toggles.
 
+**x**
+```json
+{ "__type": "x", "replySettings": "following" | "mentionedUsers" | "subscribers" | "verified" }
+```
+
 ## Webhook events
 
 `post.publish.queued`, `post.published`, `post.action_required`,
-`post.failed`. Deliveries are signed with HMAC-SHA256 over
+`post.failed`, `evergreen.queue.activated`, `evergreen.queue.paused`,
+`evergreen.queue.needs_review`, `evergreen.run.scheduled`,
+`evergreen.run.skipped`, and `evergreen.run.underperformed`. Deliveries are signed with HMAC-SHA256 over
 `<timestamp>.<raw body>` in `X-Markaestro-Signature`.

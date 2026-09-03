@@ -141,6 +141,24 @@ async function fetchTikTokProfile(accessToken: string) {
   };
 }
 
+async function fetchXProfile(accessToken: string) {
+  const res = await fetch('https://api.x.com/2/users/me?user.fields=id,name,username,profile_image_url', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    signal: AbortSignal.timeout(15_000),
+  });
+  const payload = await res.json().catch(() => ({})) as Record<string, unknown>;
+  const data = payload.data as Record<string, unknown> | undefined;
+  if (!res.ok || !data?.id) {
+    throw new Error(`X profile fetch failed (${res.status})`);
+  }
+  return {
+    id: String(data.id),
+    username: typeof data.username === 'string' ? data.username : '',
+    name: typeof data.name === 'string' ? data.name : '',
+    profileImageUrl: typeof data.profile_image_url === 'string' ? data.profile_image_url : '',
+  };
+}
+
 async function fetchThreadsProfile(accessToken: string) {
   const res = await fetch(
     `https://graph.threads.net/v1.0/me?${new URLSearchParams({
@@ -499,6 +517,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
         // Non-fatal — the connection can still publish using token metadata.
         console.warn('TikTok profile fetch failed:', e instanceof Error ? e.message : e);
       }
+    }
+
+    if (provider === 'x') {
+      if (!productId) throw new Error('VALIDATION_MISSING_PRODUCT_ID');
+      const profile = await fetchXProfile(tokens.accessToken);
+      extraData.xUserId = profile.id;
+      extraData.username = profile.username;
+      extraData.displayName = profile.name || profile.username || 'X';
+      if (profile.profileImageUrl) extraData.pictureUrl = profile.profileImageUrl;
     }
 
     let pinterestNeedsBoardSelection = false;

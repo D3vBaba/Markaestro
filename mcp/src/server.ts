@@ -29,6 +29,7 @@ export function buildServer(client: MarkaestroClient, options: ServerOptions = {
       "Start with list_products, then list_destinations when a channel needs a destinationId.",
       "create_post saves a draft unless scheduledAt is set. publish_post publishes now; ask the user before publishing anything public.",
       "Upload media with upload_media before referencing it. Read get_channel_rules for per-channel limits.",
+      "Use preview_evergreen_queue before creating an Intelligent Evergreen queue, and get explicit confirmation before activation.",
       options.readOnly ? "This server is read-only: only listing and reading tools are available." : "",
     ].filter(Boolean).join(" "),
   });

@@ -50,6 +50,14 @@ export const AUDIENCE_FIT_WEIGHTS: Readonly<Record<SocialChannel, readonly Platf
     { component: 'timing', weight: 10, label: 'Timing' },
     { component: 'cta', weight: 5, label: 'CTA' },
   ],
+  x: [
+    { component: 'audience', weight: 25, label: 'Audience relevance' },
+    { component: 'hook', weight: 25, label: 'Hook' },
+    { component: 'conversation', weight: 20, label: 'Conversation potential' },
+    { component: 'history', weight: 15, label: 'Historical fit' },
+    { component: 'timing', weight: 10, label: 'Timing' },
+    { component: 'cta', weight: 5, label: 'CTA' },
+  ],
   linkedin: [
     { component: 'audience', weight: 30, label: 'Audience and industry relevance' },
     { component: 'professionalValue', weight: 25, label: 'Professional value' },
@@ -172,4 +180,3 @@ export function calculateAudienceFit(input: {
     methodologyVersion: 1,
   };
 }
-

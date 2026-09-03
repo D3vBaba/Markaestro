@@ -181,6 +181,23 @@ export function validateSocialPost(input: SocialPostValidationInput): SocialPost
     });
   }
 
+  if (channels.includes('x') && hasVideo) {
+    const videoCount = mediaKinds.filter((kind) => kind === 'video').length;
+    if (videoCount > 1) {
+      issues.push({
+        channel: 'x',
+        code: 'VALIDATION_X_MAX_ONE_VIDEO',
+        message: 'X supports only one video per post.',
+      });
+    } else if (hasImages) {
+      issues.push({
+        channel: 'x',
+        code: 'VALIDATION_X_VIDEO_CANNOT_BE_COMBINED',
+        message: 'X does not support mixing a video with images in one post.',
+      });
+    }
+  }
+
   if (channels.includes('linkedin')) {
     if (!content) {
       issues.push({

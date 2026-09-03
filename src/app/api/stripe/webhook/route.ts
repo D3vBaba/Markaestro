@@ -8,6 +8,8 @@ import {
 import { adminDb } from '@/lib/firebase-admin';
 import { logger } from '@/lib/logger';
 import type Stripe from 'stripe';
+import { getEffectiveLimits } from '@/lib/stripe/entitlements';
+import { reconcileEvergreenPlanLimit } from '@/lib/evergreen/storage';
 
 export const runtime = 'nodejs';
 // Webhooks must not be cached or pre-rendered.
@@ -127,6 +129,7 @@ export async function POST(req: Request) {
           cancelAtPeriodEnd: false,
           currentPeriodEnd: toIso(subscription.current_period_end),
         });
+        await reconcileEvergreenEntitlements(workspaceId);
         await revokePublicApiAccessForWorkspace(workspaceId);
         break;
       }
@@ -160,6 +163,7 @@ export async function POST(req: Request) {
         const workspaceId = await findWorkspaceIdByCustomerId(customer.id);
         if (!workspaceId) break;
         await upsertSubscriptionForWorkspace(workspaceId, { status: 'canceled', cancelAtPeriodEnd: false });
+        await reconcileEvergreenEntitlements(workspaceId);
         await revokePublicApiAccessForWorkspace(workspaceId);
         break;
       }
@@ -311,4 +315,16 @@ async function syncSubscription(workspaceId: string, subscription: Subscription)
     addonBrands,
     addonSeats,
   });
+  if (['active', 'trialing', 'canceled'].includes(subscription.status)) {
+    await reconcileEvergreenEntitlements(workspaceId);
+  }
+}
+
+async function reconcileEvergreenEntitlements(workspaceId: string) {
+  const workspace = await adminDb.doc(`workspaces/${workspaceId}`).get();
+  const createdBy = typeof workspace.data()?.createdBy === 'string'
+    ? workspace.data()?.createdBy as string
+    : undefined;
+  const limits = await getEffectiveLimits(createdBy, workspaceId);
+  await reconcileEvergreenPlanLimit(workspaceId, limits.evergreenQueuesPerBrand);
 }

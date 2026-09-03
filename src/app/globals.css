@@ -73,7 +73,7 @@
   --color-mk-ch-instagram: var(--mk-ch-instagram);
   --color-mk-ch-tiktok: var(--mk-ch-tiktok);
   --color-mk-ch-facebook: var(--mk-ch-facebook);
-  --color-mk-ch-youtube: var(--mk-ch-youtube);
+  --color-mk-ch-x: var(--mk-ch-x);
   --color-mk-ch-linkedin: var(--mk-ch-linkedin);
   --color-mk-ch-pinterest: var(--mk-ch-pinterest);
   --color-mk-ch-threads: var(--mk-ch-threads);
@@ -103,7 +103,7 @@
   --mk-ch-instagram: #E1306C;
   --mk-ch-tiktok:    #0f172a;
   --mk-ch-facebook:  #1877F2;
-  --mk-ch-youtube:   #FF0033;
+  --mk-ch-x:         #111111;
   --mk-ch-linkedin:  #0A66C2;
   --mk-ch-pinterest: #E60023;
   --mk-ch-threads:   #0f172a;
@@ -312,3 +312,28 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
+@keyframes mk-logo-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.mk-logo-marquee {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 9%, black 91%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 9%, black 91%, transparent);
+}
+
+.mk-logo-marquee-track {
+  animation: mk-logo-marquee 24s linear infinite;
+}
+
+.mk-logo-marquee:hover .mk-logo-marquee-track,
+.mk-logo-marquee:focus-within .mk-logo-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mk-logo-marquee-track {
+    animation: none;
+  }
+}

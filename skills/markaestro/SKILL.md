@@ -1,6 +1,6 @@
 ---
 name: markaestro
-description: Schedule, publish, and review social posts through Markaestro (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn) using its MCP server or public API. Use when a task mentions Markaestro, posting or scheduling to a connected social account, uploading media for a post, checking whether a post published, batch-scheduling content, or wiring webhooks for post events.
+description: Schedule, publish, and review social posts through Markaestro (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X) and manage Intelligent Evergreen queues using its MCP server or public API. Use when a task mentions Markaestro, posting or scheduling to a connected social account, uploading media for a post, checking whether a post published, batch-scheduling content, managing proven recurring content, or wiring webhooks for post events.
 ---
 
 # Working with Markaestro
@@ -54,7 +54,7 @@ Read those when you need an exact field name.
 - Facebook, Instagram, and TikTok require an explicit `deliveryMode` when
   scheduling: `direct_publish` to post through the platform API, or
   `manual_reminder` for a timed reminder the user posts by hand. Threads,
-  Pinterest, and LinkedIn default to `direct_publish`.
+  Pinterest, LinkedIn, and X default to `direct_publish`.
 - One post, several channels: pass `targets` (one entry per channel) instead
   of `channel`. Each target can carry its own `destinationId` and
   `deliveryMode`. Platform `settings` may ride on one target only.
@@ -93,6 +93,19 @@ the user can change or cancel it in Markaestro or with `delete_post`.
   as failed.
 - `partial_failed` means some targets published and some did not. Read
   `publishResults` on the post before retrying anything.
+
+## Intelligent Evergreen
+
+- Call `preview_evergreen_queue` with a published post id first. It returns
+  measured eligibility and a recommended cadence without writing anything.
+- `create_evergreen_queue` creates a draft policy. It does not schedule posts.
+- Ask the user to confirm the cadence, channels, variants, and review policy
+  before calling `activate_evergreen_queue`.
+- `review_each_run` creates a draft occurrence for each run. It never
+  auto-publishes. `approve_future_runs` creates ordinary scheduled posts.
+- Pause stops the queue and unschedules its pending occurrence. Archive is
+  permanent. Use `list_evergreen_runs` to report evaluation outcomes and
+  `get_evergreen_analytics` for lifetime metrics and attributed conversions.
 
 ## Errors
 

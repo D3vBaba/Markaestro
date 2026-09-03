@@ -72,6 +72,8 @@ export function deriveAccountKey(
       return firstString(metadata, ['threadsUserId']);
     case 'tiktok':
       return firstString(metadata, ['openId', 'unionId']);
+    case 'x':
+      return firstString(metadata, ['xUserId']);
     case 'pinterest':
       return firstString(metadata, ['boardId']);
     case 'linkedin':
@@ -179,6 +181,7 @@ const PUBLIC_DESTINATION_CHANNELS = new Set([
   'threads',
   'pinterest',
   'linkedin',
+  'x',
 ]);
 
 const PUBLIC_DESTINATION_PROVIDERS = new Set([
@@ -190,6 +193,7 @@ const PUBLIC_DESTINATION_PROVIDERS = new Set([
   'linkedin',
   'linkedin_profile',
   'linkedin_community',
+  'x',
 ]);
 
 /**

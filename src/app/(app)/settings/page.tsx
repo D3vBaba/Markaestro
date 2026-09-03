@@ -176,6 +176,8 @@ const API_SCOPE_OPTIONS = [
   { id: 'posts.read', labelKey: 'postsRead' },
   { id: 'posts.write', labelKey: 'postsWrite' },
   { id: 'posts.publish', labelKey: 'postsPublish' },
+  { id: 'evergreen.read', labelKey: 'evergreenRead' },
+  { id: 'evergreen.write', labelKey: 'evergreenWrite' },
   { id: 'job_runs.read', labelKey: 'jobRunsRead' },
   { id: 'webhooks.manage', labelKey: 'webhooksManage' },
 ] as const;
@@ -185,6 +187,12 @@ const WEBHOOK_EVENT_OPTIONS = [
   { id: 'post.published', labelKey: 'postPublished' },
   { id: 'post.action_required', labelKey: 'postActionRequired' },
   { id: 'post.failed', labelKey: 'postFailed' },
+  { id: 'evergreen.queue.activated', labelKey: 'evergreenQueueActivated' },
+  { id: 'evergreen.queue.paused', labelKey: 'evergreenQueuePaused' },
+  { id: 'evergreen.queue.needs_review', labelKey: 'evergreenQueueNeedsReview' },
+  { id: 'evergreen.run.scheduled', labelKey: 'evergreenRunScheduled' },
+  { id: 'evergreen.run.skipped', labelKey: 'evergreenRunSkipped' },
+  { id: 'evergreen.run.underperformed', labelKey: 'evergreenRunUnderperformed' },
 ] as const;
 
 const TABS = [
@@ -851,6 +859,7 @@ const PRODUCT_CHANNELS: { provider: string; channelKey: string }[] = [
   { provider: "threads", channelKey: "threads" },
   { provider: "pinterest", channelKey: "pinterest" },
   { provider: "linkedin", channelKey: "linkedin" },
+  { provider: "x", channelKey: "x" },
 ];
 
 /** One linked account/Page/board for a channel. */
@@ -895,6 +904,7 @@ const MANUAL_POSTING_CHANNELS = [
   { id: "threads" },
   { id: "linkedin" },
   { id: "pinterest" },
+  { id: "x" },
 ] as const;
 
 /**

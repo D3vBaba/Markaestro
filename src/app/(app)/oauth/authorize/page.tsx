@@ -32,6 +32,8 @@ const SCOPE_LABEL_KEY: Record<PublicApiScope, string> = {
   "posts.read": "postsRead",
   "posts.write": "postsWrite",
   "posts.publish": "postsPublish",
+  "evergreen.read": "evergreenRead",
+  "evergreen.write": "evergreenWrite",
   "job_runs.read": "jobRunsRead",
   "webhooks.manage": "webhooksManage",
 };

@@ -410,6 +410,7 @@ const PRODUCT_REFRESH_PROVIDERS = new Set<string>([
   'tiktok',
   'threads',
   'pinterest',
+  'x',
 ]);
 
 /** Map a stored provider key to the OAuth provider whose refresh flow applies. */

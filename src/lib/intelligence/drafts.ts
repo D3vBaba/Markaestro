@@ -231,6 +231,7 @@ const PLATFORM_GUIDANCE: Record<SocialChannel, string> = {
   threads: 'Threads post: casual and direct, under 500 characters, no more than 2 hashtags.',
   pinterest: 'Pinterest description: descriptive and keyword-rich, 1 to 2 sentences plus a clear reason to click, at most 500 characters.',
   linkedin: 'LinkedIn post: professional, an opening line that stands alone, short paragraphs, 2 to 5 hashtags, under 1500 characters.',
+  x: 'X post: direct and conversational, with a strong opening, at most 280 characters, and no more than 2 hashtags.',
 };
 
 export function draftSystemPrompt(platform: SocialChannel): string {

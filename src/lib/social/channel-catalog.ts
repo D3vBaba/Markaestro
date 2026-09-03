@@ -95,6 +95,17 @@ export const socialChannelCatalog = [
     supportsDirectPublish: true,
     setupHint: 'Connect LinkedIn and select a Profile or Page in brand settings.',
   },
+  {
+    channel: 'x',
+    label: 'X',
+    providerKeys: ['x'],
+    maxLength: 280,
+    mediaKinds: ['text', 'image', 'video'],
+    mediaRequired: false,
+    maxMediaItems: 4,
+    supportsDirectPublish: true,
+    setupHint: 'Connect X in brand settings.',
+  },
 ] as const satisfies readonly ManagedSocialChannel[];
 
 export function getSocialChannelConfig(channel: string): ManagedSocialChannel | undefined {

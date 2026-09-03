@@ -4,6 +4,8 @@ export const publicApiScopes = [
   'posts.read',
   'posts.write',
   'posts.publish',
+  'evergreen.read',
+  'evergreen.write',
   'job_runs.read',
   'webhooks.manage',
 ] as const;
@@ -15,6 +17,12 @@ export const publicWebhookEvents = [
   'post.published',
   'post.action_required',
   'post.failed',
+  'evergreen.queue.activated',
+  'evergreen.queue.paused',
+  'evergreen.queue.needs_review',
+  'evergreen.run.scheduled',
+  'evergreen.run.skipped',
+  'evergreen.run.underperformed',
 ] as const;
 
 export type PublicWebhookEvent = (typeof publicWebhookEvents)[number];

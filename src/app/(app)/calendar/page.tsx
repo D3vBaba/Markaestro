@@ -28,6 +28,7 @@ type Post = {
   mediaUrls?: string[];
   /** Brands are stored as `products` in Firestore; posts link via productId. */
   productId?: string;
+  evergreen?: { queueId: string; runId: string; sourcePostId: string; variantId: string };
 };
 
 /** A brand, as returned by /api/products (the storage name for brands). */
@@ -50,6 +51,7 @@ const CHANNEL_ACCENT: Record<string, string> = {
   threads:   "#000000",
   pinterest: "#E60023",
   linkedin:  "#0A66C2",
+  x:         "#111111",
 };
 
 const CHANNEL_BG: Record<string, string> = {
@@ -59,6 +61,7 @@ const CHANNEL_BG: Record<string, string> = {
   threads:   "color-mix(in srgb, #000000 10%, transparent)",
   pinterest: "color-mix(in srgb, #E60023 10%, transparent)",
   linkedin:  "color-mix(in srgb, #0A66C2 10%, transparent)",
+  x:         "color-mix(in srgb, #111111 10%, transparent)",
 };
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -68,6 +71,7 @@ const CHANNEL_LABEL: Record<string, string> = {
   threads:   "Threads",
   pinterest: "Pinterest",
   linkedin:  "LinkedIn",
+  x:         "X",
 };
 
 /** Sentinel brand filter value matching posts that have no brand linked. */
@@ -272,6 +276,7 @@ function PostDetailPanel({ post, onClose, onBack, brandName }: {
           >
             {tStatus.has(post.status) ? tStatus(post.status) : post.status}
           </span>
+          {post.evergreen && <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800">{t("evergreen")}</span>}
         </div>
         <button onClick={onClose} aria-label={t("close")} className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <X className="w-4 h-4" />
@@ -328,6 +333,7 @@ const CHANNEL_ICON: Record<string, React.ReactNode> = {
   tiktok: (
     <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.51a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15.2a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.75a8.18 8.18 0 0 0 4.76 1.52V6.84a4.84 4.84 0 0 1-1-.15z"/></svg>
   ),
+  x: <span className="text-[10px] font-bold leading-none">X</span>,
 };
 
 function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = false }: {
@@ -380,6 +386,11 @@ function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = 
         {showDetail && when && (
           <span className="shrink-0 font-mono text-[10.5px] text-muted-foreground">
             {formatTime(when, locale)}
+          </span>
+        )}
+        {p.evergreen && (
+          <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-medium text-emerald-800">
+            {t("evergreen")}
           </span>
         )}
         {/* Failed indicator — surfaces errors without opening the detail panel */}

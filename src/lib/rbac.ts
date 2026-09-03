@@ -15,6 +15,8 @@ export const workspacePermissions = [
   'intelligence.manage',
   'experiments.manage',
   'conversions.manage',
+  'evergreen.read',
+  'evergreen.manage',
 ] as const;
 
 export type WorkspacePermission = (typeof workspacePermissions)[number];
@@ -45,6 +47,8 @@ const PERMISSIONS_BY_ROLE: Record<WorkspaceRole, readonly WorkspacePermission[]>
     'intelligence.manage',
     'experiments.manage',
     'conversions.manage',
+    'evergreen.read',
+    'evergreen.manage',
   ],
   member: [
     'dashboard.read',
@@ -53,10 +57,12 @@ const PERMISSIONS_BY_ROLE: Record<WorkspaceRole, readonly WorkspacePermission[]>
     'posts.publish',
     'intelligence.read',
     'intelligence.analyze',
+    'evergreen.read',
   ],
   analyst: [
     'dashboard.read',
     'intelligence.read',
+    'evergreen.read',
   ],
 };
 

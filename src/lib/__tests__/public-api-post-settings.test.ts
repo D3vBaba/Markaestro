@@ -3,8 +3,10 @@ import {
   assertSettingsMatchesChannel,
   asTikTokSettings,
   asInstagramSettings,
+  getPostSettingsForChannel,
   postSettingsSchema,
 } from '../public-api/post-settings';
+import { createPostSchema } from '../schemas';
 import { createPublicPostSchema, createPublicPostsBatchSchema } from '../public-api/schemas';
 
 describe('postSettingsSchema', () => {
@@ -79,6 +81,46 @@ describe('type guards', () => {
   });
 });
 
+describe('settingsByChannel', () => {
+  it('accepts independent settings for multiple targets', () => {
+    const parsed = createPostSchema.parse({
+      content: 'Launch day',
+      channel: 'instagram',
+      targetChannels: ['instagram', 'tiktok'],
+      settingsByChannel: {
+        instagram: { __type: 'instagram', postType: 'reel' },
+        tiktok: { __type: 'tiktok', postMode: 'direct_post' },
+      },
+    });
+    expect(parsed.settingsByChannel?.instagram?.__type).toBe('instagram');
+    expect(parsed.settingsByChannel?.tiktok?.__type).toBe('tiktok');
+  });
+
+  it('rejects a settings object stored under the wrong channel', () => {
+    expect(() => createPostSchema.parse({
+      content: 'Launch day',
+      channel: 'instagram',
+      settingsByChannel: {
+        instagram: { __type: 'tiktok' },
+      },
+    })).toThrow();
+  });
+
+  it('prefers per-channel settings and falls back to the legacy field', () => {
+    const post = {
+      settings: { __type: 'instagram', postType: 'feed' },
+      settingsByChannel: {
+        instagram: { __type: 'instagram', postType: 'story' },
+        tiktok: { __type: 'tiktok', postMode: 'direct_post' },
+      },
+    };
+    expect(getPostSettingsForChannel(post, 'instagram')?.__type).toBe('instagram');
+    expect(asInstagramSettings(getPostSettingsForChannel(post, 'instagram'))?.postType).toBe('story');
+    expect(asTikTokSettings(getPostSettingsForChannel(post, 'tiktok'))?.postMode).toBe('direct_post');
+    expect(getPostSettingsForChannel({ settings: post.settings }, 'instagram')).toEqual(post.settings);
+  });
+});
+
 describe('createPublicPostSchema with settings', () => {
   it('accepts a post with matching channel and settings', () => {
     const parsed = createPublicPostSchema.parse({
@@ -97,6 +139,18 @@ describe('createPublicPostSchema with settings', () => {
       mediaAssetIds: [],
     });
     expect(parsed.settings).toBeUndefined();
+  });
+
+  it('accepts settings for two different targets', () => {
+    const parsed = createPublicPostSchema.parse({
+      targets: [
+        { channel: 'instagram', settings: { __type: 'instagram', postType: 'feed' } },
+        { channel: 'tiktok', settings: { __type: 'tiktok', postMode: 'direct_post' } },
+      ],
+      caption: 'Launch day',
+      mediaAssetIds: ['ast_1'],
+    });
+    expect(parsed.targets?.map((target) => target.settings?.__type)).toEqual(['instagram', 'tiktok']);
   });
 });
 

@@ -127,6 +127,30 @@ env:
     value: https://markaestro.com/api/oauth/callback/linkedin
     availability:
       - RUNTIME
+  - variable: X_OAUTH_REDIRECT_URI
+    value: https://markaestro.com/api/oauth/callback/x
+    availability:
+      - RUNTIME
+  - variable: X_API_WORKSPACE_HARD_BUDGET_USD
+    value: "25"
+    availability:
+      - RUNTIME
+  - variable: X_API_BASIC_WRITE_COST_USD
+    value: "0.015"
+    availability:
+      - RUNTIME
+  - variable: X_API_URL_WRITE_COST_USD
+    value: "0.2"
+    availability:
+      - RUNTIME
+  - variable: X_API_READ_COST_USD
+    value: "0.005"
+  - variable: X_API_USER_READ_COST_USD
+    value: "0.01"
+  - variable: X_API_DELETE_COST_USD
+    value: "0.01"
+    availability:
+      - RUNTIME
   - variable: LINKEDIN_API_VERSION
     value: "202608"
     availability:
@@ -340,3 +364,7 @@ env:
     secret: LINKEDIN_COMMUNITY_CLIENT_ID
   - variable: LINKEDIN_COMMUNITY_CLIENT_SECRET
     secret: LINKEDIN_COMMUNITY_CLIENT_SECRET
+  - variable: X_CLIENT_ID
+    secret: X_CLIENT_ID
+  - variable: X_CLIENT_SECRET
+    secret: X_CLIENT_SECRET

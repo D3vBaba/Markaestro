@@ -747,5 +747,7 @@ function channelToProviders(channel: SocialChannel, preferredProvider?: string):
       return prioritize(['pinterest']);
     case 'linkedin':
       return prioritize(['linkedin_profile', 'linkedin_community', 'linkedin']);
+    case 'x':
+      return prioritize(['x']);
   }
 }

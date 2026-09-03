@@ -6,7 +6,7 @@
 import { z } from "zod";
 import { MarkaestroApiError, type MarkaestroClient } from "./client";
 
-export const CHANNELS = ["facebook", "instagram", "tiktok", "threads", "pinterest", "linkedin"] as const;
+export const CHANNELS = ["facebook", "instagram", "tiktok", "threads", "pinterest", "linkedin", "x"] as const;
 export const DELIVERY_MODES = ["direct_publish", "platform_inbox", "manual_reminder"] as const;
 
 const channel = z.enum(CHANNELS);
@@ -40,7 +40,8 @@ export const CHANNEL_RULES = `Markaestro channel rules (one post targets one or 
 - threads: text, image, or video; carousels up to 20 items.
 - pinterest: media required; up to 5 images or exactly 1 video.
 - linkedin: text required; images or 1 video, up to 20 items.
-Caption limits: facebook 63206, linkedin 3000, instagram 2200, tiktok 2200, pinterest 500, threads 500.
+- x: text, up to 4 images, or 1 video; images and video cannot be mixed.
+Caption limits: facebook 63206, linkedin 3000, instagram 2200, tiktok 2200, pinterest 500, threads 500, x 280.
 Media: image/png, image/jpeg, image/webp, image/gif up to 10 MB; video/mp4, video/quicktime, video/webm up to 250 MB.
 Posting model: create_post stores a draft unless scheduledAt is set (then the worker publishes at that time). publish_post queues an immediate publish and returns a job run to poll with get_job_run.
 Every API key is bound to one brand (product). To act on another brand, use its own key.`;
@@ -98,7 +99,7 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
       inputSchema: {
         caption: z.string().max(63206).default("").describe("Post text. Required on linkedin."),
         channel: channel.optional().describe("Single channel. Mutually exclusive with targets."),
-        targets: z.array(target).min(1).max(6).optional().describe("Several channels at once, each with its own destination and delivery mode."),
+        targets: z.array(target).min(1).max(7).optional().describe("Several channels at once, each with its own destination and delivery mode."),
         mediaAssetIds: z.array(z.string()).max(35).optional().describe("Asset ids from upload_media or list_media, in display order."),
         scheduledAt: isoDate.optional().describe("Omit to save a draft."),
         destinationId: z.string().optional().describe("For the single-channel form, when the brand has several destinations on that channel."),
@@ -165,7 +166,7 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
         posts: z.array(z.object({
           caption: z.string().max(63206).default(""),
           channel: channel.optional(),
-          targets: z.array(target).min(1).max(6).optional(),
+          targets: z.array(target).min(1).max(7).optional(),
           mediaAssetIds: z.array(z.string()).max(35).optional(),
           scheduledAt: isoDate.optional(),
           destinationId: z.string().optional(),
@@ -182,6 +183,119 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
         });
         return client.request("POST", "/api/public/v1/posts", { posts: items });
       },
+    },
+    {
+      name: "preview_evergreen_queue",
+      title: "Preview Evergreen eligibility",
+      description: "Check whether a published post has mature measured performance and get a recommended Evergreen cadence. This does not create or schedule anything.",
+      inputSchema: { sourcePostId: z.string() },
+      readOnly: true,
+      handler: ({ sourcePostId }) => client.request("POST", "/api/public/v1/evergreen-queues/preview", { sourcePostId }),
+    },
+    {
+      name: "list_evergreen_queues",
+      title: "List Evergreen queues",
+      description: "List this brand's Intelligent Evergreen queues and their activation evidence, cadence, next run, and status.",
+      inputSchema: {},
+      readOnly: true,
+      handler: () => get("/api/public/v1/evergreen-queues"),
+    },
+    {
+      name: "get_evergreen_queue",
+      title: "Get an Evergreen queue",
+      description: "Get one Intelligent Evergreen queue including its caption variants.",
+      inputSchema: { queueId: z.string() },
+      readOnly: true,
+      handler: ({ queueId }) => get(`/api/public/v1/evergreen-queues/${encodeURIComponent(String(queueId))}`),
+    },
+    {
+      name: "create_evergreen_queue",
+      title: "Create an Evergreen queue",
+      description: "Create a draft Evergreen queue from an eligible published post. Creation does not activate it; call activate_evergreen_queue only after the user confirms the cadence and review policy.",
+      inputSchema: {
+        sourcePostId: z.string(),
+        name: z.string().min(1).max(120),
+        channels: z.array(channel).min(1).max(7).optional(),
+        intervalDays: z.number().int().min(7).max(365).default(30),
+        timeZone: z.string().default("UTC"),
+        localHour: z.number().int().min(0).max(23).default(10),
+        localMinute: z.number().int().min(0).max(59).default(0),
+        scheduleMode: z.enum(["fixed", "learned"]).default("learned"),
+        reviewPolicy: z.enum(["approve_future_runs", "review_each_run"]).default("review_each_run"),
+        expiresAt: isoDate.optional(),
+        variants: z.array(z.object({ caption: z.string().min(1).max(63206), enabled: z.boolean().default(true) })).min(1).max(20),
+      },
+      readOnly: false,
+      handler: (args) => client.request("POST", "/api/public/v1/evergreen-queues", args),
+    },
+    {
+      name: "update_evergreen_queue",
+      title: "Update an Evergreen queue",
+      description: "Update a queue's cadence, review policy, expiry, name, or full caption-variant set. Pass the current version from get_evergreen_queue; a stale version is rejected so concurrent edits are not overwritten.",
+      inputSchema: {
+        queueId: z.string(),
+        version: z.number().int().positive(),
+        name: z.string().min(1).max(120).optional(),
+        intervalDays: z.number().int().min(7).max(365).optional(),
+        timeZone: z.string().optional(),
+        localHour: z.number().int().min(0).max(23).optional(),
+        localMinute: z.number().int().min(0).max(59).optional(),
+        scheduleMode: z.enum(["fixed", "learned"]).optional(),
+        reviewPolicy: z.enum(["approve_future_runs", "review_each_run"]).optional(),
+        expiresAt: isoDate.nullable().optional(),
+        variants: z.array(z.object({ caption: z.string().min(1).max(63206), enabled: z.boolean().default(true) })).min(1).max(20).optional(),
+      },
+      readOnly: false,
+      handler: ({ queueId, ...body }) => client.request("PATCH", `/api/public/v1/evergreen-queues/${encodeURIComponent(String(queueId))}`, body),
+    },
+    {
+      name: "activate_evergreen_queue",
+      title: "Activate an Evergreen queue",
+      description: "Activate a draft or paused queue. This schedules future public posts, so confirm with the user first.",
+      inputSchema: { queueId: z.string() },
+      readOnly: false,
+      handler: ({ queueId }) => client.request("POST", `/api/public/v1/evergreen-queues/${encodeURIComponent(String(queueId))}/activate`),
+    },
+    {
+      name: "pause_evergreen_queue",
+      title: "Pause an Evergreen queue",
+      description: "Pause a queue and unschedule any pending occurrence generated by it.",
+      inputSchema: { queueId: z.string() },
+      readOnly: false,
+      handler: ({ queueId }) => client.request("POST", `/api/public/v1/evergreen-queues/${encodeURIComponent(String(queueId))}/pause`),
+    },
+    {
+      name: "resume_evergreen_queue",
+      title: "Resume an Evergreen queue",
+      description: "Resume a paused queue and compute its next occurrence from the current time.",
+      inputSchema: { queueId: z.string() },
+      readOnly: false,
+      handler: ({ queueId }) => client.request("POST", `/api/public/v1/evergreen-queues/${encodeURIComponent(String(queueId))}/resume`),
+    },
+    {
+      name: "archive_evergreen_queue",
+      title: "Archive an Evergreen queue",
+      description: "Archive a queue permanently and unschedule its pending occurrence.",
+      inputSchema: { queueId: z.string() },
+      readOnly: false,
+      destructive: true,
+      handler: ({ queueId }) => client.request("DELETE", `/api/public/v1/evergreen-queues/${encodeURIComponent(String(queueId))}`),
+    },
+    {
+      name: "list_evergreen_runs",
+      title: "List Evergreen runs",
+      description: "List the generated occurrences and evaluation outcomes for a queue.",
+      inputSchema: { queueId: z.string() },
+      readOnly: true,
+      handler: ({ queueId }) => get(`/api/public/v1/evergreen-queues/${encodeURIComponent(String(queueId))}/runs`),
+    },
+    {
+      name: "get_evergreen_analytics",
+      title: "Get Evergreen analytics",
+      description: "Get source metrics, queue-lifetime metrics, tracked clicks, attributed conversions, and recent run outcomes. Unavailable provider metrics are null, not zero.",
+      inputSchema: { queueId: z.string() },
+      readOnly: true,
+      handler: ({ queueId }) => get(`/api/public/v1/evergreen-queues/${encodeURIComponent(String(queueId))}/analytics`),
     },
     {
       name: "upload_media",
@@ -263,7 +377,18 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
       description: "Register an HTTPS endpoint for post.publish.queued, post.published, post.action_required, or post.failed events. The signing secret is returned once; store it.",
       inputSchema: {
         url: z.string().url(),
-        events: z.array(z.enum(["post.publish.queued", "post.published", "post.action_required", "post.failed"])).min(1).max(4),
+        events: z.array(z.enum([
+          "post.publish.queued",
+          "post.published",
+          "post.action_required",
+          "post.failed",
+          "evergreen.queue.activated",
+          "evergreen.queue.paused",
+          "evergreen.queue.needs_review",
+          "evergreen.run.scheduled",
+          "evergreen.run.skipped",
+          "evergreen.run.underperformed",
+        ])).min(1).max(10),
       },
       readOnly: false,
       handler: ({ url, events }) => client.request("POST", "/api/public/v1/webhook-endpoints", { url, events }),

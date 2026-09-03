@@ -178,7 +178,7 @@ several products, create one key per product.
 
 ### Endpoint reference
 
-Generated from the [OpenAPI description](/api/public/v1/openapi.json), which is itself generated from the schemas the routes validate against. 10 paths.
+Generated from the [OpenAPI description](/api/public/v1/openapi.json), which is itself generated from the schemas the routes validate against. 18 paths.
 
 | Endpoint | What it does | Query parameters |
 | --- | --- | --- |
@@ -197,6 +197,17 @@ Generated from the [OpenAPI description](/api/public/v1/openapi.json), which is 
 | `GET /api/public/v1/job-runs/{id}` | Get a job run | n/a |
 | `GET /api/public/v1/webhook-endpoints` | List webhook endpoints | n/a |
 | `POST /api/public/v1/webhook-endpoints` | Register a webhook endpoint | n/a |
+| `GET /api/public/v1/evergreen-queues` | List Evergreen queues | n/a |
+| `POST /api/public/v1/evergreen-queues` | Create a draft Evergreen queue | n/a |
+| `POST /api/public/v1/evergreen-queues/preview` | Preview eligibility and cadence | n/a |
+| `GET /api/public/v1/evergreen-queues/{id}` | Get an Evergreen queue | n/a |
+| `PATCH /api/public/v1/evergreen-queues/{id}` | Update an Evergreen queue | n/a |
+| `DELETE /api/public/v1/evergreen-queues/{id}` | Archive an Evergreen queue | n/a |
+| `POST /api/public/v1/evergreen-queues/{id}/activate` | Activate an Evergreen queue | n/a |
+| `POST /api/public/v1/evergreen-queues/{id}/pause` | Pause an Evergreen queue | n/a |
+| `POST /api/public/v1/evergreen-queues/{id}/resume` | Resume an Evergreen queue | n/a |
+| `GET /api/public/v1/evergreen-queues/{id}/runs` | List Evergreen runs | n/a |
+| `GET /api/public/v1/evergreen-queues/{id}/analytics` | Get Evergreen analytics | n/a |
 
 ### Retryable errors
 
@@ -216,7 +227,7 @@ An identical retry can plausibly succeed for these codes and only these. For eve
 - `VERTEX_AI_INVALID_JSON` (500): The model returned content that did not parse against the response schema. The AI operation is refunded.
 - `VERTEX_UNAVAILABLE` (500): The model backend was unavailable. The AI operation is refunded, so an identical retry is safe.
 
-The full catalogue, 167 codes with statuses and meanings, is in the OpenAPI description under **Errors**.
+The full catalogue, 187 codes with statuses and meanings, is in the OpenAPI description under **Errors**.
 
 <!-- generated:endpoints:end -->
 
@@ -317,10 +328,9 @@ One post can target several channels. Send `targets` instead of `channel`:
   do not land as per-channel failures (`partial_failed`), and `targets[]`
   on every post response reads the result back uniformly — including for
   posts created in the app.
-- One limitation, refused loudly rather than silently mishandled: platform
-  `settings` may ride on at most one target per post
-  (`VALIDATION_MULTIPLE_TARGET_SETTINGS_UNSUPPORTED`). Create one post per
-  channel that needs its own settings.
+- Each target may carry its own discriminated `settings` object. The server
+  persists these in `settingsByChannel` and still mirrors the primary
+  channel's object in legacy `settings` responses.
 
 ## Idempotency
 
@@ -353,7 +363,7 @@ Delivery modes (`deliveryMode` on create, optional):
   required to create or publish these posts (a destination is still attached
   when one is configured, for attribution).
 - `direct_publish` — official platform API publishing. Default for `threads`,
-  `linkedin`, and `pinterest`; Meta channels accept it as an explicit opt-in.
+  `linkedin`, `pinterest`, and `x`; Meta channels accept it as an explicit opt-in.
   Requires a connected destination. On `tiktok` it maps to `platform_inbox`
   (TikTok's only API-publishing path).
 - `platform_inbox` — TikTok inbox handoff only; rejected on other channels
@@ -397,6 +407,15 @@ TikTok (draft-first; manual reminder by default, inbox handoff on opt-in):
 - `POST /api/public/v1/posts/:id/publish` queues the same TikTok publish path the app uses — the inbox handoff unless the post carries `settings.postMode: "direct_post"`
 - once TikTok confirms `SEND_TO_USER_INBOX`, the post becomes `platform_action_required`; the creator opens TikTok to finalize caption/privacy and post
 - a Direct Post skips that step: it goes to `published` when TikTok reports `PUBLISH_COMPLETE`, with no action left for the creator
+
+X:
+- text posts, up to four images, or one video/GIF publish through X API v2
+- image and video media cannot be mixed in one post
+- `settings.replySettings` controls who may reply when the connected account
+  and API access support the selected value
+- list-posts, delete, audience, and post metrics use the same connected identity
+- the adapter records estimated pay-per-use cost and refuses new publishes
+  with `CHANNEL_BILLING_ACTION_REQUIRED` at the configured workspace limit
 
 ## Example flow
 
@@ -535,6 +554,9 @@ publish time. Unrecognized fields are rejected by validation.
 - `collaborators`: up to 3 IG usernames
 - `altText`: per-media accessibility text (parallel to `mediaAssetIds`)
 
+**X** (`__type: "x"`)
+- `replySettings`: `"following"` · `"mentionedUsers"` · `"subscribers"` · `"verified"`
+
 ### Batch create
 
 Submit `{ "posts": [ ... ] }` (1–25 items) to create many posts in a single
@@ -618,6 +640,39 @@ Deleting removes the post from Markaestro only:
 - A **scheduled** post drops out of the publish sweep immediately; the
   scheduler selects by status and due time, so no orphaned job remains.
 
+## Intelligent Evergreen
+
+Evergreen uses two least-privilege scopes: `evergreen.read` for previews,
+queues, and run history; `evergreen.write` for create, edit, activation, pause,
+resume, and archive. A key remains bound to one brand throughout.
+
+The safe flow is intentionally two-stage:
+
+1. `POST /api/public/v1/evergreen-queues/preview` with `sourcePostId` checks
+   published state, metric maturity, sample evidence, channel support, and a
+   recommended cadence without writing.
+2. `POST /api/public/v1/evergreen-queues` creates a draft queue. Nothing is
+   scheduled until `POST /api/public/v1/evergreen-queues/{id}/activate` passes
+   plan, source, media, destination, and channel preflight.
+
+`review_each_run` creates each occurrence as a normal draft.
+`approve_future_runs` creates an ordinary scheduled post 48 hours ahead, so it
+appears on the calendar and can still be edited or canceled. Pause and archive
+unschedule any pending occurrence. Each run is deterministic and visible at
+`GET /api/public/v1/evergreen-queues/{id}/runs`; after seven comparable days,
+two consecutive runs below the conservative performance threshold pause the
+queue. Missing metrics delay evaluation and never count as zero.
+
+`GET /api/public/v1/evergreen-queues/{id}/analytics` reconciles source,
+occurrence, and queue-lifetime metrics. Provider views, reach, engagements,
+and clicks remain `null` when unavailable. Tracked-link clicks and attributed
+conversions are reported separately and map both Markaestro post ids and
+canonical social-post ids back to their occurrence.
+
+Queue edits require the current `version`. A stale write returns `409
+CONFLICT` instead of overwriting another editor. Create and state-transition
+requests support `Idempotency-Key`.
+
 ## Webhooks
 
 Supported events:
@@ -625,6 +680,12 @@ Supported events:
 - `post.published`
 - `post.action_required`
 - `post.failed`
+- `evergreen.queue.activated`
+- `evergreen.queue.paused`
+- `evergreen.queue.needs_review`
+- `evergreen.run.scheduled`
+- `evergreen.run.skipped`
+- `evergreen.run.underperformed`
 
 TikTok webhook semantics:
 - `post.action_required` means the post has been handed off to the creator's TikTok inbox and is ready for them to finish inside TikTok

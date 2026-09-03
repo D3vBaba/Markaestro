@@ -160,6 +160,17 @@ const providerConfigs: Record<OAuthProvider, OAuthProviderConfig> = {
   linkedin: {
     ...linkedinProfileConfig,
   },
+  x: {
+    authUrl: 'https://x.com/i/oauth2/authorize',
+    tokenUrl: 'https://api.x.com/2/oauth2/token',
+    revokeUrl: 'https://api.x.com/2/oauth2/revoke',
+    scopes: ['tweet.read', 'tweet.write', 'users.read', 'media.write', 'offline.access'],
+    clientIdEnv: 'X_CLIENT_ID',
+    clientSecretEnv: 'X_CLIENT_SECRET',
+    usePKCE: true,
+    useBasicAuth: true,
+    extraAuthParams: {},
+  },
 };
 
 export function getProviderConfig(
@@ -187,6 +198,7 @@ const redirectUriEnvByProvider: Record<OAuthProvider, string> = {
   threads: 'THREADS_OAUTH_REDIRECT_URI',
   pinterest: 'PINTEREST_OAUTH_REDIRECT_URI',
   linkedin: 'LINKEDIN_OAUTH_REDIRECT_URI',
+  x: 'X_OAUTH_REDIRECT_URI',
 };
 
 export function getAppUrl(): string {

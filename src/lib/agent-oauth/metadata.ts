@@ -29,6 +29,8 @@ export const DEFAULT_AGENT_SCOPES: readonly PublicApiScope[] = [
   'posts.read',
   'posts.write',
   'posts.publish',
+  'evergreen.read',
+  'evergreen.write',
   'job_runs.read',
 ];
 

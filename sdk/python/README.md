@@ -17,10 +17,18 @@ result = client.posts.create_and_publish(
 )
 
 client.posts.create(
-    targets=[{"channel": "linkedin"}, {"channel": "threads"}],
+    targets=[{"channel": "linkedin"}, {"channel": "x"}],
     caption="Multi-channel, scheduled",
     scheduledAt="2026-09-01T10:00:00Z",
 )
+
+queue = client.evergreen.create(
+    sourcePostId=result["post"]["id"],
+    name="Launch proof points",
+    variants=[{"caption": "A measured update worth revisiting."}],
+)
+client.evergreen.activate(queue["id"])
+performance = client.evergreen.analytics(queue["id"])
 ```
 
 Every mutation carries an automatic `Idempotency-Key`; 429 and transient 5xx

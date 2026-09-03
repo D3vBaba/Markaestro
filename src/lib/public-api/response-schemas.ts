@@ -23,6 +23,7 @@ export const publicPostTargetResponseSchema = z.object({
   channel: z.string(),
   destinationId: z.string(),
   deliveryMode: z.string(),
+  settings: z.unknown().optional(),
 }).describe('One destination the post publishes to.');
 
 export const publicPostResponseSchema = z.object({
@@ -36,6 +37,7 @@ export const publicPostResponseSchema = z.object({
   destinationProvider: z.string(),
   deliveryMode: z.enum(publicDeliveryModes).or(z.string()),
   settings: z.unknown().nullable(),
+  settingsByChannel: z.record(z.string(), z.unknown()),
   mediaAssetIds: z.array(z.string()),
   mediaUrls: z.array(z.string()),
   scheduledAt: isoString.nullable(),

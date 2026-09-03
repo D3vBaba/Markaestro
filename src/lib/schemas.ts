@@ -81,7 +81,7 @@ export const tagsSchema = z
 
 // ── Enums ──────────────────────────────────────────────────────────
 
-export const socialChannels = ['facebook', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin'] as const;
+export const socialChannels = ['facebook', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin', 'x'] as const;
 export const postStatuses = ['draft', 'scheduled', 'publishing', 'published', 'platform_action_required', 'failed', 'partial_failed'] as const;
 
 /**
@@ -114,8 +114,8 @@ export const contactSources = ['organic', 'paid', 'referral', 'social', 'email',
 export const triggerTypes = ['manual', 'event', 'schedule', 'segment'] as const;
 export const jobTypes = ['sync_contacts', 'publish_post', 'refresh_tokens'] as const;
 export const jobSchedules = ['manual', 'daily'] as const;
-export const integrationProviders = ['facebook', 'instagram', 'meta', 'tiktok', 'threads', 'pinterest', 'linkedin'] as const;
-export const oauthProviders = ['meta', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin'] as const;
+export const integrationProviders = ['facebook', 'instagram', 'meta', 'tiktok', 'threads', 'pinterest', 'linkedin', 'x'] as const;
+export const oauthProviders = ['meta', 'instagram', 'tiktok', 'threads', 'pinterest', 'linkedin', 'x'] as const;
 export const workspaceRoles = ['owner', 'admin', 'member', 'analyst'] as const;
 
 // ── Contact Schemas ────────────────────────────────────────────────
@@ -350,6 +350,22 @@ export const channelDeliveryModesSchema = z.partialRecord(
   z.enum(['direct_publish', 'platform_inbox', 'manual_reminder']),
 );
 
+/** Platform settings keyed by the channel they configure. */
+export const settingsByChannelSchema = z.partialRecord(
+  z.enum(socialChannels),
+  postSettingsSchema,
+).superRefine((settings, ctx) => {
+  for (const [channel, value] of Object.entries(settings)) {
+    if (value?.__type !== channel) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Platform settings must be stored under their matching channel.',
+        path: [channel],
+      });
+    }
+  }
+});
+
 export const createPostSchema = z.object({
   content: z.string().trim().min(1, 'Content is required').max(65000),
   channel: z.enum(socialChannels),
@@ -369,6 +385,7 @@ export const createPostSchema = z.object({
    */
   channelDeliveryModes: channelDeliveryModesSchema.optional(),
   settings: postSettingsSchema.optional(),
+  settingsByChannel: settingsByChannelSchema.optional(),
 });
 
 export const updatePostSchema = z.object({
@@ -393,6 +410,7 @@ export const updatePostSchema = z.object({
    */
   channelDeliveryModes: channelDeliveryModesSchema.optional(),
   settings: postSettingsSchema.optional(),
+  settingsByChannel: settingsByChannelSchema.optional(),
 });
 
 // ── Pagination ─────────────────────────────────────────────────────

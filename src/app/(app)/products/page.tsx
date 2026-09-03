@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 
 type Product = ProductCardData;
 
-const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok", "threads", "pinterest", "linkedin"] as const;
+const SOCIAL_PROVIDERS = ["meta", "instagram", "tiktok", "threads", "pinterest", "linkedin", "x"] as const;
 
 function getScopedSocialIntegrations(integrations: IntegrationInfo[]) {
   return integrations.filter(
@@ -51,6 +51,7 @@ const providerLabels: Record<string, string> = {
   threads: "Threads",
   pinterest: "Pinterest",
   linkedin: "LinkedIn",
+  x: "X",
 };
 
 type OauthCallback = {

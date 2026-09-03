@@ -37,6 +37,7 @@ export type CatalogProvider =
   | 'meta'
   | 'threads'
   | 'tiktok'
+  | 'x'
   | 'pinterest'
   | 'linkedin_profile'
   | 'linkedin_community';
@@ -76,6 +77,13 @@ export const PERMISSION_CATALOG: Record<CatalogProvider, PermissionEntry[]> = {
     entry('video.upload', 'publish'),
     entry('video.list', 'library'),
     entry('user.info.stats', 'insights'),
+  ],
+  x: [
+    entry('tweet.read', 'library'),
+    entry('tweet.write', 'publish'),
+    entry('users.read', 'profile'),
+    entry('media.write', 'publish'),
+    entry('offline.access', 'publish'),
   ],
   pinterest: [
     entry('user_accounts:read', 'profile'),

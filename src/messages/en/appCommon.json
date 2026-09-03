@@ -139,6 +139,7 @@
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
       "linkedin_community": "LinkedIn"
+      ,"x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -148,6 +149,7 @@
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
       "linkedin_community": "linkedin.com"
+      ,"x": "x.com"
     },
     "dialog": {
       "title": "Connect {provider}",
@@ -196,6 +198,10 @@
       "tiktok": {
         "0": "A TikTok account you can sign in to.",
         "1": "Posts are delivered to your TikTok inbox and finished in the TikTok app."
+      },
+      "x": {
+        "0": "An X account you can sign in to.",
+        "1": "Your X developer access must allow post publishing and media uploads. Usage is subject to X API pricing and limits."
       },
       "pinterest": {
         "0": "A Pinterest business account with at least one board.",
@@ -361,6 +367,26 @@
       "rw_organization_admin": {
         "title": "List Pages you administer",
         "description": "Lists the company Pages you administer so you can choose which one this brand posts to."
+      },
+      "tweet_read": {
+        "title": "Read posts",
+        "description": "Reads your posts and their public engagement for post history and performance measurement."
+      },
+      "tweet_write": {
+        "title": "Publish posts",
+        "description": "Creates and deletes the posts you publish through Markaestro."
+      },
+      "users_read": {
+        "title": "Read account identity",
+        "description": "Reads your X account ID, username, name, and profile image so Markaestro can show the linked account."
+      },
+      "media_write": {
+        "title": "Upload media",
+        "description": "Uploads images, GIFs, and videos attached to posts you publish through Markaestro."
+      },
+      "offline_access": {
+        "title": "Stay connected",
+        "description": "Refreshes access so scheduled posts can publish when you are away."
       }
     },
     "outcome": {

@@ -34,7 +34,9 @@ workspace-bound API key). No path here is reachable from a browser.
 
 | Collection | Written by | Notes |
 | --- | --- | --- |
-| `posts` (+ `publishAttempts` subcoll.) | app + public/connect API + worker | The core resource. |
+| `posts` (+ `publishAttempts` and `platformOperations` subcolls.) | app + public/connect API + worker | The core resource and durable provider-operation checkpoints. |
+| `evergreenQueues` (+ `variants` and `runs` subcolls.), `evergreenAudit` | app + public API + worker | Evidence-backed recurring policies, immutable run lineage, and transition audit trail. |
+| `providerUsage` | platform adapters | Monthly per-provider request and estimated-cost counters used by workspace budget gates. |
 | `products` | app + API | Brands. |
 | `members` | app, team routes | Also read via collection-group query at sign-in (bounded, limit 100). |
 | `pendingInvites` | team routes | Read via collection-group query by invite email. |

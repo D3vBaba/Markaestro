@@ -165,7 +165,7 @@ const toolDefinitions = `[
       "properties": {
         "channel": {
           "type": "string",
-          "enum": ["facebook", "instagram", "tiktok", "linkedin", "threads", "pinterest"]
+          "enum": ["facebook", "instagram", "tiktok", "linkedin", "threads", "pinterest", "x"]
         },
         "caption": { "type": "string", "description": "Caption text, max 4000 characters." },
         "media_asset_ids": {

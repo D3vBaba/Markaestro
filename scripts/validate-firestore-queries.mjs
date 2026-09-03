@@ -240,6 +240,70 @@ async function runChecks() {
       .get(),
   );
 
+  console.log('\nEvergreen queues:');
+  await check('evergreenQueues.orderBy(createdAt desc) [queue list]', (db) =>
+    db.collection(`workspaces/${WS}/evergreenQueues`)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('evergreenQueues.where(productId).orderBy(createdAt desc) [brand queue list]', (db) =>
+    db.collection(`workspaces/${WS}/evergreenQueues`)
+      .where('productId', '==', 'sentinel')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('evergreenQueues.where(productId).where(status) [capacity]', (db) =>
+    db.collection(`workspaces/${WS}/evergreenQueues`)
+      .where('productId', '==', 'sentinel')
+      .where('status', '==', 'active')
+      .limit(1)
+      .get(),
+  );
+  await check('evergreenQueues.where(status).where(nextRunAt<=).orderBy(nextRunAt) [generation]', (db) =>
+    db.collection(`workspaces/${WS}/evergreenQueues`)
+      .where('status', '==', 'active')
+      .where('nextRunAt', '<=', new Date().toISOString())
+      .orderBy('nextRunAt', 'asc')
+      .limit(1)
+      .get(),
+  );
+  await check('evergreen variants.where(enabled).orderBy(position) [rotation]', (db) =>
+    db.collection(`workspaces/${WS}/evergreenQueues/sentinel/variants`)
+      .where('enabled', '==', true)
+      .orderBy('position', 'asc')
+      .limit(1)
+      .get(),
+  );
+  await check('evergreen runs.where(status IN).where(evaluationDueAt<=).orderBy(evaluationDueAt) [evaluation]', (db) =>
+    db.collection(`workspaces/${WS}/evergreenQueues/sentinel/runs`)
+      .where('status', 'in', ['needs_review', 'scheduled', 'published'])
+      .where('evaluationDueAt', '<=', new Date().toISOString())
+      .orderBy('evaluationDueAt', 'asc')
+      .limit(1)
+      .get(),
+  );
+  await check('evergreen runs.orderBy(plannedAt desc) [run history]', (db) =>
+    db.collection(`workspaces/${WS}/evergreenQueues/sentinel/runs`)
+      .orderBy('plannedAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('evergreen runs.orderBy(plannedAt asc) [analytics rollup]', (db) =>
+    db.collection(`workspaces/${WS}/evergreenQueues/sentinel/runs`)
+      .orderBy('plannedAt', 'asc')
+      .limit(1)
+      .get(),
+  );
+  await check('posts.where(evergreen.queueId).where(status) [pause/archive cancellation]', (db) =>
+    db.collection(`workspaces/${WS}/posts`)
+      .where('evergreen.queueId', '==', 'sentinel')
+      .where('status', '==', 'scheduled')
+      .limit(1)
+      .get(),
+  );
+
   console.log('\nToken refresh queue:');
   await check('_tokenRefreshQueue.where(nextDueAt<=) [due workspaces]', (db) =>
     db.collection('_tokenRefreshQueue')
@@ -304,6 +368,12 @@ async function runChecks() {
       .limit(1)
       .get(),
   );
+  await check('trackedLinks.where(socialPostId IN [...]) [evergreen attribution]', (db) =>
+    db.collection(`workspaces/${WS}/trackedLinks`)
+      .where('socialPostId', 'in', ['sentinel'])
+      .limit(1)
+      .get(),
+  );
 
   await check('posts.where(status=published).where(metricsNextPollAt<=).orderBy(metricsNextPollAt) [SLO staleness]', (db) =>
     db.collection(`workspaces/${WS}/posts`)
@@ -362,6 +432,12 @@ async function runChecks() {
   console.log('\nSocial intelligence:');
   await check('socialPosts.where(productId)', (db) =>
     db.collection(`workspaces/${WS}/socialPosts`).where('productId', '==', 'sentinel').limit(1).get(),
+  );
+  await check('socialPosts.where(markaestroPostId IN [...]) [evergreen attribution]', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`)
+      .where('markaestroPostId', 'in', ['sentinel'])
+      .limit(1)
+      .get(),
   );
   await check('socialPosts.where(productId).where(platform) [audience fit history]', (db) =>
     db.collection(`workspaces/${WS}/socialPosts`)

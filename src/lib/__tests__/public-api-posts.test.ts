@@ -214,6 +214,26 @@ describe('public post validation', () => {
     expect(serialized.slideshowTitle).toBe('Launch sequence');
     expect(serialized.slideshowSlideCount).toBe(6);
     expect(serialized.slideshowCoverIndex).toBe(0);
+    expect(serialized.settingsByChannel).toEqual({});
+  });
+
+  it('serializes target-specific settings while preserving the legacy field', () => {
+    const serialized = serializePublicPost({
+      id: 'pst_multi',
+      channel: 'instagram',
+      targetChannels: ['instagram', 'tiktok'],
+      status: 'draft',
+      content: 'Launch day',
+      settings: { __type: 'instagram', postType: 'feed' },
+      settingsByChannel: {
+        instagram: { __type: 'instagram', postType: 'feed' },
+        tiktok: { __type: 'tiktok', postMode: 'direct_post' },
+      },
+      createdAt: '2026-09-03T00:00:00.000Z',
+      updatedAt: '2026-09-03T00:00:00.000Z',
+    });
+    expect(serialized.settings).toEqual({ __type: 'instagram', postType: 'feed' });
+    expect(serialized.targets[1]?.settings).toEqual({ __type: 'tiktok', postMode: 'direct_post' });
   });
 });
 

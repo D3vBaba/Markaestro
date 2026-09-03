@@ -57,6 +57,76 @@ export type ErrorCodeSpec = {
  * Ordered by status so the table reads the way the documentation renders it.
  */
 export const ERROR_CODES: Record<string, ErrorCodeSpec> = {
+  VALIDATION_EVERGREEN_ARCHIVED: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'An archived Evergreen queue cannot be edited, activated, or resumed.',
+  },
+  VALIDATION_EVERGREEN_CHANNEL_NOT_IN_SOURCE: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'The queue targets a channel that was not part of the proven source post.',
+  },
+  VALIDATION_EVERGREEN_INTERVAL_TOO_SHORT: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'The requested Evergreen interval is below the allowed minimum for one or more channels.',
+  },
+  VALIDATION_EVERGREEN_SOURCE_BRAND_MISMATCH: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'The source post belongs to a different brand than the Evergreen queue.',
+  },
+  EVERGREEN_SOURCE_NOT_PUBLISHED: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'The Evergreen source post is no longer in the published state.',
+  },
+  EVERGREEN_SOURCE_INELIGIBLE: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'The source post is not published, mature, measured, or otherwise eligible for an Evergreen queue.',
+    userMessage: 'This post does not have enough mature performance data for an Evergreen queue yet.',
+  },
+  EVERGREEN_UPGRADE_REQUIRED: {
+    status: 403,
+    retryable: false,
+    category: 'permission',
+    description: 'The workspace plan does not include active Evergreen queues.',
+    userMessage: 'Upgrade to Pro or Business to activate Intelligent Evergreen.',
+  },
+  EVERGREEN_QUEUE_LIMIT_REACHED: {
+    status: 409,
+    retryable: false,
+    category: 'quota',
+    description: 'The brand has reached its active Evergreen queue limit.',
+    userMessage: 'This brand has reached its active Evergreen queue limit.',
+  },
+  CHANNEL_BILLING_ACTION_REQUIRED: {
+    status: 402,
+    retryable: false,
+    category: 'quota',
+    description: 'The workspace reached the configured provider spending limit for this channel.',
+    userMessage: 'This channel has reached its workspace spending limit. Review its billing settings before publishing again.',
+  },
+  EVERGREEN_SOURCE_MISSING: {
+    status: 404,
+    retryable: false,
+    category: 'not_found',
+    description: 'The source post for this Evergreen queue no longer exists.',
+  },
+  CONFLICT: {
+    status: 409,
+    retryable: false,
+    category: 'conflict',
+    description: 'The resource changed after the caller read it. Fetch the latest version before updating it.',
+  },
   VALIDATION_ERROR: {
     status: 400,
     retryable: false,

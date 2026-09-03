@@ -67,6 +67,7 @@ const providerShortLabels: Record<string, string> = {
   threads: "Threads",
   pinterest: "Pinterest",
   linkedin: "LinkedIn",
+  x: "X",
 };
 
 function stripProtocol(url: string) {
