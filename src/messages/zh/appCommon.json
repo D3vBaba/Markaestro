@@ -128,5 +128,275 @@
     },
     "facebookInstagramAd": "Facebook / Instagram 广告",
     "tiktokAd": "TikTok 广告"
+  },
+  "connectChannel": {
+    "providerNames": {
+      "meta": "Facebook",
+      "instagram": "Instagram",
+      "threads": "Threads",
+      "tiktok": "TikTok",
+      "pinterest": "Pinterest",
+      "linkedin": "LinkedIn",
+      "linkedin_profile": "LinkedIn",
+      "linkedin_community": "LinkedIn"
+    },
+    "hosts": {
+      "meta": "facebook.com",
+      "instagram": "instagram.com",
+      "threads": "threads.net",
+      "tiktok": "tiktok.com",
+      "pinterest": "pinterest.com",
+      "linkedin_profile": "linkedin.com",
+      "linkedin_community": "linkedin.com"
+    },
+    "dialog": {
+      "title": "连接 {provider}",
+      "reconnectTitle": "重新连接 {provider}",
+      "forBrand": "用于 {brand}",
+      "intro": "以下是接下来会发生的确切流程，以及 Markaestro 将向 {provider} 请求的内容。",
+      "stepsTitle": "工作原理",
+      "steps": {
+        "0": {
+          "title": "在 {host} 上登录",
+          "detail": "系统会将你带到 {provider} 自己的登录页面。Markaestro 永远不会看到你的密码。"
+        },
+        "1": {
+          "title": "查看并批准权限",
+          "detail": "{provider} 会列出以下权限并要求你允许。请全部批准，以便发布和数据分析都能正常工作。"
+        },
+        "2": {
+          "title": "返回 Markaestro",
+          "detail": "你会自动返回到这里，账户会显示为“已连接”。"
+        }
+      },
+      "metaStepDetail": "Facebook 会询问 Markaestro 可以管理哪些主页。请勾选每一个你可能会发布内容的主页；未勾选的主页将失去访问权限。",
+      "permissionsTitle": "Markaestro 将请求的权限",
+      "permissionsHint": "每项权限仅用于其旁边显示的功能。",
+      "usedFor": "用于{feature}",
+      "requirementsTitle": "开始之前",
+      "reconnectNote": "重新连接会刷新访问权限。已关联到此品牌的账户将保持关联。",
+      "privacyNote": "你可以随时在此屏幕上断开连接。断开后，Markaestro 会删除它存储的访问令牌。",
+      "learnMore": "阅读完整的连接指南",
+      "cancel": "取消",
+      "continue": "继续前往 {provider}",
+      "opening": "正在打开 {provider}…"
+    },
+    "requirements": {
+      "instagram": {
+        "0": "一个 Instagram 专业账户（商业或创作者账户）。个人账户无法通过 Instagram API 发布内容。",
+        "1": "该 Instagram 账户的登录信息。"
+      },
+      "meta": {
+        "0": "在你要发布内容的主页上拥有管理员或编辑者角色的 Facebook 账户。",
+        "1": "在 Facebook 的对话框中勾选每一个主页，然后回到 Markaestro 中为此品牌选择相应的主页。"
+      },
+      "threads": {
+        "0": "一个你可以登录的 Threads 个人资料。Threads 使用独立于 Instagram 的自有登录方式。"
+      },
+      "tiktok": {
+        "0": "一个你可以登录的 TikTok 账户。",
+        "1": "帖子会发送到你的 TikTok 收件箱，并在 TikTok 应用内完成最终发布。"
+      },
+      "pinterest": {
+        "0": "一个至少拥有一个看板的 Pinterest 商业账户。",
+        "1": "连接后，选择此品牌要固定到的看板。"
+      },
+      "linkedin_profile": {
+        "0": "一个 LinkedIn 账户。帖子将以你本人的身份发布到你的个人资料上。"
+      },
+      "linkedin_community": {
+        "0": "在你要发布内容的公司主页上拥有管理员角色的 LinkedIn 账户。"
+      }
+    },
+    "features": {
+      "profile": "账户身份",
+      "publish": "发布",
+      "insights": "数据分析",
+      "delete": "帖子管理",
+      "pages": "Facebook 主页",
+      "boards": "看板",
+      "library": "帖子历史"
+    },
+    "permissions": {
+      "instagram_business_basic": {
+        "title": "基本账户信息",
+        "description": "读取你的 Instagram 用户名和账户 ID，以便 Markaestro 显示已关联的账户，并将帖子指向该账户。"
+      },
+      "instagram_business_content_publish": {
+        "title": "发布内容",
+        "description": "将你在 Markaestro 中排期的照片、视频和轮播内容发布到此 Instagram 账户。"
+      },
+      "instagram_business_manage_insights": {
+        "title": "读取洞察数据",
+        "description": "读取覆盖人数、点赞、评论、收藏和粉丝数，用于构建数据分析页面。"
+      },
+      "pages_show_list": {
+        "title": "列出你的主页",
+        "description": "列出你管理的 Facebook 主页，以便你选择此品牌要发布到哪一个。"
+      },
+      "pages_read_engagement": {
+        "title": "读取主页互动数据",
+        "description": "读取主页名称、粉丝数和帖子互动数据，用于数据分析。"
+      },
+      "pages_manage_posts": {
+        "title": "发布到主页",
+        "description": "在所选的 Facebook 主页上创建你在 Markaestro 中排期的帖子。"
+      },
+      "read_insights": {
+        "title": "读取主页洞察数据",
+        "description": "读取该主页及其帖子的覆盖人数和互动洞察数据。"
+      },
+      "pages_read_user_content": {
+        "title": "读取主页内容",
+        "description": "读取主页上的帖子和评论，用于帖子历史视图。"
+      },
+      "threads_basic": {
+        "title": "基本个人资料",
+        "description": "读取你的 Threads 用户名和头像，以便 Markaestro 显示已关联的账户。"
+      },
+      "threads_content_publish": {
+        "title": "发布帖子",
+        "description": "将你在 Markaestro 中排期的文字、图片和视频帖子发布到 Threads。"
+      },
+      "threads_delete": {
+        "title": "删除帖子",
+        "description": "当你从 Markaestro 的“平台内容”标签页移除某条 Threads 帖子时，将其删除。"
+      },
+      "threads_manage_insights": {
+        "title": "读取洞察数据",
+        "description": "读取观看量、点赞、回复和粉丝数，用于数据分析。"
+      },
+      "user_info_basic": {
+        "title": "基本账户信息",
+        "description": "读取你的 TikTok 显示名称和头像，以便 Markaestro 显示已关联的账户。"
+      },
+      "user_info_profile": {
+        "title": "个人资料详情",
+        "description": "读取你的用户名、简介和个人主页链接，用于已连接账户视图。"
+      },
+      "video_publish": {
+        "title": "发布视频",
+        "description": "将你在 Markaestro 中排期的视频发送到你的 TikTok 账户。"
+      },
+      "video_upload": {
+        "title": "上传视频",
+        "description": "将视频文件上传到 TikTok，以便发布。"
+      },
+      "video_list": {
+        "title": "列出你的视频",
+        "description": "列出你已发布的 TikTok 视频，用于“平台内容”标签页和帖子指标。"
+      },
+      "user_info_stats": {
+        "title": "账户统计信息",
+        "description": "读取粉丝数、点赞数和视频数，用于数据分析。"
+      },
+      "user_accounts_read": {
+        "title": "账户详情",
+        "description": "读取你的 Pinterest 用户名和个人资料，以便 Markaestro 显示已关联的账户。"
+      },
+      "boards_read": {
+        "title": "读取看板",
+        "description": "列出你的看板，以便你选择此品牌要固定到哪一个。"
+      },
+      "boards_write": {
+        "title": "管理看板",
+        "description": "即使是在现有看板上创建 Pin，Pinterest 也要求此权限。"
+      },
+      "boards_read_secret": {
+        "title": "读取秘密看板",
+        "description": "在看板选择器中包含你的秘密看板。"
+      },
+      "boards_write_secret": {
+        "title": "固定到秘密看板",
+        "description": "允许此品牌固定到秘密看板。"
+      },
+      "pins_read": {
+        "title": "读取 Pin",
+        "description": "读取你的 Pin，用于帖子历史视图。"
+      },
+      "pins_write": {
+        "title": "创建 Pin",
+        "description": "创建你在 Markaestro 中排期的 Pin。"
+      },
+      "pins_read_secret": {
+        "title": "读取秘密 Pin",
+        "description": "读取秘密看板上的 Pin，用于帖子历史视图。"
+      },
+      "pins_write_secret": {
+        "title": "创建秘密 Pin",
+        "description": "在秘密看板上创建 Pin。"
+      },
+      "openid": {
+        "title": "使用 LinkedIn 登录",
+        "description": "确认正在连接的 LinkedIn 会员身份。"
+      },
+      "profile": {
+        "title": "基本个人资料",
+        "description": "读取你的姓名和照片，以便 Markaestro 显示已关联的个人资料。"
+      },
+      "w_member_social": {
+        "title": "代表你发布",
+        "description": "将你在 Markaestro 中排期的帖子发布到你的 LinkedIn 个人资料上。"
+      },
+      "r_member_postAnalytics": {
+        "title": "读取帖子数据分析",
+        "description": "读取你帖子的展示量和互动数据，用于数据分析。"
+      },
+      "r_member_profileAnalytics": {
+        "title": "读取个人资料数据分析",
+        "description": "读取粉丝数和个人资料浏览量，用于数据分析。"
+      },
+      "r_basicprofile": {
+        "title": "基本个人资料",
+        "description": "读取你的姓名和照片，以便 Markaestro 显示是谁授权了这些主页。"
+      },
+      "w_organization_social": {
+        "title": "以主页身份发布",
+        "description": "将你在 Markaestro 中排期的帖子发布到公司主页。"
+      },
+      "r_organization_social": {
+        "title": "读取主页帖子",
+        "description": "读取该主页的帖子，用于帖子历史视图。"
+      },
+      "rw_organization_admin": {
+        "title": "列出你管理的主页",
+        "description": "列出你管理的公司主页，以便你选择此品牌要发布到哪一个。"
+      }
+    },
+    "outcome": {
+      "successTitle": "{provider} 已连接",
+      "successBody": "{account} 现已关联到 {brand}。",
+      "successBodyNoAccount": "该账户现已关联到 {brand}。",
+      "successBodyNoBrand": "{account} 现已关联。",
+      "successBodyPlain": "该账户现已关联。",
+      "grantedTitle": "权限已授予",
+      "requestedTitle": "已请求的权限",
+      "nextTitle": "你现在可以做的事",
+      "createPost": "创建帖子",
+      "viewAnalytics": "查看数据分析",
+      "postHistory": "查看平台内容中的帖子",
+      "needsPageTitle": "还差一步：选择一个 Facebook 主页",
+      "needsPageBody": "已授予 Facebook 访问权限。现在选择此品牌要发布到的主页。",
+      "choosePages": "选择主页",
+      "needsBoardTitle": "还差一步：选择一个看板",
+      "needsBoardBody": "已授予 Pinterest 访问权限。现在选择此品牌要固定到的看板。",
+      "errorTitle": "{provider} 未连接",
+      "reasons": {
+        "access_denied": "你没有在 {provider} 上批准这些权限，因此未关联任何内容。请重新开始，并选择允许以完成连接。",
+        "channel_limit": "此品牌已达到你的套餐允许的渠道数量上限。请取消关联一个渠道或升级套餐，然后再试一次。",
+        "connection_failed": "{provider} 未能完成连接，未关联任何内容。请重试；如果仍然失败，请查看连接指南中的要求。"
+      },
+      "providerSaid": "{provider} 提示：{message}",
+      "tryAgain": "重试",
+      "dismiss": "关闭",
+      "chooseBoard": "选择看板"
+    },
+    "hints": {
+      "connect": "打开 {provider} 的登录页面，以便你为此品牌批准访问权限。",
+      "reconnect": "重新执行 {provider} 的登录流程以刷新访问权限。已关联的账户将保持关联。",
+      "disconnect": "将此账户从该品牌中移除，并删除 Markaestro 存储的访问令牌。",
+      "test": "向 {provider} 发送一次只读请求，以确认该连接仍然有效。",
+      "choosePages": "加载 Facebook 授予的主页，以便你选择此品牌要发布到哪些主页。"
+    }
   }
 }

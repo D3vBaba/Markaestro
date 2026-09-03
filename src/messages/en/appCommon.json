@@ -128,5 +128,275 @@
     },
     "facebookInstagramAd": "Facebook / Instagram Ad",
     "tiktokAd": "TikTok Ad"
+  },
+  "connectChannel": {
+    "providerNames": {
+      "meta": "Facebook",
+      "instagram": "Instagram",
+      "threads": "Threads",
+      "tiktok": "TikTok",
+      "pinterest": "Pinterest",
+      "linkedin": "LinkedIn",
+      "linkedin_profile": "LinkedIn",
+      "linkedin_community": "LinkedIn"
+    },
+    "hosts": {
+      "meta": "facebook.com",
+      "instagram": "instagram.com",
+      "threads": "threads.net",
+      "tiktok": "tiktok.com",
+      "pinterest": "pinterest.com",
+      "linkedin_profile": "linkedin.com",
+      "linkedin_community": "linkedin.com"
+    },
+    "dialog": {
+      "title": "Connect {provider}",
+      "reconnectTitle": "Reconnect {provider}",
+      "forBrand": "for {brand}",
+      "intro": "Here is exactly what happens next, and what Markaestro will ask {provider} for.",
+      "stepsTitle": "How it works",
+      "steps": {
+        "0": {
+          "title": "Sign in on {host}",
+          "detail": "You will be taken to {provider}'s own sign-in page. Markaestro never sees your password."
+        },
+        "1": {
+          "title": "Review and approve the permissions",
+          "detail": "{provider} lists the permissions below and asks you to allow them. Approve all of them so publishing and analytics both work."
+        },
+        "2": {
+          "title": "Come back to Markaestro",
+          "detail": "You are returned here automatically and the account shows as Linked."
+        }
+      },
+      "metaStepDetail": "Facebook asks which Pages Markaestro may manage. Tick every Page you might post to; a Page left unticked loses access.",
+      "permissionsTitle": "Permissions Markaestro will request",
+      "permissionsHint": "Each permission is used only for the feature shown next to it.",
+      "usedFor": "Used for {feature}",
+      "requirementsTitle": "Before you start",
+      "reconnectNote": "Reconnecting refreshes access. Accounts already linked to this brand stay linked.",
+      "privacyNote": "You can disconnect at any time from this screen. Markaestro then deletes the access token it stored.",
+      "learnMore": "Read the full connection guide",
+      "cancel": "Cancel",
+      "continue": "Continue to {provider}",
+      "opening": "Opening {provider}…"
+    },
+    "requirements": {
+      "instagram": {
+        "0": "An Instagram Professional account (Business or Creator). Personal accounts cannot publish through Instagram's API.",
+        "1": "The sign-in details for that Instagram account."
+      },
+      "meta": {
+        "0": "A Facebook account with an Admin or Editor role on the Page you want to publish to.",
+        "1": "Tick every Page in Facebook's dialog, then pick the Page for this brand back in Markaestro."
+      },
+      "threads": {
+        "0": "A Threads profile you can sign in to. Threads uses its own login, separate from Instagram."
+      },
+      "tiktok": {
+        "0": "A TikTok account you can sign in to.",
+        "1": "Posts are delivered to your TikTok inbox and finished in the TikTok app."
+      },
+      "pinterest": {
+        "0": "A Pinterest business account with at least one board.",
+        "1": "After connecting, choose which board this brand pins to."
+      },
+      "linkedin_profile": {
+        "0": "A LinkedIn account. Posts publish as you, on your personal profile."
+      },
+      "linkedin_community": {
+        "0": "A LinkedIn account with an Admin role on the company Page you want to publish to."
+      }
+    },
+    "features": {
+      "profile": "Account identity",
+      "publish": "Publishing",
+      "insights": "Analytics",
+      "delete": "Post management",
+      "pages": "Facebook Pages",
+      "boards": "Boards",
+      "library": "Post history"
+    },
+    "permissions": {
+      "instagram_business_basic": {
+        "title": "Basic account info",
+        "description": "Reads your Instagram username and account ID so Markaestro can show which account is linked and address posts to it."
+      },
+      "instagram_business_content_publish": {
+        "title": "Publish content",
+        "description": "Publishes the photos, videos and carousels you schedule in Markaestro to this Instagram account."
+      },
+      "instagram_business_manage_insights": {
+        "title": "Read insights",
+        "description": "Reads reach, likes, comments, saves and follower counts to build the Analytics page."
+      },
+      "pages_show_list": {
+        "title": "List your Pages",
+        "description": "Lists the Facebook Pages you manage so you can choose which one this brand posts to."
+      },
+      "pages_read_engagement": {
+        "title": "Read Page engagement",
+        "description": "Reads the Page's name, follower count and post engagement for Analytics."
+      },
+      "pages_manage_posts": {
+        "title": "Publish to the Page",
+        "description": "Creates the posts you schedule in Markaestro on the selected Facebook Page."
+      },
+      "read_insights": {
+        "title": "Read Page insights",
+        "description": "Reads reach and engagement insights for the Page and its posts."
+      },
+      "pages_read_user_content": {
+        "title": "Read Page content",
+        "description": "Reads posts and comments on the Page for the post history view."
+      },
+      "threads_basic": {
+        "title": "Basic profile",
+        "description": "Reads your Threads username and profile picture so Markaestro can show which account is linked."
+      },
+      "threads_content_publish": {
+        "title": "Publish posts",
+        "description": "Publishes the text, image and video posts you schedule in Markaestro to Threads."
+      },
+      "threads_delete": {
+        "title": "Delete posts",
+        "description": "Deletes a Threads post when you remove it from the On Platform tab in Markaestro."
+      },
+      "threads_manage_insights": {
+        "title": "Read insights",
+        "description": "Reads views, likes, replies and follower counts for Analytics."
+      },
+      "user_info_basic": {
+        "title": "Basic account info",
+        "description": "Reads your TikTok display name and avatar so Markaestro can show which account is linked."
+      },
+      "user_info_profile": {
+        "title": "Profile details",
+        "description": "Reads your username, bio and profile link for the connected-account view."
+      },
+      "video_publish": {
+        "title": "Publish videos",
+        "description": "Sends the videos you schedule in Markaestro to your TikTok account."
+      },
+      "video_upload": {
+        "title": "Upload videos",
+        "description": "Uploads video files to TikTok so they can be published."
+      },
+      "video_list": {
+        "title": "List your videos",
+        "description": "Lists your published TikTok videos for the On Platform tab and post metrics."
+      },
+      "user_info_stats": {
+        "title": "Account statistics",
+        "description": "Reads follower, like and video counts for Analytics."
+      },
+      "user_accounts_read": {
+        "title": "Account details",
+        "description": "Reads your Pinterest username and profile so Markaestro can show which account is linked."
+      },
+      "boards_read": {
+        "title": "Read boards",
+        "description": "Lists your boards so you can choose which one this brand pins to."
+      },
+      "boards_write": {
+        "title": "Manage boards",
+        "description": "Required by Pinterest to create a Pin, even on an existing board."
+      },
+      "boards_read_secret": {
+        "title": "Read secret boards",
+        "description": "Includes your secret boards in the board picker."
+      },
+      "boards_write_secret": {
+        "title": "Pin to secret boards",
+        "description": "Lets this brand pin to a secret board."
+      },
+      "pins_read": {
+        "title": "Read Pins",
+        "description": "Reads your Pins for the post history view."
+      },
+      "pins_write": {
+        "title": "Create Pins",
+        "description": "Creates the Pins you schedule in Markaestro."
+      },
+      "pins_read_secret": {
+        "title": "Read secret Pins",
+        "description": "Reads Pins on secret boards for the post history view."
+      },
+      "pins_write_secret": {
+        "title": "Create secret Pins",
+        "description": "Creates Pins on secret boards."
+      },
+      "openid": {
+        "title": "Sign in with LinkedIn",
+        "description": "Confirms which LinkedIn member is connecting."
+      },
+      "profile": {
+        "title": "Basic profile",
+        "description": "Reads your name and photo so Markaestro can show which profile is linked."
+      },
+      "w_member_social": {
+        "title": "Post on your behalf",
+        "description": "Publishes the posts you schedule in Markaestro to your LinkedIn profile."
+      },
+      "r_member_postAnalytics": {
+        "title": "Read post analytics",
+        "description": "Reads impressions and engagement on your posts for Analytics."
+      },
+      "r_member_profileAnalytics": {
+        "title": "Read profile analytics",
+        "description": "Reads follower and profile-view counts for Analytics."
+      },
+      "r_basicprofile": {
+        "title": "Basic profile",
+        "description": "Reads your name and photo so Markaestro can show who authorized the Pages."
+      },
+      "w_organization_social": {
+        "title": "Post as the Page",
+        "description": "Publishes the posts you schedule in Markaestro to the company Page."
+      },
+      "r_organization_social": {
+        "title": "Read Page posts",
+        "description": "Reads the Page's posts for the post history view."
+      },
+      "rw_organization_admin": {
+        "title": "List Pages you administer",
+        "description": "Lists the company Pages you administer so you can choose which one this brand posts to."
+      }
+    },
+    "outcome": {
+      "successTitle": "{provider} connected",
+      "successBody": "{account} is now linked to {brand}.",
+      "successBodyNoAccount": "The account is now linked to {brand}.",
+      "successBodyNoBrand": "{account} is now linked.",
+      "successBodyPlain": "The account is now linked.",
+      "grantedTitle": "Permissions granted",
+      "requestedTitle": "Permissions requested",
+      "nextTitle": "What you can do now",
+      "createPost": "Create a post",
+      "viewAnalytics": "View analytics",
+      "postHistory": "See posts on platform",
+      "needsPageTitle": "One more step: choose a Facebook Page",
+      "needsPageBody": "Facebook access is granted. Now pick which Page this brand posts to.",
+      "choosePages": "Choose Pages",
+      "needsBoardTitle": "One more step: choose a board",
+      "needsBoardBody": "Pinterest access is granted. Now pick which board this brand pins to.",
+      "errorTitle": "{provider} was not connected",
+      "reasons": {
+        "access_denied": "You did not approve the permissions on {provider}, so nothing was linked. Start again and choose Allow to connect.",
+        "channel_limit": "This brand has reached the number of channels your plan allows. Unlink a channel or upgrade, then try again.",
+        "connection_failed": "{provider} did not complete the connection. Nothing was linked. Try again, and if it keeps failing check the requirements in the connection guide."
+      },
+      "providerSaid": "{provider} said: {message}",
+      "tryAgain": "Try again",
+      "dismiss": "Dismiss",
+      "chooseBoard": "Choose board"
+    },
+    "hints": {
+      "connect": "Opens {provider}'s sign-in page so you can approve access for this brand.",
+      "reconnect": "Runs {provider}'s sign-in again to refresh access. Linked accounts stay linked.",
+      "disconnect": "Removes this account from the brand and deletes the access token Markaestro stored.",
+      "test": "Sends one read-only request to {provider} to confirm the link still works.",
+      "choosePages": "Loads the Pages Facebook granted so you can pick which ones this brand posts to."
+    }
   }
 }

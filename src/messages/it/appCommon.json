@@ -128,5 +128,275 @@
     },
     "facebookInstagramAd": "Annuncio Facebook / Instagram",
     "tiktokAd": "Annuncio TikTok"
+  },
+  "connectChannel": {
+    "providerNames": {
+      "meta": "Facebook",
+      "instagram": "Instagram",
+      "threads": "Threads",
+      "tiktok": "TikTok",
+      "pinterest": "Pinterest",
+      "linkedin": "LinkedIn",
+      "linkedin_profile": "LinkedIn",
+      "linkedin_community": "LinkedIn"
+    },
+    "hosts": {
+      "meta": "facebook.com",
+      "instagram": "instagram.com",
+      "threads": "threads.net",
+      "tiktok": "tiktok.com",
+      "pinterest": "pinterest.com",
+      "linkedin_profile": "linkedin.com",
+      "linkedin_community": "linkedin.com"
+    },
+    "dialog": {
+      "title": "Connetti {provider}",
+      "reconnectTitle": "Riconnetti {provider}",
+      "forBrand": "per {brand}",
+      "intro": "Ecco esattamente cosa succede dopo e cosa chiederà Markaestro a {provider}.",
+      "stepsTitle": "Come funziona",
+      "steps": {
+        "0": {
+          "title": "Accedi su {host}",
+          "detail": "Verrai reindirizzato alla pagina di accesso di {provider}. Markaestro non vede mai la tua password."
+        },
+        "1": {
+          "title": "Rivedi e approva le autorizzazioni",
+          "detail": "{provider} elenca le autorizzazioni qui sotto e ti chiede di consentirle. Approvale tutte affinché la pubblicazione e le analisi funzionino."
+        },
+        "2": {
+          "title": "Torna a Markaestro",
+          "detail": "Verrai riportato qui automaticamente e l'account risulterà Collegato."
+        }
+      },
+      "metaStepDetail": "Facebook ti chiede quali pagine Markaestro può gestire. Seleziona ogni pagina su cui potresti pubblicare; una pagina non selezionata perde l'accesso.",
+      "permissionsTitle": "Autorizzazioni che Markaestro richiederà",
+      "permissionsHint": "Ogni autorizzazione viene usata solo per la funzione mostrata accanto ad essa.",
+      "usedFor": "Usato per {feature}",
+      "requirementsTitle": "Prima di iniziare",
+      "reconnectNote": "La riconnessione aggiorna l'accesso. Gli account già collegati a questo brand restano collegati.",
+      "privacyNote": "Puoi disconnetterti in qualsiasi momento da questa schermata. Markaestro eliminerà quindi il token di accesso che aveva memorizzato.",
+      "learnMore": "Leggi la guida completa alla connessione",
+      "cancel": "Annulla",
+      "continue": "Continua verso {provider}",
+      "opening": "Apertura di {provider}…"
+    },
+    "requirements": {
+      "instagram": {
+        "0": "Un account Instagram professionale (Aziendale o Creator). Gli account personali non possono pubblicare tramite l'API di Instagram.",
+        "1": "I dati di accesso di quell'account Instagram."
+      },
+      "meta": {
+        "0": "Un account Facebook con un ruolo di Amministratore o Editor sulla pagina su cui vuoi pubblicare.",
+        "1": "Seleziona ogni pagina nella finestra di dialogo di Facebook, poi scegli la pagina per questo brand di nuovo in Markaestro."
+      },
+      "threads": {
+        "0": "Un profilo Threads a cui puoi accedere. Threads usa un proprio login, separato da Instagram."
+      },
+      "tiktok": {
+        "0": "Un account TikTok a cui puoi accedere.",
+        "1": "I post vengono recapitati nella tua casella TikTok e completati nell'app TikTok."
+      },
+      "pinterest": {
+        "0": "Un account aziendale Pinterest con almeno una bacheca.",
+        "1": "Dopo la connessione, scegli su quale bacheca questo brand pubblica i Pin."
+      },
+      "linkedin_profile": {
+        "0": "Un account LinkedIn. I post vengono pubblicati a tuo nome, sul tuo profilo personale."
+      },
+      "linkedin_community": {
+        "0": "Un account LinkedIn con un ruolo di Amministratore sulla pagina aziendale su cui vuoi pubblicare."
+      }
+    },
+    "features": {
+      "profile": "Identità dell'account",
+      "publish": "Pubblicazione",
+      "insights": "Analisi",
+      "delete": "Gestione dei post",
+      "pages": "Pagine Facebook",
+      "boards": "Bacheche",
+      "library": "Cronologia post"
+    },
+    "permissions": {
+      "instagram_business_basic": {
+        "title": "Informazioni account di base",
+        "description": "Legge il tuo nome utente Instagram e l'ID account in modo che Markaestro possa mostrare quale account è collegato e indirizzargli i post."
+      },
+      "instagram_business_content_publish": {
+        "title": "Pubblica contenuti",
+        "description": "Pubblica le foto, i video e i caroselli che programmi in Markaestro su questo account Instagram."
+      },
+      "instagram_business_manage_insights": {
+        "title": "Leggi le statistiche",
+        "description": "Legge copertura, mi piace, commenti, salvataggi e numero di follower per creare la pagina Analisi."
+      },
+      "pages_show_list": {
+        "title": "Elenca le tue pagine",
+        "description": "Elenca le pagine Facebook che gestisci in modo da poter scegliere su quale pubblica questo brand."
+      },
+      "pages_read_engagement": {
+        "title": "Leggi il coinvolgimento della pagina",
+        "description": "Legge il nome della pagina, il numero di follower e il coinvolgimento dei post per Analisi."
+      },
+      "pages_manage_posts": {
+        "title": "Pubblica sulla pagina",
+        "description": "Crea i post che programmi in Markaestro sulla pagina Facebook selezionata."
+      },
+      "read_insights": {
+        "title": "Leggi le statistiche della pagina",
+        "description": "Legge le statistiche di copertura e coinvolgimento della pagina e dei suoi post."
+      },
+      "pages_read_user_content": {
+        "title": "Leggi i contenuti della pagina",
+        "description": "Legge i post e i commenti sulla pagina per la vista della cronologia post."
+      },
+      "threads_basic": {
+        "title": "Profilo di base",
+        "description": "Legge il tuo nome utente e la tua immagine del profilo Threads in modo che Markaestro possa mostrare quale account è collegato."
+      },
+      "threads_content_publish": {
+        "title": "Pubblica post",
+        "description": "Pubblica i post di testo, immagine e video che programmi in Markaestro su Threads."
+      },
+      "threads_delete": {
+        "title": "Elimina post",
+        "description": "Elimina un post di Threads quando lo rimuovi dalla scheda Sulla piattaforma in Markaestro."
+      },
+      "threads_manage_insights": {
+        "title": "Leggi le statistiche",
+        "description": "Legge visualizzazioni, mi piace, risposte e numero di follower per Analisi."
+      },
+      "user_info_basic": {
+        "title": "Informazioni account di base",
+        "description": "Legge il tuo nome visualizzato e l'avatar TikTok in modo che Markaestro possa mostrare quale account è collegato."
+      },
+      "user_info_profile": {
+        "title": "Dettagli del profilo",
+        "description": "Legge il tuo nome utente, la biografia e il link del profilo per la vista dell'account connesso."
+      },
+      "video_publish": {
+        "title": "Pubblica video",
+        "description": "Invia i video che programmi in Markaestro al tuo account TikTok."
+      },
+      "video_upload": {
+        "title": "Carica video",
+        "description": "Carica i file video su TikTok in modo che possano essere pubblicati."
+      },
+      "video_list": {
+        "title": "Elenca i tuoi video",
+        "description": "Elenca i tuoi video TikTok pubblicati per la scheda Sulla piattaforma e le metriche dei post."
+      },
+      "user_info_stats": {
+        "title": "Statistiche dell'account",
+        "description": "Legge il numero di follower, mi piace e video per Analisi."
+      },
+      "user_accounts_read": {
+        "title": "Dettagli dell'account",
+        "description": "Legge il tuo nome utente e profilo Pinterest in modo che Markaestro possa mostrare quale account è collegato."
+      },
+      "boards_read": {
+        "title": "Leggi le bacheche",
+        "description": "Elenca le tue bacheche in modo da poter scegliere su quale pubblica i Pin questo brand."
+      },
+      "boards_write": {
+        "title": "Gestisci le bacheche",
+        "description": "Richiesto da Pinterest per creare un Pin, anche su una bacheca esistente."
+      },
+      "boards_read_secret": {
+        "title": "Leggi le bacheche segrete",
+        "description": "Include le tue bacheche segrete nel selettore delle bacheche."
+      },
+      "boards_write_secret": {
+        "title": "Pubblica Pin su bacheche segrete",
+        "description": "Consente a questo brand di pubblicare Pin su una bacheca segreta."
+      },
+      "pins_read": {
+        "title": "Leggi i Pin",
+        "description": "Legge i tuoi Pin per la vista della cronologia post."
+      },
+      "pins_write": {
+        "title": "Crea Pin",
+        "description": "Crea i Pin che programmi in Markaestro."
+      },
+      "pins_read_secret": {
+        "title": "Leggi i Pin segreti",
+        "description": "Legge i Pin sulle bacheche segrete per la vista della cronologia post."
+      },
+      "pins_write_secret": {
+        "title": "Crea Pin segreti",
+        "description": "Crea Pin sulle bacheche segrete."
+      },
+      "openid": {
+        "title": "Accedi con LinkedIn",
+        "description": "Conferma quale membro LinkedIn si sta connettendo."
+      },
+      "profile": {
+        "title": "Profilo di base",
+        "description": "Legge il tuo nome e la tua foto in modo che Markaestro possa mostrare quale profilo è collegato."
+      },
+      "w_member_social": {
+        "title": "Pubblica per tuo conto",
+        "description": "Pubblica i post che programmi in Markaestro sul tuo profilo LinkedIn."
+      },
+      "r_member_postAnalytics": {
+        "title": "Leggi le analisi dei post",
+        "description": "Legge le impression e il coinvolgimento dei tuoi post per Analisi."
+      },
+      "r_member_profileAnalytics": {
+        "title": "Leggi le analisi del profilo",
+        "description": "Legge il numero di follower e le visualizzazioni del profilo per Analisi."
+      },
+      "r_basicprofile": {
+        "title": "Profilo di base",
+        "description": "Legge il tuo nome e la tua foto in modo che Markaestro possa mostrare chi ha autorizzato le pagine."
+      },
+      "w_organization_social": {
+        "title": "Pubblica come la pagina",
+        "description": "Pubblica i post che programmi in Markaestro sulla pagina aziendale."
+      },
+      "r_organization_social": {
+        "title": "Leggi i post della pagina",
+        "description": "Legge i post della pagina per la vista della cronologia post."
+      },
+      "rw_organization_admin": {
+        "title": "Elenca le pagine che amministri",
+        "description": "Elenca le pagine aziendali che amministri in modo da poter scegliere su quale pubblica questo brand."
+      }
+    },
+    "outcome": {
+      "successTitle": "{provider} connesso",
+      "successBody": "{account} è ora collegato a {brand}.",
+      "successBodyNoAccount": "L'account è ora collegato a {brand}.",
+      "successBodyNoBrand": "{account} è ora collegato.",
+      "successBodyPlain": "L'account è ora collegato.",
+      "grantedTitle": "Autorizzazioni concesse",
+      "requestedTitle": "Autorizzazioni richieste",
+      "nextTitle": "Cosa puoi fare ora",
+      "createPost": "Crea un post",
+      "viewAnalytics": "Visualizza le analisi",
+      "postHistory": "Vedi i post sulla piattaforma",
+      "needsPageTitle": "Un altro passaggio: scegli una pagina Facebook",
+      "needsPageBody": "L'accesso a Facebook è stato concesso. Ora scegli su quale pagina pubblica questo brand.",
+      "choosePages": "Scegli le pagine",
+      "needsBoardTitle": "Un altro passaggio: scegli una bacheca",
+      "needsBoardBody": "L'accesso a Pinterest è stato concesso. Ora scegli su quale bacheca pubblica i Pin questo brand.",
+      "errorTitle": "{provider} non è stato connesso",
+      "reasons": {
+        "access_denied": "Non hai approvato le autorizzazioni su {provider}, quindi non è stato collegato nulla. Ricomincia e scegli Consenti per connetterti.",
+        "channel_limit": "Questo brand ha raggiunto il numero di canali consentiti dal tuo piano. Scollega un canale o esegui l'upgrade, poi riprova.",
+        "connection_failed": "{provider} non ha completato la connessione. Non è stato collegato nulla. Riprova e, se continua a fallire, controlla i requisiti nella guida alla connessione."
+      },
+      "providerSaid": "{provider} ha detto: {message}",
+      "tryAgain": "Riprova",
+      "dismiss": "Ignora",
+      "chooseBoard": "Scegli bacheca"
+    },
+    "hints": {
+      "connect": "Apre la pagina di accesso di {provider} in modo da poter approvare l'accesso per questo brand.",
+      "reconnect": "Esegue di nuovo l'accesso a {provider} per aggiornare l'accesso. Gli account collegati restano collegati.",
+      "disconnect": "Rimuove questo account dal brand ed elimina il token di accesso memorizzato da Markaestro.",
+      "test": "Invia una richiesta di sola lettura a {provider} per confermare che il collegamento funziona ancora.",
+      "choosePages": "Carica le pagine concesse da Facebook in modo da poter scegliere su quali pubblica questo brand."
+    }
   }
 }

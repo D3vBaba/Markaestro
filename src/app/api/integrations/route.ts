@@ -10,6 +10,7 @@ import {
   LINKEDIN_PUBLIC_PROVIDER,
 } from '@/lib/platform/linkedin-providers';
 import { pickRepresentativeConnection } from '@/lib/integrations/channel-status';
+import { parseGrantedScopes } from '@/lib/oauth/permission-catalog';
 
 export const runtime = 'nodejs';
 
@@ -29,6 +30,9 @@ function maskAccount(conn: PlatformConnection, scope: 'workspace' | 'product') {
     productId: conn.productId ?? null,
     tokenExpiresAt: conn.tokenExpiresAt ?? null,
     lastRefreshError: conn.metadata.lastRefreshError ?? null,
+    // Scopes the platform reported on the grant, so the UI can say which
+    // permissions this account actually gave (Meta's exchange omits them).
+    grantedScopes: parseGrantedScopes(conn.metadata.oauthScopes),
     pageId: conn.metadata.pageId ?? null,
     pageName: conn.metadata.pageName ?? null,
     boardId: conn.metadata.boardId ?? null,
@@ -64,6 +68,7 @@ function maskConnection(
     openId: conn.metadata.openId ?? null,
     username: conn.metadata.username ?? null,
     lastRefreshError: conn.metadata.lastRefreshError ?? null,
+    grantedScopes: parseGrantedScopes(conn.metadata.oauthScopes),
     boardId: conn.metadata.boardId ?? null,
     boardName: conn.metadata.boardName ?? null,
     boardSelectionRequired: conn.metadata.boardSelectionRequired ?? false,
@@ -125,6 +130,7 @@ function maskLinkedInConnectionBundle(
     tokenExpiresAt: statusSource?.tokenExpiresAt ?? null,
     username: firstString(profileMetadata.username, communityMetadata.username),
     lastRefreshError: firstString(profile?.metadata.lastRefreshError, community?.metadata.lastRefreshError, legacy?.metadata.lastRefreshError),
+    grantedScopes: [...new Set([profile, community, legacy].flatMap((conn) => parseGrantedScopes(conn?.metadata.oauthScopes)))],
     linkedinProfileConnected: profile?.status === 'connected' || (!!legacy && legacy.status === 'connected' && !!legacy.metadata.linkedinProfileId),
     linkedinCommunityConnected: community?.status === 'connected' || (!!legacy && legacy.status === 'connected' && Array.isArray(legacy.metadata.linkedinPages) && legacy.metadata.linkedinPages.length > 0),
     linkedinProfileStatus: profile?.status ?? null,

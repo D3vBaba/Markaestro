@@ -19,6 +19,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import PageHeader from "@/components/app/PageHeader";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
+import ConnectChannelDialog, { type ConnectDialogRequest } from "@/components/app/ConnectChannelDialog";
+import ConnectionOutcomeCard, { readConnectOutcome, type ConnectOutcome } from "@/components/app/ConnectionOutcomeCard";
 import MediaLibrary from "@/components/app/MediaLibrary";
 import AppLocaleSwitcher from "@/components/app/AppLocaleSwitcher";
 import { apiDelete, apiGet, apiPost, apiPut, apiFetch, getApiWorkspaceId, DESTRUCTIVE_REQUEST_TIMEOUT_MS } from "@/lib/api-client";
@@ -880,6 +882,8 @@ type ConnEntry = {
   linkedinCommunityConnected?: boolean;
   pageSelectionRequired?: boolean;
   needsPageSelection?: boolean;
+  /** Scopes the platform reported on the grant, when it reported any. */
+  grantedScopes?: string[] | null;
 };
 
 type MetaPage = { id: string; name: string; hasInstagram: boolean; igAccountId: string | null; accountId?: string | null; accountLabel?: string | null };
@@ -997,33 +1001,23 @@ function IntegrationsTab() {
   const [pagesError, setPagesError] = useState("");
   const [selectingPage, setSelectingPage] = useState<string | null>(null);
 
-  function providerDisplayName(provider: string): string {
-    if (provider === "meta") return "Meta";
-    if (provider === "linkedin") return "LinkedIn";
-    return provider;
-  }
+  // Connect / Reconnect open the explainer dialog first; Continue navigates.
+  const [connectRequest, setConnectRequest] = useState<(ConnectDialogRequest & { productId: string }) | null>(null);
+  // What the OAuth callback reported, shown as a persistent panel rather than
+  // a toast, on the brand it belongs to.
+  const [connectOutcome, setConnectOutcome] = useState<{ outcome: ConnectOutcome; productId: string | null } | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const oauth = params.get("oauth");
-    const provider = params.get("provider");
+    const outcome = readConnectOutcome(params);
+    if (!outcome) return;
     const productId = params.get("productId");
-    const needsPageSelect = params.get("needsPageSelect");
-
-    if (oauth === "success" && provider) {
-      toast.success(t("toasts.connected", { provider: providerDisplayName(provider) }));
-      window.history.replaceState({}, "", "/settings?tab=integrations");
+    deferFromEffect(() => setConnectOutcome({ outcome, productId }));
+    window.history.replaceState({}, "", "/settings?tab=integrations");
+    if (outcome.result === "success") {
       const timer = setTimeout(() => invalidateQueries("/api/integrations"), 500);
-      if (needsPageSelect === "1" && provider === "meta" && productId) {
-        deferFromEffect(() => setPagePickerProduct(productId));
-      }
       return () => clearTimeout(timer);
     }
-    if (oauth === "error" && provider) {
-      toast.error(t("toasts.connectFailed", { provider: providerDisplayName(provider) }));
-      window.history.replaceState({}, "", "/settings?tab=integrations");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load the user's Facebook Pages when the picker opens.
@@ -1050,7 +1044,16 @@ function IntegrationsTab() {
     return () => { cancelled = true; };
   }, [pagePickerProduct, wsId, t]);
 
-  function connect(provider: string, productId: string, linkedinMode?: "profile" | "community") {
+  function connect(
+    provider: string,
+    productId: string,
+    linkedinMode?: "profile" | "community",
+    mode: "connect" | "reconnect" = "connect",
+  ) {
+    setConnectRequest({ provider, productId, linkedinMode, mode });
+  }
+
+  function launchConnect(provider: string, productId: string, linkedinMode?: "profile" | "community") {
     const qs = new URLSearchParams({
       workspaceId: getApiWorkspaceId(),
       productId,
@@ -1188,6 +1191,24 @@ function IntegrationsTab() {
             <CardTitle>{product.name}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2.5">
+            {connectOutcome && (connectOutcome.productId ?? product.id) === product.id && (() => {
+              const entry = (connsByProduct[product.id] || []).find((c) => c.provider === connectOutcome.outcome.provider);
+              const account = entry?.username
+                ? `@${entry.username}`
+                : entry?.pageName || entry?.boardName || entry?.linkedinDestinationName || null;
+              return (
+                <ConnectionOutcomeCard
+                  outcome={connectOutcome.outcome}
+                  brandName={product.name}
+                  account={account}
+                  grantedScopes={entry?.grantedScopes}
+                  onDismiss={() => setConnectOutcome(null)}
+                  onTryAgain={() => connect(connectOutcome.outcome.provider, product.id, connectOutcome.outcome.linkedinMode ?? undefined)}
+                  onChoosePages={() => setPagePickerProduct(product.id)}
+                  className="mb-1"
+                />
+              );
+            })()}
             {PRODUCT_CHANNELS.map((ch) => {
               const st = channelStatus(product.id, ch.provider);
               const isBusy = busy === `${product.id}:${ch.provider}`;
@@ -1222,7 +1243,7 @@ function IntegrationsTab() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => connect(ch.provider, product.id)}
+                          onClick={() => connect(ch.provider, product.id, undefined, "reconnect")}
                         >
                           {ch.provider === "meta" ? t("reconnectAddAccount") : t("reconnect")}
                         </Button>
@@ -1336,6 +1357,16 @@ function IntegrationsTab() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConnectChannelDialog
+        request={connectRequest}
+        brandName={connectRequest ? products.find((p) => p.id === connectRequest.productId)?.name ?? null : null}
+        onOpenChange={(open) => { if (!open) setConnectRequest(null); }}
+        onContinue={(request) => {
+          if (!connectRequest) return;
+          launchConnect(request.provider, connectRequest.productId, request.linkedinMode);
+        }}
+      />
 
       <ConfirmDeleteDialog
         open={!!disconnectTarget}

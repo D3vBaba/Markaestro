@@ -128,5 +128,275 @@
     },
     "facebookInstagramAd": "إعلان فيسبوك / إنستغرام",
     "tiktokAd": "إعلان TikTok"
+  },
+  "connectChannel": {
+    "providerNames": {
+      "meta": "Facebook",
+      "instagram": "Instagram",
+      "threads": "Threads",
+      "tiktok": "TikTok",
+      "pinterest": "Pinterest",
+      "linkedin": "LinkedIn",
+      "linkedin_profile": "LinkedIn",
+      "linkedin_community": "LinkedIn"
+    },
+    "hosts": {
+      "meta": "facebook.com",
+      "instagram": "instagram.com",
+      "threads": "threads.net",
+      "tiktok": "tiktok.com",
+      "pinterest": "pinterest.com",
+      "linkedin_profile": "linkedin.com",
+      "linkedin_community": "linkedin.com"
+    },
+    "dialog": {
+      "title": "الاتصال بـ {provider}",
+      "reconnectTitle": "إعادة الاتصال بـ {provider}",
+      "forBrand": "لـ {brand}",
+      "intro": "إليك بالضبط ما سيحدث بعد ذلك، وما الذي سيطلبه Markaestro من {provider}.",
+      "stepsTitle": "كيف تعمل هذه العملية",
+      "steps": {
+        "0": {
+          "title": "سجّل الدخول على {host}",
+          "detail": "سيتم نقلك إلى صفحة تسجيل الدخول الخاصة بـ {provider}. لا يرى Markaestro كلمة مرورك أبدًا."
+        },
+        "1": {
+          "title": "راجع الأذونات ووافق عليها",
+          "detail": "يعرض {provider} الأذونات أدناه ويطلب منك السماح بها. وافق عليها جميعًا حتى يعمل النشر والتحليلات معًا."
+        },
+        "2": {
+          "title": "عد إلى Markaestro",
+          "detail": "سيتم إعادتك إلى هنا تلقائيًا، وسيظهر الحساب بحالة \"مرتبط\"."
+        }
+      },
+      "metaStepDetail": "يسأل فيسبوك عن الصفحات التي يجوز لـ Markaestro إدارتها. حدد كل صفحة قد تنشر عليها؛ الصفحة التي تتركها غير محددة تفقد الوصول.",
+      "permissionsTitle": "الأذونات التي سيطلبها Markaestro",
+      "permissionsHint": "يُستخدم كل إذن فقط للميزة الموضحة بجانبه.",
+      "usedFor": "يُستخدم لـ {feature}",
+      "requirementsTitle": "قبل أن تبدأ",
+      "reconnectNote": "تؤدي إعادة الاتصال إلى تحديث الوصول. تبقى الحسابات المرتبطة بهذه العلامة التجارية بالفعل مرتبطة.",
+      "privacyNote": "يمكنك قطع الاتصال في أي وقت من هذه الشاشة. عندئذٍ يحذف Markaestro رمز الوصول الذي خزّنه.",
+      "learnMore": "اقرأ دليل الاتصال الكامل",
+      "cancel": "إلغاء",
+      "continue": "المتابعة إلى {provider}",
+      "opening": "جارٍ فتح {provider}…"
+    },
+    "requirements": {
+      "instagram": {
+        "0": "حساب Instagram احترافي (أعمال أو منشئ محتوى). لا يمكن للحسابات الشخصية النشر عبر واجهة برمجة تطبيقات Instagram.",
+        "1": "بيانات تسجيل الدخول لهذا الحساب على Instagram."
+      },
+      "meta": {
+        "0": "حساب فيسبوك بدور مسؤول أو محرر على الصفحة التي تريد النشر عليها.",
+        "1": "حدد كل صفحة في مربع حوار فيسبوك، ثم اختر الصفحة الخاصة بهذه العلامة التجارية داخل Markaestro."
+      },
+      "threads": {
+        "0": "ملف شخصي على Threads يمكنك تسجيل الدخول إليه. يستخدم Threads تسجيل دخول خاصًا به، منفصلاً عن Instagram."
+      },
+      "tiktok": {
+        "0": "حساب TikTok يمكنك تسجيل الدخول إليه.",
+        "1": "تُسلَّم المنشورات إلى صندوق وارد TikTok الخاص بك وتُستكمل داخل تطبيق TikTok."
+      },
+      "pinterest": {
+        "0": "حساب أعمال على Pinterest يحتوي على لوحة واحدة على الأقل.",
+        "1": "بعد الاتصال، اختر اللوحة التي تثبّت عليها هذه العلامة التجارية."
+      },
+      "linkedin_profile": {
+        "0": "حساب LinkedIn. تُنشر المنشورات باسمك، على ملفك الشخصي."
+      },
+      "linkedin_community": {
+        "0": "حساب LinkedIn بدور مسؤول على صفحة الشركة التي تريد النشر عليها."
+      }
+    },
+    "features": {
+      "profile": "هوية الحساب",
+      "publish": "النشر",
+      "insights": "التحليلات",
+      "delete": "إدارة المنشورات",
+      "pages": "صفحات فيسبوك",
+      "boards": "اللوحات",
+      "library": "سجل المنشورات"
+    },
+    "permissions": {
+      "instagram_business_basic": {
+        "title": "معلومات الحساب الأساسية",
+        "description": "يقرأ اسم مستخدم Instagram ومعرّف الحساب لكي يتمكن Markaestro من إظهار الحساب المرتبط وتوجيه المنشورات إليه."
+      },
+      "instagram_business_content_publish": {
+        "title": "نشر المحتوى",
+        "description": "ينشر الصور والفيديوهات والمنشورات الدائرية التي تجدولها في Markaestro على حساب Instagram هذا."
+      },
+      "instagram_business_manage_insights": {
+        "title": "قراءة الإحصاءات",
+        "description": "يقرأ الوصول والإعجابات والتعليقات وعمليات الحفظ وأعداد المتابعين لبناء صفحة التحليلات."
+      },
+      "pages_show_list": {
+        "title": "سرد صفحاتك",
+        "description": "يسرد صفحات فيسبوك التي تديرها لكي تختار الصفحة التي تنشر عليها هذه العلامة التجارية."
+      },
+      "pages_read_engagement": {
+        "title": "قراءة تفاعل الصفحة",
+        "description": "يقرأ اسم الصفحة وعدد المتابعين وتفاعل المنشورات لأغراض التحليلات."
+      },
+      "pages_manage_posts": {
+        "title": "النشر على الصفحة",
+        "description": "ينشئ المنشورات التي تجدولها في Markaestro على صفحة فيسبوك المحددة."
+      },
+      "read_insights": {
+        "title": "قراءة إحصاءات الصفحة",
+        "description": "يقرأ إحصاءات الوصول والتفاعل للصفحة ومنشوراتها."
+      },
+      "pages_read_user_content": {
+        "title": "قراءة محتوى الصفحة",
+        "description": "يقرأ المنشورات والتعليقات على الصفحة لعرض سجل المنشورات."
+      },
+      "threads_basic": {
+        "title": "الملف الشخصي الأساسي",
+        "description": "يقرأ اسم مستخدم Threads وصورة الملف الشخصي لكي يتمكن Markaestro من إظهار الحساب المرتبط."
+      },
+      "threads_content_publish": {
+        "title": "نشر المنشورات",
+        "description": "ينشر منشورات النصوص والصور والفيديو التي تجدولها في Markaestro على Threads."
+      },
+      "threads_delete": {
+        "title": "حذف المنشورات",
+        "description": "يحذف منشور Threads عند إزالته من علامة التبويب \"على المنصة\" في Markaestro."
+      },
+      "threads_manage_insights": {
+        "title": "قراءة الإحصاءات",
+        "description": "يقرأ المشاهدات والإعجابات والردود وأعداد المتابعين لأغراض التحليلات."
+      },
+      "user_info_basic": {
+        "title": "معلومات الحساب الأساسية",
+        "description": "يقرأ اسم العرض والصورة الرمزية على TikTok لكي يتمكن Markaestro من إظهار الحساب المرتبط."
+      },
+      "user_info_profile": {
+        "title": "تفاصيل الملف الشخصي",
+        "description": "يقرأ اسم المستخدم والنبذة التعريفية ورابط الملف الشخصي لعرض الحساب المتصل."
+      },
+      "video_publish": {
+        "title": "نشر الفيديوهات",
+        "description": "يرسل الفيديوهات التي تجدولها في Markaestro إلى حساب TikTok الخاص بك."
+      },
+      "video_upload": {
+        "title": "رفع الفيديوهات",
+        "description": "يرفع ملفات الفيديو إلى TikTok لكي يتم نشرها."
+      },
+      "video_list": {
+        "title": "سرد فيديوهاتك",
+        "description": "يسرد فيديوهات TikTok المنشورة لعلامة التبويب \"على المنصة\" ومقاييس المنشورات."
+      },
+      "user_info_stats": {
+        "title": "إحصاءات الحساب",
+        "description": "يقرأ أعداد المتابعين والإعجابات والفيديوهات لأغراض التحليلات."
+      },
+      "user_accounts_read": {
+        "title": "تفاصيل الحساب",
+        "description": "يقرأ اسم مستخدم Pinterest وملفك الشخصي لكي يتمكن Markaestro من إظهار الحساب المرتبط."
+      },
+      "boards_read": {
+        "title": "قراءة اللوحات",
+        "description": "يسرد لوحاتك لكي تختار اللوحة التي تثبّت عليها هذه العلامة التجارية."
+      },
+      "boards_write": {
+        "title": "إدارة اللوحات",
+        "description": "يطلبه Pinterest لإنشاء دبوس، حتى على لوحة موجودة بالفعل."
+      },
+      "boards_read_secret": {
+        "title": "قراءة اللوحات السرية",
+        "description": "يضمّن لوحاتك السرية في أداة اختيار اللوحة."
+      },
+      "boards_write_secret": {
+        "title": "التثبيت على اللوحات السرية",
+        "description": "يتيح لهذه العلامة التجارية التثبيت على لوحة سرية."
+      },
+      "pins_read": {
+        "title": "قراءة الدبابيس",
+        "description": "يقرأ دبابيسك لعرض سجل المنشورات."
+      },
+      "pins_write": {
+        "title": "إنشاء الدبابيس",
+        "description": "ينشئ الدبابيس التي تجدولها في Markaestro."
+      },
+      "pins_read_secret": {
+        "title": "قراءة الدبابيس السرية",
+        "description": "يقرأ الدبابيس على اللوحات السرية لعرض سجل المنشورات."
+      },
+      "pins_write_secret": {
+        "title": "إنشاء الدبابيس السرية",
+        "description": "ينشئ دبابيس على اللوحات السرية."
+      },
+      "openid": {
+        "title": "تسجيل الدخول عبر LinkedIn",
+        "description": "يؤكد هوية عضو LinkedIn الذي يتصل."
+      },
+      "profile": {
+        "title": "الملف الشخصي الأساسي",
+        "description": "يقرأ اسمك وصورتك لكي يتمكن Markaestro من إظهار الملف الشخصي المرتبط."
+      },
+      "w_member_social": {
+        "title": "النشر نيابةً عنك",
+        "description": "ينشر المنشورات التي تجدولها في Markaestro على ملفك الشخصي في LinkedIn."
+      },
+      "r_member_postAnalytics": {
+        "title": "قراءة تحليلات المنشورات",
+        "description": "يقرأ مرات الظهور والتفاعل على منشوراتك لأغراض التحليلات."
+      },
+      "r_member_profileAnalytics": {
+        "title": "قراءة تحليلات الملف الشخصي",
+        "description": "يقرأ أعداد المتابعين ومشاهدات الملف الشخصي لأغراض التحليلات."
+      },
+      "r_basicprofile": {
+        "title": "الملف الشخصي الأساسي",
+        "description": "يقرأ اسمك وصورتك لكي يتمكن Markaestro من إظهار من قام بتفويض الصفحات."
+      },
+      "w_organization_social": {
+        "title": "النشر باسم الصفحة",
+        "description": "ينشر المنشورات التي تجدولها في Markaestro على صفحة الشركة."
+      },
+      "r_organization_social": {
+        "title": "قراءة منشورات الصفحة",
+        "description": "يقرأ منشورات الصفحة لعرض سجل المنشورات."
+      },
+      "rw_organization_admin": {
+        "title": "سرد الصفحات التي تديرها",
+        "description": "يسرد صفحات الشركة التي تديرها لكي تختار الصفحة التي تنشر عليها هذه العلامة التجارية."
+      }
+    },
+    "outcome": {
+      "successTitle": "تم الاتصال بـ {provider}",
+      "successBody": "أصبح {account} الآن مرتبطًا بـ {brand}.",
+      "successBodyNoAccount": "أصبح الحساب الآن مرتبطًا بـ {brand}.",
+      "successBodyNoBrand": "أصبح {account} الآن مرتبطًا.",
+      "successBodyPlain": "أصبح الحساب الآن مرتبطًا.",
+      "grantedTitle": "تم منح الأذونات",
+      "requestedTitle": "الأذونات المطلوبة",
+      "nextTitle": "ما يمكنك فعله الآن",
+      "createPost": "إنشاء منشور",
+      "viewAnalytics": "عرض التحليلات",
+      "postHistory": "عرض المنشورات على المنصة",
+      "needsPageTitle": "خطوة أخيرة: اختر صفحة فيسبوك",
+      "needsPageBody": "تم منح الوصول إلى فيسبوك. اختر الآن الصفحة التي تنشر عليها هذه العلامة التجارية.",
+      "choosePages": "اختيار صفحات",
+      "needsBoardTitle": "خطوة أخيرة: اختر لوحة",
+      "needsBoardBody": "تم منح الوصول إلى Pinterest. اختر الآن اللوحة التي تثبّت عليها هذه العلامة التجارية.",
+      "errorTitle": "لم يتم الاتصال بـ {provider}",
+      "reasons": {
+        "access_denied": "لم توافق على الأذونات على {provider}، لذا لم يتم ربط أي شيء. ابدأ من جديد واختر السماح للاتصال.",
+        "channel_limit": "بلغت هذه العلامة التجارية عدد القنوات الذي تسمح به خطتك. ألغِ ربط قناة أو قم بالترقية، ثم حاول مرة أخرى.",
+        "connection_failed": "لم يكمل {provider} عملية الاتصال. لم يتم ربط أي شيء. حاول مرة أخرى، وإذا استمر الفشل، تحقق من المتطلبات في دليل الاتصال."
+      },
+      "providerSaid": "قال {provider}: {message}",
+      "tryAgain": "إعادة المحاولة",
+      "dismiss": "تجاهل",
+      "chooseBoard": "اختيار لوحة"
+    },
+    "hints": {
+      "connect": "يفتح صفحة تسجيل الدخول الخاصة بـ {provider} لكي توافق على الوصول لهذه العلامة التجارية.",
+      "reconnect": "يعيد تشغيل تسجيل الدخول إلى {provider} لتحديث الوصول. تبقى الحسابات المرتبطة مرتبطة.",
+      "disconnect": "يزيل هذا الحساب من العلامة التجارية ويحذف رمز الوصول الذي خزّنه Markaestro.",
+      "test": "يرسل طلبًا واحدًا للقراءة فقط إلى {provider} للتأكد من أن الرابط ما زال يعمل.",
+      "choosePages": "يحمّل الصفحات التي منحها فيسبوك لكي تختار الصفحات التي تنشر عليها هذه العلامة التجارية."
+    }
   }
 }

@@ -128,5 +128,275 @@
     },
     "facebookInstagramAd": "Facebook-/Instagram-Anzeige",
     "tiktokAd": "TikTok-Anzeige"
+  },
+  "connectChannel": {
+    "providerNames": {
+      "meta": "Facebook",
+      "instagram": "Instagram",
+      "threads": "Threads",
+      "tiktok": "TikTok",
+      "pinterest": "Pinterest",
+      "linkedin": "LinkedIn",
+      "linkedin_profile": "LinkedIn",
+      "linkedin_community": "LinkedIn"
+    },
+    "hosts": {
+      "meta": "facebook.com",
+      "instagram": "instagram.com",
+      "threads": "threads.net",
+      "tiktok": "tiktok.com",
+      "pinterest": "pinterest.com",
+      "linkedin_profile": "linkedin.com",
+      "linkedin_community": "linkedin.com"
+    },
+    "dialog": {
+      "title": "{provider} verbinden",
+      "reconnectTitle": "{provider} erneut verbinden",
+      "forBrand": "für {brand}",
+      "intro": "Hier siehst du genau, was als Nächstes passiert und wonach Markaestro bei {provider} fragt.",
+      "stepsTitle": "So funktioniert es",
+      "steps": {
+        "0": {
+          "title": "Bei {host} anmelden",
+          "detail": "Du wirst zur eigenen Anmeldeseite von {provider} weitergeleitet. Markaestro sieht dein Passwort nie."
+        },
+        "1": {
+          "title": "Berechtigungen prüfen und genehmigen",
+          "detail": "{provider} listet die unten stehenden Berechtigungen auf und bittet dich, sie zu erlauben. Genehmige alle, damit sowohl das Veröffentlichen als auch Analytics funktionieren."
+        },
+        "2": {
+          "title": "Zurück zu Markaestro",
+          "detail": "Du wirst automatisch hierher zurückgeleitet, und das Konto wird als Verknüpft angezeigt."
+        }
+      },
+      "metaStepDetail": "Facebook fragt, welche Seiten Markaestro verwalten darf. Hake jede Seite an, auf der du eventuell posten möchtest; eine nicht angehakte Seite verliert den Zugriff.",
+      "permissionsTitle": "Berechtigungen, die Markaestro anfordert",
+      "permissionsHint": "Jede Berechtigung wird nur für die daneben angezeigte Funktion verwendet.",
+      "usedFor": "Verwendet für {feature}",
+      "requirementsTitle": "Bevor du startest",
+      "reconnectNote": "Das erneute Verbinden aktualisiert den Zugriff. Bereits mit dieser Marke verknüpfte Konten bleiben verknüpft.",
+      "privacyNote": "Du kannst die Verbindung jederzeit über diesen Bildschirm trennen. Markaestro löscht dann den gespeicherten Zugriffstoken.",
+      "learnMore": "Vollständigen Verbindungsleitfaden lesen",
+      "cancel": "Abbrechen",
+      "continue": "Weiter zu {provider}",
+      "opening": "{provider} wird geöffnet…"
+    },
+    "requirements": {
+      "instagram": {
+        "0": "Ein professionelles Instagram-Konto (Business oder Creator). Private Konten können nicht über die Instagram-API veröffentlichen.",
+        "1": "Die Anmeldedaten für dieses Instagram-Konto."
+      },
+      "meta": {
+        "0": "Ein Facebook-Konto mit der Rolle Admin oder Redakteur auf der Seite, auf der du veröffentlichen möchtest.",
+        "1": "Hake im Facebook-Dialog jede Seite an und wähle dann in Markaestro die Seite für diese Marke aus."
+      },
+      "threads": {
+        "0": "Ein Threads-Profil, bei dem du dich anmelden kannst. Threads verwendet einen eigenen Login, getrennt von Instagram."
+      },
+      "tiktok": {
+        "0": "Ein TikTok-Konto, bei dem du dich anmelden kannst.",
+        "1": "Beiträge werden an deinen TikTok-Posteingang gesendet und in der TikTok-App fertiggestellt."
+      },
+      "pinterest": {
+        "0": "Ein Pinterest-Unternehmenskonto mit mindestens einer Pinnwand.",
+        "1": "Wähle nach dem Verbinden aus, auf welcher Pinnwand diese Marke pinnt."
+      },
+      "linkedin_profile": {
+        "0": "Ein LinkedIn-Konto. Beiträge werden als du auf deinem persönlichen Profil veröffentlicht."
+      },
+      "linkedin_community": {
+        "0": "Ein LinkedIn-Konto mit der Rolle Admin auf der Unternehmensseite, auf der du veröffentlichen möchtest."
+      }
+    },
+    "features": {
+      "profile": "Kontoidentität",
+      "publish": "Veröffentlichung",
+      "insights": "Analytics",
+      "delete": "Beitragsverwaltung",
+      "pages": "Facebook-Seiten",
+      "boards": "Pinnwände",
+      "library": "Beitragsverlauf"
+    },
+    "permissions": {
+      "instagram_business_basic": {
+        "title": "Grundlegende Kontoinformationen",
+        "description": "Liest deinen Instagram-Benutzernamen und deine Konto-ID, damit Markaestro anzeigen kann, welches Konto verknüpft ist, und Beiträge an dieses Konto adressieren kann."
+      },
+      "instagram_business_content_publish": {
+        "title": "Inhalte veröffentlichen",
+        "description": "Veröffentlicht die Fotos, Videos und Karussells, die du in Markaestro planst, auf diesem Instagram-Konto."
+      },
+      "instagram_business_manage_insights": {
+        "title": "Insights lesen",
+        "description": "Liest Reichweite, Likes, Kommentare, gespeicherte Beiträge und Follower-Zahlen, um die Analytics-Seite zu erstellen."
+      },
+      "pages_show_list": {
+        "title": "Deine Seiten auflisten",
+        "description": "Listet die Facebook-Seiten auf, die du verwaltest, damit du auswählen kannst, auf welcher diese Marke postet."
+      },
+      "pages_read_engagement": {
+        "title": "Seiten-Interaktionen lesen",
+        "description": "Liest den Namen der Seite, die Follower-Zahl und die Interaktionen mit Beiträgen für Analytics."
+      },
+      "pages_manage_posts": {
+        "title": "Auf der Seite veröffentlichen",
+        "description": "Erstellt die Beiträge, die du in Markaestro planst, auf der ausgewählten Facebook-Seite."
+      },
+      "read_insights": {
+        "title": "Seiten-Insights lesen",
+        "description": "Liest Reichweiten- und Interaktions-Insights für die Seite und ihre Beiträge."
+      },
+      "pages_read_user_content": {
+        "title": "Seiteninhalte lesen",
+        "description": "Liest Beiträge und Kommentare auf der Seite für die Beitragsverlaufsansicht."
+      },
+      "threads_basic": {
+        "title": "Grundlegendes Profil",
+        "description": "Liest deinen Threads-Benutzernamen und dein Profilbild, damit Markaestro anzeigen kann, welches Konto verknüpft ist."
+      },
+      "threads_content_publish": {
+        "title": "Beiträge veröffentlichen",
+        "description": "Veröffentlicht die Text-, Bild- und Video-Beiträge, die du in Markaestro planst, auf Threads."
+      },
+      "threads_delete": {
+        "title": "Beiträge löschen",
+        "description": "Löscht einen Threads-Beitrag, wenn du ihn im Tab „Auf der Plattform“ in Markaestro entfernst."
+      },
+      "threads_manage_insights": {
+        "title": "Insights lesen",
+        "description": "Liest Aufrufe, Likes, Antworten und Follower-Zahlen für Analytics."
+      },
+      "user_info_basic": {
+        "title": "Grundlegende Kontoinformationen",
+        "description": "Liest deinen TikTok-Anzeigenamen und dein Profilbild, damit Markaestro anzeigen kann, welches Konto verknüpft ist."
+      },
+      "user_info_profile": {
+        "title": "Profildetails",
+        "description": "Liest deinen Benutzernamen, deine Bio und deinen Profillink für die Ansicht des verbundenen Kontos."
+      },
+      "video_publish": {
+        "title": "Videos veröffentlichen",
+        "description": "Sendet die Videos, die du in Markaestro planst, an dein TikTok-Konto."
+      },
+      "video_upload": {
+        "title": "Videos hochladen",
+        "description": "Lädt Videodateien zu TikTok hoch, damit sie veröffentlicht werden können."
+      },
+      "video_list": {
+        "title": "Deine Videos auflisten",
+        "description": "Listet deine veröffentlichten TikTok-Videos für den Tab „Auf der Plattform“ und die Beitragsstatistiken auf."
+      },
+      "user_info_stats": {
+        "title": "Kontostatistiken",
+        "description": "Liest Follower-, Like- und Video-Zahlen für Analytics."
+      },
+      "user_accounts_read": {
+        "title": "Kontodetails",
+        "description": "Liest deinen Pinterest-Benutzernamen und dein Profil, damit Markaestro anzeigen kann, welches Konto verknüpft ist."
+      },
+      "boards_read": {
+        "title": "Pinnwände lesen",
+        "description": "Listet deine Pinnwände auf, damit du auswählen kannst, auf welcher diese Marke pinnt."
+      },
+      "boards_write": {
+        "title": "Pinnwände verwalten",
+        "description": "Von Pinterest erforderlich, um einen Pin zu erstellen, auch auf einer bestehenden Pinnwand."
+      },
+      "boards_read_secret": {
+        "title": "Geheime Pinnwände lesen",
+        "description": "Bezieht deine geheimen Pinnwände in die Pinnwand-Auswahl ein."
+      },
+      "boards_write_secret": {
+        "title": "Auf geheimen Pinnwänden pinnen",
+        "description": "Ermöglicht dieser Marke, auf einer geheimen Pinnwand zu pinnen."
+      },
+      "pins_read": {
+        "title": "Pins lesen",
+        "description": "Liest deine Pins für die Beitragsverlaufsansicht."
+      },
+      "pins_write": {
+        "title": "Pins erstellen",
+        "description": "Erstellt die Pins, die du in Markaestro planst."
+      },
+      "pins_read_secret": {
+        "title": "Geheime Pins lesen",
+        "description": "Liest Pins auf geheimen Pinnwänden für die Beitragsverlaufsansicht."
+      },
+      "pins_write_secret": {
+        "title": "Geheime Pins erstellen",
+        "description": "Erstellt Pins auf geheimen Pinnwänden."
+      },
+      "openid": {
+        "title": "Mit LinkedIn anmelden",
+        "description": "Bestätigt, welches LinkedIn-Mitglied sich verbindet."
+      },
+      "profile": {
+        "title": "Grundlegendes Profil",
+        "description": "Liest deinen Namen und dein Foto, damit Markaestro anzeigen kann, welches Profil verknüpft ist."
+      },
+      "w_member_social": {
+        "title": "In deinem Namen posten",
+        "description": "Veröffentlicht die Beiträge, die du in Markaestro planst, auf deinem LinkedIn-Profil."
+      },
+      "r_member_postAnalytics": {
+        "title": "Beitrags-Analytics lesen",
+        "description": "Liest Impressionen und Interaktionen deiner Beiträge für Analytics."
+      },
+      "r_member_profileAnalytics": {
+        "title": "Profil-Analytics lesen",
+        "description": "Liest Follower- und Profilaufrufzahlen für Analytics."
+      },
+      "r_basicprofile": {
+        "title": "Grundlegendes Profil",
+        "description": "Liest deinen Namen und dein Foto, damit Markaestro anzeigen kann, wer die Seiten autorisiert hat."
+      },
+      "w_organization_social": {
+        "title": "Als Seite posten",
+        "description": "Veröffentlicht die Beiträge, die du in Markaestro planst, auf der Unternehmensseite."
+      },
+      "r_organization_social": {
+        "title": "Seitenbeiträge lesen",
+        "description": "Liest die Beiträge der Seite für die Beitragsverlaufsansicht."
+      },
+      "rw_organization_admin": {
+        "title": "Von dir verwaltete Seiten auflisten",
+        "description": "Listet die Unternehmensseiten auf, die du verwaltest, damit du auswählen kannst, auf welcher diese Marke postet."
+      }
+    },
+    "outcome": {
+      "successTitle": "{provider} verbunden",
+      "successBody": "{account} ist jetzt mit {brand} verknüpft.",
+      "successBodyNoAccount": "Das Konto ist jetzt mit {brand} verknüpft.",
+      "successBodyNoBrand": "{account} ist jetzt verknüpft.",
+      "successBodyPlain": "Das Konto ist jetzt verknüpft.",
+      "grantedTitle": "Berechtigungen erteilt",
+      "requestedTitle": "Angeforderte Berechtigungen",
+      "nextTitle": "Was du jetzt tun kannst",
+      "createPost": "Beitrag erstellen",
+      "viewAnalytics": "Analytics ansehen",
+      "postHistory": "Beiträge auf der Plattform ansehen",
+      "needsPageTitle": "Noch ein Schritt: Facebook-Seite auswählen",
+      "needsPageBody": "Der Facebook-Zugriff wurde erteilt. Wähle jetzt aus, auf welcher Seite diese Marke postet.",
+      "choosePages": "Seiten auswählen",
+      "needsBoardTitle": "Noch ein Schritt: Pinnwand auswählen",
+      "needsBoardBody": "Der Pinterest-Zugriff wurde erteilt. Wähle jetzt aus, auf welcher Pinnwand diese Marke pinnt.",
+      "errorTitle": "{provider} wurde nicht verbunden",
+      "reasons": {
+        "access_denied": "Du hast die Berechtigungen bei {provider} nicht genehmigt, daher wurde nichts verknüpft. Starte erneut und wähle Zulassen, um dich zu verbinden.",
+        "channel_limit": "Diese Marke hat die von deinem Plan erlaubte Anzahl an Kanälen erreicht. Trenne einen Kanal oder führe ein Upgrade durch und versuche es erneut.",
+        "connection_failed": "{provider} hat die Verbindung nicht abgeschlossen. Es wurde nichts verknüpft. Versuche es erneut, und wenn es weiterhin fehlschlägt, prüfe die Voraussetzungen im Verbindungsleitfaden."
+      },
+      "providerSaid": "{provider} meldet: {message}",
+      "tryAgain": "Erneut versuchen",
+      "dismiss": "Schließen",
+      "chooseBoard": "Pinnwand auswählen"
+    },
+    "hints": {
+      "connect": "Öffnet die Anmeldeseite von {provider}, damit du den Zugriff für diese Marke genehmigen kannst.",
+      "reconnect": "Führt die Anmeldung bei {provider} erneut aus, um den Zugriff zu aktualisieren. Verknüpfte Konten bleiben verknüpft.",
+      "disconnect": "Entfernt dieses Konto von der Marke und löscht den von Markaestro gespeicherten Zugriffstoken.",
+      "test": "Sendet eine schreibgeschützte Anfrage an {provider}, um zu bestätigen, dass die Verknüpfung noch funktioniert.",
+      "choosePages": "Lädt die von Facebook gewährten Seiten, damit du auswählen kannst, auf welchen diese Marke postet."
+    }
   }
 }

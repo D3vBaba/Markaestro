@@ -10,6 +10,7 @@ import PageHeader from "@/components/app/PageHeader";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import ProductCard, { type ConnectionChip, type ProductCardData } from "./_components/ProductCard";
 import ProductDetailSheet, { type IntegrationInfo } from "./_components/ProductDetailSheet";
+import { readConnectOutcome, type ConnectOutcome } from "@/components/app/ConnectionOutcomeCard";
 import { resolveConnectionChipTone } from "@/lib/integrations/channel-status";
 import ProductCreateWizard from "./_components/ProductCreateWizard";
 import { apiDelete } from "@/lib/api-client";
@@ -60,6 +61,8 @@ type OauthCallback = {
   /** Pages this authorization dropped out of the Facebook grant. */
   ungrantedPages: string[];
   reason: string | null;
+  /** The same redirect, shaped for the persistent outcome panel in the sheet. */
+  outcome: ConnectOutcome | null;
 };
 
 /** Read the OAuth redirect params once on mount (null during SSR / no callback). */
@@ -75,6 +78,7 @@ function readOauthCallback(): OauthCallback | null {
     needsPageSelect: params.get("needsPageSelect") === "1",
     ungrantedPages: (params.get("ungrantedPages") || "").split("|").filter(Boolean),
     reason: params.get("reason"),
+    outcome: readConnectOutcome(params),
   };
 }
 
@@ -133,12 +137,18 @@ export default function ProductsPage() {
   const [openDeepLink] = useState(readOpenDeepLink);
   const oauthProductId =
     oauthCallback?.result === "success" ? oauthCallback.productId : null;
-  const initialDetailId = oauthProductId ?? openDeepLink?.productId ?? null;
+  // A failed connect names the brand it started from too, so the failure
+  // panel opens on that brand's Channels section with a Try again button.
+  const outcomeProductId = oauthCallback?.outcome ? oauthCallback.productId : null;
+  const initialDetailId = outcomeProductId ?? openDeepLink?.productId ?? null;
+  const [connectOutcome, setConnectOutcome] = useState<ConnectOutcome | null>(
+    oauthCallback?.outcome ?? null,
+  );
 
   const [createOpen, setCreateOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(initialDetailId);
   const [detailSection, setDetailSection] = useState<"foundation" | "channels">(
-    oauthProductId ? "channels" : openDeepLink?.section ?? "foundation",
+    outcomeProductId ? "channels" : openDeepLink?.section ?? "foundation",
   );
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [filter, setFilter] = useState<FilterTab>("all");
@@ -164,17 +174,21 @@ export default function ProductsPage() {
     const { result, provider, productId, needsPageSelect, reason } = oauthCallback;
     const timers: ReturnType<typeof setTimeout>[] = [];
 
+    // The outcome panel inside the brand sheet is the durable record of what
+    // happened; a toast would only repeat it and then fade. When the sheet
+    // cannot open (a failure with no brand to open), the toast is the record.
     if (result === "success" && provider) {
-      toast.success(t("toasts.connected", { provider: providerLabels[provider] || provider }));
       window.history.replaceState({}, "", "/products");
       invalidateQueries("/api/products");
       invalidateQueries("/api/integrations");
     } else if (result === "error" && provider) {
       const label = providerLabels[provider] || provider;
-      if (reason === "access_denied") {
-        toast.error(t("toasts.declinedPermission", { provider: label }));
-      } else {
-        toast.error(t("toasts.connectionFailed", { provider: label }));
+      if (!productId) {
+        if (reason === "access_denied") {
+          toast.error(t("toasts.declinedPermission", { provider: label }));
+        } else {
+          toast.error(t("toasts.connectionFailed", { provider: label }));
+        }
       }
       window.history.replaceState({}, "", "/products");
     }
@@ -182,13 +196,7 @@ export default function ProductsPage() {
     if (result === "success" && productId) {
       // The card is highlighted from first render; fade it after a beat
       timers.push(setTimeout(() => setHighlightId(null), 2500));
-      if (provider === "meta" && needsPageSelect) {
-        timers.push(
-          setTimeout(() => {
-            toast.info(t("toasts.almostDone"));
-          }, 300),
-        );
-      }
+      void needsPageSelect;
     }
 
     return () => timers.forEach(clearTimeout);
@@ -370,6 +378,8 @@ export default function ProductsPage() {
           invalidateQueries("/api/integrations");
           refreshProducts();
         }}
+        connectOutcome={detailId && detailId === outcomeProductId ? connectOutcome : null}
+        onConnectOutcomeDismiss={() => setConnectOutcome(null)}
       />
 
       <ConfirmDeleteDialog

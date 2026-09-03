@@ -282,12 +282,17 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
       // authorization used to land on /settings unconditionally, which threw
       // anyone connecting mid-onboarding straight into the app — past the
       // remaining steps and past the paywall.
-      const { returnTo: failedReturnTo } = await consumeFailedState(state);
+      const { returnTo: failedReturnTo, productId: failedProductId } = await consumeFailedState(state);
       const errorBase = (failedReturnTo && sanitizeAppReturnTo(failedReturnTo, appUrl)) || '/settings';
       return redirectThroughBridge(appUrl, errorBase, {
         oauth: 'error',
         provider,
+        // access_denied is the one provider error with a distinct meaning
+        // ("the user said no"); everything else reads as a failed connect.
+        reason: /access_denied/i.test(errorParam) ? 'access_denied' : 'connection_failed',
         message: desc,
+        // The brand the connect started from, so the failure is shown on it.
+        ...(failedProductId ? { productId: failedProductId } : {}),
       });
     }
 
@@ -722,13 +727,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ provider
     // Same as the pre-exchange failure above: honour where the connect started
     // so a mid-onboarding failure doesn't relocate the user into the app.
     // `state` is scoped to the try block, so re-read it off the URL here.
-    const { returnTo: failedReturnTo } = await consumeFailedState(
+    const { returnTo: failedReturnTo, productId: failedProductId } = await consumeFailedState(
       new URL(req.url).searchParams.get('state'),
     );
     const errorBase = (failedReturnTo && sanitizeAppReturnTo(failedReturnTo, appUrl)) || '/settings';
     return redirectThroughBridge(appUrl, errorBase, {
       oauth: 'error',
       provider: providerParam,
+      ...(failedProductId ? { productId: failedProductId } : {}),
       reason: msg === 'CHANNEL_LIMIT_REACHED'
         ? 'channel_limit'
         : /access_denied/i.test(msg)

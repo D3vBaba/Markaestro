@@ -19,6 +19,11 @@ import Select from "@/components/app/Select";
 import CategorySelect from "./CategorySelect";
 import { categoryLabel, categoryColor } from "./categories";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
+import ConnectChannelDialog, { type ConnectDialogRequest } from "@/components/app/ConnectChannelDialog";
+import ConnectionOutcomeCard, { type ConnectOutcome } from "@/components/app/ConnectionOutcomeCard";
+import HintButton from "@/components/app/HintButton";
+import { CHANNEL_BRAND } from "@/components/app/ChannelGlyph";
+import { catalogProviderFor, grantedPermissions } from "@/lib/oauth/permission-catalog";
 import { apiGet, apiPut, apiPost, apiDelete, apiUpload, getApiWorkspaceId } from "@/lib/api-client";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { toast } from "sonner";
@@ -74,6 +79,8 @@ export type LinkedAccount = {
   status: string;
   enabled: boolean;
   lastRefreshError?: string | null;
+  /** Scopes the platform reported on the grant, when it reported any. */
+  grantedScopes?: string[] | null;
   pageName?: string | null;
   boardName?: string | null;
   username?: string | null;
@@ -98,6 +105,8 @@ export type IntegrationInfo = {
   lastRefreshError?: string | null;
   username?: string | null;
   needsPageSelection?: boolean;
+  /** Scopes the platform reported on the grant, when it reported any. */
+  grantedScopes?: string[] | null;
   boardId?: string | null;
   boardName?: string | null;
   boardSelectionRequired?: boolean | null;
@@ -149,48 +158,6 @@ const providerLabels: Record<string, string> = {
   linkedin: "LinkedIn",
   linkedin_profile: "LinkedIn Profile",
   linkedin_community: "LinkedIn Pages",
-};
-
-// Brand glyphs for each channel — a white mark on the platform's color.
-const CHANNEL_BRAND: Record<string, { bg: string; icon: React.ReactNode }> = {
-  meta: {
-    bg: "#1877F2",
-    icon: (
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="#fff" aria-hidden>
-        <path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6 4.39 10.97 10.13 11.85v-8.38H7.08v-3.47h3.05V9.41c0-3 1.79-4.67 4.53-4.67 1.31 0 2.69.24 2.69.24v2.95h-1.52c-1.49 0-1.96.93-1.96 1.87v2.25h3.33l-.53 3.47h-2.8v8.38C19.61 23.04 24 18.07 24 12.07z" />
-      </svg>
-    ),
-  },
-  instagram: {
-    bg: "linear-gradient(135deg,#feda75 0%,#fa7e1e 30%,#d62976 60%,#962fbf 100%)",
-    icon: (
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" strokeWidth="2" aria-hidden>
-        <rect x="3" y="3" width="18" height="18" rx="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.2" cy="6.8" r="1.1" fill="#fff" stroke="none" />
-      </svg>
-    ),
-  },
-  tiktok: {
-    bg: "#111111",
-    icon: (
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="#fff" aria-hidden>
-        <path d="M16.2 3c.3 1.9 1.4 3.4 3.3 3.6v2.5c-1.2 0-2.4-.4-3.3-1v5.7a5.4 5.4 0 1 1-5.4-5.4c.3 0 .5 0 .8.1v2.6a2.85 2.85 0 1 0 2 2.7V3h2.6z" />
-      </svg>
-    ),
-  },
-  threads: {
-    bg: "#111111",
-    icon: <span className="text-[15px] font-bold leading-none text-white">@</span>,
-  },
-  pinterest: {
-    bg: "#E60023",
-    icon: <span className="text-[13px] font-bold leading-none text-white">P</span>,
-  },
-  linkedin: {
-    bg: "#0A66C2",
-    icon: <span className="text-[12px] font-bold leading-none text-white">in</span>,
-  },
 };
 
 const COLOR_PALETTE = [
@@ -355,6 +322,8 @@ export default function ProductDetailSheet({
   onSaved,
   onDeleted,
   initialSection = "foundation",
+  connectOutcome = null,
+  onConnectOutcomeDismiss,
 }: {
   productId: string | null;
   open: boolean;
@@ -362,6 +331,9 @@ export default function ProductDetailSheet({
   onSaved: () => void;
   onDeleted: () => void;
   initialSection?: SectionKey;
+  /** What the OAuth callback reported, when the sheet opened from one. */
+  connectOutcome?: ConnectOutcome | null;
+  onConnectOutcomeDismiss?: () => void;
 }) {
   const t = useTranslations("products.detailSheet");
   const tSections = useTranslations("products.detailSheet.sections");
@@ -387,6 +359,7 @@ export default function ProductDetailSheet({
   const [metaLinkedPageIds, setMetaLinkedPageIds] = useState<string[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
   const [selectingPage, setSelectingPage] = useState(false);
+  const [connectRequest, setConnectRequest] = useState<ConnectDialogRequest | null>(null);
 
   // Logo upload
   const [logoUploading, setLogoUploading] = useState(false);
@@ -549,7 +522,19 @@ export default function ProductDetailSheet({
     if (res.ok) setIntegrations(getScopedSocialIntegrations(res.data.integrations || []));
   };
 
-  function startOAuth(provider: string, linkedinMode?: "profile" | "community") {
+  // Every Connect / Reconnect opens the explainer dialog first. Only its
+  // Continue button navigates, and it does so synchronously so the mobile
+  // new-tab path in startOAuthAuthorize still runs inside the user gesture.
+  function startOAuth(
+    provider: string,
+    linkedinMode?: "profile" | "community",
+    mode: "connect" | "reconnect" = "connect",
+  ) {
+    if (!productId) return;
+    setConnectRequest({ provider, linkedinMode, mode });
+  }
+
+  function launchOAuth(provider: string, linkedinMode?: "profile" | "community") {
     if (!productId) return;
     const qs = new URLSearchParams({
       workspaceId: getApiWorkspaceId(),
@@ -826,6 +811,9 @@ export default function ProductDetailSheet({
                       onLoadPages={loadMetaPages}
                       onSelectPages={selectMetaPages}
                       onStartOAuth={startOAuth}
+                      connectOutcome={connectOutcome}
+                      onDismissOutcome={onConnectOutcomeDismiss}
+                      brandName={form?.name ?? null}
                       onDisconnect={(provider, label) =>
                         setDisconnectTarget({ provider, label })
                       }
@@ -858,6 +846,15 @@ export default function ProductDetailSheet({
           )}
         </SheetContent>
       </Sheet>
+
+      <ConnectChannelDialog
+        request={connectRequest}
+        brandName={form?.name}
+        onOpenChange={(next) => {
+          if (!next) setConnectRequest(null);
+        }}
+        onContinue={(request) => launchOAuth(request.provider, request.linkedinMode)}
+      />
 
       <ConfirmDeleteDialog
         open={deleteOpen}
@@ -1276,6 +1273,9 @@ function ChannelsSection({
   getIntegration,
   onRefreshIntegrations,
   productId,
+  connectOutcome,
+  onDismissOutcome,
+  brandName,
 }: {
   integrations: IntegrationInfo[];
   disconnecting: string | null;
@@ -1285,15 +1285,22 @@ function ChannelsSection({
   selectingPage: boolean;
   onLoadPages: () => void;
   onSelectPages: (pageIds: string[]) => void | Promise<void>;
-  onStartOAuth: (provider: string, linkedinMode?: "profile" | "community") => void;
+  onStartOAuth: (provider: string, linkedinMode?: "profile" | "community", mode?: "connect" | "reconnect") => void;
   onDisconnect: (provider: string, label: string, linkedinMode?: "profile" | "community") => void;
   getIntegration: (provider: string) => IntegrationInfo | undefined;
   onRefreshIntegrations: () => void | Promise<void>;
   productId: string | null;
+  connectOutcome?: ConnectOutcome | null;
+  onDismissOutcome?: () => void;
+  brandName?: string | null;
 }) {
   const t = useTranslations("products.detailSheet.channels");
+  const tHints = useTranslations("appCommon.connectChannel.hints");
   const locale = useLocale();
   void integrations; // used via getIntegration
+  // The account the outcome panel names, as the user knows it.
+  const outcomeIntegration = connectOutcome ? getIntegration(connectOutcome.provider) : undefined;
+  const outcomeAccount = outcomeIntegration ? linkedAccountLabel(outcomeIntegration) : null;
   const meta = getIntegration("meta");
   const metaAccounts = (meta?.accounts ?? []).filter((account) => account.destinationId);
   // Use the shared resolver so this sheet and the Settings page can never
@@ -1310,6 +1317,18 @@ function ChannelsSection({
         title={t("title")}
         description={t("description")}
       >
+        {connectOutcome && (
+          <ConnectionOutcomeCard
+            outcome={connectOutcome}
+            brandName={brandName}
+            account={outcomeAccount}
+            grantedScopes={outcomeIntegration?.grantedScopes}
+            onDismiss={() => onDismissOutcome?.()}
+            onTryAgain={() => onStartOAuth(connectOutcome.provider, connectOutcome.linkedinMode ?? undefined)}
+            onChoosePages={onLoadPages}
+          />
+        )}
+
         {/* Facebook (Meta) — its own per-product Facebook login */}
         <ChannelCard
           provider="meta"
@@ -1331,16 +1350,22 @@ function ChannelsSection({
         >
           {metaConnected ? (
             <>
-              <Button variant="outline" size="sm" onClick={onLoadPages} disabled={loadingPages}>
+              <HintButton hint={tHints("choosePages")} variant="outline" size="sm" onClick={onLoadPages} disabled={loadingPages}>
                 {loadingPages ? t("loading") : metaHasPage ? t("addPages") : t("choosePages")}
-              </Button>
+              </HintButton>
               {/* Re-running Facebook login adds a credential rather than
                   replacing one, so this both refreshes the current account and
                   connects an additional one. Unlinking first is never needed. */}
-              <Button variant="outline" size="sm" onClick={() => onStartOAuth("meta")}>
+              <HintButton
+                hint={tHints("reconnect", { provider: providerLabels.meta })}
+                variant="outline"
+                size="sm"
+                onClick={() => onStartOAuth("meta", undefined, "reconnect")}
+              >
                 {t("reconnectAddAccount")}
-              </Button>
-              <Button
+              </HintButton>
+              <HintButton
+                hint={tHints("disconnect")}
                 variant="destructive"
                 size="sm"
                 onClick={() => onDisconnect("meta", providerLabels.meta)}
@@ -1351,7 +1376,7 @@ function ChannelsSection({
                   : metaAccounts.length > 1
                   ? t("unlinkAllCount", { count: metaAccounts.length })
                   : t("unlink")}
-              </Button>
+              </HintButton>
               <LinkedAccountsList
                 accounts={metaAccounts}
                 provider="meta"
@@ -1367,9 +1392,9 @@ function ChannelsSection({
               />
             </>
           ) : (
-            <Button size="sm" onClick={() => onStartOAuth("meta")}>
+            <HintButton hint={tHints("connect", { provider: providerLabels.meta })} size="sm" onClick={() => onStartOAuth("meta")}>
               {t("connect")}
-            </Button>
+            </HintButton>
           )}
         </ChannelCard>
 
@@ -1382,6 +1407,7 @@ function ChannelsSection({
           testProductId={productId}
           warn={!!instagram?.lastRefreshError}
           warnLabel={t("reconnectBadge")}
+          grantedScopes={instagram?.grantedScopes}
           detail={
             instagramConnected
               ? [
@@ -1396,18 +1422,29 @@ function ChannelsSection({
           }
         >
           {instagram?.status === "connected" ? (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => onDisconnect("instagram", providerLabels.instagram)}
-              disabled={disconnecting === "instagram"}
-            >
-              {disconnecting === "instagram" ? "…" : t("disconnect")}
-            </Button>
+            <>
+              <HintButton
+                hint={tHints("reconnect", { provider: providerLabels.instagram })}
+                variant="outline"
+                size="sm"
+                onClick={() => onStartOAuth("instagram", undefined, "reconnect")}
+              >
+                {t("reconnect")}
+              </HintButton>
+              <HintButton
+                hint={tHints("disconnect")}
+                variant="destructive"
+                size="sm"
+                onClick={() => onDisconnect("instagram", providerLabels.instagram)}
+                disabled={disconnecting === "instagram"}
+              >
+                {disconnecting === "instagram" ? "…" : t("disconnect")}
+              </HintButton>
+            </>
           ) : (
-            <Button size="sm" onClick={() => onStartOAuth("instagram")}>
+            <HintButton hint={tHints("connect", { provider: providerLabels.instagram })} size="sm" onClick={() => onStartOAuth("instagram")}>
               {t("connect")}
-            </Button>
+            </HintButton>
           )}
         </ChannelCard>
 
@@ -1420,6 +1457,7 @@ function ChannelsSection({
           testProductId={productId}
           warn={!!tiktok?.lastRefreshError}
           warnLabel={t("reconnectBadge")}
+          grantedScopes={tiktok?.grantedScopes}
           detail={
             [
               tiktok?.username ? `@${tiktok.username}` : null,
@@ -1432,18 +1470,29 @@ function ChannelsSection({
           }
         >
           {tiktok?.status === "connected" ? (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => onDisconnect("tiktok", providerLabels.tiktok)}
-              disabled={disconnecting === "tiktok"}
-            >
-              {disconnecting === "tiktok" ? "…" : t("disconnect")}
-            </Button>
+            <>
+              <HintButton
+                hint={tHints("reconnect", { provider: providerLabels.tiktok })}
+                variant="outline"
+                size="sm"
+                onClick={() => onStartOAuth("tiktok", undefined, "reconnect")}
+              >
+                {t("reconnect")}
+              </HintButton>
+              <HintButton
+                hint={tHints("disconnect")}
+                variant="destructive"
+                size="sm"
+                onClick={() => onDisconnect("tiktok", providerLabels.tiktok)}
+                disabled={disconnecting === "tiktok"}
+              >
+                {disconnecting === "tiktok" ? "…" : t("disconnect")}
+              </HintButton>
+            </>
           ) : (
-            <Button size="sm" onClick={() => onStartOAuth("tiktok")}>
+            <HintButton hint={tHints("connect", { provider: providerLabels.tiktok })} size="sm" onClick={() => onStartOAuth("tiktok")}>
               {t("connect")}
-            </Button>
+            </HintButton>
           )}
         </ChannelCard>
 
@@ -1508,12 +1557,13 @@ function LinkedInConnectCard({
 }: {
   integration: IntegrationInfo | undefined;
   disconnecting: string | null;
-  onStartOAuth: (provider: string, linkedinMode?: "profile" | "community") => void;
+  onStartOAuth: (provider: string, linkedinMode?: "profile" | "community", mode?: "connect" | "reconnect") => void;
   onDisconnect: (provider: string, label: string, linkedinMode?: "profile" | "community") => void;
   onPickerSelected?: () => void | Promise<void>;
   productId?: string | null;
 }) {
   const t = useTranslations("products.detailSheet.channels");
+  const tHints = useTranslations("appCommon.connectChannel.hints");
   const tToasts = useTranslations("products.detailSheet.channels.toasts");
   const profileConnected =
     integration?.linkedinProfileConnected === true ||
@@ -1592,6 +1642,7 @@ function LinkedInConnectCard({
       testProductId={productId}
       warn={needsReconnect || needsTarget}
       warnLabel={needsReconnect ? t("reconnectBadge") : t("selectTarget")}
+      grantedScopes={integration?.grantedScopes}
       detail={
         integration?.linkedinDestinationName
           ? t("postingTo", { target: integration.linkedinDestinationName })
@@ -1611,9 +1662,9 @@ function LinkedInConnectCard({
             {disconnecting === "linkedin:profile" ? "…" : t("unlinkProfile")}
           </Button>
         ) : (
-          <Button size="sm" onClick={() => onStartOAuth("linkedin", "profile")}>
+          <HintButton hint={tHints("connect", { provider: providerLabels.linkedin })} size="sm" onClick={() => onStartOAuth("linkedin", "profile")}>
             {t("linkProfile")}
-          </Button>
+          </HintButton>
         )}
         {communityConnected ? (
           <Button
@@ -1625,9 +1676,9 @@ function LinkedInConnectCard({
             {disconnecting === "linkedin:community" ? "…" : t("unlinkPagesBtn")}
           </Button>
         ) : (
-          <Button size="sm" onClick={() => onStartOAuth("linkedin", "community")}>
+          <HintButton hint={tHints("connect", { provider: providerLabels.linkedin })} size="sm" onClick={() => onStartOAuth("linkedin", "community")}>
             {t("linkPagesBtn")}
-          </Button>
+          </HintButton>
         )}
         {connected && (
           <Button
@@ -1686,7 +1737,7 @@ function SimpleConnectCard({
   label: string;
   integration: IntegrationInfo | undefined;
   disconnecting: string | null;
-  onStartOAuth: (provider: string) => void;
+  onStartOAuth: (provider: string, linkedinMode?: "profile" | "community", mode?: "connect" | "reconnect") => void;
   onDisconnect: (provider: string, label: string) => void;
   detail?: (integ: IntegrationInfo | undefined) => string | undefined;
   warnWhen?: (integ: IntegrationInfo | undefined) => boolean;
@@ -1700,6 +1751,7 @@ function SimpleConnectCard({
 }) {
   const t = useTranslations("products.detailSheet.channels");
   const tToasts = useTranslations("products.detailSheet.channels.toasts");
+  const tHints = useTranslations("appCommon.connectChannel.hints");
   const provider = (() => {
     const entry = Object.entries(providerLabels).find(([, l]) => l === label);
     return entry ? entry[0] : "";
@@ -1777,6 +1829,7 @@ function SimpleConnectCard({
       warn={needsReconnect || (warnWhen ? warnWhen(integration) : false)}
       warnLabel={needsReconnect ? t("reconnectBadge") : warnLabel || t("warning")}
       detail={detail ? detail(integration) : undefined}
+      grantedScopes={integration?.grantedScopes}
     >
       {connected ? (
         <>
@@ -1790,10 +1843,16 @@ function SimpleConnectCard({
               {loadingDestinations ? t("loading") : pickerLabel(integration)}
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={() => onStartOAuth(provider)}>
+          <HintButton
+            hint={tHints("reconnect", { provider: label })}
+            variant="outline"
+            size="sm"
+            onClick={() => onStartOAuth(provider, undefined, "reconnect")}
+          >
             {t("reconnect")}
-          </Button>
-          <Button
+          </HintButton>
+          <HintButton
+            hint={tHints("disconnect")}
             variant="destructive"
             size="sm"
             onClick={() => onDisconnect(provider, label)}
@@ -1804,7 +1863,7 @@ function SimpleConnectCard({
               : accounts.length > 1
               ? t("disconnectAllCount", { count: accounts.length })
               : t("disconnect")}
-          </Button>
+          </HintButton>
           <LinkedAccountsList
             accounts={accounts}
             provider={provider}
@@ -1822,11 +1881,27 @@ function SimpleConnectCard({
           )}
         </>
       ) : (
-        <Button size="sm" onClick={() => onStartOAuth(provider)}>
+        <HintButton
+          hint={needsReconnect ? tHints("reconnect", { provider: label }) : tHints("connect", { provider: label })}
+          size="sm"
+          onClick={() => onStartOAuth(provider, undefined, needsReconnect ? "reconnect" : "connect")}
+        >
           {needsReconnect ? t("reconnect") : t("connect")}
-        </Button>
+        </HintButton>
       )}
     </ChannelCard>
+  );
+}
+
+/** The linked account as the user knows it, for the post-connect panel. */
+function linkedAccountLabel(integration: IntegrationInfo): string | null {
+  if (integration.username) return `@${integration.username}`;
+  return (
+    integration.pageName ||
+    integration.boardName ||
+    integration.linkedinDestinationName ||
+    integration.linkedinProfileName ||
+    null
   );
 }
 
@@ -2017,7 +2092,9 @@ function DestinationPicker({
  */
 function TestConnectionButton({ channel, productId }: { channel: string; productId?: string | null }) {
   const t = useTranslations("products.detailSheet.channels");
+  const tHints = useTranslations("appCommon.connectChannel.hints");
   const [testing, setTesting] = useState(false);
+  const providerName = channel === "facebook" ? providerLabels.meta : providerLabels[channel] ?? channel;
 
   if (!productId) return null;
 
@@ -2043,9 +2120,9 @@ function TestConnectionButton({ channel, productId }: { channel: string; product
   }
 
   return (
-    <Button variant="outline" size="sm" onClick={run} disabled={testing}>
+    <HintButton hint={tHints("test", { provider: providerName })} variant="outline" size="sm" onClick={run} disabled={testing}>
       {testing ? t("testing") : t("testConnection")}
-    </Button>
+    </HintButton>
   );
 }
 
@@ -2059,6 +2136,7 @@ function ChannelCard({
   children,
   testChannel,
   testProductId,
+  grantedScopes,
 }: {
   provider?: string;
   label: string;
@@ -2066,13 +2144,20 @@ function ChannelCard({
   warn?: boolean;
   warnLabel?: string;
   detail?: string;
+  /** Scopes the platform reported on the grant; rendered as what the link can do. */
+  grantedScopes?: string[] | null;
   children: React.ReactNode;
   /** Social channel to test when connected; renders the test button. */
   testChannel?: string;
   testProductId?: string | null;
 }) {
   const t = useTranslations("products.detailSheet.channels");
+  const tCommon = useTranslations("appCommon.connectChannel");
   const brand = provider ? CHANNEL_BRAND[provider] : undefined;
+  const catalogProvider = provider ? catalogProviderFor(provider) : null;
+  const grantedTitles = connected && catalogProvider && grantedScopes?.length
+    ? grantedPermissions(catalogProvider, grantedScopes).map((item) => tCommon(`permissions.${item.key}.title`))
+    : [];
   return (
     <div
       className="group rounded-xl border border-border/50 p-3.5 transition-colors hover:border-border data-[on=true]:border-[color:var(--mk-pos)]/30"
@@ -2102,6 +2187,12 @@ function ChannelCard({
             )}
           </div>
           {detail && <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">{detail}</p>}
+          {grantedTitles.length > 0 && (
+            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+              <span className="font-medium text-foreground/80">{tCommon("outcome.grantedTitle")}:</span>{" "}
+              {grantedTitles.join(" · ")}
+            </p>
+          )}
         </div>
       </div>
       <div className="mt-2.5 flex flex-wrap items-center gap-2 ps-0 sm:ps-12">

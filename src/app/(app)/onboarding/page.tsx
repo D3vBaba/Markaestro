@@ -13,6 +13,7 @@ import { apiPost, getApiWorkspaceId } from "@/lib/api-client";
 import { ONBOARDING_STATE_KEY, allowedOnboardingStep } from "@/lib/onboarding-state";
 import { deferFromEffect } from "@/lib/defer-from-effect";
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
+import ConnectChannelDialog, { type ConnectDialogRequest } from "@/components/app/ConnectChannelDialog";
 import { useProductScan } from "@/hooks/useProductScan";
 import ScanProgressStepper from "@/components/app/ScanProgressStepper";
 import { PLANS, PLAN_TIERS, TRIAL_DAYS } from "@/lib/stripe/plans";
@@ -421,6 +422,8 @@ export default function OnboardingPage() {
   // Socials
   const [connected, setConnected] = useState<Record<string, boolean>>(saved.connected ?? {});
   const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
+  // Connect opens the explainer dialog; its Continue button starts the redirect.
+  const [connectRequest, setConnectRequest] = useState<ConnectDialogRequest | null>(null);
 
   const [postContent] = useState("");
 
@@ -1444,7 +1447,7 @@ export default function OnboardingPage() {
                           <Button
                             variant="outline"
                             className="rounded-lg text-sm h-10 px-5 shrink-0"
-                            onClick={() => connectSocial(providerId)}
+                            onClick={() => setConnectRequest({ provider: providerId, mode: "connect" })}
                             disabled={isConnecting}
                           >
                             {isConnecting ? t("socials.redirecting") : t("socials.connect")}
@@ -1675,6 +1678,11 @@ export default function OnboardingPage() {
 
       {/* ── Footer — matches MarketingLayout exactly ──────────────────────── */}
       <OnboardingFooter />
+      <ConnectChannelDialog
+        request={connectRequest}
+        onOpenChange={(open) => { if (!open) setConnectRequest(null); }}
+        onContinue={(request) => connectSocial(request.provider)}
+      />
     </div>
   );
 }

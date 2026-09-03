@@ -128,5 +128,275 @@
     },
     "facebookInstagramAd": "Facebook / Instagram広告",
     "tiktokAd": "TikTok広告"
+  },
+  "connectChannel": {
+    "providerNames": {
+      "meta": "Facebook",
+      "instagram": "Instagram",
+      "threads": "Threads",
+      "tiktok": "TikTok",
+      "pinterest": "Pinterest",
+      "linkedin": "LinkedIn",
+      "linkedin_profile": "LinkedIn",
+      "linkedin_community": "LinkedIn"
+    },
+    "hosts": {
+      "meta": "facebook.com",
+      "instagram": "instagram.com",
+      "threads": "threads.net",
+      "tiktok": "tiktok.com",
+      "pinterest": "pinterest.com",
+      "linkedin_profile": "linkedin.com",
+      "linkedin_community": "linkedin.com"
+    },
+    "dialog": {
+      "title": "{provider}に接続",
+      "reconnectTitle": "{provider}に再接続",
+      "forBrand": "{brand}向け",
+      "intro": "この後に起きることと、Markaestroが{provider}に求める内容を正確にご案内します。",
+      "stepsTitle": "接続の流れ",
+      "steps": {
+        "0": {
+          "title": "{host}でサインイン",
+          "detail": "{provider}自身のサインインページに移動します。Markaestroがあなたのパスワードを見ることは一切ありません。"
+        },
+        "1": {
+          "title": "権限を確認して許可する",
+          "detail": "{provider}が以下の権限を提示し、許可を求めます。公開とアナリティクスの両方を機能させるため、すべて許可してください。"
+        },
+        "2": {
+          "title": "Markaestroに戻る",
+          "detail": "自動的にここへ戻り、アカウントが「連携済み」と表示されます。"
+        }
+      },
+      "metaStepDetail": "Facebookは、Markaestroがどのページを管理できるかを尋ねます。投稿する可能性のあるページはすべてチェックしてください。チェックしなかったページはアクセスを失います。",
+      "permissionsTitle": "Markaestroが要求する権限",
+      "permissionsHint": "各権限は、隣に表示されている機能のためだけに使用されます。",
+      "usedFor": "{feature}に使用",
+      "requirementsTitle": "始める前に",
+      "reconnectNote": "再接続するとアクセスが更新されます。すでにこのブランドに連携済みのアカウントは連携済みのままです。",
+      "privacyNote": "この画面からいつでも切断できます。切断すると、Markaestroが保存していたアクセストークンは削除されます。",
+      "learnMore": "接続ガイドの全文を読む",
+      "cancel": "キャンセル",
+      "continue": "{provider}へ進む",
+      "opening": "{provider}を開いています…"
+    },
+    "requirements": {
+      "instagram": {
+        "0": "Instagramプロアカウント（ビジネスまたはクリエイター）。個人アカウントはInstagramのAPI経由で公開できません。",
+        "1": "そのInstagramアカウントのサインイン情報。"
+      },
+      "meta": {
+        "0": "公開したいページの管理者または編集者権限を持つFacebookアカウント。",
+        "1": "Facebookのダイアログで投稿する可能性のあるページすべてにチェックを入れ、Markaestroに戻ってこのブランド用のページを選んでください。"
+      },
+      "threads": {
+        "0": "サインインできるThreadsプロフィール。ThreadsはInstagramとは別の独自のログインを使用します。"
+      },
+      "tiktok": {
+        "0": "サインインできるTikTokアカウント。",
+        "1": "投稿はTikTokの受信箱に届き、TikTokアプリ内で最終処理されます。"
+      },
+      "pinterest": {
+        "0": "ボードを1つ以上持つPinterestビジネスアカウント。",
+        "1": "接続後、このブランドがピン留めするボードを選択します。"
+      },
+      "linkedin_profile": {
+        "0": "LinkedInアカウント。投稿はあなた個人のプロフィールに、あなた本人として公開されます。"
+      },
+      "linkedin_community": {
+        "0": "公開したい会社ページの管理者権限を持つLinkedInアカウント。"
+      }
+    },
+    "features": {
+      "profile": "アカウント情報",
+      "publish": "公開",
+      "insights": "アナリティクス",
+      "delete": "投稿管理",
+      "pages": "Facebookページ",
+      "boards": "ボード",
+      "library": "投稿履歴"
+    },
+    "permissions": {
+      "instagram_business_basic": {
+        "title": "基本アカウント情報",
+        "description": "Instagramのユーザー名とアカウントIDを読み取り、Markaestroがどのアカウントが連携されているかを表示し、投稿先を特定できるようにします。"
+      },
+      "instagram_business_content_publish": {
+        "title": "コンテンツの公開",
+        "description": "Markaestroで予約した写真、動画、カルーセルをこのInstagramアカウントに公開します。"
+      },
+      "instagram_business_manage_insights": {
+        "title": "インサイトの読み取り",
+        "description": "リーチ、いいね、コメント、保存、フォロワー数を読み取り、アナリティクスページを構築します。"
+      },
+      "pages_show_list": {
+        "title": "ページの一覧取得",
+        "description": "管理しているFacebookページを一覧表示し、このブランドが投稿するページを選べるようにします。"
+      },
+      "pages_read_engagement": {
+        "title": "ページのエンゲージメントを読み取り",
+        "description": "アナリティクスのため、ページ名、フォロワー数、投稿のエンゲージメントを読み取ります。"
+      },
+      "pages_manage_posts": {
+        "title": "ページへの公開",
+        "description": "Markaestroで予約した投稿を、選択したFacebookページに作成します。"
+      },
+      "read_insights": {
+        "title": "ページインサイトの読み取り",
+        "description": "ページとその投稿のリーチおよびエンゲージメントのインサイトを読み取ります。"
+      },
+      "pages_read_user_content": {
+        "title": "ページコンテンツの読み取り",
+        "description": "投稿履歴表示のため、ページ上の投稿とコメントを読み取ります。"
+      },
+      "threads_basic": {
+        "title": "基本プロフィール",
+        "description": "Threadsのユーザー名とプロフィール画像を読み取り、Markaestroがどのアカウントが連携されているかを表示できるようにします。"
+      },
+      "threads_content_publish": {
+        "title": "投稿の公開",
+        "description": "Markaestroで予約したテキスト、画像、動画の投稿をThreadsに公開します。"
+      },
+      "threads_delete": {
+        "title": "投稿の削除",
+        "description": "Markaestroの「プラットフォーム上」タブから削除したとき、Threadsの投稿を削除します。"
+      },
+      "threads_manage_insights": {
+        "title": "インサイトの読み取り",
+        "description": "アナリティクスのため、視聴数、いいね、返信、フォロワー数を読み取ります。"
+      },
+      "user_info_basic": {
+        "title": "基本アカウント情報",
+        "description": "TikTokの表示名とアバターを読み取り、Markaestroがどのアカウントが連携されているかを表示できるようにします。"
+      },
+      "user_info_profile": {
+        "title": "プロフィール詳細",
+        "description": "連携済みアカウント表示のため、ユーザー名、自己紹介、プロフィールリンクを読み取ります。"
+      },
+      "video_publish": {
+        "title": "動画の公開",
+        "description": "Markaestroで予約した動画をあなたのTikTokアカウントに送信します。"
+      },
+      "video_upload": {
+        "title": "動画のアップロード",
+        "description": "動画ファイルをTikTokにアップロードし、公開できるようにします。"
+      },
+      "video_list": {
+        "title": "動画の一覧取得",
+        "description": "「プラットフォーム上」タブと投稿の指標のため、公開済みのTikTok動画を一覧表示します。"
+      },
+      "user_info_stats": {
+        "title": "アカウント統計",
+        "description": "アナリティクスのため、フォロワー数、いいね数、動画数を読み取ります。"
+      },
+      "user_accounts_read": {
+        "title": "アカウント詳細",
+        "description": "Pinterestのユーザー名とプロフィールを読み取り、Markaestroがどのアカウントが連携されているかを表示できるようにします。"
+      },
+      "boards_read": {
+        "title": "ボードの読み取り",
+        "description": "ボードを一覧表示し、このブランドがピン留めするボードを選べるようにします。"
+      },
+      "boards_write": {
+        "title": "ボードの管理",
+        "description": "既存のボードであってもピンを作成するためにPinterestが必要とします。"
+      },
+      "boards_read_secret": {
+        "title": "シークレットボードの読み取り",
+        "description": "ボード選択画面にシークレットボードを含めます。"
+      },
+      "boards_write_secret": {
+        "title": "シークレットボードへのピン留め",
+        "description": "このブランドがシークレットボードにピン留めできるようにします。"
+      },
+      "pins_read": {
+        "title": "ピンの読み取り",
+        "description": "投稿履歴表示のため、あなたのピンを読み取ります。"
+      },
+      "pins_write": {
+        "title": "ピンの作成",
+        "description": "Markaestroで予約したピンを作成します。"
+      },
+      "pins_read_secret": {
+        "title": "シークレットピンの読み取り",
+        "description": "投稿履歴表示のため、シークレットボード上のピンを読み取ります。"
+      },
+      "pins_write_secret": {
+        "title": "シークレットピンの作成",
+        "description": "シークレットボードにピンを作成します。"
+      },
+      "openid": {
+        "title": "LinkedInでサインイン",
+        "description": "接続しているLinkedInメンバーを確認します。"
+      },
+      "profile": {
+        "title": "基本プロフィール",
+        "description": "あなたの名前と写真を読み取り、Markaestroがどのプロフィールが連携されているかを表示できるようにします。"
+      },
+      "w_member_social": {
+        "title": "あなたに代わって投稿",
+        "description": "Markaestroで予約した投稿をあなたのLinkedInプロフィールに公開します。"
+      },
+      "r_member_postAnalytics": {
+        "title": "投稿のアナリティクスを読み取り",
+        "description": "アナリティクスのため、投稿のインプレッションとエンゲージメントを読み取ります。"
+      },
+      "r_member_profileAnalytics": {
+        "title": "プロフィールのアナリティクスを読み取り",
+        "description": "アナリティクスのため、フォロワー数とプロフィール閲覧数を読み取ります。"
+      },
+      "r_basicprofile": {
+        "title": "基本プロフィール",
+        "description": "あなたの名前と写真を読み取り、Markaestroが誰がページを承認したかを表示できるようにします。"
+      },
+      "w_organization_social": {
+        "title": "ページとして投稿",
+        "description": "Markaestroで予約した投稿を会社ページに公開します。"
+      },
+      "r_organization_social": {
+        "title": "ページの投稿を読み取り",
+        "description": "投稿履歴表示のため、ページの投稿を読み取ります。"
+      },
+      "rw_organization_admin": {
+        "title": "管理するページの一覧取得",
+        "description": "管理している会社ページを一覧表示し、このブランドが投稿するページを選べるようにします。"
+      }
+    },
+    "outcome": {
+      "successTitle": "{provider}を接続しました",
+      "successBody": "{account}が{brand}に連携されました。",
+      "successBodyNoAccount": "アカウントが{brand}に連携されました。",
+      "successBodyNoBrand": "{account}が連携されました。",
+      "successBodyPlain": "アカウントが連携されました。",
+      "grantedTitle": "権限が付与されました",
+      "requestedTitle": "要求された権限",
+      "nextTitle": "今できること",
+      "createPost": "投稿を作成",
+      "viewAnalytics": "アナリティクスを見る",
+      "postHistory": "「プラットフォーム上」の投稿を見る",
+      "needsPageTitle": "もう一歩：Facebookページを選択",
+      "needsPageBody": "Facebookへのアクセスが許可されました。次に、このブランドが投稿するページを選んでください。",
+      "choosePages": "ページを選択",
+      "needsBoardTitle": "もう一歩：ボードを選択",
+      "needsBoardBody": "Pinterestへのアクセスが許可されました。次に、このブランドがピン留めするボードを選んでください。",
+      "errorTitle": "{provider}は接続されませんでした",
+      "reasons": {
+        "access_denied": "{provider}で権限を承認しなかったため、何も連携されませんでした。もう一度やり直し、許可を選んで接続してください。",
+        "channel_limit": "このブランドはプランで許可されたチャンネル数の上限に達しています。チャンネルの連携を解除するかプランをアップグレードしてから、もう一度お試しください。",
+        "connection_failed": "{provider}が接続を完了できませんでした。何も連携されていません。もう一度お試しいただき、それでも失敗する場合は接続ガイドの要件を確認してください。"
+      },
+      "providerSaid": "{provider}からのメッセージ：{message}",
+      "tryAgain": "再試行",
+      "dismiss": "閉じる",
+      "chooseBoard": "ボードを選択"
+    },
+    "hints": {
+      "connect": "{provider}のサインインページを開き、このブランドへのアクセスを承認できるようにします。",
+      "reconnect": "{provider}のサインインを再度実行してアクセスを更新します。連携済みのアカウントは連携済みのままです。",
+      "disconnect": "このアカウントをブランドから削除し、Markaestroが保存していたアクセストークンを削除します。",
+      "test": "{provider}に読み取り専用のリクエストを1件送信し、連携が引き続き機能しているか確認します。",
+      "choosePages": "Facebookが許可したページを読み込み、このブランドが投稿するページを選べるようにします。"
+    }
   }
 }

@@ -128,5 +128,275 @@
     },
     "facebookInstagramAd": "Facebook-/Instagram-advertentie",
     "tiktokAd": "TikTok-advertentie"
+  },
+  "connectChannel": {
+    "providerNames": {
+      "meta": "Facebook",
+      "instagram": "Instagram",
+      "threads": "Threads",
+      "tiktok": "TikTok",
+      "pinterest": "Pinterest",
+      "linkedin": "LinkedIn",
+      "linkedin_profile": "LinkedIn",
+      "linkedin_community": "LinkedIn"
+    },
+    "hosts": {
+      "meta": "facebook.com",
+      "instagram": "instagram.com",
+      "threads": "threads.net",
+      "tiktok": "tiktok.com",
+      "pinterest": "pinterest.com",
+      "linkedin_profile": "linkedin.com",
+      "linkedin_community": "linkedin.com"
+    },
+    "dialog": {
+      "title": "{provider} verbinden",
+      "reconnectTitle": "{provider} opnieuw verbinden",
+      "forBrand": "voor {brand}",
+      "intro": "Dit is precies wat er hierna gebeurt en wat Markaestro aan {provider} zal vragen.",
+      "stepsTitle": "Hoe het werkt",
+      "steps": {
+        "0": {
+          "title": "Aanmelden bij {host}",
+          "detail": "Je wordt naar de eigen aanmeldpagina van {provider} gebracht. Markaestro ziet je wachtwoord nooit."
+        },
+        "1": {
+          "title": "Bekijk en keur de rechten goed",
+          "detail": "{provider} toont hieronder de rechten en vraagt je om ze toe te staan. Keur ze allemaal goed, zodat zowel publiceren als analyses werken."
+        },
+        "2": {
+          "title": "Terug naar Markaestro",
+          "detail": "Je wordt automatisch hierheen teruggestuurd en het account wordt weergegeven als Gekoppeld."
+        }
+      },
+      "metaStepDetail": "Facebook vraagt welke pagina's Markaestro mag beheren. Vink elke pagina aan waarop je zou kunnen posten; een niet-aangevinkte pagina verliest de toegang.",
+      "permissionsTitle": "Rechten die Markaestro zal opvragen",
+      "permissionsHint": "Elk recht wordt alleen gebruikt voor de functie die ernaast wordt weergegeven.",
+      "usedFor": "Gebruikt voor {feature}",
+      "requirementsTitle": "Voordat je begint",
+      "reconnectNote": "Opnieuw verbinden vernieuwt de toegang. Accounts die al aan dit merk zijn gekoppeld, blijven gekoppeld.",
+      "privacyNote": "Je kunt op elk moment de verbinding verbreken via dit scherm. Markaestro verwijdert dan het opgeslagen toegangstoken.",
+      "learnMore": "Lees de volledige verbindingsgids",
+      "cancel": "Annuleren",
+      "continue": "Doorgaan naar {provider}",
+      "opening": "{provider} wordt geopend…"
+    },
+    "requirements": {
+      "instagram": {
+        "0": "Een professioneel Instagram-account (Zakelijk of Creator). Persoonlijke accounts kunnen niet publiceren via de API van Instagram.",
+        "1": "De aanmeldgegevens voor dat Instagram-account."
+      },
+      "meta": {
+        "0": "Een Facebook-account met de rol Beheerder of Redacteur op de pagina waarop je wilt publiceren.",
+        "1": "Vink elke pagina aan in het dialoogvenster van Facebook en kies vervolgens terug in Markaestro de pagina voor dit merk."
+      },
+      "threads": {
+        "0": "Een Threads-profiel waarmee je je kunt aanmelden. Threads gebruikt een eigen login, los van Instagram."
+      },
+      "tiktok": {
+        "0": "Een TikTok-account waarmee je je kunt aanmelden.",
+        "1": "Berichten worden afgeleverd in je TikTok-inbox en afgerond in de TikTok-app."
+      },
+      "pinterest": {
+        "0": "Een zakelijk Pinterest-account met minstens één bord.",
+        "1": "Kies na het verbinden op welk bord dit merk pint."
+      },
+      "linkedin_profile": {
+        "0": "Een LinkedIn-account. Berichten worden als jij gepubliceerd, op je persoonlijke profiel."
+      },
+      "linkedin_community": {
+        "0": "Een LinkedIn-account met de rol Beheerder op de bedrijfspagina waarop je wilt publiceren."
+      }
+    },
+    "features": {
+      "profile": "Accountidentiteit",
+      "publish": "Publiceren",
+      "insights": "Analyses",
+      "delete": "Berichtbeheer",
+      "pages": "Facebook-pagina's",
+      "boards": "Borden",
+      "library": "Berichtgeschiedenis"
+    },
+    "permissions": {
+      "instagram_business_basic": {
+        "title": "Basisaccountgegevens",
+        "description": "Leest je Instagram-gebruikersnaam en account-ID, zodat Markaestro kan tonen welk account is gekoppeld en berichten daaraan kan richten."
+      },
+      "instagram_business_content_publish": {
+        "title": "Content publiceren",
+        "description": "Publiceert de foto's, video's en carrousels die je in Markaestro inplant op dit Instagram-account."
+      },
+      "instagram_business_manage_insights": {
+        "title": "Inzichten lezen",
+        "description": "Leest bereik, likes, reacties, opslaan en volgersaantallen om de pagina Analyses op te bouwen."
+      },
+      "pages_show_list": {
+        "title": "Je pagina's weergeven",
+        "description": "Toont de Facebook-pagina's die je beheert, zodat je kunt kiezen op welke dit merk post."
+      },
+      "pages_read_engagement": {
+        "title": "Paginabetrokkenheid lezen",
+        "description": "Leest de naam van de pagina, het aantal volgers en de betrokkenheid bij berichten voor Analyses."
+      },
+      "pages_manage_posts": {
+        "title": "Publiceren op de pagina",
+        "description": "Maakt de berichten aan die je in Markaestro inplant op de geselecteerde Facebook-pagina."
+      },
+      "read_insights": {
+        "title": "Pagina-inzichten lezen",
+        "description": "Leest bereik- en betrokkenheidsinzichten voor de pagina en de bijbehorende berichten."
+      },
+      "pages_read_user_content": {
+        "title": "Paginacontent lezen",
+        "description": "Leest berichten en reacties op de pagina voor de weergave van de berichtgeschiedenis."
+      },
+      "threads_basic": {
+        "title": "Basisprofiel",
+        "description": "Leest je Threads-gebruikersnaam en profielfoto, zodat Markaestro kan tonen welk account is gekoppeld."
+      },
+      "threads_content_publish": {
+        "title": "Berichten publiceren",
+        "description": "Publiceert de tekst-, afbeeldings- en videoberichten die je in Markaestro inplant op Threads."
+      },
+      "threads_delete": {
+        "title": "Berichten verwijderen",
+        "description": "Verwijdert een Threads-bericht wanneer je het verwijdert uit het tabblad Op platform in Markaestro."
+      },
+      "threads_manage_insights": {
+        "title": "Inzichten lezen",
+        "description": "Leest weergaven, likes, reacties en volgersaantallen voor Analyses."
+      },
+      "user_info_basic": {
+        "title": "Basisaccountgegevens",
+        "description": "Leest je TikTok-weergavenaam en avatar, zodat Markaestro kan tonen welk account is gekoppeld."
+      },
+      "user_info_profile": {
+        "title": "Profielgegevens",
+        "description": "Leest je gebruikersnaam, bio en profiellink voor de weergave van het verbonden account."
+      },
+      "video_publish": {
+        "title": "Video's publiceren",
+        "description": "Verstuurt de video's die je in Markaestro inplant naar je TikTok-account."
+      },
+      "video_upload": {
+        "title": "Video's uploaden",
+        "description": "Uploadt videobestanden naar TikTok, zodat ze gepubliceerd kunnen worden."
+      },
+      "video_list": {
+        "title": "Je video's weergeven",
+        "description": "Toont je gepubliceerde TikTok-video's voor het tabblad Op platform en de berichtstatistieken."
+      },
+      "user_info_stats": {
+        "title": "Accountstatistieken",
+        "description": "Leest volgers-, like- en video-aantallen voor Analyses."
+      },
+      "user_accounts_read": {
+        "title": "Accountgegevens",
+        "description": "Leest je Pinterest-gebruikersnaam en profiel, zodat Markaestro kan tonen welk account is gekoppeld."
+      },
+      "boards_read": {
+        "title": "Borden lezen",
+        "description": "Toont je borden, zodat je kunt kiezen op welk bord dit merk pint."
+      },
+      "boards_write": {
+        "title": "Borden beheren",
+        "description": "Vereist door Pinterest om een Pin te maken, zelfs op een bestaand bord."
+      },
+      "boards_read_secret": {
+        "title": "Geheime borden lezen",
+        "description": "Neemt je geheime borden op in de bordkiezer."
+      },
+      "boards_write_secret": {
+        "title": "Pinnen op geheime borden",
+        "description": "Laat dit merk pinnen op een geheim bord."
+      },
+      "pins_read": {
+        "title": "Pins lezen",
+        "description": "Leest je Pins voor de weergave van de berichtgeschiedenis."
+      },
+      "pins_write": {
+        "title": "Pins maken",
+        "description": "Maakt de Pins die je in Markaestro inplant."
+      },
+      "pins_read_secret": {
+        "title": "Geheime Pins lezen",
+        "description": "Leest Pins op geheime borden voor de weergave van de berichtgeschiedenis."
+      },
+      "pins_write_secret": {
+        "title": "Geheime Pins maken",
+        "description": "Maakt Pins op geheime borden."
+      },
+      "openid": {
+        "title": "Aanmelden met LinkedIn",
+        "description": "Bevestigt welk LinkedIn-lid verbinding maakt."
+      },
+      "profile": {
+        "title": "Basisprofiel",
+        "description": "Leest je naam en foto, zodat Markaestro kan tonen welk profiel is gekoppeld."
+      },
+      "w_member_social": {
+        "title": "Namens jou posten",
+        "description": "Publiceert de berichten die je in Markaestro inplant op je LinkedIn-profiel."
+      },
+      "r_member_postAnalytics": {
+        "title": "Berichtanalyses lezen",
+        "description": "Leest de vertoningen en betrokkenheid van je berichten voor Analyses."
+      },
+      "r_member_profileAnalytics": {
+        "title": "Profielanalyses lezen",
+        "description": "Leest volgers- en profielweergaveaantallen voor Analyses."
+      },
+      "r_basicprofile": {
+        "title": "Basisprofiel",
+        "description": "Leest je naam en foto, zodat Markaestro kan tonen wie de pagina's heeft geautoriseerd."
+      },
+      "w_organization_social": {
+        "title": "Posten als de pagina",
+        "description": "Publiceert de berichten die je in Markaestro inplant op de bedrijfspagina."
+      },
+      "r_organization_social": {
+        "title": "Paginaberichten lezen",
+        "description": "Leest de berichten van de pagina voor de weergave van de berichtgeschiedenis."
+      },
+      "rw_organization_admin": {
+        "title": "Pagina's weergeven die je beheert",
+        "description": "Toont de bedrijfspagina's die je beheert, zodat je kunt kiezen op welke dit merk post."
+      }
+    },
+    "outcome": {
+      "successTitle": "{provider} verbonden",
+      "successBody": "{account} is nu gekoppeld aan {brand}.",
+      "successBodyNoAccount": "Het account is nu gekoppeld aan {brand}.",
+      "successBodyNoBrand": "{account} is nu gekoppeld.",
+      "successBodyPlain": "Het account is nu gekoppeld.",
+      "grantedTitle": "Rechten verleend",
+      "requestedTitle": "Rechten aangevraagd",
+      "nextTitle": "Wat je nu kunt doen",
+      "createPost": "Bericht maken",
+      "viewAnalytics": "Analyses bekijken",
+      "postHistory": "Berichten op platform bekijken",
+      "needsPageTitle": "Nog één stap: kies een Facebook-pagina",
+      "needsPageBody": "Facebook-toegang is verleend. Kies nu op welke pagina dit merk post.",
+      "choosePages": "Pagina's kiezen",
+      "needsBoardTitle": "Nog één stap: kies een bord",
+      "needsBoardBody": "Pinterest-toegang is verleend. Kies nu op welk bord dit merk pint.",
+      "errorTitle": "{provider} is niet verbonden",
+      "reasons": {
+        "access_denied": "Je hebt de rechten op {provider} niet goedgekeurd, dus er is niets gekoppeld. Begin opnieuw en kies Toestaan om te verbinden.",
+        "channel_limit": "Dit merk heeft het aantal kanalen bereikt dat je abonnement toestaat. Ontkoppel een kanaal of upgrade en probeer het opnieuw.",
+        "connection_failed": "{provider} heeft de verbinding niet voltooid. Er is niets gekoppeld. Probeer het opnieuw en controleer, als het blijft mislukken, de vereisten in de verbindingsgids."
+      },
+      "providerSaid": "{provider} meldde: {message}",
+      "tryAgain": "Opnieuw proberen",
+      "dismiss": "Sluiten",
+      "chooseBoard": "Bord kiezen"
+    },
+    "hints": {
+      "connect": "Opent de aanmeldpagina van {provider}, zodat je toegang voor dit merk kunt goedkeuren.",
+      "reconnect": "Voert de aanmelding bij {provider} opnieuw uit om de toegang te vernieuwen. Gekoppelde accounts blijven gekoppeld.",
+      "disconnect": "Verwijdert dit account van het merk en verwijdert het toegangstoken dat Markaestro heeft opgeslagen.",
+      "test": "Stuurt één alleen-lezen verzoek naar {provider} om te bevestigen dat de koppeling nog werkt.",
+      "choosePages": "Laadt de pagina's die Facebook heeft verleend, zodat je kunt kiezen op welke dit merk post."
+    }
   }
 }
