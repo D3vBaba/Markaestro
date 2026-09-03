@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "公开发布 API | Markaestro 开发者",
+    "description": "使用工作区 API 密钥上传素材、创建帖子，并发布到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。含 Connect API 与完整 v1 参考。"
+  },
   "hero": {
     "eyebrow": "开发者",
     "title": "公开发布 API",

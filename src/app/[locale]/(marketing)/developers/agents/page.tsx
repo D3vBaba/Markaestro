@@ -15,18 +15,20 @@ import MarketingLayout from "@/components/layout/MarketingLayout";
 import CopyBlock from "@/components/marketing/CopyBlock";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { marketingPageMetadata } from "@/lib/marketing-metadata";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("developersAgents.meta");
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const metadata = await marketingPageMetadata(locale, '/developers/agents', 'developersAgents');
   return {
-    title: t("title"),
-    description: t("description"),
-    alternates: { canonical: "https://markaestro.com/developers/agents" },
+    ...metadata,
     openGraph: {
-      title: t("ogTitle"),
-      description: t("ogDescription"),
-      url: "https://markaestro.com/developers/agents",
-      type: "article",
+      ...metadata.openGraph,
+      type: 'article',
     },
   };
 }

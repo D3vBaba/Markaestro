@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Markaestro にお問い合わせ",
+    "description": "機能、連携、料金、パートナーシップについてのご質問は、hello@markaestro.com またはメッセージで Markaestro チームまでご連絡ください。"
+  },
   "hero": {
     "eyebrow": "お問い合わせ",
     "titleLead": "ぜひ",

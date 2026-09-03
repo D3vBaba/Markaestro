@@ -7,7 +7,9 @@ import {
   stripLocale,
   isPublicPath,
   isMarketingPath,
+  isAppPath,
   isLocaleRoutedPath,
+  stripDefaultLocalePrefix,
 } from '@/lib/proxy-paths';
 
 const intlMiddleware = createMiddleware(routing);
@@ -112,13 +114,20 @@ function isMarketingHost(host: string): boolean {
 /**
  * Host-based redirect. Returns a redirect response when the requested host is
  * wrong for the path, otherwise null. Only active when the split flag is on
- * and both host envs are configured (so local dev is unaffected). Uses 307
- * (temporary) redirects so a rollback is never cached permanently by browsers.
+ * and both host envs are configured (so local dev is unaffected).
+ *
+ * Cross-host hops for the live split use 307 so a rollback is never cached
+ * permanently. www → apex uses 301 (host canonicalization is permanent).
  *
  * Classifies by the locale-stripped path (`stripLocale(pathname).rest`) so a
  * prefixed URL like `/es/pricing` is recognized as the same marketing path as
- * `/pricing`, but always redirects using the ORIGINAL pathname so the locale
- * prefix survives the cross-host hop.
+ * `/pricing`. Marketing hops keep the ORIGINAL pathname so the locale prefix
+ * survives. App hops use the stripped path: the (app) tree is not locale-
+ * scoped, so `/es/login` must land on `/login`, not `/es/login`.
+ *
+ * Unknown apex paths are intentionally NOT relocated. Sending them to the app
+ * made every junk URL a 307 → login soft-404 with the marketing title. They
+ * stay on the apex and hit `src/app/not-found.tsx` as a real 404.
  */
 function hostRedirect(req: NextRequest): NextResponse | null {
   if (!splitEnabled()) return null;
@@ -140,6 +149,13 @@ function hostRedirect(req: NextRequest): NextResponse | null {
   // Unknown hosts (preview channels, *.run.app, health checks) are left alone.
   if (host !== APP_HOSTNAME && !isMarketingHost(host)) return null;
 
+  // www → apex. Defense in depth: www.markaestro.com is not a Firebase custom
+  // domain yet, so this path is not hit in production until the cert exists.
+  // 301, not 307: the host canonical is permanent.
+  if (host === `www.${MARKETING_HOSTNAME}`) {
+    return NextResponse.redirect(`${MARKETING_URL}${pathname}${search}`, 301);
+  }
+
   // On the app host: send the bare root to the dashboard (the auth guard will
   // bounce to /login if needed); push any other marketing route to the apex.
   // The app itself isn't locale-scoped yet, so its bare root is never prefixed.
@@ -155,9 +171,10 @@ function hostRedirect(req: NextRequest): NextResponse | null {
     return null;
   }
 
-  // On a marketing host: push app routes to the subdomain.
-  if (isMarketingHost(host) && !isMarketingPath(rest)) {
-    return NextResponse.redirect(`${APP_URL}${pathname}${search}`, 307);
+  // On a marketing host: relocate *known* app routes only. /login and
+  // /dashboard stay 307s to the app; /blog, /faq, and junk paths 404 here.
+  if (isMarketingHost(host) && isAppPath(rest)) {
+    return NextResponse.redirect(`${APP_URL}${rest}${search}`, 307);
   }
 
   return null;
@@ -239,6 +256,17 @@ export default async function proxy(req: NextRequest) {
     return res;
   }
 
+  // --- Default-locale prefix ---
+  // `en` is unprefixed. /en and /en/pricing are duplicates; 301 to the
+  // canonical unprefixed URL. Must run before the host split so /en/login
+  // becomes /login and then 307s to the app, rather than 404ing as /en/login.
+  const unprefixed = stripDefaultLocalePrefix(pathname);
+  if (unprefixed !== null) {
+    const url = req.nextUrl.clone();
+    url.pathname = unprefixed;
+    return NextResponse.redirect(url, 301);
+  }
+
   // --- Host-based split (marketing apex vs. app subdomain) ---
   // Runs before the auth guard so a misplaced URL is relocated to the correct
   // host first. No-op unless APP_DOMAIN_SPLIT_ENABLED is on.
@@ -246,6 +274,8 @@ export default async function proxy(req: NextRequest) {
   if (relocated) return relocated;
 
   const { rest } = stripLocale(pathname);
+  const host = requestHostname(req);
+  const onMarketingHost = splitEnabled() && isMarketingHost(host);
 
   // Authenticated users visiting the public root should land in the product,
   // not the marketing CTA loop. Keep other marketing pages readable. Checked
@@ -259,7 +289,12 @@ export default async function proxy(req: NextRequest) {
   // recognized as public the same as /pricing; (app) routes never carry a
   // locale prefix today, so they're completely unaffected (rest === pathname
   // for anything that doesn't start with a real locale segment).
-  if (!isPublicPath(rest) && !pathname.startsWith('/api/')) {
+  //
+  // On the marketing apex, skip the guard entirely: known app paths have
+  // already been 307'd, and anything else (junk URLs, future marketing pages)
+  // must 404 here instead of bouncing to /login (which would 307 to the app
+  // and look like a homepage clone).
+  if (!onMarketingHost && !isPublicPath(rest) && !pathname.startsWith('/api/')) {
     if (!(await hasValidSession(req))) {
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = '/login';
@@ -296,7 +331,14 @@ export default async function proxy(req: NextRequest) {
     return intlMiddleware(req);
   }
 
-  return nextWithPathname(req);
+  const res = nextWithPathname(req);
+  // Public app routes (/login, /onboarding, /auth/action, /oauth/complete)
+  // skip the authenticated-page header above. Tag them noindex so a crawler
+  // that ignores robots.txt Disallow cannot index login HTML.
+  if (isAppPath(rest)) {
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  }
+  return res;
 }
 
 export const config = {

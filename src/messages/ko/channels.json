@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "소셜 채널 | Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest",
+    "description": "한 번 연결하면 Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest에 발행할 수 있습니다. API 차이, 글자 수 제한, 미디어 요구사항은 Markaestro가 처리합니다."
+  },
   "hero": {
     "eyebrow": "채널",
     "titleLead": "당신의 오디언스에게",

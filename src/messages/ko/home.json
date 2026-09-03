@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Markaestro | 당신이 마케팅하는 모든 브랜드를 발행, 예약, 측정",
+    "description": "미디어를 업로드하고 캡션을 작성한 뒤, 당신이 마케팅하는 모든 브랜드(제품, 비즈니스, 고객사 또는 당신 자신)를 하나의 대시보드에서 Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest에 발행하세요."
+  },
   "hero": {
     "badge": "당신이 운영하는 모든 브랜드를 위한 소셜 퍼블리싱 허브",
     "titleLead": "당신의 마케팅 엔진 전체를",

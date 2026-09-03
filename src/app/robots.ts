@@ -14,6 +14,13 @@ const DISALLOW = [
   '/content',
   '/onboarding',
   '/oauth/',
+  // Apex paths that 307 to the app host. Disallowing them cuts crawl waste
+  // (the app host already Disallow: /).
+  '/login',
+  '/intelligence',
+  '/analytics',
+  '/guides',
+  '/auth',
 ];
 
 function appOriginHostname(): string | null {
@@ -47,6 +54,8 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   }
 
   // Marketing apex: allow the public surface, disallow app paths.
+  // `host` is omitted on purpose: Google has ignored the Host directive for
+  // years, and emitting it here was obsolete.
   return {
     rules: [
       {
@@ -56,6 +65,5 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       },
     ],
     sitemap: `${marketingUrl}/sitemap.xml`,
-    host: marketingUrl,
   };
 }

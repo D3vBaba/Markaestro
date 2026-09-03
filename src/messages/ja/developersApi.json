@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "公開投稿 API | Markaestro デベロッパー",
+    "description": "ワークスペースの API キーでメディアをアップロードし、投稿を作成して Facebook、Instagram、TikTok、LinkedIn、Threads、Pinterest に公開します。Connect API と v1 の完全なリファレンス。"
+  },
   "hero": {
     "eyebrow": "開発者向け",
     "title": "パブリック投稿API",

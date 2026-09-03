@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Public publishing API | Markaestro developers",
+    "description": "Upload media, create posts, and publish to Facebook, Instagram, TikTok, LinkedIn, Threads, and Pinterest with a workspace API key. Connect API and full v1 reference."
+  },
   "hero": {
     "eyebrow": "Developers",
     "title": "Public publishing API",

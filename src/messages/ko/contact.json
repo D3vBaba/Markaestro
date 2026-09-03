@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Markaestro에 문의하기",
+    "description": "기능, 연동, 요금, 파트너십에 대한 질문이 있으신가요? hello@markaestro.com 또는 메시지로 Markaestro 팀에 연락하세요."
+  },
   "hero": {
     "eyebrow": "문의하기",
     "titleLead": "여러분의 이야기를",

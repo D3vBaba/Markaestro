@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { stripLocale, isPublicPath, isMarketingPath, isLocaleRoutedPath } from '@/lib/proxy-paths';
+import {
+  stripLocale,
+  isPublicPath,
+  isMarketingPath,
+  isLocaleRoutedPath,
+  isAppPath,
+  stripDefaultLocalePrefix,
+  APP_ROUTE_PREFIXES,
+} from '@/lib/proxy-paths';
 
 // These are the pure path-classification helpers proxy.ts composes locale
 // routing around. src/proxy.ts has already caused one production regression
@@ -77,6 +85,7 @@ describe('isPublicPath — fed the locale-stripped path', () => {
     expect(isPublicPath('/robots.txt')).toBe(true);
     expect(isPublicPath('/sitemap.xml')).toBe(true);
     expect(isPublicPath('/llms.txt')).toBe(true);
+    expect(isPublicPath('/ai.txt')).toBe(true);
   });
 });
 
@@ -86,13 +95,111 @@ describe('isMarketingPath — fed the locale-stripped path (host-split gate)', (
     expect(isMarketingPath(stripLocale('/ar/channels').rest)).toBe(true);
   });
 
-  it('recognizes sitemap.xml/llms.txt as apex-only (host-split still applies to them)', () => {
+  it('recognizes sitemap.xml/llms.txt/ai.txt as apex-only (host-split still applies to them)', () => {
     expect(isMarketingPath('/sitemap.xml')).toBe(true);
     expect(isMarketingPath('/llms.txt')).toBe(true);
+    expect(isMarketingPath('/ai.txt')).toBe(true);
   });
 
   it('does not treat an (app) route as a marketing path even with a locale-shaped prefix', () => {
     expect(isMarketingPath(stripLocale('/es/dashboard').rest)).toBe(false);
+  });
+
+  it('does not treat unknown junk paths as marketing (those must 404 on the apex)', () => {
+    expect(isMarketingPath('/this-path-should-not-exist-xyz123')).toBe(false);
+    expect(isMarketingPath('/blog')).toBe(false);
+    expect(isMarketingPath('/faq')).toBe(false);
+    expect(isMarketingPath('/sitemap-index.xml')).toBe(false);
+  });
+});
+
+describe('isAppPath — the allowlist of product routes that 307 apex → app', () => {
+  it('matches every (app) route prefix that actually exists', () => {
+    for (const p of [
+      '/login',
+      '/dashboard',
+      '/settings',
+      '/products',
+      '/calendar',
+      '/content',
+      '/onboarding',
+      '/onboarding/success',
+      '/oauth/complete',
+      '/intelligence',
+      '/analytics',
+      '/guides/channels',
+      '/auth/action',
+    ]) {
+      expect(isAppPath(p)).toBe(true);
+    }
+  });
+
+  it('matches nested paths under those prefixes', () => {
+    expect(isAppPath('/dashboard/anything')).toBe(true);
+    expect(isAppPath('/oauth/complete')).toBe(true);
+  });
+
+  it('does not relocate marketing pages, crawler files, or junk URLs', () => {
+    for (const p of [
+      '/',
+      '/features',
+      '/pricing',
+      '/contact',
+      '/developers/agents',
+      '/sitemap.xml',
+      '/llms.txt',
+      '/ai.txt',
+      '/blog',
+      '/faq',
+      '/this-path-should-not-exist-xyz123',
+      '/sitemap-index.xml',
+      '/r/abc123',
+      '/api/health',
+    ]) {
+      expect(isAppPath(p)).toBe(false);
+    }
+  });
+
+  it('classifies locale-stripped app paths the same as unprefixed ones', () => {
+    expect(isAppPath(stripLocale('/es/login').rest)).toBe(true);
+    expect(isAppPath(stripLocale('/fr/dashboard').rest)).toBe(true);
+  });
+
+  it('lists the prefixes the live-crawl audit named, plus oauth/onboarding/content', () => {
+    expect([...APP_ROUTE_PREFIXES]).toEqual([
+      '/login',
+      '/dashboard',
+      '/settings',
+      '/products',
+      '/calendar',
+      '/content',
+      '/onboarding',
+      '/oauth',
+      '/intelligence',
+      '/analytics',
+      '/guides',
+      '/auth',
+    ]);
+  });
+});
+
+describe('stripDefaultLocalePrefix', () => {
+  it('strips /en and /en/ to the unprefixed root', () => {
+    expect(stripDefaultLocalePrefix('/en')).toBe('/');
+    expect(stripDefaultLocalePrefix('/en/')).toBe('/');
+  });
+
+  it('strips /en/pricing to /pricing', () => {
+    expect(stripDefaultLocalePrefix('/en/pricing')).toBe('/pricing');
+    expect(stripDefaultLocalePrefix('/en/developers/agents')).toBe('/developers/agents');
+  });
+
+  it('leaves unprefixed English and other locales alone', () => {
+    expect(stripDefaultLocalePrefix('/')).toBeNull();
+    expect(stripDefaultLocalePrefix('/pricing')).toBeNull();
+    expect(stripDefaultLocalePrefix('/es')).toBeNull();
+    expect(stripDefaultLocalePrefix('/es/pricing')).toBeNull();
+    expect(stripDefaultLocalePrefix('/enterprise')).toBeNull();
   });
 });
 

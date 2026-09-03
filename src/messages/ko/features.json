@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "기능 | Markaestro 소셜 퍼블리싱 플랫폼",
+    "description": "멀티채널 발행, 미디어 라이브러리, 예약, 미리보기, 그리고 이미 발행한 게시물에서 학습하는 Intelligence. 운영하는 모든 브랜드를 성장시키는 데 필요한 기능입니다."
+  },
   "hero": {
     "eyebrow": "플랫폼",
     "titleLead": "성장에 필요한 모든 것을",

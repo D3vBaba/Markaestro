@@ -53,6 +53,9 @@ export const PUBLIC_PATHS = [
   '/robots.txt',
   '/sitemap.xml',
   '/llms.txt',
+  // Alias of /llms.txt (next.config rewrite). Must stay public so the apex
+  // 404-fix does not bounce it through the auth guard to /login.
+  '/ai.txt',
 ];
 
 /**
@@ -82,6 +85,7 @@ export const MARKETING_PATHS = new Set<string>([
   // NEVER_RELOCATED_PATHS in proxy.ts.
   '/sitemap.xml',
   '/llms.txt',
+  '/ai.txt',
 ]);
 
 /** Prefixes that belong on the marketing apex. */
@@ -92,6 +96,49 @@ export function isMarketingPath(pathname: string): boolean {
   return MARKETING_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
+}
+
+/**
+ * Product routes that live under `src/app/(app)/`. On the marketing apex these
+ * are the *only* paths that should 307 to the app host. Unknown apex paths
+ * must 404 on markaestro.com (soft-404ing them as app login clones is worse
+ * than a real 404). Verified against the (app) route tree:
+ *   login, dashboard, settings, products, calendar, content, onboarding,
+ *   oauth/complete, intelligence, analytics, guides/channels, auth/action.
+ */
+export const APP_ROUTE_PREFIXES = [
+  '/login',
+  '/dashboard',
+  '/settings',
+  '/products',
+  '/calendar',
+  '/content',
+  '/onboarding',
+  '/oauth',
+  '/intelligence',
+  '/analytics',
+  '/guides',
+  '/auth',
+] as const;
+
+export function isAppPath(pathname: string): boolean {
+  return APP_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
+/**
+ * `en` is unprefixed (`localePrefix: "as-needed"`). A request for `/en` or
+ * `/en/...` is a duplicate of the canonical unprefixed URL. Returns the
+ * stripped path, or null when the pathname is not a default-locale prefix.
+ */
+export function stripDefaultLocalePrefix(pathname: string): string | null {
+  if (pathname === '/en' || pathname === '/en/') return '/';
+  if (pathname.startsWith('/en/')) {
+    const stripped = pathname.slice(3);
+    return stripped.length > 0 ? stripped : '/';
+  }
+  return null;
 }
 
 /**
