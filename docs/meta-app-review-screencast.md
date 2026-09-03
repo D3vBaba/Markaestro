@@ -148,7 +148,7 @@ Permissions demonstrated: `threads_basic`, `threads_content_publish`,
 ## Recording made on 2026-09-03 (submitted version)
 
 File: `output/meta-review-2026-09-03/markaestro-meta-app-review-screencast.mp4`
-(outer repo, 12:21, 1440x1015, captions burned in). Raw takes sit next to it.
+(outer repo, 12:21, 1408x984, browser chrome and the extension outline cropped, captions burned in). Raw takes sit next to it.
 Test brand: Mustard Seed Impact International. Test accounts: Instagram
 @mustardseedii (Instagram Tester), Threads @mustardseedii (Threads Tester).
 
