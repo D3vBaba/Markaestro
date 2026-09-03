@@ -8,7 +8,9 @@ import {
   findManifestHref,
   findStylesheetHrefs,
   hexToHsl,
+  isBotChallengePage,
   isNeutral,
+  looksLikeChallengeText,
   looksTruncated,
   normalizeColor,
   parseManifest,
@@ -230,5 +232,25 @@ describe('manifest and stylesheet discovery', () => {
 
   it('returns an empty manifest for invalid JSON', () => {
     expect(parseManifest('nope', BASE)).toEqual({ name: '', themeColor: null, icons: [] });
+  });
+});
+
+describe('bot challenge detection', () => {
+  const cloudflareChallenge = `<!DOCTYPE html><html><head><title>Just a moment...</title></head>
+<body><div id="challenge-running">Performing security verification</div>
+<script src="/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1"></script></body></html>`;
+
+  it('recognizes a Cloudflare managed challenge by title and by body markers', () => {
+    expect(isBotChallengePage(cloudflareChallenge)).toBe(true);
+    expect(isBotChallengePage('<html><head><title>Acme</title></head><body><div class="cf-turnstile"></div></body></html>')).toBe(true);
+  });
+
+  it('leaves ordinary pages alone, even ones that mention security', () => {
+    expect(isBotChallengePage('<html><head><title>Acme Security Cameras</title></head><body><p>Protect your home.</p></body></html>')).toBe(false);
+  });
+
+  it('flags model output that read a challenge page', () => {
+    expect(looksLikeChallengeText('mustardseedimpactinternational.org Performing security verification')).toBe(true);
+    expect(looksLikeChallengeText('Acme sells anvils to coyotes.')).toBe(false);
   });
 });

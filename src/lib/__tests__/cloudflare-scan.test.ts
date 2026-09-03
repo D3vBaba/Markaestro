@@ -53,11 +53,21 @@ describe('normalizeCloudflareBrand', () => {
     expect(brand?.tags).toEqual([]);
   });
 
+  it('rejects a result that read a bot challenge page', () => {
+    expect(normalizeCloudflareBrand({
+      name: 'example.org',
+      description: 'This website uses a security service to protect against malicious bots.',
+      category: 'other',
+      tags: [],
+    })).toBeNull();
+  });
+
   it('returns null for empty or malformed results', () => {
     expect(normalizeCloudflareBrand(null)).toBeNull();
     expect(normalizeCloudflareBrand('text')).toBeNull();
     expect(normalizeCloudflareBrand([])).toBeNull();
     expect(normalizeCloudflareBrand({ name: '', tags: [], tone: '' })).toBeNull();
+    expect(normalizeCloudflareBrand({ name: '', description: '', category: 'other', pricingTier: 'free', tags: [] })).toBeNull();
   });
 });
 
@@ -160,6 +170,13 @@ describe('Cloudflare quick actions', () => {
     const html = await renderHtmlWithCloudflare('https://acme.example');
     expect(html).toContain('<title>Acme</title>');
     expect(String(fetchMock.mock.calls[0][0])).toMatch(/browser-rendering\/content$/);
+  });
+
+  it('treats a rendered challenge page as no render', async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ success: true, result: '<html><head><title>Just a moment...</title></head><body></body></html>' }),
+    );
+    expect(await renderHtmlWithCloudflare('https://acme.example')).toBeNull();
   });
 
   it('accepts raw HTML from /content and rejects non-documents', async () => {

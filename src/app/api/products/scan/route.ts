@@ -23,6 +23,7 @@ import {
   findStylesheetHrefs,
   getMetaContent,
   getTitle,
+  isBotChallengePage,
   isNeutral,
   normalizeColor,
   parseManifest,
@@ -100,6 +101,12 @@ async function fetchHtml(target: URL): Promise<{ html: string; finalUrl: URL }> 
       continue;
     }
 
+    // A bot challenge is served with a 403 and this header. The headless
+    // browser is always classed as a bot too, so there is no point falling
+    // back to it; the site owner has to allow verified bots.
+    if (res.headers.get('cf-mitigated') === 'challenge') {
+      throw new Error('VALIDATION_SCAN_BLOCKED');
+    }
     if (!res.ok) {
       throw new Error('VALIDATION_SCAN_FETCH_FAILED');
     }
@@ -110,6 +117,7 @@ async function fetchHtml(target: URL): Promise<{ html: string; finalUrl: URL }> 
     }
 
     const html = await readResponseTextWithLimit(res, MAX_HTML_BYTES);
+    if (isBotChallengePage(html)) throw new Error('VALIDATION_SCAN_BLOCKED');
     return { html, finalUrl: target };
   }
 
@@ -251,6 +259,7 @@ export async function POST(req: Request) {
       ({ html, finalUrl } = await fetchHtml(target));
     } catch (err) {
       const msg = err instanceof Error ? err.message : '';
+      if (msg === 'VALIDATION_SCAN_BLOCKED') throw err;
       // Sites that only render client-side, or that refuse plain fetches,
       // still read fine through a real browser.
       const rendered = await renderHtmlWithCloudflare(target.toString());
@@ -330,7 +339,9 @@ export async function POST(req: Request) {
       logoUrl: logo?.url ?? '',
       targetAudience: brand?.targetAudience ?? '',
       tone: brand?.tone ?? '',
-      previewImage: await previewImage,
+      // A site that challenged the headless browser yields no brand, and its
+      // screenshot would be the challenge page, so the preview goes with it.
+      previewImage: brand ? await previewImage : '',
     });
   } catch (error) {
     return apiError(error);

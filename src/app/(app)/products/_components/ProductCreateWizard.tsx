@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, Loader2, ArrowRight, Check, Wand2, Pencil } from "lucide-react";
+import { Globe, Loader2, ArrowRight, Check, Pencil } from "lucide-react";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
@@ -228,15 +228,6 @@ export default function ProductCreateWizard({
                   }}
                 >
                   <div className="flex items-start gap-3">
-                    <div
-                      className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ background: "var(--mk-panel)" }}
-                    >
-                      <Wand2
-                        className="h-4.5 w-4.5"
-                        style={{ color: "var(--mk-ink-80)" }}
-                      />
-                    </div>
                     <div className="flex-1 min-w-0">
                       <p
                         className="text-[14px] font-semibold"
@@ -267,12 +258,8 @@ export default function ProductCreateWizard({
                       />
                     </div>
                     <Button onClick={handleScan} disabled={!scanUrl.trim() || scanning} className="h-10 sm:h-9">
-                      {scanning ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Wand2 className="h-4 w-4" />
-                      )}
-                      <span className="ms-1.5">{t("scanCard.scan")}</span>
+                      {scanning && <Loader2 className="h-4 w-4 animate-spin me-1.5" />}
+                      <span>{t("scanCard.scan")}</span>
                     </Button>
                   </div>
                 </div>

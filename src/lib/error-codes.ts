@@ -617,6 +617,12 @@ export const ERROR_CODES: Record<string, ErrorCodeSpec> = {
     category: 'validation',
     description: 'The page could not be fetched for scanning.',
   },
+  VALIDATION_SCAN_BLOCKED: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'The site answered with a bot challenge instead of its content, so nothing could be read. The site owner controls this; enter the brand details manually.',
+  },
   VALIDATION_SCAN_UNSUPPORTED_CONTENT: {
     status: 400,
     retryable: false,

@@ -216,7 +216,7 @@ An identical retry can plausibly succeed for these codes and only these. For eve
 - `VERTEX_AI_INVALID_JSON` (500): The model returned content that did not parse against the response schema. The AI operation is refunded.
 - `VERTEX_UNAVAILABLE` (500): The model backend was unavailable. The AI operation is refunded, so an identical retry is safe.
 
-The full catalogue, 166 codes with statuses and meanings, is in the OpenAPI description under **Errors**.
+The full catalogue, 167 codes with statuses and meanings, is in the OpenAPI description under **Errors**.
 
 <!-- generated:endpoints:end -->
 

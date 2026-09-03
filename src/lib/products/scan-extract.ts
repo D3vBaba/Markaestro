@@ -494,3 +494,21 @@ export function parseManifest(json: string, baseUrl: URL): ManifestBrand {
     icons,
   };
 }
+
+// ── Bot challenges ────────────────────────────────────────────────────────
+
+/** Markers of an interstitial served instead of the site: Cloudflare's
+    managed challenge and its cousins. A scan that reads one of these would
+    present the challenge vendor's colors and copy as the brand's. */
+const CHALLENGE_TITLE = /just a moment|attention required|performing security verification|verify you are human|checking your browser|security checkpoint|access denied|bot verification|are you a robot/i;
+const CHALLENGE_BODY = /\/cdn-cgi\/challenge-platform\/|id=["']challenge-(?:running|error|body|form|stage)|cf-turnstile|cf_chl_|px-captcha|_Incapsula_Resource|ddos-guard|enable javascript and cookies to continue|vercel security checkpoint/i;
+
+export function isBotChallengePage(html: string): boolean {
+  const head = html.slice(0, 200_000);
+  return CHALLENGE_TITLE.test(getTitle(head)) || CHALLENGE_BODY.test(head);
+}
+
+/** The same markers, for model output that read a challenge page. */
+export function looksLikeChallengeText(text: string): boolean {
+  return CHALLENGE_TITLE.test(text) || /security service to protect against malicious bots|cloudflare ray id/i.test(text);
+}

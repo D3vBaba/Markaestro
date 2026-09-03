@@ -12,7 +12,7 @@
 
 import { logger } from '@/lib/logger';
 import { productCategories } from '@/lib/schemas';
-import { cleanDescription } from '@/lib/products/scan-extract';
+import { cleanDescription, isBotChallengePage, looksLikeChallengeText } from '@/lib/products/scan-extract';
 
 const CLOUDFLARE_API = 'https://api.cloudflare.com/client/v4/accounts';
 /** Whole-request budget for the /json call (render + model). */
@@ -162,9 +162,14 @@ export function normalizeCloudflareBrand(raw: unknown): CloudflareBrand | null {
     tone: str(r.tone, MAX_TONE_CHARS),
   };
 
-  // A response with nothing in it is worse than no response: the caller
-  // would skip its own extraction for empty strings.
-  const hasContent = Object.values(brand).some((v) => (Array.isArray(v) ? v.length > 0 : v !== ''));
+  // The model read a bot challenge instead of the site.
+  if (looksLikeChallengeText(`${brand.name} ${brand.description}`)) return null;
+
+  // A response with nothing substantive is worse than no response: the
+  // caller would skip its own extraction, and a category alone is what the
+  // model returns when it read a blank or blocked page.
+  const hasContent =
+    brand.name !== '' || brand.description !== '' || brand.targetAudience !== '' || brand.tone !== '' || brand.tags.length > 0;
   return hasContent ? brand : null;
 }
 
@@ -309,6 +314,13 @@ export async function renderHtmlWithCloudflare(url: string): Promise<string | nu
       html = payload.result;
     }
     if (!/<html[\s>]|<body[\s>]|<head[\s>]/i.test(html.slice(0, 4096))) return null;
+    if (isBotChallengePage(html)) {
+      logger.info('cloudflare page render hit a bot challenge', {
+        event: 'products.scan.cloudflare_content_challenged',
+        latencyMs: Date.now() - startedAt,
+      });
+      return null;
+    }
     logger.info('cloudflare page render', {
       event: 'products.scan.cloudflare_content',
       browserMs: browserMs(res),
