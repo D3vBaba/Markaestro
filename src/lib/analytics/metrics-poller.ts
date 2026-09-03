@@ -29,6 +29,8 @@ export type MetricsPollSummary = {
   channelFetches: number;
   affectedDates: string[];
   errors: Array<{ postId: string; error: string }>;
+  /** Posts an on-demand refresh parked because the platform no longer serves them. */
+  parked?: number;
   /** On-demand refresh only: posts in scope that the time budget did not reach. */
   remaining?: number;
   /** On-demand refresh only: parked posts (unsupported or failed) left alone. */
@@ -533,6 +535,21 @@ export async function refreshPostsNow(
     summary.channelFetches += channelFetches;
 
     if (!outcomes.includes('ok')) {
+      // Every channel says the post is gone (deleted on the platform) or has
+      // no metrics to offer. Park it now, exactly as the scheduler would, so
+      // the next press does not fetch it again, and count it apart from real
+      // failures: a post the user removed on Instagram is not a refresh error.
+      const allDead = outcomes.length > 0 && outcomes.every((o) => o === 'unsupported' || o === 'not_found');
+      if (allDead) {
+        await doc.ref.update({
+          metricsStatus: 'unsupported',
+          metricsLastError: lastError || 'Metrics not available for this post',
+          metricsNextPollAt: FieldValue.delete(),
+          metricsUpdatedAt: nowIso,
+        });
+        summary.parked = (summary.parked ?? 0) + 1;
+        return;
+      }
       if (lastError) summary.errors.push({ postId: doc.id, error: lastError });
       return;
     }

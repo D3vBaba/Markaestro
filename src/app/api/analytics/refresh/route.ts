@@ -79,6 +79,8 @@ export async function POST(req: Request) {
     return apiOk({
       scanned: summary.due - (summary.skippedDead ?? 0),
       skipped: summary.skippedDead ?? 0,
+      // Parked this press: removed on the platform or metrics not offered.
+      parked: summary.parked ?? 0,
       updated: summary.polled,
       remaining: summary.remaining ?? 0,
       followersUpdated,
