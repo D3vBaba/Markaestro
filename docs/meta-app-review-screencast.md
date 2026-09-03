@@ -148,7 +148,7 @@ Permissions demonstrated: `threads_basic`, `threads_content_publish`,
 ## Recording made on 2026-09-03 (submitted version)
 
 File: `output/meta-review-2026-09-03/markaestro-meta-app-review-screencast.mp4`
-(outer repo, 12:21, 1408x984, browser chrome and the extension outline cropped, captions burned in). Raw takes sit next to it.
+(outer repo, 12:16, 1408x984, browser chrome and the extension outline cropped, captions burned in). Raw takes sit next to it.
 Test brand: Mustard Seed Impact International. Test accounts: Instagram
 @mustardseedii (Instagram Tester), Threads @mustardseedii (Threads Tester).
 
@@ -191,4 +191,8 @@ API login. Both consent screens are shown in full.
   (use `-V`), sometimes never writes the file (kill and retry), and the
   browser extension cannot drive instagram.com / threads.com, so the person
   recording performs the consent screens.
-
+- The Chrome extension shows a "Claude is active in this tab group" toast
+  inside the page for ~3 s whenever a tab in its group is opened or closed,
+  and draws a soft orange glow ~20 px wide around the viewport. Crop
+  16 px from each viewport edge and cut the seconds around any tab open or
+  close before submitting; scan frames for a white pill on dark pages.
