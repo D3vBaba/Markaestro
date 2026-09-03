@@ -99,5 +99,29 @@
   "oauthComplete": {
     "title": "正在完成连接",
     "subtitle": "正在恢复你的会话并返回应用。"
+  },
+  "oauthConsent": {
+    "title": "将 {client} 连接到 Markaestro",
+    "subtitle": "{client} 希望为你的某个品牌安排并发布帖子。",
+    "genericClient": "此代理",
+    "workspaceLabel": "工作区",
+    "brandLabel": "品牌",
+    "brandHint": "代理只能查看并发布到此品牌。",
+    "loadingBrands": "正在加载品牌...",
+    "noBrands": "此工作区还没有品牌。",
+    "createBrand": "创建品牌",
+    "scopesLabel": "权限",
+    "allow": "允许",
+    "allowing": "正在连接...",
+    "deny": "取消",
+    "noAdminWorkspace": "只有工作区所有者或管理员才能连接代理。",
+    "invalidRequest": "此连接请求不完整。请从你的代理重新发起。",
+    "unknownClient": "此代理未注册。请让它重新连接。",
+    "invalidScope": "代理请求了 Markaestro 不提供的权限。",
+    "subscriptionRequired": "连接代理之前，此工作区需要一个有效的套餐。",
+    "emailNotVerified": "连接代理之前，请先验证你的邮箱。",
+    "errorGeneric": "无法完成连接。请重试。",
+    "redirecting": "正在返回 {client}...",
+    "footer": "代理将获得仅绑定到此品牌的密钥。你可以随时在设置的 API 中撤销。"
   }
 }

@@ -99,5 +99,29 @@
   "oauthComplete": {
     "title": "Verbinding afronden",
     "subtitle": "Je sessie wordt hersteld en je wordt teruggeleid naar de app."
+  },
+  "oauthConsent": {
+    "title": "{client} verbinden met Markaestro",
+    "subtitle": "{client} wil berichten plannen en publiceren voor een van je merken.",
+    "genericClient": "Deze agent",
+    "workspaceLabel": "Werkruimte",
+    "brandLabel": "Merk",
+    "brandHint": "De agent kan alleen dit merk zien en ervoor posten.",
+    "loadingBrands": "Merken laden...",
+    "noBrands": "Deze werkruimte heeft nog geen merken.",
+    "createBrand": "Merk aanmaken",
+    "scopesLabel": "Rechten",
+    "allow": "Toestaan",
+    "allowing": "Verbinden...",
+    "deny": "Annuleren",
+    "noAdminWorkspace": "Alleen een eigenaar of beheerder van de werkruimte kan een agent verbinden.",
+    "invalidRequest": "Dit verbindingsverzoek is onvolledig. Begin opnieuw vanuit je agent.",
+    "unknownClient": "Deze agent is niet geregistreerd. Vraag hem opnieuw te verbinden.",
+    "invalidScope": "De agent vroeg om een recht dat Markaestro niet aanbiedt.",
+    "subscriptionRequired": "Deze werkruimte heeft een actief abonnement nodig voordat een agent kan verbinden.",
+    "emailNotVerified": "Verifieer je e-mailadres voordat je een agent verbindt.",
+    "errorGeneric": "De verbinding kon niet worden voltooid. Probeer het opnieuw.",
+    "redirecting": "Terug naar {client}...",
+    "footer": "De agent krijgt een sleutel die alleen aan dit merk is gekoppeld. Trek hem op elk moment in via Instellingen, API."
   }
 }

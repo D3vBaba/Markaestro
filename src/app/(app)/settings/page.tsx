@@ -73,6 +73,7 @@ type ApiClientInfo = {
   lastUsedAt?: string | null;
   expiresAt?: string | null;
   productId?: string | null;
+  origin?: 'manual' | 'oauth';
 };
 
 type ApiClientTrendPoint = {
@@ -2477,6 +2478,11 @@ function ApiAccessTab() {
                               {client.productId && (
                                 <Badge variant="outline" className="font-normal text-[10px]">
                                   {t("keysSection.brandBadge", { name: productNameById(client.productId) ?? "" })}
+                                </Badge>
+                              )}
+                              {client.origin === 'oauth' && (
+                                <Badge variant="secondary" className="ms-1 font-normal text-[10px]">
+                                  {t("keysSection.agentBadge")}
                                 </Badge>
                               )}
                               <ApiTrendBars points={client.trend} requestsLabel={t("keysSection.requestsThisMonth")} />

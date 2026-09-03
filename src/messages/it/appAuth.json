@@ -99,5 +99,29 @@
   "oauthComplete": {
     "title": "Completamento della connessione",
     "subtitle": "Ripristino della tua sessione e ritorno all'app in corso."
+  },
+  "oauthConsent": {
+    "title": "Collega {client} a Markaestro",
+    "subtitle": "{client} vuole programmare e pubblicare post per uno dei tuoi brand.",
+    "genericClient": "Questo agente",
+    "workspaceLabel": "Spazio di lavoro",
+    "brandLabel": "Brand",
+    "brandHint": "L'agente può vedere e pubblicare solo per questo brand.",
+    "loadingBrands": "Caricamento dei brand...",
+    "noBrands": "Questo spazio di lavoro non ha ancora brand.",
+    "createBrand": "Crea un brand",
+    "scopesLabel": "Permessi",
+    "allow": "Consenti",
+    "allowing": "Collegamento in corso...",
+    "deny": "Annulla",
+    "noAdminWorkspace": "Solo un proprietario o un amministratore dello spazio di lavoro può collegare un agente.",
+    "invalidRequest": "Questa richiesta di collegamento è incompleta. Ricomincia dal tuo agente.",
+    "unknownClient": "Questo agente non è registrato. Chiedigli di ricollegarsi.",
+    "invalidScope": "L'agente ha richiesto un permesso che Markaestro non offre.",
+    "subscriptionRequired": "Questo spazio di lavoro ha bisogno di un piano attivo prima di collegare un agente.",
+    "emailNotVerified": "Verifica la tua email prima di collegare un agente.",
+    "errorGeneric": "Impossibile completare il collegamento. Riprova.",
+    "redirecting": "Ritorno a {client}...",
+    "footer": "L'agente riceve una chiave legata solo a questo brand. Puoi revocarla in qualsiasi momento in Impostazioni, API."
   }
 }

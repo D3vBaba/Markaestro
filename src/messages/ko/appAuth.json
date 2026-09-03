@@ -99,5 +99,29 @@
   "oauthComplete": {
     "title": "연결을 완료하는 중",
     "subtitle": "세션을 복원하고 앱으로 돌아가는 중입니다."
+  },
+  "oauthConsent": {
+    "title": "{client}을(를) Markaestro에 연결",
+    "subtitle": "{client}이(가) 브랜드의 게시물을 예약하고 게시하려고 합니다.",
+    "genericClient": "이 에이전트",
+    "workspaceLabel": "워크스페이스",
+    "brandLabel": "브랜드",
+    "brandHint": "에이전트는 이 브랜드만 보고 게시할 수 있습니다.",
+    "loadingBrands": "브랜드 불러오는 중...",
+    "noBrands": "이 워크스페이스에는 아직 브랜드가 없습니다.",
+    "createBrand": "브랜드 만들기",
+    "scopesLabel": "권한",
+    "allow": "허용",
+    "allowing": "연결 중...",
+    "deny": "취소",
+    "noAdminWorkspace": "워크스페이스 소유자 또는 관리자만 에이전트를 연결할 수 있습니다.",
+    "invalidRequest": "이 연결 요청이 불완전합니다. 에이전트에서 다시 시작하세요.",
+    "unknownClient": "등록되지 않은 에이전트입니다. 다시 연결하도록 요청하세요.",
+    "invalidScope": "에이전트가 Markaestro에서 제공하지 않는 권한을 요청했습니다.",
+    "subscriptionRequired": "에이전트를 연결하려면 이 워크스페이스에 활성 플랜이 필요합니다.",
+    "emailNotVerified": "에이전트를 연결하기 전에 이메일을 인증하세요.",
+    "errorGeneric": "연결을 완료할 수 없습니다. 다시 시도하세요.",
+    "redirecting": "{client}(으)로 돌아가는 중...",
+    "footer": "에이전트는 이 브랜드에만 연결된 키를 받습니다. 설정의 API에서 언제든지 취소할 수 있습니다."
   }
 }

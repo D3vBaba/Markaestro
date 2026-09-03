@@ -35,9 +35,23 @@ the agent to confirm with the user first.
 
 ## Two ways to connect
 
-**Hosted (nothing to install).** Markaestro serves the same tools over
-Streamable HTTP at `https://markaestro.com/api/public/v1/mcp`, authenticated
-with the API key as a bearer header:
+**Hosted (nothing to install, nothing to paste).** Markaestro serves the
+same tools over Streamable HTTP at `https://markaestro.com/api/public/v1/mcp`.
+Add it with no credentials and the first tool call opens the browser: sign
+in, pick the workspace and brand, click Allow. The client receives an API key
+bound to that brand and refreshes it on its own.
+
+```bash
+claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp
+```
+
+This is standard OAuth 2.1 (PKCE, dynamic client registration, discovery at
+`/.well-known/oauth-protected-resource` and
+`/.well-known/oauth-authorization-server`), so claude.ai, Cursor, and other
+MCP clients connect the same way. Connected agents are listed and revoked in
+Settings, API.
+
+For headless or CI use, pass a workspace API key as a bearer header instead:
 
 ```bash
 claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp \

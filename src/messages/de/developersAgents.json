@@ -1,28 +1,41 @@
 {
   "meta": {
-    "title": "Markaestro für KI-Agenten | Social-Media-Veröffentlichung mit einem API-Schlüssel automatisieren",
-    "description": "Gib deinem KI-Agenten einen Markaestro-API-Schlüssel, und er kann verbundene soziale Konten entdecken, Medien hochladen, Beiträge entwerfen, planen und auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest veröffentlichen, mit markengebundenen Schlüsseln, idempotenten Schreibvorgängen und von Menschen überwachter Veröffentlichung.",
+    "title": "Markaestro für KI-Agenten | MCP-Client verbinden oder API-Schlüssel nutzen",
+    "description": "Verbinde Claude Code, claude.ai, Cursor oder einen beliebigen MCP-Client per Browser-Anmeldung mit Markaestro, oder gib einem Agenten einen markengebundenen API-Schlüssel. Verbundene Social-Konten entdecken, Medien hochladen, Beiträge entwerfen, planen und veröffentlichen auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest.",
     "ogTitle": "Markaestro für KI-Agenten",
-    "ogDescription": "Ein API-Schlüssel macht Markaestro zu einem Veröffentlichungswerkzeug, das dein Agent aufrufen kann: Konten entdecken, Medien hochladen, entwerfen, planen, veröffentlichen und zurückmelden."
+    "ogDescription": "Eine Anmeldung oder ein API-Schlüssel macht Markaestro zu einem Publishing-Werkzeug, das dein Agent aufrufen kann: Konten entdecken, Medien hochladen, entwerfen, planen, veröffentlichen und Bericht erstatten."
   },
   "hero": {
     "eyebrow": "Für KI-Agenten",
-    "title": "Gib deinem Agenten einen API-Schlüssel. Er verwaltet deine sozialen Kanäle.",
-    "intro1": "Markaestro ist dafür gebaut, von Software bedient zu werden. Ein einziger Arbeitsbereichs-API-Schlüssel gibt einem Agenten alles, was er braucht, um zu entdecken, auf welchen Konten er posten kann, Medien hochzuladen, Beiträge zu entwerfen und zu planen, sie zu veröffentlichen und zurückzumelden, was tatsächlich live gegangen ist, auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest.",
-    "intro2": "Kein SDK zu installieren, kein OAuth-Flow, den der Agent überstehen muss, keine plattformspezifischen Zugangsdaten zu betreuen. Dein Team verbindet die Konten einmal im Dashboard; der Agent spricht danach mit einer einzigen Bearer-Token-API.",
+    "title": "Verbinde deinen Agenten in einem Schritt. Er betreibt deine Social-Kanäle.",
+    "intro1": "Markaestro ist dafür gebaut, von Software bedient zu werden. Ein MCP-Client wie Claude Code meldet sich über den Browser an und erhält einen Schlüssel, der an eine Marke gebunden ist; jeder andere Agent bekommt denselben Schlüssel aus den Einstellungen. In beiden Fällen kann der Agent herausfinden, auf welche Konten er posten darf, Medien hochladen, Beiträge entwerfen und planen, sie veröffentlichen und melden, was tatsächlich rausging, auf Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest.",
+    "intro2": "Kein SDK zu installieren, keine Plattform-Zugangsdaten zu pflegen. Dein Team verbindet die Konten einmal im Dashboard; ab dann spricht der Agent mit einer einzigen Bearer-Token-API.",
     "createKeyButton": "API-Schlüssel erstellen",
     "apiReferenceButton": "Vollständige API-Referenz",
-    "machineBriefButton": "Maschinenlesbare Kurzübersicht →"
+    "machineBriefButton": "Maschinenlesbare Kurzübersicht →",
+    "connectMcpButton": "MCP-Client verbinden"
   },
   "why": {
     "eyebrow": "Für Autonomie entwickelt, bewusst begrenzt",
     "title": "Warum ein API-Schlüssel die gesamte Integration ist",
     "intro": "Das Schwierige daran, einen Agenten Social Media anfassen zu lassen, ist nicht das HTTP. Es geht darum sicherzustellen, dass ein verwirrtes Modell nicht auf der falschen Marke postet, bei einem Wiederholungsversuch doppelt postet oder etwas veröffentlicht, das niemand gelesen hat. Diese Garantien liegen in der API-Oberfläche selbst, nicht in deinem Prompt.",
     "cards": [
-      { "title": "Ein Schlüssel, eine Marke", "body": "Jeder API-Schlüssel ist bei der Erstellung an eine einzelne Marke gebunden. Ein Agent mit diesem Schlüssel kann nur diese Marke sehen und dort posten, markenübergreifende Anfragen werden bei der Authentifizierung abgelehnt, nicht nur per Konvention." },
-      { "title": "Entdeckung statt fest codierter IDs", "body": "Der Agent fragt, auf welche Konten er posten kann, und erhält undurchsichtige IDs zurück, die er unverändert weitergeben kann. Keine Seiten-IDs, kein Durchforsten des Business Manager, keine Konfigurationsdatei, die veraltet, wenn eine Verbindung neu verknüpft wird." },
-      { "title": "Idempotente Schreibvorgänge", "body": "Sende bei jeder Erstellung oder Veröffentlichung einen Idempotency-Key. Ein wiederholter Aufruf innerhalb von 24 Stunden gibt die ursprüngliche Antwort erneut zurück, statt einen zweiten Beitrag zu erstellen, der häufigste Fehlerfall bei Agenten." },
-      { "title": "Ein Mensch bleibt immer im Bilde", "body": "Facebook-, Instagram- und TikTok-Beiträge sind grundsätzlich manuell: Dein Agent bereitet sie vor, ein Mensch postet sie nativ. Nichts geht unbeaufsichtigt raus, es sei denn, du aktivierst das explizit für diesen Beitrag." }
+      {
+        "title": "Ein Schlüssel, eine Marke",
+        "body": "Jeder API-Schlüssel ist bei der Erstellung an eine einzelne Marke gebunden. Ein Agent mit diesem Schlüssel kann nur diese Marke sehen und dort posten, markenübergreifende Anfragen werden bei der Authentifizierung abgelehnt, nicht nur per Konvention."
+      },
+      {
+        "title": "Entdeckung statt fest codierter IDs",
+        "body": "Der Agent fragt, auf welche Konten er posten kann, und erhält undurchsichtige IDs zurück, die er unverändert weitergeben kann. Keine Seiten-IDs, kein Durchforsten des Business Manager, keine Konfigurationsdatei, die veraltet, wenn eine Verbindung neu verknüpft wird."
+      },
+      {
+        "title": "Idempotente Schreibvorgänge",
+        "body": "Sende bei jeder Erstellung oder Veröffentlichung einen Idempotency-Key. Ein wiederholter Aufruf innerhalb von 24 Stunden gibt die ursprüngliche Antwort erneut zurück, statt einen zweiten Beitrag zu erstellen, der häufigste Fehlerfall bei Agenten."
+      },
+      {
+        "title": "Ein Mensch bleibt immer im Bilde",
+        "body": "Facebook-, Instagram- und TikTok-Beiträge sind grundsätzlich manuell: Dein Agent bereitet sie vor, ein Mensch postet sie nativ. Nichts geht unbeaufsichtigt raus, es sei denn, du aktivierst das explizit für diesen Beitrag."
+      }
     ]
   },
   "loop": {
@@ -30,20 +43,49 @@
     "title": "Fünf Aufrufe, von Anfang bis Ende",
     "intro": "Jede Markaestro-Automatisierung ist eine Variation dieses Kreislaufs. Schritte eins bis drei sind die <connectLink>Connect-API</connectLink>, die flache Oberfläche, auf die die meisten Agenten abzielen sollten. Schritte vier und fünf greifen auf die vollständige <code>/api/public/v1</code>-API für explizite Veröffentlichung und Laufverfolgung zu.",
     "steps": [
-      { "step": "01", "title": "Entdecken", "body": "Gibt jedes verbundene, veröffentlichungsfähige Konto für die Marke des Schlüssels zurück, jeweils mit Plattform, Nutzername und undurchsichtiger ID. Rufe es zu Beginn jedes Laufs auf: Verbindungen ändern sich." },
-      { "step": "02", "title": "Medien hochladen", "body": "Erstelle eine kurzlebige, einmal verwendbare signierte URL und sende dann die rohen Bytes per PUT dorthin. Du erhältst eine Medien-ID zurück. Bilder bis zu 10 MB; die vollständige API nimmt auch Videos bis zu 250 MB." },
-      { "step": "03", "title": "Entwerfen oder planen", "body": "Übergib den Text, die Medien-IDs und die Konto-IDs unverändert. Lass es als Entwurf zur Prüfung, oder sende is_draft false mit scheduled_at, um es in den Kalender einzutragen." },
-      { "step": "04", "title": "Veröffentlichen", "body": "Reiht einen asynchronen Lauf ein. LinkedIn, Threads und Pinterest gehen über die offizielle API raus. Facebook, Instagram und TikTok landen in der „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs, damit ein Mensch nativ postet." },
-      { "step": "05", "title": "Zurückmelden", "body": "Frage die Lauf-ID ab, oder registriere einen Webhook-Endpunkt und lass Markaestro post.published, post.action_required und post.failed an dich senden. Nimm nie an, dass eine Veröffentlichung synchron abgeschlossen wurde." }
+      {
+        "step": "01",
+        "title": "Entdecken",
+        "body": "Gibt jedes verbundene, veröffentlichungsfähige Konto für die Marke des Schlüssels zurück, jeweils mit Plattform, Nutzername und undurchsichtiger ID. Rufe es zu Beginn jedes Laufs auf: Verbindungen ändern sich."
+      },
+      {
+        "step": "02",
+        "title": "Medien hochladen",
+        "body": "Erstelle eine kurzlebige, einmal verwendbare signierte URL und sende dann die rohen Bytes per PUT dorthin. Du erhältst eine Medien-ID zurück. Bilder bis zu 10 MB; die vollständige API nimmt auch Videos bis zu 250 MB."
+      },
+      {
+        "step": "03",
+        "title": "Entwerfen oder planen",
+        "body": "Übergib den Text, die Medien-IDs und die Konto-IDs unverändert. Lass es als Entwurf zur Prüfung, oder sende is_draft false mit scheduled_at, um es in den Kalender einzutragen."
+      },
+      {
+        "step": "04",
+        "title": "Veröffentlichen",
+        "body": "Reiht einen asynchronen Lauf ein. LinkedIn, Threads und Pinterest gehen über die offizielle API raus. Facebook, Instagram und TikTok landen in der „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs, damit ein Mensch nativ postet."
+      },
+      {
+        "step": "05",
+        "title": "Zurückmelden",
+        "body": "Frage die Lauf-ID ab, oder registriere einen Webhook-Endpunkt und lass Markaestro post.published, post.action_required und post.failed an dich senden. Nimm nie an, dass eine Veröffentlichung synchron abgeschlossen wurde."
+      }
     ]
   },
   "quickstart": {
     "eyebrow": "Schnellstart",
     "title": "Eine funktionierende Integration in vier Befehlen",
     "intro": "Erstelle zuerst den Schlüssel: Öffne <settingsLink>Einstellungen → API</settingsLink>, wähle die Marke aus, auf die er zugreifen darf, hake die benötigten Berechtigungen ab und gib optional ein Ablaufdatum an. Der Schlüssel wird einmalig angezeigt, leg ihn direkt in den Secret-Speicher deines Agenten. Das Erstellen von Schlüsseln erfordert einen Administrator oder Inhaber mit verifizierter E-Mail-Adresse.",
-    "step1": { "title": "1. Konten entdecken", "description": "Der erste Aufruf in jedem Lauf. Verbindungen ändern sich; IDs sollten nie fest in einen Prompt eingebacken werden." },
-    "step2": { "title": "2. Medien hochladen", "description": "Zwei Schritte: Erstelle eine signierte, einmal verwendbare URL, sende dann die Bytes per PUT. Die URL läuft nach 15 Minuten ab und benötigt keinen eigenen Auth-Header." },
-    "step3": { "title": "3. Planen, dann beobachten", "description": "Das Erstellen ist standardmäßig entwurfsbasiert. Sende <code>is_draft: false</code> mit einem <code>scheduled_at</code>-Zeitstempel, um den Beitrag stattdessen in den Kalender einzutragen." },
+    "step1": {
+      "title": "1. Konten entdecken",
+      "description": "Der erste Aufruf in jedem Lauf. Verbindungen ändern sich; IDs sollten nie fest in einen Prompt eingebacken werden."
+    },
+    "step2": {
+      "title": "2. Medien hochladen",
+      "description": "Zwei Schritte: Erstelle eine signierte, einmal verwendbare URL, sende dann die Bytes per PUT. Die URL läuft nach 15 Minuten ab und benötigt keinen eigenen Auth-Header."
+    },
+    "step3": {
+      "title": "3. Planen, dann beobachten",
+      "description": "Das Erstellen ist standardmäßig entwurfsbasiert. Sende <code>is_draft: false</code> mit einem <code>scheduled_at</code>-Zeitstempel, um den Beitrag stattdessen in den Kalender einzutragen."
+    },
     "bashLabel": "bash",
     "responseLabel": "Antwort"
   },
@@ -63,10 +105,22 @@
     "eyebrow": "Rezepte",
     "title": "Die vier Workflows, die Agenten tatsächlich nutzen",
     "bashLabel": "bash",
-    "publish": { "title": "Veröffentlichen und bestätigen", "description": "Erstelle einen Entwurf, veröffentliche ihn explizit und frage dann den Lauf ab. Der einzig ehrliche Weg, dem Betreiber zu sagen, dass ein Beitrag rausgegangen ist." },
-    "audit": { "title": "Warteschlange prüfen und abbrechen", "description": "Liste auf, was geplant ist, zeig es einem Menschen, lösche, was abgelehnt wird. Beide Aufrufe nutzen Berechtigungen, die ein bestehender Schlüssel bereits hat." },
-    "batch": { "title": "Eine Woche in einem Aufruf füllen", "description": "Die Batch-Erstellung nimmt bis zu 25 Beiträge entgegen und gibt Ergebnisse pro Element zurück, sodass ein einzelnes fehlerhaftes Element nicht den gesamten Lauf zum Scheitern bringt." },
-    "webhook": { "title": "Angerufen werden statt abzufragen", "description": "Langlebige Agenten sollten einen Webhook registrieren und warten. Zustellungen sind HMAC-signiert mit einem Secret, das einmalig bei der Erstellung angezeigt wird." }
+    "publish": {
+      "title": "Veröffentlichen und bestätigen",
+      "description": "Erstelle einen Entwurf, veröffentliche ihn explizit und frage dann den Lauf ab. Der einzig ehrliche Weg, dem Betreiber zu sagen, dass ein Beitrag rausgegangen ist."
+    },
+    "audit": {
+      "title": "Warteschlange prüfen und abbrechen",
+      "description": "Liste auf, was geplant ist, zeig es einem Menschen, lösche, was abgelehnt wird. Beide Aufrufe nutzen Berechtigungen, die ein bestehender Schlüssel bereits hat."
+    },
+    "batch": {
+      "title": "Eine Woche in einem Aufruf füllen",
+      "description": "Die Batch-Erstellung nimmt bis zu 25 Beiträge entgegen und gibt Ergebnisse pro Element zurück, sodass ein einzelnes fehlerhaftes Element nicht den gesamten Lauf zum Scheitern bringt."
+    },
+    "webhook": {
+      "title": "Angerufen werden statt abzufragen",
+      "description": "Langlebige Agenten sollten einen Webhook registrieren und warten. Zustellungen sind HMAC-signiert mit einem Secret, das einmalig bei der Erstellung angezeigt wird."
+    }
   },
   "guardrails": {
     "eyebrow": "Schutzmechanismen",
@@ -75,12 +129,30 @@
     "calloutTitle": "Facebook, Instagram und TikTok sind grundsätzlich manuell",
     "calloutBody": "Beiträge, die dein Agent für diese Kanäle erstellt, nutzen standardmäßig <code>manual_reminder</code>: Markaestro ruft niemals die API der Plattform für sie auf. Das Veröffentlichen verschiebt den Beitrag in die „Zu veröffentlichen“-Warteschlange des Arbeitsbereichs, wo eine Person die Medien herunterlädt, nativ postet und bestätigt, sodass der Beitrag genau so aussieht, als wäre er von Hand erstellt worden, und ein Mensch jeden einzelnen sieht, bevor er öffentlich existiert. Ein Agent kann einen einzelnen Beitrag für die offizielle API-Veröffentlichung mit <code>deliveryMode: \"direct_publish\"</code> aktivieren, und bei TikTok bedeutet das die Posteingangsübergabe an den Creator, niemals einen unbeaufsichtigten öffentlichen Beitrag. LinkedIn, Threads und Pinterest veröffentlichen programmatisch, sobald dein Agent explizit danach fragt.",
     "items": [
-      { "title": "Schlüsselberechtigungen einschränken", "body": "Wähle nur die Berechtigungen, die der Agent braucht: products.read, media.write, posts.read, posts.write, posts.publish, job_runs.read, webhooks.manage. Ein Recherche-Agent, der nur den Kalender liest, erhält posts.read und nichts weiter." },
-      { "title": "Ein Ablaufdatum geben", "body": "Schlüssel können mit einem Ablaufdatum erstellt werden. Ein abgelaufener Schlüssel verhält sich genau wie ein widerrufener, sodass ein Schlüssel, der aus der Umgebung eines Agenten austritt, von selbst aufhört zu funktionieren." },
-      { "title": "Rotieren und widerrufen", "body": "Rotiere einen Schlüssel an Ort und Stelle oder widerrufe ihn direkt unter Einstellungen → API. Jeder Schlüssel zeigt seine letzte Nutzung und sein Anfragevolumen, sodass ein Agent, der still wird, oder außer Kontrolle gerät, sichtbar bleibt." },
-      { "title": "Ratenlimits werden durchgesetzt", "body": "60 Anfragen pro Minute pro Endpunkt und 240 pro Minute pro Schlüssel. Jede Antwort trägt X-RateLimit-Limit, -Remaining und -Reset; ein 429 trägt Retry-After. Beachte es, statt hartnäckig weiterzumachen." },
-      { "title": "Markaestro schreibt niemals für dich", "body": "Es gibt keinen Generierungsschritt. Der Text kommt von deinem Agenten, die Medien kommen aus deiner Bibliothek oder der Pipeline deines Agenten. Markaestro liefert die Hände, nicht die Stimme." },
-      { "title": "Löschungen erfolgen auf Markaestro-Seite", "body": "Das Löschen eines geplanten Beitrags bricht ihn ab, bevor er live geht. Das Löschen eines bereits veröffentlichten Beitrags stoppt nur die Nachverfolgung durch Markaestro, der aktive Beitrag bleibt online, bis ihn jemand auf der Plattform entfernt." }
+      {
+        "title": "Schlüsselberechtigungen einschränken",
+        "body": "Wähle nur die Berechtigungen, die der Agent braucht: products.read, media.write, posts.read, posts.write, posts.publish, job_runs.read, webhooks.manage. Ein Recherche-Agent, der nur den Kalender liest, erhält posts.read und nichts weiter."
+      },
+      {
+        "title": "Ein Ablaufdatum geben",
+        "body": "Schlüssel können mit einem Ablaufdatum erstellt werden. Ein abgelaufener Schlüssel verhält sich genau wie ein widerrufener, sodass ein Schlüssel, der aus der Umgebung eines Agenten austritt, von selbst aufhört zu funktionieren."
+      },
+      {
+        "title": "Rotieren und widerrufen",
+        "body": "Rotiere einen Schlüssel an Ort und Stelle oder widerrufe ihn direkt unter Einstellungen → API. Jeder Schlüssel zeigt seine letzte Nutzung und sein Anfragevolumen, sodass ein Agent, der still wird, oder außer Kontrolle gerät, sichtbar bleibt."
+      },
+      {
+        "title": "Ratenlimits werden durchgesetzt",
+        "body": "60 Anfragen pro Minute pro Endpunkt und 240 pro Minute pro Schlüssel. Jede Antwort trägt X-RateLimit-Limit, -Remaining und -Reset; ein 429 trägt Retry-After. Beachte es, statt hartnäckig weiterzumachen."
+      },
+      {
+        "title": "Markaestro schreibt niemals für dich",
+        "body": "Es gibt keinen Generierungsschritt. Der Text kommt von deinem Agenten, die Medien kommen aus deiner Bibliothek oder der Pipeline deines Agenten. Markaestro liefert die Hände, nicht die Stimme."
+      },
+      {
+        "title": "Löschungen erfolgen auf Markaestro-Seite",
+        "body": "Das Löschen eines geplanten Beitrags bricht ihn ab, bevor er live geht. Das Löschen eines bereits veröffentlichten Beitrags stoppt nur die Nachverfolgung durch Markaestro, der aktive Beitrag bleibt online, bis ihn jemand auf der Plattform entfernt."
+      }
     ]
   },
   "errors": {
@@ -91,17 +163,61 @@
     "codeHeader": "Code",
     "actionHeader": "Was der Agent tun sollte",
     "rows": [
-      { "status": "401", "code": "UNAUTHENTICATED", "action": "Der Schlüssel fehlt, wurde widerrufen oder ist abgelaufen. Stoppe und bitte einen Menschen um einen neuen, ein Wiederholungsversuch hilft nicht." },
-      { "status": "403", "code": "FORBIDDEN", "action": "Dem Schlüssel fehlt die Berechtigung für diesen Aufruf. Melde, welcher Aufruf fehlgeschlagen ist; Berechtigungen werden unter Einstellungen → API geändert." },
-      { "status": "403", "code": "API_KEY_NOT_BOUND_TO_PRODUCT", "action": "Ein Schlüssel, der vor der Markenbindung ausgestellt wurde. Bitte um einen Ersatzschlüssel." },
-      { "status": "400", "code": "VALIDATION_*", "action": "Die Nutzdaten haben eine Kanalregel verletzt (fehlende Medien, ungültiger Zustellmodus, falsches scheduled_at). Korrigiere die Anfrage; wiederhole sie nicht unverändert." },
-      { "status": "400", "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED", "action": "Derselbe Idempotency-Key wurde mit einem anderen Body gesendet. Erstelle einen neuen Schlüssel für jede eigenständige Anfrage." },
-      { "status": "400", "code": "VALIDATION_POST_IS_PUBLISHING", "action": "Es wurde versucht, einen Beitrag zu löschen, während ein Veröffentlichungslauf lief. Warte, bis er sich erledigt hat, und lösche dann." },
-      { "status": "409", "code": "VALIDATION_POST_ALREADY_PUBLISHING", "action": "Für diesen Beitrag ist bereits ein Veröffentlichungslauf eingereiht. Veröffentliche nicht erneut, frage den bestehenden Lauf ab." },
-      { "status": "402", "code": "SUBSCRIPTION_REQUIRED", "action": "Diesem Workspace ist kein aktiver Tarif zugeordnet. Bitte einen Workspace-Inhaber, die Abrechnung in den Einstellungen zu prüfen." },
-      { "status": "402", "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS", "action": "Der Arbeitsbereich hat sein monatliches Upload-Kontingent erreicht. Stoppe das Hochladen und weise darauf hin, vorhandene Medien werden weiterhin veröffentlicht." },
-      { "status": "404", "code": "NOT_FOUND", "action": "Die ID liegt außerhalb der Marke dieses Schlüssels. Wird als 404 statt 403 beantwortet, damit Schlüssel nicht nach IDs suchen können, die ihnen nicht gehören." },
-      { "status": "429", "code": "RATE_LIMITED", "action": "Warte die in Retry-After angegebene Anzahl Sekunden und wiederhole dieselbe Anfrage mit demselben Idempotency-Key." }
+      {
+        "status": "401",
+        "code": "UNAUTHENTICATED",
+        "action": "Der Schlüssel fehlt, wurde widerrufen oder ist abgelaufen. Stoppe und bitte einen Menschen um einen neuen, ein Wiederholungsversuch hilft nicht."
+      },
+      {
+        "status": "403",
+        "code": "FORBIDDEN",
+        "action": "Dem Schlüssel fehlt die Berechtigung für diesen Aufruf. Melde, welcher Aufruf fehlgeschlagen ist; Berechtigungen werden unter Einstellungen → API geändert."
+      },
+      {
+        "status": "403",
+        "code": "API_KEY_NOT_BOUND_TO_PRODUCT",
+        "action": "Ein Schlüssel, der vor der Markenbindung ausgestellt wurde. Bitte um einen Ersatzschlüssel."
+      },
+      {
+        "status": "400",
+        "code": "VALIDATION_*",
+        "action": "Die Nutzdaten haben eine Kanalregel verletzt (fehlende Medien, ungültiger Zustellmodus, falsches scheduled_at). Korrigiere die Anfrage; wiederhole sie nicht unverändert."
+      },
+      {
+        "status": "400",
+        "code": "VALIDATION_IDEMPOTENCY_KEY_REUSED",
+        "action": "Derselbe Idempotency-Key wurde mit einem anderen Body gesendet. Erstelle einen neuen Schlüssel für jede eigenständige Anfrage."
+      },
+      {
+        "status": "400",
+        "code": "VALIDATION_POST_IS_PUBLISHING",
+        "action": "Es wurde versucht, einen Beitrag zu löschen, während ein Veröffentlichungslauf lief. Warte, bis er sich erledigt hat, und lösche dann."
+      },
+      {
+        "status": "409",
+        "code": "VALIDATION_POST_ALREADY_PUBLISHING",
+        "action": "Für diesen Beitrag ist bereits ein Veröffentlichungslauf eingereiht. Veröffentliche nicht erneut, frage den bestehenden Lauf ab."
+      },
+      {
+        "status": "402",
+        "code": "SUBSCRIPTION_REQUIRED",
+        "action": "Diesem Workspace ist kein aktiver Tarif zugeordnet. Bitte einen Workspace-Inhaber, die Abrechnung in den Einstellungen zu prüfen."
+      },
+      {
+        "status": "402",
+        "code": "QUOTA_EXCEEDED_MEDIA_UPLOADS",
+        "action": "Der Arbeitsbereich hat sein monatliches Upload-Kontingent erreicht. Stoppe das Hochladen und weise darauf hin, vorhandene Medien werden weiterhin veröffentlicht."
+      },
+      {
+        "status": "404",
+        "code": "NOT_FOUND",
+        "action": "Die ID liegt außerhalb der Marke dieses Schlüssels. Wird als 404 statt 403 beantwortet, damit Schlüssel nicht nach IDs suchen können, die ihnen nicht gehören."
+      },
+      {
+        "status": "429",
+        "code": "RATE_LIMITED",
+        "action": "Warte die in Retry-After angegebene Anzahl Sekunden und wiederhole dieselbe Anfrage mit demselben Idempotency-Key."
+      }
     ]
   },
   "stacks": {
@@ -109,18 +225,98 @@
     "title": "Wenn es eine HTTPS-Anfrage stellen kann, kann es veröffentlichen",
     "intro": "Es gibt keine Markaestro-Client-Bibliothek zu übernehmen und kein Framework, an das man sich halten müsste. Bearer-Token, JSON rein, JSON raus.",
     "items": [
-      { "name": "Claude & das Claude Agent SDK", "body": "Füge die obigen Tool-Definitionen zu deiner Tool-Liste hinzu. Die JSON-Schema-Formen liegen bereits im Claude-Tool-Use-Format vor." },
-      { "name": "OpenAI Function Calling", "body": "Dieselben Schemas lassen sich eins zu eins auf Funktionsdefinitionen übertragen, input_schema wird einfach zu parameters umbenannt." },
-      { "name": "MCP-Server", "body": "Wenn dein Agent MCP spricht, verpacke diese sechs Aufrufe in einem kleinen Server. Es gibt nichts Markaestro-Spezifisches, das auf beiden Seiten installiert werden müsste." },
-      { "name": "n8n, Make, Zapier", "body": "Jeder Endpunkt ist eine einfache HTTP-Anfrage mit einem Bearer-Token. Kein SDK, keine Signierzeremonie, kein OAuth-Tanz für den Agenten." },
-      { "name": "LangChain & LlamaIndex", "body": "Standard-REST-Tools. Der zweistufige Medien-Upload ist der einzige Ablauf mit mehreren Aufrufen, und er umfasst nur zwei Zeilen." },
-      { "name": "Ein Cronjob und curl", "body": "Nicht jeder Agent braucht ein Framework. Der obige Schnellstart ist eine vollständige, funktionierende Integration in vier Befehlen." }
+      {
+        "name": "Claude & das Claude Agent SDK",
+        "body": "Füge die obigen Tool-Definitionen zu deiner Tool-Liste hinzu. Die JSON-Schema-Formen liegen bereits im Claude-Tool-Use-Format vor."
+      },
+      {
+        "name": "OpenAI Function Calling",
+        "body": "Dieselben Schemas lassen sich eins zu eins auf Funktionsdefinitionen übertragen, input_schema wird einfach zu parameters umbenannt."
+      },
+      {
+        "name": "MCP-Clients",
+        "body": "Claude Code, claude.ai, Cursor, ChatGPT: die URL des gehosteten Servers hinzufügen und über den Browser anmelden. Für reine stdio-Clients führt npx -y @markaestro/mcp dieselben siebzehn Tools lokal aus."
+      },
+      {
+        "name": "n8n, Make, Zapier",
+        "body": "Jeder Endpunkt ist eine einfache HTTP-Anfrage mit einem Bearer-Token. Kein SDK, keine Signierzeremonie, kein OAuth-Tanz für den Agenten."
+      },
+      {
+        "name": "LangChain & LlamaIndex",
+        "body": "Standard-REST-Tools. Der zweistufige Medien-Upload ist der einzige Ablauf mit mehreren Aufrufen, und er umfasst nur zwei Zeilen."
+      },
+      {
+        "name": "Ein Cronjob und curl",
+        "body": "Nicht jeder Agent braucht ein Framework. Der obige Schnellstart ist eine vollständige, funktionierende Integration in vier Befehlen."
+      }
     ]
   },
   "cta": {
     "title": "Gib deinem Agenten etwas Echtes zu tun",
-    "subtitle": "Verbinde deine Kanäle, erstelle einen markengebundenen Schlüssel und gib ihn weiter. Der obige Schnellstart ist die vollständige Integration.",
+    "subtitle": "Verbinde deine Kanäle, dann deinen Agenten: Anmeldung aus einem MCP-Client oder ein markengebundener Schlüssel. Beides ist die gesamte Integration.",
     "primaryButton": "Kostenlos starten",
     "secondaryButton": "API-Referenz lesen"
+  },
+  "mcp": {
+    "eyebrow": "MCP-Clients",
+    "title": "Anmeldung direkt aus dem Client. Nichts zum Einfügen.",
+    "intro1": "Claude Code, claude.ai, Cursor, ChatGPT und jeder andere Client, der das Model Context Protocol spricht, kann sich ohne konfigurierte Zugangsdaten mit dem gehosteten MCP-Server von Markaestro verbinden. Der erste Tool-Aufruf öffnet deinen Browser: anmelden, Arbeitsbereich und Marke wählen, für die der Agent handeln darf, Berechtigungen prüfen und auf Erlauben klicken. Der Client erhält einen an diese Marke gebundenen Schlüssel und erneuert ihn selbstständig.",
+    "intro2": "Das ist Standard-OAuth 2.1 mit PKCE und dynamischer Client-Registrierung, derselbe Mechanismus wie bei anderen gehosteten MCP-Servern, und funktioniert daher ohne Markaestro-spezifisches Plugin. Der Server läuft unter <code>https://markaestro.com/api/public/v1/mcp</code> und stellt siebzehn Tools über die öffentliche API bereit: Marken- und Ziel-Erkennung, Medien-Upload, Entwürfe und geplante Beiträge, Veröffentlichung mit Job-Run-Abfrage, Massenoperationen, Webhooks und die Regeln je Kanal.",
+    "installTitle": "Installieren",
+    "installDescription": "In Claude Code ist das Plugin die gesamte Einrichtung: Es bündelt den Agenten-Skill und den Server-Eintrag. Jeder andere MCP-Client nimmt die Server-URL in seiner üblichen Konfiguration entgegen.",
+    "headlessTitle": "Ohne Browser",
+    "headlessDescription": "Ein CI-Job, ein Cron-Worker oder ein Client, der keinen Browser öffnen kann, übergibt stattdessen einen Workspace-API-Schlüssel als Bearer-Header. Beide Wege landen auf demselben Server mit denselben Berechtigungen.",
+    "bashLabel": "bash",
+    "configLabel": "MCP-Konfiguration (JSON)",
+    "flowTitle": "Was passiert, wenn sich der Client verbindet",
+    "flowIntro": "Fünf Schritte, alle vom Client und vom Browser erledigt. Du siehst nur die Zustimmungsseite.",
+    "steps": [
+      {
+        "step": "01",
+        "title": "Aufforderung",
+        "body": "Der Client ruft den MCP-Endpunkt ohne Zugangsdaten auf. Markaestro antwortet mit 401 und einem WWW-Authenticate-Header, der das Metadaten-Dokument der geschützten Ressource benennt. Dieser Header sagt dem Client, dass eine Anmeldung verfügbar ist."
+      },
+      {
+        "step": "02",
+        "title": "Discovery",
+        "body": "Der Client liest zwei öffentliche Dokumente: welcher Autorisierungsserver den Endpunkt schützt und wo dessen Registrierungs-, Autorisierungs- und Token-Endpunkte liegen. Beide werden auf markaestro.com ausgeliefert und sind cachebar."
+      },
+      {
+        "step": "03",
+        "title": "Registrierung",
+        "body": "Der Client registriert sich mit einem Namen und seiner Callback-Adresse. Loopback-Adressen, https-Callbacks und native App-Schemata werden akzeptiert; reines http zu einem echten Host wird abgelehnt. Eine vorab geteilte Client-ID ist nicht nötig."
+      },
+      {
+        "step": "04",
+        "title": "Zustimmung",
+        "body": "Dein Browser öffnet die Zustimmungsseite. Ein Inhaber oder Admin des Arbeitsbereichs mit bestätigter E-Mail wählt Arbeitsbereich und Marke, passt die Berechtigungen an und klickt auf Erlauben. Markaestro schickt den Browser mit einem einmaligen Code zurück zum Client."
+      },
+      {
+        "step": "05",
+        "title": "Zugriffstoken",
+        "body": "Der Client tauscht den Code plus seinen PKCE-Verifier gegen ein Access-Token und ein Refresh-Token. Das Access-Token ist ein gewöhnlicher Workspace-API-Schlüssel, gebunden an die gewählte Marke. Es läuft nach 30 Tagen ab; ein Refresh rotiert das Geheimnis und verlängert um weitere 30 Tage."
+      }
+    ],
+    "facts": [
+      {
+        "title": "Das Token ist ein echter API-Schlüssel",
+        "body": "Scopes, Markenbindung, Rate-Limits, Abo-Prüfungen, Idempotenz und Widerruf laufen über denselben Codepfad wie ein manuell erstellter Schlüssel. Es gibt kein zweites Berechtigungsmodell."
+      },
+      {
+        "title": "In den Einstellungen sichtbar und widerrufbar",
+        "body": "Ein verbundener Agent erscheint unter Einstellungen, API mit dem Badge Verbundener Agent, seiner letzten Nutzung und seinem Anfragevolumen. Widerrufe ihn dort und der nächste Aufruf des Clients schlägt fehl; der Client kann sein Token beim Trennen auch selbst widerrufen."
+      },
+      {
+        "title": "Eine Verbindung, eine Marke",
+        "body": "Jede Verbindung ist an genau eine Marke gebunden, gewählt bei der Zustimmung. Soll ein Agent an einer zweiten Marke arbeiten, verbinde ihn erneut und wähle diese Marke. Ein Client erreicht nie eine Marke, die ihm nicht gewährt wurde."
+      },
+      {
+        "title": "Codes und Refresh-Tokens sind einmalig",
+        "body": "Autorisierungscodes gelten zehn Minuten und werden atomar verbraucht, ein wiederholter Code schlägt fehl. Refresh-Tokens werden bei jeder Nutzung rotiert und gehasht gespeichert. Inaktive Client-Registrierungen verfallen nach 180 Tagen."
+      }
+    ],
+    "endpointsTitle": "Endpunkte",
+    "endpointsDescription": "Für alle, die einen MCP-Client bauen oder den Ablauf prüfen. Alles ist über die beiden Well-known-Dokumente auffindbar; nichts davon muss von Hand konfiguriert werden.",
+    "endpointsLabel": "Referenz"
   }
 }

@@ -60,7 +60,7 @@ export const PUBLIC_PATHS = [
  * whole developer documentation surface — `/developers/*` mirrors
  * MARKETING_PREFIXES so a new docs page is public the moment it exists).
  */
-export const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/developers', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding', '/r/'];
+export const PUBLIC_PREFIXES = ['/_next', '/favicon', '/markaestro-logo', '/developers', '/api/oauth/callback', '/__/auth', '/api/stripe', '/api/onboarding', '/r/', '/.well-known/'];
 
 export function isPublicPath(pathname: string): boolean {
   if (pathname === '/') return true;

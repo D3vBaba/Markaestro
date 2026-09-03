@@ -99,5 +99,29 @@
   "oauthComplete": {
     "title": "Finishing connection",
     "subtitle": "Restoring your session and returning you to the app."
+  },
+  "oauthConsent": {
+    "title": "Connect {client} to Markaestro",
+    "subtitle": "{client} wants to schedule and publish posts for one of your brands.",
+    "genericClient": "This agent",
+    "workspaceLabel": "Workspace",
+    "brandLabel": "Brand",
+    "brandHint": "The agent can only see and post to this brand.",
+    "loadingBrands": "Loading brands...",
+    "noBrands": "This workspace has no brands yet.",
+    "createBrand": "Create a brand",
+    "scopesLabel": "Permissions",
+    "allow": "Allow",
+    "allowing": "Connecting...",
+    "deny": "Cancel",
+    "noAdminWorkspace": "Only a workspace owner or admin can connect an agent.",
+    "invalidRequest": "This connection request is incomplete. Start again from your agent.",
+    "unknownClient": "This agent is not registered. Ask it to reconnect.",
+    "invalidScope": "The agent asked for a permission Markaestro does not offer.",
+    "subscriptionRequired": "This workspace needs an active plan before an agent can connect.",
+    "emailNotVerified": "Verify your email before connecting an agent.",
+    "errorGeneric": "Could not complete the connection. Try again.",
+    "redirecting": "Returning to {client}...",
+    "footer": "The agent receives a key bound to this brand only. Revoke it at any time in Settings, API."
   }
 }

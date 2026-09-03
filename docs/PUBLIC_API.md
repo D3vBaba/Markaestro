@@ -52,8 +52,16 @@ the same key works on `/api/public/v1` for async publish runs and webhooks.
 Agents get the same API as MCP tools, three ways:
 
 - **Hosted MCP endpoint** at `POST /api/public/v1/mcp` (Streamable HTTP,
-  bearer API key, stateless): `claude mcp add --transport http markaestro
-  https://markaestro.com/api/public/v1/mcp --header "Authorization: Bearer mk_..."`.
+  stateless): `claude mcp add --transport http markaestro
+  https://markaestro.com/api/public/v1/mcp`. With no key configured the
+  endpoint answers 401 with a `WWW-Authenticate` challenge and the client
+  signs the user in through the browser (OAuth 2.1 with PKCE and dynamic
+  client registration; discovery at `/.well-known/oauth-protected-resource`
+  and `/.well-known/oauth-authorization-server`). The user picks a workspace
+  and brand on the consent page and the client receives an API key bound to
+  that brand, which shows in Settings, API as a connected agent. A static
+  key still works for headless use: add
+  `--header "Authorization: Bearer mk_..."`.
 - **`@markaestro/mcp`** in [`mcp/`](../mcp/README.md) for a local stdio server
   (`npx -y @markaestro/mcp`), which can also upload local files.
 - **Claude Code plugin** bundling the [`markaestro` skill](../skills/markaestro/SKILL.md)

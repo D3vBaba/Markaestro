@@ -1246,6 +1246,26 @@
         "type": "http",
         "scheme": "bearer",
         "description": "Scopes: products.read, media.write, posts.read, posts.write, posts.publish, job_runs.read, webhooks.manage."
+      },
+      "oauth2": {
+        "type": "oauth2",
+        "description": "For MCP clients. OAuth 2.1 with PKCE (S256) and dynamic client registration at /api/public/v1/oauth/register; discovery at /.well-known/oauth-authorization-server. The access token is a workspace API key bound to the brand chosen at consent.",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://markaestro.com/oauth/authorize",
+            "tokenUrl": "https://markaestro.com/api/public/v1/oauth/token",
+            "refreshUrl": "https://markaestro.com/api/public/v1/oauth/token",
+            "scopes": {
+              "products.read": "products.read",
+              "media.write": "media.write",
+              "posts.read": "posts.read",
+              "posts.write": "posts.write",
+              "posts.publish": "posts.publish",
+              "job_runs.read": "job_runs.read",
+              "webhooks.manage": "webhooks.manage"
+            }
+          }
+        }
       }
     },
     "schemas": {

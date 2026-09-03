@@ -99,5 +99,29 @@
   "oauthComplete": {
     "title": "Verbindung wird abgeschlossen",
     "subtitle": "Deine Sitzung wird wiederhergestellt und du wirst zur App zurückgeleitet."
+  },
+  "oauthConsent": {
+    "title": "{client} mit Markaestro verbinden",
+    "subtitle": "{client} möchte Beiträge für eine deiner Marken planen und veröffentlichen.",
+    "genericClient": "Dieser Agent",
+    "workspaceLabel": "Arbeitsbereich",
+    "brandLabel": "Marke",
+    "brandHint": "Der Agent kann nur diese Marke sehen und für sie posten.",
+    "loadingBrands": "Marken werden geladen...",
+    "noBrands": "Dieser Arbeitsbereich hat noch keine Marken.",
+    "createBrand": "Marke anlegen",
+    "scopesLabel": "Berechtigungen",
+    "allow": "Erlauben",
+    "allowing": "Verbindung wird hergestellt...",
+    "deny": "Abbrechen",
+    "noAdminWorkspace": "Nur ein Inhaber oder Admin des Arbeitsbereichs kann einen Agenten verbinden.",
+    "invalidRequest": "Diese Verbindungsanfrage ist unvollständig. Starte sie erneut aus deinem Agenten.",
+    "unknownClient": "Dieser Agent ist nicht registriert. Bitte ihn, sich erneut zu verbinden.",
+    "invalidScope": "Der Agent hat eine Berechtigung angefordert, die Markaestro nicht anbietet.",
+    "subscriptionRequired": "Dieser Arbeitsbereich braucht einen aktiven Plan, bevor sich ein Agent verbinden kann.",
+    "emailNotVerified": "Bestätige deine E-Mail-Adresse, bevor du einen Agenten verbindest.",
+    "errorGeneric": "Die Verbindung konnte nicht abgeschlossen werden. Versuche es erneut.",
+    "redirecting": "Zurück zu {client}...",
+    "footer": "Der Agent erhält einen Schlüssel, der nur an diese Marke gebunden ist. Du kannst ihn jederzeit unter Einstellungen, API widerrufen."
   }
 }

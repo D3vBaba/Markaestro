@@ -40,6 +40,13 @@ describe('stripLocale', () => {
 });
 
 describe('isPublicPath — fed the locale-stripped path', () => {
+  it('serves OAuth discovery documents without a session, so MCP clients can find the sign-in', () => {
+    expect(isPublicPath('/.well-known/oauth-authorization-server')).toBe(true);
+    expect(isPublicPath('/.well-known/oauth-protected-resource/api/public/v1/mcp')).toBe(true);
+    // The consent page itself stays behind sign-in.
+    expect(isPublicPath('/oauth/authorize')).toBe(false);
+  });
+
   it('treats a locale-prefixed marketing page the same as its English equivalent', () => {
     expect(isPublicPath(stripLocale('/es/pricing').rest)).toBe(true);
     expect(isPublicPath(stripLocale('/pricing').rest)).toBe(true);

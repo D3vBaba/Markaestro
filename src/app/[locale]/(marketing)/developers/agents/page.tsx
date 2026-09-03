@@ -38,6 +38,52 @@ export async function generateMetadata(): Promise<Metadata> {
  * public/llms.txt: it's addressed to software, not to the page's reader.
  * ────────────────────────────────────────────────────────────────────── */
 
+const mcpClaudeCode = `# Claude Code: the plugin bundles the skill and the hosted server.
+claude plugin marketplace add D3vBaba/Markaestro
+claude plugin install markaestro@markaestro
+
+# Or add just the server. No key, no header: the first call opens the browser.
+claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp`;
+
+const mcpGenericConfig = `{
+  "mcpServers": {
+    "markaestro": {
+      "type": "http",
+      "url": "https://markaestro.com/api/public/v1/mcp"
+    }
+  }
+}`;
+
+const mcpHeadless = `# CI, cron, or any client without a browser: pass a key instead.
+claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp \\
+  --header "Authorization: Bearer mk_live_..."
+
+# Local stdio server (can also upload files from disk)
+claude mcp add markaestro -e MARKAESTRO_API_KEY=mk_live_... -- npx -y @markaestro/mcp`;
+
+const mcpFlowEndpoints = [
+  "POST /api/public/v1/mcp → 401 + WWW-Authenticate",
+  "GET /.well-known/oauth-protected-resource · /.well-known/oauth-authorization-server",
+  "POST /api/public/v1/oauth/register",
+  "GET /oauth/authorize (browser)",
+  "POST /api/public/v1/oauth/token",
+];
+
+const mcpEndpointTable = `# Discovery (public, cacheable)
+GET  /.well-known/oauth-protected-resource            RFC 9728
+GET  /.well-known/oauth-authorization-server          RFC 8414
+
+# Authorization server
+POST /api/public/v1/oauth/register                    RFC 7591, public clients (PKCE) or client_secret
+GET  /oauth/authorize?response_type=code&client_id=…&redirect_uri=…
+                     &code_challenge=…&code_challenge_method=S256&state=…
+POST /api/public/v1/oauth/token                       grant_type=authorization_code | refresh_token
+POST /api/public/v1/oauth/revoke                      RFC 7009
+
+# Token response
+{ "access_token": "mk_live_<ws>.<client>.<secret>", "token_type": "Bearer",
+  "expires_in": 2592000, "refresh_token": "…", "scope": "products.read posts.write …" }`;
+
 const agentLoopEndpoints = [
   "GET /api/connect/v1/social-accounts",
   "POST /api/connect/v1/media/create-upload-url → PUT",
@@ -260,6 +306,8 @@ curl -X POST "$MARKAESTRO_URL/api/public/v1/posts" \\
 
 type Card1 = { title: string; body: string };
 type LoopStep = { step: string; title: string; body: string };
+type McpStep = { step: string; title: string; body: string };
+type McpFact = { title: string; body: string };
 type Guardrail = { title: string; body: string };
 type ErrorRow = { status: string; code: string; action: string };
 type Stack = { name: string; body: string };
@@ -275,6 +323,8 @@ export default async function DevelopersAgentsPage() {
   const guardrailItems = t.raw("guardrails.items") as Guardrail[];
   const errorRows = t.raw("errors.rows") as ErrorRow[];
   const stacks = t.raw("stacks.items") as Stack[];
+  const mcpSteps = t.raw("mcp.steps") as McpStep[];
+  const mcpFacts = t.raw("mcp.facts") as McpFact[];
 
   return (
     <MarketingLayout>
@@ -294,9 +344,12 @@ export default async function DevelopersAgentsPage() {
           <div className="mt-8 flex flex-wrap gap-3">
             {/* /settings lives on the (app) group, outside the [locale] segment —
                 a plain <a> is intentional, not a Link candidate. */}
+            <a href="#connect-mcp">
+              <Button className="rounded-lg h-9 text-[13px]">{t("hero.connectMcpButton")}</Button>
+            </a>
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/settings?tab=api">
-              <Button className="rounded-lg h-9 text-[13px]">{t("hero.createKeyButton")}</Button>
+              <Button variant="outline" className="rounded-lg h-9 text-[13px]">{t("hero.createKeyButton")}</Button>
             </a>
             <Link href="/developers/api">
               <Button variant="outline" className="rounded-lg h-9 text-[13px]">
@@ -334,6 +387,91 @@ export default async function DevelopersAgentsPage() {
                 </CardHeader>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── MCP: sign in from the client ─── */}
+      <section id="connect-mcp" className="border-t scroll-mt-24">
+        <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
+          <p className="mk-eyebrow">{t("mcp.eyebrow")}</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.025em] lg:text-3xl">
+            {t("mcp.title")}
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            {t("mcp.intro1")}
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            {t.rich("mcp.intro2", codeTag)}
+          </p>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t("mcp.installTitle")}</CardTitle>
+                <CardDescription className="text-sm leading-relaxed">
+                  {t("mcp.installDescription")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <CopyBlock code={mcpClaudeCode} label={t("mcp.bashLabel")} />
+                <CopyBlock code={mcpGenericConfig} label={t("mcp.configLabel")} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t("mcp.headlessTitle")}</CardTitle>
+                <CardDescription className="text-sm leading-relaxed">
+                  {t("mcp.headlessDescription")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CopyBlock code={mcpHeadless} label={t("mcp.bashLabel")} />
+              </CardContent>
+            </Card>
+          </div>
+
+          <h3 className="mt-14 text-lg font-semibold tracking-[-0.02em]">{t("mcp.flowTitle")}</h3>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            {t("mcp.flowIntro")}
+          </p>
+          <div className="mt-6 grid gap-3">
+            {mcpSteps.map((item, i) => (
+              <div key={item.step} className="rounded-xl border p-5 md:flex md:items-start md:gap-6">
+                <div className="flex items-center gap-3 md:w-64 md:shrink-0">
+                  <span
+                    className="font-mono text-[11px] font-semibold"
+                    style={{ color: "var(--mk-accent)", letterSpacing: "0.08em" }}
+                  >
+                    {item.step}
+                  </span>
+                  <span className="text-sm font-medium">{item.title}</span>
+                </div>
+                <div className="mt-3 md:mt-0">
+                  <code className="text-[12px] break-all" style={{ color: "var(--mk-accent)" }}>
+                    {mcpFlowEndpoints[i]}
+                  </code>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-2">
+            {mcpFacts.map((fact) => (
+              <div key={fact.title} className="rounded-xl border p-5">
+                <p className="text-sm font-medium">{fact.title}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{fact.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10">
+            <p className="text-sm font-medium">{t("mcp.endpointsTitle")}</p>
+            <p className="mt-2 mb-4 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              {t("mcp.endpointsDescription")}
+            </p>
+            <CopyBlock code={mcpEndpointTable} label={t("mcp.endpointsLabel")} />
           </div>
         </div>
       </section>

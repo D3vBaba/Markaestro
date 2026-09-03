@@ -99,5 +99,29 @@
   "oauthComplete": {
     "title": "接続を完了しています",
     "subtitle": "セッションを復元し、アプリに戻っています。"
+  },
+  "oauthConsent": {
+    "title": "{client} を Markaestro に接続",
+    "subtitle": "{client} があなたのブランドの投稿を予約・公開しようとしています。",
+    "genericClient": "このエージェント",
+    "workspaceLabel": "ワークスペース",
+    "brandLabel": "ブランド",
+    "brandHint": "エージェントはこのブランドのみ閲覧・投稿できます。",
+    "loadingBrands": "ブランドを読み込み中...",
+    "noBrands": "このワークスペースにはまだブランドがありません。",
+    "createBrand": "ブランドを作成",
+    "scopesLabel": "権限",
+    "allow": "許可",
+    "allowing": "接続中...",
+    "deny": "キャンセル",
+    "noAdminWorkspace": "エージェントを接続できるのはワークスペースのオーナーまたは管理者のみです。",
+    "invalidRequest": "この接続リクエストは不完全です。エージェントからやり直してください。",
+    "unknownClient": "このエージェントは登録されていません。再接続を依頼してください。",
+    "invalidScope": "エージェントが Markaestro にない権限を要求しました。",
+    "subscriptionRequired": "エージェントを接続するには、このワークスペースに有効なプランが必要です。",
+    "emailNotVerified": "エージェントを接続する前にメールアドレスを確認してください。",
+    "errorGeneric": "接続を完了できませんでした。もう一度お試しください。",
+    "redirecting": "{client} に戻っています...",
+    "footer": "エージェントはこのブランドにのみ紐づいたキーを受け取ります。設定の API からいつでも取り消せます。"
   }
 }

@@ -99,5 +99,29 @@
   "oauthComplete": {
     "title": "Finalizando a conexão",
     "subtitle": "Restaurando sua sessão e retornando você ao aplicativo."
+  },
+  "oauthConsent": {
+    "title": "Conectar {client} ao Markaestro",
+    "subtitle": "{client} quer agendar e publicar posts para uma das suas marcas.",
+    "genericClient": "Este agente",
+    "workspaceLabel": "Espaço de trabalho",
+    "brandLabel": "Marca",
+    "brandHint": "O agente só pode ver e publicar nesta marca.",
+    "loadingBrands": "Carregando marcas...",
+    "noBrands": "Este espaço de trabalho ainda não tem marcas.",
+    "createBrand": "Criar uma marca",
+    "scopesLabel": "Permissões",
+    "allow": "Permitir",
+    "allowing": "Conectando...",
+    "deny": "Cancelar",
+    "noAdminWorkspace": "Somente um proprietário ou administrador do espaço de trabalho pode conectar um agente.",
+    "invalidRequest": "Esta solicitação de conexão está incompleta. Recomece a partir do seu agente.",
+    "unknownClient": "Este agente não está registrado. Peça que ele se reconecte.",
+    "invalidScope": "O agente pediu uma permissão que o Markaestro não oferece.",
+    "subscriptionRequired": "Este espaço de trabalho precisa de um plano ativo antes de conectar um agente.",
+    "emailNotVerified": "Verifique seu e-mail antes de conectar um agente.",
+    "errorGeneric": "Não foi possível concluir a conexão. Tente novamente.",
+    "redirecting": "Voltando para {client}...",
+    "footer": "O agente recebe uma chave vinculada apenas a esta marca. Revogue-a a qualquer momento em Configurações, API."
   }
 }

@@ -130,6 +130,9 @@ function hostRedirect(req: NextRequest): NextResponse | null {
   // each host must answer for itself.
   if (pathname.startsWith('/api/') || pathname.startsWith('/_next')) return null;
   if (NEVER_RELOCATED_PATHS.has(pathname)) return null;
+  // OAuth discovery must answer on the host the MCP client asked, because
+  // the documents name that host as the issuer.
+  if (pathname.startsWith('/.well-known/')) return null;
 
   const { rest } = stripLocale(pathname);
 

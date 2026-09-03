@@ -7,7 +7,9 @@ description: Schedule, publish, and review social posts through Markaestro (Face
 
 Markaestro is a social publishing workspace. Agents reach it through the
 Markaestro MCP server (preferred) or the public API at `/api/public/v1`.
-Both use one workspace API key, and every key is bound to exactly one brand.
+The hosted MCP server signs the user in through the browser (OAuth) and
+receives a key bound to exactly one brand; the REST API takes that same
+kind of key as a bearer token.
 
 Tool-by-tool inputs and example outputs are in
 [references/tools.md](references/tools.md). Delivery modes, post statuses,
@@ -17,15 +19,27 @@ Read those when you need an exact field name.
 ## Before anything else
 
 1. Confirm the MCP server is connected: a `list_products` tool should be
-   available. If it is not, set it up with one of:
-   - Remote, nothing to install:
-     `claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp --header "Authorization: Bearer mk_..."`
-   - Local package: `claude mcp add markaestro -e MARKAESTRO_API_KEY=mk_... -- npx -y @markaestro/mcp`
+   available. If it is not:
+   - The server is installed but not signed in (a 401 or "needs
+     authentication" state): tell the user to run `/mcp`, pick
+     `markaestro`, and finish the sign-in in the browser. They choose the
+     workspace and brand there. Never ask the user for an API key.
+   - The server is not installed at all: the user runs
+     `claude plugin marketplace add D3vBaba/Markaestro` then
+     `claude plugin install markaestro@markaestro`, or
+     `claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp`.
+     The first tool call opens the browser sign-in.
+   - Headless or CI only (no browser): a workspace API key from Settings,
+     API can be passed as a header:
+     `claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp --header "Authorization: Bearer mk_..."`,
+     or the local package: `claude mcp add markaestro -e MARKAESTRO_API_KEY=mk_... -- npx -y @markaestro/mcp`.
 2. Call `get_channel_rules` once per session. It returns the per-channel
    rules and `keyMode`. If `keyMode` is `test`, say so when reporting
    results: test keys never reach a real platform.
-3. Call `list_products`. The brand in the answer is the only one this key can
-   act on. If the user names a different brand, they need that brand's key.
+3. Call `list_products`. The brand in the answer is the only one this
+   connection can act on. If the user names a different brand, they
+   reconnect (`/mcp`, sign out, sign in) and pick that brand, or use that
+   brand's key.
 
 ## The posting model
 

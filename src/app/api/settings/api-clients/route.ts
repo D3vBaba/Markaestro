@@ -32,6 +32,8 @@ export async function GET(req: Request) {
           // Keys minted before test mode existed have no `mode` field; they
           // are live, which is what they have always been.
           mode: data.mode === 'test' ? 'test' : 'live',
+          // Keys minted by the agent OAuth flow, shown as connected agents.
+          origin: data.origin === 'oauth' ? 'oauth' : 'manual',
         };
       }),
     });

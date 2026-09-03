@@ -381,6 +381,19 @@ export function buildOpenApiDocument(): JsonObject {
           scheme: 'bearer',
           description: `Scopes: ${publicApiScopes.join(', ')}.`,
         },
+        oauth2: {
+          type: 'oauth2',
+          description:
+            'For MCP clients. OAuth 2.1 with PKCE (S256) and dynamic client registration at /api/public/v1/oauth/register; discovery at /.well-known/oauth-authorization-server. The access token is a workspace API key bound to the brand chosen at consent.',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://markaestro.com/oauth/authorize',
+              tokenUrl: 'https://markaestro.com/api/public/v1/oauth/token',
+              refreshUrl: 'https://markaestro.com/api/public/v1/oauth/token',
+              scopes: Object.fromEntries(publicApiScopes.map((scope) => [scope, scope])),
+            },
+          },
+        },
       },
       schemas: {
         CreatePost: jsonSchema(createPublicPostSchema, 'input'),

@@ -17,6 +17,21 @@ file in the same change, not afterwards.
 
 ### Additions
 
+**Sign in from the MCP client (agent OAuth).** `POST /api/public/v1/mcp`
+now answers an unauthenticated request with a `WWW-Authenticate` challenge
+(RFC 9728) and serves OAuth 2.1 discovery at
+`/.well-known/oauth-protected-resource` and
+`/.well-known/oauth-authorization-server`. New endpoints:
+`POST /api/public/v1/oauth/register` (dynamic client registration, RFC 7591),
+`POST /api/public/v1/oauth/token` (authorization-code with PKCE S256, and
+refresh-token grants), and `POST /api/public/v1/oauth/revoke` (RFC 7009).
+The consent page at `/oauth/authorize` asks the signed-in admin for a
+workspace and brand; the access token the client receives is an ordinary
+workspace API key bound to that brand (30-day lifetime, rotated on refresh),
+so scopes, rate limits, entitlement, and revocation are unchanged. Keys
+minted this way carry `origin: "oauth"` in Settings responses. Static bearer
+keys keep working exactly as before.
+
 **MCP server, hosted MCP endpoint, and agent skill.** `POST /api/public/v1/mcp`
 serves the Model Context Protocol over Streamable HTTP (stateless, bearer API
 key, same scopes and rate limits as the routes it calls). `@markaestro/mcp`

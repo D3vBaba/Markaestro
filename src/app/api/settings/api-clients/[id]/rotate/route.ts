@@ -3,6 +3,7 @@ import { requireContext } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
 import { buildApiKey } from '@/lib/public-api/keys';
+import { invalidateApiClientAuthCache } from '@/lib/public-api/auth';
 
 export const runtime = 'nodejs';
 
@@ -58,6 +59,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       ownerUid: ctx.uid,
       createdEmailVerified: true,
     }, { merge: true });
+    invalidateApiClientAuthCache(ref.path);
 
     return apiOk({
       apiClient: {

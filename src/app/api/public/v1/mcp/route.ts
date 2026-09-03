@@ -2,6 +2,12 @@
  * Remote MCP endpoint: the same tools as the `@markaestro/mcp` package, served
  * over Streamable HTTP so agents can connect without installing anything.
  *
+ *   claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp
+ *
+ * With no Authorization header the endpoint answers 401 with a
+ * WWW-Authenticate challenge, and the client signs the user in through the
+ * browser (src/lib/agent-oauth). A static key still works:
+ *
  *   claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp \
  *     --header "Authorization: Bearer mk_live_..."
  *
@@ -14,6 +20,7 @@
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { requirePublicApiContext } from '@/lib/public-api/auth';
 import { publicApiError } from '@/lib/public-api/response';
+import { bearerChallenge } from '@/lib/agent-oauth/metadata';
 import { MarkaestroClient } from '@mcp/client';
 import { buildServer } from '@mcp/server';
 
@@ -50,7 +57,14 @@ async function handle(req: Request): Promise<Response> {
     for (const [name, value] of Object.entries(ctx.rateLimitHeaders)) response.headers.set(name, value);
     return response;
   } catch (error) {
-    return publicApiError(error);
+    const response = publicApiError(error);
+    // A 401 carries the RFC 9728 challenge that points an MCP client at the
+    // OAuth discovery documents, which is how "sign in with your browser"
+    // starts. Clients holding a static key never see it.
+    if (response.status === 401) {
+      response.headers.set('WWW-Authenticate', bearerChallenge(selfOrigin(req)));
+    }
+    return response;
   }
 }
 

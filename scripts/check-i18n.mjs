@@ -96,6 +96,7 @@ const KNOWN_TOKENS = new Set([
 const EXEMPT_KEY_PATHS = new Set([
   'quickstart.bashLabel',
   'recipes.bashLabel',
+  'mcp.bashLabel',
   'toolDefs.schemasLabel',
   'toolDefs.briefLabel',
   'connectApi.endpoints[3].path',

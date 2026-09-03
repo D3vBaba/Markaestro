@@ -17,6 +17,17 @@ Keys are created by a workspace admin at /settings?tab=api and are bound to
 exactly ONE brand. You cannot reach another brand with the key you hold, and
 you never need to pass a brand/product id.
 
+MCP clients need no key at all. Add the hosted server
+`https://markaestro.com/api/public/v1/mcp` with no credentials: it answers
+401 with a WWW-Authenticate challenge, the client discovers the OAuth server
+at /.well-known/oauth-authorization-server, registers itself, and opens the
+browser on /oauth/authorize where the user picks a workspace and brand. The
+access token the client receives IS a brand-bound API key (30 days, rotated
+on refresh). Claude Code: `claude plugin marketplace add D3vBaba/Markaestro`
+then `claude plugin install markaestro@markaestro`. If tools are missing or
+return UNAUTHENTICATED, tell the user to run `/mcp` and sign in; never ask
+the user to paste a key.
+
 Two surfaces over the same pipeline:
 - `/api/connect/v1` — flat, snake_case, fewest calls. Start here.
 - `/api/public/v1`  — full control: explicit publish, async runs, webhooks,

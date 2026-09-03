@@ -75,6 +75,7 @@ export async function getApiClientUsage(workspaceId: string, days = 14) {
       createdAt?: string;
       lastUsedAt?: string | null;
       productId?: string | null;
+      origin?: string;
       usage?: {
         totalRequests?: number;
         currentMonth?: string;
@@ -109,6 +110,7 @@ export async function getApiClientUsage(workspaceId: string, days = 14) {
       createdAt: data.createdAt || '',
       lastUsedAt: data.lastUsedAt || data.usage?.lastRequestAt || null,
       productId: data.productId || null,
+      origin: data.origin === 'oauth' ? 'oauth' : 'manual',
       usage: {
         totalRequests: data.usage?.totalRequests || 0,
         currentMonth: data.usage?.currentMonth || currentMonthKey(),

@@ -55,6 +55,9 @@ const NO_AUTH = new Map([
   ['api/worker/tiktok-poll/route.ts', 'Cloud Scheduler calls this. Authenticated by the worker shared secret.'],
   ['api/worker/workspace/[workspaceId]/route.ts', 'Cloud Tasks calls this. Authenticated by the worker shared secret.'],
   ['api/public/v1/openapi.json/route.ts', 'The machine-readable API description. An integrator needs it before they have a key.'],
+  ['api/public/v1/oauth/register/route.ts', 'OAuth dynamic client registration (RFC 7591). The client has no credential yet, by definition. IP rate limited, strict redirect-URI rules, idle-client TTL.'],
+  ['api/public/v1/oauth/token/route.ts', 'OAuth token endpoint. The single-use authorization code or refresh token is the credential; both are verified against hashed records.'],
+  ['api/public/v1/oauth/revoke/route.ts', 'OAuth token revocation (RFC 7009). The token presented is the credential; unknown tokens are a no-op by specification.'],
   ['r/[code]/route.ts', 'The public link shortener. Its whole job is to answer an anonymous visitor.'],
   ['api/intelligence/conversions/route.ts', 'Accepts server-to-server posts signed with a per-workspace ingest key; the browser branch does require a session.'],
 ]);
@@ -78,6 +81,7 @@ const NO_PERMISSION = new Map([
   ['api/usage/route.ts', 'Reads the caller\'s own usage counters.'],
   ['api/inbox/route.ts', 'Reads the caller\'s own notifications.'],
   ['api/stripe/status/route.ts', 'Reads the workspace plan. Every member needs it: paywalls and limit copy are rendered from it.'],
+  ['api/oauth/agent/client/route.ts', 'Resolves the name of the agent asking for consent. Any signed-in user may read it; the consent itself (agent/consent) requires admin.'],
 ]);
 
 /** The public and Connect surfaces authorize by scope, not by workspace role. */

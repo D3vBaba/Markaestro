@@ -83,9 +83,23 @@ function putCachedValue<T>(cache: Map<string, { data: T; expiresAt: number }>, k
   cache.set(key, { data, expiresAt: Date.now() + AUTH_CACHE_TTL_MS });
 }
 
-async function loadApiClientAuthData(path: string): Promise<ApiClientAuthData | null> {
-  const cached = cachedValue(apiClientAuthCache, path);
-  if (cached) return cached;
+/**
+ * Drop a key record from the per-instance cache after its secret changed
+ * (OAuth refresh, Settings rotate), so the new secret is honoured at once on
+ * this instance. Other instances fall back to the re-read below.
+ */
+export function invalidateApiClientAuthCache(path: string): void {
+  apiClientAuthCache.delete(path);
+}
+
+async function loadApiClientAuthData(
+  path: string,
+  options: { bypassCache?: boolean } = {},
+): Promise<ApiClientAuthData | null> {
+  if (!options.bypassCache) {
+    const cached = cachedValue(apiClientAuthCache, path);
+    if (cached) return cached;
+  }
   const snap = await adminDb.doc(path).get();
   if (!snap.exists) return null;
   const data = snap.data() as ApiClientAuthData;
@@ -198,12 +212,22 @@ export async function requirePublicApiContext(
   if (!parsed) throw new Error('UNAUTHENTICATED');
 
   const clientPath = `workspaces/${parsed.workspaceId}/api_clients/${parsed.clientId}`;
-  const data = await loadApiClientAuthData(clientPath);
+  const presentedHash = hashSecret(parsed.secret);
+  const secretMatches = (record: ApiClientAuthData) =>
+    Boolean(record.secretHash) && safeCompare(record.secretHash as string, presentedHash);
+
+  let data = await loadApiClientAuthData(clientPath);
   if (!data) throw new Error('UNAUTHENTICATED');
 
-  if (data.status !== 'active' || !data.secretHash || !safeCompare(data.secretHash, hashSecret(parsed.secret))) {
-    throw new Error('UNAUTHENTICATED');
+  // A hash mismatch against a cached record may just mean the secret was
+  // rotated since it was cached (an OAuth refresh hands the client a new
+  // secret it uses immediately). Re-read once before refusing, so rotation
+  // never costs a client a spurious 401 on another instance.
+  if (!secretMatches(data)) {
+    data = await loadApiClientAuthData(clientPath, { bypassCache: true });
+    if (!data || !secretMatches(data)) throw new Error('UNAUTHENTICATED');
   }
+  if (data.status !== 'active') throw new Error('UNAUTHENTICATED');
 
   // The prefix declares the mode and the stored document records it. They can
   // only disagree if someone re-prefixed a token, so treat a mismatch as an
