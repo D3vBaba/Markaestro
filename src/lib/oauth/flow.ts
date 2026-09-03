@@ -242,6 +242,15 @@ async function readTokenRefreshResponse(
   return parsed;
 }
 
+/** A scope list as a comma-separated string, whether the provider sent a string or an array. */
+function scopeListString(value: unknown): string | undefined {
+  if (Array.isArray(value)) {
+    const items = value.filter((item): item is string => typeof item === 'string' && item.trim() !== '');
+    return items.length > 0 ? items.join(',') : undefined;
+  }
+  return optionalString(value);
+}
+
 export function instagramExtraDataFromTokenResponse(
   tokenData: Record<string, unknown>,
 ): Record<string, unknown> {
@@ -250,7 +259,7 @@ export function instagramExtraDataFromTokenResponse(
   const instagramUserId = optionalIdString(tokenData.user_id);
   if (instagramUserId) extraData.igAccountId = instagramUserId;
 
-  const permissions = optionalString(tokenData.permissions);
+  const permissions = scopeListString(tokenData.permissions);
   if (permissions) extraData.instagramPermissions = permissions;
 
   return extraData;
@@ -462,7 +471,9 @@ export async function exchangeCode(
     expiresIn: optionalNumber(tokenData.expires_in),
     refreshTokenExpiresIn: optionalNumber(tokenData.refresh_token_expires_in),
     tokenType: optionalString(tokenData.token_type),
-    scope: optionalString(tokenData.scope) || optionalString(tokenData.permissions),
+    // Instagram Login reports granted scopes as `permissions`, sometimes as
+    // an array; normalise so the UI can show what was actually granted.
+    scope: optionalString(tokenData.scope) || scopeListString(tokenData.permissions),
     openId: optionalString(tokenData.open_id),
     idToken: optionalString(tokenData.id_token),
   };

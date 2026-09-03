@@ -13,7 +13,7 @@ function pct(current: number | null, prior: number | null | undefined): number |
 
 /** What people did with the posts in the window: one bar per interaction, with share and prior-period change. */
 export function EngagementBreakdown({ breakdown }: { breakdown: Breakdown & { prior: Breakdown | null } }) {
-  const t = useTranslations("analytics.breakdown");
+  const t = useTranslations("analytics.page.breakdown");
   const locale = useLocale();
   const rows = KEYS.map((key) => ({ key, value: breakdown[key], prior: breakdown.prior?.[key] ?? null }))
     .filter((row) => row.value !== null);

@@ -1,4 +1,5 @@
 import { fetchWithRetry } from '@/lib/fetch-retry';
+import { logger } from '@/lib/logger';
 import { emptyMetrics, getAccessToken, getMeta, metricNum } from '../base-adapter';
 import { PlatformCapability } from '../types';
 import type {
@@ -360,6 +361,14 @@ async function deleteThreadsPost(
   const res = await fetchWithRetry(url, { method: 'DELETE' }, { maxRetries: 1 });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    // The user-facing message below is a classification; keep the platform's
+    // own error reachable in logs so a refused delete can be diagnosed.
+    logger.warn('threads post delete refused', {
+      event: 'threads.delete.refused',
+      httpStatus: res.status,
+      mediaId,
+      threadsError: JSON.stringify(data?.error ?? data).slice(0, 600),
+    });
     if (isThreadsPermissionError(res.status, data)) {
       return {
         ok: false,
