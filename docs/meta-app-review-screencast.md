@@ -144,3 +144,51 @@ Permissions demonstrated: `threads_basic`, `threads_content_publish`,
 3. Run `node scripts/diagnose-meta-connections.mjs` after the test connect to
    confirm the stored token works against every endpoint the recording uses.
 4. Delete the test posts (or keep the throwaway account) after recording.
+
+## Recording made on 2026-09-03 (submitted version)
+
+File: `output/meta-review-2026-09-03/markaestro-meta-app-review-screencast.mp4`
+(outer repo, 12:21, 1440x1015, captions burned in). Raw takes sit next to it.
+Test brand: Mustard Seed Impact International. Test accounts: Instagram
+@mustardseedii (Instagram Tester), Threads @mustardseedii (Threads Tester).
+
+| Time | What is on screen |
+|---|---|
+| 00:00 | Brands > Channels, nothing connected |
+| 00:35 | Connect Instagram dialog: 3 permissions with their use |
+| 01:08 | Instagram Login on instagram.com; user grants the 3 permissions |
+| 02:17 | Instagram connected panel (@mustardseedii); Test connection = GET /me |
+| 03:00 | Create post, caption, image attached |
+| 04:07 | Post Now (instagram_business_content_publish); Published tab |
+| 05:05 | Post live on instagram.com |
+| 05:50 | Analytics filtered to Instagram; Refresh (instagram_business_manage_insights) |
+| 06:04 | Followers, reach, views; engagement breakdown; per-post metrics |
+| 06:38 | Threads: Channels, Connect Threads dialog (4 permissions incl. threads_delete) |
+| 07:42 | Threads login on threads.net; user grants the 4 permissions |
+| 09:02 | Threads connected panel (@mustardseedii) |
+| 09:37 | Post Now to Threads (threads_content_publish) |
+| 09:55 | Posts > On Platform; View opens the post on threads.com |
+| 11:05 | Delete, confirmation dialog |
+| 11:41 | Confirmed: threads_delete; post gone from list |
+| 12:06 | Deleted post URL on threads.com resolves to the profile |
+
+Submission notes: Markaestro sign-in is passwordless email codes and is not
+part of the Meta login; the reviewer test account is signed in throughout.
+Instagram uses Instagram API with Instagram Login; Threads uses the Threads
+API login. Both consent screens are shown in full.
+
+### Gotchas hit while recording
+
+- `threads_delete` is "App Review rejected" on the app. A rejected permission
+  still works for accounts with an app role, so the test Threads account must
+  have an **accepted** Threads Tester invite (App roles > Roles; accept in
+  threads.net Settings > Website permissions > Invites). Until then Threads
+  answers code 10 "Application does not have permission for this action".
+- Analytics Refresh used to toast a raw "Object with ID … does not exist"
+  for a post deleted on the platform; the on-demand refresh now parks such
+  posts silently (commit f5bf3aa).
+- Screen recording: `screencapture -v` from a background job ignores SIGINT
+  (use `-V`), sometimes never writes the file (kill and retry), and the
+  browser extension cannot drive instagram.com / threads.com, so the person
+  recording performs the consent screens.
+
