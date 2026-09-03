@@ -44,6 +44,30 @@ const RESPONSE_HEADER_ALLOWLIST = new Set([
   'location',
   'set-cookie',
   'vary',
+  'pragma',
+  'x-robots-tag',
+  // Public API and MCP contract headers. WWW-Authenticate carries the OAuth
+  // challenge that starts an MCP client's browser sign-in; without it the
+  // client sees a bare 401 and gives up. Retry-After and the rate-limit trio
+  // are what integrators are told to honour, the request id is what support
+  // asks for, and the version header names the API version a call ran under.
+  'www-authenticate',
+  'retry-after',
+  'x-request-id',
+  'x-ratelimit-limit',
+  'x-ratelimit-remaining',
+  'x-ratelimit-reset',
+  'markaestro-version',
+  'mcp-session-id',
+  'mcp-protocol-version',
+  // CORS for browser-based API and MCP clients (the app attaches these only
+  // for allowlisted origins; the proxy must not strip them).
+  'access-control-allow-origin',
+  'access-control-allow-methods',
+  'access-control-allow-headers',
+  'access-control-allow-credentials',
+  'access-control-expose-headers',
+  'access-control-max-age',
   // Security headers — forward from upstream
   'content-security-policy-report-only',
   'strict-transport-security',
