@@ -108,21 +108,28 @@ export function PillarCoverageSection({ pillars }: { pillars: PillarCoverage[] }
             <span className="text-end">{t("avg")}</span>
           </div>
           {pillars.map((row) => {
-            const cell = (label: string, value: string) => (
-              <div className="flex justify-between sm:block sm:text-end">
-                <span className="text-xs text-mk-ink-40 sm:hidden">{label}</span>
-                <span className={cn("text-sm", TYPE.figure)}>{value}</span>
-              </div>
-            );
+            const cells: Array<[string, string]> = [
+              [t("last30"), fmt.whole(row.last30)],
+              [t("prior30"), fmt.whole(row.prior30)],
+              [t("avg"), fmt.metric(row.avgEngagements)],
+            ];
             return (
-              <div key={row.pillar} className="grid grid-cols-1 gap-1 py-3 text-xs sm:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))] sm:items-center sm:gap-3">
+              <div key={row.pillar} className="py-4 sm:grid sm:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))] sm:items-center sm:gap-3 sm:py-3">
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <span className={cn("truncate", TYPE.strong)}>{row.pillar}</span>
                   {row.quiet && <KindBadge tone="amber">{t("quiet")}</KindBadge>}
                 </div>
-                {cell(t("last30"), fmt.whole(row.last30))}
-                {cell(t("prior30"), fmt.whole(row.prior30))}
-                {cell(t("avg"), fmt.metric(row.avgEngagements))}
+                {cells.map(([label, value]) => (
+                  <span key={label} className={cn("text-end text-sm max-sm:hidden", TYPE.figure)}>{value}</span>
+                ))}
+                <dl className="m-0 mt-2 grid grid-cols-3 gap-x-3 sm:hidden">
+                  {cells.map(([label, value]) => (
+                    <div key={label} className="min-w-0">
+                      <dt className={cn("truncate", TYPE.meta)}>{label}</dt>
+                      <dd className={cn("m-0 mt-0.5 text-base", TYPE.figure)}>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
             );
           })}

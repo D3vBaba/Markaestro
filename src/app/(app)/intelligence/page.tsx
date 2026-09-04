@@ -45,7 +45,7 @@ function QuotaMeter({ quota }: { quota: NonNullable<IntelligenceOverview["quota"
   const ratio = unlimited ? 0 : Math.min(1, quota.aiOperationsUsed / Math.max(1, quota.aiOperationsLimit));
   const askLimited = typeof quota.strategistTurnsLimit === "number" && quota.strategistTurnsLimit >= 0;
   return (
-    <div className="flex items-center gap-2 text-xs text-muted-foreground" title={t("hint")}>
+    <div className="flex basis-full items-center gap-2 text-xs text-muted-foreground sm:basis-auto" title={t("hint")}>
       {!unlimited && (
         <div className="h-1 w-16 overflow-hidden rounded-full bg-muted">
           <div className={cn("h-full w-full origin-left rounded-full rtl:origin-right", ratio >= 1 ? "bg-mk-neg" : ratio >= 0.8 ? "bg-mk-warn" : "bg-foreground")} style={{ transform: `scaleX(${ratio})` }} />

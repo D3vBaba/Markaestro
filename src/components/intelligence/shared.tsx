@@ -18,7 +18,6 @@ import { FeatureGate } from "@/components/app/FeatureGate";
 import { apiPost, apiPut } from "@/lib/api-client";
 import { invalidateQueries } from "@/hooks/useApiQuery";
 import { userFacingError } from "@/lib/user-facing-errors";
-import { channelLabel } from "@/components/mk/channels";
 import { cn } from "@/lib/utils";
 import type { DecisionStatus, DraftResult, IntelligencePhases, TrustKind } from "./types";
 
@@ -198,7 +197,7 @@ export function HowItWorksButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={cn(toolbarButton, size === "xs" && "h-7 px-2 text-[11px]", className)}
+        className={cn(toolbarButton, "shrink-0 whitespace-nowrap", size === "xs" && "h-7 px-2 text-[11px]", className)}
       >
         <HelpCircle className={size === "sm" ? "size-3.5" : "size-3"} aria-hidden="true" />
         {t("button")}
@@ -332,15 +331,6 @@ export function PhaseGate({
 
 export function phasesOf(data: { phases?: IntelligencePhases }): IntelligencePhases {
   return data.phases || { foundation: true, learning: false, growth: false, advanced: false };
-}
-
-export function ChannelDot({ platform, className }: { platform: string; className?: string }) {
-  return (
-    <span className={cn("inline-flex min-w-0 items-center gap-2", className)}>
-      <span className="inline-block h-2 w-2 shrink-0 rounded-full" />
-      <span className="truncate text-xs font-semibold text-foreground">{channelLabel(platform)}</span>
-    </span>
-  );
 }
 
 export function KindBadge({ children, tone = "blue", title }: { children: ReactNode; tone?: "blue" | "slate" | "emerald" | "amber" | "rose"; title?: string }) {

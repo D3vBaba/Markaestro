@@ -20,6 +20,12 @@ import type { IntelligenceOverview, PostExplanation, PostRow } from "./types";
 
 type SortKey = "objective" | "views" | "engagements";
 const PAGE_SIZE = 6;
+const METRIC_LABEL_KEYS = ["posts", "views", "reach", "engagements", "clicks", "conversions"] as const;
+
+/** "Engagements" rather than "engagements (likes, comments, shares, saves)" where space is tight. */
+function shortMetricLabel(t: (key: string) => string, longName: string, metric: string): string {
+  return (METRIC_LABEL_KEYS as readonly string[]).includes(metric) ? t(`metrics.${metric}`) : longName.split(" (")[0];
+}
 
 function sortValue(post: PostRow, key: SortKey): number {
   const value = key === "objective" ? post.objectiveValue ?? post.views : key === "views" ? post.views : post.engagements;
@@ -111,6 +117,15 @@ function PostRowItem({
   const patterns = post.fingerprint;
   const canPreview = Boolean(post.content || media.length > 0);
   const measured = post.views !== null || post.engagements !== null;
+  const objectiveLabel = shortMetricLabel(t, fmt.metricName(objectiveMetric), objectiveMetric);
+  // The objective column only earns its place when it is not already views or engagements.
+  const metricCells: Array<[string, string, boolean]> = [
+    ...(objectiveMetric === "views" || objectiveMetric === "engagements"
+      ? []
+      : [[objectiveLabel, fmt.metric(post.objectiveValue), true] as [string, string, boolean]]),
+    [t("metrics.views"), fmt.metric(post.views), objectiveMetric === "views"],
+    [t("metrics.engagements"), fmt.metric(post.engagements), objectiveMetric === "engagements"],
+  ];
 
   return (
     <li className="px-5 py-5 sm:px-6">
@@ -139,12 +154,8 @@ function PostRowItem({
           </div>
         </div>
 
-        <dl className="m-0 grid grid-cols-3 gap-4 md:w-[300px] md:shrink-0">
-          {[
-            [fmt.metricName(objectiveMetric).split(" (")[0], fmt.metric(post.objectiveValue), true],
-            [t("metrics.views"), fmt.metric(post.views), false],
-            [t("metrics.engagements"), fmt.metric(post.engagements), false],
-          ].map(([label, value, emphasis]) => (
+        <dl className={cn("m-0 grid gap-4 md:shrink-0", metricCells.length === 3 ? "grid-cols-3 md:w-[300px]" : "grid-cols-2 md:w-[220px]")}>
+          {metricCells.map(([label, value, emphasis]) => (
             <div key={String(label)} className="min-w-0">
               <dt className="mk-label truncate" title={String(label)}>{label}</dt>
               <dd className={cn("m-0 mt-0.5", TYPE.figure, emphasis ? "text-lg" : "text-sm text-mk-ink-80")}>{value}</dd>
@@ -272,13 +283,13 @@ export function ContentTab({ data, productId }: { data: IntelligenceOverview; pr
           subtitle={patternsPending ? t("content.patterns.pending") : t("content.subtitle")}
           help="content"
           action={
-            <div className="flex flex-wrap items-center gap-2">
-              <Select size="sm" value={sort} onChange={(event) => setSort(event.target.value as SortKey)} className="w-auto" aria-label={t("content.sortBy")}>
-                <option value="objective">{t("content.sortObjective", { metric: fmt.metricName(objectiveMetric) })}</option>
+            <div className="flex flex-wrap items-center gap-2 max-sm:w-full">
+              <Select size="sm" value={sort} onChange={(event) => setSort(event.target.value as SortKey)} className="w-auto max-sm:min-w-0 max-sm:flex-1" aria-label={t("content.sortBy")}>
+                <option value="objective">{t("content.sortObjective", { metric: shortMetricLabel(t, fmt.metricName(objectiveMetric), objectiveMetric) })}</option>
                 <option value="views">{t("content.sortViews")}</option>
                 <option value="engagements">{t("content.sortEngagements")}</option>
               </Select>
-              <Select size="sm" value={platform} onChange={(event) => setPlatform(event.target.value)} className="w-auto">
+              <Select size="sm" value={platform} onChange={(event) => setPlatform(event.target.value)} className="w-auto max-sm:min-w-0 max-sm:flex-1">
                 <option value="">{t("content.allPlatforms")}</option>
                 {platforms.map((item) => (
                   <option key={item} value={item}>{channelLabel(item)}</option>

@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils";
 import { ReadinessPanel } from "./ReadinessPanel";
 import { AskMarkaestro } from "./AskMarkaestro";
 import { WeekPulse } from "./WeekPulse";
-import { ChannelDot, EmptyState, Figure, INSET, PhaseGate, SURFACE, Section, TYPE, phasesOf } from "./shared";
+import { Channel } from "@/components/mk/Channel";
+import { channelLabel } from "@/components/mk/channels";
+import { EmptyState, Figure, INSET, PhaseGate, SURFACE, Section, TYPE, phasesOf } from "./shared";
 import { useIntelligenceCopy } from "./copy";
 import { useIntelligenceFormat } from "./format";
 import type { ExperimentDraft, IntelligenceOverview, LearningRow } from "./types";
@@ -213,25 +215,41 @@ export function OverviewTab({
             </div>
             {data.channels.map((channel) => {
               const measured = Math.max(channel.measuredViews ?? 0, channel.measuredEngagements ?? 0);
-              const cell = (label: string, value: string) => (
-                <div className="flex justify-between sm:block sm:text-end">
-                  <span className="text-xs text-mk-ink-40 sm:hidden">{label}</span>
-                  <span className={cn("text-sm", TYPE.figure)}>{value}</span>
-                </div>
-              );
+              const cells: Array<[string, string]> = [
+                [t("platforms.colPosts"), fmt.whole(channel.posts)],
+                [t("platforms.colAvgViews"), fmt.metric(channel.avgViews ?? null)],
+                [t("platforms.colAvgEngagements"), fmt.metric(channel.avgEngagements ?? null)],
+                [t("platforms.colEngRate"), fmt.rate(channel.engagementRate ?? null)],
+              ];
               return (
-                <div
-                  key={channel.platform}
-                  className="grid grid-cols-1 gap-1 py-3 text-xs sm:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))] sm:items-center sm:gap-3"
-                >
-                  <div className="min-w-0">
-                    <ChannelDot platform={channel.platform} />
-                    <p className={cn("mt-0.5", TYPE.hint)}>{t("platforms.measuredNote", { measured, posts: channel.posts })}</p>
+                <div key={channel.platform} className="py-4 sm:py-3">
+                  <div className="grid grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))] items-center gap-3 max-sm:hidden">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <Channel channel={channel.platform} size={20} />
+                      <div className="min-w-0">
+                        <p className={cn("m-0 truncate", TYPE.strong)}>{channelLabel(channel.platform)}</p>
+                        <p className={cn("m-0", TYPE.hint)}>{t("platforms.measuredNote", { measured, posts: channel.posts })}</p>
+                      </div>
+                    </div>
+                    {cells.map(([label, value]) => (
+                      <span key={label} className={cn("text-end text-sm", TYPE.figure)}>{value}</span>
+                    ))}
                   </div>
-                  {cell(t("platforms.colPosts"), fmt.whole(channel.posts))}
-                  {cell(t("platforms.colAvgViews"), fmt.metric(channel.avgViews ?? null))}
-                  {cell(t("platforms.colAvgEngagements"), fmt.metric(channel.avgEngagements ?? null))}
-                  {cell(t("platforms.colEngRate"), fmt.rate(channel.engagementRate ?? null))}
+                  <div className="sm:hidden">
+                    <div className="flex items-center gap-2.5">
+                      <Channel channel={channel.platform} size={20} />
+                      <p className={cn("m-0 min-w-0 flex-1 truncate", TYPE.strong)}>{channelLabel(channel.platform)}</p>
+                      <p className={cn("m-0 shrink-0", TYPE.hint)}>{t("platforms.measuredNote", { measured, posts: channel.posts })}</p>
+                    </div>
+                    <dl className="m-0 mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                      {cells.map(([label, value]) => (
+                        <div key={label} className="min-w-0">
+                          <dt className={cn("truncate", TYPE.meta)}>{label}</dt>
+                          <dd className={cn("m-0 mt-0.5 text-base", TYPE.figure)}>{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
                 </div>
               );
             })}

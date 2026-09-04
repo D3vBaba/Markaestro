@@ -103,7 +103,7 @@ function PlaybookRow({
 }) {
   return (
     <li className="px-5 py-6 sm:px-6">
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+      <div className={cn("grid gap-4", figure ? "grid-cols-[minmax(0,1fr)_auto] items-start" : "grid-cols-1")}>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">{labels}</div>
           <h3 className={cn("m-0 mt-2 text-[15px] font-semibold leading-5 text-foreground")}>{title}</h3>
@@ -116,8 +116,8 @@ function PlaybookRow({
           {evidence && evidenceLabel ? <Evidence label={evidenceLabel}>{evidence}</Evidence> : null}
         </div>
         {figure ? (
-          <div className="md:w-28 md:text-right">
-            <span className={cn("mk-figure text-2xl font-semibold", figureTone === "neg" ? "text-mk-neg" : "text-mk-pos")}>{figure}</span>
+          <div className="text-right md:w-28">
+            <span className={cn("mk-figure text-xl font-semibold md:text-2xl", figureTone === "neg" ? "text-mk-neg" : "text-mk-pos")}>{figure}</span>
           </div>
         ) : null}
       </div>
